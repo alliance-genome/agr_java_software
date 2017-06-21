@@ -1,4 +1,4 @@
-package org.alliancegenome.api.rest;
+package org.alliancegenome.api.rest.interfaces;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -16,7 +16,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
 @Path("/gene")
-@Api(description = "Gene API", value = "Gene", position = 2)
+@Api(value = "Search Gene")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public interface GeneRESTInterface {

@@ -1,18 +1,21 @@
 package org.alliancegenome.api.controller;
 
 import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
 import javax.json.JsonObject;
 
-import org.alliancegenome.api.rest.SearchAutoCompleteRESTInterface;
+import org.alliancegenome.api.rest.interfaces.SearchAutoCompleteRESTInterface;
+import org.alliancegenome.api.service.AutoCompleteService;
 
 @RequestScoped
 public class SearchAutoCompleteController implements SearchAutoCompleteRESTInterface {
 
+	@Inject
+	private AutoCompleteService autoCompleteService;
+	
 	@Override
-	public JsonObject searchAutoComplete(String q, String category) {
-		System.out.println("This is the query: " + q);
-		System.out.println("This is the category: " + category);
-		return null;
+	public String searchAutoComplete(String q, String category) {
+		return autoCompleteService.buildQuery(q, category);
 	}
 
 }

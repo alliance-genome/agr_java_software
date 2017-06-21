@@ -1,4 +1,4 @@
-package org.alliancegenome.api.rest;
+package org.alliancegenome.api.rest.interfaces;
 
 import javax.json.JsonObject;
 import javax.ws.rs.Consumes;
@@ -13,17 +13,17 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 
 @Path("/search_autocomplete")
-@Api(description = "Search Auto Complete", value = "Auto Complete", position = 0)
+@Api(value = "Search Auto Complete")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public interface SearchAutoCompleteRESTInterface {
 
 	@GET
 	@ApiOperation(value = "Searches Autocomplete fields", notes="Search Auto Complete Notes")
-	public JsonObject searchAutoComplete(
+	public String searchAutoComplete(
 			@ApiParam(name = "q", value = "This is what we search for")
 			@QueryParam("q") String q,
-			@ApiParam(name = "category", value = "This is the category we search for")
+			@ApiParam(name = "category", value = "This is the category we search in")
 			@QueryParam("category") String category
 	);
 	

@@ -3,7 +3,7 @@ package org.alliancegenome.api.controller;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 
-import org.alliancegenome.api.rest.GeneRESTInterface;
+import org.alliancegenome.api.rest.interfaces.GeneRESTInterface;
 import org.alliancegenome.api.service.GeneService;
 
 @RequestScoped
