@@ -9,13 +9,13 @@ import javax.enterprise.context.RequestScoped;
 
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.client.Client;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.transport.client.PreBuiltTransportClient;
 
 @RequestScoped
+@SuppressWarnings("serial")
 public class AutoCompleteDAO {
 
 	private List<String> response_fields = new ArrayList<String>() {
@@ -27,7 +27,8 @@ public class AutoCompleteDAO {
 	public SearchResponse performQuery(String index, QueryBuilder query) {
 
 		try {
-			Client searchClient = new PreBuiltTransportClient(Settings.EMPTY).addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("localhost"), 9300));
+			PreBuiltTransportClient searchClient = new PreBuiltTransportClient(Settings.EMPTY);
+			searchClient.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("localhost"), 9300));
 
 			SearchRequestBuilder srb = searchClient.prepareSearch();
 

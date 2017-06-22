@@ -2,13 +2,12 @@ package org.alliancegenome.api.controller;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
-import javax.json.JsonObject;
 
-import org.alliancegenome.api.rest.interfaces.SearchAutoCompleteRESTInterface;
+import org.alliancegenome.api.rest.interfaces.AutoCompleteRESTInterface;
 import org.alliancegenome.api.service.AutoCompleteService;
 
 @RequestScoped
-public class SearchAutoCompleteController implements SearchAutoCompleteRESTInterface {
+public class AutoCompleteController implements AutoCompleteRESTInterface {
 
 	@Inject
 	private AutoCompleteService autoCompleteService;
