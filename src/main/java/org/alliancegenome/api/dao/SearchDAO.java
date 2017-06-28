@@ -33,7 +33,8 @@ public class SearchDAO {
 
 		try {
 			PreBuiltTransportClient searchClient = new PreBuiltTransportClient(Settings.EMPTY);
-			searchClient.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("localhost"), 9300));
+			
+			searchClient.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(System.getenv("ES_HOST")), Integer.parseInt(System.getenv("ES_PORT"))));
 
 			SearchRequestBuilder srb = searchClient.prepareSearch();
 
