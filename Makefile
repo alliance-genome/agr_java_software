@@ -1,5 +1,5 @@
 all:
-	mvn clean package -Pwildfly-swarm
+	mvn clean package
 
 run:
-	java -jar target/agr_api-swarm.jar
+	java -jar target/agr_api-swarm.jar -Papp.properties

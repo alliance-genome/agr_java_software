@@ -3,6 +3,7 @@ package org.alliancegenome.api.controller;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 
+import org.alliancegenome.api.model.AutoCompleteResult;
 import org.alliancegenome.api.rest.interfaces.AutoCompleteRESTInterface;
 import org.alliancegenome.api.service.AutoCompleteService;
 
@@ -13,7 +14,7 @@ public class AutoCompleteController implements AutoCompleteRESTInterface {
 	private AutoCompleteService autoCompleteService;
 	
 	@Override
-	public String searchAutoComplete(String q, String category) {
+	public AutoCompleteResult searchAutoComplete(String q, String category) {
 		return autoCompleteService.buildQuery(q, category);
 	}
 

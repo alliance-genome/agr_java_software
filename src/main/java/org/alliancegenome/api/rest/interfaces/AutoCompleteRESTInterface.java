@@ -7,6 +7,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
+import org.alliancegenome.api.model.AutoCompleteResult;
+
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -19,7 +21,7 @@ public interface AutoCompleteRESTInterface {
 
 	@GET
 	@ApiOperation(value = "Searches Autocomplete fields", notes="Search Auto Complete Notes")
-	public String searchAutoComplete(
+	public AutoCompleteResult searchAutoComplete(
 			@ApiParam(name = "q", value = "This is what we search for")
 			@QueryParam("q") String q,
 			@ApiParam(name = "category", value = "This is the category we search in")

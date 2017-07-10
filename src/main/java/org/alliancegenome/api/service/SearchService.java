@@ -26,7 +26,7 @@ public class SearchService {
 
 		HighlightBuilder hlb = searchHelper.buildHighlights();
 		
-		SearchResponse res = searchDAO.performQuery("searchable_items_blue", query, limit, offset, hlb, sort_by);
+		SearchResponse res = searchDAO.performQuery(query, limit, offset, hlb, sort_by);
 		
 		return res.toString();
 	}

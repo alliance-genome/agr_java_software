@@ -7,6 +7,7 @@ import java.util.List;
 
 import javax.enterprise.context.RequestScoped;
 
+import org.alliancegenome.api.config.ConfigHelper;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.settings.Settings;
@@ -15,11 +16,16 @@ import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 import org.elasticsearch.transport.client.PreBuiltTransportClient;
+import org.jboss.logging.Logger;
 
 @RequestScoped
 @SuppressWarnings("serial")
 public class SearchDAO {
 
+	private ConfigHelper config = new ConfigHelper();
+	
+	private Logger log = Logger.getLogger(getClass());
+	
 	private List<String> response_fields = new ArrayList<String>() {
 		{
 			add("name"); add("symbol"); add("synonyms"); add("soTermName"); add("gene_chromosomes"); add("gene_chromosome_starts"); add("gene_chromosome_ends");
@@ -29,18 +35,18 @@ public class SearchDAO {
 		}
 	};
 	
-	public SearchResponse performQuery(String index, QueryBuilder query, int limit, int offset, HighlightBuilder highlighter, String sort) {
+	public SearchResponse performQuery(QueryBuilder query, int limit, int offset, HighlightBuilder highlighter, String sort) {
 
 		try {
 			PreBuiltTransportClient searchClient = new PreBuiltTransportClient(Settings.EMPTY);
 			
-			searchClient.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(System.getenv("ES_HOST")), Integer.parseInt(System.getenv("ES_PORT"))));
+			searchClient.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(config.getEsHost()), config.getEsPort()));
 
 			SearchRequestBuilder srb = searchClient.prepareSearch();
 
 			srb.setFetchSource(response_fields.toArray(new String[response_fields.size()]), null);
 
-			srb.setIndices(index);
+			srb.setIndices(config.getEsIndex());
 			srb.setQuery(query);
 			srb.setSize(limit);
 			srb.setFrom(offset);
@@ -49,7 +55,7 @@ public class SearchDAO {
 			}
 			srb.highlighter(highlighter);
 			srb.setPreference("p_" + query);
-			System.out.println(srb);
+			log.info(srb);
 			SearchResponse res = srb.execute().actionGet();
 
 			searchClient.close();
