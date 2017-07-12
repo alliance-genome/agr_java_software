@@ -25,18 +25,15 @@ public class AutoCompleteHelper {
 			categoryMatch.boost(2);
 			bool.should(categoryMatch);
 		}
-
 		return bool;
 	}
 
 	public ArrayList<Map<String, Object>> formatResults(SearchResponse res) {
-	
 		ArrayList<Map<String, Object>> ret = new ArrayList<Map<String, Object>>();
 		
 		for(SearchHit hit: res.getHits()) {
 			ret.add(hit.getSource());
 		}
-		
 		return ret;
 	}
 

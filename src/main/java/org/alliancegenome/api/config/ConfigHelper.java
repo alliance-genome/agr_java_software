@@ -2,8 +2,12 @@ package org.alliancegenome.api.config;
 
 import java.util.HashMap;
 
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
+
 import org.jboss.logging.Logger;
 
+@ApplicationScoped
 public class ConfigHelper {
 
 	private static Logger log = Logger.getLogger(ConfigHelper.class);
@@ -11,14 +15,9 @@ public class ConfigHelper {
 	private HashMap<String, String> defaults = new HashMap<>();
 	private HashMap<String, String> config = new HashMap<>();
 
-	public ConfigHelper() {
-		log.info("Config Helper");
-		System.out.println("Config Helper");
-		init();
-	}
-
+	@PostConstruct
 	public void init() {
-		
+		log.info("Config Helper");
 		defaults.put("API_ACCESS_TOKEN", "api_password");
 		defaults.put("DEBUG", "false");
 		defaults.put("ES_INDEX", "agr");
@@ -33,7 +32,7 @@ public class ConfigHelper {
 		printProperties();
 	}
 
-	private static String loadSystemProperty(String key) {
+	private String loadSystemProperty(String key) {
 		//log.info(System.getProperties());
 		String ret = System.getProperty(key);
 		if (ret != null) log.info("Found: -D " + key + "=" + ret);

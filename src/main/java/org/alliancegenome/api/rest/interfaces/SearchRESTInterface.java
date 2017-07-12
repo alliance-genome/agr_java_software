@@ -9,7 +9,10 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 
+import org.alliancegenome.api.model.SearchResult;
+
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 
 @Path("/search")
@@ -19,7 +22,8 @@ import io.swagger.annotations.ApiParam;
 public interface SearchRESTInterface {
 
 	@GET
-	public String search(
+	@ApiOperation(value = "Searches Searchable Items for the following", notes="Search Notes")
+	public SearchResult search(
 		@ApiParam(name = "q", value = "This is what we search for")
 		@QueryParam("q") String q,
 		

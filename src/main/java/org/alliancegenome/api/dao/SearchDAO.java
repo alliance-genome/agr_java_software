@@ -1,31 +1,23 @@
 package org.alliancegenome.api.dao;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.enterprise.context.RequestScoped;
+import javax.enterprise.context.ApplicationScoped;
 
-import org.alliancegenome.api.config.ConfigHelper;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.elasticsearch.search.sort.SortOrder;
-import org.elasticsearch.transport.client.PreBuiltTransportClient;
-import org.jboss.logging.Logger;
 
-@RequestScoped
+@ApplicationScoped
 @SuppressWarnings("serial")
-public class SearchDAO {
+public class SearchDAO extends ESDAO {
 
-	private ConfigHelper config = new ConfigHelper();
-	
-	private Logger log = Logger.getLogger(getClass());
-	
+	//private Logger log = Logger.getLogger(getClass());
+
 	private List<String> response_fields = new ArrayList<String>() {
 		{
 			add("name"); add("symbol"); add("synonyms"); add("soTermName"); add("gene_chromosomes"); add("gene_chromosome_starts"); add("gene_chromosome_ends");
@@ -34,37 +26,41 @@ public class SearchDAO {
 			add("href");
 		}
 	};
-	
-	public SearchResponse performQuery(QueryBuilder query, int limit, int offset, HighlightBuilder highlighter, String sort) {
 
-		try {
-			PreBuiltTransportClient searchClient = new PreBuiltTransportClient(Settings.EMPTY);
-			
-			searchClient.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(config.getEsHost()), config.getEsPort()));
+	public SearchResponse[] performQuery(QueryBuilder query, List<AggregationBuilder> aggBuilders, int limit, int offset, HighlightBuilder highlighter, String sort) {
 
-			SearchRequestBuilder srb = searchClient.prepareSearch();
+		SearchResponse[] ret = new SearchResponse[2];
 
-			srb.setFetchSource(response_fields.toArray(new String[response_fields.size()]), null);
+		SearchRequestBuilder srb1 = searchClient.prepareSearch();
 
-			srb.setIndices(config.getEsIndex());
-			srb.setQuery(query);
-			srb.setSize(limit);
-			srb.setFrom(offset);
-			if(sort != null && sort.equals("alphabetical")) {
-				srb.addSort("name.raw", SortOrder.ASC);
-			}
-			srb.highlighter(highlighter);
-			srb.setPreference("p_" + query);
-			log.info(srb);
-			SearchResponse res = srb.execute().actionGet();
+		srb1.setFetchSource(response_fields.toArray(new String[response_fields.size()]), null);
 
-			searchClient.close();
-			return res;
-		} catch (UnknownHostException e) {
-			e.printStackTrace();
+		srb1.setIndices(config.getEsIndex());
+		srb1.setQuery(query);
+		srb1.setSize(limit);
+		srb1.setFrom(offset);
+		if(sort != null && sort.equals("alphabetical")) {
+			srb1.addSort("name.raw", SortOrder.ASC);
 		}
-		return null;
-	}
+		srb1.highlighter(highlighter);
+		srb1.setPreference("p_" + query);
+		//log.info(srb1);
+		ret[0] = srb1.execute().actionGet();
 
+		SearchRequestBuilder srb2 = searchClient.prepareSearch();
+
+
+		srb2.setQuery(query);
+		srb2.setSize(0);
+		for(AggregationBuilder aggBuilder: aggBuilders) {
+			srb2.addAggregation(aggBuilder);
+		}
+		//log.info(srb2);
+		ret[1] = srb2.execute().actionGet();
+
+		//log.info(ret[1]);
+		return ret;
+
+	}
 
 }
