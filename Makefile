@@ -6,7 +6,7 @@ run:
 
 
 docker-build:
-	docker build --no-cache=true -t agrdocker/agr_api_server .
+	docker build -t agrdocker/agr_api_server .
 
 push:
 	docker push agrdocker/agr_api_server
