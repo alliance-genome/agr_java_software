@@ -20,5 +20,19 @@ As we add more datasources and use the ElasticSearch indexing for storing / cach
 
 # Usage
 
+## Compliling JAR
 
+```bash
+make all
+```
+
+## Running API
+
+```bash
+make run
+```
+
+# Configuration
+
+In order to configure the running of the app modify the values in the app.properties file. 
 
