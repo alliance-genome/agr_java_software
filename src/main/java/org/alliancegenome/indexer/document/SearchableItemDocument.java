@@ -1,5 +1,5 @@
 package org.alliancegenome.indexer.document;
 
-public class SearchableItemDocument {
+public class SearchableItemDocument extends Document {
 
 }

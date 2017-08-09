@@ -7,7 +7,7 @@ import org.alliancegenome.indexer.service.Neo4jESService;
 import org.alliancegenome.indexer.translators.GeneTranslator;
 import org.apache.log4j.Logger;
 
-public class GeneIndexer extends Indexer {
+public class GeneIndexer extends Indexer<GeneDocument> {
 
 	private Logger log = Logger.getLogger(getClass());
 	

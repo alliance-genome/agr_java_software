@@ -30,6 +30,10 @@ public class Main {
 			}
 		}
 
+		for(int i = 0; i < args.length; i++) {
+			log.info("Args[" + i + "]: " + args[i]);
+		}
+		
 		for(String name: indexers.keySet()) {
 			if(threaded) {
 				log.info("Starting in threaded mode for: " + name);
@@ -43,13 +47,11 @@ public class Main {
 					indexers.get(name).runIndex();
 				} else {
 					log.info("Not Starting: " + name);
-					for(int i = 0; i < args.length; i++) {
-						log.info("Args[" + i + "]: " + args[i]);
-					}
 				}
 			}
 		}
 
+		log.debug("Waiting for Indexers to finish");
 		for(Indexer i: indexers.values()) {
 			try {
 				if(i.isAlive()) {
@@ -62,6 +64,6 @@ public class Main {
 
 		log.info("End Time: " + new Date());
 		System.exit(0);
-
+		
 	}
 }

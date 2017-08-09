@@ -1,5 +1,5 @@
 package org.alliancegenome.indexer.document;
 
-public class GoDocument {
+public class GoDocument extends Document {
 
 }

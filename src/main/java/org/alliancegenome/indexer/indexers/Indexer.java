@@ -1,17 +1,23 @@
 package org.alliancegenome.indexer.indexers;
 
 import java.net.InetAddress;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 
 import org.alliancegenome.indexer.config.ConfigHelper;
 import org.alliancegenome.indexer.config.IndexerConfig;
+import org.alliancegenome.indexer.document.Document;
 import org.alliancegenome.indexer.mapping.Mapping;
 import org.apache.log4j.Logger;
+import org.elasticsearch.action.admin.indices.get.GetIndexResponse;
+import org.elasticsearch.cluster.metadata.IndexMetaData;
+import org.elasticsearch.common.collect.ImmutableOpenMap;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.transport.client.PreBuiltTransportClient;
 
-public abstract class Indexer extends Thread {
+public abstract class Indexer<D extends Document> extends Thread {
 
 	private Logger log = Logger.getLogger(getClass());
 	private IndexerConfig indexConfig;
@@ -46,41 +52,24 @@ public abstract class Indexer extends Thread {
 		finishIndex();
 	}
 
-
-
-	//
-	//
-	//	for(DocumentEntityType det: DocumentEntityType.values()) {
-	//
-	//		try {
-	//			Indexer indexer = (Indexer)det.getIndexerClass().newInstance();
-	//			indexer.init();
-	//			indexer.start();
-	//			indexer.finish();
-	//			indexers.add(indexer);
-	//		} catch (Exception e) {
-	//			e.printStackTrace();
-	//		}
-	//
-	//	}
-	//
-	//	System.out.println("Waiting for Indexers to finish");
-	//	for(Indexer i: indexers) {
-	//		try {
-	//			i.join();
-	//		} catch (InterruptedException e) {
-	//			e.printStackTrace();
-	//		}
-	//	}
-
+	
+	public void addDocument(D doc) {
+		ArrayList<D> docs = new ArrayList<D>();
+		docs.add(doc);
+		addDocuments(docs);
+	}
+	
+	public void addDocuments(Iterable<D> docs) {
+		log.debug("Adding Documents to ES: ");
+	}
 
 	public void createAlias(String alias, String index) {
 		log.debug("Creating Alias: " + alias + " for index: " + index);
-		// Client Put Alias -> Index
+		client.admin().indices().prepareAliases().addAlias(index, alias).get();
 	}
 	public void removeAlias(String alias, String index) {
 		log.debug("Removing Alias: " + alias + " for index: " + index);
-		// Client Remove Alias from Index
+		client.admin().indices().prepareAliases().removeAlias(index, alias).get();
 	}
 	public void createIndex(String index) {
 		log.debug("Creating index: " + index);
@@ -90,34 +79,40 @@ public abstract class Indexer extends Thread {
 			Mapping mappingClass = (Mapping)indexConfig.getMappingClazz().getDeclaredConstructor(Boolean.class).newInstance(true);
 			String mapping = mappingClass.buildMapping();
 
-			log.debug(mapping);
-			client.admin().indices().prepareCreate(index).addMapping(indexConfig.getIndexName(), mappingClass.getBuilder()).get();
-			
+			//log.debug(mapping);
+			client.admin().indices().prepareCreate(index).setSource(mappingClass.getBuilder()).get();
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 	public void deleteIndex(String index) {
 		log.debug("Deleting Index: " + index);
-		// Client Delete Index
+		client.admin().indices().prepareDelete(index).get();
 	}
 
 	public void setCurrentIndex() {
-		// Get current Index (config.getIndexName()) -- current = self.es.indices.get(self.es_index, ignore=[400, 404])
+		try {
+			GetIndexResponse t = client.admin().indices().prepareGetIndex().addIndices(indexConfig.getIndexName()).get();
+			currentIndex = t.getIndices()[0];
+		} catch (Exception e) {
+			currentIndex = null;
+		}
 
-		// if current == null
-		//    current = null
-		//    currentName = null
-		// else
-		//    currentName = index
+		if(currentIndex != null) {
+			ImmutableOpenMap<String, IndexMetaData> indexList = client.admin().cluster().prepareState().execute().actionGet().getState().getMetaData().getIndices();
+			Iterator<String> keys = indexList.keysIt();
+			while(keys.hasNext()) {
+				String key = keys.next();
+				IndexMetaData index = indexList.get(key);
 
-		// if currentName != Null
-		//    get indexs (config.getIndexName())_*
-		//    for index in indexes
-		//        if index != currentName
-		//            delete index(index)
-
-		// return currentName
+				if(!index.getIndex().getName().equals(currentIndex)) {
+					if(index.getIndex().getName().startsWith(indexConfig.getIndexName() + "_")) {
+						deleteIndex(index.getIndex().getName());
+					}
+				}
+			}
+		}
 	}
 
 	private void startIndex() {
@@ -125,13 +120,13 @@ public abstract class Indexer extends Thread {
 		newIndexName = indexConfig.getIndexName() + "_" + (new Date()).getTime();
 		setCurrentIndex();
 		createIndex(newIndexName);
-		
-		
-		client.admin().indices().prepareRefresh(indexConfig.getIndexName()).get();
-		
+		log.debug("Main Index Starting: ");
 	}
+
 	private void finishIndex() {
-		// Refresh Indexes -- self.es.indices.refresh(index=self.new_index_name)
+		log.debug("Main Index Finished: ");
+		client.admin().indices().prepareRefresh(newIndexName).get();
+
 		if (currentIndex != null) {
 			removeAlias(indexConfig.getIndexName(), currentIndex);
 		}
@@ -142,6 +137,7 @@ public abstract class Indexer extends Thread {
 				deleteIndex(currentIndex);
 			}
 		}
+
 		client.close();
 		log.debug(indexConfig.getIndexName() + " Finished: ");
 	}

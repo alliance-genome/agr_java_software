@@ -6,7 +6,7 @@ import org.alliancegenome.indexer.entity.Disease;
 import org.alliancegenome.indexer.service.Neo4jESService;
 import org.apache.log4j.Logger;
 
-public class DiseaseIndexer extends Indexer {
+public class DiseaseIndexer extends Indexer<DiseaseDocument> {
 	
 	private Logger log = Logger.getLogger(getClass());
 	
