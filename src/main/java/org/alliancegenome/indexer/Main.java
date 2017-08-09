@@ -1,44 +1,67 @@
 package org.alliancegenome.indexer;
 
-import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 
-import org.alliancegenome.indexer.enums.DocumentEntityType;
+import org.alliancegenome.indexer.config.ConfigHelper;
+import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.indexer.indexers.Indexer;
-import org.alliancegenome.indexer.util.ConfigHelper;
-import org.alliancegenome.indexer.util.IndexManager;
+import org.apache.log4j.Logger;
 
 public class Main {
+
+	private static Logger log = Logger.getLogger(Main.class);
 
 	public static void main(String[] args) {
 		ConfigHelper.init();
 
-		IndexManager manager = new IndexManager();
-		manager.createIndexes();
-		
-		ArrayList<Indexer> indexers = new ArrayList<Indexer>();
+		HashMap<String, Indexer> indexers = new HashMap<String, Indexer>();
 
-		for(DocumentEntityType det: DocumentEntityType.values()) {
+		boolean threaded = ConfigHelper.isThreaded();
 
+		log.info("Start Time: " + new Date());
+
+		for(IndexerConfig ic: IndexerConfig.values()) {
 			try {
-				Indexer indexer = (Indexer)det.getIndexerClass().newInstance();
-				indexer.init();
-				indexer.start();
-				indexer.finish();
-				indexers.add(indexer);
+				Indexer i = (Indexer)ic.getIndexClazz().getDeclaredConstructor(IndexerConfig.class).newInstance(ic);
+				indexers.put(ic.getIndexName(), i);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-
 		}
 
-		System.out.println("Waiting for Indexers to finish");
-		for(Indexer i: indexers) {
+		for(String name: indexers.keySet()) {
+			if(threaded) {
+				log.info("Starting in threaded mode for: " + name);
+				indexers.get(name).start();
+			} else {
+				if(args.length > 0 && args[0].equals(name)) {
+					log.info("Starting one indexer: " + name);
+					indexers.get(name).runIndex();
+				} else if(args.length == 0) {
+					log.info("Starting indexer sequentially: " + name);
+					indexers.get(name).runIndex();
+				} else {
+					log.info("Not Starting: " + name);
+					for(int i = 0; i < args.length; i++) {
+						log.info("Args[" + i + "]: " + args[i]);
+					}
+				}
+			}
+		}
+
+		for(Indexer i: indexers.values()) {
 			try {
-				i.join();
+				if(i.isAlive()) {
+					i.join();
+				}
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
 		}
-		
+
+		log.info("End Time: " + new Date());
+		System.exit(0);
+
 	}
 }

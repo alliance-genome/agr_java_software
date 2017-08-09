@@ -2,17 +2,13 @@ package org.alliancegenome.indexer.mapping;
 
 import java.io.IOException;
 
-import org.elasticsearch.common.xcontent.XContentBuilder;
+public class SearchableItemMapping extends Mapping {
 
-public class ESSchema {
-
-	private XContentBuilder builder;
-	
-	public ESSchema(XContentBuilder builder) {
-		this.builder = builder;
+	public SearchableItemMapping(Boolean pretty) {
+		super(pretty);
 	}
-	
-	public void buildSchemaMapping() {
+
+	public String buildMapping() {
 
 		try {
 			builder.startObject();
@@ -20,9 +16,11 @@ public class ESSchema {
 			buildMappings();
 			builder.endObject();
 
+			return builder.string();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		return "";
 	}
 
 	private void settings() throws IOException {
@@ -76,6 +74,7 @@ public class ESSchema {
 		
 		builder.startObject("mappings");
 		builder.startObject("searchable_item");
+		builder.startObject("properties");
 		
 		buildGenericField("primaryId", "keyword", null, false, false, false);
 		buildGenericField("taxonId", "keyword", null, false, false, false);
@@ -98,9 +97,9 @@ public class ESSchema {
 		
 		buildGenericField("name_key", "text", "symbols", false, true, false);
 
-		getCrossReferencesField();
-		getGenomeLocationsField();
-		getMetaDataField();
+		buildCrossReferencesField();
+		buildGenomeLocationsField();
+		buildMetaDataField();
 		
 		buildGenericField("category", "keyword", null, true, false, true);
 		buildGenericField("gene_biological_process", "text", null, true, false, true);
@@ -116,11 +115,45 @@ public class ESSchema {
 		buildGenericField("go_genes", "text", "symbols", false, false, true);
 		buildGenericField("do_genes", "text", "symbols", false, false, true);
 
+		buildDiseasesField();
+		
+		builder.endObject();
 		builder.endObject();
 		builder.endObject();
 	}
+	
+	
 
-	private void getMetaDataField() throws IOException {
+	private void buildDiseasesField() throws IOException {
+		builder.startObject("diseases");
+			builder.startObject("properties");
+				buildProperty("do_id", "text", "symbols");
+				buildProperty("do_name", "text");
+				buildProperty("dataProvider", "text");
+				buildProperty("associationType", "text");
+				builder.startObject("evidence");
+					builder.startObject("properties");
+						buildProperty("evidenceCode", "text");
+						builder.startObject("pubs");
+							builder.startObject("properties");
+								buildProperty("pubmedId", "text");
+								buildProperty("publicationModId", "text");
+							builder.endObject();
+						builder.endObject();
+					builder.endObject();
+				builder.endObject();
+				builder.startObject("doIdDisplay");
+					builder.startObject("properties");
+						buildProperty("displayId", "text");
+						buildProperty("url", "text");
+						buildProperty("prefix", "text");
+					builder.endObject();
+				builder.endObject();
+			builder.endObject();
+		builder.endObject();
+	}
+
+	private void buildMetaDataField() throws IOException {
 		builder.startObject("metaData");
 		builder.startObject("properties");
 		buildProperty("dateProduced", "date");
@@ -130,7 +163,7 @@ public class ESSchema {
 		builder.endObject();
 	}
 
-	private void getGenomeLocationsField() throws IOException {
+	private void buildGenomeLocationsField() throws IOException {
 		builder.startObject("genomeLocations");
 		builder.startObject("properties");
 		buildProperty("assembly", "keyword");
@@ -142,7 +175,7 @@ public class ESSchema {
 		builder.endObject();
 	}
 
-	private void getCrossReferencesField() throws IOException {
+	private void buildCrossReferencesField() throws IOException {
 		builder.startObject("crossReferences");
 		builder.startObject("properties");
 		buildProperty("dataProvider", "keyword");
@@ -167,6 +200,10 @@ public class ESSchema {
 	
 	private void buildProperty(String name, String type) throws IOException {
 		buildProperty(name, type, null, null);
+	}
+	
+	private void buildProperty(String name, String type, String analyzer) throws IOException {
+		buildProperty(name, type, analyzer, null);
 	}
 	
 	private void buildProperty(String name, String type, String analyzer, String search_analyzer) throws IOException {

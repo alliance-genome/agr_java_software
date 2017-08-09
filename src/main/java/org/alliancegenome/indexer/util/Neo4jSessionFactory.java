@@ -1,5 +1,7 @@
 package org.alliancegenome.indexer.util;
 
+import org.alliancegenome.indexer.config.ConfigHelper;
+import org.apache.log4j.Logger;
 import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
@@ -8,7 +10,8 @@ public class Neo4jSessionFactory {
 
 	    private static SessionFactory sessionFactory = null;
 	    private static Neo4jSessionFactory factory = new Neo4jSessionFactory();
-
+	    private static Logger log = Logger.getLogger(Neo4jSessionFactory.class);
+	    
 	    public static Neo4jSessionFactory getInstance() {
 	        return factory;
 	    }

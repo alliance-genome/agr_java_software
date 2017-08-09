@@ -7,7 +7,7 @@ import lombok.Data;
 
 @NodeEntity
 @Data
-public class Synonym {
+public class Synonym extends Entity {
 	@GraphId
 	private Long id;
 	private String primaryKey;

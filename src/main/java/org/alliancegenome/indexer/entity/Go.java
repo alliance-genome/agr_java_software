@@ -1,5 +1,5 @@
 package org.alliancegenome.indexer.entity;
 
-public class Go {
+public class Go extends Entity {
 
 }
