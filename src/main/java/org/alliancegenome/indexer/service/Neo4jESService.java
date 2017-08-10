@@ -10,7 +10,7 @@ import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.transport.client.PreBuiltTransportClient;
 import org.neo4j.ogm.session.Session;
 
-public class Neo4jESService<E, D> implements Service<E, D> {
+public class Neo4jESService<E> {
 
 	private static final int DEPTH_LIST = 0;
 	private static final int DEPTH_ENTITY = 1;
@@ -27,35 +27,13 @@ public class Neo4jESService<E, D> implements Service<E, D> {
 		}
 	}
 
-	@Override
 	public Iterable<E> findAll() {
 		return neo4jSession.loadAll(getEntityType(), DEPTH_LIST);
 	}
 
-	@Override
 	public E find(Long id) {
 		return neo4jSession.load(getEntityType(), id, DEPTH_ENTITY);
 	}
-
-	@Override
-	public void delete(Long id) {
-		//session.delete(session.load(getEntityType(), id));
-	}
-
-	@Override
-	public Iterable<D> create(Iterable<D> documents) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public D create(D document) {
-		//session.save(entity, DEPTH_ENTITY);
-		//return find(entity.id);
-		return null;
-	}
-	
-
 
 	public Class<E> getEntityType() {
 		return ((Class<E>) entity.getClass());

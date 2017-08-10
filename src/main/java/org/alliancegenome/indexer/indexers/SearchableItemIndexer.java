@@ -1,9 +1,6 @@
 package org.alliancegenome.indexer.indexers;
 
 import org.alliancegenome.indexer.config.IndexerConfig;
-import org.alliancegenome.indexer.document.DiseaseDocument;
-import org.alliancegenome.indexer.document.GeneDocument;
-import org.alliancegenome.indexer.document.GoDocument;
 import org.alliancegenome.indexer.document.SearchableItemDocument;
 import org.alliancegenome.indexer.entity.Disease;
 import org.alliancegenome.indexer.entity.Gene;
@@ -15,9 +12,9 @@ import org.alliancegenome.indexer.translators.GoToSearchableItemTranslator;
 
 public class SearchableItemIndexer extends Indexer<SearchableItemDocument> {
 
-	private Neo4jESService<Gene, GeneDocument> geneNeo4jService = new Neo4jESService<Gene, GeneDocument>();
-	private Neo4jESService<Disease, DiseaseDocument> diseaseNeo4jService = new Neo4jESService<Disease, DiseaseDocument>();
-	private Neo4jESService<Go, GoDocument> goNeo4jService = new Neo4jESService<Go, GoDocument>();
+	private Neo4jESService<Gene> geneNeo4jService = new Neo4jESService<Gene>();
+	private Neo4jESService<Disease> diseaseNeo4jService = new Neo4jESService<Disease>();
+	private Neo4jESService<Go> goNeo4jService = new Neo4jESService<Go>();
 	
 	private GeneToSearchableItemTranslator geneToSI = new GeneToSearchableItemTranslator();
 	private DiseaseToSearchableItemTranslator diseaseToSI = new DiseaseToSearchableItemTranslator();
@@ -35,7 +32,6 @@ public class SearchableItemIndexer extends Indexer<SearchableItemDocument> {
 		Iterable<Disease> disease_entities = diseaseNeo4jService.findAll();
 		Iterable<Go> go_entities = goNeo4jService.findAll();
 		
-
 		addDocuments(geneToSI.translateEntities(gene_entities));
 		addDocuments(diseaseToSI.translateEntities(disease_entities));
 		addDocuments(goToSI.translateEntities(go_entities));

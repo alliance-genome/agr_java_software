@@ -7,7 +7,7 @@ import org.alliancegenome.indexer.service.Neo4jESService;
 
 public class GoIndexer extends Indexer<GoDocument> {
 
-	private Neo4jESService<Go, GoDocument> neo4jService = new Neo4jESService<Go, GoDocument>();
+	private Neo4jESService<Go> neo4jService = new Neo4jESService<Go>();
 
 	public GoIndexer(IndexerConfig config) {
 		super(config);

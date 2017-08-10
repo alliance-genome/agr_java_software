@@ -12,7 +12,7 @@ public class GeneIndexer extends Indexer<GeneDocument> {
 	private Logger log = Logger.getLogger(getClass());
 	
 	
-	private Neo4jESService<Gene, GeneDocument> neo4jService = new Neo4jESService<Gene, GeneDocument>();
+	private Neo4jESService<Gene> neo4jService = new Neo4jESService<Gene>();
 
 	private GeneTranslator translate = new GeneTranslator();
 	

@@ -10,7 +10,7 @@ public class DiseaseIndexer extends Indexer<DiseaseDocument> {
 	
 	private Logger log = Logger.getLogger(getClass());
 	
-	private Neo4jESService<Disease, DiseaseDocument> neo4jService = new Neo4jESService<Disease, DiseaseDocument>();
+	private Neo4jESService<Disease> neo4jService = new Neo4jESService<Disease>();
 
 	public DiseaseIndexer(IndexerConfig config) {
 		super(config);

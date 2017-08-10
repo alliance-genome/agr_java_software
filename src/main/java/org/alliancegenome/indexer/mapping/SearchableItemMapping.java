@@ -76,19 +76,20 @@ public class SearchableItemMapping extends Mapping {
 		builder.startObject("searchable_item");
 		builder.startObject("properties");
 		
-		buildGenericField("primaryId", "keyword", null, false, false, false);
-		buildGenericField("taxonId", "keyword", null, false, false, false);
-		buildGenericField("geneSynopsisUrl", "keyword", null, false, false, false);
-		buildGenericField("geneLiteratureUrl", "keyword", null, false, false, false);
-		buildGenericField("soTermId", "keyword", null, false, false, false);
-		buildGenericField("secondaryIds", "keyword", null, false, false, false);
-		buildGenericField("geneSynopsis", "text", null, false, false, false);
-		buildGenericField("description", "text", null, false, false, false);
+		buildProperty("primaryId", "keyword");
+		buildProperty("taxonId", "keyword");
+		buildProperty("geneSynopsisUrl", "keyword");
+		buildProperty("geneLiteratureUrl", "keyword");
+		buildProperty("soTermId", "keyword");
+		buildProperty("secondaryIds", "keyword");
+		buildProperty("geneSynopsis", "text");
+		buildProperty("description", "text");
 		
-		buildGenericField("href", "text", "symbols", false, false, false);
-		buildGenericField("id", "text", "symbols", false, false, false);
-		buildGenericField("systematicName", "text", "symbols", false, false, false);
-		buildGenericField("external_ids", "text", "symbols", false, false, false);
+		buildProperty("href", "text", "symbols");
+		buildProperty("id", "text", "symbols");
+		buildProperty("systematicName", "text", "symbols");
+		buildProperty("external_ids", "text", "symbols");
+		
 		
 		buildGenericField("name", "text", null, true, true, true);
 		

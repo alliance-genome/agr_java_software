@@ -77,11 +77,9 @@ public abstract class Indexer<D extends Document> extends Thread {
 		try {
 			log.debug("Getting Mapping for index: " + indexConfig.getIndexName());
 			Mapping mappingClass = (Mapping)indexConfig.getMappingClazz().getDeclaredConstructor(Boolean.class).newInstance(true);
-			String mapping = mappingClass.buildMapping();
-
+			mappingClass.buildMapping();
 			//log.debug(mapping);
 			client.admin().indices().prepareCreate(index).setSource(mappingClass.getBuilder()).get();
-
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
