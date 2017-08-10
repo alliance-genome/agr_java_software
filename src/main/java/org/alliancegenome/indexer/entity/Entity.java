@@ -1,5 +1,9 @@
 package org.alliancegenome.indexer.entity;
 
-public class Entity {
+import lombok.Data;
 
+@Data
+public abstract class Entity {
+
+	private Long id;
 }

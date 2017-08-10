@@ -5,12 +5,12 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Properties;
 
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class ConfigHelper {
 
-	private static Logger log = Logger.getLogger(ConfigHelper.class);
+	private static Logger log = LogManager.getLogger(ConfigHelper.class);
 	private static Properties configProperties = new Properties();
 
 	private static HashMap<String, String> defaults = new HashMap<>();
@@ -21,7 +21,8 @@ public class ConfigHelper {
 	}
 
 	public static void init() {
-		BasicConfigurator.configure();
+		//Configurator.setRootLevel(Level.DEBUG);
+		//BasicConfigurator.configure();
 		//PropertyConfigurator.configure(ConfigHelper.class.getResource("log4j.properties"));
 
 		defaults.put("DEBUG", "false");

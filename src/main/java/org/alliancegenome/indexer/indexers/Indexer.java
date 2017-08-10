@@ -1,15 +1,17 @@
 package org.alliancegenome.indexer.indexers;
 
 import java.net.InetAddress;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 
 import org.alliancegenome.indexer.config.ConfigHelper;
 import org.alliancegenome.indexer.config.IndexerConfig;
-import org.alliancegenome.indexer.document.Document;
+import org.alliancegenome.indexer.document.ESDocument;
 import org.alliancegenome.indexer.mapping.Mapping;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.elasticsearch.action.admin.indices.get.GetIndexResponse;
 import org.elasticsearch.cluster.metadata.IndexMetaData;
 import org.elasticsearch.common.collect.ImmutableOpenMap;
@@ -17,13 +19,21 @@ import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.transport.client.PreBuiltTransportClient;
 
-public abstract class Indexer<D extends Document> extends Thread {
+import lombok.ToString;
 
-	private Logger log = Logger.getLogger(getClass());
-	private IndexerConfig indexConfig;
+public abstract class Indexer<D extends ESDocument> extends Thread {
+
+	private Logger log = LogManager.getLogger(getClass());
+	protected IndexerConfig indexConfig;
 	private String newIndexName = null;
 	private String currentIndex = null;
 	private PreBuiltTransportClient client;
+	protected Runtime runtime = Runtime.getRuntime();
+	protected DecimalFormat df = new DecimalFormat("#.00");
+
+	private Date startTime = new Date();
+	private Date lastTime = new Date();
+	private Date lastDocTime = new Date();
 
 	public Indexer(IndexerConfig indexConfig) {
 		this.indexConfig = indexConfig;
@@ -52,15 +62,59 @@ public abstract class Indexer<D extends Document> extends Thread {
 		finishIndex();
 	}
 
-	
+
 	public void addDocument(D doc) {
 		ArrayList<D> docs = new ArrayList<D>();
 		docs.add(doc);
 		addDocuments(docs);
 	}
-	
+
 	public void addDocuments(Iterable<D> docs) {
 		log.debug("Adding Documents to ES: ");
+		checkMemory();
+		for(D doc: docs) {
+			System.out.println(doc);
+		}
+	}
+
+	protected void startProcess(int amount, int size, int total) {
+		log.info("Starting Processing: batches: " + amount + " size: " + size + " total: " + total + " at: " + startTime);
+		lastTime = new Date();
+	}
+
+	protected void progress(int current, int total, int size) {
+		double percent = ((double)current / (double)total);
+		Date now = new Date();
+		long diff = now.getTime() - startTime.getTime();
+		long time = (now.getTime() - lastTime.getTime());
+		if(percent > 0) {
+			int perms = (int)(diff / percent);
+			Date end = new Date(startTime.getTime() + perms);
+			log.info("Batch: " + current + " of " + total + " took: " + time + "ms to process " + size + " records at a rate of: " + ((size * 1000) / time) + "r/s, Memory: " + df.format(memoryPercent() * 100) + "%, Percentage complete: " + (int)(percent * 100) + "%, Estimated Finish: " + end);
+		} else {
+			log.info("Batch: " + current + " of " + total + " took: " + time + "ms to process " + size + " records at a rate of: " + ((size * 1000) / time) + "r/s");
+		}
+		lastTime = now;
+	}
+
+	protected void finishProcess(int total) {
+		Date now = new Date();
+		long time = now.getTime() - startTime.getTime();
+		log.info("Processing finished: took: " + time + "ms to process " + total + " records at a rate of: " + ((total * 1000) / time) + "r/s");
+	}
+
+	private void checkMemory() {
+		if(memoryPercent() > 0.8) {
+			log.info("Memory timeout: " + df.format(memoryPercent() * 100) + "% running blockUntilFinished on current documents");
+			log.info("Used Mem: " + (runtime.totalMemory() - runtime.freeMemory()));
+			log.info("Free Mem: " + runtime.freeMemory());
+			log.info("Total Mem: " + runtime.totalMemory());
+			log.info("Max Memory: " + runtime.maxMemory());
+		}
+	}
+
+	public double memoryPercent() {
+		return ((double)runtime.totalMemory() - (double)runtime.freeMemory()) / (double)runtime.maxMemory();
 	}
 
 	public void createAlias(String alias, String index) {

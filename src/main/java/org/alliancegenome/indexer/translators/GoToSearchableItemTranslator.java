@@ -1,18 +1,18 @@
 package org.alliancegenome.indexer.translators;
 
 import org.alliancegenome.indexer.document.SearchableItemDocument;
-import org.alliancegenome.indexer.entity.Go;
+import org.alliancegenome.indexer.entity.GoTerm;
 
-public class GoToSearchableItemTranslator extends EntityDocumentTranslator<Go, SearchableItemDocument> {
+public class GoToSearchableItemTranslator extends EntityDocumentTranslator<GoTerm, SearchableItemDocument> {
 
 	@Override
-	protected SearchableItemDocument entityToDocument(Go entity) {
+	protected SearchableItemDocument entityToDocument(GoTerm entity) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	protected Go doumentToEntity(SearchableItemDocument doument) {
+	protected GoTerm doumentToEntity(SearchableItemDocument doument) {
 		// TODO Auto-generated method stub
 		return null;
 	}

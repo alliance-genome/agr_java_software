@@ -1,5 +1,5 @@
 package org.alliancegenome.indexer.document;
 
-public class DiseaseDocument extends Document {
+public class DiseaseDocument extends ESDocument {
 
 }

@@ -1,5 +1,10 @@
 package org.alliancegenome.indexer.document;
 
-public class GeneDocument extends Document {
+import lombok.Data;
+import lombok.ToString;
+
+@Data
+@ToString(includeFieldNames=true)
+public class GeneDocument extends ESDocument {
 
 }

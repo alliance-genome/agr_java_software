@@ -10,30 +10,28 @@ import org.alliancegenome.indexer.mapping.SearchableItemMapping;
 
 public enum IndexerConfig {
 
-	GeneIndexer("gene", GeneIndexer.class, GeneMapping.class, 20000, 90000, 50000),
-	DiseaseIndexer("disease", DiseaseIndexer.class, DiseaseMapping.class, 50000, 90000, 25000),
-	GoIndexer("go", DiseaseIndexer.class, GoMapping.class, 50000, 90000, 25000),
-	SearchableItemIndexer("searchable_item", SearchableItemIndexer.class, SearchableItemMapping.class, 50000, 75000, 25000)
+	GeneIndexer("gene", GeneIndexer.class, GeneMapping.class, 10000),
+	DiseaseIndexer("disease", DiseaseIndexer.class, DiseaseMapping.class, 10000),
+	GoIndexer("go", DiseaseIndexer.class, GoMapping.class, 10000),
+	SearchableItemIndexer("searchable_item", SearchableItemIndexer.class, SearchableItemMapping.class, 1000)
 	;
 
-	private int chunkSize;
+	private int fetchChunkSize;
 	private Class<?> indexClazz;
 	private Class<?> mappingClazz;
 	private String indexName;
-	private int commitFreq;
-	private int fetchSize;
+	private long commitFreq;
+	private long fetchSize;
 
-	IndexerConfig(String indexName, Class<?> indexClazz, Class<?> mappingClazz, int chunkSize, int commitFreq, int fetchSize) {
+	IndexerConfig(String indexName, Class<?> indexClazz, Class<?> mappingClazz, int fetchChunkSize) {
 		this.indexName = indexName;
 		this.indexClazz = indexClazz;
 		this.mappingClazz = mappingClazz;
-		this.chunkSize = chunkSize;
-		this.commitFreq = commitFreq;
-		this.fetchSize = fetchSize;
+		this.fetchChunkSize = fetchChunkSize;
 	}
 
-	public int getChunkSize() {
-		return chunkSize;
+	public int getFetchChunkSize() {
+		return fetchChunkSize;
 	}
 	public Class<?> getIndexClazz() {
 		return indexClazz;
@@ -47,7 +45,7 @@ public enum IndexerConfig {
 	public long getCommitFreq() {
 		return commitFreq;
 	}
-	public int getFetchSize() {
+	public long getFetchSize() {
 		return fetchSize;
 	}
 }

@@ -6,12 +6,13 @@ import java.util.HashMap;
 import org.alliancegenome.indexer.config.ConfigHelper;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.indexer.indexers.Indexer;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class Main {
 
-	private static Logger log = Logger.getLogger(Main.class);
-
+	private static Logger log = LogManager.getLogger(Main.class);
+	
 	public static void main(String[] args) {
 		ConfigHelper.init();
 

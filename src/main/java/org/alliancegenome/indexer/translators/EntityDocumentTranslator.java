@@ -2,10 +2,10 @@ package org.alliancegenome.indexer.translators;
 
 import java.util.ArrayList;
 
-import org.alliancegenome.indexer.document.Document;
+import org.alliancegenome.indexer.document.ESDocument;
 import org.alliancegenome.indexer.entity.Entity;
 
-public abstract class EntityDocumentTranslator<E extends Entity, D extends Document> {
+public abstract class EntityDocumentTranslator<E extends Entity, D extends ESDocument> {
 
 	public E translate(D doument) {
 		return doumentToEntity(doument);
