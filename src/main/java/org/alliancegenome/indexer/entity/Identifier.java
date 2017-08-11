@@ -1,5 +1,5 @@
 package org.alliancegenome.indexer.entity;
 
-public class Disease extends Neo4jNode {
+public class Identifier extends Neo4jNode {
 
 }

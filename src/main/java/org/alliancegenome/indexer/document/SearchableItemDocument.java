@@ -22,7 +22,6 @@ public class SearchableItemDocument extends ESDocument {
 	private List<CrossReference> crossReferences;
 	private List<String> external_ids;
 	private String dataProvider;
-	private CrossReference modCrossReference;
 	private List<Disease> diseases;
 	private String category;
 	// dateProduced ?
@@ -35,7 +34,7 @@ public class SearchableItemDocument extends ESDocument {
 	private String soTermName;
 	private String release;
 	private String geneSynopsis;
-	private List<CrossReference> gene_cellular_component;
+	private List<String> gene_cellular_component;
 	
 	private List<Orthology> orthology;
 	

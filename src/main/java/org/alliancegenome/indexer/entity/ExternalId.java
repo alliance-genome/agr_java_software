@@ -4,9 +4,9 @@ import org.neo4j.ogm.annotation.NodeEntity;
 
 import lombok.Data;
 
-@NodeEntity
+@NodeEntity(label="externalId")
 @Data
-public class Synonym extends Identifier {
+public class ExternalId extends Identifier {
 
 	private String name;
 }

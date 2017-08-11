@@ -10,10 +10,10 @@ import org.alliancegenome.indexer.mapping.SearchableItemMapping;
 
 public enum IndexerConfig {
 
-	GeneIndexer("gene", GeneIndexer.class, GeneMapping.class, 10000),
-	DiseaseIndexer("disease", DiseaseIndexer.class, DiseaseMapping.class, 10000),
-	GoIndexer("go", DiseaseIndexer.class, GoMapping.class, 10000),
-	SearchableItemIndexer("searchable_item", SearchableItemIndexer.class, SearchableItemMapping.class, 1000)
+	GeneIndexer("gene", GeneIndexer.class, GeneMapping.class, 100),
+	DiseaseIndexer("disease", DiseaseIndexer.class, DiseaseMapping.class, 100),
+	GoIndexer("go", DiseaseIndexer.class, GoMapping.class, 100),
+	SearchableItemIndexer("searchable_item", SearchableItemIndexer.class, SearchableItemMapping.class, 1)
 	;
 
 	private int fetchChunkSize;

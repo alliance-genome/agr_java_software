@@ -3,8 +3,7 @@ package org.alliancegenome.indexer.entity;
 import lombok.Data;
 
 @Data
-public class SOTerm extends Ontology {
+public class SecondaryId extends Identifier {
 
-	private String primaryKey;
 	private String name;
 }

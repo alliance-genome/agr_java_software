@@ -13,8 +13,6 @@ import org.neo4j.ogm.session.Session;
 
 public class Neo4jESService<E> {
 
-	private static final int DEPTH_LIST = 1;
-	private static final int DEPTH_ENTITY = 1;
 	protected Class<E> entityTypeClazz;
 	protected Session neo4jSession;
 	protected PreBuiltTransportClient esSearchClient = new PreBuiltTransportClient(Settings.EMPTY);
@@ -32,7 +30,7 @@ public class Neo4jESService<E> {
 	
 	public Iterable<E> getPage(int pageNumber, int pageSize) {
 		Pagination p = new Pagination(pageNumber, pageSize);
-		return neo4jSession.loadAll(entityTypeClazz, p, DEPTH_LIST);
+		return neo4jSession.loadAll(entityTypeClazz, p);
 	}
 	
 	public int getCount() {
@@ -40,12 +38,12 @@ public class Neo4jESService<E> {
 	}
 	
 	public Iterable<E> findAll() {
-		return neo4jSession.loadAll(entityTypeClazz, DEPTH_LIST);
+		return neo4jSession.loadAll(entityTypeClazz);
 		//loadAll(entityTypeClazz, DEPTH_LIST);
 	}
 
 	public E find(Long id) {
-		return neo4jSession.load(entityTypeClazz, id, DEPTH_ENTITY);
+		return neo4jSession.load(entityTypeClazz, id);
 	}
 
 }

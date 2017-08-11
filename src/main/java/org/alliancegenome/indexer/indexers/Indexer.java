@@ -33,7 +33,6 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
 
 	private Date startTime = new Date();
 	private Date lastTime = new Date();
-	private Date lastDocTime = new Date();
 
 	public Indexer(IndexerConfig indexConfig) {
 		this.indexConfig = indexConfig;
@@ -72,9 +71,7 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
 	public void addDocuments(Iterable<D> docs) {
 		log.debug("Adding Documents to ES: ");
 		checkMemory();
-		for(D doc: docs) {
-			System.out.println(doc);
-		}
+		log.info(docs.iterator().next());
 	}
 
 	protected void startProcess(int amount, int size, int total) {
