@@ -8,6 +8,7 @@ import javax.enterprise.context.RequestScoped;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.MatchQueryBuilder;
+import org.elasticsearch.index.query.Operator;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.search.SearchHit;
 
@@ -18,13 +19,12 @@ public class AutoCompleteHelper {
 		
 		BoolQueryBuilder bool = new BoolQueryBuilder();
 
-		bool.must(new MatchQueryBuilder("name_key.autocomplete", q));
-		
-		if(!(category == null || category.equals("") || category.length() == 0) && category.equals("gene")) {
-			MatchQueryBuilder categoryMatch = new MatchQueryBuilder("category", "gene");
-			categoryMatch.boost(2);
-			bool.should(categoryMatch);
-		}
+		bool.must(new MatchQueryBuilder("name_key.autocomplete", q).operator(Operator.AND).boost(3));
+		bool.must(new MatchQueryBuilder("name.raw", q).operator(Operator.AND).boost(2));
+		bool.must(new MatchQueryBuilder("name.autocomplete", q).operator(Operator.AND).boost(1));
+		bool.must(new MatchQueryBuilder("synonyms.raw", q).operator(Operator.AND).boost(2));
+		bool.must(new MatchQueryBuilder("synonyms.autocomplete", q).operator(Operator.AND).boost(1));
+
 		return bool;
 	}
 
