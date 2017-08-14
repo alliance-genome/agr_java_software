@@ -23,8 +23,8 @@ public class SearchableItemIndexer extends Indexer<SearchableItemDocument> {
 	private GoToSearchableItemTranslator goToSI = new GoToSearchableItemTranslator();
 
 	private Logger log = LogManager.getLogger(getClass());
-	
-	
+
+
 	public SearchableItemIndexer(IndexerConfig indexConfig) {
 		super(indexConfig);
 	}
@@ -37,42 +37,49 @@ public class SearchableItemIndexer extends Indexer<SearchableItemDocument> {
 		int pages = geneCount / chunkSize;
 
 		log.debug("GeneCount: " + geneCount);
-		
-		startProcess(pages, chunkSize, geneCount);
-		for(int i = 0; i <= pages; i++) {
-			Iterable<Gene> gene_entities = geneNeo4jService.getPage(i, chunkSize);
-			addDocuments(geneToSI.translateEntities(gene_entities));
-			progress(i, pages, chunkSize);
-		}
-		finishProcess(geneCount);
-		
-		
+
+		if(geneCount > 0) {
+			startProcess(pages, chunkSize, geneCount);
+			for(int i = 0; i <= pages; i++) {
+				Iterable<Gene> gene_entities = geneNeo4jService.getPage(i, chunkSize);
+				addDocuments(geneToSI.translateEntities(gene_entities));
+				progress(i, pages, chunkSize);
+			}
+			finishProcess(geneCount);
+		}	
+
 		int diseaseCount = diseaseNeo4jService.getCount();
 		pages = diseaseCount / chunkSize;
-		
+
 		log.debug("DiseaseCount: " + diseaseCount);
 		
-		startProcess(pages, chunkSize, diseaseCount);
-		for(int i = 0; i <= pages; i++) {
-			Iterable<Disease> disease_entities = diseaseNeo4jService.getPage(i, chunkSize);
-			addDocuments(diseaseToSI.translateEntities(disease_entities));
-			progress(i, pages, chunkSize);
+		if(diseaseCount > 0) {
+			startProcess(pages, chunkSize, diseaseCount);
+			for(int i = 0; i <= pages; i++) {
+				Iterable<Disease> disease_entities = diseaseNeo4jService.getPage(i, chunkSize);
+				addDocuments(diseaseToSI.translateEntities(disease_entities));
+				progress(i, pages, chunkSize);
+			}
+			finishProcess(diseaseCount);
 		}
-		finishProcess(diseaseCount);
-		
-		
+
+
 		int goCount = goNeo4jService.getCount();
 		pages = goCount / chunkSize;
-		
+
 		log.debug("GoCount: " + goCount);
-		
-		startProcess(pages, chunkSize, goCount);
-		for(int i = 0; i <= pages; i++) {
-			Iterable<GOTerm> go_entities = goNeo4jService.getPage(i, chunkSize);
-			addDocuments(goToSI.translateEntities(go_entities));
-			progress(i, pages, chunkSize);
+		if(goCount > 0) {
+			startProcess(pages, chunkSize, goCount);
+			for(int i = 0; i <= pages; i++) {
+				Iterable<GOTerm> go_entities = goNeo4jService.getPage(i, chunkSize);
+				addDocuments(goToSI.translateEntities(go_entities));
+				progress(i, pages, chunkSize);
+			}
+			finishProcess(goCount);
 		}
-		finishProcess(goCount);
+		
+
+
 
 	}
 

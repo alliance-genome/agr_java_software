@@ -1,6 +1,5 @@
 package org.alliancegenome.indexer.translators;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -12,11 +11,6 @@ import org.alliancegenome.indexer.entity.SecondaryId;
 import org.alliancegenome.indexer.entity.Synonym;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.elasticsearch.common.xcontent.XContentBuilder;
-import org.elasticsearch.common.xcontent.XContentFactory;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class GeneToSearchableItemTranslator extends EntityDocumentTranslator<Gene, SearchableItemDocument> {
 
@@ -97,16 +91,15 @@ public class GeneToSearchableItemTranslator extends EntityDocumentTranslator<Gen
 		s.setTaxonId(entity.getTaxonId());
 		log.info(s);
 		
-		try {
-			ObjectMapper mapper = new ObjectMapper();
-			log.info("JSON: " + mapper.writerWithDefaultPrettyPrinter().writeValueAsString(s));
-		} catch (JsonProcessingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//		try {
+//			ObjectMapper mapper = new ObjectMapper();
+//			log.info("JSON Entity: " + mapper.writerWithDefaultPrettyPrinter().writeValueAsString(entity));
+//			log.info("JSON Document: " + mapper.writerWithDefaultPrettyPrinter().writeValueAsString(s));
+//		} catch (JsonProcessingException e) {
+//			e.printStackTrace();
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
 		
 		return s;
 	}

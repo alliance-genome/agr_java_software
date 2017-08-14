@@ -9,17 +9,18 @@ import java.util.Iterator;
 import org.alliancegenome.indexer.config.ConfigHelper;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.indexer.document.ESDocument;
-import org.alliancegenome.indexer.mapping.Mapping;
+import org.alliancegenome.indexer.schema.Mappings;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
+import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
 import org.elasticsearch.action.admin.indices.get.GetIndexResponse;
+import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.cluster.metadata.IndexMetaData;
 import org.elasticsearch.common.collect.ImmutableOpenMap;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.transport.client.PreBuiltTransportClient;
-
-import lombok.ToString;
 
 public abstract class Indexer<D extends ESDocument> extends Thread {
 
@@ -37,12 +38,19 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
 	public Indexer(IndexerConfig indexConfig) {
 		this.indexConfig = indexConfig;
 
-		client = new PreBuiltTransportClient(Settings.EMPTY);
-
 		try {
+			// If you are only one node, you must turn off the sniff feature.
+			//Settings s = Settings.builder()
+					//.put("client.transport.ignore_cluster_name", true)
+					//.put("cluster.name", "docker-cluster")
+					//.put("client.transport.sniff", false)
+					//.build();
+			//client = new TransportClient(s, null);
+			client = new PreBuiltTransportClient(Settings.EMPTY);
 			client.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(ConfigHelper.getEsHost()), ConfigHelper.getEsPort()));
 		} catch (Exception e) {
 			e.printStackTrace();
+			System.exit(0);
 		}
 	}
 	protected abstract void index();
@@ -71,7 +79,9 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
 	public void addDocuments(Iterable<D> docs) {
 		log.debug("Adding Documents to ES: ");
 		checkMemory();
-		log.info(docs.iterator().next());
+		if(docs.iterator().hasNext()) {
+			log.info(docs.iterator().next());
+		}
 	}
 
 	protected void startProcess(int amount, int size, int total) {
@@ -126,13 +136,23 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
 		log.debug("Creating index: " + index);
 
 		try {
+
 			log.debug("Getting Mapping for index: " + indexConfig.getIndexName());
-			Mapping mappingClass = (Mapping)indexConfig.getMappingClazz().getDeclaredConstructor(Boolean.class).newInstance(true);
-			mappingClass.buildMapping();
-			//log.debug(mapping);
-			client.admin().indices().prepareCreate(index).setSource(mappingClass.getBuilder()).get();
+			org.alliancegenome.indexer.schema.Settings settingClass = (org.alliancegenome.indexer.schema.Settings)indexConfig.getSettingsClazz().getDeclaredConstructor(Boolean.class).newInstance(true);
+			Mappings mappingClass = (Mappings)indexConfig.getMappingsClazz().getDeclaredConstructor(Boolean.class).newInstance(true);
+			
+			mappingClass.buildMappings(true);
+			settingClass.buildSettings(true);
+			
+			//log.debug(settingClass.getBuilder().string());
+			//log.debug(mappingClass.getBuilder().string());
+
+			CreateIndexResponse t = client.admin().indices().create(new CreateIndexRequest(index).settings(settingClass.getBuilder().string()).mapping(index, mappingClass.getBuilder().string())).get();
+			log.debug(t.toString());
 		} catch (Exception e) {
+			log.error("Indexing Failed: " + index);
 			e.printStackTrace();
+			System.exit(0);
 		}
 	}
 	public void deleteIndex(String index) {
