@@ -39,6 +39,9 @@ public class Gene extends Neo4jNode {
 	
 	@Relationship(type = "ALSO_KNOWN_AS")
 	private Set<SecondaryId> secondaryIds;
+	
+	@Relationship(type = "ALSO_KNOWN_AS")
+	private Set<ExternalId> externalIds;
 
 	@Relationship(type = "ANNOTATED_TO")
 	private Set<GOTerm> gOTerms = new HashSet<>();
