@@ -1,7 +1,7 @@
 package org.alliancegenome.indexer.indexers;
 
 import org.alliancegenome.indexer.config.IndexerConfig;
-import org.alliancegenome.indexer.document.GoDocument;
+import org.alliancegenome.indexer.document.go.GoDocument;
 import org.alliancegenome.indexer.entity.GOTerm;
 import org.alliancegenome.indexer.service.Neo4jESService;
 

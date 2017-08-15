@@ -1,7 +1,7 @@
 package org.alliancegenome.indexer.indexers;
 
 import org.alliancegenome.indexer.config.IndexerConfig;
-import org.alliancegenome.indexer.document.SearchableItemDocument;
+import org.alliancegenome.indexer.document.searchableitem.SearchableItemDocument;
 import org.alliancegenome.indexer.entity.Disease;
 import org.alliancegenome.indexer.entity.Gene;
 import org.alliancegenome.indexer.entity.GOTerm;
@@ -48,20 +48,20 @@ public class SearchableItemIndexer extends Indexer<SearchableItemDocument> {
 			finishProcess(geneCount);
 		}
 
-		int diseaseCount = diseaseNeo4jService.getCount();
-		pages = diseaseCount / chunkSize;
-
-		log.debug("DiseaseCount: " + diseaseCount);
-		
-		if(diseaseCount > 0) {
-			startProcess(pages, chunkSize, diseaseCount);
-			for(int i = 0; i <= pages; i++) {
-				Iterable<Disease> disease_entities = diseaseNeo4jService.getPage(i, chunkSize);
-				addDocuments(diseaseToSI.translateEntities(disease_entities));
-				progress(i, pages, chunkSize);
-			}
-			finishProcess(diseaseCount);
-		}
+//		int diseaseCount = diseaseNeo4jService.getCount();
+//		pages = diseaseCount / chunkSize;
+//
+//		log.debug("DiseaseCount: " + diseaseCount);
+//		
+//		if(diseaseCount > 0) {
+//			startProcess(pages, chunkSize, diseaseCount);
+//			for(int i = 0; i <= pages; i++) {
+//				Iterable<Disease> disease_entities = diseaseNeo4jService.getPage(i, chunkSize);
+//				addDocuments(diseaseToSI.translateEntities(disease_entities));
+//				progress(i, pages, chunkSize);
+//			}
+//			finishProcess(diseaseCount);
+//		}
 		
 		int goCount = goNeo4jService.getCount();
 		pages = goCount / chunkSize;
@@ -70,7 +70,7 @@ public class SearchableItemIndexer extends Indexer<SearchableItemDocument> {
 		if(goCount > 0) {
 			startProcess(pages, chunkSize, goCount);
 			for(int i = 0; i <= pages; i++) {
-				Iterable<GOTerm> go_entities = goNeo4jService.getPage(i, chunkSize, 0);
+				Iterable<GOTerm> go_entities = goNeo4jService.getPage(i, chunkSize);
 				addDocuments(goToSI.translateEntities(go_entities));
 				progress(i, pages, chunkSize);
 			}

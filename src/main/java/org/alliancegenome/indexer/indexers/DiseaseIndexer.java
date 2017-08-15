@@ -1,7 +1,7 @@
 package org.alliancegenome.indexer.indexers;
 
 import org.alliancegenome.indexer.config.IndexerConfig;
-import org.alliancegenome.indexer.document.DiseaseDocument;
+import org.alliancegenome.indexer.document.disease.DiseaseDocument;
 import org.alliancegenome.indexer.entity.Disease;
 import org.alliancegenome.indexer.service.Neo4jESService;
 import org.apache.logging.log4j.LogManager;

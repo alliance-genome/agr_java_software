@@ -1,4 +1,4 @@
-package org.alliancegenome.indexer.document;
+package org.alliancegenome.indexer.document.searchableitem;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -7,12 +7,13 @@ import lombok.ToString;
 
 @Data
 @ToString(includeFieldNames=true)
-public class DiseaseDocument extends ESDocument {
+public class DiseaseSearchableItemDocument extends SearchableItemDocument {
 	
-	private String primaryId;
+	private String id;
 	
 	@JsonIgnore
 	public String getDocumentId() {
-		return primaryId;
+		return id;
 	}
+
 }

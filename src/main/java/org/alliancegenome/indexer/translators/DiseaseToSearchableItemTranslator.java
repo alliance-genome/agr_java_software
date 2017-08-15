@@ -1,6 +1,6 @@
 package org.alliancegenome.indexer.translators;
 
-import org.alliancegenome.indexer.document.SearchableItemDocument;
+import org.alliancegenome.indexer.document.searchableitem.SearchableItemDocument;
 import org.alliancegenome.indexer.entity.Disease;
 
 public class DiseaseToSearchableItemTranslator extends EntityDocumentTranslator<Disease, SearchableItemDocument> {

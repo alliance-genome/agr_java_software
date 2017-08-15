@@ -1,4 +1,6 @@
-package org.alliancegenome.indexer.document;
+package org.alliancegenome.indexer.document.disease;
+
+import org.alliancegenome.indexer.document.ESDocument;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -7,7 +9,7 @@ import lombok.ToString;
 
 @Data
 @ToString(includeFieldNames=true)
-public class GeneDocument extends ESDocument {
+public class DiseaseDocument extends ESDocument {
 	
 	private String primaryId;
 	

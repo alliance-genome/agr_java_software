@@ -1,4 +1,4 @@
-package org.alliancegenome.indexer.document;
+package org.alliancegenome.indexer.document.searchableitem;
 
 import java.util.Date;
 import java.util.List;
@@ -10,25 +10,20 @@ import lombok.ToString;
 
 @Data
 @ToString(includeFieldNames=true)
-public class SearchableItemDocument extends ESDocument {
-
+public class GeneSearchableItemDocument extends SearchableItemDocument {
+	
 	private List<String> gene_molecular_function;
 	private String taxonId;
-	private String description;
 	private String symbol;
+	private String species;
 	private List<String> gene_biological_process;
 	private List<String> synonyms;
-	private String href;
-	private String id;
-	private String name_key;
 	private String geneLiteratureUrl;
 	private List<CrossReference> crossReferences;
 	private List<String> external_ids;
 	private String dataProvider;
+	private Date dateProduced;
 	private List<Disease> diseases;
-	private String category;
-	// dateProduced ?
-	private String name;
 	private String geneSynopsisUrl;
 	private String primaryId;
 	private List<GenomeLocation> genomeLocations;
@@ -38,8 +33,12 @@ public class SearchableItemDocument extends ESDocument {
 	private String release;
 	private String geneSynopsis;
 	private List<String> gene_cellular_component;
-	
 	private List<Orthology> orthology;
+
+	@JsonIgnore
+	public String getDocumentId() {
+		return primaryId;
+	}
 	
 	@Data
 	@ToString(includeFieldNames=true)
@@ -121,13 +120,4 @@ public class SearchableItemDocument extends ESDocument {
 	}
 
 	
-	@JsonIgnore
-	public String getDocumentId() {
-		if(id != null) {
-			return id;
-		} else {
-			return primaryId;
-		}
-	}
-
 }

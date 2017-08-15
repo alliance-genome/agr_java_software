@@ -1,6 +1,8 @@
-package org.alliancegenome.indexer.document;
+package org.alliancegenome.indexer.document.go;
 
 import java.util.List;
+
+import org.alliancegenome.indexer.document.ESDocument;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 

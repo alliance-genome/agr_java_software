@@ -1,6 +1,6 @@
 package org.alliancegenome.indexer.translators;
 
-import org.alliancegenome.indexer.document.GeneDocument;
+import org.alliancegenome.indexer.document.gene.GeneDocument;
 import org.alliancegenome.indexer.entity.Gene;
 
 public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument> {

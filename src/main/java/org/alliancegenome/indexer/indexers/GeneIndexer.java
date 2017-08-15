@@ -1,7 +1,7 @@
 package org.alliancegenome.indexer.indexers;
 
 import org.alliancegenome.indexer.config.IndexerConfig;
-import org.alliancegenome.indexer.document.GeneDocument;
+import org.alliancegenome.indexer.document.gene.GeneDocument;
 import org.alliancegenome.indexer.entity.Gene;
 import org.alliancegenome.indexer.service.Neo4jESService;
 import org.alliancegenome.indexer.translators.GeneTranslator;

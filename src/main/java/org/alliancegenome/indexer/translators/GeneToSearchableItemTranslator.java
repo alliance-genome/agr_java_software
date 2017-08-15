@@ -3,7 +3,8 @@ package org.alliancegenome.indexer.translators;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import org.alliancegenome.indexer.document.SearchableItemDocument;
+import org.alliancegenome.indexer.document.searchableitem.GeneSearchableItemDocument;
+import org.alliancegenome.indexer.document.searchableitem.SearchableItemDocument;
 import org.alliancegenome.indexer.entity.ExternalId;
 import org.alliancegenome.indexer.entity.GOTerm;
 import org.alliancegenome.indexer.entity.Gene;
@@ -21,12 +22,16 @@ public class GeneToSearchableItemTranslator extends EntityDocumentTranslator<Gen
 		//log.info(entity);
 		HashMap<String, ArrayList<String>> goTerms = new HashMap<String, ArrayList<String>>();
 
-		SearchableItemDocument s = new SearchableItemDocument();
+		GeneSearchableItemDocument s = new GeneSearchableItemDocument();
 
 		s.setCategory("gene");
 		// TODO s.setCrossReferences(crossReferences);
 		s.setDataProvider(entity.getDataProvider());
 		s.setDescription(entity.getDescription());
+		
+		if(entity.getSpecies() != null) {
+			s.setSpecies(entity.getSpecies().getName());
+		}
 		// TODO s.setDiseases(diseases);
 
 		ArrayList<String> external_ids = new ArrayList<String>();
@@ -48,6 +53,8 @@ public class GeneToSearchableItemTranslator extends EntityDocumentTranslator<Gen
 				list.add(term.getName());
 			}
 		}
+		
+		s.setDateProduced(entity.getDataProduced());
 
 		s.setGene_biological_process(goTerms.get("biological_process"));
 		s.setGene_cellular_component(goTerms.get("cellular_component"));
@@ -71,7 +78,7 @@ public class GeneToSearchableItemTranslator extends EntityDocumentTranslator<Gen
 		ArrayList<String> secondaryIds = new ArrayList<String>();
 		if(entity.getSecondaryIds() != null) {
 			for(SecondaryId secondaryId: entity.getSecondaryIds()) {
-				external_ids.add(secondaryId.getName());
+				secondaryIds.add(secondaryId.getName());
 			}		
 		}
 		s.setSecondaryIds(secondaryIds);
