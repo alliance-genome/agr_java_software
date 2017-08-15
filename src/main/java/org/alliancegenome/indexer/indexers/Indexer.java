@@ -15,12 +15,18 @@ import org.apache.logging.log4j.Logger;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
 import org.elasticsearch.action.admin.indices.get.GetIndexResponse;
+import org.elasticsearch.action.bulk.BulkRequestBuilder;
+import org.elasticsearch.action.bulk.BulkResponse;
+import org.elasticsearch.action.support.WriteRequest.RefreshPolicy;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.cluster.metadata.IndexMetaData;
 import org.elasticsearch.common.collect.ImmutableOpenMap;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.transport.client.PreBuiltTransportClient;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public abstract class Indexer<D extends ESDocument> extends Thread {
 
@@ -31,7 +37,8 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
 	private PreBuiltTransportClient client;
 	protected Runtime runtime = Runtime.getRuntime();
 	protected DecimalFormat df = new DecimalFormat("#.00");
-
+	protected ObjectMapper om = new ObjectMapper();
+	
 	private Date startTime = new Date();
 	private Date lastTime = new Date();
 
@@ -79,9 +86,25 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
 	public void addDocuments(Iterable<D> docs) {
 		log.debug("Adding Documents to ES: ");
 		checkMemory();
-		if(docs.iterator().hasNext()) {
-			log.info(docs.iterator().next());
+
+		BulkRequestBuilder bulkRequest = client.prepareBulk();
+		
+		for(D doc: docs) {
+			try {
+				String json = om.writeValueAsString(doc);
+				//log.debug("JSON: " + json);
+				bulkRequest.add(client.prepareIndex(currentIndex, indexConfig.getIndexName()).setSource(json).setId(doc.getId()));
+			} catch (JsonProcessingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
+		BulkResponse bulkResponse = bulkRequest.get();
+		if (bulkResponse.hasFailures()) {
+			log.error("Has Failures in indexer");
+		    // process failures by iterating through each bulk response item
+		}
+
 	}
 
 	protected void startProcess(int amount, int size, int total) {
@@ -147,9 +170,10 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
 			//log.debug(settingClass.getBuilder().string());
 			//log.debug(mappingClass.getBuilder().string());
 
-			CreateIndexResponse t = client.admin().indices().create(new CreateIndexRequest(index).settings(settingClass.getBuilder().string()).mapping(index, mappingClass.getBuilder().string())).get();
+			CreateIndexResponse t = client.admin().indices().create(new CreateIndexRequest(index).settings(settingClass.getBuilder().string()).mapping(indexConfig.getIndexName(), mappingClass.getBuilder().string())).get();
 			log.debug(t.toString());
 		} catch (Exception e) {
+			client.admin().indices().prepareRefresh(newIndexName).get();
 			log.error("Indexing Failed: " + index);
 			e.printStackTrace();
 			System.exit(0);
@@ -163,13 +187,15 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
 	public void setCurrentIndex() {
 		try {
 			GetIndexResponse t = client.admin().indices().prepareGetIndex().addIndices(indexConfig.getIndexName()).get();
+			//log.debug("Index Found: " + t.getIndices()[0]);
 			currentIndex = t.getIndices()[0];
 		} catch (Exception e) {
 			currentIndex = null;
 		}
-
+		log.info("Current Index: " + currentIndex);
+		
 		if(currentIndex != null) {
-			ImmutableOpenMap<String, IndexMetaData> indexList = client.admin().cluster().prepareState().execute().actionGet().getState().getMetaData().getIndices();
+			ImmutableOpenMap<String, IndexMetaData> indexList = client.admin().cluster().prepareState().get().getState().getMetaData().getIndices();
 			Iterator<String> keys = indexList.keysIt();
 			while(keys.hasNext()) {
 				String key = keys.next();

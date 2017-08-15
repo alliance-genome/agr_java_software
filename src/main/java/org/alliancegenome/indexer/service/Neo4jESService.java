@@ -28,22 +28,26 @@ public class Neo4jESService<E> {
 		}
 	}
 	
-	public Iterable<E> getPage(int pageNumber, int pageSize) {
+	public Iterable<E> getPage(int pageNumber, int pageSize, int depth) {
 		Pagination p = new Pagination(pageNumber, pageSize);
-		return neo4jSession.loadAll(entityTypeClazz, p);
+		return neo4jSession.loadAll(entityTypeClazz, p, depth);
+	}
+	
+	public Iterable<E> getPage(int pageNumber, int pageSize) {
+		return getPage(pageNumber, pageSize, 1);
 	}
 	
 	public int getCount() {
 		return (int)neo4jSession.countEntitiesOfType(entityTypeClazz);
 	}
 	
-	public Iterable<E> findAll() {
-		return neo4jSession.loadAll(entityTypeClazz);
-		//loadAll(entityTypeClazz, DEPTH_LIST);
-	}
-
-	public E find(Long id) {
-		return neo4jSession.load(entityTypeClazz, id);
-	}
+//	public Iterable<E> findAll() {
+//		return neo4jSession.loadAll(entityTypeClazz);
+//		//loadAll(entityTypeClazz, DEPTH_LIST);
+//	}
+//
+//	public E find(Long id) {
+//		return neo4jSession.load(entityTypeClazz, id);
+//	}
 
 }

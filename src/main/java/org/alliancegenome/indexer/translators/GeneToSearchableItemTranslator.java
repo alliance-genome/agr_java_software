@@ -18,7 +18,7 @@ public class GeneToSearchableItemTranslator extends EntityDocumentTranslator<Gen
 
 	@Override
 	protected SearchableItemDocument entityToDocument(Gene entity) {
-		log.info(entity);
+		//log.info(entity);
 		HashMap<String, ArrayList<String>> goTerms = new HashMap<String, ArrayList<String>>();
 
 		SearchableItemDocument s = new SearchableItemDocument();
@@ -64,7 +64,9 @@ public class GeneToSearchableItemTranslator extends EntityDocumentTranslator<Gen
 		s.setName_key(entity.getSymbol()); // This might look wrong but it was taken from the old AGR code base.
 		// TODO s.setOrthology(orthology);
 		s.setPrimaryId(entity.getPrimaryKey());
-		s.setRelease(entity.getCreatedBy().getRelease());
+		if(entity.getCreatedBy() != null) {
+			s.setRelease(entity.getCreatedBy().getRelease());
+		}
 
 		ArrayList<String> secondaryIds = new ArrayList<String>();
 		if(entity.getSecondaryIds() != null) {
@@ -89,7 +91,7 @@ public class GeneToSearchableItemTranslator extends EntityDocumentTranslator<Gen
 		s.setSynonyms(synonyms);
 
 		s.setTaxonId(entity.getTaxonId());
-		log.info(s);
+		//log.info(s);
 		
 //		try {
 //			ObjectMapper mapper = new ObjectMapper();

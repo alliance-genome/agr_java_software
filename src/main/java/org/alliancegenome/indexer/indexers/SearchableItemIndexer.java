@@ -46,7 +46,7 @@ public class SearchableItemIndexer extends Indexer<SearchableItemDocument> {
 				progress(i, pages, chunkSize);
 			}
 			finishProcess(geneCount);
-		}	
+		}
 
 		int diseaseCount = diseaseNeo4jService.getCount();
 		pages = diseaseCount / chunkSize;
@@ -62,8 +62,7 @@ public class SearchableItemIndexer extends Indexer<SearchableItemDocument> {
 			}
 			finishProcess(diseaseCount);
 		}
-
-
+		
 		int goCount = goNeo4jService.getCount();
 		pages = goCount / chunkSize;
 
@@ -71,7 +70,7 @@ public class SearchableItemIndexer extends Indexer<SearchableItemDocument> {
 		if(goCount > 0) {
 			startProcess(pages, chunkSize, goCount);
 			for(int i = 0; i <= pages; i++) {
-				Iterable<GOTerm> go_entities = goNeo4jService.getPage(i, chunkSize);
+				Iterable<GOTerm> go_entities = goNeo4jService.getPage(i, chunkSize, 0);
 				addDocuments(goToSI.translateEntities(go_entities));
 				progress(i, pages, chunkSize);
 			}

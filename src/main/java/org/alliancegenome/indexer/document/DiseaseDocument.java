@@ -1,5 +1,18 @@
 package org.alliancegenome.indexer.document;
 
-public class DiseaseDocument extends ESDocument {
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import lombok.Data;
+import lombok.ToString;
+
+@Data
+@ToString(includeFieldNames=true)
+public class DiseaseDocument extends ESDocument {
+	
+	private String primaryId;
+	
+	@JsonIgnore
+	public String getId() {
+		return primaryId;
+	}
 }
