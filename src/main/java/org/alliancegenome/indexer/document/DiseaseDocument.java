@@ -12,7 +12,7 @@ public class DiseaseDocument extends ESDocument {
 	private String primaryId;
 	
 	@JsonIgnore
-	public String getId() {
+	public String getDocumentId() {
 		return primaryId;
 	}
 }

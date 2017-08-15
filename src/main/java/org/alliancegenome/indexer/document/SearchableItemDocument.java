@@ -19,6 +19,7 @@ public class SearchableItemDocument extends ESDocument {
 	private List<String> gene_biological_process;
 	private List<String> synonyms;
 	private String href;
+	private String id;
 	private String name_key;
 	private String geneLiteratureUrl;
 	private List<CrossReference> crossReferences;
@@ -119,9 +120,14 @@ public class SearchableItemDocument extends ESDocument {
 		private int gene1Species;
 	}
 
+	
 	@JsonIgnore
-	public String getId() {
-		return primaryId;
+	public String getDocumentId() {
+		if(id != null) {
+			return id;
+		} else {
+			return primaryId;
+		}
 	}
 
 }

@@ -1,5 +1,7 @@
 package org.alliancegenome.indexer.translators;
 
+import java.util.List;
+
 import org.alliancegenome.indexer.document.SearchableItemDocument;
 import org.alliancegenome.indexer.entity.GOTerm;
 import org.apache.logging.log4j.LogManager;
@@ -13,6 +15,16 @@ public class GoToSearchableItemTranslator extends EntityDocumentTranslator<GOTer
 	protected SearchableItemDocument entityToDocument(GOTerm entity) {
 		//log.info(entity);
 		SearchableItemDocument doc = new SearchableItemDocument();
+		
+//		private List<String> go_synonyms;
+//		private List<String> go_genes;
+//		private String name;
+//		private List<String> go_species;
+//		private String href;
+//		private String id;
+//		private String name_key;
+//		private String go_type;
+//		private String description;
 		
 		doc.setPrimaryId(entity.getPrimaryKey());
 		doc.setDescription(entity.getDescription());

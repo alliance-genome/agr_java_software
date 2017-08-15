@@ -17,7 +17,7 @@ public enum IndexerConfig {
 	GeneIndexer("gene", GeneIndexer.class, GeneMappings.class, GeneSettings.class, 100),
 	DiseaseIndexer("disease", DiseaseIndexer.class, DiseaseMappings.class, DiseaseSettings.class, 100),
 	GoIndexer("go", DiseaseIndexer.class, GoMappings.class, GoSettings.class, 100),
-	SearchableItemIndexer("searchable_item", SearchableItemIndexer.class, SearchableItemMappings.class, SearchableItemSettings.class, 2000)
+	SearchableItemIndexer("searchable_item", SearchableItemIndexer.class, SearchableItemMappings.class, SearchableItemSettings.class, 5000)
 	;
 
 	private int fetchChunkSize;

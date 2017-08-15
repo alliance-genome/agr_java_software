@@ -17,14 +17,13 @@ import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
 import org.elasticsearch.action.admin.indices.get.GetIndexResponse;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.bulk.BulkResponse;
-import org.elasticsearch.action.support.WriteRequest.RefreshPolicy;
-import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.cluster.metadata.IndexMetaData;
 import org.elasticsearch.common.collect.ImmutableOpenMap;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.transport.client.PreBuiltTransportClient;
 
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -45,6 +44,8 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
 	public Indexer(IndexerConfig indexConfig) {
 		this.indexConfig = indexConfig;
 
+		om.setSerializationInclusion(Include.NON_NULL);
+		
 		try {
 			// If you are only one node, you must turn off the sniff feature.
 			//Settings s = Settings.builder()
@@ -93,7 +94,7 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
 			try {
 				String json = om.writeValueAsString(doc);
 				//log.debug("JSON: " + json);
-				bulkRequest.add(client.prepareIndex(newIndexName, indexConfig.getIndexName()).setSource(json).setId(doc.getId()));
+				bulkRequest.add(client.prepareIndex(newIndexName, indexConfig.getIndexName()).setSource(json).setId(doc.getDocumentId()));
 			} catch (JsonProcessingException e) {
 				e.printStackTrace();
 			}

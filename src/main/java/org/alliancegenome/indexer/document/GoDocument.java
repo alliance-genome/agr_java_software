@@ -1,5 +1,7 @@
 package org.alliancegenome.indexer.document;
 
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.Data;
@@ -9,10 +11,18 @@ import lombok.ToString;
 @ToString(includeFieldNames=true)
 public class GoDocument extends ESDocument {
 
-	private String primaryId;
-	
+	private List<String> go_synonyms;
+	private List<String> go_genes;
+	private String name;
+	private List<String> go_species;
+	private String href;
+	private String id;
+	private String name_key;
+	private String go_type;
+	private String description;
+
 	@JsonIgnore
-	public String getId() {
-		return primaryId;
+	public String getDocumentId() {
+		return id;
 	}
 }
