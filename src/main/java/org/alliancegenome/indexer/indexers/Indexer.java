@@ -33,7 +33,7 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
 	private Logger log = LogManager.getLogger(getClass());
 	protected IndexerConfig indexConfig;
 	private String newIndexName = null;
-	private String currentIndex = null;
+	private String oldIndexName = null;
 	private PreBuiltTransportClient client;
 	protected Runtime runtime = Runtime.getRuntime();
 	protected DecimalFormat df = new DecimalFormat("#.00");
@@ -93,9 +93,8 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
 			try {
 				String json = om.writeValueAsString(doc);
 				//log.debug("JSON: " + json);
-				bulkRequest.add(client.prepareIndex(currentIndex, indexConfig.getIndexName()).setSource(json).setId(doc.getId()));
+				bulkRequest.add(client.prepareIndex(newIndexName, indexConfig.getIndexName()).setSource(json).setId(doc.getId()));
 			} catch (JsonProcessingException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
@@ -188,20 +187,20 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
 		try {
 			GetIndexResponse t = client.admin().indices().prepareGetIndex().addIndices(indexConfig.getIndexName()).get();
 			//log.debug("Index Found: " + t.getIndices()[0]);
-			currentIndex = t.getIndices()[0];
+			oldIndexName = t.getIndices()[0];
 		} catch (Exception e) {
-			currentIndex = null;
+			oldIndexName = null;
 		}
-		log.info("Current Index: " + currentIndex);
+		log.info("Current Index: " + oldIndexName);
 		
-		if(currentIndex != null) {
+		if(oldIndexName != null) {
 			ImmutableOpenMap<String, IndexMetaData> indexList = client.admin().cluster().prepareState().get().getState().getMetaData().getIndices();
 			Iterator<String> keys = indexList.keysIt();
 			while(keys.hasNext()) {
 				String key = keys.next();
 				IndexMetaData index = indexList.get(key);
 
-				if(!index.getIndex().getName().equals(currentIndex)) {
+				if(!index.getIndex().getName().equals(oldIndexName)) {
 					if(index.getIndex().getName().startsWith(indexConfig.getIndexName() + "_")) {
 						deleteIndex(index.getIndex().getName());
 					}
@@ -222,14 +221,14 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
 		log.debug("Main Index Finished: ");
 		client.admin().indices().prepareRefresh(newIndexName).get();
 
-		if (currentIndex != null) {
-			removeAlias(indexConfig.getIndexName(), currentIndex);
+		if (oldIndexName != null) {
+			removeAlias(indexConfig.getIndexName(), oldIndexName);
 		}
 
-		if (currentIndex != indexConfig.getIndexName()) {
+		if (oldIndexName != indexConfig.getIndexName()) {
 			createAlias(indexConfig.getIndexName(), newIndexName);
-			if (currentIndex != null) {
-				deleteIndex(currentIndex);
+			if (oldIndexName != null) {
+				deleteIndex(oldIndexName);
 			}
 		}
 
