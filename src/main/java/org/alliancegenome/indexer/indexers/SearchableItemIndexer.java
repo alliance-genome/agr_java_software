@@ -63,7 +63,7 @@ public class SearchableItemIndexer extends Indexer<SearchableItemDocument> {
 //		}
 		
 		int goCount = goNeo4jService.getCount();
-		chunkSize = 2;
+		chunkSize = 500;
 		pages = goCount / chunkSize;
 
 		

@@ -23,7 +23,7 @@ public class GOTerm extends Ontology {
 	private String primaryKey;
 	
 	//@Relationship(type = "ANNOTATED_TO")
-	//private List<Gene> genes;
+	//private Set<Gene> genes = new HashSet<Synonym>();
 	
 	@Relationship(type = "ALSO_KNOWN_AS")
 	private Set<Synonym> synonyms = new HashSet<Synonym>();

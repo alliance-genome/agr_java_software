@@ -1,13 +1,10 @@
 package org.alliancegenome.indexer.entity;
 
-import java.util.Date;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
-import org.neo4j.ogm.annotation.typeconversion.DateString;
 
 import lombok.Data;
 import lombok.ToString;
@@ -37,15 +34,15 @@ public class Gene extends Neo4jNode {
 	
 
 	@Relationship(type = "ALSO_KNOWN_AS")
-	private Set<Synonym> synonyms;
+	private Set<Synonym> synonyms = new HashSet<Synonym>();
 	
 	@Relationship(type = "ALSO_KNOWN_AS")
-	private Set<SecondaryId> secondaryIds;
+	private Set<SecondaryId> secondaryIds = new HashSet<SecondaryId>();
 	
 	@Relationship(type = "ALSO_KNOWN_AS")
-	private Set<ExternalId> externalIds;
+	private Set<ExternalId> externalIds = new HashSet<ExternalId>();
 
 	@Relationship(type = "ANNOTATED_TO")
-	private List<GOTerm> gOTerms;
+	private Set<GOTerm> gOTerms = new HashSet<GOTerm>();
 
 }

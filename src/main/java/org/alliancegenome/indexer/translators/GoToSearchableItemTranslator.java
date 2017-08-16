@@ -16,7 +16,7 @@ public class GoToSearchableItemTranslator extends EntityDocumentTranslator<GOTer
 	
 	@Override
 	protected SearchableItemDocument entityToDocument(GOTerm entity) {
-		log.info(entity);
+		//log.info(entity);
 		GoSearchableItemDocument doc = new GoSearchableItemDocument();
 		
 		// TODO private List<String> go_species;
