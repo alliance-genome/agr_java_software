@@ -1,9 +1,11 @@
 package org.alliancegenome.indexer.entity;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
+@Getter @Setter
 public abstract class Neo4jNode {
 
 	private Long id;
+
 }

@@ -6,12 +6,11 @@ import java.util.Set;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 
-import lombok.Data;
-import lombok.ToString;
+import lombok.Getter;
+import lombok.Setter;
 
 @NodeEntity
-@Data
-@ToString(includeFieldNames=true)
+@Getter @Setter
 public class Gene extends Neo4jNode {
 
 	private String primaryKey;
@@ -28,10 +27,12 @@ public class Gene extends Neo4jNode {
 	private String symbol;
 	private String geneticEntityExternalUrl;
 	
-	private Species species;
+	
 	private Entity createdBy;
 	private SOTerm sOTerm;
 	
+	@Relationship(type = "FROM_SPECIES")
+	private Species species;
 
 	@Relationship(type = "ALSO_KNOWN_AS")
 	private Set<Synonym> synonyms = new HashSet<Synonym>();
@@ -44,5 +45,5 @@ public class Gene extends Neo4jNode {
 
 	@Relationship(type = "ANNOTATED_TO")
 	private Set<GOTerm> gOTerms = new HashSet<GOTerm>();
-
+	
 }

@@ -1,18 +1,16 @@
 package org.alliancegenome.indexer.entity;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 
-import lombok.Data;
-import lombok.ToString;
+import lombok.Getter;
+import lombok.Setter;
 
 @NodeEntity
-@Data
-@ToString(includeFieldNames=true)
+@Getter @Setter
 public class GOTerm extends Ontology {
 
 	private String nameKey;
@@ -22,9 +20,10 @@ public class GOTerm extends Ontology {
 	private String type;
 	private String primaryKey;
 	
-	//@Relationship(type = "ANNOTATED_TO")
-	//private Set<Gene> genes = new HashSet<Synonym>();
+	@Relationship(type = "ANNOTATED_TO", direction=Relationship.INCOMING)
+	private Set<Gene> genes = new HashSet<Gene>();
 	
 	@Relationship(type = "ALSO_KNOWN_AS")
 	private Set<Synonym> synonyms = new HashSet<Synonym>();
+	
 }

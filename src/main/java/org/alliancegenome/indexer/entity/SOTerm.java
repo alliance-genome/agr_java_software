@@ -1,8 +1,9 @@
 package org.alliancegenome.indexer.entity;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
+@Getter @Setter
 public class SOTerm extends Ontology {
 
 	private String primaryKey;

@@ -4,11 +4,10 @@ import org.alliancegenome.indexer.document.ESDocument;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import lombok.Data;
-import lombok.ToString;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
-@ToString(includeFieldNames=true)
+@Getter @Setter
 public class GeneDocument extends ESDocument {
 	
 	private String primaryId;

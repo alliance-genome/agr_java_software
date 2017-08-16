@@ -4,18 +4,17 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import lombok.Data;
-import lombok.ToString;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
-@ToString(includeFieldNames=true)
+@Getter @Setter
 public class GoSearchableItemDocument extends SearchableItemDocument {
 
 	private String id;
+	private String go_type;
 	private List<String> go_synonyms;
 	private List<String> go_genes;
 	private List<String> go_species;
-	private String go_type;
 
 	@JsonIgnore
 	public String getDocumentId() {

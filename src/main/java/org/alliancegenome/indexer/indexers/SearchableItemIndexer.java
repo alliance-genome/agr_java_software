@@ -66,8 +66,6 @@ public class SearchableItemIndexer extends Indexer<SearchableItemDocument> {
 		chunkSize = 500;
 		pages = goCount / chunkSize;
 
-		
-		
 		log.debug("GoCount: " + goCount);
 		if(goCount > 0) {
 			startProcess(pages, chunkSize, goCount);
@@ -79,9 +77,6 @@ public class SearchableItemIndexer extends Indexer<SearchableItemDocument> {
 			}
 			finishProcess(goCount);
 		}
-		
-
-
 
 	}
 

@@ -2,11 +2,10 @@ package org.alliancegenome.indexer.document.searchableitem;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import lombok.Data;
-import lombok.ToString;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
-@ToString(includeFieldNames=true)
+@Getter @Setter
 public class DiseaseSearchableItemDocument extends SearchableItemDocument {
 	
 	private String id;

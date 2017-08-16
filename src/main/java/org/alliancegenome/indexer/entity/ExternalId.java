@@ -2,10 +2,11 @@ package org.alliancegenome.indexer.entity;
 
 import org.neo4j.ogm.annotation.NodeEntity;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-@NodeEntity(label="externalId")
-@Data
+@NodeEntity
+@Getter @Setter
 public class ExternalId extends Identifier {
 
 	private String name;

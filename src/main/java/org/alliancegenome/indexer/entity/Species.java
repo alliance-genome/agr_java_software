@@ -5,9 +5,10 @@ import java.util.Set;
 
 import org.neo4j.ogm.annotation.Relationship;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
+@Getter @Setter
 public class Species extends Neo4jNode {
 
 	private String species;

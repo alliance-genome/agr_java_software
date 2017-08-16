@@ -6,10 +6,11 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 
-@Data
-@ToString(includeFieldNames=true)
+@Getter @Setter
 public class GeneSearchableItemDocument extends SearchableItemDocument {
 	
 	private List<String> gene_molecular_function;

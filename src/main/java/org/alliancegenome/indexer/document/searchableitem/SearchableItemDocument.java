@@ -2,11 +2,10 @@ package org.alliancegenome.indexer.document.searchableitem;
 
 import org.alliancegenome.indexer.document.ESDocument;
 
-import lombok.Data;
-import lombok.ToString;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
-@ToString(includeFieldNames=true)
+@Getter @Setter
 public abstract class SearchableItemDocument extends ESDocument {
 
 	private String category;
