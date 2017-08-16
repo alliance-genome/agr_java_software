@@ -20,7 +20,8 @@ public class Main {
 
 		boolean threaded = ConfigHelper.isThreaded();
 
-		log.info("Start Time: " + new Date());
+		Date start = new Date();
+		log.info("Start Time: " + start);
 
 		for(IndexerConfig ic: IndexerConfig.values()) {
 			try {
@@ -62,8 +63,9 @@ public class Main {
 				e.printStackTrace();
 			}
 		}
-
-		log.info("End Time: " + new Date());
+		Date end = new Date();
+		log.info("End Time: " + end);
+		log.info("Total Indexing time: " + (int)((end.getTime() - start.getTime()) / 1000) + " seconds");
 		System.exit(0);
 		
 	}

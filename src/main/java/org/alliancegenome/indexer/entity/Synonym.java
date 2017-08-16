@@ -8,5 +8,6 @@ import lombok.Data;
 @Data
 public class Synonym extends Identifier {
 
+	private String primaryKey;
 	private String name;
 }

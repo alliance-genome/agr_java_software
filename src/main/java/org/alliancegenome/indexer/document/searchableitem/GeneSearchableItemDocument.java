@@ -34,6 +34,7 @@ public class GeneSearchableItemDocument extends SearchableItemDocument {
 	private String geneSynopsis;
 	private List<String> gene_cellular_component;
 	private List<Orthology> orthology;
+	private String geneticEntityExternalUrl;
 
 	@JsonIgnore
 	public String getDocumentId() {

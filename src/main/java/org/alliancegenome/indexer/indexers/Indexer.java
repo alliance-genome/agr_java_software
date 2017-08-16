@@ -47,13 +47,6 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
 		om.setSerializationInclusion(Include.NON_NULL);
 		
 		try {
-			// If you are only one node, you must turn off the sniff feature.
-			//Settings s = Settings.builder()
-					//.put("client.transport.ignore_cluster_name", true)
-					//.put("cluster.name", "docker-cluster")
-					//.put("client.transport.sniff", false)
-					//.build();
-			//client = new TransportClient(s, null);
 			client = new PreBuiltTransportClient(Settings.EMPTY);
 			client.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(ConfigHelper.getEsHost()), ConfigHelper.getEsPort()));
 		} catch (Exception e) {
@@ -85,7 +78,6 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
 	}
 
 	public void addDocuments(Iterable<D> docs) {
-		log.debug("Adding Documents to ES: ");
 		checkMemory();
 
 		BulkRequestBuilder bulkRequest = client.prepareBulk();

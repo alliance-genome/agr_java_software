@@ -25,14 +25,13 @@ public class GeneToSearchableItemTranslator extends EntityDocumentTranslator<Gen
 		GeneSearchableItemDocument s = new GeneSearchableItemDocument();
 
 		s.setCategory("gene");
-		// TODO s.setCrossReferences(crossReferences);
+
 		s.setDataProvider(entity.getDataProvider());
 		s.setDescription(entity.getDescription());
 		
 		if(entity.getSpecies() != null) {
 			s.setSpecies(entity.getSpecies().getName());
 		}
-		// TODO s.setDiseases(diseases);
 
 		ArrayList<String> external_ids = new ArrayList<String>();
 		if(entity.getExternalIds() != null) {
@@ -54,7 +53,7 @@ public class GeneToSearchableItemTranslator extends EntityDocumentTranslator<Gen
 			}
 		}
 		
-		s.setDateProduced(entity.getDataProduced());
+		//s.setDateProduced(entity.getDateProduced());
 
 		s.setGene_biological_process(goTerms.get("biological_process"));
 		s.setGene_cellular_component(goTerms.get("cellular_component"));
@@ -63,13 +62,11 @@ public class GeneToSearchableItemTranslator extends EntityDocumentTranslator<Gen
 		s.setGeneLiteratureUrl(entity.getGeneLiteratureUrl());
 		s.setGeneSynopsis(entity.getGeneSynopsis());
 		s.setGeneSynopsisUrl(entity.getGeneSynopsisUrl());
+		s.setGeneticEntityExternalUrl(entity.getGeneticEntityExternalUrl());
 
-		// TODO s.setGenomeLocations(genomeLocations);
 		s.setHref(null); // This might look wrong but it was taken from the old AGR code base.
-		// TODO s.setModCrossReference(modCrossReference);
 		s.setName(entity.getName());
 		s.setName_key(entity.getSymbol()); // This might look wrong but it was taken from the old AGR code base.
-		// TODO s.setOrthology(orthology);
 		s.setPrimaryId(entity.getPrimaryKey());
 		if(entity.getCreatedBy() != null) {
 			s.setRelease(entity.getCreatedBy().getRelease());
@@ -92,12 +89,25 @@ public class GeneToSearchableItemTranslator extends EntityDocumentTranslator<Gen
 		ArrayList<String> synonyms = new ArrayList<String>();
 		if(entity.getSynonyms() != null) {
 			for(Synonym synonym: entity.getSynonyms()) {
-				synonyms.add(synonym.getName());
+				if(synonym.getPrimaryKey() != null) {
+					synonyms.add(synonym.getPrimaryKey());
+				} else {
+					synonyms.add(synonym.getName());
+				}
 			}
 		}
 		s.setSynonyms(synonyms);
 
 		s.setTaxonId(entity.getTaxonId());
+		
+		// TODO s.setCrossReferences(crossReferences);
+		// TODO s.setOrthology(orthology);
+		// TODO s.setGenomeLocations(genomeLocations);
+		// TODO s.setDiseases(diseases);
+		
+		
+		
+		
 		//log.info(s);
 		
 //		try {

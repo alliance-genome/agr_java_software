@@ -2,10 +2,12 @@ package org.alliancegenome.indexer.entity;
 
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
+import org.neo4j.ogm.annotation.typeconversion.DateString;
 
 import lombok.Data;
 import lombok.ToString;
@@ -23,9 +25,11 @@ public class Gene extends Neo4jNode {
 	private String geneSynopsisUrl;
 	private String dataProvider;
 	private String name;
-	private Date dataProduced;
+
+	//private Date dateProduced;
 	private String description;
 	private String symbol;
+	private String geneticEntityExternalUrl;
 	
 	private Species species;
 	private Entity createdBy;
@@ -33,7 +37,7 @@ public class Gene extends Neo4jNode {
 	
 
 	@Relationship(type = "ALSO_KNOWN_AS")
-	private Set<Synonym> synonyms = new HashSet<>();
+	private Set<Synonym> synonyms;
 	
 	@Relationship(type = "ALSO_KNOWN_AS")
 	private Set<SecondaryId> secondaryIds;
@@ -42,6 +46,6 @@ public class Gene extends Neo4jNode {
 	private Set<ExternalId> externalIds;
 
 	@Relationship(type = "ANNOTATED_TO")
-	private Set<GOTerm> gOTerms = new HashSet<>();
+	private List<GOTerm> gOTerms;
 
 }

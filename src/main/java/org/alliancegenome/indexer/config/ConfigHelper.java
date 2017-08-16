@@ -28,7 +28,6 @@ public class ConfigHelper {
 		defaults.put("DEBUG", "false");
 		defaults.put("THREADED", "false");
 
-		defaults.put("ES_INDEX", "agr");
 		defaults.put("ES_HOST", "localhost");
 		defaults.put("ES_PORT", "9300");
 		defaults.put("NEO4J_HOST", "localhost");
@@ -80,10 +79,6 @@ public class ConfigHelper {
 		String ret = defaults.get(key);
 		if (ret != null) log.info("Setting default: " + key + "=" + ret);
 		return ret;
-	}
-
-	public static String getEsIndex() {
-		return config.get("ES_INDEX");
 	}
 
 	public static String getEsHost() {

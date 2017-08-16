@@ -1,5 +1,5 @@
 package org.alliancegenome.indexer.entity;
 
-public class Ontology extends Neo4jNode {
+public abstract class Ontology extends Neo4jNode {
 
 }
