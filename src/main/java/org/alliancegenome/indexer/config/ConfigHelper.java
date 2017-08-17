@@ -21,23 +21,17 @@ public class ConfigHelper {
 	}
 
 	public static void init() {
-		//Configurator.setRootLevel(Level.DEBUG);
-		//BasicConfigurator.configure();
-		//PropertyConfigurator.configure(ConfigHelper.class.getResource("log4j.properties"));
 
-		defaults.put("DEBUG", "false");
 		defaults.put("THREADED", "false");
-
 		defaults.put("ES_HOST", "localhost");
 		defaults.put("ES_PORT", "9300");
 		defaults.put("NEO4J_HOST", "localhost");
 		defaults.put("NEO4J_PORT", "7687");
 
-
 		if (configProperties.size() == 0) {
 			InputStream in = ConfigHelper.class.getClassLoader().getResourceAsStream("config.properties");
 			if (in == null) {
-				log.info("No config.properties file, other config options will be used");
+				log.debug("No config.properties file, other config options will be used");
 			} else {
 				try {
 					configProperties.load(in);
@@ -48,7 +42,6 @@ public class ConfigHelper {
 		}
 
 		for (String key : defaults.keySet()) {
-			if (!config.containsKey(key)) config.put(key, defaults.get(key));
 			if (config.get(key) == null) config.put(key, loadSystemProperty(key));
 			if (config.get(key) == null) config.put(key, loadConfigProperty(key));
 			if (config.get(key) == null) config.put(key, loadSystemENVProperty(key));
@@ -59,25 +52,25 @@ public class ConfigHelper {
 
 	private static String loadSystemProperty(String key) {
 		String ret = System.getProperty(key);
-		if (ret != null) log.info("Found: -D " + key + "=" + ret);
+		if (ret != null) log.debug("Found: -D " + key + "=" + ret);
 		return ret;
 	}
 
 	private static String loadConfigProperty(String key) {
 		String ret = configProperties.getProperty(key);
-		if (ret != null) log.info("Config File Property: " + key + "=" + ret);
+		if (ret != null) log.debug("Config File Property: " + key + "=" + ret);
 		return ret;
 	}
 
 	private static String loadSystemENVProperty(String key) {
 		String ret = System.getenv(key);
-		if (ret != null) log.info("Found Enviroment ENV[" + key + "]=" + ret);
+		if (ret != null) log.debug("Found Enviroment ENV[" + key + "]=" + ret);
 		return ret;
 	}
 
 	private static String loadDefaultProperty(String key) {
 		String ret = defaults.get(key);
-		if (ret != null) log.info("Setting default: " + key + "=" + ret);
+		if (ret != null) log.debug("Setting default: " + key + "=" + ret);
 		return ret;
 	}
 
@@ -104,11 +97,6 @@ public class ConfigHelper {
 			return 7687;
 		}
 	}
-
-	public static boolean getDebug() {
-		return Boolean.parseBoolean(config.get("DEBUG"));
-	}
-
 
 	public static void printProperties() {
 		log.info("Running with Properties:");

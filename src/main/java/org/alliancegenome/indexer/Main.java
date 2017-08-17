@@ -18,8 +18,6 @@ public class Main {
 
 		HashMap<String, Indexer> indexers = new HashMap<String, Indexer>();
 
-		boolean threaded = ConfigHelper.isThreaded();
-
 		Date start = new Date();
 		log.info("Start Time: " + start);
 
@@ -37,7 +35,7 @@ public class Main {
 		}
 		
 		for(String name: indexers.keySet()) {
-			if(threaded) {
+			if(ConfigHelper.isThreaded()) {
 				log.info("Starting in threaded mode for: " + name);
 				indexers.get(name).start();
 			} else {
