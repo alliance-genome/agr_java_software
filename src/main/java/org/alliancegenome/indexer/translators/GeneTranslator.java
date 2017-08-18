@@ -5,16 +5,18 @@ import org.alliancegenome.indexer.entity.Gene;
 
 public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument> {
 
-	@Override
-	protected GeneDocument entityToDocument(Gene entity) {
+    @Override
+    protected GeneDocument entityToDocument(Gene entity) {
 
-		return null;
-	}
+        GeneDocument document = new GeneDocument();
+        document.setPrimaryId(entity.getPrimaryKey());
+        return document;
+    }
 
-	@Override
-	protected Gene doumentToEntity(GeneDocument doument) {
+    @Override
+    protected Gene doumentToEntity(GeneDocument doument) {
 
-		return null;
-	}
+        return null;
+    }
 
 }

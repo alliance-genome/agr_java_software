@@ -16,7 +16,7 @@ public class Main {
 	public static void main(String[] args) {
 		ConfigHelper.init();
 
-		HashMap<String, Indexer> indexers = new HashMap<String, Indexer>();
+		HashMap<String, Indexer> indexers = new HashMap<>();
 
 		Date start = new Date();
 		log.info("Start Time: " + start);
