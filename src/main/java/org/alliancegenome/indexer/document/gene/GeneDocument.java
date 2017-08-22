@@ -11,6 +11,8 @@ public class GeneDocument extends ESDocument {
 
     private String primaryId;
     private String symbol;
+    private String species;
+    private String taxonId;
 
     @JsonIgnore
     public String getDocumentId() {

@@ -29,7 +29,7 @@ public class DiseaseToSearchableItemTranslator extends EntityDocumentTranslator<
 	}
 
 	@Override
-	protected DOTerm doumentToEntity(SearchableItemDocument doument) {
+	protected DOTerm documentToEntity(SearchableItemDocument document) {
 		// TODO Auto-generated method stub
 		return null;
 	}

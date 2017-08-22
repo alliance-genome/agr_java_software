@@ -11,11 +11,13 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
         GeneDocument document = new GeneDocument();
         document.setPrimaryId(entity.getPrimaryKey());
         document.setSymbol(entity.getSymbol());
+        document.setSpecies(entity.getSpecies().getName());
+        document.setTaxonId(entity.getTaxonId());
         return document;
     }
 
     @Override
-    protected Gene doumentToEntity(GeneDocument doument) {
+    protected Gene documentToEntity(GeneDocument document) {
 
         return null;
     }

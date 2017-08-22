@@ -27,13 +27,13 @@ public class GoToSearchableItemTranslator extends EntityDocumentTranslator<GOTer
 		doc.setDescription(entity.getDescription());
 		doc.setCategory("go");
 
-		ArrayList<String> go_synonyms = new ArrayList<String>();
+		ArrayList<String> go_synonyms = new ArrayList<>();
 		for(Synonym s: entity.getSynonyms()) {
 			go_synonyms.add(s.getPrimaryKey());
 		}
 		doc.setGo_synonyms(go_synonyms);
 		
-		ArrayList<String> go_species = new ArrayList<String>();
+		ArrayList<String> go_species = new ArrayList<>();
 		ArrayList<String> go_genes = new ArrayList<String>();
 		for(Gene g: entity.getGenes()) {
 			if(g.getSpecies() != null && g.getSpecies().getSpecies() != null && !go_species.contains(g.getSpecies().getSpecies())) {
@@ -48,7 +48,7 @@ public class GoToSearchableItemTranslator extends EntityDocumentTranslator<GOTer
 	}
 
 	@Override
-	protected GOTerm doumentToEntity(SearchableItemDocument doument) {
+	protected GOTerm documentToEntity(SearchableItemDocument document) {
 		// TODO Auto-generated method stub
 		return null;
 	}

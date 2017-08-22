@@ -20,7 +20,7 @@ public class GeneToSearchableItemTranslator extends EntityDocumentTranslator<Gen
 	@Override
 	protected SearchableItemDocument entityToDocument(Gene entity) {
 		//log.info(entity);
-		HashMap<String, ArrayList<String>> goTerms = new HashMap<String, ArrayList<String>>();
+		HashMap<String, ArrayList<String>> goTerms = new HashMap<>();
 
 		GeneSearchableItemDocument s = new GeneSearchableItemDocument();
 
@@ -33,7 +33,7 @@ public class GeneToSearchableItemTranslator extends EntityDocumentTranslator<Gen
 			s.setSpecies(entity.getSpecies().getName());
 		}
 
-		ArrayList<String> external_ids = new ArrayList<String>();
+		ArrayList<String> external_ids = new ArrayList<>();
 		if(entity.getExternalIds() != null) {
 			for(ExternalId externalId: entity.getExternalIds()) {
 				external_ids.add(externalId.getName());
@@ -45,7 +45,7 @@ public class GeneToSearchableItemTranslator extends EntityDocumentTranslator<Gen
 		for(GOTerm term: entity.getGOTerms()) {
 			ArrayList<String> list = goTerms.get(term.getType());
 			if(list == null) {
-				list = new ArrayList<String>();
+				list = new ArrayList<>();
 				goTerms.put(term.getType(), list);
 			}
 			if(!list.contains(term.getName())) {
@@ -72,7 +72,7 @@ public class GeneToSearchableItemTranslator extends EntityDocumentTranslator<Gen
 			s.setRelease(entity.getCreatedBy().getRelease());
 		}
 
-		ArrayList<String> secondaryIds = new ArrayList<String>();
+		ArrayList<String> secondaryIds = new ArrayList<>();
 		if(entity.getSecondaryIds() != null) {
 			for(SecondaryId secondaryId: entity.getSecondaryIds()) {
 				secondaryIds.add(secondaryId.getName());
@@ -86,7 +86,7 @@ public class GeneToSearchableItemTranslator extends EntityDocumentTranslator<Gen
 		}
 		s.setSymbol(entity.getSymbol());
 
-		ArrayList<String> synonyms = new ArrayList<String>();
+		ArrayList<String> synonyms = new ArrayList<>();
 		if(entity.getSynonyms() != null) {
 			for(Synonym synonym: entity.getSynonyms()) {
 				if(synonym.getPrimaryKey() != null) {
@@ -124,7 +124,7 @@ public class GeneToSearchableItemTranslator extends EntityDocumentTranslator<Gen
 	}
 
 	@Override
-	protected Gene doumentToEntity(SearchableItemDocument doument) {
+	protected Gene documentToEntity(SearchableItemDocument document) {
 		// We are not going to the database yet so will implement this when we need to
 		return null;
 	}

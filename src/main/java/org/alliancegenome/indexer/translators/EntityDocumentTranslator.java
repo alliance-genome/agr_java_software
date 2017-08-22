@@ -12,17 +12,17 @@ public abstract class EntityDocumentTranslator<E extends Neo4jNode, D extends ES
 	private Logger log = LogManager.getLogger(getClass());
 	
 	public E translate(D doument) {
-		return doumentToEntity(doument);
+		return documentToEntity(doument);
 	}
 
 	public D translate(E entity) {
 		return entityToDocument(entity);
 	}
 
-	public Iterable<E> translateDouments(Iterable<D> douments) {
+	public Iterable<E> translateDocuments(Iterable<D> douments) {
 		ArrayList<E> entities = new ArrayList<E>();
 		for(D document: douments) {
-			entities.add(doumentToEntity(document));
+			entities.add(documentToEntity(document));
 		}
 		return entities;
 	}
@@ -36,6 +36,6 @@ public abstract class EntityDocumentTranslator<E extends Neo4jNode, D extends ES
 	}
 
 	protected abstract D entityToDocument(E entity);
-	protected abstract E doumentToEntity(D doument);
+	protected abstract E documentToEntity(D doument);
 
 }

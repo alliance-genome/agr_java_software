@@ -36,16 +36,16 @@ public class Gene extends Neo4jNode {
 	private Species species;
 
 	@Relationship(type = "ALSO_KNOWN_AS")
-	private Set<Synonym> synonyms = new HashSet<Synonym>();
+	private Set<Synonym> synonyms = new HashSet<>();
 	
 	@Relationship(type = "ALSO_KNOWN_AS")
-	private Set<SecondaryId> secondaryIds = new HashSet<SecondaryId>();
+	private Set<SecondaryId> secondaryIds = new HashSet<>();
 	
 	@Relationship(type = "ALSO_KNOWN_AS")
-	private Set<ExternalId> externalIds = new HashSet<ExternalId>();
+	private Set<ExternalId> externalIds = new HashSet<>();
 
 	@Relationship(type = "ANNOTATED_TO")
-	private Set<GOTerm> gOTerms = new HashSet<GOTerm>();
+	private Set<GOTerm> gOTerms = new HashSet<>();
 	
     @Relationship(type = "IS_IMPLICATED_IN")
     private List<DOTerm> dOTerms;
