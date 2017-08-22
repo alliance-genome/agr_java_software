@@ -2,7 +2,7 @@ package org.alliancegenome.indexer;
 
 import org.alliancegenome.indexer.config.ConfigHelper;
 import org.alliancegenome.indexer.entity.DOTerm;
-import org.alliancegenome.indexer.service.Neo4jESService;
+import org.alliancegenome.indexer.service.Neo4jService;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -29,14 +29,27 @@ public class DiseaseTest {
         });
         Collection<DOTerm> entityt = neo4jService.getEntity("primaryKey", "DOID:9281");
 */
-        Neo4jESService<DOTerm> neo4jService = new Neo4jESService<>(DOTerm.class);
-        List<DOTerm> geneDiseaseList = neo4jService.getDiseasesWithGenes();
-        System.out.println("Number of Diseases with Genes: "+geneDiseaseList.size());
-        geneDiseaseList = neo4jService.getDiseaseInfo();
+
+        Neo4jService<DOTerm> neo4jService = new Neo4jService<>(DOTerm.class);
+        String cypher = "match (n:DOTerm), " +
+        		"(a:Annotation)-[q:ASSOCIATION]->(n), " +
+        		"(m:Gene)-[qq:ASSOCIATION]->(a), " +
+        		"(p:Publication)<-[qqq*]-(a), " +
+        		"(e:EvidenceCode)<-[ee:ANNOTATED_TO]-(p)" +
+        		"return n, q,a,qq,m,qqq,p, ee, e";
+		List<DOTerm> geneDiseaseList = (List<DOTerm>)neo4jService.query(cypher);
+		
+		cypher = "match (n:DOTerm)<-[q:IS_A]-(m:DOTerm)<-[r:IS_IMPLICATED_IN]-(g:Gene) return n,q, m";
+		System.out.println("Number of Diseases with Genes: "+geneDiseaseList.size());
+		
+		cypher = "match (n:DOTerm)<-[q:IS_A]-(m:DOTerm)<-[r:IS_IMPLICATED_IN]-(g:Gene) return n,q, m";
+		List<DOTerm> geneDiseaseInfoList = (List<DOTerm>)neo4jService.query(cypher);
+
         List<DOTerm> fullTerms = geneDiseaseList.stream()
                 .filter(doTerm -> !(doTerm.getPrimaryKey().contains("!")))
                 .collect(Collectors.toList());
         System.out.println("Number of Diseases with Genes Info: "+geneDiseaseList.size());
+
     }
 
 }

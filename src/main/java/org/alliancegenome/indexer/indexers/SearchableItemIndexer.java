@@ -5,7 +5,7 @@ import org.alliancegenome.indexer.document.searchableitem.SearchableItemDocument
 import org.alliancegenome.indexer.entity.DOTerm;
 import org.alliancegenome.indexer.entity.Gene;
 import org.alliancegenome.indexer.entity.GOTerm;
-import org.alliancegenome.indexer.service.Neo4jESService;
+import org.alliancegenome.indexer.service.Neo4jService;
 import org.alliancegenome.indexer.translators.DiseaseToSearchableItemTranslator;
 import org.alliancegenome.indexer.translators.GeneToSearchableItemTranslator;
 import org.alliancegenome.indexer.translators.GoToSearchableItemTranslator;
@@ -14,9 +14,9 @@ import org.apache.logging.log4j.Logger;
 
 public class SearchableItemIndexer extends Indexer<SearchableItemDocument> {
 
-	private Neo4jESService<Gene> geneNeo4jService = new Neo4jESService<Gene>(Gene.class);
-	private Neo4jESService<DOTerm> diseaseNeo4jService = new Neo4jESService<DOTerm>(DOTerm.class);
-	private Neo4jESService<GOTerm> goNeo4jService = new Neo4jESService<GOTerm>(GOTerm.class);
+	private Neo4jService<Gene> geneNeo4jService = new Neo4jService<Gene>(Gene.class);
+	private Neo4jService<DOTerm> diseaseNeo4jService = new Neo4jService<DOTerm>(DOTerm.class);
+	private Neo4jService<GOTerm> goNeo4jService = new Neo4jService<GOTerm>(GOTerm.class);
 
 	private GeneToSearchableItemTranslator geneToSI = new GeneToSearchableItemTranslator();
 	private DiseaseToSearchableItemTranslator diseaseToSI = new DiseaseToSearchableItemTranslator();

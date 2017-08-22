@@ -1,6 +1,7 @@
 package org.alliancegenome.indexer.entity;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.neo4j.ogm.annotation.NodeEntity;
@@ -45,5 +46,8 @@ public class Gene extends Neo4jNode {
 
 	@Relationship(type = "ANNOTATED_TO")
 	private Set<GOTerm> gOTerms = new HashSet<GOTerm>();
+	
+    @Relationship(type = "IS_IMPLICATED_IN")
+    private List<DOTerm> dOTerms;
 	
 }
