@@ -52,7 +52,18 @@ public class Neo4jESService<E> {
     }
 
     public List<DOTerm> getDiseasesWithGenes() {
-        String cypher = "match (n:DOTerm), (m:Gene), (m)-[:IS_IMPLICATED_IN]->(n) return n";
+        String cypher = "match (n:DOTerm), " +
+                "(a:Annotation)-[q:ASSOCIATION]->(n), " +
+                "(m:Gene)-[qq:ASSOCIATION]->(a), " +
+                "(p:Publication)<-[qqq*]-(a), " +
+                "(e:EvidenceCode)<-[ee:ANNOTATED_TO]-(p)" +
+                "return n, q,a,qq,m,qqq,p, ee, e";
+        Iterable<DOTerm> list = neo4jSession.query(entityTypeClazz, cypher, Collections.EMPTY_MAP);
+        return (List<DOTerm>) list;
+    }
+
+    public List<DOTerm> getDiseaseInfo() {
+        String cypher = "match (n:DOTerm)<-[q:IS_A]-(m:DOTerm)<-[r:IS_IMPLICATED_IN]-(g:Gene) return n,q, m";
         Iterable<DOTerm> list = neo4jSession.query(entityTypeClazz, cypher, Collections.EMPTY_MAP);
         return (List<DOTerm>) list;
     }

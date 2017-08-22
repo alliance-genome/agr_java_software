@@ -9,6 +9,7 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.config.Configurator;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class DiseaseTest {
 
@@ -31,6 +32,11 @@ public class DiseaseTest {
         Neo4jESService<DOTerm> neo4jService = new Neo4jESService<>(DOTerm.class);
         List<DOTerm> geneDiseaseList = neo4jService.getDiseasesWithGenes();
         System.out.println("Number of Diseases with Genes: "+geneDiseaseList.size());
+        geneDiseaseList = neo4jService.getDiseaseInfo();
+        List<DOTerm> fullTerms = geneDiseaseList.stream()
+                .filter(doTerm -> !(doTerm.getPrimaryKey().contains("!")))
+                .collect(Collectors.toList());
+        System.out.println("Number of Diseases with Genes Info: "+geneDiseaseList.size());
     }
 
 }

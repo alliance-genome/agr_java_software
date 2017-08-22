@@ -1,8 +1,10 @@
 package org.alliancegenome.indexer.translators;
 
+import org.alliancegenome.indexer.document.disease.AnnotationDocument;
 import org.alliancegenome.indexer.document.disease.DiseaseDocument;
-import org.alliancegenome.indexer.document.gene.GeneDocument;
+import org.alliancegenome.indexer.document.disease.PublicationDocument;
 import org.alliancegenome.indexer.entity.DOTerm;
+import org.alliancegenome.indexer.entity.EvidenceCode;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -17,27 +19,64 @@ public class DiseaseToESDiseaseTranslator extends EntityDocumentTranslator<DOTer
 
     @Override
     protected DiseaseDocument entityToDocument(DOTerm entity) {
+        return entityToDocument(entity, false);
+    }
+
+    private DiseaseDocument entityToDocument(DOTerm entity, boolean shallow) {
 
         log.info(entity);
 
-        DiseaseDocument doc = new DiseaseDocument();
+        DiseaseDocument doc = getTermDiseaseDocument(entity);
 
-        doc.setPrimaryKey(entity.getPrimaryKey());
-        doc.setName(entity.getName());
-
-        if (entity.getGenes() != null) {
-
-            List<GeneDocument> geneDocuments = entity.getGenes().stream()
-                    .map(gene -> {
-                        return geneTranslator.entityToDocument(gene);
-                    })
+        // set parents
+        if (entity.getParents() != null) {
+            List<DiseaseDocument> parentDocs = entity.getParents().stream()
+                    .map(this::getTermDiseaseDocument)
                     .collect(Collectors.toList());
-            entity.getGenes().forEach(gene -> {
-
-            });
-            doc.setGeneDocuments(geneDocuments);
+            doc.setParents(parentDocs);
         }
+
+        // set children
+        if (entity.getChildren() != null) {
+            List<DiseaseDocument> childrenDocs = entity.getChildren().stream()
+                    .map(this::getTermDiseaseDocument)
+                    .collect(Collectors.toList());
+            doc.setChildren(childrenDocs);
+        }
+
+        if (shallow)
+            return doc;
+
+        // generate AnnotationDocument records
+        List<AnnotationDocument> annotationDocuments = entity.getAnnotations()
+                .stream().map(annotation -> {
+                    AnnotationDocument document = new AnnotationDocument();
+                    document.setGeneDocument(geneTranslator.entityToDocument(annotation.getGene()));
+
+                    List<PublicationDocument> pubDocuments = annotation.getPublications().stream()
+                            .map(publication -> {
+                                PublicationDocument pubDoc = new PublicationDocument();
+                                pubDoc.setPrimaryKey(publication.getPrimaryKey());
+                                pubDoc.setPubMedId(publication.getPubMedId());
+                                pubDoc.setPubModId(publication.getPubModId());
+                                pubDoc.setPubModUrl(publication.getPubModUrl());
+                                List<String> evidencesDocument = publication.getEvidence().stream()
+                                        .map(EvidenceCode::getPrimaryKey)
+                                        .collect(Collectors.toList());
+                                pubDoc.setEvidenceCodes(evidencesDocument);
+                                return pubDoc;
+                            })
+                            .collect(Collectors.toList());
+                    document.setPublications(pubDocuments);
+                    return document;
+                })
+                .collect(Collectors.toList());
+        doc.setAnnotations(annotationDocuments);
         return doc;
+    }
+
+    private DiseaseDocument getTermDiseaseDocument(DOTerm doTerm) {
+        return entityToDocument(doTerm, true);
     }
 
     @Override

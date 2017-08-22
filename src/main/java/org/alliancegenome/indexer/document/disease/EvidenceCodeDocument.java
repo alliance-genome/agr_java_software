@@ -1,4 +1,4 @@
-package org.alliancegenome.indexer.document.gene;
+package org.alliancegenome.indexer.document.disease;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
@@ -7,13 +7,13 @@ import org.alliancegenome.indexer.document.ESDocument;
 
 @Getter
 @Setter
-public class GeneDocument extends ESDocument {
+public class EvidenceCodeDocument extends ESDocument {
 
-    private String primaryId;
-    private String symbol;
+    private String primaryKey;
 
     @JsonIgnore
     public String getDocumentId() {
-        return primaryId;
+        return primaryKey;
     }
+
 }

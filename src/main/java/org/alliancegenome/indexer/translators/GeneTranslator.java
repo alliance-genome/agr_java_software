@@ -10,6 +10,7 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
 
         GeneDocument document = new GeneDocument();
         document.setPrimaryId(entity.getPrimaryKey());
+        document.setSymbol(entity.getSymbol());
         return document;
     }
 

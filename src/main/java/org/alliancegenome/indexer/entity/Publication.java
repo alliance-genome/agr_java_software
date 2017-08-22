@@ -14,6 +14,8 @@ public class Publication extends Neo4jNode {
 
     private String primaryKey;
     private String pubMedId;
+    private String pubModId;
+    private String pubModUrl;
     @Relationship(type = "ANNOTATED_TO")
     private List<EvidenceCode> evidence;
 

@@ -1,24 +1,19 @@
 package org.alliancegenome.indexer.document.disease;
 
-import org.alliancegenome.indexer.document.ESDocument;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import lombok.Getter;
 import lombok.Setter;
+import org.alliancegenome.indexer.document.ESDocument;
 import org.alliancegenome.indexer.document.gene.GeneDocument;
 
 import java.util.List;
 
 @Getter @Setter
-public class DiseaseDocument extends ESDocument {
+public class AnnotationDocument extends ESDocument {
 	
 	private String primaryKey;
-	private String name;
-	private String species;
-	private List<AnnotationDocument> annotations;
-	private List<DiseaseDocument> parents;
-	private List<DiseaseDocument> children;
+	private GeneDocument geneDocument;
+	private List<PublicationDocument> publications;
 
 	@JsonIgnore
 	public String getDocumentId() {
