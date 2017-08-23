@@ -38,8 +38,10 @@ public class DiseaseIndexer extends Indexer<DiseaseDocument> {
 				"return n, q,a,qq,m,qqq,p, ee, e, s, ss";
 		List<DOTerm> geneDiseaseList = (List<DOTerm>)neo4jService.query(cypher);
 
-		cypher = "match (n:DOTerm)<-[q:IS_A]-(m:DOTerm)<-[r:IS_IMPLICATED_IN]-(g:Gene) " +
-				 "return n,q, m";
+		cypher = "match (n:DOTerm)<-[q:IS_A]-(m:DOTerm)<-[r:IS_IMPLICATED_IN]-(g:Gene)," +
+				 "(m)-[qq:IS_A]->(o:DOTerm), " +
+  				 "(m)-[ss:ALSO_KNOWN_AS]->(s:Synonym)  " +
+				 "return n,q, m, qq, o, ss, s";
 		List<DOTerm> geneDiseaseInfoList = (List<DOTerm>)neo4jService.query(cypher);
 		Map<String, DOTerm> infoMap = geneDiseaseInfoList.stream()
 				.collect((Collectors.toMap(DOTerm::getPrimaryKey, id -> id)));

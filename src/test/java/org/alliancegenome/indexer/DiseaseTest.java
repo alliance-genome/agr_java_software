@@ -39,10 +39,12 @@ public class DiseaseTest {
         		"return n, q,a,qq,m,qqq,p, ee, e";
 		List<DOTerm> geneDiseaseList = (List<DOTerm>)neo4jService.query(cypher);
 		
-		cypher = "match (n:DOTerm)<-[q:IS_A]-(m:DOTerm)<-[r:IS_IMPLICATED_IN]-(g:Gene) return n,q, m";
 		System.out.println("Number of Diseases with Genes: "+geneDiseaseList.size());
-		
-		cypher = "match (n:DOTerm)<-[q:IS_A]-(m:DOTerm)<-[r:IS_IMPLICATED_IN]-(g:Gene) return n,q, m";
+
+        cypher = "match (n:DOTerm)<-[q:IS_A]-(m:DOTerm)<-[r:IS_IMPLICATED_IN]-(g:Gene)," +
+                "(m)-[qq:IS_A]->(o:DOTerm), " +
+                "(m)-[ss:ALSO_KNOWN_AS]->(s:Synonym)  " +
+                "return m,q, n, qq, o, ss, s";
 		List<DOTerm> geneDiseaseInfoList = (List<DOTerm>)neo4jService.query(cypher);
 
         List<DOTerm> fullTerms = geneDiseaseList.stream()

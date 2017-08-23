@@ -78,7 +78,12 @@ public class DiseaseToESDiseaseTranslator extends EntityDocumentTranslator<DOTer
             document.setDoId(doTerm.getDoId());
         document.setPrimaryKey(doTerm.getPrimaryKey());
         document.setName(doTerm.getName());
-
+        if(doTerm.getSynonyms() != null) {
+            List<String> synonymList = doTerm.getSynonyms().stream()
+                    .map(Synonym::getPrimaryKey)
+                    .collect(Collectors.toList());
+            document.setSynonyms(synonymList);
+        }
         if (shallow)
             return document;
 

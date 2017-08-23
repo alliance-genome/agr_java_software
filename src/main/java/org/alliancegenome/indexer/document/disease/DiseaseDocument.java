@@ -20,6 +20,7 @@ public class DiseaseDocument extends ESDocument {
     private List<AnnotationDocument> annotations;
     private List<DiseaseDocument> parents;
     private List<DiseaseDocument> children;
+    private List<String> synonyms;
 
     // gene-search related fields
     private Set<String> geneNames = new HashSet<>();
