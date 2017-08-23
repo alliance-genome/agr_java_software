@@ -13,6 +13,7 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
+import org.jboss.logging.Logger;
 
 @RequestScoped
 public class SearchService {
@@ -22,6 +23,8 @@ public class SearchService {
 
 	@Inject
 	private SearchHelper searchHelper;
+
+	private static Logger log = Logger.getLogger(SearchService.class);
 
 	public SearchResult query(String q, String category, int limit, int offset, String sort_by, UriInfo uriInfo) {
 

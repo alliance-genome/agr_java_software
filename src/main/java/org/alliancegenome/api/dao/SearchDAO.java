@@ -11,12 +11,13 @@ import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.elasticsearch.search.sort.SortOrder;
+import org.jboss.logging.Logger;
 
 @ApplicationScoped
 @SuppressWarnings("serial")
 public class SearchDAO extends ESDAO {
 
-	//private Logger log = Logger.getLogger(getClass());
+	private Logger log = Logger.getLogger(getClass());
 
 	private List<String> response_fields = new ArrayList<String>() {
 		{
@@ -34,7 +35,7 @@ public class SearchDAO extends ESDAO {
 		SearchRequestBuilder srb1 = searchClient.prepareSearch();
 
 		srb1.setFetchSource(response_fields.toArray(new String[response_fields.size()]), null);
-
+		srb1.setExplain(true);
 		srb1.setIndices(config.getEsIndex());
 		srb1.setQuery(query);
 		srb1.setSize(limit);
@@ -44,6 +45,8 @@ public class SearchDAO extends ESDAO {
 		}
 		srb1.highlighter(highlighter);
 		srb1.setPreference("p_" + query);
+		log.debug(srb1);
+
 		//log.info(srb1);
 		ret[0] = srb1.execute().actionGet();
 

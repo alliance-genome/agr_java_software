@@ -107,7 +107,7 @@ public class SearchHelper {
 
 
 	public List<AggregationBuilder> createAggBuilder(String category) {
-		List<AggregationBuilder> ret = new ArrayList<AggregationBuilder>();
+		List<AggregationBuilder> ret = new ArrayList<>();
 
 		if(category == null || !category_filters.containsKey(category)) {
 			TermsAggregationBuilder term = AggregationBuilders.terms("categories");
@@ -128,7 +128,7 @@ public class SearchHelper {
 
 
 	public ArrayList<AggResult> formatAggResults(String category, SearchResponse res) {
-		ArrayList<AggResult> ret = new ArrayList<AggResult>();
+		ArrayList<AggResult> ret = new ArrayList<>();
 
 		if(category == null) {
 
@@ -193,7 +193,7 @@ public class SearchHelper {
 		ExistsQueryBuilder categoryExists = new ExistsQueryBuilder("category");
 		bool.must(categoryExists);
 
-		ArrayList<String> final_search_fields = new ArrayList<String>();
+		ArrayList<String> final_search_fields = new ArrayList<>();
 		final_search_fields.addAll(search_fields);
 		final_search_fields.addAll(special_search_fields);
 
@@ -247,17 +247,17 @@ public class SearchHelper {
 
 	public ArrayList<Map<String, Object>> formatResults(SearchResponse res) {
 		log.info("Formatting Results: ");
-		ArrayList<Map<String, Object>> ret = new ArrayList<Map<String, Object>>();
+		ArrayList<Map<String, Object>> ret = new ArrayList<>();
 		
 		for(SearchHit hit: res.getHits()) {
 
-			Map<String, Object> map = new HashMap<String, Object>();
+			Map<String, Object> map = new HashMap<>();
 			for(String key: hit.getHighlightFields().keySet()) {
 				if(key.endsWith(".symbol")) {
 					log.info("Source as String: " + hit.getSourceAsString());
 					log.info("Highlights: " + hit.getHighlightFields());
 				}
-				ArrayList<String> list = new ArrayList<String>();
+				ArrayList<String> list = new ArrayList<>();
 				for(Text t: hit.getHighlightFields().get(key).getFragments()) {
 					list.add(t.string());
 				}
@@ -265,6 +265,7 @@ public class SearchHelper {
 			}
 			hit.getSource().put("highlights", map);
 			hit.getSource().put("id", hit.getId());
+			hit.getSource().put("explain", hit.getExplanation());
 			ret.add(hit.getSource());
 		}
 		log.info("Finished Formatting Results: ");
