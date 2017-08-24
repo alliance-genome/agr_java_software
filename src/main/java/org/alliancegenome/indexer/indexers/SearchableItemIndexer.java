@@ -71,7 +71,6 @@ public class SearchableItemIndexer extends Indexer<SearchableItemDocument> {
 			startProcess(pages, chunkSize, goCount);
 			for(int i = 0; i <= pages; i++) {
 				Iterable<GOTerm> go_entities = goNeo4jService.getPage(i, chunkSize);
-				log.info(go_entities);
 				addDocuments(goToSI.translateEntities(go_entities));
 				progress(i, pages, chunkSize);
 			}
