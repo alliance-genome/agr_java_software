@@ -5,7 +5,6 @@ import org.alliancegenome.indexer.document.disease.DiseaseDocument;
 import org.alliancegenome.indexer.document.disease.PublicationDocument;
 import org.alliancegenome.indexer.entity.DOTerm;
 import org.alliancegenome.indexer.entity.EvidenceCode;
-import org.alliancegenome.indexer.entity.Gene;
 import org.alliancegenome.indexer.entity.Synonym;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -52,18 +51,6 @@ public class DiseaseToESDiseaseTranslator extends EntityDocumentTranslator<DOTer
                 .collect(Collectors.toList());
         doc.setAnnotations(annotationDocuments);
 
-        // create search-related fields for genes
-        entity.getAnnotations().forEach(annotation -> {
-            Gene gene = annotation.getGene();
-            doc.addGeneName(gene.getName());
-            doc.addGeneSymbol(gene.getSymbol());
-            doc.addGeneAliases(gene.getSynonyms().stream()
-                    .map(Synonym::getName)
-                    .collect(Collectors.toSet()));
-
-        });
-
-
         return doc;
     }
 
@@ -78,7 +65,13 @@ public class DiseaseToESDiseaseTranslator extends EntityDocumentTranslator<DOTer
             document.setDoId(doTerm.getDoId());
         document.setPrimaryKey(doTerm.getPrimaryKey());
         document.setName(doTerm.getName());
-
+        document.setDefinition(doTerm.getDefinition());
+        if(doTerm.getSynonyms() != null) {
+            List<String> synonymList = doTerm.getSynonyms().stream()
+                    .map(Synonym::getPrimaryKey)
+                    .collect(Collectors.toList());
+            document.setSynonyms(synonymList);
+        }
         if (shallow)
             return document;
 

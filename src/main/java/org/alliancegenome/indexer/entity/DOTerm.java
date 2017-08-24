@@ -19,6 +19,7 @@ public class DOTerm extends Neo4jNode {
     private String doPrefix;
     private String primaryKey;
     private String name;
+    private String definition;
 
     @Relationship(type = "IS_IMPLICATED_IN", direction = Relationship.INCOMING)
     private List<Gene> genes;
@@ -31,5 +32,8 @@ public class DOTerm extends Neo4jNode {
 
     @Relationship(type = "IS_A")
     private List<DOTerm> parents;
+
+    @Relationship(type = "ALSO_KNOWN_AS")
+    private List<Synonym> synonyms;
 
 }

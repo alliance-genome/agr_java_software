@@ -4,6 +4,8 @@ all:
 run:
 	java -jar target/agr_indexer-jar-with-dependencies.jar searchable_item
 
+test:
+	mvn test
 
 docker-build: pull
 	docker build -t agrdocker/agr_indexer_run:develop .
