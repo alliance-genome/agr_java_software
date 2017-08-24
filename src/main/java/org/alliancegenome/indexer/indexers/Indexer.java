@@ -21,7 +21,7 @@ import org.elasticsearch.cluster.metadata.IndexMetaData;
 import org.elasticsearch.common.collect.ImmutableOpenMap;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
-import org.elasticsearch.transport.client.PreBuiltTransportClient;
+import org.elasticsearch.xpack.client.PreBuiltXPackTransportClient;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -33,7 +33,7 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
 	protected IndexerConfig indexConfig;
 	private String newIndexName = null;
 	private String oldIndexName = null;
-	private PreBuiltTransportClient client;
+	private PreBuiltXPackTransportClient client;
 	protected Runtime runtime = Runtime.getRuntime();
 	protected DecimalFormat df = new DecimalFormat("#.00");
 	protected ObjectMapper om = new ObjectMapper();
@@ -47,7 +47,7 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
 		om.setSerializationInclusion(Include.NON_NULL);
 		
 		try {
-			client = new PreBuiltTransportClient(Settings.EMPTY);
+			client = new PreBuiltXPackTransportClient(Settings.EMPTY);
 			client.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(ConfigHelper.getEsHost()), ConfigHelper.getEsPort()));
 		} catch (Exception e) {
 			e.printStackTrace();

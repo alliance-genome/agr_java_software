@@ -39,9 +39,14 @@ public class Main {
 				log.info("Starting in threaded mode for: " + name);
 				indexers.get(name).start();
 			} else {
-				if(args.length > 0 && args[0].equals(name)) {
-					log.info("Starting one indexer: " + name);
-					indexers.get(name).runIndex();
+				if(args.length > 0) {
+					for(int i = 0; i < args.length; i++) {
+						if(args[i].equals(name)) {
+							log.info("Starting indexer: " + name);
+							indexers.get(name).runIndex();
+						}
+					}
+					
 				} else if(args.length == 0) {
 					log.info("Starting indexer sequentially: " + name);
 					indexers.get(name).runIndex();

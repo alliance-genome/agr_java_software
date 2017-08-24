@@ -27,8 +27,6 @@ public class DiseaseIndexer extends Indexer<DiseaseDocument> {
 	@Override
 	public void index() {
 
-
-		Neo4jService<DOTerm> neo4jService = new Neo4jService<>(DOTerm.class);
 		String cypher = "match (n:DOTerm), " +
 				"(a:Annotation)-[q:ASSOCIATION]->(n), " +
 				"(m:Gene)-[qq:ASSOCIATION]->(a), " +

@@ -13,7 +13,7 @@ public class DiseaseToSearchableItemTranslator extends EntityDocumentTranslator<
 	@Override
 	protected SearchableItemDocument entityToDocument(DOTerm entity) {
 		
-		log.info(entity);
+		//log.info(entity);
 		
 		DiseaseSearchableItemDocument doc = new DiseaseSearchableItemDocument();
 
