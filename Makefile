@@ -18,3 +18,6 @@ bash:
 
 docker-run:
 	docker run -p 8080:8080 -t -i agrdocker/agr_api_server:develop
+
+test:
+	mvn test
