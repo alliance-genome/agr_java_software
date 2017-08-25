@@ -10,10 +10,13 @@ import java.util.List;
 @NodeEntity
 @Getter
 @Setter
-public class Annotation extends Neo4jNode {
+public class Association extends Neo4jNode {
 
-    @Relationship(type = "ASSOCIATION", direction = Relationship.OUTGOING)
-    private List<Publication> publications;
+    @Relationship(type = "ASSOCIATION")
+    private Publication publication;
+
+    @Relationship(type = "ASSOCIATION")
+    private List<EvidenceCode> evidenceCodes;
 
     @Relationship(type = "ASSOCIATION", direction = Relationship.INCOMING)
     private Gene gene;

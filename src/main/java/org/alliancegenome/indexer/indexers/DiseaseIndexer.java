@@ -28,12 +28,13 @@ public class DiseaseIndexer extends Indexer<DiseaseDocument> {
 	public void index() {
 
 		String cypher = "match (n:DOTerm), " +
-				"(a:Annotation)-[q:ASSOCIATION]->(n), " +
+				"(a:Association)-[q:ASSOCIATION]->(n), " +
 				"(m:Gene)-[qq:ASSOCIATION]->(a), " +
 				"(p:Publication)<-[qqq*]-(a), " +
-				"(e:EvidenceCode)<-[ee:ANNOTATED_TO]-(p)," +
-				"(s:Species)<-[ss:FROM_SPECIES]-(m) " +
-				"return n, q,a,qq,m,qqq,p, ee, e, s, ss";
+				"(e:EvidenceCode)<-[ee:EVIDENCE]-(a), " +
+				"(s:Species)<-[ss:FROM_SPECIES]-(m), " +
+				"(n)-[ex:ALSO_KNOWN_AS]->(exx:ExternalId)" +
+				"return n, q,a,qq,m,qqq,p, ee, e, s, ss, ex, exx";
 		List<DOTerm> geneDiseaseList = (List<DOTerm>)neo4jService.query(cypher);
 
 		cypher = "match (n:DOTerm)<-[q:IS_A]-(m:DOTerm)<-[r:IS_IMPLICATED_IN]-(g:Gene)," +

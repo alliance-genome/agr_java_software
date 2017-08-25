@@ -20,6 +20,7 @@ public class DiseaseDocument extends ESDocument {
     private List<DiseaseDocument> parents;
     private List<DiseaseDocument> children;
     private List<String> synonyms;
+    private List<String> crossReferences;
 
     @JsonIgnore
     public String getDocumentId() {

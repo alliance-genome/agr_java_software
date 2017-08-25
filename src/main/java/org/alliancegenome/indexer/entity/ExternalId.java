@@ -10,4 +10,5 @@ import lombok.Setter;
 public class ExternalId extends Identifier {
 
 	private String name;
+	private String primaryKey;
 }
