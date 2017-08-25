@@ -3,6 +3,6 @@ FROM agrdocker/agr_api_env:develop
 WORKDIR /workdir/agr_api
 
 ADD . .
-RUN make
+RUN mvn clean package
 
-CMD make docker-run-command
+CMD java -jar target/agr_api-swarm.jar
