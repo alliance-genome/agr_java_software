@@ -11,6 +11,6 @@
 		</Root>
 		<logger name="org.elasticsearch" level="WARN" />
 		<logger name="io.netty" level="INFO" />
-		<logger name="org.neo4j.ogm" level="info" />
+		<logger name="org.neo4j.ogm" level="WARN" />
 	</Loggers>
 </Configuration>
