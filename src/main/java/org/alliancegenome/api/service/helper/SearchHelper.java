@@ -1,27 +1,11 @@
 package org.alliancegenome.api.service.helper;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.enterprise.context.RequestScoped;
-import javax.ws.rs.core.UriInfo;
-
 import org.alliancegenome.api.model.AggDocCount;
 import org.alliancegenome.api.model.AggResult;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.text.Text;
 import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.DisMaxQueryBuilder;
-import org.elasticsearch.index.query.ExistsQueryBuilder;
-import org.elasticsearch.index.query.MatchPhrasePrefixQueryBuilder;
-import org.elasticsearch.index.query.MatchQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.TermQueryBuilder;
-import org.elasticsearch.index.query.functionscore.FunctionScoreQueryBuilder;
-import org.elasticsearch.index.query.functionscore.RandomScoreFunctionBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
@@ -29,6 +13,13 @@ import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.jboss.logging.Logger;
+
+import javax.enterprise.context.RequestScoped;
+import javax.ws.rs.core.UriInfo;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @RequestScoped
 @SuppressWarnings("serial")
@@ -63,9 +54,12 @@ public class SearchHelper {
 		}
 	};
 
-	private HashMap<String, Integer> custom_boosts = new HashMap<String, Integer>() {
+	public Map<String, Float> getBoostMap() { return boostMap; }
+	private Map<String, Float> boostMap = new HashMap<String, Float>() {
 		{
-			put("primaryId", 400);
+			put("symbol.autocomplete",2.0F);
+			put("name.autocomplete",0.1F);
+/*			put("primaryId", 400);
 			put("secondaryIds", 100);
 			put("symbol", 500);
 			put("symbol.raw", 1000);
@@ -76,27 +70,22 @@ public class SearchHelper {
 			put("gene_biological_process.symbol", 50);
 			put("gene_molecular_function.symbol", 50);
 			put("gene_cellular_component.symbol", 50);
-			put("diseases.do_name", 50);
+			put("diseases.do_name", 50);*/
 		}
 	};
 
-	private List<String> search_fields = new ArrayList<String>() {
+	public List<String> getSearchFields() { return searchFields; }
+	private List<String> searchFields = new ArrayList<String>() {
 		{
-			add("primaryId"); add("secondaryIds"); add("name"); add("symbol"); add("symbol.raw"); add("synonyms"); add("synonyms.raw");
-			add("description"); add("external_ids"); add("species"); add("gene_biological_process"); add("gene_molecular_function");
-			add("gene_cellular_component"); add("go_type"); add("go_genes"); add("go_synonyms"); add("disease_genes"); add("disease_synonyms");
-			add("diseases.do_name");
+			add("primaryId"); add("secondaryIds"); add("name"); add("name.autocomplete");
+			add("symbol"); add("symbol.raw"); add("symbol.autocomplete");  add("synonyms"); add("synonyms.raw");
+			add("description"); add("external_ids"); add("species");
+			add("gene_biological_process"); add("gene_molecular_function"); add("gene_cellular_component");
+			add("go_type"); add("go_genes"); add("go_synonyms");
+			add("disease_genes"); add("disease_synonyms"); add("diseases.do_name");
 		}
 	};
 
-	private List<String> special_search_fields = new ArrayList<String>() {
-		{
-			add("name.symbol");
-			add("gene_biological_process.symbol");
-			add("gene_molecular_function.symbol");
-			add("gene_cellular_component.symbol");
-		}
-	};
 
 	private List<String> highlight_blacklist_fields = new ArrayList<String>() {
 		{
@@ -107,7 +96,7 @@ public class SearchHelper {
 
 
 	public List<AggregationBuilder> createAggBuilder(String category) {
-		List<AggregationBuilder> ret = new ArrayList<AggregationBuilder>();
+		List<AggregationBuilder> ret = new ArrayList<>();
 
 		if(category == null || !category_filters.containsKey(category)) {
 			TermsAggregationBuilder term = AggregationBuilders.terms("categories");
@@ -128,7 +117,7 @@ public class SearchHelper {
 
 
 	public ArrayList<AggResult> formatAggResults(String category, SearchResponse res) {
-		ArrayList<AggResult> ret = new ArrayList<AggResult>();
+		ArrayList<AggResult> ret = new ArrayList<>();
 
 		if(category == null) {
 
@@ -158,106 +147,41 @@ public class SearchHelper {
 	}
 
 
+	public boolean filterIsValid(String category, String fieldName) {
+		if (!category_filters.containsKey(category)) { return false; }
 
-	public QueryBuilder buildQuery(String q, String category, UriInfo uriInfo) {
+		List<String> fields = category_filters.get(category);
 
-		QueryBuilder query = QueryBuilders.matchAllQuery();
-
-		if((q == null || q.equals("") || q.length() == 0) && (category == null || category.equals("") || category.length() == 0)) {
-			RandomScoreFunctionBuilder rsfb = new RandomScoreFunctionBuilder();
-			rsfb.seed(12345);
-			return new FunctionScoreQueryBuilder(query, rsfb);
-		}
-
-		if(q == null || q.equals("") || q.length() == 0) {
-			query = QueryBuilders.matchAllQuery();
-		} else {
-			query = buildSearchParams(q);
-		}
-
-		if(category == null || category.equals("") || category.length() == 0) {
-			return query;
-		} else {
-			return buildCategoryQuery(query, category, uriInfo);
-		}
+		return fields.contains(fieldName);
 	}
 
 
-	public QueryBuilder buildSearchParams(String q) {
-
-		q = q.replaceAll("\"", "");
-
-		BoolQueryBuilder bool = QueryBuilders.boolQuery();
-		DisMaxQueryBuilder dis_max = new DisMaxQueryBuilder();
-		bool.must(dis_max);
-		ExistsQueryBuilder categoryExists = new ExistsQueryBuilder("category");
-		bool.must(categoryExists);
-
-		ArrayList<String> final_search_fields = new ArrayList<String>();
-		final_search_fields.addAll(search_fields);
-		final_search_fields.addAll(special_search_fields);
-
-		for(String field: final_search_fields) {
-			MatchQueryBuilder boostedMatchQuery = new MatchQueryBuilder(field, q);
-			if(custom_boosts.containsKey(field)) {
-				boostedMatchQuery.boost(custom_boosts.get(field));
-			} else {
-				boostedMatchQuery.boost(50);
-			}
-			dis_max.add(boostedMatchQuery);
-
-			if(field.contains(".")) {
-				dis_max.add(new MatchPhrasePrefixQueryBuilder(field.split("\\.")[0], q));
-			} else {
-				dis_max.add(new MatchPhrasePrefixQueryBuilder(field, q));
-			}
-
-		}
-
-		return bool;
-	}
-
-	public QueryBuilder buildCategoryQuery(QueryBuilder query, String category, UriInfo uriInfo) {
-
-		BoolQueryBuilder bool = QueryBuilders.boolQuery();
-		bool.must(query);
-		TermQueryBuilder termQueryBuilder = new TermQueryBuilder("category", category);
-		bool.must(termQueryBuilder);
-
-		//		for(Entry<String, List<String>> e: uriInfo.getQueryParameters().entrySet()) {
-		//			System.out.println(e.getKey());
-		//			System.out.println(e.getValue());
-		//			System.out.println();
-		//		}
-
+	public void applyFilters(BoolQueryBuilder bool, String category, UriInfo uriInfo ) {
 		if(category_filters.containsKey(category)) {
 			for(String item: category_filters.get(category)) {
 				if(uriInfo.getQueryParameters().containsKey(item)) {
 					for(String param: uriInfo.getQueryParameters().get(item)) {
-						TermQueryBuilder termQuery = new TermQueryBuilder(item + ".raw", param);
-						bool.must(termQuery);
+						bool.filter(new TermQueryBuilder(item + ".raw", param));
 					}
 				}
 			}
 		}
-
-		return bool;
 	}
 
 
 	public ArrayList<Map<String, Object>> formatResults(SearchResponse res) {
 		log.info("Formatting Results: ");
-		ArrayList<Map<String, Object>> ret = new ArrayList<Map<String, Object>>();
+		ArrayList<Map<String, Object>> ret = new ArrayList<>();
 		
 		for(SearchHit hit: res.getHits()) {
 
-			Map<String, Object> map = new HashMap<String, Object>();
+			Map<String, Object> map = new HashMap<>();
 			for(String key: hit.getHighlightFields().keySet()) {
 				if(key.endsWith(".symbol")) {
 					log.info("Source as String: " + hit.getSourceAsString());
 					log.info("Highlights: " + hit.getHighlightFields());
 				}
-				ArrayList<String> list = new ArrayList<String>();
+				ArrayList<String> list = new ArrayList<>();
 				for(Text t: hit.getHighlightFields().get(key).getFragments()) {
 					list.add(t.string());
 				}
@@ -265,6 +189,7 @@ public class SearchHelper {
 			}
 			hit.getSource().put("highlights", map);
 			hit.getSource().put("id", hit.getId());
+			hit.getSource().put("explain", hit.getExplanation());
 			ret.add(hit.getSource());
 		}
 		log.info("Finished Formatting Results: ");
@@ -275,7 +200,7 @@ public class SearchHelper {
 
 		HighlightBuilder hlb = new HighlightBuilder();
 
-		for(String field: search_fields) {
+		for(String field: searchFields) {
 			if(!highlight_blacklist_fields.contains(field)) {
 				hlb.field(field);
 			}

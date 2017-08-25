@@ -1,22 +1,22 @@
 package org.alliancegenome.api.dao;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.enterprise.context.ApplicationScoped;
-
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.elasticsearch.search.sort.SortOrder;
+import org.jboss.logging.Logger;
+
+import javax.enterprise.context.ApplicationScoped;
+import java.util.ArrayList;
+import java.util.List;
 
 @ApplicationScoped
 @SuppressWarnings("serial")
 public class SearchDAO extends ESDAO {
 
-	//private Logger log = Logger.getLogger(getClass());
+	private Logger log = Logger.getLogger(getClass());
 
 	private List<String> response_fields = new ArrayList<String>() {
 		{
@@ -27,39 +27,30 @@ public class SearchDAO extends ESDAO {
 		}
 	};
 
-	public SearchResponse[] performQuery(QueryBuilder query, List<AggregationBuilder> aggBuilders, int limit, int offset, HighlightBuilder highlighter, String sort) {
+	public SearchResponse performQuery(QueryBuilder query, List<AggregationBuilder> aggBuilders, int limit, int offset, HighlightBuilder highlighter, String sort) {
 
-		SearchResponse[] ret = new SearchResponse[2];
 
-		SearchRequestBuilder srb1 = searchClient.prepareSearch();
+		SearchRequestBuilder searchRequestBuilder = searchClient.prepareSearch();
 
-		srb1.setFetchSource(response_fields.toArray(new String[response_fields.size()]), null);
-
-		srb1.setIndices(config.getEsIndex());
-		srb1.setQuery(query);
-		srb1.setSize(limit);
-		srb1.setFrom(offset);
+		searchRequestBuilder.setFetchSource(response_fields.toArray(new String[response_fields.size()]), null);
+		searchRequestBuilder.setExplain(true);
+		searchRequestBuilder.setIndices(config.getEsIndex());
+		searchRequestBuilder.setQuery(query);
+		searchRequestBuilder.setSize(limit);
+		searchRequestBuilder.setFrom(offset);
 		if(sort != null && sort.equals("alphabetical")) {
-			srb1.addSort("name.raw", SortOrder.ASC);
+			searchRequestBuilder.addSort("name.raw", SortOrder.ASC);
 		}
-		srb1.highlighter(highlighter);
-		srb1.setPreference("p_" + query);
-		//log.info(srb1);
-		ret[0] = srb1.execute().actionGet();
+		searchRequestBuilder.highlighter(highlighter);
+		searchRequestBuilder.setPreference("p_" + query);
 
-		SearchRequestBuilder srb2 = searchClient.prepareSearch();
-
-
-		srb2.setQuery(query);
-		srb2.setSize(0);
 		for(AggregationBuilder aggBuilder: aggBuilders) {
-			srb2.addAggregation(aggBuilder);
+			searchRequestBuilder.addAggregation(aggBuilder);
 		}
-		//log.info(srb2);
-		ret[1] = srb2.execute().actionGet();
 
-		//log.info(ret[1]);
-		return ret;
+		log.info(searchRequestBuilder);
+
+		return  searchRequestBuilder.execute().actionGet();
 
 	}
 
