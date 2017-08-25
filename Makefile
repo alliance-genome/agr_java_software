@@ -7,6 +7,9 @@ run:
 docker-build:
 	docker build -t agrdocker/agr_api_server:develop .
 
+docker-run-command:
+	java -jar target/agr_api-swarm.jar
+
 push:
 	docker push agrdocker/agr_api_server:develop
 
