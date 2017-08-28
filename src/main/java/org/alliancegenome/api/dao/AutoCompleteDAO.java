@@ -18,7 +18,8 @@ public class AutoCompleteDAO extends ESDAO {
 	
 	private List<String> response_fields = new ArrayList<String>() {
 		{
-			add("name_key"); add("name"); add("symbol"); add("href"); add("category");
+			add("name_key"); add("name"); add("symbol");
+			add("primaryId"); add("category");
 		}
 	};
 	
