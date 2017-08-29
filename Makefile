@@ -14,7 +14,7 @@ docker-run: docker-build
 	docker-compose up agr_indexer
 
 pull:
-	docker pull agrdocker/agr_api_env:develop
+	docker pull agrdocker/agr_java_env:develop
 
 bash:
 	docker-compose up agr_indexer bash
