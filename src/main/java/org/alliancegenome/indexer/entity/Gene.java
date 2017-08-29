@@ -47,7 +47,7 @@ public class Gene extends Neo4jNode implements Comparable<Gene> {
     @Relationship(type = "ANNOTATED_TO")
     private Set<GOTerm> gOTerms = new HashSet<>();
 
-    @Relationship(type = "IS_IMPLICATED_IN")
+    @Relationship()
     private List<DOTerm> dOTerms;
 
     @Override

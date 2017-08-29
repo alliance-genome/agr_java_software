@@ -1,6 +1,7 @@
 package org.alliancegenome.indexer.translators;
 
 import org.alliancegenome.indexer.document.disease.AnnotationDocument;
+import org.alliancegenome.indexer.document.disease.DiseaseAnnotationDocument;
 import org.alliancegenome.indexer.document.disease.DiseaseDocument;
 import org.alliancegenome.indexer.document.disease.PublicationDocument;
 import org.alliancegenome.indexer.entity.*;
@@ -13,7 +14,7 @@ import java.util.stream.Collectors;
 
 public class DiseaseToESDiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseDocument> {
 
-private GeneTranslator geneTranslator = new GeneTranslator();
+    private GeneTranslator geneTranslator = new GeneTranslator();
 
     private Logger log = LogManager.getLogger(getClass());
 
@@ -23,9 +24,9 @@ private GeneTranslator geneTranslator = new GeneTranslator();
         DiseaseDocument doc = getTermDiseaseDocument(entity);
 
         // group by gene
-        Map<Gene, List<Association>> geneAssociationMap = entity.getAssociations().stream()
+        Map<Gene, List<DiseaseGeneJoin>> geneAssociationMap = entity.getDiseaseGeneJoins().stream()
                 .collect(
-                        Collectors.groupingBy(Association::getGene,
+                        Collectors.groupingBy(DiseaseGeneJoin::getGene,
                                 Collectors.mapping(association -> association, Collectors.toList())
                         )
                 );
@@ -39,6 +40,7 @@ private GeneTranslator geneTranslator = new GeneTranslator();
                     document.setGeneDocument(geneTranslator.entityToDocument(entry.getKey()));
                     List<PublicationDocument> publicationDocuments = entry.getValue().stream()
                             .map(association -> {
+                                document.setAssoicationType(association.getJoinType());
                                 Publication publication = association.getPublication();
                                 PublicationDocument pubDoc = new PublicationDocument();
                                 pubDoc.setPrimaryKey(publication.getPrimaryKey());
@@ -107,6 +109,20 @@ private GeneTranslator geneTranslator = new GeneTranslator();
         }
 
         return document;
+    }
+
+    protected List<DiseaseAnnotationDocument> diseaseAnnotationDocument(DiseaseDocument document) {
+        List<DiseaseAnnotationDocument> annotations = document.getAnnotations().stream()
+                .map(annotationDocument -> {
+                    DiseaseAnnotationDocument doc = new DiseaseAnnotationDocument();
+                    doc.setDiseaseName(document.getName());
+                    doc.setSpecies(annotationDocument.getGeneDocument().getSpecies());
+                    doc.setAssociationType(annotationDocument.getAssoicationType());
+                    doc.setPublications(annotationDocument.getPublications());
+                    return doc;
+                })
+                .collect(Collectors.toList());
+        return annotations;
     }
 
     @Override

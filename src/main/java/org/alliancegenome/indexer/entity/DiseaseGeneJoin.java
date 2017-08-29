@@ -10,7 +10,9 @@ import java.util.List;
 @NodeEntity
 @Getter
 @Setter
-public class Association extends Neo4jNode {
+public class DiseaseGeneJoin extends Neo4jNode {
+
+    private String joinType;
 
     @Relationship(type = "ASSOCIATION")
     private Publication publication;

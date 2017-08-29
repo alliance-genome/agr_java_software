@@ -25,7 +25,7 @@ public class DOTerm extends Neo4jNode {
     private List<Gene> genes;
 
     @Relationship(type = "ASSOCIATION", direction = Relationship.INCOMING)
-    private List<Association> associations;
+    private List<DiseaseGeneJoin> diseaseGeneJoins;
 
     @Relationship(type = "IS_A", direction = Relationship.INCOMING)
     private List<DOTerm> children;

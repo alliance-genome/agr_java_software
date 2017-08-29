@@ -9,12 +9,17 @@ import org.alliancegenome.indexer.document.gene.GeneDocument;
 import java.util.List;
 
 @Getter @Setter
-public class AnnotationDocument extends ESDocument implements Comparable<AnnotationDocument> {
+public class DiseaseAnnotationDocument extends ESDocument implements Comparable<DiseaseAnnotationDocument> {
 	
 	private String primaryKey;
-	private String assoicationType;
+	private String diseaseName;
+	private String species;
+	private String associationType;
 	private GeneDocument geneDocument;
 	private List<PublicationDocument> publications;
+	private String source;
+	private List<String> parentTermIDs;
+	private List<String> parentTermNames;
 
 	@JsonIgnore
 	public String getDocumentId() {
@@ -22,7 +27,7 @@ public class AnnotationDocument extends ESDocument implements Comparable<Annotat
 	}
 
 	@Override
-	public int compareTo(AnnotationDocument doc) {
+	public int compareTo(DiseaseAnnotationDocument doc) {
 		return 0;
 	}
 }
