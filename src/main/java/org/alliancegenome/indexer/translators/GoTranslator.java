@@ -2,22 +2,21 @@ package org.alliancegenome.indexer.translators;
 
 import java.util.ArrayList;
 
-import org.alliancegenome.indexer.document.searchableitem.GoSearchableItemDocument;
-import org.alliancegenome.indexer.document.searchableitem.SearchableItemDocument;
+import org.alliancegenome.indexer.document.GoDocument;
 import org.alliancegenome.indexer.entity.GOTerm;
 import org.alliancegenome.indexer.entity.Gene;
 import org.alliancegenome.indexer.entity.Synonym;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class GoToSearchableItemTranslator extends EntityDocumentTranslator<GOTerm, SearchableItemDocument> {
+public class GoTranslator extends EntityDocumentTranslator<GOTerm, GoDocument> {
 	
 	private Logger log = LogManager.getLogger(getClass());
 	
 	@Override
-	protected SearchableItemDocument entityToDocument(GOTerm entity) {
+	protected GoDocument entityToDocument(GOTerm entity) {
 		//log.info(entity);
-		GoSearchableItemDocument doc = new GoSearchableItemDocument();
+		GoDocument doc = new GoDocument();
 
 		doc.setName(entity.getName());
 		doc.setHref(entity.getHref());
@@ -48,7 +47,7 @@ public class GoToSearchableItemTranslator extends EntityDocumentTranslator<GOTer
 	}
 
 	@Override
-	protected GOTerm documentToEntity(SearchableItemDocument document) {
+	protected GOTerm documentToEntity(GoDocument document) {
 		// TODO Auto-generated method stub
 		return null;
 	}

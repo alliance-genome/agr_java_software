@@ -4,8 +4,9 @@ import java.util.Date;
 import java.util.HashMap;
 
 import org.alliancegenome.indexer.config.ConfigHelper;
-import org.alliancegenome.indexer.config.IndexerConfig;
+import org.alliancegenome.indexer.config.TypeConfig;
 import org.alliancegenome.indexer.indexers.Indexer;
+import org.alliancegenome.indexer.util.IndexManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -16,15 +17,18 @@ public class Main {
 	public static void main(String[] args) {
 		ConfigHelper.init();
 
+		IndexManager im = new IndexManager();
 		HashMap<String, Indexer> indexers = new HashMap<>();
 
 		Date start = new Date();
 		log.info("Start Time: " + start);
-
-		for(IndexerConfig ic: IndexerConfig.values()) {
+		
+		im.startIndex();
+		
+		for(TypeConfig ic: TypeConfig.values()) {
 			try {
-				Indexer i = (Indexer)ic.getIndexClazz().getDeclaredConstructor(IndexerConfig.class).newInstance(ic);
-				indexers.put(ic.getIndexName(), i);
+				Indexer i = (Indexer)ic.getIndexClazz().getDeclaredConstructor(String.class, TypeConfig.class).newInstance(im.getNewIndexName(), ic);
+				indexers.put(ic.getTypeName(), i);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -34,24 +38,24 @@ public class Main {
 			log.info("Args[" + i + "]: " + args[i]);
 		}
 		
-		for(String name: indexers.keySet()) {
+		for(String type: indexers.keySet()) {
 			if(ConfigHelper.isThreaded()) {
-				log.info("Starting in threaded mode for: " + name);
-				indexers.get(name).start();
+				log.info("Starting in threaded mode for: " + type);
+				indexers.get(type).start();
 			} else {
 				if(args.length > 0) {
 					for(int i = 0; i < args.length; i++) {
-						if(args[i].equals(name)) {
-							log.info("Starting indexer: " + name);
-							indexers.get(name).runIndex();
+						if(args[i].equals(type)) {
+							log.info("Starting indexer: " + type);
+							indexers.get(type).runIndex();
 						}
 					}
 					
 				} else if(args.length == 0) {
-					log.info("Starting indexer sequentially: " + name);
-					indexers.get(name).runIndex();
+					log.info("Starting indexer sequentially: " + type);
+					indexers.get(type).runIndex();
 				} else {
-					log.info("Not Starting: " + name);
+					log.info("Not Starting: " + type);
 				}
 			}
 		}
@@ -66,6 +70,7 @@ public class Main {
 				e.printStackTrace();
 			}
 		}
+		im.finishIndex();
 		Date end = new Date();
 		log.info("End Time: " + end);
 		log.info("Total Indexing time: " + (int)((end.getTime() - start.getTime()) / 1000) + " seconds");

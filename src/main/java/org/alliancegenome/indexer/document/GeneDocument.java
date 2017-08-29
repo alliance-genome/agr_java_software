@@ -1,4 +1,4 @@
-package org.alliancegenome.indexer.document.searchableitem;
+package org.alliancegenome.indexer.document;
 
 import java.util.Date;
 import java.util.List;
@@ -11,7 +11,13 @@ import lombok.Setter;
 import lombok.ToString;
 
 @Getter @Setter
-public class GeneSearchableItemDocument extends SearchableItemDocument {
+public class GeneDocument extends ESDocument {
+	
+	private String category;
+	private String href;
+	private String name;
+	private String name_key;
+	private String description;
 	
 	private List<String> gene_molecular_function;
 	private String taxonId;

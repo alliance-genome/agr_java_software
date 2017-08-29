@@ -4,21 +4,15 @@ import java.net.InetAddress;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
 
 import org.alliancegenome.indexer.config.ConfigHelper;
-import org.alliancegenome.indexer.config.IndexerConfig;
+import org.alliancegenome.indexer.config.TypeConfig;
 import org.alliancegenome.indexer.document.ESDocument;
 import org.alliancegenome.indexer.schema.Mappings;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
-import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
-import org.elasticsearch.action.admin.indices.get.GetIndexResponse;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.bulk.BulkResponse;
-import org.elasticsearch.cluster.metadata.IndexMetaData;
-import org.elasticsearch.common.collect.ImmutableOpenMap;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.xpack.client.PreBuiltXPackTransportClient;
@@ -30,20 +24,20 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public abstract class Indexer<D extends ESDocument> extends Thread {
 
 	private Logger log = LogManager.getLogger(getClass());
-	protected IndexerConfig indexConfig;
-	private String newIndexName = null;
-	private String oldIndexName = null;
+	protected String currentIndex;
+	protected TypeConfig typeConfig;
 	private PreBuiltXPackTransportClient client;
 	protected Runtime runtime = Runtime.getRuntime();
 	protected DecimalFormat df = new DecimalFormat("#.00");
 	protected ObjectMapper om = new ObjectMapper();
-	
+
 	private Date startTime = new Date();
 	private Date lastTime = new Date();
 
-	public Indexer(IndexerConfig indexConfig) {
-		this.indexConfig = indexConfig;
-
+	public Indexer(String currentIndex, TypeConfig typeConfig) {
+		this.currentIndex = currentIndex;
+		this.typeConfig = typeConfig;
+		
 		om.setSerializationInclusion(Include.NON_NULL);
 		
 		try {
@@ -57,17 +51,26 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
 	protected abstract void index();
 
 	public void runIndex() {
-		startIndex();
+		addMapping();
 		index();
-		finishIndex();
+	}
+
+	private void addMapping() {
+		try {
+			Mappings mappingClass = (Mappings)typeConfig.getMappingsClazz().getDeclaredConstructor(Boolean.class).newInstance(true);
+			mappingClass.buildMappings(true);
+			log.debug("Getting Mapping for type: " + typeConfig.getTypeName());
+			client.admin().indices().preparePutMapping(currentIndex).setType(typeConfig.getTypeName()).setSource(mappingClass.getBuilder().string()).get();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override
 	public void run() {
 		super.run();
-		startIndex();
+		addMapping();
 		index();
-		finishIndex();
 	}
 
 
@@ -81,12 +84,12 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
 		checkMemory();
 
 		BulkRequestBuilder bulkRequest = client.prepareBulk();
-		
+
 		for(D doc: docs) {
 			try {
 				String json = om.writeValueAsString(doc);
 				//log.debug("JSON: " + json);
-				bulkRequest.add(client.prepareIndex(newIndexName, indexConfig.getIndexName()).setSource(json).setId(doc.getDocumentId()));
+				bulkRequest.add(client.prepareIndex(currentIndex, typeConfig.getTypeName()).setSource(json).setId(doc.getDocumentId()));
 			} catch (JsonProcessingException e) {
 				e.printStackTrace();
 			}
@@ -94,7 +97,7 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
 		BulkResponse bulkResponse = bulkRequest.get();
 		if (bulkResponse.hasFailures()) {
 			log.error("Has Failures in indexer");
-		    // process failures by iterating through each bulk response item
+			// process failures by iterating through each bulk response item
 		}
 
 	}
@@ -138,96 +141,5 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
 	public double memoryPercent() {
 		return ((double)runtime.totalMemory() - (double)runtime.freeMemory()) / (double)runtime.maxMemory();
 	}
-
-	public void createAlias(String alias, String index) {
-		log.debug("Creating Alias: " + alias + " for index: " + index);
-		client.admin().indices().prepareAliases().addAlias(index, alias).get();
-	}
-	public void removeAlias(String alias, String index) {
-		log.debug("Removing Alias: " + alias + " for index: " + index);
-		client.admin().indices().prepareAliases().removeAlias(index, alias).get();
-	}
-	public void createIndex(String index) {
-		log.debug("Creating index: " + index);
-
-		try {
-
-			log.debug("Getting Mapping for index: " + indexConfig.getIndexName());
-			org.alliancegenome.indexer.schema.Settings settingClass = (org.alliancegenome.indexer.schema.Settings)indexConfig.getSettingsClazz().getDeclaredConstructor(Boolean.class).newInstance(true);
-			Mappings mappingClass = (Mappings)indexConfig.getMappingsClazz().getDeclaredConstructor(Boolean.class).newInstance(true);
-			
-			mappingClass.buildMappings(true);
-			settingClass.buildSettings(true);
-			
-			//log.debug(settingClass.getBuilder().string());
-			//log.debug(mappingClass.getBuilder().string());
-
-			CreateIndexResponse t = client.admin().indices().create(new CreateIndexRequest(index).settings(settingClass.getBuilder().string()).mapping(indexConfig.getIndexName(), mappingClass.getBuilder().string())).get();
-			log.debug(t.toString());
-		} catch (Exception e) {
-			client.admin().indices().prepareRefresh(newIndexName).get();
-			log.error("Indexing Failed: " + index);
-			e.printStackTrace();
-			System.exit(0);
-		}
-	}
-	public void deleteIndex(String index) {
-		log.debug("Deleting Index: " + index);
-		client.admin().indices().prepareDelete(index).get();
-	}
-
-	public void setCurrentIndex() {
-		try {
-			GetIndexResponse t = client.admin().indices().prepareGetIndex().addIndices(indexConfig.getIndexName()).get();
-			//log.debug("Index Found: " + t.getIndices()[0]);
-			oldIndexName = t.getIndices()[0];
-		} catch (Exception e) {
-			oldIndexName = null;
-		}
-		log.info("Current Index: " + oldIndexName);
-		
-		if(oldIndexName != null) {
-			ImmutableOpenMap<String, IndexMetaData> indexList = client.admin().cluster().prepareState().get().getState().getMetaData().getIndices();
-			Iterator<String> keys = indexList.keysIt();
-			while(keys.hasNext()) {
-				String key = keys.next();
-				IndexMetaData index = indexList.get(key);
-
-				if(!index.getIndex().getName().equals(oldIndexName)) {
-					if(index.getIndex().getName().startsWith(indexConfig.getIndexName() + "_")) {
-						deleteIndex(index.getIndex().getName());
-					}
-				}
-			}
-		}
-	}
-
-	private void startIndex() {
-		log.debug("Starting " + indexConfig.getIndexName() + ": ");
-		newIndexName = indexConfig.getIndexName() + "_" + (new Date()).getTime();
-		setCurrentIndex();
-		createIndex(newIndexName);
-		log.debug("Main Index Starting: ");
-	}
-
-	private void finishIndex() {
-		log.debug("Main Index Finished: ");
-		client.admin().indices().prepareRefresh(newIndexName).get();
-
-		if (oldIndexName != null) {
-			removeAlias(indexConfig.getIndexName(), oldIndexName);
-		}
-
-		if (oldIndexName != indexConfig.getIndexName()) {
-			createAlias(indexConfig.getIndexName(), newIndexName);
-			if (oldIndexName != null) {
-				deleteIndex(oldIndexName);
-			}
-		}
-
-		client.close();
-		log.debug(indexConfig.getIndexName() + " Finished: ");
-	}
-
 
 }

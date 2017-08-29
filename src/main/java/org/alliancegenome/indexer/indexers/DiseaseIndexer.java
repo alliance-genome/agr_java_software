@@ -4,11 +4,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.alliancegenome.indexer.config.IndexerConfig;
-import org.alliancegenome.indexer.document.disease.DiseaseDocument;
+import org.alliancegenome.indexer.config.TypeConfig;
+import org.alliancegenome.indexer.document.DiseaseDocument;
 import org.alliancegenome.indexer.entity.DOTerm;
 import org.alliancegenome.indexer.service.Neo4jService;
-import org.alliancegenome.indexer.translators.DiseaseToESDiseaseTranslator;
+import org.alliancegenome.indexer.translators.DiseaseTranslator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -18,10 +18,10 @@ public class DiseaseIndexer extends Indexer<DiseaseDocument> {
 	private Logger log = LogManager.getLogger(getClass());
 
 	private Neo4jService<DOTerm> neo4jService = new Neo4jService<>(DOTerm.class);
-	private DiseaseToESDiseaseTranslator diseaseToSI = new DiseaseToESDiseaseTranslator();
+	private DiseaseTranslator diseaseToSI = new DiseaseTranslator();
 
-	public DiseaseIndexer(IndexerConfig config) {
-		super(config);
+	public DiseaseIndexer(String currnetIndex, TypeConfig config) {
+		super(currnetIndex, config);
 	}
 
 	@Override

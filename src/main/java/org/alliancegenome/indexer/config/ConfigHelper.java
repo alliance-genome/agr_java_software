@@ -25,6 +25,7 @@ public class ConfigHelper {
 		defaults.put("THREADED", "false");
 		defaults.put("ES_HOST", "localhost");
 		defaults.put("ES_PORT", "9300");
+		defaults.put("ES_INDEX", "site_index");
 		defaults.put("NEO4J_HOST", "localhost");
 		defaults.put("NEO4J_PORT", "7687");
 
@@ -107,6 +108,10 @@ public class ConfigHelper {
 
 	public static boolean isThreaded() {
 		return Boolean.parseBoolean(config.get("THREADED"));
+	}
+
+	public static String getEsIndex() {
+		return config.get("ES_INDEX");
 	}
 
 

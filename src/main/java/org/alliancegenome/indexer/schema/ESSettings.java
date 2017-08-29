@@ -1,12 +1,10 @@
-package org.alliancegenome.indexer.schema.settings;
+package org.alliancegenome.indexer.schema;
 
 import java.io.IOException;
 
-import org.alliancegenome.indexer.schema.Settings;
+public class ESSettings extends Settings {
 
-public class SearchableItemSettings extends Settings {
-
-	public SearchableItemSettings(Boolean pretty) {
+	public ESSettings(Boolean pretty) {
 		super(pretty);
 	}
 

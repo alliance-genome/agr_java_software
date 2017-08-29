@@ -1,12 +1,11 @@
-package org.alliancegenome.indexer.document.disease;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.Getter;
-import lombok.Setter;
-import org.alliancegenome.indexer.document.ESDocument;
-import org.alliancegenome.indexer.document.gene.GeneDocument;
+package org.alliancegenome.indexer.document;
 
 import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import lombok.Getter;
+import lombok.Setter;
 
 @Getter @Setter
 public class AnnotationDocument extends ESDocument implements Comparable<AnnotationDocument> {
