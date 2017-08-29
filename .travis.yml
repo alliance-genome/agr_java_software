@@ -4,15 +4,16 @@ jdk:
   - oraclejdk8
 
 before_install:
-  - make docker-pull-es
-  - make docker-run-es-detached
+
 
 install:
   - make all
   - make run &
+  - make docker-pull-es
+  - make docker-run-es-detached
 
 before_script:
-  - sleep 60
+  - sleep 30
 
 script:
   - make test
