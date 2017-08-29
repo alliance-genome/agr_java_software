@@ -11,9 +11,13 @@ install:
   - make all
   - make run &
 
+before_script:
+  - sleep 20
+
 script:
   - make test
-  - mvn verify
+  - curl "http://localhost:8080/api/search?q=fgf"
+#  --mvn verify
 
 notifications:
   slack:
