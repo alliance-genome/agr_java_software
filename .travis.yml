@@ -9,6 +9,7 @@ before_install:
 
 install:
   - make all
+  - make run &
 
 script:
   - make test
