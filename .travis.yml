@@ -3,11 +3,16 @@ language: java
 jdk:
   - oraclejdk8
 
+before_install:
+  - make docker-pull-es
+  - make docker-run-es-detached
+
 install:
   - make all
 
 script:
   - make test
+  - mvn verify
 
 notifications:
   slack:
