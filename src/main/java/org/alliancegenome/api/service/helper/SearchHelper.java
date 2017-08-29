@@ -89,7 +89,7 @@ public class SearchHelper {
 
 	private List<String> highlight_blacklist_fields = new ArrayList<String>() {
 		{
-			add("go_genes");
+			add("go_genes"); add("name.autocomplete");
 		}
 	};
 
