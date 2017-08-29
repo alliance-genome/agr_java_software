@@ -15,10 +15,8 @@ before_script:
   - sleep 60
 
 script:
-#  - make test
-  - curl "http://localhost:9200/_search?q=fgf&pretty=true"
-  - curl "http://localhost:8080/api/search?q=fgf"
-#  --mvn verify
+  - make test
+  --mvn verify
 
 notifications:
   slack:
