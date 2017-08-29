@@ -12,10 +12,11 @@ install:
   - make run &
 
 before_script:
-  - sleep 20
+  - sleep 60
 
 script:
-  - make test
+#  - make test
+  - curl "http://localhost:9200/_search?q=fgf&pretty=true"
   - curl "http://localhost:8080/api/search?q=fgf"
 #  --mvn verify
 
