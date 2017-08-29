@@ -6,7 +6,6 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm>{
 
 	public DiseaseRepository() {
 		super(DOTerm.class);
-
 	}
 
 }

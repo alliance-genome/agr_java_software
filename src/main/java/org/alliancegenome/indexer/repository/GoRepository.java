@@ -6,7 +6,6 @@ public class GoRepository extends Neo4jRepository<GOTerm> {
 
 	public GoRepository() {
 		super(GOTerm.class);
-		
 	}
 
 }
