@@ -5,10 +5,9 @@ import org.alliancegenome.api.model.SearchResult;
 import org.alliancegenome.api.service.helper.SearchHelper;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.MultiMatchQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.TermQueryBuilder;
+import org.elasticsearch.index.query.*;
+import org.elasticsearch.index.query.functionscore.FunctionScoreQueryBuilder;
+import org.elasticsearch.index.query.functionscore.ScoreFunctionBuilders;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.jboss.logging.Logger;
@@ -37,7 +36,8 @@ public class SearchService {
 
 		SearchResult result = new SearchResult();
 
-		QueryBuilder query = buildQuery(q, category, getFilters(category, uriInfo));
+		QueryBuilder query = buildFunctionQuery(q, category, getFilters(category, uriInfo));
+
 		List<AggregationBuilder> aggBuilders = searchHelper.createAggBuilder(category);
 		
 		HighlightBuilder hlb = searchHelper.buildHighlights();
@@ -51,7 +51,24 @@ public class SearchService {
 		return result;
 	}
 
-	public QueryBuilder buildQuery(String q, String category, MultivaluedMap<String,String> filters) {
+	public QueryBuilder buildFunctionQuery(String q, String category, MultivaluedMap<String,String> filters) {
+
+		BoolQueryBuilder bool = buildQuery(q, category, filters);
+
+		MultiMatchQueryBuilder andQuery = multiMatchQuery(q);
+		searchHelper.getSearchFields().stream().forEach(andQuery::field);
+		andQuery.operator(Operator.AND);
+
+		FunctionScoreQueryBuilder.FilterFunctionBuilder[] functions = {
+				new FunctionScoreQueryBuilder.FilterFunctionBuilder(andQuery, ScoreFunctionBuilders.weightFactorFunction(10.0F))
+		};
+
+		FunctionScoreQueryBuilder builder = new FunctionScoreQueryBuilder(bool, functions);
+
+		return builder;
+	}
+
+	public BoolQueryBuilder buildQuery(String q, String category, MultivaluedMap<String,String> filters) {
 
 		BoolQueryBuilder bool = boolQuery();
 
@@ -78,15 +95,14 @@ public class SearchService {
 
 			//expand the map of lists and add each key,value pair as filters
 			filters.entrySet().stream().forEach(entry ->
-				entry.getValue().stream().forEach( value ->
-						bool.filter(new TermQueryBuilder(entry.getKey() + ".raw", value))
-				)
-			);
+			    entry.getValue().stream().forEach(value ->
+				    bool.filter(new TermQueryBuilder(entry.getKey() + ".raw", value))));
 
 		}
 
 		return bool;
 	}
+
 
 	public MultivaluedMap<String,String> getFilters(String category, UriInfo uriInfo) {
 		MultivaluedMap<String,String> map = new MultivaluedHashMap<>();
