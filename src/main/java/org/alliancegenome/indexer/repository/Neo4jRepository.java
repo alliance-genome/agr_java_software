@@ -1,4 +1,4 @@
-package org.alliancegenome.indexer.service;
+package org.alliancegenome.indexer.repository;
 
 import java.util.Collections;
 import java.util.Map;
@@ -8,12 +8,12 @@ import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.query.Pagination;
 import org.neo4j.ogm.session.Session;
 
-public class Neo4jService<E> {
+public class Neo4jRepository<E> {
 
 	protected Class<E> entityTypeClazz;
 	protected Session neo4jSession;
 
-	public Neo4jService(Class<E> entityTypeClazz) {
+	public Neo4jRepository(Class<E> entityTypeClazz) {
 		this.entityTypeClazz = entityTypeClazz;
 		neo4jSession = Neo4jSessionFactory.getInstance().getNeo4jSession();
 	}

@@ -2,7 +2,7 @@ package org.alliancegenome.indexer;
 
 import org.alliancegenome.indexer.config.ConfigHelper;
 import org.alliancegenome.indexer.entity.DOTerm;
-import org.alliancegenome.indexer.service.Neo4jService;
+import org.alliancegenome.indexer.repository.Neo4jRepository;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -31,7 +31,7 @@ public class DiseaseTest {
         Collection<DOTerm> entityt = neo4jService.getEntity("primaryKey", "DOID:9281");
 */
 
-        Neo4jService<DOTerm> neo4jService = new Neo4jService<>(DOTerm.class);
+        Neo4jRepository<DOTerm> neo4jService = new Neo4jRepository<>(DOTerm.class);
         String cypher = "match (n:DOTerm), " +
                 "(a:Association)-[q:ASSOCIATION]->(n), " +
                 "(m:Gene)-[qq:ASSOCIATION]->(a), " +

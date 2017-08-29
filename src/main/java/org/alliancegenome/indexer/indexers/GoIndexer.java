@@ -3,7 +3,7 @@ package org.alliancegenome.indexer.indexers;
 import org.alliancegenome.indexer.config.TypeConfig;
 import org.alliancegenome.indexer.document.GoDocument;
 import org.alliancegenome.indexer.entity.GOTerm;
-import org.alliancegenome.indexer.service.Neo4jService;
+import org.alliancegenome.indexer.repository.GoRepository;
 import org.alliancegenome.indexer.translators.GoTranslator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -11,7 +11,8 @@ import org.apache.logging.log4j.Logger;
 public class GoIndexer extends Indexer<GoDocument> {
 
 	private Logger log = LogManager.getLogger(getClass());
-	private Neo4jService<GOTerm> goNeo4jService = new Neo4jService<GOTerm>(GOTerm.class);
+
+	private GoRepository repo = new GoRepository();
 	private GoTranslator goTrans = new GoTranslator();
 
 	
@@ -21,8 +22,7 @@ public class GoIndexer extends Indexer<GoDocument> {
 	
 	public void index() {
 		
-		
-		int goCount = goNeo4jService.getCount();
+		int goCount = repo.getCount();
 		int chunkSize = 500;
 		int pages = goCount / chunkSize;
 
@@ -30,7 +30,7 @@ public class GoIndexer extends Indexer<GoDocument> {
 		if(goCount > 0) {
 			startProcess(pages, chunkSize, goCount);
 			for(int i = 0; i <= pages; i++) {
-				Iterable<GOTerm> go_entities = goNeo4jService.getPage(i, chunkSize);
+				Iterable<GOTerm> go_entities = repo.getPage(i, chunkSize);
 				addDocuments(goTrans.translateEntities(go_entities));
 				progress(i, pages, chunkSize);
 			}
