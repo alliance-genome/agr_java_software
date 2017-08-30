@@ -1,22 +1,15 @@
 package org.alliancegenome.indexer.translators;
 
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 import org.alliancegenome.indexer.document.AnnotationDocument;
 import org.alliancegenome.indexer.document.DiseaseAnnotationDocument;
 import org.alliancegenome.indexer.document.DiseaseDocument;
 import org.alliancegenome.indexer.document.PublicationDocument;
-import org.alliancegenome.indexer.entity.node.DOTerm;
-import org.alliancegenome.indexer.entity.node.DiseaseGeneJoin;
-import org.alliancegenome.indexer.entity.node.EvidenceCode;
-import org.alliancegenome.indexer.entity.node.ExternalId;
-import org.alliancegenome.indexer.entity.node.Gene;
-import org.alliancegenome.indexer.entity.node.Publication;
-import org.alliancegenome.indexer.entity.node.Synonym;
+import org.alliancegenome.indexer.entity.node.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseDocument> {
 
@@ -28,6 +21,9 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
     protected DiseaseDocument entityToDocument(DOTerm entity) {
 
         DiseaseDocument doc = getTermDiseaseDocument(entity);
+
+        if (entity.getDiseaseGeneJoins() == null)
+            return doc;
 
         // group by gene
         Map<Gene, List<DiseaseGeneJoin>> geneAssociationMap = entity.getDiseaseGeneJoins().stream()
@@ -48,16 +44,7 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
                             .map(association -> {
                                 document.setAssoicationType(association.getJoinType());
                                 Publication publication = association.getPublication();
-                                PublicationDocument pubDoc = new PublicationDocument();
-                                pubDoc.setPrimaryKey(publication.getPrimaryKey());
-                                pubDoc.setPubMedId(publication.getPubMedId());
-                                pubDoc.setPubModId(publication.getPubModId());
-                                pubDoc.setPubModUrl(publication.getPubModUrl());
-                                List<String> evidencesDocument = association.getEvidenceCodes().stream()
-                                        .map(EvidenceCode::getPrimaryKey)
-                                        .collect(Collectors.toList());
-                                pubDoc.setEvidenceCodes(evidencesDocument);
-                                return pubDoc;
+                                return getPublicationDocument(association, publication);
                             })
                             .collect(Collectors.toList());
                     document.setPublications(publicationDocuments);
@@ -68,6 +55,19 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
         doc.setAnnotations(annotationDocuments);
 
         return doc;
+    }
+
+    private PublicationDocument getPublicationDocument(DiseaseGeneJoin association, Publication publication) {
+        PublicationDocument pubDoc = new PublicationDocument();
+        pubDoc.setPrimaryKey(publication.getPrimaryKey());
+        pubDoc.setPubMedId(publication.getPubMedId());
+        pubDoc.setPubModId(publication.getPubModId());
+        pubDoc.setPubModUrl(publication.getPubModUrl());
+        List<String> evidencesDocument = association.getEvidenceCodes().stream()
+                .map(EvidenceCode::getPrimaryKey)
+                .collect(Collectors.toList());
+        pubDoc.setEvidenceCodes(evidencesDocument);
+        return pubDoc;
     }
 
     private DiseaseDocument getTermDiseaseDocument(DOTerm doTerm) {
@@ -117,23 +117,32 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
         return document;
     }
 
-    protected List<DiseaseAnnotationDocument> diseaseAnnotationDocument(DiseaseDocument document) {
-        List<DiseaseAnnotationDocument> annotations = document.getAnnotations().stream()
-                .map(annotationDocument -> {
-                    DiseaseAnnotationDocument doc = new DiseaseAnnotationDocument();
-                    doc.setDiseaseName(document.getName());
-                    doc.setSpecies(annotationDocument.getGeneDocument().getSpecies());
-                    doc.setAssociationType(annotationDocument.getAssoicationType());
-                    doc.setPublications(annotationDocument.getPublications());
-                    return doc;
-                })
-                .collect(Collectors.toList());
-        return annotations;
-    }
-
     @Override
     protected DOTerm documentToEntity(DiseaseDocument document) {
         return null;
     }
 
+    public Iterable<DiseaseAnnotationDocument> translateAnnotationEntities(List<DOTerm> geneDiseaseList) {
+        Set<DiseaseAnnotationDocument> diseaseAnnotationDocuments = new HashSet<>();
+        geneDiseaseList.forEach(doTerm -> {
+            if (doTerm.getDiseaseGeneJoins() == null)
+                return;
+            Set<DiseaseAnnotationDocument> docSet = doTerm.getDiseaseGeneJoins().stream()
+                    .map(diseaseGeneJoin -> {
+                        DiseaseAnnotationDocument doc = new DiseaseAnnotationDocument();
+                        doc.setPrimaryKey(doTerm.getPrimaryKey());
+                        doc.setDiseaseName(doTerm.getName());
+                        doc.setAssociationType(diseaseGeneJoin.getJoinType());
+                        doc.setSpecies(diseaseGeneJoin.getGene().getSpecies().getName());
+                        doc.setGeneDocument(geneTranslator.entityToDocument(diseaseGeneJoin.getGene()));
+                        List<PublicationDocument> pubDocs = new ArrayList<>();
+                        pubDocs.add(getPublicationDocument(diseaseGeneJoin, diseaseGeneJoin.getPublication()));
+                        doc.setPublications(pubDocs);
+                        return doc;
+                    })
+                    .collect(Collectors.toSet());
+            diseaseAnnotationDocuments.addAll(docSet);
+        });
+        return diseaseAnnotationDocuments;
+    }
 }

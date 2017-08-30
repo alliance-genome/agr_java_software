@@ -4,7 +4,6 @@ import org.alliancegenome.indexer.config.ConfigHelper;
 import org.alliancegenome.indexer.entity.node.DOTerm;
 import org.alliancegenome.indexer.repository.DiseaseRepository;
 import org.alliancegenome.indexer.repository.Neo4jRepository;
-import org.alliancegenome.indexer.translators.DiseaseTranslator;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -37,7 +36,7 @@ public class DiseaseTest {
 
         Neo4jRepository<DOTerm> neo4jService = new Neo4jRepository<>(DOTerm.class);
 
-        List<DOTerm> geneDiseaseList = diseaseRepository.getAllDiseaseTermsWithAnnotations();
+        List<DOTerm> geneDiseaseList = diseaseRepository.getAllDiseaseTerms();
 
         System.out.println("Number of Diseases with Genes: " + geneDiseaseList.size());
 
@@ -45,13 +44,7 @@ public class DiseaseTest {
         String cypher = "match (n:Gene)-[*]->(d:DOTerm) return n, d";
         //geneDiseaseList = (List<DOTerm>) neo4jService.query(cypher);
 
-        List<DOTerm> geneDiseaseInfoList = diseaseRepository.getDoTermsWithChildrenAndParents();
 
-
-        geneDiseaseList.forEach(doTerm -> {
-            if(!geneDiseaseInfoList.contains(doTerm))
-                System.out.println(doTerm.getName());
-        });
 
         List<DOTerm> fullTerms = geneDiseaseList.stream()
                 .filter(doTerm -> !(doTerm.getPrimaryKey().contains("!")))
