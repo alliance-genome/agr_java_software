@@ -7,13 +7,14 @@ before_install:
 
 
 install:
-  - make all
-  - make run &
+
   - make docker-pull-es
   - make docker-run-es-detached
 
 before_script:
-  - sleep 30
+  - make all
+  - make run &
+  - sleep 60
 
 script:
   - make test
