@@ -6,35 +6,33 @@ import java.io.IOException;
 
 public class DiseaseMappings extends Mappings {
 
-    public DiseaseMappings(Boolean pretty) {
-        super(pretty);
-    }
+	public DiseaseMappings(Boolean pretty) {
+		super(pretty);
+	}
 
-    public void buildMappings(boolean enclose) {
-        try {
+	public void buildMappings() {
+		try {
 
-            if (enclose) builder.startObject();
-            else {
-                builder.startObject("mappings");
-                builder.startObject("searchable_item");
-            }
+			builder.startObject();
 
-            builder.startObject("properties");
 
-            //buildProperty("primaryId", "keyword");
+				builder.startObject("properties");
+	
+					buildProperty("primaryId", "keyword");
+		
+					//buildGenericField("do_type", "text", null, false, false, true);
+					//buildGenericField("do_species", "text", null, false, false, true);
+					//buildGenericField("do_genes", "text", "symbols", false, false, true);
+	
+				builder.endObject();
 
-            builder.endObject();
+			builder.endObject();
 
-            if (enclose) builder.endObject();
-            else {
-                builder.endObject();
-                builder.endObject();
-            }
 
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 
-    }
+	}
 
 }

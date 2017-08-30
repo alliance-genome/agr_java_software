@@ -2,6 +2,7 @@ package org.alliancegenome.indexer.config;
 
 import org.alliancegenome.indexer.indexers.DiseaseIndexer;
 import org.alliancegenome.indexer.indexers.GeneIndexer;
+import org.alliancegenome.indexer.indexers.GoIndexer;
 import org.alliancegenome.indexer.schema.mappings.DiseaseMappings;
 import org.alliancegenome.indexer.schema.mappings.GeneMappings;
 import org.alliancegenome.indexer.schema.mappings.GoMappings;
@@ -10,7 +11,7 @@ public enum TypeConfig {
 
 	GeneIndexer("gene", GeneIndexer.class, GeneMappings.class, 100),
 	DiseaseIndexer("disease", DiseaseIndexer.class, DiseaseMappings.class, 100),
-	GoIndexer("go", DiseaseIndexer.class, GoMappings.class, 100),
+	GoIndexer("go", GoIndexer.class, GoMappings.class, 100),
 	;
 
 	private int fetchChunkSize;

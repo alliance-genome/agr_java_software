@@ -58,7 +58,7 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
 	private void addMapping() {
 		try {
 			Mappings mappingClass = (Mappings)typeConfig.getMappingsClazz().getDeclaredConstructor(Boolean.class).newInstance(true);
-			mappingClass.buildMappings(true);
+			mappingClass.buildMappings();
 			log.debug("Getting Mapping for type: " + typeConfig.getTypeName());
 			client.admin().indices().preparePutMapping(currentIndex).setType(typeConfig.getTypeName()).setSource(mappingClass.getBuilder().string()).get();
 		} catch (Exception e) {
