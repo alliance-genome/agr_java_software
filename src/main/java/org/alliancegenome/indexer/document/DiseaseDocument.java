@@ -23,6 +23,6 @@ public class DiseaseDocument extends ESDocument {
 
     @JsonIgnore
     public String getDocumentId() {
-        return doId;
+        return primaryKey;
     }
 }
