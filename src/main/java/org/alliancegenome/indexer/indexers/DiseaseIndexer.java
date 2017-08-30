@@ -24,8 +24,6 @@ public class DiseaseIndexer extends Indexer<DiseaseDocument> {
 		super(currnetIndex, config);
 	}
 
-
-
 	@Override
 	public void index() {
 
