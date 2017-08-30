@@ -95,7 +95,7 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
         // set parents
         if (doTerm.getParents() != null) {
             List<DiseaseDocument> parentDocs = doTerm.getParents().stream()
-                    .map(term -> getTermDiseaseDocument(doTerm, true))
+                    .map(term -> getTermDiseaseDocument(term, true))
                     .collect(Collectors.toList());
             document.setParents(parentDocs);
         }
@@ -103,7 +103,7 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
         // set children
         if (doTerm.getChildren() != null) {
             List<DiseaseDocument> childrenDocs = doTerm.getChildren().stream()
-                    .map(term -> getTermDiseaseDocument(doTerm, true))
+                    .map(term -> getTermDiseaseDocument(term, true))
                     .collect(Collectors.toList());
             document.setChildren(childrenDocs);
         }
