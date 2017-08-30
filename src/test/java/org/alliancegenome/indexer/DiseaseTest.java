@@ -33,7 +33,7 @@ public class DiseaseTest {
 
         Neo4jRepository<DOTerm> neo4jService = new Neo4jRepository<>(DOTerm.class);
         String cypher = "match (n:DOTerm), " +
-                "(a:Association)-[q:ASSOCIATION]->(n), " +
+                "(a:DiseaseGeneJoin)-[q:ASSOCIATION]->(n), " +
                 "(m:Gene)-[qq:ASSOCIATION]->(a), " +
                 "(p:Publication)<-[qqq*]-(a), " +
                 "(e:EvidenceCode)<-[ee:EVIDENCE]-(a), " +
@@ -43,11 +43,21 @@ public class DiseaseTest {
 
         System.out.println("Number of Diseases with Genes: " + geneDiseaseList.size());
 
-        cypher = "match (n:DOTerm)<-[q:IS_A]-(m:DOTerm)<-[r:IS_IMPLICATED_IN]-(g:Gene)," +
-                "(m)-[qq:IS_A]->(o:DOTerm), " +
-                "(m)-[ss:ALSO_KNOWN_AS]->(s:Synonym)  " +
-                "return m,q, n, qq, o, ss, s";
+
+        cypher = "match (n:Gene)-[*]->(d:DOTerm) return n, d";
+        //geneDiseaseList = (List<DOTerm>) neo4jService.query(cypher);
+
+        cypher = "MATCH (parent:DOTerm)<-[parentRelation:IS_A]-(root:DOTerm)<-[r:IS_IMPLICATED_IN]-(Gene)," +
+                "(root)-[ss:ALSO_KNOWN_AS]->(synonym:Synonym)  " +
+                "OPTIONAL MATCH (root)<-[childRelation:IS_A]-(child:DOTerm) " +
+                "return root, child, childRelation, parent, parentRelation, synonym";
         List<DOTerm> geneDiseaseInfoList = (List<DOTerm>) neo4jService.query(cypher);
+
+
+        geneDiseaseList.forEach(doTerm -> {
+            if(!geneDiseaseInfoList.contains(doTerm))
+                System.out.println(doTerm.getName());
+        });
 
         List<DOTerm> fullTerms = geneDiseaseList.stream()
                 .filter(doTerm -> !(doTerm.getPrimaryKey().contains("!")))

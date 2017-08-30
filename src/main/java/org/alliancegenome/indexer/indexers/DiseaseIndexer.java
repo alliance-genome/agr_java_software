@@ -1,5 +1,6 @@
 package org.alliancegenome.indexer.indexers;
 
+
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -14,7 +15,6 @@ import org.apache.logging.log4j.Logger;
 
 public class DiseaseIndexer extends Indexer<DiseaseDocument> {
 
-
 	private Logger log = LogManager.getLogger(getClass());
 
 	private DiseaseRepository repo = new DiseaseRepository();
@@ -24,17 +24,19 @@ public class DiseaseIndexer extends Indexer<DiseaseDocument> {
 		super(currnetIndex, config);
 	}
 
+
+
 	@Override
 	public void index() {
 
-		String cypher = "match (n:DOTerm)<-[q:IS_A]-(m:DOTerm)<-[r:IS_IMPLICATED_IN]-(g:Gene)," +
-				 "(m)-[qq:IS_A]->(o:DOTerm), " +
-  				 "(m)-[ss:ALSO_KNOWN_AS]->(s:Synonym)  " +
-				 "return n,q, m, qq, o, ss, s";
+		String cypher = "MATCH (parent:DOTerm)<-[parentRelation:IS_A]-(root:DOTerm)<-[r:IS_IMPLICATED_IN]-(Gene)," +
+				"(root)-[ss:ALSO_KNOWN_AS]->(synonym:Synonym)  " +
+				"OPTIONAL MATCH (root)<-[childRelation:IS_A]-(child:DOTerm) " +
+				"return root, child, childRelation, parent, parentRelation, synonym";
 		List<DOTerm> geneDiseaseInfoList = (List<DOTerm>)repo.query(cypher);
 		Map<String, DOTerm> infoMap = geneDiseaseInfoList.stream()
 				.collect((Collectors.toMap(DOTerm::getPrimaryKey, id -> id)));
-		
+
 		cypher = "match (n:DOTerm), " +
 				"(a:Association)-[q:ASSOCIATION]->(n), " +
 				"(m:Gene)-[qq:ASSOCIATION]->(a), " +
@@ -44,11 +46,17 @@ public class DiseaseIndexer extends Indexer<DiseaseDocument> {
 				"(n)-[ex:ALSO_KNOWN_AS]->(exx:ExternalId)" +
 				"return n, q,a,qq,m,qqq,p, ee, e, s, ss, ex, exx";
 		List<DOTerm> geneDiseaseList = (List<DOTerm>)repo.query(cypher);	
-		
+
 		List<DOTerm> geneDiseaseCompleteList = geneDiseaseList.stream()
-				.peek(doTerm -> {
+				.map(doTerm -> {
 					if (infoMap.get(doTerm.getPrimaryKey()) != null)
 						doTerm.setParents(infoMap.get(doTerm.getPrimaryKey()).getParents());
+					return doTerm;
+				})
+				.map(doTerm -> {
+					if (infoMap.get(doTerm.getPrimaryKey()) != null)
+						doTerm.setChildren(infoMap.get(doTerm.getPrimaryKey()).getChildren());
+					return doTerm;
 				})
 				.collect(Collectors.toList());
 
