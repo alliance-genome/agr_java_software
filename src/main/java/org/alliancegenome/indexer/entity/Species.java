@@ -34,7 +34,7 @@ public class Species extends Neo4jNode implements Comparable<Species> {
         MOUSE("Mus musculus", "NCBITaxon:10090"),
         ZEBRAFISH("Danio rerio", "NCBITaxon:7955"),
         FLY("Drosophila melanogaster", "NCBITaxon:7227"),
-        WORM("Chaenorhabditis elegans", "NCBITaxon:6239"),
+        WORM("Caenorhabditis elegans", "NCBITaxon:6239"), //Caenorhabditis elegans
         YEAST("Saccharomyces cerevisiae", "NCBITaxon:4932"),;
 
         String name;
