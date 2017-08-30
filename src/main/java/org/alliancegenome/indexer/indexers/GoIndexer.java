@@ -23,7 +23,7 @@ public class GoIndexer extends Indexer<GoDocument> {
 	public void index() {
 		
 		int goCount = repo.getCount();
-		int chunkSize = 500;
+		int chunkSize = typeConfig.getFetchChunkSize();
 		int pages = goCount / chunkSize;
 
 		log.debug("GoCount: " + goCount);

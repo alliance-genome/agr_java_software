@@ -22,7 +22,7 @@ public class ConfigHelper {
 
 	public static void init() {
 
-		defaults.put("THREADED", "false");
+		defaults.put("THREADED", "true");
 		defaults.put("ES_HOST", "localhost");
 		defaults.put("ES_PORT", "9300");
 		defaults.put("ES_INDEX", "site_index");

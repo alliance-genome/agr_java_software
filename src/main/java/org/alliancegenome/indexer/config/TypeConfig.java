@@ -9,9 +9,9 @@ import org.alliancegenome.indexer.schema.mappings.GoMappings;
 
 public enum TypeConfig {
 
-	GeneIndexer("gene", GeneIndexer.class, GeneMappings.class, 100),
-	DiseaseIndexer("disease", DiseaseIndexer.class, DiseaseMappings.class, 100),
-	GoIndexer("go", GoIndexer.class, GoMappings.class, 100),
+	GeneIndexer("gene", GeneIndexer.class, GeneMappings.class, 1000),
+	DiseaseIndexer("disease", DiseaseIndexer.class, DiseaseMappings.class, 500),
+	GoIndexer("go", GoIndexer.class, GoMappings.class, 500),
 	;
 
 	private int fetchChunkSize;

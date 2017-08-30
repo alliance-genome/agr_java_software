@@ -59,7 +59,7 @@ public class DiseaseIndexer extends Indexer<DiseaseDocument> {
 				.collect(Collectors.toList());
 
 		int diseaseCount = geneDiseaseCompleteList.size();
-		int chunkSize = 1000;
+		int chunkSize = typeConfig.getFetchChunkSize();
 		int pages = diseaseCount / chunkSize;
 
 		log.debug("DiseaseCount: " + diseaseCount);

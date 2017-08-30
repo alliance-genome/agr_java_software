@@ -22,7 +22,7 @@ public class GeneIndexer extends Indexer<GeneDocument> {
 	public void index() {
 		
 		int geneCount = repo.getCount();
-		int chunkSize = 100;
+		int chunkSize = typeConfig.getFetchChunkSize();
 		int pages = geneCount / chunkSize;
 
 		log.debug("GeneCount: " + geneCount);
