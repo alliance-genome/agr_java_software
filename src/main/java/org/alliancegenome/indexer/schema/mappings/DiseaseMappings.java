@@ -19,10 +19,7 @@ public class DiseaseMappings extends Mappings {
 				builder.startObject("properties");
 	
 					buildProperty("primaryId", "keyword");
-		
-					//buildGenericField("do_type", "text", null, false, false, true);
-					//buildGenericField("do_species", "text", null, false, false, true);
-					//buildGenericField("do_genes", "text", "symbols", false, false, true);
+					buildProperty("external_ids", "text", "symbols");
 	
 				builder.endObject();
 

@@ -14,13 +14,11 @@ public enum TypeConfig {
     DiseaseIndexer("disease", DiseaseIndexer.class, DiseaseMappings.class, 500),
     DiseaseAnnotationIndexer("diseaseAnnotation", DiseaseAnnotationIndexer.class, DiseaseMappings.class, 500),
     GoIndexer("go", GoIndexer.class, GoMappings.class, 500),;
-
-    private int fetchChunkSize;
+	
+	private String typeName;
     private Class<?> indexClazz;
     private Class<?> mappingsClazz;
-    private String typeName;
-    private long commitFreq;
-    private long fetchSize;
+    private int fetchChunkSize;
 
     TypeConfig(String typeName, Class<?> indexClazz, Class<?> mappingsClazz, int fetchChunkSize) {
         this.typeName = typeName;
@@ -29,6 +27,9 @@ public enum TypeConfig {
         this.fetchChunkSize = fetchChunkSize;
     }
 
+    public String getTypeName() {
+        return typeName;
+    }
     public int getFetchChunkSize() {
         return fetchChunkSize;
     }
@@ -41,15 +42,4 @@ public enum TypeConfig {
         return mappingsClazz;
     }
 
-    public String getTypeName() {
-        return typeName;
-    }
-
-    public long getCommitFreq() {
-        return commitFreq;
-    }
-
-    public long getFetchSize() {
-        return fetchSize;
-    }
 }

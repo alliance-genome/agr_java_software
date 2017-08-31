@@ -112,12 +112,12 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
                     .collect(Collectors.toList());
             document.setSynonyms(synonymList);
         }
-        // add cross references
+        // add External Ids
         if (doTerm.getExternalIds() != null) {
-            List<String> crossRefList = doTerm.getExternalIds().stream()
+            List<String> externalIds = doTerm.getExternalIds().stream()
                     .map(ExternalId::getPrimaryKey)
                     .collect(Collectors.toList());
-            document.setCrossReferences(crossRefList);
+            document.setExternal_ids(externalIds);
         }
         if (shallow)
             return document;
