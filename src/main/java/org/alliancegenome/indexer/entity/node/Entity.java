@@ -1,10 +1,12 @@
-package org.alliancegenome.indexer.entity;
+package org.alliancegenome.indexer.entity.node;
+
+import org.alliancegenome.indexer.entity.Neo4jEntity;
 
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter @Setter
-public class Entity extends Neo4jNode {
+public class Entity extends Neo4jEntity {
 	
 	private String release;
 	//private Date dateProduced;

@@ -1,7 +1,8 @@
-package org.alliancegenome.indexer.entity;
+package org.alliancegenome.indexer.entity.node;
 
 import java.util.List;
 
+import org.alliancegenome.indexer.entity.Neo4jEntity;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 
@@ -11,7 +12,7 @@ import lombok.Setter;
 @NodeEntity
 @Getter
 @Setter
-public class DOTerm extends Neo4jNode {
+public class DOTerm extends Neo4jEntity {
 
     private String doUrl;
     private String doDisplayId;

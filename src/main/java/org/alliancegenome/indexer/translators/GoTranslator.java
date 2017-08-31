@@ -3,9 +3,9 @@ package org.alliancegenome.indexer.translators;
 import java.util.ArrayList;
 
 import org.alliancegenome.indexer.document.GoDocument;
-import org.alliancegenome.indexer.entity.GOTerm;
-import org.alliancegenome.indexer.entity.Gene;
-import org.alliancegenome.indexer.entity.Synonym;
+import org.alliancegenome.indexer.entity.node.GOTerm;
+import org.alliancegenome.indexer.entity.node.Gene;
+import org.alliancegenome.indexer.entity.node.Synonym;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

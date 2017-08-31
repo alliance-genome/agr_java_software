@@ -1,4 +1,4 @@
-package org.alliancegenome.indexer.entity;
+package org.alliancegenome.indexer.entity.node;
 
 import lombok.Getter;
 import lombok.Setter;

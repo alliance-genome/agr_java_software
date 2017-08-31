@@ -2,7 +2,7 @@ package org.alliancegenome.indexer.indexers;
 
 import org.alliancegenome.indexer.config.TypeConfig;
 import org.alliancegenome.indexer.document.GoDocument;
-import org.alliancegenome.indexer.entity.GOTerm;
+import org.alliancegenome.indexer.entity.node.GOTerm;
 import org.alliancegenome.indexer.repository.GoRepository;
 import org.alliancegenome.indexer.translators.GoTranslator;
 import org.apache.logging.log4j.LogManager;
@@ -30,7 +30,7 @@ public class GoIndexer extends Indexer<GoDocument> {
 		if(goCount > 0) {
 			startProcess(pages, chunkSize, goCount);
 			for(int i = 0; i <= pages; i++) {
-				Iterable<GOTerm> go_entities = repo.getPage(i, chunkSize);
+				Iterable<GOTerm> go_entities = repo.getGOTermsByPage(i, chunkSize);
 				addDocuments(goTrans.translateEntities(go_entities));
 				progress(i, pages, chunkSize);
 			}

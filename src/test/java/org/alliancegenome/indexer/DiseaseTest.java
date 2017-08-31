@@ -1,7 +1,7 @@
 package org.alliancegenome.indexer;
 
 import org.alliancegenome.indexer.config.ConfigHelper;
-import org.alliancegenome.indexer.entity.DOTerm;
+import org.alliancegenome.indexer.entity.node.DOTerm;
 import org.alliancegenome.indexer.repository.DiseaseRepository;
 import org.alliancegenome.indexer.repository.Neo4jRepository;
 import org.alliancegenome.indexer.translators.DiseaseTranslator;

@@ -1,9 +1,14 @@
-package org.alliancegenome.indexer.entity;
+package org.alliancegenome.indexer.entity.node;
 
 import lombok.Getter;
 import lombok.Setter;
+
+import org.alliancegenome.indexer.entity.Neo4jEntity;
+import org.alliancegenome.indexer.entity.relationship.GenomeLocation;
+import org.alliancegenome.indexer.entity.relationship.Orthologous;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
+import org.neo4j.ogm.annotation.RelationshipEntity;
 
 import java.util.HashSet;
 import java.util.List;
@@ -12,7 +17,7 @@ import java.util.Set;
 @NodeEntity
 @Getter
 @Setter
-public class Gene extends Neo4jNode implements Comparable<Gene> {
+public class Gene extends Neo4jEntity implements Comparable<Gene> {
 
     private String primaryKey;
     private String taxonId;
@@ -47,8 +52,17 @@ public class Gene extends Neo4jNode implements Comparable<Gene> {
     @Relationship(type = "ANNOTATED_TO")
     private Set<GOTerm> gOTerms = new HashSet<>();
 
-    @Relationship()
+    @Relationship(type = "IS_IMPLICATED_IN")
     private List<DOTerm> dOTerms;
+    
+    @Relationship(type = "ORTHOLOGOUS")
+    private List<Orthologous> orthoGenes;
+    
+    @Relationship(type = "LOCATED_ON")
+    private List<GenomeLocation> genomeLocations;
+    
+    @Relationship(type = "CROSS_REFERENCE")
+    private List<CrossReference> crossReferences;
 
     @Override
     public int compareTo(Gene gene) {

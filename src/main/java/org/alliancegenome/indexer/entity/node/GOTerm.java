@@ -1,4 +1,4 @@
-package org.alliancegenome.indexer.entity;
+package org.alliancegenome.indexer.entity.node;
 
 import java.util.HashSet;
 import java.util.Set;
