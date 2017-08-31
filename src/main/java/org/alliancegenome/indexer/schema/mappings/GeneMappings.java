@@ -81,4 +81,35 @@ public class GeneMappings extends Mappings {
 			builder.endObject();
 		builder.endObject();
 	}
+	
+	private void buildMetaDataField() throws IOException {
+		builder.startObject("metaData");
+		builder.startObject("properties");
+		buildProperty("dateProduced", "date");
+		buildProperty("dataProvider", "keyword");
+		buildProperty("release", "keyword");
+		builder.endObject();
+		builder.endObject();
+	}
+
+	private void buildGenomeLocationsField() throws IOException {
+		builder.startObject("genomeLocations");
+		builder.startObject("properties");
+		buildProperty("assembly", "keyword");
+		buildProperty("startPosition", "integer");
+		buildProperty("endPosition", "integer");
+		buildProperty("chromosome", "keyword");
+		buildProperty("strand", "keyword");
+		builder.endObject();
+		builder.endObject();
+	}
+
+	private void buildCrossReferencesField() throws IOException {
+		builder.startObject("crossReferences");
+		builder.startObject("properties");
+		buildProperty("dataProvider", "keyword");
+		buildProperty("id", "keyword");
+		builder.endObject();
+		builder.endObject();
+	}
 }
