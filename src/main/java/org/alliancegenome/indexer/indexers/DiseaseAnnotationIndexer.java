@@ -29,7 +29,7 @@ public class DiseaseAnnotationIndexer extends Indexer<DiseaseAnnotationDocument>
         if (diseaseCount > 0) {
             startProcess(pages, chunkSize, diseaseCount);
             for (int i = 0; i <= pages; i++) {
-                addDocuments(diseaseTrans.translateAnnotationEntities(repo.getDiseaseTermsWithAnnotations(i, chunkSize)));
+                addDocuments(diseaseTrans.translateAnnotationEntities(repo.getAllDiseaseTerms(i * chunkSize, chunkSize)));
                 progress(i, pages, chunkSize);
             }
             finishProcess(diseaseCount);

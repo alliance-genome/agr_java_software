@@ -36,7 +36,8 @@ public class DiseaseTest {
 
         Neo4jRepository<DOTerm> neo4jService = new Neo4jRepository<>(DOTerm.class);
 
-        List<DOTerm> geneDiseaseList = diseaseRepository.getAllDiseaseTerms(0, 20);
+        List<DOTerm> geneDiseaseList = diseaseRepository.getAllDiseaseTerms(0, 100);
+        geneDiseaseList = diseaseRepository.getAllTerms();
 
         System.out.println("Number of Diseases with Genes: " + geneDiseaseList.size());
 
