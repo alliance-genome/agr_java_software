@@ -7,10 +7,13 @@ import javax.inject.Inject;
 
 import org.alliancegenome.api.rest.interfaces.DiseaseRESTInterface;
 import org.alliancegenome.api.service.DiseaseService;
+import org.jboss.logging.Logger;
 
 @RequestScoped
 public class DiseaseController implements DiseaseRESTInterface {
 
+	private Logger log = Logger.getLogger(getClass());
+	
 	@Inject
 	private DiseaseService diseaseService;
 	
