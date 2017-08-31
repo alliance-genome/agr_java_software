@@ -26,8 +26,22 @@ public class DiseaseIndexer extends Indexer<DiseaseDocument> {
     @Override
     public void index() {
 
-        List<DOTerm> geneDiseaseList = repo.getAllDiseaseTerms();
-		addDocuments(diseaseTrans.translateEntities(geneDiseaseList));
+
+        int diseaseCount = repo.getCount();
+        int chunkSize = typeConfig.getFetchChunkSize();
+        int pages = diseaseCount / chunkSize;
+
+        log.debug("DiseaseCount: " + diseaseCount);
+
+        if (diseaseCount > 0) {
+            startProcess(pages, chunkSize, diseaseCount);
+            for (int i = 0; i <= pages; i++) {
+                List<DOTerm> geneDiseaseList = repo.getAllDiseaseTerms(i, chunkSize);
+                addDocuments(diseaseTrans.translateEntities(geneDiseaseList));
+                progress(i, pages, chunkSize);
+            }
+            finishProcess(diseaseCount);
+        }
 
     }
 
