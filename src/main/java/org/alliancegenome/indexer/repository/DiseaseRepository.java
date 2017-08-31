@@ -39,21 +39,20 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
         return (List<DOTerm>) query(cypher);
     }
 
-    public List<DOTerm> getDiseaseTermsWithAnnotations(int start, int maxSize) {
+    public List<DOTerm> getDiseaseTermsWithAnnotations() {
         String cypher = "match (root:DOTerm), " +
                 "(a:Association)-[q:ASSOCIATION]->(root), " +
                 "(m:Gene)-[qq:ASSOCIATION]->(a), " +
                 "(p:Publication)<-[qqq*]-(a), " +
                 "(e:EvidenceCode)<-[ee:EVIDENCE]-(a), " +
                 "(s:Species)<-[ss:FROM_SPECIES]-(m), " +
-                "(root)-[ex:ALSO_KNOWN_AS]->(exx:ExternalId), " +
-                "(root)-[synonymRelation:ALSO_KNOWN_AS]->(synonym:Synonym)  " +
-                "optional match (parent:DOTerm)<-[parentRelation:IS_A]-(root:DOTerm), " +
-                "(child:DOTerm)-[childRelation:IS_A]->(root:DOTerm) " +
-                "return root, q,a,qq,m,qqq,p, ee, e, s, ss, ex, exx, parent, " +
-                "parentRelation, child, childRelation, synonymRelation, synonym " +
+                "(root)-[ex:ALSO_KNOWN_AS]->(exx:ExternalId) " +
+                "return root, q,a,qq,m,qqq,p, ee, e, s, ss, ex, exx " ;
+/*
+        cypher = "match (do:DOTerm)-[r]-(gene:Gene), (do)-[rr]-(as:Association) return do, gene, collect(gene), collect(as) " +
                 "SKIP " + start + " " +
                 "LIMIT " + maxSize;
+*/
         return (List<DOTerm>) query(cypher);
     }
 
@@ -64,5 +63,18 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
                 "return root, parent, " +
                 "parentRelation, child, childRelation";
         return (List<DOTerm>) query(cypher);
+    }
+
+    public long getDiseaseTermsWithAnnotationsCount() {
+        String cypher = "match (root:DOTerm), " +
+                "(a:Association)-[q:ASSOCIATION]->(root), " +
+                "(m:Gene)-[qq:ASSOCIATION]->(a), " +
+                "(p:Publication)<-[qqq*]-(a), " +
+                "(e:EvidenceCode)<-[ee:EVIDENCE]-(a), " +
+                "(s:Species)<-[ss:FROM_SPECIES]-(m), " +
+                "(root)-[ex:ALSO_KNOWN_AS]->(exx:ExternalId) " +
+                "return count(root)";
+        Long s = queryCount(cypher);
+        return s;
     }
 }

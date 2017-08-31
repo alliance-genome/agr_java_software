@@ -3,10 +3,13 @@ package org.alliancegenome.indexer.indexers;
 
 import org.alliancegenome.indexer.config.TypeConfig;
 import org.alliancegenome.indexer.document.DiseaseAnnotationDocument;
+import org.alliancegenome.indexer.entity.node.DOTerm;
 import org.alliancegenome.indexer.repository.DiseaseRepository;
 import org.alliancegenome.indexer.translators.DiseaseTranslator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import java.util.List;
 
 public class DiseaseAnnotationIndexer extends Indexer<DiseaseAnnotationDocument> {
 
@@ -22,18 +25,9 @@ public class DiseaseAnnotationIndexer extends Indexer<DiseaseAnnotationDocument>
     @Override
     public void index() {
 
-        int diseaseCount = repo.getCount();
-        int chunkSize = typeConfig.getFetchChunkSize();
-        int pages = diseaseCount / chunkSize;
-
-        if (diseaseCount > 0) {
-            startProcess(pages, chunkSize, diseaseCount);
-            for (int i = 0; i <= pages; i++) {
-                addDocuments(diseaseTrans.translateAnnotationEntities(repo.getAllDiseaseTerms(i * chunkSize, chunkSize)));
-                progress(i, pages, chunkSize);
-            }
-            finishProcess(diseaseCount);
-        }
+        List<DOTerm> diseaseTermsWithAnnotations = repo.getDiseaseTermsWithAnnotations();
+        log.info("Disease Records with annotations: " + diseaseTermsWithAnnotations.size());
+        addDocuments(diseaseTrans.translateAnnotationEntities(diseaseTermsWithAnnotations));
 
     }
 

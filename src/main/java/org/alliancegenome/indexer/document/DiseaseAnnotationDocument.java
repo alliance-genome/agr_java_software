@@ -12,6 +12,7 @@ import java.util.List;
 public class DiseaseAnnotationDocument extends ESDocument implements Comparable<DiseaseAnnotationDocument> {
 	
 	private String primaryKey;
+	private String diseaseID;
 	private String diseaseName;
 	private String species;
 	private String associationType;

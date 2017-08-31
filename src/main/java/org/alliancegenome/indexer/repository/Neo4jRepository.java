@@ -39,6 +39,10 @@ public class Neo4jRepository<E> {
 		return neo4jSession.query(entityTypeClazz, cypherQuery, Collections.EMPTY_MAP);
 	}
 
+	public Long queryCount(String cypherQuery) {
+		return (Long) neo4jSession.query(cypherQuery, Collections.EMPTY_MAP ).iterator().next().values().iterator().next();
+	}
+
 	public Iterable<E> query(String cypherQuery, Map<String, String> params) {
 		return neo4jSession.query(entityTypeClazz, cypherQuery, params);
 	}
