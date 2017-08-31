@@ -96,7 +96,7 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
 		}
 		BulkResponse bulkResponse = bulkRequest.get();
 		if (bulkResponse.hasFailures()) {
-			log.error("Has Failures in indexer");
+			log.error("Has Failures in indexer: " + bulkResponse.buildFailureMessage());
 			// process failures by iterating through each bulk response item
 		}
 
