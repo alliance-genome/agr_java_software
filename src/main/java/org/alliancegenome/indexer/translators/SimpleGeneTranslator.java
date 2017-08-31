@@ -1,7 +1,7 @@
 package org.alliancegenome.indexer.translators;
 
 import org.alliancegenome.indexer.document.GeneDocument;
-import org.alliancegenome.indexer.entity.Gene;
+import org.alliancegenome.indexer.entity.node.Gene;
 
 public class SimpleGeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument> {
 

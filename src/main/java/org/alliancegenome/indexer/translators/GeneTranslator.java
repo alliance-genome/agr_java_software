@@ -2,13 +2,18 @@ package org.alliancegenome.indexer.translators;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
+import org.alliancegenome.indexer.document.CrossReferenceDocument;
 import org.alliancegenome.indexer.document.GeneDocument;
-import org.alliancegenome.indexer.entity.ExternalId;
-import org.alliancegenome.indexer.entity.GOTerm;
-import org.alliancegenome.indexer.entity.Gene;
-import org.alliancegenome.indexer.entity.SecondaryId;
-import org.alliancegenome.indexer.entity.Synonym;
+import org.alliancegenome.indexer.document.GenomeLocationDocument;
+import org.alliancegenome.indexer.entity.node.CrossReference;
+import org.alliancegenome.indexer.entity.node.ExternalId;
+import org.alliancegenome.indexer.entity.node.GOTerm;
+import org.alliancegenome.indexer.entity.node.Gene;
+import org.alliancegenome.indexer.entity.node.SecondaryId;
+import org.alliancegenome.indexer.entity.node.Synonym;
+import org.alliancegenome.indexer.entity.relationship.GenomeLocation;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -21,15 +26,15 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
 		//log.info(entity);
 		HashMap<String, ArrayList<String>> goTerms = new HashMap<>();
 
-		GeneDocument s = new GeneDocument();
+		GeneDocument geneDocument = new GeneDocument();
 
-		s.setCategory("gene");
+		geneDocument.setCategory("gene");
 
-		s.setDataProvider(entity.getDataProvider());
-		s.setDescription(entity.getDescription());
-		
+		geneDocument.setDataProvider(entity.getDataProvider());
+		geneDocument.setDescription(entity.getDescription());
+
 		if(entity.getSpecies() != null) {
-			s.setSpecies(entity.getSpecies().getName());
+			geneDocument.setSpecies(entity.getSpecies().getName());
 		}
 
 		ArrayList<String> external_ids = new ArrayList<>();
@@ -38,7 +43,7 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
 				external_ids.add(externalId.getName());
 			}
 		}
-		s.setExternal_ids(external_ids);
+		geneDocument.setExternal_ids(external_ids);
 
 		// Setup Go Terms by type
 		for(GOTerm term: entity.getGOTerms()) {
@@ -51,24 +56,24 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
 				list.add(term.getName());
 			}
 		}
-		
+
 		//s.setDateProduced(entity.getDateProduced());
 
-		s.setGene_biological_process(goTerms.get("biological_process"));
-		s.setGene_cellular_component(goTerms.get("cellular_component"));
-		s.setGene_molecular_function(goTerms.get("molecular_function"));
+		geneDocument.setGene_biological_process(goTerms.get("biological_process"));
+		geneDocument.setGene_cellular_component(goTerms.get("cellular_component"));
+		geneDocument.setGene_molecular_function(goTerms.get("molecular_function"));
 
-		s.setGeneLiteratureUrl(entity.getGeneLiteratureUrl());
-		s.setGeneSynopsis(entity.getGeneSynopsis());
-		s.setGeneSynopsisUrl(entity.getGeneSynopsisUrl());
-		s.setGeneticEntityExternalUrl(entity.getGeneticEntityExternalUrl());
+		geneDocument.setGeneLiteratureUrl(entity.getGeneLiteratureUrl());
+		geneDocument.setGeneSynopsis(entity.getGeneSynopsis());
+		geneDocument.setGeneSynopsisUrl(entity.getGeneSynopsisUrl());
+		geneDocument.setGeneticEntityExternalUrl(entity.getGeneticEntityExternalUrl());
 
-		s.setHref(null); // This might look wrong but it was taken from the old AGR code base.
-		s.setName(entity.getName());
-		s.setName_key(entity.getSymbol()); // This might look wrong but it was taken from the old AGR code base.
-		s.setPrimaryId(entity.getPrimaryKey());
+		geneDocument.setHref(null); // This might look wrong but it was taken from the old AGR code base.
+		geneDocument.setName(entity.getName());
+		geneDocument.setName_key(entity.getSymbol()); // This might look wrong but it was taken from the old AGR code base.
+		geneDocument.setPrimaryId(entity.getPrimaryKey());
 		if(entity.getCreatedBy() != null) {
-			s.setRelease(entity.getCreatedBy().getRelease());
+			geneDocument.setRelease(entity.getCreatedBy().getRelease());
 		}
 
 		ArrayList<String> secondaryIds = new ArrayList<>();
@@ -77,13 +82,13 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
 				secondaryIds.add(secondaryId.getName());
 			}		
 		}
-		s.setSecondaryIds(secondaryIds);
+		geneDocument.setSecondaryIds(secondaryIds);
 
 		if(entity.getSOTerm() != null) {
-			s.setSoTermId(entity.getSOTerm().getPrimaryKey());
-			s.setSoTermName(entity.getSOTerm().getName());
+			geneDocument.setSoTermId(entity.getSOTerm().getPrimaryKey());
+			geneDocument.setSoTermName(entity.getSOTerm().getName());
 		}
-		s.setSymbol(entity.getSymbol());
+		geneDocument.setSymbol(entity.getSymbol());
 
 		ArrayList<String> synonyms = new ArrayList<>();
 		if(entity.getSynonyms() != null) {
@@ -95,31 +100,42 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
 				}
 			}
 		}
-		s.setSynonyms(synonyms);
+		geneDocument.setSynonyms(synonyms);
 
-		s.setTaxonId(entity.getTaxonId());
-		
-		// TODO s.setCrossReferences(crossReferences);
+		geneDocument.setTaxonId(entity.getTaxonId());
+
 		// TODO s.setOrthology(orthology);
-		// TODO s.setGenomeLocations(genomeLocations);
 		// TODO s.setDiseases(diseases);
-		
-		
-		
-		
-		//log.info(s);
-		
-//		try {
-//			ObjectMapper mapper = new ObjectMapper();
-//			log.info("JSON Entity: " + mapper.writerWithDefaultPrettyPrinter().writeValueAsString(entity));
-//			log.info("JSON Document: " + mapper.writerWithDefaultPrettyPrinter().writeValueAsString(s));
-//		} catch (JsonProcessingException e) {
-//			e.printStackTrace();
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
-		
-		return s;
+
+		if(entity.getGenomeLocations() != null) {
+			List<GenomeLocationDocument> gllist = new ArrayList<>();
+			for(GenomeLocation location: entity.getGenomeLocations()) {
+				GenomeLocationDocument loc = new GenomeLocationDocument(
+						location.getStart(),
+						location.getEnd(),
+						location.getAssembly(),
+						location.getStrand(),
+						location.getChromosome().getPrimaryKey());
+
+				gllist.add(loc);
+			}
+			geneDocument.setGenomeLocations(gllist);
+		}
+
+		if(entity.getCrossReferences() != null) {
+			List<CrossReferenceDocument> crlist = new ArrayList<>();
+			for(CrossReference cr: entity.getCrossReferences()) {
+				CrossReferenceDocument crd = new CrossReferenceDocument(
+						cr.getCrossrefCompleteUrl(),
+						cr.getLocalId(),
+						String.valueOf(cr.getId()),
+						cr.getGlobalCrossrefId());
+				crlist.add(crd);
+			}
+			geneDocument.setCrossReferences(crlist);
+		}
+
+		return geneDocument;
 	}
 
 	@Override

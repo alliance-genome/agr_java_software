@@ -1,4 +1,4 @@
-package org.alliancegenome.indexer.entity;
+package org.alliancegenome.indexer.entity.node;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -10,7 +10,7 @@ import java.util.List;
 @NodeEntity
 @Getter
 @Setter
-public class DiseaseGeneJoin extends Neo4jNode {
+public class DiseaseGeneJoin extends Association {
 
     private String joinType;
 

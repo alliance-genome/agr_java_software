@@ -1,4 +1,4 @@
-package org.alliancegenome.indexer.entity;
+package org.alliancegenome.indexer.entity.node;
 
 import org.neo4j.ogm.annotation.NodeEntity;
 
@@ -7,8 +7,8 @@ import lombok.Setter;
 
 @NodeEntity
 @Getter @Setter
-public class Synonym extends Identifier {
+public class ExternalId extends Identifier {
 
-	private String primaryKey;
 	private String name;
+	private String primaryKey;
 }

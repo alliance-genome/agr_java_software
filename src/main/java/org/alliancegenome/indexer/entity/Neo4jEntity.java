@@ -4,7 +4,8 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Getter @Setter
-public class SecondaryId extends Identifier {
+public abstract class Neo4jEntity {
 
-	private String name;
+	private Long id;
+
 }

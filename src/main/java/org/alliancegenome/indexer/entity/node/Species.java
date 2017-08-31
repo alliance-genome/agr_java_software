@@ -1,7 +1,9 @@
-package org.alliancegenome.indexer.entity;
+package org.alliancegenome.indexer.entity.node;
 
 import lombok.Getter;
 import lombok.Setter;
+
+import org.alliancegenome.indexer.entity.Neo4jEntity;
 import org.neo4j.ogm.annotation.Relationship;
 
 import java.util.HashSet;
@@ -9,7 +11,7 @@ import java.util.Set;
 
 @Getter
 @Setter
-public class Species extends Neo4jNode implements Comparable<Species> {
+public class Species extends Neo4jEntity implements Comparable<Species> {
 
     private String species;
     private String primaryId;

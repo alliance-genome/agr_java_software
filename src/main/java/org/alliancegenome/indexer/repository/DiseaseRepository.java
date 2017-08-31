@@ -1,10 +1,10 @@
 package org.alliancegenome.indexer.repository;
 
-import org.alliancegenome.indexer.entity.DOTerm;
-
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import org.alliancegenome.indexer.entity.node.DOTerm;
 
 public class DiseaseRepository extends Neo4jRepository<DOTerm> {
 

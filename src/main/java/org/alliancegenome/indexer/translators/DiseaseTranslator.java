@@ -5,6 +5,13 @@ import org.alliancegenome.indexer.document.DiseaseAnnotationDocument;
 import org.alliancegenome.indexer.document.DiseaseDocument;
 import org.alliancegenome.indexer.document.PublicationDocument;
 import org.alliancegenome.indexer.entity.*;
+import org.alliancegenome.indexer.entity.node.DOTerm;
+import org.alliancegenome.indexer.entity.node.DiseaseGeneJoin;
+import org.alliancegenome.indexer.entity.node.EvidenceCode;
+import org.alliancegenome.indexer.entity.node.ExternalId;
+import org.alliancegenome.indexer.entity.node.Gene;
+import org.alliancegenome.indexer.entity.node.Publication;
+import org.alliancegenome.indexer.entity.node.Synonym;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
