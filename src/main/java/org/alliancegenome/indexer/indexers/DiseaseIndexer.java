@@ -36,7 +36,7 @@ public class DiseaseIndexer extends Indexer<DiseaseDocument> {
         if (diseaseCount > 0) {
             startProcess(pages, chunkSize, diseaseCount);
             for (int i = 0; i <= pages; i++) {
-                List<DOTerm> geneDiseaseList = repo.getAllDiseaseTerms(i, chunkSize);
+                List<DOTerm> geneDiseaseList = repo.getAllDiseaseTerms(i * chunkSize, chunkSize);
                 addDocuments(diseaseTrans.translateEntities(geneDiseaseList));
                 progress(i, pages, chunkSize);
             }
