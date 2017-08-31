@@ -23,7 +23,7 @@ public class GeneMappings extends Mappings {
 					buildGenericField("category", "keyword", null, true, false, true);
 					
 					buildProperty("description", "text");
-					buildDiseasesField();
+					//buildDiseasesField();
 					buildProperty("external_ids", "text", "symbols");
 					buildProperty("geneLiteratureUrl", "keyword");
 					buildProperty("geneSynopsis", "text");
@@ -53,34 +53,34 @@ public class GeneMappings extends Mappings {
 		}
 	}
 	
-	private void buildDiseasesField() throws IOException {
-		builder.startObject("diseases");
-			builder.startObject("properties");
-				buildProperty("do_id", "text", "symbols");
-				buildProperty("do_name", "text");
-				buildProperty("dataProvider", "text");
-				buildProperty("associationType", "text");
-				builder.startObject("evidence");
-					builder.startObject("properties");
-						buildProperty("evidenceCode", "text");
-						builder.startObject("pubs");
-							builder.startObject("properties");
-								buildProperty("pubmedId", "text");
-								buildProperty("publicationModId", "text");
-							builder.endObject();
-						builder.endObject();
-					builder.endObject();
-				builder.endObject();
-				builder.startObject("doIdDisplay");
-					builder.startObject("properties");
-						buildProperty("displayId", "text");
-						buildProperty("url", "text");
-						buildProperty("prefix", "text");
-					builder.endObject();
-				builder.endObject();
-			builder.endObject();
-		builder.endObject();
-	}
+//	private void buildDiseasesField() throws IOException {
+//		builder.startObject("diseases");
+//			builder.startObject("properties");
+//				buildProperty("do_id", "text", "symbols");
+//				buildProperty("do_name", "text");
+//				buildProperty("dataProvider", "text");
+//				buildProperty("associationType", "text");
+//				builder.startObject("evidence");
+//					builder.startObject("properties");
+//						buildProperty("evidenceCode", "text");
+//						builder.startObject("pubs");
+//							builder.startObject("properties");
+//								buildProperty("pubmedId", "text");
+//								buildProperty("publicationModId", "text");
+//							builder.endObject();
+//						builder.endObject();
+//					builder.endObject();
+//				builder.endObject();
+//				builder.startObject("doIdDisplay");
+//					builder.startObject("properties");
+//						buildProperty("displayId", "text");
+//						buildProperty("url", "text");
+//						buildProperty("prefix", "text");
+//					builder.endObject();
+//				builder.endObject();
+//			builder.endObject();
+//		builder.endObject();
+//	}
 	
 	private void buildMetaDataField() throws IOException {
 		builder.startObject("metaData");

@@ -28,9 +28,7 @@ public class GeneDocument extends ESDocument {
 	private List<String> external_ids;
 	private String dataProvider;
 	private Date dateProduced;
-	
-	//private List<Disease> diseases; // Still needs to be filled in so search genes by disease
-	
+	private List<DiseaseDocument> diseases;
 	private String geneSynopsisUrl;
 	private String primaryId;
 	private List<GenomeLocationDocument> genomeLocations;

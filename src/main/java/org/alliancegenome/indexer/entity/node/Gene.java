@@ -33,7 +33,6 @@ public class Gene extends Neo4jEntity implements Comparable<Gene> {
     private String symbol;
     private String geneticEntityExternalUrl;
 
-
     private Entity createdBy;
     private SOTerm sOTerm;
 
@@ -53,7 +52,7 @@ public class Gene extends Neo4jEntity implements Comparable<Gene> {
     private Set<GOTerm> gOTerms = new HashSet<>();
 
     @Relationship(type = "IS_IMPLICATED_IN")
-    private List<DOTerm> dOTerms;
+    private Set<DOTerm> dOTerms = new HashSet<>();
     
     @Relationship(type = "ORTHOLOGOUS")
     private List<Orthologous> orthoGenes;

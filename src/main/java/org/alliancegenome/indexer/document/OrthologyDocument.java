@@ -14,8 +14,8 @@ public class OrthologyDocument extends ESDocument {
 	private boolean isBestRevScore;
 	private String confidence;
 	
-	private int gene1Species;
-	private int gene2Species;
+	private String gene1Species;
+	private String gene2Species;
 	
 	private String gene1SpeciesName;
 	private String gene2SpeciesName;

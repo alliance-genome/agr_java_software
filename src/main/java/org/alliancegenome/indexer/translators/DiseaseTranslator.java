@@ -1,10 +1,13 @@
 package org.alliancegenome.indexer.translators;
 
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import org.alliancegenome.indexer.document.AnnotationDocument;
 import org.alliancegenome.indexer.document.DiseaseAnnotationDocument;
 import org.alliancegenome.indexer.document.DiseaseDocument;
 import org.alliancegenome.indexer.document.PublicationDocument;
-import org.alliancegenome.indexer.entity.*;
 import org.alliancegenome.indexer.entity.node.DOTerm;
 import org.alliancegenome.indexer.entity.node.DiseaseGeneJoin;
 import org.alliancegenome.indexer.entity.node.EvidenceCode;
@@ -14,10 +17,6 @@ import org.alliancegenome.indexer.entity.node.Publication;
 import org.alliancegenome.indexer.entity.node.Synonym;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseDocument> {
 
@@ -44,7 +43,7 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
                 .sorted(Map.Entry.comparingByKey())
                 .map(entry -> {
                     AnnotationDocument document = new AnnotationDocument();
-                    document.setGeneDocument(geneTranslator.entityToDocument(entry.getKey()));
+                    document.setGeneDocument(geneTranslator.translate(entry.getKey()));
                     List<PublicationDocument> publicationDocuments = entry.getValue().stream()
                             .map(association -> {
                                 document.setAssoicationType(association.getJoinType());
@@ -134,7 +133,6 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
 
     @Override
     protected DOTerm documentToEntity(DiseaseDocument document) {
-        // TODO Auto-generated method stub
         return null;
     }
 

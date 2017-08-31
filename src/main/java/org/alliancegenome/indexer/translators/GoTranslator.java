@@ -50,7 +50,6 @@ public class GoTranslator extends EntityDocumentTranslator<GOTerm, GoDocument> {
 
 	@Override
 	protected GOTerm documentToEntity(GoDocument document) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 

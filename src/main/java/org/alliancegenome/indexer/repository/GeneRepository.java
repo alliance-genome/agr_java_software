@@ -8,9 +8,10 @@ public class GeneRepository extends Neo4jRepository<Gene> {
 		super(Gene.class);
 	}
 
-	public Iterable<Gene> getGeneByPage(int i, int chunkSize) {
-		
-		return null;
+	public Iterable<Gene> getGeneByPage(int page, int size) {
+		String query = "MATCH p=(g:Gene)-[]-() SKIP " + (page * size) + " LIMIT " + size;
+		query += " RETURN p";
+		return query(query);
 	}
 
 }
