@@ -28,6 +28,7 @@ public class GeneIndexer extends Indexer<GeneDocument> {
 		log.debug("GeneCount: " + geneCount);
 		if(geneCount > 0) {
 			startProcess(pages, chunkSize, geneCount);
+			// Number 70806
 			for(int i = 0; i <= pages; i++) {
 				Iterable<Gene> gene_entities = repo.getPage(i, chunkSize);
 				addDocuments(geneTrans.translateEntities(gene_entities));

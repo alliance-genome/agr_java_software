@@ -114,14 +114,18 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
 		if(entity.getOrthoGenes() != null) {
 			List<OrthologyDocument> olist = new ArrayList<>();
 			for(Orthologous orth: entity.getOrthoGenes()) {
+				//log.info("Id: " + entity.getPrimaryKey());
+				//log.info(entity.getSpecies());
+				//log.info(orth.getGene1());
+				//log.info(orth.getGene2().getSpecies());
 				OrthologyDocument doc = new OrthologyDocument(
 						orth.getUuid(),
 						orth.isBestScore(),
 						orth.isBestRevScore(),
 						orth.getConfidence(),
-						orth.getGene1().getSpecies().getPrimaryId(),
+						null, //orth.getGene1().getSpecies().getPrimaryId(),
 						null, //orth.getGene2().getSpecies().getPrimaryId(),
-						orth.getGene1().getSpecies().getName(),
+						null, //orth.getGene1().getSpecies().getName(),
 						null, //orth.getGene2().getSpecies().getName(),
 						orth.getGene2().getSymbol(),
 						orth.getGene2().getPrimaryKey(),
