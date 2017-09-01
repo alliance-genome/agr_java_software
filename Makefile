@@ -34,3 +34,9 @@ reload: stopes removees
 	docker-compose up agr_elasticsearch
 	sleep 10
 	docker-compose up agr_indexer
+
+docker-pull-neo:
+	docker pull agrdocker/agr_neo4j_qc_data_image:develop
+
+docker-run-neo:
+	docker run -p 7474:7474 -p 7687:7687 --env NEO4J_dbms_memory_heap_maxSize=8g agrdocker/agr_neo4j_qc_data_image:develop
