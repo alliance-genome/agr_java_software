@@ -6,9 +6,12 @@ import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 
 import org.alliancegenome.api.dao.DiseaseDAO;
+import org.jboss.logging.Logger;
 
 @RequestScoped
 public class DiseaseService {
+	
+	private Logger log = Logger.getLogger(getClass());
 	
 	@Inject
 	private DiseaseDAO diseaseDAO;

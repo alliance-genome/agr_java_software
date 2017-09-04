@@ -31,11 +31,13 @@ public class SearchHelper {
 		{
 			put("gene", new ArrayList<String>() {
 				{
+					add("species");
 					add("soTermName");
+					add("diseases.do_name");
 					add("gene_biological_process");
 					add("gene_molecular_function");
 					add("gene_cellular_component");
-					add("species");
+
 				}
 			});
 			put("go", new ArrayList<String>() {
@@ -89,7 +91,7 @@ public class SearchHelper {
 
 	private List<String> highlight_blacklist_fields = new ArrayList<String>() {
 		{
-			add("go_genes");
+			add("go_genes"); add("name.autocomplete");
 		}
 	};
 

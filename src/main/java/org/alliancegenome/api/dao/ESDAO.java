@@ -52,9 +52,7 @@ public class ESDAO {
 			GetResponse res = searchClient.get(request).get();
 			//log.info(res);
 			return res.getSource();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		} catch (ExecutionException e) {
+		} catch (InterruptedException | ExecutionException e) {
 			e.printStackTrace();
 		}
 		return null;
