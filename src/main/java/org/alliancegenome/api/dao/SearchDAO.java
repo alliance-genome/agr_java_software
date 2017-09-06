@@ -1,5 +1,10 @@
 package org.alliancegenome.api.dao;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.enterprise.context.ApplicationScoped;
+
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.QueryBuilder;
@@ -7,10 +12,6 @@ import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 import org.jboss.logging.Logger;
-
-import javax.enterprise.context.ApplicationScoped;
-import java.util.ArrayList;
-import java.util.List;
 
 @ApplicationScoped
 @SuppressWarnings("serial")
@@ -29,7 +30,6 @@ public class SearchDAO extends ESDAO {
 
 	public SearchResponse performQuery(QueryBuilder query, List<AggregationBuilder> aggBuilders, int limit, int offset, HighlightBuilder highlighter, String sort) {
 
-
 		SearchRequestBuilder searchRequestBuilder = searchClient.prepareSearch();
 
 		searchRequestBuilder.setFetchSource(response_fields.toArray(new String[response_fields.size()]), null);
@@ -47,8 +47,6 @@ public class SearchDAO extends ESDAO {
 		for(AggregationBuilder aggBuilder: aggBuilders) {
 			searchRequestBuilder.addAggregation(aggBuilder);
 		}
-
-		log.info(searchRequestBuilder);
 
 		return  searchRequestBuilder.execute().actionGet();
 

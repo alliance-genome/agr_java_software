@@ -24,8 +24,6 @@ public class AutoCompleteService {
 	
 	public AutoCompleteResult buildQuery(String q, String category) {
 
-		log.info("This is the Auto Complete query: " + q);
-		
 		QueryBuilder query = autoCompleteHelper.buildQuery(q, category);
 		SearchResponse res = autoCompleteDAO.performQuery(query);
 		AutoCompleteResult result = new AutoCompleteResult();
