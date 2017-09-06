@@ -45,7 +45,7 @@ public class SearchService {
 		SearchResponse searchResponse = searchDAO.performQuery(query, aggBuilders, limit, offset, hlb, sort_by);
 
 		result.total = searchResponse.getHits().totalHits;
-		result.results = searchHelper.formatResults(searchResponse);
+		result.results = searchHelper.formatResults(searchResponse, tokenizeQuery(q));
 		result.aggregations = searchHelper.formatAggResults(category, searchResponse);
 
 		return result;
@@ -67,6 +67,19 @@ public class SearchService {
 			multi.fields(searchHelper.getBoostMap());
 
 			bool.must(multi);
+
+			//add a 'should' clause for each individual term
+
+			//naive tokenizing, should be replaced with something smarter
+			List<String> tokens = tokenizeQuery(q);
+			for (String token : tokens) {
+				MultiMatchQueryBuilder mmq = multiMatchQuery(token);
+				searchHelper.getSearchFields().stream().forEach(mmq::field);
+				mmq.fields(searchHelper.getBoostMap());
+				mmq.queryName(token);
+				bool.should(mmq);
+			}
+
 
 		} else {
 			bool.must(matchAllQuery());
@@ -97,5 +110,8 @@ public class SearchService {
 		return map;
 	}
 
+	public List<String> tokenizeQuery(String query) {
+		return searchDAO.analyze(query);
+	}
 
 }

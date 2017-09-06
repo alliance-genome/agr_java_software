@@ -1,5 +1,7 @@
 package org.alliancegenome.api.dao;
 
+import org.elasticsearch.action.admin.indices.analyze.AnalyzeRequest;
+import org.elasticsearch.action.admin.indices.analyze.AnalyzeResponse;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.QueryBuilder;
@@ -11,6 +13,7 @@ import org.jboss.logging.Logger;
 import javax.enterprise.context.ApplicationScoped;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @ApplicationScoped
 @SuppressWarnings("serial")
@@ -54,4 +57,10 @@ public class SearchDAO extends ESDAO {
 
 	}
 
+
+	public List<String> analyze(String query) {
+		AnalyzeRequest request = (new AnalyzeRequest()).analyzer("standard").text(query);
+		List<AnalyzeResponse.AnalyzeToken> tokens = searchClient.admin().indices().analyze(request).actionGet().getTokens();
+		return tokens.stream().map(token -> token.getTerm()).collect(Collectors.toList());
+	}
 }

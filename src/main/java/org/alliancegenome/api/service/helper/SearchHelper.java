@@ -16,10 +16,7 @@ import org.jboss.logging.Logger;
 
 import javax.enterprise.context.RequestScoped;
 import javax.ws.rs.core.UriInfo;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RequestScoped
 @SuppressWarnings("serial")
@@ -171,7 +168,7 @@ public class SearchHelper {
 	}
 
 
-	public ArrayList<Map<String, Object>> formatResults(SearchResponse res) {
+	public ArrayList<Map<String, Object>> formatResults(SearchResponse res, List<String> searchedTerms) {
 		log.info("Formatting Results: ");
 		ArrayList<Map<String, Object>> ret = new ArrayList<>();
 		
@@ -192,10 +189,26 @@ public class SearchHelper {
 			hit.getSource().put("highlights", map);
 			hit.getSource().put("id", hit.getId());
 			hit.getSource().put("explain", hit.getExplanation());
+
+			hit.getSource().put("missingTerms", findMissingTerms(Arrays.asList(hit.getMatchedQueries()),
+					                                             searchedTerms));
 			ret.add(hit.getSource());
 		}
 		log.info("Finished Formatting Results: ");
 		return ret;
+	}
+
+	private List<String> findMissingTerms(List<String> matchedTerms, List<String> searchedTerms) {
+		List<String> terms = new ArrayList<>();
+
+		if (matchedTerms == null || searchedTerms == null) {
+			return terms; //just give up and return an empty list
+		}
+
+		terms.addAll(searchedTerms);
+		terms.removeAll(matchedTerms);
+
+		return terms;
 	}
 
 	public HighlightBuilder buildHighlights() {
