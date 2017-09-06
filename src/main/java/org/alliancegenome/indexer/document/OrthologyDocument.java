@@ -2,6 +2,8 @@ package org.alliancegenome.indexer.document;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -27,7 +29,7 @@ public class OrthologyDocument extends ESDocument {
 	private List<String> predictionMethodsMatched;
 	private List<String> predictionMethodsNotMatched;
 	
-	@Override
+	@JsonIgnore
 	public String getDocumentId() {
 		return uuid;
 	}

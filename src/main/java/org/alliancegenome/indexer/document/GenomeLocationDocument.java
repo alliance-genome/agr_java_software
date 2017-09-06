@@ -1,5 +1,7 @@
 package org.alliancegenome.indexer.document;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,7 +15,7 @@ public class GenomeLocationDocument extends ESDocument {
 	private String strand;
 	private String chromosome;
 	
-	@Override
+	@JsonIgnore
 	public String getDocumentId() {
 		return null;
 	}

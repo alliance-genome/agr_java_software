@@ -1,5 +1,7 @@
 package org.alliancegenome.indexer.document;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -11,7 +13,7 @@ public class CrossReferenceDocument extends ESDocument {
 	private String id;
 	private String globalCrossrefId;
 	
-	@Override
+	@JsonIgnore
 	public String getDocumentId() {
 		return id;
 	}
