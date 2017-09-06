@@ -30,7 +30,7 @@ public class GeneIndexer extends Indexer<GeneDocument> {
 			startProcess(pages, chunkSize, geneCount);
 			// Number 70806
 			for(int i = 0; i <= pages; i++) {
-				Iterable<Gene> gene_entities = repo.getPage(i, chunkSize);
+				Iterable<Gene> gene_entities = repo.getGeneByPage(i, chunkSize);
 				addDocuments(geneTrans.translateEntities(gene_entities));
 				progress(i, pages, chunkSize);
 			}

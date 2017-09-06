@@ -6,6 +6,7 @@ import java.util.Map;
 import org.alliancegenome.indexer.util.Neo4jSessionFactory;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.query.Pagination;
+import org.neo4j.ogm.model.Result;
 import org.neo4j.ogm.session.Session;
 
 public class Neo4jRepository<E> {
@@ -35,16 +36,18 @@ public class Neo4jRepository<E> {
 		return (int) neo4jSession.countEntitiesOfType(entityTypeClazz);
 	}
 	
-	public Iterable<E> query(String cypherQuery) {
-		return neo4jSession.query(entityTypeClazz, cypherQuery, Collections.EMPTY_MAP);
-	}
 
 	public Long queryCount(String cypherQuery) {
 		return (Long) neo4jSession.query(cypherQuery, Collections.EMPTY_MAP ).iterator().next().values().iterator().next();
 	}
-
+	public Iterable<E> query(String cypherQuery) {
+		return neo4jSession.query(entityTypeClazz, cypherQuery, Collections.EMPTY_MAP);
+	}
 	public Iterable<E> query(String cypherQuery, Map<String, String> params) {
 		return neo4jSession.query(entityTypeClazz, cypherQuery, params);
+	}
+	public Result queryForResult(String cypherQuery) {
+		return neo4jSession.query(cypherQuery, Collections.EMPTY_MAP);
 	}
 
 	//	public Iterable<E> findAll() {

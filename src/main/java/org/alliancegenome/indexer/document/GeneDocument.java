@@ -1,5 +1,6 @@
 package org.alliancegenome.indexer.document;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -28,7 +29,7 @@ public class GeneDocument extends ESDocument {
 	private List<String> external_ids;
 	private String dataProvider;
 	private Date dateProduced;
-	private List<DiseaseDocument> diseases;
+	private List<DiseaseDocument> diseases = new ArrayList<>();
 	private String geneSynopsisUrl;
 	private String primaryId;
 	private List<GenomeLocationDocument> genomeLocations;

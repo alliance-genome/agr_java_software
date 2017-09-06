@@ -29,6 +29,8 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
         populateParentsAndChildren(entity);
         DiseaseDocument doc = getTermDiseaseDocument(entity);
 
+        doc.setCategory("disease");
+        
         if (entity.getDiseaseGeneJoins() == null)
             return doc;
 

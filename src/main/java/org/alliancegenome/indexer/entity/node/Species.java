@@ -14,7 +14,7 @@ import java.util.Set;
 public class Species extends Neo4jEntity implements Comparable<Species> {
 
     private String species;
-    private String primaryId;
+    private String primaryKey;
     private String name;
 
     @Relationship(type = "CREATED_BY")

@@ -3,6 +3,7 @@ package org.alliancegenome.indexer.translators;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.alliancegenome.indexer.document.CrossReferenceDocument;
 import org.alliancegenome.indexer.document.GeneDocument;
@@ -12,6 +13,8 @@ import org.alliancegenome.indexer.entity.node.CrossReference;
 import org.alliancegenome.indexer.entity.node.ExternalId;
 import org.alliancegenome.indexer.entity.node.GOTerm;
 import org.alliancegenome.indexer.entity.node.Gene;
+import org.alliancegenome.indexer.entity.node.OrthoAlgorithm;
+import org.alliancegenome.indexer.entity.node.OrthologyGeneJoin;
 import org.alliancegenome.indexer.entity.node.SecondaryId;
 import org.alliancegenome.indexer.entity.node.Synonym;
 import org.alliancegenome.indexer.entity.relationship.GenomeLocation;
@@ -109,27 +112,46 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
 		}
 		geneDocument.setSynonyms(synonyms);
 
-
-
 		if(entity.getOrthoGenes() != null) {
 			List<OrthologyDocument> olist = new ArrayList<>();
+			Map<String, OrthologyGeneJoin> lookup = new HashMap<String, OrthologyGeneJoin>();
+			for(OrthologyGeneJoin ogj: entity.getOrthologyGeneJoins()) {
+				lookup.put(ogj.getPrimaryKey(), ogj);
+			}
+
 			for(Orthologous orth: entity.getOrthoGenes()) {
-				//log.info("Id: " + entity.getPrimaryKey());
-				//log.info(entity.getSpecies());
-				//log.info(orth.getGene1());
-				//log.info(orth.getGene2().getSpecies());
+
+				OrthologyGeneJoin join = lookup.get(orth.getUuid());
+				ArrayList<String> matched = new ArrayList<String>();
+				if(join != null && join.getMatched() != null) {
+					for(OrthoAlgorithm algo: join.getMatched()) {
+						matched.add(algo.getName());
+					}
+				}
+				ArrayList<String> notMatched = new ArrayList<String>();
+				if(join != null && join.getNotMatched() != null) {
+					for(OrthoAlgorithm algo: join.getNotMatched()) {
+						notMatched.add(algo.getName());
+					}
+				}
+				ArrayList<String> notCalled = new ArrayList<String>();
+				if(join != null && join.getNotCalled() != null) {
+					for(OrthoAlgorithm algo: join.getNotCalled()) {
+						notCalled.add(algo.getName());
+					}
+				}
 				OrthologyDocument doc = new OrthologyDocument(
 						orth.getUuid(),
 						orth.isBestScore(),
 						orth.isBestRevScore(),
 						orth.getConfidence(),
-						null, //orth.getGene1().getSpecies().getPrimaryId(),
-						null, //orth.getGene2().getSpecies().getPrimaryId(),
-						null, //orth.getGene1().getSpecies().getName(),
-						null, //orth.getGene2().getSpecies().getName(),
+						orth.getGene1().getSpecies() == null ? null : orth.getGene1().getSpecies().getPrimaryKey(),
+						orth.getGene2().getSpecies() == null ? null : orth.getGene2().getSpecies().getPrimaryKey(),
+						orth.getGene1().getSpecies() == null ? null : orth.getGene1().getSpecies().getName(),
+						orth.getGene2().getSpecies() == null ? null : orth.getGene2().getSpecies().getName(),
 						orth.getGene2().getSymbol(),
 						orth.getGene2().getPrimaryKey(),
-						new ArrayList<String>(), new ArrayList<String>(), new ArrayList<String>()
+						notCalled, matched, notMatched
 						//predictionMethodsNotCalled, predictionMethodsMatched, predictionMethodsNotMatched
 						);
 				olist.add(doc);
@@ -137,6 +159,9 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
 			geneDocument.setOrthology(olist);
 		}
 
+		// TODO ModCrossReference
+		
+		// TODO Disease
 		//			if(entity.getDOTerms() != null) {
 		//				List<DiseaseDocument> dlist = new ArrayList<>();
 		//				for(DOTerm dot: entity.getDOTerms()) {
@@ -173,11 +198,6 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
 			}
 			geneDocument.setCrossReferences(crlist);
 		}
-
-
-
-
-
 		return geneDocument;
 	}
 

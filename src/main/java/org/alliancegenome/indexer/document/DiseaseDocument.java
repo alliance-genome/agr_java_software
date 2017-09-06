@@ -11,6 +11,7 @@ import lombok.Setter;
 @Setter
 public class DiseaseDocument extends ESDocument {
 
+	private String category;
 	private String doId;
 	private String primaryKey;
 	private String name;
