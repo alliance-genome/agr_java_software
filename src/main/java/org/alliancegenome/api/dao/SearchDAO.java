@@ -1,7 +1,10 @@
 package org.alliancegenome.api.dao;
 
-import org.elasticsearch.action.admin.indices.analyze.AnalyzeRequest;
-import org.elasticsearch.action.admin.indices.analyze.AnalyzeResponse;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.enterprise.context.ApplicationScoped;
+
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.QueryBuilder;
@@ -31,7 +34,6 @@ public class SearchDAO extends ESDAO {
 	};
 
 	public SearchResponse performQuery(QueryBuilder query, List<AggregationBuilder> aggBuilders, int limit, int offset, HighlightBuilder highlighter, String sort) {
-
 
 		SearchRequestBuilder searchRequestBuilder = searchClient.prepareSearch();
 

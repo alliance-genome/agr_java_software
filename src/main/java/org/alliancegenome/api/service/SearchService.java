@@ -44,6 +44,8 @@ public class SearchService {
 
 		SearchResponse searchResponse = searchDAO.performQuery(query, aggBuilders, limit, offset, hlb, sort_by);
 
+		log.info("Search Query: " + q);
+
 		result.total = searchResponse.getHits().totalHits;
 		result.results = searchHelper.formatResults(searchResponse, tokenizeQuery(q));
 		result.aggregations = searchHelper.formatAggResults(category, searchResponse);

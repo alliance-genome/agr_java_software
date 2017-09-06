@@ -28,7 +28,6 @@ public class AutoCompleteDAO extends ESDAO {
 		srb.setFetchSource(response_fields.toArray(new String[response_fields.size()]), null);
 		srb.setIndices(config.getEsIndex());
 		srb.setQuery(query);
-		log.info("AutoComplete Performing Query: " + srb);
 		SearchResponse res = srb.execute().actionGet();
 		return res;
 	}
