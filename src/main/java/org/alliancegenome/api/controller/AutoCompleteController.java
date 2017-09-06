@@ -1,12 +1,12 @@
 package org.alliancegenome.api.controller;
 
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-
 import org.alliancegenome.api.model.AutoCompleteResult;
 import org.alliancegenome.api.rest.interfaces.AutoCompleteRESTInterface;
 import org.alliancegenome.api.service.AutoCompleteService;
 import org.jboss.logging.Logger;
+
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
 
 @RequestScoped
 public class AutoCompleteController implements AutoCompleteRESTInterface {

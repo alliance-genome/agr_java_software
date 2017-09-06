@@ -18,6 +18,7 @@ import javax.inject.Inject;
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriInfo;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.elasticsearch.index.query.QueryBuilders.*;
@@ -113,6 +114,9 @@ public class SearchService {
 	}
 
 	public List<String> tokenizeQuery(String query) {
+		if (StringUtils.isEmpty(query)) {
+			return new ArrayList<>();
+		}
 		return searchDAO.analyze(query);
 	}
 
