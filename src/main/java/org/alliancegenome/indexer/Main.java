@@ -34,26 +34,14 @@ public class Main {
 			}
 		}
 
+		HashMap<String, String> argMap = new HashMap<>();
 		for(int i = 0; i < args.length; i++) {
+			argMap.put(args[i], args[i]);
 			log.info("Args[" + i + "]: " + args[i]);
 		}
 
 		for(String type: indexers.keySet()) {
-			if(args.length > 0) {
-				for(int i = 0; i < args.length; i++) {
-					if(args[i].equals(type)) {
-
-						if(ConfigHelper.isThreaded()) {
-							log.info("Starting in threaded mode for: " + type);
-							indexers.get(type).start();
-						} else {
-							log.info("Starting indexer sequentially: " + type);
-							indexers.get(type).runIndex();
-						}
-					}
-				}
-
-			} else if(args.length == 0) {
+			if(argMap.size() == 0 || argMap.containsKey(type)) {
 				if(ConfigHelper.isThreaded()) {
 					log.info("Starting in threaded mode for: " + type);
 					indexers.get(type).start();
