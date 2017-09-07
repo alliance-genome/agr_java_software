@@ -3,24 +3,19 @@ package org.alliancegenome.indexer.translators;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.alliancegenome.indexer.document.CrossReferenceDocument;
 import org.alliancegenome.indexer.document.DiseaseDocument;
 import org.alliancegenome.indexer.document.GeneDocument;
 import org.alliancegenome.indexer.document.GenomeLocationDocument;
-import org.alliancegenome.indexer.document.OrthologyDocument;
 import org.alliancegenome.indexer.entity.node.CrossReference;
 import org.alliancegenome.indexer.entity.node.DOTerm;
 import org.alliancegenome.indexer.entity.node.ExternalId;
 import org.alliancegenome.indexer.entity.node.GOTerm;
 import org.alliancegenome.indexer.entity.node.Gene;
-import org.alliancegenome.indexer.entity.node.OrthoAlgorithm;
-import org.alliancegenome.indexer.entity.node.OrthologyGeneJoin;
 import org.alliancegenome.indexer.entity.node.SecondaryId;
 import org.alliancegenome.indexer.entity.node.Synonym;
 import org.alliancegenome.indexer.entity.relationship.GenomeLocation;
-import org.alliancegenome.indexer.entity.relationship.Orthologous;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -119,51 +114,66 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
 		}
 		geneDocument.setSynonyms(synonyms);
 
+
 		/*
 		if(entity.getOrthoGenes() != null) {
+//		if(lookup.size() + entity.getOrthologyGeneJoins().size() > 0) {
+//			System.out.println(lookup.size() + " ==? " + entity.getOrthologyGeneJoins().size());
+//		}
+		
+		System.out.println("Key: " + entity.getPrimaryKey());
+		System.out.println("Gene -> Gene: " + entity.getOrthoGenes().size());
+		System.out.println("Gene -> Association: " + entity.getOrthologyGeneJoins().size());
+		
+		if(entity.getOrthologyGeneJoins().size() > 0) {
 			List<OrthologyDocument> olist = new ArrayList<>();
-			Map<String, OrthologyGeneJoin> lookup = new HashMap<String, OrthologyGeneJoin>();
-			for(OrthologyGeneJoin ogj: entity.getOrthologyGeneJoins()) {
-				lookup.put(ogj.getPrimaryKey(), ogj);
+
+			HashMap<String, Orthologous> lookup = new HashMap<String, Orthologous>();
+			for(Orthologous o: entity.getOrthoGenes()) {
+				lookup.put(o.getPrimaryKey(), o);
 			}
 
-			for(Orthologous orth: entity.getOrthoGenes()) {
+			for(OrthologyGeneJoin join: entity.getOrthologyGeneJoins()) {
 
-				OrthologyGeneJoin join = lookup.get(orth.getUuid());
-				ArrayList<String> matched = new ArrayList<String>();
-				if(join != null && join.getMatched() != null) {
-					for(OrthoAlgorithm algo: join.getMatched()) {
-						matched.add(algo.getName());
+				if(lookup.containsKey(join.getPrimaryKey())) {
+				
+					ArrayList<String> matched = new ArrayList<String>();
+					if(join != null && join.getMatched() != null) {
+						for(OrthoAlgorithm algo: join.getMatched()) {
+							matched.add(algo.getName());
+						}
 					}
-				}
-				ArrayList<String> notMatched = new ArrayList<String>();
-				if(join != null && join.getNotMatched() != null) {
-					for(OrthoAlgorithm algo: join.getNotMatched()) {
-						notMatched.add(algo.getName());
+					ArrayList<String> notMatched = new ArrayList<String>();
+					if(join != null && join.getNotMatched() != null) {
+						for(OrthoAlgorithm algo: join.getNotMatched()) {
+							notMatched.add(algo.getName());
+						}
 					}
-				}
-				ArrayList<String> notCalled = new ArrayList<String>();
-				if(join != null && join.getNotCalled() != null) {
-					for(OrthoAlgorithm algo: join.getNotCalled()) {
-						notCalled.add(algo.getName());
+					ArrayList<String> notCalled = new ArrayList<String>();
+					if(join != null && join.getNotCalled() != null) {
+						for(OrthoAlgorithm algo: join.getNotCalled()) {
+							notCalled.add(algo.getName());
+						}
 					}
+					Orthologous orth = lookup.get(join.getPrimaryKey());
+					OrthologyDocument doc = new OrthologyDocument(
+							orth.getPrimaryKey(),
+							orth.isBestScore(),
+							orth.isBestRevScore(),
+							orth.getConfidence(),
+							orth.getGene1().getSpecies() == null ? null : orth.getGene1().getSpecies().getPrimaryKey(),
+							orth.getGene2().getSpecies() == null ? null : orth.getGene2().getSpecies().getPrimaryKey(),
+							orth.getGene1().getSpecies() == null ? null : orth.getGene1().getSpecies().getName(),
+							orth.getGene2().getSpecies() == null ? null : orth.getGene2().getSpecies().getName(),
+							orth.getGene2().getSymbol(),
+							orth.getGene2().getPrimaryKey(),
+							notCalled, matched, notMatched
+							);
+					olist.add(doc);
 				}
-				OrthologyDocument doc = new OrthologyDocument(
-						orth.getUuid(),
-						orth.isBestScore(),
-						orth.isBestRevScore(),
-						orth.getConfidence(),
-						orth.getGene1().getSpecies() == null ? null : orth.getGene1().getSpecies().getPrimaryKey(),
-						orth.getGene2().getSpecies() == null ? null : orth.getGene2().getSpecies().getPrimaryKey(),
-						orth.getGene1().getSpecies() == null ? null : orth.getGene1().getSpecies().getName(),
-						orth.getGene2().getSpecies() == null ? null : orth.getGene2().getSpecies().getName(),
-						orth.getGene2().getSymbol(),
-						orth.getGene2().getPrimaryKey(),
-						notCalled, matched, notMatched
-						//predictionMethodsNotCalled, predictionMethodsMatched, predictionMethodsNotMatched
-						);
-				olist.add(doc);
+				
 			}
+			System.out.println("List Size: " + olist.size());
 			geneDocument.setOrthology(olist);
 		}*/
 
