@@ -119,6 +119,7 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
 		}
 		geneDocument.setSynonyms(synonyms);
 
+		/*
 		if(entity.getOrthoGenes() != null) {
 			List<OrthologyDocument> olist = new ArrayList<>();
 			Map<String, OrthologyGeneJoin> lookup = new HashMap<String, OrthologyGeneJoin>();
@@ -164,7 +165,7 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
 				olist.add(doc);
 			}
 			geneDocument.setOrthology(olist);
-		}
+		}*/
 
 		// TODO ModCrossReference
 
