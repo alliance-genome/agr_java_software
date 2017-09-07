@@ -45,10 +45,10 @@ public class GeneRepository extends Neo4jRepository<Gene> {
 
 	public Iterable<Gene> getGeneByPage(int page, int size) {
 		String query = "";
-		query += "MATCH p1=(q:Species)-[:FROM_SPECIES]-(g:Gene)-[]-(m)";
+		query += "MATCH p1=(g:Gene)-[]-(m)";
 		query += " WITH p1, m";
-		query += " OPTIONAL MATCH p3=(q:Species)-[:FROM_SPECIES]-(m:Gene)--(oa:OrthoAlgorithm)";
-		query += " RETURN p1, p3";
+		//query += " OPTIONAL MATCH p3=(q:Species)-[:FROM_SPECIES]-(m:Gene)--(oa:OrthoAlgorithm)";
+		query += " RETURN p1";
 		query += " SKIP " + (page * size) + " LIMIT " + size;
 		return query(query);
 	}
