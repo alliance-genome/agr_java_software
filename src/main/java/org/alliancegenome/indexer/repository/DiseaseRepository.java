@@ -46,8 +46,9 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
                 "(p:Publication)<-[qqq*]-(a), " +
                 "(e:EvidenceCode)<-[ee:EVIDENCE]-(a), " +
                 "(s:Species)<-[ss:FROM_SPECIES]-(m), " +
-                "(root)-[ex:ALSO_KNOWN_AS]->(exx:ExternalId) " +
-                "return root, q,a,qq,m,qqq,p, ee, e, s, ss, ex, exx " ;
+                "(root)-[ex:ALSO_KNOWN_AS]->(exx:ExternalId), " +
+                "(root)-[parentChildRelation:IS_A]->(parent:DOTerm) " +
+                "return root, q,a,qq,m,qqq,p, ee, e, s, ss, ex, exx, parent, parentChildRelation " ;
 /*
         cypher = "match (do:DOTerm)-[r]-(gene:Gene), (do)-[rr]-(as:Association) return do, gene, collect(gene), collect(as) " +
                 "SKIP " + start + " " +

@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.Setter;
 
 import org.alliancegenome.indexer.document.GeneDocument;
+import org.alliancegenome.indexer.entity.SpeciesType;
+import org.alliancegenome.indexer.entity.node.Species;
 
 import java.util.List;
 
@@ -13,8 +15,9 @@ public class DiseaseAnnotationDocument extends ESDocument implements Comparable<
 	
 	private String primaryKey;
 	private String diseaseID;
+	private List<String> parentDiseaseIDs;
 	private String diseaseName;
-	private String species;
+	private SpeciesDoclet species;
 	private String associationType;
 	private GeneDocument geneDocument;
 	private List<PublicationDocument> publications;

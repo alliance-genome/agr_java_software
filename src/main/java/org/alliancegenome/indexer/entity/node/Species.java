@@ -2,8 +2,8 @@ package org.alliancegenome.indexer.entity.node;
 
 import lombok.Getter;
 import lombok.Setter;
-
 import org.alliancegenome.indexer.entity.Neo4jEntity;
+import org.alliancegenome.indexer.entity.SpeciesType;
 import org.neo4j.ogm.annotation.Relationship;
 
 import java.util.HashSet;
@@ -26,32 +26,8 @@ public class Species extends Neo4jEntity implements Comparable<Species> {
         return getType().compareTo(species1.getType());
     }
 
-    Type getType() {
-        return Type.getTypeByName(this.species);
+    public SpeciesType getType() {
+        return SpeciesType.getTypeByName(this.species);
     }
 
-    enum Type {
-        HUMAN("Homo sapiens", "NCBITaxon:9606"),
-        RAT("Rattus norvegius", "NCBITaxon:10116"),
-        MOUSE("Mus musculus", "NCBITaxon:10090"),
-        ZEBRAFISH("Danio rerio", "NCBITaxon:7955"),
-        FLY("Drosophila melanogaster", "NCBITaxon:7227"),
-        WORM("Caenorhabditis elegans", "NCBITaxon:6239"), //Caenorhabditis elegans
-        YEAST("Saccharomyces cerevisiae", "NCBITaxon:4932"),;
-
-        String name;
-        String taxinID;
-
-        Type(String name, String taxinID) {
-            this.name = name;
-            this.taxinID = taxinID;
-        }
-
-        public static Type getTypeByName(String name) {
-            for (Type type : values())
-                if (type.name.equals(name))
-                    return type;
-            return null;
-        }
-    }
 }
