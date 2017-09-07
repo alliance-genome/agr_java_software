@@ -4,6 +4,10 @@ all:
 run:
 	java -jar target/agr_api-swarm.jar -Papp.properties
 
+debug:
+	java -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5045 -jar target/agr_api-swarm.jar -Papp.properties
+
+
 docker-build:
 	docker build -t agrdocker/agr_api_server:develop .
 

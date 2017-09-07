@@ -36,7 +36,11 @@ public class ESDAO {
 			e.printStackTrace();
 		}
 	}
-	
+
+	public void setConfig(ConfigHelper config) {
+		this.config = config;
+	}
+
 	@PreDestroy
 	public void close() {
 		log.info("Closing Down ES Client");
