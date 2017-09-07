@@ -6,10 +6,12 @@ import java.util.List;
 import java.util.Map;
 
 import org.alliancegenome.indexer.document.CrossReferenceDocument;
+import org.alliancegenome.indexer.document.DiseaseDocument;
 import org.alliancegenome.indexer.document.GeneDocument;
 import org.alliancegenome.indexer.document.GenomeLocationDocument;
 import org.alliancegenome.indexer.document.OrthologyDocument;
 import org.alliancegenome.indexer.entity.node.CrossReference;
+import org.alliancegenome.indexer.entity.node.DOTerm;
 import org.alliancegenome.indexer.entity.node.ExternalId;
 import org.alliancegenome.indexer.entity.node.GOTerm;
 import org.alliancegenome.indexer.entity.node.Gene;
@@ -26,7 +28,7 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
 
 	private Logger log = LogManager.getLogger(getClass());
 
-	//private static DiseaseTranslator diseaseTranslator = new DiseaseTranslator();
+	private static DiseaseTranslator diseaseTranslator = new DiseaseTranslator();
 
 	@Override
 	protected GeneDocument entityToDocument(Gene entity) {
@@ -44,6 +46,11 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
 		geneDocument.setGeneSynopsis(entity.getGeneSynopsis());
 		geneDocument.setGeneSynopsisUrl(entity.getGeneSynopsisUrl());
 		geneDocument.setGeneticEntityExternalUrl(entity.getGeneticEntityExternalUrl());
+
+		geneDocument.setModCrossRefCompleteUrl(entity.getModCrossRefCompleteUrl());
+		geneDocument.setLocalId(entity.getLocalId());
+		geneDocument.setModGlobalCrossRefId(entity.getModGlobalCrossRefId());
+		geneDocument.setModGlobalId(entity.getModGlobalId());
 
 		geneDocument.setHref(null); // This might look wrong but it was taken from the old AGR code base.
 		geneDocument.setName(entity.getName());
@@ -160,16 +167,15 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
 		}
 
 		// TODO ModCrossReference
-		
-		// TODO Disease
-		//			if(entity.getDOTerms() != null) {
-		//				List<DiseaseDocument> dlist = new ArrayList<>();
-		//				for(DOTerm dot: entity.getDOTerms()) {
-		//					DiseaseDocument doc = diseaseTranslator.translate(dot, true);
-		//					dlist.add(doc);
-		//				}
-		//				geneDocument.setDiseases(dlist);
-		//			}
+
+		if(entity.getDOTerms() != null) {
+			List<DiseaseDocument> dlist = new ArrayList<>();
+			for(DOTerm dot: entity.getDOTerms()) {
+				DiseaseDocument doc = diseaseTranslator.translate(dot);
+				dlist.add(doc);
+			}
+			geneDocument.setDiseases(dlist);
+		}
 
 		if(entity.getGenomeLocations() != null) {
 			List<GenomeLocationDocument> gllist = new ArrayList<>();
