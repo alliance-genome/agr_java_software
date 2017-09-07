@@ -11,7 +11,7 @@ import lombok.Setter;
 @Getter @Setter @AllArgsConstructor
 public class OrthologyDocument extends ESDocument {
 	
-	private String uuid;
+	private String primaryKey;
 	private boolean isBestScore;
 	private boolean isBestRevScore;
 	private String confidence;
@@ -31,6 +31,6 @@ public class OrthologyDocument extends ESDocument {
 	
 	@JsonIgnore
 	public String getDocumentId() {
-		return uuid;
+		return primaryKey;
 	}
 }

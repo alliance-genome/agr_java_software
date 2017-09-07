@@ -18,8 +18,9 @@ public class Orthologous extends Neo4jEntity {
 	@EndNode
 	private Gene gene2;
 	
+	private String primaryKey;
 	private boolean isBestRevScore;
 	private boolean isBestScore;
 	private String confidence;
-	private String uuid;
+	
 }

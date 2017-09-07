@@ -42,6 +42,11 @@ public class GeneDocument extends ESDocument {
 	private List<OrthologyDocument> orthology;
 	private String geneticEntityExternalUrl;
 
+	private String modCrossRefCompleteUrl;
+	private String localId;
+	private String modGlobalCrossRefId;
+	private String modGlobalId;
+	
 	@JsonIgnore
 	public String getDocumentId() {
 		return primaryId;
