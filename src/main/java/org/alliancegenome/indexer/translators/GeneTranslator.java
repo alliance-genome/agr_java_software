@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import org.alliancegenome.indexer.document.CrossReferenceDocument;
+import org.alliancegenome.indexer.document.CrossReferenceDoclet;
 import org.alliancegenome.indexer.document.DiseaseDocument;
 import org.alliancegenome.indexer.document.GeneDocument;
-import org.alliancegenome.indexer.document.GenomeLocationDocument;
+import org.alliancegenome.indexer.document.GenomeLocationDoclet;
 import org.alliancegenome.indexer.entity.node.CrossReference;
 import org.alliancegenome.indexer.entity.node.DOTerm;
 import org.alliancegenome.indexer.entity.node.ExternalId;
@@ -189,9 +189,9 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
 		}
 
 		if(entity.getGenomeLocations() != null) {
-			List<GenomeLocationDocument> gllist = new ArrayList<>();
+			List<GenomeLocationDoclet> gllist = new ArrayList<>();
 			for(GenomeLocation location: entity.getGenomeLocations()) {
-				GenomeLocationDocument loc = new GenomeLocationDocument(
+				GenomeLocationDoclet loc = new GenomeLocationDoclet(
 						location.getStart(),
 						location.getEnd(),
 						location.getAssembly(),
@@ -204,9 +204,9 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
 		}
 
 		if(entity.getCrossReferences() != null) {
-			List<CrossReferenceDocument> crlist = new ArrayList<>();
+			List<CrossReferenceDoclet> crlist = new ArrayList<>();
 			for(CrossReference cr: entity.getCrossReferences()) {
-				CrossReferenceDocument crd = new CrossReferenceDocument(
+				CrossReferenceDoclet crd = new CrossReferenceDoclet(
 						cr.getCrossrefCompleteUrl(),
 						cr.getLocalId(),
 						String.valueOf(cr.getId()),

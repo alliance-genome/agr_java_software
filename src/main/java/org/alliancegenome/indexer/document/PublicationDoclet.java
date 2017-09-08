@@ -1,24 +1,18 @@
 package org.alliancegenome.indexer.document;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.util.List;
+
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.List;
-
 @Getter
 @Setter
-public class PublicationDocument extends ESDocument {
+public class PublicationDoclet {
 
     private String primaryKey;
     private String pubMedId;
     private String pubModId;
     private String pubModUrl;
     private List<String> evidenceCodes;
-
-    @JsonIgnore
-    public String getDocumentId() {
-        return primaryKey;
-    }
 
 }

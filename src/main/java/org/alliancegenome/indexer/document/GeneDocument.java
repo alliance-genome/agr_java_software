@@ -25,21 +25,21 @@ public class GeneDocument extends ESDocument {
 	private List<String> gene_biological_process;
 	private List<String> synonyms;
 	private String geneLiteratureUrl;
-	private List<CrossReferenceDocument> crossReferences;
+	private List<CrossReferenceDoclet> crossReferences;
 	private List<String> external_ids;
 	private String dataProvider;
 	private Date dateProduced;
 	private List<DiseaseDocument> diseases = new ArrayList<>();
 	private String geneSynopsisUrl;
 	private String primaryId;
-	private List<GenomeLocationDocument> genomeLocations;
+	private List<GenomeLocationDoclet> genomeLocations;
 	private String soTermId;
 	private List<String> secondaryIds;
 	private String soTermName;
 	private String release;
 	private String geneSynopsis;
 	private List<String> gene_cellular_component;
-	private List<OrthologyDocument> orthology;
+	private List<OrthologyDoclet> orthology;
 	private String geneticEntityExternalUrl;
 
 	private String modCrossRefCompleteUrl;

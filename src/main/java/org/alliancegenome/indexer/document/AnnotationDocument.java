@@ -13,7 +13,7 @@ public class AnnotationDocument extends ESDocument implements Comparable<Annotat
 	private String primaryKey;
 	private String assoicationType;
 	private GeneDocument geneDocument;
-	private List<PublicationDocument> publications;
+	private List<PublicationDoclet> publications;
 
 	@JsonIgnore
 	public String getDocumentId() {

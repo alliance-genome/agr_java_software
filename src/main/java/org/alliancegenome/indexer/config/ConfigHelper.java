@@ -22,6 +22,10 @@ public class ConfigHelper {
 
 	public static void init() {
 
+		// DO NOT MODIFY AND COMMIT THESE VALUES
+		// USE -DNAME=value on the command line
+		// or export NAME=value before running.
+		// or create a config.properties file with NAME=value pairs
 		defaults.put("THREADED", "true");
 		defaults.put("ES_HOST", "localhost");
 		defaults.put("ES_PORT", "9300");

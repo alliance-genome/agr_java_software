@@ -2,14 +2,12 @@ package org.alliancegenome.indexer.document;
 
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter @Setter @AllArgsConstructor
-public class OrthologyDocument extends ESDocument {
+public class OrthologyDoclet {
 	
 	private String primaryKey;
 	private boolean isBestScore;
@@ -28,9 +26,5 @@ public class OrthologyDocument extends ESDocument {
 	private List<String> predictionMethodsNotCalled;
 	private List<String> predictionMethodsMatched;
 	private List<String> predictionMethodsNotMatched;
-	
-	@JsonIgnore
-	public String getDocumentId() {
-		return primaryKey;
-	}
+
 }
