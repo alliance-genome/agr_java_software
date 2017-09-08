@@ -50,8 +50,6 @@ public class SearchDAO extends ESDAO {
 			searchRequestBuilder.addAggregation(aggBuilder);
 		}
 
-		log.info(searchRequestBuilder);
-
 		return  searchRequestBuilder.execute().actionGet();
 
 	}
