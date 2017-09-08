@@ -190,7 +190,7 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
         SpeciesType type = species.getType();
         SpeciesDocument doclet = new SpeciesDocument();
         doclet.setName(species.getName());
-        doclet.setTaxonID(species.getPrimaryId());
+        doclet.setTaxonID(species.getPrimaryKey());
         doclet.setOrderID(type.ordinal());
         return doclet;
     }
