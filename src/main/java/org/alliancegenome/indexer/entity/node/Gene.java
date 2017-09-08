@@ -62,13 +62,15 @@ public class Gene extends Neo4jEntity implements Comparable<Gene> {
 	
 	@Relationship(type = "ORTHOLOGOUS", direction=Relationship.UNDIRECTED)
 	private List<Orthologous> orthoGenes;
-
+	
 	@Relationship(type = "LOCATED_ON")
 	private List<GenomeLocation> genomeLocations;
 
 	@Relationship(type = "CROSS_REFERENCE")
 	private List<CrossReference> crossReferences;
 	
+	@Relationship(type = "ASSOCIATION", direction=Relationship.UNDIRECTED)
+	private List<DiseaseGeneJoin> diseaseGeneJoins;
 	@Relationship(type = "ASSOCIATION", direction=Relationship.UNDIRECTED)
 	private List<OrthologyGeneJoin> orthologyGeneJoins;
 	

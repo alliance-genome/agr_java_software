@@ -19,16 +19,14 @@ public class GeneRepository extends Neo4jRepository<Gene> {
 		HashMap<String, String> map = new HashMap<String, String>();
 		map.put("primaryKey", primaryKey);
 		String query = "";
-		query += "MATCH (g:Gene) WHERE g.primaryKey = {primaryKey}";
-		query += " WITH g";
-		query += " OPTIONAL MATCH p2=(g)--(s)";
-		query += " WITH g, p2";
-		query += " OPTIONAL MATCH p3=(g)--(m:OrtholgyGeneJoin)--(oa:OrthoAlgorithm)";
-		query += " WITH g, p2, p3";
-		query += " OPTIONAL MATCH p4=(g)--(m:DiseaseGeneJoin)-[:EVIDENCE]-(q)";
+		query += "MATCH p1=(g:Gene)--(s) WHERE g.primaryKey = {primaryKey}";
+		query += " WITH g, p1";
+		//query += " OPTIONAL MATCH p2=(s:OrthologyGeneJoin)--(oa:OrthoAlgorithm)";
+		//query += " WITH g, s, p2";
+		query += " OPTIONAL MATCH p3=(g:Gene)--(d:DiseaseGeneJoin)-[:EVIDENCE]-(q)";
 		//query += " p6=(g)-[:IS_IMPLICATED_IN]-(do:DOTerm),";
 		//query += " p7=(g)--(m:OrtholgyGeneJoin)--(oa:OrthoAlgorithm)";
-		query += " RETURN g, p2, p3, p4";
+		query += " RETURN p1, p3";
 		
 		return query(query, map);
 	}
