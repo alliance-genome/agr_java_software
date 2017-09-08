@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -16,6 +17,8 @@ public class DiseaseDocument extends ESDocument {
     private String primaryId;
     private String category = "disease";
     private String name;
+    @JsonProperty("name_key")
+    private String nameKey;
     private String definition;
     private String species;
     private List<AnnotationDocument> annotations;
