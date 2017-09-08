@@ -17,7 +17,7 @@ public class DiseaseAnnotationDocument extends ESDocument implements Comparable<
 	private String diseaseID;
 	private List<String> parentDiseaseIDs;
 	private String diseaseName;
-	private SpeciesDoclet species;
+	private SpeciesDocument species;
 	private String associationType;
 	private GeneDocument geneDocument;
 	private List<PublicationDocument> publications;

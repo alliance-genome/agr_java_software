@@ -185,10 +185,10 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
         return idList;
     }
 
-    private SpeciesDoclet getSpeciesDoclet(DiseaseGeneJoin diseaseGeneJoin) {
+    private SpeciesDocument getSpeciesDoclet(DiseaseGeneJoin diseaseGeneJoin) {
         Species species = diseaseGeneJoin.getGene().getSpecies();
         SpeciesType type = species.getType();
-        SpeciesDoclet doclet = new SpeciesDoclet();
+        SpeciesDocument doclet = new SpeciesDocument();
         doclet.setName(species.getName());
         doclet.setTaxonID(species.getPrimaryId());
         doclet.setOrderID(type.ordinal());
