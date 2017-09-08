@@ -26,12 +26,12 @@ public class ConfigHelper {
 		// USE -DNAME=value on the command line
 		// or export NAME=value before running.
 		// or create a config.properties file with NAME=value pairs
-		defaults.put("THREADED", "false");
+		defaults.put("THREADED", "true");
 		defaults.put("ES_HOST", "localhost");
 		defaults.put("ES_PORT", "9300");
 		defaults.put("ES_INDEX", "site_index");
 		defaults.put("NEO4J_HOST", "localhost");
-		defaults.put("NEO4J_PORT", "7474");
+		defaults.put("NEO4J_PORT", "7687");
 
 		if (configProperties.size() == 0) {
 			InputStream in = ConfigHelper.class.getClassLoader().getResourceAsStream("config.properties");
