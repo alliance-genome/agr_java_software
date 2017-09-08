@@ -30,16 +30,25 @@ public class SearchDAO extends ESDAO {
 		}
 	};
 
-	public SearchResponse performQuery(QueryBuilder query, List<AggregationBuilder> aggBuilders, int limit, int offset, HighlightBuilder highlighter, String sort) {
+	public SearchResponse performQuery(QueryBuilder query,
+									   List<AggregationBuilder> aggBuilders,
+									   int limit, int offset,
+									   HighlightBuilder highlighter,
+									   String sort, Boolean debug) {
 
 		SearchRequestBuilder searchRequestBuilder = searchClient.prepareSearch();
 
 		searchRequestBuilder.setFetchSource(response_fields.toArray(new String[response_fields.size()]), null);
-		searchRequestBuilder.setExplain(true);
+
+		if (debug) {
+			searchRequestBuilder.setExplain(true);
+		}
+
 		searchRequestBuilder.setIndices(config.getEsIndex());
 		searchRequestBuilder.setQuery(query);
 		searchRequestBuilder.setSize(limit);
 		searchRequestBuilder.setFrom(offset);
+
 		if(sort != null && sort.equals("alphabetical")) {
 			searchRequestBuilder.addSort("name.raw", SortOrder.ASC);
 		}
