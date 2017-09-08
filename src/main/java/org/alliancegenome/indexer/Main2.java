@@ -22,7 +22,9 @@ public class Main2 {
 		
 		//for(String key: keys) {
 		//String key = "MGI:2178429";
-		String key = "MGI:95294";
+		//MGI:96969
+		//String key = "MGI:95294";
+		String key = "WB:WBGene00001650";
 			System.out.println("Key: " + key);
 			Iterable<Gene> genes = repo.getOneGene(key);
 			if(genes.iterator().hasNext()) {

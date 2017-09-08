@@ -14,10 +14,10 @@ public class DiseaseGeneJoin extends Association {
 
     private String joinType;
 
-    @Relationship(type = "ASSOCIATION")
+    @Relationship(type = "EVIDENCE")
     private Publication publication;
 
-    @Relationship(type = "ASSOCIATION")
+    @Relationship(type = "EVIDENCE")
     private List<EvidenceCode> evidenceCodes;
 
     @Relationship(type = "ASSOCIATION", direction = Relationship.INCOMING)
