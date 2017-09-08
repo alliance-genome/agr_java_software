@@ -47,7 +47,7 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
                 .map(entry -> {
                     AnnotationDocument document = new AnnotationDocument();
                     document.setGeneDocument(geneTranslator.translate(entry.getKey()));
-                    List<PublicationDocument> publicationDocuments = entry.getValue().stream()
+                    List<PublicationDoclet> publicationDocuments = entry.getValue().stream()
                             .map(association -> {
                                 document.setAssoicationType(association.getJoinType());
                                 Publication publication = association.getPublication();
@@ -80,8 +80,8 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
                 .collect((Collectors.toMap(DOTerm::getPrimaryKey, id -> id)));
     }
 
-    private PublicationDocument getPublicationDocument(DiseaseGeneJoin association, Publication publication) {
-        PublicationDocument pubDoc = new PublicationDocument();
+    private PublicationDoclet getPublicationDocument(DiseaseGeneJoin association, Publication publication) {
+        PublicationDoclet pubDoc = new PublicationDoclet();
         pubDoc.setPrimaryKey(publication.getPrimaryKey());
         pubDoc.setPubMedId(publication.getPubMedId());
         pubDoc.setPubModId(publication.getPubModId());
@@ -166,7 +166,7 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
                             doc.setAssociationType(diseaseGeneJoin.getJoinType());
                             doc.setSpecies(getSpeciesDoclet(diseaseGeneJoin));
                             doc.setGeneDocument(geneTranslator.entityToDocument(diseaseGeneJoin.getGene()));
-                            List<PublicationDocument> pubDocs = new ArrayList<>();
+                            List<PublicationDoclet> pubDocs = new ArrayList<>();
                             pubDocs.add(getPublicationDocument(diseaseGeneJoin, diseaseGeneJoin.getPublication()));
                             doc.setPublications(pubDocs);
                             return doc;
@@ -185,10 +185,10 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
         return idList;
     }
 
-    private SpeciesDocument getSpeciesDoclet(DiseaseGeneJoin diseaseGeneJoin) {
+    private SpeciesDoclet getSpeciesDoclet(DiseaseGeneJoin diseaseGeneJoin) {
         Species species = diseaseGeneJoin.getGene().getSpecies();
         SpeciesType type = species.getType();
-        SpeciesDocument doclet = new SpeciesDocument();
+        SpeciesDoclet doclet = new SpeciesDoclet();
         doclet.setName(species.getName());
         doclet.setTaxonID(species.getPrimaryKey());
         doclet.setOrderID(type.ordinal());

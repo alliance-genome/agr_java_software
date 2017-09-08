@@ -1,14 +1,11 @@
 package org.alliancegenome.indexer.document;
 
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import lombok.Getter;
 import lombok.Setter;
-
-import org.alliancegenome.indexer.document.GeneDocument;
-import org.alliancegenome.indexer.entity.SpeciesType;
-import org.alliancegenome.indexer.entity.node.Species;
-
-import java.util.List;
 
 @Getter @Setter
 public class DiseaseAnnotationDocument extends ESDocument implements Comparable<DiseaseAnnotationDocument> {
@@ -17,10 +14,10 @@ public class DiseaseAnnotationDocument extends ESDocument implements Comparable<
 	private String diseaseID;
 	private List<String> parentDiseaseIDs;
 	private String diseaseName;
-	private SpeciesDocument species;
+	private SpeciesDoclet species;
 	private String associationType;
 	private GeneDocument geneDocument;
-	private List<PublicationDocument> publications;
+	private List<PublicationDoclet> publications;
 	private String source;
 	private List<String> parentTermIDs;
 	private List<String> parentTermNames;
