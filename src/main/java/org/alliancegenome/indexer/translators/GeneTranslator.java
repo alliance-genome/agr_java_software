@@ -8,14 +8,18 @@ import org.alliancegenome.indexer.document.CrossReferenceDoclet;
 import org.alliancegenome.indexer.document.DiseaseDocument;
 import org.alliancegenome.indexer.document.GeneDocument;
 import org.alliancegenome.indexer.document.GenomeLocationDoclet;
+import org.alliancegenome.indexer.document.OrthologyDoclet;
 import org.alliancegenome.indexer.entity.node.CrossReference;
 import org.alliancegenome.indexer.entity.node.DOTerm;
 import org.alliancegenome.indexer.entity.node.ExternalId;
 import org.alliancegenome.indexer.entity.node.GOTerm;
 import org.alliancegenome.indexer.entity.node.Gene;
+import org.alliancegenome.indexer.entity.node.OrthoAlgorithm;
+import org.alliancegenome.indexer.entity.node.OrthologyGeneJoin;
 import org.alliancegenome.indexer.entity.node.SecondaryId;
 import org.alliancegenome.indexer.entity.node.Synonym;
 import org.alliancegenome.indexer.entity.relationship.GenomeLocation;
+import org.alliancegenome.indexer.entity.relationship.Orthologous;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -115,8 +119,8 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
 		geneDocument.setSynonyms(synonyms);
 
 
-		/*
-		if(entity.getOrthoGenes() != null) {
+		
+//		if(entity.getOrthoGenes() != null) {
 //		if(lookup.size() + entity.getOrthologyGeneJoins().size() > 0) {
 //			System.out.println(lookup.size() + " ==? " + entity.getOrthologyGeneJoins().size());
 //		}
@@ -126,7 +130,7 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
 		System.out.println("Gene -> Association: " + entity.getOrthologyGeneJoins().size());
 		
 		if(entity.getOrthologyGeneJoins().size() > 0) {
-			List<OrthologyDocument> olist = new ArrayList<>();
+			List<OrthologyDoclet> olist = new ArrayList<>();
 
 			HashMap<String, Orthologous> lookup = new HashMap<String, Orthologous>();
 			for(Orthologous o: entity.getOrthoGenes()) {
@@ -156,7 +160,7 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
 						}
 					}
 					Orthologous orth = lookup.get(join.getPrimaryKey());
-					OrthologyDocument doc = new OrthologyDocument(
+					OrthologyDoclet doc = new OrthologyDoclet(
 							orth.getPrimaryKey(),
 							orth.isBestScore(),
 							orth.isBestRevScore(),
@@ -175,14 +179,12 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
 			}
 			System.out.println("List Size: " + olist.size());
 			geneDocument.setOrthology(olist);
-		}*/
-
-		// TODO ModCrossReference
+		}
 
 		if(entity.getDOTerms() != null) {
 			List<DiseaseDocument> dlist = new ArrayList<>();
 			for(DOTerm dot: entity.getDOTerms()) {
-				DiseaseDocument doc = diseaseTranslator.translate(dot);
+				DiseaseDocument doc = diseaseTranslator.translate(dot); // This needs to not happen if being call from DiseaseTranslator
 				dlist.add(doc);
 			}
 			geneDocument.setDiseases(dlist);
