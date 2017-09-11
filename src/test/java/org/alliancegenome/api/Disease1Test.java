@@ -20,12 +20,12 @@ public class Disease1Test {
         service.init();
         System.out.println("Number of Diseases with Genes Info: ");
 
-        SearchResult response = service.getDiseaseAnnotations("DOID:0050948", 0, 20);
+        SearchResult response = service.getDiseaseAnnotations("DOID:9351", 10, 10);
         if (response.results != null) {
             response.results.forEach(entry -> {
                 Map<String, Object> map1 = (Map<String, Object>) entry.get("geneDocument");
                 if (map1 != null)
-                    log.info(map1.get("species") + ": " + map1.get("symbol") + ": " + map1.get("primaryId"));
+                    log.info(entry.get("diseaseID") + "\t" + map1.get("disease_species") + ": " + map1.get("symbol") + ": " + map1.get("primaryId"));
 
             });
         }
