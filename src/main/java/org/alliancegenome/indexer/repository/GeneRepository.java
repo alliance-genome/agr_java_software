@@ -46,51 +46,12 @@ public class GeneRepository extends Neo4jRepository<Gene> {
 		String query = "";
 		query += "MATCH p1=(g:Gene)--(s)";
 		query += " OPTIONAL MATCH p2=(do:DOTerm)--(s:DiseaseGeneJoin)-[:EVIDENCE]-(q)";
-		query += " OPTIONAL MATCH p3=(s)--(oa:OrthoAlgorithm)";
-		query += " RETURN p1, p2, p3";
+		query += " OPTIONAL MATCH p4=(g)--(j:OrthoGeneJoin)--(s), p5=(j)--(a:OrthoAlgorithm)";
+		query += " RETURN p1, p2, p4, p5";
+		//query += " OPTIONAL MATCH p3=(s)--(oa:OrthoAlgorithm)";
+		//query += " RETURN p1, p2, p3";
 		query += " SKIP " + (page * size) + " LIMIT " + size;
 
-		// TODO Species on Gene2 of Ortho
-		
-		// Attempt
-//		query += "MATCH p1=(q:Species)-[:FROM_SPECIES]-(g:Gene)-[]-(m)";
-//		query += " WITH p1, m";
-//		query += " OPTIONAL MATCH p3=(q:Species)-[:FROM_SPECIES]-(m:Gene)--(oa:OrthoAlgorithm)";
-//		query += " RETURN p1, p3";
-//		query += " SKIP " + (page * size) + " LIMIT " + size;
-
-		// Attempt
-//		query += "MATCH (g:Gene) ";
-//		query += " WITH g SKIP " + (page * size) + " LIMIT " + size;
-//		query += " OPTIONAL MATCH p2=(g)--(s)";
-//		query += " WITH g, p2";
-//		query += " OPTIONAL MATCH p3=(g)--(m:OrtholgyGeneJoin)--(oa:OrthoAlgorithm)";
-//		query += " WITH g, p2, p3";
-//		query += " OPTIONAL MATCH p4=(g)--(m:DiseaseGeneJoin)-[:EVIDENCE]-(q)";
-//		//query += " p6=(g)-[:IS_IMPLICATED_IN]-(do:DOTerm),";
-//		//query += " p7=(g)--(m:OrtholgyGeneJoin)--(oa:OrthoAlgorithm)";
-//		query += " SKIP " + (page * size) + " LIMIT " + size;
-//		
-//		query += " RETURN g, p2, p3, p4";
-		
-		// Attempt
-//		query += "MATCH (g:Gene) WITH g";
-//		//query += " OPTIONAL MATCH p3=(q:Species)-[:FROM_SPECIES]-(m:Gene)--(oa:OrthoAlgorithm)";
-//		query += " OPTIONAL MATCH ";
-//		//query += " p2=(g)--(s:Synonym),";
-//		//query += " p3=(g)--(e:ExternalId),";
-//		//query += " p4=(g)--(se:SecondaryId),";
-//		query += " p9=(g)--(m:DiseaseGeneJoin)--(p:Publication),";
-//		//query += " p10=(g)--(m)--(e:Evidence)";
-//		query += " RETURN p1, p2, p3";
-//		query += " SKIP " + (page * size) + " LIMIT " + size;
-
-		// Attempt
-//		query += "MATCH p1=(g:Gene)-[]-(m)";
-//		query += " WITH p1, m";
-//		//query += " OPTIONAL MATCH p3=(q:Species)-[:FROM_SPECIES]-(m:Gene)--(oa:OrthoAlgorithm)";
-//		query += " RETURN p1";
-//		query += " SKIP " + (page * size) + " LIMIT " + size;
 
 		return query(query);
 	}
