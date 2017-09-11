@@ -3,6 +3,7 @@ package org.alliancegenome.indexer.document;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -14,6 +15,7 @@ public class DiseaseAnnotationDocument extends ESDocument implements Comparable<
 	private String diseaseID;
 	private List<String> parentDiseaseIDs;
 	private String diseaseName;
+	@JsonProperty("disease_species")
 	private SpeciesDoclet species;
 	private String associationType;
 	private GeneDocument geneDocument;

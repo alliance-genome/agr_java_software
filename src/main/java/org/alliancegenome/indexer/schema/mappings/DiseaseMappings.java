@@ -19,6 +19,7 @@ public class DiseaseMappings extends Mappings {
             builder.startObject("properties");
 
             buildGenericField("geneDocument.symbol", "string", null, false, false, true);
+            buildGenericField("disease_species.orderID", "long", null, false, false, true);
             buildGenericField("diseaseID", "string", null, false, false, true);
             buildGenericField("parentDiseaseIDs", "string", null, false, false, true);
             buildProperty("primaryId", "keyword");
