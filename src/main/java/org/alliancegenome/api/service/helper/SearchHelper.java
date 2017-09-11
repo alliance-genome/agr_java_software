@@ -188,7 +188,10 @@ public class SearchHelper {
 			}
 			hit.getSource().put("highlights", map);
 			hit.getSource().put("id", hit.getId());
-			hit.getSource().put("explain", hit.getExplanation());
+			hit.getSource().put("score", hit.getScore());
+			if (hit.getExplanation() != null) {
+				hit.getSource().put("explanation", hit.getExplanation());
+			}
 
 			hit.getSource().put("missingTerms", findMissingTerms(Arrays.asList(hit.getMatchedQueries()),
 					                                             searchedTerms));

@@ -38,7 +38,7 @@ public class DiseaseDAO extends ESDAO {
         Script script = new Script("doc['diseaseID.raw'].value == '" + diseaseID + "' ? 0 : 100");
         searchRequestBuilder.addSort(SortBuilders.scriptSort(script, ScriptSortBuilder.ScriptSortType.NUMBER));
 
-        searchRequestBuilder.addSort(SortBuilders.fieldSort("species.orderID").order(SortOrder.ASC));
+        searchRequestBuilder.addSort(SortBuilders.fieldSort("disease_species.orderID").order(SortOrder.ASC));
         searchRequestBuilder.addSort(SortBuilders.fieldSort("geneDocument.symbol.raw").order(SortOrder.ASC));
         searchRequestBuilder.setQuery(query);
 

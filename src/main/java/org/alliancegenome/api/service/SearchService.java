@@ -43,7 +43,13 @@ public class SearchService {
 		
 		HighlightBuilder hlb = searchHelper.buildHighlights();
 
-		SearchResponse searchResponse = searchDAO.performQuery(query, aggBuilders, limit, offset, hlb, sort_by);
+		Boolean debug = false;
+		if (StringUtils.isNotEmpty(q) && q.startsWith("debug")) {
+			debug = true;
+			q = q.replaceFirst("debug","").trim();
+		}
+
+		SearchResponse searchResponse = searchDAO.performQuery(query, aggBuilders, limit, offset, hlb, sort_by, debug);
 
 		log.info("Search Query: " + q);
 
