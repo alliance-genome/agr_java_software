@@ -66,16 +66,6 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
 			geneDocument.setSpecies(entity.getSpecies().getName());
 		}
 
-
-		ArrayList<String> external_ids = new ArrayList<>();
-		if(entity.getExternalIds() != null) {
-			for(ExternalId externalId: entity.getExternalIds()) {
-				external_ids.add(externalId.getName());
-			}
-		}
-		geneDocument.setExternal_ids(external_ids);
-
-
 		// Setup Go Terms by type
 		for(GOTerm term: entity.getGOTerms()) {
 			ArrayList<String> list = goTerms.get(term.getType());

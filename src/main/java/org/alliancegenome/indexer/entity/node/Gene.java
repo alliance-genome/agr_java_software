@@ -51,9 +51,6 @@ public class Gene extends Neo4jEntity implements Comparable<Gene> {
 	@Relationship(type = "ALSO_KNOWN_AS")
 	private Set<SecondaryId> secondaryIds = new HashSet<>();
 
-	@Relationship(type = "ALSO_KNOWN_AS")
-	private Set<ExternalId> externalIds = new HashSet<>();
-
 	@Relationship(type = "ANNOTATED_TO")
 	private Set<GOTerm> gOTerms = new HashSet<>();
 
