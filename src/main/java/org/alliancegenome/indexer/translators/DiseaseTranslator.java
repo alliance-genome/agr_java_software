@@ -48,6 +48,7 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
 				.sorted(Map.Entry.comparingByKey())
 				.map(entry -> {
 					AnnotationDocument document = new AnnotationDocument();
+					// TODO Implement translationDepth
 					//document.setGeneDocument(geneTranslator.translate(entry.getKey())); // This needs to not happen if being call from GeneTranslator
 					List<PublicationDoclet> publicationDocuments = entry.getValue().stream()
 							.map(association -> {

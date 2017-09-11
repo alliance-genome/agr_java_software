@@ -125,10 +125,6 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
 //			System.out.println(lookup.size() + " ==? " + entity.getOrthologyGeneJoins().size());
 //		}
 		
-		System.out.println("Key: " + entity.getPrimaryKey());
-		System.out.println("Gene -> Gene: " + entity.getOrthoGenes().size());
-		System.out.println("Gene -> Association: " + entity.getOrthologyGeneJoins().size());
-		
 		if(entity.getOrthologyGeneJoins().size() > 0) {
 			List<OrthologyDoclet> olist = new ArrayList<>();
 
@@ -177,13 +173,13 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
 				}
 				
 			}
-			System.out.println("List Size: " + olist.size());
 			geneDocument.setOrthology(olist);
 		}
 
 		if(entity.getDOTerms() != null) {
 			List<DiseaseDocument> dlist = new ArrayList<>();
 			for(DOTerm dot: entity.getDOTerms()) {
+				// TODO Implement translationDepth
 				DiseaseDocument doc = diseaseTranslator.translate(dot); // This needs to not happen if being call from DiseaseTranslator
 				dlist.add(doc);
 			}

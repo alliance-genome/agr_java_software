@@ -1,18 +1,18 @@
 package org.alliancegenome.indexer.entity.node;
 
-import lombok.Getter;
-import lombok.Setter;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import org.alliancegenome.indexer.entity.Neo4jEntity;
 import org.alliancegenome.indexer.entity.relationship.GenomeLocation;
 import org.alliancegenome.indexer.entity.relationship.Orthologous;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
-import org.neo4j.ogm.annotation.RelationshipEntity;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import lombok.Getter;
+import lombok.Setter;
 
 @NodeEntity
 @Getter
@@ -70,9 +70,9 @@ public class Gene extends Neo4jEntity implements Comparable<Gene> {
 	private List<CrossReference> crossReferences;
 	
 	@Relationship(type = "ASSOCIATION", direction=Relationship.UNDIRECTED)
-	private List<DiseaseGeneJoin> diseaseGeneJoins;
+	private List<DiseaseGeneJoin> diseaseGeneJoins = new ArrayList<DiseaseGeneJoin>();
 	@Relationship(type = "ASSOCIATION", direction=Relationship.UNDIRECTED)
-	private List<OrthologyGeneJoin> orthologyGeneJoins;
+	private List<OrthologyGeneJoin> orthologyGeneJoins = new ArrayList<OrthologyGeneJoin>();
 	
 
 	@Override
