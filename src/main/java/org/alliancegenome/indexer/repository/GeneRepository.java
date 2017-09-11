@@ -19,10 +19,11 @@ public class GeneRepository extends Neo4jRepository<Gene> {
 		HashMap<String, String> map = new HashMap<String, String>();
 		map.put("primaryKey", primaryKey);
 		String query = "";
-		query += "MATCH p1=(g:Gene)--(s) WHERE g.primaryKey = {primaryKey}";
-		query += " OPTIONAL MATCH p2=(do:DOTerm)--(s:DiseaseGeneJoin)-[:EVIDENCE]-(q)";
-		query += " OPTIONAL MATCH p3=(s)--(oa:OrthoAlgorithm)";
-		query += " RETURN p1, p2, p3";
+		query += "MATCH (g:Gene) WHERE g.primaryKey = {primaryKey} WITH g SKIP 0 LIMIT 1";
+		query += " MATCH p1=(q:Species)-[:FROM_SPECIES]-(g)--(s)";
+		query += " OPTIONAL MATCH p2=(do:DOTerm)--(s:DiseaseGeneJoin)-[:EVIDENCE]-(ea)";
+		query += " OPTIONAL MATCH p4=(g)--(s:OrthologyGeneJoin)--(a:OrthoAlgorithm), p3=(g)-[o:ORTHOLOGOUS]-(g2:Gene)-[:FROM_SPECIES]-(q2:Species), (s)--(g2)";
+		query += " RETURN p1, p2, p3, p4";
 		return query(query, map);
 	}
 	
@@ -44,15 +45,11 @@ public class GeneRepository extends Neo4jRepository<Gene> {
 	public Iterable<Gene> getGeneByPage(int page, int size) {
 
 		String query = "";
-		query += "MATCH p1=(g:Gene)--(s)";
-		query += " OPTIONAL MATCH p2=(do:DOTerm)--(s:DiseaseGeneJoin)-[:EVIDENCE]-(q)";
-		query += " OPTIONAL MATCH p4=(g)--(j:OrthoGeneJoin)--(s), p5=(j)--(a:OrthoAlgorithm)";
-		query += " RETURN p1, p2, p4, p5";
-		//query += " OPTIONAL MATCH p3=(s)--(oa:OrthoAlgorithm)";
-		//query += " RETURN p1, p2, p3";
-		query += " SKIP " + (page * size) + " LIMIT " + size;
-
-
+		query += "MATCH (g:Gene) WITH g SKIP " + (page * size) + " LIMIT " + size;
+		query += " MATCH p1=(q:Species)-[:FROM_SPECIES]-(g)--(s)";
+		query += " OPTIONAL MATCH p2=(do:DOTerm)--(s:DiseaseGeneJoin)-[:EVIDENCE]-(ea)";
+		query += " OPTIONAL MATCH p4=(g)--(s:OrthologyGeneJoin)--(a:OrthoAlgorithm), p3=(g)-[o:ORTHOLOGOUS]-(g2:Gene)-[:FROM_SPECIES]-(q2:Species), (s)--(g2)";
+		query += " RETURN p1, p2, p3, p4";
 		return query(query);
 	}
 

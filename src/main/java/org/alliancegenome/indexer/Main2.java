@@ -24,7 +24,8 @@ public class Main2 {
 		//String key = "MGI:2178429";
 		//MGI:96969
 		//String key = "MGI:95294";
-		String key = "WB:WBGene00001650";
+		//String key = "WB:WBGene00001650";
+		String key = "ZFIN:ZDB-GENE-000210-7";
 			System.out.println("Key: " + key);
 			Iterable<Gene> genes = repo.getOneGene(key);
 			if(genes.iterator().hasNext()) {

@@ -165,7 +165,9 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
 							orth.getGene2().getSpecies() == null ? null : orth.getGene2().getSpecies().getPrimaryKey(),
 							orth.getGene1().getSpecies() == null ? null : orth.getGene1().getSpecies().getName(),
 							orth.getGene2().getSpecies() == null ? null : orth.getGene2().getSpecies().getName(),
+							orth.getGene1().getSymbol(),
 							orth.getGene2().getSymbol(),
+							orth.getGene1().getPrimaryKey(),
 							orth.getGene2().getPrimaryKey(),
 							notCalled, matched, notMatched
 							);

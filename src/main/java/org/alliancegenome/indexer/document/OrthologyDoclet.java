@@ -20,7 +20,10 @@ public class OrthologyDoclet {
 	private String gene1SpeciesName;
 	private String gene2SpeciesName;
 	
+	private String gene1Symbol;
 	private String gene2Symbol;
+	
+	private String gene1AgrPrimaryId;
 	private String gene2AgrPrimaryId;
 
 	private List<String> predictionMethodsNotCalled;
