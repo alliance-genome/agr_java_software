@@ -23,11 +23,16 @@ public class ConfigHelper {
 	}
 
 	public static void init() {
-
-		// DO NOT MODIFY AND COMMIT THESE VALUES
-		// USE -DNAME=value on the command line
-		// or export NAME=value before running.
-		// or create a config.properties file with NAME=value pairs
+		/* The purpose of the default values is that these are the values required by the application to run
+		 * This config help looks at 3 methods to over write these values.
+		 * 1. Via System Properties with are passed to the application at run time via the -DNAME=value
+		 * 2. Via a config.properties file, this file only need to over write the values it wants to change from the defaults
+		 * otherwise the config will be loaded from the default values.
+		 * 3. Via the environment. Before the application is run export NAME=value in the shell the config helper will load the
+		 * NAME and value that it finds in the environments and use those values rather then the defaults.
+		 * The names and values need to not be changed as other things might depend on the defaulted values for executing. For each
+		 * key in the defaults map there should be a corresponding get method for that value.
+		 */
 		defaults.put("THREADED", "true");
 		defaults.put("ES_HOST", "localhost");
 		defaults.put("ES_PORT", "9300");
@@ -50,9 +55,13 @@ public class ConfigHelper {
 		}
 
 		for (String key : allKeys) {
+			// First checks the -D params and sets config[key] = value otherwise it will be null.
 			if (config.get(key) == null) config.put(key, loadSystemProperty(key));
+			// Second checks the config.properties file built into the application otherwise it will be null.
 			if (config.get(key) == null) config.put(key, loadConfigProperty(key));
+			// Third checks the environment for a NAME = value otherwise leaves it null.
 			if (config.get(key) == null) config.put(key, loadSystemENVProperty(key));
+			// Lastly loads the default value for NAME = value and loadDefaultProperty ensures it won't be null.
 			if (config.get(key) == null) config.put(key, loadDefaultProperty(key));
 		}
 		printProperties();
