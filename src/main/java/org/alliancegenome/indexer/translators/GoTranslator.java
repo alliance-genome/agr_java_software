@@ -14,7 +14,7 @@ public class GoTranslator extends EntityDocumentTranslator<GOTerm, GoDocument> {
 	private Logger log = LogManager.getLogger(getClass());
 	
 	@Override
-	protected GoDocument entityToDocument(GOTerm entity) {
+	protected GoDocument entityToDocument(GOTerm entity, int translationDepth) {
 		//log.info(entity);
 		GoDocument doc = new GoDocument();
 
@@ -49,7 +49,7 @@ public class GoTranslator extends EntityDocumentTranslator<GOTerm, GoDocument> {
 	}
 
 	@Override
-	protected GOTerm documentToEntity(GoDocument document) {
+	protected GOTerm documentToEntity(GoDocument document, int translationDepth) {
 		return null;
 	}
 

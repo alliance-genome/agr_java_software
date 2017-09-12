@@ -29,7 +29,7 @@ public class Main2 {
 		//list.add("MGI:2178429");
 		//list.add("MGI:96969");
 		//list.add("MGI:95294");
-		//list.add("WB:WBGene00001650");
+		//list.add("WB:WBGene00001650");  
 		//list.add("ZFIN:ZDB-GENE-000210-7");
 
 		// MGI:5594564 No Disease or Ortho

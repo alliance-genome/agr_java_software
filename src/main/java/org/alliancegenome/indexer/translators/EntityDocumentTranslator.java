@@ -4,25 +4,28 @@ import java.util.ArrayList;
 
 import org.alliancegenome.indexer.document.ESDocument;
 import org.alliancegenome.indexer.entity.Neo4jEntity;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 public abstract class EntityDocumentTranslator<E extends Neo4jEntity, D extends ESDocument> {
 
-	private Logger log = LogManager.getLogger(getClass());
-	
 	public E translate(D doument) {
-		return documentToEntity(doument);
+		return translate(doument, 1);
 	}
 
 	public D translate(E entity) {
-		return entityToDocument(entity);
+		return translate(entity, 1);
+	}
+	
+	public D translate(E entity, int depth) {
+		return entityToDocument(entity, depth);
+	}
+	public E translate(D document, int depth) {
+		return documentToEntity(document, depth);
 	}
 
 	public Iterable<E> translateDocuments(Iterable<D> douments) {
 		ArrayList<E> entities = new ArrayList<E>();
 		for(D document: douments) {
-			entities.add(documentToEntity(document));
+			entities.add(translate(document, 1));
 		}
 		return entities;
 	}
@@ -30,12 +33,12 @@ public abstract class EntityDocumentTranslator<E extends Neo4jEntity, D extends 
 	public Iterable<D> translateEntities(Iterable<E> entities) {
 		ArrayList<D> douments = new ArrayList<D>();
 		for(E entity: entities) {
-			douments.add(entityToDocument(entity));
+			douments.add(translate(entity, 1));
 		}
 		return douments;
 	}
 
-	protected abstract D entityToDocument(E entity);
-	protected abstract E documentToEntity(D doument);
+	protected abstract D entityToDocument(E entity, int translationDepth);
+	protected abstract E documentToEntity(D doument, int translationDepth);
 
 }

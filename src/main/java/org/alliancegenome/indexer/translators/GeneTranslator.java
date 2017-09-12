@@ -29,8 +29,9 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
 	private static DiseaseTranslator diseaseTranslator = new DiseaseTranslator();
 
 	@Override
-	protected GeneDocument entityToDocument(Gene entity) {
+	protected GeneDocument entityToDocument(Gene entity, int translationDepth) {
 		//log.info(entity);
+		log.info("Translate Gene");
 		HashMap<String, ArrayList<String>> goTerms = new HashMap<>();
 
 		GeneDocument geneDocument = new GeneDocument();
@@ -170,9 +171,10 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
 		if(entity.getDOTerms() != null) {
 			List<DiseaseDocument> dlist = new ArrayList<>();
 			for(DOTerm dot: entity.getDOTerms()) {
-				// TODO Implement translationDepth
-				DiseaseDocument doc = diseaseTranslator.translate(dot); // This needs to not happen if being call from DiseaseTranslator
-				dlist.add(doc);
+				if(translationDepth > 0) {
+					DiseaseDocument doc = diseaseTranslator.translate(dot, translationDepth - 1); // This needs to not happen if being called from DiseaseTranslator
+					dlist.add(doc);
+				}
 			}
 			geneDocument.setDiseases(dlist);
 		}
@@ -208,7 +210,7 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
 	}
 
 	@Override
-	protected Gene documentToEntity(GeneDocument document) {
+	protected Gene documentToEntity(GeneDocument document, int translationDepth) {
 		// We are not going to the database yet so will implement this when we need to
 		return null;
 	}

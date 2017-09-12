@@ -20,7 +20,7 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
 	private Logger log = LogManager.getLogger(getClass());
 
 	@Override
-	protected DiseaseDocument entityToDocument(DOTerm entity) {
+	protected DiseaseDocument entityToDocument(DOTerm entity, int translationDepth) {
 		if (fullDiseaseListMap.isEmpty())
 			fetchFullList();
 
@@ -30,7 +30,6 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
 		doc.setCategory("disease");
 
 		if (entity.getDiseaseGeneJoins() == null) {
-			log.info("No DiseaseGeneJoins");
 			return doc;
 		}
 
@@ -41,15 +40,16 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
 								Collectors.mapping(association -> association, Collectors.toList())
 								)
 						);
-
+		
 		// generate AnnotationDocument records
 		List<AnnotationDocument> annotationDocuments = geneAssociationMap.entrySet().stream()
 				// sort by gene symbol
 				.sorted(Map.Entry.comparingByKey())
 				.map(entry -> {
 					AnnotationDocument document = new AnnotationDocument();
-					// TODO Implement translationDepth
-					//document.setGeneDocument(geneTranslator.translate(entry.getKey())); // This needs to not happen if being call from GeneTranslator
+					if(translationDepth > 0) {
+						document.setGeneDocument(geneTranslator.translate(entry.getKey(), translationDepth - 1)); // This needs to not happen if being call from GeneTranslator
+					}
 					List<PublicationDoclet> publicationDocuments = entry.getValue().stream()
 							.map(association -> {
 								document.setAssoicationType(association.getJoinType());
@@ -146,11 +146,11 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
 	}
 
 	@Override
-	protected DOTerm documentToEntity(DiseaseDocument document) {
+	protected DOTerm documentToEntity(DiseaseDocument document, int translationDepth) {
 		return null;
 	}
 
-	public Iterable<DiseaseAnnotationDocument> translateAnnotationEntities(List<DOTerm> geneDiseaseList) {
+	public Iterable<DiseaseAnnotationDocument> translateAnnotationEntities(List<DOTerm> geneDiseaseList, int translationDepth) {
 		Set<DiseaseAnnotationDocument> diseaseAnnotationDocuments = new HashSet<>();
 		geneDiseaseList.forEach(doTerm -> {
 			if (doTerm.getDiseaseGeneJoins() == null) {
@@ -169,7 +169,7 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
 							doc.setParentDiseaseIDs(getParentIdList(doTerm));
 							doc.setAssociationType(diseaseGeneJoin.getJoinType());
 							doc.setSpecies(getSpeciesDoclet(diseaseGeneJoin));
-							doc.setGeneDocument(geneTranslator.entityToDocument(diseaseGeneJoin.getGene()));
+							doc.setGeneDocument(geneTranslator.entityToDocument(diseaseGeneJoin.getGene(), translationDepth - 1));
 							List<PublicationDoclet> pubDocs = new ArrayList<>();
 							pubDocs.add(getPublicationDocument(diseaseGeneJoin, diseaseGeneJoin.getPublication()));
 							doc.setPublications(pubDocs);
