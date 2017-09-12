@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Properties;
+import java.util.Set;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -15,6 +16,7 @@ public class ConfigHelper {
 
 	private static HashMap<String, String> defaults = new HashMap<>();
 	private static HashMap<String, String> config = new HashMap<>();
+	private static Set<String> allKeys;
 
 	public ConfigHelper() {
 		init();
@@ -32,6 +34,7 @@ public class ConfigHelper {
 		defaults.put("ES_INDEX", "site_index");
 		defaults.put("NEO4J_HOST", "localhost");
 		defaults.put("NEO4J_PORT", "7687");
+		allKeys = defaults.keySet();
 
 		if (configProperties.size() == 0) {
 			InputStream in = ConfigHelper.class.getClassLoader().getResourceAsStream("config.properties");
@@ -46,7 +49,7 @@ public class ConfigHelper {
 			}
 		}
 
-		for (String key : defaults.keySet()) {
+		for (String key : allKeys) {
 			if (config.get(key) == null) config.put(key, loadSystemProperty(key));
 			if (config.get(key) == null) config.put(key, loadConfigProperty(key));
 			if (config.get(key) == null) config.put(key, loadSystemENVProperty(key));
@@ -105,7 +108,7 @@ public class ConfigHelper {
 
 	public static void printProperties() {
 		log.info("Running with Properties:");
-		for (String key : config.keySet()) {
+		for (String key : allKeys) {
 			log.info("\t" + key + ": " + config.get(key));
 		}
 	}
