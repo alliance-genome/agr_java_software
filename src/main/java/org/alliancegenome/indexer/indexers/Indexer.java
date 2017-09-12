@@ -3,7 +3,9 @@ package org.alliancegenome.indexer.indexers;
 import java.net.InetAddress;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 
 import org.alliancegenome.indexer.config.ConfigHelper;
 import org.alliancegenome.indexer.config.TypeConfig;
@@ -83,21 +85,23 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
 	public void addDocuments(Iterable<D> docs) {
 		checkMemory();
 
-		BulkRequestBuilder bulkRequest = client.prepareBulk();
-
-		for(D doc: docs) {
-			try {
-				String json = om.writeValueAsString(doc);
-				//log.debug("JSON: " + json);
-				bulkRequest.add(client.prepareIndex(currentIndex, typeConfig.getTypeName()).setSource(json).setId(doc.getDocumentId()));
-			} catch (JsonProcessingException e) {
-				e.printStackTrace();
+		if(((Collection<D>)docs).size() > 0) {
+		
+			BulkRequestBuilder bulkRequest = client.prepareBulk();
+			for(D doc: docs) {
+				try {
+					String json = om.writeValueAsString(doc);
+					//log.debug("JSON: " + json);
+					bulkRequest.add(client.prepareIndex(currentIndex, typeConfig.getTypeName()).setSource(json).setId(doc.getDocumentId()));
+				} catch (JsonProcessingException e) {
+					e.printStackTrace();
+				}
 			}
-		}
-		BulkResponse bulkResponse = bulkRequest.get();
-		if (bulkResponse.hasFailures()) {
-			log.error("Has Failures in indexer: " + bulkResponse.buildFailureMessage());
-			// process failures by iterating through each bulk response item
+			BulkResponse bulkResponse = bulkRequest.get();
+			if (bulkResponse.hasFailures()) {
+				log.error("Has Failures in indexer: " + bulkResponse.buildFailureMessage());
+				// process failures by iterating through each bulk response item
+			}
 		}
 
 	}
