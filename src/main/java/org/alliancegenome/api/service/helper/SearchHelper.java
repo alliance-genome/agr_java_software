@@ -30,7 +30,7 @@ public class SearchHelper {
 				{
 					add("species");
 					add("soTermName");
-					add("diseases.do_name");
+					add("diseases.name");
 					add("gene_biological_process");
 					add("gene_molecular_function");
 					add("gene_cellular_component");
@@ -46,8 +46,8 @@ public class SearchHelper {
 			});
 			put("disease", new ArrayList<String>() {
 				{
-					add("disease_species");
-					add("disease_genes");
+					add("annotations.geneDocument.name_key");
+					add("annotations.geneDocument.species");
 				}
 			});
 		}
@@ -61,15 +61,15 @@ public class SearchHelper {
 /*			put("primaryId", 400);
 			put("secondaryIds", 100);
 			put("symbol", 500);
-			put("symbol.raw", 1000);
+			put("symbol.keyword", 1000);
 			put("synonyms", 120);
-			put("synonyms.raw", 200);
+			put("synonyms.keyword", 200);
 			put("name", 100);
 			put("name.symbol", 200);
 			put("gene_biological_process.symbol", 50);
 			put("gene_molecular_function.symbol", 50);
 			put("gene_cellular_component.symbol", 50);
-			put("diseases.do_name", 50);*/
+			put("diseases.name", 50);*/
 		}
 	};
 
@@ -77,11 +77,11 @@ public class SearchHelper {
 	private List<String> searchFields = new ArrayList<String>() {
 		{
 			add("primaryId"); add("secondaryIds"); add("name"); add("name.autocomplete");
-			add("symbol"); add("symbol.raw"); add("symbol.autocomplete");  add("synonyms"); add("synonyms.raw");
+			add("symbol"); add("symbol.keyword"); add("symbol.autocomplete");  add("synonyms"); add("synonyms.keyword");
 			add("description"); add("external_ids"); add("species");
 			add("gene_biological_process"); add("gene_molecular_function"); add("gene_cellular_component");
 			add("go_type"); add("go_genes"); add("go_synonyms");
-			add("disease_genes"); add("disease_synonyms"); add("diseases.do_name");
+			add("disease_genes"); add("disease_synonyms"); add("diseases.name");
 		}
 	};
 
@@ -105,7 +105,7 @@ public class SearchHelper {
 		} else {
 			for(String item: category_filters.get(category)) {
 				TermsAggregationBuilder term = AggregationBuilders.terms(item);
-				term.field(item + ".raw");
+				term.field(item + ".keyword");
 				term.size(999);
 				ret.add(term);
 			}
@@ -160,7 +160,7 @@ public class SearchHelper {
 			for(String item: category_filters.get(category)) {
 				if(uriInfo.getQueryParameters().containsKey(item)) {
 					for(String param: uriInfo.getQueryParameters().get(item)) {
-						bool.filter(new TermQueryBuilder(item + ".raw", param));
+						bool.filter(new TermQueryBuilder(item + ".keyword", param));
 					}
 				}
 			}

@@ -35,11 +35,11 @@ public class DiseaseDAO extends ESDAO {
         MatchQueryBuilder query = QueryBuilders.matchQuery("parentDiseaseIDs", diseaseID);
 
         // sort exact matches on the diseaseID at the top then all the child terms.
-        Script script = new Script("doc['diseaseID.raw'].value == '" + diseaseID + "' ? 0 : 100");
+        Script script = new Script("doc['diseaseID.keyword'].value == '" + diseaseID + "' ? 0 : 100");
         searchRequestBuilder.addSort(SortBuilders.scriptSort(script, ScriptSortBuilder.ScriptSortType.NUMBER));
 
         searchRequestBuilder.addSort(SortBuilders.fieldSort("disease_species.orderID").order(SortOrder.ASC));
-        searchRequestBuilder.addSort(SortBuilders.fieldSort("geneDocument.symbol.raw").order(SortOrder.ASC));
+        searchRequestBuilder.addSort(SortBuilders.fieldSort("geneDocument.symbol.keyword").order(SortOrder.ASC));
         searchRequestBuilder.setQuery(query);
 
         log.debug(searchRequestBuilder);
