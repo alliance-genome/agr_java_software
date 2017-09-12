@@ -1,7 +1,5 @@
 package org.alliancegenome.indexer.indexers;
 
-import java.util.List;
-
 import org.alliancegenome.indexer.config.TypeConfig;
 import org.alliancegenome.indexer.document.DiseaseDocument;
 import org.alliancegenome.indexer.entity.node.DOTerm;
@@ -9,6 +7,8 @@ import org.alliancegenome.indexer.repository.DiseaseRepository;
 import org.alliancegenome.indexer.translators.DiseaseTranslator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import java.util.List;
 
 public class DiseaseIndexer extends Indexer<DiseaseDocument> {
 
@@ -29,7 +29,7 @@ public class DiseaseIndexer extends Indexer<DiseaseDocument> {
         int chunkSize = typeConfig.getFetchChunkSize();
         int pages = diseaseCount / chunkSize;
 
-        log.debug("DiseaseCount: " + diseaseCount);
+        log.debug("Number of Disease terms: " + diseaseCount);
 
         if (diseaseCount > 0) {
             startProcess(pages, chunkSize, diseaseCount);

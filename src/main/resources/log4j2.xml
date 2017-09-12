@@ -11,6 +11,7 @@
 		</Root>
 		<logger name="org.elasticsearch" level="WARN" />
 		<logger name="io.netty" level="INFO" />
-		<logger name="org.neo4j.ogm" level="WARN" />
+		<logger name="org.neo4j.ogm" level="info" />
+		<logger name="org.alliancegenome.indexer.config" level="info" />
 	</Loggers>
 </Configuration>

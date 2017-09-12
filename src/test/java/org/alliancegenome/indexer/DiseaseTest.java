@@ -36,11 +36,14 @@ public class DiseaseTest {
 
         Neo4jRepository<DOTerm> neo4jService = new Neo4jRepository<>(DOTerm.class);
 
-        List<DOTerm> geneDiseaseList = diseaseRepository.getAllDiseaseTerms(0, 10);
-//        geneDiseaseList = diseaseRepository.getAllTerms();
-        geneDiseaseList = diseaseRepository.getDiseaseTermsWithAnnotations();
+        //List<DOTerm> geneDiseaseList = diseaseRepository.getAllDiseaseTerms(0, 10);
+/*
+        List<DOTerm> geneDiseaseList = diseaseRepository.getAllTerms();
+        System.out.println("Number of all terms: " + geneDiseaseList.size());
+*/
+        List<DOTerm>  geneDiseaseList1 = diseaseRepository.getDiseaseTermsWithAnnotations();
 
-        System.out.println("Number of Diseases with Genes: " + geneDiseaseList.size());
+        System.out.println("Number of Diseases with Genes: " + geneDiseaseList1.size());
 
 
         String cypher = "match (n:Gene)-[*]->(d:DOTerm) return n, d";
@@ -48,10 +51,10 @@ public class DiseaseTest {
 
 
 
-        List<DOTerm> fullTerms = geneDiseaseList.stream()
+        List<DOTerm> fullTerms = geneDiseaseList1.stream()
                 .filter(doTerm -> !(doTerm.getPrimaryKey().contains("!")))
                 .collect(Collectors.toList());
-        System.out.println("Number of Diseases with Genes Info: " + geneDiseaseList.size());
+        System.out.println("Number of Diseases with Genes Info: " + geneDiseaseList1.size());
 
     }
 

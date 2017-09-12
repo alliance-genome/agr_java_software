@@ -28,7 +28,7 @@ public class DiseaseAnnotationIndexer extends Indexer<DiseaseAnnotationDocument>
         List<DOTerm> diseaseTermsWithAnnotations = repo.getDiseaseTermsWithAnnotations();
         log.info("Disease Records with annotations: " + diseaseTermsWithAnnotations.size());
         addDocuments(diseaseTrans.translateAnnotationEntities(diseaseTermsWithAnnotations, 1));
-
+        log.info("Finished indexing disease annotations: " );
     }
 
 }

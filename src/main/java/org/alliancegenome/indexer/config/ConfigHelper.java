@@ -105,7 +105,7 @@ public class ConfigHelper {
 
 	public static void printProperties() {
 		log.info("Running with Properties:");
-		for (String key : defaults.keySet()) {
+		for (String key : config.keySet()) {
 			log.info("\t" + key + ": " + config.get(key));
 		}
 	}

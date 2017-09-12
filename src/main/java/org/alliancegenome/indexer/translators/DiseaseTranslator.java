@@ -27,11 +27,8 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
 		populateParentsAndChildren(entity);
 		DiseaseDocument doc = getTermDiseaseDocument(entity);
 
-		doc.setCategory("disease");
-
-		if (entity.getDiseaseGeneJoins() == null) {
+        if (entity.getDiseaseGeneJoins() == null)
 			return doc;
-		}
 
 		// group by gene
 		Map<Gene, List<DiseaseGeneJoin>> geneAssociationMap = entity.getDiseaseGeneJoins().stream()
@@ -185,10 +182,19 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
 		return diseaseAnnotationDocuments;
 	}
 
-	private List<String> getParentIdList(DOTerm doTerm) {
-		List<String> idList = new ArrayList<>();
+    /**
+     * Get all the parent termIDs compiled.
+     * @param doTerm
+     * @return
+     */
+    private Set<String> getParentIdList(DOTerm doTerm) {
+        Set<String> idList = new LinkedHashSet<>();
 		idList.add(doTerm.getPrimaryKey());
-		idList.addAll(doTerm.getParents().stream().map(DOTerm::getPrimaryKey).collect(Collectors.toSet()));
+        doTerm.getParents().forEach(term -> {
+            idList.add(term.getPrimaryKey());
+            if (term.getParents() != null)
+                idList.addAll(getParentIdList(term));
+        });
 		return idList;
 	}
 
