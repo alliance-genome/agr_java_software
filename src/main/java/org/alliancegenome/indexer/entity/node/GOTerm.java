@@ -19,6 +19,7 @@ public class GOTerm extends Ontology {
 	private String href;
 	private String type;
 	private String primaryKey;
+	private String is_obsolete;
 	
 	@Relationship(type = "ANNOTATED_TO", direction=Relationship.INCOMING)
 	private Set<Gene> genes = new HashSet<Gene>();

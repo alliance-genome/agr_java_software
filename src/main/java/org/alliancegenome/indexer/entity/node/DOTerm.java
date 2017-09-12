@@ -14,30 +14,40 @@ import lombok.Setter;
 @Setter
 public class DOTerm extends Neo4jEntity {
 
-    private String doUrl;
-    private String doDisplayId;
-    private String doId;
-    private String doPrefix;
-    private String primaryKey;
-    private String name;
-    private String definition;
+	private String doUrl;
+	private String doDisplayId;
+	private String doId;
+	private String doPrefix;
+	private String primaryKey;
+	private String name;
+	private String definition;
 
-    @Relationship(type = "IS_IMPLICATED_IN", direction = Relationship.INCOMING)
-    private List<Gene> genes;
+	private String nameKey;
+	private String is_obsolete;
 
-    @Relationship(type = "ASSOCIATION", direction = Relationship.INCOMING)
-    private List<DiseaseGeneJoin> diseaseGeneJoins;
+	private String zfinLink;
+	private String humanLink;
+	private String rgdLink;
+	private String wormbaseLink;
+	private String flybaseLink;
+	private String mgiLink;
 
-    @Relationship(type = "IS_A", direction = Relationship.INCOMING)
-    private List<DOTerm> children;
+	@Relationship(type = "IS_IMPLICATED_IN", direction = Relationship.INCOMING)
+	private List<Gene> genes;
 
-    @Relationship(type = "IS_A")
-    private List<DOTerm> parents;
+	@Relationship(type = "ASSOCIATION", direction = Relationship.INCOMING)
+	private List<DiseaseGeneJoin> diseaseGeneJoins;
 
-    @Relationship(type = "ALSO_KNOWN_AS")
-    private List<Synonym> synonyms;
+	@Relationship(type = "IS_A", direction = Relationship.INCOMING)
+	private List<DOTerm> children;
 
-    @Relationship(type = "ALSO_KNOWN_AS")
-    private List<ExternalId> externalIds;
+	@Relationship(type = "IS_A")
+	private List<DOTerm> parents;
+
+	@Relationship(type = "ALSO_KNOWN_AS")
+	private List<Synonym> synonyms;
+
+	@Relationship(type = "ALSO_KNOWN_AS")
+	private List<ExternalId> externalIds;
 
 }

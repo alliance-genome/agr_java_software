@@ -26,7 +26,6 @@ public class GeneDocument extends ESDocument {
 	private List<String> synonyms;
 	private String geneLiteratureUrl;
 	private List<CrossReferenceDoclet> crossReferences;
-	private List<String> external_ids;
 	private String dataProvider;
 	private Date dateProduced;
 	private List<DiseaseDocument> diseases = new ArrayList<>();
@@ -43,7 +42,7 @@ public class GeneDocument extends ESDocument {
 	private String geneticEntityExternalUrl;
 
 	private String modCrossRefCompleteUrl;
-	private String localId;
+	private String modLocalId;
 	private String modGlobalCrossRefId;
 	private String modGlobalId;
 	

@@ -14,5 +14,7 @@ public class CrossReference extends Neo4jEntity {
 	private String localId;
 	private String globalCrossrefId;
 	private String prefix;
+	private String name;
+	private String primaryKey;
 	
 }

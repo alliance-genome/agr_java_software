@@ -35,7 +35,7 @@ public class Gene extends Neo4jEntity implements Comparable<Gene> {
 
 	// Used to be in modCrossReference
 	private String modCrossRefCompleteUrl;
-	private String localId;
+	private String modLocalId;
 	private String modGlobalCrossRefId;
 	private String modGlobalId;
 	

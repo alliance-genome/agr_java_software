@@ -11,7 +11,6 @@ import org.alliancegenome.indexer.document.GenomeLocationDoclet;
 import org.alliancegenome.indexer.document.OrthologyDoclet;
 import org.alliancegenome.indexer.entity.node.CrossReference;
 import org.alliancegenome.indexer.entity.node.DOTerm;
-import org.alliancegenome.indexer.entity.node.ExternalId;
 import org.alliancegenome.indexer.entity.node.GOTerm;
 import org.alliancegenome.indexer.entity.node.Gene;
 import org.alliancegenome.indexer.entity.node.OrthoAlgorithm;
@@ -47,7 +46,7 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
 		geneDocument.setGeneticEntityExternalUrl(entity.getGeneticEntityExternalUrl());
 
 		geneDocument.setModCrossRefCompleteUrl(entity.getModCrossRefCompleteUrl());
-		geneDocument.setLocalId(entity.getLocalId());
+		geneDocument.setModLocalId(entity.getModLocalId());
 		geneDocument.setModGlobalCrossRefId(entity.getModGlobalCrossRefId());
 		geneDocument.setModGlobalId(entity.getModGlobalId());
 
