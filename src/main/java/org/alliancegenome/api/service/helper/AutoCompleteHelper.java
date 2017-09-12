@@ -1,15 +1,17 @@
 package org.alliancegenome.api.service.helper;
 
-import java.util.ArrayList;
-import java.util.Map;
-
-import javax.enterprise.context.RequestScoped;
-
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.index.query.*;
+import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.MultiMatchQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.jboss.logging.Logger;
+
+import javax.enterprise.context.RequestScoped;
+import java.util.ArrayList;
+import java.util.Map;
 
 @RequestScoped
 public class AutoCompleteHelper {
@@ -22,9 +24,9 @@ public class AutoCompleteHelper {
 
 		MultiMatchQueryBuilder multi = QueryBuilders.multiMatchQuery(q);
 		multi.field("name_key.autocomplete",3.0F);
-		multi.field("name.raw", 2.0F);
+		multi.field("name.keyword", 2.0F);
 		multi.field("name.autocomplete");
-		multi.field("synonyms.raw", 2.0F);
+		multi.field("synonyms.keyword", 2.0F);
 		multi.field("synonyms.autocomplete");
 
 		bool.must(multi);

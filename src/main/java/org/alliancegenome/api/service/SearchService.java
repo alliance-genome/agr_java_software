@@ -101,7 +101,7 @@ public class SearchService {
 			//expand the map of lists and add each key,value pair as filters
 			filters.entrySet().stream().forEach(entry ->
 				entry.getValue().stream().forEach( value ->
-						bool.filter(new TermQueryBuilder(entry.getKey() + ".raw", value))
+						bool.filter(new TermQueryBuilder(entry.getKey() + ".keyword", value))
 				)
 			);
 
