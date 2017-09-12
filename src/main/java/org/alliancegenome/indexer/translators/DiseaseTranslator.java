@@ -86,9 +86,12 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
 	private PublicationDoclet getPublicationDocument(DiseaseGeneJoin association, Publication publication) {
 		PublicationDoclet pubDoc = new PublicationDoclet();
 		pubDoc.setPrimaryKey(publication.getPrimaryKey());
+		
 		pubDoc.setPubMedId(publication.getPubMedId());
+		pubDoc.setPubMedUrl(publication.getPubMedUrl());
 		pubDoc.setPubModId(publication.getPubModId());
 		pubDoc.setPubModUrl(publication.getPubModUrl());
+		
 		List<String> evidencesDocument = association.getEvidenceCodes().stream()
 				.map(EvidenceCode::getPrimaryKey)
 				.collect(Collectors.toList());
