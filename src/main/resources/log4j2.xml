@@ -2,7 +2,10 @@
 <Configuration>
 	<Properties>
 		<!--  Default log level but can be over written with export LOG_LEVEL=DEBUG -->
-		<Property name="LOG_LEVEL">INFO</Property>
+		<Property name="DEFAULT_LOG_LEVEL">INFO</Property>
+		<Property name="CONFIG_LOG_LEVEL">INFO</Property>
+		<Property name="BOLT_LOG_LEVEL">WARN</Property>
+		<Property name="ES_LOG_LEVEL">WARN</Property>
 	</Properties>
 	<Appenders>
 		<Console name="Console">
@@ -10,12 +13,11 @@
 		</Console>
 	</Appenders>
 	<Loggers>
-		<Root level="${env:LOG_LEVEL}">
+		<Root level="${env:DEFAULT_LOG_LEVEL}">
 			<AppenderRef ref="Console" />
 		</Root>
-		<logger name="org.elasticsearch" level="${env:LOG_LEVEL}" />
-		<logger name="io.netty" level="${env:LOG_LEVEL}" />
-		<logger name="org.neo4j.ogm" level="${env:LOG_LEVEL}" />
-		<logger name="org.alliancegenome.indexer.config" level="${env:LOG_LEVEL}" />
+		<logger name="org.elasticsearch" level="${env:ES_LOG_LEVEL}" />
+		<logger name="org.neo4j.ogm" level="${env:BOLT_LOG_LEVEL}" />
+		<logger name="org.alliancegenome.indexer.config" level="${env:CONFIG_LOG_LEVEL}" />
 	</Loggers>
 </Configuration>
