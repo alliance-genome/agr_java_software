@@ -38,16 +38,16 @@ public class SearchService {
 
 		SearchResult result = new SearchResult();
 
-		QueryBuilder query = buildQuery(q, category, getFilters(category, uriInfo));
-		List<AggregationBuilder> aggBuilders = searchHelper.createAggBuilder(category);
-		
-		HighlightBuilder hlb = searchHelper.buildHighlights();
-
 		Boolean debug = false;
 		if (StringUtils.isNotEmpty(q) && q.startsWith("debug")) {
 			debug = true;
 			q = q.replaceFirst("debug","").trim();
 		}
+
+		QueryBuilder query = buildQuery(q, category, getFilters(category, uriInfo));
+		List<AggregationBuilder> aggBuilders = searchHelper.createAggBuilder(category);
+		
+		HighlightBuilder hlb = searchHelper.buildHighlights();
 
 		SearchResponse searchResponse = searchDAO.performQuery(query, aggBuilders, limit, offset, hlb, sort_by, debug);
 
