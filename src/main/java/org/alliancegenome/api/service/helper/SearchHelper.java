@@ -30,7 +30,7 @@ public class SearchHelper {
 				{
 					add("species");
 					add("soTermName");
-					add("diseases.do_name");
+					add("diseases.name");
 					add("gene_biological_process");
 					add("gene_molecular_function");
 					add("gene_cellular_component");
@@ -69,7 +69,7 @@ public class SearchHelper {
 			put("gene_biological_process.symbol", 50);
 			put("gene_molecular_function.symbol", 50);
 			put("gene_cellular_component.symbol", 50);
-			put("diseases.do_name", 50);*/
+			put("diseases.name", 50);*/
 		}
 	};
 
@@ -81,7 +81,7 @@ public class SearchHelper {
 			add("description"); add("external_ids"); add("species");
 			add("gene_biological_process"); add("gene_molecular_function"); add("gene_cellular_component");
 			add("go_type"); add("go_genes"); add("go_synonyms");
-			add("disease_genes"); add("disease_synonyms"); add("diseases.do_name");
+			add("disease_genes"); add("disease_synonyms"); add("diseases.name");
 		}
 	};
 
