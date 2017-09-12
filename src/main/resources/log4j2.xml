@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration>
 	<Properties>
-		<!--  Default log level but can be over written with export LOG_LEVEL=DEBUG -->
+		<!--  Log levels can be changed via Env `export DEFAULT_LOG_LEVEL=DEBUG` -->
 		<Property name="DEFAULT_LOG_LEVEL">INFO</Property>
 		<Property name="CONFIG_LOG_LEVEL">INFO</Property>
 		<Property name="BOLT_LOG_LEVEL">WARN</Property>
