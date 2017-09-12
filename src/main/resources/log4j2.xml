@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration>
 	<Properties>
-		<!--  Default log level but can be over written with -Dlog.level=DEBUG -->
-		<Property name="log.level">INFO</Property>
+		<!--  Default log level but can be over written with export LOG_LEVEL=DEBUG -->
+		<Property name="LOG_LEVEL">INFO</Property>
 	</Properties>
 	<Appenders>
 		<Console name="Console">
@@ -10,12 +10,12 @@
 		</Console>
 	</Appenders>
 	<Loggers>
-		<Root level="${sys:log.level}">
+		<Root level="${env:LOG_LEVEL}">
 			<AppenderRef ref="Console" />
 		</Root>
-		<logger name="org.elasticsearch" level="${sys:log.level}" />
-		<logger name="io.netty" level="${sys:log.level}" />
-		<logger name="org.neo4j.ogm" level="${sys:log.level}" />
-		<logger name="org.alliancegenome.indexer.config" level="${sys:log.level}" />
+		<logger name="org.elasticsearch" level="${env:LOG_LEVEL}" />
+		<logger name="io.netty" level="${env:LOG_LEVEL}" />
+		<logger name="org.neo4j.ogm" level="${env:LOG_LEVEL}" />
+		<logger name="org.alliancegenome.indexer.config" level="${env:LOG_LEVEL}" />
 	</Loggers>
 </Configuration>
