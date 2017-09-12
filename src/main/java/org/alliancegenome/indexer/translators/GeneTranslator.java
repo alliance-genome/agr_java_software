@@ -31,7 +31,6 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
 	@Override
 	protected GeneDocument entityToDocument(Gene entity, int translationDepth) {
 		//log.info(entity);
-		log.info("Translate Gene");
 		HashMap<String, ArrayList<String>> goTerms = new HashMap<>();
 
 		GeneDocument geneDocument = new GeneDocument();
