@@ -10,8 +10,8 @@ import lombok.Setter;
 public class OrthologyDoclet {
 	
 	private String primaryKey;
-	private boolean isBestScore;
-	private boolean isBestRevScore;
+	private Boolean isBestScore;
+	private Boolean isBestRevScore;
 	private String confidence;
 	
 	private String gene1Species;
