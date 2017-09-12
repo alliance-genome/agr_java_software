@@ -1,17 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration>
+	<Properties>
+		<!--  Default log level but can be over written with -Dlog.level=DEBUG -->
+		<Property name="log.level">INFO</Property>
+	</Properties>
 	<Appenders>
 		<Console name="Console">
 			<PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n" />
 		</Console>
 	</Appenders>
 	<Loggers>
-		<Root level="TRACE">
+		<Root level="${sys:log.level}">
 			<AppenderRef ref="Console" />
 		</Root>
-		<logger name="org.elasticsearch" level="WARN" />
-		<logger name="io.netty" level="INFO" />
-		<logger name="org.neo4j.ogm" level="info" />
-		<logger name="org.alliancegenome.indexer.config" level="info" />
+		<logger name="org.elasticsearch" level="${sys:log.level}" />
+		<logger name="io.netty" level="${sys:log.level}" />
+		<logger name="org.neo4j.ogm" level="${sys:log.level}" />
+		<logger name="org.alliancegenome.indexer.config" level="${sys:log.level}" />
 	</Loggers>
 </Configuration>
