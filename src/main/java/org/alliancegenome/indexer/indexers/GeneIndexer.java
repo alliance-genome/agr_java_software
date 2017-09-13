@@ -42,7 +42,7 @@ public class GeneIndexer extends Indexer<GeneDocument> {
 
 			while(!queue.isEmpty()) {
 				log.info("Queue Size: " + queue.size());
-				Thread.sleep(10000);
+				Thread.sleep(60000);
 			}
 
 			for(WorkerThread t: threads) {
