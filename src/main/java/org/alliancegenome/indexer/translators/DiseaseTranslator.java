@@ -90,6 +90,9 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
         pubDoc.setPubModId(publication.getPubModId());
         pubDoc.setPubModUrl(publication.getPubModUrl());
 
+        if (association.getEvidenceCodes() == null)
+            throw new RuntimeException("Could not find any evidence codes for " + association.getGene().getPrimaryKey() + " and publication " + publication.getPubModUrl());
+
         List<String> evidencesDocument = association.getEvidenceCodes().stream()
                 .map(EvidenceCode::getPrimaryKey)
                 .collect(Collectors.toList());
@@ -228,9 +231,6 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
 
     /**
      * Get all the parent termIDs compiled.
-     *
-     * @param doTerm
-     * @return
      */
     private Set<String> getParentIdList(DOTerm doTerm) {
         Set<String> idList = new LinkedHashSet<>();
