@@ -5,9 +5,10 @@ import org.alliancegenome.api.model.SearchResult;
 import org.alliancegenome.api.service.helper.SearchHelper;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.index.query.*;
-import org.elasticsearch.index.query.functionscore.FunctionScoreQueryBuilder;
-import org.elasticsearch.index.query.functionscore.ScoreFunctionBuilders;
+import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.MultiMatchQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.TermQueryBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.jboss.logging.Logger;
@@ -17,6 +18,7 @@ import javax.inject.Inject;
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriInfo;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.elasticsearch.index.query.QueryBuilders.*;
@@ -36,16 +38,24 @@ public class SearchService {
 
 		SearchResult result = new SearchResult();
 
+		Boolean debug = false;
+		if (StringUtils.isNotEmpty(q) && q.startsWith("debug")) {
+			debug = true;
+			q = q.replaceFirst("debug","").trim();
+		}
+
 		QueryBuilder query = buildFunctionQuery(q, category, getFilters(category, uriInfo));
 
 		List<AggregationBuilder> aggBuilders = searchHelper.createAggBuilder(category);
 		
 		HighlightBuilder hlb = searchHelper.buildHighlights();
 
-		SearchResponse searchResponse = searchDAO.performQuery(query, aggBuilders, limit, offset, hlb, sort_by);
+		SearchResponse searchResponse = searchDAO.performQuery(query, aggBuilders, limit, offset, hlb, sort_by, debug);
+
+		log.debug("Search Query: " + q);
 
 		result.total = searchResponse.getHits().totalHits;
-		result.results = searchHelper.formatResults(searchResponse);
+		result.results = searchHelper.formatResults(searchResponse, tokenizeQuery(q));
 		result.aggregations = searchHelper.formatAggResults(category, searchResponse);
 
 		return result;
@@ -85,6 +95,19 @@ public class SearchService {
 
 			bool.must(multi);
 
+			//add a 'should' clause for each individual term
+
+			//naive tokenizing, should be replaced with something smarter
+			List<String> tokens = tokenizeQuery(q);
+			for (String token : tokens) {
+				MultiMatchQueryBuilder mmq = multiMatchQuery(token);
+				searchHelper.getSearchFields().stream().forEach(mmq::field);
+				mmq.fields(searchHelper.getBoostMap());
+				mmq.queryName(token);
+				bool.should(mmq);
+			}
+
+
 		} else {
 			bool.must(matchAllQuery());
 		}
@@ -95,14 +118,15 @@ public class SearchService {
 
 			//expand the map of lists and add each key,value pair as filters
 			filters.entrySet().stream().forEach(entry ->
-			    entry.getValue().stream().forEach(value ->
-				    bool.filter(new TermQueryBuilder(entry.getKey() + ".raw", value))));
+				entry.getValue().stream().forEach( value ->
+						bool.filter(new TermQueryBuilder(entry.getKey() + ".keyword", value))
+				)
+			);
 
 		}
 
 		return bool;
 	}
-
 
 	public MultivaluedMap<String,String> getFilters(String category, UriInfo uriInfo) {
 		MultivaluedMap<String,String> map = new MultivaluedHashMap<>();
@@ -113,5 +137,11 @@ public class SearchService {
 		return map;
 	}
 
+	public List<String> tokenizeQuery(String query) {
+		if (StringUtils.isEmpty(query)) {
+			return new ArrayList<>();
+		}
+		return searchDAO.analyze(query);
+	}
 
 }

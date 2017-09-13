@@ -36,7 +36,11 @@ public class ESDAO {
 			e.printStackTrace();
 		}
 	}
-	
+
+	public void setConfig(ConfigHelper config) {
+		this.config = config;
+	}
+
 	@PreDestroy
 	public void close() {
 		log.info("Closing Down ES Client");
@@ -52,9 +56,7 @@ public class ESDAO {
 			GetResponse res = searchClient.get(request).get();
 			//log.info(res);
 			return res.getSource();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		} catch (ExecutionException e) {
+		} catch (InterruptedException | ExecutionException e) {
 			e.printStackTrace();
 		}
 		return null;

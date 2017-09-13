@@ -1,6 +1,8 @@
-FROM agrdocker/agr_java_env:develop
+FROM agrdocker/agr_java_env:latest
 
 WORKDIR /workdir/agr_api
+
+EXPOSE 8080
 
 ADD . .
 RUN mvn clean package

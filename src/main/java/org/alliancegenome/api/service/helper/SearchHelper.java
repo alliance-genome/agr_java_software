@@ -16,10 +16,7 @@ import org.jboss.logging.Logger;
 
 import javax.enterprise.context.RequestScoped;
 import javax.ws.rs.core.UriInfo;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RequestScoped
 @SuppressWarnings("serial")
@@ -31,11 +28,13 @@ public class SearchHelper {
 		{
 			put("gene", new ArrayList<String>() {
 				{
+					add("species");
 					add("soTermName");
+					add("diseases.name");
 					add("gene_biological_process");
 					add("gene_molecular_function");
 					add("gene_cellular_component");
-					add("species");
+
 				}
 			});
 			put("go", new ArrayList<String>() {
@@ -47,8 +46,8 @@ public class SearchHelper {
 			});
 			put("disease", new ArrayList<String>() {
 				{
-					add("disease_species");
-					add("disease_genes");
+					add("annotations.geneDocument.name_key");
+					add("annotations.geneDocument.species");
 				}
 			});
 		}
@@ -62,15 +61,15 @@ public class SearchHelper {
 /*			put("primaryId", 400);
 			put("secondaryIds", 100);
 			put("symbol", 500);
-			put("symbol.raw", 1000);
+			put("symbol.keyword", 1000);
 			put("synonyms", 120);
-			put("synonyms.raw", 200);
+			put("synonyms.keyword", 200);
 			put("name", 100);
 			put("name.symbol", 200);
 			put("gene_biological_process.symbol", 50);
 			put("gene_molecular_function.symbol", 50);
 			put("gene_cellular_component.symbol", 50);
-			put("diseases.do_name", 50);*/
+			put("diseases.name", 50);*/
 		}
 	};
 
@@ -78,18 +77,18 @@ public class SearchHelper {
 	private List<String> searchFields = new ArrayList<String>() {
 		{
 			add("primaryId"); add("secondaryIds"); add("name"); add("name.autocomplete");
-			add("symbol"); add("symbol.raw"); add("symbol.autocomplete");  add("synonyms"); add("synonyms.raw");
+			add("symbol"); add("symbol.keyword"); add("symbol.autocomplete");  add("synonyms"); add("synonyms.keyword");
 			add("description"); add("external_ids"); add("species");
 			add("gene_biological_process"); add("gene_molecular_function"); add("gene_cellular_component");
 			add("go_type"); add("go_genes"); add("go_synonyms");
-			add("disease_genes"); add("disease_synonyms"); add("diseases.do_name");
+			add("disease_genes"); add("disease_synonyms"); add("diseases.name");
 		}
 	};
 
 
 	private List<String> highlight_blacklist_fields = new ArrayList<String>() {
 		{
-			add("go_genes");
+			add("go_genes"); add("name.autocomplete");
 		}
 	};
 
@@ -106,7 +105,7 @@ public class SearchHelper {
 		} else {
 			for(String item: category_filters.get(category)) {
 				TermsAggregationBuilder term = AggregationBuilders.terms(item);
-				term.field(item + ".raw");
+				term.field(item + ".keyword");
 				term.size(999);
 				ret.add(term);
 			}
@@ -161,7 +160,7 @@ public class SearchHelper {
 			for(String item: category_filters.get(category)) {
 				if(uriInfo.getQueryParameters().containsKey(item)) {
 					for(String param: uriInfo.getQueryParameters().get(item)) {
-						bool.filter(new TermQueryBuilder(item + ".raw", param));
+						bool.filter(new TermQueryBuilder(item + ".keyword", param));
 					}
 				}
 			}
@@ -169,7 +168,7 @@ public class SearchHelper {
 	}
 
 
-	public ArrayList<Map<String, Object>> formatResults(SearchResponse res) {
+	public ArrayList<Map<String, Object>> formatResults(SearchResponse res, List<String> searchedTerms) {
 		log.info("Formatting Results: ");
 		ArrayList<Map<String, Object>> ret = new ArrayList<>();
 		
@@ -189,11 +188,30 @@ public class SearchHelper {
 			}
 			hit.getSource().put("highlights", map);
 			hit.getSource().put("id", hit.getId());
-			hit.getSource().put("explain", hit.getExplanation());
+			hit.getSource().put("score", hit.getScore());
+			if (hit.getExplanation() != null) {
+				hit.getSource().put("explanation", hit.getExplanation());
+			}
+
+			hit.getSource().put("missingTerms", findMissingTerms(Arrays.asList(hit.getMatchedQueries()),
+					                                             searchedTerms));
 			ret.add(hit.getSource());
 		}
 		log.info("Finished Formatting Results: ");
 		return ret;
+	}
+
+	private List<String> findMissingTerms(List<String> matchedTerms, List<String> searchedTerms) {
+		List<String> terms = new ArrayList<>();
+
+		if (matchedTerms == null || searchedTerms == null) {
+			return terms; //just give up and return an empty list
+		}
+
+		terms.addAll(searchedTerms);
+		terms.removeAll(matchedTerms);
+
+		return terms;
 	}
 
 	public HighlightBuilder buildHighlights() {
