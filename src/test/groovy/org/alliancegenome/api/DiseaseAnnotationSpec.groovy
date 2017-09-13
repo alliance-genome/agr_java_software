@@ -3,7 +3,7 @@ import spock.lang.Ignore
 import spock.lang.Specification
 import spock.lang.Unroll
 
-class QueryRankIntegrationSpec extends Specification {
+class DiseaseAnnotationSpec extends Specification {
 
     @Ignore("Not working until we get disease data on genes")
     @Unroll
