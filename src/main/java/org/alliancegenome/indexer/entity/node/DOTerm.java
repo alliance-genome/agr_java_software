@@ -31,6 +31,7 @@ public class DOTerm extends Neo4jEntity {
 	private String wormbaseLink;
 	private String flybaseLink;
 	private String mgiLink;
+	private String sgdLink;
 
 	@Relationship(type = "IS_IMPLICATED_IN", direction = Relationship.INCOMING)
 	private List<Gene> genes;

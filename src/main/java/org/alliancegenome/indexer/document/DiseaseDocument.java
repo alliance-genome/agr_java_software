@@ -25,7 +25,8 @@ public class DiseaseDocument extends ESDocument {
     private List<DiseaseDocument> children;
     private List<String> synonyms;
     private List<String> external_ids;
-    
+    private List<SourceDoclet> sourceList;
+
     @JsonIgnore
     public String getDocumentId() {
         return primaryKey;

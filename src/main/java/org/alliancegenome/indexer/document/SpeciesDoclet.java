@@ -9,6 +9,7 @@ public class SpeciesDoclet {
 
     private String name;
     private String taxonID;
+    private String displayName;
     private int orderID;
 
 }
