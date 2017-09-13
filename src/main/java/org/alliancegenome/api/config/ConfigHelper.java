@@ -1,11 +1,10 @@
 package org.alliancegenome.api.config;
 
-import java.util.HashMap;
+import org.jboss.logging.Logger;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
-
-import org.jboss.logging.Logger;
+import java.util.HashMap;
 
 @ApplicationScoped
 public class ConfigHelper {

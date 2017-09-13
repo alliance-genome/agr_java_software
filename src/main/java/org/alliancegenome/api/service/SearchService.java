@@ -9,6 +9,8 @@ import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.MultiMatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.TermQueryBuilder;
+import org.elasticsearch.index.query.functionscore.FunctionScoreQueryBuilder;
+import org.elasticsearch.index.query.functionscore.ScoreFunctionBuilders;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.jboss.logging.Logger;
@@ -44,14 +46,15 @@ public class SearchService {
 			q = q.replaceFirst("debug","").trim();
 		}
 
-		QueryBuilder query = buildQuery(q, category, getFilters(category, uriInfo));
+		QueryBuilder query = buildFunctionQuery(q, category, getFilters(category, uriInfo));
+
 		List<AggregationBuilder> aggBuilders = searchHelper.createAggBuilder(category);
 		
 		HighlightBuilder hlb = searchHelper.buildHighlights();
 
 		SearchResponse searchResponse = searchDAO.performQuery(query, aggBuilders, limit, offset, hlb, sort_by, debug);
 
-		log.info("Search Query: " + q);
+		log.debug("Search Query: " + q);
 
 		result.total = searchResponse.getHits().totalHits;
 		result.results = searchHelper.formatResults(searchResponse, tokenizeQuery(q));
@@ -60,7 +63,32 @@ public class SearchService {
 		return result;
 	}
 
-	public QueryBuilder buildQuery(String q, String category, MultivaluedMap<String,String> filters) {
+	public QueryBuilder buildFunctionQuery(String q, String category, MultivaluedMap<String,String> filters) {
+
+		BoolQueryBuilder bool = buildQuery(q, category, filters);
+
+		if (StringUtils.isEmpty(q)) {
+			return bool;
+		}
+
+		List<FunctionScoreQueryBuilder.FilterFunctionBuilder> functionList = new ArrayList<>();
+
+		//add a 'should' clause for each individual term
+		List<String> tokens = tokenizeQuery(q);
+		for (String token : tokens) {
+			MultiMatchQueryBuilder mmq = multiMatchQuery(token);
+			searchHelper.getSearchFields().stream().forEach(mmq::field);
+			mmq.fields(searchHelper.getBoostMap());
+			mmq.queryName(token);
+			functionList.add(new FunctionScoreQueryBuilder.FilterFunctionBuilder(mmq, ScoreFunctionBuilders.weightFactorFunction(10.0F)));
+		}
+
+		FunctionScoreQueryBuilder builder = new FunctionScoreQueryBuilder(bool, functionList.toArray(new FunctionScoreQueryBuilder.FilterFunctionBuilder[functionList.size()]));
+
+		return builder;
+	}
+
+	public BoolQueryBuilder buildQuery(String q, String category, MultivaluedMap<String,String> filters) {
 
 		BoolQueryBuilder bool = boolQuery();
 
@@ -76,19 +104,6 @@ public class SearchService {
 			multi.fields(searchHelper.getBoostMap());
 
 			bool.must(multi);
-
-			//add a 'should' clause for each individual term
-
-			//naive tokenizing, should be replaced with something smarter
-			List<String> tokens = tokenizeQuery(q);
-			for (String token : tokens) {
-				MultiMatchQueryBuilder mmq = multiMatchQuery(token);
-				searchHelper.getSearchFields().stream().forEach(mmq::field);
-				mmq.fields(searchHelper.getBoostMap());
-				mmq.queryName(token);
-				bool.should(mmq);
-			}
-
 
 		} else {
 			bool.must(matchAllQuery());
