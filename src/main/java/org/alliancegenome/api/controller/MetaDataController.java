@@ -1,10 +1,10 @@
 package org.alliancegenome.api.controller;
 
-import javax.inject.Inject;
-
 import org.alliancegenome.api.config.ConfigHelper;
 import org.alliancegenome.api.model.MetaData;
 import org.alliancegenome.api.rest.interfaces.MetaDataRESTInterface;
+
+import javax.inject.Inject;
 
 public class MetaDataController implements MetaDataRESTInterface {
 

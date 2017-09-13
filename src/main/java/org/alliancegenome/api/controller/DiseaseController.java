@@ -3,7 +3,6 @@ package org.alliancegenome.api.controller;
 import org.alliancegenome.api.model.SearchResult;
 import org.alliancegenome.api.rest.interfaces.DiseaseRESTInterface;
 import org.alliancegenome.api.service.DiseaseService;
-import org.alliancegenome.api.service.SearchService;
 import org.jboss.logging.Logger;
 
 import javax.enterprise.context.RequestScoped;

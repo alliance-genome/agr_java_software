@@ -9,6 +9,8 @@ import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.MultiMatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.TermQueryBuilder;
+import org.elasticsearch.index.query.functionscore.FunctionScoreQueryBuilder;
+import org.elasticsearch.index.query.functionscore.ScoreFunctionBuilders;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.jboss.logging.Logger;
@@ -65,15 +67,23 @@ public class SearchService {
 
 		BoolQueryBuilder bool = buildQuery(q, category, filters);
 
-		MultiMatchQueryBuilder andQuery = multiMatchQuery(q);
-		searchHelper.getSearchFields().stream().forEach(andQuery::field);
-		andQuery.operator(Operator.AND);
+		if (StringUtils.isEmpty(q)) {
+			return bool;
+		}
 
-		FunctionScoreQueryBuilder.FilterFunctionBuilder[] functions = {
-				new FunctionScoreQueryBuilder.FilterFunctionBuilder(andQuery, ScoreFunctionBuilders.weightFactorFunction(10.0F))
-		};
+		List<FunctionScoreQueryBuilder.FilterFunctionBuilder> functionList = new ArrayList<>();
 
-		FunctionScoreQueryBuilder builder = new FunctionScoreQueryBuilder(bool, functions);
+		//add a 'should' clause for each individual term
+		List<String> tokens = tokenizeQuery(q);
+		for (String token : tokens) {
+			MultiMatchQueryBuilder mmq = multiMatchQuery(token);
+			searchHelper.getSearchFields().stream().forEach(mmq::field);
+			mmq.fields(searchHelper.getBoostMap());
+			mmq.queryName(token);
+			functionList.add(new FunctionScoreQueryBuilder.FilterFunctionBuilder(mmq, ScoreFunctionBuilders.weightFactorFunction(10.0F)));
+		}
+
+		FunctionScoreQueryBuilder builder = new FunctionScoreQueryBuilder(bool, functionList.toArray(new FunctionScoreQueryBuilder.FilterFunctionBuilder[functionList.size()]));
 
 		return builder;
 	}
@@ -94,19 +104,6 @@ public class SearchService {
 			multi.fields(searchHelper.getBoostMap());
 
 			bool.must(multi);
-
-			//add a 'should' clause for each individual term
-
-			//naive tokenizing, should be replaced with something smarter
-			List<String> tokens = tokenizeQuery(q);
-			for (String token : tokens) {
-				MultiMatchQueryBuilder mmq = multiMatchQuery(token);
-				searchHelper.getSearchFields().stream().forEach(mmq::field);
-				mmq.fields(searchHelper.getBoostMap());
-				mmq.queryName(token);
-				bool.should(mmq);
-			}
-
 
 		} else {
 			bool.must(matchAllQuery());
