@@ -174,8 +174,8 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
 					try {
 						DiseaseDocument doc = diseaseTranslator.translate(dot, translationDepth - 1); // This needs to not happen if being called from DiseaseTranslator
 						dlist.add(doc);
-					} catch (NullPointerException e) {
-						log.error("Null Pointer Adding Disease Document: " + e.getMessage());
+					} catch (Exception e) {
+						log.error("Exception Creating Disease Document: " + e.getMessage());
 					}
 				}
 			}

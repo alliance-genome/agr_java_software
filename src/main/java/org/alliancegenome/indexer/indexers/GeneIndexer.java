@@ -40,10 +40,13 @@ public class GeneIndexer extends Indexer<GeneDocument> {
 				thread.start();
 			}
 
+			int total = queue.size();
+			startProcess(total);
 			while(!queue.isEmpty()) {
-				log.info("Queue Size: " + queue.size());
+				progress(queue.size(), total);
 				Thread.sleep(60000);
 			}
+			finishProcess(total);
 
 			for(WorkerThread t: threads) {
 				t.join();

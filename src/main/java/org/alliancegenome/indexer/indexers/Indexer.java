@@ -5,7 +5,6 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
-import java.util.List;
 
 import org.alliancegenome.indexer.config.ConfigHelper;
 import org.alliancegenome.indexer.config.TypeConfig;
@@ -33,8 +32,10 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
 	protected DecimalFormat df = new DecimalFormat("#.00");
 	protected ObjectMapper om = new ObjectMapper();
 
+	// Used for showing progress
 	private Date startTime = new Date();
 	private Date lastTime = new Date();
+	private int lastSize;
 
 	public Indexer(String currentIndex, TypeConfig typeConfig) {
 		this.currentIndex = currentIndex;
@@ -105,31 +106,59 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
 		}
 
 	}
-
-	protected void startProcess(int amount, int size, int total) {
-		log.info("Starting Processing: batches: " + amount + " size: " + size + " total: " + total + " at: " + startTime);
+	
+	// Used to show progess when using a queue
+	protected void startProcess(int totalDocAmount) {
+		log.info("Starting Processing: queue size: " + totalDocAmount + " at: " + startTime);
+		lastTime = new Date();
+		lastSize = totalDocAmount;
+	}
+	
+	// Used to show process when using a queue
+	protected void progress(int currentSize, int totalDocAmount) {
+		double percent = ((double)currentSize / (double)totalDocAmount);
+		Date now = new Date();
+		long diff = now.getTime() - startTime.getTime();
+		long time = (now.getTime() - lastTime.getTime());
+		int processedAmount = (lastSize - currentSize);
+		if(percent > 0) {
+			int perms = (int)(diff / percent);
+			Date end = new Date(startTime.getTime() + perms);
+			
+			log.info("Size: " + (totalDocAmount - currentSize) + " of " + totalDocAmount + " took: " + time + "ms to process " + processedAmount + " records at a rate of: " + ((processedAmount * 1000) / time) + "r/s, Memory: " + df.format(memoryPercent() * 100) + "%, Percentage complete: " + (int)(percent * 100) + "%, Estimated Finish: " + end);
+		} else {
+			log.info("Size: " + (totalDocAmount - currentSize) + " of " + totalDocAmount + " took: " + time + "ms to process " + processedAmount + " records at a rate of: " + ((processedAmount * 1000) / time) + "r/s");
+		}
+		lastSize = currentSize;
+		lastTime = now;
+	}
+	
+	// Used to show progress when using batches
+	protected void startProcess(int amountBatches, int batchSize, int totalDocAmount) {
+		log.info("Starting Processing: batches: " + amountBatches + " size: " + batchSize + " total: " + totalDocAmount + " at: " + startTime);
 		lastTime = new Date();
 	}
 
-	protected void progress(int current, int total, int size) {
-		double percent = ((double)current / (double)total);
+	// Used to show progess when using batches
+	protected void progress(int currentBatch, int totalBatches, int processedAmount) {
+		double percent = ((double)currentBatch / (double)totalBatches);
 		Date now = new Date();
 		long diff = now.getTime() - startTime.getTime();
 		long time = (now.getTime() - lastTime.getTime());
 		if(percent > 0) {
 			int perms = (int)(diff / percent);
 			Date end = new Date(startTime.getTime() + perms);
-			log.info("Batch: " + current + " of " + total + " took: " + time + "ms to process " + size + " records at a rate of: " + ((size * 1000) / time) + "r/s, Memory: " + df.format(memoryPercent() * 100) + "%, Percentage complete: " + (int)(percent * 100) + "%, Estimated Finish: " + end);
+			log.info("Batch: " + currentBatch + " of " + totalBatches + " took: " + time + "ms to process " + processedAmount + " records at a rate of: " + ((processedAmount * 1000) / time) + "r/s, Memory: " + df.format(memoryPercent() * 100) + "%, Percentage complete: " + (int)(percent * 100) + "%, Estimated Finish: " + end);
 		} else {
-			log.info("Batch: " + current + " of " + total + " took: " + time + "ms to process " + size + " records at a rate of: " + ((size * 1000) / time) + "r/s");
+			log.info("Batch: " + currentBatch + " of " + totalBatches + " took: " + time + "ms to process " + processedAmount + " records at a rate of: " + ((processedAmount * 1000) / time) + "r/s");
 		}
 		lastTime = now;
 	}
 
-	protected void finishProcess(int total) {
+	protected void finishProcess(int totalDocAmount) {
 		Date now = new Date();
 		long time = now.getTime() - startTime.getTime();
-		log.info("Processing finished: took: " + time + "ms to process " + total + " records at a rate of: " + ((total * 1000) / time) + "r/s");
+		log.info("Processing finished: took: " + time + "ms to process " + totalDocAmount + " records at a rate of: " + ((totalDocAmount * 1000) / time) + "r/s");
 	}
 
 	private void checkMemory() {
