@@ -19,6 +19,7 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
                 "(evidence:EvidenceCode)<-[evidenceRelation:EVIDENCE]-(a), " +
                 "(species:Species)<-[speciesRelation:FROM_SPECIES]-(m), " +
                 "(root)-[externalRelation:ALSO_KNOWN_AS]->(externalId:ExternalId) " +
+                "WHERE root.is_obsolete <> 'true' " +
                 "return distinct root, q,a,qq, gene,publicationRelation, publication, evidenceRelation, evidence, " +
                 "species, speciesRelation, externalId, externalRelation ";
         return (List<DOTerm>) query(cypher);

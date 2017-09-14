@@ -42,7 +42,7 @@ public class DiseaseTest {
         DOTerm diseaseTerm = diseaseRepository.getDiseaseTerm("DOID:9452");
         translator.translate(diseaseTerm, 1);
 
-        //List<DOTerm> geneDiseaseList = diseaseRepository.getAllDiseaseTerms(0, 10);
+        List<DOTerm> geneDiseaseList = diseaseRepository.getAllDiseaseTerms(0, 10);
 /*
         List<DOTerm> geneDiseaseList = diseaseRepository.getAllTerms();
         System.out.println("Number of all terms: " + geneDiseaseList.size());
