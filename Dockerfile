@@ -1,4 +1,4 @@
-FROM agrdocker/agr_java_env:latest
+FROM agrdocker/agr_java_env
 
 WORKDIR /workdir/agr_api
 
