@@ -41,34 +41,37 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
 
         // sort by gene symbol
         Map<Gene, Map<String, List<DiseaseGeneJoin>>> sortedGeneAssociationMap =
-                geneAssociationMap.entrySet().stream().sorted(Map.Entry.comparingByKey()).collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
+                geneAssociationMap.entrySet().stream()
+                        .sorted(Map.Entry.comparingByKey())
+                        .collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
 
         // generate AnnotationDocument records
-        List<AnnotationDocument> annotationDocuments = new ArrayList<>();
-        sortedGeneAssociationMap.forEach( (gene, associationMap) ->
-                {
-                    List<AnnotationDocument> annotationDocs = associationMap.entrySet().stream()
-                            .map(associationEntry -> {
-                                AnnotationDocument document = new AnnotationDocument();
-                                if (translationDepth > 0) {
-                                    document.setGeneDocument(geneTranslator.translate(gene, translationDepth - 1)); // This needs to not happen if being call from GeneTranslator
-                                }
-                                document.setAssociationType(associationEntry.getKey());
-                                List<PublicationDoclet> publicationDocuments = associationEntry.getValue().stream()
-                                        .filter(diseaseGeneJoin ->
-                                                getPublicationDoclet(diseaseGeneJoin, diseaseGeneJoin.getPublication()) != null
-                                        )
-                                        .map(diseaseGeneJoin -> {
-                                            Publication publication = diseaseGeneJoin.getPublication();
-                                            return getPublicationDoclet(diseaseGeneJoin, publication);
-                                        })
-                                        .collect(Collectors.toList());
-                                document.setPublications(publicationDocuments);
+        List<AnnotationDocument> annotationDocuments = sortedGeneAssociationMap.entrySet().stream()
+                .map(geneMapEntry ->
+                        geneMapEntry.getValue().entrySet().stream().map(associationEntry -> {
+                            AnnotationDocument document = new AnnotationDocument();
+                            if (translationDepth > 0) {
+                                document.setGeneDocument(geneTranslator.translate(geneMapEntry.getKey(), translationDepth - 1)); // This needs to not happen if being call from GeneTranslator
+                            }
+                            document.setAssociationType(associationEntry.getKey());
+                            List<PublicationDoclet> publicationDocuments = associationEntry.getValue().stream()
+                                    // filter out records that do not have valid pub / evidence code entries
+                                    .filter(diseaseGeneJoin ->
+                                            getPublicationDoclet(diseaseGeneJoin, diseaseGeneJoin.getPublication()) != null
+                                    )
+                                    .map(diseaseGeneJoin -> {
+                                        Publication publication = diseaseGeneJoin.getPublication();
+                                        return getPublicationDoclet(diseaseGeneJoin, publication);
+                                    })
+                                    .collect(Collectors.toList());
+                            document.setPublications(publicationDocuments);
 
-                                return document;
-                            }).collect(Collectors.toList());
-                    annotationDocuments.addAll(annotationDocs);
-                });
+                            return document;
+                        }).collect(Collectors.toList()))
+                // turn List<AnnotationDocument> into stream<AnnotationDocument> so they can be collected into
+                // the outer List<AnnotationDocument>
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
 
         doc.setAnnotations(annotationDocuments);
 

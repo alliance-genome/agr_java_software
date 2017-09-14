@@ -1,7 +1,6 @@
 package org.alliancegenome.indexer.repository;
 
 import org.alliancegenome.indexer.entity.node.DOTerm;
-import org.alliancegenome.indexer.entity.node.DiseaseGeneJoin;
 
 import java.util.HashMap;
 import java.util.List;
