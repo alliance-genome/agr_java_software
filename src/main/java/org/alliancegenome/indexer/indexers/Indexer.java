@@ -116,7 +116,7 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
 	
 	// Used to show process when using a queue
 	protected void progress(int currentSize, int totalDocAmount) {
-		double percent = ((double)currentSize / (double)totalDocAmount);
+		double percent = ((double)(totalDocAmount - currentSize) / (double)totalDocAmount);
 		Date now = new Date();
 		long diff = now.getTime() - startTime.getTime();
 		long time = (now.getTime() - lastTime.getTime());
@@ -125,10 +125,9 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
 		if(percent > 0) {
 			int perms = (int)(diff / percent);
 			Date end = new Date(startTime.getTime() + perms);
-			
-			log.info("Size: " + (totalDocAmount - currentSize) + " of " + totalDocAmount + " took: " + time + "ms to process " + processedAmount + " records at a rate of: " + ((processedAmount * 1000) / time) + "r/s, Memory: " + df.format(memoryPercent() * 100) + "%, Percentage complete: " + (int)(percent * 100) + "%, Estimated Finish: " + end);
+			log.info("Finished: " + (totalDocAmount - currentSize) + " of " + totalDocAmount + " took: " + time + "ms to process " + processedAmount + " records at a rate of: " + ((processedAmount * 1000) / time) + "r/s, Memory: " + df.format(memoryPercent() * 100) + "%, Percentage complete: " + (int)(percent * 100) + "%, Estimated Finish: " + end);
 		} else {
-			log.info("Size: " + (totalDocAmount - currentSize) + " of " + totalDocAmount + " took: " + time + "ms to process " + processedAmount + " records at a rate of: " + ((processedAmount * 1000) / time) + "r/s");
+			log.info("Finished: " + (totalDocAmount - currentSize) + " of " + totalDocAmount + " took: " + time + "ms to process " + processedAmount + " records at a rate of: " + ((processedAmount * 1000) / time) + "r/s");
 		}
 		lastSize = currentSize;
 		lastTime = now;
