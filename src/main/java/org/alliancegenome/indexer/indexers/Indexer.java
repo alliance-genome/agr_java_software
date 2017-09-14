@@ -120,6 +120,7 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
 		Date now = new Date();
 		long diff = now.getTime() - startTime.getTime();
 		long time = (now.getTime() - lastTime.getTime());
+		if(time == 0) time = 1; // Divide by Zero Check
 		int processedAmount = (lastSize - currentSize);
 		if(percent > 0) {
 			int perms = (int)(diff / percent);
@@ -145,6 +146,7 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
 		Date now = new Date();
 		long diff = now.getTime() - startTime.getTime();
 		long time = (now.getTime() - lastTime.getTime());
+		if(time == 0) time = 1; // Divide by Zero Check
 		if(percent > 0) {
 			int perms = (int)(diff / percent);
 			Date end = new Date(startTime.getTime() + perms);
