@@ -15,8 +15,10 @@ public class GeneTest {
 		GeneRepository repo = new GeneRepository();
 		GeneTranslator trans = new GeneTranslator();
 		
-		Gene gene = repo.getOneGene("ZFIN:ZDB-GENE-000210-7");
-
+		Gene gene = null;
+		gene = repo.getOneGene("ZFIN:ZDB-GENE-000210-7");
+		gene = repo.getOneGene("WB:WBGene00015146");
+		
 		ObjectMapper mapper = new ObjectMapper();
 		String json = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(trans.translate(gene));
 		System.out.println(json);
