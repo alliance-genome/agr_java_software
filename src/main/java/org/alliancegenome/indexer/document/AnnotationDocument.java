@@ -11,7 +11,7 @@ import lombok.Setter;
 public class AnnotationDocument extends ESDocument implements Comparable<AnnotationDocument> {
 	
 	private String primaryKey;
-	private String assoicationType;
+	private String associationType;
 	private GeneDocument geneDocument;
 	private List<PublicationDoclet> publications;
 

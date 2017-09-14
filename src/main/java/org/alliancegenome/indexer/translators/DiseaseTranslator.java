@@ -12,6 +12,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toMap;
 
 public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseDocument> {
 
@@ -31,34 +32,43 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
         if (entity.getDiseaseGeneJoins() == null)
             return doc;
 
-        // group by gene
-        Map<Gene, List<DiseaseGeneJoin>> geneAssociationMap = entity.getDiseaseGeneJoins().stream()
+        // group by gene then by association type
+        Map<Gene, Map<String, List<DiseaseGeneJoin>>> geneAssociationMap = entity.getDiseaseGeneJoins().stream()
                 .collect(
                         groupingBy(DiseaseGeneJoin::getGene,
-                                Collectors.mapping(association -> association, Collectors.toList())
-                        )
+                                groupingBy(DiseaseGeneJoin::getJoinType))
                 );
 
+        // sort by gene symbol
+        Map<Gene, Map<String, List<DiseaseGeneJoin>>> sortedGeneAssociationMap =
+                geneAssociationMap.entrySet().stream().sorted(Map.Entry.comparingByKey()).collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
+
         // generate AnnotationDocument records
-        List<AnnotationDocument> annotationDocuments = geneAssociationMap.entrySet().stream()
-                // sort by gene symbol
-                .sorted(Map.Entry.comparingByKey())
-                .map(entry -> {
-                    AnnotationDocument document = new AnnotationDocument();
-                    if (translationDepth > 0) {
-                        document.setGeneDocument(geneTranslator.translate(entry.getKey(), translationDepth - 1)); // This needs to not happen if being call from GeneTranslator
-                    }
-                    List<PublicationDoclet> publicationDocuments = entry.getValue().stream()
-                            .map(association -> {
-                                document.setAssoicationType(association.getJoinType());
-                                Publication publication = association.getPublication();
-                                return getPublicationDocument(association, publication);
-                            })
-                            .collect(Collectors.toList());
-                    document.setPublications(publicationDocuments);
-                    return document;
-                })
-                .collect(Collectors.toList());
+        List<AnnotationDocument> annotationDocuments = new ArrayList<>();
+        sortedGeneAssociationMap.forEach( (gene, associationMap) ->
+                {
+                    List<AnnotationDocument> annotationDocs = associationMap.entrySet().stream()
+                            .map(associationEntry -> {
+                                AnnotationDocument document = new AnnotationDocument();
+                                if (translationDepth > 0) {
+                                    document.setGeneDocument(geneTranslator.translate(gene, translationDepth - 1)); // This needs to not happen if being call from GeneTranslator
+                                }
+                                document.setAssociationType(associationEntry.getKey());
+                                List<PublicationDoclet> publicationDocuments = associationEntry.getValue().stream()
+                                        .filter(diseaseGeneJoin ->
+                                                getPublicationDoclet(diseaseGeneJoin, diseaseGeneJoin.getPublication()) != null
+                                        )
+                                        .map(diseaseGeneJoin -> {
+                                            Publication publication = diseaseGeneJoin.getPublication();
+                                            return getPublicationDoclet(diseaseGeneJoin, publication);
+                                        })
+                                        .collect(Collectors.toList());
+                                document.setPublications(publicationDocuments);
+
+                                return document;
+                            }).collect(Collectors.toList());
+                    annotationDocuments.addAll(annotationDocs);
+                });
 
         doc.setAnnotations(annotationDocuments);
 
@@ -81,7 +91,7 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
                 .collect((Collectors.toMap(DOTerm::getPrimaryKey, id -> id)));
     }
 
-    private PublicationDoclet getPublicationDocument(DiseaseGeneJoin association, Publication publication) {
+    private PublicationDoclet getPublicationDoclet(DiseaseGeneJoin association, Publication publication) {
         PublicationDoclet pubDoc = new PublicationDoclet();
         pubDoc.setPrimaryKey(publication.getPrimaryKey());
 
@@ -90,8 +100,10 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
         pubDoc.setPubModId(publication.getPubModId());
         pubDoc.setPubModUrl(publication.getPubModUrl());
 
-        if (association.getEvidenceCodes() == null)
-            throw new RuntimeException("Could not find any evidence codes for " + association.getGene().getPrimaryKey() + " and publication " + publication.getPubModUrl());
+        if (association.getEvidenceCodes() == null) {
+            log.error("Could not find any evidence codes for " + association.getGene().getPrimaryKey() + " and publication " + publication.getPrimaryKey());
+            return null;
+        }
 
         List<String> evidencesDocument = association.getEvidenceCodes().stream()
                 .map(EvidenceCode::getPrimaryKey)
@@ -218,7 +230,7 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
                             doc.setSpecies(getSpeciesDoclet(diseaseGeneJoin));
                             doc.setGeneDocument(geneTranslator.entityToDocument(diseaseGeneJoin.getGene(), translationDepth - 1));
                             List<PublicationDoclet> pubDocs = new ArrayList<>();
-                            pubDocs.add(getPublicationDocument(diseaseGeneJoin, diseaseGeneJoin.getPublication()));
+                            pubDocs.add(getPublicationDoclet(diseaseGeneJoin, diseaseGeneJoin.getPublication()));
                             doc.setPublications(pubDocs);
                             return doc;
                         })

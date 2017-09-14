@@ -4,6 +4,7 @@ import org.alliancegenome.indexer.config.ConfigHelper;
 import org.alliancegenome.indexer.entity.node.DOTerm;
 import org.alliancegenome.indexer.repository.DiseaseRepository;
 import org.alliancegenome.indexer.repository.Neo4jRepository;
+import org.alliancegenome.indexer.translators.DiseaseTranslator;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -35,6 +36,11 @@ public class DiseaseTest {
 */
 
         Neo4jRepository<DOTerm> neo4jService = new Neo4jRepository<>(DOTerm.class);
+
+        DiseaseTranslator translator = new DiseaseTranslator();
+
+        DOTerm diseaseTerm = diseaseRepository.getDiseaseTerm("DOID:9452");
+        translator.translate(diseaseTerm, 1);
 
         //List<DOTerm> geneDiseaseList = diseaseRepository.getAllDiseaseTerms(0, 10);
 /*

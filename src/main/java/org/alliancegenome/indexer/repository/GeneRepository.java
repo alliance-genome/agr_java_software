@@ -21,7 +21,7 @@ public class GeneRepository extends Neo4jRepository<Gene> {
 	}
 	
 	public Gene getOneGene(String primaryKey) {		
-		HashMap<String, String> map = new HashMap<String, String>();
+		HashMap<String, String> map = new HashMap<>();
 
 		map.put("primaryKey", primaryKey);
 		String query = "";
@@ -45,7 +45,7 @@ public class GeneRepository extends Neo4jRepository<Gene> {
 	}
 	
 	public Iterable<Gene> getGenes(List<String> ids) {
-		HashMap<String, Object> map = new HashMap<String, Object>();
+		HashMap<String, Object> map = new HashMap<>();
 		map.put("list", ids);
 		String query = "";
 		query += " MATCH p1=(q:Species)-[:FROM_SPECIES]-(g:Gene)--(s) WHERE g.primaryKey IN {list}";
@@ -61,7 +61,7 @@ public class GeneRepository extends Neo4jRepository<Gene> {
 		Result r = queryForResult(query);
 		Iterator<Map<String, Object>> i = r.iterator();
 		
-		ArrayList<String> list = new ArrayList<String>();
+		ArrayList<String> list = new ArrayList<>();
 		
 		while(i.hasNext()) {
 			Map<String, Object> map2 = i.next();

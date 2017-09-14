@@ -1,7 +1,9 @@
 package org.alliancegenome.indexer.repository;
 
 import org.alliancegenome.indexer.entity.node.DOTerm;
+import org.alliancegenome.indexer.entity.node.DiseaseGeneJoin;
 
+import java.util.HashMap;
 import java.util.List;
 
 public class DiseaseRepository extends Neo4jRepository<DOTerm> {
@@ -74,5 +76,21 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
                 "return count(root)";
         Long s = queryCount(cypher);
         return s;
+    }
+
+    public DOTerm getDiseaseTerm(String primaryKey) {
+        String cypher = "match (term:DOTerm), " +
+                "(annotation:Association)-[annotationRelation]->(term), " +
+                "(gene:Gene)-[geneAssociation:ASSOCIATION]->(annotation), " +
+                "(publication:Publication)<-[publicationRelation:EVIDENCE]-(annotation), " +
+                "(evidence:EvidenceCode)<-[evidenceRelation:EVIDENCE]-(annotation) " +
+                "where term.primaryKey =  {primaryKey} " +
+                "return term, annotation, annotationRelation, gene, geneAssociation, publication, publicationRelation, " +
+                "evidence, evidenceRelation ";
+        HashMap<String, String> map = new HashMap<>();
+        map.put("primaryKey", primaryKey);
+
+        DOTerm term = query(cypher, map).iterator().next();
+        return term;
     }
 }
