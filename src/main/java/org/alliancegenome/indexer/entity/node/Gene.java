@@ -57,7 +57,7 @@ public class Gene extends Neo4jEntity implements Comparable<Gene> {
 	@Relationship(type = "IS_IMPLICATED_IN")
 	private Set<DOTerm> dOTerms = new HashSet<>();
 	
-	@Relationship(type = "ORTHOLOGOUS", direction=Relationship.UNDIRECTED)
+	@Relationship(type = "ORTHOLOGOUS", direction=Relationship.OUTGOING)
 	private List<Orthologous> orthoGenes;
 	
 	@Relationship(type = "LOCATED_ON")
