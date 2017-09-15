@@ -138,7 +138,7 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
         // add External Ids
         if (doTerm.getExternalIds() != null) {
             List<String> externalIds = doTerm.getExternalIds().stream()
-                    .map(ExternalId::getPrimaryKey)
+                    .map(CrossReference::getPrimaryKey)
                     .collect(Collectors.toList());
             document.setExternal_ids(externalIds);
         }
@@ -196,12 +196,6 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
             SourceDoclet doclet = new SourceDoclet();
             doclet.setSpecies(SpeciesService.getSpeciesDoclet(SpeciesType.HUMAN));
             doclet.setUrl(doTerm.getHumanLink());
-            sourceDoclets.add(doclet);
-        }
-        if (doTerm.getSgdLink() != null) {
-            SourceDoclet doclet = new SourceDoclet();
-            doclet.setSpecies(SpeciesService.getSpeciesDoclet(SpeciesType.YEAST));
-            doclet.setUrl(doTerm.getSgdLink());
             sourceDoclets.add(doclet);
         }
         return sourceDoclets;

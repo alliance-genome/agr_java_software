@@ -21,6 +21,7 @@ public class DOTerm extends Neo4jEntity {
 	private String primaryKey;
 	private String name;
 	private String definition;
+	private List<String> defLinks;
 
 	private String nameKey;
 	private String is_obsolete;
@@ -31,7 +32,6 @@ public class DOTerm extends Neo4jEntity {
 	private String wormbaseLink;
 	private String flybaseLink;
 	private String mgiLink;
-	private String sgdLink;
 
 	@Relationship(type = "IS_IMPLICATED_IN", direction = Relationship.INCOMING)
 	private List<Gene> genes;
@@ -49,6 +49,6 @@ public class DOTerm extends Neo4jEntity {
 	private List<Synonym> synonyms;
 
 	@Relationship(type = "ALSO_KNOWN_AS")
-	private List<ExternalId> externalIds;
+	private List<CrossReference> externalIds;
 
 }
