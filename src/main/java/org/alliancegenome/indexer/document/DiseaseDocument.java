@@ -20,6 +20,7 @@ public class DiseaseDocument extends ESDocument {
     @JsonProperty("name_key")
     private String nameKey;
     private String definition;
+    private List<String> definitionLinks;
     private List<AnnotationDocument> annotations;
     private List<DiseaseDocument> parents;
     private List<DiseaseDocument> children;
