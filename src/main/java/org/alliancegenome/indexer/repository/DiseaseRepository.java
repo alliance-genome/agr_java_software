@@ -12,7 +12,7 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
     }
 
     public List<DOTerm> getAllDiseaseTerms(int start, int maxSize) {
-        String cypher = "match (root:DOTerm) WHERE root.is_obsolete = 'false' " +
+        String cypher = "match (root:DOTerm) WHERE  root.is_obsolete = 'false' " +
                 "WITH root SKIP " + start + " LIMIT " + maxSize + " " +
                 "optional match (diseaseGeneJoin:DiseaseGeneJoin)-[q:ASSOCIATION]->(root), " +
                 "(gene:Gene)-[geneDiseaseRelation:ASSOCIATION]->(diseaseGeneJoin), " +
@@ -59,7 +59,7 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
         String cypher = "match (root:DOTerm) " +
                 "optional match (parent:DOTerm)<-[parentRelation:IS_A]-(root:DOTerm), " +
                 "(child:DOTerm)-[childRelation:IS_A]->(root:DOTerm), " +
-                "(synonym:Synonym)-[synonymRelation:ALSO_KNOWN_AS]-(root:DOTerm) " +
+                "(synonym:Synonym)<-[synonymRelation:ALSO_KNOWN_AS]-(root:DOTerm) " +
                 "return root, parent, " +
                 "parentRelation, child, childRelation, synonym, synonymRelation";
         return (List<DOTerm>) query(cypher);

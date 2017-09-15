@@ -4,11 +4,14 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
-@Getter @Setter @AllArgsConstructor
+@Getter
+@Setter
 public class CrossReferenceDoclet {
-	private String crossrefCompleteUrl;
+
+	private String crossRefCompleteUrl;
 	private String localId;
 	private String id;
 	private String globalCrossrefId;
-	
+	private String prefix;
+
 }

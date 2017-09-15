@@ -25,7 +25,7 @@ public class DiseaseDocument extends ESDocument {
     private List<DiseaseDocument> parents;
     private List<DiseaseDocument> children;
     private List<String> synonyms;
-    private List<String> external_ids;
+    private List<CrossReferenceDoclet> crossReferences;
     private List<SourceDoclet> sourceList;
 
     @JsonIgnore

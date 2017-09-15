@@ -10,7 +10,7 @@ import lombok.Setter;
 @NodeEntity
 public class CrossReference extends Neo4jEntity {
 	
-	private String crossrefCompleteUrl;
+	private String crossRefCompleteUrl;
 	private String localId;
 	private String globalCrossrefId;
 	private String prefix;
