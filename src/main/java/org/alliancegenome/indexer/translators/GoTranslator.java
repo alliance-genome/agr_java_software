@@ -30,7 +30,7 @@ public class GoTranslator extends EntityDocumentTranslator<GOTerm, GoDocument> {
 		for(Synonym s: entity.getSynonyms()) {
 			go_synonyms.add(s.getPrimaryKey());
 		}
-		doc.setGo_synonyms(go_synonyms);
+		doc.setSynonyms(go_synonyms);
 		
 		ArrayList<String> go_species = new ArrayList<>();
 		ArrayList<String> go_genes = new ArrayList<String>();

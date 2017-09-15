@@ -18,7 +18,7 @@ public class GoDocument extends ESDocument {
 	
 	private String id;
 	private String go_type;
-	private List<String> go_synonyms;
+	private List<String> synonyms;
 	private List<String> go_genes;
 	private List<String> go_species;
 
