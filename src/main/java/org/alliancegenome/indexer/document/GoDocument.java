@@ -10,6 +10,7 @@ import lombok.Setter;
 @Getter @Setter
 public class GoDocument extends ESDocument {
 
+	private String primaryId;
 	private String category;
 	private String href;
 	private String name;
