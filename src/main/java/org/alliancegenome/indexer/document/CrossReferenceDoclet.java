@@ -13,5 +13,6 @@ public class CrossReferenceDoclet {
 	private String id;
 	private String globalCrossrefId;
 	private String prefix;
+	private String displayName;
 
 }

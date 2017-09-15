@@ -144,6 +144,7 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
                         doclet.setLocalId(crossReference.getLocalId());
                         doclet.setCrossRefCompleteUrl(crossReference.getCrossRefCompleteUrl());
                         doclet.setPrefix(crossReference.getPrefix());
+                        doclet.setDisplayName(crossReference.getPrimaryKey());
                         return doclet;
                     })
                     .collect(Collectors.toList());
