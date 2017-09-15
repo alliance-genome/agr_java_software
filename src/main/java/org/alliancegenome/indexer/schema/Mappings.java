@@ -18,9 +18,7 @@ public abstract class Mappings extends Builder {
 		if(symbol || autocomplete || keyword) {
 			builder.startObject("fields");
 			if(keyword) {
-				//temporarily index into both raw & keyword, for backwards compatibility with api repo
 				buildProperty("keyword", "keyword");
-				buildProperty("raw", "keyword");
 			}
 			if(symbol) buildGenericField("symbol", "text", "symbols", false, false, false);
 			if(autocomplete) buildProperty("autocomplete", "text", "autocomplete", "autocomplete_search");
@@ -44,6 +42,21 @@ public abstract class Mappings extends Builder {
 		if(search_analyzer != null) builder.field("search_analyzer", search_analyzer);
 		builder.endObject();
 	}
-	
+
+	//Mappings that must be shared / equivalent across searchable documents
+	protected void buildSharedSearchableDocumentMappings() throws IOException {
+
+		buildProperty("primaryId", "keyword");
+		buildGenericField("category", "keyword", null, true, false, true);
+		buildGenericField("name", "text", null, true, true, true);
+		buildGenericField("name_key", "text", "symbols", false, true, false);
+		buildGenericField("synonyms", "text", "symbols", false, true, true);
+		buildProperty("external_ids", "text", "symbols");
+		buildProperty("href", "text", "symbols");
+		buildProperty("id", "text", "symbols");
+		buildProperty("description", "text");
+		buildGenericField("species", "text", null, false, false, true);
+
+	}
 	
 }

@@ -16,15 +16,13 @@ public class GeneMappings extends Mappings {
 			builder.startObject();
 				builder.startObject("properties");
 
-					buildProperty("id", "text", "symbols");
+					buildSharedSearchableDocumentMappings();
+
 					buildProperty("systematicName", "text", "symbols");
 					buildCrossReferencesField();
 					buildMetaDataField();
-					buildGenericField("category", "keyword", null, true, false, true);
-					
-					buildProperty("description", "text");
+
 					//buildDiseasesField();
-					buildProperty("external_ids", "text", "symbols");
 					buildProperty("geneLiteratureUrl", "keyword");
 					buildProperty("geneSynopsis", "text");
 					buildProperty("geneSynopsisUrl", "keyword");
@@ -32,18 +30,10 @@ public class GeneMappings extends Mappings {
 					buildGenericField("gene_cellular_component", "text", null, true, false, true);
 					buildGenericField("gene_molecular_function", "text", null, true, false, true);
 					buildGenomeLocationsField();
-					buildProperty("href", "text", "symbols");
-					buildGenericField("name", "text", null, true, true, true);
-					buildGenericField("name_key", "text", "symbols", false, true, false);
-					// Orthology
-					buildProperty("primaryId", "keyword");
-					// Release
+
 					buildProperty("secondaryIds", "keyword");
 					buildProperty("soTermId", "keyword");
-					// So Term Name
-					buildGenericField("species", "text", null, false, false, true);
 					buildGenericField("symbol", "text", "symbols", false, true, true);
-					buildGenericField("synonyms", "text", "symbols", false, true, true);
 					buildProperty("taxonId", "keyword");
 					
 				builder.endObject();
