@@ -19,7 +19,7 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
                 "(publication:Publication)<-[publicationRelation]-(diseaseGeneJoin), " +
                 "(evidence:EvidenceCode)<-[evidenceRelation:EVIDENCE]-(diseaseGeneJoin), " +
                 "(species:Species)<-[speciesRelation:FROM_SPECIES]-(gene), " +
-                "(root)-[crossReferenceRelation:ALSO_KNOWN_AS]->(crossReference:CrossReference) " +
+                "(root)-[crossReferenceRelation:CROSS_REFERENCE]->(crossReference:CrossReference) " +
                 "return distinct root, q,diseaseGeneJoin, geneDiseaseRelation, gene, publicationRelation, publication, evidenceRelation, evidence, " +
                 "species, speciesRelation, crossReference, crossReferenceRelation ";
         return (List<DOTerm>) query(cypher);
@@ -32,7 +32,7 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
                 "(p:Publication)<-[qqq*]-(a), " +
                 "(e:EvidenceCode)<-[ee:EVIDENCE]-(a), " +
                 "(s:Species)<-[ss:FROM_SPECIES]-(m), " +
-                "(root)-[ex:ALSO_KNOWN_AS]->(exx:CrossReference), " +
+                "(root)-[ex:CROSS_REFERENCE]->(exx:CrossReference), " +
                 "(root)-[synonymRelation:ALSO_KNOWN_AS]->(synonym:Synonym)  " +
                 "optional match (parent:DOTerm)<-[parentRelation:IS_A]-(root:DOTerm), " +
                 "(child:DOTerm)-[childRelation:IS_A]->(root:DOTerm) " +
@@ -72,7 +72,7 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
                 "(p:Publication)<-[qqq*]-(a), " +
                 "(e:EvidenceCode)<-[ee:EVIDENCE]-(a), " +
                 "(s:Species)<-[ss:FROM_SPECIES]-(m), " +
-                "(root)-[ex:ALSO_KNOWN_AS]->(exx:CrossReference) " +
+                "(root)-[ex:CROSS_REFERENCE]->(exx:CrossReference) " +
                 "return count(root)";
         Long s = queryCount(cypher);
         return s;

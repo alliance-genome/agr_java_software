@@ -1,6 +1,7 @@
 package org.alliancegenome.indexer.entity.node;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.neo4j.ogm.annotation.NodeEntity;
@@ -27,6 +28,7 @@ public class GOTerm extends Ontology {
 	@Relationship(type = "ALSO_KNOWN_AS")
 	private Set<Synonym> synonyms = new HashSet<Synonym>();
 
-	
-	//private Set<GOTerm> children = new HashSet<GOTerm>();
+    @Relationship(type = "CROSS_REFERENCE")
+    private List<CrossReference> crossReferences;
+
 }

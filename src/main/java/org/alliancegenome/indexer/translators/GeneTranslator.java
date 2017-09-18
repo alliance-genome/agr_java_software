@@ -191,9 +191,11 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
                     .map(crossReference -> {
                         CrossReferenceDoclet crd = new CrossReferenceDoclet();
                         crd.setCrossRefCompleteUrl(crossReference.getCrossRefCompleteUrl());
+                        crd.setName(crossReference.getName());
+                        crd.setGlobalCrossRefId(crossReference.getGlobalCrossRefId());
                         crd.setLocalId(crossReference.getLocalId());
-                        crd.setId(String.valueOf(crossReference.getId()));
-                        crd.setGlobalCrossrefId(crossReference.getGlobalCrossrefId());
+                        crd.setPrefix(crossReference.getPrefix());
+                        crd.setPrimaryKey(crossReference.getPrimaryKey());
                         return crd;
                     })
                     .collect(Collectors.toList());

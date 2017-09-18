@@ -6,13 +6,10 @@ import org.alliancegenome.indexer.document.GoDocument;
 import org.alliancegenome.indexer.entity.node.GOTerm;
 import org.alliancegenome.indexer.entity.node.Gene;
 import org.alliancegenome.indexer.entity.node.Synonym;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 public class GoTranslator extends EntityDocumentTranslator<GOTerm, GoDocument> {
 	
-	private Logger log = LogManager.getLogger(getClass());
-	
+
 	@Override
 	protected GoDocument entityToDocument(GOTerm entity, int translationDepth) {
 		//log.info(entity);

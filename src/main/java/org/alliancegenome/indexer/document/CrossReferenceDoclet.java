@@ -1,6 +1,5 @@
 package org.alliancegenome.indexer.document;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,9 +9,9 @@ public class CrossReferenceDoclet {
 
 	private String crossRefCompleteUrl;
 	private String localId;
-	private String id;
-	private String globalCrossrefId;
+	private String globalCrossRefId;
 	private String prefix;
-	private String displayName;
+	private String name;
+	private String primaryKey;
 
 }

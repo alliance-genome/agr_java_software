@@ -12,7 +12,7 @@ public class CrossReference extends Neo4jEntity {
 	
 	private String crossRefCompleteUrl;
 	private String localId;
-	private String globalCrossrefId;
+	private String globalCrossRefId;
 	private String prefix;
 	private String name;
 	private String primaryKey;

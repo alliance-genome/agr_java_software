@@ -48,7 +48,7 @@ public class DOTerm extends Neo4jEntity {
 	@Relationship(type = "ALSO_KNOWN_AS")
 	private List<Synonym> synonyms;
 
-	@Relationship(type = "ALSO_KNOWN_AS")
+	@Relationship(type = "CROSS_REFERENCE")
 	private List<CrossReference> crossReferences;
 
 }

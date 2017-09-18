@@ -9,12 +9,9 @@ import org.alliancegenome.indexer.document.GeneDocument;
 import org.alliancegenome.indexer.entity.node.Gene;
 import org.alliancegenome.indexer.repository.GeneRepository;
 import org.alliancegenome.indexer.translators.GeneTranslator;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 public class GeneIndexer extends Indexer<GeneDocument> {
 
-	private Logger log = LogManager.getLogger(getClass());
 	private GeneRepository repo2 = new GeneRepository();
 	private GeneTranslator geneTrans = new GeneTranslator();
 
