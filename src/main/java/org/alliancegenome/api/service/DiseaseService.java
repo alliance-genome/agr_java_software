@@ -25,4 +25,7 @@ public class DiseaseService {
     }
 
 
+    public String getDiseaseAnnotationsDownload(String id) {
+        return diseaseDAO.getDiseaseAnnotationsDownload(id);
+    }
 }
