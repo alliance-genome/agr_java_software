@@ -109,7 +109,7 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
 //	}
 
 	public List<String> getAllDiseaseKeys() {
-		String query = "MATCH (d:DOTerm) RETURN d.primaryKey";
+		String query = "MATCH (term:DOTerm) WHERE term.is_obsolete='false' RETURN term.primaryKey";
 		
 		Result r = queryForResult(query);
 		Iterator<Map<String, Object>> i = r.iterator();
@@ -118,14 +118,14 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
 		
 		while(i.hasNext()) {
 			Map<String, Object> map2 = i.next();
-			list.add((String)map2.get("d.primaryKey"));
+			list.add((String)map2.get("term.primaryKey"));
 		}
 		return list;
 	}
 	
 	public DOTerm getDiseaseTerm(String primaryKey) {
 
-		String cypher = "MATCH p0=(d:DOTerm)--(s) WHERE d.primaryKey = {primaryKey} " +
+		String cypher = "MATCH p0=(d:DOTerm)--(s) WHERE d.primaryKey = {primaryKey}  " +
 				" OPTIONAL MATCH p1=(d)--(s:DiseaseGeneJoin)-[:EVIDENCE]-(eq), p2=(s)--(g:Gene)" +
 				" OPTIONAL MATCH p3=(d)-[:IS_A]-(d2)" + 
 				" RETURN p0, p1, p2, p3";
