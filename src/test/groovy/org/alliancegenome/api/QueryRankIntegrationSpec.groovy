@@ -2,9 +2,9 @@ import groovy.json.JsonSlurper
 import spock.lang.Ignore
 import spock.lang.Specification
 import spock.lang.Unroll
+import spock.lang.Ignore
 
 class QueryRankIntegrationSpec extends Specification {
-
 
     @Unroll
     def "When querying for #query with #filter, #betterResult comes before #worseResult"() {
