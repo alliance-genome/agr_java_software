@@ -45,7 +45,7 @@ public class DiseaseAnnotationIndexer extends Indexer<DiseaseAnnotationDocument>
 
 			List<WorkerThread> threads = new ArrayList<WorkerThread>();
 
-			for(int i = 0; i < 4; i++) {
+			for(int i = 0; i < typeConfig.getThreadCount(); i++) {
 				WorkerThread thread = new WorkerThread(queue);
 				threads.add(thread);
 				thread.start();
@@ -81,7 +81,7 @@ public class DiseaseAnnotationIndexer extends Indexer<DiseaseAnnotationDocument>
 			ArrayList<DOTerm> list = new ArrayList<DOTerm>();
 			while(true) {
 				try {
-					if(list.size() >= 100) {
+					if(list.size() >= typeConfig.getBufferSize()) {
 						addDocuments(diseaseTrans.translateAnnotationEntities(list, 1));
 						if(list != null) list.clear();
 						list = new ArrayList<DOTerm>();

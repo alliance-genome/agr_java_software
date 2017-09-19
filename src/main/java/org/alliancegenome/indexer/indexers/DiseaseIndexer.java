@@ -1,5 +1,6 @@
 package org.alliancegenome.indexer.indexers;
 
+import org.alliancegenome.indexer.config.ConfigHelper;
 import org.alliancegenome.indexer.config.TypeConfig;
 import org.alliancegenome.indexer.document.DiseaseDocument;
 import org.alliancegenome.indexer.entity.node.DOTerm;
@@ -40,7 +41,7 @@ public class DiseaseIndexer extends Indexer<DiseaseDocument> {
 
 			List<WorkerThread> threads = new ArrayList<WorkerThread>();
 
-			for(int i = 0; i < 4; i++) {
+			for(int i = 0; i < typeConfig.getThreadCount(); i++) {
 				WorkerThread thread = new WorkerThread(queue);
 				threads.add(thread);
 				thread.start();
@@ -77,7 +78,7 @@ public class DiseaseIndexer extends Indexer<DiseaseDocument> {
 			ArrayList<DOTerm> list = new ArrayList<DOTerm>();
 			while(true) {
 				try {
-					if(list.size() >= 100) {
+					if(list.size() >= typeConfig.getBufferSize()) {
 						addDocuments(diseaseTrans.translateEntities(list));
 						if(list != null) list.clear();
 						list = new ArrayList<DOTerm>();
