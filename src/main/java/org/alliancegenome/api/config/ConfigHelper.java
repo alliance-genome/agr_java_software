@@ -1,11 +1,10 @@
 package org.alliancegenome.api.config;
 
-import java.util.HashMap;
+import org.jboss.logging.Logger;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
-
-import org.jboss.logging.Logger;
+import java.util.HashMap;
 
 @ApplicationScoped
 public class ConfigHelper {
@@ -20,7 +19,7 @@ public class ConfigHelper {
 		log.info("Config Helper");
 		defaults.put("API_ACCESS_TOKEN", "api_password");
 		defaults.put("DEBUG", "false");
-		defaults.put("ES_INDEX", "agr");
+		defaults.put("ES_INDEX", "site_index");
 		defaults.put("ES_HOST", "localhost");
 		defaults.put("ES_PORT", "9300");
 

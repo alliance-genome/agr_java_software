@@ -1,14 +1,5 @@
 package org.alliancegenome.api.dao;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.Map;
-import java.util.concurrent.ExecutionException;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import javax.inject.Inject;
-
 import org.alliancegenome.api.config.ConfigHelper;
 import org.elasticsearch.action.get.GetRequest;
 import org.elasticsearch.action.get.GetResponse;
@@ -16,6 +7,14 @@ import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.transport.client.PreBuiltTransportClient;
 import org.jboss.logging.Logger;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.inject.Inject;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 public class ESDAO {
 
@@ -36,7 +35,11 @@ public class ESDAO {
 			e.printStackTrace();
 		}
 	}
-	
+
+	public void setConfig(ConfigHelper config) {
+		this.config = config;
+	}
+
 	@PreDestroy
 	public void close() {
 		log.info("Closing Down ES Client");
@@ -52,9 +55,7 @@ public class ESDAO {
 			GetResponse res = searchClient.get(request).get();
 			//log.info(res);
 			return res.getSource();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		} catch (ExecutionException e) {
+		} catch (InterruptedException | ExecutionException e) {
 			e.printStackTrace();
 		}
 		return null;
