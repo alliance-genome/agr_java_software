@@ -46,4 +46,30 @@ class QueryRankIntegrationSpec extends Specification {
         query << ["fgf", "pax"]
 
     }
+
+    @Unroll
+    def "When querying genes for #query #id should come back as a result according to #issue"() {
+        when:
+        def encodedQuery = URLEncoder.encode(query, "UTF-8")
+        //todo: need to set the base search url in a nicer way
+        def url = new URL("http://localhost:8080/api/search?category=gene&limit=50&offset=0&q=$encodedQuery")
+        def results = new JsonSlurper().parseText(url.text).results
+        def resultIds = results*.id
+
+        then:
+        results
+        resultIds.contains(id)
+
+        where:
+        query   | id                            | issue
+        "smad6" | "MGI:1336883"                 | "AGR-580"
+        "smad6" | "ZFIN:ZDB-GENE-050419-198"    | "AGR-580"
+        "smad6" | "HGNC:6772"                   | "AGR-580"
+        "smad6" | "ZFIN:ZDB-GENE-011015-1"      | "AGR-580"
+        "smad6" | "RGD:1305069"                 | "AGR-580"
+        "smad6" | "FB:FBgn0020493"              | "AGR-580"
+        "smad6" | "WB:WBGene00006445"           | "AGR-580"
+
+    }
+
 }

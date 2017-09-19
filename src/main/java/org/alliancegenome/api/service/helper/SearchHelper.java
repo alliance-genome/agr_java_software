@@ -81,7 +81,7 @@ public class SearchHelper {
 			add("description"); add("external_ids"); add("species");
 			add("gene_biological_process"); add("gene_molecular_function"); add("gene_cellular_component");
 			add("go_type"); add("go_genes"); add("go_synonyms");
-			add("disease_genes"); add("disease_synonyms"); add("diseases.name");
+			add("disease_genes"); add("disease_synonyms"); add("diseases.name"); add("orthology.gene2Symbol");
 		}
 	};
 
