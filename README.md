@@ -23,13 +23,13 @@ As we add more datasources and use the ElasticSearch indexing for storing / cach
 ## Compliling JAR
 
 ```bash
-make all
+make docker-build
 ```
 
 ## Running API
 
 ```bash
-make run
+make docker-run
 ```
 
 # Configuration
