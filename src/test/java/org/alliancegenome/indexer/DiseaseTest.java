@@ -1,6 +1,7 @@
 package org.alliancegenome.indexer;
 
 import org.alliancegenome.indexer.config.ConfigHelper;
+import org.alliancegenome.indexer.document.DiseaseDocument;
 import org.alliancegenome.indexer.entity.node.DOTerm;
 import org.alliancegenome.indexer.repository.DiseaseRepository;
 import org.alliancegenome.indexer.repository.Neo4jRepository;
@@ -10,14 +11,15 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.config.Configurator;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class DiseaseTest {
 
-
-
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         Configurator.setRootLevel(Level.WARN);
         //Configurator.setLevel("org.neo4j",Level.DEBUG);
         Logger log = LogManager.getLogger(DiseaseTest.class);
@@ -39,8 +41,12 @@ public class DiseaseTest {
 
         DiseaseTranslator translator = new DiseaseTranslator();
 
-        DOTerm diseaseTerm = diseaseRepository.getDiseaseTerm("DOID:9452");
-        //translator.translate(diseaseTerm, 1);
+        DOTerm diseaseTerm = diseaseRepository.getDiseaseTerm("DOID:9455");
+        DiseaseDocument doc = translator.translate(diseaseTerm, 1);
+        
+        ObjectMapper mapper = new ObjectMapper();
+		String json = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(doc);
+		System.out.println(json);
 
         List<DOTerm> geneDiseaseList = diseaseRepository.getAllDiseaseTerms(0, 10);
 /*

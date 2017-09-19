@@ -31,7 +31,7 @@ public class GeneIndexer extends Indexer<GeneDocument> {
 
 			List<WorkerThread> threads = new ArrayList<WorkerThread>();
 
-			for(int i = 0; i < 10; i++) {
+			for(int i = 0; i < 4; i++) {
 				WorkerThread thread = new WorkerThread(queue);
 				threads.add(thread);
 				thread.start();
@@ -65,7 +65,7 @@ public class GeneIndexer extends Indexer<GeneDocument> {
 			ArrayList<Gene> list = new ArrayList<Gene>();
 			while(true) {
 				try {
-					if(list.size() >= 100) {
+					if(list.size() >= 1000) {
 						addDocuments(geneTrans.translateEntities(list));
 						if(list != null) list.clear();
 						list = new ArrayList<Gene>();

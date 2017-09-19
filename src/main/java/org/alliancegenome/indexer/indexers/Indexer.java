@@ -161,12 +161,12 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
 	}
 
 	private void checkMemory() {
-		if(memoryPercent() > 0.8) {
-			log.info("Memory timeout: " + df.format(memoryPercent() * 100) + "% running blockUntilFinished on current documents");
-			log.info("Used Mem: " + (runtime.totalMemory() - runtime.freeMemory()));
-			log.info("Free Mem: " + runtime.freeMemory());
-			log.info("Total Mem: " + runtime.totalMemory());
-			log.info("Max Memory: " + runtime.maxMemory());
+		if(memoryPercent() > 0.95) {
+			log.warn("Memory Warning: " + df.format(memoryPercent() * 100) + "%");
+			log.warn("Used Mem: " + (runtime.totalMemory() - runtime.freeMemory()));
+			log.warn("Free Mem: " + runtime.freeMemory());
+			log.warn("Total Mem: " + runtime.totalMemory());
+			log.warn("Max Memory: " + runtime.maxMemory());
 		}
 	}
 
