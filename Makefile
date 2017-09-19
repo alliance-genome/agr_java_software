@@ -2,7 +2,7 @@ all:
 	mvn clean package
 
 run:
-	java -jar target/agr_indexer-jar-with-dependencies.jar
+	java -jar -Xmn6g -Xms6g target/agr_indexer-jar-with-dependencies.jar
 
 test:
 	mvn test
