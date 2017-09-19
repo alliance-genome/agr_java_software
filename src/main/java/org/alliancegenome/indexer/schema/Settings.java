@@ -8,5 +8,5 @@ public abstract class Settings extends Builder {
 		super(pretty);
 	}
 
-	public abstract void buildSettings(boolean enclose) throws IOException;
+	public abstract void buildSettings() throws IOException;
 }

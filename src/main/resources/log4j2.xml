@@ -6,6 +6,7 @@
 		<Property name="CONFIG_LOG_LEVEL">INFO</Property>
 		<Property name="BOLT_LOG_LEVEL">WARN</Property>
 		<Property name="ES_LOG_LEVEL">WARN</Property>
+		<Property name="NETTY_LOG_LEVEL">WARN</Property>
 	</Properties>
 	<Appenders>
 		<Console name="Console">
@@ -17,6 +18,7 @@
 			<AppenderRef ref="Console" />
 		</Root>
 		<logger name="org.elasticsearch" level="${env:ES_LOG_LEVEL}" />
+		<logger name="io.netty" level="${env:NETTY_LOG_LEVEL}" />
 		<logger name="org.neo4j.ogm" level="${env:BOLT_LOG_LEVEL}" />
 		<logger name="org.alliancegenome.indexer.config" level="${env:CONFIG_LOG_LEVEL}" />
 	</Loggers>

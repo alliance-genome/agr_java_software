@@ -39,6 +39,11 @@ public class ConfigHelper {
 		defaults.put("ES_INDEX", "site_index");
 		defaults.put("NEO4J_HOST", "localhost");
 		defaults.put("NEO4J_PORT", "7687");
+		defaults.put("SNAPSHOT_REPONAME", "snapshots");
+		defaults.put("AWS_ACCESS_KEY", null);
+		defaults.put("AWS_SECRET_KEY", null);
+		defaults.put("AWS_BUCKET_NAME", "es-backup-snapshots");
+
 		allKeys = defaults.keySet();
 
 		if (configProperties.size() == 0) {
@@ -130,5 +135,20 @@ public class ConfigHelper {
 		return config.get("ES_INDEX");
 	}
 
+	public static String getSnapShotsRepoName() {
+		return config.get("SNAPSHOT_REPONAME");
+	}
+
+	public static String getAWSAccessKey() {
+		return config.get("AWS_ACCESS_KEY");
+	}
+
+	public static String getAWSSecretKey() {
+		return config.get("AWS_SECRET_KEY");
+	}
+
+	public static String getAWSBucketName() {
+		return config.get("AWS_BUCKET_NAME");
+	}
 
 }
