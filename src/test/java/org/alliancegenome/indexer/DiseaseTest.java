@@ -48,14 +48,14 @@ public class DiseaseTest {
 		String json = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(doc);
 		System.out.println(json);
 
-        List<DOTerm> geneDiseaseList = diseaseRepository.getAllDiseaseTerms(0, 10);
+        //List<DOTerm> geneDiseaseList = diseaseRepository.getAllDiseaseTerms(0, 10);
 /*
         List<DOTerm> geneDiseaseList = diseaseRepository.getAllTerms();
         System.out.println("Number of all terms: " + geneDiseaseList.size());
 */
-        List<DOTerm>  geneDiseaseList1 = diseaseRepository.getDiseaseTermsWithAnnotations();
+        //List<DOTerm>  geneDiseaseList1 = diseaseRepository.getDiseaseTermsWithAnnotations();
 
-        System.out.println("Number of Diseases with Genes: " + geneDiseaseList1.size());
+        //System.out.println("Number of Diseases with Genes: " + geneDiseaseList1.size());
 
 
         String cypher = "match (n:Gene)-[*]->(d:DOTerm) return n, d";
@@ -63,10 +63,10 @@ public class DiseaseTest {
 
 
 
-        List<DOTerm> fullTerms = geneDiseaseList1.stream()
-                .filter(doTerm -> !(doTerm.getPrimaryKey().contains("!")))
-                .collect(Collectors.toList());
-        System.out.println("Number of Diseases with Genes Info: " + geneDiseaseList1.size());
+        //List<DOTerm> fullTerms = geneDiseaseList1.stream()
+        //        .filter(doTerm -> !(doTerm.getPrimaryKey().contains("!")))
+        //        .collect(Collectors.toList());
+        //System.out.println("Number of Diseases with Genes Info: " + geneDiseaseList1.size());
 
     }
 
