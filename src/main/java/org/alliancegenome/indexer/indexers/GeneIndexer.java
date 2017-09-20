@@ -56,6 +56,7 @@ public class GeneIndexer extends Indexer<GeneDocument> {
 
 	private void startThread(LinkedBlockingDeque<String> queue) {
 		ArrayList<Gene> list = new ArrayList<>();
+		GeneRepository repo = new GeneRepository();
 		while (true) {
 			try {
 				if (list.size() >= typeConfig.getBufferSize()) {
@@ -72,7 +73,7 @@ public class GeneIndexer extends Indexer<GeneDocument> {
 				}
 
 				String key = queue.takeFirst();
-				Gene gene = geneRepo.getOneGene(key);
+				Gene gene = repo.getOneGene(key);
 				if (gene != null)
 					list.add(gene);
 				else

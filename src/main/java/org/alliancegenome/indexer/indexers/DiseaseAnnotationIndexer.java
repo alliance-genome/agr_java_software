@@ -59,8 +59,8 @@ public class DiseaseAnnotationIndexer extends Indexer<DiseaseAnnotationDocument>
     }
 
     private void startThread(LinkedBlockingDeque<String> queue) {
-
         ArrayList<DOTerm> list = new ArrayList<DOTerm>();
+        DiseaseRepository repo = new DiseaseRepository();
         while (true) {
             try {
                 if (list.size() >= typeConfig.getBufferSize()) {
@@ -77,7 +77,7 @@ public class DiseaseAnnotationIndexer extends Indexer<DiseaseAnnotationDocument>
                 }
 
                 String key = queue.takeFirst();
-                DOTerm disease = diseaseRepository.getDiseaseTermWithAnnotations(key);
+                DOTerm disease = repo.getDiseaseTermWithAnnotations(key);
                 if (disease != null) {
                     list.add(disease);
                 }
