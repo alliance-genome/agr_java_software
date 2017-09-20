@@ -43,20 +43,10 @@ public class GeneRepository extends Neo4jRepository<Gene> {
 		return null;
 		
 	}
-	
-	public Iterable<Gene> getGenes(List<String> ids) {
-		HashMap<String, Object> map = new HashMap<>();
-		map.put("list", ids);
-		String query = "";
-		query += " MATCH p1=(q:Species)-[:FROM_SPECIES]-(g:Gene)--(s) WHERE g.primaryKey IN {list}";
-		query += " OPTIONAL MATCH p2=(do:DOTerm)--(s:DiseaseGeneJoin)-[:EVIDENCE]-(ea)";
-		query += " OPTIONAL MATCH p4=(g)--(s:OrthologyGeneJoin)--(a:OrthoAlgorithm), p3=(g)-[o:ORTHOLOGOUS]-(g2:Gene)-[:FROM_SPECIES]-(q2:Species), (s)--(g2) WHERE g.primaryKey IN {list}";
-		query += " RETURN p1, p2, p3, p4";
-		return query(query, map);
-	}
+
 	
 	public List<String> getAllGeneKeys() {
-		String query = "MATCH (q:Species)-[:FROM_SPECIES]-(g:Gene) RETURN g.primaryKey";
+		String query = "MATCH (g:Gene) RETURN g.primaryKey";
 		
 		Result r = queryForResult(query);
 		Iterator<Map<String, Object>> i = r.iterator();
@@ -68,17 +58,6 @@ public class GeneRepository extends Neo4jRepository<Gene> {
 			list.add((String)map2.get("g.primaryKey"));
 		}
 		return list;
-	}
-
-	public Iterable<Gene> getGeneByPage(int page, int size) {
-
-		String query = "";
-		query += "MATCH (g:Gene) WITH g SKIP " + (page * size) + " LIMIT " + size;
-		query += " MATCH p1=(q:Species)-[:FROM_SPECIES]-(g)--(s)";
-		query += " OPTIONAL MATCH p2=(do:DOTerm)--(s:DiseaseGeneJoin)-[:EVIDENCE]-(ea)";
-		query += " OPTIONAL MATCH p4=(g)--(s:OrthologyGeneJoin)--(a:OrthoAlgorithm), p3=(g)-[o:ORTHOLOGOUS]-(g2:Gene)-[:FROM_SPECIES]-(q2:Species), (s)--(g2)";
-		query += " RETURN p1, p2, p3, p4";
-		return query(query);
 	}
 
 }
