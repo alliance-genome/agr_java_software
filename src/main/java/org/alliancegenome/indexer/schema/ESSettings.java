@@ -57,13 +57,13 @@ public class ESSettings extends Settings {
 						.startObject("synonym_filter") //for any hand-crafted synonyms we need
 							.field("type", "synonym")
 							.array("synonyms", new String[]{
-									"homo sapiens => human",
-									"rattus norvegicus => rat",
-									"mus musculus => mouse",
-									"drosophila melanogaster => fly, fruit fly",
-									"caenorhabditis elegans => worm",
-									"saccharomyces cerevisiae => yeast",
-									"danio rerio => fish, zebrafish"
+									"homo sapiens => human, hsa",
+									"rattus norvegicus => rat, rno",
+									"mus musculus => mouse, mmu",
+									"drosophila melanogaster => fly, fruit fly, dme",
+									"caenorhabditis elegans => worm, cel",
+									"saccharomyces cerevisiae => yeast. sce",
+									"danio rerio => fish, zebrafish, dre"
 							})
 						.endObject()
 					.endObject()
