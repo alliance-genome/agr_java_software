@@ -63,7 +63,7 @@ public class DiseaseAnnotationIndexer extends Indexer<DiseaseAnnotationDocument>
         ArrayList<DOTerm> list = new ArrayList<DOTerm>();
         while (true) {
             try {
-                if (list.size() >= 100) {
+                if (list.size() >= typeConfig.getBufferSize()) {
                     addDocuments(diseaseTrans.translateAnnotationEntities(list, 1));
                     list.clear();
                     list = new ArrayList<>();

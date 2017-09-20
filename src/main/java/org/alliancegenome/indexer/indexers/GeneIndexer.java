@@ -2,17 +2,23 @@ package org.alliancegenome.indexer.indexers;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.TimeUnit;
 
 import org.alliancegenome.indexer.config.TypeConfig;
 import org.alliancegenome.indexer.document.GeneDocument;
 import org.alliancegenome.indexer.entity.node.Gene;
 import org.alliancegenome.indexer.repository.GeneRepository;
 import org.alliancegenome.indexer.translators.GeneTranslator;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class GeneIndexer extends Indexer<GeneDocument> {
 
-	private GeneRepository repo2 = new GeneRepository();
+	private Logger log = LogManager.getLogger(getClass());
+	private GeneRepository geneRepo = new GeneRepository();
 	private GeneTranslator geneTrans = new GeneTranslator();
 
 	public GeneIndexer(String currnetIndex, TypeConfig config) {
@@ -23,71 +29,58 @@ public class GeneIndexer extends Indexer<GeneDocument> {
 	public void index() {
 		try {
 			LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<String>();
-			List<String> fulllist = repo2.getAllGeneKeys();
+			List<String> fulllist = geneRepo.getAllGeneKeys();
+			queue.addAll(fulllist);
 
-			for(String s: fulllist) {
-				queue.add(s);
-			}
-
-			List<WorkerThread> threads = new ArrayList<WorkerThread>();
-
-			for(int i = 0; i < typeConfig.getThreadCount(); i++) {
-				WorkerThread thread = new WorkerThread(queue);
-				threads.add(thread);
-				thread.start();
+			Integer numberOfThreads = typeConfig.getThreadCount();
+			ExecutorService executor = Executors.newFixedThreadPool(numberOfThreads);
+			int index = 0;
+			while (index++ < numberOfThreads) {
+				executor.submit(() -> startThread(queue));
 			}
 
 			int total = queue.size();
 			startProcess(total);
-			while(!queue.isEmpty()) {
-				Thread.sleep(60000);
+			while (!queue.isEmpty()) {
+				TimeUnit.SECONDS.sleep(30);
 				progress(queue.size(), total);
 			}
 			finishProcess(total);
-
-			for(WorkerThread t: threads) {
-				t.join();
-			}
+			executor.shutdown();
 
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			log.error("Error while indexing...", e);
 		}
+
 	}
 
-	public class WorkerThread extends Thread {
-		private GeneRepository repo = new GeneRepository();
-		LinkedBlockingDeque<String> queue;
-		public WorkerThread(LinkedBlockingDeque<String> queue) {
-			this.queue = queue;
-		}
-
-		public void run() {
-			ArrayList<Gene> list = new ArrayList<Gene>();
-			while(true) {
-				try {
-					if(list.size() >= typeConfig.getBufferSize()) {
-						addDocuments(geneTrans.translateEntities(list));
-						if(list != null) list.clear();
-						list = new ArrayList<Gene>();
-					}
-					if(queue.isEmpty()) {
-						if(list.size() > 0) {
-							addDocuments(geneTrans.translateEntities(list));
-							list.clear();
-						}
-						return;
-					}
-
-					String key = queue.takeFirst();
-					Gene gene = repo.getOneGene(key);
-					list.add(gene);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
+	private void startThread(LinkedBlockingDeque<String> queue) {
+		ArrayList<Gene> list = new ArrayList<>();
+		while (true) {
+			try {
+				if (list.size() >= typeConfig.getBufferSize()) {
+					addDocuments(geneTrans.translateEntities(list));
+					list.clear();
+					list = new ArrayList<>();
 				}
+				if (queue.isEmpty()) {
+					if (list.size() > 0) {
+						addDocuments(geneTrans.translateEntities(list));
+						list.clear();
+					}
+					return;
+				}
+
+				String key = queue.takeFirst();
+				Gene gene = geneRepo.getOneGene(key);
+				if (gene != null)
+					list.add(gene);
+				else
+					log.debug("No disease found for " + key);
+			} catch (InterruptedException e) {
+				log.error("Error while indexing...", e);
 			}
 		}
 	}
-
-
 
 }
