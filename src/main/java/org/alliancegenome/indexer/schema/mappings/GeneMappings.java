@@ -26,14 +26,14 @@ public class GeneMappings extends Mappings {
 					buildProperty("geneLiteratureUrl", "keyword");
 					buildProperty("geneSynopsis", "text");
 					buildProperty("geneSynopsisUrl", "keyword");
-					buildGenericField("gene_biological_process", "text", null, true, false, true);
-					buildGenericField("gene_cellular_component", "text", null, true, false, true);
-					buildGenericField("gene_molecular_function", "text", null, true, false, true);
+					buildGenericField("gene_biological_process", "text", null, true, false, true, false);
+					buildGenericField("gene_cellular_component", "text", null, true, false, true, false);
+					buildGenericField("gene_molecular_function", "text", null, true, false, true, false);
 					buildGenomeLocationsField();
 
 					buildProperty("secondaryIds", "keyword");
 					buildProperty("soTermId", "keyword");
-					buildGenericField("symbol", "text", "symbols", false, true, true);
+					buildGenericField("symbol", "text", "symbols", false, true, true, false);
 					buildProperty("taxonId", "keyword");
 					
 				builder.endObject();
