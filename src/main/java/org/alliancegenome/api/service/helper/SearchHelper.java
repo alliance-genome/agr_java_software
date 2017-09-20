@@ -56,6 +56,7 @@ public class SearchHelper {
 	public Map<String, Float> getBoostMap() { return boostMap; }
 	private Map<String, Float> boostMap = new HashMap<String, Float>() {
 		{
+			put("symbol",5.0F);
 			put("symbol.autocomplete",2.0F);
 			put("name.autocomplete",0.1F);
 /*			put("primaryId", 400);

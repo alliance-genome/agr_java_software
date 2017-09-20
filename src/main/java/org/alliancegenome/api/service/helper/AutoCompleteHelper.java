@@ -23,6 +23,7 @@ public class AutoCompleteHelper {
 		BoolQueryBuilder bool = new BoolQueryBuilder();
 
 		MultiMatchQueryBuilder multi = QueryBuilders.multiMatchQuery(q);
+		multi.field("symbol",5.0F);
 		multi.field("name_key.autocomplete",3.0F);
 		multi.field("name.keyword", 2.0F);
 		multi.field("name.autocomplete");
