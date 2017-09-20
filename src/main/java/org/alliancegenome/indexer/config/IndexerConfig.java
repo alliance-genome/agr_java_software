@@ -10,7 +10,7 @@ import org.alliancegenome.indexer.schema.mappings.GoMappings;
 
 public enum IndexerConfig {
 
-	GeneIndexer("gene", GeneIndexer.class, GeneMappings.class, 2000, 6, 1000),
+	GeneIndexer("gene", GeneIndexer.class, GeneMappings.class, 2000, 4, 1000),
 	DiseaseIndexer("disease", DiseaseIndexer.class, DiseaseMappings.class, 15000, 2, 100),
 	DiseaseAnnotationIndexer("diseaseAnnotation", DiseaseAnnotationIndexer.class, DiseaseMappings.class, 500, 2, 100),
 	GoIndexer("go", GoIndexer.class, GoMappings.class, 2500, 2, 100),;
