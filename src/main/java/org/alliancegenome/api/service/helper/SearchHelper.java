@@ -169,7 +169,7 @@ public class SearchHelper {
 
 
 	public ArrayList<Map<String, Object>> formatResults(SearchResponse res, List<String> searchedTerms) {
-		log.info("Formatting Results: ");
+		log.debug("Formatting Results: ");
 		ArrayList<Map<String, Object>> ret = new ArrayList<>();
 		
 		for(SearchHit hit: res.getHits()) {
@@ -177,8 +177,8 @@ public class SearchHelper {
 			Map<String, Object> map = new HashMap<>();
 			for(String key: hit.getHighlightFields().keySet()) {
 				if(key.endsWith(".symbol")) {
-					log.info("Source as String: " + hit.getSourceAsString());
-					log.info("Highlights: " + hit.getHighlightFields());
+					log.debug("Source as String: " + hit.getSourceAsString());
+					log.debug("Highlights: " + hit.getHighlightFields());
 				}
 				ArrayList<String> list = new ArrayList<>();
 				for(Text t: hit.getHighlightFields().get(key).getFragments()) {
@@ -197,7 +197,7 @@ public class SearchHelper {
 					                                             searchedTerms));
 			ret.add(hit.getSource());
 		}
-		log.info("Finished Formatting Results: ");
+		log.debug("Finished Formatting Results: ");
 		return ret;
 	}
 
