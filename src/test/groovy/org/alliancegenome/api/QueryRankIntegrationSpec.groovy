@@ -48,6 +48,29 @@ class QueryRankIntegrationSpec extends Specification {
     }
 
     @Unroll
+    def "All #query #n query genes should be on top when searching for #query"() {
+        when:
+        def encodedQuery = URLEncoder.encode(query, "UTF-8")
+        //todo: need to set the base search url in a nicer way
+        def url = new URL("http://localhost:8080/api/search?category=gene&limit=50&offset=0&q=$encodedQuery")
+        def names = (new JsonSlurper().parseText(url.text).results.take(n)*.symbol)*.toLowerCase()
+
+        def autocompleteUrl = new URL("http://localhost:8080/api/search_autocomplete?q=$encodedQuery")
+        def autoCompleteNames = (new JsonSlurper().parseText(autocompleteUrl.text).results.take(n)*.symbol)*.toLowerCase()
+
+        then:
+        names == Collections.nCopies(n,query)
+        autoCompleteNames == Collections.nCopies(n,query)
+
+        where:
+        query   | n
+        "egf"   | 4
+        "fgf8"  | 3
+        "pax2"  | 3
+
+    }
+
+    @Unroll
     def "When querying genes for #query #id should come back as a result according to #issue"() {
         when:
         def encodedQuery = URLEncoder.encode(query, "UTF-8")
