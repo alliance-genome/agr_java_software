@@ -1,11 +1,14 @@
 package org.alliancegenome.indexer.document;
 
+
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -20,6 +23,7 @@ public class DiseaseDocument extends ESDocument {
     private String name;
     @JsonProperty("name_key")
     private String nameKey;
+    private Set<String> parentDiseaseNames;
     private String definition;
     private Date dateProduced;
     private List<String> definitionLinks;
@@ -29,6 +33,8 @@ public class DiseaseDocument extends ESDocument {
     private List<String> synonyms;
     private List<CrossReferenceDoclet> crossReferences;
     private List<SourceDoclet> sourceList;
+    @JsonProperty("disease_type")
+    private Set<String> highLevelSlimTermNames = new HashSet<>();
 
     @JsonIgnore
     public String getDocumentId() {

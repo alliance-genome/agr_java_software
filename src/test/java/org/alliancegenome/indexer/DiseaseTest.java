@@ -41,7 +41,7 @@ public class DiseaseTest {
 
         DiseaseTranslator translator = new DiseaseTranslator();
 
-        DOTerm diseaseTerm = diseaseRepository.getDiseaseTerm("DOID:9455");
+        DOTerm diseaseTerm = diseaseRepository.getDiseaseTerm("DOID:10921");
         DiseaseDocument doc = translator.translate(diseaseTerm, 1);
         
         ObjectMapper mapper = new ObjectMapper();

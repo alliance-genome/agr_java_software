@@ -1,35 +1,18 @@
 package org.alliancegenome.indexer.translators;
 
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.toMap;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import org.alliancegenome.indexer.document.AnnotationDocument;
-import org.alliancegenome.indexer.document.CrossReferenceDoclet;
-import org.alliancegenome.indexer.document.DiseaseAnnotationDocument;
-import org.alliancegenome.indexer.document.DiseaseDocument;
-import org.alliancegenome.indexer.document.PublicationDoclet;
-import org.alliancegenome.indexer.document.SourceDoclet;
-import org.alliancegenome.indexer.document.SpeciesDoclet;
+import org.alliancegenome.indexer.document.*;
 import org.alliancegenome.indexer.entity.SpeciesType;
-import org.alliancegenome.indexer.entity.node.DOTerm;
-import org.alliancegenome.indexer.entity.node.DiseaseGeneJoin;
-import org.alliancegenome.indexer.entity.node.EvidenceCode;
-import org.alliancegenome.indexer.entity.node.Gene;
-import org.alliancegenome.indexer.entity.node.Publication;
-import org.alliancegenome.indexer.entity.node.Species;
-import org.alliancegenome.indexer.entity.node.Synonym;
+import org.alliancegenome.indexer.entity.node.*;
 import org.alliancegenome.indexer.service.SpeciesService;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toMap;
 
 public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseDocument> {
 
@@ -128,6 +111,7 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
 		document.setDefinition(doTerm.getDefinition());
 		document.setDefinitionLinks(doTerm.getDefLinks());
 		document.setDateProduced(doTerm.getDateProduced());
+		//document.setParentDiseaseNames(getParentNameList(doTerm));
 		if (doTerm.getSynonyms() != null) {
 			List<String> synonymList = doTerm.getSynonyms().stream()
 					.map(Synonym::getPrimaryKey)
@@ -166,6 +150,18 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
 					.collect(Collectors.toList());
 			document.setChildren(childrenDocs);
 		}
+
+        // set highLevelSlim values
+        if (CollectionUtils.isNotEmpty(doTerm.getHighLevelTermList())) {
+            doTerm.getHighLevelTermList().forEach(slimTerm ->
+                    document.getHighLevelSlimTermNames().add(slimTerm.getName()));
+        }
+
+        // set all parent Names
+        if (CollectionUtils.isNotEmpty(doTerm.getHighLevelTermList())) {
+            doTerm.getHighLevelTermList().forEach(slimTerm ->
+                    document.getHighLevelSlimTermNames().add(slimTerm.getName()));
+        }
 
 		document.setSourceList(getSourceUrls(doTerm));
 
@@ -257,6 +253,20 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
 		});
 		return idList;
 	}
+
+    /**
+     * Get all the parent term names compiled.
+     */
+    private Set<String> getParentNameList(DOTerm doTerm) {
+        Set<String> nameList = new LinkedHashSet<>();
+        nameList.add(doTerm.getName());
+        doTerm.getParents().forEach(term -> {
+            nameList.add(term.getName());
+            if (term.getParents() != null)
+                nameList.addAll(getParentNameList(term));
+        });
+        return nameList;
+    }
 
 	private SpeciesDoclet getSpeciesDoclet(DiseaseGeneJoin diseaseGeneJoin) {
 		Species species = diseaseGeneJoin.getGene().getSpecies();
