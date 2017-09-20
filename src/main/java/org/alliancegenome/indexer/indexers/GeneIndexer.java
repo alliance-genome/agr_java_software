@@ -7,7 +7,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 
-import org.alliancegenome.indexer.config.TypeConfig;
+import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.indexer.document.GeneDocument;
 import org.alliancegenome.indexer.entity.node.Gene;
 import org.alliancegenome.indexer.repository.GeneRepository;
@@ -21,7 +21,7 @@ public class GeneIndexer extends Indexer<GeneDocument> {
 	private GeneRepository geneRepo = new GeneRepository();
 	private GeneTranslator geneTrans = new GeneTranslator();
 
-	public GeneIndexer(String currnetIndex, TypeConfig config) {
+	public GeneIndexer(String currnetIndex, IndexerConfig config) {
 		super(currnetIndex, config);
 	}
 
@@ -32,7 +32,7 @@ public class GeneIndexer extends Indexer<GeneDocument> {
 			List<String> fulllist = geneRepo.getAllGeneKeys();
 			queue.addAll(fulllist);
 
-			Integer numberOfThreads = typeConfig.getThreadCount();
+			Integer numberOfThreads = indexerConfig.getThreadCount();
 			ExecutorService executor = Executors.newFixedThreadPool(numberOfThreads);
 			int index = 0;
 			while (index++ < numberOfThreads) {
@@ -59,7 +59,7 @@ public class GeneIndexer extends Indexer<GeneDocument> {
 		GeneRepository repo = new GeneRepository();
 		while (true) {
 			try {
-				if (list.size() >= typeConfig.getBufferSize()) {
+				if (list.size() >= indexerConfig.getBufferSize()) {
 					addDocuments(geneTrans.translateEntities(list));
 					list.clear();
 					list = new ArrayList<>();

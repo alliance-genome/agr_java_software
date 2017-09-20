@@ -1,6 +1,6 @@
 package org.alliancegenome.indexer.indexers;
 
-import org.alliancegenome.indexer.config.TypeConfig;
+import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.indexer.document.GoDocument;
 import org.alliancegenome.indexer.entity.node.GOTerm;
 import org.alliancegenome.indexer.repository.GoRepository;
@@ -16,14 +16,14 @@ public class GoIndexer extends Indexer<GoDocument> {
 	private GoTranslator goTrans = new GoTranslator();
 
 	
-	public GoIndexer(String currnetIndex, TypeConfig config) {
+	public GoIndexer(String currnetIndex, IndexerConfig config) {
 		super(currnetIndex, config);
 	}
 	
 	public void index() {
 		
 		int goCount = repo.getCount();
-		int chunkSize = typeConfig.getFetchChunkSize();
+		int chunkSize = indexerConfig.getFetchChunkSize();
 		int pages = goCount / chunkSize;
 
 		log.debug("GoCount: " + goCount);

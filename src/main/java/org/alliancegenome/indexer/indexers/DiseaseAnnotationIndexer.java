@@ -1,7 +1,7 @@
 package org.alliancegenome.indexer.indexers;
 
 
-import org.alliancegenome.indexer.config.TypeConfig;
+import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.indexer.document.DiseaseAnnotationDocument;
 import org.alliancegenome.indexer.entity.node.DOTerm;
 import org.alliancegenome.indexer.repository.DiseaseRepository;
@@ -23,7 +23,7 @@ public class DiseaseAnnotationIndexer extends Indexer<DiseaseAnnotationDocument>
     private DiseaseRepository diseaseRepository = new DiseaseRepository();
     private DiseaseTranslator diseaseTrans = new DiseaseTranslator();
 
-    public DiseaseAnnotationIndexer(String currentIndex, TypeConfig config) {
+    public DiseaseAnnotationIndexer(String currentIndex, IndexerConfig config) {
         super(currentIndex, config);
     }
 
@@ -35,7 +35,7 @@ public class DiseaseAnnotationIndexer extends Indexer<DiseaseAnnotationDocument>
             List<String> allDiseaseIDs = diseaseRepository.getAllDiseaseKeys();
             queue.addAll(allDiseaseIDs);
 
-            Integer numberOfThreads = typeConfig.getThreadCount();
+            Integer numberOfThreads = indexerConfig.getThreadCount();
             ExecutorService executor = Executors.newFixedThreadPool(numberOfThreads);
             int index = 0;
             while (index++ < numberOfThreads) {
@@ -63,7 +63,7 @@ public class DiseaseAnnotationIndexer extends Indexer<DiseaseAnnotationDocument>
         DiseaseRepository repo = new DiseaseRepository();
         while (true) {
             try {
-                if (list.size() >= typeConfig.getBufferSize()) {
+                if (list.size() >= indexerConfig.getBufferSize()) {
                     addDocuments(diseaseTrans.translateAnnotationEntities(list, 1));
                     list.clear();
                     list = new ArrayList<>();

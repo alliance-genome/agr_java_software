@@ -7,7 +7,7 @@ import java.util.Collection;
 import java.util.Date;
 
 import org.alliancegenome.indexer.config.ConfigHelper;
-import org.alliancegenome.indexer.config.TypeConfig;
+import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.indexer.document.ESDocument;
 import org.alliancegenome.indexer.schema.Mappings;
 import org.apache.logging.log4j.LogManager;
@@ -26,7 +26,7 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
 
 	private Logger log = LogManager.getLogger(getClass());
 	protected String currentIndex;
-	protected TypeConfig typeConfig;
+	protected IndexerConfig indexerConfig;
 	private PreBuiltXPackTransportClient client;
 	protected Runtime runtime = Runtime.getRuntime();
 	protected DecimalFormat df = new DecimalFormat("#.00");
@@ -37,9 +37,9 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
 	private Date lastTime = new Date();
 	private int lastSize;
 
-	public Indexer(String currentIndex, TypeConfig typeConfig) {
+	public Indexer(String currentIndex, IndexerConfig indexerConfig) {
 		this.currentIndex = currentIndex;
-		this.typeConfig = typeConfig;
+		this.indexerConfig = indexerConfig;
 		
 		om.setSerializationInclusion(Include.NON_NULL);
 		
@@ -60,10 +60,10 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
 
 	private void addMapping() {
 		try {
-			Mappings mappingClass = (Mappings)typeConfig.getMappingsClazz().getDeclaredConstructor(Boolean.class).newInstance(true);
+			Mappings mappingClass = (Mappings)indexerConfig.getMappingsClazz().getDeclaredConstructor(Boolean.class).newInstance(true);
 			mappingClass.buildMappings();
-			log.debug("Getting Mapping for type: " + typeConfig.getTypeName());
-			client.admin().indices().preparePutMapping(currentIndex).setType(typeConfig.getTypeName()).setSource(mappingClass.getBuilder().string()).get();
+			log.debug("Getting Mapping for type: " + indexerConfig.getTypeName());
+			client.admin().indices().preparePutMapping(currentIndex).setType(indexerConfig.getTypeName()).setSource(mappingClass.getBuilder().string()).get();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -93,7 +93,7 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
 				try {
 					String json = om.writeValueAsString(doc);
 					//log.debug("JSON: " + json);
-					bulkRequest.add(client.prepareIndex(currentIndex, typeConfig.getTypeName()).setSource(json).setId(doc.getDocumentId()));
+					bulkRequest.add(client.prepareIndex(currentIndex, indexerConfig.getTypeName()).setSource(json).setId(doc.getDocumentId()));
 				} catch (JsonProcessingException e) {
 					e.printStackTrace();
 				}

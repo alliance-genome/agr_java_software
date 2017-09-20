@@ -8,7 +8,7 @@ import org.alliancegenome.indexer.schema.mappings.DiseaseMappings;
 import org.alliancegenome.indexer.schema.mappings.GeneMappings;
 import org.alliancegenome.indexer.schema.mappings.GoMappings;
 
-public enum TypeConfig {
+public enum IndexerConfig {
 
 	GeneIndexer("gene", GeneIndexer.class, GeneMappings.class, 2000, 6, 1000),
 	DiseaseIndexer("disease", DiseaseIndexer.class, DiseaseMappings.class, 15000, 2, 100),
@@ -22,7 +22,7 @@ public enum TypeConfig {
 	private int threadCount;
 	private int bufferSize;
 
-	TypeConfig(String typeName, Class<?> indexClazz, Class<?> mappingsClazz, int fetchChunkSize, int threadCount, int bufferSize) {
+	IndexerConfig(String typeName, Class<?> indexClazz, Class<?> mappingsClazz, int fetchChunkSize, int threadCount, int bufferSize) {
 		this.typeName = typeName;
 		this.indexClazz = indexClazz;
 		this.mappingsClazz = mappingsClazz;

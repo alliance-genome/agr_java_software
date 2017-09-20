@@ -1,6 +1,6 @@
 package org.alliancegenome.indexer.indexers;
 
-import org.alliancegenome.indexer.config.TypeConfig;
+import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.indexer.document.DiseaseDocument;
 import org.alliancegenome.indexer.entity.node.DOTerm;
 import org.alliancegenome.indexer.repository.DiseaseRepository;
@@ -22,7 +22,7 @@ public class DiseaseIndexer extends Indexer<DiseaseDocument> {
     private DiseaseRepository diseaseRepository = new DiseaseRepository();
     private DiseaseTranslator diseaseTrans = new DiseaseTranslator();
 
-    public DiseaseIndexer(String currnetIndex, TypeConfig config) {
+    public DiseaseIndexer(String currnetIndex, IndexerConfig config) {
         super(currnetIndex, config);
     }
 
@@ -35,7 +35,7 @@ public class DiseaseIndexer extends Indexer<DiseaseDocument> {
             List<String> allDiseaseIDs = diseaseRepository.getAllDiseaseKeys();
             queue.addAll(allDiseaseIDs);
 
-            Integer numberOfThreads = typeConfig.getThreadCount();
+            Integer numberOfThreads = indexerConfig.getThreadCount();
             ExecutorService executor = Executors.newFixedThreadPool(numberOfThreads);
             int index = 0;
             while (index++ < numberOfThreads) {
@@ -63,7 +63,7 @@ public class DiseaseIndexer extends Indexer<DiseaseDocument> {
         DiseaseRepository repo = new DiseaseRepository(); // Due to repo not being thread safe
         while (true) {
             try {
-                if (list.size() >= typeConfig.getBufferSize()) {
+                if (list.size() >= indexerConfig.getBufferSize()) {
                     addDocuments(diseaseTrans.translateEntities(list));
                     list.clear();
                     list = new ArrayList<>();
