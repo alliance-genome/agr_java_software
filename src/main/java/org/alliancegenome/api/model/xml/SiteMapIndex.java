@@ -1,4 +1,4 @@
-package org.alliancegenome.api.model;
+package org.alliancegenome.api.model.xml;
 
 import java.util.List;
 
@@ -9,7 +9,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@XmlRootElement(name="sitemapindex")
+@XmlRootElement(name = "sitemapindex")
 public class SiteMapIndex {
 
 	private List<SiteMap> sitemap;

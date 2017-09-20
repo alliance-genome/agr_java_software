@@ -10,11 +10,12 @@ import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.ws.rs.core.UriInfo;
 
+import org.alliancegenome.api.config.ConfigHelper;
 import org.alliancegenome.api.model.SearchResult;
-import org.alliancegenome.api.model.SiteMap;
-import org.alliancegenome.api.model.SiteMapIndex;
-import org.alliancegenome.api.model.XMLURL;
-import org.alliancegenome.api.model.XMLURLSet;
+import org.alliancegenome.api.model.xml.SiteMap;
+import org.alliancegenome.api.model.xml.SiteMapIndex;
+import org.alliancegenome.api.model.xml.XMLURL;
+import org.alliancegenome.api.model.xml.XMLURLSet;
 import org.alliancegenome.api.rest.interfaces.SiteMapRESTInterface;
 import org.alliancegenome.api.service.SearchService;
 import org.jboss.logging.Logger;
@@ -24,6 +25,10 @@ public class SiteMapController implements SiteMapRESTInterface {
 
 	@Inject
 	private SearchService searchService;
+	
+	@Inject
+	private ConfigHelper config;
+	
 	private Logger log = Logger.getLogger(getClass());
 
 
@@ -31,9 +36,9 @@ public class SiteMapController implements SiteMapRESTInterface {
 	public SiteMapIndex getSiteMap(UriInfo uriInfo) {
 		SiteMapIndex index = new SiteMapIndex();
 		List<SiteMap> list = new ArrayList<SiteMap>();
-		list.add(new SiteMap(buildUrl(uriInfo, "api/sitemap", "gene"), new Date()));
-		list.add(new SiteMap(buildUrl(uriInfo, "api/sitemap", "disease"), new Date()));
-		list.add(new SiteMap(buildUrl(uriInfo, "api/sitemap", "go"), new Date()));
+		list.add(new SiteMap(buildUrl(uriInfo, "api/sitemap", "gene.xml"), config.appStart));
+		list.add(new SiteMap(buildUrl(uriInfo, "api/sitemap", "disease.xml"), config.appStart));
+		//list.add(new SiteMap(buildUrl(uriInfo, "api/sitemap", "go.xml"), new Date()));
 		index.setSitemap(list);
 		return index;
 	}
@@ -52,7 +57,7 @@ public class SiteMapController implements SiteMapRESTInterface {
 			SearchResult sr = searchService.query(null, category, chunk, c * chunk, null, uriInfo);
 			rc = sr.results.size();
 			for(Map<String, Object> map: sr.results) {
-				urls.add(new XMLURL(buildUrl(uriInfo, (String)map.get("category"), (String)map.get("id")), new Date(), "monthly", "0.6"));
+				urls.add(new XMLURL(buildUrl(uriInfo, (String)map.get("category"), (String)map.get("id")), (Date)map.get("dateProduced"), "monthly", "0.6"));
 			}
 			c++;
 		} while(rc > 0);

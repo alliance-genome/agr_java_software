@@ -1,4 +1,4 @@
-package org.alliancegenome.api.model;
+package org.alliancegenome.api.model.xml;
 
 import java.util.Date;
 
@@ -9,13 +9,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Getter @Setter @AllArgsConstructor @NoArgsConstructor
-@XmlRootElement(name = "url")
-public class XMLURL {
-	
+@Getter
+@Setter @AllArgsConstructor @NoArgsConstructor
+@XmlRootElement(name = "sitemap")
+public class SiteMap {
+
 	private String loc;
 	private Date lastmod;
-	private String changefreq;
-	private String priority;
 	
 }
