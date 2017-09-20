@@ -127,6 +127,7 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
 		document.setNameKey(doTerm.getName());
 		document.setDefinition(doTerm.getDefinition());
 		document.setDefinitionLinks(doTerm.getDefLinks());
+		document.setDateProduced(doTerm.getDateProduced());
 		if (doTerm.getSynonyms() != null) {
 			List<String> synonymList = doTerm.getSynonyms().stream()
 					.map(Synonym::getPrimaryKey)

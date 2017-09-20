@@ -1,5 +1,6 @@
 package org.alliancegenome.indexer.entity.node;
 
+import java.util.Date;
 import java.util.List;
 
 import org.alliancegenome.indexer.entity.Neo4jEntity;
@@ -25,7 +26,7 @@ public class DOTerm extends Neo4jEntity {
 
 	private String nameKey;
 	private String is_obsolete;
-
+	private Date dateProduced;
 	private String zfinLink;
 	private String humanLink;
 	private String rgdLink;

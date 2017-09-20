@@ -1,5 +1,6 @@
 package org.alliancegenome.indexer.document;
 
+import java.util.Date;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -20,6 +21,7 @@ public class DiseaseDocument extends ESDocument {
     @JsonProperty("name_key")
     private String nameKey;
     private String definition;
+    private Date dateProduced;
     private List<String> definitionLinks;
     private List<AnnotationDocument> annotations;
     private List<DiseaseDocument> parents;
