@@ -1,6 +1,8 @@
 package org.alliancegenome.indexer.document;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -19,6 +21,7 @@ public class DiseaseDocument extends ESDocument {
     private String name;
     @JsonProperty("name_key")
     private String nameKey;
+    private Set<String> parentDiseaseNames;
     private String definition;
     private List<String> definitionLinks;
     private List<AnnotationDocument> annotations;
@@ -27,6 +30,8 @@ public class DiseaseDocument extends ESDocument {
     private List<String> synonyms;
     private List<CrossReferenceDoclet> crossReferences;
     private List<SourceDoclet> sourceList;
+    @JsonProperty("disease_type")
+    private Set<String> highLevelSlimTermNames = new HashSet<>();
 
     @JsonIgnore
     public String getDocumentId() {
