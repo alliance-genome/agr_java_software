@@ -6,6 +6,7 @@ import java.util.List;
 import org.alliancegenome.indexer.entity.Neo4jEntity;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
+import org.neo4j.ogm.annotation.typeconversion.DateString;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -26,6 +27,7 @@ public class DOTerm extends Neo4jEntity {
 
 	private String nameKey;
 	private String is_obsolete;
+	@DateString("yyyy-MM-dd'T'HH:mm:ssX")
 	private Date dateProduced;
 	private String zfinLink;
 	private String humanLink;
