@@ -36,8 +36,8 @@ public class SiteMapController implements SiteMapRESTInterface {
 	public SiteMapIndex getSiteMap(UriInfo uriInfo) {
 		SiteMapIndex index = new SiteMapIndex();
 		List<SiteMap> list = new ArrayList<SiteMap>();
-		list.add(new SiteMap(buildUrl(uriInfo, "api/sitemap", "gene.xml"), config.appStart));
-		list.add(new SiteMap(buildUrl(uriInfo, "api/sitemap", "disease.xml"), config.appStart));
+		list.add(new SiteMap(buildUrl(uriInfo, "api/sitemap", "gene.xml"), config.getAppStart()));
+		list.add(new SiteMap(buildUrl(uriInfo, "api/sitemap", "disease.xml"), config.getAppStart()));
 		//list.add(new SiteMap(buildUrl(uriInfo, "api/sitemap", "go.xml"), new Date()));
 		index.setSitemap(list);
 		return index;

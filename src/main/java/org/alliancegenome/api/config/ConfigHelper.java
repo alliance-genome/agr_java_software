@@ -12,7 +12,7 @@ import java.util.HashMap;
 public class ConfigHelper {
 
 	private static Logger log = Logger.getLogger(ConfigHelper.class);
-	public Date appStart;
+	private Date appStart = new Date();
 	private HashMap<String, String> defaults = new HashMap<>();
 	private HashMap<String, String> config = new HashMap<>();
 
@@ -24,7 +24,7 @@ public class ConfigHelper {
 		defaults.put("ES_INDEX", "site_index");
 		defaults.put("ES_HOST", "localhost");
 		defaults.put("ES_PORT", "9300");
-		appStart = new Date();
+		
 		for (String key : defaults.keySet()) {
 			if (config.get(key) == null) config.put(key, loadSystemProperty(key));
 			if (config.get(key) == null) config.put(key, loadSystemENVProperty(key));
@@ -76,7 +76,10 @@ public class ConfigHelper {
 	public boolean getDebug() {
 		return Boolean.parseBoolean(config.get("DEBUG"));
 	}
-
+	
+	public Date getAppStart() {
+		return appStart;
+	}
 
 	public void printProperties() {
 		log.info("Running with Properties:");
