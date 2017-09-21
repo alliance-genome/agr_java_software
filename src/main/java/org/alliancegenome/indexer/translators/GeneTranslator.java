@@ -42,7 +42,11 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
 
         geneDocument.setHref(null); // This might look wrong but it was taken from the old AGR code base.
         geneDocument.setName(entity.getName());
-        geneDocument.setName_key(entity.getSymbol() + " (" + entity.getSpecies().getType().getAbbreviation() + ")"); // This might look wrong but it was taken from the old AGR code base.
+        if(entity.getSpecies() != null) {
+        	geneDocument.setName_key(entity.getSymbol() + " (" + entity.getSpecies().getType().getAbbreviation() + ")"); // This might look wrong but it was taken from the old AGR code base.
+        } else {
+        	geneDocument.setName_key(entity.getSymbol());
+        }
         geneDocument.setPrimaryId(entity.getPrimaryKey());
         geneDocument.setDateProduced(entity.getDateProduced());
         geneDocument.setTaxonId(entity.getTaxonId());

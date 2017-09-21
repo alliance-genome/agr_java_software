@@ -76,10 +76,11 @@ public class GoIndexer extends Indexer<GoDocument> {
 
 				String key = queue.takeFirst();
 				GOTerm term = repo.getOneGoTerm(key);
-				if (term != null)
+				if (term != null) {
 					list.add(term);
-				else
+				} else {
 					log.debug("No go term found for " + key);
+				}
 			} catch (InterruptedException e) {
 				log.error("Error while indexing...", e);
 			}
