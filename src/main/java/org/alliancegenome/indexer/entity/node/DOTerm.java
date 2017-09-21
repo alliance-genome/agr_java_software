@@ -5,8 +5,10 @@ import java.util.Date;
 import java.util.List;
 
 import org.alliancegenome.indexer.entity.Neo4jEntity;
+import org.alliancegenome.indexer.util.DateConverter;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
+import org.neo4j.ogm.annotation.typeconversion.Convert;
 import org.neo4j.ogm.annotation.typeconversion.DateString;
 
 import lombok.Getter;
@@ -31,8 +33,10 @@ public class DOTerm extends Neo4jEntity {
 
 	private String nameKey;
 	private String is_obsolete;
-	@DateString("yyyy-MM-dd'T'HH:mm:ssX")
+	
+	@Convert(value=DateConverter.class)
 	private Date dateProduced;
+	
     private String zfinLink;
     private String humanLink;
     private String rgdLink;
