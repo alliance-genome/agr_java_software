@@ -11,15 +11,15 @@ import javax.inject.Inject;
 @RequestScoped
 public class AutoCompleteController implements AutoCompleteRESTInterface {
 
-	@Inject
-	private AutoCompleteService autoCompleteService;
-	
-	private Logger log = Logger.getLogger(getClass());
-	
-	@Override
-	public AutoCompleteResult searchAutoComplete(String q, String category) {
-		log.info("This is the Auto Complete query: " + q);
-		return autoCompleteService.buildQuery(q, category);
-	}
+    @Inject
+    private AutoCompleteService autoCompleteService;
+    
+    private Logger log = Logger.getLogger(getClass());
+    
+    @Override
+    public AutoCompleteResult searchAutoComplete(String q, String category) {
+        log.info("This is the Auto Complete query: " + q);
+        return autoCompleteService.buildQuery(q, category);
+    }
 
 }

@@ -3,6 +3,7 @@ package org.alliancegenome.api;
 import org.alliancegenome.api.config.ConfigHelper;
 import org.alliancegenome.api.dao.DiseaseDAO;
 import org.alliancegenome.api.model.SearchResult;
+import org.alliancegenome.api.translator.DiseaseAnnotationToTdfTranslator;
 import org.jboss.logging.Logger;
 
 import java.util.Map;
@@ -20,6 +21,8 @@ public class Disease1Test {
         service.init();
         System.out.println("Number of Diseases with Genes Info: ");
 
+        DiseaseAnnotationToTdfTranslator translator = new DiseaseAnnotationToTdfTranslator();
+        String str = translator.getAllRows(service.getDiseaseAnnotationsDownload("DOID:9351"));
         SearchResult response = service.getDiseaseAnnotations("DOID:9351", 10, 10);
         if (response.results != null) {
             response.results.forEach(entry -> {

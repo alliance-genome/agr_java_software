@@ -35,4 +35,12 @@ public interface DiseaseRESTInterface {
             @ApiParam(name = "offset", value = "This specifies which (page size) to request for")
             @DefaultValue("0") @QueryParam("offset") int offset);
 
+    @GET
+    @Path("/{id}/associations/download")
+    @ApiOperation(value = "Searches for a Disease fields", notes = "Disease Notes")
+    @Produces(MediaType.TEXT_PLAIN)
+    public String getDiseaseAnnotationsDownload(
+            @ApiParam(name = "id", value = "Search for Disease ID")
+            @PathParam("id") String id);
+
 }

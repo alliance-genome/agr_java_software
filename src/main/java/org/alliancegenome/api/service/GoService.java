@@ -9,13 +9,13 @@ import org.alliancegenome.api.dao.GoDAO;
 
 @RequestScoped
 public class GoService {
-	
-	@Inject
-	private GoDAO goDAO;
+    
+    @Inject
+    private GoDAO goDAO;
 
-	public Map<String, Object> getById(String id) {
-		return goDAO.getById(id);
-	}
+    public Map<String, Object> getById(String id) {
+        return goDAO.getById(id);
+    }
 
-	
+    
 }

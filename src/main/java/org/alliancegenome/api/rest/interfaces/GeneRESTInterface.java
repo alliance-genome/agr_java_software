@@ -19,12 +19,12 @@ import io.swagger.annotations.ApiParam;
 @Consumes(MediaType.APPLICATION_JSON)
 public interface GeneRESTInterface {
 
-	@GET
-	@Path("/{id}")
-	@ApiOperation(value = "Searches for a Gene fields", notes="Gene Notes")
-	public Map<String, Object> getGene(
-			@ApiParam(name = "id", value = "Search for Gene ID")
-			@PathParam("id") String id
-	);
-	
+    @GET
+    @Path("/{id}")
+    @ApiOperation(value = "Searches for a Gene fields", notes="Gene Notes")
+    public Map<String, Object> getGene(
+            @ApiParam(name = "id", value = "Search for Gene ID")
+            @PathParam("id") String id
+    );
+    
 }

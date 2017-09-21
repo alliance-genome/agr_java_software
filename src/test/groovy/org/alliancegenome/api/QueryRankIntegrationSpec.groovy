@@ -6,14 +6,12 @@ import spock.lang.Ignore
 
 class QueryRankIntegrationSpec extends Specification {
 
-
-    @Ignore("Not working until we get disease data on genes")
     @Unroll
     def "When querying for #query with #filter, #betterResult comes before #worseResult"() {
         when:
         def encodedQuery = URLEncoder.encode(query, "UTF-8")
         //todo: need to set the base search url in a nicer way
-        def url = new URL("http://localhost:8080/api/search?category=gene&limit=500&offset=0&q=$encodedQuery$filter")
+        def url = new URL("http://localhost:8080/api/search?category=gene&limit=5000&offset=0&q=$encodedQuery$filter")
         def results = new JsonSlurper().parseText(url.text).results
         def betterResult = results.find { it.id == betterResultId }
         def worseResult = results.find { it.id == worseResultId }
@@ -28,8 +26,7 @@ class QueryRankIntegrationSpec extends Specification {
         where:
         query                 | filter                 | betterResultId             | worseResultId             | issue
         "parkinson's disease" | "&species=Danio+rerio" | "ZFIN:ZDB-GENE-050417-109" | "ZFIN:ZDB-GENE-040827-4"  | "AGR-461"
-// sadly, this one is a tougher nut to crack
-//      "melanogaster kinase" | ""                     | "FB:FBgn0028427"                | "RGD:1308199"        | "AGR-461"
+        "melanogaster kinase" | ""                     | "FB:FBgn0028427"                | "RGD:1308199"        | "AGR-461"
     }
 
     @Unroll
@@ -49,4 +46,53 @@ class QueryRankIntegrationSpec extends Specification {
         query << ["fgf", "pax"]
 
     }
+
+    @Unroll
+    def "All #query #n query genes should be on top when searching for #query"() {
+        when:
+        def encodedQuery = URLEncoder.encode(query, "UTF-8")
+        //todo: need to set the base search url in a nicer way
+        def url = new URL("http://localhost:8080/api/search?category=gene&limit=50&offset=0&q=$encodedQuery")
+        def names = (new JsonSlurper().parseText(url.text).results.take(n)*.symbol)*.toLowerCase()
+
+        def autocompleteUrl = new URL("http://localhost:8080/api/search_autocomplete?q=$encodedQuery")
+        def autoCompleteNames = (new JsonSlurper().parseText(autocompleteUrl.text).results.take(n)*.symbol)*.toLowerCase()
+
+        then:
+        names == Collections.nCopies(n,query)
+        autoCompleteNames == Collections.nCopies(n,query)
+
+        where:
+        query   | n
+        "egf"   | 4
+        "fgf8"  | 3
+        "pax2"  | 3
+
+    }
+
+    @Unroll
+    def "When querying genes for #query #id should come back as a result according to #issue"() {
+        when:
+        def encodedQuery = URLEncoder.encode(query, "UTF-8")
+        //todo: need to set the base search url in a nicer way
+        def url = new URL("http://localhost:8080/api/search?category=gene&limit=50&offset=0&q=$encodedQuery")
+        def results = new JsonSlurper().parseText(url.text).results
+        def resultIds = results*.id
+
+        then:
+        results
+        resultIds.contains(id)
+
+        where:
+        query   | id                            | issue
+        "smad6" | "MGI:1336883"                 | "AGR-580"
+        "smad6" | "ZFIN:ZDB-GENE-050419-198"    | "AGR-580"
+        "smad6" | "HGNC:6772"                   | "AGR-580"
+        "smad6" | "ZFIN:ZDB-GENE-011015-1"      | "AGR-580"
+        "smad6" | "RGD:1305069"                 | "AGR-580"
+        "smad6" | "FB:FBgn0020493"              | "AGR-580"
+        "smad6" | "WB:WBGene00006445"           | "AGR-580"
+
+    }
+
 }

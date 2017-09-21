@@ -9,13 +9,13 @@ import org.alliancegenome.api.dao.GeneDAO;
 
 @RequestScoped
 public class GeneService {
-	
-	@Inject
-	private GeneDAO geneDAO;
+    
+    @Inject
+    private GeneDAO geneDAO;
 
-	public Map<String, Object> getById(String id) {
-		return geneDAO.getById(id);
-	}
+    public Map<String, Object> getById(String id) {
+        return geneDAO.getById(id);
+    }
 
-	
+    
 }

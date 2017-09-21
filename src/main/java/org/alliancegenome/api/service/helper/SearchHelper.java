@@ -59,7 +59,7 @@ public class SearchHelper {
             put("symbol",5.0F);
             put("symbol.autocomplete",2.0F);
             put("name.autocomplete",0.1F);
-/*            put("primaryId", 400);
+/*          put("primaryId", 400);
             put("secondaryIds", 100);
             put("symbol", 500);
             put("symbol.keyword", 1000);
