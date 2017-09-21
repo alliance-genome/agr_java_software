@@ -19,7 +19,6 @@ public class GeneIndexer extends Indexer<GeneDocument> {
 
     private Logger log = LogManager.getLogger(getClass());
     private GeneRepository geneRepo = new GeneRepository();
-    private GeneTranslator geneTrans = new GeneTranslator();
 
     public GeneIndexer(String currnetIndex, IndexerConfig config) {
         super(currnetIndex, config);
@@ -57,6 +56,7 @@ public class GeneIndexer extends Indexer<GeneDocument> {
     private void startThread(LinkedBlockingDeque<String> queue) {
         ArrayList<Gene> list = new ArrayList<>();
         GeneRepository repo = new GeneRepository();
+        GeneTranslator geneTrans = new GeneTranslator();
         while (true) {
             try {
                 if (list.size() >= indexerConfig.getBufferSize()) {
