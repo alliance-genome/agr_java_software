@@ -36,3 +36,8 @@ make run
 
 In order to configure the running of the app modify the values in the app.properties file. 
 
+# Endpoints
+/api/disease/<disease term ID>
+/api/gene/<gene ID>
+/api/disease/<disease term ID>/associations
+/api/disease/<disease term ID>/associations/download
