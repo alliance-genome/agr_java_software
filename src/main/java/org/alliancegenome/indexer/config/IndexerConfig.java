@@ -8,34 +8,29 @@ import org.alliancegenome.indexer.schema.mappings.DiseaseMappings;
 import org.alliancegenome.indexer.schema.mappings.GeneMappings;
 import org.alliancegenome.indexer.schema.mappings.GoMappings;
 
-public enum TypeConfig {
+public enum IndexerConfig {
 
-	GeneIndexer("gene", GeneIndexer.class, GeneMappings.class, 2000, 6, 1000),
-	DiseaseIndexer("disease", DiseaseIndexer.class, DiseaseMappings.class, 15000, 2, 100),
-	DiseaseAnnotationIndexer("diseaseAnnotation", DiseaseAnnotationIndexer.class, DiseaseMappings.class, 500, 2, 100),
-	GoIndexer("go", GoIndexer.class, GoMappings.class, 2500, 2, 100),;
+	GeneIndexer("gene", GeneIndexer.class, GeneMappings.class, 4, 2000),
+	DiseaseIndexer("disease", DiseaseIndexer.class, DiseaseMappings.class, 2, 500),
+	DiseaseAnnotationIndexer("diseaseAnnotation", DiseaseAnnotationIndexer.class, DiseaseMappings.class, 2, 500),
+	GoIndexer("go", GoIndexer.class, GoMappings.class, 3, 500),;
 
 	private String typeName;
 	private Class<?> indexClazz;
 	private Class<?> mappingsClazz;
-	private int fetchChunkSize;
 	private int threadCount;
 	private int bufferSize;
 
-	TypeConfig(String typeName, Class<?> indexClazz, Class<?> mappingsClazz, int fetchChunkSize, int threadCount, int bufferSize) {
+	IndexerConfig(String typeName, Class<?> indexClazz, Class<?> mappingsClazz, int threadCount, int bufferSize) {
 		this.typeName = typeName;
 		this.indexClazz = indexClazz;
 		this.mappingsClazz = mappingsClazz;
-		this.fetchChunkSize = fetchChunkSize;
 		this.threadCount = threadCount;
 		this.bufferSize = bufferSize;
 	}
 
 	public String getTypeName() {
 		return typeName;
-	}
-	public int getFetchChunkSize() {
-		return fetchChunkSize;
 	}
 	public Class<?> getIndexClazz() {
 		return indexClazz;
