@@ -20,16 +20,28 @@ As we add more datasources and use the ElasticSearch indexing for storing / cach
 
 # Usage
 
-## Compliling JAR
+## Compliling JAR Without Docker
 
 ```bash
-make all
+make
 ```
 
-## Running API
+## Running API Without Docker
 
 ```bash
 make run
+```
+
+## Compliling JAR and building the Docker Image
+
+```bash
+make docker-build
+```
+
+## Running API Inside of Docker
+
+```bash
+make docker-run
 ```
 
 # Configuration
