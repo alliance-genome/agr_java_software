@@ -25,4 +25,7 @@ public class DiseaseService {
     }
 
 
+    public DiseaseDAO.SearchHitIterator getDiseaseAnnotationsDownload(String id) {
+        return diseaseDAO.getDiseaseAnnotationsDownload(id);
+    }
 }
