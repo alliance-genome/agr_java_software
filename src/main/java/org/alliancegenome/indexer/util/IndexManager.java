@@ -107,7 +107,7 @@ public class IndexManager {
 				List<RepositoryMetaData> repositories = client.admin().cluster().prepareGetRepositories().get().repositories();
 	
 				if(repositories.size() == 0){
-					log.info("No Repo's found");
+					log.debug("No Repo's found");
 					createRepo();
 	
 				} else {
@@ -166,7 +166,7 @@ public class IndexManager {
 		} catch (Exception e) {
 			oldIndexName = null;
 		}
-		log.info("Current Index: " + oldIndexName);
+		log.debug("Current Index: " + oldIndexName);
 
 		if(oldIndexName != null) {
 			ImmutableOpenMap<String, IndexMetaData> indexList = client.admin().cluster().prepareState().get().getState().getMetaData().getIndices();

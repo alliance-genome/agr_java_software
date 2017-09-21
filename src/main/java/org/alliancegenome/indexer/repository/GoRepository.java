@@ -14,7 +14,7 @@ import org.neo4j.ogm.exception.MappingException;
 import org.neo4j.ogm.model.Result;
 
 public class GoRepository extends Neo4jRepository<GOTerm> {
-	
+
 	private Logger log = LogManager.getLogger(getClass());
 	
 	public GoRepository() {

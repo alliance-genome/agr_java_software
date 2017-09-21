@@ -1,13 +1,18 @@
 package org.alliancegenome.indexer.entity.node;
 
-import lombok.Getter;
-import lombok.Setter;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
 import org.alliancegenome.indexer.entity.Neo4jEntity;
+import org.alliancegenome.indexer.util.DateConverter;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
+import org.neo4j.ogm.annotation.typeconversion.Convert;
+import org.neo4j.ogm.annotation.typeconversion.DateString;
 
-import java.util.ArrayList;
-import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 
 @NodeEntity
 @Getter
@@ -26,9 +31,12 @@ public class DOTerm extends Neo4jEntity {
     private List<String> defLinks;
     private List<String> subset;
 
-    private String nameKey;
-    private String is_obsolete;
-
+	private String nameKey;
+	private String is_obsolete;
+	
+	@Convert(value=DateConverter.class)
+	private Date dateProduced;
+	
     private String zfinLink;
     private String humanLink;
     private String rgdLink;
