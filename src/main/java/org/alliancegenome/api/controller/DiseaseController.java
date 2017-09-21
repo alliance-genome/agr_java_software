@@ -3,6 +3,7 @@ package org.alliancegenome.api.controller;
 import org.alliancegenome.api.model.SearchResult;
 import org.alliancegenome.api.rest.interfaces.DiseaseRESTInterface;
 import org.alliancegenome.api.service.DiseaseService;
+import org.alliancegenome.api.translator.DiseaseAnnotationToTdfTranslator;
 import org.jboss.logging.Logger;
 
 import javax.enterprise.context.RequestScoped;
@@ -16,6 +17,8 @@ public class DiseaseController implements DiseaseRESTInterface {
 
     @Inject
     private DiseaseService diseaseService;
+    private DiseaseAnnotationToTdfTranslator translator = new DiseaseAnnotationToTdfTranslator();
+
 
     @Override
     public Map<String, Object> getDisease(String id) {
@@ -30,6 +33,7 @@ public class DiseaseController implements DiseaseRESTInterface {
     @Override
     public String getDiseaseAnnotationsDownload(String id) {
         // retrieve all records
-        return diseaseService.getDiseaseAnnotationsDownload(id);
+        //return diseaseService.getDiseaseAnnotationsDownload(id);
+        return translator.getAllRows(diseaseService.getDiseaseAnnotationsDownload(id));
     }
 }

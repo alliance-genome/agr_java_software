@@ -13,7 +13,9 @@ import org.elasticsearch.search.sort.SortOrder;
 import org.jboss.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.Map;
 
 @ApplicationScoped
 public class DiseaseDAO extends ESDAO {
@@ -72,34 +74,10 @@ public class DiseaseDAO extends ESDAO {
     }
 
 
-    public String getDiseaseAnnotationsDownload(String id) {
+    public SearchHitIterator getDiseaseAnnotationsDownload(String id) {
         SearchRequestBuilder searchRequestBuilder = getSearchRequestBuilder(id);
         SearchHitIterator hitIterator = new SearchHitIterator(searchRequestBuilder);
-        StringBuilder builder = new StringBuilder();
-        while (hitIterator.hasNext()) {
-            SearchHit hit = hitIterator.next();
-            StringJoiner joiner = new StringJoiner("\t");
-            Map<String, Object> sourceMap = hit.getSource();
-            joiner.add((String) sourceMap.get("diseaseID"));
-            joiner.add((String) sourceMap.get("diseaseName"));
-            joiner.add((String) ((Map) sourceMap.get("disease_species")).get("name"));
-            joiner.add((String) ((Map) sourceMap.get("geneDocument")).get("primaryId"));
-            joiner.add((String) ((Map) sourceMap.get("geneDocument")).get("symbol"));
-            joiner.add((String) sourceMap.get("associationType"));
-
-            // publication list
-            StringJoiner pubJoiner = new StringJoiner(",");
-            ((List) sourceMap.get("publications")).forEach(publication -> {
-                pubJoiner.add((String) ((Map) publication).get("pubMedId"));
-            });
-            joiner.add(pubJoiner.toString());
-            joiner.add((String) ((Map) sourceMap.get("geneDocument")).get("dataProvider"));
-
-            builder.append(joiner.toString());
-            builder.append(System.getProperty("line.separator"));
-        }
-
-        return builder.toString();
+        return hitIterator;
     }
 
     public class SearchHitIterator implements Iterator<SearchHit> {
