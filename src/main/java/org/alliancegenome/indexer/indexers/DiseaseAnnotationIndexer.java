@@ -1,109 +1,90 @@
 package org.alliancegenome.indexer.indexers;
 
 
-import org.alliancegenome.indexer.config.TypeConfig;
+import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.indexer.document.DiseaseAnnotationDocument;
 import org.alliancegenome.indexer.entity.node.DOTerm;
-import org.alliancegenome.indexer.indexers.DiseaseIndexer.WorkerThread;
 import org.alliancegenome.indexer.repository.DiseaseRepository;
 import org.alliancegenome.indexer.translators.DiseaseTranslator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.TimeUnit;
 
 public class DiseaseAnnotationIndexer extends Indexer<DiseaseAnnotationDocument> {
 
-	private Logger log = LogManager.getLogger(getClass());
+    private Logger log = LogManager.getLogger(getClass());
 
-	private DiseaseRepository repo = new DiseaseRepository();
-	private DiseaseTranslator diseaseTrans = new DiseaseTranslator();
+    private DiseaseRepository diseaseRepository = new DiseaseRepository();
+    private DiseaseTranslator diseaseTrans = new DiseaseTranslator();
 
-	public DiseaseAnnotationIndexer(String currentIndex, TypeConfig config) {
-		super(currentIndex, config);
-	}
+    public DiseaseAnnotationIndexer(String currentIndex, IndexerConfig config) {
+        super(currentIndex, config);
+    }
 
-	@Override
-	public void index() {
+    @Override
+    public void index() {
 
-		//List<DOTerm> diseaseTermsWithAnnotations = repo.getDiseaseTermsWithAnnotations();
-		//log.info("Disease Records with annotations: " + diseaseTermsWithAnnotations.size());
-		//addDocuments(diseaseTrans.translateAnnotationEntities(diseaseTermsWithAnnotations, 1));
-		//log.info("Finished indexing disease annotations: " );
-		
-		try {
-			LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<String>();
-			List<String> fulllist = repo.getAllDiseaseKeys();
+        try {
+            LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>();
+            List<String> allDiseaseIDs = diseaseRepository.getAllDiseaseKeys();
+            queue.addAll(allDiseaseIDs);
 
-			for(String s: fulllist) {
-				queue.add(s);
-			}
+            Integer numberOfThreads = indexerConfig.getThreadCount();
+            ExecutorService executor = Executors.newFixedThreadPool(numberOfThreads);
+            int index = 0;
+            while (index++ < numberOfThreads) {
+                executor.submit(() -> startThread(queue));
+            }
 
-			List<WorkerThread> threads = new ArrayList<WorkerThread>();
 
-			for(int i = 0; i < typeConfig.getThreadCount(); i++) {
-				WorkerThread thread = new WorkerThread(queue);
-				threads.add(thread);
-				thread.start();
-			}
+            int total = queue.size();
+            startProcess(total);
+            while (!queue.isEmpty()) {
+                TimeUnit.SECONDS.sleep(30);
+                progress(queue.size(), total);
+            }
+            finishProcess(total);
+            executor.shutdown();
 
-			int total = queue.size();
-			startProcess(total);
-			while(!queue.isEmpty()) {
-				Thread.sleep(6000);
-				progress(queue.size(), total);
-			}
-			finishProcess(total);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
-			for(WorkerThread t: threads) {
-				t.join();
-			}
+    }
 
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		
-	}
+    private void startThread(LinkedBlockingDeque<String> queue) {
+        ArrayList<DOTerm> list = new ArrayList<DOTerm>();
+        DiseaseRepository repo = new DiseaseRepository();
+        while (true) {
+            try {
+                if (list.size() >= indexerConfig.getBufferSize()) {
+                    addDocuments(diseaseTrans.translateAnnotationEntities(list, 1));
+                    list.clear();
+                    list = new ArrayList<>();
+                }
+                if (queue.isEmpty()) {
+                    if (list.size() > 0) {
+                        addDocuments(diseaseTrans.translateAnnotationEntities(list, 1));
+                        list.clear();
+                    }
+                    return;
+                }
 
-	
-	public class WorkerThread extends Thread {
-		private DiseaseRepository repo2 = new DiseaseRepository();
-		LinkedBlockingDeque<String> queue;
-		public WorkerThread(LinkedBlockingDeque<String> queue) {
-			this.queue = queue;
-		}
+                String key = queue.takeFirst();
+                DOTerm disease = repo.getDiseaseTermWithAnnotations(key);
+                if (disease != null) {
+                    list.add(disease);
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
-		public void run() {
-			ArrayList<DOTerm> list = new ArrayList<DOTerm>();
-			while(true) {
-				try {
-					if(list.size() >= typeConfig.getBufferSize()) {
-						addDocuments(diseaseTrans.translateAnnotationEntities(list, 1));
-						if(list != null) list.clear();
-						list = new ArrayList<DOTerm>();
-					}
-					if(queue.isEmpty()) {
-						if(list.size() > 0) {
-							addDocuments(diseaseTrans.translateAnnotationEntities(list, 1));
-							list.clear();
-						}
-						return;
-					}
-
-					String key = queue.takeFirst();
-					DOTerm disease = repo2.getDiseaseTermWithAnnotations(key);
-					if(disease != null) {
-						list.add(disease);
-					}
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-	}
-	
 }

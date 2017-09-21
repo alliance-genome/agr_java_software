@@ -39,6 +39,8 @@ class CategoriesAndFieldsIntegrationSpec extends Specification {
         "gene"    | "synonyms.autocomplete"
         "gene"    | "symbol"
         "gene"    | "symbol.autocomplete"
+        "gene"    | "species"
+        "gene"    | "species.synonyms"
 
         "go"      | "primaryId"
         "go"      | "category"

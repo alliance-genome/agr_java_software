@@ -11,6 +11,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import static org.alliancegenome.indexer.entity.node.DOTerm.HIGH_LEVEL_TERM_LIST_SLIM;
+
 public class DiseaseRepository extends Neo4jRepository<DOTerm> {
 
 	public DiseaseRepository() {
@@ -109,7 +111,7 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
 //	}
 
 	public List<String> getAllDiseaseKeys() {
-		String query = "MATCH (d:DOTerm) RETURN d.primaryKey";
+		String query = "MATCH (term:DOTerm) WHERE term.is_obsolete='false' RETURN term.primaryKey";
 		
 		Result r = queryForResult(query);
 		Iterator<Map<String, Object>> i = r.iterator();
@@ -118,31 +120,36 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
 		
 		while(i.hasNext()) {
 			Map<String, Object> map2 = i.next();
-			list.add((String)map2.get("d.primaryKey"));
+			list.add((String)map2.get("term.primaryKey"));
 		}
 		return list;
 	}
 	
 	public DOTerm getDiseaseTerm(String primaryKey) {
 
-		String cypher = "MATCH p0=(d:DOTerm)--(s) WHERE d.primaryKey = {primaryKey} " +
+		String cypher = "MATCH p0=(d:DOTerm)--(s) WHERE d.primaryKey = {primaryKey}  " +
 				" OPTIONAL MATCH p1=(d)--(s:DiseaseGeneJoin)-[:EVIDENCE]-(eq), p2=(s)--(g:Gene)" +
 				" OPTIONAL MATCH p3=(d)-[:IS_A]-(d2)" + 
-				" RETURN p0, p1, p2, p3";
+				" OPTIONAL MATCH slim=(d)-[:IS_A*]->(slTerm) where slTerm.subset = {subset} " +
+				" RETURN p0, p1, p2, p3, slim";
 
 		HashMap<String, String> map = new HashMap<>();
 		map.put("primaryKey", primaryKey);
+		map.put("subset", "DO_MGI_slim");
 
+		DOTerm primaryTerm = null;
 		try {
 			Iterable<DOTerm> terms = query(cypher, map);
-			for(DOTerm d: terms) {
-				if(d.getPrimaryKey().equals(primaryKey)) {
-					return d;
+			for(DOTerm term: terms) {
+				if(term.getPrimaryKey().equals(primaryKey)) {
+					primaryTerm =  term;
 				}
+				if(term.getSubset().contains(HIGH_LEVEL_TERM_LIST_SLIM))
+					term.getHighLevelTermList().add(term);
 			}
 		} catch (MappingException e) {
 			e.printStackTrace();
 		}
-		return null;
+		return primaryTerm;
 	}
 }

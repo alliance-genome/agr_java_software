@@ -1,54 +1,59 @@
 package org.alliancegenome.indexer.entity.node;
 
-import java.util.List;
-
+import lombok.Getter;
+import lombok.Setter;
 import org.alliancegenome.indexer.entity.Neo4jEntity;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 
-import lombok.Getter;
-import lombok.Setter;
+import java.util.ArrayList;
+import java.util.List;
 
 @NodeEntity
 @Getter
 @Setter
 public class DOTerm extends Neo4jEntity {
 
-	private String doUrl;
-	private String doDisplayId;
-	private String doId;
-	private String doPrefix;
-	private String primaryKey;
-	private String name;
-	private String definition;
-	private List<String> defLinks;
+    public static final String HIGH_LEVEL_TERM_LIST_SLIM = "tick-borne_infectious_disease";
 
-	private String nameKey;
-	private String is_obsolete;
+    private String doUrl;
+    private String doDisplayId;
+    private String doId;
+    private String doPrefix;
+    private String primaryKey;
+    private String name;
+    private String definition;
+    private List<String> defLinks;
+    private List<String> subset;
 
-	private String zfinLink;
-	private String humanLink;
-	private String rgdLink;
-	private String wormbaseLink;
-	private String flybaseLink;
-	private String mgiLink;
+    private String nameKey;
+    private String is_obsolete;
 
-	@Relationship(type = "IS_IMPLICATED_IN", direction = Relationship.INCOMING)
-	private List<Gene> genes;
+    private String zfinLink;
+    private String humanLink;
+    private String rgdLink;
+    private String wormbaseLink;
+    private String flybaseLink;
+    private String mgiLink;
 
-	@Relationship(type = "ASSOCIATION", direction = Relationship.INCOMING)
-	private List<DiseaseGeneJoin> diseaseGeneJoins;
+    private List<DOTerm> highLevelTermList = new ArrayList<>();
 
-	@Relationship(type = "IS_A", direction = Relationship.OUTGOING)
-	private List<DOTerm> parents;
+    @Relationship(type = "IS_IMPLICATED_IN", direction = Relationship.INCOMING)
+    private List<Gene> genes;
 
-	@Relationship(type = "IS_A", direction = Relationship.INCOMING)
-	private List<DOTerm> children;
+    @Relationship(type = "ASSOCIATION", direction = Relationship.INCOMING)
+    private List<DiseaseGeneJoin> diseaseGeneJoins;
 
-	@Relationship(type = "ALSO_KNOWN_AS")
-	private List<Synonym> synonyms;
+    @Relationship(type = "IS_A", direction = Relationship.OUTGOING)
+    private List<DOTerm> parents;
 
-	@Relationship(type = "CROSS_REFERENCE")
-	private List<CrossReference> crossReferences;
+    @Relationship(type = "IS_A", direction = Relationship.INCOMING)
+    private List<DOTerm> children;
+
+    @Relationship(type = "ALSO_KNOWN_AS")
+    private List<Synonym> synonyms;
+
+    @Relationship(type = "CROSS_REFERENCE")
+    private List<CrossReference> crossReferences;
 
 }

@@ -4,7 +4,7 @@ import java.util.Date;
 import java.util.HashMap;
 
 import org.alliancegenome.indexer.config.ConfigHelper;
-import org.alliancegenome.indexer.config.TypeConfig;
+import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.indexer.indexers.Indexer;
 import org.alliancegenome.indexer.util.IndexManager;
 import org.apache.logging.log4j.LogManager;
@@ -25,9 +25,9 @@ public class Main {
 
 		im.startIndex();
 
-		for(TypeConfig ic: TypeConfig.values()) {
+		for(IndexerConfig ic: IndexerConfig.values()) {
 			try {
-				Indexer i = (Indexer)ic.getIndexClazz().getDeclaredConstructor(String.class, TypeConfig.class).newInstance(im.getNewIndexName(), ic);
+				Indexer i = (Indexer)ic.getIndexClazz().getDeclaredConstructor(String.class, IndexerConfig.class).newInstance(im.getNewIndexName(), ic);
 				indexers.put(ic.getTypeName(), i);
 			} catch (Exception e) {
 				e.printStackTrace();
