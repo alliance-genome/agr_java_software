@@ -56,6 +56,7 @@ public class SearchHelper {
 	public Map<String, Float> getBoostMap() { return boostMap; }
 	private Map<String, Float> boostMap = new HashMap<String, Float>() {
 		{
+			put("symbol",5.0F);
 			put("symbol.autocomplete",2.0F);
 			put("name.autocomplete",0.1F);
 /*			put("primaryId", 400);
@@ -78,10 +79,10 @@ public class SearchHelper {
 		{
 			add("primaryId"); add("secondaryIds"); add("name"); add("name.autocomplete");
 			add("symbol"); add("symbol.keyword"); add("symbol.autocomplete");  add("synonyms"); add("synonyms.keyword");
-			add("description"); add("external_ids"); add("species"); add("species.synonyms");
+			add("description"); add("external_ids"); add("species");
 			add("gene_biological_process"); add("gene_molecular_function"); add("gene_cellular_component");
 			add("go_type"); add("go_genes"); add("go_synonyms");
-			add("disease_genes"); add("disease_synonyms"); add("diseases.name");
+			add("disease_genes"); add("disease_synonyms"); add("diseases.name"); add("orthology.gene2Symbol");
 		}
 	};
 
