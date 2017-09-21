@@ -38,6 +38,11 @@ public class ESSettings extends Settings {
 							.field("tokenizer", "whitespace")
 							.array("filter", new String[]{"lowercase"})
 						.endObject()
+						.startObject("generic_synonym")
+							.field("type", "custom")
+							.field("tokenizer", "whitespace")
+							.array("filter", new String[]{"lowercase","synonym_filter"})
+						.endObject()
 					.endObject()
 					.startObject("filter")
 						.startObject("english_stemmer")
@@ -48,6 +53,18 @@ public class ESSettings extends Settings {
 							.field("type", "edge_ngram")
 							.field("min_gram", "1")
 							.field("max_gram", "20")
+						.endObject()
+						.startObject("synonym_filter") //for any hand-crafted synonyms we need
+							.field("type", "synonym")
+							.array("synonyms", new String[]{
+									"homo sapiens => human, hsa",
+									"rattus norvegicus => rat, rno",
+									"mus musculus => mouse, mmu",
+									"drosophila melanogaster => fly, fruit fly, dme",
+									"caenorhabditis elegans => worm, cel",
+									"saccharomyces cerevisiae => yeast. sce",
+									"danio rerio => fish, zebrafish, dre"
+							})
 						.endObject()
 					.endObject()
 				.endObject()

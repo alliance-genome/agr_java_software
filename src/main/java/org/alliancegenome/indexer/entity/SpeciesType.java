@@ -13,7 +13,6 @@ public enum SpeciesType {
     String taxonID;
     String displayName;
 
-
     public String getName() {
         return name;
     }

@@ -11,17 +11,16 @@ public abstract class Mappings extends Builder {
 	public abstract void buildMappings();
 	
 
-	protected void buildGenericField(String name, String type, String analyzer, boolean symbol, boolean autocomplete, boolean keyword) throws IOException {
+	protected void buildGenericField(String name, String type, String analyzer, boolean symbol, boolean autocomplete, boolean keyword, boolean synonym) throws IOException {
 		builder.startObject(name);
 		if(type != null) builder.field("type", type);
 		if(analyzer != null) builder.field("analyzer", analyzer);
-		if(symbol || autocomplete || keyword) {
+		if(symbol || autocomplete || keyword || synonym) {
 			builder.startObject("fields");
-			if(keyword) {
-				buildProperty("keyword", "keyword");
-			}
-			if(symbol) buildGenericField("symbol", "text", "symbols", false, false, false);
+			if(keyword) { buildProperty("keyword", "keyword"); }
+			if(symbol) buildGenericField("symbol", "text", "symbols", false, false, false, false);
 			if(autocomplete) buildProperty("autocomplete", "text", "autocomplete", "autocomplete_search");
+			if(synonym) buildProperty("synonyms", "text", "generic_synonym", "autocomplete_search");
 			builder.endObject();
 		}
 		builder.endObject();
@@ -47,16 +46,15 @@ public abstract class Mappings extends Builder {
 	protected void buildSharedSearchableDocumentMappings() throws IOException {
 
 		buildProperty("primaryId", "keyword");
-		buildGenericField("category", "keyword", null, true, false, true);
-		buildGenericField("name", "text", null, true, true, true);
-		buildGenericField("name_key", "text", "symbols", false, true, false);
-		buildGenericField("synonyms", "text", "symbols", false, true, true);
+		buildGenericField("category", "keyword", null, true, false, true, false);
+		buildGenericField("name", "text", null, true, true, true, false);
+		buildGenericField("name_key", "text", "symbols", false, true, false, false);
+		buildGenericField("synonyms", "text", "symbols", false, true, true, false);
 		buildProperty("external_ids", "text", "symbols");
 		buildProperty("href", "text", "symbols");
 		buildProperty("id", "text", "symbols");
 		buildProperty("description", "text");
-		buildGenericField("species", "text", null, false, false, true);
-
+		buildGenericField("species", "text", null, false, false, true, true);
 	}
 	
 }
