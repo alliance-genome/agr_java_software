@@ -28,117 +28,117 @@ import static org.elasticsearch.index.query.QueryBuilders.*;
 @RequestScoped
 public class SearchService {
 
-	@Inject
-	private SearchDAO searchDAO;
+    @Inject
+    private SearchDAO searchDAO;
 
-	@Inject
-	private SearchHelper searchHelper;
+    @Inject
+    private SearchHelper searchHelper;
 
-	private static Logger log = Logger.getLogger(SearchService.class);
+    private static Logger log = Logger.getLogger(SearchService.class);
 
-	public SearchResult query(String q, String category, int limit, int offset, String sort_by, UriInfo uriInfo) {
+    public SearchResult query(String q, String category, int limit, int offset, String sort_by, UriInfo uriInfo) {
 
-		SearchResult result = new SearchResult();
+        SearchResult result = new SearchResult();
 
-		Boolean debug = false;
-		if (StringUtils.isNotEmpty(q) && q.startsWith("debug")) {
-			debug = true;
-			q = q.replaceFirst("debug","").trim();
-		}
+        Boolean debug = false;
+        if (StringUtils.isNotEmpty(q) && q.startsWith("debug")) {
+            debug = true;
+            q = q.replaceFirst("debug","").trim();
+        }
 
-		QueryBuilder query = buildFunctionQuery(q, category, getFilters(category, uriInfo));
+        QueryBuilder query = buildFunctionQuery(q, category, getFilters(category, uriInfo));
 
-		List<AggregationBuilder> aggBuilders = searchHelper.createAggBuilder(category);
-		
-		HighlightBuilder hlb = searchHelper.buildHighlights();
+        List<AggregationBuilder> aggBuilders = searchHelper.createAggBuilder(category);
+        
+        HighlightBuilder hlb = searchHelper.buildHighlights();
 
-		SearchResponse searchResponse = searchDAO.performQuery(query, aggBuilders, limit, offset, hlb, sort_by, debug);
+        SearchResponse searchResponse = searchDAO.performQuery(query, aggBuilders, limit, offset, hlb, sort_by, debug);
 
-		log.debug("Search Query: " + q);
+        log.debug("Search Query: " + q);
 
-		result.total = searchResponse.getHits().totalHits;
-		result.results = searchHelper.formatResults(searchResponse, tokenizeQuery(q));
-		result.aggregations = searchHelper.formatAggResults(category, searchResponse);
+        result.total = searchResponse.getHits().totalHits;
+        result.results = searchHelper.formatResults(searchResponse, tokenizeQuery(q));
+        result.aggregations = searchHelper.formatAggResults(category, searchResponse);
 
-		return result;
-	}
+        return result;
+    }
 
-	public QueryBuilder buildFunctionQuery(String q, String category, MultivaluedMap<String,String> filters) {
+    public QueryBuilder buildFunctionQuery(String q, String category, MultivaluedMap<String,String> filters) {
 
-		BoolQueryBuilder bool = buildQuery(q, category, filters);
+        BoolQueryBuilder bool = buildQuery(q, category, filters);
 
-		if (StringUtils.isEmpty(q)) {
-			return bool;
-		}
+        if (StringUtils.isEmpty(q)) {
+            return bool;
+        }
 
-		List<FunctionScoreQueryBuilder.FilterFunctionBuilder> functionList = new ArrayList<>();
+        List<FunctionScoreQueryBuilder.FilterFunctionBuilder> functionList = new ArrayList<>();
 
-		//add a 'should' clause for each individual term
-		List<String> tokens = tokenizeQuery(q);
-		for (String token : tokens) {
-			MultiMatchQueryBuilder mmq = multiMatchQuery(token);
-			searchHelper.getSearchFields().stream().forEach(mmq::field);
-			mmq.fields(searchHelper.getBoostMap());
-			mmq.queryName(token);
-			functionList.add(new FunctionScoreQueryBuilder.FilterFunctionBuilder(mmq, ScoreFunctionBuilders.weightFactorFunction(10.0F)));
-		}
+        //add a 'should' clause for each individual term
+        List<String> tokens = tokenizeQuery(q);
+        for (String token : tokens) {
+            MultiMatchQueryBuilder mmq = multiMatchQuery(token);
+            searchHelper.getSearchFields().stream().forEach(mmq::field);
+            mmq.fields(searchHelper.getBoostMap());
+            mmq.queryName(token);
+            functionList.add(new FunctionScoreQueryBuilder.FilterFunctionBuilder(mmq, ScoreFunctionBuilders.weightFactorFunction(10.0F)));
+        }
 
-		FunctionScoreQueryBuilder builder = new FunctionScoreQueryBuilder(bool, functionList.toArray(new FunctionScoreQueryBuilder.FilterFunctionBuilder[functionList.size()]));
+        FunctionScoreQueryBuilder builder = new FunctionScoreQueryBuilder(bool, functionList.toArray(new FunctionScoreQueryBuilder.FilterFunctionBuilder[functionList.size()]));
 
-		return builder;
-	}
+        return builder;
+    }
 
-	public BoolQueryBuilder buildQuery(String q, String category, MultivaluedMap<String,String> filters) {
+    public BoolQueryBuilder buildQuery(String q, String category, MultivaluedMap<String,String> filters) {
 
-		BoolQueryBuilder bool = boolQuery();
+        BoolQueryBuilder bool = boolQuery();
 
-		//handle the query input, if necessary
-		if (StringUtils.isNotEmpty(q)) {
+        //handle the query input, if necessary
+        if (StringUtils.isNotEmpty(q)) {
 
-			MultiMatchQueryBuilder multi = multiMatchQuery(q);
+            MultiMatchQueryBuilder multi = multiMatchQuery(q);
 
-			//add the fields one at a time
-			searchHelper.getSearchFields().stream().forEach(multi::field);
+            //add the fields one at a time
+            searchHelper.getSearchFields().stream().forEach(multi::field);
 
-			//this applies individual boosts, if they're in the map
-			multi.fields(searchHelper.getBoostMap());
+            //this applies individual boosts, if they're in the map
+            multi.fields(searchHelper.getBoostMap());
 
-			bool.must(multi);
+            bool.must(multi);
 
-		} else {
-			bool.must(matchAllQuery());
-		}
+        } else {
+            bool.must(matchAllQuery());
+        }
 
-		//apply filters if a category has been set
-		if (StringUtils.isNotEmpty(category)) {
-			bool.filter(new TermQueryBuilder("category", category));
+        //apply filters if a category has been set
+        if (StringUtils.isNotEmpty(category)) {
+            bool.filter(new TermQueryBuilder("category", category));
 
-			//expand the map of lists and add each key,value pair as filters
-			filters.entrySet().stream().forEach(entry ->
-				entry.getValue().stream().forEach( value ->
-						bool.filter(new TermQueryBuilder(entry.getKey() + ".keyword", value))
-				)
-			);
+            //expand the map of lists and add each key,value pair as filters
+            filters.entrySet().stream().forEach(entry ->
+                entry.getValue().stream().forEach( value ->
+                        bool.filter(new TermQueryBuilder(entry.getKey() + ".keyword", value))
+                )
+            );
 
-		}
+        }
 
-		return bool;
-	}
+        return bool;
+    }
 
-	public MultivaluedMap<String,String> getFilters(String category, UriInfo uriInfo) {
-		MultivaluedMap<String,String> map = new MultivaluedHashMap<>();
-		uriInfo.getQueryParameters().entrySet()
-				.stream()
-				.filter(entry -> searchHelper.filterIsValid(category, entry.getKey()))
-				.forEach(entry -> map.addAll(entry.getKey(), entry.getValue()));
-		return map;
-	}
+    public MultivaluedMap<String,String> getFilters(String category, UriInfo uriInfo) {
+        MultivaluedMap<String,String> map = new MultivaluedHashMap<>();
+        uriInfo.getQueryParameters().entrySet()
+                .stream()
+                .filter(entry -> searchHelper.filterIsValid(category, entry.getKey()))
+                .forEach(entry -> map.addAll(entry.getKey(), entry.getValue()));
+        return map;
+    }
 
-	public List<String> tokenizeQuery(String query) {
-		if (StringUtils.isEmpty(query)) {
-			return new ArrayList<>();
-		}
-		return searchDAO.analyze(query);
-	}
+    public List<String> tokenizeQuery(String query) {
+        if (StringUtils.isEmpty(query)) {
+            return new ArrayList<>();
+        }
+        return searchDAO.analyze(query);
+    }
 
 }

@@ -5,26 +5,26 @@ import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilde
 
 public class MainTest {
 
-	public static void main(String[] args) {
-		
+    public static void main(String[] args) {
+        
 
-		//System.out.println(AggregationBuilders.significantTerms("categories"));
-		//term.subAggregation(AggregationBuilders.significantTerms("sig"));
+        //System.out.println(AggregationBuilders.significantTerms("categories"));
+        //term.subAggregation(AggregationBuilders.significantTerms("sig"));
 
-		//AggregationBuilder terms = AggregationBuilders.terms("categories");
-		
-		
-		TermsAggregationBuilder term = AggregationBuilders.terms("categories");
-		term.field("category");
-		term.size(999);
-		
-		//Map<String, Object> map = new HashMap<String, Object>();
-		
-		//map.put("field", "my value");
-		
-		//term.setMetaData(map);
-		System.out.println(term);
+        //AggregationBuilder terms = AggregationBuilders.terms("categories");
+        
+        
+        TermsAggregationBuilder term = AggregationBuilders.terms("categories");
+        term.field("category");
+        term.size(999);
+        
+        //Map<String, Object> map = new HashMap<String, Object>();
+        
+        //map.put("field", "my value");
+        
+        //term.setMetaData(map);
+        System.out.println(term);
 
-	}
+    }
 
 }

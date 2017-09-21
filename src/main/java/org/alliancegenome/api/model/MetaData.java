@@ -7,10 +7,10 @@ import lombok.Setter;
 @ApiModel
 @Getter @Setter
 public class MetaData {
-	
-	private String debug;
-	private String esHost;
-	private String esIndex;
-	private String esPort;
-	
+    
+    private String debug;
+    private String esHost;
+    private String esIndex;
+    private String esPort;
+    
 }

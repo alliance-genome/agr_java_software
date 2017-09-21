@@ -5,8 +5,8 @@ import java.util.Map;
 
 public class SearchResult {
 
-	public ArrayList<AggResult> aggregations;
-	public ArrayList<Map<String, Object>> results;
-	public long total;
-	
+    public ArrayList<AggResult> aggregations;
+    public ArrayList<Map<String, Object>> results;
+    public long total;
+    
 }
