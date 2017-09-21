@@ -10,5 +10,5 @@ import lombok.Setter;
 @NodeEntity
 public class OrthoAlgorithm extends Neo4jEntity {
 
-	private String name;
+    private String name;
 }

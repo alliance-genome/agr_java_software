@@ -14,13 +14,13 @@ import lombok.Setter;
 @RelationshipEntity(type="LOCATED_ON")
 public class GenomeLocation extends Neo4jEntity {
 
-	@StartNode
-	private Gene gene;
-	@EndNode
-	private Chromosome chromosome;
-	
-	private Long start;
-	private Long end;
-	private String strand;
-	private String assembly;
+    @StartNode
+    private Gene gene;
+    @EndNode
+    private Chromosome chromosome;
+    
+    private Long start;
+    private Long end;
+    private String strand;
+    private String assembly;
 }

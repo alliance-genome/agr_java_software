@@ -45,8 +45,8 @@ public class DiseaseTest {
         DiseaseDocument doc = translator.translate(diseaseTerm, 1);
         
         ObjectMapper mapper = new ObjectMapper();
-		String json = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(doc);
-		System.out.println(json);
+        String json = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(doc);
+        System.out.println(json);
 
         //List<DOTerm> geneDiseaseList = diseaseRepository.getAllDiseaseTerms(0, 10);
 /*

@@ -12,7 +12,7 @@ import java.util.List;
 @Setter
 public class DiseaseGeneJoin extends Association {
 
-	private String primaryKey;
+    private String primaryKey;
     private String joinType;
 
     @Relationship(type = "EVIDENCE")

@@ -43,9 +43,9 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
         geneDocument.setHref(null); // This might look wrong but it was taken from the old AGR code base.
         geneDocument.setName(entity.getName());
         if(entity.getSpecies() != null) {
-        	geneDocument.setName_key(entity.getSymbol() + " (" + entity.getSpecies().getType().getAbbreviation() + ")"); // This might look wrong but it was taken from the old AGR code base.
+            geneDocument.setName_key(entity.getSymbol() + " (" + entity.getSpecies().getType().getAbbreviation() + ")"); // This might look wrong but it was taken from the old AGR code base.
         } else {
-        	geneDocument.setName_key(entity.getSymbol());
+            geneDocument.setName_key(entity.getSymbol());
         }
         geneDocument.setPrimaryId(entity.getPrimaryKey());
         geneDocument.setDateProduced(entity.getDateProduced());
@@ -102,10 +102,10 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
         geneDocument.setSynonyms(synonyms);
 
 
-//		if(entity.getOrthoGenes() != null) {
-//		if(lookup.size() + entity.getOrthologyGeneJoins().size() > 0) {
-//			System.out.println(lookup.size() + " ==? " + entity.getOrthologyGeneJoins().size());
-//		}
+//      if(entity.getOrthoGenes() != null) {
+//      if(lookup.size() + entity.getOrthologyGeneJoins().size() > 0) {
+//          System.out.println(lookup.size() + " ==? " + entity.getOrthologyGeneJoins().size());
+//      }
 
         if (entity.getOrthologyGeneJoins().size() > 0) {
             List<OrthologyDoclet> olist = new ArrayList<>();

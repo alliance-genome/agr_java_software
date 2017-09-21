@@ -12,16 +12,16 @@ import lombok.Setter;
 @NodeEntity
 public class OrthologyGeneJoin extends Association {
 
-	private String primaryKey;
-	private String joinType;
-	
-	@Relationship(type = "NOT_MATCHED")
+    private String primaryKey;
+    private String joinType;
+    
+    @Relationship(type = "NOT_MATCHED")
     private List<OrthoAlgorithm> notMatched;
-	
-	@Relationship(type = "MATCHED")
+    
+    @Relationship(type = "MATCHED")
     private List<OrthoAlgorithm> matched;
-	
-	@Relationship(type = "NOT_CALLED")
+    
+    @Relationship(type = "NOT_CALLED")
     private List<OrthoAlgorithm> notCalled;
 
 }

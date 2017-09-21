@@ -9,11 +9,11 @@ import lombok.Setter;
 @Setter
 public class PublicationDoclet {
 
-	private String primaryKey;
-	private String pubMedId;
-	private String pubMedUrl;
-	private String pubModId;
-	private String pubModUrl;
+    private String primaryKey;
+    private String pubMedId;
+    private String pubMedUrl;
+    private String pubModId;
+    private String pubModUrl;
     private List<String> evidenceCodes;
 
 }

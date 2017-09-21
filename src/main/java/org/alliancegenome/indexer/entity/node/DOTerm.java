@@ -31,12 +31,12 @@ public class DOTerm extends Neo4jEntity {
     private List<String> defLinks;
     private List<String> subset;
 
-	private String nameKey;
-	private String is_obsolete;
-	
-	@Convert(value=DateConverter.class)
-	private Date dateProduced;
-	
+    private String nameKey;
+    private String is_obsolete;
+    
+    @Convert(value=DateConverter.class)
+    private Date dateProduced;
+    
     private String zfinLink;
     private String humanLink;
     private String rgdLink;

@@ -6,6 +6,6 @@ import lombok.Setter;
 @Getter @Setter
 public abstract class Neo4jEntity {
 
-	private Long id;
+    private Long id;
 
 }

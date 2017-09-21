@@ -13,14 +13,14 @@ import lombok.Setter;
 @RelationshipEntity(type="ORTHOLOGOUS")
 public class Orthologous extends Neo4jEntity {
 
-	@StartNode
-	private Gene gene1;
-	@EndNode
-	private Gene gene2;
-	
-	private String primaryKey;
-	private boolean isBestRevScore;
-	private boolean isBestScore;
-	private String confidence;
-	
+    @StartNode
+    private Gene gene1;
+    @EndNode
+    private Gene gene2;
+    
+    private String primaryKey;
+    private boolean isBestRevScore;
+    private boolean isBestScore;
+    private String confidence;
+    
 }

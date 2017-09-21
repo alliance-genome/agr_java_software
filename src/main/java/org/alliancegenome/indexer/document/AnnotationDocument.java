@@ -9,19 +9,19 @@ import lombok.Setter;
 
 @Getter @Setter
 public class AnnotationDocument extends ESDocument implements Comparable<AnnotationDocument> {
-	
-	private String primaryKey;
-	private String associationType;
-	private GeneDocument geneDocument;
-	private List<PublicationDoclet> publications;
+    
+    private String primaryKey;
+    private String associationType;
+    private GeneDocument geneDocument;
+    private List<PublicationDoclet> publications;
 
-	@JsonIgnore
-	public String getDocumentId() {
-		return primaryKey;
-	}
+    @JsonIgnore
+    public String getDocumentId() {
+        return primaryKey;
+    }
 
-	@Override
-	public int compareTo(AnnotationDocument doc) {
-		return 0;
-	}
+    @Override
+    public int compareTo(AnnotationDocument doc) {
+        return 0;
+    }
 }

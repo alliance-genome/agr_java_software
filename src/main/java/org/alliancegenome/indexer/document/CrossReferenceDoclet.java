@@ -7,11 +7,11 @@ import lombok.Setter;
 @Setter
 public class CrossReferenceDoclet {
 
-	private String crossRefCompleteUrl;
-	private String localId;
-	private String globalCrossRefId;
-	private String prefix;
-	private String name;
-	private String primaryKey;
+    private String crossRefCompleteUrl;
+    private String localId;
+    private String globalCrossRefId;
+    private String prefix;
+    private String name;
+    private String primaryKey;
 
 }

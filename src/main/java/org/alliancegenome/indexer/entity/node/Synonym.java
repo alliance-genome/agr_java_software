@@ -9,6 +9,6 @@ import lombok.Setter;
 @Getter @Setter
 public class Synonym extends Identifier {
 
-	private String primaryKey;
-	private String name;
+    private String primaryKey;
+    private String name;
 }

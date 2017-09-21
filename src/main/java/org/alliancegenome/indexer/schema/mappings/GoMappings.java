@@ -5,27 +5,27 @@ import java.io.IOException;
 import org.alliancegenome.indexer.schema.Mappings;
 
 public class GoMappings extends Mappings {
-	
-	public GoMappings(Boolean pretty) {
-		super(pretty);
-	}
+    
+    public GoMappings(Boolean pretty) {
+        super(pretty);
+    }
 
-	public void buildMappings() {
-		try {
-			builder.startObject();
-				builder.startObject("properties");
+    public void buildMappings() {
+        try {
+            builder.startObject();
+                builder.startObject("properties");
 
-				buildSharedSearchableDocumentMappings();
+                buildSharedSearchableDocumentMappings();
 
-				buildGenericField("go_genes", "text", "symbols", false, false, true, false);
-				buildGenericField("go_species", "text", null, false, false, true, false);
-				buildGenericField("go_type", "text", null, false, false, true, false);
+                buildGenericField("go_genes", "text", "symbols", false, false, true, false);
+                buildGenericField("go_species", "text", null, false, false, true, false);
+                buildGenericField("go_type", "text", null, false, false, true, false);
 
-				builder.endObject();
-			builder.endObject();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-	
+                builder.endObject();
+            builder.endObject();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    
 }
