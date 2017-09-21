@@ -9,8 +9,10 @@ import java.util.Set;
 import org.alliancegenome.indexer.entity.Neo4jEntity;
 import org.alliancegenome.indexer.entity.relationship.GenomeLocation;
 import org.alliancegenome.indexer.entity.relationship.Orthologous;
+import org.alliancegenome.indexer.util.DateConverter;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
+import org.neo4j.ogm.annotation.typeconversion.Convert;
 import org.neo4j.ogm.annotation.typeconversion.DateString;
 
 import lombok.Getter;
@@ -30,7 +32,7 @@ public class Gene extends Neo4jEntity implements Comparable<Gene> {
     private String dataProvider;
     private String name;
 
-    @DateString("yyyy-MM-dd'T'HH:mm:ssX")
+    @Convert(value=DateConverter.class)
     private Date dateProduced;
     private String description;
     private String symbol;
