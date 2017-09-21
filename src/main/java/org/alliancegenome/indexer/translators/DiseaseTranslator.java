@@ -33,37 +33,38 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
                 .collect(
                         groupingBy(DiseaseGeneJoin::getGene,
                                 groupingBy(DiseaseGeneJoin::getJoinType))
-                        );
+                );
 
         // sort by gene symbol
         Map<Gene, Map<String, List<DiseaseGeneJoin>>> sortedGeneAssociationMap =
                 geneAssociationMap.entrySet().stream()
-                .sorted(Map.Entry.comparingByKey())
-                .collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
+                        .sorted(Map.Entry.comparingByKey())
+                        .collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
 
         // generate AnnotationDocument records
         List<AnnotationDocument> annotationDocuments = sortedGeneAssociationMap.entrySet().stream()
                 .map(geneMapEntry ->
-                geneMapEntry.getValue().entrySet().stream().map(associationEntry -> {
-                    AnnotationDocument document = new AnnotationDocument();
-                    if (translationDepth > 0) {
-                        document.setGeneDocument(geneTranslator.translate(geneMapEntry.getKey(), translationDepth - 1)); // This needs to not happen if being call from GeneTranslator
-                    }
-                    document.setAssociationType(associationEntry.getKey());
-                    List<PublicationDoclet> publicationDocuments = associationEntry.getValue().stream()
-                            // filter out records that do not have valid pub / evidence code entries
-                            .filter(diseaseGeneJoin ->
-                            getPublicationDoclet(diseaseGeneJoin, diseaseGeneJoin.getPublication()) != null
+                        geneMapEntry.getValue().entrySet().stream().map(associationEntry -> {
+                            AnnotationDocument document = new AnnotationDocument();
+                            if (translationDepth > 0) {
+                                document.setGeneDocument(geneTranslator.translate(geneMapEntry.getKey(), translationDepth - 1)); // This needs to not happen if being call from GeneTranslator
+                            }
+                            document.setAssociationType(associationEntry.getKey());
+                            document.setSource(getSourceUrls(entity, geneMapEntry.getKey().getSpecies()));
+                            List<PublicationDoclet> publicationDocuments = associationEntry.getValue().stream()
+                                    // filter out records that do not have valid pub / evidence code entries
+                                    .filter(diseaseGeneJoin ->
+                                            getPublicationDoclet(diseaseGeneJoin, diseaseGeneJoin.getPublication()) != null
                                     )
-                            .map(diseaseGeneJoin -> {
-                                Publication publication = diseaseGeneJoin.getPublication();
-                                return getPublicationDoclet(diseaseGeneJoin, publication);
-                            })
-                            .collect(Collectors.toList());
-                    document.setPublications(publicationDocuments);
+                                    .map(diseaseGeneJoin -> {
+                                        Publication publication = diseaseGeneJoin.getPublication();
+                                        return getPublicationDoclet(diseaseGeneJoin, publication);
+                                    })
+                                    .collect(Collectors.toList());
+                            document.setPublications(publicationDocuments);
 
-                    return document;
-                }).collect(Collectors.toList()))
+                            return document;
+                        }).collect(Collectors.toList()))
                 // turn List<AnnotationDocument> into stream<AnnotationDocument> so they can be collected into
                 // the outer List<AnnotationDocument>
                 .flatMap(Collection::stream)
@@ -168,6 +169,17 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
         return document;
     }
 
+    private SourceDoclet getSourceUrls(DOTerm doTerm, Species species) {
+        List<SourceDoclet> sources = getSourceUrls(doTerm).stream().
+                filter(sourceUrl ->
+                        sourceUrl.getSpecies().getTaxonID().equals(species.getType().getTaxonID())
+                )
+                .collect(Collectors.toList());
+        if (sources.isEmpty())
+            return null;
+        return sources.get(0);
+    }
+
     private List<SourceDoclet> getSourceUrls(DOTerm doTerm) {
         List<SourceDoclet> sourceDoclets = new ArrayList<>();
         if (doTerm.getFlybaseLink() != null) {
@@ -269,7 +281,11 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
     }
 
     private SpeciesDoclet getSpeciesDoclet(DiseaseGeneJoin diseaseGeneJoin) {
-        Species species = diseaseGeneJoin.getGene().getSpecies();
+        return getSpeciesDoclet(diseaseGeneJoin.getGene());
+    }
+
+    private SpeciesDoclet getSpeciesDoclet(Gene gene) {
+        Species species = gene.getSpecies();
         SpeciesType type = species.getType();
         SpeciesDoclet doclet = new SpeciesDoclet();
         doclet.setName(species.getName());
