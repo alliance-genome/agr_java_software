@@ -11,12 +11,12 @@ import org.alliancegenome.api.service.GoService;
 @RequestScoped
 public class GoController implements GoRESTInterface {
 
-	@Inject
-	private GoService goService;
-	
-	@Override
-	public Map<String, Object> getGo(String id) {
-		return goService.getById(id);
-	}
+    @Inject
+    private GoService goService;
+    
+    @Override
+    public Map<String, Object> getGo(String id) {
+        return goService.getById(id);
+    }
 
 }

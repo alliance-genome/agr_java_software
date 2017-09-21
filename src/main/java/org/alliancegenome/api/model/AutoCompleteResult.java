@@ -5,6 +5,6 @@ import java.util.Map;
 
 public class AutoCompleteResult {
 
-	public ArrayList<Map<String, Object>> results;
-	
+    public ArrayList<Map<String, Object>> results;
+    
 }

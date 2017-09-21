@@ -22,6 +22,7 @@ import java.util.*;
 @SuppressWarnings("serial")
 public class SearchHelper {
 
+
 	private Logger log = Logger.getLogger(getClass());
 
 	private HashMap<String, List<String>> category_filters = new HashMap<String, List<String>>() {
@@ -227,5 +228,4 @@ public class SearchHelper {
 
 		return hlb;
 	}
-
 }

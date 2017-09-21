@@ -19,13 +19,13 @@ import io.swagger.annotations.ApiParam;
 @Consumes(MediaType.APPLICATION_JSON)
 public interface AutoCompleteRESTInterface {
 
-	@GET
-	@ApiOperation(value = "Searches Autocomplete fields", notes="Search Auto Complete Notes")
-	public AutoCompleteResult searchAutoComplete(
-			@ApiParam(name = "q", value = "This is what we search for")
-			@QueryParam("q") String q,
-			@ApiParam(name = "category", value = "This is the category we search in")
-			@QueryParam("category") String category
-	);
-	
+    @GET
+    @ApiOperation(value = "Searches Autocomplete fields", notes="Search Auto Complete Notes")
+    public AutoCompleteResult searchAutoComplete(
+            @ApiParam(name = "q", value = "This is what we search for")
+            @QueryParam("q") String q,
+            @ApiParam(name = "category", value = "This is the category we search in")
+            @QueryParam("category") String category
+    );
+    
 }
