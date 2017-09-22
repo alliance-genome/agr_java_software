@@ -12,27 +12,28 @@ import java.util.Set;
 @Setter
 public class DiseaseAnnotationDocument extends ESDocument implements Comparable<DiseaseAnnotationDocument> {
 
-	private String primaryKey;
-	private String diseaseID;
-	private Set<String> parentDiseaseIDs;
-	private String diseaseName;
-	@JsonProperty("disease_species")
-	private SpeciesDoclet species;
-	private String associationType;
-	private GeneDocument geneDocument;
-	private List<PublicationDoclet> publications;
-	private String source;
-	private List<String> parentTermIDs;
-	private List<String> parentTermNames;
+    private String category = "diseaseAnnotation";
+    private String primaryKey;
+    private String diseaseID;
+    private Set<String> parentDiseaseIDs;
+    private String diseaseName;
+    @JsonProperty("disease_species")
+    private SpeciesDoclet species;
+    private String associationType;
+    private GeneDocument geneDocument;
+    private List<PublicationDoclet> publications;
+    private String source;
+    private List<String> parentTermIDs;
+    private List<String> parentTermNames;
 
-	@Override
-	@JsonIgnore
-	public String getDocumentId() {
-		return primaryKey;
-	}
+    @Override
+    @JsonIgnore
+    public String getDocumentId() {
+        return primaryKey;
+    }
 
-	@Override
-	public int compareTo(DiseaseAnnotationDocument doc) {
-		return 0;
-	}
+    @Override
+    public int compareTo(DiseaseAnnotationDocument doc) {
+        return 0;
+    }
 }

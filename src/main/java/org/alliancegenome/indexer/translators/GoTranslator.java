@@ -8,7 +8,7 @@ import org.alliancegenome.indexer.entity.node.Gene;
 import org.alliancegenome.indexer.entity.node.Synonym;
 
 public class GoTranslator extends EntityDocumentTranslator<GOTerm, GoDocument> {
-    
+
 
     @Override
     protected GoDocument entityToDocument(GOTerm entity, int translationDepth) {
@@ -22,14 +22,13 @@ public class GoTranslator extends EntityDocumentTranslator<GOTerm, GoDocument> {
         doc.setName_key(entity.getNameKey());
         doc.setGo_type(entity.getType());
         doc.setDescription(entity.getDescription());
-        doc.setCategory("go");
 
         ArrayList<String> go_synonyms = new ArrayList<>();
         for(Synonym s: entity.getSynonyms()) {
             go_synonyms.add(s.getPrimaryKey());
         }
         doc.setSynonyms(go_synonyms);
-        
+
         ArrayList<String> go_species = new ArrayList<>();
         ArrayList<String> go_genes = new ArrayList<String>();
         for(Gene g: entity.getGenes()) {
@@ -42,7 +41,7 @@ public class GoTranslator extends EntityDocumentTranslator<GOTerm, GoDocument> {
         }
         doc.setGo_genes(go_genes);
         doc.setGo_species(go_species);
-        
+
         return doc;
     }
 
