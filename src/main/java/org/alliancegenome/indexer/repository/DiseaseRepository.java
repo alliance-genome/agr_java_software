@@ -128,8 +128,8 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
     public DOTerm getDiseaseTerm(String primaryKey) {
 
         String cypher = "MATCH p0=(d:DOTerm)--(s) WHERE d.primaryKey = {primaryKey}  " +
-                " OPTIONAL MATCH p1=(d)--(s:DiseaseGeneJoin)-[:EVIDENCE]-(eq), p2=(s)--(g:Gene)" +
-                " OPTIONAL MATCH p3=(d)-[:IS_A]-(d2)" + 
+                " OPTIONAL MATCH p1=(d)--(s:DiseaseGeneJoin)-[:EVIDENCE]-(eq), p2=(s)--(g:Gene)-[:FROM_SPECIES]-(species:Species)" +
+                " OPTIONAL MATCH p3=(d)-[:IS_A]-(d2)" +
                 " OPTIONAL MATCH slim=(d)-[:IS_A*]->(slTerm) where slTerm.subset = {subset} " +
                 " RETURN p0, p1, p2, p3, slim";
 
