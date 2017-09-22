@@ -5,10 +5,7 @@ import org.alliancegenome.api.model.SearchResult;
 import org.alliancegenome.api.service.helper.SearchHelper;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.MultiMatchQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.TermQueryBuilder;
+import org.elasticsearch.index.query.*;
 import org.elasticsearch.index.query.functionscore.FunctionScoreQueryBuilder;
 import org.elasticsearch.index.query.functionscore.ScoreFunctionBuilders;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
@@ -95,15 +92,19 @@ public class SearchService {
         //handle the query input, if necessary
         if (StringUtils.isNotEmpty(q)) {
 
-            MultiMatchQueryBuilder multi = multiMatchQuery(q);
+            QueryStringQueryBuilder builder = queryStringQuery(q)
+                .defaultOperator(Operator.OR)
+                .allowLeadingWildcard(true)
+                .autoGeneratePhraseQueries(true)
+                .useDisMax(true);
 
             //add the fields one at a time
-            searchHelper.getSearchFields().stream().forEach(multi::field);
+            searchHelper.getSearchFields().stream().forEach(builder::field);
 
             //this applies individual boosts, if they're in the map
-            multi.fields(searchHelper.getBoostMap());
+            builder.fields(searchHelper.getBoostMap());
 
-            bool.must(multi);
+            bool.must(builder);
 
         } else {
             bool.must(matchAllQuery());
