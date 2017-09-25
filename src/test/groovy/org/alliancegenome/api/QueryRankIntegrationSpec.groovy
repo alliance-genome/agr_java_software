@@ -10,7 +10,7 @@ class QueryRankIntegrationSpec extends Specification {
         when:
         def encodedQuery = URLEncoder.encode(query, "UTF-8")
         //todo: need to set the base search url in a nicer way
-        def url = new URL("http://localhost:8080/api/search?category=gene&limit=5000&offset=0&q=$encodedQuery$filter")
+        def url = new URL("http://localhost:8080/api/search?limit=5000&offset=0&q=$encodedQuery$filter")
         def results = new JsonSlurper().parseText(url.text).results
         def betterResult = results.find { it.id == betterResultId }
         def worseResult = results.find { it.id == worseResultId }
@@ -23,9 +23,10 @@ class QueryRankIntegrationSpec extends Specification {
         betterResultPosition < worseResultPosition
 
         where:
-        query                 | filter                 | betterResultId             | worseResultId             | issue
-        "parkinson's disease" | "&species=Danio+rerio" | "ZFIN:ZDB-GENE-050417-109" | "ZFIN:ZDB-GENE-040827-4"  | "AGR-461"
-        "melanogaster kinase" | ""                     | "FB:FBgn0028427"                | "RGD:1308199"        | "AGR-461"
+        query                 | filter                               | betterResultId             | worseResultId             | issue
+        "parkinson's disease" | "&category=gene&species=Danio+rerio" | "ZFIN:ZDB-GENE-050417-109" | "ZFIN:ZDB-GENE-040827-4"  | "AGR-461"
+        "melanogaster kinase" | "&category=gene"                     | "FB:FBgn0028427"           | "RGD:1308199"             | "AGR-461"
+        "maple bark"          | ""                                   | "DOID:8484"                | "FB:FBgn0031571"          | "AGR-461"
     }
 
     @Unroll
