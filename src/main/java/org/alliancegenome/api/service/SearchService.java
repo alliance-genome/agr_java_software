@@ -123,6 +123,13 @@ public class SearchService {
 
         }
 
+        //include only genes, disease and go in search results
+        bool.filter(
+            boolQuery().should(termQuery("category","gene"))
+                       .should(termQuery("category","go"))
+                       .should(termQuery("category","disease"))
+        );
+
         return bool;
     }
 
