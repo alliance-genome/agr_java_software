@@ -26,8 +26,8 @@ public class DiseaseController implements DiseaseRESTInterface {
     }
 
     @Override
-    public SearchResult getDiseaseAnnotations(String id, int limit, int offset) {
-        return diseaseService.getDiseaseAnnotations(id, offset, limit);
+    public SearchResult getDiseaseAnnotations(String id, int limit, int page) {
+        return diseaseService.getDiseaseAnnotations(id, page, limit);
     }
 
     @Override
