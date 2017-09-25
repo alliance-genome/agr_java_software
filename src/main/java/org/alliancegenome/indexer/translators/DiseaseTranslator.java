@@ -22,7 +22,11 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
 
     @Override
     protected DiseaseDocument entityToDocument(DOTerm entity, int translationDepth) {
+        return entityToDocument(entity, null, translationDepth);
+    }
 
+
+    protected DiseaseDocument entityToDocument(DOTerm entity, Gene gene, int translationDepth) {
         DiseaseDocument doc = getTermDiseaseDocument(entity);
 
         if (entity.getDiseaseGeneJoins() == null)
@@ -30,6 +34,7 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
 
         // group by gene then by association type
         Map<Gene, Map<String, List<DiseaseGeneJoin>>> geneAssociationMap = entity.getDiseaseGeneJoins().stream()
+                .filter(diseaseGeneJoin -> diseaseGeneJoin.getGene().equals(gene))
                 .collect(
                         groupingBy(DiseaseGeneJoin::getGene,
                                 groupingBy(DiseaseGeneJoin::getJoinType))

@@ -42,7 +42,7 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
 
         geneDocument.setHref(null); // This might look wrong but it was taken from the old AGR code base.
         geneDocument.setName(entity.getName());
-        if(entity.getSpecies() != null) {
+        if (entity.getSpecies() != null) {
             geneDocument.setName_key(entity.getSymbol() + " (" + entity.getSpecies().getType().getAbbreviation() + ")"); // This might look wrong but it was taken from the old AGR code base.
         } else {
             geneDocument.setName_key(entity.getSymbol());
@@ -165,7 +165,7 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
             for (DOTerm dot : entity.getDOTerms()) {
                 if (translationDepth > 0) {
                     try {
-                        DiseaseDocument doc = diseaseTranslator.translate(dot, translationDepth - 1); // This needs to not happen if being called from DiseaseTranslator
+                        DiseaseDocument doc = diseaseTranslator.entityToDocument(dot, entity, translationDepth - 1); // This needs to not happen if being called from DiseaseTranslator
                         dlist.add(doc);
                     } catch (Exception e) {
                         log.error("Exception Creating Disease Document: " + e.getMessage());
