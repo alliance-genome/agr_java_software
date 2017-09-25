@@ -61,7 +61,7 @@ public class DiseaseDAO extends ESDAO {
 
     private ArrayList<Map<String, Object>> formatResults(SearchResponse response) {
 
-        log.info("Formatting Results: ");
+        log.debug("Formatting Results: ");
         ArrayList<Map<String, Object>> ret = new ArrayList<>();
 
         for (SearchHit hit : response.getHits()) {
@@ -69,7 +69,7 @@ public class DiseaseDAO extends ESDAO {
             //hit.getSource().put("explain", hit.getExplanation());
             ret.add(hit.getSource());
         }
-        log.info("Finished Formatting Results: ");
+        log.debug("Finished Formatting Results: ");
         return ret;
     }
 

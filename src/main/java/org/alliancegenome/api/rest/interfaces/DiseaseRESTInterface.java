@@ -32,8 +32,8 @@ public interface DiseaseRESTInterface {
 
             @DefaultValue("20") @QueryParam("limit") int limit,
 
-            @ApiParam(name = "offset", value = "This specifies which (page size) to request for")
-            @DefaultValue("0") @QueryParam("offset") int offset);
+            @ApiParam(name = "page", value = "This specifies which (page size) to request for")
+            @DefaultValue("0") @QueryParam("offset") int page);
 
     @GET
     @Path("/{id}/associations/download")
