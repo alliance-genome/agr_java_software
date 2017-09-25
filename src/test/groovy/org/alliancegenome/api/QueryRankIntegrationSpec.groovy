@@ -95,4 +95,22 @@ class QueryRankIntegrationSpec extends Specification {
 
     }
 
+    @Unroll
+    def "When querying for #nameKey the name_key should be #nameKey"() {
+        when:
+        def encodedQuery = URLEncoder.encode(nameKey, "UTF-8")
+        //todo: need to set the base search url in a nicer way
+        def url = new URL("http://localhost:8080/api/search?category=gene&limit=50&offset=0&q=$encodedQuery")
+        def results = new JsonSlurper().parseText(url.text).results
+        def firstResultNameKey = results.first().get("name_key")
+
+        then:
+        results //should be some results
+        firstResultNameKey.equals(nameKey)
+
+        where:
+        nameKey << ["fgf8a (Dre)", "Fgf8 (Mmu)", "FGF8 (Hsa)", "pyr (Dme)", "meg-2 (Cel)", "Hps5 (Rno)"]
+
+    }
+
 }
