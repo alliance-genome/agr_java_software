@@ -13,6 +13,9 @@ import javax.enterprise.context.RequestScoped;
 import java.util.ArrayList;
 import java.util.Map;
 
+import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
+import static org.elasticsearch.index.query.QueryBuilders.termQuery;
+
 @RequestScoped
 public class AutoCompleteHelper {
 
@@ -31,6 +34,14 @@ public class AutoCompleteHelper {
         multi.field("synonyms.autocomplete");
 
         bool.must(multi);
+
+        //include only genes, disease and go in autocomplete
+        bool.filter(
+                boolQuery().should(termQuery("category","gene"))
+                           .should(termQuery("category","go"))
+                           .should(termQuery("category","disease"))
+        );
+
 
         return bool;
     }
