@@ -11,8 +11,7 @@ import org.apache.logging.log4j.Logger;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.*;
 
 public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseDocument> {
 
@@ -186,37 +185,33 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
     }
 
     private List<SourceDoclet> getSourceUrls(DOTerm doTerm) {
-        List<SourceDoclet> sourceDoclets = new ArrayList<>();
-        if (doTerm.getFlybaseLink() != null) {
-            SourceDoclet doclet = new SourceDoclet();
-            doclet.setSpecies(SpeciesService.getSpeciesDoclet(SpeciesType.FLY));
-            doclet.setUrl(doTerm.getFlybaseLink());
-            sourceDoclets.add(doclet);
-        }
-        if (doTerm.getRgdLink() != null) {
-            SourceDoclet doclet = new SourceDoclet();
-            doclet.setSpecies(SpeciesService.getSpeciesDoclet(SpeciesType.RAT));
-            doclet.setUrl(doTerm.getRgdLink());
-            sourceDoclets.add(doclet);
-        }
-        if (doTerm.getMgiLink() != null) {
-            SourceDoclet doclet = new SourceDoclet();
-            doclet.setSpecies(SpeciesService.getSpeciesDoclet(SpeciesType.MOUSE));
-            doclet.setUrl(doTerm.getMgiLink());
-            sourceDoclets.add(doclet);
-        }
-        if (doTerm.getZfinLink() != null) {
-            SourceDoclet doclet = new SourceDoclet();
-            doclet.setSpecies(SpeciesService.getSpeciesDoclet(SpeciesType.ZEBRAFISH));
-            doclet.setUrl(doTerm.getZfinLink());
-            sourceDoclets.add(doclet);
-        }
-        if (doTerm.getHumanLink() != null) {
-            SourceDoclet doclet = new SourceDoclet();
-            doclet.setSpecies(SpeciesService.getSpeciesDoclet(SpeciesType.HUMAN));
-            doclet.setUrl(doTerm.getHumanLink());
-            sourceDoclets.add(doclet);
-        }
+
+        List<SourceDoclet> sourceDoclets = Arrays.stream(SpeciesType.values())
+                .map(speciesType -> {
+                    SourceDoclet doclet = new SourceDoclet();
+                    doclet.setSpecies(SpeciesService.getSpeciesDoclet(speciesType));
+                    if (speciesType == SpeciesType.FLY && doTerm.getFlybaseLink() != null) {
+                        doclet.setUrl(doTerm.getFlybaseLink());
+                    }
+                    if (speciesType == SpeciesType.RAT && doTerm.getRgdLink() != null) {
+                        doclet.setUrl(doTerm.getRgdLink());
+                    }
+                    if (speciesType == SpeciesType.MOUSE && doTerm.getMgiLink() != null) {
+                        doclet.setUrl(doTerm.getMgiLink());
+                    }
+                    if (speciesType == SpeciesType.ZEBRAFISH && doTerm.getZfinLink() != null) {
+                        doclet.setUrl(doTerm.getZfinLink());
+                    }
+                    if (speciesType == SpeciesType.HUMAN && doTerm.getHumanLink() != null) {
+                        doclet.setUrl(doTerm.getHumanLink());
+                    }
+                    if (speciesType == SpeciesType.WORM && doTerm.getWormbaseLink() != null) {
+                        doclet.setUrl(doTerm.getWormbaseLink());
+                    }
+                    return doclet;
+                })
+                .collect(toList());
+
         return sourceDoclets;
     }
 
