@@ -49,7 +49,8 @@ make docker-run
 In order to configure the running of the app modify the values in the app.properties file. 
 
 # Endpoints
-/api/disease/<disease term ID>
-/api/gene/<gene ID>
-/api/disease/<disease term ID>/associations
-/api/disease/<disease term ID>/associations/download
+|URL|description|
+|/api/disease/<disease term ID>|retrieve disease info for a given term ID (JSON)|
+|/api/gene/<gene ID>| retrieve gene info for a given gene ID (JSON)|
+|/api/disease/<disease term ID>/associations|get all disease annotations for a given disease term ID (JSON)|
+|/api/disease/<disease term ID>/associations/download|retrieve all disease annotations for a given disease term ID in tab delimited format|
