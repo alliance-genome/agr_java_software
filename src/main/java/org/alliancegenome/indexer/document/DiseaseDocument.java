@@ -33,7 +33,7 @@ public class DiseaseDocument extends ESDocument {
     private List<String> synonyms;
     private List<CrossReferenceDoclet> crossReferences;
     private List<SourceDoclet> sourceList;
-    @JsonProperty("disease_type")
+    @JsonProperty("disease_group")
     private Set<String> highLevelSlimTermNames = new HashSet<>();
 
     @JsonIgnore
