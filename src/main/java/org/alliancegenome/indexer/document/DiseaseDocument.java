@@ -4,7 +4,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -22,5 +24,7 @@ public class DiseaseDocument {
     private List<DiseaseDocument> parents;
     private List<DiseaseDocument> children;
     private List<String> synonyms;
+    @JsonProperty("disease_group")
+    private Set<String> highLevelSlimTermNames = new HashSet<>();
 
 }
