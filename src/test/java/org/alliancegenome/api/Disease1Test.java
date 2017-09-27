@@ -23,7 +23,7 @@ public class Disease1Test {
 
         DiseaseAnnotationToTdfTranslator translator = new DiseaseAnnotationToTdfTranslator();
         String str = translator.getAllRows(service.getDiseaseAnnotationsDownload("DOID:9351"));
-        SearchResult response = service.getDiseaseAnnotations("DOID:9351", 10, 10);
+        SearchResult response = service.getDiseaseAnnotations("DOID:9452", 2, 2);
         if (response.results != null) {
             response.results.forEach(entry -> {
                 Map<String, Object> map1 = (Map<String, Object>) entry.get("geneDocument");

@@ -28,7 +28,8 @@ public class DiseaseDAO extends ESDAO {
             page = 1;
         SearchRequestBuilder searchRequestBuilder = getSearchRequestBuilder(diseaseID);
         searchRequestBuilder.setSize(limit);
-        searchRequestBuilder.setFrom(page - 1);
+        int fromIndex = (page - 1) * limit;
+        searchRequestBuilder.setFrom(fromIndex);
 
         SearchResponse response = searchRequestBuilder.execute().actionGet();
         SearchResult result = new SearchResult();
