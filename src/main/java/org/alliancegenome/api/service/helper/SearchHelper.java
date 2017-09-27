@@ -61,18 +61,6 @@ public class SearchHelper {
 			put("symbol",5.0F);
 			put("symbol.autocomplete",2.0F);
 			put("name.autocomplete",0.1F);
-/*			put("primaryId", 400);
-			put("secondaryIds", 100);
-			put("symbol", 500);
-			put("symbol.keyword", 1000);
-			put("synonyms", 120);
-			put("synonyms.keyword", 200);
-			put("name", 100);
-			put("name.symbol", 200);
-			put("gene_biological_process.symbol", 50);
-			put("gene_molecular_function.symbol", 50);
-			put("gene_cellular_component.symbol", 50);
-			put("diseases.name", 50);*/
 		}
 	};
 
