@@ -22,11 +22,13 @@ public class DiseaseDAO extends ESDAO {
 
     private Logger log = Logger.getLogger(getClass());
 
-    public SearchResult getDiseaseAnnotations(String diseaseID, int offset, int limit) {
+    public SearchResult getDiseaseAnnotations(String diseaseID, int page, int limit) {
 
+        if (page < 1)
+            page = 1;
         SearchRequestBuilder searchRequestBuilder = getSearchRequestBuilder(diseaseID);
         searchRequestBuilder.setSize(limit);
-        searchRequestBuilder.setFrom(offset);
+        searchRequestBuilder.setFrom(page - 1);
 
         SearchResponse response = searchRequestBuilder.execute().actionGet();
         SearchResult result = new SearchResult();
