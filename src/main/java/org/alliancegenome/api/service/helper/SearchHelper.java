@@ -47,6 +47,7 @@ public class SearchHelper {
 			});
 			put("disease", new ArrayList<String>() {
 				{
+					add("disease_group");
 					add("annotations.geneDocument.name_key");
 					add("annotations.geneDocument.species");
 				}
