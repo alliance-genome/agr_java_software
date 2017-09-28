@@ -19,8 +19,10 @@ public class DiseaseAnnotationDocument {
     private String associationType;
     private GeneDocument geneDocument;
     private List<PublicationDoclet> publications;
-    private String source;
     private List<String> parentTermIDs;
     private List<String> parentTermNames;
+    private SourceDoclet source;
+    private String category;
+
 
 }

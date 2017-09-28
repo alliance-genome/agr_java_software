@@ -5,8 +5,10 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.alliancegenome.api.model.SearchResult;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import java.util.Map;
 
 @Path("/disease")
@@ -37,6 +39,14 @@ public interface DiseaseRESTInterface {
 
     @GET
     @Path("/{id}/associations/download")
+    @ApiOperation(value = "Searches for a Disease fields", notes = "Disease Notes")
+    @Produces(MediaType.TEXT_PLAIN)
+    public Response getDiseaseAnnotationsDownloadFile(
+            @ApiParam(name = "id", value = "Search for Disease ID")
+            @PathParam("id") String id);
+
+    @GET
+    @Path("/{id}/associations/downloads")
     @ApiOperation(value = "Searches for a Disease fields", notes = "Disease Notes")
     @Produces(MediaType.TEXT_PLAIN)
     public String getDiseaseAnnotationsDownload(
