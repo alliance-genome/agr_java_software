@@ -25,6 +25,8 @@ public class SearchHelper {
 
 	private Logger log = Logger.getLogger(getClass());
 
+	private static String[] SUFFIX_LIST = { ".keyword", ".synonym", ".symbols", ".text" };
+
 	private HashMap<String, List<String>> category_filters = new HashMap<String, List<String>>() {
 		{
 			put("gene", new ArrayList<String>() {
@@ -171,11 +173,21 @@ public class SearchHelper {
 					log.info("Source as String: " + hit.getSourceAsString());
 					log.info("Highlights: " + hit.getHighlightFields());
 				}
+
 				ArrayList<String> list = new ArrayList<>();
 				for(Text t: hit.getHighlightFields().get(key).getFragments()) {
 					list.add(t.string());
 				}
-				map.put(hit.getHighlightFields().get(key).getName(), list);
+
+				// stripping anything after the first .
+				// this may eventually need to be replaced by a more targeted
+				// method that just remove .keyword .synonym etc
+				String name = hit.getHighlightFields().get(key).getName();
+				for (int i = 0 ; i < SUFFIX_LIST.length ; i++ ) {
+					name = name.replace(SUFFIX_LIST[i],"");
+				}
+
+				map.put(name, list);
 			}
 			hit.getSource().put("highlights", map);
 			hit.getSource().put("id", hit.getId());
