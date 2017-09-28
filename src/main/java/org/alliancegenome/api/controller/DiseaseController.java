@@ -8,6 +8,8 @@ import org.jboss.logging.Logger;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import java.util.Map;
 
 @RequestScoped
@@ -26,8 +28,21 @@ public class DiseaseController implements DiseaseRESTInterface {
     }
 
     @Override
-    public SearchResult getDiseaseAnnotations(String id, int limit, int page) {
+    public SearchResult getDiseaseAnnotations(String id,
+                                              int limit,
+                                              int page) {
+        if (page < 1) {
+        }
         return diseaseService.getDiseaseAnnotations(id, page, limit);
+    }
+
+    @Override
+    public Response getDiseaseAnnotationsDownloadFile(String id) {
+
+        Response.ResponseBuilder response = Response.ok(getDiseaseAnnotationsDownload(id));
+        response.type(MediaType.TEXT_PLAIN_TYPE);
+        response.header("Content-Disposition", "attachment; filename=\"disease-annotations-" + id.replace(":", "-") + ".txt\"");
+        return response.build();
     }
 
     @Override
