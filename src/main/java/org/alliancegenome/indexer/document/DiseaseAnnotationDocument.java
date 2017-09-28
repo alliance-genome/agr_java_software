@@ -22,9 +22,9 @@ public class DiseaseAnnotationDocument extends ESDocument implements Comparable<
     private String associationType;
     private GeneDocument geneDocument;
     private List<PublicationDoclet> publications;
-    private String source;
     private List<String> parentTermIDs;
     private List<String> parentTermNames;
+    private SourceDoclet source;
 
     @Override
     @JsonIgnore
