@@ -8,6 +8,8 @@ import org.jboss.logging.Logger;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.Map;
@@ -16,6 +18,8 @@ import java.util.Map;
 public class DiseaseController implements DiseaseRESTInterface {
 
     private Logger log = Logger.getLogger(getClass());
+    @Context  //injected response proxy supporting multiple threads
+    private HttpServletResponse response;
 
     @Inject
     private DiseaseService diseaseService;
@@ -32,6 +36,14 @@ public class DiseaseController implements DiseaseRESTInterface {
                                               int limit,
                                               int page) {
         if (page < 1) {
+            response.setStatus(HttpServletResponse.SC_NOT_ACCEPTABLE);
+            try {
+                response.flushBuffer();
+            } catch (Exception ignored) {
+            }
+            SearchResult searchResult = new SearchResult();
+            searchResult.errorMessage = "Invalid 'page' value. Needs to be greater or equal than 1";
+            return searchResult;
         }
         return diseaseService.getDiseaseAnnotations(id, page, limit);
     }
