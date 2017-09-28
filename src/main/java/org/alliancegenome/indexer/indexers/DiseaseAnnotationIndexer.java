@@ -18,10 +18,10 @@ import java.util.concurrent.TimeUnit;
 
 public class DiseaseAnnotationIndexer extends Indexer<DiseaseAnnotationDocument> {
 
-    private Logger log = LogManager.getLogger(getClass());
+    private final Logger log = LogManager.getLogger(getClass());
 
-    private DiseaseRepository diseaseRepository = new DiseaseRepository();
-    private DiseaseTranslator diseaseTrans = new DiseaseTranslator();
+    private final DiseaseRepository diseaseRepository = new DiseaseRepository();
+    private final DiseaseTranslator diseaseTrans = new DiseaseTranslator();
 
     public DiseaseAnnotationIndexer(String currentIndex, IndexerConfig config) {
         super(currentIndex, config);
@@ -34,6 +34,7 @@ public class DiseaseAnnotationIndexer extends Indexer<DiseaseAnnotationDocument>
             LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>();
             List<String> allDiseaseIDs = diseaseRepository.getAllDiseaseKeys();
             queue.addAll(allDiseaseIDs);
+            diseaseRepository.clearCache();
 
             Integer numberOfThreads = indexerConfig.getThreadCount();
             ExecutorService executor = Executors.newFixedThreadPool(numberOfThreads);
@@ -65,6 +66,7 @@ public class DiseaseAnnotationIndexer extends Indexer<DiseaseAnnotationDocument>
             try {
                 if (list.size() >= indexerConfig.getBufferSize()) {
                     addDocuments(diseaseTrans.translateAnnotationEntities(list, 1));
+                    repo.clearCache();
                     list.clear();
                     list = new ArrayList<>();
                 }
@@ -72,6 +74,7 @@ public class DiseaseAnnotationIndexer extends Indexer<DiseaseAnnotationDocument>
                     if (list.size() > 0) {
                         addDocuments(diseaseTrans.translateAnnotationEntities(list, 1));
                         list.clear();
+                        repo.clearCache();
                     }
                     return;
                 }

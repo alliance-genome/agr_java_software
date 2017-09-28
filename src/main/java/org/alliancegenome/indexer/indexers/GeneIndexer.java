@@ -17,8 +17,8 @@ import org.apache.logging.log4j.Logger;
 
 public class GeneIndexer extends Indexer<GeneDocument> {
 
-    private Logger log = LogManager.getLogger(getClass());
-    private GeneRepository geneRepo = new GeneRepository();
+    private final Logger log = LogManager.getLogger(getClass());
+    private final GeneRepository geneRepo = new GeneRepository();
 
     public GeneIndexer(String currnetIndex, IndexerConfig config) {
         super(currnetIndex, config);
@@ -30,6 +30,7 @@ public class GeneIndexer extends Indexer<GeneDocument> {
             LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<String>();
             List<String> fulllist = geneRepo.getAllGeneKeys();
             queue.addAll(fulllist);
+            geneRepo.clearCache();
 
             Integer numberOfThreads = indexerConfig.getThreadCount();
             ExecutorService executor = Executors.newFixedThreadPool(numberOfThreads);
@@ -62,11 +63,13 @@ public class GeneIndexer extends Indexer<GeneDocument> {
                 if (list.size() >= indexerConfig.getBufferSize()) {
                     addDocuments(geneTrans.translateEntities(list));
                     list.clear();
+                    repo.clearCache();
                     list = new ArrayList<>();
                 }
                 if (queue.isEmpty()) {
                     if (list.size() > 0) {
                         addDocuments(geneTrans.translateEntities(list));
+                        repo.clearCache();
                         list.clear();
                     }
                     return;

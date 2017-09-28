@@ -17,12 +17,12 @@ import org.apache.logging.log4j.Logger;
 
 public class GoIndexer extends Indexer<GoDocument> {
 
-    private Logger log = LogManager.getLogger(getClass());
+    private final Logger log = LogManager.getLogger(getClass());
 
-    private GoRepository goRepo = new GoRepository();
-    private GoTranslator goTrans = new GoTranslator();
+    private final GoRepository goRepo = new GoRepository();
+    private final GoTranslator goTrans = new GoTranslator();
 
-    
+
     public GoIndexer(String currnetIndex, IndexerConfig config) {
         super(currnetIndex, config);
     }
@@ -33,7 +33,7 @@ public class GoIndexer extends Indexer<GoDocument> {
             LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<String>();
             List<String> fulllist = goRepo.getAllGoKeys();
             queue.addAll(fulllist);
-
+            goRepo.clearCache();
             Integer numberOfThreads = indexerConfig.getThreadCount();
             ExecutorService executor = Executors.newFixedThreadPool(numberOfThreads);
             int index = 0;
@@ -63,12 +63,14 @@ public class GoIndexer extends Indexer<GoDocument> {
             try {
                 if (list.size() >= indexerConfig.getBufferSize()) {
                     addDocuments(goTrans.translateEntities(list));
+                    repo.clearCache();
                     list.clear();
                     list = new ArrayList<>();
                 }
                 if (queue.isEmpty()) {
                     if (list.size() > 0) {
                         addDocuments(goTrans.translateEntities(list));
+                        repo.clearCache();
                         list.clear();
                     }
                     return;

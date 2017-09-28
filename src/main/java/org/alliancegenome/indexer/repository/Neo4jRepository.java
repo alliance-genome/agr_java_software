@@ -35,7 +35,10 @@ public class Neo4jRepository<E> {
     public int getCount() {
         return (int) neo4jSession.countEntitiesOfType(entityTypeClazz);
     }
-    
+
+    public void clearCache() {
+        neo4jSession.clear();
+    }
 
     public Long queryCount(String cypherQuery) {
         return (Long) neo4jSession.query(cypherQuery, Collections.EMPTY_MAP ).iterator().next().values().iterator().next();
