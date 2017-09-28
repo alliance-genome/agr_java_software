@@ -9,5 +9,6 @@ public class SourceDoclet {
 
     private SpeciesDoclet species;
     private String url;
+    private String name;
 
 }
