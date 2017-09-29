@@ -78,6 +78,9 @@ public class IndexManager {
         newIndexName = baseIndexName + "_" + (new Date()).getTime();
         setCurrentIndex();
         createIndex(newIndexName);
+        if(oldIndexName == null) {
+            createAlias(baseIndexName, newIndexName);
+        }
         log.debug("Main Index Starting: ");
     }
 
