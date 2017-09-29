@@ -13,7 +13,7 @@ install:
 
 before_script:
   - mvn clean package
-  - java -jar target/agr_api-swarm.jar -Papp.properties -DES_INDEX=site_index_dev
+  - java -jar target/agr_api-swarm.jar -Papp.properties -DES_INDEX=site_index_dev &
   - sleep 60
 
 script:
