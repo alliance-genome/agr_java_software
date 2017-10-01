@@ -1,8 +1,10 @@
-FROM agrdocker/agr_api_env:latest
+FROM agrdocker/agr_java_env
 
 WORKDIR /workdir/agr_api
 
-ADD . .
-RUN make
+EXPOSE 8080
 
-CMD make run
+ADD . .
+RUN mvn clean package
+
+CMD java -jar target/agr_api-swarm.jar

@@ -11,12 +11,12 @@ import org.alliancegenome.api.service.GeneService;
 @RequestScoped
 public class GeneController implements GeneRESTInterface {
 
-	@Inject
-	private GeneService geneService;
-	
-	@Override
-	public Map<String, Object> getGene(String id) {
-		return geneService.getById(id);
-	}
+    @Inject
+    private GeneService geneService;
+    
+    @Override
+    public Map<String, Object> getGene(String id) {
+        return geneService.getById(id);
+    }
 
 }

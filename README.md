@@ -20,5 +20,38 @@ As we add more datasources and use the ElasticSearch indexing for storing / cach
 
 # Usage
 
+## Compliling JAR Without Docker
 
+```bash
+make
+```
 
+## Running API Without Docker
+
+```bash
+make run
+```
+
+## Compliling JAR and building the Docker Image
+
+```bash
+make docker-build
+```
+
+## Running API Inside of Docker
+
+```bash
+make docker-run
+```
+
+# Configuration
+
+In order to configure the running of the app modify the values in the app.properties file. 
+
+# Endpoints
+| URL | description |
+| --- | ----------- |
+| /api/disease/\<disease term ID\> | retrieve disease info for a given term ID (JSON) |
+| /api/gene/\<gene ID\> | retrieve gene info for a given gene ID (JSON) |
+| /api/disease/\<disease term ID\>/associations | get all disease annotations for a given disease term ID (JSON) |
+| /api/disease/\<disease term ID\>/associations/download | retrieve all disease annotations for a given disease term ID in tab delimited format |
