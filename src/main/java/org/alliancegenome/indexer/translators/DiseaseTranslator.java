@@ -168,13 +168,17 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
                     document.getHighLevelSlimTermNames().add(slimTerm.getName()));
         }
 
-        document.setSourceList(getSourceUrls(doTerm));
+        // set all sources except Human
+        document.setSourceList(getSourceUrls(doTerm).stream()
+                .filter(sourceDoclet -> !sourceDoclet.getSpecies().getTaxonID().equals(SpeciesType.HUMAN.getTaxonID()))
+                .collect(Collectors.toList()));
 
         return document;
     }
 
     private SourceDoclet getSourceUrls(DOTerm doTerm, Species species) {
-        List<SourceDoclet> sources = getSourceUrls(doTerm).stream().
+        List<SourceDoclet> sources;
+        sources = getSourceUrls(doTerm).stream().
                 filter(sourceUrl ->
                         sourceUrl.getSpecies().getTaxonID().equals(species.getType().getTaxonID())
                 )
@@ -190,6 +194,9 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
                 .map(speciesType -> {
                     SourceDoclet doclet = new SourceDoclet();
                     doclet.setSpecies(SpeciesService.getSpeciesDoclet(speciesType));
+                    doclet.setName(speciesType.getDisplayName());
+                    if (speciesType.equals(SpeciesType.HUMAN))
+                        doclet.setName(SpeciesType.RAT.getDisplayName());
                     if (speciesType == SpeciesType.FLY && doTerm.getFlybaseLink() != null) {
                         doclet.setUrl(doTerm.getFlybaseLink());
                     }
@@ -239,6 +246,7 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
                             doc.setParentDiseaseIDs(getParentIdList(doTerm));
                             doc.setAssociationType(diseaseGeneJoin.getJoinType());
                             doc.setSpecies(getSpeciesDoclet(diseaseGeneJoin));
+                            doc.setSource(getSourceUrls(doTerm, diseaseGeneJoin.getGene().getSpecies()));
                             doc.setGeneDocument(geneTranslator.entityToDocument(diseaseGeneJoin.getGene(), translationDepth - 1));
                             List<PublicationDoclet> pubDocs = new ArrayList<>();
                             pubDocs.add(getPublicationDoclet(diseaseGeneJoin, diseaseGeneJoin.getPublication()));
