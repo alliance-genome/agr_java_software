@@ -2,36 +2,43 @@ package org.alliancegenome.indexer.translators;
 
 import java.util.ArrayList;
 
-import org.alliancegenome.indexer.document.Document;
-import org.alliancegenome.indexer.entity.Entity;
+import org.alliancegenome.indexer.document.ESDocument;
+import org.alliancegenome.indexer.entity.Neo4jEntity;
 
-public abstract class EntityDocumentTranslator<E extends Entity, D extends Document> {
+public abstract class EntityDocumentTranslator<E extends Neo4jEntity, D extends ESDocument> {
 
-	public E translate(D doument) {
-		return doumentToEntity(doument);
-	}
+    public E translate(D doument) {
+        return translate(doument, 1);
+    }
 
-	public D translate(E entity) {
-		return entityToDocument(entity);
-	}
+    public D translate(E entity) {
+        return translate(entity, 1);
+    }
+    
+    public D translate(E entity, int depth) {
+        return entityToDocument(entity, depth);
+    }
+    public E translate(D document, int depth) {
+        return documentToEntity(document, depth);
+    }
 
-	public Iterable<E> translateDouments(Iterable<D> douments) {
-		ArrayList<E> entities = new ArrayList<E>();
-		for(D document: douments) {
-			entities.add(doumentToEntity(document));
-		}
-		return entities;
-	}
+    public Iterable<E> translateDocuments(Iterable<D> douments) {
+        ArrayList<E> entities = new ArrayList<E>();
+        for(D document: douments) {
+            entities.add(translate(document, 1));
+        }
+        return entities;
+    }
 
-	public Iterable<D> translateEntities(Iterable<E> entities) {
-		ArrayList<D> douments = new ArrayList<D>();
-		for(E entity: entities) {
-			douments.add(entityToDocument(entity));
-		}
-		return douments;
-	}
+    public Iterable<D> translateEntities(Iterable<E> entities) {
+        ArrayList<D> douments = new ArrayList<D>();
+        for(E entity: entities) {
+            douments.add(translate(entity, 1));
+        }
+        return douments;
+    }
 
-	protected abstract D entityToDocument(E entity);
-	protected abstract E doumentToEntity(D doument);
+    protected abstract D entityToDocument(E entity, int translationDepth);
+    protected abstract E documentToEntity(D doument, int translationDepth);
 
 }

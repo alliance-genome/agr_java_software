@@ -1,44 +1,74 @@
 package org.alliancegenome.indexer;
 
-import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 
-import org.alliancegenome.indexer.enums.DocumentEntityType;
+import org.alliancegenome.indexer.config.ConfigHelper;
+import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.indexer.indexers.Indexer;
-import org.alliancegenome.indexer.util.ConfigHelper;
 import org.alliancegenome.indexer.util.IndexManager;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class Main {
 
-	public static void main(String[] args) {
-		ConfigHelper.init();
+    private static Logger log = LogManager.getLogger(Main.class);
 
-		IndexManager manager = new IndexManager();
-		manager.createIndexes();
-		
-		ArrayList<Indexer> indexers = new ArrayList<Indexer>();
+    public static void main(String[] args) {
+        ConfigHelper.init();
 
-		for(DocumentEntityType det: DocumentEntityType.values()) {
+        IndexManager im = new IndexManager();
+        HashMap<String, Indexer> indexers = new HashMap<>();
 
-			try {
-				Indexer indexer = (Indexer)det.getIndexerClass().newInstance();
-				indexer.init();
-				indexer.start();
-				indexer.finish();
-				indexers.add(indexer);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+        Date start = new Date();
+        log.info("Start Time: " + start);
 
-		}
+        im.startIndex();
 
-		System.out.println("Waiting for Indexers to finish");
-		for(Indexer i: indexers) {
-			try {
-				i.join();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}
-		
-	}
+        for(IndexerConfig ic: IndexerConfig.values()) {
+            try {
+                Indexer i = (Indexer)ic.getIndexClazz().getDeclaredConstructor(String.class, IndexerConfig.class).newInstance(im.getNewIndexName(), ic);
+                indexers.put(ic.getTypeName(), i);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        HashMap<String, String> argMap = new HashMap<>();
+        for(int i = 0; i < args.length; i++) {
+            argMap.put(args[i], args[i]);
+            log.info("Args[" + i + "]: " + args[i]);
+        }
+
+        for(String type: indexers.keySet()) {
+            if(argMap.size() == 0 || argMap.containsKey(type)) {
+                if(ConfigHelper.isThreaded()) {
+                    log.info("Starting in threaded mode for: " + type);
+                    indexers.get(type).start();
+                } else {
+                    log.info("Starting indexer sequentially: " + type);
+                    indexers.get(type).runIndex();
+                }
+            } else {
+                log.info("Not Starting: " + type);
+            }
+        }
+
+        log.debug("Waiting for Indexers to finish");
+        for(Indexer i: indexers.values()) {
+            try {
+                if(i.isAlive()) {
+                    i.join();
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        im.finishIndex();
+        Date end = new Date();
+        log.info("End Time: " + end);
+        log.info("Total Indexing time: " + (int)((end.getTime() - start.getTime()) / 1000) + " seconds");
+        System.exit(0);
+
+    }
 }
