@@ -31,6 +31,9 @@ public class SearchService {
     @Inject
     private SearchHelper searchHelper;
 
+    @Inject
+    private QueryManipulationService queryManipulationService;
+
     private static Logger log = Logger.getLogger(SearchService.class);
 
     public SearchResult query(String q, String category, int limit, int offset, String sort_by, UriInfo uriInfo) {
@@ -42,6 +45,8 @@ public class SearchService {
             debug = true;
             q = q.replaceFirst("debug","").trim();
         }
+
+        q = queryManipulationService.processQuery(q);
 
         QueryBuilder query = buildFunctionQuery(q, category, getFilters(category, uriInfo));
 

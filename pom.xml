@@ -149,7 +149,7 @@
 					</excludes>
 					<includes>
 						<include>**/*Test.*</include>
-						<!--<include>**/*Spec.*</include>-->
+						<include>**/*UnitSpec.*</include>
 					</includes>
 				</configuration>
 			</plugin>

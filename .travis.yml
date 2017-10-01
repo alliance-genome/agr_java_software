@@ -8,16 +8,16 @@ before_install:
 
 install:
 
-  - make docker-pull-es
-  - make docker-run-es-detached
+  - docker pull agrdocker/agr_es_data_image:latest
+  - docker run -d -p 9200:9200 -p 9300:9300 -e "http.host=0.0.0.0" -e "transport.host=0.0.0.0" agrdocker/agr_es_data_image:latest
 
 before_script:
-  - make all
-  - make run &
+  - mvn clean package
+  - java -jar target/agr_api-swarm.jar -Papp.properties -DES_INDEX=site_index_dev &
   - sleep 60
 
 script:
-  - make test
+  - mvn test
   - mvn verify
 
 notifications:
