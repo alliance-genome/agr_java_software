@@ -18,10 +18,19 @@ class QueryMatchIntegrationSpec extends Specification {
         results.size > 0
 
         where:
-        query                 | issue
-        "FBgn0086442"         | "AGR-525"
-        "ZDB-GENE-001120-2"   | "AGR-525"
-        "WBGene00000244"      | "AGR-525"
+        query                                              | issue
+        "FBgn0086442"                                      | "AGR-525"
+        "FB:FBgn0086442"                                   | "AGR-525"
+        "ZDB-GENE-001120-2"                                | "AGR-525"
+        "ZFIN:ZDB-GENE-001120-2"                           | "AGR-525"
+        "WBGene00000244"                                   | "AGR-525"
+        "WB:WBGene00000244"                                | "AGR-525"
+
+        "DOID:0110047"                                     | "AGR-604"
+        "ICD10CM:G30 AND DOID:0110047"                     | "AGR-604"
+        "G30 AND DOID:0110047"                             | "AGR-604"
+        "OMIM:611154 AND DOID:0110047"                     | "AGR-604"
+        "611154 AND DOID:0110047"                          | "AGR-604"
 
     }
 

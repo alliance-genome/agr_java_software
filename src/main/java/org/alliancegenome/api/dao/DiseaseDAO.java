@@ -1,6 +1,8 @@
 package org.alliancegenome.api.dao;
 
 import org.alliancegenome.api.model.SearchResult;
+import org.alliancegenome.api.service.helper.Pagination;
+import org.alliancegenome.api.service.helper.SortBy;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.MatchQueryBuilder;
@@ -15,20 +17,20 @@ import org.jboss.logging.Logger;
 import javax.enterprise.context.ApplicationScoped;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class DiseaseDAO extends ESDAO {
 
     private Logger log = Logger.getLogger(getClass());
 
-    public SearchResult getDiseaseAnnotations(String diseaseID, int page, int limit) {
+    public SearchResult getDiseaseAnnotations(String diseaseID, Pagination pagination) {
 
-        if (page < 1)
-            page = 1;
-        SearchRequestBuilder searchRequestBuilder = getSearchRequestBuilder(diseaseID);
-        searchRequestBuilder.setSize(limit);
-        int fromIndex = (page - 1) * limit;
+        SearchRequestBuilder searchRequestBuilder = getSearchRequestBuilder(diseaseID, pagination);
+        searchRequestBuilder.setSize(pagination.getLimit());
+        int fromIndex = pagination.getIndexOfFirstElement();
         searchRequestBuilder.setFrom(fromIndex);
 
         SearchResponse response = searchRequestBuilder.execute().actionGet();
@@ -39,10 +41,18 @@ public class DiseaseDAO extends ESDAO {
         return result;
     }
 
-    private SearchRequestBuilder getSearchRequestBuilder(String diseaseID) {
+    private static Map<SortBy, String> sortByMao = new LinkedHashMap<>();
+
+    static {
+        sortByMao.put(SortBy.DISEASE, "diseaseName.keyword");
+        sortByMao.put(SortBy.SPECIES, "disease_species.orderID");
+        sortByMao.put(SortBy.GENE, "geneDocument.symbol.keyword");
+    }
+
+    private SearchRequestBuilder getSearchRequestBuilder(String diseaseID, Pagination pagination) {
         SearchRequestBuilder searchRequestBuilder = searchClient.prepareSearch();
 
-        searchRequestBuilder.setExplain(true);
+        //searchRequestBuilder.setExplain(true);
         searchRequestBuilder.setIndices(config.getEsIndex());
 
         // match on all disease terms who are the term or a child term
@@ -50,16 +60,31 @@ public class DiseaseDAO extends ESDAO {
         MatchQueryBuilder query = QueryBuilders.matchQuery("parentDiseaseIDs", diseaseID);
 
         // sort exact matches on the diseaseID at the top then all the child terms.
-        Script script = new Script("doc['diseaseID.keyword'].value == '" + diseaseID + "' ? 0 : 100");
-        searchRequestBuilder.addSort(SortBuilders.scriptSort(script, ScriptSortBuilder.ScriptSortType.NUMBER));
+        SortBy sortBy = pagination.getSortBy();
+        if (sortBy.equals(SortBy.DEFAULT)) {
+            Script script = new Script("doc['diseaseID.keyword'].value == '" + diseaseID + "' ? 0 : 100");
+            searchRequestBuilder.addSort(SortBuilders.scriptSort(script, ScriptSortBuilder.ScriptSortType.NUMBER));
+            sortByMao.forEach((sortByColumn, columnName) -> {
+                searchRequestBuilder.addSort(SortBuilders.fieldSort(columnName).order(getAscending(true)));
+            });
+        } else {
+            // first ordering column
+            searchRequestBuilder.addSort(SortBuilders.fieldSort(sortByMao.get(sortBy)).order(getAscending(pagination.getAsc())));
+            Map<SortBy, String> newMap = sortByMao.entrySet().stream()
+                    .filter(entry -> !entry.getKey().equals(sortBy))
+                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+            newMap.forEach((sortColumn, s) ->
+                    searchRequestBuilder.addSort(SortBuilders.fieldSort(sortByMao.get(sortColumn)).order(getAscending(pagination.getAsc())))
+            );
+        }
 
-        searchRequestBuilder.addSort(SortBuilders.fieldSort("diseaseName.keyword").order(SortOrder.ASC));
-        searchRequestBuilder.addSort(SortBuilders.fieldSort("disease_species.orderID").order(SortOrder.ASC));
-        searchRequestBuilder.addSort(SortBuilders.fieldSort("geneDocument.symbol.keyword").order(SortOrder.ASC));
         searchRequestBuilder.setQuery(query);
-
         log.debug(searchRequestBuilder);
         return searchRequestBuilder;
+    }
+
+    private SortOrder getAscending(Boolean ascending) {
+        return ascending ? SortOrder.ASC : SortOrder.DESC;
     }
 
     private ArrayList<Map<String, Object>> formatResults(SearchResponse response) {
@@ -77,8 +102,8 @@ public class DiseaseDAO extends ESDAO {
     }
 
 
-    public SearchHitIterator getDiseaseAnnotationsDownload(String id) {
-        SearchRequestBuilder searchRequestBuilder = getSearchRequestBuilder(id);
+    public SearchHitIterator getDiseaseAnnotationsDownload(String id, Pagination pagination) {
+        SearchRequestBuilder searchRequestBuilder = getSearchRequestBuilder(id, pagination);
         SearchHitIterator hitIterator = new SearchHitIterator(searchRequestBuilder);
         return hitIterator;
     }

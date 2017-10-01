@@ -25,6 +25,8 @@ public class SearchHelper {
 
 	private Logger log = Logger.getLogger(getClass());
 
+	private static String[] SUFFIX_LIST = { ".keyword", ".synonym", ".symbols", ".text" };
+
 	private HashMap<String, List<String>> category_filters = new HashMap<String, List<String>>() {
 		{
 			put("gene", new ArrayList<String>() {
@@ -67,12 +69,13 @@ public class SearchHelper {
 	public List<String> getSearchFields() { return searchFields; }
 	private List<String> searchFields = new ArrayList<String>() {
 		{
-			add("primaryId"); add("secondaryIds"); add("name"); add("name.autocomplete");
+			add("primaryId"); add("id"); add("secondaryIds"); add("name"); add("name.autocomplete");
 			add("symbol"); add("symbol.keyword"); add("symbol.autocomplete");  add("synonyms"); add("synonyms.keyword");
 			add("description"); add("external_ids"); add("species"); add("species.synonyms"); add("modLocalId");
 			add("gene_biological_process"); add("gene_molecular_function"); add("gene_cellular_component");
 			add("go_type"); add("go_genes"); add("go_synonyms");
 			add("disease_genes"); add("disease_synonyms"); add("diseases.name"); add("orthology.gene2Symbol");
+			add("crossReferences.name"); add("crossReferences.localId");
 		}
 	};
 
@@ -171,11 +174,21 @@ public class SearchHelper {
 					log.info("Source as String: " + hit.getSourceAsString());
 					log.info("Highlights: " + hit.getHighlightFields());
 				}
+
 				ArrayList<String> list = new ArrayList<>();
 				for(Text t: hit.getHighlightFields().get(key).getFragments()) {
 					list.add(t.string());
 				}
-				map.put(hit.getHighlightFields().get(key).getName(), list);
+
+				// stripping anything after the first .
+				// this may eventually need to be replaced by a more targeted
+				// method that just remove .keyword .synonym etc
+				String name = hit.getHighlightFields().get(key).getName();
+				for (int i = 0 ; i < SUFFIX_LIST.length ; i++ ) {
+					name = name.replace(SUFFIX_LIST[i],"");
+				}
+
+				map.put(name, list);
 			}
 			hit.getSource().put("highlights", map);
 			hit.getSource().put("id", hit.getId());
