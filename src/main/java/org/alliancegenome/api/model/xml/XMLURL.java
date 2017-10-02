@@ -12,10 +12,10 @@ import lombok.Setter;
 @Getter @Setter @AllArgsConstructor @NoArgsConstructor
 @XmlRootElement(name = "url")
 public class XMLURL {
-	
-	private String loc;
-	private Date lastmod;
-	private String changefreq;
-	private String priority;
-	
+    
+    private String loc;
+    private Date lastmod;
+    private String changefreq;
+    private String priority;
+    
 }
