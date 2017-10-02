@@ -12,6 +12,8 @@ public class QueryManipulationService {
     }
 
     private String escapeColons(String query) {
+        if(query == null) return null;
+
         //start by escaping all colons
         query = query.replaceAll(":", "\\\\:");
 

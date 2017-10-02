@@ -10,5 +10,5 @@ import lombok.Setter;
 @XmlRootElement(name = "urlset")
 public class XMLURLSet {
 
-	private List<XMLURL> url;
+    private List<XMLURL> url;
 }

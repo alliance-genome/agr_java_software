@@ -14,7 +14,7 @@ import lombok.Setter;
 @XmlRootElement(name = "sitemap")
 public class SiteMap {
 
-	private String loc;
-	private Date lastmod;
-	
+    private String loc;
+    private Date lastmod;
+    
 }
