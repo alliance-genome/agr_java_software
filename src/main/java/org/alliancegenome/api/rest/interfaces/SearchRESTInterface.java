@@ -21,24 +21,24 @@ import io.swagger.annotations.ApiParam;
 @Consumes(MediaType.APPLICATION_JSON)
 public interface SearchRESTInterface {
 
-	@GET
-	@ApiOperation(value = "Searches Searchable Items for the following", notes="Search Notes")
-	public SearchResult search(
-		@ApiParam(name = "q", value = "This is what we search for")
-		@QueryParam("q") String q,
-		
-		@ApiParam(name = "category", value = "This is the category we search in")
-		@QueryParam("category") String category,
-		
-		@ApiParam(name = "limit", value = "This limits the returned amount of items (page size)")
-		@QueryParam("limit") int limit,
-		
-		@ApiParam(name = "offset", value = "This specifies which (page size) to request for")
-		@QueryParam("offset") int offset,
-			
-		@ApiParam(name = "sort_by", value = "We will sort the results by this field")
-		@QueryParam("sort_by") String sort_by,
+    @GET
+    @ApiOperation(value = "Searches Searchable Items for the following", notes="Search Notes")
+    public SearchResult search(
+        @ApiParam(name = "q", value = "This is what we search for")
+        @QueryParam("q") String q,
+        
+        @ApiParam(name = "category", value = "This is the category we search in")
+        @QueryParam("category") String category,
+        
+        @ApiParam(name = "limit", value = "This limits the returned amount of items (page size)")
+        @QueryParam("limit") int limit,
+        
+        @ApiParam(name = "offset", value = "This specifies which (page size) to request for")
+        @QueryParam("offset") int offset,
+            
+        @ApiParam(name = "sort_by", value = "We will sort the results by this field")
+        @QueryParam("sort_by") String sort_by,
 
-		@Context UriInfo uriInfo
-	);
+        @Context UriInfo uriInfo
+    );
 }

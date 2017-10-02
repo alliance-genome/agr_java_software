@@ -16,7 +16,7 @@ import javax.ws.rs.core.MediaType;
 @Consumes(MediaType.APPLICATION_JSON)
 public interface MetaDataRESTInterface {
 
-	@GET
-	@ApiOperation(value = "Get MetaData from Build", notes="Meta Data Notes")
-	public MetaData getMetaData();
+    @GET
+    @ApiOperation(value = "Get MetaData from Build", notes="Meta Data Notes")
+    public MetaData getMetaData();
 }

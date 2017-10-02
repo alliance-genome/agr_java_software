@@ -14,21 +14,21 @@ import javax.inject.Inject;
 @RequestScoped
 public class AutoCompleteService {
 
-	private Logger log = Logger.getLogger(getClass());
-	
-	@Inject
-	private AutoCompleteDAO autoCompleteDAO;
-	
-	@Inject
-	private AutoCompleteHelper autoCompleteHelper;
-	
-	public AutoCompleteResult buildQuery(String q, String category) {
+    private Logger log = Logger.getLogger(getClass());
+    
+    @Inject
+    private AutoCompleteDAO autoCompleteDAO;
+    
+    @Inject
+    private AutoCompleteHelper autoCompleteHelper;
+    
+    public AutoCompleteResult buildQuery(String q, String category) {
 
-		QueryBuilder query = autoCompleteHelper.buildQuery(q, category);
-		SearchResponse res = autoCompleteDAO.performQuery(query);
-		AutoCompleteResult result = new AutoCompleteResult();
-		result.results = autoCompleteHelper.formatResults(res);
-		return result;
-	}
+        QueryBuilder query = autoCompleteHelper.buildQuery(q, category);
+        SearchResponse res = autoCompleteDAO.performQuery(query);
+        AutoCompleteResult result = new AutoCompleteResult();
+        result.results = autoCompleteHelper.formatResults(res);
+        return result;
+    }
 
 }

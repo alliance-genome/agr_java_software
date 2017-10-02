@@ -13,41 +13,53 @@ import javax.enterprise.context.RequestScoped;
 import java.util.ArrayList;
 import java.util.Map;
 
+import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
+import static org.elasticsearch.index.query.QueryBuilders.termQuery;
+
 @RequestScoped
 public class AutoCompleteHelper {
 
-	private Logger log = Logger.getLogger(getClass());
+    private Logger log = Logger.getLogger(getClass());
 
-	public QueryBuilder buildQuery(String q, String category) {
-		
-		BoolQueryBuilder bool = new BoolQueryBuilder();
+    public QueryBuilder buildQuery(String q, String category) {
+        
+        BoolQueryBuilder bool = new BoolQueryBuilder();
 
-		MultiMatchQueryBuilder multi = QueryBuilders.multiMatchQuery(q);
-		multi.field("name_key.autocomplete",3.0F);
-		multi.field("name.keyword", 2.0F);
-		multi.field("name.autocomplete");
-		multi.field("synonyms.keyword", 2.0F);
-		multi.field("synonyms.autocomplete");
+        MultiMatchQueryBuilder multi = QueryBuilders.multiMatchQuery(q);
+        multi.field("symbol",5.0F);
+        multi.field("name_key.autocomplete",3.0F);
+        multi.field("name.keyword", 2.0F);
+        multi.field("name.autocomplete");
+        multi.field("synonyms.keyword", 2.0F);
+        multi.field("synonyms.autocomplete");
 
-		bool.must(multi);
+        bool.must(multi);
 
-		return bool;
-	}
+        //include only genes, disease and go in autocomplete
+        bool.filter(
+                boolQuery().should(termQuery("category","gene"))
+                           .should(termQuery("category","go"))
+                           .should(termQuery("category","disease"))
+        );
 
-	public ArrayList<Map<String, Object>> formatResults(SearchResponse res) {
-		ArrayList<Map<String, Object>> ret = new ArrayList<Map<String, Object>>();
-		
-		for(SearchHit hit: res.getHits()) {
-			String category = (String) hit.getSource().get("category");
 
-			//this comes over from the Python code, use symbol for genes,
-			//seems like maybe it could also use name_key for everyone...
-			if (StringUtils.equals(category,"gene")) {
-				hit.getSource().put("name", hit.getSource().get("symbol"));
-			}
-			ret.add(hit.getSource());
-		}
-		return ret;
-	}
+        return bool;
+    }
+
+    public ArrayList<Map<String, Object>> formatResults(SearchResponse res) {
+        ArrayList<Map<String, Object>> ret = new ArrayList<Map<String, Object>>();
+        
+        for(SearchHit hit: res.getHits()) {
+            String category = (String) hit.getSource().get("category");
+
+            //this comes over from the Python code, use symbol for genes,
+            //seems like maybe it could also use name_key for everyone...
+            if (StringUtils.equals(category,"gene")) {
+                hit.getSource().put("name", hit.getSource().get("symbol"));
+            }
+            ret.add(hit.getSource());
+        }
+        return ret;
+    }
 
 }

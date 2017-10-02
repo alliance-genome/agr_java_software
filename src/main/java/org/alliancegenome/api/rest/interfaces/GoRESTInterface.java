@@ -19,12 +19,12 @@ import io.swagger.annotations.ApiParam;
 @Consumes(MediaType.APPLICATION_JSON)
 public interface GoRESTInterface {
 
-	@GET
-	@Path("/{id}")
-	@ApiOperation(value = "Searches for a Go fields", notes="Go Notes")
-	public Map<String, Object> getGo(
-			@ApiParam(name = "id", value = "Search for Go ID")
-			@PathParam("id") String id
-	);
-	
+    @GET
+    @Path("/{id}")
+    @ApiOperation(value = "Searches for a Go fields", notes="Go Notes")
+    public Map<String, Object> getGo(
+            @ApiParam(name = "id", value = "Search for Go ID")
+            @PathParam("id") String id
+    );
+    
 }
