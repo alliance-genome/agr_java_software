@@ -18,11 +18,11 @@ import io.swagger.annotations.Api;
 @Produces(MediaType.APPLICATION_XML)
 public interface SiteMapRESTInterface {
 
-	@GET
-	public SiteMapIndex getSiteMap(@Context UriInfo uriInfo);
-	
-	@GET
-	@Path("/{category}.xml")
-	public XMLURLSet getCategorySiteMap(@PathParam("category") String category, @Context UriInfo uriInfo);
-	
+    @GET
+    public SiteMapIndex getSiteMap(@Context UriInfo uriInfo);
+    
+    @GET
+    @Path("/{category}.xml")
+    public XMLURLSet getCategorySiteMap(@PathParam("category") String category, @Context UriInfo uriInfo);
+
 }

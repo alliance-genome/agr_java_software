@@ -12,6 +12,6 @@ import lombok.Setter;
 @XmlRootElement(name = "sitemapindex")
 public class SiteMapIndex {
 
-	private List<SiteMap> sitemap;
-	
+    private List<SiteMap> sitemap;
+    
 }
