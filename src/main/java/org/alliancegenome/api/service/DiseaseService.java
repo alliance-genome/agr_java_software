@@ -1,14 +1,14 @@
 package org.alliancegenome.api.service;
 
-import org.alliancegenome.api.dao.DiseaseDAO;
-import org.alliancegenome.api.model.SearchResult;
-import org.alliancegenome.api.service.helper.Pagination;
-import org.alliancegenome.api.service.helper.SortBy;
-import org.jboss.logging.Logger;
+import java.util.Map;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
-import java.util.Map;
+
+import org.alliancegenome.api.dao.DiseaseDAO;
+import org.alliancegenome.api.model.SearchResult;
+import org.alliancegenome.api.service.helper.Pagination;
+import org.jboss.logging.Logger;
 
 @RequestScoped
 public class DiseaseService {
