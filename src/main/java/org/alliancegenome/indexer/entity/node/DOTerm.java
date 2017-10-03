@@ -19,7 +19,7 @@ import lombok.Setter;
 @Setter
 public class DOTerm extends Neo4jEntity {
 
-    public static final String HIGH_LEVEL_TERM_LIST_SLIM = "tick-borne_infectious_disease";
+    public static final String HIGH_LEVEL_TERM_LIST_SLIM = "DO_AGR_slim";
 
     private String doUrl;
     private String doDisplayId;
@@ -44,7 +44,7 @@ public class DOTerm extends Neo4jEntity {
     private String flybaseLink;
     private String mgiLink;
 
-    private List<DOTerm> highLevelTermList = new ArrayList<>();
+    private List<DOTerm> highLevelTermList = new ArrayList<>(2);
 
     @Relationship(type = "IS_IMPLICATED_IN", direction = Relationship.INCOMING)
     private List<Gene> genes;
