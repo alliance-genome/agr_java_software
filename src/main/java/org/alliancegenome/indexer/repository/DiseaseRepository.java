@@ -1,15 +1,10 @@
 package org.alliancegenome.indexer.repository;
 
 import org.alliancegenome.indexer.entity.node.DOTerm;
-import org.alliancegenome.indexer.entity.node.Gene;
 import org.neo4j.ogm.exception.MappingException;
 import org.neo4j.ogm.model.Result;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.alliancegenome.indexer.entity.node.DOTerm.HIGH_LEVEL_TERM_LIST_SLIM;
 
@@ -49,7 +44,7 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
 //      return (List<DOTerm>) query(cypher);
 //  }
 
-    
+
 //  public List<DOTerm> getDiseaseTermsWithAnnotations() {
 //      String cypher = "match (root:DOTerm),  " +
 //              "(a:Association)-[q:ASSOCIATION]->(root), " +
@@ -62,21 +57,21 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
 //              "species, speciesRelation, parentChildRelation, parent";
 //
 //      return (List<DOTerm>) query(cypher);
-    
+
     //DiseaseGeneJoin
     public DOTerm getDiseaseTermWithAnnotations(String primaryKey) {
         String cypher = "match p0=(root:DOTerm)--(a:Association)-[:EVIDENCE]-(pe),"
                 + " p1=(a)-[:ASSOCIATION]-(gene:Gene)-[:FROM_SPECIES]-(species:Species),"
                 + " p2=(root)-[:IS_A*]->(p:DOTerm) WHERE root.primaryKey = {primaryKey}" +
                 " RETURN p0, p1, p2";
-        
+
         HashMap<String, String> map = new HashMap<>();
         map.put("primaryKey", primaryKey);
 
         try {
             Iterable<DOTerm> terms = query(cypher, map);
-            for(DOTerm d: terms) {
-                if(d.getPrimaryKey().equals(primaryKey)) {
+            for (DOTerm d : terms) {
+                if (d.getPrimaryKey().equals(primaryKey)) {
                     return d;
                 }
             }
@@ -115,41 +110,46 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
         
         Result r = queryForResult(query);
         Iterator<Map<String, Object>> i = r.iterator();
-        
+
         ArrayList<String> list = new ArrayList<>();
-        
-        while(i.hasNext()) {
+
+        while (i.hasNext()) {
             Map<String, Object> map2 = i.next();
-            list.add((String)map2.get("term.primaryKey"));
+            list.add((String) map2.get("term.primaryKey"));
         }
         return list;
     }
-    
+
     public DOTerm getDiseaseTerm(String primaryKey) {
 
         String cypher = "MATCH p0=(d:DOTerm)--(s) WHERE d.primaryKey = {primaryKey}  " +
                 " OPTIONAL MATCH p1=(d)--(s:DiseaseGeneJoin)-[:EVIDENCE]-(eq), p2=(s)--(g:Gene)-[:FROM_SPECIES]-(species:Species)" +
                 " OPTIONAL MATCH p3=(d)-[:IS_A]-(d2)" +
-                " OPTIONAL MATCH slim=(d)-[:IS_A*]->(slTerm) where slTerm.subset = {subset} " +
+                " OPTIONAL MATCH slim=(d)-[:IS_A*]->(slTerm) " +
+                " where all (subset IN [{subset}] where subset in slTerm.subset) " +
                 " RETURN p0, p1, p2, p3, slim";
 
         HashMap<String, String> map = new HashMap<>();
         map.put("primaryKey", primaryKey);
-        map.put("subset", "DO_MGI_slim");
+        map.put("subset", HIGH_LEVEL_TERM_LIST_SLIM);
 
         DOTerm primaryTerm = null;
+        List<DOTerm> highLevelTermList = new ArrayList<>(3);
         try {
             Iterable<DOTerm> terms = query(cypher, map);
-            for(DOTerm term: terms) {
-                if(term.getPrimaryKey().equals(primaryKey)) {
-                    primaryTerm =  term;
+            for (DOTerm term : terms) {
+                if (term.getPrimaryKey().equals(primaryKey)) {
+                    primaryTerm = term;
                 }
-                if(term.getSubset().contains(HIGH_LEVEL_TERM_LIST_SLIM))
-                    term.getHighLevelTermList().add(term);
+                if (term.getSubset().contains(HIGH_LEVEL_TERM_LIST_SLIM))
+                    highLevelTermList.add(term);
             }
         } catch (MappingException e) {
             e.printStackTrace();
         }
+        if(primaryTerm == null)
+            return null;
+        primaryTerm.getHighLevelTermList().addAll(highLevelTermList);
         return primaryTerm;
     }
 }
