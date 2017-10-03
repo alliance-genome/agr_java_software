@@ -1,10 +1,13 @@
 package org.alliancegenome.api.dao;
 
+import org.alliancegenome.api.model.SearchResult;
 import org.elasticsearch.action.admin.indices.analyze.AnalyzeRequest;
 import org.elasticsearch.action.admin.indices.analyze.AnalyzeResponse;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.elasticsearch.search.sort.SortOrder;
@@ -31,10 +34,10 @@ public class SearchDAO extends ESDAO {
     };
 
     public SearchResponse performQuery(QueryBuilder query,
-                                       List<AggregationBuilder> aggBuilders,
-                                       int limit, int offset,
-                                       HighlightBuilder highlighter,
-                                       String sort, Boolean debug) {
+            List<AggregationBuilder> aggBuilders,
+            int limit, int offset,
+            HighlightBuilder highlighter,
+            String sort, Boolean debug) {
 
         SearchRequestBuilder searchRequestBuilder = searchClient.prepareSearch();
 
@@ -70,5 +73,28 @@ public class SearchDAO extends ESDAO {
         AnalyzeRequest request = (new AnalyzeRequest()).analyzer("standard").text(query);
         List<AnalyzeResponse.AnalyzeToken> tokens = searchClient.admin().indices().analyze(request).actionGet().getTokens();
         return tokens.stream().map(token -> token.getTerm()).collect(Collectors.toList());
+    }
+
+
+    public List<SearchHit> getAllResults(QueryBuilder query, List<String> returnFields) {
+
+        ArrayList<SearchHit> hits = new ArrayList<SearchHit>();
+        SearchResponse scrollResp = searchClient.prepareSearch()
+                .setScroll(new TimeValue(60000))
+                .setQuery(query)
+                .setFetchSource(returnFields.toArray(new String[returnFields.size()]), null)
+                .setSize(100).get(); //max of 100 hits will be returned for each scroll
+        //Scroll until no hits are returned
+
+        do {
+            for (SearchHit hit : scrollResp.getHits().getHits()) {
+                hits.add(hit);
+            }
+
+            scrollResp = searchClient.prepareSearchScroll(scrollResp.getScrollId()).setScroll(new TimeValue(60000)).execute().actionGet();
+        } while(scrollResp.getHits().getHits().length != 0);
+
+        return hits;
+
     }
 }

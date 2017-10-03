@@ -17,7 +17,9 @@ import org.alliancegenome.api.model.xml.SiteMapIndex;
 import org.alliancegenome.api.model.xml.XMLURL;
 import org.alliancegenome.api.model.xml.XMLURLSet;
 import org.alliancegenome.api.rest.interfaces.SiteMapRESTInterface;
+import org.alliancegenome.api.service.GeneService;
 import org.alliancegenome.api.service.SearchService;
+import org.elasticsearch.search.SearchHit;
 import org.jboss.logging.Logger;
 
 @RequestScoped
@@ -25,10 +27,10 @@ public class SiteMapController implements SiteMapRESTInterface {
 
     @Inject
     private SearchService searchService;
-    
+
     @Inject
     private ConfigHelper config;
-    
+
     private Logger log = Logger.getLogger(getClass());
 
 
@@ -47,20 +49,16 @@ public class SiteMapController implements SiteMapRESTInterface {
     public XMLURLSet getCategorySiteMap(String category, UriInfo uriInfo) {
         return buildSiteMapByCategory(category, uriInfo);
     }
-    
+
     private XMLURLSet buildSiteMapByCategory(String category, UriInfo uriInfo) {
         List<XMLURL> urls = new ArrayList<XMLURL>();
         log.info("Site Map Request: " + buildUrl(uriInfo, "api/sitemap", category));
-        int chunk = 1000;
-        int c = 0, rc = 1;
-        do {
-            SearchResult sr = searchService.query(null, category, chunk, c * chunk, null, uriInfo);
-            rc = sr.results.size();
-            for(Map<String, Object> map: sr.results) {
-                urls.add(new XMLURL(buildUrl(uriInfo, (String)map.get("category"), (String)map.get("id")), (Date)map.get("dateProduced"), "monthly", "0.6"));
-            }
-            c++;
-        } while(rc > 0);
+        
+        List<String> response_fields = new ArrayList<String>() { { add("category"); add("id"); add("dateProduced"); } };
+        List<SearchHit> hits = searchService.getAllByCategory(category, response_fields);
+        for(SearchHit hit: hits) {
+            urls.add(new XMLURL(buildUrl(uriInfo, (String)hit.getSource().get("category"), (String)hit.getSource().get("id")), (Date)hit.getSource().get("dateProduced"), "monthly", "0.6"));
+        }
 
         XMLURLSet set = new XMLURLSet();
         set.setUrl(urls);
