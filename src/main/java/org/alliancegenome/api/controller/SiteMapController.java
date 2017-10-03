@@ -54,14 +54,14 @@ public class SiteMapController implements SiteMapRESTInterface {
         List<XMLURL> urls = new ArrayList<XMLURL>();
         log.info("Site Map Request: " + buildUrl(uriInfo, "api/sitemap", category));
 
-        List<String> response_fields = new ArrayList<String>() { { add("category"); add("id"); add("dateProduced"); } };
+        List<String> response_fields = new ArrayList<String>() { { add("category"); add("id"); } };
         List<SearchHit> hits = searchService.getAllByCategory(category, response_fields);
         for(SearchHit hit: hits) {
             Date date = null;
             //System.out.println(hit.getSource());
-            if(hit.getSource().get("dateProduced") != null) {
-                date = new Date((long)hit.getSource().get("dateProduced"));
-            }
+            //if(hit.getSource().get("dateProduced") != null) {
+            //  date = new Date((long)hit.getSource().get("dateProduced"));
+            //}
             urls.add(new XMLURL(buildUrl(uriInfo, (String)hit.getSource().get("category"), hit.getId()), date, "monthly", "0.6"));
         }
 
