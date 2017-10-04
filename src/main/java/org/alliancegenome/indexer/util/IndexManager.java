@@ -25,11 +25,11 @@ import com.google.common.collect.ImmutableList;
 
 public class IndexManager {
 
-    private Logger log = LogManager.getLogger(getClass());
+    private final Logger log = LogManager.getLogger(getClass());
     private PreBuiltXPackTransportClient client;
     private String newIndexName;
     private String oldIndexName;
-    private String baseIndexName;
+    private final String baseIndexName;
 
     public IndexManager() {
 
@@ -103,36 +103,43 @@ public class IndexManager {
         log.debug(baseIndexName + " Finished: ");
     }
 
-    public void takeSnapShot() {
+
+    public String checkSnapShotRepo() {
         if(ConfigHelper.getAWSAccessKey() != null && ConfigHelper.getAWSAccessKey() != null) {
             try {
-    
+
                 List<RepositoryMetaData> repositories = client.admin().cluster().prepareGetRepositories().get().repositories();
-    
+
                 if(repositories.size() == 0){
                     log.debug("No Repo's found");
-                    createRepo();
-    
+                    return createRepo();
                 } else {
-                    boolean found = false;
                     for(RepositoryMetaData repo: repositories) {
                         if(repo.name().equals(ConfigHelper.getSnapShotsRepoName())) {
-                            found = true;
-                            break;
+                            return repo.name();
                         }
                     }
-                    if(!found) createRepo();
+                    return createRepo();
                 }
-    
-                createSnapShot(newIndexName);
-    
             } catch (Exception ex){
                 log.error("Exception in getRepository method: " + ex.toString());
-    
             }
         } else {
             log.info("Skipping Snapshot no AWS Creds");
         }
+        return null;
+    }
+
+    public void takeSnapShot() {
+        String repo = checkSnapShotRepo();
+
+        if(repo != null) {
+            createSnapShot(newIndexName);
+        }
+    }
+
+    public void listSnapShots() {
+        List<RepositoryMetaData> repositories = client.admin().cluster().prepareGetRepositories().get().repositories();
     }
 
     private void createSnapShot(String snapShotName) {
@@ -149,16 +156,17 @@ public class IndexManager {
         }
     }
 
-    private void createRepo() {
+    private String createRepo() {
         try {
             ESSettings settings = new ESSettings(true);
             settings.buildRepositorySettings(ConfigHelper.getAWSBucketName(), ConfigHelper.getAWSAccessKey(), ConfigHelper.getAWSSecretKey());
             PutRepositoryResponse putRepositoryResponse = client.admin().cluster().preparePutRepository(ConfigHelper.getSnapShotsRepoName()).setType("s3").setSettings(settings.getBuilder().string()).get();
             log.info("Repository was created: " + putRepositoryResponse.toString());
-
+            return ConfigHelper.getSnapShotsRepoName();
         } catch(Exception ex){
             log.error("Exception in createRepository method: " + ex.toString());
         }
+        return null;
     }
 
     public void setCurrentIndex() {
