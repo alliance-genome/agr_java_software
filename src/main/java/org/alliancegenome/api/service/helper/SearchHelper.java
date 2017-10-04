@@ -23,211 +23,211 @@ import java.util.*;
 public class SearchHelper {
 
 
-	private Logger log = Logger.getLogger(getClass());
+    private Logger log = Logger.getLogger(getClass());
 
-	private static String[] SUFFIX_LIST = { ".keyword", ".synonym", ".symbols", ".text" };
+    private static String[] SUFFIX_LIST = { ".keyword", ".synonym", ".symbols", ".text" };
 
-	private HashMap<String, List<String>> category_filters = new HashMap<String, List<String>>() {
-		{
-			put("gene", new ArrayList<String>() {
-				{
-					add("species");
-					add("soTermName");
-					add("diseases.name");
-					add("gene_biological_process");
-					add("gene_molecular_function");
-					add("gene_cellular_component");
+    private HashMap<String, List<String>> category_filters = new HashMap<String, List<String>>() {
+        {
+            put("gene", new ArrayList<String>() {
+                {
+                    add("species");
+                    add("soTermName");
+                    add("diseases.name");
+                    add("gene_biological_process");
+                    add("gene_molecular_function");
+                    add("gene_cellular_component");
 
-				}
-			});
-			put("go", new ArrayList<String>() {
-				{
-					add("go_type");
-					add("go_species");
-					add("go_genes");
-				}
-			});
-			put("disease", new ArrayList<String>() {
-				{
-					add("disease_group");
-					add("annotations.geneDocument.name_key");
-					add("annotations.geneDocument.species");
-				}
-			});
-		}
-	};
+                }
+            });
+            put("go", new ArrayList<String>() {
+                {
+                    add("go_type");
+                    add("go_species");
+                    add("go_genes");
+                }
+            });
+            put("disease", new ArrayList<String>() {
+                {
+                    add("disease_group");
+                    add("annotations.geneDocument.name_key");
+                    add("annotations.geneDocument.species");
+                }
+            });
+        }
+    };
 
-	public Map<String, Float> getBoostMap() { return boostMap; }
-	private Map<String, Float> boostMap = new HashMap<String, Float>() {
-		{
-			put("symbol",5.0F);
-			put("symbol.autocomplete",2.0F);
-			put("name.autocomplete",0.1F);
-		}
-	};
+    public Map<String, Float> getBoostMap() { return boostMap; }
+    private Map<String, Float> boostMap = new HashMap<String, Float>() {
+        {
+            put("symbol",5.0F);
+            put("symbol.autocomplete",2.0F);
+            put("name.autocomplete",0.1F);
+        }
+    };
 
-	public List<String> getSearchFields() { return searchFields; }
-	private List<String> searchFields = new ArrayList<String>() {
-		{
-			add("primaryId"); add("id"); add("secondaryIds"); add("name"); add("name.autocomplete");
-			add("symbol"); add("symbol.keyword"); add("symbol.autocomplete");  add("synonyms"); add("synonyms.keyword");
-			add("description"); add("external_ids"); add("species"); add("species.synonyms"); add("modLocalId");
-			add("gene_biological_process"); add("gene_molecular_function"); add("gene_cellular_component");
-			add("go_type"); add("go_genes"); add("go_synonyms");
-			add("disease_genes"); add("disease_synonyms"); add("diseases.name"); add("orthology.gene2Symbol");
-			add("crossReferences.name"); add("crossReferences.localId");
-		}
-	};
-
-
-	private List<String> highlight_blacklist_fields = new ArrayList<String>() {
-		{
-			add("go_genes"); add("name.autocomplete");
-		}
-	};
+    public List<String> getSearchFields() { return searchFields; }
+    private List<String> searchFields = new ArrayList<String>() {
+        {
+            add("primaryId"); add("id"); add("secondaryIds"); add("name"); add("name.autocomplete");
+            add("symbol"); add("symbol.keyword"); add("symbol.autocomplete");  add("synonyms"); add("synonyms.keyword");
+            add("description"); add("external_ids"); add("species"); add("species.synonyms"); add("modLocalId");
+            add("gene_biological_process"); add("gene_molecular_function"); add("gene_cellular_component");
+            add("go_type"); add("go_genes"); add("go_synonyms");
+            add("disease_genes"); add("disease_synonyms"); add("diseases.name"); add("orthology.gene2Symbol");
+            add("crossReferences.name"); add("crossReferences.localId");
+        }
+    };
 
 
-
-	public List<AggregationBuilder> createAggBuilder(String category) {
-		List<AggregationBuilder> ret = new ArrayList<>();
-
-		if(category == null || !category_filters.containsKey(category)) {
-			TermsAggregationBuilder term = AggregationBuilders.terms("categories");
-			term.field("category");
-			term.size(50);
-			ret.add(term);
-		} else {
-			for(String item: category_filters.get(category)) {
-				TermsAggregationBuilder term = AggregationBuilders.terms(item);
-				term.field(item + ".keyword");
-				term.size(999);
-				ret.add(term);
-			}
-		}
-
-		return ret;
-	}
+    private List<String> highlight_blacklist_fields = new ArrayList<String>() {
+        {
+            add("go_genes"); add("name.autocomplete");
+        }
+    };
 
 
-	public ArrayList<AggResult> formatAggResults(String category, SearchResponse res) {
-		ArrayList<AggResult> ret = new ArrayList<>();
 
-		if(category == null) {
+    public List<AggregationBuilder> createAggBuilder(String category) {
+        List<AggregationBuilder> ret = new ArrayList<>();
 
-			Terms aggs = res.getAggregations().get("categories");
+        if(category == null || !category_filters.containsKey(category)) {
+            TermsAggregationBuilder term = AggregationBuilders.terms("categories");
+            term.field("category");
+            term.size(50);
+            ret.add(term);
+        } else {
+            for(String item: category_filters.get(category)) {
+                TermsAggregationBuilder term = AggregationBuilders.terms(item);
+                term.field(item + ".keyword");
+                term.size(999);
+                ret.add(term);
+            }
+        }
 
-			AggResult ares = new AggResult("category");
-			for (Terms.Bucket entry : aggs.getBuckets()) {
-				ares.values.add(new AggDocCount(entry.getKeyAsString(), entry.getDocCount()));
-			}
-			ret.add(ares);
-
-		} else {
-			if(category_filters.containsKey(category)) {
-				for(String item: category_filters.get(category)) {
-					Terms aggs = res.getAggregations().get(item);
-
-					AggResult ares = new AggResult(item);
-					for (Terms.Bucket entry : aggs.getBuckets()) {
-						ares.values.add(new AggDocCount(entry.getKeyAsString(), entry.getDocCount()));
-					}
-					ret.add(ares);
-				}
-			}
-		}
-
-		return ret;
-	}
+        return ret;
+    }
 
 
-	public boolean filterIsValid(String category, String fieldName) {
-		if (!category_filters.containsKey(category)) { return false; }
+    public ArrayList<AggResult> formatAggResults(String category, SearchResponse res) {
+        ArrayList<AggResult> ret = new ArrayList<>();
 
-		List<String> fields = category_filters.get(category);
+        if(category == null) {
 
-		return fields.contains(fieldName);
-	}
+            Terms aggs = res.getAggregations().get("categories");
+
+            AggResult ares = new AggResult("category");
+            for (Terms.Bucket entry : aggs.getBuckets()) {
+                ares.values.add(new AggDocCount(entry.getKeyAsString(), entry.getDocCount()));
+            }
+            ret.add(ares);
+
+        } else {
+            if(category_filters.containsKey(category)) {
+                for(String item: category_filters.get(category)) {
+                    Terms aggs = res.getAggregations().get(item);
+
+                    AggResult ares = new AggResult(item);
+                    for (Terms.Bucket entry : aggs.getBuckets()) {
+                        ares.values.add(new AggDocCount(entry.getKeyAsString(), entry.getDocCount()));
+                    }
+                    ret.add(ares);
+                }
+            }
+        }
+
+        return ret;
+    }
 
 
-	public void applyFilters(BoolQueryBuilder bool, String category, UriInfo uriInfo ) {
-		if(category_filters.containsKey(category)) {
-			for(String item: category_filters.get(category)) {
-				if(uriInfo.getQueryParameters().containsKey(item)) {
-					for(String param: uriInfo.getQueryParameters().get(item)) {
-						bool.filter(new TermQueryBuilder(item + ".keyword", param));
-					}
-				}
-			}
-		}
-	}
+    public boolean filterIsValid(String category, String fieldName) {
+        if (!category_filters.containsKey(category)) { return false; }
+
+        List<String> fields = category_filters.get(category);
+
+        return fields.contains(fieldName);
+    }
 
 
-	public ArrayList<Map<String, Object>> formatResults(SearchResponse res, List<String> searchedTerms) {
-		log.info("Formatting Results: ");
-		ArrayList<Map<String, Object>> ret = new ArrayList<>();
-		
-		for(SearchHit hit: res.getHits()) {
+    public void applyFilters(BoolQueryBuilder bool, String category, UriInfo uriInfo ) {
+        if(category_filters.containsKey(category)) {
+            for(String item: category_filters.get(category)) {
+                if(uriInfo.getQueryParameters().containsKey(item)) {
+                    for(String param: uriInfo.getQueryParameters().get(item)) {
+                        bool.filter(new TermQueryBuilder(item + ".keyword", param));
+                    }
+                }
+            }
+        }
+    }
 
-			Map<String, Object> map = new HashMap<>();
-			for(String key: hit.getHighlightFields().keySet()) {
-				if(key.endsWith(".symbol")) {
-					log.info("Source as String: " + hit.getSourceAsString());
-					log.info("Highlights: " + hit.getHighlightFields());
-				}
 
-				ArrayList<String> list = new ArrayList<>();
-				for(Text t: hit.getHighlightFields().get(key).getFragments()) {
-					list.add(t.string());
-				}
+    public ArrayList<Map<String, Object>> formatResults(SearchResponse res, List<String> searchedTerms) {
+        log.debug("Formatting Results: ");
+        ArrayList<Map<String, Object>> ret = new ArrayList<>();
+        
+        for(SearchHit hit: res.getHits()) {
 
-				// stripping anything after the first .
-				// this may eventually need to be replaced by a more targeted
-				// method that just remove .keyword .synonym etc
-				String name = hit.getHighlightFields().get(key).getName();
-				for (int i = 0 ; i < SUFFIX_LIST.length ; i++ ) {
-					name = name.replace(SUFFIX_LIST[i],"");
-				}
+            Map<String, Object> map = new HashMap<>();
+            for(String key: hit.getHighlightFields().keySet()) {
+                if(key.endsWith(".symbol")) {
+                    log.debug("Source as String: " + hit.getSourceAsString());
+                    log.debug("Highlights: " + hit.getHighlightFields());
+                }
 
-				map.put(name, list);
-			}
-			hit.getSource().put("highlights", map);
-			hit.getSource().put("id", hit.getId());
-			hit.getSource().put("score", hit.getScore());
-			if (hit.getExplanation() != null) {
-				hit.getSource().put("explanation", hit.getExplanation());
-			}
+                ArrayList<String> list = new ArrayList<>();
+                for(Text t: hit.getHighlightFields().get(key).getFragments()) {
+                    list.add(t.string());
+                }
 
-			hit.getSource().put("missingTerms", findMissingTerms(Arrays.asList(hit.getMatchedQueries()),
-					                                             searchedTerms));
-			ret.add(hit.getSource());
-		}
-		log.info("Finished Formatting Results: ");
-		return ret;
-	}
+                // stripping anything after the first .
+                // this may eventually need to be replaced by a more targeted
+                // method that just remove .keyword .synonym etc
+                String name = hit.getHighlightFields().get(key).getName();
+                for (int i = 0 ; i < SUFFIX_LIST.length ; i++ ) {
+                    name = name.replace(SUFFIX_LIST[i],"");
+                }
 
-	private List<String> findMissingTerms(List<String> matchedTerms, List<String> searchedTerms) {
-		List<String> terms = new ArrayList<>();
+                map.put(name, list);
+            }
+            hit.getSource().put("highlights", map);
+            hit.getSource().put("id", hit.getId());
+            hit.getSource().put("score", hit.getScore());
+            if (hit.getExplanation() != null) {
+                hit.getSource().put("explanation", hit.getExplanation());
+            }
 
-		if (matchedTerms == null || searchedTerms == null) {
-			return terms; //just give up and return an empty list
-		}
+            hit.getSource().put("missingTerms", findMissingTerms(Arrays.asList(hit.getMatchedQueries()),
+                                                                 searchedTerms));
+            ret.add(hit.getSource());
+        }
+        log.debug("Finished Formatting Results: ");
+        return ret;
+    }
 
-		terms.addAll(searchedTerms);
-		terms.removeAll(matchedTerms);
+    private List<String> findMissingTerms(List<String> matchedTerms, List<String> searchedTerms) {
+        List<String> terms = new ArrayList<>();
 
-		return terms;
-	}
+        if (matchedTerms == null || searchedTerms == null) {
+            return terms; //just give up and return an empty list
+        }
 
-	public HighlightBuilder buildHighlights() {
+        terms.addAll(searchedTerms);
+        terms.removeAll(matchedTerms);
 
-		HighlightBuilder hlb = new HighlightBuilder();
+        return terms;
+    }
 
-		for(String field: searchFields) {
-			if(!highlight_blacklist_fields.contains(field)) {
-				hlb.field(field);
-			}
-		}
+    public HighlightBuilder buildHighlights() {
 
-		return hlb;
-	}
+        HighlightBuilder hlb = new HighlightBuilder();
+
+        for(String field: searchFields) {
+            if(!highlight_blacklist_fields.contains(field)) {
+                hlb.field(field);
+            }
+        }
+
+        return hlb;
+    }
 }
