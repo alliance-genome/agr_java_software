@@ -33,7 +33,7 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
 
         // group by gene then by association type
         Map<Gene, Map<String, List<DiseaseGeneJoin>>> geneAssociationMap = entity.getDiseaseGeneJoins().stream()
-                .filter(diseaseGeneJoin -> diseaseGeneJoin.getGene().equals(gene))
+                .filter(diseaseGeneJoin -> gene == null || diseaseGeneJoin.getGene().equals(gene))
                 .collect(
                         groupingBy(DiseaseGeneJoin::getGene,
                                 groupingBy(DiseaseGeneJoin::getJoinType))
