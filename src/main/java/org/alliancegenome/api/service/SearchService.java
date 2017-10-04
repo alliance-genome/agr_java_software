@@ -8,6 +8,7 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.*;
 import org.elasticsearch.index.query.functionscore.FunctionScoreQueryBuilder;
 import org.elasticsearch.index.query.functionscore.ScoreFunctionBuilders;
+import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.jboss.logging.Logger;
@@ -152,6 +153,12 @@ public class SearchService {
             return new ArrayList<>();
         }
         return searchDAO.analyze(query);
+    }
+
+    public List<SearchHit> getAllByCategory(String category, List<String> returnFields) {
+        QueryBuilder qb = termQuery("category", category);
+        
+        return searchDAO.getAllResults(qb, returnFields);
     }
 
 }

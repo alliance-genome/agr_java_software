@@ -21,7 +21,7 @@ public class ESDAO {
     @Inject
     protected ConfigHelper config;
 
-    private Logger log = Logger.getLogger(getClass());
+    private final Logger log = Logger.getLogger(getClass());
     protected PreBuiltTransportClient searchClient;
 
     @PostConstruct
@@ -30,7 +30,14 @@ public class ESDAO {
 
         searchClient = new PreBuiltTransportClient(Settings.EMPTY);
         try {
-            searchClient.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(config.getEsHost()), config.getEsPort()));
+            if(config.getEsHost().contains(",")) {
+                String[] hosts = config.getEsHost().split(",");
+                for(String host: hosts) {
+                    searchClient.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(host), config.getEsPort()));
+                }
+            } else {
+                searchClient.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(config.getEsHost()), config.getEsPort()));
+            }
         } catch (UnknownHostException e) {
             e.printStackTrace();
         }
@@ -45,7 +52,7 @@ public class ESDAO {
         log.info("Closing Down ES Client");
         searchClient.close();
     }
-    
+
     public Map<String, Object> getById(String id) {
 
         try {
