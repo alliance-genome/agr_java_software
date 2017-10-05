@@ -23,4 +23,24 @@ class AutocompleteIntegrationSpec extends Specification {
 
     }
 
+    @Unroll
+    def "selecting #category category should only return results from #category"() {
+        when:
+        def query = "f"
+        //todo: need to set the base search url in a nicer way
+        def url = new URL("http://localhost:8080/api/search_autocomplete?q=$query&category=$category")
+        def results = new JsonSlurper().parseText(url.text).results
+        def categories = results*.category.unique()
+
+        then:
+        results
+        categories
+        categories.size() == 1
+        categories == [category]
+
+        where:
+        category << ["gene", "disease", "go"]
+
+    }
+
 }

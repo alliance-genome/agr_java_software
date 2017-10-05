@@ -35,12 +35,17 @@ public class AutoCompleteHelper {
 
         bool.must(multi);
 
-        //include only genes, disease and go in autocomplete
+        if (StringUtils.isNotEmpty(category)) {
+            bool.filter(termQuery("category", category));
+        }
+
+        //include only genes, disease and go in autocomplete (excludes diseaseAnnotation)
         bool.filter(
                 boolQuery().should(termQuery("category","gene"))
                            .should(termQuery("category","go"))
                            .should(termQuery("category","disease"))
         );
+
 
 
         return bool;
