@@ -43,18 +43,7 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
                             }
                             document.setAssociationType(associationEntry.getKey());
                             document.setSource(getSourceUrls(entity, geneMapEntry.getKey().getSpecies()));
-                            List<PublicationDoclet> publicationDocuments = associationEntry.getValue().stream()
-                                    // filter out records that do not have valid pub / evidence code entries
-                                    .filter(diseaseGeneJoin ->
-                                            getPublicationDoclet(diseaseGeneJoin, diseaseGeneJoin.getPublication()) != null
-                                    )
-                                    .map(diseaseGeneJoin -> {
-                                        Publication publication = diseaseGeneJoin.getPublication();
-                                        return getPublicationDoclet(diseaseGeneJoin, publication);
-                                    })
-                                    .collect(Collectors.toList());
-                            document.setPublications(publicationDocuments);
-
+                            document.setPublications(getPublicationDoclets(associationEntry));
                             return document;
                         }).collect(Collectors.toList()))
                 // turn List<AnnotationDocument> into stream<AnnotationDocument> so they can be collected into
@@ -256,18 +245,7 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
                                     document.setAssociationType(associationEntry.getKey());
                                     document.setSpecies(getSpeciesDoclet(gene));
                                     document.setSource(getSourceUrls(doTerm, gene.getSpecies()));
-
-                                    List<PublicationDoclet> publicationDocuments = associationEntry.getValue().stream()
-                                            // filter out records that do not have valid pub / evidence code entries
-                                            .filter(diseaseGeneJoin ->
-                                                    getPublicationDoclet(diseaseGeneJoin, diseaseGeneJoin.getPublication()) != null
-                                            )
-                                            .map(diseaseGeneJoin -> {
-                                                Publication publication = diseaseGeneJoin.getPublication();
-                                                return getPublicationDoclet(diseaseGeneJoin, publication);
-                                            })
-                                            .collect(Collectors.toList());
-                                    document.setPublications(publicationDocuments);
+                                    document.setPublications(getPublicationDoclets(associationEntry));
                                     return document;
                                 }).collect(Collectors.toList()))
                         .flatMap(Collection::stream)
@@ -276,6 +254,22 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
             }
         });
         return diseaseAnnotationDocuments;
+    }
+
+    private List<PublicationDoclet> getPublicationDoclets(Map.Entry<String, List<DiseaseGeneJoin>> associationEntry) {
+        Set<PublicationDoclet> publicationDocuments = associationEntry.getValue().stream()
+                // filter out records that do not have valid pub / evidence code entries
+                .filter(diseaseGeneJoin ->
+                        getPublicationDoclet(diseaseGeneJoin, diseaseGeneJoin.getPublication()) != null
+                )
+                .map(diseaseGeneJoin -> {
+                    Publication publication = diseaseGeneJoin.getPublication();
+                    return getPublicationDoclet(diseaseGeneJoin, publication);
+                })
+                .collect(Collectors.toSet());
+        List<PublicationDoclet> pubDocletList = new ArrayList<>(publicationDocuments);
+        pubDocletList.sort(PublicationDoclet::compareTo);
+        return pubDocletList;
     }
 
     /**
