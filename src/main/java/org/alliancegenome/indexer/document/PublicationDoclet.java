@@ -1,13 +1,13 @@
 package org.alliancegenome.indexer.document;
 
-import java.util.List;
-
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 @Setter
-public class PublicationDoclet {
+public class PublicationDoclet implements Comparable<PublicationDoclet> {
 
     private String primaryKey;
     private String pubMedId;
@@ -16,4 +16,14 @@ public class PublicationDoclet {
     private String pubModUrl;
     private List<String> evidenceCodes;
 
+    @Override
+    public int compareTo(PublicationDoclet comp) {
+        if (pubMedId != null && comp.pubMedId != null)
+            return pubMedId.compareTo(comp.pubMedId);
+        if (comp.pubModId == null)
+            return -1;
+        if (pubModId == null)
+            return +1;
+        return pubModId.compareToIgnoreCase(comp.pubModId);
+    }
 }
