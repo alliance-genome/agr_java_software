@@ -187,25 +187,32 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
                     SourceDoclet doclet = new SourceDoclet();
                     doclet.setSpecies(SpeciesService.getSpeciesDoclet(speciesType));
                     doclet.setName(speciesType.getDisplayName());
-                    if (speciesType.equals(SpeciesType.HUMAN))
+                    if (speciesType.equals(SpeciesType.HUMAN)) {
                         doclet.setName(SpeciesType.RAT.getDisplayName());
+                        doclet.setDiseaseUrl(doTerm.getHumanOnlyRgdLink());
+                    }
                     if (speciesType == SpeciesType.FLY && doTerm.getFlybaseLink() != null) {
                         doclet.setUrl(doTerm.getFlybaseLink());
+                        doclet.setDiseaseUrl(doTerm.getFlybaseLink());
                     }
                     if (speciesType == SpeciesType.RAT && doTerm.getRgdLink() != null) {
                         doclet.setUrl(doTerm.getRgdLink());
+                        doclet.setDiseaseUrl(doTerm.getRatOnlyRgdLink());
                     }
                     if (speciesType == SpeciesType.MOUSE && doTerm.getMgiLink() != null) {
                         doclet.setUrl(doTerm.getMgiLink());
+                        doclet.setDiseaseUrl(doTerm.getMgiLink());
                     }
                     if (speciesType == SpeciesType.ZEBRAFISH && doTerm.getZfinLink() != null) {
                         doclet.setUrl(doTerm.getZfinLink());
+                        doclet.setDiseaseUrl(doTerm.getZfinLink());
                     }
                     if (speciesType == SpeciesType.HUMAN && doTerm.getHumanLink() != null) {
                         doclet.setUrl(doTerm.getHumanLink());
                     }
                     if (speciesType == SpeciesType.WORM && doTerm.getWormbaseLink() != null) {
                         doclet.setUrl(doTerm.getWormbaseLink());
+                        doclet.setDiseaseUrl(doTerm.getWormbaseLink());
                     }
                     return doclet;
                 })
