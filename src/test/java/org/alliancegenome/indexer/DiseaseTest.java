@@ -1,6 +1,7 @@
 package org.alliancegenome.indexer;
 
 import org.alliancegenome.indexer.config.ConfigHelper;
+import org.alliancegenome.indexer.document.DiseaseAnnotationDocument;
 import org.alliancegenome.indexer.document.DiseaseDocument;
 import org.alliancegenome.indexer.entity.node.DOTerm;
 import org.alliancegenome.indexer.repository.DiseaseRepository;
@@ -14,6 +15,9 @@ import org.apache.logging.log4j.core.config.Configurator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -41,9 +45,11 @@ public class DiseaseTest {
 
         DiseaseTranslator translator = new DiseaseTranslator();
 
-        DOTerm diseaseTerm = diseaseRepository.getDiseaseTerm("DOID:10921");
+        DOTerm diseaseTerm = diseaseRepository.getDiseaseTerm("DOID:4005");
         DiseaseDocument doc = translator.translate(diseaseTerm, 1);
-        
+        List<DOTerm> doList = new ArrayList<>(Collections.singletonList(diseaseTerm));
+        Iterable<DiseaseAnnotationDocument> annotDoc = translator.translateAnnotationEntities(doList, 1);
+
         ObjectMapper mapper = new ObjectMapper();
         String json = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(doc);
         System.out.println(json);
