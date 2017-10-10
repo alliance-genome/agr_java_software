@@ -51,13 +51,6 @@ public class DiseaseController implements DiseaseRESTInterface {
     }
 
     @Override
-    public SearchResult getDiseaseAnnotations(String id,
-                                              int limit,
-                                              int page) {
-        return getDiseaseAnnotationsSorted(id, limit, page, null, null);
-    }
-
-    @Override
     public Response getDiseaseAnnotationsDownloadFile(String id) {
 
         Response.ResponseBuilder response = Response.ok(getDiseaseAnnotationsDownload(id));
