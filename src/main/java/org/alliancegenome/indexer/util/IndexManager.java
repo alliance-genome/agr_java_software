@@ -154,10 +154,10 @@ public class IndexManager {
 
     private String createRepo(String repoName) {
 
-        if(ConfigHelper.getAWSAccessKey() != null && ConfigHelper.getAWSAccessKey() != null && ConfigHelper.hasEsIndexSuffix() || repoName == null) {
+        if(ConfigHelper.getAWSAccessKey() != null && ConfigHelper.getAWSAccessKey() != null && repoName != null) {
             try {
                 ESSettings settings = new ESSettings(true);
-                settings.buildRepositorySettings("agr-es-backup-" + ConfigHelper.getEsIndexSuffix(), ConfigHelper.getAWSAccessKey(), ConfigHelper.getAWSSecretKey());
+                settings.buildRepositorySettings("agr-es-backup-" + repoName, ConfigHelper.getAWSAccessKey(), ConfigHelper.getAWSSecretKey());
                 log.info(repoName + " -> " + settings.getBuilder().string());
                 PutRepositoryResponse putRepositoryResponse = client.admin().cluster().preparePutRepository(repoName).setType("s3").setSettings(settings.getBuilder().string()).get();
                 log.info("Repository was created: " + putRepositoryResponse.toString());
