@@ -13,7 +13,8 @@ public class MainIndexAdmin {
 
         IndexManager im = new IndexManager();
 
-        im.checkSnapShotRepo("dev");
+        // Be very careful running this
+        //im.checkSnapShotRepo("dev");
 
     }
 
