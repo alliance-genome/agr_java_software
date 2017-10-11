@@ -31,19 +31,7 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
         if (entity.getDiseaseGeneJoins() == null)
             return doc;
 
-        // group by gene then by association type
-        Map<Gene, Map<String, List<DiseaseGeneJoin>>> geneAssociationMap = entity.getDiseaseGeneJoins().stream()
-                .filter(diseaseGeneJoin -> diseaseGeneJoin.getGene().equals(gene))
-                .collect(
-                        groupingBy(DiseaseGeneJoin::getGene,
-                                groupingBy(DiseaseGeneJoin::getJoinType))
-                );
-
-        // sort by gene symbol
-        Map<Gene, Map<String, List<DiseaseGeneJoin>>> sortedGeneAssociationMap =
-                geneAssociationMap.entrySet().stream()
-                        .sorted(Map.Entry.comparingByKey())
-                        .collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
+        Map<Gene, Map<String, List<DiseaseGeneJoin>>> sortedGeneAssociationMap = getGeneAnnotationMap(entity, gene);
 
         // generate AnnotationDocument records
         List<AnnotationDocument> annotationDocuments = sortedGeneAssociationMap.entrySet().stream()
@@ -55,18 +43,7 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
                             }
                             document.setAssociationType(associationEntry.getKey());
                             document.setSource(getSourceUrls(entity, geneMapEntry.getKey().getSpecies()));
-                            List<PublicationDoclet> publicationDocuments = associationEntry.getValue().stream()
-                                    // filter out records that do not have valid pub / evidence code entries
-                                    .filter(diseaseGeneJoin ->
-                                            getPublicationDoclet(diseaseGeneJoin, diseaseGeneJoin.getPublication()) != null
-                                    )
-                                    .map(diseaseGeneJoin -> {
-                                        Publication publication = diseaseGeneJoin.getPublication();
-                                        return getPublicationDoclet(diseaseGeneJoin, publication);
-                                    })
-                                    .collect(Collectors.toList());
-                            document.setPublications(publicationDocuments);
-
+                            document.setPublications(getPublicationDoclets(associationEntry));
                             return document;
                         }).collect(Collectors.toList()))
                 // turn List<AnnotationDocument> into stream<AnnotationDocument> so they can be collected into
@@ -77,6 +54,21 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
         doc.setAnnotations(annotationDocuments);
 
         return doc;
+    }
+
+    private Map<Gene, Map<String, List<DiseaseGeneJoin>>> getGeneAnnotationMap(DOTerm entity, Gene gene) {
+        // group by gene then by association type
+        Map<Gene, Map<String, List<DiseaseGeneJoin>>> geneAssociationMap = entity.getDiseaseGeneJoins().stream()
+                .filter(diseaseGeneJoin -> gene == null || diseaseGeneJoin.getGene().equals(gene))
+                .collect(
+                        groupingBy(DiseaseGeneJoin::getGene,
+                                groupingBy(DiseaseGeneJoin::getJoinType))
+                );
+
+        // sort by gene symbol
+        return geneAssociationMap.entrySet().stream()
+                .sorted(Map.Entry.comparingByKey())
+                .collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
     private PublicationDoclet getPublicationDoclet(DiseaseGeneJoin association, Publication publication) {
@@ -195,25 +187,32 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
                     SourceDoclet doclet = new SourceDoclet();
                     doclet.setSpecies(SpeciesService.getSpeciesDoclet(speciesType));
                     doclet.setName(speciesType.getDisplayName());
-                    if (speciesType.equals(SpeciesType.HUMAN))
+                    if (speciesType.equals(SpeciesType.HUMAN)) {
                         doclet.setName(SpeciesType.RAT.getDisplayName());
+                        doclet.setDiseaseUrl(doTerm.getHumanOnlyRgdLink());
+                    }
                     if (speciesType == SpeciesType.FLY && doTerm.getFlybaseLink() != null) {
                         doclet.setUrl(doTerm.getFlybaseLink());
+                        doclet.setDiseaseUrl(doTerm.getFlybaseLink());
                     }
                     if (speciesType == SpeciesType.RAT && doTerm.getRgdLink() != null) {
                         doclet.setUrl(doTerm.getRgdLink());
+                        doclet.setDiseaseUrl(doTerm.getRatOnlyRgdLink());
                     }
                     if (speciesType == SpeciesType.MOUSE && doTerm.getMgiLink() != null) {
                         doclet.setUrl(doTerm.getMgiLink());
+                        doclet.setDiseaseUrl(doTerm.getMgiLink());
                     }
                     if (speciesType == SpeciesType.ZEBRAFISH && doTerm.getZfinLink() != null) {
                         doclet.setUrl(doTerm.getZfinLink());
+                        doclet.setDiseaseUrl(doTerm.getZfinLink());
                     }
                     if (speciesType == SpeciesType.HUMAN && doTerm.getHumanLink() != null) {
                         doclet.setUrl(doTerm.getHumanLink());
                     }
                     if (speciesType == SpeciesType.WORM && doTerm.getWormbaseLink() != null) {
                         doclet.setUrl(doTerm.getWormbaseLink());
+                        doclet.setDiseaseUrl(doTerm.getWormbaseLink());
                     }
                     return doclet;
                 })
@@ -237,27 +236,47 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
                 doc.setDiseaseName(doTerm.getName());
                 diseaseAnnotationDocuments.add(doc);
             } else {
-                Set<DiseaseAnnotationDocument> docSet = doTerm.getDiseaseGeneJoins().stream()
-                        .map(diseaseGeneJoin -> {
-                            DiseaseAnnotationDocument doc = new DiseaseAnnotationDocument();
-                            doc.setPrimaryKey(doTerm.getPrimaryKey() + ":" + diseaseGeneJoin.getGene().getPrimaryKey());
-                            doc.setDiseaseName(doTerm.getName());
-                            doc.setDiseaseID(doTerm.getPrimaryKey());
-                            doc.setParentDiseaseIDs(getParentIdList(doTerm));
-                            doc.setAssociationType(diseaseGeneJoin.getJoinType());
-                            doc.setSpecies(getSpeciesDoclet(diseaseGeneJoin));
-                            doc.setSource(getSourceUrls(doTerm, diseaseGeneJoin.getGene().getSpecies()));
-                            doc.setGeneDocument(geneTranslator.entityToDocument(diseaseGeneJoin.getGene(), translationDepth - 1));
-                            List<PublicationDoclet> pubDocs = new ArrayList<>();
-                            pubDocs.add(getPublicationDoclet(diseaseGeneJoin, diseaseGeneJoin.getPublication()));
-                            doc.setPublications(pubDocs);
-                            return doc;
-                        })
+                Map<Gene, Map<String, List<DiseaseGeneJoin>>> sortedGeneAssociationMap = getGeneAnnotationMap(doTerm, null);
+                Set<DiseaseAnnotationDocument> docSet = sortedGeneAssociationMap.entrySet().stream()
+                        .map(geneMapEntry ->
+                                geneMapEntry.getValue().entrySet().stream().map(associationEntry -> {
+                                    Gene gene = geneMapEntry.getKey();
+                                    DiseaseAnnotationDocument document = new DiseaseAnnotationDocument();
+                                    if (translationDepth > 0) {
+                                        document.setGeneDocument(geneTranslator.translate(gene, translationDepth - 1)); // This needs to not happen if being call from GeneTranslator
+                                    }
+                                    document.setPrimaryKey(doTerm.getPrimaryKey() + ":" + gene.getPrimaryKey());
+                                    document.setDiseaseName(doTerm.getName());
+                                    document.setDiseaseID(doTerm.getPrimaryKey());
+                                    document.setParentDiseaseIDs(getParentIdList(doTerm));
+                                    document.setAssociationType(associationEntry.getKey());
+                                    document.setSpecies(getSpeciesDoclet(gene));
+                                    document.setSource(getSourceUrls(doTerm, gene.getSpecies()));
+                                    document.setPublications(getPublicationDoclets(associationEntry));
+                                    return document;
+                                }).collect(Collectors.toList()))
+                        .flatMap(Collection::stream)
                         .collect(Collectors.toSet());
                 diseaseAnnotationDocuments.addAll(docSet);
             }
         });
         return diseaseAnnotationDocuments;
+    }
+
+    private List<PublicationDoclet> getPublicationDoclets(Map.Entry<String, List<DiseaseGeneJoin>> associationEntry) {
+        Set<PublicationDoclet> publicationDocuments = associationEntry.getValue().stream()
+                // filter out records that do not have valid pub / evidence code entries
+                .filter(diseaseGeneJoin ->
+                        getPublicationDoclet(diseaseGeneJoin, diseaseGeneJoin.getPublication()) != null
+                )
+                .map(diseaseGeneJoin -> {
+                    Publication publication = diseaseGeneJoin.getPublication();
+                    return getPublicationDoclet(diseaseGeneJoin, publication);
+                })
+                .collect(Collectors.toSet());
+        List<PublicationDoclet> pubDocletList = new ArrayList<>(publicationDocuments);
+        pubDocletList.sort(PublicationDoclet::compareTo);
+        return pubDocletList;
     }
 
     /**

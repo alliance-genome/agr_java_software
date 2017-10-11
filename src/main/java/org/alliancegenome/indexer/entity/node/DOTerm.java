@@ -40,6 +40,8 @@ public class DOTerm extends Neo4jEntity {
     private String zfinLink;
     private String humanLink;
     private String rgdLink;
+    private String ratOnlyRgdLink;
+    private String humanOnlyRgdLink;
     private String wormbaseLink;
     private String flybaseLink;
     private String mgiLink;
