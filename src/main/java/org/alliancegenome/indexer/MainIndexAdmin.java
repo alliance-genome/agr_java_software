@@ -13,7 +13,7 @@ public class MainIndexAdmin {
 
         IndexManager im = new IndexManager();
 
-        im.checkSnapShotRepo();
+        im.checkSnapShotRepo("logs");
 
     }
 

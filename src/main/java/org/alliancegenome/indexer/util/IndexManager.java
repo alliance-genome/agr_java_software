@@ -21,20 +21,16 @@ import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.xpack.client.PreBuiltXPackTransportClient;
 
-import com.google.common.collect.ImmutableList;
-
 public class IndexManager {
 
     private final Logger log = LogManager.getLogger(getClass());
     private PreBuiltXPackTransportClient client;
     private String newIndexName;
     private String oldIndexName;
-    private final String baseIndexName;
+    private final String baseIndexName = "site_index";
+    //private final String baseIndexNameWithSuffix = "";
 
     public IndexManager() {
-
-        baseIndexName = ConfigHelper.getEsIndex();
-
         try {
             client = new PreBuiltXPackTransportClient(Settings.EMPTY);
             client.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(ConfigHelper.getEsHost()), ConfigHelper.getEsPort()));
@@ -60,9 +56,9 @@ public class IndexManager {
             ESSettings settings = new ESSettings(true);
             settings.buildSettings();
             CreateIndexResponse t = client.admin().indices().create(new CreateIndexRequest(index).settings(settings.getBuilder().string())).get();
-            log.debug(t.toString());
+            //log.debug(t.toString());
         } catch (Exception e) {
-            client.admin().indices().prepareRefresh(baseIndexName).get();
+            client.admin().indices().prepareRefresh(index).get();
             log.error("Indexing Failed: " + index);
             e.printStackTrace();
             System.exit(0);
@@ -74,8 +70,12 @@ public class IndexManager {
     }
 
     public void startIndex() {
+        if(ConfigHelper.hasEsIndexSuffix()) {
+            newIndexName = baseIndexName + "_" + ConfigHelper.getEsIndexSuffix() + "_" + (new Date()).getTime();
+        } else {
+            newIndexName = baseIndexName + "_" + (new Date()).getTime();
+        }
 
-        newIndexName = baseIndexName + "_" + (new Date()).getTime();
         setCurrentIndex();
         createIndex(newIndexName);
         if(oldIndexName == null) {
@@ -104,34 +104,30 @@ public class IndexManager {
     }
 
 
-    public String checkSnapShotRepo() {
-        if(ConfigHelper.getAWSAccessKey() != null && ConfigHelper.getAWSAccessKey() != null) {
-            try {
+    public String checkSnapShotRepo(String repoName) {
+        try {
+            List<RepositoryMetaData> repositories = client.admin().cluster().prepareGetRepositories().get().repositories();
 
-                List<RepositoryMetaData> repositories = client.admin().cluster().prepareGetRepositories().get().repositories();
-
-                if(repositories.size() == 0){
-                    log.debug("No Repo's found");
-                    return createRepo();
-                } else {
-                    for(RepositoryMetaData repo: repositories) {
-                        if(repo.name().equals(ConfigHelper.getSnapShotsRepoName())) {
-                            return repo.name();
-                        }
+            if(repositories.size() == 0) {
+                log.debug("No Repo's found - Creating Repo");
+                return createRepo(repoName);
+            } else {
+                for(RepositoryMetaData repo: repositories) {
+                    if(repo.name().equals(repoName)) {
+                        return repo.name();
                     }
-                    return createRepo();
                 }
-            } catch (Exception ex){
-                log.error("Exception in getRepository method: " + ex.toString());
+                return createRepo(repoName);
             }
-        } else {
-            log.info("Skipping Snapshot no AWS Creds");
+        } catch (Exception ex){
+            log.error("Exception in getRepository method: " + ex.toString());
         }
+
         return null;
     }
 
     public void takeSnapShot() {
-        String repo = checkSnapShotRepo();
+        String repo = checkSnapShotRepo(ConfigHelper.getEsIndexSuffix());
 
         if(repo != null) {
             createSnapShot(newIndexName);
@@ -146,9 +142,9 @@ public class IndexManager {
         log.info("Creating Snapshot: " + snapShotName + " for index: " + baseIndexName);
         try {
             CreateSnapshotResponse createSnapshotResponse = client.admin().cluster()
-                .prepareCreateSnapshot(ConfigHelper.getSnapShotsRepoName(), snapShotName)
-                .setWaitForCompletion(true)
-                .setIndices(baseIndexName).get();
+                    .prepareCreateSnapshot(ConfigHelper.getEsIndexSuffix(), snapShotName)
+                    .setWaitForCompletion(true)
+                    .setIndices(baseIndexName).get();
 
             log.info("Snapshot " + snapShotName + " was created for index: " + baseIndexName);
         } catch (Exception ex){
@@ -156,15 +152,21 @@ public class IndexManager {
         }
     }
 
-    private String createRepo() {
-        try {
-            ESSettings settings = new ESSettings(true);
-            settings.buildRepositorySettings(ConfigHelper.getAWSBucketName(), ConfigHelper.getAWSAccessKey(), ConfigHelper.getAWSSecretKey());
-            PutRepositoryResponse putRepositoryResponse = client.admin().cluster().preparePutRepository(ConfigHelper.getSnapShotsRepoName()).setType("s3").setSettings(settings.getBuilder().string()).get();
-            log.info("Repository was created: " + putRepositoryResponse.toString());
-            return ConfigHelper.getSnapShotsRepoName();
-        } catch(Exception ex){
-            log.error("Exception in createRepository method: " + ex.toString());
+    private String createRepo(String repoName) {
+
+        if(ConfigHelper.getAWSAccessKey() != null && ConfigHelper.getAWSAccessKey() != null && ConfigHelper.hasEsIndexSuffix() || repoName == null) {
+            try {
+                ESSettings settings = new ESSettings(true);
+                settings.buildRepositorySettings("agr-es-backup-" + ConfigHelper.getEsIndexSuffix(), ConfigHelper.getAWSAccessKey(), ConfigHelper.getAWSSecretKey());
+                log.info(repoName + " -> " + settings.getBuilder().string());
+                PutRepositoryResponse putRepositoryResponse = client.admin().cluster().preparePutRepository(repoName).setType("s3").setSettings(settings.getBuilder().string()).get();
+                log.info("Repository was created: " + putRepositoryResponse.toString());
+                return repoName;
+            } catch(Exception ex) {
+                log.error("Exception in createRepository method: " + ex.toString());
+            }
+        } else {
+            log.info("Skipping Creation of Repo No AWS Creds or Index Suffix");
         }
         return null;
     }
