@@ -5,4 +5,4 @@ WORKDIR /workdir/agr_indexer
 ADD . .
 RUN mvn clean package
 
-CMD java -jar -Xmn8g -Xms8g target/agr_indexer-jar-with-dependencies.jar
+CMD java -jar target/agr_indexer-jar-with-dependencies.jar

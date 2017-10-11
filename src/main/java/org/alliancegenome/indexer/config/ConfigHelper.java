@@ -34,15 +34,16 @@ public class ConfigHelper {
          * key in the defaults map there should be a corresponding get method for that value.
          */
         defaults.put("THREADED", "true");
+
         defaults.put("ES_HOST", "localhost");
         defaults.put("ES_PORT", "9300");
-        defaults.put("ES_INDEX", "site_index");
+        defaults.put("ES_INDEX_SUFFIX", "");
+
         defaults.put("NEO4J_HOST", "localhost");
         defaults.put("NEO4J_PORT", "7687");
-        defaults.put("SNAPSHOT_REPONAME", "snapshots");
+
         defaults.put("AWS_ACCESS_KEY", null);
         defaults.put("AWS_SECRET_KEY", null);
-        defaults.put("AWS_BUCKET_NAME", "es-backup-snapshots");
 
         allKeys = defaults.keySet();
 
@@ -131,12 +132,11 @@ public class ConfigHelper {
         return Boolean.parseBoolean(config.get("THREADED"));
     }
 
-    public static String getEsIndex() {
-        return config.get("ES_INDEX");
+    public static String getEsIndexSuffix() {
+        return config.get("ES_INDEX_SUFFIX");
     }
-
-    public static String getSnapShotsRepoName() {
-        return config.get("SNAPSHOT_REPONAME");
+    public static boolean hasEsIndexSuffix() {
+        return (ConfigHelper.getEsIndexSuffix() != null && !ConfigHelper.getEsIndexSuffix().equals("") && ConfigHelper.getEsIndexSuffix().length() > 0);
     }
 
     public static String getAWSAccessKey() {
@@ -146,9 +146,4 @@ public class ConfigHelper {
     public static String getAWSSecretKey() {
         return config.get("AWS_SECRET_KEY");
     }
-
-    public static String getAWSBucketName() {
-        return config.get("AWS_BUCKET_NAME");
-    }
-
 }
