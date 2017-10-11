@@ -27,7 +27,7 @@ public class IndexManager {
     private PreBuiltXPackTransportClient client;
     private String newIndexName;
     private String oldIndexName;
-    private final String baseIndexName = "site_index";
+    private String baseIndexName = "site_index";
     //private final String baseIndexNameWithSuffix = "";
 
     public IndexManager() {
