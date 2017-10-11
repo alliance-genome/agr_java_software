@@ -28,7 +28,6 @@ public class IndexManager {
     private String newIndexName;
     private String oldIndexName;
     private String baseIndexName = "site_index";
-    //private final String baseIndexNameWithSuffix = "";
 
     public IndexManager() {
         try {
