@@ -25,7 +25,7 @@ public class SearchHelper {
 
     private Logger log = Logger.getLogger(getClass());
 
-    private static String[] SUFFIX_LIST = { ".keyword", ".synonym", ".symbols", ".text" };
+    private static String[] SUFFIX_LIST = { ".keyword", ".synonyms", ".symbols", ".text" };
 
     private HashMap<String, List<String>> category_filters = new HashMap<String, List<String>>() {
         {
