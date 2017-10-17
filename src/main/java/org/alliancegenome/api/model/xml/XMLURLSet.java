@@ -1,5 +1,6 @@
 package org.alliancegenome.api.model.xml;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -10,5 +11,5 @@ import lombok.Setter;
 @XmlRootElement(name = "urlset")
 public class XMLURLSet {
 
-    private List<XMLURL> url;
+    private List<XMLURL> url = new ArrayList<XMLURL>();
 }

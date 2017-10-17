@@ -13,16 +13,21 @@ import org.alliancegenome.api.model.xml.XMLURLSet;
 
 import io.swagger.annotations.Api;
 
-@Path("/sitemap")
+@Path("/")
 @Api(value = "Site Map")
 @Produces(MediaType.APPLICATION_XML)
 public interface SiteMapRESTInterface {
 
     @GET
+    @Path("/sitemap.xml")
     public SiteMapIndex getSiteMap(@Context UriInfo uriInfo);
-    
+
     @GET
-    @Path("/{category}.xml")
-    public XMLURLSet getCategorySiteMap(@PathParam("category") String category, @Context UriInfo uriInfo);
+    @Path("/sitemap/{category}-sitemap-{page}.xml")
+    public XMLURLSet getCategorySiteMap(
+        @PathParam("category") String category,
+        @PathParam("page") Integer page,
+        @Context UriInfo uriInfo
+    );
 
 }
