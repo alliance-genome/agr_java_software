@@ -1,36 +1,29 @@
 package org.alliancegenome.api.service;
 
-import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
-import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
-import static org.elasticsearch.index.query.QueryBuilders.multiMatchQuery;
-import static org.elasticsearch.index.query.QueryBuilders.queryStringQuery;
-import static org.elasticsearch.index.query.QueryBuilders.termQuery;
-
-import java.util.ArrayList;
-import java.util.List;
+import org.alliancegenome.api.dao.SearchDAO;
+import org.alliancegenome.api.model.SearchResult;
+import org.alliancegenome.api.service.helper.SearchHelper;
+import org.apache.commons.lang3.StringUtils;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.index.query.*;
+import org.elasticsearch.index.query.functionscore.FunctionScoreQueryBuilder;
+import org.elasticsearch.index.query.functionscore.ScoreFunctionBuilders;
+import org.elasticsearch.search.aggregations.AggregationBuilder;
+import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
+import org.jboss.logging.Logger;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriInfo;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-import org.alliancegenome.api.dao.SearchDAO;
-import org.alliancegenome.api.model.SearchResult;
-import org.alliancegenome.api.service.helper.SearchHelper;
-import org.apache.commons.lang3.StringUtils;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.MultiMatchQueryBuilder;
-import org.elasticsearch.index.query.Operator;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.QueryStringQueryBuilder;
-import org.elasticsearch.index.query.TermQueryBuilder;
-import org.elasticsearch.index.query.functionscore.FunctionScoreQueryBuilder;
-import org.elasticsearch.index.query.functionscore.ScoreFunctionBuilders;
-import org.elasticsearch.search.aggregations.AggregationBuilder;
-import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
-import org.jboss.logging.Logger;
+import static org.elasticsearch.index.query.QueryBuilders.*;
 
 @RequestScoped
 public class SearchService {
@@ -158,10 +151,44 @@ public class SearchService {
     }
 
     public List<String> tokenizeQuery(String query) {
+        List<String> tokens = new ArrayList<>();
+
         if (StringUtils.isEmpty(query)) {
-            return new ArrayList<>();
+            return tokens;
         }
-        return searchDAO.analyze(query);
+
+
+        //undo colon escaping
+        query = query.replaceAll("\\\\:",":");
+
+        //normalize the whitespace
+        query = query.replaceAll("\\s+", " ");
+
+        //extract quoted phrases
+        Pattern p = Pattern.compile( "\"([^\"]*)\"" );
+        Matcher m = p.matcher(query);
+        while( m.find()) {
+            String phrase = m.group(1);
+            tokens.add(phrase);
+            query = query.replaceAll("\"" + phrase + "\"","");
+        }
+
+        //normalize the whitespace again
+        query = query.replaceAll("\\s+", " ");
+
+        //strip booleans
+        query = query.replaceAll("AND","");
+        query = query.replaceAll("OR","");
+        query = query.replaceAll("NOT","");
+
+        //normalize the whitespace again
+        query = query.replaceAll("\\s+", " ");
+
+        tokens.addAll(Arrays.asList(query.split("\\s")));
+
+        return tokens;
+
+
     }
 
 }
