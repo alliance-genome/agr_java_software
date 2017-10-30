@@ -11,17 +11,11 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.TimeUnit;
 
 public class DiseaseAnnotationIndexer extends Indexer<DiseaseAnnotationDocument> {
 
     private final Logger log = LogManager.getLogger(getClass());
-
-    private final DiseaseRepository diseaseRepository = new DiseaseRepository();
-    private final DiseaseTranslator diseaseTrans = new DiseaseTranslator();
 
     public DiseaseAnnotationIndexer(String currentIndex, IndexerConfig config) {
         super(currentIndex, config);
@@ -29,39 +23,24 @@ public class DiseaseAnnotationIndexer extends Indexer<DiseaseAnnotationDocument>
 
     @Override
     public void index() {
-
+        DiseaseRepository diseaseRepository = new DiseaseRepository();
         try {
             LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>();
             List<String> allDiseaseIDs = diseaseRepository.getAllDiseaseKeys();
             queue.addAll(allDiseaseIDs);
             diseaseRepository.clearCache();
-
-            Integer numberOfThreads = indexerConfig.getThreadCount();
-            ExecutorService executor = Executors.newFixedThreadPool(numberOfThreads);
-            int index = 0;
-            while (index++ < numberOfThreads) {
-                executor.submit(() -> startThread(queue));
-            }
-
-
-            int total = queue.size();
-            startProcess(total);
-            while (!queue.isEmpty()) {
-                TimeUnit.SECONDS.sleep(30);
-                progress(queue.size(), total);
-            }
-            finishProcess(total);
-            executor.shutdown();
-
+            initiateThreading(queue);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
     }
 
-    private void startThread(LinkedBlockingDeque<String> queue) {
-        ArrayList<DOTerm> list = new ArrayList<DOTerm>();
+    protected void startSingleThread(LinkedBlockingDeque<String> queue) {
+        ArrayList<DOTerm> list = new ArrayList<>();
         DiseaseRepository repo = new DiseaseRepository();
+        DiseaseTranslator diseaseTrans = new DiseaseTranslator();
+
         while (true) {
             try {
                 if (list.size() >= indexerConfig.getBufferSize()) {
@@ -85,7 +64,8 @@ public class DiseaseAnnotationIndexer extends Indexer<DiseaseAnnotationDocument>
                     list.add(disease);
                 }
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                log.error("Error while indexing...", e);
+                return;
             }
         }
     }
