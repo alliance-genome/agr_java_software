@@ -186,7 +186,7 @@ public class SearchService {
         booleans.add("NOT");
 
         tokens.removeAll(booleans);
-        
+
         return tokens;
 
 
