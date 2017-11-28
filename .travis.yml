@@ -3,14 +3,6 @@ language: java
 jdk:
   - oraclejdk8
 
-before_install:
-
-
-install:
-
-  - travis_wait 120 docker pull agrdocker/agr_es_data_image:latest
-  - docker run -d -p 9200:9200 -p 9300:9300 -e "http.host=0.0.0.0" -e "transport.host=0.0.0.0" agrdocker/agr_es_data_image:latest
-
 before_script:
   - mvn clean package
   - java -jar target/agr_api-swarm.jar -Papp.properties &
@@ -18,7 +10,6 @@ before_script:
 
 script:
   - mvn test
-  - mvn verify
 
 notifications:
   slack:
