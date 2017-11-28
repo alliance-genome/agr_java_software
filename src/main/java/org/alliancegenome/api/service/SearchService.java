@@ -176,16 +176,17 @@ public class SearchService {
         //normalize the whitespace again
         query = query.replaceAll("\\s+", " ");
 
-        //strip booleans
-        query = query.replaceAll("AND","");
-        query = query.replaceAll("OR","");
-        query = query.replaceAll("NOT","");
-
-        //normalize the whitespace again
-        query = query.replaceAll("\\s+", " ");
-
+        //add the tokens
         tokens.addAll(Arrays.asList(query.split("\\s")));
 
+        //strip boolean tokens
+        List<String> booleans = new ArrayList<>();
+        booleans.add("AND");
+        booleans.add("OR");
+        booleans.add("NOT");
+
+        tokens.removeAll(booleans);
+        
         return tokens;
 
 
