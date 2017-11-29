@@ -13,7 +13,6 @@ This repo will get a running API the project, using JBoss Swarm.
 - [Configuring](#configuring)
   * [Parameters](#parameters)
 - [Running API](#running-api)
-- [GraphQL](#graphql)
 - [Docker](#docker)
 - [Endpoints](#endpoints)
 - [Maintainers](#maintainers)
