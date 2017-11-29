@@ -28,6 +28,7 @@ class QueryTokenizationUnitSpec extends Specification {
         "DOID\\:12345"                      | ["DOID:12345"]
         "DOID:12345 foo bar"                | ["DOID:12345", "foo", "bar"]
         "pax* AND danio NOT \"paired box\"" | ["pax*", "danio", "paired box"] // eventually just pax* and danio?
+        "ORDO:324569"                       | ["ORDO:324569"]
 
     }
 
