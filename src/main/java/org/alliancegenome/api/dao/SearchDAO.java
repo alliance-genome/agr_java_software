@@ -1,30 +1,33 @@
 package org.alliancegenome.api.dao;
 
-import org.alliancegenome.api.model.SearchResult;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import javax.enterprise.context.ApplicationScoped;
+
 import org.elasticsearch.action.admin.indices.analyze.AnalyzeRequest;
 import org.elasticsearch.action.admin.indices.analyze.AnalyzeResponse;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.search.Scroll;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 import org.jboss.logging.Logger;
 
-import javax.enterprise.context.ApplicationScoped;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-
 @ApplicationScoped
 @SuppressWarnings("serial")
 public class SearchDAO extends ESDAO {
 
-    private Logger log = Logger.getLogger(getClass());
+    private final Logger log = Logger.getLogger(getClass());
 
-    private List<String> response_fields = new ArrayList<String>() {
+    private final List<String> response_fields = new ArrayList<String>() {
         {
             add("name"); add("symbol"); add("synonyms"); add("soTermName"); add("gene_chromosomes"); add("gene_chromosome_starts"); add("gene_chromosome_ends");
             add("description"); add("definition"); add("external_ids"); add("species"); add("gene_biological_process"); add("gene_molecular_function"); add("gene_cellular_component");
@@ -76,25 +79,21 @@ public class SearchDAO extends ESDAO {
     }
 
 
-    public List<SearchHit> getAllResults(QueryBuilder query, List<String> returnFields) {
+    public List<SearchHit> getAllIds(QueryBuilder query, Integer size) {
 
         ArrayList<SearchHit> hits = new ArrayList<SearchHit>();
         SearchResponse scrollResp = searchClient.prepareSearch()
                 .setScroll(new TimeValue(60000))
                 .setQuery(query)
-                .setFetchSource(returnFields.toArray(new String[returnFields.size()]), null)
-                .setSize(100).get(); //max of 100 hits will be returned for each scroll
-        //Scroll until no hits are returned
+                .setSize(size)
+                .execute().actionGet();
 
         do {
             for (SearchHit hit : scrollResp.getHits().getHits()) {
                 hits.add(hit);
             }
-
             scrollResp = searchClient.prepareSearchScroll(scrollResp.getScrollId()).setScroll(new TimeValue(60000)).execute().actionGet();
         } while(scrollResp.getHits().getHits().length != 0);
-
         return hits;
-
     }
 }

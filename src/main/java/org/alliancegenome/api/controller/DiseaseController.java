@@ -1,12 +1,6 @@
 package org.alliancegenome.api.controller;
 
-import org.alliancegenome.api.model.SearchResult;
-import org.alliancegenome.api.rest.interfaces.DiseaseRESTInterface;
-import org.alliancegenome.api.service.DiseaseService;
-import org.alliancegenome.api.service.helper.Pagination;
-import org.alliancegenome.api.service.helper.SortBy;
-import org.alliancegenome.api.translator.DiseaseAnnotationToTdfTranslator;
-import org.jboss.logging.Logger;
+import java.util.Map;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -14,19 +8,24 @@ import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.Arrays;
-import java.util.Map;
+
+import org.alliancegenome.api.model.SearchResult;
+import org.alliancegenome.api.rest.interfaces.DiseaseRESTInterface;
+import org.alliancegenome.api.service.DiseaseService;
+import org.alliancegenome.api.service.helper.Pagination;
+import org.alliancegenome.api.translator.DiseaseAnnotationToTdfTranslator;
+import org.jboss.logging.Logger;
 
 @RequestScoped
 public class DiseaseController implements DiseaseRESTInterface {
 
-    private Logger log = Logger.getLogger(getClass());
+    private final Logger log = Logger.getLogger(getClass());
     @Context  //injected response proxy supporting multiple threads
     private HttpServletResponse response;
 
     @Inject
     private DiseaseService diseaseService;
-    private DiseaseAnnotationToTdfTranslator translator = new DiseaseAnnotationToTdfTranslator();
+    private final DiseaseAnnotationToTdfTranslator translator = new DiseaseAnnotationToTdfTranslator();
 
 
     @Override

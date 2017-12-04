@@ -8,7 +8,6 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.*;
 import org.elasticsearch.index.query.functionscore.FunctionScoreQueryBuilder;
 import org.elasticsearch.index.query.functionscore.ScoreFunctionBuilders;
-import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.jboss.logging.Logger;
@@ -19,7 +18,10 @@ import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriInfo;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static org.elasticsearch.index.query.QueryBuilders.*;
 
@@ -52,7 +54,7 @@ public class SearchService {
         QueryBuilder query = buildFunctionQuery(q, category, getFilters(category, uriInfo));
 
         List<AggregationBuilder> aggBuilders = searchHelper.createAggBuilder(category);
-        
+
         HighlightBuilder hlb = searchHelper.buildHighlights();
 
         SearchResponse searchResponse = searchDAO.performQuery(query, aggBuilders, limit, offset, hlb, sort_by, debug);
@@ -149,16 +151,45 @@ public class SearchService {
     }
 
     public List<String> tokenizeQuery(String query) {
-        if (StringUtils.isEmpty(query)) {
-            return new ArrayList<>();
-        }
-        return searchDAO.analyze(query);
-    }
+        List<String> tokens = new ArrayList<>();
 
-    public List<SearchHit> getAllByCategory(String category, List<String> returnFields) {
-        QueryBuilder qb = termQuery("category", category);
-        
-        return searchDAO.getAllResults(qb, returnFields);
+        if (StringUtils.isEmpty(query)) {
+            return tokens;
+        }
+
+
+        //undo colon escaping
+        query = query.replaceAll("\\\\:",":");
+
+        //normalize the whitespace
+        query = query.replaceAll("\\s+", " ");
+
+        //extract quoted phrases
+        Pattern p = Pattern.compile( "\"([^\"]*)\"" );
+        Matcher m = p.matcher(query);
+        while( m.find()) {
+            String phrase = m.group(1);
+            tokens.add(phrase);
+            query = query.replaceAll("\"" + phrase + "\"","");
+        }
+
+        //normalize the whitespace again
+        query = query.replaceAll("\\s+", " ");
+
+        //add the tokens
+        tokens.addAll(Arrays.asList(query.split("\\s")));
+
+        //strip boolean tokens
+        List<String> booleans = new ArrayList<>();
+        booleans.add("AND");
+        booleans.add("OR");
+        booleans.add("NOT");
+
+        tokens.removeAll(booleans);
+
+        return tokens;
+
+
     }
 
 }

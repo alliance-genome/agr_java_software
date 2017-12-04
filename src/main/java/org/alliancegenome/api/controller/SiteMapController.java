@@ -4,74 +4,60 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.ws.rs.core.UriInfo;
 
+import org.alliancegenome.api.application.SiteMapCacherApplication;
 import org.alliancegenome.api.config.ConfigHelper;
-import org.alliancegenome.api.model.SearchResult;
 import org.alliancegenome.api.model.xml.SiteMap;
 import org.alliancegenome.api.model.xml.SiteMapIndex;
 import org.alliancegenome.api.model.xml.XMLURL;
 import org.alliancegenome.api.model.xml.XMLURLSet;
 import org.alliancegenome.api.rest.interfaces.SiteMapRESTInterface;
-import org.alliancegenome.api.service.GeneService;
-import org.alliancegenome.api.service.SearchService;
-import org.elasticsearch.search.SearchHit;
 import org.jboss.logging.Logger;
 
 @RequestScoped
 public class SiteMapController implements SiteMapRESTInterface {
 
     @Inject
-    private SearchService searchService;
+    private SiteMapCacherApplication siteMapApp;
 
     @Inject
     private ConfigHelper config;
 
-    private Logger log = Logger.getLogger(getClass());
+    private final Logger log = Logger.getLogger(getClass());
 
 
     @Override
     public SiteMapIndex getSiteMap(UriInfo uriInfo) {
         SiteMapIndex index = new SiteMapIndex();
         List<SiteMap> list = new ArrayList<SiteMap>();
-        list.add(new SiteMap(buildUrl(uriInfo, "api/sitemap", "gene.xml"), config.getAppStart()));
-        list.add(new SiteMap(buildUrl(uriInfo, "api/sitemap", "disease.xml"), config.getAppStart()));
-        //list.add(new SiteMap(buildUrl(uriInfo, "api/sitemap", "go.xml"), new Date()));
+        Set<String> files = siteMapApp.getFiles();
+        for(String file: files) {
+            list.add(new SiteMap(buildUrl(uriInfo, "api/sitemap/" + file + ".xml"), config.getAppStart()));
+        }
         index.setSitemap(list);
         return index;
     }
 
     @Override
-    public XMLURLSet getCategorySiteMap(String category, UriInfo uriInfo) {
-        return buildSiteMapByCategory(category, uriInfo);
+    public XMLURLSet getCategorySiteMap(String category, Integer page, UriInfo uriInfo) {
+        return buildSiteMapByCategory(category, page, uriInfo);
     }
 
-    private XMLURLSet buildSiteMapByCategory(String category, UriInfo uriInfo) {
-        List<XMLURL> urls = new ArrayList<XMLURL>();
-        log.info("Site Map Request: " + buildUrl(uriInfo, "api/sitemap", category));
 
-        List<String> response_fields = new ArrayList<String>() { { add("category"); add("id"); } };
-        List<SearchHit> hits = searchService.getAllByCategory(category, response_fields);
-        for(SearchHit hit: hits) {
-            Date date = null;
-            //System.out.println(hit.getSource());
-            //if(hit.getSource().get("dateProduced") != null) {
-            //  date = new Date((long)hit.getSource().get("dateProduced"));
-            //}
-            urls.add(new XMLURL(buildUrl(uriInfo, (String)hit.getSource().get("category"), hit.getId()), date, "monthly", "0.6"));
+    private XMLURLSet buildSiteMapByCategory(String category, Integer page, UriInfo uriInfo) {
+        XMLURLSet set = siteMapApp.getHits(category, page);
+        for(XMLURL url: set.getUrl()) {
+            url.setLoc(buildUrl(uriInfo, url.getLoc()));
         }
-
-        XMLURLSet set = new XMLURLSet();
-        set.setUrl(urls);
-        log.info(urls.size() + " URL's returned");
         return set;
     }
 
-    private String buildUrl(UriInfo uriInfo, String category, String id) {
+    private String buildUrl(UriInfo uriInfo, String inUrl) {
         final URI uri = uriInfo.getAbsolutePath();
         final StringBuilder url = new StringBuilder();
         url.append(uri.getScheme());
@@ -83,13 +69,9 @@ public class SiteMapController implements SiteMapRESTInterface {
             url.append(":");
             url.append(uri.getPort());
         }
-        if(category != null) {
+        if(inUrl != null) {
             url.append("/");
-            url.append(category);
-        }
-        if(id != null) {
-            url.append("/");
-            url.append(id);
+            url.append(inUrl);
         }
         return url.toString();
     }
