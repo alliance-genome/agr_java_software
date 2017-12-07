@@ -85,9 +85,9 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
             return null;
         }
 
-        List<String> evidencesDocument = association.getEvidenceCodes().stream()
+        Set<String> evidencesDocument = association.getEvidenceCodes().stream()
                 .map(EvidenceCode::getPrimaryKey)
-                .collect(Collectors.toList());
+                .collect(Collectors.toSet());
         pubDoc.setEvidenceCodes(evidencesDocument);
         return pubDoc;
     }
@@ -274,8 +274,24 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
                     return getPublicationDoclet(diseaseGeneJoin, publication);
                 })
                 .collect(Collectors.toSet());
-        List<PublicationDoclet> pubDocletList = new ArrayList<>(publicationDocuments);
-        pubDocletList.sort(PublicationDoclet::compareTo);
+        List<PublicationDoclet> pubDocletListRaw = new ArrayList<>(publicationDocuments);
+        pubDocletListRaw.sort(PublicationDoclet::compareTo);
+
+        // get evidence codes for same pub onto s
+        List<PublicationDoclet> pubDocletList = new ArrayList<>();
+        for (PublicationDoclet doclet : pubDocletListRaw) {
+            PublicationDoclet existingDoclet = null;
+            for (PublicationDoclet finalDoclet : pubDocletList) {
+                if (doclet.compareTo(finalDoclet) == 0) {
+                    existingDoclet = finalDoclet;
+                }
+            }
+            if (existingDoclet == null) {
+                pubDocletList.add(doclet);
+            } else {
+                existingDoclet.getEvidenceCodes().addAll(doclet.getEvidenceCodes());
+            }
+        }
         return pubDocletList;
     }
 

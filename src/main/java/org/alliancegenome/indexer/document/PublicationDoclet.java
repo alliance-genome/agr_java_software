@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.List;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -14,7 +15,7 @@ public class PublicationDoclet implements Comparable<PublicationDoclet> {
     private String pubMedUrl;
     private String pubModId;
     private String pubModUrl;
-    private List<String> evidenceCodes;
+    private Set<String> evidenceCodes;
 
     @Override
     public int compareTo(PublicationDoclet comp) {
