@@ -1,12 +1,5 @@
 package org.alliancegenome.indexer.indexers;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.TimeUnit;
-
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.indexer.document.GeneDocument;
 import org.alliancegenome.indexer.entity.node.Gene;
@@ -14,6 +7,10 @@ import org.alliancegenome.indexer.repository.GeneRepository;
 import org.alliancegenome.indexer.translators.GeneTranslator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.LinkedBlockingDeque;
 
 public class GeneIndexer extends Indexer<GeneDocument> {
 
@@ -27,34 +24,18 @@ public class GeneIndexer extends Indexer<GeneDocument> {
     @Override
     public void index() {
         try {
-            LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<String>();
+            LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>();
             List<String> fulllist = geneRepo.getAllGeneKeys();
             queue.addAll(fulllist);
             geneRepo.clearCache();
-
-            Integer numberOfThreads = indexerConfig.getThreadCount();
-            ExecutorService executor = Executors.newFixedThreadPool(numberOfThreads);
-            int index = 0;
-            while (index++ < numberOfThreads) {
-                executor.submit(() -> startThread(queue));
-            }
-
-            int total = queue.size();
-            startProcess(total);
-            while (!queue.isEmpty()) {
-                TimeUnit.SECONDS.sleep(30);
-                progress(queue.size(), total);
-            }
-            finishProcess(total);
-            executor.shutdown();
-
+            initiateThreading(queue);
         } catch (InterruptedException e) {
             log.error("Error while indexing...", e);
         }
 
     }
 
-    private void startThread(LinkedBlockingDeque<String> queue) {
+    protected void startSingleThread(LinkedBlockingDeque<String> queue) {
         ArrayList<Gene> list = new ArrayList<>();
         GeneRepository repo = new GeneRepository();
         GeneTranslator geneTrans = new GeneTranslator();
@@ -83,6 +64,7 @@ public class GeneIndexer extends Indexer<GeneDocument> {
                     log.debug("No disease found for " + key);
             } catch (InterruptedException e) {
                 log.error("Error while indexing...", e);
+                return;
             }
         }
     }

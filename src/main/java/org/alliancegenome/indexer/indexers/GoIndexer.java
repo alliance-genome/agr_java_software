@@ -1,12 +1,5 @@
 package org.alliancegenome.indexer.indexers;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.TimeUnit;
-
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.indexer.document.GoDocument;
 import org.alliancegenome.indexer.entity.node.GOTerm;
@@ -14,6 +7,10 @@ import org.alliancegenome.indexer.repository.GoRepository;
 import org.alliancegenome.indexer.translators.GoTranslator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.LinkedBlockingDeque;
 
 public class GoIndexer extends Indexer<GoDocument> {
 
@@ -30,33 +27,17 @@ public class GoIndexer extends Indexer<GoDocument> {
     @Override
     public void index() {
         try {
-            LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<String>();
+            LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>();
             List<String> fulllist = goRepo.getAllGoKeys();
             queue.addAll(fulllist);
             goRepo.clearCache();
-            Integer numberOfThreads = indexerConfig.getThreadCount();
-            ExecutorService executor = Executors.newFixedThreadPool(numberOfThreads);
-            int index = 0;
-            while (index++ < numberOfThreads) {
-                executor.submit(() -> startThread(queue));
-            }
-
-            int total = queue.size();
-            startProcess(total);
-            while (!queue.isEmpty()) {
-                TimeUnit.SECONDS.sleep(30);
-                progress(queue.size(), total);
-            }
-            finishProcess(total);
-            executor.shutdown();
-
+            initiateThreading(queue);
         } catch (InterruptedException e) {
             log.error("Error while indexing...", e);
         }
-
     }
 
-    private void startThread(LinkedBlockingDeque<String> queue) {
+    protected void startSingleThread(LinkedBlockingDeque<String> queue) {
         ArrayList<GOTerm> list = new ArrayList<>();
         GoRepository repo = new GoRepository();
         while (true) {
@@ -85,6 +66,7 @@ public class GoIndexer extends Indexer<GoDocument> {
                 }
             } catch (InterruptedException e) {
                 log.error("Error while indexing...", e);
+                return;
             }
         }
     }
