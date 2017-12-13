@@ -1,57 +1,83 @@
 # AGR API Documentation
 
-This repo is used to provide a public interface. The main things that it provides is access to our internal resources. Right now the main resources are our search index and our graph database.
+This repo is used to provide a public interface. The main thing that it provides is access to internal resources. The main resources are the search index and graph database.
 
-## [GraphQL](http://graphql.org/learn/)
 
-In order to provide the user with direct access to query our main database the API provides a GraphQL interface. This is a popular interface for providing an API to datbases for Websites. This interface can also be used for other purposes as well.
+## Getting Started
 
-## [GraphiQL](https://github.com/graphql/graphiql)
+This repo will get a running API the project, using JBoss Swarm. 
 
-It also provides a web interface for performing GraphQL queries. The interface itself provides autocompletion and is schema aware. 
 
-## Search endpoints
+## Contents
 
-This interface provides a means of communicating with our [ElasticSearch](https://info.elastic.co) search index. This endpoint is intended to be mainly used by the AGR search interface.
+- [Configuring](#configuring)
+  * [Parameters](#parameters)
+- [Running API](#running-api)
+- [Docker](#docker)
+- [Endpoints](#endpoints)
+- [Maintainers](#maintainers)
 
-## Future
+## Configuring
 
-As we add more datasources and use the ElasticSearch indexing for storing / caching table information, the API will provide endpoints to access the data in these tables. Some of the features that it will provide is pagination, sorting, facets, and filtering results. 
+### Parameters
+#### API\_ACCESS_TOKEN
+This is a token that all API requests must use as a auth header, if set then its required otherwise the API will not require the token.
+#### DEBUG
+Send extra debugging information into the logs.
+#### ES_INDEX
+This is the name of the index used by the API to get all its information.
+#### ES_HOST
+This is the host that the API will attempt to connect to, for getting its data.
+#### ES_PORT
+This is the port number on ES_HOST that will be used for the Elastic Search connection
+#### swarm.logging
+This is the default log level for the output of log4j in the log files
 
-# Usage
+An example of setting these params:
 
-## Compliling JAR Without Docker
+	#> export ES_HOST=http://www.example.com
+	#> export ES_PORT=9300
+	#> export DEUBG=true
+	
+Also these paramaters can be put in a file called app.properties
 
-```bash
-make
-```
+## Running API
 
-## Running API Without Docker
+The following commands should build and run the API:
 
-```bash
-make run
-```
+	#> mvn clean package
+	#> java -jar target/agr_api-swarm.jar -Papp.properties
+	
+### API Documentation
 
-## Compliling JAR and building the Docker Image
+After the API is up and running, API documentation can be found through swagger via the following url assuming the API is running on localhost. [http://localhost:8080/api](http://localhost:8080/api)
 
-```bash
-make docker-build
-```
+## Docker
 
-## Running API Inside of Docker
+### Creating a docker container
 
-```bash
-make docker-run
-```
+	#> docker build -t agr_api_server .
+	
+### Runing the docker container
 
-# Configuration
+	#> docker run -p 8080:8080 -t -i agr_api_server
+	
+### Running the data container
 
-In order to configure the running of the app modify the values in the app.properties file. 
+In order to run with the latest created Elastic Search data image run the following command before running the API
 
-# Endpoints
+	#> docker run -p 9200:9200 -p 9300:9300 -e "http.host=0.0.0.0" -e "transport.host=0.0.0.0" agrdocker/agr_es_data_image
+
+## Endpoints
 | URL | description |
 | --- | ----------- |
 | /api/disease/\<disease term ID\> | retrieve disease info for a given term ID (JSON) |
 | /api/gene/\<gene ID\> | retrieve gene info for a given gene ID (JSON) |
 | /api/disease/\<disease term ID\>/associations | get all disease annotations for a given disease term ID (JSON) |
 | /api/disease/\<disease term ID\>/associations/download | retrieve all disease annotations for a given disease term ID in tab delimited format |
+
+## Maintainers
+
+Current maintainers:
+
+ * [AGR Software Team](https://github.com/orgs/alliance-genome/teams/software)
