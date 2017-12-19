@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 
 public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument> {
 
-    private Logger log = LogManager.getLogger(getClass());
+    private final Logger log = LogManager.getLogger(getClass());
 
     private static DiseaseTranslator diseaseTranslator = new DiseaseTranslator();
 
@@ -205,6 +205,20 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
                     .collect(Collectors.toList());
             geneDocument.setCrossReferences(crlist);
         }
+
+        if(entity.getAlleles() != null) {
+            List<AlleleDoclet> all_list = new ArrayList<>();
+            for(Allele a: entity.getAlleles()) {
+                AlleleDoclet ad = new AlleleDoclet();
+                ad.setDescription(a.getDescription());
+                ad.setName(a.getName());
+                ad.setPrimaryKey(a.getPrimaryKey());
+                ad.setSymbol(a.getSymbol());
+                all_list.add(ad);
+            }
+            geneDocument.setAlleles(all_list);
+        }
+
         return geneDocument;
     }
 
