@@ -39,6 +39,7 @@
 	</repositories>
 	<build>
 		<finalName>${project.artifactId}</finalName>
+		<pluginManagement>
 		<plugins>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
@@ -85,5 +86,6 @@
 				</executions>
 			</plugin>
 		</plugins>
+		</pluginManagement>
 	</build>
 </project>
