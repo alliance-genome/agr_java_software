@@ -12,6 +12,7 @@ import lombok.Setter;
 @Setter
 public class AlleleDocument extends ESDocument {
 
+    private String category = "allele";
     private String primaryKey;
     private String symbol;
     private Date dateProduced;
