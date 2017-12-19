@@ -8,6 +8,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -17,6 +18,7 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
     private final Logger log = LogManager.getLogger(getClass());
 
     private static DiseaseTranslator diseaseTranslator = new DiseaseTranslator();
+    private static AlleleTranslator alleleTranslator = new AlleleTranslator();
 
     @Override
     protected GeneDocument entityToDocument(Gene entity, int translationDepth) {
@@ -74,6 +76,7 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
         geneDocument.setGene_cellular_component(goTerms.get("cellular_component"));
         geneDocument.setGene_molecular_function(goTerms.get("molecular_function"));
 
+        // This code is duplicated in Gene and Allele should be pulled out into its own translator
         ArrayList<String> secondaryIds = new ArrayList<>();
         if (entity.getSecondaryIds() != null) {
             for (SecondaryId secondaryId : entity.getSecondaryIds()) {
@@ -89,6 +92,7 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
         }
         geneDocument.setSymbol(entity.getSymbol());
 
+        // This code is duplicated in Gene and Allele should be pulled out into its own translator
         ArrayList<String> synonyms = new ArrayList<>();
         if (entity.getSynonyms() != null) {
             for (Synonym synonym : entity.getSynonyms()) {
@@ -207,16 +211,7 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
         }
 
         if(entity.getAlleles() != null) {
-            List<AlleleDoclet> all_list = new ArrayList<>();
-            for(Allele a: entity.getAlleles()) {
-                AlleleDoclet ad = new AlleleDoclet();
-                ad.setDescription(a.getDescription());
-                ad.setName(a.getName());
-                ad.setPrimaryKey(a.getPrimaryKey());
-                ad.setSymbol(a.getSymbol());
-                all_list.add(ad);
-            }
-            geneDocument.setAlleles(all_list);
+            geneDocument.setAlleles((List<AlleleDocument>) alleleTranslator.translateEntities(entity.getAlleles()));
         }
 
         return geneDocument;

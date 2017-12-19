@@ -19,12 +19,17 @@ import lombok.Setter;
 public class Allele extends Neo4jEntity {
 
     private String primaryKey;
-    private String name;
     private String symbol;
-    private String description;
 
     @Convert(value=DateConverter.class)
     private Date dateProduced;
+    private Date dataProvider;
+    private String release;
+    private String localId;
+    private String globalId;
+
+    @Relationship(type = "FROM_SPECIES")
+    private Species species;
 
     @Relationship(type = "ALSO_KNOWN_AS")
     private Set<Synonym> synonyms = new HashSet<>();

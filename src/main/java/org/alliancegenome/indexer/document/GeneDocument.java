@@ -39,7 +39,7 @@ public class GeneDocument extends ESDocument {
     private String geneSynopsis;
     private List<String> gene_cellular_component;
     private List<OrthologyDoclet> orthology;
-    private List<AlleleDoclet> alleles;
+    private List<AlleleDocument> alleles;
     private String geneticEntityExternalUrl;
 
     private String modCrossRefCompleteUrl;
