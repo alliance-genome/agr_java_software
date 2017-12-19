@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 
 public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument> {
 
-    private Logger log = LogManager.getLogger(getClass());
+    private final Logger log = LogManager.getLogger(getClass());
 
     private static DiseaseTranslator diseaseTranslator = new DiseaseTranslator();
 
@@ -40,7 +40,6 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
         geneDocument.setModGlobalCrossRefId(entity.getModGlobalCrossRefId());
         geneDocument.setModGlobalId(entity.getModGlobalId());
 
-        geneDocument.setHref(null); // This might look wrong but it was taken from the old AGR code base.
         geneDocument.setName(entity.getName());
         if (entity.getSpecies() != null) {
             geneDocument.setName_key(entity.getSymbol() + " (" + entity.getSpecies().getType().getAbbreviation() + ")"); // This might look wrong but it was taken from the old AGR code base.

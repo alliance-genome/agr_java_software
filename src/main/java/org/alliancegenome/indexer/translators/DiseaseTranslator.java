@@ -15,9 +15,9 @@ import static java.util.stream.Collectors.*;
 
 public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseDocument> {
 
-    private GeneTranslator geneTranslator = new GeneTranslator();
+    private final GeneTranslator geneTranslator = new GeneTranslator();
 
-    private Logger log = LogManager.getLogger(getClass());
+    private final Logger log = LogManager.getLogger(getClass());
 
     @Override
     protected DiseaseDocument entityToDocument(DOTerm entity, int translationDepth) {
@@ -104,7 +104,7 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
         document.setPrimaryKey(doTerm.getPrimaryKey());
         document.setPrimaryId(doTerm.getPrimaryKey());
         document.setName(doTerm.getName());
-        document.setNameKey(doTerm.getName());
+        document.setName_key(doTerm.getName());
         document.setDefinition(doTerm.getDefinition());
         document.setDefinitionLinks(doTerm.getDefLinks());
         document.setDateProduced(doTerm.getDateProduced());
