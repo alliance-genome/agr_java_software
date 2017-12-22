@@ -1,7 +1,8 @@
 package org.alliancegenome.api.translator;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.alliancegenome.api.dao.DiseaseDAO;
+
+import org.alliancegenome.api.dao.search.DiseaseDAO;
 import org.alliancegenome.indexer.document.DiseaseAnnotationDocument;
 import org.elasticsearch.search.SearchHit;
 import org.jboss.logging.Logger;

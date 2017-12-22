@@ -1,6 +1,6 @@
 package org.alliancegenome.api.controller;
 
-import org.alliancegenome.api.model.SearchResult;
+import org.alliancegenome.api.model.search.SearchResult;
 import org.alliancegenome.api.rest.interfaces.SearchRESTInterface;
 import org.alliancegenome.api.service.SearchService;
 import org.jboss.logging.Logger;

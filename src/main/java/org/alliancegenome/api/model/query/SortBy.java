@@ -1,4 +1,4 @@
-package org.alliancegenome.api.service.helper;
+package org.alliancegenome.api.model.query;
 
 import java.util.StringJoiner;
 

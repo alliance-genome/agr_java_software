@@ -1,5 +1,8 @@
-package org.alliancegenome.api.dao;
+package org.alliancegenome.api.dao.search;
 
+import javax.enterprise.context.ApplicationScoped;
+
+import org.alliancegenome.api.dao.ESDAO;
 import org.elasticsearch.action.admin.indices.analyze.AnalyzeRequest;
 import org.elasticsearch.action.admin.indices.analyze.AnalyzeResponse;
 import org.elasticsearch.action.search.SearchRequestBuilder;

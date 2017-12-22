@@ -1,20 +1,17 @@
 package org.alliancegenome.api.dao;
 
-import org.alliancegenome.api.config.ConfigHelper;
-import org.elasticsearch.action.get.GetRequest;
-import org.elasticsearch.action.get.GetResponse;
-import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.common.transport.InetSocketTransportAddress;
-import org.elasticsearch.transport.client.PreBuiltTransportClient;
-import org.jboss.logging.Logger;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.Map;
-import java.util.concurrent.ExecutionException;
+
+import org.alliancegenome.api.config.ConfigHelper;
+import org.elasticsearch.common.settings.Settings;
+import org.elasticsearch.common.transport.InetSocketTransportAddress;
+import org.elasticsearch.transport.client.PreBuiltTransportClient;
+import org.jboss.logging.Logger;
 
 public class ESDAO {
 
@@ -53,18 +50,4 @@ public class ESDAO {
         searchClient.close();
     }
 
-    public Map<String, Object> getById(String id) {
-
-        try {
-            GetRequest request = new GetRequest();
-            request.id(id);
-            request.index(config.getEsIndex());
-            GetResponse res = searchClient.get(request).get();
-            //log.info(res);
-            return res.getSource();
-        } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
 }

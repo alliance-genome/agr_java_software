@@ -1,7 +1,8 @@
 package org.alliancegenome.api.service.helper;
 
-import org.alliancegenome.api.model.AggDocCount;
-import org.alliancegenome.api.model.AggResult;
+import org.alliancegenome.api.model.search.AggDocCount;
+import org.alliancegenome.api.model.search.AggResult;
+import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.text.Text;
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -17,6 +18,8 @@ import org.jboss.logging.Logger;
 import javax.enterprise.context.RequestScoped;
 import javax.ws.rs.core.UriInfo;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @RequestScoped
 @SuppressWarnings("serial")
@@ -177,7 +180,7 @@ public class SearchHelper {
     public ArrayList<Map<String, Object>> formatResults(SearchResponse res, List<String> searchedTerms) {
         log.debug("Formatting Results: ");
         ArrayList<Map<String, Object>> ret = new ArrayList<>();
-        
+
         for(SearchHit hit: res.getHits()) {
             Map<String, Object> map = new HashMap<>();
             for(String key: hit.getHighlightFields().keySet()) {
@@ -243,5 +246,48 @@ public class SearchHelper {
         }
 
         return hlb;
+    }
+
+
+    public List<String> tokenizeQuery(String query) {
+        List<String> tokens = new ArrayList<>();
+
+        if (StringUtils.isEmpty(query)) {
+            return tokens;
+        }
+
+
+        //undo colon escaping
+        query = query.replaceAll("\\\\:",":");
+
+        //normalize the whitespace
+        query = query.replaceAll("\\s+", " ");
+
+        //extract quoted phrases
+        Pattern p = Pattern.compile( "\"([^\"]*)\"" );
+        Matcher m = p.matcher(query);
+        while( m.find()) {
+            String phrase = m.group(1);
+            tokens.add(phrase);
+            query = query.replaceAll("\"" + phrase + "\"","");
+        }
+
+        //normalize the whitespace again
+        query = query.replaceAll("\\s+", " ");
+
+        //add the tokens
+        tokens.addAll(Arrays.asList(query.split("\\s")));
+
+        //strip boolean tokens
+        List<String> booleans = new ArrayList<>();
+        booleans.add("AND");
+        booleans.add("OR");
+        booleans.add("NOT");
+
+        tokens.removeAll(booleans);
+
+        return tokens;
+
+
     }
 }

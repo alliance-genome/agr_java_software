@@ -22,7 +22,7 @@ import javax.enterprise.context.Initialized;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
-import org.alliancegenome.api.dao.SearchDAO;
+import org.alliancegenome.api.dao.search.SearchDAO;
 import org.alliancegenome.api.model.xml.XMLURL;
 import org.alliancegenome.api.model.xml.XMLURLSet;
 import org.elasticsearch.search.SearchHit;

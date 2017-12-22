@@ -1,4 +1,4 @@
-package org.alliancegenome.api.model;
+package org.alliancegenome.api.model.search;
 
 public class AggDocCount {
 

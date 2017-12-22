@@ -1,8 +1,11 @@
-package org.alliancegenome.api.dao;
+package org.alliancegenome.api.dao.search;
 
-import org.alliancegenome.api.model.SearchResult;
-import org.alliancegenome.api.service.helper.Pagination;
-import org.alliancegenome.api.service.helper.SortBy;
+import org.alliancegenome.api.dao.ESDAO;
+import org.alliancegenome.api.model.query.Pagination;
+import org.alliancegenome.api.model.query.SortBy;
+import org.alliancegenome.api.model.search.SearchResult;
+import org.elasticsearch.action.get.GetRequest;
+import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.MatchQueryBuilder;
@@ -19,12 +22,14 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class DiseaseDAO extends ESDAO {
 
     private Logger log = Logger.getLogger(getClass());
+
 
     public SearchResult getDiseaseAnnotations(String diseaseID, Pagination pagination) {
 
@@ -43,7 +48,7 @@ public class DiseaseDAO extends ESDAO {
 
     private static Map<SortBy, String> sortByMao = new LinkedHashMap<>();
 
-    static {
+    {
         sortByMao.put(SortBy.DISEASE, "diseaseName.keyword");
         sortByMao.put(SortBy.SPECIES, "disease_species.orderID");
         sortByMao.put(SortBy.GENE, "geneDocument.symbol.keyword");
@@ -106,6 +111,25 @@ public class DiseaseDAO extends ESDAO {
         SearchRequestBuilder searchRequestBuilder = getSearchRequestBuilder(id, pagination);
         SearchHitIterator hitIterator = new SearchHitIterator(searchRequestBuilder);
         return hitIterator;
+    }
+
+    // This class is going to get replaced by a call to NEO
+
+    public Map<String, Object> getById(String id) {
+
+        try {
+            GetRequest request = new GetRequest();
+            request.id(id);
+            request.index(config.getEsIndex());
+            GetResponse res = searchClient.get(request).get();
+            //log.info(res);
+            return res.getSource();
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+
     }
 
     public class SearchHitIterator implements Iterator<SearchHit> {

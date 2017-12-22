@@ -7,7 +7,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
-import org.alliancegenome.api.model.AutoCompleteResult;
+import org.alliancegenome.api.model.search.AutoCompleteResult;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;

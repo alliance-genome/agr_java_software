@@ -9,10 +9,10 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.alliancegenome.api.model.SearchResult;
+import org.alliancegenome.api.model.query.Pagination;
+import org.alliancegenome.api.model.search.SearchResult;
 import org.alliancegenome.api.rest.interfaces.DiseaseRESTInterface;
 import org.alliancegenome.api.service.DiseaseService;
-import org.alliancegenome.api.service.helper.Pagination;
 import org.alliancegenome.api.translator.DiseaseAnnotationToTdfTranslator;
 import org.jboss.logging.Logger;
 

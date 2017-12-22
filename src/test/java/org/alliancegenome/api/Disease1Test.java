@@ -1,9 +1,9 @@
 package org.alliancegenome.api;
 
 import org.alliancegenome.api.config.ConfigHelper;
-import org.alliancegenome.api.dao.DiseaseDAO;
-import org.alliancegenome.api.model.SearchResult;
-import org.alliancegenome.api.service.helper.Pagination;
+import org.alliancegenome.api.dao.search.DiseaseDAO;
+import org.alliancegenome.api.model.query.Pagination;
+import org.alliancegenome.api.model.search.SearchResult;
 import org.alliancegenome.api.translator.DiseaseAnnotationToTdfTranslator;
 import org.jboss.logging.Logger;
 

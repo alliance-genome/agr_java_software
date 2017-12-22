@@ -22,9 +22,10 @@ public class ConfigHelper {
         defaults.put("API_ACCESS_TOKEN", "api_password");
         defaults.put("DEBUG", "false");
         defaults.put("ES_INDEX", "site_index");
+        defaults.put("ES_DATA_INDEX", "data_index");
         defaults.put("ES_HOST", "localhost");
         defaults.put("ES_PORT", "9300");
-        
+
         for (String key : defaults.keySet()) {
             if (config.get(key) == null) config.put(key, loadSystemProperty(key));
             if (config.get(key) == null) config.put(key, loadSystemENVProperty(key));
@@ -57,6 +58,10 @@ public class ConfigHelper {
         return config.get("ES_INDEX");
     }
 
+    public String getEsDataIndex() {
+        return config.get("ES_DATA_INDEX");
+    }
+
     public String getEsHost() {
         return config.get("ES_HOST");
     }
@@ -76,7 +81,7 @@ public class ConfigHelper {
     public boolean getDebug() {
         return Boolean.parseBoolean(config.get("DEBUG"));
     }
-    
+
     public Date getAppStart() {
         return appStart;
     }

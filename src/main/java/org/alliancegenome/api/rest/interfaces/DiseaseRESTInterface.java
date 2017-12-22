@@ -3,11 +3,13 @@ package org.alliancegenome.api.rest.interfaces;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import org.alliancegenome.api.model.SearchResult;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+
+import org.alliancegenome.api.model.search.SearchResult;
+
 import java.util.Map;
 
 @Path("/disease")

@@ -1,7 +1,7 @@
 package org.alliancegenome.api.service;
 
-import org.alliancegenome.api.dao.AutoCompleteDAO;
-import org.alliancegenome.api.model.AutoCompleteResult;
+import org.alliancegenome.api.dao.search.AutoCompleteDAO;
+import org.alliancegenome.api.model.search.AutoCompleteResult;
 import org.alliancegenome.api.service.helper.AutoCompleteHelper;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.QueryBuilder;

@@ -1,0 +1,11 @@
+package org.alliancegenome.api.dao.data;
+
+import javax.enterprise.context.ApplicationScoped;
+
+import org.alliancegenome.api.dao.ESDocumentDAO;
+import org.alliancegenome.api.model.esdata.MetaDataDocument;
+
+@ApplicationScoped
+public class MetaDataDAO extends ESDocumentDAO<MetaDataDocument> {
+
+}

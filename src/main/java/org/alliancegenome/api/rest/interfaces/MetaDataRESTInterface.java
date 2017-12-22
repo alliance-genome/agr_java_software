@@ -1,22 +1,40 @@
 package org.alliancegenome.api.rest.interfaces;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import org.alliancegenome.api.model.MetaData;
-
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-@Path("/metadata")
+import org.alliancegenome.api.model.esdata.MetaDataDocument;
+import org.alliancegenome.api.model.esdata.SubmissionResponce;
+import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+
+@Path("/data")
 @Api(value = "Meta Data")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public interface MetaDataRESTInterface {
 
     @GET
+    @Path("/meta")
     @ApiOperation(value = "Get MetaData from Build", notes="Meta Data Notes")
-    public MetaData getMetaData();
+    public MetaDataDocument getMetaData();
+
+    @POST
+    @Path("/submit")
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    @ApiOperation(value = "Submit new data file for build", notes = "Data file submission")
+    public SubmissionResponce submitData(MultipartFormDataInput input);
+
+    @POST
+    @Path("/validate")
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    @ApiOperation(value = "Validate only new data file for build", notes = "Data file validation")
+    public SubmissionResponce validateData(MultipartFormDataInput input);
+
 }

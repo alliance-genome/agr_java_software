@@ -5,9 +5,9 @@ import java.util.Map;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 
-import org.alliancegenome.api.dao.DiseaseDAO;
-import org.alliancegenome.api.model.SearchResult;
-import org.alliancegenome.api.service.helper.Pagination;
+import org.alliancegenome.api.dao.search.DiseaseDAO;
+import org.alliancegenome.api.model.query.Pagination;
+import org.alliancegenome.api.model.search.SearchResult;
 import org.jboss.logging.Logger;
 
 @RequestScoped

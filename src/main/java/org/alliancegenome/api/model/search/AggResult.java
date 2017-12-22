@@ -1,4 +1,4 @@
-package org.alliancegenome.api.model;
+package org.alliancegenome.api.model.search;
 
 import java.util.ArrayList;
 import java.util.List;
