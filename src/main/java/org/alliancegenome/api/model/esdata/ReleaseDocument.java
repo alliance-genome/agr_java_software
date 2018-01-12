@@ -10,7 +10,7 @@ import lombok.ToString;
 @Setter @ToString
 public class ReleaseDocument extends ESDocument {
 
-    private String type = "schema";
+    private String type = "release";
 
     private String name;
 

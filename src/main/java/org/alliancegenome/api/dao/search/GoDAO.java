@@ -19,6 +19,7 @@ public class GoDAO extends ESDAO {
         try {
             GetRequest request = new GetRequest();
             request.id(id);
+            request.type("go");
             request.index(config.getEsIndex());
             GetResponse res = searchClient.get(request).get();
             //log.info(res);

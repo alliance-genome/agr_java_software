@@ -26,6 +26,9 @@ public class ConfigHelper {
         defaults.put("ES_HOST", "localhost");
         defaults.put("ES_PORT", "9300");
 
+        defaults.put("AWS_ACCESS_KEY", null);
+        defaults.put("AWS_SECRET_KEY", null);
+
         for (String key : defaults.keySet()) {
             if (config.get(key) == null) config.put(key, loadSystemProperty(key));
             if (config.get(key) == null) config.put(key, loadSystemENVProperty(key));
@@ -82,6 +85,18 @@ public class ConfigHelper {
         return Boolean.parseBoolean(config.get("DEBUG"));
     }
 
+    public String getAWSAccessKey() {
+        return config.get("AWS_ACCESS_KEY");
+    }
+
+    public String getAWSSecretKey() {
+        return config.get("AWS_SECRET_KEY");
+    }
+
+    public String getValidationSoftwarePath() {
+        return System.getProperty("java.io.tmpdir");
+    }
+
     public Date getAppStart() {
         return appStart;
     }
@@ -92,6 +107,7 @@ public class ConfigHelper {
             log.info("\t" + key + ": " + config.get(key));
         }
     }
+
 
 
 }

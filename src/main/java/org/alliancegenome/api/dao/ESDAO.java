@@ -19,24 +19,26 @@ public class ESDAO {
     protected ConfigHelper config;
 
     private final Logger log = Logger.getLogger(getClass());
-    protected PreBuiltTransportClient searchClient;
+    protected static PreBuiltTransportClient searchClient = null; // Make sure to only have 1 of these clients to save on resources
 
     @PostConstruct
     public void init() {
         log.info("Creating New ES Client");
 
-        searchClient = new PreBuiltTransportClient(Settings.EMPTY);
-        try {
-            if(config.getEsHost().contains(",")) {
-                String[] hosts = config.getEsHost().split(",");
-                for(String host: hosts) {
-                    searchClient.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(host), config.getEsPort()));
+        if(searchClient == null) {
+            searchClient = new PreBuiltTransportClient(Settings.EMPTY);
+            try {
+                if(config.getEsHost().contains(",")) {
+                    String[] hosts = config.getEsHost().split(",");
+                    for(String host: hosts) {
+                        searchClient.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(host), config.getEsPort()));
+                    }
+                } else {
+                    searchClient.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(config.getEsHost()), config.getEsPort()));
                 }
-            } else {
-                searchClient.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(config.getEsHost()), config.getEsPort()));
+            } catch (UnknownHostException e) {
+                e.printStackTrace();
             }
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
         }
     }
 

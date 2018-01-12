@@ -1,4 +1,4 @@
-package org.alliancegenome.api.rest.external.github;
+package org.alliancegenome.api.service.helper.github;
 
 import lombok.Getter;
 import lombok.Setter;

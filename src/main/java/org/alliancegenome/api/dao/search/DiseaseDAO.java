@@ -30,6 +30,12 @@ public class DiseaseDAO extends ESDAO {
 
     private Logger log = Logger.getLogger(getClass());
 
+    private static Map<SortBy, String> sortByMao = new LinkedHashMap<>();
+    {
+        sortByMao.put(SortBy.DISEASE, "diseaseName.keyword");
+        sortByMao.put(SortBy.SPECIES, "disease_species.orderID");
+        sortByMao.put(SortBy.GENE, "geneDocument.symbol.keyword");
+    }
 
     public SearchResult getDiseaseAnnotations(String diseaseID, Pagination pagination) {
 
@@ -44,14 +50,6 @@ public class DiseaseDAO extends ESDAO {
         result.total = response.getHits().totalHits;
         result.results = formatResults(response);
         return result;
-    }
-
-    private static Map<SortBy, String> sortByMao = new LinkedHashMap<>();
-
-    {
-        sortByMao.put(SortBy.DISEASE, "diseaseName.keyword");
-        sortByMao.put(SortBy.SPECIES, "disease_species.orderID");
-        sortByMao.put(SortBy.GENE, "geneDocument.symbol.keyword");
     }
 
     private SearchRequestBuilder getSearchRequestBuilder(String diseaseID, Pagination pagination) {
@@ -120,6 +118,7 @@ public class DiseaseDAO extends ESDAO {
         try {
             GetRequest request = new GetRequest();
             request.id(id);
+            request.type("disease");
             request.index(config.getEsIndex());
             GetResponse res = searchClient.get(request).get();
             //log.info(res);

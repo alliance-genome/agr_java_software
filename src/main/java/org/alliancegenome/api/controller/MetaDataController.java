@@ -8,6 +8,7 @@ import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 
 import org.alliancegenome.api.config.ConfigHelper;
+import org.alliancegenome.api.exceptions.GenericException;
 import org.alliancegenome.api.model.esdata.MetaDataDocument;
 import org.alliancegenome.api.model.esdata.SubmissionResponce;
 import org.alliancegenome.api.rest.interfaces.MetaDataRESTInterface;
@@ -36,15 +37,20 @@ public class MetaDataController implements MetaDataRESTInterface {
     @Override
     public SubmissionResponce submitData(MultipartFormDataInput input) {
         Map<String, List<InputPart>> form = input.getFormDataMap();
+        SubmissionResponce res = new SubmissionResponce();
         for(String key: form.keySet()) {
             InputPart inputPart = form.get(key).get(0);
             try {
                 metaDataService.submitData(key, inputPart.getBodyAsString());
-            } catch (IOException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
+                res.setError(e.getMessage());
+                res.setStatus("failed");
+                return res;
             }
         }
-        return new SubmissionResponce();
+        res.setStatus("success");
+        return res;
     }
 
     @Override

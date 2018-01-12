@@ -19,6 +19,7 @@ public class GeneDAO extends ESDAO {
         try {
             GetRequest request = new GetRequest();
             request.id(id);
+            request.type("gene");
             request.index(config.getEsIndex());
             GetResponse res = searchClient.get(request).get();
             //log.info(res);

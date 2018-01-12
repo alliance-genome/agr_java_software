@@ -2,7 +2,6 @@ package org.alliancegenome.api.controller;
 
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -29,7 +28,6 @@ public class SiteMapController implements SiteMapRESTInterface {
     private ConfigHelper config;
 
     private final Logger log = Logger.getLogger(getClass());
-
 
     @Override
     public SiteMapIndex getSiteMap(UriInfo uriInfo) {

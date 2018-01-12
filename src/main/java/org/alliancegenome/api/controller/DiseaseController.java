@@ -5,6 +5,7 @@ import java.util.Map;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -30,7 +31,12 @@ public class DiseaseController implements DiseaseRESTInterface {
 
     @Override
     public Map<String, Object> getDisease(String id) {
-        return diseaseService.getById(id);
+        Map<String, Object> ret = diseaseService.getById(id);
+        if(ret == null) {
+            throw new NotFoundException();
+        } else {
+            return ret;
+        }
     }
 
     @Override

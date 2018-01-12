@@ -1,6 +1,5 @@
-package org.alliancegenome.api.rest.external.github;
+package org.alliancegenome.api.service.helper.github;
 
-import java.io.IOException;
 import java.util.List;
 
 import org.jboss.logging.Logger;
@@ -23,7 +22,7 @@ public class GithubRESTAPI implements GithubRESTAPIInterface {
             return api.getLatestRelease(repo);
         } catch (HttpStatusIOException e) {
             log.warn("HTTP error code returned from server: " + e.getHttpStatusCode());
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
@@ -35,7 +34,7 @@ public class GithubRESTAPI implements GithubRESTAPIInterface {
             return api.getRelease(repo, release);
         } catch (HttpStatusIOException e) {
             log.warn("HTTP error code returned from server: " + e.getHttpStatusCode());
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
@@ -47,7 +46,7 @@ public class GithubRESTAPI implements GithubRESTAPIInterface {
             return api.getReleases(repo);
         } catch (HttpStatusIOException e) {
             log.warn("HTTP error code returned from server: " + e.getHttpStatusCode());
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
