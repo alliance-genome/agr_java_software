@@ -1,6 +1,14 @@
 package org.alliancegenome.api.service.helper;
 
+import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
+import static org.elasticsearch.index.query.QueryBuilders.termQuery;
+
+import java.util.ArrayList;
+import java.util.Map;
+
+import javax.enterprise.context.RequestScoped;
 import org.alliancegenome.api.service.SearchService;
+
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -26,7 +34,7 @@ public class AutoCompleteHelper {
     private Logger log = Logger.getLogger(getClass());
 
     public QueryBuilder buildQuery(String q, String category) {
-        
+
         BoolQueryBuilder bool = new BoolQueryBuilder();
 
         MultiMatchQueryBuilder multi = QueryBuilders.multiMatchQuery(q);
@@ -51,7 +59,7 @@ public class AutoCompleteHelper {
 
     public ArrayList<Map<String, Object>> formatResults(SearchResponse res) {
         ArrayList<Map<String, Object>> ret = new ArrayList<Map<String, Object>>();
-        
+
         for(SearchHit hit: res.getHits()) {
             String category = (String) hit.getSource().get("category");
 

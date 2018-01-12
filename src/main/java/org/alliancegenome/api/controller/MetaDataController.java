@@ -8,7 +8,6 @@ import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 
 import org.alliancegenome.api.config.ConfigHelper;
-import org.alliancegenome.api.exceptions.GenericException;
 import org.alliancegenome.api.model.esdata.MetaDataDocument;
 import org.alliancegenome.api.model.esdata.SubmissionResponce;
 import org.alliancegenome.api.rest.interfaces.MetaDataRESTInterface;

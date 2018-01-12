@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @ApplicationScoped
-@SuppressWarnings("serial")
 public class SearchDAO extends ESDAO {
 
     private final Logger log = Logger.getLogger(getClass());

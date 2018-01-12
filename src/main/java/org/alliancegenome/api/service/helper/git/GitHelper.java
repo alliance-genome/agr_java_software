@@ -28,12 +28,11 @@ public class GitHelper {
             log.debug("Directory already exists: " + localPath);
         } else {
             try {
-                Git git = Git.cloneRepository()
+                Git.cloneRepository()
                         .setURI( "https://github.com/alliance-genome/agr_schemas.git" )
-                        .setDirectory( new File(localPath) )
+                        .setDirectory(new File(localPath))
                         .setBranch(release)
                         .call();
-                //log.debug(git);
             } catch (GitAPIException e) {
                 e.printStackTrace();
             }

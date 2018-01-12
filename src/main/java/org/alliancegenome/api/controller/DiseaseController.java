@@ -15,12 +15,11 @@ import org.alliancegenome.api.model.search.SearchResult;
 import org.alliancegenome.api.rest.interfaces.DiseaseRESTInterface;
 import org.alliancegenome.api.service.DiseaseService;
 import org.alliancegenome.api.translator.DiseaseAnnotationToTdfTranslator;
-import org.jboss.logging.Logger;
 
 @RequestScoped
 public class DiseaseController implements DiseaseRESTInterface {
 
-    private final Logger log = Logger.getLogger(getClass());
+    //private final Logger log = Logger.getLogger(getClass());
     @Context  //injected response proxy supporting multiple threads
     private HttpServletResponse response;
 

@@ -8,12 +8,11 @@ import javax.inject.Inject;
 import org.alliancegenome.api.dao.search.DiseaseDAO;
 import org.alliancegenome.api.model.query.Pagination;
 import org.alliancegenome.api.model.search.SearchResult;
-import org.jboss.logging.Logger;
 
 @RequestScoped
 public class DiseaseService {
 
-    private Logger log = Logger.getLogger(getClass());
+    //private Logger log = Logger.getLogger(getClass());
 
     @Inject
     private DiseaseDAO diseaseDAO;

@@ -16,7 +16,6 @@ import org.alliancegenome.api.model.xml.SiteMapIndex;
 import org.alliancegenome.api.model.xml.XMLURL;
 import org.alliancegenome.api.model.xml.XMLURLSet;
 import org.alliancegenome.api.rest.interfaces.SiteMapRESTInterface;
-import org.jboss.logging.Logger;
 
 @RequestScoped
 public class SiteMapController implements SiteMapRESTInterface {
@@ -27,7 +26,7 @@ public class SiteMapController implements SiteMapRESTInterface {
     @Inject
     private ConfigHelper config;
 
-    private final Logger log = Logger.getLogger(getClass());
+    //private final Logger log = Logger.getLogger(getClass());
 
     @Override
     public SiteMapIndex getSiteMap(UriInfo uriInfo) {

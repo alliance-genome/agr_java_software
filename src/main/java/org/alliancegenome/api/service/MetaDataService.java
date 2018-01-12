@@ -1,7 +1,6 @@
 package org.alliancegenome.api.service;
 
 import java.io.File;
-import java.util.Date;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -10,7 +9,6 @@ import org.alliancegenome.api.dao.data.DataFileDAO;
 import org.alliancegenome.api.dao.data.DataTypeDAO;
 import org.alliancegenome.api.dao.data.ModDAO;
 import org.alliancegenome.api.dao.data.SchemaDAO;
-import org.alliancegenome.api.exceptions.FileSavingException;
 import org.alliancegenome.api.exceptions.GenericException;
 import org.alliancegenome.api.exceptions.SchemaDataTypeException;
 import org.alliancegenome.api.exceptions.ValidataionException;
@@ -20,7 +18,6 @@ import org.alliancegenome.api.model.esdata.ModDocument;
 import org.alliancegenome.api.model.esdata.SchemaDocument;
 import org.alliancegenome.api.service.helper.git.GitHelper;
 import org.alliancegenome.api.service.helper.git.S3Helper;
-import org.apache.commons.io.FileUtils;
 import org.jboss.logging.Logger;
 
 import com.fasterxml.jackson.databind.JsonNode;

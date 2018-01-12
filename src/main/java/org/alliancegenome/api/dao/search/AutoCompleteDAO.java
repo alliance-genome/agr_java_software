@@ -1,20 +1,19 @@
 package org.alliancegenome.api.dao.search;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.enterprise.context.ApplicationScoped;
+
 import org.alliancegenome.api.dao.ESDAO;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.QueryBuilder;
-import org.jboss.logging.Logger;
-
-import javax.enterprise.context.ApplicationScoped;
-import java.util.ArrayList;
-import java.util.List;
 
 @ApplicationScoped
-@SuppressWarnings("serial")
 public class AutoCompleteDAO extends ESDAO {
 
-    private Logger log = Logger.getLogger(getClass());
+    //private Logger log = Logger.getLogger(getClass());
 
     private List<String> response_fields = new ArrayList<String>() {
         {
