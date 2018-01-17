@@ -18,7 +18,7 @@ public class SchemaDAO extends ESDocumentDAO<SchemaDocument> {
     public SchemaDocument getLatestSchemaVersion() {
         GithubRelease githubLatestRelease = githubAPI.getLatestRelease("agr_schemas");
         log.debug("Getting Latest Schema Version");
-        SchemaDocument schemaVersion = readDocument(githubLatestRelease.getName());
+        SchemaDocument schemaVersion = readDocument(githubLatestRelease.getName(), "schema");
         log.debug("Schema Version: " + schemaVersion);
         if(schemaVersion == null) {
             schemaVersion = new SchemaDocument();
@@ -34,7 +34,7 @@ public class SchemaDAO extends ESDocumentDAO<SchemaDocument> {
     public SchemaDocument getSchemaVersion(String string) {
         log.debug("Getting Schema Version");
         if(string != null) {
-            SchemaDocument schemaVersion = readDocument(string);
+            SchemaDocument schemaVersion = readDocument(string, "schema");
             log.debug("Schema Version: " + schemaVersion);
             if(schemaVersion == null) {
                 GithubRelease gitHubSchema = githubAPI.getRelease("agr_schemas", string);

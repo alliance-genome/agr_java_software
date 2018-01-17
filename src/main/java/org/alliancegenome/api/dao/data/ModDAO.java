@@ -14,7 +14,7 @@ public class ModDAO extends ESDocumentDAO<ModDocument> {
     public ModDocument getModDocument(String string) {
         log.debug("Getting Mod");
         if(string != null) {
-            ModDocument mod = readDocument(string);
+            ModDocument mod = readDocument(string, "mod");
             log.debug("Mod: " + mod);
             if(mod == null) {
                 Mod m = Mod.fromString(string);

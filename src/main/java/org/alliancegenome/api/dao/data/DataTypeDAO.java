@@ -17,7 +17,7 @@ public class DataTypeDAO extends ESDocumentDAO<DataTypeDocument> {
     public DataTypeDocument getDataType(String string) {
         log.debug("Getting Data Type");
         if(string != null) {
-            DataTypeDocument dataType = readDocument(string);
+            DataTypeDocument dataType = readDocument(string, "data_type");
             log.debug("Data Type: " + dataType);
             if(dataType == null) {
                 DataType dt = DataType.fromString(string);
@@ -45,10 +45,12 @@ public class DataTypeDAO extends ESDocumentDAO<DataTypeDocument> {
         // Default data type if index does not contain the data type then this will be used to inject a document
         BGI("Basic Gene Information", "json", true, true),
         DOA("Disease Ontology Annotations", "json", true, true),
-        GFF("Gene Features File", "gff3", true, true),
-        GOA("Gene Ontology Annotations", "json", true, true),
         ORTHO("Orthology", "json", true, true),
-        BAI("Basic Allele Information", "json", true, true),
+        FEATURE("Feature Information", "json", true, true),
+
+        // No schema required for these but will still stick them in the correct schema directory
+        GOA("Gene Ontology Annotations", "gaf", true, false),
+        GFF("Gene Features File", "gff", true, false),
 
         DO("Disease Ontology", "obo", false, false),
         GO("Gene Ontology", "obo", false, false),
@@ -65,19 +67,6 @@ public class DataTypeDAO extends ESDocumentDAO<DataTypeDocument> {
             this.fileExtension = fileExtension;
             this.modRequired = modRequired;
             this.validationRequired = validationRequired;
-        }
-
-        public String getDescription() {
-            return description;
-        }
-        public String getFileExtension() {
-            return fileExtension;
-        }
-        public boolean isModRequired() {
-            return modRequired;
-        }
-        public boolean isValidationRequired() {
-            return validationRequired;
         }
 
         public static DataType fromString(String string) {

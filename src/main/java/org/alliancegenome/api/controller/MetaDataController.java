@@ -8,10 +8,12 @@ import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 
 import org.alliancegenome.api.config.ConfigHelper;
+import org.alliancegenome.api.exceptions.GenericException;
 import org.alliancegenome.api.model.esdata.MetaDataDocument;
 import org.alliancegenome.api.model.esdata.SubmissionResponce;
 import org.alliancegenome.api.rest.interfaces.MetaDataRESTInterface;
 import org.alliancegenome.api.service.MetaDataService;
+import org.jboss.logging.Logger;
 import org.jboss.resteasy.plugins.providers.multipart.InputPart;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
 
@@ -23,6 +25,8 @@ public class MetaDataController implements MetaDataRESTInterface {
 
     @Inject
     private MetaDataService metaDataService;
+
+    private Logger log = Logger.getLogger(getClass());
 
     @Override
     public MetaDataDocument getMetaData() {
@@ -41,8 +45,10 @@ public class MetaDataController implements MetaDataRESTInterface {
             InputPart inputPart = form.get(key).get(0);
             try {
                 metaDataService.submitData(key, inputPart.getBodyAsString());
-            } catch (Exception e) {
-                e.printStackTrace();
+            } catch (GenericException | IOException e) {
+                log.error(e.getMessage());
+                //log.info("Turn off the next line printing the Exception");
+                //e.printStackTrace();
                 res.setError(e.getMessage());
                 res.setStatus("failed");
                 return res;

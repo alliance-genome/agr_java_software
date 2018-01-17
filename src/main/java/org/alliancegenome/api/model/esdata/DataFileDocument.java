@@ -1,5 +1,7 @@
 package org.alliancegenome.api.model.esdata;
 
+import java.util.Date;
+
 import org.alliancegenome.indexer.document.ESDocument;
 
 import lombok.Getter;
@@ -16,6 +18,7 @@ public class DataFileDocument extends ESDocument {
     private String dataType;
     private String mod;
     private String path;
+    private Date uploadDate = new Date();
 
     @Override
     public String getDocumentId() {

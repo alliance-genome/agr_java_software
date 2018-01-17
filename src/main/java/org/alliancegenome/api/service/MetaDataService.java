@@ -1,6 +1,7 @@
 package org.alliancegenome.api.service;
 
 import java.io.File;
+import java.io.IOException;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -22,6 +23,7 @@ import org.jboss.logging.Logger;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.fge.jackson.JsonLoader;
+import com.github.fge.jsonschema.core.exceptions.ProcessingException;
 import com.github.fge.jsonschema.core.report.ProcessingMessage;
 import com.github.fge.jsonschema.core.report.ProcessingReport;
 import com.github.fge.jsonschema.main.JsonSchema;
@@ -69,15 +71,15 @@ public class MetaDataService {
         }
     }
 
-    private String saveFileToS3(DataTypeDocument dataType, String bodyString) throws GenericException {
-        int fileIndex = s3Helper.listFiles(dataType.getName());
-        String filePath = dataType.getName() + "/" + dataType.getName() + "_" + fileIndex + "." + dataType.getFileExtension();
+    private String saveFileToS3(SchemaDocument schemaVersion, DataTypeDocument dataType, String bodyString) throws GenericException {
+        int fileIndex = s3Helper.listFiles(schemaVersion.getName() + "/" + dataType.getName() + "/");
+        String filePath = schemaVersion.getName() + "/" + dataType.getName() + "/" + schemaVersion.getName() + "_" + dataType.getName() + "_" + fileIndex + "." + dataType.getFileExtension();
         s3Helper.saveFile(filePath, bodyString);
         return filePath;
     }
 
     private String saveFileToS3(SchemaDocument schemaVersion, DataTypeDocument dataType, ModDocument mod, String bodyString) throws GenericException {
-        int fileIndex = s3Helper.listFiles(schemaVersion.getName() + "/" + dataType.getName() + "/" + mod.getName());
+        int fileIndex = s3Helper.listFiles(schemaVersion.getName() + "/" + dataType.getName() + "/" + mod.getName() + "/");
 
         String filePath =
                 schemaVersion.getName() + "/" + dataType.getName() + "/" + mod.getName() + "/" +
@@ -114,16 +116,19 @@ public class MetaDataService {
                     throw new ValidataionException(message.getMessage());
                 }
             }
+            log.info("Validation Complete: " + report.isSuccess());
             return report.isSuccess();
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (IOException | ProcessingException e) {
             throw new ValidataionException(e.getMessage());
         }
 
     }
 
     private void parseDataType(String[] keys, String bodyString) throws GenericException {
+        SchemaDocument schemaVersion;
         DataTypeDocument dataType;
+
+        schemaVersion = schemaDAO.getLatestSchemaVersion();
 
         dataType = dataTypeDAO.getDataType(keys[0]);
         if(dataType == null) {
@@ -131,12 +136,13 @@ public class MetaDataService {
         }
 
         if(dataType.isModRequired() || dataType.isValidationRequired()) {
-            throw new ValidataionException("Schema or Mod is required for this data type however no schema or mod version was provided");
+            throw new ValidataionException("Schema or Mod is required for this data type however no schema or mod was provided: " + dataType);
         }
 
-        String filePath = saveFileToS3(dataType, bodyString);
+        String filePath = saveFileToS3(schemaVersion, dataType, bodyString);
 
         DataFileDocument dfd = new DataFileDocument();
+        dfd.setSchemaVersion(schemaVersion.getName());
         dfd.setDataType(dataType.getName());
         dfd.setPath(filePath);
         //dfd.setMod(mod.getName());
@@ -163,7 +169,7 @@ public class MetaDataService {
                 throw new ValidataionException("Mod not found: " + keys[1]);
             }
         } else {
-            throw new ValidataionException("\"Mod is not required for this data type: " + dataType);
+            throw new ValidataionException("Mod is not required for this data type: " + dataType);
         }
 
         if(dataType.isValidationRequired()) {
@@ -187,6 +193,7 @@ public class MetaDataService {
         ModDocument mod;
 
         schemaVersion = schemaDAO.getSchemaVersion(keys[0]);
+
         if(schemaVersion == null) {
             throw new ValidataionException("Schema Version not found: " + keys[0]);
         }

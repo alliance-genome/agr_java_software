@@ -43,11 +43,12 @@ public class ESDocumentDAO<D extends ESDocument> extends ESDAO {
         }
     }
 
-    public D readDocument(String id) {
+    public D readDocument(String id, String type) {
         log.debug("Going to ES for data: " + id);
         try {
             GetRequest request = new GetRequest();
             request.id(id);
+            request.type(type);
             request.index(config.getEsDataIndex());
             GetResponse res = searchClient.get(request).get();
 
