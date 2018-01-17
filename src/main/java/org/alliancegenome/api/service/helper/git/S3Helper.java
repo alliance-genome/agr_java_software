@@ -58,7 +58,7 @@ public class S3Helper {
             FileUtils.writeStringToFile(outfile, fileData);
             log.info("Save file to local filesystem complete");
 
-            log.info("Uploading file to S3: " + path + " -> s3://" + bucketName + "/" + path);
+            log.info("Uploading file to S3: " + outfile.getAbsolutePath() + " -> s3://" + bucketName + "/" + path);
             AmazonS3 s3 = AmazonS3ClientBuilder.standard().withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(config.getAWSAccessKey(), config.getAWSSecretKey()))).withRegion(Regions.US_EAST_1).build();
             TransferManager tm = TransferManagerBuilder.standard().withS3Client(s3).build();
             final Upload uploadFile = tm.upload(bucketName, path, outfile);
@@ -70,7 +70,6 @@ public class S3Helper {
             e.printStackTrace();
             throw new FileSavingException(e.getMessage());
         }
-
     }
 
 }
