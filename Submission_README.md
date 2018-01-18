@@ -49,7 +49,7 @@ This will be the current release of the schema can be found in the [releases](ht
 
 ## Schema-DataType-Mod String format
 
-Valid combinations for Schema-DataType-Mode are as follows:
+Valid combinations for Schema-DataType-Mod are as follows:
 
 | Type | What does it mean? |
 | --------------- | --- |
