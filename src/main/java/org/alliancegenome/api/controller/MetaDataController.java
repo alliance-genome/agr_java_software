@@ -1,6 +1,7 @@
 package org.alliancegenome.api.controller;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -41,20 +42,25 @@ public class MetaDataController implements MetaDataRESTInterface {
     public SubmissionResponce submitData(MultipartFormDataInput input) {
         Map<String, List<InputPart>> form = input.getFormDataMap();
         SubmissionResponce res = new SubmissionResponce();
+        boolean success = true;
         for(String key: form.keySet()) {
             InputPart inputPart = form.get(key).get(0);
+
             try {
                 metaDataService.submitData(key, inputPart.getBodyAsString());
+                res.getFileStatus().put(key, "success");
             } catch (GenericException | IOException e) {
                 log.error(e.getMessage());
-                //log.info("Turn off the next line printing the Exception");
+                res.getFileStatus().put(key, e.getMessage());
                 //e.printStackTrace();
-                res.setError(e.getMessage());
-                res.setStatus("failed");
-                return res;
+                success = false;
             }
         }
-        res.setStatus("success");
+        if(success) {
+            res.setStatus("success");
+        } else {
+            res.setStatus("failed");
+        }
         return res;
     }
 
