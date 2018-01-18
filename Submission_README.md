@@ -153,7 +153,7 @@ This is the responce object:
 		"0.7.0-BGI-MGD":"success",
 		"0.7.0-GFF-MGD":"success"
 	},
-	"status":"failed"
+	"status":"success"
 }
 ```
 
