@@ -119,7 +119,7 @@ This is the responce object:
 
 For the following command:
 
-	> curl -X POST "http://localhost:8080/api/data/submit" \
+	> curl -X POST "http://www.alliancegenome.org/api/data/submit" \
 		-F "0.7.0-BGI-MGD=@MGI_1.0.4_BGI.json" \
 		-F "0.7.0-FEATURE-MGD=@MGI_1.0.4_feature.json" \
 		-F "0.7.0-DOA-MGD=@MGI_1.0.4_disease.json" \
@@ -141,7 +141,7 @@ This is the responce object:
 	
 In a failed example only the files that failed need to be attempted again:
 
-	> curl -X POST "http://localhost:8080/api/data/submit" \
+	> curl -X POST "http://www.alliancegenome.org/api/data/submit" \
 		-F "0.7.0-BGI-MGD=@MGI_1.0.4_BGI.json" \
 		-F "0.7.0-GFF-MGD=@MGI_1.0.4_GFF.gff" 
 
