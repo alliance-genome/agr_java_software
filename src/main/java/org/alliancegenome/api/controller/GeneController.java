@@ -10,7 +10,7 @@ import org.alliancegenome.api.rest.interfaces.GeneRESTInterface;
 import org.alliancegenome.api.service.GeneService;
 
 @RequestScoped
-public class GeneController implements GeneRESTInterface {
+public class GeneController extends BaseController implements GeneRESTInterface {
 
     @Inject
     private GeneService geneService;

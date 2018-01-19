@@ -26,7 +26,6 @@ import com.amazonaws.services.s3.transfer.Upload;
 @ApplicationScoped
 public class S3Helper {
 
-    private String bucketName = "mod-datadumps";
     private Logger log = Logger.getLogger(getClass());
 
     @Inject
@@ -37,7 +36,7 @@ public class S3Helper {
         try {
             log.info("Getting S3 file listing");
             AmazonS3 s3 = AmazonS3ClientBuilder.standard().withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(config.getAWSAccessKey(), config.getAWSSecretKey()))).withRegion(Regions.US_EAST_1).build();
-            ObjectListing ol = s3.listObjects(bucketName, prefix);
+            ObjectListing ol = s3.listObjects(config.getAWSBucketName(), prefix);
             log.debug(ol.getObjectSummaries().size());
             count = ol.getObjectSummaries().size();
             for (S3ObjectSummary summary : ol.getObjectSummaries()) {
@@ -58,10 +57,10 @@ public class S3Helper {
             FileUtils.writeStringToFile(outfile, fileData);
             log.info("Save file to local filesystem complete");
 
-            log.info("Uploading file to S3: " + outfile.getAbsolutePath() + " -> s3://" + bucketName + "/" + path);
+            log.info("Uploading file to S3: " + outfile.getAbsolutePath() + " -> s3://" + config.getAWSBucketName() + "/" + path);
             AmazonS3 s3 = AmazonS3ClientBuilder.standard().withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(config.getAWSAccessKey(), config.getAWSSecretKey()))).withRegion(Regions.US_EAST_1).build();
             TransferManager tm = TransferManagerBuilder.standard().withS3Client(s3).build();
-            final Upload uploadFile = tm.upload(bucketName, path, outfile);
+            final Upload uploadFile = tm.upload(config.getAWSBucketName(), path, outfile);
             uploadFile.waitForCompletion();
             tm.shutdownNow();
             outfile.delete();

@@ -17,7 +17,7 @@ import org.alliancegenome.api.service.DiseaseService;
 import org.alliancegenome.api.translator.DiseaseAnnotationToTdfTranslator;
 
 @RequestScoped
-public class DiseaseController implements DiseaseRESTInterface {
+public class DiseaseController extends BaseController implements DiseaseRESTInterface {
 
     //private final Logger log = Logger.getLogger(getClass());
     @Context  //injected response proxy supporting multiple threads

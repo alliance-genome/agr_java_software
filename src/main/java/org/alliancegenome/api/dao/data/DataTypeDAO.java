@@ -25,7 +25,7 @@ public class DataTypeDAO extends ESDocumentDAO<DataTypeDocument> {
                     dataType = new DataTypeDocument();
                     dataType.setDescription(dt.description);
                     dataType.setFileExtension(dt.fileExtension);
-                    dataType.setModRequired(dt.modRequired);
+                    dataType.setTaxonIdRequired(dt.taxonIdRequired);
                     dataType.setName(dt.name());
                     dataType.setValidationRequired(dt.validationRequired);
                     createDocumnet(dataType);
@@ -57,15 +57,15 @@ public class DataTypeDAO extends ESDocumentDAO<DataTypeDocument> {
         SO("Sequence Ontology", "obo", false, false),
         ;
 
-        private boolean modRequired;
+        private boolean taxonIdRequired;
         private boolean validationRequired;
         private String fileExtension;
         private String description;
 
-        private DataType(String description, String fileExtension, boolean modRequired, boolean validationRequired) {
+        private DataType(String description, String fileExtension, boolean taxonIdRequired, boolean validationRequired) {
             this.description = description;
             this.fileExtension = fileExtension;
-            this.modRequired = modRequired;
+            this.taxonIdRequired = taxonIdRequired;
             this.validationRequired = validationRequired;
         }
 

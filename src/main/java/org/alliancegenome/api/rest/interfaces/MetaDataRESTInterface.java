@@ -2,6 +2,7 @@ package org.alliancegenome.api.rest.interfaces;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -29,12 +30,12 @@ public interface MetaDataRESTInterface {
     @Path("/submit")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @ApiOperation(value = "Submit new data file for build", notes = "Data file submission")
-    public SubmissionResponce submitData(MultipartFormDataInput input);
+    public SubmissionResponce submitData(@HeaderParam("api_access_token") String api_access_token, MultipartFormDataInput input);
 
     @POST
     @Path("/validate")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @ApiOperation(value = "Validate only new data file for build", notes = "Data file validation")
-    public SubmissionResponce validateData(MultipartFormDataInput input);
+    public SubmissionResponce validateData(@HeaderParam("api_access_token") String api_access_token, MultipartFormDataInput input);
 
 }

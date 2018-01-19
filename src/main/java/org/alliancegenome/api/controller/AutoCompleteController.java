@@ -9,13 +9,13 @@ import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 
 @RequestScoped
-public class AutoCompleteController implements AutoCompleteRESTInterface {
+public class AutoCompleteController extends BaseController implements AutoCompleteRESTInterface {
 
     @Inject
     private AutoCompleteService autoCompleteService;
-    
+
     private Logger log = Logger.getLogger(getClass());
-    
+
     @Override
     public AutoCompleteResult searchAutoComplete(String q, String category) {
         log.info("This is the Auto Complete query: " + q);

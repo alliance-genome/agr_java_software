@@ -1,7 +1,6 @@
 package org.alliancegenome.api.controller;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -19,7 +18,7 @@ import org.jboss.resteasy.plugins.providers.multipart.InputPart;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
 
 @RequestScoped
-public class MetaDataController implements MetaDataRESTInterface {
+public class MetaDataController extends BaseController implements MetaDataRESTInterface {
 
     @Inject
     private ConfigHelper config;
@@ -39,20 +38,26 @@ public class MetaDataController implements MetaDataRESTInterface {
     }
 
     @Override
-    public SubmissionResponce submitData(MultipartFormDataInput input) {
-        Map<String, List<InputPart>> form = input.getFormDataMap();
+    public SubmissionResponce submitData(String api_access_token, MultipartFormDataInput input) {
         SubmissionResponce res = new SubmissionResponce();
-        boolean success = true;
-        for(String key: form.keySet()) {
-            InputPart inputPart = form.get(key).get(0);
 
-            try {
-                metaDataService.submitData(key, inputPart.getBodyAsString());
-                res.getFileStatus().put(key, "success");
-            } catch (GenericException | IOException e) {
-                log.error(e.getMessage());
-                res.getFileStatus().put(key, e.getMessage());
-                //e.printStackTrace();
+        Map<String, List<InputPart>> form = input.getFormDataMap();
+        boolean success = true;
+
+        for(String key: form.keySet()) {
+            if(authenticate(api_access_token)) {
+                InputPart inputPart = form.get(key).get(0);
+                try {
+                    metaDataService.submitData(key, inputPart.getBodyAsString());
+                    res.getFileStatus().put(key, "success");
+                } catch (GenericException | IOException e) {
+                    log.error(e.getMessage());
+                    res.getFileStatus().put(key, e.getMessage());
+                    //e.printStackTrace();
+                    success = false;
+                }
+            } else {
+                res.getFileStatus().put(key, "Authentication Failure: Please check your api_access_token");
                 success = false;
             }
         }
@@ -62,10 +67,11 @@ public class MetaDataController implements MetaDataRESTInterface {
             res.setStatus("failed");
         }
         return res;
+
     }
 
     @Override
-    public SubmissionResponce validateData(MultipartFormDataInput input) {
+    public SubmissionResponce validateData(String api_access_token, MultipartFormDataInput input) {
         Map<String, List<InputPart>> form = input.getFormDataMap();
         for(String key: form.keySet()) {
             InputPart inputPart = form.get(key).get(0);

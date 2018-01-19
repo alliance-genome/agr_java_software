@@ -8,9 +8,9 @@ import lombok.ToString;
 
 @Getter
 @Setter @ToString
-public class ModDocument extends ESDocument {
+public class TaxonIdDocument extends ESDocument {
 
-    private String type = "mod";
+    private String type = "taxonid";
 
     private String name;
     private String description;

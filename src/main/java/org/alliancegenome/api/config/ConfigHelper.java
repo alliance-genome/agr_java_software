@@ -19,13 +19,17 @@ public class ConfigHelper {
     @PostConstruct
     public void init() {
         log.info("Config Helper");
-        defaults.put("API_ACCESS_TOKEN", "api_password");
+
+        // These values need to not change.
+        // They can be overridden in multiple ways.
+        defaults.put("API_ACCESS_TOKEN", "api_access_token");
         defaults.put("DEBUG", "false");
         defaults.put("ES_INDEX", "site_index");
         defaults.put("ES_DATA_INDEX", "data_index");
         defaults.put("ES_HOST", "localhost");
         defaults.put("ES_PORT", "9300");
 
+        defaults.put("AWS_BUCKET_NAME", "mod-datadumps-dev"); // This needs to always be a dev bucket unless running in production
         defaults.put("AWS_ACCESS_KEY", null);
         defaults.put("AWS_SECRET_KEY", null);
 
@@ -93,6 +97,10 @@ public class ConfigHelper {
         return config.get("AWS_SECRET_KEY");
     }
 
+    public String getAWSBucketName() {
+        return config.get("AWS_BUCKET_NAME");
+    }
+
     public String getValidationSoftwarePath() {
         return System.getProperty("java.io.tmpdir");
     }
@@ -107,7 +115,5 @@ public class ConfigHelper {
             log.info("\t" + key + ": " + config.get(key));
         }
     }
-
-
 
 }

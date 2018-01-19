@@ -17,7 +17,7 @@ public class DataTypeDocument extends ESDocument {
     private String name;
     private String fileExtension;
     private String description;
-    private boolean modRequired;
+    private boolean taxonIdRequired;
     private boolean validationRequired;
     private HashMap<String, String> schemaFiles = new HashMap<String, String>();
 

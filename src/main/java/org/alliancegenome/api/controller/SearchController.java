@@ -10,19 +10,19 @@ import javax.inject.Inject;
 import javax.ws.rs.core.UriInfo;
 
 @RequestScoped
-public class SearchController implements SearchRESTInterface {
-    
+public class SearchController extends BaseController implements SearchRESTInterface {
+
     @Inject
     private SearchService searchService;
-    
+
     private Logger log = Logger.getLogger(getClass());
-    
+
     @Override
     public SearchResult search(String q, String category, int limit, int offset, String sort_by, UriInfo uriInfo) {
         if(limit == 0) limit = 10;
         log.info("This is the Search query: " + q);
         return searchService.query(q, category, limit, offset, sort_by, uriInfo);
-        
+
     }
-    
+
 }

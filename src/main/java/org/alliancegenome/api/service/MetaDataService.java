@@ -8,14 +8,14 @@ import javax.inject.Inject;
 
 import org.alliancegenome.api.dao.data.DataFileDAO;
 import org.alliancegenome.api.dao.data.DataTypeDAO;
-import org.alliancegenome.api.dao.data.ModDAO;
 import org.alliancegenome.api.dao.data.SchemaDAO;
+import org.alliancegenome.api.dao.data.TaxonIdDAO;
 import org.alliancegenome.api.exceptions.GenericException;
 import org.alliancegenome.api.exceptions.SchemaDataTypeException;
 import org.alliancegenome.api.exceptions.ValidataionException;
 import org.alliancegenome.api.model.esdata.DataFileDocument;
 import org.alliancegenome.api.model.esdata.DataTypeDocument;
-import org.alliancegenome.api.model.esdata.ModDocument;
+import org.alliancegenome.api.model.esdata.TaxonIdDocument;
 import org.alliancegenome.api.model.esdata.SchemaDocument;
 import org.alliancegenome.api.service.helper.git.GitHelper;
 import org.alliancegenome.api.service.helper.git.S3Helper;
@@ -39,7 +39,7 @@ public class MetaDataService {
     private GitHelper gitHelper;
 
     @Inject
-    private ModDAO modDAO;
+    private TaxonIdDAO taxonIdDAO;
 
     @Inject
     private DataTypeDAO dataTypeDAO;
@@ -59,14 +59,14 @@ public class MetaDataService {
 
         String[] keys = key.split("-");
 
-        if(keys.length == 3) { // Schema-DataType-Mod
-            log.debug("Key has 3 items: parseSchemaDataTypeMod: " + key);
-            parseSchemaDataTypeMod(keys, bodyString);
-        } else if(keys.length == 2) { // DataType-Mod // Input a mod datatype file and validate against latest version of schema
-            log.debug("Key has 2 items: parseDataTypeMod: " + key);
-            parseDataTypeMod(keys, bodyString);
+        if(keys.length == 3) { // Schema-DataType-TaxonId
+            log.debug("Key has 3 items: parse: (Schema-DataType-TaxonId): " + key);
+            parseSchemaDataTypeTaxonId(keys, bodyString);
+        } else if(keys.length == 2) { // DataType-TaxonId // Input a taxonId datatype file and validate against latest version of schema
+            log.debug("Key has 2 items: parse: (DataType-TaxonId): " + key);
+            parseDataTypeTaxonId(keys, bodyString);
         } else if(keys.length == 1) { // DataType // Input a datatype file validate against latest version of the schema (GO, SO, DO) maybe certain datatypes don't need validation
-            log.debug("Key has 1 items: parseDataType: " + key);
+            log.debug("Key has 1 items: parse: (DataType): " + key);
             parseDataType(keys, bodyString);
         }
     }
@@ -78,12 +78,12 @@ public class MetaDataService {
         return filePath;
     }
 
-    private String saveFileToS3(SchemaDocument schemaVersion, DataTypeDocument dataType, ModDocument mod, String bodyString) throws GenericException {
-        int fileIndex = s3Helper.listFiles(schemaVersion.getName() + "/" + dataType.getName() + "/" + mod.getName() + "/");
+    private String saveFileToS3(SchemaDocument schemaVersion, DataTypeDocument dataType, TaxonIdDocument taxonId, String bodyString) throws GenericException {
+        int fileIndex = s3Helper.listFiles(schemaVersion.getName() + "/" + dataType.getName() + "/" + taxonId.getName() + "/");
 
         String filePath =
-                schemaVersion.getName() + "/" + dataType.getName() + "/" + mod.getName() + "/" +
-                schemaVersion.getName() + "_" + dataType.getName() + "_" + mod.getName() + "_" + fileIndex + "." + dataType.getFileExtension();
+                schemaVersion.getName() + "/" + dataType.getName() + "/" + taxonId.getName() + "/" +
+                schemaVersion.getName() + "_" + dataType.getName() + "_" + taxonId.getName() + "_" + fileIndex + "." + dataType.getFileExtension();
 
         s3Helper.saveFile(filePath, bodyString);
         return filePath;
@@ -135,8 +135,8 @@ public class MetaDataService {
             throw new ValidataionException("Data Type not found: " + keys[0]);
         }
 
-        if(dataType.isModRequired() || dataType.isValidationRequired()) {
-            throw new ValidataionException("Schema or Mod is required for this data type however no schema or mod was provided: " + dataType);
+        if(dataType.isTaxonIdRequired() || dataType.isValidationRequired()) {
+            throw new ValidataionException("Schema or TaxonId is required for this data type however no schema or taxonid was provided: " + dataType);
         }
 
         String filePath = saveFileToS3(schemaVersion, dataType, bodyString);
@@ -145,16 +145,15 @@ public class MetaDataService {
         dfd.setSchemaVersion(schemaVersion.getName());
         dfd.setDataType(dataType.getName());
         dfd.setPath(filePath);
-        //dfd.setMod(mod.getName());
+        //dfd.setTaxonId(taxonId.getName());
         dataFileDAO.createDocumnet(dfd);
 
     }
 
-
-    private void parseDataTypeMod(String[] keys, String bodyString) throws GenericException {
+    private void parseDataTypeTaxonId(String[] keys, String bodyString) throws GenericException {
         SchemaDocument schemaVersion;
         DataTypeDocument dataType;
-        ModDocument mod;
+        TaxonIdDocument taxonId;
 
         schemaVersion = schemaDAO.getLatestSchemaVersion();
 
@@ -163,34 +162,34 @@ public class MetaDataService {
             throw new ValidataionException("Data Type not found: " + keys[0]);
         }
 
-        if(dataType.isModRequired()) {
-            mod = modDAO.getModDocument(keys[1]);
-            if(mod == null) {
-                throw new ValidataionException("Mod not found: " + keys[1]);
+        if(dataType.isTaxonIdRequired()) {
+            taxonId = taxonIdDAO.getTaxonIdDocument(keys[1]);
+            if(taxonId == null) {
+                throw new ValidataionException("TaxonId not found: " + keys[1]);
             }
         } else {
-            throw new ValidataionException("Mod is not required for this data type: " + dataType);
+            throw new ValidataionException("TaxonId is not required for this data type: " + dataType);
         }
 
         if(dataType.isValidationRequired()) {
             validateData(schemaVersion, dataType, bodyString);
         }
 
-        String filePath = saveFileToS3(schemaVersion, dataType, mod, bodyString);
+        String filePath = saveFileToS3(schemaVersion, dataType, taxonId, bodyString);
 
         DataFileDocument dfd = new DataFileDocument();
         dfd.setSchemaVersion(schemaVersion.getName());
         dfd.setDataType(dataType.getName());
         dfd.setPath(filePath);
-        dfd.setMod(mod.getName());
+        dfd.setTaxonId(taxonId.getName());
         dataFileDAO.createDocumnet(dfd);
 
     }
 
-    private void parseSchemaDataTypeMod(String[] keys, String bodyString) throws GenericException {
+    private void parseSchemaDataTypeTaxonId(String[] keys, String bodyString) throws GenericException {
         SchemaDocument schemaVersion;
         DataTypeDocument dataType;
-        ModDocument mod;
+        TaxonIdDocument taxonId;
 
         schemaVersion = schemaDAO.getSchemaVersion(keys[0]);
 
@@ -203,28 +202,28 @@ public class MetaDataService {
             throw new ValidataionException("Data Type not found: " + keys[1]);
         }
 
-        if(dataType.isModRequired()) {
-            mod = modDAO.getModDocument(keys[2]);
-            if(mod == null) {
-                throw new ValidataionException("Mod not found: " + keys[2]);
+        if(dataType.isTaxonIdRequired()) {
+            taxonId = taxonIdDAO.getTaxonIdDocument(keys[2]);
+            if(taxonId == null) {
+                throw new ValidataionException("TaxonId not found: " + keys[2]);
             }
         } else {
-            // Mod is not required
-            throw new ValidataionException("Mod is not required for this data type: " + dataType);
+            // TaxonId is not required
+            throw new ValidataionException("TaxonId is not required for this data type: " + dataType);
         }
 
         if(dataType.isValidationRequired()) {
             validateData(schemaVersion, dataType, bodyString);
         }
 
-        String filePath = saveFileToS3(schemaVersion, dataType, mod, bodyString);
+        String filePath = saveFileToS3(schemaVersion, dataType, taxonId, bodyString);
 
         // Save File Document
         DataFileDocument dfd = new DataFileDocument();
         dfd.setSchemaVersion(schemaVersion.getName());
         dfd.setDataType(dataType.getName());
         dfd.setPath(filePath);
-        dfd.setMod(mod.getName());
+        dfd.setTaxonId(taxonId.getName());
         dataFileDAO.createDocumnet(dfd);
 
     }

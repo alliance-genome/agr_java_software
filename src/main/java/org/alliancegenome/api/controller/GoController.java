@@ -10,7 +10,7 @@ import org.alliancegenome.api.rest.interfaces.GoRESTInterface;
 import org.alliancegenome.api.service.GoService;
 
 @RequestScoped
-public class GoController implements GoRESTInterface {
+public class GoController extends BaseController implements GoRESTInterface {
 
     @Inject
     private GoService goService;

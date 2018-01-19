@@ -18,7 +18,7 @@ import org.alliancegenome.api.model.xml.XMLURLSet;
 import org.alliancegenome.api.rest.interfaces.SiteMapRESTInterface;
 
 @RequestScoped
-public class SiteMapController implements SiteMapRESTInterface {
+public class SiteMapController extends BaseController implements SiteMapRESTInterface {
 
     @Inject
     private SiteMapCacherApplication siteMapApp;
