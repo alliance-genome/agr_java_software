@@ -77,10 +77,9 @@ Valid combinations for Schema-DataType-TaxonId are as follows:
 | Type | What does it mean? |
 | --------------- | --- |
 | SchemaVersion-DataType-TaxonId | Validation will occur for BGI, DOA, ORTHO, FEATURE and not for GOA and GFF, all files will be stored under the Schema Directory in S3. |
-| DataType-TaxonId | Validation will occur for BGI, DOA, ORTHO, FEATURE and not for GOA and GFF, the current schema version will get looked up from Github. All files will be stored under the Schema Directory in S3.
+| DataType-TaxonId | Validation will occur for BGI, DOA, ORTHO, FEATURE and not for GOA and GFF, the current schema version will get looked up from Github. All files will be stored under the Schema Directory in S3. Invalid for GO, SO, DO. (TaxonId is not required for this data type)
 | DataType | This is only valid for GO, SO, DO. These files will not get validated, but the current schema will get looked up from Github and these files will get stored under the Schema Directory in S3. |
 | SchemaVersion-DataType | Invalid (Data Type not found for: SchemaVersion) |
-| DataType-TaxonId | Invalid for GO, SO, DO. (TaxonId is not required for this data type)  |
 
 ### Valid examples for submitting files
 
