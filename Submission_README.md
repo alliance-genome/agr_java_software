@@ -86,35 +86,33 @@ Valid combinations for Schema-DataType-TaxonId are as follows:
 #### One file at a time
 
 	> curl \
-		-H "api_access_token: 2C07D715..."
-		-X POST "http://www.alliancegenome.org/api/data/submit"
+		-H "api_access_token: 2C07D715..." \
+		-X POST "http://www.alliancegenome.org/api/data/submit" \
 		-F "0.7.0-GFF-10090=@MGI_1.0.4_GFF.gff"
 	> curl \
-		-H "api_access_token: 2C07D715..."
+		-H "api_access_token: 2C07D715..." \
 		-X POST "http://www.alliancegenome.org/api/data/submit" \
 		-F "0.6.2-FEATURE-10090=@MGI_1.0.4_feature.json"
 	> curl \
-		-H "api_access_token: 2C07D715..."
-		-X POST "http://www.alliancegenome.org/api/data/submit" 
+		-H "api_access_token: 2C07D715..." \
+		-X POST "http://www.alliancegenome.org/api/data/submit" \
 		-F "0.6.1-BGI-7227=@FB_1.0.4_BGI.json"
-	
 	> curl \
-		-H "api_access_token: 2C07D715..."
-		-X POST "http://www.alliancegenome.org/api/data/submit"
+		-H "api_access_token: 2C07D715..." \
+		-X POST "http://www.alliancegenome.org/api/data/submit" \
 		-F "GOA-10090=@gene_association_1.0.mgi.gaf"
 	> curl \
-		-H "api_access_token: 2C07D715..."
-		-X POST "http://www.alliancegenome.org/api/data/submit"
+		-H "api_access_token: 2C07D715..." \
+		-X POST "http://www.alliancegenome.org/api/data/submit" \
 		-F "FEATURE-7955=@ZFIN_1.0.4_feature.json"
-	
 	> curl \
-		-H "api_access_token: 2C07D715..."
-		-X POST "http://www.alliancegenome.org/api/data/submit"
+		-H "api_access_token: 2C07D715..." \
+		-X POST "http://www.alliancegenome.org/api/data/submit" \
 		-F "GO=@go_1.0.obo"
 	
 #### Multiple files at a time
 
-	> curl
+	> curl \
 		-H "api_access_token: 2C07D715..." \
 		-X POST "http://www.alliancegenome.org/api/data/submit" \
 		-F "0.7.0-BGI-7227=@FB_1.0.4_BGI.json" \
@@ -122,7 +120,7 @@ Valid combinations for Schema-DataType-TaxonId are as follows:
 		-F "0.7.0-DOA-7227=@FB_1.0.4_disease.json" \
 		-F "0.7.0-GFF-7227=@FB_1.0.4_GFF.gff"
 		
-	> curl
+	> curl \
 		-H "api_access_token: 2C07D715..." \
 		-X POST "http://www.alliancegenome.org/api/data/submit" \
 		-F "BGI-7227=@FB_1.0.4_BGI.json" \
