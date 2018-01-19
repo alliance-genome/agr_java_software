@@ -173,7 +173,7 @@ For the following command (Missing API Access Token):
 <details>
 <summary>View Failure Response</summary>
 <pre>
-```{
+{
 	"fileStatus": {
 		"0.7.0-BGI-10090":"Authentication Failure: Please check your api_access_token",
 		"0.7.0-FEATURE-10090":"Authentication Failure: Please check your api_access_token",
@@ -181,7 +181,7 @@ For the following command (Missing API Access Token):
 		"0.7.0-GFF-10090":"Authentication Failure: Please check your api_access_token"
 	},
 	"status":"failed"
-}```</pre>
+}</pre>
 </details>
 
 For the following command (Errors in BGI):
@@ -197,7 +197,7 @@ For the following command (Errors in BGI):
 <details>
 <summary>View Failure Response</summary>
 <pre>
-```{
+{
 	"fileStatus": {
 		"0.7.0-FEATURE-10090":"success",
 		"0.7.0-BGI-10090":"string \"https://en.wikipedia.org/wiki/Cathepsin L2\" is not a valid URI",
@@ -205,7 +205,7 @@ For the following command (Errors in BGI):
 		"0.7.0-GFF-10090":"Unable to complete multi-part upload. Individual part upload failed : Your socket connection to the server was not read from or written to within the timeout period. Idle connections will be closed. (Service: Amazon S3; Status Code: 400; Error Code: RequestTimeout; Request ID: 3ABBDFD90F0C4CAA)"
 	},
 	"status":"failed"
-}```</pre>
+}</pre>
 </details>
 	
 In a failed example only the files that failed need to be attempted again:
@@ -219,11 +219,11 @@ In a failed example only the files that failed need to be attempted again:
 <details>
 <summary>View Success Response</summary>
 <pre>
-```{
+{
 	"fileStatus": {
 		"0.7.0-BGI-10090":"success",
 		"0.7.0-GFF-10090":"success"
 	},
 	"status":"success"
-}```
+}</pre>
 </details>
