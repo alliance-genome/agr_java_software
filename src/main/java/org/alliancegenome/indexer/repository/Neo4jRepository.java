@@ -50,7 +50,10 @@ public class Neo4jRepository<E> {
         return neo4jSession.query(entityTypeClazz, cypherQuery, params);
     }
     public Result queryForResult(String cypherQuery) {
-        return neo4jSession.query(cypherQuery, Collections.EMPTY_MAP);
+        return queryForResult(cypherQuery, Collections.EMPTY_MAP);
+    }
+    public Result queryForResult(String cypherQuery, Map<String, ?> params) {
+        return neo4jSession.query(cypherQuery, params);
     }
 
     //  public Iterable<E> findAll() {

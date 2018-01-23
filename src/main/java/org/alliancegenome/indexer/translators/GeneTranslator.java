@@ -1,17 +1,27 @@
 package org.alliancegenome.indexer.translators;
 
-import org.alliancegenome.indexer.document.*;
-import org.alliancegenome.indexer.entity.node.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.alliancegenome.indexer.document.AlleleDocument;
+import org.alliancegenome.indexer.document.CrossReferenceDoclet;
+import org.alliancegenome.indexer.document.DiseaseDocument;
+import org.alliancegenome.indexer.document.GeneDocument;
+import org.alliancegenome.indexer.document.GenomeLocationDoclet;
+import org.alliancegenome.indexer.document.OrthologyDoclet;
+import org.alliancegenome.indexer.entity.node.DOTerm;
+import org.alliancegenome.indexer.entity.node.GOTerm;
+import org.alliancegenome.indexer.entity.node.Gene;
+import org.alliancegenome.indexer.entity.node.OrthoAlgorithm;
+import org.alliancegenome.indexer.entity.node.OrthologyGeneJoin;
+import org.alliancegenome.indexer.entity.node.SecondaryId;
+import org.alliancegenome.indexer.entity.node.Synonym;
 import org.alliancegenome.indexer.entity.relationship.GenomeLocation;
 import org.alliancegenome.indexer.entity.relationship.Orthologous;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.stream.Collectors;
 
 public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument> {
 
