@@ -1,7 +1,9 @@
 package org.alliancegenome.indexer.repository;
 
 import org.alliancegenome.indexer.entity.node.DOTerm;
-import org.neo4j.ogm.exception.MappingException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.neo4j.ogm.exception.core.MappingException;
 import org.neo4j.ogm.model.Result;
 
 import java.util.*;
@@ -107,7 +109,7 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
 
     public List<String> getAllDiseaseKeys() {
         String query = "MATCH (term:DOTerm) WHERE term.is_obsolete='false' RETURN term.primaryKey";
-        
+
         Result r = queryForResult(query);
         Iterator<Map<String, Object>> i = r.iterator();
 
@@ -122,12 +124,13 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
 
     public DOTerm getDiseaseTerm(String primaryKey) {
 
-        String cypher = "MATCH p0=(d:DOTerm)--(s) WHERE d.primaryKey = {primaryKey}  " +
-                " OPTIONAL MATCH p1=(d)--(s:DiseaseGeneJoin)-[:EVIDENCE]-(eq), p2=(s)--(g:Gene)-[:FROM_SPECIES]-(species:Species)" +
-                " OPTIONAL MATCH p3=(d)-[:IS_A]-(d2)" +
-                " OPTIONAL MATCH slim=(d)-[:IS_A*]->(slTerm) " +
-                " where all (subset IN [{subset}] where subset in slTerm.subset) " +
-                " RETURN p0, p1, p2, p3, slim";
+        String cypher = "MATCH (disease:DOTerm) WHERE disease.primaryKey = {primaryKey}  " +
+                " OPTIONAL MATCH p1=(disease)--(dgj:DiseaseGeneJoin)-[:EVIDENCE]-(eq), p2=(dgj)--(g:Gene)-[:FROM_SPECIES]-(species:Species)" +
+                " OPTIONAL MATCH p4=(disease)--(dfj:DiseaseFeatureJoin)-[:EVIDENCE]-(eq), p5=(dfj)--(feature:Feature)-[:FROM_SPECIES]-(species:Species) " +
+                " OPTIONAL MATCH p3=(disease)-[:IS_A]-(parentChild)" +
+                " OPTIONAL MATCH slim=(disease)-[:IS_A*]->(slimTerm) " +
+                " where all (subset IN [{subset}] where subset in slimTerm.subset) " +
+                " RETURN disease, p1, p2, p3, p4, p5, slim";
 
         HashMap<String, String> map = new HashMap<>();
         map.put("primaryKey", primaryKey);
@@ -146,10 +149,13 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
             }
         } catch (MappingException e) {
             e.printStackTrace();
+            log.error(e);
         }
-        if(primaryTerm == null)
+        if (primaryTerm == null)
             return null;
         primaryTerm.getHighLevelTermList().addAll(highLevelTermList);
         return primaryTerm;
     }
+
+    private final Logger log = LogManager.getLogger(getClass());
 }

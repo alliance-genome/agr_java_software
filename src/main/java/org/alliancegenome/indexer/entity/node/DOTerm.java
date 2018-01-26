@@ -54,6 +54,9 @@ public class DOTerm extends Neo4jEntity {
     @Relationship(type = "ASSOCIATION", direction = Relationship.INCOMING)
     private List<DiseaseGeneJoin> diseaseGeneJoins;
 
+    @Relationship(type = "ASSOCIATION", direction = Relationship.INCOMING)
+    private List<DiseaseFeatureJoin> diseaseFeatureJoins;
+
     @Relationship(type = "IS_A", direction = Relationship.OUTGOING)
     private List<DOTerm> parents;
 

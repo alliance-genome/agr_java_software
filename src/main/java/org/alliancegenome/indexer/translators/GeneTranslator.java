@@ -85,7 +85,7 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
         geneDocument.setGene_cellular_component(goTerms.get("cellular_component"));
         geneDocument.setGene_molecular_function(goTerms.get("molecular_function"));
 
-        // This code is duplicated in Gene and Allele should be pulled out into its own translator
+        // This code is duplicated in Gene and Feature should be pulled out into its own translator
         ArrayList<String> secondaryIds = new ArrayList<>();
         if (entity.getSecondaryIds() != null) {
             for (SecondaryId secondaryId : entity.getSecondaryIds()) {
@@ -101,7 +101,7 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
         }
         geneDocument.setSymbol(entity.getSymbol());
 
-        // This code is duplicated in Gene and Allele should be pulled out into its own translator
+        // This code is duplicated in Gene and Feature should be pulled out into its own translator
         ArrayList<String> synonyms = new ArrayList<>();
         if (entity.getSynonyms() != null) {
             for (Synonym synonym : entity.getSynonyms()) {
@@ -219,8 +219,8 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
             geneDocument.setCrossReferences(crlist);
         }
 
-        if(entity.getAlleles() != null) {
-            geneDocument.setAlleles((List<AlleleDocument>) alleleTranslator.translateEntities(entity.getAlleles()));
+        if(entity.getFeatures() != null) {
+            geneDocument.setAlleles((List<AlleleDocument>) alleleTranslator.translateEntities(entity.getFeatures()));
         }
 
         return geneDocument;

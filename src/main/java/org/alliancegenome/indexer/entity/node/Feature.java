@@ -1,8 +1,6 @@
 package org.alliancegenome.indexer.entity.node;
 
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 import org.alliancegenome.indexer.entity.Neo4jEntity;
 import org.alliancegenome.indexer.util.DateConverter;
@@ -16,14 +14,13 @@ import lombok.Setter;
 @NodeEntity
 @Getter
 @Setter
-public class Allele extends Neo4jEntity {
+public class Feature extends Neo4jEntity implements Comparable<Feature> {
 
     private String primaryKey;
     private String symbol;
 
     @Convert(value=DateConverter.class)
     private Date dateProduced;
-    private Date dataProvider;
     private String release;
     private String localId;
     private String globalId;
@@ -37,5 +34,12 @@ public class Allele extends Neo4jEntity {
     @Relationship(type = "ALSO_KNOWN_AS")
     private Set<SecondaryId> secondaryIds = new HashSet<>();
 
+    @Relationship(type = "ASSOCIATION", direction = Relationship.UNDIRECTED)
+    private List<DiseaseFeatureJoin> diseaseFeatureJoins = new ArrayList<>();
 
+
+    @Override
+    public int compareTo(Feature o) {
+        return 0;
+    }
 }

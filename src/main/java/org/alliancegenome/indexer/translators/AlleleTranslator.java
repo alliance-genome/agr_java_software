@@ -3,18 +3,18 @@ package org.alliancegenome.indexer.translators;
 import java.util.ArrayList;
 
 import org.alliancegenome.indexer.document.AlleleDocument;
-import org.alliancegenome.indexer.entity.node.Allele;
+import org.alliancegenome.indexer.entity.node.Feature;
 import org.alliancegenome.indexer.entity.node.SecondaryId;
 import org.alliancegenome.indexer.entity.node.Synonym;
 
-public class AlleleTranslator extends EntityDocumentTranslator<Allele, AlleleDocument> {
+public class AlleleTranslator extends EntityDocumentTranslator<Feature, AlleleDocument> {
 
     @Override
-    protected AlleleDocument entityToDocument(Allele entity, int translationDepth) {
+    protected AlleleDocument entityToDocument(Feature entity, int translationDepth) {
 
         AlleleDocument allele = new AlleleDocument();
 
-        allele.setDataProvider(entity.getDataProvider());
+        //allele.setDataProvider(entity.getDataProvider());
         allele.setDateProduced(entity.getDateProduced());
         allele.setGlobalId(entity.getGlobalId());
         allele.setLocalId(entity.getLocalId());
@@ -25,7 +25,7 @@ public class AlleleTranslator extends EntityDocumentTranslator<Allele, AlleleDoc
 
         if(translationDepth > 0) {
 
-            // This code is duplicated in Gene and Allele should be pulled out into its own translator
+            // This code is duplicated in Gene and Feature should be pulled out into its own translator
             ArrayList<String> secondaryIds = new ArrayList<>();
             if (entity.getSecondaryIds() != null) {
                 for (SecondaryId secondaryId : entity.getSecondaryIds()) {
@@ -34,7 +34,7 @@ public class AlleleTranslator extends EntityDocumentTranslator<Allele, AlleleDoc
             }
             allele.setSecondaryIds(secondaryIds);
 
-            // This code is duplicated in Gene and Allele should be pulled out into its own translator
+            // This code is duplicated in Gene and Feature should be pulled out into its own translator
             ArrayList<String> synonyms = new ArrayList<>();
             if (entity.getSynonyms() != null) {
                 for (Synonym synonym : entity.getSynonyms()) {
@@ -53,7 +53,7 @@ public class AlleleTranslator extends EntityDocumentTranslator<Allele, AlleleDoc
     }
 
     @Override
-    protected Allele documentToEntity(AlleleDocument doument, int translationDepth) {
+    protected Feature documentToEntity(AlleleDocument doument, int translationDepth) {
         // We are not going to the database yet so will implement this when we need to
         return null;
     }
