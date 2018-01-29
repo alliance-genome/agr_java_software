@@ -8,8 +8,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import org.alliancegenome.api.model.esdata.MetaDataDocument;
-import org.alliancegenome.api.model.esdata.SubmissionResponce;
+import org.alliancegenome.shared.es.document.data_index.MetaDataDocument;
+import org.alliancegenome.shared.es.document.data_index.SubmissionResponce;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
 
 import io.swagger.annotations.Api;

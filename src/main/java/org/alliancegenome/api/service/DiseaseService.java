@@ -5,9 +5,10 @@ import java.util.Map;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 
-import org.alliancegenome.api.dao.search.DiseaseDAO;
-import org.alliancegenome.api.model.query.Pagination;
-import org.alliancegenome.api.model.search.SearchResult;
+import org.alliancegenome.shared.es.dao.site_index.DiseaseDAO;
+import org.alliancegenome.shared.es.model.query.Pagination;
+import org.alliancegenome.shared.es.model.search.SearchResult;
+import org.alliancegenome.shared.es.util.SearchHitIterator;
 
 @RequestScoped
 public class DiseaseService {
@@ -26,7 +27,7 @@ public class DiseaseService {
     }
 
 
-    public DiseaseDAO.SearchHitIterator getDiseaseAnnotationsDownload(String id, Pagination pagination) {
+    public SearchHitIterator getDiseaseAnnotationsDownload(String id, Pagination pagination) {
         return diseaseDAO.getDiseaseAnnotationsDownload(id, pagination);
     }
 }

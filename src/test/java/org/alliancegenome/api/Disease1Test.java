@@ -1,10 +1,10 @@
 package org.alliancegenome.api;
 
-import org.alliancegenome.api.config.ConfigHelper;
-import org.alliancegenome.api.dao.search.DiseaseDAO;
-import org.alliancegenome.api.model.query.Pagination;
-import org.alliancegenome.api.model.search.SearchResult;
-import org.alliancegenome.api.translator.DiseaseAnnotationToTdfTranslator;
+import org.alliancegenome.shared.config.ConfigHelper;
+import org.alliancegenome.shared.es.dao.site_index.DiseaseDAO;
+import org.alliancegenome.shared.es.model.query.Pagination;
+import org.alliancegenome.shared.es.model.search.SearchResult;
+import org.alliancegenome.translators.DiseaseAnnotationToTdfTranslator;
 import org.jboss.logging.Logger;
 
 import java.util.Map;
@@ -15,10 +15,10 @@ public class Disease1Test {
 
     public static void main(String[] args) {
         ConfigHelper helper = new ConfigHelper();
-        helper.init();
+
 
         DiseaseDAO service = new DiseaseDAO();
-        service.setConfig(helper);
+
         service.init();
         System.out.println("Number of Diseases with Genes Info: ");
 

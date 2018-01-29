@@ -1,7 +1,7 @@
 package org.alliancegenome.api.service.helper;
 
-import org.alliancegenome.api.model.search.AggDocCount;
-import org.alliancegenome.api.model.search.AggResult;
+import org.alliancegenome.shared.es.model.search.AggDocCount;
+import org.alliancegenome.shared.es.model.search.AggResult;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.text.Text;

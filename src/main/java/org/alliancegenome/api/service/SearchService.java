@@ -19,9 +19,10 @@ import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriInfo;
 
-import org.alliancegenome.api.dao.search.SearchDAO;
-import org.alliancegenome.api.model.search.SearchResult;
+
 import org.alliancegenome.api.service.helper.SearchHelper;
+import org.alliancegenome.shared.es.dao.site_index.SearchDAO;
+import org.alliancegenome.shared.es.model.search.SearchResult;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;

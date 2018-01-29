@@ -3,9 +3,9 @@ package org.alliancegenome.api.service;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 
-import org.alliancegenome.api.dao.search.AutoCompleteDAO;
-import org.alliancegenome.api.model.search.AutoCompleteResult;
 import org.alliancegenome.api.service.helper.AutoCompleteHelper;
+import org.alliancegenome.shared.es.dao.site_index.AutoCompleteDAO;
+import org.alliancegenome.shared.es.model.search.AutoCompleteResult;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.QueryBuilder;
 

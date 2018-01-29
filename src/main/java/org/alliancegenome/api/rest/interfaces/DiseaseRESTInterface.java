@@ -8,7 +8,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.alliancegenome.api.model.search.SearchResult;
+import org.alliancegenome.shared.es.model.search.SearchResult;
 
 import java.util.Map;
 

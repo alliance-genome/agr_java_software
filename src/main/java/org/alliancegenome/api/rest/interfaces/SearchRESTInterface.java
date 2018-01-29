@@ -9,7 +9,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 
-import org.alliancegenome.api.model.search.SearchResult;
+import org.alliancegenome.shared.es.model.search.SearchResult;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;

@@ -6,22 +6,23 @@ import java.io.IOException;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 
-import org.alliancegenome.api.dao.data.DataFileDAO;
-import org.alliancegenome.api.dao.data.DataTypeDAO;
-import org.alliancegenome.api.dao.data.SchemaDAO;
-import org.alliancegenome.api.dao.data.TaxonIdDAO;
-import org.alliancegenome.api.exceptions.GenericException;
-import org.alliancegenome.api.exceptions.SchemaDataTypeException;
-import org.alliancegenome.api.exceptions.ValidataionException;
-import org.alliancegenome.api.model.esdata.DataFileDocument;
-import org.alliancegenome.api.model.esdata.DataTypeDocument;
-import org.alliancegenome.api.model.esdata.TaxonIdDocument;
-import org.alliancegenome.api.model.esdata.SchemaDocument;
-import org.alliancegenome.api.service.helper.git.GitHelper;
-import org.alliancegenome.api.service.helper.git.S3Helper;
+import org.alliancegenome.shared.aws.S3Helper;
+import org.alliancegenome.shared.es.dao.data_index.DataFileDAO;
+import org.alliancegenome.shared.es.dao.data_index.DataTypeDAO;
+import org.alliancegenome.shared.es.dao.data_index.SchemaDAO;
+import org.alliancegenome.shared.es.dao.data_index.TaxonIdDAO;
+import org.alliancegenome.shared.es.document.data_index.DataFileDocument;
+import org.alliancegenome.shared.es.document.data_index.DataTypeDocument;
+import org.alliancegenome.shared.es.document.data_index.SchemaDocument;
+import org.alliancegenome.shared.es.document.data_index.TaxonIdDocument;
+import org.alliancegenome.shared.exceptions.GenericException;
+import org.alliancegenome.shared.exceptions.SchemaDataTypeException;
+import org.alliancegenome.shared.exceptions.ValidataionException;
+import org.alliancegenome.shared.github.util.GitHelper;
 import org.jboss.logging.Logger;
 
 import com.fasterxml.jackson.databind.JsonNode;
+
 import com.github.fge.jackson.JsonLoader;
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
 import com.github.fge.jsonschema.core.report.ProcessingMessage;
@@ -79,11 +80,11 @@ public class MetaDataService {
     }
 
     private String saveFileToS3(SchemaDocument schemaVersion, DataTypeDocument dataType, TaxonIdDocument taxonId, String bodyString) throws GenericException {
-        int fileIndex = s3Helper.listFiles(schemaVersion.getName() + "/" + dataType.getName() + "/" + taxonId.getName() + "/");
+        int fileIndex = s3Helper.listFiles(schemaVersion.getName() + "/" + dataType.getName() + "/" + taxonId.getTaxonId() + "/");
 
         String filePath =
-                schemaVersion.getName() + "/" + dataType.getName() + "/" + taxonId.getName() + "/" +
-                schemaVersion.getName() + "_" + dataType.getName() + "_" + taxonId.getName() + "_" + fileIndex + "." + dataType.getFileExtension();
+                schemaVersion.getName() + "/" + dataType.getName() + "/" + taxonId.getTaxonId() + "/" +
+                schemaVersion.getName() + "_" + dataType.getName() + "_" + taxonId.getTaxonId() + "_" + fileIndex + "." + dataType.getFileExtension();
 
         s3Helper.saveFile(filePath, bodyString);
         return filePath;
@@ -181,7 +182,7 @@ public class MetaDataService {
         dfd.setSchemaVersion(schemaVersion.getName());
         dfd.setDataType(dataType.getName());
         dfd.setPath(filePath);
-        dfd.setTaxonId(taxonId.getName());
+        dfd.setTaxonId(taxonId.getTaxonId());
         dataFileDAO.createDocumnet(dfd);
 
     }
@@ -223,7 +224,7 @@ public class MetaDataService {
         dfd.setSchemaVersion(schemaVersion.getName());
         dfd.setDataType(dataType.getName());
         dfd.setPath(filePath);
-        dfd.setTaxonId(taxonId.getName());
+        dfd.setTaxonId(taxonId.getTaxonId());
         dataFileDAO.createDocumnet(dfd);
 
     }

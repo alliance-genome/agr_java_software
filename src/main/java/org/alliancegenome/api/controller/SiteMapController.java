@@ -10,12 +10,12 @@ import javax.inject.Inject;
 import javax.ws.rs.core.UriInfo;
 
 import org.alliancegenome.api.application.SiteMapCacherApplication;
-import org.alliancegenome.api.config.ConfigHelper;
 import org.alliancegenome.api.model.xml.SiteMap;
 import org.alliancegenome.api.model.xml.SiteMapIndex;
 import org.alliancegenome.api.model.xml.XMLURL;
 import org.alliancegenome.api.model.xml.XMLURLSet;
 import org.alliancegenome.api.rest.interfaces.SiteMapRESTInterface;
+import org.alliancegenome.shared.config.ConfigHelper;
 
 @RequestScoped
 public class SiteMapController extends BaseController implements SiteMapRESTInterface {
@@ -23,8 +23,7 @@ public class SiteMapController extends BaseController implements SiteMapRESTInte
     @Inject
     private SiteMapCacherApplication siteMapApp;
 
-    @Inject
-    private ConfigHelper config;
+    private ConfigHelper config = new ConfigHelper();
 
     //private final Logger log = Logger.getLogger(getClass());
 

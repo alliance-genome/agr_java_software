@@ -1,8 +1,8 @@
 package org.alliancegenome.api.controller;
 
-import org.alliancegenome.api.model.search.SearchResult;
 import org.alliancegenome.api.rest.interfaces.SearchRESTInterface;
 import org.alliancegenome.api.service.SearchService;
+import org.alliancegenome.shared.es.model.search.SearchResult;
 import org.jboss.logging.Logger;
 
 import javax.enterprise.context.RequestScoped;

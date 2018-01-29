@@ -1,14 +1,13 @@
 package org.alliancegenome.api.controller;
 
 import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
 
-import org.alliancegenome.api.config.ConfigHelper;
+import org.alliancegenome.shared.config.ConfigHelper;
 
 @RequestScoped
 public class BaseController {
 
-    @Inject ConfigHelper config;
+    private ConfigHelper config = new ConfigHelper();
 
     /* if token is not defined in properties file, then do not require one.  Otherwise, must
      * be an exact match (case sensitive).

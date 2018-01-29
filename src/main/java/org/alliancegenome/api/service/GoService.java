@@ -5,7 +5,7 @@ import java.util.Map;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 
-import org.alliancegenome.api.dao.search.GoDAO;
+import org.alliancegenome.shared.es.dao.site_index.GoDAO;
 
 @RequestScoped
 public class GoService {

@@ -20,11 +20,10 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.Destroyed;
 import javax.enterprise.context.Initialized;
 import javax.enterprise.event.Observes;
-import javax.inject.Inject;
 
-import org.alliancegenome.api.dao.search.SearchDAO;
 import org.alliancegenome.api.model.xml.XMLURL;
 import org.alliancegenome.api.model.xml.XMLURLSet;
+import org.alliancegenome.shared.es.dao.site_index.SearchDAO;
 import org.elasticsearch.search.SearchHit;
 import org.jboss.logging.Logger;
 
@@ -33,8 +32,7 @@ public class SiteMapCacherApplication {
 
     private final Logger log = Logger.getLogger(getClass());
 
-    @Inject
-    private SearchDAO searchDAO;
+    private SearchDAO searchDAO = new SearchDAO();
 
     private final Integer fileSize = 5000;
     private final HashMap<String, File> files = new HashMap<>();
