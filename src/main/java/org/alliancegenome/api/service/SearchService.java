@@ -14,15 +14,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriInfo;
 
-
 import org.alliancegenome.api.service.helper.SearchHelper;
 import org.alliancegenome.shared.es.dao.site_index.SearchDAO;
 import org.alliancegenome.shared.es.model.search.SearchResult;
+import org.alliancegenome.shared.es.util.QueryManipulationService;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -40,14 +39,11 @@ import org.jboss.logging.Logger;
 @RequestScoped
 public class SearchService {
 
-    @Inject
-    private SearchDAO searchDAO;
+    private SearchDAO searchDAO = new SearchDAO();
 
-    @Inject
-    private SearchHelper searchHelper;
+    private SearchHelper searchHelper = new SearchHelper();
 
-    @Inject
-    private QueryManipulationService queryManipulationService;
+    private QueryManipulationService queryManipulationService = new QueryManipulationService();
 
     private static Logger log = Logger.getLogger(SearchService.class);
 

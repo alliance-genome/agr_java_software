@@ -97,6 +97,11 @@
 			<artifactId>commons-logging</artifactId>
 			<version>1.2</version>
 		</dependency>
+		<dependency>
+			<groupId>org.alliancegnome</groupId>
+			<artifactId>agr_shared</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
 	</dependencies>
 	<build>
 		<finalName>agr_api</finalName>

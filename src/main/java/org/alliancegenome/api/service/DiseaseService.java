@@ -3,7 +3,6 @@ package org.alliancegenome.api.service;
 import java.util.Map;
 
 import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
 
 import org.alliancegenome.shared.es.dao.site_index.DiseaseDAO;
 import org.alliancegenome.shared.es.model.query.Pagination;
@@ -13,10 +12,7 @@ import org.alliancegenome.shared.es.util.SearchHitIterator;
 @RequestScoped
 public class DiseaseService {
 
-    //private Logger log = Logger.getLogger(getClass());
-
-    @Inject
-    private DiseaseDAO diseaseDAO;
+    private static DiseaseDAO diseaseDAO = new DiseaseDAO();
 
     public Map<String, Object> getById(String id) {
         return diseaseDAO.getById(id);

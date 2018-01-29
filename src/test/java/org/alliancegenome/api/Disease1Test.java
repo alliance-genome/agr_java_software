@@ -4,7 +4,7 @@ import org.alliancegenome.shared.config.ConfigHelper;
 import org.alliancegenome.shared.es.dao.site_index.DiseaseDAO;
 import org.alliancegenome.shared.es.model.query.Pagination;
 import org.alliancegenome.shared.es.model.search.SearchResult;
-import org.alliancegenome.translators.DiseaseAnnotationToTdfTranslator;
+import org.alliancegenome.shared.translators.DiseaseAnnotationToTdfTranslator;
 import org.jboss.logging.Logger;
 
 import java.util.Map;

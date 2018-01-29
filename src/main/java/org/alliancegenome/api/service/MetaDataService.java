@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 
 import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
 
 import org.alliancegenome.shared.aws.S3Helper;
 import org.alliancegenome.shared.es.dao.data_index.DataFileDAO;
@@ -22,7 +21,6 @@ import org.alliancegenome.shared.github.util.GitHelper;
 import org.jboss.logging.Logger;
 
 import com.fasterxml.jackson.databind.JsonNode;
-
 import com.github.fge.jackson.JsonLoader;
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
 import com.github.fge.jsonschema.core.report.ProcessingMessage;
@@ -33,26 +31,12 @@ import com.github.fge.jsonschema.main.JsonSchemaFactory;
 @RequestScoped
 public class MetaDataService {
 
-    //@Inject
-    //private MetaDataDAO metaDataDAO;
-
-    @Inject
-    private GitHelper gitHelper;
-
-    @Inject
-    private TaxonIdDAO taxonIdDAO;
-
-    @Inject
-    private DataTypeDAO dataTypeDAO;
-
-    @Inject
-    private SchemaDAO schemaDAO;
-
-    @Inject
-    private DataFileDAO dataFileDAO;
-
-    @Inject
-    private S3Helper s3Helper;
+    private static GitHelper gitHelper = new GitHelper();
+    private static TaxonIdDAO taxonIdDAO = new TaxonIdDAO();
+    private static DataTypeDAO dataTypeDAO = new DataTypeDAO();
+    private static SchemaDAO schemaDAO = new SchemaDAO();
+    private static DataFileDAO dataFileDAO = new DataFileDAO();
+    private static S3Helper s3Helper = new S3Helper();
 
     private Logger log = Logger.getLogger(getClass());
 
