@@ -4,7 +4,7 @@ import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.shared.es.document.site_index.GeneDocument;
 import org.alliancegenome.shared.neo4j.entity.node.Gene;
 import org.alliancegenome.shared.neo4j.repository.GeneRepository;
-import org.alliancegenome.translators.GeneTranslator;
+import org.alliancegenome.shared.translators.GeneTranslator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

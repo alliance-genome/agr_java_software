@@ -3,7 +3,7 @@ package org.alliancegenome.indexer;
 import org.alliancegenome.shared.config.ConfigHelper;
 import org.alliancegenome.shared.neo4j.entity.node.Gene;
 import org.alliancegenome.shared.neo4j.repository.GeneRepository;
-import org.alliancegenome.translators.GeneTranslator;
+import org.alliancegenome.shared.translators.GeneTranslator;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 

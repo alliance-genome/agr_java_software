@@ -1,6 +1,5 @@
 package org.alliancegenome.indexer;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.alliancegenome.shared.config.ConfigHelper;
 import org.alliancegenome.shared.es.document.site_index.DiseaseAnnotationDocument;
 import org.alliancegenome.shared.es.document.site_index.DiseaseDocument;
@@ -22,6 +21,7 @@ import org.junit.Test;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsEqual.equalTo;
