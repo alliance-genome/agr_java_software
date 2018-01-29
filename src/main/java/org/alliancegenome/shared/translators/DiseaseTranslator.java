@@ -1,4 +1,4 @@
-package org.alliancegenome.translators;
+package org.alliancegenome.shared.translators;
 
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;

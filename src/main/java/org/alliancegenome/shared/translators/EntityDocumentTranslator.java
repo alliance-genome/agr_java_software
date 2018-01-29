@@ -1,4 +1,4 @@
-package org.alliancegenome.translators;
+package org.alliancegenome.shared.translators;
 
 import java.util.ArrayList;
 

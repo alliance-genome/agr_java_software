@@ -1,4 +1,4 @@
-package org.alliancegenome.translators;
+package org.alliancegenome.shared.translators;
 
 import org.alliancegenome.shared.es.document.site_index.*;
 import org.alliancegenome.shared.neo4j.entity.node.*;
