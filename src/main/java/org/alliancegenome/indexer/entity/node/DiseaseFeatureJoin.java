@@ -21,7 +21,7 @@ public class DiseaseFeatureJoin extends Association {
     @Relationship(type = "EVIDENCE")
     private List<EvidenceCode> evidenceCodes;
 
-    @Relationship(type = "ASSOCIATION")
+    @Relationship(type = "ASSOCIATION", direction = Relationship.INCOMING)
     private Feature feature;
 
 }
