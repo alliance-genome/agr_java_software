@@ -2,10 +2,10 @@ package org.alliancegenome.indexer.indexers;
 
 
 import org.alliancegenome.indexer.config.IndexerConfig;
-import org.alliancegenome.indexer.document.DiseaseAnnotationDocument;
-import org.alliancegenome.indexer.entity.node.DOTerm;
-import org.alliancegenome.indexer.repository.DiseaseRepository;
-import org.alliancegenome.indexer.translators.DiseaseTranslator;
+import org.alliancegenome.shared.es.document.site_index.DiseaseAnnotationDocument;
+import org.alliancegenome.shared.neo4j.entity.node.DOTerm;
+import org.alliancegenome.shared.neo4j.repository.DiseaseRepository;
+import org.alliancegenome.translators.DiseaseTranslator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -18,8 +18,8 @@ public class DiseaseAnnotationIndexer extends Indexer<DiseaseAnnotationDocument>
 
     private final Logger log = LogManager.getLogger(getClass());
 
-    public DiseaseAnnotationIndexer(String currentIndex, IndexerConfig config) {
-        super(currentIndex, config);
+    public DiseaseAnnotationIndexer(IndexerConfig config) {
+        super(config);
     }
 
     @Override

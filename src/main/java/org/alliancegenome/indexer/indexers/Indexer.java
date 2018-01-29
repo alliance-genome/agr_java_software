@@ -3,10 +3,10 @@ package org.alliancegenome.indexer.indexers;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.alliancegenome.indexer.config.ConfigHelper;
+
 import org.alliancegenome.indexer.config.IndexerConfig;
-import org.alliancegenome.indexer.document.ESDocument;
-import org.alliancegenome.indexer.schema.Mappings;
+import org.alliancegenome.shared.config.ConfigHelper;
+import org.alliancegenome.shared.es.document.site_index.ESDocument;
 import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -14,6 +14,7 @@ import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
+import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.xpack.client.PreBuiltXPackTransportClient;
 
 import java.net.InetAddress;
@@ -27,7 +28,6 @@ import java.util.concurrent.*;
 public abstract class Indexer<D extends ESDocument> extends Thread {
 
     private Logger log = LogManager.getLogger(getClass());
-    protected String currentIndex;
     protected IndexerConfig indexerConfig;
     private PreBuiltXPackTransportClient client;
     protected Runtime runtime = Runtime.getRuntime();
@@ -39,8 +39,7 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
     private Date lastTime = new Date();
     private int lastSize;
 
-    public Indexer(String currentIndex, IndexerConfig indexerConfig) {
-        this.currentIndex = currentIndex;
+    public Indexer(IndexerConfig indexerConfig) {
         this.indexerConfig = indexerConfig;
 
         om.setSerializationInclusion(Include.NON_NULL);
@@ -57,25 +56,12 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
     protected abstract void index();
 
     public void runIndex() {
-        addMapping();
         index();
-    }
-
-    private void addMapping() {
-        try {
-            Mappings mappingClass = (Mappings) indexerConfig.getMappingsClazz().getDeclaredConstructor(Boolean.class).newInstance(true);
-            mappingClass.buildMappings();
-            log.debug("Getting Mapping for type: " + indexerConfig.getTypeName());
-            client.admin().indices().preparePutMapping(currentIndex).setType(indexerConfig.getTypeName()).setSource(mappingClass.getBuilder().string()).get();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     @Override
     public void run() {
         super.run();
-        addMapping();
         index();
     }
 
@@ -89,7 +75,7 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
                 try {
                     String json = om.writeValueAsString(doc);
                     //log.debug("JSON: " + json);
-                    bulkRequest.add(client.prepareIndex(currentIndex, indexerConfig.getTypeName()).setSource(json).setId(doc.getDocumentId()));
+                    bulkRequest.add(client.prepareIndex("site_index", indexerConfig.getTypeName()).setSource(json, XContentType.JSON).setId(doc.getDocumentId()));
                 } catch (JsonProcessingException e) {
                     e.printStackTrace();
                 }

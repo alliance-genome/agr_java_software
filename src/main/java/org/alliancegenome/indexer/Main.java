@@ -1,9 +1,8 @@
 package org.alliancegenome.indexer;
 
-import org.alliancegenome.indexer.config.ConfigHelper;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.indexer.indexers.Indexer;
-import org.alliancegenome.indexer.util.IndexManager;
+import org.alliancegenome.shared.config.ConfigHelper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -17,13 +16,10 @@ public class Main {
     private static Logger log = LogManager.getLogger(Main.class);
 
     public static void main(String[] args) {
-        Date start = new Date();
-        log.info("Start Time: " + start);
-
         ConfigHelper.init();
 
-        IndexManager im = new IndexManager();
-        im.startIndex();
+        Date start = new Date();
+        log.info("Start Time: " + start);
 
         HashMap<String, Indexer> indexers = getIndexerMap(im.getNewIndexName());
 
@@ -58,7 +54,7 @@ public class Main {
                 System.exit(-1);
             }
         }
-        im.finishIndex();
+
         Date end = new Date();
         log.info("End Time: " + end);
         long duration = end.getTime() - start.getTime();

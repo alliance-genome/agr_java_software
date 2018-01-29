@@ -1,10 +1,10 @@
 package org.alliancegenome.indexer.indexers;
 
 import org.alliancegenome.indexer.config.IndexerConfig;
-import org.alliancegenome.indexer.document.GeneDocument;
-import org.alliancegenome.indexer.entity.node.Gene;
-import org.alliancegenome.indexer.repository.GeneRepository;
-import org.alliancegenome.indexer.translators.GeneTranslator;
+import org.alliancegenome.shared.es.document.site_index.GeneDocument;
+import org.alliancegenome.shared.neo4j.entity.node.Gene;
+import org.alliancegenome.shared.neo4j.repository.GeneRepository;
+import org.alliancegenome.translators.GeneTranslator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -16,8 +16,8 @@ public class GeneIndexer extends Indexer<GeneDocument> {
 
     private final Logger log = LogManager.getLogger(getClass());
 
-    public GeneIndexer(String currentIndex, IndexerConfig config) {
-        super(currentIndex, config);
+    public GeneIndexer(IndexerConfig config) {
+        super(config);
     }
 
     @Override

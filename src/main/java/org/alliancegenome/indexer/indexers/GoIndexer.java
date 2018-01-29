@@ -1,10 +1,10 @@
 package org.alliancegenome.indexer.indexers;
 
 import org.alliancegenome.indexer.config.IndexerConfig;
-import org.alliancegenome.indexer.document.GoDocument;
-import org.alliancegenome.indexer.entity.node.GOTerm;
-import org.alliancegenome.indexer.repository.GoRepository;
-import org.alliancegenome.indexer.translators.GoTranslator;
+import org.alliancegenome.shared.es.document.site_index.GoDocument;
+import org.alliancegenome.shared.neo4j.entity.node.GOTerm;
+import org.alliancegenome.shared.neo4j.repository.GoRepository;
+import org.alliancegenome.translators.GoTranslator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -20,8 +20,8 @@ public class GoIndexer extends Indexer<GoDocument> {
     private final GoTranslator goTrans = new GoTranslator();
 
 
-    public GoIndexer(String currnetIndex, IndexerConfig config) {
-        super(currnetIndex, config);
+    public GoIndexer(IndexerConfig config) {
+        super(config);
     }
 
     @Override
