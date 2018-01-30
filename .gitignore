@@ -1,3 +1,4 @@
 .settings
 target
 *.swp
+app.properties
