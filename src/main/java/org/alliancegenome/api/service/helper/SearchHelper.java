@@ -202,16 +202,16 @@ public class SearchHelper {
 
                 map.put(name, list);
             }
-            hit.getSource().put("highlights", map);
-            hit.getSource().put("id", hit.getId());
-            hit.getSource().put("score", hit.getScore());
+            hit.getSourceAsMap().put("highlights", map);
+            hit.getSourceAsMap().put("id", hit.getId());
+            hit.getSourceAsMap().put("score", hit.getScore());
             if (hit.getExplanation() != null) {
-                hit.getSource().put("explanation", hit.getExplanation());
+                hit.getSourceAsMap().put("explanation", hit.getExplanation());
             }
 
-            hit.getSource().put("missingTerms", findMissingTerms(Arrays.asList(hit.getMatchedQueries()),
+            hit.getSourceAsMap().put("missingTerms", findMissingTerms(Arrays.asList(hit.getMatchedQueries()),
                                                                  searchedTerms));
-            ret.add(hit.getSource());
+            ret.add(hit.getSourceAsMap());
         }
         log.debug("Finished Formatting Results: ");
         return ret;

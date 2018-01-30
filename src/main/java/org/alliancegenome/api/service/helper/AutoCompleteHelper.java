@@ -61,14 +61,14 @@ public class AutoCompleteHelper {
         ArrayList<Map<String, Object>> ret = new ArrayList<Map<String, Object>>();
 
         for(SearchHit hit: res.getHits()) {
-            String category = (String) hit.getSource().get("category");
+            String category = (String) hit.getSourceAsMap().get("category");
 
             //this comes over from the Python code, use symbol for genes,
             //seems like maybe it could also use name_key for everyone...
             if (StringUtils.equals(category,"gene")) {
-                hit.getSource().put("name", hit.getSource().get("symbol"));
+                hit.getSourceAsMap().put("name", hit.getSourceAsMap().get("symbol"));
             }
-            ret.add(hit.getSource());
+            ret.add(hit.getSourceAsMap());
         }
         return ret;
     }
