@@ -7,13 +7,15 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 
-@Getter @Setter
+@Getter
+@Setter
 public class AnnotationDocument extends ESDocument implements Comparable<AnnotationDocument> {
-    
+
     private String primaryKey;
     private String associationType;
     private SourceDoclet source;
     private GeneDocument geneDocument;
+    private FeatureDocument featureDocument;
     private List<PublicationDoclet> publications;
 
     @JsonIgnore

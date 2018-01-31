@@ -34,6 +34,9 @@ public class Feature extends Neo4jEntity implements Comparable<Feature> {
     @Relationship(type = "ALSO_KNOWN_AS")
     private Set<SecondaryId> secondaryIds = new HashSet<>();
 
+    @Relationship(type = "IS_ALLELE_OF", direction = Relationship.OUTGOING)
+    private Gene gene;
+
     @Relationship(type = "ASSOCIATION", direction = Relationship.UNDIRECTED)
     private List<DiseaseFeatureJoin> diseaseFeatureJoins = new ArrayList<>();
 

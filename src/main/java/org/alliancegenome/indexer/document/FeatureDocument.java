@@ -10,7 +10,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class AlleleDocument extends ESDocument {
+public class FeatureDocument extends ESDocument {
 
     private String category = "allele";
     private String primaryKey;

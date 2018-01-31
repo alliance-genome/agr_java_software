@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.alliancegenome.indexer.document.AlleleDocument;
+import org.alliancegenome.indexer.document.FeatureDocument;
 import org.alliancegenome.indexer.document.CrossReferenceDoclet;
 import org.alliancegenome.indexer.document.DiseaseDocument;
 import org.alliancegenome.indexer.document.GeneDocument;
@@ -220,7 +220,7 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
         }
 
         if(entity.getFeatures() != null) {
-            geneDocument.setAlleles((List<AlleleDocument>) alleleTranslator.translateEntities(entity.getFeatures()));
+            geneDocument.setAlleles((List<FeatureDocument>) alleleTranslator.translateEntities(entity.getFeatures()));
         }
 
         return geneDocument;

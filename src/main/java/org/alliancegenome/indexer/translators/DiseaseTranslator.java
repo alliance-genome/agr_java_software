@@ -28,9 +28,11 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
     protected DiseaseDocument entityToDocument(DOTerm entity, Gene gene, int translationDepth) {
         DiseaseDocument doc = getTermDiseaseDocument(entity);
 
-        if (entity.getDiseaseGeneJoins() == null)
+        if (entity.getDiseaseGeneJoins() == null || entity.getDiseaseFeatureJoins() == null)
             return doc;
 
+        // this map will leave out genes that have at least one allele / feature associated
+        //
         Map<Gene, Map<String, List<DiseaseGeneJoin>>> sortedGeneAssociationMap = getGeneAnnotationMap(entity, gene);
 
         // generate AnnotationDocument records
@@ -51,6 +53,33 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
                 .flatMap(Collection::stream)
                 .collect(Collectors.toList());
 
+        // add features
+        Map<Feature, Map<String, List<DiseaseFeatureJoin>>> sortedFeatureAssociationMap = getFeatureAnnotationMap(entity, gene);
+        List<AnnotationDocument> featureAnnotationDocuments = sortedFeatureAssociationMap.entrySet().stream()
+                .map(featureMapEntry ->
+                        featureMapEntry.getValue().entrySet().stream().map(associationEntry -> {
+                            AnnotationDocument document = new AnnotationDocument();
+                            Feature feature = featureMapEntry.getKey();
+                            if (translationDepth > 0) {
+                                document.setGeneDocument(geneTranslator.translate(feature.getGene(), translationDepth - 1)); // This needs to not happen if being call from GeneTranslator
+                            }
+                            FeatureDocument fDocument = new FeatureDocument();
+                            fDocument.setPrimaryKey(feature.getPrimaryKey());
+                            fDocument.setSymbol(feature.getSymbol());
+                            document.setFeatureDocument(fDocument);
+                            document.setAssociationType(associationEntry.getKey());
+                            document.setSource(getSourceUrls(entity, feature.getSpecies()));
+                            //ToDO: Make DiseaseXJoin Interface for next call
+                            // document.setPublications(getPublicationDoclets(associationEntry));
+                            return document;
+                        }).collect(Collectors.toList()))
+                // turn List<AnnotationDocument> into stream<AnnotationDocument> so they can be collected into
+                // the outer List<AnnotationDocument>
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
+        if (annotationDocuments == null)
+            annotationDocuments = new ArrayList<>();
+        annotationDocuments.addAll(featureAnnotationDocuments);
         doc.setAnnotations(annotationDocuments);
 
         return doc;
@@ -60,6 +89,7 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
         // group by gene then by association type
         Map<Gene, Map<String, List<DiseaseGeneJoin>>> geneAssociationMap = entity.getDiseaseGeneJoins().stream()
                 .filter(diseaseGeneJoin -> gene == null || diseaseGeneJoin.getGene().equals(gene))
+                .filter(diseaseGeneJoin -> diseaseGeneJoin.getGene().getFeatures().isEmpty())
                 .collect(
                         groupingBy(DiseaseGeneJoin::getGene,
                                 groupingBy(DiseaseGeneJoin::getJoinType))
@@ -69,6 +99,18 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
         return geneAssociationMap.entrySet().stream()
                 .sorted(Map.Entry.comparingByKey())
                 .collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
+    }
+
+    private Map<Feature, Map<String, List<DiseaseFeatureJoin>>> getFeatureAnnotationMap(DOTerm entity, Gene gene) {
+        // group by gene then by association type
+        Map<Feature, Map<String, List<DiseaseFeatureJoin>>> featureAssociationMap = entity.getDiseaseFeatureJoins().stream()
+                .filter(diseaseFeatureJoin -> gene == null || diseaseFeatureJoin.getFeature().getGene().equals(gene))
+                .collect(
+                        groupingBy(DiseaseFeatureJoin::getFeature,
+                                groupingBy(DiseaseFeatureJoin::getJoinType))
+                );
+
+        return featureAssociationMap;
     }
 
     private PublicationDoclet getPublicationDoclet(DiseaseGeneJoin association, Publication publication) {

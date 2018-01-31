@@ -32,7 +32,7 @@ public class GeneDocument extends SearchableItem {
     private String geneSynopsis;
     private List<String> gene_cellular_component;
     private List<OrthologyDoclet> orthology;
-    private List<AlleleDocument> alleles;
+    private List<FeatureDocument> alleles;
     private String geneticEntityExternalUrl;
 
     private String modCrossRefCompleteUrl;

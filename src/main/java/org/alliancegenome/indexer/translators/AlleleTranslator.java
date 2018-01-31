@@ -2,17 +2,17 @@ package org.alliancegenome.indexer.translators;
 
 import java.util.ArrayList;
 
-import org.alliancegenome.indexer.document.AlleleDocument;
+import org.alliancegenome.indexer.document.FeatureDocument;
 import org.alliancegenome.indexer.entity.node.Feature;
 import org.alliancegenome.indexer.entity.node.SecondaryId;
 import org.alliancegenome.indexer.entity.node.Synonym;
 
-public class AlleleTranslator extends EntityDocumentTranslator<Feature, AlleleDocument> {
+public class AlleleTranslator extends EntityDocumentTranslator<Feature, FeatureDocument> {
 
     @Override
-    protected AlleleDocument entityToDocument(Feature entity, int translationDepth) {
+    protected FeatureDocument entityToDocument(Feature entity, int translationDepth) {
 
-        AlleleDocument allele = new AlleleDocument();
+        FeatureDocument allele = new FeatureDocument();
 
         //allele.setDataProvider(entity.getDataProvider());
         allele.setDateProduced(entity.getDateProduced());
@@ -53,7 +53,7 @@ public class AlleleTranslator extends EntityDocumentTranslator<Feature, AlleleDo
     }
 
     @Override
-    protected Feature documentToEntity(AlleleDocument doument, int translationDepth) {
+    protected Feature documentToEntity(FeatureDocument doument, int translationDepth) {
         // We are not going to the database yet so will implement this when we need to
         return null;
     }
