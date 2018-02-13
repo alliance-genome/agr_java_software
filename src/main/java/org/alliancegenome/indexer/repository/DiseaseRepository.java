@@ -1,7 +1,9 @@
 package org.alliancegenome.indexer.repository;
 
 import org.alliancegenome.indexer.entity.node.DOTerm;
-import org.neo4j.ogm.exception.MappingException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.neo4j.ogm.exception.core.MappingException;
 import org.neo4j.ogm.model.Result;
 
 import java.util.*;
@@ -17,7 +19,7 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
 //  public List<DOTerm> getAllDiseaseTerms(int start, int maxSize) {
 //      String cypher = "match (root:DOTerm) WHERE  root.is_obsolete = 'false' " +
 //              "WITH root SKIP " + start + " LIMIT " + maxSize + " " +
-//              "optional match (diseaseGeneJoin:DiseaseGeneJoin)-[q:ASSOCIATION]->(root), " +
+//              "optional match (diseaseGeneJoin:DiseaseEntityJoin)-[q:ASSOCIATION]->(root), " +
 //              "(gene:Gene)-[geneDiseaseRelation:ASSOCIATION]->(diseaseGeneJoin), " +
 //              "(publication:Publication)<-[publicationRelation]-(diseaseGeneJoin), " +
 //              "(evidence:EvidenceCode)<-[evidenceRelation:EVIDENCE]-(diseaseGeneJoin), " +
@@ -58,12 +60,13 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
 //
 //      return (List<DOTerm>) query(cypher);
 
-    //DiseaseGeneJoin
     public DOTerm getDiseaseTermWithAnnotations(String primaryKey) {
-        String cypher = "match p0=(root:DOTerm)--(a:Association)-[:EVIDENCE]-(pe),"
-                + " p1=(a)-[:ASSOCIATION]-(gene:Gene)-[:FROM_SPECIES]-(species:Species),"
-                + " p2=(root)-[:IS_A*]->(p:DOTerm) WHERE root.primaryKey = {primaryKey}" +
-                " RETURN p0, p1, p2";
+        String cypher = "match p0=(root:DOTerm)--(join:DiseaseEntityJoin)-[:EVIDENCE]-(pe),"
+                + " p1=(join)-[:ASSOCIATION]-(gene:Gene)-[:FROM_SPECIES]-(species:Species),"
+                + " p2=(root)-[:IS_A*]->(p:DOTerm) "
+                + " WHERE root.primaryKey = {primaryKey}"
+                + " OPTIONAL MATCH p3=(join)-[:ASSOCIATION]-(feature:Feature) "
+                + " RETURN p0, p1, p2, p3";
 
         HashMap<String, String> map = new HashMap<>();
         map.put("primaryKey", primaryKey);
@@ -107,7 +110,23 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
 
     public List<String> getAllDiseaseKeys() {
         String query = "MATCH (term:DOTerm) WHERE term.is_obsolete='false' RETURN term.primaryKey";
-        
+
+        Result r = queryForResult(query);
+        Iterator<Map<String, Object>> i = r.iterator();
+
+        ArrayList<String> list = new ArrayList<>();
+
+        while (i.hasNext()) {
+            Map<String, Object> map2 = i.next();
+            list.add((String) map2.get("term.primaryKey"));
+        }
+        return list;
+    }
+
+    public List<String> getAllDiseaseWithAnnotationsKeys() {
+        String query = "MATCH (term:DOTerm)-[q:ASSOCIATION]-(dej:DiseaseEntityJoin) WHERE term.is_obsolete='false' " +
+                "RETURN term.primaryKey";
+
         Result r = queryForResult(query);
         Iterator<Map<String, Object>> i = r.iterator();
 
@@ -122,12 +141,13 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
 
     public DOTerm getDiseaseTerm(String primaryKey) {
 
-        String cypher = "MATCH p0=(d:DOTerm)--(s) WHERE d.primaryKey = {primaryKey}  " +
-                " OPTIONAL MATCH p1=(d)--(s:DiseaseGeneJoin)-[:EVIDENCE]-(eq), p2=(s)--(g:Gene)-[:FROM_SPECIES]-(species:Species)" +
-                " OPTIONAL MATCH p3=(d)-[:IS_A]-(d2)" +
-                " OPTIONAL MATCH slim=(d)-[:IS_A*]->(slTerm) " +
-                " where all (subset IN [{subset}] where subset in slTerm.subset) " +
-                " RETURN p0, p1, p2, p3, slim";
+        String cypher = "MATCH (disease:DOTerm) WHERE disease.primaryKey = {primaryKey}  " +
+                " OPTIONAL MATCH p1=(disease)--(dej:DiseaseEntityJoin)-[:EVIDENCE]-(eq), p2=(dej)--(g:Gene)-[:FROM_SPECIES]-(species:Species)" +
+                " OPTIONAL MATCH p4=(dej)--(feature:Feature)" +
+                " OPTIONAL MATCH p3=(disease)-[:IS_A]-(parentChild)" +
+                " OPTIONAL MATCH slim=(disease)-[:IS_A*]->(slimTerm) " +
+                " where all (subset IN [{subset}] where subset in slimTerm.subset) " +
+                " RETURN disease, p1, p2, p3, p4, slim";
 
         HashMap<String, String> map = new HashMap<>();
         map.put("primaryKey", primaryKey);
@@ -146,10 +166,13 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
             }
         } catch (MappingException e) {
             e.printStackTrace();
+            log.error(e);
         }
-        if(primaryTerm == null)
+        if (primaryTerm == null)
             return null;
         primaryTerm.getHighLevelTermList().addAll(highLevelTermList);
         return primaryTerm;
     }
+
+    private final Logger log = LogManager.getLogger(getClass());
 }

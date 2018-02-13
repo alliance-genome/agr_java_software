@@ -4,7 +4,9 @@ import org.alliancegenome.indexer.config.ConfigHelper;
 import org.alliancegenome.indexer.document.DiseaseAnnotationDocument;
 import org.alliancegenome.indexer.document.DiseaseDocument;
 import org.alliancegenome.indexer.entity.node.DOTerm;
+import org.alliancegenome.indexer.entity.node.Feature;
 import org.alliancegenome.indexer.repository.DiseaseRepository;
+import org.alliancegenome.indexer.repository.FeatureRepository;
 import org.alliancegenome.indexer.repository.Neo4jRepository;
 import org.alliancegenome.indexer.translators.DiseaseTranslator;
 import org.apache.logging.log4j.Level;
@@ -31,6 +33,7 @@ public class DiseaseTest {
         ConfigHelper.init();
 
         DiseaseRepository diseaseRepository = new DiseaseRepository();
+        FeatureRepository featureRepository = new FeatureRepository();
 /*
         Iterable<DOTerm> disease_entities = neo4jService.getPage(0, 1000, 3);
 
@@ -44,8 +47,10 @@ public class DiseaseTest {
         Neo4jRepository<DOTerm> neo4jService = new Neo4jRepository<>(DOTerm.class);
 
         DiseaseTranslator translator = new DiseaseTranslator();
+        //Feature feature = featureRepository.getFeature("ZFIN:ZDB-ALT-980203-985");
 
-        DOTerm diseaseTerm = diseaseRepository.getDiseaseTerm("DOID:4005");
+        DOTerm diseaseTerm = diseaseRepository.getDiseaseTerm("DOID:0050700");
+        DOTerm diseaseTerm1 = diseaseRepository.getDiseaseTermWithAnnotations("DOID:0050700");
         DiseaseDocument doc = translator.translate(diseaseTerm, 1);
         List<DOTerm> doList = new ArrayList<>(Collections.singletonList(diseaseTerm));
         Iterable<DiseaseAnnotationDocument> annotDoc = translator.translateAnnotationEntities(doList, 1);

@@ -25,11 +25,8 @@ public class Neo4jSessionFactory {
     public Session getNeo4jSession() {
         if(sessionFactory == null) {
 
-            Configuration configuration = new Configuration();
-            configuration.driverConfiguration()
-            .setDriverClassName("org.neo4j.ogm.drivers.bolt.driver.BoltDriver")
-            .setURI("bolt://" + ConfigHelper.getNeo4jHost() + ":" + ConfigHelper.getNeo4jPort())
-            ;
+            Configuration configuration = new Configuration.Builder()
+                    .uri("bolt://" + ConfigHelper.getNeo4jHost() + ":" + ConfigHelper.getNeo4jPort()).build();
 
             sessionFactory = new SessionFactory(configuration, "org.alliancegenome.indexer.entity");
         }

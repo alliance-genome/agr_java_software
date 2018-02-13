@@ -1,22 +1,34 @@
 package org.alliancegenome.indexer.translators;
 
-import org.alliancegenome.indexer.document.*;
-import org.alliancegenome.indexer.entity.node.*;
-import org.alliancegenome.indexer.entity.relationship.GenomeLocation;
-import org.alliancegenome.indexer.entity.relationship.Orthologous;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.alliancegenome.indexer.document.FeatureDocument;
+import org.alliancegenome.indexer.document.CrossReferenceDoclet;
+import org.alliancegenome.indexer.document.DiseaseDocument;
+import org.alliancegenome.indexer.document.GeneDocument;
+import org.alliancegenome.indexer.document.GenomeLocationDoclet;
+import org.alliancegenome.indexer.document.OrthologyDoclet;
+import org.alliancegenome.indexer.entity.node.DOTerm;
+import org.alliancegenome.indexer.entity.node.GOTerm;
+import org.alliancegenome.indexer.entity.node.Gene;
+import org.alliancegenome.indexer.entity.node.OrthoAlgorithm;
+import org.alliancegenome.indexer.entity.node.OrthologyGeneJoin;
+import org.alliancegenome.indexer.entity.node.SecondaryId;
+import org.alliancegenome.indexer.entity.node.Synonym;
+import org.alliancegenome.indexer.entity.relationship.GenomeLocation;
+import org.alliancegenome.indexer.entity.relationship.Orthologous;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument> {
 
-    private Logger log = LogManager.getLogger(getClass());
+    private final Logger log = LogManager.getLogger(getClass());
 
     private static DiseaseTranslator diseaseTranslator = new DiseaseTranslator();
+    private static FeatureTranslator alleleTranslator = new FeatureTranslator();
 
     @Override
     protected GeneDocument entityToDocument(Gene entity, int translationDepth) {
@@ -40,7 +52,6 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
         geneDocument.setModGlobalCrossRefId(entity.getModGlobalCrossRefId());
         geneDocument.setModGlobalId(entity.getModGlobalId());
 
-        geneDocument.setHref(null); // This might look wrong but it was taken from the old AGR code base.
         geneDocument.setName(entity.getName());
         if (entity.getSpecies() != null) {
             geneDocument.setName_key(entity.getSymbol() + " (" + entity.getSpecies().getType().getAbbreviation() + ")"); // This might look wrong but it was taken from the old AGR code base.
@@ -74,6 +85,7 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
         geneDocument.setGene_cellular_component(goTerms.get("cellular_component"));
         geneDocument.setGene_molecular_function(goTerms.get("molecular_function"));
 
+        // This code is duplicated in Gene and Feature should be pulled out into its own translator
         ArrayList<String> secondaryIds = new ArrayList<>();
         if (entity.getSecondaryIds() != null) {
             for (SecondaryId secondaryId : entity.getSecondaryIds()) {
@@ -89,6 +101,7 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
         }
         geneDocument.setSymbol(entity.getSymbol());
 
+        // This code is duplicated in Gene and Feature should be pulled out into its own translator
         ArrayList<String> synonyms = new ArrayList<>();
         if (entity.getSynonyms() != null) {
             for (Synonym synonym : entity.getSynonyms()) {
@@ -205,6 +218,11 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
                     .collect(Collectors.toList());
             geneDocument.setCrossReferences(crlist);
         }
+
+        if(entity.getFeatures() != null) {
+            geneDocument.setAlleles((List<FeatureDocument>) alleleTranslator.translateEntities(entity.getFeatures()));
+        }
+
         return geneDocument;
     }
 
