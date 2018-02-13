@@ -10,7 +10,7 @@
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
 
-	<artifactId>agr_shared</artifactId>
+	<artifactId>agr_java_shared</artifactId>
 	<packaging>jar</packaging>
 	<name>AGR :: Shared</name>
 
