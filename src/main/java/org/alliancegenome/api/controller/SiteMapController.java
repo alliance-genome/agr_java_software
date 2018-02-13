@@ -23,8 +23,6 @@ public class SiteMapController extends BaseController implements SiteMapRESTInte
     @Inject
     private SiteMapCacherApplication siteMapApp;
 
-    private ConfigHelper config = new ConfigHelper();
-
     //private final Logger log = Logger.getLogger(getClass());
 
     @Override
@@ -33,7 +31,7 @@ public class SiteMapController extends BaseController implements SiteMapRESTInte
         List<SiteMap> list = new ArrayList<SiteMap>();
         Set<String> files = siteMapApp.getFiles();
         for(String file: files) {
-            list.add(new SiteMap(buildUrl(uriInfo, "api/sitemap/" + file + ".xml"), config.getAppStart()));
+            list.add(new SiteMap(buildUrl(uriInfo, "api/sitemap/" + file + ".xml"), ConfigHelper.getAppStart()));
         }
         index.setSitemap(list);
         return index;

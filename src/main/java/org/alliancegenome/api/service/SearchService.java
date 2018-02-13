@@ -110,9 +110,7 @@ public class SearchService {
 
             QueryStringQueryBuilder builder = queryStringQuery(q)
                 .defaultOperator(Operator.OR)
-                .allowLeadingWildcard(true)
-                .autoGeneratePhraseQueries(true)
-                .useDisMax(true);
+                .allowLeadingWildcard(true);
 
             //add the fields one at a time
             searchHelper.getSearchFields().stream().forEach(builder::field);

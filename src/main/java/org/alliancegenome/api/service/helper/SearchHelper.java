@@ -1,5 +1,16 @@
 package org.alliancegenome.api.service.helper;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.enterprise.context.RequestScoped;
+import javax.ws.rs.core.UriInfo;
+
 import org.alliancegenome.shared.es.model.search.AggDocCount;
 import org.alliancegenome.shared.es.model.search.AggResult;
 import org.apache.commons.lang3.StringUtils;
@@ -15,19 +26,15 @@ import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilde
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.jboss.logging.Logger;
 
-import javax.enterprise.context.RequestScoped;
-import javax.ws.rs.core.UriInfo;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 @RequestScoped
+@SuppressWarnings("serial")
 public class SearchHelper {
 
     private Logger log = Logger.getLogger(getClass());
 
     private static String[] SUFFIX_LIST = { ".keyword", ".synonyms", ".symbols", ".text" };
 
+    
     private HashMap<String, List<String>> category_filters = new HashMap<String, List<String>>() {
         {
             put("gene", new ArrayList<String>() {

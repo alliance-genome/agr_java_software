@@ -20,8 +20,6 @@ import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
 @RequestScoped
 public class MetaDataController extends BaseController implements MetaDataRESTInterface {
 
-    private ConfigHelper config = new ConfigHelper();
-
     @Inject
     private MetaDataService metaDataService;
 
@@ -30,9 +28,9 @@ public class MetaDataController extends BaseController implements MetaDataRESTIn
     @Override
     public MetaDataDocument getMetaData() {
         MetaDataDocument data = new MetaDataDocument();
-        data.setDebug(String.valueOf(config.getDebug()));
-        data.setEsHost(config.getEsHost());
-        data.setEsPort(String.valueOf(config.getEsPort()));
+        data.setDebug(String.valueOf(ConfigHelper.getDebug()));
+        data.setEsHost(ConfigHelper.getEsHost());
+        data.setEsPort(String.valueOf(ConfigHelper.getEsPort()));
         return data;
     }
 

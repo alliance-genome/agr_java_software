@@ -28,6 +28,7 @@ import org.elasticsearch.search.SearchHit;
 import org.jboss.logging.Logger;
 
 @ApplicationScoped
+@SuppressWarnings("rawtypes")
 public class SiteMapCacherApplication {
 
     private final Logger log = Logger.getLogger(getClass());
@@ -91,6 +92,7 @@ public class SiteMapCacherApplication {
         save(urls, files.get(fileName));
     }
 
+    
     public XMLURLSet getHits(String category, Integer page) {
         String fileName = category + "-sitemap-" + page;
         log.debug("Loading: " + fileName);
