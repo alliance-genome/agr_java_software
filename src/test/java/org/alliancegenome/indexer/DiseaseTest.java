@@ -50,6 +50,7 @@ public class DiseaseTest {
         //Feature feature = featureRepository.getFeature("ZFIN:ZDB-ALT-980203-985");
 
         DOTerm diseaseTerm = diseaseRepository.getDiseaseTerm("DOID:0050700");
+        DOTerm diseaseTerm1 = diseaseRepository.getDiseaseTermWithAnnotations("DOID:0050700");
         DiseaseDocument doc = translator.translate(diseaseTerm, 1);
         List<DOTerm> doList = new ArrayList<>(Collections.singletonList(diseaseTerm));
         Iterable<DiseaseAnnotationDocument> annotDoc = translator.translateAnnotationEntities(doList, 1);

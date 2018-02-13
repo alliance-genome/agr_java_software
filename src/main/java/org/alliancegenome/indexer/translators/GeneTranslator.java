@@ -28,7 +28,7 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
     private final Logger log = LogManager.getLogger(getClass());
 
     private static DiseaseTranslator diseaseTranslator = new DiseaseTranslator();
-    private static AlleleTranslator alleleTranslator = new AlleleTranslator();
+    private static FeatureTranslator alleleTranslator = new FeatureTranslator();
 
     @Override
     protected GeneDocument entityToDocument(Gene entity, int translationDepth) {

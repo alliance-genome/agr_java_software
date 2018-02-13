@@ -10,7 +10,7 @@ import java.util.List;
 @NodeEntity
 @Getter
 @Setter
-public class DiseaseFeatureJoin extends Association {
+public class DiseaseEntityJoin extends Association {
 
     private String primaryKey;
     private String joinType;
@@ -20,6 +20,9 @@ public class DiseaseFeatureJoin extends Association {
 
     @Relationship(type = "EVIDENCE")
     private List<EvidenceCode> evidenceCodes;
+
+    @Relationship(type = "ASSOCIATION", direction = Relationship.INCOMING)
+    private Gene gene;
 
     @Relationship(type = "ASSOCIATION", direction = Relationship.INCOMING)
     private Feature feature;

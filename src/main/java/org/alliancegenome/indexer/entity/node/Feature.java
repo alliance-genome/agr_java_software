@@ -38,7 +38,7 @@ public class Feature extends Neo4jEntity implements Comparable<Feature> {
     private Gene gene;
 
     @Relationship(type = "ASSOCIATION", direction = Relationship.UNDIRECTED)
-    private List<DiseaseFeatureJoin> diseaseFeatureJoins = new ArrayList<>();
+    private List<DiseaseEntityJoin> diseaseEntityJoins = new ArrayList<>();
 
 
     @Override

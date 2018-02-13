@@ -7,21 +7,20 @@ import org.alliancegenome.indexer.entity.node.Feature;
 import org.alliancegenome.indexer.entity.node.SecondaryId;
 import org.alliancegenome.indexer.entity.node.Synonym;
 
-public class AlleleTranslator extends EntityDocumentTranslator<Feature, FeatureDocument> {
+public class FeatureTranslator extends EntityDocumentTranslator<Feature, FeatureDocument> {
 
     @Override
     protected FeatureDocument entityToDocument(Feature entity, int translationDepth) {
 
-        FeatureDocument allele = new FeatureDocument();
+        FeatureDocument featureDocument = new FeatureDocument();
 
         //allele.setDataProvider(entity.getDataProvider());
-        allele.setDateProduced(entity.getDateProduced());
-        allele.setGlobalId(entity.getGlobalId());
-        allele.setLocalId(entity.getLocalId());
-        allele.setPrimaryKey(entity.getPrimaryKey());
-        allele.setRelease(entity.getRelease());
-        allele.setSpecies(entity.getSpecies().getName());
-        allele.setSymbol(entity.getSymbol());
+        featureDocument.setDateProduced(entity.getDateProduced());
+        featureDocument.setGlobalId(entity.getGlobalId());
+        featureDocument.setLocalId(entity.getLocalId());
+        featureDocument.setPrimaryKey(entity.getPrimaryKey());
+        featureDocument.setRelease(entity.getRelease());
+        featureDocument.setSymbol(entity.getSymbol());
 
         if(translationDepth > 0) {
 
@@ -32,7 +31,7 @@ public class AlleleTranslator extends EntityDocumentTranslator<Feature, FeatureD
                     secondaryIds.add(secondaryId.getName());
                 }
             }
-            allele.setSecondaryIds(secondaryIds);
+            featureDocument.setSecondaryIds(secondaryIds);
 
             // This code is duplicated in Gene and Feature should be pulled out into its own translator
             ArrayList<String> synonyms = new ArrayList<>();
@@ -45,11 +44,11 @@ public class AlleleTranslator extends EntityDocumentTranslator<Feature, FeatureD
                     }
                 }
             }
-            allele.setSynonyms(synonyms);
+            featureDocument.setSynonyms(synonyms);
 
         }
 
-        return allele;
+        return featureDocument;
     }
 
     @Override

@@ -20,7 +20,6 @@ public class FeatureDocument extends ESDocument {
     private String release;
     private String localId;
     private String globalId;
-    private String species;
 
     private List<String> secondaryIds;
     private List<String> synonyms;

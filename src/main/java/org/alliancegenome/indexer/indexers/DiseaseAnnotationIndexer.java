@@ -26,7 +26,7 @@ public class DiseaseAnnotationIndexer extends Indexer<DiseaseAnnotationDocument>
         DiseaseRepository diseaseRepository = new DiseaseRepository();
         try {
             LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>();
-            List<String> allDiseaseIDs = diseaseRepository.getAllDiseaseKeys();
+            List<String> allDiseaseIDs = diseaseRepository.getAllDiseaseWithAnnotationsKeys();
             queue.addAll(allDiseaseIDs);
             diseaseRepository.clearCache();
             initiateThreading(queue);

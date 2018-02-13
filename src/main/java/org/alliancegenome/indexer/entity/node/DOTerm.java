@@ -9,7 +9,6 @@ import org.alliancegenome.indexer.util.DateConverter;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.typeconversion.Convert;
-import org.neo4j.ogm.annotation.typeconversion.DateString;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -52,10 +51,7 @@ public class DOTerm extends Neo4jEntity {
     private List<Gene> genes;
 
     @Relationship(type = "ASSOCIATION", direction = Relationship.INCOMING)
-    private List<DiseaseGeneJoin> diseaseGeneJoins;
-
-    @Relationship(type = "ASSOCIATION", direction = Relationship.INCOMING)
-    private List<DiseaseFeatureJoin> diseaseFeatureJoins;
+    private List<DiseaseEntityJoin> diseaseEntityJoins;
 
     @Relationship(type = "IS_A", direction = Relationship.OUTGOING)
     private List<DOTerm> parents;

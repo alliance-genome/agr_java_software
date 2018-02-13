@@ -68,7 +68,7 @@ public class Gene extends Neo4jEntity implements Comparable<Gene> {
     private List<Feature> features;
 
     @Relationship(type = "ASSOCIATION", direction = Relationship.UNDIRECTED)
-    private List<DiseaseGeneJoin> diseaseGeneJoins = new ArrayList<>();
+    private List<DiseaseEntityJoin> diseaseGeneJoins = new ArrayList<>();
     @Relationship(type = "ASSOCIATION", direction = Relationship.UNDIRECTED)
     private List<OrthologyGeneJoin> orthologyGeneJoins = new ArrayList<>();
 
