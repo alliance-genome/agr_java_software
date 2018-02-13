@@ -24,29 +24,24 @@ public class GeneRepository extends Neo4jRepository<Gene> {
 
 		map.put("primaryKey", primaryKey);
 		String query = "";
-		query += " MATCH p1=(q:Species)-[:FROM_SPECIES]-(g:Gene)--(s) WHERE g.primaryKey = {primaryKey}";
+		query += " MATCH p1=(g:Gene)--(s) WHERE g.primaryKey = {primaryKey}";
 		query += " OPTIONAL MATCH p2=(do:DOTerm)--(s:DiseaseGeneJoin)-[:EVIDENCE]-(ea)";
 		query += " OPTIONAL MATCH p4=(g)--(s:OrthologyGeneJoin)--(a:OrthoAlgorithm), p3=(g)-[o:ORTHOLOGOUS]-(g2:Gene)-[:FROM_SPECIES]-(q2:Species), (s)--(g2)";
 		query += " RETURN p1, p2, p3, p4";
-
 		Iterable<Gene> genes = query(query, map);
 		for(Gene g: genes) {
 			if(g.getPrimaryKey().equals(primaryKey)) {
 				return g;
 			}
 		}
-
 		return null;
-
 	}
 
 
 	public List<String> getAllGeneKeys() {
-		String query = "MATCH (q:Species)-[:FROM_SPECIES]-(g:Gene) RETURN distinct g.primaryKey";
-
+		String query = "MATCH (g:Gene)-[:FROM_SPECIES]-(q:Species) RETURN distinct g.primaryKey";
 		Result r = queryForResult(query);
 		Iterator<Map<String, Object>> i = r.iterator();
-
 		ArrayList<String> list = new ArrayList<>();
 
 		while(i.hasNext()) {
