@@ -20,7 +20,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>org.alliancegnome</groupId>
-			<artifactId>agr_shared</artifactId>
+			<artifactId>agr_java_shared</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
