@@ -37,6 +37,7 @@
 			</snapshots>
 		</repository>
 	</repositories>
+
 	<build>
 		<finalName>${project.artifactId}</finalName>
 		<plugins>
