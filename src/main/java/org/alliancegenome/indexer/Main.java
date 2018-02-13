@@ -16,7 +16,6 @@ public class Main {
     private static Logger log = LogManager.getLogger(Main.class);
 
     public static void main(String[] args) {
-        ConfigHelper.init();
 
         Date start = new Date();
         log.info("Start Time: " + start);
@@ -67,7 +66,7 @@ public class Main {
         HashMap<String, Indexer> indexers = new HashMap<>();
         for (IndexerConfig ic : IndexerConfig.values()) {
             try {
-                Indexer i = (Indexer) ic.getIndexClazz().getDeclaredConstructor(String.class, IndexerConfig.class).newInstance(newIndexName, ic);
+                Indexer i = (Indexer) ic.getIndexClazz().getDeclaredConstructor(IndexerConfig.class).newInstance(newIndexName, ic);
                 indexers.put(ic.getTypeName(), i);
             } catch (Exception e) {
                 e.printStackTrace();

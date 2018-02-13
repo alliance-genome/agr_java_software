@@ -26,14 +26,15 @@ public class GoIndexer extends Indexer<GoDocument> {
 
     @Override
     public void index() {
+
+        LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>();
+        List<String> fulllist = goRepo.getAllGoKeys();
+        queue.addAll(fulllist);
+        goRepo.clearCache();
         try {
-            LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>();
-            List<String> fulllist = goRepo.getAllGoKeys();
-            queue.addAll(fulllist);
-            goRepo.clearCache();
             initiateThreading(queue);
         } catch (InterruptedException e) {
-            log.error("Error while indexing...", e);
+            e.printStackTrace();
         }
     }
 

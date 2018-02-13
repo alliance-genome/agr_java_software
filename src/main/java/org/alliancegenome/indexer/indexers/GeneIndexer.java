@@ -22,6 +22,7 @@ public class GeneIndexer extends Indexer<GeneDocument> {
 
     @Override
     public void index() {
+
         try {
             LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>();
             GeneRepository geneRepo = new GeneRepository();
@@ -30,8 +31,9 @@ public class GeneIndexer extends Indexer<GeneDocument> {
             geneRepo.clearCache();
             initiateThreading(queue);
         } catch (InterruptedException e) {
-            log.error("Error while indexing...", e);
+            e.printStackTrace();
         }
+
 
     }
 

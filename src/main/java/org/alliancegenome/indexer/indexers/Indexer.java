@@ -171,46 +171,33 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
         return ((double) runtime.totalMemory() - (double) runtime.freeMemory()) / (double) runtime.maxMemory();
     }
 
-    private boolean isWorkStillPerformed(LinkedBlockingDeque<String> queue, Set<Future> futureSet) {
-        // check if at least one thread is still working, i.e. is not done
-        boolean atLeastOneThreadRunning = false;
-        for (Future future : futureSet) {
-            if (!future.isDone()) {
-                atLeastOneThreadRunning = true;
-                break;
-            }
-        }
-        return !queue.isEmpty() && atLeastOneThreadRunning;
-    }
-
-    private BasicThreadFactory getBasicThreadFactory() {
-        // Create a factory that produces daemon threads with a naming pattern and
-        // a priority
-        return new BasicThreadFactory.Builder()
-                .namingPattern("AGR-Indexer-%d")
-                .priority(Thread.MAX_PRIORITY)
-                .build();
-    }
-
     void initiateThreading(LinkedBlockingDeque<String> queue) throws InterruptedException {
         Integer numberOfThreads = indexerConfig.getThreadCount();
-        ExecutorService executor = Executors.newFixedThreadPool(numberOfThreads, getBasicThreadFactory());
-        int index = 0;
-        Set<Future> futureSet = new HashSet<>(numberOfThreads);
-        while (index++ < numberOfThreads) {
-            futureSet.add(executor.submit(() -> startSingleThread(queue)));
+
+        List<Thread> threads = new ArrayList<Thread>();
+        for(int i = 0; i < numberOfThreads; i++) {
+            Thread t = new Thread(new Runnable() {
+                public void run() {
+                    startSingleThread(queue);
+                }
+            });
+            threads.add(t);
+            t.start();
         }
 
         int total = queue.size();
         startProcess(total);
-        while (isWorkStillPerformed(queue, futureSet)) {
+        
+        while(queue.size() > 0) {
             TimeUnit.SECONDS.sleep(10);
             progress(queue.size(), total);
         }
-        if (!queue.isEmpty())
-            throw new RuntimeException("There was an error during the multi-threaded indexing. Aborting...");
+        
+        for(Thread t: threads) {
+            t.join();
+        }
+
         finishProcess(total);
-        executor.shutdown();
     }
 
     protected abstract void startSingleThread(LinkedBlockingDeque<String> queue);

@@ -10,8 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class GeneTest {
 
     public static void main(String[] args) throws Exception {
-        ConfigHelper.init();
-        
+
         GeneRepository repo = new GeneRepository();
         GeneTranslator trans = new GeneTranslator();
         

@@ -23,15 +23,13 @@ public class DiseaseIndexer extends Indexer<DiseaseDocument> {
     @Override
     public void index() {
         DiseaseRepository diseaseRepository = new DiseaseRepository();
-        try {
+
             LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>();
             List<String> allDiseaseIDs = diseaseRepository.getAllDiseaseKeys();
             queue.addAll(allDiseaseIDs);
             diseaseRepository.clearCache();
-            initiateThreading(queue);
-        } catch (InterruptedException e) {
-            log.error("Error while indexing...", e);
-        }
+            startSingleThread(queue);
+
     }
 
     protected void startSingleThread(LinkedBlockingDeque<String> queue) {

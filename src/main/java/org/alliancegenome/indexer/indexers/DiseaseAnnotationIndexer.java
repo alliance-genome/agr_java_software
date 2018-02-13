@@ -25,15 +25,13 @@ public class DiseaseAnnotationIndexer extends Indexer<DiseaseAnnotationDocument>
     @Override
     public void index() {
         DiseaseRepository diseaseRepository = new DiseaseRepository();
-        try {
+
             LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>();
             Set<String> allDiseaseIDs = diseaseRepository.getAllDiseaseWithAnnotationsKeys();
             queue.addAll(allDiseaseIDs);
             diseaseRepository.clearCache();
-            initiateThreading(queue);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+            startSingleThread(queue);
+
 
     }
 

@@ -57,7 +57,6 @@ public class DiseaseTest {
         //Configurator.setLevel("org.neo4j",Level.DEBUG);
         Logger log = LogManager.getLogger(DiseaseTest.class);
         log.info("Hallo");
-        ConfigHelper.init();
 
         DiseaseRepository diseaseRepository = new DiseaseRepository();
         FeatureRepository featureRepository = new FeatureRepository();
