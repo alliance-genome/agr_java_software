@@ -4,8 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.annotation.PostConstruct;
-
+import org.alliancegenome.shared.config.ConfigHelper;
 import org.alliancegenome.shared.es.dao.ESDAO;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -20,13 +19,13 @@ import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 
+@SuppressWarnings("serial")
 public class SearchDAO extends ESDAO {
 
 	private Log log = LogFactory.getLog(getClass());
 
-	public void init() {
-		super.init();
-		checkIndex(config.getEsIndex());
+	public SearchDAO() {
+		checkIndex(ConfigHelper.getEsIndex());
 	}
 	
 	private final List<String> response_fields = new ArrayList<String>() {
@@ -52,7 +51,7 @@ public class SearchDAO extends ESDAO {
 			searchRequestBuilder.setExplain(true);
 		}
 
-		searchRequestBuilder.setIndices(config.getEsIndex());
+		searchRequestBuilder.setIndices(ConfigHelper.getEsIndex());
 		searchRequestBuilder.setQuery(query);
 		searchRequestBuilder.setSize(limit);
 		searchRequestBuilder.setFrom(offset);
@@ -87,7 +86,7 @@ public class SearchDAO extends ESDAO {
 		SearchResponse scrollResp = searchClient.prepareSearch()
 				.setScroll(new TimeValue(60000))
 				.setQuery(query)
-				.setIndices(config.getEsIndex())
+				.setIndices(ConfigHelper.getEsIndex())
 				.setSize(size)
 				.execute().actionGet();
 

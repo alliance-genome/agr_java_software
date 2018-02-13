@@ -8,14 +8,14 @@ import org.neo4j.ogm.cypher.query.Pagination;
 import org.neo4j.ogm.model.Result;
 import org.neo4j.ogm.session.Session;
 
+@SuppressWarnings("unchecked")
 public class Neo4jRepository<E> {
 
 	protected Class<E> entityTypeClazz;
-	protected Session neo4jSession;
+	protected Session neo4jSession = Neo4jSessionFactory.getInstance().getNeo4jSession();
 
 	public Neo4jRepository(Class<E> entityTypeClazz) {
 		this.entityTypeClazz = entityTypeClazz;
-		neo4jSession = Neo4jSessionFactory.getInstance().getNeo4jSession();
 	}
 
 	public Iterable<E> getPage(int pageNumber, int pageSize, int depth) {
@@ -25,10 +25,6 @@ public class Neo4jRepository<E> {
 
 	public Iterable<E> getPage(int pageNumber, int pageSize) {
 		return getPage(pageNumber, pageSize, 1);
-	}
-
-	public Iterable<E> getEntity(String key, String value) {
-		return neo4jSession.loadAll(entityTypeClazz, new Filter(key, value));
 	}
 
 	public int getCount() {

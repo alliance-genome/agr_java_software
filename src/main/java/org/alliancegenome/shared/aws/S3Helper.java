@@ -25,15 +25,12 @@ public class S3Helper {
 
 	private Log log = LogFactory.getLog(getClass());
 
-
-	private ConfigHelper config = new ConfigHelper();
-
 	public int listFiles(String prefix) {
 		int count = 0;
 		try {
 			log.info("Getting S3 file listing");
-			AmazonS3 s3 = AmazonS3ClientBuilder.standard().withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(config.getAWSAccessKey(), config.getAWSSecretKey()))).withRegion(Regions.US_EAST_1).build();
-			ObjectListing ol = s3.listObjects(config.getAWSBucketName(), prefix);
+			AmazonS3 s3 = AmazonS3ClientBuilder.standard().withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(ConfigHelper.getAWSAccessKey(), ConfigHelper.getAWSSecretKey()))).withRegion(Regions.US_EAST_1).build();
+			ObjectListing ol = s3.listObjects(ConfigHelper.getAWSBucketName(), prefix);
 			log.debug(ol.getObjectSummaries().size());
 			count = ol.getObjectSummaries().size();
 			for (S3ObjectSummary summary : ol.getObjectSummaries()) {
@@ -54,10 +51,10 @@ public class S3Helper {
 			FileUtils.writeStringToFile(outfile, fileData);
 			log.info("Save file to local filesystem complete");
 
-			log.info("Uploading file to S3: " + outfile.getAbsolutePath() + " -> s3://" + config.getAWSBucketName() + "/" + path);
-			AmazonS3 s3 = AmazonS3ClientBuilder.standard().withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(config.getAWSAccessKey(), config.getAWSSecretKey()))).withRegion(Regions.US_EAST_1).build();
+			log.info("Uploading file to S3: " + outfile.getAbsolutePath() + " -> s3://" + ConfigHelper.getAWSBucketName() + "/" + path);
+			AmazonS3 s3 = AmazonS3ClientBuilder.standard().withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(ConfigHelper.getAWSAccessKey(), ConfigHelper.getAWSSecretKey()))).withRegion(Regions.US_EAST_1).build();
 			TransferManager tm = TransferManagerBuilder.standard().withS3Client(s3).build();
-			final Upload uploadFile = tm.upload(config.getAWSBucketName(), path, outfile);
+			final Upload uploadFile = tm.upload(ConfigHelper.getAWSBucketName(), path, outfile);
 			uploadFile.waitForCompletion();
 			tm.shutdownNow();
 			outfile.delete();

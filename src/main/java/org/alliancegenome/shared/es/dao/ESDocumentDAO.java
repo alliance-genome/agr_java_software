@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.lang.reflect.ParameterizedType;
 import java.util.concurrent.ExecutionException;
 
+import org.alliancegenome.shared.config.ConfigHelper;
 import org.alliancegenome.shared.es.document.site_index.ESDocument;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -30,7 +31,7 @@ public class ESDocumentDAO<D extends ESDocument> extends ESDAO {
 			String json = mapper.writeValueAsString(doc);
 			log.info("Creating Document JSON: " + json);
 			IndexRequest indexRequest = new IndexRequest();
-			indexRequest.index(config.getEsDataIndex());
+			indexRequest.index(ConfigHelper.getEsDataIndex());
 			indexRequest.id(doc.getDocumentId());
 			indexRequest.type(doc.getType());
 			indexRequest.source(json, XContentType.JSON);
@@ -44,13 +45,14 @@ public class ESDocumentDAO<D extends ESDocument> extends ESDAO {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	public D readDocument(String id, String type) {
 		log.debug("Going to ES for data: " + id);
 		try {
 			GetRequest request = new GetRequest();
 			request.id(id);
 			request.type(type);
-			request.index(config.getEsDataIndex());
+			request.index(ConfigHelper.getEsDataIndex());
 			GetResponse res = searchClient.get(request).get();
 
 			//log.debug("Result: " + res);
@@ -74,7 +76,6 @@ public class ESDocumentDAO<D extends ESDocument> extends ESDAO {
 			e.printStackTrace();
 		} catch (IndexNotFoundException e) {
 			log.debug("Index not found --- creating index");
-
 		}
 
 		return null;
@@ -84,7 +85,7 @@ public class ESDocumentDAO<D extends ESDocument> extends ESDAO {
 		try {
 			String json = mapper.writeValueAsString(doc);
 			UpdateRequest updateRequest = new UpdateRequest();
-			updateRequest.index(config.getEsDataIndex());
+			updateRequest.index(ConfigHelper.getEsDataIndex());
 			updateRequest.type(doc.getType());
 			updateRequest.id(doc.getDocumentId());
 			updateRequest.doc(json, XContentType.JSON);

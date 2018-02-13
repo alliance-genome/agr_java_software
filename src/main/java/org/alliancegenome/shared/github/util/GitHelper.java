@@ -10,14 +10,12 @@ import org.eclipse.jgit.api.errors.GitAPIException;
 
 public class GitHelper {
 
-	protected ConfigHelper config = new ConfigHelper();
-
 	private Log log = LogFactory.getLog(getClass());
 	private String prefix = "/git";
 
 	public void setupRelease(String release) {
-		String localPath = config.getValidationSoftwarePath() + prefix + "/" + release;
-		log.debug(config);
+		String localPath = ConfigHelper.getValidationSoftwarePath() + prefix + "/" + release;
+
 		File f = new File(localPath);
 
 		if(f.exists() && f.isDirectory()) {
@@ -37,7 +35,7 @@ public class GitHelper {
 
 	public File getFile(String release, String filePath) {
 		setupRelease(release);
-		String path = config.getValidationSoftwarePath() + prefix + "/" + release;
+		String path = ConfigHelper.getValidationSoftwarePath() + prefix + "/" + release;
 		log.debug("Validation File: " + path + filePath);
 		return new File(path + filePath);
 	}

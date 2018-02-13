@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
+import org.alliancegenome.shared.config.ConfigHelper;
 import org.alliancegenome.shared.es.dao.ESDAO;
 import org.alliancegenome.shared.es.model.query.Pagination;
 import org.alliancegenome.shared.es.model.query.SortBy;
@@ -29,7 +30,9 @@ public class DiseaseDAO extends ESDAO {
 
 	private Log log = LogFactory.getLog(getClass());
 
-	private static Map<SortBy, String> sortByMao = new LinkedHashMap<>();
+
+	private static Map<SortBy, String> sortByMao = new LinkedHashMap<>(); 
+
 	{
 		sortByMao.put(SortBy.DISEASE, "diseaseName.keyword");
 		sortByMao.put(SortBy.SPECIES, "disease_species.orderID");
@@ -55,7 +58,7 @@ public class DiseaseDAO extends ESDAO {
 		SearchRequestBuilder searchRequestBuilder = searchClient.prepareSearch();
 
 		//searchRequestBuilder.setExplain(true);
-		searchRequestBuilder.setIndices(config.getEsIndex());
+		searchRequestBuilder.setIndices(ConfigHelper.getEsIndex());
 
 		// match on all disease terms who are the term or a child term
 		// child terms have the parent Term ID in the field parentDiseaseIDs
@@ -76,8 +79,8 @@ public class DiseaseDAO extends ESDAO {
 					.filter(entry -> !entry.getKey().equals(sortBy))
 					.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 			newMap.forEach((sortColumn, s) ->
-					searchRequestBuilder.addSort(SortBuilders.fieldSort(sortByMao.get(sortColumn)).order(getAscending(pagination.getAsc())))
-			);
+			searchRequestBuilder.addSort(SortBuilders.fieldSort(sortByMao.get(sortColumn)).order(getAscending(pagination.getAsc())))
+					);
 		}
 
 		searchRequestBuilder.setQuery(query);
@@ -95,9 +98,9 @@ public class DiseaseDAO extends ESDAO {
 		ArrayList<Map<String, Object>> ret = new ArrayList<>();
 
 		for (SearchHit hit : response.getHits()) {
-			hit.getSource().put("id", hit.getId());
+			hit.getSourceAsMap().put("id", hit.getId());
 			//hit.getSource().put("explain", hit.getExplanation());
-			ret.add(hit.getSource());
+			ret.add(hit.getSourceAsMap());
 		}
 		log.debug("Finished Formatting Results: ");
 		return ret;
@@ -118,7 +121,7 @@ public class DiseaseDAO extends ESDAO {
 			GetRequest request = new GetRequest();
 			request.id(id);
 			request.type("disease");
-			request.index(config.getEsIndex());
+			request.index(ConfigHelper.getEsIndex());
 			GetResponse res = searchClient.get(request).get();
 			//log.info(res);
 			return res.getSource();

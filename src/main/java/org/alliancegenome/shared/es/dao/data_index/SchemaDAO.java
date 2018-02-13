@@ -1,7 +1,5 @@
 package org.alliancegenome.shared.es.dao.data_index;
 
-import javax.annotation.PostConstruct;
-
 import org.alliancegenome.shared.es.dao.ESDocumentDAO;
 import org.alliancegenome.shared.es.document.data_index.SchemaDocument;
 import org.alliancegenome.shared.github.GithubRESTAPI;
@@ -15,12 +13,6 @@ public class SchemaDAO extends ESDocumentDAO<SchemaDocument> {
 
 	private GithubRESTAPI githubAPI = new GithubRESTAPI();
 
-	@PostConstruct
-	public void init() {
-		super.init();
-		checkIndex(config.getEsDataIndex());
-	}
-	
 	public SchemaDocument getLatestSchemaVersion() {
 		GithubRelease githubLatestRelease = githubAPI.getLatestRelease("agr_schemas");
 		log.debug("Getting Latest Schema Version");

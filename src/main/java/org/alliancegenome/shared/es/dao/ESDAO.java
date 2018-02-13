@@ -16,25 +16,25 @@ import org.elasticsearch.transport.client.PreBuiltTransportClient;
 
 public class ESDAO {
 
-	protected ConfigHelper config = new ConfigHelper();
-
 	private Log log = LogFactory.getLog(getClass());
-	
+
 	protected static PreBuiltTransportClient searchClient = null; // Make sure to only have 1 of these clients to save on resources
 
-	public void init() {
-		log.info("Creating New ES Client");
+	public ESDAO() {
+		init();
+	}
 
+	public void init() {
 		if(searchClient == null) {
 			searchClient = new PreBuiltTransportClient(Settings.EMPTY);
 			try {
-				if(config.getEsHost().contains(",")) {
-					String[] hosts = config.getEsHost().split(",");
+				if(ConfigHelper.getEsHost().contains(",")) {
+					String[] hosts = ConfigHelper.getEsHost().split(",");
 					for(String host: hosts) {
-						searchClient.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(host), config.getEsPort()));
+						searchClient.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(host), ConfigHelper.getEsPort()));
 					}
 				} else {
-					searchClient.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(config.getEsHost()), config.getEsPort()));
+					searchClient.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(ConfigHelper.getEsHost()), ConfigHelper.getEsPort()));
 				}
 			} catch (UnknownHostException e) {
 				e.printStackTrace();
@@ -55,8 +55,8 @@ public class ESDAO {
 			if(!res.isExists()) {
 				log.info(index + " not found creating it");
 				Settings settings = Settings.builder()
-					.put("index.number_of_replicas", 0)
-					.build();
+						.put("index.number_of_replicas", 0)
+						.build();
 				searchClient.admin().indices().create(new CreateIndexRequest(index).settings(settings)).get();
 			}
 		} catch (InterruptedException e) {

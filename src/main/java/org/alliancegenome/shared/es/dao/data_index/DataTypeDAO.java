@@ -1,5 +1,6 @@
 package org.alliancegenome.shared.es.dao.data_index;
 
+import org.alliancegenome.shared.config.ConfigHelper;
 import org.alliancegenome.shared.es.dao.ESDocumentDAO;
 import org.alliancegenome.shared.es.document.data_index.DataTypeDocument;
 import org.apache.commons.logging.Log;
@@ -10,9 +11,8 @@ public class DataTypeDAO extends ESDocumentDAO<DataTypeDocument> {
 
 	private Log log = LogFactory.getLog(getClass());
 	
-	public void init() {
-		super.init();
-		checkIndex(config.getEsDataIndex());
+	public DataTypeDAO() {
+		checkIndex(ConfigHelper.getEsDataIndex());
 		checkDataTypes();
 	}
 

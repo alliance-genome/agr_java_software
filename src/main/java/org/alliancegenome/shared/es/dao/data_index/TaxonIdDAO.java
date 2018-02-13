@@ -1,24 +1,21 @@
 package org.alliancegenome.shared.es.dao.data_index;
 
-import javax.annotation.PostConstruct;
-
+import org.alliancegenome.shared.config.ConfigHelper;
 import org.alliancegenome.shared.es.dao.ESDocumentDAO;
 import org.alliancegenome.shared.es.document.data_index.TaxonIdDocument;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import java.util.logging.Logger;
 
 public class TaxonIdDAO extends ESDocumentDAO<TaxonIdDocument> {
 
-	private Log log = LogFactory.getLog(getClass());
-
-	public void init() {
-		super.init();
-		checkIndex(config.getEsDataIndex());
+	private Logger log = Logger.getLogger(getClass().getName());
+	
+	public TaxonIdDAO() {
+		checkIndex(ConfigHelper.getEsDataIndex());
 		checkTaxonIds();
 	}
 
 	public TaxonIdDocument getTaxonIdDocument(String string) {
-		log.debug("Getting TaxonId: " + string);
+		log.fine("Getting TaxonId: " + string);
 		if(Mod.fromTaxonId(string) != null) {
 			string = Mod.fromTaxonId(string).taxonId;
 		}
@@ -33,10 +30,10 @@ public class TaxonIdDAO extends ESDocumentDAO<TaxonIdDocument> {
 
 	private void checkTaxonIds() {
 		for(Mod m: Mod.values()) {
-			log.debug("TaxonId: " + m.taxonId);
+			log.fine("TaxonId: " + m.taxonId);
 			TaxonIdDocument taxonId = getTaxonIdDocument(m.taxonId);
 			if(taxonId == null) {
-				log.debug("Creating TaxonId in ES: " + taxonId);
+				log.fine("Creating TaxonId in ES: " + taxonId);
 				taxonId = new TaxonIdDocument();
 				taxonId.setDescription(m.description);
 				taxonId.setModName(m.name());

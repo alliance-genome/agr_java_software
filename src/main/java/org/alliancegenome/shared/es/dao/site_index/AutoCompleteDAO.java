@@ -3,6 +3,7 @@ package org.alliancegenome.shared.es.dao.site_index;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.alliancegenome.shared.config.ConfigHelper;
 import org.alliancegenome.shared.es.dao.ESDAO;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
@@ -22,7 +23,7 @@ public class AutoCompleteDAO extends ESDAO {
 	public SearchResponse performQuery(QueryBuilder query) {
 		SearchRequestBuilder srb = searchClient.prepareSearch();
 		srb.setFetchSource(response_fields.toArray(new String[response_fields.size()]), null);
-		srb.setIndices(config.getEsIndex());
+		srb.setIndices(ConfigHelper.getEsIndex());
 		srb.setQuery(query);
 		SearchResponse res = srb.execute().actionGet();
 		return res;

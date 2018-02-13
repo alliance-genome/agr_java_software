@@ -19,6 +19,7 @@ public class ConfigHelper {
 	private static HashMap<String, String> defaults = new HashMap<>();
 	private static HashMap<String, String> config = new HashMap<>();
 	private static Set<String> allKeys;
+	private static boolean init = false;
 
 	public ConfigHelper() {
 		init();
@@ -79,6 +80,7 @@ public class ConfigHelper {
 			if (config.get(key) == null) config.put(key, loadDefaultProperty(key));
 		}
 		printProperties();
+		init = true;
 	}
 
 	private static String loadSystemProperty(String key) {
@@ -106,9 +108,11 @@ public class ConfigHelper {
 	}
 
 	public static String getEsHost() {
+		if(!init) init();
 		return config.get("ES_HOST");
 	}
 	public static int getEsPort() {
+		if(!init) init();
 		try {
 			return Integer.parseInt(config.get("ES_PORT"));
 		} catch (NumberFormatException e) {
@@ -116,9 +120,11 @@ public class ConfigHelper {
 		}
 	}
 	public static String getNeo4jHost() {
+		if(!init) init();
 		return config.get("NEO4J_HOST");
 	}
 	public static int getNeo4jPort() {
+		if(!init) init();
 		try {
 			return Integer.parseInt(config.get("NEO4J_PORT"));
 		} catch (NumberFormatException e) {
@@ -126,41 +132,54 @@ public class ConfigHelper {
 		}
 	}
 	public static boolean isThreaded() {
+		if(!init) init();
 		return Boolean.parseBoolean(config.get("THREADED"));
 	}
 	public static String getEsIndexSuffix() {
+		if(!init) init();
 		return config.get("ES_INDEX_SUFFIX");
 	}
 	public static String getAWSAccessKey() {
+		if(!init) init();
 		return config.get("AWS_ACCESS_KEY");
 	}
 	public static String getAWSSecretKey() {
+		if(!init) init();
 		return config.get("AWS_SECRET_KEY");
 	}
-	public String getEsIndex() {
+	public static String getEsIndex() {
+		if(!init) init();
 		return config.get("ES_INDEX");
 	}
-	public String getEsDataIndex() {
+	public static String getEsDataIndex() {
+		if(!init) init();
 		return config.get("ES_DATA_INDEX");
 	}
-	public String getApiAccessToken() {
+	public static String getApiAccessToken() {
+		if(!init) init();
 		return config.get("API_ACCESS_TOKEN");
 	}
-	public Date getAppStart() {
+	public static Date getAppStart() {
+		if(!init) init();
 		return appStart;
 	}
-	public boolean getDebug() {
+	public static boolean getDebug() {
+		if(!init) init();
 		return Boolean.parseBoolean(config.get("DEBUG"));
 	}
-	public String getAWSBucketName() {
+	public static String getAWSBucketName() {
+		if(!init) init();
 		return config.get("AWS_BUCKET_NAME");
 	}
-	public String getValidationSoftwarePath() {
+	public static String getValidationSoftwarePath() {
+		if(!init) init();
 		return System.getProperty("java.io.tmpdir");
 	}
 	public static boolean hasEsIndexSuffix() {
+		if(!init) init();
 		return (ConfigHelper.getEsIndexSuffix() != null && !ConfigHelper.getEsIndexSuffix().equals("") && ConfigHelper.getEsIndexSuffix().length() > 0);
 	}
+	
 	public static void printProperties() {
 		log.info("Running with Properties:");
 		for (String key : allKeys) {
