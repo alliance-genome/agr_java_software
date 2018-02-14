@@ -64,7 +64,7 @@ public class GoIndexer extends Indexer<GoDocument> {
                 } else {
                     log.debug("No go term found for " + key);
                 }
-            } catch (InterruptedException e) {
+            } catch (Exception e) {
                 log.error("Error while indexing...", e);
                 return;
             }

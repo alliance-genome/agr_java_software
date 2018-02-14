@@ -63,7 +63,7 @@ public class DiseaseAnnotationIndexer extends Indexer<DiseaseAnnotationDocument>
                 if (disease != null) {
                     list.add(disease);
                 }
-            } catch (InterruptedException e) {
+            } catch (Exception e) {
                 log.error("Error while indexing...", e);
                 return;
             }
