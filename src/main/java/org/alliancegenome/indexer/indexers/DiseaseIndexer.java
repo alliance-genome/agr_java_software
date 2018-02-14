@@ -36,7 +36,7 @@ public class DiseaseIndexer extends Indexer<DiseaseDocument> {
 
     protected void startSingleThread(LinkedBlockingDeque<String> queue) {
         DiseaseTranslator diseaseTrans = new DiseaseTranslator();
-        ArrayList<DOTerm> list = new ArrayList<>();
+        List<DOTerm> list = new ArrayList<>();
         DiseaseRepository repo = new DiseaseRepository(); // Due to repo not being thread safe
         while (true) {
             try {

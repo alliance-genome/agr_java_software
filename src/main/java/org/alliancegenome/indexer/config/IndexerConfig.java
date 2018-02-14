@@ -12,7 +12,7 @@ public enum IndexerConfig {
 
     GeneIndexer("gene", GeneIndexer.class, GeneMappings.class, 4, 500),
     DiseaseIndexer("disease", DiseaseIndexer.class, DiseaseMappings.class, 2, 500),
-    DiseaseAnnotationIndexer("diseaseAnnotation", DiseaseAnnotationIndexer.class, DiseaseMappings.class, 2, 500),
+    DiseaseAnnotationIndexer("diseaseAnnotation", DiseaseAnnotationIndexer.class, DiseaseMappings.class, 2, 300),
     GoIndexer("go", GoIndexer.class, GoMappings.class, 3, 500),;
 
     private String typeName;

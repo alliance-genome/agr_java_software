@@ -37,7 +37,7 @@ public class DiseaseAnnotationIndexer extends Indexer<DiseaseAnnotationDocument>
     }
 
     protected void startSingleThread(LinkedBlockingDeque<String> queue) {
-        ArrayList<DOTerm> list = new ArrayList<>();
+        List<DOTerm> list = new ArrayList<>();
         DiseaseRepository repo = new DiseaseRepository();
         DiseaseTranslator diseaseTrans = new DiseaseTranslator();
 
@@ -59,7 +59,7 @@ public class DiseaseAnnotationIndexer extends Indexer<DiseaseAnnotationDocument>
                 }
 
                 String key = queue.takeFirst();
-                DOTerm disease = repo.getDiseaseTermWithAnnotations(key);
+                DOTerm disease = repo.getDiseaseTerm(key);
                 if (disease != null) {
                     list.add(disease);
                 }
