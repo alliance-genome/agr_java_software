@@ -62,7 +62,7 @@ public class GeneIndexer extends Indexer<GeneDocument> {
                     list.add(gene);
                 else
                     log.debug("No disease found for " + key);
-            } catch (InterruptedException e) {
+            } catch (Exception e) {
                 log.error("Error while indexing...", e);
                 return;
             }
