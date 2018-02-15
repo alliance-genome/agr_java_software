@@ -11,6 +11,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.LinkedBlockingDeque;
 
 public class DiseaseAnnotationIndexer extends Indexer<DiseaseAnnotationDocument> {
@@ -26,7 +27,7 @@ public class DiseaseAnnotationIndexer extends Indexer<DiseaseAnnotationDocument>
         DiseaseRepository diseaseRepository = new DiseaseRepository();
         try {
             LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>();
-            List<String> allDiseaseIDs = diseaseRepository.getAllDiseaseWithAnnotationsKeys();
+            Set<String> allDiseaseIDs = diseaseRepository.getAllDiseaseWithAnnotationsKeys();
             queue.addAll(allDiseaseIDs);
             diseaseRepository.clearCache();
             initiateThreading(queue);
@@ -44,14 +45,14 @@ public class DiseaseAnnotationIndexer extends Indexer<DiseaseAnnotationDocument>
         while (true) {
             try {
                 if (list.size() >= indexerConfig.getBufferSize()) {
-                    addDocuments(diseaseTrans.translateAnnotationEntities(list, 1));
+                    saveDocuments(diseaseTrans.translateAnnotationEntities(list, 1));
                     repo.clearCache();
                     list.clear();
                     list = new ArrayList<>();
                 }
                 if (queue.isEmpty()) {
                     if (list.size() > 0) {
-                        addDocuments(diseaseTrans.translateAnnotationEntities(list, 1));
+                        saveDocuments(diseaseTrans.translateAnnotationEntities(list, 1));
                         list.clear();
                         repo.clearCache();
                     }
