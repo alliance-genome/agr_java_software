@@ -41,13 +41,13 @@ public class DiseaseIndexer extends Indexer<DiseaseDocument> {
         while (true) {
             try {
                 if (list.size() >= indexerConfig.getBufferSize()) {
-                    addDocuments(diseaseTrans.translateEntities(list));
+                    saveDocuments(diseaseTrans.translateEntities(list));
                     list.clear();
                     repo.clearCache();
                 }
                 if (queue.isEmpty()) {
                     if (list.size() > 0) {
-                        addDocuments(diseaseTrans.translateEntities(list));
+                        saveDocuments(diseaseTrans.translateEntities(list));
                         list.clear();
                         repo.clearCache();
                     }

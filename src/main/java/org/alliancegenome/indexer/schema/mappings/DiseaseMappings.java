@@ -20,11 +20,11 @@ public class DiseaseMappings extends Mappings {
 
             buildSharedSearchableDocumentMappings();
 
-            buildGenericField("geneDocument.symbol", "string", null, false, false, true, false);
+            buildGenericField("geneDocument.symbol", "text", null, false, false, true, false);
             buildGenericField("disease_species.orderID", "long", null, false, false, true, false);
-            buildGenericField("diseaseID", "string", null, false, false, true, false);
-            buildGenericField("diseaseName", "string", null, false, false, true, false);
-            buildGenericField("parentDiseaseIDs", "string", null, false, false, true, false);
+            buildGenericField("diseaseID", "keyword", null, false, false, true, false);
+            buildGenericField("diseaseName", "text", null, false, false, true, false);
+            buildGenericField("parentDiseaseIDs", "keyword", null, false, false, true, false);
 
             builder.endObject();
 

@@ -123,14 +123,14 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
         return list;
     }
 
-    public List<String> getAllDiseaseWithAnnotationsKeys() {
+    public Set<String> getAllDiseaseWithAnnotationsKeys() {
         String query = "MATCH (term:DOTerm)-[q:ASSOCIATION]-(dej:DiseaseEntityJoin) WHERE term.is_obsolete='false' " +
-                "RETURN term.primaryKey";
+                " and  term.primaryKey = 'DOID:0050700' RETURN term.primaryKey";
 
         Result r = queryForResult(query);
         Iterator<Map<String, Object>> i = r.iterator();
 
-        ArrayList<String> list = new ArrayList<>();
+        Set<String> list = new HashSet<>();
 
         while (i.hasNext()) {
             Map<String, Object> map2 = i.next();

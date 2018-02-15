@@ -43,14 +43,14 @@ public class GoIndexer extends Indexer<GoDocument> {
         while (true) {
             try {
                 if (list.size() >= indexerConfig.getBufferSize()) {
-                    addDocuments(goTrans.translateEntities(list));
+                    saveDocuments(goTrans.translateEntities(list));
                     repo.clearCache();
                     list.clear();
                     list = new ArrayList<>();
                 }
                 if (queue.isEmpty()) {
                     if (list.size() > 0) {
-                        addDocuments(goTrans.translateEntities(list));
+                        saveDocuments(goTrans.translateEntities(list));
                         repo.clearCache();
                         list.clear();
                     }

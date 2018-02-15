@@ -77,13 +77,13 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
     }
 
 
-    public void addDocument(D doc) {
+    public void saveDocuments(D doc) {
         ArrayList<D> docs = new ArrayList<>();
         docs.add(doc);
-        addDocuments(docs);
+        saveDocuments(docs);
     }
 
-    public void addDocuments(Iterable<D> docs) {
+    public void saveDocuments(Iterable<D> docs) {
         checkMemory();
 
         if (((Collection<D>) docs).size() > 0) {
