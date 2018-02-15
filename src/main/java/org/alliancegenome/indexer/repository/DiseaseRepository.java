@@ -125,7 +125,7 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
 
     public Set<String> getAllDiseaseWithAnnotationsKeys() {
         String query = "MATCH (term:DOTerm)-[q:ASSOCIATION]-(dej:DiseaseEntityJoin) WHERE term.is_obsolete='false' " +
-                " and  term.primaryKey = 'DOID:0050700' RETURN term.primaryKey";
+                " RETURN term.primaryKey";
 
         Result r = queryForResult(query);
         Iterator<Map<String, Object>> i = r.iterator();
