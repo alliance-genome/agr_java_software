@@ -52,9 +52,6 @@ public class Gene extends Neo4jEntity implements Comparable<Gene> {
     @Relationship(type = "ANNOTATED_TO")
     private Set<GOTerm> gOTerms = new HashSet<>();
 
-    @Relationship(type = "IS_IMPLICATED_IN")
-    private Set<DOTerm> dOTerms = new HashSet<>();
-
     @Relationship(type = "ORTHOLOGOUS", direction = Relationship.OUTGOING)
     private List<Orthologous> orthoGenes;
 
@@ -68,7 +65,8 @@ public class Gene extends Neo4jEntity implements Comparable<Gene> {
     private List<Feature> features;
 
     @Relationship(type = "ASSOCIATION", direction = Relationship.UNDIRECTED)
-    private List<DiseaseEntityJoin> diseaseGeneJoins = new ArrayList<>();
+    private List<DiseaseEntityJoin> diseaseEntityJoins = new ArrayList<>();
+
     @Relationship(type = "ASSOCIATION", direction = Relationship.UNDIRECTED)
     private List<OrthologyGeneJoin> orthologyGeneJoins = new ArrayList<>();
 
