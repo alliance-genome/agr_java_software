@@ -3,3 +3,4 @@ target
 *.swp
 app.properties
 audit.log
+.tern-project
