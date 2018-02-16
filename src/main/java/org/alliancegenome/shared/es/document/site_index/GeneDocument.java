@@ -10,7 +10,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Getter @Setter
-public class GeneDocument extends ESDocument {
+public class GeneDocument extends SearchableItem {
 
 	private String category = "gene";
 	private String href;
@@ -45,7 +45,9 @@ public class GeneDocument extends ESDocument {
 	private String modLocalId;
 	private String modGlobalCrossRefId;
 	private String modGlobalId;
-
+	
+	private List<FeatureDocument> alleles;
+	
 	@Override
 	@JsonIgnore
 	public String getDocumentId() {

@@ -9,7 +9,6 @@ import java.util.Map;
 import org.alliancegenome.shared.neo4j.entity.node.GOTerm;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.neo4j.ogm.exception.MappingException;
 import org.neo4j.ogm.model.Result;
 
 public class GoRepository extends Neo4jRepository<GOTerm> {
@@ -42,17 +41,12 @@ public class GoRepository extends Neo4jRepository<GOTerm> {
 		String query = "MATCH p0=(go:GOTerm)-[:ANNOTATED_TO]-(:Gene)-[:FROM_SPECIES]-(:Species) WHERE go.primaryKey = {primaryKey}" +
 				" OPTIONAL MATCH p1=(go)-[:ALSO_KNOWN_AS]-(:Synonym)";
 		query += " RETURN p0, p1";
-		try {
-			Iterable<GOTerm> gots = query(query, map);
-			for(GOTerm g: gots) {
-				if(g.getPrimaryKey().equals(primaryKey)) {
-					return g;
-				}
+
+		Iterable<GOTerm> gots = query(query, map);
+		for(GOTerm g: gots) {
+			if(g.getPrimaryKey().equals(primaryKey)) {
+				return g;
 			}
-		} catch (MappingException e) {
-			log.error("Query: " + query);
-			log.error("Map: " + map);
-			e.printStackTrace();
 		}
 
 		return null;

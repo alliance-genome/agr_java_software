@@ -15,6 +15,7 @@ public class AnnotationDocument extends ESDocument implements Comparable<Annotat
 	private String associationType;
 	private SourceDoclet source;
 	private GeneDocument geneDocument;
+	private FeatureDocument featureDocument;
 	private List<PublicationDoclet> publications;
 
 	@JsonIgnore

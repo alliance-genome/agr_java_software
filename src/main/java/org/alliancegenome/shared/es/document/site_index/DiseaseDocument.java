@@ -14,7 +14,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class DiseaseDocument extends ESDocument {
+public class DiseaseDocument extends SearchableItem {
 
 	private String doId;
 	private String primaryKey;

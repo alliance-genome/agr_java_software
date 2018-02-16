@@ -3,6 +3,7 @@ package org.alliancegenome.shared.neo4j.repository;
 import java.util.Collections;
 import java.util.Map;
 
+import org.neo4j.ogm.cypher.ComparisonOperator;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.query.Pagination;
 import org.neo4j.ogm.model.Result;
@@ -35,6 +36,13 @@ public class Neo4jRepository<E> {
 		neo4jSession.clear();
 	}
 
+	public Iterable<E> getEntity(String key, String value) {
+		return neo4jSession.loadAll(entityTypeClazz, new Filter(key, ComparisonOperator.EQUALS, value));
+	}
+	public E getSingleEntity(String primaryKey) {
+		return neo4jSession.load(entityTypeClazz, primaryKey);
+	}
+
 	public Long queryCount(String cypherQuery) {
 		return (Long) neo4jSession.query(cypherQuery, Collections.EMPTY_MAP ).iterator().next().values().iterator().next();
 	}
@@ -48,13 +56,5 @@ public class Neo4jRepository<E> {
 		return neo4jSession.query(cypherQuery, Collections.EMPTY_MAP);
 	}
 
-	//	public Iterable<E> findAll() {
-	//		return neo4jSession.loadAll(entityTypeClazz);
-	//		//loadAll(entityTypeClazz, DEPTH_LIST);
-	//	}
-	//
-	//	public E find(Long id) {
-	//		return neo4jSession.load(entityTypeClazz, id);
-	//	}
 
 }

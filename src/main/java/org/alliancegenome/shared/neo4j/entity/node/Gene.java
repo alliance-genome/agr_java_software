@@ -70,6 +70,9 @@ public class Gene extends Neo4jEntity implements Comparable<Gene> {
 	@Relationship(type = "CROSS_REFERENCE")
 	private List<CrossReference> crossReferences;
 
+	@Relationship(type = "IS_ALLELE_OF", direction = Relationship.INCOMING)
+	private List<Feature> features;
+	
 	@Relationship(type = "ASSOCIATION", direction = Relationship.UNDIRECTED)
 	private List<DiseaseGeneJoin> diseaseGeneJoins = new ArrayList<DiseaseGeneJoin>();
 	@Relationship(type = "ASSOCIATION", direction = Relationship.UNDIRECTED)

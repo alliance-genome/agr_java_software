@@ -8,7 +8,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Getter @Setter
-public class GoDocument extends ESDocument {
+public class GoDocument extends SearchableItem {
 
 	private String primaryId;
 	private String category = "go";
