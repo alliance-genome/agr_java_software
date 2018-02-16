@@ -27,4 +27,7 @@ public class DiseaseEntityJoin extends Association {
     @Relationship(type = "ASSOCIATION", direction = Relationship.INCOMING)
     private Feature feature;
 
+    @Relationship(type = "ASSOCIATION")
+    private DOTerm disease;
+
 }
