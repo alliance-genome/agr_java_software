@@ -5,7 +5,9 @@ import org.alliancegenome.shared.es.document.site_index.DiseaseAnnotationDocumen
 import org.alliancegenome.shared.es.document.site_index.DiseaseDocument;
 import org.alliancegenome.shared.es.document.site_index.FeatureDocument;
 import org.alliancegenome.shared.neo4j.entity.node.DOTerm;
+import org.alliancegenome.shared.neo4j.entity.node.Feature;
 import org.alliancegenome.shared.neo4j.repository.DiseaseRepository;
+import org.alliancegenome.shared.neo4j.repository.FeatureRepository;
 import org.alliancegenome.shared.neo4j.repository.Neo4jRepository;
 import org.alliancegenome.shared.neo4j.repository.FeatureRepository;
 import org.alliancegenome.shared.neo4j.repository.GeneRepository;
