@@ -1,12 +1,16 @@
 package org.alliancegenome.indexer;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.alliancegenome.indexer.config.ConfigHelper;
 import org.alliancegenome.indexer.document.DiseaseAnnotationDocument;
 import org.alliancegenome.indexer.document.DiseaseDocument;
 import org.alliancegenome.indexer.entity.node.DOTerm;
-import org.alliancegenome.indexer.entity.node.Feature;
+import org.alliancegenome.indexer.entity.node.DiseaseEntityJoin;
+import org.alliancegenome.indexer.entity.node.Gene;
+import org.alliancegenome.indexer.entity.node.Publication;
 import org.alliancegenome.indexer.repository.DiseaseRepository;
 import org.alliancegenome.indexer.repository.FeatureRepository;
+import org.alliancegenome.indexer.repository.GeneRepository;
 import org.alliancegenome.indexer.repository.Neo4jRepository;
 import org.alliancegenome.indexer.translators.DiseaseTranslator;
 import org.apache.logging.log4j.Level;
@@ -14,13 +18,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.config.Configurator;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class DiseaseTest {
@@ -34,6 +35,7 @@ public class DiseaseTest {
 
         DiseaseRepository diseaseRepository = new DiseaseRepository();
         FeatureRepository featureRepository = new FeatureRepository();
+        GeneRepository geneRepository = new GeneRepository();
 /*
         Iterable<DOTerm> disease_entities = neo4jService.getPage(0, 1000, 3);
 
@@ -48,6 +50,15 @@ public class DiseaseTest {
 
         DiseaseTranslator translator = new DiseaseTranslator();
         //Feature feature = featureRepository.getFeature("ZFIN:ZDB-ALT-980203-985");
+
+        Gene gene = geneRepository.getOneGene("MGI:94909");
+
+
+        Map<DOTerm, List<DiseaseEntityJoin>> map = gene.getDiseaseEntityJoins().stream()
+                .collect(Collectors.groupingBy(o -> o.getDisease()));
+
+        Map<Publication, List<DiseaseEntityJoin>> mapPub = gene.getDiseaseEntityJoins().stream()
+                .collect(Collectors.groupingBy(o -> o.getPublication()));
 
         DOTerm diseaseTerm = diseaseRepository.getDiseaseTerm("DOID:0050700");
         DOTerm diseaseTerm1 = diseaseRepository.getDiseaseTermWithAnnotations("DOID:0050700");
@@ -71,7 +82,6 @@ public class DiseaseTest {
 
         String cypher = "match (n:Gene)-[*]->(d:DOTerm) return n, d";
         //geneDiseaseList = (List<DOTerm>) neo4jService.query(cypher);
-
 
 
         //List<DOTerm> fullTerms = geneDiseaseList1.stream()

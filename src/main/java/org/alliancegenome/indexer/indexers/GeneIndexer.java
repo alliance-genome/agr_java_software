@@ -64,6 +64,7 @@ public class GeneIndexer extends Indexer<GeneDocument> {
                     log.debug("No disease found for " + key);
             } catch (Exception e) {
                 log.error("Error while indexing...", e);
+                System.exit(-1);
                 return;
             }
         }
