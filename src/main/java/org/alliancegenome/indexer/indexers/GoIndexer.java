@@ -66,6 +66,7 @@ public class GoIndexer extends Indexer<GoDocument> {
                 }
             } catch (Exception e) {
                 log.error("Error while indexing...", e);
+                System.exit(-1);
                 return;
             }
         }
