@@ -1,13 +1,15 @@
 package org.alliancegenome.indexer.translators;
 
-import java.util.ArrayList;
-
 import org.alliancegenome.indexer.document.FeatureDocument;
 import org.alliancegenome.indexer.entity.node.Feature;
 import org.alliancegenome.indexer.entity.node.SecondaryId;
 import org.alliancegenome.indexer.entity.node.Synonym;
 
+import java.util.ArrayList;
+
 public class FeatureTranslator extends EntityDocumentTranslator<Feature, FeatureDocument> {
+
+    private final GeneTranslator geneTranslator = new GeneTranslator();
 
     @Override
     protected FeatureDocument entityToDocument(Feature entity, int translationDepth) {
@@ -22,7 +24,7 @@ public class FeatureTranslator extends EntityDocumentTranslator<Feature, Feature
         featureDocument.setRelease(entity.getRelease());
         featureDocument.setSymbol(entity.getSymbol());
 
-        if(translationDepth > 0) {
+        if (translationDepth > 0) {
 
             // This code is duplicated in Gene and Feature should be pulled out into its own translator
             ArrayList<String> secondaryIds = new ArrayList<>();
@@ -45,8 +47,10 @@ public class FeatureTranslator extends EntityDocumentTranslator<Feature, Feature
                 }
             }
             featureDocument.setSynonyms(synonyms);
+            featureDocument.setGeneDocument(geneTranslator.translate(entity.getGene(), translationDepth - 1));
 
         }
+
 
         return featureDocument;
     }

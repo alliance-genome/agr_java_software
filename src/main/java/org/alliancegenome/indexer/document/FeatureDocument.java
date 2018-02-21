@@ -1,12 +1,11 @@
 package org.alliancegenome.indexer.document;
 
-import java.util.Date;
-import java.util.List;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.Date;
+import java.util.List;
 
 @Getter
 @Setter
@@ -23,6 +22,9 @@ public class FeatureDocument extends ESDocument {
 
     private List<String> secondaryIds;
     private List<String> synonyms;
+    private GeneDocument geneDocument;
+    private List<DiseaseDocument> diseaseDocuments;
+
 
     @Override
     @JsonIgnore
