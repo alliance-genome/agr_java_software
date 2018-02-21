@@ -216,7 +216,7 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
             geneDocument.setCrossReferences(crlist);
         }
 
-        if (entity.getFeatures() != null) {
+        if (entity.getFeatures() != null && translationDepth > 0) {
             geneDocument.setAlleles((List<FeatureDocument>) alleleTranslator.translateEntities(entity.getFeatures()));
         }
 
