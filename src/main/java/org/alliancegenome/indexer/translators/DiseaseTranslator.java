@@ -55,6 +55,28 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
         return doc;
     }
 
+    List<DiseaseDocument> getDiseaseDocuments(Gene entity, List<DiseaseEntityJoin> diseaseJoins, int translationDepth) {
+        // group by disease
+        Map<DOTerm, List<DiseaseEntityJoin>> diseaseMap = diseaseJoins.stream()
+                .collect(Collectors.groupingBy(DiseaseEntityJoin::getDisease));
+        List<DiseaseDocument> diseaseList = new ArrayList<>();
+        // for each disease create annotation doc
+        // diseaseEntityJoin list turns into AnnotationDocument objects
+        diseaseMap.forEach((doTerm, diseaseEntityJoins) -> {
+            if (translationDepth > 0) {
+                try {
+                    DiseaseDocument doc = entityToDocument(doTerm, entity, diseaseEntityJoins, translationDepth - 1); // This needs to not happen if being called from DiseaseTranslator
+                    if (!diseaseList.contains(doc))
+                        diseaseList.add(doc);
+                } catch (Exception e) {
+                    log.error("Exception Creating Disease Document: " + e.getMessage());
+                }
+            }
+
+        });
+        return diseaseList;
+    }
+
     private List<AnnotationDocument> generateAnnotationDocument(DOTerm entity, int translationDepth, Map<Gene, Map<String, List<DiseaseEntityJoin>>> sortedGeneAssociationMap) {
         // generate AnnotationDocument records
         return sortedGeneAssociationMap.entrySet().stream()

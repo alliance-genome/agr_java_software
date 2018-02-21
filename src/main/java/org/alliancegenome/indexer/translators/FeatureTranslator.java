@@ -1,15 +1,19 @@
 package org.alliancegenome.indexer.translators;
 
+import org.alliancegenome.indexer.document.DiseaseDocument;
 import org.alliancegenome.indexer.document.FeatureDocument;
 import org.alliancegenome.indexer.entity.node.Feature;
 import org.alliancegenome.indexer.entity.node.SecondaryId;
 import org.alliancegenome.indexer.entity.node.Synonym;
+import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class FeatureTranslator extends EntityDocumentTranslator<Feature, FeatureDocument> {
 
     private final GeneTranslator geneTranslator = new GeneTranslator();
+    private static DiseaseTranslator diseaseTranslator = new DiseaseTranslator();
 
     @Override
     protected FeatureDocument entityToDocument(Feature entity, int translationDepth) {
@@ -48,9 +52,11 @@ public class FeatureTranslator extends EntityDocumentTranslator<Feature, Feature
             }
             featureDocument.setSynonyms(synonyms);
             featureDocument.setGeneDocument(geneTranslator.translate(entity.getGene(), translationDepth - 1));
-
         }
-
+        if (CollectionUtils.isNotEmpty(entity.getDiseaseEntityJoins())) {
+            List<DiseaseDocument> diseaseList = diseaseTranslator.getDiseaseDocuments(entity.getGene(), entity.getDiseaseEntityJoins(), translationDepth);
+            featureDocument.setDiseaseDocuments(diseaseList);
+        }
 
         return featureDocument;
     }

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -23,7 +24,7 @@ public class FeatureDocument extends ESDocument {
     private List<String> secondaryIds;
     private List<String> synonyms;
     private GeneDocument geneDocument;
-    private List<DiseaseDocument> diseaseDocuments;
+    private List<DiseaseDocument> diseaseDocuments = new ArrayList<>();
 
 
     @Override
