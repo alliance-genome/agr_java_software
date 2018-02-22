@@ -75,6 +75,7 @@ public class Main {
                 indexers.put(ic.getTypeName(), i);
             } catch (Exception e) {
                 e.printStackTrace();
+                System.exit(-1);
             }
         }
         return indexers;
