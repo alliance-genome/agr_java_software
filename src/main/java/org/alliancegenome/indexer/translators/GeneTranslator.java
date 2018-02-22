@@ -10,7 +10,6 @@ import org.apache.logging.log4j.Logger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument> {
@@ -164,24 +163,7 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
         }
 
         if (entity.getDiseaseEntityJoins() != null) {
-            // group by disease
-            Map<DOTerm, List<DiseaseEntityJoin>> diseaseMap = entity.getDiseaseEntityJoins().stream()
-                    .collect(Collectors.groupingBy(DiseaseEntityJoin::getDisease));
-            List<DiseaseDocument> diseaseList = new ArrayList<>();
-            // for each disease create annotation doc
-            // diseaseEntityJoin list turns into AnnotationDocument objects
-            diseaseMap.forEach((doTerm, diseaseEntityJoins) -> {
-                if (translationDepth > 0) {
-                    try {
-                        DiseaseDocument doc = diseaseTranslator.entityToDocument(doTerm, entity, diseaseEntityJoins, translationDepth - 1); // This needs to not happen if being called from DiseaseTranslator
-                        if (!diseaseList.contains(doc))
-                            diseaseList.add(doc);
-                    } catch (Exception e) {
-                        log.error("Exception Creating Disease Document: " + e.getMessage());
-                    }
-                }
-
-            });
+            List<DiseaseDocument> diseaseList = diseaseTranslator.getDiseaseDocuments(entity, entity.getDiseaseEntityJoins(), translationDepth);
             geneDocument.setDiseases(diseaseList);
         }
 
@@ -217,7 +199,11 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
         }
 
         if (entity.getFeatures() != null && translationDepth > 0) {
-            geneDocument.setAlleles((List<FeatureDocument>) alleleTranslator.translateEntities(entity.getFeatures()));
+            List<FeatureDocument> featureList = new ArrayList<>();
+            entity.getFeatures().forEach(feature ->
+                    featureList.add(alleleTranslator.entityToDocument(feature, translationDepth - 1))
+            );
+            geneDocument.setAlleles(featureList);
         }
 
         return geneDocument;
