@@ -25,11 +25,11 @@ public class GeneRepository extends Neo4jRepository<Gene> {
 
         map.put("primaryKey", primaryKey);
         String query = "";
-        query += " MATCH p1=(q:Species)-[:FROM_SPECIES]-(g:Gene)--(s) WHERE g.primaryKey = {primaryKey}";
-        query += " OPTIONAL MATCH p2=(do:DOTerm)--(s:DiseaseEntityJoin)-[:EVIDENCE]-(ea)";
-//        query += " OPTIONAL MATCH p5=(feature:Feature)--(s)--(g)";
-        query += " OPTIONAL MATCH p4=(g)--(s:OrthologyGeneJoin)--(a:OrthoAlgorithm), p3=(g)-[o:ORTHOLOGOUS]-(g2:Gene)-[:FROM_SPECIES]-(q2:Species), (s)--(g2)";
-        query += " RETURN p1, p2, p3, p4";
+        query += " MATCH p1=(q:Species)-[:FROM_SPECIES]-(g:Gene) WHERE g.primaryKey = {primaryKey}";
+        query += " OPTIONAL MATCH p5=(feature:Feature)--(diseaseJoin:DiseaseEntityJoin)--(g)";
+        query += " OPTIONAL MATCH p2=(do:DOTerm)--(diseaseJoin)-[:EVIDENCE]-(ea)";
+        query += " OPTIONAL MATCH p4=(g)--(orthologyJoin:OrthologyGeneJoin)--(a:OrthoAlgorithm), p3=(g)-[o:ORTHOLOGOUS]-(g2:Gene)-[:FROM_SPECIES]-(q2:Species), (orthologyJoin)--(g2)";
+        query += " RETURN p1, p2, p3, p4, p5";
         try {
             Iterable<Gene> genes = query(query, map);
             for(Gene g: genes) {
