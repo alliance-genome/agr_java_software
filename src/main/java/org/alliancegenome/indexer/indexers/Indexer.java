@@ -75,7 +75,8 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
                 try {
                     String json = om.writeValueAsString(doc);
                     //log.debug("JSON: " + json);
-                    bulkRequest.add(client.prepareIndex("site_index", indexerConfig.getTypeName()).setSource(json, XContentType.JSON).setId(doc.getDocumentId()));
+                    
+                    bulkRequest.add(client.prepareIndex(ConfigHelper.getEsIndex(), indexerConfig.getTypeName()).setSource(json, XContentType.JSON).setId(doc.getDocumentId()));
                 } catch (JsonProcessingException e) {
                     e.printStackTrace();
                 }
