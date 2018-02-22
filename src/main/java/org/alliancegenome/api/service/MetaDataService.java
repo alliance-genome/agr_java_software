@@ -68,7 +68,7 @@ public class MetaDataService {
 
         String filePath =
                 schemaVersion.getName() + "/" + dataType.getName() + "/" + taxonId.getTaxonId() + "/" +
-                schemaVersion.getName() + "_" + dataType.getName() + "_" + taxonId.getTaxonId() + "_" + fileIndex + "." + dataType.getFileExtension();
+                        schemaVersion.getName() + "_" + dataType.getName() + "_" + taxonId.getTaxonId() + "_" + fileIndex + "." + dataType.getFileExtension();
 
         s3Helper.saveFile(filePath, bodyString);
         return filePath;
@@ -81,13 +81,29 @@ public class MetaDataService {
     }
 
     private boolean validateData(SchemaDocument schemaVersion, DataTypeDocument dataType, String bodyString) throws GenericException {
-        log.info("Need to validate file: " + schemaVersion + " " + dataType);
+        String schemaVersionName = schemaVersion.getName();
 
-        String dataTypeFilePath = dataType.getSchemaFiles().get(schemaVersion.getName());
+        log.info("Need to validate file: " + schemaVersionName + " " + dataType);
+        String dataTypeFilePath = dataType.getSchemaFiles().get(schemaVersionName);
+
         if(dataTypeFilePath == null) {
-            throw new SchemaDataTypeException("No Schema file for Data Type found: schema: " + schemaVersion.getName() + " dataType: " + dataType.getName());
+            log.info("No Data type file found for: " + schemaVersionName + " looking backwards for older schema versions");
+
+            String previousVersion = null;
+            for(previousVersion = getPreviousVersion(schemaVersionName); previousVersion != null;  previousVersion = getPreviousVersion(previousVersion) ) {
+                if(dataType.getSchemaFiles().get(previousVersion) != null) {
+                    dataTypeFilePath = dataType.getSchemaFiles().get(previousVersion);
+                    log.info("Found File name for: " + previousVersion + " -> " + dataTypeFilePath);
+                    break;
+                }
+            }
+            if(previousVersion == null) {
+                throw new SchemaDataTypeException("No Schema file for Data Type found: schema: " + schemaVersionName + " dataType: " + dataType.getName());
+            } else {
+                log.info("Previous Version Found: " + previousVersion);
+            }
         }
-        File schemaFile = gitHelper.getFile(schemaVersion.getName(), dataTypeFilePath);
+        File schemaFile = gitHelper.getFile(schemaVersionName, dataTypeFilePath);
 
         try {
 
@@ -213,6 +229,20 @@ public class MetaDataService {
 
     }
 
+    public String getPreviousVersion(String version) {
+        String[] array = version.split("\\.");
+        int out = Integer.parseInt(array[0] + array[1] + array[2] + array[3]);
+        if(out <= 0) return null;
+        out--;
+        String a = (out / 1000) + "";
+        out = out % 1000;
+        String b = (out / 100) + "";
+        out = out % 100;
+        String c = (out / 10) + "";
+        out = out % 10;
+        String d = out + "";
+        return a + "." + b + "." + c + "." + d;
+    }
 
 
 }

@@ -23,6 +23,7 @@ import javax.enterprise.event.Observes;
 
 import org.alliancegenome.api.model.xml.XMLURL;
 import org.alliancegenome.api.model.xml.XMLURLSet;
+import org.alliancegenome.shared.config.ConfigHelper;
 import org.alliancegenome.shared.es.dao.site_index.SearchDAO;
 import org.elasticsearch.search.SearchHit;
 import org.jboss.logging.Logger;
@@ -39,12 +40,13 @@ public class SiteMapCacherApplication {
     private final HashMap<String, File> files = new HashMap<>();
 
     public void init(@Observes @Initialized(ApplicationScoped.class) Object init) {
-        log.info("Caching Sitemap Files: ");
-        cacheSiteMap("gene");
-        cacheSiteMap("disease");
-        log.info("Caching Sitemap Files Finished: ");
+        if(ConfigHelper.getGenerateSitemap()) {
+            log.info("Caching Sitemap Files: ");
+            cacheSiteMap("gene");
+            cacheSiteMap("disease");
+            log.info("Caching Sitemap Files Finished: ");
+        }
     }
-
 
     public void destroy(@Observes @Destroyed(ApplicationScoped.class) Object init) {
         for(File f: files.values()) {
@@ -92,7 +94,7 @@ public class SiteMapCacherApplication {
         save(urls, files.get(fileName));
     }
 
-    
+
     public XMLURLSet getHits(String category, Integer page) {
         String fileName = category + "-sitemap-" + page;
         log.debug("Loading: " + fileName);
