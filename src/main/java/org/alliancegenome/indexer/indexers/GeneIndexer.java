@@ -15,16 +15,16 @@ import java.util.concurrent.LinkedBlockingDeque;
 public class GeneIndexer extends Indexer<GeneDocument> {
 
     private final Logger log = LogManager.getLogger(getClass());
-    private final GeneRepository geneRepo = new GeneRepository();
 
-    public GeneIndexer(String currnetIndex, IndexerConfig config) {
-        super(currnetIndex, config);
+    public GeneIndexer(String currentIndex, IndexerConfig config) {
+        super(currentIndex, config);
     }
 
     @Override
     public void index() {
         try {
             LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>();
+            GeneRepository geneRepo = new GeneRepository();
             List<String> fulllist = geneRepo.getAllGeneKeys();
             queue.addAll(fulllist);
             geneRepo.clearCache();
@@ -61,7 +61,7 @@ public class GeneIndexer extends Indexer<GeneDocument> {
                 if (gene != null)
                     list.add(gene);
                 else
-                    log.debug("No disease found for " + key);
+                    log.debug("No gene found for " + key);
             } catch (Exception e) {
                 log.error("Error while indexing...", e);
                 System.exit(-1);

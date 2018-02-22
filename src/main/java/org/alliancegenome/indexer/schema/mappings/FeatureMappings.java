@@ -20,8 +20,7 @@ public class FeatureMappings extends Mappings {
 
             buildSharedSearchableDocumentMappings();
 
-            buildGenericField("geneDocument.symbol", "text", null, false, false, true, false);
-            buildGenericField("symbol", "keyword", null, false, false, true, false);
+            buildGenericField("symbol", "keyword", "symbol", false, false, true, false);
 
             builder.endObject();
 

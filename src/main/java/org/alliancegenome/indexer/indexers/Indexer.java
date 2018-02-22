@@ -18,7 +18,10 @@ import org.elasticsearch.xpack.client.PreBuiltXPackTransportClient;
 
 import java.net.InetAddress;
 import java.text.DecimalFormat;
-import java.util.*;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.*;
 
 public abstract class Indexer<D extends ESDocument> extends Thread {
@@ -76,13 +79,6 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
         index();
     }
 
-
-    public void saveDocuments(D doc) {
-        ArrayList<D> docs = new ArrayList<>();
-        docs.add(doc);
-        saveDocuments(docs);
-    }
-
     public void saveDocuments(Iterable<D> docs) {
         checkMemory();
 
@@ -109,7 +105,7 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
 
     // Used to show progress when using a queue
     private void startProcess(int totalDocAmount) {
-        log.info("Starting Processing: queue size: " + totalDocAmount + " at: " + startTime);
+        log.info("Starting Indexing: queue size: " + getBigNumber(totalDocAmount));
         lastTime = new Date();
         lastSize = totalDocAmount;
     }
@@ -121,7 +117,7 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
         long diff = now.getTime() - startTime.getTime();
         long time = (now.getTime() - lastTime.getTime());
         int processedAmount = (lastSize - currentSize);
-        String message = "Completed " + (totalDocAmount - currentSize) + " [" + totalDocAmount + "] " + (int) (percent * 100) + "% took: " + time + "ms to process " + processedAmount + " records at a rate of: " + ((processedAmount * 1000) / time) + "r/s";
+        String message = "Completed " + getBigNumber(totalDocAmount - currentSize) + " [" + getBigNumber(totalDocAmount) + "] " + (int) (percent * 100) + "% took: " + (time / 1000) + "s to process " + processedAmount + " records at a rate of: " + ((processedAmount * 1000) / time) + "r/s";
         if (percent > 0) {
             int perms = (int) (diff / percent);
             Date end = new Date(startTime.getTime() + perms);
@@ -134,7 +130,7 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
 
     // Used to show progress when using batches
     protected void startProcess(int amountBatches, int batchSize, int totalDocAmount) {
-        log.info("Starting Processing: batches: " + amountBatches + " size: " + batchSize + " total: " + totalDocAmount + " at: " + startTime);
+        log.info("Starting Processing: batches: " + amountBatches + " size: " + batchSize + " total: " + getBigNumber(totalDocAmount) + " at: " + startTime);
         lastTime = new Date();
     }
 
@@ -156,8 +152,23 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
 
     private void finishProcess(int totalDocAmount) {
         Date now = new Date();
-        long time = now.getTime() - startTime.getTime();
-        log.info("Processing finished: took: " + time + "ms to process " + totalDocAmount + " records at a rate of: " + ((totalDocAmount * 1000) / time) + "r/s");
+        long duration = now.getTime() - startTime.getTime();
+        String result = getHumanReadableTimeDisplay(duration);
+        log.info("Finished: took: " + result + " to process " + getBigNumber(totalDocAmount) + " records at a rate of: " + ((totalDocAmount * 1000) / duration) + "r/s");
+    }
+
+    public static String getBigNumber(int number) {
+        return String.format("%,d", number);
+    }
+
+    public static String getHumanReadableTimeDisplay(long duration) {
+        long hours = TimeUnit.MILLISECONDS.toHours(duration)
+                - TimeUnit.DAYS.toHours(TimeUnit.MILLISECONDS.toDays(duration));
+        long minutes = TimeUnit.MILLISECONDS.toMinutes(duration)
+                - TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(duration));
+        long seconds = TimeUnit.MILLISECONDS.toSeconds(duration)
+                - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(duration));
+        return String.format("%02d:%02d:%02d", hours, minutes, seconds);
     }
 
     private void checkMemory() {

@@ -199,7 +199,11 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
         }
 
         if (entity.getFeatures() != null && translationDepth > 0) {
-            geneDocument.setAlleles((List<FeatureDocument>) alleleTranslator.translateEntities(entity.getFeatures()));
+            List<FeatureDocument> featureList = new ArrayList<>();
+            entity.getFeatures().forEach(feature ->
+                    featureList.add(alleleTranslator.entityToDocument(feature, translationDepth - 1))
+            );
+            geneDocument.setAlleles(featureList);
         }
 
         return geneDocument;

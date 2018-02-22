@@ -52,10 +52,10 @@ public class FeatureTranslator extends EntityDocumentTranslator<Feature, Feature
             }
             featureDocument.setSynonyms(synonyms);
             featureDocument.setGeneDocument(geneTranslator.translate(entity.getGene(), translationDepth - 1));
-        }
-        if (CollectionUtils.isNotEmpty(entity.getDiseaseEntityJoins())) {
-            List<DiseaseDocument> diseaseList = diseaseTranslator.getDiseaseDocuments(entity.getGene(), entity.getDiseaseEntityJoins(), translationDepth);
-            featureDocument.setDiseaseDocuments(diseaseList);
+            if (CollectionUtils.isNotEmpty(entity.getDiseaseEntityJoins())) {
+                List<DiseaseDocument> diseaseList = diseaseTranslator.getDiseaseDocuments(entity.getGene(), entity.getDiseaseEntityJoins(), translationDepth);
+                featureDocument.setDiseaseDocuments(diseaseList);
+            }
         }
 
         return featureDocument;
