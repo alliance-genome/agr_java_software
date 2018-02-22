@@ -55,6 +55,7 @@ public class Main {
                 }
             } catch (InterruptedException e) {
                 e.printStackTrace();
+                System.exit(-1);
             }
         }
         im.finishIndex();
