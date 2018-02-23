@@ -109,7 +109,7 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
 //          System.out.println(lookup.size() + " ==? " + entity.getOrthologyGeneJoins().size());
 //      }
 
-        if (entity.getOrthologyGeneJoins().size() > 0) {
+        if (entity.getOrthologyGeneJoins().size() > 0 && translationDepth > 0) {
             List<OrthologyDoclet> olist = new ArrayList<>();
 
             HashMap<String, Orthologous> lookup = new HashMap<String, Orthologous>();
@@ -162,7 +162,7 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
             geneDocument.setOrthology(olist);
         }
 
-        if (entity.getDiseaseEntityJoins() != null) {
+        if (entity.getDiseaseEntityJoins() != null && translationDepth > 0) {
             List<DiseaseDocument> diseaseList = diseaseTranslator.getDiseaseDocuments(entity, entity.getDiseaseEntityJoins(), translationDepth);
             geneDocument.setDiseases(diseaseList);
         }
