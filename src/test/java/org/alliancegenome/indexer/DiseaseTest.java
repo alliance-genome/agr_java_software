@@ -4,10 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.alliancegenome.indexer.config.ConfigHelper;
 import org.alliancegenome.indexer.document.DiseaseAnnotationDocument;
 import org.alliancegenome.indexer.document.DiseaseDocument;
-import org.alliancegenome.indexer.entity.node.DOTerm;
-import org.alliancegenome.indexer.entity.node.DiseaseEntityJoin;
-import org.alliancegenome.indexer.entity.node.Gene;
-import org.alliancegenome.indexer.entity.node.Publication;
+import org.alliancegenome.indexer.entity.node.*;
 import org.alliancegenome.indexer.repository.DiseaseRepository;
 import org.alliancegenome.indexer.repository.FeatureRepository;
 import org.alliancegenome.indexer.repository.GeneRepository;
@@ -51,8 +48,10 @@ public class DiseaseTest {
         DiseaseTranslator translator = new DiseaseTranslator();
         //Feature feature = featureRepository.getFeature("ZFIN:ZDB-ALT-980203-985");
 
-        Gene gene = geneRepository.getOneGene("MGI:94909");
-
+        //Gene gene = geneRepository.getOneGene("MGI:94909");
+        //Gene gene = geneRepository.getOneGene("MGI:1202717");
+        Gene gene = geneRepository.getOneGene("MGI:97747");
+        Feature feature = featureRepository.getFeature("MGI:3029164");
 
         Map<DOTerm, List<DiseaseEntityJoin>> map = gene.getDiseaseEntityJoins().stream()
                 .collect(Collectors.groupingBy(o -> o.getDisease()));
