@@ -54,6 +54,12 @@ public class SearchHelper {
                     add("annotations.geneDocument.species");
                 }
             });
+            put("allele", new ArrayList<String>() {
+                {
+                    add("species");
+                    //also gene & disease or disease_group
+                }
+            });
         }
     };
 

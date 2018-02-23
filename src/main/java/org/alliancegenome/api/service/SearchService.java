@@ -1,6 +1,7 @@
 package org.alliancegenome.api.service;
 
 import org.alliancegenome.api.dao.SearchDAO;
+import org.alliancegenome.api.model.Category;
 import org.alliancegenome.api.model.SearchResult;
 import org.alliancegenome.api.service.helper.SearchHelper;
 import org.apache.commons.lang3.StringUtils;
@@ -131,12 +132,15 @@ public class SearchService {
 
         }
 
-        //include only genes, disease and go in search results
-        bool.filter(
-            boolQuery().should(termQuery("category","gene"))
-                       .should(termQuery("category","go"))
-                       .should(termQuery("category","disease"))
-        );
+        //include only searchable categories in search results
+        BoolQueryBuilder limitCategories = boolQuery();
+        Arrays.asList(Category.values()).stream()
+                .filter(cat ->  cat.isSearchable() )
+                .forEach(cat ->
+                  limitCategories.should(termQuery("category", cat.getName()))
+                );
+
+        bool.filter(limitCategories);
 
         return bool;
     }
