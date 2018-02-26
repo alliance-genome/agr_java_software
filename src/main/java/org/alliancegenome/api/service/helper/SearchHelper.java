@@ -56,8 +56,9 @@ public class SearchHelper {
             });
             put("allele", new ArrayList<String>() {
                 {
-                    add("species");
-                    //also gene & disease or disease_group
+                    add("geneDocument.species");
+                    add("diseaseDocuments.name");
+                    add("geneDocument.name_key");
                 }
             });
         }
@@ -82,6 +83,8 @@ public class SearchHelper {
             add("go_type"); add("go_genes"); add("go_synonyms");
             add("disease_genes"); add("disease_synonyms"); add("diseases.name"); add("orthology.gene2Symbol");
             add("crossReferences.name"); add("crossReferences.localId");
+            add("geneDocument.name"); add("geneDocument.name_key");
+            add("diseaseDocument.name");
         }
     };
 
@@ -173,7 +176,6 @@ public class SearchHelper {
         ArrayList<Map<String, Object>> ret = new ArrayList<>();
         
         for(SearchHit hit: res.getHits()) {
-
             Map<String, Object> map = new HashMap<>();
             for(String key: hit.getHighlightFields().keySet()) {
                 if(key.endsWith(".symbol")) {

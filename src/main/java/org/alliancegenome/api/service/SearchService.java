@@ -133,17 +133,21 @@ public class SearchService {
         }
 
         //include only searchable categories in search results
-        BoolQueryBuilder limitCategories = boolQuery();
-        Arrays.asList(Category.values()).stream()
-                .filter(cat ->  cat.isSearchable() )
-                .forEach(cat ->
-                  limitCategories.should(termQuery("category", cat.getName()))
-                );
-
-        bool.filter(limitCategories);
+        bool.filter(limitCategories());
 
         return bool;
     }
+
+    public BoolQueryBuilder limitCategories() {
+        BoolQueryBuilder bool = boolQuery();
+        Arrays.asList(Category.values()).stream()
+                .filter(cat ->  cat.isSearchable() )
+                .forEach(cat ->
+                        bool.should(termQuery("category", cat.getName()))
+                );
+        return bool;
+    }
+
 
     public MultivaluedMap<String,String> getFilters(String category, UriInfo uriInfo) {
         MultivaluedMap<String,String> map = new MultivaluedHashMap<>();

@@ -1,5 +1,6 @@
 package org.alliancegenome.api.service.helper;
 
+import org.alliancegenome.api.service.SearchService;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -10,14 +11,17 @@ import org.elasticsearch.search.SearchHit;
 import org.jboss.logging.Logger;
 
 import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Map;
 
-import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 
 @RequestScoped
 public class AutoCompleteHelper {
+
+    @Inject
+    private SearchService searchService;
 
     private Logger log = Logger.getLogger(getClass());
 
@@ -39,14 +43,8 @@ public class AutoCompleteHelper {
             bool.filter(termQuery("category", category));
         }
 
-        //include only genes, disease and go in autocomplete (excludes diseaseAnnotation)
-        bool.filter(
-                boolQuery().should(termQuery("category","gene"))
-                           .should(termQuery("category","go"))
-                           .should(termQuery("category","disease"))
-        );
-
-
+        //include only searchable categories in search results
+        bool.filter(searchService.limitCategories());
 
         return bool;
     }
