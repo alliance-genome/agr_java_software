@@ -24,6 +24,7 @@ public class Feature extends Neo4jEntity implements Comparable<Feature> {
 	private String release;
 	private String localId;
 	private String globalId;
+	private String modCrossRefCompleteUrl;
 
 	@Relationship(type = "FROM_SPECIES")
 	private Species species;
