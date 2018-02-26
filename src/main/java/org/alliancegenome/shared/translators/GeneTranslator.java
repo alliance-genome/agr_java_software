@@ -11,7 +11,6 @@ import org.alliancegenome.shared.es.document.site_index.FeatureDocument;
 import org.alliancegenome.shared.es.document.site_index.GeneDocument;
 import org.alliancegenome.shared.es.document.site_index.GenomeLocationDoclet;
 import org.alliancegenome.shared.es.document.site_index.OrthologyDoclet;
-import org.alliancegenome.shared.neo4j.entity.node.DOTerm;
 import org.alliancegenome.shared.neo4j.entity.node.GOTerm;
 import org.alliancegenome.shared.neo4j.entity.node.Gene;
 import org.alliancegenome.shared.neo4j.entity.node.OrthoAlgorithm;
@@ -20,12 +19,8 @@ import org.alliancegenome.shared.neo4j.entity.node.SecondaryId;
 import org.alliancegenome.shared.neo4j.entity.node.Synonym;
 import org.alliancegenome.shared.neo4j.entity.relationship.GenomeLocation;
 import org.alliancegenome.shared.neo4j.entity.relationship.Orthologous;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument> {
-
-	private Logger log = LogManager.getLogger(getClass());
 
 	private static DiseaseTranslator diseaseTranslator = new DiseaseTranslator();
 	private static FeatureTranslator alleleTranslator = new FeatureTranslator();

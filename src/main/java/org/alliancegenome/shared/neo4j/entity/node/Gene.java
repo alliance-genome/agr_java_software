@@ -13,7 +13,6 @@ import org.alliancegenome.shared.neo4j.entity.relationship.Orthologous;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.typeconversion.Convert;
-import org.neo4j.ogm.annotation.typeconversion.DateString;
 
 import lombok.Getter;
 import lombok.Setter;

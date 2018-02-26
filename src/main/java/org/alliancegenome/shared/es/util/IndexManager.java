@@ -10,9 +10,7 @@ import org.alliancegenome.shared.es.schema.settings.SiteIndexSettings;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.elasticsearch.action.admin.cluster.repositories.put.PutRepositoryResponse;
-import org.elasticsearch.action.admin.cluster.snapshots.create.CreateSnapshotResponse;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
-import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
 import org.elasticsearch.action.admin.indices.get.GetIndexResponse;
 import org.elasticsearch.cluster.metadata.IndexMetaData;
 import org.elasticsearch.cluster.metadata.RepositoryMetaData;
@@ -55,7 +53,7 @@ public class IndexManager {
 		try {
 			SiteIndexSettings settings = new SiteIndexSettings(true);
 			settings.buildSettings();
-			CreateIndexResponse t = client.admin().indices().create(new CreateIndexRequest(index).settings(settings.getBuilder().string(), XContentType.JSON)).get();
+			client.admin().indices().create(new CreateIndexRequest(index).settings(settings.getBuilder().string(), XContentType.JSON)).get();
 			//log.debug(t.toString());
 		} catch (Exception e) {
 			client.admin().indices().prepareRefresh(index).get();
@@ -158,13 +156,14 @@ public class IndexManager {
 	}
 
 	public void listSnapShots() {
-		List<RepositoryMetaData> repositories = client.admin().cluster().prepareGetRepositories().get().repositories();
+		// TODO this is for the UTIL class
+		//List<RepositoryMetaData> repositories = client.admin().cluster().prepareGetRepositories().get().repositories();
 	}
 
 	private void createSnapShot(String snapShotName) {
 		log.info("Creating Snapshot: " + snapShotName + " for index: " + baseIndexName);
 		try {
-			CreateSnapshotResponse createSnapshotResponse = client.admin().cluster()
+			client.admin().cluster()
 					.prepareCreateSnapshot(ConfigHelper.getEsIndexSuffix(), snapShotName)
 					.setWaitForCompletion(true)
 					.setIndices(baseIndexName).get();

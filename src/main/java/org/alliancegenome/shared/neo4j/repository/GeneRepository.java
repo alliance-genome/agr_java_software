@@ -7,13 +7,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.alliancegenome.shared.neo4j.entity.node.Gene;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.neo4j.ogm.model.Result;
 
 public class GeneRepository extends Neo4jRepository<Gene> {
-
-	private Logger log = LogManager.getLogger(getClass());
 
 	public GeneRepository() {
 		super(Gene.class);

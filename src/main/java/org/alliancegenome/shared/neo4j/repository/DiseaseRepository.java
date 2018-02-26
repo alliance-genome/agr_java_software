@@ -1,11 +1,15 @@
 package org.alliancegenome.shared.neo4j.repository;
 
-import org.alliancegenome.shared.neo4j.entity.node.DOTerm;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.neo4j.ogm.model.Result;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-import java.util.*;
+import org.alliancegenome.shared.neo4j.entity.node.DOTerm;
+import org.neo4j.ogm.model.Result;
 
 public class DiseaseRepository extends Neo4jRepository<DOTerm> {
 
@@ -165,6 +169,5 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
 		primaryTerm.getHighLevelTermList().addAll(highLevelTermList);
 		return primaryTerm;
 	}
-
-	private final Logger log = LogManager.getLogger(getClass());
+	
 }

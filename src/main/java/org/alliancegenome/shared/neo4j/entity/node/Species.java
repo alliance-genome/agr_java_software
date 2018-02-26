@@ -1,15 +1,15 @@
 package org.alliancegenome.shared.neo4j.entity.node;
 
-import lombok.Getter;
-import lombok.Setter;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.alliancegenome.shared.neo4j.entity.Neo4jEntity;
 import org.alliancegenome.shared.neo4j.entity.SpeciesType;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 
-import java.util.HashSet;
-import java.util.Set;
+import lombok.Getter;
+import lombok.Setter;
 
 @NodeEntity
 @Getter
