@@ -40,8 +40,10 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
         geneDocument.setModLocalId(entity.getModLocalId());
         geneDocument.setModGlobalCrossRefId(entity.getModGlobalCrossRefId());
         geneDocument.setModGlobalId(entity.getModGlobalId());
-
-        geneDocument.setName(entity.getName());
+        if (entity.getName() == null)
+            geneDocument.setName(entity.getSymbol());
+        else
+            geneDocument.setName(entity.getName());
         geneDocument.setNameKeyWithSpecies(entity.getSpecies().getType().getAbbreviation());
         geneDocument.setPrimaryId(entity.getPrimaryKey());
         geneDocument.setDateProduced(entity.getDateProduced());
