@@ -1,18 +1,25 @@
 package org.alliancegenome.indexer;
 
-import org.alliancegenome.shared.config.ConfigHelper;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import org.alliancegenome.shared.es.document.site_index.DiseaseAnnotationDocument;
 import org.alliancegenome.shared.es.document.site_index.DiseaseDocument;
 import org.alliancegenome.shared.es.document.site_index.FeatureDocument;
 import org.alliancegenome.shared.neo4j.entity.node.DOTerm;
+import org.alliancegenome.shared.neo4j.entity.node.DiseaseEntityJoin;
 import org.alliancegenome.shared.neo4j.entity.node.Feature;
+import org.alliancegenome.shared.neo4j.entity.node.Gene;
+import org.alliancegenome.shared.neo4j.entity.node.Publication;
 import org.alliancegenome.shared.neo4j.repository.DiseaseRepository;
 import org.alliancegenome.shared.neo4j.repository.FeatureRepository;
-import org.alliancegenome.shared.neo4j.repository.Neo4jRepository;
-import org.alliancegenome.shared.neo4j.repository.FeatureRepository;
 import org.alliancegenome.shared.neo4j.repository.GeneRepository;
-import org.alliancegenome.translators.DiseaseTranslator;
-import org.alliancegenome.translators.FeatureTranslator;
+import org.alliancegenome.shared.translators.DiseaseTranslator;
+import org.alliancegenome.shared.translators.FeatureTranslator;
+import org.alliancegenome.shared.neo4j.repository.Neo4jRepository;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -21,8 +28,6 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import java.util.*;
-import java.util.stream.Collectors;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import static org.hamcrest.MatcherAssert.assertThat;

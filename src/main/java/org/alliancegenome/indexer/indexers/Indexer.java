@@ -1,13 +1,17 @@
 package org.alliancegenome.indexer.indexers;
 
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.net.InetAddress;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.TimeUnit;
 
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.shared.config.ConfigHelper;
 import org.alliancegenome.shared.es.document.site_index.ESDocument;
-import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
@@ -17,13 +21,9 @@ import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.xpack.client.PreBuiltXPackTransportClient;
 
-import java.net.InetAddress;
-import java.text.DecimalFormat;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.*;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public abstract class Indexer<D extends ESDocument> extends Thread {
 
