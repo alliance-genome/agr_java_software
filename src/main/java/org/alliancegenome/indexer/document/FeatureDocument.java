@@ -10,7 +10,7 @@ import java.util.List;
 
 @Getter
 @Setter
-public class FeatureDocument extends ESDocument {
+public class FeatureDocument extends SearchableItem {
 
     private String category = "allele";
     private String primaryKey;

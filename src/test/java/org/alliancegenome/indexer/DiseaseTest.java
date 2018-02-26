@@ -4,12 +4,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.alliancegenome.indexer.config.ConfigHelper;
 import org.alliancegenome.indexer.document.DiseaseAnnotationDocument;
 import org.alliancegenome.indexer.document.DiseaseDocument;
+import org.alliancegenome.indexer.document.FeatureDocument;
 import org.alliancegenome.indexer.entity.node.*;
 import org.alliancegenome.indexer.repository.DiseaseRepository;
 import org.alliancegenome.indexer.repository.FeatureRepository;
 import org.alliancegenome.indexer.repository.GeneRepository;
 import org.alliancegenome.indexer.repository.Neo4jRepository;
 import org.alliancegenome.indexer.translators.DiseaseTranslator;
+import org.alliancegenome.indexer.translators.FeatureTranslator;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -46,13 +48,14 @@ public class DiseaseTest {
         Neo4jRepository<DOTerm> neo4jService = new Neo4jRepository<>(DOTerm.class);
 
         DiseaseTranslator translator = new DiseaseTranslator();
+        FeatureTranslator featureTranslator = new FeatureTranslator();
         //Feature feature = featureRepository.getFeature("ZFIN:ZDB-ALT-980203-985");
 
         //Gene gene = geneRepository.getOneGene("MGI:94909");
         //Gene gene = geneRepository.getOneGene("MGI:1202717");
         Gene gene = geneRepository.getOneGene("MGI:97747");
         Feature feature = featureRepository.getFeature("MGI:3029164");
-
+        FeatureDocument featureDoc = featureTranslator.translate(feature);
         Map<DOTerm, List<DiseaseEntityJoin>> map = gene.getDiseaseEntityJoins().stream()
                 .collect(Collectors.groupingBy(o -> o.getDisease()));
 

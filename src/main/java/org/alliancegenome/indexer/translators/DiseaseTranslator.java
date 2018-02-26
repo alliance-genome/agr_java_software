@@ -190,7 +190,7 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
         document.setPrimaryKey(doTerm.getPrimaryKey());
         document.setPrimaryId(doTerm.getPrimaryKey());
         document.setName(doTerm.getName());
-        document.setName_key(doTerm.getName());
+        document.setNameKey(doTerm.getName());
         document.setDefinition(doTerm.getDefinition());
         document.setDefinitionLinks(doTerm.getDefLinks());
         document.setDateProduced(doTerm.getDateProduced());

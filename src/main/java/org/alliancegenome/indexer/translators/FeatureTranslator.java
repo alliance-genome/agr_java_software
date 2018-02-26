@@ -27,7 +27,9 @@ public class FeatureTranslator extends EntityDocumentTranslator<Feature, Feature
         featureDocument.setPrimaryKey(entity.getPrimaryKey());
         featureDocument.setRelease(entity.getRelease());
         featureDocument.setSymbol(entity.getSymbol());
+        featureDocument.setName(entity.getSymbol());
         featureDocument.setModCrossRefFullUrl(entity.getModCrossRefCompleteUrl());
+        featureDocument.setNameKeyWithSpecies(entity.getGene().getSpecies().getType().getAbbreviation());
 
         if (translationDepth > 0) {
 

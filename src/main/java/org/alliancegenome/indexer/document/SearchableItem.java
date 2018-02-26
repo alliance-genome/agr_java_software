@@ -1,7 +1,7 @@
 package org.alliancegenome.indexer.document;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -13,7 +13,8 @@ public abstract class SearchableItem extends ESDocument {
 
     private String primaryId;
     private String name;
-    private String name_key;
+    @JsonProperty("name_key")
+    private String nameKey;
     private String description;
     private boolean searchable = true;
 
@@ -23,4 +24,12 @@ public abstract class SearchableItem extends ESDocument {
         return primaryId;
     }
 
+    public void setNameKeyWithSpecies(String species) {
+        if(name == null)
+            throw new RuntimeException("You first have to populate the name attribute before calling this method!");
+        nameKey = name;
+        if (species != null) {
+            nameKey += " (" + species + ")";
+        }
+    }
 }
