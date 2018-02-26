@@ -84,12 +84,13 @@ public class ESDocumentDAO<D extends ESDocument> extends ESDAO {
 	public void updateDocument(D doc) {
 		try {
 			String json = mapper.writeValueAsString(doc);
-			UpdateRequest updateRequest = new UpdateRequest();
-			updateRequest.index(ConfigHelper.getEsDataIndex());
-			updateRequest.type(doc.getType());
-			updateRequest.id(doc.getDocumentId());
-			updateRequest.doc(json, XContentType.JSON);
-			searchClient.update(updateRequest).get();
+			
+			IndexRequest indexRequest = new IndexRequest();
+			indexRequest.index(ConfigHelper.getEsDataIndex());
+			indexRequest.type(doc.getType());
+			indexRequest.id(doc.getDocumentId());
+			indexRequest.source(json, XContentType.JSON);
+			searchClient.index(indexRequest).get();
 		} catch (JsonProcessingException e) {
 			e.printStackTrace();
 		} catch (InterruptedException e) {

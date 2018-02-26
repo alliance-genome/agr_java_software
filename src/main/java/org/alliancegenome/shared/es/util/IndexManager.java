@@ -103,19 +103,19 @@ public class IndexManager {
 		log.debug(baseIndexName + " Finished: ");
 	}
 
-//	private void addMapping() {
-//		try {
-//			Mappings mappingClass = (Mappings) indexerConfig.getMappingsClazz().getDeclaredConstructor(Boolean.class).newInstance(true);
-//			mappingClass.buildMappings();
-//			log.debug("Getting Mapping for type: " + indexerConfig.getTypeName());
-//			client.admin().indices().preparePutMapping(currentIndex).setType(indexerConfig.getTypeName()).setSource(mappingClass.getBuilder().string()).get();
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
-//	}
+	//	private void addMapping() {
+	//		try {
+	//			Mappings mappingClass = (Mappings) indexerConfig.getMappingsClazz().getDeclaredConstructor(Boolean.class).newInstance(true);
+	//			mappingClass.buildMappings();
+	//			log.debug("Getting Mapping for type: " + indexerConfig.getTypeName());
+	//			client.admin().indices().preparePutMapping(currentIndex).setType(indexerConfig.getTypeName()).setSource(mappingClass.getBuilder().string()).get();
+	//		} catch (Exception e) {
+	//			e.printStackTrace();
+	//		}
+	//	}
 
 
-	public String checkSnapShotRepo(String repoName) {
+	public String getCreateRepo(String repoName) {
 		try {
 			List<RepositoryMetaData> repositories = client.admin().cluster().prepareGetRepositories().get().repositories();
 
@@ -137,8 +137,20 @@ public class IndexManager {
 		return null;
 	}
 
+	public void listRepos() {
+		try {
+			List<RepositoryMetaData> repositories = client.admin().cluster().prepareGetRepositories().get().repositories();
+			for(RepositoryMetaData repo: repositories) {
+				log.info(repo.name());
+			}
+		} catch (Exception ex){
+			log.error("Exception in getRepository method: " + ex.toString());
+		}
+
+	}
+
 	public void takeSnapShot() {
-		String repo = checkSnapShotRepo(ConfigHelper.getEsIndexSuffix());
+		String repo = getCreateRepo(ConfigHelper.getEsIndexSuffix());
 
 		if(repo != null) {
 			createSnapShot(newIndexName);
