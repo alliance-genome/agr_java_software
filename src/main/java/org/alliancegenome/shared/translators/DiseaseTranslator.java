@@ -132,28 +132,28 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
 				.collect(Collectors.toList());
 	}
 
-//	private PublicationDoclet getPublicationDoclets(DiseaseEntityJoin diseaseEntityJoin) {
-//		if (diseaseEntityJoin == null)
-//			return null;
-//		Publication publication = diseaseEntityJoin.getPublication();
-//		PublicationDoclet pubDoc = new PublicationDoclet();
-//		pubDoc.setPrimaryKey(publication.getPrimaryKey());
-//		pubDoc.setPubMedId(publication.getPubMedId());
-//		pubDoc.setPubMedUrl(publication.getPubMedUrl());
-//		pubDoc.setPubModId(publication.getPubModId());
-//		pubDoc.setPubModUrl(publication.getPubModUrl());
-//
-//		if (diseaseEntityJoin.getEvidenceCodes() == null) {
-//			log.error("Could not find any evidence codes for " + diseaseEntityJoin.getGene().getPrimaryKey() + " and publication " + publication.getPrimaryKey());
-//			return null;
-//		}
-//
-//		Set<String> evidencesDocument = diseaseEntityJoin.getEvidenceCodes().stream()
-//				.map(EvidenceCode::getPrimaryKey)
-//				.collect(Collectors.toSet());
-//		pubDoc.setEvidenceCodes(evidencesDocument);
-//		return pubDoc;
-//	}
+	private PublicationDoclet getPublicationDoclets(DiseaseEntityJoin diseaseEntityJoin) {
+		if (diseaseEntityJoin == null)
+			return null;
+		Publication publication = diseaseEntityJoin.getPublication();
+		PublicationDoclet pubDoc = new PublicationDoclet();
+		pubDoc.setPrimaryKey(publication.getPrimaryKey());
+		pubDoc.setPubMedId(publication.getPubMedId());
+		pubDoc.setPubMedUrl(publication.getPubMedUrl());
+		pubDoc.setPubModId(publication.getPubModId());
+		pubDoc.setPubModUrl(publication.getPubModUrl());
+
+		if (diseaseEntityJoin.getEvidenceCodes() == null) {
+			log.error("Could not find any evidence codes for " + diseaseEntityJoin.getGene().getPrimaryKey() + " and publication " + publication.getPrimaryKey());
+			return null;
+		}
+
+		Set<String> evidencesDocument = diseaseEntityJoin.getEvidenceCodes().stream()
+				.map(EvidenceCode::getPrimaryKey)
+				.collect(Collectors.toSet());
+		pubDoc.setEvidenceCodes(evidencesDocument);
+		return pubDoc;
+	}
 
 	private Map<Gene, Map<String, List<DiseaseEntityJoin>>> getGeneAnnotationMap(DOTerm entity, Gene gene) {
 		// group by gene then by association type
@@ -203,7 +203,7 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
 		document.setPrimaryKey(doTerm.getPrimaryKey());
 		document.setPrimaryId(doTerm.getPrimaryKey());
 		document.setName(doTerm.getName());
-		document.setName_key(doTerm.getName());
+		document.setNameKey(doTerm.getName());
 		document.setDefinition(doTerm.getDefinition());
 		document.setDefinitionLinks(doTerm.getDefLinks());
 		document.setDateProduced(doTerm.getDateProduced());
@@ -414,20 +414,20 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
 	/**
 	 * Get all the parent term names compiled.
 	 */
-//	private Set<String> getParentNameList(DOTerm doTerm) {
-//		Set<String> nameList = new LinkedHashSet<>();
-//		nameList.add(doTerm.getName());
-//		doTerm.getParents().forEach(term -> {
-//			nameList.add(term.getName());
-//			if (term.getParents() != null)
-//				nameList.addAll(getParentNameList(term));
-//		});
-//		return nameList;
-//	}
-//
-//	private SpeciesDoclet getSpeciesDoclet(DiseaseEntityJoin diseaseGeneJoin) {
-//		return getSpeciesDoclet(diseaseGeneJoin.getGene());
-//	}
+	private Set<String> getParentNameList(DOTerm doTerm) {
+		Set<String> nameList = new LinkedHashSet<>();
+		nameList.add(doTerm.getName());
+		doTerm.getParents().forEach(term -> {
+			nameList.add(term.getName());
+			if (term.getParents() != null)
+				nameList.addAll(getParentNameList(term));
+		});
+		return nameList;
+	}
+
+	private SpeciesDoclet getSpeciesDoclet(DiseaseEntityJoin diseaseGeneJoin) {
+		return getSpeciesDoclet(diseaseGeneJoin.getGene());
+	}
 
 	private SpeciesDoclet getSpeciesDoclet(Gene gene) {
 		Species species = gene.getSpecies();

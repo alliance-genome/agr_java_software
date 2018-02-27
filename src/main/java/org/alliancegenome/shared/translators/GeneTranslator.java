@@ -19,8 +19,12 @@ import org.alliancegenome.shared.neo4j.entity.node.SecondaryId;
 import org.alliancegenome.shared.neo4j.entity.node.Synonym;
 import org.alliancegenome.shared.neo4j.entity.relationship.GenomeLocation;
 import org.alliancegenome.shared.neo4j.entity.relationship.Orthologous;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument> {
+
+	private final Logger log = LogManager.getLogger(getClass());
 
 	private static DiseaseTranslator diseaseTranslator = new DiseaseTranslator();
 	private static FeatureTranslator alleleTranslator = new FeatureTranslator();
@@ -46,13 +50,11 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
 		geneDocument.setModLocalId(entity.getModLocalId());
 		geneDocument.setModGlobalCrossRefId(entity.getModGlobalCrossRefId());
 		geneDocument.setModGlobalId(entity.getModGlobalId());
-
-		geneDocument.setName(entity.getName());
-		if (entity.getSpecies() != null) {
-			geneDocument.setName_key(entity.getSymbol() + " (" + entity.getSpecies().getType().getAbbreviation() + ")"); // This might look wrong but it was taken from the old AGR code base.
-		} else {
-			geneDocument.setName_key(entity.getSymbol());
-		}
+		if (entity.getName() == null)
+			geneDocument.setName(entity.getSymbol());
+		else
+			geneDocument.setName(entity.getName());
+		geneDocument.setNameKeyWithSpecies(entity.getSpecies().getType().getAbbreviation());
 		geneDocument.setPrimaryId(entity.getPrimaryKey());
 		geneDocument.setDateProduced(entity.getDateProduced());
 		geneDocument.setTaxonId(entity.getTaxonId());
