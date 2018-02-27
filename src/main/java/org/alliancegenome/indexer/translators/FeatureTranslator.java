@@ -29,9 +29,10 @@ public class FeatureTranslator extends EntityDocumentTranslator<Feature, Feature
         featureDocument.setSymbol(entity.getSymbol());
         featureDocument.setName(entity.getSymbol());
         featureDocument.setModCrossRefFullUrl(entity.getModCrossRefCompleteUrl());
-        featureDocument.setNameKeyWithSpecies(entity.getGene().getSpecies().getType().getAbbreviation());
 
         if (translationDepth > 0) {
+            if (entity.getGene().getSpecies() != null)
+                featureDocument.setNameKeyWithSpecies(entity.getGene().getSpecies().getType().getAbbreviation());
 
             // This code is duplicated in Gene and Feature should be pulled out into its own translator
             ArrayList<String> secondaryIds = new ArrayList<>();

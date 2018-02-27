@@ -31,7 +31,7 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
     protected IndexerConfig indexerConfig;
     private PreBuiltXPackTransportClient client;
     protected Runtime runtime = Runtime.getRuntime();
-    protected DecimalFormat df = new DecimalFormat("#.00");
+    protected DecimalFormat df = new DecimalFormat("#");
     protected ObjectMapper om = new ObjectMapper();
 
     // Used for showing progress
@@ -105,7 +105,7 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
 
     // Used to show progress when using a queue
     private void startProcess(int totalDocAmount) {
-        log.info("Starting Indexing: queue size: " + getBigNumber(totalDocAmount));
+        log.info("Start Indexing: queue size: " + getBigNumber(totalDocAmount));
         lastTime = new Date();
         lastSize = totalDocAmount;
     }
@@ -117,7 +117,7 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
         long diff = now.getTime() - startTime.getTime();
         long time = (now.getTime() - lastTime.getTime());
         int processedAmount = (lastSize - currentSize);
-        String message = "Completed " + getBigNumber(totalDocAmount - currentSize) + " [" + getBigNumber(totalDocAmount) + "] " + (int) (percent * 100) + "% took: " + (time / 1000) + "s to process " + processedAmount + " records at a rate of: " + ((processedAmount * 1000) / time) + "r/s";
+        String message = "" + getBigNumber(totalDocAmount - currentSize) + " records [" + getBigNumber(totalDocAmount) + "] " + (int) (percent * 100) + "% took: " + (time / 1000) + "s to process " + processedAmount + " records at a rate of: " + ((processedAmount * 1000) / time) + "r/s";
         if (percent > 0) {
             int perms = (int) (diff / percent);
             Date end = new Date(startTime.getTime() + perms);
