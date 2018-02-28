@@ -1,9 +1,5 @@
 package org.alliancegenome.api.service;
 
-import org.alliancegenome.api.dao.SearchDAO;
-import org.alliancegenome.api.model.Category;
-import org.alliancegenome.api.model.SearchResult;
-
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 import static org.elasticsearch.index.query.QueryBuilders.multiMatchQuery;
@@ -11,6 +7,7 @@ import static org.elasticsearch.index.query.QueryBuilders.queryStringQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.enterprise.context.RequestScoped;
@@ -20,6 +17,7 @@ import javax.ws.rs.core.UriInfo;
 
 import org.alliancegenome.api.service.helper.SearchHelper;
 import org.alliancegenome.shared.es.dao.site_index.SearchDAO;
+import org.alliancegenome.shared.es.model.search.Category;
 import org.alliancegenome.shared.es.model.search.SearchResult;
 import org.alliancegenome.shared.es.util.QueryManipulationService;
 import org.apache.commons.lang3.StringUtils;
