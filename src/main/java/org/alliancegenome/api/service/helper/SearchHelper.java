@@ -84,7 +84,10 @@ public class SearchHelper {
             add("disease_genes"); add("disease_synonyms"); add("diseases.name"); add("orthology.gene2Symbol");
             add("crossReferences.name"); add("crossReferences.localId");
             add("geneDocument.name"); add("geneDocument.name_key");
-            add("diseaseDocument.name");
+            add("diseaseDocuments.name");
+            add("alleles.symbol");
+            add("featureDocument.symbol");
+            add("featureDocument.name");
         }
     };
 
