@@ -2,39 +2,37 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<parent>
-		<artifactId>agr_architecture</artifactId>
-		<groupId>org.alliancegnome</groupId>
-		<version>0.0.1-SNAPSHOT</version>
-	</parent>
-
-	<artifactId>agr_indexer</artifactId>
-	<packaging>jar</packaging>
 	<name>AGR :: Indexer</name>
+	<artifactId>agr_indexer</artifactId>
+	<groupId>org.alliancegnome</groupId>
+	<version>0.0.1-SNAPSHOT</version>
+	<packaging>jar</packaging>
+
 	<properties>
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
 		<failOnMissingWebXml>false</failOnMissingWebXml>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
+
 	<dependencies>
 		<dependency>
 			<groupId>org.alliancegnome</groupId>
 			<artifactId>agr_java_shared</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>${project.version}</version>
 		</dependency>
 	</dependencies>
+	
 	<repositories>
-		<!-- add the elasticsearch repo -->
 		<repository>
-			<id>elasticsearch-releases</id>
+			<id>elastic</id>
+			<name>elasticsearch-releases</name>
 			<url>https://artifacts.elastic.co/maven</url>
-			<releases>
-				<enabled>true</enabled>
-			</releases>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
+		</repository>
+		<repository>
+			<id>central</id>
+			<name>agr-release</name>
+			<url>http://maven.alliancegenome.org/artifactory/agr-release</url>
 		</repository>
 	</repositories>
 
