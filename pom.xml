@@ -1,15 +1,9 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-
-
 	<modelVersion>4.0.0</modelVersion>
 
-	<parent>
-		<artifactId>agr_architecture</artifactId>
-		<groupId>org.alliancegnome</groupId>
-		<version>0.0.1-SNAPSHOT</version>
-	</parent>
-
+	<groupId>org.alliancegnome</groupId>
+	<version>0.0.1-SNAPSHOT</version>
 	<artifactId>agr_java_shared</artifactId>
 	<packaging>jar</packaging>
 	<name>AGR :: Shared</name>
@@ -24,7 +18,25 @@
 			<id>elasticsearch-releases</id>
 			<url>https://artifacts.elastic.co/maven</url>
 		</repository>
+		<repository>
+			<id>central</id>
+			<name>agr-releases</name>
+			<url>http://maven.alliancegenome.org/artifactory/agr-release</url>
+		</repository>
 	</repositories>
+
+	<distributionManagement>
+		<repository>
+			<id>central</id>
+			<name>agr-releases</name>
+			<url>http://maven.alliancegenome.org/artifactory/agr-release</url>
+		</repository>
+		<snapshotRepository>
+			<id>snapshots</id>
+			<name>agr-snapshots</name>
+			<url>http://maven.alliancegenome.org/artifactory/agr-snapshot</url>
+		</snapshotRepository>
+	</distributionManagement>
 
 	<dependencies>
 		<dependency>
@@ -114,7 +126,6 @@
 		</dependency>
 
 	</dependencies>
-
 
 	<build>
 		<finalName>${project.artifactId}</finalName>
