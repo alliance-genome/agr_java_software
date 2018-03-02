@@ -4,7 +4,7 @@
 
 	<name>AGR :: Indexer</name>
 	<artifactId>agr_indexer</artifactId>
-	<groupId>org.alliancegnome</groupId>
+	<groupId>org.alliancegenome</groupId>
 	<version>1.3.0</version>
 	<packaging>jar</packaging>
 
