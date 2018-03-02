@@ -19,9 +19,9 @@ Valid values for SchemaVersion, DataType, and TaxonId can be found in the exampl
 
 - [Schema Version](#schema-version)
 - [Data Type](#data-type)
-- [TaxonId](#TaxonId)
+- [TaxonId](#taxonid)
 - [Examples](#examples)
-  * [Schema-DataType-TaxonId String format](#schema-dataType-taxonid-string-format)
+  * [SchemaVersion DataType TaxonId String format](#schemaversion-datatype-taxonid-string-format)
   * [Valid examples for submitting files](#valid-examples-for-submitting-files)
 - [Return object](#return-object)
   * [Success example](#success-example)
@@ -38,6 +38,7 @@ This will be a key that is generated for the DQM's to use for uploading files.
 | 0.6.0 |
 | 0.6.1 |
 | 0.7.0 |
+| 1.0.0.0 |
 | etc... |
 
 This will be the current release of the schema can be found in the [releases](https://github.com/alliance-genome/agr_schemas/releases) section for the schema repository. Schema does not follow the same release schedule as the main branches.
@@ -46,10 +47,10 @@ This will be the current release of the schema can be found in the [releases](ht
 
 | Data Type | What it means | Schema Validation File | Format | TaxonId Required | Validation Required |
 | --- | --- | --- | --- | --- | --- |
-| BGI | Basic Gene information | basicGeneInfoFile.json | json | true | true |
+| BGI | Basic Gene information | geneMetadata.json | json | true | true |
 | DOA | Disease Term Annotations (DAF) | diseaseMetaDataDefinition.json | json | true | true |
 | ORTHO | Orthology File | orthoHeader.json | json | true | true |
-| FEATURE | Feature File | featureMetadata.json | json | true | true |
+| ALLELE | Allele File | alleleMetadata.json | json | true | true |
 | GOA | Gene Ontology Annotations (GAF) | - | gaf | true | false |
 | GFF | Gene Feature File | - | gff | true | false |
 | DO | Disease Ontology File | - | obo | false | false |
@@ -70,7 +71,7 @@ This will be the current release of the schema can be found in the [releases](ht
 
 ## Examples
 
-### SchemaVersion-DataType-TaxonId String format
+### SchemaVersion DataType TaxonId String format
 
 Valid combinations for Schema-DataType-TaxonId are as follows:
 
