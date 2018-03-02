@@ -6,7 +6,7 @@
 	<name>AGR :: ES :: Utils</name>
 	<artifactId>agr_elasticsearch_util</artifactId>
 	<groupId>org.alliancegnome</groupId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>1.3.0</version>
 	<packaging>jar</packaging>
 
 	<properties>
@@ -21,6 +21,11 @@
 			<id>central</id>
 			<name>agr-release</name>
 			<url>http://maven.alliancegenome.org/artifactory/agr-release</url>
+		</repository>
+		<repository>
+			<id>elastic</id>
+			<name>elasticsearch-releases</name>
+			<url>https://artifacts.elastic.co/maven</url>
 		</repository>
 	</repositories>
 
