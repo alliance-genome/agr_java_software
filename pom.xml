@@ -27,6 +27,16 @@
 
 	<repositories>
 		<repository>
+			<id>central</id>
+			<name>agr-release</name>
+			<url>http://maven.alliancegenome.org/artifactory/agr-release</url>
+		</repository>
+		<repository>
+			<id>snapshot</id>
+			<name>agr-snapshot</name>
+			<url>http://maven.alliancegenome.org/artifactory/agr-snapshot</url>
+		</repository>
+		<repository>
 			<id>elastic</id>
 			<name>elasticsearch-releases</name>
 			<url>https://artifacts.elastic.co/maven</url>
@@ -35,11 +45,6 @@
 			<id>nexus</id>
 			<name>nexus</name>
 			<url>https://repository.jboss.org</url>
-		</repository>
-		<repository>
-			<id>central</id>
-			<name>agr-release</name>
-			<url>http://maven.alliancegenome.org/artifactory/agr-release</url>
 		</repository>
 	</repositories>
 
