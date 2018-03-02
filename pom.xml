@@ -22,17 +22,17 @@
 			<version>${project.version}</version>
 		</dependency>
 	</dependencies>
-	
+
 	<repositories>
-		<repository>
-			<id>elastic</id>
-			<name>elasticsearch-releases</name>
-			<url>https://artifacts.elastic.co/maven</url>
-		</repository>
 		<repository>
 			<id>central</id>
 			<name>agr-release</name>
 			<url>http://maven.alliancegenome.org/artifactory/agr-release</url>
+		</repository>
+		<repository>
+			<id>elastic</id>
+			<name>elasticsearch-releases</name>
+			<url>https://artifacts.elastic.co/maven</url>
 		</repository>
 	</repositories>
 
