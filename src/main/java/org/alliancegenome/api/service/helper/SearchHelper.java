@@ -217,9 +217,12 @@ public class SearchHelper {
     }
 
     private List<String> findMissingTerms(List<String> matchedTerms, List<String> searchedTerms) {
+
         List<String> terms = new ArrayList<>();
 
-        if (matchedTerms == null || searchedTerms == null) {
+        //if only one term was searched, just assume it matched
+        //(not for efficiency, avoids false negatives - if the document came back, the single term matched)
+        if (matchedTerms == null || searchedTerms == null || searchedTerms.size() == 1) {
             return terms; //just give up and return an empty list
         }
 
