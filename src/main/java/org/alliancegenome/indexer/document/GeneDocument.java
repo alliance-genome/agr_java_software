@@ -35,7 +35,7 @@ public class GeneDocument {
     private String geneSynopsis;
     private List<String> gene_cellular_component;
     private String geneticEntityExternalUrl;
-
+    private boolean searchable = true;
     private String modCrossRefCompleteUrl;
     private String modLocalId;
     private String modGlobalCrossRefId;

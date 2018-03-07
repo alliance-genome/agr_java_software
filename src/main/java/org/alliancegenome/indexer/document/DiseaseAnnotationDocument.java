@@ -22,6 +22,7 @@ public class DiseaseAnnotationDocument {
     private List<String> parentTermIDs;
     private List<String> parentTermNames;
     private SourceDoclet source;
+    private boolean searchable = true;
     private String category;
 
 
