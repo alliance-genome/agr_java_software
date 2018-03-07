@@ -24,6 +24,7 @@ public class DiseaseDocument {
     private List<DiseaseDocument> parents;
     private List<DiseaseDocument> children;
     private List<String> synonyms;
+    private boolean searchable = true;
     @JsonProperty("disease_group")
     private Set<String> highLevelSlimTermNames = new HashSet<>();
 
