@@ -16,13 +16,11 @@ import lombok.Setter;
 @Setter
 public class DiseaseDocument extends SearchableItem {
 
+	{ category = "disease"; }
+	
 	private String doId;
 	private String primaryKey;
-	private String primaryId;
-	private String category = "disease";
-	private String name;
-	@JsonProperty("name_key")
-	private String nameKey;
+
 	private Set<String> parentDiseaseNames;
 	private String definition;
 	private Date dateProduced;

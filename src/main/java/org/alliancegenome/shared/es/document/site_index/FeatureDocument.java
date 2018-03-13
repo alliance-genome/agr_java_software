@@ -1,22 +1,20 @@
 package org.alliancegenome.shared.es.document.site_index;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 @Getter
 @Setter
 public class FeatureDocument extends SearchableItem {
 
-	private String category = "allele";
+	{ category = "allele"; }
+	
 	private String primaryKey;
 	private String symbol;
 	private Date dateProduced;

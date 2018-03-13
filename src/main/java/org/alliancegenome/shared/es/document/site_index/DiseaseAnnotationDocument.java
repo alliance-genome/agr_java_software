@@ -18,18 +18,15 @@ public class DiseaseAnnotationDocument extends ESDocument implements Comparable<
 	private String diseaseID;
 	private Set<String> parentDiseaseIDs;
 	private String diseaseName;
-	private String associationType;
-	
 	@JsonProperty("disease_species")
 	private SpeciesDoclet species;
-	private SourceDoclet source;
+	private String associationType;
 	private GeneDocument geneDocument;
 	private FeatureDocument featureDocument;
-	
 	private List<PublicationDoclet> publications;
 	private List<String> parentTermIDs;
 	private List<String> parentTermNames;
-	
+	private SourceDoclet source;
 
 	@Override
 	@JsonIgnore
@@ -47,5 +44,4 @@ public class DiseaseAnnotationDocument extends ESDocument implements Comparable<
 	public int compareTo(DiseaseAnnotationDocument doc) {
 		return 0;
 	}
-	
 }

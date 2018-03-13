@@ -24,12 +24,10 @@ public abstract class SearchableItem extends ESDocument {
 		return primaryId;
 	}
 
-	public void setNameKeyWithSpecies(String species) {
-		if(name == null)
-			throw new RuntimeException("You first have to populate the name attribute before calling this method!");
-		nameKey = name;
+	public void setNameKeyWithSpecies(String nameKey, String species) {
+		this.nameKey = nameKey;
 		if (species != null) {
-			nameKey += " (" + species + ")";
+			this.nameKey += " (" + species + ")";
 		}
 	}
 }
