@@ -94,7 +94,9 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
                                             .filter(entry -> entity != null)
                                             .collect(Collectors.groupingBy(DiseaseEntityJoin::getFeature
                                             ));
-                                    featureMap.put(null, featurelessJoins);
+                                    // add the feature-less diseaseEntityJoins under the null key into the map.
+                                    if (!featurelessJoins.isEmpty())
+                                        featureMap.put(null, featurelessJoins);
                                     return featureMap.entrySet().stream()
                                             .map(featureMapEntry -> {
 
