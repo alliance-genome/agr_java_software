@@ -1,6 +1,7 @@
 package org.alliancegenome.shared.es.util;
 
 import java.net.InetAddress;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -9,17 +10,21 @@ import org.alliancegenome.shared.config.ConfigHelper;
 import org.alliancegenome.shared.es.schema.settings.SiteIndexSettings;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 import org.elasticsearch.action.admin.cluster.repositories.put.PutRepositoryResponse;
-import org.elasticsearch.action.admin.cluster.snapshots.create.CreateSnapshotResponse;
+import org.elasticsearch.action.admin.cluster.snapshots.get.GetSnapshotsResponse;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
 import org.elasticsearch.action.admin.indices.get.GetIndexResponse;
+import org.elasticsearch.cluster.health.ClusterHealthStatus;
+import org.elasticsearch.cluster.health.ClusterIndexHealth;
 import org.elasticsearch.cluster.metadata.IndexMetaData;
 import org.elasticsearch.cluster.metadata.RepositoryMetaData;
 import org.elasticsearch.common.collect.ImmutableOpenMap;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.common.xcontent.XContentType;
+import org.elasticsearch.snapshots.SnapshotInfo;
 import org.elasticsearch.xpack.client.PreBuiltXPackTransportClient;
 
 public class IndexManager {
@@ -65,8 +70,15 @@ public class IndexManager {
 		}
 	}
 	public void deleteIndex(String index) {
-		log.debug("Deleting Index: " + index);
+		log.info("Deleting Index: " + index);
 		client.admin().indices().prepareDelete(index).get();
+	}
+
+	public void deleteIndices(List<String> indices) {
+		log.info("Deleting Indices: " + indices);
+		String[] array = new String[indices.size()];
+		indices.toArray(array);
+		client.admin().indices().prepareDelete(array).get();
 	}
 
 	public void startIndex() {
@@ -137,27 +149,41 @@ public class IndexManager {
 		return null;
 	}
 
+	public void listSnapShots() {
+		List<RepositoryMetaData> repositories = client.admin().cluster().prepareGetRepositories().get().repositories();
+	}
+	
+	public List<RepositoryMetaData> listRepos() {
+		try {
+			List<RepositoryMetaData> repositories = client.admin().cluster().prepareGetRepositories().get().repositories();
+			return repositories;
+		} catch (Exception ex){
+			log.error("Exception in getRepository method: " + ex.toString());
+		}
+		return null;
+	}
+
 	public void takeSnapShot() {
 		String repo = checkSnapShotRepo(ConfigHelper.getEsIndexSuffix());
 
 		if(repo != null) {
-			createSnapShot(newIndexName);
+			List<String> indices = new ArrayList<>();
+			indices.add(baseIndexName);
+			log.info("Creating Snapshot: " + newIndexName + " for index: " + baseIndexName);
+			createSnapShot(ConfigHelper.getEsIndexSuffix(), newIndexName, indices);
 		}
 	}
-
-	public void listSnapShots() {
-		List<RepositoryMetaData> repositories = client.admin().cluster().prepareGetRepositories().get().repositories();
-	}
-
-	private void createSnapShot(String snapShotName) {
-		log.info("Creating Snapshot: " + snapShotName + " for index: " + baseIndexName);
+	
+	public void createSnapShot(String repo, String snapShotName, List<String> indices) {
 		try {
-			CreateSnapshotResponse createSnapshotResponse = client.admin().cluster()
-					.prepareCreateSnapshot(ConfigHelper.getEsIndexSuffix(), snapShotName)
-					.setWaitForCompletion(true)
-					.setIndices(baseIndexName).get();
-
-			log.info("Snapshot " + snapShotName + " was created for index: " + baseIndexName);
+			log.info("Creating Snapshot: " + snapShotName + " in: " + repo + " with: " + indices);
+			String[] array = new String[indices.size()];
+			indices.toArray(array);
+			client.admin().cluster()
+			.prepareCreateSnapshot(repo, snapShotName)
+			.setWaitForCompletion(true)
+			.setIndices(array).get();
+			log.info("Snapshot " + snapShotName + " was created for indices: " + indices);
 		} catch (Exception ex){
 			log.error("Exception in createSnapshot method: " + ex.toString());
 		}
@@ -210,6 +236,28 @@ public class IndexManager {
 
 	public String getNewIndexName() {
 		return newIndexName;
+	}
+
+	public List<SnapshotInfo> getSnapshots(String repo) {
+		GetSnapshotsResponse res  = client.admin().cluster().prepareGetSnapshots(repo).get();
+		return res.getSnapshots();
+	}
+
+	public List<String> getIndexList() {
+		List<String> ret = new ArrayList<>();
+		ClusterHealthResponse healths = client.admin().cluster().prepareHealth().get(); 
+		String clusterName = healths.getClusterName();              
+		int numberOfDataNodes = healths.getNumberOfDataNodes();     
+		int numberOfNodes = healths.getNumberOfNodes();             
+
+		for (ClusterIndexHealth health : healths.getIndices().values()) { 
+			String index = health.getIndex();   
+			ret.add(index);
+			int numberOfShards = health.getNumberOfShards();        
+			int numberOfReplicas = health.getNumberOfReplicas();    
+			ClusterHealthStatus status = health.getStatus();        
+		}
+		return ret;
 	}
 
 }
