@@ -1,13 +1,19 @@
 package org.alliancegenome.shared.translators;
 
 import java.util.ArrayList;
+import java.util.List;
 
+import org.alliancegenome.shared.es.document.site_index.DiseaseDocument;
 import org.alliancegenome.shared.es.document.site_index.FeatureDocument;
 import org.alliancegenome.shared.neo4j.entity.node.Feature;
 import org.alliancegenome.shared.neo4j.entity.node.SecondaryId;
 import org.alliancegenome.shared.neo4j.entity.node.Synonym;
+import org.apache.commons.collections4.CollectionUtils;
 
 public class FeatureTranslator extends EntityDocumentTranslator<Feature, FeatureDocument> {
+
+	private final GeneTranslator geneTranslator = new GeneTranslator();
+	private static DiseaseTranslator diseaseTranslator = new DiseaseTranslator();
 
 	@Override
 	protected FeatureDocument entityToDocument(Feature entity, int translationDepth) {
@@ -21,8 +27,12 @@ public class FeatureTranslator extends EntityDocumentTranslator<Feature, Feature
 		featureDocument.setPrimaryKey(entity.getPrimaryKey());
 		featureDocument.setRelease(entity.getRelease());
 		featureDocument.setSymbol(entity.getSymbol());
+		featureDocument.setName(entity.getSymbol());
+		featureDocument.setModCrossRefFullUrl(entity.getModCrossRefCompleteUrl());
 
-		if(translationDepth > 0) {
+		if (translationDepth > 0) {
+			if (entity.getGene().getSpecies() != null)
+				featureDocument.setNameKeyWithSpecies(entity.getSymbol(), entity.getGene().getSpecies().getType().getAbbreviation());
 
 			// This code is duplicated in Gene and Feature should be pulled out into its own translator
 			ArrayList<String> secondaryIds = new ArrayList<>();
@@ -45,7 +55,11 @@ public class FeatureTranslator extends EntityDocumentTranslator<Feature, Feature
 				}
 			}
 			featureDocument.setSynonyms(synonyms);
-
+			featureDocument.setGeneDocument(geneTranslator.translate(entity.getGene(), translationDepth - 1));
+			if (CollectionUtils.isNotEmpty(entity.getDiseaseEntityJoins())) {
+				List<DiseaseDocument> diseaseList = diseaseTranslator.getDiseaseDocuments(entity.getGene(), entity.getDiseaseEntityJoins(), translationDepth);
+				featureDocument.setDiseaseDocuments(diseaseList);
+			}
 		}
 
 		return featureDocument;

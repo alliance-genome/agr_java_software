@@ -13,7 +13,6 @@ import org.alliancegenome.shared.neo4j.entity.relationship.Orthologous;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.typeconversion.Convert;
-import org.neo4j.ogm.annotation.typeconversion.DateString;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -58,9 +57,6 @@ public class Gene extends Neo4jEntity implements Comparable<Gene> {
 	@Relationship(type = "ANNOTATED_TO")
 	private Set<GOTerm> gOTerms = new HashSet<>();
 
-	@Relationship(type = "IS_IMPLICATED_IN")
-	private Set<DOTerm> dOTerms = new HashSet<>();
-
 	@Relationship(type = "ORTHOLOGOUS", direction = Relationship.OUTGOING)
 	private List<Orthologous> orthoGenes;
 
@@ -74,9 +70,10 @@ public class Gene extends Neo4jEntity implements Comparable<Gene> {
 	private List<Feature> features;
 	
 	@Relationship(type = "ASSOCIATION", direction = Relationship.UNDIRECTED)
-	private List<DiseaseGeneJoin> diseaseGeneJoins = new ArrayList<DiseaseGeneJoin>();
+	private List<DiseaseEntityJoin> diseaseEntityJoins = new ArrayList<>();
+
 	@Relationship(type = "ASSOCIATION", direction = Relationship.UNDIRECTED)
-	private List<OrthologyGeneJoin> orthologyGeneJoins = new ArrayList<OrthologyGeneJoin>();
+	private List<OrthologyGeneJoin> orthologyGeneJoins = new ArrayList<>();
 
 
 	@Override

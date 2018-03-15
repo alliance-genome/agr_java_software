@@ -38,9 +38,11 @@ public class ConfigHelper {
 		 */
 		defaults.put("THREADED", "true"); // Indexer Value
 		defaults.put("API_ACCESS_TOKEN", "api_access_token"); // Api Value
-		defaults.put("DEBUG", "false");
 		
-		defaults.put("ES_INDEX", "site_index");
+		defaults.put("DEBUG", "false");
+		defaults.put("GENERATE_SITEMAP", "false"); // This will only be done in Production speeds up api startup
+		
+		defaults.put("ES_INDEX", "site_index"); // Can be over written
 		defaults.put("ES_INDEX_SUFFIX", ""); // Prod, Dev, Stage, etc
 		defaults.put("ES_DATA_INDEX", "data_index");
 		defaults.put("ES_HOST", "localhost");
@@ -167,6 +169,10 @@ public class ConfigHelper {
 		if(!init) init();
 		return Boolean.parseBoolean(config.get("DEBUG"));
 	}
+	public static boolean getGenerateSitemap() {
+		if(!init) init();
+		return Boolean.parseBoolean(config.get("GENERATE_SITEMAP"));
+	}
 	public static String getAWSBucketName() {
 		if(!init) init();
 		return config.get("AWS_BUCKET_NAME");
@@ -178,6 +184,10 @@ public class ConfigHelper {
 	public static boolean hasEsIndexSuffix() {
 		if(!init) init();
 		return (ConfigHelper.getEsIndexSuffix() != null && !ConfigHelper.getEsIndexSuffix().equals("") && ConfigHelper.getEsIndexSuffix().length() > 0);
+	}
+	
+	public static void setNameValue(String key, String value) {
+		config.put(key, value);
 	}
 	
 	public static void printProperties() {

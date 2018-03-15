@@ -33,7 +33,7 @@ public class SearchDAO extends ESDAO {
 			add("name"); add("symbol"); add("synonyms"); add("soTermName"); add("gene_chromosomes"); add("gene_chromosome_starts"); add("gene_chromosome_ends");
 			add("description"); add("definition"); add("external_ids"); add("species"); add("gene_biological_process"); add("gene_molecular_function"); add("gene_cellular_component");
 			add("go_type"); add("go_genes"); add("go_synonyms"); add("disease_genes"); add("disease_synonyms"); add("homologs"); add("crossReferences"); add("category");
-			add("href"); add("name_key");
+			add("href"); add("name_key"); add("geneDocument"); add("diseaseDocuments"); add("modCrossRefFullUrl");
 		}
 	};
 

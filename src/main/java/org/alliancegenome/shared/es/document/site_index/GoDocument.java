@@ -10,12 +10,7 @@ import lombok.Setter;
 @Getter @Setter
 public class GoDocument extends SearchableItem {
 
-	private String primaryId;
-	private String category = "go";
-	private String href;
-	private String name;
-	private String name_key;
-	private String description;
+	{ category = "go"; }
 
 	private String id;
 	private String go_type;

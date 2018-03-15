@@ -1,10 +1,9 @@
 package org.alliancegenome.shared.es.document.site_index;
 
+import java.util.Set;
+
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.List;
-import java.util.Set;
 
 @Getter
 @Setter

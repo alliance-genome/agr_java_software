@@ -1,5 +1,6 @@
 package org.alliancegenome.shared.es.document.site_index;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -12,7 +13,8 @@ import lombok.Setter;
 @Setter
 public class FeatureDocument extends SearchableItem {
 
-	private String category = "allele";
+	{ category = "allele"; }
+	
 	private String primaryKey;
 	private String symbol;
 	private Date dateProduced;
@@ -20,9 +22,13 @@ public class FeatureDocument extends SearchableItem {
 	private String release;
 	private String localId;
 	private String globalId;
+	private String modCrossRefFullUrl;
 
 	private List<String> secondaryIds;
 	private List<String> synonyms;
+	private GeneDocument geneDocument;
+	private List<DiseaseDocument> diseaseDocuments = new ArrayList<>();
+
 
 	@Override
 	@JsonIgnore

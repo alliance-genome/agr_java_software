@@ -14,7 +14,6 @@ import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 import org.elasticsearch.action.admin.cluster.repositories.put.PutRepositoryResponse;
 import org.elasticsearch.action.admin.cluster.snapshots.get.GetSnapshotsResponse;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
-import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
 import org.elasticsearch.action.admin.indices.get.GetIndexResponse;
 import org.elasticsearch.cluster.health.ClusterHealthStatus;
 import org.elasticsearch.cluster.health.ClusterIndexHealth;
@@ -60,7 +59,7 @@ public class IndexManager {
 		try {
 			SiteIndexSettings settings = new SiteIndexSettings(true);
 			settings.buildSettings();
-			CreateIndexResponse t = client.admin().indices().create(new CreateIndexRequest(index).settings(settings.getBuilder().string(), XContentType.JSON)).get();
+			client.admin().indices().create(new CreateIndexRequest(index).settings(settings.getBuilder().string(), XContentType.JSON)).get();
 			//log.debug(t.toString());
 		} catch (Exception e) {
 			client.admin().indices().prepareRefresh(index).get();
@@ -115,19 +114,19 @@ public class IndexManager {
 		log.debug(baseIndexName + " Finished: ");
 	}
 
-//	private void addMapping() {
-//		try {
-//			Mappings mappingClass = (Mappings) indexerConfig.getMappingsClazz().getDeclaredConstructor(Boolean.class).newInstance(true);
-//			mappingClass.buildMappings();
-//			log.debug("Getting Mapping for type: " + indexerConfig.getTypeName());
-//			client.admin().indices().preparePutMapping(currentIndex).setType(indexerConfig.getTypeName()).setSource(mappingClass.getBuilder().string()).get();
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
-//	}
+	//	private void addMapping() {
+	//		try {
+	//			Mappings mappingClass = (Mappings) indexerConfig.getMappingsClazz().getDeclaredConstructor(Boolean.class).newInstance(true);
+	//			mappingClass.buildMappings();
+	//			log.debug("Getting Mapping for type: " + indexerConfig.getTypeName());
+	//			client.admin().indices().preparePutMapping(currentIndex).setType(indexerConfig.getTypeName()).setSource(mappingClass.getBuilder().string()).get();
+	//		} catch (Exception e) {
+	//			e.printStackTrace();
+	//		}
+	//	}
 
 
-	public String checkSnapShotRepo(String repoName) {
+	public String getCreateRepo(String repoName) {
 		try {
 			List<RepositoryMetaData> repositories = client.admin().cluster().prepareGetRepositories().get().repositories();
 
@@ -149,10 +148,6 @@ public class IndexManager {
 		return null;
 	}
 
-	public void listSnapShots() {
-		List<RepositoryMetaData> repositories = client.admin().cluster().prepareGetRepositories().get().repositories();
-	}
-	
 	public List<RepositoryMetaData> listRepos() {
 		try {
 			List<RepositoryMetaData> repositories = client.admin().cluster().prepareGetRepositories().get().repositories();
@@ -164,7 +159,7 @@ public class IndexManager {
 	}
 
 	public void takeSnapShot() {
-		String repo = checkSnapShotRepo(ConfigHelper.getEsIndexSuffix());
+		String repo = getCreateRepo(ConfigHelper.getEsIndexSuffix());
 
 		if(repo != null) {
 			List<String> indices = new ArrayList<>();

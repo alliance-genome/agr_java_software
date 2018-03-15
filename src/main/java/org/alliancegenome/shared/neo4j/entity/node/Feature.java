@@ -1,6 +1,10 @@
 package org.alliancegenome.shared.neo4j.entity.node;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import org.alliancegenome.shared.es.util.DateConverter;
 import org.alliancegenome.shared.neo4j.entity.Neo4jEntity;
@@ -24,6 +28,7 @@ public class Feature extends Neo4jEntity implements Comparable<Feature> {
 	private String release;
 	private String localId;
 	private String globalId;
+	private String modCrossRefCompleteUrl;
 
 	@Relationship(type = "FROM_SPECIES")
 	private Species species;

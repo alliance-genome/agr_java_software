@@ -11,7 +11,6 @@ import org.alliancegenome.shared.es.document.site_index.FeatureDocument;
 import org.alliancegenome.shared.es.document.site_index.GeneDocument;
 import org.alliancegenome.shared.es.document.site_index.GenomeLocationDoclet;
 import org.alliancegenome.shared.es.document.site_index.OrthologyDoclet;
-import org.alliancegenome.shared.neo4j.entity.node.DOTerm;
 import org.alliancegenome.shared.neo4j.entity.node.GOTerm;
 import org.alliancegenome.shared.neo4j.entity.node.Gene;
 import org.alliancegenome.shared.neo4j.entity.node.OrthoAlgorithm;
@@ -25,7 +24,7 @@ import org.apache.logging.log4j.Logger;
 
 public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument> {
 
-	private Logger log = LogManager.getLogger(getClass());
+	private final Logger log = LogManager.getLogger(getClass());
 
 	private static DiseaseTranslator diseaseTranslator = new DiseaseTranslator();
 	private static FeatureTranslator alleleTranslator = new FeatureTranslator();
@@ -51,14 +50,11 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
 		geneDocument.setModLocalId(entity.getModLocalId());
 		geneDocument.setModGlobalCrossRefId(entity.getModGlobalCrossRefId());
 		geneDocument.setModGlobalId(entity.getModGlobalId());
-
-		geneDocument.setHref(null); // This might look wrong but it was taken from the old AGR code base.
-		geneDocument.setName(entity.getName());
-		if (entity.getSpecies() != null) {
-			geneDocument.setName_key(entity.getSymbol() + " (" + entity.getSpecies().getType().getAbbreviation() + ")"); // This might look wrong but it was taken from the old AGR code base.
-		} else {
-			geneDocument.setName_key(entity.getSymbol());
-		}
+		if (entity.getName() == null)
+			geneDocument.setName(entity.getSymbol());
+		else
+			geneDocument.setName(entity.getName());
+		geneDocument.setNameKeyWithSpecies(entity.getSymbol(), entity.getSpecies().getType().getAbbreviation());
 		geneDocument.setPrimaryId(entity.getPrimaryKey());
 		geneDocument.setDateProduced(entity.getDateProduced());
 		geneDocument.setTaxonId(entity.getTaxonId());
@@ -86,6 +82,7 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
 		geneDocument.setGene_cellular_component(goTerms.get("cellular_component"));
 		geneDocument.setGene_molecular_function(goTerms.get("molecular_function"));
 
+		// This code is duplicated in Gene and Feature should be pulled out into its own translator
 		ArrayList<String> secondaryIds = new ArrayList<>();
 		if (entity.getSecondaryIds() != null) {
 			for (SecondaryId secondaryId : entity.getSecondaryIds()) {
@@ -101,6 +98,7 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
 		}
 		geneDocument.setSymbol(entity.getSymbol());
 
+		// This code is duplicated in Gene and Feature should be pulled out into its own translator
 		ArrayList<String> synonyms = new ArrayList<>();
 		if (entity.getSynonyms() != null) {
 			for (Synonym synonym : entity.getSynonyms()) {
@@ -114,12 +112,12 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
 		geneDocument.setSynonyms(synonyms);
 
 
-		//		if(entity.getOrthoGenes() != null) {
-		//		if(lookup.size() + entity.getOrthologyGeneJoins().size() > 0) {
-		//			System.out.println(lookup.size() + " ==? " + entity.getOrthologyGeneJoins().size());
-		//		}
+//		if(entity.getOrthoGenes() != null) {
+//		if(lookup.size() + entity.getOrthologyGeneJoins().size() > 0) {
+//			System.out.println(lookup.size() + " ==? " + entity.getOrthologyGeneJoins().size());
+//		}
 
-		if (entity.getOrthologyGeneJoins().size() > 0) {
+		if (entity.getOrthologyGeneJoins().size() > 0 && translationDepth > 0) {
 			List<OrthologyDoclet> olist = new ArrayList<>();
 
 			HashMap<String, Orthologous> lookup = new HashMap<String, Orthologous>();
@@ -156,15 +154,15 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
 							orth.isBestRevScore(),
 							orth.getConfidence(),
 							orth.getGene1().getSpecies() == null ? null : orth.getGene1().getSpecies().getPrimaryKey(),
-									orth.getGene2().getSpecies() == null ? null : orth.getGene2().getSpecies().getPrimaryKey(),
-											orth.getGene1().getSpecies() == null ? null : orth.getGene1().getSpecies().getName(),
-													orth.getGene2().getSpecies() == null ? null : orth.getGene2().getSpecies().getName(),
-															orth.getGene1().getSymbol(),
-															orth.getGene2().getSymbol(),
-															orth.getGene1().getPrimaryKey(),
-															orth.getGene2().getPrimaryKey(),
-															notCalled, matched, notMatched
-							);
+							orth.getGene2().getSpecies() == null ? null : orth.getGene2().getSpecies().getPrimaryKey(),
+							orth.getGene1().getSpecies() == null ? null : orth.getGene1().getSpecies().getName(),
+							orth.getGene2().getSpecies() == null ? null : orth.getGene2().getSpecies().getName(),
+							orth.getGene1().getSymbol(),
+							orth.getGene2().getSymbol(),
+							orth.getGene1().getPrimaryKey(),
+							orth.getGene2().getPrimaryKey(),
+							notCalled, matched, notMatched
+					);
 					olist.add(doc);
 				}
 
@@ -172,19 +170,9 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
 			geneDocument.setOrthology(olist);
 		}
 
-		if (entity.getDOTerms() != null) {
-			List<DiseaseDocument> dlist = new ArrayList<>();
-			for (DOTerm dot : entity.getDOTerms()) {
-				if (translationDepth > 0) {
-					try {
-						DiseaseDocument doc = diseaseTranslator.entityToDocument(dot, entity, translationDepth - 1); // This needs to not happen if being called from DiseaseTranslator
-						dlist.add(doc);
-					} catch (Exception e) {
-						log.error("Exception Creating Disease Document: " + e.getMessage());
-					}
-				}
-			}
-			geneDocument.setDiseases(dlist);
+		if (entity.getDiseaseEntityJoins() != null && translationDepth > 0) {
+			List<DiseaseDocument> diseaseList = diseaseTranslator.getDiseaseDocuments(entity, entity.getDiseaseEntityJoins(), translationDepth);
+			geneDocument.setDiseases(diseaseList);
 		}
 
 		if (entity.getGenomeLocations() != null) {
@@ -218,10 +206,13 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
 			geneDocument.setCrossReferences(crlist);
 		}
 
-		if(entity.getFeatures() != null) {
-			geneDocument.setAlleles((List<FeatureDocument>) alleleTranslator.translateEntities(entity.getFeatures()));
+		if (entity.getFeatures() != null && translationDepth > 0) {
+			List<FeatureDocument> featureList = new ArrayList<>();
+			entity.getFeatures().forEach(feature ->
+					featureList.add(alleleTranslator.entityToDocument(feature, translationDepth - 1))
+			);
+			geneDocument.setAlleles(featureList);
 		}
-
 
 		return geneDocument;
 	}
