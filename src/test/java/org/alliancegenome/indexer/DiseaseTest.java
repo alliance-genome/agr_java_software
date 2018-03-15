@@ -16,14 +16,40 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.config.Configurator;
+import org.junit.Before;
+import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.IsEqual.equalTo;
+import static org.junit.Assert.assertNotNull;
+
 public class DiseaseTest {
+
+    private FeatureRepository featureRepository;
+    private DiseaseRepository diseaseRepository;
+    private GeneRepository geneRepository;
+
+    private FeatureTranslator featureTranslator;
+    private DiseaseTranslator diseaseTranslator;
+
+    @Before
+    public void before() {
+        Configurator.setRootLevel(Level.WARN);
+        //Configurator.setLevel("org.neo4j",Level.DEBUG);
+        Logger log = LogManager.getLogger(DiseaseTest.class);
+        log.info("Hallo");
+        ConfigHelper.init();
+
+        featureRepository = new FeatureRepository();
+        diseaseRepository = new DiseaseRepository();
+        geneRepository = new GeneRepository();
+
+        featureTranslator = new FeatureTranslator();
+        diseaseTranslator = new DiseaseTranslator();
+    }
 
     public static void main(String[] args) throws Exception {
         Configurator.setRootLevel(Level.WARN);
@@ -45,6 +71,9 @@ public class DiseaseTest {
         Collection<DOTerm> entityt = neo4jService.getEntity("primaryKey", "DOID:9281");
 */
 
+        DiseaseTest test = new DiseaseTest();
+//        test.testReferencesForAllele();
+        test.testReferencesForAlleleDiseaseAnnotations();
         Neo4jRepository<DOTerm> neo4jService = new Neo4jRepository<>(DOTerm.class);
 
         DiseaseTranslator translator = new DiseaseTranslator();
@@ -92,5 +121,49 @@ public class DiseaseTest {
         //System.out.println("Number of Diseases with Genes Info: " + geneDiseaseList1.size());
 
     }
+
+    public void testReferencesForAllele() {
+        Feature feature = featureRepository.getFeature("MGI:2156738");
+        FeatureDocument featureDoc = featureTranslator.translate(feature);
+
+        assertNotNull(feature);
+    }
+
+    @Test
+    public void getGeneFeatureAnnotationMap() {
+        // Peters anomaly
+        DOTerm disease = diseaseRepository.getDiseaseTerm("DOID:0060673");
+        // Pax6
+        Gene gene = geneRepository.getOneGene("MGI:97490");
+        Map<Gene, Map<Optional<Feature>, List<DiseaseEntityJoin>>> map = diseaseTranslator.getGeneFeatureAnnotationMap(disease, gene);
+
+        assertNotNull(map);
+        assert (map.keySet().size() == 1);
+        Map<Optional<Feature>, List<DiseaseEntityJoin>> diseaseMap = map.get(gene);
+        assert (diseaseMap.keySet().size() == 6);
+        diseaseMap.forEach((feature, diseaseEntityJoinList) -> {
+            if (!feature.isPresent()) {
+                assertThat("There should be 3 publications for the featureless record", diseaseEntityJoinList.size(), equalTo(3));
+            }
+            if (feature.isPresent() && feature.get().getSymbol().contains("7Neu")) {
+                assertThat("There should be 1 publication for Pax6<7Neu> record", diseaseEntityJoinList.size(), equalTo(1));
+                assertThat(diseaseEntityJoinList.get(0).getPublication().getPubMedId(), equalTo("PMID:11779807"));
+
+            }
+        });
+    }
+
+    @Test
+    public void testReferencesForAlleleDiseaseAnnotations() {
+        DOTerm disease = diseaseRepository.getDiseaseTerm("DOID:0060673");
+        List<DOTerm> list = new ArrayList<>();
+        list.add(disease);
+        Gene gene = geneRepository.getOneGene("MGI:97490");
+        Set<DiseaseAnnotationDocument> set = (Set) diseaseTranslator.translateAnnotationEntities(list, 1);
+
+        assertNotNull(set);
+        assertThat(set.size(), equalTo(9));
+    }
+
 
 }
