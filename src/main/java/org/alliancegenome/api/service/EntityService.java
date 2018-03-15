@@ -1,20 +1,18 @@
 package org.alliancegenome.api.service;
 
-import org.alliancegenome.api.dao.EntityDAO;
+import java.util.Map;
 
 import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-import java.util.Map;
+
+import org.alliancegenome.shared.es.dao.site_index.EntityDAO;
 
 @RequestScoped
 public class EntityService {
 
-    @Inject
-    private EntityDAO entityDAO;
+    private static EntityDAO entityDAO = new EntityDAO();
 
     public Map<String, Object> getById(String id) {
         return entityDAO.getById(id);
     }
-
 
 }
