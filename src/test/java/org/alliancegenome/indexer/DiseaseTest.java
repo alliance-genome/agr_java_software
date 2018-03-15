@@ -17,6 +17,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.config.Configurator;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.*;
@@ -130,6 +131,7 @@ public class DiseaseTest {
     }
 
     @Test
+    @Ignore
     public void getGeneFeatureAnnotationMap() {
         // Peters anomaly
         DOTerm disease = diseaseRepository.getDiseaseTerm("DOID:0060673");
@@ -154,6 +156,7 @@ public class DiseaseTest {
     }
 
     @Test
+    @Ignore
     public void testReferencesForAlleleDiseaseAnnotations() {
         DOTerm disease = diseaseRepository.getDiseaseTerm("DOID:0060673");
         List<DOTerm> list = new ArrayList<>();
