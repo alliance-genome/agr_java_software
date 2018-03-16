@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<name>AGR :: Shared</name>
-	<version>1.3.0</version>
+	<version>1.3.0-SNAPSHOT</version>
 	<artifactId>agr_java_shared</artifactId>
 	<groupId>org.alliancegnome</groupId>
 	<packaging>jar</packaging>
