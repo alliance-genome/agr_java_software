@@ -10,13 +10,13 @@ public class AliasCommand extends Command implements CommandInterface {
 
 	@Override
 	public void printHelp() {
-		// TODO Auto-generated method stub
+		
 
 	}
 
 	@Override
 	public void execute() {
-		// TODO Auto-generated method stub
+		
 
 	}
 
