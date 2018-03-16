@@ -18,6 +18,7 @@ public class DiseaseAnnotationDocument {
     private SpeciesDoclet species;
     private String associationType;
     private GeneDocument geneDocument;
+    private FeatureDocument featureDocument;
     private List<PublicationDoclet> publications;
     private List<String> parentTermIDs;
     private List<String> parentTermNames;
