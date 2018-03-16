@@ -3,10 +3,11 @@ package org.alliancegenome.shared.es.util;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 
 import org.alliancegenome.shared.config.ConfigHelper;
+import org.alliancegenome.shared.es.schema.Mapping;
+import org.alliancegenome.shared.es.schema.Mapping.MappingClass;
 import org.alliancegenome.shared.es.schema.settings.SiteIndexSettings;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -14,12 +15,9 @@ import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 import org.elasticsearch.action.admin.cluster.repositories.put.PutRepositoryResponse;
 import org.elasticsearch.action.admin.cluster.snapshots.get.GetSnapshotsResponse;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
-import org.elasticsearch.action.admin.indices.get.GetIndexResponse;
 import org.elasticsearch.cluster.health.ClusterHealthStatus;
 import org.elasticsearch.cluster.health.ClusterIndexHealth;
-import org.elasticsearch.cluster.metadata.IndexMetaData;
 import org.elasticsearch.cluster.metadata.RepositoryMetaData;
-import org.elasticsearch.common.collect.ImmutableOpenMap;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.common.xcontent.XContentType;
@@ -31,8 +29,8 @@ public class IndexManager {
 	private final Logger log = LogManager.getLogger(getClass());
 	private PreBuiltXPackTransportClient client;
 	private String newIndexName;
-	private String oldIndexName;
 	private String baseIndexName = "site_index";
+	private String tempIndexName = "site_index_temp";
 
 	public IndexManager() {
 		try {
@@ -54,12 +52,27 @@ public class IndexManager {
 	}
 
 	public void createIndex(String index) {
+		createIndex(index, false);
+	}
+
+	public void createIndex(String index, boolean addMappings) {
 		log.debug("Creating index: " + index);
 
 		try {
 			SiteIndexSettings settings = new SiteIndexSettings(true);
 			settings.buildSettings();
 			client.admin().indices().create(new CreateIndexRequest(index).settings(settings.getBuilder().string(), XContentType.JSON)).get();
+
+			if(addMappings) {
+				for(MappingClass mc: MappingClass.values()) {
+					Mapping mappingClass = (Mapping) mc.getMappingClass().getDeclaredConstructor(Boolean.class).newInstance(true);
+					mappingClass.buildMappings();
+
+					log.debug("Getting Mapping for type: " + mc.getType());
+					client.admin().indices().preparePutMapping(index).setType(mc.getType()).setSource(mappingClass.getBuilder().string(), XContentType.JSON).get();
+				}
+			}
+
 			//log.debug(t.toString());
 		} catch (Exception e) {
 			client.admin().indices().prepareRefresh(index).get();
@@ -68,6 +81,7 @@ public class IndexManager {
 			System.exit(0);
 		}
 	}
+
 	public void deleteIndex(String index) {
 		log.info("Deleting Index: " + index);
 		client.admin().indices().prepareDelete(index).get();
@@ -80,51 +94,29 @@ public class IndexManager {
 		client.admin().indices().prepareDelete(array).get();
 	}
 
-	public void startIndex() {
+	public String startSiteIndex() {
 		if(ConfigHelper.hasEsIndexSuffix()) {
 			newIndexName = baseIndexName + "_" + ConfigHelper.getEsIndexSuffix() + "_" + (new Date()).getTime();
 		} else {
 			newIndexName = baseIndexName + "_" + (new Date()).getTime();
 		}
 
-		setCurrentIndex();
-		createIndex(newIndexName);
-		if(oldIndexName == null) {
-			createAlias(baseIndexName, newIndexName);
-		}
+		createIndex(newIndexName, true);
+		removeAlias(tempIndexName, tempIndexName);
+		createAlias(tempIndexName, newIndexName);
+
 		log.debug("Main Index Starting: ");
+		return newIndexName;
 	}
 
 	public void finishIndex() {
 		log.debug("Main Index Finished: ");
 		client.admin().indices().prepareRefresh(newIndexName).get();
 
-		if (oldIndexName != null) {
-			removeAlias(baseIndexName, oldIndexName);
-		}
-
-		if (oldIndexName != baseIndexName) {
-			createAlias(baseIndexName, newIndexName);
-			if (oldIndexName != null) {
-				deleteIndex(oldIndexName);
-			}
-		}
 		takeSnapShot();
 		client.close();
 		log.debug(baseIndexName + " Finished: ");
 	}
-
-	//	private void addMapping() {
-	//		try {
-	//			Mappings mappingClass = (Mappings) indexerConfig.getMappingsClazz().getDeclaredConstructor(Boolean.class).newInstance(true);
-	//			mappingClass.buildMappings();
-	//			log.debug("Getting Mapping for type: " + indexerConfig.getTypeName());
-	//			client.admin().indices().preparePutMapping(currentIndex).setType(indexerConfig.getTypeName()).setSource(mappingClass.getBuilder().string()).get();
-	//		} catch (Exception e) {
-	//			e.printStackTrace();
-	//		}
-	//	}
-
 
 	public String getCreateRepo(String repoName) {
 		try {
@@ -168,7 +160,7 @@ public class IndexManager {
 			createSnapShot(ConfigHelper.getEsIndexSuffix(), newIndexName, indices);
 		}
 	}
-	
+
 	public void createSnapShot(String repo, String snapShotName, List<String> indices) {
 		try {
 			log.info("Creating Snapshot: " + snapShotName + " in: " + repo + " with: " + indices);
@@ -203,35 +195,31 @@ public class IndexManager {
 		return null;
 	}
 
-	public void setCurrentIndex() {
-		try {
-			GetIndexResponse t = client.admin().indices().prepareGetIndex().addIndices(baseIndexName).get();
-			//log.debug("Index Found: " + t.getIndices()[0]);
-			oldIndexName = t.getIndices()[0];
-		} catch (Exception e) {
-			oldIndexName = null;
-		}
-		log.debug("Current Index: " + oldIndexName);
-
-		if(oldIndexName != null) {
-			ImmutableOpenMap<String, IndexMetaData> indexList = client.admin().cluster().prepareState().get().getState().getMetaData().getIndices();
-			Iterator<String> keys = indexList.keysIt();
-			while(keys.hasNext()) {
-				String key = keys.next();
-				IndexMetaData index = indexList.get(key);
-
-				if(!index.getIndex().getName().equals(oldIndexName)) {
-					if(index.getIndex().getName().startsWith(baseIndexName + "_")) {
-						deleteIndex(index.getIndex().getName());
-					}
-				}
-			}
-		}
-	}
-
-	public String getNewIndexName() {
-		return newIndexName;
-	}
+	//	public void setCurrentIndex() {
+	//		try {
+	//			GetIndexResponse t = client.admin().indices().prepareGetIndex().addIndices(baseIndexName).get();
+	//			//log.debug("Index Found: " + t.getIndices()[0]);
+	//			oldIndexName = t.getIndices()[0];
+	//		} catch (Exception e) {
+	//			oldIndexName = null;
+	//		}
+	//		log.debug("Current Index: " + oldIndexName);
+	//
+	//		if(oldIndexName != null) {
+	//			ImmutableOpenMap<String, IndexMetaData> indexList = client.admin().cluster().prepareState().get().getState().getMetaData().getIndices();
+	//			Iterator<String> keys = indexList.keysIt();
+	//			while(keys.hasNext()) {
+	//				String key = keys.next();
+	//				IndexMetaData index = indexList.get(key);
+	//
+	//				if(!index.getIndex().getName().equals(oldIndexName)) {
+	//					if(index.getIndex().getName().startsWith(baseIndexName + "_")) {
+	//						deleteIndex(index.getIndex().getName());
+	//					}
+	//				}
+	//			}
+	//		}
+	//	}
 
 	public List<SnapshotInfo> getSnapshots(String repo) {
 		GetSnapshotsResponse res  = client.admin().cluster().prepareGetSnapshots(repo).get();

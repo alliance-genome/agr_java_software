@@ -2,11 +2,11 @@ package org.alliancegenome.shared.es.schema.mapping;
 
 import java.io.IOException;
 
-import org.alliancegenome.shared.es.schema.Mappings;
+import org.alliancegenome.shared.es.schema.Mapping;
 
-public class FeatureMappings extends Mappings {
+public class FeatureMapping extends Mapping {
 
-	public FeatureMappings(Boolean pretty) {
+	public FeatureMapping(Boolean pretty) {
 		super(pretty);
 	}
 

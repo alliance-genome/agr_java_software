@@ -2,11 +2,11 @@ package org.alliancegenome.shared.es.schema.mapping;
 
 import java.io.IOException;
 
-import org.alliancegenome.shared.es.schema.Mappings;
+import org.alliancegenome.shared.es.schema.Mapping;
 
-public class GeneMappings extends Mappings {
+public class GeneMapping extends Mapping {
 	
-	public GeneMappings(Boolean pretty) {
+	public GeneMapping(Boolean pretty) {
 		super(pretty);
 	}
 

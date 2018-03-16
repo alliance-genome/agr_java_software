@@ -2,14 +2,18 @@ package org.alliancegenome.shared.es.schema;
 
 import java.io.IOException;
 
-public abstract class Mappings extends Builder {
+import org.alliancegenome.shared.es.schema.mapping.DiseaseMapping;
+import org.alliancegenome.shared.es.schema.mapping.FeatureMapping;
+import org.alliancegenome.shared.es.schema.mapping.GeneMapping;
+import org.alliancegenome.shared.es.schema.mapping.GoMapping;
+
+public abstract class Mapping extends Builder {
 	
-	public Mappings(Boolean pretty) {
+	public Mapping(Boolean pretty) {
 		super(pretty);
 	}
 
 	public abstract void buildMappings();
-	
 
 	protected void buildGenericField(String name, String type, String analyzer, boolean symbol, boolean autocomplete, boolean keyword, boolean synonym) throws IOException {
 		builder.startObject(name);
@@ -55,6 +59,29 @@ public abstract class Mappings extends Builder {
 		buildProperty("id", "text", "symbols");
 		buildProperty("description", "text");
 		buildGenericField("species", "text", null, false, false, true, true);
+	}
+	
+	public enum MappingClass {
+		Disease("disease", DiseaseMapping.class),
+		Feature("feature", FeatureMapping.class),
+		Gene("gene", GeneMapping.class),
+		Go("go", GoMapping.class),
+		;
+		
+		private String type;
+		private Class<?> mappingClass;
+
+		private MappingClass(String type, Class<?> mappingClass) {
+			this.type = type;
+			this.mappingClass = mappingClass;
+		}
+		
+		public String getType() {
+			return type;
+		}
+		public Class<?> getMappingClass() {
+			return mappingClass;
+		}
 	}
 	
 }
