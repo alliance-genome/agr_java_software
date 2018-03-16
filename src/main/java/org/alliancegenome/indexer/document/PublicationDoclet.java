@@ -2,6 +2,7 @@ package org.alliancegenome.indexer.document;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 
@@ -16,5 +17,13 @@ public class PublicationDoclet {
     private String pubModUrl;
     private List<String> evidenceCodes;
 
+    // retrieve PUBMED id if it is available
+    // otherwise the mod id
+    public String getPubId() {
+        if (StringUtils.isNotEmpty(pubMedId))
+            return pubMedId;
+        return pubModId;
+
+    }
 }
 
