@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 
+import org.alliancegenome.indexer.Main;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.shared.config.ConfigHelper;
 import org.alliancegenome.shared.es.document.site_index.ESDocument;
@@ -27,6 +28,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public abstract class Indexer<D extends ESDocument> extends Thread {
 
+    public static String indexName;
     private Logger log = LogManager.getLogger(getClass());
     protected IndexerConfig indexerConfig;
     private PreBuiltXPackTransportClient client;
@@ -41,7 +43,7 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
 
     public Indexer(IndexerConfig indexerConfig) {
         this.indexerConfig = indexerConfig;
-
+        
         om.setSerializationInclusion(Include.NON_NULL);
 
         try {
@@ -75,8 +77,7 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
                 try {
                     String json = om.writeValueAsString(doc);
                     //log.debug("JSON: " + json);
-                    
-                    bulkRequest.add(client.prepareIndex(ConfigHelper.getEsIndex(), indexerConfig.getTypeName()).setSource(json, XContentType.JSON).setId(doc.getDocumentId()));
+                    bulkRequest.add(client.prepareIndex(Indexer.indexName, indexerConfig.getTypeName()).setSource(json, XContentType.JSON).setId(doc.getDocumentId()));
                 } catch (JsonProcessingException e) {
                     e.printStackTrace();
                 }

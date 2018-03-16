@@ -22,8 +22,18 @@ public class Main {
         log.info("Start Time: " + start);
         
         IndexManager im = new  IndexManager();
+        Indexer.indexName = im.startSiteIndex();
 
-        HashMap<String, Indexer> indexers = getIndexerMap(im.getNewIndexName());
+        HashMap<String, Indexer> indexers = new HashMap<>();
+        for (IndexerConfig ic : IndexerConfig.values()) {
+            try {
+                Indexer i = (Indexer) ic.getIndexClazz().getDeclaredConstructor(IndexerConfig.class, String.class).newInstance(ic);
+                indexers.put(ic.getTypeName(), i);
+            } catch (Exception e) {
+                e.printStackTrace();
+                System.exit(-1);
+            }
+        }
 
         Set<String> argumentSet = new HashSet<>();
         for (int i = 0; i < args.length; i++) {
@@ -56,7 +66,9 @@ public class Main {
                 System.exit(-1);
             }
         }
-
+        
+        im.finishIndex();
+        
         Date end = new Date();
         log.info("End Time: " + end);
         long duration = end.getTime() - start.getTime();
@@ -65,17 +77,4 @@ public class Main {
 
     }
 
-    private static HashMap<String, Indexer> getIndexerMap(String newIndexName) {
-        HashMap<String, Indexer> indexers = new HashMap<>();
-        for (IndexerConfig ic : IndexerConfig.values()) {
-            try {
-                Indexer i = (Indexer) ic.getIndexClazz().getDeclaredConstructor(IndexerConfig.class).newInstance(newIndexName, ic);
-                indexers.put(ic.getTypeName(), i);
-            } catch (Exception e) {
-                e.printStackTrace();
-                System.exit(-1);
-            }
-        }
-        return indexers;
-    }
 }

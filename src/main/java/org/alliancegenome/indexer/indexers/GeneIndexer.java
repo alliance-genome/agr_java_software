@@ -27,14 +27,15 @@ public class GeneIndexer extends Indexer<GeneDocument> {
             LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>();
             GeneRepository geneRepo = new GeneRepository();
             List<String> fulllist = geneRepo.getAllGeneKeys();
+            for(int i = 0; i < 214000; i++) {
+                fulllist.remove(0);
+            }
             queue.addAll(fulllist);
             geneRepo.clearCache();
             initiateThreading(queue);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-
-
     }
 
     protected void startSingleThread(LinkedBlockingDeque<String> queue) {
