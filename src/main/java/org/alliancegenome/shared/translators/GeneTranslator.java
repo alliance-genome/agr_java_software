@@ -130,19 +130,19 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
 				if (lookup.containsKey(join.getPrimaryKey())) {
 
 					ArrayList<String> matched = new ArrayList<String>();
-					if (join != null && join.getMatched() != null) {
+					if (join.getMatched() != null) {
 						for (OrthoAlgorithm algo : join.getMatched()) {
 							matched.add(algo.getName());
 						}
 					}
 					ArrayList<String> notMatched = new ArrayList<String>();
-					if (join != null && join.getNotMatched() != null) {
+					if (join.getNotMatched() != null) {
 						for (OrthoAlgorithm algo : join.getNotMatched()) {
 							notMatched.add(algo.getName());
 						}
 					}
 					ArrayList<String> notCalled = new ArrayList<String>();
-					if (join != null && join.getNotCalled() != null) {
+					if (join.getNotCalled() != null) {
 						for (OrthoAlgorithm algo : join.getNotCalled()) {
 							notCalled.add(algo.getName());
 						}

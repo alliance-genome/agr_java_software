@@ -2,6 +2,8 @@ package org.alliancegenome.shared.es.document.site_index;
 
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -25,5 +27,14 @@ public class PublicationDoclet implements Comparable<PublicationDoclet> {
 		if (pubModId == null)
 			return +1;
 		return pubModId.compareToIgnoreCase(comp.pubModId);
+	}
+
+	// retrieve PUBMED id if it is available
+	// otherwise the mod id
+	public String getPubId() {
+		if (StringUtils.isNotEmpty(pubMedId))
+			return pubMedId;
+		return pubModId;
+
 	}
 }
