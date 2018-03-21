@@ -4,8 +4,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.alliancegenome.shared.config.ConfigHelper;
 import org.alliancegenome.shared.es.document.site_index.DiseaseAnnotationDocument;
 import org.alliancegenome.shared.es.document.site_index.DiseaseDocument;
 import org.alliancegenome.shared.es.document.site_index.FeatureDocument;
