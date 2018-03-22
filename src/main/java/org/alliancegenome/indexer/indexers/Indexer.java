@@ -191,7 +191,7 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
         startProcess(total);
         
         while(queue.size() > 0) {
-            TimeUnit.SECONDS.sleep(10);
+            TimeUnit.SECONDS.sleep(60);
             progress(queue.size(), total);
         }
         
