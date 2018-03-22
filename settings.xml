@@ -22,13 +22,13 @@
           </snapshots>
           <id>central</id>
           <name>agr-release</name>
-          <url>http://maven.alliancegenome.org/artifactory/agr-release</url>
+          <url>https://maven.alliancegenome.org/artifactory/agr-release</url>
         </repository>
         <repository>
           <snapshots />
           <id>snapshots</id>
           <name>agr-snapshot</name>
-          <url>http://maven.alliancegenome.org/artifactory/agr-snapshot</url>
+          <url>https://maven.alliancegenome.org/artifactory/agr-snapshot</url>
         </repository>
       </repositories>
       <pluginRepositories>
@@ -38,13 +38,13 @@
           </snapshots>
           <id>central</id>
           <name>agr-release</name>
-          <url>http://maven.alliancegenome.org/artifactory/agr-release</url>
+          <url>https://maven.alliancegenome.org/artifactory/agr-release</url>
         </pluginRepository>
         <pluginRepository>
           <snapshots />
           <id>snapshots</id>
           <name>agr-snapshot</name>
-          <url>http://maven.alliancegenome.org/artifactory/agr-snapshot</url>
+          <url>https://maven.alliancegenome.org/artifactory/agr-snapshot</url>
         </pluginRepository>
       </pluginRepositories>
       <id>artifactory</id>
