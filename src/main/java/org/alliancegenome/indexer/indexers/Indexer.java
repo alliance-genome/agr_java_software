@@ -1,6 +1,7 @@
 package org.alliancegenome.indexer.indexers;
 
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -43,12 +44,19 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
 
     public Indexer(IndexerConfig indexerConfig) {
         this.indexerConfig = indexerConfig;
-        
+
         om.setSerializationInclusion(Include.NON_NULL);
 
         try {
             client = new PreBuiltXPackTransportClient(Settings.EMPTY);
-            client.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(ConfigHelper.getEsHost()), ConfigHelper.getEsPort()));
+            if(ConfigHelper.getEsHost().contains(",")) {
+                String[] hosts = ConfigHelper.getEsHost().split(",");
+                for(String host: hosts) {
+                    client.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(host), ConfigHelper.getEsPort()));
+                }
+            } else {
+                client.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(ConfigHelper.getEsHost()), ConfigHelper.getEsPort()));
+            }
         } catch (Exception e) {
             e.printStackTrace();
             System.exit(0);
@@ -189,12 +197,12 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
 
         int total = queue.size();
         startProcess(total);
-        
+
         while(queue.size() > 0) {
             TimeUnit.SECONDS.sleep(60);
             progress(queue.size(), total);
         }
-        
+
         for(Thread t: threads) {
             t.join();
         }
