@@ -44,7 +44,14 @@ public class IndexManager {
 	public IndexManager() {
 		try {
 			client = new PreBuiltXPackTransportClient(Settings.EMPTY);
-			client.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(ConfigHelper.getEsHost()), ConfigHelper.getEsPort()));
+			if(ConfigHelper.getEsHost().contains(",")) {
+				String[] hosts = ConfigHelper.getEsHost().split(",");
+				for(String host: hosts) {
+					client.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(host), ConfigHelper.getEsPort()));
+				}
+			} else {
+				client.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(ConfigHelper.getEsHost()), ConfigHelper.getEsPort()));
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(0);
