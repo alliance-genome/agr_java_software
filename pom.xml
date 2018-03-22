@@ -21,7 +21,7 @@
 		<repository>
 			<id>central</id>
 			<name>agr-releases</name>
-			<url>http://maven.alliancegenome.org/artifactory/agr-release</url>
+			<url>https://maven.alliancegenome.org/artifactory/agr-release</url>
 		</repository>
 	</repositories>
 
@@ -29,12 +29,12 @@
 		<repository>
 			<id>central</id>
 			<name>agr-releases</name>
-			<url>http://maven.alliancegenome.org/artifactory/agr-release</url>
+			<url>https://maven.alliancegenome.org/artifactory/agr-release</url>
 		</repository>
 		<snapshotRepository>
 			<id>snapshots</id>
 			<name>agr-snapshots</name>
-			<url>http://maven.alliancegenome.org/artifactory/agr-snapshot</url>
+			<url>https://maven.alliancegenome.org/artifactory/agr-snapshot</url>
 		</snapshotRepository>
 	</distributionManagement>
 
