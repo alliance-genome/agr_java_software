@@ -3,6 +3,7 @@ package org.alliancegenome.shared.es.util;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 import org.alliancegenome.shared.config.ConfigHelper;
@@ -20,12 +21,17 @@ import org.elasticsearch.action.admin.indices.get.GetIndexRequest;
 import org.elasticsearch.action.admin.indices.get.GetIndexResponse;
 import org.elasticsearch.cluster.health.ClusterHealthStatus;
 import org.elasticsearch.cluster.health.ClusterIndexHealth;
+import org.elasticsearch.cluster.metadata.AliasMetaData;
+import org.elasticsearch.cluster.metadata.IndexMetaData;
 import org.elasticsearch.cluster.metadata.RepositoryMetaData;
+import org.elasticsearch.common.collect.ImmutableOpenMap;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.snapshots.SnapshotInfo;
 import org.elasticsearch.xpack.client.PreBuiltXPackTransportClient;
+
+import com.carrotsearch.hppc.cursors.ObjectObjectCursor;
 
 public class IndexManager {
 
@@ -65,7 +71,7 @@ public class IndexManager {
 			SiteIndexSettings settings = new SiteIndexSettings(true);
 			settings.buildSettings();
 			client.admin().indices().create(new CreateIndexRequest(index).settings(settings.getBuilder().string(), XContentType.JSON)).get();
-			
+
 			if(addMappings) {
 				for(MappingClass mc: MappingClass.values()) {
 					Mapping mappingClass = (Mapping) mc.getMappingClass().getDeclaredConstructor(Boolean.class).newInstance(true);
@@ -84,18 +90,20 @@ public class IndexManager {
 			System.exit(0);
 		}
 	}
-	
-	public GetIndexResponse getIndex(String index) {
+
+	public IndexMetaData getIndex(String index) {
 		log.debug("Getting index: " + index);
 
-		try {
-			GetIndexRequest getReq = new GetIndexRequest().indices(index);
-			return client.admin().indices().getIndex(getReq).get();
-		} catch (Exception e) {
-			client.admin().indices().prepareRefresh(index).get();
-			log.error("Indexing Failed: " + index);
-			e.printStackTrace();
-			System.exit(0);
+		ImmutableOpenMap<String, IndexMetaData> indexList = client.admin().cluster().prepareState().get().getState().getMetaData().getIndices();
+		Iterator<String> keys = indexList.keysIt();
+
+		while(keys.hasNext()) {
+			String key = keys.next();
+			//System.out.println(key);
+			//System.out.println(indexList.get(key).getAliases());
+			if(index.equals(key) || indexList.get(key).getAliases().containsKey(index)) {
+				return indexList.get(key);
+			}
 		}
 		return null;
 	}
@@ -120,9 +128,9 @@ public class IndexManager {
 		}
 
 		createIndex(newIndexName, true);
-		GetIndexResponse gir = getIndex(tempIndexName);
-		if(gir != null && gir.aliases().containsKey(tempIndexName)) {
-			removeAlias(tempIndexName, tempIndexName);
+		IndexMetaData imd = getIndex(tempIndexName);
+		if(imd != null && imd.getAliases().containsKey(tempIndexName)) {
+			removeAlias(tempIndexName, imd.getSettings().get("index.provided_name"));
 		}
 		createAlias(tempIndexName, newIndexName);
 
