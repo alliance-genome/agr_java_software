@@ -27,7 +27,7 @@ public class Main {
         HashMap<String, Indexer> indexers = new HashMap<>();
         for (IndexerConfig ic : IndexerConfig.values()) {
             try {
-                Indexer i = (Indexer) ic.getIndexClazz().getDeclaredConstructor(IndexerConfig.class, String.class).newInstance(ic);
+                Indexer i = (Indexer) ic.getIndexClazz().getDeclaredConstructor(IndexerConfig.class).newInstance(ic);
                 indexers.put(ic.getTypeName(), i);
             } catch (Exception e) {
                 e.printStackTrace();
