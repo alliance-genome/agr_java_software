@@ -3,6 +3,13 @@ package org.alliancegenome.agr_elasticsearch_util.commands;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.elasticsearch.action.admin.indices.get.GetIndexResponse;
+import org.elasticsearch.cluster.metadata.AliasMetaData;
+import org.elasticsearch.cluster.metadata.IndexMetaData;
+
+import com.carrotsearch.hppc.cursors.ObjectCursor;
+import com.carrotsearch.hppc.cursors.ObjectObjectCursor;
+
 public class IndexCommand extends Command implements CommandInterface {
 
 	public IndexCommand(ArrayList<String> args) {
@@ -24,6 +31,17 @@ public class IndexCommand extends Command implements CommandInterface {
 				List<String> list = im.getIndexList();
 				for(String index: list) {
 					System.out.println(index);
+				}
+			} else if(command.equals("info")) {
+				String index = args.remove(0);
+				IndexMetaData imd = im.getIndex(index);
+				if(imd != null) {
+					for(ObjectCursor<String> a: imd.getAliases().keys()) {
+						System.out.println("Alias: " + a.value);
+					}
+					System.out.println(imd.getSettings().get("index.provided_name"));
+				} else {
+					System.out.println("Index not found: " + index);
 				}
 			} else if(command.equals("start")) {
 				// check tmp index and delete
