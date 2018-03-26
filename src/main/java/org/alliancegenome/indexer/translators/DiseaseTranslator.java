@@ -15,9 +15,10 @@ import static java.util.stream.Collectors.*;
 
 public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseDocument> {
 
-    private GeneTranslator geneTranslator = new GeneTranslator();
+    private final GeneTranslator geneTranslator = new GeneTranslator();
+    private final FeatureTranslator featureTranslator = new FeatureTranslator();
 
-    private Logger log = LogManager.getLogger(getClass());
+    private final Logger log = LogManager.getLogger(getClass());
 
     @Override
     protected DiseaseDocument entityToDocument(DOTerm entity, int translationDepth) {
@@ -28,41 +29,128 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
     protected DiseaseDocument entityToDocument(DOTerm entity, Gene gene, int translationDepth) {
         DiseaseDocument doc = getTermDiseaseDocument(entity);
 
-        if (entity.getDiseaseGeneJoins() == null)
+        if (entity.getDiseaseEntityJoins() == null)
             return doc;
 
-        Map<Gene, Map<String, List<DiseaseGeneJoin>>> sortedGeneAssociationMap = getGeneAnnotationMap(entity, gene);
+        Map<Gene, Map<String, List<DiseaseEntityJoin>>> sortedGeneAssociationMap = getGeneAnnotationMap(entity, gene);
+        List<AnnotationDocument> annotationDocuments = generateAnnotationDocument(entity, translationDepth, sortedGeneAssociationMap);
+        doc.setAnnotations(annotationDocuments);
+        return doc;
+    }
 
+    protected DiseaseDocument entityToDocument(DOTerm entity, Gene gene, List<DiseaseEntityJoin> dejList, int translationDepth) {
+        DiseaseDocument doc = getTermDiseaseDocument(entity);
+
+        if (dejList == null)
+            return doc;
+
+        Map<String, List<DiseaseEntityJoin>> associationMap = dejList.stream()
+                .collect(Collectors.groupingBy(diseaseEntityJoin -> diseaseEntityJoin.getJoinType()));
+        Map<Gene, Map<String, List<DiseaseEntityJoin>>> map = new HashMap<>();
+        map.put(gene, associationMap);
+        // create AnnotationDocument objects per
+        // disease, gene, Feature, association type
+        List<AnnotationDocument> annotationDocuments = generateAnnotationDocument(entity, translationDepth, map);
+        doc.setAnnotations(annotationDocuments);
+        return doc;
+    }
+
+    List<DiseaseDocument> getDiseaseDocuments(Gene entity, List<DiseaseEntityJoin> diseaseJoins, int translationDepth) {
+        // group by disease
+        Map<DOTerm, List<DiseaseEntityJoin>> diseaseMap = diseaseJoins.stream()
+                .collect(Collectors.groupingBy(DiseaseEntityJoin::getDisease));
+        List<DiseaseDocument> diseaseList = new ArrayList<>();
+        // for each disease create annotation doc
+        // diseaseEntityJoin list turns into AnnotationDocument objects
+        diseaseMap.forEach((doTerm, diseaseEntityJoins) -> {
+            if (translationDepth > 0) {
+                try {
+                    DiseaseDocument doc = entityToDocument(doTerm, entity, diseaseEntityJoins, translationDepth - 1); // This needs to not happen if being called from DiseaseTranslator
+                    if (!diseaseList.contains(doc))
+                        diseaseList.add(doc);
+                } catch (Exception e) {
+                    log.error("Exception Creating Disease Document: " + e.getMessage());
+                }
+            }
+
+        });
+        return diseaseList;
+    }
+
+    private List<AnnotationDocument> generateAnnotationDocument(DOTerm entity, int translationDepth, Map<Gene, Map<String, List<DiseaseEntityJoin>>> sortedGeneAssociationMap) {
         // generate AnnotationDocument records
-        List<AnnotationDocument> annotationDocuments = sortedGeneAssociationMap.entrySet().stream()
+        return sortedGeneAssociationMap.entrySet().stream()
                 .map(geneMapEntry ->
-                        geneMapEntry.getValue().entrySet().stream().map(associationEntry -> {
-                            AnnotationDocument document = new AnnotationDocument();
-                            if (translationDepth > 0) {
-                                document.setGeneDocument(geneTranslator.translate(geneMapEntry.getKey(), translationDepth - 1)); // This needs to not happen if being call from GeneTranslator
-                            }
-                            document.setAssociationType(associationEntry.getKey());
-                            document.setSource(getSourceUrls(entity, geneMapEntry.getKey().getSpecies()));
-                            document.setPublications(getPublicationDoclets(associationEntry));
-                            return document;
-                        }).collect(Collectors.toList()))
+                        geneMapEntry.getValue().entrySet().stream()
+                                .map(associationEntry -> {
+                                    List<DiseaseEntityJoin> featureJoins = associationEntry.getValue().stream()
+                                            .filter(join -> join.getFeature() != null)
+                                            .collect(toList());
+                                    List<DiseaseEntityJoin> featurelessJoins = associationEntry.getValue().stream()
+                                            .filter(join -> join.getFeature() == null)
+                                            .collect(toList());
+
+                                    Map<Feature, List<DiseaseEntityJoin>> featureMap = featureJoins.stream()
+                                            .filter(entry -> entity != null)
+                                            .collect(Collectors.groupingBy(DiseaseEntityJoin::getFeature
+                                            ));
+                                    // add the feature-less diseaseEntityJoins under the null key into the map.
+                                    if (!featurelessJoins.isEmpty())
+                                        featureMap.put(null, featurelessJoins);
+                                    return featureMap.entrySet().stream()
+                                            .map(featureMapEntry -> {
+
+                                                AnnotationDocument document = new AnnotationDocument();
+                                                document.setGeneDocument(geneTranslator.translate(geneMapEntry.getKey(), 0));
+                                                Feature feature = featureMapEntry.getKey();
+                                                if (feature != null) {
+                                                    document.setFeatureDocument(featureTranslator.entityToDocument(feature, 0));
+                                                }
+                                                document.setAssociationType(associationEntry.getKey());
+                                                document.setSource(getSourceUrls(entity, geneMapEntry.getKey().getSpecies()));
+                                                document.setPublications(getPublicationDoclets(featureMapEntry.getValue()));
+                                                return document;
+                                            })
+                                            .collect(Collectors.toList());
+                                })
+                                .flatMap(Collection::stream)
+                                .collect(Collectors.toList()))
                 // turn List<AnnotationDocument> into stream<AnnotationDocument> so they can be collected into
                 // the outer List<AnnotationDocument>
                 .flatMap(Collection::stream)
                 .collect(Collectors.toList());
-
-        doc.setAnnotations(annotationDocuments);
-
-        return doc;
     }
 
-    private Map<Gene, Map<String, List<DiseaseGeneJoin>>> getGeneAnnotationMap(DOTerm entity, Gene gene) {
+    private PublicationDoclet getPublicationDoclets(DiseaseEntityJoin diseaseEntityJoin) {
+        if (diseaseEntityJoin == null)
+            return null;
+        Publication publication = diseaseEntityJoin.getPublication();
+        PublicationDoclet pubDoc = new PublicationDoclet();
+        pubDoc.setPrimaryKey(publication.getPrimaryKey());
+        pubDoc.setPubMedId(publication.getPubMedId());
+        pubDoc.setPubMedUrl(publication.getPubMedUrl());
+        pubDoc.setPubModId(publication.getPubModId());
+        pubDoc.setPubModUrl(publication.getPubModUrl());
+
+        if (diseaseEntityJoin.getEvidenceCodes() == null) {
+            log.error("Could not find any evidence codes for " + diseaseEntityJoin.getGene().getPrimaryKey() + " and publication " + publication.getPrimaryKey());
+            return null;
+        }
+
+        Set<String> evidencesDocument = diseaseEntityJoin.getEvidenceCodes().stream()
+                .map(EvidenceCode::getPrimaryKey)
+                .collect(Collectors.toSet());
+        pubDoc.setEvidenceCodes(evidencesDocument);
+        return pubDoc;
+    }
+
+    private Map<Gene, Map<String, List<DiseaseEntityJoin>>> getGeneAnnotationMap(DOTerm entity, Gene gene) {
         // group by gene then by association type
-        Map<Gene, Map<String, List<DiseaseGeneJoin>>> geneAssociationMap = entity.getDiseaseGeneJoins().stream()
-                .filter(diseaseGeneJoin -> gene == null || diseaseGeneJoin.getGene().equals(gene))
+        Map<Gene, Map<String, List<DiseaseEntityJoin>>> geneAssociationMap = entity.getDiseaseEntityJoins().stream()
+                .filter(diseaseEntityJoin -> gene == null || diseaseEntityJoin.getGene().equals(gene))
                 .collect(
-                        groupingBy(DiseaseGeneJoin::getGene,
-                                groupingBy(DiseaseGeneJoin::getJoinType))
+                        groupingBy(DiseaseEntityJoin::getGene,
+                                groupingBy(DiseaseEntityJoin::getJoinType))
                 );
 
         // sort by gene symbol
@@ -71,7 +159,22 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
                 .collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
-    private PublicationDoclet getPublicationDoclet(DiseaseGeneJoin association, Publication publication) {
+    public Map<Gene, Map<Optional<Feature>, List<DiseaseEntityJoin>>> getGeneFeatureAnnotationMap(DOTerm entity, Gene gene) {
+        // group by gene then by feature
+        Map<Gene, Map<Optional<Feature>, List<DiseaseEntityJoin>>> geneAssociationMap = entity.getDiseaseEntityJoins().stream()
+                .filter(diseaseEntityJoin -> gene == null || diseaseEntityJoin.getGene().equals(gene))
+                .collect(
+                        groupingBy(DiseaseEntityJoin::getGene,
+                                groupingBy(join -> Optional.ofNullable(join.getFeature())))
+                );
+
+        // sort by gene symbol
+        return geneAssociationMap.entrySet().stream()
+                .sorted(Map.Entry.comparingByKey())
+                .collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
+    }
+
+    private PublicationDoclet getPublicationDoclet(DiseaseEntityJoin association, Publication publication) {
         PublicationDoclet pubDoc = new PublicationDoclet();
         pubDoc.setPrimaryKey(publication.getPrimaryKey());
 
@@ -228,43 +331,47 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
 
     public Iterable<DiseaseAnnotationDocument> translateAnnotationEntities(List<DOTerm> geneDiseaseList, int translationDepth) {
         Set<DiseaseAnnotationDocument> diseaseAnnotationDocuments = new HashSet<>();
+        // loop over all disease terms
         geneDiseaseList.forEach(doTerm -> {
-            if (doTerm.getDiseaseGeneJoins() == null) {
-                DiseaseAnnotationDocument doc = new DiseaseAnnotationDocument();
-                doc.setPrimaryKey(doTerm.getPrimaryKey());
-                doc.setDiseaseID(doTerm.getPrimaryKey());
-                doc.setDiseaseName(doTerm.getName());
-                diseaseAnnotationDocuments.add(doc);
-            } else {
-                Map<Gene, Map<String, List<DiseaseGeneJoin>>> sortedGeneAssociationMap = getGeneAnnotationMap(doTerm, null);
-                Set<DiseaseAnnotationDocument> docSet = sortedGeneAssociationMap.entrySet().stream()
-                        .map(geneMapEntry ->
-                                geneMapEntry.getValue().entrySet().stream().map(associationEntry -> {
-                                    Gene gene = geneMapEntry.getKey();
-                                    DiseaseAnnotationDocument document = new DiseaseAnnotationDocument();
-                                    if (translationDepth > 0) {
-                                        document.setGeneDocument(geneTranslator.translate(gene, translationDepth - 1)); // This needs to not happen if being call from GeneTranslator
-                                    }
-                                    document.setPrimaryKey(doTerm.getPrimaryKey() + ":" + gene.getPrimaryKey());
-                                    document.setDiseaseName(doTerm.getName());
-                                    document.setDiseaseID(doTerm.getPrimaryKey());
-                                    document.setParentDiseaseIDs(getParentIdList(doTerm));
-                                    document.setAssociationType(associationEntry.getKey());
-                                    document.setSpecies(getSpeciesDoclet(gene));
-                                    document.setSource(getSourceUrls(doTerm, gene.getSpecies()));
-                                    document.setPublications(getPublicationDoclets(associationEntry));
-                                    return document;
-                                }).collect(Collectors.toList()))
-                        .flatMap(Collection::stream)
-                        .collect(Collectors.toSet());
-                diseaseAnnotationDocuments.addAll(docSet);
-            }
+            Map<Gene, Map<Optional<Feature>, List<DiseaseEntityJoin>>> sortedGeneAssociationMap = getGeneFeatureAnnotationMap(doTerm, null);
+            // loop over each gene
+            sortedGeneAssociationMap.forEach((gene, featureDiseaseMap) -> {
+                // loop over each feature (may be null)
+                featureDiseaseMap.forEach((optionalFeature, associationDiseaseEntityJoinList) -> {
+                    // group by association type
+                    Map<String, List<DiseaseEntityJoin>> associationTypeMap = associationDiseaseEntityJoinList.stream()
+                            .collect(
+                                    groupingBy(DiseaseEntityJoin::getJoinType));
+                    // loop over each association type
+                    associationTypeMap.forEach((associationType, diseaseEntityJoinList) -> {
+                        DiseaseAnnotationDocument document = new DiseaseAnnotationDocument();
+                        if (translationDepth > 0) {
+                            document.setGeneDocument(geneTranslator.translate(gene, translationDepth - 1)); // This needs to not happen if being call from GeneTranslator
+                        }
+                        String primaryKey = doTerm.getPrimaryKey() + ":" + gene.getPrimaryKey();
+                        document.setDiseaseName(doTerm.getName());
+                        document.setDiseaseID(doTerm.getPrimaryKey());
+                        document.setParentDiseaseIDs(getParentIdList(doTerm));
+                        document.setAssociationType(associationType);
+                        document.setSpecies(getSpeciesDoclet(gene));
+                        document.setSource(getSourceUrls(doTerm, gene.getSpecies()));
+                        document.setPublications(getPublicationDoclets(diseaseEntityJoinList));
+                        if (optionalFeature.isPresent()) {
+                            primaryKey += ":" + optionalFeature.get().getPrimaryKey();
+                            document.setFeatureDocument(featureTranslator.entityToDocument(optionalFeature.get(), 0));
+                        }
+                        document.setPrimaryKey(primaryKey);
+                        diseaseAnnotationDocuments.add(document);
+
+                    });
+                });
+            });
         });
         return diseaseAnnotationDocuments;
     }
 
-    private List<PublicationDoclet> getPublicationDoclets(Map.Entry<String, List<DiseaseGeneJoin>> associationEntry) {
-        Set<PublicationDoclet> publicationDocuments = associationEntry.getValue().stream()
+    private List<PublicationDoclet> getPublicationDoclets(List<DiseaseEntityJoin> diseaseEntityJoinList) {
+        Set<PublicationDoclet> publicationDocuments = diseaseEntityJoinList.stream()
                 // filter out records that do not have valid pub / evidence code entries
                 .filter(diseaseGeneJoin ->
                         getPublicationDoclet(diseaseGeneJoin, diseaseGeneJoin.getPublication()) != null
@@ -323,7 +430,7 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
         return nameList;
     }
 
-    private SpeciesDoclet getSpeciesDoclet(DiseaseGeneJoin diseaseGeneJoin) {
+    private SpeciesDoclet getSpeciesDoclet(DiseaseEntityJoin diseaseGeneJoin) {
         return getSpeciesDoclet(diseaseGeneJoin.getGene());
     }
 

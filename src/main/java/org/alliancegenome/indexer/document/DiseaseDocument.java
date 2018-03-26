@@ -6,7 +6,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Getter;
@@ -14,15 +13,13 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class DiseaseDocument extends ESDocument {
+public class DiseaseDocument extends SearchableItem {
+
+    { category = "disease"; }
 
     private String doId;
     private String primaryKey;
-    private String primaryId;
-    private String category = "disease";
-    private String name;
-    @JsonProperty("name_key")
-    private String nameKey;
+
     private Set<String> parentDiseaseNames;
     private String definition;
     private Date dateProduced;
@@ -36,8 +33,4 @@ public class DiseaseDocument extends ESDocument {
     @JsonProperty("disease_group")
     private Set<String> highLevelSlimTermNames = new HashSet<>();
 
-    @JsonIgnore
-    public String getDocumentId() {
-        return primaryKey;
-    }
 }

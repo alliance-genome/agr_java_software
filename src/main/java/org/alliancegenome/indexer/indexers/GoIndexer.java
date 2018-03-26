@@ -43,14 +43,14 @@ public class GoIndexer extends Indexer<GoDocument> {
         while (true) {
             try {
                 if (list.size() >= indexerConfig.getBufferSize()) {
-                    addDocuments(goTrans.translateEntities(list));
+                    saveDocuments(goTrans.translateEntities(list));
                     repo.clearCache();
                     list.clear();
                     list = new ArrayList<>();
                 }
                 if (queue.isEmpty()) {
                     if (list.size() > 0) {
-                        addDocuments(goTrans.translateEntities(list));
+                        saveDocuments(goTrans.translateEntities(list));
                         repo.clearCache();
                         list.clear();
                     }
@@ -64,8 +64,9 @@ public class GoIndexer extends Indexer<GoDocument> {
                 } else {
                     log.debug("No go term found for " + key);
                 }
-            } catch (InterruptedException e) {
+            } catch (Exception e) {
                 log.error("Error while indexing...", e);
+                System.exit(-1);
                 return;
             }
         }

@@ -9,6 +9,8 @@ import org.neo4j.ogm.cypher.query.Pagination;
 import org.neo4j.ogm.model.Result;
 import org.neo4j.ogm.session.Session;
 
+import static org.neo4j.ogm.cypher.ComparisonOperator.EQUALS;
+
 public class Neo4jRepository<E> {
 
     protected Class<E> entityTypeClazz;
@@ -29,7 +31,11 @@ public class Neo4jRepository<E> {
     }
 
     public Iterable<E> getEntity(String key, String value) {
-        return neo4jSession.loadAll(entityTypeClazz, new Filter(key, value));
+        return neo4jSession.loadAll(entityTypeClazz, new Filter(key, EQUALS, value));
+    }
+
+    public E getSingleEntity(String primaryKey) {
+        return neo4jSession.load(entityTypeClazz, primaryKey);
     }
 
     public int getCount() {
@@ -50,7 +56,10 @@ public class Neo4jRepository<E> {
         return neo4jSession.query(entityTypeClazz, cypherQuery, params);
     }
     public Result queryForResult(String cypherQuery) {
-        return neo4jSession.query(cypherQuery, Collections.EMPTY_MAP);
+        return queryForResult(cypherQuery, Collections.EMPTY_MAP);
+    }
+    public Result queryForResult(String cypherQuery, Map<String, ?> params) {
+        return neo4jSession.query(cypherQuery, params);
     }
 
     //  public Iterable<E> findAll() {

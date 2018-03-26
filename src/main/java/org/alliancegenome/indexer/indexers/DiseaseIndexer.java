@@ -36,18 +36,18 @@ public class DiseaseIndexer extends Indexer<DiseaseDocument> {
 
     protected void startSingleThread(LinkedBlockingDeque<String> queue) {
         DiseaseTranslator diseaseTrans = new DiseaseTranslator();
-        ArrayList<DOTerm> list = new ArrayList<>();
+        List<DOTerm> list = new ArrayList<>();
         DiseaseRepository repo = new DiseaseRepository(); // Due to repo not being thread safe
         while (true) {
             try {
                 if (list.size() >= indexerConfig.getBufferSize()) {
-                    addDocuments(diseaseTrans.translateEntities(list));
+                    saveDocuments(diseaseTrans.translateEntities(list));
                     list.clear();
                     repo.clearCache();
                 }
                 if (queue.isEmpty()) {
                     if (list.size() > 0) {
-                        addDocuments(diseaseTrans.translateEntities(list));
+                        saveDocuments(diseaseTrans.translateEntities(list));
                         list.clear();
                         repo.clearCache();
                     }
