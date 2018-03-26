@@ -15,12 +15,15 @@ class QueryRankIntegrationSpec extends Specification {
         def betterResult = results.find { it.id == betterResultId }
         def worseResult = results.find { it.id == worseResultId }
         def betterResultPosition = results.findIndexValues() { it.id == betterResultId }?.first()
-        def worseResultPosition = results.findIndexValues() { it.id == worseResultId }?.first()
+        def worseResultPosition = Integer.MAX_VALUE
+        //if the "worse" result falls off the end of 5k results, for this test, that's a also a success
+        if (worseResult != null) {
+            worseResultPosition = results.findIndexValues() { it.id == worseResultId }?.first()
+        }
 
         then:
         betterResult
-        worseResult
-        betterResultPosition < worseResultPosition
+        worseResult == null || betterResultPosition < worseResultPosition
 
         where:
         query                 | filter                               | betterResultId             | worseResultId             | issue
