@@ -8,8 +8,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import org.alliancegenome.shared.es.document.data_index.MetaDataDocument;
-import org.alliancegenome.shared.es.document.data_index.SubmissionResponce;
+import org.alliancegenome.es.index.data.document.MetaDataDocument;
+import org.alliancegenome.es.index.data.document.SubmissionResponce;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
 
 @Path("/data")
@@ -19,7 +19,15 @@ public interface MetaDataRESTInterface {
 
     @GET
     @Path("/meta")
-    public MetaDataDocument getMetaData();
+    public MetaDataDocument getMetaData(String release);
+    
+    @GET
+    @Path("/snapshot")
+    public MetaDataDocument getSnapShot(String snapShotName);
+    
+    @POST
+    @Path("/snapshot")
+    public MetaDataDocument takeSnapShot();
 
     @POST
     @Path("/submit")

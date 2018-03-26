@@ -9,7 +9,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 
-import org.alliancegenome.shared.es.model.search.SearchResult;
+import org.alliancegenome.es.model.search.SearchResult;
 
 @Path("/search")
 @Produces(MediaType.APPLICATION_JSON)

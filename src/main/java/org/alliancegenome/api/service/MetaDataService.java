@@ -5,19 +5,19 @@ import java.io.IOException;
 
 import javax.enterprise.context.RequestScoped;
 
-import org.alliancegenome.shared.aws.S3Helper;
-import org.alliancegenome.shared.es.dao.data_index.DataFileDAO;
-import org.alliancegenome.shared.es.dao.data_index.DataTypeDAO;
-import org.alliancegenome.shared.es.dao.data_index.SchemaDAO;
-import org.alliancegenome.shared.es.dao.data_index.TaxonIdDAO;
-import org.alliancegenome.shared.es.document.data_index.DataFileDocument;
-import org.alliancegenome.shared.es.document.data_index.DataTypeDocument;
-import org.alliancegenome.shared.es.document.data_index.SchemaDocument;
-import org.alliancegenome.shared.es.document.data_index.TaxonIdDocument;
-import org.alliancegenome.shared.exceptions.GenericException;
-import org.alliancegenome.shared.exceptions.SchemaDataTypeException;
-import org.alliancegenome.shared.exceptions.ValidataionException;
-import org.alliancegenome.shared.github.util.GitHelper;
+import org.alliancegenome.aws.S3Helper;
+import org.alliancegenome.core.exceptions.GenericException;
+import org.alliancegenome.core.exceptions.SchemaDataTypeException;
+import org.alliancegenome.core.exceptions.ValidataionException;
+import org.alliancegenome.es.index.data.dao.DataFileDAO;
+import org.alliancegenome.es.index.data.dao.DataTypeDAO;
+import org.alliancegenome.es.index.data.dao.SchemaDAO;
+import org.alliancegenome.es.index.data.dao.TaxonIdDAO;
+import org.alliancegenome.es.index.data.document.DataFileDocument;
+import org.alliancegenome.es.index.data.document.DataTypeDocument;
+import org.alliancegenome.es.index.data.document.SchemaDocument;
+import org.alliancegenome.es.index.data.document.TaxonIdDocument;
+import org.alliancegenome.github.util.GitHelper;
 import org.jboss.logging.Logger;
 
 import com.fasterxml.jackson.databind.JsonNode;

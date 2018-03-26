@@ -4,7 +4,7 @@ import java.util.Map;
 
 import javax.enterprise.context.RequestScoped;
 
-import org.alliancegenome.shared.es.dao.site_index.EntityDAO;
+import org.alliancegenome.es.index.site.dao.EntityDAO;
 
 @RequestScoped
 public class EntityService {

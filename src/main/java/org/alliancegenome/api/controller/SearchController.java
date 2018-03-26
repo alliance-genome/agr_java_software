@@ -1,13 +1,13 @@
 package org.alliancegenome.api.controller;
 
-import org.alliancegenome.api.rest.interfaces.SearchRESTInterface;
-import org.alliancegenome.api.service.SearchService;
-import org.alliancegenome.shared.es.model.search.SearchResult;
-import org.jboss.logging.Logger;
-
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.ws.rs.core.UriInfo;
+
+import org.alliancegenome.api.rest.interfaces.SearchRESTInterface;
+import org.alliancegenome.api.service.SearchService;
+import org.alliancegenome.es.model.search.SearchResult;
+import org.jboss.logging.Logger;
 
 @RequestScoped
 public class SearchController extends BaseController implements SearchRESTInterface {

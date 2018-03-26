@@ -2,7 +2,7 @@ package org.alliancegenome.api.controller;
 
 import org.alliancegenome.api.rest.interfaces.AutoCompleteRESTInterface;
 import org.alliancegenome.api.service.AutoCompleteService;
-import org.alliancegenome.shared.es.model.search.AutoCompleteResult;
+import org.alliancegenome.es.model.search.AutoCompleteResult;
 import org.jboss.logging.Logger;
 
 import javax.enterprise.context.RequestScoped;

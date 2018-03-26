@@ -1,21 +1,20 @@
 package org.alliancegenome.api;
 
-import org.alliancegenome.shared.config.ConfigHelper;
-import org.alliancegenome.shared.es.dao.site_index.DiseaseDAO;
-import org.alliancegenome.shared.es.model.query.Pagination;
-import org.alliancegenome.shared.es.model.search.SearchResult;
-import org.alliancegenome.shared.translators.DiseaseAnnotationToTdfTranslator;
-import org.jboss.logging.Logger;
-
 import java.util.Map;
+
+import org.alliancegenome.core.config.ConfigHelper;
+import org.alliancegenome.core.translators.DiseaseAnnotationToTdfTranslator;
+import org.alliancegenome.es.index.site.dao.DiseaseDAO;
+import org.alliancegenome.es.model.query.Pagination;
+import org.alliancegenome.es.model.search.SearchResult;
+import org.jboss.logging.Logger;
 
 public class Disease1Test {
 
     private static Logger log = Logger.getLogger(Disease1Test.class);
 
     public static void main(String[] args) {
-        ConfigHelper helper = new ConfigHelper();
-
+        ConfigHelper.init();
 
         DiseaseDAO service = new DiseaseDAO();
 

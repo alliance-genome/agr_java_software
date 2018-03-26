@@ -23,8 +23,8 @@ import javax.enterprise.event.Observes;
 
 import org.alliancegenome.api.model.xml.XMLURL;
 import org.alliancegenome.api.model.xml.XMLURLSet;
-import org.alliancegenome.shared.config.ConfigHelper;
-import org.alliancegenome.shared.es.dao.site_index.SearchDAO;
+import org.alliancegenome.core.config.ConfigHelper;
+import org.alliancegenome.es.index.site.dao.SearchDAO;
 import org.elasticsearch.search.SearchHit;
 import org.jboss.logging.Logger;
 

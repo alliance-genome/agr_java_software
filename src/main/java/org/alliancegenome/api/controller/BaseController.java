@@ -2,7 +2,7 @@ package org.alliancegenome.api.controller;
 
 import javax.enterprise.context.RequestScoped;
 
-import org.alliancegenome.shared.config.ConfigHelper;
+import org.alliancegenome.core.config.ConfigHelper;
 
 @RequestScoped
 public class BaseController {

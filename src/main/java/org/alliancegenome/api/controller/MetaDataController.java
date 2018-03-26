@@ -9,10 +9,9 @@ import javax.inject.Inject;
 
 import org.alliancegenome.api.rest.interfaces.MetaDataRESTInterface;
 import org.alliancegenome.api.service.MetaDataService;
-import org.alliancegenome.shared.config.ConfigHelper;
-import org.alliancegenome.shared.es.document.data_index.MetaDataDocument;
-import org.alliancegenome.shared.es.document.data_index.SubmissionResponce;
-import org.alliancegenome.shared.exceptions.GenericException;
+import org.alliancegenome.core.exceptions.GenericException;
+import org.alliancegenome.es.index.data.document.MetaDataDocument;
+import org.alliancegenome.es.index.data.document.SubmissionResponce;
 import org.jboss.logging.Logger;
 import org.jboss.resteasy.plugins.providers.multipart.InputPart;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
@@ -24,15 +23,6 @@ public class MetaDataController extends BaseController implements MetaDataRESTIn
     private MetaDataService metaDataService;
 
     private Logger log = Logger.getLogger(getClass());
-
-    @Override
-    public MetaDataDocument getMetaData() {
-        MetaDataDocument data = new MetaDataDocument();
-        data.setDebug(String.valueOf(ConfigHelper.getDebug()));
-        data.setEsHost(ConfigHelper.getEsHost());
-        data.setEsPort(String.valueOf(ConfigHelper.getEsPort()));
-        return data;
-    }
 
     @Override
     public SubmissionResponce submitData(String api_access_token, MultipartFormDataInput input) {
@@ -85,5 +75,25 @@ public class MetaDataController extends BaseController implements MetaDataRESTIn
         }
         return new SubmissionResponce();
     }
+
+    @Override
+    public MetaDataDocument getMetaData(String release) {
+        
+        return null;
+    }
+
+    @Override
+    public MetaDataDocument getSnapShot(String snapShotName) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public MetaDataDocument takeSnapShot() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+    
+    
 
 }

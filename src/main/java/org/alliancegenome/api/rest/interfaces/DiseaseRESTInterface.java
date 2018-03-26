@@ -12,7 +12,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.alliancegenome.shared.es.model.search.SearchResult;
+import org.alliancegenome.es.model.search.SearchResult;
 
 @Path("/disease")
 @Produces(MediaType.APPLICATION_JSON)

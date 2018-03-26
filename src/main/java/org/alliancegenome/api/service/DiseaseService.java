@@ -4,10 +4,10 @@ import java.util.Map;
 
 import javax.enterprise.context.RequestScoped;
 
-import org.alliancegenome.shared.es.dao.site_index.DiseaseDAO;
-import org.alliancegenome.shared.es.model.query.Pagination;
-import org.alliancegenome.shared.es.model.search.SearchResult;
-import org.alliancegenome.shared.es.util.SearchHitIterator;
+import org.alliancegenome.es.index.site.dao.DiseaseDAO;
+import org.alliancegenome.es.model.query.Pagination;
+import org.alliancegenome.es.model.search.SearchResult;
+import org.alliancegenome.es.util.SearchHitIterator;
 
 @RequestScoped
 public class DiseaseService {

@@ -4,7 +4,7 @@ import java.util.Map;
 
 import javax.enterprise.context.RequestScoped;
 
-import org.alliancegenome.shared.es.dao.site_index.AlleleDAO;
+import org.alliancegenome.es.index.site.dao.AlleleDAO;
 
 @RequestScoped
 public class AlleleService {

@@ -15,7 +15,7 @@ import org.alliancegenome.api.model.xml.SiteMapIndex;
 import org.alliancegenome.api.model.xml.XMLURL;
 import org.alliancegenome.api.model.xml.XMLURLSet;
 import org.alliancegenome.api.rest.interfaces.SiteMapRESTInterface;
-import org.alliancegenome.shared.config.ConfigHelper;
+import org.alliancegenome.core.config.ConfigHelper;
 
 @RequestScoped
 public class SiteMapController extends BaseController implements SiteMapRESTInterface {

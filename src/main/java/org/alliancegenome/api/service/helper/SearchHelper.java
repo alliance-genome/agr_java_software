@@ -11,8 +11,8 @@ import java.util.regex.Pattern;
 import javax.enterprise.context.RequestScoped;
 import javax.ws.rs.core.UriInfo;
 
-import org.alliancegenome.shared.es.model.search.AggDocCount;
-import org.alliancegenome.shared.es.model.search.AggResult;
+import org.alliancegenome.es.model.search.AggDocCount;
+import org.alliancegenome.es.model.search.AggResult;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.text.Text;
