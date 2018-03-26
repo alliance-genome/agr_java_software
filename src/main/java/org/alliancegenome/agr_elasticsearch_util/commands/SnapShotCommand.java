@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import org.alliancegenome.shared.es.util.IndexManager;
+import org.alliancegenome.es.util.IndexManager;
 import org.elasticsearch.cluster.metadata.RepositoryMetaData;
 import org.elasticsearch.snapshots.SnapshotInfo;
 

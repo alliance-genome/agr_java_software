@@ -2,7 +2,7 @@ package org.alliancegenome.agr_elasticsearch_util.commands;
 
 import java.util.ArrayList;
 
-import org.alliancegenome.shared.config.ConfigHelper;
+import org.alliancegenome.core.config.ConfigHelper;
 
 public class ConfigCommand extends Command implements CommandInterface {
 

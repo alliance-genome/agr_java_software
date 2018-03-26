@@ -3,12 +3,13 @@ package org.alliancegenome.agr_elasticsearch_util.commands;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.elasticsearch.action.admin.indices.get.GetIndexResponse;
-import org.elasticsearch.cluster.metadata.AliasMetaData;
+import org.alliancegenome.core.config.ConfigHelper;
+import org.alliancegenome.es.index.data.dao.DataTypeDAO;
+import org.alliancegenome.es.index.data.dao.MetaDataDAO;
+import org.alliancegenome.es.index.data.dao.TaxonIdDAO;
 import org.elasticsearch.cluster.metadata.IndexMetaData;
 
 import com.carrotsearch.hppc.cursors.ObjectCursor;
-import com.carrotsearch.hppc.cursors.ObjectObjectCursor;
 
 public class IndexCommand extends Command implements CommandInterface {
 
@@ -43,7 +44,22 @@ public class IndexCommand extends Command implements CommandInterface {
 				} else {
 					System.out.println("Index not found: " + index);
 				}
+			} else if(command.equals("check")) {
+				if(args.size() > 0) {
+					String index = args.remove(0);
+					if(index.equals(ConfigHelper.getEsDataIndex())) {
+						MetaDataDAO metaDataDao = new MetaDataDAO();
+						DataTypeDAO dataTypeDao = new DataTypeDAO();
+						TaxonIdDAO taxonIdDao = new TaxonIdDAO();
+					} else {
+						System.out.println("Don't know about that index: " + index);
+					}
+				} else {
+					printHelp();
+				}
+
 			} else if(command.equals("start")) {
+
 				// check tmp index and delete
 				// create new and alias it to tmp
 			} else if(command.equals("end")) {

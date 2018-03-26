@@ -2,8 +2,8 @@ package org.alliancegenome.agr_elasticsearch_util.commands;
 
 import java.util.ArrayList;
 
-import org.alliancegenome.shared.es.dao.data_index.DataTypeDAO;
-import org.alliancegenome.shared.es.document.data_index.DataTypeDocument;
+import org.alliancegenome.es.index.data.dao.DataTypeDAO;
+import org.alliancegenome.es.index.data.document.DataTypeDocument;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

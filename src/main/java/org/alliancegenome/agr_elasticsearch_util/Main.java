@@ -1,6 +1,6 @@
 package org.alliancegenome.agr_elasticsearch_util;
 
-import org.alliancegenome.shared.config.ConfigHelper;
+import org.alliancegenome.core.config.ConfigHelper;
 
 public class Main {
 

@@ -2,7 +2,7 @@ package org.alliancegenome.agr_elasticsearch_util.commands;
 
 import java.util.ArrayList;
 
-import org.alliancegenome.shared.es.util.IndexManager;
+import org.alliancegenome.es.util.IndexManager;
 
 public abstract class Command {
 
