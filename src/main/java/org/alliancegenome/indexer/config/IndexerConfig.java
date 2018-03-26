@@ -9,7 +9,7 @@ import org.alliancegenome.indexer.indexers.GoIndexer;
 public enum IndexerConfig {
 
     GeneIndexer("gene", GeneIndexer.class, 4, 500),
-    DiseaseIndexer("disease", DiseaseIndexer.class, 2, 500),
+    DiseaseIndexer("disease", DiseaseIndexer.class, 2, 100),
     DiseaseAnnotationIndexer("diseaseAnnotation", DiseaseAnnotationIndexer.class, 2, 300),
     FeatureIndexer("feature", FeatureIndexer.class, 2, 500),
     GoIndexer("go", GoIndexer.class, 3, 500),;

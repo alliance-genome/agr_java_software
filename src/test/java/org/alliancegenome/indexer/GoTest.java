@@ -1,7 +1,7 @@
 package org.alliancegenome.indexer;
 
-import org.alliancegenome.shared.neo4j.entity.node.GOTerm;
-import org.alliancegenome.shared.neo4j.repository.GoRepository;
+import org.alliancegenome.neo4j.entity.node.GOTerm;
+import org.alliancegenome.neo4j.repository.GoRepository;
 
 public class GoTest {
 

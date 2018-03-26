@@ -1,9 +1,9 @@
 package org.alliancegenome.indexer;
 
-import org.alliancegenome.shared.config.ConfigHelper;
-import org.alliancegenome.shared.neo4j.entity.node.Gene;
-import org.alliancegenome.shared.neo4j.repository.GeneRepository;
-import org.alliancegenome.shared.translators.GeneTranslator;
+import org.alliancegenome.core.config.ConfigHelper;
+import org.alliancegenome.core.translators.GeneTranslator;
+import org.alliancegenome.neo4j.entity.node.Gene;
+import org.alliancegenome.neo4j.repository.GeneRepository;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 

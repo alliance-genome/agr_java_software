@@ -1,10 +1,10 @@
 package org.alliancegenome.indexer.indexers;
 
+import org.alliancegenome.core.translators.FeatureTranslator;
+import org.alliancegenome.es.index.site.document.FeatureDocument;
 import org.alliancegenome.indexer.config.IndexerConfig;
-import org.alliancegenome.shared.es.document.site_index.FeatureDocument;
-import org.alliancegenome.shared.neo4j.entity.node.Feature;
-import org.alliancegenome.shared.neo4j.repository.FeatureRepository;
-import org.alliancegenome.shared.translators.FeatureTranslator;
+import org.alliancegenome.neo4j.entity.node.Feature;
+import org.alliancegenome.neo4j.repository.FeatureRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

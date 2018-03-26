@@ -10,10 +10,10 @@ import java.util.List;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 
+import org.alliancegenome.core.config.ConfigHelper;
+import org.alliancegenome.es.index.site.document.ESDocument;
 import org.alliancegenome.indexer.Main;
 import org.alliancegenome.indexer.config.IndexerConfig;
-import org.alliancegenome.shared.config.ConfigHelper;
-import org.alliancegenome.shared.es.document.site_index.ESDocument;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
@@ -158,12 +158,9 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
     }
 
     public static String getHumanReadableTimeDisplay(long duration) {
-        long hours = TimeUnit.MILLISECONDS.toHours(duration)
-                - TimeUnit.DAYS.toHours(TimeUnit.MILLISECONDS.toDays(duration));
-        long minutes = TimeUnit.MILLISECONDS.toMinutes(duration)
-                - TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(duration));
-        long seconds = TimeUnit.MILLISECONDS.toSeconds(duration)
-                - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(duration));
+        long hours = TimeUnit.MILLISECONDS.toHours(duration) - TimeUnit.DAYS.toHours(TimeUnit.MILLISECONDS.toDays(duration));
+        long minutes = TimeUnit.MILLISECONDS.toMinutes(duration) - TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(duration));
+        long seconds = TimeUnit.MILLISECONDS.toSeconds(duration) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(duration));
         return String.format("%02d:%02d:%02d", hours, minutes, seconds);
     }
 
@@ -199,7 +196,7 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
         startProcess(total);
 
         while(queue.size() > 0) {
-            TimeUnit.SECONDS.sleep(60);
+            TimeUnit.SECONDS.sleep(5);
             progress(queue.size(), total);
         }
 

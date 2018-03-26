@@ -1,10 +1,10 @@
 package org.alliancegenome.indexer.indexers;
 
+import org.alliancegenome.core.translators.GoTranslator;
+import org.alliancegenome.es.index.site.document.GoDocument;
 import org.alliancegenome.indexer.config.IndexerConfig;
-import org.alliancegenome.shared.es.document.site_index.GoDocument;
-import org.alliancegenome.shared.neo4j.entity.node.GOTerm;
-import org.alliancegenome.shared.neo4j.repository.GoRepository;
-import org.alliancegenome.shared.translators.GoTranslator;
+import org.alliancegenome.neo4j.entity.node.GOTerm;
+import org.alliancegenome.neo4j.repository.GoRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
