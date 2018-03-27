@@ -91,6 +91,16 @@ public class IndexManager {
 		}
 	}
 
+	public void updateIndexSetting(String index, String name, Object value) {
+		try {
+			log.debug("Updating Index Setting: " + name + " with: " + value + " for index: " + index);
+			client.admin().indices().prepareUpdateSettings(index).setSettings(Settings.builder().put(name, value)).get();
+		} catch (Exception e) {
+			log.error("Update Index Settings Failed: " + index + " Name: " + name + " Value: " + value);
+			e.printStackTrace();
+		}
+	}
+
 	public IndexMetaData getIndex(String index) {
 		log.debug("Getting index: " + index);
 
@@ -187,6 +197,19 @@ public class IndexManager {
 			indices.add(baseIndexName);
 			log.info("Creating Snapshot: " + newIndexName + " for index: " + baseIndexName);
 			createSnapShot(ConfigHelper.getEsIndexSuffix(), newIndexName, indices);
+		}
+	}
+
+	public void restoreSnapShot(String repo, String snapShotName, List<String> indices) {
+		try {
+			log.info("Restoring Snapshot: " + snapShotName + " in: " + repo + " with: " + indices);
+			String[] array = new String[indices.size()];
+			indices.toArray(array);
+			client.admin().cluster()
+			.prepareRestoreSnapshot(repo, snapShotName)
+			.setIndices(array).get();
+		} catch (Exception ex) {
+			log.error("Exception in restoreSnapShot method: " + ex.toString());
 		}
 	}
 

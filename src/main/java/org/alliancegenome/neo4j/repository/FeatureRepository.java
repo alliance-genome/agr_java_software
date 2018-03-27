@@ -9,7 +9,6 @@ import java.util.Map;
 import org.alliancegenome.neo4j.entity.node.Feature;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.neo4j.ogm.exception.MappingException;
 import org.neo4j.ogm.model.Result;
 
 public class FeatureRepository extends Neo4jRepository<Feature> {

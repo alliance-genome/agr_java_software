@@ -21,20 +21,19 @@ public class Neo4jSessionFactory {
 
 	public Session getNeo4jSession() {
 		if(sessionFactory == null) {
-			//			Builder b = new Builder();
-			//			b.uri("bolt://" + ConfigHelper.getNeo4jHost() + ":" + ConfigHelper.getNeo4jPort());
-			//			b.verifyConnection(true);
-			//			b.encryptionLevel("NONE");
-			//			sessionFactory = new SessionFactory(b.build(), "org.alliancegenome.shared.neo4j.entity");
+//						Builder b = new Builder();
+//						b.uri("bolt://" + ConfigHelper.getNeo4jHost() + ":" + ConfigHelper.getNeo4jPort());
+//						b.verifyConnection(true);
+//						b.encryptionLevel("NONE");
+//						sessionFactory = new SessionFactory(b.build(), "org.alliancegenome.shared.neo4j.entity");
 
-			Configuration configuration = new Configuration();
-			configuration.driverConfiguration().setDriverClassName("org.neo4j.ogm.drivers.bolt.driver.BoltDriver")
-			.setURI("bolt://" + ConfigHelper.getNeo4jHost() + ":" + ConfigHelper.getNeo4jPort());
-			sessionFactory = new SessionFactory(configuration, "org.alliancegenome.shared.neo4j.entity");
+//			Configuration configuration = new Configuration();
+//			configuration.driverConfiguration().setDriverClassName("org.neo4j.ogm.drivers.bolt.driver.BoltDriver")
+//			.setURI("bolt://" + ConfigHelper.getNeo4jHost() + ":" + ConfigHelper.getNeo4jPort());
+//			sessionFactory = new SessionFactory(configuration, "org.alliancegenome.shared.neo4j.entity");
 
-			//Configuration configuration = new Configuration.Builder()
-			//		.uri("bolt://" + ConfigHelper.getNeo4jHost() + ":" + ConfigHelper.getNeo4jPort()).build();
-			//sessionFactory = new SessionFactory(configuration, "org.alliancegenome.indexer.entity");
+			Configuration configuration = new Configuration.Builder().uri("bolt://" + ConfigHelper.getNeo4jHost() + ":" + ConfigHelper.getNeo4jPort()).build();
+			sessionFactory = new SessionFactory(configuration, "org.alliancegenome.neo4j.entity");
 
 		}
 		return sessionFactory.openSession();
