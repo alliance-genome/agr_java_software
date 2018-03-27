@@ -44,13 +44,10 @@ public class GeneIndexer extends Indexer<GeneDocument> {
                 if (list.size() >= indexerConfig.getBufferSize()) {
                     saveDocuments(geneTrans.translateEntities(list));
                     list.clear();
-                    repo.clearCache();
-                    list = new ArrayList<>();
                 }
                 if (queue.isEmpty()) {
                     if (list.size() > 0) {
                         saveDocuments(geneTrans.translateEntities(list));
-                        repo.clearCache();
                         list.clear();
                     }
                     return;
