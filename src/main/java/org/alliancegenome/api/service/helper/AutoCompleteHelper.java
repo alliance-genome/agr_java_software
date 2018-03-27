@@ -1,13 +1,9 @@
 package org.alliancegenome.api.service.helper;
 
-import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 
 import java.util.ArrayList;
 import java.util.Map;
-
-import javax.enterprise.context.RequestScoped;
-import org.alliancegenome.api.service.SearchService;
 
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.search.SearchResponse;
@@ -18,21 +14,11 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.jboss.logging.Logger;
 
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.Map;
-
-import static org.elasticsearch.index.query.QueryBuilders.termQuery;
-
-@RequestScoped
 public class AutoCompleteHelper {
 
-    @Inject
-    private SearchService searchService;
-
     private Logger log = Logger.getLogger(getClass());
-
+    private SearchHelper searchHelper = new SearchHelper();
+    
     public QueryBuilder buildQuery(String q, String category) {
 
         BoolQueryBuilder bool = new BoolQueryBuilder();
@@ -52,7 +38,7 @@ public class AutoCompleteHelper {
         }
 
         //include only searchable categories in search results
-        bool.filter(searchService.limitCategories());
+        bool.filter(searchHelper.limitCategories());
 
         return bool;
     }

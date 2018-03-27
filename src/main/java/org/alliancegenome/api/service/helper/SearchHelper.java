@@ -1,5 +1,8 @@
 package org.alliancegenome.api.service.helper;
 
+import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
+import static org.elasticsearch.index.query.QueryBuilders.termQuery;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -13,6 +16,7 @@ import javax.ws.rs.core.UriInfo;
 
 import org.alliancegenome.es.model.search.AggDocCount;
 import org.alliancegenome.es.model.search.AggResult;
+import org.alliancegenome.es.model.search.Category;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.text.Text;
@@ -26,8 +30,6 @@ import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilde
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.jboss.logging.Logger;
 
-@RequestScoped
-@SuppressWarnings("serial")
 public class SearchHelper {
 
     private Logger log = Logger.getLogger(getClass());
@@ -251,6 +253,16 @@ public class SearchHelper {
         }
 
         return hlb;
+    }
+    
+    public BoolQueryBuilder limitCategories() {
+        BoolQueryBuilder bool = boolQuery();
+        Arrays.asList(Category.values()).stream()
+                .filter(cat ->  cat.isSearchable() )
+                .forEach(cat ->
+                        bool.should(termQuery("category", cat.getName()))
+                );
+        return bool;
     }
 
 
