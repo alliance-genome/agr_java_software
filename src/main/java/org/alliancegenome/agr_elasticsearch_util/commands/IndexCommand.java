@@ -19,8 +19,7 @@ public class IndexCommand extends Command implements CommandInterface {
 
 	@Override
 	public void printHelp() {
-		// TODO Auto-generated method stub
-
+		
 	}
 
 	@Override
@@ -43,6 +42,16 @@ public class IndexCommand extends Command implements CommandInterface {
 					System.out.println(imd.getSettings().get("index.provided_name"));
 				} else {
 					System.out.println("Index not found: " + index);
+				}
+			} else if(command.equals("switchalias")) {
+				if(args.size() > 2) {
+					String alias = args.remove(0);
+					String old_index = args.remove(0);
+					String new_index = args.remove(0);
+					im.createAlias(alias, new_index);
+					im.removeAlias(alias, old_index);
+				} else {
+					printHelp();
 				}
 			} else if(command.equals("check")) {
 				if(args.size() > 0) {
