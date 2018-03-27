@@ -41,10 +41,8 @@ public class DiseaseIndexer extends Indexer<DiseaseDocument> {
         while (true) {
             try {
                 if (list.size() >= indexerConfig.getBufferSize()) {
-                    log.debug("Saving Documents: ");
                     saveDocuments(diseaseTrans.translateEntities(list));
                     list.clear();
-                    log.debug("Saving Finished: ");
                     //repo.clearCache();
                 }
                 if (queue.isEmpty()) {
