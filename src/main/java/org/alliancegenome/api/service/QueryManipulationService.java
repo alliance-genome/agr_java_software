@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
 @RequestScoped
 public class QueryManipulationService {
 
-    private static final String ESCAPE_CHARS = "[\\<\\>\\/]";
+    private static final String ESCAPE_CHARS = "[\\<\\>\\/\\[\\]]";
     private static final Pattern LUCENE_PATTERN = Pattern.compile(ESCAPE_CHARS);
     private static final String REPLACEMENT_STRING = "\\\\$0";
 
