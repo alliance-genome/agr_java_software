@@ -35,7 +35,7 @@ class QueryManipulationUnitSpec extends Specification {
         "en::ftz::Mmus\\En1"                  | "en\\:\\:ftz\\:\\:Mmus\\En1"
         "Foxn1<sup>nu-StL</sup> (Mmu)"        | "Foxn1\\<sup\\>nu-StL\\<\\/sup\\> (Mmu)"
         "Gt(ROSA)26Sor<sup>tm1(Pik3ca*H1047R)Egan</sup> (Mmu)" | "Gt(ROSA)26Sor\\<sup\\>tm1(Pik3ca*H1047R)Egan\\<\\/sup\\> (Mmu)"
-
+        "rut[EP399] (Dme)"                    | "rut\\[EP399\\] (Dme)"
     }
 
 }
