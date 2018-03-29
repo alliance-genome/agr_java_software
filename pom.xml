@@ -1,18 +1,12 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-
-
 	<modelVersion>4.0.0</modelVersion>
 
-	<parent>
-		<artifactId>agr_architecture</artifactId>
-		<groupId>org.alliancegnome</groupId>
-		<version>0.0.1-SNAPSHOT</version>
-	</parent>
-
-	<artifactId>agr_java_shared</artifactId>
-	<packaging>jar</packaging>
 	<name>AGR :: Shared</name>
+	<version>1.3.0-SNAPSHOT</version>
+	<artifactId>agr_java_shared</artifactId>
+	<groupId>org.alliancegnome</groupId>
+	<packaging>jar</packaging>
 
 	<properties>
 		<maven.compiler.source>1.8</maven.compiler.source>
@@ -24,7 +18,25 @@
 			<id>elasticsearch-releases</id>
 			<url>https://artifacts.elastic.co/maven</url>
 		</repository>
+		<repository>
+			<id>central</id>
+			<name>agr-releases</name>
+			<url>https://maven.alliancegenome.org/artifactory/agr-release</url>
+		</repository>
 	</repositories>
+
+	<distributionManagement>
+		<repository>
+			<id>central</id>
+			<name>agr-releases</name>
+			<url>https://maven.alliancegenome.org/artifactory/agr-release</url>
+		</repository>
+		<snapshotRepository>
+			<id>snapshots</id>
+			<name>agr-snapshots</name>
+			<url>https://maven.alliancegenome.org/artifactory/agr-snapshot</url>
+		</snapshotRepository>
+	</distributionManagement>
 
 	<dependencies>
 		<dependency>
@@ -57,12 +69,12 @@
 		<dependency>
 			<groupId>org.neo4j</groupId>
 			<artifactId>neo4j-ogm-bolt-driver</artifactId>
-			<version>2.1.3</version>
+			<version>3.0.3</version>
 		</dependency>
 		<dependency>
 			<groupId>org.neo4j</groupId>
 			<artifactId>neo4j-ogm-core</artifactId>
-			<version>2.1.3</version>
+			<version>3.0.3</version>
 		</dependency>
 		<dependency>
 			<groupId>commons-io</groupId>
@@ -113,8 +125,17 @@
 			<version>4.1</version>
 		</dependency>
 
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+			<version>2.9.4</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-core</artifactId>
+			<version>2.9.4</version>
+		</dependency>
 	</dependencies>
-
 
 	<build>
 		<finalName>${project.artifactId}</finalName>
@@ -140,6 +161,30 @@
 						<phase>package</phase>
 						<goals>
 							<goal>single</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>attach-javadocs</id>
+						<goals>
+							<goal>jar</goal>
 						</goals>
 					</execution>
 				</executions>
