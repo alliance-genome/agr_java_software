@@ -46,6 +46,19 @@
 		</repository>
 	</repositories>
 
+	<distributionManagement>
+		<repository>
+			<id>central</id>
+			<name>agr-releases</name>
+			<url>https://maven.alliancegenome.org/artifactory/agr-release</url>
+		</repository>
+		<snapshotRepository>
+			<id>snapshots</id>
+			<name>agr-snapshots</name>
+			<url>https://maven.alliancegenome.org/artifactory/agr-snapshot</url>
+		</snapshotRepository>
+	</distributionManagement>
+
 	<build>
 		<finalName>${project.artifactId}</finalName>
 		<plugins>
