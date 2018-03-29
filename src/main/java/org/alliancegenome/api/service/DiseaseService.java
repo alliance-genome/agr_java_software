@@ -3,20 +3,16 @@ package org.alliancegenome.api.service;
 import java.util.Map;
 
 import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
 
-import org.alliancegenome.api.dao.DiseaseDAO;
-import org.alliancegenome.api.model.SearchResult;
-import org.alliancegenome.api.service.helper.Pagination;
-import org.jboss.logging.Logger;
+import org.alliancegenome.es.index.site.dao.DiseaseDAO;
+import org.alliancegenome.es.model.query.Pagination;
+import org.alliancegenome.es.model.search.SearchResult;
+import org.alliancegenome.es.util.SearchHitIterator;
 
 @RequestScoped
 public class DiseaseService {
 
-    private Logger log = Logger.getLogger(getClass());
-
-    @Inject
-    private DiseaseDAO diseaseDAO;
+    private static DiseaseDAO diseaseDAO = new DiseaseDAO();
 
     public Map<String, Object> getById(String id) {
         return diseaseDAO.getById(id);
@@ -27,7 +23,7 @@ public class DiseaseService {
     }
 
 
-    public DiseaseDAO.SearchHitIterator getDiseaseAnnotationsDownload(String id, Pagination pagination) {
+    public SearchHitIterator getDiseaseAnnotationsDownload(String id, Pagination pagination) {
         return diseaseDAO.getDiseaseAnnotationsDownload(id, pagination);
     }
 }

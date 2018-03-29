@@ -20,32 +20,33 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.Destroyed;
 import javax.enterprise.context.Initialized;
 import javax.enterprise.event.Observes;
-import javax.inject.Inject;
 
-import org.alliancegenome.api.dao.SearchDAO;
 import org.alliancegenome.api.model.xml.XMLURL;
 import org.alliancegenome.api.model.xml.XMLURLSet;
+import org.alliancegenome.core.config.ConfigHelper;
+import org.alliancegenome.es.index.site.dao.SearchDAO;
 import org.elasticsearch.search.SearchHit;
 import org.jboss.logging.Logger;
 
 @ApplicationScoped
+@SuppressWarnings("rawtypes")
 public class SiteMapCacherApplication {
 
     private final Logger log = Logger.getLogger(getClass());
 
-    @Inject
-    private SearchDAO searchDAO;
+    private SearchDAO searchDAO = new SearchDAO();
 
     private final Integer fileSize = 5000;
     private final HashMap<String, File> files = new HashMap<>();
 
     public void init(@Observes @Initialized(ApplicationScoped.class) Object init) {
-        log.info("Caching Sitemap Files: ");
-        cacheSiteMap("gene");
-        cacheSiteMap("disease");
-        log.info("Caching Sitemap Files Finished: ");
+        if(ConfigHelper.getGenerateSitemap()) {
+            log.info("Caching Sitemap Files: ");
+            cacheSiteMap("gene");
+            cacheSiteMap("disease");
+            log.info("Caching Sitemap Files Finished: ");
+        }
     }
-
 
     public void destroy(@Observes @Destroyed(ApplicationScoped.class) Object init) {
         for(File f: files.values()) {
@@ -92,6 +93,7 @@ public class SiteMapCacherApplication {
         log.debug("Saving File: " + filePath);
         save(urls, files.get(fileName));
     }
+
 
     public XMLURLSet getHits(String category, Integer page) {
         String fileName = category + "-sitemap-" + page;

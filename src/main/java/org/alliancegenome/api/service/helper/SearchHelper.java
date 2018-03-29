@@ -1,7 +1,23 @@
 package org.alliancegenome.api.service.helper;
 
-import org.alliancegenome.api.model.AggDocCount;
-import org.alliancegenome.api.model.AggResult;
+import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
+import static org.elasticsearch.index.query.QueryBuilders.termQuery;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.enterprise.context.RequestScoped;
+import javax.ws.rs.core.UriInfo;
+
+import org.alliancegenome.es.model.search.AggDocCount;
+import org.alliancegenome.es.model.search.AggResult;
+import org.alliancegenome.es.model.search.Category;
+import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.text.Text;
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -14,19 +30,13 @@ import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilde
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.jboss.logging.Logger;
 
-import javax.enterprise.context.RequestScoped;
-import javax.ws.rs.core.UriInfo;
-import java.util.*;
-
-@RequestScoped
-@SuppressWarnings("serial")
 public class SearchHelper {
-
 
     private Logger log = Logger.getLogger(getClass());
 
     private static String[] SUFFIX_LIST = { ".keyword", ".synonyms", ".symbols", ".text" };
 
+    
     private HashMap<String, List<String>> category_filters = new HashMap<String, List<String>>() {
         {
             put("gene", new ArrayList<String>() {
@@ -177,7 +187,7 @@ public class SearchHelper {
     public ArrayList<Map<String, Object>> formatResults(SearchResponse res, List<String> searchedTerms) {
         log.debug("Formatting Results: ");
         ArrayList<Map<String, Object>> ret = new ArrayList<>();
-        
+
         for(SearchHit hit: res.getHits()) {
             Map<String, Object> map = new HashMap<>();
             for(String key: hit.getHighlightFields().keySet()) {
@@ -201,16 +211,16 @@ public class SearchHelper {
 
                 map.put(name, list);
             }
-            hit.getSource().put("highlights", map);
-            hit.getSource().put("id", hit.getId());
-            hit.getSource().put("score", hit.getScore());
+            hit.getSourceAsMap().put("highlights", map);
+            hit.getSourceAsMap().put("id", hit.getId());
+            hit.getSourceAsMap().put("score", hit.getScore());
             if (hit.getExplanation() != null) {
-                hit.getSource().put("explanation", hit.getExplanation());
+                hit.getSourceAsMap().put("explanation", hit.getExplanation());
             }
 
-            hit.getSource().put("missingTerms", findMissingTerms(Arrays.asList(hit.getMatchedQueries()),
+            hit.getSourceAsMap().put("missingTerms", findMissingTerms(Arrays.asList(hit.getMatchedQueries()),
                                                                  searchedTerms));
-            ret.add(hit.getSource());
+            ret.add(hit.getSourceAsMap());
         }
         log.debug("Finished Formatting Results: ");
         return ret;
@@ -243,5 +253,58 @@ public class SearchHelper {
         }
 
         return hlb;
+    }
+    
+    public BoolQueryBuilder limitCategories() {
+        BoolQueryBuilder bool = boolQuery();
+        Arrays.asList(Category.values()).stream()
+                .filter(cat ->  cat.isSearchable() )
+                .forEach(cat ->
+                        bool.should(termQuery("category", cat.getName()))
+                );
+        return bool;
+    }
+
+
+    public List<String> tokenizeQuery(String query) {
+        List<String> tokens = new ArrayList<>();
+
+        if (StringUtils.isEmpty(query)) {
+            return tokens;
+        }
+
+
+        //undo colon escaping
+        query = query.replaceAll("\\\\:",":");
+
+        //normalize the whitespace
+        query = query.replaceAll("\\s+", " ");
+
+        //extract quoted phrases
+        Pattern p = Pattern.compile( "\"([^\"]*)\"" );
+        Matcher m = p.matcher(query);
+        while( m.find()) {
+            String phrase = m.group(1);
+            tokens.add(phrase);
+            query = query.replaceAll("\"" + phrase + "\"","");
+        }
+
+        //normalize the whitespace again
+        query = query.replaceAll("\\s+", " ");
+
+        //add the tokens
+        tokens.addAll(Arrays.asList(query.split("\\s")));
+
+        //strip boolean tokens
+        List<String> booleans = new ArrayList<>();
+        booleans.add("AND");
+        booleans.add("OR");
+        booleans.add("NOT");
+
+        tokens.removeAll(booleans);
+
+        return tokens;
+
+
     }
 }

@@ -1,3 +1,9 @@
 .settings
 target
 *.swp
+app.properties
+audit.log
+.tern-project
+.classpath
+.project
+/bin/

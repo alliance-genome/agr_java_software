@@ -1,27 +1,19 @@
 package org.alliancegenome.api.service;
 
-import org.alliancegenome.api.dao.AutoCompleteDAO;
-import org.alliancegenome.api.model.AutoCompleteResult;
+import javax.enterprise.context.RequestScoped;
+
 import org.alliancegenome.api.service.helper.AutoCompleteHelper;
+import org.alliancegenome.es.index.site.dao.AutoCompleteDAO;
+import org.alliancegenome.es.model.search.AutoCompleteResult;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.QueryBuilder;
-import org.jboss.logging.Logger;
-
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-
 
 @RequestScoped
 public class AutoCompleteService {
 
-    private Logger log = Logger.getLogger(getClass());
-    
-    @Inject
-    private AutoCompleteDAO autoCompleteDAO;
-    
-    @Inject
-    private AutoCompleteHelper autoCompleteHelper;
-    
+    private static AutoCompleteDAO autoCompleteDAO = new AutoCompleteDAO();
+    private static AutoCompleteHelper autoCompleteHelper = new AutoCompleteHelper();
+
     public AutoCompleteResult buildQuery(String q, String category) {
 
         QueryBuilder query = autoCompleteHelper.buildQuery(q, category);

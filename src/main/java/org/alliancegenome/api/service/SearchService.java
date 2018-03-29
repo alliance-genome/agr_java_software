@@ -1,42 +1,47 @@
 package org.alliancegenome.api.service;
 
-import org.alliancegenome.api.dao.SearchDAO;
-import org.alliancegenome.api.model.Category;
-import org.alliancegenome.api.model.SearchResult;
+import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
+import static org.elasticsearch.index.query.QueryBuilders.termQuery;
+import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
+import static org.elasticsearch.index.query.QueryBuilders.multiMatchQuery;
+import static org.elasticsearch.index.query.QueryBuilders.queryStringQuery;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import javax.enterprise.context.RequestScoped;
+import javax.ws.rs.core.MultivaluedHashMap;
+import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.UriInfo;
+
 import org.alliancegenome.api.service.helper.SearchHelper;
+import org.alliancegenome.es.index.site.dao.SearchDAO;
+import org.alliancegenome.es.model.search.Category;
+import org.alliancegenome.es.model.search.SearchResult;
+import org.alliancegenome.es.util.QueryManipulationService;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.index.query.*;
+import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.MultiMatchQueryBuilder;
+import org.elasticsearch.index.query.Operator;
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryStringQueryBuilder;
+import org.elasticsearch.index.query.TermQueryBuilder;
 import org.elasticsearch.index.query.functionscore.FunctionScoreQueryBuilder;
 import org.elasticsearch.index.query.functionscore.ScoreFunctionBuilders;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.jboss.logging.Logger;
 
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-import javax.ws.rs.core.MultivaluedHashMap;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.UriInfo;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import static org.elasticsearch.index.query.QueryBuilders.*;
-
 @RequestScoped
 public class SearchService {
 
-    @Inject
-    private SearchDAO searchDAO;
+    private SearchDAO searchDAO = new SearchDAO();
 
-    @Inject
-    private SearchHelper searchHelper;
+    private SearchHelper searchHelper = new SearchHelper();
 
-    @Inject
-    private QueryManipulationService queryManipulationService;
+    private QueryManipulationService queryManipulationService = new QueryManipulationService();
 
     private static Logger log = Logger.getLogger(SearchService.class);
 
@@ -63,7 +68,7 @@ public class SearchService {
         log.debug("Search Query: " + q);
 
         result.total = searchResponse.getHits().totalHits;
-        result.results = searchHelper.formatResults(searchResponse, tokenizeQuery(q));
+        result.results = searchHelper.formatResults(searchResponse, searchHelper.tokenizeQuery(q));
         result.aggregations = searchHelper.formatAggResults(category, searchResponse);
 
         return result;
@@ -80,7 +85,7 @@ public class SearchService {
         List<FunctionScoreQueryBuilder.FilterFunctionBuilder> functionList = new ArrayList<>();
 
         //add a 'should' clause for each individual term
-        List<String> tokens = tokenizeQuery(q);
+        List<String> tokens = searchHelper.tokenizeQuery(q);
         for (String token : tokens) {
             MultiMatchQueryBuilder mmq = multiMatchQuery(token);
             searchHelper.getSearchFields().stream().forEach(mmq::field);
@@ -103,9 +108,7 @@ public class SearchService {
 
             QueryStringQueryBuilder builder = queryStringQuery(q)
                 .defaultOperator(Operator.OR)
-                .allowLeadingWildcard(true)
-                .autoGeneratePhraseQueries(true)
-                .useDisMax(true);
+                .allowLeadingWildcard(true);
 
             //add the fields one at a time
             searchHelper.getSearchFields().stream().forEach(builder::field);
@@ -133,21 +136,10 @@ public class SearchService {
         }
 
         //include only searchable categories in search results
-        bool.filter(limitCategories());
+        bool.filter(searchHelper.limitCategories());
 
         return bool;
     }
-
-    public BoolQueryBuilder limitCategories() {
-        BoolQueryBuilder bool = boolQuery();
-        Arrays.asList(Category.values()).stream()
-                .filter(cat ->  cat.isSearchable() )
-                .forEach(cat ->
-                        bool.should(termQuery("category", cat.getName()))
-                );
-        return bool;
-    }
-
 
     public MultivaluedMap<String,String> getFilters(String category, UriInfo uriInfo) {
         MultivaluedMap<String,String> map = new MultivaluedHashMap<>();
@@ -158,46 +150,5 @@ public class SearchService {
         return map;
     }
 
-    public List<String> tokenizeQuery(String query) {
-        List<String> tokens = new ArrayList<>();
-
-        if (StringUtils.isEmpty(query)) {
-            return tokens;
-        }
-
-
-        //undo colon escaping
-        query = query.replaceAll("\\\\:",":");
-
-        //normalize the whitespace
-        query = query.replaceAll("\\s+", " ");
-
-        //extract quoted phrases
-        Pattern p = Pattern.compile( "\"([^\"]*)\"" );
-        Matcher m = p.matcher(query);
-        while( m.find()) {
-            String phrase = m.group(1);
-            tokens.add(phrase);
-            query = query.replaceAll("\"" + phrase + "\"","");
-        }
-
-        //normalize the whitespace again
-        query = query.replaceAll("\\s+", " ");
-
-        //add the tokens
-        tokens.addAll(Arrays.asList(query.split("\\s")));
-
-        //strip boolean tokens
-        List<String> booleans = new ArrayList<>();
-        booleans.add("AND");
-        booleans.add("OR");
-        booleans.add("NOT");
-
-        tokens.removeAll(booleans);
-
-        return tokens;
-
-
-    }
 
 }

@@ -5,21 +5,21 @@ import java.util.Map;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.alliancegenome.api.model.SearchResult;
 import org.alliancegenome.api.rest.interfaces.DiseaseRESTInterface;
 import org.alliancegenome.api.service.DiseaseService;
-import org.alliancegenome.api.service.helper.Pagination;
-import org.alliancegenome.api.translator.DiseaseAnnotationToTdfTranslator;
-import org.jboss.logging.Logger;
+import org.alliancegenome.es.model.query.Pagination;
+import org.alliancegenome.es.model.search.SearchResult;
+import org.alliancegenome.core.translators.DiseaseAnnotationToTdfTranslator;
 
 @RequestScoped
-public class DiseaseController implements DiseaseRESTInterface {
+public class DiseaseController extends BaseController implements DiseaseRESTInterface {
 
-    private final Logger log = Logger.getLogger(getClass());
+    //private final Logger log = Logger.getLogger(getClass());
     @Context  //injected response proxy supporting multiple threads
     private HttpServletResponse response;
 
@@ -30,7 +30,12 @@ public class DiseaseController implements DiseaseRESTInterface {
 
     @Override
     public Map<String, Object> getDisease(String id) {
-        return diseaseService.getById(id);
+        Map<String, Object> ret = diseaseService.getById(id);
+        if(ret == null) {
+            throw new NotFoundException();
+        } else {
+            return ret;
+        }
     }
 
     @Override
