@@ -76,7 +76,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.alliancegnome</groupId>
-			<artifactId>agr_java_shared</artifactId>
+			<artifactId>agr_java_core</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 	</dependencies>
