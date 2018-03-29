@@ -1,33 +1,36 @@
 package org.alliancegenome.indexer.indexers;
 
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.alliancegenome.indexer.config.ConfigHelper;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.TimeUnit;
+
+import org.alliancegenome.core.config.ConfigHelper;
+import org.alliancegenome.es.index.site.document.ESDocument;
+import org.alliancegenome.indexer.Main;
 import org.alliancegenome.indexer.config.IndexerConfig;
-import org.alliancegenome.indexer.document.ESDocument;
-import org.alliancegenome.indexer.schema.Mappings;
-import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
+import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.xpack.client.PreBuiltXPackTransportClient;
 
-import java.net.InetAddress;
-import java.text.DecimalFormat;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.*;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public abstract class Indexer<D extends ESDocument> extends Thread {
 
+    public static String indexName;
     private Logger log = LogManager.getLogger(getClass());
-    protected String currentIndex;
     protected IndexerConfig indexerConfig;
     private PreBuiltXPackTransportClient client;
     protected Runtime runtime = Runtime.getRuntime();
@@ -39,15 +42,21 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
     private Date lastTime = new Date();
     private int lastSize;
 
-    public Indexer(String currentIndex, IndexerConfig indexerConfig) {
-        this.currentIndex = currentIndex;
+    public Indexer(IndexerConfig indexerConfig) {
         this.indexerConfig = indexerConfig;
 
         om.setSerializationInclusion(Include.NON_NULL);
 
         try {
             client = new PreBuiltXPackTransportClient(Settings.EMPTY);
-            client.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(ConfigHelper.getEsHost()), ConfigHelper.getEsPort()));
+            if(ConfigHelper.getEsHost().contains(",")) {
+                String[] hosts = ConfigHelper.getEsHost().split(",");
+                for(String host: hosts) {
+                    client.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(host), ConfigHelper.getEsPort()));
+                }
+            } else {
+                client.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(ConfigHelper.getEsHost()), ConfigHelper.getEsPort()));
+            }
         } catch (Exception e) {
             e.printStackTrace();
             System.exit(0);
@@ -57,25 +66,12 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
     protected abstract void index();
 
     public void runIndex() {
-        addMapping();
         index();
-    }
-
-    private void addMapping() {
-        try {
-            Mappings mappingClass = (Mappings) indexerConfig.getMappingsClazz().getDeclaredConstructor(Boolean.class).newInstance(true);
-            mappingClass.buildMappings();
-            log.debug("Getting Mapping for type: " + indexerConfig.getTypeName());
-            client.admin().indices().preparePutMapping(currentIndex).setType(indexerConfig.getTypeName()).setSource(mappingClass.getBuilder().string()).get();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     @Override
     public void run() {
         super.run();
-        addMapping();
         index();
     }
 
@@ -89,7 +85,7 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
                 try {
                     String json = om.writeValueAsString(doc);
                     //log.debug("JSON: " + json);
-                    bulkRequest.add(client.prepareIndex(currentIndex, indexerConfig.getTypeName()).setSource(json).setId(doc.getDocumentId()));
+                    bulkRequest.add(client.prepareIndex(Indexer.indexName, indexerConfig.getTypeName()).setSource(json, XContentType.JSON).setId(doc.getDocumentId()));
                 } catch (JsonProcessingException e) {
                     e.printStackTrace();
                 }
@@ -162,12 +158,9 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
     }
 
     public static String getHumanReadableTimeDisplay(long duration) {
-        long hours = TimeUnit.MILLISECONDS.toHours(duration)
-                - TimeUnit.DAYS.toHours(TimeUnit.MILLISECONDS.toDays(duration));
-        long minutes = TimeUnit.MILLISECONDS.toMinutes(duration)
-                - TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(duration));
-        long seconds = TimeUnit.MILLISECONDS.toSeconds(duration)
-                - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(duration));
+        long hours = TimeUnit.MILLISECONDS.toHours(duration) - TimeUnit.DAYS.toHours(TimeUnit.MILLISECONDS.toDays(duration));
+        long minutes = TimeUnit.MILLISECONDS.toMinutes(duration) - TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(duration));
+        long seconds = TimeUnit.MILLISECONDS.toSeconds(duration) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(duration));
         return String.format("%02d:%02d:%02d", hours, minutes, seconds);
     }
 
@@ -185,46 +178,33 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
         return ((double) runtime.totalMemory() - (double) runtime.freeMemory()) / (double) runtime.maxMemory();
     }
 
-    private boolean isWorkStillPerformed(LinkedBlockingDeque<String> queue, Set<Future> futureSet) {
-        // check if at least one thread is still working, i.e. is not done
-        boolean atLeastOneThreadRunning = false;
-        for (Future future : futureSet) {
-            if (!future.isDone()) {
-                atLeastOneThreadRunning = true;
-                break;
-            }
-        }
-        return !queue.isEmpty() && atLeastOneThreadRunning;
-    }
-
-    private BasicThreadFactory getBasicThreadFactory() {
-        // Create a factory that produces daemon threads with a naming pattern and
-        // a priority
-        return new BasicThreadFactory.Builder()
-                .namingPattern("AGR-Indexer-%d")
-                .priority(Thread.MAX_PRIORITY)
-                .build();
-    }
-
     void initiateThreading(LinkedBlockingDeque<String> queue) throws InterruptedException {
         Integer numberOfThreads = indexerConfig.getThreadCount();
-        ExecutorService executor = Executors.newFixedThreadPool(numberOfThreads, getBasicThreadFactory());
-        int index = 0;
-        Set<Future> futureSet = new HashSet<>(numberOfThreads);
-        while (index++ < numberOfThreads) {
-            futureSet.add(executor.submit(() -> startSingleThread(queue)));
+
+        List<Thread> threads = new ArrayList<Thread>();
+        for(int i = 0; i < numberOfThreads; i++) {
+            Thread t = new Thread(new Runnable() {
+                public void run() {
+                    startSingleThread(queue);
+                }
+            });
+            threads.add(t);
+            t.start();
         }
 
         int total = queue.size();
         startProcess(total);
-        while (isWorkStillPerformed(queue, futureSet)) {
-            TimeUnit.SECONDS.sleep(10);
+
+        while(queue.size() > 0) {
+            TimeUnit.SECONDS.sleep(60);
             progress(queue.size(), total);
         }
-        if (!queue.isEmpty())
-            throw new RuntimeException("There was an error during the multi-threaded indexing. Aborting...");
+
+        for(Thread t: threads) {
+            t.join();
+        }
+
         finishProcess(total);
-        executor.shutdown();
     }
 
     protected abstract void startSingleThread(LinkedBlockingDeque<String> queue);

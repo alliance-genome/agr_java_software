@@ -1,10 +1,10 @@
 package org.alliancegenome.indexer.indexers;
 
+import org.alliancegenome.core.translators.DiseaseTranslator;
+import org.alliancegenome.es.index.site.document.DiseaseDocument;
 import org.alliancegenome.indexer.config.IndexerConfig;
-import org.alliancegenome.indexer.document.DiseaseDocument;
-import org.alliancegenome.indexer.entity.node.DOTerm;
-import org.alliancegenome.indexer.repository.DiseaseRepository;
-import org.alliancegenome.indexer.translators.DiseaseTranslator;
+import org.alliancegenome.neo4j.entity.node.DOTerm;
+import org.alliancegenome.neo4j.repository.DiseaseRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -16,8 +16,8 @@ public class DiseaseIndexer extends Indexer<DiseaseDocument> {
 
     private final Logger log = LogManager.getLogger(getClass());
 
-    public DiseaseIndexer(String currentIndex, IndexerConfig config) {
-        super(currentIndex, config);
+    public DiseaseIndexer(IndexerConfig config) {
+        super(config);
     }
 
     @Override
@@ -43,13 +43,11 @@ public class DiseaseIndexer extends Indexer<DiseaseDocument> {
                 if (list.size() >= indexerConfig.getBufferSize()) {
                     saveDocuments(diseaseTrans.translateEntities(list));
                     list.clear();
-                    repo.clearCache();
                 }
                 if (queue.isEmpty()) {
                     if (list.size() > 0) {
                         saveDocuments(diseaseTrans.translateEntities(list));
                         list.clear();
-                        repo.clearCache();
                     }
                     return;
                 }
