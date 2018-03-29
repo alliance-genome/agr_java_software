@@ -1,6 +1,6 @@
 FROM agrdocker/agr_java_env:latest
 
-WORKDIR /workdir/agr_java_shared
+WORKDIR /workdir/agr_java_core
 
 RUN mkdir /root/.m2
 ARG PASSWORD=mypassword
