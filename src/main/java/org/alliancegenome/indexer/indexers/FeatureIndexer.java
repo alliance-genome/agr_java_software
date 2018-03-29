@@ -43,9 +43,8 @@ public class FeatureIndexer extends Indexer<FeatureDocument> {
             try {
                 if (list.size() >= indexerConfig.getBufferSize()) {
                     saveDocuments(geneTrans.translateEntities(list));
-                    list.clear();
                     repo.clearCache();
-                    list = new ArrayList<>();
+                    list.clear();
                 }
                 if (queue.isEmpty()) {
                     if (list.size() > 0) {
