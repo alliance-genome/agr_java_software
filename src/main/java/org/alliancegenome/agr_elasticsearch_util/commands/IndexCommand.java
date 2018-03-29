@@ -19,7 +19,7 @@ public class IndexCommand extends Command implements CommandInterface {
 
 	@Override
 	public void printHelp() {
-		
+
 	}
 
 	@Override
@@ -33,15 +33,19 @@ public class IndexCommand extends Command implements CommandInterface {
 					System.out.println(index);
 				}
 			} else if(command.equals("info")) {
-				String index = args.remove(0);
-				IndexMetaData imd = im.getIndex(index);
-				if(imd != null) {
-					for(ObjectCursor<String> a: imd.getAliases().keys()) {
-						System.out.println("Alias: " + a.value);
+				if(args.size() > 0) {
+					String index = args.remove(0);
+					IndexMetaData imd = im.getIndex(index);
+					if(imd != null) {
+						for(ObjectCursor<String> a: imd.getAliases().keys()) {
+							System.out.println("Alias: " + a.value);
+						}
+						System.out.println(imd.getSettings().get("index.provided_name"));
+					} else {
+						System.out.println("Index not found: " + index);
 					}
-					System.out.println(imd.getSettings().get("index.provided_name"));
 				} else {
-					System.out.println("Index not found: " + index);
+					printHelp();
 				}
 			} else if(command.equals("switchalias")) {
 				if(args.size() > 2) {
