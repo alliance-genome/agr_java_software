@@ -17,7 +17,7 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>org.alliancegnome</groupId>
+			<groupId>org.alliancegenome</groupId>
 			<artifactId>agr_java_shared</artifactId>
 			<version>${project.version}</version>
 		</dependency>
