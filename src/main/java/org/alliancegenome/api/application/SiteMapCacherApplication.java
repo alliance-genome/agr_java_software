@@ -91,7 +91,8 @@ public class SiteMapCacherApplication {
         if(urls.size() > 0) {
             saveFile(urls, category, c);
         }
-
+        urls.clear();
+        allIds.clear();
     }
 
     private void saveFile(List<XMLURL> urls, String category, int c) {
