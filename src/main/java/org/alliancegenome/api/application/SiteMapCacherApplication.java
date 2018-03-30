@@ -36,9 +36,14 @@ public class SiteMapCacherApplication {
 
     private SearchDAO searchDAO = new SearchDAO();
 
-    private final Integer fileSize = 5000;
+    private final Integer fileSize = 15000; // 15000 is the max that the index is configured with see site_index settings file
     private final HashMap<String, File> files = new HashMap<>();
 
+    public SiteMapCacherApplication() {
+        File dir = new File(System.getProperty("java.io.tmpdir") + "/sitemap/");
+        if(!dir.exists()) dir.mkdir();
+    }
+    
     public void init(@Observes @Initialized(ApplicationScoped.class) Object init) {
         if(ConfigHelper.getGenerateSitemap()) {
             log.info("Caching Sitemap Files: ");
@@ -55,10 +60,13 @@ public class SiteMapCacherApplication {
         }
     }
 
-    private void cacheSiteMap(String category) {
-
+    public void cacheSiteMap(String category) {
+        log.info("Getting all ids for: " + category);
+        
         List<SearchHit> allIds = searchDAO.getAllIds(termQuery("category", category), fileSize);
 
+        log.info("Finished Loading all ids: " + allIds.size());
+        
         List<XMLURL> urls = new ArrayList<XMLURL>();
 
         int c = 0;
@@ -88,16 +96,16 @@ public class SiteMapCacherApplication {
 
     private void saveFile(List<XMLURL> urls, String category, int c) {
         String fileName = category + "-sitemap-" + c;
-        String filePath = System.getProperty("jboss.server.temp.dir") + "/" + fileName;
+        String filePath = System.getProperty("java.io.tmpdir") + "/sitemap/" + fileName;
         files.put(fileName, new File(filePath));
-        log.debug("Saving File: " + filePath);
+        log.info("Saving File: " + filePath);
         save(urls, files.get(fileName));
     }
 
 
     public XMLURLSet getHits(String category, Integer page) {
         String fileName = category + "-sitemap-" + page;
-        log.debug("Loading: " + fileName);
+        log.info("Loading: " + fileName);
         XMLURLSet set = new XMLURLSet();
         if(files.containsKey(fileName)) {
             set.setUrl(load(files.get(fileName)));
