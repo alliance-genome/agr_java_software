@@ -18,7 +18,7 @@ import jdk.nashorn.internal.ir.annotations.Ignore;
 
 public class TestGetGene {
 
-    private GeneDAO geneService = new GeneDAO();
+    private GeneDAO geneService;
 
     public void before() {
         Configurator.setRootLevel(Level.WARN);
