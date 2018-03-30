@@ -1,8 +1,11 @@
 package org.alliancegenome.shared;
 
-import jdk.nashorn.internal.ir.annotations.Ignore;
+import static org.junit.Assert.assertNotNull;
+
+import java.util.HashMap;
+import java.util.Map;
+
 import org.alliancegenome.core.config.ConfigHelper;
-import org.alliancegenome.es.index.site.dao.DiseaseDAO;
 import org.alliancegenome.es.index.site.dao.GeneDAO;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.repository.GeneRepository;
@@ -11,10 +14,7 @@ import org.apache.logging.log4j.core.config.Configurator;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import static org.junit.Assert.assertNotNull;
+import jdk.nashorn.internal.ir.annotations.Ignore;
 
 public class TestGetGene {
 
