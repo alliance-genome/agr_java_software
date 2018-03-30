@@ -57,8 +57,8 @@ public class Gene extends Neo4jEntity implements Comparable<Gene> {
 	@Relationship(type = "ANNOTATED_TO")
 	private Set<GOTerm> gOTerms = new HashSet<>();
 
-	@Relationship(type = "ORTHOLOGOUS", direction = Relationship.OUTGOING)
-	private List<Orthologous> orthoGenes;
+	@Relationship(type = "ORTHOLOGOUS")
+	private List<Orthologous> orthoGenes = new ArrayList<>();
 
 	@Relationship(type = "LOCATED_ON")
 	private List<GenomeLocation> genomeLocations;
