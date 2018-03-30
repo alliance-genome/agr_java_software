@@ -20,7 +20,6 @@ public class TestGetGene {
 
     private GeneDAO geneService = new GeneDAO();
 
-    @Before
     public void before() {
         Configurator.setRootLevel(Level.WARN);
         ConfigHelper.init();
@@ -38,8 +37,6 @@ public class TestGetGene {
 
     }
 
-    @Test
-    @Ignore
     public void checkSecondaryId() {
         Map<String, Object> result = geneService.getGeneBySecondary("ZFIN:ZDB-GENE-030131-3355");
         assertNotNull(result);
