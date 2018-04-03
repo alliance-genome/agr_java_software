@@ -47,7 +47,6 @@ public class GoIndexer extends Indexer<GoDocument> {
                     saveDocuments(goTrans.translateEntities(list));
                     repo.clearCache();
                     list.clear();
-                    list = new ArrayList<>();
                 }
                 if (queue.isEmpty()) {
                     if (list.size() > 0) {

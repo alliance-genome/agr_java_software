@@ -47,13 +47,13 @@ public class DiseaseAnnotationIndexer extends Indexer<DiseaseAnnotationDocument>
                     saveDocuments(diseaseTrans.translateAnnotationEntities(list, 1));
                     repo.clearCache();
                     list.clear();
-                    list = new ArrayList<>();
                 }
                 if (queue.isEmpty()) {
                     if (list.size() > 0) {
                         saveDocuments(diseaseTrans.translateAnnotationEntities(list, 1));
-                        list.clear();
                         repo.clearCache();
+                        list.clear();
+                        
                     }
                     return;
                 }
