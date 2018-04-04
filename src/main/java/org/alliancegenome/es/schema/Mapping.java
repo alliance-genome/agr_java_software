@@ -60,7 +60,16 @@ public abstract class Mapping extends Builder {
 		buildProperty("description", "text");
 		buildGenericField("species", "text", null, false, false, true, true);
 	}
-	
+
+	protected void buildNestedDocument(String name) throws IOException {
+		builder.startObject(name);
+		builder.startObject("properties");
+		//likely more fields than most will need, but the schema will be there for as many as are necessary
+		buildSharedSearchableDocumentMappings();
+		builder.endObject();
+		builder.endObject();
+	}
+
 	public enum MappingClass {
 		Disease("disease", DiseaseMapping.class),
 		Feature("feature", FeatureMapping.class),

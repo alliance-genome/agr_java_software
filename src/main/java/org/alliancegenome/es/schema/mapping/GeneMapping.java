@@ -30,6 +30,8 @@ public class GeneMapping extends Mapping {
 					buildGenericField("gene_cellular_component", "text", null, true, false, true, false);
 					buildGenericField("gene_molecular_function", "text", null, true, false, true, false);
 					buildGenomeLocationsField();
+					buildNestedDocument("alleles");
+					buildNestedDocument("diseases");
 
 					buildProperty("secondaryIds", "keyword");
 					buildProperty("soTermId", "keyword");
