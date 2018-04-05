@@ -7,7 +7,9 @@ public class TestSiteMapGen {
     public static void main(String[] args) {
         SiteMapCacherApplication smca = new SiteMapCacherApplication();
         
-        smca.cacheSiteMap("gene");
+        //smca.cacheSiteMap("disease");
+        //smca.cacheSiteMap("gene");
+        smca.cacheSiteMap("allele");
 
     }
 

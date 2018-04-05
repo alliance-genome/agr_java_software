@@ -61,17 +61,17 @@ public class SiteMapCacherApplication {
     }
 
     public void cacheSiteMap(String category) {
-        log.info("Getting all ids for: " + category);
+        log.debug("Getting all ids for: " + category);
         
-        List<SearchHit> allIds = searchDAO.getAllIds(termQuery("category", category), fileSize);
+        List<String> allIds = searchDAO.getAllIds(termQuery("category", category), fileSize);
 
-        log.info("Finished Loading all ids: " + allIds.size());
+        log.debug("Finished Loading all ids: " + allIds.size() + " for " + category);
         
         List<XMLURL> urls = new ArrayList<XMLURL>();
 
         int c = 0;
 
-        for(SearchHit hit: allIds) {
+        for(String id: allIds) {
             Date date = null;
 
             //System.out.println(hit.getFields());
@@ -80,7 +80,7 @@ public class SiteMapCacherApplication {
             //  date = new Date((long)hit.getSource().get("dateProduced"));
             //}
 
-            urls.add(new XMLURL(hit.getType() + "/" + hit.getId(), date, "monthly", "0.6"));
+            urls.add(new XMLURL(category + "/" + id, date, "monthly", "0.6"));
 
             if(urls.size() >= fileSize) {
                 saveFile(urls, category, c);
@@ -99,7 +99,7 @@ public class SiteMapCacherApplication {
         String fileName = category + "-sitemap-" + c;
         String filePath = System.getProperty("java.io.tmpdir") + "/sitemap/" + fileName;
         files.put(fileName, new File(filePath));
-        log.info("Saving File: " + filePath);
+        log.trace("Saving File: " + filePath);
         save(urls, files.get(fileName));
     }
 
