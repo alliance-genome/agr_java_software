@@ -5,6 +5,7 @@ jdk:
 
 before_script:
   - mvn clean package
+  - cp app.properties.defaults app.properties
   - java -jar target/agr_api-swarm.jar -Papp.properties &
   - sleep 60
 
