@@ -36,13 +36,19 @@ public class SiteMapCacherApplication {
 
     private SearchDAO searchDAO = new SearchDAO();
 
-    private final Integer fileSize = 5000;
+    private final Integer fileSize = 15000; // 15000 is the max that the index is configured with see site_index settings file
     private final HashMap<String, File> files = new HashMap<>();
 
+    public SiteMapCacherApplication() {
+        File dir = new File(System.getProperty("java.io.tmpdir") + "/sitemap/");
+        if(!dir.exists()) dir.mkdir();
+    }
+    
     public void init(@Observes @Initialized(ApplicationScoped.class) Object init) {
         if(ConfigHelper.getGenerateSitemap()) {
             log.info("Caching Sitemap Files: ");
             cacheSiteMap("gene");
+            cacheSiteMap("allele");
             cacheSiteMap("disease");
             log.info("Caching Sitemap Files Finished: ");
         }
@@ -55,15 +61,18 @@ public class SiteMapCacherApplication {
         }
     }
 
-    private void cacheSiteMap(String category) {
+    public void cacheSiteMap(String category) {
+        log.debug("Getting all ids for: " + category);
+        
+        List<String> allIds = searchDAO.getAllIds(termQuery("category", category), fileSize);
 
-        List<SearchHit> allIds = searchDAO.getAllIds(termQuery("category", category), fileSize);
-
+        log.debug("Finished Loading all ids: " + allIds.size() + " for " + category);
+        
         List<XMLURL> urls = new ArrayList<XMLURL>();
 
         int c = 0;
 
-        for(SearchHit hit: allIds) {
+        for(String id: allIds) {
             Date date = null;
 
             //System.out.println(hit.getFields());
@@ -72,7 +81,7 @@ public class SiteMapCacherApplication {
             //  date = new Date((long)hit.getSource().get("dateProduced"));
             //}
 
-            urls.add(new XMLURL(hit.getType() + "/" + hit.getId(), date, "monthly", "0.6"));
+            urls.add(new XMLURL(category + "/" + id, date, "monthly", "0.6"));
 
             if(urls.size() >= fileSize) {
                 saveFile(urls, category, c);
@@ -83,21 +92,22 @@ public class SiteMapCacherApplication {
         if(urls.size() > 0) {
             saveFile(urls, category, c);
         }
-
+        urls.clear();
+        allIds.clear();
     }
 
     private void saveFile(List<XMLURL> urls, String category, int c) {
         String fileName = category + "-sitemap-" + c;
-        String filePath = System.getProperty("jboss.server.temp.dir") + "/" + fileName;
+        String filePath = System.getProperty("java.io.tmpdir") + "/sitemap/" + fileName;
         files.put(fileName, new File(filePath));
-        log.debug("Saving File: " + filePath);
+        log.trace("Saving File: " + filePath);
         save(urls, files.get(fileName));
     }
 
 
     public XMLURLSet getHits(String category, Integer page) {
         String fileName = category + "-sitemap-" + page;
-        log.debug("Loading: " + fileName);
+        log.info("Loading: " + fileName);
         XMLURLSet set = new XMLURLSet();
         if(files.containsKey(fileName)) {
             set.setUrl(load(files.get(fileName)));
