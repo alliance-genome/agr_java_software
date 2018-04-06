@@ -1,5 +1,7 @@
 package org.alliancegenome.es.index.site.document;
 
+import org.alliancegenome.es.index.document.ESDocument;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;

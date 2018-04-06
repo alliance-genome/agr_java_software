@@ -5,7 +5,7 @@ import java.lang.reflect.ParameterizedType;
 import java.util.concurrent.ExecutionException;
 
 import org.alliancegenome.core.config.ConfigHelper;
-import org.alliancegenome.es.index.site.document.ESDocument;
+import org.alliancegenome.es.index.document.ESDocument;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.elasticsearch.action.get.GetRequest;

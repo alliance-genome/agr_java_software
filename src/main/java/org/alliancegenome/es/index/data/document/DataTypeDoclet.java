@@ -2,7 +2,7 @@ package org.alliancegenome.es.index.data.document;
 
 import java.util.HashMap;
 
-import org.alliancegenome.es.index.site.document.ESDocument;
+import org.alliancegenome.es.index.document.ESDocument;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -10,9 +10,7 @@ import lombok.ToString;
 
 @Getter
 @Setter @ToString
-public class DataTypeDocument extends ESDocument {
-
-	private String type = "data_type";
+public class DataTypeDoclet {
 
 	private String name;
 	private String fileExtension;
@@ -21,9 +19,5 @@ public class DataTypeDocument extends ESDocument {
 	private boolean validationRequired;
 	private HashMap<String, String> schemaFiles = new HashMap<String, String>();
 
-	@Override
-	public String getDocumentId() {
-		return name;
-	}
 
 }
