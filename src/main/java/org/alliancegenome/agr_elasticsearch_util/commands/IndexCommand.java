@@ -4,9 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.alliancegenome.core.config.ConfigHelper;
-import org.alliancegenome.es.index.data.dao.DataTypeDAO;
 import org.alliancegenome.es.index.data.dao.MetaDataDAO;
-import org.alliancegenome.es.index.data.dao.TaxonIdDAO;
 import org.elasticsearch.cluster.metadata.IndexMetaData;
 
 import com.carrotsearch.hppc.cursors.ObjectCursor;
@@ -62,8 +60,6 @@ public class IndexCommand extends Command implements CommandInterface {
 					String index = args.remove(0);
 					if(index.equals(ConfigHelper.getEsDataIndex())) {
 						MetaDataDAO metaDataDao = new MetaDataDAO();
-						DataTypeDAO dataTypeDao = new DataTypeDAO();
-						TaxonIdDAO taxonIdDao = new TaxonIdDAO();
 					} else {
 						System.out.println("Don't know about that index: " + index);
 					}
