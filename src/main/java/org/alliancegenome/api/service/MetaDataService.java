@@ -2,6 +2,8 @@ package org.alliancegenome.api.service;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Date;
+import java.util.HashMap;
 
 import javax.enterprise.context.RequestScoped;
 
@@ -10,6 +12,7 @@ import org.alliancegenome.core.exceptions.SchemaDataTypeException;
 import org.alliancegenome.core.exceptions.ValidataionException;
 import org.alliancegenome.es.index.data.dao.MetaDataDAO;
 import org.alliancegenome.es.index.data.document.DataTypeDoclet;
+import org.alliancegenome.es.index.data.document.SnapShotDoclet;
 import org.alliancegenome.es.index.data.document.TaxonIdDoclet;
 import org.jboss.logging.Logger;
 
@@ -178,6 +181,18 @@ public class MetaDataService {
         // Save File Document
         
         metaDataDAO.createDataFile(schemaVersion, dataType, taxonId, filePath);
+    }
+
+    public SnapShotDoclet getShapShot(String system, String releaseVersion) {
+        return metaDataDAO.getSnapShot(system, releaseVersion);
+    }
+
+    public HashMap<String, Date> getReleases(String system) {
+        return metaDataDAO.getReleases(system);
+    }
+
+    public SnapShotDoclet takeSnapShot(String system, String releaseVersion) {
+        return metaDataDAO.takeSnapShot(system, releaseVersion);
     }
 
 

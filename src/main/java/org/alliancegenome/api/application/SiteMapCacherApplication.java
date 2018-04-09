@@ -25,7 +25,6 @@ import org.alliancegenome.api.model.xml.XMLURL;
 import org.alliancegenome.api.model.xml.XMLURLSet;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.es.index.site.dao.SearchDAO;
-import org.elasticsearch.search.SearchHit;
 import org.jboss.logging.Logger;
 
 @ApplicationScoped

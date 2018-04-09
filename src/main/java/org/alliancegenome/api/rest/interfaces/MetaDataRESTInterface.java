@@ -1,14 +1,18 @@
 package org.alliancegenome.api.rest.interfaces;
 
+import java.util.Date;
+import java.util.HashMap;
+
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
-import org.alliancegenome.es.index.data.document.MetaDataDocument;
+import org.alliancegenome.es.index.data.document.SnapShotDoclet;
 import org.alliancegenome.es.index.data.document.SubmissionResponce;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
 
@@ -16,19 +20,29 @@ import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public interface MetaDataRESTInterface {
-
-    @GET
-    @Path("/meta")
-    public MetaDataDocument getMetaData(String release);
     
     @GET
     @Path("/snapshot")
-    public MetaDataDocument getSnapShot(String snapShotName);
+    public SnapShotDoclet getSnapShot(
+            @QueryParam(value = "system")
+            String system,
+            @QueryParam(value = "releaseVersion")
+            String releaseVersion);
     
-    @POST
-    @Path("/snapshot")
-    public MetaDataDocument takeSnapShot();
+    @GET
+    @Path("/takesnapshot")
+    public SnapShotDoclet takeSnapShot(
+            @QueryParam("system")
+            String system,
+            @QueryParam(value = "releaseVersion")
+            String releaseVersion);
 
+    @GET
+    @Path("/releases")
+    public HashMap<String, Date> getReleases(
+            @QueryParam(value = "system")
+            String system);
+    
     @POST
     @Path("/submit")
     @Consumes(MediaType.MULTIPART_FORM_DATA)

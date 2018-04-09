@@ -1,13 +1,11 @@
 package org.alliancegenome.api.service;
 
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
-import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 import static org.elasticsearch.index.query.QueryBuilders.multiMatchQuery;
 import static org.elasticsearch.index.query.QueryBuilders.queryStringQuery;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -19,7 +17,6 @@ import javax.ws.rs.core.UriInfo;
 
 import org.alliancegenome.api.service.helper.SearchHelper;
 import org.alliancegenome.es.index.site.dao.SearchDAO;
-import org.alliancegenome.es.model.search.Category;
 import org.alliancegenome.es.model.search.SearchResult;
 import org.alliancegenome.api.service.QueryManipulationService;
 import org.apache.commons.lang3.StringUtils;

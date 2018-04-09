@@ -1,4 +1,4 @@
-package org.alliancegenome.api.config;
+package org.alliancegenome.api.filters;
 
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerResponseContext;

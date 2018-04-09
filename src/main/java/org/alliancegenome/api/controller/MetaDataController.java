@@ -1,6 +1,8 @@
 package org.alliancegenome.api.controller;
 
 import java.io.IOException;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -10,7 +12,7 @@ import javax.inject.Inject;
 import org.alliancegenome.api.rest.interfaces.MetaDataRESTInterface;
 import org.alliancegenome.api.service.MetaDataService;
 import org.alliancegenome.core.exceptions.GenericException;
-import org.alliancegenome.es.index.data.document.MetaDataDocument;
+import org.alliancegenome.es.index.data.document.SnapShotDoclet;
 import org.alliancegenome.es.index.data.document.SubmissionResponce;
 import org.jboss.logging.Logger;
 import org.jboss.resteasy.plugins.providers.multipart.InputPart;
@@ -76,24 +78,20 @@ public class MetaDataController extends BaseController implements MetaDataRESTIn
         return new SubmissionResponce();
     }
 
+    
     @Override
-    public MetaDataDocument getMetaData(String release) {
-        
-        return null;
+    public SnapShotDoclet takeSnapShot(String system, String releaseVersion) {
+        return metaDataService.takeSnapShot(system, releaseVersion);
     }
 
     @Override
-    public MetaDataDocument getSnapShot(String snapShotName) {
-        // TODO Auto-generated method stub
-        return null;
+    public SnapShotDoclet getSnapShot(String system, String releaseVersion) {
+        return metaDataService.getShapShot(system, releaseVersion);
     }
 
     @Override
-    public MetaDataDocument takeSnapShot() {
-        // TODO Auto-generated method stub
-        return null;
+    public HashMap<String, Date> getReleases(String system) {
+        return metaDataService.getReleases(system);
     }
     
-    
-
 }
