@@ -13,7 +13,6 @@ public class AutoCompleteDAO extends ESDAO {
 
 	//private Logger log = Logger.getLogger(getClass());
 
-	@SuppressWarnings("serial")
 	private List<String> response_fields = new ArrayList<String>() {
 		{
 			add("name_key"); add("name"); add("symbol");
