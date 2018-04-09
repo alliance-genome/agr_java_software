@@ -12,6 +12,6 @@ public class CrossReferenceDoclet {
 	private String globalCrossRefId;
 	private String prefix;
 	private String name;
-	private String primaryKey;
+	private String type;
 
 }
