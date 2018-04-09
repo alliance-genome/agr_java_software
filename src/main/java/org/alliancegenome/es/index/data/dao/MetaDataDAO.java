@@ -2,14 +2,17 @@ package org.alliancegenome.es.index.data.dao;
 
 import java.io.File;
 import java.util.Date;
+import java.util.HashMap;
 
 import org.alliancegenome.aws.S3Helper;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.exceptions.GenericException;
 import org.alliancegenome.es.index.dao.ESDocumentDAO;
 import org.alliancegenome.es.index.data.document.DataFileDocument;
+import org.alliancegenome.es.index.data.document.DataSnapShotDocument;
 import org.alliancegenome.es.index.data.document.DataTypeDoclet;
 import org.alliancegenome.es.index.data.document.MetaDataDocument;
+import org.alliancegenome.es.index.data.document.SnapShotDoclet;
 import org.alliancegenome.es.index.data.document.TaxonIdDoclet;
 import org.alliancegenome.es.index.data.enums.DataType;
 import org.alliancegenome.es.index.data.enums.TaxonIdType;
@@ -32,6 +35,7 @@ public class MetaDataDAO extends ESDocumentDAO<MetaDataDocument> {
 	private MetaDataDocument metaData;
 	
 	private DataFileDAO dataFileDAO = new DataFileDAO();
+	private DataSnapShotDAO dataSnapShotDAO = new DataSnapShotDAO();
 	
 	public MetaDataDAO() {
 		log.debug("Checking Data Index");
@@ -171,6 +175,16 @@ public class MetaDataDAO extends ESDocumentDAO<MetaDataDocument> {
 			createDocumnet(metaData);
 		}
 	}
+	
+	private DataSnapShotDocument getShapShotDocument(String system) {
+		if(system == null) return null;
+		DataSnapShotDocument dsd = dataSnapShotDAO.readDocument(system, "data_snapshot");
+		if(dsd == null) {
+			dsd = new DataSnapShotDocument(system);
+			dataSnapShotDAO.createDocumnet(dsd);
+		}
+		return dsd;
+	}
 
 	public String getPreviousVersion(String version) {
 		String[] array = version.split("\\.");
@@ -185,5 +199,31 @@ public class MetaDataDAO extends ESDocumentDAO<MetaDataDocument> {
 		out = out % 10;
 		String d = out + "";
 		return a + "." + b + "." + c + "." + d;
+	}
+
+	public SnapShotDoclet getSnapShot(String system, String releaseVersion) {
+		getMetaDocument();
+		DataSnapShotDocument dsd = getShapShotDocument(system);
+		
+		SnapShotDoclet doc = new SnapShotDoclet();
+		doc.setReleaseVersion(releaseVersion);
+		doc.setSchemaVersion(metaData.getReleaseSchemaMap().get(releaseVersion));
+		doc.setSnapShotDate(dsd.getReleaseSnapShotMap().get(releaseVersion));
+		doc.setDataFiles(dataFileDAO.search(doc.getSchemaVersion(), doc.getSnapShotDate()));
+		return doc;
+	}
+
+	public HashMap<String, Date> getReleases(String system) {
+		if(system == null) system = "production";
+		DataSnapShotDocument dsd = getShapShotDocument(system);
+		return dsd.getReleaseSnapShotMap();
+	}
+
+	public SnapShotDoclet takeSnapShot(String system, String releaseVersion) {
+		DataSnapShotDocument dsd = getShapShotDocument(system);
+		dsd.getReleaseSnapShotMap().put(releaseVersion, new Date());
+		
+		dataSnapShotDAO.updateDocument(dsd);
+		return getSnapShot(system, releaseVersion);
 	}
 }

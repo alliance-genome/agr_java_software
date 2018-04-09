@@ -21,12 +21,10 @@ import org.alliancegenome.neo4j.entity.node.SecondaryId;
 import org.alliancegenome.neo4j.entity.node.Synonym;
 import org.alliancegenome.neo4j.entity.relationship.GenomeLocation;
 import org.alliancegenome.neo4j.entity.relationship.Orthologous;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument> {
 
-	private final Logger log = LogManager.getLogger(getClass());
+	//private final Logger log = LogManager.getLogger(getClass());
 
 	private static DiseaseTranslator diseaseTranslator = new DiseaseTranslator();
 	private static FeatureTranslator alleleTranslator = new FeatureTranslator();

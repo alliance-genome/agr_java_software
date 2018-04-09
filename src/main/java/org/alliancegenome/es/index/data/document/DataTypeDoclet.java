@@ -2,8 +2,6 @@ package org.alliancegenome.es.index.data.document;
 
 import java.util.HashMap;
 
-import org.alliancegenome.es.index.document.ESDocument;
-
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
