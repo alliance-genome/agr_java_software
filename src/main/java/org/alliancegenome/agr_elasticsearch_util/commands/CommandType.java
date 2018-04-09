@@ -11,13 +11,13 @@ public enum CommandType {
 	dataindex(DataIndexCommand.class),
 	;
 
-	private Class implClass;
+	private Class<?> implClass;
 
-	public Class getImplClass() {
+	public Class<?> getImplClass() {
 		return implClass;
 	}
 	
-	private CommandType(Class implClass) {
+	private CommandType(Class<?> implClass) {
 		this.implClass = implClass;
 	}
 

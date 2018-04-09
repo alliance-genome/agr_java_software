@@ -59,7 +59,7 @@ public class IndexCommand extends Command implements CommandInterface {
 				if(args.size() > 0) {
 					String index = args.remove(0);
 					if(index.equals(ConfigHelper.getEsDataIndex())) {
-						MetaDataDAO metaDataDao = new MetaDataDAO();
+						new MetaDataDAO();
 					} else {
 						System.out.println("Don't know about that index: " + index);
 					}
