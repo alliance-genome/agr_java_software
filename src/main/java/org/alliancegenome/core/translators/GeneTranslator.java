@@ -3,6 +3,7 @@ package org.alliancegenome.core.translators;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.alliancegenome.es.index.site.document.CrossReferenceDoclet;
@@ -191,7 +192,7 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
 		}
 
 		if (entity.getCrossReferences() != null) {
-			List<CrossReferenceDoclet> crlist = entity.getCrossReferences().stream()
+			Map<String, List<CrossReferenceDoclet>> crossRefMap = entity.getCrossReferences().stream()
 					.map(crossReference -> {
 						CrossReferenceDoclet crd = new CrossReferenceDoclet();
 						crd.setCrossRefCompleteUrl(crossReference.getCrossRefCompleteUrl());
@@ -199,11 +200,13 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
 						crd.setGlobalCrossRefId(crossReference.getGlobalCrossRefId());
 						crd.setLocalId(crossReference.getLocalId());
 						crd.setPrefix(crossReference.getPrefix());
-						crd.setPrimaryKey(crossReference.getPrimaryKey());
+						crd.setType(crossReference.getCrossRefType());
 						return crd;
 					})
-					.collect(Collectors.toList());
-			geneDocument.setCrossReferences(crlist);
+					.collect(Collectors.groupingBy(CrossReferenceDoclet::getType,
+							Collectors.toList()));
+
+			geneDocument.setCrossReferencesMap(crossRefMap);
 		}
 
 		if (entity.getFeatures() != null && translationDepth > 0) {

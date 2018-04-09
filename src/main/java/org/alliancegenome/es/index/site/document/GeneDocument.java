@@ -3,9 +3,11 @@ package org.alliancegenome.es.index.site.document;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -21,7 +23,8 @@ public class GeneDocument extends SearchableItem {
 	private List<String> gene_biological_process;
 	private List<String> synonyms;
 	private String geneLiteratureUrl;
-	private List<CrossReferenceDoclet> crossReferences;
+	@JsonProperty("crossReferences")
+	private Map<String, List<CrossReferenceDoclet>> crossReferencesMap;
 	private String dataProvider;
 	private Date dateProduced;
 	private List<DiseaseDocument> diseases = new ArrayList<>();
