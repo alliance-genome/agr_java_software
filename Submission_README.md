@@ -26,6 +26,10 @@ Valid values for SchemaVersion, DataType, and TaxonId can be found in the exampl
 - [Return object](#return-object)
   * [Success example](#success-example)
   * [Failed example](#failed-example)
+- [Loader](#loader)
+  * [Releases](#releases)
+  * [Snap Shot](#snap-shot)
+  * [Take Snap Shot](#take-snap-shot)
 
 ## API Access Token
 
@@ -35,9 +39,9 @@ This will be a key that is generated for the DQM's to use for uploading files.
 
 | Schema Version |
 | --- |
-| 0.6.0 |
-| 0.6.1 |
-| 0.7.0 |
+| 0.6.0.0 |
+| 0.6.1.0 |
+| 0.7.0.0 |
 | 1.0.0.0 |
 | etc... |
 
@@ -228,3 +232,151 @@ In a failed example only the files that failed need to be attempted again:
 	"status":"success"
 }</pre>
 </details>
+
+## Loader
+
+The loader will run against the snapshot and releases API's, using the API Access Token for the "take snapshot" endpoint. One extra optional parameter is "system" which desinates the pipeline that will be used for releasing data. If the parameter is omited then it will be assumed value of "production". Links to download these files will be in the following format:
+
+	https://s3.amazonaws.com/mod-datadumps/<path>
+
+### Releases
+
+The following command can be used to pull a list of releases from the system that are available:
+	
+	> curl "http://www.alliancegenome.org/api/data/releases"
+
+<details>
+<summary>View Success Response</summary>
+<pre>
+{
+    "1.4.0.0": 1523284823719,
+    "1.0.0.0": 1523284848246,
+    "1.3.0.0": 1523284837284
+}</pre>
+</details>
+
+### Snap Shot
+
+The following command, can be used to pull a specific SnapShot by release version, release version is required.
+
+	> curl "http://www.alliancegenome.org/api/data/snapshot?releaseVersion=1.4.0.0"
+
+<details>
+<summary>View Success Response</summary>
+<pre>
+{
+    "releaseVersion": "1.4.0.0",
+    "schemaVersion": "1.0.0.2",
+    "system": "production",
+    "snapShotDate": 1523284823719,
+    "dataFiles": [
+        {
+            "schemaVersion": "1.0.0.2",
+            "dataType": "ALLELE",
+            "taxonId": "10090",
+            "path": "1.0.0.2/ALLELE/10090/1.0.0.2\_ALLELE\_10090\_0.json",
+            "uploadDate": 1522181792721
+        },
+        {
+            "schemaVersion": "1.0.0.2",
+            "dataType": "DOA",
+            "taxonId": "10090",
+            "path": "1.0.0.2/DOA/10090/1.0.0.2\_DOA\_10090\_0.json",
+            "uploadDate": 1522181816273
+        },
+        {
+            "schemaVersion": "1.0.0.2",
+            "dataType": "ALLELE",
+            "taxonId": "7955",
+            "path": "1.0.0.2/ALLELE/7955/1.0.0.2\_ALLELE\_7955\_2.json",
+            "uploadDate": 1522179715428
+        },
+        {
+            "schemaVersion": "1.0.0.2",
+            "dataType": "BGI",
+            "taxonId": "7955",
+            "path": "1.0.0.2/BGI/7955/1.0.0.2\_BGI\_7955\_1.json",
+            "uploadDate": 1522181715592
+        },
+        {
+            "schemaVersion": "1.0.0.2",
+            "dataType": "GFF",
+            "taxonId": "7955",
+            "path": "1.0.0.2/GFF/7955/1.0.0.2\_GFF\_7955\_1.gff",
+            "uploadDate": 1522181475376
+        },
+        {
+            "schemaVersion": "1.0.0.2",
+            "dataType": "DOA",
+            "taxonId": "7955",
+            "path": "1.0.0.2/DOA/7955/1.0.0.2\_DOA\_7955\_1.json",
+            "uploadDate": 1522180298184
+        }
+    ]
+}</pre>
+</details>
+
+### Take Snap Shot
+
+This will take a snapshot of all the latest datafiles for each Taxon Id by each DataType. 
+
+	> curl -H "api_access_token: 2C07D715..." \
+	"http://www.alliancegenome.org/api/data/takesnapshot?system=production&releaseVersion=1.4.0.0"
+
+<details>
+<summary>View Success Response</summary>
+<pre>
+{
+    "releaseVersion": "1.4.0.0",
+    "schemaVersion": "1.0.0.2",
+    "system": "production",
+    "snapShotDate": 1523284823719,
+    "dataFiles": [
+        {
+            "schemaVersion": "1.0.0.2",
+            "dataType": "ALLELE",
+            "taxonId": "10090",
+            "path": "1.0.0.2/ALLELE/10090/1.0.0.2\_ALLELE\_10090\_0.json",
+            "uploadDate": 1522181792721
+        },
+        {
+            "schemaVersion": "1.0.0.2",
+            "dataType": "DOA",
+            "taxonId": "10090",
+            "path": "1.0.0.2/DOA/10090/1.0.0.2\_DOA\_10090\_0.json",
+            "uploadDate": 1522181816273
+        },
+        {
+            "schemaVersion": "1.0.0.2",
+            "dataType": "ALLELE",
+            "taxonId": "7955",
+            "path": "1.0.0.2/ALLELE/7955/1.0.0.2\_ALLELE\_7955\_2.json",
+            "uploadDate": 1522179715428
+        },
+        {
+            "schemaVersion": "1.0.0.2",
+            "dataType": "BGI",
+            "taxonId": "7955",
+            "path": "1.0.0.2/BGI/7955/1.0.0.2\_BGI\_7955\_1.json",
+            "uploadDate": 1522181715592
+        },
+        {
+            "schemaVersion": "1.0.0.2",
+            "dataType": "GFF",
+            "taxonId": "7955",
+            "path": "1.0.0.2/GFF/7955/1.0.0.2\_GFF\_7955\_1.gff",
+            "uploadDate": 1522181475376
+        },
+        {
+            "schemaVersion": "1.0.0.2",
+            "dataType": "DOA",
+            "taxonId": "7955",
+            "path": "1.0.0.2/DOA/7955/1.0.0.2\_DOA\_7955\_1.json",
+            "uploadDate": 1522180298184
+        }
+    ]
+}</pre>
+</details>
+
+
+
