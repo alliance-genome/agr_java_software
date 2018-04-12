@@ -233,17 +233,7 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
 		}
 		// add CrossReferences
 		if (doTerm.getCrossReferences() != null) {
-			List<CrossReferenceDoclet> externalIds = doTerm.getCrossReferences().stream()
-					.map(crossReference -> {
-						CrossReferenceDoclet doclet = new CrossReferenceDoclet();
-						doclet.setLocalId(crossReference.getLocalId());
-						doclet.setCrossRefCompleteUrl(crossReference.getCrossRefCompleteUrl());
-						doclet.setPrefix(crossReference.getPrefix());
-						doclet.setName(crossReference.getPrimaryKey());
-						return doclet;
-					})
-					.collect(Collectors.toList());
-			document.setCrossReferences(externalIds);
+			document.setCrossReferencesMap(getCrossReferenceMap(doTerm.getCrossReferences()));
 		}
 		if (shallow)
 			return document;
