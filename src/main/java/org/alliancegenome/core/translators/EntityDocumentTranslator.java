@@ -45,23 +45,6 @@ public abstract class EntityDocumentTranslator<E extends Neo4jEntity, D extends 
     }
 
     protected abstract D entityToDocument(E entity, int translationDepth);
-
     protected abstract E documentToEntity(D doument, int translationDepth);
-
-    protected Map<String, List<CrossReferenceDoclet>> getCrossReferenceMap(List<CrossReference> crossReferences) {
-        return crossReferences.stream()
-                .map(crossReference -> {
-                    CrossReferenceDoclet crd = new CrossReferenceDoclet();
-                    crd.setCrossRefCompleteUrl(crossReference.getCrossRefCompleteUrl());
-                    crd.setName(crossReference.getName());
-                    crd.setGlobalCrossRefId(crossReference.getGlobalCrossRefId());
-                    crd.setLocalId(crossReference.getLocalId());
-                    crd.setPrefix(crossReference.getPrefix());
-                    crd.setType(crossReference.getCrossRefType());
-                    return crd;
-                })
-                .collect(Collectors.groupingBy(CrossReferenceDoclet::getType,
-                        Collectors.toList()));
-    }
 
 }

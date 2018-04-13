@@ -8,7 +8,7 @@ import java.util.Map;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.alliancegenome.core.config.ConfigHelper;
-import org.alliancegenome.core.translators.GeneTranslator;
+import org.alliancegenome.core.translators.document.GeneTranslator;
 import org.alliancegenome.es.index.site.dao.GeneDAO;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.repository.GeneRepository;

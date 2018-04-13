@@ -1,4 +1,4 @@
-package org.alliancegenome.core.translators;
+package org.alliancegenome.core.translators.tdf;
 
 import java.io.IOException;
 import java.util.Collection;

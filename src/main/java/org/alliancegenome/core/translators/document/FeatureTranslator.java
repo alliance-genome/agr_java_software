@@ -1,8 +1,9 @@
-package org.alliancegenome.core.translators;
+package org.alliancegenome.core.translators.document;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import org.alliancegenome.core.translators.EntityDocumentTranslator;
 import org.alliancegenome.es.index.site.document.DiseaseDocument;
 import org.alliancegenome.es.index.site.document.FeatureDocument;
 import org.alliancegenome.neo4j.entity.node.Feature;

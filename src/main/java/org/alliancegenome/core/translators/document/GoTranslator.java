@@ -1,7 +1,8 @@
-package org.alliancegenome.core.translators;
+package org.alliancegenome.core.translators.document;
 
 import java.util.ArrayList;
 
+import org.alliancegenome.core.translators.EntityDocumentTranslator;
 import org.alliancegenome.es.index.site.document.GoDocument;
 import org.alliancegenome.neo4j.entity.node.GOTerm;
 import org.alliancegenome.neo4j.entity.node.Gene;
