@@ -26,16 +26,15 @@ public class GeneMapping extends Mapping {
 					buildProperty("geneLiteratureUrl", "keyword");
 					buildProperty("geneSynopsis", "text");
 					buildProperty("geneSynopsisUrl", "keyword");
-					buildGenericField("gene_biological_process", "text", null, true, false, true, false);
-					buildGenericField("gene_cellular_component", "text", null, true, false, true, false);
-					buildGenericField("gene_molecular_function", "text", null, true, false, true, false);
+					buildGenericField("gene_biological_process", "text", null, true, false, true, false, false);
+					buildGenericField("gene_cellular_component", "text", null, true, false, true, false, false);
+					buildGenericField("gene_molecular_function", "text", null, true, false, true, false, false);
 					buildGenomeLocationsField();
 					buildNestedDocument("alleles");
 					buildNestedDocument("diseases");
 
 					buildProperty("secondaryIds", "keyword");
 					buildProperty("soTermId", "keyword");
-					buildGenericField("symbol", "text", "symbols", false, true, true, false);
 					buildProperty("taxonId", "keyword");
 					
 				builder.endObject();

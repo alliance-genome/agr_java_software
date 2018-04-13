@@ -1,8 +1,8 @@
 package org.alliancegenome.es.schema.settings;
 
-import java.io.IOException;
-
 import org.alliancegenome.es.schema.Settings;
+
+import java.io.IOException;
 
 public class SiteIndexSettings extends Settings {
 
@@ -69,11 +69,17 @@ public class SiteIndexSettings extends Settings {
 							})
 						.endObject()
 					.endObject()
+				    .startObject("normalizer")
+						.startObject("lowercase")
+						.field("type", "custom")
+						.field("filter", "lowercase")
+						.endObject()
+					.endObject()
 				.endObject()
 			.endObject();
 		builder.endObject();
 	}
-	
+
 	// Used for taking snapshots
 	public void buildRepositorySettings(String bucketName, String access_key, String secret_key) throws IOException {
 		builder.startObject()
