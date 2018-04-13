@@ -19,7 +19,6 @@ public class FeatureMapping extends Mapping {
 			builder.startObject("properties");
 
 			buildSharedSearchableDocumentMappings();
-			buildGenericField("symbol", "text", "symbols", false, false, true, false);
 
 			buildNestedDocument("geneDocument");
 			buildNestedDocument("diseaseDocuments");

@@ -17,9 +17,9 @@ public class GoMapping extends Mapping {
 
 				buildSharedSearchableDocumentMappings();
 
-				buildGenericField("go_genes", "text", "symbols", false, false, true, false);
-				buildGenericField("go_species", "text", null, false, false, true, false);
-				buildGenericField("go_type", "text", null, false, false, true, false);
+				buildGenericField("go_genes", "text", "symbols", false, false, true, false, false);
+				buildGenericField("go_species", "text", null, false, false, true, false, false);
+				buildGenericField("go_type", "text", null, false, false, true, false, false);
 
 				builder.endObject();
 			builder.endObject();

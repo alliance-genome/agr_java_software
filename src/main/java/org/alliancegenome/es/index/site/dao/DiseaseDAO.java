@@ -36,7 +36,7 @@ public class DiseaseDAO extends ESDAO {
 	{
 		sortByMao.put(SortBy.DISEASE, "diseaseName.keyword");
 		sortByMao.put(SortBy.SPECIES, "disease_species.orderID");
-		sortByMao.put(SortBy.GENE, "geneDocument.symbol.keyword");
+		sortByMao.put(SortBy.GENE, "geneDocument.symbol.sort");
 	}
 
 	public SearchResult getDiseaseAnnotations(String diseaseID, Pagination pagination) {
