@@ -78,7 +78,6 @@ public class MetaDataController extends BaseController implements MetaDataRESTIn
         return new SubmissionResponce();
     }
 
-    
     @Override
     public SnapShotDoclet takeSnapShot(String system, String releaseVersion) {
         return metaDataService.takeSnapShot(system, releaseVersion);

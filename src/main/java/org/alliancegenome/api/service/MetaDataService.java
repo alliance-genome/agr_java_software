@@ -34,7 +34,8 @@ public class MetaDataService {
 
     public void submitData(String key, String bodyString) throws GenericException {
 
-        String[] keys = key.split("-");
+        // Split the keys by underscore
+        String[] keys = key.split("_");
         
         // Get MetaData object
 
@@ -101,8 +102,7 @@ public class MetaDataService {
 
     private void parseDataType(String[] keys, String bodyString) throws GenericException {
 
-
-        String schemaVersion = metaDataDAO.getLatestSchemaVersion();
+        String schemaVersion = metaDataDAO.getCurrentSchemaVersion();
 
         DataTypeDoclet dataType = metaDataDAO.getDataType(keys[0]);
         if(dataType == null) {
@@ -121,7 +121,7 @@ public class MetaDataService {
     private void parseDataTypeTaxonId(String[] keys, String bodyString) throws GenericException {
         SpeciesDoclet species;
 
-        String schemaVersion = metaDataDAO.getLatestSchemaVersion();
+        String schemaVersion = metaDataDAO.getCurrentSchemaVersion();
 
         DataTypeDoclet dataType = metaDataDAO.getDataType(keys[0]);
         if(dataType == null) {

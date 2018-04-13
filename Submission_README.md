@@ -9,8 +9,8 @@ Here is an example using curl:
 curl \
 	-H "api_access_token: 2C07D715..." \
 	-X POST "http://www.alliancegenome.org/api/data/submit" \
-	-F "SchemaVersion-DataType-TaxonId=@/full/path/to/file1.json" \
-	-F "SchemaVersion-DataType-TaxonId=@/full/path/to/file2.json"
+	-F "SchemaVersion_DataType_TaxonId=@/full/path/to/file1.json" \
+	-F "SchemaVersion_DataType_TaxonId=@/full/path/to/file2.json"
 ```
 
 Valid values for SchemaVersion, DataType, and TaxonId can be found in the examples below.
@@ -81,8 +81,8 @@ Valid combinations for Schema-DataType-TaxonId are as follows:
 
 | Type | What does it mean? |
 | --------------- | --- |
-| SchemaVersion-DataType-TaxonId | Validation will occur for BGI, DOA, ORTHO, FEATURE and not for GOA and GFF, all files will be stored under the Schema Directory in S3. |
-| DataType-TaxonId | Validation will occur for BGI, DOA, ORTHO, FEATURE and not for GOA and GFF, the current schema version will get looked up from Github. All files will be stored under the Schema Directory in S3. Invalid for GO, SO, DO. (TaxonId is not required for this data type)
+| SchemaVersion\_DataType\_TaxonId | Validation will occur for BGI, DOA, ORTHO, FEATURE and not for GOA and GFF, all files will be stored under the Schema Directory in S3. |
+| DataType\_TaxonId | Validation will occur for BGI, DOA, ORTHO, FEATURE and not for GOA and GFF, the current schema version will get looked up from Github. All files will be stored under the Schema Directory in S3. Invalid for GO, SO, DO. (TaxonId is not required for this data type)
 | DataType | This is only valid for GO, SO, DO. These files will not get validated, but the current schema will get looked up from Github and these files will get stored under the Schema Directory in S3. |
 | SchemaVersion-DataType | Invalid (Data Type not found for: SchemaVersion) |
 
@@ -93,23 +93,23 @@ Valid combinations for Schema-DataType-TaxonId are as follows:
 	> curl \
 		-H "api_access_token: 2C07D715..." \
 		-X POST "http://www.alliancegenome.org/api/data/submit" \
-		-F "0.7.0-GFF-10090=@MGI_1.0.4_GFF.gff"
+		-F "0.7.0_GFF_10090=@MGI_1.0.4_GFF.gff"
 	> curl \
 		-H "api_access_token: 2C07D715..." \
 		-X POST "http://www.alliancegenome.org/api/data/submit" \
-		-F "0.6.2-FEATURE-10090=@MGI_1.0.4_feature.json"
+		-F "0.6.2_FEATURE_10090=@MGI_1.0.4_feature.json"
 	> curl \
 		-H "api_access_token: 2C07D715..." \
 		-X POST "http://www.alliancegenome.org/api/data/submit" \
-		-F "0.6.1-BGI-7227=@FB_1.0.4_BGI.json"
+		-F "0.6.1_BGI_7227=@FB_1.0.4_BGI.json"
 	> curl \
 		-H "api_access_token: 2C07D715..." \
 		-X POST "http://www.alliancegenome.org/api/data/submit" \
-		-F "GOA-10090=@gene_association_1.0.mgi.gaf"
+		-F "GOA_10090=@gene_association_1.0.mgi.gaf"
 	> curl \
 		-H "api_access_token: 2C07D715..." \
 		-X POST "http://www.alliancegenome.org/api/data/submit" \
-		-F "FEATURE-7955=@ZFIN_1.0.4_feature.json"
+		-F "FEATURE_7955=@ZFIN_1.0.4_feature.json"
 	> curl \
 		-H "api_access_token: 2C07D715..." \
 		-X POST "http://www.alliancegenome.org/api/data/submit" \
@@ -120,18 +120,18 @@ Valid combinations for Schema-DataType-TaxonId are as follows:
 	> curl \
 		-H "api_access_token: 2C07D715..." \
 		-X POST "http://www.alliancegenome.org/api/data/submit" \
-		-F "0.7.0-BGI-7227=@FB_1.0.4_BGI.json" \
-		-F "0.7.0-FEATURE-7227=@FB_1.0.4_feature.json" \
-		-F "0.7.0-DOA-7227=@FB_1.0.4_disease.json" \
-		-F "0.7.0-GFF-7227=@FB_1.0.4_GFF.gff"
+		-F "0.7.0_BGI_7227=@FB_1.0.4_BGI.json" \
+		-F "0.7.0_FEATURE_7227=@FB_1.0.4_feature.json" \
+		-F "0.7.0_DOA_7227=@FB_1.0.4_disease.json" \
+		-F "0.7.0_GFF_7227=@FB_1.0.4_GFF.gff"
 		
 	> curl \
 		-H "api_access_token: 2C07D715..." \
 		-X POST "http://www.alliancegenome.org/api/data/submit" \
-		-F "BGI-7227=@FB_1.0.4_BGI.json" \
-		-F "FEATURE-7227=@FB_1.0.4_feature.json" \
-		-F "DOA-7227=@FB_1.0.4_disease.json" \
-		-F "GFF-7227=@FB_1.0.4_GFF.gff"	
+		-F "BGI_7227=@FB_1.0.4_BGI.json" \
+		-F "FEATURE_7227=@FB_1.0.4_feature.json" \
+		-F "DOA_7227=@FB_1.0.4_disease.json" \
+		-F "GFF_7227=@FB_1.0.4_GFF.gff"	
 
 
 ## Return object
@@ -145,20 +145,20 @@ For the following command:
 	> curl \
 		-H "api_access_token: 2C07D715..." \
 		-X POST "http://www.alliancegenome.org/api/data/submit" \
-		-F "0.7.0-BGI-7227=@FB_1.0.4_BGI.json" \
-		-F "0.7.0-FEATURE-7227=@FB_1.0.4_feature.json" \
-		-F "0.7.0-DOA-7227=@FB_1.0.4_disease.json" \
-		-F "0.7.0-GFF-7227=@FB_1.0.4_GFF.gff"
+		-F "0.7.0_BGI_7227=@FB_1.0.4_BGI.json" \
+		-F "0.7.0_FEATURE_7227=@FB_1.0.4_feature.json" \
+		-F "0.7.0_DOA_7227=@FB_1.0.4_disease.json" \
+		-F "0.7.0_GFF_7227=@FB_1.0.4_GFF.gff"
 
 <details>
 <summary>View Response</summary>
 <pre>
 ```{
 	"fileStatus": {
-		"0.7.0-BGI-7227":"success",
-		"0.7.0-DOA-7227":"success",
-		"0.7.0-GFF-7227":"success",
-		"0.7.0-FEATURE-7227":"success"
+		"0.7.0_BGI_7227":"success",
+		"0.7.0_DOA_7227":"success",
+		"0.7.0_GFF_7227":"success",
+		"0.7.0_FEATURE_7227":"success"
 	},
 	"status":"success"
 }```
@@ -170,20 +170,20 @@ For the following command (Missing API Access Token):
 
 	> curl \
 		-X POST "http://www.alliancegenome.org/api/data/submit" \
-		-F "0.7.0-BGI-10090=@MGI_1.0.4_BGI.json" \
-		-F "0.7.0-FEATURE-10090=@MGI_1.0.4_feature.json" \
-		-F "0.7.0-DOA-10090=@MGI_1.0.4_disease.json" \
-		-F "0.7.0-GFF-10090=@MGI_1.0.4_GFF.gff" 
+		-F "0.7.0_BGI_10090=@MGI_1.0.4_BGI.json" \
+		-F "0.7.0_FEATURE_10090=@MGI_1.0.4_feature.json" \
+		-F "0.7.0_DOA_10090=@MGI_1.0.4_disease.json" \
+		-F "0.7.0_GFF_10090=@MGI_1.0.4_GFF.gff" 
 
 <details>
 <summary>View Failure Response</summary>
 <pre>
 {
 	"fileStatus": {
-		"0.7.0-BGI-10090":"Authentication Failure: Please check your api_access_token",
-		"0.7.0-FEATURE-10090":"Authentication Failure: Please check your api_access_token",
-		"0.7.0-DOA-10090":"Authentication Failure: Please check your api_access_token",
-		"0.7.0-GFF-10090":"Authentication Failure: Please check your api_access_token"
+		"0.7.0_BGI_10090":"Authentication Failure: Please check your api_access_token",
+		"0.7.0_FEATURE_10090":"Authentication Failure: Please check your api_access_token",
+		"0.7.0_DOA_10090":"Authentication Failure: Please check your api_access_token",
+		"0.7.0_GFF_10090":"Authentication Failure: Please check your api_access_token"
 	},
 	"status":"failed"
 }</pre>
@@ -194,20 +194,20 @@ For the following command (Errors in BGI):
 	> curl \
 		-H "api_access_token: 2C07D715..." \
 		-X POST "http://www.alliancegenome.org/api/data/submit" \
-		-F "0.7.0-BGI-10090=@MGI_1.0.4_BGI.json" \
-		-F "0.7.0-FEATURE-10090=@MGI_1.0.4_feature.json" \
-		-F "0.7.0-DOA-10090=@MGI_1.0.4_disease.json" \
-		-F "0.7.0-GFF-10090=@MGI_1.0.4_GFF.gff" 
+		-F "0.7.0_BGI_10090=@MGI_1.0.4_BGI.json" \
+		-F "0.7.0_FEATURE_10090=@MGI_1.0.4_feature.json" \
+		-F "0.7.0_DOA_10090=@MGI_1.0.4_disease.json" \
+		-F "0.7.0_GFF_10090=@MGI_1.0.4_GFF.gff" 
 
 <details>
 <summary>View Failure Response</summary>
 <pre>
 {
 	"fileStatus": {
-		"0.7.0-FEATURE-10090":"success",
-		"0.7.0-BGI-10090":"string \"https://en.wikipedia.org/wiki/Cathepsin L2\" is not a valid URI",
-		"0.7.0-DOA-10090":"success",
-		"0.7.0-GFF-10090":"Unable to complete multi-part upload. Individual part upload failed : Your socket connection to the server was not read from or written to within the timeout period. Idle connections will be closed. (Service: Amazon S3; Status Code: 400; Error Code: RequestTimeout; Request ID: 3ABBDFD90F0C4CAA)"
+		"0.7.0_FEATURE_10090":"success",
+		"0.7.0_BGI_10090":"string \"https://en.wikipedia.org/wiki/Cathepsin L2\" is not a valid URI",
+		"0.7.0_DOA_10090":"success",
+		"0.7.0_GFF_10090":"Unable to complete multi-part upload. Individual part upload failed : Your socket connection to the server was not read from or written to within the timeout period. Idle connections will be closed. (Service: Amazon S3; Status Code: 400; Error Code: RequestTimeout; Request ID: 3ABBDFD90F0C4CAA)"
 	},
 	"status":"failed"
 }</pre>
@@ -218,16 +218,16 @@ In a failed example only the files that failed need to be attempted again:
 	> curl \
 		-H "api_access_token: 2C07D715..." \
 		-X POST "http://www.alliancegenome.org/api/data/submit" \
-		-F "0.7.0-BGI-10090=@MGI_1.0.4_BGI.json" \
-		-F "0.7.0-GFF-10090=@MGI_1.0.4_GFF.gff" 
+		-F "0.7.0_BGI_10090=@MGI_1.0.4_BGI.json" \
+		-F "0.7.0_GFF_10090=@MGI_1.0.4_GFF.gff" 
 
 <details>
 <summary>View Success Response</summary>
 <pre>
 {
 	"fileStatus": {
-		"0.7.0-BGI-10090":"success",
-		"0.7.0-GFF-10090":"success"
+		"0.7.0_BGI_10090":"success",
+		"0.7.0_GFF_10090":"success"
 	},
 	"status":"success"
 }</pre>
