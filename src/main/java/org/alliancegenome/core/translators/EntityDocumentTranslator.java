@@ -1,14 +1,9 @@
 package org.alliancegenome.core.translators;
 
-import org.alliancegenome.es.index.site.doclet.CrossReferenceDoclet;
+import java.util.ArrayList;
+
 import org.alliancegenome.es.index.site.document.ESDocument;
 import org.alliancegenome.neo4j.entity.Neo4jEntity;
-import org.alliancegenome.neo4j.entity.node.CrossReference;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 public abstract class EntityDocumentTranslator<E extends Neo4jEntity, D extends ESDocument> {
 
