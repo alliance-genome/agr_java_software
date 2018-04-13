@@ -3,7 +3,7 @@ package org.alliancegenome.agr_elasticsearch_util.commands;
 import java.util.ArrayList;
 
 import org.alliancegenome.es.index.data.dao.MetaDataDAO;
-import org.alliancegenome.es.index.data.document.DataTypeDoclet;
+import org.alliancegenome.es.index.data.doclet.DataTypeDoclet;
 import org.alliancegenome.es.index.data.document.MetaDataDocument;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
