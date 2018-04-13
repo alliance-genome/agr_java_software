@@ -12,9 +12,9 @@ import javax.ws.rs.core.Response;
 
 import org.alliancegenome.api.rest.interfaces.DiseaseRESTInterface;
 import org.alliancegenome.api.service.DiseaseService;
+import org.alliancegenome.core.translators.tdf.DiseaseAnnotationToTdfTranslator;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.es.model.search.SearchResult;
-import org.alliancegenome.core.translators.DiseaseAnnotationToTdfTranslator;
 
 @RequestScoped
 public class DiseaseController extends BaseController implements DiseaseRESTInterface {
