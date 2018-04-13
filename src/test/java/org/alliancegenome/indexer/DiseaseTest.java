@@ -9,8 +9,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.alliancegenome.core.config.ConfigHelper;
-import org.alliancegenome.core.translators.DiseaseTranslator;
-import org.alliancegenome.core.translators.FeatureTranslator;
+import org.alliancegenome.core.translators.document.DiseaseTranslator;
+import org.alliancegenome.core.translators.document.FeatureTranslator;
 import org.alliancegenome.es.index.site.document.DiseaseAnnotationDocument;
 import org.alliancegenome.es.index.site.document.DiseaseDocument;
 import org.alliancegenome.es.index.site.document.FeatureDocument;

@@ -1,6 +1,6 @@
 package org.alliancegenome.indexer.indexers;
 
-import org.alliancegenome.core.translators.GeneTranslator;
+import org.alliancegenome.core.translators.document.GeneTranslator;
 import org.alliancegenome.es.index.site.document.GeneDocument;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.neo4j.entity.node.Gene;
