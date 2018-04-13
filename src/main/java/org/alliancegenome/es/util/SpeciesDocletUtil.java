@@ -1,6 +1,6 @@
 package org.alliancegenome.es.util;
 
-import org.alliancegenome.es.index.site.document.SpeciesDoclet;
+import org.alliancegenome.es.index.site.doclet.SpeciesDoclet;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 
 public class SpeciesDocletUtil {

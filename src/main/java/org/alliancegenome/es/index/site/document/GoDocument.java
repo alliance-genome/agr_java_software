@@ -8,7 +8,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Getter @Setter
-public class GoDocument extends SearchableItem {
+public class GoDocument extends SearchableItemDocument {
 
 	{ category = "go"; }
 

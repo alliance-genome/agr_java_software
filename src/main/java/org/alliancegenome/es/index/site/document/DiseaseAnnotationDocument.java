@@ -3,6 +3,10 @@ package org.alliancegenome.es.index.site.document;
 import java.util.List;
 import java.util.Set;
 
+import org.alliancegenome.es.index.site.doclet.PublicationDoclet;
+import org.alliancegenome.es.index.site.doclet.SourceDoclet;
+import org.alliancegenome.es.index.site.doclet.SpeciesDoclet;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 

@@ -1,4 +1,16 @@
-package org.alliancegenome.core.translators;
+package org.alliancegenome.core.translators.document;
+
+import org.alliancegenome.core.translators.EntityDocumentTranslator;
+import org.alliancegenome.core.translators.doclet.CrossReferenceDocletTranslator;
+import org.alliancegenome.es.index.site.doclet.CrossReferenceDoclet;
+import org.alliancegenome.es.index.site.doclet.GenomeLocationDoclet;
+import org.alliancegenome.es.index.site.doclet.OrthologyDoclet;
+import org.alliancegenome.es.index.site.document.*;
+import org.alliancegenome.neo4j.entity.node.*;
+import org.alliancegenome.neo4j.entity.relationship.GenomeLocation;
+import org.alliancegenome.neo4j.entity.relationship.Orthologous;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -6,29 +18,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.alliancegenome.es.index.site.document.CrossReferenceDoclet;
-import org.alliancegenome.es.index.site.document.DiseaseDocument;
-import org.alliancegenome.es.index.site.document.FeatureDocument;
-import org.alliancegenome.es.index.site.document.GeneDocument;
-import org.alliancegenome.es.index.site.document.GenomeLocationDoclet;
-import org.alliancegenome.es.index.site.document.OrthologyDoclet;
-import org.alliancegenome.neo4j.entity.node.GOTerm;
-import org.alliancegenome.neo4j.entity.node.Gene;
-import org.alliancegenome.neo4j.entity.node.OrthoAlgorithm;
-import org.alliancegenome.neo4j.entity.node.OrthologyGeneJoin;
-import org.alliancegenome.neo4j.entity.node.SecondaryId;
-import org.alliancegenome.neo4j.entity.node.Synonym;
-import org.alliancegenome.neo4j.entity.relationship.GenomeLocation;
-import org.alliancegenome.neo4j.entity.relationship.Orthologous;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument> {
 
 	private final Logger log = LogManager.getLogger(getClass());
 
-	private static DiseaseTranslator diseaseTranslator = new DiseaseTranslator();
-	private static FeatureTranslator alleleTranslator = new FeatureTranslator();
+	private DiseaseTranslator diseaseTranslator = new DiseaseTranslator();
+	private FeatureTranslator alleleTranslator = new FeatureTranslator();
+	private CrossReferenceDocletTranslator crossReferenceTranslator = new CrossReferenceDocletTranslator();
 
 	@Override
 	protected GeneDocument entityToDocument(Gene entity, int translationDepth) {
@@ -113,10 +109,10 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
 		geneDocument.setSynonyms(synonyms);
 
 
-//		if(entity.getOrthoGenes() != null) {
-//		if(lookup.size() + entity.getOrthologyGeneJoins().size() > 0) {
-//			System.out.println(lookup.size() + " ==? " + entity.getOrthologyGeneJoins().size());
-//		}
+		//		if(entity.getOrthoGenes() != null) {
+		//		if(lookup.size() + entity.getOrthologyGeneJoins().size() > 0) {
+		//			System.out.println(lookup.size() + " ==? " + entity.getOrthologyGeneJoins().size());
+		//		}
 
 		if (entity.getOrthologyGeneJoins().size() > 0 && translationDepth > 0) {
 			List<OrthologyDoclet> olist = new ArrayList<>();
@@ -155,15 +151,15 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
 							orth.isBestRevScore(),
 							orth.getConfidence(),
 							orth.getGene1().getSpecies() == null ? null : orth.getGene1().getSpecies().getPrimaryKey(),
-							orth.getGene2().getSpecies() == null ? null : orth.getGene2().getSpecies().getPrimaryKey(),
-							orth.getGene1().getSpecies() == null ? null : orth.getGene1().getSpecies().getName(),
-							orth.getGene2().getSpecies() == null ? null : orth.getGene2().getSpecies().getName(),
-							orth.getGene1().getSymbol(),
-							orth.getGene2().getSymbol(),
-							orth.getGene1().getPrimaryKey(),
-							orth.getGene2().getPrimaryKey(),
-							notCalled, matched, notMatched
-					);
+									orth.getGene2().getSpecies() == null ? null : orth.getGene2().getSpecies().getPrimaryKey(),
+											orth.getGene1().getSpecies() == null ? null : orth.getGene1().getSpecies().getName(),
+													orth.getGene2().getSpecies() == null ? null : orth.getGene2().getSpecies().getName(),
+															orth.getGene1().getSymbol(),
+															orth.getGene2().getSymbol(),
+															orth.getGene1().getPrimaryKey(),
+															orth.getGene2().getPrimaryKey(),
+															notCalled, matched, notMatched
+							);
 					olist.add(doc);
 				}
 
@@ -192,28 +188,17 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
 		}
 
 		if (entity.getCrossReferences() != null) {
-			Map<String, List<CrossReferenceDoclet>> crossRefMap = entity.getCrossReferences().stream()
-					.map(crossReference -> {
-						CrossReferenceDoclet crd = new CrossReferenceDoclet();
-						crd.setCrossRefCompleteUrl(crossReference.getCrossRefCompleteUrl());
-						crd.setName(crossReference.getName());
-						crd.setGlobalCrossRefId(crossReference.getGlobalCrossRefId());
-						crd.setLocalId(crossReference.getLocalId());
-						crd.setPrefix(crossReference.getPrefix());
-						crd.setType(crossReference.getCrossRefType());
-						return crd;
-					})
-					.collect(Collectors.groupingBy(CrossReferenceDoclet::getType,
-							Collectors.toList()));
-
-			geneDocument.setCrossReferencesMap(crossRefMap);
+			geneDocument.setCrossReferencesMap(
+				entity.getCrossReferences().stream()
+					.map(crossReference -> { return crossReferenceTranslator.translate(crossReference); })
+					.collect(Collectors.groupingBy(CrossReferenceDoclet::getType, Collectors.toList())));
 		}
 
 		if (entity.getFeatures() != null && translationDepth > 0) {
 			List<FeatureDocument> featureList = new ArrayList<>();
 			entity.getFeatures().forEach(feature ->
-					featureList.add(alleleTranslator.entityToDocument(feature, translationDepth - 1))
-			);
+			featureList.add(alleleTranslator.entityToDocument(feature, translationDepth - 1))
+					);
 			geneDocument.setAlleles(featureList);
 		}
 

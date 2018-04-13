@@ -1,12 +1,14 @@
-package org.alliancegenome.core.translators;
+package org.alliancegenome.core.translators.document;
 
+import org.alliancegenome.core.translators.EntityDocumentTranslator;
+import org.alliancegenome.core.translators.doclet.CrossReferenceDocletTranslator;
+import org.alliancegenome.es.index.site.doclet.CrossReferenceDoclet;
+import org.alliancegenome.es.index.site.doclet.PublicationDoclet;
+import org.alliancegenome.es.index.site.doclet.SourceDoclet;
+import org.alliancegenome.es.index.site.doclet.SpeciesDoclet;
 import org.alliancegenome.es.index.site.document.AnnotationDocument;
-import org.alliancegenome.es.index.site.document.CrossReferenceDoclet;
 import org.alliancegenome.es.index.site.document.DiseaseAnnotationDocument;
 import org.alliancegenome.es.index.site.document.DiseaseDocument;
-import org.alliancegenome.es.index.site.document.PublicationDoclet;
-import org.alliancegenome.es.index.site.document.SourceDoclet;
-import org.alliancegenome.es.index.site.document.SpeciesDoclet;
 import org.alliancegenome.es.util.SpeciesDocletUtil;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.entity.node.DOTerm;
@@ -28,9 +30,10 @@ import static java.util.stream.Collectors.*;
 
 public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseDocument> {
 
-	private final GeneTranslator geneTranslator = new GeneTranslator();
-	private final FeatureTranslator featureTranslator = new FeatureTranslator();
-
+	private GeneTranslator geneTranslator = new GeneTranslator();
+	private FeatureTranslator featureTranslator = new FeatureTranslator();
+	private CrossReferenceDocletTranslator crossReferenceTranslator = new CrossReferenceDocletTranslator();
+	
 	private final Logger log = LogManager.getLogger(getClass());
 
 	@Override
@@ -68,7 +71,7 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
 		return doc;
 	}
 
-	List<DiseaseDocument> getDiseaseDocuments(Gene entity, List<DiseaseEntityJoin> diseaseJoins, int translationDepth) {
+	public List<DiseaseDocument> getDiseaseDocuments(Gene entity, List<DiseaseEntityJoin> diseaseJoins, int translationDepth) {
 		// group by disease
 		Map<DOTerm, List<DiseaseEntityJoin>> diseaseMap = diseaseJoins.stream()
 				.collect(Collectors.groupingBy(DiseaseEntityJoin::getDisease));
@@ -117,7 +120,7 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
 												document.setGeneDocument(geneTranslator.translate(geneMapEntry.getKey(), 0));
 												Feature feature = featureMapEntry.getKey();
 												if (feature != null) {
-													document.setFeatureDocument(featureTranslator.entityToDocument(feature, 0));
+													document.setFeatureDocument(featureTranslator.translate(feature, 0));
 												}
 												document.setAssociationType(associationEntry.getKey());
 												document.setSource(getSourceUrls(entity, geneMapEntry.getKey().getSpecies()));
@@ -233,18 +236,12 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
 		}
 		// add CrossReferences
 		if (doTerm.getCrossReferences() != null) {
-			List<CrossReferenceDoclet> externalIds = doTerm.getCrossReferences().stream()
-					.map(crossReference -> {
-						CrossReferenceDoclet doclet = new CrossReferenceDoclet();
-						doclet.setLocalId(crossReference.getLocalId());
-						doclet.setCrossRefCompleteUrl(crossReference.getCrossRefCompleteUrl());
-						doclet.setPrefix(crossReference.getPrefix());
-						doclet.setName(crossReference.getPrimaryKey());
-						return doclet;
-					})
-					.collect(Collectors.toList());
-			document.setCrossReferences(externalIds);
+			document.setCrossReferencesMap(doTerm.getCrossReferences()
+					.stream()
+					.map(crossReference -> { return crossReferenceTranslator.translate(crossReference); })
+					.collect(Collectors.groupingBy(CrossReferenceDoclet::getType, Collectors.toList())));
 		}
+		
 		if (shallow)
 			return document;
 
@@ -371,7 +368,7 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
 						document.setPublications(getPublicationDoclets(diseaseEntityJoinList));
 						if (optionalFeature.isPresent()) {
 							primaryKey += ":" + optionalFeature.get().getPrimaryKey();
-							document.setFeatureDocument(featureTranslator.entityToDocument(optionalFeature.get(), 0));
+							document.setFeatureDocument(featureTranslator.translate(optionalFeature.get(), 0));
 						}
 						document.setPrimaryKey(primaryKey);
 						diseaseAnnotationDocuments.add(document);

@@ -1,10 +1,10 @@
 package org.alliancegenome.es.index.site.document;
 
 
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+
+import org.alliancegenome.es.index.site.doclet.CrossReferenceDoclet;
+import org.alliancegenome.es.index.site.doclet.SourceDoclet;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -14,7 +14,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class DiseaseDocument extends SearchableItem {
+public class DiseaseDocument extends SearchableItemDocument {
 
 	{ category = "disease"; }
 	
@@ -29,7 +29,8 @@ public class DiseaseDocument extends SearchableItem {
 	private List<DiseaseDocument> parents;
 	private List<DiseaseDocument> children;
 	private List<String> synonyms;
-	private List<CrossReferenceDoclet> crossReferences;
+	@JsonProperty("crossReferences")
+	private Map<String, List<CrossReferenceDoclet>> crossReferencesMap;
 	private List<SourceDoclet> sourceList;
 	@JsonProperty("disease_group")
 	private Set<String> highLevelSlimTermNames = new HashSet<>();

@@ -2,6 +2,9 @@ package org.alliancegenome.es.index.site.document;
 
 import java.util.List;
 
+import org.alliancegenome.es.index.site.doclet.PublicationDoclet;
+import org.alliancegenome.es.index.site.doclet.SourceDoclet;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.Getter;
