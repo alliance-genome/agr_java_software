@@ -12,8 +12,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
-import org.alliancegenome.es.index.data.document.SnapShotDoclet;
-import org.alliancegenome.es.index.data.document.SubmissionResponce;
+import org.alliancegenome.es.index.data.SubmissionResponce;
+import org.alliancegenome.es.index.data.doclet.SnapShotDoclet;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
 
 @Path("/data")

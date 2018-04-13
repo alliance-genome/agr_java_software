@@ -11,9 +11,9 @@ import org.alliancegenome.core.exceptions.GenericException;
 import org.alliancegenome.core.exceptions.SchemaDataTypeException;
 import org.alliancegenome.core.exceptions.ValidataionException;
 import org.alliancegenome.es.index.data.dao.MetaDataDAO;
-import org.alliancegenome.es.index.data.document.DataTypeDoclet;
-import org.alliancegenome.es.index.data.document.SnapShotDoclet;
-import org.alliancegenome.es.index.data.document.TaxonIdDoclet;
+import org.alliancegenome.es.index.data.doclet.DataTypeDoclet;
+import org.alliancegenome.es.index.data.doclet.SnapShotDoclet;
+import org.alliancegenome.es.index.site.doclet.SpeciesDoclet;
 import org.jboss.logging.Logger;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -119,7 +119,7 @@ public class MetaDataService {
     }
 
     private void parseDataTypeTaxonId(String[] keys, String bodyString) throws GenericException {
-        TaxonIdDoclet taxonId;
+        SpeciesDoclet species;
 
         String schemaVersion = metaDataDAO.getLatestSchemaVersion();
 
@@ -129,9 +129,9 @@ public class MetaDataService {
         }
 
         if(dataType.isTaxonIdRequired()) {
-            taxonId = metaDataDAO.getTaxonIdDocument(keys[1]);
-            if(taxonId == null) {
-                throw new ValidataionException("TaxonId not found: " + keys[1]);
+            species = metaDataDAO.getSpeciesDoclet(keys[1]);
+            if(species == null) {
+                throw new ValidataionException("Species for taxonId not found: " + keys[1]);
             }
         } else {
             throw new ValidataionException("TaxonId is not required for this data type: " + dataType);
@@ -141,15 +141,15 @@ public class MetaDataService {
             validateData(schemaVersion, dataType, bodyString);
         }
 
-        String filePath = metaDataDAO.saveFileToS3(schemaVersion, dataType, taxonId, bodyString);
+        String filePath = metaDataDAO.saveFileToS3(schemaVersion, dataType, species, bodyString);
         
-        metaDataDAO.createDataFile(schemaVersion, dataType, taxonId, filePath);
+        metaDataDAO.createDataFile(schemaVersion, dataType, species, filePath);
     }
 
     private void parseSchemaDataTypeTaxonId(String[] keys, String bodyString) throws GenericException {
         String schemaVersion;
         DataTypeDoclet dataType;
-        TaxonIdDoclet taxonId;
+        SpeciesDoclet species;
 
         schemaVersion = metaDataDAO.getSchemaVersion(keys[0]);
         
@@ -163,8 +163,8 @@ public class MetaDataService {
         }
 
         if(dataType.isTaxonIdRequired()) {
-            taxonId = metaDataDAO.getTaxonIdDocument(keys[2]);
-            if(taxonId == null) {
+            species = metaDataDAO.getSpeciesDoclet(keys[2]);
+            if(species == null) {
                 throw new ValidataionException("TaxonId not found: " + keys[2]);
             }
         } else {
@@ -176,11 +176,11 @@ public class MetaDataService {
             validateData(schemaVersion, dataType, bodyString);
         }
 
-        String filePath = metaDataDAO.saveFileToS3(schemaVersion, dataType, taxonId, bodyString);
+        String filePath = metaDataDAO.saveFileToS3(schemaVersion, dataType, species, bodyString);
 
         // Save File Document
         
-        metaDataDAO.createDataFile(schemaVersion, dataType, taxonId, filePath);
+        metaDataDAO.createDataFile(schemaVersion, dataType, species, filePath);
     }
 
     public SnapShotDoclet getShapShot(String system, String releaseVersion) {
