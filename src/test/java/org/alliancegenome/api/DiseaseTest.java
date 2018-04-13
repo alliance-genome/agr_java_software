@@ -1,8 +1,10 @@
 package org.alliancegenome.api;
 
+import java.util.Map;
+
 import org.alliancegenome.api.service.DiseaseService;
 import org.alliancegenome.core.config.ConfigHelper;
-import org.alliancegenome.core.translators.DiseaseAnnotationToTdfTranslator;
+import org.alliancegenome.core.translators.tdf.DiseaseAnnotationToTdfTranslator;
 import org.alliancegenome.es.index.site.dao.DiseaseDAO;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.es.model.search.SearchResult;
@@ -10,10 +12,6 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.config.Configurator;
 import org.jboss.logging.Logger;
 import org.junit.Before;
-
-import java.util.Map;
-
-import static org.junit.Assert.assertNotNull;
 
 public class DiseaseTest {
 
