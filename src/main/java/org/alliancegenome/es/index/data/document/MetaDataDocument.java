@@ -15,6 +15,8 @@ import lombok.ToString;
 @Getter @Setter @ToString
 public class MetaDataDocument extends ESDocument {
 
+	private String currentRelease = "";
+	
 	private List<String> schemas = new ArrayList<String>();
 	
 	private HashMap<String, String> releaseSchemaMap = new HashMap<>();

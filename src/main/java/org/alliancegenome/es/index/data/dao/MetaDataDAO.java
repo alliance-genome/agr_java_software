@@ -41,11 +41,19 @@ public class MetaDataDAO extends ESDocumentDAO<MetaDataDocument> {
 		log.debug("Checking Data Index");
 		checkIndex(ConfigHelper.getEsDataIndex());
 		getMetaDocument();
-		if(metaData.getSchemas() == null || metaData.getSchemas().size() == 0) {
-			getLatestSchemaVersion();
-		}
+		checkForSchemas();
 		checkDataTypes();
 		checkSpecies();
+	}
+
+	private void checkForSchemas() {
+		if(metaData.getSchemas() == null || metaData.getSchemas().size() == 0) {
+			log.debug("Getting Latest Schema Version");
+			String githubLatestRelease = githubAPI.getLatestRelease("agr_schemas").getName();
+			metaData.getSchemas().add(githubLatestRelease);
+			updateDocument(metaData);
+			log.debug("Schema Version: " + githubLatestRelease);
+		}
 	}
 
 	// Null -> return null
@@ -70,22 +78,17 @@ public class MetaDataDAO extends ESDocumentDAO<MetaDataDocument> {
 			}
 		}
 	}
-
-	public String getLatestSchemaVersion() {
+	
+	public String getCurrentSchemaVersion() {
 		getMetaDocument();
-		
-		String githubLatestRelease = githubAPI.getLatestRelease("agr_schemas").getName();
-		log.debug("Getting Latest Schema Version");
-		
-		if(!metaData.getSchemas().contains(githubLatestRelease)) {
-			metaData.getSchemas().add(githubLatestRelease);
-			updateDocument(metaData);
+		if(metaData.getCurrentRelease().length() > 0) {
+			return metaData.getReleaseSchemaMap().get(metaData.getCurrentRelease());
+		} else {
+			return null;
 		}
-		log.debug("Schema Version: " + githubLatestRelease);
-		return githubLatestRelease;
 	}
-
-	// Null -> Returns latest schema from github
+	
+	// Null -> Returns current schema from release marked current
 	// Invalid schema -> null
 	// Schema not in ES but in Github -> schema version
 	public String getSchemaVersion(String string) {
@@ -109,7 +112,7 @@ public class MetaDataDAO extends ESDocumentDAO<MetaDataDocument> {
 			return string;
 		} else {
 			log.debug("Null Schema version");
-			return getLatestSchemaVersion();
+			return getCurrentSchemaVersion();
 		}
 	}
 	
