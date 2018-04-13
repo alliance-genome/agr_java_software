@@ -1,6 +1,6 @@
 package org.alliancegenome.indexer.indexers;
 
-import org.alliancegenome.core.translators.FeatureTranslator;
+import org.alliancegenome.core.translators.document.FeatureTranslator;
 import org.alliancegenome.es.index.site.document.FeatureDocument;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.neo4j.entity.node.Feature;

@@ -1,6 +1,6 @@
 package org.alliancegenome.indexer.indexers;
 
-import org.alliancegenome.core.translators.GoTranslator;
+import org.alliancegenome.core.translators.document.GoTranslator;
 import org.alliancegenome.es.index.site.document.GoDocument;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.neo4j.entity.node.GOTerm;
