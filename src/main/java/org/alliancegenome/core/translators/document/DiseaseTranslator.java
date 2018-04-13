@@ -2,13 +2,13 @@ package org.alliancegenome.core.translators.document;
 
 import org.alliancegenome.core.translators.EntityDocumentTranslator;
 import org.alliancegenome.core.translators.doclet.CrossReferenceDocletTranslator;
+import org.alliancegenome.es.index.site.doclet.CrossReferenceDoclet;
+import org.alliancegenome.es.index.site.doclet.PublicationDoclet;
+import org.alliancegenome.es.index.site.doclet.SourceDoclet;
+import org.alliancegenome.es.index.site.doclet.SpeciesDoclet;
 import org.alliancegenome.es.index.site.document.AnnotationDocument;
-import org.alliancegenome.es.index.site.document.CrossReferenceDoclet;
 import org.alliancegenome.es.index.site.document.DiseaseAnnotationDocument;
 import org.alliancegenome.es.index.site.document.DiseaseDocument;
-import org.alliancegenome.es.index.site.document.PublicationDoclet;
-import org.alliancegenome.es.index.site.document.SourceDoclet;
-import org.alliancegenome.es.index.site.document.SpeciesDoclet;
 import org.alliancegenome.es.util.SpeciesDocletUtil;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.entity.node.DOTerm;

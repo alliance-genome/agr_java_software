@@ -5,6 +5,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import org.alliancegenome.es.index.site.doclet.CrossReferenceDoclet;
+import org.alliancegenome.es.index.site.doclet.GenomeLocationDoclet;
+import org.alliancegenome.es.index.site.doclet.OrthologyDoclet;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -12,7 +16,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Getter @Setter
-public class GeneDocument extends SearchableItem {
+public class GeneDocument extends SearchableItemDocument {
 
 	{ category = "gene"; }
 

@@ -1,7 +1,8 @@
-package org.alliancegenome.es.index.site.document;
+package org.alliancegenome.es.index.site.doclet;
 
 import java.util.Set;
 
+import org.alliancegenome.es.index.doclet.Doclet;
 import org.apache.commons.lang3.StringUtils;
 
 import lombok.Getter;
@@ -9,7 +10,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class PublicationDoclet implements Comparable<PublicationDoclet> {
+public class PublicationDoclet extends Doclet implements Comparable<PublicationDoclet> {
 
 	private String primaryKey;
 	private String pubMedId;

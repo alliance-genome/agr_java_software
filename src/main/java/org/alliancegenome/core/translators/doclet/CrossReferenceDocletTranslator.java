@@ -1,7 +1,7 @@
 package org.alliancegenome.core.translators.doclet;
 
 import org.alliancegenome.core.translators.EntityDocletTranslator;
-import org.alliancegenome.es.index.site.document.CrossReferenceDoclet;
+import org.alliancegenome.es.index.site.doclet.CrossReferenceDoclet;
 import org.alliancegenome.neo4j.entity.node.CrossReference;
 
 public class CrossReferenceDocletTranslator extends EntityDocletTranslator<CrossReference, CrossReferenceDoclet> {

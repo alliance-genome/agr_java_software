@@ -1,6 +1,6 @@
 package org.alliancegenome.core.translators;
 
-import org.alliancegenome.es.index.site.document.CrossReferenceDoclet;
+import org.alliancegenome.es.index.site.doclet.CrossReferenceDoclet;
 import org.alliancegenome.es.index.site.document.ESDocument;
 import org.alliancegenome.neo4j.entity.Neo4jEntity;
 import org.alliancegenome.neo4j.entity.node.CrossReference;

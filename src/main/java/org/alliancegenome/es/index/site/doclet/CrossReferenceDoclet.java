@@ -1,4 +1,4 @@
-package org.alliancegenome.es.index.site.document;
+package org.alliancegenome.es.index.site.doclet;
 
 import org.alliancegenome.es.index.doclet.Doclet;
 

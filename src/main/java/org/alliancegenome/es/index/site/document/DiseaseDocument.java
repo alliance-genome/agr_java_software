@@ -3,6 +3,9 @@ package org.alliancegenome.es.index.site.document;
 
 import java.util.*;
 
+import org.alliancegenome.es.index.site.doclet.CrossReferenceDoclet;
+import org.alliancegenome.es.index.site.doclet.SourceDoclet;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -11,7 +14,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class DiseaseDocument extends SearchableItem {
+public class DiseaseDocument extends SearchableItemDocument {
 
 	{ category = "disease"; }
 	

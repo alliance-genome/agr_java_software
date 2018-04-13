@@ -11,7 +11,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class FeatureDocument extends SearchableItem {
+public class FeatureDocument extends SearchableItemDocument {
 
 	{ category = "allele"; }
 	

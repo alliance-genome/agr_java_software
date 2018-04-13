@@ -7,7 +7,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public abstract class SearchableItem extends ESDocument {
+public abstract class SearchableItemDocument extends ESDocument {
 
 	protected String category;
 

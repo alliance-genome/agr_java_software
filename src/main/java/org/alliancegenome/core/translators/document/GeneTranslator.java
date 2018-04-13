@@ -2,6 +2,9 @@ package org.alliancegenome.core.translators.document;
 
 import org.alliancegenome.core.translators.EntityDocumentTranslator;
 import org.alliancegenome.core.translators.doclet.CrossReferenceDocletTranslator;
+import org.alliancegenome.es.index.site.doclet.CrossReferenceDoclet;
+import org.alliancegenome.es.index.site.doclet.GenomeLocationDoclet;
+import org.alliancegenome.es.index.site.doclet.OrthologyDoclet;
 import org.alliancegenome.es.index.site.document.*;
 import org.alliancegenome.neo4j.entity.node.*;
 import org.alliancegenome.neo4j.entity.relationship.GenomeLocation;
