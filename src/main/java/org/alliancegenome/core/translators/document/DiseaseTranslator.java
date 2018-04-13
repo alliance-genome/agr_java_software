@@ -1,5 +1,21 @@
 package org.alliancegenome.core.translators.document;
 
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.alliancegenome.core.translators.EntityDocumentTranslator;
 import org.alliancegenome.core.translators.doclet.CrossReferenceDocletTranslator;
 import org.alliancegenome.es.index.site.doclet.CrossReferenceDoclet;
@@ -23,16 +39,11 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.*;
-import java.util.stream.Collectors;
-
-import static java.util.stream.Collectors.*;
-
 public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseDocument> {
 
-	private GeneTranslator geneTranslator = new GeneTranslator();
-	private FeatureTranslator featureTranslator = new FeatureTranslator();
-	private CrossReferenceDocletTranslator crossReferenceTranslator = new CrossReferenceDocletTranslator();
+	private static GeneTranslator geneTranslator = new GeneTranslator();
+	private static FeatureTranslator featureTranslator = new FeatureTranslator();
+	private static CrossReferenceDocletTranslator crossReferenceTranslator = new CrossReferenceDocletTranslator();
 	
 	private final Logger log = LogManager.getLogger(getClass());
 

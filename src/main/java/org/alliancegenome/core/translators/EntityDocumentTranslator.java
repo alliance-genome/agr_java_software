@@ -10,7 +10,6 @@ public abstract class EntityDocumentTranslator<E extends Neo4jEntity, D extends 
     public E translate(D doument) {
         return translate(doument, 1);
     }
-
     public D translate(E entity) {
         return translate(entity, 1);
     }
@@ -18,7 +17,6 @@ public abstract class EntityDocumentTranslator<E extends Neo4jEntity, D extends 
     public D translate(E entity, int depth) {
         return entityToDocument(entity, depth);
     }
-
     public E translate(D document, int depth) {
         return documentToEntity(document, depth);
     }
