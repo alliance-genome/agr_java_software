@@ -1,6 +1,6 @@
 package org.alliancegenome.es.index.data.enums;
 
-import org.alliancegenome.es.index.data.document.DataTypeDoclet;
+import org.alliancegenome.es.index.data.doclet.DataTypeDoclet;
 
 import lombok.Getter;
 

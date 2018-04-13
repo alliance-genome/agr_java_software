@@ -8,17 +8,17 @@ import org.alliancegenome.aws.S3Helper;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.exceptions.GenericException;
 import org.alliancegenome.es.index.dao.ESDocumentDAO;
+import org.alliancegenome.es.index.data.doclet.DataTypeDoclet;
+import org.alliancegenome.es.index.data.doclet.SnapShotDoclet;
 import org.alliancegenome.es.index.data.document.DataFileDocument;
 import org.alliancegenome.es.index.data.document.DataSnapShotDocument;
-import org.alliancegenome.es.index.data.document.DataTypeDoclet;
 import org.alliancegenome.es.index.data.document.MetaDataDocument;
-import org.alliancegenome.es.index.data.document.SnapShotDoclet;
-import org.alliancegenome.es.index.data.document.TaxonIdDoclet;
 import org.alliancegenome.es.index.data.enums.DataType;
-import org.alliancegenome.es.index.data.enums.TaxonIdType;
+import org.alliancegenome.es.index.site.doclet.SpeciesDoclet;
 import org.alliancegenome.github.GithubRESTAPI;
 import org.alliancegenome.github.model.GithubRelease;
 import org.alliancegenome.github.util.GitHelper;
+import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -45,7 +45,7 @@ public class MetaDataDAO extends ESDocumentDAO<MetaDataDocument> {
 			getLatestSchemaVersion();
 		}
 		checkDataTypes();
-		checkTaxonIds();
+		checkSpecies();
 	}
 
 	// Null -> return null
@@ -113,24 +113,19 @@ public class MetaDataDAO extends ESDocumentDAO<MetaDataDocument> {
 		}
 	}
 	
-	public TaxonIdDoclet getTaxonIdDocument(String string) {
+	public SpeciesDoclet getSpeciesDoclet(String string) {
 		log.debug("Getting TaxonId: " + string);
-		if(TaxonIdType.fromTaxonId(string) != null) {
-			return TaxonIdType.fromTaxonId(string);
-		}
-		if(TaxonIdType.fromModName(string) != null) {
-			return TaxonIdType.fromModName(string);
-		}
-		return null;
+		return SpeciesType.getByModNameOrIdPart(string);
 	}
 
-	private void checkTaxonIds() {
+	private void checkSpecies() {
 		getMetaDocument();
-		for(TaxonIdType t: TaxonIdType.values()) {
-			log.trace("TaxonId: " + t.getTaxonId());
-			if(metaData.getTaxonIds().get(t.getTaxonId()) == null) {
-				log.trace("Creating TaxonId in ES: " + t.getTaxonId());
-				metaData.getTaxonIds().put(t.getTaxonId(), TaxonIdType.getDoclet(t));
+		
+		for(SpeciesType s: SpeciesType.values()) {
+			log.trace("TaxonId: " + s.getTaxonID());
+			if(metaData.getSpecies().get(s.getTaxonID()) == null) {
+				log.trace("Creating TaxonId in ES: " + s.getTaxonID());
+				metaData.getSpecies().put(s.getTaxonID(), s.getDoclet());
 				updateDocument(metaData);
 			}
 		}
@@ -143,12 +138,12 @@ public class MetaDataDAO extends ESDocumentDAO<MetaDataDocument> {
 		return filePath;
 	}
 
-	public String saveFileToS3(String schemaVersion, DataTypeDoclet dataType, TaxonIdDoclet taxon, String bodyString) throws GenericException {
-		int fileIndex = s3Helper.listFiles(schemaVersion + "/" + dataType.getName() + "/" + taxon.getTaxonId() + "/");
+	public String saveFileToS3(String schemaVersion, DataTypeDoclet dataType, SpeciesDoclet species, String bodyString) throws GenericException {
+		int fileIndex = s3Helper.listFiles(schemaVersion + "/" + dataType.getName() + "/" + species.getTaxonIDPart() + "/");
 
 		String filePath =
-				schemaVersion + "/" + dataType.getName() + "/" + taxon.getTaxonId() + "/" +
-						schemaVersion + "_" + dataType.getName() + "_" + taxon.getTaxonId() + "_" + fileIndex + "." + dataType.getFileExtension();
+				schemaVersion + "/" + dataType.getName() + "/" + species.getTaxonIDPart() + "/" +
+						schemaVersion + "_" + dataType.getName() + "_" + species.getTaxonIDPart() + "_" + fileIndex + "." + dataType.getFileExtension();
 
 		s3Helper.saveFile(filePath, bodyString);
 		return filePath;
@@ -158,12 +153,12 @@ public class MetaDataDAO extends ESDocumentDAO<MetaDataDocument> {
 		return gitHelper.getFile(schemaVersionName, dataTypeFilePath);
 	}
 
-	public void createDataFile(String schemaVersion, DataTypeDoclet dataType, TaxonIdDoclet taxon, String filePath) {
+	public void createDataFile(String schemaVersion, DataTypeDoclet dataType, SpeciesDoclet species, String filePath) {
 		DataFileDocument df = new DataFileDocument();
 		df.setDataType(dataType.getName());
 		df.setPath(filePath);
 		df.setSchemaVersion(schemaVersion);
-		df.setTaxonId(taxon.getTaxonId());
+		df.setTaxonIDPart(species.getTaxonIDPart());
 		df.setUploadDate(new Date());
 		dataFileDAO.createDocumnet(df);
 	}

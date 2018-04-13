@@ -19,7 +19,7 @@ public class DataFileDAO extends ESDocumentDAO<DataFileDocument> {
 		HashMap<MultiKey<String>, DataFileDocument> map = new HashMap<MultiKey<String>, DataFileDocument>();
 		
 		for(DataFileDocument doc: docs) {
-			MultiKey<String> key = new MultiKey<>(schemaVersion, doc.getDataType(), doc.getTaxonId());
+			MultiKey<String> key = new MultiKey<>(schemaVersion, doc.getDataType(), doc.getTaxonIDPart());
 			
 			if(map.containsKey(key)) {
 				DataFileDocument current = map.get(key);

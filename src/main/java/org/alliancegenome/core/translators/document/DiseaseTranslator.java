@@ -25,7 +25,6 @@ import org.alliancegenome.es.index.site.doclet.SpeciesDoclet;
 import org.alliancegenome.es.index.site.document.AnnotationDocument;
 import org.alliancegenome.es.index.site.document.DiseaseAnnotationDocument;
 import org.alliancegenome.es.index.site.document.DiseaseDocument;
-import org.alliancegenome.es.util.SpeciesDocletUtil;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.entity.node.DOTerm;
 import org.alliancegenome.neo4j.entity.node.DiseaseEntityJoin;
@@ -309,7 +308,7 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
 		List<SourceDoclet> sourceDoclets = Arrays.stream(SpeciesType.values())
 				.map(speciesType -> {
 					SourceDoclet doclet = new SourceDoclet();
-					doclet.setSpecies(SpeciesDocletUtil.getSpeciesDoclet(speciesType));
+					doclet.setSpecies(speciesType.getDoclet());
 					doclet.setName(speciesType.getDisplayName());
 					if (speciesType.equals(SpeciesType.HUMAN)) {
 						doclet.setName(SpeciesType.RAT.getDisplayName());
@@ -451,17 +450,7 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
 		return nameList;
 	}
 
-	private SpeciesDoclet getSpeciesDoclet(DiseaseEntityJoin diseaseGeneJoin) {
-		return getSpeciesDoclet(diseaseGeneJoin.getGene());
-	}
-
 	private SpeciesDoclet getSpeciesDoclet(Gene gene) {
-		Species species = gene.getSpecies();
-		SpeciesType type = species.getType();
-		SpeciesDoclet doclet = new SpeciesDoclet();
-		doclet.setName(species.getName());
-		doclet.setTaxonID(species.getPrimaryKey());
-		doclet.setOrderID(type.ordinal());
-		return doclet;
+		return gene.getSpecies().getType().getDoclet();
 	}
 }

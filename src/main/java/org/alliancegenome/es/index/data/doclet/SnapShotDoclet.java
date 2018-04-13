@@ -1,8 +1,10 @@
-package org.alliancegenome.es.index.data.document;
+package org.alliancegenome.es.index.data.doclet;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import org.alliancegenome.es.index.data.document.DataFileDocument;
 
 import lombok.Getter;
 import lombok.Setter;

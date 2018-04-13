@@ -1,4 +1,4 @@
-package org.alliancegenome.es.index.data.document;
+package org.alliancegenome.es.index.data;
 
 import java.util.HashMap;
 

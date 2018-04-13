@@ -14,7 +14,7 @@ public class DataFileDocument extends ESDocument {
 
 	private String schemaVersion;
 	private String dataType;
-	private String taxonId;
+	private String taxonIDPart;
 	private String path;
 	private Date uploadDate = new Date();
 

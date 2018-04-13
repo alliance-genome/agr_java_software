@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import org.alliancegenome.es.index.data.doclet.DataTypeDoclet;
 import org.alliancegenome.es.index.document.ESDocument;
+import org.alliancegenome.es.index.site.doclet.SpeciesDoclet;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -18,7 +20,7 @@ public class MetaDataDocument extends ESDocument {
 	private HashMap<String, String> releaseSchemaMap = new HashMap<>();
 	
 	private HashMap<String, DataTypeDoclet> dataTypes = new HashMap<>();
-	private HashMap<String, TaxonIdDoclet> taxonIds = new HashMap<>();
+	private HashMap<String, SpeciesDoclet> species = new HashMap<>();
 	
 	@Override
 	public String getDocumentId() {
