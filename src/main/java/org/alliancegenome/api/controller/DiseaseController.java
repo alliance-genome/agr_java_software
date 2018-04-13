@@ -59,7 +59,7 @@ public class DiseaseController extends BaseController implements DiseaseRESTInte
 
         Response.ResponseBuilder response = Response.ok(getDiseaseAnnotationsDownload(id));
         response.type(MediaType.TEXT_PLAIN_TYPE);
-        response.header("Content-Disposition", "attachment; filename=\"disease-annotations-" + id.replace(":", "-") + ".txt\"");
+        response.header("Content-Disposition", "attachment; filename=\"disease-annotations-" + id.replace(":", "-") + ".tsv\"");
         return response.build();
     }
 
