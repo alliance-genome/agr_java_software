@@ -13,7 +13,7 @@ import org.apache.commons.collections4.CollectionUtils;
 
 public class FeatureTranslator extends EntityDocumentTranslator<Feature, FeatureDocument> {
 
-	private final GeneTranslator geneTranslator = new GeneTranslator();
+	private static GeneTranslator geneTranslator = new GeneTranslator();
 	private static DiseaseTranslator diseaseTranslator = new DiseaseTranslator();
 
 	@Override

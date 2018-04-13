@@ -1,30 +1,36 @@
 package org.alliancegenome.core.translators.document;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.alliancegenome.core.translators.EntityDocumentTranslator;
 import org.alliancegenome.core.translators.doclet.CrossReferenceDocletTranslator;
 import org.alliancegenome.es.index.site.doclet.CrossReferenceDoclet;
 import org.alliancegenome.es.index.site.doclet.GenomeLocationDoclet;
 import org.alliancegenome.es.index.site.doclet.OrthologyDoclet;
-import org.alliancegenome.es.index.site.document.*;
-import org.alliancegenome.neo4j.entity.node.*;
+import org.alliancegenome.es.index.site.document.DiseaseDocument;
+import org.alliancegenome.es.index.site.document.FeatureDocument;
+import org.alliancegenome.es.index.site.document.GeneDocument;
+import org.alliancegenome.neo4j.entity.node.GOTerm;
+import org.alliancegenome.neo4j.entity.node.Gene;
+import org.alliancegenome.neo4j.entity.node.OrthoAlgorithm;
+import org.alliancegenome.neo4j.entity.node.OrthologyGeneJoin;
+import org.alliancegenome.neo4j.entity.node.SecondaryId;
+import org.alliancegenome.neo4j.entity.node.Synonym;
 import org.alliancegenome.neo4j.entity.relationship.GenomeLocation;
 import org.alliancegenome.neo4j.entity.relationship.Orthologous;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument> {
 
 	private final Logger log = LogManager.getLogger(getClass());
 
-	private DiseaseTranslator diseaseTranslator = new DiseaseTranslator();
-	private FeatureTranslator alleleTranslator = new FeatureTranslator();
-	private CrossReferenceDocletTranslator crossReferenceTranslator = new CrossReferenceDocletTranslator();
+	private static DiseaseTranslator diseaseTranslator = new DiseaseTranslator();
+	private static FeatureTranslator alleleTranslator = new FeatureTranslator();
+	private static CrossReferenceDocletTranslator crossReferenceTranslator = new CrossReferenceDocletTranslator();
 
 	@Override
 	protected GeneDocument entityToDocument(Gene entity, int translationDepth) {
