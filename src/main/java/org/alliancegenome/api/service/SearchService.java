@@ -9,6 +9,8 @@ import static org.elasticsearch.index.query.QueryBuilders.queryStringQuery;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.enterprise.context.RequestScoped;
 import javax.ws.rs.core.MultivaluedHashMap;
@@ -19,7 +21,7 @@ import org.alliancegenome.api.service.helper.SearchHelper;
 import org.alliancegenome.es.index.site.dao.SearchDAO;
 import org.alliancegenome.es.model.search.Category;
 import org.alliancegenome.es.model.search.SearchResult;
-import org.alliancegenome.es.util.QueryManipulationService;
+import org.alliancegenome.api.service.QueryManipulationService;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -68,7 +70,7 @@ public class SearchService {
         log.debug("Search Query: " + q);
 
         result.total = searchResponse.getHits().totalHits;
-        result.results = searchHelper.formatResults(searchResponse, searchHelper.tokenizeQuery(q));
+        result.results = searchHelper.formatResults(searchResponse, tokenizeQuery(q));
         result.aggregations = searchHelper.formatAggResults(category, searchResponse);
 
         return result;
@@ -85,7 +87,7 @@ public class SearchService {
         List<FunctionScoreQueryBuilder.FilterFunctionBuilder> functionList = new ArrayList<>();
 
         //add a 'should' clause for each individual term
-        List<String> tokens = searchHelper.tokenizeQuery(q);
+        List<String> tokens = tokenizeQuery(q);
         for (String token : tokens) {
             MultiMatchQueryBuilder mmq = multiMatchQuery(token);
             searchHelper.getSearchFields().stream().forEach(mmq::field);
@@ -150,5 +152,46 @@ public class SearchService {
         return map;
     }
 
+    public List<String> tokenizeQuery(String query) {
+        List<String> tokens = new ArrayList<>();
+
+        if (StringUtils.isEmpty(query)) {
+            return tokens;
+        }
+
+
+        //undo colon escaping
+        query = query.replaceAll("\\\\:",":");
+
+        //normalize the whitespace
+        query = query.replaceAll("\\s+", " ");
+
+        //extract quoted phrases
+        Pattern p = Pattern.compile( "\"([^\"]*)\"" );
+        Matcher m = p.matcher(query);
+        while( m.find()) {
+            String phrase = m.group(1);
+            tokens.add(phrase);
+            query = query.replaceAll("\"" + phrase + "\"","");
+        }
+
+        //normalize the whitespace again
+        query = query.replaceAll("\\s+", " ");
+
+        //add the tokens
+        tokens.addAll(Arrays.asList(query.split("\\s")));
+
+        //strip boolean tokens
+        List<String> booleans = new ArrayList<>();
+        booleans.add("AND");
+        booleans.add("OR");
+        booleans.add("NOT");
+
+        tokens.removeAll(booleans);
+
+        return tokens;
+
+
+    }
 
 }

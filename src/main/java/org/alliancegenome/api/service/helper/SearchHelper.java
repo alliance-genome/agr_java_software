@@ -92,7 +92,12 @@ public class SearchHelper {
             add("gene_biological_process"); add("gene_molecular_function"); add("gene_cellular_component");
             add("go_type"); add("go_genes"); add("go_synonyms");
             add("disease_genes"); add("disease_synonyms"); add("diseases.name"); add("orthology.gene2Symbol");
-            add("crossReferences.name"); add("crossReferences.localId");
+            //disease cross references:
+            add("crossReferences.name");
+            add("crossReferences.localId");
+            //gene cross references:
+            add("crossReferences.generic_cross_reference.name");
+            add("crossReferences.generic_cross_reference.localId");
             add("geneDocument.name"); add("geneDocument.name_key");
             add("diseaseDocuments.name");
             add("alleles.symbol");
@@ -266,45 +271,5 @@ public class SearchHelper {
     }
 
 
-    public List<String> tokenizeQuery(String query) {
-        List<String> tokens = new ArrayList<>();
 
-        if (StringUtils.isEmpty(query)) {
-            return tokens;
-        }
-
-
-        //undo colon escaping
-        query = query.replaceAll("\\\\:",":");
-
-        //normalize the whitespace
-        query = query.replaceAll("\\s+", " ");
-
-        //extract quoted phrases
-        Pattern p = Pattern.compile( "\"([^\"]*)\"" );
-        Matcher m = p.matcher(query);
-        while( m.find()) {
-            String phrase = m.group(1);
-            tokens.add(phrase);
-            query = query.replaceAll("\"" + phrase + "\"","");
-        }
-
-        //normalize the whitespace again
-        query = query.replaceAll("\\s+", " ");
-
-        //add the tokens
-        tokens.addAll(Arrays.asList(query.split("\\s")));
-
-        //strip boolean tokens
-        List<String> booleans = new ArrayList<>();
-        booleans.add("AND");
-        booleans.add("OR");
-        booleans.add("NOT");
-
-        tokens.removeAll(booleans);
-
-        return tokens;
-
-
-    }
 }

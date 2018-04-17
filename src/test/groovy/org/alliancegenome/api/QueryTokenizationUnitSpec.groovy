@@ -1,3 +1,5 @@
+package org.alliancegenome.api
+
 import org.alliancegenome.api.service.SearchService
 import spock.lang.Shared
 import spock.lang.Specification
