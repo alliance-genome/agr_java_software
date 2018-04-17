@@ -2,7 +2,7 @@ all:
 	mvn -q clean package 
 
 run:
-	java -jar target/agr_api-swarm.jar -Papp.properties
+	java -jar target/agr_api-swarm.jar -Xms4g -Xmx4g -Papp.properties
 
 run-dev:
 	java -jar target/agr_api-swarm.jar -Papp.properties -DES_INDEX=site_index_dev

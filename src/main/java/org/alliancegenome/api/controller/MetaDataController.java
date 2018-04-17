@@ -1,6 +1,8 @@
 package org.alliancegenome.api.controller;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -14,9 +16,12 @@ import org.alliancegenome.api.service.MetaDataService;
 import org.alliancegenome.core.exceptions.GenericException;
 import org.alliancegenome.es.index.data.SubmissionResponce;
 import org.alliancegenome.es.index.data.doclet.SnapShotDoclet;
+import org.apache.commons.io.FileUtils;
 import org.jboss.logging.Logger;
 import org.jboss.resteasy.plugins.providers.multipart.InputPart;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
+
+import com.google.common.io.Files;
 
 @RequestScoped
 public class MetaDataController extends BaseController implements MetaDataRESTInterface {
@@ -36,11 +41,21 @@ public class MetaDataController extends BaseController implements MetaDataRESTIn
         for(String key: form.keySet()) {
             if(authenticate(api_access_token)) {
                 InputPart inputPart = form.get(key).get(0);
+                Date d = new Date();
+                String outFileName = "tmp.data_" + d.getTime();
+                File outfile = new File(outFileName);
                 try {
-                    metaDataService.submitData(key, inputPart.getBodyAsString());
+                    InputStream is = inputPart.getBody(InputStream.class, null);
+                    
+                    log.info("Saving file to local filesystem: " + outfile.getAbsolutePath());
+                    FileUtils.copyInputStreamToFile(is, outfile);
+                    log.info("Save file to local filesystem complete");
+                    
+                    metaDataService.submitData(key, outfile);
                     res.getFileStatus().put(key, "success");
                 } catch (GenericException | IOException e) {
                     log.error(e.getMessage());
+                    outfile.delete();
                     res.getFileStatus().put(key, e.getMessage());
                     //e.printStackTrace();
                     success = false;

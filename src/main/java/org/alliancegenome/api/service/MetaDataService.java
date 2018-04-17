@@ -2,6 +2,7 @@ package org.alliancegenome.api.service;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Date;
 import java.util.HashMap;
 
@@ -32,7 +33,7 @@ public class MetaDataService {
 
     private Logger log = Logger.getLogger(getClass());
 
-    public void submitData(String key, String bodyString) throws GenericException {
+    public void submitData(String key, File inFile) throws GenericException {
 
         // Split the keys by underscore
         String[] keys = key.split("_");
@@ -41,13 +42,13 @@ public class MetaDataService {
 
         if(keys.length == 3) { // Schema-DataType-TaxonId
             log.debug("Key has 3 items: parse: (Schema-DataType-TaxonId): " + key);
-            parseSchemaDataTypeTaxonId(keys, bodyString);
+            parseSchemaDataTypeTaxonId(keys, inFile);
         } else if(keys.length == 2) { // DataType-TaxonId // Input a taxonId datatype file and validate against latest version of schema
             log.debug("Key has 2 items: parse: (DataType-TaxonId): " + key);
-            parseDataTypeTaxonId(keys, bodyString);
+            parseDataTypeTaxonId(keys, inFile);
         } else if(keys.length == 1) { // DataType // Input a datatype file validate against latest version of the schema (GO, SO, DO) maybe certain datatypes don't need validation
             log.debug("Key has 1 items: parse: (DataType): " + key);
-            parseDataType(keys, bodyString);
+            parseDataType(keys, inFile);
         }
     }
 
@@ -57,7 +58,7 @@ public class MetaDataService {
         return false;
     }
 
-    private boolean validateData(String schemaVersionName, DataTypeDoclet dataType, String bodyString) throws GenericException {
+    private boolean validateData(String schemaVersionName, DataTypeDoclet dataType, File inFile) throws GenericException {
         log.info("Need to validate file: " + schemaVersionName + " " + dataType);
         String dataTypeFilePath = dataType.getSchemaFiles().get(schemaVersionName);
 
@@ -83,7 +84,7 @@ public class MetaDataService {
         try {
 
             JsonSchema schemaNode = JsonSchemaFactory.byDefault().getJsonSchema(schemaFile.toURI().toString());
-            JsonNode jsonNode = JsonLoader.fromString(bodyString);
+            JsonNode jsonNode = JsonLoader.fromFile(inFile);
 
             ProcessingReport report = schemaNode.validate(jsonNode);
 
@@ -100,7 +101,7 @@ public class MetaDataService {
 
     }
 
-    private void parseDataType(String[] keys, String bodyString) throws GenericException {
+    private void parseDataType(String[] keys, File inFile) throws GenericException {
 
         String schemaVersion = metaDataDAO.getCurrentSchemaVersion();
 
@@ -113,12 +114,12 @@ public class MetaDataService {
             throw new ValidataionException("Schema or TaxonId is required for this data type however no schema or taxonid was provided: " + dataType);
         }
 
-        String filePath = metaDataDAO.saveFileToS3(schemaVersion, dataType, bodyString);
+        String filePath = metaDataDAO.saveFileToS3(schemaVersion, dataType, inFile);
         
         metaDataDAO.createDataFile(schemaVersion, dataType, null, filePath);
     }
 
-    private void parseDataTypeTaxonId(String[] keys, String bodyString) throws GenericException {
+    private void parseDataTypeTaxonId(String[] keys, File inFile) throws GenericException {
         SpeciesDoclet species;
 
         String schemaVersion = metaDataDAO.getCurrentSchemaVersion();
@@ -138,15 +139,15 @@ public class MetaDataService {
         }
 
         if(dataType.isValidationRequired()) {
-            validateData(schemaVersion, dataType, bodyString);
+            validateData(schemaVersion, dataType, inFile);
         }
 
-        String filePath = metaDataDAO.saveFileToS3(schemaVersion, dataType, species, bodyString);
+        String filePath = metaDataDAO.saveFileToS3(schemaVersion, dataType, species, inFile);
         
         metaDataDAO.createDataFile(schemaVersion, dataType, species, filePath);
     }
 
-    private void parseSchemaDataTypeTaxonId(String[] keys, String bodyString) throws GenericException {
+    private void parseSchemaDataTypeTaxonId(String[] keys, File inFile) throws GenericException {
         String schemaVersion;
         DataTypeDoclet dataType;
         SpeciesDoclet species;
@@ -173,10 +174,10 @@ public class MetaDataService {
         }
 
         if(dataType.isValidationRequired()) {
-            validateData(schemaVersion, dataType, bodyString);
+            validateData(schemaVersion, dataType, inFile);
         }
 
-        String filePath = metaDataDAO.saveFileToS3(schemaVersion, dataType, species, bodyString);
+        String filePath = metaDataDAO.saveFileToS3(schemaVersion, dataType, species, inFile);
 
         // Save File Document
         
