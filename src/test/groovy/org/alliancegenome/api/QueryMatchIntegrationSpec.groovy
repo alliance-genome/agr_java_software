@@ -1,3 +1,5 @@
+package org.alliancegenome.api
+
 import groovy.json.JsonSlurper
 import spock.lang.Specification
 import spock.lang.Unroll
@@ -26,11 +28,15 @@ class QueryMatchIntegrationSpec extends Specification {
         "WBGene00000244"                                   | "AGR-525"
         "WB:WBGene00000244"                                | "AGR-525"
 
+        "ENSEMBL:ENSDARG00000003399 AND ZFIN:ZDB-GENE-990415-72" | "AGR-934"
+
         "DOID:0110047"                                     | "AGR-604"
         "ICD10CM:G30 AND DOID:0110047"                     | "AGR-604"
         "G30 AND DOID:0110047"                             | "AGR-604"
         "OMIM:611154 AND DOID:0110047"                     | "AGR-604"
         "611154 AND DOID:0110047"                          | "AGR-604"
+
+
 
     }
 

@@ -1,4 +1,4 @@
-import org.alliancegenome.api.service.QueryManipulationService
+import org.alliancegenome.es.util.QueryManipulationService
 import spock.lang.Specification
 import spock.lang.Shared
 import spock.lang.Unroll

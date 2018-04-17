@@ -1,3 +1,5 @@
+package org.alliancegenome.api
+
 import groovy.json.JsonSlurper
 import spock.lang.Ignore
 import spock.lang.Specification

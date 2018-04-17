@@ -39,3 +39,6 @@ docker-run-es-detached:
 
 test:
 	mvn test
+
+verify:
+	mvn verify
