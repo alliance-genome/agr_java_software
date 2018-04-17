@@ -21,7 +21,7 @@ import org.alliancegenome.api.service.helper.SearchHelper;
 import org.alliancegenome.es.index.site.dao.SearchDAO;
 import org.alliancegenome.es.model.search.Category;
 import org.alliancegenome.es.model.search.SearchResult;
-import org.alliancegenome.es.util.QueryManipulationService;
+import org.alliancegenome.api.service.QueryManipulationService;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
