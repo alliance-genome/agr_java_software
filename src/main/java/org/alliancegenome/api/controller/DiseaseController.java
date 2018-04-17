@@ -1,20 +1,21 @@
 package org.alliancegenome.api.controller;
 
-import java.util.Map;
+import org.alliancegenome.api.rest.interfaces.DiseaseRESTInterface;
+import org.alliancegenome.api.service.DiseaseService;
+import org.alliancegenome.core.translators.tdf.DiseaseAnnotationToTdfTranslator;
+import org.alliancegenome.es.model.query.FieldFilter;
+import org.alliancegenome.es.model.query.Pagination;
+import org.alliancegenome.es.model.search.SearchResult;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.NotFoundException;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
-import org.alliancegenome.api.rest.interfaces.DiseaseRESTInterface;
-import org.alliancegenome.api.service.DiseaseService;
-import org.alliancegenome.core.translators.tdf.DiseaseAnnotationToTdfTranslator;
-import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.es.model.search.SearchResult;
+import java.util.Map;
 
 @RequestScoped
 public class DiseaseController extends BaseController implements DiseaseRESTInterface {
@@ -31,7 +32,7 @@ public class DiseaseController extends BaseController implements DiseaseRESTInte
     @Override
     public Map<String, Object> getDisease(String id) {
         Map<String, Object> ret = diseaseService.getById(id);
-        if(ret == null) {
+        if (ret == null) {
             throw new NotFoundException();
         } else {
             return ret;
@@ -39,8 +40,16 @@ public class DiseaseController extends BaseController implements DiseaseRESTInte
     }
 
     @Override
-    public SearchResult getDiseaseAnnotationsSorted(String id, int limit, int page, String sortBy, String asc) {
+    public SearchResult getDiseaseAnnotationsSorted(String id,
+                                                    int limit,
+                                                    int page,
+                                                    String sortBy,
+                                                    String asc) {
         Pagination pagination = new Pagination(page, limit, sortBy, asc);
+        return getSearchResult(id, pagination);
+    }
+
+    private SearchResult getSearchResult(String id, Pagination pagination) {
         if (pagination.hasErrors()) {
             response.setStatus(HttpServletResponse.SC_NOT_ACCEPTABLE);
             try {
@@ -52,6 +61,34 @@ public class DiseaseController extends BaseController implements DiseaseRESTInte
             return searchResult;
         }
         return diseaseService.getDiseaseAnnotations(id, pagination);
+    }
+
+    @Override
+    public SearchResult getDiseaseAnnotationsSortedFiltered(String id,
+                                                            int limit,
+                                                            int page,
+                                                            String sortBy,
+                                                            String geneName,
+                                                            String species,
+                                                            String geneticEntity,
+                                                            String geneticEntityType,
+                                                            String disease,
+                                                            String source,
+                                                            String reference,
+                                                            String evidenceCode,
+                                                            String associationType,
+                                                            String asc) {
+        Pagination pagination = new Pagination(page, limit, sortBy, asc);
+        pagination.addFieldFilter(FieldFilter.GENE_NAME, geneName);
+        pagination.addFieldFilter(FieldFilter.SPECIES, species);
+        pagination.addFieldFilter(FieldFilter.GENETIC_ENTITY, geneticEntity);
+        pagination.addFieldFilter(FieldFilter.GENETIC_ENTITY_TYPE, geneticEntityType);
+        pagination.addFieldFilter(FieldFilter.DISEASE, disease);
+        pagination.addFieldFilter(FieldFilter.SOURCE, source);
+        pagination.addFieldFilter(FieldFilter.REFERENCE, reference);
+        pagination.addFieldFilter(FieldFilter.EVIDENCE_CODE, evidenceCode);
+        pagination.addFieldFilter(FieldFilter.ASSOCIATION_TYPE, associationType);
+        return getSearchResult(id, pagination);
     }
 
     @Override

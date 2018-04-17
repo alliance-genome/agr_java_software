@@ -6,6 +6,7 @@ import org.alliancegenome.api.service.DiseaseService;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.translators.tdf.DiseaseAnnotationToTdfTranslator;
 import org.alliancegenome.es.index.site.dao.DiseaseDAO;
+import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.es.model.search.SearchResult;
 import org.apache.logging.log4j.Level;
@@ -35,8 +36,9 @@ public class DiseaseTest {
         System.out.println("Number of Diseases with Genes Info: ");
 
         DiseaseAnnotationToTdfTranslator translator = new DiseaseAnnotationToTdfTranslator();
-        String str = translator.getAllRows(service.getDiseaseAnnotationsDownload("DOID:9351", Pagination.getDownloadPagination()));
-        Pagination pagination = new Pagination(1, 20, "disease", null);
+        //String str = translator.getAllRows(service.getDiseaseAnnotationsDownload("DOID:9351", Pagination.getDownloadPagination()));
+        Pagination pagination = new Pagination(1, 20, "gene", "true");
+        pagination.addFieldFilter(FieldFilter.GENE_NAME, "l");
         SearchResult response = service.getDiseaseAnnotations("DOID:655", pagination);
         if (response.results != null) {
             response.results.forEach(entry -> {

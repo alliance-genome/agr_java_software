@@ -33,6 +33,24 @@ public interface DiseaseRESTInterface {
             @QueryParam("asc") String asc);
 
     @GET
+    @Path("/{id}/associations/filtered")
+    public SearchResult getDiseaseAnnotationsSortedFiltered(
+            @PathParam("id") String id,
+            @DefaultValue("20") @QueryParam("limit") int limit,
+            @DefaultValue("1") @QueryParam("page") int page,
+            @QueryParam("sortBy") String sortBy,
+            @QueryParam("geneName") String geneName,
+            @QueryParam("species") String species,
+            @QueryParam("geneticEntity") String geneticEntity,
+            @QueryParam("geneticEntityType") String geneticEntityType,
+            @QueryParam("disease") String disease,
+            @QueryParam("source") String source,
+            @QueryParam("reference") String reference,
+            @QueryParam("evidenceCode") String evidenceCode,
+            @QueryParam("associationType") String associationType,
+            @QueryParam("asc") String asc);
+
+    @GET
     @Path("/{id}/associations/download")
     @Produces(MediaType.TEXT_PLAIN)
     public Response getDiseaseAnnotationsDownloadFile(@PathParam("id") String id);
