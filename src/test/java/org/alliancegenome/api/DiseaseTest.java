@@ -2,9 +2,7 @@ package org.alliancegenome.api;
 
 import java.util.Map;
 
-import org.alliancegenome.api.service.DiseaseService;
 import org.alliancegenome.core.config.ConfigHelper;
-import org.alliancegenome.core.translators.tdf.DiseaseAnnotationToTdfTranslator;
 import org.alliancegenome.es.index.site.dao.DiseaseDAO;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
@@ -17,16 +15,15 @@ import org.junit.Before;
 public class DiseaseTest {
 
     private static Logger log = Logger.getLogger(DiseaseTest.class);
-    private DiseaseService service;
 
     @Before
     public void before() {
         Configurator.setRootLevel(Level.WARN);
         ConfigHelper.init();
-        service = new DiseaseService();
     }
 
 
+    @SuppressWarnings("unchecked")
     public static void main(String[] args) {
         ConfigHelper.init();
 
@@ -35,7 +32,7 @@ public class DiseaseTest {
         service.init();
         System.out.println("Number of Diseases with Genes Info: ");
 
-        DiseaseAnnotationToTdfTranslator translator = new DiseaseAnnotationToTdfTranslator();
+        //DiseaseAnnotationToTdfTranslator translator = new DiseaseAnnotationToTdfTranslator();
         //String str = translator.getAllRows(service.getDiseaseAnnotationsDownload("DOID:9351", Pagination.getDownloadPagination()));
         Pagination pagination = new Pagination(1, 20, "gene", "true");
         pagination.addFieldFilter(FieldFilter.GENE_NAME, "l");

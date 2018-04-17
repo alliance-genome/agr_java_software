@@ -28,7 +28,6 @@ import org.alliancegenome.es.index.site.dao.SearchDAO;
 import org.jboss.logging.Logger;
 
 @ApplicationScoped
-@SuppressWarnings("rawtypes")
 public class SiteMapCacherApplication {
 
     private final Logger log = Logger.getLogger(getClass());
@@ -115,7 +114,7 @@ public class SiteMapCacherApplication {
     }
 
 
-    private boolean save(List dataObjects, File file) {
+    private boolean save(List<XMLURL> dataObjects, File file) {
         try {
             FileOutputStream fos = new FileOutputStream(file);
             GZIPOutputStream gzos = new GZIPOutputStream(fos);
@@ -131,13 +130,14 @@ public class SiteMapCacherApplication {
         }
     }
 
-    private ArrayList load(File file) {
-        ArrayList dataObjects = new ArrayList();
+    @SuppressWarnings("unchecked")
+    private ArrayList<XMLURL> load(File file) {
+        ArrayList<XMLURL> dataObjects = new ArrayList<XMLURL>();
         try {
             FileInputStream fis = new FileInputStream(file);
             GZIPInputStream gzis = new GZIPInputStream(fis);
             ObjectInputStream in = new ObjectInputStream(gzis);
-            dataObjects = (ArrayList)in.readObject();
+            dataObjects = (ArrayList<XMLURL>)in.readObject();
             in.close();
             return dataObjects;
         }
