@@ -14,21 +14,21 @@ import lombok.ToString;
 @Setter @ToString @NoArgsConstructor
 public class DataSnapShotDocument extends ESDocument {
 
-	private String system;
-	private HashMap<String, Date> releaseSnapShotMap = new HashMap<>();
-	
-	public DataSnapShotDocument(String system) {
-		this.system = system;
-	}
+    private String system;
+    private HashMap<String, Date> releaseSnapShotMap = new HashMap<>();
+    
+    public DataSnapShotDocument(String system) {
+        this.system = system;
+    }
 
-	@Override
-	public String getDocumentId() {
-		return system;
-	}
+    @Override
+    public String getDocumentId() {
+        return system;
+    }
 
-	@Override
-	public String getType() {
-		return "data_snapshot";
-	}
+    @Override
+    public String getType() {
+        return "data_snapshot";
+    }
 
 }

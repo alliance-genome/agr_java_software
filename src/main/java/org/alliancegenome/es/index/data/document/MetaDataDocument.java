@@ -15,23 +15,23 @@ import lombok.ToString;
 @Getter @Setter @ToString
 public class MetaDataDocument extends ESDocument {
 
-	private String currentRelease = "";
-	
-	private List<String> schemas = new ArrayList<String>();
-	
-	private HashMap<String, String> releaseSchemaMap = new HashMap<>();
-	
-	private HashMap<String, DataTypeDoclet> dataTypes = new HashMap<>();
-	private HashMap<String, SpeciesDoclet> species = new HashMap<>();
-	
-	@Override
-	public String getDocumentId() {
-		return "meta_data_id";
-	}
+    private String currentRelease = "";
+    
+    private List<String> schemas = new ArrayList<String>();
+    
+    private HashMap<String, String> releaseSchemaMap = new HashMap<>();
+    
+    private HashMap<String, DataTypeDoclet> dataTypes = new HashMap<>();
+    private HashMap<String, SpeciesDoclet> species = new HashMap<>();
+    
+    @Override
+    public String getDocumentId() {
+        return "meta_data_id";
+    }
 
-	@Override
-	public String getType() {
-		return "meta_data";
-	}
+    @Override
+    public String getType() {
+        return "meta_data";
+    }
 
 }

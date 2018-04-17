@@ -9,14 +9,14 @@ import lombok.Setter;
 @Setter
 public class SpeciesDoclet extends Doclet {
 
-	private String name;
-	private String taxonID;
-	private String displayName;
-	private String abbreviation;
-	private String modName;
-	private String databaseName;
-	private String taxonIDPart;
-	
-	private int orderID;
-	
+    private String name;
+    private String taxonID;
+    private String displayName;
+    private String abbreviation;
+    private String modName;
+    private String databaseName;
+    private String taxonIDPart;
+    
+    private int orderID;
+    
 }

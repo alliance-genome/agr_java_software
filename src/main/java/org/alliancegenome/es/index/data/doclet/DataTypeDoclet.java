@@ -10,12 +10,12 @@ import lombok.ToString;
 @Setter @ToString
 public class DataTypeDoclet {
 
-	private String name;
-	private String fileExtension;
-	private String description;
-	private boolean taxonIdRequired;
-	private boolean validationRequired;
-	private HashMap<String, String> schemaFiles = new HashMap<String, String>();
+    private String name;
+    private String fileExtension;
+    private String description;
+    private boolean taxonIdRequired;
+    private boolean validationRequired;
+    private HashMap<String, String> schemaFiles = new HashMap<String, String>();
 
 
 }

@@ -13,28 +13,28 @@ import lombok.Setter;
 
 @Getter @Setter
 public class AnnotationDocument extends ESDocument implements Comparable<AnnotationDocument> {
-	
-	private String primaryKey;
-	private String category = "diseaseAnnotation";
-	private String associationType;
-	private SourceDoclet source;
-	private GeneDocument geneDocument;
-	private FeatureDocument featureDocument;
-	private List<PublicationDoclet> publications;
+    
+    private String primaryKey;
+    private String category = "diseaseAnnotation";
+    private String associationType;
+    private SourceDoclet source;
+    private GeneDocument geneDocument;
+    private FeatureDocument featureDocument;
+    private List<PublicationDoclet> publications;
 
-	@JsonIgnore
-	public String getDocumentId() {
-		return primaryKey;
-	}
-	
-	@Override
-	@JsonIgnore
-	public String getType() {
-		return category;
-	}
+    @JsonIgnore
+    public String getDocumentId() {
+        return primaryKey;
+    }
+    
+    @Override
+    @JsonIgnore
+    public String getType() {
+        return category;
+    }
 
-	@Override
-	public int compareTo(AnnotationDocument doc) {
-		return 0;
-	}
+    @Override
+    public int compareTo(AnnotationDocument doc) {
+        return 0;
+    }
 }

@@ -13,27 +13,27 @@ import org.elasticsearch.index.query.QueryBuilders;
 
 public class DataFileDAO extends ESDocumentDAO<DataFileDocument> {
 
-	public List<DataFileDocument> search(String schemaVersion, Date snapShotDate) {
-		MatchQueryBuilder mqb = QueryBuilders.matchQuery("schemaVersion", schemaVersion);
-		List<DataFileDocument> docs = search(mqb);
-		HashMap<MultiKey<String>, DataFileDocument> map = new HashMap<MultiKey<String>, DataFileDocument>();
-		
-		for(DataFileDocument doc: docs) {
-			MultiKey<String> key = new MultiKey<>(schemaVersion, doc.getDataType(), doc.getTaxonIDPart());
-			
-			if(map.containsKey(key)) {
-				DataFileDocument current = map.get(key);
-				if(doc.getUploadDate().after(current.getUploadDate()) && doc.getUploadDate().before(snapShotDate)) {
-					map.put(key, doc);
-				}
-			} else {
-				if(doc.getUploadDate().before(snapShotDate)) {
-					map.put(key, doc);
-				}
-			}
-		}
-		
-		return new ArrayList<DataFileDocument>(map.values());
-	}
+    public List<DataFileDocument> search(String schemaVersion, Date snapShotDate) {
+        MatchQueryBuilder mqb = QueryBuilders.matchQuery("schemaVersion", schemaVersion);
+        List<DataFileDocument> docs = search(mqb);
+        HashMap<MultiKey<String>, DataFileDocument> map = new HashMap<MultiKey<String>, DataFileDocument>();
+        
+        for(DataFileDocument doc: docs) {
+            MultiKey<String> key = new MultiKey<>(schemaVersion, doc.getDataType(), doc.getTaxonIDPart());
+            
+            if(map.containsKey(key)) {
+                DataFileDocument current = map.get(key);
+                if(doc.getUploadDate().after(current.getUploadDate()) && doc.getUploadDate().before(snapShotDate)) {
+                    map.put(key, doc);
+                }
+            } else {
+                if(doc.getUploadDate().before(snapShotDate)) {
+                    map.put(key, doc);
+                }
+            }
+        }
+        
+        return new ArrayList<DataFileDocument>(map.values());
+    }
 
 }
