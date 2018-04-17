@@ -50,7 +50,6 @@ public class Pagination {
         fieldFilterValueMap.put(fieldFilter, value);
     }
 
-
     public boolean hasErrors() {
         return !errorList.isEmpty();
     }

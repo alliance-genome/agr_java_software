@@ -6,42 +6,39 @@ import org.alliancegenome.es.schema.Mapping;
 
 public class DiseaseMapping extends Mapping {
 
-	public DiseaseMapping(Boolean pretty) {
-		super(pretty);
-	}
+    public DiseaseMapping(Boolean pretty) {
+        super(pretty);
+    }
 
-	public void buildMappings() {
-		try {
+    public void buildMappings() {
+        try {
 
-			builder.startObject();
+            builder.startObject();
 
+            builder.startObject("properties");
 
-			builder.startObject("properties");
+            buildSharedSearchableDocumentMappings();
 
-			buildSharedSearchableDocumentMappings();
+            buildGenericField("disease_species.orderID", "long", null, false, false, true, false, false);
+            buildGenericField("diseaseID", "keyword", null, false, false, true, false, false);
+            buildGenericField("diseaseName", "text", null, false, false, true, false, false);
+            buildGenericField("parentDiseaseIDs", "keyword", null, false, false, true, false, false);
 
-			buildGenericField("disease_species.orderID", "long", null, false, false, true, false, false);
-			buildGenericField("diseaseID", "keyword", null, false, false, true, false, false);
-			buildGenericField("diseaseName", "text", null, false, false, true, false, false);
-			buildGenericField("parentDiseaseIDs", "keyword", null, false, false, true, false, false);
+            builder.startObject("annotations");
+            builder.startObject("properties");
+            buildNestedDocument("featureDocument");
+            buildNestedDocument("geneDocument");
+            builder.endObject();
+            builder.endObject();
 
-			builder.startObject("annotations");
-			builder.startObject("properties");
-			buildNestedDocument("featureDocument");
-			buildNestedDocument("geneDocument");
-			builder.endObject();
-			builder.endObject();
+            builder.endObject();
 
+            builder.endObject();
 
-			builder.endObject();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
-			builder.endObject();
-
-
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-	}
+    }
 
 }

@@ -31,7 +31,6 @@ public class DiseaseDAO extends ESDAO {
 
     private Log log = LogFactory.getLog(getClass());
 
-
     private static Map<SortBy, String> sortByMao = new LinkedHashMap<>();
 
     {
