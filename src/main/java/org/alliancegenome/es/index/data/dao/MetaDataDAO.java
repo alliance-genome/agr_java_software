@@ -134,21 +134,21 @@ public class MetaDataDAO extends ESDocumentDAO<MetaDataDocument> {
         }
     }
 
-    public String saveFileToS3(String schemaVersion, DataTypeDoclet dataType, String bodyString) throws GenericException {
+    public String saveFileToS3(String schemaVersion, DataTypeDoclet dataType, File inFile) throws GenericException {
         int fileIndex = s3Helper.listFiles(schemaVersion + "/" + dataType.getName() + "/");
         String filePath = schemaVersion + "/" + dataType.getName() + "/" + schemaVersion + "_" + dataType.getName() + "_" + fileIndex + "." + dataType.getFileExtension();
-        s3Helper.saveFile(filePath, bodyString);
+        s3Helper.saveFile(filePath, inFile);
         return filePath;
     }
 
-    public String saveFileToS3(String schemaVersion, DataTypeDoclet dataType, SpeciesDoclet species, String bodyString) throws GenericException {
+    public String saveFileToS3(String schemaVersion, DataTypeDoclet dataType, SpeciesDoclet species, File inFile) throws GenericException {
         int fileIndex = s3Helper.listFiles(schemaVersion + "/" + dataType.getName() + "/" + species.getTaxonIDPart() + "/");
 
         String filePath =
                 schemaVersion + "/" + dataType.getName() + "/" + species.getTaxonIDPart() + "/" +
                         schemaVersion + "_" + dataType.getName() + "_" + species.getTaxonIDPart() + "_" + fileIndex + "." + dataType.getFileExtension();
 
-        s3Helper.saveFile(filePath, bodyString);
+        s3Helper.saveFile(filePath, inFile);
         return filePath;
     }
 
