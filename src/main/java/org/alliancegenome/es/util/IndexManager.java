@@ -286,16 +286,16 @@ public class IndexManager {
 	public List<String> getIndexList() {
 		List<String> ret = new ArrayList<>();
 		ClusterHealthResponse healths = client.admin().cluster().prepareHealth().get(); 
-		//String clusterName = healths.getClusterName();			  
-		//int numberOfDataNodes = healths.getNumberOfDataNodes();	  
-		//int numberOfNodes = healths.getNumberOfNodes();			  
+		//String clusterName = healths.getClusterName();
+		//int numberOfDataNodes = healths.getNumberOfDataNodes();
+		//int numberOfNodes = healths.getNumberOfNodes();
 
 		for (ClusterIndexHealth health : healths.getIndices().values()) { 
 			String index = health.getIndex();	
 			ret.add(index);
-			//int numberOfShards = health.getNumberOfShards();		  
-			//int numberOfReplicas = health.getNumberOfReplicas();	  
-			//ClusterHealthStatus status = health.getStatus();		  
+			//int numberOfShards = health.getNumberOfShards();
+			//int numberOfReplicas = health.getNumberOfReplicas();
+			//ClusterHealthStatus status = health.getStatus();
 		}
 		return ret;
 	}
