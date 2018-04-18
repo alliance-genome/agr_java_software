@@ -14,6 +14,7 @@ public class CrossReferenceDoclet extends Doclet {
 	private String globalCrossRefId;
 	private String prefix;
 	private String name;
+	private String displayName;
 	private String type;
 
 }
