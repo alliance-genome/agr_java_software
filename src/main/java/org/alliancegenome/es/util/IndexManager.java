@@ -291,7 +291,7 @@ public class IndexManager {
 		//int numberOfNodes = healths.getNumberOfNodes();
 
 		for (ClusterIndexHealth health : healths.getIndices().values()) { 
-			String index = health.getIndex();	
+			String index = health.getIndex();
 			ret.add(index);
 			//int numberOfShards = health.getNumberOfShards();
 			//int numberOfReplicas = health.getNumberOfReplicas();
