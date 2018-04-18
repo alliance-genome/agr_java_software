@@ -93,8 +93,8 @@ public class SearchHelper {
             add("go_type"); add("go_genes"); add("go_synonyms");
             add("disease_genes"); add("disease_synonyms"); add("diseases.name"); add("orthology.gene2Symbol");
             //disease cross references:
-            add("crossReferences.name");
-            add("crossReferences.localId");
+            add("crossReferences.ontology_provided_cross_reference.name");
+            add("crossReferences.ontology_provided_cross_reference.localId");
             //gene cross references:
             add("crossReferences.generic_cross_reference.name");
             add("crossReferences.generic_cross_reference.localId");
