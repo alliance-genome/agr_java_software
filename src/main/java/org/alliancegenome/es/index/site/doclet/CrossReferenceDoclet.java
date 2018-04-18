@@ -9,12 +9,12 @@ import lombok.Setter;
 @Setter
 public class CrossReferenceDoclet extends Doclet {
 
-	private String crossRefCompleteUrl;
-	private String localId;
-	private String globalCrossRefId;
-	private String prefix;
-	private String name;
-	private String displayName;
-	private String type;
+    private String crossRefCompleteUrl;
+    private String localId;
+    private String globalCrossRefId;
+    private String prefix;
+    private String name;
+    private String displayName;
+    private String type;
 
 }
