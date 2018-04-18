@@ -11,6 +11,7 @@ public class CrossReferenceDocletTranslator extends EntityDocletTranslator<Cross
 		CrossReferenceDoclet crd = new CrossReferenceDoclet();
 		crd.setCrossRefCompleteUrl(entity.getCrossRefCompleteUrl());
 		crd.setName(entity.getName());
+		crd.setDisplayName(entity.getDisplayName());
 		crd.setGlobalCrossRefId(entity.getGlobalCrossRefId());
 		crd.setLocalId(entity.getLocalId());
 		crd.setPrefix(entity.getPrefix());
