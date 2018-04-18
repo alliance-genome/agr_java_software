@@ -153,6 +153,9 @@ public class IndexManager {
 		client.admin().indices().prepareRefresh(newIndexName).get();
 
 		takeSnapShot();
+		removeAlias(baseIndexName, baseIndexName);
+		createAlias(baseIndexName, tempIndexName);
+		removeAlias(tempIndexName, tempIndexName);
 		client.close();
 		log.debug(baseIndexName + " Finished: ");
 	}
@@ -194,8 +197,8 @@ public class IndexManager {
 
 		if(repo != null) {
 			List<String> indices = new ArrayList<>();
-			indices.add(baseIndexName);
-			log.info("Creating Snapshot: " + newIndexName + " for index: " + baseIndexName);
+			indices.add(newIndexName);
+			log.info("Creating Snapshot: " + newIndexName + " for index: " + newIndexName);
 			createSnapShot(ConfigHelper.getEsIndexSuffix(), newIndexName, indices);
 		}
 	}
