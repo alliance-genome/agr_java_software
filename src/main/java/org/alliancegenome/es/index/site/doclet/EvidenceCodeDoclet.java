@@ -9,6 +9,6 @@ import lombok.Setter;
 @Setter
 public class EvidenceCodeDoclet extends Doclet {
 
-	private String primaryKey;
+    private String primaryKey;
 
 }

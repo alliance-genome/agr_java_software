@@ -10,21 +10,21 @@ import org.elasticsearch.action.get.GetResponse;
 
 public class AlleleDAO extends ESDAO {
 
-	public Map<String, Object> getById(String id) {
+    public Map<String, Object> getById(String id) {
 
-		try {
-			GetRequest request = new GetRequest();
-			request.id(id);
-			request.type("allele");
-			request.index(ConfigHelper.getEsIndex());
-			GetResponse res = searchClient.get(request).get();
-			//log.info(res);
-			return res.getSource();
-		} catch (InterruptedException | ExecutionException e) {
-			e.printStackTrace();
-		}
+        try {
+            GetRequest request = new GetRequest();
+            request.id(id);
+            request.type("allele");
+            request.index(ConfigHelper.getEsIndex());
+            GetResponse res = searchClient.get(request).get();
+            //log.info(res);
+            return res.getSource();
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
 
-		return null;
+        return null;
 
-	}
+    }
 }

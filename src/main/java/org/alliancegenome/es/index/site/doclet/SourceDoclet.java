@@ -9,9 +9,9 @@ import lombok.Setter;
 @Setter
 public class SourceDoclet extends Doclet {
 
-	private SpeciesDoclet species;
-	private String url;
-	private String diseaseUrl;
-	private String name;
+    private SpeciesDoclet species;
+    private String url;
+    private String diseaseUrl;
+    private String name;
 
 }
