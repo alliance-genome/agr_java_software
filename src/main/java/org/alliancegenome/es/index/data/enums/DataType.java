@@ -8,13 +8,13 @@ import lombok.Getter;
 public enum DataType {
     // Default data type if index does not contain the data type then this will be used to inject a document
     BGI("Basic Gene Information", "json", true, true),
-    DOA("Disease Ontology Annotations", "json", true, true),
+    DAF("Disease Ontology Annotations File", "json", true, true),
     ORTHO("Orthology", "json", true, true),
     ALLELE("Allele Information", "json", true, true),
-    GENOTYPE("Genotype Information", "json", true, true),
+    GENOTYPE("Genotype Information File", "json", true, true),
 
     // No schema required for these but will still stick them in the correct schema directory
-    GOA("Gene Ontology Annotations", "gaf", true, false),
+    GAF("Gene Ontology Annotations File", "gaf", true, false),
     GFF("Gene Features File", "gff", true, false),
 
     // No verification yet for these either
