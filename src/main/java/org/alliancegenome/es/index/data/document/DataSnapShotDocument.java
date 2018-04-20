@@ -3,7 +3,7 @@ package org.alliancegenome.es.index.data.document;
 import java.util.Date;
 import java.util.HashMap;
 
-import org.alliancegenome.es.index.document.ESDocument;
+import org.alliancegenome.es.index.ESDocument;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

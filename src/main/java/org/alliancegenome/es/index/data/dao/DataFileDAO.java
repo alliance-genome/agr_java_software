@@ -5,7 +5,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
-import org.alliancegenome.es.index.dao.ESDocumentDAO;
+import org.alliancegenome.es.index.ESDocumentDAO;
 import org.alliancegenome.es.index.data.document.DataFileDocument;
 import org.apache.commons.collections4.keyvalue.MultiKey;
 import org.elasticsearch.index.query.MatchQueryBuilder;

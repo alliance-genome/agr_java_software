@@ -7,7 +7,7 @@ import java.util.HashMap;
 import org.alliancegenome.aws.S3Helper;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.exceptions.GenericException;
-import org.alliancegenome.es.index.dao.ESDocumentDAO;
+import org.alliancegenome.es.index.ESDocumentDAO;
 import org.alliancegenome.es.index.data.doclet.DataTypeDoclet;
 import org.alliancegenome.es.index.data.doclet.SnapShotDoclet;
 import org.alliancegenome.es.index.data.document.DataFileDocument;
@@ -84,6 +84,7 @@ public class MetaDataDAO extends ESDocumentDAO<MetaDataDocument> {
         if(metaData.getCurrentRelease().length() > 0) {
             return metaData.getReleaseSchemaMap().get(metaData.getCurrentRelease());
         } else {
+            log.warn("Current Release Version is not Set on metadata document");
             return null;
         }
     }
@@ -161,7 +162,9 @@ public class MetaDataDAO extends ESDocumentDAO<MetaDataDocument> {
         df.setDataType(dataType.getName());
         df.setPath(filePath);
         df.setSchemaVersion(schemaVersion);
-        df.setTaxonIDPart(species.getTaxonIDPart());
+        if(species != null) {
+            df.setTaxonIDPart(species.getTaxonIDPart());
+        }
         df.setUploadDate(new Date());
         dataFileDAO.createDocumnet(df);
     }

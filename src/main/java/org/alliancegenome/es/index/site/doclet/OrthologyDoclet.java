@@ -2,14 +2,14 @@ package org.alliancegenome.es.index.site.doclet;
 
 import java.util.List;
 
-import org.alliancegenome.es.index.doclet.Doclet;
+import org.alliancegenome.es.index.ESDoclet;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter @Setter @AllArgsConstructor
-public class OrthologyDoclet extends Doclet {
+public class OrthologyDoclet extends ESDoclet {
     
     private String primaryKey;
     private Boolean isBestScore;

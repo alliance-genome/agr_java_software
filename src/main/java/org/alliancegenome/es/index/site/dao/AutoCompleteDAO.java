@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.alliancegenome.core.config.ConfigHelper;
-import org.alliancegenome.es.index.dao.ESDAO;
+import org.alliancegenome.es.index.ESDAO;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.QueryBuilder;

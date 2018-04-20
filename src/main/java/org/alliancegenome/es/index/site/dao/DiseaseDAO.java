@@ -1,7 +1,7 @@
 package org.alliancegenome.es.index.site.dao;
 
 import org.alliancegenome.core.config.ConfigHelper;
-import org.alliancegenome.es.index.dao.ESDAO;
+import org.alliancegenome.es.index.ESDAO;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.es.model.query.SortBy;

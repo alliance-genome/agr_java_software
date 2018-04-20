@@ -1,4 +1,4 @@
-package org.alliancegenome.es.schema;
+package org.alliancegenome.es.index.site.schema;
 
 import java.io.IOException;
 

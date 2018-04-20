@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import org.alliancegenome.es.index.ESDocument;
 import org.alliancegenome.es.index.data.doclet.DataTypeDoclet;
-import org.alliancegenome.es.index.document.ESDocument;
 import org.alliancegenome.es.index.site.doclet.SpeciesDoclet;
 
 import lombok.Getter;

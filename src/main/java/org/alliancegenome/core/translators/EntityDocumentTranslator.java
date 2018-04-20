@@ -2,7 +2,7 @@ package org.alliancegenome.core.translators;
 
 import java.util.ArrayList;
 
-import org.alliancegenome.es.index.document.ESDocument;
+import org.alliancegenome.es.index.ESDocument;
 import org.alliancegenome.neo4j.entity.Neo4jEntity;
 
 public abstract class EntityDocumentTranslator<E extends Neo4jEntity, D extends ESDocument> {

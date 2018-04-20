@@ -1,4 +1,4 @@
-package org.alliancegenome.es.index.document;
+package org.alliancegenome.es.index;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 

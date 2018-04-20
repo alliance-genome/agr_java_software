@@ -7,9 +7,9 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.alliancegenome.core.config.ConfigHelper;
-import org.alliancegenome.es.schema.Mapping;
-import org.alliancegenome.es.schema.Mapping.MappingClass;
-import org.alliancegenome.es.schema.settings.SiteIndexSettings;
+import org.alliancegenome.es.index.site.schema.Mapping;
+import org.alliancegenome.es.index.site.schema.Mapping.MappingClass;
+import org.alliancegenome.es.index.site.schema.settings.SiteIndexSettings;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;

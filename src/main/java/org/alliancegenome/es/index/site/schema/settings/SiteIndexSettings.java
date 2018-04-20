@@ -1,8 +1,8 @@
-package org.alliancegenome.es.schema.settings;
-
-import org.alliancegenome.es.schema.Settings;
+package org.alliancegenome.es.index.site.schema.settings;
 
 import java.io.IOException;
+
+import org.alliancegenome.es.index.site.schema.Settings;
 
 public class SiteIndexSettings extends Settings {
 

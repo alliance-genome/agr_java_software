@@ -4,7 +4,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import org.alliancegenome.core.config.ConfigHelper;
-import org.alliancegenome.es.index.dao.ESDAO;
+import org.alliancegenome.es.index.ESDAO;
 import org.elasticsearch.action.get.GetRequest;
 import org.elasticsearch.action.get.GetResponse;
 

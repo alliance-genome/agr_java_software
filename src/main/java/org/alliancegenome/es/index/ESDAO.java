@@ -1,4 +1,4 @@
-package org.alliancegenome.es.index.dao;
+package org.alliancegenome.es.index;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;

@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.alliancegenome.core.config.ConfigHelper;
-import org.alliancegenome.es.index.dao.ESDAO;
+import org.alliancegenome.es.index.ESDAO;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.elasticsearch.action.admin.indices.analyze.AnalyzeRequest;

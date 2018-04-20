@@ -1,8 +1,8 @@
-package org.alliancegenome.es.schema.mapping;
+package org.alliancegenome.es.index.site.schema.mapping;
 
 import java.io.IOException;
 
-import org.alliancegenome.es.schema.Mapping;
+import org.alliancegenome.es.index.site.schema.Mapping;
 
 public class GeneMapping extends Mapping {
     

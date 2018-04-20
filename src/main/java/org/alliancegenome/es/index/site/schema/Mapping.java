@@ -1,8 +1,8 @@
-package org.alliancegenome.es.schema;
+package org.alliancegenome.es.index.site.schema;
 
 import java.io.IOException;
 
-import org.alliancegenome.es.schema.mapping.*;
+import org.alliancegenome.es.index.site.schema.mapping.*;
 
 public abstract class Mapping extends Builder {
     

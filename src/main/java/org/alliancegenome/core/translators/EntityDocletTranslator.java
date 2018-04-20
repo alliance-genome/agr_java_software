@@ -2,10 +2,10 @@ package org.alliancegenome.core.translators;
 
 import java.util.ArrayList;
 
-import org.alliancegenome.es.index.doclet.Doclet;
+import org.alliancegenome.es.index.ESDoclet;
 import org.alliancegenome.neo4j.entity.Neo4jEntity;
 
-public abstract class EntityDocletTranslator<E extends Neo4jEntity, D extends Doclet> {
+public abstract class EntityDocletTranslator<E extends Neo4jEntity, D extends ESDoclet> {
 
     public E translate(D doclet) {
         return translate(doclet, 1);

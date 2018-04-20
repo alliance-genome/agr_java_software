@@ -3,7 +3,7 @@ package org.alliancegenome.es.index.site.document;
 import java.util.List;
 import java.util.Set;
 
-import org.alliancegenome.es.index.document.ESDocument;
+import org.alliancegenome.es.index.ESDocument;
 import org.alliancegenome.es.index.site.doclet.PublicationDoclet;
 import org.alliancegenome.es.index.site.doclet.SourceDoclet;
 import org.alliancegenome.es.index.site.doclet.SpeciesDoclet;
