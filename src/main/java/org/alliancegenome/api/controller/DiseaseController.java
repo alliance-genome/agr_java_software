@@ -39,16 +39,6 @@ public class DiseaseController extends BaseController implements DiseaseRESTInte
         }
     }
 
-    @Override
-    public SearchResult getDiseaseAnnotationsSorted(String id,
-                                                    int limit,
-                                                    int page,
-                                                    String sortBy,
-                                                    String asc) {
-        Pagination pagination = new Pagination(page, limit, sortBy, asc);
-        return getSearchResult(id, pagination);
-    }
-
     private SearchResult getSearchResult(String id, Pagination pagination) {
         if (pagination.hasErrors()) {
             response.setStatus(HttpServletResponse.SC_NOT_ACCEPTABLE);
@@ -64,7 +54,7 @@ public class DiseaseController extends BaseController implements DiseaseRESTInte
     }
 
     @Override
-    public SearchResult getDiseaseAnnotationsSortedFiltered(String id,
+    public SearchResult getDiseaseAnnotationsSorted(String id,
                                                             int limit,
                                                             int page,
                                                             String sortBy,

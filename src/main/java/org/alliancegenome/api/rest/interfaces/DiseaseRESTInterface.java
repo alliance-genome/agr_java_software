@@ -30,15 +30,6 @@ public interface DiseaseRESTInterface {
             @DefaultValue("20") @QueryParam("limit") int limit,
             @DefaultValue("1") @QueryParam("page") int page,
             @QueryParam("sortBy") String sortBy,
-            @QueryParam("asc") String asc);
-
-    @GET
-    @Path("/{id}/associations/filtered")
-    public SearchResult getDiseaseAnnotationsSortedFiltered(
-            @PathParam("id") String id,
-            @DefaultValue("20") @QueryParam("limit") int limit,
-            @DefaultValue("1") @QueryParam("page") int page,
-            @QueryParam("sortBy") String sortBy,
             @QueryParam("geneName") String geneName,
             @QueryParam("species") String species,
             @QueryParam("geneticEntity") String geneticEntity,
