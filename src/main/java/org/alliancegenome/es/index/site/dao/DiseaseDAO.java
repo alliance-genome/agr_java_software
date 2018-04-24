@@ -1,7 +1,7 @@
 package org.alliancegenome.es.index.site.dao;
 
 import org.alliancegenome.core.config.ConfigHelper;
-import org.alliancegenome.es.index.dao.ESDAO;
+import org.alliancegenome.es.index.ESDAO;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.es.model.query.SortBy;
@@ -30,7 +30,6 @@ import java.util.stream.Collectors;
 public class DiseaseDAO extends ESDAO {
 
     private Log log = LogFactory.getLog(getClass());
-
 
     private static Map<SortBy, String> sortByMao = new LinkedHashMap<>();
 

@@ -1,4 +1,4 @@
-package org.alliancegenome.es.index.data.document;
+package org.alliancegenome.es.index.data;
 
 import java.util.HashMap;
 
@@ -14,8 +14,8 @@ import lombok.Setter;
 @JsonIgnoreProperties()
 public class SubmissionResponce {
 
-	@JsonInclude(value=Include.NON_NULL)
-	private HashMap<String, String> fileStatus = new HashMap<>();
-	private String status;
+    @JsonInclude(value=Include.NON_NULL)
+    private HashMap<String, String> fileStatus = new HashMap<>();
+    private String status;
 
 }

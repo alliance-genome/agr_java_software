@@ -1,12 +1,12 @@
-package org.alliancegenome.es.schema.mapping;
-
-import org.alliancegenome.es.schema.Mapping;
+package org.alliancegenome.es.index.site.schema.mapping;
 
 import java.io.IOException;
 
-public class DiseaseAnnotationMapping extends Mapping {
+import org.alliancegenome.es.index.site.schema.Mapping;
 
-    public DiseaseAnnotationMapping(Boolean pretty) {
+public class FeatureMapping extends Mapping {
+
+    public FeatureMapping(Boolean pretty) {
         super(pretty);
     }
 
@@ -14,16 +14,17 @@ public class DiseaseAnnotationMapping extends Mapping {
         try {
 
             builder.startObject();
+
             builder.startObject("properties");
 
             buildSharedSearchableDocumentMappings();
 
-            buildNestedDocument("featureDocument");
             buildNestedDocument("geneDocument");
+            buildNestedDocument("diseaseDocuments");
 
             builder.endObject();
-            builder.endObject();
 
+            builder.endObject();
 
         } catch (IOException e) {
             e.printStackTrace();
