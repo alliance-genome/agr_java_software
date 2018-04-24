@@ -82,6 +82,10 @@ public class DataIndexCommand extends Command implements CommandInterface {
                 } else {
                     log.error("Release Already associated with Schema use updatereleaseschema instead: " + releaseVersion + " " + schemaVersion);
                 }
+            } else if(command.equals("updatecurrentrelease")) {
+                String releaseVersion = args.remove(0);
+                metaData.setCurrentRelease(releaseVersion);
+                metaDataDAO.updateDocument(metaData);
             } else if(command.equals("updatereleaseschema")) {
                 String releaseVersion = args.remove(0);
                 String schemaVersion = args.remove(0);
