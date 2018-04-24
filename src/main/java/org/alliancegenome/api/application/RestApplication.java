@@ -1,4 +1,4 @@
-package org.alliancegenome.api.config;
+package org.alliancegenome.api.application;
 
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;

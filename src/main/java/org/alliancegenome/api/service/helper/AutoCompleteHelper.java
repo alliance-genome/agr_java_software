@@ -12,11 +12,10 @@ import org.elasticsearch.index.query.MultiMatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
-import org.jboss.logging.Logger;
 
 public class AutoCompleteHelper {
 
-    private Logger log = Logger.getLogger(getClass());
+    //private Logger log = Logger.getLogger(getClass());
     private SearchHelper searchHelper = new SearchHelper();
     
     public QueryBuilder buildQuery(String q, String category) {

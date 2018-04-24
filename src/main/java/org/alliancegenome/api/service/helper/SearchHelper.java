@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.enterprise.context.RequestScoped;
 import javax.ws.rs.core.UriInfo;
 
 import org.alliancegenome.es.model.search.AggDocCount;
