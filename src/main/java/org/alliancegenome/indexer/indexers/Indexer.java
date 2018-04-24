@@ -10,7 +10,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 
 import org.alliancegenome.core.config.ConfigHelper;
-import org.alliancegenome.es.index.document.ESDocument;
+import org.alliancegenome.es.index.ESDocument;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
