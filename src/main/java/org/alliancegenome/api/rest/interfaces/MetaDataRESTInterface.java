@@ -16,7 +16,10 @@ import org.alliancegenome.es.index.data.SubmissionResponce;
 import org.alliancegenome.es.index.data.doclet.SnapShotDoclet;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
 
+import io.swagger.annotations.Api;
+
 @Path("/data")
+@Api(value = "Meta Data Endpoints")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public interface MetaDataRESTInterface {

@@ -11,7 +11,10 @@ import javax.ws.rs.core.UriInfo;
 import org.alliancegenome.api.model.xml.SiteMapIndex;
 import org.alliancegenome.api.model.xml.XMLURLSet;
 
+import io.swagger.annotations.Api;
+
 @Path("/")
+@Api(value = "Site Map")
 @Produces(MediaType.APPLICATION_XML)
 public interface SiteMapRESTInterface {
 

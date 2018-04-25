@@ -9,7 +9,10 @@ import javax.ws.rs.core.MediaType;
 
 import org.alliancegenome.es.model.search.AutoCompleteResult;
 
+import io.swagger.annotations.Api;
+
 @Path("/search_autocomplete")
+@Api(value = "Search Auto Complete")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public interface AutoCompleteRESTInterface {
