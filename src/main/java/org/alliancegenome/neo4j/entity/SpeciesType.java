@@ -16,8 +16,8 @@ public enum SpeciesType {
     YEAST("Saccharomyces cerevisiae", "SGD","NCBITaxon:4932", "Sce", "SGD", "Saccharomyces Genome Database", "4932");
     
     private String name;
-    private String taxonID;
     private String displayName;
+    private String taxonID;
     private String abbreviation;
     private String modName;
     private String databaseName;
