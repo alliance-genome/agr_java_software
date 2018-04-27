@@ -33,11 +33,12 @@ public class TestGetGene {
         Pagination pagination = new Pagination(1, 20, "gene", "true");
         //pagination.addFieldFilter(FieldFilter.GENE_NAME, "p");
         //pagination.addFieldFilter(FieldFilter.DISEASE, "fat");
-        pagination.addFieldFilter(FieldFilter.ASSOCIATION_TYPE, "is_");
+        //pagination.addFieldFilter(FieldFilter.ASSOCIATION_TYPE, "is_");
         //pagination.addFieldFilter(FieldFilter.REFERENCE, "PMID");
         //pagination.addFieldFilter(FieldFilter.SPECIES, "Homo");
         //pagination.addFieldFilter(FieldFilter.SOURCE, "Mgi");
         //pagination.addFieldFilter(FieldFilter.EVIDENCE_CODE, "TA");
+        pagination.addFieldFilter(FieldFilter.GENETIC_ENTITY_TYPE, "allel");
         SearchResult response = service.getDiseaseAnnotations("DOID:655", pagination);
         System.out.println("Result size: " + response.results.size());
         if (response.results != null) {
