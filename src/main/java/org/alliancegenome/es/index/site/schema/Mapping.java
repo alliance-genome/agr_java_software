@@ -49,7 +49,7 @@ public abstract class Mapping extends Builder {
     protected void buildSharedSearchableDocumentMappings() throws IOException {
 
         buildProperty("primaryId", "keyword");
-        buildGenericField("category", "keyword", null, true, false, true, false, false);
+        buildGenericField("category", "keyword", null, true, true, true, false, false);
         buildGenericField("name", "text", null, true, true, true, false, false);
         buildGenericField("name_key", "text", "symbols", false, true, false, false, false);
         buildGenericField("synonyms", "text", "symbols", false, true, true, false, false);

@@ -164,7 +164,7 @@ public class DiseaseDAO extends ESDAO {
         diseaseFieldFilterMap.put(FieldFilter.SPECIES, Arrays.asList("geneDocument.species"));
         diseaseFieldFilterMap.put(FieldFilter.ASSOCIATION_TYPE, Arrays.asList("associationType"));
         diseaseFieldFilterMap.put(FieldFilter.GENETIC_ENTITY, Arrays.asList("featureDocument.symbol"));
-        diseaseFieldFilterMap.put(FieldFilter.GENETIC_ENTITY_TYPE, Arrays.asList("featureDocument.category"));
+        diseaseFieldFilterMap.put(FieldFilter.GENETIC_ENTITY_TYPE, Arrays.asList("featureDocument.category.autocomplete"));
         diseaseFieldFilterMap.put(FieldFilter.REFERENCE, Arrays.asList("publications.pubModId", "publications.pubMedId"));
         diseaseFieldFilterMap.put(FieldFilter.EVIDENCE_CODE, Arrays.asList("publications.evidenceCodes"));
         diseaseFieldFilterMap.put(FieldFilter.SOURCE, Arrays.asList("source.name"));
