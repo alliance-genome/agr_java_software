@@ -79,14 +79,20 @@ public class SearchHelper {
             put("symbol",5.0F);
             put("symbol.autocomplete",2.0F);
             put("name.autocomplete",0.1F);
+            put("synonyms.keyword",2.0F);
         }
     };
 
     public List<String> getSearchFields() { return searchFields; }
     private List<String> searchFields = new ArrayList<String>() {
         {
-            add("primaryId"); add("id"); add("secondaryIds"); add("name"); add("name.autocomplete");
-            add("symbol"); add("symbol.keyword"); add("symbol.autocomplete");  add("synonyms"); add("synonyms.keyword");
+            add("primaryId"); add("primaryKey"); add("id");
+            add("localId");
+            add("globalId");
+            add("secondaryIds");
+            add("name"); add("name.autocomplete");
+            add("symbol"); add("symbol.keyword"); add("symbol.autocomplete");
+            add("synonyms"); add("synonyms.keyword");
             add("description"); add("external_ids"); add("species"); add("species.synonyms"); add("modLocalId");
             add("gene_biological_process"); add("gene_molecular_function"); add("gene_cellular_component");
             add("go_type"); add("go_genes"); add("go_synonyms");
