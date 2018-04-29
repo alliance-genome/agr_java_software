@@ -19,10 +19,15 @@ public class DiseaseMapping extends Mapping {
 
             buildSharedSearchableDocumentMappings();
 
-            buildGenericField("disease_species.orderID", "long", null, false, false, true, false, false);
-            buildGenericField("diseaseID", "keyword", null, false, false, true, false, false);
-            buildGenericField("diseaseName", "text", null, false, false, true, false, false);
-            buildGenericField("parentDiseaseIDs", "keyword", null, false, false, true, false, false);
+            builder.startObject("disease_species");
+                builder.startObject("properties");
+                    new FieldBuilder(builder, "orderID", "long").keyword().build();
+                builder.endObject();
+            builder.endObject();
+
+            new FieldBuilder(builder, "diseaseID", "keyword").keyword().build(); //odd that a keyword field has a keyword subfield...necessary?
+            new FieldBuilder(builder, "diseaseName", "text").keyword().build();
+            new FieldBuilder(builder, "parentDiseaseIDs", "keyword").keyword().build(); //odd for the same reason
 
             builder.startObject("annotations");
             builder.startObject("properties");
