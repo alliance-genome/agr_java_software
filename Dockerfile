@@ -12,4 +12,8 @@ ARG ES_HOST=es.alliancegenome.org
 ENV ES_HOST ${ES_HOST}
 RUN mvn clean package
 
+ARG VERSION=1.0.0
+ENV VERSION ${VERSION}
+RUN mvn versions:set -DnewVersion=$VERSION
+
 CMD mvn deploy
