@@ -14,13 +14,13 @@ import lombok.Setter;
 @Setter
 public class Publication extends Neo4jEntity {
 
-	private String primaryKey;
-	private String pubMedId;
-	private String pubMedUrl;
-	private String pubModId;
-	private String pubModUrl;
+    private String primaryKey;
+    private String pubMedId;
+    private String pubMedUrl;
+    private String pubModId;
+    private String pubModUrl;
 
-	@Relationship(type = "ANNOTATED_TO")
-	private List<EvidenceCode> evidence;
+    @Relationship(type = "ANNOTATED_TO")
+    private List<EvidenceCode> evidence;
 
 }

@@ -10,5 +10,5 @@ import lombok.Setter;
 @NodeEntity
 public class Chromosome extends Neo4jEntity {
 
-	private String primaryKey;
+    private String primaryKey;
 }
