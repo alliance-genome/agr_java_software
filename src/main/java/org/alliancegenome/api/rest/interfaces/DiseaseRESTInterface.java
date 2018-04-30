@@ -14,7 +14,10 @@ import javax.ws.rs.core.Response;
 
 import org.alliancegenome.es.model.search.SearchResult;
 
+import io.swagger.annotations.Api;
+
 @Path("/disease")
+@Api(value = "Disease Search")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public interface DiseaseRESTInterface {

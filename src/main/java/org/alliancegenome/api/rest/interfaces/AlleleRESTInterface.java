@@ -18,7 +18,7 @@ public interface AlleleRESTInterface {
     @Path("/{id}")
     @ApiOperation(value = "Searches for an Allele", notes="Allele Notes")
     public Map<String, Object> getAllele(
-            @ApiParam(name = "id", value = "Search for an Allele ID")
+            @ApiParam(name = "id", value = "Search for an Allele by ID")
             @PathParam("id") String id
     );
     
