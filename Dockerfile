@@ -16,6 +16,6 @@ ENV VERSION ${VERSION}
 RUN mvn versions:set -DnewVersion=$VERSION
 
 RUN mvn clean package
-RUN mvn deploy
+RUN mvn deploy -DskipTests
 
 CMD java -jar target/agr_indexer-jar-with-dependencies.jar
