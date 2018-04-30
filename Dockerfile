@@ -15,9 +15,9 @@ ENV ES_HOST ${ES_HOST}
 
 ARG VERSION=1.0.0
 ENV VERSION ${VERSION}
-RUN mvn versions:set -DnewVersion=$VERSION
+RUN mvn -B versions:set -DnewVersion=$VERSION
 
-RUN mvn clean package
-RUN mvn deploy -DskipTests
+RUN mvn -B clean package
+RUN mvn -B deploy -DskipTests
 
 CMD java -jar target/agr_api-swarm.jar
