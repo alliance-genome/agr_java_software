@@ -13,8 +13,8 @@ ENV ES_HOST ${ES_HOST}
 
 ARG VERSION=1.0.0
 ENV VERSION ${VERSION}
-RUN mvn versions:set -DnewVersion=$VERSION
+RUN mvn -B versions:set -DnewVersion=$VERSION
 
-RUN mvn clean package
+RUN mvn -B clean package
 
-CMD mvn deploy
+CMD mvn -B deploy
