@@ -10,5 +10,5 @@ import lombok.Setter;
 @Getter
 @Setter
 public class EvidenceCode extends Neo4jEntity {
-	private String primaryKey;
+    private String primaryKey;
 }
