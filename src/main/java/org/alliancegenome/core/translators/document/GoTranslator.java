@@ -21,6 +21,7 @@ public class GoTranslator extends EntityDocumentTranslator<GOTerm, GoDocument> {
         doc.setPrimaryId(entity.getPrimaryKey());
         doc.setNameKey(entity.getNameKey());
         doc.setGo_type(entity.getType());
+        doc.setHref(entity.getHref());
         doc.setDescription(entity.getDescription());
 
         ArrayList<String> go_synonyms = new ArrayList<>();
