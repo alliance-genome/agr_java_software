@@ -3,6 +3,7 @@ package org.alliancegenome.es.index.site.schema;
 import java.io.IOException;
 
 import org.alliancegenome.es.index.site.schema.mapping.*;
+import org.elasticsearch.common.xcontent.XContentBuilder;
 
 public abstract class Mapping extends Builder {
     
@@ -12,53 +13,37 @@ public abstract class Mapping extends Builder {
 
     public abstract void buildMappings();
 
-    protected void buildGenericField(String name, String type, String analyzer, boolean symbol, boolean autocomplete, boolean keyword, boolean synonym, boolean sort) throws IOException {
-        builder.startObject(name);
-        if(type != null) builder.field("type", type);
-        if(analyzer != null) builder.field("analyzer", analyzer);
-        if(symbol || autocomplete || keyword || synonym || sort) {
-            builder.startObject("fields");
-            if(keyword) { buildProperty("keyword", "keyword"); }
-            if(symbol) buildGenericField("symbol", "text", "symbols", false, false, false, false, false);
-            if(autocomplete) buildProperty("autocomplete", "text", "autocomplete", "autocomplete_search", null);
-            if(synonym) buildProperty("synonyms", "text", "generic_synonym", "autocomplete_search", null);
-            if(sort) buildProperty("sort", "keyword", null, null, "lowercase");
-            builder.endObject();
-        }
-        builder.endObject();
-    }
-    
-    protected void buildProperty(String name, String type) throws IOException {
-        buildProperty(name, type, null, null, null);
-    }
-    
-    protected void buildProperty(String name, String type, String analyzer) throws IOException {
-        buildProperty(name, type, analyzer, null, null);
-    }
-    
-    protected void buildProperty(String name, String type, String analyzer, String search_analyzer, String normalizer) throws IOException {
-        builder.startObject(name);
-        if(type != null) builder.field("type", type);
-        if(analyzer != null) builder.field("analyzer", analyzer);
-        if(search_analyzer != null) builder.field("search_analyzer", search_analyzer);
-        if(normalizer!= null) builder.field("normalizer", normalizer);
-        builder.endObject();
-    }
-
     //Mappings that must be shared / equivalent across searchable documents
     protected void buildSharedSearchableDocumentMappings() throws IOException {
 
-        buildProperty("primaryId", "keyword");
-        buildGenericField("category", "keyword", null, true, true, true, false, false);
-        buildGenericField("name", "text", null, true, true, true, false, false);
-        buildGenericField("name_key", "text", "symbols", false, true, false, false, false);
-        buildGenericField("synonyms", "text", "symbols", false, true, true, false, false);
-        buildProperty("external_ids", "text", "symbols");
-        buildProperty("href", "text", "symbols");
-        buildProperty("id", "text", "symbols");
-        buildProperty("description", "text");
-        buildGenericField("symbol", "text", "symbols", false, false, true, false, true);
-        buildGenericField("species", "text", null, false, false, true, true, false);
+        new FieldBuilder(builder,"primaryId","keyword").build();
+        new FieldBuilder(builder,"primaryKey","keyword").build();
+        new FieldBuilder(builder,"category","keyword").symbol().autocomplete().keyword().build();
+        new FieldBuilder(builder,"name", "text")
+                .symbol()
+                .autocomplete()
+                .keyword()
+                .htmlSmoosh()
+                .standardBigrams()
+                .build();
+        new FieldBuilder(builder,"name_key","text").analyzer("symbols")
+                .autocomplete()
+                .keyword()
+                .htmlSmoosh()
+                .standardBigrams()
+                .build();
+        new FieldBuilder(builder, "synonyms","text").analyzer("symbols")
+                .autocomplete()
+                .keyword()
+                .htmlSmoosh()
+                .standardBigrams()
+                .build();
+        new FieldBuilder(builder, "external_ids","text").analyzer("symbols");
+        new FieldBuilder(builder, "href","keyword");
+        new FieldBuilder(builder, "id","keyword");
+        new FieldBuilder(builder, "description","text");
+        new FieldBuilder(builder, "symbol","text").analyzer("symbols").autocomplete().keyword().sort().build();
+        new FieldBuilder(builder, "species","text").keyword().synonym().build();
     }
 
     protected void buildNestedDocument(String name) throws IOException {
@@ -92,6 +77,103 @@ public abstract class Mapping extends Builder {
         public Class<?> getMappingClass() {
             return mappingClass;
         }
+
     }
-    
+
+    public static class FieldBuilder {
+        XContentBuilder builder;
+        String name;
+        String type;
+        String analyzer;
+        boolean autocomplete;
+        boolean htmlSmoosh;
+        boolean keyword;
+        boolean sort;
+        boolean standardBigrams;
+        boolean symbol;
+        boolean synonym;
+
+        public FieldBuilder(XContentBuilder builder, String name, String type) {
+            this.builder = builder;
+            this.name = name;
+            this.type = type;
+        }
+
+        public FieldBuilder analyzer(String analyzer) {
+            this.analyzer = analyzer;
+            return this;
+        }
+
+        public FieldBuilder autocomplete() {
+            this.autocomplete = true;
+            return this;
+        }
+
+        public FieldBuilder htmlSmoosh() {
+            this.htmlSmoosh = true;
+            return this;
+        }
+
+        public FieldBuilder keyword() {
+            this.keyword = true;
+            return this;
+        }
+
+        public FieldBuilder sort() {
+            this.sort = true;
+            return this;
+        }
+
+        public FieldBuilder standardBigrams() {
+            this.standardBigrams = true;
+            return this;
+        }
+
+        public FieldBuilder symbol() {
+            this.symbol = true;
+            return this;
+        }
+
+        public FieldBuilder synonym() {
+            this.synonym = true;
+            return this;
+        }
+
+        protected void buildProperty(String name, String type) throws IOException {
+            buildProperty(name, type, null, null, null);
+        }
+
+        protected void buildProperty(String name, String type, String analyzer) throws IOException {
+            buildProperty(name, type, analyzer, null, null);
+        }
+
+        protected void buildProperty(String name, String type, String analyzer, String search_analyzer, String normalizer) throws IOException {
+            builder.startObject(name);
+            if(type != null) builder.field("type", type);
+            if(analyzer != null) builder.field("analyzer", analyzer);
+            if(search_analyzer != null) builder.field("search_analyzer", search_analyzer);
+            if(normalizer!= null) builder.field("normalizer", normalizer);
+            builder.endObject();
+        }
+
+
+        public void build() throws IOException {
+            builder.startObject(name);
+            if(type != null) builder.field("type", type);
+            if(analyzer != null) builder.field("analyzer", analyzer);
+            if(symbol || autocomplete || keyword || synonym || sort) {
+                builder.startObject("fields");
+                if(keyword) { buildProperty("keyword", "keyword"); }
+                if(symbol) { buildProperty("symbol", "text", "symbols"); }
+                if(autocomplete) buildProperty("autocomplete", "text", "autocomplete", "autocomplete_search", null);
+                if(synonym) buildProperty("synonyms", "text", "generic_synonym", "autocomplete_search", null);
+                if(sort) buildProperty("sort", "keyword", null, null, "lowercase");
+                if(htmlSmoosh) buildProperty("htmlSmoosh", "text", "html_smoosh");
+                if(standardBigrams) buildProperty("standardBigrams", "text", "standard_bigrams");
+                builder.endObject();
+            }
+            builder.endObject();
+        }
+    }
+
 }
