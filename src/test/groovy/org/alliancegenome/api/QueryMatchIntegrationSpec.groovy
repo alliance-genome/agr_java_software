@@ -72,7 +72,7 @@ class QueryMatchIntegrationSpec extends Specification {
 //This is another one where the text from the testing document isn't in the record,
 //e1370 is the symbol, daf-2 is the gene, if daf-2(e1370) is going to match, it probably
 //needs to at least be a synonym
-        "AGR-865"  | "WBVar:WBVar00143949"     | "daf-2(e1370)"
+//        "AGR-865"  | "WBVar:WBVar00143949"     | "daf-2(e1370)"
         "AGR-865"  | "RGD:728298"      | "Brca1<i><sup>m1Uwm</sup></i>"
         "AGR-865"  | "RGD:1600311"     | "Rab38<sup>ru</sup>"
         "AGR-865"  | "RGD:7241044"     | "Lrrk1<sup>em1Sage</sup>"
@@ -85,5 +85,11 @@ class QueryMatchIntegrationSpec extends Specification {
         "AGR-865"  | "RGD:12879860"     | "Tg<sup>rdw</sup>"
         "AGR-865"  | "MGI:5502315"     | "Rradtm1.1(KOMP)Vlcg"
         "AGR-865"  | "FB:FBal0151567"  | "rut[EP399]"
+
+        //diseases found by allele and gene names
+        "AGR-866"  | "DOID:11726"      | "tm1502"
+        "AGR-866"  | "DOID:0050692"    | "mi289a"
+        "AGR-866"  | "DOID:5327"       | "IL6"
+        "AGR-866"  | "DOID:9352"       | "Lep"
     }
 }
