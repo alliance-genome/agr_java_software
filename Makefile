@@ -1,5 +1,5 @@
 all: 
-	mvn clean package
+	mvn -B clean package
 
 run:
 	java -jar -Xmn6g -Xms6g target/agr_indexer-jar-with-dependencies.jar
