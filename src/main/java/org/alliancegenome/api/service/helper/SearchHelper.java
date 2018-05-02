@@ -120,11 +120,14 @@ public class SearchHelper {
             //gene cross references:
             add("crossReferences.generic_cross_reference.name");
             add("crossReferences.generic_cross_reference.localId");
-            add("geneDocument.name"); add("geneDocument.name_key");
+            add("geneDocument.name");
+            add("geneDocument.name_key");
             add("diseaseDocuments.name");
             add("alleles.symbol");
-            add("featureDocument.symbol");
-            add("featureDocument.name");
+            add("annotations.featureDocument.symbol");
+            add("annotations.featureDocument.name");
+            add("annotations.geneDocument.symbol");
+            add("annotations.geneDocument.name");
         }
     };
 
