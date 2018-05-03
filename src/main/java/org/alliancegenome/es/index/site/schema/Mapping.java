@@ -43,7 +43,7 @@ public abstract class Mapping extends Builder {
         new FieldBuilder(builder, "id","keyword");
         new FieldBuilder(builder, "description","text");
         new FieldBuilder(builder, "symbol","text").analyzer("symbols").autocomplete().keyword().sort().build();
-        new FieldBuilder(builder, "species","text").keyword().synonym().build();
+        new FieldBuilder(builder, "species","text").keyword().synonym().sort().build();
     }
 
     protected void buildNestedDocument(String name) throws IOException {

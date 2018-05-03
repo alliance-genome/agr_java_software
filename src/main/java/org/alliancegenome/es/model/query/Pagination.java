@@ -11,7 +11,7 @@ public class Pagination {
 
     int page;
     int limit;
-    SortBy sortBy;
+    String sortBy;
     Boolean asc;
     Map<FieldFilter, String> fieldFilterValueMap = new HashMap<>(10);
     List<String> errorList = new ArrayList<>();
@@ -19,20 +19,15 @@ public class Pagination {
     public Pagination(int page, int limit, String sortBy, String asc) {
         this.page = page;
         this.limit = limit;
-        init(sortBy, asc);
+        this.sortBy = sortBy;
+        init(asc);
     }
 
-    private void init(String sortBy, String asc) {
+    private void init(String asc) {
         if (page < 1)
             errorList.add("Invalid 'page' value. Needs to be greater or equal than 1");
         if (limit < 1)
             errorList.add("Invalid 'limit' value. Needs to be greater or equal than 1");
-        this.sortBy = SortBy.getSortBy(sortBy);
-        if (this.sortBy == null) {
-            String message = "Invalid 'sortBy' value. Needs to have the following values: [";
-            message = message + SortBy.getAllValues() + "]";
-            errorList.add(message);
-        }
 
         if (asc == null) {
             this.asc = true;
