@@ -2,7 +2,7 @@
 <Configuration>
 	<Properties>
 		<!-- Log levels can be changed via Env `export DEFAULT_LOG_LEVEL=DEBUG` -->
-		<Property name="DEFAULT_LOG_LEVEL">DEBUG</Property>
+		<Property name="DEFAULT_LOG_LEVEL">WARN</Property>
 		<Property name="ES_LOG_LEVEL">WARN</Property>
 		<Property name="NETTY_LOG_LEVEL">WARN</Property>
 		<Property name="BOLT_LOG_LEVEL">WARN</Property>
