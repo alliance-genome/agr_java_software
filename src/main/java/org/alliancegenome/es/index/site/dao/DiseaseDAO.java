@@ -7,6 +7,7 @@ import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.es.model.query.SortBy;
 import org.alliancegenome.es.model.search.SearchResult;
 import org.alliancegenome.es.util.SearchHitIterator;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.elasticsearch.action.get.GetRequest;
@@ -30,14 +31,6 @@ import java.util.stream.Collectors;
 public class DiseaseDAO extends ESDAO {
 
     private Log log = LogFactory.getLog(getClass());
-
-    private static Map<SortBy, String> sortByMao = new LinkedHashMap<>();
-
-    {
-        sortByMao.put(SortBy.DISEASE, "diseaseName.keyword");
-        sortByMao.put(SortBy.SPECIES, "disease_species.orderID");
-        sortByMao.put(SortBy.GENE, "geneDocument.symbol.sort");
-    }
 
     public SearchResult getDiseaseAnnotations(String diseaseID, Pagination pagination) {
 
@@ -88,22 +81,17 @@ public class DiseaseDAO extends ESDAO {
         query.must(fieldFilterQuery);
 
         // sort exact matches on the diseaseID at the top then all the child terms.
-        SortBy sortBy = pagination.getSortBy();
-        if (sortBy.equals(SortBy.DEFAULT)) {
+        String sortBy = pagination.getSortBy();
+        if (StringUtils.isEmpty(sortBy)) {
             Script script = new Script("doc['diseaseID.keyword'].value == '" + diseaseID + "' ? 0 : 100");
             searchRequestBuilder.addSort(SortBuilders.scriptSort(script, ScriptSortBuilder.ScriptSortType.NUMBER));
-            sortByMao.forEach((sortByColumn, columnName) -> {
-                searchRequestBuilder.addSort(SortBuilders.fieldSort(columnName).order(getAscending(true)));
-            });
+            searchRequestBuilder.addSort(SortBuilders.fieldSort(diseaseFieldFilterSortingMap.get(FieldFilter.SPECIES)).order(getAscending(true)));
         } else {
-            // first ordering column
-            searchRequestBuilder.addSort(SortBuilders.fieldSort(sortByMao.get(sortBy)).order(getAscending(pagination.getAsc())));
-            Map<SortBy, String> newMap = sortByMao.entrySet().stream()
-                    .filter(entry -> !entry.getKey().equals(sortBy))
-                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-            newMap.forEach((sortColumn, s) ->
-                    searchRequestBuilder.addSort(SortBuilders.fieldSort(sortByMao.get(sortColumn)).order(getAscending(pagination.getAsc())))
-            );
+            diseaseFieldFilterSortingMap.entrySet().stream()
+                    .filter(entry -> entry.getKey().getName().equals(sortBy))
+                    .forEach(entrySet ->
+                            searchRequestBuilder.addSort(SortBuilders.fieldSort(entrySet.getValue()).order(getAscending(pagination.getAsc())))
+                    );
         }
 
         searchRequestBuilder.setQuery(query);
@@ -156,18 +144,26 @@ public class DiseaseDAO extends ESDAO {
 
     }
 
+    private static Map<FieldFilter, String> diseaseFieldFilterSortingMap = new HashMap<>(10);
+
+    static {
+        diseaseFieldFilterSortingMap.put(FieldFilter.GENE_NAME, "geneDocument.symbol.sort");
+        diseaseFieldFilterSortingMap.put(FieldFilter.DISEASE, "diseaseName.keyword");
+        diseaseFieldFilterSortingMap.put(FieldFilter.SPECIES, "geneDocument.species.sort");
+    }
+
     private static Map<FieldFilter, List<String>> diseaseFieldFilterMap = new HashMap<>(10);
 
     static {
-        diseaseFieldFilterMap.put(FieldFilter.GENE_NAME, Arrays.asList("geneDocument.symbol"));
-        diseaseFieldFilterMap.put(FieldFilter.DISEASE, Arrays.asList("diseaseName"));
-        diseaseFieldFilterMap.put(FieldFilter.SPECIES, Arrays.asList("geneDocument.species"));
-        diseaseFieldFilterMap.put(FieldFilter.ASSOCIATION_TYPE, Arrays.asList("associationType"));
-        diseaseFieldFilterMap.put(FieldFilter.GENETIC_ENTITY, Arrays.asList("featureDocument.symbol"));
-        diseaseFieldFilterMap.put(FieldFilter.GENETIC_ENTITY_TYPE, Arrays.asList("featureDocument.category.autocomplete"));
+        diseaseFieldFilterMap.put(FieldFilter.GENE_NAME, Collections.singletonList("geneDocument.symbol"));
+        diseaseFieldFilterMap.put(FieldFilter.DISEASE, Collections.singletonList("diseaseName"));
+        diseaseFieldFilterMap.put(FieldFilter.SPECIES, Collections.singletonList("geneDocument.species"));
+        diseaseFieldFilterMap.put(FieldFilter.ASSOCIATION_TYPE, Collections.singletonList("associationType"));
+        diseaseFieldFilterMap.put(FieldFilter.GENETIC_ENTITY, Collections.singletonList("featureDocument.symbol"));
+        diseaseFieldFilterMap.put(FieldFilter.GENETIC_ENTITY_TYPE, Collections.singletonList("featureDocument.category.autocomplete"));
         diseaseFieldFilterMap.put(FieldFilter.REFERENCE, Arrays.asList("publications.pubModId", "publications.pubMedId"));
-        diseaseFieldFilterMap.put(FieldFilter.EVIDENCE_CODE, Arrays.asList("publications.evidenceCodes"));
-        diseaseFieldFilterMap.put(FieldFilter.SOURCE, Arrays.asList("source.name"));
+        diseaseFieldFilterMap.put(FieldFilter.EVIDENCE_CODE, Collections.singletonList("publications.evidenceCodes"));
+        diseaseFieldFilterMap.put(FieldFilter.SOURCE, Collections.singletonList("source.name"));
     }
 
 }
