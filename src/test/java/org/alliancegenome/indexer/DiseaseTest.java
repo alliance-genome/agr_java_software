@@ -1,17 +1,28 @@
 package org.alliancegenome.indexer;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.alliancegenome.indexer.config.ConfigHelper;
-import org.alliancegenome.indexer.document.DiseaseAnnotationDocument;
-import org.alliancegenome.indexer.document.DiseaseDocument;
-import org.alliancegenome.indexer.document.FeatureDocument;
-import org.alliancegenome.indexer.entity.node.*;
-import org.alliancegenome.indexer.repository.DiseaseRepository;
-import org.alliancegenome.indexer.repository.FeatureRepository;
-import org.alliancegenome.indexer.repository.GeneRepository;
-import org.alliancegenome.indexer.repository.Neo4jRepository;
-import org.alliancegenome.indexer.translators.DiseaseTranslator;
-import org.alliancegenome.indexer.translators.FeatureTranslator;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.alliancegenome.core.config.ConfigHelper;
+import org.alliancegenome.core.translators.document.DiseaseTranslator;
+import org.alliancegenome.core.translators.document.FeatureTranslator;
+import org.alliancegenome.es.index.site.document.DiseaseAnnotationDocument;
+import org.alliancegenome.es.index.site.document.DiseaseDocument;
+import org.alliancegenome.es.index.site.document.FeatureDocument;
+import org.alliancegenome.neo4j.entity.node.DOTerm;
+import org.alliancegenome.neo4j.entity.node.DiseaseEntityJoin;
+import org.alliancegenome.neo4j.entity.node.Feature;
+import org.alliancegenome.neo4j.entity.node.Gene;
+import org.alliancegenome.neo4j.entity.node.Publication;
+import org.alliancegenome.neo4j.repository.DiseaseRepository;
+import org.alliancegenome.neo4j.repository.FeatureRepository;
+import org.alliancegenome.neo4j.repository.GeneRepository;
+import org.alliancegenome.neo4j.repository.Neo4jRepository;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -20,8 +31,7 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsEqual.equalTo;
@@ -57,7 +67,6 @@ public class DiseaseTest {
         //Configurator.setLevel("org.neo4j",Level.DEBUG);
         Logger log = LogManager.getLogger(DiseaseTest.class);
         log.info("Hallo");
-        ConfigHelper.init();
 
         DiseaseRepository diseaseRepository = new DiseaseRepository();
         FeatureRepository featureRepository = new FeatureRepository();

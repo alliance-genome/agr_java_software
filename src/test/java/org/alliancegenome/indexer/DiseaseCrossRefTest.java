@@ -1,11 +1,11 @@
 package org.alliancegenome.indexer;
 
-import org.alliancegenome.indexer.config.ConfigHelper;
-import org.alliancegenome.indexer.document.DiseaseDocument;
-import org.alliancegenome.indexer.entity.node.DOTerm;
-import org.alliancegenome.indexer.repository.DiseaseRepository;
-import org.alliancegenome.indexer.repository.Neo4jRepository;
-import org.alliancegenome.indexer.translators.DiseaseTranslator;
+import org.alliancegenome.core.config.ConfigHelper;
+import org.alliancegenome.core.translators.document.DiseaseTranslator;
+import org.alliancegenome.es.index.site.document.DiseaseDocument;
+import org.alliancegenome.neo4j.entity.node.DOTerm;
+import org.alliancegenome.neo4j.repository.DiseaseRepository;
+import org.alliancegenome.neo4j.repository.Neo4jRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

@@ -1,25 +1,25 @@
 package org.alliancegenome.indexer.indexers;
 
 
-import org.alliancegenome.indexer.config.IndexerConfig;
-import org.alliancegenome.indexer.document.DiseaseAnnotationDocument;
-import org.alliancegenome.indexer.entity.node.DOTerm;
-import org.alliancegenome.indexer.repository.DiseaseRepository;
-import org.alliancegenome.indexer.translators.DiseaseTranslator;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.LinkedBlockingDeque;
 
+import org.alliancegenome.core.translators.document.DiseaseTranslator;
+import org.alliancegenome.es.index.site.document.DiseaseAnnotationDocument;
+import org.alliancegenome.indexer.config.IndexerConfig;
+import org.alliancegenome.neo4j.entity.node.DOTerm;
+import org.alliancegenome.neo4j.repository.DiseaseRepository;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 public class DiseaseAnnotationIndexer extends Indexer<DiseaseAnnotationDocument> {
 
     private final Logger log = LogManager.getLogger(getClass());
 
-    public DiseaseAnnotationIndexer(String currentIndex, IndexerConfig config) {
-        super(currentIndex, config);
+    public DiseaseAnnotationIndexer(IndexerConfig config) {
+        super(config);
     }
 
     @Override
@@ -32,9 +32,8 @@ public class DiseaseAnnotationIndexer extends Indexer<DiseaseAnnotationDocument>
             diseaseRepository.clearCache();
             initiateThreading(queue);
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            log.error("Error while indexing...", e);
         }
-
     }
 
     protected void startSingleThread(LinkedBlockingDeque<String> queue) {
@@ -48,13 +47,13 @@ public class DiseaseAnnotationIndexer extends Indexer<DiseaseAnnotationDocument>
                     saveDocuments(diseaseTrans.translateAnnotationEntities(list, 1));
                     repo.clearCache();
                     list.clear();
-                    list = new ArrayList<>();
                 }
                 if (queue.isEmpty()) {
                     if (list.size() > 0) {
                         saveDocuments(diseaseTrans.translateAnnotationEntities(list, 1));
-                        list.clear();
                         repo.clearCache();
+                        list.clear();
+                        
                     }
                     return;
                 }

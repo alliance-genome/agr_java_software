@@ -1,10 +1,10 @@
 package org.alliancegenome.indexer.indexers;
 
+import org.alliancegenome.core.translators.document.GeneTranslator;
+import org.alliancegenome.es.index.site.document.GeneDocument;
 import org.alliancegenome.indexer.config.IndexerConfig;
-import org.alliancegenome.indexer.document.GeneDocument;
-import org.alliancegenome.indexer.entity.node.Gene;
-import org.alliancegenome.indexer.repository.GeneRepository;
-import org.alliancegenome.indexer.translators.GeneTranslator;
+import org.alliancegenome.neo4j.entity.node.Gene;
+import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -16,12 +16,13 @@ public class GeneIndexer extends Indexer<GeneDocument> {
 
     private final Logger log = LogManager.getLogger(getClass());
 
-    public GeneIndexer(String currentIndex, IndexerConfig config) {
-        super(currentIndex, config);
+    public GeneIndexer(IndexerConfig config) {
+        super(config);
     }
 
     @Override
     public void index() {
+
         try {
             LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>();
             GeneRepository geneRepo = new GeneRepository();
@@ -30,9 +31,8 @@ public class GeneIndexer extends Indexer<GeneDocument> {
             geneRepo.clearCache();
             initiateThreading(queue);
         } catch (InterruptedException e) {
-            log.error("Error while indexing...", e);
+            e.printStackTrace();
         }
-
     }
 
     protected void startSingleThread(LinkedBlockingDeque<String> queue) {
@@ -43,9 +43,8 @@ public class GeneIndexer extends Indexer<GeneDocument> {
             try {
                 if (list.size() >= indexerConfig.getBufferSize()) {
                     saveDocuments(geneTrans.translateEntities(list));
-                    list.clear();
                     repo.clearCache();
-                    list = new ArrayList<>();
+                    list.clear();
                 }
                 if (queue.isEmpty()) {
                     if (list.size() > 0) {

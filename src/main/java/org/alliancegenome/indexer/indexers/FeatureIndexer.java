@@ -1,10 +1,10 @@
 package org.alliancegenome.indexer.indexers;
 
+import org.alliancegenome.core.translators.document.FeatureTranslator;
+import org.alliancegenome.es.index.site.document.FeatureDocument;
 import org.alliancegenome.indexer.config.IndexerConfig;
-import org.alliancegenome.indexer.document.FeatureDocument;
-import org.alliancegenome.indexer.entity.node.Feature;
-import org.alliancegenome.indexer.repository.FeatureRepository;
-import org.alliancegenome.indexer.translators.FeatureTranslator;
+import org.alliancegenome.neo4j.entity.node.Feature;
+import org.alliancegenome.neo4j.repository.FeatureRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -17,8 +17,8 @@ public class FeatureIndexer extends Indexer<FeatureDocument> {
     private final Logger log = LogManager.getLogger(getClass());
     private final FeatureRepository featureRepository = new FeatureRepository();
 
-    public FeatureIndexer(String currentIndex, IndexerConfig config) {
-        super(currentIndex, config);
+    public FeatureIndexer(IndexerConfig config) {
+        super(config);
     }
 
     @Override
@@ -43,9 +43,8 @@ public class FeatureIndexer extends Indexer<FeatureDocument> {
             try {
                 if (list.size() >= indexerConfig.getBufferSize()) {
                     saveDocuments(geneTrans.translateEntities(list));
-                    list.clear();
                     repo.clearCache();
-                    list = new ArrayList<>();
+                    list.clear();
                 }
                 if (queue.isEmpty()) {
                     if (list.size() > 0) {

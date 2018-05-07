@@ -1,10 +1,10 @@
 package org.alliancegenome.indexer.indexers;
 
+import org.alliancegenome.core.translators.document.GoTranslator;
+import org.alliancegenome.es.index.site.document.GoDocument;
 import org.alliancegenome.indexer.config.IndexerConfig;
-import org.alliancegenome.indexer.document.GoDocument;
-import org.alliancegenome.indexer.entity.node.GOTerm;
-import org.alliancegenome.indexer.repository.GoRepository;
-import org.alliancegenome.indexer.translators.GoTranslator;
+import org.alliancegenome.neo4j.entity.node.GOTerm;
+import org.alliancegenome.neo4j.repository.GoRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -20,20 +20,21 @@ public class GoIndexer extends Indexer<GoDocument> {
     private final GoTranslator goTrans = new GoTranslator();
 
 
-    public GoIndexer(String currnetIndex, IndexerConfig config) {
-        super(currnetIndex, config);
+    public GoIndexer(IndexerConfig config) {
+        super(config);
     }
 
     @Override
     public void index() {
+
+        LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>();
+        List<String> fulllist = goRepo.getAllGoKeys();
+        queue.addAll(fulllist);
+        goRepo.clearCache();
         try {
-            LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>();
-            List<String> fulllist = goRepo.getAllGoKeys();
-            queue.addAll(fulllist);
-            goRepo.clearCache();
             initiateThreading(queue);
         } catch (InterruptedException e) {
-            log.error("Error while indexing...", e);
+            e.printStackTrace();
         }
     }
 
@@ -46,7 +47,6 @@ public class GoIndexer extends Indexer<GoDocument> {
                     saveDocuments(goTrans.translateEntities(list));
                     repo.clearCache();
                     list.clear();
-                    list = new ArrayList<>();
                 }
                 if (queue.isEmpty()) {
                     if (list.size() > 0) {
