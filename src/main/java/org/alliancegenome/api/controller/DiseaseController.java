@@ -1,25 +1,26 @@
 package org.alliancegenome.api.controller;
 
-import java.util.Map;
+import org.alliancegenome.api.rest.interfaces.DiseaseRESTInterface;
+import org.alliancegenome.api.service.DiseaseService;
+import org.alliancegenome.core.translators.tdf.DiseaseAnnotationToTdfTranslator;
+import org.alliancegenome.es.model.query.FieldFilter;
+import org.alliancegenome.es.model.query.Pagination;
+import org.alliancegenome.es.model.search.SearchResult;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.NotFoundException;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
-import org.alliancegenome.api.model.SearchResult;
-import org.alliancegenome.api.rest.interfaces.DiseaseRESTInterface;
-import org.alliancegenome.api.service.DiseaseService;
-import org.alliancegenome.api.service.helper.Pagination;
-import org.alliancegenome.api.translator.DiseaseAnnotationToTdfTranslator;
-import org.jboss.logging.Logger;
+import java.util.Map;
 
 @RequestScoped
-public class DiseaseController implements DiseaseRESTInterface {
+public class DiseaseController extends BaseController implements DiseaseRESTInterface {
 
-    private final Logger log = Logger.getLogger(getClass());
+    //private final Logger log = Logger.getLogger(getClass());
     @Context  //injected response proxy supporting multiple threads
     private HttpServletResponse response;
 
@@ -30,12 +31,15 @@ public class DiseaseController implements DiseaseRESTInterface {
 
     @Override
     public Map<String, Object> getDisease(String id) {
-        return diseaseService.getById(id);
+        Map<String, Object> ret = diseaseService.getById(id);
+        if (ret == null) {
+            throw new NotFoundException();
+        } else {
+            return ret;
+        }
     }
 
-    @Override
-    public SearchResult getDiseaseAnnotationsSorted(String id, int limit, int page, String sortBy, String asc) {
-        Pagination pagination = new Pagination(page, limit, sortBy, asc);
+    private SearchResult getSearchResult(String id, Pagination pagination) {
         if (pagination.hasErrors()) {
             response.setStatus(HttpServletResponse.SC_NOT_ACCEPTABLE);
             try {
@@ -50,11 +54,39 @@ public class DiseaseController implements DiseaseRESTInterface {
     }
 
     @Override
+    public SearchResult getDiseaseAnnotationsSorted(String id,
+                                                            int limit,
+                                                            int page,
+                                                            String sortBy,
+                                                            String geneName,
+                                                            String species,
+                                                            String geneticEntity,
+                                                            String geneticEntityType,
+                                                            String disease,
+                                                            String source,
+                                                            String reference,
+                                                            String evidenceCode,
+                                                            String associationType,
+                                                            String asc) {
+        Pagination pagination = new Pagination(page, limit, sortBy, asc);
+        pagination.addFieldFilter(FieldFilter.GENE_NAME, geneName);
+        pagination.addFieldFilter(FieldFilter.SPECIES, species);
+        pagination.addFieldFilter(FieldFilter.GENETIC_ENTITY, geneticEntity);
+        pagination.addFieldFilter(FieldFilter.GENETIC_ENTITY_TYPE, geneticEntityType);
+        pagination.addFieldFilter(FieldFilter.DISEASE, disease);
+        pagination.addFieldFilter(FieldFilter.SOURCE, source);
+        pagination.addFieldFilter(FieldFilter.REFERENCE, reference);
+        pagination.addFieldFilter(FieldFilter.EVIDENCE_CODE, evidenceCode);
+        pagination.addFieldFilter(FieldFilter.ASSOCIATION_TYPE, associationType);
+        return getSearchResult(id, pagination);
+    }
+
+    @Override
     public Response getDiseaseAnnotationsDownloadFile(String id) {
 
         Response.ResponseBuilder response = Response.ok(getDiseaseAnnotationsDownload(id));
         response.type(MediaType.TEXT_PLAIN_TYPE);
-        response.header("Content-Disposition", "attachment; filename=\"disease-annotations-" + id.replace(":", "-") + ".txt\"");
+        response.header("Content-Disposition", "attachment; filename=\"disease-annotations-" + id.replace(":", "-") + ".tsv\"");
         return response.build();
     }
 

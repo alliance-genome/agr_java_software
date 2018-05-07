@@ -1,7 +1,22 @@
 package org.alliancegenome.api.service.helper;
 
-import org.alliancegenome.api.model.AggDocCount;
-import org.alliancegenome.api.model.AggResult;
+import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
+import static org.elasticsearch.index.query.QueryBuilders.termQuery;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.ws.rs.core.UriInfo;
+
+import org.alliancegenome.es.model.search.AggDocCount;
+import org.alliancegenome.es.model.search.AggResult;
+import org.alliancegenome.es.model.search.Category;
+import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.text.Text;
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -14,19 +29,13 @@ import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilde
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.jboss.logging.Logger;
 
-import javax.enterprise.context.RequestScoped;
-import javax.ws.rs.core.UriInfo;
-import java.util.*;
-
-@RequestScoped
-@SuppressWarnings("serial")
 public class SearchHelper {
-
 
     private Logger log = Logger.getLogger(getClass());
 
     private static String[] SUFFIX_LIST = { ".keyword", ".synonyms", ".symbols", ".text" };
 
+    
     private HashMap<String, List<String>> category_filters = new HashMap<String, List<String>>() {
         {
             put("gene", new ArrayList<String>() {
@@ -70,24 +79,55 @@ public class SearchHelper {
             put("symbol",5.0F);
             put("symbol.autocomplete",2.0F);
             put("name.autocomplete",0.1F);
+            put("synonyms.keyword",2.0F);
         }
     };
 
     public List<String> getSearchFields() { return searchFields; }
     private List<String> searchFields = new ArrayList<String>() {
         {
-            add("primaryId"); add("id"); add("secondaryIds"); add("name"); add("name.autocomplete");
-            add("symbol"); add("symbol.keyword"); add("symbol.autocomplete");  add("synonyms"); add("synonyms.keyword");
-            add("description"); add("external_ids"); add("species"); add("species.synonyms"); add("modLocalId");
+            add("primaryId");
+            add("primaryKey");
+            add("id");
+            add("localId");
+            add("globalId");
+            add("secondaryIds");
+            add("name_key");
+            add("name_key.autocomplete");
+            add("name_key.htmlSmoosh");
+            add("name_key.keyword");
+            add("name_key.standardBigrams");
+            add("name");
+            add("name.autocomplete");
+            add("name.htmlSmoosh");
+            add("name.keyword");
+            add("name.standardBigrams");
+            add("symbol");
+            add("symbol.autocomplete");
+            add("symbol.keyword");
+            add("synonyms");
+            add("synonyms.keyword");
+            add("synonyms.htmlSmoosh");
+            add("synonyms.standardBigrams");
+            add("description"); add("external_ids");
+            add("species"); add("species.synonyms"); add("modLocalId");
             add("gene_biological_process"); add("gene_molecular_function"); add("gene_cellular_component");
             add("go_type"); add("go_genes"); add("go_synonyms");
             add("disease_genes"); add("disease_synonyms"); add("diseases.name"); add("orthology.gene2Symbol");
-            add("crossReferences.name"); add("crossReferences.localId");
-            add("geneDocument.name"); add("geneDocument.name_key");
+            //disease cross references:
+            add("crossReferences.ontology_provided_cross_reference.name");
+            add("crossReferences.ontology_provided_cross_reference.localId");
+            //gene cross references:
+            add("crossReferences.generic_cross_reference.name");
+            add("crossReferences.generic_cross_reference.localId");
+            add("geneDocument.name");
+            add("geneDocument.name_key");
             add("diseaseDocuments.name");
             add("alleles.symbol");
-            add("featureDocument.symbol");
-            add("featureDocument.name");
+            add("annotations.featureDocument.symbol");
+            add("annotations.featureDocument.name");
+            add("annotations.geneDocument.symbol");
+            add("annotations.geneDocument.name");
         }
     };
 
@@ -177,7 +217,7 @@ public class SearchHelper {
     public ArrayList<Map<String, Object>> formatResults(SearchResponse res, List<String> searchedTerms) {
         log.debug("Formatting Results: ");
         ArrayList<Map<String, Object>> ret = new ArrayList<>();
-        
+
         for(SearchHit hit: res.getHits()) {
             Map<String, Object> map = new HashMap<>();
             for(String key: hit.getHighlightFields().keySet()) {
@@ -201,16 +241,16 @@ public class SearchHelper {
 
                 map.put(name, list);
             }
-            hit.getSource().put("highlights", map);
-            hit.getSource().put("id", hit.getId());
-            hit.getSource().put("score", hit.getScore());
+            hit.getSourceAsMap().put("highlights", map);
+            hit.getSourceAsMap().put("id", hit.getId());
+            hit.getSourceAsMap().put("score", hit.getScore());
             if (hit.getExplanation() != null) {
-                hit.getSource().put("explanation", hit.getExplanation());
+                hit.getSourceAsMap().put("explanation", hit.getExplanation());
             }
 
-            hit.getSource().put("missingTerms", findMissingTerms(Arrays.asList(hit.getMatchedQueries()),
+            hit.getSourceAsMap().put("missingTerms", findMissingTerms(Arrays.asList(hit.getMatchedQueries()),
                                                                  searchedTerms));
-            ret.add(hit.getSource());
+            ret.add(hit.getSourceAsMap());
         }
         log.debug("Finished Formatting Results: ");
         return ret;
@@ -244,4 +284,17 @@ public class SearchHelper {
 
         return hlb;
     }
+    
+    public BoolQueryBuilder limitCategories() {
+        BoolQueryBuilder bool = boolQuery();
+        Arrays.asList(Category.values()).stream()
+                .filter(cat ->  cat.isSearchable() )
+                .forEach(cat ->
+                        bool.should(termQuery("category", cat.getName()))
+                );
+        return bool;
+    }
+
+
+
 }

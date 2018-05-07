@@ -23,7 +23,7 @@ public interface GoRESTInterface {
     @Path("/{id}")
     @ApiOperation(value = "Searches for a Go fields", notes="Go Notes")
     public Map<String, Object> getGo(
-            @ApiParam(name = "id", value = "Search for Go ID")
+            @ApiParam(name = "id", value = "Search for a Go Term by ID")
             @PathParam("id") String id
     );
     

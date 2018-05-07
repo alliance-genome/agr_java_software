@@ -21,9 +21,9 @@ public interface GeneRESTInterface {
 
     @GET
     @Path("/{id}")
-    @ApiOperation(value = "Searches for a Gene fields", notes="Gene Notes")
+    @ApiOperation(value = "Searches for a Gene", notes="Gene Notes")
     public Map<String, Object> getGene(
-            @ApiParam(name = "id", value = "Search for Gene ID")
+            @ApiParam(name = "id", value = "Search for a Gene by ID")
             @PathParam("id") String id
     );
     

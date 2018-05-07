@@ -2,7 +2,6 @@ package org.alliancegenome.api.controller;
 
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -11,25 +10,20 @@ import javax.inject.Inject;
 import javax.ws.rs.core.UriInfo;
 
 import org.alliancegenome.api.application.SiteMapCacherApplication;
-import org.alliancegenome.api.config.ConfigHelper;
 import org.alliancegenome.api.model.xml.SiteMap;
 import org.alliancegenome.api.model.xml.SiteMapIndex;
 import org.alliancegenome.api.model.xml.XMLURL;
 import org.alliancegenome.api.model.xml.XMLURLSet;
 import org.alliancegenome.api.rest.interfaces.SiteMapRESTInterface;
-import org.jboss.logging.Logger;
+import org.alliancegenome.core.config.ConfigHelper;
 
 @RequestScoped
-public class SiteMapController implements SiteMapRESTInterface {
+public class SiteMapController extends BaseController implements SiteMapRESTInterface {
 
     @Inject
     private SiteMapCacherApplication siteMapApp;
 
-    @Inject
-    private ConfigHelper config;
-
-    private final Logger log = Logger.getLogger(getClass());
-
+    //private final Logger log = Logger.getLogger(getClass());
 
     @Override
     public SiteMapIndex getSiteMap(UriInfo uriInfo) {
@@ -37,7 +31,7 @@ public class SiteMapController implements SiteMapRESTInterface {
         List<SiteMap> list = new ArrayList<SiteMap>();
         Set<String> files = siteMapApp.getFiles();
         for(String file: files) {
-            list.add(new SiteMap(buildUrl(uriInfo, "api/sitemap/" + file + ".xml"), config.getAppStart()));
+            list.add(new SiteMap(buildUrl(uriInfo, "api/sitemap/" + file + ".xml"), ConfigHelper.getAppStart()));
         }
         index.setSitemap(list);
         return index;

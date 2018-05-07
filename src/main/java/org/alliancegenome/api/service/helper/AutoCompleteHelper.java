@@ -1,6 +1,10 @@
 package org.alliancegenome.api.service.helper;
 
-import org.alliancegenome.api.service.SearchService;
+import static org.elasticsearch.index.query.QueryBuilders.termQuery;
+
+import java.util.ArrayList;
+import java.util.Map;
+
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -8,25 +12,14 @@ import org.elasticsearch.index.query.MultiMatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
-import org.jboss.logging.Logger;
 
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.Map;
-
-import static org.elasticsearch.index.query.QueryBuilders.termQuery;
-
-@RequestScoped
 public class AutoCompleteHelper {
 
-    @Inject
-    private SearchService searchService;
-
-    private Logger log = Logger.getLogger(getClass());
-
+    //private Logger log = Logger.getLogger(getClass());
+    private SearchHelper searchHelper = new SearchHelper();
+    
     public QueryBuilder buildQuery(String q, String category) {
-        
+
         BoolQueryBuilder bool = new BoolQueryBuilder();
 
         MultiMatchQueryBuilder multi = QueryBuilders.multiMatchQuery(q);
@@ -44,23 +37,23 @@ public class AutoCompleteHelper {
         }
 
         //include only searchable categories in search results
-        bool.filter(searchService.limitCategories());
+        bool.filter(searchHelper.limitCategories());
 
         return bool;
     }
 
     public ArrayList<Map<String, Object>> formatResults(SearchResponse res) {
         ArrayList<Map<String, Object>> ret = new ArrayList<Map<String, Object>>();
-        
+
         for(SearchHit hit: res.getHits()) {
-            String category = (String) hit.getSource().get("category");
+            String category = (String) hit.getSourceAsMap().get("category");
 
             //this comes over from the Python code, use symbol for genes,
             //seems like maybe it could also use name_key for everyone...
             if (StringUtils.equals(category,"gene")) {
-                hit.getSource().put("name", hit.getSource().get("symbol"));
+                hit.getSourceAsMap().put("name", hit.getSourceAsMap().get("symbol"));
             }
-            ret.add(hit.getSource());
+            ret.add(hit.getSourceAsMap());
         }
         return ret;
     }

@@ -1,14 +1,12 @@
 package org.alliancegenome.api.service;
 
-import org.apache.commons.lang3.StringUtils;
-
-import javax.enterprise.context.RequestScoped;
 import java.util.regex.Pattern;
 
-@RequestScoped
+import org.apache.commons.lang3.StringUtils;
+
 public class QueryManipulationService {
 
-    private static final String ESCAPE_CHARS = "[\\<\\>\\/\\[\\]]";
+    private static final String ESCAPE_CHARS = "[<>/\\[\\]()]";
     private static final Pattern LUCENE_PATTERN = Pattern.compile(ESCAPE_CHARS);
     private static final String REPLACEMENT_STRING = "\\\\$0";
 
@@ -17,7 +15,6 @@ public class QueryManipulationService {
         query = luceneEscape(query);
         query = escapeColons(query);
         return query;
-
     }
 
     private String escapeColons(String query) {

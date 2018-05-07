@@ -1,0 +1,13 @@
+swarm.logging=DEBUG
+swarm.undertow.servers.default-server.http-listeners.default.max-post-size=10485760000
+
+DEBUG=false
+ES_INDEX=site_index
+ES_HOST=localhost
+ES_PORT=9300
+
+API_ACCESS_TOKEN=
+
+AWS_BUCKET_NAME=
+AWS_ACCESS_KEY=
+AWS_SECRET_KEY=
