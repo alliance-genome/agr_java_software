@@ -34,4 +34,8 @@ public enum FieldFilter {
             values.add(sorting.name);
         return values.toString();
     }
+
+    public String getName() {
+        return name;
+    }
 }
