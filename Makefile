@@ -1,5 +1,5 @@
 all: 
-	mvn clean package
+	mvn -B clean install
 
 test:
 	mvn test

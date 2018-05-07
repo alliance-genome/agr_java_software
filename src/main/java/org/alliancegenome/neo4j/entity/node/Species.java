@@ -16,21 +16,21 @@ import lombok.Setter;
 @Setter
 public class Species extends Neo4jEntity implements Comparable<Species> {
 
-	private String species;
-	private String primaryKey;
-	private String name;
+    private String species;
+    private String primaryKey;
+    private String name;
 
-	@Relationship(type = "CREATED_BY")
-	private Set<Gene> genes = new HashSet<>();
+    @Relationship(type = "CREATED_BY")
+    private Set<Gene> genes = new HashSet<>();
 
 
-	@Override
-	public int compareTo(Species species1) {
-		return getType().compareTo(species1.getType());
-	}
+    @Override
+    public int compareTo(Species species1) {
+        return getType().compareTo(species1.getType());
+    }
 
-	public SpeciesType getType() {
-		return SpeciesType.getTypeByName(this.species);
-	}
+    public SpeciesType getType() {
+        return SpeciesType.getTypeByName(this.species);
+    }
 
 }

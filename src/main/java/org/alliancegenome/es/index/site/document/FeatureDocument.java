@@ -11,33 +11,33 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class FeatureDocument extends SearchableItem {
+public class FeatureDocument extends SearchableItemDocument {
 
-	{ category = "allele"; }
-	
-	private String primaryKey;
-	private String symbol;
-	private Date dateProduced;
-	private Date dataProvider;
-	private String release;
-	private String localId;
-	private String globalId;
-	private String modCrossRefFullUrl;
+    { category = "allele"; }
+    
+    private String primaryKey;
+    private String symbol;
+    private Date dateProduced;
+    private Date dataProvider;
+    private String release;
+    private String localId;
+    private String globalId;
+    private String modCrossRefFullUrl;
 
-	private List<String> secondaryIds;
-	private List<String> synonyms;
-	private GeneDocument geneDocument;
-	private List<DiseaseDocument> diseaseDocuments = new ArrayList<>();
+    private List<String> secondaryIds;
+    private List<String> synonyms;
+    private GeneDocument geneDocument;
+    private List<DiseaseDocument> diseaseDocuments = new ArrayList<>();
 
 
-	@Override
-	@JsonIgnore
-	public String getDocumentId() {
-		return primaryKey;
-	}
+    @Override
+    @JsonIgnore
+    public String getDocumentId() {
+        return primaryKey;
+    }
 
-	@Override
-	public String getType() {
-		return category;
-	}
+    @Override
+    public String getType() {
+        return category;
+    }
 }

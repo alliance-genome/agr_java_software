@@ -9,6 +9,6 @@ import lombok.Setter;
 @Getter @Setter
 public class SOTerm extends Ontology {
 
-	private String primaryKey;
-	private String name;
+    private String primaryKey;
+    private String name;
 }

@@ -8,26 +8,27 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Getter @Setter
-public class GoDocument extends SearchableItem {
+public class GoDocument extends SearchableItemDocument {
 
-	{ category = "go"; }
+    { category = "go"; }
 
-	private String id;
-	private String go_type;
-	private List<String> synonyms;
-	private List<String> go_genes;
-	private List<String> go_species;
+    private String id;
+    private String go_type;
+    private String href;
+    private List<String> synonyms;
+    private List<String> go_genes;
+    private List<String> go_species;
 
-	@Override
-	@JsonIgnore
-	public String getDocumentId() {
-		return id;
-	}
-	
-	@Override
-	@JsonIgnore
-	public String getType() {
-		return category;
-	}
-	
+    @Override
+    @JsonIgnore
+    public String getDocumentId() {
+        return id;
+    }
+    
+    @Override
+    @JsonIgnore
+    public String getType() {
+        return category;
+    }
+    
 }
