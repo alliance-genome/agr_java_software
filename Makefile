@@ -1,5 +1,5 @@
 all:
-	mvn -B clean package 
+	mvn -q clean package 
 
 run:
 	java -jar target/agr_api-swarm.jar -Xms4g -Xmx4g -Papp.properties
