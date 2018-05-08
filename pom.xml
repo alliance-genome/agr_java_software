@@ -5,7 +5,7 @@
 	<name>AGR :: Indexer</name>
 	<artifactId>agr_indexer</artifactId>
 	<groupId>org.alliancegenome</groupId>
-	<version>1.4.0-SNAPSHOT</version>
+	<version>1.6.0-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<properties>
