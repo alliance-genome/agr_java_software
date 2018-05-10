@@ -1,6 +1,7 @@
 package org.alliancegenome.api.service;
 
 import org.alliancegenome.es.index.site.dao.GeneDAO;
+import org.alliancegenome.es.model.search.SearchResult;
 
 import javax.enterprise.context.RequestScoped;
 import java.util.Map;
@@ -19,4 +20,7 @@ public class GeneService {
         return geneMap;
     }
 
+    public SearchResult getAllelesByGene(String id) {
+        return geneDAO.getAllelesByGene(id, null);
+    }
 }

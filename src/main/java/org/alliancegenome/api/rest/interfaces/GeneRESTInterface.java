@@ -12,6 +12,7 @@ import javax.ws.rs.core.MediaType;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.alliancegenome.es.model.search.SearchResult;
 
 @Path("/gene")
 @Api(value = "Gene Search")
@@ -27,4 +28,12 @@ public interface GeneRESTInterface {
             @PathParam("id") String id
     );
     
+    @GET
+    @Path("/{id}/alleles")
+    @ApiOperation(value = "Searches for all Alleles of a given Gene", notes="Gene Notes")
+    public SearchResult getAllelesPerGene(
+            @ApiParam(name = "id", value = "Search for Alleles for a given Gene by ID")
+            @PathParam("id") String id
+    );
+
 }

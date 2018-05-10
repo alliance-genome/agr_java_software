@@ -2,7 +2,10 @@ package org.alliancegenome.api;
 
 import java.util.Map;
 
+import org.alliancegenome.api.service.DiseaseService;
 import org.alliancegenome.core.config.ConfigHelper;
+import org.alliancegenome.core.translators.document.DiseaseTranslator;
+import org.alliancegenome.core.translators.tdf.DiseaseAnnotationToTdfTranslator;
 import org.alliancegenome.es.index.site.dao.DiseaseDAO;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
@@ -46,6 +49,11 @@ public class DiseaseTest {
             });
         }
         System.out.println("Number of results " + response.total);
+
+        pagination = new Pagination(1, Integer.MAX_VALUE, null, null);
+        DiseaseAnnotationToTdfTranslator translator = new DiseaseAnnotationToTdfTranslator();
+        DiseaseService diseaseService = new DiseaseService();
+        System.out.println(translator.getAllRows(diseaseService.getDiseaseAnnotationsDownload("DOID:655", pagination)));
 
     }
 
