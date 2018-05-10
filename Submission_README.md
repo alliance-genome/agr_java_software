@@ -49,17 +49,14 @@ This will be the current release of the schema can be found in the [releases](ht
 
 ## Data Type
 
-| Data Type | What it means | Schema Validation File | Format | TaxonId Required | Validation Required |
+| Data Type | What it means | Schema Validation File | Format | TaxonId Required | Validation Required | Mod Version Stored
 | --- | --- | --- | --- | --- | --- |
-| BGI | Basic Gene information | geneMetadata.json | json | true | true |
-| DAF | Disease Annotations File (DAF) | diseaseMetaDataDefinition.json | json | true | true |
-| ORTHO | Orthology File | orthoHeader.json | json | true | true |
-| ALLELE | Allele File | alleleMetadata.json | json | true | true |
-| GAF | Gene Annotations File (GAF) | - | gaf | true | false |
-| GFF | Gene Feature File | - | gff | true | false |
-| DO | Disease Ontology File | - | obo | false | false |
-| SO | Sequence Ontology File | - | obo | false | false |
-| GO | Gene Ontology File | - | obo | false | false |
+| BGI | Basic Gene information | geneMetadata.json | json | true | true | true |
+| DAF | Disease Annotations File (DAF) | diseaseMetaDataDefinition.json | json | true | true | true |
+| ORTHO | Orthology File | orthoHeader.json | json | true | true | true |
+| ALLELE | Allele File | alleleMetadata.json | json | true | true | true |
+| GAF | Gene Annotations File (GAF) | - | gaf | true | false | false |
+| GFF | Gene Feature File | - | gff | true | false | false |
 
 ## TaxonId
 
@@ -82,8 +79,7 @@ Valid combinations for Schema-DataType-TaxonId are as follows:
 | Type | What does it mean? |
 | --------------- | --- |
 | SchemaVersion\_DataType\_TaxonId | Validation will occur for BGI, DAF, ORTHO, FEATURE and not for GAF and GFF, all files will be stored under the Schema Directory in S3. |
-| DataType\_TaxonId | Validation will occur for BGI, DAF, ORTHO, FEATURE and not for GAF and GFF, the current schema version will get looked up from Github. All files will be stored under the Schema Directory in S3. Invalid for GO, SO, DO. (TaxonId is not required for this data type)
-| DataType | This is only valid for GO, SO, DO. These files will not get validated, but the current schema will get looked up from Github and these files will get stored under the Schema Directory in S3. |
+| DataType\_TaxonId | Validation will occur for BGI, DAF, ORTHO, FEATURE and not for GAF and GFF, the current schema version will get looked up from Github. All files will be stored under the Schema Directory in S3.
 | SchemaVersion-DataType | Invalid (Data Type not found for: SchemaVersion) |
 
 ### Valid examples for submitting files
@@ -110,10 +106,6 @@ Valid combinations for Schema-DataType-TaxonId are as follows:
 		-H "api_access_token: 2C07D715..." \
 		-X POST "http://www.alliancegenome.org/api/data/submit" \
 		-F "FEATURE_7955=@ZFIN_1.0.4_feature.json"
-	> curl \
-		-H "api_access_token: 2C07D715..." \
-		-X POST "http://www.alliancegenome.org/api/data/submit" \
-		-F "GO=@go_1.0.obo"
 	
 #### Multiple files at a time
 
