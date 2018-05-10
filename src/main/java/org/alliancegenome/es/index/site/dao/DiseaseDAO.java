@@ -30,6 +30,8 @@ import java.util.stream.Collectors;
 
 public class DiseaseDAO extends ESDAO {
 
+    private Log log = LogFactory.getLog(getClass());
+
     public SearchResult getDiseaseAnnotations(String diseaseID, Pagination pagination) {
 
         SearchRequestBuilder searchRequestBuilder = getSearchRequestBuilder(diseaseID, pagination);
