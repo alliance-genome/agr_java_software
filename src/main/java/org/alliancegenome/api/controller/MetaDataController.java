@@ -76,22 +76,46 @@ public class MetaDataController extends BaseController implements MetaDataRESTIn
 
     @Override
     public APIResponce validateData(MultipartFormDataInput input) {
+        SubmissionResponce res = new SubmissionResponce();
+
         Map<String, List<InputPart>> form = input.getFormDataMap();
+        boolean success = true;
+        
         for(String key: form.keySet()) {
             InputPart inputPart = form.get(key).get(0);
+            
+            Date d = new Date();
+            String outFileName = "tmp.data_" + d.getTime();
+            File outfile = new File(outFileName);
+        
             try {
-                boolean isValid = metaDataService.validateData(key, inputPart.getBodyAsString());
-                if(isValid) {
-
+                InputStream is = inputPart.getBody(InputStream.class, null);
+                
+                log.info("Saving file to local filesystem: " + outfile.getAbsolutePath());
+                FileUtils.copyInputStreamToFile(is, outfile);
+                log.info("Save file to local filesystem complete");
+                
+                boolean passed = metaDataService.validateData(key, outfile);
+                if(passed) {
+                    res.getFileStatus().put(key, "success");
                 } else {
-
+                    res.getFileStatus().put(key, "failed");
+                    success = false;
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
+            } catch (GenericException | IOException e) {
+                log.error(e.getMessage());
+                outfile.delete();
+                res.getFileStatus().put(key, e.getMessage());
+                //e.printStackTrace();
+                success = false;
             }
+
         }
-        SubmissionResponce res = new SubmissionResponce();
-        res.setStatus("success");
+        if(success) {
+            res.setStatus("success");
+        } else {
+            res.setStatus("failed");
+        }
         return res;
     }
 

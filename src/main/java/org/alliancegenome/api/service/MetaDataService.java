@@ -36,25 +36,93 @@ public class MetaDataService {
 
         // Split the keys by underscore
         String[] keys = key.split("_");
-        
-        // Get MetaData object
 
+        String schemaLookup;
+        String dataTypeLookup;
+        String speciesLookup;
+        
         if(keys.length == 3) { // Schema-DataType-TaxonId
             log.debug("Key has 3 items: parse: (Schema-DataType-TaxonId): " + key);
-            parseSchemaDataTypeTaxonId(keys, inFile);
+            schemaLookup = keys[0];
+            dataTypeLookup = keys[1];
+            speciesLookup = keys[2];
         } else if(keys.length == 2) { // DataType-TaxonId // Input a taxonId datatype file and validate against latest version of schema
             log.debug("Key has 2 items: parse: (DataType-TaxonId): " + key);
-            parseDataTypeTaxonId(keys, inFile);
-        } else if(keys.length == 1) { // DataType // Input a datatype file validate against latest version of the schema (GO, SO, DO) maybe certain datatypes don't need validation
-            log.debug("Key has 1 items: parse: (DataType): " + key);
-            parseDataType(keys, inFile);
+            schemaLookup = null;
+            dataTypeLookup = keys[0];
+            speciesLookup = keys[1];
+        } else {
+            throw new ValidataionException("Wrong Number of Args for File Data: " + key);
         }
+        
+        String schemaVersion = getSchemaVersion(schemaLookup);
+        DataTypeDoclet dataType = getDataType(dataTypeLookup);
+        SpeciesDoclet species = getSpecies(dataType, speciesLookup);
+
+        // This code can be removed if the loader takes over for GO, SO, DO ontologies
+//      } else if(keys.length == 1) { // DataType // Input a datatype file validate against latest version of the schema (GO, SO, DO) maybe certain datatypes don't need validation
+//          log.debug("Key has 1 items: parse: (DataType): " + key);
+//
+//          schemaVersion = getSchemaVersion(null);
+//          dataType = getDataType(keys[0]);
+//          
+//          if(dataType.isTaxonIdRequired() || dataType.isValidationRequired()) {
+//              throw new ValidataionException("Schema or TaxonId is required for this data type however no schema or taxonid was provided: " + dataType);
+//          }
+        
+        if(dataType.isValidationRequired()) {
+            validateData(schemaVersion, dataType, inFile);
+        }
+        
+        if(dataType.isModVersionStored()) {
+
+        }
+        
+        saveFile(schemaVersion, dataType, species, inFile);
     }
 
-    public boolean validateData(String key, String bodyAsString) {
-        log.info("Run by the validation endpoint");
-        log.info("Need to validate file: " + key);
-        return false;
+    public boolean validateData(String key, File inFile) throws GenericException {
+        // Split the keys by underscore
+        String[] keys = key.split("_");
+
+        String schemaLookup;
+        String dataTypeLookup;
+        String speciesLookup;
+        
+        if(keys.length == 3) { // Schema-DataType-TaxonId
+            log.debug("Key has 3 items: parse: (Schema-DataType-TaxonId): " + key);
+            schemaLookup = keys[0];
+            dataTypeLookup = keys[1];
+            speciesLookup = keys[2];
+        } else if(keys.length == 2) { // DataType-TaxonId // Input a taxonId datatype file and validate against latest version of schema
+            log.debug("Key has 2 items: parse: (DataType-TaxonId): " + key);
+            schemaLookup = null;
+            dataTypeLookup = keys[0];
+            speciesLookup = keys[1];
+        } else {
+            throw new ValidataionException("Wrong Number of Args for File Data: " + key);
+        }
+        
+        String schemaVersion = getSchemaVersion(schemaLookup);
+        DataTypeDoclet dataType = getDataType(dataTypeLookup);
+        SpeciesDoclet species = getSpecies(dataType, speciesLookup);
+
+        // This code can be removed if the loader takes over for GO, SO, DO ontologies
+//      } else if(keys.length == 1) { // DataType // Input a datatype file validate against latest version of the schema (GO, SO, DO) maybe certain datatypes don't need validation
+//          log.debug("Key has 1 items: parse: (DataType): " + key);
+//
+//          schemaVersion = getSchemaVersion(null);
+//          dataType = getDataType(keys[0]);
+//          
+//          if(dataType.isTaxonIdRequired() || dataType.isValidationRequired()) {
+//              throw new ValidataionException("Schema or TaxonId is required for this data type however no schema or taxonid was provided: " + dataType);
+//          }
+        
+        if(dataType.isValidationRequired()) {
+            return validateData(schemaVersion, dataType, inFile);
+        }
+        
+        throw new ValidataionException("This file can not be validated: " + key);
     }
 
     private boolean validateData(String schemaVersionName, DataTypeDoclet dataType, File inFile) throws GenericException {
@@ -100,87 +168,48 @@ public class MetaDataService {
 
     }
 
-    private void parseDataType(String[] keys, File inFile) throws GenericException {
-
-        String schemaVersion = metaDataDAO.getCurrentSchemaVersion();
-
-        DataTypeDoclet dataType = metaDataDAO.getDataType(keys[0]);
-        if(dataType == null) {
-            throw new ValidataionException("Data Type not found: " + keys[0]);
-        }
-
-        if(dataType.isTaxonIdRequired() || dataType.isValidationRequired()) {
-            throw new ValidataionException("Schema or TaxonId is required for this data type however no schema or taxonid was provided: " + dataType);
-        }
-
-        String filePath = metaDataDAO.saveFileToS3(schemaVersion, dataType, inFile);
-        
-        metaDataDAO.createDataFile(schemaVersion, dataType, null, filePath);
-    }
-
-    private void parseDataTypeTaxonId(String[] keys, File inFile) throws GenericException {
-        SpeciesDoclet species;
-
-        String schemaVersion = metaDataDAO.getCurrentSchemaVersion();
-
-        DataTypeDoclet dataType = metaDataDAO.getDataType(keys[0]);
-        if(dataType == null) {
-            throw new ValidataionException("Data Type not found: " + keys[0]);
-        }
-
-        if(dataType.isTaxonIdRequired()) {
-            species = metaDataDAO.getSpeciesDoclet(keys[1]);
-            if(species == null) {
-                throw new ValidataionException("Species for taxonId not found: " + keys[1]);
-            }
+    private String getSchemaVersion(String schemaString) throws ValidataionException {
+        if(schemaString == null) {
+            String schemaVersion = metaDataDAO.getCurrentSchemaVersion();
+            return schemaVersion;
         } else {
-            throw new ValidataionException("TaxonId is not required for this data type: " + dataType);
+            String schemaVersion = metaDataDAO.getSchemaVersion(schemaString);
+            if(schemaVersion == null) {
+                throw new ValidataionException("Schema Version not found: " + schemaString);
+            }
+            return schemaVersion;
         }
-
-        if(dataType.isValidationRequired()) {
-            validateData(schemaVersion, dataType, inFile);
-        }
-
-        String filePath = metaDataDAO.saveFileToS3(schemaVersion, dataType, species, inFile);
-        
-        metaDataDAO.createDataFile(schemaVersion, dataType, species, filePath);
     }
 
-    private void parseSchemaDataTypeTaxonId(String[] keys, File inFile) throws GenericException {
-        String schemaVersion;
-        DataTypeDoclet dataType;
-        SpeciesDoclet species;
-
-        schemaVersion = metaDataDAO.getSchemaVersion(keys[0]);
-        
-        if(schemaVersion == null) {
-            throw new ValidataionException("Schema Version not found: " + keys[0]);
+    private void saveFile(String schemaVersion, DataTypeDoclet dataType, SpeciesDoclet species, File inFile) throws GenericException {
+        if(species == null) {
+            String filePath = metaDataDAO.saveFileToS3(schemaVersion, dataType, inFile);
+            metaDataDAO.createDataFile(schemaVersion, dataType, null, filePath);
+        } else {
+            String filePath = metaDataDAO.saveFileToS3(schemaVersion, dataType, species, inFile);
+            metaDataDAO.createDataFile(schemaVersion, dataType, species, filePath);
         }
+    }
 
-        dataType = metaDataDAO.getDataType(keys[1]);
-        if(dataType == null) {
-            throw new ValidataionException("Data Type not found: " + keys[1]);
-        }
-
+    private SpeciesDoclet getSpecies(DataTypeDoclet dataType, String speciesString) throws ValidataionException {
         if(dataType.isTaxonIdRequired()) {
-            species = metaDataDAO.getSpeciesDoclet(keys[2]);
+            SpeciesDoclet species = metaDataDAO.getSpeciesDoclet(speciesString);
             if(species == null) {
-                throw new ValidataionException("TaxonId not found: " + keys[2]);
+                throw new ValidataionException("Species for taxonId not found: " + speciesString);
             }
+            return species;
         } else {
             // TaxonId is not required
             throw new ValidataionException("TaxonId is not required for this data type: " + dataType);
         }
+    }
 
-        if(dataType.isValidationRequired()) {
-            validateData(schemaVersion, dataType, inFile);
+    private DataTypeDoclet getDataType(String dataTypeString) throws ValidataionException {
+        DataTypeDoclet dataType = metaDataDAO.getDataType(dataTypeString);
+        if(dataType == null) {
+            throw new ValidataionException("Data Type not found: " + dataTypeString);
         }
-
-        String filePath = metaDataDAO.saveFileToS3(schemaVersion, dataType, species, inFile);
-
-        // Save File Document
-        
-        metaDataDAO.createDataFile(schemaVersion, dataType, species, filePath);
+        return dataType;
     }
 
     public SnapShotDoclet getShapShot(String system, String releaseVersion) {
