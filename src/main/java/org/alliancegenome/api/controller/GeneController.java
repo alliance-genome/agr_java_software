@@ -8,6 +8,7 @@ import javax.ws.rs.NotFoundException;
 
 import org.alliancegenome.api.rest.interfaces.GeneRESTInterface;
 import org.alliancegenome.api.service.GeneService;
+import org.alliancegenome.es.model.search.SearchResult;
 
 @RequestScoped
 public class GeneController extends BaseController implements GeneRESTInterface {
@@ -23,6 +24,11 @@ public class GeneController extends BaseController implements GeneRESTInterface 
         } else {
             return ret;
         }
+    }
+
+    @Override
+    public SearchResult getAllelesPerGene(String id) {
+        return geneService.getAllelesByGene(id);
     }
 
 }
