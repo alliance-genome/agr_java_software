@@ -30,8 +30,6 @@ import java.util.stream.Collectors;
 
 public class DiseaseDAO extends ESDAO {
 
-    private Log log = LogFactory.getLog(getClass());
-
     public SearchResult getDiseaseAnnotations(String diseaseID, Pagination pagination) {
 
         SearchRequestBuilder searchRequestBuilder = getSearchRequestBuilder(diseaseID, pagination);
@@ -58,14 +56,6 @@ public class DiseaseDAO extends ESDAO {
         TermQueryBuilder builder = QueryBuilders.termQuery("parentDiseaseIDs", diseaseID);
         BoolQueryBuilder query = QueryBuilders.boolQuery().must(builder);
 
-/*
-        MultiMatchQueryBuilder firstBuild = QueryBuilders.multiMatchQuery(pagination.getFieldFilterValueMap().get(FieldFilter.REFERENCE), "publications.pubModId")
-                .type(MultiMatchQueryBuilder.Type.PHRASE_PREFIX);
-        MultiMatchQueryBuilder secondBuild = QueryBuilders.multiMatchQuery(pagination.getFieldFilterValueMap().get(FieldFilter.REFERENCE), "publications.pubMedId")
-                .type(MultiMatchQueryBuilder.Type.PHRASE_PREFIX);
-*/
-
-        //query.must(orQuery.should(firstBuild).should(secondBuild));
         BoolQueryBuilder fieldFilterQuery = QueryBuilders.boolQuery();
         diseaseFieldFilterMap.forEach((filter, fieldNames) -> {
                     String rawValue = pagination.getFieldFilterValueMap().get(filter);
