@@ -18,10 +18,9 @@ public class DataFileDAO extends ESDocumentDAO<DataFileDocument> {
     private Log log = LogFactory.getLog(getClass());
     
     public List<DataFileDocument> search(String schemaVersion, Date snapShotDate) {
-        log.debug("Schema: " + schemaVersion);
-        log.debug("SnapShotDate: " + snapShotDate);
+        log.debug("Schema: " + schemaVersion + " SnapShotDate: " + snapShotDate);
         MatchQueryBuilder mqb = QueryBuilders.matchQuery("schemaVersion", schemaVersion);
-        log.debug("Query: " + mqb);
+        //log.debug("Query: " + mqb);
         List<DataFileDocument> docs = search(mqb);
         HashMap<MultiKey<String>, DataFileDocument> map = new HashMap<MultiKey<String>, DataFileDocument>();
         

@@ -7,32 +7,34 @@ import lombok.Getter;
 @Getter
 public enum DataType {
     // Default data type if index does not contain the data type then this will be used to inject a document
-    BGI("Basic Gene Information", "json", true, true),
-    DAF("Disease Ontology Annotations File", "json", true, true),
-    ORTHO("Orthology", "json", true, true),
-    ALLELE("Allele Information", "json", true, true),
-    GENOTYPE("Genotype Information File", "json", true, true),
+    BGI("Basic Gene Information", "json", true, true, true),
+    DAF("Disease Ontology Annotations File", "json", true, true, true),
+    ORTHO("Orthology", "json", true, true, true),
+    ALLELE("Allele Information", "json", true, true, true),
+    GENOTYPE("Genotype Information File", "json", true, true, true),
 
     // No schema required for these but will still stick them in the correct schema directory
-    GAF("Gene Ontology Annotations File", "gaf", true, false),
-    GFF("Gene Features File", "gff", true, false),
+    GAF("Gene Ontology Annotations File", "gaf", true, false, false),
+    GFF("Gene Features File", "gff", true, false, false),
 
     // No verification yet for these either
-    DO("Disease Ontology", "obo", false, false),
-    GO("Gene Ontology", "obo", false, false),
-    SO("Sequence Ontology", "obo", false, false),
+    DO("Disease Ontology", "obo", false, false, false),
+    GO("Gene Ontology", "obo", false, false, false),
+    SO("Sequence Ontology", "obo", false, false, false),
     ;
 
     private boolean taxonIdRequired;
     private boolean validationRequired;
     private String fileExtension;
     private String description;
+    private boolean modVersionStored;
 
-    private DataType(String description, String fileExtension, boolean taxonIdRequired, boolean validationRequired) {
+    private DataType(String description, String fileExtension, boolean taxonIdRequired, boolean validationRequired, boolean modVersionStored) {
         this.description = description;
         this.fileExtension = fileExtension;
         this.taxonIdRequired = taxonIdRequired;
         this.validationRequired = validationRequired;
+        this.modVersionStored = modVersionStored;
     }
 
     public static DataTypeDoclet fromString(String string) {
