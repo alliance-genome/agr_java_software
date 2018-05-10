@@ -16,7 +16,7 @@ import org.elasticsearch.transport.client.PreBuiltTransportClient;
 
 public class ESDAO {
 
-    private Log log = LogFactory.getLog(getClass());
+    protected Log log = LogFactory.getLog(getClass());
 
     protected static PreBuiltTransportClient searchClient = null; // Make sure to only have 1 of these clients to save on resources
 

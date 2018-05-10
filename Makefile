@@ -1,6 +1,9 @@
 all: 
 	mvn -q clean install
 
+build:
+	mvn -q clean install
+
 test:
 	mvn test
 

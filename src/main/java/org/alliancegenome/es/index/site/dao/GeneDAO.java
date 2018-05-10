@@ -6,13 +6,19 @@ import java.util.concurrent.ExecutionException;
 
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.es.index.ESDAO;
+import org.alliancegenome.es.model.query.FieldFilter;
+import org.alliancegenome.es.model.query.Pagination;
+import org.alliancegenome.es.model.search.SearchResult;
+import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.get.GetRequest;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.index.query.MatchQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.query.*;
+import org.elasticsearch.script.Script;
 import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.sort.ScriptSortBuilder;
+import org.elasticsearch.search.sort.SortBuilders;
 
 public class GeneDAO extends ESDAO {
 
@@ -60,6 +66,38 @@ public class GeneDAO extends ESDAO {
             ret.add(hit.getSourceAsMap());
         }
         return ret;
+    }
+
+    public SearchResult getAllelesByGene(String geneId, Pagination pagination) {
+        SearchRequestBuilder searchRequestBuilder = getSearchRequestBuilder(geneId);
+        if (pagination != null) {
+            searchRequestBuilder.setSize(pagination.getLimit());
+            int fromIndex = pagination.getIndexOfFirstElement();
+            searchRequestBuilder.setFrom(fromIndex);
+        }
+        SearchResponse response = searchRequestBuilder.execute().actionGet();
+        SearchResult result = new SearchResult();
+
+        result.total = response.getHits().totalHits;
+        result.results = formatResults(response);
+        return result;
+    }
+
+    private SearchRequestBuilder getSearchRequestBuilder(String geneID) {
+        SearchRequestBuilder searchRequestBuilder = searchClient.prepareSearch();
+
+        //searchRequestBuilder.setExplain(true);
+        searchRequestBuilder.setIndices(ConfigHelper.getEsIndex());
+
+        TermQueryBuilder builder = QueryBuilders.termQuery("geneDocument.primaryId", geneID);
+        BoolQueryBuilder query = QueryBuilders.boolQuery().must(builder);
+        MultiMatchQueryBuilder multiBuilder = QueryBuilders.multiMatchQuery("allele", "category")
+                .type(MultiMatchQueryBuilder.Type.PHRASE_PREFIX);
+        query.must(multiBuilder);
+        searchRequestBuilder.addSort(SortBuilders.fieldSort("symbol.sort"));
+        searchRequestBuilder.setQuery(query);
+        log.debug(searchRequestBuilder);
+        return searchRequestBuilder;
     }
 
 }
