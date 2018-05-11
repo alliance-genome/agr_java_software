@@ -74,10 +74,11 @@ public class DiseaseDAO extends ESDAO {
 
         // sort exact matches on the diseaseID at the top then all the child terms.
         String sortBy = pagination.getSortBy();
-        if (StringUtils.isEmpty(sortBy)) {
+        if (pagination.sortByDefault()) {
             Script script = new Script("doc['diseaseID.keyword'].value == '" + diseaseID + "' ? 0 : 100");
             searchRequestBuilder.addSort(SortBuilders.scriptSort(script, ScriptSortBuilder.ScriptSortType.NUMBER));
             searchRequestBuilder.addSort(SortBuilders.fieldSort(diseaseFieldFilterSortingMap.get(FieldFilter.SPECIES)).order(getAscending(true)));
+            searchRequestBuilder.addSort(SortBuilders.fieldSort(diseaseFieldFilterSortingMap.get(FieldFilter.GENE_NAME)).order(getAscending(true)));
         } else {
             diseaseFieldFilterSortingMap.entrySet().stream()
                     .filter(entry -> entry.getKey().getName().equals(sortBy))
@@ -141,7 +142,7 @@ public class DiseaseDAO extends ESDAO {
     static {
         diseaseFieldFilterSortingMap.put(FieldFilter.GENE_NAME, "geneDocument.symbol.sort");
         diseaseFieldFilterSortingMap.put(FieldFilter.DISEASE, "diseaseName.keyword");
-        diseaseFieldFilterSortingMap.put(FieldFilter.SPECIES, "geneDocument.species.sort");
+        diseaseFieldFilterSortingMap.put(FieldFilter.SPECIES, "source.species.orderID");
     }
 
     private static Map<FieldFilter, List<String>> diseaseFieldFilterMap = new HashMap<>(10);

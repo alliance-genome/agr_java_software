@@ -2,6 +2,7 @@ package org.alliancegenome.es.model.query;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
 
@@ -51,6 +52,14 @@ public class Pagination {
 
     public List<String> getErrors() {
         return errorList;
+    }
+
+    public boolean sortByDefault() {
+        if(StringUtils.isEmpty(sortBy))
+            return true;
+        if(sortBy.equalsIgnoreCase("default"))
+            return true;
+        return false;
     }
 
     enum AscendingValues {
