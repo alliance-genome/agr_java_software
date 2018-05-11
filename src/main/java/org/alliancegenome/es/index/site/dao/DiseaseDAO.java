@@ -73,7 +73,6 @@ public class DiseaseDAO extends ESDAO {
         query.must(fieldFilterQuery);
 
         // sort exact matches on the diseaseID at the top then all the child terms.
-        String sortBy = pagination.getSortBy();
         if (pagination.sortByDefault()) {
             Script script = new Script("doc['diseaseID.keyword'].value == '" + diseaseID + "' ? 0 : 100");
             searchRequestBuilder.addSort(SortBuilders.scriptSort(script, ScriptSortBuilder.ScriptSortType.NUMBER));
@@ -81,7 +80,7 @@ public class DiseaseDAO extends ESDAO {
             searchRequestBuilder.addSort(SortBuilders.fieldSort(diseaseFieldFilterSortingMap.get(FieldFilter.GENE_NAME)).order(getAscending(true)));
         } else {
             diseaseFieldFilterSortingMap.entrySet().stream()
-                    .filter(entry -> entry.getKey().getName().equals(sortBy))
+                    .filter(entry -> entry.getKey().getName().equals(pagination.getSortBy()))
                     .forEach(entrySet ->
                             searchRequestBuilder.addSort(SortBuilders.fieldSort(entrySet.getValue()).order(getAscending(pagination.getAsc())))
                     );
