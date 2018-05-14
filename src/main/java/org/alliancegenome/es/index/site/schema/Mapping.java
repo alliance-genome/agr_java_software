@@ -19,6 +19,7 @@ public abstract class Mapping extends Builder {
         new FieldBuilder(builder,"primaryId","keyword").build();
         new FieldBuilder(builder,"primaryKey","keyword").build();
         new FieldBuilder(builder,"category","keyword").symbol().autocomplete().keyword().build();
+        new FieldBuilder(builder,"associationType","keyword").symbol().autocomplete().keyword().build();
         new FieldBuilder(builder,"name", "text")
                 .symbol()
                 .autocomplete()
