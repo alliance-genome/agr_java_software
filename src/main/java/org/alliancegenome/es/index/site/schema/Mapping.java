@@ -19,7 +19,7 @@ public abstract class Mapping extends Builder {
         new FieldBuilder(builder,"primaryId","keyword").build();
         new FieldBuilder(builder,"primaryKey","keyword").build();
         new FieldBuilder(builder,"category","keyword").symbol().autocomplete().keyword().build();
-        new FieldBuilder(builder,"associationType","keyword").symbol().autocomplete().keyword().build();
+        new FieldBuilder(builder,"associationType","text").symbol().autocomplete().keyword().standardText().build();
         new FieldBuilder(builder,"name", "text")
                 .symbol()
                 .autocomplete()
@@ -63,7 +63,7 @@ public abstract class Mapping extends Builder {
         Gene("gene", GeneMapping.class),
         Go("go", GoMapping.class),
         ;
-        
+
         private String type;
         private Class<?> mappingClass;
 
@@ -71,7 +71,7 @@ public abstract class Mapping extends Builder {
             this.type = type;
             this.mappingClass = mappingClass;
         }
-        
+
         public String getType() {
             return type;
         }
@@ -91,6 +91,7 @@ public abstract class Mapping extends Builder {
         boolean keyword;
         boolean sort;
         boolean standardBigrams;
+        boolean standardText;
         boolean symbol;
         boolean synonym;
 
@@ -130,6 +131,11 @@ public abstract class Mapping extends Builder {
             return this;
         }
 
+        public FieldBuilder standardText() {
+            this.standardText = true;
+            return this;
+        }
+
         public FieldBuilder symbol() {
             this.symbol = true;
             return this;
@@ -162,7 +168,7 @@ public abstract class Mapping extends Builder {
             builder.startObject(name);
             if(type != null) builder.field("type", type);
             if(analyzer != null) builder.field("analyzer", analyzer);
-            if(symbol || autocomplete || keyword || synonym || sort) {
+            if(symbol || autocomplete || keyword || synonym || sort || standardText) {
                 builder.startObject("fields");
                 if(keyword) { buildProperty("keyword", "keyword"); }
                 if(symbol) { buildProperty("symbol", "text", "symbols"); }
@@ -171,6 +177,7 @@ public abstract class Mapping extends Builder {
                 if(sort) buildProperty("sort", "keyword", null, null, "lowercase");
                 if(htmlSmoosh) buildProperty("htmlSmoosh", "text", "html_smoosh");
                 if(standardBigrams) buildProperty("standardBigrams", "text", "standard_bigrams");
+                if(standardText) buildProperty("standardText", "text", "standard_text");
                 builder.endObject();
             }
             builder.endObject();
