@@ -1,10 +1,5 @@
 package org.alliancegenome.api.service;
 
-import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
-import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
-import static org.elasticsearch.index.query.QueryBuilders.multiMatchQuery;
-import static org.elasticsearch.index.query.QueryBuilders.queryStringQuery;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -32,6 +27,8 @@ import org.elasticsearch.index.query.functionscore.ScoreFunctionBuilders;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.jboss.logging.Logger;
+
+import static org.elasticsearch.index.query.QueryBuilders.*;
 
 @RequestScoped
 public class SearchService {
@@ -81,9 +78,19 @@ public class SearchService {
             return bool;
         }
 
+        FunctionScoreQueryBuilder builder = new FunctionScoreQueryBuilder(bool, buildBoostFunctions(q));
+
+        return builder;
+    }
+
+    public FunctionScoreQueryBuilder.FilterFunctionBuilder[] buildBoostFunctions(String q) {
         List<FunctionScoreQueryBuilder.FilterFunctionBuilder> functionList = new ArrayList<>();
 
-        //add a 'should' clause for each individual term
+        //gene category boost
+        functionList.add(new FunctionScoreQueryBuilder.FilterFunctionBuilder(matchQuery("category","gene"),
+                ScoreFunctionBuilders.weightFactorFunction(1.0001F)));
+
+        //per term boost, add a 'should' clause for each individual term
         List<String> tokens = tokenizeQuery(q);
         for (String token : tokens) {
             MultiMatchQueryBuilder mmq = multiMatchQuery(token);
@@ -93,10 +100,11 @@ public class SearchService {
             functionList.add(new FunctionScoreQueryBuilder.FilterFunctionBuilder(mmq, ScoreFunctionBuilders.weightFactorFunction(10.0F)));
         }
 
-        FunctionScoreQueryBuilder builder = new FunctionScoreQueryBuilder(bool, functionList.toArray(new FunctionScoreQueryBuilder.FilterFunctionBuilder[functionList.size()]));
+        return functionList.toArray(new FunctionScoreQueryBuilder.FilterFunctionBuilder[functionList.size()]);
 
-        return builder;
     }
+
+
 
     public BoolQueryBuilder buildQuery(String q, String category, MultivaluedMap<String,String> filters) {
 

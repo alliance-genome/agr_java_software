@@ -45,4 +45,25 @@ class AutocompleteIntegrationSpec extends Specification {
 
     }
 
+    @Unroll
+    def "an autocomplete for #query should return #category results first"() {
+        when:
+        //todo: need to set the base search url in a nicer way
+        def url = new URL("http://localhost:8080/api/search_autocomplete?q=$query")
+        def results = new JsonSlurper().parseText(url.text).results
+
+        then:
+        results
+        results.size() > 2
+        results.get(0).category == category
+        results.get(1).category == category
+        results.get(2).category == category
+
+        where:
+        category | query
+        "gene"   | "pax"
+        "gene"   | "fgf"
+        "gene"   | "bmp"
+    }
+
 }
