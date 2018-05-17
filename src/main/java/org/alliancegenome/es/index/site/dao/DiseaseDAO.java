@@ -14,10 +14,7 @@ import org.elasticsearch.action.get.GetRequest;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.MultiMatchQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.index.query.TermQueryBuilder;
+import org.elasticsearch.index.query.*;
 import org.elasticsearch.script.Script;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.sort.ScriptSortBuilder;
@@ -58,19 +55,22 @@ public class DiseaseDAO extends ESDAO {
         TermQueryBuilder builder = QueryBuilders.termQuery("parentDiseaseIDs", diseaseID);
         BoolQueryBuilder query = QueryBuilders.boolQuery().must(builder);
 
-        BoolQueryBuilder fieldFilterQuery = QueryBuilders.boolQuery();
         diseaseFieldFilterMap.forEach((filter, fieldNames) -> {
                     String rawValue = pagination.getFieldFilterValueMap().get(filter);
                     if (rawValue != null) {
                         // match multiple fields with prefix type
                         String[] fieldNameArray = fieldNames.toArray(new String[fieldNames.size()]);
-                        MultiMatchQueryBuilder multiBuilder = QueryBuilders.multiMatchQuery(rawValue.toLowerCase(), fieldNameArray)
-                                .type(MultiMatchQueryBuilder.Type.PHRASE_PREFIX);
-                        fieldFilterQuery.must(multiBuilder);
+                        AbstractQueryBuilder termBuilder = null;
+                        if (fieldNameArray.length > 1) {
+                            termBuilder = QueryBuilders.multiMatchQuery(rawValue.toLowerCase(), fieldNameArray)
+                                    .type(MultiMatchQueryBuilder.Type.PHRASE_PREFIX);
+                        } else {
+                            termBuilder = QueryBuilders.prefixQuery(fieldNameArray[0], rawValue.toLowerCase());
+                        }
+                        query.must(termBuilder);
                     }
                 }
         );
-        query.must(fieldFilterQuery);
 
         // sort exact matches on the diseaseID at the top then all the child terms.
         if (pagination.sortByDefault()) {
@@ -150,10 +150,10 @@ public class DiseaseDAO extends ESDAO {
         diseaseFieldFilterMap.put(FieldFilter.GENE_NAME, Collections.singletonList("geneDocument.symbol"));
         diseaseFieldFilterMap.put(FieldFilter.DISEASE, Collections.singletonList("diseaseName"));
         diseaseFieldFilterMap.put(FieldFilter.SPECIES, Collections.singletonList("geneDocument.species"));
-        diseaseFieldFilterMap.put(FieldFilter.ASSOCIATION_TYPE, Collections.singletonList("associationType"));
+        diseaseFieldFilterMap.put(FieldFilter.ASSOCIATION_TYPE, Collections.singletonList("associationType.standardText"));
         diseaseFieldFilterMap.put(FieldFilter.GENETIC_ENTITY, Collections.singletonList("featureDocument.symbol"));
         diseaseFieldFilterMap.put(FieldFilter.GENETIC_ENTITY_TYPE, Collections.singletonList("featureDocument.category.autocomplete"));
-        diseaseFieldFilterMap.put(FieldFilter.REFERENCE, Arrays.asList("publications.pubModId", "publications.pubMedId"));
+        diseaseFieldFilterMap.put(FieldFilter.REFERENCE, Arrays.asList("publications.pubModId.standardText", "publications.pubMedId.standardText"));
         diseaseFieldFilterMap.put(FieldFilter.EVIDENCE_CODE, Collections.singletonList("publications.evidenceCodes"));
         diseaseFieldFilterMap.put(FieldFilter.SOURCE, Collections.singletonList("source.name"));
     }
