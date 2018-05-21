@@ -19,7 +19,7 @@ public class AutoCompleteController extends BaseController implements AutoComple
     @Override
     public AutoCompleteResult searchAutoComplete(String q, String category) {
         log.info("This is the Auto Complete query: " + q);
-        return autoCompleteService.buildQuery(q, category);
+        return autoCompleteService.query(q, category);
     }
 
 }
