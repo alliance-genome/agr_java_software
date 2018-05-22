@@ -88,7 +88,7 @@ public class SearchService {
 
         //gene category boost
         functionList.add(new FunctionScoreQueryBuilder.FilterFunctionBuilder(matchQuery("category","gene"),
-                ScoreFunctionBuilders.weightFactorFunction(1.0001F)));
+                ScoreFunctionBuilders.weightFactorFunction(1.1F)));
 
         functionList.add(new FunctionScoreQueryBuilder.FilterFunctionBuilder(matchQuery("name_key.keyword",q),
                 ScoreFunctionBuilders.weightFactorFunction(1000F)));
