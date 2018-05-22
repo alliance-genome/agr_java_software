@@ -54,10 +54,12 @@ class AutocompleteIntegrationSpec extends Specification {
 
         then:
         results
-        results.size() > 2
+        results.size() > 4
         results.get(0).category == category
         results.get(1).category == category
         results.get(2).category == category
+        results.get(3).category == category
+        results.get(4).category == category
 
         where:
         category | query
