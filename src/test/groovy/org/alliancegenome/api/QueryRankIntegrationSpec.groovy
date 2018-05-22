@@ -101,20 +101,29 @@ class QueryRankIntegrationSpec extends Specification {
     }
 
     @Unroll
-    def "When querying for #nameKey the name_key should be #nameKey"() {
+    def "When querying for #query first result name_key should be #nameKey"() {
         when:
-        def encodedQuery = URLEncoder.encode(nameKey, "UTF-8")
+        def encodedQuery = URLEncoder.encode(query, "UTF-8")
         //todo: need to set the base search url in a nicer way
-        def url = new URL("http://localhost:8080/api/search?category=gene&limit=50&offset=0&q=$encodedQuery")
+        def url = new URL("http://localhost:8080/api/search?limit=50&offset=0&q=$encodedQuery")
         def results = new JsonSlurper().parseText(url.text).results
         def firstResultNameKey = results.first().get("name_key")
 
         then:
         results //should be some results
-        firstResultNameKey.equals(nameKey)
+        firstResultNameKey == nameKey
 
         where:
-        nameKey << ["fgf8a (Dre)", "Fgf8 (Mmu)", "FGF8 (Hsa)", "pyr (Dme)", "meg-2 (Cel)", "Hps5 (Rno)"]
+        query                              | nameKey
+        "fgf8a (Dre)"                      | "fgf8a (Dre)"
+        "Fgf8 (Mmu)"                       | "Fgf8 (Mmu)"
+        "FGF8 (Hsa)"                       | "FGF8 (Hsa)"
+        "pyr (Dme)"                        | "pyr (Dme)"
+        "meg-2 (Cel)"                      | "meg-2 (Cel)"
+        "Hps5 (Rno)"                       | "Hps5 (Rno)"
+        "kinase activity"                  | "kinase activity"
+        "kinase activi"                    | "kinase activity"
+        "amyotrophic lateral sclerosis"    | "amyotrophic lateral sclerosis"
 
     }
 

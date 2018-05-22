@@ -97,6 +97,7 @@ public class SearchHelper {
             add("name_key.htmlSmoosh");
             add("name_key.keyword");
             add("name_key.standardBigrams");
+            add("name_key.keywordAutocomplete");
             add("name");
             add("name.autocomplete");
             add("name.htmlSmoosh");
