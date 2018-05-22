@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+   <modelVersion>4.0.0</modelVersion>
+   <groupId>org.alliancegenome</groupId>
+   <artifactId>agr_java_software</artifactId>
+   <packaging>pom</packaging>
+   <version>${revision}</version>
+   <name>AGR Java</name>
+
+   <modules>
+      <module>agr_api</module>
+      <module>agr_elasticsearch_util</module>
+      <module>agr_indexer</module>
+      <module>agr_java_core</module>
+   </modules>
+
+	<properties>
+		<revision>1.6.0-SNAPSHOT</revision>
+	</properties>
+
+   <build>
+      <pluginManagement>
+         <plugins>
+            <plugin>
+               <groupId>org.apache.maven.plugins</groupId>
+               <artifactId>maven-compiler-plugin</artifactId>
+               <configuration>
+                  <source>1.8</source>
+                  <target>1.8</target>
+               </configuration>
+            </plugin>
+         </plugins>
+      </pluginManagement>
+   </build>
+
+</project>
