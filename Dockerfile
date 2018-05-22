@@ -15,4 +15,4 @@ RUN mvn -B versions:set -DnewVersion=$VERSION
 
 RUN mvn -B clean package
 
-CMD mvn -B deploy
+CMD mvn -B deploy -DskipTests
