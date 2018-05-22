@@ -8,15 +8,12 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.ws.rs.core.UriInfo;
 
 import org.alliancegenome.es.model.search.AggDocCount;
 import org.alliancegenome.es.model.search.AggResult;
 import org.alliancegenome.es.model.search.Category;
-import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.text.Text;
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -97,6 +94,7 @@ public class SearchHelper {
             add("name_key.htmlSmoosh");
             add("name_key.keyword");
             add("name_key.standardBigrams");
+            add("name_key.keywordAutocomplete");
             add("name");
             add("name.autocomplete");
             add("name.htmlSmoosh");

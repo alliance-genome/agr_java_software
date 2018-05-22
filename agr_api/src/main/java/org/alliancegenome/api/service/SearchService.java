@@ -90,6 +90,12 @@ public class SearchService {
         functionList.add(new FunctionScoreQueryBuilder.FilterFunctionBuilder(matchQuery("category","gene"),
                 ScoreFunctionBuilders.weightFactorFunction(1.0001F)));
 
+        functionList.add(new FunctionScoreQueryBuilder.FilterFunctionBuilder(matchQuery("name_key.keyword",q),
+                ScoreFunctionBuilders.weightFactorFunction(1000F)));
+
+        functionList.add(new FunctionScoreQueryBuilder.FilterFunctionBuilder(matchQuery("name_key.keywordAutocomplete",q),
+                ScoreFunctionBuilders.weightFactorFunction(500F)));
+
         //per term boost, add a 'should' clause for each individual term
         List<String> tokens = tokenizeQuery(q);
         for (String token : tokens) {
@@ -99,6 +105,7 @@ public class SearchService {
             mmq.queryName(token);
             functionList.add(new FunctionScoreQueryBuilder.FilterFunctionBuilder(mmq, ScoreFunctionBuilders.weightFactorFunction(10.0F)));
         }
+
 
         return functionList.toArray(new FunctionScoreQueryBuilder.FilterFunctionBuilder[functionList.size()]);
 
