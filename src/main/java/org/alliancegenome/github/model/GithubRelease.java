@@ -2,11 +2,14 @@ package org.alliancegenome.github.model;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 @Getter
 @Setter
+@ToString
 public class GithubRelease {
 
     private Long id;
-    private String name;
+    private String tag_name;
+    
 }

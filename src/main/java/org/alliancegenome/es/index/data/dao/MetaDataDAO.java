@@ -49,7 +49,7 @@ public class MetaDataDAO extends ESDocumentDAO<MetaDataDocument> {
     private void checkForSchemas() {
         if(metaData.getSchemas() == null || metaData.getSchemas().size() == 0) {
             log.debug("Getting Latest Schema Version");
-            String githubLatestRelease = githubAPI.getLatestRelease("agr_schemas").getName();
+            String githubLatestRelease = githubAPI.getLatestRelease("agr_schemas").getTag_name();
             metaData.getSchemas().add(githubLatestRelease);
             updateDocument(metaData);
             log.debug("Schema Version: " + githubLatestRelease);
@@ -101,9 +101,9 @@ public class MetaDataDAO extends ESDocumentDAO<MetaDataDocument> {
                 GithubRelease gitHubSchema = githubAPI.getRelease("agr_schemas", string);
 
                 if(gitHubSchema != null) {
-                    metaData.getSchemas().add(gitHubSchema.getName());
+                    metaData.getSchemas().add(gitHubSchema.getTag_name());
                     updateDocument(metaData);
-                    return gitHubSchema.getName();
+                    return gitHubSchema.getTag_name();
                 } else {
                     log.debug("Github Schema Version was null: " + gitHubSchema);
                     return null;
@@ -160,7 +160,7 @@ public class MetaDataDAO extends ESDocumentDAO<MetaDataDocument> {
     public void createDataFile(String schemaVersion, DataTypeDoclet dataType, SpeciesDoclet species, String filePath) {
         DataFileDocument df = new DataFileDocument();
         df.setDataType(dataType.getName());
-        df.setPath(filePath);
+        df.setS3path(filePath);
         df.setSchemaVersion(schemaVersion);
         if(species != null) {
             df.setTaxonIDPart(species.getTaxonIDPart());
@@ -181,6 +181,7 @@ public class MetaDataDAO extends ESDocumentDAO<MetaDataDocument> {
         if(system == null) return null;
         DataSnapShotDocument dsd = dataSnapShotDAO.readDocument(system, "data_snapshot");
         if(dsd == null) {
+            log.debug("Document Does not exist creating it: " + dsd);
             dsd = new DataSnapShotDocument(system);
             dataSnapShotDAO.createDocumnet(dsd);
         }
@@ -205,7 +206,7 @@ public class MetaDataDAO extends ESDocumentDAO<MetaDataDocument> {
     public SnapShotDoclet getSnapShot(String system, String releaseVersion) {
         getMetaDocument();
         DataSnapShotDocument dsd = getShapShotDocument(system);
-        
+        log.debug("getSnapShot: " + dsd);
         SnapShotDoclet doc = new SnapShotDoclet();
         doc.setReleaseVersion(releaseVersion);
         doc.setSchemaVersion(metaData.getReleaseSchemaMap().get(releaseVersion));
@@ -221,10 +222,13 @@ public class MetaDataDAO extends ESDocumentDAO<MetaDataDocument> {
     }
 
     public SnapShotDoclet takeSnapShot(String system, String releaseVersion) {
+        if(system == null) system = "production";
         DataSnapShotDocument dsd = getShapShotDocument(system);
+        log.debug("takeSnapShot: " + dsd);
         dsd.getReleaseSnapShotMap().put(releaseVersion, new Date());
-        
+        log.debug("takeSnapShot: " + dsd);
         dataSnapShotDAO.updateDocument(dsd);
+        log.debug("takeSnapShot: " + dsd);
         return getSnapShot(system, releaseVersion);
     }
 }

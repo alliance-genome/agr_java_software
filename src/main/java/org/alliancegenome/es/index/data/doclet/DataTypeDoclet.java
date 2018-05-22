@@ -15,6 +15,7 @@ public class DataTypeDoclet {
     private String description;
     private boolean taxonIdRequired;
     private boolean validationRequired;
+    private boolean modVersionStored;
     private HashMap<String, String> schemaFiles = new HashMap<String, String>();
 
 
