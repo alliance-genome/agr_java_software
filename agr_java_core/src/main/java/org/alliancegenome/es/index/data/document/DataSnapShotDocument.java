@@ -15,6 +15,9 @@ import lombok.ToString;
 public class DataSnapShotDocument extends ESDocument {
 
     private String system;
+    // Release -> Date
+    // One release per date
+    // New data needs to have a new release
     private HashMap<String, Date> releaseSnapShotMap = new HashMap<>();
     
     public DataSnapShotDocument(String system) {

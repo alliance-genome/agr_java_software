@@ -4,10 +4,8 @@ import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.es.index.ESDAO;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.es.model.query.SortBy;
 import org.alliancegenome.es.model.search.SearchResult;
 import org.alliancegenome.es.util.SearchHitIterator;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.elasticsearch.action.get.GetRequest;
@@ -23,7 +21,6 @@ import org.elasticsearch.search.sort.SortOrder;
 
 import java.util.*;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
 
 public class DiseaseDAO extends ESDAO {
 
@@ -76,7 +73,7 @@ public class DiseaseDAO extends ESDAO {
         if (pagination.sortByDefault()) {
             Script script = new Script("doc['diseaseID.keyword'].value == '" + diseaseID + "' ? 0 : 100");
             searchRequestBuilder.addSort(SortBuilders.scriptSort(script, ScriptSortBuilder.ScriptSortType.NUMBER));
-            searchRequestBuilder.addSort(SortBuilders.fieldSort(diseaseFieldFilterSortingMap.get(FieldFilter.SPECIES)).order(getAscending(true)));
+            searchRequestBuilder.addSort(SortBuilders.fieldSort(diseaseFieldFilterSortingMap.get(FieldFilter.SPECIES_DEFAULT)).order(getAscending(true)));
             searchRequestBuilder.addSort(SortBuilders.fieldSort(diseaseFieldFilterSortingMap.get(FieldFilter.GENE_NAME)).order(getAscending(true)));
         } else {
             diseaseFieldFilterSortingMap.entrySet().stream()
@@ -141,7 +138,8 @@ public class DiseaseDAO extends ESDAO {
     static {
         diseaseFieldFilterSortingMap.put(FieldFilter.GENE_NAME, "geneDocument.symbol.sort");
         diseaseFieldFilterSortingMap.put(FieldFilter.DISEASE, "diseaseName.keyword");
-        diseaseFieldFilterSortingMap.put(FieldFilter.SPECIES, "source.species.orderID");
+        diseaseFieldFilterSortingMap.put(FieldFilter.SPECIES_DEFAULT, "source.species.orderID");
+        diseaseFieldFilterSortingMap.put(FieldFilter.SPECIES, "source.species.name.sort");
     }
 
     private static Map<FieldFilter, List<String>> diseaseFieldFilterMap = new HashMap<>(10);
