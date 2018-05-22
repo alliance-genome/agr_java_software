@@ -15,12 +15,12 @@ public class DataFileDocument extends ESDocument {
     private String schemaVersion;
     private String dataType;
     private String taxonIDPart;
-    private String path;
+    private String s3path;
     private Date uploadDate = new Date();
 
     @Override
     public String getDocumentId() {
-        return path;
+        return s3path;
     }
 
     @Override
