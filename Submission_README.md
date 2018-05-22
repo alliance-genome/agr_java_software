@@ -49,17 +49,14 @@ This will be the current release of the schema can be found in the [releases](ht
 
 ## Data Type
 
-| Data Type | What it means | Schema Validation File | Format | TaxonId Required | Validation Required |
+| Data Type | What it means | Schema Validation File | Format | TaxonId Required | Validation Required | Mod Version Stored
 | --- | --- | --- | --- | --- | --- |
-| BGI | Basic Gene information | geneMetadata.json | json | true | true |
-| DOA | Disease Term Annotations (DAF) | diseaseMetaDataDefinition.json | json | true | true |
-| ORTHO | Orthology File | orthoHeader.json | json | true | true |
-| ALLELE | Allele File | alleleMetadata.json | json | true | true |
-| GOA | Gene Ontology Annotations (GAF) | - | gaf | true | false |
-| GFF | Gene Feature File | - | gff | true | false |
-| DO | Disease Ontology File | - | obo | false | false |
-| SO | Sequence Ontology File | - | obo | false | false |
-| GO | Gene Ontology File | - | obo | false | false |
+| BGI | Basic Gene information | geneMetadata.json | json | true | true | true |
+| DAF | Disease Annotations File (DAF) | diseaseMetaDataDefinition.json | json | true | true | true |
+| ORTHO | Orthology File | orthoHeader.json | json | true | true | true |
+| ALLELE | Allele File | alleleMetadata.json | json | true | true | true |
+| GAF | Gene Annotations File (GAF) | - | gaf | true | false | false |
+| GFF | Gene Feature File | - | gff | true | false | false |
 
 ## TaxonId
 
@@ -81,9 +78,8 @@ Valid combinations for Schema-DataType-TaxonId are as follows:
 
 | Type | What does it mean? |
 | --------------- | --- |
-| SchemaVersion\_DataType\_TaxonId | Validation will occur for BGI, DOA, ORTHO, FEATURE and not for GOA and GFF, all files will be stored under the Schema Directory in S3. |
-| DataType\_TaxonId | Validation will occur for BGI, DOA, ORTHO, FEATURE and not for GOA and GFF, the current schema version will get looked up from Github. All files will be stored under the Schema Directory in S3. Invalid for GO, SO, DO. (TaxonId is not required for this data type)
-| DataType | This is only valid for GO, SO, DO. These files will not get validated, but the current schema will get looked up from Github and these files will get stored under the Schema Directory in S3. |
+| SchemaVersion\_DataType\_TaxonId | Validation will occur for BGI, DAF, ORTHO, FEATURE and not for GAF and GFF, all files will be stored under the Schema Directory in S3. |
+| DataType\_TaxonId | Validation will occur for BGI, DAF, ORTHO, FEATURE and not for GAF and GFF, the current schema version will get looked up from Github. All files will be stored under the Schema Directory in S3.
 | SchemaVersion-DataType | Invalid (Data Type not found for: SchemaVersion) |
 
 ### Valid examples for submitting files
@@ -105,15 +101,11 @@ Valid combinations for Schema-DataType-TaxonId are as follows:
 	> curl \
 		-H "api_access_token: 2C07D715..." \
 		-X POST "http://www.alliancegenome.org/api/data/submit" \
-		-F "GOA_10090=@gene_association_1.0.mgi.gaf"
+		-F "GAF_10090=@gene_association_1.0.mgi.gaf"
 	> curl \
 		-H "api_access_token: 2C07D715..." \
 		-X POST "http://www.alliancegenome.org/api/data/submit" \
 		-F "FEATURE_7955=@ZFIN_1.0.4_feature.json"
-	> curl \
-		-H "api_access_token: 2C07D715..." \
-		-X POST "http://www.alliancegenome.org/api/data/submit" \
-		-F "GO=@go_1.0.obo"
 	
 #### Multiple files at a time
 
@@ -122,7 +114,7 @@ Valid combinations for Schema-DataType-TaxonId are as follows:
 		-X POST "http://www.alliancegenome.org/api/data/submit" \
 		-F "0.7.0_BGI_7227=@FB_1.0.4_BGI.json" \
 		-F "0.7.0_FEATURE_7227=@FB_1.0.4_feature.json" \
-		-F "0.7.0_DOA_7227=@FB_1.0.4_disease.json" \
+		-F "0.7.0_DAF_7227=@FB_1.0.4_disease.json" \
 		-F "0.7.0_GFF_7227=@FB_1.0.4_GFF.gff"
 		
 	> curl \
@@ -130,7 +122,7 @@ Valid combinations for Schema-DataType-TaxonId are as follows:
 		-X POST "http://www.alliancegenome.org/api/data/submit" \
 		-F "BGI_7227=@FB_1.0.4_BGI.json" \
 		-F "FEATURE_7227=@FB_1.0.4_feature.json" \
-		-F "DOA_7227=@FB_1.0.4_disease.json" \
+		-F "DAF_7227=@FB_1.0.4_disease.json" \
 		-F "GFF_7227=@FB_1.0.4_GFF.gff"	
 
 
@@ -147,7 +139,7 @@ For the following command:
 		-X POST "http://www.alliancegenome.org/api/data/submit" \
 		-F "0.7.0_BGI_7227=@FB_1.0.4_BGI.json" \
 		-F "0.7.0_FEATURE_7227=@FB_1.0.4_feature.json" \
-		-F "0.7.0_DOA_7227=@FB_1.0.4_disease.json" \
+		-F "0.7.0_DAF_7227=@FB_1.0.4_disease.json" \
 		-F "0.7.0_GFF_7227=@FB_1.0.4_GFF.gff"
 
 <details>
@@ -156,7 +148,7 @@ For the following command:
 ```{
 	"fileStatus": {
 		"0.7.0_BGI_7227":"success",
-		"0.7.0_DOA_7227":"success",
+		"0.7.0_DAF_7227":"success",
 		"0.7.0_GFF_7227":"success",
 		"0.7.0_FEATURE_7227":"success"
 	},
@@ -172,7 +164,7 @@ For the following command (Missing API Access Token):
 		-X POST "http://www.alliancegenome.org/api/data/submit" \
 		-F "0.7.0_BGI_10090=@MGI_1.0.4_BGI.json" \
 		-F "0.7.0_FEATURE_10090=@MGI_1.0.4_feature.json" \
-		-F "0.7.0_DOA_10090=@MGI_1.0.4_disease.json" \
+		-F "0.7.0_DAF_10090=@MGI_1.0.4_disease.json" \
 		-F "0.7.0_GFF_10090=@MGI_1.0.4_GFF.gff" 
 
 <details>
@@ -182,7 +174,7 @@ For the following command (Missing API Access Token):
 	"fileStatus": {
 		"0.7.0_BGI_10090":"Authentication Failure: Please check your api_access_token",
 		"0.7.0_FEATURE_10090":"Authentication Failure: Please check your api_access_token",
-		"0.7.0_DOA_10090":"Authentication Failure: Please check your api_access_token",
+		"0.7.0_DAF_10090":"Authentication Failure: Please check your api_access_token",
 		"0.7.0_GFF_10090":"Authentication Failure: Please check your api_access_token"
 	},
 	"status":"failed"
@@ -196,7 +188,7 @@ For the following command (Errors in BGI):
 		-X POST "http://www.alliancegenome.org/api/data/submit" \
 		-F "0.7.0_BGI_10090=@MGI_1.0.4_BGI.json" \
 		-F "0.7.0_FEATURE_10090=@MGI_1.0.4_feature.json" \
-		-F "0.7.0_DOA_10090=@MGI_1.0.4_disease.json" \
+		-F "0.7.0_DAF_10090=@MGI_1.0.4_disease.json" \
 		-F "0.7.0_GFF_10090=@MGI_1.0.4_GFF.gff" 
 
 <details>
@@ -206,7 +198,7 @@ For the following command (Errors in BGI):
 	"fileStatus": {
 		"0.7.0_FEATURE_10090":"success",
 		"0.7.0_BGI_10090":"string \"https://en.wikipedia.org/wiki/Cathepsin L2\" is not a valid URI",
-		"0.7.0_DOA_10090":"success",
+		"0.7.0_DAF_10090":"success",
 		"0.7.0_GFF_10090":"Unable to complete multi-part upload. Individual part upload failed : Your socket connection to the server was not read from or written to within the timeout period. Idle connections will be closed. (Service: Amazon S3; Status Code: 400; Error Code: RequestTimeout; Request ID: 3ABBDFD90F0C4CAA)"
 	},
 	"status":"failed"
@@ -279,9 +271,9 @@ The following command, can be used to pull a specific SnapShot by release versio
         },
         {
             "schemaVersion": "1.0.0.2",
-            "dataType": "DOA",
+            "dataType": "DAF",
             "taxonId": "10090",
-            "path": "1.0.0.2/DOA/10090/1.0.0.2\_DOA\_10090\_0.json",
+            "path": "1.0.0.2/DAF/10090/1.0.0.2\_DAF\_10090\_0.json",
             "uploadDate": 1522181816273
         },
         {
@@ -307,9 +299,9 @@ The following command, can be used to pull a specific SnapShot by release versio
         },
         {
             "schemaVersion": "1.0.0.2",
-            "dataType": "DOA",
+            "dataType": "DAF",
             "taxonId": "7955",
-            "path": "1.0.0.2/DOA/7955/1.0.0.2\_DOA\_7955\_1.json",
+            "path": "1.0.0.2/DAF/7955/1.0.0.2\_DAF\_7955\_1.json",
             "uploadDate": 1522180298184
         }
     ]
@@ -341,9 +333,9 @@ This will take a snapshot of all the latest datafiles for each Taxon Id by each 
         },
         {
             "schemaVersion": "1.0.0.2",
-            "dataType": "DOA",
+            "dataType": "DAF",
             "taxonId": "10090",
-            "path": "1.0.0.2/DOA/10090/1.0.0.2\_DOA\_10090\_0.json",
+            "path": "1.0.0.2/DAF/10090/1.0.0.2\_DAF\_10090\_0.json",
             "uploadDate": 1522181816273
         },
         {
@@ -369,9 +361,9 @@ This will take a snapshot of all the latest datafiles for each Taxon Id by each 
         },
         {
             "schemaVersion": "1.0.0.2",
-            "dataType": "DOA",
+            "dataType": "DAF",
             "taxonId": "7955",
-            "path": "1.0.0.2/DOA/7955/1.0.0.2\_DOA\_7955\_1.json",
+            "path": "1.0.0.2/DAF/7955/1.0.0.2\_DAF\_7955\_1.json",
             "uploadDate": 1522180298184
         }
     ]
