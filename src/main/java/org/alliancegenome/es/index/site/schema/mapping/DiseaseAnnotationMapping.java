@@ -20,6 +20,7 @@ public class DiseaseAnnotationMapping extends Mapping {
             new FieldBuilder(builder,"associationType","text").symbol().autocomplete().keyword().standardText().build();
             new FieldBuilder(builder,"publication.pubModId","text").symbol().autocomplete().keyword().standardText().build();
             new FieldBuilder(builder,"publication.pubMedId","text").symbol().autocomplete().keyword().standardText().build();
+            new FieldBuilder(builder,"source.species.name","text").symbol().autocomplete().keyword().standardText().build();
 
             buildNestedDocument("featureDocument");
             buildNestedDocument("geneDocument");
