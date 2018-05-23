@@ -28,6 +28,7 @@ public class DiseaseAnnotationToTdfTranslator {
         headerJoiner.add("Genetic Entity ID");
         headerJoiner.add("Genetic Entity Symbol");
         headerJoiner.add("Genetic Entity Type");
+        headerJoiner.add("Association Type");
         headerJoiner.add("Disease ID");
         headerJoiner.add("Disease Name");
         headerJoiner.add("Evidence Code");
@@ -55,7 +56,9 @@ public class DiseaseAnnotationToTdfTranslator {
             if (diseaseAnnotationDocument.getFeatureDocument() != null) {
                 joiner.add(diseaseAnnotationDocument.getFeatureDocument().getPrimaryKey());
                 joiner.add(diseaseAnnotationDocument.getFeatureDocument().getSymbol());
+                joiner.add("allele");
             } else {
+                joiner.add("");
                 joiner.add("");
                 joiner.add("");
             }
