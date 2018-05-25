@@ -57,20 +57,30 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            System.exit(0);
+            System.exit(-1);
         }
     }
 
     protected abstract void index();
 
     public void runIndex() {
-        index();
+        try {
+            index();
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.exit(-1);
+        }
     }
 
     @Override
     public void run() {
         super.run();
-        index();
+        try {
+            index();
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.exit(-1);
+        }
     }
 
     public void saveDocuments(Iterable<D> docs) {
