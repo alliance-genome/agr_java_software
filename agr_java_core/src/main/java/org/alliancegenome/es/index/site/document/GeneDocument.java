@@ -40,6 +40,7 @@ public class GeneDocument extends SearchableItemDocument {
     private String soTermName;
     private String release;
     private String geneSynopsis;
+    private String automatedGeneSynopsis;
     private List<String> gene_cellular_component;
     private List<OrthologyDoclet> orthology;
     private String geneticEntityExternalUrl;

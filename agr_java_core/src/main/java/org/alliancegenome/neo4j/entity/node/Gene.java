@@ -27,6 +27,7 @@ public class Gene extends Neo4jEntity implements Comparable<Gene> {
     private String geneLiterature;
     private String geneLiteratureUrl;
     private String geneSynopsis;
+    private String automatedGeneSynopsis;
     private String geneSynopsisUrl;
     private String dataProvider;
     private String name;
