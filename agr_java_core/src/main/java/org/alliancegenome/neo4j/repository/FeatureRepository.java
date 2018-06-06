@@ -20,7 +20,7 @@ public class FeatureRepository extends Neo4jRepository<Feature> {
 
         map.put("primaryKey", primaryKey);
         String query = "";
-        query += " MATCH p1=(feature:Feature)--(g:Gene)-[:FROM_SPECIES]-(q:Species) WHERE feature.primaryKey = {primaryKey}";
+        query += " MATCH p1=(synonyms:Synonym)--(feature:Feature)--(g:Gene)-[:FROM_SPECIES]-(q:Species) WHERE feature.primaryKey = {primaryKey}";
         query += " OPTIONAL MATCH p2=(do:DOTerm)--(diseaseJoin:DiseaseEntityJoin)--(feature)";
         query += " OPTIONAL MATCH p4=(do)--(diseaseJoin)-[:EVIDENCE]-(ea)";
         query += " OPTIONAL MATCH p3=(feature)--(diseaseJoin)--(g)";
