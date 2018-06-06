@@ -1,6 +1,7 @@
 package org.alliancegenome.api.service;
 
 import org.alliancegenome.es.index.site.dao.GeneDAO;
+import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.es.model.search.SearchResult;
 
 import javax.enterprise.context.RequestScoped;
@@ -21,6 +22,8 @@ public class GeneService {
     }
 
     public SearchResult getAllelesByGene(String id) {
-        return geneDAO.getAllelesByGene(id, null);
+        // temporary fix until we allow full pagination, sorting and filtering
+        Pagination pagination = new Pagination(1, 1000, null, null);
+        return geneDAO.getAllelesByGene(id, pagination);
     }
 }
