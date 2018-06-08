@@ -25,7 +25,7 @@ public class FeatureIndexer extends Indexer<FeatureDocument> {
     public void index() {
         try {
             LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>();
-            List<String> fulllist = featureRepository.getAllGeneKeys();
+            List<String> fulllist = featureRepository.getAllFeatureKeys();
             queue.addAll(fulllist);
             featureRepository.clearCache();
             initiateThreading(queue);
@@ -38,17 +38,17 @@ public class FeatureIndexer extends Indexer<FeatureDocument> {
     protected void startSingleThread(LinkedBlockingDeque<String> queue) {
         ArrayList<Feature> list = new ArrayList<>();
         FeatureRepository repo = new FeatureRepository();
-        FeatureTranslator geneTrans = new FeatureTranslator();
+        FeatureTranslator featureTranslator = new FeatureTranslator();
         while (true) {
             try {
                 if (list.size() >= indexerConfig.getBufferSize()) {
-                    saveDocuments(geneTrans.translateEntities(list));
+                    saveDocuments(featureTranslator.translateEntities(list));
                     repo.clearCache();
                     list.clear();
                 }
                 if (queue.isEmpty()) {
                     if (list.size() > 0) {
-                        saveDocuments(geneTrans.translateEntities(list));
+                        saveDocuments(featureTranslator.translateEntities(list));
                         repo.clearCache();
                         list.clear();
                     }
