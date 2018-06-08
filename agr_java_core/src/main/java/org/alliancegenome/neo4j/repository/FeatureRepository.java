@@ -20,11 +20,12 @@ public class FeatureRepository extends Neo4jRepository<Feature> {
 
         map.put("primaryKey", primaryKey);
         String query = "";
-        query += " MATCH p1=(synonyms:Synonym)--(feature:Feature)--(g:Gene)-[:FROM_SPECIES]-(q:Species) WHERE feature.primaryKey = {primaryKey}";
+        query += " MATCH p1=(feature:Feature)--(g:Gene)-[:FROM_SPECIES]-(q:Species) WHERE feature.primaryKey = {primaryKey}";
         query += " OPTIONAL MATCH p2=(do:DOTerm)--(diseaseJoin:DiseaseEntityJoin)--(feature)";
-        query += " OPTIONAL MATCH p4=(do)--(diseaseJoin)-[:EVIDENCE]-(ea)";
-        query += " OPTIONAL MATCH p3=(feature)--(diseaseJoin)--(g)";
-        query += " RETURN p1, p2, p3, p4";
+        query += " OPTIONAL MATCH p3=(do)--(diseaseJoin)-[:EVIDENCE]-(ea)";
+        query += " OPTIONAL MATCH p4=(feature)--(synonym:Synonym)";
+        query += " OPTIONAL MATCH p5=(feature)--(diseaseJoin)--(g)";
+        query += " RETURN p1, p2, p3, p4, p5";
 
         Iterable<Feature> genes = query(query, map);
         for (Feature g : genes) {
@@ -37,7 +38,7 @@ public class FeatureRepository extends Neo4jRepository<Feature> {
     }
 
 
-    public List<String> getAllGeneKeys() {
+    public List<String> getAllFeatureKeys() {
         String query = "MATCH (feature:Feature)--(g:Gene)-[:FROM_SPECIES]-(q:Species) RETURN feature.primaryKey";
 
         Result r = queryForResult(query);
