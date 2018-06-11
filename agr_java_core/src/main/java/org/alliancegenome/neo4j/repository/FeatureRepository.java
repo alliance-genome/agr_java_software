@@ -20,13 +20,13 @@ public class FeatureRepository extends Neo4jRepository<Feature> {
 
         map.put("primaryKey", primaryKey);
         String query = "";
-        query += " MATCH p1=(feature:Feature)--(g:Gene)-[:FROM_SPECIES]-(q:Species) WHERE feature.primaryKey = {primaryKey}";
-        query += " OPTIONAL MATCH p2=(do:DOTerm)--(diseaseJoin:DiseaseEntityJoin)--(feature)";
-        query += " OPTIONAL MATCH p3=(do)--(diseaseJoin)-[:EVIDENCE]-(ea)";
-        query += " OPTIONAL MATCH p4=(feature)--(synonym:Synonym)";
-        query += " OPTIONAL MATCH p5=(feature)--(diseaseJoin)--(g)";
+        query += " MATCH p1=(feature:Feature)-[:IS_ALLELE_OF]-(g:Gene)-[:FROM_SPECIES]-(q:Species) WHERE feature.primaryKey = {primaryKey}";
+        query += " OPTIONAL MATCH p2=(feature:Feature)-[:ASSOCIATION]-(diseaseJoin:DiseaseEntityJoin)-[:ASSOCIATION]-(do:DOTerm)";
+        query += " OPTIONAL MATCH p3=(do:DOTerm)-[:ASSOCIATION]-(diseaseJoin:DiseaseEntityJoin)-[:EVIDENCE]-(ea)";
+        query += " OPTIONAL MATCH p4=(feature:Feature)-[:ALSO_KNOWN_AS]-(synonym:Synonym)";
+        query += " OPTIONAL MATCH p5=(feature:Feature)-[:ASSOCIATION]-(diseaseJoin:DiseaseEntityJoin)-[:ASSOCIATION]-(g:Gene)";
         query += " RETURN p1, p2, p3, p4, p5";
-
+        
         Iterable<Feature> genes = query(query, map);
         for (Feature g : genes) {
             if (g.getPrimaryKey().equals(primaryKey)) {
