@@ -24,18 +24,21 @@ public abstract class Mapping extends Builder {
                 .symbol()
                 .autocomplete()
                 .keyword()
+                .keywordAutocomplete()
                 .htmlSmoosh()
                 .standardBigrams()
                 .build();
         new FieldBuilder(builder,"name_key","text").analyzer("symbols")
                 .autocomplete()
                 .keyword()
+                .keywordAutocomplete()
                 .htmlSmoosh()
                 .standardBigrams()
                 .build();
         new FieldBuilder(builder, "synonyms","text").analyzer("symbols")
                 .autocomplete()
                 .keyword()
+                .keywordAutocomplete()
                 .htmlSmoosh()
                 .standardBigrams()
                 .build();
@@ -43,7 +46,12 @@ public abstract class Mapping extends Builder {
         new FieldBuilder(builder, "href","keyword");
         new FieldBuilder(builder, "id","keyword");
         new FieldBuilder(builder, "description","text");
-        new FieldBuilder(builder, "symbol","text").analyzer("symbols").autocomplete().keyword().sort().build();
+        new FieldBuilder(builder, "symbol","text").analyzer("symbols")
+                .autocomplete()
+                .keyword()
+                .keywordAutocomplete()
+                .sort()
+                .build();
         new FieldBuilder(builder, "species","text").keyword().synonym().sort().build();
     }
 
@@ -89,6 +97,7 @@ public abstract class Mapping extends Builder {
         boolean autocomplete;
         boolean htmlSmoosh;
         boolean keyword;
+        boolean keywordAutocomplete;
         boolean sort;
         boolean standardBigrams;
         boolean standardText;
@@ -118,6 +127,11 @@ public abstract class Mapping extends Builder {
 
         public FieldBuilder keyword() {
             this.keyword = true;
+            return this;
+        }
+
+        public FieldBuilder keywordAutocomplete() {
+            this.keywordAutocomplete = true;
             return this;
         }
 
@@ -168,9 +182,10 @@ public abstract class Mapping extends Builder {
             builder.startObject(name);
             if(type != null) builder.field("type", type);
             if(analyzer != null) builder.field("analyzer", analyzer);
-            if(symbol || autocomplete || keyword || synonym || sort || standardText) {
+            if(symbol || autocomplete || keyword || keywordAutocomplete || synonym || sort || standardText) {
                 builder.startObject("fields");
                 if(keyword) { buildProperty("keyword", "keyword"); }
+                if(keywordAutocomplete) { buildProperty("keywordAutocomplete", "text", "keyword_autocomplete", "keyword_autocomplete_search", null); }
                 if(symbol) { buildProperty("symbol", "text", "symbols"); }
                 if(autocomplete) buildProperty("autocomplete", "text", "autocomplete", "autocomplete_search", null);
                 if(synonym) buildProperty("synonyms", "text", "generic_synonym", "autocomplete_search", null);
