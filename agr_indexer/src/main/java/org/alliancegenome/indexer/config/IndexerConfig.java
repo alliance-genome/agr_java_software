@@ -1,14 +1,11 @@
 package org.alliancegenome.indexer.config;
 
-import org.alliancegenome.indexer.indexers.DiseaseAnnotationIndexer;
-import org.alliancegenome.indexer.indexers.DiseaseIndexer;
-import org.alliancegenome.indexer.indexers.FeatureIndexer;
-import org.alliancegenome.indexer.indexers.GeneIndexer;
-import org.alliancegenome.indexer.indexers.GoIndexer;
+import org.alliancegenome.indexer.indexers.*;
 
 public enum IndexerConfig {
 
     GeneIndexer("gene", GeneIndexer.class, 4, 500),
+    PhenotypeIndexer("phenotype", PhenotypeIndexer.class, 2, 100),
     DiseaseIndexer("disease", DiseaseIndexer.class, 2, 100),
     DiseaseAnnotationIndexer("diseaseAnnotation", DiseaseAnnotationIndexer.class, 2, 300),
     FeatureIndexer("feature", FeatureIndexer.class, 2, 500),

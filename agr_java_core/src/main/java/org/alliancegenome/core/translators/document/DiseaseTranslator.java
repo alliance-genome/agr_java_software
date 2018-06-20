@@ -81,7 +81,7 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
         return doc;
     }
 
-    public List<DiseaseDocument> getDiseaseDocuments(Gene entity, List<DiseaseEntityJoin> diseaseJoins, int translationDepth) {
+    public List<DiseaseDocument> getDiseaseDocuments(Gene gene, List<DiseaseEntityJoin> diseaseJoins, int translationDepth) {
         // group by disease
         Map<DOTerm, List<DiseaseEntityJoin>> diseaseMap = diseaseJoins.stream()
                 .collect(Collectors.groupingBy(DiseaseEntityJoin::getDisease));
@@ -91,7 +91,7 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
         diseaseMap.forEach((doTerm, diseaseEntityJoins) -> {
             if (translationDepth > 0) {
                 try {
-                    DiseaseDocument doc = entityToDocument(doTerm, entity, diseaseEntityJoins, translationDepth - 1); // This needs to not happen if being called from DiseaseTranslator
+                    DiseaseDocument doc = entityToDocument(doTerm, gene, diseaseEntityJoins, translationDepth - 1); // This needs to not happen if being called from DiseaseTranslator
                     if (!diseaseList.contains(doc))
                         diseaseList.add(doc);
                 } catch (Exception e) {
