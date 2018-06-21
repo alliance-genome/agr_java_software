@@ -63,6 +63,7 @@ public class DiseaseIndexer extends Indexer<DiseaseDocument> {
                 }
             } catch (Exception e) {
                 log.error("Error while indexing...", e);
+                System.exit(-1);
                 return;
             }
         }

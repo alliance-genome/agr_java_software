@@ -65,6 +65,7 @@ public class DiseaseAnnotationIndexer extends Indexer<DiseaseAnnotationDocument>
                 }
             } catch (Exception e) {
                 log.error("Error while indexing...", e);
+                System.exit(-1);
                 return;
             }
         }
