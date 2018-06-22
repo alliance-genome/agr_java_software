@@ -54,8 +54,7 @@ public class SiteMapController extends BaseController implements SiteMapRESTInte
     private String buildUrl(UriInfo uriInfo, String inUrl) {
         final URI uri = uriInfo.getAbsolutePath();
         final StringBuilder url = new StringBuilder();
-        url.append(uri.getScheme());
-        url.append("://");
+        url.append("https://");
         url.append(uri.getHost());
 
         final int port = uri.getPort();
