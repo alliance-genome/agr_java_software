@@ -25,8 +25,8 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         query += " OPTIONAL MATCH p5=(g)--(s:DiseaseEntityJoin)--(feature:Feature)";
         query += " OPTIONAL MATCH p2=(do:DOTerm)--(s:DiseaseEntityJoin)-[:EVIDENCE]-(ea)";
         query += " OPTIONAL MATCH p4=(g)--(s:OrthologyGeneJoin)--(a:OrthoAlgorithm), p3=(g)-[o:ORTHOLOGOUS]-(g2:Gene)-[:FROM_SPECIES]-(q2:Species), (s)--(g2)";
-        query += " OPTIONAL MATCH p6=(g)--(pej:PhenotypeEntityJoin)--(phenotype:Phenotype), p7=(pej:PhenotypeEntityJoin)-[evidence:EVIDENCE]-(pub:Publication)";
-        query += " OPTIONAL MATCH p8=(g)--(pej:PhenotypeEntityJoin)--(ff:Feature)";
+        query += " OPTIONAL MATCH p6=(g)--(pej:PhenotypeEntityJoin)--(phenotype:Phenotype), p7=(g)--(s:PhenotypeEntityJoin)-[evidence:EVIDENCE]-(pub:Publication)";
+        query += " OPTIONAL MATCH p8=(g)--(s:PhenotypeEntityJoin)--(ff:Feature)";
         query += " RETURN p1, p2, p3, p4, p5, p6, p7, p8";
 
         Iterable<Gene> genes = query(query, map);

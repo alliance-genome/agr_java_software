@@ -56,7 +56,14 @@ public class PhenotypeTranslator extends EntityDocumentTranslator<Phenotype, Phe
 
     public List<PhenotypeDocument> getPhenotypeDocuments(Gene gene, List<PhenotypeEntityJoin> phenotypeJoins, int translationDepth) {
         // group by phenotype
+
+        phenotypeJoins.forEach(join -> {
+            if (join.getPhenotype() == null)
+                System.out.println(gene.getPrimaryKey());
+        });
+
         Map<Phenotype, List<PhenotypeEntityJoin>> phenotypeMap = phenotypeJoins.stream()
+                .filter(join -> join.getPhenotype() != null)
                 .collect(Collectors.groupingBy(PhenotypeEntityJoin::getPhenotype));
         List<PhenotypeDocument> phenotypeList = new ArrayList<>();
         // for each phenotype create annotation doc
