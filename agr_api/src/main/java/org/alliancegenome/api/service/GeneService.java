@@ -26,4 +26,8 @@ public class GeneService {
         Pagination pagination = new Pagination(1, 1000, null, null);
         return geneDAO.getAllelesByGene(id, pagination);
     }
+
+    public SearchResult getPhenotypeAnnotations(String id, Pagination pagination) {
+        return geneDAO.getPhenotypeAnnotations(id, pagination);
+    }
 }

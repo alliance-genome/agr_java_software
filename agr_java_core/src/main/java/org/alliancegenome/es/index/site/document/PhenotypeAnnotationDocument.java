@@ -11,10 +11,12 @@ import java.util.List;
 
 @Getter @Setter
 public class PhenotypeAnnotationDocument extends ESDocument implements Comparable<PhenotypeAnnotationDocument> {
-    
+
+    public static final String CATEGORY = "phenotypeAnnotation";
     private String primaryKey;
-    private String category = "phenotypeAnnotation";
+    private String category = CATEGORY;
     private SourceDoclet source;
+    private String phenotype;
     private GeneDocument geneDocument;
     private FeatureDocument featureDocument;
     private List<PublicationDoclet> publications;

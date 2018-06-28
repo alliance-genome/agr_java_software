@@ -2,11 +2,7 @@ package org.alliancegenome.api.rest.interfaces;
 
 import java.util.Map;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 
 import io.swagger.annotations.Api;
@@ -36,4 +32,17 @@ public interface GeneRESTInterface {
             @PathParam("id") String id
     );
 
+    @GET
+    @Path("/{id}/phenotypes")
+    public SearchResult getDiseaseAnnotationsSorted(
+            @PathParam("id") String id,
+            @DefaultValue("20") @QueryParam("limit") int limit,
+            @DefaultValue("1") @QueryParam("page") int page,
+            @QueryParam("sortBy") String sortBy,
+            @QueryParam("geneticEntity") String geneticEntity,
+            @QueryParam("geneticEntityType") String geneticEntityType,
+            @QueryParam("phenotype") String phenotype,
+            @QueryParam("reference") String reference,
+            @QueryParam("evidenceCode") String evidenceCode,
+            @QueryParam("asc") String asc);
 }

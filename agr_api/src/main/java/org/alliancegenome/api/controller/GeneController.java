@@ -4,10 +4,14 @@ import java.util.Map;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.NotFoundException;
+import javax.ws.rs.core.Context;
 
 import org.alliancegenome.api.rest.interfaces.GeneRESTInterface;
 import org.alliancegenome.api.service.GeneService;
+import org.alliancegenome.es.model.query.FieldFilter;
+import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.es.model.search.SearchResult;
 
 @RequestScoped
@@ -15,6 +19,9 @@ public class GeneController extends BaseController implements GeneRESTInterface 
 
     @Inject
     private GeneService geneService;
+
+    @Context
+    private HttpServletResponse response;
 
     @Override
     public Map<String, Object> getGene(String id) {
@@ -30,5 +37,40 @@ public class GeneController extends BaseController implements GeneRESTInterface 
     public SearchResult getAllelesPerGene(String id) {
         return geneService.getAllelesByGene(id);
     }
+
+    @Override
+    public SearchResult getDiseaseAnnotationsSorted(String id,
+                                                    int limit,
+                                                    int page,
+                                                    String sortBy,
+                                                    String geneticEntity,
+                                                    String geneticEntityType,
+                                                    String phenotype,
+                                                    String reference,
+                                                    String evidenceCode,
+                                                    String asc) {
+        Pagination pagination = new Pagination(page, limit, sortBy, asc);
+        pagination.addFieldFilter(FieldFilter.GENETIC_ENTITY, geneticEntity);
+        pagination.addFieldFilter(FieldFilter.GENETIC_ENTITY_TYPE, geneticEntityType);
+        pagination.addFieldFilter(FieldFilter.PHENOTYPE, phenotype);
+        pagination.addFieldFilter(FieldFilter.REFERENCE, reference);
+        pagination.addFieldFilter(FieldFilter.EVIDENCE_CODE, evidenceCode);
+        return getSearchResult(id, pagination);
+    }
+
+    private SearchResult getSearchResult(String id, Pagination pagination) {
+        if (pagination.hasErrors()) {
+            response.setStatus(HttpServletResponse.SC_NOT_ACCEPTABLE);
+            try {
+                response.flushBuffer();
+            } catch (Exception ignored) {
+            }
+            SearchResult searchResult = new SearchResult();
+            searchResult.errorMessages = pagination.getErrorList();
+            return searchResult;
+        }
+        return geneService.getPhenotypeAnnotations(id, pagination);
+    }
+
 
 }

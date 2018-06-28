@@ -1,11 +1,9 @@
 package org.alliancegenome.core.translators.document;
 
 import org.alliancegenome.core.translators.EntityDocumentTranslator;
-import org.alliancegenome.core.translators.doclet.CrossReferenceDocletTranslator;
 import org.alliancegenome.es.index.site.doclet.PublicationDoclet;
 import org.alliancegenome.es.index.site.doclet.SourceDoclet;
 import org.alliancegenome.es.index.site.doclet.SpeciesDoclet;
-import org.alliancegenome.es.index.site.document.DiseaseAnnotationDocument;
 import org.alliancegenome.es.index.site.document.PhenotypeAnnotationDocument;
 import org.alliancegenome.es.index.site.document.PhenotypeDocument;
 import org.alliancegenome.neo4j.entity.SpeciesType;
@@ -57,11 +55,6 @@ public class PhenotypeTranslator extends EntityDocumentTranslator<Phenotype, Phe
     public List<PhenotypeDocument> getPhenotypeDocuments(Gene gene, List<PhenotypeEntityJoin> phenotypeJoins, int translationDepth) {
         // group by phenotype
 
-        phenotypeJoins.forEach(join -> {
-            if (join.getPhenotype() == null)
-                System.out.println(gene.getPrimaryKey());
-        });
-
         Map<Phenotype, List<PhenotypeEntityJoin>> phenotypeMap = phenotypeJoins.stream()
                 .filter(join -> join.getPhenotype() != null)
                 .collect(Collectors.groupingBy(PhenotypeEntityJoin::getPhenotype));
@@ -103,6 +96,7 @@ public class PhenotypeTranslator extends EntityDocumentTranslator<Phenotype, Phe
                     return featureMap.entrySet().stream()
                             .map(featureMapEntry -> {
                                 PhenotypeAnnotationDocument document = new PhenotypeAnnotationDocument();
+                                document.setPhenotype(phenotype.getPhenotypeStatement());
                                 document.setGeneDocument(geneTranslator.translate(geneMapEntry.getKey(), 0));
                                 Feature feature = featureMapEntry.getKey();
                                 if (feature != null) {
@@ -128,17 +122,17 @@ public class PhenotypeTranslator extends EntityDocumentTranslator<Phenotype, Phe
                 .collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
-    public Map<Gene, Map<Optional<Feature>, List<DiseaseEntityJoin>>> getGeneFeatureAnnotationMap(DOTerm entity, Gene gene) {
+    public Map<Gene, Map<Optional<Feature>, List<PhenotypeEntityJoin>>> getGeneFeatureAnnotationMap(Phenotype phenotype, Gene gene) {
         // group by gene then by feature
-        Map<Gene, Map<Optional<Feature>, List<DiseaseEntityJoin>>> geneAssociationMap = entity.getDiseaseEntityJoins().stream()
-                .filter(diseaseEntityJoin -> gene == null || diseaseEntityJoin.getGene().equals(gene))
+        Map<Gene, Map<Optional<Feature>, List<PhenotypeEntityJoin>>> geneMap = phenotype.getPhenotypeEntityJoins().stream()
+                .filter(phenotypeEntityJoin -> gene == null || phenotypeEntityJoin.getGene().equals(gene))
                 .collect(
-                        groupingBy(DiseaseEntityJoin::getGene,
+                        groupingBy(PhenotypeEntityJoin::getGene,
                                 groupingBy(join -> Optional.ofNullable(join.getFeature())))
                 );
 
         // sort by gene symbol
-        return geneAssociationMap.entrySet().stream()
+        return geneMap.entrySet().stream()
                 .sorted(Map.Entry.comparingByKey())
                 .collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
@@ -257,5 +251,31 @@ public class PhenotypeTranslator extends EntityDocumentTranslator<Phenotype, Phe
 
     private SpeciesDoclet getSpeciesDoclet(Gene gene) {
         return gene.getSpecies().getType().getDoclet();
+    }
+
+    public Iterable<PhenotypeAnnotationDocument> translateAnnotationEntities(List<Phenotype> phenotypeList) {
+        Set<PhenotypeAnnotationDocument> phenotypeAnnotationDocuments = new HashSet<>();
+        // loop over all phenotypes
+        phenotypeList.forEach(phenotype -> {
+            Map<Gene, Map<Optional<Feature>, List<PhenotypeEntityJoin>>> sortedGeneMap = getGeneFeatureAnnotationMap(phenotype, null);
+            // loop over each gene
+            sortedGeneMap.forEach((gene, featurePhenotypeMap) -> {
+                // loop over each feature (may be null)
+                featurePhenotypeMap.forEach((optionalFeature, phenotypeEntityJoins) -> {
+                    PhenotypeAnnotationDocument document = new PhenotypeAnnotationDocument();
+                    document.setPhenotype(phenotype.getPhenotypeStatement());
+                    document.setGeneDocument(geneTranslator.translate(gene, 0));
+                    String primaryKey = phenotype.getPrimaryKey() + ":" + gene.getPrimaryKey();
+                    if (optionalFeature.isPresent()) {
+                        primaryKey += ":" + optionalFeature.get().getPrimaryKey();
+                        document.setFeatureDocument(featureTranslator.translate(optionalFeature.get(), 0));
+                    }
+                    document.setPrimaryKey(primaryKey);
+                    document.setPublications(getPublicationDoclets(phenotypeEntityJoins));
+                    phenotypeAnnotationDocuments.add(document);
+                });
+            });
+        });
+        return phenotypeAnnotationDocuments;
     }
 }
