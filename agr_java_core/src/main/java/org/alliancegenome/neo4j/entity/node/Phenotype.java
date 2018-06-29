@@ -2,14 +2,10 @@ package org.alliancegenome.neo4j.entity.node;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.alliancegenome.es.util.DateConverter;
 import org.alliancegenome.neo4j.entity.Neo4jEntity;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
-import org.neo4j.ogm.annotation.typeconversion.Convert;
 
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @NodeEntity

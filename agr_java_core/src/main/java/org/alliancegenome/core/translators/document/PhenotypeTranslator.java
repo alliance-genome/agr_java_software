@@ -1,13 +1,13 @@
 package org.alliancegenome.core.translators.document;
 
 import org.alliancegenome.core.translators.EntityDocumentTranslator;
-import org.alliancegenome.es.index.site.doclet.PublicationDoclet;
-import org.alliancegenome.es.index.site.doclet.SourceDoclet;
-import org.alliancegenome.es.index.site.doclet.SpeciesDoclet;
+import org.alliancegenome.core.translators.doclet.PublicationDocletListTranslator;
 import org.alliancegenome.es.index.site.document.PhenotypeAnnotationDocument;
 import org.alliancegenome.es.index.site.document.PhenotypeDocument;
-import org.alliancegenome.neo4j.entity.SpeciesType;
-import org.alliancegenome.neo4j.entity.node.*;
+import org.alliancegenome.neo4j.entity.node.Feature;
+import org.alliancegenome.neo4j.entity.node.Gene;
+import org.alliancegenome.neo4j.entity.node.Phenotype;
+import org.alliancegenome.neo4j.entity.node.PhenotypeEntityJoin;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -20,6 +20,7 @@ public class PhenotypeTranslator extends EntityDocumentTranslator<Phenotype, Phe
 
     private static GeneTranslator geneTranslator = new GeneTranslator();
     private static FeatureTranslator featureTranslator = new FeatureTranslator();
+    private static PublicationDocletListTranslator publicationDocletTranslator = new PublicationDocletListTranslator();
 
     private final Logger log = LogManager.getLogger(getClass());
 
@@ -52,7 +53,7 @@ public class PhenotypeTranslator extends EntityDocumentTranslator<Phenotype, Phe
         return doc;
     }
 
-    public List<PhenotypeDocument> getPhenotypeDocuments(Gene gene, List<PhenotypeEntityJoin> phenotypeJoins, int translationDepth) {
+    List<PhenotypeDocument> getPhenotypeDocuments(Gene gene, List<PhenotypeEntityJoin> phenotypeJoins, int translationDepth) {
         // group by phenotype
 
         Map<Phenotype, List<PhenotypeEntityJoin>> phenotypeMap = phenotypeJoins.stream()
@@ -76,8 +77,9 @@ public class PhenotypeTranslator extends EntityDocumentTranslator<Phenotype, Phe
         return phenotypeList;
     }
 
+    // generate PhenotypeAnnotationDocument records
     private List<PhenotypeAnnotationDocument> generateAnnotationDocument(Phenotype phenotype, Map<Gene, List<PhenotypeEntityJoin>> sortedGeneMap) {
-        // generate PhenotypeAnnotationDocument records
+        assert phenotype != null;
         return sortedGeneMap.entrySet().stream()
                 .map(geneMapEntry -> {
                     List<PhenotypeEntityJoin> featureJoins = geneMapEntry.getValue().stream()
@@ -88,7 +90,6 @@ public class PhenotypeTranslator extends EntityDocumentTranslator<Phenotype, Phe
                             .collect(toList());
 
                     Map<Feature, List<PhenotypeEntityJoin>> featureMap = featureJoins.stream()
-                            .filter(entry -> phenotype != null)
                             .collect(Collectors.groupingBy(PhenotypeEntityJoin::getFeature
                             ));
                     if (!featurelessJoins.isEmpty())
@@ -102,7 +103,7 @@ public class PhenotypeTranslator extends EntityDocumentTranslator<Phenotype, Phe
                                 if (feature != null) {
                                     document.setFeatureDocument(featureTranslator.translate(feature, 0));
                                 }
-                                document.setPublications(getPublicationDoclets(featureMapEntry.getValue()));
+                                document.setPublications(publicationDocletTranslator.getPublicationDoclets(featureMapEntry.getValue()));
                                 return document;
                             }).collect(Collectors.toList());
                 })
@@ -122,7 +123,7 @@ public class PhenotypeTranslator extends EntityDocumentTranslator<Phenotype, Phe
                 .collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
-    public Map<Gene, Map<Optional<Feature>, List<PhenotypeEntityJoin>>> getGeneFeatureAnnotationMap(Phenotype phenotype, Gene gene) {
+    private Map<Gene, Map<Optional<Feature>, List<PhenotypeEntityJoin>>> getGeneFeatureAnnotationMap(Phenotype phenotype, Gene gene) {
         // group by gene then by feature
         Map<Gene, Map<Optional<Feature>, List<PhenotypeEntityJoin>>> geneMap = phenotype.getPhenotypeEntityJoins().stream()
                 .filter(phenotypeEntityJoin -> gene == null || phenotypeEntityJoin.getGene().equals(gene))
@@ -135,24 +136,6 @@ public class PhenotypeTranslator extends EntityDocumentTranslator<Phenotype, Phe
         return geneMap.entrySet().stream()
                 .sorted(Map.Entry.comparingByKey())
                 .collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
-    }
-
-    private PublicationDoclet getPublicationDoclet(PhenotypeEntityJoin association, Publication publication) {
-        PublicationDoclet pubDoc = new PublicationDoclet();
-        pubDoc.setPrimaryKey(publication.getPrimaryKey());
-
-        pubDoc.setPubMedId(publication.getPubMedId());
-        pubDoc.setPubMedUrl(publication.getPubMedUrl());
-        pubDoc.setPubModId(publication.getPubModId());
-        pubDoc.setPubModUrl(publication.getPubModUrl());
-
-/*
-        Set<String> evidencesDocument = association.getEvidenceCodes().stream()
-                .map(EvidenceCode::getPrimaryKey)
-                .collect(Collectors.toSet());
-        pubDoc.setEvidenceCodes(evidencesDocument);
-*/
-        return pubDoc;
     }
 
     private PhenotypeDocument getPhenotypeDocument(Phenotype phenotype) {
@@ -171,86 +154,9 @@ public class PhenotypeTranslator extends EntityDocumentTranslator<Phenotype, Phe
         return document;
     }
 
-    private List<SourceDoclet> getSourceUrls(DOTerm doTerm) {
-
-        List<SourceDoclet> sourceDoclets = Arrays.stream(SpeciesType.values())
-                .map(speciesType -> {
-                    SourceDoclet doclet = new SourceDoclet();
-                    doclet.setSpecies(speciesType.getDoclet());
-                    doclet.setName(speciesType.getDisplayName());
-                    if (speciesType.equals(SpeciesType.HUMAN)) {
-                        doclet.setName(SpeciesType.RAT.getDisplayName());
-                        doclet.setDiseaseUrl(doTerm.getHumanOnlyRgdLink());
-                    }
-                    if (speciesType == SpeciesType.FLY && doTerm.getFlybaseLink() != null) {
-                        doclet.setUrl(doTerm.getFlybaseLink());
-                        doclet.setDiseaseUrl(doTerm.getFlybaseLink());
-                    }
-                    if (speciesType == SpeciesType.RAT && doTerm.getRgdLink() != null) {
-                        doclet.setUrl(doTerm.getRgdLink());
-                        doclet.setDiseaseUrl(doTerm.getRatOnlyRgdLink());
-                    }
-                    if (speciesType == SpeciesType.MOUSE && doTerm.getMgiLink() != null) {
-                        doclet.setUrl(doTerm.getMgiLink());
-                        doclet.setDiseaseUrl(doTerm.getMgiLink());
-                    }
-                    if (speciesType == SpeciesType.ZEBRAFISH && doTerm.getZfinLink() != null) {
-                        doclet.setUrl(doTerm.getZfinLink());
-                        doclet.setDiseaseUrl(doTerm.getZfinLink());
-                    }
-                    if (speciesType == SpeciesType.HUMAN && doTerm.getHumanLink() != null) {
-                        doclet.setUrl(doTerm.getHumanLink());
-                    }
-                    if (speciesType == SpeciesType.WORM && doTerm.getWormbaseLink() != null) {
-                        doclet.setUrl(doTerm.getWormbaseLink());
-                        doclet.setDiseaseUrl(doTerm.getWormbaseLink());
-                    }
-                    return doclet;
-                })
-                .collect(toList());
-
-        return sourceDoclets;
-    }
-
     @Override
     protected Phenotype documentToEntity(PhenotypeDocument document, int translationDepth) {
         return null;
-    }
-
-    private List<PublicationDoclet> getPublicationDoclets(List<PhenotypeEntityJoin> phenotypeEntityJoins) {
-        Set<PublicationDoclet> publicationDocuments = phenotypeEntityJoins.stream()
-                // filter out records that do not have valid pub / evidence code entries
-                .filter(phenotypeEntityJoin ->
-                        getPublicationDoclet(phenotypeEntityJoin, phenotypeEntityJoin.getPublication()) != null
-                )
-                .map(diseaseGeneJoin -> {
-                    Publication publication = diseaseGeneJoin.getPublication();
-                    return getPublicationDoclet(diseaseGeneJoin, publication);
-                })
-                .collect(Collectors.toSet());
-        List<PublicationDoclet> pubDocletListRaw = new ArrayList<>(publicationDocuments);
-        pubDocletListRaw.sort(PublicationDoclet::compareTo);
-
-        // get evidence codes for same pub onto s
-        List<PublicationDoclet> pubDocletList = new ArrayList<>();
-        for (PublicationDoclet doclet : pubDocletListRaw) {
-            PublicationDoclet existingDoclet = null;
-            for (PublicationDoclet finalDoclet : pubDocletList) {
-                if (doclet.compareTo(finalDoclet) == 0) {
-                    existingDoclet = finalDoclet;
-                }
-            }
-            if (existingDoclet == null) {
-                pubDocletList.add(doclet);
-            } else {
-//                existingDoclet.getEvidenceCodes().addAll(doclet.getEvidenceCodes());
-            }
-        }
-        return pubDocletList;
-    }
-
-    private SpeciesDoclet getSpeciesDoclet(Gene gene) {
-        return gene.getSpecies().getType().getDoclet();
     }
 
     public Iterable<PhenotypeAnnotationDocument> translateAnnotationEntities(List<Phenotype> phenotypeList) {
@@ -271,7 +177,7 @@ public class PhenotypeTranslator extends EntityDocumentTranslator<Phenotype, Phe
                         document.setFeatureDocument(featureTranslator.translate(optionalFeature.get(), 0));
                     }
                     document.setPrimaryKey(primaryKey);
-                    document.setPublications(getPublicationDoclets(phenotypeEntityJoins));
+                    document.setPublications(publicationDocletTranslator.getPublicationDoclets(phenotypeEntityJoins));
                     phenotypeAnnotationDocuments.add(document);
                 });
             });
