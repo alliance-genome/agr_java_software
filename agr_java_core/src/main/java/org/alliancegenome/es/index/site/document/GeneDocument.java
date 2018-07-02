@@ -32,6 +32,7 @@ public class GeneDocument extends SearchableItemDocument {
     private String dataProvider;
     private Date dateProduced;
     private List<DiseaseDocument> diseases = new ArrayList<>();
+    private List<PhenotypeDocument> phenotype = new ArrayList<>();
     private String geneSynopsisUrl;
     private String primaryId;
     private List<GenomeLocationDoclet> genomeLocations;

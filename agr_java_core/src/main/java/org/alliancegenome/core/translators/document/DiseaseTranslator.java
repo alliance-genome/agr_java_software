@@ -1,49 +1,32 @@
 package org.alliancegenome.core.translators.document;
 
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toMap;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import org.alliancegenome.core.translators.EntityDocumentTranslator;
 import org.alliancegenome.core.translators.doclet.CrossReferenceDocletTranslator;
+import org.alliancegenome.core.translators.doclet.PublicationDocletListTranslator;
 import org.alliancegenome.es.index.site.doclet.CrossReferenceDoclet;
-import org.alliancegenome.es.index.site.doclet.PublicationDoclet;
 import org.alliancegenome.es.index.site.doclet.SourceDoclet;
 import org.alliancegenome.es.index.site.doclet.SpeciesDoclet;
 import org.alliancegenome.es.index.site.document.AnnotationDocument;
 import org.alliancegenome.es.index.site.document.DiseaseAnnotationDocument;
 import org.alliancegenome.es.index.site.document.DiseaseDocument;
 import org.alliancegenome.neo4j.entity.SpeciesType;
-import org.alliancegenome.neo4j.entity.node.DOTerm;
-import org.alliancegenome.neo4j.entity.node.DiseaseEntityJoin;
-import org.alliancegenome.neo4j.entity.node.EvidenceCode;
-import org.alliancegenome.neo4j.entity.node.Feature;
-import org.alliancegenome.neo4j.entity.node.Gene;
-import org.alliancegenome.neo4j.entity.node.Publication;
-import org.alliancegenome.neo4j.entity.node.Species;
-import org.alliancegenome.neo4j.entity.node.Synonym;
+import org.alliancegenome.neo4j.entity.node.*;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.*;
 
 public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseDocument> {
 
     private static GeneTranslator geneTranslator = new GeneTranslator();
     private static FeatureTranslator featureTranslator = new FeatureTranslator();
     private static CrossReferenceDocletTranslator crossReferenceTranslator = new CrossReferenceDocletTranslator();
-    
+    private static PublicationDocletListTranslator publicationDocletTranslator = new PublicationDocletListTranslator();
+
     private final Logger log = LogManager.getLogger(getClass());
 
     @Override
@@ -59,7 +42,7 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
             return doc;
 
         Map<Gene, Map<String, List<DiseaseEntityJoin>>> sortedGeneAssociationMap = getGeneAnnotationMap(entity, gene);
-        List<AnnotationDocument> annotationDocuments = generateAnnotationDocument(entity, translationDepth, sortedGeneAssociationMap);
+        List<AnnotationDocument> annotationDocuments = generateAnnotationDocument(entity, sortedGeneAssociationMap);
         doc.setAnnotations(annotationDocuments);
         return doc;
     }
@@ -71,17 +54,17 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
             return doc;
 
         Map<String, List<DiseaseEntityJoin>> associationMap = dejList.stream()
-                .collect(Collectors.groupingBy(diseaseEntityJoin -> diseaseEntityJoin.getJoinType()));
+                .collect(Collectors.groupingBy(EntityJoin::getJoinType));
         Map<Gene, Map<String, List<DiseaseEntityJoin>>> map = new HashMap<>();
         map.put(gene, associationMap);
         // create AnnotationDocument objects per
         // disease, gene, Feature, association type
-        List<AnnotationDocument> annotationDocuments = generateAnnotationDocument(entity, translationDepth, map);
+        List<AnnotationDocument> annotationDocuments = generateAnnotationDocument(entity, map);
         doc.setAnnotations(annotationDocuments);
         return doc;
     }
 
-    public List<DiseaseDocument> getDiseaseDocuments(Gene entity, List<DiseaseEntityJoin> diseaseJoins, int translationDepth) {
+    public List<DiseaseDocument> getDiseaseDocuments(Gene gene, List<DiseaseEntityJoin> diseaseJoins, int translationDepth) {
         // group by disease
         Map<DOTerm, List<DiseaseEntityJoin>> diseaseMap = diseaseJoins.stream()
                 .collect(Collectors.groupingBy(DiseaseEntityJoin::getDisease));
@@ -91,7 +74,7 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
         diseaseMap.forEach((doTerm, diseaseEntityJoins) -> {
             if (translationDepth > 0) {
                 try {
-                    DiseaseDocument doc = entityToDocument(doTerm, entity, diseaseEntityJoins, translationDepth - 1); // This needs to not happen if being called from DiseaseTranslator
+                    DiseaseDocument doc = entityToDocument(doTerm, gene, diseaseEntityJoins, translationDepth - 1); // This needs to not happen if being called from DiseaseTranslator
                     if (!diseaseList.contains(doc))
                         diseaseList.add(doc);
                 } catch (Exception e) {
@@ -103,7 +86,7 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
         return diseaseList;
     }
 
-    private List<AnnotationDocument> generateAnnotationDocument(DOTerm entity, int translationDepth, Map<Gene, Map<String, List<DiseaseEntityJoin>>> sortedGeneAssociationMap) {
+    private List<AnnotationDocument> generateAnnotationDocument(DOTerm entity, Map<Gene, Map<String, List<DiseaseEntityJoin>>> sortedGeneAssociationMap) {
         // generate AnnotationDocument records
         return sortedGeneAssociationMap.entrySet().stream()
                 .map(geneMapEntry ->
@@ -134,7 +117,7 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
                                                 }
                                                 document.setAssociationType(associationEntry.getKey());
                                                 document.setSource(getSourceUrls(entity, geneMapEntry.getKey().getSpecies()));
-                                                document.setPublications(getPublicationDoclets(featureMapEntry.getValue()));
+                                                document.setPublications(publicationDocletTranslator.getPublicationDoclets(featureMapEntry.getValue()));
                                                 return document;
                                             })
                                             .collect(Collectors.toList());
@@ -145,29 +128,6 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
                 // the outer List<AnnotationDocument>
                 .flatMap(Collection::stream)
                 .collect(Collectors.toList());
-    }
-
-    private PublicationDoclet getPublicationDoclets(DiseaseEntityJoin diseaseEntityJoin) {
-        if (diseaseEntityJoin == null)
-            return null;
-        Publication publication = diseaseEntityJoin.getPublication();
-        PublicationDoclet pubDoc = new PublicationDoclet();
-        pubDoc.setPrimaryKey(publication.getPrimaryKey());
-        pubDoc.setPubMedId(publication.getPubMedId());
-        pubDoc.setPubMedUrl(publication.getPubMedUrl());
-        pubDoc.setPubModId(publication.getPubModId());
-        pubDoc.setPubModUrl(publication.getPubModUrl());
-
-        if (diseaseEntityJoin.getEvidenceCodes() == null) {
-            log.error("Could not find any evidence codes for " + diseaseEntityJoin.getGene().getPrimaryKey() + " and publication " + publication.getPrimaryKey());
-            return null;
-        }
-
-        Set<String> evidencesDocument = diseaseEntityJoin.getEvidenceCodes().stream()
-                .map(EvidenceCode::getPrimaryKey)
-                .collect(Collectors.toSet());
-        pubDoc.setEvidenceCodes(evidencesDocument);
-        return pubDoc;
     }
 
     private Map<Gene, Map<String, List<DiseaseEntityJoin>>> getGeneAnnotationMap(DOTerm entity, Gene gene) {
@@ -200,27 +160,6 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
                 .collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
-    private PublicationDoclet getPublicationDoclet(DiseaseEntityJoin association, Publication publication) {
-        PublicationDoclet pubDoc = new PublicationDoclet();
-        pubDoc.setPrimaryKey(publication.getPrimaryKey());
-
-        pubDoc.setPubMedId(publication.getPubMedId());
-        pubDoc.setPubMedUrl(publication.getPubMedUrl());
-        pubDoc.setPubModId(publication.getPubModId());
-        pubDoc.setPubModUrl(publication.getPubModUrl());
-
-        if (association.getEvidenceCodes() == null) {
-            log.error("Could not find any evidence codes for " + association.getGene().getPrimaryKey() + " and publication " + publication.getPrimaryKey());
-            return null;
-        }
-
-        Set<String> evidencesDocument = association.getEvidenceCodes().stream()
-                .map(EvidenceCode::getPrimaryKey)
-                .collect(Collectors.toSet());
-        pubDoc.setEvidenceCodes(evidencesDocument);
-        return pubDoc;
-    }
-
     private DiseaseDocument getTermDiseaseDocument(DOTerm doTerm) {
         return getTermDiseaseDocument(doTerm, false);
     }
@@ -248,7 +187,7 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
         if (doTerm.getCrossReferences() != null) {
             document.setCrossReferencesMap(doTerm.getCrossReferences()
                     .stream()
-                    .map(crossReference -> { return crossReferenceTranslator.translate(crossReference); })
+                    .map(crossReference -> crossReferenceTranslator.translate(crossReference))
                     .collect(Collectors.groupingBy(CrossReferenceDoclet::getType, Collectors.toList())));
         }
         
@@ -375,7 +314,7 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
                         document.setAssociationType(associationType);
                         document.setSpecies(getSpeciesDoclet(gene));
                         document.setSource(getSourceUrls(doTerm, gene.getSpecies()));
-                        document.setPublications(getPublicationDoclets(diseaseEntityJoinList));
+                        document.setPublications(publicationDocletTranslator.getPublicationDoclets(diseaseEntityJoinList));
                         if (optionalFeature.isPresent()) {
                             primaryKey += ":" + optionalFeature.get().getPrimaryKey();
                             document.setFeatureDocument(featureTranslator.translate(optionalFeature.get(), 0));
@@ -388,38 +327,6 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
             });
         });
         return diseaseAnnotationDocuments;
-    }
-
-    private List<PublicationDoclet> getPublicationDoclets(List<DiseaseEntityJoin> diseaseEntityJoinList) {
-        Set<PublicationDoclet> publicationDocuments = diseaseEntityJoinList.stream()
-                // filter out records that do not have valid pub / evidence code entries
-                .filter(diseaseGeneJoin ->
-                        getPublicationDoclet(diseaseGeneJoin, diseaseGeneJoin.getPublication()) != null
-                )
-                .map(diseaseGeneJoin -> {
-                    Publication publication = diseaseGeneJoin.getPublication();
-                    return getPublicationDoclet(diseaseGeneJoin, publication);
-                })
-                .collect(Collectors.toSet());
-        List<PublicationDoclet> pubDocletListRaw = new ArrayList<>(publicationDocuments);
-        pubDocletListRaw.sort(PublicationDoclet::compareTo);
-
-        // get evidence codes for same pub onto s
-        List<PublicationDoclet> pubDocletList = new ArrayList<>();
-        for (PublicationDoclet doclet : pubDocletListRaw) {
-            PublicationDoclet existingDoclet = null;
-            for (PublicationDoclet finalDoclet : pubDocletList) {
-                if (doclet.compareTo(finalDoclet) == 0) {
-                    existingDoclet = finalDoclet;
-                }
-            }
-            if (existingDoclet == null) {
-                pubDocletList.add(doclet);
-            } else {
-                existingDoclet.getEvidenceCodes().addAll(doclet.getEvidenceCodes());
-            }
-        }
-        return pubDocletList;
     }
 
     /**

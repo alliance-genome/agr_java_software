@@ -69,6 +69,8 @@ public abstract class Mapping extends Builder {
         DiseaseAnnotation("diseaseAnnotation", DiseaseAnnotationMapping.class),
         Feature("feature", FeatureMapping.class),
         Gene("gene", GeneMapping.class),
+        PHENOTYPE("phenotype", PhenotypeAnnotationMapping.class),
+        PHENOTYPE_ANNOTATION("phenotypeAnnotation", PhenotypeAnnotationMapping.class),
         Go("go", GoMapping.class),
         ;
 

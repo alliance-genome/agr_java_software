@@ -11,13 +11,10 @@ import org.apache.commons.logging.LogFactory;
 import org.elasticsearch.action.get.GetRequest;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.search.SearchRequestBuilder;
-import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.*;
 import org.elasticsearch.script.Script;
-import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.sort.ScriptSortBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
-import org.elasticsearch.search.sort.SortOrder;
 
 import java.util.*;
 import java.util.concurrent.ExecutionException;
@@ -29,16 +26,8 @@ public class DiseaseDAO extends ESDAO {
     public SearchResult getDiseaseAnnotations(String diseaseID, Pagination pagination) {
 
         SearchRequestBuilder searchRequestBuilder = getSearchRequestBuilder(diseaseID, pagination);
-        searchRequestBuilder.setSize(pagination.getLimit());
-        int fromIndex = pagination.getIndexOfFirstElement();
-        searchRequestBuilder.setFrom(fromIndex);
+        return getSearchResult(pagination, searchRequestBuilder);
 
-        SearchResponse response = searchRequestBuilder.execute().actionGet();
-        SearchResult result = new SearchResult();
-
-        result.total = response.getHits().totalHits;
-        result.results = formatResults(response);
-        return result;
     }
 
     private SearchRequestBuilder getSearchRequestBuilder(String diseaseID, Pagination pagination) {
@@ -57,7 +46,7 @@ public class DiseaseDAO extends ESDAO {
                     if (rawValue != null) {
                         // match multiple fields with prefix type
                         String[] fieldNameArray = fieldNames.toArray(new String[fieldNames.size()]);
-                        AbstractQueryBuilder termBuilder = null;
+                        AbstractQueryBuilder termBuilder;
                         if (fieldNameArray.length > 1) {
                             termBuilder = QueryBuilders.multiMatchQuery(rawValue.toLowerCase(), fieldNameArray)
                                     .type(MultiMatchQueryBuilder.Type.PHRASE_PREFIX);
@@ -88,29 +77,9 @@ public class DiseaseDAO extends ESDAO {
         return searchRequestBuilder;
     }
 
-    private SortOrder getAscending(Boolean ascending) {
-        return ascending ? SortOrder.ASC : SortOrder.DESC;
-    }
-
-    private ArrayList<Map<String, Object>> formatResults(SearchResponse response) {
-
-        log.debug("Formatting Results: ");
-        ArrayList<Map<String, Object>> ret = new ArrayList<>();
-
-        for (SearchHit hit : response.getHits()) {
-            hit.getSourceAsMap().put("id", hit.getId());
-            //hit.getSource().put("explain", hit.getExplanation());
-            ret.add(hit.getSourceAsMap());
-        }
-        log.debug("Finished Formatting Results: ");
-        return ret;
-    }
-
-
     public SearchHitIterator getDiseaseAnnotationsDownload(String id, Pagination pagination) {
         SearchRequestBuilder searchRequestBuilder = getSearchRequestBuilder(id, pagination);
-        SearchHitIterator hitIterator = new SearchHitIterator(searchRequestBuilder);
-        return hitIterator;
+        return new SearchHitIterator(searchRequestBuilder);
     }
 
     // This class is going to get replaced by a call to NEO
