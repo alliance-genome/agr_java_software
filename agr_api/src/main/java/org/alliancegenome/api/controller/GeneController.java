@@ -47,14 +47,12 @@ public class GeneController extends BaseController implements GeneRESTInterface 
                                                     String geneticEntityType,
                                                     String phenotype,
                                                     String reference,
-                                                    String evidenceCode,
                                                     String asc) {
         Pagination pagination = new Pagination(page, limit, sortBy, asc);
         pagination.addFieldFilter(FieldFilter.GENETIC_ENTITY, geneticEntity);
         pagination.addFieldFilter(FieldFilter.GENETIC_ENTITY_TYPE, geneticEntityType);
         pagination.addFieldFilter(FieldFilter.PHENOTYPE, phenotype);
         pagination.addFieldFilter(FieldFilter.REFERENCE, reference);
-        pagination.addFieldFilter(FieldFilter.EVIDENCE_CODE, evidenceCode);
         return getSearchResult(id, pagination);
     }
 
