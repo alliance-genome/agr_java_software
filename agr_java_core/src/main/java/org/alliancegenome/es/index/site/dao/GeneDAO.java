@@ -6,6 +6,7 @@ import org.alliancegenome.es.index.site.document.PhenotypeAnnotationDocument;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.es.model.search.SearchResult;
+import org.alliancegenome.es.util.SearchHitIterator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.elasticsearch.action.get.GetRequest;
@@ -149,5 +150,11 @@ public class GeneDAO extends ESDAO {
         phenotypeFieldFilterMap.put(FieldFilter.GENETIC_ENTITY_TYPE, Collections.singletonList("featureDocument.category.autocomplete"));
         phenotypeFieldFilterMap.put(FieldFilter.REFERENCE, Arrays.asList("publications.pubModId.standardText", "publications.pubMedId.standardText"));
     }
+
+    public SearchHitIterator getPhenotypeAnnotationsDownload(String id, Pagination pagination) {
+        SearchRequestBuilder searchRequestBuilder = getSearchRequestBuilderPhenotype(id, pagination);
+        return new SearchHitIterator(searchRequestBuilder);
+    }
+
 
 }

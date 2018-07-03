@@ -3,6 +3,7 @@ package org.alliancegenome.api.service;
 import org.alliancegenome.es.index.site.dao.GeneDAO;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.es.model.search.SearchResult;
+import org.alliancegenome.es.util.SearchHitIterator;
 
 import javax.enterprise.context.RequestScoped;
 import java.util.Map;
@@ -30,4 +31,9 @@ public class GeneService {
     public SearchResult getPhenotypeAnnotations(String id, Pagination pagination) {
         return geneDAO.getPhenotypeAnnotations(id, pagination);
     }
+
+    public SearchHitIterator getPhenotypeAnnotationsDownload(String id, Pagination pagination) {
+        return geneDAO.getPhenotypeAnnotationsDownload(id, pagination);
+    }
+
 }
