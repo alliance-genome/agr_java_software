@@ -1,6 +1,7 @@
 package org.alliancegenome.neo4j.repository;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import org.alliancegenome.neo4j.entity.node.GOTerm;
 import org.neo4j.ogm.model.Result;
@@ -46,7 +47,7 @@ public class GoRepository extends Neo4jRepository<GOTerm> {
             }
         }
 
-        term.setParentTermNames(parentTermNames);
+        term.setParentTermNames(parentTermNames.stream().collect(Collectors.toList()));
 
         return term;
     }
