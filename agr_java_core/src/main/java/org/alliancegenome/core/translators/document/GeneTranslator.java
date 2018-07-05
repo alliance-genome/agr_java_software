@@ -35,7 +35,7 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
     @Override
     protected GeneDocument entityToDocument(Gene gene, int translationDepth) {
         //log.info(entity);
-        HashMap<String, ArrayList<String>> goTerms = new HashMap<>();
+        HashMap<String, ArrayList<GOTerm>> goTerms = new HashMap<>();
 
         GeneDocument geneDocument = new GeneDocument();
 
@@ -73,18 +73,34 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
 
         // Setup Go Terms by type
         for (GOTerm term : gene.getGOTerms()) {
-            ArrayList<String> list = goTerms.get(term.getType());
+            ArrayList<GOTerm> list = goTerms.get(term.getType());
             if (list == null) {
                 list = new ArrayList<>();
                 goTerms.put(term.getType(), list);
             }
-            if (!list.contains(term.getName())) {
-                list.add(term.getName());
+            if (!list.contains(term)) {
+                list.add(term);
             }
         }
-        geneDocument.setGene_biological_process(goTerms.get("biological_process"));
-        geneDocument.setGene_cellular_component(goTerms.get("cellular_component"));
-        geneDocument.setGene_molecular_function(goTerms.get("molecular_function"));
+        geneDocument.setGene_biological_process(goTerms.get("biological_process").stream().map(GOTerm::getName).collect(Collectors.toList()));
+        geneDocument.setGene_cellular_component(goTerms.get("cellular_component").stream().map(GOTerm::getName).collect(Collectors.toList()));
+        geneDocument.setGene_molecular_function(goTerms.get("molecular_function").stream().map(GOTerm::getName).collect(Collectors.toList()));
+
+        geneDocument.setBiologicalProcessWithParents(goTerms.get("biological_process").stream()
+                .map(GOTerm::getParentTermNames)
+                .flatMap(List::stream)
+                .collect(Collectors.toList()));
+
+        geneDocument.setCellularComponentWithParents(goTerms.get("cellular_component").stream()
+                .map(GOTerm::getParentTermNames)
+                .flatMap(List::stream)
+                .collect(Collectors.toList()));
+
+        geneDocument.setMolecularFunctionWithParents(goTerms.get("molecular_function").stream()
+                .map(GOTerm::getParentTermNames)
+                .flatMap(List::stream)
+                .collect(Collectors.toList()));
+
 
         // This code is duplicated in Gene and Feature should be pulled out into its own translator
         ArrayList<String> secondaryIds = new ArrayList<>();
