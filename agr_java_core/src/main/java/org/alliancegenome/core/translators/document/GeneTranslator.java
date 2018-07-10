@@ -22,6 +22,7 @@ import org.alliancegenome.neo4j.entity.node.SecondaryId;
 import org.alliancegenome.neo4j.entity.node.Synonym;
 import org.alliancegenome.neo4j.entity.relationship.GenomeLocation;
 import org.alliancegenome.neo4j.entity.relationship.Orthologous;
+import org.apache.commons.collections4.CollectionUtils;
 
 public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument> {
 
@@ -82,25 +83,13 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
                 list.add(term);
             }
         }
-        geneDocument.setGene_biological_process(goTerms.get("biological_process").stream().map(GOTerm::getName).collect(Collectors.toList()));
-        geneDocument.setGene_cellular_component(goTerms.get("cellular_component").stream().map(GOTerm::getName).collect(Collectors.toList()));
-        geneDocument.setGene_molecular_function(goTerms.get("molecular_function").stream().map(GOTerm::getName).collect(Collectors.toList()));
+        geneDocument.setGene_biological_process(collectGoTermNames(goTerms.get("biological_process")));
+        geneDocument.setGene_cellular_component(collectGoTermNames(goTerms.get("cellular_component")));
+        geneDocument.setGene_molecular_function(collectGoTermNames(goTerms.get("molecular_function")));
 
-        geneDocument.setBiologicalProcessWithParents(goTerms.get("biological_process").stream()
-                .map(GOTerm::getParentTermNames)
-                .flatMap(List::stream)
-                .collect(Collectors.toList()));
-
-        geneDocument.setCellularComponentWithParents(goTerms.get("cellular_component").stream()
-                .map(GOTerm::getParentTermNames)
-                .flatMap(List::stream)
-                .collect(Collectors.toList()));
-
-        geneDocument.setMolecularFunctionWithParents(goTerms.get("molecular_function").stream()
-                .map(GOTerm::getParentTermNames)
-                .flatMap(List::stream)
-                .collect(Collectors.toList()));
-
+        geneDocument.setBiologicalProcessWithParents(collectGoTermParentNames(goTerms.get("biological_process")));
+        geneDocument.setCellularComponentWithParents(collectGoTermParentNames(goTerms.get("cellular_component")));
+        geneDocument.setMolecularFunctionWithParents(collectGoTermParentNames(goTerms.get("molecular_function")));
 
         // This code is duplicated in Gene and Feature should be pulled out into its own translator
         ArrayList<String> secondaryIds = new ArrayList<>();
@@ -233,6 +222,18 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
         }
 
         return geneDocument;
+    }
+
+    protected List<String> collectGoTermNames(List<GOTerm> terms) {
+        return CollectionUtils.emptyIfNull(terms)
+                .stream().map(GOTerm::getName).collect(Collectors.toList());
+    }
+
+    protected List<String> collectGoTermParentNames(List<GOTerm> terms) {
+        return CollectionUtils.emptyIfNull(terms).stream()
+                .map(GOTerm::getParentTermNames)
+                .flatMap(List::stream)
+                .collect(Collectors.toList());
     }
 
     @Override
