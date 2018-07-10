@@ -78,8 +78,7 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
             if (list == null) {
                 list = new ArrayList<>();
                 goTerms.put(term.getType(), list);
-            }
-            if (!list.contains(term)) {
+            } else if (!list.contains(term)) {
                 list.add(term);
             }
         }
