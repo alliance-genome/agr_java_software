@@ -1,5 +1,6 @@
 package org.alliancegenome.neo4j.entity.node;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -32,5 +33,10 @@ public class GOTerm extends Ontology {
 
     @Relationship(type = "CROSS_REFERENCE")
     private List<CrossReference> crossReferences;
+
+    public List<String> getParentTermNames() {
+        if (parentTermNames == null) { return new ArrayList<>(); }
+        return parentTermNames;
+    }
 
 }

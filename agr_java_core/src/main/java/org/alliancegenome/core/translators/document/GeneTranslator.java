@@ -229,6 +229,7 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
     }
 
     protected List<String> collectGoTermParentNames(List<GOTerm> terms) {
+
         return CollectionUtils.emptyIfNull(terms).stream()
                 .map(GOTerm::getParentTermNames)
                 .flatMap(List::stream)
