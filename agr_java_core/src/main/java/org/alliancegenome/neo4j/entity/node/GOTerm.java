@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.neo4j.ogm.annotation.NodeEntity;
@@ -35,10 +34,10 @@ public class GOTerm extends Ontology {
     private List<CrossReference> crossReferences;
 
     @Relationship(type = "IS_A")
-    private List<GOTerm> isAParents;
+    private List<GOTerm> isAParents = new ArrayList<>();
 
     @Relationship(type = "PART_OF")
-    private List<GOTerm> partOfParents;
+    private List<GOTerm> partOfParents = new ArrayList<>();
 
     public List<GOTerm> getParentTerms() {
         List<GOTerm> parentTerms = new ArrayList<>();

@@ -10,6 +10,7 @@ import org.alliancegenome.es.util.DateConverter;
 import org.alliancegenome.neo4j.entity.Neo4jEntity;
 import org.alliancegenome.neo4j.entity.relationship.GenomeLocation;
 import org.alliancegenome.neo4j.entity.relationship.Orthologous;
+import org.apache.commons.collections4.CollectionUtils;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.typeconversion.Convert;
@@ -79,6 +80,12 @@ public class Gene extends Neo4jEntity implements Comparable<Gene> {
     @Relationship(type = "ASSOCIATION", direction = Relationship.UNDIRECTED)
     private List<OrthologyGeneJoin> orthologyGeneJoins = new ArrayList<>();
 
+    public List<GOTerm> getGoParentTerms() {
+        List<GOTerm> parentTerms = new ArrayList<>();
+        CollectionUtils.emptyIfNull(gOTerms).stream().forEach(term -> {parentTerms.addAll(term.getParentTerms());});
+        return parentTerms;
+    }
+    
     @Override
     public int compareTo(Gene gene) {
         if (gene == null)
