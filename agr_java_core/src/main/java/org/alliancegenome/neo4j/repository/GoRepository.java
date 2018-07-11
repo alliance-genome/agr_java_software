@@ -1,7 +1,10 @@
 package org.alliancegenome.neo4j.repository;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import org.alliancegenome.neo4j.entity.node.GOTerm;
 import org.neo4j.ogm.model.Result;
@@ -32,24 +35,17 @@ public class GoRepository extends Neo4jRepository<GOTerm> {
         map.put("primaryKey", primaryKey);
 
         String query = "MATCH p0=(go:GOTerm)-[:ANNOTATED_TO]-(:Gene)-[:FROM_SPECIES]-(:Species) WHERE go.primaryKey = {primaryKey}" +
-                " OPTIONAL MATCH p1=(go)-[:ALSO_KNOWN_AS]-(:Synonym)" +
-                " OPTIONAL MATCH parents=(go)-[:IS_A*]->(parentTerm)";
-        query += " RETURN p0, p1, parents";
+                " OPTIONAL MATCH p1=(go)-[:ALSO_KNOWN_AS]-(:Synonym)";
+        query += " RETURN p0, p1";
 
         Iterable<GOTerm> gots = query(query, map);
-        GOTerm term = null;
-        Set<String> parentTermNames = new HashSet<>();
         for(GOTerm g: gots) {
             if(g.getPrimaryKey().equals(primaryKey)) {
-                term = g;
-            } else {
-                parentTermNames.add(g.getName());
+                return g;
             }
         }
 
-        term.setParentTermNames(parentTermNames.stream().collect(Collectors.toList()));
-
-        return term;
+        return null;
     }
 
 }

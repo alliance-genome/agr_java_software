@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 
@@ -23,8 +25,6 @@ public class GOTerm extends Ontology {
     private String primaryKey;
     private String is_obsolete;
 
-    private List<String> parentTermNames;
-
     @Relationship(type = "ANNOTATED_TO", direction=Relationship.INCOMING)
     private Set<Gene> genes = new HashSet<Gene>();
     
@@ -34,9 +34,21 @@ public class GOTerm extends Ontology {
     @Relationship(type = "CROSS_REFERENCE")
     private List<CrossReference> crossReferences;
 
-    public List<String> getParentTermNames() {
-        if (parentTermNames == null) { return new ArrayList<>(); }
-        return parentTermNames;
+    @Relationship(type = "IS_A")
+    private List<GOTerm> isAParents;
+
+    @Relationship(type = "PART_OF")
+    private List<GOTerm> partOfParents;
+
+    public List<GOTerm> getParentTerms() {
+        List<GOTerm> parentTerms = new ArrayList<>();
+
+        CollectionUtils.emptyIfNull(isAParents).stream().forEach(parent -> { parentTerms.addAll(parent.getIsAParents());});
+        CollectionUtils.emptyIfNull(partOfParents).stream().forEach(parent -> {parentTerms.addAll(parent.getPartOfParents());});
+
+        parentTerms.add(this);
+
+        return parentTerms;
     }
 
 }

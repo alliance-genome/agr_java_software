@@ -229,10 +229,10 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
     }
 
     protected List<String> collectGoTermParentNames(List<GOTerm> terms) {
-
         return CollectionUtils.emptyIfNull(terms).stream()
-                .map(GOTerm::getParentTermNames)
+                .map(GOTerm::getParentTerms)
                 .flatMap(List::stream)
+                .map(GOTerm::getName)
                 .collect(Collectors.toList());
     }
 

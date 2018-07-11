@@ -79,7 +79,6 @@ public class Gene extends Neo4jEntity implements Comparable<Gene> {
     @Relationship(type = "ASSOCIATION", direction = Relationship.UNDIRECTED)
     private List<OrthologyGeneJoin> orthologyGeneJoins = new ArrayList<>();
 
-
     @Override
     public int compareTo(Gene gene) {
         if (gene == null)
