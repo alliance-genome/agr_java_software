@@ -1,8 +1,6 @@
 package org.alliancegenome.core.translators.document;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.alliancegenome.core.translators.EntityDocumentTranslator;
@@ -36,7 +34,7 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
     @Override
     protected GeneDocument entityToDocument(Gene gene, int translationDepth) {
         //log.info(entity);
-        HashMap<String, ArrayList<GOTerm>> goTerms = new HashMap<>();
+        HashMap<String, Set<GOTerm>> goTerms = new HashMap<>();
 
         GeneDocument geneDocument = new GeneDocument();
 
@@ -74,12 +72,12 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
 
         // Setup Go Terms by type
         for (GOTerm term : gene.getGOTerms()) {
-            ArrayList<GOTerm> list = goTerms.get(term.getType());
-            if (list == null) {
-                list = new ArrayList<>();
-                goTerms.put(term.getType(), list);
-            } else if (!list.contains(term)) {
-                list.add(term);
+            Set<GOTerm> terms = goTerms.get(term.getType());
+            if (terms == null) {
+                terms = new HashSet<>();
+                goTerms.put(term.getType(), terms);
+            } else {
+                terms.add(term);
             }
         }
         geneDocument.setGene_biological_process(collectGoTermNames(goTerms.get("biological_process")));
@@ -223,15 +221,15 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
         return geneDocument;
     }
 
-    protected List<String> collectGoTermNames(List<GOTerm> terms) {
+    protected List<String> collectGoTermNames(Set<GOTerm> terms) {
         return CollectionUtils.emptyIfNull(terms)
                 .stream().map(GOTerm::getName).collect(Collectors.toList());
     }
 
-    protected List<String> collectGoTermParentNames(List<GOTerm> terms) {
+    protected List<String> collectGoTermParentNames(Set<GOTerm> terms) {
         return CollectionUtils.emptyIfNull(terms).stream()
                 .map(GOTerm::getParentTerms)
-                .flatMap(List::stream)
+                .flatMap(Set::stream)
                 .map(GOTerm::getName)
                 .collect(Collectors.toList());
     }

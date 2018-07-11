@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.neo4j.ogm.annotation.NodeEntity;
@@ -34,20 +35,34 @@ public class GOTerm extends Ontology {
     private List<CrossReference> crossReferences;
 
     @Relationship(type = "IS_A")
-    private List<GOTerm> isAParents = new ArrayList<>();
+    private Set<GOTerm> isAParents = new HashSet<>();
 
     @Relationship(type = "PART_OF")
-    private List<GOTerm> partOfParents = new ArrayList<>();
+    private Set<GOTerm> partOfParents = new HashSet<>();
 
-    public List<GOTerm> getParentTerms() {
-        List<GOTerm> parentTerms = new ArrayList<>();
+    public Set<GOTerm> getParentTerms() {
+        Set<GOTerm> parentTerms = new HashSet<>();
 
-        CollectionUtils.emptyIfNull(isAParents).stream().forEach(parent -> { parentTerms.addAll(parent.getIsAParents());});
-        CollectionUtils.emptyIfNull(partOfParents).stream().forEach(parent -> {parentTerms.addAll(parent.getPartOfParents());});
+        isAParents.stream().forEach(parent -> { parentTerms.addAll(parent.getIsAParents());});
+        partOfParents.stream().forEach(parent -> {parentTerms.addAll(parent.getPartOfParents());});
 
         parentTerms.add(this);
 
         return parentTerms;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        GOTerm goTerm = (GOTerm) o;
+
+        return primaryKey.equals(goTerm.primaryKey);
+    }
+
+    @Override
+    public int hashCode() {
+        return primaryKey.hashCode();
+    }
 }

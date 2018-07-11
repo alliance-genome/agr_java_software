@@ -80,8 +80,8 @@ public class Gene extends Neo4jEntity implements Comparable<Gene> {
     @Relationship(type = "ASSOCIATION", direction = Relationship.UNDIRECTED)
     private List<OrthologyGeneJoin> orthologyGeneJoins = new ArrayList<>();
 
-    public List<GOTerm> getGoParentTerms() {
-        List<GOTerm> parentTerms = new ArrayList<>();
+    public Set<GOTerm> getGoParentTerms() {
+        Set<GOTerm> parentTerms = new HashSet<>();
         CollectionUtils.emptyIfNull(gOTerms).stream().forEach(term -> {parentTerms.addAll(term.getParentTerms());});
         return parentTerms;
     }
