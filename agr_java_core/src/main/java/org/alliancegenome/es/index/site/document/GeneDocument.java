@@ -25,9 +25,9 @@ public class GeneDocument extends SearchableItemDocument {
     private String symbol;
     private String species;
 
-    private List<String> gene_biological_process;
-    private List<String> gene_molecular_function;
-    private List<String> gene_cellular_component;
+    private List<String> biologicalProcess;
+    private List<String> molecularFunction;
+    private List<String> cellularComponent;
 
     private List<String> biologicalProcessWithParents;
     private List<String> molecularFunctionWithParents;

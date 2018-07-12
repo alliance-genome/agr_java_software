@@ -27,9 +27,12 @@ public class GeneMapping extends Mapping {
 
                     new FieldBuilder(builder,"geneSynopsis","text").build();
                     new FieldBuilder(builder,"geneSynopsisUrl","keyword").build();
-                    new FieldBuilder(builder,"gene_biological_process","text").keyword().build();
-                    new FieldBuilder(builder,"gene_cellular_component","text").keyword().build();
-                    new FieldBuilder(builder,"gene_molecular_function","text").keyword().build();
+                    new FieldBuilder(builder,"biologicalProcess","text").keyword().build();
+                    new FieldBuilder(builder,"cellularComponent","text").keyword().build();
+                    new FieldBuilder(builder,"molecularFunction","text").keyword().build();
+                    new FieldBuilder(builder,"biologicalProcessWithParents","text").keyword().build();
+                    new FieldBuilder(builder,"cellularComponentWithParents","text").keyword().build();
+                    new FieldBuilder(builder,"molecularFunctionWithParents","text").keyword().build();
 
                     buildGenomeLocationsField();
                     buildNestedDocument("alleles");

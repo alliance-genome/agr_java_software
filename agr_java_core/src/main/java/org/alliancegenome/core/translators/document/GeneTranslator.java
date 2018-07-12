@@ -80,9 +80,9 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
                 terms.add(term);
             }
         }
-        geneDocument.setGene_biological_process(collectGoTermNames(goTerms.get("biological_process")));
-        geneDocument.setGene_cellular_component(collectGoTermNames(goTerms.get("cellular_component")));
-        geneDocument.setGene_molecular_function(collectGoTermNames(goTerms.get("molecular_function")));
+        geneDocument.setBiologicalProcess(collectGoTermNames(goTerms.get("biological_process")));
+        geneDocument.setCellularComponent(collectGoTermNames(goTerms.get("cellular_component")));
+        geneDocument.setMolecularFunction(collectGoTermNames(goTerms.get("molecular_function")));
 
         geneDocument.setBiologicalProcessWithParents(collectGoTermParentNames(goTerms.get("biological_process")));
         geneDocument.setCellularComponentWithParents(collectGoTermParentNames(goTerms.get("cellular_component")));
