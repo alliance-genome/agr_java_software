@@ -43,7 +43,7 @@ public interface GeneRESTInterface {
             @ApiParam(name = "page", value = "Page number")
             @DefaultValue("1") @QueryParam("page") int page,
             @ApiParam(value = "Field name by which to sort", allowableValues = "phenotype,geneticEntity")
-            @QueryParam("sortBy") String sortBy,
+            @DefaultValue("phenotype") @QueryParam("sortBy") String sortBy,
             @ApiParam(name = "geneticEntity", value = "genetic entity symbol")
             @QueryParam("geneticEntity") String geneticEntity,
             @ApiParam(name = "geneticEntityType", value = "genetic entity type", allowableValues = "allele")
