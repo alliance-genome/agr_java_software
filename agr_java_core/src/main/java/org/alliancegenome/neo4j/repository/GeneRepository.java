@@ -21,13 +21,13 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         map.put("primaryKey", primaryKey);
         String query = "";
 
-        query += " MATCH p1=(q:Species)-[:FROM_SPECIES]-(g:Gene)--(s) WHERE g.primaryKey = {primaryKey}";
-        query += " OPTIONAL MATCH p5=(g)--(s:DiseaseEntityJoin)--(feature:Feature)";
-        query += " OPTIONAL MATCH p2=(do:DOTerm)--(s:DiseaseEntityJoin)-[:EVIDENCE]-(ea)";
-        query += " OPTIONAL MATCH p4=(g)--(s:OrthologyGeneJoin)--(a:OrthoAlgorithm), p3=(g)-[o:ORTHOLOGOUS]-(g2:Gene)-[:FROM_SPECIES]-(q2:Species), (s)--(g2)";
-        query += " OPTIONAL MATCH p6=(g)--(s:PhenotypeEntityJoin)--(phenotype:Phenotype), p7=(g)--(s:PhenotypeEntityJoin)-[evidence:EVIDENCE]-(pub:Publication)";
-        query += " OPTIONAL MATCH p8=(g)--(s:PhenotypeEntityJoin)--(ff:Feature)";
-        query += " OPTIONAL MATCH p9=(g)--(s:GOTerm)-[:IS_A|:PART_OF*]->(parent)";
+        query += " MATCH p1=(q:Species)<-[:FROM_SPECIES]-(g:Gene)--(s) WHERE g.primaryKey = {primaryKey}";
+        query += " OPTIONAL MATCH p5=(g)-[:ASSOCIATION]-(s:DiseaseEntityJoin)-[:ASSOCIATION]-(feature:Feature)";
+        query += " OPTIONAL MATCH p2=(do:DOTerm)-[:ASSOCIATION]-(s:DiseaseEntityJoin)-[:EVIDENCE]->(ea)";
+        query += " OPTIONAL MATCH p4=(g)-[:ASSOCIATION]-(s:OrthologyGeneJoin)-->(a:OrthoAlgorithm), p3=(g)-[o:ORTHOLOGOUS]-(g2:Gene)-[:FROM_SPECIES]->(q2:Species), (s)-[:ASSOCIATION]->(g2)";
+        query += " OPTIONAL MATCH p6=(g)-[:ASSOCIATION]->(s:PhenotypeEntityJoin)-[:ASSOCIATION]->(phenotype:Phenotype), p7=(g)--(s:PhenotypeEntityJoin)-[evidence:EVIDENCE]->(pub:Publication)";
+        query += " OPTIONAL MATCH p8=(g)-[:ASSOCIATION]->(s:PhenotypeEntityJoin)<-[:ASSOCIATION]-(ff:Feature)";
+        query += " OPTIONAL MATCH p9=(g:Gene)-[:ANNOTATED_TO]->(s:GOTerm)-[:IS_A|:PART_OF*]->(parent:GOTerm)";
         query += " RETURN p1, p2, p3, p4, p5, p6, p7, p8, p9";
 
         Iterable<Gene> genes = query(query, map);
@@ -39,7 +39,7 @@ public class GeneRepository extends Neo4jRepository<Gene> {
 
         return null;
     }
-    
+
     public HashMap<String, Gene> getGene(String primaryKey) {       
         HashMap<String, String> map = new HashMap<>();
 
@@ -53,7 +53,7 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         query += " RETURN p1, p2, p3, p4, p5";
 
         HashMap<String, Gene> retMap = new HashMap<>();
-        
+
         Iterable<Gene> genes = query(query, map);
         for(Gene g: genes) {
             retMap.put(g.getPrimaryKey(), g);
