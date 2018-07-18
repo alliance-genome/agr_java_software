@@ -38,7 +38,7 @@ public class GeneRepository extends Neo4jRepository<Gene> {
 
         return null;
     }
-    
+
     public HashMap<String, Gene> getGene(String primaryKey) {       
         HashMap<String, String> map = new HashMap<>();
 
@@ -52,7 +52,7 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         query += " RETURN p1, p2, p3, p4, p5";
 
         HashMap<String, Gene> retMap = new HashMap<>();
-        
+
         Iterable<Gene> genes = query(query, map);
         for(Gene g: genes) {
             retMap.put(g.getPrimaryKey(), g);
