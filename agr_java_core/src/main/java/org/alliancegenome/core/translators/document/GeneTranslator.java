@@ -1,8 +1,6 @@
 package org.alliancegenome.core.translators.document;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.alliancegenome.core.translators.EntityDocumentTranslator;
@@ -22,6 +20,7 @@ import org.alliancegenome.neo4j.entity.node.SecondaryId;
 import org.alliancegenome.neo4j.entity.node.Synonym;
 import org.alliancegenome.neo4j.entity.relationship.GenomeLocation;
 import org.alliancegenome.neo4j.entity.relationship.Orthologous;
+import org.apache.commons.collections4.CollectionUtils;
 
 public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument> {
 
@@ -35,7 +34,7 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
     @Override
     protected GeneDocument entityToDocument(Gene gene, int translationDepth) {
         //log.info(entity);
-        HashMap<String, ArrayList<String>> goTerms = new HashMap<>();
+        HashMap<String, Set<GOTerm>> goTerms = new HashMap<>();
 
         GeneDocument geneDocument = new GeneDocument();
 
@@ -73,18 +72,21 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
 
         // Setup Go Terms by type
         for (GOTerm term : gene.getGOTerms()) {
-            ArrayList<String> list = goTerms.get(term.getType());
-            if (list == null) {
-                list = new ArrayList<>();
-                goTerms.put(term.getType(), list);
-            }
-            if (!list.contains(term.getName())) {
-                list.add(term.getName());
+            Set<GOTerm> terms = goTerms.get(term.getType());
+            if (terms == null) {
+                terms = new HashSet<>();
+                goTerms.put(term.getType(), terms);
+            } else {
+                terms.add(term);
             }
         }
-        geneDocument.setGene_biological_process(goTerms.get("biological_process"));
-        geneDocument.setGene_cellular_component(goTerms.get("cellular_component"));
-        geneDocument.setGene_molecular_function(goTerms.get("molecular_function"));
+        geneDocument.setBiologicalProcess(collectGoTermNames(goTerms.get("biological_process")));
+        geneDocument.setCellularComponent(collectGoTermNames(goTerms.get("cellular_component")));
+        geneDocument.setMolecularFunction(collectGoTermNames(goTerms.get("molecular_function")));
+
+        geneDocument.setBiologicalProcessWithParents(collectGoTermParentNames(goTerms.get("biological_process")));
+        geneDocument.setCellularComponentWithParents(collectGoTermParentNames(goTerms.get("cellular_component")));
+        geneDocument.setMolecularFunctionWithParents(collectGoTermParentNames(goTerms.get("molecular_function")));
 
         // This code is duplicated in Gene and Feature should be pulled out into its own translator
         ArrayList<String> secondaryIds = new ArrayList<>();
@@ -217,6 +219,19 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
         }
 
         return geneDocument;
+    }
+
+    protected List<String> collectGoTermNames(Set<GOTerm> terms) {
+        return CollectionUtils.emptyIfNull(terms)
+                .stream().map(GOTerm::getName).collect(Collectors.toList());
+    }
+
+    protected List<String> collectGoTermParentNames(Set<GOTerm> terms) {
+        return CollectionUtils.emptyIfNull(terms).stream()
+                .map(GOTerm::getParentTerms)
+                .flatMap(Set::stream)
+                .map(GOTerm::getName)
+                .collect(Collectors.toList());
     }
 
     @Override

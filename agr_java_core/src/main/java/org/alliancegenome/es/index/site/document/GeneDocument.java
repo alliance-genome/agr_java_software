@@ -20,11 +20,19 @@ public class GeneDocument extends SearchableItemDocument {
 
     { category = "gene"; }
 
-    private List<String> gene_molecular_function;
+
     private String taxonId;
     private String symbol;
     private String species;
-    private List<String> gene_biological_process;
+
+    private List<String> biologicalProcess;
+    private List<String> molecularFunction;
+    private List<String> cellularComponent;
+
+    private List<String> biologicalProcessWithParents;
+    private List<String> molecularFunctionWithParents;
+    private List<String> cellularComponentWithParents;
+
     private List<String> synonyms;
     private String geneLiteratureUrl;
     @JsonProperty("crossReferences")
@@ -42,7 +50,6 @@ public class GeneDocument extends SearchableItemDocument {
     private String release;
     private String geneSynopsis;
     private String automatedGeneSynopsis;
-    private List<String> gene_cellular_component;
     private List<OrthologyDoclet> orthology;
     private String geneticEntityExternalUrl;
 

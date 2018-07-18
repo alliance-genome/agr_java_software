@@ -40,9 +40,9 @@ public class SearchHelper {
                     add("species");
                     add("soTermName");
                     add("diseases.name");
-                    add("gene_biological_process");
-                    add("gene_molecular_function");
-                    add("gene_cellular_component");
+                    add("biologicalProcessWithParents");
+                    add("molecularFunctionWithParents");
+                    add("cellularComponentWithParents");
 
                 }
             });
@@ -109,7 +109,7 @@ public class SearchHelper {
             add("synonyms.standardBigrams");
             add("description"); add("external_ids");
             add("species"); add("species.synonyms"); add("modLocalId");
-            add("gene_biological_process"); add("gene_molecular_function"); add("gene_cellular_component");
+            add("biologicalProcessWithParents"); add("molecularFunctionWithParents"); add("cellularComponentWithParents");
             add("go_type"); add("go_genes"); add("go_synonyms");
             add("disease_genes"); add("disease_synonyms"); add("diseases.name"); add("orthology.gene2Symbol");
             //disease cross references:
