@@ -1,22 +1,25 @@
 package org.alliancegenome.es.index.site.document;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import lombok.Getter;
-import lombok.Setter;
 
 @Getter
 @Setter
 public class FeatureDocument extends SearchableItemDocument {
 
-    { category = "allele"; }
-    
+    {
+        category = "allele";
+    }
+
     private String primaryKey;
     private String symbol;
+    // cleaned up symbol
+    private String searchSymbol;
     private Date dateProduced;
     private Date dataProvider;
     private String release;
@@ -39,5 +42,12 @@ public class FeatureDocument extends SearchableItemDocument {
     @Override
     public String getType() {
         return category;
+    }
+
+    public void setSymbol(String symbol) {
+        this.symbol = symbol;
+        // strip off html tags...
+        if (symbol != null)
+            searchSymbol = symbol.replaceAll("<[^>]*>", " ");
     }
 }

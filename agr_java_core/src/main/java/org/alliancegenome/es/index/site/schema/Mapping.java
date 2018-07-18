@@ -52,6 +52,12 @@ public abstract class Mapping extends Builder {
                 .keywordAutocomplete()
                 .sort()
                 .build();
+        new FieldBuilder(builder, "searchSymbol","text").analyzer("symbols")
+                .autocomplete()
+                .keyword()
+                .keywordAutocomplete()
+                .sort()
+                .build();
         new FieldBuilder(builder, "species","text").keyword().synonym().sort().build();
     }
 
