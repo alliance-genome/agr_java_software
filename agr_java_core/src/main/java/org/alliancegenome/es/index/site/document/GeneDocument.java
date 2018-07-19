@@ -18,7 +18,10 @@ import lombok.Setter;
 @Getter @Setter
 public class GeneDocument extends SearchableItemDocument {
 
-    { category = "gene"; }
+    public static final String CATEGORY = "gene";
+    {
+        category = CATEGORY;
+    }
 
 
     private String taxonId;

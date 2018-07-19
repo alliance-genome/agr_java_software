@@ -12,8 +12,10 @@ import java.util.List;
 @Setter
 public class FeatureDocument extends SearchableItemDocument {
 
+    public static final String CATEGORY = "allele";
+
     {
-        category = "allele";
+        category = CATEGORY;
     }
 
     private String primaryKey;

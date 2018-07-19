@@ -10,12 +10,12 @@ import java.util.*;
 @Getter
 public class Pagination {
 
-    int page;
-    int limit;
-    String sortBy;
-    Boolean asc;
-    Map<FieldFilter, String> fieldFilterValueMap = new HashMap<>(10);
-    List<String> errorList = new ArrayList<>();
+    private int page;
+    private int limit;
+    private String sortBy;
+    private Boolean asc;
+    private Map<FieldFilter, String> fieldFilterValueMap = new HashMap<>(10);
+    private List<String> errorList = new ArrayList<>();
 
     public Pagination(int page, int limit, String sortBy, String asc) {
         this.page = page;
