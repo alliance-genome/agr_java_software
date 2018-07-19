@@ -7,6 +7,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Getter
 @Setter
 public abstract class SearchableItemDocument extends ESDocument {
@@ -18,6 +21,9 @@ public abstract class SearchableItemDocument extends ESDocument {
     @JsonProperty("name_key")
     private String nameKey;
     private String description;
+
+    private List<String> phenotypeStatements = new ArrayList<>();
+
     private boolean searchable = true;
 
     @Override
