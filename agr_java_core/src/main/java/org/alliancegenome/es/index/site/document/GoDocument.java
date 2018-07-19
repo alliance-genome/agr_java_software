@@ -28,10 +28,4 @@ public class GoDocument extends SearchableItemDocument {
         return id;
     }
     
-    @Override
-    @JsonIgnore
-    public String getType() {
-        return category;
-    }
-    
 }

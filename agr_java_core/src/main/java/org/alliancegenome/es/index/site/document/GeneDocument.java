@@ -68,11 +68,5 @@ public class GeneDocument extends SearchableItemDocument {
     public String getDocumentId() {
         return primaryId;
     }
-    
-    @Override
-    @JsonIgnore
-    public String getType() {
-        return category;
-    }
 
 }

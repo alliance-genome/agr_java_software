@@ -42,10 +42,5 @@ public class DiseaseDocument extends SearchableItemDocument {
     public String getDocumentId() {
         return primaryKey;
     }
-    
-    @Override
-    @JsonIgnore
-    public String getType() {
-        return category;
-    }
+
 }
