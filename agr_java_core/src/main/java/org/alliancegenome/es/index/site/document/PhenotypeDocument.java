@@ -14,8 +14,11 @@ import java.util.*;
 @Setter
 public class PhenotypeDocument extends SearchableItemDocument {
 
-    { category = "phenotype"; }
-    
+    public static final String CATEGORY = "phenotype";
+    {
+        category = CATEGORY;
+    }
+
     private String primaryKey;
     private String phenotypeStatement;
     private List<PhenotypeAnnotationDocument> annotations;

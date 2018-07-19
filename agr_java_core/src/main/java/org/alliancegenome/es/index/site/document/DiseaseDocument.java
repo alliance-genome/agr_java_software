@@ -16,8 +16,11 @@ import lombok.Setter;
 @Setter
 public class DiseaseDocument extends SearchableItemDocument {
 
-    { category = "disease"; }
-    
+    public static final String CATEGORY = "disease";
+    {
+        category = CATEGORY;
+    }
+
     private String doId;
     private String primaryKey;
 
