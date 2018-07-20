@@ -46,7 +46,7 @@ public class Feature extends Neo4jEntity implements Comparable<Feature> {
     private List<DiseaseEntityJoin> diseaseEntityJoins = new ArrayList<>();
 
     @Relationship(type = "HAS_PHENOTYPE")
-    private List<Phenotype> phenotypes;
+    private List<Phenotype> phenotypes = new ArrayList<>();
 
     @Override
     public int compareTo(Feature o) {

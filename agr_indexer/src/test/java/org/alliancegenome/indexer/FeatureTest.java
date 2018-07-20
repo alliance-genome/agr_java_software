@@ -12,7 +12,7 @@ public class FeatureTest {
         FeatureRepository repo = new FeatureRepository();
         FeatureTranslator trans = new FeatureTranslator();
 
-        Feature feature = repo.getFeature("MGI:5496433");
+        Feature feature = repo.getFeature("MGI:2148259");
 
         FeatureDocument featureDocument = trans.translate(feature);
 
