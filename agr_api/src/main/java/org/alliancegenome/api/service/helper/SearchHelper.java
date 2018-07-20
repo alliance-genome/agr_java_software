@@ -108,7 +108,8 @@ public class SearchHelper {
             add("synonyms.keyword");
             add("synonyms.htmlSmoosh");
             add("synonyms.standardBigrams");
-            add("description"); add("external_ids");
+            add("geneSynopsis");
+            add("external_ids");
             add("species"); add("species.synonyms"); add("modLocalId");
             add("biologicalProcessWithParents"); add("molecularFunctionWithParents"); add("cellularComponentWithParents");
             add("go_type"); add("go_genes"); add("go_synonyms");
