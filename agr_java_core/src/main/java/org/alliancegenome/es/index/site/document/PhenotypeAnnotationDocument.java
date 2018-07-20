@@ -30,12 +30,6 @@ public class PhenotypeAnnotationDocument extends SearchableItemDocument implemen
     }
     
     @Override
-    @JsonIgnore
-    public String getType() {
-        return category;
-    }
-
-    @Override
     public int compareTo(PhenotypeAnnotationDocument doc) {
         return 0;
     }

@@ -28,9 +28,4 @@ public class PhenotypeDocument extends SearchableItemDocument {
         return primaryKey;
     }
     
-    @Override
-    @JsonIgnore
-    public String getType() {
-        return category;
-    }
 }

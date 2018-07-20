@@ -41,11 +41,6 @@ public class FeatureDocument extends SearchableItemDocument {
         return primaryKey;
     }
 
-    @Override
-    public String getType() {
-        return category;
-    }
-
     public void setSymbol(String symbol) {
         this.symbol = symbol;
         // strip off html tags...
