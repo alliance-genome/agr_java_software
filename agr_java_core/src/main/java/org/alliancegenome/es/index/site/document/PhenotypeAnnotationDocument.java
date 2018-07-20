@@ -10,30 +10,31 @@ import org.alliancegenome.es.index.site.doclet.SourceDoclet;
 import java.util.List;
 
 @Getter @Setter
-public class PhenotypeAnnotationDocument extends ESDocument implements Comparable<PhenotypeAnnotationDocument> {
+public class PhenotypeAnnotationDocument extends SearchableItemDocument implements Comparable<PhenotypeAnnotationDocument> {
 
     public static final String CATEGORY = "phenotypeAnnotation";
+    {
+        category = CATEGORY;
+    }
     private String primaryKey;
-    private String category = CATEGORY;
     private SourceDoclet source;
     private String phenotype;
     private GeneDocument geneDocument;
     private FeatureDocument featureDocument;
     private List<PublicationDoclet> publications;
+    private String geneticEntity;
 
     @JsonIgnore
     public String getDocumentId() {
         return primaryKey;
     }
-    
-    @Override
-    @JsonIgnore
-    public String getType() {
-        return category;
-    }
 
     @Override
     public int compareTo(PhenotypeAnnotationDocument doc) {
         return 0;
+    }
+
+    public String getGeneticEntity() {
+        return featureDocument != null ? featureDocument.category : geneDocument.category;
     }
 }

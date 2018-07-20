@@ -12,8 +12,10 @@ import java.util.List;
 @Setter
 public class FeatureDocument extends SearchableItemDocument {
 
+    public static final String CATEGORY = "allele";
+
     {
-        category = "allele";
+        category = CATEGORY;
     }
 
     private String primaryKey;
@@ -37,11 +39,6 @@ public class FeatureDocument extends SearchableItemDocument {
     @JsonIgnore
     public String getDocumentId() {
         return primaryKey;
-    }
-
-    @Override
-    public String getType() {
-        return category;
     }
 
     public void setSymbol(String symbol) {

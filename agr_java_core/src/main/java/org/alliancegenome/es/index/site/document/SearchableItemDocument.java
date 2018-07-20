@@ -25,6 +25,12 @@ public abstract class SearchableItemDocument extends ESDocument {
     public String getDocumentId() {
         return primaryId;
     }
+    
+    @Override
+    @JsonIgnore
+    public String getType() {
+        return category;
+    }
 
     public void setNameKeyWithSpecies(String nameKey, String species) {
         this.nameKey = nameKey;
