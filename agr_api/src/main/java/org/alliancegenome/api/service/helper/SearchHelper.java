@@ -108,6 +108,7 @@ public class SearchHelper {
             add("synonyms.keyword");
             add("synonyms.htmlSmoosh");
             add("synonyms.standardBigrams");
+            add("automatedGeneSynopsis");
             add("geneSynopsis");
             add("external_ids");
             add("species"); add("species.synonyms"); add("modLocalId");
