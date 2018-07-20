@@ -29,7 +29,9 @@ public class GeneTest {
         Date end = new Date();
         
         System.out.println("Time: " + (end.getTime() - start.getTime()));
-        
+
+
+
         //ObjectMapper mapper = new ObjectMapper();
         //String json = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(trans.translate(gene));
         //System.out.println(json);

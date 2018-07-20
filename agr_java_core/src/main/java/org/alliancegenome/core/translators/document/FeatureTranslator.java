@@ -2,11 +2,13 @@ package org.alliancegenome.core.translators.document;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.alliancegenome.core.translators.EntityDocumentTranslator;
 import org.alliancegenome.es.index.site.document.DiseaseDocument;
 import org.alliancegenome.es.index.site.document.FeatureDocument;
 import org.alliancegenome.neo4j.entity.node.Feature;
+import org.alliancegenome.neo4j.entity.node.Phenotype;
 import org.alliancegenome.neo4j.entity.node.SecondaryId;
 import org.alliancegenome.neo4j.entity.node.Synonym;
 import org.apache.commons.collections4.CollectionUtils;
@@ -61,6 +63,12 @@ public class FeatureTranslator extends EntityDocumentTranslator<Feature, Feature
                 List<DiseaseDocument> diseaseList = diseaseTranslator.getDiseaseDocuments(entity.getGene(), entity.getDiseaseEntityJoins(), translationDepth);
                 featureDocument.setDiseaseDocuments(diseaseList);
             }
+
+            featureDocument.setPhenotypeStatements(
+                    entity.getPhenotypes().stream()
+                            .map(Phenotype::getPhenotypeStatement)
+                            .collect(Collectors.toList()));
+
         }
 
         return featureDocument;

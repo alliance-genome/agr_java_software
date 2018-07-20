@@ -34,7 +34,6 @@ public class FeatureDocument extends SearchableItemDocument {
     private GeneDocument geneDocument;
     private List<DiseaseDocument> diseaseDocuments = new ArrayList<>();
 
-
     @Override
     @JsonIgnore
     public String getDocumentId() {
