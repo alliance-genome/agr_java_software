@@ -68,5 +68,4 @@ public class GeneDocument extends SearchableItemDocument {
     public String getDocumentId() {
         return primaryId;
     }
-
 }

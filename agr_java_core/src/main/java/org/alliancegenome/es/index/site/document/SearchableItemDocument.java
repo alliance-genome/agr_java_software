@@ -44,4 +44,10 @@ public abstract class SearchableItemDocument extends ESDocument {
             this.nameKey += " (" + species + ")";
         }
     }
+
+    @JsonIgnore
+    public String getType(){
+        return category;
+    }
+
 }

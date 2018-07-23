@@ -27,5 +27,4 @@ public class PhenotypeDocument extends SearchableItemDocument {
     public String getDocumentId() {
         return primaryKey;
     }
-
 }
