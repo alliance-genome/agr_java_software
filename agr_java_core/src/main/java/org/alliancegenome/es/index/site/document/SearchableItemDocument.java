@@ -45,9 +45,4 @@ public abstract class SearchableItemDocument extends ESDocument {
         }
     }
 
-    @JsonIgnore
-    public String getType(){
-        return category;
-    }
-
 }
