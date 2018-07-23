@@ -12,12 +12,7 @@ import org.alliancegenome.es.index.site.document.DiseaseDocument;
 import org.alliancegenome.es.index.site.document.FeatureDocument;
 import org.alliancegenome.es.index.site.document.GeneDocument;
 import org.alliancegenome.es.index.site.document.PhenotypeDocument;
-import org.alliancegenome.neo4j.entity.node.GOTerm;
-import org.alliancegenome.neo4j.entity.node.Gene;
-import org.alliancegenome.neo4j.entity.node.OrthoAlgorithm;
-import org.alliancegenome.neo4j.entity.node.OrthologyGeneJoin;
-import org.alliancegenome.neo4j.entity.node.SecondaryId;
-import org.alliancegenome.neo4j.entity.node.Synonym;
+import org.alliancegenome.neo4j.entity.node.*;
 import org.alliancegenome.neo4j.entity.relationship.GenomeLocation;
 import org.alliancegenome.neo4j.entity.relationship.Orthologous;
 import org.apache.commons.collections4.CollectionUtils;
@@ -180,6 +175,12 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
             List<DiseaseDocument> diseaseList = diseaseTranslator.getDiseaseDocuments(gene, gene.getDiseaseEntityJoins(), translationDepth);
             geneDocument.setDiseases(diseaseList);
         }
+
+        geneDocument.setPhenotypeStatements(
+                gene.getPhenotypes().stream()
+                        .map(Phenotype::getPhenotypeStatement)
+                        .collect(Collectors.toList())
+        );
 
         if (gene.getPhenotypeEntityJoins() != null && gene.getPhenotypeEntityJoins().size() > 0 && translationDepth > 0) {
             List<PhenotypeDocument> phenotypeList = phenotypeTranslator.getPhenotypeDocuments(gene, gene.getPhenotypeEntityJoins(), translationDepth);

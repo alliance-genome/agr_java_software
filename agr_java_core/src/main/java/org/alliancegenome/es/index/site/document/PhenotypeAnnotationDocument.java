@@ -28,7 +28,7 @@ public class PhenotypeAnnotationDocument extends SearchableItemDocument implemen
     public String getDocumentId() {
         return primaryKey;
     }
-    
+
     @Override
     public int compareTo(PhenotypeAnnotationDocument doc) {
         return 0;

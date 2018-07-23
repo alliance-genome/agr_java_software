@@ -42,5 +42,4 @@ public class DiseaseDocument extends SearchableItemDocument {
     public String getDocumentId() {
         return primaryKey;
     }
-    
 }
