@@ -1,6 +1,11 @@
 package org.alliancegenome.api.controller;
 
-import java.util.Map;
+import org.alliancegenome.api.rest.interfaces.GeneRESTInterface;
+import org.alliancegenome.api.service.GeneService;
+import org.alliancegenome.core.translators.tdf.PhenotypeAnnotationToTdfTranslator;
+import org.alliancegenome.es.model.query.FieldFilter;
+import org.alliancegenome.es.model.query.Pagination;
+import org.alliancegenome.es.model.search.SearchResult;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -9,14 +14,7 @@ import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
-import org.alliancegenome.api.rest.interfaces.GeneRESTInterface;
-import org.alliancegenome.api.service.GeneService;
-import org.alliancegenome.core.translators.tdf.DiseaseAnnotationToTdfTranslator;
-import org.alliancegenome.core.translators.tdf.PhenotypeAnnotationToTdfTranslator;
-import org.alliancegenome.es.model.query.FieldFilter;
-import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.es.model.search.SearchResult;
+import java.util.Map;
 
 @RequestScoped
 public class GeneController extends BaseController implements GeneRESTInterface {
@@ -31,7 +29,7 @@ public class GeneController extends BaseController implements GeneRESTInterface 
     @Override
     public Map<String, Object> getGene(String id) {
         Map<String, Object> ret = geneService.getById(id);
-        if(ret == null) {
+        if (ret == null) {
             throw new NotFoundException();
         } else {
             return ret;
@@ -53,6 +51,8 @@ public class GeneController extends BaseController implements GeneRESTInterface 
                                                 String phenotype,
                                                 String reference,
                                                 String asc) {
+        if (sortBy.isEmpty())
+            sortBy = FieldFilter.PHENOTYPE.getName();
         Pagination pagination = new Pagination(page, limit, sortBy, asc);
         pagination.addFieldFilter(FieldFilter.GENETIC_ENTITY, geneticEntity);
         pagination.addFieldFilter(FieldFilter.GENETIC_ENTITY_TYPE, geneticEntityType);
