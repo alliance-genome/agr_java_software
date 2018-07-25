@@ -31,7 +31,7 @@ public class GeneController extends BaseController implements GeneRESTInterface 
     @Override
     public Map<String, Object> getGene(String id) {
         Map<String, Object> ret = geneService.getById(id);
-        if(ret == null) {
+        if (ret == null) {
             throw new NotFoundException();
         } else {
             return ret;
@@ -53,6 +53,8 @@ public class GeneController extends BaseController implements GeneRESTInterface 
                                                 String phenotype,
                                                 String reference,
                                                 String asc) {
+        if (sortBy.isEmpty())
+            sortBy = FieldFilter.PHENOTYPE.getName();
         Pagination pagination = new Pagination(page, limit, sortBy, asc);
         pagination.addFieldFilter(FieldFilter.GENETIC_ENTITY, geneticEntity);
         pagination.addFieldFilter(FieldFilter.GENETIC_ENTITY_TYPE, geneticEntityType);
