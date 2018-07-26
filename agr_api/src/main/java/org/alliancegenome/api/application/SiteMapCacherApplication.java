@@ -46,7 +46,8 @@ public class SiteMapCacherApplication {
         if(ConfigHelper.getGenerateSitemap()) {
             log.info("Caching Sitemap Files: ");
             cacheSiteMap("gene");
-            cacheSiteMap("allele");
+            // We don't have allele page yet.
+            //cacheSiteMap("allele");
             cacheSiteMap("disease");
             log.info("Caching Sitemap Files Finished: ");
         }
