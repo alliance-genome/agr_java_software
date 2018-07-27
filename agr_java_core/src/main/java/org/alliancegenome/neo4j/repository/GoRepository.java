@@ -16,7 +16,7 @@ public class GoRepository extends Neo4jRepository<GOTerm> {
     }
 
     public List<String> getAllGoKeys() {
-        String query = "MATCH (g:GOTerm)-[:ANNOTATED_TO]-(ge:Gene)-[:FROM_SPECIES]-(s:Species) RETURN distinct g.primaryKey";
+        String query = "MATCH (g:GOTerm) RETURN distinct g.primaryKey";
         Result r = queryForResult(query);
         Iterator<Map<String, Object>> i = r.iterator();
 
