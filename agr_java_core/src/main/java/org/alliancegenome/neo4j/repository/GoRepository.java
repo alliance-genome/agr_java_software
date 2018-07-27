@@ -34,9 +34,10 @@ public class GoRepository extends Neo4jRepository<GOTerm> {
 
         map.put("primaryKey", primaryKey);
 
-        String query = "MATCH p0=(go:GOTerm)-[:ANNOTATED_TO]-(:Gene)-[:FROM_SPECIES]-(:Species) WHERE go.primaryKey = {primaryKey}" +
-                " OPTIONAL MATCH p1=(go)-[:ALSO_KNOWN_AS]-(:Synonym)";
-        query += " RETURN p0, p1";
+        String query = "MATCH p0=(go:GOTerm) WHERE go.primaryKey = {primaryKey}" +
+                " OPTIONAL MATCH p1=(go)-[:ANNOTATED_TO]-(:Gene)-[:FROM_SPECIES]-(:Species)" +
+                " OPTIONAL MATCH p2=(go)-[:ALSO_KNOWN_AS]-(:Synonym)";
+        query += " RETURN p0, p1, p2";
 
         Iterable<GOTerm> gots = query(query, map);
         for(GOTerm g: gots) {
