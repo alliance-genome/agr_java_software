@@ -43,9 +43,9 @@ public class GOTerm extends Ontology {
     public Set<GOTerm> getParentTerms() {
         Set<GOTerm> parentTerms = new HashSet<>();
 
-        isAParents.stream().forEach(parent -> { parentTerms.addAll(parent.getIsAParents());});
-        partOfParents.stream().forEach(parent -> {parentTerms.addAll(parent.getPartOfParents());});
-
+        isAParents.stream().forEach(parent -> { parentTerms.addAll(parent.getParentTerms());});
+        partOfParents.stream().forEach(parent -> {parentTerms.addAll(parent.getParentTerms());});
+                
         parentTerms.add(this);
 
         return parentTerms;
