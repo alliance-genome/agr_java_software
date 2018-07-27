@@ -10,10 +10,10 @@
    <name>AGR Java</name>
 
    <modules>
-      <module>agr_api</module>
+      <module>agr_java_core</module>
       <module>agr_elasticsearch_util</module>
       <module>agr_indexer</module>
-      <module>agr_java_core</module>
+      <module>agr_api</module>
    </modules>
 
 	<properties>

@@ -234,6 +234,7 @@
 					</execution>
 				</executions>
 				<configuration>
+					<skipAfterFailureCount>0</skipAfterFailureCount>
 					<includes>
 						<include>**/*IntegrationSpec.groovy</include>
 						<include>**/*IntegrationSpec.java</include>
