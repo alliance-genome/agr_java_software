@@ -46,7 +46,16 @@ public abstract class Mapping extends Builder {
         new FieldBuilder(builder, "href","keyword");
         new FieldBuilder(builder, "id","keyword");
         new FieldBuilder(builder, "description","text");
+        new FieldBuilder(builder, "phenotypeStatements", "text")
+                .keyword()
+                .build();
         new FieldBuilder(builder, "symbol","text").analyzer("symbols")
+                .autocomplete()
+                .keyword()
+                .keywordAutocomplete()
+                .sort()
+                .build();
+        new FieldBuilder(builder, "searchSymbol","text").analyzer("symbols")
                 .autocomplete()
                 .keyword()
                 .keywordAutocomplete()
@@ -69,6 +78,8 @@ public abstract class Mapping extends Builder {
         DiseaseAnnotation("diseaseAnnotation", DiseaseAnnotationMapping.class),
         Feature("feature", FeatureMapping.class),
         Gene("gene", GeneMapping.class),
+        PHENOTYPE("phenotype", PhenotypeAnnotationMapping.class),
+        PHENOTYPE_ANNOTATION("phenotypeAnnotation", PhenotypeAnnotationMapping.class),
         Go("go", GoMapping.class),
         ;
 

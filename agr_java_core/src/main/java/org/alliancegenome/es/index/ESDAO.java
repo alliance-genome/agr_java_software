@@ -2,16 +2,24 @@ package org.alliancegenome.es.index;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import org.alliancegenome.core.config.ConfigHelper;
+import org.alliancegenome.es.model.query.Pagination;
+import org.alliancegenome.es.model.search.SearchResult;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequest;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
+import org.elasticsearch.action.search.SearchRequestBuilder;
+import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
+import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.sort.SortOrder;
 import org.elasticsearch.transport.client.PreBuiltTransportClient;
 
 public class ESDAO {
@@ -59,10 +67,41 @@ public class ESDAO {
                         .build();
                 searchClient.admin().indices().create(new CreateIndexRequest(index).settings(settings)).get();
             }
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
+        } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
     }
+
+    protected SearchResult getSearchResult(Pagination pagination, SearchRequestBuilder searchRequestBuilder) {
+        searchRequestBuilder.setSize(pagination.getLimit());
+        int fromIndex = pagination.getIndexOfFirstElement();
+        searchRequestBuilder.setFrom(fromIndex);
+
+        SearchResponse response = searchRequestBuilder.execute().actionGet();
+        SearchResult result = new SearchResult();
+
+        result.total = response.getHits().totalHits;
+        result.results = formatResults(response);
+        return result;
+    }
+
+    protected ArrayList<Map<String, Object>> formatResults(SearchResponse response) {
+
+        ArrayList<Map<String, Object>> ret = new ArrayList<>();
+
+        for (SearchHit hit : response.getHits()) {
+            hit.getSourceAsMap().put("id", hit.getId());
+            //hit.getSource().put("explain", hit.getExplanation());
+            ret.add(hit.getSourceAsMap());
+        }
+        return ret;
+    }
+
+    protected SortOrder getAscending(Boolean ascending) {
+        return ascending ? SortOrder.ASC : SortOrder.DESC;
+    }
+
+
+
+
 }

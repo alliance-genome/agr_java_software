@@ -11,22 +11,7 @@ import lombok.Setter;
 @NodeEntity
 @Getter
 @Setter
-public class DiseaseEntityJoin extends Association {
-
-    private String primaryKey;
-    private String joinType;
-
-    @Relationship(type = "EVIDENCE")
-    private Publication publication;
-
-    @Relationship(type = "EVIDENCE")
-    private List<EvidenceCode> evidenceCodes;
-
-    @Relationship(type = "ASSOCIATION", direction = Relationship.INCOMING)
-    private Gene gene;
-
-    @Relationship(type = "ASSOCIATION", direction = Relationship.INCOMING)
-    private Feature feature;
+public class DiseaseEntityJoin extends EntityJoin {
 
     @Relationship(type = "ASSOCIATION")
     private DOTerm disease;

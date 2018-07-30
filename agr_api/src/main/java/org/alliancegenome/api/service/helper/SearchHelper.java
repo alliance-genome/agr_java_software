@@ -30,7 +30,8 @@ public class SearchHelper {
 
     private Logger log = Logger.getLogger(getClass());
 
-    private static String[] SUFFIX_LIST = { ".keyword", ".synonyms", ".symbols", ".text" };
+    private static String[] SUFFIX_LIST = { ".keywordAutocomplete", ".keyword",
+                                            ".synonyms", ".symbols", ".text" };
 
     
     private HashMap<String, List<String>> category_filters = new HashMap<String, List<String>>() {
@@ -40,9 +41,9 @@ public class SearchHelper {
                     add("species");
                     add("soTermName");
                     add("diseases.name");
-                    add("gene_biological_process");
-                    add("gene_molecular_function");
-                    add("gene_cellular_component");
+                    add("biologicalProcessWithParents");
+                    add("molecularFunctionWithParents");
+                    add("cellularComponentWithParents");
 
                 }
             });
@@ -107,9 +108,11 @@ public class SearchHelper {
             add("synonyms.keyword");
             add("synonyms.htmlSmoosh");
             add("synonyms.standardBigrams");
-            add("description"); add("external_ids");
+            add("automatedGeneSynopsis");
+            add("geneSynopsis");
+            add("external_ids");
             add("species"); add("species.synonyms"); add("modLocalId");
-            add("gene_biological_process"); add("gene_molecular_function"); add("gene_cellular_component");
+            add("biologicalProcessWithParents"); add("molecularFunctionWithParents"); add("cellularComponentWithParents");
             add("go_type"); add("go_genes"); add("go_synonyms");
             add("disease_genes"); add("disease_synonyms"); add("diseases.name"); add("orthology.gene2Symbol");
             //disease cross references:
@@ -126,6 +129,7 @@ public class SearchHelper {
             add("annotations.featureDocument.name");
             add("annotations.geneDocument.symbol");
             add("annotations.geneDocument.name");
+            add("phenotypeStatements");
         }
     };
 
@@ -229,10 +233,10 @@ public class SearchHelper {
                     list.add(t.string());
                 }
 
-                // stripping anything after the first .
                 // this may eventually need to be replaced by a more targeted
                 // method that just remove .keyword .synonym etc
                 String name = hit.getHighlightFields().get(key).getName();
+
                 for (int i = 0 ; i < SUFFIX_LIST.length ; i++ ) {
                     name = name.replace(SUFFIX_LIST[i],"");
                 }

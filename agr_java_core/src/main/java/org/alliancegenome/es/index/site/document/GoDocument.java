@@ -10,7 +10,10 @@ import lombok.Setter;
 @Getter @Setter
 public class GoDocument extends SearchableItemDocument {
 
-    { category = "go"; }
+    public static final String CATEGORY = "go";
+    {
+        category = CATEGORY;
+    }
 
     private String id;
     private String go_type;
@@ -23,12 +26,6 @@ public class GoDocument extends SearchableItemDocument {
     @JsonIgnore
     public String getDocumentId() {
         return id;
-    }
-    
-    @Override
-    @JsonIgnore
-    public String getType() {
-        return category;
     }
     
 }

@@ -1,7 +1,9 @@
 package org.alliancegenome.indexer;
 
-import org.alliancegenome.core.config.ConfigHelper;
+import java.util.Date;
+
 import org.alliancegenome.core.translators.document.GeneTranslator;
+import org.alliancegenome.neo4j.entity.node.GOTerm;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 
@@ -17,10 +19,22 @@ public class GeneTest {
         Gene gene = null;
         gene = repo.getOneGene("ZFIN:ZDB-GENE-000210-7");
         gene = repo.getOneGene("WB:WBGene00015146");
+
+        //for(GOTerm go: gene.getGoParentTerms()) {
+        //  System.out.println(go.getName());
+        //}
         
-        ObjectMapper mapper = new ObjectMapper();
-        String json = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(trans.translate(gene));
-        System.out.println(json);
+        Date start = new Date();
+        gene = repo.getOneGene("MGI:97490");
+        Date end = new Date();
+        
+        System.out.println("Time: " + (end.getTime() - start.getTime()));
+
+
+
+        //ObjectMapper mapper = new ObjectMapper();
+        //String json = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(trans.translate(gene));
+        //System.out.println(json);
     }
 
 }

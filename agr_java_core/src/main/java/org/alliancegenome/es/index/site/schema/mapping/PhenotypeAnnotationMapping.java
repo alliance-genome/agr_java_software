@@ -1,12 +1,12 @@
 package org.alliancegenome.es.index.site.schema.mapping;
 
-import java.io.IOException;
-
 import org.alliancegenome.es.index.site.schema.Mapping;
 
-public class DiseaseAnnotationMapping extends Mapping {
+import java.io.IOException;
 
-    public DiseaseAnnotationMapping(Boolean pretty) {
+public class PhenotypeAnnotationMapping extends Mapping {
+
+    public PhenotypeAnnotationMapping(Boolean pretty) {
         super(pretty);
     }
 
@@ -17,10 +17,9 @@ public class DiseaseAnnotationMapping extends Mapping {
             builder.startObject("properties");
 
             buildSharedSearchableDocumentMappings();
-            new FieldBuilder(builder,"associationType","text").symbol().autocomplete().keyword().standardText().build();
+            new FieldBuilder(builder,"phenotype","text").symbol().autocomplete().keyword().standardText().sort().build();
             new FieldBuilder(builder,"publications.pubModId","text").symbol().autocomplete().keyword().standardText().build();
             new FieldBuilder(builder,"publications.pubMedId","text").symbol().autocomplete().keyword().standardText().build();
-            new FieldBuilder(builder,"source.species.name","text").symbol().autocomplete().keyword().standardText().sort().build();
 
             buildNestedDocument("featureDocument");
             buildNestedDocument("geneDocument");

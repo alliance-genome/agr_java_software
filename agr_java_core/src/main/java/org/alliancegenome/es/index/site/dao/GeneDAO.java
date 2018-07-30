@@ -1,15 +1,12 @@
 package org.alliancegenome.es.index.site.dao;
 
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.concurrent.ExecutionException;
-
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.es.index.ESDAO;
+import org.alliancegenome.es.index.site.document.PhenotypeAnnotationDocument;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.es.model.search.SearchResult;
-import org.apache.commons.lang3.StringUtils;
+import org.alliancegenome.es.util.SearchHitIterator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.elasticsearch.action.get.GetRequest;
@@ -17,10 +14,10 @@ import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.*;
-import org.elasticsearch.script.Script;
-import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.sort.ScriptSortBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
+
+import java.util.*;
+import java.util.concurrent.ExecutionException;
 
 public class GeneDAO extends ESDAO {
 
@@ -60,18 +57,6 @@ public class GeneDAO extends ESDAO {
             return null;
     }
 
-    private ArrayList<Map<String, Object>> formatResults(SearchResponse response) {
-
-        ArrayList<Map<String, Object>> ret = new ArrayList<>();
-
-        for (SearchHit hit : response.getHits()) {
-            hit.getSourceAsMap().put("id", hit.getId());
-            //hit.getSource().put("explain", hit.getExplanation());
-            ret.add(hit.getSourceAsMap());
-        }
-        return ret;
-    }
-
     public SearchResult getAllelesByGene(String geneId, Pagination pagination) {
         SearchRequestBuilder searchRequestBuilder = getSearchRequestBuilder(geneId);
         if (pagination != null) {
@@ -103,5 +88,73 @@ public class GeneDAO extends ESDAO {
         log.debug(searchRequestBuilder);
         return searchRequestBuilder;
     }
+
+    public SearchResult getPhenotypeAnnotations(String geneID, Pagination pagination) {
+        SearchRequestBuilder searchRequestBuilder = getSearchRequestBuilderPhenotype(geneID, pagination);
+        return getSearchResult(pagination, searchRequestBuilder);
+    }
+
+    private SearchRequestBuilder getSearchRequestBuilderPhenotype(String geneID, Pagination pagination) {
+
+        SearchRequestBuilder searchRequestBuilder = searchClient.prepareSearch();
+        //searchRequestBuilder.setExplain(true);
+        searchRequestBuilder.setIndices(ConfigHelper.getEsIndex());
+
+        // match on phenotype
+        // child terms have the parent Term ID in the field parentDiseaseIDs
+        TermQueryBuilder builder = QueryBuilders.termQuery("category", PhenotypeAnnotationDocument.CATEGORY);
+        BoolQueryBuilder query = QueryBuilders.boolQuery().must(builder);
+        query.must(QueryBuilders.termQuery("geneDocument.primaryId", geneID));
+
+        phenotypeFieldFilterMap.forEach((filter, fieldNames) -> {
+                    String rawValue = pagination.getFieldFilterValueMap().get(filter);
+                    if (rawValue != null) {
+                        // match multiple fields with prefix type
+                        String[] fieldNameArray = fieldNames.toArray(new String[fieldNames.size()]);
+                        AbstractQueryBuilder termBuilder;
+                        if (fieldNameArray.length > 1) {
+                            termBuilder = QueryBuilders.multiMatchQuery(rawValue.toLowerCase(), fieldNameArray)
+                                    .type(MultiMatchQueryBuilder.Type.PHRASE_PREFIX);
+                        } else {
+                            termBuilder = QueryBuilders.prefixQuery(fieldNameArray[0], rawValue.toLowerCase());
+                        }
+                        query.must(termBuilder);
+                    }
+                }
+        );
+
+        diseaseFieldFilterSortingMap.entrySet().stream()
+                .filter(entry -> entry.getKey().getName().equals(pagination.getSortBy()))
+                .forEach(entrySet ->
+                        searchRequestBuilder.addSort(SortBuilders.fieldSort(entrySet.getValue()).order(getAscending(pagination.getAsc())))
+                );
+
+        searchRequestBuilder.setQuery(query);
+        log.debug(searchRequestBuilder);
+        return searchRequestBuilder;
+    }
+
+
+    private static Map<FieldFilter, String> diseaseFieldFilterSortingMap = new HashMap<>(10);
+
+    static {
+        diseaseFieldFilterSortingMap.put(FieldFilter.PHENOTYPE, "phenotype.sort");
+        diseaseFieldFilterSortingMap.put(FieldFilter.GENETIC_ENTITY, "featureDocument.symbol.sort");
+    }
+
+    private static Map<FieldFilter, List<String>> phenotypeFieldFilterMap = new HashMap<>(10);
+
+    static {
+        phenotypeFieldFilterMap.put(FieldFilter.PHENOTYPE, Collections.singletonList("phenotype.standardText"));
+        phenotypeFieldFilterMap.put(FieldFilter.GENETIC_ENTITY, Collections.singletonList("featureDocument.searchSymbol"));
+        phenotypeFieldFilterMap.put(FieldFilter.GENETIC_ENTITY_TYPE, Arrays.asList("featureDocument.category.autocomplete", "geneDocument.category.autocomplete"));
+        phenotypeFieldFilterMap.put(FieldFilter.REFERENCE, Arrays.asList("publications.pubModId.standardText", "publications.pubMedId.standardText"));
+    }
+
+    public SearchHitIterator getPhenotypeAnnotationsDownload(String id, Pagination pagination) {
+        SearchRequestBuilder searchRequestBuilder = getSearchRequestBuilderPhenotype(id, pagination);
+        return new SearchHitIterator(searchRequestBuilder);
+    }
+
 
 }
