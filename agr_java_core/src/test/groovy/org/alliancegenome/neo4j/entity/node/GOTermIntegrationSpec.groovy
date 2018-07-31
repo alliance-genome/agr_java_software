@@ -29,7 +29,7 @@ class GOTermIntegrationSpec extends Specification {
         term.getPrimaryKey()
 
         where:
-        termID << ["GO:0004709", "GO:0016301", /*"GO:0005488",*/ "GO:0019907", "GO:1990393", "GO:0007257"]
+        termID << ["GO:0004709", "GO:0016301", "GO:0005488", "GO:0019907", "GO:1990393", "GO:0007257"]
 
     }
 
