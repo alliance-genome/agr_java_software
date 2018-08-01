@@ -8,6 +8,7 @@ import org.alliancegenome.es.model.search.SearchResult;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.io.IOException;
 import java.util.Map;
 
 @Path("/gene")
@@ -61,5 +62,22 @@ public interface GeneRESTInterface {
     @Produces(MediaType.TEXT_PLAIN)
     Response getPhenotypeAnnotationsDownloadFile(@ApiParam(name = "id", value = "Gene by ID", required = true, type = "String")
                                                  @PathParam("id") String id);
+
+    @GET
+    @Path("/{id}/orthology")
+    @ApiOperation(value = "Retrieve orthologous gene records", notes = "Download orthology records.")
+    @Produces(MediaType.TEXT_PLAIN)
+    String getGeneOrthology(@ApiParam(name = "id", value = "Gene ID", required = true, type = "String")
+                            @PathParam("id") String id,
+                            @ApiParam(value = "apply filter", allowableValues = "all, moderate, stringent", defaultValue = "all")
+                            @QueryParam("filter") String filter,
+                            @ApiParam(value = "species")
+                            @QueryParam("species") String species,
+                            @ApiParam(value = "methods")
+                            @QueryParam("methods") String methods,
+                            @ApiParam(value = "number of rows")
+                            @QueryParam("rows") Integer rows,
+                            @ApiParam(value = "start")
+                            @QueryParam("start") Integer start) throws IOException;
 
 }

@@ -1,8 +1,8 @@
 package org.alliancegenome.api;
 
+import org.alliancegenome.api.controller.GeneController;
 import org.alliancegenome.api.service.GeneService;
 import org.alliancegenome.core.config.ConfigHelper;
-import org.alliancegenome.es.index.site.dao.DiseaseDAO;
 import org.alliancegenome.es.index.site.dao.GeneDAO;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
@@ -14,9 +14,11 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.util.Map;
 
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
@@ -27,7 +29,7 @@ public class GeneTest {
     private static Logger log = Logger.getLogger(GeneTest.class);
 
 
-    public static void main(String[] args){
+    public static void main(String[] args) {
         GeneDAO service = new GeneDAO();
 
         service.init();
@@ -66,6 +68,44 @@ public class GeneTest {
         assertNotNull(result);
         assertThat(result.get("primaryId"), equalTo("ZFIN:ZDB-LINCRNAG-160518-1"));
         assertThat(result.get("species"), equalTo("Danio rerio"));
+    }
+
+    @Test
+    public void checkOrthologyAPIWithSpecies() throws IOException {
+
+        GeneController controller = new GeneController();
+        String json = controller.getGeneOrthology("MGI:109583", null, "NCBITaxon:10115", null, null, null);
+        assertThat(json, equalTo("[]"));
+        json = controller.getGeneOrthology("MGI:109583", null, "NCBITaxon:10116", null, null, null);
+        assertThat(json, startsWith("[{\"gene"));
+        json = controller.getGeneOrthology("MGI:109583", null, "NCBITaxon:10116,NCBITaxon:7955", null, null, null);
+        assertThat(json, startsWith("[{\"gene"));
+/*
+        json = controller.getGeneOrthology("MGI:109583", "stringENT", null, null, null, null);
+        assertNotNull(json);
+*/
+    }
+
+    @Test
+    public void checkOrthologyAPIWithMethods() throws IOException {
+
+        GeneController controller = new GeneController();
+        String json = controller.getGeneOrthology("MGI:109583", null, null, "ZFIN", null, null);
+        assertThat(json, equalTo("[]"));
+        json = controller.getGeneOrthology("MGI:109583", null, null, "OrthoFinder", null, null);
+        assertThat(json, startsWith("[{\"gene"));
+        json = controller.getGeneOrthology("MGI:109583", null, null, "OrthoFinder,ZFIN", null, null);
+        assertThat(json, equalTo("[]"));
+        json = controller.getGeneOrthology("MGI:109583", null, null, "OrthoFinder,Panther", null, null);
+        assertThat(json, startsWith("[{\"gene"));
+    }
+
+    @Test
+    public void checkOrthologyAPINoFilters() throws IOException {
+
+        GeneController controller = new GeneController();
+        String json = controller.getGeneOrthology("MGI:109583", null, null, null, null, null);
+        assertNotNull(json);
     }
 
 }

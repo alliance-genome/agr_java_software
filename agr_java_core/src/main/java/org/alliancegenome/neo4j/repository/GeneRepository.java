@@ -40,7 +40,27 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         return null;
     }
 
-    public HashMap<String, Gene> getGene(String primaryKey) {       
+    public Gene getOrthologyGene(String primaryKey) {
+        HashMap<String, String> map = new HashMap<>();
+
+        map.put("primaryKey", primaryKey);
+        String query = "";
+
+        query += " MATCH p1=(q:Species)-[:FROM_SPECIES]-(g:Gene)--(s) WHERE g.primaryKey = {primaryKey}";
+        query += " OPTIONAL MATCH p4=(g)--(s:OrthologyGeneJoin)--(a:OrthoAlgorithm), p3=(g)-[o:ORTHOLOGOUS]-(g2:Gene)-[:FROM_SPECIES]-(q2:Species), (s)--(g2)";
+        query += " RETURN p1, p3, p4";
+
+        Iterable<Gene> genes = query(query, map);
+        for(Gene g: genes) {
+            if(g.getPrimaryKey().equals(primaryKey)) {
+                return g;
+            }
+        }
+
+        return null;
+    }
+
+    public HashMap<String, Gene> getGene(String primaryKey) {
         HashMap<String, String> map = new HashMap<>();
 
         map.put("primaryKey", primaryKey);
