@@ -99,9 +99,9 @@ public class GeneController extends BaseController implements GeneRESTInterface 
                                            String species,
                                    @ApiParam(value = "list of methods")
                                            String methods,
-                                   @ApiParam(value = "rows", required = false)
+                                   @ApiParam(value = "rows")
                                            Integer rows,
-                                   @ApiParam(value = "start row", required = false, defaultValue = "0")
+                                   @ApiParam(value = "start row", defaultValue = "0")
                                            Integer start) throws IOException {
         GeneRepository repo = new GeneRepository();
         Gene gene = repo.getOrthologyGene(id);

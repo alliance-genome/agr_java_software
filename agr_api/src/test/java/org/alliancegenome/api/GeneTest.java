@@ -1,8 +1,10 @@
 package org.alliancegenome.api;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.alliancegenome.api.controller.GeneController;
 import org.alliancegenome.api.service.GeneService;
 import org.alliancegenome.core.config.ConfigHelper;
+import org.alliancegenome.core.service.OrthologyService;
 import org.alliancegenome.es.index.site.dao.GeneDAO;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
@@ -17,8 +19,7 @@ import org.junit.Test;
 import java.io.IOException;
 import java.util.Map;
 
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.startsWith;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
@@ -27,6 +28,7 @@ public class GeneTest {
     private GeneService geneService;
 
     private static Logger log = Logger.getLogger(GeneTest.class);
+    private ObjectMapper mapper = new ObjectMapper();
 
 
     public static void main(String[] args) {
@@ -71,13 +73,26 @@ public class GeneTest {
     }
 
     @Test
+    public void checkOrthologyAPIWithFilter() throws IOException {
+
+        GeneController controller = new GeneController();
+        String json = controller.getGeneOrthology("MGI:109583", "stringENT", null, null, null, null);
+        OrthologyService.Response response = mapper.readValue(json, OrthologyService.Response.class);
+        assertThat("Matches found for filter 'stringent", response.getTotal(), greaterThan(0));
+    }
+
+    @Test
     public void checkOrthologyAPIWithSpecies() throws IOException {
 
         GeneController controller = new GeneController();
         String json = controller.getGeneOrthology("MGI:109583", null, "NCBITaxon:10115", null, null, null);
-        assertThat(json, equalTo("[]"));
+        OrthologyService.Response response = mapper.readValue(json, OrthologyService.Response.class);
+        assertThat("No matches found for species 'NCBITaxon:10115", response.getTotal(), equalTo(0));
+
         json = controller.getGeneOrthology("MGI:109583", null, "NCBITaxon:10116", null, null, null);
-        assertThat(json, startsWith("[{\"gene"));
+        response = mapper.readValue(json, OrthologyService.Response.class);
+        assertThat("matches found for method species NCBITaxon:10116", response.getTotal(), greaterThan(0));
+
         json = controller.getGeneOrthology("MGI:109583", null, "NCBITaxon:10116,NCBITaxon:7955", null, null, null);
         assertThat(json, startsWith("[{\"gene"));
 /*
@@ -91,13 +106,20 @@ public class GeneTest {
 
         GeneController controller = new GeneController();
         String json = controller.getGeneOrthology("MGI:109583", null, null, "ZFIN", null, null);
-        assertThat(json, equalTo("[]"));
+        OrthologyService.Response response = mapper.readValue(json, OrthologyService.Response.class);
+        assertThat("No match against method 'ZFIN'", response.getTotal(), equalTo(0));
+
         json = controller.getGeneOrthology("MGI:109583", null, null, "OrthoFinder", null, null);
-        assertThat(json, startsWith("[{\"gene"));
+        response = mapper.readValue(json, OrthologyService.Response.class);
+        assertThat("matches found for method 'OrthoFinder'", response.getTotal(), greaterThan(0));
+
         json = controller.getGeneOrthology("MGI:109583", null, null, "OrthoFinder,ZFIN", null, null);
-        assertThat(json, equalTo("[]"));
+        response = mapper.readValue(json, OrthologyService.Response.class);
+        assertThat("no matches found for method 'OrthoFinder and ZFIN'", response.getTotal(), equalTo(0));
+
         json = controller.getGeneOrthology("MGI:109583", null, null, "OrthoFinder,Panther", null, null);
-        assertThat(json, startsWith("[{\"gene"));
+        response = mapper.readValue(json, OrthologyService.Response.class);
+        assertThat("matches found for method 'OrthoFinder and Panther'", response.getTotal(), greaterThan(0));
     }
 
     @Test
@@ -105,7 +127,8 @@ public class GeneTest {
 
         GeneController controller = new GeneController();
         String json = controller.getGeneOrthology("MGI:109583", null, null, null, null, null);
-        assertNotNull(json);
+        OrthologyService.Response response = mapper.readValue(json, OrthologyService.Response.class);
+        assertThat("matches found for gene MGI:109583'", response.getTotal(), greaterThan(0));
     }
 
 }

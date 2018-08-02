@@ -12,10 +12,12 @@ public class OrthologyModule extends SimpleModule
         super("OrthologyModule");
     }
 
+/*
     @Override
     public void setupModule(SetupContext context)
     {
         context.setMixInAnnotations(OrthologyDoclet.class, View.OrthologyView.class);
     }
+*/
 }
 

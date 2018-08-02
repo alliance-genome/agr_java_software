@@ -1,8 +1,11 @@
 package org.alliancegenome.core.service;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.Getter;
+import lombok.Setter;
 import org.alliancegenome.es.index.site.doclet.OrthologyDoclet;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.entity.node.OrthoAlgorithm;
@@ -150,7 +153,23 @@ public class OrthologyService {
         ObjectMapper mapper = new ObjectMapper();
         mapper.disable(MapperFeature.DEFAULT_VIEW_INCLUSION);
         mapper.registerModule(new OrthologyModule());
-        return mapper.writerWithView(View.OrthologyView.class).writeValueAsString(OrthologyService.getOrthologViewList(gene, filter));
+        List<OrthologView> orthologViewList = OrthologyService.getOrthologViewList(gene, filter);
+        Response response = new Response();
+        response.setResults(orthologViewList);
+        response.setTotal(orthologViewList.size());
+        return mapper.writerWithView(View.OrthologyView.class).writeValueAsString(response);
     }
 
+    @Setter
+    @Getter
+    public static class Response {
+
+        @JsonView(View.OrthologyView.class)
+        private List<OrthologView> results;
+        @JsonView(View.OrthologyView.class)
+        private int total;
+        @JsonView(View.OrthologyView.class)
+        private String errorMessage;
+    }
 }
+
