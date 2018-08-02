@@ -73,6 +73,7 @@ public class GeneTest {
     }
 
     @Test
+    @Ignore
     public void checkOrthologyAPIWithFilter() throws IOException {
 
         GeneController controller = new GeneController();
@@ -82,6 +83,7 @@ public class GeneTest {
     }
 
     @Test
+    @Ignore
     public void checkOrthologyAPIWithSpecies() throws IOException {
 
         GeneController controller = new GeneController();
@@ -102,6 +104,7 @@ public class GeneTest {
     }
 
     @Test
+    @Ignore
     public void checkOrthologyAPIWithMethods() throws IOException {
 
         GeneController controller = new GeneController();
@@ -123,6 +126,7 @@ public class GeneTest {
     }
 
     @Test
+    @Ignore
     public void checkOrthologyAPINoFilters() throws IOException {
 
         GeneController controller = new GeneController();
