@@ -30,7 +30,7 @@ public class SearchHelper {
 
     private Logger log = Logger.getLogger(getClass());
 
-    private static String[] SUFFIX_LIST = { ".keywordAutocomplete", ".keyword",
+    private static String[] SUFFIX_LIST = { ".keywordAutocomplete", ".keyword", ".smoosh",
                                             ".synonyms", ".symbols", ".text" };
 
     
@@ -44,6 +44,7 @@ public class SearchHelper {
                     add("biologicalProcessWithParents");
                     add("molecularFunctionWithParents");
                     add("cellularComponentWithParents");
+                    add("phenotypeStatements");
 
                 }
             });
@@ -66,6 +67,7 @@ public class SearchHelper {
                     add("geneDocument.species");
                     add("diseaseDocuments.name");
                     add("geneDocument.name_key");
+                    add("phenotypeStatements");
                 }
             });
         }
