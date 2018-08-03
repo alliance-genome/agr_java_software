@@ -6,10 +6,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import org.alliancegenome.es.util.DateConverter;
 import org.alliancegenome.neo4j.entity.Neo4jEntity;
 import org.alliancegenome.neo4j.entity.relationship.GenomeLocation;
 import org.alliancegenome.neo4j.entity.relationship.Orthologous;
+import org.alliancegenome.neo4j.view.View;
 import org.apache.commons.collections4.CollectionUtils;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
@@ -23,8 +25,12 @@ import lombok.Setter;
 @Setter
 public class Gene extends Neo4jEntity implements Comparable<Gene> {
 
+    @JsonView(View.OrthologyView.class)
     private String primaryKey;
+    @JsonView(View.OrthologyView.class)
     private String taxonId;
+    @JsonView(View.OrthologyView.class)
+    private String speciesName;
     private String geneLiterature;
     private String geneLiteratureUrl;
     private String geneSynopsis;
@@ -36,6 +42,7 @@ public class Gene extends Neo4jEntity implements Comparable<Gene> {
     @Convert(value=DateConverter.class)
     private Date dateProduced;
     private String description;
+    @JsonView(View.OrthologyView.class)
     private String symbol;
     private String geneticEntityExternalUrl;
 

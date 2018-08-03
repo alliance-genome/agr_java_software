@@ -24,4 +24,10 @@ public class OrthologyGeneJoin extends Association {
     @Relationship(type = "NOT_CALLED")
     private List<OrthoAlgorithm> notCalled;
 
+    @Relationship(type = "ASSOCIATION")
+    private Gene gene1;
+
+    @Relationship(type = "ASSOCIATION")
+    private Gene gene2;
+
 }
