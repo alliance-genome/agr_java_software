@@ -1,13 +1,10 @@
 package org.alliancegenome.neo4j.repository;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
+import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.neo4j.ogm.model.Result;
+
+import java.util.*;
 
 public class GeneRepository extends Neo4jRepository<Gene> {
 
@@ -15,7 +12,7 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         super(Gene.class);
     }
 
-    public Gene getOneGene(String primaryKey) {     
+    public Gene getOneGene(String primaryKey) {
         HashMap<String, String> map = new HashMap<>();
 
         map.put("primaryKey", primaryKey);
@@ -29,10 +26,10 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         query += " OPTIONAL MATCH p8=(g)--(s:PhenotypeEntityJoin)--(ff:Feature)";
         query += " OPTIONAL MATCH p9=(g)--(s:GOTerm)-[:IS_A|:PART_OF*]->(parent:GOTerm)";
         query += " RETURN p1, p2, p3, p4, p5, p6, p7, p8, p9";
-        
+
         Iterable<Gene> genes = query(query, map);
-        for(Gene g: genes) {
-            if(g.getPrimaryKey().equals(primaryKey)) {
+        for (Gene g : genes) {
+            if (g.getPrimaryKey().equals(primaryKey)) {
                 return g;
             }
         }
@@ -51,13 +48,38 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         query += " RETURN p1, p3, p4";
 
         Iterable<Gene> genes = query(query, map);
-        for(Gene g: genes) {
-            if(g.getPrimaryKey().equals(primaryKey)) {
+        for (Gene g : genes) {
+            if (g.getPrimaryKey().equals(primaryKey)) {
                 return g;
             }
         }
-
         return null;
+    }
+
+    public List<Gene> getOrthologyByTwoSpecies(String speciesOne, String speciesTwo) {
+
+        speciesOne = SpeciesType.getTaxonId(speciesOne);
+        speciesTwo = SpeciesType.getTaxonId(speciesTwo);
+        HashMap<String, String> map = new HashMap<>();
+        map.put("speciesID", speciesOne);
+        map.put("homologSpeciesID", speciesTwo);
+        String query = "";
+
+        query += " MATCH p1=(gs:Species)-[:FROM_SPECIES]-(g:Gene)";
+        query += "--(s:OrthologyGeneJoin)--(gh:Gene)-[:FROM_SPECIES]-(ghs:Species) " +
+                " where gs.primaryKey = {speciesID} " +
+                " and   ghs.primaryKey = {homologSpeciesID} ";
+        query += " OPTIONAL MATCH p3=(g)-[o:ORTHOLOGOUS]-(gh:Gene) ";
+        query += "return p1, p3";
+
+        Iterable<Gene> genes = query(query, map);
+        List<Gene> geneList = new ArrayList<>();
+        for (Gene g : genes) {
+            if (g.getSpecies().getPrimaryKey().equals(speciesOne)) {
+                geneList.add(g);
+            }
+        }
+        return geneList;
     }
 
     public HashMap<String, Gene> getGene(String primaryKey) {
@@ -75,7 +97,7 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         HashMap<String, Gene> retMap = new HashMap<>();
 
         Iterable<Gene> genes = query(query, map);
-        for(Gene g: genes) {
+        for (Gene g : genes) {
             retMap.put(g.getPrimaryKey(), g);
         }
 
@@ -88,9 +110,9 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         Iterator<Map<String, Object>> i = r.iterator();
         ArrayList<String> list = new ArrayList<>();
 
-        while(i.hasNext()) {
+        while (i.hasNext()) {
             Map<String, Object> map2 = i.next();
-            list.add((String)map2.get("g.primaryKey"));
+            list.add((String) map2.get("g.primaryKey"));
         }
         return list;
     }

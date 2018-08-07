@@ -135,11 +135,11 @@ public class OrthologyService {
                     });
             return orthologList;
         }
-        return null;
+        return new ArrayList<>();
     }
 
     private static boolean isAllMatchMethods(OrthologyGeneJoin join, OrthologyFilter filter) {
-        if(filter.getMethods()== null)
+        if (filter.getMethods() == null)
             return true;
         List<String> unmatched = new ArrayList<>();
         filter.getMethods().forEach(method -> {
@@ -154,7 +154,21 @@ public class OrthologyService {
         mapper.disable(MapperFeature.DEFAULT_VIEW_INCLUSION);
         mapper.registerModule(new OrthologyModule());
         List<OrthologView> orthologViewList = OrthologyService.getOrthologViewList(gene, filter);
-        Response response = new Response();
+        JsonResultResponse response = new JsonResultResponse<OrthologView>();
+        response.setResults(orthologViewList);
+        response.setTotal(orthologViewList.size());
+        return mapper.writerWithView(View.OrthologyView.class).writeValueAsString(response);
+    }
+
+    public static String getOrthologyMultiGeneJson(List<Gene> geneList, OrthologyFilter filter) throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.disable(MapperFeature.DEFAULT_VIEW_INCLUSION);
+        mapper.registerModule(new OrthologyModule());
+        List<OrthologView> orthologViewList =
+                geneList.stream()
+                        .flatMap(gene -> OrthologyService.getOrthologViewList(gene, filter).stream())
+                        .collect(Collectors.toList());
+        JsonResultResponse response = new JsonResultResponse<OrthologView>();
         response.setResults(orthologViewList);
         response.setTotal(orthologViewList.size());
         return mapper.writerWithView(View.OrthologyView.class).writeValueAsString(response);
@@ -162,7 +176,7 @@ public class OrthologyService {
 
     @Setter
     @Getter
-    public static class Response {
+    public static class Response extends JsonResultResponse<OrthologView> {
 
         @JsonView(View.OrthologyView.class)
         private List<OrthologView> results;

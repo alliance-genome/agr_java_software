@@ -1,8 +1,9 @@
 package org.alliancegenome.api.controller;
 
-import io.swagger.annotations.ApiParam;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.alliancegenome.api.rest.interfaces.GeneRESTInterface;
 import org.alliancegenome.api.service.GeneService;
+import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.core.service.OrthologyService;
 import org.alliancegenome.core.translators.tdf.PhenotypeAnnotationToTdfTranslator;
 import org.alliancegenome.es.model.query.FieldFilter;
@@ -91,22 +92,19 @@ public class GeneController extends BaseController implements GeneRESTInterface 
     }
 
     @Override
-    public String getGeneOrthology(@ApiParam(name = "id", value = "Gene ID", required = true, type = "String")
-                                           String id,
-                                   @ApiParam(value = "apply stringency filter", allowableValues = "all, moderate, stringent", defaultValue = "all")
-                                           String stringencyFilter,
-                                   @ApiParam(value = "list of species")
-                                           String species,
-                                   @ApiParam(value = "list of methods")
-                                           String methods,
-                                   @ApiParam(value = "rows")
-                                           Integer rows,
-                                   @ApiParam(value = "start row", defaultValue = "0")
-                                           Integer start) throws IOException {
+    public JsonResultResponse getGeneOrthology(String id,
+                                               String stringencyFilter,
+                                               String species,
+                                               String methods,
+                                               Integer rows,
+                                               Integer start) throws IOException {
         GeneRepository repo = new GeneRepository();
         Gene gene = repo.getOrthologyGene(id);
         OrthologyFilter orthologyFilter = new OrthologyFilter(stringencyFilter, species, methods);
-        return OrthologyService.getOrthologyJson(gene, orthologyFilter);
+        String json = OrthologyService.getOrthologyJson(gene, orthologyFilter);
+        ObjectMapper mapper = new ObjectMapper();
+        JsonResultResponse response = mapper.readValue(json, JsonResultResponse.class);
+        return response;
     }
 
     public String getPhenotypeAnnotationsDownload(String id) {
