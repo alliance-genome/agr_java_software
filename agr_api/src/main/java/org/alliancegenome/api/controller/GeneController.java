@@ -1,6 +1,5 @@
 package org.alliancegenome.api.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.alliancegenome.api.rest.interfaces.GeneRESTInterface;
 import org.alliancegenome.api.service.GeneService;
 import org.alliancegenome.core.service.JsonResultResponse;
@@ -101,9 +100,7 @@ public class GeneController extends BaseController implements GeneRESTInterface 
         GeneRepository repo = new GeneRepository();
         Gene gene = repo.getOrthologyGene(id);
         OrthologyFilter orthologyFilter = new OrthologyFilter(stringencyFilter, species, methods);
-        String json = OrthologyService.getOrthologyJson(gene, orthologyFilter);
-        ObjectMapper mapper = new ObjectMapper();
-        JsonResultResponse response = mapper.readValue(json, JsonResultResponse.class);
+        JsonResultResponse response = OrthologyService.getOrthologyJson(gene, orthologyFilter);
         return response;
     }
 

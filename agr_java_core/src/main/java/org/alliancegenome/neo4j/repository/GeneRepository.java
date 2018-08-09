@@ -67,10 +67,31 @@ public class GeneRepository extends Neo4jRepository<Gene> {
 
         query += " MATCH p1=(gs:Species)-[:FROM_SPECIES]-(g:Gene)";
         query += "--(s:OrthologyGeneJoin)--(gh:Gene)-[:FROM_SPECIES]-(ghs:Species) " +
-                " where gs.primaryKey = {speciesID} " +
-                " and   ghs.primaryKey = {homologSpeciesID} ";
+                " where gs.primaryKey = {speciesID} ";
+        query += " and   ghs.primaryKey = {homologSpeciesID} ";
         query += " OPTIONAL MATCH p3=(g)-[o:ORTHOLOGOUS]-(gh:Gene) ";
         query += "return p1, p3";
+
+        Iterable<Gene> genes = query(query, map);
+        List<Gene> geneList = new ArrayList<>();
+        for (Gene g : genes) {
+            if (g.getSpecies().getPrimaryKey().equals(speciesOne)) {
+                geneList.add(g);
+            }
+        }
+        return geneList;
+    }
+
+    public List<Gene> getOrthologyBySingleSpecies(String speciesOne) {
+
+        speciesOne = SpeciesType.getTaxonId(speciesOne);
+        HashMap<String, String> map = new HashMap<>();
+        map.put("speciesID", speciesOne);
+        String query = "";
+
+        query += " MATCH p1=(gs:Species)-[:FROM_SPECIES]-(g:Gene) where gs.primaryKey = {speciesID} ";
+        query += " OPTIONAL MATCH p4=(g)--(s:OrthologyGeneJoin)--(a:OrthoAlgorithm), p3=(g)-[o:ORTHOLOGOUS]-(g2:Gene)-[:FROM_SPECIES]-(q2:Species), (s)--(g2)";
+        query += "return p1, p3, p4";
 
         Iterable<Gene> genes = query(query, map);
         List<Gene> geneList = new ArrayList<>();

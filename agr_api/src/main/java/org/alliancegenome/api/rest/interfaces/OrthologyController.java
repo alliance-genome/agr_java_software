@@ -1,6 +1,5 @@
 package org.alliancegenome.api.rest.interfaces;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.core.service.OrthologyService;
 import org.alliancegenome.neo4j.entity.node.Gene;
@@ -13,19 +12,31 @@ import java.util.List;
 public class OrthologyController implements OrthologyRESTInterface {
 
     @Override
-    public JsonResultResponse getGeneOrthology(String speciesOne,
-                                   String speciesTwo,
-                                   String stringencyFilter,
-                                   String methods,
-                                   Integer rows,
-                                   Integer start) throws IOException {
+    public JsonResultResponse getDoubleSpeciesOrthology(String speciesOne,
+                                                        String speciesTwo,
+                                                        String stringencyFilter,
+                                                        String methods,
+                                                        Integer rows,
+                                                        Integer start) throws IOException {
 
         GeneRepository repository = new GeneRepository();
-        List<Gene> geneList = repository.getOrthologyByTwoSpecies(speciesOne, speciesTwo);
+        List<Gene> geneList = null;
+        if (speciesTwo != null)
+            geneList = repository.getOrthologyByTwoSpecies(speciesOne, speciesTwo);
+        else
+            geneList = repository.getOrthologyBySingleSpecies(speciesOne);
+
         OrthologyFilter orthologyFilter = new OrthologyFilter(stringencyFilter, null, methods);
-        String json = OrthologyService.getOrthologyMultiGeneJson(geneList, orthologyFilter);
-        ObjectMapper mapper = new ObjectMapper();
-        JsonResultResponse response = mapper.readValue(json, JsonResultResponse.class);
+        JsonResultResponse response = OrthologyService.getOrthologyMultiGeneJson(geneList, orthologyFilter);
         return response;
+    }
+
+    @Override
+    public JsonResultResponse getSingleSpeciesOrthology(String species,
+                                                        String stringencyFilter,
+                                                        String methods,
+                                                        Integer rows,
+                                                        Integer start) throws IOException {
+        return getDoubleSpeciesOrthology(species, null, stringencyFilter, methods, rows, start);
     }
 }

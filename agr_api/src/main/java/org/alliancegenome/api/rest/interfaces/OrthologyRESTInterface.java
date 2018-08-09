@@ -16,14 +16,13 @@ import java.io.IOException;
 public interface OrthologyRESTInterface {
 
     @GET
-    @Path("/{species}/{species}")
+    @Path("/{speciesOne}/{speciesTwo}")
     @ApiOperation(value = "Retrieve orthologous gene records for given species", notes = "Download orthology records.")
-    @Produces(MediaType.TEXT_PLAIN)
-    JsonResultResponse getGeneOrthology(
-            @ApiParam(name = "Species One", value = "Species", required = true, type = "String")
-            @PathParam("species") String speciesOne,
-            @ApiParam(name = "Species Two", value = "Species", required = true, type = "String")
-            @PathParam("species") String speciesTwo,
+    JsonResultResponse getDoubleSpeciesOrthology(
+            @ApiParam(name = "speciesOne", value = "Species One", required = true, type = "String")
+            @PathParam("speciesOne") String speciesOne,
+            @ApiParam(name = "speciesTwo", value = "Species Two", required = true, type = "String")
+            @PathParam("speciesTwo") String speciesTwo,
             @ApiParam(value = "stringencyFilter")
             @QueryParam("stringencyFilter") String stringencyFilter,
             @ApiParam(value = "methods")
@@ -33,4 +32,18 @@ public interface OrthologyRESTInterface {
             @ApiParam(value = "start")
             @QueryParam("start") Integer start) throws IOException;
 
+    @GET
+    @Path("/{species}")
+    @ApiOperation(value = "Retrieve orthologous gene records for given species", notes = "Download orthology records.")
+    JsonResultResponse getSingleSpeciesOrthology(
+            @ApiParam(name = "species", value = "Species", required = true, type = "String")
+            @PathParam("species") String species,
+            @ApiParam(value = "stringencyFilter")
+            @QueryParam("stringencyFilter") String stringencyFilter,
+            @ApiParam(value = "methods")
+            @QueryParam("methods") String methods,
+            @ApiParam(value = "number of rows")
+            @QueryParam("rows") Integer rows,
+            @ApiParam(value = "start")
+            @QueryParam("start") Integer start) throws IOException;
 }

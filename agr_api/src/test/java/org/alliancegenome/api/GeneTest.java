@@ -6,7 +6,6 @@ import org.alliancegenome.api.rest.interfaces.OrthologyController;
 import org.alliancegenome.api.service.GeneService;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.service.JsonResultResponse;
-import org.alliancegenome.core.service.OrthologyService;
 import org.alliancegenome.es.index.site.dao.GeneDAO;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
@@ -21,7 +20,8 @@ import org.junit.Test;
 import java.io.IOException;
 import java.util.Map;
 
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.greaterThan;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
@@ -97,8 +97,17 @@ public class GeneTest {
     public void checkOrthologyForTwoSpecies() throws IOException {
 
         OrthologyController controller = new OrthologyController();
-        JsonResultResponse response = controller.getGeneOrthology("NCBITaxon:10090", "NCBITaxon:10116", null, null, null, null);
-        assertThat("Matches found for filter 'stringent", response.getTotal(), greaterThan(0));
+        JsonResultResponse response = controller.getDoubleSpeciesOrthology("NCBITaxon:10090", "NCBITaxon:10116", null, null, null, null);
+        assertThat("Orthology records found for mouse - rat", response.getTotal(), greaterThan(0));
+    }
+
+    @Test
+    @Ignore
+    public void checkOrthologyForSingleSpecies() throws IOException {
+
+        OrthologyController controller = new OrthologyController();
+        JsonResultResponse response = controller.getSingleSpeciesOrthology("10090", null, null, null, null);
+        assertThat("Orthology records found for mouse genes", response.getTotal(), greaterThan(0));
     }
 
     @Test
@@ -112,12 +121,15 @@ public class GeneTest {
         response = controller.getGeneOrthology("MGI:109583", null, "NCBITaxon:10116", null, null, null);
         assertThat("matches found for method species NCBITaxon:10116", response.getTotal(), greaterThan(0));
 
+        response = controller.getGeneOrthology("MGI:109583", "stringent", "NCBITaxon:10116", null, null, null);
+        assertThat("matches found for method species NCBITaxon:10116", response.getTotal(), greaterThan(0));
+
 /*
-        response = controller.getGeneOrthology("MGI:109583", null, "NCBITaxon:10116,NCBITaxon:7955", null, null, null);
+        response = controller.getDoubleSpeciesOrthology("MGI:109583", null, "NCBITaxon:10116,NCBITaxon:7955", null, null, null);
         assertThat(json, startsWith("[{\"gene"));
 */
 /*
-        json = controller.getGeneOrthology("MGI:109583", "stringENT", null, null, null, null);
+        json = controller.getDoubleSpeciesOrthology("MGI:109583", "stringENT", null, null, null, null);
         assertNotNull(json);
 */
     }

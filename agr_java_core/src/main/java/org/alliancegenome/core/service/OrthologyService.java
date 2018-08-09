@@ -149,7 +149,7 @@ public class OrthologyService {
         return unmatched.size() == 0;
     }
 
-    public static String getOrthologyJson(Gene gene, OrthologyFilter filter) throws JsonProcessingException {
+    public static JsonResultResponse getOrthologyJson(Gene gene, OrthologyFilter filter) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
         mapper.disable(MapperFeature.DEFAULT_VIEW_INCLUSION);
         mapper.registerModule(new OrthologyModule());
@@ -157,10 +157,10 @@ public class OrthologyService {
         JsonResultResponse response = new JsonResultResponse<OrthologView>();
         response.setResults(orthologViewList);
         response.setTotal(orthologViewList.size());
-        return mapper.writerWithView(View.OrthologyView.class).writeValueAsString(response);
+        return response;
     }
 
-    public static String getOrthologyMultiGeneJson(List<Gene> geneList, OrthologyFilter filter) throws JsonProcessingException {
+    public static JsonResultResponse getOrthologyMultiGeneJson(List<Gene> geneList, OrthologyFilter filter) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
         mapper.disable(MapperFeature.DEFAULT_VIEW_INCLUSION);
         mapper.registerModule(new OrthologyModule());
@@ -171,7 +171,7 @@ public class OrthologyService {
         JsonResultResponse response = new JsonResultResponse<OrthologView>();
         response.setResults(orthologViewList);
         response.setTotal(orthologViewList.size());
-        return mapper.writerWithView(View.OrthologyView.class).writeValueAsString(response);
+        return response;
     }
 
     @Setter
