@@ -3,6 +3,7 @@ package org.alliancegenome.api.rest.interfaces;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.es.model.search.SearchResult;
 
 import javax.ws.rs.*;
@@ -67,17 +68,17 @@ public interface GeneRESTInterface {
     @Path("/{id}/orthology")
     @ApiOperation(value = "Retrieve orthologous gene records", notes = "Download orthology records.")
     @Produces(MediaType.TEXT_PLAIN)
-    String getGeneOrthology(@ApiParam(name = "id", value = "Gene ID", required = true, type = "String")
+    JsonResultResponse getGeneOrthology(@ApiParam(name = "id", value = "Gene ID", required = true, type = "String")
                             @PathParam("id") String id,
-                            @ApiParam(value = "apply filter", allowableValues = "all, moderate, stringent", defaultValue = "all")
+                                        @ApiParam(value = "apply filter", allowableValues = "all, moderate, stringent", defaultValue = "all")
                             @QueryParam("filter") String filter,
-                            @ApiParam(value = "species")
+                                        @ApiParam(value = "species")
                             @QueryParam("species") String species,
-                            @ApiParam(value = "methods")
+                                        @ApiParam(value = "methods")
                             @QueryParam("methods") String methods,
-                            @ApiParam(value = "number of rows")
+                                        @ApiParam(value = "number of rows")
                             @QueryParam("rows") Integer rows,
-                            @ApiParam(value = "start")
+                                        @ApiParam(value = "start")
                             @QueryParam("start") Integer start) throws IOException;
 
 }

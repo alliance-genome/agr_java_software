@@ -3,13 +3,11 @@ package org.alliancegenome.api.rest.interfaces;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import org.alliancegenome.es.model.search.SearchResult;
+import org.alliancegenome.core.service.JsonResultResponse;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import java.io.IOException;
-import java.util.Map;
 
 @Path("/orthology")
 @Api(value = "Orthology")
@@ -18,15 +16,34 @@ import java.util.Map;
 public interface OrthologyRESTInterface {
 
     @GET
-    @Path("/species")
+    @Path("/{speciesOne}/{speciesTwo}")
     @ApiOperation(value = "Retrieve orthologous gene records for given species", notes = "Download orthology records.")
-    @Produces(MediaType.TEXT_PLAIN)
-    String getGeneOrthology(
-                            @ApiParam(value = "speciesList")
-                            @QueryParam("speciesList") String species,
-                            @ApiParam(value = "number of rows")
-                            @QueryParam("rows") Integer rows,
-                            @ApiParam(value = "start")
-                            @QueryParam("start") Integer start) throws IOException;
+    JsonResultResponse getDoubleSpeciesOrthology(
+            @ApiParam(name = "speciesOne", value = "Species One", required = true, type = "String")
+            @PathParam("speciesOne") String speciesOne,
+            @ApiParam(name = "speciesTwo", value = "Species Two", required = true, type = "String")
+            @PathParam("speciesTwo") String speciesTwo,
+            @ApiParam(value = "stringencyFilter")
+            @QueryParam("stringencyFilter") String stringencyFilter,
+            @ApiParam(value = "methods")
+            @QueryParam("methods") String methods,
+            @ApiParam(value = "number of rows")
+            @QueryParam("rows") Integer rows,
+            @ApiParam(value = "start")
+            @QueryParam("start") Integer start) throws IOException;
 
+    @GET
+    @Path("/{species}")
+    @ApiOperation(value = "Retrieve orthologous gene records for given species", notes = "Download orthology records.")
+    JsonResultResponse getSingleSpeciesOrthology(
+            @ApiParam(name = "species", value = "Species", required = true, type = "String")
+            @PathParam("species") String species,
+            @ApiParam(value = "stringencyFilter")
+            @QueryParam("stringencyFilter") String stringencyFilter,
+            @ApiParam(value = "methods")
+            @QueryParam("methods") String methods,
+            @ApiParam(value = "number of rows")
+            @QueryParam("rows") Integer rows,
+            @ApiParam(value = "start")
+            @QueryParam("start") Integer start) throws IOException;
 }

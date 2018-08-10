@@ -1,9 +1,9 @@
 package org.alliancegenome.neo4j.entity;
 
-import org.alliancegenome.es.index.site.doclet.SpeciesDoclet;
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import org.alliancegenome.es.index.site.doclet.SpeciesDoclet;
+import org.apache.commons.lang3.StringUtils;
 
 @Getter
 @AllArgsConstructor
@@ -16,6 +16,7 @@ public enum SpeciesType {
     WORM("Caenorhabditis elegans", "WB", "NCBITaxon:6239", "Cel", "WB", "Worm Base", "6239", 5),
     YEAST("Saccharomyces cerevisiae", "SGD", "NCBITaxon:4932", "Sce", "SGD", "Saccharomyces Genome Database", "4932", 6);
 
+    public static final String NCBITAXON = "NCBITaxon:";
     private String name;
     private String displayName;
     private String taxonID;
@@ -78,4 +79,18 @@ public enum SpeciesType {
         return ret;
     }
 
+    public static String getTaxonId(String species) {
+        if (species == null)
+            return null;
+        // return name if it already is the full taxon ID
+        if (species.startsWith(NCBITAXON))
+            return species;
+        // if only a number is provided then prefix it with taxon...
+        if (StringUtils.isNumeric(species))
+            return NCBITAXON + species;
+        SpeciesType typeByName = getTypeByName(species);
+        if (typeByName != null)
+            return typeByName.getTaxonID();
+        return species;
+    }
 }

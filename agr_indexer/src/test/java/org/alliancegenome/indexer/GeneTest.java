@@ -24,7 +24,7 @@ public class GeneTest {
 
         Gene gene = null;
         //gene = repo.getOneGene("ZFIN:ZDB-GENE-000210-7");
-        gene = repo.getOrthologyGene("ZFIN:ZDB-GENE-990415-72");
+        //gene = repo.getOrthologyGene("ZFIN:ZDB-GENE-990415-72");
         gene = repo.getOrthologyGene("MGI:109583");
 
         //for(GOTerm go: gene.getGoParentTerms()) {
