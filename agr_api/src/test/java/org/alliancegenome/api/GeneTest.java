@@ -1,5 +1,6 @@
 package org.alliancegenome.api;
 
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.alliancegenome.api.controller.GeneController;
 import org.alliancegenome.api.rest.interfaces.OrthologyController;
@@ -10,6 +11,7 @@ import org.alliancegenome.es.index.site.dao.GeneDAO;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.es.model.search.SearchResult;
+import org.alliancegenome.neo4j.view.OrthologyModule;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.config.Configurator;
 import org.jboss.logging.Logger;
@@ -97,7 +99,12 @@ public class GeneTest {
     public void checkOrthologyForTwoSpecies() throws IOException {
 
         OrthologyController controller = new OrthologyController();
-        JsonResultResponse response = controller.getDoubleSpeciesOrthology("NCBITaxon:10090", "NCBITaxon:10116", null, null, null, null);
+        String  responseString = controller.getDoubleSpeciesOrthology("7955", "10090", "stringent", null, null, null);
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.disable(MapperFeature.DEFAULT_VIEW_INCLUSION);
+        mapper.registerModule(new OrthologyModule());
+        JsonResultResponse response = mapper.readValue(responseString, JsonResultResponse.class);
+
         assertThat("Orthology records found for mouse - rat", response.getTotal(), greaterThan(0));
     }
 
@@ -106,7 +113,11 @@ public class GeneTest {
     public void checkOrthologyForSingleSpecies() throws IOException {
 
         OrthologyController controller = new OrthologyController();
-        JsonResultResponse response = controller.getSingleSpeciesOrthology("10090", null, null, null, null);
+        String  responseString = controller.getSingleSpeciesOrthology("10090", null, null, null, null);
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.disable(MapperFeature.DEFAULT_VIEW_INCLUSION);
+        mapper.registerModule(new OrthologyModule());
+        JsonResultResponse response = mapper.readValue(responseString, JsonResultResponse.class);
         assertThat("Orthology records found for mouse genes", response.getTotal(), greaterThan(0));
     }
 

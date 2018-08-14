@@ -1,42 +1,50 @@
 package org.alliancegenome.api.rest.interfaces;
 
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.core.service.OrthologyService;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.repository.GeneRepository;
+import org.alliancegenome.neo4j.view.OrthologView;
 import org.alliancegenome.neo4j.view.OrthologyFilter;
+import org.alliancegenome.neo4j.view.OrthologyModule;
+import org.alliancegenome.neo4j.view.View;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
 
 public class OrthologyController implements OrthologyRESTInterface {
 
     @Override
-    public JsonResultResponse getDoubleSpeciesOrthology(String speciesOne,
-                                                        String speciesTwo,
-                                                        String stringencyFilter,
-                                                        String methods,
-                                                        Integer rows,
-                                                        Integer start) throws IOException {
+    public String getDoubleSpeciesOrthology(String speciesOne,
+                                            String speciesTwo,
+                                            String stringencyFilter,
+                                            String methods,
+                                            Integer rows,
+                                            Integer start) throws IOException {
 
         GeneRepository repository = new GeneRepository();
-        List<Gene> geneList = null;
+        Set<Gene> geneList = null;
         if (speciesTwo != null)
             geneList = repository.getOrthologyByTwoSpecies(speciesOne, speciesTwo);
         else
             geneList = repository.getOrthologyBySingleSpecies(speciesOne);
 
         OrthologyFilter orthologyFilter = new OrthologyFilter(stringencyFilter, null, methods);
-        JsonResultResponse response = OrthologyService.getOrthologyMultiGeneJson(geneList, orthologyFilter);
-        return response;
+        JsonResultResponse<OrthologView> response = OrthologyService.getOrthologyMultiGeneJson(geneList, orthologyFilter);
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.disable(MapperFeature.DEFAULT_VIEW_INCLUSION);
+        return mapper.writerWithView(View.OrthologyView.class).writeValueAsString(response);
     }
 
     @Override
-    public JsonResultResponse getSingleSpeciesOrthology(String species,
-                                                        String stringencyFilter,
-                                                        String methods,
-                                                        Integer rows,
-                                                        Integer start) throws IOException {
+    public String getSingleSpeciesOrthology(String species,
+                                            String stringencyFilter,
+                                            String methods,
+                                            Integer rows,
+                                            Integer start) throws IOException {
         return getDoubleSpeciesOrthology(species, null, stringencyFilter, methods, rows, start);
     }
 }

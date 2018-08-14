@@ -13,6 +13,8 @@ import org.alliancegenome.neo4j.view.OrthologyModule;
 import org.alliancegenome.neo4j.view.View;
 
 import java.util.Date;
+import java.util.List;
+import java.util.Set;
 
 public class GeneTest {
 
@@ -26,6 +28,7 @@ public class GeneTest {
         //gene = repo.getOneGene("ZFIN:ZDB-GENE-000210-7");
         //gene = repo.getOrthologyGene("ZFIN:ZDB-GENE-990415-72");
         gene = repo.getOrthologyGene("MGI:109583");
+        Set<Gene> genes = repo.getOrthologyByTwoSpecies("7955", "10090");
 
         //for(GOTerm go: gene.getGoParentTerms()) {
         //  System.out.println(go.getName());

@@ -2,6 +2,7 @@ package org.alliancegenome.neo4j.repository;
 
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.entity.node.Gene;
+import org.apache.commons.collections4.CollectionUtils;
 import org.neo4j.ogm.model.Result;
 
 import java.util.*;
@@ -56,7 +57,7 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         return null;
     }
 
-    public List<Gene> getOrthologyByTwoSpecies(String speciesOne, String speciesTwo) {
+    public Set<Gene> getOrthologyByTwoSpecies(String speciesOne, String speciesTwo) {
 
         speciesOne = SpeciesType.getTaxonId(speciesOne);
         speciesTwo = SpeciesType.getTaxonId(speciesTwo);
@@ -66,35 +67,40 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         String query = "";
 
         query += " MATCH p1=(gs:Species)-[:FROM_SPECIES]-(g:Gene)";
-        query += "--(s:OrthologyGeneJoin)--(gh:Gene)-[:FROM_SPECIES]-(ghs:Species) " +
-                " where gs.primaryKey = {speciesID} ";
-        query += " and   ghs.primaryKey = {homologSpeciesID} ";
-        query += " OPTIONAL MATCH p3=(g)-[o:ORTHOLOGOUS]-(gh:Gene) ";
-        query += "return p1, p3";
+        query += "-[ortho:ORTHOLOGOUS]-(gh:Gene) " +
+                " where g.taxonId = {speciesID} ";
+        query += " and   gh.taxonId = {homologSpeciesID} ";
+        query += " OPTIONAL MATCH p4=(g)--(s:OrthologyGeneJoin)--(gh:Gene)-[:FROM_SPECIES]-(ghs:Species), p5=(s)--(algorithm:OrthoAlgorithm)";
+        query += "return p1, ortho, p4, p5";
 
         Iterable<Gene> genes = query(query, map);
-        List<Gene> geneList = new ArrayList<>();
+        Set<Gene> geneList = new HashSet<>();
         for (Gene g : genes) {
-            if (g.getSpecies().getPrimaryKey().equals(speciesOne)) {
+            if (map.values().contains(g.getTaxonId()) && (g.getOrthoGenes() != null && g.getOrthoGenes().size() > 0)) {
+                g.getOrthoGenes().forEach(orthologous -> {
+                    System.out.println(orthologous.getGene1().getPrimaryKey()+" "+orthologous.getGene2().getPrimaryKey());
+                });
                 geneList.add(g);
             }
         }
         return geneList;
     }
 
-    public List<Gene> getOrthologyBySingleSpecies(String speciesOne) {
+    public Set<Gene> getOrthologyBySingleSpecies(String speciesOne) {
 
         speciesOne = SpeciesType.getTaxonId(speciesOne);
         HashMap<String, String> map = new HashMap<>();
         map.put("speciesID", speciesOne);
         String query = "";
 
-        query += " MATCH p1=(gs:Species)-[:FROM_SPECIES]-(g:Gene) where gs.primaryKey = {speciesID} ";
-        query += " OPTIONAL MATCH p4=(g)--(s:OrthologyGeneJoin)--(a:OrthoAlgorithm), p3=(g)-[o:ORTHOLOGOUS]-(g2:Gene)-[:FROM_SPECIES]-(q2:Species), (s)--(g2)";
-        query += "return p1, p3, p4";
+        query += " MATCH p1=(gs:Species)-[:FROM_SPECIES]-(g:Gene)";
+        query += "-[ortho:ORTHOLOGOUS]-(gh:Gene) " +
+                " where g.taxonId = {speciesID} ";
+        query += " OPTIONAL MATCH p4=(g)--(s:OrthologyGeneJoin)--(gh:Gene)-[:FROM_SPECIES]-(ghs:Species), p5=(s)--(algorithm:OrthoAlgorithm)";
+        query += "return p1, ortho, p4, p5";
 
         Iterable<Gene> genes = query(query, map);
-        List<Gene> geneList = new ArrayList<>();
+        Set<Gene> geneList = new HashSet<>();
         for (Gene g : genes) {
             if (g.getSpecies().getPrimaryKey().equals(speciesOne)) {
                 geneList.add(g);

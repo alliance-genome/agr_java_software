@@ -67,7 +67,6 @@ public interface GeneRESTInterface {
     @GET
     @Path("/{id}/orthology")
     @ApiOperation(value = "Retrieve orthologous gene records", notes = "Download orthology records.")
-    @Produces(MediaType.TEXT_PLAIN)
     JsonResultResponse getGeneOrthology(@ApiParam(name = "id", value = "Gene ID", required = true, type = "String")
                             @PathParam("id") String id,
                                         @ApiParam(value = "apply filter", allowableValues = "all, moderate, stringent", defaultValue = "all")
