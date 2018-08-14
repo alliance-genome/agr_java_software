@@ -17,6 +17,7 @@ import org.alliancegenome.neo4j.view.OrthologyModule;
 import org.alliancegenome.neo4j.view.View;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -133,6 +134,26 @@ public class OrthologyService {
                         view.calculateCounts();
                         orthologList.add(view);
                     });
+/*
+            gene.getOrthologyGeneJoins().stream()
+                    .filter(join -> lookup.containsKey(join.getPrimaryKey()))
+                    .filter(join -> isAllMatchMethods(join, filter))
+                    .forEach(join -> {
+                        Orthologous ortho = lookup.get(join.getPrimaryKey());
+                        OrthologView view = new OrthologView();
+                        gene.setSpeciesName(ortho.getGene1().getSpecies() == null ? null : ortho.getGene1().getSpecies().getName());
+                        view.setGene(gene);
+                        ortho.getGene2().setSpeciesName(ortho.getGene2().getSpecies() == null ? null : ortho.getGene2().getSpecies().getName());
+                        view.setHomologGene(ortho.getGene2());
+                        view.setBest(ortho.isBestScore());
+                        view.setBestReverse(ortho.isBestRevScore());
+                        view.setPredictionMethodsMatched(getMatchedMethods(join));
+                        view.setPredictionMethodsNotMatched(getNotMatchedMethods(join));
+                        view.setPredictionMethodsNotCalled(getNotCalledMethods(join));
+                        view.calculateCounts();
+                        orthologList.add(view);
+                    });
+*/
             return orthologList;
         }
         return new ArrayList<>();
@@ -160,10 +181,7 @@ public class OrthologyService {
         return response;
     }
 
-    public static JsonResultResponse getOrthologyMultiGeneJson(List<Gene> geneList, OrthologyFilter filter) throws JsonProcessingException {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.disable(MapperFeature.DEFAULT_VIEW_INCLUSION);
-        mapper.registerModule(new OrthologyModule());
+    public static JsonResultResponse<OrthologView> getOrthologyMultiGeneJson(Collection<Gene> geneList, OrthologyFilter filter) throws JsonProcessingException {
         List<OrthologView> orthologViewList =
                 geneList.stream()
                         .flatMap(gene -> OrthologyService.getOrthologViewList(gene, filter).stream())
