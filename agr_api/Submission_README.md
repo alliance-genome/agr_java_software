@@ -49,8 +49,8 @@ This will be the current release of the schema can be found in the [releases](ht
 
 ## Data Type
 
-| Data Type | What it means | Schema Validation File | Format | TaxonId Required | Validation Required | Mod Version Stored
-| --- | --- | --- | --- | --- | --- |
+| Data Type | What it means | Schema Validation File | Format | TaxonId Required | Validation Required | Mod Version Stored |
+| --- | --- | --- | --- | --- | --- | --- |
 | BGI | Basic Gene information | geneMetadata.json | json | true | true | true |
 | DAF | Disease Annotations File (DAF) | diseaseMetaDataDefinition.json | json | true | true | true |
 | ORTHO | Orthology File | orthoHeader.json | json | true | true | true |
