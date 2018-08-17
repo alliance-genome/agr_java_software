@@ -191,8 +191,10 @@ public class ConfigHelper {
     }
     
     public static void printProperties() {
+        System.out.println("Running with Properties:");
         log.info("Running with Properties:");
         for (String key : allKeys) {
+            System.out.println("\t" + key + ": " + config.get(key));
             log.info("\t" + key + ": " + config.get(key));
         }
     }
