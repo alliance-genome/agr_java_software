@@ -63,6 +63,8 @@ public class GeneTest {
         Configurator.setRootLevel(Level.WARN);
         ConfigHelper.init();
         geneService = new GeneService();
+        mapper.disable(MapperFeature.DEFAULT_VIEW_INCLUSION);
+        mapper.registerModule(new OrthologyModule());
     }
 
 
@@ -81,7 +83,8 @@ public class GeneTest {
     public void checkOrthologyAPIWithFilter() throws IOException {
 
         GeneController controller = new GeneController();
-        JsonResultResponse response = controller.getGeneOrthology("MGI:109583", "stringENT", null, null, null, null);
+        String responseString = controller.getGeneOrthology("MGI:109583", "stringENT", null, null, null, null);
+        JsonResultResponse response = mapper.readValue(responseString, JsonResultResponse.class);
         assertThat("Matches found for filter 'stringent", response.getTotal(), greaterThan(0));
     }
 
@@ -90,7 +93,8 @@ public class GeneTest {
     public void checkOrthologyForListOfGenes() throws IOException {
 
         GeneController controller = new GeneController();
-        JsonResultResponse response = controller.getGeneOrthology("MGI:109583", "stringENT", null, null, null, null);
+        String responseString = controller.getGeneOrthology("MGI:109583", "stringENT", null, null, null, null);
+        JsonResultResponse response = mapper.readValue(responseString, JsonResultResponse.class);
         assertThat("Matches found for filter 'stringent", response.getTotal(), greaterThan(0));
     }
 
@@ -99,12 +103,8 @@ public class GeneTest {
     public void checkOrthologyForTwoSpecies() throws IOException {
 
         OrthologyController controller = new OrthologyController();
-        String  responseString = controller.getDoubleSpeciesOrthology("7955", "10090", "stringent", null, null, null);
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.disable(MapperFeature.DEFAULT_VIEW_INCLUSION);
-        mapper.registerModule(new OrthologyModule());
+        String  responseString = controller.getDoubleSpeciesOrthology("10090", "7955", "stringent", null, null, null);
         JsonResultResponse response = mapper.readValue(responseString, JsonResultResponse.class);
-
         assertThat("Orthology records found for mouse - rat", response.getTotal(), greaterThan(0));
     }
 
@@ -113,10 +113,7 @@ public class GeneTest {
     public void checkOrthologyForSingleSpecies() throws IOException {
 
         OrthologyController controller = new OrthologyController();
-        String  responseString = controller.getSingleSpeciesOrthology("10090", null, null, null, null);
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.disable(MapperFeature.DEFAULT_VIEW_INCLUSION);
-        mapper.registerModule(new OrthologyModule());
+        String  responseString = controller.getSingleSpeciesOrthology("10090", "medium", null, null, null);
         JsonResultResponse response = mapper.readValue(responseString, JsonResultResponse.class);
         assertThat("Orthology records found for mouse genes", response.getTotal(), greaterThan(0));
     }
@@ -126,13 +123,16 @@ public class GeneTest {
     public void checkOrthologyAPIWithSpecies() throws IOException {
 
         GeneController controller = new GeneController();
-        JsonResultResponse response = controller.getGeneOrthology("MGI:109583", null, "NCBITaxon:10115", null, null, null);
+        String  responseString = controller.getGeneOrthology("MGI:109583", null, "NCBITaxon:10115", null, null, null);
+        JsonResultResponse response = mapper.readValue(responseString, JsonResultResponse.class);
         assertThat("No matches found for species 'NCBITaxon:10115", response.getTotal(), equalTo(0));
 
-        response = controller.getGeneOrthology("MGI:109583", null, "NCBITaxon:10116", null, null, null);
+        responseString = controller.getGeneOrthology("MGI:109583", null, "NCBITaxon:10116", null, null, null);
+        response = mapper.readValue(responseString, JsonResultResponse.class);
         assertThat("matches found for method species NCBITaxon:10116", response.getTotal(), greaterThan(0));
 
-        response = controller.getGeneOrthology("MGI:109583", "stringent", "NCBITaxon:10116", null, null, null);
+        responseString = controller.getGeneOrthology("MGI:109583", "stringent", "NCBITaxon:10116", null, null, null);
+        response = mapper.readValue(responseString, JsonResultResponse.class);
         assertThat("matches found for method species NCBITaxon:10116", response.getTotal(), greaterThan(0));
 
 /*
@@ -150,16 +150,20 @@ public class GeneTest {
     public void checkOrthologyAPIWithMethods() throws IOException {
 
         GeneController controller = new GeneController();
-        JsonResultResponse response = controller.getGeneOrthology("MGI:109583", null, null, "ZFIN", null, null);
+        String responseString = controller.getGeneOrthology("MGI:109583", null, null, "ZFIN", null, null);
+        JsonResultResponse response = mapper.readValue(responseString, JsonResultResponse.class);
         assertThat("No match against method 'ZFIN'", response.getTotal(), equalTo(0));
 
-        response = controller.getGeneOrthology("MGI:109583", null, null, "OrthoFinder", null, null);
+        responseString = controller.getGeneOrthology("MGI:109583", null, null, "OrthoFinder", null, null);
+        response = mapper.readValue(responseString, JsonResultResponse.class);
         assertThat("matches found for method 'OrthoFinder'", response.getTotal(), greaterThan(0));
 
-        response = controller.getGeneOrthology("MGI:109583", null, null, "OrthoFinder,ZFIN", null, null);
+        responseString = controller.getGeneOrthology("MGI:109583", null, null, "OrthoFinder,ZFIN", null, null);
+        response = mapper.readValue(responseString, JsonResultResponse.class);
         assertThat("no matches found for method 'OrthoFinder and ZFIN'", response.getTotal(), equalTo(0));
 
-        response = controller.getGeneOrthology("MGI:109583", null, null, "OrthoFinder,Panther", null, null);
+        responseString = controller.getGeneOrthology("MGI:109583", null, null, "OrthoFinder,Panther", null, null);
+        response = mapper.readValue(responseString, JsonResultResponse.class);
         assertThat("matches found for method 'OrthoFinder and Panther'", response.getTotal(), greaterThan(0));
     }
 
@@ -168,7 +172,8 @@ public class GeneTest {
     public void checkOrthologyAPINoFilters() throws IOException {
 
         GeneController controller = new GeneController();
-        JsonResultResponse response = controller.getGeneOrthology("MGI:109583", null, null, null, null, null);
+        String responseString = controller.getGeneOrthology("MGI:109583", null, null, null, null, null);
+        JsonResultResponse response = mapper.readValue(responseString, JsonResultResponse.class);
         assertThat("matches found for gene MGI:109583'", response.getTotal(), greaterThan(0));
     }
 

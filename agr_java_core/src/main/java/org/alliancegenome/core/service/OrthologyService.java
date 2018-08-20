@@ -1,7 +1,6 @@
 package org.alliancegenome.core.service;
 
 import com.fasterxml.jackson.annotation.JsonView;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
@@ -170,23 +169,23 @@ public class OrthologyService {
         return unmatched.size() == 0;
     }
 
-    public static JsonResultResponse getOrthologyJson(Gene gene, OrthologyFilter filter) throws JsonProcessingException {
+    public static JsonResultResponse<OrthologView> getOrthologyJson(Gene gene, OrthologyFilter filter) {
         ObjectMapper mapper = new ObjectMapper();
         mapper.disable(MapperFeature.DEFAULT_VIEW_INCLUSION);
         mapper.registerModule(new OrthologyModule());
         List<OrthologView> orthologViewList = OrthologyService.getOrthologViewList(gene, filter);
-        JsonResultResponse response = new JsonResultResponse<OrthologView>();
+        JsonResultResponse<OrthologView> response = new JsonResultResponse<>();
         response.setResults(orthologViewList);
         response.setTotal(orthologViewList.size());
         return response;
     }
 
-    public static JsonResultResponse<OrthologView> getOrthologyMultiGeneJson(Collection<Gene> geneList, OrthologyFilter filter) throws JsonProcessingException {
+    public static JsonResultResponse<OrthologView> getOrthologyMultiGeneJson(Collection<Gene> geneList, OrthologyFilter filter) {
         List<OrthologView> orthologViewList =
                 geneList.stream()
                         .flatMap(gene -> OrthologyService.getOrthologViewList(gene, filter).stream())
                         .collect(Collectors.toList());
-        JsonResultResponse response = new JsonResultResponse<OrthologView>();
+        JsonResultResponse<OrthologView> response = new JsonResultResponse<>();
         response.setResults(orthologViewList);
         response.setTotal(orthologViewList.size());
         return response;

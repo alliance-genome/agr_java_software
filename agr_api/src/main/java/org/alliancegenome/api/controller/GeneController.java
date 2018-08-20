@@ -1,5 +1,7 @@
 package org.alliancegenome.api.controller;
 
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.alliancegenome.api.rest.interfaces.GeneRESTInterface;
 import org.alliancegenome.api.service.GeneService;
 import org.alliancegenome.core.service.JsonResultResponse;
@@ -10,12 +12,15 @@ import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.es.model.search.SearchResult;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.repository.GeneRepository;
+import org.alliancegenome.neo4j.view.OrthologView;
 import org.alliancegenome.neo4j.view.OrthologyFilter;
+import org.alliancegenome.neo4j.view.View;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.NotFoundException;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -90,8 +95,9 @@ public class GeneController extends BaseController implements GeneRESTInterface 
         return response.build();
     }
 
+    @Produces(MediaType.TEXT_PLAIN)
     @Override
-    public JsonResultResponse getGeneOrthology(String id,
+    public String getGeneOrthology(String id,
                                                String stringencyFilter,
                                                String species,
                                                String methods,
@@ -100,8 +106,10 @@ public class GeneController extends BaseController implements GeneRESTInterface 
         GeneRepository repo = new GeneRepository();
         Gene gene = repo.getOrthologyGene(id);
         OrthologyFilter orthologyFilter = new OrthologyFilter(stringencyFilter, species, methods);
-        JsonResultResponse response = OrthologyService.getOrthologyJson(gene, orthologyFilter);
-        return response;
+        JsonResultResponse<OrthologView> response = OrthologyService.getOrthologyJson(gene, orthologyFilter);
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.disable(MapperFeature.DEFAULT_VIEW_INCLUSION);
+        return mapper.writerWithView(View.OrthologyView.class).writeValueAsString(response);
     }
 
     public String getPhenotypeAnnotationsDownload(String id) {
