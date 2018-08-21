@@ -132,6 +132,8 @@ public class SearchHelper {
             add("annotations.geneDocument.symbol");
             add("annotations.geneDocument.name");
             add("phenotypeStatements");
+            add("strictOrthologySymbols.autocomplete");
+            add("strictOrthologySymbols.keyword");
         }
     };
 

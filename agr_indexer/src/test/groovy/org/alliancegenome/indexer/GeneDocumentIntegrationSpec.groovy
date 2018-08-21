@@ -1,5 +1,4 @@
 import org.alliancegenome.core.translators.document.GeneTranslator
-import org.alliancegenome.neo4j.entity.node.GOTerm
 import org.alliancegenome.neo4j.repository.GeneRepository
 import spock.lang.Specification
 import org.alliancegenome.neo4j.entity.node.Gene
@@ -38,6 +37,20 @@ class GeneDocumentIntegrationSpec extends Specification {
         geneDocument.molecularFunctionWithParents.contains("molecular_function")
 
 
+    }
+
+    def "#geneID has #strict in strict list, but not #otherOrthologue"() {
+        when:
+        Gene gene = repo.getOneGene(geneID)
+        GeneDocument geneDocument = trans.translate(gene)
+
+        then:
+        geneDocument
+
+        where:
+        geneID                    | strictOrthologue | otherOrthologue
+        "ZFIN:ZDB-GENE-010323-11" | "ena"            | "Y20F4.4"
+        "ZFIN:ZDB-GENE-010323-11" | "ENAH"           | "EVL"
     }
 
 }
