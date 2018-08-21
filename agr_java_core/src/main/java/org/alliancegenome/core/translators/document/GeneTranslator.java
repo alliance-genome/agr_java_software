@@ -12,6 +12,7 @@ import org.alliancegenome.es.index.site.document.GeneDocument;
 import org.alliancegenome.es.index.site.document.PhenotypeDocument;
 import org.alliancegenome.neo4j.entity.node.*;
 import org.alliancegenome.neo4j.entity.relationship.GenomeLocation;
+import org.alliancegenome.neo4j.entity.relationship.Orthologous;
 import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.*;
@@ -120,6 +121,15 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
             List<OrthologyDoclet> doclets = OrthologyService.getOrthologyDoclets(gene);
             geneDocument.setOrthology(doclets);
         }
+
+        geneDocument.setStrictOrthologySymbols(
+                gene.getOrthoGenes().stream()
+                .filter(Orthologous::isStrictFilter)
+                .map(Orthologous::getGene2)
+                .map(Gene::getSymbol)
+                .distinct()
+                .collect(Collectors.toList())
+        );
 
         if (gene.getDiseaseEntityJoins() != null && translationDepth > 0) {
             List<DiseaseDocument> diseaseList = diseaseTranslator.getDiseaseDocuments(gene, gene.getDiseaseEntityJoins(), translationDepth);

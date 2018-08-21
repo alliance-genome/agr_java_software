@@ -25,7 +25,9 @@ public class GeneTest {
         GeneTranslator trans = new GeneTranslator();
 
         Gene gene = null;
-        //gene = repo.getOneGene("ZFIN:ZDB-GENE-000210-7");
+        gene = repo.getOneGene("ZFIN:ZDB-GENE-000210-7");
+        trans.translate(gene);
+
         //gene = repo.getOrthologyGene("ZFIN:ZDB-GENE-990415-72");
         gene = repo.getOrthologyGene("MGI:109583");
         Set<Gene> genes = repo.getOrthologyByTwoSpecies("7955", "10090");
