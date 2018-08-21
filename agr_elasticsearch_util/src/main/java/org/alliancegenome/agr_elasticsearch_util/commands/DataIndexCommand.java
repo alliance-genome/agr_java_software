@@ -142,5 +142,4 @@ public class DataIndexCommand extends Command implements CommandInterface {
             printHelp();
         }
     }
-
 }
