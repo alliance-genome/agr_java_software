@@ -30,7 +30,7 @@ public class SearchHelper {
 
     private Logger log = Logger.getLogger(getClass());
 
-    private static String[] SUFFIX_LIST = { ".keywordAutocomplete", ".keyword", ".smoosh",
+    private static String[] SUFFIX_LIST = { ".htmlSmoosh", ".keywordAutocomplete", ".keyword", ".smoosh",
                                             ".synonyms", ".symbols", ".text" };
 
     
@@ -238,7 +238,7 @@ public class SearchHelper {
                 // this may eventually need to be replaced by a more targeted
                 // method that just remove .keyword .synonym etc
                 String name = hit.getHighlightFields().get(key).getName();
-
+                
                 for (int i = 0 ; i < SUFFIX_LIST.length ; i++ ) {
                     name = name.replace(SUFFIX_LIST[i],"");
                 }
