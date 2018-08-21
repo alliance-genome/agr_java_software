@@ -45,7 +45,7 @@ public class GOTerm extends Ontology {
 
         isAParents.stream().forEach(parent -> { parentTerms.addAll(parent.getParentTerms());});
         partOfParents.stream().forEach(parent -> {parentTerms.addAll(parent.getParentTerms());});
-                
+
         parentTerms.add(this);
 
         return parentTerms;
@@ -65,4 +65,7 @@ public class GOTerm extends Ontology {
     public int hashCode() {
         return primaryKey.hashCode();
     }
+
+    @Override
+    public String toString() { return nameKey; }
 }

@@ -49,6 +49,9 @@ class QueryMatchIntegrationSpec extends Specification {
         //gene
         "AGR-934"  | "ZFIN:ZDB-GENE-990415-72" | "ENSEMBL:ENSDARG00000003399"
         "AGR-934"  | "ZFIN:ZDB-GENE-990415-72" | "ENSDARG00000003399"
+        "AGR-1048" | "MGI:99604"               | "Predicted to have biological regulation, chemoattractant activity, and signaling receptor binding"
+                                                  //this is from automatedGeneSynopsis, so it may change over time
+        "AGR-1048" | "MGI:99604"               | "This protein is known to be a factor that supports androgen and anchorage independent growth of mammary tumor cells."
 
         //disease
         "AGR-865"  | "DOID:0110047"     | "ICD10CM:G30"
@@ -67,8 +70,8 @@ class QueryMatchIntegrationSpec extends Specification {
         "AGR-865"  | "MGI:3923395"     | "Cd99<sup>Gt(Ayu21-B6T44)Imeg</sup>"
         "AGR-865"  | "MGI:5752578"     | "Ace2<sup>em#Yngh</sup>"
         "AGR-865"  | "MGI:5000472"     | "Gt(ROSA)26Sor<sup>tm1(Pik3ca*H1047R)Egan</sup>"
-        "AGR-865"  | "WBVar:WBVar00143949"     | "e1370"
-        "AGR-865"  | "WBVar:WBVar00143949"     | "WBVar00143949"
+        "AGR-865"  | "WB:WBVar00143949"     | "e1370"
+        "AGR-865"  | "WB:WBVar00143949"     | "WBVar00143949"
 //This is another one where the text from the testing document isn't in the record,
 //e1370 is the symbol, daf-2 is the gene, if daf-2(e1370) is going to match, it probably
 //needs to at least be a synonym
