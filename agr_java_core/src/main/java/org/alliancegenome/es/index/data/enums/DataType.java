@@ -12,7 +12,9 @@ public enum DataType {
     ORTHO("Orthology", "json", true, true, true),
     ALLELE("Allele Information", "json", true, true, true),
     GENOTYPE("Genotype Information File", "json", true, true, true),
-
+    PHENOTYPE("Phenotype Information File", "json", true, true, true),
+    EXPRESSION("Expression Information File", "json", true, true, true),
+    
     // No schema required for these but will still stick them in the correct schema directory
     GAF("Gene Ontology Annotations File", "gaf", true, false, false),
     GFF("Gene Features File", "gff", true, false, false),
@@ -48,11 +50,12 @@ public enum DataType {
 
     public static DataTypeDoclet getDoclet(DataType type) {
         DataTypeDoclet ret = new DataTypeDoclet();
-        ret.setDescription(type.getDescription());
-        ret.setFileExtension(type.getFileExtension());
         ret.setTaxonIdRequired(type.isTaxonIdRequired());
-        ret.setName(type.name());
         ret.setValidationRequired(type.isValidationRequired());
+        ret.setFileExtension(type.getFileExtension());
+        ret.setDescription(type.getDescription());
+        ret.setModVersionStored(type.isModVersionStored());
+        ret.setName(type.name());
         return ret;
     }
 
