@@ -54,6 +54,7 @@ public class GeneDocument extends SearchableItemDocument {
     private String geneSynopsis;
     private String automatedGeneSynopsis;
     private List<OrthologyDoclet> orthology;
+    private List<String> strictOrthologySymbols;
     private String geneticEntityExternalUrl;
 
     private String modCrossRefCompleteUrl;
