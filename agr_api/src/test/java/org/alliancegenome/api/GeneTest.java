@@ -103,7 +103,7 @@ public class GeneTest {
     public void checkOrthologyForTwoSpecies() throws IOException {
 
         OrthologyController controller = new OrthologyController();
-        String  responseString = controller.getDoubleSpeciesOrthology("10090", "7955", "stringent", null, null, null);
+        String  responseString = controller.getDoubleSpeciesOrthology("7955", "10090", "stringent", null, null, null);
         JsonResultResponse response = mapper.readValue(responseString, JsonResultResponse.class);
         assertThat("Orthology records found for mouse - rat", response.getTotal(), greaterThan(0));
     }
@@ -123,7 +123,7 @@ public class GeneTest {
     public void checkOrthologyAPIWithSpecies() throws IOException {
 
         GeneController controller = new GeneController();
-        String  responseString = controller.getGeneOrthology("MGI:109583", null, "NCBITaxon:10115", null, null, null);
+        String  responseString = controller.getGeneOrthology("MGI:109583", "stringent", null, null, null, null);
         JsonResultResponse response = mapper.readValue(responseString, JsonResultResponse.class);
         assertThat("No matches found for species 'NCBITaxon:10115", response.getTotal(), equalTo(0));
 

@@ -133,27 +133,15 @@ public class OrthologyService {
                         view.calculateCounts();
                         orthologList.add(view);
                     });
-/*
-            gene.getOrthologyGeneJoins().stream()
-                    .filter(join -> lookup.containsKey(join.getPrimaryKey()))
-                    .filter(join -> isAllMatchMethods(join, filter))
-                    .forEach(join -> {
-                        Orthologous ortho = lookup.get(join.getPrimaryKey());
-                        OrthologView view = new OrthologView();
-                        gene.setSpeciesName(ortho.getGene1().getSpecies() == null ? null : ortho.getGene1().getSpecies().getName());
-                        view.setGene(gene);
-                        ortho.getGene2().setSpeciesName(ortho.getGene2().getSpecies() == null ? null : ortho.getGene2().getSpecies().getName());
-                        view.setHomologGene(ortho.getGene2());
-                        view.setBest(ortho.isBestScore());
-                        view.setBestReverse(ortho.isBestRevScore());
-                        view.setPredictionMethodsMatched(getMatchedMethods(join));
-                        view.setPredictionMethodsNotMatched(getNotMatchedMethods(join));
-                        view.setPredictionMethodsNotCalled(getNotCalledMethods(join));
-                        view.calculateCounts();
-                        orthologList.add(view);
-                    });
-*/
-            return orthologList;
+            List<OrthologView> finalOrthologList = new ArrayList<>();
+            int index = 1;
+            for (OrthologView view : orthologList) {
+                if (index >= filter.getStart() && index < filter.getLast()) {
+                    finalOrthologList.add(view);
+                }
+                index++;
+            }
+            return finalOrthologList;
         }
         return new ArrayList<>();
     }

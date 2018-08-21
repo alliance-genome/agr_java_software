@@ -76,8 +76,8 @@ public interface GeneRESTInterface {
                                         @ApiParam(value = "methods")
                             @QueryParam("methods") String methods,
                                         @ApiParam(value = "number of rows")
-                            @QueryParam("rows") Integer rows,
+                            @DefaultValue("20") @QueryParam("rows") Integer rows,
                                         @ApiParam(value = "start")
-                            @QueryParam("start") Integer start) throws IOException;
+                            @DefaultValue("0") @QueryParam("start") Integer start) throws IOException;
 
 }

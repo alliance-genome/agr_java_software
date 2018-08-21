@@ -12,6 +12,8 @@ public class OrthologyFilter {
     private Stringency stringency;
     private List<String> species;
     private List<String> methods;
+    private int rows;
+    private int start;
 
     public OrthologyFilter() {
         this.stringency = Stringency.ALL;
@@ -23,6 +25,10 @@ public class OrthologyFilter {
             this.species = Arrays.asList(species.split(","));
         if (methods != null && !methods.isEmpty())
             this.methods = Arrays.asList(methods.split(","));
+    }
+
+    public int getLast() {
+        return start + rows;
     }
 
     public enum Stringency {
