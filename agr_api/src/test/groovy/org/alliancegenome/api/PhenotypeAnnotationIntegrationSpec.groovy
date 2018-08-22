@@ -36,9 +36,9 @@ class PhenotypeAnnotationIntegrationSpec extends Specification {
         "ZFIN:ZDB-GENE-990415-72" | "phenotype=otic"               | 10                  | 20
         "ZFIN:ZDB-GENE-990415-72" | "geneticEntity=ti"             | 100                 | 150
         "ZFIN:ZDB-GENE-990415-72" | "reference=PMID"               | 100                 | 300
-        "ZFIN:ZDB-GENE-990415-72" | "reference=ZFIN"               | 100                 | 300
+        "ZFIN:ZDB-GENE-990415-72" | "reference=ZFIN"               | 10                  | 30
         "ZFIN:ZDB-GENE-990415-72" | "reference=1466"               | 35                  | 60
-        "MGI:2443198"             | "phenotype="                   | 10                  | 20
+        "MGI:2443198"             | "phenotype="                   | 30                  | 50
     }
 
     @Unroll
