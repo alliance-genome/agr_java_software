@@ -10,6 +10,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+@SuppressWarnings("serial")
 @Getter @Setter @AllArgsConstructor @NoArgsConstructor
 @XmlRootElement(name = "url")
 public class XMLURL implements Serializable {

@@ -25,7 +25,7 @@ import lombok.Setter;
 @Setter
 public class Gene extends Neo4jEntity implements Comparable<Gene> {
 
-    @JsonView(View.OrthologyView.class)
+    @JsonView({View.OrthologyView.class, View.InteractionView.class})
     private String primaryKey;
     @JsonView(View.OrthologyView.class)
     private String taxonId;
@@ -42,7 +42,7 @@ public class Gene extends Neo4jEntity implements Comparable<Gene> {
     @Convert(value=DateConverter.class)
     private Date dateProduced;
     private String description;
-    @JsonView(View.OrthologyView.class)
+    @JsonView({View.OrthologyView.class, View.InteractionView.class})
     private String symbol;
     private String geneticEntityExternalUrl;
 
@@ -54,6 +54,7 @@ public class Gene extends Neo4jEntity implements Comparable<Gene> {
     private Entity createdBy;
     private SOTerm sOTerm;
 
+    @JsonView({View.InteractionView.class})
     @Relationship(type = "FROM_SPECIES")
     private Species species;
 
@@ -89,6 +90,9 @@ public class Gene extends Neo4jEntity implements Comparable<Gene> {
 
     @Relationship(type = "HAS_PHENOTYPE")
     private List<Phenotype> phenotypes = new ArrayList<>();
+    
+    @Relationship(type = "ASSOCIATION", direction = Relationship.OUTGOING)
+    private List<InteractionGeneJoin> interactions = new ArrayList<>();
 
     public Set<GOTerm> getGoParentTerms() {
         Set<GOTerm> parentTerms = new HashSet<>();

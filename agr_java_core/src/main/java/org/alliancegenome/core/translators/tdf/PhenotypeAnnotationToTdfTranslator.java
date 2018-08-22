@@ -1,19 +1,15 @@
 package org.alliancegenome.core.translators.tdf;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.alliancegenome.es.index.site.document.DiseaseAnnotationDocument;
+import java.io.IOException;
+import java.util.StringJoiner;
+
 import org.alliancegenome.es.index.site.document.PhenotypeAnnotationDocument;
 import org.alliancegenome.es.util.SearchHitIterator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.elasticsearch.search.SearchHit;
 
-import java.io.IOException;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.StringJoiner;
-import java.util.stream.Collectors;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class PhenotypeAnnotationToTdfTranslator {
 

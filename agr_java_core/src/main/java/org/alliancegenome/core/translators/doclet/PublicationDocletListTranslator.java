@@ -1,22 +1,19 @@
 package org.alliancegenome.core.translators.doclet;
 
-import org.alliancegenome.es.index.site.doclet.PublicationDoclet;
-import org.alliancegenome.neo4j.entity.node.EntityJoin;
-import org.alliancegenome.neo4j.entity.node.EvidenceCode;
-import org.alliancegenome.neo4j.entity.node.Publication;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.alliancegenome.es.index.site.doclet.PublicationDoclet;
+import org.alliancegenome.neo4j.entity.node.EntityJoin;
+import org.alliancegenome.neo4j.entity.node.EvidenceCode;
+import org.alliancegenome.neo4j.entity.node.Publication;
+
 public class PublicationDocletListTranslator {
 
     private static PublicationDocletTranslator publicationDocletTranslator = new PublicationDocletTranslator();
-    private final Logger log = LogManager.getLogger(getClass());
 
     public List<PublicationDoclet> getPublicationDoclets(List<? extends EntityJoin> entityJoinList) {
         List<PublicationDoclet> pubDocletListRaw = entityJoinList.stream()

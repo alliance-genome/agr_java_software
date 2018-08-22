@@ -1,16 +1,23 @@
 package org.alliancegenome.api.rest.interfaces;
 
+import java.io.IOException;
+import java.util.Map;
+
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+
+import org.alliancegenome.es.model.search.SearchResult;
+
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import org.alliancegenome.core.service.JsonResultResponse;
-import org.alliancegenome.es.model.search.SearchResult;
-
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import java.io.IOException;
-import java.util.Map;
 
 @Path("/gene")
 @Api(value = "Genes")
@@ -79,5 +86,15 @@ public interface GeneRESTInterface {
                             @DefaultValue("20") @QueryParam("rows") Integer rows,
                                         @ApiParam(value = "start")
                             @DefaultValue("0") @QueryParam("start") Integer start) throws IOException;
+    
+    
+    @GET
+    @Path("/{id}/interactions")
+    @ApiOperation(value = "Retrieve interations for a given gene")
+    String getInteractions(
+                @ApiParam(name = "id", value = "Gene ID", required = true)
+                @PathParam("id") String id);
+    
+    
 
 }
