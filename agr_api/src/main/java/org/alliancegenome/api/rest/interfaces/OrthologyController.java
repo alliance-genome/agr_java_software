@@ -1,6 +1,7 @@
 package org.alliancegenome.api.rest.interfaces;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Set;
 
 import org.alliancegenome.core.service.JsonResultResponse;
