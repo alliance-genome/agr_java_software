@@ -106,6 +106,8 @@ public class GeneController extends BaseController implements GeneRESTInterface 
         GeneRepository repo = new GeneRepository();
         Gene gene = repo.getOrthologyGene(id);
         OrthologyFilter orthologyFilter = new OrthologyFilter(stringencyFilter, species, methods);
+        orthologyFilter.setRows(rows);
+        orthologyFilter.setStart(start);
         JsonResultResponse<OrthologView> response = OrthologyService.getOrthologyJson(gene, orthologyFilter);
         ObjectMapper mapper = new ObjectMapper();
         mapper.disable(MapperFeature.DEFAULT_VIEW_INCLUSION);
