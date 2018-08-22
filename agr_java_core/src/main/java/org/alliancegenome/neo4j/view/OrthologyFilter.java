@@ -10,7 +10,7 @@ import java.util.List;
 @Getter
 public class OrthologyFilter {
     private Stringency stringency;
-    private List<String> species;
+    private List<String> taxonIDs;
     private List<String> methods;
     private int rows;
     private int start;
@@ -19,10 +19,10 @@ public class OrthologyFilter {
         this.stringency = Stringency.ALL;
     }
 
-    public OrthologyFilter(String stringency, String species, String methods) {
+    public OrthologyFilter(String stringency, List<String> taxonIDs, String methods) {
         this.stringency = Stringency.getOrthologyFilter(stringency);
-        if (species != null && !species.isEmpty())
-            this.species = Arrays.asList(species.split(","));
+        if (taxonIDs != null && !taxonIDs.isEmpty())
+            this.taxonIDs = taxonIDs;
         if (methods != null && !methods.isEmpty())
             this.methods = Arrays.asList(methods.split(","));
     }

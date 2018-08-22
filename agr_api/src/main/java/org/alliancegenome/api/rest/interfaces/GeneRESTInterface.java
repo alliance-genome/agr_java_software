@@ -9,6 +9,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 @Path("/gene")
@@ -64,14 +65,14 @@ public interface GeneRESTInterface {
                                                  @PathParam("id") String id);
 
     @GET
-    @Path("/{id}/homologs")
+    @Path("/{geneID}/homologs")
     @ApiOperation(value = "Retrieve homologous gene records", notes = "Download homology records.")
     String getGeneOrthology(@ApiParam(name = "geneID", value = "Gene ID for given gene", required = true, type = "String")
-                            @PathParam("id") String id,
+                            @PathParam("geneID") String id,
                             @ApiParam(value = "apply stringency filter", allowableValues = "stringent, moderate, all", defaultValue = "stringent")
                             @DefaultValue("stringent") @QueryParam("filter") String filter,
                             @ApiParam(value = "taxonID: List of taxon IDs for the genes of the target species")
-                            @QueryParam("taxonID") String taxonID,
+                            @QueryParam("taxonID") List<String> taxonID,
                             @ApiParam(value = "calculation methods")
                             @QueryParam("methods") String methods,
                             @ApiParam(value = "maximum number of rows returned")

@@ -20,6 +20,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Map;
 
 import static org.hamcrest.Matchers.equalTo;
@@ -127,11 +128,12 @@ public class GeneTest {
         JsonResultResponse response = mapper.readValue(responseString, JsonResultResponse.class);
         assertThat("No matches found for species 'NCBITaxon:10115", response.getTotal(), equalTo(0));
 
-        responseString = controller.getGeneOrthology("MGI:109583", null, "NCBITaxon:10116", null, null, null);
+        String[] taxonArray = {"NCBITaxon:10116"};
+        responseString = controller.getGeneOrthology("MGI:109583", null, Arrays.asList(taxonArray), null, null, null);
         response = mapper.readValue(responseString, JsonResultResponse.class);
         assertThat("matches found for method species NCBITaxon:10116", response.getTotal(), greaterThan(0));
 
-        responseString = controller.getGeneOrthology("MGI:109583", "stringent", "NCBITaxon:10116", null, null, null);
+        responseString = controller.getGeneOrthology("MGI:109583", "stringent", Arrays.asList(taxonArray), null, null, null);
         response = mapper.readValue(responseString, JsonResultResponse.class);
         assertThat("matches found for method species NCBITaxon:10116", response.getTotal(), greaterThan(0));
 
