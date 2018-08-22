@@ -98,14 +98,14 @@ public class GeneController extends BaseController implements GeneRESTInterface 
     @Produces(MediaType.TEXT_PLAIN)
     @Override
     public String getGeneOrthology(String id,
-                                               String stringencyFilter,
-                                               String species,
-                                               String methods,
-                                               Integer rows,
-                                               Integer start) throws IOException {
+                                   String stringencyFilter,
+                                   String taxonID,
+                                   String methods,
+                                   Integer rows,
+                                   Integer start) throws IOException {
         GeneRepository repo = new GeneRepository();
         Gene gene = repo.getOrthologyGene(id);
-        OrthologyFilter orthologyFilter = new OrthologyFilter(stringencyFilter, species, methods);
+        OrthologyFilter orthologyFilter = new OrthologyFilter(stringencyFilter, taxonID, methods);
         orthologyFilter.setRows(rows);
         orthologyFilter.setStart(start);
         JsonResultResponse<OrthologView> response = OrthologyService.getOrthologyJson(gene, orthologyFilter);

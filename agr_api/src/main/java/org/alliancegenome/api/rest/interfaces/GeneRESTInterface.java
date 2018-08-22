@@ -3,7 +3,6 @@ package org.alliancegenome.api.rest.interfaces;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.es.model.search.SearchResult;
 
 import javax.ws.rs.*;
@@ -65,19 +64,19 @@ public interface GeneRESTInterface {
                                                  @PathParam("id") String id);
 
     @GET
-    @Path("/{id}/orthology")
-    @ApiOperation(value = "Retrieve orthologous gene records", notes = "Download orthology records.")
-    String getGeneOrthology(@ApiParam(name = "id", value = "Gene ID", required = true, type = "String")
+    @Path("/{id}/homologs")
+    @ApiOperation(value = "Retrieve homologous gene records", notes = "Download homology records.")
+    String getGeneOrthology(@ApiParam(name = "geneID", value = "Gene ID for given gene", required = true, type = "String")
                             @PathParam("id") String id,
-                                        @ApiParam(value = "apply filter", allowableValues = "all, moderate, stringent", defaultValue = "all")
-                            @QueryParam("filter") String filter,
-                                        @ApiParam(value = "species")
-                            @QueryParam("species") String species,
-                                        @ApiParam(value = "methods")
+                            @ApiParam(value = "apply stringency filter", allowableValues = "stringent, moderate, all", defaultValue = "stringent")
+                            @DefaultValue("stringent") @QueryParam("filter") String filter,
+                            @ApiParam(value = "taxonID: List of taxon IDs for the genes of the target species")
+                            @QueryParam("taxonID") String taxonID,
+                            @ApiParam(value = "calculation methods")
                             @QueryParam("methods") String methods,
-                                        @ApiParam(value = "number of rows")
+                            @ApiParam(value = "maximum number of rows returned")
                             @DefaultValue("20") @QueryParam("rows") Integer rows,
-                                        @ApiParam(value = "start")
+                            @ApiParam(value = "starting row number (for pagination)")
                             @DefaultValue("0") @QueryParam("start") Integer start) throws IOException;
 
 }
