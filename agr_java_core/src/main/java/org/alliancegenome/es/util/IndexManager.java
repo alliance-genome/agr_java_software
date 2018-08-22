@@ -47,7 +47,7 @@ public class IndexManager {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            System.exit(0);
+            System.exit(-1);
         }
     }
 
@@ -87,7 +87,7 @@ public class IndexManager {
             client.admin().indices().prepareRefresh(index).get();
             log.error("Indexing Failed: " + index);
             e.printStackTrace();
-            System.exit(0);
+            System.exit(-1);
         }
     }
 

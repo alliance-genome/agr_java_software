@@ -3,13 +3,13 @@ package org.alliancegenome.api.rest.interfaces;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.es.model.search.SearchResult;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 @Path("/gene")
@@ -65,19 +65,19 @@ public interface GeneRESTInterface {
                                                  @PathParam("id") String id);
 
     @GET
-    @Path("/{id}/orthology")
-    @ApiOperation(value = "Retrieve orthologous gene records", notes = "Download orthology records.")
-    String getGeneOrthology(@ApiParam(name = "id", value = "Gene ID", required = true, type = "String")
-                            @PathParam("id") String id,
-                                        @ApiParam(value = "apply filter", allowableValues = "all, moderate, stringent", defaultValue = "all")
-                            @QueryParam("filter") String filter,
-                                        @ApiParam(value = "species")
-                            @QueryParam("species") String species,
-                                        @ApiParam(value = "methods")
-                            @QueryParam("methods") String methods,
-                                        @ApiParam(value = "number of rows")
-                            @QueryParam("rows") Integer rows,
-                                        @ApiParam(value = "start")
-                            @QueryParam("start") Integer start) throws IOException;
+    @Path("/{geneID}/homologs")
+    @ApiOperation(value = "Retrieve homologous gene records", notes = "Download homology records.")
+    String getGeneOrthology(@ApiParam(name = "geneID", value = "Source Gene ID: the gene for which you are searching homologous gene", required = true, type = "String")
+                            @PathParam("geneID") String id,
+                            @ApiParam(value = "apply stringency filter", allowableValues = "stringent, moderate, all", defaultValue = "stringent")
+                            @DefaultValue("stringent") @QueryParam("filter") String filter,
+                            @ApiParam(value = "taxonID: List of taxon IDs for the genes of the target species")
+                            @QueryParam("taxonID") List<String> taxonID,
+                            @ApiParam(value = "calculation methods",  allowableValues = "Ensembl Compara, HGNC, Hieranoid, InParanoid, OMA, OrthoFinder, OrthoInspector, PANTHER, PhylomeDB, Roundup, TreeFam, ZFIN")
+                            @QueryParam("methods") List<String>  methods,
+                            @ApiParam(value = "maximum number of rows returned")
+                            @DefaultValue("20") @QueryParam("rows") Integer rows,
+                            @ApiParam(value = "starting row number (for pagination)")
+                            @DefaultValue("0") @QueryParam("start") Integer start) throws IOException;
 
 }

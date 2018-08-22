@@ -68,6 +68,7 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         HashMap<String, String> map = new HashMap<>();
         map.put("speciesID", speciesOne);
         map.put("homologSpeciesID", speciesTwo);
+        map.put("strict", "true");
         String query = "";
 
         query += " MATCH p1=(g:Gene)-[ortho:ORTHOLOGOUS]-(gh:Gene), ";
@@ -75,13 +76,16 @@ public class GeneRepository extends Neo4jRepository<Gene> {
                 "p2=(g)-[:FROM_SPECIES]-(gs:Species), " +
                 "p3=(gh)-[:FROM_SPECIES]-(ghs:Species), " +
                 "p5=(s)--(algorithm:OrthoAlgorithm) ";
-        query += " where g.taxonId = {speciesID} and   gh.taxonId = {homologSpeciesID} ";
-        query += "return p1, p2, p3, p4, p5";
+        query += " where g.taxonId = {speciesID} and   gh.taxonId = {homologSpeciesID} and ortho.strictFilter = {strict} ";
+        //query += "return g, ortho, gh, s, algorithm";
+        query += "return g";
 
         Iterable<Gene> genes = query(query, map);
+        Set<Gene> geneListp = new HashSet<>();
+        genes.forEach(gene -> geneListp.add(gene));
         Set<Gene> geneList = new HashSet<>();
         for (Gene g : genes) {
-            if (map.values().contains(g.getTaxonId()) && (g.getOrthoGenes() != null && g.getOrthoGenes().size() > 0)) {
+            if (g.getTaxonId().equals(speciesOne) && (g.getOrthoGenes() != null && g.getOrthoGenes().size() > 0)) {
                 if (log.isDebugEnabled())
                     g.getOrthoGenes().forEach(orthologous -> {
                         log.debug(orthologous.getGene1().getPrimaryKey() + " " + orthologous.getGene2().getPrimaryKey());
