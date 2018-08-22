@@ -101,7 +101,7 @@ public class GeneController extends BaseController implements GeneRESTInterface 
     public String getGeneOrthology(String id,
                                    String stringencyFilter,
                                    List<String> taxonIDs,
-                                   String methods,
+                                   List<String>  methods,
                                    Integer rows,
                                    Integer start) throws IOException {
         GeneRepository repo = new GeneRepository();

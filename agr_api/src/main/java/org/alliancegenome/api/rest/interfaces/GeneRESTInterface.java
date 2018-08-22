@@ -67,14 +67,14 @@ public interface GeneRESTInterface {
     @GET
     @Path("/{geneID}/homologs")
     @ApiOperation(value = "Retrieve homologous gene records", notes = "Download homology records.")
-    String getGeneOrthology(@ApiParam(name = "geneID", value = "Gene ID for given gene", required = true, type = "String")
+    String getGeneOrthology(@ApiParam(name = "geneID", value = "Source Gene ID: the gene for which you are searching homologous gene", required = true, type = "String")
                             @PathParam("geneID") String id,
                             @ApiParam(value = "apply stringency filter", allowableValues = "stringent, moderate, all", defaultValue = "stringent")
                             @DefaultValue("stringent") @QueryParam("filter") String filter,
                             @ApiParam(value = "taxonID: List of taxon IDs for the genes of the target species")
                             @QueryParam("taxonID") List<String> taxonID,
-                            @ApiParam(value = "calculation methods")
-                            @QueryParam("methods") String methods,
+                            @ApiParam(value = "calculation methods",  allowableValues = "Ensembl Compara, HGNC, Hieranoid, InParanoid, OMA, OrthoFinder, OrthoInspector, PANTHER, PhylomeDB, Roundup, TreeFam, ZFIN")
+                            @QueryParam("methods") List<String>  methods,
                             @ApiParam(value = "maximum number of rows returned")
                             @DefaultValue("20") @QueryParam("rows") Integer rows,
                             @ApiParam(value = "starting row number (for pagination)")
