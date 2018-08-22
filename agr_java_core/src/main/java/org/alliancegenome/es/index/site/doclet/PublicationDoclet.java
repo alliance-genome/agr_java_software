@@ -17,7 +17,6 @@ public class PublicationDoclet extends ESDoclet implements Comparable<Publicatio
     private String pubMedUrl;
     private String pubModId;
     private String pubModUrl;
-    private String pubId;
     private Set<String> evidenceCodes;
 
     @Override

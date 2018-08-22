@@ -1,7 +1,18 @@
 package org.alliancegenome.api.controller;
 
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.NotFoundException;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+
 import org.alliancegenome.api.rest.interfaces.GeneRESTInterface;
 import org.alliancegenome.api.service.GeneService;
 import org.alliancegenome.core.service.JsonResultResponse;
@@ -16,17 +27,10 @@ import org.alliancegenome.neo4j.view.OrthologView;
 import org.alliancegenome.neo4j.view.OrthologyFilter;
 import org.alliancegenome.neo4j.view.View;
 
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.NotFoundException;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RequestScoped
 public class GeneController extends BaseController implements GeneRESTInterface {
@@ -34,7 +38,8 @@ public class GeneController extends BaseController implements GeneRESTInterface 
     @Inject
     private GeneService geneService;
     private final PhenotypeAnnotationToTdfTranslator translator = new PhenotypeAnnotationToTdfTranslator();
-
+    private ObjectMapper mapper = new ObjectMapper();
+    
     @Context
     private HttpServletResponse response;
 
@@ -110,7 +115,6 @@ public class GeneController extends BaseController implements GeneRESTInterface 
         orthologyFilter.setRows(rows);
         orthologyFilter.setStart(start);
         JsonResultResponse<OrthologView> response = OrthologyService.getOrthologyJson(gene, orthologyFilter);
-        ObjectMapper mapper = new ObjectMapper();
         mapper.disable(MapperFeature.DEFAULT_VIEW_INCLUSION);
         return mapper.writerWithView(View.OrthologyView.class).writeValueAsString(response);
     }
@@ -119,6 +123,20 @@ public class GeneController extends BaseController implements GeneRESTInterface 
         Pagination pagination = new Pagination(1, Integer.MAX_VALUE, "phenotype", null);
         // retrieve all records
         return translator.getAllRows(geneService.getPhenotypeAnnotationsDownload(id, pagination));
+    }
+
+    @Override
+    public String getInteractions(String id) {
+        //return geneService.getInteractions(id);
+        mapper.disable(MapperFeature.DEFAULT_VIEW_INCLUSION);
+        mapper.setSerializationInclusion(Include.NON_NULL);
+        try {
+            return mapper.writerWithView(View.InteractionView.class).writeValueAsString(geneService.getInteractions(id));
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            return null;
+        }
+
     }
 
 }

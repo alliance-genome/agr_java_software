@@ -1,19 +1,16 @@
 package org.alliancegenome.indexer.indexers;
 
-import org.alliancegenome.core.translators.document.PhenotypeTranslator;
-import org.alliancegenome.es.index.site.document.PhenotypeAnnotationDocument;
-import org.alliancegenome.es.index.site.document.PhenotypeDocument;
-import org.alliancegenome.indexer.config.IndexerConfig;
-import org.alliancegenome.neo4j.entity.node.Phenotype;
-import org.alliancegenome.neo4j.entity.node.PhenotypeEntityJoin;
-import org.alliancegenome.neo4j.repository.PhenotypeAnnotationRepository;
-import org.alliancegenome.neo4j.repository.PhenotypeRepository;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingDeque;
+
+import org.alliancegenome.core.translators.document.PhenotypeTranslator;
+import org.alliancegenome.es.index.site.document.PhenotypeAnnotationDocument;
+import org.alliancegenome.indexer.config.IndexerConfig;
+import org.alliancegenome.neo4j.entity.node.Phenotype;
+import org.alliancegenome.neo4j.repository.PhenotypeRepository;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class PhenotypeAnnotationIndexer extends Indexer<PhenotypeAnnotationDocument> {
 

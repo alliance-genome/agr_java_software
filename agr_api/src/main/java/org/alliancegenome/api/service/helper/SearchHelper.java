@@ -26,6 +26,7 @@ import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilde
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.jboss.logging.Logger;
 
+@SuppressWarnings("serial")
 public class SearchHelper {
 
     private Logger log = Logger.getLogger(getClass());

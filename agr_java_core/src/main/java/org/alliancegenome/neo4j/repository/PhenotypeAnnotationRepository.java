@@ -1,12 +1,15 @@
 package org.alliancegenome.neo4j.repository;
 
-import org.alliancegenome.neo4j.entity.node.Phenotype;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
 import org.alliancegenome.neo4j.entity.node.PhenotypeEntityJoin;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.neo4j.ogm.model.Result;
-
-import java.util.*;
 
 public class PhenotypeAnnotationRepository extends Neo4jRepository<PhenotypeEntityJoin> {
 

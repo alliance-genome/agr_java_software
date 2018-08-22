@@ -1,13 +1,14 @@
 package org.alliancegenome.es.index.site.document;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.Getter;
-import lombok.Setter;
-import org.alliancegenome.es.index.ESDocument;
+import java.util.List;
+
 import org.alliancegenome.es.index.site.doclet.PublicationDoclet;
 import org.alliancegenome.es.index.site.doclet.SourceDoclet;
 
-import java.util.List;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import lombok.Getter;
+import lombok.Setter;
 
 @Getter @Setter
 public class PhenotypeAnnotationDocument extends SearchableItemDocument implements Comparable<PhenotypeAnnotationDocument> {
@@ -22,7 +23,6 @@ public class PhenotypeAnnotationDocument extends SearchableItemDocument implemen
     private GeneDocument geneDocument;
     private FeatureDocument featureDocument;
     private List<PublicationDoclet> publications;
-    private String geneticEntity;
 
     @JsonIgnore
     public String getDocumentId() {

@@ -1,19 +1,19 @@
 package org.alliancegenome.api.rest.interfaces;
 
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
+import java.util.List;
+import java.util.Set;
+
 import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.core.service.OrthologyService;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.alliancegenome.neo4j.view.OrthologView;
 import org.alliancegenome.neo4j.view.OrthologyFilter;
-import org.alliancegenome.neo4j.view.OrthologyModule;
 import org.alliancegenome.neo4j.view.View;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Set;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class OrthologyController implements OrthologyRESTInterface {
 

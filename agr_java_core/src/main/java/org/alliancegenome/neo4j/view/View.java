@@ -1,7 +1,6 @@
 package org.alliancegenome.neo4j.view;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.alliancegenome.neo4j.entity.node.Gene;
 
 public class View {
     public static class OrthologyView {
@@ -39,4 +38,5 @@ public class View {
 */
 
     }
+    public static class InteractionView { }
 }

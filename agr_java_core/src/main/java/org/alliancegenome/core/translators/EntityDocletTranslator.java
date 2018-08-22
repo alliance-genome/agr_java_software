@@ -1,12 +1,9 @@
 package org.alliancegenome.core.translators;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import org.alliancegenome.es.index.ESDoclet;
 import org.alliancegenome.neo4j.entity.Neo4jEntity;
-import org.alliancegenome.neo4j.entity.node.EvidenceCode;
-import org.alliancegenome.neo4j.entity.node.Publication;
 
 public abstract class EntityDocletTranslator<E extends Neo4jEntity, D extends ESDoclet> {
 
