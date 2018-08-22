@@ -25,6 +25,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 @RequestScoped
@@ -98,14 +99,14 @@ public class GeneController extends BaseController implements GeneRESTInterface 
     @Produces(MediaType.TEXT_PLAIN)
     @Override
     public String getGeneOrthology(String id,
-                                               String stringencyFilter,
-                                               String species,
-                                               String methods,
-                                               Integer rows,
-                                               Integer start) throws IOException {
+                                   String stringencyFilter,
+                                   List<String> taxonIDs,
+                                   List<String>  methods,
+                                   Integer rows,
+                                   Integer start) throws IOException {
         GeneRepository repo = new GeneRepository();
         Gene gene = repo.getOrthologyGene(id);
-        OrthologyFilter orthologyFilter = new OrthologyFilter(stringencyFilter, species, methods);
+        OrthologyFilter orthologyFilter = new OrthologyFilter(stringencyFilter, taxonIDs, methods);
         orthologyFilter.setRows(rows);
         orthologyFilter.setStart(start);
         JsonResultResponse<OrthologView> response = OrthologyService.getOrthologyJson(gene, orthologyFilter);

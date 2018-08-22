@@ -8,6 +8,7 @@ import org.alliancegenome.core.service.JsonResultResponse;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.io.IOException;
+import java.util.List;
 
 @Path("/orthology")
 @Api(value = "Orthology")
@@ -25,7 +26,7 @@ public interface OrthologyRESTInterface {
             @ApiParam(value = "stringencyFilter")
             @QueryParam("stringencyFilter") String stringencyFilter,
             @ApiParam(value = "methods")
-            @QueryParam("methods") String methods,
+            @QueryParam("methods") List<String> methods,
             @ApiParam(value = "number of rows")
             @QueryParam("rows") Integer rows,
             @ApiParam(value = "start")
@@ -40,7 +41,7 @@ public interface OrthologyRESTInterface {
             @ApiParam(value = "stringencyFilter")
             @QueryParam("stringencyFilter") String stringencyFilter,
             @ApiParam(value = "methods")
-            @QueryParam("methods") String methods,
+            @QueryParam("methods") List<String> methods,
             @ApiParam(value = "number of rows")
             @QueryParam("rows") Integer rows,
             @ApiParam(value = "start")
