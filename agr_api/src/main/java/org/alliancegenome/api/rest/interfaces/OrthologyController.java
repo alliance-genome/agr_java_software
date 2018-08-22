@@ -20,7 +20,7 @@ public class OrthologyController implements OrthologyRESTInterface {
     public String getDoubleSpeciesOrthology(String speciesOne,
                                             String speciesTwo,
                                             String stringencyFilter,
-                                            String methods,
+                                            List<String> methods,
                                             Integer rows,
                                             Integer start) throws IOException {
 
@@ -41,7 +41,7 @@ public class OrthologyController implements OrthologyRESTInterface {
     @Override
     public String getSingleSpeciesOrthology(String species,
                                             String stringencyFilter,
-                                            String methods,
+                                            List<String> methods,
                                             Integer rows,
                                             Integer start) throws IOException {
         return getDoubleSpeciesOrthology(species, null, stringencyFilter, methods, rows, start);

@@ -108,9 +108,9 @@ public class OrthologyService {
             gene.getOrthoGenes()
                     .stream()
                     .filter(orthologous -> orthologous.hasFilter(filter))
-                    .filter(join -> filter.getSpecies() == null ||
-                            (filter.getSpecies() != null &&
-                                    (filter.getSpecies().contains(join.getGene2().getSpecies().getName()) || filter.getSpecies().contains(join.getGene2().getTaxonId()))))
+                    .filter(join -> filter.getTaxonIDs() == null ||
+                            (filter.getTaxonIDs() != null &&
+                                    (filter.getTaxonIDs().contains(join.getGene2().getSpecies().getName()) || filter.getTaxonIDs().contains(join.getGene2().getTaxonId()))))
                     .forEach(orthologous ->
                             lookup.put(orthologous.getPrimaryKey(), orthologous)
                     );

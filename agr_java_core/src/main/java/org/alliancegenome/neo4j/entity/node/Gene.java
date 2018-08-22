@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import org.alliancegenome.es.util.DateConverter;
 import org.alliancegenome.neo4j.entity.Neo4jEntity;
@@ -26,6 +27,7 @@ import lombok.Setter;
 public class Gene extends Neo4jEntity implements Comparable<Gene> {
 
     @JsonView({View.OrthologyView.class, View.InteractionView.class})
+    @JsonProperty("geneID")
     private String primaryKey;
     @JsonView(View.OrthologyView.class)
     private String taxonId;

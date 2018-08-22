@@ -1,6 +1,7 @@
 package org.alliancegenome.api.rest.interfaces;
 
 import java.io.IOException;
+import java.util.List;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -29,7 +30,7 @@ public interface OrthologyRESTInterface {
             @ApiParam(value = "stringencyFilter")
             @QueryParam("stringencyFilter") String stringencyFilter,
             @ApiParam(value = "methods")
-            @QueryParam("methods") String methods,
+            @QueryParam("methods") List<String> methods,
             @ApiParam(value = "number of rows")
             @QueryParam("rows") Integer rows,
             @ApiParam(value = "start")
@@ -44,7 +45,7 @@ public interface OrthologyRESTInterface {
             @ApiParam(value = "stringencyFilter")
             @QueryParam("stringencyFilter") String stringencyFilter,
             @ApiParam(value = "methods")
-            @QueryParam("methods") String methods,
+            @QueryParam("methods") List<String> methods,
             @ApiParam(value = "number of rows")
             @QueryParam("rows") Integer rows,
             @ApiParam(value = "start")
