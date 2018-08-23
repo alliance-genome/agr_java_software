@@ -14,27 +14,27 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 
-@Path("/orthology")
-@Api(value = "Orthology")
+@Path("/homologs")
+@Api(value = "Homology")
 @Consumes(MediaType.APPLICATION_JSON)
 public interface OrthologyRESTInterface {
 
     @GET
-    @Path("/{speciesOne}/{speciesTwo}")
-    @ApiOperation(value = "Retrieve orthologous gene records for given species", notes = "Download orthology records.")
+    @Path("/{taxonIDOne}/{taxonIDTwo}")
+    @ApiOperation(value = "Retrieve homologous gene records for given species", notes = "Download orthology records.")
     String getDoubleSpeciesOrthology(
-            @ApiParam(name = "speciesOne", value = "Species One", required = true, type = "String")
-            @PathParam("speciesOne") String speciesOne,
-            @ApiParam(name = "speciesTwo", value = "Species Two", required = true, type = "String")
-            @PathParam("speciesTwo") String speciesTwo,
-            @ApiParam(value = "stringencyFilter")
+            @ApiParam(name = "taxonIDOne", value = "Taxon ID for the first gene", required = true, type = "String")
+            @PathParam("taxonIDOne") String speciesOne,
+            @ApiParam(name = "taxonIDTwo", value = "Taxon ID for the second gene", required = true, type = "String")
+            @PathParam("taxonIDTwo") String speciesTwo,
+            @ApiParam(value = "apply stringency filter", allowableValues = "stringent, moderate, all", defaultValue = "stringent")
             @QueryParam("stringencyFilter") String stringencyFilter,
             @ApiParam(value = "methods")
             @QueryParam("methods") List<String> methods,
             @ApiParam(value = "number of rows")
-            @QueryParam("rows") Integer rows,
+            @DefaultValue("20") @QueryParam("rows") Integer rows,
             @ApiParam(value = "start")
-            @QueryParam("start") Integer start) throws IOException;
+            @DefaultValue("1") @QueryParam("start") Integer start) throws IOException;
 
     @GET
     @Path("/{species}")

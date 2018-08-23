@@ -2,9 +2,11 @@ package org.alliancegenome.neo4j.view;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.alliancegenome.neo4j.entity.SpeciesType;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Setter
 @Getter
@@ -12,7 +14,7 @@ public class OrthologyFilter {
     private Stringency stringency;
     private List<String> taxonIDs;
     private List<String> methods;
-    private int rows;
+    private int rows = 1000000;
     private int start;
 
     public OrthologyFilter() {
@@ -21,8 +23,11 @@ public class OrthologyFilter {
 
     public OrthologyFilter(String stringency, List<String> taxonIDs, List<String> methods) {
         this.stringency = Stringency.getOrthologyFilter(stringency);
-        if (taxonIDs != null && !taxonIDs.isEmpty())
-            this.taxonIDs = taxonIDs;
+        if (taxonIDs != null && !taxonIDs.isEmpty()) {
+            this.taxonIDs = taxonIDs.stream()
+                    .map(SpeciesType::getTaxonId)
+                    .collect(Collectors.toList());
+        }
         if (methods != null && !methods.isEmpty())
             this.methods = methods;
     }
@@ -50,6 +55,14 @@ public class OrthologyFilter {
             if (name.trim().equalsIgnoreCase(MODERATE.name))
                 return MODERATE;
             return null;
+        }
+
+        public Boolean isStrict() {
+            return this.equals(STRINGENT);
+        }
+
+        public Boolean isModerate() {
+            return this.equals(MODERATE);
         }
     }
 }

@@ -16,6 +16,8 @@ public class JsonResultResponse<T> {
     @JsonView(View.OrthologyView.class)
     private int total;
     @JsonView(View.OrthologyView.class)
+    private int returnedRecords;
+    @JsonView(View.OrthologyView.class)
     private String errorMessage;
 
 }
