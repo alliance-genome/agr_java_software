@@ -41,7 +41,7 @@ public class Gene extends Neo4jEntity implements Comparable<Gene> {
     private String dataProvider;
     private String name;
 
-    @Convert(value=DateConverter.class)
+    @Convert(value = DateConverter.class)
     private Date dateProduced;
     private String description;
     @JsonView({View.OrthologyView.class, View.InteractionView.class})
@@ -80,7 +80,7 @@ public class Gene extends Neo4jEntity implements Comparable<Gene> {
 
     @Relationship(type = "IS_ALLELE_OF", direction = Relationship.INCOMING)
     private List<Feature> features;
-    
+
     @Relationship(type = "ASSOCIATION", direction = Relationship.UNDIRECTED)
     private List<DiseaseEntityJoin> diseaseEntityJoins = new ArrayList<>();
 
@@ -98,10 +98,12 @@ public class Gene extends Neo4jEntity implements Comparable<Gene> {
 
     public Set<GOTerm> getGoParentTerms() {
         Set<GOTerm> parentTerms = new HashSet<>();
-        CollectionUtils.emptyIfNull(gOTerms).stream().forEach(term -> {parentTerms.addAll(term.getParentTerms());});
+        CollectionUtils.emptyIfNull(gOTerms).stream().forEach(term -> {
+            parentTerms.addAll(term.getParentTerms());
+        });
         return parentTerms;
     }
-    
+
     @Override
     public int compareTo(Gene gene) {
         if (gene == null)
@@ -121,4 +123,8 @@ public class Gene extends Neo4jEntity implements Comparable<Gene> {
         return symbol.compareTo(gene.getSymbol());
     }
 
+    @Override
+    public String toString() {
+        return primaryKey + ", " + symbol;
+    }
 }

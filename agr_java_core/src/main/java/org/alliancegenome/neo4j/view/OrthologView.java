@@ -5,11 +5,13 @@ import lombok.Getter;
 import lombok.Setter;
 import org.alliancegenome.neo4j.entity.node.Gene;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 
 @Setter
 @Getter
-public class OrthologView {
+public class OrthologView  {
 
     @JsonView(View.OrthologyView.class)
     private Gene gene;
@@ -37,4 +39,22 @@ public class OrthologView {
         methodCount=predictionMethodsMatched.size();
         totalMethodCount = predictionMethodsMatched.size() + predictionMethodsNotMatched.size();
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        OrthologView that = (OrthologView) o;
+        return best == that.best &&
+                bestReverse == that.bestReverse &&
+                Objects.equals(gene, that.gene) &&
+                Objects.equals(homologGene, that.homologGene);
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(gene, homologGene, best, bestReverse);
+    }
+
 }

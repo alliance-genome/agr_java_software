@@ -52,6 +52,15 @@ public enum SpeciesType {
         return null;
     }
 
+    public static SpeciesDoclet fromTaxonId(String taxonID) {
+        for (SpeciesType species : SpeciesType.values()) {
+            if (species.taxonID.equals(taxonID)) {
+                return getDoclet(species);
+            }
+        }
+        return null;
+    }
+
     public static SpeciesDoclet getByModNameOrIdPart(String string) {
         if (fromTaxonIdPart(string) != null) {
             return fromTaxonIdPart(string);
