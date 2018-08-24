@@ -78,7 +78,6 @@ public class OrthologousRepository extends Neo4jRepository<Orthologous> {
         List<Integer> counterSet = new ArrayList<>();
         count.forEach(stringObjectMap -> counterSet.add(1));
         response.setTotal(counterSet.size());
-        response.setReturnedRecords(orthologViews.size());
         return response;
     }
 

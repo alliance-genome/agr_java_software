@@ -136,7 +136,7 @@ public class OrthologyService {
             List<OrthologView> finalOrthologList = new ArrayList<>();
             int index = 1;
             for (OrthologView view : orthologList) {
-                if (index >= filter.getStart() && index < filter.getLast()) {
+                if (index >= (filter.getStart() - 1) && index < filter.getLast()) {
                     finalOrthologList.add(view);
                 }
                 index++;
@@ -164,7 +164,9 @@ public class OrthologyService {
         List<OrthologView> orthologViewList = OrthologyService.getOrthologViewList(gene, filter);
         JsonResultResponse<OrthologView> response = new JsonResultResponse<>();
         response.setResults(orthologViewList);
-        response.setTotal(orthologViewList.size());
+        // remove pagination filter data to obtain complete set.
+        filter.resetPaginationData();
+        response.setTotal(OrthologyService.getOrthologViewList(gene, filter).size());
         return response;
     }
 

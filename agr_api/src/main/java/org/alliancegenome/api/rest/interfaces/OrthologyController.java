@@ -1,22 +1,20 @@
 package org.alliancegenome.api.rest.interfaces;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Set;
-
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.alliancegenome.core.service.JsonResultResponse;
-import org.alliancegenome.core.service.OrthologyService;
-import org.alliancegenome.neo4j.entity.node.Gene;
-import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.alliancegenome.neo4j.repository.OrthologousRepository;
 import org.alliancegenome.neo4j.view.OrthologView;
 import org.alliancegenome.neo4j.view.OrthologyFilter;
 import org.alliancegenome.neo4j.view.View;
 
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.util.List;
 
 public class OrthologyController implements OrthologyRESTInterface {
+
+    public static final String API_VERSION = "0.9";
 
     @Override
     public String getDoubleSpeciesOrthology(String taxonIDOne,
@@ -26,6 +24,7 @@ public class OrthologyController implements OrthologyRESTInterface {
                                             Integer rows,
                                             Integer start) throws IOException {
 
+        LocalDateTime startDate = LocalDateTime.now();
         OrthologousRepository orthoRepo = new OrthologousRepository();
         OrthologyFilter orthologyFilter = new OrthologyFilter(stringencyFilter, null, methods);
         orthologyFilter.setRows(rows);
@@ -40,6 +39,8 @@ public class OrthologyController implements OrthologyRESTInterface {
 
         ObjectMapper mapper = new ObjectMapper();
         mapper.disable(MapperFeature.DEFAULT_VIEW_INCLUSION);
+        response.setRequestDuration(startDate);
+        response.setApiVersion(API_VERSION);
         return mapper.writerWithView(View.OrthologyView.class).writeValueAsString(response);
     }
 

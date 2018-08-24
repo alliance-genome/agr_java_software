@@ -36,6 +36,11 @@ public class OrthologyFilter {
         return start + rows;
     }
 
+    public void resetPaginationData(){
+        start = 1;
+        rows = 20;
+    }
+
     public enum Stringency {
         ALL(""),
         STRINGENT("stringent"),

@@ -1,18 +1,9 @@
 package org.alliancegenome.api.controller;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.NotFoundException;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.alliancegenome.api.rest.interfaces.GeneRESTInterface;
 import org.alliancegenome.api.service.GeneService;
 import org.alliancegenome.core.service.JsonResultResponse;
@@ -27,14 +18,23 @@ import org.alliancegenome.neo4j.view.OrthologView;
 import org.alliancegenome.neo4j.view.OrthologyFilter;
 import org.alliancegenome.neo4j.view.View;
 
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.NotFoundException;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
 
 @RequestScoped
 public class GeneController extends BaseController implements GeneRESTInterface {
 
+    public static final String API_VERSION = "0.9";
     @Inject
     private GeneService geneService;
     private final PhenotypeAnnotationToTdfTranslator translator = new PhenotypeAnnotationToTdfTranslator();
@@ -109,6 +109,7 @@ public class GeneController extends BaseController implements GeneRESTInterface 
                                    List<String>  methods,
                                    Integer rows,
                                    Integer start) throws IOException {
+        LocalDateTime startDate = LocalDateTime.now();
         GeneRepository repo = new GeneRepository();
         Gene gene = repo.getOrthologyGene(id);
         OrthologyFilter orthologyFilter = new OrthologyFilter(stringencyFilter, taxonIDs, methods);
@@ -116,6 +117,8 @@ public class GeneController extends BaseController implements GeneRESTInterface 
         orthologyFilter.setStart(start);
         JsonResultResponse<OrthologView> response = OrthologyService.getOrthologyJson(gene, orthologyFilter);
         mapper.disable(MapperFeature.DEFAULT_VIEW_INCLUSION);
+        response.setRequestDuration(startDate);
+        response.setApiVersion(API_VERSION);
         return mapper.writerWithView(View.OrthologyView.class).writeValueAsString(response);
     }
 
