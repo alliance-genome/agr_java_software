@@ -101,7 +101,6 @@ public class GeneController extends BaseController implements GeneRESTInterface 
         return response.build();
     }
 
-    @Produces(MediaType.TEXT_PLAIN)
     @Override
     public String getGeneOrthology(String id,
                                    String stringencyFilter,
