@@ -8,6 +8,8 @@ import org.alliancegenome.neo4j.view.OrthologView;
 import org.alliancegenome.neo4j.view.OrthologyFilter;
 import org.alliancegenome.neo4j.view.View;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.Context;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -15,6 +17,9 @@ import java.util.List;
 public class OrthologyController implements OrthologyRESTInterface {
 
     public static final String API_VERSION = "0.9";
+
+    @Context
+    private HttpServletRequest request;
 
     @Override
     public String getDoubleSpeciesOrthology(String taxonIDOne,
@@ -41,6 +46,7 @@ public class OrthologyController implements OrthologyRESTInterface {
         mapper.disable(MapperFeature.DEFAULT_VIEW_INCLUSION);
         response.setRequestDuration(startDate);
         response.setApiVersion(API_VERSION);
+        response.setRequest(request);
         return mapper.writerWithView(View.OrthologyView.class).writeValueAsString(response);
     }
 
