@@ -28,6 +28,10 @@ public class OrthologyFilter {
                     .map(SpeciesType::getTaxonId)
                     .collect(Collectors.toList());
         }
+        // remove all empty method names
+        methods = methods.stream()
+                .filter(method -> !method.isEmpty())
+                .collect(Collectors.toList());
         if (methods != null && !methods.isEmpty())
             this.methods = methods;
     }
