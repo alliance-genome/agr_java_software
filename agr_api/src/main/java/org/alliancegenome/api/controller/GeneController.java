@@ -20,6 +20,7 @@ import org.alliancegenome.neo4j.view.View;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.Produces;
@@ -42,6 +43,9 @@ public class GeneController extends BaseController implements GeneRESTInterface 
     
     @Context
     private HttpServletResponse response;
+
+    @Context
+    private HttpServletRequest request;
 
     @Override
     public Map<String, Object> getGene(String id) {
@@ -118,6 +122,7 @@ public class GeneController extends BaseController implements GeneRESTInterface 
         mapper.disable(MapperFeature.DEFAULT_VIEW_INCLUSION);
         response.setRequestDuration(startDate);
         response.setApiVersion(API_VERSION);
+        response.setRequest(request);
         return mapper.writerWithView(View.OrthologyView.class).writeValueAsString(response);
     }
 
