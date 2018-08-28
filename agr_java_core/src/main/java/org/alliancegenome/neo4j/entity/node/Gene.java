@@ -84,6 +84,9 @@ public class Gene extends Neo4jEntity implements Comparable<Gene> {
     @Relationship(type = "ASSOCIATION", direction = Relationship.UNDIRECTED)
     private List<DiseaseEntityJoin> diseaseEntityJoins = new ArrayList<>();
 
+    @Relationship(type = "ASSOCIATION", direction = Relationship.UNDIRECTED)
+    private List<BioEntityGeneExpressionJoin> entityGeneExpressionJoins = new ArrayList<>();
+
     @Relationship(type = "ASSOCIATION")
     private List<PhenotypeEntityJoin> phenotypeEntityJoins = new ArrayList<>();
 
@@ -93,12 +96,15 @@ public class Gene extends Neo4jEntity implements Comparable<Gene> {
     @Relationship(type = "HAS_PHENOTYPE")
     private List<Phenotype> phenotypes = new ArrayList<>();
     
-    @Relationship(type = "ASSOCIATION", direction = Relationship.OUTGOING)
+    @Relationship(type = "ASSOCIATION")
     private List<InteractionGeneJoin> interactions = new ArrayList<>();
+
+    @Relationship(type = "EXPRESSED_IN")
+    private List<ExpressionBioEntity> expressionBioEntities = new ArrayList<>();
 
     public Set<GOTerm> getGoParentTerms() {
         Set<GOTerm> parentTerms = new HashSet<>();
-        CollectionUtils.emptyIfNull(gOTerms).stream().forEach(term -> {
+        CollectionUtils.emptyIfNull(gOTerms).forEach(term -> {
             parentTerms.addAll(term.getParentTerms());
         });
         return parentTerms;

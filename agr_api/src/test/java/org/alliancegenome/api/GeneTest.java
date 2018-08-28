@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.alliancegenome.api.controller.GeneController;
 import org.alliancegenome.api.controller.OrthologyController;
+import org.alliancegenome.api.rest.interfaces.ExpressionController;
 import org.alliancegenome.api.service.GeneService;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.service.JsonResultResponse;
@@ -22,7 +23,6 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 
 import static org.hamcrest.Matchers.equalTo;
@@ -192,6 +192,14 @@ public class GeneTest {
 
         OrthologyController controller = new OrthologyController();
         String responseString = controller.getAllMethodsCalculations();
+    }
+
+    @Ignore
+    @Test
+    public void checkExpressionAnnotation() throws IOException {
+
+        ExpressionController controller = new ExpressionController();
+        String responseString = controller.getExpressionAnnotations("MGI:97570", 5, 1);
         JsonResultResponse response = mapper.readValue(responseString, JsonResultResponse.class);
         assertThat("matches found for gene MGI:109583'", response.getTotal(), greaterThan(0));
     }
