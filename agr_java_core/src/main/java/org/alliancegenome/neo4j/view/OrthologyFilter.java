@@ -28,6 +28,10 @@ public class OrthologyFilter {
                     .map(SpeciesType::getTaxonId)
                     .collect(Collectors.toList());
         }
+        // remove all empty method names
+        methods = methods.stream()
+                .filter(method -> !method.trim().isEmpty())
+                .collect(Collectors.toList());
         if (methods != null && !methods.isEmpty())
             this.methods = methods;
     }
@@ -36,7 +40,7 @@ public class OrthologyFilter {
         return start + rows;
     }
 
-    public void resetPaginationData(){
+    public void resetPaginationData() {
         start = 1;
         rows = 20;
     }
