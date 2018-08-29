@@ -87,6 +87,10 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
         geneDocument.setCellularComponentWithParents(collectGoTermParentNames(allParentTerms,"cellular_component"));
         geneDocument.setMolecularFunctionWithParents(collectGoTermParentNames(allParentTerms,"molecular_function"));
 
+        geneDocument.setBiologicalProcessAgrSlim(collectGoTermSlimNames(allParentTerms, "biological_process", "goslim_agr"));
+        geneDocument.setCellularComponentAgrSlim(collectGoTermSlimNames(allParentTerms, "cellular_component", "goslim_agr"));
+        geneDocument.setMolecularFunctionAgrSlim(collectGoTermSlimNames(allParentTerms, "molecular_function", "goslim_agr"));
+
         // This code is duplicated in Gene and Feature should be pulled out into its own translator
         ArrayList<String> secondaryIds = new ArrayList<>();
         if (gene.getSecondaryIds() != null) {
@@ -187,9 +191,17 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
                 .stream().map(GOTerm::getName).collect(Collectors.toList());
     }
 
-    protected List<String> collectGoTermParentNames(Set<GOTerm> terms, String subset) {
+    protected List<String> collectGoTermParentNames(Set<GOTerm> terms, String type) {
         return CollectionUtils.emptyIfNull(terms).stream()
-                .filter(term -> term.getType().equals(subset))
+                .filter(term -> term.getType().equals(type))
+                .map(GOTerm::getName)
+                .collect(Collectors.toList());
+    }
+
+    protected List<String> collectGoTermSlimNames(Set<GOTerm> terms, String type, String subset) {
+        return CollectionUtils.emptyIfNull(terms).stream()
+                .filter(term -> term.getSubset().contains(subset))
+                .filter(term -> term.getType().equals(type))
                 .map(GOTerm::getName)
                 .collect(Collectors.toList());
     }
