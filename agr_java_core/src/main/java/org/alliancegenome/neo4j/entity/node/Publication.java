@@ -17,13 +17,13 @@ import lombok.Setter;
 @Setter
 public class Publication extends Neo4jEntity {
 
-    @JsonView(View.InteractionView.class)
+    @JsonView({View.InteractionView.class, View.ExpressionView.class})
     private String primaryKey;
     private String pubMedId;
-    @JsonView(View.InteractionView.class)
+    @JsonView({View.InteractionView.class, View.ExpressionView.class})
     private String pubMedUrl;
     private String pubModId;
-    @JsonView(View.InteractionView.class)
+    @JsonView({View.InteractionView.class, View.ExpressionView.class})
     private String pubModUrl;
 
     @Relationship(type = "ANNOTATED_TO")

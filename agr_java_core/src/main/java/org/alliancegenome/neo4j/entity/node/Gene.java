@@ -26,25 +26,26 @@ import lombok.Setter;
 @Setter
 public class Gene extends Neo4jEntity implements Comparable<Gene> {
 
-    @JsonView({View.OrthologyView.class, View.InteractionView.class})
+    @JsonView({View.OrthologyView.class, View.InteractionView.class, View.ExpressionView.class})
     @JsonProperty("geneID")
     private String primaryKey;
-    @JsonView(View.OrthologyView.class)
+    @JsonView({View.OrthologyView.class, View.ExpressionView.class})
     private String taxonId;
-    @JsonView(View.OrthologyView.class)
+    @JsonView({View.OrthologyView.class, View.ExpressionView.class})
     private String speciesName;
     private String geneLiterature;
     private String geneLiteratureUrl;
     private String geneSynopsis;
     private String automatedGeneSynopsis;
     private String geneSynopsisUrl;
+    @JsonView({View.ExpressionView.class})
     private String dataProvider;
     private String name;
 
     @Convert(value = DateConverter.class)
     private Date dateProduced;
     private String description;
-    @JsonView({View.OrthologyView.class, View.InteractionView.class})
+    @JsonView({View.OrthologyView.class, View.InteractionView.class, View.ExpressionView.class})
     private String symbol;
     private String geneticEntityExternalUrl;
 

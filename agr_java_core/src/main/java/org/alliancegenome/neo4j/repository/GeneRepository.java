@@ -1,14 +1,11 @@
 package org.alliancegenome.neo4j.repository;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
+import org.alliancegenome.es.model.query.FieldFilter;
+import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.SpeciesType;
+import org.alliancegenome.neo4j.entity.node.BioEntityGeneExpressionJoin;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
 import org.apache.logging.log4j.LogManager;
@@ -33,12 +30,12 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         query += " OPTIONAL MATCH p5=(g)--(s:DiseaseEntityJoin)--(feature:Feature)";
         query += " OPTIONAL MATCH p2=(do:DOTerm)--(s:DiseaseEntityJoin)-[:EVIDENCE]-(ea)";
         query += " OPTIONAL MATCH p4=(g)--(s:OrthologyGeneJoin)--(a:OrthoAlgorithm), p3=(g)-[o:ORTHOLOGOUS]-(g2:Gene)-[:FROM_SPECIES]-(q2:Species), (s)--(g2)";
-        query += " OPTIONAL MATCH p6=(g)--(s:PhenotypeEntityJoin)--(phenotype:Phenotype), p7=(g)--(s:PhenotypeEntityJoin)-[evidence:EVIDENCE]-(pub:Publication)";
+        query += " OPTIONAL MATCH p6=(g)--(s:PhenotypeEntityJoin)--(tt) ";
         query += " OPTIONAL MATCH p8=(g)--(s:PhenotypeEntityJoin)--(ff:Feature)";
         query += " OPTIONAL MATCH p9=(g)--(s:GOTerm)-[:IS_A|:PART_OF*]->(parent:GOTerm)";
-       // query += " OPTIONAL MATCH p10=(g)--(s:BioEntityGeneEpxressionJoin)--(expressed:ExpressionBioEntity), p11=(g)--(s:BioEntityGeneEpxressionJoin)-[:EVIDENCE]-(eaa)";
-        ///query += " RETURN p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11";
-        query += " RETURN p1, p2, p3, p4, p5, p6, p7, p8, p9";
+        query += " OPTIONAL MATCH p10=(g)--(s:BioEntityGeneExpressionJoin)--(t) ";
+        query += " RETURN p1, p2, p3, p4, p5, p6, p8, p9, p10";
+        //query += " RETURN p1, p2, p3, p4, p5, p6, p7, p8, p9";
 
         Iterable<Gene> genes = query(query, map);
         for (Gene g : genes) {
@@ -48,6 +45,59 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         }
 
         return null;
+    }
+
+    public Gene getExpressionGene(String primaryKey) {
+        HashMap<String, String> map = new HashMap<>();
+
+        map.put("primaryKey", primaryKey);
+        String query = "";
+
+        query += " MATCH p1=(g:Gene)-->(s:BioEntityGeneExpressionJoin)--(t) WHERE g.primaryKey = {primaryKey}";
+        query += " RETURN p1";
+
+        Iterable<Gene> genes = query(query, map);
+        for (Gene g : genes) {
+            if (g.getPrimaryKey().equals(primaryKey)) {
+                return g;
+            }
+        }
+
+        return null;
+    }
+
+    public List<BioEntityGeneExpressionJoin> getExpressionAnnotations(List<String> geneIDs, Pagination pagination) {
+        HashMap<FieldFilter, String> fieldColumnMapping = new HashMap<>();
+        fieldColumnMapping.put(FieldFilter.SPECIES, "gene.species");
+        fieldColumnMapping.put(FieldFilter.GENE_NAME, "gene.symbol");
+        fieldColumnMapping.put(FieldFilter.SOURCE, "gene.dataProvider");
+        fieldColumnMapping.put(FieldFilter.REFERENCE, "t.pubmedID");
+
+
+        StringJoiner sj = new StringJoiner(",", "[", "]");
+        geneIDs.forEach(geneID -> sj.add("'" + geneID + "'"));
+
+        String query = " MATCH p1=(gene:Gene)-->(s:BioEntityGeneExpressionJoin)--(t) WHERE gene.primaryKey in " + sj.toString();
+        for (FieldFilter filter : pagination.getFieldFilterValueMap().keySet()) {
+            String column = fieldColumnMapping.get(filter);
+            query += " AND " + column + " = '" + pagination.getFieldFilterValueMap().get(filter) + "' ";
+        }
+        query += " RETURN s, p1 order by gene.taxonID, gene.symbol ";
+
+        Iterable<BioEntityGeneExpressionJoin> joins = neo4jSession.query(BioEntityGeneExpressionJoin.class, query, new HashMap<>());
+
+        List<BioEntityGeneExpressionJoin> joinList = new ArrayList<>();
+        int index = 0;
+        for (BioEntityGeneExpressionJoin join : joins) {
+            if (!pagination.isCount()) {
+                if (index >= pagination.getStart() && index < pagination.getEnd())
+                    joinList.add(join);
+            } else {
+                joinList.add(join);
+            }
+            index++;
+        }
+        return joinList;
     }
 
     public Gene getOrthologyGene(String primaryKey) {
@@ -168,10 +218,10 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         HashMap<String, String> map = new HashMap<>();
 
         map.put("primaryKey", primaryKey);
-        
+
         String query = "MATCH p1=(sp1:Species)-[:FROM_SPECIES]-(g:Gene)-[iw:INTERACTS_WITH]->(g2:Gene)-[:FROM_SPECIES]-(sp2:Species), p2=(g:Gene)-->(igj:InteractionGeneJoin)--(s) where g.primaryKey = {primaryKey} and iw.uuid = igj.primaryKey RETURN p1, p2";
         //String query = "MATCH p1=(g:Gene)-[iw:INTERACTS_WITH]->(g2:Gene), p2=(g:Gene)-->(igj:InteractionGeneJoin)--(s) where g.primaryKey = {primaryKey} and iw.uuid = igj.primaryKey RETURN p1, p2";
-        
+
         Iterable<Gene> genes = query(query, map);
 
         for (Gene g : genes) {

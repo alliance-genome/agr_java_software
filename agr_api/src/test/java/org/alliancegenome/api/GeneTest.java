@@ -196,10 +196,21 @@ public class GeneTest {
 
     @Ignore
     @Test
+    public void checkExpressionSummary() throws IOException {
+
+        ExpressionController controller = new ExpressionController();
+        String responseString = controller.getExpressionSummary("MGI:97570", 5, 1);
+        JsonResultResponse response = mapper.readValue(responseString, JsonResultResponse.class);
+        assertThat("matches found for gene MGI:109583'", response.getTotal(), greaterThan(0));
+    }
+
+    @Ignore
+    @Test
     public void checkExpressionAnnotation() throws IOException {
 
         ExpressionController controller = new ExpressionController();
-        String responseString = controller.getExpressionAnnotations("MGI:97570", 5, 1);
+        String[] geneIDs = {"MGI:97570", "ZFIN:ZDB-GENE-080204-52"};
+        String responseString = controller.getExpressionAnnotations(Arrays.asList(geneIDs), null, "abcb4",null, null, null, null, null,  5, 1, null, "true");
         JsonResultResponse response = mapper.readValue(responseString, JsonResultResponse.class);
         assertThat("matches found for gene MGI:109583'", response.getTotal(), greaterThan(0));
     }

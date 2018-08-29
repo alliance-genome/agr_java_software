@@ -1,7 +1,7 @@
 package org.alliancegenome.neo4j.view;
 
 public class View {
-    
+
     // Generic Views
     public static class DefaultView { }
     public static class DetailView { }

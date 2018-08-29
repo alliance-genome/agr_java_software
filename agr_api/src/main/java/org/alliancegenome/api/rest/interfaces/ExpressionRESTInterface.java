@@ -15,22 +15,52 @@ import java.util.List;
 import java.util.Map;
 
 
-@Path("/gene")
-@Api(value = "Genes")
+@Path("/expression")
+@Api(value = "Expression")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public interface ExpressionRESTInterface {
 
     @GET
-    @Path("/{id}/expression")
+    @Path("/gene/{geneID}/expression-summary")
     @ApiOperation(value = "Retrieve all expression records of a given gene")
-    String getExpressionAnnotations(
-            @ApiParam(name = "id", value = "Gene by ID", required = true, type = "String")
-            @PathParam("id") String id,
+    String getExpressionSummary(
+            @ApiParam(name = "geneID", value = "Gene by ID", required = true, type = "String")
+            @PathParam("geneID") String id,
             @ApiParam(name = "limit", value = "Number of rows returned", defaultValue = "20")
             @DefaultValue("20") @QueryParam("limit") int limit,
             @ApiParam(name = "page", value = "Page number")
             @DefaultValue("1") @QueryParam("page") int page
-            ) throws JsonProcessingException;
+    ) throws JsonProcessingException;
+
+    @GET
+    @Path("")
+    @ApiOperation(value = "Retrieve all expression records of a given set of orthologous genes")
+    String getExpressionAnnotations(
+            @ApiParam(name = "geneID", value = "Gene by ID", required = true, type = "String")
+            @QueryParam("geneID") List<String> geneIDs,
+            @ApiParam(name = "filter.species", value = "filter elements", type = "String")
+            @QueryParam("filter.species") String filterSpecies,
+            @ApiParam(name = "filter.gene", value = "filter elements", type = "String")
+            @QueryParam("filter.gene") String filterGene,
+            @ApiParam(name = "filter.stage", value = "filter elements", type = "String")
+            @QueryParam("filter.assay") String filterStage,
+            @ApiParam(name = "filter.assay", value = "filter elements", type = "String")
+            @QueryParam("filter.stage") String filterAssay,
+            @ApiParam(name = "filter.reference", value = "filter elements", type = "String")
+            @QueryParam("filter.reference") String filterReference,
+            @ApiParam(name = "filter.term", value = "filter elements", type = "String")
+            @QueryParam("filter.term") String filterTerm,
+            @ApiParam(name = "filter.source", value = "filter elements", type = "String")
+            @QueryParam("filter.source") String filterSource,
+            @ApiParam(name = "limit", value = "Number of rows returned", defaultValue = "20")
+            @DefaultValue("20") @QueryParam("limit") int limit,
+            @ApiParam(name = "page", value = "Page number")
+            @DefaultValue("1") @QueryParam("page") int page,
+            @ApiParam(name = "sortBy", value = "Sort by field name")
+            @QueryParam("sortBy") String sortBy,
+            @ApiParam(name = "asc", allowableValues = "true,false", value = "ascending or descending")
+            @QueryParam("asc") String asc
+    ) throws JsonProcessingException;
 
 }
