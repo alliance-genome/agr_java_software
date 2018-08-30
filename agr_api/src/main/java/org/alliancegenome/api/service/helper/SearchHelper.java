@@ -45,7 +45,6 @@ public class SearchHelper {
                     add("biologicalProcessAgrSlim");
                     add("molecularFunctionAgrSlim");
                     add("cellularComponentAgrSlim");
-                    add("phenotypeStatements");
 
                 }
             });
@@ -68,7 +67,6 @@ public class SearchHelper {
                     add("geneDocument.species");
                     add("diseaseDocuments.name");
                     add("geneDocument.name_key");
-                    add("phenotypeStatements");
                 }
             });
         }
