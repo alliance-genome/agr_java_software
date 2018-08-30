@@ -42,9 +42,9 @@ public class SearchHelper {
                     add("species");
                     add("soTermName");
                     add("diseases.name");
-                    add("biologicalProcessWithParents");
-                    add("molecularFunctionWithParents");
-                    add("cellularComponentWithParents");
+                    add("biologicalProcessAgrSlim");
+                    add("molecularFunctionAgrSlim");
+                    add("cellularComponentAgrSlim");
                     add("phenotypeStatements");
 
                 }
