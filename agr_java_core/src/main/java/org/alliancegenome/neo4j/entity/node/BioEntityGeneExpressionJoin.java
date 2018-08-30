@@ -12,7 +12,7 @@ import java.util.List;
 @Setter
 public class BioEntityGeneExpressionJoin extends Association {
 
-    @Relationship(type = "ASSOCATION", direction = Relationship.INCOMING)
+    @Relationship(type = "ASSOCIATION", direction = Relationship.INCOMING)
     private ExpressionBioEntity entity;
 
     @Relationship(type = "EVIDENCE")

@@ -37,7 +37,7 @@ public class PhenotypeAnnotationRepository extends Neo4jRepository<PhenotypeEnti
 
     public PhenotypeEntityJoin PhenotypeEntityJoin(String primaryKey) {
 
-        String cypher = "MATCH p0=(phenotype:Phenotype)--(phenotypeEntityJoin:PhenotypeEntityJoin)-[:EVIDENCE]-(publications:Publication)" +
+        String cypher = "MATCH p0=(termName:Phenotype)--(phenotypeEntityJoin:PhenotypeEntityJoin)-[:EVIDENCE]-(publications:Publication)" +
                 " WHERE phenotypeEntityJoin.primaryKey = {primaryKey}   " +
                 " OPTIONAL MATCH p2=(phenotypeEntityJoin)--(g:Gene)-[:FROM_SPECIES]-(species:Species)" +
                 " OPTIONAL MATCH p4=(phenotypeEntityJoin)--(feature:Feature)" +

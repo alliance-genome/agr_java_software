@@ -16,7 +16,7 @@ public class ExpressionDetail {
     @JsonView(View.ExpressionView.class)
     private Gene gene;
     @JsonView(View.ExpressionView.class)
-    private String phenotype;
+    private String termName;
     @JsonView(View.ExpressionView.class)
     private Stage stage;
     @JsonView(View.ExpressionView.class)

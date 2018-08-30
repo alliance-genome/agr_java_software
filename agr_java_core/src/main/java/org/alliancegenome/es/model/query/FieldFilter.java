@@ -12,7 +12,7 @@ public enum FieldFilter {
     SOURCE("source"),
     REFERENCE("reference"),
     EVIDENCE_CODE("evidenceCode"),
-    PHENOTYPE("phenotype"),
+    PHENOTYPE("termName"),
     ASSOCIATION_TYPE("associationType"),;
     private String name;
 

@@ -100,7 +100,7 @@ public class GeneDAO extends ESDAO {
         //searchRequestBuilder.setExplain(true);
         searchRequestBuilder.setIndices(ConfigHelper.getEsIndex());
 
-        // match on phenotype
+        // match on termName
         // child terms have the parent Term ID in the field parentDiseaseIDs
         TermQueryBuilder builder = QueryBuilders.termQuery("category", PhenotypeAnnotationDocument.CATEGORY);
         BoolQueryBuilder query = QueryBuilders.boolQuery().must(builder);
@@ -138,14 +138,14 @@ public class GeneDAO extends ESDAO {
     private static Map<FieldFilter, String> diseaseFieldFilterSortingMap = new HashMap<>(10);
 
     static {
-        diseaseFieldFilterSortingMap.put(FieldFilter.PHENOTYPE, "phenotype.sort");
+        diseaseFieldFilterSortingMap.put(FieldFilter.PHENOTYPE, "termName.sort");
         diseaseFieldFilterSortingMap.put(FieldFilter.GENETIC_ENTITY, "featureDocument.symbol.sort");
     }
 
     private static Map<FieldFilter, List<String>> phenotypeFieldFilterMap = new HashMap<>(10);
 
     static {
-        phenotypeFieldFilterMap.put(FieldFilter.PHENOTYPE, Collections.singletonList("phenotype.standardText"));
+        phenotypeFieldFilterMap.put(FieldFilter.PHENOTYPE, Collections.singletonList("termName.standardText"));
         phenotypeFieldFilterMap.put(FieldFilter.GENETIC_ENTITY, Collections.singletonList("featureDocument.searchSymbol"));
         phenotypeFieldFilterMap.put(FieldFilter.GENETIC_ENTITY_TYPE, Arrays.asList("featureDocument.category.autocomplete", "geneDocument.category.autocomplete"));
         phenotypeFieldFilterMap.put(FieldFilter.REFERENCE, Arrays.asList("publications.pubModId.standardText", "publications.pubMedId.standardText"));

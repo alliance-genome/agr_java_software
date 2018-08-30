@@ -22,22 +22,10 @@ import java.util.Map;
 public interface ExpressionRESTInterface {
 
     @GET
-    @Path("/gene/{geneID}/expression-summary")
-    @ApiOperation(value = "Retrieve all expression records of a given gene")
-    String getExpressionSummary(
-            @ApiParam(name = "geneID", value = "Gene by ID", required = true, type = "String")
-            @PathParam("geneID") String id,
-            @ApiParam(name = "limit", value = "Number of rows returned", defaultValue = "20")
-            @DefaultValue("20") @QueryParam("limit") int limit,
-            @ApiParam(name = "page", value = "Page number")
-            @DefaultValue("1") @QueryParam("page") int page
-    ) throws JsonProcessingException;
-
-    @GET
     @Path("")
-    @ApiOperation(value = "Retrieve all expression records of a given set of orthologous genes")
+    @ApiOperation(value = "Retrieve all expression records of a given set of genes")
     String getExpressionAnnotations(
-            @ApiParam(name = "geneID", value = "Gene by ID", required = true, type = "String")
+            @ApiParam(name = "geneID", value = "Gene by ID", required = true)
             @QueryParam("geneID") List<String> geneIDs,
             @ApiParam(name = "filter.species", value = "filter elements", type = "String")
             @QueryParam("filter.species") String filterSpecies,

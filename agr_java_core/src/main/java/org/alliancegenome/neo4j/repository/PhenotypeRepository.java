@@ -16,7 +16,7 @@ public class PhenotypeRepository extends Neo4jRepository<Phenotype> {
     }
 
     public List<String> getAllPhenotypeKeys() {
-        String query = "MATCH (phenotype:Phenotype) return phenotype.primaryKey";
+        String query = "MATCH (termName:Phenotype) return termName.primaryKey";
         log.debug("Starting Query: " + query);
         Result r = queryForResult(query);
         Iterator<Map<String, Object>> i = r.iterator();
@@ -25,7 +25,7 @@ public class PhenotypeRepository extends Neo4jRepository<Phenotype> {
 
         while (i.hasNext()) {
             Map<String, Object> map2 = i.next();
-            list.add((String) map2.get("phenotype.primaryKey"));
+            list.add((String) map2.get("termName.primaryKey"));
         }
         log.debug("Query Finished: " + list.size());
         return list;
@@ -33,8 +33,8 @@ public class PhenotypeRepository extends Neo4jRepository<Phenotype> {
 
     public Phenotype getPhenotypeTerm(String primaryKey) {
 
-        String cypher = "MATCH p0=(phenotype:Phenotype)--(phenotypeEntityJoin:PhenotypeEntityJoin)-[:EVIDENCE]-(publications:Publication)" +
-                " WHERE phenotype.primaryKey = {primaryKey}   " +
+        String cypher = "MATCH p0=(termName:Phenotype)--(phenotypeEntityJoin:PhenotypeEntityJoin)-[:EVIDENCE]-(publications:Publication)" +
+                " WHERE termName.primaryKey = {primaryKey}   " +
                 " OPTIONAL MATCH p2=(phenotypeEntityJoin)--(g:Gene)-[:FROM_SPECIES]-(species:Species)" +
                 " OPTIONAL MATCH p4=(phenotypeEntityJoin)--(feature:Feature)" +
                 " RETURN p0, p2, p4";

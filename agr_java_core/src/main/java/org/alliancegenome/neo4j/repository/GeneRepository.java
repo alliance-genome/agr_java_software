@@ -5,9 +5,7 @@ import java.util.*;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.SpeciesType;
-import org.alliancegenome.neo4j.entity.node.BioEntityGeneExpressionJoin;
-import org.alliancegenome.neo4j.entity.node.Gene;
-import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
+import org.alliancegenome.neo4j.entity.node.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.neo4j.ogm.model.Result;
@@ -73,18 +71,28 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         fieldColumnMapping.put(FieldFilter.SOURCE, "gene.dataProvider");
         fieldColumnMapping.put(FieldFilter.REFERENCE, "t.pubmedID");
 
+        Map<String, String> map = new HashMap<>();
+        map.put("pk", "GO:0016020");
 
         StringJoiner sj = new StringJoiner(",", "[", "]");
         geneIDs.forEach(geneID -> sj.add("'" + geneID + "'"));
 
-        String query = " MATCH p1=(gene:Gene)-->(s:BioEntityGeneExpressionJoin)--(t) WHERE gene.primaryKey in " + sj.toString();
+        String query = " MATCH p1=(gene:Gene)-->(s:BioEntityGeneExpressionJoin)--(t) " +
+                "WHERE gene.primaryKey in " + sj.toString();
+/*
+        query += " OPTIONAL MATCH slim=(o)-[:IS_A*]->(slimTerm) " +
+                " where all (primaryKey IN ['GO:0016020'] where primaryKey in slimTerm.primaryKey) ";
+*/
+
         for (FieldFilter filter : pagination.getFieldFilterValueMap().keySet()) {
             String column = fieldColumnMapping.get(filter);
             query += " AND " + column + " = '" + pagination.getFieldFilterValueMap().get(filter) + "' ";
         }
-        query += " RETURN s, p1 order by gene.taxonID, gene.symbol ";
+        query += " OPTIONAL MATCH p2=(t:ExpressionBioEntity)--(o:Ontology) ";
+        query += " RETURN s, p1, p2 order by gene.taxonID, gene.symbol ";
 
-        Iterable<BioEntityGeneExpressionJoin> joins = neo4jSession.query(BioEntityGeneExpressionJoin.class, query, new HashMap<>());
+        Iterable<BioEntityGeneExpressionJoin> joins = neo4jSession.query(BioEntityGeneExpressionJoin.class, query, map);
+        Result result = queryForResult(query);
 
         List<BioEntityGeneExpressionJoin> joinList = new ArrayList<>();
         int index = 0;
@@ -96,6 +104,21 @@ public class GeneRepository extends Neo4jRepository<Gene> {
                 joinList.add(join);
             }
             index++;
+        }
+        return joinList;
+    }
+
+    public List<BioEntityGeneExpressionJoin> getExpressionAnnotationSummary(String geneID) {
+        String query = " MATCH p1=(gene:Gene)-->(s:BioEntityGeneExpressionJoin)--(t) ";
+        query += "WHERE gene.primaryKey = '" + geneID + "'";
+        query += " OPTIONAL MATCH p2=(t:ExpressionBioEntity)--(o:Ontology) ";
+        query += " RETURN s, p1, p2 order by gene.taxonID, gene.symbol ";
+
+        Iterable<BioEntityGeneExpressionJoin> joins = neo4jSession.query(BioEntityGeneExpressionJoin.class, query, new HashMap<>());
+
+        List<BioEntityGeneExpressionJoin> joinList = new ArrayList<>();
+        for (BioEntityGeneExpressionJoin join : joins) {
+            joinList.add(join);
         }
         return joinList;
     }
@@ -233,4 +256,43 @@ public class GeneRepository extends Neo4jRepository<Gene> {
 
     }
 
+    public Map<String, String> getGoParentList() {
+        Map<String, String> slim = new HashMap<>();
+
+        slim.put("GO:0005576", "extracellular");
+        slim.put("GO:0005737", "cytoplasm");
+        slim.put("GO:0005856", "cytoskeleton");
+        slim.put("GO:0005739", "mitochondrion");
+        slim.put("GO:0005634", "nucleus");
+        slim.put("GO:0005694", "chromosome");
+        slim.put("GO:0016020", "membrane");
+        slim.put("GO:0031982", "vesicle");
+        slim.put("GO:0071944", "cell periphery");
+        slim.put("GO:0030054", "cell junction");
+        slim.put("GO:0042995", "cell projection");
+        slim.put("GO:0032991", "macromolecular complex");
+        slim.put("GO:0045202", "synapse");
+        slim.put("GO:0005575", "other locations");
+        return slim;
+    }
+
+    public List<String> getGOParentTerms(ExpressionBioEntity entity) {
+        List<String> parentList = new ArrayList<>();
+        getGoParentList().keySet().forEach(termID -> {
+            String query = " MATCH p1=(entity:ExpressionBioEntity)-[:CELLULAR_COMPONENT]-(ontology:GOTerm) ";
+            query += "WHERE ontology.primaryKey = '" + entity.getGoTerm().getPrimaryKey() + "'";
+            query += " OPTIONAL MATCH slim=(ontology)-[:PART_OF|IS_A*]->(slimTerm) " +
+                    //" where all (primaryKey IN [" + joiner.toString() + "] where primaryKey in slimTerm.primaryKey) ";
+                    " where all (primaryKey IN ['";
+            query += termID + "'] where primaryKey in slimTerm.primaryKey) ";
+            query += " RETURN p1, slim ";
+            Iterable<GOTerm> joins = neo4jSession.query(GOTerm.class, query, new HashMap<>());
+            for (GOTerm join : joins) {
+                if (join.getPrimaryKey().equals(termID)) {
+                    parentList.add(termID);
+                }
+            }
+        });
+        return parentList;
+    }
 }

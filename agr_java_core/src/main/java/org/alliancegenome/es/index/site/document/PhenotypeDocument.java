@@ -12,7 +12,7 @@ import lombok.Setter;
 @Setter
 public class PhenotypeDocument extends SearchableItemDocument {
 
-    public static final String CATEGORY = "phenotype";
+    public static final String CATEGORY = "termName";
     {
         category = CATEGORY;
     }

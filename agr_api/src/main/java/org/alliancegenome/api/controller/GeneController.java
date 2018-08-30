@@ -5,13 +5,17 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.alliancegenome.api.rest.interfaces.GeneRESTInterface;
+import org.alliancegenome.api.service.ExpressionService;
 import org.alliancegenome.api.service.GeneService;
+import org.alliancegenome.api.service.helper.ExpressionDetail;
+import org.alliancegenome.api.service.helper.ExpressionSummary;
 import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.core.service.OrthologyService;
 import org.alliancegenome.core.translators.tdf.PhenotypeAnnotationToTdfTranslator;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.es.model.search.SearchResult;
+import org.alliancegenome.neo4j.entity.node.BioEntityGeneExpressionJoin;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.alliancegenome.neo4j.view.OrthologView;
@@ -28,6 +32,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -39,7 +44,7 @@ public class GeneController extends BaseController implements GeneRESTInterface 
     private GeneService geneService;
     private final PhenotypeAnnotationToTdfTranslator translator = new PhenotypeAnnotationToTdfTranslator();
     private ObjectMapper mapper = new ObjectMapper();
-    
+
     @Context
     private HttpServletResponse response;
 
@@ -100,7 +105,7 @@ public class GeneController extends BaseController implements GeneRESTInterface 
 
         Response.ResponseBuilder response = Response.ok(getPhenotypeAnnotationsDownload(id));
         response.type(MediaType.TEXT_PLAIN_TYPE);
-        response.header("Content-Disposition", "attachment; filename=\"phenotype-annotations-" + id.replace(":", "-") + ".tsv\"");
+        response.header("Content-Disposition", "attachment; filename=\"termName-annotations-" + id.replace(":", "-") + ".tsv\"");
         return response.build();
     }
 
@@ -108,7 +113,7 @@ public class GeneController extends BaseController implements GeneRESTInterface 
     public String getGeneOrthology(String id,
                                    String stringencyFilter,
                                    List<String> taxonIDs,
-                                   List<String>  methods,
+                                   List<String> methods,
                                    Integer rows,
                                    Integer start) throws IOException {
         LocalDateTime startDate = LocalDateTime.now();
@@ -126,7 +131,7 @@ public class GeneController extends BaseController implements GeneRESTInterface 
     }
 
     public String getPhenotypeAnnotationsDownload(String id) {
-        Pagination pagination = new Pagination(1, Integer.MAX_VALUE, "phenotype", null);
+        Pagination pagination = new Pagination(1, Integer.MAX_VALUE, "termName", null);
         // retrieve all records
         return translator.getAllRows(geneService.getPhenotypeAnnotationsDownload(id, pagination));
     }
@@ -143,6 +148,18 @@ public class GeneController extends BaseController implements GeneRESTInterface 
             return null;
         }
 
+    }
+
+    @Override
+    public String getExpressionSummary(String id) throws JsonProcessingException {
+
+        GeneRepository geneRepository = new GeneRepository();
+        List<BioEntityGeneExpressionJoin> joins = geneRepository.getExpressionAnnotationSummary(id);
+        ExpressionService service = new ExpressionService();
+        ExpressionSummary response = service.getExpressionSummary(joins);
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.disable(MapperFeature.DEFAULT_VIEW_INCLUSION);
+        return mapper.writerWithView(View.ExpressionView.class).writeValueAsString(response);
     }
 
 }

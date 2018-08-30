@@ -7,6 +7,7 @@ import org.alliancegenome.api.controller.GeneController;
 import org.alliancegenome.api.controller.OrthologyController;
 import org.alliancegenome.api.rest.interfaces.ExpressionController;
 import org.alliancegenome.api.service.GeneService;
+import org.alliancegenome.api.service.helper.ExpressionSummary;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.es.index.site.dao.GeneDAO;
@@ -198,10 +199,11 @@ public class GeneTest {
     @Test
     public void checkExpressionSummary() throws IOException {
 
-        ExpressionController controller = new ExpressionController();
-        String responseString = controller.getExpressionSummary("MGI:97570", 5, 1);
-        JsonResultResponse response = mapper.readValue(responseString, JsonResultResponse.class);
-        assertThat("matches found for gene MGI:109583'", response.getTotal(), greaterThan(0));
+        GeneController controller = new GeneController();
+        String responseString = controller.getExpressionSummary("RGD:2129");
+        //String responseString = controller.getExpressionSummary("ZFIN:ZDB-GENE-080204-52", 5, 1);
+        ExpressionSummary response = mapper.readValue(responseString, ExpressionSummary.class);
+        assertThat("matches found for gene MGI:109583'", response.getTotalAnnotations(), greaterThan(0));
     }
 
     @Ignore
@@ -214,5 +216,6 @@ public class GeneTest {
         JsonResultResponse response = mapper.readValue(responseString, JsonResultResponse.class);
         assertThat("matches found for gene MGI:109583'", response.getTotal(), greaterThan(0));
     }
+
 
 }

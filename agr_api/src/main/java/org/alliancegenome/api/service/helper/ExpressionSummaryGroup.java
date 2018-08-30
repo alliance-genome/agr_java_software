@@ -10,15 +10,16 @@ import java.util.List;
 
 @Setter
 @Getter
-public class ExpressionSummary {
-
+public class ExpressionSummaryGroup {
     @JsonView({ View.ExpressionView.class})
-    private int totalAnnotations;
+    private String name;
     @JsonView({ View.ExpressionView.class})
-    private List<ExpressionSummaryGroup> groups = new ArrayList<>();
+    private List<ExpressionSummaryGroupTerm> terms;
 
-    public void addGroup(ExpressionSummaryGroup group){
-        groups.add(group);
+    public void addGroupTerm(ExpressionSummaryGroupTerm term) {
+        if (terms == null)
+            terms = new ArrayList<>();
+        terms.add(term);
     }
-
 }
+

@@ -5,20 +5,16 @@ import lombok.Getter;
 import lombok.Setter;
 import org.alliancegenome.neo4j.view.View;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Setter
 @Getter
-public class ExpressionSummary {
-
+public class ExpressionSummaryGroupTerm {
     @JsonView({ View.ExpressionView.class})
-    private int totalAnnotations;
+    private String id;
     @JsonView({ View.ExpressionView.class})
-    private List<ExpressionSummaryGroup> groups = new ArrayList<>();
-
-    public void addGroup(ExpressionSummaryGroup group){
-        groups.add(group);
-    }
-
+    private String name;
+    @JsonView({ View.ExpressionView.class})
+    private long numberOfAnnotations;
 }
+

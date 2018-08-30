@@ -8,9 +8,7 @@ import org.alliancegenome.api.service.helper.ExpressionDetail;
 import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.es.model.search.SearchResult;
 import org.alliancegenome.neo4j.entity.node.BioEntityGeneExpressionJoin;
-import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.alliancegenome.neo4j.view.View;
 
@@ -30,21 +28,6 @@ public class ExpressionController implements ExpressionRESTInterface {
     private HttpServletRequest request;
 
     @Override
-    public String getExpressionSummary(String id, int limit, int page) throws JsonProcessingException {
-
-        LocalDateTime startDate = LocalDateTime.now();
-        GeneRepository geneRepository = new GeneRepository();
-        Gene gene = geneRepository.getExpressionGene(id);
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.disable(MapperFeature.DEFAULT_VIEW_INCLUSION);
-
-        JsonResultResponse response = null;
-        response.setRequestDuration(startDate);
-        response.setApiVersion(API_VERSION);
-        return mapper.writerWithView(View.OrthologyView.class).writeValueAsString(response);
-    }
-
-    @Override
     public String getExpressionAnnotations(List<String> geneIDs,
                                            String filterSpecies,
                                            String filterGene,
@@ -60,9 +43,9 @@ public class ExpressionController implements ExpressionRESTInterface {
 
         Pagination pagination = new Pagination(page, limit, sortBy, asc);
         Map<FieldFilter, String> filterMap = new HashMap<>();
-        filterMap.put(FieldFilter.SPECIES,filterSpecies);
-        filterMap.put(FieldFilter.GENE_NAME,filterGene);
-        filterMap.put(FieldFilter.REFERENCE,filterReference);
+        filterMap.put(FieldFilter.SPECIES, filterSpecies);
+        filterMap.put(FieldFilter.GENE_NAME, filterGene);
+        filterMap.put(FieldFilter.REFERENCE, filterReference);
         filterMap.put(FieldFilter.SOURCE, filterSource);
         filterMap.values().removeIf(Objects::isNull);
         pagination.setFieldFilterValueMap(filterMap);

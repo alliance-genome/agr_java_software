@@ -33,12 +33,12 @@ class PhenotypeAnnotationIntegrationSpec extends Specification {
 
         where:
         gene                      | query                          | resultSizeLowerLimit| resultSizeUpperLimit
-        "ZFIN:ZDB-GENE-990415-72" | "phenotype=otic"               | 10                  | 20
+        "ZFIN:ZDB-GENE-990415-72" | "termName=otic"               | 10                  | 20
         "ZFIN:ZDB-GENE-990415-72" | "geneticEntity=ti"             | 100                 | 150
         "ZFIN:ZDB-GENE-990415-72" | "reference=PMID"               | 100                 | 300
         "ZFIN:ZDB-GENE-990415-72" | "reference=ZFIN"               | 10                  | 30
         "ZFIN:ZDB-GENE-990415-72" | "reference=1466"               | 35                  | 60
-        "MGI:2443198"             | "phenotype="                   | 30                  | 50
+        "MGI:2443198"             | "termName="                   | 30                  | 50
     }
 
     @Unroll
