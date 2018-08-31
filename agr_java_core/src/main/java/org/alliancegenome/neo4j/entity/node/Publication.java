@@ -19,14 +19,22 @@ public class Publication extends Neo4jEntity {
 
     @JsonView({View.InteractionView.class, View.ExpressionView.class})
     private String primaryKey;
+    @JsonView({View.InteractionView.class, View.ExpressionView.class})
     private String pubMedId;
-    @JsonView({View.InteractionView.class, View.ExpressionView.class})
     private String pubMedUrl;
-    private String pubModId;
     @JsonView({View.InteractionView.class, View.ExpressionView.class})
+    private String pubModId;
     private String pubModUrl;
+    @JsonView({View.ExpressionView.class})
+    private String pubId;
 
     @Relationship(type = "ANNOTATED_TO")
     private List<EvidenceCode> evidence;
 
+    public void setPubIdFromId() {
+        if (pubMedId != null)
+            pubId = pubMedId;
+        else
+            pubId = pubModId;
+    }
 }

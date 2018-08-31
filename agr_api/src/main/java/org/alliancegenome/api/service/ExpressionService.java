@@ -7,8 +7,10 @@ import org.alliancegenome.api.service.helper.ExpressionSummaryGroupTerm;
 import org.alliancegenome.neo4j.entity.node.BioEntityGeneExpressionJoin;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 
-import java.util.*;
-import java.util.stream.Collector;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class ExpressionService {

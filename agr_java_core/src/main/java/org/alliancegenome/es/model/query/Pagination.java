@@ -13,6 +13,7 @@ public class Pagination {
     private int page;
     private int limit;
     private String sortBy;
+    private FieldFilter sortByField;
     private Boolean asc;
     private Map<FieldFilter, String> fieldFilterValueMap = new HashMap<>(10);
     private List<String> errorList = new ArrayList<>();
@@ -22,6 +23,7 @@ public class Pagination {
         this.page = page;
         this.limit = limit;
         this.sortBy = sortBy;
+        sortByField = FieldFilter.getFieldFilterByName(sortBy);
         init(asc);
     }
 

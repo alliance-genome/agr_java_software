@@ -24,6 +24,8 @@ public class Stage extends Neo4jEntity implements Comparable<Stage> {
     @JsonView({View.OrthologyView.class, View.InteractionView.class, View.ExpressionView.class})
     @JsonProperty("stageID")
     private String primaryKey;
+    @JsonView({View.ExpressionView.class})
+    private String name;
 
     @Override
     public String toString() {

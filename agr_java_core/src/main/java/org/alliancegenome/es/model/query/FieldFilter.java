@@ -4,12 +4,15 @@ import java.util.StringJoiner;
 
 public enum FieldFilter {
     GENE_NAME("geneName"),
+    TERM_NAME("termName"),
     SPECIES("species"),
     SPECIES_DEFAULT("species_default"),
     GENETIC_ENTITY("geneticEntity"),
     GENETIC_ENTITY_TYPE("geneticEntityType"),
     DISEASE("disease"),
     SOURCE("source"),
+    STAGE("stage"),
+    ASSAY("assay"),
     REFERENCE("reference"),
     EVIDENCE_CODE("evidenceCode"),
     PHENOTYPE("termName"),

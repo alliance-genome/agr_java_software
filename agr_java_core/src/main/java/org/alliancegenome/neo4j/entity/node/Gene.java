@@ -111,6 +111,11 @@ public class Gene extends Neo4jEntity implements Comparable<Gene> {
         return parentTerms;
     }
 
+    public void setSpecies(Species species) {
+        this.species = species;
+        this.speciesName = species.getName();
+    }
+
     @Override
     public int compareTo(Gene gene) {
         if (gene == null)

@@ -1,12 +1,14 @@
 package org.alliancegenome.api;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.alliancegenome.api.controller.GeneController;
 import org.alliancegenome.api.controller.OrthologyController;
 import org.alliancegenome.api.rest.interfaces.ExpressionController;
 import org.alliancegenome.api.service.GeneService;
+import org.alliancegenome.api.service.helper.ExpressionDetail;
 import org.alliancegenome.api.service.helper.ExpressionSummary;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.service.JsonResultResponse;
@@ -25,6 +27,7 @@ import org.junit.Test;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
@@ -203,19 +206,97 @@ public class GeneTest {
         String responseString = controller.getExpressionSummary("RGD:2129");
         //String responseString = controller.getExpressionSummary("ZFIN:ZDB-GENE-080204-52", 5, 1);
         ExpressionSummary response = mapper.readValue(responseString, ExpressionSummary.class);
-        assertThat("matches found for gene MGI:109583'", response.getTotalAnnotations(), greaterThan(0));
+        assertThat("matches found for gene MGI:109583'", response.getTotalAnnotations(), greaterThan(5));
     }
 
-    @Ignore
     @Test
     public void checkExpressionAnnotation() throws IOException {
 
         ExpressionController controller = new ExpressionController();
         String[] geneIDs = {"MGI:97570", "ZFIN:ZDB-GENE-080204-52"};
-        String responseString = controller.getExpressionAnnotations(Arrays.asList(geneIDs), null, "abcb4",null, null, null, null, null,  5, 1, null, "true");
-        JsonResultResponse response = mapper.readValue(responseString, JsonResultResponse.class);
-        assertThat("matches found for gene MGI:109583'", response.getTotal(), greaterThan(0));
+        int limit = 15;
+        String responseString = controller.getExpressionAnnotations(Arrays.asList(geneIDs), null, null, null, null, null, null, null, limit, 1, null, "true");
+        JsonResultResponse<ExpressionDetail> response = mapper.readValue(responseString, new TypeReference<JsonResultResponse<ExpressionDetail>>() {
+        });
+        assertThat("matches found for gene MGI:109583'", response.getReturnedRecords(), equalTo(limit));
+
+        List<String> symbolList = response.getResults().stream()
+                .map(annotation -> annotation.getGene().getSymbol())
+                .collect(Collectors.toList());
+        List<String> termList = response.getResults().stream()
+                .map(ExpressionDetail::getTermName)
+                .collect(Collectors.toList());
+        List<String> stageList = response.getResults().stream()
+                .map(annotation -> annotation.getStage().getPrimaryKey())
+                .collect(Collectors.toList());
+        List<String> assayList = response.getResults().stream()
+                .map(annotation -> annotation.getAssay().getName())
+                .collect(Collectors.toList());
+        List<String> referenceList = response.getResults().stream()
+                .map(annotation -> annotation.getPublication().getPubId())
+                .collect(Collectors.toList());
+        String terms = String.join(",", termList);
+        String stages = String.join(",", stageList);
+        String symbols = String.join(",", symbolList);
+        String pubs = String.join(",", referenceList);
+        assertThat("first element species", response.getResults().get(0).getGene().getSpeciesName(), equalTo("Danio rerio"));
+        assertThat("first element symbol", response.getResults().get(0).getGene().getSymbol(), equalTo("abcb4"));
+        assertThat("list of terms", terms, equalTo("head,head,head,head,head,head,head,head,intestinal bulb,intestine,intestine,intestine,intestine,intestine,intestine"));
+        assertThat("list of stages", stages, equalTo("ZFS:0000029,ZFS:0000030,ZFS:0000031,ZFS:0000032,ZFS:0000033,ZFS:0000034,ZFS:0000035,ZFS:0000036,ZFS:0000037,ZFS:0000029,ZFS:0000030,ZFS:0000031,ZFS:0000032,ZFS:0000033,ZFS:0000034"));
+
+        responseString = controller.getExpressionAnnotations(Arrays.asList(geneIDs), null, null, null, null, null, null, null, limit, 1, "assay", "false");
+        response = mapper.readValue(responseString, new TypeReference<JsonResultResponse<ExpressionDetail>>() {
+        });
+        assayList = response.getResults().stream()
+                .map(annotation -> annotation.getAssay().getName())
+                .collect(Collectors.toList());
+        String assays = String.join(",", assayList);
+        assertThat("matches found for gene MGI:109583'", response.getReturnedRecords(), equalTo(limit));
+
+
+        responseString = controller.getExpressionAnnotations(Arrays.asList(geneIDs), null, null, null, null, null, null, null, limit, 1, "source", "true");
+        response = mapper.readValue(responseString, new TypeReference<JsonResultResponse<ExpressionDetail>>() {
+        });
+        assayList = response.getResults().stream()
+                .map(annotation -> annotation.getAssay().getName())
+                .collect(Collectors.toList());
+        assays = String.join(",", assayList);
+        assertThat("matches found for gene MGI:109583'", response.getReturnedRecords(), equalTo(limit));
     }
 
+    @Test
+    public void checkExpressionAnnotationFilter() throws IOException {
 
+        ExpressionController controller = new ExpressionController();
+        String[] geneIDs = {"MGI:97570", "ZFIN:ZDB-GENE-080204-52"};
+        int limit = 15;
+        String responseString = controller.getExpressionAnnotations(Arrays.asList(geneIDs), "mus", null, null, null, null, null, null, limit, 1, null, "true");
+        JsonResultResponse<ExpressionDetail> response = mapper.readValue(responseString, new TypeReference<JsonResultResponse<ExpressionDetail>>() {
+        });
+        assertThat("matches found for gene MGI:109583'", response.getReturnedRecords(), equalTo(limit));
+
+        List<String> symbolList = response.getResults().stream()
+                .map(annotation -> annotation.getGene().getSymbol())
+                .collect(Collectors.toList());
+        List<String> termList = response.getResults().stream()
+                .map(ExpressionDetail::getTermName)
+                .collect(Collectors.toList());
+        List<String> stageList = response.getResults().stream()
+                .map(annotation -> annotation.getStage().getPrimaryKey())
+                .collect(Collectors.toList());
+        List<String> assayList = response.getResults().stream()
+                .map(annotation -> annotation.getAssay().getName())
+                .collect(Collectors.toList());
+        List<String> referenceList = response.getResults().stream()
+                .map(annotation -> annotation.getPublication().getPubId())
+                .collect(Collectors.toList());
+        String terms = String.join(",", termList);
+        String stages = String.join(",", stageList);
+        String symbols = String.join(",", symbolList);
+        String pubs = String.join(",", referenceList);
+        assertThat("first element species", response.getResults().get(0).getGene().getSpeciesName(), equalTo("Danio rerio"));
+        assertThat("first element symbol", response.getResults().get(0).getGene().getSymbol(), equalTo("abcb4"));
+        assertThat("list of terms", terms, equalTo("head,head,head,head,head,head,head,head,intestinal bulb,intestine,intestine,intestine,intestine,intestine,intestine"));
+        assertThat("list of stages", stages, equalTo("ZFS:0000029,ZFS:0000030,ZFS:0000031,ZFS:0000032,ZFS:0000033,ZFS:0000034,ZFS:0000035,ZFS:0000036,ZFS:0000037,ZFS:0000029,ZFS:0000030,ZFS:0000031,ZFS:0000032,ZFS:0000033,ZFS:0000034"));
+    }
 }

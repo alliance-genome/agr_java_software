@@ -65,11 +65,15 @@ public class GeneRepository extends Neo4jRepository<Gene> {
     }
 
     public List<BioEntityGeneExpressionJoin> getExpressionAnnotations(List<String> geneIDs, Pagination pagination) {
-        HashMap<FieldFilter, String> fieldColumnMapping = new HashMap<>();
-        fieldColumnMapping.put(FieldFilter.SPECIES, "gene.species");
+        HashMap<FieldFilter, String> fieldColumnMapping = new LinkedHashMap<>();
+        fieldColumnMapping.put(FieldFilter.SPECIES, "species.name");
         fieldColumnMapping.put(FieldFilter.GENE_NAME, "gene.symbol");
+        fieldColumnMapping.put(FieldFilter.TERM_NAME, "t.whereExpressedStatement");
+        fieldColumnMapping.put(FieldFilter.STAGE, "stage.primaryKey");
+/*
         fieldColumnMapping.put(FieldFilter.SOURCE, "gene.dataProvider");
         fieldColumnMapping.put(FieldFilter.REFERENCE, "t.pubmedID");
+*/
 
         Map<String, String> map = new HashMap<>();
         map.put("pk", "GO:0016020");
@@ -77,35 +81,80 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         StringJoiner sj = new StringJoiner(",", "[", "]");
         geneIDs.forEach(geneID -> sj.add("'" + geneID + "'"));
 
-        String query = " MATCH p1=(gene:Gene)-->(s:BioEntityGeneExpressionJoin)--(t) " +
+        String query = " MATCH p1=(species:Species)--(gene:Gene)-->(s:BioEntityGeneExpressionJoin)--(t) " +
                 "WHERE gene.primaryKey in " + sj.toString();
-/*
-        query += " OPTIONAL MATCH slim=(o)-[:IS_A*]->(slimTerm) " +
-                " where all (primaryKey IN ['GO:0016020'] where primaryKey in slimTerm.primaryKey) ";
-*/
 
         for (FieldFilter filter : pagination.getFieldFilterValueMap().keySet()) {
             String column = fieldColumnMapping.get(filter);
             query += " AND " + column + " = '" + pagination.getFieldFilterValueMap().get(filter) + "' ";
         }
         query += " OPTIONAL MATCH p2=(t:ExpressionBioEntity)--(o:Ontology) ";
-        query += " RETURN s, p1, p2 order by gene.taxonID, gene.symbol ";
+        query += " RETURN s, p1, p2 ";
+/*
+        // sorting
+        StringJoiner builder = new StringJoiner(",");
+        fieldColumnMapping.forEach((fieldFilter, columnName) -> {
+            builder.add(columnName);
+        });
+        query += builder.toString();
+*/
 
         Iterable<BioEntityGeneExpressionJoin> joins = neo4jSession.query(BioEntityGeneExpressionJoin.class, query, map);
-        Result result = queryForResult(query);
-
         List<BioEntityGeneExpressionJoin> joinList = new ArrayList<>();
-        int index = 0;
+
         for (BioEntityGeneExpressionJoin join : joins) {
+            // the setter of gene.species is not called in neo4j...
+            // Thus, setting it manually
+            join.getGene().setSpeciesName(join.getGene().getSpecies().getName());
+            join.getPublication().setPubIdFromId();
+            joinList.add(join);
+        }
+        // sorting
+        HashMap<FieldFilter, Comparator<BioEntityGeneExpressionJoin>> sortingMapping = new LinkedHashMap<>();
+        sortingMapping.put(FieldFilter.SPECIES, Comparator.comparing(o -> o.getGene().getSpeciesName().toUpperCase()));
+        sortingMapping.put(FieldFilter.GENE_NAME, Comparator.comparing(o -> o.getGene().getSymbol().toUpperCase()));
+        sortingMapping.put(FieldFilter.TERM_NAME, Comparator.comparing(o -> o.getEntity().getWhereExpressedStatement().toUpperCase()));
+        sortingMapping.put(FieldFilter.STAGE, Comparator.comparing(o -> o.getStage().getPrimaryKey().toUpperCase()));
+        sortingMapping.put(FieldFilter.ASSAY, Comparator.comparing(o -> o.getAssay().getName().toUpperCase()));
+        sortingMapping.put(FieldFilter.REFERENCE, Comparator.comparing(o -> o.getPublication().getPubId().toUpperCase()));
+        sortingMapping.put(FieldFilter.SOURCE, Comparator.comparing(o -> o.getGene().getDataProvider().toUpperCase()));
+
+        Comparator<BioEntityGeneExpressionJoin> comparator = null;
+        FieldFilter sortByField = pagination.getSortByField();
+        if (sortByField != null) {
+            comparator = sortingMapping.get(sortByField);
+/*
+            if (!pagination.getAsc())
+                comparator.reversed();
+*/
+        }
+        if (comparator != null)
+            joinList.sort(comparator.reversed());
+        for (FieldFilter fieldFilter : sortingMapping.keySet()) {
+            if (sortByField != null && sortByField.equals(fieldFilter)) {
+                continue;
+            }
+            Comparator<BioEntityGeneExpressionJoin> comp = sortingMapping.get(fieldFilter);
+            if (comparator == null)
+                comparator = comp;
+            else
+                comparator = comparator.thenComparing(comp);
+        }
+        joinList.sort(comparator);
+
+        // pagination
+        List<BioEntityGeneExpressionJoin> paginatedJoinList = new ArrayList<>();
+        int index = 0;
+        for (BioEntityGeneExpressionJoin join : joinList) {
             if (!pagination.isCount()) {
                 if (index >= pagination.getStart() && index < pagination.getEnd())
-                    joinList.add(join);
+                    paginatedJoinList.add(join);
             } else {
-                joinList.add(join);
+                paginatedJoinList.add(join);
             }
             index++;
         }
-        return joinList;
+        return paginatedJoinList;
     }
 
     public List<BioEntityGeneExpressionJoin> getExpressionAnnotationSummary(String geneID) {
