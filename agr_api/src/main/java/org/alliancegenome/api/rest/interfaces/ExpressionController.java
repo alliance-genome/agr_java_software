@@ -47,6 +47,9 @@ public class ExpressionController implements ExpressionRESTInterface {
         filterMap.put(FieldFilter.GENE_NAME, filterGene);
         filterMap.put(FieldFilter.REFERENCE, filterReference);
         filterMap.put(FieldFilter.SOURCE, filterSource);
+        filterMap.put(FieldFilter.TERM_NAME, filterTerm);
+        filterMap.put(FieldFilter.ASSAY, filterAssay);
+        filterMap.put(FieldFilter.STAGE, filterStage);
         filterMap.values().removeIf(Objects::isNull);
         pagination.setFieldFilterValueMap(filterMap);
 

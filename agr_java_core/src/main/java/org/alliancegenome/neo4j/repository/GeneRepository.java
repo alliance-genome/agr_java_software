@@ -1,6 +1,7 @@
 package org.alliancegenome.neo4j.repository;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
@@ -84,24 +85,18 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         String query = " MATCH p1=(species:Species)--(gene:Gene)-->(s:BioEntityGeneExpressionJoin)--(t) " +
                 "WHERE gene.primaryKey in " + sj.toString();
 
+/*
         for (FieldFilter filter : pagination.getFieldFilterValueMap().keySet()) {
             String column = fieldColumnMapping.get(filter);
             query += " AND " + column + " = '" + pagination.getFieldFilterValueMap().get(filter) + "' ";
         }
+*/
         query += " OPTIONAL MATCH p2=(t:ExpressionBioEntity)--(o:Ontology) ";
         query += " RETURN s, p1, p2 ";
-/*
-        // sorting
-        StringJoiner builder = new StringJoiner(",");
-        fieldColumnMapping.forEach((fieldFilter, columnName) -> {
-            builder.add(columnName);
-        });
-        query += builder.toString();
-*/
-
         Iterable<BioEntityGeneExpressionJoin> joins = neo4jSession.query(BioEntityGeneExpressionJoin.class, query, map);
-        List<BioEntityGeneExpressionJoin> joinList = new ArrayList<>();
 
+
+        List<BioEntityGeneExpressionJoin> joinList = new ArrayList<>();
         for (BioEntityGeneExpressionJoin join : joins) {
             // the setter of gene.species is not called in neo4j...
             // Thus, setting it manually
@@ -109,6 +104,13 @@ public class GeneRepository extends Neo4jRepository<Gene> {
             join.getPublication().setPubIdFromId();
             joinList.add(join);
         }
+
+        // filtering
+        joinList = joinList.stream()
+                .filter(join -> passFilter(join, pagination.getFieldFilterValueMap()))
+                .collect(Collectors.toList());
+
+
         // sorting
         HashMap<FieldFilter, Comparator<BioEntityGeneExpressionJoin>> sortingMapping = new LinkedHashMap<>();
         sortingMapping.put(FieldFilter.SPECIES, Comparator.comparing(o -> o.getGene().getSpeciesName().toUpperCase()));
@@ -143,18 +145,35 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         joinList.sort(comparator);
 
         // pagination
-        List<BioEntityGeneExpressionJoin> paginatedJoinList = new ArrayList<>();
-        int index = 0;
-        for (BioEntityGeneExpressionJoin join : joinList) {
-            if (!pagination.isCount()) {
-                if (index >= pagination.getStart() && index < pagination.getEnd())
-                    paginatedJoinList.add(join);
-            } else {
-                paginatedJoinList.add(join);
-            }
-            index++;
+        List<BioEntityGeneExpressionJoin> paginatedJoinList;
+        if (pagination.isCount()) {
+            paginatedJoinList = joinList;
+        } else {
+            paginatedJoinList = joinList.stream()
+                    .skip(pagination.getStart())
+                    .limit(pagination.getLimit())
+                    .collect(Collectors.toList());
         }
         return paginatedJoinList;
+    }
+
+    private boolean passFilter(BioEntityGeneExpressionJoin bioEntityGeneExpressionJoin, Map<FieldFilter, String> fieldFilterValueMap) {
+        Map<FieldFilter, FilterComparator<BioEntityGeneExpressionJoin, String>> map = new HashMap<>();
+        map.put(FieldFilter.SPECIES, (join, filterValue) -> join.getGene().getSpeciesName().toLowerCase().contains(filterValue.toLowerCase()));
+        map.put(FieldFilter.GENE_NAME, (join, filterValue) -> join.getGene().getSymbol().toLowerCase().contains(filterValue.toLowerCase()));
+        map.put(FieldFilter.TERM_NAME, (join, filterValue) -> join.getEntity().getWhereExpressedStatement().toLowerCase().contains(filterValue.toLowerCase()));
+        map.put(FieldFilter.STAGE, (join, filterValue) -> join.getStage().getPrimaryKey().toLowerCase().contains(filterValue.toLowerCase()));
+        map.put(FieldFilter.ASSAY, (join, filterValue) -> join.getAssay().getPrimaryKey().toLowerCase().contains(filterValue.toLowerCase()));
+        map.put(FieldFilter.REFERENCE, (join, filterValue) -> join.getPublication().getPubId().toLowerCase().contains(filterValue.toLowerCase()));
+        map.put(FieldFilter.SOURCE, (join, filterValue) -> join.getGene().getDataProvider().toLowerCase().contains(filterValue.toLowerCase()));
+
+        if (fieldFilterValueMap == null || fieldFilterValueMap.size() == 0)
+            return true;
+        for (FieldFilter filter : fieldFilterValueMap.keySet()) {
+            if (!map.get(filter).compare(bioEntityGeneExpressionJoin, fieldFilterValueMap.get(filter)))
+                return false;
+        }
+        return true;
     }
 
     public List<BioEntityGeneExpressionJoin> getExpressionAnnotationSummary(String geneID) {
@@ -342,6 +361,12 @@ public class GeneRepository extends Neo4jRepository<Gene> {
                 }
             }
         });
+
         return parentList;
+    }
+
+    @FunctionalInterface
+    public interface FilterComparator<T, U> {
+        boolean compare(T o, U oo);
     }
 }

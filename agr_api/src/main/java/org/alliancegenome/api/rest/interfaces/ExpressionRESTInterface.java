@@ -28,19 +28,19 @@ public interface ExpressionRESTInterface {
             @ApiParam(name = "geneID", value = "Gene by ID", required = true)
             @QueryParam("geneID") List<String> geneIDs,
             @ApiParam(name = "filter.species", value = "filter elements", type = "String")
-            @QueryParam("filter.species") String filterSpecies,
+            @QueryParam("species") String filterSpecies,
             @ApiParam(name = "filter.gene", value = "filter elements", type = "String")
-            @QueryParam("filter.gene") String filterGene,
+            @QueryParam("gene") String filterGene,
             @ApiParam(name = "filter.stage", value = "filter elements", type = "String")
             @QueryParam("filter.assay") String filterStage,
             @ApiParam(name = "filter.assay", value = "filter elements", type = "String")
             @QueryParam("filter.stage") String filterAssay,
             @ApiParam(name = "filter.reference", value = "filter elements", type = "String")
-            @QueryParam("filter.reference") String filterReference,
+            @QueryParam("reference") String filterReference,
             @ApiParam(name = "filter.term", value = "filter elements", type = "String")
             @QueryParam("filter.term") String filterTerm,
             @ApiParam(name = "filter.source", value = "filter elements", type = "String")
-            @QueryParam("filter.source") String filterSource,
+            @QueryParam("source") String filterSource,
             @ApiParam(name = "limit", value = "Number of rows returned", defaultValue = "20")
             @DefaultValue("20") @QueryParam("limit") int limit,
             @ApiParam(name = "page", value = "Page number")
