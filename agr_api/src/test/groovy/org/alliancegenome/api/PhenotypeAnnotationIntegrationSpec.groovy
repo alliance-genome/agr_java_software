@@ -45,7 +45,7 @@ class PhenotypeAnnotationIntegrationSpec extends Specification {
     def "Verify that the downloads endpoint has results"() {
         when:
         def url = new URL("http://localhost:8080/api/gene/$gene/phenotypes/download")
-        def results = new JsonSlurper().parseText(url.text).results
+        def results = url.text.split('\n')
 
         then:
         results.size() > 100

@@ -36,6 +36,10 @@ public class GeneDocument extends SearchableItemDocument {
     private List<String> molecularFunctionWithParents;
     private List<String> cellularComponentWithParents;
 
+    private List<String> biologicalProcessAgrSlim;
+    private List<String> molecularFunctionAgrSlim;
+    private List<String> cellularComponentAgrSlim;
+
     private List<String> synonyms;
     private String geneLiteratureUrl;
     @JsonProperty("crossReferences")
