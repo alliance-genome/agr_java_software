@@ -58,7 +58,7 @@ public class ExpressionService {
         ExpressionSummaryGroup group = new ExpressionSummaryGroup();
         summary.addGroup(group);
         group.setName("GO");
-        repository.getGoParentList().forEach((goId, goName) ->
+        repository.getGoCCSlimList().forEach((goId, goName) ->
         {
             ExpressionSummaryGroupTerm term = new ExpressionSummaryGroupTerm();
             term.setId(goId);

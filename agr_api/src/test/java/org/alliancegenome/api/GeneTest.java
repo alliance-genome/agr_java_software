@@ -298,7 +298,7 @@ public class GeneTest {
         String pubs = String.join(",", referenceList);
         assertThat("first element species", response.getResults().get(0).getGene().getSpeciesName(), equalTo("Danio rerio"));
         assertThat("first element symbol", response.getResults().get(0).getGene().getSymbol(), equalTo("abcb4"));
-        assertThat("list of terms", terms, equalTo("head,head,head,head,head,head,head,head,intestinal bulb,intestine,intestine,intestine,intestine,intestine,intestine"));
-        assertThat("list of stages", stages, equalTo("ZFS:0000029,ZFS:0000030,ZFS:0000031,ZFS:0000032,ZFS:0000033,ZFS:0000034,ZFS:0000035,ZFS:0000036,ZFS:0000037,ZFS:0000029,ZFS:0000030,ZFS:0000031,ZFS:0000032,ZFS:0000033,ZFS:0000034"));
+        assertThat("list of terms", terms, equalTo("liver,liver,liver,liver,liver,liver,liver,liver,liver"));
+        assertThat("list of stages", stages, equalTo("ZFS:0000029,ZFS:0000030,ZFS:0000031,ZFS:0000032,ZFS:0000033,ZFS:0000034,ZFS:0000035,ZFS:0000036,ZFS:0000044"));
     }
 }
