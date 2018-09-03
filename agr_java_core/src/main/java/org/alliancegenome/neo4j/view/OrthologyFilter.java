@@ -29,9 +29,11 @@ public class OrthologyFilter {
                     .collect(Collectors.toList());
         }
         // remove all empty method names
-        methods = methods.stream()
-                .filter(method -> !method.trim().isEmpty())
-                .collect(Collectors.toList());
+        if (methods != null) {
+            methods = methods.stream()
+                    .filter(method -> !method.trim().isEmpty())
+                    .collect(Collectors.toList());
+        }
         if (methods != null && !methods.isEmpty())
             this.methods = methods;
     }

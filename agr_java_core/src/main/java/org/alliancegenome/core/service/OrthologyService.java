@@ -95,12 +95,13 @@ public class OrthologyService {
         return matched;
     }
 
-    public static List<OrthologView> getOrthologViewList(Gene gene) {
+    public static JsonResultResponse<OrthologView> getOrthologViewList(Gene gene) {
         return getOrthologViewList(gene, new OrthologyFilter());
     }
 
 
-    public static List<OrthologView> getOrthologViewList(Gene gene, OrthologyFilter filter) {
+    public static JsonResultResponse<OrthologView> getOrthologViewList(Gene gene, OrthologyFilter filter) {
+        JsonResultResponse<OrthologView> response = new JsonResultResponse<>();
         if (gene.getOrthologyGeneJoins().size() > 0) {
             List<OrthologView> orthologList = new ArrayList<>();
 
@@ -133,6 +134,7 @@ public class OrthologyService {
                         view.calculateCounts();
                         orthologList.add(view);
                     });
+            response.setTotal(orthologList.size());
             List<OrthologView> finalOrthologList = new ArrayList<>();
             int index = 1;
             for (OrthologView view : orthologList) {
@@ -141,9 +143,10 @@ public class OrthologyService {
                 }
                 index++;
             }
-            return finalOrthologList;
+            response.setResults(finalOrthologList);
+            return response;
         }
-        return new ArrayList<>();
+        return  response;
     }
 
     private static boolean isAllMatchMethods(OrthologyGeneJoin join, OrthologyFilter filter) {
@@ -161,19 +164,14 @@ public class OrthologyService {
         ObjectMapper mapper = new ObjectMapper();
         mapper.disable(MapperFeature.DEFAULT_VIEW_INCLUSION);
         mapper.registerModule(new OrthologyModule());
-        List<OrthologView> orthologViewList = OrthologyService.getOrthologViewList(gene, filter);
-        JsonResultResponse<OrthologView> response = new JsonResultResponse<>();
-        response.setResults(orthologViewList);
-        // remove pagination filter data to obtain complete set.
-        filter.resetPaginationData();
-        response.setTotal(OrthologyService.getOrthologViewList(gene, filter).size());
+        JsonResultResponse<OrthologView> response = OrthologyService.getOrthologViewList(gene, filter);
         return response;
     }
 
     public static JsonResultResponse<OrthologView> getOrthologyMultiGeneJson(Collection<Gene> geneList, OrthologyFilter filter) {
         List<OrthologView> orthologViewList =
                 geneList.stream()
-                        .flatMap(gene -> OrthologyService.getOrthologViewList(gene, filter).stream())
+                        .flatMap(gene -> OrthologyService.getOrthologViewList(gene, filter).getResults().stream())
                         .collect(Collectors.toList());
         JsonResultResponse<OrthologView> response = new JsonResultResponse<>();
         response.setResults(orthologViewList);
