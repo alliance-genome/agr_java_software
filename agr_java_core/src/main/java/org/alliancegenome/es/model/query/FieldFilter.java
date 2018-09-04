@@ -11,9 +11,11 @@ public enum FieldFilter {
     GENETIC_ENTITY_TYPE("geneticEntityType"),
     DISEASE("disease"),
     SOURCE("source"),
+    FSOURCE("filter.source"),
     STAGE("filter.stage"),
     ASSAY("filter.assay"),
     REFERENCE("reference"),
+    FREFERENCE("filter.reference"),
     EVIDENCE_CODE("evidenceCode"),
     PHENOTYPE("termName"),
     ASSOCIATION_TYPE("associationType"),;

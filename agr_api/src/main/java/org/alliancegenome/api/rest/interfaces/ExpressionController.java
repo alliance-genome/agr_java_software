@@ -46,8 +46,8 @@ public class ExpressionController implements ExpressionRESTInterface {
         Map<FieldFilter, String> filterMap = new HashMap<>();
         filterMap.put(FieldFilter.SPECIES, filterSpecies);
         filterMap.put(FieldFilter.GENE_NAME, filterGene);
-        filterMap.put(FieldFilter.REFERENCE, filterReference);
-        filterMap.put(FieldFilter.SOURCE, filterSource);
+        filterMap.put(FieldFilter.FREFERENCE, filterReference);
+        filterMap.put(FieldFilter.FSOURCE, filterSource);
         filterMap.put(FieldFilter.TERM_NAME, filterTerm);
         filterMap.put(FieldFilter.ASSAY, filterAssay);
         filterMap.put(FieldFilter.STAGE, filterStage);
@@ -63,12 +63,12 @@ public class ExpressionController implements ExpressionRESTInterface {
         mapper.disable(MapperFeature.DEFAULT_VIEW_INCLUSION);
         JsonResultResponse<ExpressionDetail> response = new JsonResultResponse<>();
         response.setResults(result);
-        response.setRequestDuration(startDate);
+        response.calculateRequestDuration(startDate);
         response.setApiVersion(API_VERSION);
         Pagination countPagination = new Pagination();
         countPagination.setFieldFilterValueMap(filterMap);
         response.setTotal(geneRepository.getExpressionAnnotations(geneIDs, termIDs, countPagination).size());
-        response.setRequest(request);
+        response.setHttpServletRequest(request);
 
         return mapper.writerWithView(View.ExpressionView.class).writeValueAsString(response);
     }

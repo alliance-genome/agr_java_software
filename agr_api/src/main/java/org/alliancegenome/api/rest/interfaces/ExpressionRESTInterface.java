@@ -38,11 +38,11 @@ public interface ExpressionRESTInterface {
             @ApiParam(name = "filter.assay", value = "Assay name", type = "String")
             @QueryParam("filter.assay") String filterAssay,
             @ApiParam(name = "filter.reference", value = "Reference", type = "String")
-            @QueryParam("reference") String filterReference,
+            @QueryParam("filter.reference") String filterReference,
             @ApiParam(name = "filter.term", value = "Ontology term", type = "String")
             @QueryParam("filter.term") String filterTerm,
             @ApiParam(name = "filter.source", value = "Source", type = "String")
-            @QueryParam("source") String filterSource,
+            @QueryParam("filter.source") String filterSource,
             @ApiParam(name = "limit", value = "Number of rows returned", defaultValue = "20")
             @DefaultValue("20") @QueryParam("limit") int limit,
             @ApiParam(name = "page", value = "Page number")

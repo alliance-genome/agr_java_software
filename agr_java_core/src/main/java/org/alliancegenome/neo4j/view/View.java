@@ -10,4 +10,5 @@ public class View {
     public static class OrthologyView extends DefaultView { }
     public static class InteractionView extends DefaultView { }
     public static class OrthologyMethodView extends DefaultView { }
+    public static class ExpressionView extends DefaultView { }
 }
