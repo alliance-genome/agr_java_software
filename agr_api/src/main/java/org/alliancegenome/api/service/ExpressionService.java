@@ -5,6 +5,7 @@ import org.alliancegenome.api.service.helper.ExpressionSummary;
 import org.alliancegenome.api.service.helper.ExpressionSummaryGroup;
 import org.alliancegenome.api.service.helper.ExpressionSummaryGroupTerm;
 import org.alliancegenome.neo4j.entity.node.BioEntityGeneExpressionJoin;
+import org.alliancegenome.neo4j.entity.node.ExpressionBioEntity;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 
 import java.util.ArrayList;
@@ -43,15 +44,18 @@ public class ExpressionService {
         Map<String, List<BioEntityGeneExpressionJoin>> parentTermMap = new HashMap<>();
 
         for (BioEntityGeneExpressionJoin join : joins) {
-            List<String> goParentTerms = repository.getGOParentTerms(join.getEntity());
-            for (String parent : goParentTerms) {
-                if (parentTermMap.get(parent) == null) {
-                    List<BioEntityGeneExpressionJoin> list = new ArrayList<>();
-                    list.add(join);
-                    parentTermMap.put(parent, list);
-                } else {
-                    List<BioEntityGeneExpressionJoin> joinList = parentTermMap.get(parent);
-                    joinList.add(join);
+            ExpressionBioEntity entity = join.getEntity();
+            if(entity.getGoTerm()!= null) {
+                List<String> goParentTerms = repository.getGOParentTerms(entity);
+                for (String parent : goParentTerms) {
+                    if (parentTermMap.get(parent) == null) {
+                        List<BioEntityGeneExpressionJoin> list = new ArrayList<>();
+                        list.add(join);
+                        parentTermMap.put(parent, list);
+                    } else {
+                        List<BioEntityGeneExpressionJoin> joinList = parentTermMap.get(parent);
+                        joinList.add(join);
+                    }
                 }
             }
         }

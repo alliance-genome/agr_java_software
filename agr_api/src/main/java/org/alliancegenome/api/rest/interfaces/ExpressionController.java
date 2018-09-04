@@ -29,6 +29,7 @@ public class ExpressionController implements ExpressionRESTInterface {
 
     @Override
     public String getExpressionAnnotations(List<String> geneIDs,
+                                           List<String> termIDs,
                                            String filterSpecies,
                                            String filterGene,
                                            String filterStage,
@@ -55,7 +56,7 @@ public class ExpressionController implements ExpressionRESTInterface {
 
         LocalDateTime startDate = LocalDateTime.now();
         GeneRepository geneRepository = new GeneRepository();
-        List<BioEntityGeneExpressionJoin> joins = geneRepository.getExpressionAnnotations(geneIDs, pagination);
+        List<BioEntityGeneExpressionJoin> joins = geneRepository.getExpressionAnnotations(geneIDs, termIDs, pagination);
         ExpressionService service = new ExpressionService();
         List<ExpressionDetail> result = service.getExpressionDetails(joins);
         ObjectMapper mapper = new ObjectMapper();
@@ -66,7 +67,7 @@ public class ExpressionController implements ExpressionRESTInterface {
         response.setApiVersion(API_VERSION);
         Pagination countPagination = new Pagination();
         countPagination.setFieldFilterValueMap(filterMap);
-        response.setTotal(geneRepository.getExpressionAnnotations(geneIDs, countPagination).size());
+        response.setTotal(geneRepository.getExpressionAnnotations(geneIDs, termIDs, countPagination).size());
         response.setRequest(request);
 
         return mapper.writerWithView(View.ExpressionView.class).writeValueAsString(response);

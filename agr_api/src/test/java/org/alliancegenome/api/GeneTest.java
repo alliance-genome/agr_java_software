@@ -216,7 +216,7 @@ public class GeneTest {
         ExpressionController controller = new ExpressionController();
         String[] geneIDs = {"MGI:97570", "ZFIN:ZDB-GENE-080204-52"};
         int limit = 15;
-        String responseString = controller.getExpressionAnnotations(Arrays.asList(geneIDs), null, null, null, null, null, null, null, limit, 1, null, "true");
+        String responseString = controller.getExpressionAnnotations(Arrays.asList(geneIDs), null, null, null, null, null, null, null, null, limit, 1, null, "true");
         JsonResultResponse<ExpressionDetail> response = mapper.readValue(responseString, new TypeReference<JsonResultResponse<ExpressionDetail>>() {
         });
         assertThat("matches found for gene MGI:109583'", response.getReturnedRecords(), equalTo(limit));
@@ -245,7 +245,7 @@ public class GeneTest {
         assertThat("list of terms", terms, equalTo("head,head,head,head,head,head,head,head,intestinal bulb,intestine,intestine,intestine,intestine,intestine,intestine"));
         assertThat("list of stages", stages, equalTo("ZFS:0000029,ZFS:0000030,ZFS:0000031,ZFS:0000032,ZFS:0000033,ZFS:0000034,ZFS:0000035,ZFS:0000036,ZFS:0000037,ZFS:0000029,ZFS:0000030,ZFS:0000031,ZFS:0000032,ZFS:0000033,ZFS:0000034"));
 
-        responseString = controller.getExpressionAnnotations(Arrays.asList(geneIDs), null, null, null, null, null, null, null, limit, 1, "assay", "false");
+        responseString = controller.getExpressionAnnotations(Arrays.asList(geneIDs), null, null, null, null, null, null, null, null, limit, 1, "assay", "false");
         response = mapper.readValue(responseString, new TypeReference<JsonResultResponse<ExpressionDetail>>() {
         });
         assayList = response.getResults().stream()
@@ -255,7 +255,7 @@ public class GeneTest {
         assertThat("matches found for gene MGI:109583'", response.getReturnedRecords(), equalTo(limit));
 
 
-        responseString = controller.getExpressionAnnotations(Arrays.asList(geneIDs), null, null, null, null, null, null, null, limit, 1, "source", "true");
+        responseString = controller.getExpressionAnnotations(Arrays.asList(geneIDs), null, null, null, null, null, null, null, null, limit, 1, "source", "true");
         response = mapper.readValue(responseString, new TypeReference<JsonResultResponse<ExpressionDetail>>() {
         });
         assayList = response.getResults().stream()
@@ -267,12 +267,26 @@ public class GeneTest {
 
     @Ignore
     @Test
+    public void checkExpressionAnnotationWithTerm() throws IOException {
+
+        ExpressionController controller = new ExpressionController();
+        String[] geneIDs = {"RGD:2129"};
+        String[] termIDs = {"GO:0005575"};
+        int limit = 15;
+        String responseString = controller.getExpressionAnnotations(Arrays.asList(geneIDs), Arrays.asList(termIDs), null, null, null, null, null, null, null, limit, 1, null, "true");
+        JsonResultResponse<ExpressionDetail> response = mapper.readValue(responseString, JsonResultResponse.class);
+        assertThat("matches found for gene MGI:109583'", response.getResults().size(), greaterThan(2));
+    }
+
+    @Ignore
+    @Test
     public void checkExpressionAnnotationFilter() throws IOException {
 
         ExpressionController controller = new ExpressionController();
         String[] geneIDs = {"MGI:97570", "ZFIN:ZDB-GENE-080204-52"};
+        String[] termIDs = {};
         int limit = 15;
-        String responseString = controller.getExpressionAnnotations(Arrays.asList(geneIDs), null, null, null, null, null, "LivE", null, limit, 1, null, "true");
+        String responseString = controller.getExpressionAnnotations(Arrays.asList(geneIDs), Arrays.asList(termIDs), null, null, null, null, null, "LivE", null, limit, 1, null, "true");
         JsonResultResponse<ExpressionDetail> response = mapper.readValue(responseString, new TypeReference<JsonResultResponse<ExpressionDetail>>() {
         });
         //assertThat("matches found for gene MGI:109583'", response.getReturnedRecords(), equalTo(limit));

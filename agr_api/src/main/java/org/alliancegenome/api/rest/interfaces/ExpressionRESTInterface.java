@@ -27,6 +27,8 @@ public interface ExpressionRESTInterface {
     String getExpressionAnnotations(
             @ApiParam(name = "geneID", value = "Gene by ID", required = true)
             @QueryParam("geneID") List<String> geneIDs,
+            @ApiParam(name = "termID", value = "Term ID by which rollup should happen", required = true)
+            @QueryParam("termID") List<String> termIDs,
             @ApiParam(name = "filter.species", value = "filter elements", type = "String")
             @QueryParam("species") String filterSpecies,
             @ApiParam(name = "filter.gene", value = "filter elements", type = "String")

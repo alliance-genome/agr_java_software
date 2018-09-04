@@ -68,14 +68,26 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         return null;
     }
 
-    public List<BioEntityGeneExpressionJoin> getExpressionAnnotations(List<String> geneIDs, Pagination pagination) {
+    public List<BioEntityGeneExpressionJoin> getExpressionAnnotations(List<String> geneIDs, List<String> termIDs, Pagination pagination) {
         StringJoiner sj = new StringJoiner(",", "[", "]");
         geneIDs.forEach(geneID -> sj.add("'" + geneID + "'"));
 
+/*
+        StringJoiner sjTerm = new StringJoiner(",", "[", "]");
+        termIDs.forEach(geneID -> sjTerm.add("'" + geneID + "'"));
+
+*/
         String query = " MATCH p1=(species:Species)--(gene:Gene)-->(s:BioEntityGeneExpressionJoin)--(t) " +
                 "WHERE gene.primaryKey in " + sj.toString();
         query += " OPTIONAL MATCH p2=(t:ExpressionBioEntity)--(o:Ontology) ";
-        query += " RETURN s, p1, p2 ";
+/*
+        if(termIDs != null && termIDs.size() > 0) {
+            query += " OPTIONAL MATCH slim=(ontology)-[:PART_OF|IS_A*]->(slimTerm) " +
+                    " where all (primaryKey IN ";
+            query += sjTerm.toString() + " where primaryKey = slimTerm.primaryKey) ";
+        }
+*/
+        query += " RETURN s, p1, p2";
         Iterable<BioEntityGeneExpressionJoin> joins = neo4jSession.query(BioEntityGeneExpressionJoin.class, query, new HashMap<>());
 
 
@@ -127,6 +139,11 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         }
         joinList.sort(comparator);
 
+        // check for rollup term existence
+        joinList = joinList.stream()
+                .filter(join -> join.getEntity().getGoTerm() == null || (join.getEntity().getGoTerm() != null && isChildOfRollupTerm(join, termIDs)))
+                .collect(Collectors.toList());
+
         // pagination
         List<BioEntityGeneExpressionJoin> paginatedJoinList;
         if (pagination.isCount()) {
@@ -138,6 +155,22 @@ public class GeneRepository extends Neo4jRepository<Gene> {
                     .collect(Collectors.toList());
         }
         return paginatedJoinList;
+    }
+
+    private boolean isChildOfRollupTerm(BioEntityGeneExpressionJoin join, List<String> termIDs) {
+        StringJoiner sjTerm = new StringJoiner(",", "[", "]");
+        termIDs.forEach(termID -> sjTerm.add("'" + termID + "'"));
+        String cypher = " MATCH p1=(entity:ExpressionBioEntity)-[:CELLULAR_COMPONENT]-(ontology:GOTerm) " +
+                " WHERE ontology.primaryKey = '" + join.getEntity().getGoTerm().getPrimaryKey() + "' " +
+                "OPTIONAL MATCH slim=(ontology)-[:PART_OF|IS_A*]->(slimTerm) " +
+                "where all (primaryKey IN " + sjTerm.toString() + " where primaryKey in slimTerm.primaryKey) " +
+                "RETURN ontology, slim";
+        Iterable<GOTerm> terms = neo4jSession.query(GOTerm.class, cypher, new HashMap<>());
+        for (GOTerm term : terms) {
+            if (termIDs.contains(term.getPrimaryKey()))
+                return true;
+        }
+        return false;
     }
 
     private boolean passFilter(BioEntityGeneExpressionJoin bioEntityGeneExpressionJoin, Map<FieldFilter, String> fieldFilterValueMap) {
