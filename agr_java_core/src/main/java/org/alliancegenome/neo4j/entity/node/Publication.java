@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.alliancegenome.neo4j.entity.Neo4jEntity;
 import org.alliancegenome.neo4j.view.View;
+import org.apache.commons.lang3.StringUtils;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 
@@ -32,7 +33,7 @@ public class Publication extends Neo4jEntity {
     private List<EvidenceCode> evidence;
 
     public void setPubIdFromId() {
-        if (pubMedId != null)
+        if (StringUtils.isNotEmpty(pubMedId))
             pubId = pubMedId;
         else
             pubId = pubModId;

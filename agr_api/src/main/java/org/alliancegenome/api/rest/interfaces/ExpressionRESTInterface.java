@@ -29,19 +29,19 @@ public interface ExpressionRESTInterface {
             @QueryParam("geneID") List<String> geneIDs,
             @ApiParam(name = "termID", value = "Term ID by which rollup should happen", required = true)
             @QueryParam("termID") List<String> termIDs,
-            @ApiParam(name = "filter.species", value = "filter elements", type = "String")
+            @ApiParam(name = "filter.species", value = "Species by taxon ID", type = "String")
             @QueryParam("species") String filterSpecies,
-            @ApiParam(name = "filter.gene", value = "filter elements", type = "String")
+            @ApiParam(name = "filter.gene", value = "Gene symbol", type = "String")
             @QueryParam("gene") String filterGene,
-            @ApiParam(name = "filter.stage", value = "filter elements", type = "String")
-            @QueryParam("filter.assay") String filterStage,
-            @ApiParam(name = "filter.assay", value = "filter elements", type = "String")
-            @QueryParam("filter.stage") String filterAssay,
-            @ApiParam(name = "filter.reference", value = "filter elements", type = "String")
+            @ApiParam(name = "filter.stage", value = "Stage name", type = "String")
+            @QueryParam("filter.stage") String filterStage,
+            @ApiParam(name = "filter.assay", value = "Assay name", type = "String")
+            @QueryParam("filter.assay") String filterAssay,
+            @ApiParam(name = "filter.reference", value = "Reference", type = "String")
             @QueryParam("reference") String filterReference,
-            @ApiParam(name = "filter.term", value = "filter elements", type = "String")
+            @ApiParam(name = "filter.term", value = "Ontology term", type = "String")
             @QueryParam("filter.term") String filterTerm,
-            @ApiParam(name = "filter.source", value = "filter elements", type = "String")
+            @ApiParam(name = "filter.source", value = "Source", type = "String")
             @QueryParam("source") String filterSource,
             @ApiParam(name = "limit", value = "Number of rows returned", defaultValue = "20")
             @DefaultValue("20") @QueryParam("limit") int limit,
