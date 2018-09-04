@@ -109,7 +109,7 @@ public class GeneRepository extends Neo4jRepository<Gene> {
 
         // sorting
         HashMap<FieldFilter, Comparator<BioEntityGeneExpressionJoin>> sortingMapping = new LinkedHashMap<>();
-        sortingMapping.put(FieldFilter.SPECIES, Comparator.comparing(o -> o.getGene().getSpeciesName().toUpperCase()));
+        sortingMapping.put(FieldFilter.FSPECIES, Comparator.comparing(o -> o.getGene().getTaxonId().toUpperCase()));
         sortingMapping.put(FieldFilter.GENE_NAME, Comparator.comparing(o -> o.getGene().getSymbol().toUpperCase()));
         sortingMapping.put(FieldFilter.TERM_NAME, Comparator.comparing(o -> o.getEntity().getWhereExpressedStatement().toUpperCase()));
         sortingMapping.put(FieldFilter.STAGE, Comparator.comparing(o -> o.getStage().getPrimaryKey().toUpperCase()));
@@ -176,7 +176,7 @@ public class GeneRepository extends Neo4jRepository<Gene> {
 
     private boolean passFilter(BioEntityGeneExpressionJoin bioEntityGeneExpressionJoin, Map<FieldFilter, String> fieldFilterValueMap) {
         Map<FieldFilter, FilterComparator<BioEntityGeneExpressionJoin, String>> map = new HashMap<>();
-        map.put(FieldFilter.SPECIES, (join, filterValue) -> join.getGene().getSpeciesName().toLowerCase().contains(filterValue.toLowerCase()));
+        map.put(FieldFilter.FSPECIES, (join, filterValue) -> join.getGene().getSpeciesName().toLowerCase().contains(filterValue.toLowerCase()));
         map.put(FieldFilter.GENE_NAME, (join, filterValue) -> join.getGene().getSymbol().toLowerCase().contains(filterValue.toLowerCase()));
         map.put(FieldFilter.TERM_NAME, (join, filterValue) -> join.getEntity().getWhereExpressedStatement().toLowerCase().contains(filterValue.toLowerCase()));
         map.put(FieldFilter.STAGE, (join, filterValue) -> join.getStage().getPrimaryKey().toLowerCase().contains(filterValue.toLowerCase()));

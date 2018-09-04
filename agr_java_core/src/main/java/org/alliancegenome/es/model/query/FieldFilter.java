@@ -6,6 +6,7 @@ public enum FieldFilter {
     GENE_NAME("geneName"),
     TERM_NAME("filter.term"),
     SPECIES("species"),
+    FSPECIES("filter.species"),
     SPECIES_DEFAULT("species_default"),
     GENETIC_ENTITY("geneticEntity"),
     GENETIC_ENTITY_TYPE("geneticEntityType"),

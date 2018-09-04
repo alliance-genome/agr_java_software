@@ -8,6 +8,7 @@ import org.alliancegenome.api.service.helper.ExpressionDetail;
 import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
+import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.entity.node.BioEntityGeneExpressionJoin;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.alliancegenome.neo4j.view.View;
@@ -44,7 +45,7 @@ public class ExpressionController implements ExpressionRESTInterface {
 
         Pagination pagination = new Pagination(page, limit, sortBy, asc);
         Map<FieldFilter, String> filterMap = new HashMap<>();
-        filterMap.put(FieldFilter.SPECIES, filterSpecies);
+        filterMap.put(FieldFilter.FSPECIES, filterSpecies);
         filterMap.put(FieldFilter.GENE_NAME, filterGene);
         filterMap.put(FieldFilter.FREFERENCE, filterReference);
         filterMap.put(FieldFilter.FSOURCE, filterSource);

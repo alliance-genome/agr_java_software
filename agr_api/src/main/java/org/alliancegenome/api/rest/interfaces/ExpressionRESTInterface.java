@@ -27,10 +27,10 @@ public interface ExpressionRESTInterface {
     String getExpressionAnnotations(
             @ApiParam(name = "geneID", value = "Gene by ID", required = true)
             @QueryParam("geneID") List<String> geneIDs,
-            @ApiParam(name = "termID", value = "Term ID by which rollup should happen", required = true)
+            @ApiParam(name = "termID", value = "Term ID by which rollup should happen")
             @QueryParam("termID") List<String> termIDs,
             @ApiParam(name = "filter.species", value = "Species by taxon ID", type = "String")
-            @QueryParam("species") String filterSpecies,
+            @QueryParam("filter.species") String filterSpecies,
             @ApiParam(name = "filter.gene", value = "Gene symbol", type = "String")
             @QueryParam("gene") String filterGene,
             @ApiParam(name = "filter.stage", value = "Stage name", type = "String")
@@ -39,7 +39,7 @@ public interface ExpressionRESTInterface {
             @QueryParam("filter.assay") String filterAssay,
             @ApiParam(name = "filter.reference", value = "Reference", type = "String")
             @QueryParam("filter.reference") String filterReference,
-            @ApiParam(name = "filter.term", value = "Ontology term", type = "String")
+            @ApiParam(name = "filter.term", value = "Ontology term name", type = "String")
             @QueryParam("filter.term") String filterTerm,
             @ApiParam(name = "filter.source", value = "Source", type = "String")
             @QueryParam("filter.source") String filterSource,
