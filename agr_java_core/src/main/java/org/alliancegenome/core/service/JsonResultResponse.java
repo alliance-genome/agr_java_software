@@ -32,7 +32,7 @@ public class JsonResultResponse<T> {
     @JsonView(View.OrthologyView.class)
     private String apiVersion;
 
-    public void setRequestDuration(LocalDateTime startTime) {
+    public void calculateRequestDuration(LocalDateTime startTime) {
         LocalDateTime endTime = LocalDateTime.now();
         Duration duration = new Duration(startTime, endTime);
         requestDuration = duration.toString();
@@ -44,22 +44,12 @@ public class JsonResultResponse<T> {
             returnedRecords = results.size();
     }
 
-    public void setRequest(HttpServletRequest request) {
+    public void setHttpServletRequest(HttpServletRequest request) {
         this.request = new Request();
-        this.request.setUri(request.getRequestURI());
-        this.request.setParameterMap(request.getParameterMap());
-    }
-
-    @Setter
-    @Getter
-    class Request {
-        @JsonView(View.OrthologyView.class)
-        String uri;
-        @JsonView(View.OrthologyView.class)
-        TreeMap<String, String[]> parameterMap;
-
-        void setParameterMap(Map<String, String[]> parameterMap) {
-            this.parameterMap = new TreeMap<>(parameterMap);
+        if(request != null) {
+            this.request.setUri(request.getRequestURI());
+            this.request.setParameterMap(request.getParameterMap());
         }
     }
+
 }

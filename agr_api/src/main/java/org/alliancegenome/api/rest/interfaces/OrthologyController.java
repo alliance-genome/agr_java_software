@@ -44,9 +44,9 @@ public class OrthologyController implements OrthologyRESTInterface {
 
         ObjectMapper mapper = new ObjectMapper();
         mapper.disable(MapperFeature.DEFAULT_VIEW_INCLUSION);
-        response.setRequestDuration(startDate);
+        response.calculateRequestDuration(startDate);
         response.setApiVersion(API_VERSION);
-        response.setRequest(request);
+        response.setHttpServletRequest(request);
         return mapper.writerWithView(View.OrthologyView.class).writeValueAsString(response);
     }
 

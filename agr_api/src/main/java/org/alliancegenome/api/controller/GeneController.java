@@ -23,7 +23,6 @@ import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.NotFoundException;
-import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -120,9 +119,9 @@ public class GeneController extends BaseController implements GeneRESTInterface 
         orthologyFilter.setStart(start);
         JsonResultResponse<OrthologView> response = OrthologyService.getOrthologyJson(gene, orthologyFilter);
         mapper.disable(MapperFeature.DEFAULT_VIEW_INCLUSION);
-        response.setRequestDuration(startDate);
+        response.calculateRequestDuration(startDate);
         response.setApiVersion(API_VERSION);
-        response.setRequest(request);
+        response.setHttpServletRequest(request);
         return mapper.writerWithView(View.OrthologyView.class).writeValueAsString(response);
     }
 
