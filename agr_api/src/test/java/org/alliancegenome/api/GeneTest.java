@@ -107,7 +107,7 @@ public class GeneTest {
     public void checkOrthologyForTwoSpecies() throws IOException {
 
         OrthologyController controller = new OrthologyController();
-        String responseString = controller.getDoubleSpeciesOrthology("7955", "10090", "stringent", null, 20, 1);
+        String responseString = controller.getDoubleSpeciesOrthology("7955", "10090", "stringent", "ZFIN", 20, 1);
         JsonResultResponse response = mapper.readValue(responseString, JsonResultResponse.class);
         assertThat("Orthology records found for mouse - zebrafish", response.getTotal(), greaterThan(0));
     }

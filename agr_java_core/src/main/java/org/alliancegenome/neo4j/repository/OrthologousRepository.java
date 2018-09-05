@@ -33,9 +33,17 @@ public class OrthologousRepository extends Neo4jRepository<Orthologous> {
         final String taxonOne = SpeciesType.getTaxonId(speciesOne);
         final String taxonTwo = SpeciesType.getTaxonId(speciesTwo);
 
+        StringJoiner sj = new StringJoiner(",");
+        if(filter.hasMethods()){
+            filter.getMethods().forEach(method -> sj.add("'"+method+"'"));
+        }
         String query = " MATCH p1=(g:Gene)-[ortho:ORTHOLOGOUS]->(gh:Gene), ";
         query += "p4=(g)--(s:OrthologyGeneJoin)--(gh:Gene), ";
-        query += "p5=(s)-[:MATCHED]-(matched:OrthoAlgorithm), ";
+        if(filter.hasMethods()){
+            query += "p5=(s)-[:MATCHED]-(matched:OrthoAlgorithm {name:"+sj.toString()+"}), ";
+        } else {
+            query += "p5=(s)-[:MATCHED]-(matched:OrthoAlgorithm), ";
+        }
         query += "p6=(s)-[:NOT_MATCHED]-(notMatched:OrthoAlgorithm), ";
         query += "p7=(s)-[:NOT_CALLED]-(notCalled:OrthoAlgorithm) ";
         query += " where g.taxonId = '" + taxonOne + "'";

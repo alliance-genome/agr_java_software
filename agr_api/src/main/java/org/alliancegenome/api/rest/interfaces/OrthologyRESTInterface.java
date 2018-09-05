@@ -22,19 +22,19 @@ public interface OrthologyRESTInterface {
 
     @GET
     @Path("/{taxonIDOne}/{taxonIDTwo}")
-    @ApiOperation(value = "Retrieve homologous gene records for given species", notes = "Download orthology records.")
+    @ApiOperation(value = "Retrieve homologous gene records for given species")
     String getDoubleSpeciesOrthology(
-            @ApiParam(name = "taxonIDOne", value = "Taxon ID for the first gene", required = true, type = "String")
+            @ApiParam(name = "taxonIDOne", value = "Taxon ID for the first gene: Could be the full ID, e.g. 'NCBITaxon:10090', or just the ID, i.e. '10090'. Alternatively, part of a species name uniquely identifying a single species, e.g. 'danio' or 'mus'.", required = true, type = "String")
             @PathParam("taxonIDOne") String speciesOne,
-            @ApiParam(name = "taxonIDTwo", value = "Taxon ID for the second gene", required = true, type = "String")
+            @ApiParam(name = "taxonIDTwo", value = "Taxon ID for the second gene: Could be the full ID, e.g. 'NCBITaxon:10090', or just the ID, i.e. '10090'. Alternatively, part of a species name uniquely identifying a single species, e.g. 'danio' or 'mus'.", required = true, type = "String")
             @PathParam("taxonIDTwo") String speciesTwo,
-            @ApiParam(value = "apply stringency filter", allowableValues = "stringent, moderate, all", defaultValue = "stringent")
+            @ApiParam(value = "Select a stringency filter", allowableValues = "stringent, moderate, all", defaultValue = "stringent")
             @QueryParam("stringencyFilter") String stringencyFilter,
-            @ApiParam(value = "methods")
-            @QueryParam("methods") List<String> methods,
-            @ApiParam(value = "number of rows")
+            @ApiParam(value = "Select a calculation method", allowableValues = "Ensembl Compara, HGNC, Hieranoid, InParanoid, OMA, OrthoFinder, OrthoInspector, PANTHER, PhylomeDB, Roundup, TreeFam, ZFIN")
+            @QueryParam("methods") String methods,
+            @ApiParam(value = "number of returned rows")
             @DefaultValue("20") @QueryParam("rows") Integer rows,
-            @ApiParam(value = "start")
+            @ApiParam(value = "starting row")
             @DefaultValue("1") @QueryParam("start") Integer start) throws IOException;
 
     @GET
@@ -46,9 +46,9 @@ public interface OrthologyRESTInterface {
             @ApiParam(value = "stringencyFilter")
             @QueryParam("stringencyFilter") String stringencyFilter,
             @ApiParam(value = "methods")
-            @QueryParam("methods") List<String> methods,
-            @ApiParam(value = "number of rows")
+            @QueryParam("methods") String methods,
+            @ApiParam(value = "number of returned rows")
             @QueryParam("rows") Integer rows,
-            @ApiParam(value = "start")
+            @ApiParam(value = "starting row")
             @QueryParam("start") Integer start) throws IOException;
 }

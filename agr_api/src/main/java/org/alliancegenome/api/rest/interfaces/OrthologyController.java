@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Context;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 public class OrthologyController implements OrthologyRESTInterface {
@@ -25,13 +26,15 @@ public class OrthologyController implements OrthologyRESTInterface {
     public String getDoubleSpeciesOrthology(String taxonIDOne,
                                             String taxonIDTwo,
                                             String stringencyFilter,
-                                            List<String> methods,
+                                            String methods,
                                             Integer rows,
                                             Integer start) throws IOException {
 
         LocalDateTime startDate = LocalDateTime.now();
         OrthologousRepository orthoRepo = new OrthologousRepository();
-        OrthologyFilter orthologyFilter = new OrthologyFilter(stringencyFilter, null, methods);
+        List<String> methodList = new ArrayList<>();
+        methodList.add(methods);
+        OrthologyFilter orthologyFilter = new OrthologyFilter(stringencyFilter, null, methodList);
         orthologyFilter.setRows(rows);
         orthologyFilter.setStart(start);
         JsonResultResponse<OrthologView> response = null;
@@ -53,7 +56,7 @@ public class OrthologyController implements OrthologyRESTInterface {
     @Override
     public String getSingleSpeciesOrthology(String species,
                                             String stringencyFilter,
-                                            List<String> methods,
+                                            String methods,
                                             Integer rows,
                                             Integer start) throws IOException {
         return getDoubleSpeciesOrthology(species, null, stringencyFilter, methods, rows, start);
