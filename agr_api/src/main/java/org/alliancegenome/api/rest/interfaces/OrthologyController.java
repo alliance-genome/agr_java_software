@@ -35,15 +35,12 @@ public class OrthologyController implements OrthologyRESTInterface {
         List<String> methodList = new ArrayList<>();
         methodList.add(methods);
         OrthologyFilter orthologyFilter = new OrthologyFilter(stringencyFilter, null, methodList);
-        orthologyFilter.setRows(rows);
-        orthologyFilter.setStart(start);
+        if (rows != null)
+            orthologyFilter.setRows(rows);
+        if (start != null)
+            orthologyFilter.setStart(start);
         JsonResultResponse<OrthologView> response = null;
-        if (taxonIDTwo != null)
-            response = orthoRepo.getOrthologyByTwoSpecies(taxonIDOne, taxonIDTwo, orthologyFilter);
-/*
-        else
-            geneList = repository.getOrthologyBySingleSpecies(taxonIDOne);
-*/
+        response = orthoRepo.getOrthologyByTwoSpecies(taxonIDOne, taxonIDTwo, orthologyFilter);
 
         ObjectMapper mapper = new ObjectMapper();
         mapper.disable(MapperFeature.DEFAULT_VIEW_INCLUSION);
