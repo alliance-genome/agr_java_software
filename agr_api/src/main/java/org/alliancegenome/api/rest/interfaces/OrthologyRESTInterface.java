@@ -57,5 +57,4 @@ public interface OrthologyRESTInterface {
     @Path("/methods")
     @ApiOperation(value = "Retrieve all methods used for calculation of homology")
     String getAllMethodsCalculations() throws JsonProcessingException;
-
 }
