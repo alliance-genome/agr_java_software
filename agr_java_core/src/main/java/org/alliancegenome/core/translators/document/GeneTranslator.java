@@ -151,6 +151,13 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
             geneDocument.setPhenotypes(phenotypeList);
         }
 
+        geneDocument.setExpressionBioEntities(
+                gene.getExpressionBioEntities().stream()
+                .map(ExpressionBioEntity::getWhereExpressedStatement)
+                .distinct()
+                .collect(Collectors.toList())
+        );
+
         if (gene.getGenomeLocations() != null) {
             List<GenomeLocationDoclet> gllist = new ArrayList<>();
             for (GenomeLocation location : gene.getGenomeLocations()) {

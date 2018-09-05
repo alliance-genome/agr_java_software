@@ -60,6 +60,7 @@ public class GeneDocument extends SearchableItemDocument {
     private List<OrthologyDoclet> orthology;
     private List<String> strictOrthologySymbols;
     private String geneticEntityExternalUrl;
+    private List<String> expressionBioEntities;
 
     private String modCrossRefCompleteUrl;
     private String modLocalId;
