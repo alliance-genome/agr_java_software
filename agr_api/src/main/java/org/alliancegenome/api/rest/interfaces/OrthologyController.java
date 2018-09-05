@@ -37,10 +37,12 @@ public class OrthologyController implements OrthologyRESTInterface {
         List<String> methodList = new ArrayList<>();
         methodList.add(methods);
         OrthologyFilter orthologyFilter = new OrthologyFilter(stringencyFilter, null, methodList);
+
         if (rows != null)
             orthologyFilter.setRows(rows);
         if (start != null)
             orthologyFilter.setStart(start);
+
         JsonResultResponse<OrthologView> response = null;
         response = orthoRepo.getOrthologyByTwoSpecies(taxonIDOne, taxonIDTwo, orthologyFilter);
 
