@@ -1,8 +1,10 @@
 package org.alliancegenome.api.rest.interfaces;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.alliancegenome.core.service.JsonResultResponse;
+import org.alliancegenome.neo4j.entity.node.OrthoAlgorithm;
 import org.alliancegenome.neo4j.repository.OrthologousRepository;
 import org.alliancegenome.neo4j.view.OrthologView;
 import org.alliancegenome.neo4j.view.OrthologyFilter;
@@ -57,5 +59,21 @@ public class OrthologyController implements OrthologyRESTInterface {
                                             Integer rows,
                                             Integer start) throws IOException {
         return getDoubleSpeciesOrthology(species, null, stringencyFilter, methods, rows, start);
+    }
+
+    @Override
+    public String getAllMethodsCalculations() throws JsonProcessingException {
+        LocalDateTime startDate = LocalDateTime.now();
+        OrthologousRepository orthoRepo = new OrthologousRepository();
+        JsonResultResponse<OrthoAlgorithm> response = new JsonResultResponse<>();
+        List<OrthoAlgorithm> methodList = orthoRepo.getAllMethods();
+        response.setResults(methodList);
+        response.setTotal(methodList.size());
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.disable(MapperFeature.DEFAULT_VIEW_INCLUSION);
+        response.calculateRequestDuration(startDate);
+        response.setApiVersion(API_VERSION);
+        response.setHttpServletRequest(request);
+        return mapper.writerWithView(View.OrthologyMethodView.class).writeValueAsString(response);
     }
 }

@@ -186,4 +186,14 @@ public class GeneTest {
         assertThat("matches found for gene MGI:109583'", response.getTotal(), greaterThan(0));
     }
 
+    @Test
+    @Ignore
+    public void getAllOrthologyMethods() throws IOException {
+
+        OrthologyController controller = new OrthologyController();
+        String responseString = controller.getAllMethodsCalculations();
+        JsonResultResponse response = mapper.readValue(responseString, JsonResultResponse.class);
+        assertThat("matches found for gene MGI:109583'", response.getTotal(), greaterThan(0));
+    }
+
 }

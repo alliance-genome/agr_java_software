@@ -11,6 +11,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -51,4 +52,9 @@ public interface OrthologyRESTInterface {
             @DefaultValue("20") @QueryParam("rows") Integer rows,
             @ApiParam(value = "Starting row")
             @DefaultValue("1") @QueryParam("start") Integer start) throws IOException;
+
+    @GET
+    @Path("/methods")
+    @ApiOperation(value = "Retrieve all methods used for calculation of homology")
+    String getAllMethodsCalculations() throws JsonProcessingException;
 }

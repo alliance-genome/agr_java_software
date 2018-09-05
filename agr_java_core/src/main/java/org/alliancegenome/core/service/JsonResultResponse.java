@@ -1,35 +1,31 @@
 package org.alliancegenome.core.service;
 
 import com.fasterxml.jackson.annotation.JsonView;
-
 import lombok.Getter;
 import lombok.Setter;
 import org.alliancegenome.neo4j.view.View;
 
 import javax.servlet.http.HttpServletRequest;
-
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 
 @Setter
 @Getter
 public class JsonResultResponse<T> {
 
-    @JsonView(View.OrthologyView.class)
+    @JsonView({View.OrthologyView.class,View.OrthologyMethodView.class})
     private List<T> results;
-    @JsonView(View.OrthologyView.class)
+    @JsonView({View.OrthologyView.class,View.OrthologyMethodView.class})
     private int total;
-    @JsonView(View.OrthologyView.class)
+    @JsonView({View.OrthologyView.class,View.OrthologyMethodView.class})
     private int returnedRecords;
-    @JsonView(View.OrthologyView.class)
+    @JsonView({View.OrthologyView.class,View.OrthologyMethodView.class})
     private String errorMessage = "";
-    @JsonView(View.OrthologyView.class)
+    @JsonView({View.OrthologyView.class,View.OrthologyMethodView.class})
     private String requestDuration;
-    @JsonView(View.OrthologyView.class)
+    @JsonView({View.OrthologyView.class,View.OrthologyMethodView.class})
     private Request request;
-    @JsonView(View.OrthologyView.class)
+    @JsonView({View.OrthologyView.class,View.OrthologyMethodView.class})
     private String apiVersion;
 
     public void calculateRequestDuration(LocalDateTime startTime) {

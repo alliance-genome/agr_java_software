@@ -15,6 +15,7 @@ import org.neo4j.ogm.model.Result;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 public class OrthologousRepository extends Neo4jRepository<Orthologous> {
 
@@ -103,4 +104,10 @@ public class OrthologousRepository extends Neo4jRepository<Orthologous> {
     }
 
 
+    public List<OrthoAlgorithm> getAllMethods() {
+        String query = " MATCH (algorithm:OrthoAlgorithm) return distinct algorithm order by algorithm.name ";
+        Iterable<OrthoAlgorithm> algorithms = neo4jSession.query(OrthoAlgorithm.class, query, new HashMap<>());
+        return StreamSupport.stream(algorithms.spliterator(), false)
+                .collect(Collectors.toList());
+    }
 }
