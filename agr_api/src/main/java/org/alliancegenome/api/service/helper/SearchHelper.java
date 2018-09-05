@@ -45,7 +45,7 @@ public class SearchHelper {
                     add("biologicalProcessAgrSlim");
                     add("molecularFunctionAgrSlim");
                     add("cellularComponentAgrSlim");
-
+                    add("expressionBioEntities"); //todo: replace with slim fields
                 }
             });
             put("go", new ArrayList<String>() {

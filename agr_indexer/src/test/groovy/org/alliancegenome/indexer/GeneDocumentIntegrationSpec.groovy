@@ -39,6 +39,23 @@ class GeneDocumentIntegrationSpec extends Specification {
 
     }
 
+    @Unroll
+    def "GeneDocument for #geneID has expressionBioEntities #entities"() {
+        when:
+        Gene gene = repo.getOneGene(geneID)
+        GeneDocument geneDocument = trans.translate(gene)
+
+        then:
+        geneDocument
+        geneDocument.expressionBioEntities
+        geneDocument.expressionBioEntities.containsAll(entities)
+
+        where:
+        geneID                    | entities
+        "ZFIN:ZDB-GENE-010323-11" | ["paraxial mesoderm", "somite"]
+
+    }
+
     def "#geneID has #strict in strict list, but not #otherOrthologue"() {
         when:
         Gene gene = repo.getOneGene(geneID)
