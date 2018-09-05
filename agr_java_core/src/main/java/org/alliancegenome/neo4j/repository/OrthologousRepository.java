@@ -15,6 +15,7 @@ import org.neo4j.ogm.model.Result;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 public class OrthologousRepository extends Neo4jRepository<Orthologous> {
 
@@ -33,13 +34,22 @@ public class OrthologousRepository extends Neo4jRepository<Orthologous> {
         final String taxonOne = SpeciesType.getTaxonId(speciesOne);
         final String taxonTwo = SpeciesType.getTaxonId(speciesTwo);
 
+        StringJoiner sj = new StringJoiner(",");
+        if (filter.hasMethods()) {
+            filter.getMethods().forEach(method -> sj.add("'" + method + "'"));
+        }
         String query = " MATCH p1=(g:Gene)-[ortho:ORTHOLOGOUS]->(gh:Gene), ";
         query += "p4=(g)--(s:OrthologyGeneJoin)--(gh:Gene), ";
-        query += "p5=(s)-[:MATCHED]-(matched:OrthoAlgorithm), ";
+        if (filter.hasMethods()) {
+            query += "p5=(s)-[:MATCHED]-(matched:OrthoAlgorithm {name:" + sj.toString() + "}), ";
+        } else {
+            query += "p5=(s)-[:MATCHED]-(matched:OrthoAlgorithm), ";
+        }
         query += "p6=(s)-[:NOT_MATCHED]-(notMatched:OrthoAlgorithm), ";
         query += "p7=(s)-[:NOT_CALLED]-(notCalled:OrthoAlgorithm) ";
         query += " where g.taxonId = '" + taxonOne + "'";
-        query += " and   gh.taxonId = '" + taxonTwo + "' ";
+        if (taxonTwo != null)
+            query += " and   gh.taxonId = '" + taxonTwo + "' ";
         if (filter.getStringency() != null) {
             if (filter.getStringency().equals(OrthologyFilter.Stringency.STRINGENT))
                 query += "and ortho.strictFilter = true ";
@@ -59,7 +69,10 @@ public class OrthologousRepository extends Neo4jRepository<Orthologous> {
             view.setGene(gene);
 
             Gene homologGene = (Gene) objectMap.get("gh");
-            homologGene.setSpeciesName(SpeciesType.fromTaxonId(taxonTwo).getName());
+            if (taxonTwo != null)
+                homologGene.setSpeciesName(SpeciesType.fromTaxonId(taxonTwo).getName());
+            else
+                homologGene.setSpeciesName(SpeciesType.fromTaxonId(homologGene.getTaxonId()).getName());
             view.setHomologGene(homologGene);
 
             view.setBest(((List<Orthologous>) objectMap.get("collect(distinct ortho)")).get(0).isBestScore());
@@ -91,4 +104,10 @@ public class OrthologousRepository extends Neo4jRepository<Orthologous> {
     }
 
 
+    public List<OrthoAlgorithm> getAllMethods() {
+        String query = " MATCH (algorithm:OrthoAlgorithm) return distinct algorithm order by algorithm.name ";
+        Iterable<OrthoAlgorithm> algorithms = neo4jSession.query(OrthoAlgorithm.class, query, new HashMap<>());
+        return StreamSupport.stream(algorithms.spliterator(), false)
+                .collect(Collectors.toList());
+    }
 }

@@ -5,6 +5,12 @@ import lombok.Getter;
 import org.alliancegenome.es.index.site.doclet.SpeciesDoclet;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
+
 @Getter
 @AllArgsConstructor
 public enum SpeciesType {
@@ -31,6 +37,13 @@ public enum SpeciesType {
             if (type.name.equals(name))
                 return type;
         return null;
+    }
+
+    public static SpeciesType getTypeByPartialName(String name) {
+        List<SpeciesType> species = Arrays.stream(values())
+                .filter(type -> type.name.toLowerCase().contains(name.toLowerCase()))
+                .collect(Collectors.toList());
+        return species != null && species.size() == 1 ? species.get(0) : null;
     }
 
 
@@ -98,6 +111,9 @@ public enum SpeciesType {
         if (StringUtils.isNumeric(species))
             return NCBITAXON + species;
         SpeciesType typeByName = getTypeByName(species);
+        if (typeByName != null)
+            return typeByName.getTaxonID();
+        typeByName = getTypeByPartialName(species);
         if (typeByName != null)
             return typeByName.getTaxonID();
         return species;

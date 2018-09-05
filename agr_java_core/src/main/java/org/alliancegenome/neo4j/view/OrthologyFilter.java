@@ -31,7 +31,7 @@ public class OrthologyFilter {
         // remove all empty method names
         if (methods != null) {
             methods = methods.stream()
-                    .filter(method -> !method.trim().isEmpty())
+                    .filter(method -> method != null && !method.trim().isEmpty())
                     .collect(Collectors.toList());
         }
         if (methods != null && !methods.isEmpty())
@@ -45,6 +45,10 @@ public class OrthologyFilter {
     public void resetPaginationData() {
         start = 1;
         rows = 20;
+    }
+
+    public boolean hasMethods() {
+        return methods != null && methods.size() > 0 ;
     }
 
     public enum Stringency {
