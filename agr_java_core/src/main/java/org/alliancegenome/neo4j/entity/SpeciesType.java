@@ -1,15 +1,14 @@
 package org.alliancegenome.neo4j.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import org.alliancegenome.es.index.site.doclet.SpeciesDoclet;
-import org.apache.commons.lang3.StringUtils;
-
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
+
+import org.alliancegenome.es.index.site.doclet.SpeciesDoclet;
+import org.apache.commons.lang3.StringUtils;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 @Getter
 @AllArgsConstructor

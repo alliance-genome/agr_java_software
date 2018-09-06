@@ -13,19 +13,19 @@ import java.util.List;
 @Getter
 public class JsonResultResponse<T> {
 
-    @JsonView({View.OrthologyView.class,View.OrthologyMethodView.class})
+    @JsonView({View.DefaultView.class})
     private List<T> results;
-    @JsonView({View.OrthologyView.class,View.OrthologyMethodView.class})
+    @JsonView({View.DefaultView.class})
     private int total;
-    @JsonView({View.OrthologyView.class,View.OrthologyMethodView.class})
+    @JsonView({View.DefaultView.class})
     private int returnedRecords;
-    @JsonView({View.OrthologyView.class,View.OrthologyMethodView.class})
+    @JsonView({View.DefaultView.class})
     private String errorMessage = "";
-    @JsonView({View.OrthologyView.class,View.OrthologyMethodView.class})
+    @JsonView({View.DefaultView.class})
     private String requestDuration;
-    @JsonView({View.OrthologyView.class,View.OrthologyMethodView.class})
+    @JsonView({View.DefaultView.class})
     private Request request;
-    @JsonView({View.OrthologyView.class,View.OrthologyMethodView.class})
+    @JsonView({View.DefaultView.class})
     private String apiVersion;
 
     public void calculateRequestDuration(LocalDateTime startTime) {
