@@ -1,13 +1,14 @@
 package org.alliancegenome.neo4j.view;
 
-import com.fasterxml.jackson.annotation.JsonView;
-import lombok.Getter;
-import lombok.Setter;
-import org.alliancegenome.neo4j.entity.node.Gene;
-
-import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+
+import org.alliancegenome.neo4j.entity.node.Gene;
+
+import com.fasterxml.jackson.annotation.JsonView;
+
+import lombok.Getter;
+import lombok.Setter;
 
 @Setter
 @Getter
