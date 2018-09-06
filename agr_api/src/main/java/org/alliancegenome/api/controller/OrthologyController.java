@@ -1,8 +1,10 @@
-package org.alliancegenome.api.rest.interfaces;
+package org.alliancegenome.api.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import org.alliancegenome.api.rest.interfaces.OrthologyRESTInterface;
 import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.neo4j.entity.node.OrthoAlgorithm;
 import org.alliancegenome.neo4j.repository.OrthologousRepository;
@@ -37,10 +39,12 @@ public class OrthologyController implements OrthologyRESTInterface {
         List<String> methodList = new ArrayList<>();
         methodList.add(methods);
         OrthologyFilter orthologyFilter = new OrthologyFilter(stringencyFilter, null, methodList);
+
         if (rows != null)
             orthologyFilter.setRows(rows);
         if (start != null)
             orthologyFilter.setStart(start);
+
         JsonResultResponse<OrthologView> response = null;
         response = orthoRepo.getOrthologyByTwoSpecies(taxonIDOne, taxonIDTwo, orthologyFilter);
 
