@@ -25,7 +25,7 @@ public class FeatureRepository extends Neo4jRepository<Feature> {
         query += " OPTIONAL MATCH p3=(do:DOTerm)-[:ASSOCIATION]-(diseaseJoin:DiseaseEntityJoin)-[:EVIDENCE]-(ea)";
         query += " OPTIONAL MATCH p4=(feature:Feature)-[:ALSO_KNOWN_AS]-(synonym:Synonym)";
         query += " OPTIONAL MATCH p5=(feature:Feature)-[:ASSOCIATION]-(diseaseJoin:DiseaseEntityJoin)-[:ASSOCIATION]-(g:Gene)";
-        query += " OPTIONAL MATCH p6=(feature:Feature)-[:HAS_PHENOTYPE]-(phenotype:Phenotype)";
+        query += " OPTIONAL MATCH p6=(feature:Feature)-[:HAS_PHENOTYPE]-(termName:Phenotype)";
         query += " RETURN p1, p2, p3, p4, p5, p6";
         
         Iterable<Feature> genes = query(query, map);

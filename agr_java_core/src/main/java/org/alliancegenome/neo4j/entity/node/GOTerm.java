@@ -24,7 +24,7 @@ public class GOTerm extends Ontology {
     private List<String> subset;
 
     @Relationship(type = "ANNOTATED_TO", direction=Relationship.INCOMING)
-    private Set<Gene> genes = new HashSet<Gene>();
+    private Set<Gene> genes = new HashSet<>();
     
     @Relationship(type = "ALSO_KNOWN_AS")
     private Set<Synonym> synonyms = new HashSet<Synonym>();
@@ -41,8 +41,8 @@ public class GOTerm extends Ontology {
     public Set<GOTerm> getParentTerms() {
         Set<GOTerm> parentTerms = new HashSet<>();
 
-        isAParents.stream().forEach(parent -> { parentTerms.addAll(parent.getParentTerms());});
-        partOfParents.stream().forEach(parent -> {parentTerms.addAll(parent.getParentTerms());});
+        isAParents.forEach(parent -> { parentTerms.addAll(parent.getParentTerms());});
+        partOfParents.forEach(parent -> {parentTerms.addAll(parent.getParentTerms());});
 
         parentTerms.add(this);
 

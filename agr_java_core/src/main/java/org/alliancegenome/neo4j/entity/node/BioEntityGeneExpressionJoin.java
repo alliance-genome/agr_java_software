@@ -10,21 +10,22 @@ import java.util.List;
 @NodeEntity
 @Getter
 @Setter
-public class EntityJoin extends Association {
+public class BioEntityGeneExpressionJoin extends Association {
 
-    protected String primaryKey;
-    protected String joinType;
+    @Relationship(type = "ASSOCIATION", direction = Relationship.INCOMING)
+    private ExpressionBioEntity entity;
 
     @Relationship(type = "EVIDENCE")
     private Publication publication;
 
-    @Relationship(type = "EVIDENCE")
-    private List<EvidenceCode> evidenceCodes;
+    @Relationship(type = "DURING")
+    private Stage stage;
+
+    @Relationship(type = "ASSAY")
+    private MMOTerm assay;
 
     @Relationship(type = "ASSOCIATION", direction = Relationship.INCOMING)
     private Gene gene;
 
-    @Relationship(type = "ASSOCIATION", direction = Relationship.INCOMING)
-    private Feature feature;
 
 }

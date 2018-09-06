@@ -26,25 +26,26 @@ import lombok.Setter;
 @Setter
 public class Gene extends Neo4jEntity implements Comparable<Gene> {
 
-    @JsonView({View.OrthologyView.class, View.InteractionView.class})
+    @JsonView({View.OrthologyView.class, View.InteractionView.class, View.ExpressionView.class})
     @JsonProperty("geneID")
     private String primaryKey;
-    @JsonView(View.OrthologyView.class)
+    @JsonView({View.OrthologyView.class, View.ExpressionView.class})
     private String taxonId;
-    @JsonView(View.OrthologyView.class)
+    @JsonView({View.OrthologyView.class, View.ExpressionView.class})
     private String speciesName;
     private String geneLiterature;
     private String geneLiteratureUrl;
     private String geneSynopsis;
     private String automatedGeneSynopsis;
     private String geneSynopsisUrl;
+    @JsonView({View.ExpressionView.class})
     private String dataProvider;
     private String name;
 
     @Convert(value = DateConverter.class)
     private Date dateProduced;
     private String description;
-    @JsonView({View.OrthologyView.class, View.InteractionView.class})
+    @JsonView({View.OrthologyView.class, View.InteractionView.class, View.ExpressionView.class})
     private String symbol;
     private String geneticEntityExternalUrl;
 
@@ -84,6 +85,9 @@ public class Gene extends Neo4jEntity implements Comparable<Gene> {
     @Relationship(type = "ASSOCIATION", direction = Relationship.UNDIRECTED)
     private List<DiseaseEntityJoin> diseaseEntityJoins = new ArrayList<>();
 
+    @Relationship(type = "ASSOCIATION", direction = Relationship.UNDIRECTED)
+    private List<BioEntityGeneExpressionJoin> entityGeneExpressionJoins = new ArrayList<>();
+
     @Relationship(type = "ASSOCIATION")
     private List<PhenotypeEntityJoin> phenotypeEntityJoins = new ArrayList<>();
 
@@ -93,15 +97,23 @@ public class Gene extends Neo4jEntity implements Comparable<Gene> {
     @Relationship(type = "HAS_PHENOTYPE")
     private List<Phenotype> phenotypes = new ArrayList<>();
     
-    @Relationship(type = "ASSOCIATION", direction = Relationship.OUTGOING)
+    @Relationship(type = "ASSOCIATION")
     private List<InteractionGeneJoin> interactions = new ArrayList<>();
+
+    @Relationship(type = "EXPRESSED_IN")
+    private List<ExpressionBioEntity> expressionBioEntities = new ArrayList<>();
 
     public Set<GOTerm> getGoParentTerms() {
         Set<GOTerm> parentTerms = new HashSet<>();
-        CollectionUtils.emptyIfNull(gOTerms).stream().forEach(term -> {
+        CollectionUtils.emptyIfNull(gOTerms).forEach(term -> {
             parentTerms.addAll(term.getParentTerms());
         });
         return parentTerms;
+    }
+
+    public void setSpecies(Species species) {
+        this.species = species;
+        this.speciesName = species.getName();
     }
 
     @Override

@@ -54,9 +54,9 @@ public class SchemaValidator {
         schemaFiles.add(new File(path + "/orthology/orthology.json"));
         schemaFiles.add(new File(path + "/orthology/orthologyMetaData.json"));
 
-        schemaFiles.add(new File(path + "/phenotype/phenotypeMetaDataDefinition.json"));
-        schemaFiles.add(new File(path + "/phenotype/phenotypeModelAnnotation.json"));
-        schemaFiles.add(new File(path + "/phenotype/phenotypeTermIdentifier.json"));
+        schemaFiles.add(new File(path + "/termName/phenotypeMetaDataDefinition.json"));
+        schemaFiles.add(new File(path + "/termName/phenotypeModelAnnotation.json"));
+        schemaFiles.add(new File(path + "/termName/phenotypeTermIdentifier.json"));
 
         // Test Schema Syntax
         for(File schemaFile: schemaFiles) {

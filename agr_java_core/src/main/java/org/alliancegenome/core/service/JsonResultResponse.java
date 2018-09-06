@@ -41,11 +41,11 @@ public class JsonResultResponse<T> {
     }
 
     public void setHttpServletRequest(HttpServletRequest request) {
+        if(request == null)
+            return;
         this.request = new Request();
-        if(request != null) {
-            this.request.setUri(request.getRequestURI());
-            this.request.setParameterMap(request.getParameterMap());
-        }
+        this.request.setUri(request.getRequestURI());
+        this.request.setParameterMap(request.getParameterMap());
     }
 
 }

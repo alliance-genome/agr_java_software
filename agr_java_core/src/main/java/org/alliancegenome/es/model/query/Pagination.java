@@ -13,15 +13,26 @@ public class Pagination {
     private int page;
     private int limit;
     private String sortBy;
+    private FieldFilter sortByField;
     private Boolean asc;
     private Map<FieldFilter, String> fieldFilterValueMap = new HashMap<>(10);
     private List<String> errorList = new ArrayList<>();
 
+    private boolean isCount = false;
     public Pagination(int page, int limit, String sortBy, String asc) {
         this.page = page;
         this.limit = limit;
         this.sortBy = sortBy;
+        sortByField = FieldFilter.getFieldFilterByName(sortBy);
         init(asc);
+    }
+
+    public Pagination() {
+        isCount = true;
+    }
+
+    public boolean isCountPagination(){
+        return isCount;
     }
 
     private void init(String asc) {
@@ -55,11 +66,19 @@ public class Pagination {
     }
 
     public boolean sortByDefault() {
-        if(StringUtils.isEmpty(sortBy))
+        if (StringUtils.isEmpty(sortBy))
             return true;
-        if(sortBy.equalsIgnoreCase("default"))
+        if (sortBy.equalsIgnoreCase("default"))
             return true;
         return false;
+    }
+
+    public int getStart() {
+        return (page - 1) * limit;
+    }
+
+    public int getEnd() {
+        return page * limit;
     }
 
     enum AscendingValues {

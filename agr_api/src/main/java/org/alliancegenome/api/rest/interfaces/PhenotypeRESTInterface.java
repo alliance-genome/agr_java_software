@@ -8,7 +8,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.Map;
 
-@Path("/phenotype")
+@Path("/termName")
 @Api(value = "Phenotype Search")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
@@ -27,7 +27,7 @@ public interface PhenotypeRESTInterface {
             @QueryParam("sortBy") String sortBy,
             @QueryParam("geneticEntity") String geneticEntity,
             @QueryParam("geneticEntityType") String geneticEntityType,
-            @QueryParam("phenotype") String disease,
+            @QueryParam("termName") String disease,
             @QueryParam("reference") String reference,
             @QueryParam("evidenceCode") String evidenceCode,
             @QueryParam("asc") String asc);

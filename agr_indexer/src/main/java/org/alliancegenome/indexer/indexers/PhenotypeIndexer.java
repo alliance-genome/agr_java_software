@@ -59,7 +59,7 @@ public class PhenotypeIndexer extends Indexer<PhenotypeDocument> {
                 if (phenotype != null) {
                     list.add(phenotype);
                 } else {
-                    log.debug("No phenotype found for " + key);
+                    log.debug("No termName found for " + key);
                 }
             } catch (Exception e) {
                 log.error("Error while indexing...", e);
