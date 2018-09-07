@@ -3,7 +3,6 @@ package org.alliancegenome.api.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import org.alliancegenome.api.rest.interfaces.OrthologyRESTInterface;
 import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.neo4j.entity.node.OrthoAlgorithm;
@@ -45,7 +44,7 @@ public class OrthologyController implements OrthologyRESTInterface {
         if (start != null)
             orthologyFilter.setStart(start);
 
-        JsonResultResponse<OrthologView> response = null;
+        JsonResultResponse<OrthologView> response;
         response = orthoRepo.getOrthologyByTwoSpecies(taxonIDOne, taxonIDTwo, orthologyFilter);
 
         ObjectMapper mapper = new ObjectMapper();
@@ -63,6 +62,32 @@ public class OrthologyController implements OrthologyRESTInterface {
                                             Integer rows,
                                             Integer start) throws IOException {
         return getDoubleSpeciesOrthology(species, null, stringencyFilter, methods, rows, start);
+    }
+
+    @Override
+    public String getMultiSpeciesOrthology(List<String> taxonID, String taxonIdList, String stringencyFilter, String methods, Integer rows, Integer start) throws IOException {
+        LocalDateTime startDate = LocalDateTime.now();
+        JsonResultResponse response = new JsonResultResponse();
+        response.setNote("Not yet implemented");
+        response.calculateRequestDuration(startDate);
+        response.setApiVersion(API_VERSION);
+        response.setHttpServletRequest(request);
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.disable(MapperFeature.DEFAULT_VIEW_INCLUSION);
+        response.calculateRequestDuration(startDate);
+        return mapper.writeValueAsString(response);
+    }
+
+    @Override
+    public String getMultiGeneOrthology(List<String> geneIDs,
+                                        String geneList,
+                                        String stringencyFilter,
+                                        List<String> methods,
+                                        Integer rows,
+                                        Integer start) throws IOException {
+        GeneController controller = new GeneController();
+        controller.setRequest(request);
+        return controller.getGeneOrthology(null, geneIDs, geneList, stringencyFilter, null, methods, rows, start);
     }
 
     @Override

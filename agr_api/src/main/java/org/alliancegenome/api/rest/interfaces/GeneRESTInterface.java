@@ -78,11 +78,15 @@ public interface GeneRESTInterface {
     @GET
     @Path("/{geneID}/homologs")
     @ApiOperation(value = "Retrieve homologous gene records", notes = "Download homology records.")
-    String getGeneOrthology(@ApiParam(name = "geneID", value = "Source Gene ID: the gene for which you are searching homologous gene", required = true, type = "String")
+    String getGeneOrthology(@ApiParam(name = "geneID", value = "Source Gene ID: the gene for which you are searching homologous gene, e.g. 'MGI:109583'", required = true, type = "String")
                             @PathParam("geneID") String id,
+                            @ApiParam(name = "geneId", value = "List of additional source gene IDs for which homology is retrieved.")
+                            @QueryParam("geneId") List<String> geneID,
+                            @ApiParam(name = "geneIdList", value = "List of additional source gene IDs for which homology is retrieved in a comma-delimited list, e.g. 'MGI:109583,RGD:2129,MGI:97570'")
+                            @QueryParam("geneIdList") String geneList,
                             @ApiParam(value = "apply stringency filter", allowableValues = "stringent, moderate, all", defaultValue = "stringent")
                             @DefaultValue("stringent") @QueryParam("stringencyFilter") String stringencyFilter,
-                            @ApiParam(value = "taxonID: List of taxon IDs for the genes of the target species")
+                            @ApiParam(name = "taxonID", value = "Species identifier: Could be the full ID, e.g. 'NCBITaxon:10090', or just the ID, i.e. '10090'. Alternatively, part of a species name uniquely identifying a single species, e.g. 'danio' or 'mus'.", type = "String")
                             @QueryParam("taxonID") List<String> taxonID,
                             @ApiParam(value = "calculation methods", allowableValues = "Ensembl Compara, HGNC, Hieranoid, InParanoid, OMA, OrthoFinder, OrthoInspector, PANTHER, PhylomeDB, Roundup, TreeFam, ZFIN")
                             @QueryParam("methods") List<String> methods,
