@@ -227,6 +227,24 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         return null;
     }
 
+    public List<Gene> getOrthologyGenes(List<String> geneIDs) {
+        HashMap<String, String> map = new HashMap<>();
+
+        StringJoiner geneJoiner = new StringJoiner(",", "[", "]");
+        geneIDs.forEach(geneID -> geneJoiner.add("'" + geneID + "'"));
+
+        String query = " MATCH p1=(q:Species)-[:FROM_SPECIES]-(g:Gene)--(s) WHERE g.primaryKey in " + geneJoiner;
+        query += " OPTIONAL MATCH p4=(g)--(s:OrthologyGeneJoin)--(a:OrthoAlgorithm), p3=(g)-[o:ORTHOLOGOUS]-(g2:Gene)-[:FROM_SPECIES]-(q2:Species), (s)--(g2)";
+        query += " RETURN p1, p3, p4";
+
+        Iterable<Gene> genes = query(query, map);
+        List<Gene> geneList = StreamSupport.stream(genes.spliterator(), false )
+                .filter(gene -> geneIDs.contains(gene.getPrimaryKey()))
+                .collect(Collectors.toList());
+
+        return geneList;
+    }
+
     public Set<Gene> getOrthologyByTwoSpecies(String speciesOne, String speciesTwo) {
 
         speciesOne = SpeciesType.getTaxonId(speciesOne);
@@ -381,11 +399,12 @@ public class GeneRepository extends Neo4jRepository<Gene> {
     @FunctionalInterface
     public interface FilterComparator<T, U> {
         boolean compare(T o, U oo);
-        default FilterComparator<T,U> thenCompare(FilterComparator<T,U> other){
+
+        default FilterComparator<T, U> thenCompare(FilterComparator<T, U> other) {
             Objects.requireNonNull(other);
-            return (FilterComparator<T,U> & Serializable) (c1, c2) -> {
+            return (FilterComparator<T, U> & Serializable) (c1, c2) -> {
                 boolean res = compare(c1, c2);
-                return (!res ) ? res : other.compare(c1, c2);
+                return (!res) ? res : other.compare(c1, c2);
             };
         }
     }
