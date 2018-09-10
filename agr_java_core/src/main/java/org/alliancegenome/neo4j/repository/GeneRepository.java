@@ -16,7 +16,7 @@ import org.neo4j.ogm.model.Result;
 public class GeneRepository extends Neo4jRepository<Gene> {
 
     public static final String GOSLIM_AGR = "goslim_agr";
-    public static final String CELLULAR_COMPONENT = "cellular_component";
+    public static final String CELLULAR_COMPONENT = "CELLULAR_COMPONENT";
     private final Logger log = LogManager.getLogger(getClass());
 
     public GeneRepository() {
@@ -238,7 +238,7 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         query += " RETURN p1, p3, p4";
 
         Iterable<Gene> genes = query(query, map);
-        List<Gene> geneList = StreamSupport.stream(genes.spliterator(), false )
+        List<Gene> geneList = StreamSupport.stream(genes.spliterator(), false)
                 .filter(gene -> geneIDs.contains(gene.getPrimaryKey()))
                 .collect(Collectors.toList());
 
@@ -358,19 +358,25 @@ public class GeneRepository extends Neo4jRepository<Gene> {
 
     }
 
+    private Map<String, String> goCcList;
+
     public Map<String, String> getGoSlimList(String goType) {
+        // cache the complete GO CC list.
+        if(goCcList != null)
+            return goCcList;
         String cypher = "MATCH (goTerm:GOTerm) " +
                 "where all (subset IN ['" + GOSLIM_AGR + "'] where subset in goTerm.subset)  RETURN goTerm ";
 
         Iterable<GOTerm> joins = neo4jSession.query(GOTerm.class, cypher, new HashMap<>());
 
-        return StreamSupport.stream(joins.spliterator(), false)
+        goCcList = StreamSupport.stream(joins.spliterator(), false)
                 .filter(goTerm -> goTerm.getType().equals(goType))
                 .collect(Collectors.toMap(GOTerm::getPrimaryKey, GOTerm::getName));
+        return goCcList;
     }
 
     public Map<String, String> getGoCCSlimList() {
-        Map<String, String> goSlimList = getGoSlimList(CELLULAR_COMPONENT);
+        Map<String, String> goSlimList = getGoSlimList(CELLULAR_COMPONENT.toLowerCase());
         goSlimList.put("GO:0005575", "other locations");
         return goSlimList;
     }
