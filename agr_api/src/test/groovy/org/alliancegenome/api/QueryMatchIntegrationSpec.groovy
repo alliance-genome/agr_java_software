@@ -107,13 +107,18 @@ class QueryMatchIntegrationSpec extends Specification {
         def results = new JsonSlurper().parseText(url.text).results
 
         then:
-        results == []
+        results
+        results.size > 0
+        results.get(0).id == id //expect that an id brings back the first match
 
         where:
         issue     | id                        | query
         //strict orthology
         "AGR-755" | "ZFIN:ZDB-GENE-010323-11" | "Y20F4.4"
         "AGR-755" | "ZFIN:ZDB-GENE-010323-11" | "EVL"
+        "AGR-755" | "SGD:S000000004"          | "hspa1a"
+        "AGR-755" | "ZFIN:ZDB-GENE-121214-31" | "hspa1a"
+        "AGR-755" | "FB:FBgn0001218"          | "hspa1a"
     }
 
 }
