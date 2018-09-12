@@ -27,6 +27,7 @@ public class GeneRepository extends Neo4jRepository<Gene> {
 
     public static final String GOSLIM_AGR = "goslim_agr";
     public static final String CELLULAR_COMPONENT = "CELLULAR_COMPONENT";
+    public static final String OTHER_LOCATIONS = "other locations";
     private final Logger log = LogManager.getLogger(getClass());
 
     public GeneRepository() {
@@ -393,7 +394,7 @@ public class GeneRepository extends Neo4jRepository<Gene> {
     private List<String> goTermOrderedList;
 
     private List<String> getGoTermListFromJavaScriptFile() {
-        if(goTermOrderedList != null)
+        if (goTermOrderedList != null)
             return goTermOrderedList;
 
         String url = "https://raw.githubusercontent.com/geneontology/ribbon/master/src/data/agr.js";
@@ -431,14 +432,18 @@ public class GeneRepository extends Neo4jRepository<Gene> {
 
     public Map<String, String> getGoCCSlimList() {
         Map<String, String> goSlimList = getGoSlimList(CELLULAR_COMPONENT.toLowerCase());
-        goSlimList.put("GO:0005575", "other locations");
+        goSlimList.put("", OTHER_LOCATIONS);
         return goSlimList;
+    }
+
+    public Map<String, String> getGoCCSlimListWithoutOther() {
+        return getGoSlimList(CELLULAR_COMPONENT.toLowerCase());
     }
 
 
     public List<String> getGOParentTerms(ExpressionBioEntity entity) {
         List<String> parentList = new ArrayList<>();
-        getGoCCSlimList().keySet().forEach(termID -> {
+        getGoCCSlimListWithoutOther().keySet().forEach(termID -> {
             String query = " MATCH p1=(entity:ExpressionBioEntity)-[:" + CELLULAR_COMPONENT + "]-(ontology:GOTerm) ";
             query += "WHERE ontology.primaryKey = '" + entity.getGoTerm().getPrimaryKey() + "'";
             query += " OPTIONAL MATCH slim=(ontology)-[:PART_OF|IS_A*]->(slimTerm) " +
@@ -453,6 +458,9 @@ public class GeneRepository extends Neo4jRepository<Gene> {
                     .collect(Collectors.toList());
             parentList.addAll(list);
         });
+        if (parentList.isEmpty()) {
+            parentList.add("");
+        }
         return parentList;
     }
 
