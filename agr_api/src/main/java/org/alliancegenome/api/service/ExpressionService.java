@@ -45,7 +45,7 @@ public class ExpressionService {
 
         for (BioEntityGeneExpressionJoin join : joins) {
             ExpressionBioEntity entity = join.getEntity();
-            if(entity.getGoTerm()!= null) {
+            if (entity.getGoTerm() != null) {
                 List<String> goParentTerms = repository.getGOParentTerms(entity);
                 for (String parent : goParentTerms) {
                     if (parentTermMap.get(parent) == null) {
@@ -72,6 +72,8 @@ public class ExpressionService {
             }
             group.addGroupTerm(term);
         });
+        // add all annotations per group
+        group.setTotalAnnotations(group.getTerms().stream().mapToLong(ExpressionSummaryGroupTerm::getNumberOfAnnotations).sum());
         return summary;
     }
 }

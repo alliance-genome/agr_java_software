@@ -123,7 +123,7 @@ public class GeneTest {
     public void checkOrthologyForSingleSpecies() throws IOException {
 
         OrthologyController controller = new OrthologyController();
-        String responseString = controller.getSingleSpeciesOrthology("10090", "stringent", null, 20, 1);
+        String responseString = controller.getSingleSpeciesOrthology("559292", "stringent", "OMA", 20, 1);
         JsonResultResponse response = mapper.readValue(responseString, JsonResultResponse.class);
         assertThat("Orthology records found for mouse genes", response.getTotal(), greaterThan(0));
     }
