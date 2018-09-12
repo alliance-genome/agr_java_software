@@ -14,6 +14,8 @@ public class ExpressionSummaryGroup {
     @JsonView({ View.ExpressionView.class})
     private String name;
     @JsonView({ View.ExpressionView.class})
+    private long totalAnnotations;
+    @JsonView({ View.ExpressionView.class})
     private List<ExpressionSummaryGroupTerm> terms;
 
     public void addGroupTerm(ExpressionSummaryGroupTerm term) {

@@ -123,7 +123,7 @@ public class GeneTest {
     public void checkOrthologyForSingleSpecies() throws IOException {
 
         OrthologyController controller = new OrthologyController();
-        String responseString = controller.getSingleSpeciesOrthology("10090", "stringent", null, 20, 1);
+        String responseString = controller.getSingleSpeciesOrthology("559292", "stringent", "OMA", 20, 1);
         JsonResultResponse response = mapper.readValue(responseString, JsonResultResponse.class);
         assertThat("Orthology records found for mouse genes", response.getTotal(), greaterThan(0));
     }
@@ -208,7 +208,19 @@ public class GeneTest {
         String responseString = controller.getExpressionSummary("RGD:2129");
         //String responseString = controller.getExpressionSummary("ZFIN:ZDB-GENE-080204-52", 5, 1);
         ExpressionSummary response = mapper.readValue(responseString, ExpressionSummary.class);
-        assertThat("matches found for gene MGI:109583'", response.getTotalAnnotations(), greaterThan(5));
+        assertThat("matches found for gene RGD:2129'", response.getTotalAnnotations(), equalTo(8));
+        // GoCC
+        response.getGroups().get(0).getTerms().forEach(expressionSummaryGroupTerm -> {
+            if(expressionSummaryGroupTerm.getName().equals("extracellular region"))
+                assertThat(expressionSummaryGroupTerm.getNumberOfAnnotations(), equalTo(3));
+            else if(expressionSummaryGroupTerm.getName().equals("protein-containing complex"))
+                assertThat(expressionSummaryGroupTerm.getNumberOfAnnotations(), equalTo(2));
+            else if(expressionSummaryGroupTerm.getName().equals("other locations"))
+                assertThat(expressionSummaryGroupTerm.getNumberOfAnnotations(), equalTo(3));
+            else
+                assertThat(expressionSummaryGroupTerm.getNumberOfAnnotations(), equalTo(0));
+        });
+
     }
 
     @Ignore
