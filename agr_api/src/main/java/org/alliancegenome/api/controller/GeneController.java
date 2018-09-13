@@ -7,7 +7,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.alliancegenome.api.rest.interfaces.GeneRESTInterface;
 import org.alliancegenome.api.service.ExpressionService;
 import org.alliancegenome.api.service.GeneService;
-import org.alliancegenome.api.service.helper.ExpressionDetail;
 import org.alliancegenome.api.service.helper.ExpressionSummary;
 import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.core.service.OrthologyService;
