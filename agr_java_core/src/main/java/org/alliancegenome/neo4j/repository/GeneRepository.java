@@ -9,6 +9,7 @@ import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.entity.node.*;
+import org.alliancegenome.neo4j.view.OrthologyFilter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.neo4j.ogm.model.Result;
@@ -238,7 +239,7 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         query += " RETURN p1, p3, p4";
 
         Iterable<Gene> genes = query(query, map);
-        List<Gene> geneList = StreamSupport.stream(genes.spliterator(), false )
+        List<Gene> geneList = StreamSupport.stream(genes.spliterator(), false)
                 .filter(gene -> geneIDs.contains(gene.getPrimaryKey()))
                 .collect(Collectors.toList());
 
@@ -394,6 +395,54 @@ public class GeneRepository extends Neo4jRepository<Gene> {
             parentList.addAll(list);
         });
         return parentList;
+    }
+
+    public List<Gene> getGenes(OrthologyFilter filter) {
+
+        String query = getAllGenesQuery(filter);
+        query += " RETURN gene order by gene.taxonID, gene.symbol ";
+        query += " SKIP " + (filter.getStart() - 1) + " limit " + filter.getRows();
+
+        Iterable<Gene> genes = query(query);
+        return StreamSupport.stream(genes.spliterator(), false)
+                .map(gene -> {
+                    gene.setSpeciesName(SpeciesType.fromTaxonId(gene.getTaxonId()).getName());
+                    return gene;
+                })
+                .collect(Collectors.toList());
+    }
+
+    public int getGeneCount(OrthologyFilter filter) {
+
+        String query = getAllGenesQuery(filter);
+        query += " RETURN count(gene) ";
+        long count = queryCount(query);
+        return (int) count;
+    }
+
+    private String getAllGenesQuery(OrthologyFilter filter) {
+        StringJoiner taxonJoiner = new StringJoiner(",", "[", "]");
+        String taxonClause = null;
+        if (filter.getTaxonIDs() != null) {
+            filter.getTaxonIDs().forEach(taxonID -> taxonJoiner.add("'" + taxonID + "'"));
+            taxonClause = taxonJoiner.toString();
+        }
+        String query = " MATCH (gene:Gene) ";
+        if (taxonClause != null) {
+            query += "WHERE gene.taxonId in " + taxonClause;
+        }
+        return query;
+    }
+
+    public List<String> getGeneIDs(OrthologyFilter filter) {
+        String query = getAllGenesQuery(filter);
+        query += " RETURN gene order by gene.taxonID, gene.symbol ";
+        query += " SKIP " + (filter.getStart() - 1) + " limit " + filter.getRows();
+
+        Iterable<Gene> genes = query(query);
+        return StreamSupport.stream(genes.spliterator(), false)
+                .map(gene -> gene.getPrimaryKey())
+                .collect(Collectors.toList());
     }
 
     @FunctionalInterface
