@@ -148,7 +148,7 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
 
         if (gene.getPhenotypeEntityJoins() != null && gene.getPhenotypeEntityJoins().size() > 0 && translationDepth > 0) {
             List<PhenotypeDocument> phenotypeList = phenotypeTranslator.getPhenotypeDocuments(gene, gene.getPhenotypeEntityJoins(), translationDepth - 1);
-            geneDocument.setPhenotype(phenotypeList);
+            geneDocument.setPhenotypes(phenotypeList);
         }
 
         if (gene.getGenomeLocations() != null) {
