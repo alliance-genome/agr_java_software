@@ -131,7 +131,12 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
         int processedAmount = (lastSize - currentSize);
         String message = "" + getBigNumber(totalDocAmount - currentSize) + " records [" + getBigNumber(totalDocAmount) + "] ";
         message += (int)(percent * 100) + "% took: " + (time / 1000) + "s to process " + processedAmount;
-        message += " records at a rate of: " + ((processedAmount * 1000) / time) + "r/s ABS: " + (int)((batchTotalSize / batchCount));
+        
+        int batchAvg = 0;
+        if(batchCount > 0) {
+            batchAvg = (int)(batchTotalSize / batchCount);
+        }
+        message += " records at a rate of: " + ((processedAmount * 1000) / time) + "r/s ABS: " + batchAvg;
         
         if (percent > 0) {
             int perms = (int) (diff / percent);
