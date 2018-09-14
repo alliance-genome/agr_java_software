@@ -36,7 +36,6 @@ public class ExpressionService {
         if (joins == null)
             joins = new ArrayList<>();
         ExpressionSummary summary = new ExpressionSummary();
-        summary.setTotalAnnotations(joins.size());
 
         // calculate GO_CC set
         // get Parent terms
@@ -45,7 +44,7 @@ public class ExpressionService {
 
         for (BioEntityGeneExpressionJoin join : joins) {
             ExpressionBioEntity entity = join.getEntity();
-            if(entity.getGoTerm()!= null) {
+            if (entity.getGoTerm() != null) {
                 List<String> goParentTerms = repository.getGOParentTerms(entity);
                 for (String parent : goParentTerms) {
                     if (parentTermMap.get(parent) == null) {
@@ -59,9 +58,9 @@ public class ExpressionService {
                 }
             }
         }
-        ExpressionSummaryGroup group = new ExpressionSummaryGroup();
-        summary.addGroup(group);
-        group.setName("GO");
+        ExpressionSummaryGroup goCcGroup = new ExpressionSummaryGroup();
+        summary.addGroup(goCcGroup);
+        goCcGroup.setName("GO");
         repository.getGoCCSlimList().forEach((goId, goName) ->
         {
             ExpressionSummaryGroupTerm term = new ExpressionSummaryGroupTerm();
@@ -70,8 +69,12 @@ public class ExpressionService {
             if (parentTermMap.get(goId) != null) {
                 term.setNumberOfAnnotations(parentTermMap.get(goId).size());
             }
-            group.addGroupTerm(term);
+            goCcGroup.addGroupTerm(term);
         });
+        // add all annotations per goCcGroup
+        int goCCCount = goCcGroup.getTerms().stream().mapToInt(ExpressionSummaryGroupTerm::getNumberOfAnnotations).sum();
+        goCcGroup.setTotalAnnotations(goCCCount);
+        summary.setTotalAnnotations(goCCCount);
         return summary;
     }
 }

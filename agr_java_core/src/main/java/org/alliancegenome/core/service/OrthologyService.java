@@ -134,19 +134,11 @@ public class OrthologyService {
                         view.calculateCounts();
                         orthologList.add(view);
                     });
+            response.setResults(orthologList);
             response.setTotal(orthologList.size());
-            List<OrthologView> finalOrthologList = new ArrayList<>();
-            int index = 1;
-            for (OrthologView view : orthologList) {
-                if (index >= (filter.getStart() - 1) && index < filter.getLast()) {
-                    finalOrthologList.add(view);
-                }
-                index++;
-            }
-            response.setResults(finalOrthologList);
             return response;
         }
-        return  response;
+        return response;
     }
 
     private static boolean isAllMatchMethods(OrthologyGeneJoin join, OrthologyFilter filter) {
@@ -169,13 +161,22 @@ public class OrthologyService {
     }
 
     public static JsonResultResponse<OrthologView> getOrthologyMultiGeneJson(Collection<Gene> geneList, OrthologyFilter filter) {
+        List<Integer> sum = new ArrayList<>();
         List<OrthologView> orthologViewList =
                 geneList.stream()
-                        .flatMap(gene -> OrthologyService.getOrthologViewList(gene, filter).getResults().stream())
+                        .flatMap(gene -> {
+                            JsonResultResponse<OrthologView> view = OrthologyService.getOrthologViewList(gene, filter);
+                            sum.add(view.getTotal());
+                            return view.getResults().stream();
+                        })
                         .collect(Collectors.toList());
+        orthologViewList = orthologViewList.stream()
+                .skip(filter.getStart() - 1)
+                .limit(filter.getRows())
+                .collect(Collectors.toList());
         JsonResultResponse<OrthologView> response = new JsonResultResponse<>();
         response.setResults(orthologViewList);
-        response.setTotal(orthologViewList.size());
+        response.setTotal(sum.stream().mapToInt(Integer::intValue).sum());
         return response;
     }
 

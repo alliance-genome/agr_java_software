@@ -21,6 +21,7 @@ import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.alliancegenome.neo4j.view.OrthologView;
 import org.alliancegenome.neo4j.view.OrthologyFilter;
 import org.alliancegenome.neo4j.view.View;
+import org.apache.commons.collections.CollectionUtils;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -32,6 +33,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -47,6 +49,10 @@ public class GeneController extends BaseController implements GeneRESTInterface 
 
     @Context
     private HttpServletResponse response;
+
+    public void setRequest(HttpServletRequest request) {
+        this.request = request;
+    }
 
     @Context
     private HttpServletRequest request;
@@ -111,6 +117,8 @@ public class GeneController extends BaseController implements GeneRESTInterface 
 
     @Override
     public String getGeneOrthology(String id,
+                                   List<String> geneIDs,
+                                   String geneLister,
                                    String stringencyFilter,
                                    List<String> taxonIDs,
                                    List<String> methods,
@@ -118,11 +126,22 @@ public class GeneController extends BaseController implements GeneRESTInterface 
                                    Integer start) throws IOException {
         LocalDateTime startDate = LocalDateTime.now();
         GeneRepository repo = new GeneRepository();
-        Gene gene = repo.getOrthologyGene(id);
+        List<String> geneList = new ArrayList<>();
+        if (id != null) {
+            geneList.add(id);
+        }
+        if (geneLister != null) {
+            List<String> ids = Arrays.asList(geneLister.split(","));
+            geneList.addAll(ids);
+        }
+        if (CollectionUtils.isNotEmpty(geneIDs)) {
+            geneList.addAll(geneIDs);
+        }
+        List<Gene> genes = repo.getOrthologyGenes(geneList);
         OrthologyFilter orthologyFilter = new OrthologyFilter(stringencyFilter, taxonIDs, methods);
         orthologyFilter.setRows(rows);
         orthologyFilter.setStart(start);
-        JsonResultResponse<OrthologView> response = OrthologyService.getOrthologyJson(gene, orthologyFilter);
+        JsonResultResponse<OrthologView> response = OrthologyService.getOrthologyMultiGeneJson(genes, orthologyFilter);
         mapper.disable(MapperFeature.DEFAULT_VIEW_INCLUSION);
         response.calculateRequestDuration(startDate);
         response.setApiVersion(API_VERSION);

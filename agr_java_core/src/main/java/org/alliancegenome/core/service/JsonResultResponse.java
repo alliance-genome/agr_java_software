@@ -6,7 +6,10 @@ import lombok.Setter;
 import org.alliancegenome.neo4j.view.View;
 
 import javax.servlet.http.HttpServletRequest;
+import java.net.URLDecoder;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.util.Calendar;
 import java.util.List;
 
 @Setter
@@ -22,11 +25,19 @@ public class JsonResultResponse<T> {
     @JsonView({View.DefaultView.class})
     private String errorMessage = "";
     @JsonView({View.DefaultView.class})
+    private String note = "";
+    @JsonView({View.DefaultView.class})
     private String requestDuration;
     @JsonView({View.DefaultView.class})
     private Request request;
     @JsonView({View.DefaultView.class})
     private String apiVersion;
+    @JsonView({View.DefaultView.class})
+    private String requestDate;
+
+    public JsonResultResponse() {
+        requestDate = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(Calendar.getInstance().getTime());
+    }
 
     public void calculateRequestDuration(LocalDateTime startTime) {
         LocalDateTime endTime = LocalDateTime.now();
@@ -41,10 +52,10 @@ public class JsonResultResponse<T> {
     }
 
     public void setHttpServletRequest(HttpServletRequest request) {
-        if(request == null)
+        if (request == null)
             return;
         this.request = new Request();
-        this.request.setUri(request.getRequestURI());
+        this.request.setUri(URLDecoder.decode(request.getRequestURI()));
         this.request.setParameterMap(request.getParameterMap());
     }
 

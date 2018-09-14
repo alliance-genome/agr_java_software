@@ -78,9 +78,7 @@ public class OrthologousRepository extends Neo4jRepository<Orthologous> {
             view.setBest(((List<Orthologous>) objectMap.get("collect(distinct ortho)")).get(0).isBestScore());
             view.setBestReverse(((List<Orthologous>) objectMap.get("collect(distinct ortho)")).get(0).isBestRevScore());
 
-            view.setPredictionMethodsMatched(getMethodList(objectMap, COLLECT_DISTINCT_MATCHED));
-            view.setPredictionMethodsNotMatched(getMethodList(objectMap, COLLECT_DISTINCT_NOT_MATCHED));
-            view.setPredictionMethodsNotCalled(getMethodList(objectMap, COLLECT_DISTINCT_NOT_CALLED));
+            setPredictionInfo(objectMap, view);
             orthologViews.add(view);
         });
 
@@ -94,6 +92,21 @@ public class OrthologousRepository extends Neo4jRepository<Orthologous> {
         return response;
     }
 
+    // do the counts manually as the query does not return those values
+    private void setPredictionInfo(Map<String, Object> objectMap, OrthologView view) {
+        List<String> methodListNotMatched = getMethodList(objectMap, COLLECT_DISTINCT_NOT_MATCHED);
+        view.setPredictionMethodsNotMatched(methodListNotMatched);
+        List<String> methodListNotCalled = getMethodList(objectMap, COLLECT_DISTINCT_NOT_CALLED);
+        view.setPredictionMethodsNotCalled(methodListNotCalled);
+        List<String> methodListMatched = getAllMethods().stream()
+                .filter(orthoAlgorithm -> !methodListNotCalled.contains(orthoAlgorithm.getName()) && !methodListNotMatched.contains(orthoAlgorithm.getName()))
+                .map(OrthoAlgorithm::getName)
+                .collect(Collectors.toList());
+        view.setPredictionMethodsMatched(methodListMatched);
+        view.setMethodCount(methodListMatched.size());
+        view.setTotalMethodCount(methodListMatched.size() + methodListNotMatched.size());
+    }
+
     private List<String> getMethodList(Map<String, Object> objectMap, String alias) {
         List<OrthoAlgorithm> algorithms = (List<OrthoAlgorithm>) objectMap.get(alias);
 
@@ -103,11 +116,16 @@ public class OrthologousRepository extends Neo4jRepository<Orthologous> {
                 .collect(Collectors.toList());
     }
 
+    // cache variable
+    private List<OrthoAlgorithm> algorithmList;
 
     public List<OrthoAlgorithm> getAllMethods() {
+        if (algorithmList != null)
+            return algorithmList;
         String query = " MATCH (algorithm:OrthoAlgorithm) return distinct algorithm order by algorithm.name ";
         Iterable<OrthoAlgorithm> algorithms = neo4jSession.query(OrthoAlgorithm.class, query, new HashMap<>());
-        return StreamSupport.stream(algorithms.spliterator(), false)
+        algorithmList = StreamSupport.stream(algorithms.spliterator(), false)
                 .collect(Collectors.toList());
+        return algorithmList;
     }
 }
