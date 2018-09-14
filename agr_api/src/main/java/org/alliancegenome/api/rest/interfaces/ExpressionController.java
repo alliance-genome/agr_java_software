@@ -8,7 +8,6 @@ import org.alliancegenome.api.service.helper.ExpressionDetail;
 import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.entity.node.BioEntityGeneExpressionJoin;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.alliancegenome.neo4j.view.View;
@@ -30,7 +29,7 @@ public class ExpressionController implements ExpressionRESTInterface {
 
     @Override
     public String getExpressionAnnotations(List<String> geneIDs,
-                                           List<String> termIDs,
+                                           String termID,
                                            String filterSpecies,
                                            String filterGene,
                                            String filterStage,
@@ -57,7 +56,7 @@ public class ExpressionController implements ExpressionRESTInterface {
 
         LocalDateTime startDate = LocalDateTime.now();
         GeneRepository geneRepository = new GeneRepository();
-        List<BioEntityGeneExpressionJoin> joins = geneRepository.getExpressionAnnotations(geneIDs, termIDs, pagination);
+        List<BioEntityGeneExpressionJoin> joins = geneRepository.getExpressionAnnotations(geneIDs, termID, pagination);
         ExpressionService service = new ExpressionService();
         List<ExpressionDetail> result = service.getExpressionDetails(joins);
         ObjectMapper mapper = new ObjectMapper();
@@ -68,7 +67,7 @@ public class ExpressionController implements ExpressionRESTInterface {
         response.setApiVersion(API_VERSION);
         Pagination countPagination = new Pagination();
         countPagination.setFieldFilterValueMap(filterMap);
-        response.setTotal(geneRepository.getExpressionAnnotations(geneIDs, termIDs, countPagination).size());
+        response.setTotal(geneRepository.getExpressionAnnotations(geneIDs, termID, countPagination).size());
         response.setHttpServletRequest(request);
 
         return mapper.writerWithView(View.ExpressionView.class).writeValueAsString(response);
