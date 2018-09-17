@@ -39,14 +39,14 @@ public class OrthologousRepository extends Neo4jRepository<Orthologous> {
             filter.getMethods().forEach(method -> sj.add("'" + method + "'"));
         }
         String query = " MATCH p1=(g:Gene)-[ortho:ORTHOLOGOUS]->(gh:Gene), ";
-        query += "p4=(g)--(s:OrthologyGeneJoin)--(gh:Gene), ";
+        query += "p4=(g:Gene)-->(s:OrthologyGeneJoin)-->(gh:Gene), ";
         if (filter.hasMethods()) {
-            query += "p5=(s)-[:MATCHED]-(matched:OrthoAlgorithm {name:" + sj.toString() + "}), ";
+            query += "p5=(s:OrthologyGeneJoin)-[:MATCHED]-(matched:OrthoAlgorithm {name:" + sj.toString() + "}), ";
         } else {
-            query += "p5=(s)-[:MATCHED]-(matched:OrthoAlgorithm), ";
+            query += "p5=(s:OrthologyGeneJoin)-[:MATCHED]-(matched:OrthoAlgorithm), ";
         }
-        query += "p6=(s)-[:NOT_MATCHED]-(notMatched:OrthoAlgorithm), ";
-        query += "p7=(s)-[:NOT_CALLED]-(notCalled:OrthoAlgorithm) ";
+        query += "p6=(s:OrthologyGeneJoin)-[:NOT_MATCHED]-(notMatched:OrthoAlgorithm), ";
+        query += "p7=(s:OrthologyGeneJoin)-[:NOT_CALLED]-(notCalled:OrthoAlgorithm) ";
         query += " where g.taxonId = '" + taxonOne + "'";
         if (taxonTwo != null)
             query += " and   gh.taxonId = '" + taxonTwo + "' ";
