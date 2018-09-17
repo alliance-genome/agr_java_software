@@ -39,7 +39,7 @@ public class OrthologousRepository extends Neo4jRepository<Orthologous> {
             filter.getMethods().forEach(method -> sj.add("'" + method + "'"));
         }
         String query = " MATCH p1=(g:Gene)-[ortho:ORTHOLOGOUS]->(gh:Gene), ";
-        query += "p4=(g:gene)-->(s:OrthologyGeneJoin)-->(gh:Gene), ";
+        query += "p4=(g:Gene)-->(s:OrthologyGeneJoin)-->(gh:Gene), ";
         if (filter.hasMethods()) {
             query += "p5=(s:OrthologyGeneJoin)-[:MATCHED]-(matched:OrthoAlgorithm {name:" + sj.toString() + "}), ";
         } else {
