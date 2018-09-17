@@ -76,10 +76,10 @@ public interface GeneRESTInterface {
                                                  @PathParam("id") String id);
 
     @GET
-    @Path("/{geneID}/homologs")
+    @Path("/{id}/homologs")
     @ApiOperation(value = "Retrieve homologous gene records", notes = "Download homology records.")
-    String getGeneOrthology(@ApiParam(name = "geneID", value = "Source Gene ID: the gene for which you are searching homologous gene, e.g. 'MGI:109583'", required = true, type = "String")
-                            @PathParam("geneID") String id,
+    String getGeneOrthology(@ApiParam(name = "id", value = "Source Gene ID: the gene for which you are searching homologous gene, e.g. 'MGI:109583'", required = true, type = "String")
+                            @PathParam("id") String id,
                             @ApiParam(name = "geneId", value = "List of additional source gene IDs for which homology is retrieved.")
                             @QueryParam("geneId") List<String> geneID,
                             @ApiParam(name = "geneIdList", value = "List of additional source gene IDs for which homology is retrieved in a comma-delimited list, e.g. 'MGI:109583,RGD:2129,MGI:97570'")
@@ -107,7 +107,7 @@ public interface GeneRESTInterface {
     @Path("/{id}/expression-summary")
     @ApiOperation(value = "Retrieve all expression records of a given gene")
     String getExpressionSummary(
-            @ApiParam(name = "id", value = "Gene by ID", required = true, type = "String")
+            @ApiParam(name = "id", value = "Gene by ID, e.g. 'RGD:2129'", required = true, type = "String")
             @PathParam("id") String id
     ) throws JsonProcessingException;
 

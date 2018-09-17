@@ -17,7 +17,7 @@ public class SiteIndexSettings extends Settings {
             .startObject("index")
                 .field("max_result_window", "15000")
                 .field("number_of_replicas", "0")
-                .field("number_of_shards", "5")
+                .field("number_of_shards", "1")
                 .startObject("analysis")
                     .startObject("analyzer")
                         .startObject("default")

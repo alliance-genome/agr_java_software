@@ -136,7 +136,7 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
         );
 
         if (gene.getDiseaseEntityJoins() != null && translationDepth > 0) {
-            List<DiseaseDocument> diseaseList = diseaseTranslator.getDiseaseDocuments(gene, gene.getDiseaseEntityJoins(), translationDepth);
+            List<DiseaseDocument> diseaseList = diseaseTranslator.getDiseaseDocuments(gene, gene.getDiseaseEntityJoins(), translationDepth - 1);
             geneDocument.setDiseases(diseaseList);
         }
 
@@ -147,7 +147,7 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
         );
 
         if (gene.getPhenotypeEntityJoins() != null && gene.getPhenotypeEntityJoins().size() > 0 && translationDepth > 0) {
-            List<PhenotypeDocument> phenotypeList = phenotypeTranslator.getPhenotypeDocuments(gene, gene.getPhenotypeEntityJoins(), translationDepth);
+            List<PhenotypeDocument> phenotypeList = phenotypeTranslator.getPhenotypeDocuments(gene, gene.getPhenotypeEntityJoins(), translationDepth - 1);
             geneDocument.setPhenotypes(phenotypeList);
         }
 

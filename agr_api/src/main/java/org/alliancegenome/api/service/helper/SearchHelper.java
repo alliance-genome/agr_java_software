@@ -115,7 +115,7 @@ public class SearchHelper {
             add("species"); add("species.synonyms"); add("modLocalId");
             add("biologicalProcessWithParents"); add("molecularFunctionWithParents"); add("cellularComponentWithParents");
             add("go_type"); add("go_genes"); add("go_synonyms");
-            add("disease_genes"); add("disease_synonyms"); add("diseases.name"); add("orthology.gene2Symbol");
+            add("disease_genes"); add("disease_synonyms"); add("diseases.name");
             //disease cross references:
             add("crossReferences.ontology_provided_cross_reference.name");
             add("crossReferences.ontology_provided_cross_reference.localId");
