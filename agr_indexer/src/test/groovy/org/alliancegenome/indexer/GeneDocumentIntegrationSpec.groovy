@@ -47,12 +47,47 @@ class GeneDocumentIntegrationSpec extends Specification {
 
         then:
         geneDocument
-        geneDocument.expressionBioEntities
-        geneDocument.expressionBioEntities.containsAll(entities)
+        geneDocument.getWhereExpressed
+        geneDocument.getWhereExpressed.containsAll(entities)
 
         where:
-        geneID                    | entities
-        "ZFIN:ZDB-GENE-010323-11" | ["paraxial mesoderm", "somite"]
+        geneID                      | entities
+        "ZFIN:ZDB-GENE-010323-11"   | ["paraxial mesoderm", "somite"]
+        "ZFIN:ZDB-GENE-030131-7696" | ["whole organism", "head", "hair cell apical region"]
+
+    }
+
+    @Unroll
+    def "GeneDocument for #geneID has UBERON anitomicalExpression for #entities"() {
+        when:
+        Gene gene = repo.getOneGene(geneID)
+        GeneDocument geneDocument = trans.translate(gene)
+
+        then:
+        geneDocument
+        geneDocument.getAnatomicalExpression()
+        geneDocument.getAnatomicalExpression().containsAll(entities)
+
+        where:
+        geneID                      | entities
+        "ZFIN:ZDB-GENE-030131-7696" | ["visual system", "sensory system", "nervous system"]
+
+    }
+
+    @Unroll
+    def "GeneDocument for #geneID has cellularComponentExpression for #entities"() {
+        when:
+        Gene gene = repo.getOneGene(geneID)
+        GeneDocument geneDocument = trans.translate(gene)
+
+        then:
+        geneDocument
+        geneDocument.getCellularComponentExpression()
+        geneDocument.getCellularComponentExpression().containsAll(entities)
+
+        where:
+        geneID                      | entities
+        "ZFIN:ZDB-GENE-030131-7696" | ["axon", "photoreceptor inner segment", "presynaptic cytosol"]
 
     }
 

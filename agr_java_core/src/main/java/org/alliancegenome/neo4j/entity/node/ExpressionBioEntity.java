@@ -6,6 +6,7 @@ import org.alliancegenome.neo4j.entity.Neo4jEntity;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @NodeEntity
@@ -17,15 +18,10 @@ public class ExpressionBioEntity extends Neo4jEntity implements Comparable<Expre
     private String whereExpressedStatement;
 
     @Relationship(type = "CELLULAR_COMPONENT")
-    private GOTerm goTerm ;
+    private GOTerm goTerm;
 
     @Relationship(type = "ANATOMICAL_RIBBON_TERM")
-    private List<UBERONTerm> aoTermList;
-
-/*
-    @Relationship(type = "ANATOMICAL_STRUCTURE")
-    private GOTerm anatomy ;
-*/
+    private List<UBERONTerm> aoTermList = new ArrayList<>();
 
     @Override
     public int compareTo(ExpressionBioEntity o) {
