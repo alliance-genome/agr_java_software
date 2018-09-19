@@ -30,6 +30,7 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
     @Override
     protected GeneDocument entityToDocument(Gene gene, int translationDepth) {
         //log.info(entity);
+
         HashMap<String, Set<GOTerm>> goTerms = new HashMap<>();
 
         GeneDocument geneDocument = new GeneDocument();
@@ -151,11 +152,32 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
             geneDocument.setPhenotypes(phenotypeList);
         }
 
-        geneDocument.setExpressionBioEntities(
+        geneDocument.setWhereExpressed(
                 gene.getExpressionBioEntities().stream()
                 .map(ExpressionBioEntity::getWhereExpressedStatement)
                 .distinct()
                 .collect(Collectors.toList())
+        );
+
+        geneDocument.setAnatomicalExpression(
+                gene.getEntityGeneExpressionJoins().stream()
+                        .map(BioEntityGeneExpressionJoin::getEntity)
+                        .map(ExpressionBioEntity::getAoTermList)
+                        .flatMap(List::stream)
+                        .map(UBERONTerm::getName)
+                        .distinct()
+                        .collect(Collectors.toList())
+        );
+
+
+        geneDocument.setCellularComponentExpression(
+                gene.getEntityGeneExpressionJoins().stream()
+                        .map(BioEntityGeneExpressionJoin::getEntity)
+                        .map(ExpressionBioEntity::getGoTerm)
+                        .filter(term -> term != null)
+                        .map(GOTerm::getName)
+                        .distinct()
+                        .collect(Collectors.toList())
         );
 
         if (gene.getGenomeLocations() != null) {
