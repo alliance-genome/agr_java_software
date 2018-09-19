@@ -85,6 +85,7 @@ public class ExpressionService {
 
         // create Stage histogram
         Map<String, Long> stageHistogram = joins.stream()
+                .filter(join -> join.getStageTerm() != null)
                 .collect(Collectors.groupingBy(join -> join.getStageTerm().getPrimaryKey(), Collectors.counting()));
         ExpressionSummaryGroup stageGroup = populateGroupInfo("Stage", stageHistogram, repository.getStageList());
         summary.addGroup(stageGroup);
