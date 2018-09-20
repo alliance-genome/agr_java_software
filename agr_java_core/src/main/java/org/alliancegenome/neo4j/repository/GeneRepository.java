@@ -47,8 +47,8 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         query += " OPTIONAL MATCH p8=(g)--(s:PhenotypeEntityJoin)--(ff:Feature)";
         query += " OPTIONAL MATCH p9=(g)--(s:GOTerm)-[:IS_A|:PART_OF*]->(parent:GOTerm)";
         query += " OPTIONAL MATCH p10=(g)--(s:BioEntityGeneExpressionJoin)--(t) ";
-        query += " RETURN p1, p2, p3, p4, p5, p6, p8, p9, p10";
-        //query += " RETURN p1, p2, p3, p4, p5, p6, p7, p8, p9";
+        query += " OPTIONAL MATCH p11=(t:ExpressionBioEntity)--(term:Ontology) ";
+        query += " RETURN p1, p2, p3, p4, p5, p6, p8, p9, p10, p11";
 
         Iterable<Gene> genes = query(query, map);
         for (Gene g : genes) {
@@ -77,6 +77,13 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         }
 
         return null;
+    }
+
+    //convenience method for getting expression for a single gene
+    public List<BioEntityGeneExpressionJoin> getExpressionAnnotations(Gene gene) {
+        List<String> geneIDs = new ArrayList<>();
+        geneIDs.add(gene.getPrimaryKey());
+        return getExpressionAnnotations(geneIDs, null, new Pagination());
     }
 
     public List<BioEntityGeneExpressionJoin> getExpressionAnnotations(List<String> geneIDs,String termID, Pagination pagination) {
