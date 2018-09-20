@@ -47,8 +47,8 @@ class GeneDocumentIntegrationSpec extends Specification {
 
         then:
         geneDocument
-        geneDocument.getWhereExpressed
-        geneDocument.getWhereExpressed.containsAll(entities)
+        geneDocument.whereExpressed
+        geneDocument.whereExpressed.containsAll(entities)
 
         where:
         geneID                      | entities
@@ -65,8 +65,8 @@ class GeneDocumentIntegrationSpec extends Specification {
 
         then:
         geneDocument
-        geneDocument.getAnatomicalExpression()
-        geneDocument.getAnatomicalExpression().containsAll(entities)
+        geneDocument.anatomicalExpression
+        geneDocument.anatomicalExpression.containsAll(entities)
 
         where:
         geneID                      | entities
@@ -82,8 +82,8 @@ class GeneDocumentIntegrationSpec extends Specification {
 
         then:
         geneDocument
-        geneDocument.getCellularComponentExpression()
-        geneDocument.getCellularComponentExpression().containsAll(entities)
+        geneDocument.cellularComponentExpression
+        geneDocument.cellularComponentExpression.containsAll(entities)
 
         where:
         geneID                      | entities
