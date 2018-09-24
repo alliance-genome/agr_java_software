@@ -178,6 +178,8 @@ public class GeneRepository extends Neo4jRepository<Gene> {
                     joinList = joinList.stream()
                             .filter(join -> join.getStageTerm().getPrimaryKey().equals(termID))
                             .collect(Collectors.toList());
+                } else {
+                    joinList = aoJoinList;
                 }
             }
         }
