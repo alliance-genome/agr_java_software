@@ -78,6 +78,12 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         return null;
     }
 
+    public List<BioEntityGeneExpressionJoin> getExpressionAnnotations(Gene gene) {
+        List<String> geneIDs = new ArrayList<>();
+        geneIDs.add(gene.getPrimaryKey());
+        return getExpressionAnnotations(geneIDs, null, new Pagination());
+    }
+
     public List<BioEntityGeneExpressionJoin> getExpressionAnnotations(List<String> geneIDs, String termID, Pagination pagination) {
         StringJoiner sj = new StringJoiner(",", "[", "]");
         geneIDs.forEach(geneID -> sj.add("'" + geneID + "'"));
