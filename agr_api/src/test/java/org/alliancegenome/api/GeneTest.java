@@ -308,11 +308,16 @@ public class GeneTest {
 
         ExpressionController controller = new ExpressionController();
         String[] geneIDs = {"RGD:2129"};
-        String termID = "GO:0005576";
+        String termID = "GO:otherLocations";
         int limit = 15;
         String responseString = controller.getExpressionAnnotations(Arrays.asList(geneIDs), termID, null, null, null, null, null, null, null, limit, 1, null, "true");
         JsonResultResponse<ExpressionDetail> response = mapper.readValue(responseString, JsonResultResponse.class);
-        assertThat("matches found for gene MGI:109583'", response.getResults().size(), greaterThan(2));
+        assertThat("matches found for gene MGI:109583'", response.getResults().size(), equalTo(3));
+
+        termID = "GO:0032991";
+        responseString = controller.getExpressionAnnotations(Arrays.asList(geneIDs), termID, null, null, null, null, null, null, null, limit, 1, null, "true");
+        response = mapper.readValue(responseString, JsonResultResponse.class);
+        assertThat("matches found for gene MGI:109583'", response.getResults().size(), equalTo(2));
     }
 
     @Ignore
@@ -325,6 +330,20 @@ public class GeneTest {
         int limit = 15;
         String responseString = controller.getExpressionAnnotations(Arrays.asList(geneIDs), termID, null, null, null, null, null, null, null, limit, 1, null, "true");
         JsonResultResponse<ExpressionDetail> response = mapper.readValue(responseString, JsonResultResponse.class);
+        assertThat("matches found for gene MGI:109583'", response.getResults().size(), equalTo(1));
+
+        // sensory system
+        termID = "UBERON:0001032";
+        limit = 15;
+        responseString = controller.getExpressionAnnotations(Arrays.asList(geneIDs), termID, null, null, null, null, null, null, null, limit, 1, null, "true");
+        response = mapper.readValue(responseString, JsonResultResponse.class);
+        assertThat("matches found for gene MGI:109583'", response.getResults().size(), greaterThan(2));
+
+        // Adult stage
+        termID = "UBERON:0000113";
+        limit = 15;
+        responseString = controller.getExpressionAnnotations(Arrays.asList(geneIDs), termID, null, null, null, null, null, null, null, limit, 1, null, "true");
+        response = mapper.readValue(responseString, JsonResultResponse.class);
         assertThat("matches found for gene MGI:109583'", response.getResults().size(), greaterThan(2));
     }
 

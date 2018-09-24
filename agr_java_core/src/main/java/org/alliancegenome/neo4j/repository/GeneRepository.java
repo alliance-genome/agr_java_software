@@ -9,7 +9,6 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.stream.DoubleStream;
 import java.util.stream.StreamSupport;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -161,10 +160,26 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         // Check for GO terms
         if (termID != null && !termID.isEmpty()) {
             // At the moment we are expecting only a single termID
+            // GO term check
             if (Ontology.isGOTerm(termID))
                 joinList = joinList.stream()
-                        .filter(join -> join.getEntity().getGoTerm() != null && isChildOfRollupGOTerm(join, termID))
+                        .filter(join -> isChildOfRollupGOTerm(join, termID))
                         .collect(Collectors.toList());
+            // AO / stage term check
+            if (Ontology.isAoOrStageTerm(termID)) {
+                // check AO ribbon term list
+                List<BioEntityGeneExpressionJoin> aoJoinList = joinList.stream()
+                        .filter(join ->
+                                join.getEntity().getAoTermList().stream().map(UBERONTerm::getPrimaryKey).anyMatch(s -> s.equals(termID))
+                        )
+                        .collect(Collectors.toList());
+                // check stage term list
+                if (aoJoinList.size() == 0) {
+                    joinList = joinList.stream()
+                            .filter(join -> join.getStageTerm().getPrimaryKey().equals(termID))
+                            .collect(Collectors.toList());
+                }
+            }
         }
         // pagination
         List<BioEntityGeneExpressionJoin> paginatedJoinList;
@@ -179,7 +194,28 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         return paginatedJoinList;
     }
 
+    private boolean isChildOfRollupOtherGOTerm(BioEntityGeneExpressionJoin join) {
+        StringJoiner sj = new StringJoiner(",");
+
+        getGoCCSlimListWithoutOther().keySet().forEach(s ->
+                sj.add("'" + s + "'")
+        );
+
+        String entityKey = join.getEntity().getGoTerm().getPrimaryKey();
+        String cypher = " MATCH p1=(entity:ExpressionBioEntity)-[:CELLULAR_COMPONENT]-(ontology:GOTerm) " +
+                " WHERE ontology.primaryKey = '" + entityKey + "' " +
+                "OPTIONAL MATCH slim=(ontology)-[:PART_OF|IS_A*]->(slimTerm) " +
+                "where any (primaryKey in [" + sj.toString() + "] where primaryKey in slimTerm.primaryKey) " +
+                "RETURN slim";
+        Iterable<GOTerm> terms = neo4jSession.query(GOTerm.class, cypher, new HashMap<>());
+        return !(terms != null && terms.spliterator().getExactSizeIfKnown() > 0);
+    }
+
     private boolean isChildOfRollupGOTerm(BioEntityGeneExpressionJoin join, String termID) {
+        if (join.getEntity().getGoTerm() == null)
+            return false;
+        if (termID.equals(GO_OTHER_LOCATIONS_ID))
+            return isChildOfRollupOtherGOTerm(join);
         String cypher = " MATCH p1=(entity:ExpressionBioEntity)-[:CELLULAR_COMPONENT]-(ontology:GOTerm) " +
                 " WHERE ontology.primaryKey = '" + join.getEntity().getGoTerm().getPrimaryKey() + "' " +
                 "OPTIONAL MATCH slim=(ontology)-[:PART_OF|IS_A*]->(slimTerm) " +
