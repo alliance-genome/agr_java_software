@@ -9,4 +9,10 @@ public abstract class Ontology extends Neo4jEntity {
             return false;
         return termID.startsWith("GO:");
     }
+
+    public static boolean isAoOrStageTerm(String termID) {
+        if (termID == null)
+            return false;
+        return termID.startsWith("UBERON:");
+    }
 }
