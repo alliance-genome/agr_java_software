@@ -78,7 +78,7 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         return null;
     }
 
-    public List<BioEntityGeneExpressionJoin> getExpressionAnnotations(List<String> geneIDs,String termID, Pagination pagination) {
+    public List<BioEntityGeneExpressionJoin> getExpressionAnnotations(List<String> geneIDs, String termID, Pagination pagination) {
         StringJoiner sj = new StringJoiner(",", "[", "]");
         geneIDs.forEach(geneID -> sj.add("'" + geneID + "'"));
 
@@ -167,7 +167,7 @@ public class GeneRepository extends Neo4jRepository<Gene> {
                         )
                         .collect(Collectors.toList());
                 // check stage term list
-                if(aoJoinList.size() == 0) {
+                if (aoJoinList.size() == 0) {
                     joinList = joinList.stream()
                             .filter(join -> join.getStageTerm().getPrimaryKey().equals(termID))
                             .collect(Collectors.toList());
