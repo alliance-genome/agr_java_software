@@ -26,11 +26,12 @@ import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilde
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.jboss.logging.Logger;
 
+@SuppressWarnings("serial")
 public class SearchHelper {
 
     private Logger log = Logger.getLogger(getClass());
 
-    private static String[] SUFFIX_LIST = { ".keywordAutocomplete", ".keyword",
+    private static String[] SUFFIX_LIST = { ".htmlSmoosh", ".keywordAutocomplete", ".keyword", ".smoosh",
                                             ".synonyms", ".symbols", ".text" };
 
     
@@ -41,9 +42,9 @@ public class SearchHelper {
                     add("species");
                     add("soTermName");
                     add("diseases.name");
-                    add("biologicalProcessWithParents");
-                    add("molecularFunctionWithParents");
-                    add("cellularComponentWithParents");
+                    add("biologicalProcessAgrSlim");
+                    add("molecularFunctionAgrSlim");
+                    add("cellularComponentAgrSlim");
 
                 }
             });
@@ -114,7 +115,7 @@ public class SearchHelper {
             add("species"); add("species.synonyms"); add("modLocalId");
             add("biologicalProcessWithParents"); add("molecularFunctionWithParents"); add("cellularComponentWithParents");
             add("go_type"); add("go_genes"); add("go_synonyms");
-            add("disease_genes"); add("disease_synonyms"); add("diseases.name"); add("orthology.gene2Symbol");
+            add("disease_genes"); add("disease_synonyms"); add("diseases.name");
             //disease cross references:
             add("crossReferences.ontology_provided_cross_reference.name");
             add("crossReferences.ontology_provided_cross_reference.localId");
@@ -130,6 +131,8 @@ public class SearchHelper {
             add("annotations.geneDocument.symbol");
             add("annotations.geneDocument.name");
             add("phenotypeStatements");
+            add("strictOrthologySymbols.autocomplete");
+            add("strictOrthologySymbols.keyword");
         }
     };
 
@@ -236,7 +239,7 @@ public class SearchHelper {
                 // this may eventually need to be replaced by a more targeted
                 // method that just remove .keyword .synonym etc
                 String name = hit.getHighlightFields().get(key).getName();
-
+                
                 for (int i = 0 ; i < SUFFIX_LIST.length ; i++ ) {
                     name = name.replace(SUFFIX_LIST[i],"");
                 }

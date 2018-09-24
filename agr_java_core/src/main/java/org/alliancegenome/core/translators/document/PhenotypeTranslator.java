@@ -37,7 +37,7 @@ public class PhenotypeTranslator extends EntityDocumentTranslator<Phenotype, Phe
         return doc;
     }
 
-    // list of phenotypeEntityJoins are of type phenotype and gene
+    // list of phenotypeEntityJoins are of type termName and gene
     private PhenotypeDocument entityToDocument(Phenotype phenotype, Gene gene, List<PhenotypeEntityJoin> dejList) {
         PhenotypeDocument doc = getPhenotypeDocument(phenotype);
 
@@ -54,13 +54,13 @@ public class PhenotypeTranslator extends EntityDocumentTranslator<Phenotype, Phe
     }
 
     List<PhenotypeDocument> getPhenotypeDocuments(Gene gene, List<PhenotypeEntityJoin> phenotypeJoins, int translationDepth) {
-        // group by phenotype
+        // group by termName
 
         Map<Phenotype, List<PhenotypeEntityJoin>> phenotypeMap = phenotypeJoins.stream()
                 .filter(join -> join.getPhenotype() != null)
                 .collect(Collectors.groupingBy(PhenotypeEntityJoin::getPhenotype));
         List<PhenotypeDocument> phenotypeList = new ArrayList<>();
-        // for each phenotype create annotation doc
+        // for each termName create annotation doc
         // phenotypeEntityJoin list turns into AnnotationDocument objects
         phenotypeMap.forEach((phenotype, phenotypeEntityJoins) -> {
             if (translationDepth > 0) {

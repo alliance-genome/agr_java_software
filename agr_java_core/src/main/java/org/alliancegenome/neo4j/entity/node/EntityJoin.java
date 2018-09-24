@@ -2,10 +2,12 @@ package org.alliancegenome.neo4j.entity.node;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 
 import java.util.List;
 
+@NodeEntity
 @Getter
 @Setter
 public class EntityJoin extends Association {

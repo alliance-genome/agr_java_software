@@ -1,8 +1,6 @@
 package org.alliancegenome.core.translators.document;
 
-import java.util.*;
-import java.util.stream.Collectors;
-
+import org.alliancegenome.core.service.OrthologyService;
 import org.alliancegenome.core.translators.EntityDocumentTranslator;
 import org.alliancegenome.core.translators.doclet.CrossReferenceDocletTranslator;
 import org.alliancegenome.es.index.site.doclet.CrossReferenceDoclet;
@@ -16,6 +14,9 @@ import org.alliancegenome.neo4j.entity.node.*;
 import org.alliancegenome.neo4j.entity.relationship.GenomeLocation;
 import org.alliancegenome.neo4j.entity.relationship.Orthologous;
 import org.apache.commons.collections4.CollectionUtils;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument> {
 
@@ -86,6 +87,10 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
         geneDocument.setCellularComponentWithParents(collectGoTermParentNames(allParentTerms,"cellular_component"));
         geneDocument.setMolecularFunctionWithParents(collectGoTermParentNames(allParentTerms,"molecular_function"));
 
+        geneDocument.setBiologicalProcessAgrSlim(collectGoTermSlimNames(allParentTerms, "biological_process", "goslim_agr"));
+        geneDocument.setCellularComponentAgrSlim(collectGoTermSlimNames(allParentTerms, "cellular_component", "goslim_agr"));
+        geneDocument.setMolecularFunctionAgrSlim(collectGoTermSlimNames(allParentTerms, "molecular_function", "goslim_agr"));
+
         // This code is duplicated in Gene and Feature should be pulled out into its own translator
         ArrayList<String> secondaryIds = new ArrayList<>();
         if (gene.getSecondaryIds() != null) {
@@ -116,63 +121,19 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
         geneDocument.setSynonyms(synonyms);
 
 
-        //      if(entity.getOrthoGenes() != null) {
-        //      if(lookup.size() + entity.getOrthologyGeneJoins().size() > 0) {
-        //          System.out.println(lookup.size() + " ==? " + entity.getOrthologyGeneJoins().size());
-        //      }
-
         if (gene.getOrthologyGeneJoins().size() > 0 && translationDepth > 0) {
-            List<OrthologyDoclet> olist = new ArrayList<>();
-
-            HashMap<String, Orthologous> lookup = new HashMap<>();
-            for (Orthologous o : gene.getOrthoGenes()) {
-                lookup.put(o.getPrimaryKey(), o);
-            }
-
-            for (OrthologyGeneJoin join : gene.getOrthologyGeneJoins()) {
-
-                if (lookup.containsKey(join.getPrimaryKey())) {
-
-                    ArrayList<String> matched = new ArrayList<>();
-                    if (join.getMatched() != null) {
-                        for (OrthoAlgorithm algo : join.getMatched()) {
-                            matched.add(algo.getName());
-                        }
-                    }
-                    ArrayList<String> notMatched = new ArrayList<>();
-                    if (join.getNotMatched() != null) {
-                        for (OrthoAlgorithm algo : join.getNotMatched()) {
-                            notMatched.add(algo.getName());
-                        }
-                    }
-                    ArrayList<String> notCalled = new ArrayList<>();
-                    if (join.getNotCalled() != null) {
-                        for (OrthoAlgorithm algo : join.getNotCalled()) {
-                            notCalled.add(algo.getName());
-                        }
-                    }
-                    Orthologous orth = lookup.get(join.getPrimaryKey());
-                    OrthologyDoclet doc = new OrthologyDoclet(
-                            orth.getPrimaryKey(),
-                            orth.isBestScore(),
-                            orth.isBestRevScore(),
-                            orth.getConfidence(),
-                            orth.getGene1().getSpecies() == null ? null : orth.getGene1().getSpecies().getPrimaryKey(),
-                            orth.getGene2().getSpecies() == null ? null : orth.getGene2().getSpecies().getPrimaryKey(),
-                            orth.getGene1().getSpecies() == null ? null : orth.getGene1().getSpecies().getName(),
-                            orth.getGene2().getSpecies() == null ? null : orth.getGene2().getSpecies().getName(),
-                            orth.getGene1().getSymbol(),
-                            orth.getGene2().getSymbol(),
-                            orth.getGene1().getPrimaryKey(),
-                            orth.getGene2().getPrimaryKey(),
-                            notCalled, matched, notMatched
-                    );
-                    olist.add(doc);
-                }
-
-            }
-            geneDocument.setOrthology(olist);
+            List<OrthologyDoclet> doclets = OrthologyService.getOrthologyDoclets(gene);
+            geneDocument.setOrthology(doclets);
         }
+
+        geneDocument.setStrictOrthologySymbols(
+                gene.getOrthoGenes().stream()
+                .filter(Orthologous::isStrictFilter)
+                .map(Orthologous::getGene2)
+                .map(Gene::getSymbol)
+                .distinct()
+                .collect(Collectors.toList())
+        );
 
         if (gene.getDiseaseEntityJoins() != null && translationDepth > 0) {
             List<DiseaseDocument> diseaseList = diseaseTranslator.getDiseaseDocuments(gene, gene.getDiseaseEntityJoins(), translationDepth);
@@ -186,8 +147,8 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
         );
 
         if (gene.getPhenotypeEntityJoins() != null && gene.getPhenotypeEntityJoins().size() > 0 && translationDepth > 0) {
-            List<PhenotypeDocument> phenotypeList = phenotypeTranslator.getPhenotypeDocuments(gene, gene.getPhenotypeEntityJoins(), translationDepth);
-            geneDocument.setPhenotype(phenotypeList);
+            List<PhenotypeDocument> phenotypeList = phenotypeTranslator.getPhenotypeDocuments(gene, gene.getPhenotypeEntityJoins(), translationDepth - 1);
+            geneDocument.setPhenotypes(phenotypeList);
         }
 
         if (gene.getGenomeLocations() != null) {
@@ -230,9 +191,17 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
                 .stream().map(GOTerm::getName).collect(Collectors.toList());
     }
 
-    protected List<String> collectGoTermParentNames(Set<GOTerm> terms, String subset) {
+    protected List<String> collectGoTermParentNames(Set<GOTerm> terms, String type) {
         return CollectionUtils.emptyIfNull(terms).stream()
-                .filter(term -> term.getType().equals(subset))
+                .filter(term -> term.getType().equals(type))
+                .map(GOTerm::getName)
+                .collect(Collectors.toList());
+    }
+
+    protected List<String> collectGoTermSlimNames(Set<GOTerm> terms, String type, String subset) {
+        return CollectionUtils.emptyIfNull(terms).stream()
+                .filter(term -> term.getSubset().contains(subset))
+                .filter(term -> term.getType().equals(type))
                 .map(GOTerm::getName)
                 .collect(Collectors.toList());
     }

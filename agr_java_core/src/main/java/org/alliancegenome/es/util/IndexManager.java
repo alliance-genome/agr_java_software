@@ -47,7 +47,7 @@ public class IndexManager {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            System.exit(0);
+            System.exit(-1);
         }
     }
 
@@ -87,7 +87,7 @@ public class IndexManager {
             client.admin().indices().prepareRefresh(index).get();
             log.error("Indexing Failed: " + index);
             e.printStackTrace();
-            System.exit(0);
+            System.exit(-1);
         }
     }
 
@@ -158,8 +158,22 @@ public class IndexManager {
             removeAlias(baseIndexName, baseIndexName);
         }
         createAlias(baseIndexName, tempIndexName);
+        removeOldIndexes();
         client.close();
         log.debug(baseIndexName + " Finished: ");
+    }
+
+    private void removeOldIndexes() {
+        List<String> indexes = getIndexList();
+        for(String indexName: indexes) {
+            if(indexName.contains(baseIndexName)) {
+                IndexMetaData imd = getIndex(indexName);
+                if(!imd.getAliases().containsKey(baseIndexName) && !imd.getAliases().containsKey(tempIndexName)) {
+                    log.debug("Removing Old Index: " + indexName);
+                    deleteIndex(indexName);
+                }
+            }
+        }
     }
 
     public String getCreateRepo(String repoName) {

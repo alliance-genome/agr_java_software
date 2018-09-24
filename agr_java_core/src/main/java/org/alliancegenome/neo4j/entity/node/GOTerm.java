@@ -1,12 +1,9 @@
 package org.alliancegenome.neo4j.entity.node;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
-import org.apache.commons.collections4.CollectionUtils;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 
@@ -24,9 +21,10 @@ public class GOTerm extends Ontology {
     private String type;
     private String primaryKey;
     private String is_obsolete;
+    private List<String> subset;
 
     @Relationship(type = "ANNOTATED_TO", direction=Relationship.INCOMING)
-    private Set<Gene> genes = new HashSet<Gene>();
+    private Set<Gene> genes = new HashSet<>();
     
     @Relationship(type = "ALSO_KNOWN_AS")
     private Set<Synonym> synonyms = new HashSet<Synonym>();
@@ -43,9 +41,9 @@ public class GOTerm extends Ontology {
     public Set<GOTerm> getParentTerms() {
         Set<GOTerm> parentTerms = new HashSet<>();
 
-        isAParents.stream().forEach(parent -> { parentTerms.addAll(parent.getParentTerms());});
-        partOfParents.stream().forEach(parent -> {parentTerms.addAll(parent.getParentTerms());});
-                
+        isAParents.forEach(parent -> { parentTerms.addAll(parent.getParentTerms());});
+        partOfParents.forEach(parent -> {parentTerms.addAll(parent.getParentTerms());});
+
         parentTerms.add(this);
 
         return parentTerms;
@@ -65,4 +63,7 @@ public class GOTerm extends Ontology {
     public int hashCode() {
         return primaryKey.hashCode();
     }
+
+    @Override
+    public String toString() { return nameKey; }
 }

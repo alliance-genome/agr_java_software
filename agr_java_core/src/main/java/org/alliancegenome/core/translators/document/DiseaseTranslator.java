@@ -343,20 +343,6 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
         return idList;
     }
 
-    /**
-     * Get all the parent term names compiled.
-     */
-    private Set<String> getParentNameList(DOTerm doTerm) {
-        Set<String> nameList = new LinkedHashSet<>();
-        nameList.add(doTerm.getName());
-        doTerm.getParents().forEach(term -> {
-            nameList.add(term.getName());
-            if (term.getParents() != null)
-                nameList.addAll(getParentNameList(term));
-        });
-        return nameList;
-    }
-
     private SpeciesDoclet getSpeciesDoclet(Gene gene) {
         return gene.getSpecies().getType().getDoclet();
     }

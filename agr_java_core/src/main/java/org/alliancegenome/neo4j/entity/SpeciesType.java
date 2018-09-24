@@ -1,6 +1,11 @@
 package org.alliancegenome.neo4j.entity;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.alliancegenome.es.index.site.doclet.SpeciesDoclet;
+import org.apache.commons.lang3.StringUtils;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -14,8 +19,9 @@ public enum SpeciesType {
     ZEBRAFISH("Danio rerio", "ZFIN", "NCBITaxon:7955", "Dre", "ZFIN", "Zebrafish Information Network", "7955", 3),
     FLY("Drosophila melanogaster", "FB", "NCBITaxon:7227", "Dme", "FB", "Fly Base", "7227", 4),
     WORM("Caenorhabditis elegans", "WB", "NCBITaxon:6239", "Cel", "WB", "Worm Base", "6239", 5),
-    YEAST("Saccharomyces cerevisiae", "SGD", "NCBITaxon:4932", "Sce", "SGD", "Saccharomyces Genome Database", "4932", 6);
+    YEAST("Saccharomyces cerevisiae", "SGD", "NCBITaxon:559292", "Sce", "SGD", "Saccharomyces Genome Database", "559292", 6);
 
+    public static final String NCBITAXON = "NCBITaxon:";
     private String name;
     private String displayName;
     private String taxonID;
@@ -32,6 +38,13 @@ public enum SpeciesType {
         return null;
     }
 
+    public static SpeciesType getTypeByPartialName(String name) {
+        List<SpeciesType> species = Arrays.stream(values())
+                .filter(type -> type.name.toLowerCase().contains(name.toLowerCase()))
+                .collect(Collectors.toList());
+        return species != null && species.size() == 1 ? species.get(0) : null;
+    }
+
 
     public static SpeciesDoclet fromModName(String modName) {
         for (SpeciesType species : SpeciesType.values()) {
@@ -45,6 +58,15 @@ public enum SpeciesType {
     public static SpeciesDoclet fromTaxonIdPart(String taxonIDPart) {
         for (SpeciesType species : SpeciesType.values()) {
             if (species.taxonIDPart.equals(taxonIDPart)) {
+                return getDoclet(species);
+            }
+        }
+        return null;
+    }
+
+    public static SpeciesDoclet fromTaxonId(String taxonID) {
+        for (SpeciesType species : SpeciesType.values()) {
+            if (species.taxonID.equals(taxonID)) {
                 return getDoclet(species);
             }
         }
@@ -78,4 +100,21 @@ public enum SpeciesType {
         return ret;
     }
 
+    public static String getTaxonId(String species) {
+        if (species == null)
+            return null;
+        // return name if it already is the full taxon ID
+        if (species.startsWith(NCBITAXON))
+            return species;
+        // if only a number is provided then prefix it with taxon...
+        if (StringUtils.isNumeric(species))
+            return NCBITAXON + species;
+        SpeciesType typeByName = getTypeByName(species);
+        if (typeByName != null)
+            return typeByName.getTaxonID();
+        typeByName = getTypeByPartialName(species);
+        if (typeByName != null)
+            return typeByName.getTaxonID();
+        return species;
+    }
 }

@@ -36,6 +36,10 @@ public class GeneDocument extends SearchableItemDocument {
     private List<String> molecularFunctionWithParents;
     private List<String> cellularComponentWithParents;
 
+    private List<String> biologicalProcessAgrSlim;
+    private List<String> molecularFunctionAgrSlim;
+    private List<String> cellularComponentAgrSlim;
+
     private List<String> synonyms;
     private String geneLiteratureUrl;
     @JsonProperty("crossReferences")
@@ -43,7 +47,7 @@ public class GeneDocument extends SearchableItemDocument {
     private String dataProvider;
     private Date dateProduced;
     private List<DiseaseDocument> diseases = new ArrayList<>();
-    private List<PhenotypeDocument> phenotype = new ArrayList<>();
+    private List<PhenotypeDocument> phenotypes = new ArrayList<>();
     private String geneSynopsisUrl;
     private String primaryId;
     private List<GenomeLocationDoclet> genomeLocations;
@@ -54,6 +58,7 @@ public class GeneDocument extends SearchableItemDocument {
     private String geneSynopsis;
     private String automatedGeneSynopsis;
     private List<OrthologyDoclet> orthology;
+    private List<String> strictOrthologySymbols;
     private String geneticEntityExternalUrl;
 
     private String modCrossRefCompleteUrl;

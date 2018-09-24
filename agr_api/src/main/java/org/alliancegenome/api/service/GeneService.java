@@ -1,17 +1,22 @@
 package org.alliancegenome.api.service;
 
+import java.util.List;
+import java.util.Map;
+
+import javax.enterprise.context.RequestScoped;
+
 import org.alliancegenome.es.index.site.dao.GeneDAO;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.es.model.search.SearchResult;
 import org.alliancegenome.es.util.SearchHitIterator;
-
-import javax.enterprise.context.RequestScoped;
-import java.util.Map;
+import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
+import org.alliancegenome.neo4j.repository.GeneRepository;
 
 @RequestScoped
 public class GeneService {
 
     private static GeneDAO geneDAO = new GeneDAO();
+    private static GeneRepository geneRepo = new GeneRepository();
 
     public Map<String, Object> getById(String id) {
         Map<String, Object> geneMap = geneDAO.getById(id);
@@ -34,6 +39,10 @@ public class GeneService {
 
     public SearchHitIterator getPhenotypeAnnotationsDownload(String id, Pagination pagination) {
         return geneDAO.getPhenotypeAnnotationsDownload(id, pagination);
+    }
+
+    public List<InteractionGeneJoin> getInteractions(String id) {
+        return geneRepo.getInteractions(id);
     }
 
 }
