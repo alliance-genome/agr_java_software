@@ -1,3 +1,7 @@
 .project
 .settings/
 audit.log
+
+# intellij things
+.idea/
+*.iml

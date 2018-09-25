@@ -21,6 +21,9 @@ public class BioEntityGeneExpressionJoin extends Association {
     @Relationship(type = "DURING")
     private Stage stage;
 
+    @Relationship(type = "STAGE_RIBBON_TERM")
+    private UBERONTerm stageTerm;
+
     @Relationship(type = "ASSAY")
     private MMOTerm assay;
 

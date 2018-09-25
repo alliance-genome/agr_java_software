@@ -33,7 +33,13 @@ public class GeneMapping extends Mapping {
                     new FieldBuilder(builder,"biologicalProcessWithParents","text").keyword().build();
                     new FieldBuilder(builder,"cellularComponentWithParents","text").keyword().build();
                     new FieldBuilder(builder,"molecularFunctionWithParents","text").keyword().build();
+                    new FieldBuilder(builder,"biologicalProcessAgrSlim","text").keyword().build();
+                    new FieldBuilder(builder,"cellularComponentAgrSlim","text").keyword().build();
+                    new FieldBuilder(builder,"molecularFunctionAgrSlim","text").keyword().build();
                     new FieldBuilder(builder,"strictOrthologySymbols","text").keyword().autocomplete().build();
+                    new FieldBuilder(builder,"whereExpressed","text").keyword().build();
+                    new FieldBuilder(builder,"anatomicalExpression","text").keyword().build();
+                    new FieldBuilder(builder,"cellularComponentExpression","text").keyword().build();
 
                     buildGenomeLocationsField();
                     buildNestedDocument("alleles");
