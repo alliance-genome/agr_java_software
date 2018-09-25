@@ -95,7 +95,6 @@ public interface GeneRESTInterface {
                             @ApiParam(value = "starting row number (for pagination)")
                             @DefaultValue("1") @QueryParam("start") Integer start) throws IOException;
 
-
     @GET
     @Path("/{id}/interactions")
     @ApiOperation(value = "Retrieve interations for a given gene")

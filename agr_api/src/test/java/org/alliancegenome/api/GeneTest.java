@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.alliancegenome.api.controller.GeneController;
+import org.alliancegenome.api.controller.GenesController;
 import org.alliancegenome.api.controller.OrthologyController;
 import org.alliancegenome.api.rest.interfaces.ExpressionController;
 import org.alliancegenome.api.service.GeneService;
@@ -18,6 +19,7 @@ import org.alliancegenome.es.index.site.dao.GeneDAO;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.es.model.search.SearchResult;
+import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.view.OrthologyModule;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.config.Configurator;
@@ -215,7 +217,30 @@ public class GeneTest {
 
     @Ignore
     @Test
-    public void checkExpressionSummaryGO() throws IOException {
+    public void getAllGenes() throws IOException {
+
+        GenesController controller = new GenesController();
+        String[] taxonIDs = {"danio"};
+        String responseString = controller.getGenes(Arrays.asList(taxonIDs), 10, 1);
+        //String responseString = controller.getExpressionSummary("ZFIN:ZDB-GENE-080204-52", 5, 1);
+        JsonResultResponse<Gene> response = mapper.readValue(responseString, JsonResultResponse.class);
+        assertThat("matches found for gene MGI:109583'", response.getTotal(), greaterThan(5));
+    }
+
+    @Ignore
+    @Test
+    public void getAllGeneIDs() throws IOException {
+
+        GenesController controller = new GenesController();
+        String[] taxonIDs = {"danio"};
+        String responseString = controller.getGeneIDs(Arrays.asList(taxonIDs), 5, 1);
+        assertThat("matches found for gene MGI:109583'", responseString,
+                equalTo("ZFIN:ZDB-GENE-990706-1,ZFIN:ZDB-GENE-000710-5,ZFIN:ZDB-GENE-030516-5,ZFIN:ZDB-GENE-030131-8698,ZFIN:ZDB-GENE-030131-8358"));
+    }
+
+    @Ignore
+    @Test
+      public void checkExpressionSummaryGO() throws IOException {
 
         GeneController controller = new GeneController();
         String responseString = controller.getExpressionSummary("RGD:2129");
