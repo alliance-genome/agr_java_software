@@ -39,14 +39,10 @@ public class OrthologousRepository extends Neo4jRepository<Orthologous> {
             filter.getMethods().forEach(method -> sj.add("'" + method + "'"));
         }
         String query = " MATCH p1=(g:Gene)-[ortho:ORTHOLOGOUS]->(gh:Gene), ";
-        query += "p4=(g:Gene)-->(s:OrthologyGeneJoin)-->(gh:Gene), ";
+        query += "p4=(g:Gene)-->(s:OrthologyGeneJoin)-->(gh:Gene) ";
         if (filter.hasMethods()) {
-            query += "p5=(s:OrthologyGeneJoin)-[:MATCHED]-(matched:OrthoAlgorithm {name:" + sj.toString() + "}), ";
-        } else {
-            query += "p5=(s:OrthologyGeneJoin)-[:MATCHED]-(matched:OrthoAlgorithm), ";
+            query += ", p5=(s:OrthologyGeneJoin)-[:MATCHED]->(matched:OrthoAlgorithm {name:" + sj.toString() + "}) ";
         }
-        query += "p6=(s:OrthologyGeneJoin)-[:NOT_MATCHED]-(notMatched:OrthoAlgorithm), ";
-        query += "p7=(s:OrthologyGeneJoin)-[:NOT_CALLED]-(notCalled:OrthoAlgorithm) ";
         query += " where g.taxonId = '" + taxonOne + "'";
         if (taxonTwo != null)
             query += " and   gh.taxonId = '" + taxonTwo + "' ";
@@ -56,8 +52,12 @@ public class OrthologousRepository extends Neo4jRepository<Orthologous> {
             if (filter.getStringency().equals(OrthologyFilter.Stringency.MODERATE))
                 query += "and ortho.moderateFilter = true ";
         }
-        String recordQuery = query + "return distinct g, gh, collect(distinct ortho), " +
-                COLLECT_DISTINCT_MATCHED + ", " + COLLECT_DISTINCT_NOT_MATCHED + ", " + COLLECT_DISTINCT_NOT_CALLED + " order by g.symbol, gh.symbol ";
+        query += "OPTIONAL MATCH p6=(s:OrthologyGeneJoin)-[:NOT_MATCHED]->(notMatched:OrthoAlgorithm), ";
+        query += "p7=(s:OrthologyGeneJoin)-[:NOT_CALLED]->(notCalled:OrthoAlgorithm) ";
+        String recordQuery = query + "return distinct g, gh, collect(distinct ortho), ";
+        if (filter.hasMethods())
+            recordQuery += COLLECT_DISTINCT_MATCHED + ", ";
+        recordQuery += COLLECT_DISTINCT_NOT_MATCHED + ", " + COLLECT_DISTINCT_NOT_CALLED + " order by g.symbol, gh.symbol ";
         recordQuery += " SKIP " + (filter.getStart() - 1) + " limit " + filter.getRows();
 
         Result result = queryForResult(recordQuery);
@@ -108,6 +108,8 @@ public class OrthologousRepository extends Neo4jRepository<Orthologous> {
     }
 
     private List<String> getMethodList(Map<String, Object> objectMap, String alias) {
+        if (!(objectMap.get(alias) instanceof List))
+            return new ArrayList<>();
         List<OrthoAlgorithm> algorithms = (List<OrthoAlgorithm>) objectMap.get(alias);
 
         return algorithms.stream()
