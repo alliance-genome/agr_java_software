@@ -58,7 +58,7 @@ public class ExpressionController implements ExpressionRESTInterface {
         GeneRepository geneRepository = new GeneRepository();
         List<BioEntityGeneExpressionJoin> joins = geneRepository.getExpressionAnnotations(geneIDs, termID, pagination);
         ExpressionService service = new ExpressionService();
-        List<ExpressionDetail> result = service.getExpressionDetails(joins);
+        List<ExpressionDetail> result = service.getExpressionDetails(joins, pagination);
         ObjectMapper mapper = new ObjectMapper();
         mapper.disable(MapperFeature.DEFAULT_VIEW_INCLUSION);
         JsonResultResponse<ExpressionDetail> response = new JsonResultResponse<>();
