@@ -4,35 +4,91 @@ import org.alliancegenome.api.service.helper.ExpressionDetail;
 import org.alliancegenome.api.service.helper.ExpressionSummary;
 import org.alliancegenome.api.service.helper.ExpressionSummaryGroup;
 import org.alliancegenome.api.service.helper.ExpressionSummaryGroupTerm;
-import org.alliancegenome.neo4j.entity.node.BioEntityGeneExpressionJoin;
-import org.alliancegenome.neo4j.entity.node.ExpressionBioEntity;
-import org.alliancegenome.neo4j.entity.node.UBERONTerm;
+import org.alliancegenome.es.model.query.FieldFilter;
+import org.alliancegenome.es.model.query.Pagination;
+import org.alliancegenome.neo4j.entity.node.*;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.apache.commons.collections4.CollectionUtils;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toSet;
+
 public class ExpressionService {
 
-    public List<ExpressionDetail> getExpressionDetails(List<BioEntityGeneExpressionJoin> joins) {
-        if (joins == null)
-            joins = new ArrayList<>();
-        return joins.stream()
-                .map(expressionJoin -> {
-                    ExpressionDetail detail = new ExpressionDetail();
-                    detail.setGene(expressionJoin.getGene());
-                    detail.setStage(expressionJoin.getStage());
-                    detail.setTermName(expressionJoin.getEntity().getWhereExpressedStatement());
-                    detail.setAssay(expressionJoin.getAssay());
-                    detail.setPublication(expressionJoin.getPublication());
-                    return detail;
-                })
-                .collect(Collectors.toList());
+    public List<ExpressionDetail> getExpressionDetails(List<BioEntityGeneExpressionJoin> joins, Pagination pagination) {
+        // grouping by: gene, term name, ribbon stage, assay
+        // to collate publications / sources
+        Map<Gene, Map<String, Map<Optional<UBERONTerm>, Map<MMOTerm, Set<BioEntityGeneExpressionJoin>>>>> groupedRecords = joins.stream()
+                .collect(groupingBy(BioEntityGeneExpressionJoin::getGene, groupingBy(join -> join.getEntity().getWhereExpressedStatement(),
+                        groupingBy(join -> Optional.ofNullable(join.getStageTerm()), groupingBy(BioEntityGeneExpressionJoin::getAssay, toSet())))));
+
+        List<ExpressionDetail> expressionDetails = new ArrayList<>();
+        groupedRecords.forEach((gene, termNameMap) -> {
+            termNameMap.forEach((termName, stageMap) -> {
+                stageMap.forEach((stage, assayMap) -> {
+                    assayMap.forEach((assay, bioJoins) -> {
+                        ExpressionDetail detail = new ExpressionDetail();
+                        detail.setGene(gene);
+                        detail.setTermName(termName);
+                        detail.setAssay(assay);
+                        detail.setDataProvider(gene.getDataProvider());
+                        stage.ifPresent(detail::setStage);
+                        detail.setPublications(bioJoins.stream().map(BioEntityGeneExpressionJoin::getPublication).collect(Collectors.toList()));
+                        expressionDetails.add(detail);
+                    });
+                });
+            });
+        });
+
+        // sorting
+        HashMap<FieldFilter, Comparator<ExpressionDetail>> sortingMapping = new LinkedHashMap<>();
+        sortingMapping.put(FieldFilter.FSPECIES, Comparator.comparing(o -> o.getGene().getTaxonId().toUpperCase()));
+        sortingMapping.put(FieldFilter.GENE_NAME, Comparator.comparing(o -> o.getGene().getSymbol().toUpperCase()));
+        sortingMapping.put(FieldFilter.TERM_NAME, Comparator.comparing(o -> o.getTermName().toUpperCase()));
+//        sortingMapping.put(FieldFilter.STAGE, Comparator.comparing(o -> o.getStage().getPrimaryKey().toUpperCase()));
+        sortingMapping.put(FieldFilter.ASSAY, Comparator.comparing(o -> o.getAssay().getName().toUpperCase()));
+
+        Comparator<ExpressionDetail> comparator = null;
+        FieldFilter sortByField = pagination.getSortByField();
+        if (sortByField != null) {
+            comparator = sortingMapping.get(sortByField);
+/*
+            if (!pagination.getAsc())
+                comparator.reversed();
+*/
+        }
+        if (comparator != null)
+            expressionDetails.sort(comparator);
+        for (FieldFilter fieldFilter : sortingMapping.keySet()) {
+            if (sortByField != null && sortByField.equals(fieldFilter)) {
+                continue;
+            }
+            Comparator<ExpressionDetail> comp = sortingMapping.get(fieldFilter);
+            if (comparator == null)
+                comparator = comp;
+            else
+                comparator = comparator.thenComparing(comp);
+        }
+        expressionDetails.sort(comparator);
+
+        // pagination
+        List<ExpressionDetail> paginatedJoinList;
+        if (pagination.isCount()) {
+            paginatedJoinList = expressionDetails;
+        } else {
+            paginatedJoinList = expressionDetails.stream()
+                    .skip(pagination.getStart())
+                    .limit(pagination.getLimit())
+                    .collect(Collectors.toList());
+        }
+
+        if (paginatedJoinList == null)
+            paginatedJoinList = new ArrayList<>();
+        return paginatedJoinList;
     }
 
     public ExpressionSummary getExpressionSummary(List<BioEntityGeneExpressionJoin> joins) {

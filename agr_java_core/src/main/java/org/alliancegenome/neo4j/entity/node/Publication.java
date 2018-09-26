@@ -38,4 +38,9 @@ public class Publication extends Neo4jEntity {
         else
             pubId = pubModId;
     }
+
+    @Override
+    public String toString() {
+        return primaryKey;
+    }
 }
