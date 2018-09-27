@@ -17,8 +17,6 @@ public class ExpressionDetail {
     @JsonView(View.ExpressionView.class)
     private String termName;
     @JsonView(View.ExpressionView.class)
-    private String termID;
-    @JsonView(View.ExpressionView.class)
     private UBERONTerm stage;
     @JsonView(View.ExpressionView.class)
     private MMOTerm assay;
