@@ -1,7 +1,9 @@
 package org.alliancegenome.neo4j.entity.node;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Getter;
 import lombok.Setter;
+import org.alliancegenome.neo4j.view.View;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 
@@ -14,10 +16,12 @@ import java.util.Set;
 public class UBERONTerm extends Ontology {
 
     private String nameKey;
+    @JsonView(View.ExpressionView.class)
     private String name;
     private String description;
     private String href;
     private String type;
+    @JsonView(View.ExpressionView.class)
     private String primaryKey;
     private String is_obsolete;
     private List<String> subset;

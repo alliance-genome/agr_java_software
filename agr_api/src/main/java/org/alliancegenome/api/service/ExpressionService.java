@@ -4,6 +4,7 @@ import org.alliancegenome.api.service.helper.ExpressionDetail;
 import org.alliancegenome.api.service.helper.ExpressionSummary;
 import org.alliancegenome.api.service.helper.ExpressionSummaryGroup;
 import org.alliancegenome.api.service.helper.ExpressionSummaryGroupTerm;
+import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.node.*;
@@ -19,7 +20,7 @@ import static java.util.stream.Collectors.toSet;
 
 public class ExpressionService {
 
-    public List<ExpressionDetail> getExpressionDetails(List<BioEntityGeneExpressionJoin> joins, Pagination pagination) {
+    public JsonResultResponse<ExpressionDetail> getExpressionDetails(List<BioEntityGeneExpressionJoin> joins, Pagination pagination) {
         // grouping by: gene, term name, ribbon stage, assay
         // to collate publications / sources
         Map<Gene, Map<String, Map<Optional<UBERONTerm>, Map<MMOTerm, Set<BioEntityGeneExpressionJoin>>>>> groupedRecords = joins.stream()
@@ -48,7 +49,7 @@ public class ExpressionService {
         HashMap<FieldFilter, Comparator<ExpressionDetail>> sortingMapping = new LinkedHashMap<>();
         sortingMapping.put(FieldFilter.FSPECIES, Comparator.comparing(o -> o.getGene().getTaxonId().toUpperCase()));
         sortingMapping.put(FieldFilter.GENE_NAME, Comparator.comparing(o -> o.getGene().getSymbol().toUpperCase()));
-        sortingMapping.put(FieldFilter.TERM_NAME, Comparator.comparing(o -> o.getTermName().toUpperCase()));
+        //sortingMapping.put(FieldFilter.TERM_NAME, Comparator.comparing(o -> o.getTerm().toUpperCase()));
 //        sortingMapping.put(FieldFilter.STAGE, Comparator.comparing(o -> o.getStage().getPrimaryKey().toUpperCase()));
         sortingMapping.put(FieldFilter.ASSAY, Comparator.comparing(o -> o.getAssay().getName().toUpperCase()));
 
@@ -74,7 +75,8 @@ public class ExpressionService {
                 comparator = comparator.thenComparing(comp);
         }
         expressionDetails.sort(comparator);
-
+        JsonResultResponse<ExpressionDetail> response = new JsonResultResponse<>();
+        response.setTotal(expressionDetails.size());
         // pagination
         List<ExpressionDetail> paginatedJoinList;
         if (pagination.isCount()) {
@@ -88,7 +90,8 @@ public class ExpressionService {
 
         if (paginatedJoinList == null)
             paginatedJoinList = new ArrayList<>();
-        return paginatedJoinList;
+        response.setResults(paginatedJoinList);
+        return response;
     }
 
     public ExpressionSummary getExpressionSummary(List<BioEntityGeneExpressionJoin> joins) {
