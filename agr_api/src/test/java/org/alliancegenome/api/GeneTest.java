@@ -43,7 +43,7 @@ import static org.hamcrest.Matchers.greaterThan;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
-@Api(value="hallo")
+@Api(value = "hallo")
 public class GeneTest {
 
     private GeneService geneService;
@@ -56,7 +56,8 @@ public class GeneTest {
 
         GeneTest test = new GeneTest();
         Api annotation = test.getClass().getAnnotation(Api.class);
-        Method method = new Object() {}
+        Method method = new Object() {
+        }
                 .getClass()
                 .getEnclosingMethod();
         Annotation[] annotations = method.getDeclaredAnnotations();
@@ -251,11 +252,11 @@ public class GeneTest {
         assertThat("matches found for gene RGD:2129'", response.getTotalAnnotations(), equalTo(8));
         // GoCC
         response.getGroups().get(0).getTerms().forEach(expressionSummaryGroupTerm -> {
-            if(expressionSummaryGroupTerm.getName().equals("extracellular region"))
+            if (expressionSummaryGroupTerm.getName().equals("extracellular region"))
                 assertThat(expressionSummaryGroupTerm.getNumberOfAnnotations(), equalTo(3));
-            else if(expressionSummaryGroupTerm.getName().equals("protein-containing complex"))
+            else if (expressionSummaryGroupTerm.getName().equals("protein-containing complex"))
                 assertThat(expressionSummaryGroupTerm.getNumberOfAnnotations(), equalTo(2));
-            else if(expressionSummaryGroupTerm.getName().equals("other locations"))
+            else if (expressionSummaryGroupTerm.getName().equals("other locations"))
                 assertThat(expressionSummaryGroupTerm.getNumberOfAnnotations(), equalTo(3));
             else
                 assertThat(expressionSummaryGroupTerm.getNumberOfAnnotations(), equalTo(0));
@@ -311,7 +312,7 @@ public class GeneTest {
         assertThat("first element species", response.getResults().get(0).getGene().getSpeciesName(), equalTo("Danio rerio"));
         assertThat("first element symbol", response.getResults().get(0).getGene().getSymbol(), equalTo("abcb4"));
         assertThat("list of terms", terms, equalTo("head,head,intestinal bulb,intestine,intestine,intestine,liver,liver,liver,whole organism"));
-  //      assertThat("list of stages", stages, equalTo("ZFS:0000029,ZFS:0000030,ZFS:0000031,ZFS:0000032,ZFS:0000033,ZFS:0000034,ZFS:0000035,ZFS:0000036,ZFS:0000037,ZFS:0000029,ZFS:0000030,ZFS:0000031,ZFS:0000032,ZFS:0000033,ZFS:0000034"));
+        //      assertThat("list of stages", stages, equalTo("ZFS:0000029,ZFS:0000030,ZFS:0000031,ZFS:0000032,ZFS:0000033,ZFS:0000034,ZFS:0000035,ZFS:0000036,ZFS:0000037,ZFS:0000029,ZFS:0000030,ZFS:0000031,ZFS:0000032,ZFS:0000033,ZFS:0000034"));
 
         responseString = controller.getExpressionAnnotations(Arrays.asList(geneIDs), null, null, null, null, null, null, null, null, limit, 1, "assay", "false");
         response = mapper.readValue(responseString, new TypeReference<JsonResultResponse<ExpressionDetail>>() {
@@ -383,9 +384,9 @@ public class GeneTest {
     public void checkExpressionAnnotationFilter() throws IOException {
 
         ExpressionController controller = new ExpressionController();
-        String[] geneIDs = {"MGI:97570", "ZFIN:ZDB-GENE-080204-52"};
-        int limit = 15;
-        String responseString = controller.getExpressionAnnotations(Arrays.asList(geneIDs), null, null, null, null, null, null, "LivE", null, limit, 1, null, "true");
+        String[] geneIDs = {"ZFIN:ZDB-GENE-980526-166"};
+        int limit = 600;
+        String responseString = controller.getExpressionAnnotations(Arrays.asList(geneIDs), null, null, null, null, null, null, null, null, limit, 1, null, "true");
         JsonResultResponse<ExpressionDetail> response = mapper.readValue(responseString, new TypeReference<JsonResultResponse<ExpressionDetail>>() {
         });
         //assertThat("matches found for gene MGI:109583'", response.getReturnedRecords(), equalTo(limit));
@@ -415,6 +416,17 @@ public class GeneTest {
         assertThat("first element species", response.getResults().get(0).getGene().getSpeciesName(), equalTo("Danio rerio"));
         assertThat("first element symbol", response.getResults().get(0).getGene().getSymbol(), equalTo("abcb4"));
         assertThat("list of terms", terms, equalTo("liver,liver,liver"));
-  //      assertThat("list of stages", stages, equalTo("ZFS:0000029,ZFS:0000030,ZFS:0000031,ZFS:0000032,ZFS:0000033,ZFS:0000034,ZFS:0000035,ZFS:0000036,ZFS:0000044"));
+        //      assertThat("list of stages", stages, equalTo("ZFS:0000029,ZFS:0000030,ZFS:0000031,ZFS:0000032,ZFS:0000033,ZFS:0000034,ZFS:0000035,ZFS:0000036,ZFS:0000044"));
+    }
+
+    @Ignore
+    @Test
+    public void checkExpressionAPI() throws IOException {
+
+        ExpressionController controller = new ExpressionController();
+        int limit = 15;
+        String responseString = controller.getExpressionAnnotationsByTaxon("danio",null, limit, 1);
+        JsonResultResponse<ExpressionDetail> response = mapper.readValue(responseString, new TypeReference<JsonResultResponse<ExpressionDetail>>() {
+        });
     }
 }

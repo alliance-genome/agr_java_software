@@ -49,4 +49,18 @@ public interface ExpressionRESTInterface {
             @QueryParam("asc") String asc
     ) throws JsonProcessingException;
 
+    @GET
+    @Path("/{taxonID}")
+    @ApiOperation(value = "Retrieve all expression records of a given set of genes")
+    String getExpressionAnnotationsByTaxon(
+            @ApiParam(name = "taxonID", value = "Taxon ID for the first gene: Could be the full ID, e.g. 'NCBITaxon:10090', or just the ID, i.e. '10090'. Alternatively, part of a species name uniquely identifying a single species, e.g. 'danio' or 'mus'.", required = true, type = "String")
+            @PathParam("taxonID") String speciesOne,
+            @ApiParam(name = "termID", value = "Term ID by which rollup should happen")
+            @QueryParam("termID") String termID,
+            @ApiParam(name = "limit", value = "Number of rows returned", defaultValue = "20")
+            @DefaultValue("20") @QueryParam("limit") int limit,
+            @ApiParam(name = "page", value = "Page number")
+            @DefaultValue("1") @QueryParam("page") int page
+    ) throws JsonProcessingException;
+
 }
