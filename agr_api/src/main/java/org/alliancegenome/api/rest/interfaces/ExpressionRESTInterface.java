@@ -5,14 +5,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import org.alliancegenome.es.model.search.SearchResult;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 
 
 @Path("/expression")
@@ -28,7 +24,7 @@ public interface ExpressionRESTInterface {
             @ApiParam(name = "geneID", value = "Gene by ID", required = true)
             @QueryParam("geneID") List<String> geneIDs,
             @ApiParam(name = "termID", value = "Term ID by which rollup should happen")
-            @QueryParam("termID") List<String> termIDs,
+            @QueryParam("termID") String termID,
             @ApiParam(name = "filter.species", value = "Species by taxon ID", type = "String")
             @QueryParam("filter.species") String filterSpecies,
             @ApiParam(name = "filter.gene", value = "Gene symbol", type = "String")

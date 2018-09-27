@@ -45,7 +45,8 @@ public class SearchHelper {
                     add("biologicalProcessAgrSlim");
                     add("molecularFunctionAgrSlim");
                     add("cellularComponentAgrSlim");
-
+                    add("anatomicalExpression");
+                    add("cellularComponentExpression");
                 }
             });
             put("go", new ArrayList<String>() {
@@ -133,6 +134,9 @@ public class SearchHelper {
             add("phenotypeStatements");
             add("strictOrthologySymbols.autocomplete");
             add("strictOrthologySymbols.keyword");
+            add("whereExpressed"); add("whereExpressed.keyword");
+            add("anatomicalExpression"); add("anatomicalExpression.keyword");
+            add("cellularComponentExpression"); add("cellularComponentExpression.keyword");
         }
     };
 

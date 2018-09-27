@@ -39,6 +39,8 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
     private Date startTime = new Date();
     private Date lastTime = new Date();
     private int lastSize;
+    private long batchTotalSize = 0;
+    private long batchCount = 0;
 
     public Indexer(IndexerConfig indexerConfig) {
         this.indexerConfig = indexerConfig;
@@ -94,6 +96,8 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
                     String json = om.writeValueAsString(doc);
                     //log.debug("JSON: " + json);
                     bulkRequest.add(client.prepareIndex(Indexer.indexName, indexerConfig.getTypeName()).setSource(json, XContentType.JSON).setId(doc.getDocumentId()));
+                    batchTotalSize += json.length();
+                    batchCount += 1;
                 } catch (JsonProcessingException e) {
                     e.printStackTrace();
                 }
@@ -125,7 +129,15 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
         long diff = now.getTime() - startTime.getTime();
         long time = (now.getTime() - lastTime.getTime());
         int processedAmount = (lastSize - currentSize);
-        String message = "" + getBigNumber(totalDocAmount - currentSize) + " records [" + getBigNumber(totalDocAmount) + "] " + (int) (percent * 100) + "% took: " + (time / 1000) + "s to process " + processedAmount + " records at a rate of: " + ((processedAmount * 1000) / time) + "r/s";
+        String message = "" + getBigNumber(totalDocAmount - currentSize) + " records [" + getBigNumber(totalDocAmount) + "] ";
+        message += (int)(percent * 100) + "% took: " + (time / 1000) + "s to process " + processedAmount;
+        
+        int batchAvg = 0;
+        if(batchCount > 0) {
+            batchAvg = (int)(batchTotalSize / batchCount);
+        }
+        message += " records at a rate of: " + ((processedAmount * 1000) / time) + "r/s ABS: " + batchAvg;
+        
         if (percent > 0) {
             int perms = (int) (diff / percent);
             Date end = new Date(startTime.getTime() + perms);
@@ -134,6 +146,8 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
         log.info(message);
         lastSize = currentSize;
         lastTime = now;
+        batchCount = 0;
+        batchTotalSize = 0;
     }
 
     // Used to show progress when using batches
@@ -143,20 +157,20 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
     }
 
     // Used to show progress when using batches
-    protected void progress(int currentBatch, int totalBatches, int processedAmount) {
-        double percent = ((double) currentBatch / (double) totalBatches);
-        Date now = new Date();
-        long diff = now.getTime() - startTime.getTime();
-        long time = (now.getTime() - lastTime.getTime());
-        if (percent > 0) {
-            int perms = (int) (diff / percent);
-            Date end = new Date(startTime.getTime() + perms);
-            log.info("Batch: " + currentBatch + " of " + totalBatches + " took: " + time + "ms to process " + processedAmount + " records at a rate of: " + ((processedAmount * 1000) / time) + "r/s, Memory: " + df.format(memoryPercent() * 100) + "%, Percentage complete: " + (int) (percent * 100) + "%, Estimated Finish: " + end);
-        } else {
-            log.info("Batch: " + currentBatch + " of " + totalBatches + " took: " + time + "ms to process " + processedAmount + " records at a rate of: " + ((processedAmount * 1000) / time) + "r/s");
-        }
-        lastTime = now;
-    }
+//  protected void progress(int currentBatch, int totalBatches, int processedAmount) {
+//      double percent = ((double) currentBatch / (double) totalBatches);
+//      Date now = new Date();
+//      long diff = now.getTime() - startTime.getTime();
+//      long time = (now.getTime() - lastTime.getTime());
+//      if (percent > 0) {
+//          int perms = (int) (diff / percent);
+//          Date end = new Date(startTime.getTime() + perms);
+//          log.info("Batch: " + currentBatch + " of " + totalBatches + " took: " + time + "ms to process " + processedAmount + " records at a rate of: " + ((processedAmount * 1000) / time) + "r/s, Memory: " + df.format(memoryPercent() * 100) + "%, Percentage complete: " + (int) (percent * 100) + "%, Estimated Finish: " + end);
+//      } else {
+//          log.info("Batch: " + currentBatch + " of " + totalBatches + " took: " + time + "ms to process " + processedAmount + " records at a rate of: " + ((processedAmount * 1000) / time) + "r/s");
+//      }
+//      lastTime = now;
+//  }
 
     private void finishProcess(int totalDocAmount) {
         Date now = new Date();

@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.alliancegenome.api.controller.GeneController;
 import org.alliancegenome.api.controller.GenesController;
 import org.alliancegenome.api.controller.OrthologyController;
@@ -27,6 +29,8 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +41,7 @@ import static org.hamcrest.Matchers.greaterThan;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
+@Api(value="hallo")
 public class GeneTest {
 
     private GeneService geneService;
@@ -44,8 +49,16 @@ public class GeneTest {
     private static Logger log = Logger.getLogger(GeneTest.class);
     private ObjectMapper mapper = new ObjectMapper();
 
-
+    @ApiOperation(value = "Retrieve a Gene for given ID")
     public static void main(String[] args) {
+
+        GeneTest test = new GeneTest();
+        Api annotation = test.getClass().getAnnotation(Api.class);
+        Method method = new Object() {}
+                .getClass()
+                .getEnclosingMethod();
+        Annotation[] annotations = method.getDeclaredAnnotations();
+
         GeneDAO service = new GeneDAO();
 
         service.init();
@@ -125,7 +138,7 @@ public class GeneTest {
     public void checkOrthologyForSingleSpecies() throws IOException {
 
         OrthologyController controller = new OrthologyController();
-        String responseString = controller.getSingleSpeciesOrthology("10090", "stringent", null, 20, 1);
+        String responseString = controller.getSingleSpeciesOrthology("559292", "stringent", "OMA", 20, 1);
         JsonResultResponse response = mapper.readValue(responseString, JsonResultResponse.class);
         assertThat("Orthology records found for mouse genes", response.getTotal(), greaterThan(0));
     }
@@ -227,13 +240,35 @@ public class GeneTest {
 
     @Ignore
     @Test
-    public void checkExpressionSummary() throws IOException {
+      public void checkExpressionSummaryGO() throws IOException {
 
         GeneController controller = new GeneController();
         String responseString = controller.getExpressionSummary("RGD:2129");
         //String responseString = controller.getExpressionSummary("ZFIN:ZDB-GENE-080204-52", 5, 1);
         ExpressionSummary response = mapper.readValue(responseString, ExpressionSummary.class);
-        assertThat("matches found for gene MGI:109583'", response.getTotalAnnotations(), greaterThan(5));
+        assertThat("matches found for gene RGD:2129'", response.getTotalAnnotations(), equalTo(8));
+        // GoCC
+        response.getGroups().get(0).getTerms().forEach(expressionSummaryGroupTerm -> {
+            if(expressionSummaryGroupTerm.getName().equals("extracellular region"))
+                assertThat(expressionSummaryGroupTerm.getNumberOfAnnotations(), equalTo(3));
+            else if(expressionSummaryGroupTerm.getName().equals("protein-containing complex"))
+                assertThat(expressionSummaryGroupTerm.getNumberOfAnnotations(), equalTo(2));
+            else if(expressionSummaryGroupTerm.getName().equals("other locations"))
+                assertThat(expressionSummaryGroupTerm.getNumberOfAnnotations(), equalTo(3));
+            else
+                assertThat(expressionSummaryGroupTerm.getNumberOfAnnotations(), equalTo(0));
+        });
+
+    }
+
+    @Ignore
+    @Test
+    public void checkExpressionSummaryGOAndAO() throws IOException {
+
+        GeneController controller = new GeneController();
+        String responseString = controller.getExpressionSummary("ZFIN:ZDB-GENE-980526-188");
+        ExpressionSummary response = mapper.readValue(responseString, ExpressionSummary.class);
+        assertThat("matches found for gene ZFIN:ZDB-GENE-980526-188'", response.getTotalAnnotations(), equalTo(26));
     }
 
     @Ignore
@@ -298,10 +333,42 @@ public class GeneTest {
 
         ExpressionController controller = new ExpressionController();
         String[] geneIDs = {"RGD:2129"};
-        String[] termIDs = {"GO:0005575"};
+        String termID = "GO:otherLocations";
         int limit = 15;
-        String responseString = controller.getExpressionAnnotations(Arrays.asList(geneIDs), Arrays.asList(termIDs), null, null, null, null, null, null, null, limit, 1, null, "true");
+        String responseString = controller.getExpressionAnnotations(Arrays.asList(geneIDs), termID, null, null, null, null, null, null, null, limit, 1, null, "true");
         JsonResultResponse<ExpressionDetail> response = mapper.readValue(responseString, JsonResultResponse.class);
+        assertThat("matches found for gene MGI:109583'", response.getResults().size(), equalTo(3));
+
+        termID = "GO:0032991";
+        responseString = controller.getExpressionAnnotations(Arrays.asList(geneIDs), termID, null, null, null, null, null, null, null, limit, 1, null, "true");
+        response = mapper.readValue(responseString, JsonResultResponse.class);
+        assertThat("matches found for gene MGI:109583'", response.getResults().size(), equalTo(2));
+    }
+
+    @Ignore
+    @Test
+    public void checkExpressionAnnotationWithTermOnZFIN() throws IOException {
+
+        ExpressionController controller = new ExpressionController();
+        String[] geneIDs = {"ZFIN:ZDB-GENE-980526-188"};
+        String termID = "GO:0005739";
+        int limit = 15;
+        String responseString = controller.getExpressionAnnotations(Arrays.asList(geneIDs), termID, null, null, null, null, null, null, null, limit, 1, null, "true");
+        JsonResultResponse<ExpressionDetail> response = mapper.readValue(responseString, JsonResultResponse.class);
+        assertThat("matches found for gene MGI:109583'", response.getResults().size(), equalTo(1));
+
+        // sensory system
+        termID = "UBERON:0001032";
+        limit = 15;
+        responseString = controller.getExpressionAnnotations(Arrays.asList(geneIDs), termID, null, null, null, null, null, null, null, limit, 1, null, "true");
+        response = mapper.readValue(responseString, JsonResultResponse.class);
+        assertThat("matches found for gene MGI:109583'", response.getResults().size(), greaterThan(2));
+
+        // Adult stage
+        termID = "UBERON:0000113";
+        limit = 15;
+        responseString = controller.getExpressionAnnotations(Arrays.asList(geneIDs), termID, null, null, null, null, null, null, null, limit, 1, null, "true");
+        response = mapper.readValue(responseString, JsonResultResponse.class);
         assertThat("matches found for gene MGI:109583'", response.getResults().size(), greaterThan(2));
     }
 
@@ -311,9 +378,8 @@ public class GeneTest {
 
         ExpressionController controller = new ExpressionController();
         String[] geneIDs = {"MGI:97570", "ZFIN:ZDB-GENE-080204-52"};
-        String[] termIDs = {};
         int limit = 15;
-        String responseString = controller.getExpressionAnnotations(Arrays.asList(geneIDs), Arrays.asList(termIDs), null, null, null, null, null, "LivE", null, limit, 1, null, "true");
+        String responseString = controller.getExpressionAnnotations(Arrays.asList(geneIDs), null, null, null, null, null, null, "LivE", null, limit, 1, null, "true");
         JsonResultResponse<ExpressionDetail> response = mapper.readValue(responseString, new TypeReference<JsonResultResponse<ExpressionDetail>>() {
         });
         //assertThat("matches found for gene MGI:109583'", response.getReturnedRecords(), equalTo(limit));

@@ -60,6 +60,9 @@ public class GeneDocument extends SearchableItemDocument {
     private List<OrthologyDoclet> orthology;
     private List<String> strictOrthologySymbols;
     private String geneticEntityExternalUrl;
+    private List<String> whereExpressed;
+    private List<String> anatomicalExpression;         //uberon slim
+    private List<String> cellularComponentExpression;  //uberon slim
 
     private String modCrossRefCompleteUrl;
     private String modLocalId;

@@ -4,13 +4,14 @@ import org.alliancegenome.indexer.indexers.*;
 
 public enum IndexerConfig {
 
-    GeneIndexer("gene", GeneIndexer.class, 2, 200),
-    PhenotypeIndexer("termName", PhenotypeIndexer.class, 2, 200),
-    PhenotypeAnnotationIndexer("phenotypeAnnotation", PhenotypeAnnotationIndexer.class, 2, 200),
-    DiseaseIndexer("disease", DiseaseIndexer.class, 2, 200),
-    DiseaseAnnotationIndexer("diseaseAnnotation", DiseaseAnnotationIndexer.class, 2, 200),
-    FeatureIndexer("feature", FeatureIndexer.class, 2, 200),
-    GoIndexer("go", GoIndexer.class, 2, 200),;
+    // These numbers target a 10KB document batch size
+    GeneIndexer("gene", GeneIndexer.class, 4, 240),
+    PhenotypeIndexer("termName", PhenotypeIndexer.class, 2, 16),
+    PhenotypeAnnotationIndexer("phenotypeAnnotation", PhenotypeAnnotationIndexer.class, 4, 830),
+    DiseaseIndexer("disease", DiseaseIndexer.class, 2, 150),
+    DiseaseAnnotationIndexer("diseaseAnnotation", DiseaseAnnotationIndexer.class, 2, 635),
+    FeatureIndexer("feature", FeatureIndexer.class, 2, 743),
+    GoIndexer("go", GoIndexer.class, 2, 2300),;
 
     private String typeName;
     private Class<?> indexClazz;
