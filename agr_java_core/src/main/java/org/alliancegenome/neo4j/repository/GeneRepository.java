@@ -170,8 +170,8 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         parameters.put("taxon", taxonID);
         String query = " MATCH p1=(species:Species)--(gene:Gene)-->(s:BioEntityGeneExpressionJoin)--(t) " +
                 "WHERE gene.taxonId = {taxon} ";
-        query += " OPTIONAL MATCH p2=(t:ExpressionBioEntity)--(o:Ontology) ";
-        query += " RETURN s, p1, p2";
+        query += " OPTIONAL MATCH p2=(t:ExpressionBioEntity)-->(o:Ontology) ";
+        query += " RETURN s, p1, p2 ";
         Iterable<BioEntityGeneExpressionJoin> joins = neo4jSession.query(BioEntityGeneExpressionJoin.class, query, parameters);
 
 
@@ -182,35 +182,6 @@ public class GeneRepository extends Neo4jRepository<Gene> {
             join.getGene().setSpeciesName(join.getGene().getSpecies().getName());
             join.getPublication().setPubIdFromId();
             joinList.add(join);
-        }
-
-        // check for rollup term existence
-        // Check for GO terms
-        if (termID != null && !termID.isEmpty()) {
-            // At the moment we are expecting only a single termID
-            // GO term check
-            if (Ontology.isGOTerm(termID))
-                joinList = joinList.stream()
-                        .filter(join -> isChildOfRollupGOTerm(join, termID))
-                        .collect(Collectors.toList());
-            // AO / stage term check
-            if (Ontology.isAoOrStageTerm(termID)) {
-                // check AO ribbon term list
-                List<BioEntityGeneExpressionJoin> aoJoinList = joinList.stream()
-                        .filter(join ->
-                                join.getEntity().getAoTermList().stream().map(UBERONTerm::getPrimaryKey).anyMatch(s -> s.equals(termID))
-                        )
-                        .collect(Collectors.toList());
-                // check stage term list
-                Map map = getFullAoList();
-                if (aoJoinList.size() == 0) {
-                    joinList = joinList.stream()
-                            .filter(join -> join.getStageTerm() != null && join.getStageTerm().getPrimaryKey().equals(termID))
-                            .collect(Collectors.toList());
-                } else {
-                    joinList = aoJoinList;
-                }
-            }
         }
         return joinList;
     }
