@@ -50,11 +50,9 @@ public class OrthologousRepository extends Neo4jRepository<Orthologous> {
             if (filter.getStringency().equals(OrthologyFilter.Stringency.MODERATE))
                 query += "and ortho.moderateFilter = true ";
         }
-        query += "OPTIONAL MATCH p6=(s:OrthologyGeneJoin)-[:NOT_MATCHED]->(notMatched:OrthoAlgorithm), ";
-        query += "p7=(s:OrthologyGeneJoin)-[:NOT_CALLED]->(notCalled:OrthoAlgorithm) ";
+        query += "OPTIONAL MATCH p6=(s:OrthologyGeneJoin)-[:NOT_MATCHED]->(notMatched:OrthoAlgorithm) ";
+        query += "OPTIONAL MATCH p7=(s:OrthologyGeneJoin)-[:NOT_CALLED]->(notCalled:OrthoAlgorithm) ";
         String recordQuery = query + "return distinct g, gh, collect(distinct ortho), ";
-        if (filter.hasMethods())
-            recordQuery += COLLECT_DISTINCT_MATCHED + ", ";
         recordQuery += COLLECT_DISTINCT_NOT_MATCHED + ", " + COLLECT_DISTINCT_NOT_CALLED + " order by g.symbol, gh.symbol ";
         recordQuery += " SKIP " + (filter.getStart() - 1) + " limit " + filter.getRows();
 
