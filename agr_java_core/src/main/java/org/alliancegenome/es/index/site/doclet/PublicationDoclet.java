@@ -2,6 +2,7 @@ package org.alliancegenome.es.index.site.doclet;
 
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.alliancegenome.es.index.ESDoclet;
 import org.apache.commons.lang3.StringUtils;
 
@@ -32,6 +33,7 @@ public class PublicationDoclet extends ESDoclet implements Comparable<Publicatio
 
     // retrieve PUBMED id if it is available
     // otherwise the mod id
+    @JsonIgnore
     public String getPubId() {
         if (StringUtils.isNotEmpty(pubMedId))
             return pubMedId;
