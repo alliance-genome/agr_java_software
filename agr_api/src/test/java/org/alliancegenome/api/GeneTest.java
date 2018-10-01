@@ -397,11 +397,10 @@ public class GeneTest {
         List<String> termList = response.getResults().stream()
                 .map(ExpressionDetail::getTermName)
                 .collect(Collectors.toList());
-/*
         List<String> stageList = response.getResults().stream()
+                .filter(annotation -> annotation.getStage() != null)
                 .map(annotation -> annotation.getStage().getPrimaryKey())
                 .collect(Collectors.toList());
-*/
         List<String> assayList = response.getResults().stream()
                 .map(annotation -> annotation.getAssay().getName())
                 .collect(Collectors.toList());

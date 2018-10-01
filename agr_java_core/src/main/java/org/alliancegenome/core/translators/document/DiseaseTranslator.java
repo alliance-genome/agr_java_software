@@ -270,6 +270,9 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
                     if (speciesType == SpeciesType.HUMAN && doTerm.getHumanLink() != null) {
                         doclet.setUrl(doTerm.getHumanLink());
                     }
+                    if (speciesType == SpeciesType.YEAST && doTerm.getSgdLink() != null) {
+                        doclet.setUrl(doTerm.getSgdLink());
+                    }
                     if (speciesType == SpeciesType.WORM && doTerm.getWormbaseLink() != null) {
                         doclet.setUrl(doTerm.getWormbaseLink());
                         doclet.setDiseaseUrl(doTerm.getWormbaseLink());
