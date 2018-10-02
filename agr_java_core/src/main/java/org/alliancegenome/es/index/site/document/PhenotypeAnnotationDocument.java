@@ -34,6 +34,7 @@ public class PhenotypeAnnotationDocument extends SearchableItemDocument implemen
         return 0;
     }
 
+    @JsonIgnore
     public String getGeneticEntity() {
         return featureDocument != null ? featureDocument.category : geneDocument.category;
     }
