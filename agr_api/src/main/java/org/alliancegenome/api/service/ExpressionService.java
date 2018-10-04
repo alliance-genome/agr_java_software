@@ -23,9 +23,9 @@ public class ExpressionService {
     public JsonResultResponse<ExpressionDetail> getExpressionDetails(List<BioEntityGeneExpressionJoin> joins, Pagination pagination) {
         // grouping by: gene, term name, ribbon stage, assay
         // to collate publications / sources
-        Map<Gene, Map<String, Map<Optional<UBERONTerm>, Map<MMOTerm, Set<BioEntityGeneExpressionJoin>>>>> groupedRecords = joins.stream()
+        Map<Gene, Map<String, Map<Optional<Stage>, Map<MMOTerm, Set<BioEntityGeneExpressionJoin>>>>> groupedRecords = joins.stream()
                 .collect(groupingBy(BioEntityGeneExpressionJoin::getGene, groupingBy(join -> join.getEntity().getWhereExpressedStatement(),
-                        groupingBy(join -> Optional.ofNullable(join.getStageTerm()), groupingBy(BioEntityGeneExpressionJoin::getAssay, toSet())))));
+                        groupingBy(join -> Optional.ofNullable(join.getStage()), groupingBy(BioEntityGeneExpressionJoin::getAssay, toSet())))));
 
         List<ExpressionDetail> expressionDetails = new ArrayList<>();
         groupedRecords.forEach((gene, termNameMap) -> {

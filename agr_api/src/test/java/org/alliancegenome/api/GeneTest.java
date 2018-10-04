@@ -428,4 +428,23 @@ public class GeneTest {
         JsonResultResponse<ExpressionDetail> response = mapper.readValue(responseString, new TypeReference<JsonResultResponse<ExpressionDetail>>() {
         });
     }
+
+    @Ignore
+    @Test
+    public void checkExpressionAnnotationFiltering() throws IOException {
+
+        ExpressionController controller = new ExpressionController();
+        String[] geneIDs = {"MGI:97570", "ZFIN:ZDB-GENE-080204-52"};
+        String termID = null;
+        int limit = 15;
+        String responseString = controller.getExpressionAnnotations(Arrays.asList(geneIDs), termID, null, null, null, null, null, null, null, limit, 1, null, "true");
+        JsonResultResponse<ExpressionDetail> response = mapper.readValue(responseString, new TypeReference<JsonResultResponse<ExpressionDetail>>() {
+        });
+        List<String> symbolList = response.getResults().stream()
+                .map(annotation -> annotation.getGene().getSymbol())
+                .collect(Collectors.toList());
+        List<String> termList = response.getResults().stream()
+                .map(ExpressionDetail::getTermName)
+                .collect(Collectors.toList());
+    }
 }

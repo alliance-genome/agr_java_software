@@ -28,7 +28,7 @@ public interface ExpressionRESTInterface {
             @ApiParam(name = "filter.species", value = "Species by taxon ID", type = "String")
             @QueryParam("filter.species") String filterSpecies,
             @ApiParam(name = "filter.gene", value = "Gene symbol", type = "String")
-            @QueryParam("gene") String filterGene,
+            @QueryParam("filter.gene") String filterGene,
             @ApiParam(name = "filter.stage", value = "Stage name", type = "String")
             @QueryParam("filter.stage") String filterStage,
             @ApiParam(name = "filter.assay", value = "Assay name", type = "String")
