@@ -19,6 +19,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -30,6 +31,8 @@ import org.alliancegenome.neo4j.view.OrthologyFilter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.neo4j.ogm.model.Result;
+
+import static java.util.stream.Collectors.joining;
 
 public class GeneRepository extends Neo4jRepository<Gene> {
 
@@ -552,6 +555,14 @@ public class GeneRepository extends Neo4jRepository<Gene> {
     // cached
     Map<String, String> stageMap;
 
+    static List<String> stageOrder = new ArrayList<>();
+
+    static {
+        stageOrder.add("embryo stage");
+        stageOrder.add("post embryonic, pre-adult");
+        stageOrder.add("post-juvenile adult stage");
+    }
+
     public Map<String, String> getStageList() {
         if (stageMap != null)
             return stageMap;
@@ -559,8 +570,20 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         String cypher = "match p=(uber:UBERONTerm)-[:STAGE_RIBBON_TERM]-(:BioEntityGeneExpressionJoin) return distinct uber";
 
         Iterable<UBERONTerm> terms = neo4jSession.query(UBERONTerm.class, cypher, new HashMap<>());
+        if (!StreamSupport.stream(terms.spliterator(), false).allMatch(uberonTerm ->
+                stageOrder.indexOf(uberonTerm.getName()) > -1)) {
+            String expectedValues = stageOrder.stream().collect(joining(", "));
+            throw new RuntimeException("One or more stage name in UBERON has changed: \nFound values: " +
+                    StreamSupport.stream(terms.spliterator(), false)
+                            .map(UBERONTerm::getName)
+                            .collect(joining(", ")) + " Expected Values: " + expectedValues);
+        }
+
         stageMap = StreamSupport.stream(terms.spliterator(), false)
-                .collect(Collectors.toMap(UBERONTerm::getPrimaryKey, UBERONTerm::getName));
+                .sorted(Comparator.comparingInt(o ->
+                        stageOrder.indexOf(o.getName())))
+                .collect(Collectors.toMap(UBERONTerm::getPrimaryKey, UBERONTerm::getName, (e1, e2) -> e2, LinkedHashMap::new));
+
         return stageMap;
     }
 
