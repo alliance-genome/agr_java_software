@@ -23,9 +23,9 @@ public class ExpressionService {
     public JsonResultResponse<ExpressionDetail> getExpressionDetails(List<BioEntityGeneExpressionJoin> joins, Pagination pagination) {
         // grouping by: gene, term name, ribbon stage, assay
         // to collate publications / sources
-        Map<Gene, Map<String, Map<Optional<UBERONTerm>, Map<MMOTerm, Set<BioEntityGeneExpressionJoin>>>>> groupedRecords = joins.stream()
+        Map<Gene, Map<String, Map<Optional<Stage>, Map<MMOTerm, Set<BioEntityGeneExpressionJoin>>>>> groupedRecords = joins.stream()
                 .collect(groupingBy(BioEntityGeneExpressionJoin::getGene, groupingBy(join -> join.getEntity().getWhereExpressedStatement(),
-                        groupingBy(join -> Optional.ofNullable(join.getStageTerm()), groupingBy(BioEntityGeneExpressionJoin::getAssay, toSet())))));
+                        groupingBy(join -> Optional.ofNullable(join.getStage()), groupingBy(BioEntityGeneExpressionJoin::getAssay, toSet())))));
 
         List<ExpressionDetail> expressionDetails = new ArrayList<>();
         groupedRecords.forEach((gene, termNameMap) -> {
@@ -173,5 +173,32 @@ public class ExpressionService {
             group.addGroupTerm(term);
         });
         return group;
+    }
+
+    public String getTextFile(JsonResultResponse<ExpressionDetail> result) {
+        StringBuilder builder = new StringBuilder();
+        StringJoiner headerJoiner = new StringJoiner("\t");
+        headerJoiner.add("Species");
+        headerJoiner.add("Gene Symbol");
+        headerJoiner.add("Term");
+        headerJoiner.add("Stage");
+        headerJoiner.add("Assay");
+        headerJoiner.add("Reference");
+        headerJoiner.add("Source");
+        builder.append(headerJoiner.toString());
+        builder.append(System.getProperty("line.separator"));
+        result.getResults().forEach(expressionDetail -> {
+            StringJoiner rowJoiner = new StringJoiner("\t");
+            rowJoiner.add(expressionDetail.getGene().getSpeciesName());
+            rowJoiner.add(expressionDetail.getGene().getSymbol());
+            rowJoiner.add(expressionDetail.getTermName());
+            rowJoiner.add(expressionDetail.getStage().getPrimaryKey());
+            rowJoiner.add(expressionDetail.getAssay().getDisplay_synonym());
+            rowJoiner.add(expressionDetail.getPublications().stream().map(Publication::getPubId).collect(Collectors.joining(",")));
+            rowJoiner.add(expressionDetail.getDataProvider());
+            builder.append(rowJoiner.toString());
+            builder.append(System.getProperty("line.separator"));
+        });
+        return builder.toString();
     }
 }

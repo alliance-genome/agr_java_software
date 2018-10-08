@@ -8,6 +8,7 @@ import io.swagger.annotations.ApiParam;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import java.util.List;
 
 
@@ -28,7 +29,7 @@ public interface ExpressionRESTInterface {
             @ApiParam(name = "filter.species", value = "Species by taxon ID", type = "String")
             @QueryParam("filter.species") String filterSpecies,
             @ApiParam(name = "filter.gene", value = "Gene symbol", type = "String")
-            @QueryParam("gene") String filterGene,
+            @QueryParam("filter.gene") String filterGene,
             @ApiParam(name = "filter.stage", value = "Stage name", type = "String")
             @QueryParam("filter.stage") String filterStage,
             @ApiParam(name = "filter.assay", value = "Assay name", type = "String")
@@ -48,6 +49,24 @@ public interface ExpressionRESTInterface {
             @ApiParam(name = "asc", allowableValues = "true,false", value = "ascending or descending")
             @QueryParam("asc") String asc
     ) throws JsonProcessingException;
+
+    @GET
+    @Path("/download")
+    Response getExpressionAnnotationsDownload(
+            @QueryParam("geneID") List<String> geneIDs,
+            @QueryParam("termID") String termID,
+            @QueryParam("filter.species") String filterSpecies,
+            @QueryParam("filter.gene") String filterGene,
+            @QueryParam("filter.stage") String filterStage,
+            @QueryParam("filter.assay") String filterAssay,
+            @QueryParam("filter.reference") String filterReference,
+            @QueryParam("filter.term") String filterTerm,
+            @QueryParam("filter.source") String filterSource,
+            @DefaultValue("20") @QueryParam("limit") int limit,
+            @DefaultValue("1") @QueryParam("page") int page,
+            @QueryParam("sortBy") String sortBy,
+            @QueryParam("asc") String asc
+    );
 
     @GET
     @Path("/{taxonID}")

@@ -15,7 +15,6 @@ import java.util.Set;
 @Getter @Setter
 public class UBERONTerm extends Ontology {
 
-    private String nameKey;
     @JsonView(View.ExpressionView.class)
     private String name;
     private String description;
@@ -68,5 +67,5 @@ public class UBERONTerm extends Ontology {
     }
 
     @Override
-    public String toString() { return nameKey; }
+    public String toString() { return name; }
 }
