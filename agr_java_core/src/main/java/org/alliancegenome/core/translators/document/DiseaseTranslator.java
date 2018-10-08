@@ -108,13 +108,17 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
                                             .map(featureMapEntry -> {
 
                                                 AnnotationDocument document = new AnnotationDocument();
-                                                document.setGeneDocument(geneTranslator.translate(geneMapEntry.getKey(), 0));
+                                                Gene gene = geneMapEntry.getKey();
+                                                document.setGeneDocument(geneTranslator.translate(gene, 0));
                                                 Feature feature = featureMapEntry.getKey();
                                                 if (feature != null) {
                                                     document.setFeatureDocument(featureTranslator.translate(feature, 0));
                                                 }
                                                 document.setAssociationType(associationEntry.getKey());
-                                                document.setSource(getSourceUrls(entity, geneMapEntry.getKey().getSpecies()));
+                                                document.setSource(getSourceUrls(entity, gene.getSpecies()));
+                                                Species orthologySpecies = getOrthologySpecies(featureMapEntry.getValue());
+                                                if (orthologySpecies != null)
+                                                    document.setOrthologySpecies(getSpeciesDoclet(orthologySpecies));
                                                 document.setPublications(publicationDocletTranslator.getPublicationDoclets(featureMapEntry.getValue()));
                                                 return document;
                                             })
