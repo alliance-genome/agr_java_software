@@ -10,6 +10,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.alliancegenome.es.index.site.doclet.SpeciesDoclet;
+import org.alliancegenome.neo4j.entity.node.Species;
 
 @Getter @Setter
 public class AnnotationDocument extends ESDocument implements Comparable<AnnotationDocument> {
@@ -18,6 +20,7 @@ public class AnnotationDocument extends ESDocument implements Comparable<Annotat
     private String category = "diseaseAnnotation";
     private String associationType;
     private SourceDoclet source;
+    private SpeciesDoclet orthologySpecies;
     private GeneDocument geneDocument;
     private FeatureDocument featureDocument;
     private List<PublicationDoclet> publications;
