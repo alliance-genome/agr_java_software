@@ -110,7 +110,20 @@ public class GeneRepository extends Neo4jRepository<Gene> {
 */
         String query = " MATCH p1=(species:Species)--(gene:Gene)-->(s:BioEntityGeneExpressionJoin)--(t) " +
                 "WHERE gene.primaryKey in " + sj.toString();
+
+        String geneFilterClause = addWhereClauseString("gene.symbol", FieldFilter.GENE_NAME, pagination);
+        if (geneFilterClause != null) {
+            query += " AND " + geneFilterClause;
+        }
+        String speciesFilterClause = addWhereClauseString("species.name", FieldFilter.FSPECIES, pagination);
+        if (speciesFilterClause != null) {
+            query += " AND " + speciesFilterClause;
+        }
         query += " OPTIONAL MATCH p2=(t:ExpressionBioEntity)--(o:Ontology) ";
+        String termFilterClause = addWhereClauseString("t.whereExpressedStatement", FieldFilter.TERM_NAME, pagination);
+        if (termFilterClause != null) {
+            query += " WHERE " + termFilterClause;
+        }
 /*
         if(termIDs != null && termIDs.size() > 0) {
             query += " OPTIONAL MATCH slim=(ontology)-[:PART_OF|IS_A*]->(slimTerm) " +
@@ -166,6 +179,15 @@ public class GeneRepository extends Neo4jRepository<Gene> {
             }
         }
         return joinList;
+    }
+
+    private String addWhereClauseString(String fieldName, FieldFilter fieldFilter, Pagination pagination) {
+        String value = pagination.getFieldFilterValueMap().get(fieldFilter);
+        String query = null;
+        if (value != null) {
+            query = " LOWER(" + fieldName + ") =~ '.*" + value.toLowerCase() + ".*' ";
+        }
+        return query;
     }
 
     public List<BioEntityGeneExpressionJoin> getExpressionAnnotationsByTaxon(String taxonID, String termID, Pagination pagination) {
@@ -230,7 +252,7 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         map.put(FieldFilter.GENE_NAME, (join, filterValue) -> join.getGene().getSymbol().toLowerCase().contains(filterValue.toLowerCase()));
         map.put(FieldFilter.TERM_NAME, (join, filterValue) -> join.getEntity().getWhereExpressedStatement().toLowerCase().contains(filterValue.toLowerCase()));
         map.put(FieldFilter.STAGE, (join, filterValue) -> join.getStage().getPrimaryKey().toLowerCase().contains(filterValue.toLowerCase()));
-        map.put(FieldFilter.ASSAY, (join, filterValue) -> join.getAssay().getName().toLowerCase().contains(filterValue.toLowerCase()));
+        map.put(FieldFilter.ASSAY, (join, filterValue) -> join.getAssay().getDisplay_synonym().toLowerCase().contains(filterValue.toLowerCase()));
         map.put(FieldFilter.FREFERENCE, (join, filterValue) -> join.getPublication().getPubId().toLowerCase().contains(filterValue.toLowerCase()));
         map.put(FieldFilter.FSOURCE, (join, filterValue) -> join.getGene().getDataProvider().toLowerCase().contains(filterValue.toLowerCase()));
 

@@ -14,4 +14,7 @@ public class DiseaseEntityJoin extends EntityJoin {
     @Relationship(type = "ASSOCIATION")
     private DOTerm disease;
 
+    @Relationship(type = "FROM_SPECIES")
+    private Species orthologySecies;
+
 }
