@@ -58,7 +58,8 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         query += " OPTIONAL MATCH p9=(g)--(s:GOTerm)-[:IS_A|:PART_OF*]->(parent:GOTerm)";
         query += " OPTIONAL MATCH p10=(g)--(s:BioEntityGeneExpressionJoin)--(t) ";
         query += " OPTIONAL MATCH p11=(t:ExpressionBioEntity)--(term:Ontology) ";
-        query += " RETURN p1, p2, p3, p4, p5, p6, p8, p9, p10, p11";
+        query += " OPTIONAL MATCH p12=(t)--(term)-[:IS_A|:PART_OF*]->(parent:Ontology)";
+        query += " RETURN p1, p2, p3, p4, p5, p6, p8, p9, p10, p11, p12";
 
         Iterable<Gene> genes = query(query, map);
         for (Gene g : genes) {

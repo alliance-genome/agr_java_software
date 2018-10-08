@@ -62,7 +62,9 @@ public class GeneDocument extends SearchableItemDocument {
     private String geneticEntityExternalUrl;
     private List<String> whereExpressed;
     private List<String> anatomicalExpression;         //uberon slim
-    private List<String> cellularComponentExpression;  //uberon slim
+    private List<String> cellularComponentExpression;
+    private List<String> cellularComponentExpressionWithParents;
+    private List<String> cellularComponentExpressionAgrSlim;
 
     private String modCrossRefCompleteUrl;
     private String modLocalId;
