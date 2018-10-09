@@ -6,10 +6,7 @@ import org.alliancegenome.core.translators.doclet.CrossReferenceDocletTranslator
 import org.alliancegenome.es.index.site.doclet.CrossReferenceDoclet;
 import org.alliancegenome.es.index.site.doclet.GenomeLocationDoclet;
 import org.alliancegenome.es.index.site.doclet.OrthologyDoclet;
-import org.alliancegenome.es.index.site.document.DiseaseDocument;
-import org.alliancegenome.es.index.site.document.FeatureDocument;
-import org.alliancegenome.es.index.site.document.GeneDocument;
-import org.alliancegenome.es.index.site.document.PhenotypeDocument;
+import org.alliancegenome.es.index.site.document.*;
 import org.alliancegenome.neo4j.entity.node.*;
 import org.alliancegenome.neo4j.entity.relationship.GenomeLocation;
 import org.alliancegenome.neo4j.entity.relationship.Orthologous;
@@ -84,9 +81,9 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
 
         Set<GOTerm> allParentTerms = gene.getGoParentTerms();
 
-        geneDocument.setBiologicalProcessWithParents(collectGoTermParentNames(allParentTerms,"biological_process"));
-        geneDocument.setCellularComponentWithParents(collectGoTermParentNames(allParentTerms,"cellular_component"));
-        geneDocument.setMolecularFunctionWithParents(collectGoTermParentNames(allParentTerms,"molecular_function"));
+        geneDocument.setBiologicalProcessWithParents(collectGoTermParentNames(allParentTerms, "biological_process"));
+        geneDocument.setCellularComponentWithParents(collectGoTermParentNames(allParentTerms, "cellular_component"));
+        geneDocument.setMolecularFunctionWithParents(collectGoTermParentNames(allParentTerms, "molecular_function"));
 
         geneDocument.setBiologicalProcessAgrSlim(collectGoTermSlimNames(allParentTerms, "biological_process", "goslim_agr"));
         geneDocument.setCellularComponentAgrSlim(collectGoTermSlimNames(allParentTerms, "cellular_component", "goslim_agr"));
@@ -129,16 +126,45 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
 
         geneDocument.setStrictOrthologySymbols(
                 gene.getOrthoGenes().stream()
-                .filter(Orthologous::isStrictFilter)
-                .map(Orthologous::getGene2)
-                .map(Gene::getSymbol)
-                .distinct()
-                .collect(Collectors.toList())
+                        .filter(Orthologous::isStrictFilter)
+                        .map(Orthologous::getGene2)
+                        .map(Gene::getSymbol)
+                        .distinct()
+                        .collect(Collectors.toList())
         );
 
         if (gene.getDiseaseEntityJoins() != null && translationDepth > 0) {
             List<DiseaseDocument> diseaseList = diseaseTranslator.getDiseaseDocuments(gene, gene.getDiseaseEntityJoins(), translationDepth - 1);
-            geneDocument.setDiseases(diseaseList);
+            // group into experiment or orthology
+            // check if a doc has an orthology-related record
+            List<DiseaseDocument> diseaseViaOrthology = diseaseList.stream()
+                    .filter(diseaseDocument -> diseaseDocument.getAnnotations()
+                            .stream().anyMatch(annotationDocument -> annotationDocument.getOrthologySpecies() != null))
+                    .collect(Collectors.toList());
+            // filter for orthology records.
+            diseaseViaOrthology = diseaseViaOrthology.stream()
+                    .peek(diseaseDocument -> diseaseDocument.setAnnotations(diseaseDocument.getAnnotations().stream()
+                            .filter(annotationDocument -> annotationDocument.getOrthologySpecies() != null)
+                            .collect(Collectors.toList())))
+                    .collect(Collectors.toList());
+            geneDocument.setDiseasesViaOrthology(diseaseViaOrthology);
+            // check if a doc has other annotations than orthology
+            List<DiseaseDocument> diseaseViaExperiment = diseaseList.stream()
+                    .filter(diseaseDocument -> diseaseDocument.getAnnotations()
+                            .stream().anyMatch(annotationDocument -> annotationDocument.getPublications().stream()
+                                    .anyMatch(publicationDoclet -> !publicationDoclet.getEvidenceCodes().contains("IEA"))))
+                    .collect(Collectors.toList());
+            // Remove orthology annotations
+            diseaseViaExperiment = diseaseViaExperiment.stream()
+                    .peek(diseaseDocument -> {
+                        List<AnnotationDocument> docs = diseaseDocument.getAnnotations().stream()
+                                .filter(annotationDocument -> annotationDocument.getPublications().stream()
+                                        .anyMatch(publicationDoclet -> !publicationDoclet.getEvidenceCodes().contains("IEA")))
+                                .collect(Collectors.toList());
+                        diseaseDocument.setAnnotations(docs);
+                    })
+                    .collect(Collectors.toList());
+            geneDocument.setDiseasesViaExperiment(diseaseViaExperiment);
         }
 
         geneDocument.setPhenotypeStatements(
@@ -154,9 +180,9 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
 
         geneDocument.setWhereExpressed(
                 gene.getExpressionBioEntities().stream()
-                .map(ExpressionBioEntity::getWhereExpressedStatement)
-                .distinct()
-                .collect(Collectors.toList())
+                        .map(ExpressionBioEntity::getWhereExpressedStatement)
+                        .distinct()
+                        .collect(Collectors.toList())
         );
 
         geneDocument.setAnatomicalExpression(

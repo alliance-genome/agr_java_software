@@ -43,7 +43,7 @@ public class GeneMapping extends Mapping {
 
                     buildGenomeLocationsField();
                     buildNestedDocument("alleles");
-                    buildNestedDocument("diseases");
+                    buildNestedDocument("diseasesViaExperiment");
 
                     new FieldBuilder(builder,"secondaryIds","keyword").build();
                     new FieldBuilder(builder,"soTermId","keyword").build();

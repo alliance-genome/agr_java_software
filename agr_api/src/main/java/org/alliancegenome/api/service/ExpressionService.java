@@ -9,10 +9,8 @@ import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.node.*;
 import org.alliancegenome.neo4j.repository.GeneRepository;
-import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.groupingBy;
@@ -21,20 +19,16 @@ import static java.util.stream.Collectors.toSet;
 public class ExpressionService {
 
     public JsonResultResponse<ExpressionDetail> getExpressionDetails(List<BioEntityGeneExpressionJoin> joins, Pagination pagination) {
-        // grouping by: gene, term name, ribbon stage, assay
-        // to collate publications / sources
-        Map<Gene, Map<String, Map<Optional<Stage>, Map<MMOTerm, Set<BioEntityGeneExpressionJoin>>>>> groupedRecords = joins.stream()
-                .collect(groupingBy(BioEntityGeneExpressionJoin::getGene, groupingBy(join -> join.getEntity().getWhereExpressedStatement(),
-                        groupingBy(join -> Optional.ofNullable(join.getStage()), groupingBy(BioEntityGeneExpressionJoin::getAssay, toSet())))));
+        Map<Gene, Map<ExpressionBioEntity, Map<Optional<Stage>, Map<MMOTerm, Set<BioEntityGeneExpressionJoin>>>>> groupedRecords = getGeneTermStageAssayMap(joins);
 
         List<ExpressionDetail> expressionDetails = new ArrayList<>();
         groupedRecords.forEach((gene, termNameMap) -> {
-            termNameMap.forEach((termName, stageMap) -> {
+            termNameMap.forEach((entity, stageMap) -> {
                 stageMap.forEach((stage, assayMap) -> {
                     assayMap.forEach((assay, bioJoins) -> {
                         ExpressionDetail detail = new ExpressionDetail();
                         detail.setGene(gene);
-                        detail.setTermName(termName);
+                        detail.setTermName(entity.getWhereExpressedStatement());
                         detail.setAssay(assay);
                         detail.setDataProvider(gene.getDataProvider());
                         stage.ifPresent(detail::setStage);
@@ -94,9 +88,28 @@ public class ExpressionService {
         return response;
     }
 
+    private Map<Gene, Map<ExpressionBioEntity, Map<Optional<Stage>, Map<MMOTerm, Set<BioEntityGeneExpressionJoin>>>>> getGeneTermStageAssayMap(List<BioEntityGeneExpressionJoin> joins) {
+        // grouping by: gene, term name, ribbon stage, assay
+        // to collate publications / sources
+        return joins.stream()
+                .collect(groupingBy(BioEntityGeneExpressionJoin::getGene, groupingBy(BioEntityGeneExpressionJoin::getEntity,
+                        groupingBy(join -> Optional.ofNullable(join.getStage()), groupingBy(BioEntityGeneExpressionJoin::getAssay, toSet())))));
+    }
+
+    private Map<Gene, Map<ExpressionBioEntity, Map<Optional<UBERONTerm>, Map<MMOTerm, Set<BioEntityGeneExpressionJoin>>>>> getGeneTermStageRibbonAssayMap(List<BioEntityGeneExpressionJoin> joins) {
+        // grouping by: gene, term name, ribbon stage, assay
+        // to collate publications / sources
+        return joins.stream()
+                .collect(groupingBy(BioEntityGeneExpressionJoin::getGene, groupingBy(BioEntityGeneExpressionJoin::getEntity,
+                        groupingBy(join -> Optional.ofNullable(join.getStageTerm()), groupingBy(BioEntityGeneExpressionJoin::getAssay, toSet())))));
+    }
+
     public ExpressionSummary getExpressionSummary(List<BioEntityGeneExpressionJoin> joins) {
         if (joins == null)
             joins = new ArrayList<>();
+        // group together records where only publication is different and treat them as a single record
+        Map<Gene, Map<ExpressionBioEntity, Map<Optional<UBERONTerm>, Map<MMOTerm, Set<BioEntityGeneExpressionJoin>>>>> groupedRecords = getGeneTermStageRibbonAssayMap(joins);
+
         ExpressionSummary summary = new ExpressionSummary();
 
         // calculate GO_CC set
@@ -126,14 +139,20 @@ public class ExpressionService {
         summary.addGroup(goCcGroup);
 
         // create AO histogram
-        // list of all terms
-        List<UBERONTerm> aoList = joins.stream()
-                .filter(join -> join.getEntity().getAoTermList() != null)
-                .map(join -> join.getEntity().getAoTermList())
-                .flatMap(List::stream)
-                .collect(Collectors.toList());
+        // list of all terms over grouped list
+        List<UBERONTerm> aoGroupedList = new ArrayList<>();
+        groupedRecords.forEach((gene, termNameMap) -> {
+            termNameMap.forEach((entity, stageMap) -> {
+                stageMap.forEach((stage, assayMap) -> {
+                    assayMap.forEach((assay, bioJoins) -> {
+                        aoGroupedList.addAll(entity.getAoTermList());
+                    });
+                });
+            });
+        });
+
         // create histogram from list
-        Map<String, Long> aoHistogram = aoList.stream()
+        Map<String, Long> aoHistogram = aoGroupedList.stream()
                 .collect(Collectors.groupingBy(UBERONTerm::getPrimaryKey, Collectors.counting()));
 
         ExpressionSummaryGroup aoGroup = populateGroupInfo("Anatomy", aoHistogram, repository.getFullAoList());
@@ -143,9 +162,20 @@ public class ExpressionService {
         aoGroup.setTotalAnnotations(sumAO);
 
         // create Stage histogram
-        Map<String, Long> stageHistogram = joins.stream()
-                .filter(join -> join.getStageTerm() != null)
-                .collect(Collectors.groupingBy(join -> join.getStageTerm().getPrimaryKey(), Collectors.counting()));
+        // list of all terms over grouped list
+        List<UBERONTerm> stageGroupedList = new ArrayList<>();
+        groupedRecords.forEach((gene, termNameMap) -> {
+            termNameMap.forEach((entity, stageMap) -> {
+                stageMap.forEach((stage, assayMap) -> {
+                    assayMap.forEach((assay, bioJoins) -> {
+                        stage.ifPresent(stageGroupedList::add);
+                    });
+                });
+            });
+        });
+        Map<String, Long> stageHistogram = stageGroupedList.stream()
+                .collect(Collectors.groupingBy(UBERONTerm::getPrimaryKey, Collectors.counting()));
+
         ExpressionSummaryGroup stageGroup = populateGroupInfo("Stage", stageHistogram, repository.getStageList());
         summary.addGroup(stageGroup);
 

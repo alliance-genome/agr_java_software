@@ -16,5 +16,10 @@ public class ExpressionSummaryGroupTerm {
     private String name;
     @JsonView({ View.ExpressionView.class})
     private int numberOfAnnotations;
+
+    @Override
+    public String toString() {
+        return name + " [" + numberOfAnnotations + ']';
+    }
 }
 
