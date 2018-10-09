@@ -86,7 +86,7 @@ class QueryMatchIntegrationSpec extends Specification {
         "AGR-865"  | "MGI:5502315"             | "Rradtm1.1(KOMP)Vlcg"
         "AGR-865"  | "FB:FBal0151567"          | "rut[EP399]"
 
-        //diseases found by allele and gene names
+        //diseasesViaExperiment found by allele and gene names
         "AGR-866"  | "DOID:11726"              | "tm1502"
         "AGR-866"  | "DOID:0050692"            | "mi289a"
         "AGR-866"  | "DOID:5327"               | "IL6"
