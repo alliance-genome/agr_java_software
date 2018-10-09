@@ -46,7 +46,8 @@ public class GeneDocument extends SearchableItemDocument {
     private Map<String, List<CrossReferenceDoclet>> crossReferencesMap;
     private String dataProvider;
     private Date dateProduced;
-    private List<DiseaseDocument> diseases = new ArrayList<>();
+    private List<DiseaseDocument> diseasesViaExperiment = new ArrayList<>();
+    private List<DiseaseDocument> diseasesViaOrthology = new ArrayList<>();
     private List<PhenotypeDocument> phenotypes = new ArrayList<>();
     private String geneSynopsisUrl;
     private String primaryId;

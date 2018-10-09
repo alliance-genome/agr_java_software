@@ -8,6 +8,7 @@ import org.neo4j.ogm.annotation.Relationship;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @NodeEntity
 @Getter
@@ -26,5 +27,21 @@ public class ExpressionBioEntity extends Neo4jEntity implements Comparable<Expre
     @Override
     public int compareTo(ExpressionBioEntity o) {
         return 0;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ExpressionBioEntity that = (ExpressionBioEntity) o;
+        return Objects.equals(whereExpressedStatement, that.whereExpressedStatement) &&
+                Objects.equals(goTerm, that.goTerm) &&
+                Objects.equals(aoTermList, that.aoTermList);
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(whereExpressedStatement, goTerm, aoTermList);
     }
 }
