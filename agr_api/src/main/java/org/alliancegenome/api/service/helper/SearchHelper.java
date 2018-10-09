@@ -46,7 +46,7 @@ public class SearchHelper {
                     add("molecularFunctionAgrSlim");
                     add("cellularComponentAgrSlim");
                     add("anatomicalExpression");
-                    add("cellularComponentExpression");
+                    add("cellularComponentExpressionAgrSlim");
                 }
             });
             put("go", new ArrayList<String>() {
@@ -137,6 +137,8 @@ public class SearchHelper {
             add("whereExpressed"); add("whereExpressed.keyword");
             add("anatomicalExpression"); add("anatomicalExpression.keyword");
             add("cellularComponentExpression"); add("cellularComponentExpression.keyword");
+            add("cellularComponentExpressionWithParents"); add("cellularComponentExpressionWithParents.keyword");
+            add("cellularComponentExpressionAgrSlim"); add("cellularComponentExpressionAgrSlim.keyword");
         }
     };
 
