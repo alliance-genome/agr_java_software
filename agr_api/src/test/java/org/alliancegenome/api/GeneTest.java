@@ -247,6 +247,7 @@ public class GeneTest {
 
         GeneController controller = new GeneController();
         String responseString = controller.getExpressionSummary("RGD:2129");
+        //String responseString = controller.getExpressionSummary("FB:FBgn0029123");
         //String responseString = controller.getExpressionSummary("ZFIN:ZDB-GENE-080204-52", 5, 1);
         ExpressionSummary response = mapper.readValue(responseString, ExpressionSummary.class);
         assertThat("matches found for gene RGD:2129'", response.getTotalAnnotations(), equalTo(8));
