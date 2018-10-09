@@ -157,7 +157,7 @@ public class ExpressionController implements ExpressionRESTInterface {
         Response.ResponseBuilder response = Response.ok((expressionService.getTextFile(result)));
         response.type(MediaType.TEXT_PLAIN_TYPE);
         String fileName = geneIDs.stream().collect(Collectors.joining("::"));
-        response.header("Content-Disposition", "attachment; filename=\"disease-annotations-" + fileName + ".tsv\"");
+        response.header("Content-Disposition", "attachment; filename=\"expression-annotations-" + fileName + ".tsv\"");
         return response.build();
     }
 
