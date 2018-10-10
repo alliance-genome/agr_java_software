@@ -126,13 +126,6 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         if (termFilterClause != null) {
             query += " WHERE " + termFilterClause;
         }
-/*
-        if(termIDs != null && termIDs.size() > 0) {
-            query += " OPTIONAL MATCH slim=(ontology)-[:PART_OF|IS_A*]->(slimTerm) " +
-                    " where all (primaryKey IN ";
-            query += sjTerm.toString() + " where primaryKey = slimTerm.primaryKey) ";
-        }
-*/
         query += " RETURN s, p1, p2";
         Iterable<BioEntityGeneExpressionJoin> joins = neo4jSession.query(BioEntityGeneExpressionJoin.class, query, new HashMap<>());
 
@@ -616,7 +609,12 @@ public class GeneRepository extends Neo4jRepository<Gene> {
 
         Iterable<UBERONTerm> terms = neo4jSession.query(UBERONTerm.class, cypher, new HashMap<>());
         Map<String, String> map = StreamSupport.stream(terms.spliterator(), false)
-                .collect(Collectors.toMap(UBERONTerm::getPrimaryKey, UBERONTerm::getName));
+                .sorted((o1, o2) -> {
+                    if (o1.getName().equalsIgnoreCase("other"))
+                        return 1;
+                    return o1.getName().compareTo(o2.getName());
+                })
+                .collect(Collectors.toMap(UBERONTerm::getPrimaryKey, UBERONTerm::getName, (x, y) -> x + ", " + y, LinkedHashMap::new));
         return map;
     }
 
