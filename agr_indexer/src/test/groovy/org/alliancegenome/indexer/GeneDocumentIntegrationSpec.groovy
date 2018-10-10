@@ -84,10 +84,12 @@ class GeneDocumentIntegrationSpec extends Specification {
         geneDocument
         geneDocument.cellularComponentExpression
         geneDocument.cellularComponentExpression.containsAll(entities)
+        geneDocument.cellularComponentExpressionWithParents.containsAll(parentEntities)
+        geneDocument.cellularComponentExpressionAgrSlim.containsAll(slimEntities)
 
         where:
-        geneID                      | entities
-        "ZFIN:ZDB-GENE-030131-7696" | ["axon", "photoreceptor inner segment", "presynaptic cytosol"]
+        geneID                      | entities   | parentEntities | slimEntities
+        "ZFIN:ZDB-GENE-030131-7696" | ["axon", "photoreceptor inner segment", "presynaptic cytosol"] | ["neuron part", "cell part"] | ["cell projection"]
 
     }
 

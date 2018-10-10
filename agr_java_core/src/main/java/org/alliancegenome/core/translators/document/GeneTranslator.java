@@ -195,15 +195,36 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
                         .collect(Collectors.toList())
         );
 
-
-        geneDocument.setCellularComponentExpression(
+        Set<GOTerm> cellularComponentExpressionTerms =
                 gene.getEntityGeneExpressionJoins().stream()
                         .map(BioEntityGeneExpressionJoin::getEntity)
                         .map(ExpressionBioEntity::getGoTerm)
                         .filter(term -> term != null)
+                        .collect(Collectors.toSet());
+
+        geneDocument.setCellularComponentExpression(
+                cellularComponentExpressionTerms.stream()
                         .map(GOTerm::getName)
-                        .distinct()
                         .collect(Collectors.toList())
+        );
+
+
+
+
+        Set<GOTerm> cellularComponentExpressionParentTerms = new HashSet<>();
+        CollectionUtils.emptyIfNull(cellularComponentExpressionTerms).forEach(term -> {
+            cellularComponentExpressionParentTerms.addAll(term.getParentTerms());
+        });
+
+
+        geneDocument.setCellularComponentExpressionWithParents(
+                collectGoTermParentNames(cellularComponentExpressionParentTerms,
+                        "cellular_component")
+        );
+
+        geneDocument.setCellularComponentExpressionAgrSlim(
+                collectGoTermSlimNames(cellularComponentExpressionParentTerms,
+                        "cellular_component", "goslim_agr")
         );
 
         if (gene.getGenomeLocations() != null) {

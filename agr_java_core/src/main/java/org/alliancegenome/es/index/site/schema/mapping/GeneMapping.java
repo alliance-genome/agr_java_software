@@ -40,6 +40,8 @@ public class GeneMapping extends Mapping {
                     new FieldBuilder(builder,"whereExpressed","text").keyword().build();
                     new FieldBuilder(builder,"anatomicalExpression","text").keyword().build();
                     new FieldBuilder(builder,"cellularComponentExpression","text").keyword().build();
+                    new FieldBuilder(builder,"cellularComponentExpressionWithParents","text").keyword().build();
+                    new FieldBuilder(builder,"cellularComponentExpressionAgrSlim","text").keyword().build();
 
                     buildGenomeLocationsField();
                     buildNestedDocument("alleles");

@@ -27,7 +27,7 @@ public class GeneTest {
         GeneTranslator trans = new GeneTranslator();
 
         Gene gene = null;
-        gene = repo.getOneGene("ZFIN:ZDB-GENE-030131-7696");
+        gene = repo.getOneGene("ZFIN:ZDB-GENE-041212-53");
         GeneDocument geneDocument = trans.translate(gene);
 
         List<BioEntityGeneExpressionJoin> expressionJoinList = repo.getExpressionAnnotations(gene);
