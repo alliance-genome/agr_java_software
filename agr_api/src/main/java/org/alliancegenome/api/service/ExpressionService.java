@@ -34,7 +34,11 @@ public class ExpressionService {
                         detail.setDataProvider(gene.getDataProvider());
                         stage.ifPresent(detail::setStage);
                         detail.setPublications(bioJoins.stream().map(BioEntityGeneExpressionJoin::getPublication).collect(toList()));
-                        detail.setCrossReferences(bioJoins.stream().map(BioEntityGeneExpressionJoin::getCrossReference).collect(toList()));
+                        detail.setCrossReferences(bioJoins.stream()
+                                .map(BioEntityGeneExpressionJoin::getCrossReference)
+                                .filter(Objects::nonNull)
+                                .collect(toList())
+                        );
                         expressionDetails.add(detail);
                     });
                 });
