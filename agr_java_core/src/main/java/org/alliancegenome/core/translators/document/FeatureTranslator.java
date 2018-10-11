@@ -7,10 +7,7 @@ import java.util.stream.Collectors;
 import org.alliancegenome.core.translators.EntityDocumentTranslator;
 import org.alliancegenome.es.index.site.document.DiseaseDocument;
 import org.alliancegenome.es.index.site.document.FeatureDocument;
-import org.alliancegenome.neo4j.entity.node.Feature;
-import org.alliancegenome.neo4j.entity.node.Phenotype;
-import org.alliancegenome.neo4j.entity.node.SecondaryId;
-import org.alliancegenome.neo4j.entity.node.Synonym;
+import org.alliancegenome.neo4j.entity.node.*;
 import org.apache.commons.collections4.CollectionUtils;
 
 public class FeatureTranslator extends EntityDocumentTranslator<Feature, FeatureDocument> {
@@ -31,7 +28,10 @@ public class FeatureTranslator extends EntityDocumentTranslator<Feature, Feature
         featureDocument.setRelease(entity.getRelease());
         featureDocument.setSymbol(entity.getSymbol());
         featureDocument.setName(entity.getSymbol());
-        featureDocument.setModCrossRefFullUrl(entity.getModCrossRefCompleteUrl());
+
+        featureDocument.setModCrossRefFullUrl(entity.getCrossReferences().stream()
+                .filter(ref -> ref.getCrossRefType().equals("allele"))
+                .findFirst().orElse(null).getCrossRefCompleteUrl());
 
         if (translationDepth > 0) {
             if (entity.getGene().getSpecies() != null)
