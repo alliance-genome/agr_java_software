@@ -25,5 +25,5 @@ public class ExpressionDetail {
     @JsonView(View.ExpressionView.class)
     private String dataProvider;
     @JsonView(View.ExpressionView.class)
-    private CrossReference crossReference;
+    private List<CrossReference> crossReferences;
 }
