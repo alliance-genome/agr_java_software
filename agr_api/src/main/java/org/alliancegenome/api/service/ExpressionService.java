@@ -14,6 +14,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
 public class ExpressionService {
@@ -32,7 +33,7 @@ public class ExpressionService {
                         detail.setAssay(assay);
                         detail.setDataProvider(gene.getDataProvider());
                         stage.ifPresent(detail::setStage);
-                        detail.setPublications(bioJoins.stream().map(BioEntityGeneExpressionJoin::getPublication).collect(Collectors.toList()));
+                        detail.setPublications(bioJoins.stream().map(BioEntityGeneExpressionJoin::getPublication).collect(toList()));
                         Optional<BioEntityGeneExpressionJoin> join = bioJoins.stream().findFirst();
                         join.ifPresent(bioEntityGeneExpressionJoin -> detail.setCrossReference(bioEntityGeneExpressionJoin.getCrossReference()));
                         expressionDetails.add(detail);
@@ -81,7 +82,7 @@ public class ExpressionService {
             paginatedJoinList = expressionDetails.stream()
                     .skip(pagination.getStart())
                     .limit(pagination.getLimit())
-                    .collect(Collectors.toList());
+                    .collect(toList());
         }
 
         if (paginatedJoinList == null)
@@ -110,7 +111,7 @@ public class ExpressionService {
         if (joins == null)
             joins = new ArrayList<>();
         // group together records where only publication is different and treat them as a single record
-        Map<Gene, Map<ExpressionBioEntity, Map<Optional<UBERONTerm>, Map<MMOTerm, Set<BioEntityGeneExpressionJoin>>>>> groupedRecords = getGeneTermStageRibbonAssayMap(joins);
+        Map<Gene, Map<ExpressionBioEntity, Map<Optional<Stage>, Map<MMOTerm, Set<BioEntityGeneExpressionJoin>>>>> groupedRecords = getGeneTermStageAssayMap(joins);
 
         ExpressionSummary summary = new ExpressionSummary();
 
@@ -163,10 +164,12 @@ public class ExpressionService {
         int sumAO = aoGroup.getTerms().stream().mapToInt(ExpressionSummaryGroupTerm::getNumberOfAnnotations).sum();
         aoGroup.setTotalAnnotations(sumAO);
 
+
+        Map<Gene, Map<ExpressionBioEntity, Map<Optional<UBERONTerm>, Map<MMOTerm, Set<BioEntityGeneExpressionJoin>>>>> stageGroupedRecords = getGeneTermStageRibbonAssayMap(joins);
         // create Stage histogram
         // list of all terms over grouped list
         List<UBERONTerm> stageGroupedList = new ArrayList<>();
-        groupedRecords.forEach((gene, termNameMap) -> {
+        stageGroupedRecords.forEach((gene, termNameMap) -> {
             termNameMap.forEach((entity, stageMap) -> {
                 stageMap.forEach((stage, assayMap) -> {
                     assayMap.forEach((assay, bioJoins) -> {
