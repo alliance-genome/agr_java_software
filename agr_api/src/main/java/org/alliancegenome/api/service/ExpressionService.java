@@ -13,9 +13,7 @@ import org.alliancegenome.neo4j.repository.GeneRepository;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toSet;
+import static java.util.stream.Collectors.*;
 
 public class ExpressionService {
 
@@ -218,22 +216,24 @@ public class ExpressionService {
         StringJoiner headerJoiner = new StringJoiner("\t");
         headerJoiner.add("Species");
         headerJoiner.add("Gene Symbol");
+        headerJoiner.add("Gene ID");
         headerJoiner.add("Term");
         headerJoiner.add("Stage");
         headerJoiner.add("Assay");
-        headerJoiner.add("Reference");
         headerJoiner.add("Source");
+        headerJoiner.add("Reference");
         builder.append(headerJoiner.toString());
         builder.append(System.getProperty("line.separator"));
         result.getResults().forEach(expressionDetail -> {
             StringJoiner rowJoiner = new StringJoiner("\t");
             rowJoiner.add(expressionDetail.getGene().getSpeciesName());
             rowJoiner.add(expressionDetail.getGene().getSymbol());
+            rowJoiner.add(expressionDetail.getGene().getModGlobalId());
             rowJoiner.add(expressionDetail.getTermName());
             rowJoiner.add(expressionDetail.getStage().getPrimaryKey());
             rowJoiner.add(expressionDetail.getAssay().getDisplay_synonym());
+            rowJoiner.add(expressionDetail.getCrossReferences().stream().map(CrossReference::getDisplayName).collect(Collectors.joining(",")));
             rowJoiner.add(expressionDetail.getPublications().stream().map(Publication::getPubId).collect(Collectors.joining(",")));
-            rowJoiner.add(expressionDetail.getDataProvider());
             builder.append(rowJoiner.toString());
             builder.append(System.getProperty("line.separator"));
         });
