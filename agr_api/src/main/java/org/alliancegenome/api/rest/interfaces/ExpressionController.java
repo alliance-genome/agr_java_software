@@ -149,7 +149,7 @@ public class ExpressionController implements ExpressionRESTInterface {
                 filterReference,
                 filterTerm,
                 filterSource,
-                Integer.MAX_VALUE,
+                limit,
                 page,
                 sortBy,
                 asc);
