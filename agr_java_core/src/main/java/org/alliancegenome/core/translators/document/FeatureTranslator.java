@@ -2,6 +2,7 @@ package org.alliancegenome.core.translators.document;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.alliancegenome.core.translators.EntityDocumentTranslator;
@@ -29,9 +30,13 @@ public class FeatureTranslator extends EntityDocumentTranslator<Feature, Feature
         featureDocument.setSymbol(entity.getSymbol());
         featureDocument.setName(entity.getSymbol());
 
-        featureDocument.setModCrossRefFullUrl(entity.getCrossReferences().stream()
-                .filter(ref -> ref.getCrossRefType().equals("allele"))
-                .findFirst().orElse(null).getCrossRefCompleteUrl());
+        if (entity.getCrossReferences() != null && entity.getCrossReferences().size() > 0) {
+            CrossReference allele = entity.getCrossReferences().stream()
+                    .filter(ref -> ref.getCrossRefType().equals("allele"))
+                    .findFirst().orElse(null);
+            if (allele != null)
+                featureDocument.setModCrossRefFullUrl(allele.getCrossRefCompleteUrl());
+        }
 
         if (translationDepth > 0) {
             if (entity.getGene().getSpecies() != null)
