@@ -1,4 +1,4 @@
-package org.alliancegenome.es.index.site.schema.mapping;
+ package org.alliancegenome.es.index.site.schema.mapping;
 
 import org.alliancegenome.es.index.site.schema.Mapping;
 

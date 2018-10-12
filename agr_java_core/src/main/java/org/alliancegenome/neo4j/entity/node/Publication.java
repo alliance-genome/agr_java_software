@@ -22,11 +22,11 @@ public class Publication extends Neo4jEntity {
     private String primaryKey;
     @JsonView({View.InteractionView.class, View.ExpressionView.class})
     private String pubMedId;
-    @JsonView({View.ExpressionView.class})
+    @JsonView({View.InteractionView.class, View.ExpressionView.class})
     private String pubMedUrl;
     @JsonView({View.InteractionView.class, View.ExpressionView.class})
     private String pubModId;
-    @JsonView({View.ExpressionView.class})
+    @JsonView({View.InteractionView.class, View.ExpressionView.class})
     private String pubModUrl;
     @JsonView({View.ExpressionView.class})
     private String pubId;
