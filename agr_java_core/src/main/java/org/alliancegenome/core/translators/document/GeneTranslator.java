@@ -198,8 +198,9 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
         Set<GOTerm> cellularComponentExpressionTerms =
                 gene.getEntityGeneExpressionJoins().stream()
                         .map(BioEntityGeneExpressionJoin::getEntity)
-                        .map(ExpressionBioEntity::getGoTerm)
-                        .filter(term -> term != null)
+                        .map(ExpressionBioEntity::getGoTermList)
+                        .flatMap(List::stream)
+                        .filter(Objects::nonNull)
                         .collect(Collectors.toSet());
 
         geneDocument.setCellularComponentExpression(

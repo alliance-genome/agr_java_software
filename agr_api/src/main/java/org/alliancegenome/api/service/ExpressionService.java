@@ -115,41 +115,18 @@ public class ExpressionService {
         Map<Gene, Map<ExpressionBioEntity, Map<Optional<Stage>, Map<MMOTerm, Set<BioEntityGeneExpressionJoin>>>>> groupedRecords = getGeneTermStageAssayMap(joins);
 
         ExpressionSummary summary = new ExpressionSummary();
-
-        // calculate GO_CC set
-        // get Parent terms
         GeneRepository repository = new GeneRepository();
-        Map<String, List<BioEntityGeneExpressionJoin>> parentTermMap = new HashMap<>();
 
-        for (BioEntityGeneExpressionJoin join : joins) {
-            ExpressionBioEntity entity = join.getEntity();
-            if (entity.getGoTerm() != null) {
-                List<String> goParentTerms = repository.getGOParentTerms(entity);
-                for (String parent : goParentTerms) {
-                    if (parentTermMap.get(parent) == null) {
-                        List<BioEntityGeneExpressionJoin> list = new ArrayList<>();
-                        list.add(join);
-                        parentTermMap.put(parent, list);
-                    } else {
-                        List<BioEntityGeneExpressionJoin> joinList = parentTermMap.get(parent);
-                        joinList.add(join);
-                    }
-                }
-            }
-        }
-        Map<String, Long> goHistogram = parentTermMap.keySet().stream()
-                .collect(Collectors.toMap(o -> o, o -> ((long) parentTermMap.get(o).size())));
-        ExpressionSummaryGroup goCcGroup = populateGroupInfo("Cellular Component", goHistogram, repository.getGoCCSlimList());
-        summary.addGroup(goCcGroup);
-
-        // create AO histogram
+        // create GO & AO histograms
         // list of all terms over grouped list
         List<UBERONTerm> aoGroupedList = new ArrayList<>();
+        List<GOTerm> goGroupedList = new ArrayList<>();
         groupedRecords.forEach((gene, termNameMap) -> {
             termNameMap.forEach((entity, stageMap) -> {
                 stageMap.forEach((stage, assayMap) -> {
                     assayMap.forEach((assay, bioJoins) -> {
                         aoGroupedList.addAll(entity.getAoTermList());
+                        goGroupedList.addAll(entity.getGoTermList());
                     });
                 });
             });
@@ -164,6 +141,13 @@ public class ExpressionService {
 
         int sumAO = aoGroup.getTerms().stream().mapToInt(ExpressionSummaryGroupTerm::getNumberOfAnnotations).sum();
         aoGroup.setTotalAnnotations(sumAO);
+
+        Map<String, Long> goHistogram = goGroupedList.stream()
+                .collect(Collectors.groupingBy(GOTerm::getPrimaryKey, Collectors.counting()));
+        ExpressionSummaryGroup goGroup = populateGroupInfo("Cellular Component", goHistogram, repository.getFullGoList());
+        int sumGo = goGroup.getTerms().stream().mapToInt(ExpressionSummaryGroupTerm::getNumberOfAnnotations).sum();
+        goGroup.setTotalAnnotations(sumGo);
+        summary.addGroup(goGroup);
 
 
         Map<Gene, Map<ExpressionBioEntity, Map<Optional<UBERONTerm>, Map<MMOTerm, Set<BioEntityGeneExpressionJoin>>>>> stageGroupedRecords = getGeneTermStageRibbonAssayMap(joins);
@@ -189,9 +173,7 @@ public class ExpressionService {
         stageGroup.setTotalAnnotations(sumStage);
 
         // add all annotations per goCcGroup
-        int sumGoCC = goCcGroup.getTerms().stream().mapToInt(ExpressionSummaryGroupTerm::getNumberOfAnnotations).sum();
-        goCcGroup.setTotalAnnotations(sumGoCC);
-        summary.setTotalAnnotations(sumGoCC + sumAO + sumStage);
+        summary.setTotalAnnotations(sumGo + sumAO + sumStage);
         return summary;
     }
 

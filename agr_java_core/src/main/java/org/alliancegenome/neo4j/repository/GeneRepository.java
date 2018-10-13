@@ -19,18 +19,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
-import org.alliancegenome.es.model.query.FieldFilter;
-import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.neo4j.entity.SpeciesType;
-import org.alliancegenome.neo4j.entity.node.*;
-import org.alliancegenome.neo4j.view.OrthologyFilter;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.neo4j.ogm.model.Result;
 
 import static java.util.stream.Collectors.joining;
 
@@ -152,7 +141,7 @@ public class GeneRepository extends Neo4jRepository<Gene> {
             // GO term check
             if (Ontology.isGOTerm(termID))
                 joinList = joinList.stream()
-                        .filter(join -> isChildOfRollupGOTerm(join, termID))
+                        .filter(join -> join.getEntity().getGoTermList().stream().map(GOTerm::getPrimaryKey).anyMatch(s -> s.equals(termID)))
                         .collect(Collectors.toList());
             // AO / stage term check
             if (Ontology.isAoOrStageTerm(termID)) {
@@ -204,41 +193,6 @@ public class GeneRepository extends Neo4jRepository<Gene> {
             joinList.add(join);
         }
         return joinList;
-    }
-
-    private boolean isChildOfRollupOtherGOTerm(BioEntityGeneExpressionJoin join) {
-        StringJoiner sj = new StringJoiner(",");
-
-        getGoCCSlimListWithoutOther().keySet().forEach(s ->
-                sj.add("'" + s + "'")
-        );
-
-        String entityKey = join.getEntity().getGoTerm().getPrimaryKey();
-        String cypher = " MATCH p1=(entity:ExpressionBioEntity)-[:CELLULAR_COMPONENT]-(ontology:GOTerm) " +
-                " WHERE ontology.primaryKey = '" + entityKey + "' " +
-                "OPTIONAL MATCH slim=(ontology)-[:PART_OF|IS_A*]->(slimTerm) " +
-                "where any (primaryKey in [" + sj.toString() + "] where primaryKey in slimTerm.primaryKey) " +
-                "RETURN slim";
-        Iterable<GOTerm> terms = neo4jSession.query(GOTerm.class, cypher, new HashMap<>());
-        return !(terms != null && terms.spliterator().getExactSizeIfKnown() > 0);
-    }
-
-    private boolean isChildOfRollupGOTerm(BioEntityGeneExpressionJoin join, String termID) {
-        if (join.getEntity().getGoTerm() == null)
-            return false;
-        if (termID.equals(GO_OTHER_LOCATIONS_ID))
-            return isChildOfRollupOtherGOTerm(join);
-        String cypher = " MATCH p1=(entity:ExpressionBioEntity)-[:CELLULAR_COMPONENT]-(ontology:GOTerm) " +
-                " WHERE ontology.primaryKey = '" + join.getEntity().getGoTerm().getPrimaryKey() + "' " +
-                "OPTIONAL MATCH slim=(ontology)-[:PART_OF|IS_A*]->(slimTerm) " +
-                "where all (primaryKey in ['" + termID + "'] where primaryKey in slimTerm.primaryKey) " +
-                "RETURN ontology, slim";
-        Iterable<GOTerm> terms = neo4jSession.query(GOTerm.class, cypher, new HashMap<>());
-        for (GOTerm term : terms) {
-            if (termID.equals(term.getPrimaryKey()))
-                return true;
-        }
-        return false;
     }
 
     private boolean passFilter(BioEntityGeneExpressionJoin bioEntityGeneExpressionJoin, Map<FieldFilter, String> fieldFilterValueMap) {
@@ -496,30 +450,6 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         return getGoSlimList(CELLULAR_COMPONENT.toLowerCase());
     }
 
-
-    public List<String> getGOParentTerms(ExpressionBioEntity entity) {
-        List<String> parentList = new ArrayList<>();
-        getGoCCSlimListWithoutOther().keySet().forEach(termID -> {
-            String query = " MATCH p1=(entity:ExpressionBioEntity)-[:" + CELLULAR_COMPONENT + "]-(ontology:GOTerm) ";
-            query += "WHERE ontology.primaryKey = '" + entity.getGoTerm().getPrimaryKey() + "'";
-            query += " OPTIONAL MATCH slim=(ontology)-[:PART_OF|IS_A*]->(slimTerm) " +
-                    //" where all (primaryKey IN [" + joiner.toString() + "] where primaryKey in slimTerm.primaryKey) ";
-                    " where all (primaryKey IN ['";
-            query += termID + "'] where primaryKey in slimTerm.primaryKey) ";
-            query += " RETURN p1, slim ";
-            Iterable<GOTerm> joins = neo4jSession.query(GOTerm.class, query, new HashMap<>());
-            List<String> list = StreamSupport.stream(joins.spliterator(), false)
-                    .filter(goTerm -> goTerm.getPrimaryKey().equals(termID))
-                    .map(GOTerm::getPrimaryKey)
-                    .collect(Collectors.toList());
-            parentList.addAll(list);
-        });
-        if (parentList.isEmpty()) {
-            parentList.add(GO_OTHER_LOCATIONS_ID);
-        }
-        return parentList;
-    }
-
     public List<Gene> getGenes(OrthologyFilter filter) {
 
         String query = getAllGenesQuery(filter);
@@ -608,14 +538,36 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         String cypher = "match p=(uber:UBERONTerm)-[:ANATOMICAL_RIBBON_TERM]-(:ExpressionBioEntity) return distinct uber";
 
         Iterable<UBERONTerm> terms = neo4jSession.query(UBERONTerm.class, cypher, new HashMap<>());
+        String alwaysLast = "other";
         Map<String, String> map = StreamSupport.stream(terms.spliterator(), false)
                 .sorted((o1, o2) -> {
-                    if (o1.getName().equalsIgnoreCase("other"))
+                    if (o1.getName().equalsIgnoreCase(alwaysLast)) {
                         return 1;
+                    }
+                    if (o2.getName().equalsIgnoreCase(alwaysLast)) {
+                        return -1;
+                    }
                     return o1.getName().compareTo(o2.getName());
                 })
                 .collect(Collectors.toMap(UBERONTerm::getPrimaryKey, UBERONTerm::getName, (x, y) -> x + ", " + y, LinkedHashMap::new));
         return map;
+    }
+
+    public Map<String, String> getFullGoList() {
+        String cypher = "match p=(uber:GOTerm)-[:CELLULAR_COMPONENT_RIBBON_TERM]-(:ExpressionBioEntity) return distinct uber";
+        Iterable<GOTerm> terms = neo4jSession.query(GOTerm.class, cypher, new HashMap<>());
+        String alwaysLast = "other locations";
+        return StreamSupport.stream(terms.spliterator(), false)
+                .sorted((o1, o2) -> {
+                    if (o1.getName().equalsIgnoreCase(alwaysLast)) {
+                        return 1;
+                    }
+                    if (o2.getName().equalsIgnoreCase(alwaysLast)) {
+                        return -1;
+                    }
+                    return o1.getName().compareToIgnoreCase(o2.getName());
+                })
+                .collect(Collectors.toMap(GOTerm::getPrimaryKey, GOTerm::getName, (x, y) -> x + ", " + y, LinkedHashMap::new));
     }
 
     @FunctionalInterface
