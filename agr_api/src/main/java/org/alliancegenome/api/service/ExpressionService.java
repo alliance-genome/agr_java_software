@@ -125,8 +125,10 @@ public class ExpressionService {
             termNameMap.forEach((entity, stageMap) -> {
                 stageMap.forEach((stage, assayMap) -> {
                     assayMap.forEach((assay, bioJoins) -> {
-                        aoGroupedList.addAll(entity.getAoTermList());
-                        goGroupedList.addAll(entity.getGoTermList());
+                        bioJoins.forEach((bioJoin) -> {
+                            aoGroupedList.addAll(entity.getAoTermList());
+                            goGroupedList.addAll(entity.getGoTermList());
+                        });
                     });
                 });
             });
@@ -158,7 +160,9 @@ public class ExpressionService {
             termNameMap.forEach((entity, stageMap) -> {
                 stageMap.forEach((stage, assayMap) -> {
                     assayMap.forEach((assay, bioJoins) -> {
-                        stage.ifPresent(stageGroupedList::add);
+                        bioJoins.forEach(bioJoin ->
+                                stage.ifPresent(stageGroupedList::add)
+                        );
                     });
                 });
             });
