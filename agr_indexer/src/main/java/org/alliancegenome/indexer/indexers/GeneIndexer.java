@@ -56,6 +56,8 @@ public class GeneIndexer extends Indexer<GeneDocument> {
                 }
 
                 String key = queue.takeFirst();
+                if(!key.equals("ZFIN:ZDB-GENE-030131-1558"))
+                    continue;
                 Gene gene = repo.getOneGene(key);
                 if (gene != null)
                     list.add(gene);

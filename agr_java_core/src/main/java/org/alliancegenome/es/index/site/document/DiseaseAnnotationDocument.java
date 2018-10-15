@@ -32,7 +32,7 @@ public class DiseaseAnnotationDocument extends ESDocument implements Comparable<
     private List<String> parentTermIDs;
     private List<String> parentTermNames;
     private SourceDoclet source;
-    private SpeciesDoclet orthologySpecies;
+    private GeneDocument orthologyGene;
     private boolean searchable = true;
 
     @Override
