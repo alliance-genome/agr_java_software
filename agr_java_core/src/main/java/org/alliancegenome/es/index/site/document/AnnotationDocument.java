@@ -20,7 +20,7 @@ public class AnnotationDocument extends ESDocument implements Comparable<Annotat
     private String category = "diseaseAnnotation";
     private String associationType;
     private SourceDoclet source;
-    private SpeciesDoclet orthologySpecies;
+    private GeneDocument orthologyGeneDocument;
     private GeneDocument geneDocument;
     private FeatureDocument featureDocument;
     private List<PublicationDoclet> publications;

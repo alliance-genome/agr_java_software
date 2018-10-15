@@ -139,12 +139,12 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
             // check if a doc has an orthology-related record
             List<DiseaseDocument> diseaseViaOrthology = diseaseList.stream()
                     .filter(diseaseDocument -> diseaseDocument.getAnnotations()
-                            .stream().anyMatch(annotationDocument -> annotationDocument.getOrthologySpecies() != null))
+                            .stream().anyMatch(annotationDocument -> annotationDocument.getOrthologyGeneDocument() != null))
                     .collect(Collectors.toList());
             // filter for orthology records.
             diseaseViaOrthology = diseaseViaOrthology.stream()
                     .peek(diseaseDocument -> diseaseDocument.setAnnotations(diseaseDocument.getAnnotations().stream()
-                            .filter(annotationDocument -> annotationDocument.getOrthologySpecies() != null)
+                            .filter(annotationDocument -> annotationDocument.getOrthologyGeneDocument() != null)
                             .collect(Collectors.toList())))
                     .collect(Collectors.toList());
             geneDocument.setDiseasesViaOrthology(diseaseViaOrthology);

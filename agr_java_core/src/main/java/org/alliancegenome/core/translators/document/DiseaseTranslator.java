@@ -116,9 +116,9 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
                                                 }
                                                 document.setAssociationType(associationEntry.getKey());
                                                 document.setSource(getSourceUrls(entity, gene.getSpecies()));
-                                                Species orthologySpecies = getOrthologySpecies(featureMapEntry.getValue());
-                                                if (orthologySpecies != null)
-                                                    document.setOrthologySpecies(getSpeciesDoclet(orthologySpecies));
+                                                Gene orthologyGene = getOrthologyGene(featureMapEntry.getValue());
+                                                if (orthologyGene != null)
+                                                    document.setOrthologyGeneDocument(geneTranslator.translate(orthologyGene, 0));
                                                 document.setPublications(publicationDocletTranslator.getPublicationDoclets(featureMapEntry.getValue()));
                                                 return document;
                                             })
@@ -318,9 +318,9 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
                         document.setParentDiseaseIDs(getParentIdList(doTerm));
                         document.setAssociationType(associationType);
                         document.setSpecies(getSpeciesDoclet(gene.getSpecies()));
-                        Species orthologySpecies = getOrthologySpecies(diseaseEntityJoinList);
-                        if (orthologySpecies != null)
-                            document.setOrthologySpecies(getSpeciesDoclet(orthologySpecies));
+                        Gene orthologyGene = getOrthologyGene(diseaseEntityJoinList);
+                        if (orthologyGene != null)
+                            document.setOrthologyGene(geneTranslator.translate(orthologyGene, 0));
                         document.setSource(getSourceUrls(doTerm, gene.getSpecies()));
                         document.setPublications(publicationDocletTranslator.getPublicationDoclets(diseaseEntityJoinList));
                         if (optionalFeature.isPresent()) {
@@ -337,16 +337,16 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
         return diseaseAnnotationDocuments;
     }
 
-    private Species getOrthologySpecies(List<DiseaseEntityJoin> diseaseEntityJoinList) {
+    private Gene getOrthologyGene(List<DiseaseEntityJoin> diseaseEntityJoinList) {
         if (diseaseEntityJoinList == null)
             return null;
-        List<Species> species = new ArrayList<>();
+        List<Gene> genes = new ArrayList<>();
         diseaseEntityJoinList.forEach(diseaseEntityJoin -> {
-            if (diseaseEntityJoin.getOrthologySecies() != null)
-                species.add(diseaseEntityJoin.getOrthologySecies());
+            if (diseaseEntityJoin.getOrthologyGene() != null)
+                genes.add(diseaseEntityJoin.getOrthologyGene());
         });
 
-        return species.size() > 0 ? species.get(0) : null;
+        return genes.size() > 0 ? genes.get(0) : null;
     }
 
     /**

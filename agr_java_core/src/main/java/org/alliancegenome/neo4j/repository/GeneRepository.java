@@ -43,7 +43,7 @@ public class GeneRepository extends Neo4jRepository<Gene> {
 
         query += " MATCH p1=(q:Species)-[:FROM_SPECIES]-(g:Gene)--(s) WHERE g.primaryKey = {primaryKey}";
         query += " OPTIONAL MATCH p5=(g)--(s:DiseaseEntityJoin)--(feature:Feature)";
-        query += " OPTIONAL MATCH p12=(g)--(s:DiseaseEntityJoin)--(sp:Species)";
+        query += " OPTIONAL MATCH p12=(g)--(s:DiseaseEntityJoin)--(orthoGene:Gene)";
         query += " OPTIONAL MATCH p2=(do:DOTerm)--(s:DiseaseEntityJoin)-[:EVIDENCE]-(ea)";
         query += " OPTIONAL MATCH p4=(g)--(s:OrthologyGeneJoin)--(a:OrthoAlgorithm), p3=(g)-[o:ORTHOLOGOUS]-(g2:Gene)-[:FROM_SPECIES]-(q2:Species), (s)--(g2)";
         query += " OPTIONAL MATCH p6=(g)--(s:PhenotypeEntityJoin)--(tt) ";
