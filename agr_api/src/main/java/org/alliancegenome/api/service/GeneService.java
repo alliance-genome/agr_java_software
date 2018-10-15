@@ -10,13 +10,13 @@ import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.es.model.search.SearchResult;
 import org.alliancegenome.es.util.SearchHitIterator;
 import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
-import org.alliancegenome.neo4j.repository.GeneRepository;
+import org.alliancegenome.neo4j.repository.InteractionRepository;
 
 @RequestScoped
 public class GeneService {
 
     private static GeneDAO geneDAO = new GeneDAO();
-    private static GeneRepository geneRepo = new GeneRepository();
+    private static InteractionRepository interRepo = new InteractionRepository();
 
     public Map<String, Object> getById(String id) {
         Map<String, Object> geneMap = geneDAO.getById(id);
@@ -42,7 +42,7 @@ public class GeneService {
     }
 
     public List<InteractionGeneJoin> getInteractions(String id) {
-        return geneRepo.getInteractions(id);
+        return interRepo.getInteractions(id);
     }
 
 }
