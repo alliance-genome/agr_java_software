@@ -19,7 +19,10 @@ public class ExpressionBioEntity extends Neo4jEntity implements Comparable<Expre
     private String whereExpressedStatement;
 
     @Relationship(type = "CELLULAR_COMPONENT_RIBBON_TERM")
-    private List<GOTerm> goTermList = new ArrayList<>();
+    private List<GOTerm> ccRibbonTermList = new ArrayList<>();
+
+    @Relationship(type = "CELLULAR_COMPONENT")
+    private List<GOTerm> ccTermList = new ArrayList<>();
 
     @Relationship(type = "CELLULAR_COMPONENT_RIBBON_TERM")
     private List<UBERONTerm> cellularTermList = new ArrayList<>();
@@ -38,12 +41,12 @@ public class ExpressionBioEntity extends Neo4jEntity implements Comparable<Expre
         if (o == null || getClass() != o.getClass()) return false;
         ExpressionBioEntity that = (ExpressionBioEntity) o;
         return Objects.equals(whereExpressedStatement, that.whereExpressedStatement) &&
-                Objects.equals(goTermList, that.goTermList) &&
+                Objects.equals(ccRibbonTermList, that.ccRibbonTermList) &&
                 Objects.equals(aoTermList, that.aoTermList);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(whereExpressedStatement, goTermList, aoTermList);
+        return Objects.hash(whereExpressedStatement, ccRibbonTermList, aoTermList);
     }
 }

@@ -198,7 +198,7 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
         Set<GOTerm> cellularComponentExpressionTerms =
                 gene.getEntityGeneExpressionJoins().stream()
                         .map(BioEntityGeneExpressionJoin::getEntity)
-                        .map(ExpressionBioEntity::getGoTermList)
+                        .map(ExpressionBioEntity::getCcTermList)
                         .flatMap(List::stream)
                         .filter(Objects::nonNull)
                         .collect(Collectors.toSet());
@@ -224,8 +224,14 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
         );
 
         geneDocument.setCellularComponentExpressionAgrSlim(
-                collectGoTermSlimNames(cellularComponentExpressionParentTerms,
-                        "cellular_component", "goslim_agr")
+                gene.getEntityGeneExpressionJoins().stream()
+                        .map(BioEntityGeneExpressionJoin::getEntity)
+                        .map(ExpressionBioEntity::getCcRibbonTermList)
+                        .flatMap(List::stream)
+                        .filter(Objects::nonNull)
+                        .map(GOTerm::getName)
+                        .distinct()
+                        .collect(Collectors.toList())
         );
 
         if (gene.getGenomeLocations() != null) {
