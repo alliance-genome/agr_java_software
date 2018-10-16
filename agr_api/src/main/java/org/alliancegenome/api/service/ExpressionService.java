@@ -127,7 +127,7 @@ public class ExpressionService {
                     assayMap.forEach((assay, bioJoins) -> {
                         bioJoins.forEach((bioJoin) -> {
                             aoGroupedList.addAll(entity.getAoTermList());
-                            goGroupedList.addAll(entity.getGoTermList());
+                            goGroupedList.addAll(entity.getCcRibbonTermList());
                         });
                     });
                 });

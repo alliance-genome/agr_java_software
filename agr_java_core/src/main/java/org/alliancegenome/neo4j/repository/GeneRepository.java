@@ -141,7 +141,7 @@ public class GeneRepository extends Neo4jRepository<Gene> {
             // GO term check
             if (Ontology.isGOTerm(termID))
                 joinList = joinList.stream()
-                        .filter(join -> join.getEntity().getGoTermList().stream().map(GOTerm::getPrimaryKey).anyMatch(s -> s.equals(termID)))
+                        .filter(join -> join.getEntity().getCcRibbonTermList().stream().map(GOTerm::getPrimaryKey).anyMatch(s -> s.equals(termID)))
                         .collect(Collectors.toList());
             // AO / stage term check
             if (Ontology.isAoOrStageTerm(termID)) {

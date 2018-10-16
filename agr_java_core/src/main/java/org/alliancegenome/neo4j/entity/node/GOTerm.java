@@ -65,5 +65,5 @@ public class GOTerm extends Ontology {
     }
 
     @Override
-    public String toString() { return nameKey; }
+    public String toString() { return name; }
 }
