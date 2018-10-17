@@ -7,6 +7,7 @@ import org.alliancegenome.neo4j.entity.node.*;
 import org.alliancegenome.neo4j.view.View;
 
 import java.util.List;
+import java.util.TreeSet;
 
 @Setter
 @Getter
@@ -21,7 +22,7 @@ public class ExpressionDetail {
     @JsonView(View.ExpressionView.class)
     private MMOTerm assay;
     @JsonView(View.ExpressionView.class)
-    private List<Publication> publications;
+    private TreeSet<Publication> publications;
     @JsonView(View.ExpressionView.class)
     private String dataProvider;
     @JsonView(View.ExpressionView.class)
