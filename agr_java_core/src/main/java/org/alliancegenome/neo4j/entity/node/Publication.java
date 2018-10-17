@@ -1,5 +1,6 @@
 package org.alliancegenome.neo4j.entity.node;
 
+import java.util.Comparator;
 import java.util.List;
 
 import org.alliancegenome.neo4j.entity.Neo4jEntity;
@@ -16,7 +17,7 @@ import lombok.Setter;
 @NodeEntity
 @Getter
 @Setter
-public class Publication extends Neo4jEntity {
+public class Publication extends Neo4jEntity implements Comparable<Publication> {
 
     @JsonView({View.InteractionView.class, View.ExpressionView.class})
     private String primaryKey;
@@ -44,5 +45,10 @@ public class Publication extends Neo4jEntity {
     @Override
     public String toString() {
         return primaryKey;
+    }
+
+    @Override
+    public int compareTo(Publication o) {
+        return pubId.compareTo(o.getPubId());
     }
 }

@@ -31,7 +31,7 @@ public class ExpressionService {
                         detail.setAssay(assay);
                         detail.setDataProvider(gene.getDataProvider());
                         stage.ifPresent(detail::setStage);
-                        detail.setPublications(bioJoins.stream().map(BioEntityGeneExpressionJoin::getPublication).collect(toList()));
+                        detail.setPublications(bioJoins.stream().map(BioEntityGeneExpressionJoin::getPublication).collect(Collectors.toCollection(TreeSet::new)));
                         detail.setCrossReferences(bioJoins.stream()
                                 .map(BioEntityGeneExpressionJoin::getCrossReference)
                                 .filter(Objects::nonNull)
@@ -48,7 +48,7 @@ public class ExpressionService {
         sortingMapping.put(FieldFilter.FSPECIES, Comparator.comparing(o -> o.getGene().getTaxonId().toUpperCase()));
         sortingMapping.put(FieldFilter.GENE_NAME, Comparator.comparing(o -> o.getGene().getSymbol().toUpperCase()));
         sortingMapping.put(FieldFilter.TERM_NAME, Comparator.comparing(o -> o.getTermName().toUpperCase()));
-//        sortingMapping.put(FieldFilter.STAGE, Comparator.comparing(o -> o.getStage().getPrimaryKey().toUpperCase()));
+        sortingMapping.put(FieldFilter.STAGE, Comparator.comparing(o -> o.getStage().getPrimaryKey().toUpperCase()));
         sortingMapping.put(FieldFilter.ASSAY, Comparator.comparing(o -> o.getAssay().getName().toUpperCase()));
 
         Comparator<ExpressionDetail> comparator = null;
