@@ -13,6 +13,8 @@ import org.alliancegenome.api.rest.interfaces.ExpressionController;
 import org.alliancegenome.api.service.GeneService;
 import org.alliancegenome.api.service.helper.ExpressionDetail;
 import org.alliancegenome.api.service.helper.ExpressionSummary;
+import org.alliancegenome.api.service.helper.ExpressionSummaryGroup;
+import org.alliancegenome.api.service.helper.ExpressionSummaryGroupTerm;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.es.index.site.dao.GeneDAO;
@@ -38,6 +40,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static org.alliancegenome.api.service.ExpressionService.CELLULAR_COMPONENT;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.junit.Assert.assertNotNull;
@@ -250,19 +253,24 @@ public class GeneTest {
         //String responseString = controller.getExpressionSummary("FB:FBgn0029123");
         //String responseString = controller.getExpressionSummary("ZFIN:ZDB-GENE-080204-52", 5, 1);
         ExpressionSummary response = mapper.readValue(responseString, ExpressionSummary.class);
-        assertThat("matches found for gene RGD:2129'", response.getTotalAnnotations(), equalTo(8));
+        assertThat("matches found for gene RGD:2129'", response.getTotalAnnotations(), equalTo(10));
         // GoCC
-        response.getGroups().get(0).getTerms().forEach(expressionSummaryGroupTerm -> {
+        List<ExpressionSummaryGroupTerm> terms = response.getGroups().stream()
+                .filter(expressionSummaryGroup -> expressionSummaryGroup.getName().equals(CELLULAR_COMPONENT))
+                .map(ExpressionSummaryGroup::getTerms)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
+
+        terms.forEach(expressionSummaryGroupTerm -> {
             if (expressionSummaryGroupTerm.getName().equals("extracellular region"))
-                assertThat(expressionSummaryGroupTerm.getNumberOfAnnotations(), equalTo(3));
+                assertThat(expressionSummaryGroupTerm.getNumberOfAnnotations(), equalTo(4));
             else if (expressionSummaryGroupTerm.getName().equals("protein-containing complex"))
-                assertThat(expressionSummaryGroupTerm.getNumberOfAnnotations(), equalTo(2));
+                assertThat(expressionSummaryGroupTerm.getNumberOfAnnotations(), equalTo(3));
             else if (expressionSummaryGroupTerm.getName().equals("other locations"))
                 assertThat(expressionSummaryGroupTerm.getNumberOfAnnotations(), equalTo(3));
             else
                 assertThat(expressionSummaryGroupTerm.getNumberOfAnnotations(), equalTo(0));
         });
-
     }
 
     @Ignore
@@ -286,7 +294,7 @@ public class GeneTest {
         String responseString = controller.getExpressionAnnotations(Arrays.asList(geneIDs), null, null, null, null, null, null, null, null, limit, 1, null, "true");
         JsonResultResponse<ExpressionDetail> response = mapper.readValue(responseString, new TypeReference<JsonResultResponse<ExpressionDetail>>() {
         });
-        assertThat("matches found for gene MGI:109583'", response.getReturnedRecords(), equalTo(10));
+        assertThat("matches found for gene MGI:109583'", response.getReturnedRecords(), equalTo(15));
 
         List<String> symbolList = response.getResults().stream()
                 .map(annotation -> annotation.getGene().getSymbol())
@@ -312,7 +320,7 @@ public class GeneTest {
         String pubs = String.join(",", referenceList);
         assertThat("first element species", response.getResults().get(0).getGene().getSpeciesName(), equalTo("Danio rerio"));
         assertThat("first element symbol", response.getResults().get(0).getGene().getSymbol(), equalTo("abcb4"));
-        assertThat("list of terms", terms, equalTo("head,head,intestinal bulb,intestine,intestine,intestine,liver,liver,liver,whole organism"));
+        assertThat("list of terms", terms, equalTo("bile canaliculus,head,head,head,head,head,head,head,head,hepatocyte intracellular canaliculus,intestinal bulb,intestine,intestine,intestine,intestine"));
         //      assertThat("list of stages", stages, equalTo("ZFS:0000029,ZFS:0000030,ZFS:0000031,ZFS:0000032,ZFS:0000033,ZFS:0000034,ZFS:0000035,ZFS:0000036,ZFS:0000037,ZFS:0000029,ZFS:0000030,ZFS:0000031,ZFS:0000032,ZFS:0000033,ZFS:0000034"));
 
         responseString = controller.getExpressionAnnotations(Arrays.asList(geneIDs), null, null, null, null, null, null, null, null, limit, 1, "assay", "false");
@@ -322,7 +330,7 @@ public class GeneTest {
                 .map(annotation -> annotation.getAssay().getName())
                 .collect(Collectors.toList());
         String assays = String.join(",", assayList);
-        assertThat("matches found for gene MGI:109583'", response.getReturnedRecords(), equalTo(10));
+        assertThat("matches found for gene MGI:109583'", response.getReturnedRecords(), equalTo(15));
 
 
         responseString = controller.getExpressionAnnotations(Arrays.asList(geneIDs), null, null, null, null, null, null, null, null, limit, 1, "source", "true");
@@ -332,7 +340,7 @@ public class GeneTest {
                 .map(annotation -> annotation.getAssay().getName())
                 .collect(Collectors.toList());
         assays = String.join(",", assayList);
-        assertThat("matches found for gene MGI:109583'", response.getReturnedRecords(), equalTo(10));
+        assertThat("matches found for gene MGI:109583'", response.getReturnedRecords(), equalTo(15));
     }
 
     @Ignore
@@ -350,7 +358,7 @@ public class GeneTest {
         termID = "GO:0032991";
         responseString = controller.getExpressionAnnotations(Arrays.asList(geneIDs), termID, null, null, null, null, null, null, null, limit, 1, null, "true");
         response = mapper.readValue(responseString, JsonResultResponse.class);
-        assertThat("matches found for gene MGI:109583'", response.getResults().size(), equalTo(2));
+        assertThat("matches found for gene MGI:109583'", response.getResults().size(), equalTo(3));
     }
 
     @Ignore
@@ -386,7 +394,7 @@ public class GeneTest {
 
         ExpressionController controller = new ExpressionController();
         String[] geneIDs = {"ZFIN:ZDB-GENE-980526-166"};
-        int limit = 600;
+        int limit = 6;
         String responseString = controller.getExpressionAnnotations(Arrays.asList(geneIDs), null, null, null, null, null, null, null, null, limit, 1, null, "true");
         JsonResultResponse<ExpressionDetail> response = mapper.readValue(responseString, new TypeReference<JsonResultResponse<ExpressionDetail>>() {
         });
@@ -414,8 +422,8 @@ public class GeneTest {
         String symbols = String.join(",", symbolList);
         String pubs = String.join(",", referenceList);
         assertThat("first element species", response.getResults().get(0).getGene().getSpeciesName(), equalTo("Danio rerio"));
-        assertThat("first element symbol", response.getResults().get(0).getGene().getSymbol(), equalTo("abcb4"));
-        assertThat("list of terms", terms, equalTo("liver,liver,liver"));
+        assertThat("first element symbol", response.getResults().get(0).getGene().getSymbol(), equalTo("shha"));
+        assertThat("list of terms", terms, equalTo("anal fin,anterior neural keel,anterior neural keel ventral region,anterior neural rod,axial chorda mesoderm,axial chorda mesoderm"));
         //      assertThat("list of stages", stages, equalTo("ZFS:0000029,ZFS:0000030,ZFS:0000031,ZFS:0000032,ZFS:0000033,ZFS:0000034,ZFS:0000035,ZFS:0000036,ZFS:0000044"));
     }
 
@@ -425,7 +433,7 @@ public class GeneTest {
 
         ExpressionController controller = new ExpressionController();
         int limit = 15;
-        String responseString = controller.getExpressionAnnotationsByTaxon("danio",null, limit, 1);
+        String responseString = controller.getExpressionAnnotationsByTaxon("danio", null, limit, 1);
         JsonResultResponse<ExpressionDetail> response = mapper.readValue(responseString, new TypeReference<JsonResultResponse<ExpressionDetail>>() {
         });
     }
