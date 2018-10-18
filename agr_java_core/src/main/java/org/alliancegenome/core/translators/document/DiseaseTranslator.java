@@ -276,6 +276,7 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
                     }
                     if (speciesType == SpeciesType.YEAST && doTerm.getSgdLink() != null) {
                         doclet.setUrl(doTerm.getSgdLink());
+                        doclet.setDiseaseUrl(doTerm.getSgdLink());
                     }
                     if (speciesType == SpeciesType.WORM && doTerm.getWormbaseLink() != null) {
                         doclet.setUrl(doTerm.getWormbaseLink());
