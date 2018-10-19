@@ -26,9 +26,6 @@ public class ExpressionBioEntity extends Neo4jEntity implements Comparable<Expre
     @Relationship(type = "CELLULAR_COMPONENT")
     private List<GOTerm> ccTermList = new ArrayList<>();
 
-    @Relationship(type = "CELLULAR_COMPONENT_RIBBON_TERM")
-    private List<UBERONTerm> cellularTermList = new ArrayList<>();
-
     @Relationship(type = "ANATOMICAL_RIBBON_TERM")
     private List<UBERONTerm> aoTermList = new ArrayList<>();
 
