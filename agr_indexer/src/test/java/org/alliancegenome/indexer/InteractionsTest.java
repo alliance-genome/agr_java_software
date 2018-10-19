@@ -22,7 +22,13 @@ public class InteractionsTest {
         //List<InteractionGeneJoin> list = repo.getInteractions("MGI:99604");
         //List<InteractionGeneJoin> list = repo.getInteractions("MGI:97490");
         //List<InteractionGeneJoin> list = repo.getInteractions("WB:WBGene00003912");
-        List<InteractionGeneJoin> list = repo.getInteractions("WB:WBGene00003912");
+        //MGI:103150
+        List<InteractionGeneJoin> list = repo.getInteractions("MGI:103150"); // 135, 116
+        //List<InteractionGeneJoin> list = repo.getInteractions("HGNC:11998");
+        
+        
+        
+        
         
         ObjectMapper mapper = new ObjectMapper();
         mapper.disable(MapperFeature.DEFAULT_VIEW_INCLUSION);
