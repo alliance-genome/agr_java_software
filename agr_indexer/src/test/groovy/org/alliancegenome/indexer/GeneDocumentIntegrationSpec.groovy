@@ -84,7 +84,8 @@ class GeneDocumentIntegrationSpec extends Specification {
         geneDocument
         geneDocument.cellularComponentExpression
         geneDocument.cellularComponentExpression.containsAll(entities)
-        geneDocument.cellularComponentExpressionWithParents.containsAll(parentEntities)
+//      This should go back in post 2.0
+//      geneDocument.cellularComponentExpressionWithParents.containsAll(parentEntities)
         geneDocument.cellularComponentExpressionAgrSlim.containsAll(slimEntities)
 
         where:
