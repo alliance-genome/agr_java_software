@@ -24,12 +24,6 @@ public class InteractionRepository extends Neo4jRepository<InteractionGeneJoin> 
         for (InteractionGeneJoin join: joins) {
             ret.add(join);
         }
-        
-        String query2 = "MATCH p1=(sp1:Species)-[:FROM_SPECIES]-(g1:Gene)-[iw:INTERACTS_WITH]->(g2:Gene)-[:FROM_SPECIES]-(sp2:Species), p2=(igj:InteractionGeneJoin)--(s) where (g2.primaryKey = {primaryKey}) and iw.uuid = igj.primaryKey RETURN p1, p2";
-        Iterable<InteractionGeneJoin> joins2 = query(query2, map);
-        for (InteractionGeneJoin join: joins2) {
-            ret.add(join);
-        }
 
         return ret;
     }
