@@ -63,11 +63,11 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         query += " OPTIONAL MATCH p4=(g)--(s:OrthologyGeneJoin)--(a:OrthoAlgorithm), p3=(g)-[o:ORTHOLOGOUS]-(g2:Gene)-[:FROM_SPECIES]-(q2:Species), (s)--(g2)";
         query += " OPTIONAL MATCH p6=(g)--(s:PhenotypeEntityJoin)--(tt) ";
         query += " OPTIONAL MATCH p8=(g)--(s:PhenotypeEntityJoin)--(ff:Feature)";
-        query += " OPTIONAL MATCH p9=(g)--(s:GOTerm)-[:IS_A|:PART_OF*]->(parent:GOTerm)";
-        query += " OPTIONAL MATCH p10=(g)--(s:BioEntityGeneExpressionJoin)--(t) ";
-        query += " OPTIONAL MATCH p11=(t:ExpressionBioEntity)--(term:Ontology) ";
-        query += " OPTIONAL MATCH pTermParent=(t)--(term)-[:IS_A|:PART_OF*]->(parent:Ontology)";
-        query += " RETURN p1, p2, p3, p4, p5, p6, p8, p9, p10, p11, p12, pTermParent";
+        query += " OPTIONAL MATCH p9=(g)--(s:GOTerm)-[:IS_A|PART_OF*]->(parent:GOTerm)";
+        query += " OPTIONAL MATCH p10=(g)--(s:BioEntityGeneExpressionJoin) ";
+        query += " OPTIONAL MATCH pTerm=(g:Gene)--(ebe:ExpressionBioEntity)--(term:Ontology) ";
+        query += " OPTIONAL MATCH pTermParent=(ebe:ExpressionBioEntity)--(term:Ontology)-[:IS_A|PART_OF*]->(parent:Ontology) ";
+        query += " RETURN p1, p2, p3, p4, p5, p6, p8, p9, p10, p12, pTerm, pTermParent";
 
         Iterable<Gene> genes = query(query, map);
         for (Gene g : genes) {
