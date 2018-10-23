@@ -17,4 +17,5 @@ public class DiseaseEntityJoin extends EntityJoin {
     @Relationship(type = "FROM_ORTHOLOGOUS_GENE")
     private Gene orthologyGene;
 
+    private String dataProvider;
 }
