@@ -110,7 +110,7 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         geneIDs.forEach(geneID -> sj.add("'" + geneID + "'"));
 
         String query = " MATCH p1=(species:Species)--(gene:Gene)-->(s:BioEntityGeneExpressionJoin)--(t)," +
-                " entity = (s)--(exp:ExpressionBioEntity)--(o:Ontology) " +
+                " entity = (s:BioEntityGeneExpressionJoin)--(exp:ExpressionBioEntity)--(o:Ontology) " +
                 "WHERE gene.primaryKey in " + sj.toString();
 
         String geneFilterClause = addWhereClauseString("gene.symbol", FieldFilter.GENE_NAME, pagination);
@@ -129,7 +129,7 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         if (termFilterClause != null) {
             query += " AND " + termFilterClause;
         }
-        query += " OPTIONAL MATCH crossReference = (s)--(crossRef:CrossReference) ";
+        query += " OPTIONAL MATCH crossReference = (s:BioEntityGeneExpressionJoin)--(crossRef:CrossReference) ";
         query += " RETURN s, p1, crossReference, entity ";
         Iterable<BioEntityGeneExpressionJoin> joins = neo4jSession.query(BioEntityGeneExpressionJoin.class, query, new HashMap<>());
 
