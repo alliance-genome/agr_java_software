@@ -195,44 +195,13 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
                         .collect(Collectors.toList())
         );
 
-        Set<GOTerm> cellularComponentExpressionTerms =
-                gene.getEntityGeneExpressionJoins().stream()
-                        .map(BioEntityGeneExpressionJoin::getEntity)
-                        .map(ExpressionBioEntity::getCcTermList)
-                        .flatMap(List::stream)
-                        .filter(Objects::nonNull)
-                        .collect(Collectors.toSet());
 
         geneDocument.setCellularComponentExpression(
-                cellularComponentExpressionTerms.stream()
-                        .map(GOTerm::getName)
-                        .collect(Collectors.toList())
-        );
-
-
-
-
-        Set<GOTerm> cellularComponentExpressionParentTerms = new HashSet<>();
-        CollectionUtils.emptyIfNull(cellularComponentExpressionTerms).forEach(term -> {
-            cellularComponentExpressionParentTerms.addAll(term.getParentTerms());
-        });
-
-
+                gene.getCellularComponentExpression().stream().collect(Collectors.toList()));
         geneDocument.setCellularComponentExpressionWithParents(
-                collectGoTermParentNames(cellularComponentExpressionParentTerms,
-                        "cellular_component")
-        );
-
+                gene.getCellularComponentExpressionWithParents().stream().collect(Collectors.toList()));
         geneDocument.setCellularComponentExpressionAgrSlim(
-                gene.getEntityGeneExpressionJoins().stream()
-                        .map(BioEntityGeneExpressionJoin::getEntity)
-                        .map(ExpressionBioEntity::getCcRibbonTermList)
-                        .flatMap(List::stream)
-                        .filter(Objects::nonNull)
-                        .map(GOTerm::getName)
-                        .distinct()
-                        .collect(Collectors.toList())
-        );
+                gene.getCellularComponentExpressionAgrSlim().stream().collect(Collectors.toList()));
 
         if (gene.getGenomeLocations() != null) {
             List<GenomeLocationDoclet> gllist = new ArrayList<>();
