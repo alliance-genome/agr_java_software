@@ -87,8 +87,8 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         while (i.hasNext()) {
             Map<String, Object> resultMap = i.next();
 
-            String term = resultMap.get("term.name").toString();
-            String termType = resultMap.get("term.type").toString();
+            String term = resultMap.get("term.name") == null ? null : resultMap.get("term.name").toString();
+            String termType = resultMap.get("term.type") == null ? null : resultMap.get("term.type").toString();
             Boolean termInSlim = Arrays.asList(resultMap.get("term.subset")).contains("goslim_agr");
 
             String parent = resultMap.get("parent.name") == null ? null : resultMap.get("parent.name").toString();
@@ -104,19 +104,21 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         }
     }
 
-    private void addTermToGoSlim(Gene gene, String termType, String parent, Boolean parentInSlim) {
-        if (parentInSlim) {
+    private void addTermToGoSlim(Gene gene, String termType, String term, Boolean inSlim) {
+        if (StringUtils.isEmpty(term)) { return; }
+        if (inSlim) {
             if (StringUtils.equals(termType, "biological_process")) {
-                gene.getBiologicalProcessAgrSlim().add(parent);
+                gene.getBiologicalProcessAgrSlim().add(term);
             } else if (StringUtils.equals(termType, "cellular_component")) {
-                gene.getCellularComponentAgrSlim().add(parent);
+                gene.getCellularComponentAgrSlim().add(term);
             } else if (StringUtils.equals(termType, "molecular_function")) {
-                gene.getMolecularFunctionAgrSlim().add(parent);
+                gene.getMolecularFunctionAgrSlim().add(term);
             }
         }
     }
 
     private void addTermNameToGene(Gene gene, String term, String termType) {
+        if (StringUtils.isEmpty(term)) { return; }
         if (StringUtils.equals(termType, "biological_process")) {
             gene.getBiologicalProcessWithParents().add(term);
         } else if (StringUtils.equals(termType, "cellular_component")) {
