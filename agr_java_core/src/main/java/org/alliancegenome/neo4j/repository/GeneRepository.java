@@ -146,24 +146,24 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         while (i.hasNext()) {
             Map<String, Object> resultMap = i.next();
 
-            String relationshipType = resultMap.get("TYPE(r)").toString();
-            String term = resultMap.get("term.name").toString();
+            String relationshipType = resultMap.get("TYPE(r)") == null ? null : resultMap.get("TYPE(r)").toString();
+            String term = resultMap.get("term.name") == null ? null : resultMap.get("term.name").toString();
             String parent = resultMap.get("parent.name") == null ? null : resultMap.get("parent.name").toString();
 
             gene.getWhereExpressed().add(resultMap.get("ebe.whereExpressedStatement").toString());
 
-            if (StringUtils.equals(relationshipType,"CELLULAR_COMPONENT_RIBBON_TERM")) {
+            if (StringUtils.equals(relationshipType,"CELLULAR_COMPONENT_RIBBON_TERM") && StringUtils.isNotEmpty(term)) {
                 gene.getCellularComponentExpressionAgrSlim().add(term);
-            } else if (StringUtils.equals(relationshipType, "ANATOMICAL_RIBBON_TERM")) {
+            } else if (StringUtils.equals(relationshipType, "ANATOMICAL_RIBBON_TERM") && StringUtils.isNotEmpty(term)) {
                 gene.getAnatomicalExpression().add(term);
-            } else if (StringUtils.equals(relationshipType,"CELLULAR_COMPONENT")) {
+            } else if (StringUtils.equals(relationshipType,"CELLULAR_COMPONENT") && StringUtils.isNotEmpty(term)) {
                 gene.getCellularComponentExpressionWithParents().add(term);
-                if (parent != null) {
+                if (StringUtils.isNotEmpty(parent)) {
                     gene.getCellularComponentExpressionWithParents().add(parent);
                 }
-            } else if (StringUtils.equals(relationshipType,"ANATOMICAL_STRUCTURE")) {
+            } else if (StringUtils.equals(relationshipType,"ANATOMICAL_STRUCTURE") && StringUtils.isNotEmpty(term)) {
                 gene.getAnatomicalExpressionWithParents().add(term);
-                if (parent != null) {
+                if (StringUtils.isNotEmpty(parent)) {
                     gene.getAnatomicalExpressionWithParents().add(parent);
                 }
 
