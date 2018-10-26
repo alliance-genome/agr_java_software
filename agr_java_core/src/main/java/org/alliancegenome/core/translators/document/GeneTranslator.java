@@ -75,19 +75,13 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
             }
         }
 
-        geneDocument.setBiologicalProcess(collectGoTermNames(goTerms.get("biological_process")));
-        geneDocument.setCellularComponent(collectGoTermNames(goTerms.get("cellular_component")));
-        geneDocument.setMolecularFunction(collectGoTermNames(goTerms.get("molecular_function")));
+        geneDocument.setBiologicalProcessWithParents(gene.getBiologicalProcessWithParents());
+        geneDocument.setCellularComponentWithParents(gene.getCellularComponentWithParents());
+        geneDocument.setMolecularFunctionWithParents(gene.getMolecularFunctionWithParents());
 
-        Set<GOTerm> allParentTerms = gene.getGoParentTerms();
-
-        geneDocument.setBiologicalProcessWithParents(collectGoTermParentNames(allParentTerms, "biological_process"));
-        geneDocument.setCellularComponentWithParents(collectGoTermParentNames(allParentTerms, "cellular_component"));
-        geneDocument.setMolecularFunctionWithParents(collectGoTermParentNames(allParentTerms, "molecular_function"));
-
-        geneDocument.setBiologicalProcessAgrSlim(collectGoTermSlimNames(allParentTerms, "biological_process", "goslim_agr"));
-        geneDocument.setCellularComponentAgrSlim(collectGoTermSlimNames(allParentTerms, "cellular_component", "goslim_agr"));
-        geneDocument.setMolecularFunctionAgrSlim(collectGoTermSlimNames(allParentTerms, "molecular_function", "goslim_agr"));
+        geneDocument.setBiologicalProcessAgrSlim(gene.getBiologicalProcessAgrSlim());
+        geneDocument.setCellularComponentAgrSlim(gene.getCellularComponentAgrSlim());
+        geneDocument.setMolecularFunctionAgrSlim(gene.getMolecularFunctionAgrSlim());
 
         // This code is duplicated in Gene and Feature should be pulled out into its own translator
         ArrayList<String> secondaryIds = new ArrayList<>();
@@ -178,30 +172,11 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
             geneDocument.setPhenotypes(phenotypeList);
         }
 
-        geneDocument.setWhereExpressed(
-                gene.getExpressionBioEntities().stream()
-                        .map(ExpressionBioEntity::getWhereExpressedStatement)
-                        .distinct()
-                        .collect(Collectors.toList())
-        );
+        geneDocument.setWhereExpressed(gene.getWhereExpressed());
+        geneDocument.setAnatomicalExpression(gene.getAnatomicalExpression());
 
-        geneDocument.setAnatomicalExpression(
-                gene.getEntityGeneExpressionJoins().stream()
-                        .map(BioEntityGeneExpressionJoin::getEntity)
-                        .map(ExpressionBioEntity::getAoTermList)
-                        .flatMap(List::stream)
-                        .map(UBERONTerm::getName)
-                        .distinct()
-                        .collect(Collectors.toList())
-        );
-
-
-        geneDocument.setCellularComponentExpression(
-                gene.getCellularComponentExpression().stream().collect(Collectors.toList()));
-        geneDocument.setCellularComponentExpressionWithParents(
-                gene.getCellularComponentExpressionWithParents().stream().collect(Collectors.toList()));
-        geneDocument.setCellularComponentExpressionAgrSlim(
-                gene.getCellularComponentExpressionAgrSlim().stream().collect(Collectors.toList()));
+        geneDocument.setCellularComponentExpressionWithParents(gene.getCellularComponentExpressionWithParents());
+        geneDocument.setCellularComponentExpressionAgrSlim(gene.getCellularComponentExpressionAgrSlim());
 
         if (gene.getGenomeLocations() != null) {
             List<GenomeLocationDoclet> gllist = new ArrayList<>();
@@ -238,25 +213,6 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
         return geneDocument;
     }
 
-    protected List<String> collectGoTermNames(Set<GOTerm> terms) {
-        return CollectionUtils.emptyIfNull(terms)
-                .stream().map(GOTerm::getName).collect(Collectors.toList());
-    }
-
-    protected List<String> collectGoTermParentNames(Set<GOTerm> terms, String type) {
-        return CollectionUtils.emptyIfNull(terms).stream()
-                .filter(term -> term.getType().equals(type))
-                .map(GOTerm::getName)
-                .collect(Collectors.toList());
-    }
-
-    protected List<String> collectGoTermSlimNames(Set<GOTerm> terms, String type, String subset) {
-        return CollectionUtils.emptyIfNull(terms).stream()
-                .filter(term -> term.getSubset().contains(subset))
-                .filter(term -> term.getType().equals(type))
-                .map(GOTerm::getName)
-                .collect(Collectors.toList());
-    }
 
     @Override
     protected Gene documentToEntity(GeneDocument document, int translationDepth) {
