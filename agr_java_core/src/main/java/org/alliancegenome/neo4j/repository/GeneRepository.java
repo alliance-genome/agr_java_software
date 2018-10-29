@@ -74,7 +74,9 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         String query = "MATCH (q:Species)-[:FROM_SPECIES]-(g:Gene)--(term:GOTerm) " +
                 "WHERE g.primaryKey={primaryKey} " +
                 "OPTIONAL MATCH (term)-[:IS_A|PART_OF*]->(parent:GOTerm) " +
-                "RETURN distinct LABELS(term),term.type, term.name, term.subset, parent.type, parent.name, parent.subset";
+                "RETURN distinct LABELS(term), term.type, term.name, " +
+                "'goslim_agr' IN term.subset as termInSlim, " +
+                "parent.type, parent.name, 'goslim_agr' IN parent.subset as parentInSlim";
 
         HashMap<String, String> map = new HashMap<>();
 
@@ -89,11 +91,11 @@ public class GeneRepository extends Neo4jRepository<Gene> {
 
             String term = resultMap.get("term.name") == null ? null : resultMap.get("term.name").toString();
             String termType = resultMap.get("term.type") == null ? null : resultMap.get("term.type").toString();
-            Boolean termInSlim = Arrays.asList(resultMap.get("term.subset")).contains("goslim_agr");
+            Boolean termInSlim = Boolean.valueOf(resultMap.get("termInSlim").toString());
 
             String parent = resultMap.get("parent.name") == null ? null : resultMap.get("parent.name").toString();
             String parentType = resultMap.get("parent.type") == null ? null : resultMap.get("parent.type").toString();
-            Boolean parentInSlim = Arrays.asList(resultMap.get("parent.subset")).contains("goslim_agr");
+            Boolean parentInSlim = Boolean.valueOf(resultMap.get("parentInSlim").toString());
 
             addTermNameToGene(gene, term, termType);
             addTermNameToGene(gene, parentType, parentType);

@@ -22,7 +22,7 @@ class GeneDocumentIntegrationSpec extends Specification {
         trans = null
     }
 
-    def "GeneDocument has GOTerm parents"() {
+    def "GeneDocument has GOTerm parents, slim terms"() {
         when: //we get a gene document
         Gene gene = repo.getOneGene("FB:FBgn0014020")
         GeneDocument geneDocument = trans.translate(gene)
@@ -35,7 +35,12 @@ class GeneDocumentIntegrationSpec extends Specification {
         geneDocument.cellularComponentWithParents.contains("cellular_component")
         geneDocument.molecularFunctionWithParents
         geneDocument.molecularFunctionWithParents.contains("molecular_function")
-
+        geneDocument.biologicalProcessAgrSlim
+        geneDocument.biologicalProcessAgrSlim.contains("development")
+        geneDocument.cellularComponentAgrSlim
+        geneDocument.cellularComponentAgrSlim.contains("membrane")
+        geneDocument.molecularFunctionAgrSlim
+        geneDocument.molecularFunctionAgrSlim.contains("catalysis")
 
     }
 
