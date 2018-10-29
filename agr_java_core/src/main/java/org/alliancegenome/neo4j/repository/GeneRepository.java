@@ -91,11 +91,11 @@ public class GeneRepository extends Neo4jRepository<Gene> {
 
             String term = resultMap.get("term.name") == null ? null : resultMap.get("term.name").toString();
             String termType = resultMap.get("term.type") == null ? null : resultMap.get("term.type").toString();
-            Boolean termInSlim = Boolean.valueOf(resultMap.get("termInSlim").toString());
+            Boolean termInSlim = resultMap.get("termInSlim") == null ? false : Boolean.valueOf(resultMap.get("termInSlim").toString());
 
             String parent = resultMap.get("parent.name") == null ? null : resultMap.get("parent.name").toString();
             String parentType = resultMap.get("parent.type") == null ? null : resultMap.get("parent.type").toString();
-            Boolean parentInSlim = Boolean.valueOf(resultMap.get("parentInSlim").toString());
+            Boolean parentInSlim = resultMap.get("parentInSlim") == null ? false : Boolean.valueOf(resultMap.get("parentInSlim").toString());
 
             addTermNameToGene(gene, term, termType);
             addTermNameToGene(gene, parentType, parentType);
