@@ -36,11 +36,11 @@ class GeneDocumentIntegrationSpec extends Specification {
         geneDocument.molecularFunctionWithParents
         geneDocument.molecularFunctionWithParents.contains("molecular_function")
         geneDocument.biologicalProcessAgrSlim
-        geneDocument.biologicalProcessAgrSlim.contains("development")
+        geneDocument.biologicalProcessAgrSlim.contains("signaling")
         geneDocument.cellularComponentAgrSlim
-        geneDocument.cellularComponentAgrSlim.contains("membrane")
+        geneDocument.cellularComponentAgrSlim.contains("plasma membrane")
         geneDocument.molecularFunctionAgrSlim
-        geneDocument.molecularFunctionAgrSlim.contains("catalysis")
+        geneDocument.molecularFunctionAgrSlim.contains("hydrolase activity")
 
     }
 
