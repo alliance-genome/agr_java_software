@@ -23,6 +23,7 @@ public class PhenotypeAnnotationDocument extends SearchableItemDocument implemen
     private GeneDocument geneDocument;
     private FeatureDocument featureDocument;
     private List<PublicationDoclet> publications;
+    private String geneticEntity;
 
     @JsonIgnore
     public String getDocumentId() {
@@ -34,7 +35,6 @@ public class PhenotypeAnnotationDocument extends SearchableItemDocument implemen
         return 0;
     }
 
-    @JsonIgnore
     public String getGeneticEntity() {
         return featureDocument != null ? featureDocument.category : geneDocument.category;
     }
