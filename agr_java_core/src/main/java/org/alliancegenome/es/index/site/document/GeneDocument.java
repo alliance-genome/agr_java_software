@@ -1,9 +1,6 @@
 package org.alliancegenome.es.index.site.document;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.alliancegenome.es.index.site.doclet.CrossReferenceDoclet;
 import org.alliancegenome.es.index.site.doclet.GenomeLocationDoclet;
@@ -28,17 +25,13 @@ public class GeneDocument extends SearchableItemDocument {
     private String symbol;
     private String species;
 
-    private List<String> biologicalProcess;
-    private List<String> molecularFunction;
-    private List<String> cellularComponent;
+    private Set<String> biologicalProcessWithParents;
+    private Set<String> molecularFunctionWithParents;
+    private Set<String> cellularComponentWithParents;
 
-    private List<String> biologicalProcessWithParents;
-    private List<String> molecularFunctionWithParents;
-    private List<String> cellularComponentWithParents;
-
-    private List<String> biologicalProcessAgrSlim;
-    private List<String> molecularFunctionAgrSlim;
-    private List<String> cellularComponentAgrSlim;
+    private Set<String> biologicalProcessAgrSlim;
+    private Set<String> molecularFunctionAgrSlim;
+    private Set<String> cellularComponentAgrSlim;
 
     private List<String> synonyms;
     private String geneLiteratureUrl;
@@ -61,11 +54,11 @@ public class GeneDocument extends SearchableItemDocument {
     private List<OrthologyDoclet> orthology;
     private List<String> strictOrthologySymbols;
     private String geneticEntityExternalUrl;
-    private List<String> whereExpressed;
-    private List<String> anatomicalExpression;         //uberon slim
-    private List<String> cellularComponentExpression;
-    private List<String> cellularComponentExpressionWithParents;
-    private List<String> cellularComponentExpressionAgrSlim;
+    private Set<String> whereExpressed;
+    private Set<String> anatomicalExpression;         //uberon slim
+    private Set<String> anatomicalExpressionWithParents;
+    private Set<String> cellularComponentExpressionWithParents;
+    private Set<String> cellularComponentExpressionAgrSlim;
 
     private String modCrossRefCompleteUrl;
     private String modLocalId;
