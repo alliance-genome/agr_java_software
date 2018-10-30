@@ -6,7 +6,7 @@ import javax.ws.rs.core.UriInfo;
 
 import org.alliancegenome.api.rest.interfaces.SearchRESTInterface;
 import org.alliancegenome.api.service.SearchService;
-import org.alliancegenome.es.model.search.SearchResult;
+import org.alliancegenome.es.model.search.SearchResponse;
 import org.jboss.logging.Logger;
 
 @RequestScoped
@@ -18,7 +18,7 @@ public class SearchController extends BaseController implements SearchRESTInterf
     private Logger log = Logger.getLogger(getClass());
 
     @Override
-    public SearchResult search(String q, String category, int limit, int offset, String sort_by, UriInfo uriInfo) {
+    public SearchResponse search(String q, String category, int limit, int offset, String sort_by, UriInfo uriInfo) {
         if(limit == 0) limit = 10;
         if(q != null) { q = q.trim(); }
         log.info("This is the Search query: " + q);

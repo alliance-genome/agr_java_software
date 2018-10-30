@@ -13,7 +13,7 @@ import org.alliancegenome.core.service.OrthologyService;
 import org.alliancegenome.core.translators.tdf.PhenotypeAnnotationToTdfTranslator;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.es.model.search.SearchResult;
+import org.alliancegenome.es.model.search.SearchResponse;
 import org.alliancegenome.neo4j.entity.node.BioEntityGeneExpressionJoin;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.repository.GeneRepository;
@@ -67,20 +67,20 @@ public class GeneController extends BaseController implements GeneRESTInterface 
     }
 
     @Override
-    public SearchResult getAllelesPerGene(String id) {
+    public SearchResponse getAllelesPerGene(String id) {
         return geneService.getAllelesByGene(id);
     }
 
     @Override
-    public SearchResult getPhenotypeAnnotations(String id,
-                                                int limit,
-                                                int page,
-                                                String sortBy,
-                                                String geneticEntity,
-                                                String geneticEntityType,
-                                                String phenotype,
-                                                String reference,
-                                                String asc) {
+    public SearchResponse getPhenotypeAnnotations(String id,
+                                                  int limit,
+                                                  int page,
+                                                  String sortBy,
+                                                  String geneticEntity,
+                                                  String geneticEntityType,
+                                                  String phenotype,
+                                                  String reference,
+                                                  String asc) {
         if (sortBy.isEmpty())
             sortBy = FieldFilter.PHENOTYPE.getName();
         Pagination pagination = new Pagination(page, limit, sortBy, asc);
@@ -91,16 +91,16 @@ public class GeneController extends BaseController implements GeneRESTInterface 
         return getSearchResult(id, pagination);
     }
 
-    private SearchResult getSearchResult(String id, Pagination pagination) {
+    private SearchResponse getSearchResult(String id, Pagination pagination) {
         if (pagination.hasErrors()) {
             response.setStatus(HttpServletResponse.SC_NOT_ACCEPTABLE);
             try {
                 response.flushBuffer();
             } catch (Exception ignored) {
             }
-            SearchResult searchResult = new SearchResult();
-            searchResult.errorMessages = pagination.getErrorList();
-            return searchResult;
+            SearchResponse searchResponse = new SearchResponse();
+            searchResponse.errorMessages = pagination.getErrorList();
+            return searchResponse;
         }
         return geneService.getPhenotypeAnnotations(id, pagination);
     }

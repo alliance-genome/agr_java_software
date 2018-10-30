@@ -4,12 +4,11 @@ import java.util.Map;
 
 import org.alliancegenome.api.service.DiseaseService;
 import org.alliancegenome.core.config.ConfigHelper;
-import org.alliancegenome.core.translators.document.DiseaseTranslator;
 import org.alliancegenome.core.translators.tdf.DiseaseAnnotationToTdfTranslator;
 import org.alliancegenome.es.index.site.dao.DiseaseDAO;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.es.model.search.SearchResult;
+import org.alliancegenome.es.model.search.SearchResponse;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.config.Configurator;
 import org.jboss.logging.Logger;
@@ -39,7 +38,7 @@ public class DiseaseTest {
         //String str = translator.getAllRows(service.getDiseaseAnnotationsDownload("DOID:9351", Pagination.getDownloadPagination()));
         Pagination pagination = new Pagination(1, 20, "gene", "true");
         pagination.addFieldFilter(FieldFilter.GENE_NAME, "l");
-        SearchResult response = service.getDiseaseAnnotations("DOID:655", pagination);
+        SearchResponse response = service.getDiseaseAnnotations("DOID:655", pagination);
         if (response.results != null) {
             response.results.forEach(entry -> {
                 Map<String, Object> map1 = (Map<String, Object>) entry.get("geneDocument");

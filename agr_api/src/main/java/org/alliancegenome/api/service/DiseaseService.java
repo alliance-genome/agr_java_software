@@ -6,7 +6,7 @@ import javax.enterprise.context.RequestScoped;
 
 import org.alliancegenome.es.index.site.dao.DiseaseDAO;
 import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.es.model.search.SearchResult;
+import org.alliancegenome.es.model.search.SearchResponse;
 import org.alliancegenome.es.util.SearchHitIterator;
 
 @RequestScoped
@@ -18,7 +18,7 @@ public class DiseaseService {
         return diseaseDAO.getById(id);
     }
 
-    public SearchResult getDiseaseAnnotations(String id, Pagination pagination) {
+    public SearchResponse getDiseaseAnnotations(String id, Pagination pagination) {
         return diseaseDAO.getDiseaseAnnotations(id, pagination);
     }
 
