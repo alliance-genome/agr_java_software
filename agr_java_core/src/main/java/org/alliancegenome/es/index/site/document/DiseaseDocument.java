@@ -2,6 +2,7 @@ package org.alliancegenome.es.index.site.document;
 
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import org.alliancegenome.es.index.site.doclet.CrossReferenceDoclet;
 import org.alliancegenome.es.index.site.doclet.SourceDoclet;
@@ -41,5 +42,26 @@ public class DiseaseDocument extends SearchableItemDocument {
     @JsonIgnore
     public String getDocumentId() {
         return primaryKey;
+    }
+
+    public DiseaseDocument() {
+    }
+
+    // for cloning purposes
+    public DiseaseDocument(DiseaseDocument doc) {
+        category = doc.category;
+        doId = doc.doId;
+        primaryKey = doc.primaryKey;
+        definition = doc.definition;
+        dateProduced = doc.getDateProduced();
+        annotations = doc.getAnnotations().stream().map(AnnotationDocument::new).collect(Collectors.toList());
+        // note these attributes are not cloned deeply (they typically do not change)
+        definitionLinks = doc.definitionLinks;
+        parents = doc.parents;
+        children = doc.children;
+        synonyms = doc.synonyms;
+        crossReferencesMap = doc.crossReferencesMap;
+        sourceList = doc.sourceList;
+        highLevelSlimTermNames = doc.highLevelSlimTermNames;
     }
 }

@@ -14,4 +14,8 @@ public class SourceDoclet extends ESDoclet {
     private String diseaseUrl;
     private String name;
 
+    @Override
+    public String toString() {
+        return name;
+    }
 }
