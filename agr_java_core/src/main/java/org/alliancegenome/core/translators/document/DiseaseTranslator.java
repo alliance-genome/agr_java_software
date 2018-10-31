@@ -324,6 +324,12 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
                         document.setAssociationType(associationType);
                         document.setSpecies(getSpeciesDoclet(gene.getSpecies()));
                         Gene orthologyGene = getOrthologyGene(diseaseEntityJoinList);
+                        if (orthologyGene != null) {
+                            document.setOrthologyGene(geneTranslator.translate(orthologyGene, 0));
+                            SourceDoclet doclet = new SourceDoclet();
+                            doclet.setName(diseaseEntityJoinList.get(0).getDataProvider());
+                            document.setSource(doclet);
+                        }
                         if (orthologyGene != null)
                             document.setOrthologyGene(geneTranslator.translate(orthologyGene, 0));
                         document.setSource(getSourceUrls(doTerm, gene.getSpecies()));
