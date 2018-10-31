@@ -40,4 +40,19 @@ public class AnnotationDocument extends ESDocument implements Comparable<Annotat
     public int compareTo(AnnotationDocument doc) {
         return 0;
     }
+
+    public AnnotationDocument() {
+    }
+
+    // for deep cloning purposes
+    public AnnotationDocument(AnnotationDocument doc){
+        primaryKey = doc.primaryKey;
+        associationType = doc.associationType;
+        // note: These attributes are not yet fully clones
+        source = doc.source;
+        orthologyGeneDocument = doc.orthologyGeneDocument;
+        geneDocument = doc.geneDocument;
+        featureDocument = doc.featureDocument;
+        publications = doc.publications;
+    }
 }
