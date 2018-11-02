@@ -1,6 +1,13 @@
 package org.alliancegenome.indexer.indexers;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.InetAddress;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -8,6 +15,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.es.index.ESDocument;
@@ -49,9 +57,9 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
 
         try {
             client = new PreBuiltXPackTransportClient(Settings.EMPTY);
-            if(ConfigHelper.getEsHost().contains(",")) {
+            if (ConfigHelper.getEsHost().contains(",")) {
                 String[] hosts = ConfigHelper.getEsHost().split(",");
-                for(String host: hosts) {
+                for (String host : hosts) {
                     client.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(host), ConfigHelper.getEsPort()));
                 }
             } else {
@@ -130,14 +138,14 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
         long time = (now.getTime() - lastTime.getTime());
         int processedAmount = (lastSize - currentSize);
         String message = "" + getBigNumber(totalDocAmount - currentSize) + " records [" + getBigNumber(totalDocAmount) + "] ";
-        message += (int)(percent * 100) + "% took: " + (time / 1000) + "s to process " + processedAmount;
-        
+        message += (int) (percent * 100) + "% took: " + (time / 1000) + "s to process " + processedAmount;
+
         int batchAvg = 0;
-        if(batchCount > 0) {
-            batchAvg = (int)(batchTotalSize / batchCount);
+        if (batchCount > 0) {
+            batchAvg = (int) (batchTotalSize / batchCount);
         }
         message += " records at a rate of: " + ((processedAmount * 1000) / time) + "r/s ABS: " + batchAvg;
-        
+
         if (percent > 0) {
             int perms = (int) (diff / percent);
             Date end = new Date(startTime.getTime() + perms);
@@ -208,7 +216,7 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
         Integer numberOfThreads = indexerConfig.getThreadCount();
 
         List<Thread> threads = new ArrayList<Thread>();
-        for(int i = 0; i < numberOfThreads; i++) {
+        for (int i = 0; i < numberOfThreads; i++) {
             Thread t = new Thread(new Runnable() {
                 public void run() {
                     startSingleThread(queue);
@@ -221,12 +229,12 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
         int total = queue.size();
         startProcess(total);
 
-        while(queue.size() > 0) {
+        while (queue.size() > 0) {
             TimeUnit.SECONDS.sleep(60);
             progress(queue.size(), total);
         }
 
-        for(Thread t: threads) {
+        for (Thread t : threads) {
             t.join();
         }
 
@@ -234,5 +242,28 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
     }
 
     protected abstract void startSingleThread(LinkedBlockingDeque<String> queue);
+
+    // cache variables
+    private List<String> entityIdList = new ArrayList<>();
+
+    boolean isEntitySubset(String key) {
+        return !entityIdList.isEmpty() && entityIdList.contains(key);
+    }
+
+    void readIndexFile() {
+        String fileNamePrefix = indexerConfig.getTypeName();
+        ClassLoader classloader = Thread.currentThread().getContextClassLoader();
+        String fileName = fileNamePrefix + "-index.txt";
+        try {
+            File file = new File(classloader.getResource(fileName).getFile());
+            if (file.exists()) {
+                entityIdList = Files.lines(Paths.get(file.toURI()))
+                        .collect(Collectors.toList());
+                System.out.println("Use entity file " + file.getAbsolutePath());
+            }
+        } catch (Exception e) {
+            log.warn("Error while reading index file: " + fileName);
+        }
+    }
 
 }
