@@ -52,6 +52,11 @@ public class DiseaseDocument extends SearchableItemDocument {
         category = doc.category;
         doId = doc.doId;
         primaryKey = doc.primaryKey;
+        name = doc.name;
+        nameKey = doc.nameKey;
+        description = doc.description;
+        primaryId = doc.primaryId;
+        searchable = doc.searchable;
         definition = doc.definition;
         dateProduced = doc.getDateProduced();
         annotations = doc.getAnnotations().stream().map(AnnotationDocument::new).collect(Collectors.toList());
@@ -63,5 +68,6 @@ public class DiseaseDocument extends SearchableItemDocument {
         crossReferencesMap = doc.crossReferencesMap;
         sourceList = doc.sourceList;
         highLevelSlimTermNames = doc.highLevelSlimTermNames;
+        phenotypeStatements = doc.phenotypeStatements;
     }
 }
