@@ -3,6 +3,7 @@ package org.alliancegenome.es.index.site.document;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
+import org.alliancegenome.es.index.site.doclet.CrossReferenceDoclet;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -33,6 +34,7 @@ public class FeatureDocument extends SearchableItemDocument {
     private List<String> synonyms;
     private GeneDocument geneDocument;
     private List<DiseaseDocument> diseaseDocuments = new ArrayList<>();
+    private List<CrossReferenceDoclet> crossReferenceList;
 
     @Override
     @JsonIgnore
