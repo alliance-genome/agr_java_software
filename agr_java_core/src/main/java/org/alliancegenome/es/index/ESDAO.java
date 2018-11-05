@@ -8,7 +8,7 @@ import java.util.concurrent.ExecutionException;
 
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.es.model.search.SearchResponse;
+import org.alliancegenome.es.model.search.SearchApiResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
@@ -71,16 +71,16 @@ public class ESDAO {
         }
     }
 
-    protected SearchResponse getSearchResult(Pagination pagination, SearchRequestBuilder searchRequestBuilder) {
+    protected SearchApiResponse getSearchResult(Pagination pagination, SearchRequestBuilder searchRequestBuilder) {
         searchRequestBuilder.setSize(pagination.getLimit());
         int fromIndex = pagination.getIndexOfFirstElement();
         searchRequestBuilder.setFrom(fromIndex);
 
         org.elasticsearch.action.search.SearchResponse response = searchRequestBuilder.execute().actionGet();
-        SearchResponse result = new SearchResponse();
+        SearchApiResponse result = new SearchApiResponse();
 
         result.total = response.getHits().totalHits;
-        result.results = formatResults(response);
+        result.resultMapList = formatResults(response);
         return result;
     }
 

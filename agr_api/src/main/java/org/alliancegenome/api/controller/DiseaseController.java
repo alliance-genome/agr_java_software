@@ -15,7 +15,7 @@ import org.alliancegenome.api.service.DiseaseService;
 import org.alliancegenome.core.translators.tdf.DiseaseAnnotationToTdfTranslator;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.es.model.search.SearchResponse;
+import org.alliancegenome.es.model.search.SearchApiResponse;
 
 @RequestScoped
 public class DiseaseController extends BaseController implements DiseaseRESTInterface {
@@ -39,14 +39,14 @@ public class DiseaseController extends BaseController implements DiseaseRESTInte
         }
     }
 
-    private SearchResponse getSearchResult(String id, Pagination pagination) {
+    private SearchApiResponse getSearchResult(String id, Pagination pagination) {
         if (pagination.hasErrors()) {
             response.setStatus(HttpServletResponse.SC_NOT_ACCEPTABLE);
             try {
                 response.flushBuffer();
             } catch (Exception ignored) {
             }
-            SearchResponse searchResponse = new SearchResponse();
+            SearchApiResponse searchResponse = new SearchApiResponse();
             searchResponse.errorMessages = pagination.getErrorList();
             return searchResponse;
         }
@@ -54,20 +54,20 @@ public class DiseaseController extends BaseController implements DiseaseRESTInte
     }
 
     @Override
-    public SearchResponse getDiseaseAnnotationsSorted(String id,
-                                                      int limit,
-                                                      int page,
-                                                      String sortBy,
-                                                      String geneName,
-                                                      String species,
-                                                      String geneticEntity,
-                                                      String geneticEntityType,
-                                                      String disease,
-                                                      String source,
-                                                      String reference,
-                                                      String evidenceCode,
-                                                      String associationType,
-                                                      String asc) {
+    public SearchApiResponse getDiseaseAnnotationsSorted(String id,
+                                                         int limit,
+                                                         int page,
+                                                         String sortBy,
+                                                         String geneName,
+                                                         String species,
+                                                         String geneticEntity,
+                                                         String geneticEntityType,
+                                                         String disease,
+                                                         String source,
+                                                         String reference,
+                                                         String evidenceCode,
+                                                         String associationType,
+                                                         String asc) {
         Pagination pagination = new Pagination(page, limit, sortBy, asc);
         pagination.addFieldFilter(FieldFilter.GENE_NAME, geneName);
         pagination.addFieldFilter(FieldFilter.SPECIES, species);

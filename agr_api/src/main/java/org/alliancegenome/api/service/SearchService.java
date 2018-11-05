@@ -13,7 +13,7 @@ import javax.ws.rs.core.UriInfo;
 
 import org.alliancegenome.api.service.helper.SearchHelper;
 import org.alliancegenome.es.index.site.dao.SearchDAO;
-import org.alliancegenome.es.model.search.SearchResponse;
+import org.alliancegenome.es.model.search.SearchApiResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.MultiMatchQueryBuilder;
@@ -40,9 +40,9 @@ public class SearchService {
 
     private static Logger log = Logger.getLogger(SearchService.class);
 
-    public SearchResponse query(String q, String category, int limit, int offset, String sort_by, UriInfo uriInfo) {
+    public SearchApiResponse query(String q, String category, int limit, int offset, String sort_by, UriInfo uriInfo) {
 
-        SearchResponse result = new SearchResponse();
+        SearchApiResponse result = new SearchApiResponse();
 
         Boolean debug = false;
         if (StringUtils.isNotEmpty(q) && q.startsWith("debug")) {
@@ -63,7 +63,7 @@ public class SearchService {
         log.debug("Search Query: " + q);
 
         result.total = searchResponse.getHits().totalHits;
-        result.results = searchHelper.formatResults(searchResponse, tokenizeQuery(q));
+        result.resultMapList = searchHelper.formatResults(searchResponse, tokenizeQuery(q));
         result.aggregations = searchHelper.formatAggResults(category, searchResponse);
 
         return result;
@@ -148,7 +148,7 @@ public class SearchService {
 
         }
 
-        //include only searchable categories in search results
+        //include only searchable categories in search resultMapList
         bool.filter(searchHelper.limitCategories());
 
         return bool;

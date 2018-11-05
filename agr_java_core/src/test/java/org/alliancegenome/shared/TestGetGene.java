@@ -6,7 +6,7 @@ import org.alliancegenome.es.index.site.dao.DiseaseDAO;
 import org.alliancegenome.es.index.site.dao.GeneDAO;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.es.model.search.SearchResponse;
+import org.alliancegenome.es.model.search.SearchApiResponse;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.config.Configurator;
@@ -39,10 +39,10 @@ public class TestGetGene {
         //pagination.addFieldFilter(FieldFilter.SOURCE, "Mgi");
         //pagination.addFieldFilter(FieldFilter.EVIDENCE_CODE, "TA");
         pagination.addFieldFilter(FieldFilter.GENETIC_ENTITY_TYPE, "allel");
-        SearchResponse response = service.getDiseaseAnnotations("DOID:655", pagination);
-        System.out.println("Result size: " + response.results.size());
-        if (response.results != null) {
-            response.results.forEach(entry -> {
+        SearchApiResponse response = service.getDiseaseAnnotations("DOID:655", pagination);
+        System.out.println("Result size: " + response.resultMapList.size());
+        if (response.resultMapList != null) {
+            response.resultMapList.forEach(entry -> {
                 Map<String, Object> map1 = (Map<String, Object>) entry.get("geneDocument");
                 if (map1 != null)
                     System.out.println(entry.get("diseaseID") + "\t" + entry.get("diseaseName") + ": " + "\t" + map1.get("species") + ": " + map1.get("symbol") + ": " + map1.get("primaryId")+ ": " + map1.get("associationType"));

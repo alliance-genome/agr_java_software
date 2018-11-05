@@ -40,6 +40,21 @@ public class SearchDAO extends ESDAO {
         }
     };
 
+    public Long performCountQuery(QueryBuilder query) {
+        SearchRequestBuilder searchRequestBuilder = searchClient.prepareSearch();
+        searchRequestBuilder.setQuery(query);
+        searchRequestBuilder.setSize(0);
+
+        SearchResponse response = searchRequestBuilder.execute().actionGet();
+        if (response != null && response.getHits() != null) {
+            return response.getHits().totalHits;
+        } else {
+            return 0l;
+        }
+
+
+    }
+
     public SearchResponse performQuery(QueryBuilder query,
             List<AggregationBuilder> aggBuilders,
             int limit, int offset,

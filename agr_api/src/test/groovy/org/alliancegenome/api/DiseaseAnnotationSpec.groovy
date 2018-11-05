@@ -42,7 +42,7 @@ class DiseaseAnnotationSpec extends Specification {
         def firstResultSymbol = results.first().get("symbol").toLowerCase()
 
         then:
-        results //should be some results
+        results //should be some resultMapList
         firstResultSymbol.startsWith(query)
 
         where:

@@ -9,7 +9,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 
-import org.alliancegenome.es.model.search.SearchResponse;
+import org.alliancegenome.es.model.search.SearchApiResponse;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -23,7 +23,7 @@ public interface SearchRESTInterface {
 
     @GET
     @ApiOperation(value = "Searches Searchable Items for the following", notes="Search Notes")
-    public SearchResponse search(
+    public SearchApiResponse search(
         @ApiParam(name = "q", value = "This is what we search for")
         @QueryParam("q") String q,
         @ApiParam(name = "category", value = "This is the category we search in")
@@ -32,7 +32,7 @@ public interface SearchRESTInterface {
         @QueryParam("limit") int limit,
         @ApiParam(name = "offset", value = "This specifies which (page size) to request for")
         @QueryParam("offset") int offset,
-        @ApiParam(name = "sort_by", value = "We will sort the results by this field")
+        @ApiParam(name = "sort_by", value = "We will sort the resultMapList by this field")
         @QueryParam("sort_by") String sort_by,
         @Context UriInfo uriInfo
     );

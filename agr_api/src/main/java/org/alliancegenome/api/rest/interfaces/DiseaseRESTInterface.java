@@ -12,7 +12,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.alliancegenome.es.model.search.SearchResponse;
+import org.alliancegenome.es.model.search.SearchApiResponse;
 
 import io.swagger.annotations.Api;
 
@@ -28,7 +28,7 @@ public interface DiseaseRESTInterface {
 
     @GET
     @Path("/{id}/associations")
-    public SearchResponse getDiseaseAnnotationsSorted(
+    public SearchApiResponse getDiseaseAnnotationsSorted(
             @PathParam("id") String id,
             @DefaultValue("20") @QueryParam("limit") int limit,
             @DefaultValue("1") @QueryParam("page") int page,

@@ -8,7 +8,7 @@ import org.alliancegenome.core.translators.tdf.DiseaseAnnotationToTdfTranslator;
 import org.alliancegenome.es.index.site.dao.DiseaseDAO;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.es.model.search.SearchResponse;
+import org.alliancegenome.es.model.search.SearchApiResponse;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.config.Configurator;
 import org.jboss.logging.Logger;
@@ -38,16 +38,16 @@ public class DiseaseTest {
         //String str = translator.getAllRows(service.getDiseaseAnnotationsDownload("DOID:9351", Pagination.getDownloadPagination()));
         Pagination pagination = new Pagination(1, 20, "gene", "true");
         pagination.addFieldFilter(FieldFilter.GENE_NAME, "l");
-        SearchResponse response = service.getDiseaseAnnotations("DOID:655", pagination);
-        if (response.results != null) {
-            response.results.forEach(entry -> {
+        SearchApiResponse response = service.getDiseaseAnnotations("DOID:655", pagination);
+        if (response.resultMapList != null) {
+            response.resultMapList.forEach(entry -> {
                 Map<String, Object> map1 = (Map<String, Object>) entry.get("geneDocument");
                 if (map1 != null)
                     log.info(entry.get("diseaseID") + "\t" + entry.get("diseaseName") + ": " + "\t" + map1.get("species") + ": " + map1.get("symbol") + ": " + map1.get("primaryId"));
 
             });
         }
-        System.out.println("Number of results " + response.total);
+        System.out.println("Number of resultMapList " + response.total);
 
         pagination = new Pagination(1, Integer.MAX_VALUE, null, null);
         DiseaseAnnotationToTdfTranslator translator = new DiseaseAnnotationToTdfTranslator();

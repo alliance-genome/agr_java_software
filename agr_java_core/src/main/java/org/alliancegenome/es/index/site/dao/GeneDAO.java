@@ -5,7 +5,7 @@ import org.alliancegenome.es.index.ESDAO;
 import org.alliancegenome.es.index.site.document.PhenotypeAnnotationDocument;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.es.model.search.SearchResponse;
+import org.alliancegenome.es.model.search.SearchApiResponse;
 import org.alliancegenome.es.util.SearchHitIterator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -56,7 +56,7 @@ public class GeneDAO extends ESDAO {
             return null;
     }
 
-    public SearchResponse getAllelesByGene(String geneId, Pagination pagination) {
+    public SearchApiResponse getAllelesByGene(String geneId, Pagination pagination) {
         SearchRequestBuilder searchRequestBuilder = getSearchRequestBuilder(geneId);
         if (pagination != null) {
             searchRequestBuilder.setSize(pagination.getLimit());
@@ -64,10 +64,10 @@ public class GeneDAO extends ESDAO {
             searchRequestBuilder.setFrom(fromIndex);
         }
         org.elasticsearch.action.search.SearchResponse response = searchRequestBuilder.execute().actionGet();
-        SearchResponse result = new SearchResponse();
+        SearchApiResponse result = new SearchApiResponse();
 
         result.total = response.getHits().totalHits;
-        result.results = formatResults(response);
+        result.resultMapList = formatResults(response);
         return result;
     }
 
@@ -88,7 +88,7 @@ public class GeneDAO extends ESDAO {
         return searchRequestBuilder;
     }
 
-    public SearchResponse getPhenotypeAnnotations(String geneID, Pagination pagination) {
+    public SearchApiResponse getPhenotypeAnnotations(String geneID, Pagination pagination) {
         SearchRequestBuilder searchRequestBuilder = getSearchRequestBuilderPhenotype(geneID, pagination);
         return getSearchResult(pagination, searchRequestBuilder);
     }

@@ -7,7 +7,7 @@ import javax.enterprise.context.RequestScoped;
 
 import org.alliancegenome.es.index.site.dao.GeneDAO;
 import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.es.model.search.SearchResponse;
+import org.alliancegenome.es.model.search.SearchApiResponse;
 import org.alliancegenome.es.util.SearchHitIterator;
 import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
 import org.alliancegenome.neo4j.repository.InteractionRepository;
@@ -27,13 +27,13 @@ public class GeneService {
         return geneMap;
     }
 
-    public SearchResponse getAllelesByGene(String id) {
+    public SearchApiResponse getAllelesByGene(String id) {
         // temporary fix until we allow full pagination, sorting and filtering
         Pagination pagination = new Pagination(1, 1000, null, null);
         return geneDAO.getAllelesByGene(id, pagination);
     }
 
-    public SearchResponse getPhenotypeAnnotations(String id, Pagination pagination) {
+    public SearchApiResponse getPhenotypeAnnotations(String id, Pagination pagination) {
         return geneDAO.getPhenotypeAnnotations(id, pagination);
     }
 
