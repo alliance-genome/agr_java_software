@@ -28,7 +28,7 @@ public class GeneIndexer extends Indexer<GeneDocument> {
             GeneRepository geneRepo = new GeneRepository();
             List<String> fulllist = geneRepo.getAllGeneKeys();
             queue.addAll(fulllist);
-            readIndexFile();
+//            readIndexFile();
             geneRepo.clearCache();
             initiateThreading(queue);
         } catch (InterruptedException e) {
@@ -57,8 +57,10 @@ public class GeneIndexer extends Indexer<GeneDocument> {
                 }
 
                 String key = queue.takeFirst();
+/*
                 if (!isEntitySubset(key))
                     continue;
+*/
                 Gene gene = repo.getOneGene(key);
                 if (gene != null)
                     list.add(gene);
