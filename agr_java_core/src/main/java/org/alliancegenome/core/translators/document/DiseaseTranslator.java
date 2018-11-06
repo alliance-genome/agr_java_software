@@ -317,7 +317,7 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
                         if (translationDepth > 0) {
                             document.setGeneDocument(geneTranslator.translate(gene, translationDepth - 1)); // This needs to not happen if being call from GeneTranslator
                         }
-                        String primaryKey = doTerm.getPrimaryKey() + ":" + gene.getPrimaryKey();
+                        String primaryKey = doTerm.getPrimaryKey() + ":" + gene.getPrimaryKey() + ":" + associationType;
                         document.setDiseaseName(doTerm.getName());
                         document.setDiseaseID(doTerm.getPrimaryKey());
                         document.setParentDiseaseIDs(getParentIdList(doTerm));
