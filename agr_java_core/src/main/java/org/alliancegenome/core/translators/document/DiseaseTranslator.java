@@ -329,10 +329,9 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
                             SourceDoclet doclet = new SourceDoclet();
                             doclet.setName(diseaseEntityJoinList.get(0).getDataProvider());
                             document.setSource(doclet);
+                        } else {
+                            document.setSource(getSourceUrls(doTerm, gene.getSpecies()));
                         }
-                        if (orthologyGene != null)
-                            document.setOrthologyGene(geneTranslator.translate(orthologyGene, 0));
-                        document.setSource(getSourceUrls(doTerm, gene.getSpecies()));
                         document.setPublications(publicationDocletTranslator.getPublicationDoclets(diseaseEntityJoinList));
                         if (optionalFeature.isPresent()) {
                             primaryKey += ":" + optionalFeature.get().getPrimaryKey();
