@@ -215,14 +215,15 @@ public class SearchService {
     }
 
     public void addRelatedDataLinks(Map<String,Object> result) {
-        String name = (String) result.get("name_key");
+        String nameKey = (String) result.get("name_key");
         String category = (String) result.get("category");
 
         List<RelatedDataLink> links = new ArrayList<>();
 
         if (StringUtils.equals(category,"gene")) {
-            links.add(getRelatedDataLink("disease", "annotations.geneDocument.name_key", name));
-            links.add(getRelatedDataLink("allele", "geneDocument.name_key", name));
+            links.add(getRelatedDataLink("disease", "annotations.geneDocument.name_key", nameKey));
+            links.add(getRelatedDataLink("allele", "geneDocument.name_key", nameKey));
+            links.add(getRelatedDataLink("go", "go_genes", nameKey));
         }
 
         //only keep the non-zero links
