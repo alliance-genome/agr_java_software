@@ -49,9 +49,9 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
 
         try {
             client = new PreBuiltXPackTransportClient(Settings.EMPTY);
-            if(ConfigHelper.getEsHost().contains(",")) {
+            if (ConfigHelper.getEsHost().contains(",")) {
                 String[] hosts = ConfigHelper.getEsHost().split(",");
-                for(String host: hosts) {
+                for (String host : hosts) {
                     client.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(host), ConfigHelper.getEsPort()));
                 }
             } else {
@@ -130,18 +130,19 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
         long time = (now.getTime() - lastTime.getTime());
         int processedAmount = (lastSize - currentSize);
         String message = "" + getBigNumber(totalDocAmount - currentSize) + " records [" + getBigNumber(totalDocAmount) + "] ";
-        message += (int)(percent * 100) + "% took: " + (time / 1000) + "s to process " + processedAmount;
-        
+        message += (int) (percent * 100) + "% took: " + (time / 1000) + "s to process " + processedAmount;
+
         int batchAvg = 0;
-        if(batchCount > 0) {
-            batchAvg = (int)(batchTotalSize / batchCount);
+        if (batchCount > 0) {
+            batchAvg = (int) (batchTotalSize / batchCount);
         }
-        message += " records at a rate of: " + ((processedAmount * 1000) / time) + "r/s ABS: " + batchAvg;
-        
+        message += " rate: " + ((processedAmount * 1000) / time) + "r/s ABS: " + batchAvg;
+
         if (percent > 0) {
             int perms = (int) (diff / percent);
             Date end = new Date(startTime.getTime() + perms);
-            message += ", Memory: " + df.format(memoryPercent() * 100) + "%, Estimated Finish: " + end;
+            String expectedDuration = getHumanReadableTimeDisplay(end.getTime() - (new Date()).getTime());
+            message += ", Memory: " + df.format(memoryPercent() * 100) + "%, ETA: " + expectedDuration + " [" + end + "]";
         }
         log.info(message);
         lastSize = currentSize;
@@ -208,7 +209,7 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
         Integer numberOfThreads = indexerConfig.getThreadCount();
 
         List<Thread> threads = new ArrayList<Thread>();
-        for(int i = 0; i < numberOfThreads; i++) {
+        for (int i = 0; i < numberOfThreads; i++) {
             Thread t = new Thread(new Runnable() {
                 public void run() {
                     startSingleThread(queue);
@@ -221,12 +222,12 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
         int total = queue.size();
         startProcess(total);
 
-        while(queue.size() > 0) {
+        while (queue.size() > 0) {
             TimeUnit.SECONDS.sleep(60);
             progress(queue.size(), total);
         }
 
-        for(Thread t: threads) {
+        for (Thread t : threads) {
             t.join();
         }
 

@@ -48,7 +48,7 @@ class PhenotypeAnnotationIntegrationSpec extends Specification {
         def results = url.text.split('\n')
 
         then:
-        results.size() > 100
+        results.size() > 10
 
         where:
         gene << ["ZFIN:ZDB-GENE-990415-72", "MGI:2443198"]

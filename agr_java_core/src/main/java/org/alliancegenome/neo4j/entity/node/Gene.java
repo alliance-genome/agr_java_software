@@ -103,6 +103,24 @@ public class Gene extends Neo4jEntity implements Comparable<Gene> {
     @Relationship(type = "EXPRESSED_IN")
     private List<ExpressionBioEntity> expressionBioEntities = new ArrayList<>();
 
+    //GeneDocument push-throughs, these fields can be removed from the
+    //Gene object when we refactor the indexing to have direct access to
+    //repository methods
+
+    private Set<String> biologicalProcessWithParents = new HashSet<>();
+    private Set<String> biologicalProcessAgrSlim = new HashSet<>();
+    private Set<String> cellularComponentWithParents = new HashSet<>();
+    private Set<String> cellularComponentAgrSlim = new HashSet<>();
+    private Set<String> molecularFunctionWithParents = new HashSet<>();
+    private Set<String> molecularFunctionAgrSlim = new HashSet<>();
+
+    private Set<String> cellularComponentExpressionWithParents = new HashSet<>();
+    private Set<String> cellularComponentExpressionAgrSlim = new HashSet<>();
+
+    private Set<String> whereExpressed = new HashSet<>();
+    private Set<String> anatomicalExpression = new HashSet<>();         //uberon slim
+    private Set<String> anatomicalExpressionWithParents = new HashSet<>();
+
     public String getNameKey() {
         String nameKey = symbol;
         if (species != null) {

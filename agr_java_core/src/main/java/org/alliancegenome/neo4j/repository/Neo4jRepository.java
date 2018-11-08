@@ -55,6 +55,8 @@ public class Neo4jRepository<E> {
     public Result queryForResult(String cypherQuery) {
         return neo4jSession.query(cypherQuery, Collections.EMPTY_MAP);
     }
-
+    public Result queryForResult(String cypherQuery, Map<String, ?> params) {
+        return neo4jSession.query(cypherQuery, params);
+    }
 
 }

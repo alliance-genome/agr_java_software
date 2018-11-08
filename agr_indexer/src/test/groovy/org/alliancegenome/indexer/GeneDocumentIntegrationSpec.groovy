@@ -22,7 +22,7 @@ class GeneDocumentIntegrationSpec extends Specification {
         trans = null
     }
 
-    def "GeneDocument has GOTerm parents"() {
+    def "GeneDocument has GOTerm parents, slim terms"() {
         when: //we get a gene document
         Gene gene = repo.getOneGene("FB:FBgn0014020")
         GeneDocument geneDocument = trans.translate(gene)
@@ -35,7 +35,12 @@ class GeneDocumentIntegrationSpec extends Specification {
         geneDocument.cellularComponentWithParents.contains("cellular_component")
         geneDocument.molecularFunctionWithParents
         geneDocument.molecularFunctionWithParents.contains("molecular_function")
-
+        geneDocument.biologicalProcessAgrSlim
+        geneDocument.biologicalProcessAgrSlim.contains("signaling")
+        geneDocument.cellularComponentAgrSlim
+        geneDocument.cellularComponentAgrSlim.contains("plasma membrane")
+        geneDocument.molecularFunctionAgrSlim
+        geneDocument.molecularFunctionAgrSlim.contains("hydrolase activity")
 
     }
 
@@ -82,10 +87,8 @@ class GeneDocumentIntegrationSpec extends Specification {
 
         then:
         geneDocument
-        geneDocument.cellularComponentExpression
-        geneDocument.cellularComponentExpression.containsAll(entities)
-//      This should go back in post 2.0
-//      geneDocument.cellularComponentExpressionWithParents.containsAll(parentEntities)
+        geneDocument.cellularComponentExpressionWithParents.containsAll(entities)
+        geneDocument.cellularComponentExpressionWithParents.containsAll(parentEntities)
         geneDocument.cellularComponentExpressionAgrSlim.containsAll(slimEntities)
 
         where:
