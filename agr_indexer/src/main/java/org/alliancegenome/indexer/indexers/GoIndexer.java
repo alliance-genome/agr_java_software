@@ -10,6 +10,8 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.LinkedBlockingDeque;
 
 public class GoIndexer extends Indexer<GoDocument> {
@@ -18,6 +20,8 @@ public class GoIndexer extends Indexer<GoDocument> {
 
     private final GoRepository goRepo = new GoRepository();
     private final GoTranslator goTrans = new GoTranslator();
+
+    private Map<String, Set<String>> geneMap;
 
 
     public GoIndexer(IndexerConfig config) {
@@ -29,6 +33,8 @@ public class GoIndexer extends Indexer<GoDocument> {
 
         LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>();
         List<String> fulllist = goRepo.getAllGoKeys();
+        geneMap = goRepo.getGoTermToGeneMap();
+
         queue.addAll(fulllist);
         goRepo.clearCache();
         try {
@@ -59,6 +65,7 @@ public class GoIndexer extends Indexer<GoDocument> {
 
                 String key = queue.takeFirst();
                 GOTerm term = repo.getOneGoTerm(key);
+                term.setGeneNameKeys(geneMap.get(key));
                 if (term != null) {
                     list.add(term);
                 } else {
