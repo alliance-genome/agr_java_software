@@ -46,10 +46,10 @@ public class GoRepository extends Neo4jRepository<GOTerm> {
         return null;
     }
 
-
     public Map<String, Set<String>> getGoTermToGeneMap() {
 
-        Map<String,Set<String>> map = new HashMap<>();
+        Map<String,Set<String>> geneMap = new HashMap<>();
+        Map<String,Set<String>> speciesMap = new HashMap<>();
 
         String query = "MATCH (go:GOTerm)--(gene:Gene)--(species:Species) RETURN go.primaryKey,gene.symbol,species.name";
         Result r = queryForResult(query);
@@ -64,14 +64,18 @@ public class GoRepository extends Neo4jRepository<GOTerm> {
             SpeciesType speciesType = SpeciesType.getTypeByName(speciesName);
             String nameKey = geneSymbol + "(" + speciesType.getAbbreviation() + ")";
 
-            if (map.get(primaryKey) == null) {
-                map.put(primaryKey,new HashSet<>());
+            if (geneMap.get(primaryKey) == null) {
+                geneMap.put(primaryKey,new HashSet<>());
             }
+            geneMap.get(primaryKey).add(nameKey);
 
-            map.get(primaryKey).add(nameKey);
+            if (speciesMap.get(primaryKey) == null) {
+                speciesMap.put(primaryKey, new HashSet<>());
+            }
+            speciesMap.get(primaryKey).add(speciesName);
         }
 
-        return map;
+        return geneMap;
     }
 
 }
