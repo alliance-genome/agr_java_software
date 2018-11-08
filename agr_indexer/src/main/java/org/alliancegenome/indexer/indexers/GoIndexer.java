@@ -21,9 +21,6 @@ public class GoIndexer extends Indexer<GoDocument> {
     private final GoRepository goRepo = new GoRepository();
     private final GoTranslator goTrans = new GoTranslator();
 
-    private Map<String, Set<String>> geneMap;
-
-
     public GoIndexer(IndexerConfig config) {
         super(config);
     }
@@ -33,7 +30,6 @@ public class GoIndexer extends Indexer<GoDocument> {
 
         LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>();
         List<String> fulllist = goRepo.getAllGoKeys();
-        geneMap = goRepo.getGoTermToGeneMap();
 
         queue.addAll(fulllist);
         goRepo.clearCache();
@@ -49,6 +45,7 @@ public class GoIndexer extends Indexer<GoDocument> {
         log.info("Pulling All Terms");
         
         Iterable<GOTerm> terms = repo.getAllTerms();
+
         log.info("Pulling All Terms Finished");
         
         Iterable<GoDocument> docs = goTrans.translateEntities(terms);
