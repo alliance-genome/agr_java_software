@@ -20,6 +20,8 @@ import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 
+import javax.ejb.Stateless;
+
 @SuppressWarnings("serial")
 public class SearchDAO extends ESDAO {
 

@@ -3,16 +3,20 @@ package org.alliancegenome.api.service;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriInfo;
 
 import org.alliancegenome.api.service.helper.SearchHelper;
 import org.alliancegenome.es.index.site.dao.SearchDAO;
+import org.alliancegenome.es.model.search.RelatedDataLink;
 import org.alliancegenome.es.model.search.SearchApiResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -63,7 +67,8 @@ public class SearchService {
         log.debug("Search Query: " + q);
 
         result.total = searchResponse.getHits().totalHits;
-        result.resultMapList = searchHelper.formatResults(searchResponse, tokenizeQuery(q));
+        result.results = searchHelper.formatResults(searchResponse, tokenizeQuery(q));
+        addRelatedDataLinks(result.results);
         result.aggregations = searchHelper.formatAggResults(category, searchResponse);
 
         return result;
@@ -148,7 +153,7 @@ public class SearchService {
 
         }
 
-        //include only searchable categories in search resultMapList
+        //include only searchable categories in search results
         bool.filter(searchHelper.limitCategories());
 
         return bool;
@@ -203,6 +208,41 @@ public class SearchService {
         return tokens;
 
 
+    }
+
+    public void addRelatedDataLinks(List<Map<String,Object>> results) {
+        results.stream().forEach(x -> addRelatedDataLinks(x));
+    }
+
+    public void addRelatedDataLinks(Map<String,Object> result) {
+        String name = (String) result.get("name_key");
+        String category = (String) result.get("category");
+
+        List<RelatedDataLink> links = new ArrayList<>();
+
+        if (StringUtils.equals(category,"gene")) {
+            links.add(getRelatedDataLink("disease", "annotations.geneDocument.name_key", name));
+            links.add(getRelatedDataLink("allele", "geneDocument.name_key", name));
+        }
+
+        //only keep the non-zero links
+        result.put("relatedData",links.stream().filter(r -> r.getCount() > 0).collect(Collectors.toList()));
+    }
+
+    public RelatedDataLink getRelatedDataLink(String targetCategory, String targetField, String sourceName) {
+        MultivaluedMap<String,String> filters = new MultivaluedHashMap<>();
+
+        filters.add(targetField, sourceName);
+
+        Long count = searchDAO.performCountQuery(buildQuery(null, targetCategory, filters));
+
+        RelatedDataLink relatedDataLink = new RelatedDataLink();
+        relatedDataLink.setCategory(targetCategory);
+        relatedDataLink.setTargetField(targetField);
+        relatedDataLink.setSourceName(sourceName);
+        relatedDataLink.setCount(count);
+
+        return relatedDataLink;
     }
 
 }

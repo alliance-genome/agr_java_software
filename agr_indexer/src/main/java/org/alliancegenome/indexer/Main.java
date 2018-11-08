@@ -7,10 +7,7 @@ import org.alliancegenome.indexer.indexers.Indexer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public class Main {
 
@@ -20,9 +17,16 @@ public class Main {
 
         Date start = new Date();
         log.info("Start Time: " + start);
-        
+
+        Boolean keepIndex = System.getProperty("KEEPINDEX") != null;
+
         IndexManager im = new  IndexManager();
-        Indexer.indexName = im.startSiteIndex();
+
+        if (!keepIndex) {
+            Indexer.indexName = im.startSiteIndex();
+        } else {
+            Indexer.indexName = im.getBaseIndexName();
+        }
 
         HashMap<String, Indexer> indexers = new HashMap<>();
         for (IndexerConfig ic : IndexerConfig.values()) {
@@ -68,9 +72,11 @@ public class Main {
                 System.exit(-1);
             }
         }
-        
-        im.finishIndex();
-        
+
+        if (!keepIndex) {
+            im.finishIndex();
+        }
+
         Date end = new Date();
         log.info("End Time: " + end);
         long duration = end.getTime() - start.getTime();

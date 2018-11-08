@@ -18,7 +18,7 @@ class QueryRankIntegrationSpec extends Specification {
         def worseResult = results.find { it.id == worseResultId }
         def betterResultPosition = results.findIndexValues() { it.id == betterResultId }?.first()
         def worseResultPosition = Integer.MAX_VALUE
-        //if the "worse" result falls off the end of 5k resultMapList, for this test, that's a also a success
+        //if the "worse" result falls off the end of 5k results, for this test, that's a also a success
         if (worseResult != null) {
             worseResultPosition = results.findIndexValues() { it.id == worseResultId }?.first()
         }
@@ -44,7 +44,7 @@ class QueryRankIntegrationSpec extends Specification {
         def firstResultSymbol = results.first().get("symbol").toLowerCase()
 
         then:
-        results //should be some resultMapList
+        results //should be some results
         firstResultSymbol.startsWith(query)
 
         where:
@@ -110,7 +110,7 @@ class QueryRankIntegrationSpec extends Specification {
         def firstResultNameKey = results.first().get("name_key")
 
         then:
-        results //should be some resultMapList
+        results //should be some results
         firstResultNameKey == nameKey
 
         where:

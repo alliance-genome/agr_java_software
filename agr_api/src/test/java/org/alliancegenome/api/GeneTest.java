@@ -75,15 +75,15 @@ public class GeneTest {
         Pagination pagination = new Pagination(1, 20, "gene", "true");
         pagination.addFieldFilter(FieldFilter.GENE_NAME, "l");
         SearchApiResponse response = service.getAllelesByGene("ZFIN:ZDB-GENE-051127-5", pagination);
-        if (response.resultMapList != null) {
-            response.resultMapList.forEach(entry -> {
+        if (response.results != null) {
+            response.results.forEach(entry -> {
                 Map<String, Object> map1 = (Map<String, Object>) entry.get("geneDocument");
                 if (map1 != null)
                     log.info(entry.get("diseaseID") + "\t" + entry.get("diseaseName") + ": " + "\t" + map1.get("species") + ": " + map1.get("symbol") + ": " + map1.get("primaryId"));
 
             });
         }
-        System.out.println("Number of resultMapList " + response.total);
+        System.out.println("Number of results " + response.total);
 
     }
 

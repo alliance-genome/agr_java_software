@@ -67,7 +67,7 @@ public class GeneDAO extends ESDAO {
         SearchApiResponse result = new SearchApiResponse();
 
         result.total = response.getHits().totalHits;
-        result.resultMapList = formatResults(response);
+        result.results = formatResults(response);
         return result;
     }
 

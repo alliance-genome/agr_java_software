@@ -32,7 +32,7 @@ public interface SearchRESTInterface {
         @QueryParam("limit") int limit,
         @ApiParam(name = "offset", value = "This specifies which (page size) to request for")
         @QueryParam("offset") int offset,
-        @ApiParam(name = "sort_by", value = "We will sort the resultMapList by this field")
+        @ApiParam(name = "sort_by", value = "We will sort the results by this field")
         @QueryParam("sort_by") String sort_by,
         @Context UriInfo uriInfo
     );

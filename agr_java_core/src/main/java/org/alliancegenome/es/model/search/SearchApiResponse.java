@@ -7,7 +7,7 @@ import java.util.Map;
 public class SearchApiResponse {
 
     public ArrayList<AggResult> aggregations;
-    public ArrayList<Map<String, Object>> resultMapList;
+    public ArrayList<Map<String, Object>> results;
     public List<SearchResult> searchResults;
     public long total;
     public List<String> errorMessages;

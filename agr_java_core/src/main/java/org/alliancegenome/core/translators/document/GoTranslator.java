@@ -37,7 +37,7 @@ public class GoTranslator extends EntityDocumentTranslator<GOTerm, GoDocument> {
                 go_species.add(g.getSpecies().getSpecies());
             }
             if(g.getSymbol() != null) {
-                go_genes.add(g.getSymbol());
+                go_genes.add(g.getNameKey());
             }
         }
         doc.setGo_genes(go_genes);

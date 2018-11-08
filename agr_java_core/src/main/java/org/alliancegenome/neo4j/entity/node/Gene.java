@@ -103,6 +103,14 @@ public class Gene extends Neo4jEntity implements Comparable<Gene> {
     @Relationship(type = "EXPRESSED_IN")
     private List<ExpressionBioEntity> expressionBioEntities = new ArrayList<>();
 
+    public String getNameKey() {
+        String nameKey = symbol;
+        if (species != null) {
+            nameKey += " (" + species.getType().getAbbreviation() + ")";
+        }
+        return nameKey;
+    }
+
     public Set<GOTerm> getGoParentTerms() {
         Set<GOTerm> parentTerms = new HashSet<>();
         CollectionUtils.emptyIfNull(gOTerms).forEach(term -> {

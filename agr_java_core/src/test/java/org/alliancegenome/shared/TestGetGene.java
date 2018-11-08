@@ -40,9 +40,9 @@ public class TestGetGene {
         //pagination.addFieldFilter(FieldFilter.EVIDENCE_CODE, "TA");
         pagination.addFieldFilter(FieldFilter.GENETIC_ENTITY_TYPE, "allel");
         SearchApiResponse response = service.getDiseaseAnnotations("DOID:655", pagination);
-        System.out.println("Result size: " + response.resultMapList.size());
-        if (response.resultMapList != null) {
-            response.resultMapList.forEach(entry -> {
+        System.out.println("Result size: " + response.results.size());
+        if (response.results != null) {
+            response.results.forEach(entry -> {
                 Map<String, Object> map1 = (Map<String, Object>) entry.get("geneDocument");
                 if (map1 != null)
                     System.out.println(entry.get("diseaseID") + "\t" + entry.get("diseaseName") + ": " + "\t" + map1.get("species") + ": " + map1.get("symbol") + ": " + map1.get("primaryId")+ ": " + map1.get("associationType"));
