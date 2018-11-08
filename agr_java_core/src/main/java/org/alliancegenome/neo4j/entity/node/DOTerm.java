@@ -66,4 +66,8 @@ public class DOTerm extends Neo4jEntity {
     @Relationship(type = "CROSS_REFERENCE")
     private List<CrossReference> crossReferences;
 
+    @Override
+    public String toString() {
+        return primaryKey + ":"+name;
+    }
 }
