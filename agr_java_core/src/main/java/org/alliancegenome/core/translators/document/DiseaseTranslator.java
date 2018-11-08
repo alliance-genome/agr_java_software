@@ -105,27 +105,29 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
                                     if (!featurelessJoins.isEmpty())
                                         featureMap.put(null, featurelessJoins);
                                     return featureMap.entrySet().stream()
-                                            .map(featureMapEntry -> {
-
-                                                AnnotationDocument document = new AnnotationDocument();
-                                                Gene gene = geneMapEntry.getKey();
-                                                document.setGeneDocument(geneTranslator.translate(gene, 0));
-                                                Feature feature = featureMapEntry.getKey();
-                                                if (feature != null) {
-                                                    document.setFeatureDocument(featureTranslator.translate(feature, 0));
-                                                }
-                                                document.setAssociationType(associationEntry.getKey());
-                                                document.setSource(getSourceUrls(entity, gene.getSpecies()));
-                                                Gene orthologyGene = getOrthologyGene(featureMapEntry.getValue());
-                                                if (orthologyGene != null) {
-                                                    document.setOrthologyGeneDocument(geneTranslator.translate(orthologyGene, 0));
-                                                    SourceDoclet doclet = new SourceDoclet();
-                                                    doclet.setName(featureMapEntry.getValue().get(0).getDataProvider());
-                                                    document.setSource(doclet);
-                                                }
-                                                document.setPublications(publicationDocletTranslator.getPublicationDoclets(featureMapEntry.getValue()));
-                                                return document;
-                                            })
+                                            .map(featureMapEntry -> featureMapEntry.getValue().stream()
+                                                    .map(diseaseEntityJoin -> {
+                                                        AnnotationDocument document = new AnnotationDocument();
+                                                        Gene gene = geneMapEntry.getKey();
+                                                        document.setGeneDocument(geneTranslator.translate(gene, 0));
+                                                        Feature feature = featureMapEntry.getKey();
+                                                        if (feature != null) {
+                                                            document.setFeatureDocument(featureTranslator.translate(feature, 0));
+                                                        }
+                                                        document.setAssociationType(associationEntry.getKey());
+                                                        document.setSource(getSourceUrls(entity, gene.getSpecies()));
+                                                        Gene orthologyGene = diseaseEntityJoin.getOrthologyGene();
+                                                        if (orthologyGene != null) {
+                                                            document.setOrthologyGeneDocument(geneTranslator.translate(orthologyGene, 0));
+                                                            SourceDoclet doclet = new SourceDoclet();
+                                                            doclet.setName(featureMapEntry.getValue().get(0).getDataProvider());
+                                                            document.setSource(doclet);
+                                                        }
+                                                        document.setPublications(publicationDocletTranslator.getPublicationDoclets(featureMapEntry.getValue()));
+                                                        return document;
+                                                    })
+                                                    .collect(Collectors.toSet()))
+                                            .flatMap(Collection::stream)
                                             .collect(Collectors.toList());
                                 })
                                 .flatMap(Collection::stream)
