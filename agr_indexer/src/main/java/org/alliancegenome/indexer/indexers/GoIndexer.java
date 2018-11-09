@@ -10,8 +10,6 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.LinkedBlockingDeque;
 
 public class GoIndexer extends Indexer<GoDocument> {
@@ -33,60 +31,46 @@ public class GoIndexer extends Indexer<GoDocument> {
 
         queue.addAll(fulllist);
         goRepo.clearCache();
-
-        startSingleThread(queue);
-
+        try {
+            initiateThreading(queue);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     protected void startSingleThread(LinkedBlockingDeque<String> queue) {
         ArrayList<GOTerm> list = new ArrayList<>();
         GoRepository repo = new GoRepository();
 
-        log.info("Pulling All Terms");
-        
-        Iterable<GOTerm> terms = repo.getAllTerms();
+        while (true) {
+            try {
+                if (list.size() >= indexerConfig.getBufferSize()) {
+                    saveDocuments(goTrans.translateEntities(list));
+                    repo.clearCache();
+                    list.clear();
+                }
+                if (queue.isEmpty()) {
+                    if (list.size() > 0) {
+                        saveDocuments(goTrans.translateEntities(list));
+                        repo.clearCache();
+                        list.clear();
+                    }
+                    return;
+                }
 
-        log.info("Pulling All Terms Finished");
-        
-        Iterable<GoDocument> docs = goTrans.translateEntities(terms);
-        log.info("Translation Done");
-        
-        saveDocuments(docs);
-        log.info("saveDocuments Done");
-        
-//      while (true) {
-//          try {
-//              if (list.size() >= indexerConfig.getBufferSize()) {
-//                  log.info("saveDocumentsA: " + list.size());
-//                  saveDocuments(goTrans.translateEntities(list));
-//                  log.info("saveDocumentsB: " + list.size());
-//                  //repo.clearCache();
-//                  list.clear();
-//              }
-//              if (queue.isEmpty()) {
-//                  if (list.size() > 0) {
-//                      log.info("saveDocumentsC: " + list.size());
-//                      saveDocuments(goTrans.translateEntities(list));
-//                      log.info("saveDocumentsD: " + list.size());
-//                      //repo.clearCache();
-//                      list.clear();
-//                  }
-//                  return;
-//              }
-//
-//              String key = queue.takeFirst();
-//              GOTerm term = repo.getOneGoTerm(key);
-//              if (term != null) {
-//                  list.add(term);
-//              } else {
-//                  log.debug("No go term found for " + key);
-//              }
-//          } catch (Exception e) {
-//              log.error("Error while indexing...", e);
-//              System.exit(-1);
-//              return;
-//          }
-//      }
+                String key = queue.takeFirst();
+                GOTerm term = repo.getOneGoTerm(key);
+                if (term != null) {
+                    list.add(term);
+                } else {
+                    log.debug("No go term found for " + key);
+                }
+            } catch (Exception e) {
+                log.error("Error while indexing...", e);
+                System.exit(-1);
+                return;
+            }
+        }
     }
 
 }
