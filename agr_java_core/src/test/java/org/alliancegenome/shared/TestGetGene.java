@@ -6,7 +6,7 @@ import org.alliancegenome.es.index.site.dao.DiseaseDAO;
 import org.alliancegenome.es.index.site.dao.GeneDAO;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.es.model.search.SearchResult;
+import org.alliancegenome.es.model.search.SearchApiResponse;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.config.Configurator;
@@ -39,7 +39,7 @@ public class TestGetGene {
         //pagination.addFieldFilter(FieldFilter.SOURCE, "Mgi");
         //pagination.addFieldFilter(FieldFilter.EVIDENCE_CODE, "TA");
         pagination.addFieldFilter(FieldFilter.GENETIC_ENTITY_TYPE, "allel");
-        SearchResult response = service.getDiseaseAnnotations("DOID:655", pagination);
+        SearchApiResponse response = service.getDiseaseAnnotations("DOID:655", pagination);
         System.out.println("Result size: " + response.results.size());
         if (response.results != null) {
             response.results.forEach(entry -> {

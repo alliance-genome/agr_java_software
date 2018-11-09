@@ -38,6 +38,12 @@ public class GOTerm extends Ontology {
     @Relationship(type = "PART_OF")
     private Set<GOTerm> partOfParents = new HashSet<>();
 
+    //GoDocument push-throughs, these fields can be removed from the
+    //GoTerm object when we refactor the indexing to have direct access to
+    //repository methods
+    private Set<String> geneNameKeys = new HashSet<>();
+    private Set<String> speciesNames = new HashSet<>();
+
     public Set<GOTerm> getParentTerms() {
         Set<GOTerm> parentTerms = new HashSet<>();
 

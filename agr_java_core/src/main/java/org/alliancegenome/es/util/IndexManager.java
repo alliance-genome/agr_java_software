@@ -148,6 +148,7 @@ public class IndexManager {
         return newIndexName;
     }
 
+
     public void finishIndex() {
         log.debug("Main Index Finished: ");
         client.admin().indices().prepareRefresh(newIndexName).get();
@@ -314,4 +315,5 @@ public class IndexManager {
         return ret;
     }
 
+    public String getBaseIndexName() { return baseIndexName; }
 }

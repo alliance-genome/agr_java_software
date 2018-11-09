@@ -8,14 +8,13 @@ import java.util.concurrent.ExecutionException;
 
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.es.model.search.SearchResult;
+import org.alliancegenome.es.model.search.SearchApiResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequest;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
 import org.elasticsearch.action.search.SearchRequestBuilder;
-import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.search.SearchHit;
@@ -72,20 +71,20 @@ public class ESDAO {
         }
     }
 
-    protected SearchResult getSearchResult(Pagination pagination, SearchRequestBuilder searchRequestBuilder) {
+    protected SearchApiResponse getSearchResult(Pagination pagination, SearchRequestBuilder searchRequestBuilder) {
         searchRequestBuilder.setSize(pagination.getLimit());
         int fromIndex = pagination.getIndexOfFirstElement();
         searchRequestBuilder.setFrom(fromIndex);
 
-        SearchResponse response = searchRequestBuilder.execute().actionGet();
-        SearchResult result = new SearchResult();
+        org.elasticsearch.action.search.SearchResponse response = searchRequestBuilder.execute().actionGet();
+        SearchApiResponse result = new SearchApiResponse();
 
         result.total = response.getHits().totalHits;
         result.results = formatResults(response);
         return result;
     }
 
-    protected ArrayList<Map<String, Object>> formatResults(SearchResponse response) {
+    protected ArrayList<Map<String, Object>> formatResults(org.elasticsearch.action.search.SearchResponse response) {
 
         ArrayList<Map<String, Object>> ret = new ArrayList<>();
 

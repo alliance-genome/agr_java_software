@@ -4,7 +4,7 @@ import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.es.index.ESDAO;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.es.model.search.SearchResult;
+import org.alliancegenome.es.model.search.SearchApiResponse;
 import org.alliancegenome.es.util.SearchHitIterator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -23,7 +23,7 @@ public class DiseaseDAO extends ESDAO {
 
     private Log log = LogFactory.getLog(getClass());
 
-    public SearchResult getDiseaseAnnotations(String diseaseID, Pagination pagination) {
+    public SearchApiResponse getDiseaseAnnotations(String diseaseID, Pagination pagination) {
 
         SearchRequestBuilder searchRequestBuilder = getSearchRequestBuilder(diseaseID, pagination);
         return getSearchResult(pagination, searchRequestBuilder);

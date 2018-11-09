@@ -51,7 +51,7 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
             geneDocument.setName(gene.getSymbol());
         else
             geneDocument.setName(gene.getName());
-        geneDocument.setNameKeyWithSpecies(gene.getSymbol(), gene.getSpecies().getType().getAbbreviation());
+        geneDocument.setNameKey(gene.getNameKey());
         geneDocument.setPrimaryId(gene.getPrimaryKey());
         geneDocument.setDateProduced(gene.getDateProduced());
         geneDocument.setTaxonId(gene.getTaxonId());

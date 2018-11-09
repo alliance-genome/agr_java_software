@@ -16,7 +16,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.alliancegenome.es.model.search.SearchResult;
+import org.alliancegenome.es.model.search.SearchApiResponse;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -40,7 +40,7 @@ public interface GeneRESTInterface {
     @GET
     @Path("/{id}/alleles")
     @ApiOperation(value = "Retrieve all alleles of a given gene")
-    SearchResult getAllelesPerGene(
+    SearchApiResponse getAllelesPerGene(
             @ApiParam(name = "id", value = "Search for Alleles for a given Gene by ID")
             @PathParam("id") String id
     );
@@ -48,7 +48,7 @@ public interface GeneRESTInterface {
     @GET
     @Path("/{id}/phenotypes")
     @ApiOperation(value = "Retrieve termName annotations for given gene")
-    SearchResult getPhenotypeAnnotations(
+    SearchApiResponse getPhenotypeAnnotations(
             @ApiParam(name = "id", value = "Gene by ID", required = true, type = "String")
             @PathParam("id") String id,
             @ApiParam(name = "limit", value = "Number of rows returned", defaultValue = "20")

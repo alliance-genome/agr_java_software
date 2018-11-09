@@ -20,6 +20,8 @@ import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 
+import javax.ejb.Stateless;
+
 @SuppressWarnings("serial")
 public class SearchDAO extends ESDAO {
 
@@ -39,6 +41,21 @@ public class SearchDAO extends ESDAO {
             add("_id");
         }
     };
+
+    public Long performCountQuery(QueryBuilder query) {
+        SearchRequestBuilder searchRequestBuilder = searchClient.prepareSearch();
+        searchRequestBuilder.setQuery(query);
+        searchRequestBuilder.setSize(0);
+
+        SearchResponse response = searchRequestBuilder.execute().actionGet();
+        if (response != null && response.getHits() != null) {
+            return response.getHits().totalHits;
+        } else {
+            return 0l;
+        }
+
+
+    }
 
     public SearchResponse performQuery(QueryBuilder query,
             List<AggregationBuilder> aggBuilders,

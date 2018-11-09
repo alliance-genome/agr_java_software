@@ -1,13 +1,11 @@
 package org.alliancegenome.neo4j.repository;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
+import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.entity.node.GOTerm;
 import org.neo4j.ogm.model.Result;
+
 
 public class GoRepository extends Neo4jRepository<GOTerm> {
 
@@ -26,7 +24,16 @@ public class GoRepository extends Neo4jRepository<GOTerm> {
             Map<String, Object> map2 = i.next();
             list.add((String)map2.get("g.primaryKey"));
         }
+
         return list;
+    }
+    
+    public Iterable<GOTerm> getAllTerms() {
+        String query = "MATCH p0=(go:GOTerm) " +
+                " OPTIONAL MATCH p2=(go)-[:ALSO_KNOWN_AS]-(:Synonym)";
+        query += " RETURN p0, p2";
+        
+        return addAttributes(query(query));
     }
 
     public GOTerm getOneGoTerm(String primaryKey) {
@@ -47,6 +54,44 @@ public class GoRepository extends Neo4jRepository<GOTerm> {
         }
 
         return null;
+    }
+
+    public Iterable<GOTerm> addAttributes(Iterable<GOTerm> goTerms) {
+
+        Map<String,Set<String>> geneMap = new HashMap<>();
+        Map<String,Set<String>> speciesMap = new HashMap<>();
+
+        String query = "MATCH (go:GOTerm)--(gene:Gene)--(species:Species) RETURN go.primaryKey,gene.symbol,species.name";
+        Result r = queryForResult(query);
+        Iterator<Map<String, Object>> i = r.iterator();
+
+        while (i.hasNext()) {
+            Map<String, Object> resultMap = i.next();
+            String primaryKey = resultMap.get("go.primaryKey").toString();
+            String geneSymbol = resultMap.get("gene.symbol").toString();
+            String speciesName = resultMap.get("species.name").toString();
+
+            SpeciesType speciesType = SpeciesType.getTypeByName(speciesName);
+            String nameKey = geneSymbol + " (" + speciesType.getAbbreviation() + ")";
+
+            if (geneMap.get(primaryKey) == null) {
+                geneMap.put(primaryKey,new HashSet<>());
+            }
+            geneMap.get(primaryKey).add(nameKey);
+
+            if (speciesMap.get(primaryKey) == null) {
+                speciesMap.put(primaryKey, new HashSet<>());
+            }
+            speciesMap.get(primaryKey).add(speciesName);
+        }
+
+        goTerms.forEach(term -> {
+            term.setGeneNameKeys(geneMap.get(term.getPrimaryKey()));
+            term.setSpeciesNames(speciesMap.get(term.getPrimaryKey()));
+        });
+
+        return goTerms;
+
     }
 
 }

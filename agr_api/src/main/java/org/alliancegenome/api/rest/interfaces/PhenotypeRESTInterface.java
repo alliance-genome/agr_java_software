@@ -1,7 +1,7 @@
 package org.alliancegenome.api.rest.interfaces;
 
 import io.swagger.annotations.Api;
-import org.alliancegenome.es.model.search.SearchResult;
+import org.alliancegenome.es.model.search.SearchApiResponse;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -20,7 +20,7 @@ public interface PhenotypeRESTInterface {
 
     @GET
     @Path("/{id}/associations")
-    public SearchResult getDiseaseAnnotationsSorted(
+    public SearchApiResponse getDiseaseAnnotationsSorted(
             @PathParam("id") String id,
             @DefaultValue("20") @QueryParam("limit") int limit,
             @DefaultValue("1") @QueryParam("page") int page,
