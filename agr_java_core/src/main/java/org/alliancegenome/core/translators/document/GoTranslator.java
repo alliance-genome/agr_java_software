@@ -1,6 +1,8 @@
 package org.alliancegenome.core.translators.document;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.alliancegenome.core.translators.EntityDocumentTranslator;
 import org.alliancegenome.es.index.site.document.GoDocument;
@@ -29,19 +31,8 @@ public class GoTranslator extends EntityDocumentTranslator<GOTerm, GoDocument> {
             go_synonyms.add(s.getPrimaryKey());
         }
         doc.setSynonyms(go_synonyms);
-
-        ArrayList<String> go_species = new ArrayList<>();
-        ArrayList<String> go_genes = new ArrayList<String>();
-        for(Gene g: entity.getGenes()) {
-            if(g.getSpecies() != null && g.getSpecies().getSpecies() != null && !go_species.contains(g.getSpecies().getSpecies())) {
-                go_species.add(g.getSpecies().getSpecies());
-            }
-            if(g.getSymbol() != null) {
-                go_genes.add(g.getNameKey());
-            }
-        }
-        doc.setGo_genes(go_genes);
-        doc.setGo_species(go_species);
+        doc.setGo_genes(entity.getGeneNameKeys());
+        doc.setGo_species(entity.getSpeciesNames());
 
         return doc;
     }

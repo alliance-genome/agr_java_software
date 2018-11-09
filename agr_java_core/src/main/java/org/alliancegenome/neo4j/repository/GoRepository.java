@@ -6,6 +6,7 @@ import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.entity.node.GOTerm;
 import org.neo4j.ogm.model.Result;
 
+
 public class GoRepository extends Neo4jRepository<GOTerm> {
 
     public GoRepository() {
@@ -28,12 +29,11 @@ public class GoRepository extends Neo4jRepository<GOTerm> {
     }
     
     public Iterable<GOTerm> getAllTerms() {
-        String query = "MATCH p0=(go:GOTerm) " + 
-                " OPTIONAL MATCH p1=(go)-[:ANNOTATED_TO]-(:Gene)-[:FROM_SPECIES]-(:Species)" +
+        String query = "MATCH p0=(go:GOTerm) " +
                 " OPTIONAL MATCH p2=(go)-[:ALSO_KNOWN_AS]-(:Synonym)";
-        query += " RETURN p0, p1, p2";
+        query += " RETURN p0, p2";
         
-        return query(query);
+        return addAttributes(query(query));
     }
 
     public GOTerm getOneGoTerm(String primaryKey) {
@@ -42,8 +42,9 @@ public class GoRepository extends Neo4jRepository<GOTerm> {
         map.put("primaryKey", primaryKey);
 
         String query = "MATCH p0=(go:GOTerm) WHERE go.primaryKey = {primaryKey}" +
-                " OPTIONAL MATCH pSyn=(go)-[:ALSO_KNOWN_AS]-(:Synonym)";
-        query += " RETURN p0, pSyn";
+                " OPTIONAL MATCH p1=(go)-[:ANNOTATED_TO]-(:Gene)-[:FROM_SPECIES]-(:Species)" +
+                " OPTIONAL MATCH p2=(go)-[:ALSO_KNOWN_AS]-(:Synonym)";
+        query += " RETURN p0, p1, p2";
 
         Iterable<GOTerm> gots = query(query, map);
         for(GOTerm g: gots) {
@@ -55,10 +56,10 @@ public class GoRepository extends Neo4jRepository<GOTerm> {
         return null;
     }
 
+    public Iterable<GOTerm> addAttributes(Iterable<GOTerm> goTerms) {
 
-    public Map<String, Set<String>> getGoTermToGeneMap() {
-
-        Map<String,Set<String>> map = new HashMap<>();
+        Map<String,Set<String>> geneMap = new HashMap<>();
+        Map<String,Set<String>> speciesMap = new HashMap<>();
 
         String query = "MATCH (go:GOTerm)--(gene:Gene)--(species:Species) RETURN go.primaryKey,gene.symbol,species.name";
         Result r = queryForResult(query);
@@ -71,16 +72,26 @@ public class GoRepository extends Neo4jRepository<GOTerm> {
             String speciesName = resultMap.get("species.name").toString();
 
             SpeciesType speciesType = SpeciesType.getTypeByName(speciesName);
-            String nameKey = geneSymbol + "(" + speciesType.getAbbreviation() + ")";
+            String nameKey = geneSymbol + " (" + speciesType.getAbbreviation() + ")";
 
-            if (map.get(primaryKey) == null) {
-                map.put(primaryKey,new HashSet<>());
+            if (geneMap.get(primaryKey) == null) {
+                geneMap.put(primaryKey,new HashSet<>());
             }
+            geneMap.get(primaryKey).add(nameKey);
 
-            map.get(primaryKey).add(nameKey);
+            if (speciesMap.get(primaryKey) == null) {
+                speciesMap.put(primaryKey, new HashSet<>());
+            }
+            speciesMap.get(primaryKey).add(speciesName);
         }
 
-        return map;
+        goTerms.forEach(term -> {
+            term.setGeneNameKeys(geneMap.get(term.getPrimaryKey()));
+            term.setSpeciesNames(speciesMap.get(term.getPrimaryKey()));
+        });
+
+        return goTerms;
+
     }
 
 }

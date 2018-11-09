@@ -19,6 +19,7 @@ import org.alliancegenome.es.index.site.dao.SearchDAO;
 import org.alliancegenome.es.model.search.RelatedDataLink;
 import org.alliancegenome.es.model.search.SearchApiResponse;
 import org.apache.commons.lang3.StringUtils;
+import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.MultiMatchQueryBuilder;
 import org.elasticsearch.index.query.Operator;
@@ -62,13 +63,14 @@ public class SearchService {
 
         HighlightBuilder hlb = searchHelper.buildHighlights();
 
-        org.elasticsearch.action.search.SearchResponse searchResponse = searchDAO.performQuery(query, aggBuilders, limit, offset, hlb, sort_by, debug);
+        SearchResponse searchResponse = searchDAO.performQuery(query, aggBuilders, limit, offset, hlb, sort_by, debug);
 
         log.debug("Search Query: " + q);
 
         result.total = searchResponse.getHits().totalHits;
         result.results = searchHelper.formatResults(searchResponse, tokenizeQuery(q));
-        addRelatedDataLinks(result.results);
+        //still too slow to leave on
+        //addRelatedDataLinks(result.results);
         result.aggregations = searchHelper.formatAggResults(category, searchResponse);
 
         return result;

@@ -19,7 +19,6 @@ public class GoIndexer extends Indexer<GoDocument> {
     private final GoRepository goRepo = new GoRepository();
     private final GoTranslator goTrans = new GoTranslator();
 
-
     public GoIndexer(IndexerConfig config) {
         super(config);
     }
@@ -29,6 +28,7 @@ public class GoIndexer extends Indexer<GoDocument> {
 
         LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>();
         List<String> fulllist = goRepo.getAllGoKeys();
+
         queue.addAll(fulllist);
         goRepo.clearCache();
         try {
@@ -41,6 +41,7 @@ public class GoIndexer extends Indexer<GoDocument> {
     protected void startSingleThread(LinkedBlockingDeque<String> queue) {
         ArrayList<GOTerm> list = new ArrayList<>();
         GoRepository repo = new GoRepository();
+
         while (true) {
             try {
                 if (list.size() >= indexerConfig.getBufferSize()) {

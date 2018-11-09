@@ -1,6 +1,7 @@
 package org.alliancegenome.es.index.site.document;
 
 import java.util.List;
+import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -19,8 +20,8 @@ public class GoDocument extends SearchableItemDocument {
     private String go_type;
     private String href;
     private List<String> synonyms;
-    private List<String> go_genes;
-    private List<String> go_species;
+    private Set<String> go_genes;
+    private Set<String> go_species;
 
     @Override
     @JsonIgnore
