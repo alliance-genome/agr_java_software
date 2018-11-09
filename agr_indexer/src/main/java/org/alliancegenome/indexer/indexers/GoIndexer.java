@@ -31,46 +31,26 @@ public class GoIndexer extends Indexer<GoDocument> {
 
         queue.addAll(fulllist);
         goRepo.clearCache();
-        try {
-            initiateThreading(queue);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        startSingleThread(queue);
+
     }
 
     protected void startSingleThread(LinkedBlockingDeque<String> queue) {
-        ArrayList<GOTerm> list = new ArrayList<>();
+
         GoRepository repo = new GoRepository();
 
-        while (true) {
-            try {
-                if (list.size() >= indexerConfig.getBufferSize()) {
-                    saveDocuments(goTrans.translateEntities(list));
-                    repo.clearCache();
-                    list.clear();
-                }
-                if (queue.isEmpty()) {
-                    if (list.size() > 0) {
-                        saveDocuments(goTrans.translateEntities(list));
-                        repo.clearCache();
-                        list.clear();
-                    }
-                    return;
-                }
+        log.info("Pulling All Terms");
 
-                String key = queue.takeFirst();
-                GOTerm term = repo.getOneGoTerm(key);
-                if (term != null) {
-                    list.add(term);
-                } else {
-                    log.debug("No go term found for " + key);
-                }
-            } catch (Exception e) {
-                log.error("Error while indexing...", e);
-                System.exit(-1);
-                return;
-            }
-        }
+        Iterable<GOTerm> terms = repo.getAllTerms();
+
+        log.info("Pulling All Terms Finished");
+
+        Iterable<GoDocument> docs = goTrans.translateEntities(terms);
+        log.info("Translation Done");
+
+        saveDocuments(docs);
+        log.info("saveDocuments Done");
+
     }
 
 }
