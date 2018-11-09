@@ -21,7 +21,7 @@ public class GoDocument extends SearchableItemDocument {
     private String href;
     private List<String> synonyms;
     private Set<String> go_genes;
-    private List<String> go_species;
+    private Set<String> go_species;
 
     @Override
     @JsonIgnore
