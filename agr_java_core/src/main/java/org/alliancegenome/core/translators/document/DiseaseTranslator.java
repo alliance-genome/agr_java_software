@@ -105,28 +105,35 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
                                     if (!featurelessJoins.isEmpty())
                                         featureMap.put(null, featurelessJoins);
                                     return featureMap.entrySet().stream()
-                                            .map(featureMapEntry -> featureMapEntry.getValue().stream()
-                                                    .map(diseaseEntityJoin -> {
-                                                        AnnotationDocument document = new AnnotationDocument();
-                                                        Gene gene = geneMapEntry.getKey();
-                                                        document.setGeneDocument(geneTranslator.translate(gene, 0));
-                                                        Feature feature = featureMapEntry.getKey();
-                                                        if (feature != null) {
-                                                            document.setFeatureDocument(featureTranslator.translate(feature, 0));
-                                                        }
-                                                        document.setAssociationType(associationEntry.getKey());
-                                                        document.setSource(getSourceUrls(entity, gene.getSpecies()));
-                                                        Gene orthologyGene = diseaseEntityJoin.getOrthologyGene();
-                                                        if (orthologyGene != null) {
-                                                            document.setOrthologyGeneDocument(geneTranslator.translate(orthologyGene, 0));
-                                                            SourceDoclet doclet = new SourceDoclet();
-                                                            doclet.setName(featureMapEntry.getValue().get(0).getDataProvider());
-                                                            document.setSource(doclet);
-                                                        }
-                                                        document.setPublications(publicationDocletTranslator.getPublicationDoclets(featureMapEntry.getValue()));
-                                                        return document;
-                                                    })
-                                                    .collect(Collectors.toSet()))
+                                            .map(featureMapEntry -> {
+                                                // group by ortho Gene so all sources / pubs for no ortho gene are collated into a single annotation doc
+                                                // each ortho gene record should be a single annotation
+                                                Map<Optional<Gene>, List<DiseaseEntityJoin>> orthoMap = featureMapEntry.getValue().stream()
+                                                        .collect(groupingBy(diseaseEntityJoin -> Optional.ofNullable(diseaseEntityJoin.getOrthologyGene())));
+
+                                                return orthoMap.entrySet().stream()
+                                                        .map(orthoEntry -> {
+                                                            AnnotationDocument document = new AnnotationDocument();
+                                                            Gene gene = geneMapEntry.getKey();
+                                                            document.setGeneDocument(geneTranslator.translate(gene, 0));
+                                                            Feature feature = featureMapEntry.getKey();
+                                                            if (feature != null) {
+                                                                document.setFeatureDocument(featureTranslator.translate(feature, 0));
+                                                            }
+                                                            document.setAssociationType(associationEntry.getKey());
+                                                            document.setSource(getSourceUrls(entity, gene.getSpecies()));
+                                                            if (orthoEntry.getKey().isPresent()) {
+                                                                Gene orthologyGene = orthoEntry.getKey().get();
+                                                                document.setOrthologyGeneDocument(geneTranslator.translate(orthologyGene, 0));
+                                                                SourceDoclet doclet = new SourceDoclet();
+                                                                doclet.setName(orthoEntry.getValue().get(0).getDataProvider());
+                                                                document.setSource(doclet);
+                                                            }
+                                                            document.setPublications(publicationDocletTranslator.getPublicationDoclets(orthoEntry.getValue()));
+                                                            return document;
+                                                        })
+                                                        .collect(Collectors.toSet());
+                                            })
                                             .flatMap(Collection::stream)
                                             .collect(Collectors.toList());
                                 })

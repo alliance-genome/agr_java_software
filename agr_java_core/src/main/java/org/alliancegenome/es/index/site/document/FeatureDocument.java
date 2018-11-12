@@ -48,4 +48,9 @@ public class FeatureDocument extends SearchableItemDocument {
         if (symbol != null)
             searchSymbol = symbol.replaceAll("<[^>]*>", " ");
     }
+
+    @Override
+    public String toString() {
+        return primaryKey + ":" + symbol;
+    }
 }
