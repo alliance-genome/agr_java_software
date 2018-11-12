@@ -72,7 +72,7 @@ public class FeatureTranslator extends EntityDocumentTranslator<Feature, Feature
             featureDocument.setPhenotypeStatements(
                     entity.getPhenotypes().stream()
                             .map(Phenotype::getPhenotypeStatement)
-                            .collect(Collectors.toList()));
+                            .collect(Collectors.toSet()));
 
         }
 
