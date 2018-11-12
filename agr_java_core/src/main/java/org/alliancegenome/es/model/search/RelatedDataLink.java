@@ -10,5 +10,6 @@ public class RelatedDataLink {
     private String targetField;
     private String sourceName;
     private Long count;
+    private String label;
 
 }
