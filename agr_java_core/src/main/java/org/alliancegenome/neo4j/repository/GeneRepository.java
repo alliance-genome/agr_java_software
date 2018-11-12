@@ -52,14 +52,12 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         query += " OPTIONAL MATCH p12=(g:Gene)--(s:DiseaseEntityJoin)--(orthoGene:Gene)";
         query += " OPTIONAL MATCH p2=(do:DOTerm)--(s:DiseaseEntityJoin)-[:EVIDENCE]-(ea)";
         query += " OPTIONAL MATCH p4=(g:Gene)--(s:OrthologyGeneJoin)--(a:OrthoAlgorithm), p3=(g)-[o:ORTHOLOGOUS]-(g2:Gene)-[:FROM_SPECIES]-(q2:Species), (s)--(g2)";
-        query += " OPTIONAL MATCH p6=(g:Gene)--(s:PhenotypeEntityJoin)--(tt) ";
-        query += " OPTIONAL MATCH p8=(g:Gene)--(s:PhenotypeEntityJoin)--(ff:Feature)";
-        query += " OPTIONAL MATCH p10=(g:Gene)--(s:BioEntityGeneExpressionJoin)--(t) ";
-        query += " RETURN p1, p2, p3, p4, p5, p6, p8, p10, p12";
+        query += " RETURN p1, p2, p3, p4, p5, p12";
 
         Iterable<Gene> genes = query(query, map);
         for (Gene g : genes) {
             if (g.getPrimaryKey().equals(primaryKey)) {
+                addPhenotypeListToGene(g);
                 addGOListsToGene(g);
                 addExpressionListsToGene(g);
                 return g;
@@ -69,6 +67,12 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         return null;
     }
 
+
+    private void addPhenotypeListToGene(Gene gene) {
+        String query = "MATCH (gene:Gene)--(phenotype:Phenotype) WHERE gene.primaryKey={primaryKey} " +
+                "RETURN phenotype.phenotypeStatement";
+        gene.setPhenotypeStatements(getSetForGene(query, "phenotype.phenotypeStatement", gene.getPrimaryKey()));
+    }
 
     private void addGOListsToGene(Gene gene) {
         String query = "MATCH (q:Species)-[:FROM_SPECIES]-(g:Gene)--(term:GOTerm) " +
@@ -172,17 +176,6 @@ public class GeneRepository extends Neo4jRepository<Gene> {
             }
         }
     }
-
-    public Set<String> getGoTermsWithParents(String primaryKey) {
-        return getSetForGene(" MATCH (q:Species)-[:FROM_SPECIES]-(g:Gene)--(term:Ontology)-[:IS_A|PART_OF*]->(parentTerm:Ontology) " +
-                "WHERE g.primaryKey = {primaryKey}  RETURN distinct parentTerm.name ","parentTerm.name", primaryKey);
-    }
-
-    public Set<String> getDirectGoTermNames(String primaryKey) {
-        return getSetForGene(" MATCH (q:Species)-[:FROM_SPECIES]-(g:Gene)--(term:Ontology)-[:IS_A|PART_OF*]->(parentTerm:Ontology) " +
-                "WHERE g.primaryKey = {primaryKey}  RETURN distinct term.name", "term.name", primaryKey);
-    }
-
 
 
     private Set<String> getSetForGene(String query, String returnField, String primaryKey) {
