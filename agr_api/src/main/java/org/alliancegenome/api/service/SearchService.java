@@ -234,7 +234,6 @@ public class SearchService {
                 links.add(getRelatedDataLink("gene", "cellularComponentWithParents", nameKey));
                 links.add(getRelatedDataLink("gene", "cellularComponentExpressionWithParents", nameKey, "Gene via Expression"));
             }
-            // need to handle the possible different fields, maybe link to more than one for CC terms
         }
 
         //only keep the non-zero links
@@ -246,6 +245,7 @@ public class SearchService {
     }
 
     public RelatedDataLink getRelatedDataLink(String targetCategory, String targetField, String sourceName, String label) {
+
         MultivaluedMap<String,String> filters = new MultivaluedHashMap<>();
 
         filters.add(targetField, sourceName);
@@ -257,6 +257,7 @@ public class SearchService {
         relatedDataLink.setTargetField(targetField);
         relatedDataLink.setSourceName(sourceName);
         relatedDataLink.setCount(count);
+
         relatedDataLink.setLabel(label);
 
         return relatedDataLink;
