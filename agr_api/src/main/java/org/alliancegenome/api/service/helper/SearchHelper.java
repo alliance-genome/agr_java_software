@@ -204,6 +204,8 @@ public class SearchHelper {
 
 
     public boolean filterIsValid(String category, String fieldName) {
+        if (searchFields.contains(fieldName)) { return true; }
+
         if (!category_filters.containsKey(category)) { return false; }
 
         List<String> fields = category_filters.get(category);

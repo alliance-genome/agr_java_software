@@ -223,8 +223,17 @@ public class SearchService {
             links.add(getRelatedDataLink("gene", "diseasesViaExperiment.name", nameKey));
             links.add(getRelatedDataLink("allele", "diseaseDocuments.name", nameKey));
         } else if (StringUtils.equals(category, "allele")) {
-            // none yet
+            links.add(getRelatedDataLink("gene", "alleles.name", nameKey));
         } else if (StringUtils.equals(category,"go")) {
+            String goType = (String) result.get("go_type");
+            if (StringUtils.equals(goType, "biological_process")) {
+                links.add(getRelatedDataLink("gene", "biologicalProcessWithParents", nameKey));
+            } else if (StringUtils.equals(goType, "molecular_function")) {
+                links.add(getRelatedDataLink("gene", "molecularFunctionWithParents", nameKey));
+            } else if (StringUtils.equals(goType, "cellular_component")) {
+                links.add(getRelatedDataLink("gene", "cellularComponentWithParents", nameKey));
+                links.add(getRelatedDataLink("gene", "cellularComponentExpressionWithParents", nameKey, "Gene via Expression"));
+            }
             // need to handle the possible different fields, maybe link to more than one for CC terms
         }
 
@@ -233,6 +242,10 @@ public class SearchService {
     }
 
     public RelatedDataLink getRelatedDataLink(String targetCategory, String targetField, String sourceName) {
+        return getRelatedDataLink(targetCategory, targetField, sourceName, null);
+    }
+
+    public RelatedDataLink getRelatedDataLink(String targetCategory, String targetField, String sourceName, String label) {
         MultivaluedMap<String,String> filters = new MultivaluedHashMap<>();
 
         filters.add(targetField, sourceName);
@@ -244,6 +257,7 @@ public class SearchService {
         relatedDataLink.setTargetField(targetField);
         relatedDataLink.setSourceName(sourceName);
         relatedDataLink.setCount(count);
+        relatedDataLink.setLabel(label);
 
         return relatedDataLink;
     }
