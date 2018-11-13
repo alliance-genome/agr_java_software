@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import org.alliancegenome.core.service.OrthologyService;
 import org.alliancegenome.core.translators.document.GeneTranslator;
+import org.alliancegenome.es.index.site.cache.GeneDocumentCache;
 import org.alliancegenome.neo4j.entity.node.*;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.alliancegenome.neo4j.repository.GoRepository;
@@ -29,6 +30,8 @@ public class GeneTest {
         Gene gene = null;
         gene = repo.getOneGene("MGI:104798");
         GeneDocument geneDocument = trans.translate(gene);
+
+        GeneDocumentCache geneDocumentCache = repo.getGeneDocumentCache();
 
         List<BioEntityGeneExpressionJoin> expressionJoinList = repo.getExpressionAnnotations(gene);
 

@@ -1,6 +1,7 @@
 package org.alliancegenome.indexer.indexers;
 
 import org.alliancegenome.core.translators.document.GeneTranslator;
+import org.alliancegenome.es.index.site.cache.GeneDocumentCache;
 import org.alliancegenome.es.index.site.document.GeneDocument;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.neo4j.entity.node.Gene;
@@ -15,6 +16,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 public class GeneIndexer extends Indexer<GeneDocument> {
 
     private final Logger log = LogManager.getLogger(getClass());
+    private GeneDocumentCache geneDocumentCache;
 
     public GeneIndexer(IndexerConfig config) {
         super(config);
@@ -48,7 +50,9 @@ public class GeneIndexer extends Indexer<GeneDocument> {
                 }
                 if (queue.isEmpty()) {
                     if (list.size() > 0) {
-                        saveDocuments(geneTrans.translateEntities(list));
+                        Iterable<GeneDocument> geneDocuments = geneTrans.translateEntities(list);
+                        geneDocumentCache.addCachedFields(geneDocuments);
+                        saveDocuments(geneDocuments);
                         repo.clearCache();
                         list.clear();
                     }
@@ -57,6 +61,8 @@ public class GeneIndexer extends Indexer<GeneDocument> {
 
                 String key = queue.takeFirst();
                 Gene gene = repo.getOneGene(key);
+
+
                 if (gene != null)
                     list.add(gene);
                 else
