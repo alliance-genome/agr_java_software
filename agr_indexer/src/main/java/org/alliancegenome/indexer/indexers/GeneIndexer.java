@@ -29,7 +29,14 @@ public class GeneIndexer extends Indexer<GeneDocument> {
             LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>();
             GeneRepository geneRepo = new GeneRepository();
             geneDocumentCache = geneRepo.getGeneDocumentCache();
-            List<String> fulllist = geneRepo.getAllGeneKeys("Danio rerio");
+
+            List<String> fulllist;
+            if (System.getProperty("SPECIES") != null) {
+                fulllist = geneRepo.getAllGeneKeys(System.getProperty("SPECIES"));
+            } else {
+                fulllist = geneRepo.getAllGeneKeys();
+            }
+
             queue.addAll(fulllist);
             geneRepo.clearCache();
             initiateThreading(queue);
