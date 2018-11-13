@@ -29,7 +29,7 @@ public class GeneIndexer extends Indexer<GeneDocument> {
             LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>();
             GeneRepository geneRepo = new GeneRepository();
             geneDocumentCache = geneRepo.getGeneDocumentCache();
-            List<String> fulllist = geneRepo.getAllGeneKeys();
+            List<String> fulllist = geneRepo.getAllGeneKeys("Danio rerio");
             queue.addAll(fulllist);
             geneRepo.clearCache();
             initiateThreading(queue);
@@ -61,7 +61,7 @@ public class GeneIndexer extends Indexer<GeneDocument> {
                 }
 
                 String key = queue.takeFirst();
-                Gene gene = repo.getOneGene(key);
+                Gene gene = repo.getIndexableGene(key);
 
 
                 if (gene != null)

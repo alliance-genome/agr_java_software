@@ -42,6 +42,43 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         super(Gene.class);
     }
 
+
+
+
+    /*
+        query += " MATCH p1=(q:Species)-[:FROM_SPECIES]-(g:Gene) WHERE g.primaryKey = {primaryKey}";
+        query += " OPTIONAL MATCH pSyn=(g:Gene)-[:ALSO_KNOWN_AS]-(:Synonym) ";
+        query += " OPTIONAL MATCH pCR=(g:Gene)-[:CROSS_REFERENCE]-(:CrossReference)";
+        query += " OPTIONAL MATCH pChr=(g:Gene)-[:LOCATED_ON]-(:Chromosome)";
+
+     */
+
+    public Gene getIndexableGene(String primaryKey) {
+        HashMap<String, String> map = new HashMap<>();
+
+        map.put("primaryKey", primaryKey);
+        String query = "";
+
+        query += " MATCH p1=(q:Species)-[:FROM_SPECIES]-(g:Gene) WHERE g.primaryKey = {primaryKey}";
+        query += " OPTIONAL MATCH pSyn=(g:Gene)-[:ALSO_KNOWN_AS]-(:Synonym) ";
+        query += " OPTIONAL MATCH pCR=(g:Gene)-[:CROSS_REFERENCE]-(:CrossReference)";
+        query += " OPTIONAL MATCH pChr=(g:Gene)-[:LOCATED_ON]-(:Chromosome)";
+        query += " RETURN p1, pSyn, pCR, pChr";
+
+        Iterable<Gene> genes = query(query, map);
+        for (Gene g : genes) {
+            if (g.getPrimaryKey().equals(primaryKey)) {
+//                addPhenotypeListToGene(g);
+//                addGOListsToGene(g);
+//                addExpressionListsToGene(g);
+                return g;
+            }
+        }
+
+        return null;
+    }
+
+
     public Gene getOneGene(String primaryKey) {
         HashMap<String, String> map = new HashMap<>();
 
@@ -53,7 +90,10 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         query += " OPTIONAL MATCH p12=(g:Gene)--(s:DiseaseEntityJoin)--(orthoGene:Gene)";
         query += " OPTIONAL MATCH p2=(do:DOTerm)--(s:DiseaseEntityJoin)-[:EVIDENCE]-(ea)";
         query += " OPTIONAL MATCH p4=(g:Gene)--(s:OrthologyGeneJoin)--(a:OrthoAlgorithm), p3=(g)-[o:ORTHOLOGOUS]-(g2:Gene)-[:FROM_SPECIES]-(q2:Species), (s)--(g2)";
-        query += " RETURN p1, p2, p3, p4, p5, p12";
+        query += " OPTIONAL MATCH p6=(g:Gene)--(s:PhenotypeEntityJoin)--(tt) ";
+        query += " OPTIONAL MATCH p8=(g:Gene)--(s:PhenotypeEntityJoin)--(ff:Feature)";
+        query += " OPTIONAL MATCH p10=(g:Gene)--(s:BioEntityGeneExpressionJoin)--(t) ";
+        query += " RETURN p1, p2, p3, p4, p5, p6, p8, p10, p12";
 
         Iterable<Gene> genes = query(query, map);
         for (Gene g : genes) {
@@ -636,6 +676,19 @@ public class GeneRepository extends Neo4jRepository<Gene> {
 
     public List<String> getAllGeneKeys() {
         String query = "MATCH (g:Gene)-[:FROM_SPECIES]-(q:Species) RETURN distinct g.primaryKey";
+        Result r = queryForResult(query);
+        Iterator<Map<String, Object>> i = r.iterator();
+        ArrayList<String> list = new ArrayList<>();
+
+        while (i.hasNext()) {
+            Map<String, Object> map2 = i.next();
+            list.add((String) map2.get("g.primaryKey"));
+        }
+        return list;
+    }
+
+    public List<String> getAllGeneKeys(String speciesName) {
+        String query = "MATCH (g:Gene)-[:FROM_SPECIES]-(species:Species) WHERE species.name = 'Danio rerio' RETURN distinct g.primaryKey";
         Result r = queryForResult(query);
         Iterator<Map<String, Object>> i = r.iterator();
         ArrayList<String> list = new ArrayList<>();
