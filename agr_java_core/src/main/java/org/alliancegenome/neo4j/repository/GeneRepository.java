@@ -58,9 +58,9 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         Iterable<Gene> genes = query(query, map);
         for (Gene g : genes) {
             if (g.getPrimaryKey().equals(primaryKey)) {
-                addPhenotypeListToGene(g);
-                addGOListsToGene(g);
-                addExpressionListsToGene(g);
+//                addPhenotypeListToGene(g);
+//                addGOListsToGene(g);
+//                addExpressionListsToGene(g);
                 return g;
             }
         }
@@ -71,9 +71,9 @@ public class GeneRepository extends Neo4jRepository<Gene> {
     public GeneDocumentCache getGeneDocumentCache() {
         GeneDocumentCache geneDocumentCache = new GeneDocumentCache();
 
-        geneDocumentCache.setPhenotypeStatements(getPhenotypeStatementMap());
-        addGOListsToGeneDocumentCache(geneDocumentCache);
-        addExpressionListsToGeneDocumentCache(geneDocumentCache);
+        //geneDocumentCache.setPhenotypeStatements(getPhenotypeStatementMap());
+        //addGOListsToGeneDocumentCache(geneDocumentCache);
+        //addExpressionListsToGeneDocumentCache(geneDocumentCache);
 
         return geneDocumentCache;
     }
