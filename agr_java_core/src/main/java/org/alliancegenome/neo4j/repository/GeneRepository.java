@@ -54,17 +54,26 @@ public class GeneRepository extends Neo4jRepository<Gene> {
      */
 
     public Iterable<Gene> getAllIndexableGenes(String species) {
+
+        HashMap<String, String> map = new HashMap<>();
+        map.put("species", species);
+
         String query = "";
-        query += " MATCH p1=(q:Species)-[:FROM_SPECIES]-(g:Gene) ";
+        query += " MATCH p1=(species:Species)-[:FROM_SPECIES]-(g:Gene) ";
         if (species != null) {
-            query += " WHERE species = {species}";
+            query += " WHERE species.name = {species}";
         }
         query += " OPTIONAL MATCH pSyn=(g:Gene)-[:ALSO_KNOWN_AS]-(:Synonym) ";
         query += " OPTIONAL MATCH pCR=(g:Gene)-[:CROSS_REFERENCE]-(:CrossReference)";
         query += " OPTIONAL MATCH pChr=(g:Gene)-[:LOCATED_ON]-(:Chromosome)";
         query += " RETURN p1, pSyn, pCR, pChr";
 
-        return query(query);
+        if (species != null) {
+            return query(query, map);
+        } else {
+            return query(query);
+        }
+
     }
 
     public Gene getIndexableGene(String primaryKey) {
