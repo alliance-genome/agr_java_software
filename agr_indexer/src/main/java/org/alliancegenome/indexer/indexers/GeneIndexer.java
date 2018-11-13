@@ -28,7 +28,7 @@ public class GeneIndexer extends Indexer<GeneDocument> {
         try {
             LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>();
             GeneRepository geneRepo = new GeneRepository();
-            geneDocumentCache = geneRepo.getGeneDocumentCache();
+/*            geneDocumentCache = geneRepo.getGeneDocumentCache();
 
             List<String> fulllist;
             if (System.getProperty("SPECIES") != null) {
@@ -38,7 +38,7 @@ public class GeneIndexer extends Indexer<GeneDocument> {
             }
 
             queue.addAll(fulllist);
-            geneRepo.clearCache();
+            geneRepo.clearCache();*/
             initiateThreading(queue);
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -46,6 +46,30 @@ public class GeneIndexer extends Indexer<GeneDocument> {
     }
 
     protected void startSingleThread(LinkedBlockingDeque<String> queue) {
+        GeneRepository geneRepository = new GeneRepository();
+        GeneTranslator geneTrans = new GeneTranslator();
+
+        Iterable<Gene> genes;
+
+        if (System.getProperty("SPECIES") != null) {
+            String species = System.getProperty("SPECIES");
+            log.info("Pulling all genes for " + species);
+            genes = geneRepository.getAllIndexableGenes(species);
+            log.info("Done pulling genes");
+        } else {
+            genes = geneRepository.getAllIndexableGenes(null);
+        }
+
+        String species = System.getProperty("SPECIES");
+
+        log.info("Translating");
+        Iterable<GeneDocument> docs = geneTrans.translateEntities(genes);
+        log.info("Done translating");
+        log.info("Saving docs");
+        saveDocuments(docs);
+    }
+
+    protected void startSingleThreadOneAtATime(LinkedBlockingDeque<String> queue) {
         ArrayList<Gene> list = new ArrayList<>();
         GeneRepository repo = new GeneRepository();
         GeneTranslator geneTrans = new GeneTranslator();
