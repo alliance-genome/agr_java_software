@@ -28,6 +28,7 @@ public class GeneIndexer extends Indexer<GeneDocument> {
         try {
             LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>();
             GeneRepository geneRepo = new GeneRepository();
+            geneDocumentCache = geneRepo.getGeneDocumentCache();
             List<String> fulllist = geneRepo.getAllGeneKeys();
             queue.addAll(fulllist);
             geneRepo.clearCache();
