@@ -153,7 +153,7 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         query += " RETURN distinct gene.primaryKey, phenotype.phenotypeStatement ";
         Map<String,String> params = null;
         if (StringUtils.isNotEmpty(species)) {
-            params = new HashMap<String,String>() {{ put("species.name", species); }};
+            params = new HashMap<String,String>() {{ put("species", species); }};
         }
         return getMapSetForQuery(query, "gene.primaryKey", "phenotype.phenotypeStatement", params);
     }
