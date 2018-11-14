@@ -23,6 +23,7 @@ import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.entity.node.Ontology;
 import org.alliancegenome.neo4j.entity.node.UBERONTerm;
 import org.alliancegenome.neo4j.view.OrthologyFilter;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -121,9 +122,9 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         Iterable<Gene> genes = query(query, map);
         for (Gene g : genes) {
             if (g.getPrimaryKey().equals(primaryKey)) {
-//                addPhenotypeListToGene(g);
-//                addGOListsToGene(g);
-//                addExpressionListsToGene(g);
+                addPhenotypeListToGene(g);
+                addGOListsToGene(g);
+                addExpressionListsToGene(g);
                 return g;
             }
         }
@@ -132,19 +133,29 @@ public class GeneRepository extends Neo4jRepository<Gene> {
     }
 
     public GeneDocumentCache getGeneDocumentCache() {
-        GeneDocumentCache geneDocumentCache = new GeneDocumentCache();
+        return getGeneDocumentCache(null);
+    }
 
-        //geneDocumentCache.setPhenotypeStatements(getPhenotypeStatementMap());
+    public GeneDocumentCache getGeneDocumentCache(String species) {
+        GeneDocumentCache geneDocumentCache = new GeneDocumentCache();
+        geneDocumentCache.setPhenotypeStatements(getPhenotypeStatementMap(species));
         //addGOListsToGeneDocumentCache(geneDocumentCache);
         //addExpressionListsToGeneDocumentCache(geneDocumentCache);
 
         return geneDocumentCache;
     }
 
-    private Map<String,Set<String>> getPhenotypeStatementMap() {
-        String query = "MATCH (gene:Gene)--(phenotype:Phenotype) " +
-                "RETURN distinct gene.primaryKey, phenotype.phenotypeStatement";
-        return getMapSetForQuery(query, "gene.primaryKey", "phenotype.phenotypeStatement");
+    private Map<String,Set<String>> getPhenotypeStatementMap(String species) {
+        String query = "MATCH (species:Species)--(gene:Gene)--(phenotype:Phenotype) ";
+        if (StringUtils.isNotEmpty(species)) {
+            query += " WHERE species.name = {species} ";
+        }
+        query += " RETURN distinct gene.primaryKey, phenotype.phenotypeStatement ";
+        Map<String,String> params = null;
+        if (StringUtils.isNotEmpty(species)) {
+            params = new HashMap<String,String>() {{ put("species.name", species); }};
+        }
+        return getMapSetForQuery(query, "gene.primaryKey", "phenotype.phenotypeStatement", params);
     }
 
     private void addPhenotypeListToGene(Gene gene) {
@@ -373,11 +384,19 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         }
     }
 
-    private Map<String, Set<String>> getMapSetForQuery(String query, String keyField, String returnField) {
+    private Map<String, Set<String>> getMapSetForQuery(String query, String keyField,
+                                                       String returnField, Map<String,String> params) {
 
-        Map<String, Set<String>> map = new HashMap<>();
+        Map<String, Set<String>> returnMap = new HashMap<>();
 
-        Result r = queryForResult(query);
+        Result r;
+
+        if (params == null) {
+            r = queryForResult(query);
+        } else {
+            r = queryForResult(query, params);
+        }
+
         Iterator<Map<String, Object>> i = r.iterator();
 
         while (i.hasNext()) {
@@ -385,12 +404,13 @@ public class GeneRepository extends Neo4jRepository<Gene> {
             String key = (String) resultMap.get(keyField);
             String value = (String) resultMap.get(returnField);
 
-            if (map.get(key) == null) { map.put(key, new HashSet<>()); }
-            map.get(key).add(value);
+            returnMap.computeIfAbsent(key, x -> new HashSet<>());
+            returnMap.get(key).add(value);
         }
 
-        return map;
+        return returnMap;
     }
+
 
     private Set<String> getSetForGene(String query, String returnField, String primaryKey) {
 
