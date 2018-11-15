@@ -362,8 +362,8 @@ public class GeneRepository extends Neo4jRepository<Gene> {
             String relationshipType = resultMap.get("TYPE(r)") == null ? null : resultMap.get("TYPE(r)").toString();
             String term = resultMap.get("term.name") == null ? null : resultMap.get("term.name").toString();
             String parent = resultMap.get("parent.name") == null ? null : resultMap.get("parent.name").toString();
-
-            gene.getWhereExpressed().add(resultMap.get("ebe.whereExpressedStatement").toString());
+            String whereExpressed = resultMap.get("ebe.whereExpressedStatement") == null ? null : resultMap.get("ebe.whereExpressedStatement").toString();
+            gene.getWhereExpressed().add(whereExpressed);
 
             if (StringUtils.equals(relationshipType,"CELLULAR_COMPONENT_RIBBON_TERM") && StringUtils.isNotEmpty(term)) {
                 gene.getCellularComponentExpressionAgrSlim().add(term);
