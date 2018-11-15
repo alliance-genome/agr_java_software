@@ -1,20 +1,15 @@
 package org.alliancegenome.api.service;
 
-import java.util.List;
-import java.util.Map;
-
-import javax.enterprise.context.RequestScoped;
-
-import org.alliancegenome.core.translators.document.GeneTranslator;
 import org.alliancegenome.es.index.site.dao.GeneDAO;
-import org.alliancegenome.es.index.site.document.GeneDocument;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.es.model.search.SearchApiResponse;
 import org.alliancegenome.es.util.SearchHitIterator;
-import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
-import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.alliancegenome.neo4j.repository.InteractionRepository;
+
+import javax.enterprise.context.RequestScoped;
+import java.util.List;
+import java.util.Map;
 
 @RequestScoped
 public class GeneService {
