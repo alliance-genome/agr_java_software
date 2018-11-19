@@ -23,6 +23,7 @@ public class PhenotypeAnnotationDocument extends SearchableItemDocument implemen
     private GeneDocument geneDocument;
     private FeatureDocument featureDocument;
     private List<PublicationDoclet> publications;
+    private String geneticEntity;
 
     @JsonIgnore
     public String getDocumentId() {

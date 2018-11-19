@@ -1,14 +1,8 @@
 package org.alliancegenome.indexer.indexers;
 
-import java.net.InetAddress;
-import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.TimeUnit;
-
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.es.index.ESDocument;
 import org.alliancegenome.indexer.config.IndexerConfig;
@@ -21,9 +15,18 @@ import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.xpack.client.PreBuiltXPackTransportClient;
 
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.File;
+import java.net.InetAddress;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 public abstract class Indexer<D extends ESDocument> extends Thread {
 
@@ -39,6 +42,8 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
     private Date startTime = new Date();
     private Date lastTime = new Date();
     private int lastSize;
+    private long batchTotalSize = 0;
+    private long batchCount = 0;
 
     public Indexer(IndexerConfig indexerConfig) {
         this.indexerConfig = indexerConfig;
@@ -47,9 +52,9 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
 
         try {
             client = new PreBuiltXPackTransportClient(Settings.EMPTY);
-            if(ConfigHelper.getEsHost().contains(",")) {
+            if (ConfigHelper.getEsHost().contains(",")) {
                 String[] hosts = ConfigHelper.getEsHost().split(",");
-                for(String host: hosts) {
+                for (String host : hosts) {
                     client.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(host), ConfigHelper.getEsPort()));
                 }
             } else {
@@ -94,6 +99,8 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
                     String json = om.writeValueAsString(doc);
                     //log.debug("JSON: " + json);
                     bulkRequest.add(client.prepareIndex(Indexer.indexName, indexerConfig.getTypeName()).setSource(json, XContentType.JSON).setId(doc.getDocumentId()));
+                    batchTotalSize += json.length();
+                    batchCount += 1;
                 } catch (JsonProcessingException e) {
                     e.printStackTrace();
                 }
@@ -125,15 +132,26 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
         long diff = now.getTime() - startTime.getTime();
         long time = (now.getTime() - lastTime.getTime());
         int processedAmount = (lastSize - currentSize);
-        String message = "" + getBigNumber(totalDocAmount - currentSize) + " records [" + getBigNumber(totalDocAmount) + "] " + (int) (percent * 100) + "% took: " + (time / 1000) + "s to process " + processedAmount + " records at a rate of: " + ((processedAmount * 1000) / time) + "r/s";
+        String message = "" + getBigNumber(totalDocAmount - currentSize) + " records [" + getBigNumber(totalDocAmount) + "] ";
+        message += (int) (percent * 100) + "% took: " + (time / 1000) + "s to process " + processedAmount;
+
+        int batchAvg = 0;
+        if (batchCount > 0) {
+            batchAvg = (int) (batchTotalSize / batchCount);
+        }
+        message += " rate: " + ((processedAmount * 1000) / time) + "r/s ABS: " + batchAvg;
+
         if (percent > 0) {
             int perms = (int) (diff / percent);
             Date end = new Date(startTime.getTime() + perms);
-            message += ", Memory: " + df.format(memoryPercent() * 100) + "%, Estimated Finish: " + end;
+            String expectedDuration = getHumanReadableTimeDisplay(end.getTime() - (new Date()).getTime());
+            message += ", Memory: " + df.format(memoryPercent() * 100) + "%, ETA: " + expectedDuration + " [" + end + "]";
         }
         log.info(message);
         lastSize = currentSize;
         lastTime = now;
+        batchCount = 0;
+        batchTotalSize = 0;
     }
 
     // Used to show progress when using batches
@@ -143,20 +161,20 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
     }
 
     // Used to show progress when using batches
-    protected void progress(int currentBatch, int totalBatches, int processedAmount) {
-        double percent = ((double) currentBatch / (double) totalBatches);
-        Date now = new Date();
-        long diff = now.getTime() - startTime.getTime();
-        long time = (now.getTime() - lastTime.getTime());
-        if (percent > 0) {
-            int perms = (int) (diff / percent);
-            Date end = new Date(startTime.getTime() + perms);
-            log.info("Batch: " + currentBatch + " of " + totalBatches + " took: " + time + "ms to process " + processedAmount + " records at a rate of: " + ((processedAmount * 1000) / time) + "r/s, Memory: " + df.format(memoryPercent() * 100) + "%, Percentage complete: " + (int) (percent * 100) + "%, Estimated Finish: " + end);
-        } else {
-            log.info("Batch: " + currentBatch + " of " + totalBatches + " took: " + time + "ms to process " + processedAmount + " records at a rate of: " + ((processedAmount * 1000) / time) + "r/s");
-        }
-        lastTime = now;
-    }
+//  protected void progress(int currentBatch, int totalBatches, int processedAmount) {
+//      double percent = ((double) currentBatch / (double) totalBatches);
+//      Date now = new Date();
+//      long diff = now.getTime() - startTime.getTime();
+//      long time = (now.getTime() - lastTime.getTime());
+//      if (percent > 0) {
+//          int perms = (int) (diff / percent);
+//          Date end = new Date(startTime.getTime() + perms);
+//          log.info("Batch: " + currentBatch + " of " + totalBatches + " took: " + time + "ms to process " + processedAmount + " records at a rate of: " + ((processedAmount * 1000) / time) + "r/s, Memory: " + df.format(memoryPercent() * 100) + "%, Percentage complete: " + (int) (percent * 100) + "%, Estimated Finish: " + end);
+//      } else {
+//          log.info("Batch: " + currentBatch + " of " + totalBatches + " took: " + time + "ms to process " + processedAmount + " records at a rate of: " + ((processedAmount * 1000) / time) + "r/s");
+//      }
+//      lastTime = now;
+//  }
 
     private void finishProcess(int totalDocAmount) {
         Date now = new Date();
@@ -194,7 +212,7 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
         Integer numberOfThreads = indexerConfig.getThreadCount();
 
         List<Thread> threads = new ArrayList<Thread>();
-        for(int i = 0; i < numberOfThreads; i++) {
+        for (int i = 0; i < numberOfThreads; i++) {
             Thread t = new Thread(new Runnable() {
                 public void run() {
                     startSingleThread(queue);
@@ -207,12 +225,12 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
         int total = queue.size();
         startProcess(total);
 
-        while(queue.size() > 0) {
+        while (queue.size() > 0) {
             TimeUnit.SECONDS.sleep(60);
             progress(queue.size(), total);
         }
 
-        for(Thread t: threads) {
+        for (Thread t : threads) {
             t.join();
         }
 
@@ -220,5 +238,28 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
     }
 
     protected abstract void startSingleThread(LinkedBlockingDeque<String> queue);
+
+    // cache variables
+    private List<String> entityIdList = new ArrayList<>();
+
+    boolean isEntitySubset(String key) {
+        return !entityIdList.isEmpty() && entityIdList.contains(key);
+    }
+
+    void readIndexFile() {
+        String fileNamePrefix = indexerConfig.getTypeName();
+        ClassLoader classloader = Thread.currentThread().getContextClassLoader();
+        String fileName = fileNamePrefix + "-index.txt";
+        try {
+            File file = new File(classloader.getResource(fileName).getFile());
+            if (file.exists()) {
+                entityIdList = Files.lines(Paths.get(file.toURI()))
+                        .collect(Collectors.toList());
+                System.out.println("Use entity file " + file.getAbsolutePath());
+            }
+        } catch (Exception e) {
+            log.warn("Error while reading index file: " + fileName);
+        }
+    }
 
 }

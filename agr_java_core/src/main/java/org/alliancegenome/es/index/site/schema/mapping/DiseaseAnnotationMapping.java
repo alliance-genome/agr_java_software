@@ -17,7 +17,7 @@ public class DiseaseAnnotationMapping extends Mapping {
             builder.startObject("properties");
 
             buildSharedSearchableDocumentMappings();
-            new FieldBuilder(builder,"associationType","text").symbol().autocomplete().keyword().standardText().build();
+
             new FieldBuilder(builder,"publications.pubModId","text").symbol().autocomplete().keyword().standardText().build();
             new FieldBuilder(builder,"publications.pubMedId","text").symbol().autocomplete().keyword().standardText().build();
             new FieldBuilder(builder,"source.species.name","text").symbol().autocomplete().keyword().standardText().sort().build();

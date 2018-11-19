@@ -15,10 +15,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 
-@Getter @Setter
+@Getter
+@Setter
 public class GeneDocument extends SearchableItemDocument {
 
     public static final String CATEGORY = "gene";
+
     {
         category = CATEGORY;
     }
@@ -46,7 +48,8 @@ public class GeneDocument extends SearchableItemDocument {
     private Map<String, List<CrossReferenceDoclet>> crossReferencesMap;
     private String dataProvider;
     private Date dateProduced;
-    private List<DiseaseDocument> diseases = new ArrayList<>();
+    private List<DiseaseDocument> diseasesViaExperiment = new ArrayList<>();
+    private List<DiseaseDocument> diseasesViaOrthology = new ArrayList<>();
     private List<PhenotypeDocument> phenotypes = new ArrayList<>();
     private String geneSynopsisUrl;
     private String primaryId;
@@ -60,17 +63,27 @@ public class GeneDocument extends SearchableItemDocument {
     private List<OrthologyDoclet> orthology;
     private List<String> strictOrthologySymbols;
     private String geneticEntityExternalUrl;
+    private List<String> whereExpressed;
+    private List<String> anatomicalExpression;         //uberon slim
+    private List<String> cellularComponentExpression;
+    private List<String> cellularComponentExpressionWithParents;
+    private List<String> cellularComponentExpressionAgrSlim;
 
     private String modCrossRefCompleteUrl;
     private String modLocalId;
     private String modGlobalCrossRefId;
     private String modGlobalId;
-    
+
     private List<FeatureDocument> alleles;
-    
+
     @Override
     @JsonIgnore
     public String getDocumentId() {
         return primaryId;
+    }
+
+    @Override
+    public String toString() {
+        return primaryId + ": " + symbol;
     }
 }

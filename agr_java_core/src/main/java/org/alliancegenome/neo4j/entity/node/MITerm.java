@@ -15,4 +15,8 @@ public class MITerm extends Ontology {
     private String primaryKey;
     @JsonView({View.InteractionView.class})
     private String label;
+    @JsonView({View.InteractionView.class})
+    private String definition;
+    @JsonView({View.InteractionView.class})
+    private String url;
 }

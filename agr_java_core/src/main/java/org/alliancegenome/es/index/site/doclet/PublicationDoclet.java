@@ -40,4 +40,9 @@ public class PublicationDoclet extends ESDoclet implements Comparable<Publicatio
         return pubModId;
 
     }
+
+    @Override
+    public String toString() {
+        return getPubId() + ':' + evidenceCodes;
+    }
 }

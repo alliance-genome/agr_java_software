@@ -148,9 +148,11 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
         String cypher = "MATCH p0=(disease:DOTerm)--(anyOtherNode) WHERE disease.primaryKey = {primaryKey}   " +
                 " OPTIONAL MATCH p1=(disease)--(anyOtherNode:DiseaseEntityJoin)-[:EVIDENCE]-(eq), p2=(anyOtherNode)--(g:Gene)-[:FROM_SPECIES]-(species:Species)" +
                 " OPTIONAL MATCH p4=(anyOtherNode:DiseaseEntityJoin)--(feature:Feature)" +
+                " OPTIONAL MATCH p6=(anyOtherNode:DiseaseEntityJoin)--(feature:Feature)--(crossRef:CrossReference)" +
+                " OPTIONAL MATCH p5=(anyOtherNode:DiseaseEntityJoin)--(orthoSpecies:Species)" +
                 " OPTIONAL MATCH slim=(disease)-[:IS_A*]->(slimTerm) " +
                 " where all (subset IN [{subset}] where subset in slimTerm.subset) " +
-                " RETURN p0, p1, p2, p4, slim";
+                " RETURN p0, p1, p2, p4, p5, p6, slim";
 
         HashMap<String, String> map = new HashMap<>();
         map.put("primaryKey", primaryKey);

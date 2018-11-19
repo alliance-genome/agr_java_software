@@ -4,8 +4,6 @@ import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.entity.node.OrthoAlgorithm;
-import org.alliancegenome.neo4j.entity.node.OrthologyGeneJoin;
-import org.alliancegenome.neo4j.entity.node.Species;
 import org.alliancegenome.neo4j.entity.relationship.Orthologous;
 import org.alliancegenome.neo4j.view.OrthologView;
 import org.alliancegenome.neo4j.view.OrthologyFilter;

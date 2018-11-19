@@ -41,11 +41,12 @@ public class SearchHelper {
                 {
                     add("species");
                     add("soTermName");
-                    add("diseases.name");
+                    add("diseasesViaExperiment.name");
                     add("biologicalProcessAgrSlim");
                     add("molecularFunctionAgrSlim");
                     add("cellularComponentAgrSlim");
-
+                    add("anatomicalExpression");
+                    add("cellularComponentExpressionAgrSlim");
                 }
             });
             put("go", new ArrayList<String>() {
@@ -115,7 +116,7 @@ public class SearchHelper {
             add("species"); add("species.synonyms"); add("modLocalId");
             add("biologicalProcessWithParents"); add("molecularFunctionWithParents"); add("cellularComponentWithParents");
             add("go_type"); add("go_genes"); add("go_synonyms");
-            add("disease_genes"); add("disease_synonyms"); add("diseases.name");
+            add("disease_genes"); add("disease_synonyms"); add("diseasesViaExperiment.name");
             //disease cross references:
             add("crossReferences.ontology_provided_cross_reference.name");
             add("crossReferences.ontology_provided_cross_reference.localId");
@@ -133,6 +134,11 @@ public class SearchHelper {
             add("phenotypeStatements");
             add("strictOrthologySymbols.autocomplete");
             add("strictOrthologySymbols.keyword");
+            add("whereExpressed"); add("whereExpressed.keyword");
+            add("anatomicalExpression"); add("anatomicalExpression.keyword");
+            add("cellularComponentExpression"); add("cellularComponentExpression.keyword");
+            add("cellularComponentExpressionWithParents"); add("cellularComponentExpressionWithParents.keyword");
+            add("cellularComponentExpressionAgrSlim"); add("cellularComponentExpressionAgrSlim.keyword");
         }
     };
 

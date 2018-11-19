@@ -39,6 +39,7 @@ public class DOTerm extends Neo4jEntity {
     private String zfinLink;
     private String humanLink;
     private String rgdLink;
+    private String sgdLink;
     private String ratOnlyRgdLink;
     private String humanOnlyRgdLink;
     private String wormbaseLink;
@@ -65,4 +66,8 @@ public class DOTerm extends Neo4jEntity {
     @Relationship(type = "CROSS_REFERENCE")
     private List<CrossReference> crossReferences;
 
+    @Override
+    public String toString() {
+        return primaryKey + ":"+name;
+    }
 }

@@ -36,4 +36,18 @@ public class Stage extends Neo4jEntity implements Comparable<Stage> {
     public int compareTo(Stage o) {
         return 0;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Stage stage = (Stage) o;
+        return Objects.equals(primaryKey, stage.primaryKey);
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(primaryKey);
+    }
 }

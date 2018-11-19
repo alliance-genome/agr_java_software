@@ -2,21 +2,22 @@ package org.alliancegenome.core.translators.document;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.alliancegenome.core.translators.EntityDocumentTranslator;
+import org.alliancegenome.core.translators.doclet.CrossReferenceDocletTranslator;
+import org.alliancegenome.es.index.site.doclet.CrossReferenceDoclet;
 import org.alliancegenome.es.index.site.document.DiseaseDocument;
 import org.alliancegenome.es.index.site.document.FeatureDocument;
-import org.alliancegenome.neo4j.entity.node.Feature;
-import org.alliancegenome.neo4j.entity.node.Phenotype;
-import org.alliancegenome.neo4j.entity.node.SecondaryId;
-import org.alliancegenome.neo4j.entity.node.Synonym;
+import org.alliancegenome.neo4j.entity.node.*;
 import org.apache.commons.collections4.CollectionUtils;
 
 public class FeatureTranslator extends EntityDocumentTranslator<Feature, FeatureDocument> {
 
     private static GeneTranslator geneTranslator = new GeneTranslator();
     private static DiseaseTranslator diseaseTranslator = new DiseaseTranslator();
+    private static CrossReferenceDocletTranslator crossReferenceDocletTranslator = new CrossReferenceDocletTranslator();
 
     @Override
     protected FeatureDocument entityToDocument(Feature entity, int translationDepth) {
@@ -31,7 +32,19 @@ public class FeatureTranslator extends EntityDocumentTranslator<Feature, Feature
         featureDocument.setRelease(entity.getRelease());
         featureDocument.setSymbol(entity.getSymbol());
         featureDocument.setName(entity.getSymbol());
-        featureDocument.setModCrossRefFullUrl(entity.getModCrossRefCompleteUrl());
+
+        if (entity.getCrossReferences() != null && entity.getCrossReferences().size() > 0) {
+            CrossReference allele = entity.getCrossReferences().stream()
+                    .filter(ref -> ref.getCrossRefType().equals("allele"))
+                    .findFirst().orElse(null);
+            if (allele != null) {
+                featureDocument.setModCrossRefFullUrl(allele.getCrossRefCompleteUrl());
+                List<CrossReferenceDoclet> crossRefDoclets = entity.getCrossReferences().stream()
+                        .map(crossReference -> crossReferenceDocletTranslator.translate(crossReference))
+                        .collect(Collectors.toList());
+                featureDocument.setCrossReferenceList(crossRefDoclets);
+            }
+        }
 
         if (translationDepth > 0) {
             if (entity.getGene().getSpecies() != null)

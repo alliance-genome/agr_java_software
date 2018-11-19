@@ -48,6 +48,9 @@ public class Feature extends Neo4jEntity implements Comparable<Feature> {
     @Relationship(type = "HAS_PHENOTYPE")
     private List<Phenotype> phenotypes = new ArrayList<>();
 
+    @Relationship(type = "CROSS_REFERENCE")
+    private List<CrossReference> crossReferences = new ArrayList<>();
+
     @Override
     public int compareTo(Feature o) {
         return 0;

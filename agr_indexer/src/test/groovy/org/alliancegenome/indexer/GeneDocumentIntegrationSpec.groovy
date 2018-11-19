@@ -39,6 +39,61 @@ class GeneDocumentIntegrationSpec extends Specification {
 
     }
 
+    @Unroll
+    def "GeneDocument for #geneID has expressionBioEntities #entities"() {
+        when:
+        Gene gene = repo.getOneGene(geneID)
+        GeneDocument geneDocument = trans.translate(gene)
+
+        then:
+        geneDocument
+        geneDocument.whereExpressed
+        geneDocument.whereExpressed.containsAll(entities)
+
+        where:
+        geneID                      | entities
+        "ZFIN:ZDB-GENE-010323-11"   | ["paraxial mesoderm", "somite"]
+        "ZFIN:ZDB-GENE-030131-7696" | ["whole organism", "head", "hair cell apical region"]
+
+    }
+
+    @Unroll
+    def "GeneDocument for #geneID has UBERON anitomicalExpression for #entities"() {
+        when:
+        Gene gene = repo.getOneGene(geneID)
+        GeneDocument geneDocument = trans.translate(gene)
+
+        then:
+        geneDocument
+        geneDocument.anatomicalExpression
+        geneDocument.anatomicalExpression.containsAll(entities)
+
+        where:
+        geneID                      | entities
+        "ZFIN:ZDB-GENE-030131-7696" | ["visual system", "sensory system", "nervous system"]
+
+    }
+
+    @Unroll
+    def "GeneDocument for #geneID has cellularComponentExpression for #entities"() {
+        when:
+        Gene gene = repo.getOneGene(geneID)
+        GeneDocument geneDocument = trans.translate(gene)
+
+        then:
+        geneDocument
+        geneDocument.cellularComponentExpression
+        geneDocument.cellularComponentExpression.containsAll(entities)
+//      This should go back in post 2.0
+//      geneDocument.cellularComponentExpressionWithParents.containsAll(parentEntities)
+        geneDocument.cellularComponentExpressionAgrSlim.containsAll(slimEntities)
+
+        where:
+        geneID                      | entities   | parentEntities | slimEntities
+        "ZFIN:ZDB-GENE-030131-7696" | ["axon", "photoreceptor inner segment", "presynaptic cytosol"] | ["neuron part", "cell part"] | ["cell projection"]
+
+    }
+
     def "#geneID has #strict in strict list, but not #otherOrthologue"() {
         when:
         Gene gene = repo.getOneGene(geneID)

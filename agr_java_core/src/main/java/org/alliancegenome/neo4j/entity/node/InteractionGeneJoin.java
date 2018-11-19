@@ -30,7 +30,7 @@ public class InteractionGeneJoin extends Association {
 
     @JsonView({View.InteractionView.class})
     @Relationship(type = "CROSS_REFERENCE")
-    private CrossReference crossReference;
+    private List<CrossReference> crossReferences;
 
     @JsonView({View.InteractionView.class})
     @Relationship(type = "EVIDENCE")
