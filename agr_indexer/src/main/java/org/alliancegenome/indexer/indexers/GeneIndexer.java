@@ -70,7 +70,7 @@ public class GeneIndexer extends Indexer<GeneDocument> {
                 }
 
                 String key = queue.takeFirst();
-                Gene gene = repo.getIndexableGene(key);
+                Gene gene = repo.getOneGene(key);
 
 
                 if (gene != null)
