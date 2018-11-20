@@ -12,10 +12,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 
-@Getter @Setter
+@Getter
+@Setter
 public class GeneDocument extends SearchableItemDocument {
 
     public static final String CATEGORY = "gene";
+
     {
         category = CATEGORY;
     }
@@ -64,12 +66,17 @@ public class GeneDocument extends SearchableItemDocument {
     private String modLocalId;
     private String modGlobalCrossRefId;
     private String modGlobalId;
-    
+
     private List<FeatureDocument> alleles;
-    
+
     @Override
     @JsonIgnore
     public String getDocumentId() {
         return primaryId;
+    }
+
+    @Override
+    public String toString() {
+        return primaryId + ": " + symbol;
     }
 }

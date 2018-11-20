@@ -1,14 +1,8 @@
 package org.alliancegenome.indexer.indexers;
 
-import java.net.InetAddress;
-import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.TimeUnit;
-
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.es.index.ESDocument;
 import org.alliancegenome.indexer.config.IndexerConfig;
@@ -21,9 +15,18 @@ import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.xpack.client.PreBuiltXPackTransportClient;
 
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.File;
+import java.net.InetAddress;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 public abstract class Indexer<D extends ESDocument> extends Thread {
 
@@ -235,5 +238,28 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
     }
 
     protected abstract void startSingleThread(LinkedBlockingDeque<String> queue);
+
+    // cache variables
+    private List<String> entityIdList = new ArrayList<>();
+
+    boolean isEntitySubset(String key) {
+        return !entityIdList.isEmpty() && entityIdList.contains(key);
+    }
+
+    void readIndexFile() {
+        String fileNamePrefix = indexerConfig.getTypeName();
+        ClassLoader classloader = Thread.currentThread().getContextClassLoader();
+        String fileName = fileNamePrefix + "-index.txt";
+        try {
+            File file = new File(classloader.getResource(fileName).getFile());
+            if (file.exists()) {
+                entityIdList = Files.lines(Paths.get(file.toURI()))
+                        .collect(Collectors.toList());
+                System.out.println("Use entity file " + file.getAbsolutePath());
+            }
+        } catch (Exception e) {
+            log.warn("Error while reading index file: " + fileName);
+        }
+    }
 
 }

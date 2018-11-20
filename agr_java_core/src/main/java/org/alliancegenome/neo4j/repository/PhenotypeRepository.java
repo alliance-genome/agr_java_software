@@ -37,7 +37,8 @@ public class PhenotypeRepository extends Neo4jRepository<Phenotype> {
                 " WHERE termName.primaryKey = {primaryKey}   " +
                 " OPTIONAL MATCH p2=(phenotypeEntityJoin)--(g:Gene)-[:FROM_SPECIES]-(species:Species)" +
                 " OPTIONAL MATCH p4=(phenotypeEntityJoin)--(feature:Feature)" +
-                " RETURN p0, p2, p4";
+                " OPTIONAL MATCH crossRefMatch=(phenotypeEntityJoin)--(feature:Feature)--(crossRef:CrossReference)" +
+                " RETURN p0, p2, p4, crossRefMatch ";
 
         HashMap<String, String> map = new HashMap<>();
         map.put("primaryKey", primaryKey);
