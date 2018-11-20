@@ -46,6 +46,7 @@ public class SearchHelper {
                     add("molecularFunctionAgrSlim");
                     add("cellularComponentAgrSlim");
                     add("anatomicalExpression");
+                    add("whereExpressed");
                     add("cellularComponentExpressionAgrSlim");
                 }
             });

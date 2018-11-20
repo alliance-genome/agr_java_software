@@ -178,7 +178,8 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
 
         geneDocument.setWhereExpressed(gene.getWhereExpressed());
         geneDocument.setAnatomicalExpression(gene.getAnatomicalExpression());
-
+        geneDocument.setAnatomicalExpressionWithParents(gene.getAnatomicalExpressionWithParents());
+        
         geneDocument.setCellularComponentExpressionWithParents(gene.getCellularComponentExpressionWithParents());
         geneDocument.setCellularComponentExpressionAgrSlim(gene.getCellularComponentExpressionAgrSlim());
 
