@@ -32,10 +32,10 @@ public class GeneIndexer extends Indexer<GeneDocument> {
 
             List<String> fulllist;
             if (System.getProperty("SPECIES") != null) {
-                geneDocumentCache = geneRepo.getGeneDocumentCache(System.getProperty("SPECIES"));
+                //geneDocumentCache = geneRepo.getGeneDocumentCache(System.getProperty("SPECIES"));
                 fulllist = geneRepo.getAllGeneKeys(System.getProperty("SPECIES"));
             } else {
-                geneDocumentCache = geneRepo.getGeneDocumentCache();
+                //geneDocumentCache = geneRepo.getGeneDocumentCache();
                 fulllist = geneRepo.getAllGeneKeys();
             }
 
@@ -61,7 +61,7 @@ public class GeneIndexer extends Indexer<GeneDocument> {
                 if (queue.isEmpty()) {
                     if (list.size() > 0) {
                         Iterable<GeneDocument> geneDocuments = geneTrans.translateEntities(list);
-                        geneDocumentCache.addCachedFields(geneDocuments);
+                        //geneDocumentCache.addCachedFields(geneDocuments);
                         saveDocuments(geneDocuments);
                         repo.clearCache();
                         list.clear();
