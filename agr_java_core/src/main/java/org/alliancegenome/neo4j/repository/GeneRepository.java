@@ -92,9 +92,9 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         Iterable<Gene> genes = query(query, map);
         for (Gene g : genes) {
             if (g.getPrimaryKey().equals(primaryKey)) {
-//                addPhenotypeListToGene(g);
-//                addGOListsToGene(g);
-//                addExpressionListsToGene(g);
+                addPhenotypeListToGene(g);
+                addGOListsToGene(g);
+                addExpressionListsToGene(g);
                 return g;
             }
         }
@@ -139,8 +139,8 @@ public class GeneRepository extends Neo4jRepository<Gene> {
     public GeneDocumentCache getGeneDocumentCache(String species) {
         GeneDocumentCache geneDocumentCache = new GeneDocumentCache();
         geneDocumentCache.setPhenotypeStatements(getPhenotypeStatementMap(species));
-        //addGOListsToGeneDocumentCache(geneDocumentCache);
-        //addExpressionListsToGeneDocumentCache(geneDocumentCache);
+        addGOListsToGeneDocumentCache(geneDocumentCache, species);
+        addExpressionListsToGeneDocumentCache(geneDocumentCache, species);
 
         return geneDocumentCache;
     }
@@ -165,15 +165,20 @@ public class GeneRepository extends Neo4jRepository<Gene> {
     }
 
 
-    private void addGOListsToGeneDocumentCache(GeneDocumentCache geneDocumentCache) {
+    private void addGOListsToGeneDocumentCache(GeneDocumentCache geneDocumentCache, String species) {
 
-        String query = "MATCH (q:Species)-[:FROM_SPECIES]-(g:Gene)--(term:GOTerm) " +
-                "OPTIONAL MATCH (term)-[:IS_A|PART_OF*]->(parent:GOTerm) " +
-                "RETURN distinct g.primaryKey, LABELS(term), term.type, term.name, " +
-                "'goslim_agr' IN term.subset as termInSlim, " +
-                "parent.type, parent.name, 'goslim_agr' IN parent.subset as parentInSlim";
+        String query = "MATCH (q:Species)-[:FROM_SPECIES]-(g:Gene)--(:GOTerm)-[:COMPUTED_CLOSURE]-(term:GOTerm) ";
+        if (StringUtils.isNotEmpty(species)) {
+            query += " WHERE species.name = {species} ";
+        }
+        query += "RETURN distinct g.primaryKey, LABELS(term), term.type, term.name, ";
+        query += "'goslim_agr' IN term.subset as termInSlim ";
 
-        Result r = queryForResult(query);
+        Map<String,String> params = null;
+        if (StringUtils.isNotEmpty(species)) {
+            params = new HashMap<String,String>() {{ put("species", species); }};
+        }
+        Result r = queryForResult(query, params);
         Iterator<Map<String, Object>> i = r.iterator();
 
         while (i.hasNext()) {
@@ -185,26 +190,17 @@ public class GeneRepository extends Neo4jRepository<Gene> {
             String termType = resultMap.get("term.type") == null ? null : resultMap.get("term.type").toString();
             Boolean termInSlim = resultMap.get("termInSlim") == null ? false : Boolean.valueOf(resultMap.get("termInSlim").toString());
 
-            String parent = resultMap.get("parent.name") == null ? null : resultMap.get("parent.name").toString();
-            String parentType = resultMap.get("parent.type") == null ? null : resultMap.get("parent.type").toString();
-            Boolean parentInSlim = resultMap.get("parentInSlim") == null ? false : Boolean.valueOf(resultMap.get("parentInSlim").toString());
-
             addTermGoCache(geneDocumentCache, primaryKey, term, termType);
-            addTermGoCache(geneDocumentCache, primaryKey, parent, parentType);
-
             addTermGoSlimCache(geneDocumentCache, primaryKey, termType, term, termInSlim);
-            addTermGoSlimCache(geneDocumentCache, primaryKey, parentType, parent, parentInSlim);
         }
 
     }
 
     private void addGOListsToGene(Gene gene) {
-        String query = "MATCH (q:Species)-[:FROM_SPECIES]-(g:Gene)--(term:GOTerm) " +
+        String query = "MATCH (q:Species)-[:FROM_SPECIES]-(g:Gene)--(:GOTerm)-[:COMPUTED_CLOSURE]-(term:GOTerm) " +
                 "WHERE g.primaryKey={primaryKey} " +
-                "OPTIONAL MATCH (term)-[:IS_A|PART_OF*]->(parent:GOTerm) " +
                 "RETURN distinct LABELS(term), term.type, term.name, " +
-                "'goslim_agr' IN term.subset as termInSlim, " +
-                "parent.type, parent.name, 'goslim_agr' IN parent.subset as parentInSlim";
+                "'goslim_agr' IN term.subset as termInSlim ";
 
         HashMap<String, String> map = new HashMap<>();
 
@@ -221,16 +217,8 @@ public class GeneRepository extends Neo4jRepository<Gene> {
             String termType = resultMap.get("term.type") == null ? null : resultMap.get("term.type").toString();
             Boolean termInSlim = resultMap.get("termInSlim") == null ? false : Boolean.valueOf(resultMap.get("termInSlim").toString());
 
-            String parent = resultMap.get("parent.name") == null ? null : resultMap.get("parent.name").toString();
-            String parentType = resultMap.get("parent.type") == null ? null : resultMap.get("parent.type").toString();
-            Boolean parentInSlim = resultMap.get("parentInSlim") == null ? false : Boolean.valueOf(resultMap.get("parentInSlim").toString());
-
             addTermNameToGene(gene, term, termType);
-            addTermNameToGene(gene, parentType, parentType);
-
             addTermToGoSlim(gene, termType, term, termInSlim);
-            addTermToGoSlim(gene, termType, parent, parentInSlim);
-
         }
     }
 
@@ -292,13 +280,19 @@ public class GeneRepository extends Neo4jRepository<Gene> {
     }
 
 
-    private void addExpressionListsToGeneDocumentCache(GeneDocumentCache geneDocumentCache) {
-        String query = "MATCH (q:Species)-[:FROM_SPECIES]-(g:Gene)--(ebe:ExpressionBioEntity)-[r]-(term:Ontology)" +
-                "OPTIONAL MATCH (term)-[:IS_A|PART_OF*]->(parent:Ontology) " +
-                "RETURN distinct g.primaryKey, TYPE(r), ebe.whereExpressedStatement, term.name, parent.name";
+    private void addExpressionListsToGeneDocumentCache(GeneDocumentCache geneDocumentCache, String species) {
+        String query = "MATCH (q:Species)-[:FROM_SPECIES]-(g:Gene)--(ebe:ExpressionBioEntity)-[r]-(:Ontology)-[:COMPUTED_CLOSURE]-(term:Ontology)";
+        if (StringUtils.isNotEmpty(species)) {
+            query += " WHERE species.name = {species} ";
+        }
+        query +=  "RETURN distinct g.primaryKey, TYPE(r), ebe.whereExpressedStatement, term.name";
 
+        Map<String,String> params = null;
+        if (StringUtils.isNotEmpty(species)) {
+            params = new HashMap<String,String>() {{ put("species", species); }};
+        }
+        Result r = queryForResult(query, params);
 
-        Result r = queryForResult(query);
         Iterator<Map<String, Object>> i = r.iterator();
 
 
@@ -308,14 +302,11 @@ public class GeneRepository extends Neo4jRepository<Gene> {
             String primaryKey = (String) resultMap.get("g.primaryKey");
             String relationshipType = resultMap.get("TYPE(r)") == null ? null : resultMap.get("TYPE(r)").toString();
             String term = resultMap.get("term.name") == null ? null : resultMap.get("term.name").toString();
-            String parent = resultMap.get("parent.name") == null ? null : resultMap.get("parent.name").toString();
 
             String whereExpressed = resultMap.get("ebe.whereExpressedStatement").toString();
 
             geneDocumentCache.getWhereExpressed().computeIfAbsent(primaryKey, x -> new HashSet<>());
             geneDocumentCache.getWhereExpressed().get(primaryKey).add(whereExpressed);
-
-
 
             if (StringUtils.equals(relationshipType,"CELLULAR_COMPONENT_RIBBON_TERM") && StringUtils.isNotEmpty(term)) {
                 geneDocumentCache.getCellularComponentExpressionAgrSlim().computeIfAbsent(primaryKey, x -> new HashSet<>());
@@ -326,26 +317,18 @@ public class GeneRepository extends Neo4jRepository<Gene> {
             } else if (StringUtils.equals(relationshipType,"CELLULAR_COMPONENT") && StringUtils.isNotEmpty(term)) {
                 geneDocumentCache.getCellularComponentWithParents().computeIfAbsent(primaryKey, x -> new HashSet<>());
                 geneDocumentCache.getCellularComponentWithParents().get(primaryKey).add(term);
-                if (StringUtils.isNotEmpty(parent)) {
-                    geneDocumentCache.getCellularComponentWithParents().get(primaryKey).add(parent);
-                }
             } else if (StringUtils.equals(relationshipType,"ANATOMICAL_STRUCTURE") && StringUtils.isNotEmpty(term)) {
                 geneDocumentCache.getAnatomicalExpressionWithParents().computeIfAbsent(primaryKey, x -> new HashSet<>());
                 geneDocumentCache.getAnatomicalExpressionWithParents().get(primaryKey).add(term);
-                if (StringUtils.isNotEmpty(parent)) {
-                    geneDocumentCache.getAnatomicalExpressionWithParents().get(primaryKey).add(parent);
-                }
-
             }
         }
     }
 
 
     private void addExpressionListsToGene(Gene gene) {
-        String query = "MATCH (q:Species)-[:FROM_SPECIES]-(g:Gene)--(ebe:ExpressionBioEntity)-[r]-(term:Ontology)" +
+        String query = "MATCH (q:Species)-[:FROM_SPECIES]-(g:Gene)--(ebe:ExpressionBioEntity)-[r]-(:Ontology)-[:COMPUTED_CLOSURE]-(term:Ontology)" +
                 "WHERE g.primaryKey={primaryKey} " +
-                "OPTIONAL MATCH (term)-[:IS_A|PART_OF*]->(parent:Ontology) " +
-                "RETURN distinct TYPE(r), ebe.whereExpressedStatement, term.name, parent.name";
+                "RETURN distinct TYPE(r), ebe.whereExpressedStatement, term.name";
 
 
         HashMap<String, String> map = new HashMap<>();
@@ -361,7 +344,6 @@ public class GeneRepository extends Neo4jRepository<Gene> {
 
             String relationshipType = resultMap.get("TYPE(r)") == null ? null : resultMap.get("TYPE(r)").toString();
             String term = resultMap.get("term.name") == null ? null : resultMap.get("term.name").toString();
-            String parent = resultMap.get("parent.name") == null ? null : resultMap.get("parent.name").toString();
             String whereExpressed = resultMap.get("ebe.whereExpressedStatement") == null ? null : resultMap.get("ebe.whereExpressedStatement").toString();
             gene.getWhereExpressed().add(whereExpressed);
 
@@ -371,15 +353,8 @@ public class GeneRepository extends Neo4jRepository<Gene> {
                 gene.getAnatomicalExpression().add(term);
             } else if (StringUtils.equals(relationshipType,"CELLULAR_COMPONENT") && StringUtils.isNotEmpty(term)) {
                 gene.getCellularComponentExpressionWithParents().add(term);
-                if (StringUtils.isNotEmpty(parent)) {
-                    gene.getCellularComponentExpressionWithParents().add(parent);
-                }
             } else if (StringUtils.equals(relationshipType,"ANATOMICAL_STRUCTURE") && StringUtils.isNotEmpty(term)) {
                 gene.getAnatomicalExpressionWithParents().add(term);
-                if (StringUtils.isNotEmpty(parent)) {
-                    gene.getAnatomicalExpressionWithParents().add(parent);
-                }
-
             }
         }
     }
