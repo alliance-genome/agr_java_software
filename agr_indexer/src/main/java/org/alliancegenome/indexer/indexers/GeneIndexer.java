@@ -37,9 +37,7 @@ public class GeneIndexer extends Indexer<GeneDocument> {
                 }
                 fulllist = geneRepo.getAllGeneKeys(System.getProperty("SPECIES"));
             } else {
-                if (System.getProperty("ALLATONCE") != null) {
                     geneDocumentCache = geneRepo.getGeneDocumentCache();
-                }
                 fulllist = geneRepo.getAllGeneKeys();
             }
 

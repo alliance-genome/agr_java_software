@@ -167,7 +167,7 @@ public class GeneRepository extends Neo4jRepository<Gene> {
 
     private void addGOListsToGeneDocumentCache(GeneDocumentCache geneDocumentCache, String species) {
 
-        String query = "MATCH (q:Species)-[:FROM_SPECIES]-(g:Gene)--(:GOTerm)-[:COMPUTED_CLOSURE]-(term:GOTerm) ";
+        String query = "MATCH (species:Species)-[:FROM_SPECIES]-(g:Gene)--(:GOTerm)-[:COMPUTED_CLOSURE]-(term:GOTerm) ";
         if (StringUtils.isNotEmpty(species)) {
             query += " WHERE species.name = {species} ";
         }
@@ -197,7 +197,7 @@ public class GeneRepository extends Neo4jRepository<Gene> {
     }
 
     private void addGOListsToGene(Gene gene) {
-        String query = "MATCH (q:Species)-[:FROM_SPECIES]-(g:Gene)--(:GOTerm)-[:COMPUTED_CLOSURE]-(term:GOTerm) " +
+        String query = "MATCH (species:Species)-[:FROM_SPECIES]-(g:Gene)--(:GOTerm)-[:COMPUTED_CLOSURE]-(term:GOTerm) " +
                 "WHERE g.primaryKey={primaryKey} " +
                 "RETURN distinct LABELS(term), term.type, term.name, " +
                 "'goslim_agr' IN term.subset as termInSlim ";
@@ -281,7 +281,7 @@ public class GeneRepository extends Neo4jRepository<Gene> {
 
 
     private void addExpressionListsToGeneDocumentCache(GeneDocumentCache geneDocumentCache, String species) {
-        String query = "MATCH (q:Species)-[:FROM_SPECIES]-(g:Gene)--(ebe:ExpressionBioEntity)-[r]-(:Ontology)-[:COMPUTED_CLOSURE]-(term:Ontology)";
+        String query = "MATCH (species:Species)-[:FROM_SPECIES]-(g:Gene)--(ebe:ExpressionBioEntity)-[r]-(:Ontology)-[:COMPUTED_CLOSURE]-(term:Ontology)";
         if (StringUtils.isNotEmpty(species)) {
             query += " WHERE species.name = {species} ";
         }
@@ -326,7 +326,7 @@ public class GeneRepository extends Neo4jRepository<Gene> {
 
 
     private void addExpressionListsToGene(Gene gene) {
-        String query = "MATCH (q:Species)-[:FROM_SPECIES]-(g:Gene)--(ebe:ExpressionBioEntity)-[r]-(:Ontology)-[:COMPUTED_CLOSURE]-(term:Ontology)" +
+        String query = "MATCH (species:Species)-[:FROM_SPECIES]-(g:Gene)--(ebe:ExpressionBioEntity)-[r]-(:Ontology)-[:COMPUTED_CLOSURE]-(term:Ontology)" +
                 "WHERE g.primaryKey={primaryKey} " +
                 "RETURN distinct TYPE(r), ebe.whereExpressedStatement, term.name";
 
