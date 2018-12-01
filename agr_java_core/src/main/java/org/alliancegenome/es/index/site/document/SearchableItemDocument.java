@@ -18,15 +18,15 @@ public abstract class SearchableItemDocument extends ESDocument {
 
     protected String category;
 
-    private String primaryId;
-    private String name;
+    String primaryId;
+    String name;
     @JsonProperty("name_key")
-    private String nameKey;
-    private String description;
+    String nameKey;
+    String description;
 
-    private Set<String> phenotypeStatements = new HashSet<>();
+    Set<String> phenotypeStatements = new HashSet<>();
 
-    private boolean searchable = true;
+    boolean searchable = true;
 
     @Override
     @JsonIgnore

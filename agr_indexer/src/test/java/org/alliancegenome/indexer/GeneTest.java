@@ -31,7 +31,7 @@ public class GeneTest {
         gene = repo.getOneGene("MGI:104798");
         GeneDocument geneDocument = trans.translate(gene);
 
-        GeneDocumentCache geneDocumentCache = repo.getGeneDocumentCache("Danio rerio");
+        repo.addExpressionListsToGeneDocumentCache(new GeneDocumentCache(), null);
 
         List<BioEntityGeneExpressionJoin> expressionJoinList = repo.getExpressionAnnotations(gene);
 

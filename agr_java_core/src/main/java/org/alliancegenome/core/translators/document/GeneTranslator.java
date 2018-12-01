@@ -135,19 +135,23 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
                     .filter(diseaseDocument -> diseaseDocument.getAnnotations()
                             .stream().anyMatch(annotationDocument -> annotationDocument.getOrthologyGeneDocument() != null))
                     .collect(Collectors.toList());
-            // filter for orthology records.
+            // create a semi-deep clone as we have to separate diseaseDocuments with the empirical or orthology annotation docs
             diseaseViaOrthology = diseaseViaOrthology.stream()
-                    .peek(diseaseDocument -> diseaseDocument.setAnnotations(diseaseDocument.getAnnotations().stream()
-                            .filter(annotationDocument -> annotationDocument.getOrthologyGeneDocument() != null)
-                            .collect(Collectors.toList())))
-                    .collect(Collectors.toList());
-            geneDocument.setDiseasesViaOrthology(diseaseViaOrthology);
+                    .map(DiseaseDocument::new).collect(Collectors.toList());
+            // filter for orthology records.
             // check if a doc has other annotations than orthology
             List<DiseaseDocument> diseaseViaExperiment = diseaseList.stream()
                     .filter(diseaseDocument -> diseaseDocument.getAnnotations()
-                            .stream().anyMatch(annotationDocument -> annotationDocument.getPublications().stream()
-                                    .anyMatch(publicationDoclet -> !publicationDoclet.getEvidenceCodes().contains("IEA"))))
+                            .stream().anyMatch(annotationDocument -> annotationDocument.getOrthologyGeneDocument() == null))
                     .collect(Collectors.toList());
+            // create a semi-deep clone as we have to separate diseaseDocuments with the empirical or orthology annotation docs
+            diseaseViaExperiment = diseaseViaExperiment.stream()
+                    .map(DiseaseDocument::new).collect(Collectors.toList());
+
+            // filter out the records for orthology
+            diseaseViaOrthology.forEach(diseaseDocument ->
+                    diseaseDocument.getAnnotations().removeIf(annotationDocument -> annotationDocument.getOrthologyGeneDocument() == null));
+            geneDocument.setDiseasesViaOrthology(diseaseViaOrthology);
             // Remove orthology annotations
             diseaseViaExperiment = diseaseViaExperiment.stream()
                     .peek(diseaseDocument -> {

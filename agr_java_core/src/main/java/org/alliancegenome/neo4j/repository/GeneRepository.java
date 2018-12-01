@@ -92,9 +92,12 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         Iterable<Gene> genes = query(query, map);
         for (Gene g : genes) {
             if (g.getPrimaryKey().equals(primaryKey)) {
-                addPhenotypeListToGene(g);
-                addGOListsToGene(g);
-                addExpressionListsToGene(g);
+                if (System.getProperty("ALLATONCE") == null) {
+                    addPhenotypeListToGene(g);
+                    addGOListsToGene(g);
+                    addExpressionListsToGene(g);
+                }
+
                 return g;
             }
         }
@@ -110,14 +113,15 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         String query = "";
 
         query += " MATCH p1=(q:Species)-[:FROM_SPECIES]-(g:Gene)--(s) WHERE g.primaryKey = {primaryKey}";
-        query += " OPTIONAL MATCH p5=(g:Gene)--(s:DiseaseEntityJoin)--(feature:Feature)";
-        query += " OPTIONAL MATCH p12=(g:Gene)--(s:DiseaseEntityJoin)--(orthoGene:Gene)";
+        query += " OPTIONAL MATCH p5=(g:Gene)--(s:DiseaseEntityJoin)--(any)";
         query += " OPTIONAL MATCH p2=(do:DOTerm)--(s:DiseaseEntityJoin)-[:EVIDENCE]-(ea)";
         query += " OPTIONAL MATCH p4=(g:Gene)--(s:OrthologyGeneJoin)--(a:OrthoAlgorithm), p3=(g)-[o:ORTHOLOGOUS]-(g2:Gene)-[:FROM_SPECIES]-(q2:Species), (s)--(g2)";
         query += " OPTIONAL MATCH p6=(g:Gene)--(s:PhenotypeEntityJoin)--(tt) ";
-        query += " OPTIONAL MATCH p8=(g:Gene)--(s:PhenotypeEntityJoin)--(ff:Feature)";
+        query += " OPTIONAL MATCH featureCrossRef=(s)--(ff:Feature)--(crossRef:CrossReference) WHERE s:PhenotypeEntityJoin OR s:DiseaseEntityJoin";
+        query += " OPTIONAL MATCH p9=(g:Gene)--(s:GOTerm)-[:IS_A|PART_OF*]->(:GOTerm)";
         query += " OPTIONAL MATCH p10=(g:Gene)--(s:BioEntityGeneExpressionJoin)--(t) ";
-        query += " RETURN p1, p2, p3, p4, p5, p6, p8, p10, p12";
+        query += " OPTIONAL MATCH pTerm=(g:Gene)--(s:ExpressionBioEntity)--(:Ontology) ";
+        query += " RETURN p1, p2, p3, p4, p5, p6, p9, p10, pTerm, featureCrossRef";
 
         Iterable<Gene> genes = query(query, map);
         for (Gene g : genes) {
@@ -138,9 +142,30 @@ public class GeneRepository extends Neo4jRepository<Gene> {
 
     public GeneDocumentCache getGeneDocumentCache(String species) {
         GeneDocumentCache geneDocumentCache = new GeneDocumentCache();
+
+        log.info("Building gene -> phenotypeStatement map");
         geneDocumentCache.setPhenotypeStatements(getPhenotypeStatementMap(species));
-        addGOListsToGeneDocumentCache(geneDocumentCache, species);
-        addExpressionListsToGeneDocumentCache(geneDocumentCache, species);
+
+        log.info("Building gene -> GO BP Slim map");
+        geneDocumentCache.setBiologicalProcessAgrSlim(getGOTermMap("biological_process", true, species));
+        log.info("Building gene -> GO CC Slim map");
+        geneDocumentCache.setBiologicalProcessWithParents(getGOTermMap("cellular_component", true, species));
+        log.info("Building gene -> GO MF Slim map");
+        geneDocumentCache.setMolecularFunctionAgrSlim(getGOTermMap("molecular_function", true, species));
+
+        log.info("Building gene -> GO BP w/parents map");
+        geneDocumentCache.setBiologicalProcessWithParents(getGOTermMap("biological_process", false, species));
+        log.info("Building gene -> GO CC w/parents map");
+        geneDocumentCache.setCellularComponentWithParents(getGOTermMap("cellular_component", false, species));
+        log.info("Building gene -> GO MF w/parents map");
+        geneDocumentCache.setMolecularFunctionWithParents(getGOTermMap("molecular_function", false, species));
+
+        log.info("Building gene -> Expression GO CC Ribbon map");
+        geneDocumentCache.setCellularComponentAgrSlim(getCellularComponentExpressionAgrSlimMap(species));
+
+        log.info("Building gene -> Expression GO CC w/parents map");
+        geneDocumentCache.setCellularComponentExpressionWithParents(getCellularComponentExpressionWithParentsMap(species));
+
 
         return geneDocumentCache;
     }
@@ -164,37 +189,28 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         gene.setPhenotypeStatements(getSetForGene(query, "phenotype.phenotypeStatement", gene.getPrimaryKey()));
     }
 
-
-    private void addGOListsToGeneDocumentCache(GeneDocumentCache geneDocumentCache, String species) {
-
+    private Map<String,Set<String>> getGOTermMap(String type, Boolean slim, String species) {
         String query = "MATCH (species:Species)-[:FROM_SPECIES]-(g:Gene)--(:GOTerm)-[:COMPUTED_CLOSURE]-(term:GOTerm) ";
+        query += "WHERE term.type = {type}";
         if (StringUtils.isNotEmpty(species)) {
-            query += " WHERE species.name = {species} ";
+            query += " AND species.name = {species} ";
         }
-        query += "RETURN distinct g.primaryKey, LABELS(term), term.type, term.name, ";
-        query += "'goslim_agr' IN term.subset as termInSlim ";
+        if (slim) {
+            query += " AND 'goslim_agr' IN term.subset ";
+        }
+        query += " RETURN distinct term.name";
 
-        Map<String,String> params = null;
+        Map<String,String> params = new HashMap<String,String>();
+        params.put("type",type);
         if (StringUtils.isNotEmpty(species)) {
-            params = new HashMap<String,String>() {{ put("species", species); }};
+            params.put("species",species);
         }
-        Result r = queryForResult(query, params);
-        Iterator<Map<String, Object>> i = r.iterator();
 
-        while (i.hasNext()) {
-            Map<String, Object> resultMap = i.next();
+        return getMapSetForQuery(query, "gene.primaryKey", "term.name", params);
 
-            String primaryKey = (String) resultMap.get("g.primaryKey");
-
-            String term = resultMap.get("term.name") == null ? null : resultMap.get("term.name").toString();
-            String termType = resultMap.get("term.type") == null ? null : resultMap.get("term.type").toString();
-            Boolean termInSlim = resultMap.get("termInSlim") == null ? false : Boolean.valueOf(resultMap.get("termInSlim").toString());
-
-            addTermGoCache(geneDocumentCache, primaryKey, term, termType);
-            addTermGoSlimCache(geneDocumentCache, primaryKey, termType, term, termInSlim);
-        }
 
     }
+
 
     private void addGOListsToGene(Gene gene) {
         String query = "MATCH (species:Species)-[:FROM_SPECIES]-(g:Gene)--(:GOTerm)-[:COMPUTED_CLOSURE]-(term:GOTerm) " +
@@ -280,16 +296,48 @@ public class GeneRepository extends Neo4jRepository<Gene> {
     }
 
 
-    private void addExpressionListsToGeneDocumentCache(GeneDocumentCache geneDocumentCache, String species) {
-        String query = "MATCH (species:Species)-[:FROM_SPECIES]-(g:Gene)--(ebe:ExpressionBioEntity)-[r]-(:Ontology)-[:COMPUTED_CLOSURE]-(term:Ontology)";
+    public Map<String,Set<String>> getCellularComponentExpressionAgrSlimMap(String species) {
+        String query = "MATCH (species:Species)-[:FROM_SPECIES]-(g:Gene)--(ebe:ExpressionBioEntity)-[CELLULAR_COMPONENT_RIBBON_TERM]-(:GOTerm)-[:COMPUTED_CLOSURE]-(term:GOTerm) ";
         if (StringUtils.isNotEmpty(species)) {
             query += " WHERE species.name = {species} ";
         }
-        query +=  "RETURN distinct g.primaryKey, TYPE(r), ebe.whereExpressedStatement, term.name";
+        query +=  " RETURN distinct g.primaryKey, term.name ";
 
-        Map<String,String> params = null;
+        Map<String,String> params = new HashMap<>();
         if (StringUtils.isNotEmpty(species)) {
-            params = new HashMap<String,String>() {{ put("species", species); }};
+            params.put("species", species);
+        }
+
+        return getMapSetForQuery(query, "g.primaryKey", "term.name", params);
+    }
+
+    public Map<String,Set<String>> getCellularComponentExpressionWithParentsMap(String species) {
+        String query = "MATCH (species:Species)-[:FROM_SPECIES]-(g:Gene)--(ebe:ExpressionBioEntity)-[CELLULAR_COMPONENT]-(:GOTerm)-[:COMPUTED_CLOSURE]-(term:GOTerm) ";
+        if (StringUtils.isNotEmpty(species)) {
+            query += " WHERE species.name = {species} ";
+        }
+        query +=  " RETURN distinct g.primaryKey, term.name ";
+
+        Map<String,String> params = new HashMap<>();
+        if (StringUtils.isNotEmpty(species)) {
+            params.put("species", species);
+        }
+
+        return getMapSetForQuery(query, "g.primaryKey", "term.name", params);
+    }
+
+
+
+    public void addExpressionListsToGeneDocumentCache(GeneDocumentCache geneDocumentCache, String species) {
+        String query = "MATCH (species:Species)-[:FROM_SPECIES]-(g:Gene)--(ebe:ExpressionBioEntity)-[r]-(:Ontology)-[:COMPUTED_CLOSURE]-(term:Ontology) ";
+        if (StringUtils.isNotEmpty(species)) {
+            query += " WHERE species.name = {species} ";
+        }
+        query +=  " RETURN distinct g.primaryKey, TYPE(r), ebe.whereExpressedStatement, term.name";
+
+        Map<String,String> params = new HashMap<>();
+        if (StringUtils.isNotEmpty(species)) {
+            params.put("species", species);
         }
         Result r = queryForResult(query, params);
 
@@ -303,7 +351,7 @@ public class GeneRepository extends Neo4jRepository<Gene> {
             String relationshipType = resultMap.get("TYPE(r)") == null ? null : resultMap.get("TYPE(r)").toString();
             String term = resultMap.get("term.name") == null ? null : resultMap.get("term.name").toString();
 
-            String whereExpressed = resultMap.get("ebe.whereExpressedStatement").toString();
+            String whereExpressed = resultMap.get("ebe.whereExpressedStatement") == null ? null : resultMap.get("ebe.whereExpressedStatement").toString();
 
             geneDocumentCache.getWhereExpressed().computeIfAbsent(primaryKey, x -> new HashSet<>());
             geneDocumentCache.getWhereExpressed().get(primaryKey).add(whereExpressed);
@@ -437,10 +485,13 @@ public class GeneRepository extends Neo4jRepository<Gene> {
     public List<BioEntityGeneExpressionJoin> getExpressionAnnotations(List<String> geneIDs, String termID, Pagination pagination) {
         StringJoiner sj = new StringJoiner(",", "[", "]");
         geneIDs.forEach(geneID -> sj.add("'" + geneID + "'"));
+        String sourceFilterClause = addWhereClauseString("crossRef.displayName", FieldFilter.FSOURCE, pagination);
 
         String query = " MATCH p1=(species:Species)--(gene:Gene)-->(s:BioEntityGeneExpressionJoin)--(t)," +
-                " entity = (s:BioEntityGeneExpressionJoin)--(exp:ExpressionBioEntity)--(o:Ontology) " +
-                "WHERE gene.primaryKey in " + sj.toString();
+                " entity = (s:BioEntityGeneExpressionJoin)--(exp:ExpressionBioEntity)--(o:Ontology) ";
+        if (sourceFilterClause != null)
+            query += ", crossReference = (s:BioEntityGeneExpressionJoin)--(crossRef:CrossReference) ";
+        query += "WHERE gene.primaryKey in " + sj.toString();
 
         String geneFilterClause = addWhereClauseString("gene.symbol", FieldFilter.GENE_NAME, pagination);
         if (geneFilterClause != null) {
@@ -450,7 +501,6 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         if (speciesFilterClause != null) {
             query += " AND " + speciesFilterClause;
         }
-        String sourceFilterClause = addWhereClauseString("crossRef.displayName", FieldFilter.FSOURCE, pagination);
         if (sourceFilterClause != null) {
             query += " AND " + sourceFilterClause;
         }
@@ -458,7 +508,9 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         if (termFilterClause != null) {
             query += " AND " + termFilterClause;
         }
-        query += " OPTIONAL MATCH crossReference = (s:BioEntityGeneExpressionJoin)--(crossRef:CrossReference) ";
+        if (sourceFilterClause == null) {
+            query += " OPTIONAL MATCH crossReference = (s:BioEntityGeneExpressionJoin)--(crossRef:CrossReference) ";
+        }
         query += " RETURN s, p1, crossReference, entity ";
         Iterable<BioEntityGeneExpressionJoin> joins = neo4jSession.query(BioEntityGeneExpressionJoin.class, query, new HashMap<>());
 
@@ -518,8 +570,8 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         return query;
     }
 
-
-    public List<BioEntityGeneExpressionJoin> getExpressionAnnotationsByTaxon(String taxonID, String termID, Pagination pagination) {
+    public List<BioEntityGeneExpressionJoin> getExpressionAnnotationsByTaxon(String taxonID, String
+            termID, Pagination pagination) {
         Map<String, String> parameters = new HashMap<>();
         parameters.put("taxon", taxonID);
         String query = " MATCH p1=(species:Species)--(gene:Gene)-->(s:BioEntityGeneExpressionJoin)--(t) " +
@@ -540,7 +592,8 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         return joinList;
     }
 
-    private boolean passFilter(BioEntityGeneExpressionJoin bioEntityGeneExpressionJoin, Map<FieldFilter, String> fieldFilterValueMap) {
+    private boolean passFilter(BioEntityGeneExpressionJoin
+                                       bioEntityGeneExpressionJoin, Map<FieldFilter, String> fieldFilterValueMap) {
         Map<FieldFilter, FilterComparator<BioEntityGeneExpressionJoin, String>> map = new HashMap<>();
         map.put(FieldFilter.FSPECIES, (join, filterValue) -> join.getGene().getSpeciesName().toLowerCase().contains(filterValue.toLowerCase()));
         map.put(FieldFilter.GENE_NAME, (join, filterValue) -> join.getGene().getSymbol().toLowerCase().contains(filterValue.toLowerCase()));
@@ -705,9 +758,13 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         return list;
     }
 
-    public List<String> getAllGeneKeys(String speciesName) {
-        String query = "MATCH (g:Gene)-[:FROM_SPECIES]-(species:Species) WHERE species.name = 'Danio rerio' RETURN distinct g.primaryKey";
-        Result r = queryForResult(query);
+    public List<String> getAllGeneKeys(String species) {
+        String query = "MATCH (g:Gene)-[:FROM_SPECIES]-(species:Species) WHERE species.name = {species} RETURN distinct g.primaryKey";
+
+        HashMap<String, String> params = new HashMap<>();
+        params.put("species", species);
+
+        Result r = queryForResult(query, params);
         Iterator<Map<String, Object>> i = r.iterator();
         ArrayList<String> list = new ArrayList<>();
 

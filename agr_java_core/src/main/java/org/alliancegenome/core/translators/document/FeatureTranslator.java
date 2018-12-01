@@ -6,6 +6,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.alliancegenome.core.translators.EntityDocumentTranslator;
+import org.alliancegenome.core.translators.doclet.CrossReferenceDocletTranslator;
+import org.alliancegenome.es.index.site.doclet.CrossReferenceDoclet;
 import org.alliancegenome.es.index.site.document.DiseaseDocument;
 import org.alliancegenome.es.index.site.document.FeatureDocument;
 import org.alliancegenome.neo4j.entity.node.*;
@@ -15,6 +17,7 @@ public class FeatureTranslator extends EntityDocumentTranslator<Feature, Feature
 
     private static GeneTranslator geneTranslator = new GeneTranslator();
     private static DiseaseTranslator diseaseTranslator = new DiseaseTranslator();
+    private static CrossReferenceDocletTranslator crossReferenceDocletTranslator = new CrossReferenceDocletTranslator();
 
     @Override
     protected FeatureDocument entityToDocument(Feature entity, int translationDepth) {
@@ -34,8 +37,13 @@ public class FeatureTranslator extends EntityDocumentTranslator<Feature, Feature
             CrossReference allele = entity.getCrossReferences().stream()
                     .filter(ref -> ref.getCrossRefType().equals("allele"))
                     .findFirst().orElse(null);
-            if (allele != null)
+            if (allele != null) {
                 featureDocument.setModCrossRefFullUrl(allele.getCrossRefCompleteUrl());
+                List<CrossReferenceDoclet> crossRefDoclets = entity.getCrossReferences().stream()
+                        .map(crossReference -> crossReferenceDocletTranslator.translate(crossReference))
+                        .collect(Collectors.toList());
+                featureDocument.setCrossReferenceList(crossRefDoclets);
+            }
         }
 
         if (translationDepth > 0) {

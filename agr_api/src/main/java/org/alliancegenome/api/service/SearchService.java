@@ -231,8 +231,8 @@ public class SearchService {
             } else if (StringUtils.equals(goType, "molecular_function")) {
                 links.add(getRelatedDataLink("gene", "molecularFunctionWithParents", nameKey));
             } else if (StringUtils.equals(goType, "cellular_component")) {
-                links.add(getRelatedDataLink("gene", "cellularComponentWithParents", nameKey));
-                links.add(getRelatedDataLink("gene", "cellularComponentExpressionWithParents", nameKey, "Gene via Expression"));
+                links.add(getRelatedDataLink("gene", "cellularComponentWithParents", nameKey, "Genes Annotated with this GO Term"));
+                links.add(getRelatedDataLink("gene", "cellularComponentExpressionWithParents", nameKey, "Genes Expressed in this Structure"));
             }
         }
 
