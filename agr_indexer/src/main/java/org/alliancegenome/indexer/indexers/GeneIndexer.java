@@ -5,6 +5,7 @@ import org.alliancegenome.es.index.site.cache.GeneDocumentCache;
 import org.alliancegenome.es.index.site.document.GeneDocument;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.neo4j.entity.node.Gene;
+import org.alliancegenome.neo4j.repository.GeneIndexerRepository;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -28,17 +29,17 @@ public class GeneIndexer extends Indexer<GeneDocument> {
         try {
             LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>();
             GeneRepository geneRepo = new GeneRepository();
-
+            GeneIndexerRepository geneIndexerRepository = new GeneIndexerRepository();
 
             List<String> fulllist;
             if (System.getProperty("SPECIES") != null) {
                 if (System.getProperty("ALLATONCE") != null) {
-                    geneDocumentCache = geneRepo.getGeneDocumentCache(System.getProperty("SPECIES"));
+                    geneDocumentCache = geneIndexerRepository.getGeneDocumentCache(System.getProperty("SPECIES"));
                 }
                 fulllist = geneRepo.getAllGeneKeys(System.getProperty("SPECIES"));
             } else {
                 if (System.getProperty("ALLATONCE") != null) {
-                    geneDocumentCache = geneRepo.getGeneDocumentCache();
+                    geneDocumentCache = geneIndexerRepository.getGeneDocumentCache();
                 }
                 fulllist = geneRepo.getAllGeneKeys();
             }
@@ -54,6 +55,7 @@ public class GeneIndexer extends Indexer<GeneDocument> {
     protected void startSingleThread(LinkedBlockingDeque<String> queue) {
         ArrayList<Gene> list = new ArrayList<>();
         GeneRepository repo = new GeneRepository();
+        GeneIndexerRepository geneIndexerRepository = new GeneIndexerRepository();
         GeneTranslator geneTrans = new GeneTranslator();
         while (true) {
             try {
@@ -76,8 +78,7 @@ public class GeneIndexer extends Indexer<GeneDocument> {
                 }
 
                 String key = queue.takeFirst();
-                Gene gene = repo.getIndexableGene(key);
-
+                Gene gene = geneIndexerRepository.getIndexableGene(key);
 
                 if (gene != null)
                     list.add(gene);
