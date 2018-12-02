@@ -24,9 +24,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
 
         String query = "";
         query += " MATCH p1=(species:Species)-[:FROM_SPECIES]-(g:Gene) ";
-        if (species != null) {
-            query += " WHERE species.name = {species}";
-        }
+        query += getSpeciesWhere(species);
         query += " OPTIONAL MATCH pSyn=(g:Gene)-[:ALSO_KNOWN_AS]-(:Synonym) ";
         query += " OPTIONAL MATCH pCR=(g:Gene)-[:CROSS_REFERENCE]-(:CrossReference)";
         query += " OPTIONAL MATCH pChr=(g:Gene)-[:LOCATED_ON]-(:Chromosome)";
@@ -164,7 +162,6 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
     }
 
     public Map<String,Set<String>> getAnatomicalExpressionWithParentsMap(String species) {
-        //todo: this query should probably be something more like (term:AnatomicalOntology) at the end
         String query = " MATCH (species:Species)-[:FROM_SPECIES]-(gene:Gene)--(ebe:ExpressionBioEntity)-[:ANATOMICAL_STRUCTURE]-(:Ontology)-[:COMPUTED_CLOSURE]->(term:Ontology) ";
         query += getSpeciesWhere(species);
         query +=  " RETURN distinct gene.primaryKey, term.name ";
