@@ -112,12 +112,6 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
         }
         geneDocument.setSynonyms(synonyms);
 
-
-        if (gene.getOrthologyGeneJoins().size() > 0 && translationDepth > 0) {
-            List<OrthologyDoclet> doclets = OrthologyService.getOrthologyDoclets(gene);
-            geneDocument.setOrthology(doclets);
-        }
-
         geneDocument.setStrictOrthologySymbols(
                 gene.getOrthoGenes().stream()
                         .filter(Orthologous::isStrictFilter)
