@@ -121,6 +121,8 @@ public class Gene extends Neo4jEntity implements Comparable<Gene> {
     private Set<String> anatomicalExpression = new HashSet<>();         //uberon slim
     private Set<String> anatomicalExpressionWithParents = new HashSet<>();
 
+    private Set<String> phenotypeStatements = new HashSet<>();
+
     public String getNameKey() {
         String nameKey = symbol;
         if (species != null) {

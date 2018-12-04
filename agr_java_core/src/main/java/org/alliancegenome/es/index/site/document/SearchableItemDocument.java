@@ -8,7 +8,9 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -22,7 +24,10 @@ public abstract class SearchableItemDocument extends ESDocument {
     String nameKey;
     String description;
 
-    List<String> phenotypeStatements = new ArrayList<>();
+    Set<String> diseases = new HashSet<>();
+    Set<String> features = new HashSet<>();
+
+    Set<String> phenotypeStatements = new HashSet<>();
 
     boolean searchable = true;
 
