@@ -17,7 +17,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
         super(Gene.class);
     }
 
-    public Iterable<Gene> getAllIndexableGenes(String species) {
+    public Map<String,Gene> getGeneMap(String species) {
 
         HashMap<String, String> map = new HashMap<>();
         map.put("species", species);
@@ -30,11 +30,20 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
         query += " OPTIONAL MATCH pChr=(g:Gene)-[:LOCATED_ON]-(:Chromosome)";
         query += " RETURN p1, pSyn, pCR, pChr";
 
+        Iterable<Gene> genes = null;
+
         if (species != null) {
-            return query(query, map);
+            genes = query(query, map);
         } else {
-            return query(query);
+            genes = query(query);
         }
+
+        Map<String,Gene> geneMap = new HashMap<>();
+        for (Gene gene : genes) {
+            geneMap.put(gene.getPrimaryKey(), gene);
+        }
+
+        return geneMap;
 
     }
 
@@ -67,6 +76,18 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
     public GeneDocumentCache getGeneDocumentCache(String species) {
         GeneDocumentCache geneDocumentCache = new GeneDocumentCache();
 
+        log.info("Fetching genes");
+        geneDocumentCache.setGenes(getGeneMap(species));
+
+        log.info("Building gene -> features map");
+        geneDocumentCache.setFeatures(getFeaturesMap(species));
+
+        log.info("Building gene -> strictOrthologySymbols map");
+        geneDocumentCache.setStrictOrthologySymbols(getStrictOrthologySymbolsMap(species));
+
+        log.info("Building gene -> diseases map");
+        geneDocumentCache.setDiseases(getDiseasesMap(species));
+
         log.info("Building gene -> phenotypeStatement map");
         geneDocumentCache.setPhenotypeStatements(getPhenotypeStatementMap(species));
 
@@ -98,9 +119,34 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
         geneDocumentCache.setAnatomicalExpressionWithParents(getAnatomicalExpressionWithParentsMap(species));
 
 
-
         return geneDocumentCache;
     }
+
+
+    private Map<String, Set<String>> getFeaturesMap(String species) {
+        String query = "MATCH (species:Species)--(gene:Gene)-[:IS_ALLELE_OF]-(feature:Feature) ";
+        query += getSpeciesWhere(species);
+        query += " RETURN gene.primaryKey,feature.symbolText ";
+
+        return getMapSetForQuery(query, "gene.primaryKey", "feature.symbolText", getSpeciesParams(species));
+    }
+
+    private Map<String, Set<String>> getStrictOrthologySymbolsMap(String species) {
+        String query = "MATCH (species:Species)--(gene:Gene)-[o:ORTHOLOGOUS]-(orthoGene:Gene) WHERE o.strictFilter = true  ";
+        query += getSpeciesWhere(species).replace("WHERE"," AND ");
+        query += "RETURN distinct gene.primaryKey,orthoGene.symbol ";
+
+        return getMapSetForQuery(query, "gene.primaryKey", "orthoGene.symbol", getSpeciesParams(species));
+    }
+
+    private Map<String, Set<String>> getDiseasesMap(String species) {
+        String query = "MATCH (species:Species)--(gene:Gene)-[:IS_IMPLICATED_IN]-(disease:DOTerm) ";
+        query += getSpeciesWhere(species);
+        query += " RETURN distinct gene.primaryKey, disease.nameKey ";
+
+        return getMapSetForQuery(query, "gene.primaryKey", "", getSpeciesParams(species));
+    }
+
 
     private Map<String,Set<String>> getPhenotypeStatementMap(String species) {
         String query = "MATCH (species:Species)--(gene:Gene)--(phenotype:Phenotype) ";

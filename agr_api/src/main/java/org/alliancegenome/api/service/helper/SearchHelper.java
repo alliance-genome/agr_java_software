@@ -41,7 +41,7 @@ public class SearchHelper {
                 {
                     add("species");
                     add("soTermName");
-                    add("diseasesViaExperiment.name");
+                    add("diseases");
                     add("biologicalProcessAgrSlim");
                     add("molecularFunctionAgrSlim");
                     add("cellularComponentAgrSlim");
@@ -116,7 +116,10 @@ public class SearchHelper {
             add("species"); add("species.synonyms"); add("modLocalId");
             add("biologicalProcessWithParents"); add("molecularFunctionWithParents"); add("cellularComponentWithParents");
             add("go_type"); add("go_genes"); add("go_synonyms");
-            add("disease_genes"); add("disease_synonyms"); add("diseasesViaExperiment.name");
+            add("disease_genes"); add("disease_synonyms");
+
+            add("diseases");
+
             //disease cross references:
             add("crossReferences.ontology_provided_cross_reference.name");
             add("crossReferences.ontology_provided_cross_reference.localId");

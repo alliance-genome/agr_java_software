@@ -3,6 +3,7 @@ package org.alliancegenome.es.index.site.cache;
 import lombok.Getter;
 import lombok.Setter;
 import org.alliancegenome.es.index.site.document.GeneDocument;
+import org.alliancegenome.neo4j.entity.node.Gene;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -11,6 +12,12 @@ import java.util.Set;
 @Getter
 @Setter
 public class GeneDocumentCache {
+
+    private Map<String, Gene> genes = new HashMap<>();
+
+    private Map<String,Set<String>> features = new HashMap<>();
+    private Map<String,Set<String>> strictOrthologySymbols = new HashMap<>();
+    private Map<String,Set<String>> diseases = new HashMap<>();
 
     private Map<String,Set<String>> biologicalProcessWithParents = new HashMap<>();
     private Map<String,Set<String>> biologicalProcessAgrSlim = new HashMap<>();
@@ -32,6 +39,10 @@ public class GeneDocumentCache {
     public void addCachedFields(Iterable<GeneDocument> geneDocuments) {
         for (GeneDocument geneDocument : geneDocuments) {
             String id = geneDocument.getPrimaryId();
+
+            geneDocument.setFeatures(features.get(id));
+            geneDocument.setStrictOrthologySymbols(strictOrthologySymbols.get(id));
+            geneDocument.setDiseases(diseases.get(id));
 
             geneDocument.setBiologicalProcessWithParents(biologicalProcessWithParents.get(id));
             geneDocument.setBiologicalProcessAgrSlim(biologicalProcessAgrSlim.get(id));

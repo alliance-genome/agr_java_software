@@ -24,6 +24,9 @@ public abstract class SearchableItemDocument extends ESDocument {
     String nameKey;
     String description;
 
+    Set<String> diseases = new HashSet<>();
+    Set<String> features = new HashSet<>();
+
     Set<String> phenotypeStatements = new HashSet<>();
 
     boolean searchable = true;

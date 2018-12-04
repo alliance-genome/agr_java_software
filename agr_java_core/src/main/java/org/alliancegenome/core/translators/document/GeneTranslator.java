@@ -123,8 +123,7 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
                         .filter(Orthologous::isStrictFilter)
                         .map(Orthologous::getGene2)
                         .map(Gene::getSymbol)
-                        .distinct()
-                        .collect(Collectors.toList())
+                        .collect(Collectors.toSet())
         );
 
         if (gene.getDiseaseEntityJoins() != null && translationDepth > 0) {

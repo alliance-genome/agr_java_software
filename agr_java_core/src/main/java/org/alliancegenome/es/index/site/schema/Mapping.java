@@ -46,6 +46,8 @@ public abstract class Mapping extends Builder {
         new FieldBuilder(builder, "href","keyword");
         new FieldBuilder(builder, "id","keyword");
         new FieldBuilder(builder, "description","text");
+        new FieldBuilder(builder, "diseases", "text").keyword().build();
+        new FieldBuilder(builder, "features", "text").keyword().build();
         new FieldBuilder(builder, "phenotypeStatements", "text")
                 .keyword()
                 .build();

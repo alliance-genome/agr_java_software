@@ -33,14 +33,10 @@ public class GeneIndexer extends Indexer<GeneDocument> {
 
             List<String> fulllist;
             if (System.getProperty("SPECIES") != null) {
-                if (System.getProperty("ALLATONCE") != null) {
-                    geneDocumentCache = geneIndexerRepository.getGeneDocumentCache(System.getProperty("SPECIES"));
-                }
+                geneDocumentCache = geneIndexerRepository.getGeneDocumentCache(System.getProperty("SPECIES"));
                 fulllist = geneRepo.getAllGeneKeys(System.getProperty("SPECIES"));
             } else {
-                if (System.getProperty("ALLATONCE") != null) {
-                    geneDocumentCache = geneIndexerRepository.getGeneDocumentCache();
-                }
+                geneDocumentCache = geneIndexerRepository.getGeneDocumentCache();
                 fulllist = geneRepo.getAllGeneKeys();
             }
 
@@ -54,31 +50,25 @@ public class GeneIndexer extends Indexer<GeneDocument> {
 
     protected void startSingleThread(LinkedBlockingDeque<String> queue) {
         ArrayList<Gene> list = new ArrayList<>();
-        GeneRepository repo = new GeneRepository();
-        GeneIndexerRepository geneIndexerRepository = new GeneIndexerRepository();
         GeneTranslator geneTrans = new GeneTranslator();
         while (true) {
             try {
                 if (list.size() >= indexerConfig.getBufferSize()) {
                     saveDocuments(geneTrans.translateEntities(list));
-                    repo.clearCache();
                     list.clear();
                 }
                 if (queue.isEmpty()) {
                     if (list.size() > 0) {
                         Iterable<GeneDocument> geneDocuments = geneTrans.translateEntities(list);
-                        if (geneDocumentCache != null) {
-                            geneDocumentCache.addCachedFields(geneDocuments);
-                        }
+                        geneDocumentCache.addCachedFields(geneDocuments);
                         saveDocuments(geneDocuments);
-                        repo.clearCache();
                         list.clear();
                     }
                     return;
                 }
 
                 String key = queue.takeFirst();
-                Gene gene = geneIndexerRepository.getIndexableGene(key);
+                Gene gene = geneDocumentCache.getGenes().get(key);
 
                 if (gene != null)
                     list.add(gene);

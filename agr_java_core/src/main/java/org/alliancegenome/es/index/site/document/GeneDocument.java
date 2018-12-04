@@ -41,6 +41,7 @@ public class GeneDocument extends SearchableItemDocument {
     private Map<String, List<CrossReferenceDoclet>> crossReferencesMap;
     private String dataProvider;
     private Date dateProduced;
+
     private List<DiseaseDocument> diseasesViaExperiment = new ArrayList<>();
     private List<DiseaseDocument> diseasesViaOrthology = new ArrayList<>();
     private List<PhenotypeDocument> phenotypes = new ArrayList<>();
@@ -54,7 +55,7 @@ public class GeneDocument extends SearchableItemDocument {
     private String geneSynopsis;
     private String automatedGeneSynopsis;
     private List<OrthologyDoclet> orthology;
-    private List<String> strictOrthologySymbols;
+    private Set<String> strictOrthologySymbols;
     private String geneticEntityExternalUrl;
     private Set<String> whereExpressed;
     private Set<String> anatomicalExpression;         //uberon slim
