@@ -249,6 +249,7 @@ public class SearchService {
         MultivaluedMap<String,String> filters = new MultivaluedHashMap<>();
 
         filters.add(targetField, sourceName);
+        filters.add("category", targetCategory);
 
         Long count = searchDAO.performCountQuery(buildQuery(null, targetCategory, filters));
 
