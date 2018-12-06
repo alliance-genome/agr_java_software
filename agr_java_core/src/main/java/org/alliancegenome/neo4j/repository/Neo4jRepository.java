@@ -1,8 +1,10 @@
 package org.alliancegenome.neo4j.repository;
 
-import java.util.Collections;
-import java.util.Map;
+import java.util.*;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.neo4j.ogm.cypher.ComparisonOperator;
 import org.neo4j.ogm.cypher.Filter;
 import org.neo4j.ogm.cypher.query.Pagination;
@@ -11,6 +13,8 @@ import org.neo4j.ogm.session.Session;
 
 @SuppressWarnings("unchecked")
 public class Neo4jRepository<E> {
+
+    private final Logger log = LogManager.getLogger(getClass());
 
     protected Class<E> entityTypeClazz;
     protected Session neo4jSession = Neo4jSessionFactory.getInstance().getNeo4jSession();
@@ -58,5 +62,53 @@ public class Neo4jRepository<E> {
     public Result queryForResult(String cypherQuery, Map<String, ?> params) {
         return neo4jSession.query(cypherQuery, params);
     }
+
+    //used by Gene & Feature indexer repositories
+    protected String getSpeciesWhere(String species) {
+        if (StringUtils.isNotEmpty(species)) {
+            return " WHERE species.name = {species} ";
+        }
+        return "";
+    }
+
+    //used by Gene & Feature indexer repositories
+    protected Map<String,String> getSpeciesParams(String species) {
+        Map<String,String> params = null;
+        if (StringUtils.isNotEmpty(species)) {
+            params = new HashMap<String,String>() {{ put("species", species); }};
+        }
+        return params;
+    }
+
+    //used by indexer repositories
+    protected Map<String, Set<String>> getMapSetForQuery(String query, String keyField,
+                                                         String returnField, Map<String,String> params) {
+
+        Map<String, Set<String>> returnMap = new HashMap<>();
+
+        Result r;
+
+        if (params == null) {
+            r = queryForResult(query);
+        } else {
+            r = queryForResult(query, params);
+        }
+
+        Iterator<Map<String, Object>> i = r.iterator();
+
+        while (i.hasNext()) {
+            Map<String, Object> resultMap = i.next();
+            String key = (String) resultMap.get(keyField);
+            String value = (String) resultMap.get(returnField);
+
+            returnMap.computeIfAbsent(key, x -> new HashSet<>());
+            returnMap.get(key).add(value);
+        }
+
+        log.info(returnMap.size() + " map entries");
+
+        return returnMap;
+    }
+
 
 }

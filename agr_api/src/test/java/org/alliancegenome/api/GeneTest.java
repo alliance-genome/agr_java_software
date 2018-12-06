@@ -148,7 +148,7 @@ public class GeneTest {
         OrthologyController controller = new OrthologyController();
         String responseString = controller.getSingleSpeciesOrthology("559292", "stringent", "OMA", 20, 1);
         JsonResultResponse response = mapper.readValue(responseString, JsonResultResponse.class);
-        assertThat("Orthology records found for mouse genes", response.getTotal(), greaterThan(0));
+        assertThat("Orthology records found for mouse geneMap", response.getTotal(), greaterThan(0));
     }
 
     @Test
@@ -566,13 +566,13 @@ public class GeneTest {
         DiseaseDocument doc = diseaseViaExperiment.stream().filter(diseaseDocument -> diseaseDocument.getName().equals("Alzheimer's disease")).findFirst().get();
         assertThat(doc.getAnnotations().size(), equalTo(5));
 
-        // 5 annotations with different orthology genes
+        // 5 annotations with different orthology geneMap
         assertThat(doc.getAnnotations().stream().filter(annotationDocument -> annotationDocument.getOrthologyGeneDocument() != null).count(), equalTo(5L));
         List<String> orthoGeneName = doc.getAnnotations().stream()
                 .filter(annotationDocument -> annotationDocument.getOrthologyGeneDocument() != null)
                 .map(annotationDocument -> annotationDocument.getOrthologyGeneDocument().getSymbol())
                 .collect(Collectors.toList());
-        // five ortho genes (symbols)
+        // five ortho geneMap (symbols)
         assertThat(orthoGeneName, containsInAnyOrder("IGF1R",
                 "Igf1r",
                 "Insr",

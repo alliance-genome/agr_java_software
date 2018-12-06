@@ -19,11 +19,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
 
     public Map<String,Gene> getGeneMap(String species) {
 
-        HashMap<String, String> map = new HashMap<>();
-        map.put("species", species);
-
-        String query = "";
-        query += " MATCH p1=(species:Species)-[:FROM_SPECIES]-(g:Gene) ";
+        String query = " MATCH p1=(species:Species)-[:FROM_SPECIES]-(g:Gene) ";
         query += getSpeciesWhere(species);
         query += " OPTIONAL MATCH pSyn=(g:Gene)-[:ALSO_KNOWN_AS]-(:Synonym) ";
         query += " OPTIONAL MATCH pCR=(g:Gene)-[:CROSS_REFERENCE]-(:CrossReference)";
@@ -33,7 +29,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
         Iterable<Gene> genes = null;
 
         if (species != null) {
-            genes = query(query, map);
+            genes = query(query, getSpeciesParams(species));
         } else {
             genes = query(query);
         }
@@ -77,7 +73,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
         GeneDocumentCache geneDocumentCache = new GeneDocumentCache();
 
         log.info("Fetching genes");
-        geneDocumentCache.setGenes(getGeneMap(species));
+        geneDocumentCache.setGeneMap(getGeneMap(species));
 
         log.info("Building gene -> features map");
         geneDocumentCache.setFeatures(getFeaturesMap(species));
@@ -215,47 +211,4 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
         return getMapSetForQuery(query, "gene.primaryKey", "term.name", getSpeciesParams(species));
     }
 
-    private Map<String, Set<String>> getMapSetForQuery(String query, String keyField,
-                                                       String returnField, Map<String,String> params) {
-
-        Map<String, Set<String>> returnMap = new HashMap<>();
-
-        Result r;
-
-        if (params == null) {
-            r = queryForResult(query);
-        } else {
-            r = queryForResult(query, params);
-        }
-
-        Iterator<Map<String, Object>> i = r.iterator();
-
-        while (i.hasNext()) {
-            Map<String, Object> resultMap = i.next();
-            String key = (String) resultMap.get(keyField);
-            String value = (String) resultMap.get(returnField);
-
-            returnMap.computeIfAbsent(key, x -> new HashSet<>());
-            returnMap.get(key).add(value);
-        }
-
-        log.info(returnMap.size() + " map entries");
-
-        return returnMap;
-    }
-
-    private String getSpeciesWhere(String species) {
-        if (StringUtils.isNotEmpty(species)) {
-            return " WHERE species.name = {species} ";
-        }
-        return "";
-    }
-
-    private Map<String,String> getSpeciesParams(String species) {
-        Map<String,String> params = null;
-        if (StringUtils.isNotEmpty(species)) {
-            params = new HashMap<String,String>() {{ put("species", species); }};
-        }
-        return params;
-    }
 }

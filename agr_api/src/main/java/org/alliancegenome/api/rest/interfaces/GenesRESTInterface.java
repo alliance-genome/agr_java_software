@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.util.List;
 
 
-@Path("/genes")
+@Path("/geneMap")
 @Api(value = "Genes")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)

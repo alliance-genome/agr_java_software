@@ -13,6 +13,7 @@ import org.apache.logging.log4j.Logger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingDeque;
+import java.util.stream.Collectors;
 
 public class GeneIndexer extends Indexer<GeneDocument> {
 
@@ -34,7 +35,7 @@ public class GeneIndexer extends Indexer<GeneDocument> {
             List<String> fulllist;
             if (System.getProperty("SPECIES") != null) {
                 geneDocumentCache = geneIndexerRepository.getGeneDocumentCache(System.getProperty("SPECIES"));
-                fulllist = geneRepo.getAllGeneKeys(System.getProperty("SPECIES"));
+                fulllist = geneDocumentCache.getGeneMap().keySet().stream().collect(Collectors.toList());
             } else {
                 geneDocumentCache = geneIndexerRepository.getGeneDocumentCache();
                 fulllist = geneRepo.getAllGeneKeys();
@@ -68,7 +69,7 @@ public class GeneIndexer extends Indexer<GeneDocument> {
                 }
 
                 String key = queue.takeFirst();
-                Gene gene = geneDocumentCache.getGenes().get(key);
+                Gene gene = geneDocumentCache.getGeneMap().get(key);
 
                 if (gene != null)
                     list.add(gene);

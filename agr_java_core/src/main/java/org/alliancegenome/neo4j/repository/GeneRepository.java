@@ -43,20 +43,6 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         super(Gene.class);
     }
 
-
-
-
-    /*
-        query += " MATCH p1=(q:Species)-[:FROM_SPECIES]-(g:Gene) WHERE g.primaryKey = {primaryKey}";
-        query += " OPTIONAL MATCH pSyn=(g:Gene)-[:ALSO_KNOWN_AS]-(:Synonym) ";
-        query += " OPTIONAL MATCH pCR=(g:Gene)-[:CROSS_REFERENCE]-(:CrossReference)";
-        query += " OPTIONAL MATCH pChr=(g:Gene)-[:LOCATED_ON]-(:Chromosome)";
-
-     */
-
-
-
-
     public Gene getOneGene(String primaryKey) {
         HashMap<String, String> map = new HashMap<>();
 

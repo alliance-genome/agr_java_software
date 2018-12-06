@@ -7,7 +7,7 @@ import spock.lang.Unroll
 
 class DiseaseAnnotationSpec extends Specification {
 
-    @Ignore("Not working until we get disease data on genes")
+    @Ignore("Not working until we get disease data on geneMap")
     @Unroll
     def "When querying for #query with #filter, #betterResult comes before #worseResult"() {
         when:

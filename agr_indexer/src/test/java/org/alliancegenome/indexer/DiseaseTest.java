@@ -75,7 +75,7 @@ public class DiseaseTest {
         Iterable<DOTerm> disease_entities = neo4jService.getPage(0, 1000, 3);
 
         disease_entities.forEach(entity -> {
-            if (entity.getGenes() != null)
+            if (entity.getGeneMap() != null)
                 System.out.println(entity);
         });
         Collection<DOTerm> entityt = neo4jService.getEntity("primaryKey", "DOID:9281");

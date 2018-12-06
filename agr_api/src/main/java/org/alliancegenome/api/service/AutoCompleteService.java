@@ -78,7 +78,7 @@ public class AutoCompleteService {
         for(SearchHit hit: res.getHits()) {
             String category = (String) hit.getSourceAsMap().get("category");
 
-            //this comes over from the Python code, use symbol for genes,
+            //this comes over from the Python code, use symbol for geneMap,
             //seems like maybe it could also use name_key for everyone...
             if (StringUtils.equals(category,"gene")) {
                 hit.getSourceAsMap().put("name", hit.getSourceAsMap().get("symbol"));

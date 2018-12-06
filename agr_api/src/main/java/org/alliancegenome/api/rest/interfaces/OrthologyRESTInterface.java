@@ -72,10 +72,10 @@ public interface OrthologyRESTInterface {
             @DefaultValue("1") @QueryParam("start") Integer start) throws IOException;
 
     @GET
-    @Path("/genes")
-    @ApiOperation(value = "Retrieve homologous gene records for given list of genes")
+    @Path("/geneMap")
+    @ApiOperation(value = "Retrieve homologous gene records for given list of geneMap")
     String getMultiGeneOrthology(
-            @ApiParam(name = "geneID", value = "List of genes (specified by their ID) for which homology is retrieved, e.g. 'MGI:109583'")
+            @ApiParam(name = "geneID", value = "List of geneMap (specified by their ID) for which homology is retrieved, e.g. 'MGI:109583'")
             @QueryParam("geneID") List<String> geneID,
             @ApiParam(name = "geneIdList", value = "List of additional source gene IDs for which homology is retrieved in a comma-delimited list, e.g. 'MGI:109583,RGD:2129,MGI:97570")
             @QueryParam("geneIdList") String geneList,

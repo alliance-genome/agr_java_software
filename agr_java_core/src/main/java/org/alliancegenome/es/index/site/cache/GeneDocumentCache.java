@@ -11,13 +11,11 @@ import java.util.Set;
 
 @Getter
 @Setter
-public class GeneDocumentCache {
+public class GeneDocumentCache extends IndexerCache {
 
-    private Map<String, Gene> genes = new HashMap<>();
+    private Map<String, Gene> geneMap = new HashMap<>();
 
-    private Map<String,Set<String>> features = new HashMap<>();
     private Map<String,Set<String>> strictOrthologySymbols = new HashMap<>();
-    private Map<String,Set<String>> diseases = new HashMap<>();
 
     private Map<String,Set<String>> biologicalProcessWithParents = new HashMap<>();
     private Map<String,Set<String>> biologicalProcessAgrSlim = new HashMap<>();
@@ -33,7 +31,6 @@ public class GeneDocumentCache {
     private Map<String,Set<String>> anatomicalExpression = new HashMap<>();         //uberon slim
     private Map<String,Set<String>> anatomicalExpressionWithParents = new HashMap<>();
 
-    private Map<String,Set<String>> phenotypeStatements = new HashMap<>();
 
 
     public void addCachedFields(Iterable<GeneDocument> geneDocuments) {
