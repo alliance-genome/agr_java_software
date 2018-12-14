@@ -6,8 +6,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import org.alliancegenome.es.util.DateConverter;
 import org.alliancegenome.neo4j.entity.Neo4jEntity;
+import org.alliancegenome.neo4j.view.View;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.typeconversion.Convert;
@@ -20,7 +22,9 @@ import lombok.Setter;
 @Setter
 public class Feature extends Neo4jEntity implements Comparable<Feature> {
 
+    @JsonView({View.DefaultView.class})
     private String primaryKey;
+    @JsonView({View.DefaultView.class})
     private String symbol;
 
     @Convert(value=DateConverter.class)
@@ -28,11 +32,13 @@ public class Feature extends Neo4jEntity implements Comparable<Feature> {
     private String release;
     private String localId;
     private String globalId;
+    @JsonView({View.DefaultView.class})
     private String modCrossRefCompleteUrl;
 
     @Relationship(type = "FROM_SPECIES")
     private Species species;
 
+    @JsonView({View.DefaultView.class})
     @Relationship(type = "ALSO_KNOWN_AS")
     private Set<Synonym> synonyms = new HashSet<>();
 
@@ -48,6 +54,7 @@ public class Feature extends Neo4jEntity implements Comparable<Feature> {
     @Relationship(type = "HAS_PHENOTYPE")
     private List<Phenotype> phenotypes = new ArrayList<>();
 
+    @JsonView({View.DefaultView.class})
     @Relationship(type = "CROSS_REFERENCE")
     private List<CrossReference> crossReferences = new ArrayList<>();
 

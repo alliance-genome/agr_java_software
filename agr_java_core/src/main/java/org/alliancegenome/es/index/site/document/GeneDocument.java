@@ -44,7 +44,6 @@ public class GeneDocument extends SearchableItemDocument {
 
     private List<DiseaseDocument> diseasesViaExperiment = new ArrayList<>();
     private List<DiseaseDocument> diseasesViaOrthology = new ArrayList<>();
-    private List<PhenotypeDocument> phenotypes = new ArrayList<>();
     private String geneSynopsisUrl;
     private String primaryId;
     private List<GenomeLocationDoclet> genomeLocations;

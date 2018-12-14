@@ -1,6 +1,9 @@
 package org.alliancegenome.neo4j.repository;
 
+import org.alliancegenome.es.model.query.FieldFilter;
+import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.node.Phenotype;
+import org.alliancegenome.neo4j.view.BaseFilter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.neo4j.ogm.model.Result;
@@ -9,6 +12,7 @@ import java.util.*;
 
 public class PhenotypeRepository extends Neo4jRepository<Phenotype> {
 
+    public static final String TOTAL_COUNT = "totalCount";
     private Logger log = LogManager.getLogger(getClass());
 
     public PhenotypeRepository() {
@@ -55,5 +59,131 @@ public class PhenotypeRepository extends Neo4jRepository<Phenotype> {
         if (primaryTerm == null) return null;
         return primaryTerm;
     }
-    
+
+    public Result getPhenotype(String geneID, Pagination pagination) {
+
+        HashMap<String, String> bindingValueMap = new HashMap<>();
+        bindingValueMap.put("geneID", geneID);
+
+        String cypher = "MATCH p0=(phenotype:Phenotype)--(phenotypeEntityJoin:PhenotypeEntityJoin)-[:EVIDENCE]-(publication:Publication), " +
+                "        p2=(phenotypeEntityJoin)--(gene:Gene)-[:FROM_SPECIES]-(species:Species) ";
+
+        String cypherFeatureOptional = "OPTIONAL MATCH p4=(phenotypeEntityJoin)--(feature:Feature)--(crossReference:CrossReference) ";
+        String entityType = pagination.getFieldFilterValueMap().get(FieldFilter.GENETIC_ENTITY_TYPE);
+        if (entityType != null && entityType.equals("allele")) {
+            cypher += ", p4=(phenotypeEntityJoin)--(feature:Feature)--(crossReference:CrossReference) ";
+            cypherFeatureOptional = "";
+        }
+        String cypherWhereClause = "        where gene.primaryKey = {geneID} ";
+        if (entityType != null && entityType.equals("gene")) {
+            cypherWhereClause += "AND NOT (phenotypeEntityJoin)--(:Feature) ";
+        }
+        String phenotypeFilterClause = addAndWhereClauseString("phenotype.phenotypeStatement", FieldFilter.PHENOTYPE, pagination.getFieldFilterValueMap());
+        if (phenotypeFilterClause != null) {
+            cypherWhereClause += phenotypeFilterClause;
+        }
+
+        // add reference filter clause
+        String referenceFilterClause = addAndWhereClauseORString("publication.pubModId", "publication.pubMedId", FieldFilter.FREFERENCE, pagination.getFieldFilterValueMap());
+        if (referenceFilterClause != null) {
+            cypherWhereClause += referenceFilterClause;
+        }
+
+        String geneticEntityFilterClause = addAndWhereClauseString("feature.symbol", FieldFilter.GENETIC_ENTITY, pagination.getFieldFilterValueMap());
+        if (geneticEntityFilterClause != null) {
+            cypherWhereClause += geneticEntityFilterClause;
+            bindingValueMap.put("feature", pagination.getFieldFilterValueMap().get(FieldFilter.GENETIC_ENTITY));
+            cypher += ", p4=(phenotypeEntityJoin)--(feature:Feature)--(crossReference:CrossReference) ";
+        }
+        cypher += cypherWhereClause;
+        if (geneticEntityFilterClause == null) {
+            cypher += cypherFeatureOptional;
+        }
+        cypher += "return distinct phenotype.phenotypeStatement as phenotype, " +
+                "       feature.symbol, " +
+                "       feature as feature, " +
+                "       collect(crossReference) as crossReferences, " +
+                "       collect(publication.pubMedId), " +
+                "       collect(publication) as publications, " +
+                "       count(publication),         " +
+                "       collect(publication.pubModId) " +
+                "order by LOWER(phenotype.phenotypeStatement), LOWER(feature.symbol)";
+        cypher += " SKIP " + pagination.getStart() + " LIMIT " + pagination.getLimit();
+
+        return queryForResult(cypher, bindingValueMap);
+    }
+
+    private String addAndWhereClauseORString(String eitherElement, String orElement, FieldFilter fieldFilter, BaseFilter baseFilter) {
+        String eitherClause = addWhereClauseString(eitherElement, fieldFilter, baseFilter, null);
+        if (eitherClause == null)
+            return null;
+        String orClause = addWhereClauseString(orElement, fieldFilter, baseFilter, null);
+        if (orClause == null)
+            return null;
+        return "AND (" + eitherClause + " OR " + orClause + ") ";
+    }
+
+    public Long getTotalPhenotypeCount(String geneID, Pagination pagination) {
+
+        HashMap<String, String> bindingValueMap = new HashMap<>();
+        bindingValueMap.put("geneID", geneID);
+
+        String baseCypher = "MATCH p0=(phenotype:Phenotype)--(phenotypeEntityJoin:PhenotypeEntityJoin)-[:EVIDENCE]-(publication:Publication), " +
+                "        p2=(phenotypeEntityJoin)--(gene:Gene) " +
+                "where gene.primaryKey = {geneID} ";
+        // get feature-less phenotypes
+        String phenotypeFilterClause = addAndWhereClauseString("phenotype.phenotypeStatement", FieldFilter.PHENOTYPE, pagination.getFieldFilterValueMap());
+        if (phenotypeFilterClause != null) {
+            baseCypher += phenotypeFilterClause;
+            bindingValueMap.put("phenotype", pagination.getFieldFilterValueMap().get(FieldFilter.PHENOTYPE));
+        }
+
+        // add reference filter clause
+        String referenceFilterClause = addAndWhereClauseORString("publication.pubModId", "publication.pubMedId", FieldFilter.FREFERENCE, pagination.getFieldFilterValueMap());
+        if (referenceFilterClause != null) {
+            baseCypher += referenceFilterClause;
+        }
+
+        String cypher = baseCypher + "AND NOT (phenotypeEntityJoin)--(:Feature) " +
+                "return count(distinct phenotype.phenotypeStatement) as " + TOTAL_COUNT;
+
+        Long featureLessPhenotype = 0L;
+
+        String geneticEntityFilterClause = addWhereClauseString("feature.symbol", FieldFilter.GENETIC_ENTITY, pagination.getFieldFilterValueMap(), "WHERE");
+        if (geneticEntityFilterClause == null)
+            featureLessPhenotype = (Long) queryForResult(cypher, bindingValueMap).iterator().next().get(TOTAL_COUNT);
+
+        // feature-related phenotypes
+        cypher = baseCypher;
+
+        cypher += "WITH distinct phenotype, phenotypeEntityJoin ";
+        cypher += "MATCH (phenotypeEntityJoin)--(feature:Feature) ";
+        if (geneticEntityFilterClause != null) {
+            cypher += geneticEntityFilterClause;
+            bindingValueMap.put("feature", pagination.getFieldFilterValueMap().get(FieldFilter.GENETIC_ENTITY));
+        }
+        cypher += "return count(distinct phenotype.phenotypeStatement+feature.symbol) as " + TOTAL_COUNT;
+
+        Long featurePhenotype = (Long) queryForResult(cypher, bindingValueMap).iterator().next().get(TOTAL_COUNT);
+        String entityType = pagination.getFieldFilterValueMap().get(FieldFilter.GENETIC_ENTITY_TYPE);
+        if (entityType != null) {
+            switch (entityType) {
+                case "allele":
+                    return featurePhenotype;
+                case "gene":
+                    return featureLessPhenotype;
+                default: break;
+            }
+        }
+        return featureLessPhenotype + featurePhenotype;
+    }
+
+    private String getPhenotypeBaseQuery() {
+        return "MATCH p0=(phenotype:Phenotype)--(phenotypeEntityJoin:PhenotypeEntityJoin)-[:EVIDENCE]-(publication:Publication), " +
+                "p2=(phenotypeEntityJoin)--(gene:Gene)-[:FROM_SPECIES]-(species:Species) " +
+                "where gene.primaryKey = {geneID} " +
+                "OPTIONAL MATCH p4=(phenotypeEntityJoin)--(feature:Feature) ";
+    }
+
+
 }

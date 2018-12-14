@@ -1,12 +1,19 @@
 package org.alliancegenome.es.index.site.dao;
 
 import org.alliancegenome.core.config.ConfigHelper;
+import org.alliancegenome.core.service.JsonResultResponse;
+import org.alliancegenome.core.translators.document.FeatureTranslator;
 import org.alliancegenome.es.index.ESDAO;
-import org.alliancegenome.es.index.site.document.PhenotypeAnnotationDocument;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.es.model.search.SearchApiResponse;
-import org.alliancegenome.es.util.SearchHitIterator;
+import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
+import org.alliancegenome.neo4j.entity.node.CrossReference;
+import org.alliancegenome.neo4j.entity.node.Feature;
+import org.alliancegenome.neo4j.entity.node.Gene;
+import org.alliancegenome.neo4j.entity.node.Publication;
+import org.alliancegenome.neo4j.repository.GeneRepository;
+import org.alliancegenome.neo4j.repository.PhenotypeRepository;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.elasticsearch.action.get.GetRequest;
@@ -14,15 +21,23 @@ import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.index.query.*;
 import org.elasticsearch.search.sort.SortBuilders;
+import org.neo4j.ogm.model.Result;
 
-import java.util.*;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 public class GeneDAO extends ESDAO {
 
     private Log log = LogFactory.getLog(getClass());
 
-    // This class is going to get replaced by a call to NEO
+    private GeneRepository geneRepository = new GeneRepository();
+    private PhenotypeRepository phenotypeRepository = new PhenotypeRepository();
+
+    private FeatureTranslator featureTranslator = new FeatureTranslator();
 
     public Map<String, Object> getById(String id) {
         try {
@@ -88,49 +103,38 @@ public class GeneDAO extends ESDAO {
         return searchRequestBuilder;
     }
 
-    public SearchApiResponse getPhenotypeAnnotations(String geneID, Pagination pagination) {
-        SearchRequestBuilder searchRequestBuilder = getSearchRequestBuilderPhenotype(geneID, pagination);
-        return getSearchResult(pagination, searchRequestBuilder);
+    public JsonResultResponse<PhenotypeAnnotation> getPhenotypeAnnotations(String geneID, Pagination pagination) {
+        LocalDateTime startDate = LocalDateTime.now();
+        List<PhenotypeAnnotation> list = getPhenotypeAnnotationList(geneID, pagination);
+        JsonResultResponse<PhenotypeAnnotation> response = new JsonResultResponse<>();
+        response.calculateRequestDuration(startDate);
+        response.setResults(list);
+        Long count = phenotypeRepository.getTotalPhenotypeCount(geneID, pagination);
+        response.setTotal((int) (long) count);
+        return response;
     }
 
-    private SearchRequestBuilder getSearchRequestBuilderPhenotype(String geneID, Pagination pagination) {
+    private List<PhenotypeAnnotation> getPhenotypeAnnotationList(String geneID, Pagination pagination) {
 
-        SearchRequestBuilder searchRequestBuilder = searchClient.prepareSearch();
-        //searchRequestBuilder.setExplain(true);
-        searchRequestBuilder.setIndices(ConfigHelper.getEsIndex());
+        Result result = phenotypeRepository.getPhenotype(geneID, pagination);
+        List<PhenotypeAnnotation> annotationDocuments = new ArrayList<>();
+        result.forEach(objectMap -> {
+            PhenotypeAnnotation document = new PhenotypeAnnotation();
+            Gene gene = new Gene();
+            gene.setPrimaryKey(geneID);
+            document.setGene(gene);
+            document.setPhenotype((String) objectMap.get("phenotype"));
+            Feature feature = (Feature) objectMap.get("feature");
+            if (feature != null) {
+                List<CrossReference> ref = (List<CrossReference>) objectMap.get("crossReferences");
+                feature.setCrossReferences(ref);
+                document.setFeature(feature);
+            }
+            document.setPublications((List<Publication>) objectMap.get("publications"));
+            annotationDocuments.add(document);
+        });
 
-        // match on termName
-        // child terms have the parent Term ID in the field parentDiseaseIDs
-        TermQueryBuilder builder = QueryBuilders.termQuery("category", PhenotypeAnnotationDocument.CATEGORY);
-        BoolQueryBuilder query = QueryBuilders.boolQuery().must(builder);
-        query.must(QueryBuilders.termQuery("geneDocument.primaryId", geneID));
-
-        phenotypeFieldFilterMap.forEach((filter, fieldNames) -> {
-                    String rawValue = pagination.getFieldFilterValueMap().get(filter);
-                    if (rawValue != null) {
-                        // match multiple fields with prefix type
-                        String[] fieldNameArray = fieldNames.toArray(new String[fieldNames.size()]);
-                        AbstractQueryBuilder termBuilder;
-                        if (fieldNameArray.length > 1) {
-                            termBuilder = QueryBuilders.multiMatchQuery(rawValue.toLowerCase(), fieldNameArray)
-                                    .type(MultiMatchQueryBuilder.Type.PHRASE_PREFIX);
-                        } else {
-                            termBuilder = QueryBuilders.prefixQuery(fieldNameArray[0], rawValue.toLowerCase());
-                        }
-                        query.must(termBuilder);
-                    }
-                }
-        );
-
-        diseaseFieldFilterSortingMap.entrySet().stream()
-                .filter(entry -> entry.getKey().getName().equals(pagination.getSortBy()))
-                .forEach(entrySet ->
-                        searchRequestBuilder.addSort(SortBuilders.fieldSort(entrySet.getValue()).order(getAscending(pagination.getAsc())))
-                );
-
-        searchRequestBuilder.setQuery(query);
-        log.debug(searchRequestBuilder);
-        return searchRequestBuilder;
+        return annotationDocuments;
     }
 
 
@@ -140,20 +144,5 @@ public class GeneDAO extends ESDAO {
         diseaseFieldFilterSortingMap.put(FieldFilter.PHENOTYPE, "phenotype.sort");
         diseaseFieldFilterSortingMap.put(FieldFilter.GENETIC_ENTITY, "featureDocument.symbol.sort");
     }
-
-    private static Map<FieldFilter, List<String>> phenotypeFieldFilterMap = new HashMap<>(10);
-
-    static {
-        phenotypeFieldFilterMap.put(FieldFilter.PHENOTYPE, Collections.singletonList("phenotype.standardText"));
-        phenotypeFieldFilterMap.put(FieldFilter.GENETIC_ENTITY, Collections.singletonList("featureDocument.searchSymbol"));
-        phenotypeFieldFilterMap.put(FieldFilter.GENETIC_ENTITY_TYPE, Arrays.asList("featureDocument.category.autocomplete", "geneDocument.category.autocomplete"));
-        phenotypeFieldFilterMap.put(FieldFilter.REFERENCE, Arrays.asList("publications.pubModId.standardText", "publications.pubMedId.standardText"));
-    }
-
-    public SearchHitIterator getPhenotypeAnnotationsDownload(String id, Pagination pagination) {
-        SearchRequestBuilder searchRequestBuilder = getSearchRequestBuilderPhenotype(id, pagination);
-        return new SearchHitIterator(searchRequestBuilder);
-    }
-
 
 }

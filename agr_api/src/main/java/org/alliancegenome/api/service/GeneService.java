@@ -1,9 +1,11 @@
 package org.alliancegenome.api.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.es.index.site.dao.GeneDAO;
+import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.es.model.search.SearchApiResponse;
-import org.alliancegenome.es.util.SearchHitIterator;
 import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
 import org.alliancegenome.neo4j.repository.InteractionRepository;
 
@@ -32,12 +34,8 @@ public class GeneService {
         return geneDAO.getAllelesByGene(id, pagination);
     }
 
-    public SearchApiResponse getPhenotypeAnnotations(String id, Pagination pagination) {
+    public JsonResultResponse<PhenotypeAnnotation> getPhenotypeAnnotations(String id, Pagination pagination) throws JsonProcessingException {
         return geneDAO.getPhenotypeAnnotations(id, pagination);
-    }
-
-    public SearchHitIterator getPhenotypeAnnotationsDownload(String id, Pagination pagination) {
-        return geneDAO.getPhenotypeAnnotationsDownload(id, pagination);
     }
 
     public List<InteractionGeneJoin> getInteractions(String id) {

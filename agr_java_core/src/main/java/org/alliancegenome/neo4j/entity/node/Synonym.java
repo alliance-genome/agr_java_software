@@ -1,5 +1,7 @@
 package org.alliancegenome.neo4j.entity.node;
 
+import com.fasterxml.jackson.annotation.JsonView;
+import org.alliancegenome.neo4j.view.View;
 import org.neo4j.ogm.annotation.NodeEntity;
 
 import lombok.Getter;
@@ -10,5 +12,6 @@ import lombok.Setter;
 public class Synonym extends Identifier {
 
     private String primaryKey;
+    @JsonView({View.DefaultView.class})
     private String name;
 }

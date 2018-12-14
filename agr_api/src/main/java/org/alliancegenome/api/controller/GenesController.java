@@ -3,10 +3,7 @@ package org.alliancegenome.api.controller;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.alliancegenome.api.rest.interfaces.GenesRESTInterface;
-import org.alliancegenome.api.service.GeneService;
 import org.alliancegenome.core.service.JsonResultResponse;
-import org.alliancegenome.core.translators.tdf.PhenotypeAnnotationToTdfTranslator;
-import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.alliancegenome.neo4j.view.OrthologyFilter;
@@ -14,7 +11,6 @@ import org.alliancegenome.neo4j.view.View;
 import org.apache.commons.collections.CollectionUtils;
 
 import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.Context;
@@ -27,10 +23,7 @@ import java.util.StringJoiner;
 @RequestScoped
 public class GenesController extends BaseController implements GenesRESTInterface {
 
-    public static final String API_VERSION = "0.9";
-    @Inject
-    private GeneService geneService;
-    private final PhenotypeAnnotationToTdfTranslator translator = new PhenotypeAnnotationToTdfTranslator();
+    private static final String API_VERSION = "0.9";
     private ObjectMapper mapper = new ObjectMapper();
 
     @Context
@@ -67,8 +60,7 @@ public class GenesController extends BaseController implements GenesRESTInterfac
     }
 
     @Override
-    public String getGeneIDs(List<String> taxonID, Integer rows, Integer start) throws IOException {
-        LocalDateTime startDate = LocalDateTime.now();
+    public String getGeneIDs(List<String> taxonID, Integer rows, Integer start) {
         GeneRepository repo = new GeneRepository();
         List<String> taxonList = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(taxonID)) {
@@ -79,14 +71,8 @@ public class GenesController extends BaseController implements GenesRESTInterfac
         orthologyFilter.setStart(start);
         List<String> geneIDs = repo.getGeneIDs(orthologyFilter);
         StringJoiner joiner = new StringJoiner(",");
-        geneIDs.forEach(s -> joiner.add(s));
+        geneIDs.forEach(joiner::add);
         return joiner.toString();
-    }
-
-    public String getPhenotypeAnnotationsDownload(String id) {
-        Pagination pagination = new Pagination(1, Integer.MAX_VALUE, "termName", null);
-        // retrieve all records
-        return translator.getAllRows(geneService.getPhenotypeAnnotationsDownload(id, pagination));
     }
 
 }

@@ -17,11 +17,7 @@ import org.alliancegenome.es.index.site.cache.GeneDocumentCache;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.SpeciesType;
-import org.alliancegenome.neo4j.entity.node.BioEntityGeneExpressionJoin;
-import org.alliancegenome.neo4j.entity.node.GOTerm;
-import org.alliancegenome.neo4j.entity.node.Gene;
-import org.alliancegenome.neo4j.entity.node.Ontology;
-import org.alliancegenome.neo4j.entity.node.UBERONTerm;
+import org.alliancegenome.neo4j.entity.node.*;
 import org.alliancegenome.neo4j.view.OrthologyFilter;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -300,7 +296,7 @@ public class GeneRepository extends Neo4jRepository<Gene> {
     public List<BioEntityGeneExpressionJoin> getExpressionAnnotations(List<String> geneIDs, String termID, Pagination pagination) {
         StringJoiner sj = new StringJoiner(",", "[", "]");
         geneIDs.forEach(geneID -> sj.add("'" + geneID + "'"));
-        String sourceFilterClause = addWhereClauseString("crossRef.displayName", FieldFilter.FSOURCE, pagination);
+        String sourceFilterClause = addAndWhereClauseString("crossRef.displayName", FieldFilter.FSOURCE, pagination.getFieldFilterValueMap());
 
         String query = " MATCH p1=(species:Species)--(gene:Gene)-->(s:BioEntityGeneExpressionJoin)--(t)," +
                 " entity = (s:BioEntityGeneExpressionJoin)--(exp:ExpressionBioEntity)--(o:Ontology) ";
@@ -308,20 +304,20 @@ public class GeneRepository extends Neo4jRepository<Gene> {
             query += ", crossReference = (s:BioEntityGeneExpressionJoin)--(crossRef:CrossReference) ";
         query += "WHERE gene.primaryKey in " + sj.toString();
 
-        String geneFilterClause = addWhereClauseString("gene.symbol", FieldFilter.GENE_NAME, pagination);
+        String geneFilterClause = addAndWhereClauseString("gene.symbol", FieldFilter.GENE_NAME, pagination.getFieldFilterValueMap());
         if (geneFilterClause != null) {
-            query += " AND " + geneFilterClause;
+            query += geneFilterClause;
         }
-        String speciesFilterClause = addWhereClauseString("species.name", FieldFilter.FSPECIES, pagination);
+        String speciesFilterClause = addAndWhereClauseString("species.name", FieldFilter.FSPECIES, pagination.getFieldFilterValueMap());
         if (speciesFilterClause != null) {
-            query += " AND " + speciesFilterClause;
+            query +=  speciesFilterClause;
         }
         if (sourceFilterClause != null) {
-            query += " AND " + sourceFilterClause;
+            query += sourceFilterClause;
         }
-        String termFilterClause = addWhereClauseString("exp.whereExpressedStatement", FieldFilter.TERM_NAME, pagination);
+        String termFilterClause = addAndWhereClauseString("exp.whereExpressedStatement", FieldFilter.TERM_NAME, pagination.getFieldFilterValueMap());
         if (termFilterClause != null) {
-            query += " AND " + termFilterClause;
+            query +=termFilterClause;
         }
         if (sourceFilterClause == null) {
             query += " OPTIONAL MATCH crossReference = (s:BioEntityGeneExpressionJoin)--(crossRef:CrossReference) ";
@@ -374,15 +370,6 @@ public class GeneRepository extends Neo4jRepository<Gene> {
             }
         }
         return joinList;
-    }
-
-    private String addWhereClauseString(String fieldName, FieldFilter fieldFilter, Pagination pagination) {
-        String value = pagination.getFieldFilterValueMap().get(fieldFilter);
-        String query = null;
-        if (value != null) {
-            query = " LOWER(" + fieldName + ") =~ '.*" + value.toLowerCase() + ".*' ";
-        }
-        return query;
     }
 
     public List<BioEntityGeneExpressionJoin> getExpressionAnnotationsByTaxon(String taxonID, String

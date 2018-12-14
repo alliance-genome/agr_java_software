@@ -2,6 +2,7 @@ package org.alliancegenome.es.model.query;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.alliancegenome.neo4j.view.BaseFilter;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
@@ -15,7 +16,7 @@ public class Pagination {
     private String sortBy;
     private FieldFilter sortByField;
     private Boolean asc;
-    private Map<FieldFilter, String> fieldFilterValueMap = new HashMap<>(10);
+    private BaseFilter fieldFilterValueMap = new BaseFilter();
     private List<String> errorList = new ArrayList<>();
 
     private boolean isCount = false;
@@ -55,6 +56,15 @@ public class Pagination {
 
     public void addFieldFilter(FieldFilter fieldFilter, String value) {
         fieldFilterValueMap.put(fieldFilter, value);
+    }
+
+    public void makeSingleFieldFilter(FieldFilter fieldFilter, String value) {
+        fieldFilterValueMap.clear();
+        fieldFilterValueMap.put(fieldFilter, value);
+    }
+
+    public void removeFieldFilter(FieldFilter fieldFilter) {
+        fieldFilterValueMap.remove(fieldFilter);
     }
 
     public boolean hasErrors() {

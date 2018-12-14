@@ -1,16 +1,19 @@
 package org.alliancegenome.core.translators.document;
 
-import org.alliancegenome.core.service.OrthologyService;
 import org.alliancegenome.core.translators.EntityDocumentTranslator;
 import org.alliancegenome.core.translators.doclet.CrossReferenceDocletTranslator;
 import org.alliancegenome.es.index.site.doclet.CrossReferenceDoclet;
 import org.alliancegenome.es.index.site.doclet.GenomeLocationDoclet;
-import org.alliancegenome.es.index.site.doclet.OrthologyDoclet;
-import org.alliancegenome.es.index.site.document.*;
-import org.alliancegenome.neo4j.entity.node.*;
+import org.alliancegenome.es.index.site.document.AnnotationDocument;
+import org.alliancegenome.es.index.site.document.DiseaseDocument;
+import org.alliancegenome.es.index.site.document.FeatureDocument;
+import org.alliancegenome.es.index.site.document.GeneDocument;
+import org.alliancegenome.neo4j.entity.node.GOTerm;
+import org.alliancegenome.neo4j.entity.node.Gene;
+import org.alliancegenome.neo4j.entity.node.SecondaryId;
+import org.alliancegenome.neo4j.entity.node.Synonym;
 import org.alliancegenome.neo4j.entity.relationship.GenomeLocation;
 import org.alliancegenome.neo4j.entity.relationship.Orthologous;
-import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -20,7 +23,6 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
     //private final Logger log = LogManager.getLogger(getClass());
 
     private static DiseaseTranslator diseaseTranslator = new DiseaseTranslator();
-    private static PhenotypeTranslator phenotypeTranslator = new PhenotypeTranslator();
     private static FeatureTranslator alleleTranslator = new FeatureTranslator();
     private static CrossReferenceDocletTranslator crossReferenceTranslator = new CrossReferenceDocletTranslator();
 
@@ -159,11 +161,6 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
         }
 
         geneDocument.setPhenotypeStatements(gene.getPhenotypeStatements());
-
-        if (gene.getPhenotypeEntityJoins() != null && gene.getPhenotypeEntityJoins().size() > 0 && translationDepth > 0) {
-            List<PhenotypeDocument> phenotypeList = phenotypeTranslator.getPhenotypeDocuments(gene, gene.getPhenotypeEntityJoins(), translationDepth - 1);
-            geneDocument.setPhenotypes(phenotypeList);
-        }
 
         geneDocument.setWhereExpressed(gene.getWhereExpressed());
         geneDocument.setAnatomicalExpression(gene.getAnatomicalExpression());

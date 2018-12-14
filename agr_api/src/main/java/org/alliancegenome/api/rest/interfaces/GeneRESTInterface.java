@@ -47,9 +47,9 @@ public interface GeneRESTInterface {
 
     @GET
     @Path("/{id}/phenotypes")
-    @ApiOperation(value = "Retrieve termName annotations for given gene")
-    SearchApiResponse getPhenotypeAnnotations(
-            @ApiParam(name = "id", value = "Gene by ID", required = true, type = "String")
+    @ApiOperation(value = "Retrieve phenotype term name annotations for a given gene")
+    String getPhenotypeAnnotations(
+            @ApiParam(name = "id", value = "Gene by ID: e.g. ZFIN:ZDB-GENE-990415-8", required = true, type = "String")
             @PathParam("id") String id,
             @ApiParam(name = "limit", value = "Number of rows returned", defaultValue = "20")
             @DefaultValue("20") @QueryParam("limit") int limit,
@@ -59,21 +59,34 @@ public interface GeneRESTInterface {
             @DefaultValue("termName") @QueryParam("sortBy") String sortBy,
             @ApiParam(name = "geneticEntity", value = "genetic entity symbol")
             @QueryParam("geneticEntity") String geneticEntity,
-            @ApiParam(name = "geneticEntityType", value = "genetic entity type", allowableValues = "allele")
+            @ApiParam(name = "geneticEntityType", value = "genetic entity type", allowableValues = "allele,gene")
             @QueryParam("geneticEntityType") String geneticEntityType,
             @ApiParam(value = "termName annotation")
             @QueryParam("termName") String phenotype,
             @ApiParam(value = "Reference number: PUBMED or a Pub ID from the MOD")
-            @QueryParam("reference") String reference,
+            @QueryParam("filter.reference") String reference,
             @ApiParam(value = "ascending order: true or false", allowableValues = "true,false", defaultValue = "true")
-            @QueryParam("asc") String asc);
+            @QueryParam("asc") String asc) throws JsonProcessingException;
 
     @GET
     @Path("/{id}/phenotypes/download")
     @ApiOperation(value = "Retrieve all termName annotations for a given gene", notes = "Download all termName annotations for a given gene")
     @Produces(MediaType.TEXT_PLAIN)
-    Response getPhenotypeAnnotationsDownloadFile(@ApiParam(name = "id", value = "Gene by ID", required = true, type = "String")
-                                                 @PathParam("id") String id);
+    Response getPhenotypeAnnotationsDownloadFile(
+            @ApiParam(name = "id", value = "Gene by ID", required = true, type = "String")
+            @PathParam("id") String id,
+            @ApiParam(value = "Field name by which to sort", allowableValues = "termName,geneticEntity")
+            @DefaultValue("termName") @QueryParam("sortBy") String sortBy,
+            @ApiParam(name = "geneticEntity", value = "genetic entity symbol")
+            @QueryParam("geneticEntity") String geneticEntity,
+            @ApiParam(name = "geneticEntityType", value = "genetic entity type", allowableValues = "allele")
+            @QueryParam("geneticEntityType") String geneticEntityType,
+            @ApiParam(value = "termName annotation")
+            @QueryParam("termName") String phenotype,
+            @ApiParam(value = "Reference number: PUBMED or a Pub ID from the MOD")
+            @QueryParam("filter.reference") String reference,
+            @ApiParam(value = "ascending order: true or false", allowableValues = "true,false", defaultValue = "true")
+            @QueryParam("asc") String asc) throws JsonProcessingException;
 
     @GET
     @Path("/{id}/homologs")

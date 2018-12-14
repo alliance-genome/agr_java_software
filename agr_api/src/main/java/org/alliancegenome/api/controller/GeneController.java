@@ -1,5 +1,6 @@
 package org.alliancegenome.api.controller;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.MapperFeature;
@@ -11,6 +12,7 @@ import org.alliancegenome.api.service.helper.ExpressionSummary;
 import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.core.service.OrthologyService;
 import org.alliancegenome.core.translators.tdf.PhenotypeAnnotationToTdfTranslator;
+import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.es.model.search.SearchApiResponse;
@@ -72,46 +74,48 @@ public class GeneController extends BaseController implements GeneRESTInterface 
     }
 
     @Override
-    public SearchApiResponse getPhenotypeAnnotations(String id,
-                                                     int limit,
-                                                     int page,
-                                                     String sortBy,
-                                                     String geneticEntity,
-                                                     String geneticEntityType,
-                                                     String phenotype,
-                                                     String reference,
-                                                     String asc) {
+    public String getPhenotypeAnnotations(String id,
+                                          int limit,
+                                          int page,
+                                          String sortBy,
+                                          String geneticEntity,
+                                          String geneticEntityType,
+                                          String phenotype,
+                                          String reference,
+                                          String asc) throws JsonProcessingException {
+        JsonResultResponse<PhenotypeAnnotation> response = getPhenotypeAnnotationDocumentJsonResultResponse(id, limit, page, sortBy, geneticEntity, geneticEntityType, phenotype, reference, asc);
+        mapper.disable(MapperFeature.DEFAULT_VIEW_INCLUSION);
+        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        response.setHttpServletRequest(request);
+        return mapper.writerWithView(View.PhenotypeView.class).writeValueAsString(response);
+    }
+
+    @Override
+    public Response getPhenotypeAnnotationsDownloadFile(
+            String id,
+            String sortBy,
+            String geneticEntity,
+            String geneticEntityType,
+            String phenotype,
+            String reference,
+            String asc) throws JsonProcessingException {
+        // retrieve all records
+        JsonResultResponse<PhenotypeAnnotation> response = getPhenotypeAnnotationDocumentJsonResultResponse(id, Integer.MAX_VALUE, 1, sortBy, geneticEntity, geneticEntityType, phenotype, reference, asc);
+        Response.ResponseBuilder responseBuilder = Response.ok(translator.getAllRows(response.getResults()));
+        responseBuilder.type(MediaType.TEXT_PLAIN_TYPE);
+        responseBuilder.header("Content-Disposition", "attachment; filename=\"termName-annotations-" + id.replace(":", "-") + ".tsv\"");
+        return responseBuilder.build();
+    }
+
+    private JsonResultResponse<PhenotypeAnnotation> getPhenotypeAnnotationDocumentJsonResultResponse(String id, int limit, int page, String sortBy, String geneticEntity, String geneticEntityType, String phenotype, String reference, String asc) throws JsonProcessingException {
         if (sortBy.isEmpty())
             sortBy = FieldFilter.PHENOTYPE.getName();
         Pagination pagination = new Pagination(page, limit, sortBy, asc);
         pagination.addFieldFilter(FieldFilter.GENETIC_ENTITY, geneticEntity);
         pagination.addFieldFilter(FieldFilter.GENETIC_ENTITY_TYPE, geneticEntityType);
         pagination.addFieldFilter(FieldFilter.PHENOTYPE, phenotype);
-        pagination.addFieldFilter(FieldFilter.REFERENCE, reference);
-        return getSearchResult(id, pagination);
-    }
-
-    private SearchApiResponse getSearchResult(String id, Pagination pagination) {
-        if (pagination.hasErrors()) {
-            response.setStatus(HttpServletResponse.SC_NOT_ACCEPTABLE);
-            try {
-                response.flushBuffer();
-            } catch (Exception ignored) {
-            }
-            SearchApiResponse searchResponse = new SearchApiResponse();
-            searchResponse.errorMessages = pagination.getErrorList();
-            return searchResponse;
-        }
+        pagination.addFieldFilter(FieldFilter.FREFERENCE, reference);
         return geneService.getPhenotypeAnnotations(id, pagination);
-    }
-
-    @Override
-    public Response getPhenotypeAnnotationsDownloadFile(String id) {
-
-        Response.ResponseBuilder response = Response.ok(getPhenotypeAnnotationsDownload(id));
-        response.type(MediaType.TEXT_PLAIN_TYPE);
-        response.header("Content-Disposition", "attachment; filename=\"termName-annotations-" + id.replace(":", "-") + ".tsv\"");
-        return response.build();
     }
 
     @Override
@@ -148,12 +152,6 @@ public class GeneController extends BaseController implements GeneRESTInterface 
         response.setApiVersion(API_VERSION);
         response.setHttpServletRequest(request);
         return mapper.writerWithView(View.OrthologyView.class).writeValueAsString(response);
-    }
-
-    public String getPhenotypeAnnotationsDownload(String id) {
-        Pagination pagination = new Pagination(1, Integer.MAX_VALUE, "termName", null);
-        // retrieve all records
-        return translator.getAllRows(geneService.getPhenotypeAnnotationsDownload(id, pagination));
     }
 
     @Override

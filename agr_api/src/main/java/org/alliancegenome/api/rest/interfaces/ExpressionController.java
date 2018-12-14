@@ -11,6 +11,7 @@ import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.entity.node.BioEntityGeneExpressionJoin;
 import org.alliancegenome.neo4j.repository.GeneRepository;
+import org.alliancegenome.neo4j.view.BaseFilter;
 import org.alliancegenome.neo4j.view.View;
 
 import javax.servlet.http.HttpServletRequest;
@@ -18,9 +19,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -77,7 +76,7 @@ public class ExpressionController implements ExpressionRESTInterface {
 
     private JsonResultResponse<ExpressionDetail> getExpressionDetailJsonResultResponse(List<String> geneIDs, String termID, String filterSpecies, String filterGene, String filterStage, String filterAssay, String filterReference, String filterTerm, String filterSource, int limit, int page, String sortBy, String asc) {
         Pagination pagination = new Pagination(page, limit, sortBy, asc);
-        Map<FieldFilter, String> filterMap = new HashMap<>();
+        BaseFilter filterMap = new BaseFilter();
         filterMap.put(FieldFilter.FSPECIES, filterSpecies);
         filterMap.put(FieldFilter.GENE_NAME, filterGene);
         filterMap.put(FieldFilter.FREFERENCE, filterReference);
@@ -99,7 +98,7 @@ public class ExpressionController implements ExpressionRESTInterface {
                                                   int limit,
                                                   int page) throws JsonProcessingException {
         Pagination pagination = new Pagination(page, limit, null, null);
-        Map<FieldFilter, String> filterMap = new HashMap<>();
+        BaseFilter filterMap = new BaseFilter();
         filterMap.put(FieldFilter.TERM_NAME, termID);
         filterMap.values().removeIf(Objects::isNull);
         pagination.setFieldFilterValueMap(filterMap);
