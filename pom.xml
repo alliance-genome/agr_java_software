@@ -17,7 +17,7 @@
     </modules>
 
     <properties>
-        <revision>1.6.0-SNAPSHOT</revision>
+        <revision>SNAPSHOT</revision>
     </properties>
 
     <repositories>
