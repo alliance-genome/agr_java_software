@@ -53,34 +53,11 @@
 
 	<repositories>
 		<repository>
-			<id>agr-release</id>
-			<name>agr-release</name>
-			<url>https://maven.alliancegenome.org/artifactory/agr-release</url>
-		</repository>
-		<repository>
-			<id>agr-snapshot</id>
-			<name>agr-snapshot</name>
-			<url>https://maven.alliancegenome.org/artifactory/agr-snapshot</url>
-		</repository>
-		<repository>
 			<id>elastic</id>
 			<name>elasticsearch-releases</name>
 			<url>https://artifacts.elastic.co/maven</url>
 		</repository>
 	</repositories>
-
-	<distributionManagement>
-		<repository>
-			<id>central</id>
-			<name>agr-releases</name>
-			<url>https://maven.alliancegenome.org/artifactory/agr-release</url>
-		</repository>
-		<snapshotRepository>
-			<id>snapshots</id>
-			<name>agr-snapshots</name>
-			<url>https://maven.alliancegenome.org/artifactory/agr-snapshot</url>
-		</snapshotRepository>
-	</distributionManagement>
 
 	<build>
 		<finalName>${project.artifactId}</finalName>

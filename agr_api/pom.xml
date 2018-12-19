@@ -31,16 +31,6 @@
 
 	<repositories>
 		<repository>
-			<id>agr-release</id>
-			<name>agr-release</name>
-			<url>https://maven.alliancegenome.org/artifactory/agr-release</url>
-		</repository>
-		<repository>
-			<id>agr-snapshot</id>
-			<name>agr-snapshot</name>
-			<url>https://maven.alliancegenome.org/artifactory/agr-snapshot</url>
-		</repository>
-		<repository>
 			<id>elastic</id>
 			<name>elasticsearch-releases</name>
 			<url>https://artifacts.elastic.co/maven</url>
