@@ -3,10 +3,13 @@ package org.alliancegenome.es.index.site.dao;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.es.index.ESDAO;
+import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.es.model.search.SearchApiResponse;
+import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
 import org.alliancegenome.neo4j.entity.node.*;
+import org.alliancegenome.neo4j.repository.DiseaseRepository;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.alliancegenome.neo4j.repository.PhenotypeRepository;
 import org.apache.commons.logging.Log;
@@ -20,6 +23,7 @@ import org.neo4j.ogm.model.Result;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -30,6 +34,7 @@ public class GeneDAO extends ESDAO {
 
     private GeneRepository geneRepository = new GeneRepository();
     private PhenotypeRepository phenotypeRepository = new PhenotypeRepository();
+    private DiseaseRepository diseaseRepository = new DiseaseRepository();
 
     public Map<String, Object> getById(String id) {
         try {
@@ -135,4 +140,46 @@ public class GeneDAO extends ESDAO {
         return annotationDocuments;
     }
 
+    private List<DiseaseAnnotation> getEmpiricalDiseaseAnnotationList(String geneID, Pagination pagination) {
+
+        Result result = diseaseRepository.getEmpiricalDisease(geneID, pagination);
+        List<DiseaseAnnotation> annotationDocuments = new ArrayList<>();
+        result.forEach(objectMap -> {
+            DiseaseAnnotation document = new DiseaseAnnotation();
+            Gene gene = new Gene();
+            gene.setPrimaryKey(geneID);
+            document.setGene(gene);
+            document.setDisease((DOTerm) objectMap.get("disease"));
+            document.setAssociationType(((List<DiseaseEntityJoin>)objectMap.get("diseaseEntityJoin")).get(0).getJoinType());
+            Allele feature = (Allele) objectMap.get("feature");
+            if (feature != null) {
+                List<CrossReference> ref = (List<CrossReference>) objectMap.get("crossReferences");
+                feature.setCrossReferences(ref);
+                document.setFeature(feature);
+            }
+            document.setPublications((List<Publication>) objectMap.get("publications"));
+            annotationDocuments.add(document);
+        });
+
+        return annotationDocuments;
+    }
+
+
+    private static Map<FieldFilter, String> diseaseFieldFilterSortingMap = new HashMap<>(10);
+
+    static {
+        diseaseFieldFilterSortingMap.put(FieldFilter.PHENOTYPE, "phenotype.sort");
+        diseaseFieldFilterSortingMap.put(FieldFilter.GENETIC_ENTITY, "featureDocument.symbol.sort");
+    }
+
+    public JsonResultResponse<DiseaseAnnotation> getEmpiricalDiseaseAnnotations(String geneID, Pagination pagination) {
+        LocalDateTime startDate = LocalDateTime.now();
+        List<DiseaseAnnotation> list = getEmpiricalDiseaseAnnotationList(geneID, pagination);
+        JsonResultResponse<DiseaseAnnotation> response = new JsonResultResponse<>();
+        response.calculateRequestDuration(startDate);
+        response.setResults(list);
+        Long count = diseaseRepository.getTotalDiseaseCount(geneID, pagination);
+        response.setTotal((int) (long) count);
+        return response;
+    }
 }

@@ -69,6 +69,10 @@ public class GeneticEntity extends Neo4jEntity {
         return type.displayName;
     }
 
+    public void setPrimaryKey(String primaryKey) {
+        this.primaryKey = primaryKey;
+    }
+
     public void setType(Type type) {
         this.type = type;
     }

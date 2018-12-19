@@ -4,6 +4,8 @@ import javax.enterprise.context.RequestScoped;
 
 import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.es.index.site.dao.GeneDAO;
+import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
+import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
 import org.alliancegenome.neo4j.entity.node.Allele;
@@ -13,6 +15,8 @@ import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.alliancegenome.neo4j.repository.InteractionRepository;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+
+import java.util.List;
 
 @RequestScoped
 public class GeneService {
@@ -47,5 +51,8 @@ public class GeneService {
         return ret;
     }
 
+    public JsonResultResponse<DiseaseAnnotation> getEmpiricalDiseaseAnnotations(String id, Pagination pagination) throws JsonProcessingException {
+        return geneDAO.getEmpiricalDiseaseAnnotations(id, pagination);
+    }
 
 }

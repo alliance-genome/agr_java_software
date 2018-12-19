@@ -70,4 +70,12 @@ public class Publication extends Neo4jEntity implements Comparable<Publication> 
     public int compareTo(Publication o) {
         return pubId.compareTo(o.getPubId());
     }
+
+    public String getPubId() {
+        if (StringUtils.isNotEmpty(pubMedId))
+            return pubMedId;
+        return pubModId;
+
+    }
+
 }

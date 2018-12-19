@@ -139,4 +139,26 @@ public interface GeneRESTInterface {
     ) throws JsonProcessingException;
 
 
+    @GET
+    @Path("/{id}/diseases-by-experiment")
+    @ApiOperation(value = "Retrieve disease annotations for a given gene")
+    String getDiseaseByExperiment(
+            @ApiParam(name = "id", value = "Gene by ID: e.g. ZFIN:ZDB-GENE-990415-8", required = true, type = "String")
+            @PathParam("id") String id,
+            @ApiParam(name = "limit", value = "Number of rows returned", defaultValue = "20")
+            @DefaultValue("20") @QueryParam("limit") int limit,
+            @ApiParam(name = "page", value = "Page number")
+            @DefaultValue("1") @QueryParam("page") int page,
+            @ApiParam(value = "Field name by which to sort", allowableValues = "termName,geneticEntity")
+            @DefaultValue("termName") @QueryParam("sortBy") String sortBy,
+            @ApiParam(name = "geneticEntity", value = "genetic entity symbol")
+            @QueryParam("geneticEntity") String geneticEntity,
+            @ApiParam(name = "geneticEntityType", value = "genetic entity type", allowableValues = "allele,gene")
+            @QueryParam("geneticEntityType") String geneticEntityType,
+            @ApiParam(value = "termName annotation")
+            @QueryParam("termName") String phenotype,
+            @ApiParam(value = "Reference number: PUBMED or a Pub ID from the MOD")
+            @QueryParam("filter.reference") String reference,
+            @ApiParam(value = "ascending order: true or false", allowableValues = "true,false", defaultValue = "true")
+            @QueryParam("asc") String asc) throws JsonProcessingException;
 }

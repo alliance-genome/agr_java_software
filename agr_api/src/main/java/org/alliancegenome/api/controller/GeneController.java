@@ -1,6 +1,8 @@
 package org.alliancegenome.api.controller;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.MapperFeature;
 import org.alliancegenome.api.rest.interfaces.GeneRESTInterface;
 import org.alliancegenome.api.service.ExpressionService;
 import org.alliancegenome.api.service.GeneService;
@@ -10,12 +12,14 @@ import org.alliancegenome.core.service.OrthologyService;
 import org.alliancegenome.core.translators.tdf.PhenotypeAnnotationToTdfTranslator;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
+import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
 import org.alliancegenome.neo4j.view.OrthologView;
 import org.alliancegenome.neo4j.view.OrthologyFilter;
+import org.alliancegenome.neo4j.view.View;
 import org.apache.commons.collections.CollectionUtils;
 
 import javax.enterprise.context.RequestScoped;
@@ -90,6 +94,17 @@ public class GeneController extends BaseController implements GeneRESTInterface 
         return geneService.getPhenotypeAnnotations(id, pagination);
     }
 
+    private JsonResultResponse<DiseaseAnnotation> getEmpiricalDiseaseAnnotation(String id, int limit, int page, String sortBy, String geneticEntity, String geneticEntityType, String disease, String reference, String asc) throws JsonProcessingException {
+        if (sortBy.isEmpty())
+            sortBy = FieldFilter.PHENOTYPE.getName();
+        Pagination pagination = new Pagination(page, limit, sortBy, asc);
+        pagination.addFieldFilter(FieldFilter.GENETIC_ENTITY, geneticEntity);
+        pagination.addFieldFilter(FieldFilter.GENETIC_ENTITY_TYPE, geneticEntityType);
+        pagination.addFieldFilter(FieldFilter.DISEASE, disease);
+        pagination.addFieldFilter(FieldFilter.FREFERENCE, reference);
+        return geneService.getEmpiricalDiseaseAnnotations(id, pagination);
+    }
+
     @Override
     public JsonResultResponse<OrthologView> getGeneOrthology(String id,
                                    List<String> geneIDs,
@@ -124,6 +139,26 @@ public class GeneController extends BaseController implements GeneRESTInterface 
 
         ExpressionService service = new ExpressionService();
         return service.getExpressionSummary(id);
+    }
+
+    @Override
+    public String getDiseaseByExperiment(String id,
+                                         int limit,
+                                         int page,
+                                         String sortBy,
+                                         String geneticEntity,
+                                         String geneticEntityType,
+                                         String phenotype,
+                                         String reference,
+                                         String asc) throws JsonProcessingException {
+        JsonResultResponse<DiseaseAnnotation> response = getEmpiricalDiseaseAnnotation(id, limit, page, sortBy, geneticEntity, geneticEntityType, phenotype, reference, asc);
+/*
+        mapper.disable(MapperFeature.DEFAULT_VIEW_INCLUSION);
+        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        response.setHttpServletRequest(request);
+        return mapper.writerWithView(View.DefaultView.class).writeValueAsString(response);
+*/
+    return null;
     }
 
 }
