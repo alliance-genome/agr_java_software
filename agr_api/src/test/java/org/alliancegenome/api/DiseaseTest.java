@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 
 public class DiseaseTest {
@@ -58,7 +59,13 @@ public class DiseaseTest {
         assertNotNull(annotation.getFeature());
         assertThat(annotation.getFeature().getSymbol(), equalTo("Pten<sup>tm1Hwu</sup>"));
         assertThat(annotation.getPublications().stream().map(Publication::getPubId).collect(Collectors.joining()), equalTo("PMID:21262837"));
-        assertThat(annotation.getFeature().getSymbol(), equalTo("Pten<sup>tm1Hwu</sup>"));
+
+        annotation = response.getResults().get(1);
+        assertNull(annotation.getFeature());
+        assertThat(annotation.getDisease().getName(), equalTo("acute lymphocytic leukemia"));
+        assertThat(annotation.getAssociationType(), equalTo("is_implicated_in"));
+
+        assertThat(response.getResults().get(2).getPublications().stream().map(Publication::getPubId).collect(Collectors.joining()), equalTo("PMID:23142422PMID:25561290PMID:19208814"));
     }
 
 
