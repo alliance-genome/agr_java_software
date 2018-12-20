@@ -138,7 +138,7 @@ public class GeneDAO extends ESDAO {
     }
 
     private List<DiseaseAnnotation> getEmpiricalDiseaseAnnotationList(String geneID, Pagination pagination, boolean empiricalDisease) {
-        Result result = diseaseRepository.getEmpiricalDisease(geneID, pagination, empiricalDisease);
+        Result result = diseaseRepository.getDiseaseAssociation(geneID, pagination, empiricalDisease);
         return getDiseaseAnnotations(geneID, result);
     }
 

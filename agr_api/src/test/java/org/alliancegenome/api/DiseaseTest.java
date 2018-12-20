@@ -86,8 +86,7 @@ public class DiseaseTest {
     }
 
     @Test
-    @Ignore
-    public void checkEmpiricalDiseaseByFilter() {
+    public void checkEmpiricalDiseaseFilterByDisease() {
         Pagination pagination = new Pagination(1, null, null, null);
         // Pten
         String geneID = "MGI:109583";
@@ -95,18 +94,18 @@ public class DiseaseTest {
         // add filter on disease
         pagination.makeSingleFieldFilter(FieldFilter.DISEASE, "BL");
         JsonResultResponse<DiseaseAnnotation> response = geneDAO.getEmpiricalDiseaseAnnotations(geneID, pagination, true);
-///        assertResponse(response, 7, 7);
+        assertResponse(response, 3, 3);
 
         DiseaseAnnotation annotation = response.getResults().get(0);
         assertThat(annotation.getDisease().getName(), equalTo("urinary bladder cancer"));
         assertThat(annotation.getAssociationType(), equalTo("is_implicated_in"));
         assertNotNull(annotation.getFeature());
         assertThat(annotation.getFeature().getSymbol(), equalTo("Pten<sup>tm1Hwu</sup>"));
-        assertThat(annotation.getPublications().stream().map(Publication::getPubId).collect(Collectors.joining()), equalTo("PMID:21262837"));
+        assertThat(annotation.getPublications().stream().map(Publication::getPubId).collect(Collectors.joining()), equalTo("PMID:25533675PMID:19261747"));
 
-        annotation = response.getResults().get(1);
+        annotation = response.getResults().get(2);
         assertNull(annotation.getFeature());
-        assertThat(annotation.getDisease().getName(), equalTo("acute lymphocytic leukemia"));
+        assertThat(annotation.getDisease().getName(), equalTo("urinary bladder cancer"));
         assertThat(annotation.getAssociationType(), equalTo("is_implicated_in"));
 
         DiseaseAnnotationToTdfTranslator translator = new DiseaseAnnotationToTdfTranslator();
@@ -114,18 +113,46 @@ public class DiseaseTest {
         List<String> lines = Arrays.asList(output.split("\n"));
         assertNotNull(lines);
         String result = "Disease\tGenetic Entity ID\tGenetic Entity Symbol\tGenetic Entity Type\tAssociation Type\tEvidence Code\tSource\tReferences\n" +
-                "acute lymphocytic leukemia\tMGI:2156086\tPten<sup>tm1Hwu</sup>\tallele\tis_implicated_in\tTAS\tPMID:21262837\n" +
-                "acute lymphocytic leukemia\t\t\tgene\tis_implicated_in\tTAS\tPMID:21262837\n" +
-                "autistic disorder\tMGI:2151804\tPten<sup>tm1Rps</sup>\tallele\tis_implicated_in\tTAS\tPMID:23142422,PMID:25561290,PMID:19208814\n" +
-                "autistic disorder\tMGI:2679886\tPten<sup>tm2.1Ppp</sup>\tallele\tis_implicated_in\tTAS\tPMID:22302806\n" +
-                "autistic disorder\t\t\tgene\tis_implicated_in\tTAS\tPMID:22302806,PMID:25561290\n" +
-                "Bannayan-Riley-Ruvalcaba syndrome\tMGI:1857937\tPten<sup>tm1Mak</sup>\tallele\tis_implicated_in\tTAS\tPMID:10910075\n" +
-                "Bannayan-Riley-Ruvalcaba syndrome\tMGI:1857936\tPten<sup>tm1Ppp</sup>\tallele\tis_implicated_in\tTAS\tPMID:9697695\n" +
-                "Bannayan-Riley-Ruvalcaba syndrome\tMGI:2151804\tPten<sup>tm1Rps</sup>\tallele\tis_implicated_in\tTAS\tPMID:9990064,PMID:27889578\n" +
-                "Bannayan-Riley-Ruvalcaba syndrome\t\t\tgene\tis_implicated_in\tTAS\tPMID:9990064,PMID:9697695,PMID:10910075\n" +
-                "brain disease\tMGI:2182005\tPten<sup>tm2Mak</sup>\tallele\tis_implicated_in\tTAS\tPMID:25752454,PMID:29476105,PMID:19470613\n";
+                "urinary bladder cancer\tMGI:2156086\tPten<sup>tm1Hwu</sup>\tallele\tis_implicated_in\tTAS\tPMID:25533675,PMID:19261747\n" +
+                "urinary bladder cancer\tMGI:2182005\tPten<sup>tm2Mak</sup>\tallele\tis_implicated_in\tTAS\tPMID:25533675,PMID:16951148,PMID:21283818\n" +
+                "urinary bladder cancer\t\t\tgene\tis_implicated_in\tTAS\tPMID:16951148\n";
         assertEquals(result, output);
+    }
 
+    @Test
+    public void checkEmpiricalDiseaseFilterByGeneticEntity() {
+        Pagination pagination = new Pagination(1, null, null, null);
+        // Pten
+        String geneID = "MGI:109583";
+
+        // add filter on feature symbol
+        pagination.makeSingleFieldFilter(FieldFilter.GENETIC_ENTITY, "tm1h");
+        JsonResultResponse<DiseaseAnnotation> response = geneDAO.getEmpiricalDiseaseAnnotations(geneID, pagination, true);
+        assertResponse(response, 10, 10);
+
+        DiseaseAnnotation annotation = response.getResults().get(0);
+        assertThat(annotation.getDisease().getName(), equalTo("acute lymphocytic leukemia"));
+        assertThat(annotation.getAssociationType(), equalTo("is_implicated_in"));
+        assertNotNull(annotation.getFeature());
+        assertThat(annotation.getFeature().getSymbol(), equalTo("Pten<sup>tm1Hwu</sup>"));
+        assertThat(annotation.getPublications().stream().map(Publication::getPubId).collect(Collectors.joining()), equalTo("PMID:21262837"));
+
+        DiseaseAnnotationToTdfTranslator translator = new DiseaseAnnotationToTdfTranslator();
+        String output = translator.getEmpiricalDiseaseByGene(response.getResults());
+        List<String> lines = Arrays.asList(output.split("\n"));
+        assertNotNull(lines);
+        String result = "Disease\tGenetic Entity ID\tGenetic Entity Symbol\tGenetic Entity Type\tAssociation Type\tEvidence Code\tSource\tReferences\n" +
+                "acute lymphocytic leukemia\tMGI:2156086\tPten<sup>tm1Hwu</sup>\tallele\tis_implicated_in\tTAS\tPMID:21262837\n" +
+                "Cowden disease\tMGI:2156086\tPten<sup>tm1Hwu</sup>\tallele\tis_implicated_in\tTAS\tPMID:23873941,PMID:12163417,PMID:23873941,PMID:18757421,PMID:27889578,PMID:17237784\n" +
+                "endometrial cancer\tMGI:2156086\tPten<sup>tm1Hwu</sup>\tallele\tis_implicated_in\tTAS\tPMID:20418913,PMID:18632614\n" +
+                "fatty liver disease\tMGI:2156086\tPten<sup>tm1Hwu</sup>\tallele\tis_implicated_in\tTAS\tPMID:24802098\n" +
+                "follicular thyroid carcinoma\tMGI:2156086\tPten<sup>tm1Hwu</sup>\tallele\tis_implicated_in\tTAS\tPMID:22167068\n" +
+                "hepatocellular carcinoma\tMGI:2156086\tPten<sup>tm1Hwu</sup>\tallele\tis_implicated_in\tTAS\tPMID:20837017,PMID:24027047,PMID:25132272\n" +
+                "intestinal pseudo-obstruction\tMGI:2156086\tPten<sup>tm1Hwu</sup>\tallele\tis_implicated_in\tTAS\tPMID:19884655\n" +
+                "persistent fetal circulation syndrome\tMGI:2156086\tPten<sup>tm1Hwu</sup>\tallele\tis_implicated_in\tTAS\tPMID:23023706\n" +
+                "prostate cancer\tMGI:2156086\tPten<sup>tm1Hwu</sup>\tallele\tis_implicated_in\tTAS\tPMID:25948589,PMID:23610450,PMID:27357679,PMID:23348745,PMID:25526087,PMID:23300485,PMID:27345403,PMID:28059767,PMID:25693195,PMID:25455686,PMID:23434594,PMID:16489020,PMID:29720449,PMID:22350410,PMID:27345403,PMID:21620777,PMID:22836754,PMID:28515147,PMID:14522255,PMID:26640144\n" +
+                "urinary bladder cancer\tMGI:2156086\tPten<sup>tm1Hwu</sup>\tallele\tis_implicated_in\tTAS\tPMID:25533675,PMID:19261747\n";
+        assertEquals(result, output);
     }
 
     @Test
