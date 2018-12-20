@@ -19,15 +19,16 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.config.Configurator;
 import org.jboss.logging.Logger;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 
 public class DiseaseTest {
 
@@ -47,11 +48,11 @@ public class DiseaseTest {
 
     @Test
     public void checkEmpiricalDiseaseByGene() {
-        Pagination pagination = new Pagination(1, 100, null, null);
+        Pagination pagination = new Pagination(1, 10, null, null);
         // Pten
         String geneID = "MGI:109583";
-        JsonResultResponse<DiseaseAnnotation> response = geneDAO.getEmpiricalDiseaseAnnotations(geneID, pagination);
-        assertResponse(response, 50, 50);
+        JsonResultResponse<DiseaseAnnotation> response = geneDAO.getEmpiricalDiseaseAnnotations(geneID, pagination, true);
+        assertResponse(response, 10, 50);
 
         DiseaseAnnotation annotation = response.getResults().get(0);
         assertThat(annotation.getDisease().getName(), equalTo("acute lymphocytic leukemia"));
@@ -65,7 +66,104 @@ public class DiseaseTest {
         assertThat(annotation.getDisease().getName(), equalTo("acute lymphocytic leukemia"));
         assertThat(annotation.getAssociationType(), equalTo("is_implicated_in"));
 
-        assertThat(response.getResults().get(2).getPublications().stream().map(Publication::getPubId).collect(Collectors.joining()), equalTo("PMID:23142422PMID:25561290PMID:19208814"));
+        DiseaseAnnotationToTdfTranslator translator = new DiseaseAnnotationToTdfTranslator();
+        String output = translator.getEmpiricalDiseaseByGene(response.getResults());
+        List<String> lines = Arrays.asList(output.split("\n"));
+        assertNotNull(lines);
+        String result = "Disease\tGenetic Entity ID\tGenetic Entity Symbol\tGenetic Entity Type\tAssociation Type\tEvidence Code\tSource\tReferences\n" +
+                "acute lymphocytic leukemia\tMGI:2156086\tPten<sup>tm1Hwu</sup>\tallele\tis_implicated_in\tTAS\tPMID:21262837\n" +
+                "acute lymphocytic leukemia\t\t\tgene\tis_implicated_in\tTAS\tPMID:21262837\n" +
+                "autistic disorder\tMGI:2151804\tPten<sup>tm1Rps</sup>\tallele\tis_implicated_in\tTAS\tPMID:23142422,PMID:25561290,PMID:19208814\n" +
+                "autistic disorder\tMGI:2679886\tPten<sup>tm2.1Ppp</sup>\tallele\tis_implicated_in\tTAS\tPMID:22302806\n" +
+                "autistic disorder\t\t\tgene\tis_implicated_in\tTAS\tPMID:22302806,PMID:25561290\n" +
+                "Bannayan-Riley-Ruvalcaba syndrome\tMGI:1857937\tPten<sup>tm1Mak</sup>\tallele\tis_implicated_in\tTAS\tPMID:10910075\n" +
+                "Bannayan-Riley-Ruvalcaba syndrome\tMGI:1857936\tPten<sup>tm1Ppp</sup>\tallele\tis_implicated_in\tTAS\tPMID:9697695\n" +
+                "Bannayan-Riley-Ruvalcaba syndrome\tMGI:2151804\tPten<sup>tm1Rps</sup>\tallele\tis_implicated_in\tTAS\tPMID:9990064,PMID:27889578\n" +
+                "Bannayan-Riley-Ruvalcaba syndrome\t\t\tgene\tis_implicated_in\tTAS\tPMID:9990064,PMID:9697695,PMID:10910075\n" +
+                "brain disease\tMGI:2182005\tPten<sup>tm2Mak</sup>\tallele\tis_implicated_in\tTAS\tPMID:25752454,PMID:29476105,PMID:19470613\n";
+        assertEquals(result, output);
+
+    }
+
+    @Test
+    @Ignore
+    public void checkEmpiricalDiseaseByFilter() {
+        Pagination pagination = new Pagination(1, null, null, null);
+        // Pten
+        String geneID = "MGI:109583";
+
+        // add filter on disease
+        pagination.makeSingleFieldFilter(FieldFilter.DISEASE, "BL");
+        JsonResultResponse<DiseaseAnnotation> response = geneDAO.getEmpiricalDiseaseAnnotations(geneID, pagination, true);
+///        assertResponse(response, 7, 7);
+
+        DiseaseAnnotation annotation = response.getResults().get(0);
+        assertThat(annotation.getDisease().getName(), equalTo("urinary bladder cancer"));
+        assertThat(annotation.getAssociationType(), equalTo("is_implicated_in"));
+        assertNotNull(annotation.getFeature());
+        assertThat(annotation.getFeature().getSymbol(), equalTo("Pten<sup>tm1Hwu</sup>"));
+        assertThat(annotation.getPublications().stream().map(Publication::getPubId).collect(Collectors.joining()), equalTo("PMID:21262837"));
+
+        annotation = response.getResults().get(1);
+        assertNull(annotation.getFeature());
+        assertThat(annotation.getDisease().getName(), equalTo("acute lymphocytic leukemia"));
+        assertThat(annotation.getAssociationType(), equalTo("is_implicated_in"));
+
+        DiseaseAnnotationToTdfTranslator translator = new DiseaseAnnotationToTdfTranslator();
+        String output = translator.getEmpiricalDiseaseByGene(response.getResults());
+        List<String> lines = Arrays.asList(output.split("\n"));
+        assertNotNull(lines);
+        String result = "Disease\tGenetic Entity ID\tGenetic Entity Symbol\tGenetic Entity Type\tAssociation Type\tEvidence Code\tSource\tReferences\n" +
+                "acute lymphocytic leukemia\tMGI:2156086\tPten<sup>tm1Hwu</sup>\tallele\tis_implicated_in\tTAS\tPMID:21262837\n" +
+                "acute lymphocytic leukemia\t\t\tgene\tis_implicated_in\tTAS\tPMID:21262837\n" +
+                "autistic disorder\tMGI:2151804\tPten<sup>tm1Rps</sup>\tallele\tis_implicated_in\tTAS\tPMID:23142422,PMID:25561290,PMID:19208814\n" +
+                "autistic disorder\tMGI:2679886\tPten<sup>tm2.1Ppp</sup>\tallele\tis_implicated_in\tTAS\tPMID:22302806\n" +
+                "autistic disorder\t\t\tgene\tis_implicated_in\tTAS\tPMID:22302806,PMID:25561290\n" +
+                "Bannayan-Riley-Ruvalcaba syndrome\tMGI:1857937\tPten<sup>tm1Mak</sup>\tallele\tis_implicated_in\tTAS\tPMID:10910075\n" +
+                "Bannayan-Riley-Ruvalcaba syndrome\tMGI:1857936\tPten<sup>tm1Ppp</sup>\tallele\tis_implicated_in\tTAS\tPMID:9697695\n" +
+                "Bannayan-Riley-Ruvalcaba syndrome\tMGI:2151804\tPten<sup>tm1Rps</sup>\tallele\tis_implicated_in\tTAS\tPMID:9990064,PMID:27889578\n" +
+                "Bannayan-Riley-Ruvalcaba syndrome\t\t\tgene\tis_implicated_in\tTAS\tPMID:9990064,PMID:9697695,PMID:10910075\n" +
+                "brain disease\tMGI:2182005\tPten<sup>tm2Mak</sup>\tallele\tis_implicated_in\tTAS\tPMID:25752454,PMID:29476105,PMID:19470613\n";
+        assertEquals(result, output);
+
+    }
+
+    @Test
+    public void checkDiseaseViaOrthologyByGene() {
+        Pagination pagination = new Pagination(1, 10, null, null);
+        // Ogg1
+        String geneID = "MGI:1097693";
+        JsonResultResponse<DiseaseAnnotation> response = geneDAO.getEmpiricalDiseaseAnnotations(geneID, pagination, false);
+        assertResponse(response, 10, 22);
+
+        DiseaseAnnotation annotation = response.getResults().get(0);
+        assertThat(annotation.getDisease().getName(), equalTo("angiomyolipoma"));
+        assertThat(annotation.getAssociationType(), equalTo("biomarker_via_orthology"));
+        assertNull(annotation.getFeature());
+        assertThat(annotation.getPublications().stream().map(Publication::getPubId).collect(Collectors.joining()), equalTo("MGI:6194238"));
+
+        annotation = response.getResults().get(1);
+        assertNull(annotation.getFeature());
+        assertThat(annotation.getDisease().getName(), equalTo("angiomyolipoma"));
+        assertThat(annotation.getAssociationType(), equalTo("implicated_via_orthology"));
+
+        DiseaseAnnotationToTdfTranslator translator = new DiseaseAnnotationToTdfTranslator();
+        String output = translator.getDiseaseViaOrthologyByGene(response.getResults());
+        List<String> lines = Arrays.asList(output.split("\n"));
+        assertNotNull(lines);
+        String result = "Disease\tAssociation\tOrtholog Gene ID\tOrtholog Gene Symbol\tOrtholog Species\tEvidence Code\tSource\tReferences\n" +
+                "angiomyolipoma\tbiomarker_via_orthology\tHGNC:8125\tOGG1\tHomo sapiens\tIEA\tAlliance\tMGI:6194238\n" +
+                "angiomyolipoma\timplicated_via_orthology\tHGNC:8125\tOGG1\tHomo sapiens\tIEA\tAlliance\tMGI:6194238\n" +
+                "basal cell carcinoma\tbiomarker_via_orthology\tHGNC:8125\tOGG1\tHomo sapiens\tIEA\tAlliance\tMGI:6194238\n" +
+                "cataract\timplicated_via_orthology\tHGNC:8125\tOGG1\tHomo sapiens\tIEA\tAlliance\tMGI:6194238\n" +
+                "cholangiocarcinoma\timplicated_via_orthology\tHGNC:8125\tOGG1\tHomo sapiens\tIEA\tAlliance\tMGI:6194238\n" +
+                "Graves' disease\timplicated_via_orthology\tHGNC:8125\tOGG1\tHomo sapiens\tIEA\tAlliance\tMGI:6194238\n" +
+                "head and neck squamous cell carcinoma\tbiomarker_via_orthology\tHGNC:8125\tOGG1\tHomo sapiens\tIEA\tAlliance\tMGI:6194238\n" +
+                "head and neck squamous cell carcinoma\timplicated_via_orthology\tHGNC:8125\tOGG1\tHomo sapiens\tIEA\tAlliance\tMGI:6194238\n" +
+                "hepatitis\tbiomarker_via_orthology\tRGD:621168\tOgg1\tRattus norvegicus\tIEA\tAlliance\tMGI:6194238\n" +
+                "middle cerebral artery infarction\tbiomarker_via_orthology\tRGD:621168\tOgg1\tRattus norvegicus\tIEA\tAlliance\tMGI:6194238\n";
+        assertEquals(result, output);
+
     }
 
 

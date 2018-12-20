@@ -5,15 +5,13 @@ import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Getter;
 import lombok.Setter;
 import org.alliancegenome.es.index.site.doclet.SourceDoclet;
-import org.alliancegenome.neo4j.entity.node.Allele;
-import org.alliancegenome.neo4j.entity.node.DOTerm;
-import org.alliancegenome.neo4j.entity.node.Gene;
-import org.alliancegenome.neo4j.entity.node.Publication;
+import org.alliancegenome.neo4j.entity.node.*;
 import org.alliancegenome.neo4j.view.View;
 
 import java.util.List;
 
-@Getter @Setter
+@Getter
+@Setter
 public class DiseaseAnnotation implements Comparable<DiseaseAnnotation> {
 
     @JsonView({View.DiseaseAnnotation.class})
@@ -30,9 +28,12 @@ public class DiseaseAnnotation implements Comparable<DiseaseAnnotation> {
     @JsonView({View.DiseaseAnnotation.class})
     private List<Publication> publications;
     @JsonView({View.DiseaseAnnotation.class})
+    private List<EvidenceCode> evidenceCodes;
+    @JsonView({View.Default.class})
     private String geneticEntity;
     @JsonView({View.DiseaseAnnotation.class})
     private String associationType;
+    private List<DiseaseEntityJoin> diseaseEntityJoinSet;
 
     @JsonIgnore
     public String getDocumentId() {

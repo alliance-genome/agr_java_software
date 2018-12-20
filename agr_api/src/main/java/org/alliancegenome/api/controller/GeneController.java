@@ -3,12 +3,14 @@ package org.alliancegenome.api.controller;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.alliancegenome.api.rest.interfaces.GeneRESTInterface;
 import org.alliancegenome.api.service.ExpressionService;
 import org.alliancegenome.api.service.GeneService;
 import org.alliancegenome.api.service.helper.ExpressionSummary;
 import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.core.service.OrthologyService;
+import org.alliancegenome.core.translators.tdf.DiseaseAnnotationToTdfTranslator;
 import org.alliancegenome.core.translators.tdf.PhenotypeAnnotationToTdfTranslator;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
@@ -37,6 +39,8 @@ public class GeneController extends BaseController implements GeneRESTInterface 
     @Inject
     private GeneService geneService;
     private final PhenotypeAnnotationToTdfTranslator translator = new PhenotypeAnnotationToTdfTranslator();
+    private final DiseaseAnnotationToTdfTranslator diseaseTranslator = new DiseaseAnnotationToTdfTranslator();
+    private ObjectMapper mapper = new ObjectMapper();
 
     @Override
     public Gene getGene(String id) {
@@ -94,7 +98,15 @@ public class GeneController extends BaseController implements GeneRESTInterface 
         return geneService.getPhenotypeAnnotations(id, pagination);
     }
 
-    private JsonResultResponse<DiseaseAnnotation> getEmpiricalDiseaseAnnotation(String id, int limit, int page, String sortBy, String geneticEntity, String geneticEntityType, String disease, String reference, String asc) throws JsonProcessingException {
+    private JsonResultResponse<DiseaseAnnotation> getEmpiricalDiseaseAnnotation(String id, Integer limit, Integer page, String sortBy, String geneticEntity, String geneticEntityType, String disease, String reference, String asc) throws JsonProcessingException {
+        return getDiseaseAnnotation(id, limit, page, sortBy, geneticEntity, geneticEntityType, disease, reference, asc, true);
+    }
+
+    private JsonResultResponse<DiseaseAnnotation> getDiseaseViaOrthologyAnnotation(String id, Integer limit, Integer page, String sortBy, String geneticEntity, String geneticEntityType, String disease, String reference, String asc) throws JsonProcessingException {
+        return getDiseaseAnnotation(id, limit, page, sortBy, geneticEntity, geneticEntityType, disease, reference, asc, false);
+    }
+
+    private JsonResultResponse<DiseaseAnnotation> getDiseaseAnnotation(String id, Integer limit, Integer page, String sortBy, String geneticEntity, String geneticEntityType, String disease, String reference, String asc, boolean empiricalDisease) throws JsonProcessingException {
         if (sortBy.isEmpty())
             sortBy = FieldFilter.PHENOTYPE.getName();
         Pagination pagination = new Pagination(page, limit, sortBy, asc);
@@ -102,7 +114,7 @@ public class GeneController extends BaseController implements GeneRESTInterface 
         pagination.addFieldFilter(FieldFilter.GENETIC_ENTITY_TYPE, geneticEntityType);
         pagination.addFieldFilter(FieldFilter.DISEASE, disease);
         pagination.addFieldFilter(FieldFilter.FREFERENCE, reference);
-        return geneService.getEmpiricalDiseaseAnnotations(id, pagination);
+        return geneService.getEmpiricalDiseaseAnnotations(id, pagination, empiricalDisease);
     }
 
     @Override
@@ -148,17 +160,61 @@ public class GeneController extends BaseController implements GeneRESTInterface 
                                          String sortBy,
                                          String geneticEntity,
                                          String geneticEntityType,
-                                         String phenotype,
+                                         String disease,
                                          String reference,
                                          String asc) throws JsonProcessingException {
-        JsonResultResponse<DiseaseAnnotation> response = getEmpiricalDiseaseAnnotation(id, limit, page, sortBy, geneticEntity, geneticEntityType, phenotype, reference, asc);
-/*
+        JsonResultResponse<DiseaseAnnotation> response = getEmpiricalDiseaseAnnotation(id, limit, page, sortBy, geneticEntity, geneticEntityType, disease, reference, asc);
         mapper.disable(MapperFeature.DEFAULT_VIEW_INCLUSION);
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-        response.setHttpServletRequest(request);
-        return mapper.writerWithView(View.DefaultView.class).writeValueAsString(response);
-*/
-    return null;
+        ///response.setHttpServletRequest(request);
+        return mapper.writerWithView(View.Default.class).writeValueAsString(response);
+    }
+
+    @Override
+    public String getDiseaseViaOrthology(String id,
+                                         int limit,
+                                         int page,
+                                         String sortBy,
+                                         String geneticEntity,
+                                         String geneticEntityType,
+                                         String disease,
+                                         String reference,
+                                         String asc) throws JsonProcessingException {
+        JsonResultResponse<DiseaseAnnotation> response = getDiseaseViaOrthologyAnnotation(id, limit, page, sortBy, geneticEntity, geneticEntityType, disease, reference, asc);
+        mapper.disable(MapperFeature.DEFAULT_VIEW_INCLUSION);
+        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        ///response.setHttpServletRequest(request);
+        return mapper.writerWithView(View.Default.class).writeValueAsString(response);
+    }
+
+    @Override
+    public Response getDiseaseByExperimentDownload(String id,
+                                                   String sortBy,
+                                                   String geneticEntity,
+                                                   String geneticEntityType,
+                                                   String phenotype,
+                                                   String reference,
+                                                   String asc) throws JsonProcessingException {
+        JsonResultResponse<DiseaseAnnotation> response = getEmpiricalDiseaseAnnotation(id, null, null, sortBy, geneticEntity, geneticEntityType, phenotype, reference, asc);
+        Response.ResponseBuilder responseBuilder = Response.ok(diseaseTranslator.getEmpiricalDiseaseByGene(response.getResults()));
+        responseBuilder.type(MediaType.TEXT_PLAIN_TYPE);
+        responseBuilder.header("Content-Disposition", "attachment; filename=\"DiseaseAssociationsViaEmpiricalData-" + id.replace(":", "-") + ".tsv\"");
+        return responseBuilder.build();
+    }
+
+    @Override
+    public Response getDiseaseViaOrthologyDownload(String id,
+                                                   String sortBy,
+                                                   String geneticEntity,
+                                                   String geneticEntityType,
+                                                   String phenotype,
+                                                   String reference,
+                                                   String asc) throws JsonProcessingException {
+        JsonResultResponse<DiseaseAnnotation> response = getDiseaseViaOrthologyAnnotation(id, null, null, sortBy, geneticEntity, geneticEntityType, phenotype, reference, asc);
+        Response.ResponseBuilder responseBuilder = Response.ok(diseaseTranslator.getDiseaseViaOrthologyByGene(response.getResults()));
+        responseBuilder.type(MediaType.TEXT_PLAIN_TYPE);
+        responseBuilder.header("Content-Disposition", "attachment; filename=\"DiseaseAssociationsViaOrthologyData-" + id.replace(":", "-") + ".tsv\"");
+        return responseBuilder.build();
     }
 
 }

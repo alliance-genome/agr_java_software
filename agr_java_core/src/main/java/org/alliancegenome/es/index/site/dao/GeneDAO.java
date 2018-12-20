@@ -22,10 +22,7 @@ import org.elasticsearch.search.sort.SortBuilders;
 import org.neo4j.ogm.model.Result;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 public class GeneDAO extends ESDAO {
@@ -140,9 +137,12 @@ public class GeneDAO extends ESDAO {
         return annotationDocuments;
     }
 
-    private List<DiseaseAnnotation> getEmpiricalDiseaseAnnotationList(String geneID, Pagination pagination) {
+    private List<DiseaseAnnotation> getEmpiricalDiseaseAnnotationList(String geneID, Pagination pagination, boolean empiricalDisease) {
+        Result result = diseaseRepository.getEmpiricalDisease(geneID, pagination, empiricalDisease);
+        return getDiseaseAnnotations(geneID, result);
+    }
 
-        Result result = diseaseRepository.getEmpiricalDisease(geneID, pagination);
+    private List<DiseaseAnnotation> getDiseaseAnnotations(String geneID, Result result) {
         List<DiseaseAnnotation> annotationDocuments = new ArrayList<>();
         result.forEach(objectMap -> {
             DiseaseAnnotation document = new DiseaseAnnotation();
@@ -152,6 +152,20 @@ public class GeneDAO extends ESDAO {
             document.setDisease((DOTerm) objectMap.get("disease"));
             document.setAssociationType(((List<DiseaseEntityJoin>)objectMap.get("diseaseEntityJoin")).get(0).getJoinType());
             Allele feature = (Allele) objectMap.get("feature");
+            document.setDiseaseEntityJoinSet((List<DiseaseEntityJoin>) objectMap.get("diseaseEntityJoin"));
+            document.setAssociationType(((List<DiseaseEntityJoin>) objectMap.get("diseaseEntityJoin")).get(0).getJoinType());
+            document.setEvidenceCodes((List<EvidenceCode>) objectMap.get("evidences"));
+            List<Gene> orthoGenes = (List<Gene>) objectMap.get("orthoGenes");
+            List<Species> orthoGeneSpecies = (List<Species>) objectMap.get("orthoSpecies");
+            if (orthoGenes != null) {
+                Set<Gene> orthoGeneSet = new HashSet<>(orthoGenes);
+                if (orthoGeneSet.size() > 1)
+                    log.warn("Annotation has more than one orthology Gene..." + document.getDisease().getName());
+                Gene next = orthoGeneSet.iterator().next();
+                next.setSpecies(orthoGeneSpecies.iterator().next());
+                document.setOrthologyGene(next);
+            }
+//            Feature feature = (Feature) objectMap.get("feature");
             if (feature != null) {
                 List<CrossReference> ref = (List<CrossReference>) objectMap.get("crossReferences");
                 feature.setCrossReferences(ref);
@@ -172,13 +186,13 @@ public class GeneDAO extends ESDAO {
         diseaseFieldFilterSortingMap.put(FieldFilter.GENETIC_ENTITY, "featureDocument.symbol.sort");
     }
 
-    public JsonResultResponse<DiseaseAnnotation> getEmpiricalDiseaseAnnotations(String geneID, Pagination pagination) {
+    public JsonResultResponse<DiseaseAnnotation> getEmpiricalDiseaseAnnotations(String geneID, Pagination pagination, boolean empiricalDisease) {
         LocalDateTime startDate = LocalDateTime.now();
-        List<DiseaseAnnotation> list = getEmpiricalDiseaseAnnotationList(geneID, pagination);
+        List<DiseaseAnnotation> list = getEmpiricalDiseaseAnnotationList(geneID, pagination, empiricalDisease);
         JsonResultResponse<DiseaseAnnotation> response = new JsonResultResponse<>();
         response.calculateRequestDuration(startDate);
         response.setResults(list);
-        Long count = diseaseRepository.getTotalDiseaseCount(geneID, pagination);
+        Long count = diseaseRepository.getTotalDiseaseCount(geneID, pagination, empiricalDisease);
         response.setTotal((int) (long) count);
         return response;
     }

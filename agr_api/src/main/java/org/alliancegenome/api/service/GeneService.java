@@ -51,8 +51,8 @@ public class GeneService {
         return ret;
     }
 
-    public JsonResultResponse<DiseaseAnnotation> getEmpiricalDiseaseAnnotations(String id, Pagination pagination) throws JsonProcessingException {
-        return geneDAO.getEmpiricalDiseaseAnnotations(id, pagination);
+    public JsonResultResponse<DiseaseAnnotation> getEmpiricalDiseaseAnnotations(String id, Pagination pagination, boolean empiricalDisease) throws JsonProcessingException {
+        return geneDAO.getEmpiricalDiseaseAnnotations(id, pagination, empiricalDisease);
     }
 
 }
