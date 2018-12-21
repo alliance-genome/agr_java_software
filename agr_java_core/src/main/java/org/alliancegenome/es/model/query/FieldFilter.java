@@ -20,8 +20,8 @@ public enum FieldFilter {
     EVIDENCE_CODE("evidenceCode"),
     PHENOTYPE("termName"),
     ASSOCIATION_TYPE("associationType"),
-    ORTHOLOG("filter.ortholog"),
-    ORTHOLOG_SPECIES("filter.orthologSpecies");
+    ORTHOLOG("filter.orthologGene"),
+    ORTHOLOG_SPECIES("filter.orthologGeneSpecies");
     private String name;
 
     FieldFilter(String name) {

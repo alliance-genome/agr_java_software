@@ -159,6 +159,10 @@ public interface GeneRESTInterface {
             @QueryParam("termName") String phenotype,
             @ApiParam(value = "association type")
             @QueryParam("associationType") String associationType,
+            @ApiParam(value = "Evidence Code")
+            @QueryParam("evidenceCode") String evidenceCode,
+            @ApiParam(value = "Data Source")
+            @QueryParam("filter.source") String source,
             @ApiParam(value = "Reference number: PUBMED or a Pub ID from the MOD")
             @QueryParam("filter.reference") String reference,
             @ApiParam(value = "ascending order: true or false", allowableValues = "true,false", defaultValue = "true")
@@ -184,6 +188,10 @@ public interface GeneRESTInterface {
             @QueryParam("termName") String disease,
             @ApiParam(value = "association type")
             @QueryParam("associationType") String associationType,
+            @ApiParam(value = "Evidence Code")
+            @QueryParam("evidenceCode") String evidenceCode,
+            @ApiParam(value = "Data Source")
+            @QueryParam("filter.source") String source,
             @ApiParam(value = "Reference number: PUBMED or a Pub ID from the MOD")
             @QueryParam("filter.reference") String reference,
             @ApiParam(value = "ascending order: true or false", allowableValues = "true,false", defaultValue = "true")
@@ -205,6 +213,10 @@ public interface GeneRESTInterface {
             @QueryParam("termName") String phenotype,
             @ApiParam(value = "association type")
             @QueryParam("associationType") String associationType,
+            @ApiParam(value = "Evidence Code")
+            @QueryParam("evidenceCode") String evidenceCode,
+            @ApiParam(value = "Data Source")
+            @QueryParam("filter.source") String source,
             @ApiParam(value = "Reference number: PUBMED or a Pub ID from the MOD")
             @QueryParam("filter.reference") String reference,
             @ApiParam(value = "ascending order: true or false", allowableValues = "true,false", defaultValue = "true")
@@ -218,14 +230,18 @@ public interface GeneRESTInterface {
             @PathParam("id") String id,
             @ApiParam(value = "Field name by which to sort", allowableValues = "termName,geneticEntity")
             @DefaultValue("termName") @QueryParam("sortBy") String sortBy,
-            @ApiParam(name = "orthologyGene", value = "genetic entity symbol")
-            @QueryParam("orthologyGene") String orthologyGene,
-            @ApiParam(name = "orthologyGeneSpecies", value = "genetic entity type", allowableValues = "allele,gene")
+            @ApiParam(name = "orthologyGene", value = "Orthologous Gene Symbol")
+            @QueryParam("filter.orthologyGene") String orthologyGene,
+            @ApiParam(name = "filter.orthologyGeneSpecies", value = "Orthologous Gene Species")
             @QueryParam("orthologyGeneSpecies") String orthologyGeneSpecies,
             @ApiParam(value = "termName annotation")
             @QueryParam("termName") String phenotype,
             @ApiParam(value = "association type")
             @QueryParam("associationType") String associationType,
+            @ApiParam(value = "Evidence Code")
+            @QueryParam("evidenceCode") String evidenceCode,
+            @ApiParam(value = "Data Source")
+            @QueryParam("filter.source") String source,
             @ApiParam(value = "Reference number: PUBMED or a Pub ID from the MOD")
             @QueryParam("filter.reference") String reference,
             @ApiParam(value = "ascending order: true or false", allowableValues = "true,false", defaultValue = "true")
