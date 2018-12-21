@@ -19,7 +19,9 @@ public enum FieldFilter {
     FREFERENCE("filter.reference"),
     EVIDENCE_CODE("evidenceCode"),
     PHENOTYPE("termName"),
-    ASSOCIATION_TYPE("associationType"),;
+    ASSOCIATION_TYPE("associationType"),
+    ORTHOLOG("filter.ortholog"),
+    ORTHOLOG_SPECIES("filter.orthologSpecies");
     private String name;
 
     FieldFilter(String name) {

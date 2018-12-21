@@ -19,7 +19,6 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.config.Configurator;
 import org.jboss.logging.Logger;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -51,7 +50,7 @@ public class DiseaseTest {
         Pagination pagination = new Pagination(1, 10, null, null);
         // Pten
         String geneID = "MGI:109583";
-        JsonResultResponse<DiseaseAnnotation> response = geneDAO.getEmpiricalDiseaseAnnotations(geneID, pagination, true);
+        JsonResultResponse<DiseaseAnnotation> response = geneDAO.getDiseaseAnnotations(geneID, pagination, true);
         assertResponse(response, 10, 50);
 
         DiseaseAnnotation annotation = response.getResults().get(0);
@@ -93,7 +92,7 @@ public class DiseaseTest {
 
         // add filter on disease
         pagination.makeSingleFieldFilter(FieldFilter.DISEASE, "BL");
-        JsonResultResponse<DiseaseAnnotation> response = geneDAO.getEmpiricalDiseaseAnnotations(geneID, pagination, true);
+        JsonResultResponse<DiseaseAnnotation> response = geneDAO.getDiseaseAnnotations(geneID, pagination, true);
         assertResponse(response, 3, 3);
 
         DiseaseAnnotation annotation = response.getResults().get(0);
@@ -127,7 +126,7 @@ public class DiseaseTest {
 
         // add filter on feature symbol
         pagination.makeSingleFieldFilter(FieldFilter.GENETIC_ENTITY, "tm1h");
-        JsonResultResponse<DiseaseAnnotation> response = geneDAO.getEmpiricalDiseaseAnnotations(geneID, pagination, true);
+        JsonResultResponse<DiseaseAnnotation> response = geneDAO.getDiseaseAnnotations(geneID, pagination, true);
         assertResponse(response, 10, 10);
 
         DiseaseAnnotation annotation = response.getResults().get(0);
@@ -163,7 +162,7 @@ public class DiseaseTest {
 
         // add filter on feature symbol
         pagination.makeSingleFieldFilter(FieldFilter.GENETIC_ENTITY_TYPE, "allele");
-        JsonResultResponse<DiseaseAnnotation> response = geneDAO.getEmpiricalDiseaseAnnotations(geneID, pagination, true);
+        JsonResultResponse<DiseaseAnnotation> response = geneDAO.getDiseaseAnnotations(geneID, pagination, true);
         assertResponse(response, 36, 36);
 
         DiseaseAnnotation annotation = response.getResults().get(0);
@@ -174,7 +173,7 @@ public class DiseaseTest {
         assertThat(annotation.getPublications().stream().map(Publication::getPubId).collect(Collectors.joining()), equalTo("PMID:21262837"));
 
         pagination.makeSingleFieldFilter(FieldFilter.GENETIC_ENTITY_TYPE, "gene");
-        response = geneDAO.getEmpiricalDiseaseAnnotations(geneID, pagination, true);
+        response = geneDAO.getDiseaseAnnotations(geneID, pagination, true);
         assertResponse(response, 14, 14);
         annotation = response.getResults().get(1);
         assertThat(annotation.getDisease().getName(), equalTo("autistic disorder"));
@@ -190,7 +189,7 @@ public class DiseaseTest {
 
         // add filter on feature symbol
         pagination.makeSingleFieldFilter(FieldFilter.ASSOCIATION_TYPE, "IMPLICATED");
-        JsonResultResponse<DiseaseAnnotation> response = geneDAO.getEmpiricalDiseaseAnnotations(geneID, pagination, true);
+        JsonResultResponse<DiseaseAnnotation> response = geneDAO.getDiseaseAnnotations(geneID, pagination, true);
         assertResponse(response, 2, 2);
 
         DiseaseAnnotation annotation = response.getResults().get(0);
@@ -199,7 +198,7 @@ public class DiseaseTest {
         assertThat(annotation.getPublications().stream().map(Publication::getPubId).collect(Collectors.joining()), equalTo("RGD:7240710"));
 
         pagination.makeSingleFieldFilter(FieldFilter.ASSOCIATION_TYPE, "MARKER");
-        response = geneDAO.getEmpiricalDiseaseAnnotations(geneID, pagination, true);
+        response = geneDAO.getDiseaseAnnotations(geneID, pagination, true);
         assertResponse(response, 4, 4);
         annotation = response.getResults().get(1);
         assertThat(annotation.getDisease().getName(), equalTo("embryonal carcinoma"));
@@ -215,11 +214,11 @@ public class DiseaseTest {
 
         // add filter on evidence code
         pagination.makeSingleFieldFilter(FieldFilter.EVIDENCE_CODE, "IEP");
-        JsonResultResponse<DiseaseAnnotation> response = geneDAO.getEmpiricalDiseaseAnnotations(geneID, pagination, true);
+        JsonResultResponse<DiseaseAnnotation> response = geneDAO.getDiseaseAnnotations(geneID, pagination, true);
         assertResponse(response, 4, 4);
 
         pagination.makeSingleFieldFilter(FieldFilter.EVIDENCE_CODE, "iAG");
-        response = geneDAO.getEmpiricalDiseaseAnnotations(geneID, pagination, true);
+        response = geneDAO.getDiseaseAnnotations(geneID, pagination, true);
         assertResponse(response, 1, 1);
     }
 
@@ -231,11 +230,11 @@ public class DiseaseTest {
 
         // add filter on reference
         pagination.makeSingleFieldFilter(FieldFilter.FREFERENCE, "380");
-        JsonResultResponse<DiseaseAnnotation> response = geneDAO.getEmpiricalDiseaseAnnotations(geneID, pagination, true);
+        JsonResultResponse<DiseaseAnnotation> response = geneDAO.getDiseaseAnnotations(geneID, pagination, true);
         assertResponse(response, 3, 3);
 
         pagination.makeSingleFieldFilter(FieldFilter.FREFERENCE, "710");
-        response = geneDAO.getEmpiricalDiseaseAnnotations(geneID, pagination, true);
+        response = geneDAO.getDiseaseAnnotations(geneID, pagination, true);
         assertResponse(response, 1, 1);
     }
 
@@ -244,7 +243,7 @@ public class DiseaseTest {
         Pagination pagination = new Pagination(1, 10, null, null);
         // Ogg1
         String geneID = "MGI:1097693";
-        JsonResultResponse<DiseaseAnnotation> response = geneDAO.getEmpiricalDiseaseAnnotations(geneID, pagination, false);
+        JsonResultResponse<DiseaseAnnotation> response = geneDAO.getDiseaseAnnotations(geneID, pagination, false);
         assertResponse(response, 10, 22);
 
         DiseaseAnnotation annotation = response.getResults().get(0);
@@ -276,6 +275,103 @@ public class DiseaseTest {
         assertEquals(result, output);
 
     }
+
+    @Test
+    public void checkDiseaseOrthologyFilterByDisease() {
+        Pagination pagination = new Pagination(1, null, null, null);
+        // Pten
+        String geneID = "MGI:109583";
+
+        // add filter on disease
+        pagination.makeSingleFieldFilter(FieldFilter.DISEASE, "OmA");
+        JsonResultResponse<DiseaseAnnotation> response = geneDAO.getDiseaseAnnotations(geneID, pagination, false);
+        assertResponse(response, 11, 11);
+
+        DiseaseAnnotation annotation = response.getResults().get(0);
+        assertThat(annotation.getDisease().getName(), equalTo("angiomyolipoma"));
+        assertThat(annotation.getAssociationType(), equalTo("biomarker_via_orthology"));
+        assertNull(annotation.getFeature());
+        assertThat(annotation.getPublications().stream().map(Publication::getPubId).collect(Collectors.joining()), equalTo("MGI:6194238"));
+
+        DiseaseAnnotationToTdfTranslator translator = new DiseaseAnnotationToTdfTranslator();
+        String output = translator.getDiseaseViaOrthologyByGene(response.getResults());
+        List<String> lines = Arrays.asList(output.split("\n"));
+        assertNotNull(lines);
+        String result = "Disease\tAssociation\tOrtholog Gene ID\tOrtholog Gene Symbol\tOrtholog Species\tEvidence Code\tSource\tReferences\n" +
+                "angiomyolipoma\tbiomarker_via_orthology\tHGNC:9588\tPTEN\tHomo sapiens\tIEA\tAlliance\tMGI:6194238\n" +
+                "cervix uteri carcinoma in situ\tbiomarker_via_orthology\tHGNC:9588\tPTEN\tHomo sapiens\tIEA\tAlliance\tMGI:6194238\n" +
+                "familial meningioma\timplicated_via_orthology\tHGNC:9588\tPTEN\tHomo sapiens\tIEA\tAlliance\tMGI:6194238\n" +
+                "head and neck squamous cell carcinoma\timplicated_via_orthology\tHGNC:9588\tPTEN\tHomo sapiens\tIEA\tAlliance\tMGI:6194238\n" +
+                "in situ carcinoma\tbiomarker_via_orthology\tHGNC:9588\tPTEN\tHomo sapiens\tIEA\tAlliance\tMGI:6194238\n" +
+                "leiomyoma\tbiomarker_via_orthology\tHGNC:9588\tPTEN\tHomo sapiens\tIEA\tAlliance\tMGI:6194238\n" +
+                "malignant glioma\timplicated_via_orthology\tHGNC:9588\tPTEN\tHomo sapiens\tIEA\tAlliance\tMGI:6194238\n" +
+                "non-small cell lung carcinoma\timplicated_via_orthology\tHGNC:9588\tPTEN\tHomo sapiens\tIEA\tAlliance\tMGI:6194238\n" +
+                "renal cell carcinoma\tbiomarker_via_orthology\tHGNC:9588\tPTEN\tHomo sapiens\tIEA\tAlliance\tMGI:6194238\n" +
+                "renal cell carcinoma\tbiomarker_via_orthology\tRGD:61995\tPten\tRattus norvegicus\tIEA\tAlliance\tMGI:6194238\n" +
+                "stomach disease\tbiomarker_via_orthology\tRGD:61995\tPten\tRattus norvegicus\tIEA\tAlliance\tMGI:6194238\n";
+        assertEquals(result, output);
+    }
+
+    @Test
+    public void checkDiseaseOrthologyFilterByAssociation() {
+        Pagination pagination = new Pagination(1, null, null, null);
+        // Pten
+        String geneID = "MGI:109583";
+
+        // add filter on disease
+        pagination.makeSingleFieldFilter(FieldFilter.ASSOCIATION_TYPE, "ImplicaT");
+        JsonResultResponse<DiseaseAnnotation> response = geneDAO.getDiseaseAnnotations(geneID, pagination, false);
+        assertResponse(response, 13, 13);
+
+        DiseaseAnnotation annotation = response.getResults().get(0);
+        assertThat(annotation.getDisease().getName(), equalTo("Bannayan-Riley-Ruvalcaba syndrome"));
+        assertThat(annotation.getAssociationType(), equalTo("implicated_via_orthology"));
+        assertNull(annotation.getFeature());
+        assertThat(annotation.getPublications().stream().map(Publication::getPubId).collect(Collectors.joining()), equalTo("MGI:6194238"));
+
+        pagination.makeSingleFieldFilter(FieldFilter.ASSOCIATION_TYPE, "BIo");
+        response = geneDAO.getDiseaseAnnotations(geneID, pagination, false);
+        assertResponse(response, 17, 17);
+
+    }
+
+    @Test
+    public void checkDiseaseOrthologyFilterByOrthoGene() {
+        Pagination pagination = new Pagination(1, null, null, null);
+        // Pten
+        String geneID = "MGI:109583";
+
+        // add filter on disease
+        pagination.makeSingleFieldFilter(FieldFilter.ORTHOLOG, "daF");
+        JsonResultResponse<DiseaseAnnotation> response = geneDAO.getDiseaseAnnotations(geneID, pagination, false);
+        assertResponse(response, 1, 1);
+
+        DiseaseAnnotation annotation = response.getResults().get(0);
+        assertThat(annotation.getDisease().getName(), equalTo("cancer"));
+        assertThat(annotation.getAssociationType(), equalTo("implicated_via_orthology"));
+        assertNull(annotation.getFeature());
+        assertThat(annotation.getPublications().stream().map(Publication::getPubId).collect(Collectors.joining()), equalTo("MGI:6194238"));
+
+    }
+
+    @Test
+    public void checkDiseaseOrthologyFilterByOrthoGeneSpecies() {
+        Pagination pagination = new Pagination(1, null, null, null);
+        // Pten
+        String geneID = "MGI:109583";
+
+        // add filter on disease
+        pagination.makeSingleFieldFilter(FieldFilter.ORTHOLOG_SPECIES, "ratt");
+        JsonResultResponse<DiseaseAnnotation> response = geneDAO.getDiseaseAnnotations(geneID, pagination, false);
+        assertResponse(response, 10, 10);
+
+        DiseaseAnnotation annotation = response.getResults().get(0);
+        assertThat(annotation.getDisease().getName(), equalTo("diabetes mellitus"));
+        assertThat(annotation.getAssociationType(), equalTo("biomarker_via_orthology"));
+        assertNull(annotation.getFeature());
+        assertThat(annotation.getPublications().stream().map(Publication::getPubId).collect(Collectors.joining()), equalTo("MGI:6194238"));
+    }
+
 
 
     @SuppressWarnings("unchecked")

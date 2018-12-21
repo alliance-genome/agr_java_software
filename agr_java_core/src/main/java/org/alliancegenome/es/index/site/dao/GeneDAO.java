@@ -186,7 +186,7 @@ public class GeneDAO extends ESDAO {
         diseaseFieldFilterSortingMap.put(FieldFilter.GENETIC_ENTITY, "featureDocument.symbol.sort");
     }
 
-    public JsonResultResponse<DiseaseAnnotation> getEmpiricalDiseaseAnnotations(String geneID, Pagination pagination, boolean empiricalDisease) {
+    public JsonResultResponse<DiseaseAnnotation> getDiseaseAnnotations(String geneID, Pagination pagination, boolean empiricalDisease) {
         LocalDateTime startDate = LocalDateTime.now();
         List<DiseaseAnnotation> list = getEmpiricalDiseaseAnnotationList(geneID, pagination, empiricalDisease);
         JsonResultResponse<DiseaseAnnotation> response = new JsonResultResponse<>();

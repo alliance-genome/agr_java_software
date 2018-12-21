@@ -157,6 +157,8 @@ public interface GeneRESTInterface {
             @QueryParam("geneticEntityType") String geneticEntityType,
             @ApiParam(value = "termName annotation")
             @QueryParam("termName") String phenotype,
+            @ApiParam(value = "association type")
+            @QueryParam("associationType") String associationType,
             @ApiParam(value = "Reference number: PUBMED or a Pub ID from the MOD")
             @QueryParam("filter.reference") String reference,
             @ApiParam(value = "ascending order: true or false", allowableValues = "true,false", defaultValue = "true")
@@ -174,12 +176,14 @@ public interface GeneRESTInterface {
             @DefaultValue("1") @QueryParam("page") int page,
             @ApiParam(value = "Field name by which to sort", allowableValues = "termName,geneticEntity")
             @DefaultValue("termName") @QueryParam("sortBy") String sortBy,
-            @ApiParam(name = "geneticEntity", value = "genetic entity symbol")
-            @QueryParam("geneticEntity") String geneticEntity,
-            @ApiParam(name = "geneticEntityType", value = "genetic entity type", allowableValues = "allele,gene")
-            @QueryParam("geneticEntityType") String geneticEntityType,
+            @ApiParam(name = "orthologyGene", value = "genetic entity symbol")
+            @QueryParam("orthologyGene") String orthologyGene,
+            @ApiParam(name = "orthologyGeneSpecies", value = "genetic entity type", allowableValues = "allele,gene")
+            @QueryParam("orthologyGeneSpecies") String orthologyGeneSpecies,
             @ApiParam(value = "termName annotation")
-            @QueryParam("termName") String phenotype,
+            @QueryParam("termName") String disease,
+            @ApiParam(value = "association type")
+            @QueryParam("associationType") String associationType,
             @ApiParam(value = "Reference number: PUBMED or a Pub ID from the MOD")
             @QueryParam("filter.reference") String reference,
             @ApiParam(value = "ascending order: true or false", allowableValues = "true,false", defaultValue = "true")
@@ -199,6 +203,8 @@ public interface GeneRESTInterface {
             @QueryParam("geneticEntityType") String geneticEntityType,
             @ApiParam(value = "termName annotation")
             @QueryParam("termName") String phenotype,
+            @ApiParam(value = "association type")
+            @QueryParam("associationType") String associationType,
             @ApiParam(value = "Reference number: PUBMED or a Pub ID from the MOD")
             @QueryParam("filter.reference") String reference,
             @ApiParam(value = "ascending order: true or false", allowableValues = "true,false", defaultValue = "true")
@@ -212,12 +218,14 @@ public interface GeneRESTInterface {
             @PathParam("id") String id,
             @ApiParam(value = "Field name by which to sort", allowableValues = "termName,geneticEntity")
             @DefaultValue("termName") @QueryParam("sortBy") String sortBy,
-            @ApiParam(name = "geneticEntity", value = "genetic entity symbol")
-            @QueryParam("geneticEntity") String geneticEntity,
-            @ApiParam(name = "geneticEntityType", value = "genetic entity type", allowableValues = "allele,gene")
-            @QueryParam("geneticEntityType") String geneticEntityType,
+            @ApiParam(name = "orthologyGene", value = "genetic entity symbol")
+            @QueryParam("orthologyGene") String orthologyGene,
+            @ApiParam(name = "orthologyGeneSpecies", value = "genetic entity type", allowableValues = "allele,gene")
+            @QueryParam("orthologyGeneSpecies") String orthologyGeneSpecies,
             @ApiParam(value = "termName annotation")
             @QueryParam("termName") String phenotype,
+            @ApiParam(value = "association type")
+            @QueryParam("associationType") String associationType,
             @ApiParam(value = "Reference number: PUBMED or a Pub ID from the MOD")
             @QueryParam("filter.reference") String reference,
             @ApiParam(value = "ascending order: true or false", allowableValues = "true,false", defaultValue = "true")
