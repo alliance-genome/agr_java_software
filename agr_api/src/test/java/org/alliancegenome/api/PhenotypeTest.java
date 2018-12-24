@@ -15,6 +15,7 @@ import org.alliancegenome.neo4j.view.OrthologyModule;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.config.Configurator;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.equalTo;
@@ -57,6 +58,7 @@ public class PhenotypeTest {
 
 
     @Test
+    @Ignore
     public void checkPhenotypeByGeneWithoutPagination() {
         Pagination pagination = new Pagination(1, 100, null, null);
         // mkks
@@ -82,6 +84,7 @@ public class PhenotypeTest {
     }
 
     @Test
+    @Ignore
     // ZFIN gene: mkks
     public void checkPhenotypeByGeneWithPagination() {
 
@@ -93,6 +96,7 @@ public class PhenotypeTest {
     }
 
     @Test
+    @Ignore
     // ZFIN gene: pax2a
     public void checkPhenotypeByGeneWithPaginationPax2a() {
 
@@ -144,6 +148,7 @@ public class PhenotypeTest {
     }
 
     @Test
+    @Ignore
     // ZFIN gene: Pten
     public void checkPhenotypeByGeneWithPaginationPten() {
 
