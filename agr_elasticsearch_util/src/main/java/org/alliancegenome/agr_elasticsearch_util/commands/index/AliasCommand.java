@@ -1,6 +1,9 @@
-package org.alliancegenome.agr_elasticsearch_util.commands;
+package org.alliancegenome.agr_elasticsearch_util.commands.index;
 
 import java.util.ArrayList;
+
+import org.alliancegenome.agr_elasticsearch_util.commands.Command;
+import org.alliancegenome.agr_elasticsearch_util.commands.CommandInterface;
 
 public class AliasCommand extends Command implements CommandInterface {
 

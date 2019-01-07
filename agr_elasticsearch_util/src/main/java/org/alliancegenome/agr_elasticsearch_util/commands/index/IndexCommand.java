@@ -1,8 +1,10 @@
-package org.alliancegenome.agr_elasticsearch_util.commands;
+package org.alliancegenome.agr_elasticsearch_util.commands.index;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import org.alliancegenome.agr_elasticsearch_util.commands.Command;
+import org.alliancegenome.agr_elasticsearch_util.commands.CommandInterface;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.es.index.data.dao.MetaDataDAO;
 import org.elasticsearch.cluster.metadata.IndexMetaData;
