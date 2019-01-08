@@ -2,14 +2,14 @@ package org.alliancegenome.es.index.site.dao;
 
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.service.JsonResultResponse;
-import org.alliancegenome.core.translators.document.FeatureTranslator;
+import org.alliancegenome.core.translators.document.AlleleTranslator;
 import org.alliancegenome.es.index.ESDAO;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.es.model.search.SearchApiResponse;
 import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
 import org.alliancegenome.neo4j.entity.node.CrossReference;
-import org.alliancegenome.neo4j.entity.node.Feature;
+import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.entity.node.Publication;
 import org.alliancegenome.neo4j.repository.GeneRepository;
@@ -37,7 +37,7 @@ public class GeneDAO extends ESDAO {
     private GeneRepository geneRepository = new GeneRepository();
     private PhenotypeRepository phenotypeRepository = new PhenotypeRepository();
 
-    private FeatureTranslator featureTranslator = new FeatureTranslator();
+    private AlleleTranslator alleleTranslator = new AlleleTranslator();
 
     public Map<String, Object> getById(String id) {
         try {
@@ -124,11 +124,11 @@ public class GeneDAO extends ESDAO {
             gene.setPrimaryKey(geneID);
             document.setGene(gene);
             document.setPhenotype((String) objectMap.get("phenotype"));
-            Feature feature = (Feature) objectMap.get("feature");
-            if (feature != null) {
+            Allele allele = (Allele) objectMap.get("allele");
+            if (allele != null) {
                 List<CrossReference> ref = (List<CrossReference>) objectMap.get("crossReferences");
-                feature.setCrossReferences(ref);
-                document.setFeature(feature);
+                allele.setCrossReferences(ref);
+                document.setAllele(allele);
             }
             document.setPublications((List<Publication>) objectMap.get("publications"));
             annotationDocuments.add(document);
@@ -142,7 +142,7 @@ public class GeneDAO extends ESDAO {
 
     static {
         diseaseFieldFilterSortingMap.put(FieldFilter.PHENOTYPE, "phenotype.sort");
-        diseaseFieldFilterSortingMap.put(FieldFilter.GENETIC_ENTITY, "featureDocument.symbol.sort");
+        diseaseFieldFilterSortingMap.put(FieldFilter.GENETIC_ENTITY, "alleleDocument.symbol.sort");
     }
 
 }

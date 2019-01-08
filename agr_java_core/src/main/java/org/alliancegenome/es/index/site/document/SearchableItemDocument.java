@@ -1,16 +1,15 @@
 package org.alliancegenome.es.index.site.document;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.alliancegenome.es.index.ESDocument;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 @Getter
 @Setter
@@ -25,7 +24,7 @@ public abstract class SearchableItemDocument extends ESDocument {
     String description;
 
     Set<String> diseases = new HashSet<>();
-    Set<String> features = new HashSet<>();
+    Set<String> alleles = new HashSet<>();
     Set<String> genes = new HashSet<>();
     Set<String> phenotypeStatements = new HashSet<>();
 

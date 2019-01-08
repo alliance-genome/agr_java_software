@@ -11,7 +11,7 @@ import java.util.List;
 
 @Getter
 @Setter
-public class FeatureDocument extends SearchableItemDocument {
+public class AlleleDocument extends SearchableItemDocument {
 
     public static final String CATEGORY = "allele";
 

@@ -34,7 +34,7 @@ public class InteractionsTest {
         mapper.disable(MapperFeature.DEFAULT_VIEW_INCLUSION);
         mapper.setSerializationInclusion(Include.NON_NULL);
 
-        String json = mapper.writerWithView(View.InteractionView.class).writeValueAsString(list);
+        String json = mapper.writerWithView(View.Interaction.class).writeValueAsString(list);
 
         log.info("Json: " + json);
         log.info("Count: " + list.size());

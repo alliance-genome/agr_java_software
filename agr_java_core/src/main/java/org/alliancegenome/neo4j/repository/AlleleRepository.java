@@ -6,16 +6,16 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.alliancegenome.neo4j.entity.node.Feature;
+import org.alliancegenome.neo4j.entity.node.Allele;
 import org.neo4j.ogm.model.Result;
 
-public class FeatureRepository extends Neo4jRepository<Feature> {
+public class AlleleRepository extends Neo4jRepository<Allele> {
 
-    public FeatureRepository() {
-        super(Feature.class);
+    public AlleleRepository() {
+        super(Allele.class);
     }
 
-    public Feature getFeature(String primaryKey) {
+    public Allele getAllele(String primaryKey) {
         HashMap<String, String> map = new HashMap<>();
 
         map.put("primaryKey", primaryKey);
@@ -29,8 +29,8 @@ public class FeatureRepository extends Neo4jRepository<Feature> {
         query += " OPTIONAL MATCH crossRef=(feature:Feature)-[:CROSS_REFERENCE]-(c:CrossReference)";
         query += " RETURN p1, p2, p3, p4, p5, p6, crossRef";
         
-        Iterable<Feature> genes = query(query, map);
-        for (Feature g : genes) {
+        Iterable<Allele> genes = query(query, map);
+        for (Allele g : genes) {
             if (g.getPrimaryKey().equals(primaryKey)) {
                 return g;
             }

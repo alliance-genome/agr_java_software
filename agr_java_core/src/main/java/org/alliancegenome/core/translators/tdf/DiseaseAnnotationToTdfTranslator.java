@@ -53,9 +53,9 @@ public class DiseaseAnnotationToTdfTranslator {
             joiner.add(diseaseAnnotationDocument.getGeneDocument().getPrimaryId());
             joiner.add(diseaseAnnotationDocument.getGeneDocument().getSymbol());
             joiner.add(diseaseAnnotationDocument.getSpecies().getName());
-            if (diseaseAnnotationDocument.getFeatureDocument() != null) {
-                joiner.add(diseaseAnnotationDocument.getFeatureDocument().getPrimaryKey());
-                joiner.add(diseaseAnnotationDocument.getFeatureDocument().getSymbol());
+            if (diseaseAnnotationDocument.getAlleleDocument() != null) {
+                joiner.add(diseaseAnnotationDocument.getAlleleDocument().getPrimaryKey());
+                joiner.add(diseaseAnnotationDocument.getAlleleDocument().getSymbol());
                 joiner.add("allele");
             } else {
                 joiner.add("");

@@ -21,7 +21,7 @@ public class PhenotypeAnnotationMapping extends Mapping {
             new FieldBuilder(builder,"publications.pubModId","text").symbol().autocomplete().keyword().standardText().build();
             new FieldBuilder(builder,"publications.pubMedId","text").symbol().autocomplete().keyword().standardText().build();
 
-            buildNestedDocument("featureDocument");
+            buildNestedDocument("alleleDocument");
             buildNestedDocument("geneDocument");
 
             builder.endObject();

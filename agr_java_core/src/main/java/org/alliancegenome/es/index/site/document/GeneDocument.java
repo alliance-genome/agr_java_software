@@ -66,7 +66,7 @@ public class GeneDocument extends SearchableItemDocument {
     private String modGlobalCrossRefId;
     private String modGlobalId;
 
-    private List<FeatureDocument> alleles;
+    //private List<AlleleDocument> alleles;
 
     @Override
     @JsonIgnore

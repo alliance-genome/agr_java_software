@@ -21,9 +21,9 @@ public class PhenotypeAnnotationToTdfTranslator {
         annotations.forEach(annotation -> {
             StringJoiner joiner = new StringJoiner("\t");
             joiner.add(annotation.getPhenotype());
-            if (annotation.getFeature() != null) {
-                joiner.add(annotation.getFeature().getPrimaryKey());
-                joiner.add(annotation.getFeature().getSymbol());
+            if (annotation.getAllele() != null) {
+                joiner.add(annotation.getAllele().getPrimaryKey());
+                joiner.add(annotation.getAllele().getSymbol());
                 joiner.add("allele");
             } else {
                 joiner.add("");

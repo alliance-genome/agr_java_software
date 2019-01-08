@@ -9,57 +9,57 @@ import org.alliancegenome.core.translators.EntityDocumentTranslator;
 import org.alliancegenome.core.translators.doclet.CrossReferenceDocletTranslator;
 import org.alliancegenome.es.index.site.doclet.CrossReferenceDoclet;
 import org.alliancegenome.es.index.site.document.DiseaseDocument;
-import org.alliancegenome.es.index.site.document.FeatureDocument;
+import org.alliancegenome.es.index.site.document.AlleleDocument;
 import org.alliancegenome.neo4j.entity.node.*;
 import org.apache.commons.collections4.CollectionUtils;
 
-public class FeatureTranslator extends EntityDocumentTranslator<Feature, FeatureDocument> {
+public class AlleleTranslator extends EntityDocumentTranslator<Allele, AlleleDocument> {
 
     private static GeneTranslator geneTranslator = new GeneTranslator();
     private static DiseaseTranslator diseaseTranslator = new DiseaseTranslator();
     private static CrossReferenceDocletTranslator crossReferenceDocletTranslator = new CrossReferenceDocletTranslator();
 
     @Override
-    protected FeatureDocument entityToDocument(Feature entity, int translationDepth) {
+    protected AlleleDocument entityToDocument(Allele entity, int translationDepth) {
 
-        FeatureDocument featureDocument = new FeatureDocument();
+        AlleleDocument alleleDocument = new AlleleDocument();
 
         //allele.setDataProvider(entity.getDataProvider());
-        featureDocument.setDateProduced(entity.getDateProduced());
-        featureDocument.setGlobalId(entity.getGlobalId());
-        featureDocument.setLocalId(entity.getLocalId());
-        featureDocument.setPrimaryKey(entity.getPrimaryKey());
-        featureDocument.setRelease(entity.getRelease());
-        featureDocument.setSymbol(entity.getSymbol());
-        featureDocument.setName(entity.getSymbol());
+        alleleDocument.setDateProduced(entity.getDateProduced());
+        alleleDocument.setGlobalId(entity.getGlobalId());
+        alleleDocument.setLocalId(entity.getLocalId());
+        alleleDocument.setPrimaryKey(entity.getPrimaryKey());
+        alleleDocument.setRelease(entity.getRelease());
+        alleleDocument.setSymbol(entity.getSymbol());
+        alleleDocument.setName(entity.getSymbol());
 
         if (entity.getCrossReferences() != null && entity.getCrossReferences().size() > 0) {
             CrossReference allele = entity.getCrossReferences().stream()
                     .filter(ref -> ref.getCrossRefType().equals("allele"))
                     .findFirst().orElse(null);
             if (allele != null) {
-                featureDocument.setModCrossRefFullUrl(allele.getCrossRefCompleteUrl());
+                alleleDocument.setModCrossRefFullUrl(allele.getCrossRefCompleteUrl());
                 List<CrossReferenceDoclet> crossRefDoclets = entity.getCrossReferences().stream()
                         .map(crossReference -> crossReferenceDocletTranslator.translate(crossReference))
                         .collect(Collectors.toList());
-                featureDocument.setCrossReferenceList(crossRefDoclets);
+                alleleDocument.setCrossReferenceList(crossRefDoclets);
             }
         }
 
         if (translationDepth > 0) {
             if (entity.getGene().getSpecies() != null)
-                featureDocument.setNameKeyWithSpecies(entity.getSymbol(), entity.getGene().getSpecies().getType().getAbbreviation());
+                alleleDocument.setNameKeyWithSpecies(entity.getSymbol(), entity.getGene().getSpecies().getType().getAbbreviation());
 
-            // This code is duplicated in Gene and Feature should be pulled out into its own translator
+            // This code is duplicated in Gene and Allele should be pulled out into its own translator
             ArrayList<String> secondaryIds = new ArrayList<>();
             if (entity.getSecondaryIds() != null) {
                 for (SecondaryId secondaryId : entity.getSecondaryIds()) {
                     secondaryIds.add(secondaryId.getName());
                 }
             }
-            featureDocument.setSecondaryIds(secondaryIds);
+            alleleDocument.setSecondaryIds(secondaryIds);
 
-            // This code is duplicated in Gene and Feature should be pulled out into its own translator
+            // This code is duplicated in Gene and Allele should be pulled out into its own translator
             ArrayList<String> synonyms = new ArrayList<>();
             if (entity.getSynonyms() != null) {
                 for (Synonym synonym : entity.getSynonyms()) {
@@ -70,25 +70,25 @@ public class FeatureTranslator extends EntityDocumentTranslator<Feature, Feature
                     }
                 }
             }
-            featureDocument.setSynonyms(synonyms);
-            featureDocument.setGeneDocument(geneTranslator.translate(entity.getGene(), translationDepth - 1));
+            alleleDocument.setSynonyms(synonyms);
+            alleleDocument.setGeneDocument(geneTranslator.translate(entity.getGene(), translationDepth - 1));
             if (CollectionUtils.isNotEmpty(entity.getDiseaseEntityJoins())) {
                 List<DiseaseDocument> diseaseList = diseaseTranslator.getDiseaseDocuments(entity.getGene(), entity.getDiseaseEntityJoins(), translationDepth);
-                featureDocument.setDiseaseDocuments(diseaseList);
+                alleleDocument.setDiseaseDocuments(diseaseList);
             }
 
-            featureDocument.setPhenotypeStatements(
+            alleleDocument.setPhenotypeStatements(
                     entity.getPhenotypes().stream()
                             .map(Phenotype::getPhenotypeStatement)
                             .collect(Collectors.toSet()));
 
         }
 
-        return featureDocument;
+        return alleleDocument;
     }
 
     @Override
-    protected Feature documentToEntity(FeatureDocument doument, int translationDepth) {
+    protected Allele documentToEntity(AlleleDocument doument, int translationDepth) {
         // We are not going to the database yet so will implement this when we need to
         return null;
     }

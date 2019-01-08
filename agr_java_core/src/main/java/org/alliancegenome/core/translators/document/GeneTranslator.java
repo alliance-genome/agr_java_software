@@ -6,7 +6,7 @@ import org.alliancegenome.es.index.site.doclet.CrossReferenceDoclet;
 import org.alliancegenome.es.index.site.doclet.GenomeLocationDoclet;
 import org.alliancegenome.es.index.site.document.AnnotationDocument;
 import org.alliancegenome.es.index.site.document.DiseaseDocument;
-import org.alliancegenome.es.index.site.document.FeatureDocument;
+import org.alliancegenome.es.index.site.document.AlleleDocument;
 import org.alliancegenome.es.index.site.document.GeneDocument;
 import org.alliancegenome.neo4j.entity.node.GOTerm;
 import org.alliancegenome.neo4j.entity.node.Gene;
@@ -23,7 +23,7 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
     //private final Logger log = LogManager.getLogger(getClass());
 
     private static DiseaseTranslator diseaseTranslator = new DiseaseTranslator();
-    private static FeatureTranslator alleleTranslator = new FeatureTranslator();
+    private static AlleleTranslator alleleTranslator = new AlleleTranslator();
     private static CrossReferenceDocletTranslator crossReferenceTranslator = new CrossReferenceDocletTranslator();
 
     @Override
@@ -85,7 +85,7 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
 //      geneDocument.setCellularComponentAgrSlim(gene.getCellularComponentAgrSlim());
 //      geneDocument.setMolecularFunctionAgrSlim(gene.getMolecularFunctionAgrSlim());
 
-        // This code is duplicated in Gene and Feature should be pulled out into its own translator
+        // This code is duplicated in Gene and Allele should be pulled out into its own translator
         ArrayList<String> secondaryIds = new ArrayList<>();
         if (gene.getSecondaryIds() != null) {
             for (SecondaryId secondaryId : gene.getSecondaryIds()) {
@@ -101,7 +101,7 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
         }
         geneDocument.setSymbol(gene.getSymbol());
 
-        // This code is duplicated in Gene and Feature should be pulled out into its own translator
+        // This code is duplicated in Gene and Allele should be pulled out into its own translator
         ArrayList<String> synonyms = new ArrayList<>();
         if (gene.getSynonyms() != null) {
             for (Synonym synonym : gene.getSynonyms()) {
@@ -193,12 +193,13 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
                             .collect(Collectors.groupingBy(CrossReferenceDoclet::getType, Collectors.toList())));
         }
 
-        if (gene.getFeatures() != null && translationDepth > 0) {
-            List<FeatureDocument> featureList = new ArrayList<>();
-            gene.getFeatures().forEach(feature ->
-                    featureList.add(alleleTranslator.entityToDocument(feature, translationDepth - 1))
+        if (gene.getAlleles() != null && translationDepth > 0) {
+            List<AlleleDocument> alleleList = new ArrayList<>();
+            gene.getAlleles().forEach(allele ->
+            alleleList.add(alleleTranslator.entityToDocument(allele, translationDepth - 1))
             );
-            geneDocument.setAlleles(featureList);
+            // Parent class also has a variable called alleles
+            //geneDocument.setAlleles(alleleList);
         }
 
         return geneDocument;

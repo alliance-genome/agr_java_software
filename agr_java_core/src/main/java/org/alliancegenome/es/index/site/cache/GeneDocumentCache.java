@@ -37,7 +37,7 @@ public class GeneDocumentCache extends IndexerCache {
         for (GeneDocument geneDocument : geneDocuments) {
             String id = geneDocument.getPrimaryId();
 
-            geneDocument.setFeatures(features.get(id));
+            geneDocument.setAlleles(alleles.get(id));
             geneDocument.setStrictOrthologySymbols(strictOrthologySymbols.get(id));
             geneDocument.setDiseases(diseases.get(id));
 

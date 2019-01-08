@@ -12,7 +12,7 @@ import java.util.Set;
 public class IndexerCache {
 
     protected Map<String, Set<String>> diseases = new HashMap<>();
-    protected Map<String, Set<String>> features = new HashMap<>();
+    protected Map<String, Set<String>> alleles = new HashMap<>();
     protected Map<String, Set<String>> genes = new HashMap<>();
     protected Map<String, Set<String>> phenotypeStatements = new HashMap<>();
 

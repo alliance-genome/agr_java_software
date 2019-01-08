@@ -3,7 +3,7 @@ package org.alliancegenome.neo4j.entity;
 import java.util.List;
 
 import org.alliancegenome.es.index.site.doclet.SourceDoclet;
-import org.alliancegenome.neo4j.entity.node.Feature;
+import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.entity.node.Publication;
 import org.alliancegenome.neo4j.view.View;
@@ -25,7 +25,7 @@ public class PhenotypeAnnotation implements Comparable<PhenotypeAnnotation> {
     @JsonView({View.Phenotype.class})
     private Gene gene;
     @JsonView({View.Phenotype.class})
-    private Feature feature;
+    private Allele allele;
     @JsonView({View.Phenotype.class})
     private List<Publication> publications;
     @JsonView({View.Phenotype.class})
@@ -42,6 +42,6 @@ public class PhenotypeAnnotation implements Comparable<PhenotypeAnnotation> {
     }
 
     public String getGeneticEntity() {
-        return feature != null ? "allele" : "gene";
+        return allele != null ? "allele" : "gene";
     }
 }

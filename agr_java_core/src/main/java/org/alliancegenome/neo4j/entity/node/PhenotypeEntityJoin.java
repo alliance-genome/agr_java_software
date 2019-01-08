@@ -21,7 +21,7 @@ public class PhenotypeEntityJoin extends EntityJoin {
     private Gene gene;
 
     @Relationship(type = "ASSOCIATION", direction = Relationship.INCOMING)
-    private Feature feature;
+    private Allele allele;
 
     @Relationship(type = "ASSOCIATION")
     private Phenotype phenotype;

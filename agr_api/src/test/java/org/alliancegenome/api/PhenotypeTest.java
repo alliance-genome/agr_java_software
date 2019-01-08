@@ -113,7 +113,7 @@ public class PhenotypeTest {
         response = geneDAO.getPhenotypeAnnotations(geneID, pagination);
         assertResponse(response, 7, 7);
 
-        // add filter on feature
+        // add filter on allele
         pagination.makeSingleFieldFilter(FieldFilter.GENETIC_ENTITY, "21");
         response = geneDAO.getPhenotypeAnnotations(geneID, pagination);
         assertResponse(response, 11, 27);

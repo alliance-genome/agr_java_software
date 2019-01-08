@@ -20,7 +20,7 @@ import lombok.Setter;
 @NodeEntity
 @Getter
 @Setter
-public class Feature extends Neo4jEntity implements Comparable<Feature> {
+public class Allele extends Neo4jEntity implements Comparable<Allele> {
 
     @JsonView({View.Default.class})
     private String primaryKey;
@@ -59,7 +59,7 @@ public class Feature extends Neo4jEntity implements Comparable<Feature> {
     private List<CrossReference> crossReferences = new ArrayList<>();
 
     @Override
-    public int compareTo(Feature o) {
+    public int compareTo(Allele o) {
         return 0;
     }
 }

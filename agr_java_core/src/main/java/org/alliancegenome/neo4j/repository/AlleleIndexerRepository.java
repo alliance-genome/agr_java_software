@@ -1,7 +1,7 @@
 package org.alliancegenome.neo4j.repository;
 
-import org.alliancegenome.es.index.site.cache.FeatureDocumentCache;
-import org.alliancegenome.neo4j.entity.node.Feature;
+import org.alliancegenome.es.index.site.cache.AlleleDocumentCache;
+import org.alliancegenome.neo4j.entity.node.Allele;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -9,13 +9,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-public class FeatureIndexerRepository extends Neo4jRepository {
+public class AlleleIndexerRepository extends Neo4jRepository {
 
     private final Logger log = LogManager.getLogger(getClass());
 
-    public FeatureIndexerRepository() { super(Feature.class); }
+    public AlleleIndexerRepository() { super(Allele.class); }
 
-    public Map<String, Feature> getFeatureMap(String species) {
+    public Map<String, Allele> getAlleleMap(String species) {
 
         String query = "MATCH p1=(feature:Feature)-[:IS_ALLELE_OF]-(:Gene)-[:FROM_SPECIES]-(species:Species) ";
         query += getSpeciesWhere(species);
@@ -23,35 +23,35 @@ public class FeatureIndexerRepository extends Neo4jRepository {
         query += " OPTIONAL MATCH crossRef=(feature:Feature)-[:CROSS_REFERENCE]-(c:CrossReference) ";
         query += " RETURN p1, pSyn, crossRef ";
 
-        Iterable<Feature> features = null;
+        Iterable<Allele> alleles = null;
 
         if (species != null) {
-            features = query(query, getSpeciesParams(species));
+            alleles = query(query, getSpeciesParams(species));
         } else {
-            features = query(query);
+            alleles = query(query);
         }
 
-        Map<String,Feature> featureMap = new HashMap<>();
-        for (Feature feature : features) {
-            featureMap.put(feature.getPrimaryKey(),feature);
+        Map<String,Allele> alleleMap = new HashMap<>();
+        for (Allele allele : alleles) {
+            alleleMap.put(allele.getPrimaryKey(),allele);
         }
-        return featureMap;
+        return alleleMap;
     }
 
-    public FeatureDocumentCache getFeatureDocumentCache(String species) {
-        FeatureDocumentCache featureDocumentCache = new FeatureDocumentCache();
+    public AlleleDocumentCache getAlleleDocumentCache(String species) {
+        AlleleDocumentCache alleleDocumentCache = new AlleleDocumentCache();
 
         log.info("Fetching features");
-        featureDocumentCache.setFeatureMap(getFeatureMap(species));
+        alleleDocumentCache.setAlleleMap(getAlleleMap(species));
 
         log.info("Building feature -> diseases map");
-        featureDocumentCache.setDiseases(getDiseaseMap(species));
+        alleleDocumentCache.setDiseases(getDiseaseMap(species));
         log.info("Building feature -> genes map");
-        featureDocumentCache.setGenes(getGenesMap(species));
+        alleleDocumentCache.setGenes(getGenesMap(species));
         log.info("Building feature -> phenotype statements map");
-        featureDocumentCache.setPhenotypeStatements(getPhenotypeStatementsMap(species));
+        alleleDocumentCache.setPhenotypeStatements(getPhenotypeStatementsMap(species));
 
-        return featureDocumentCache;
+        return alleleDocumentCache;
 
     }
 

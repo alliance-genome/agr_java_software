@@ -22,7 +22,7 @@ public class AnnotationDocument extends ESDocument implements Comparable<Annotat
     private SourceDoclet source;
     private GeneDocument orthologyGeneDocument;
     private GeneDocument geneDocument;
-    private FeatureDocument featureDocument;
+    private AlleleDocument alleleDocument;
     private List<PublicationDoclet> publications;
 
     @JsonIgnore
@@ -52,7 +52,7 @@ public class AnnotationDocument extends ESDocument implements Comparable<Annotat
         source = doc.source;
         orthologyGeneDocument = doc.orthologyGeneDocument;
         geneDocument = doc.geneDocument;
-        featureDocument = doc.featureDocument;
+        alleleDocument = doc.alleleDocument;
         publications = doc.publications;
     }
 }

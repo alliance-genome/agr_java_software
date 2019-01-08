@@ -23,7 +23,7 @@ import static java.util.stream.Collectors.*;
 public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseDocument> {
 
     private static GeneTranslator geneTranslator = new GeneTranslator();
-    private static FeatureTranslator featureTranslator = new FeatureTranslator();
+    private static AlleleTranslator alleleTranslator = new AlleleTranslator();
     private static CrossReferenceDocletTranslator crossReferenceTranslator = new CrossReferenceDocletTranslator();
     private static PublicationDocletListTranslator publicationDocletTranslator = new PublicationDocletListTranslator();
 
@@ -58,7 +58,7 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
         Map<Gene, Map<String, List<DiseaseEntityJoin>>> map = new HashMap<>();
         map.put(gene, associationMap);
         // create AnnotationDocument objects per
-        // disease, gene, Feature, association type
+        // disease, gene, allele, association type
         List<AnnotationDocument> annotationDocuments = generateAnnotationDocument(entity, map);
         doc.setAnnotations(annotationDocuments);
         return doc;
@@ -90,25 +90,25 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
                 .map(geneMapEntry ->
                         geneMapEntry.getValue().entrySet().stream()
                                 .map(associationEntry -> {
-                                    List<DiseaseEntityJoin> featureJoins = associationEntry.getValue().stream()
-                                            .filter(join -> join.getFeature() != null)
+                                    List<DiseaseEntityJoin> alleleJoins = associationEntry.getValue().stream()
+                                            .filter(join -> join.getAllele() != null)
                                             .collect(toList());
-                                    List<DiseaseEntityJoin> featurelessJoins = associationEntry.getValue().stream()
-                                            .filter(join -> join.getFeature() == null)
+                                    List<DiseaseEntityJoin> allelelessJoins = associationEntry.getValue().stream()
+                                            .filter(join -> join.getAllele() == null)
                                             .collect(toList());
 
-                                    Map<Feature, List<DiseaseEntityJoin>> featureMap = featureJoins.stream()
+                                    Map<Allele, List<DiseaseEntityJoin>> alleleMap = alleleJoins.stream()
                                             .filter(entry -> entity != null)
-                                            .collect(Collectors.groupingBy(DiseaseEntityJoin::getFeature
+                                            .collect(Collectors.groupingBy(DiseaseEntityJoin::getAllele
                                             ));
-                                    // add the feature-less diseaseEntityJoins under the null key into the map.
-                                    if (!featurelessJoins.isEmpty())
-                                        featureMap.put(null, featurelessJoins);
-                                    return featureMap.entrySet().stream()
-                                            .map(featureMapEntry -> {
+                                    // add the allele-less diseaseEntityJoins under the null key into the map.
+                                    if (!allelelessJoins.isEmpty())
+                                        alleleMap.put(null, allelelessJoins);
+                                    return alleleMap.entrySet().stream()
+                                            .map(alleleMapEntry -> {
                                                 // group by ortho Gene so all sources / pubs for no ortho gene are collated into a single annotation doc
                                                 // each ortho gene record should be a single annotation
-                                                Map<Optional<Gene>, List<DiseaseEntityJoin>> orthoMap = featureMapEntry.getValue().stream()
+                                                Map<Optional<Gene>, List<DiseaseEntityJoin>> orthoMap = alleleMapEntry.getValue().stream()
                                                         .collect(groupingBy(diseaseEntityJoin -> Optional.ofNullable(diseaseEntityJoin.getOrthologyGene())));
 
                                                 return orthoMap.entrySet().stream()
@@ -116,9 +116,9 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
                                                             AnnotationDocument document = new AnnotationDocument();
                                                             Gene gene = geneMapEntry.getKey();
                                                             document.setGeneDocument(geneTranslator.translate(gene, 0));
-                                                            Feature feature = featureMapEntry.getKey();
-                                                            if (feature != null) {
-                                                                document.setFeatureDocument(featureTranslator.translate(feature, 0));
+                                                            Allele allele = alleleMapEntry.getKey();
+                                                            if (allele != null) {
+                                                                document.setAlleleDocument(alleleTranslator.translate(allele, 0));
                                                             }
                                                             document.setAssociationType(associationEntry.getKey());
                                                             document.setSource(getSourceUrls(entity, gene.getSpecies()));
@@ -160,13 +160,13 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
                 .collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
-    public Map<Gene, Map<Optional<Feature>, List<DiseaseEntityJoin>>> getGeneFeatureAnnotationMap(DOTerm entity, Gene gene) {
-        // group by gene then by feature
-        Map<Gene, Map<Optional<Feature>, List<DiseaseEntityJoin>>> geneAssociationMap = entity.getDiseaseEntityJoins().stream()
+    public Map<Gene, Map<Optional<Allele>, List<DiseaseEntityJoin>>> getGeneAlleleAnnotationMap(DOTerm entity, Gene gene) {
+        // group by gene then by allele
+        Map<Gene, Map<Optional<Allele>, List<DiseaseEntityJoin>>> geneAssociationMap = entity.getDiseaseEntityJoins().stream()
                 .filter(diseaseEntityJoin -> gene == null || diseaseEntityJoin.getGene().equals(gene))
                 .collect(
                         groupingBy(DiseaseEntityJoin::getGene,
-                                groupingBy(join -> Optional.ofNullable(join.getFeature())))
+                                groupingBy(join -> Optional.ofNullable(join.getAllele())))
                 );
 
         // sort by gene symbol
@@ -311,11 +311,11 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
         Set<DiseaseAnnotationDocument> diseaseAnnotationDocuments = new HashSet<>();
         // loop over all disease terms
         geneDiseaseList.forEach(doTerm -> {
-            Map<Gene, Map<Optional<Feature>, List<DiseaseEntityJoin>>> sortedGeneAssociationMap = getGeneFeatureAnnotationMap(doTerm, null);
+            Map<Gene, Map<Optional<Allele>, List<DiseaseEntityJoin>>> sortedGeneAssociationMap = getGeneAlleleAnnotationMap(doTerm, null);
             // loop over each gene
-            sortedGeneAssociationMap.forEach((gene, featureDiseaseMap) -> {
-                // loop over each feature (may be null)
-                featureDiseaseMap.forEach((optionalFeature, associationDiseaseEntityJoinList) -> {
+            sortedGeneAssociationMap.forEach((gene, alleleDiseaseMap) -> {
+                // loop over each allele (may be null)
+                alleleDiseaseMap.forEach((optionalAllele, associationDiseaseEntityJoinList) -> {
                     // group by association type and orthologous gene
                     Map<String, Map<Optional<Gene>, List<DiseaseEntityJoin>>> associationTypeMap = associationDiseaseEntityJoinList.stream()
                             .collect(groupingBy(DiseaseEntityJoin::getJoinType, groupingBy(diseaseEntityJoin ->
@@ -344,9 +344,9 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
                                 document.setSource(getSourceUrls(doTerm, gene.getSpecies()));
                             }
                             document.setPublications(publicationDocletTranslator.getPublicationDoclets(diseaseEntityJoinList));
-                            if (optionalFeature.isPresent()) {
-                                primaryKey += ":" + optionalFeature.get().getPrimaryKey();
-                                document.setFeatureDocument(featureTranslator.translate(optionalFeature.get(), 0));
+                            if (optionalAllele.isPresent()) {
+                                primaryKey += ":" + optionalAllele.get().getPrimaryKey();
+                                document.setAlleleDocument(alleleTranslator.translate(optionalAllele.get(), 0));
                             }
                             document.setPrimaryKey(primaryKey);
                             diseaseAnnotationDocuments.add(document);

@@ -47,7 +47,7 @@ public abstract class Mapping extends Builder {
         new FieldBuilder(builder, "id","keyword");
         new FieldBuilder(builder, "description","text");
         new FieldBuilder(builder, "diseases", "text").keyword().build();
-        new FieldBuilder(builder, "features", "text").keyword().build();
+        new FieldBuilder(builder, "alleles", "text").keyword().build();
         new FieldBuilder(builder, "phenotypeStatements", "text")
                 .keyword()
                 .build();
@@ -78,7 +78,7 @@ public abstract class Mapping extends Builder {
     public enum MappingClass {
         Disease("disease", DiseaseMapping.class),
         DiseaseAnnotation("diseaseAnnotation", DiseaseAnnotationMapping.class),
-        Feature("feature", FeatureMapping.class),
+        Allele("allele", AlleleMapping.class),
         Gene("gene", GeneMapping.class),
         PHENOTYPE("termName", PhenotypeAnnotationMapping.class),
         PHENOTYPE_ANNOTATION("phenotypeAnnotation", PhenotypeAnnotationMapping.class),

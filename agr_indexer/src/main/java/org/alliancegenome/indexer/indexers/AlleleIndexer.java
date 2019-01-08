@@ -1,12 +1,12 @@
 package org.alliancegenome.indexer.indexers;
 
-import org.alliancegenome.core.translators.document.FeatureTranslator;
-import org.alliancegenome.es.index.site.cache.FeatureDocumentCache;
-import org.alliancegenome.es.index.site.document.FeatureDocument;
+import org.alliancegenome.core.translators.document.AlleleTranslator;
+import org.alliancegenome.es.index.site.cache.AlleleDocumentCache;
+import org.alliancegenome.es.index.site.document.AlleleDocument;
 import org.alliancegenome.indexer.config.IndexerConfig;
-import org.alliancegenome.neo4j.entity.node.Feature;
-import org.alliancegenome.neo4j.repository.FeatureIndexerRepository;
-import org.alliancegenome.neo4j.repository.FeatureRepository;
+import org.alliancegenome.neo4j.entity.node.Allele;
+import org.alliancegenome.neo4j.repository.AlleleIndexerRepository;
+import org.alliancegenome.neo4j.repository.AlleleRepository;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -16,13 +16,13 @@ import java.util.List;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.stream.Collectors;
 
-public class FeatureIndexer extends Indexer<FeatureDocument> {
+public class AlleleIndexer extends Indexer<AlleleDocument> {
 
     private final Logger log = LogManager.getLogger(getClass());
-    private FeatureDocumentCache featureDocumentCache;
-    private FeatureIndexerRepository repo;
+    private AlleleDocumentCache alleleDocumentCache;
+    private AlleleIndexerRepository repo;
 
-    public FeatureIndexer(IndexerConfig config) {
+    public AlleleIndexer(IndexerConfig config) {
         super(config);
     }
 
@@ -30,10 +30,10 @@ public class FeatureIndexer extends Indexer<FeatureDocument> {
     public void index() {
         try {
             LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>();
-            repo = new FeatureIndexerRepository();
-            featureDocumentCache = repo.getFeatureDocumentCache(System.getProperty("SPECIES"));
+            repo = new AlleleIndexerRepository();
+            alleleDocumentCache = repo.getAlleleDocumentCache(System.getProperty("SPECIES"));
 
-            List<String> fulllist = featureDocumentCache.getFeatureMap().keySet().stream().collect(Collectors.toList());
+            List<String> fulllist = alleleDocumentCache.getAlleleMap().keySet().stream().collect(Collectors.toList());
             queue.addAll(fulllist);
 
             initiateThreading(queue);
@@ -44,20 +44,20 @@ public class FeatureIndexer extends Indexer<FeatureDocument> {
     }
 
     protected void startSingleThread(LinkedBlockingDeque<String> queue) {
-        ArrayList<Feature> list = new ArrayList<>();
-        FeatureTranslator featureTranslator = new FeatureTranslator();
+        ArrayList<Allele> list = new ArrayList<>();
+        AlleleTranslator alleleTranslator = new AlleleTranslator();
         while (true) {
             try {
                 if (list.size() >= indexerConfig.getBufferSize()) {
-                    saveDocuments(featureTranslator.translateEntities(list));
+                    saveDocuments(alleleTranslator.translateEntities(list));
                     repo.clearCache();
                     list.clear();
                 }
                 if (queue.isEmpty()) {
                     if (list.size() > 0) {
-                        Iterable <FeatureDocument> featureDocuments = featureTranslator.translateEntities(list);
-                        featureDocumentCache.addCachedFields(featureDocuments);
-                        saveDocuments(featureDocuments);
+                        Iterable <AlleleDocument> alleleDocuments = alleleTranslator.translateEntities(list);
+                        alleleDocumentCache.addCachedFields(alleleDocuments);
+                        saveDocuments(alleleDocuments);
                         repo.clearCache();
                         list.clear();
                     }
@@ -65,11 +65,11 @@ public class FeatureIndexer extends Indexer<FeatureDocument> {
                 }
 
                 String key = queue.takeFirst();
-                Feature feature = featureDocumentCache.getFeatureMap().get(key);
-                if (feature != null)
-                    list.add(feature);
+                Allele allele = alleleDocumentCache.getAlleleMap().get(key);
+                if (allele != null)
+                    list.add(allele);
                 else
-                    log.debug("No Feature found for " + key);
+                    log.debug("No Allele found for " + key);
             } catch (Exception e) {
                 log.error("Error while indexing...", e);
                 System.exit(-1);

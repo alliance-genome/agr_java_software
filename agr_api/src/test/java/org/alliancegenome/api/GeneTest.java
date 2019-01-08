@@ -465,16 +465,16 @@ public class GeneTest {
         assertThat(diseaseViaExperiment.size(), equalTo(1));
         DiseaseDocument doc = diseaseViaExperiment.get(0);
         assertThat(doc.getAnnotations().size(), equalTo(6));
-        // just one annotation without a feature
-        assertThat(doc.getAnnotations().stream().filter(annotationDocument -> annotationDocument.getFeatureDocument() == null).count(), equalTo(1L));
-        // 5 annotations with features
-        assertThat(doc.getAnnotations().stream().filter(annotationDocument -> annotationDocument.getFeatureDocument() != null).count(), equalTo(5L));
-        List<String> featureNames = doc.getAnnotations().stream()
-                .filter(annotationDocument -> annotationDocument.getFeatureDocument() != null)
-                .map(annotationDocument -> annotationDocument.getFeatureDocument().getSymbol())
+        // just one annotation without a allele
+        assertThat(doc.getAnnotations().stream().filter(annotationDocument -> annotationDocument.getAlleleDocument() == null).count(), equalTo(1L));
+        // 5 annotations with alleles
+        assertThat(doc.getAnnotations().stream().filter(annotationDocument -> annotationDocument.getAlleleDocument() != null).count(), equalTo(5L));
+        List<String> alleleNames = doc.getAnnotations().stream()
+                .filter(annotationDocument -> annotationDocument.getAlleleDocument() != null)
+                .map(annotationDocument -> annotationDocument.getAlleleDocument().getSymbol())
                 .collect(Collectors.toList());
-        // five features (symbols)
-        assertThat(featureNames, containsInAnyOrder("Sox9<sup>tm1Crm</sup>",
+        // five alleles (symbols)
+        assertThat(alleleNames, containsInAnyOrder("Sox9<sup>tm1Crm</sup>",
                 "Sox9<sup>tm1.1Gsr</sup>",
                 "Sox9<sup>tm2Crm</sup>",
                 "Sox9<sup>tm1Gsr</sup>",
@@ -499,16 +499,16 @@ public class GeneTest {
         // pick holoprocencpehaly 3
         DiseaseDocument doc = diseaseViaExperiment.stream().filter(diseaseDocument -> diseaseDocument.getName().equals("holoprosencephaly 3")).findFirst().get();
         assertThat(doc.getAnnotations().size(), equalTo(3));
-        // just one annotation without a feature
-        assertThat(doc.getAnnotations().stream().filter(annotationDocument -> annotationDocument.getFeatureDocument() == null).count(), equalTo(1L));
-        // 5 annotations with features
-        assertThat(doc.getAnnotations().stream().filter(annotationDocument -> annotationDocument.getFeatureDocument() != null).count(), equalTo(2L));
-        List<String> featureNames = doc.getAnnotations().stream()
-                .filter(annotationDocument -> annotationDocument.getFeatureDocument() != null)
-                .map(annotationDocument -> annotationDocument.getFeatureDocument().getSymbol())
+        // just one annotation without a allele
+        assertThat(doc.getAnnotations().stream().filter(annotationDocument -> annotationDocument.getAlleleDocument() == null).count(), equalTo(1L));
+        // 5 annotations with alleles
+        assertThat(doc.getAnnotations().stream().filter(annotationDocument -> annotationDocument.getAlleleDocument() != null).count(), equalTo(2L));
+        List<String> alleleNames = doc.getAnnotations().stream()
+                .filter(annotationDocument -> annotationDocument.getAlleleDocument() != null)
+                .map(annotationDocument -> annotationDocument.getAlleleDocument().getSymbol())
                 .collect(Collectors.toList());
-        // two features (symbols)
-        assertThat(featureNames, containsInAnyOrder("Shh<sup>tm1Chg</sup>",
+        // two alleles (symbols)
+        assertThat(alleleNames, containsInAnyOrder("Shh<sup>tm1Chg</sup>",
                 "Shh<sup>tm1Amc</sup>"));
 
     }

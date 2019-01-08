@@ -75,8 +75,8 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
         log.info("Fetching genes");
         geneDocumentCache.setGeneMap(getGeneMap(species));
 
-        log.info("Building gene -> features map");
-        geneDocumentCache.setFeatures(getFeaturesMap(species));
+        log.info("Building gene -> alleles map");
+        geneDocumentCache.setAlleles(getAllelesMap(species));
 
         log.info("Building gene -> strictOrthologySymbols map");
         geneDocumentCache.setStrictOrthologySymbols(getStrictOrthologySymbolsMap(species));
@@ -119,7 +119,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
     }
 
 
-    private Map<String, Set<String>> getFeaturesMap(String species) {
+    private Map<String, Set<String>> getAllelesMap(String species) {
         String query = "MATCH (species:Species)--(gene:Gene)-[:IS_ALLELE_OF]-(feature:Feature) ";
         query += getSpeciesWhere(species);
         query += " RETURN gene.primaryKey,feature.symbolText ";

@@ -130,8 +130,8 @@ public class SearchHelper {
             add("geneDocument.name_key");
             add("diseaseDocuments.name");
             add("alleles.symbol");
-            add("annotations.featureDocument.symbol");
-            add("annotations.featureDocument.name");
+            add("annotations.alleleDocument.symbol");
+            add("annotations.alleleDocument.name");
             add("annotations.geneDocument.symbol");
             add("annotations.geneDocument.name");
             add("phenotypeStatements");

@@ -4,9 +4,9 @@ import java.io.IOException;
 
 import org.alliancegenome.es.index.site.schema.Mapping;
 
-public class FeatureMapping extends Mapping {
+public class AlleleMapping extends Mapping {
 
-    public FeatureMapping(Boolean pretty) {
+    public AlleleMapping(Boolean pretty) {
         super(pretty);
     }
 

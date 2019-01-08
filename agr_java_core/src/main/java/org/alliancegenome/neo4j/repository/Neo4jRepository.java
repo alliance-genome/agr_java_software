@@ -70,7 +70,7 @@ public class Neo4jRepository<E> {
         return neo4jSession.query(cypherQuery, params);
     }
 
-    //used by Gene & Feature indexer repositories
+    //used by Gene & Allele indexer repositories
     protected String getSpeciesWhere(String species) {
         if (StringUtils.isNotEmpty(species)) {
             return " WHERE species.name = {species} ";
@@ -78,7 +78,7 @@ public class Neo4jRepository<E> {
         return "";
     }
 
-    //used by Gene & Feature indexer repositories
+    //used by Gene & Allele indexer repositories
     protected Map<String, String> getSpeciesParams(String species) {
         Map<String, String> params = null;
         if (StringUtils.isNotEmpty(species)) {
