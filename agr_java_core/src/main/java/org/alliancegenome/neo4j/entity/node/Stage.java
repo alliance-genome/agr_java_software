@@ -21,10 +21,10 @@ import java.util.*;
 @Setter
 public class Stage extends Neo4jEntity implements Comparable<Stage> {
 
-    @JsonView({View.OrthologyView.class, View.InteractionView.class, View.ExpressionView.class})
+    @JsonView({View.Orthology.class, View.Interaction.class, View.Expression.class})
     @JsonProperty("stageID")
     private String primaryKey;
-    @JsonView({View.ExpressionView.class})
+    @JsonView({View.Expression.class})
     private String name;
 
     @Override

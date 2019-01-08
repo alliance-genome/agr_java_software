@@ -12,9 +12,9 @@ import java.util.List;
 @Getter
 public class ExpressionSummary {
 
-    @JsonView({ View.ExpressionView.class})
+    @JsonView({ View.Expression.class})
     private int totalAnnotations;
-    @JsonView({ View.ExpressionView.class})
+    @JsonView({ View.Expression.class})
     private List<ExpressionSummaryGroup> groups = new ArrayList<>();
 
     public void addGroup(ExpressionSummaryGroup group){

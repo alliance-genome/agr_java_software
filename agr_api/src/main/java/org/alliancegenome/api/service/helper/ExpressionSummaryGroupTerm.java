@@ -10,11 +10,11 @@ import java.util.List;
 @Setter
 @Getter
 public class ExpressionSummaryGroupTerm {
-    @JsonView({ View.ExpressionView.class})
+    @JsonView({ View.Expression.class})
     private String id;
-    @JsonView({ View.ExpressionView.class})
+    @JsonView({ View.Expression.class})
     private String name;
-    @JsonView({ View.ExpressionView.class})
+    @JsonView({ View.Expression.class})
     private int numberOfAnnotations;
 
     @Override

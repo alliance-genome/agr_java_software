@@ -16,15 +16,15 @@ import lombok.Setter;
 public class PublicationDoclet extends ESDoclet implements Comparable<PublicationDoclet> {
 
     private String primaryKey;
-    @JsonView({View.DefaultView.class})
+    @JsonView({View.Default.class})
     private String pubMedId;
-    @JsonView({View.DefaultView.class})
+    @JsonView({View.Default.class})
     private String pubMedUrl;
-    @JsonView({View.DefaultView.class})
+    @JsonView({View.Default.class})
     private String pubModId;
-    @JsonView({View.DefaultView.class})
+    @JsonView({View.Default.class})
     private String pubModUrl;
-    @JsonView({View.DefaultView.class})
+    @JsonView({View.Default.class})
     private Set<String> evidenceCodes;
 
     @Override

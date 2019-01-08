@@ -22,9 +22,9 @@ import lombok.Setter;
 @Setter
 public class Feature extends Neo4jEntity implements Comparable<Feature> {
 
-    @JsonView({View.DefaultView.class})
+    @JsonView({View.Default.class})
     private String primaryKey;
-    @JsonView({View.DefaultView.class})
+    @JsonView({View.Default.class})
     private String symbol;
 
     @Convert(value=DateConverter.class)
@@ -32,13 +32,13 @@ public class Feature extends Neo4jEntity implements Comparable<Feature> {
     private String release;
     private String localId;
     private String globalId;
-    @JsonView({View.DefaultView.class})
+    @JsonView({View.Default.class})
     private String modCrossRefCompleteUrl;
 
     @Relationship(type = "FROM_SPECIES")
     private Species species;
 
-    @JsonView({View.DefaultView.class})
+    @JsonView({View.Default.class})
     @Relationship(type = "ALSO_KNOWN_AS")
     private Set<Synonym> synonyms = new HashSet<>();
 
@@ -54,7 +54,7 @@ public class Feature extends Neo4jEntity implements Comparable<Feature> {
     @Relationship(type = "HAS_PHENOTYPE")
     private List<Phenotype> phenotypes = new ArrayList<>();
 
-    @JsonView({View.DefaultView.class})
+    @JsonView({View.Default.class})
     @Relationship(type = "CROSS_REFERENCE")
     private List<CrossReference> crossReferences = new ArrayList<>();
 

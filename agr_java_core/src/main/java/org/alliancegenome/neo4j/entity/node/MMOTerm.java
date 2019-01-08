@@ -15,9 +15,9 @@ import java.util.Objects;
 public class MMOTerm extends Ontology {
 
     private String primaryKey;
-    @JsonView(View.ExpressionView.class)
+    @JsonView(View.Expression.class)
     private String name;
-    @JsonView(View.ExpressionView.class)
+    @JsonView(View.Expression.class)
     @JsonProperty(value = "displaySynonym")
     private String display_synonym;
 

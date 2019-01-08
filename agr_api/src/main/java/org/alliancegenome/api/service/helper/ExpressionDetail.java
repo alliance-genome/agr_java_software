@@ -13,18 +13,18 @@ import java.util.TreeSet;
 @Getter
 public class ExpressionDetail {
 
-    @JsonView(View.ExpressionView.class)
+    @JsonView(View.Expression.class)
     private Gene gene;
-    @JsonView(View.ExpressionView.class)
+    @JsonView(View.Expression.class)
     private String termName;
-    @JsonView(View.ExpressionView.class)
+    @JsonView(View.Expression.class)
     private Stage stage;
-    @JsonView(View.ExpressionView.class)
+    @JsonView(View.Expression.class)
     private MMOTerm assay;
-    @JsonView(View.ExpressionView.class)
+    @JsonView(View.Expression.class)
     private TreeSet<Publication> publications;
-    @JsonView(View.ExpressionView.class)
+    @JsonView(View.Expression.class)
     private String dataProvider;
-    @JsonView(View.ExpressionView.class)
+    @JsonView(View.Expression.class)
     private List<CrossReference> crossReferences;
 }

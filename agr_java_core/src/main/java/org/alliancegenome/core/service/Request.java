@@ -11,9 +11,9 @@ import java.util.TreeMap;
 @Setter
 @Getter
 class Request {
-    @JsonView(View.DefaultView.class)
+    @JsonView(View.Default.class)
     String uri;
-    @JsonView(View.DefaultView.class)
+    @JsonView(View.Default.class)
     TreeMap<String, String[]> parameterMap =new TreeMap<>();
 
     void setParameterMap(Map<String, String[]> parameterMap) {

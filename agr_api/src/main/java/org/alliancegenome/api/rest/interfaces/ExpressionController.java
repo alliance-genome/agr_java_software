@@ -31,7 +31,8 @@ public class ExpressionController implements ExpressionRESTInterface {
     private HttpServletRequest request;
 
     private ExpressionService expressionService = new ExpressionService();
-
+    private GeneRepository geneRepository = new GeneRepository();
+    
     @Override
     public String getExpressionAnnotations(List<String> geneIDs,
                                            String termID,
@@ -71,7 +72,7 @@ public class ExpressionController implements ExpressionRESTInterface {
         response.setTotal(result.getTotal());
         response.setHttpServletRequest(request);
 
-        return mapper.writerWithView(View.ExpressionView.class).writeValueAsString(response);
+        return mapper.writerWithView(View.Expression.class).writeValueAsString(response);
     }
 
     private JsonResultResponse<ExpressionDetail> getExpressionDetailJsonResultResponse(List<String> geneIDs, String termID, String filterSpecies, String filterGene, String filterStage, String filterAssay, String filterReference, String filterTerm, String filterSource, int limit, int page, String sortBy, String asc) {
@@ -113,14 +114,14 @@ public class ExpressionController implements ExpressionRESTInterface {
 
         // check if valid taxon identifier
         String taxon = SpeciesType.getTaxonId(species);
-        GeneRepository geneRepository = new GeneRepository();
+
         List<BioEntityGeneExpressionJoin> joins = geneRepository.getExpressionAnnotationsByTaxon(taxon, termID, pagination);
-        ExpressionService service = new ExpressionService();
-        JsonResultResponse<ExpressionDetail> result = service.getExpressionDetails(joins, pagination);
+
+        JsonResultResponse<ExpressionDetail> result = expressionService.getExpressionDetails(joins, pagination);
         response.setResults(result.getResults());
         response.setTotal(result.getTotal());
         response.calculateRequestDuration(startDate);
-        return mapper.writerWithView(View.ExpressionView.class).writeValueAsString(response);
+        return mapper.writerWithView(View.Expression.class).writeValueAsString(response);
     }
 
     @Override

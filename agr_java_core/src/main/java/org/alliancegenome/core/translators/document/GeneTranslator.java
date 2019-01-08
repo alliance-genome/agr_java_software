@@ -77,13 +77,13 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
             }
         }
 
-        geneDocument.setBiologicalProcessWithParents(gene.getBiologicalProcessWithParents());
-        geneDocument.setCellularComponentWithParents(gene.getCellularComponentWithParents());
-        geneDocument.setMolecularFunctionWithParents(gene.getMolecularFunctionWithParents());
-
-        geneDocument.setBiologicalProcessAgrSlim(gene.getBiologicalProcessAgrSlim());
-        geneDocument.setCellularComponentAgrSlim(gene.getCellularComponentAgrSlim());
-        geneDocument.setMolecularFunctionAgrSlim(gene.getMolecularFunctionAgrSlim());
+//      geneDocument.setBiologicalProcessWithParents(gene.getBiologicalProcessWithParents());
+//      geneDocument.setCellularComponentWithParents(gene.getCellularComponentWithParents());
+//      geneDocument.setMolecularFunctionWithParents(gene.getMolecularFunctionWithParents());
+//
+//      geneDocument.setBiologicalProcessAgrSlim(gene.getBiologicalProcessAgrSlim());
+//      geneDocument.setCellularComponentAgrSlim(gene.getCellularComponentAgrSlim());
+//      geneDocument.setMolecularFunctionAgrSlim(gene.getMolecularFunctionAgrSlim());
 
         // This code is duplicated in Gene and Feature should be pulled out into its own translator
         ArrayList<String> secondaryIds = new ArrayList<>();
@@ -160,14 +160,14 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
             geneDocument.setDiseasesViaExperiment(diseaseViaExperiment);
         }
 
-        geneDocument.setPhenotypeStatements(gene.getPhenotypeStatements());
-
-        geneDocument.setWhereExpressed(gene.getWhereExpressed());
-        geneDocument.setAnatomicalExpression(gene.getAnatomicalExpression());
-        geneDocument.setAnatomicalExpressionWithParents(gene.getAnatomicalExpressionWithParents());
-
-        geneDocument.setCellularComponentExpressionWithParents(gene.getCellularComponentExpressionWithParents());
-        geneDocument.setCellularComponentExpressionAgrSlim(gene.getCellularComponentExpressionAgrSlim());
+//      geneDocument.setPhenotypeStatements(gene.getPhenotypeStatements());
+//
+//      geneDocument.setWhereExpressed(gene.getWhereExpressed());
+//      geneDocument.setAnatomicalExpression(gene.getAnatomicalExpression());
+//      geneDocument.setAnatomicalExpressionWithParents(gene.getAnatomicalExpressionWithParents());
+//
+//      geneDocument.setCellularComponentExpressionWithParents(gene.getCellularComponentExpressionWithParents());
+//      geneDocument.setCellularComponentExpressionAgrSlim(gene.getCellularComponentExpressionAgrSlim());
 
         if (gene.getGenomeLocations() != null) {
             List<GenomeLocationDoclet> gllist = new ArrayList<>();

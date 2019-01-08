@@ -122,9 +122,9 @@ public class OrthologyService {
                     .forEach(join -> {
                         Orthologous ortho = lookup.get(join.getPrimaryKey());
                         OrthologView view = new OrthologView();
-                        gene.setSpeciesName(ortho.getGene1().getSpecies() == null ? null : ortho.getGene1().getSpecies().getName());
+                        //gene.setSpeciesName(ortho.getGene1().getSpecies() == null ? null : ortho.getGene1().getSpecies().getName());
                         view.setGene(gene);
-                        ortho.getGene2().setSpeciesName(ortho.getGene2().getSpecies() == null ? null : ortho.getGene2().getSpecies().getName());
+                        //ortho.getGene2().setSpeciesName(ortho.getGene2().getSpecies() == null ? null : ortho.getGene2().getSpecies().getName());
                         view.setHomologGene(ortho.getGene2());
                         view.setBest(ortho.isBestScore());
                         view.setBestReverse(ortho.isBestRevScore());
@@ -189,11 +189,11 @@ public class OrthologyService {
     @Getter
     public static class Response extends JsonResultResponse<OrthologView> {
 
-        @JsonView(View.OrthologyView.class)
+        @JsonView(View.Orthology.class)
         private List<OrthologView> results;
-        @JsonView(View.OrthologyView.class)
+        @JsonView(View.Orthology.class)
         private int total;
-        @JsonView(View.OrthologyView.class)
+        @JsonView(View.Orthology.class)
         private String errorMessage;
     }
 }

@@ -1,28 +1,10 @@
 package org.alliancegenome.api.controller;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.alliancegenome.api.rest.interfaces.GeneRESTInterface;
-import org.alliancegenome.api.service.ExpressionService;
-import org.alliancegenome.api.service.GeneService;
-import org.alliancegenome.api.service.helper.ExpressionSummary;
-import org.alliancegenome.core.service.JsonResultResponse;
-import org.alliancegenome.core.service.OrthologyService;
-import org.alliancegenome.core.translators.tdf.PhenotypeAnnotationToTdfTranslator;
-import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
-import org.alliancegenome.es.model.query.FieldFilter;
-import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.es.model.search.SearchApiResponse;
-import org.alliancegenome.neo4j.entity.node.BioEntityGeneExpressionJoin;
-import org.alliancegenome.neo4j.entity.node.Gene;
-import org.alliancegenome.neo4j.repository.GeneRepository;
-import org.alliancegenome.neo4j.view.OrthologView;
-import org.alliancegenome.neo4j.view.OrthologyFilter;
-import org.alliancegenome.neo4j.view.View;
-import org.apache.commons.collections.CollectionUtils;
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -32,12 +14,32 @@ import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.io.IOException;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+
+import org.alliancegenome.api.rest.interfaces.GeneRESTInterface;
+import org.alliancegenome.api.service.ExpressionService;
+import org.alliancegenome.api.service.GeneService;
+import org.alliancegenome.api.service.helper.ExpressionSummary;
+import org.alliancegenome.core.service.JsonResultResponse;
+import org.alliancegenome.core.service.OrthologyService;
+import org.alliancegenome.core.translators.tdf.PhenotypeAnnotationToTdfTranslator;
+import org.alliancegenome.es.model.query.FieldFilter;
+import org.alliancegenome.es.model.query.Pagination;
+import org.alliancegenome.es.model.search.SearchApiResponse;
+import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
+import org.alliancegenome.neo4j.entity.node.BioEntityGeneExpressionJoin;
+import org.alliancegenome.neo4j.entity.node.Gene;
+import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
+import org.alliancegenome.neo4j.repository.GeneRepository;
+import org.alliancegenome.neo4j.view.OrthologView;
+import org.alliancegenome.neo4j.view.OrthologyFilter;
+import org.alliancegenome.neo4j.view.View;
+import org.apache.commons.collections.CollectionUtils;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RequestScoped
 public class GeneController extends BaseController implements GeneRESTInterface {
@@ -51,16 +53,10 @@ public class GeneController extends BaseController implements GeneRESTInterface 
     @Context
     private HttpServletResponse response;
 
-    public void setRequest(HttpServletRequest request) {
-        this.request = request;
-    }
-
-    @Context
-    private HttpServletRequest request;
 
     @Override
-    public Map<String, Object> getGene(String id) {
-        Map<String, Object> ret = geneService.getById(id);
+    public Gene getGene(String id) {
+        Gene ret = geneService.getById(id);
         if (ret == null) {
             throw new NotFoundException();
         } else {
@@ -74,7 +70,7 @@ public class GeneController extends BaseController implements GeneRESTInterface 
     }
 
     @Override
-    public String getPhenotypeAnnotations(String id,
+    public JsonResultResponse<PhenotypeAnnotation> getPhenotypeAnnotations(String id,
                                           int limit,
                                           int page,
                                           String sortBy,
@@ -83,11 +79,7 @@ public class GeneController extends BaseController implements GeneRESTInterface 
                                           String phenotype,
                                           String reference,
                                           String asc) throws JsonProcessingException {
-        JsonResultResponse<PhenotypeAnnotation> response = getPhenotypeAnnotationDocumentJsonResultResponse(id, limit, page, sortBy, geneticEntity, geneticEntityType, phenotype, reference, asc);
-        mapper.disable(MapperFeature.DEFAULT_VIEW_INCLUSION);
-        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-        response.setHttpServletRequest(request);
-        return mapper.writerWithView(View.PhenotypeView.class).writeValueAsString(response);
+        return getPhenotypeAnnotationDocumentJsonResultResponse(id, limit, page, sortBy, geneticEntity, geneticEntityType, phenotype, reference, asc);
     }
 
     @Override
@@ -119,7 +111,7 @@ public class GeneController extends BaseController implements GeneRESTInterface 
     }
 
     @Override
-    public String getGeneOrthology(String id,
+    public JsonResultResponse<OrthologView> getGeneOrthology(String id,
                                    List<String> geneIDs,
                                    String geneLister,
                                    String stringencyFilter,
@@ -127,7 +119,7 @@ public class GeneController extends BaseController implements GeneRESTInterface 
                                    List<String> methods,
                                    Integer rows,
                                    Integer start) throws IOException {
-        LocalDateTime startDate = LocalDateTime.now();
+
         GeneRepository repo = new GeneRepository();
         List<String> geneList = new ArrayList<>();
         if (id != null) {
@@ -146,38 +138,21 @@ public class GeneController extends BaseController implements GeneRESTInterface 
             orthologyFilter.setRows(rows);
         }
         orthologyFilter.setStart(start);
-        JsonResultResponse<OrthologView> response = OrthologyService.getOrthologyMultiGeneJson(genes, orthologyFilter);
-        mapper.disable(MapperFeature.DEFAULT_VIEW_INCLUSION);
-        response.calculateRequestDuration(startDate);
-        response.setApiVersion(API_VERSION);
-        response.setHttpServletRequest(request);
-        return mapper.writerWithView(View.OrthologyView.class).writeValueAsString(response);
+        return OrthologyService.getOrthologyMultiGeneJson(genes, orthologyFilter);
     }
 
     @Override
-    public String getInteractions(String id) {
-        //return geneService.getInteractions(id);
-        mapper.disable(MapperFeature.DEFAULT_VIEW_INCLUSION);
-        mapper.setSerializationInclusion(Include.NON_NULL);
-        try {
-            return mapper.writerWithView(View.InteractionView.class).writeValueAsString(geneService.getInteractions(id));
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-            return null;
-        }
-
+    public List<InteractionGeneJoin> getInteractions(String id) {
+        return geneService.getInteractions(id);
     }
 
     @Override
-    public String getExpressionSummary(String id) throws JsonProcessingException {
+    public ExpressionSummary getExpressionSummary(String id) throws JsonProcessingException {
 
         GeneRepository geneRepository = new GeneRepository();
         List<BioEntityGeneExpressionJoin> joins = geneRepository.getExpressionAnnotationSummary(id);
         ExpressionService service = new ExpressionService();
-        ExpressionSummary response = service.getExpressionSummary(joins);
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.disable(MapperFeature.DEFAULT_VIEW_INCLUSION);
-        return mapper.writerWithView(View.ExpressionView.class).writeValueAsString(response);
+        return service.getExpressionSummary(joins);
     }
 
 }

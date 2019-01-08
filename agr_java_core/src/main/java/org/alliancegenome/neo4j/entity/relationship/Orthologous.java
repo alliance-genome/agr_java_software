@@ -16,17 +16,17 @@ import org.neo4j.ogm.annotation.StartNode;
 @RelationshipEntity(type = "ORTHOLOGOUS")
 public class Orthologous extends Neo4jEntity {
 
-    @JsonView(View.OrthologyView.class)
+    @JsonView(View.Orthology.class)
     @StartNode
     private Gene gene1;
-    @JsonView(View.OrthologyView.class)
+    @JsonView(View.Orthology.class)
     @EndNode
     private Gene gene2;
 
     private String primaryKey;
-    @JsonView(View.OrthologyView.class)
+    @JsonView(View.Orthology.class)
     private boolean isBestRevScore;
-    @JsonView(View.OrthologyView.class)
+    @JsonView(View.Orthology.class)
     private boolean isBestScore;
     private String confidence;
     private boolean moderateFilter;

@@ -56,7 +56,7 @@ public class GenesController extends BaseController implements GenesRESTInterfac
         response.calculateRequestDuration(startDate);
         response.setApiVersion(API_VERSION);
         response.setHttpServletRequest(request);
-        return mapper.writerWithView(View.OrthologyView.class).writeValueAsString(response);
+        return mapper.writerWithView(View.Orthology.class).writeValueAsString(response);
     }
 
     @Override

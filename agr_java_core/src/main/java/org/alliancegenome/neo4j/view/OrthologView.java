@@ -14,28 +14,28 @@ import lombok.Setter;
 @Getter
 public class OrthologView  {
 
-    @JsonView(View.OrthologyView.class)
+    @JsonView(View.Orthology.class)
     private Gene gene;
-    @JsonView(View.OrthologyView.class)
+    @JsonView(View.Orthology.class)
     private Gene homologGene;
 
-    @JsonView(View.OrthologyView.class)
+    @JsonView(View.Orthology.class)
     private boolean best;
-    @JsonView(View.OrthologyView.class)
+    @JsonView(View.Orthology.class)
     private boolean bestReverse;
     @JsonView(View.OrthologyView.class)
     private String stringencyFilter;
 
-    @JsonView(View.OrthologyView.class)
+    @JsonView(View.Orthology.class)
     private List<String> predictionMethodsNotCalled;
-    @JsonView(View.OrthologyView.class)
+    @JsonView(View.Orthology.class)
     private List<String> predictionMethodsMatched;
-    @JsonView(View.OrthologyView.class)
+    @JsonView(View.Orthology.class)
     private List<String> predictionMethodsNotMatched;
 
-    @JsonView(View.OrthologyView.class)
+    @JsonView(View.Orthology.class)
     private Integer methodCount;
-    @JsonView(View.OrthologyView.class)
+    @JsonView(View.Orthology.class)
     private Integer totalMethodCount;
 
     public void calculateCounts() {

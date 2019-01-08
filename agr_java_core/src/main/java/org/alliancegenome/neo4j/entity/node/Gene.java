@@ -6,8 +6,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonView;
 import org.alliancegenome.es.util.DateConverter;
 import org.alliancegenome.neo4j.entity.Neo4jEntity;
 import org.alliancegenome.neo4j.entity.relationship.GenomeLocation;
@@ -18,6 +16,9 @@ import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.typeconversion.Convert;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonView;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -26,26 +27,30 @@ import lombok.Setter;
 @Setter
 public class Gene extends Neo4jEntity implements Comparable<Gene> {
 
-    @JsonView({View.OrthologyView.class, View.InteractionView.class, View.ExpressionView.class, View.PhenotypeView.class})
-    @JsonProperty("geneID")
+    @JsonView({View.GeneAPI.class, View.Orthology.class, View.Interaction.class, View.Expression.class, View.Phenotype.class})
+    //@JsonProperty("geneID")
     private String primaryKey;
-    @JsonView({View.OrthologyView.class, View.ExpressionView.class})
+    @JsonView({View.GeneAPI.class, View.Orthology.class, View.Expression.class})
     private String taxonId;
-    @JsonView({View.OrthologyView.class, View.ExpressionView.class})
-    private String speciesName;
+
+    @JsonView(value={View.GeneAPI.class})
     private String geneLiterature;
     private String geneLiteratureUrl;
+    @JsonView(value={View.GeneAPI.class})
     private String geneSynopsis;
+    @JsonView(value={View.GeneAPI.class})
     private String automatedGeneSynopsis;
     private String geneSynopsisUrl;
-    @JsonView({View.ExpressionView.class})
+    @JsonView({View.Expression.class})
     private String dataProvider;
+    @JsonView(value={View.GeneAPI.class})
     private String name;
 
     @Convert(value = DateConverter.class)
     private Date dateProduced;
+    @JsonView(value={View.GeneAPI.class})
     private String description;
-    @JsonView({View.OrthologyView.class, View.InteractionView.class, View.ExpressionView.class})
+    @JsonView({View.GeneAPI.class, View.Orthology.class, View.Interaction.class, View.Expression.class})
     private String symbol;
     private String geneticEntityExternalUrl;
 
@@ -55,13 +60,15 @@ public class Gene extends Neo4jEntity implements Comparable<Gene> {
     private String modGlobalId;
 
     private Entity createdBy;
+    @JsonView(value={View.GeneAPI.class})
     private SOTerm sOTerm;
 
-    @JsonView({View.InteractionView.class})
+    @JsonView({View.API.class})
     @Relationship(type = "FROM_SPECIES")
     private Species species;
 
     @Relationship(type = "ALSO_KNOWN_AS")
+    @JsonView(value={View.API.class})
     private Set<Synonym> synonyms = new HashSet<>();
 
     @Relationship(type = "ALSO_KNOWN_AS")
@@ -74,9 +81,11 @@ public class Gene extends Neo4jEntity implements Comparable<Gene> {
     private List<Orthologous> orthoGenes = new ArrayList<>();
 
     @Relationship(type = "LOCATED_ON")
+    @JsonView(value={View.GeneAPI.class})
     private List<GenomeLocation> genomeLocations;
 
     @Relationship(type = "CROSS_REFERENCE")
+    @JsonView(value={View.API.class})
     private List<CrossReference> crossReferences;
 
     @Relationship(type = "IS_ALLELE_OF", direction = Relationship.INCOMING)
@@ -103,26 +112,6 @@ public class Gene extends Neo4jEntity implements Comparable<Gene> {
     @Relationship(type = "EXPRESSED_IN")
     private List<ExpressionBioEntity> expressionBioEntities = new ArrayList<>();
 
-    //GeneDocument push-throughs, these fields can be removed from the
-    //Gene object when we refactor the indexing to have direct access to
-    //repository methods
-
-    private Set<String> biologicalProcessWithParents = new HashSet<>();
-    private Set<String> biologicalProcessAgrSlim = new HashSet<>();
-    private Set<String> cellularComponentWithParents = new HashSet<>();
-    private Set<String> cellularComponentAgrSlim = new HashSet<>();
-    private Set<String> molecularFunctionWithParents = new HashSet<>();
-    private Set<String> molecularFunctionAgrSlim = new HashSet<>();
-
-    private Set<String> cellularComponentExpressionWithParents = new HashSet<>();
-    private Set<String> cellularComponentExpressionAgrSlim = new HashSet<>();
-
-    private Set<String> whereExpressed = new HashSet<>();
-    private Set<String> anatomicalExpression = new HashSet<>();         //uberon slim
-    private Set<String> anatomicalExpressionWithParents = new HashSet<>();
-
-    private Set<String> phenotypeStatements = new HashSet<>();
-
     public String getNameKey() {
         String nameKey = symbol;
         if (species != null) {
@@ -137,11 +126,6 @@ public class Gene extends Neo4jEntity implements Comparable<Gene> {
             parentTerms.addAll(term.getParentTerms());
         });
         return parentTerms;
-    }
-
-    public void setSpecies(Species species) {
-        this.species = species;
-        this.speciesName = species.getName();
     }
 
     @Override

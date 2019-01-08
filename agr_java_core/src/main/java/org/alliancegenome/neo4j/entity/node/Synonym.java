@@ -12,6 +12,6 @@ import lombok.Setter;
 public class Synonym extends Identifier {
 
     private String primaryKey;
-    @JsonView({View.DefaultView.class})
+    @JsonView({View.Default.class})
     private String name;
 }

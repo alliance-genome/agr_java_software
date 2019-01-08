@@ -61,14 +61,10 @@ public class OrthologousRepository extends Neo4jRepository<Orthologous> {
         result.forEach(objectMap -> {
             OrthologView view = new OrthologView();
             Gene gene = (Gene) objectMap.get("g");
-            gene.setSpeciesName(SpeciesType.fromTaxonId(taxonOne).getName());
+            //gene.setSpeciesName(SpeciesType.fromTaxonId(taxonOne).getName());
             view.setGene(gene);
 
             Gene homologGene = (Gene) objectMap.get("gh");
-            if (taxonTwo != null)
-                homologGene.setSpeciesName(SpeciesType.fromTaxonId(taxonTwo).getName());
-            else
-                homologGene.setSpeciesName(SpeciesType.fromTaxonId(homologGene.getTaxonId()).getName());
             view.setHomologGene(homologGene);
 
             view.setBest(((List<Orthologous>) objectMap.get("collect(distinct ortho)")).get(0).isBestScore());

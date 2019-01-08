@@ -16,23 +16,23 @@ import java.util.List;
 @Getter
 public class JsonResultResponse<T> {
 
-    @JsonView({View.DefaultView.class})
+    @JsonView({View.Default.class})
     private List<T> results;
-    @JsonView({View.DefaultView.class})
+    @JsonView({View.Default.class})
     private int total;
-    @JsonView({View.DefaultView.class})
+    @JsonView({View.Default.class})
     private int returnedRecords;
-    @JsonView({View.DefaultView.class})
+    @JsonView({View.Default.class})
     private String errorMessage = "";
-    @JsonView({View.DefaultView.class})
+    @JsonView({View.Default.class})
     private String note = "";
-    @JsonView({View.DefaultView.class})
+    @JsonView({View.Default.class})
     private String requestDuration;
-    @JsonView({View.DefaultView.class})
+    @JsonView({View.Default.class})
     private Request request;
-    @JsonView({View.DefaultView.class})
+    @JsonView({View.Default.class})
     private String apiVersion;
-    @JsonView({View.DefaultView.class})
+    @JsonView({View.Default.class})
     private String requestDate;
 
     public JsonResultResponse() {

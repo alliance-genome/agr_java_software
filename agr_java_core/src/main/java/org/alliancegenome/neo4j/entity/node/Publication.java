@@ -16,17 +16,17 @@ import java.util.List;
 @Setter
 public class Publication extends Neo4jEntity implements Comparable<Publication> {
 
-    @JsonView({View.InteractionView.class, View.ExpressionView.class})
+    @JsonView({View.Interaction.class, View.Expression.class})
     private String primaryKey;
-    @JsonView({View.PhenotypeView.class,View.InteractionView.class, View.ExpressionView.class})
+    @JsonView({View.Phenotype.class,View.Interaction.class, View.Expression.class})
     private String pubMedId;
-    @JsonView({View.PhenotypeView.class,View.InteractionView.class, View.ExpressionView.class})
+    @JsonView({View.Phenotype.class,View.Interaction.class, View.Expression.class})
     private String pubMedUrl;
-    @JsonView({View.PhenotypeView.class,View.InteractionView.class, View.ExpressionView.class})
+    @JsonView({View.Phenotype.class,View.Interaction.class, View.Expression.class})
     private String pubModId;
-    @JsonView({View.PhenotypeView.class,View.InteractionView.class, View.ExpressionView.class})
+    @JsonView({View.Phenotype.class,View.Interaction.class, View.Expression.class})
     private String pubModUrl;
-    @JsonView({View.PhenotypeView.class, View.ExpressionView.class})
+    @JsonView({View.Phenotype.class, View.Expression.class})
     private String pubId;
 
     @Relationship(type = "ANNOTATED_TO")

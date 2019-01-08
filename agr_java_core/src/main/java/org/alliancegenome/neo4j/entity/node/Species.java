@@ -19,11 +19,11 @@ import lombok.Setter;
 @Setter
 public class Species extends Neo4jEntity implements Comparable<Species> {
 
-    @JsonView({View.InteractionView.class})
+    @JsonView({View.Default.class})
     private String species;
-    @JsonView({View.InteractionView.class})
+    @JsonView({View.Default.class})
     private String primaryKey;
-    @JsonView({View.InteractionView.class})
+    @JsonView({View.Default.class})
     private String name;
 
     @Relationship(type = "CREATED_BY")

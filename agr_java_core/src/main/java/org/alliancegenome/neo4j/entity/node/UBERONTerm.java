@@ -15,12 +15,12 @@ import java.util.Set;
 @Getter @Setter
 public class UBERONTerm extends Ontology {
 
-    @JsonView(View.ExpressionView.class)
+    @JsonView(View.Expression.class)
     private String name;
     private String description;
     private String href;
     private String type;
-    @JsonView(View.ExpressionView.class)
+    @JsonView(View.Expression.class)
     private String primaryKey;
     private String is_obsolete;
     private List<String> subset;

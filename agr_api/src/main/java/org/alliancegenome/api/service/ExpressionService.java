@@ -203,7 +203,7 @@ public class ExpressionService {
         builder.append(System.getProperty("line.separator"));
         result.getResults().forEach(expressionDetail -> {
             StringJoiner rowJoiner = new StringJoiner("\t");
-            rowJoiner.add(expressionDetail.getGene().getSpeciesName());
+            rowJoiner.add(expressionDetail.getGene().getSpecies().getName());
             rowJoiner.add(expressionDetail.getGene().getSymbol());
             rowJoiner.add(expressionDetail.getGene().getModGlobalId());
             rowJoiner.add(expressionDetail.getTermName());

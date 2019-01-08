@@ -12,7 +12,7 @@ import org.neo4j.ogm.annotation.NodeEntity;
 @NodeEntity
 public class OrthoAlgorithm extends Neo4jEntity implements Comparable<OrthoAlgorithm> {
 
-    @JsonView({View.OrthologyMethodView.class})
+    @JsonView({View.OrthologyMethod.class})
     private String name;
 
     @Override

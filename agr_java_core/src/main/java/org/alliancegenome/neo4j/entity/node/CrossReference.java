@@ -14,21 +14,21 @@ import lombok.Setter;
 @NodeEntity
 public class CrossReference extends Neo4jEntity {
 
-    @JsonView({View.PhenotypeView.class, View.InteractionView.class, View.ExpressionView.class})
+    @JsonView({View.GeneAPI.class, View.Phenotype.class, View.Interaction.class, View.Expression.class})
     private String crossRefCompleteUrl;
-    @JsonView({View.PhenotypeView.class, View.InteractionView.class, View.ExpressionView.class})
+    @JsonView({View.Phenotype.class, View.Interaction.class, View.Expression.class})
     private String localId;
-    @JsonView({View.PhenotypeView.class, View.InteractionView.class, View.ExpressionView.class})
+    @JsonView({View.GeneAPI.class, View.Phenotype.class, View.Interaction.class, View.Expression.class})
     private String globalCrossRefId;
-    @JsonView({View.PhenotypeView.class, View.InteractionView.class, View.ExpressionView.class})
+    @JsonView({View.Phenotype.class, View.Interaction.class, View.Expression.class})
     private String prefix;
-    @JsonView({View.PhenotypeView.class, View.InteractionView.class, View.ExpressionView.class})
+    @JsonView({View.Phenotype.class, View.Interaction.class, View.Expression.class})
     private String name;
-    @JsonView({View.PhenotypeView.class, View.InteractionView.class, View.ExpressionView.class})
+    @JsonView({View.Phenotype.class, View.Interaction.class, View.Expression.class})
     private String displayName;
-    @JsonView({View.PhenotypeView.class, View.InteractionView.class, View.ExpressionView.class})
+    @JsonView({View.Phenotype.class, View.Interaction.class, View.Expression.class})
     private String primaryKey;
-    @JsonView({View.PhenotypeView.class, View.InteractionView.class, View.ExpressionView.class})
+    @JsonView({View.GeneAPI.class, View.Phenotype.class, View.Interaction.class, View.Expression.class})
     private String crossRefType;
 
     @Override

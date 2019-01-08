@@ -1,9 +1,7 @@
 package org.alliancegenome.api.rest.interfaces;
 
-
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DefaultValue;
@@ -15,13 +13,22 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import org.alliancegenome.api.service.helper.ExpressionSummary;
+import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.es.model.search.SearchApiResponse;
+import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
+import org.alliancegenome.neo4j.entity.node.Gene;
+import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
+import org.alliancegenome.neo4j.view.OrthologView;
+import org.alliancegenome.neo4j.view.View;
+import org.alliancegenome.neo4j.view.View.GeneAPI;
+
+import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-
 
 @Path("/gene")
 @Api(value = "Genes")
@@ -31,8 +38,9 @@ public interface GeneRESTInterface {
 
     @GET
     @Path("/{id}")
+    @JsonView(value={GeneAPI.class})
     @ApiOperation(value = "Retrieve a Gene for given ID")
-    Map<String, Object> getGene(
+    Gene getGene(
             @ApiParam(name = "id", value = "Gene by ID")
             @PathParam("id") String id
     );
@@ -47,8 +55,9 @@ public interface GeneRESTInterface {
 
     @GET
     @Path("/{id}/phenotypes")
+    @JsonView(value={View.Phenotype.class})
     @ApiOperation(value = "Retrieve phenotype term name annotations for a given gene")
-    String getPhenotypeAnnotations(
+    JsonResultResponse<PhenotypeAnnotation> getPhenotypeAnnotations(
             @ApiParam(name = "id", value = "Gene by ID: e.g. ZFIN:ZDB-GENE-990415-8", required = true, type = "String")
             @PathParam("id") String id,
             @ApiParam(name = "limit", value = "Number of rows returned", defaultValue = "20")
@@ -90,8 +99,9 @@ public interface GeneRESTInterface {
 
     @GET
     @Path("/{id}/homologs")
+    @JsonView(value={View.Orthology.class})
     @ApiOperation(value = "Retrieve homologous gene records", notes = "Download homology records.")
-    String getGeneOrthology(@ApiParam(name = "id", value = "Source Gene ID: the gene for which you are searching homologous gene, e.g. 'MGI:109583'", required = true, type = "String")
+    JsonResultResponse<OrthologView> getGeneOrthology(@ApiParam(name = "id", value = "Source Gene ID: the gene for which you are searching homologous gene, e.g. 'MGI:109583'", required = true, type = "String")
                             @PathParam("id") String id,
                             @ApiParam(name = "geneId", value = "List of additional source gene IDs for which homology is retrieved.")
                             @QueryParam("geneId") List<String> geneID,
@@ -111,14 +121,15 @@ public interface GeneRESTInterface {
     @GET
     @Path("/{id}/interactions")
     @ApiOperation(value = "Retrieve interations for a given gene")
-    String getInteractions(
+    List<InteractionGeneJoin> getInteractions(
             @ApiParam(name = "id", value = "Gene ID", required = true)
             @PathParam("id") String id);
 
     @GET
     @Path("/{id}/expression-summary")
+    @JsonView(value={View.Expression.class})
     @ApiOperation(value = "Retrieve all expression records of a given gene")
-    String getExpressionSummary(
+    ExpressionSummary getExpressionSummary(
             @ApiParam(name = "id", value = "Gene by ID, e.g. 'RGD:2129' or 'ZFIN:ZDB-GENE-990415-72 fgf8a'", required = true, type = "String")
             @PathParam("id") String id
     ) throws JsonProcessingException;

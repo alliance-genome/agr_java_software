@@ -11,6 +11,12 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
+import org.alliancegenome.core.service.JsonResultResponse;
+import org.alliancegenome.neo4j.entity.node.OrthoAlgorithm;
+import org.alliancegenome.neo4j.view.OrthologView;
+import org.alliancegenome.neo4j.view.View;
+
+import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 import io.swagger.annotations.Api;
@@ -24,8 +30,9 @@ public interface OrthologyRESTInterface {
 
     @GET
     @Path("/{taxonIDOne}/{taxonIDTwo}")
+    @JsonView(value={View.Orthology.class})
     @ApiOperation(value = "Retrieve homologous gene records for given pair of species")
-    String getDoubleSpeciesOrthology(
+    JsonResultResponse<OrthologView> getDoubleSpeciesOrthology(
             @ApiParam(name = "taxonIDOne", value = "Taxon ID for the first gene: Could be the full ID, e.g. 'NCBITaxon:10090', or just the ID, i.e. '10090'. Alternatively, part of a species name uniquely identifying a single species, e.g. 'danio' or 'mus'.", required = true, type = "String")
             @PathParam("taxonIDOne") String speciesOne,
             @ApiParam(name = "taxonIDTwo", value = "Taxon ID for the second gene: Could be the full ID, e.g. 'NCBITaxon:10090', or just the ID, i.e. '10090'. Alternatively, part of a species name uniquely identifying a single species, e.g. 'danio' or 'mus'.", required = true, type = "String")
@@ -41,8 +48,9 @@ public interface OrthologyRESTInterface {
 
     @GET
     @Path("/{taxonID}")
+    @JsonView(value={View.Orthology.class})
     @ApiOperation(value = "Retrieve homologous gene records for a given species")
-    String getSingleSpeciesOrthology(
+    JsonResultResponse<OrthologView> getSingleSpeciesOrthology(
             @ApiParam(name = "taxonID", value = "Taxon ID for the gene: Could be the full ID, e.g. 'NCBITaxon:10090', or just the ID, i.e. '10090'. Alternatively, part of a species name uniquely identifying a single species, e.g. 'danio' or 'mus'.", required = true, type = "String")
             @PathParam("taxonID") String species,
             @ApiParam(value = "Select a stringency filter", allowableValues = "stringent, moderate, all", defaultValue = "stringent")
@@ -56,8 +64,9 @@ public interface OrthologyRESTInterface {
 
     @GET
     @Path("/species")
+    @JsonView(value={View.Orthology.class})
     @ApiOperation(value = "Retrieve homologous gene records for given list of species")
-    String getMultiSpeciesOrthology(
+    JsonResultResponse<OrthologView> getMultiSpeciesOrthology(
             @ApiParam(name = "taxonID", value = "List of taxon IDs for which homology is retrieved, e.g. 'NCBITaxon:10090'")
             @QueryParam("taxonID") List<String> taxonID,
             @ApiParam(name = "taxonIdList", value = "List of source taxon IDs for which homology is retrieved in a comma-delimited list, e.g. 'MGI:109583,RGD:2129,MGI:97570")
@@ -73,8 +82,9 @@ public interface OrthologyRESTInterface {
 
     @GET
     @Path("/geneMap")
+    @JsonView(value={View.Orthology.class})
     @ApiOperation(value = "Retrieve homologous gene records for given list of geneMap")
-    String getMultiGeneOrthology(
+    JsonResultResponse<OrthologView> getMultiGeneOrthology(
             @ApiParam(name = "geneID", value = "List of geneMap (specified by their ID) for which homology is retrieved, e.g. 'MGI:109583'")
             @QueryParam("geneID") List<String> geneID,
             @ApiParam(name = "geneIdList", value = "List of additional source gene IDs for which homology is retrieved in a comma-delimited list, e.g. 'MGI:109583,RGD:2129,MGI:97570")
@@ -90,6 +100,7 @@ public interface OrthologyRESTInterface {
 
     @GET
     @Path("/methods")
+    @JsonView(value={View.OrthologyMethod.class})
     @ApiOperation(value = "Retrieve all methods used for calculation of homology")
-    String getAllMethodsCalculations() throws JsonProcessingException;
+    JsonResultResponse<OrthoAlgorithm> getAllMethodsCalculations() throws JsonProcessingException;
 }
