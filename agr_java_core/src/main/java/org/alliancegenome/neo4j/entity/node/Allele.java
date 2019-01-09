@@ -28,6 +28,7 @@ public class Allele extends Neo4jEntity implements Comparable<Allele> {
     private String symbol;
 
     @Convert(value=DateConverter.class)
+    
     private Date dateProduced;
     private String release;
     private String localId;

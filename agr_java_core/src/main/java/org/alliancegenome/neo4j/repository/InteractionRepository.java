@@ -14,7 +14,7 @@ public class InteractionRepository extends Neo4jRepository<InteractionGeneJoin> 
     
     public List<InteractionGeneJoin> getInteractions(String primaryKey) {
         HashMap<String, String> map = new HashMap<>();
-        List<InteractionGeneJoin> ret = new ArrayList<>();
+        List<InteractionGeneJoin> results = new ArrayList<>();
         
         map.put("primaryKey", primaryKey);
         String query = "MATCH p1=(g1:Gene)--(igj:InteractionGeneJoin)--(g2:Gene), p2=(igj:InteractionGeneJoin)--(s) where g1.primaryKey = {primaryKey}"
@@ -25,9 +25,8 @@ public class InteractionRepository extends Neo4jRepository<InteractionGeneJoin> 
 
         Iterable<InteractionGeneJoin> joins = query(query, map);
         for (InteractionGeneJoin join: joins) {
-            ret.add(join);
+            results.add(join);
         }
-
-        return ret;
+        return results;
     }
 }

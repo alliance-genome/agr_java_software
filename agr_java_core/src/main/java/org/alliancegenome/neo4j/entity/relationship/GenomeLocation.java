@@ -19,14 +19,19 @@ public class GenomeLocation extends Neo4jEntity {
 
     @StartNode
     private Gene gene;
+
     @EndNode
-    @JsonView(value={View.API.class})
+    @JsonView(value={View.Default.class})
     private Chromosome chromosome;
-    @JsonView(value={View.API.class})
+
+    @JsonView(value={View.Default.class})
     private Long start;
-    @JsonView(value={View.API.class})
+
+    @JsonView(value={View.Default.class})
     private Long end;
-    private String strand;
-    @JsonView(value={View.API.class})
+
+    @JsonView(value={View.Default.class})
     private String assembly;
+
+    private String strand;
 }

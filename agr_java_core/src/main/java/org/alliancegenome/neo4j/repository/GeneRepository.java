@@ -23,9 +23,11 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.SpeciesType;
+import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.BioEntityGeneExpressionJoin;
 import org.alliancegenome.neo4j.entity.node.GOTerm;
 import org.alliancegenome.neo4j.entity.node.Gene;
@@ -447,7 +449,6 @@ public class GeneRepository extends Neo4jRepository<Gene> {
     }
 
     public int getGeneCount(OrthologyFilter filter) {
-
         String query = getAllGenesQuery(filter);
         query += " RETURN count(gene) ";
         long count = queryCount(query);
@@ -570,6 +571,12 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         @JsonProperty("class_label")
         private String label;
         private String separator;
+    }
+
+    public List<Allele> getAlleles(String id) {
+        List<Allele> list = getOneGene(id).getAlleles();
+        log.info("Returning: " + list + " alleles");
+        return list;
     }
 
 }

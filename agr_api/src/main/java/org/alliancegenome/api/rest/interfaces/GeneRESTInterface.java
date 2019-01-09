@@ -17,11 +17,13 @@ import org.alliancegenome.api.service.helper.ExpressionSummary;
 import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.es.model.search.SearchApiResponse;
 import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
+import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
 import org.alliancegenome.neo4j.view.OrthologView;
 import org.alliancegenome.neo4j.view.View;
 import org.alliancegenome.neo4j.view.View.GeneAPI;
+import org.alliancegenome.neo4j.view.View.GeneAllelesAPI;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -48,7 +50,8 @@ public interface GeneRESTInterface {
     @GET
     @Path("/{id}/alleles")
     @ApiOperation(value = "Retrieve all alleles of a given gene")
-    SearchApiResponse getAllelesPerGene(
+    @JsonView(value={GeneAllelesAPI.class})
+    JsonResultResponse<Allele> getAllelesPerGene(
             @ApiParam(name = "id", value = "Search for Alleles for a given Gene by ID")
             @PathParam("id") String id
     );
@@ -121,7 +124,8 @@ public interface GeneRESTInterface {
     @GET
     @Path("/{id}/interactions")
     @ApiOperation(value = "Retrieve interations for a given gene")
-    List<InteractionGeneJoin> getInteractions(
+    @JsonView(value={View.Interaction.class})
+    JsonResultResponse<InteractionGeneJoin> getInteractions(
             @ApiParam(name = "id", value = "Gene ID", required = true)
             @PathParam("id") String id);
 

@@ -54,18 +54,18 @@ public class InteractionGeneJoin extends Association {
 
     @JsonView({View.Interaction.class})
     @Relationship(type = "INTERACTOR_A_TYPE")
-    private MITerm interactionAType;
+    private MITerm interactorAType;
 
     @JsonView({View.Interaction.class})
     @Relationship(type = "INTERACTOR_A_ROLE")
-    private MITerm interactionARole;
+    private MITerm interactorARole;
 
     @JsonView({View.Interaction.class})
     @Relationship(type = "INTERACTOR_B_TYPE")
-    private MITerm interactionBType;
+    private MITerm interactorBType;
 
     @JsonView({View.Interaction.class})
     @Relationship(type = "INTERACTOR_B_ROLE")
-    private MITerm interactionBRole;
+    private MITerm interactorBRole;
     
 }

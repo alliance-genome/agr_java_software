@@ -1,17 +1,12 @@
 package org.alliancegenome.api.controller;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.NotFoundException;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -24,49 +19,38 @@ import org.alliancegenome.core.service.OrthologyService;
 import org.alliancegenome.core.translators.tdf.PhenotypeAnnotationToTdfTranslator;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.es.model.search.SearchApiResponse;
 import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
+import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.BioEntityGeneExpressionJoin;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.alliancegenome.neo4j.view.OrthologView;
 import org.alliancegenome.neo4j.view.OrthologyFilter;
-import org.alliancegenome.neo4j.view.View;
 import org.apache.commons.collections.CollectionUtils;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RequestScoped
 public class GeneController extends BaseController implements GeneRESTInterface {
 
-    public static final String API_VERSION = "0.9";
     @Inject
     private GeneService geneService;
     private final PhenotypeAnnotationToTdfTranslator translator = new PhenotypeAnnotationToTdfTranslator();
-    private ObjectMapper mapper = new ObjectMapper();
-
-    @Context
-    private HttpServletResponse response;
-
 
     @Override
     public Gene getGene(String id) {
-        Gene ret = geneService.getById(id);
-        if (ret == null) {
-            throw new NotFoundException();
-        } else {
-            return ret;
-        }
+        return geneService.getById(id);
     }
 
     @Override
-    public SearchApiResponse getAllelesPerGene(String id) {
-        return geneService.getAllelesByGene(id);
+    public JsonResultResponse<Allele> getAllelesPerGene(String id) {
+        return geneService.getAlleles(id);
+    }
+
+    @Override
+    public JsonResultResponse<InteractionGeneJoin> getInteractions(String id) {
+        return geneService.getInteractions(id);
     }
 
     @Override
@@ -139,11 +123,6 @@ public class GeneController extends BaseController implements GeneRESTInterface 
         }
         orthologyFilter.setStart(start);
         return OrthologyService.getOrthologyMultiGeneJson(genes, orthologyFilter);
-    }
-
-    @Override
-    public List<InteractionGeneJoin> getInteractions(String id) {
-        return geneService.getInteractions(id);
     }
 
     @Override

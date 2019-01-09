@@ -1,14 +1,12 @@
 package org.alliancegenome.api.service;
 
-import java.util.List;
-
 import javax.enterprise.context.RequestScoped;
 
 import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.es.index.site.dao.GeneDAO;
 import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.es.model.search.SearchApiResponse;
 import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
+import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
 import org.alliancegenome.neo4j.repository.GeneRepository;
@@ -33,18 +31,21 @@ public class GeneService {
         return gene;
     }
 
-    public SearchApiResponse getAllelesByGene(String id) {
-        // temporary fix until we allow full pagination, sorting and filtering
-        Pagination pagination = new Pagination(1, 1000, null, null);
-        return geneDAO.getAllelesByGene(id, pagination);
+    public JsonResultResponse<Allele> getAlleles(String id) {
+        JsonResultResponse<Allele> ret = new JsonResultResponse<Allele>();
+        ret.setResults(geneRepo.getAlleles(id));
+        return ret;
     }
 
     public JsonResultResponse<PhenotypeAnnotation> getPhenotypeAnnotations(String id, Pagination pagination) throws JsonProcessingException {
         return geneDAO.getPhenotypeAnnotations(id, pagination);
     }
 
-    public List<InteractionGeneJoin> getInteractions(String id) {
-        return interRepo.getInteractions(id);
+    public JsonResultResponse<InteractionGeneJoin> getInteractions(String id) {
+        JsonResultResponse<InteractionGeneJoin> ret = new JsonResultResponse<InteractionGeneJoin>();
+        ret.setResults(interRepo.getInteractions(id));
+        return ret;
     }
+
 
 }

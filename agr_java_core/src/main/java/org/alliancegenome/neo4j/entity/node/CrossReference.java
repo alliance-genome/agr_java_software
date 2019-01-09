@@ -16,18 +16,25 @@ public class CrossReference extends Neo4jEntity {
 
     @JsonView({View.GeneAPI.class, View.Phenotype.class, View.Interaction.class, View.Expression.class})
     private String crossRefCompleteUrl;
-    @JsonView({View.Phenotype.class, View.Interaction.class, View.Expression.class})
-    private String localId;
+    
     @JsonView({View.GeneAPI.class, View.Phenotype.class, View.Interaction.class, View.Expression.class})
+    private String localId;
+    
+    @JsonView({View.Phenotype.class, View.Interaction.class, View.Expression.class})
     private String globalCrossRefId;
+    
     @JsonView({View.Phenotype.class, View.Interaction.class, View.Expression.class})
     private String prefix;
-    @JsonView({View.Phenotype.class, View.Interaction.class, View.Expression.class})
+    
+    @JsonView({View.GeneAPI.class, View.Phenotype.class, View.Interaction.class, View.Expression.class})
     private String name;
-    @JsonView({View.Phenotype.class, View.Interaction.class, View.Expression.class})
+    
+    @JsonView({View.GeneAPI.class, View.Phenotype.class, View.Interaction.class, View.Expression.class})
     private String displayName;
-    @JsonView({View.Phenotype.class, View.Interaction.class, View.Expression.class})
+    
+    @JsonView({View.GeneAPI.class, View.Phenotype.class, View.Interaction.class, View.Expression.class})
     private String primaryKey;
+    
     @JsonView({View.GeneAPI.class, View.Phenotype.class, View.Interaction.class, View.Expression.class})
     private String crossRefType;
 

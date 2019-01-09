@@ -16,7 +16,6 @@ import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.typeconversion.Convert;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 
 import lombok.Getter;
@@ -28,47 +27,52 @@ import lombok.Setter;
 public class Gene extends Neo4jEntity implements Comparable<Gene> {
 
     @JsonView({View.GeneAPI.class, View.Orthology.class, View.Interaction.class, View.Expression.class, View.Phenotype.class})
-    //@JsonProperty("geneID")
     private String primaryKey;
+    
     @JsonView({View.GeneAPI.class, View.Orthology.class, View.Expression.class})
     private String taxonId;
 
     @JsonView(value={View.GeneAPI.class})
-    private String geneLiterature;
-    private String geneLiteratureUrl;
-    @JsonView(value={View.GeneAPI.class})
     private String geneSynopsis;
+    
     @JsonView(value={View.GeneAPI.class})
     private String automatedGeneSynopsis;
+    
+    @JsonView(value={View.GeneAPI.class})
     private String geneSynopsisUrl;
-    @JsonView({View.Expression.class})
+    
+    @JsonView({View.GeneAPI.class, View.Expression.class})
     private String dataProvider;
+    
     @JsonView(value={View.GeneAPI.class})
     private String name;
 
     @Convert(value = DateConverter.class)
+    @JsonView(value={View.GeneAPI.class})
     private Date dateProduced;
+    
     @JsonView(value={View.GeneAPI.class})
     private String description;
+    
     @JsonView({View.GeneAPI.class, View.Orthology.class, View.Interaction.class, View.Expression.class})
     private String symbol;
+    
     private String geneticEntityExternalUrl;
-
     private String modCrossRefCompleteUrl;
     private String modLocalId;
     private String modGlobalCrossRefId;
     private String modGlobalId;
-
     private Entity createdBy;
+    
     @JsonView(value={View.GeneAPI.class})
     private SOTerm sOTerm;
 
-    @JsonView({View.API.class})
     @Relationship(type = "FROM_SPECIES")
+    @JsonView(value={View.GeneAPI.class})
     private Species species;
 
     @Relationship(type = "ALSO_KNOWN_AS")
-    @JsonView(value={View.API.class})
+    @JsonView(value={View.GeneAPI.class})
     private Set<Synonym> synonyms = new HashSet<>();
 
     @Relationship(type = "ALSO_KNOWN_AS")
@@ -85,10 +89,11 @@ public class Gene extends Neo4jEntity implements Comparable<Gene> {
     private List<GenomeLocation> genomeLocations;
 
     @Relationship(type = "CROSS_REFERENCE")
-    @JsonView(value={View.API.class})
+    @JsonView(value={View.GeneAPI.class})
     private List<CrossReference> crossReferences;
 
     @Relationship(type = "IS_ALLELE_OF", direction = Relationship.INCOMING)
+    @JsonView(value={View.GeneAllelesAPI.class})
     private List<Allele> alleles;
 
     @Relationship(type = "ASSOCIATION", direction = Relationship.UNDIRECTED)

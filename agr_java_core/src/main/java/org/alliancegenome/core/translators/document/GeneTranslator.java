@@ -39,7 +39,6 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
         geneDocument.setDataProvider(gene.getDataProvider());
         geneDocument.setDescription(gene.getDescription());
 
-        geneDocument.setGeneLiteratureUrl(gene.getGeneLiteratureUrl());
         geneDocument.setAutomatedGeneSynopsis(gene.getAutomatedGeneSynopsis());
         geneDocument.setGeneSynopsis(gene.getGeneSynopsis());
         geneDocument.setGeneSynopsisUrl(gene.getGeneSynopsisUrl());
