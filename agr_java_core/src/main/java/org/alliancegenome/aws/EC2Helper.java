@@ -78,7 +78,7 @@ public class EC2Helper {
             .withVolumeType(VolumeType.Gp2);
         
         EbsBlockDevice swap_ebs = new EbsBlockDevice()
-                .withVolumeSize(32)
+                .withVolumeSize(64)
                 .withVolumeType(VolumeType.Gp2);
         
         BlockDeviceMapping root = new BlockDeviceMapping()
@@ -91,7 +91,8 @@ public class EC2Helper {
         
         runInstancesRequest
             .withImageId("ami-0b1db01d775d666c2")
-            .withInstanceType(InstanceType.C54xlarge)
+            // r5.2xlarge
+            .withInstanceType(InstanceType.R52xlarge)
             .withMinCount(1)
             .withMaxCount(1)
             .withBlockDeviceMappings(root, swap)

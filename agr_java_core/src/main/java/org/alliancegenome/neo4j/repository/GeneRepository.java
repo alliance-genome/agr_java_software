@@ -56,12 +56,36 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         HashMap<String, String> map = new HashMap<>();
 
         map.put("primaryKey", primaryKey);
-        String query = " MATCH p=(q:Species)-[:FROM_SPECIES]-(g:Gene)--(s) WHERE g.primaryKey = {primaryKey} RETURN p";
+        String query = " MATCH p1=(q:Species)-[:FROM_SPECIES]-(g:Gene) WHERE g.primaryKey = {primaryKey} "
+                + "OPTIONAL MATCH p2=(g:Gene)--(:SOTerm) "
+                + "OPTIONAL MATCH p3=(g:Gene)--(:Synonym) "
+                + "OPTIONAL MATCH p4=(g:Gene)--(:GenomeLocation) "
+                + "OPTIONAL MATCH p5=(g:Gene)--(:CrossReference) "
+                + "RETURN p1, p2, p3, p4, p5";
 
         Iterable<Gene> genes = query(query, map);
         for (Gene g : genes) {
             if (g.getPrimaryKey().equals(primaryKey)) {
                 return g;
+            }
+        }
+        return null;
+    }
+    
+
+    public List<Allele> getAlleles(String primaryKey) {
+        HashMap<String, String> map = new HashMap<>();
+
+        map.put("primaryKey", primaryKey);
+        String query = " MATCH p1=(g:Gene)--(a:Allele) WHERE g.primaryKey = {primaryKey} "
+                + "OPTIONAL MATCH p2=(a:Allele)--(:Synonym) "
+                + "OPTIONAL MATCH p3=(a:Allele)--(:CrossReference) "
+                + "RETURN p1, p2, p3";
+        
+        Iterable<Gene> genes = query(query, map);
+        for (Gene g : genes) {
+            if (g.getPrimaryKey().equals(primaryKey)) {
+                return g.getAlleles();
             }
         }
         return null;
@@ -573,10 +597,5 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         private String separator;
     }
 
-    public List<Allele> getAlleles(String id) {
-        List<Allele> list = getOneGene(id).getAlleles();
-        log.info("Returning: " + list + " alleles");
-        return list;
-    }
 
 }
