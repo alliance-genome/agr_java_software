@@ -2,8 +2,10 @@ package org.alliancegenome.neo4j.entity.node;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.alliancegenome.es.util.DateConverter;
@@ -34,13 +36,13 @@ public class Gene extends Neo4jEntity implements Comparable<Gene> {
     @JsonView({View.GeneAPI.class, View.Orthology.class, View.Expression.class})
     private String taxonId;
 
-    @JsonView(value={View.GeneAPI.class})
+    @JsonView({View.GeneAPI.class})
     private String geneSynopsis;
     
-    @JsonView(value={View.GeneAPI.class})
+    @JsonView({View.GeneAPI.class})
     private String automatedGeneSynopsis;
     
-    @JsonView(value={View.GeneAPI.class})
+    @JsonView({View.GeneAPI.class})
     private String geneSynopsisUrl;
     
     @JsonView({View.GeneAPI.class, View.Expression.class})
@@ -53,7 +55,6 @@ public class Gene extends Neo4jEntity implements Comparable<Gene> {
     @JsonView(value={View.GeneAPI.class})
     private Date dateProduced;
     
-    @JsonView(value={View.GeneAPI.class})
     private String description;
     
     @JsonView({View.GeneAPI.class, View.Orthology.class, View.Interaction.class, View.Expression.class})
@@ -76,6 +77,7 @@ public class Gene extends Neo4jEntity implements Comparable<Gene> {
     @Relationship(type = "ALSO_KNOWN_AS")
     private Set<Synonym> synonyms = new HashSet<>();
     
+    // Converts the list of synonym objects to a list of strings
     @JsonView(value={View.GeneAPI.class})
     @JsonProperty(value="synonyms")
     public List<String> getSynonymList() {
@@ -96,12 +98,25 @@ public class Gene extends Neo4jEntity implements Comparable<Gene> {
     private List<Orthologous> orthoGenes = new ArrayList<>();
 
     @Relationship(type = "LOCATED_ON")
-    @JsonView(value={View.GeneAPI.class})
+    @JsonView({View.GeneAPI.class})
     private List<GenomeLocation> genomeLocations;
 
     @Relationship(type = "CROSS_REFERENCE")
-    @JsonView(value={View.GeneAPI.class})
+    @JsonView({View.GeneAPI.class})
     private List<CrossReference> crossReferences;
+    
+    @JsonView({View.GeneAPI.class})
+    @JsonProperty(value="crossReferences")
+    public Map<String, List<CrossReference>> getCrossReferenceMap() {
+        Map<String, List<CrossReference>> map = new HashMap<String, List<CrossReference>>();
+        for(CrossReference cr: crossReferences) {
+            if(!map.containsKey(cr.getCrossRefType())) {
+                map.put(cr.getCrossRefType(), new ArrayList<CrossReference>());
+            }
+            map.get(cr.getCrossRefType()).add(cr);
+        }
+        return map;
+    }
 
     @Relationship(type = "IS_ALLELE_OF", direction = Relationship.INCOMING)
     @JsonView(value={View.GeneAllelesAPI.class})

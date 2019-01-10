@@ -59,7 +59,7 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         String query = " MATCH p1=(q:Species)-[:FROM_SPECIES]-(g:Gene) WHERE g.primaryKey = {primaryKey} "
                 + "OPTIONAL MATCH p2=(g:Gene)--(:SOTerm) "
                 + "OPTIONAL MATCH p3=(g:Gene)--(:Synonym) "
-                + "OPTIONAL MATCH p4=(g:Gene)--(:GenomeLocation) "
+                + "OPTIONAL MATCH p4=(g:Gene)--(:Chromosome) "
                 + "OPTIONAL MATCH p5=(g:Gene)--(:CrossReference) "
                 + "RETURN p1, p2, p3, p4, p5";
 

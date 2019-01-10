@@ -13,6 +13,6 @@ import lombok.Setter;
 @NodeEntity
 public class Chromosome extends Neo4jEntity {
     
-    @JsonView(value={View.Default.class})
+    @JsonView({View.Default.class})
     private String primaryKey;
 }
