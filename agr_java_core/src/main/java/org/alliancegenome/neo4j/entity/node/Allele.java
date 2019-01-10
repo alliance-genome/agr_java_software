@@ -24,6 +24,7 @@ import lombok.Setter;
 public class Allele extends Neo4jEntity implements Comparable<Allele> {
 
     @JsonView({View.Default.class})
+    @JsonProperty(value="id")
     private String primaryKey;
     @JsonView({View.Default.class})
     private String symbol;
