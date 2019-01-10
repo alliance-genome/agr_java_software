@@ -16,6 +16,7 @@ import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.typeconversion.Convert;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 
 import lombok.Getter;
@@ -27,6 +28,7 @@ import lombok.Setter;
 public class Gene extends Neo4jEntity implements Comparable<Gene> {
 
     @JsonView({View.GeneAPI.class, View.Orthology.class, View.Interaction.class, View.Expression.class, View.Phenotype.class})
+    @JsonProperty(value="id")
     private String primaryKey;
     
     @JsonView({View.GeneAPI.class, View.Orthology.class, View.Expression.class})
@@ -65,21 +67,30 @@ public class Gene extends Neo4jEntity implements Comparable<Gene> {
     private Entity createdBy;
     
     @JsonView(value={View.GeneAPI.class})
-    private SOTerm sOTerm;
+    private SOTerm soTerm;
 
     @Relationship(type = "FROM_SPECIES")
     @JsonView(value={View.GeneAPI.class})
     private Species species;
 
     @Relationship(type = "ALSO_KNOWN_AS")
-    @JsonView(value={View.GeneAPI.class})
     private Set<Synonym> synonyms = new HashSet<>();
+    
+    @JsonView(value={View.GeneAPI.class})
+    @JsonProperty(value="synonyms")
+    public List<String> getSynonymList() {
+        List<String> list = new ArrayList<String>();
+        for(Synonym s: synonyms) {
+            list.add(s.getName());
+        }
+        return list;
+    }
 
     @Relationship(type = "ALSO_KNOWN_AS")
     private Set<SecondaryId> secondaryIds = new HashSet<>();
 
     @Relationship(type = "ANNOTATED_TO")
-    private Set<GOTerm> gOTerms = new HashSet<>();
+    private Set<GOTerm> goTerms = new HashSet<>();
 
     @Relationship(type = "ORTHOLOGOUS")
     private List<Orthologous> orthoGenes = new ArrayList<>();
@@ -127,7 +138,7 @@ public class Gene extends Neo4jEntity implements Comparable<Gene> {
 
     public Set<GOTerm> getGoParentTerms() {
         Set<GOTerm> parentTerms = new HashSet<>();
-        CollectionUtils.emptyIfNull(gOTerms).forEach(term -> {
+        CollectionUtils.emptyIfNull(goTerms).forEach(term -> {
             parentTerms.addAll(term.getParentTerms());
         });
         return parentTerms;

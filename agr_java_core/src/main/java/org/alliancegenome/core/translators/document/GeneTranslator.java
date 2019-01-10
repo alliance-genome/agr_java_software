@@ -66,7 +66,7 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
         }
 
         // Setup Go Terms by type
-        for (GOTerm term : gene.getGOTerms()) {
+        for (GOTerm term : gene.getGoTerms()) {
             Set<GOTerm> terms = goTerms.get(term.getType());
             if (terms == null) {
                 terms = new HashSet<>();
@@ -94,9 +94,9 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
         geneDocument.setSecondaryIds(secondaryIds);
 
 
-        if (gene.getSOTerm() != null) {
-            geneDocument.setSoTermId(gene.getSOTerm().getPrimaryKey());
-            geneDocument.setSoTermName(gene.getSOTerm().getName());
+        if (gene.getSoTerm() != null) {
+            geneDocument.setSoTermId(gene.getSoTerm().getPrimaryKey());
+            geneDocument.setSoTermName(gene.getSoTerm().getName());
         }
         geneDocument.setSymbol(gene.getSymbol());
 
