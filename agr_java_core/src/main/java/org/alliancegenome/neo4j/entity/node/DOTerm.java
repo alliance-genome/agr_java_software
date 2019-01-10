@@ -6,9 +6,13 @@ import java.util.List;
 
 import org.alliancegenome.es.util.DateConverter;
 import org.alliancegenome.neo4j.entity.Neo4jEntity;
+import org.alliancegenome.neo4j.view.View;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.typeconversion.Convert;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonView;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -24,7 +28,10 @@ public class DOTerm extends Neo4jEntity {
     private String doDisplayId;
     private String doId;
     private String doPrefix;
+    @JsonView({View.API.class})
+    @JsonProperty(value="id")
     private String primaryKey;
+    @JsonView({View.API.class})
     private String name;
     private String definition;
     private List<String> defLinks;
