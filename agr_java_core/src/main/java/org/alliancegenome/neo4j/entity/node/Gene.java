@@ -113,11 +113,11 @@ public class Gene extends Neo4jEntity implements Comparable<Gene> {
         List<CrossReference> othersList = new ArrayList<CrossReference>();
         map.put("other", othersList);
         for(CrossReference cr: crossReferences) {
-            String type = "";
-            if(cr.getCrossRefType().startsWith("gene/")) {
-                type = cr.getCrossRefType().replace("gene/", "");
+            String type = "gene";
+            if(cr.getCrossRefType().startsWith(type + "/")) {
+                type = cr.getCrossRefType().replace(type + "/", "");
                 map.put(type, cr);
-            } else if(cr.getCrossRefType().equals("gene")) {
+            } else if(cr.getCrossRefType().equals(type)) {
                 map.put("primary", cr);
             } else if(cr.getCrossRefType().equals("generic_cross_reference")) {
                 othersList.add(cr);

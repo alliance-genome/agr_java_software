@@ -2,8 +2,10 @@ package org.alliancegenome.neo4j.entity.node;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -71,10 +73,30 @@ public class Allele extends Neo4jEntity implements Comparable<Allele> {
     @Relationship(type = "HAS_PHENOTYPE")
     private List<Phenotype> phenotypes = new ArrayList<>();
 
-    @JsonView({View.Default.class})
     @Relationship(type = "CROSS_REFERENCE")
     private List<CrossReference> crossReferences = new ArrayList<>();
 
+    @JsonView({View.Default.class})
+    @JsonProperty(value="crossReferences")
+    public Map<String, Object> getCrossReferenceMap() {
+        Map<String, Object> map = new HashMap<String, Object>();
+        
+        List<CrossReference> othersList = new ArrayList<CrossReference>();
+        map.put("other", othersList);
+        for(CrossReference cr: crossReferences) {
+            String type = "allele";
+            if(cr.getCrossRefType().startsWith(type + "/")) {
+                type = cr.getCrossRefType().replace(type + "/", "");
+                map.put(type, cr);
+            } else if(cr.getCrossRefType().equals(type)) {
+                map.put("primary", cr);
+            } else if(cr.getCrossRefType().equals("generic_cross_reference")) {
+                othersList.add(cr);
+            }
+        }
+        return map;
+    }
+    
     @Override
     public int compareTo(Allele o) {
         return 0;
