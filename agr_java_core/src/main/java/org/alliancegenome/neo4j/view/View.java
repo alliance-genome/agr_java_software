@@ -3,6 +3,7 @@ package org.alliancegenome.neo4j.view;
 public class View {
 
     
+
     // Generic Views
     public static class Default { }
     public static class DetailView { }
@@ -18,5 +19,6 @@ public class View {
     public static class Interaction extends API { }
     public static class GeneAPI extends API { }
     public static class GeneAllelesAPI extends API { }
+    public static class AlleleAPI extends API { }
     
 }

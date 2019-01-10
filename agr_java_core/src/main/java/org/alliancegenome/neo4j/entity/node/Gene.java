@@ -33,7 +33,7 @@ public class Gene extends Neo4jEntity implements Comparable<Gene> {
     @JsonProperty(value="id")
     private String primaryKey;
     
-    @JsonView({View.GeneAPI.class, View.Orthology.class, View.Expression.class})
+    @JsonView({View.Orthology.class, View.Expression.class})
     private String taxonId;
 
     @JsonView({View.GeneAPI.class})

@@ -220,9 +220,7 @@ public class GeneTest {
 
         GenesController controller = new GenesController();
         String[] taxonIDs = {"danio"};
-        String responseString = controller.getGenes(Arrays.asList(taxonIDs), 10, 1);
-        //String responseString = controller.getExpressionSummary("ZFIN:ZDB-GENE-080204-52", 5, 1);
-        JsonResultResponse<Gene> response = mapper.readValue(responseString, JsonResultResponse.class);
+        JsonResultResponse<Gene> response = controller.getGenes(Arrays.asList(taxonIDs), 10, 1);
         assertThat("matches found for gene MGI:109583'", response.getTotal(), greaterThan(5));
     }
 

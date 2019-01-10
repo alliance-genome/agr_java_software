@@ -17,12 +17,7 @@ public class GoController extends BaseController implements GoRESTInterface {
 
     @Override
     public Map<String, Object> getGo(String id) {
-        Map<String, Object> ret = goService.getById(id);
-        if(ret == null) {
-            throw new NotFoundException();
-        } else {
-            return ret;
-        }
+        return goService.getById(id);
     }
 
 }

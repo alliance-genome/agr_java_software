@@ -41,14 +41,14 @@ public class AlleleIndexerRepository extends Neo4jRepository {
     public AlleleDocumentCache getAlleleDocumentCache(String species) {
         AlleleDocumentCache alleleDocumentCache = new AlleleDocumentCache();
 
-        log.info("Fetching features");
+        log.info("Fetching alleles");
         alleleDocumentCache.setAlleleMap(getAlleleMap(species));
 
-        log.info("Building feature -> diseases map");
+        log.info("Building allele -> diseases map");
         alleleDocumentCache.setDiseases(getDiseaseMap(species));
-        log.info("Building feature -> genes map");
+        log.info("Building allele -> genes map");
         alleleDocumentCache.setGenes(getGenesMap(species));
-        log.info("Building feature -> phenotype statements map");
+        log.info("Building allele -> phenotype statements map");
         alleleDocumentCache.setPhenotypeStatements(getPhenotypeStatementsMap(species));
 
         return alleleDocumentCache;
@@ -56,28 +56,28 @@ public class AlleleIndexerRepository extends Neo4jRepository {
     }
 
     public Map<String, Set<String>> getDiseaseMap(String species) {
-        String query = "MATCH (species:Species)--(:Gene)-[:IS_ALLELE_OF]-(feature:Feature)--(disease:DOTerm) ";
+        String query = "MATCH (species:Species)--(:Gene)-[:IS_ALLELE_OF]-(a:Allele)--(disease:DOTerm) ";
         query += getSpeciesWhere(species);
-        query += " RETURN feature.primaryKey, disease.nameKey ";
+        query += " RETURN a.primaryKey, disease.nameKey ";
 
         return getMapSetForQuery(query, "feature.primaryKey", "disease.nameKey", getSpeciesParams(species));
     }
 
     public Map<String, Set<String>> getGenesMap(String species) {
         //todo: needs to be nameKey, but nameKey needs to be set in neo
-        String query = "MATCH (species:Species)--(gene:Gene)-[:IS_ALLELE_OF]-(feature:Feature) ";
+        String query = "MATCH (species:Species)--(gene:Gene)-[:IS_ALLELE_OF]-(a:Allele) ";
         query += getSpeciesWhere(species);
-        query += "RETURN distinct feature.primaryKey, gene.symbol";
+        query += "RETURN distinct a.primaryKey, gene.symbol";
 
-        return getMapSetForQuery(query, "feature.primaryKey", "gene.symbol", getSpeciesParams(species));
+        return getMapSetForQuery(query, "a.primaryKey", "gene.symbol", getSpeciesParams(species));
     }
 
 
     public Map<String, Set<String>> getPhenotypeStatementsMap(String species) {
-        String query = "MATCH (species:Species)--(gene:Gene)-[:IS_ALLELE_OF]-(feature:Feature)--(phenotype:Phenotype) ";
+        String query = "MATCH (species:Species)--(gene:Gene)-[:IS_ALLELE_OF]-(a:Allele)--(phenotype:Phenotype) ";
         query += getSpeciesWhere(species);
-        query += " RETURN distinct feature.primaryKey, phenotype.phenotypeStatement ";
+        query += " RETURN distinct a.primaryKey, phenotype.phenotypeStatement ";
 
-        return getMapSetForQuery(query, "feature.primaryKey", "phenotype.phenotypeStatement", getSpeciesParams(species));
+        return getMapSetForQuery(query, "a.primaryKey", "phenotype.phenotypeStatement", getSpeciesParams(species));
     }
 }

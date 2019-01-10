@@ -20,19 +20,19 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
 
         map.put("primaryKey", primaryKey);
         String query = "";
-        query += " MATCH p1=(feature:Feature)-[:IS_ALLELE_OF]-(g:Gene)-[:FROM_SPECIES]-(q:Species) WHERE feature.primaryKey = {primaryKey}";
-        query += " OPTIONAL MATCH p2=(feature:Feature)-[:ASSOCIATION]-(diseaseJoin:DiseaseEntityJoin)-[:ASSOCIATION]-(do:DOTerm)";
+        query += " MATCH p1=(a:Allele)-[:IS_ALLELE_OF]-(g:Gene)-[:FROM_SPECIES]-(:Species) WHERE a.primaryKey = {primaryKey}";
+        query += " OPTIONAL MATCH p2=(a:Allele)-[:ASSOCIATION]-(diseaseJoin:DiseaseEntityJoin)-[:ASSOCIATION]-(do:DOTerm)";
         query += " OPTIONAL MATCH p3=(do:DOTerm)-[:ASSOCIATION]-(diseaseJoin:DiseaseEntityJoin)-[:EVIDENCE]-(ea)";
-        query += " OPTIONAL MATCH p4=(feature:Feature)-[:ALSO_KNOWN_AS]-(synonym:Synonym)";
-        query += " OPTIONAL MATCH p5=(feature:Feature)-[:ASSOCIATION]-(diseaseJoin:DiseaseEntityJoin)-[:ASSOCIATION]-(g:Gene)";
-        query += " OPTIONAL MATCH p6=(feature:Feature)-[:HAS_PHENOTYPE]-(termName:Phenotype)";
-        query += " OPTIONAL MATCH crossRef=(feature:Feature)-[:CROSS_REFERENCE]-(c:CrossReference)";
+        query += " OPTIONAL MATCH p4=(a:Allele)-[:ALSO_KNOWN_AS]-(synonym:Synonym)";
+        query += " OPTIONAL MATCH p5=(a:Allele)-[:ASSOCIATION]-(diseaseJoin:DiseaseEntityJoin)-[:ASSOCIATION]-(g:Gene)";
+        query += " OPTIONAL MATCH p6=(a:Allele)-[:HAS_PHENOTYPE]-(termName:Phenotype)";
+        query += " OPTIONAL MATCH crossRef=(a:Allele)-[:CROSS_REFERENCE]-(c:CrossReference)";
         query += " RETURN p1, p2, p3, p4, p5, p6, crossRef";
         
-        Iterable<Allele> genes = query(query, map);
-        for (Allele g : genes) {
-            if (g.getPrimaryKey().equals(primaryKey)) {
-                return g;
+        Iterable<Allele> alleles = query(query, map);
+        for (Allele a: alleles) {
+            if (a.getPrimaryKey().equals(primaryKey)) {
+                return a;
             }
         }
 
@@ -41,7 +41,7 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
 
 
     public List<String> getAllFeatureKeys() {
-        String query = "MATCH (feature:Feature)--(g:Gene)-[:FROM_SPECIES]-(q:Species) RETURN feature.primaryKey";
+        String query = "MATCH (a:Allele)--(g:Gene)-[:FROM_SPECIES]-(q:Species) RETURN a.primaryKey";
 
         Result r = queryForResult(query);
         Iterator<Map<String, Object>> i = r.iterator();
