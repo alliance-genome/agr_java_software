@@ -107,13 +107,21 @@ public class Gene extends Neo4jEntity implements Comparable<Gene> {
     
     @JsonView({View.GeneAPI.class})
     @JsonProperty(value="crossReferences")
-    public Map<String, List<CrossReference>> getCrossReferenceMap() {
-        Map<String, List<CrossReference>> map = new HashMap<String, List<CrossReference>>();
+    public Map<String, Object> getCrossReferenceMap() {
+        Map<String, Object> map = new HashMap<String, Object>();
+        
+        List<CrossReference> othersList = new ArrayList<CrossReference>();
+        map.put("other", othersList);
         for(CrossReference cr: crossReferences) {
-            if(!map.containsKey(cr.getCrossRefType())) {
-                map.put(cr.getCrossRefType(), new ArrayList<CrossReference>());
+            String type = "";
+            if(cr.getCrossRefType().startsWith("gene/")) {
+                type = cr.getCrossRefType().replace("gene/", "");
+                map.put(type, cr);
+            } else if(cr.getCrossRefType().equals("gene")) {
+                map.put("primary", cr);
+            } else if(cr.getCrossRefType().equals("generic_cross_reference")) {
+                othersList.add(cr);
             }
-            map.get(cr.getCrossRefType()).add(cr);
         }
         return map;
     }
