@@ -90,6 +90,17 @@ public class Gene extends Neo4jEntity implements Comparable<Gene> {
 
     @Relationship(type = "ALSO_KNOWN_AS")
     private Set<SecondaryId> secondaryIds = new HashSet<>();
+    
+    // Converts the list of secondary ids objects to a list of strings
+    @JsonView(value={View.GeneAPI.class})
+    @JsonProperty(value="secondaryIds")
+    public List<String> getSecondaryIdsList() {
+        List<String> list = new ArrayList<String>();
+        for(SecondaryId s: secondaryIds) {
+            list.add(s.getName());
+        }
+        return list;
+    }
 
     @Relationship(type = "ANNOTATED_TO")
     private Set<GOTerm> goTerms = new HashSet<>();
