@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.net.URLDecoder;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
@@ -17,7 +18,7 @@ import java.util.List;
 public class JsonResultResponse<T> {
 
     @JsonView({View.Default.class})
-    private List<T> results;
+    private List<T> results = new ArrayList<T>();
     @JsonView({View.Default.class})
     private int total;
     @JsonView({View.Default.class})
