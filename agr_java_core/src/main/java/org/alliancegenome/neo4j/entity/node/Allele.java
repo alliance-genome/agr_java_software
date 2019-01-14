@@ -59,6 +59,17 @@ public class Allele extends Neo4jEntity implements Comparable<Allele> {
 
     @Relationship(type = "ALSO_KNOWN_AS")
     private Set<SecondaryId> secondaryIds = new HashSet<>();
+    
+    // Converts the list of secondary ids objects to a list of strings
+    @JsonView(value={View.GeneAPI.class})
+    @JsonProperty(value="secondaryIds")
+    public List<String> getSecondaryIdsList() {
+        List<String> list = new ArrayList<String>();
+        for(SecondaryId s: secondaryIds) {
+            list.add(s.getName());
+        }
+        return list;
+    }
 
     @Relationship(type = "IS_ALLELE_OF", direction = Relationship.OUTGOING)
     private Gene gene;
