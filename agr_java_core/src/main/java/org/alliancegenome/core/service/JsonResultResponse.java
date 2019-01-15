@@ -51,7 +51,7 @@ public class JsonResultResponse<T> {
         if (results != null) {
             returnedRecords = results.size();
         } else {
-            results = new ArrayList<T>();
+            this.results = new ArrayList<T>();
         }
     }
 
