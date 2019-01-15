@@ -48,8 +48,11 @@ public class JsonResultResponse<T> {
 
     public void setResults(List<T> results) {
         this.results = results;
-        if (results != null)
+        if (results != null) {
             returnedRecords = results.size();
+        } else {
+            results = new ArrayList<T>();
+        }
     }
 
     public void setHttpServletRequest(HttpServletRequest request) {
