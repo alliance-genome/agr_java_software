@@ -91,7 +91,7 @@ public interface GeneRESTInterface {
                             @ApiParam(value = "calculation methods", allowableValues = "Ensembl Compara, HGNC, Hieranoid, InParanoid, OMA, OrthoFinder, OrthoInspector, PANTHER, PhylomeDB, Roundup, TreeFam, ZFIN")
                             @QueryParam("methods") List<String> methods,
                             @ApiParam(value = "maximum number of rows returned")
-                            @DefaultValue("20") @QueryParam("rows") Integer rows,
+                            @QueryParam("rows") Integer rows,
                             @ApiParam(value = "starting row number (for pagination)")
                             @DefaultValue("1") @QueryParam("start") Integer start) throws IOException;
 
