@@ -14,11 +14,12 @@ public class Main {
     private static Logger log = LogManager.getLogger(Main.class);
 
     public static void main(String[] args) {
-
+        ConfigHelper.init();
+        
         Date start = new Date();
         log.info("Start Time: " + start);
 
-        Boolean keepIndex = System.getProperty("KEEPINDEX") != null;
+        Boolean keepIndex = ConfigHelper.getKeepIndex();
 
         IndexManager im = new  IndexManager();
 

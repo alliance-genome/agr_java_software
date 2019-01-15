@@ -1,5 +1,6 @@
 package org.alliancegenome.indexer.indexers;
 
+import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.translators.document.AlleleTranslator;
 import org.alliancegenome.es.index.site.cache.AlleleDocumentCache;
 import org.alliancegenome.es.index.site.document.AlleleDocument;
@@ -21,9 +22,11 @@ public class AlleleIndexer extends Indexer<AlleleDocument> {
     private final Logger log = LogManager.getLogger(getClass());
     private AlleleDocumentCache alleleDocumentCache;
     private AlleleIndexerRepository repo;
+    private String species = null;
 
     public AlleleIndexer(IndexerConfig config) {
         super(config);
+        species = ConfigHelper.getSpecies();
     }
 
     @Override
@@ -31,7 +34,7 @@ public class AlleleIndexer extends Indexer<AlleleDocument> {
         try {
             LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>();
             repo = new AlleleIndexerRepository();
-            alleleDocumentCache = repo.getAlleleDocumentCache(System.getProperty("SPECIES"));
+            alleleDocumentCache = repo.getAlleleDocumentCache(species);
 
             List<String> fulllist = alleleDocumentCache.getAlleleMap().keySet().stream().collect(Collectors.toList());
             queue.addAll(fulllist);

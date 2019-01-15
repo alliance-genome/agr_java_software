@@ -4,6 +4,7 @@ import org.alliancegenome.api.service.helper.ExpressionDetail;
 import org.alliancegenome.api.service.helper.ExpressionSummary;
 import org.alliancegenome.api.service.helper.ExpressionSummaryGroup;
 import org.alliancegenome.api.service.helper.ExpressionSummaryGroupTerm;
+import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
@@ -200,7 +201,7 @@ public class ExpressionService {
         headerJoiner.add("Source");
         headerJoiner.add("Reference");
         builder.append(headerJoiner.toString());
-        builder.append(System.getProperty("line.separator"));
+        builder.append(ConfigHelper.getJavaLineSeparator());
         result.getResults().forEach(expressionDetail -> {
             StringJoiner rowJoiner = new StringJoiner("\t");
             rowJoiner.add(expressionDetail.getGene().getSpecies().getName());
@@ -212,7 +213,7 @@ public class ExpressionService {
             rowJoiner.add(expressionDetail.getCrossReferences().stream().map(CrossReference::getDisplayName).collect(Collectors.joining(",")));
             rowJoiner.add(expressionDetail.getPublications().stream().map(Publication::getPubId).collect(Collectors.joining(",")));
             builder.append(rowJoiner.toString());
-            builder.append(System.getProperty("line.separator"));
+            builder.append(ConfigHelper.getJavaLineSeparator());
         });
         return builder.toString();
     }

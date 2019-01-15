@@ -1,5 +1,6 @@
 package org.alliancegenome.indexer.indexers;
 
+import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.translators.document.GeneTranslator;
 import org.alliancegenome.es.index.site.cache.GeneDocumentCache;
 import org.alliancegenome.es.index.site.document.GeneDocument;
@@ -19,9 +20,11 @@ public class GeneIndexer extends Indexer<GeneDocument> {
 
     private final Logger log = LogManager.getLogger(getClass());
     private GeneDocumentCache geneDocumentCache;
+    private String species = null;
 
     public GeneIndexer(IndexerConfig config) {
         super(config);
+        species = ConfigHelper.getSpecies();
     }
 
     @Override
@@ -33,8 +36,8 @@ public class GeneIndexer extends Indexer<GeneDocument> {
             GeneIndexerRepository geneIndexerRepository = new GeneIndexerRepository();
 
             List<String> fulllist;
-            if (System.getProperty("SPECIES") != null) {
-                geneDocumentCache = geneIndexerRepository.getGeneDocumentCache(System.getProperty("SPECIES"));
+            if (species != null) {
+                geneDocumentCache = geneIndexerRepository.getGeneDocumentCache(species);
                 fulllist = geneDocumentCache.getGeneMap().keySet().stream().collect(Collectors.toList());
             } else {
                 geneDocumentCache = geneIndexerRepository.getGeneDocumentCache();

@@ -1,5 +1,6 @@
 package org.alliancegenome.core.translators.tdf;
 
+import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
 
 import java.util.List;
@@ -16,7 +17,7 @@ public class PhenotypeAnnotationToTdfTranslator {
         headerJoiner.add("Genetic Entity Type");
         headerJoiner.add("References");
         builder.append(headerJoiner.toString());
-        builder.append(System.getProperty("line.separator"));
+        builder.append(ConfigHelper.getJavaLineSeparator());
 
         annotations.forEach(annotation -> {
             StringJoiner joiner = new StringJoiner("\t");
@@ -35,7 +36,7 @@ public class PhenotypeAnnotationToTdfTranslator {
             annotation.getPublications().forEach(publication -> pubJoiner.add(publication.getPubId()));
             joiner.add(pubJoiner.toString());
             builder.append(joiner.toString());
-            builder.append(System.getProperty("line.separator"));
+            builder.append(ConfigHelper.getJavaLineSeparator());
         });
 
         return builder.toString();

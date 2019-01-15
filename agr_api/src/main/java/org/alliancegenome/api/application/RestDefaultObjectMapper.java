@@ -15,7 +15,7 @@ public class RestDefaultObjectMapper implements ContextResolver<ObjectMapper> {
     public RestDefaultObjectMapper() {
         mapper = new ObjectMapper();
         mapper.configure(MapperFeature.DEFAULT_VIEW_INCLUSION, false);
-        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        //mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
     }
 
     @Override

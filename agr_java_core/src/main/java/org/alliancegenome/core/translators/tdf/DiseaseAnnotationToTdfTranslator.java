@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
+import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.es.index.site.document.DiseaseAnnotationDocument;
 import org.alliancegenome.es.util.SearchHitIterator;
 import org.apache.commons.logging.Log;
@@ -35,7 +36,7 @@ public class DiseaseAnnotationToTdfTranslator {
         headerJoiner.add("Source");
         headerJoiner.add("References");
         builder.append(headerJoiner.toString());
-        builder.append(System.getProperty("line.separator"));
+        builder.append(ConfigHelper.getJavaLineSeparator());
 
         while (hitIterator.hasNext()) {
             SearchHit hit = hitIterator.next();
@@ -85,7 +86,7 @@ public class DiseaseAnnotationToTdfTranslator {
             });
             joiner.add(pubJoiner.toString());
             builder.append(joiner.toString());
-            builder.append(System.getProperty("line.separator"));
+            builder.append(ConfigHelper.getJavaLineSeparator());
         }
 
         return builder.toString();

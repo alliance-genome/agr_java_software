@@ -48,6 +48,9 @@ public class ConfigHelper {
         defaults.put("ES_HOST", "localhost");
         defaults.put("ES_PORT", "9300");
         
+        defaults.put("KEEPINDEX", "false");
+        defaults.put("SPECIES", null);
+        
         defaults.put("NEO4J_HOST", "localhost");
         defaults.put("NEO4J_PORT", "7687");
 
@@ -169,6 +172,10 @@ public class ConfigHelper {
         if(!init) init();
         return Boolean.parseBoolean(config.get("DEBUG"));
     }
+    public static boolean getKeepIndex() {
+        if(!init) init();
+        return Boolean.parseBoolean(config.get("KEEPINDEX"));
+    }
     public static boolean getGenerateSitemap() {
         if(!init) init();
         return Boolean.parseBoolean(config.get("GENERATE_SITEMAP"));
@@ -177,9 +184,21 @@ public class ConfigHelper {
         if(!init) init();
         return config.get("AWS_BUCKET_NAME");
     }
-    public static String getValidationSoftwarePath() {
+    public static String getSpecies() {
+        if(!init) init();
+        return config.get("SPECIES");
+    }
+    public static String getJavaLineSeparator() {
+        if(!init) init();
+        return System.getProperty("line.separator");
+    }
+    public static String getJavaTmpDir() {
         if(!init) init();
         return System.getProperty("java.io.tmpdir");
+    }
+    public static String getValidationSoftwarePath() {
+        if(!init) init();
+        return getJavaTmpDir();
     }
     public static boolean hasEsIndexSuffix() {
         if(!init) init();
@@ -196,4 +215,5 @@ public class ConfigHelper {
             log.info("\t" + key + ": " + config.get(key));
         }
     }
+
 }
