@@ -128,6 +128,11 @@ public class OrthologyService {
                         view.setHomologGene(ortho.getGene2());
                         view.setBest(ortho.isBestScore());
                         view.setBestReverse(ortho.isBestRevScore());
+                        if (ortho.isStrictFilter()) {
+                            view.setStringencyFilter("stringent");
+                        } else if (ortho.isModerateFilter()) {
+                            view.setStringencyFilter("moderate");
+                        }
                         view.setPredictionMethodsMatched(getMatchedMethods(join));
                         view.setPredictionMethodsNotMatched(getNotMatchedMethods(join));
                         view.setPredictionMethodsNotCalled(getNotCalledMethods(join));
