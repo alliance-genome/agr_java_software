@@ -8,10 +8,7 @@ import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.es.model.search.SearchApiResponse;
 import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
-import org.alliancegenome.neo4j.entity.node.CrossReference;
-import org.alliancegenome.neo4j.entity.node.Allele;
-import org.alliancegenome.neo4j.entity.node.Gene;
-import org.alliancegenome.neo4j.entity.node.Publication;
+import org.alliancegenome.neo4j.entity.node.*;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.alliancegenome.neo4j.repository.PhenotypeRepository;
 import org.apache.commons.logging.Log;
@@ -23,6 +20,7 @@ import org.elasticsearch.index.query.*;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.neo4j.ogm.model.Result;
 
+import java.lang.reflect.Type;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -120,15 +118,17 @@ public class GeneDAO extends ESDAO {
         List<PhenotypeAnnotation> annotationDocuments = new ArrayList<>();
         result.forEach(objectMap -> {
             PhenotypeAnnotation document = new PhenotypeAnnotation();
-            Gene gene = new Gene();
-            gene.setPrimaryKey(geneID);
-            document.setGene(gene);
             document.setPhenotype((String) objectMap.get("phenotype"));
-            Allele allele = (Allele) objectMap.get("allele");
+            Allele allele = (Allele) objectMap.get("feature");
             if (allele != null) {
                 List<CrossReference> ref = (List<CrossReference>) objectMap.get("crossReferences");
                 allele.setCrossReferences(ref);
-                document.setAllele(allele);
+                allele.setType(GeneticEntity.Type.ALLELE);
+                document.setGeneticEntity(allele);
+            } else { // must be a gene for now as we only have feature or gene
+                Gene gene = (Gene) objectMap.get("gene");
+                gene.setType(GeneticEntity.Type.GENE);
+                document.setGeneticEntity(gene);
             }
             document.setPublications((List<Publication>) objectMap.get("publications"));
             annotationDocuments.add(document);

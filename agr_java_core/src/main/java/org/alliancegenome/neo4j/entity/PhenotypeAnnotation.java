@@ -5,6 +5,7 @@ import java.util.List;
 import org.alliancegenome.es.index.site.doclet.SourceDoclet;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.Gene;
+import org.alliancegenome.neo4j.entity.node.GeneticEntity;
 import org.alliancegenome.neo4j.entity.node.Publication;
 import org.alliancegenome.neo4j.view.View;
 
@@ -23,13 +24,9 @@ public class PhenotypeAnnotation implements Comparable<PhenotypeAnnotation> {
     @JsonView({View.Phenotype.class})
     private String phenotype;
     @JsonView({View.Phenotype.class})
-    private Gene gene;
-    @JsonView({View.Phenotype.class})
-    private Allele allele;
+    private GeneticEntity geneticEntity;
     @JsonView({View.Phenotype.class})
     private List<Publication> publications;
-    @JsonView({View.Phenotype.class})
-    private String geneticEntity;
 
     @JsonIgnore
     public String getDocumentId() {
@@ -41,7 +38,4 @@ public class PhenotypeAnnotation implements Comparable<PhenotypeAnnotation> {
         return 0;
     }
 
-    public String getGeneticEntity() {
-        return allele != null ? "allele" : "gene";
-    }
 }

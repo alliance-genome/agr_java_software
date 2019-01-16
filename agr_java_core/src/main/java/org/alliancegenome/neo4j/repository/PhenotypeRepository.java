@@ -102,6 +102,7 @@ public class PhenotypeRepository extends Neo4jRepository<Phenotype> {
         cypher += "return distinct phenotype.phenotypeStatement as phenotype, " +
                 "       feature.symbol, " +
                 "       feature as feature, " +
+                "       gene as gene, " +
                 "       collect(crossReference) as crossReferences, " +
                 "       collect(publication.pubMedId), " +
                 "       collect(publication) as publications, " +

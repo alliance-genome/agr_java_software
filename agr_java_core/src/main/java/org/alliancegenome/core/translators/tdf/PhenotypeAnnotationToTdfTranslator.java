@@ -2,6 +2,7 @@ package org.alliancegenome.core.translators.tdf;
 
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
+import org.alliancegenome.neo4j.entity.node.GeneticEntity;
 
 import java.util.List;
 import java.util.StringJoiner;
@@ -22,9 +23,9 @@ public class PhenotypeAnnotationToTdfTranslator {
         annotations.forEach(annotation -> {
             StringJoiner joiner = new StringJoiner("\t");
             joiner.add(annotation.getPhenotype());
-            if (annotation.getAllele() != null) {
-                joiner.add(annotation.getAllele().getPrimaryKey());
-                joiner.add(annotation.getAllele().getSymbol());
+            if (annotation.getGeneticEntity().getType().equals(GeneticEntity.Type.ALLELE)) {
+                joiner.add(annotation.getGeneticEntity().getPrimaryKey());
+                joiner.add(annotation.getGeneticEntity().getSymbol());
                 joiner.add("allele");
             } else {
                 joiner.add("");
