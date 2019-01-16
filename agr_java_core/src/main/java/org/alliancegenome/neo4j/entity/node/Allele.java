@@ -12,6 +12,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import org.alliancegenome.es.util.DateConverter;
 import org.alliancegenome.neo4j.entity.Neo4jEntity;
+import org.alliancegenome.neo4j.entity.node.GeneticEntity.Type;
 import org.alliancegenome.neo4j.view.View;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
@@ -25,6 +26,10 @@ import lombok.Setter;
 @Setter
 public class Allele extends GeneticEntity implements Comparable<Allele> {
 
+    public Allele() {
+        this.type = Type.ALLELE;
+    }
+    
     @Convert(value = DateConverter.class)
     private Date dateProduced;
     private String release;

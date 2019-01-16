@@ -20,6 +20,10 @@ import java.util.*;
 @Setter
 public class Gene extends GeneticEntity implements Comparable<Gene> {
 
+    public Gene() {
+        this.type = Type.GENE;
+    }
+    
     @JsonView({View.Orthology.class, View.Expression.class})
     private String taxonId;
 
