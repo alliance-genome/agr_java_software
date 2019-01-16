@@ -2,9 +2,7 @@ package org.alliancegenome.es.index.site.dao;
 
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.service.JsonResultResponse;
-import org.alliancegenome.core.translators.document.AlleleTranslator;
 import org.alliancegenome.es.index.ESDAO;
-import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.es.model.search.SearchApiResponse;
 import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
@@ -20,10 +18,8 @@ import org.elasticsearch.index.query.*;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.neo4j.ogm.model.Result;
 
-import java.lang.reflect.Type;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -34,8 +30,6 @@ public class GeneDAO extends ESDAO {
 
     private GeneRepository geneRepository = new GeneRepository();
     private PhenotypeRepository phenotypeRepository = new PhenotypeRepository();
-
-    private AlleleTranslator alleleTranslator = new AlleleTranslator();
 
     public Map<String, Object> getById(String id) {
         try {
@@ -124,10 +118,14 @@ public class GeneDAO extends ESDAO {
                 List<CrossReference> ref = (List<CrossReference>) objectMap.get("crossReferences");
                 allele.setCrossReferences(ref);
                 allele.setType(GeneticEntity.Type.ALLELE);
+                allele.setSpecies((Species) objectMap.get("featureSpecies"));
                 document.setGeneticEntity(allele);
-            } else { // must be a gene for now as we only have feature or gene
+            } else { // must be a gene for now as we only have features or genes
                 Gene gene = (Gene) objectMap.get("gene");
                 gene.setType(GeneticEntity.Type.GENE);
+                gene.setSpecies((Species) objectMap.get("geneSpecies"));
+                List<CrossReference> ref = (List<CrossReference>) objectMap.get("geneCrossReferences");
+                gene.setCrossReferences(ref);
                 document.setGeneticEntity(gene);
             }
             document.setPublications((List<Publication>) objectMap.get("publications"));
@@ -135,14 +133,6 @@ public class GeneDAO extends ESDAO {
         });
 
         return annotationDocuments;
-    }
-
-
-    private static Map<FieldFilter, String> diseaseFieldFilterSortingMap = new HashMap<>(10);
-
-    static {
-        diseaseFieldFilterSortingMap.put(FieldFilter.PHENOTYPE, "phenotype.sort");
-        diseaseFieldFilterSortingMap.put(FieldFilter.GENETIC_ENTITY, "alleleDocument.symbol.sort");
     }
 
 }

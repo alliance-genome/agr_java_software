@@ -75,9 +75,6 @@ public class Allele extends GeneticEntity implements Comparable<Allele> {
     @Relationship(type = "HAS_PHENOTYPE")
     private List<Phenotype> phenotypes = new ArrayList<>();
 
-    @Relationship(type = "CROSS_REFERENCE")
-    private List<CrossReference> crossReferences = new ArrayList<>();
-
     @Override
     public int compareTo(Allele o) {
         return 0;

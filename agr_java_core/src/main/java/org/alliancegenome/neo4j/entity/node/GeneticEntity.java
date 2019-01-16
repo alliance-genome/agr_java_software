@@ -35,7 +35,7 @@ public class GeneticEntity extends Neo4jEntity {
 
     @JsonView({View.Default.class, View.Phenotype.class})
     @Relationship(type = "FROM_SPECIES")
-    private Species species;
+    protected Species species;
 
     @Relationship(type = "CROSS_REFERENCE")
     private List<CrossReference> crossReferences = new ArrayList<>();
@@ -46,7 +46,6 @@ public class GeneticEntity extends Neo4jEntity {
         Map<String, Object> map = new HashMap<>();
 
         List<CrossReference> othersList = new ArrayList<>();
-        map.put("other", othersList);
         for (CrossReference cr : crossReferences) {
             String typeName = type.displayName;
             if (cr.getCrossRefType().startsWith(typeName + "/")) {
@@ -56,6 +55,7 @@ public class GeneticEntity extends Neo4jEntity {
                 map.put("primary", cr);
             } else if (cr.getCrossRefType().equals("generic_cross_reference")) {
                 othersList.add(cr);
+                map.put("other", othersList);
             }
         }
         return map;

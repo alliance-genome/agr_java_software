@@ -66,13 +66,15 @@ public class PhenotypeRepository extends Neo4jRepository<Phenotype> {
         bindingValueMap.put("geneID", geneID);
 
         String cypher = "MATCH p0=(phenotype:Phenotype)--(phenotypeEntityJoin:PhenotypeEntityJoin)-[:EVIDENCE]-(publication:Publication), " +
-                "        p2=(phenotypeEntityJoin)--(gene:Gene)-[:FROM_SPECIES]-(species:Species) ";
+                "        p2=(phenotypeEntityJoin)--(gene:Gene)-[:FROM_SPECIES]-(geneSpecies:Species), p2a=(gene)--(geneCrossReference:CrossReference) ";
 
-        String cypherFeatureOptional = "OPTIONAL MATCH p4=(phenotypeEntityJoin)--(feature:Feature)--(crossReference:CrossReference) ";
+        String cypherFeatureOptional = "OPTIONAL MATCH p4=(phenotypeEntityJoin)--(feature:Feature)--(crossReference:CrossReference), " +
+                "featSpecies=(feature)-[:FROM_SPECIES]-(featureSpecies:Species) ";
         String entityType = pagination.getFieldFilterValueMap().get(FieldFilter.GENETIC_ENTITY_TYPE);
         if (entityType != null && entityType.equals("allele")) {
-            cypher += ", p4=(phenotypeEntityJoin)--(feature:Feature)--(crossReference:CrossReference) ";
-            cypherFeatureOptional = "";
+            cypher += ", p4=(phenotypeEntityJoin)--(feature:Feature)--(crossReference:CrossReference), " +
+                    "featSpecies=(feature)-[:FROM_SPECIES]-(featureSpecies:Species) ";
+                    cypherFeatureOptional = "";
         }
         String cypherWhereClause = "        where gene.primaryKey = {geneID} ";
         if (entityType != null && entityType.equals("gene")) {
@@ -93,7 +95,8 @@ public class PhenotypeRepository extends Neo4jRepository<Phenotype> {
         if (geneticEntityFilterClause != null) {
             cypherWhereClause += geneticEntityFilterClause;
             bindingValueMap.put("feature", pagination.getFieldFilterValueMap().get(FieldFilter.GENETIC_ENTITY));
-            cypher += ", p4=(phenotypeEntityJoin)--(feature:Feature)--(crossReference:CrossReference) ";
+            cypher += ", p4=(phenotypeEntityJoin)--(feature:Feature)--(crossReference:CrossReference), " +
+                    "featSpecies=(feature)-[:FROM_SPECIES]-(featureSpecies:Species) ";
         }
         cypher += cypherWhereClause;
         if (geneticEntityFilterClause == null) {
@@ -103,6 +106,9 @@ public class PhenotypeRepository extends Neo4jRepository<Phenotype> {
                 "       feature.symbol, " +
                 "       feature as feature, " +
                 "       gene as gene, " +
+                "       geneSpecies as geneSpecies, " +
+                "       featureSpecies as featureSpecies, " +
+                "       collect(geneCrossReference) as geneCrossReferences, " +
                 "       collect(crossReference) as crossReferences, " +
                 "       collect(publication.pubMedId), " +
                 "       collect(publication) as publications, " +
@@ -173,7 +179,8 @@ public class PhenotypeRepository extends Neo4jRepository<Phenotype> {
                     return featurePhenotype;
                 case "gene":
                     return featureLessPhenotype;
-                default: break;
+                default:
+                    break;
             }
         }
         return featureLessPhenotype + featurePhenotype;

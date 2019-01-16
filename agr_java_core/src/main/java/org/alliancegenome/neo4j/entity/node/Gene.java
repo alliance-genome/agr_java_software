@@ -54,10 +54,6 @@ public class Gene extends GeneticEntity implements Comparable<Gene> {
     @JsonView(value = {View.GeneAPI.class})
     private SOTerm soTerm;
 
-    @Relationship(type = "FROM_SPECIES")
-    @JsonView(value = {View.GeneAPI.class})
-    private Species species;
-
     @Relationship(type = "ALSO_KNOWN_AS")
     private Set<Synonym> synonyms = new HashSet<>();
 
