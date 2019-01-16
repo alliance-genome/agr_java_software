@@ -2,7 +2,12 @@ package org.alliancegenome.es.index.site.schema;
 
 import java.io.IOException;
 
-import org.alliancegenome.es.index.site.schema.mapping.*;
+import org.alliancegenome.es.index.site.schema.mapping.AlleleMapping;
+import org.alliancegenome.es.index.site.schema.mapping.DiseaseAnnotationMapping;
+import org.alliancegenome.es.index.site.schema.mapping.DiseaseMapping;
+import org.alliancegenome.es.index.site.schema.mapping.GeneMapping;
+import org.alliancegenome.es.index.site.schema.mapping.GoMapping;
+import org.alliancegenome.es.index.site.schema.mapping.PhenotypeAnnotationMapping;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 
 public abstract class Mapping extends Builder {

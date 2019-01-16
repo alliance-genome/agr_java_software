@@ -47,7 +47,7 @@ public class DiseaseController extends BaseController implements DiseaseRESTInte
             } catch (Exception ignored) {
             }
             SearchApiResponse searchResponse = new SearchApiResponse();
-            searchResponse.errorMessages = pagination.getErrorList();
+            searchResponse.setErrorMessages(pagination.getErrorList());
             return searchResponse;
         }
         return diseaseService.getDiseaseAnnotations(id, pagination);

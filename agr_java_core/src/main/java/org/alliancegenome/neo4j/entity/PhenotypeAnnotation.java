@@ -3,8 +3,6 @@ package org.alliancegenome.neo4j.entity;
 import java.util.List;
 
 import org.alliancegenome.es.index.site.doclet.SourceDoclet;
-import org.alliancegenome.neo4j.entity.node.Allele;
-import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.entity.node.GeneticEntity;
 import org.alliancegenome.neo4j.entity.node.Publication;
 import org.alliancegenome.neo4j.view.View;

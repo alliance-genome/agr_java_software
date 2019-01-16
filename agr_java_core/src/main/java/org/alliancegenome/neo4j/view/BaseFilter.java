@@ -1,10 +1,11 @@
 package org.alliancegenome.neo4j.view;
 
-import lombok.Getter;
-import lombok.Setter;
+import java.util.HashMap;
+
 import org.alliancegenome.es.model.query.FieldFilter;
 
-import java.util.HashMap;
+import lombok.Getter;
+import lombok.Setter;
 
 @Setter
 @Getter

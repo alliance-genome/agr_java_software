@@ -2,11 +2,12 @@ package org.alliancegenome.es.index.site.doclet;
 
 import java.util.Set;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonView;
 import org.alliancegenome.es.index.ESDoclet;
 import org.alliancegenome.neo4j.view.View;
 import org.apache.commons.lang3.StringUtils;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonView;
 
 import lombok.Getter;
 import lombok.Setter;

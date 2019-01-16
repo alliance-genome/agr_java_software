@@ -1,31 +1,26 @@
 package org.alliancegenome.neo4j.entity.node;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonView;
-import lombok.Getter;
-import lombok.Setter;
-import org.alliancegenome.neo4j.entity.Neo4jEntity;
-import org.alliancegenome.neo4j.view.View;
-import org.neo4j.ogm.annotation.NodeEntity;
-import org.neo4j.ogm.annotation.Relationship;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.alliancegenome.neo4j.entity.Neo4jEntity;
+import org.alliancegenome.neo4j.view.View;
+import org.neo4j.ogm.annotation.NodeEntity;
+import org.neo4j.ogm.annotation.Relationship;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonView;
+
+import lombok.Getter;
+import lombok.Setter;
+
 @NodeEntity
-@Getter
+@Getter @Setter
 public class GeneticEntity extends Neo4jEntity {
-
-    // Only for manual construction (Neo needs to use the no-args constructor)
-    public GeneticEntity(String primaryKey, Type type) {
-        this.primaryKey = primaryKey;
-        this.type = type;
-    }
-
-    public GeneticEntity() {
-    }
+    
+    protected Type type;
 
     @JsonView({View.Default.class, View.Phenotype.class})
     @JsonProperty(value = "id")
@@ -40,7 +35,16 @@ public class GeneticEntity extends Neo4jEntity {
     @Relationship(type = "CROSS_REFERENCE")
     private List<CrossReference> crossReferences = new ArrayList<>();
 
-    @JsonView({View.Default.class, View.Phenotype.class})
+    // Only for manual construction (Neo needs to use the no-args constructor)
+    public GeneticEntity(String primaryKey, Type type) {
+        this.primaryKey = primaryKey;
+        this.type = type;
+    }
+
+    public GeneticEntity() {
+    }
+    
+    @JsonView({View.API.class, View.Phenotype.class})
     @JsonProperty(value = "crossReferences")
     public Map<String, Object> getCrossReferenceMap() {
         Map<String, Object> map = new HashMap<>();
@@ -61,28 +65,10 @@ public class GeneticEntity extends Neo4jEntity {
         return map;
     }
 
-    protected Type type;
-
-    @JsonView({View.Default.class, View.Phenotype.class})
+    @JsonView({View.Phenotype.class})
     @JsonProperty(value = "type")
-    public String getType(){
+    public String getType() {
         return type.displayName;
-    }
-
-    public void setType(Type type) {
-        this.type = type;
-    }
-
-    public void setSymbol(String symbol) {
-        this.symbol = symbol;
-    }
-
-    public void setSpecies(Species species) {
-        this.species = species;
-    }
-
-    public void setCrossReferences(List<CrossReference> crossReferences) {
-        this.crossReferences = crossReferences;
     }
 
     public enum Type {

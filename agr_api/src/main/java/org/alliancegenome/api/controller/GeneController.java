@@ -1,6 +1,15 @@
 package org.alliancegenome.api.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+
 import org.alliancegenome.api.rest.interfaces.GeneRESTInterface;
 import org.alliancegenome.api.service.ExpressionService;
 import org.alliancegenome.api.service.GeneService;
@@ -18,30 +27,24 @@ import org.alliancegenome.neo4j.view.OrthologView;
 import org.alliancegenome.neo4j.view.OrthologyFilter;
 import org.apache.commons.collections.CollectionUtils;
 
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 @RequestScoped
 public class GeneController extends BaseController implements GeneRESTInterface {
 
     @Inject
     private GeneService geneService;
+    
     private final PhenotypeAnnotationToTdfTranslator translator = new PhenotypeAnnotationToTdfTranslator();
 
     @Override
     public Gene getGene(String id) {
         return geneService.getById(id);
     }
-
+    
     @Override
-    public JsonResultResponse<Allele> getAllelesPerGene(String id) {
-        return geneService.getAlleles(id);
+    public JsonResultResponse<Allele> getAllelesPerGene(String id, int limit, int page, String sortBy, String asc) {
+        return geneService.getAlleles(id, limit, page, sortBy, asc);
     }
 
     @Override
@@ -50,15 +53,7 @@ public class GeneController extends BaseController implements GeneRESTInterface 
     }
 
     @Override
-    public JsonResultResponse<PhenotypeAnnotation> getPhenotypeAnnotations(String id,
-                                          int limit,
-                                          int page,
-                                          String sortBy,
-                                          String geneticEntity,
-                                          String geneticEntityType,
-                                          String phenotype,
-                                          String reference,
-                                          String asc) throws JsonProcessingException {
+    public JsonResultResponse<PhenotypeAnnotation> getPhenotypeAnnotations(String id, int limit, int page, String sortBy, String geneticEntity, String geneticEntityType, String phenotype, String reference, String asc) throws JsonProcessingException {
         return getPhenotypeAnnotationDocumentJsonResultResponse(id, limit, page, sortBy, geneticEntity, geneticEntityType, phenotype, reference, asc);
     }
 

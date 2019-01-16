@@ -15,7 +15,6 @@ import javax.ws.rs.core.Response;
 
 import org.alliancegenome.api.service.helper.ExpressionSummary;
 import org.alliancegenome.core.service.JsonResultResponse;
-import org.alliancegenome.es.model.search.SearchApiResponse;
 import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.Gene;
@@ -53,7 +52,15 @@ public interface GeneRESTInterface {
     @JsonView(value={GeneAllelesAPI.class})
     JsonResultResponse<Allele> getAllelesPerGene(
             @ApiParam(name = "id", value = "Search for Alleles for a given Gene by ID")
-            @PathParam("id") String id
+            @PathParam("id") String id,
+            @ApiParam(name = "limit", value = "Number of rows returned", defaultValue = "20")
+            @DefaultValue("20") @QueryParam("limit") int limit,
+            @ApiParam(name = "page", value = "Page number")
+            @DefaultValue("1") @QueryParam("page") int page,
+            @ApiParam(value = "Field name by which to sort", allowableValues = "symbol,name")
+            @DefaultValue("symbol") @QueryParam("sortBy") String sortBy,
+            @ApiParam(value = "ascending order: true or false", allowableValues = "true,false", defaultValue = "true")
+            @QueryParam("asc") String asc
     );
 
     @GET

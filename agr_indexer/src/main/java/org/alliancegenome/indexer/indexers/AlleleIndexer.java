@@ -1,5 +1,10 @@
 package org.alliancegenome.indexer.indexers;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.stream.Collectors;
+
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.translators.document.AlleleTranslator;
 import org.alliancegenome.es.index.site.cache.AlleleDocumentCache;
@@ -7,15 +12,8 @@ import org.alliancegenome.es.index.site.document.AlleleDocument;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.repository.AlleleIndexerRepository;
-import org.alliancegenome.neo4j.repository.AlleleRepository;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.LinkedBlockingDeque;
-import java.util.stream.Collectors;
 
 public class AlleleIndexer extends Indexer<AlleleDocument> {
 

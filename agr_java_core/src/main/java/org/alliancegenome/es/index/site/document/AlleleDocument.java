@@ -1,13 +1,15 @@
 package org.alliancegenome.es.index.site.document;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.Getter;
-import lombok.Setter;
-import org.alliancegenome.es.index.site.doclet.CrossReferenceDoclet;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import org.alliancegenome.es.index.site.doclet.CrossReferenceDoclet;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 @Setter

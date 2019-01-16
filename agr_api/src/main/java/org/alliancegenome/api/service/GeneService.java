@@ -31,12 +31,15 @@ public class GeneService {
         return gene;
     }
 
-    public JsonResultResponse<Allele> getAlleles(String id) {
+    public JsonResultResponse<Allele> getAlleles(String id, int limit, int page, String sortBy, String asc) {
         JsonResultResponse<Allele> ret = new JsonResultResponse<Allele>();
+        Pagination pagination = new Pagination(page, limit, sortBy, asc);
+        //return geneService.getPhenotypeAnnotations(id, pagination);
+        
         ret.setResults(geneRepo.getAlleles(id));
         return ret;
     }
-
+    
     public JsonResultResponse<PhenotypeAnnotation> getPhenotypeAnnotations(String id, Pagination pagination) throws JsonProcessingException {
         return geneDAO.getPhenotypeAnnotations(id, pagination);
     }
@@ -46,6 +49,5 @@ public class GeneService {
         ret.setResults(interRepo.getInteractions(id));
         return ret;
     }
-
 
 }

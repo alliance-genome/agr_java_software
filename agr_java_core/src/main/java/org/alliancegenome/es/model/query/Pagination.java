@@ -1,11 +1,14 @@
 package org.alliancegenome.es.model.query;
 
-import lombok.Getter;
-import lombok.Setter;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.StringJoiner;
+
 import org.alliancegenome.neo4j.view.BaseFilter;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.*;
+import lombok.Getter;
+import lombok.Setter;
 
 @Setter
 @Getter

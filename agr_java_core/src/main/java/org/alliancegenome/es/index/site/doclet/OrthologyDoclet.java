@@ -2,13 +2,14 @@ package org.alliancegenome.es.index.site.doclet;
 
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonView;
 import org.alliancegenome.es.index.ESDoclet;
+import org.alliancegenome.neo4j.view.View;
+
+import com.fasterxml.jackson.annotation.JsonView;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
-import org.alliancegenome.neo4j.view.View;
 
 @Getter @Setter @AllArgsConstructor
 public class OrthologyDoclet extends ESDoclet {

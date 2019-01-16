@@ -1,5 +1,10 @@
 package org.alliancegenome.indexer.indexers;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.stream.Collectors;
+
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.translators.document.GeneTranslator;
 import org.alliancegenome.es.index.site.cache.GeneDocumentCache;
@@ -10,11 +15,6 @@ import org.alliancegenome.neo4j.repository.GeneIndexerRepository;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.LinkedBlockingDeque;
-import java.util.stream.Collectors;
 
 public class GeneIndexer extends Indexer<GeneDocument> {
 

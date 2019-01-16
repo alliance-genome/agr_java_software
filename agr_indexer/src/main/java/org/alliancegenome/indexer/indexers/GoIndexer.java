@@ -1,5 +1,8 @@
 package org.alliancegenome.indexer.indexers;
 
+import java.util.List;
+import java.util.concurrent.LinkedBlockingDeque;
+
 import org.alliancegenome.core.translators.document.GoTranslator;
 import org.alliancegenome.es.index.site.document.GoDocument;
 import org.alliancegenome.indexer.config.IndexerConfig;
@@ -7,10 +10,6 @@ import org.alliancegenome.neo4j.entity.node.GOTerm;
 import org.alliancegenome.neo4j.repository.GoRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.LinkedBlockingDeque;
 
 public class GoIndexer extends Indexer<GoDocument> {
 

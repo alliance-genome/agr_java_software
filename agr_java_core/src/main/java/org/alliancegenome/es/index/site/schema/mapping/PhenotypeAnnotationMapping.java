@@ -1,8 +1,8 @@
  package org.alliancegenome.es.index.site.schema.mapping;
 
-import org.alliancegenome.es.index.site.schema.Mapping;
-
 import java.io.IOException;
+
+import org.alliancegenome.es.index.site.schema.Mapping;
 
 public class PhenotypeAnnotationMapping extends Mapping {
 

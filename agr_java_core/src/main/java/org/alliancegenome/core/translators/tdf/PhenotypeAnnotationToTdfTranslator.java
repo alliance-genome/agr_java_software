@@ -1,11 +1,11 @@
 package org.alliancegenome.core.translators.tdf;
 
+import java.util.List;
+import java.util.StringJoiner;
+
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
 import org.alliancegenome.neo4j.entity.node.GeneticEntity;
-
-import java.util.List;
-import java.util.StringJoiner;
 
 public class PhenotypeAnnotationToTdfTranslator {
 

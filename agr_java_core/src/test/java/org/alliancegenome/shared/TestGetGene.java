@@ -1,6 +1,9 @@
 package org.alliancegenome.shared;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import static org.junit.Assert.assertNotNull;
+
+import java.util.Map;
+
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.es.index.site.dao.DiseaseDAO;
 import org.alliancegenome.es.index.site.dao.GeneDAO;
@@ -11,9 +14,7 @@ import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.config.Configurator;
 
-import java.util.Map;
-
-import static org.junit.Assert.assertNotNull;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 public class TestGetGene {
 
@@ -40,9 +41,9 @@ public class TestGetGene {
         //pagination.addFieldFilter(FieldFilter.EVIDENCE_CODE, "TA");
         pagination.addFieldFilter(FieldFilter.GENETIC_ENTITY_TYPE, "allel");
         SearchApiResponse response = service.getDiseaseAnnotations("DOID:655", pagination);
-        System.out.println("Result size: " + response.results.size());
-        if (response.results != null) {
-            response.results.forEach(entry -> {
+        System.out.println("Result size: " + response.getResults().size());
+        if (response.getResults() != null) {
+            response.getResults().forEach(entry -> {
                 Map<String, Object> map1 = (Map<String, Object>) entry.get("geneDocument");
                 if (map1 != null)
                     System.out.println(entry.get("diseaseID") + "\t" + entry.get("diseaseName") + ": " + "\t" + map1.get("species") + ": " + map1.get("symbol") + ": " + map1.get("primaryId")+ ": " + map1.get("associationType"));

@@ -79,8 +79,8 @@ public class ESDAO {
         org.elasticsearch.action.search.SearchResponse response = searchRequestBuilder.execute().actionGet();
         SearchApiResponse result = new SearchApiResponse();
 
-        result.total = response.getHits().totalHits;
-        result.results = formatResults(response);
+        result.setTotal(response.getHits().totalHits);
+        result.setResults(formatResults(response));
         return result;
     }
 

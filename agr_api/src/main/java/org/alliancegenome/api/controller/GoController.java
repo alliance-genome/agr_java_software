@@ -4,7 +4,6 @@ import java.util.Map;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
-import javax.ws.rs.NotFoundException;
 
 import org.alliancegenome.api.rest.interfaces.GoRESTInterface;
 import org.alliancegenome.api.service.GoService;

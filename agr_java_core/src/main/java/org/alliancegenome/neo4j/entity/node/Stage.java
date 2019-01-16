@@ -1,20 +1,16 @@
 package org.alliancegenome.neo4j.entity.node;
 
+import java.util.Objects;
+
+import org.alliancegenome.neo4j.entity.Neo4jEntity;
+import org.alliancegenome.neo4j.view.View;
+import org.neo4j.ogm.annotation.NodeEntity;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
+
 import lombok.Getter;
 import lombok.Setter;
-import org.alliancegenome.es.util.DateConverter;
-import org.alliancegenome.neo4j.entity.Neo4jEntity;
-import org.alliancegenome.neo4j.entity.relationship.GenomeLocation;
-import org.alliancegenome.neo4j.entity.relationship.Orthologous;
-import org.alliancegenome.neo4j.view.View;
-import org.apache.commons.collections4.CollectionUtils;
-import org.neo4j.ogm.annotation.NodeEntity;
-import org.neo4j.ogm.annotation.Relationship;
-import org.neo4j.ogm.annotation.typeconversion.Convert;
-
-import java.util.*;
 
 @NodeEntity
 @Getter

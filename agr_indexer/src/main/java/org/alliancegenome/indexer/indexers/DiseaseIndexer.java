@@ -1,5 +1,9 @@
 package org.alliancegenome.indexer.indexers;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.LinkedBlockingDeque;
+
 import org.alliancegenome.core.translators.document.DiseaseTranslator;
 import org.alliancegenome.es.index.site.document.DiseaseDocument;
 import org.alliancegenome.indexer.config.IndexerConfig;
@@ -7,10 +11,6 @@ import org.alliancegenome.neo4j.entity.node.DOTerm;
 import org.alliancegenome.neo4j.repository.DiseaseRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.LinkedBlockingDeque;
 
 public class DiseaseIndexer extends Indexer<DiseaseDocument> {
 

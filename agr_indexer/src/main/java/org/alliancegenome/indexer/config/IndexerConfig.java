@@ -1,6 +1,10 @@
 package org.alliancegenome.indexer.config;
 
-import org.alliancegenome.indexer.indexers.*;
+import org.alliancegenome.indexer.indexers.AlleleIndexer;
+import org.alliancegenome.indexer.indexers.DiseaseAnnotationIndexer;
+import org.alliancegenome.indexer.indexers.DiseaseIndexer;
+import org.alliancegenome.indexer.indexers.GeneIndexer;
+import org.alliancegenome.indexer.indexers.GoIndexer;
 
 public enum IndexerConfig {
 

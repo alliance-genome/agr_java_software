@@ -1,13 +1,14 @@
 package org.alliancegenome.neo4j.repository;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
 import org.alliancegenome.es.index.site.cache.GeneDocumentCache;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.neo4j.ogm.model.Result;
-
-import java.util.*;
 
 public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
 
