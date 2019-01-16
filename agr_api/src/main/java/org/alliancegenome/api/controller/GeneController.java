@@ -1,15 +1,6 @@
 package org.alliancegenome.api.controller;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.alliancegenome.api.rest.interfaces.GeneRESTInterface;
 import org.alliancegenome.api.service.ExpressionService;
 import org.alliancegenome.api.service.GeneService;
@@ -21,15 +12,20 @@ import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
 import org.alliancegenome.neo4j.entity.node.Allele;
-import org.alliancegenome.neo4j.entity.node.BioEntityGeneExpressionJoin;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
-import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.alliancegenome.neo4j.view.OrthologView;
 import org.alliancegenome.neo4j.view.OrthologyFilter;
 import org.apache.commons.collections.CollectionUtils;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 @RequestScoped
 public class GeneController extends BaseController implements GeneRESTInterface {
@@ -104,7 +100,6 @@ public class GeneController extends BaseController implements GeneRESTInterface 
                                    Integer rows,
                                    Integer start) throws IOException {
 
-        GeneRepository repo = new GeneRepository();
         List<String> geneList = new ArrayList<>();
         if (id != null) {
             geneList.add(id);
@@ -116,22 +111,19 @@ public class GeneController extends BaseController implements GeneRESTInterface 
         if (CollectionUtils.isNotEmpty(geneIDs)) {
             geneList.addAll(geneIDs);
         }
-        List<Gene> genes = repo.getOrthologyGenes(geneList);
         OrthologyFilter orthologyFilter = new OrthologyFilter(stringencyFilter, taxonIDs, methods);
         if (rows != null && rows > 0) {
             orthologyFilter.setRows(rows);
         }
         orthologyFilter.setStart(start);
-        return OrthologyService.getOrthologyMultiGeneJson(genes, orthologyFilter);
+        return OrthologyService.getOrthologyMultiGeneJson(geneList, orthologyFilter);
     }
 
     @Override
     public ExpressionSummary getExpressionSummary(String id) throws JsonProcessingException {
 
-        GeneRepository geneRepository = new GeneRepository();
-        List<BioEntityGeneExpressionJoin> joins = geneRepository.getExpressionAnnotationSummary(id);
         ExpressionService service = new ExpressionService();
-        return service.getExpressionSummary(joins);
+        return service.getExpressionSummary(id);
     }
 
 }

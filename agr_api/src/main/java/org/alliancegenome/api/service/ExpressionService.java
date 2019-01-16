@@ -111,7 +111,10 @@ public class ExpressionService {
                         groupingBy(join -> Optional.ofNullable(join.getStageTerm()), groupingBy(BioEntityGeneExpressionJoin::getAssay, toSet())))));
     }
 
-    public ExpressionSummary getExpressionSummary(List<BioEntityGeneExpressionJoin> joins) {
+    public ExpressionSummary getExpressionSummary(String id) {
+        GeneRepository geneRepository = new GeneRepository();
+        List<BioEntityGeneExpressionJoin> joins = geneRepository.getExpressionAnnotationSummary(id);
+
         if (joins == null)
             joins = new ArrayList<>();
         // group together records where only publication is different and treat them as a single record

@@ -10,13 +10,13 @@ import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.entity.node.OrthoAlgorithm;
 import org.alliancegenome.neo4j.entity.node.OrthologyGeneJoin;
 import org.alliancegenome.neo4j.entity.relationship.Orthologous;
+import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.alliancegenome.neo4j.view.OrthologView;
 import org.alliancegenome.neo4j.view.OrthologyFilter;
 import org.alliancegenome.neo4j.view.OrthologyModule;
 import org.alliancegenome.neo4j.view.View;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -100,7 +100,7 @@ public class OrthologyService {
     }
 
 
-    public static JsonResultResponse<OrthologView> getOrthologViewList(Gene gene, OrthologyFilter filter) {
+    private static JsonResultResponse<OrthologView> getOrthologViewList(Gene gene, OrthologyFilter filter) {
         JsonResultResponse<OrthologView> response = new JsonResultResponse<>();
         if (gene.getOrthologyGeneJoins().size() > 0) {
             List<OrthologView> orthologList = new ArrayList<>();
@@ -165,7 +165,10 @@ public class OrthologyService {
         return response;
     }
 
-    public static JsonResultResponse<OrthologView> getOrthologyMultiGeneJson(Collection<Gene> geneList, OrthologyFilter filter) {
+    public static JsonResultResponse<OrthologView> getOrthologyMultiGeneJson(List<String> geneIDs, OrthologyFilter filter) {
+        GeneRepository repo = new GeneRepository();
+        List<Gene> geneList = repo.getOrthologyGenes(geneIDs);
+
         List<Integer> sum = new ArrayList<>();
         List<OrthologView> orthologViewList =
                 geneList.stream()
