@@ -169,7 +169,9 @@ public class GeneDAO extends ESDAO {
                 feature.setCrossReferences(ref);
                 document.setFeature(feature);
             }
-            document.setPublications((List<Publication>) objectMap.get("publications"));
+            List<Publication> publicationList = (List<Publication>) objectMap.get("publications");
+            publicationList.sort(Comparator.naturalOrder());
+            document.setPublications(publicationList);
             annotationDocuments.add(document);
         });
 
