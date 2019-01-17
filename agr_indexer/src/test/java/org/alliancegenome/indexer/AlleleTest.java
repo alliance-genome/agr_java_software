@@ -1,24 +1,35 @@
 package org.alliancegenome.indexer;
 
-import org.alliancegenome.core.translators.document.AlleleTranslator;
-import org.alliancegenome.es.index.site.document.AlleleDocument;
+import java.util.List;
+
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.repository.AlleleRepository;
+import org.alliancegenome.neo4j.repository.GeneRepository;
+import org.alliancegenome.neo4j.view.View;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class AlleleTest {
 
     public static void main(String[] args) throws Exception {
+        GeneRepository geneRepo = new GeneRepository();
         AlleleRepository repo = new AlleleRepository();
-        AlleleTranslator trans = new AlleleTranslator();
 
-        Allele allele = repo.getAllele("MGI:2148259");
+        Allele allele = repo.getAllele("MGI:1857937");
 
-        AlleleDocument alleleDocument = trans.translate(allele);
 
         ObjectMapper mapper = new ObjectMapper();
-        String json = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(alleleDocument);
+        mapper.configure(MapperFeature.DEFAULT_VIEW_INCLUSION, false);
+        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        
+        String json = mapper.writerWithDefaultPrettyPrinter().withView(View.AlleleAPI.class).writeValueAsString(allele);
+        System.out.println(json);
+        
+        List<Allele> alleles = geneRepo.getAlleles("MGI:109583");
+        
+        json = mapper.writerWithDefaultPrettyPrinter().withView(View.GeneAllelesAPI.class).writeValueAsString(alleles);
         System.out.println(json);
     }
 }

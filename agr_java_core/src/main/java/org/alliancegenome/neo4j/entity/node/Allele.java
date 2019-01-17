@@ -32,7 +32,7 @@ public class Allele extends GeneticEntity implements Comparable<Allele> {
     private String release;
     private String localId;
     private String globalId;
-    @JsonView({View.AlleleAPI.class})
+    @JsonView({View.GeneAllelesAPI.class, View.AlleleAPI.class})
     @JsonProperty(value = "url")
     private String modCrossRefCompleteUrl;
 
@@ -40,7 +40,7 @@ public class Allele extends GeneticEntity implements Comparable<Allele> {
     private Set<Synonym> synonyms = new HashSet<>();
 
     // Converts the list of synonym objects to a list of strings
-    @JsonView(value = {View.AlleleAPI.class})
+    @JsonView(value = {View.GeneAllelesAPI.class, View.AlleleAPI.class})
     @JsonProperty(value = "synonyms")
     public List<String> getSynonymList() {
         List<String> list = new ArrayList<>();
@@ -54,7 +54,7 @@ public class Allele extends GeneticEntity implements Comparable<Allele> {
     private Set<SecondaryId> secondaryIds = new HashSet<>();
 
     // Converts the list of secondary ids objects to a list of strings
-    @JsonView(value = {View.GeneAPI.class})
+    @JsonView(value = {View.GeneAllelesAPI.class, View.AlleleAPI.class})
     @JsonProperty(value = "secondaryIds")
     public List<String> getSecondaryIdsList() {
         List<String> list = new ArrayList<>();
@@ -67,7 +67,7 @@ public class Allele extends GeneticEntity implements Comparable<Allele> {
     @Relationship(type = "IS_ALLELE_OF", direction = Relationship.OUTGOING)
     private Gene gene;
 
-    @JsonView({View.AlleleAPI.class})
+    @JsonView({View.GeneAllelesAPI.class, View.AlleleAPI.class})
     @Relationship(type = "IS_IMPLICATED_IN")
     private List<DOTerm> diseases = new ArrayList<>();
 
