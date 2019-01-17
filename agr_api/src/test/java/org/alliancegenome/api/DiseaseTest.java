@@ -100,7 +100,7 @@ public class DiseaseTest {
         assertThat(annotation.getAssociationType(), equalTo("is_implicated_in"));
         assertNotNull(annotation.getFeature());
         assertThat(annotation.getFeature().getSymbol(), equalTo("Pten<sup>tm1Hwu</sup>"));
-        assertThat(annotation.getPublications().stream().map(Publication::getPubId).collect(Collectors.joining()), equalTo("PMID:25533675PMID:19261747"));
+        assertThat(annotation.getPublications().stream().map(Publication::getPubId).collect(Collectors.joining()), equalTo("PMID:19261747PMID:25533675"));
 
         annotation = response.getResults().get(2);
         assertNull(annotation.getFeature());

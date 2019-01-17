@@ -16,6 +16,7 @@ import java.util.Map;
 
 @NodeEntity
 @Getter
+@Setter
 public class GeneticEntity extends Neo4jEntity {
 
     // Only for manual construction (Neo needs to use the no-args constructor)
@@ -63,30 +64,10 @@ public class GeneticEntity extends Neo4jEntity {
 
     protected Type type;
 
-    @JsonView({View.Default.class, View.Phenotype.class})
+    @JsonView({View.Phenotype.class})
     @JsonProperty(value = "type")
     public String getType(){
         return type.displayName;
-    }
-
-    public void setPrimaryKey(String primaryKey) {
-        this.primaryKey = primaryKey;
-    }
-
-    public void setType(Type type) {
-        this.type = type;
-    }
-
-    public void setSymbol(String symbol) {
-        this.symbol = symbol;
-    }
-
-    public void setSpecies(Species species) {
-        this.species = species;
-    }
-
-    public void setCrossReferences(List<CrossReference> crossReferences) {
-        this.crossReferences = crossReferences;
     }
 
     public enum Type {

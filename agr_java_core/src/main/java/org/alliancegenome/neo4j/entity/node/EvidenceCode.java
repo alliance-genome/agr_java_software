@@ -14,7 +14,7 @@ import lombok.Setter;
 public class EvidenceCode extends Neo4jEntity {
 
     private String primaryKey;
-    @JsonView({View.DefaultView.class})
+    @JsonView({View.Default.class})
     private String name;
 
     public String getName() {

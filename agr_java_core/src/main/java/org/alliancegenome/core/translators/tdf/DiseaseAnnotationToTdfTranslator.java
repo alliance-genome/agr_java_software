@@ -164,7 +164,7 @@ public class DiseaseAnnotationToTdfTranslator {
             joiner.add(diseaseAnnotation.getAssociationType());
             joiner.add(diseaseAnnotation.getOrthologyGene().getPrimaryKey());
             joiner.add(diseaseAnnotation.getOrthologyGene().getSymbol());
-            joiner.add(diseaseAnnotation.getOrthologyGene().getSpeciesName());
+            joiner.add(diseaseAnnotation.getOrthologyGene().getSpecies().getName());
 
             // evidence code list
             StringJoiner evidenceJoiner = new StringJoiner(",");

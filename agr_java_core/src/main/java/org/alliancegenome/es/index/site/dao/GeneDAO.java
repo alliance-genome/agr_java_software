@@ -119,12 +119,10 @@ public class GeneDAO extends ESDAO {
             if (allele != null) {
                 List<CrossReference> ref = (List<CrossReference>) objectMap.get("crossReferences");
                 allele.setCrossReferences(ref);
-                allele.setType(GeneticEntity.Type.ALLELE);
                 allele.setSpecies((Species) objectMap.get("featureSpecies"));
                 document.setGeneticEntity(allele);
             } else { // must be a gene for now as we only have features or genes
                 Gene gene = (Gene) objectMap.get("gene");
-                gene.setType(GeneticEntity.Type.GENE);
                 gene.setSpecies((Species) objectMap.get("geneSpecies"));
                 List<CrossReference> ref = (List<CrossReference>) objectMap.get("geneCrossReferences");
                 gene.setCrossReferences(ref);
