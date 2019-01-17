@@ -12,7 +12,6 @@ import java.util.Set;
 import javax.enterprise.context.RequestScoped;
 
 import org.alliancegenome.core.service.JsonResultResponse;
-import org.alliancegenome.es.index.site.dao.GeneDAO;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
@@ -41,7 +40,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 public class GeneService {
     
     private Log log = LogFactory.getLog(getClass());
-    private static GeneDAO geneDAO = new GeneDAO();
     private static GeneRepository geneRepo = new GeneRepository();
     private static InteractionRepository interRepo = new InteractionRepository();
     private static PhenotypeRepository phenoRepo = new PhenotypeRepository();

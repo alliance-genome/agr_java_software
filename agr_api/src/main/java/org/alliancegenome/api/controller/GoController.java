@@ -1,12 +1,11 @@
 package org.alliancegenome.api.controller;
 
-import java.util.Map;
-
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 
 import org.alliancegenome.api.rest.interfaces.GoRESTInterface;
 import org.alliancegenome.api.service.GoService;
+import org.alliancegenome.neo4j.entity.node.GOTerm;
 
 @RequestScoped
 public class GoController extends BaseController implements GoRESTInterface {
@@ -15,7 +14,7 @@ public class GoController extends BaseController implements GoRESTInterface {
     private GoService goService;
 
     @Override
-    public Map<String, Object> getGo(String id) {
+    public GOTerm getGo(String id) {
         return goService.getById(id);
     }
 

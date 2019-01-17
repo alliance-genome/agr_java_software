@@ -1,12 +1,9 @@
 package org.alliancegenome.shared;
 
-import static org.junit.Assert.assertNotNull;
-
 import java.util.Map;
 
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.es.index.site.dao.DiseaseDAO;
-import org.alliancegenome.es.index.site.dao.GeneDAO;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.es.model.search.SearchApiResponse;
@@ -18,12 +15,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 
 public class TestGetGene {
 
-    private GeneDAO geneService;
-
     public void before() {
         Configurator.setRootLevel(Level.WARN);
         ConfigHelper.init();
-        geneService = new GeneDAO();
     }
 
     public static void main(String[] args) throws JsonProcessingException {
@@ -70,8 +64,4 @@ public class TestGetGene {
 
     }
 
-    public void checkSecondaryId() {
-        Map<String, Object> result = geneService.getGeneBySecondary("ZFIN:ZDB-GENE-030131-3355");
-        assertNotNull(result);
-    }
 }

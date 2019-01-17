@@ -7,7 +7,6 @@ import static org.junit.Assert.assertThat;
 import org.alliancegenome.api.service.GeneService;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.service.JsonResultResponse;
-import org.alliancegenome.es.index.site.dao.GeneDAO;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
@@ -30,7 +29,6 @@ import io.swagger.annotations.ApiOperation;
 public class PhenotypeTest {
 
     private ObjectMapper mapper = new ObjectMapper();
-    private GeneDAO geneDAO = new GeneDAO();
     private GeneService geneService;
     
     @ApiOperation(value = "Retrieve a Gene for given ID")
@@ -46,9 +44,6 @@ public class PhenotypeTest {
         Annotation[] annotations = method.getDeclaredAnnotations();
 */
 
-        GeneDAO service = new GeneDAO();
-
-        service.init();
         System.out.println("Number of Diseases with Genes Info: ");
     }
 
