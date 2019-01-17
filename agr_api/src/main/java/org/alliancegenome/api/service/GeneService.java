@@ -55,7 +55,6 @@ public class GeneService {
         Gene gene = geneRepo.getOneGene(id);
         // if not found directly check if it is a secondary id on a different gene
         if (gene == null) {
-            // TODO implement this method to return something other then null
             return geneRepo.getGeneBySecondary(id);
         }
         return gene;
