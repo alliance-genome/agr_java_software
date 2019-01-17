@@ -14,8 +14,8 @@ import lombok.Setter;
 @Getter
 public class Pagination {
 
-    private int page;
-    private int limit;
+    private Integer page;
+    private Integer limit;
     private String sortBy;
     private FieldFilter sortByField;
     private Boolean asc;
@@ -23,7 +23,8 @@ public class Pagination {
     private List<String> errorList = new ArrayList<>();
 
     private boolean isCount = false;
-    public Pagination(int page, int limit, String sortBy, String asc) {
+
+    public Pagination(Integer page, Integer limit, String sortBy, String asc) {
         this.page = page;
         this.limit = limit;
         this.sortBy = sortBy;
@@ -35,16 +36,11 @@ public class Pagination {
         isCount = true;
     }
 
-    public boolean isCountPagination(){
+    public boolean isCountPagination() {
         return isCount;
     }
 
     private void init(String asc) {
-        if (page < 1)
-            errorList.add("Invalid 'page' value. Needs to be greater or equal than 1");
-        if (limit < 1)
-            errorList.add("Invalid 'limit' value. Needs to be greater or equal than 1");
-
         if (asc == null) {
             this.asc = true;
         } else {
@@ -87,6 +83,8 @@ public class Pagination {
     }
 
     public int getStart() {
+        if (page == null || limit == null)
+            return 0;
         return (page - 1) * limit;
     }
 

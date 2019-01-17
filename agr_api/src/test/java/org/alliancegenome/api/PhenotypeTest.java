@@ -70,9 +70,11 @@ public class PhenotypeTest {
     public void checkPhenotypeByGeneWithoutPagination() throws JsonProcessingException {
         Pagination pagination = new Pagination(1, 100, null, null);
         // mkks
-        //String geneID = "ZFIN:ZDB-GENE-040426-757";
-        String geneID = "MGI:109583";
+
+        String geneID = "ZFIN:ZDB-GENE-040426-757";
+        //String geneID = "MGI:109583";
         JsonResultResponse<PhenotypeAnnotation> response = geneService.getPhenotypeAnnotations(geneID, pagination);
+
         assertResponse(response, 19, 19);
 
         // 5 annotations with different orthology geneMap

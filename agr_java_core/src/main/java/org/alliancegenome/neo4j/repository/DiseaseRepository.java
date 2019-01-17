@@ -8,7 +8,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.alliancegenome.es.model.query.FieldFilter;
+import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.node.DOTerm;
+import org.alliancegenome.neo4j.view.BaseFilter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.neo4j.ogm.model.Result;
@@ -16,7 +19,8 @@ import org.neo4j.ogm.model.Result;
 public class DiseaseRepository extends Neo4jRepository<DOTerm> {
 
     private Logger log = LogManager.getLogger(getClass());
-    
+    public static final String TOTAL_COUNT = "totalCount";
+
     public DiseaseRepository() {
         super(DOTerm.class);
     }
@@ -175,5 +179,206 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
         primaryTerm.getHighLevelTermList().addAll(highLevelTermList);
         return primaryTerm;
     }
-    
+
+    public Result getDiseaseAssociation(String geneID, Pagination pagination, boolean diseaseViaEmpiricalData) {
+        HashMap<String, String> bindingValueMap = new HashMap<>();
+        bindingValueMap.put("geneID", geneID);
+
+        String cypher = "MATCH p0=(disease:DOTerm)--(diseaseEntityJoin:DiseaseEntityJoin)-[:EVIDENCE]-(publication:Publication), " +
+                "              p1=(diseaseEntityJoin)--(evidence:EvidenceCode), " +
+                "              p2=(diseaseEntityJoin)--(gene:Gene) ";
+
+        if (!diseaseViaEmpiricalData) {
+            cypher += cypherViaOrthology;
+        }
+
+        String cypherFeatureOptional = "OPTIONAL MATCH p4=(diseaseEntityJoin)--(feature:Feature)--(crossReference:CrossReference) ";
+        String entityType = pagination.getFieldFilterValueMap().get(FieldFilter.GENETIC_ENTITY_TYPE);
+        if (entityType != null && entityType.equals("allele")) {
+            cypher += ", p4=(diseaseEntityJoin)--(feature:Feature)--(crossReference:CrossReference) ";
+            cypherFeatureOptional = "";
+        }
+        String cypherWhereClause = "        where gene.primaryKey = {geneID} ";
+        if (entityType != null && entityType.equals("gene")) {
+            cypherWhereClause += "AND NOT (diseaseEntityJoin)--(:Feature) ";
+        }
+        if (diseaseViaEmpiricalData) {
+            cypherWhereClause += cypherEmpirical;
+        }
+
+        // add disease name filter
+        String diseaseFilterClause = addAndWhereClauseString("disease.name", FieldFilter.DISEASE, pagination.getFieldFilterValueMap());
+        if (diseaseFilterClause != null) {
+            cypherWhereClause += diseaseFilterClause;
+        }
+
+        // add association name filter
+        String associationFilterClause = addAndWhereClauseString("diseaseEntityJoin.joinType", FieldFilter.ASSOCIATION_TYPE, pagination.getFieldFilterValueMap());
+        if (associationFilterClause != null) {
+            cypherWhereClause += associationFilterClause;
+        }
+
+        // add evidence code filter
+        String evidenceFilterClause = addAndWhereClauseString("evidence.primaryKey", FieldFilter.EVIDENCE_CODE, pagination.getFieldFilterValueMap());
+        if (evidenceFilterClause != null) {
+            cypherWhereClause += evidenceFilterClause;
+        }
+
+        // add ortho gene filter
+        String orthoGeneFilterClause = addAndWhereClauseString("orthoGene.symbol", FieldFilter.ORTHOLOG, pagination.getFieldFilterValueMap());
+        if (orthoGeneFilterClause != null) {
+            cypherWhereClause += orthoGeneFilterClause;
+        }
+
+        // add ortho gene species filter
+        String orthoGeneSpeciesFilterClause = addAndWhereClauseString("orthoSpecies.name", FieldFilter.ORTHOLOG_SPECIES, pagination.getFieldFilterValueMap());
+        if (orthoGeneSpeciesFilterClause != null) {
+            cypherWhereClause += orthoGeneSpeciesFilterClause;
+        }
+
+        // add reference filter clause
+        String referenceFilterClause = addAndWhereClauseORString("publication.pubModId", "publication.pubMedId", FieldFilter.FREFERENCE, pagination.getFieldFilterValueMap());
+        if (referenceFilterClause != null) {
+            cypherWhereClause += referenceFilterClause;
+        }
+
+        String geneticEntityFilterClause = addAndWhereClauseString("feature.symbol", FieldFilter.GENETIC_ENTITY, pagination.getFieldFilterValueMap());
+        if (geneticEntityFilterClause != null) {
+            cypherWhereClause += geneticEntityFilterClause;
+            bindingValueMap.put("feature", pagination.getFieldFilterValueMap().get(FieldFilter.GENETIC_ENTITY));
+            cypher += ", p4=(diseaseEntityJoin)--(feature:Feature)--(crossReference:CrossReference) ";
+        }
+        cypher += cypherWhereClause;
+        if (geneticEntityFilterClause == null) {
+            cypher += cypherFeatureOptional;
+        }
+        if (diseaseViaEmpiricalData)
+            cypher += "return distinct (disease.name + diseaseEntityJoin.joinType) as nameJoin, ";
+        else
+            cypher += "return distinct (disease.name + diseaseEntityJoin.joinType + orthoGene.primaryKey) as nameJoin, ";
+
+        cypher += "       disease.name as diseaseName, " +
+                "       disease as disease, " +
+                "       feature.symbol, " +
+                "       feature as feature, " +
+                "       collect(diseaseEntityJoin) as diseaseEntityJoin, " +
+                "       collect(crossReference) as crossReferences, " +
+                "       collect(publication.pubMedId), " +
+                "       collect(publication) as publications, " +
+                "       collect(evidence) as evidences, ";
+        if (!diseaseViaEmpiricalData) {
+            cypher += "       collect(orthoGene) as orthoGenes, " +
+                    "         collect(orthoSpecies) as orthoSpecies, ";
+        }
+        cypher += "       count(publication),         " +
+                "       collect(publication.pubModId) " +
+                "order by LOWER(nameJoin), LOWER(feature.symbol)";
+        cypher += " SKIP " + pagination.getStart();
+        if (pagination.getLimit() != null && pagination.getLimit() > -1)
+            cypher += " LIMIT " + pagination.getLimit();
+
+        return queryForResult(cypher, bindingValueMap);
+    }
+
+    private String addAndWhereClauseORString(String eitherElement, String orElement, FieldFilter fieldFilter, BaseFilter baseFilter) {
+        String eitherClause = addWhereClauseString(eitherElement, fieldFilter, baseFilter, null);
+        if (eitherClause == null)
+            return null;
+        String orClause = addWhereClauseString(orElement, fieldFilter, baseFilter, null);
+        if (orClause == null)
+            return null;
+        return "AND (" + eitherClause + " OR " + orClause + ") ";
+    }
+
+    private String cypherEmpirical = " AND NOT (diseaseEntityJoin)-[:FROM_ORTHOLOGOUS_GENE]-(:Gene) ";
+    private String cypherViaOrthology = " ,p5 =  (diseaseEntityJoin)-[:FROM_ORTHOLOGOUS_GENE]-(orthoGene:Gene)-[:FROM_SPECIES]-(orthoSpecies:Species) ";
+
+    public Long getTotalDiseaseCount(String geneID, Pagination pagination, boolean empiricalDisease) {
+        HashMap<String, String> bindingValueMap = new HashMap<>();
+        bindingValueMap.put("geneID", geneID);
+
+        String baseCypher = "MATCH p0=(disease:DOTerm)--(diseaseEntityJoin:DiseaseEntityJoin)-[:EVIDENCE]-(publication:Publication), " +
+                "              p1=(diseaseEntityJoin)--(evidence:EvidenceCode), " +
+                "              p2=(diseaseEntityJoin)--(gene:Gene)-[:FROM_SPECIES]-(species:Species) ";
+        if (!empiricalDisease) {
+            baseCypher += cypherViaOrthology;
+        }
+        baseCypher += "where gene.primaryKey = {geneID} ";
+        // get feature-less diseases
+
+        String diseaseFilterClause = addAndWhereClauseString("disease.name", FieldFilter.DISEASE, pagination.getFieldFilterValueMap());
+        if (diseaseFilterClause != null) {
+            baseCypher += diseaseFilterClause;
+        }
+
+        // add association name filter
+        String associationFilterClause = addAndWhereClauseString("diseaseEntityJoin.joinType", FieldFilter.ASSOCIATION_TYPE, pagination.getFieldFilterValueMap());
+        if (associationFilterClause != null) {
+            baseCypher += associationFilterClause;
+        }
+
+        // add evidence code filter
+        String evidenceFilterClause = addAndWhereClauseString("evidence.primaryKey", FieldFilter.EVIDENCE_CODE, pagination.getFieldFilterValueMap());
+        if (evidenceFilterClause != null) {
+            baseCypher += evidenceFilterClause;
+        }
+
+        // add reference filter clause
+        String referenceFilterClause = addAndWhereClauseORString("publication.pubModId", "publication.pubMedId", FieldFilter.FREFERENCE, pagination.getFieldFilterValueMap());
+        if (referenceFilterClause != null) {
+            baseCypher += referenceFilterClause;
+        }
+
+
+        String cypher = baseCypher + " AND NOT (diseaseEntityJoin)--(:Feature) ";
+        if (empiricalDisease) {
+            cypher += cypherEmpirical;
+            cypher += "return count(distinct disease.name + diseaseEntityJoin.joinType) as " + TOTAL_COUNT;
+        } else {
+            // add ortho gene filter
+            String orthoGeneFilterClause = addAndWhereClauseString("orthoGene.symbol", FieldFilter.ORTHOLOG, pagination.getFieldFilterValueMap());
+            if (orthoGeneFilterClause != null) {
+                cypher += orthoGeneFilterClause;
+            }
+
+            // add ortho gene species filter
+            String orthoGeneSpeciesFilterClause = addAndWhereClauseString("orthoSpecies.name", FieldFilter.ORTHOLOG_SPECIES, pagination.getFieldFilterValueMap());
+            if (orthoGeneSpeciesFilterClause != null) {
+                cypher += orthoGeneSpeciesFilterClause;
+            }
+            cypher += "return count(distinct disease.name + diseaseEntityJoin.joinType + orthoGene.primaryKey) as " + TOTAL_COUNT;
+        }
+        Long featureLessPhenotype = 0L;
+
+        String geneticEntityFilterClause = addWhereClauseString("feature.symbol", FieldFilter.GENETIC_ENTITY, pagination.getFieldFilterValueMap(), "WHERE");
+        if (geneticEntityFilterClause == null)
+            featureLessPhenotype = (Long) queryForResult(cypher, bindingValueMap).iterator().next().get(TOTAL_COUNT);
+
+        // feature-related phenotypes
+        cypher = baseCypher;
+        if (empiricalDisease)
+            cypher += cypherEmpirical;
+
+        cypher += "WITH distinct disease, diseaseEntityJoin ";
+        cypher += "MATCH (diseaseEntityJoin)--(feature:Feature) ";
+        if (geneticEntityFilterClause != null) {
+            cypher += geneticEntityFilterClause;
+            bindingValueMap.put("feature", pagination.getFieldFilterValueMap().get(FieldFilter.GENETIC_ENTITY));
+        }
+        cypher += "return count(distinct disease.name+feature.symbol) as " + TOTAL_COUNT;
+
+        Long featurePhenotype = (Long) queryForResult(cypher, bindingValueMap).iterator().next().get(TOTAL_COUNT);
+        String entityType = pagination.getFieldFilterValueMap().get(FieldFilter.GENETIC_ENTITY_TYPE);
+        if (entityType != null) {
+            switch (entityType) {
+                case "allele":
+                    return featurePhenotype;
+                case "gene":
+                    return featureLessPhenotype;
+                default:
+                    break;
+            }
+        }
+        return featureLessPhenotype + featurePhenotype;
+    }
 }

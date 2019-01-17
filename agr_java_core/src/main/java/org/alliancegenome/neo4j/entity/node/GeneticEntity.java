@@ -72,6 +72,7 @@ public class GeneticEntity extends Neo4jEntity {
     }
 
     public enum CrossReferenceType {
+
         GENE("gene"), ALLELE("allele");
 
         private String displayName;
