@@ -1,4 +1,4 @@
-package org.alliancegenome.github.interfaces;
+package org.alliancegenome.github;
 
 import java.util.List;
 
@@ -7,8 +7,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-
-import org.alliancegenome.github.model.GithubRelease;
 
 import si.mazi.rescu.HttpStatusIOException;
 

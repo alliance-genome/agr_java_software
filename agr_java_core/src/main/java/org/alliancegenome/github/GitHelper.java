@@ -1,4 +1,4 @@
-package org.alliancegenome.github.util;
+package org.alliancegenome.github;
 
 import java.io.File;
 

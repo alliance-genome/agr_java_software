@@ -1,4 +1,4 @@
-package org.alliancegenome.github.model;
+package org.alliancegenome.github;
 
 import lombok.Getter;
 import lombok.Setter;
