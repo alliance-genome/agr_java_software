@@ -27,7 +27,7 @@ import lombok.Setter;
 public class Gene extends GeneticEntity implements Comparable<Gene> {
 
     public Gene() {
-        this.type = Type.GENE;
+        this.crossReferenceType = CrossReferenceType.GENE;
     }
     
     @JsonView({View.Orthology.class, View.Expression.class})

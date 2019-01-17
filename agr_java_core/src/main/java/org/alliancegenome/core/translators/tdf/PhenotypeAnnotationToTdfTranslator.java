@@ -23,7 +23,7 @@ public class PhenotypeAnnotationToTdfTranslator {
         annotations.forEach(annotation -> {
             StringJoiner joiner = new StringJoiner("\t");
             joiner.add(annotation.getPhenotype());
-            if (annotation.getGeneticEntity().getType().equals(GeneticEntity.Type.ALLELE)) {
+            if (annotation.getGeneticEntity().getType().equals(GeneticEntity.CrossReferenceType.ALLELE)) {
                 joiner.add(annotation.getGeneticEntity().getPrimaryKey());
                 joiner.add(annotation.getGeneticEntity().getSymbol());
                 joiner.add("allele");

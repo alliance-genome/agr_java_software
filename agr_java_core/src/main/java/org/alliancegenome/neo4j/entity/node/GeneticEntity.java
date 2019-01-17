@@ -20,7 +20,7 @@ import lombok.Setter;
 @Getter @Setter
 public class GeneticEntity extends Neo4jEntity {
     
-    protected Type type;
+    protected CrossReferenceType crossReferenceType;
 
     @JsonView({View.Default.class, View.Phenotype.class})
     @JsonProperty(value = "id")
@@ -36,9 +36,9 @@ public class GeneticEntity extends Neo4jEntity {
     private List<CrossReference> crossReferences = new ArrayList<>();
 
     // Only for manual construction (Neo needs to use the no-args constructor)
-    public GeneticEntity(String primaryKey, Type type) {
+    public GeneticEntity(String primaryKey, CrossReferenceType crossReferenceType) {
         this.primaryKey = primaryKey;
-        this.type = type;
+        this.crossReferenceType = crossReferenceType;
     }
 
     public GeneticEntity() {
@@ -51,7 +51,7 @@ public class GeneticEntity extends Neo4jEntity {
 
         List<CrossReference> othersList = new ArrayList<>();
         for (CrossReference cr : crossReferences) {
-            String typeName = type.displayName;
+            String typeName = crossReferenceType.displayName;
             if (cr.getCrossRefType().startsWith(typeName + "/")) {
                 typeName = cr.getCrossRefType().replace(typeName + "/", "");
                 map.put(typeName, cr);
@@ -68,15 +68,15 @@ public class GeneticEntity extends Neo4jEntity {
     @JsonView({View.Phenotype.class})
     @JsonProperty(value = "type")
     public String getType() {
-        return type.displayName;
+        return crossReferenceType.displayName;
     }
 
-    public enum Type {
+    public enum CrossReferenceType {
         GENE("gene"), ALLELE("allele");
 
         private String displayName;
 
-        Type(String name) {
+        CrossReferenceType(String name) {
             this.displayName = name;
         }
     }

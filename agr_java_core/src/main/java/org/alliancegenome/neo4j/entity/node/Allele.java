@@ -24,7 +24,7 @@ import lombok.Setter;
 public class Allele extends GeneticEntity implements Comparable<Allele> {
 
     public Allele() {
-        this.type = Type.ALLELE;
+        this.crossReferenceType = CrossReferenceType.ALLELE;
     }
     
     @Convert(value = DateConverter.class)
