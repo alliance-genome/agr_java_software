@@ -14,6 +14,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import com.fasterxml.jackson.annotation.JsonView;
+import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.es.model.search.SearchApiResponse;
 
 import io.swagger.annotations.Api;
@@ -34,7 +35,7 @@ public interface DiseaseRESTInterface {
 
     @GET
     @Path("/{id}/associations")
-    public List<DiseaseAnnotation> getDiseaseAnnotationsSorted(
+    public JsonResultResponse<DiseaseAnnotation> getDiseaseAnnotationsSorted(
             @PathParam("id") String id,
             @DefaultValue("20") @QueryParam("limit") int limit,
             @DefaultValue("1") @QueryParam("page") int page,

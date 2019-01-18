@@ -52,7 +52,47 @@ public class DiseaseTest {
     }
 
     @Test
-    @Ignore
+    //@Ignore
+    public void checkDiseaseAssociationByDisease() {
+        Pagination pagination = new Pagination(1, 10, null, null);
+        // choriocarnimoa
+        String diseaseID = "DOID:3594";
+        JsonResultResponse<DiseaseAnnotation> response = geneService.getDiseaseAnnotationsByDisease(diseaseID, pagination);
+        assertResponse(response, 10, 50);
+
+        DiseaseAnnotation annotation = response.getResults().get(0);
+        assertThat(annotation.getDisease().getName(), equalTo("acute lymphocytic leukemia"));
+        assertThat(annotation.getAssociationType(), equalTo("is_implicated_in"));
+        assertNotNull(annotation.getFeature());
+        assertThat(annotation.getFeature().getSymbol(), equalTo("Pten<sup>tm1Hwu</sup>"));
+        assertThat(annotation.getPublications().stream().map(Publication::getPubId).collect(Collectors.joining()), equalTo("PMID:21262837"));
+
+        annotation = response.getResults().get(1);
+        assertNull(annotation.getFeature());
+        assertThat(annotation.getDisease().getName(), equalTo("acute lymphocytic leukemia"));
+        assertThat(annotation.getAssociationType(), equalTo("is_implicated_in"));
+
+        DiseaseAnnotationToTdfTranslator translator = new DiseaseAnnotationToTdfTranslator();
+        String output = translator.getEmpiricalDiseaseByGene(response.getResults());
+        List<String> lines = Arrays.asList(output.split("\n"));
+        assertNotNull(lines);
+        String result = "Disease\tGenetic Entity ID\tGenetic Entity Symbol\tGenetic Entity Type\tAssociation Type\tEvidence Code\tSource\tReferences\n" +
+                "acute lymphocytic leukemia\tMGI:2156086\tPten<sup>tm1Hwu</sup>\tallele\tis_implicated_in\tTAS\tPMID:21262837\n" +
+                "acute lymphocytic leukemia\t\t\tgene\tis_implicated_in\tTAS\tPMID:21262837\n" +
+                "autistic disorder\tMGI:2151804\tPten<sup>tm1Rps</sup>\tallele\tis_implicated_in\tTAS\tPMID:19208814,PMID:23142422,PMID:25561290\n" +
+                "autistic disorder\tMGI:2679886\tPten<sup>tm2.1Ppp</sup>\tallele\tis_implicated_in\tTAS\tPMID:22302806\n" +
+                "autistic disorder\t\t\tgene\tis_implicated_in\tTAS\tPMID:22302806,PMID:25561290\n" +
+                "Bannayan-Riley-Ruvalcaba syndrome\tMGI:1857937\tPten<sup>tm1Mak</sup>\tallele\tis_implicated_in\tTAS\tPMID:10910075\n" +
+                "Bannayan-Riley-Ruvalcaba syndrome\tMGI:1857936\tPten<sup>tm1Ppp</sup>\tallele\tis_implicated_in\tTAS\tPMID:9697695\n" +
+                "Bannayan-Riley-Ruvalcaba syndrome\tMGI:2151804\tPten<sup>tm1Rps</sup>\tallele\tis_implicated_in\tTAS\tPMID:27889578,PMID:9990064\n" +
+                "Bannayan-Riley-Ruvalcaba syndrome\t\t\tgene\tis_implicated_in\tTAS\tPMID:10910075,PMID:9697695,PMID:9990064\n" +
+                "brain disease\tMGI:2182005\tPten<sup>tm2Mak</sup>\tallele\tis_implicated_in\tTAS\tPMID:19470613,PMID:25752454,PMID:29476105\n";
+        assertEquals(result, output);
+
+    }
+
+    @Test
+    //@Ignore
     public void checkEmpiricalDiseaseByGene() {
         Pagination pagination = new Pagination(1, 10, null, null);
         // Pten
@@ -92,7 +132,7 @@ public class DiseaseTest {
     }
 
     @Test
-    @Ignore
+    //@Ignore
     public void checkEmpiricalDiseaseFilterByDisease() {
         Pagination pagination = new Pagination(1, null, null, null);
         // Pten
@@ -127,7 +167,7 @@ public class DiseaseTest {
     }
 
     @Test
-    @Ignore
+    //@Ignore
     public void checkEmpiricalDiseaseFilterByGeneticEntity() {
         Pagination pagination = new Pagination(1, null, null, null);
         // Pten
@@ -164,7 +204,7 @@ public class DiseaseTest {
     }
 
     @Test
-    @Ignore
+    //@Ignore
     public void checkEmpiricalDiseaseFilterByGeneticEntityType() {
         Pagination pagination = new Pagination(1, null, null, null);
         // Pten
@@ -192,7 +232,7 @@ public class DiseaseTest {
     }
 
     @Test
-    @Ignore
+    //@Ignore
     public void checkEmpiricalDiseaseFilterByAssociation() {
         Pagination pagination = new Pagination(1, null, null, null);
         // Pten
@@ -218,7 +258,7 @@ public class DiseaseTest {
     }
 
     @Test
-    @Ignore
+    //@Ignore
     public void checkEmpiricalDiseaseFilterByEvidence() {
         Pagination pagination = new Pagination(1, null, null, null);
         // Pten
@@ -235,7 +275,7 @@ public class DiseaseTest {
     }
 
     @Test
-    @Ignore
+    //@Ignore
     public void checkEmpiricalDiseaseFilterByPublication() {
         Pagination pagination = new Pagination(1, null, null, null);
         // Pten
@@ -252,7 +292,7 @@ public class DiseaseTest {
     }
 
     @Test
-    @Ignore
+    //@Ignore
     public void checkDiseaseViaOrthologyByGene() {
         Pagination pagination = new Pagination(1, 10, null, null);
         // Ogg1
@@ -291,7 +331,7 @@ public class DiseaseTest {
     }
 
     @Test
-    @Ignore
+    //@Ignore
     public void checkDiseaseOrthologyFilterByDisease() {
         Pagination pagination = new Pagination(1, null, null, null);
         // Pten
@@ -328,7 +368,7 @@ public class DiseaseTest {
     }
 
     @Test
-    @Ignore
+    //@Ignore
     public void checkDiseaseOrthologyFilterByAssociation() {
         Pagination pagination = new Pagination(1, null, null, null);
         // Pten
@@ -352,7 +392,7 @@ public class DiseaseTest {
     }
 
     @Test
-    @Ignore
+    //@Ignore
     public void checkDiseaseOrthologyFilterByOrthoGene() {
         Pagination pagination = new Pagination(1, null, null, null);
         // Pten
@@ -372,7 +412,7 @@ public class DiseaseTest {
     }
 
     @Test
-    @Ignore
+    ////@Ignore
     public void checkDiseaseOrthologyFilterByOrthoGeneSpecies() {
         Pagination pagination = new Pagination(1, null, null, null);
         // Pten

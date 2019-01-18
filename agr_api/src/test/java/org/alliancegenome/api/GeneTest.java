@@ -84,7 +84,6 @@ public class GeneTest {
 
 
     @Test
-    @Ignore
     public void checkForSecondaryId() {
         // ZFIN:ZDB-GENE-030131-3355 is a secondary ID for ZFIN:ZDB-LINCRNAG-160518-1
         Gene result = geneService.getById("ZFIN:ZDB-GENE-030131-3355");
@@ -94,7 +93,6 @@ public class GeneTest {
     }
 
     @Test
-    @Ignore
     public void checkOrthologyAPIWithFilter() throws IOException {
 
         GeneController controller = new GeneController();
@@ -104,7 +102,6 @@ public class GeneTest {
     }
 
     @Test
-    @Ignore
     public void checkOrthologyForListOfGenes() throws IOException {
 
         GeneController controller = new GeneController();
@@ -113,7 +110,6 @@ public class GeneTest {
     }
 
     @Test
-    @Ignore
     public void checkOrthologyForTwoSpecies() throws IOException {
 
         OrthologyController controller = new OrthologyController();
@@ -122,7 +118,6 @@ public class GeneTest {
     }
 
     @Test
-    @Ignore
     public void checkOrthologyForSingleSpecies() throws IOException {
 
         OrthologyController controller = new OrthologyController();
@@ -131,7 +126,6 @@ public class GeneTest {
     }
 
     @Test
-    @Ignore
     public void checkOrthologyAPIWithSpecies() throws IOException {
 
         GeneController controller = new GeneController();
@@ -156,7 +150,6 @@ public class GeneTest {
     }
 
     @Test
-    @Ignore
     public void checkOrthologyAPIWithMethods() throws IOException {
 
         GeneController controller = new GeneController();

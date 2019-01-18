@@ -1,13 +1,5 @@
 package org.alliancegenome.neo4j.repository;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.node.DOTerm;
@@ -15,6 +7,8 @@ import org.alliancegenome.neo4j.view.BaseFilter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.neo4j.ogm.model.Result;
+
+import java.util.*;
 
 public class DiseaseRepository extends Neo4jRepository<DOTerm> {
 
@@ -180,15 +174,20 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
         return primaryTerm;
     }
 
-    public Result getDiseaseAssociation(String geneID, Pagination pagination, boolean diseaseViaEmpiricalData) {
+    public Result getDiseaseAssociation(String geneID, String diseaseID, Pagination pagination, Boolean diseaseViaEmpiricalData) {
+        boolean isGene = geneID != null && diseaseID == null;
         HashMap<String, String> bindingValueMap = new HashMap<>();
-        bindingValueMap.put("geneID", geneID);
+        if (isGene)
+            bindingValueMap.put("geneID", geneID);
+        else
+            bindingValueMap.put("diseaseID", diseaseID);
+
 
         String cypher = "MATCH p0=(disease:DOTerm)--(diseaseEntityJoin:DiseaseEntityJoin)-[:EVIDENCE]-(publication:Publication), " +
                 "              p1=(diseaseEntityJoin)--(evidence:EvidenceCode), " +
                 "              p2=(diseaseEntityJoin)--(gene:Gene) ";
 
-        if (!diseaseViaEmpiricalData) {
+        if (diseaseViaEmpiricalData != null && !diseaseViaEmpiricalData) {
             cypher += cypherViaOrthology;
         }
 
@@ -198,49 +197,21 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
             cypher += ", p4=(diseaseEntityJoin)--(feature:Feature)--(crossReference:CrossReference) ";
             cypherFeatureOptional = "";
         }
-        String cypherWhereClause = "        where gene.primaryKey = {geneID} ";
+
+        String cypherWhereClause = " where ";
+        if (isGene) {
+            cypherWhereClause += "gene.primaryKey = {geneID} ";
+        } else {
+            cypherWhereClause += "disease.primaryKey = {diseaseID} ";
+        }
+
         if (entityType != null && entityType.equals("gene")) {
             cypherWhereClause += "AND NOT (diseaseEntityJoin)--(:Feature) ";
         }
-        if (diseaseViaEmpiricalData) {
+        if (diseaseViaEmpiricalData != null && diseaseViaEmpiricalData) {
             cypherWhereClause += cypherEmpirical;
         }
-
-        // add disease name filter
-        String diseaseFilterClause = addAndWhereClauseString("disease.name", FieldFilter.DISEASE, pagination.getFieldFilterValueMap());
-        if (diseaseFilterClause != null) {
-            cypherWhereClause += diseaseFilterClause;
-        }
-
-        // add association name filter
-        String associationFilterClause = addAndWhereClauseString("diseaseEntityJoin.joinType", FieldFilter.ASSOCIATION_TYPE, pagination.getFieldFilterValueMap());
-        if (associationFilterClause != null) {
-            cypherWhereClause += associationFilterClause;
-        }
-
-        // add evidence code filter
-        String evidenceFilterClause = addAndWhereClauseString("evidence.primaryKey", FieldFilter.EVIDENCE_CODE, pagination.getFieldFilterValueMap());
-        if (evidenceFilterClause != null) {
-            cypherWhereClause += evidenceFilterClause;
-        }
-
-        // add ortho gene filter
-        String orthoGeneFilterClause = addAndWhereClauseString("orthoGene.symbol", FieldFilter.ORTHOLOG, pagination.getFieldFilterValueMap());
-        if (orthoGeneFilterClause != null) {
-            cypherWhereClause += orthoGeneFilterClause;
-        }
-
-        // add ortho gene species filter
-        String orthoGeneSpeciesFilterClause = addAndWhereClauseString("orthoSpecies.name", FieldFilter.ORTHOLOG_SPECIES, pagination.getFieldFilterValueMap());
-        if (orthoGeneSpeciesFilterClause != null) {
-            cypherWhereClause += orthoGeneSpeciesFilterClause;
-        }
-
-        // add reference filter clause
-        String referenceFilterClause = addAndWhereClauseORString("publication.pubModId", "publication.pubMedId", FieldFilter.FREFERENCE, pagination.getFieldFilterValueMap());
-        if (referenceFilterClause != null) {
-            cypherWhereClause += referenceFilterClause;
-        }
+        cypherWhereClause += getFilterClauses(pagination, false);
 
         String geneticEntityFilterClause = addAndWhereClauseString("feature.symbol", FieldFilter.GENETIC_ENTITY, pagination.getFieldFilterValueMap());
         if (geneticEntityFilterClause != null) {
@@ -280,6 +251,42 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
         return queryForResult(cypher, bindingValueMap);
     }
 
+    private String getFilterClauses(Pagination pagination, boolean filterForCounting) {
+        String cypherWhereClause = "";
+        // add disease name filter
+        cypherWhereClause += addToCypherWhereClause(pagination.getFieldFilterValueMap(), "disease.name", FieldFilter.DISEASE);
+
+        // add association name filter
+        cypherWhereClause += addToCypherWhereClause(pagination.getFieldFilterValueMap(), "diseaseEntityJoin.joinType", FieldFilter.ASSOCIATION_TYPE);
+
+        // add evidence code filter
+        cypherWhereClause += addToCypherWhereClause(pagination.getFieldFilterValueMap(), "evidence.primaryKey", FieldFilter.EVIDENCE_CODE);
+
+        if (!filterForCounting) {
+            // add ortho gene filter
+            cypherWhereClause += addToCypherWhereClause(pagination.getFieldFilterValueMap(), "orthoGene.symbol", FieldFilter.ORTHOLOG);
+
+            // add ortho gene species filter
+            cypherWhereClause += addToCypherWhereClause(pagination.getFieldFilterValueMap(), "orthoSpecies.name", FieldFilter.ORTHOLOG_SPECIES);
+        }
+
+        // add reference filter clause
+        String referenceFilterClause = addAndWhereClauseORString("publication.pubModId", "publication.pubMedId", FieldFilter.FREFERENCE, pagination.getFieldFilterValueMap());
+        if (referenceFilterClause != null) {
+            cypherWhereClause += referenceFilterClause;
+        }
+
+        return cypherWhereClause;
+    }
+
+    private String addToCypherWhereClause(BaseFilter baseFilter, String s, FieldFilter disease) {
+        String diseaseFilterClause = addAndWhereClauseString(s, disease, baseFilter);
+        if (diseaseFilterClause != null) {
+            return diseaseFilterClause;
+        }
+        return "";
+    }
+
     private String addAndWhereClauseORString(String eitherElement, String orElement, FieldFilter fieldFilter, BaseFilter baseFilter) {
         String eitherClause = addWhereClauseString(eitherElement, fieldFilter, baseFilter, null);
         if (eitherClause == null)
@@ -306,29 +313,7 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
         baseCypher += "where gene.primaryKey = {geneID} ";
         // get feature-less diseases
 
-        String diseaseFilterClause = addAndWhereClauseString("disease.name", FieldFilter.DISEASE, pagination.getFieldFilterValueMap());
-        if (diseaseFilterClause != null) {
-            baseCypher += diseaseFilterClause;
-        }
-
-        // add association name filter
-        String associationFilterClause = addAndWhereClauseString("diseaseEntityJoin.joinType", FieldFilter.ASSOCIATION_TYPE, pagination.getFieldFilterValueMap());
-        if (associationFilterClause != null) {
-            baseCypher += associationFilterClause;
-        }
-
-        // add evidence code filter
-        String evidenceFilterClause = addAndWhereClauseString("evidence.primaryKey", FieldFilter.EVIDENCE_CODE, pagination.getFieldFilterValueMap());
-        if (evidenceFilterClause != null) {
-            baseCypher += evidenceFilterClause;
-        }
-
-        // add reference filter clause
-        String referenceFilterClause = addAndWhereClauseORString("publication.pubModId", "publication.pubMedId", FieldFilter.FREFERENCE, pagination.getFieldFilterValueMap());
-        if (referenceFilterClause != null) {
-            baseCypher += referenceFilterClause;
-        }
-
+        baseCypher += getFilterClauses(pagination, true);
 
         String cypher = baseCypher + " AND NOT (diseaseEntityJoin)--(:Feature) ";
         if (empiricalDisease) {
@@ -336,16 +321,10 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
             cypher += "return count(distinct disease.name + diseaseEntityJoin.joinType) as " + TOTAL_COUNT;
         } else {
             // add ortho gene filter
-            String orthoGeneFilterClause = addAndWhereClauseString("orthoGene.symbol", FieldFilter.ORTHOLOG, pagination.getFieldFilterValueMap());
-            if (orthoGeneFilterClause != null) {
-                cypher += orthoGeneFilterClause;
-            }
+            cypher += addToCypherWhereClause(pagination.getFieldFilterValueMap(), "orthoGene.symbol", FieldFilter.ORTHOLOG);
 
             // add ortho gene species filter
-            String orthoGeneSpeciesFilterClause = addAndWhereClauseString("orthoSpecies.name", FieldFilter.ORTHOLOG_SPECIES, pagination.getFieldFilterValueMap());
-            if (orthoGeneSpeciesFilterClause != null) {
-                cypher += orthoGeneSpeciesFilterClause;
-            }
+            cypher += addToCypherWhereClause(pagination.getFieldFilterValueMap(), "orthoSpecies.name", FieldFilter.ORTHOLOG_SPECIES);
             cypher += "return count(distinct disease.name + diseaseEntityJoin.joinType + orthoGene.primaryKey) as " + TOTAL_COUNT;
         }
         Long featureLessPhenotype = 0L;

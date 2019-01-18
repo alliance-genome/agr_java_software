@@ -103,8 +103,13 @@ public class GeneService {
 
     
 
+    private List<DiseaseAnnotation> getDiseaseAnnotationList(String diseaseID, Pagination pagination) {
+        Result result = diseaseRepository.getDiseaseAssociation(null, diseaseID, pagination, null);
+        return getDiseaseAnnotations(diseaseID, result);
+    }
+
     private List<DiseaseAnnotation> getEmpiricalDiseaseAnnotationList(String geneID, Pagination pagination, boolean empiricalDisease) {
-        Result result = diseaseRepository.getDiseaseAssociation(geneID, pagination, empiricalDisease);
+        Result result = diseaseRepository.getDiseaseAssociation(geneID, null, pagination, empiricalDisease);
         return getDiseaseAnnotations(geneID, result);
     }
 
@@ -157,6 +162,18 @@ public class GeneService {
         return response;
     }
     
-    
+    public JsonResultResponse<DiseaseAnnotation> getDiseaseAnnotationsByDisease(String diseaseID, Pagination pagination) {
+        LocalDateTime startDate = LocalDateTime.now();
+        List<DiseaseAnnotation> list = getDiseaseAnnotationList(diseaseID, pagination);
+        JsonResultResponse<DiseaseAnnotation> response = new JsonResultResponse<>();
+        response.calculateRequestDuration(startDate);
+        response.setResults(list);
+//        Long count = diseaseRepository.getTotalDiseaseCount(diseaseID, pagination, empiricalDisease);
+//        response.setTotal((int) (long) count);
+        response.setTotal(4);
+        return response;
+    }
+
+
 
 }

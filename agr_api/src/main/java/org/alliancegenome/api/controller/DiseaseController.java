@@ -2,6 +2,7 @@ package org.alliancegenome.api.controller;
 
 import org.alliancegenome.api.rest.interfaces.DiseaseRESTInterface;
 import org.alliancegenome.api.service.DiseaseService;
+import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.core.translators.tdf.DiseaseAnnotationToTdfTranslator;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
@@ -40,33 +41,21 @@ public class DiseaseController extends BaseController implements DiseaseRESTInte
         }
     }
 
-    private List<DiseaseAnnotation> getSearchResult(String id, Pagination pagination) {
-        if (pagination.hasErrors()) {
-            response.setStatus(HttpServletResponse.SC_NOT_ACCEPTABLE);
-            try {
-                response.flushBuffer();
-            } catch (Exception ignored) {
-                // handle error
-            }
-        }
-        return diseaseService.getDiseaseAnnotations(id, pagination);
-    }
-
     @Override
-    public List<DiseaseAnnotation> getDiseaseAnnotationsSorted(String id,
-                                                               int limit,
-                                                               int page,
-                                                               String sortBy,
-                                                               String geneName,
-                                                               String species,
-                                                               String geneticEntity,
-                                                               String geneticEntityType,
-                                                               String disease,
-                                                               String source,
-                                                               String reference,
-                                                               String evidenceCode,
-                                                               String associationType,
-                                                               String asc) {
+    public JsonResultResponse<DiseaseAnnotation> getDiseaseAnnotationsSorted(String id,
+                                                                             int limit,
+                                                                             int page,
+                                                                             String sortBy,
+                                                                             String geneName,
+                                                                             String species,
+                                                                             String geneticEntity,
+                                                                             String geneticEntityType,
+                                                                             String disease,
+                                                                             String source,
+                                                                             String reference,
+                                                                             String evidenceCode,
+                                                                             String associationType,
+                                                                             String asc) {
         Pagination pagination = new Pagination(page, limit, sortBy, asc);
         pagination.addFieldFilter(FieldFilter.GENE_NAME, geneName);
         pagination.addFieldFilter(FieldFilter.SPECIES, species);
@@ -77,7 +66,15 @@ public class DiseaseController extends BaseController implements DiseaseRESTInte
         pagination.addFieldFilter(FieldFilter.REFERENCE, reference);
         pagination.addFieldFilter(FieldFilter.EVIDENCE_CODE, evidenceCode);
         pagination.addFieldFilter(FieldFilter.ASSOCIATION_TYPE, associationType);
-        return getSearchResult(id, pagination);
+        if (pagination.hasErrors()) {
+            response.setStatus(HttpServletResponse.SC_NOT_ACCEPTABLE);
+            try {
+                response.flushBuffer();
+            } catch (Exception ignored) {
+                // handle error
+            }
+        }
+        return diseaseService.getDiseaseAnnotations(id, pagination);
     }
 
     @Override
