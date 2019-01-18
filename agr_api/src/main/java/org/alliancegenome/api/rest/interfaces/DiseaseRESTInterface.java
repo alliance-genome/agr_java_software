@@ -1,5 +1,6 @@
 package org.alliancegenome.api.rest.interfaces;
 
+import java.util.List;
 import java.util.Map;
 
 import javax.ws.rs.Consumes;
@@ -12,23 +13,28 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import org.alliancegenome.es.model.search.SearchApiResponse;
 
 import io.swagger.annotations.Api;
+import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
+import org.alliancegenome.neo4j.entity.node.DOTerm;
+import org.alliancegenome.neo4j.view.View;
 
 @Path("/disease")
-@Api(value = "Disease Search")
+@Api(value = "Disease ")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public interface DiseaseRESTInterface {
 
     @GET
     @Path("/{id}")
-    public Map<String, Object> getDisease(@PathParam("id") String id);
+    @JsonView(value={View.DiseaseAPI.class})
+    public DOTerm getDisease(@PathParam("id") String id);
 
     @GET
     @Path("/{id}/associations")
-    public SearchApiResponse getDiseaseAnnotationsSorted(
+    public List<DiseaseAnnotation> getDiseaseAnnotationsSorted(
             @PathParam("id") String id,
             @DefaultValue("20") @QueryParam("limit") int limit,
             @DefaultValue("1") @QueryParam("page") int page,

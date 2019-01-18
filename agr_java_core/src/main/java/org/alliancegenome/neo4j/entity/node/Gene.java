@@ -71,7 +71,7 @@ public class Gene extends GeneticEntity implements Comparable<Gene> {
     @JsonView(value = {View.GeneAPI.class})
     @JsonProperty(value = "synonyms")
     public List<String> getSynonymList() {
-        List<String> list = new ArrayList<String>();
+        List<String> list = new ArrayList<>();
         for (Synonym s : synonyms) {
             list.add(s.getName());
         }

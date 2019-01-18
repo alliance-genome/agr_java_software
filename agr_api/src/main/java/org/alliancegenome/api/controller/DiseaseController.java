@@ -1,6 +1,13 @@
 package org.alliancegenome.api.controller;
 
-import java.util.Map;
+import org.alliancegenome.api.rest.interfaces.DiseaseRESTInterface;
+import org.alliancegenome.api.service.DiseaseService;
+import org.alliancegenome.core.translators.tdf.DiseaseAnnotationToTdfTranslator;
+import org.alliancegenome.es.model.query.FieldFilter;
+import org.alliancegenome.es.model.query.Pagination;
+import org.alliancegenome.es.model.search.SearchApiResponse;
+import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
+import org.alliancegenome.neo4j.entity.node.DOTerm;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -9,13 +16,7 @@ import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
-import org.alliancegenome.api.rest.interfaces.DiseaseRESTInterface;
-import org.alliancegenome.api.service.DiseaseService;
-import org.alliancegenome.core.translators.tdf.DiseaseAnnotationToTdfTranslator;
-import org.alliancegenome.es.model.query.FieldFilter;
-import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.es.model.search.SearchApiResponse;
+import java.util.List;
 
 @RequestScoped
 public class DiseaseController extends BaseController implements DiseaseRESTInterface {
@@ -30,44 +31,42 @@ public class DiseaseController extends BaseController implements DiseaseRESTInte
 
 
     @Override
-    public Map<String, Object> getDisease(String id) {
-        Map<String, Object> ret = diseaseService.getById(id);
-        if (ret == null) {
+    public DOTerm getDisease(String id) {
+        DOTerm doTerm = diseaseService.getById(id);
+        if (doTerm == null) {
             throw new NotFoundException();
         } else {
-            return ret;
+            return doTerm;
         }
     }
 
-    private SearchApiResponse getSearchResult(String id, Pagination pagination) {
+    private List<DiseaseAnnotation> getSearchResult(String id, Pagination pagination) {
         if (pagination.hasErrors()) {
             response.setStatus(HttpServletResponse.SC_NOT_ACCEPTABLE);
             try {
                 response.flushBuffer();
             } catch (Exception ignored) {
+                // handle error
             }
-            SearchApiResponse searchResponse = new SearchApiResponse();
-            searchResponse.setErrorMessages(pagination.getErrorList());
-            return searchResponse;
         }
         return diseaseService.getDiseaseAnnotations(id, pagination);
     }
 
     @Override
-    public SearchApiResponse getDiseaseAnnotationsSorted(String id,
-                                                         int limit,
-                                                         int page,
-                                                         String sortBy,
-                                                         String geneName,
-                                                         String species,
-                                                         String geneticEntity,
-                                                         String geneticEntityType,
-                                                         String disease,
-                                                         String source,
-                                                         String reference,
-                                                         String evidenceCode,
-                                                         String associationType,
-                                                         String asc) {
+    public List<DiseaseAnnotation> getDiseaseAnnotationsSorted(String id,
+                                                               int limit,
+                                                               int page,
+                                                               String sortBy,
+                                                               String geneName,
+                                                               String species,
+                                                               String geneticEntity,
+                                                               String geneticEntityType,
+                                                               String disease,
+                                                               String source,
+                                                               String reference,
+                                                               String evidenceCode,
+                                                               String associationType,
+                                                               String asc) {
         Pagination pagination = new Pagination(page, limit, sortBy, asc);
         pagination.addFieldFilter(FieldFilter.GENE_NAME, geneName);
         pagination.addFieldFilter(FieldFilter.SPECIES, species);

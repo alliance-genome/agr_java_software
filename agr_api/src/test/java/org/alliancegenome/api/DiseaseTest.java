@@ -1,5 +1,6 @@
 package org.alliancegenome.api;
 
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -8,7 +9,6 @@ import static org.junit.Assert.assertThat;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.alliancegenome.api.service.DiseaseService;
@@ -16,12 +16,12 @@ import org.alliancegenome.api.service.GeneService;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.core.translators.tdf.DiseaseAnnotationToTdfTranslator;
-import org.alliancegenome.es.index.site.dao.DiseaseDAO;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.es.model.search.SearchApiResponse;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
+import org.alliancegenome.neo4j.entity.node.DOTerm;
 import org.alliancegenome.neo4j.entity.node.Publication;
+import org.alliancegenome.neo4j.entity.node.Synonym;
 import org.alliancegenome.neo4j.view.OrthologyModule;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.config.Configurator;
@@ -45,7 +45,7 @@ public class DiseaseTest {
     public void before() {
         Configurator.setRootLevel(Level.WARN);
         ConfigHelper.init();
-        
+
         mapper.disable(MapperFeature.DEFAULT_VIEW_INCLUSION);
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         mapper.registerModule(new OrthologyModule());
@@ -391,30 +391,28 @@ public class DiseaseTest {
     }
 
 
+    @Test
+    public void checkSingleDiseaseTerm() {
+        DiseaseService service = new DiseaseService();
+        DOTerm term = service.getById("DOID:3594");
+        assertNotNull(term);
+        assertThat(term.getName(), equalTo("choriocarcinoma"));
+        assertThat(term.getSynonyms().stream().map(Synonym::getPrimaryKey).collect(Collectors.toList()), containsInAnyOrder("Chorioepithelioma"));
+        assertThat(term.getChildren().size(), equalTo(8));
+        assertThat(term.getParents().size(), equalTo(1));
+        assertThat(term.getDefLinks().size(), equalTo(1));
+    }
+
 
     @SuppressWarnings("unchecked")
     public static void main(String[] args) {
         ConfigHelper.init();
 
-        DiseaseDAO service = new DiseaseDAO();
-
-        service.init();
-        System.out.println("Number of Diseases with Genes Info: ");
-
         //DiseaseAnnotationToTdfTranslator translator = new DiseaseAnnotationToTdfTranslator();
         //String str = translator.getAllRows(service.getDiseaseAnnotationsDownload("DOID:9351", Pagination.getDownloadPagination()));
         Pagination pagination = new Pagination(1, 20, "gene", "true");
         pagination.addFieldFilter(FieldFilter.GENE_NAME, "l");
-        SearchApiResponse response = service.getDiseaseAnnotations("DOID:655", pagination);
-        if (response.getResults() != null) {
-            response.getResults().forEach(entry -> {
-                Map<String, Object> map1 = (Map<String, Object>) entry.get("geneDocument");
-                if (map1 != null)
-                    log.info(entry.get("diseaseID") + "\t" + entry.get("diseaseName") + ": " + "\t" + map1.get("species") + ": " + map1.get("symbol") + ": " + map1.get("primaryId"));
-
-            });
-        }
-        System.out.println("Number of results " + response.getTotal());
+//        System.out.println("Number of results " + response.getTotal());
 
         pagination = new Pagination(1, Integer.MAX_VALUE, null, null);
         DiseaseAnnotationToTdfTranslator translator = new DiseaseAnnotationToTdfTranslator();

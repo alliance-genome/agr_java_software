@@ -19,6 +19,7 @@ public class View {
 
     public static class Interaction extends API { }
     public static class GeneAPI extends API { }
+    public static class DiseaseAPI extends API { }
     public static class GeneAllelesAPI extends API { }
     public static class AlleleAPI extends API { }
     

@@ -1,13 +1,8 @@
 package org.alliancegenome.shared;
 
-import java.util.Map;
-
 import org.alliancegenome.core.config.ConfigHelper;
-import org.alliancegenome.es.index.site.dao.DiseaseDAO;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.es.model.search.SearchApiResponse;
-import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.config.Configurator;
 
@@ -21,10 +16,6 @@ public class TestGetGene {
     }
 
     public static void main(String[] args) throws JsonProcessingException {
-        GeneRepository repo = new GeneRepository();
-
-        DiseaseDAO service = new DiseaseDAO();
-
         Pagination pagination = new Pagination(1, 20, "gene", "true");
         //pagination.addFieldFilter(FieldFilter.GENE_NAME, "p");
         //pagination.addFieldFilter(FieldFilter.DISEASE, "fat");
@@ -34,16 +25,7 @@ public class TestGetGene {
         //pagination.addFieldFilter(FieldFilter.SOURCE, "Mgi");
         //pagination.addFieldFilter(FieldFilter.EVIDENCE_CODE, "TA");
         pagination.addFieldFilter(FieldFilter.GENETIC_ENTITY_TYPE, "allel");
-        SearchApiResponse response = service.getDiseaseAnnotations("DOID:655", pagination);
-        System.out.println("Result size: " + response.getResults().size());
-        if (response.getResults() != null) {
-            response.getResults().forEach(entry -> {
-                Map<String, Object> map1 = (Map<String, Object>) entry.get("geneDocument");
-                if (map1 != null)
-                    System.out.println(entry.get("diseaseID") + "\t" + entry.get("diseaseName") + ": " + "\t" + map1.get("species") + ": " + map1.get("symbol") + ": " + map1.get("primaryId")+ ": " + map1.get("associationType"));
-
-            });
-        }
+        //SearchApiResponse response = service.getDiseaseAnnotations("DOID:655", pagination);
 
         //"MGI:97490" OR g.primaryKey = "RGD:3258"
 

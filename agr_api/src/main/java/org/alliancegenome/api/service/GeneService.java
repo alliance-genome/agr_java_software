@@ -1,31 +1,11 @@
 package org.alliancegenome.api.service;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.enterprise.context.RequestScoped;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.alliancegenome.core.service.JsonResultResponse;
-import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
-import org.alliancegenome.neo4j.entity.node.Allele;
-import org.alliancegenome.neo4j.entity.node.CrossReference;
-import org.alliancegenome.neo4j.entity.node.DOTerm;
-import org.alliancegenome.neo4j.entity.node.DiseaseEntityJoin;
-import org.alliancegenome.neo4j.entity.node.EvidenceCode;
-import org.alliancegenome.neo4j.entity.node.Gene;
-import org.alliancegenome.neo4j.entity.node.GeneticEntity;
-import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
-import org.alliancegenome.neo4j.entity.node.Publication;
-import org.alliancegenome.neo4j.entity.node.Species;
+import org.alliancegenome.neo4j.entity.node.*;
 import org.alliancegenome.neo4j.repository.DiseaseRepository;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.alliancegenome.neo4j.repository.InteractionRepository;
@@ -34,7 +14,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.neo4j.ogm.model.Result;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import javax.enterprise.context.RequestScoped;
+import java.time.LocalDateTime;
+import java.util.*;
 
 @RequestScoped
 public class GeneService {
@@ -44,13 +26,7 @@ public class GeneService {
     private static InteractionRepository interRepo = new InteractionRepository();
     private static PhenotypeRepository phenoRepo = new PhenotypeRepository();
     private static DiseaseRepository diseaseRepository = new DiseaseRepository();
-    private static Map<FieldFilter, String> diseaseFieldFilterSortingMap = new HashMap<>(10);
 
-    static {
-        diseaseFieldFilterSortingMap.put(FieldFilter.PHENOTYPE, "phenotype.sort");
-        diseaseFieldFilterSortingMap.put(FieldFilter.GENETIC_ENTITY, "featureDocument.symbol.sort");
-    }
-    
     public Gene getById(String id) {
         Gene gene = geneRepo.getOneGene(id);
         // if not found directly check if it is a secondary id on a different gene
@@ -61,7 +37,7 @@ public class GeneService {
     }
 
     public JsonResultResponse<Allele> getAlleles(String id, int limit, int page, String sortBy, String asc) {
-        JsonResultResponse<Allele> ret = new JsonResultResponse<Allele>();
+        JsonResultResponse<Allele> ret = new JsonResultResponse<>();
         Pagination pagination = new Pagination(page, limit, sortBy, asc);
         //return geneService.getPhenotypeAnnotations(id, pagination);
         
@@ -70,7 +46,7 @@ public class GeneService {
     }
 
     public JsonResultResponse<InteractionGeneJoin> getInteractions(String id) {
-        JsonResultResponse<InteractionGeneJoin> ret = new JsonResultResponse<InteractionGeneJoin>();
+        JsonResultResponse<InteractionGeneJoin> ret = new JsonResultResponse<>();
         ret.setResults(interRepo.getInteractions(id));
         return ret;
     }
