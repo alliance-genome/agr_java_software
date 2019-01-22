@@ -105,26 +105,32 @@ public class GeneService {
 
     private List<DiseaseAnnotation> getDiseaseAnnotationList(String diseaseID, Pagination pagination) {
         Result result = diseaseRepository.getDiseaseAssociation(null, diseaseID, pagination, null);
-        return getDiseaseAnnotations(diseaseID, result);
+        return getDiseaseAnnotations(result);
     }
 
     private List<DiseaseAnnotation> getEmpiricalDiseaseAnnotationList(String geneID, Pagination pagination, boolean empiricalDisease) {
         Result result = diseaseRepository.getDiseaseAssociation(geneID, null, pagination, empiricalDisease);
-        return getDiseaseAnnotations(geneID, result);
+        return getDiseaseAnnotations(result);
     }
 
-    private List<DiseaseAnnotation> getDiseaseAnnotations(String geneID, Result result) {
+    private List<DiseaseAnnotation> getDiseaseAnnotations(Result result) {
         List<DiseaseAnnotation> annotationDocuments = new ArrayList<>();
         result.forEach(objectMap -> {
             DiseaseAnnotation document = new DiseaseAnnotation();
-            Gene gene = new Gene();
-            gene.setPrimaryKey(geneID);
+            Gene gene = (Gene) objectMap.get("gene");
+            gene.setSpecies((Species) objectMap.get("species"));
             document.setGene(gene);
-            document.setDisease((DOTerm) objectMap.get("disease"));
-            document.setAssociationType(((List<DiseaseEntityJoin>)objectMap.get("diseaseEntityJoin")).get(0).getJoinType());
+            DOTerm disease = (DOTerm) objectMap.get("disease");
+            document.setDisease(disease);
+
+            DiseaseEntityJoin diseaseEntityJoin = ((List<DiseaseEntityJoin>) objectMap.get("diseaseEntityJoin")).get(0);
+            diseaseEntityJoin.setDisease(disease);
+            document.setSource(diseaseEntityJoin.getSource());
+            document.setAssociationType(diseaseEntityJoin.getJoinType());
+            document.setDisease(disease);
             Allele feature = (Allele) objectMap.get("feature");
             document.setDiseaseEntityJoinSet((List<DiseaseEntityJoin>) objectMap.get("diseaseEntityJoin"));
-            document.setAssociationType(((List<DiseaseEntityJoin>) objectMap.get("diseaseEntityJoin")).get(0).getJoinType());
+            document.setAssociationType(diseaseEntityJoin.getJoinType());
             document.setEvidenceCodes((List<EvidenceCode>) objectMap.get("evidences"));
             List<Gene> orthoGenes = (List<Gene>) objectMap.get("orthoGenes");
             List<Species> orthoGeneSpecies = (List<Species>) objectMap.get("orthoSpecies");
@@ -136,7 +142,6 @@ public class GeneService {
                 next.setSpecies(orthoGeneSpecies.iterator().next());
                 document.setOrthologyGene(next);
             }
-//            Feature feature = (Feature) objectMap.get("feature");
             if (feature != null) {
                 List<CrossReference> ref = (List<CrossReference>) objectMap.get("crossReferences");
                 feature.setCrossReferences(ref);
@@ -168,9 +173,8 @@ public class GeneService {
         JsonResultResponse<DiseaseAnnotation> response = new JsonResultResponse<>();
         response.calculateRequestDuration(startDate);
         response.setResults(list);
-//        Long count = diseaseRepository.getTotalDiseaseCount(diseaseID, pagination, empiricalDisease);
-//        response.setTotal((int) (long) count);
-        response.setTotal(4);
+        Long count = diseaseRepository.getTotalDiseaseCount(diseaseID, pagination);
+        response.setTotal((int) (long) count);
         return response;
     }
 

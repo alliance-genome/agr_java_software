@@ -38,8 +38,8 @@ public class DiseaseService {
     }
 
 
-    public SearchHitIterator getDiseaseAnnotationsDownload(String id, Pagination pagination) {
-        ///return diseaseRepository.getDiseaseAnnotationsDownload(id, pagination);
+    public JsonResultResponse<DiseaseAnnotation> getDiseaseAnnotationsDownload(String id, Pagination pagination) {
+        //return diseaseRepository.getDiseaseAnnotationsDownload(id, pagination);
         return null;
     }
 }

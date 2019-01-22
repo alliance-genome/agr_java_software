@@ -1,25 +1,21 @@
 package org.alliancegenome.core.translators.tdf;
 
-import java.io.IOException;
-import java.util.*;
-import java.util.stream.Collectors;
-
 import org.alliancegenome.core.config.ConfigHelper;
-import org.alliancegenome.es.index.site.document.DiseaseAnnotationDocument;
-import org.alliancegenome.es.util.SearchHitIterator;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.node.EvidenceCode;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.elasticsearch.search.SearchHit;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.List;
+import java.util.Set;
+import java.util.StringJoiner;
+import java.util.stream.Collectors;
 
 public class DiseaseAnnotationToTdfTranslator {
 
     private Log log = LogFactory.getLog(getClass());
 
-    public String getAllRows(SearchHitIterator hitIterator) {
+    public String getAllRows(List<DiseaseAnnotation> diseaseAnnotations) {
         StringBuilder builder = new StringBuilder();
         StringJoiner headerJoiner = new StringJoiner("\t");
         headerJoiner.add("Gene ID");
@@ -37,56 +33,45 @@ public class DiseaseAnnotationToTdfTranslator {
         builder.append(headerJoiner.toString());
         builder.append(ConfigHelper.getJavaLineSeparator());
 
-        while (hitIterator.hasNext()) {
-            SearchHit hit = hitIterator.next();
-            String sourceAsString = hit.getSourceAsString();
-
-            DiseaseAnnotationDocument diseaseAnnotationDocument = null;
-            try {
-                ObjectMapper mapper = new ObjectMapper();
-                diseaseAnnotationDocument = mapper.readValue(sourceAsString, DiseaseAnnotationDocument.class);
-            } catch (IOException e) {
-                log.error("Could not deserialize", e);
-                continue;
-            }
+        diseaseAnnotations.forEach(diseaseAnnotation -> {
             StringJoiner joiner = new StringJoiner("\t");
-            joiner.add(diseaseAnnotationDocument.getGeneDocument().getPrimaryId());
-            joiner.add(diseaseAnnotationDocument.getGeneDocument().getSymbol());
-            joiner.add(diseaseAnnotationDocument.getSpecies().getName());
-            if (diseaseAnnotationDocument.getAlleleDocument() != null) {
-                joiner.add(diseaseAnnotationDocument.getAlleleDocument().getPrimaryKey());
-                joiner.add(diseaseAnnotationDocument.getAlleleDocument().getSymbol());
+            joiner.add(diseaseAnnotation.getGene().getPrimaryKey());
+            joiner.add(diseaseAnnotation.getGene().getSymbol());
+            joiner.add(diseaseAnnotation.getGene().getSpecies().getSpecies());
+            if (diseaseAnnotation.getFeature() != null) {
+                joiner.add(diseaseAnnotation.getFeature().getPrimaryKey());
+                joiner.add(diseaseAnnotation.getFeature().getSymbol());
                 joiner.add("allele");
             } else {
                 joiner.add("");
                 joiner.add("");
                 joiner.add("");
             }
-            joiner.add(diseaseAnnotationDocument.getAssociationType());
-            joiner.add(diseaseAnnotationDocument.getDiseaseID());
-            joiner.add(diseaseAnnotationDocument.getDiseaseName());
+            joiner.add(diseaseAnnotation.getAssociationType());
+            joiner.add(diseaseAnnotation.getDisease().getPrimaryKey());
+            joiner.add(diseaseAnnotation.getDisease().getName());
 
             // evidence code list
             StringJoiner evidenceJoiner = new StringJoiner(",");
-            Set<String> evidenceCodes = diseaseAnnotationDocument.getPublications()
+            Set<String> evidenceCodes = diseaseAnnotation.getEvidenceCodes()
                     .stream()
-                    .map(publicationDoclet -> new HashSet<>(publicationDoclet.getEvidenceCodes()))
-                    .flatMap(Collection::stream)
+                    .map(EvidenceCode::getPrimaryKey)
                     .collect(Collectors.toSet());
 
             evidenceCodes.forEach(evidenceJoiner::add);
             joiner.add(evidenceJoiner.toString());
-            joiner.add(diseaseAnnotationDocument.getSource().getName());
+            // source list
+            StringJoiner sourceJoiner = new StringJoiner(",");
+            joiner.add(diseaseAnnotation.getSource().getName());
 
             // publication list
             StringJoiner pubJoiner = new StringJoiner(",");
-            diseaseAnnotationDocument.getPublications().forEach(publication -> {
-                pubJoiner.add(publication.getPubId());
-            });
+            diseaseAnnotation.getPublications().forEach(publication -> pubJoiner.add(publication.getPubId()));
             joiner.add(pubJoiner.toString());
             builder.append(joiner.toString());
             builder.append(ConfigHelper.getJavaLineSeparator());
-        }
+
+        });
 
         return builder.toString();
 
@@ -133,9 +118,7 @@ public class DiseaseAnnotationToTdfTranslator {
 
             // publication list
             StringJoiner pubJoiner = new StringJoiner(",");
-            diseaseAnnotation.getPublications().forEach(publication -> {
-                pubJoiner.add(publication.getPubId());
-            });
+            diseaseAnnotation.getPublications().forEach(publication -> pubJoiner.add(publication.getPubId()));
             joiner.add(pubJoiner.toString());
             builder.append(joiner.toString());
             builder.append(System.getProperty("line.separator"));
@@ -180,9 +163,7 @@ public class DiseaseAnnotationToTdfTranslator {
 
             // publication list
             StringJoiner pubJoiner = new StringJoiner(",");
-            diseaseAnnotation.getPublications().forEach(publication -> {
-                pubJoiner.add(publication.getPubId());
-            });
+            diseaseAnnotation.getPublications().forEach(publication -> pubJoiner.add(publication.getPubId()));
             joiner.add(pubJoiner.toString());
             builder.append(joiner.toString());
             builder.append(System.getProperty("line.separator"));

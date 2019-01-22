@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Getter;
 import lombok.Setter;
-import org.alliancegenome.es.index.site.doclet.SourceDoclet;
 import org.alliancegenome.neo4j.entity.node.*;
 import org.alliancegenome.neo4j.view.View;
 
@@ -16,7 +15,7 @@ public class DiseaseAnnotation implements Comparable<DiseaseAnnotation> {
 
     @JsonView({View.DiseaseAnnotation.class})
     private String primaryKey;
-    private SourceDoclet source;
+    private Source source;
     @JsonView({View.DiseaseAnnotation.class})
     private DOTerm disease;
     @JsonView({View.DiseaseAnnotation.class})

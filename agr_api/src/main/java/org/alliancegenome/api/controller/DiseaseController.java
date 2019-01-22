@@ -6,7 +6,6 @@ import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.core.translators.tdf.DiseaseAnnotationToTdfTranslator;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.es.model.search.SearchApiResponse;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.node.DOTerm;
 
@@ -17,7 +16,6 @@ import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.List;
 
 @RequestScoped
 public class DiseaseController extends BaseController implements DiseaseRESTInterface {
@@ -90,7 +88,8 @@ public class DiseaseController extends BaseController implements DiseaseRESTInte
     public String getDiseaseAnnotationsDownload(String id) {
         Pagination pagination = new Pagination(1, Integer.MAX_VALUE, null, null);
         // retrieve all records
-        return translator.getAllRows(diseaseService.getDiseaseAnnotationsDownload(id, pagination));
+        //return translator.getAllRows(diseaseService.getDiseaseAnnotationsDownload(id, pagination));
+        return null;
     }
 
 }

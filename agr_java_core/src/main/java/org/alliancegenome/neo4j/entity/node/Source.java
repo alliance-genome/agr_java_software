@@ -13,4 +13,9 @@ public class Source {
     private String name;
     @JsonView(value = {View.Default.class, View.API.class})
     private String url;
+
+    @Override
+    public String toString() {
+        return name + " : " + url;
+    }
 }

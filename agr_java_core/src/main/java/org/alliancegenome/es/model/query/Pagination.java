@@ -1,19 +1,21 @@
 package org.alliancegenome.es.model.query;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.StringJoiner;
-
+import lombok.Getter;
+import lombok.Setter;
 import org.alliancegenome.neo4j.view.BaseFilter;
 import org.apache.commons.lang3.StringUtils;
 
-import lombok.Getter;
-import lombok.Setter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.StringJoiner;
+import java.util.stream.Collectors;
 
 @Setter
 @Getter
 public class Pagination {
 
+    public static final String SORTING_DELIMITER = ",";
     private Integer page;
     private Integer limit;
     private String sortBy;
@@ -90,6 +92,15 @@ public class Pagination {
 
     public int getEnd() {
         return page * limit;
+    }
+
+    public List<FieldFilter> getSortByList() {
+        if(sortBy == null)
+            return null;
+        String[] sortingTokens = sortBy.split(SORTING_DELIMITER);
+        return Arrays.stream(sortingTokens)
+                .map(FieldFilter::getFieldFilterByName)
+                .collect(Collectors.toList());
     }
 
     enum AscendingValues {

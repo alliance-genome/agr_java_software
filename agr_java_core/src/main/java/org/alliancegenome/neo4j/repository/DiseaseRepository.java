@@ -4,6 +4,7 @@ import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.node.DOTerm;
 import org.alliancegenome.neo4j.view.BaseFilter;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.neo4j.ogm.model.Result;
@@ -12,6 +13,8 @@ import java.util.*;
 
 public class DiseaseRepository extends Neo4jRepository<DOTerm> {
 
+    public static final String DISEASE_INCLUDING_CHILDREN = "(diseaseParent:DOTerm)<-[:IS_A*0..50]-(disease:DOTerm)";
+    public static final String FEATURE_JOIN = " p4=(diseaseEntityJoin)--(feature:Feature)--(crossReference:CrossReference) ";
     private Logger log = LogManager.getLogger(getClass());
     public static final String TOTAL_COUNT = "totalCount";
 
@@ -183,9 +186,63 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
             bindingValueMap.put("diseaseID", diseaseID);
 
 
-        String cypher = "MATCH p0=(disease:DOTerm)--(diseaseEntityJoin:DiseaseEntityJoin)-[:EVIDENCE]-(publication:Publication), " +
+        String cypher = getCypherSelectPart(pagination, diseaseViaEmpiricalData, isGene, bindingValueMap);
+
+        if (diseaseViaEmpiricalData == null || diseaseViaEmpiricalData) {
+            if (isGene) {
+                cypher += "return distinct (disease.name + diseaseEntityJoin.joinType) as nameJoin, ";
+            } else {
+                cypher += "return distinct (";
+                cypher += createReturnListToOrder(pagination.getSortByList(), FieldFilter.GENE_NAME, FieldFilter.FSPECIES, FieldFilter.DISEASE, FieldFilter.ASSOCIATION_TYPE);
+                cypher += ") as nameJoin, ";
+            }
+        } else {
+            if (isGene)
+                cypher += "return distinct (disease.name + diseaseEntityJoin.joinType + orthoGene.primaryKey) as nameJoin, ";
+            else {
+                cypher += "return distinct (";
+                cypher += createReturnListToOrder(pagination.getSortByList(), FieldFilter.GENE_NAME, FieldFilter.FSPECIES, FieldFilter.DISEASE);
+                cypher += ") as nameJoin, ";
+            }
+        }
+
+        cypher += "     gene.symbol,  " +
+                "       disease.name as diseaseName, " +
+                "       disease as disease, " +
+                "       gene as gene, " +
+                "       species as species, " +
+                "       feature.symbol, " +
+                "       feature as feature, " +
+                "       collect(diseaseEntityJoin) as diseaseEntityJoin, " +
+                "       collect(crossReference) as crossReferences, " +
+                "       collect(publication.pubMedId), " +
+                "       collect(publication) as publications, " +
+                "       collect(evidence) as evidences, ";
+        if (diseaseViaEmpiricalData != null && !diseaseViaEmpiricalData) {
+            cypher += "       collect(orthoGene) as orthoGenes, " +
+                    "         collect(orthoSpecies) as orthoSpecies, ";
+        }
+
+        cypher += "       count(publication),         " +
+                "       collect(publication.pubModId) ";
+        cypher += "order by LOWER(nameJoin), LOWER(feature.symbol)";
+        cypher += " SKIP " + pagination.getStart();
+        if (pagination.getLimit() != null && pagination.getLimit() > -1)
+            cypher += " LIMIT " + pagination.getLimit();
+
+        return queryForResult(cypher, bindingValueMap);
+    }
+
+    private String getCypherSelectPart(Pagination pagination, Boolean diseaseViaEmpiricalData, boolean isGene, HashMap<String, String> bindingValueMap) {
+        String cypher = "MATCH p0=";
+        if (isGene) {
+            cypher += "(disease:DOTerm)";
+        } else {
+            cypher += DISEASE_INCLUDING_CHILDREN;
+        }
+        cypher += "--(diseaseEntityJoin:DiseaseEntityJoin)-[:EVIDENCE]-(publication:Publication), " +
                 "              p1=(diseaseEntityJoin)--(evidence:EvidenceCode), " +
-                "              p2=(diseaseEntityJoin)--(gene:Gene) ";
+                "              p2=(diseaseEntityJoin)-[:ASSOCIATION]-(gene:Gene)--(species:Species) ";
 
         if (diseaseViaEmpiricalData != null && !diseaseViaEmpiricalData) {
             cypher += cypherViaOrthology;
@@ -202,7 +259,7 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
         if (isGene) {
             cypherWhereClause += "gene.primaryKey = {geneID} ";
         } else {
-            cypherWhereClause += "disease.primaryKey = {diseaseID} ";
+            cypherWhereClause += "diseaseParent.primaryKey = {diseaseID} ";
         }
 
         if (entityType != null && entityType.equals("gene")) {
@@ -217,38 +274,35 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
         if (geneticEntityFilterClause != null) {
             cypherWhereClause += geneticEntityFilterClause;
             bindingValueMap.put("feature", pagination.getFieldFilterValueMap().get(FieldFilter.GENETIC_ENTITY));
-            cypher += ", p4=(diseaseEntityJoin)--(feature:Feature)--(crossReference:CrossReference) ";
+            cypher += ", " + FEATURE_JOIN;
         }
         cypher += cypherWhereClause;
         if (geneticEntityFilterClause == null) {
             cypher += cypherFeatureOptional;
         }
-        if (diseaseViaEmpiricalData)
-            cypher += "return distinct (disease.name + diseaseEntityJoin.joinType) as nameJoin, ";
-        else
-            cypher += "return distinct (disease.name + diseaseEntityJoin.joinType + orthoGene.primaryKey) as nameJoin, ";
+        return cypher;
+    }
 
-        cypher += "       disease.name as diseaseName, " +
-                "       disease as disease, " +
-                "       feature.symbol, " +
-                "       feature as feature, " +
-                "       collect(diseaseEntityJoin) as diseaseEntityJoin, " +
-                "       collect(crossReference) as crossReferences, " +
-                "       collect(publication.pubMedId), " +
-                "       collect(publication) as publications, " +
-                "       collect(evidence) as evidences, ";
-        if (!diseaseViaEmpiricalData) {
-            cypher += "       collect(orthoGene) as orthoGenes, " +
-                    "         collect(orthoSpecies) as orthoSpecies, ";
-        }
-        cypher += "       count(publication),         " +
-                "       collect(publication.pubModId) " +
-                "order by LOWER(nameJoin), LOWER(feature.symbol)";
-        cypher += " SKIP " + pagination.getStart();
-        if (pagination.getLimit() != null && pagination.getLimit() > -1)
-            cypher += " LIMIT " + pagination.getLimit();
+    private String createReturnListToOrder(List<FieldFilter> sortingFields, FieldFilter... defaultFields) {
+        if (CollectionUtils.isEmpty(sortingFields))
+            sortingFields = Arrays.asList(defaultFields);
+        StringJoiner joiner = new StringJoiner(" + ");
+        sortingFields.forEach(fieldFilter -> joiner.add(sortByMapping.get(fieldFilter)));
+        final List<FieldFilter> filterElements = sortingFields;
+        sortByMapping.forEach((fieldFilter, s) -> {
+            if (!filterElements.contains(fieldFilter))
+                joiner.add(s);
+        });
+        return joiner.toString();
+    }
 
-        return queryForResult(cypher, bindingValueMap);
+    static Map<FieldFilter, String> sortByMapping = new TreeMap<>();
+
+    static {
+        sortByMapping.put(FieldFilter.GENE_NAME, "gene.symbol + substring('               ', 0, size(gene.symbol))");
+        sortByMapping.put(FieldFilter.FSPECIES, "species.name");
+        sortByMapping.put(FieldFilter.DISEASE, "disease.name");
+        sortByMapping.put(FieldFilter.ASSOCIATION_TYPE, "diseaseEntityJoin.joinType");
     }
 
     private String getFilterClauses(Pagination pagination, boolean filterForCounting) {
@@ -299,6 +353,7 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
 
     private String cypherEmpirical = " AND NOT (diseaseEntityJoin)-[:FROM_ORTHOLOGOUS_GENE]-(:Gene) ";
     private String cypherViaOrthology = " ,p5 =  (diseaseEntityJoin)-[:FROM_ORTHOLOGOUS_GENE]-(orthoGene:Gene)-[:FROM_SPECIES]-(orthoSpecies:Species) ";
+    private String cypherViaOrthologyOptional = " ,p5 =  (diseaseEntityJoin)-[:FROM_ORTHOLOGOUS_GENE]-(orthoGene:Gene)-[:FROM_SPECIES]-(orthoSpecies:Species) ";
 
     public Long getTotalDiseaseCount(String geneID, Pagination pagination, boolean empiricalDisease) {
         HashMap<String, String> bindingValueMap = new HashMap<>();
@@ -357,6 +412,44 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
                 default:
                     break;
             }
+        }
+        return featureLessPhenotype + featurePhenotype;
+    }
+
+    public Long getTotalDiseaseCount(String diseaseID, Pagination pagination) {
+        HashMap<String, String> bindingValueMap = new HashMap<>();
+        bindingValueMap.put("diseaseID", diseaseID);
+
+        // get feature-less diseases
+        String filterClauses = getFilterClauses(pagination, true);
+
+
+        //String cypherAll = getCypherSelectPart(pagination, null, false, bindingValueMap);
+        String cypherAll = "MATCH p0=(diseaseParent:DOTerm)<-[:IS_A*0..50]-(disease:DOTerm)--" +
+                "(diseaseEntityJoin:DiseaseEntityJoin)-[:EVIDENCE]-(publication:Publication), " +
+                "p1=(diseaseEntityJoin)--(evidence:EvidenceCode),               " +
+                "p2=(diseaseEntityJoin)-[:ASSOCIATION]-(gene:Gene)--(species:Species)  " +
+                "where diseaseParent.primaryKey = {diseaseID} ";
+        cypherAll += "return count(distinct gene.symbol + disease.name + species.name + diseaseEntityJoin.joinType ) as " + TOTAL_COUNT;
+
+        String geneticEntityFilterClause = addWhereClauseString("feature.symbol", FieldFilter.GENETIC_ENTITY, pagination.getFieldFilterValueMap(), "WHERE");
+        Long featureLessPhenotype = 0L;
+        if (geneticEntityFilterClause == null) {
+            featureLessPhenotype = (Long) queryForResult(cypherAll, bindingValueMap).iterator().next().get(TOTAL_COUNT);
+        }
+
+        // feature-related phenotypes
+        cypherAll = "MATCH p0=(diseaseParent:DOTerm)<-[:IS_A*0..50]-(disease:DOTerm)--" +
+                "(diseaseEntityJoin:DiseaseEntityJoin)-[:EVIDENCE]-(publication:Publication), " +
+                "p1=(diseaseEntityJoin)--(evidence:EvidenceCode),               " +
+                "p2=(diseaseEntityJoin)-[:ASSOCIATION]-(gene:Gene)--(species:Species),  ";
+        cypherAll += FEATURE_JOIN +
+                " where diseaseParent.primaryKey = {diseaseID} ";
+        cypherAll += "return count(distinct gene.symbol + disease.name + species.name + diseaseEntityJoin.joinType + feature.symbol ) as " + TOTAL_COUNT;
+
+        Long featurePhenotype = 0L;
+        if (geneticEntityFilterClause == null) {
+            featurePhenotype = (Long) queryForResult(cypherAll, bindingValueMap).iterator().next().get(TOTAL_COUNT);
         }
         return featureLessPhenotype + featurePhenotype;
     }
