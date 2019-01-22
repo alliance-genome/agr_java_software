@@ -1,18 +1,9 @@
 package org.alliancegenome.api;
 
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
-
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.alliancegenome.api.service.DiseaseService;
-import org.alliancegenome.api.service.GeneService;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.core.translators.tdf.DiseaseAnnotationToTdfTranslator;
@@ -27,19 +18,22 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.config.Configurator;
 import org.jboss.logging.Logger;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.equalTo;
+import static org.junit.Assert.*;
 
 public class DiseaseTest {
 
     private static Logger log = Logger.getLogger(DiseaseTest.class);
 
     private ObjectMapper mapper = new ObjectMapper();
-    private GeneService geneService = new GeneService();
+    private DiseaseService geneService = new DiseaseService();
 
     @Before
     public void before() {

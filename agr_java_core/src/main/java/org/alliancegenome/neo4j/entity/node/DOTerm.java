@@ -25,7 +25,7 @@ public class DOTerm extends SimpleTerm {
     @JsonView({View.DiseaseAPI.class})
     private String doUrl;
     private String doDisplayId;
-    @JsonView({View.DiseaseAPI.class})
+    @JsonView({View.DiseaseAPI.class, View.DiseaseAnnotation.class})
     private String doId;
     private String doPrefix;
     @JsonView({View.DiseaseAPI.class})
@@ -88,6 +88,8 @@ public class DOTerm extends SimpleTerm {
     @JsonView(value = {View.DiseaseAPI.class})
     @JsonProperty(value = "synonyms")
     public List<String> getSynonymList() {
+        if (synonyms == null)
+            return null;
         List<String> list = new ArrayList<>();
         for (Synonym s : synonyms) {
             list.add(s.getPrimaryKey());
@@ -103,6 +105,8 @@ public class DOTerm extends SimpleTerm {
     /// ToDO: could combine this with the method in GeneticEntity.
     /// maybe, common super class or a service / utility class
     public Map<String, Object> getCrossReferenceMap() {
+        if (crossReferences == null)
+            return null;
         Map<String, Object> map = new HashMap<>();
 
         List<CrossReference> othersList = new ArrayList<>();
@@ -131,6 +135,8 @@ public class DOTerm extends SimpleTerm {
     }
 
     private List<SimpleTerm> getSimpleTerms(List<DOTerm> parents) {
+        if (parents == null)
+            return null;
         return parents.stream()
                 .map(doTerm -> {
                     SimpleTerm term = new SimpleTerm();

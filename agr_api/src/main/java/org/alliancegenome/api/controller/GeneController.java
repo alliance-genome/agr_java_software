@@ -12,6 +12,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.alliancegenome.api.rest.interfaces.GeneRESTInterface;
+import org.alliancegenome.api.service.DiseaseService;
 import org.alliancegenome.api.service.ExpressionService;
 import org.alliancegenome.api.service.GeneService;
 import org.alliancegenome.api.service.helper.ExpressionSummary;
@@ -42,6 +43,9 @@ public class GeneController extends BaseController implements GeneRESTInterface 
     @Inject
     private GeneService geneService;
     
+    @Inject
+    private DiseaseService diseaseService;
+
     private final PhenotypeAnnotationToTdfTranslator translator = new PhenotypeAnnotationToTdfTranslator();
     private final DiseaseAnnotationToTdfTranslator diseaseTranslator = new DiseaseAnnotationToTdfTranslator();
     private ObjectMapper mapper = new ObjectMapper();
@@ -151,7 +155,7 @@ public class GeneController extends BaseController implements GeneRESTInterface 
         pagination.addFieldFilter(FieldFilter.ORTHOLOG_SPECIES, orthologyGeneSpecies);
         pagination.addFieldFilter(FieldFilter.DISEASE, disease);
         pagination.addFieldFilter(FieldFilter.FREFERENCE, reference);
-        return geneService.getEmpiricalDiseaseAnnotations(id, pagination, empiricalDisease);
+        return diseaseService.getEmpiricalDiseaseAnnotations(id, pagination, empiricalDisease);
     }
 
     @Override

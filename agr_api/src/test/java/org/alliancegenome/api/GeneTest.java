@@ -84,6 +84,7 @@ public class GeneTest {
 
 
     @Test
+    @Ignore
     public void checkForSecondaryId() {
         // ZFIN:ZDB-GENE-030131-3355 is a secondary ID for ZFIN:ZDB-LINCRNAG-160518-1
         Gene result = geneService.getById("ZFIN:ZDB-GENE-030131-3355");
@@ -97,7 +98,7 @@ public class GeneTest {
 
         GeneController controller = new GeneController();
         String[] geneIDs = {"RGD:2129"};
-        JsonResultResponse<OrthologView> response = controller.getGeneOrthology("MGI:109583", Arrays.asList(geneIDs), null, "stringENT", null, null, 20, 0);
+        JsonResultResponse<OrthologView> response = controller.getGeneOrthology("MGI:109583", Arrays.asList(geneIDs), null, "stringENT", null, null, 20, 1);
         assertThat("Matches found for filter 'stringent", response.getTotal(), greaterThan(0));
     }
 
@@ -105,7 +106,7 @@ public class GeneTest {
     public void checkOrthologyForListOfGenes() throws IOException {
 
         GeneController controller = new GeneController();
-        JsonResultResponse<OrthologView> response = controller.getGeneOrthology("MGI:109583", null, null, "stringENT", null, null, 20, 0);
+        JsonResultResponse<OrthologView> response = controller.getGeneOrthology("MGI:109583", null, null, "stringENT", null, null, 20, 1);
         assertThat("Matches found for filter 'stringent", response.getTotal(), greaterThan(0));
     }
 
@@ -133,10 +134,10 @@ public class GeneTest {
         assertThat("No matches found for species 'NCBITaxon:10115", response.getTotal(), greaterThan(5));
 
         String[] taxonArray = {"NCBITaxon:10116"};
-        response = controller.getGeneOrthology("MGI:109583", null, null, null, Arrays.asList(taxonArray), null, 20, 0);
+        response = controller.getGeneOrthology("MGI:109583", null, null, null, Arrays.asList(taxonArray), null, 20, 1);
         assertThat("matches found for method species NCBITaxon:10116", response.getTotal(), greaterThan(0));
 
-        response = controller.getGeneOrthology("MGI:109583", null, null, "stringent", Arrays.asList(taxonArray), null, 20, 0);
+        response = controller.getGeneOrthology("MGI:109583", null, null, "stringent", Arrays.asList(taxonArray), null, 20, 1);
         assertThat("matches found for method species NCBITaxon:10116", response.getTotal(), greaterThan(0));
 
 /*
@@ -154,19 +155,19 @@ public class GeneTest {
 
         GeneController controller = new GeneController();
         String[] methods = {"ZFIN"};
-        JsonResultResponse<OrthologView> response = controller.getGeneOrthology("MGI:109583", null, null, null, null, Arrays.asList(methods), 20, 0);
+        JsonResultResponse<OrthologView> response = controller.getGeneOrthology("MGI:109583", null, null, null, null, Arrays.asList(methods), 20, 1);
         assertThat("No match against method 'ZFIN'", response.getTotal(), greaterThan(0));
 
         methods = new String[]{"OrthoFinder"};
-        response = controller.getGeneOrthology("MGI:109583", null, null, null, null, Arrays.asList(methods), 20, 0);
+        response = controller.getGeneOrthology("MGI:109583", null, null, null, null, Arrays.asList(methods), 20, 1);
         assertThat("matches found for method 'OrthoFinder'", response.getTotal(), greaterThan(0));
 
         methods = new String[]{"OrthoFinder", "ZFIN"};
-        response = controller.getGeneOrthology("MGI:109583", null, null, null, null, Arrays.asList(methods), 20, 0);
+        response = controller.getGeneOrthology("MGI:109583", null, null, null, null, Arrays.asList(methods), 20, 1);
         assertThat("no matches found for method 'OrthoFinder and ZFIN'", response.getTotal(), greaterThan(0));
 
         methods = new String[]{"OrthoFinder", "PANTHER"};
-        response = controller.getGeneOrthology("MGI:109583", null, null, null, null, Arrays.asList(methods), 20, 0);
+        response = controller.getGeneOrthology("MGI:109583", null, null, null, null, Arrays.asList(methods), 20, 1);
         assertThat("matches found for method 'OrthoFinder and Panther'", response.getTotal(), greaterThan(0));
     }
 

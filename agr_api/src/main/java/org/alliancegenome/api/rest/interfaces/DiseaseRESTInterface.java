@@ -35,6 +35,7 @@ public interface DiseaseRESTInterface {
 
     @GET
     @Path("/{id}/associations")
+    @JsonView(value={View.DiseaseAnnotation.class})
     public JsonResultResponse<DiseaseAnnotation> getDiseaseAnnotationsSorted(
             @PathParam("id") String id,
             @DefaultValue("20") @QueryParam("limit") int limit,

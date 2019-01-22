@@ -43,7 +43,7 @@ public class Publication extends Neo4jEntity implements Comparable<Publication> 
         }
     }
 
-    @JsonView({View.Phenotype.class, View.Expression.class})
+    @JsonView({View.Phenotype.class, View.Expression.class, View.DiseaseAnnotation.class})
     @JsonProperty("id")
     private String getPublicationId() {
         if (StringUtils.isNotEmpty(pubMedId)) {
@@ -53,7 +53,7 @@ public class Publication extends Neo4jEntity implements Comparable<Publication> 
         }
     }
 
-    @JsonView({View.Phenotype.class, View.Expression.class})
+    @JsonView({View.Phenotype.class, View.Expression.class, View.DiseaseAnnotation.class})
     @JsonProperty("url")
     private String getPublicationUrl() {
         if (StringUtils.isNotEmpty(pubMedId)) {

@@ -72,7 +72,7 @@ public class DiseaseController extends BaseController implements DiseaseRESTInte
                 // handle error
             }
         }
-        return diseaseService.getDiseaseAnnotations(id, pagination);
+        return diseaseService.getDiseaseAnnotationsByDisease(id, pagination);
     }
 
     @Override
