@@ -26,6 +26,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
 @Api(value = "Phenotype Tests")
+@Ignore
 public class PhenotypeTest {
 
     private ObjectMapper mapper = new ObjectMapper();
@@ -61,7 +62,6 @@ public class PhenotypeTest {
 
 
     @Test
-    @Ignore
     public void checkPhenotypeByGeneWithoutPagination() throws JsonProcessingException {
         Pagination pagination = new Pagination(1, 100, null, null);
         // mkks
@@ -90,7 +90,6 @@ public class PhenotypeTest {
     }
 
     @Test
-    @Ignore
     // ZFIN gene: mkks
     public void checkPhenotypeByGeneWithPagination() throws JsonProcessingException {
 
@@ -102,7 +101,6 @@ public class PhenotypeTest {
     }
 
     @Test
-    @Ignore
     // ZFIN gene: pax2a
     public void checkPhenotypeByGeneWithPaginationPax2a() throws JsonProcessingException {
 
@@ -154,7 +152,6 @@ public class PhenotypeTest {
     }
 
     @Test
-    @Ignore
     // ZFIN gene: Pten
     public void checkPhenotypeByGeneWithPaginationPten() throws JsonProcessingException {
 

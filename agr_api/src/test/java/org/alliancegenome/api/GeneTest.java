@@ -1,20 +1,11 @@
 package org.alliancegenome.api;
 
-import static org.alliancegenome.api.service.ExpressionService.CELLULAR_COMPONENT;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
-
-import java.io.IOException;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
-
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.alliancegenome.api.controller.ExpressionController;
 import org.alliancegenome.api.controller.GeneController;
 import org.alliancegenome.api.controller.GenesController;
@@ -42,15 +33,21 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import static org.alliancegenome.api.service.ExpressionService.CELLULAR_COMPONENT;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
 
 @Api(value = "hallo")
+@Ignore
 public class GeneTest {
 
     private GeneService geneService;
@@ -84,7 +81,6 @@ public class GeneTest {
 
 
     @Test
-    @Ignore
     public void checkForSecondaryId() {
         // ZFIN:ZDB-GENE-030131-3355 is a secondary ID for ZFIN:ZDB-LINCRNAG-160518-1
         Gene result = geneService.getById("ZFIN:ZDB-GENE-030131-3355");
@@ -94,7 +90,6 @@ public class GeneTest {
     }
 
     @Test
-    @Ignore
     public void checkOrthologyAPIWithFilter() throws IOException {
 
         GeneController controller = new GeneController();
@@ -104,7 +99,6 @@ public class GeneTest {
     }
 
     @Test
-    @Ignore
     public void checkOrthologyForListOfGenes() throws IOException {
 
         GeneController controller = new GeneController();
@@ -113,7 +107,6 @@ public class GeneTest {
     }
 
     @Test
-    @Ignore
     public void checkOrthologyForTwoSpecies() throws IOException {
 
         OrthologyController controller = new OrthologyController();
@@ -122,7 +115,6 @@ public class GeneTest {
     }
 
     @Test
-    @Ignore
     public void checkOrthologyForSingleSpecies() throws IOException {
 
         OrthologyController controller = new OrthologyController();
@@ -131,7 +123,6 @@ public class GeneTest {
     }
 
     @Test
-    @Ignore
     public void checkOrthologyAPIWithSpecies() throws IOException {
 
         GeneController controller = new GeneController();
@@ -156,7 +147,6 @@ public class GeneTest {
     }
 
     @Test
-    @Ignore
     public void checkOrthologyAPIWithMethods() throws IOException {
 
         GeneController controller = new GeneController();
@@ -178,7 +168,6 @@ public class GeneTest {
     }
 
     @Test
-    @Ignore
     public void checkOrthologyAPINoFilters() throws IOException {
 
         GeneController controller = new GeneController();
@@ -187,14 +176,12 @@ public class GeneTest {
     }
 
     @Test
-    @Ignore
     public void getAllOrthologyMethods() throws IOException {
 
         OrthologyController controller = new OrthologyController();
         JsonResultResponse<OrthoAlgorithm> response = controller.getAllMethodsCalculations();
     }
 
-    @Ignore
     @Test
     public void getAllGenes() throws IOException {
 
@@ -204,7 +191,6 @@ public class GeneTest {
         assertThat("matches found for gene MGI:109583'", response.getTotal(), greaterThan(5));
     }
 
-    @Ignore
     @Test
     public void getAllGeneIDs() throws IOException {
 
@@ -215,7 +201,6 @@ public class GeneTest {
                 equalTo("ZFIN:ZDB-GENE-990706-1,ZFIN:ZDB-GENE-000710-5,ZFIN:ZDB-GENE-030516-5,ZFIN:ZDB-GENE-030131-8698,ZFIN:ZDB-GENE-030131-8358"));
     }
 
-    @Ignore
     @Test
     public void checkExpressionSummary() throws IOException {
 
@@ -244,7 +229,6 @@ public class GeneTest {
         });
     }
 
-    @Ignore
     @Test
     public void checkExpressionSummaryGOAndAO() throws IOException {
 
@@ -253,7 +237,6 @@ public class GeneTest {
         assertThat("matches found for gene ZFIN:ZDB-GENE-980526-188'", response.getTotalAnnotations(), equalTo(26));
     }
 
-    @Ignore
     @Test
     public void checkExpressionAnnotation() throws IOException {
 
@@ -313,7 +296,6 @@ public class GeneTest {
         assertThat("matches found for gene MGI:109583'", response.getReturnedRecords(), equalTo(15));
     }
 
-    @Ignore
     @Test
     public void checkExpressionAnnotationWithTerm() throws IOException {
 
@@ -331,7 +313,6 @@ public class GeneTest {
         assertThat("matches found for gene MGI:109583'", response.getResults().size(), equalTo(3));
     }
 
-    @Ignore
     @Test
     public void checkExpressionAnnotationWithTermOnZFIN() throws IOException {
 
@@ -358,7 +339,6 @@ public class GeneTest {
         assertThat("matches found for gene MGI:109583'", response.getResults().size(), greaterThan(2));
     }
 
-    @Ignore
     @Test
     public void checkExpressionAnnotationFilter() throws IOException {
 
@@ -397,7 +377,6 @@ public class GeneTest {
         //      assertThat("list of stages", stages, equalTo("ZFS:0000029,ZFS:0000030,ZFS:0000031,ZFS:0000032,ZFS:0000033,ZFS:0000034,ZFS:0000035,ZFS:0000036,ZFS:0000044"));
     }
 
-    @Ignore
     @Test
     public void checkExpressionAPI() throws IOException {
 
@@ -408,7 +387,6 @@ public class GeneTest {
         });
     }
 
-    @Ignore
     @Test
     public void checkExpressionAnnotationFiltering() throws IOException {
 
@@ -427,7 +405,6 @@ public class GeneTest {
                 .collect(Collectors.toList());
     }
 
-    @Ignore
     @Test
     // Test Sox9 from MGI for disease via experiment records
     public void checkDiseaseAnnotationNonDuplicated() {
@@ -460,7 +437,6 @@ public class GeneTest {
 
     }
 
-    @Ignore
     @Test
     // Test Shh from MGI for disease via experiment records
     public void checkDiseaseAnnotationNonDuplicated2() {
@@ -491,7 +467,6 @@ public class GeneTest {
 
     }
 
-    @Ignore
     @Test
     // Test SHH from Human for disease via experiment records
     public void checkDiseaseAnnotationNonDuplicated3() {
@@ -516,7 +491,6 @@ public class GeneTest {
     }
 
 
-    @Ignore
     @Test
     // Test daf-2 from Worm for disease via orthology records
     public void checkDiseaseAnnotationMissing() {

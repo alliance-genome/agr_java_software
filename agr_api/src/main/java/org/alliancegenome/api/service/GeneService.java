@@ -15,6 +15,7 @@ import javax.enterprise.context.RequestScoped;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RequestScoped
 public class GeneService {
@@ -81,7 +82,8 @@ public class GeneService {
                 gene.setCrossReferences(ref);
                 document.setGeneticEntity(gene);
             }
-            document.setPublications((List<Publication>) objectMap.get("publications"));
+            List<Publication> publications = (List<Publication>) objectMap.get("publications");
+            document.setPublications(publications.stream().distinct().collect(Collectors.toList()));
             annotationDocuments.add(document);
         });
 
