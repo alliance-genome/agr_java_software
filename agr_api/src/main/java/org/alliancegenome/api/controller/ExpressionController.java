@@ -1,4 +1,4 @@
-package org.alliancegenome.api.rest.interfaces;
+package org.alliancegenome.api.controller;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -10,6 +10,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.alliancegenome.api.rest.interfaces.ExpressionRESTInterface;
 import org.alliancegenome.api.service.ExpressionService;
 import org.alliancegenome.api.service.helper.ExpressionDetail;
 import org.alliancegenome.core.service.JsonResultResponse;
