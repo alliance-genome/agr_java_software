@@ -25,10 +25,7 @@ public class EC2Helper {
 
         AmazonEC2 ec2 = AmazonEC2ClientBuilder.standard()
                 .withCredentials(
-                        new AWSStaticCredentialsProvider(
-                                new BasicAWSCredentials(ConfigHelper.getAWSAccessKey(), ConfigHelper.getAWSSecretKey())
-                                )
-                        )
+                        new AWSStaticCredentialsProvider(new BasicAWSCredentials(ConfigHelper.getAWSAccessKey(), ConfigHelper.getAWSSecretKey())))
                 .withRegion(Regions.US_EAST_1).build();
 
         DescribeInstancesRequest request = new DescribeInstancesRequest();
@@ -64,44 +61,41 @@ public class EC2Helper {
 
     public void createInstance() {
         AmazonEC2 ec2 = AmazonEC2ClientBuilder.standard()
-                .withCredentials(
-                        new AWSStaticCredentialsProvider(
-                                new BasicAWSCredentials(ConfigHelper.getAWSAccessKey(), ConfigHelper.getAWSSecretKey())
-                                )
-                        )
+                .withCredentials(new AWSStaticCredentialsProvider(
+                        new BasicAWSCredentials(ConfigHelper.getAWSAccessKey(), ConfigHelper.getAWSSecretKey())))
                 .withRegion(Regions.US_EAST_1).build();
 
         RunInstancesRequest runInstancesRequest = new RunInstancesRequest();
 
         EbsBlockDevice root_ebs = new EbsBlockDevice()
-            .withVolumeSize(200)
-            .withVolumeType(VolumeType.Gp2);
-        
+                .withVolumeSize(200)
+                .withVolumeType(VolumeType.Gp2);
+
         EbsBlockDevice swap_ebs = new EbsBlockDevice()
                 .withVolumeSize(64)
                 .withVolumeType(VolumeType.Gp2);
-        
+
         BlockDeviceMapping root = new BlockDeviceMapping()
-            .withDeviceName("/dev/xvda")
-            .withEbs(root_ebs);
-        
+                .withDeviceName("/dev/xvda")
+                .withEbs(root_ebs);
+
         BlockDeviceMapping swap = new BlockDeviceMapping()
                 .withDeviceName("/dev/sdb")
                 .withEbs(swap_ebs);
-        
+
         runInstancesRequest
-            .withImageId("ami-0b1db01d775d666c2")
-            // r5.2xlarge
-            .withInstanceType(InstanceType.R52xlarge)
-            .withMinCount(1)
-            .withMaxCount(1)
-            .withBlockDeviceMappings(root, swap)
-            .withSecurityGroups("default", "ES Transport", "HTTP", "HTTPS SSL", "SSH") // Step 6 default, ES Transport, HTTP, HTTPS SSL, SSH
-            .withKeyName("AGR-ssl2");
+        .withImageId("ami-0b1db01d775d666c2")
+        // r5.2xlarge
+        .withInstanceType(InstanceType.R52xlarge)
+        .withMinCount(1)
+        .withMaxCount(1)
+        .withBlockDeviceMappings(root, swap)
+        .withSecurityGroups("default", "ES Transport", "HTTP", "HTTPS SSL", "SSH") // Step 6 default, ES Transport, HTTP, HTTPS SSL, SSH
+        .withKeyName("AGR-ssl2");
 
         RunInstancesResult result = ec2.runInstances(runInstancesRequest);
-    
-        
+
+
     }
-    
+
 }
