@@ -353,7 +353,6 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
 
     private String cypherEmpirical = " AND NOT (diseaseEntityJoin)-[:FROM_ORTHOLOGOUS_GENE]-(:Gene) ";
     private String cypherViaOrthology = " ,p5 =  (diseaseEntityJoin)-[:FROM_ORTHOLOGOUS_GENE]-(orthoGene:Gene)-[:FROM_SPECIES]-(orthoSpecies:Species) ";
-    private String cypherViaOrthologyOptional = " ,p5 =  (diseaseEntityJoin)-[:FROM_ORTHOLOGOUS_GENE]-(orthoGene:Gene)-[:FROM_SPECIES]-(orthoSpecies:Species) ";
 
     public Long getTotalDiseaseCount(String geneID, Pagination pagination, boolean empiricalDisease) {
         HashMap<String, String> bindingValueMap = new HashMap<>();

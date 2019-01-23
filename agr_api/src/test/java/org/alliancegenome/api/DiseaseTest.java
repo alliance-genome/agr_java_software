@@ -18,6 +18,7 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.config.Configurator;
 import org.jboss.logging.Logger;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -28,6 +29,7 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.*;
 
+@Ignore
 public class DiseaseTest {
 
     private static Logger log = Logger.getLogger(DiseaseTest.class);
@@ -46,7 +48,6 @@ public class DiseaseTest {
     }
 
     @Test
-    //@Ignore
     public void checkDiseaseAssociationByDisease() {
         Pagination pagination = new Pagination(1, 100, null, null);
         // choriocarcinoma
@@ -115,7 +116,6 @@ public class DiseaseTest {
     }
 
     @Test
-    //@Ignore
     public void checkDiseaseAssociationByDiseaseAcuteLymphocyticLeukemia() {
         Pagination pagination = new Pagination(1, 25, null, null);
         // acute lymphocytic lukemia
@@ -174,7 +174,6 @@ public class DiseaseTest {
     }
 
     @Test
-    //@Ignore
     public void checkDiseaseAssociationByDiseaseSorting() {
         Pagination pagination = new Pagination(1, 5, null, null);
         // acute lymphocytic lukemia
@@ -229,7 +228,6 @@ public class DiseaseTest {
     }
 
     @Test
-    //@Ignore
     public void checkEmpiricalDiseaseByGene() {
         Pagination pagination = new Pagination(1, 10, null, null);
         // Pten
@@ -269,7 +267,6 @@ public class DiseaseTest {
     }
 
     @Test
-    //@Ignore
     public void checkEmpiricalDiseaseFilterByDisease() {
         Pagination pagination = new Pagination(1, null, null, null);
         // Pten
@@ -304,7 +301,6 @@ public class DiseaseTest {
     }
 
     @Test
-    //@Ignore
     public void checkEmpiricalDiseaseFilterByGeneticEntity() {
         Pagination pagination = new Pagination(1, null, null, null);
         // Pten
@@ -341,7 +337,6 @@ public class DiseaseTest {
     }
 
     @Test
-    //@Ignore
     public void checkEmpiricalDiseaseFilterByGeneticEntityType() {
         Pagination pagination = new Pagination(1, null, null, null);
         // Pten
@@ -369,7 +364,6 @@ public class DiseaseTest {
     }
 
     @Test
-    //@Ignore
     public void checkEmpiricalDiseaseFilterByAssociation() {
         Pagination pagination = new Pagination(1, null, null, null);
         // Pten
@@ -395,7 +389,6 @@ public class DiseaseTest {
     }
 
     @Test
-    //@Ignore
     public void checkEmpiricalDiseaseFilterByEvidence() {
         Pagination pagination = new Pagination(1, null, null, null);
         // Pten
@@ -412,7 +405,6 @@ public class DiseaseTest {
     }
 
     @Test
-    //@Ignore
     public void checkEmpiricalDiseaseFilterByPublication() {
         Pagination pagination = new Pagination(1, null, null, null);
         // Pten
@@ -429,7 +421,6 @@ public class DiseaseTest {
     }
 
     @Test
-    //@Ignore
     public void checkDiseaseViaOrthologyByGene() {
         Pagination pagination = new Pagination(1, 10, null, null);
         // Ogg1
@@ -468,7 +459,6 @@ public class DiseaseTest {
     }
 
     @Test
-    //@Ignore
     public void checkDiseaseOrthologyFilterByDisease() {
         Pagination pagination = new Pagination(1, null, null, null);
         // Pten
@@ -505,7 +495,6 @@ public class DiseaseTest {
     }
 
     @Test
-    //@Ignore
     public void checkDiseaseOrthologyFilterByAssociation() {
         Pagination pagination = new Pagination(1, null, null, null);
         // Pten
@@ -529,7 +518,6 @@ public class DiseaseTest {
     }
 
     @Test
-    //@Ignore
     public void checkDiseaseOrthologyFilterByOrthoGene() {
         Pagination pagination = new Pagination(1, null, null, null);
         // Pten
@@ -549,7 +537,6 @@ public class DiseaseTest {
     }
 
     @Test
-    ////@Ignore
     public void checkDiseaseOrthologyFilterByOrthoGeneSpecies() {
         Pagination pagination = new Pagination(1, null, null, null);
         // Pten
@@ -585,7 +572,6 @@ public class DiseaseTest {
     public static void main(String[] args) {
         ConfigHelper.init();
 
-        //DiseaseAnnotationToTdfTranslator translator = new DiseaseAnnotationToTdfTranslator();
         //String str = translator.getAllRows(service.getDiseaseAnnotationsDownload("DOID:9351", Pagination.getDownloadPagination()));
         Pagination pagination = new Pagination(1, 20, "gene", "true");
         pagination.addFieldFilter(FieldFilter.GENE_NAME, "l");
@@ -594,7 +580,7 @@ public class DiseaseTest {
         pagination = new Pagination(1, Integer.MAX_VALUE, null, null);
         DiseaseAnnotationToTdfTranslator translator = new DiseaseAnnotationToTdfTranslator();
         DiseaseService diseaseService = new DiseaseService();
-        System.out.println(translator.getAllRows(diseaseService.getDiseaseAnnotationsDownload("DOID:3594", pagination).getResults()));
+        System.out.println(translator.getAllRows(diseaseService.getDiseaseAnnotationsByDisease("DOID:3594", pagination).getResults()));
 
     }
 

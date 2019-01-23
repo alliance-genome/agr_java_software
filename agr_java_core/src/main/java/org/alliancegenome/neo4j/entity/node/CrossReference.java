@@ -19,7 +19,7 @@ public class CrossReference extends Neo4jEntity {
     @JsonProperty(value="url")
     private String crossRefCompleteUrl;
     
-    @JsonView({View.API.class, View.Interaction.class, View.Expression.class})
+    @JsonView({View.Interaction.class, View.Expression.class})
     private String localId;
     
     @JsonView({View.Interaction.class, View.Expression.class})
@@ -34,14 +34,14 @@ public class CrossReference extends Neo4jEntity {
     @JsonView({View.Interaction.class, View.Expression.class})
     private String displayName;
     
-    @JsonView({View.API.class, View.Interaction.class, View.Expression.class})
+    @JsonView({View.Interaction.class, View.Expression.class})
     private String primaryKey;
     
-    @JsonView({View.API.class, View.Interaction.class, View.Expression.class})
+    @JsonView({View.Interaction.class, View.Expression.class})
     private String crossRefType;
 
     @JsonView({View.API.class})
-    @JsonProperty(value="displayName")
+    @JsonProperty(value="name")
     public String getDisplayNameAPI() {
         if(displayName != null && displayName.length() > 0) {
             return displayName;

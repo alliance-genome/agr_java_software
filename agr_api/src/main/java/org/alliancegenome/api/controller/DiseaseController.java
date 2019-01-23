@@ -88,8 +88,7 @@ public class DiseaseController extends BaseController implements DiseaseRESTInte
     public String getDiseaseAnnotationsDownload(String id) {
         Pagination pagination = new Pagination(1, Integer.MAX_VALUE, null, null);
         // retrieve all records
-        //return translator.getAllRows(diseaseService.getDiseaseAnnotationsDownload(id, pagination));
-        return null;
+        return translator.getAllRows(diseaseService.getDiseaseAnnotationsByDisease(id, pagination).getResults());
     }
 
 }

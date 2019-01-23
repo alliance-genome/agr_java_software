@@ -27,11 +27,6 @@ public class DiseaseService {
         return diseaseRepository.getDiseaseTerm(id);
     }
 
-    public JsonResultResponse<DiseaseAnnotation> getDiseaseAnnotationsDownload(String id, Pagination pagination) {
-        //return diseaseRepository.getDiseaseAnnotationsDownload(id, pagination);
-        return null;
-    }
-
     public JsonResultResponse<DiseaseAnnotation> getDiseaseAnnotationsByDisease(String diseaseID, Pagination pagination) {
         LocalDateTime startDate = LocalDateTime.now();
         List<DiseaseAnnotation> list = getDiseaseAnnotationList(diseaseID, pagination);

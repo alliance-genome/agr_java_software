@@ -61,7 +61,6 @@ public class DiseaseAnnotationToTdfTranslator {
             evidenceCodes.forEach(evidenceJoiner::add);
             joiner.add(evidenceJoiner.toString());
             // source list
-            StringJoiner sourceJoiner = new StringJoiner(",");
             joiner.add(diseaseAnnotation.getSource().getName());
 
             // publication list
