@@ -141,7 +141,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
         query += getSpeciesWhere(species);
         query += " RETURN distinct gene.primaryKey, disease.nameKey ";
 
-        return getMapSetForQuery(query, "gene.primaryKey", "", getSpeciesParams(species));
+        return getMapSetForQuery(query, "gene.primaryKey", "disease.nameKey", getSpeciesParams(species));
     }
 
 

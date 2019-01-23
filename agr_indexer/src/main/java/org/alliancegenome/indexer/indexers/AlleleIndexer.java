@@ -50,8 +50,9 @@ public class AlleleIndexer extends Indexer<AlleleDocument> {
         while (true) {
             try {
                 if (list.size() >= indexerConfig.getBufferSize()) {
-                    saveDocuments(alleleTranslator.translateEntities(list));
-                    repo.clearCache();
+                    Iterable <AlleleDocument> alleleDocuments = alleleTranslator.translateEntities(list);
+                    alleleDocumentCache.addCachedFields(alleleDocuments);
+                    saveDocuments(alleleDocuments);
                     list.clear();
                 }
                 if (queue.isEmpty()) {

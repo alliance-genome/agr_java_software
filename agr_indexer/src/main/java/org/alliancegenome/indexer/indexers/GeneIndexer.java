@@ -58,7 +58,9 @@ public class GeneIndexer extends Indexer<GeneDocument> {
         while (true) {
             try {
                 if (list.size() >= indexerConfig.getBufferSize()) {
-                    saveDocuments(geneTrans.translateEntities(list));
+                    Iterable<GeneDocument> geneDocuments = geneTrans.translateEntities(list);
+                    geneDocumentCache.addCachedFields(geneDocuments);
+                    saveDocuments(geneDocuments);
                     list.clear();
                 }
                 if (queue.isEmpty()) {
