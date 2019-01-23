@@ -25,11 +25,10 @@ public class DOTerm extends SimpleTerm {
     @JsonView({View.DiseaseAPI.class})
     private String doUrl;
     private String doDisplayId;
-    @JsonView({View.DiseaseAPI.class, View.DiseaseAnnotation.class})
+    @JsonView({View.DiseaseAPI.class})
     private String doId;
     private String doPrefix;
     @JsonView({View.DiseaseAPI.class})
-    @JsonProperty(value = "id")
     private String primaryKey;
     @JsonView({View.DiseaseAPI.class})
     private String definition;
@@ -115,6 +114,11 @@ public class DOTerm extends SimpleTerm {
             map.put("other", othersList);
         }
         return map;
+    }
+
+    public void setDoId(String doId) {
+        this.doId = doId;
+        this.ID = doId;
     }
 
     @Override

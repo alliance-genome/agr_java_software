@@ -14,8 +14,8 @@ import org.neo4j.ogm.annotation.NodeEntity;
 public class SimpleTerm extends Neo4jEntity {
 
     @JsonView({View.DiseaseAPI.class, View.DiseaseAnnotation.class})
-    @JsonProperty("id")
-    private String ID;
+    @JsonProperty(value = "id")
+    protected String ID;
 
     @JsonView({View.DiseaseAPI.class, View.DiseaseAnnotation.class})
     protected String name;

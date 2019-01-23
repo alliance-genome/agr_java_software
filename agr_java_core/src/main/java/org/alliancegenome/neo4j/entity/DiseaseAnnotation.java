@@ -1,6 +1,7 @@
 package org.alliancegenome.neo4j.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Getter;
 import lombok.Setter;
@@ -23,6 +24,7 @@ public class DiseaseAnnotation implements Comparable<DiseaseAnnotation> {
     @JsonView({View.DiseaseAnnotation.class})
     private Gene orthologyGene;
     @JsonView({View.DiseaseAnnotation.class})
+    @JsonProperty(value = "allele")
     private Allele feature;
     @JsonView({View.DiseaseAnnotation.class})
     private List<Publication> publications;
