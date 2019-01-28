@@ -24,7 +24,6 @@ public class DOTerm extends SimpleTerm {
 
     private String doUrl;
     private String doDisplayId;
-    @JsonView({View.DiseaseAPI.class})
     private String doId;
     private String doPrefix;
     @JsonView({View.DiseaseAPI.class})
@@ -98,8 +97,6 @@ public class DOTerm extends SimpleTerm {
 
     @JsonView({View.DiseaseAPI.class})
     @JsonProperty(value = "crossReferences")
-    /// ToDO: could combine this with the method in GeneticEntity.
-    /// maybe, common super class or a service / utility class
     public Map<String, Object> getCrossReferenceMap() {
         if (crossReferences == null)
             return null;

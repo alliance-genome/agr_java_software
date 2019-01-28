@@ -95,7 +95,7 @@ public class Pagination {
     }
 
     public List<FieldFilter> getSortByList() {
-        if(sortBy == null)
+        if(StringUtils.isEmpty(sortBy))
             return null;
         String[] sortingTokens = sortBy.split(SORTING_DELIMITER);
         return Arrays.stream(sortingTokens)

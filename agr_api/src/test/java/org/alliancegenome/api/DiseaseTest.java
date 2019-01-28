@@ -52,10 +52,6 @@ public class DiseaseTest {
         Pagination pagination = new Pagination(1, 100, null, null);
         // choriocarcinoma
         String diseaseID = "DOID:3594";
-/*
-        pagination.setSortBy("filter.species");
-        pagination.setSortBy("associationType");
-*/
         JsonResultResponse<DiseaseAnnotation> response = geneService.getDiseaseAnnotationsByDisease(diseaseID, pagination);
         assertResponse(response, 35, 35);
 
