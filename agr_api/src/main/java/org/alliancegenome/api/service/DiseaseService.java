@@ -56,7 +56,6 @@ public class DiseaseService {
             gene.setSpecies((Species) objectMap.get("species"));
             document.setGene(gene);
             DOTerm disease = (DOTerm) objectMap.get("disease");
-            disease.setID(disease.getDoId());
             document.setDisease(disease);
 
             DiseaseEntityJoin diseaseEntityJoin = ((List<DiseaseEntityJoin>) objectMap.get("diseaseEntityJoin")).get(0);

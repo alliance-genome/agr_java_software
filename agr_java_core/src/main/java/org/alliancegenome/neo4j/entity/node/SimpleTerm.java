@@ -15,7 +15,7 @@ public class SimpleTerm extends Neo4jEntity {
 
     @JsonView({View.DiseaseAPI.class, View.DiseaseAnnotation.class})
     @JsonProperty(value = "id")
-    protected String ID;
+    protected String primaryKey;
 
     @JsonView({View.DiseaseAPI.class, View.DiseaseAnnotation.class})
     protected String name;

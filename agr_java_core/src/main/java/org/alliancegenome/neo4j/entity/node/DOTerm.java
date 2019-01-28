@@ -22,14 +22,11 @@ public class DOTerm extends SimpleTerm {
 
     public static final String HIGH_LEVEL_TERM_LIST_SLIM = "DO_AGR_slim";
 
-    @JsonView({View.DiseaseAPI.class})
     private String doUrl;
     private String doDisplayId;
     @JsonView({View.DiseaseAPI.class})
     private String doId;
     private String doPrefix;
-    @JsonView({View.DiseaseAPI.class})
-    private String primaryKey;
     @JsonView({View.DiseaseAPI.class})
     private String definition;
     @JsonView({View.DiseaseAPI.class})
@@ -118,7 +115,6 @@ public class DOTerm extends SimpleTerm {
 
     public void setDoId(String doId) {
         this.doId = doId;
-        this.ID = doId;
     }
 
     @Override
@@ -144,11 +140,15 @@ public class DOTerm extends SimpleTerm {
         return parents.stream()
                 .map(doTerm -> {
                     SimpleTerm term = new SimpleTerm();
-                    term.setID(doTerm.doId);
+                    term.setPrimaryKey(doTerm.primaryKey);
                     term.setName(doTerm.getName());
                     return term;
                 })
                 .collect(Collectors.toList());
+    }
+
+    public String getID(){
+        return doId;
     }
 
 }

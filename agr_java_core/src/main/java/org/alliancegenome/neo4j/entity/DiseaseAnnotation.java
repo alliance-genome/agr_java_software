@@ -27,6 +27,8 @@ public class DiseaseAnnotation implements Comparable<DiseaseAnnotation> {
     @JsonProperty(value = "allele")
     private Allele feature;
     @JsonView({View.DiseaseAnnotation.class})
+    private List<Reference> references;
+    @JsonView({View.DiseaseAnnotation.class})
     private List<Publication> publications;
     @JsonView({View.DiseaseAnnotation.class})
     private List<EvidenceCode> evidenceCodes;
