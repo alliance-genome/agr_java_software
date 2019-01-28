@@ -16,6 +16,8 @@ import org.alliancegenome.api.service.DiseaseService;
 import org.alliancegenome.api.service.ExpressionService;
 import org.alliancegenome.api.service.GeneService;
 import org.alliancegenome.api.service.helper.ExpressionSummary;
+import org.alliancegenome.core.exceptions.RestErrorException;
+import org.alliancegenome.core.exceptions.RestErrorMessage;
 import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.core.service.OrthologyService;
 import org.alliancegenome.core.translators.tdf.DiseaseAnnotationToTdfTranslator;
@@ -52,7 +54,14 @@ public class GeneController extends BaseController implements GeneRESTInterface 
 
     @Override
     public Gene getGene(String id) {
-        return geneService.getById(id);
+        Gene gene = geneService.getById(id);
+        if (gene == null) {
+            RestErrorMessage error = new RestErrorMessage("No gene found with ID: " + id);
+            throw new RestErrorException(error);
+        } else {
+
+            return gene;
+        }
     }
     
     @Override
