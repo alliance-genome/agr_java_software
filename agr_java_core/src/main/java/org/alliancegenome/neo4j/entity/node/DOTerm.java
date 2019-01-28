@@ -1,6 +1,7 @@
 package org.alliancegenome.neo4j.entity.node;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Getter;
 import lombok.Setter;
@@ -18,6 +19,7 @@ import java.util.stream.Collectors;
 @NodeEntity
 @Getter
 @Setter
+@JsonPropertyOrder({"id", "name", "definition", "definitionLinks", "synonyms", "parents", "children", "crossReferences", "sources"})
 public class DOTerm extends SimpleTerm {
 
     public static final String HIGH_LEVEL_TERM_LIST_SLIM = "DO_AGR_slim";
@@ -144,7 +146,7 @@ public class DOTerm extends SimpleTerm {
                 .collect(Collectors.toList());
     }
 
-    public String getID(){
+    public String getID() {
         return doId;
     }
 

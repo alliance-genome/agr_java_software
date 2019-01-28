@@ -225,7 +225,7 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
 
         cypher += "       count(publication),         " +
                 "       collect(publication.pubModId) ";
-        cypher += "order by LOWER(nameJoin), LOWER(feature.symbol)";
+        cypher += "order by LOWER(nameJoin) " + pagination.getAscending() + ", LOWER(feature.symbol)";
         cypher += " SKIP " + pagination.getStart();
         if (pagination.getLimit() != null && pagination.getLimit() > -1)
             cypher += " LIMIT " + pagination.getLimit();

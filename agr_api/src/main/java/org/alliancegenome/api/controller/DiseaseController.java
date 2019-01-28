@@ -2,17 +2,20 @@ package org.alliancegenome.api.controller;
 
 import org.alliancegenome.api.rest.interfaces.DiseaseRESTInterface;
 import org.alliancegenome.api.service.DiseaseService;
+import org.alliancegenome.core.exceptions.RestErrorException;
+import org.alliancegenome.core.exceptions.RestErrorMessage;
 import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.core.translators.tdf.DiseaseAnnotationToTdfTranslator;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.node.DOTerm;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -20,7 +23,7 @@ import javax.ws.rs.core.Response;
 @RequestScoped
 public class DiseaseController extends BaseController implements DiseaseRESTInterface {
 
-    //private final Logger log = Logger.getLogger(getClass());
+    private final Logger log = LogManager.getLogger(getClass());
     @Context  //injected response proxy supporting multiple threads
     private HttpServletResponse response;
 
@@ -33,7 +36,8 @@ public class DiseaseController extends BaseController implements DiseaseRESTInte
     public DOTerm getDisease(String id) {
         DOTerm doTerm = diseaseService.getById(id);
         if (doTerm == null) {
-            throw new NotFoundException();
+            RestErrorMessage error = new RestErrorMessage("No disease term found with ID: " + id);
+            throw new RestErrorException(error);
         } else {
             return doTerm;
         }
@@ -65,14 +69,18 @@ public class DiseaseController extends BaseController implements DiseaseRESTInte
         pagination.addFieldFilter(FieldFilter.EVIDENCE_CODE, evidenceCode);
         pagination.addFieldFilter(FieldFilter.ASSOCIATION_TYPE, associationType);
         if (pagination.hasErrors()) {
-            response.setStatus(HttpServletResponse.SC_NOT_ACCEPTABLE);
-            try {
-                response.flushBuffer();
-            } catch (Exception ignored) {
-                // handle error
-            }
+            RestErrorMessage message = new RestErrorMessage();
+            message.setErrors(pagination.getErrors());
+            throw new RestErrorException(message);
         }
-        return diseaseService.getDiseaseAnnotationsByDisease(id, pagination);
+        try {
+            return diseaseService.getDiseaseAnnotationsByDisease(id, pagination);
+        } catch (Exception e) {
+            log.error(e);
+            RestErrorMessage error = new RestErrorMessage();
+            error.addErrorMessage(e.getMessage());
+            throw new RestErrorException(error);
+        }
     }
 
     @Override

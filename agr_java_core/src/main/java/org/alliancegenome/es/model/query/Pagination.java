@@ -31,6 +31,10 @@ public class Pagination {
         this.limit = limit;
         this.sortBy = sortBy;
         sortByField = FieldFilter.getFieldFilterByName(sortBy);
+        if (page < 1)
+            errorList.add("'page' request parameter invalid: Found [" + page + "]. It has to be an integer number greater than 0");
+        if (limit < 0)
+            errorList.add("'limit' request parameter invalid: Found [" + limit + "].  It has to be an integer number greater than 0");
         init(asc);
     }
 
@@ -84,6 +88,10 @@ public class Pagination {
         return false;
     }
 
+    public String getAscending() {
+        return asc ? "ASC" : "DESC";
+    }
+
     public int getStart() {
         if (page == null || limit == null)
             return 0;
@@ -95,7 +103,7 @@ public class Pagination {
     }
 
     public List<FieldFilter> getSortByList() {
-        if(StringUtils.isEmpty(sortBy))
+        if (StringUtils.isEmpty(sortBy))
             return null;
         String[] sortingTokens = sortBy.split(SORTING_DELIMITER);
         return Arrays.stream(sortingTokens)
@@ -122,8 +130,8 @@ public class Pagination {
 
         public static String getAllValues() {
             StringJoiner values = new StringJoiner(",");
-            for (AscendingValues sorting : values())
-                values.add(sorting.name());
+            Arrays.asList(values()).forEach(sorting ->
+                    values.add(sorting.name()));
             return values.toString();
         }
 

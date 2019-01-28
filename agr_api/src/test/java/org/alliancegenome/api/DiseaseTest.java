@@ -189,6 +189,23 @@ public class DiseaseTest {
                 "WB:WBGene00010120\tdot-1.4\tCaenorhabditis elegans\t\t\t\timplicated_via_orthology\tDOID:9953\tB- and T-cell mixed leukemia\tIEA\tAlliance\tMGI:6194238\n";
         assertEquals(result, output);
 
+        // descending sorting
+        pagination.setAsc(false);
+        response = geneService.getDiseaseAnnotationsByDisease(diseaseID, pagination);
+
+        translator = new DiseaseAnnotationToTdfTranslator();
+        output = translator.getAllRows(response.getResults());
+        lines = Arrays.asList(output.split("\n"));
+        assertNotNull(lines);
+        result = "Gene ID\tGene Symbol\tSpecies\tGenetic Entity ID\tGenetic Entity Symbol\tGenetic Entity Type\tAssociation Type\tDisease ID\tDisease Name\tEvidence Code\tSource\tReferences\n" +
+                "SGD:S000005072\tTEP1\tSaccharomyces cerevisiae\t\t\t\timplicated_via_orthology\tDOID:9952\tacute lymphocytic leukemia\tIEA\tAlliance\tMGI:6194238\n" +
+                "SGD:S000002848\tDOT1\tSaccharomyces cerevisiae\t\t\t\timplicated_via_orthology\tDOID:9953\tB- and T-cell mixed leukemia\tIEA\tAlliance\tMGI:6194238\n" +
+                "RGD:3841\tTef\tRattus norvegicus\t\t\t\timplicated_via_orthology\tDOID:9952\tacute lymphocytic leukemia\tIEA\tAlliance\tMGI:6194238\n" +
+                "RGD:61995\tPten\tRattus norvegicus\t\t\t\timplicated_via_orthology\tDOID:9952\tacute lymphocytic leukemia\tIEA\tAlliance\tMGI:6194238\n" +
+                "RGD:620761\tNotch3\tRattus norvegicus\t\t\t\timplicated_via_orthology\tDOID:9952\tacute lymphocytic leukemia\tIEA\tAlliance\tMGI:6194238\n";
+        assertEquals(result, output);
+        pagination.setAsc(true);
+
         // sort by association type
         pagination.setSortBy("associationType");
         response = geneService.getDiseaseAnnotationsByDisease(diseaseID, pagination);
