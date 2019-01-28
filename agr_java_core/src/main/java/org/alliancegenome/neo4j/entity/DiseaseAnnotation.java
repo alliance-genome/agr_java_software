@@ -32,8 +32,6 @@ public class DiseaseAnnotation implements Comparable<DiseaseAnnotation> {
     private List<Publication> publications;
     @JsonView({View.DiseaseAnnotation.class})
     private List<EvidenceCode> evidenceCodes;
-    @JsonView({View.Default.class})
-    private String geneticEntity;
     @JsonView({View.DiseaseAnnotation.class})
     private String associationType;
     private List<DiseaseEntityJoin> diseaseEntityJoinSet;
@@ -48,7 +46,8 @@ public class DiseaseAnnotation implements Comparable<DiseaseAnnotation> {
         return 0;
     }
 
-    public String getGeneticEntity() {
+    @JsonView({View.Default.class})
+    public String getGeneticEntityType() {
         return feature != null ? "allele" : "gene";
     }
 }

@@ -358,7 +358,7 @@ public class DiseaseTest {
         // add filter on feature symbol
         pagination.makeSingleFieldFilter(FieldFilter.GENETIC_ENTITY_TYPE, "allele");
         JsonResultResponse<DiseaseAnnotation> response = geneService.getDiseaseAnnotations(geneID, pagination, true);
-        assertResponse(response, 36, 36);
+        assertResponse(response, 20, 36);
 
         DiseaseAnnotation annotation = response.getResults().get(0);
         assertThat(annotation.getDisease().getName(), equalTo("acute lymphocytic leukemia"));

@@ -16,8 +16,8 @@ import java.util.stream.Collectors;
 public class Pagination {
 
     public static final String SORTING_DELIMITER = ",";
-    private Integer page;
-    private Integer limit;
+    private Integer page = 1;
+    private Integer limit = 20;
     private String sortBy;
     private FieldFilter sortByField;
     private Boolean asc;
@@ -27,13 +27,15 @@ public class Pagination {
     private boolean isCount = false;
 
     public Pagination(Integer page, Integer limit, String sortBy, String asc) {
-        this.page = page;
-        this.limit = limit;
+        if (page != null)
+            this.page = page;
+        if (limit != null)
+            this.limit = limit;
         this.sortBy = sortBy;
         sortByField = FieldFilter.getFieldFilterByName(sortBy);
-        if (page < 1)
+        if (this.page < 1)
             errorList.add("'page' request parameter invalid: Found [" + page + "]. It has to be an integer number greater than 0");
-        if (limit < 0)
+        if (this.limit < 0)
             errorList.add("'limit' request parameter invalid: Found [" + limit + "].  It has to be an integer number greater than 0");
         init(asc);
     }

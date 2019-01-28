@@ -95,7 +95,7 @@ public class DOTerm extends SimpleTerm {
     }
 
     @Relationship(type = "CROSS_REFERENCE")
-    private List<CrossReference> crossReferences;
+    private List<CrossReference> crossReferences = new ArrayList<>();
 
     @JsonView({View.DiseaseAPI.class})
     @JsonProperty(value = "crossReferences")
@@ -109,6 +109,7 @@ public class DOTerm extends SimpleTerm {
             othersList.add(cr);
             map.put("other", othersList);
         }
+        map.put("primary", doUrl);
         return map;
     }
 
