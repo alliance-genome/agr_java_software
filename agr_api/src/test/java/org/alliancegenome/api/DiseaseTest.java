@@ -294,12 +294,12 @@ public class DiseaseTest {
         DiseaseSummary summary = geneService.getDiseaseSummary(geneID, DiseaseSummary.Type.EXPERIMENT);
         assertNotNull(summary);
         assertThat(50L, equalTo(summary.getNumberOfAnnotations()));
-        assertThat(14L, equalTo(summary.getNumberOfDiseases()));
+        assertThat(14L, equalTo(summary.getNumberOfEntities()));
 
         summary = geneService.getDiseaseSummary(geneID, DiseaseSummary.Type.ORTHOLOGY);
         assertNotNull(summary);
         assertThat(30L, equalTo(summary.getNumberOfAnnotations()));
-        assertThat(27L, equalTo(summary.getNumberOfDiseases()));
+        assertThat(27L, equalTo(summary.getNumberOfEntities()));
 
         DiseaseAnnotation annotation = response.getResults().get(0);
         assertThat(annotation.getDisease().getName(), equalTo("urinary bladder cancer"));
@@ -396,12 +396,12 @@ public class DiseaseTest {
         DiseaseSummary summary = geneService.getDiseaseSummary(geneID, DiseaseSummary.Type.EXPERIMENT);
         assertNotNull(summary);
         assertThat(6L, equalTo(summary.getNumberOfAnnotations()));
-        assertThat(6L, equalTo(summary.getNumberOfDiseases()));
+        assertThat(6L, equalTo(summary.getNumberOfEntities()));
 
         summary = geneService.getDiseaseSummary(geneID, DiseaseSummary.Type.ORTHOLOGY);
         assertNotNull(summary);
         assertThat(3L, equalTo(summary.getNumberOfAnnotations()));
-        assertThat(3L, equalTo(summary.getNumberOfDiseases()));
+        assertThat(3L, equalTo(summary.getNumberOfEntities()));
 
         // add filter on feature symbol
         pagination.makeSingleFieldFilter(FieldFilter.ASSOCIATION_TYPE, "IMPLICATED");
@@ -462,12 +462,12 @@ public class DiseaseTest {
         DiseaseSummary summary = geneService.getDiseaseSummary(geneID, DiseaseSummary.Type.EXPERIMENT);
         assertNotNull(summary);
         assertThat(0L, equalTo(summary.getNumberOfAnnotations()));
-        assertThat(0L, equalTo(summary.getNumberOfDiseases()));
+        assertThat(0L, equalTo(summary.getNumberOfEntities()));
 
         summary = geneService.getDiseaseSummary(geneID, DiseaseSummary.Type.ORTHOLOGY);
         assertNotNull(summary);
         assertThat(22L, equalTo(summary.getNumberOfAnnotations()));
-        assertThat(19L, equalTo(summary.getNumberOfDiseases()));
+        assertThat(19L, equalTo(summary.getNumberOfEntities()));
 
 
         JsonResultResponse<DiseaseAnnotation> response = geneService.getDiseaseAnnotations(geneID, pagination, false);

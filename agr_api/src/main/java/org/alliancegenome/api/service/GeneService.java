@@ -94,7 +94,7 @@ public class GeneService {
     public EntitySummary getPhenotypeSummary(String geneID) {
         EntitySummary summary = new EntitySummary();
         summary.setNumberOfAnnotations(phenoRepo.getTotalPhenotypeCount(geneID, new Pagination()));
-        summary.setNumberOfDiseases(phenoRepo.getDistinctPhenotypeCount(geneID));
+        summary.setNumberOfEntities(phenoRepo.getDistinctPhenotypeCount(geneID));
         return summary;
     }
 

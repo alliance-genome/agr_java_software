@@ -73,7 +73,7 @@ public class PhenotypeTest {
         EntitySummary summary = geneService.getPhenotypeSummary(geneID);
         assertNotNull(summary);
         assertThat(19L, equalTo(summary.getNumberOfAnnotations()));
-        assertThat(19L, equalTo(summary.getNumberOfDiseases()));
+        assertThat(19L, equalTo(summary.getNumberOfEntities()));
 
         // 5 annotations with different orthology geneMap
 /*
@@ -118,7 +118,7 @@ public class PhenotypeTest {
         EntitySummary summary = geneService.getPhenotypeSummary(geneID);
         assertNotNull(summary);
         assertThat(295L, equalTo(summary.getNumberOfAnnotations()));
-        assertThat(110L, equalTo(summary.getNumberOfDiseases()));
+        assertThat(110L, equalTo(summary.getNumberOfEntities()));
 
 
         // add filter on phenotype
@@ -172,7 +172,7 @@ public class PhenotypeTest {
         EntitySummary summary = geneService.getPhenotypeSummary(geneID);
         assertNotNull(summary);
         assertThat(1251L, equalTo(summary.getNumberOfAnnotations()));
-        assertThat(526L, equalTo(summary.getNumberOfDiseases()));
+        assertThat(526L, equalTo(summary.getNumberOfEntities()));
 
 
         // add filter on phenotype

@@ -478,7 +478,7 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
         DiseaseSummary summary = new DiseaseSummary();
         summary.setType(type);
         summary.setNumberOfAnnotations(getTotalDiseaseCount(geneId, new Pagination(), type.equals(DiseaseSummary.Type.EXPERIMENT)));
-        summary.setNumberOfDiseases(getTotalDistinctDiseaseCount(geneId, type.equals(DiseaseSummary.Type.EXPERIMENT)));
+        summary.setNumberOfEntities(getTotalDistinctDiseaseCount(geneId, type.equals(DiseaseSummary.Type.EXPERIMENT)));
         return summary;
     }
 }
