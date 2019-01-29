@@ -25,6 +25,7 @@ import org.alliancegenome.core.translators.tdf.PhenotypeAnnotationToTdfTranslato
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
+import org.alliancegenome.neo4j.entity.DiseaseSummary;
 import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.Gene;
@@ -322,6 +323,12 @@ public class GeneController extends BaseController implements GeneRESTInterface 
         responseBuilder.type(MediaType.TEXT_PLAIN_TYPE);
         responseBuilder.header("Content-Disposition", "attachment; filename=\"DiseaseAssociationsViaOrthologyData-" + id.replace(":", "-") + ".tsv\"");
         return responseBuilder.build();
+    }
+
+    @Override
+    public DiseaseSummary getDiseaseSummary(String id, String type) throws JsonProcessingException {
+        DiseaseSummary.Type diseaseType = DiseaseSummary.Type.getType(type);
+        return diseaseService.getDiseaseSummary(id, diseaseType);
     }
 
 }

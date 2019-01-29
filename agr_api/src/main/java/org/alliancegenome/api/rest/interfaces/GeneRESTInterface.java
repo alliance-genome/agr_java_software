@@ -15,6 +15,7 @@ import javax.ws.rs.core.Response;
 
 import org.alliancegenome.api.service.helper.ExpressionSummary;
 import org.alliancegenome.core.service.JsonResultResponse;
+import org.alliancegenome.neo4j.entity.DiseaseSummary;
 import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.Gene;
@@ -253,4 +254,14 @@ public interface GeneRESTInterface {
             @QueryParam("filter.reference") String reference,
             @ApiParam(value = "ascending order: true or false", allowableValues = "true,false", defaultValue = "true")
             @QueryParam("asc") String asc) throws JsonProcessingException;
+
+    @GET
+    @Path("/{id}/disease-summary")
+    @ApiOperation(value = "Retrieve disease summary info for a given gene and disease type")
+    DiseaseSummary getDiseaseSummary(
+            @ApiParam(name = "id", value = "Gene by ID: e.g. MGI:1097693", required = true, type = "String")
+            @PathParam("id") String id,
+            @ApiParam(value = "type", allowableValues = "experiment,orthology", defaultValue = "experiment")
+            @QueryParam("type") String type
+            ) throws JsonProcessingException;
 }

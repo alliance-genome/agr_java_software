@@ -10,6 +10,7 @@ import org.alliancegenome.core.translators.tdf.DiseaseAnnotationToTdfTranslator;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
+import org.alliancegenome.neo4j.entity.DiseaseSummary;
 import org.alliancegenome.neo4j.entity.node.DOTerm;
 import org.alliancegenome.neo4j.entity.node.Publication;
 import org.alliancegenome.neo4j.entity.node.Synonym;
@@ -290,6 +291,16 @@ public class DiseaseTest {
         JsonResultResponse<DiseaseAnnotation> response = geneService.getDiseaseAnnotations(geneID, pagination, true);
         assertResponse(response, 3, 3);
 
+        DiseaseSummary summary = geneService.getDiseaseSummary(geneID, DiseaseSummary.Type.EXPERIMENT);
+        assertNotNull(summary);
+        assertThat(50L, equalTo(summary.getNumberOfAnnotations()));
+        assertThat(14L, equalTo(summary.getNumberOfDiseases()));
+
+        summary = geneService.getDiseaseSummary(geneID, DiseaseSummary.Type.ORTHOLOGY);
+        assertNotNull(summary);
+        assertThat(30L, equalTo(summary.getNumberOfAnnotations()));
+        assertThat(27L, equalTo(summary.getNumberOfDiseases()));
+
         DiseaseAnnotation annotation = response.getResults().get(0);
         assertThat(annotation.getDisease().getName(), equalTo("urinary bladder cancer"));
         assertThat(annotation.getAssociationType(), equalTo("is_implicated_in"));
@@ -311,6 +322,7 @@ public class DiseaseTest {
                 "urinary bladder cancer\tMGI:2182005\tPten<sup>tm2Mak</sup>\tallele\tis_implicated_in\tTAS\tPMID:16951148,PMID:21283818,PMID:25533675\n" +
                 "urinary bladder cancer\t\t\tgene\tis_implicated_in\tTAS\tPMID:16951148\n";
         assertEquals(result, output);
+
     }
 
     @Test
@@ -381,6 +393,15 @@ public class DiseaseTest {
         Pagination pagination = new Pagination(1, null, null, null);
         // Pten
         String geneID = "HGNC:3686";
+        DiseaseSummary summary = geneService.getDiseaseSummary(geneID, DiseaseSummary.Type.EXPERIMENT);
+        assertNotNull(summary);
+        assertThat(6L, equalTo(summary.getNumberOfAnnotations()));
+        assertThat(6L, equalTo(summary.getNumberOfDiseases()));
+
+        summary = geneService.getDiseaseSummary(geneID, DiseaseSummary.Type.ORTHOLOGY);
+        assertNotNull(summary);
+        assertThat(3L, equalTo(summary.getNumberOfAnnotations()));
+        assertThat(3L, equalTo(summary.getNumberOfDiseases()));
 
         // add filter on feature symbol
         pagination.makeSingleFieldFilter(FieldFilter.ASSOCIATION_TYPE, "IMPLICATED");
@@ -438,6 +459,17 @@ public class DiseaseTest {
         Pagination pagination = new Pagination(1, 10, null, null);
         // Ogg1
         String geneID = "MGI:1097693";
+        DiseaseSummary summary = geneService.getDiseaseSummary(geneID, DiseaseSummary.Type.EXPERIMENT);
+        assertNotNull(summary);
+        assertThat(0L, equalTo(summary.getNumberOfAnnotations()));
+        assertThat(0L, equalTo(summary.getNumberOfDiseases()));
+
+        summary = geneService.getDiseaseSummary(geneID, DiseaseSummary.Type.ORTHOLOGY);
+        assertNotNull(summary);
+        assertThat(22L, equalTo(summary.getNumberOfAnnotations()));
+        assertThat(19L, equalTo(summary.getNumberOfDiseases()));
+
+
         JsonResultResponse<DiseaseAnnotation> response = geneService.getDiseaseAnnotations(geneID, pagination, false);
         assertResponse(response, 10, 22);
 

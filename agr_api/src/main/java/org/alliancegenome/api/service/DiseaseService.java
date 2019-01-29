@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
+import org.alliancegenome.neo4j.entity.DiseaseSummary;
 import org.alliancegenome.neo4j.entity.node.*;
 import org.alliancegenome.neo4j.repository.DiseaseRepository;
 import org.apache.commons.logging.Log;
@@ -103,5 +104,8 @@ public class DiseaseService {
         return response;
     }
 
+    public DiseaseSummary getDiseaseSummary(String id, DiseaseSummary.Type type) {
+        return diseaseRepository.getDiseaseSummary(id, type);
+    }
 }
 

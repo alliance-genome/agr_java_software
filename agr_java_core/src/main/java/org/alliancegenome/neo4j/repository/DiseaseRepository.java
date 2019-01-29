@@ -2,6 +2,7 @@ package org.alliancegenome.neo4j.repository;
 
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
+import org.alliancegenome.neo4j.entity.DiseaseSummary;
 import org.alliancegenome.neo4j.entity.node.DOTerm;
 import org.alliancegenome.neo4j.view.BaseFilter;
 import org.apache.commons.collections4.CollectionUtils;
@@ -415,6 +416,26 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
         return featureLessPhenotype + featurePhenotype;
     }
 
+    public Long getTotalDistinctDiseaseCount(String geneID, boolean empiricalDisease) {
+        HashMap<String, String> bindingValueMap = new HashMap<>();
+        bindingValueMap.put("geneID", geneID);
+
+        String baseCypher = "MATCH p0=(disease:DOTerm)--(diseaseEntityJoin:DiseaseEntityJoin)-[:EVIDENCE]-(publication:Publication), " +
+                "              p1=(diseaseEntityJoin)--(evidence:EvidenceCode), " +
+                "              p2=(diseaseEntityJoin)--(gene:Gene)-[:FROM_SPECIES]-(species:Species) ";
+        if (!empiricalDisease) {
+            baseCypher += cypherViaOrthology;
+        }
+        baseCypher += "where gene.primaryKey = {geneID} ";
+
+        String cypher = baseCypher;
+        if (empiricalDisease) {
+            cypher += cypherEmpirical;
+        }
+        cypher += "return count(distinct disease.name ) as " + TOTAL_COUNT;
+        return (Long) queryForResult(cypher, bindingValueMap).iterator().next().get(TOTAL_COUNT);
+    }
+
     public Long getTotalDiseaseCount(String diseaseID, Pagination pagination) {
         HashMap<String, String> bindingValueMap = new HashMap<>();
         bindingValueMap.put("diseaseID", diseaseID);
@@ -451,5 +472,13 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
             featurePhenotype = (Long) queryForResult(cypherAll, bindingValueMap).iterator().next().get(TOTAL_COUNT);
         }
         return featureLessPhenotype + featurePhenotype;
+    }
+
+    public DiseaseSummary getDiseaseSummary(String geneId, DiseaseSummary.Type type) {
+        DiseaseSummary summary = new DiseaseSummary();
+        summary.setType(type);
+        summary.setNumberOfAnnotations(getTotalDiseaseCount(geneId, new Pagination(), type.equals(DiseaseSummary.Type.EXPERIMENT)));
+        summary.setNumberOfDiseases(getTotalDistinctDiseaseCount(geneId, type.equals(DiseaseSummary.Type.EXPERIMENT)));
+        return summary;
     }
 }
