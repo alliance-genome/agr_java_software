@@ -99,17 +99,20 @@ public class DOTerm extends SimpleTerm {
 
     @JsonView({View.DiseaseAPI.class})
     @JsonProperty(value = "crossReferences")
-    public Map<String, Object> getCrossReferenceMap() {
+    public Map<String, List<CrossReference>> getCrossReferenceMap() {
         if (crossReferences == null)
             return null;
-        Map<String, Object> map = new HashMap<>();
+        Map<String, List<CrossReference>> map = new HashMap<>();
 
         List<CrossReference> othersList = new ArrayList<>();
         for (CrossReference cr : crossReferences) {
             othersList.add(cr);
             map.put("other", othersList);
         }
-        map.put("primary", doUrl);
+        CrossReference primary = new CrossReference();
+        primary.setCrossRefCompleteUrl(doUrl);
+        primary.setDisplayName(primaryKey);
+        map.put("primary", Collections.singletonList(primary));
         return map;
     }
 
