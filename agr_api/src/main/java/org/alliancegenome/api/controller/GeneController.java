@@ -231,7 +231,7 @@ public class GeneController extends BaseController implements GeneRESTInterface 
         mapper.disable(MapperFeature.DEFAULT_VIEW_INCLUSION);
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         ///response.setHttpServletRequest(request);
-        return mapper.writerWithView(View.Default.class).writeValueAsString(response);
+        return mapper.writerWithView(View.DiseaseAnnotation.class).writeValueAsString(response);
     }
 
     @Override
