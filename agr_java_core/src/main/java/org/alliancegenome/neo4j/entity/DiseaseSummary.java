@@ -9,15 +9,10 @@ import java.util.Arrays;
 
 @Getter
 @Setter
-public class DiseaseSummary {
+public class DiseaseSummary extends EntitySummary {
 
     @JsonView({View.Default.class})
     private Type type;
-    @JsonView({View.Default.class})
-    private long numberOfAnnotations;
-    @JsonView({View.Default.class})
-    private long numberOfDiseases;
-
 
     public enum Type {
         EXPERIMENT, ORTHOLOGY;

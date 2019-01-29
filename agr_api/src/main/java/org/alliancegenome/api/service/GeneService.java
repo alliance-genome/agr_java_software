@@ -3,6 +3,7 @@ package org.alliancegenome.api.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.es.model.query.Pagination;
+import org.alliancegenome.neo4j.entity.EntitySummary;
 import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
 import org.alliancegenome.neo4j.entity.node.*;
 import org.alliancegenome.neo4j.repository.DiseaseRepository;
@@ -88,6 +89,13 @@ public class GeneService {
         });
 
         return annotationDocuments;
+    }
+
+    public EntitySummary getPhenotypeSummary(String geneID) {
+        EntitySummary summary = new EntitySummary();
+        summary.setNumberOfAnnotations(phenoRepo.getTotalPhenotypeCount(geneID, new Pagination()));
+        summary.setNumberOfDiseases(phenoRepo.getDistinctPhenotypeCount(geneID));
+        return summary;
     }
 
 /*

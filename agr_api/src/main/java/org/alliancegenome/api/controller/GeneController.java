@@ -26,6 +26,7 @@ import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.DiseaseSummary;
+import org.alliancegenome.neo4j.entity.EntitySummary;
 import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.Gene;
@@ -329,6 +330,11 @@ public class GeneController extends BaseController implements GeneRESTInterface 
     public DiseaseSummary getDiseaseSummary(String id, String type) throws JsonProcessingException {
         DiseaseSummary.Type diseaseType = DiseaseSummary.Type.getType(type);
         return diseaseService.getDiseaseSummary(id, diseaseType);
+    }
+
+    @Override
+    public EntitySummary getPhenotypeSummary(String id) throws JsonProcessingException {
+        return geneService.getPhenotypeSummary(id);
     }
 
 }

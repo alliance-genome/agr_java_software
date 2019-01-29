@@ -1,11 +1,5 @@
 package org.alliancegenome.neo4j.repository;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.node.Phenotype;
@@ -13,6 +7,8 @@ import org.alliancegenome.neo4j.view.BaseFilter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.neo4j.ogm.model.Result;
+
+import java.util.*;
 
 public class PhenotypeRepository extends Neo4jRepository<Phenotype> {
 
@@ -78,7 +74,7 @@ public class PhenotypeRepository extends Neo4jRepository<Phenotype> {
         if (entityType != null && entityType.equals("allele")) {
             cypher += ", p4=(phenotypeEntityJoin)--(feature:Feature)--(crossReference:CrossReference), " +
                     "featSpecies=(feature)-[:FROM_SPECIES]-(featureSpecies:Species) ";
-                    cypherFeatureOptional = "";
+            cypherFeatureOptional = "";
         }
         String cypherWhereClause = "        where gene.primaryKey = {geneID} ";
         if (entityType != null && entityType.equals("gene")) {
@@ -198,4 +194,11 @@ public class PhenotypeRepository extends Neo4jRepository<Phenotype> {
     }
 
 
+    public long getDistinctPhenotypeCount(String geneID) {
+        HashMap<String, String> bindingValueMap = new HashMap<>();
+        bindingValueMap.put("geneID", geneID);
+
+        String cypher = getPhenotypeBaseQuery() + "return count(distinct phenotype.phenotypeStatement) as " + TOTAL_COUNT;
+        return (Long) queryForResult(cypher, bindingValueMap).iterator().next().get(TOTAL_COUNT);
+    }
 }

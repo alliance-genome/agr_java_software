@@ -1,21 +1,14 @@
 package org.alliancegenome.api.rest.interfaces;
 
-import java.io.IOException;
-import java.util.List;
-
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
+import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.alliancegenome.api.service.helper.ExpressionSummary;
 import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.neo4j.entity.DiseaseSummary;
+import org.alliancegenome.neo4j.entity.EntitySummary;
 import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.Gene;
@@ -25,12 +18,11 @@ import org.alliancegenome.neo4j.view.View;
 import org.alliancegenome.neo4j.view.View.GeneAPI;
 import org.alliancegenome.neo4j.view.View.GeneAllelesAPI;
 
-import com.fasterxml.jackson.annotation.JsonView;
-import com.fasterxml.jackson.core.JsonProcessingException;
-
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import java.io.IOException;
+import java.util.List;
 
 @Path("/gene")
 @Api(value = "Genes")
@@ -40,7 +32,7 @@ public interface GeneRESTInterface {
 
     @GET
     @Path("/{id}")
-    @JsonView(value={GeneAPI.class})
+    @JsonView(value = {GeneAPI.class})
     @ApiOperation(value = "Retrieve a Gene for given ID")
     Gene getGene(
             @ApiParam(name = "id", value = "Gene by ID")
@@ -50,7 +42,7 @@ public interface GeneRESTInterface {
     @GET
     @Path("/{id}/alleles")
     @ApiOperation(value = "Retrieve all alleles of a given gene")
-    @JsonView(value={GeneAllelesAPI.class})
+    @JsonView(value = {GeneAllelesAPI.class})
     JsonResultResponse<Allele> getAllelesPerGene(
             @ApiParam(name = "id", value = "Search for Alleles for a given Gene by ID")
             @PathParam("id") String id,
@@ -66,7 +58,7 @@ public interface GeneRESTInterface {
 
     @GET
     @Path("/{id}/phenotypes")
-    @JsonView(value={View.Phenotype.class})
+    @JsonView(value = {View.Phenotype.class})
     @ApiOperation(value = "Retrieve phenotype term name annotations for a given gene")
     JsonResultResponse<PhenotypeAnnotation> getPhenotypeAnnotations(
             @ApiParam(name = "id", value = "Gene by ID: e.g. ZFIN:ZDB-GENE-990415-8", required = true, type = "String")
@@ -110,36 +102,36 @@ public interface GeneRESTInterface {
 
     @GET
     @Path("/{id}/homologs")
-    @JsonView(value={View.Orthology.class})
+    @JsonView(value = {View.Orthology.class})
     @ApiOperation(value = "Retrieve homologous gene records", notes = "Download homology records.")
     JsonResultResponse<OrthologView> getGeneOrthology(@ApiParam(name = "id", value = "Source Gene ID: the gene for which you are searching homologous gene, e.g. 'MGI:109583'", required = true, type = "String")
-                            @PathParam("id") String id,
-                            @ApiParam(name = "geneId", value = "List of additional source gene IDs for which homology is retrieved.")
-                            @QueryParam("geneId") List<String> geneID,
-                            @ApiParam(name = "geneIdList", value = "List of additional source gene IDs for which homology is retrieved in a comma-delimited list, e.g. 'MGI:109583,RGD:2129,MGI:97570'")
-                            @QueryParam("geneIdList") String geneList,
-                            @ApiParam(value = "apply stringency filter", allowableValues = "stringent, moderate, all", defaultValue = "stringent")
-                            @DefaultValue("stringent") @QueryParam("stringencyFilter") String stringencyFilter,
-                            @ApiParam(name = "taxonID", value = "Species identifier: Could be the full ID, e.g. 'NCBITaxon:10090', or just the ID, i.e. '10090'. Alternatively, part of a species name uniquely identifying a single species, e.g. 'danio' or 'mus'.", type = "String")
-                            @QueryParam("taxonID") List<String> taxonID,
-                            @ApiParam(value = "calculation methods", allowableValues = "Ensembl Compara, HGNC, Hieranoid, InParanoid, OMA, OrthoFinder, OrthoInspector, PANTHER, PhylomeDB, Roundup, TreeFam, ZFIN")
-                            @QueryParam("methods") List<String> methods,
-                            @ApiParam(value = "maximum number of rows returned")
-                            @QueryParam("rows") Integer rows,
-                            @ApiParam(value = "starting row number (for pagination)")
-                            @DefaultValue("1") @QueryParam("start") Integer start) throws IOException;
+                                                      @PathParam("id") String id,
+                                                      @ApiParam(name = "geneId", value = "List of additional source gene IDs for which homology is retrieved.")
+                                                      @QueryParam("geneId") List<String> geneID,
+                                                      @ApiParam(name = "geneIdList", value = "List of additional source gene IDs for which homology is retrieved in a comma-delimited list, e.g. 'MGI:109583,RGD:2129,MGI:97570'")
+                                                      @QueryParam("geneIdList") String geneList,
+                                                      @ApiParam(value = "apply stringency filter", allowableValues = "stringent, moderate, all", defaultValue = "stringent")
+                                                      @DefaultValue("stringent") @QueryParam("stringencyFilter") String stringencyFilter,
+                                                      @ApiParam(name = "taxonID", value = "Species identifier: Could be the full ID, e.g. 'NCBITaxon:10090', or just the ID, i.e. '10090'. Alternatively, part of a species name uniquely identifying a single species, e.g. 'danio' or 'mus'.", type = "String")
+                                                      @QueryParam("taxonID") List<String> taxonID,
+                                                      @ApiParam(value = "calculation methods", allowableValues = "Ensembl Compara, HGNC, Hieranoid, InParanoid, OMA, OrthoFinder, OrthoInspector, PANTHER, PhylomeDB, Roundup, TreeFam, ZFIN")
+                                                      @QueryParam("methods") List<String> methods,
+                                                      @ApiParam(value = "maximum number of rows returned")
+                                                      @QueryParam("rows") Integer rows,
+                                                      @ApiParam(value = "starting row number (for pagination)")
+                                                      @DefaultValue("1") @QueryParam("start") Integer start) throws IOException;
 
     @GET
     @Path("/{id}/interactions")
     @ApiOperation(value = "Retrieve interations for a given gene")
-    @JsonView(value={View.Interaction.class})
+    @JsonView(value = {View.Interaction.class})
     JsonResultResponse<InteractionGeneJoin> getInteractions(
             @ApiParam(name = "id", value = "Gene ID", required = true)
             @PathParam("id") String id);
 
     @GET
     @Path("/{id}/expression-summary")
-    @JsonView(value={View.Expression.class})
+    @JsonView(value = {View.Expression.class})
     @ApiOperation(value = "Retrieve all expression records of a given gene")
     ExpressionSummary getExpressionSummary(
             @ApiParam(name = "id", value = "Gene by ID, e.g. 'RGD:2129' or 'ZFIN:ZDB-GENE-990415-72 fgf8a'", required = true, type = "String")
@@ -263,5 +255,13 @@ public interface GeneRESTInterface {
             @PathParam("id") String id,
             @ApiParam(value = "type", allowableValues = "experiment,orthology", defaultValue = "experiment")
             @QueryParam("type") String type
-            ) throws JsonProcessingException;
+    ) throws JsonProcessingException;
+
+    @GET
+    @Path("/{id}/phenotype-summary")
+    @ApiOperation(value = "Retrieve phenotype summary info for a given gene")
+    EntitySummary getPhenotypeSummary(
+            @ApiParam(name = "id", value = "Gene by ID: e.g. MGI:1097693", required = true, type = "String")
+            @PathParam("id") String id
+    ) throws JsonProcessingException;
 }
