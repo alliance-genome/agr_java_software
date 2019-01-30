@@ -24,6 +24,8 @@ public class DOTerm extends SimpleTerm {
 
     public static final String HIGH_LEVEL_TERM_LIST_SLIM = "DO_AGR_slim";
 
+    @JsonView({View.DiseaseAPI.class})
+    @JsonProperty(value = "url")
     private String doUrl;
     private String doDisplayId;
     private String doId;
@@ -109,10 +111,6 @@ public class DOTerm extends SimpleTerm {
             othersList.add(cr);
             map.put("other", othersList);
         }
-        CrossReference primary = new CrossReference();
-        primary.setCrossRefCompleteUrl(doUrl);
-        primary.setDisplayName(primaryKey);
-        map.put("primary", Collections.singletonList(primary));
         return map;
     }
 

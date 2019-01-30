@@ -1,9 +1,7 @@
 package org.alliancegenome.api.controller;
 
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.alliancegenome.api.rest.interfaces.GeneRESTInterface;
 import org.alliancegenome.api.service.DiseaseService;
@@ -27,7 +25,6 @@ import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
 import org.alliancegenome.neo4j.view.OrthologView;
 import org.alliancegenome.neo4j.view.OrthologyFilter;
-import org.alliancegenome.neo4j.view.View;
 import org.apache.commons.collections.CollectionUtils;
 
 import javax.enterprise.context.RequestScoped;
@@ -208,19 +205,19 @@ public class GeneController extends BaseController implements GeneRESTInterface 
     }
 
     @Override
-    public String getDiseaseByExperiment(String id,
-                                         int limit,
-                                         int page,
-                                         String sortBy,
-                                         String geneticEntity,
-                                         String geneticEntityType,
-                                         String disease,
-                                         String associationType,
-                                         String evidenceCode,
-                                         String source,
-                                         String reference,
-                                         String asc) throws JsonProcessingException {
-        JsonResultResponse<DiseaseAnnotation> response = getEmpiricalDiseaseAnnotation(id,
+    public JsonResultResponse<DiseaseAnnotation> getDiseaseByExperiment(String id,
+                                                                        int limit,
+                                                                        int page,
+                                                                        String sortBy,
+                                                                        String geneticEntity,
+                                                                        String geneticEntityType,
+                                                                        String disease,
+                                                                        String associationType,
+                                                                        String evidenceCode,
+                                                                        String source,
+                                                                        String reference,
+                                                                        String asc) throws JsonProcessingException {
+        return getEmpiricalDiseaseAnnotation(id,
                 limit,
                 page,
                 sortBy,
@@ -232,26 +229,22 @@ public class GeneController extends BaseController implements GeneRESTInterface 
                 source,
                 reference,
                 asc);
-        mapper.disable(MapperFeature.DEFAULT_VIEW_INCLUSION);
-        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-        ///response.setHttpServletRequest(request);
-        return mapper.writerWithView(View.DiseaseAnnotation.class).writeValueAsString(response);
     }
 
     @Override
-    public String getDiseaseViaOrthology(String id,
-                                         int limit,
-                                         int page,
-                                         String sortBy,
-                                         String orthologyGene,
-                                         String orthologyGeneSpecies,
-                                         String disease,
-                                         String associationType,
-                                         String evidenceCode,
-                                         String source,
-                                         String reference,
-                                         String asc) throws JsonProcessingException {
-        JsonResultResponse<DiseaseAnnotation> response = getDiseaseViaOrthologyAnnotation(id,
+    public JsonResultResponse<DiseaseAnnotation> getDiseaseViaOrthology(String id,
+                                                                        int limit,
+                                                                        int page,
+                                                                        String sortBy,
+                                                                        String orthologyGene,
+                                                                        String orthologyGeneSpecies,
+                                                                        String disease,
+                                                                        String associationType,
+                                                                        String evidenceCode,
+                                                                        String source,
+                                                                        String reference,
+                                                                        String asc) throws JsonProcessingException {
+        return getDiseaseViaOrthologyAnnotation(id,
                 limit,
                 page,
                 sortBy,
@@ -264,10 +257,6 @@ public class GeneController extends BaseController implements GeneRESTInterface 
                 reference,
                 asc);
 
-        mapper.disable(MapperFeature.DEFAULT_VIEW_INCLUSION);
-        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-        ///response.setHttpServletRequest(request);
-        return mapper.writerWithView(View.Default.class).writeValueAsString(response);
     }
 
     @Override

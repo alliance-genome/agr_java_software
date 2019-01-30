@@ -7,6 +7,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.alliancegenome.api.service.helper.ExpressionSummary;
 import org.alliancegenome.core.service.JsonResultResponse;
+import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.DiseaseSummary;
 import org.alliancegenome.neo4j.entity.EntitySummary;
 import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
@@ -151,7 +152,8 @@ public interface GeneRESTInterface {
     @GET
     @Path("/{id}/diseases-by-experiment")
     @ApiOperation(value = "Retrieve disease annotations for a given gene")
-    String getDiseaseByExperiment(
+    @JsonView(value = {View.DiseaseAnnotation.class})
+    JsonResultResponse<DiseaseAnnotation> getDiseaseByExperiment(
             @ApiParam(name = "id", value = "Gene by ID: e.g. ZFIN:ZDB-GENE-990415-8", required = true, type = "String")
             @PathParam("id") String id,
             @ApiParam(name = "limit", value = "Number of rows returned", defaultValue = "20")
@@ -180,7 +182,8 @@ public interface GeneRESTInterface {
     @GET
     @Path("/{id}/diseases-via-orthology")
     @ApiOperation(value = "Retrieve disease annotations for a given gene")
-    String getDiseaseViaOrthology(
+    @JsonView(value = {View.DiseaseAnnotation.class})
+    JsonResultResponse<DiseaseAnnotation> getDiseaseViaOrthology(
             @ApiParam(name = "id", value = "Gene by ID: e.g. ZFIN:ZDB-GENE-990415-8", required = true, type = "String")
             @PathParam("id") String id,
             @ApiParam(name = "limit", value = "Number of rows returned", defaultValue = "20")
