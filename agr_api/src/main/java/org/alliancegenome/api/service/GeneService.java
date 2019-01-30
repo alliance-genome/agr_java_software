@@ -98,6 +98,13 @@ public class GeneService {
         return summary;
     }
 
+    public EntitySummary getInteractionSummary(String geneID) {
+        EntitySummary summary = new EntitySummary();
+        summary.setNumberOfAnnotations(interRepo.getInteractionCount(geneID));
+        summary.setNumberOfEntities(interRepo.getInteractorCount(geneID));
+        return summary;
+    }
+
 /*
 
     public JsonResultResponse<DiseaseAnnotation> getEmpiricalDiseaseAnnotations(String id, Pagination pagination, boolean empiricalDisease) throws JsonProcessingException {

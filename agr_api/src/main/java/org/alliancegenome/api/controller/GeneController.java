@@ -1,16 +1,10 @@
 package org.alliancegenome.api.controller;
 
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.alliancegenome.api.rest.interfaces.GeneRESTInterface;
 import org.alliancegenome.api.service.DiseaseService;
 import org.alliancegenome.api.service.ExpressionService;
@@ -36,17 +30,20 @@ import org.alliancegenome.neo4j.view.OrthologyFilter;
 import org.alliancegenome.neo4j.view.View;
 import org.apache.commons.collections.CollectionUtils;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 @RequestScoped
 public class GeneController extends BaseController implements GeneRESTInterface {
 
     @Inject
     private GeneService geneService;
-    
+
     @Inject
     private DiseaseService diseaseService;
 
@@ -65,7 +62,7 @@ public class GeneController extends BaseController implements GeneRESTInterface 
             return gene;
         }
     }
-    
+
     @Override
     public JsonResultResponse<Allele> getAllelesPerGene(String id, int limit, int page, String sortBy, String asc) {
         return geneService.getAlleles(id, limit, page, sortBy, asc);
@@ -136,7 +133,7 @@ public class GeneController extends BaseController implements GeneRESTInterface 
                                                                                    String source,
                                                                                    String reference,
                                                                                    String asc) throws JsonProcessingException {
-        return getDiseaseAnnotation(id, limit, page, sortBy, null, null, disease, associationType, reference, orthologyGene, orthologyGeneSpecies,evidenceCode, source, asc, false);
+        return getDiseaseAnnotation(id, limit, page, sortBy, null, null, disease, associationType, reference, orthologyGene, orthologyGeneSpecies, evidenceCode, source, asc, false);
     }
 
     private JsonResultResponse<DiseaseAnnotation> getDiseaseAnnotation(String id,
@@ -171,13 +168,13 @@ public class GeneController extends BaseController implements GeneRESTInterface 
 
     @Override
     public JsonResultResponse<OrthologView> getGeneOrthology(String id,
-                                   List<String> geneIDs,
-                                   String geneLister,
-                                   String stringencyFilter,
-                                   List<String> taxonIDs,
-                                   List<String> methods,
-                                   Integer rows,
-                                   Integer start) throws IOException {
+                                                             List<String> geneIDs,
+                                                             String geneLister,
+                                                             String stringencyFilter,
+                                                             List<String> taxonIDs,
+                                                             List<String> methods,
+                                                             Integer rows,
+                                                             Integer start) {
 
         List<String> geneList = new ArrayList<>();
         if (id != null) {
@@ -199,10 +196,15 @@ public class GeneController extends BaseController implements GeneRESTInterface 
     }
 
     @Override
-    public ExpressionSummary getExpressionSummary(String id) throws JsonProcessingException {
+    public ExpressionSummary getExpressionSummary(String id) {
 
         ExpressionService service = new ExpressionService();
         return service.getExpressionSummary(id);
+    }
+
+    @Override
+    public EntitySummary getInteractionSummary(String geneID) {
+        return geneService.getInteractionSummary(geneID);
     }
 
     @Override
@@ -327,13 +329,13 @@ public class GeneController extends BaseController implements GeneRESTInterface 
     }
 
     @Override
-    public DiseaseSummary getDiseaseSummary(String id, String type) throws JsonProcessingException {
+    public DiseaseSummary getDiseaseSummary(String id, String type) {
         DiseaseSummary.Type diseaseType = DiseaseSummary.Type.getType(type);
         return diseaseService.getDiseaseSummary(id, diseaseType);
     }
 
     @Override
-    public EntitySummary getPhenotypeSummary(String id) throws JsonProcessingException {
+    public EntitySummary getPhenotypeSummary(String id) {
         return geneService.getPhenotypeSummary(id);
     }
 
