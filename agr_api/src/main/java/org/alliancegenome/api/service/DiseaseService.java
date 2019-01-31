@@ -14,6 +14,7 @@ import org.neo4j.ogm.model.Result;
 import javax.enterprise.context.RequestScoped;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @RequestScoped
 public class DiseaseService {
@@ -83,7 +84,7 @@ public class DiseaseService {
             }
             List<Publication> publicationList = (List<Publication>) objectMap.get("publications");
             publicationList.sort(Comparator.naturalOrder());
-            document.setPublications(publicationList);
+            document.setPublications(publicationList.stream().distinct().collect(Collectors.toList()));
             annotationDocuments.add(document);
         });
 
