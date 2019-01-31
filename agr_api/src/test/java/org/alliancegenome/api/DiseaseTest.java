@@ -349,14 +349,14 @@ public class DiseaseTest {
         assertNotNull(lines);
         String result = "Disease\tGenetic Entity ID\tGenetic Entity Symbol\tGenetic Entity Type\tAssociation Type\tEvidence Code\tSource\tReferences\n" +
                 "acute lymphocytic leukemia\tMGI:2156086\tPten<sup>tm1Hwu</sup>\tallele\tis_implicated_in\tTAS\tPMID:21262837\n" +
-                "Cowden disease\tMGI:2156086\tPten<sup>tm1Hwu</sup>\tallele\tis_implicated_in\tTAS\tPMID:12163417,PMID:17237784,PMID:18757421,PMID:23873941,PMID:23873941,PMID:27889578\n" +
+                "Cowden disease\tMGI:2156086\tPten<sup>tm1Hwu</sup>\tallele\tis_implicated_in\tTAS\tPMID:12163417,PMID:17237784,PMID:18757421,PMID:23873941,PMID:27889578\n" +
                 "endometrial cancer\tMGI:2156086\tPten<sup>tm1Hwu</sup>\tallele\tis_implicated_in\tTAS\tPMID:18632614,PMID:20418913\n" +
                 "fatty liver disease\tMGI:2156086\tPten<sup>tm1Hwu</sup>\tallele\tis_implicated_in\tTAS\tPMID:24802098\n" +
                 "follicular thyroid carcinoma\tMGI:2156086\tPten<sup>tm1Hwu</sup>\tallele\tis_implicated_in\tTAS\tPMID:22167068\n" +
                 "hepatocellular carcinoma\tMGI:2156086\tPten<sup>tm1Hwu</sup>\tallele\tis_implicated_in\tTAS\tPMID:20837017,PMID:24027047,PMID:25132272\n" +
                 "intestinal pseudo-obstruction\tMGI:2156086\tPten<sup>tm1Hwu</sup>\tallele\tis_implicated_in\tTAS\tPMID:19884655\n" +
                 "persistent fetal circulation syndrome\tMGI:2156086\tPten<sup>tm1Hwu</sup>\tallele\tis_implicated_in\tTAS\tPMID:23023706\n" +
-                "prostate cancer\tMGI:2156086\tPten<sup>tm1Hwu</sup>\tallele\tis_implicated_in\tTAS\tPMID:14522255,PMID:16489020,PMID:21620777,PMID:22350410,PMID:22836754,PMID:23300485,PMID:23348745,PMID:23434594,PMID:23610450,PMID:25455686,PMID:25526087,PMID:25693195,PMID:25948589,PMID:26640144,PMID:27345403,PMID:27345403,PMID:27357679,PMID:28059767,PMID:28515147,PMID:29720449\n" +
+                "prostate cancer\tMGI:2156086\tPten<sup>tm1Hwu</sup>\tallele\tis_implicated_in\tTAS\tPMID:14522255,PMID:16489020,PMID:21620777,PMID:22350410,PMID:22836754,PMID:23300485,PMID:23348745,PMID:23434594,PMID:23610450,PMID:25455686,PMID:25526087,PMID:25693195,PMID:25948589,PMID:26640144,PMID:27345403,PMID:27357679,PMID:28059767,PMID:28515147,PMID:29720449\n" +
                 "urinary bladder cancer\tMGI:2156086\tPten<sup>tm1Hwu</sup>\tallele\tis_implicated_in\tTAS\tPMID:19261747,PMID:25533675\n";
         assertEquals(result, output);
     }

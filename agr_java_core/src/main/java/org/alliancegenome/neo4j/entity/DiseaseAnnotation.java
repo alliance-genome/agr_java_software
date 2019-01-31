@@ -16,6 +16,7 @@ public class DiseaseAnnotation implements Comparable<DiseaseAnnotation> {
 
     @JsonView({View.DiseaseAnnotation.class})
     private String primaryKey;
+    @JsonView({View.DiseaseAnnotation.class})
     private Source source;
     @JsonView({View.DiseaseAnnotation.class})
     private DOTerm disease;
