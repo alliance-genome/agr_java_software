@@ -612,6 +612,75 @@ public class DiseaseTest {
         assertThat(term.getDefLinks().size(), equalTo(1));
     }
 
+    @Test
+    // Test SHH from Human for disease via experiment records
+    public void checkDiseaseAnnotationNonDuplicated3() {
+        DiseaseService service = new DiseaseService();
+        List<DiseaseAnnotation> annotations = service.getEmpiricalDiseaseAnnotationList("HGNC:10848", new Pagination(1, 30, null, null), true);
+
+        assertNotNull(annotations);
+        // 14 different disease terms
+        assertThat(annotations.size(), equalTo(14));
+        // pick autism spectrum disorder
+        // one record (no duplication
+        List<DiseaseAnnotation> annots = annotations.stream().filter(diseaseDocument -> diseaseDocument.getDisease().getName().equals("autism spectrum disorder")).collect(Collectors.toList());
+        assertThat(1, equalTo(annots.size()));
+
+    }
+
+    @Test
+    // Test daf-2 from Worm for disease via orthology records
+    public void checkDiseaseAnnotationMissing() {
+        DiseaseService service = new DiseaseService();
+        List<DiseaseAnnotation> annotations = service.getEmpiricalDiseaseAnnotationList("WB:WBGene00000898", new Pagination(1, 80, null, null), false);
+        assertNotNull(annotations);
+
+        // Just one disease term
+        assertThat(69, equalTo(annotations.size()));
+
+        List<DiseaseAnnotation> annots = annotations.stream().filter(diseaseDocument -> diseaseDocument.getDisease().getName().equals("Alzheimer's disease")).collect(Collectors.toList());
+        assertThat(5, equalTo(annots.size()));
+
+        // 5 annotations with different orthology geneMap
+        assertThat(annots.stream().filter(annotationDocument -> annotationDocument.getOrthologyGene() != null).count(), equalTo(5L));
+        List<String> orthoGeneName = annots.stream()
+                .filter(annotationDocument -> annotationDocument.getOrthologyGene() != null)
+                .map(annotationDocument -> annotationDocument.getOrthologyGene().getSymbol())
+                .collect(Collectors.toList());
+        // five ortho geneMap (symbols)
+        assertThat(orthoGeneName, containsInAnyOrder("IGF1R",
+                "Igf1r",
+                "Insr",
+                "INSR",
+                "Igf1r"));
+
+    }
+
+    @Test
+    // Test Sox9 from MGI for disease via experiment records
+    public void checkDiseaseAnnotationNonDuplicated() {
+        DiseaseService service = new DiseaseService();
+        List<DiseaseAnnotation> annotations = service.getEmpiricalDiseaseAnnotationList("MGI:98371", new Pagination(1, 80, null, null), true);
+        assertNotNull(annotations);
+
+        assertThat(6, equalTo(annotations.size()));
+        // just one annotation without a allele
+        assertThat(annotations.stream().filter(annotationDocument -> annotationDocument.getFeature() == null).count(), equalTo(1L));
+        // 5 annotations with alleles
+        assertThat(annotations.stream().filter(annotationDocument -> annotationDocument.getFeature() != null).count(), equalTo(5L));
+        List<String> alleleNames = annotations.stream()
+                .filter(annotationDocument -> annotationDocument.getFeature() != null)
+                .map(annotationDocument -> annotationDocument.getFeature().getSymbol())
+                .collect(Collectors.toList());
+        // five alleles (symbols)
+        assertThat(alleleNames, containsInAnyOrder("Sox9<sup>tm1Crm</sup>",
+                "Sox9<sup>tm1.1Gsr</sup>",
+                "Sox9<sup>tm2Crm</sup>",
+                "Sox9<sup>tm1Gsr</sup>",
+                "Sox9<sup>Bbfc</sup>"));
+
+    }
+
 
     @SuppressWarnings("unchecked")
     public static void main(String[] args) {

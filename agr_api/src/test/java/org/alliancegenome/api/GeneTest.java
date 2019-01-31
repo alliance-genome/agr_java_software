@@ -83,10 +83,10 @@ public class GeneTest {
     @Test
     public void checkForSecondaryId() {
         // ZFIN:ZDB-GENE-030131-3355 is a secondary ID for ZFIN:ZDB-LINCRNAG-160518-1
-        Gene result = geneService.getById("ZFIN:ZDB-GENE-030131-3355");
-        assertNotNull(result);
-        assertThat(result.getPrimaryKey(), equalTo("ZFIN:ZDB-LINCRNAG-160518-1"));
-        assertThat(result.getSpecies().getName(), equalTo("Danio rerio"));
+        Gene gene = geneService.getById("ZFIN:ZDB-GENE-030131-3355");
+        assertNotNull(gene);
+        assertThat(gene.getPrimaryKey(), equalTo("ZFIN:ZDB-LINCRNAG-160518-1"));
+        assertThat(gene.getSpecies().getName(), equalTo("Danio rerio"));
     }
 
     @Test
@@ -403,124 +403,6 @@ public class GeneTest {
         List<String> termList = response.getResults().stream()
                 .map(ExpressionDetail::getTermName)
                 .collect(Collectors.toList());
-    }
-
-    @Test
-    // Test Sox9 from MGI for disease via experiment records
-    public void checkDiseaseAnnotationNonDuplicated() {
-        GeneRepository repo = new GeneRepository();
-        Gene gene = repo.getOneGene("MGI:98371");
-
-        GeneTranslator translator = new GeneTranslator();
-        GeneDocument document = translator.translate(gene);
-        assertNotNull(document);
-        List<DiseaseDocument> diseaseViaExperiment = document.getDiseasesViaExperiment();
-        assertNotNull(diseaseViaExperiment);
-        // Just one disease term
-        assertThat(diseaseViaExperiment.size(), equalTo(1));
-        DiseaseDocument doc = diseaseViaExperiment.get(0);
-        assertThat(doc.getAnnotations().size(), equalTo(6));
-        // just one annotation without a allele
-        assertThat(doc.getAnnotations().stream().filter(annotationDocument -> annotationDocument.getAlleleDocument() == null).count(), equalTo(1L));
-        // 5 annotations with alleles
-        assertThat(doc.getAnnotations().stream().filter(annotationDocument -> annotationDocument.getAlleleDocument() != null).count(), equalTo(5L));
-        List<String> alleleNames = doc.getAnnotations().stream()
-                .filter(annotationDocument -> annotationDocument.getAlleleDocument() != null)
-                .map(annotationDocument -> annotationDocument.getAlleleDocument().getSymbol())
-                .collect(Collectors.toList());
-        // five alleles (symbols)
-        assertThat(alleleNames, containsInAnyOrder("Sox9<sup>tm1Crm</sup>",
-                "Sox9<sup>tm1.1Gsr</sup>",
-                "Sox9<sup>tm2Crm</sup>",
-                "Sox9<sup>tm1Gsr</sup>",
-                "Sox9<sup>Bbfc</sup>"));
-
-    }
-
-    @Test
-    // Test Shh from MGI for disease via experiment records
-    public void checkDiseaseAnnotationNonDuplicated2() {
-        GeneRepository repo = new GeneRepository();
-        Gene gene = repo.getOneGene("MGI:98297");
-
-        GeneTranslator translator = new GeneTranslator();
-        GeneDocument document = translator.translate(gene);
-        assertNotNull(document);
-        List<DiseaseDocument> diseaseViaExperiment = document.getDiseasesViaExperiment();
-        assertNotNull(diseaseViaExperiment);
-        // Just one disease term
-        assertThat(diseaseViaExperiment.size(), equalTo(2));
-        // pick holoprocencpehaly 3
-        DiseaseDocument doc = diseaseViaExperiment.stream().filter(diseaseDocument -> diseaseDocument.getName().equals("holoprosencephaly 3")).findFirst().get();
-        assertThat(doc.getAnnotations().size(), equalTo(3));
-        // just one annotation without a allele
-        assertThat(doc.getAnnotations().stream().filter(annotationDocument -> annotationDocument.getAlleleDocument() == null).count(), equalTo(1L));
-        // 5 annotations with alleles
-        assertThat(doc.getAnnotations().stream().filter(annotationDocument -> annotationDocument.getAlleleDocument() != null).count(), equalTo(2L));
-        List<String> alleleNames = doc.getAnnotations().stream()
-                .filter(annotationDocument -> annotationDocument.getAlleleDocument() != null)
-                .map(annotationDocument -> annotationDocument.getAlleleDocument().getSymbol())
-                .collect(Collectors.toList());
-        // two alleles (symbols)
-        assertThat(alleleNames, containsInAnyOrder("Shh<sup>tm1Chg</sup>",
-                "Shh<sup>tm1Amc</sup>"));
-
-    }
-
-    @Test
-    // Test SHH from Human for disease via experiment records
-    public void checkDiseaseAnnotationNonDuplicated3() {
-        GeneRepository repo = new GeneRepository();
-        Gene gene = repo.getOneGene("HGNC:10848");
-
-        GeneTranslator translator = new GeneTranslator();
-        GeneDocument document = translator.translate(gene);
-        assertNotNull(document);
-        List<DiseaseDocument> diseaseViaExperiment = document.getDiseasesViaExperiment();
-        assertNotNull(diseaseViaExperiment);
-        // 14 different disease terms
-        assertThat(diseaseViaExperiment.size(), equalTo(14));
-        // pick autism spectrum disorder
-        DiseaseDocument doc = diseaseViaExperiment.stream().filter(diseaseDocument -> diseaseDocument.getName().equals("autism spectrum disorder")).findFirst().get();
-        assertThat(doc.getAnnotations().size(), equalTo(1));
-
-        doc = diseaseViaExperiment.stream().filter(diseaseDocument -> diseaseDocument.getName().equals("holoprosencephaly")).findFirst().get();
-        // one record (no duplication
-        assertThat(doc.getAnnotations().size(), equalTo(1));
-
-    }
-
-
-    @Test
-    // Test daf-2 from Worm for disease via orthology records
-    public void checkDiseaseAnnotationMissing() {
-        GeneRepository repo = new GeneRepository();
-        Gene gene = repo.getOneGene("WB:WBGene00000898");
-
-        GeneTranslator translator = new GeneTranslator();
-        GeneDocument document = translator.translate(gene);
-        assertNotNull(document);
-        List<DiseaseDocument> diseaseViaExperiment = document.getDiseasesViaOrthology();
-        assertNotNull(diseaseViaExperiment);
-        // Just one disease term
-        assertThat(diseaseViaExperiment.size(), equalTo(54));
-
-        DiseaseDocument doc = diseaseViaExperiment.stream().filter(diseaseDocument -> diseaseDocument.getName().equals("Alzheimer's disease")).findFirst().get();
-        assertThat(doc.getAnnotations().size(), equalTo(5));
-
-        // 5 annotations with different orthology geneMap
-        assertThat(doc.getAnnotations().stream().filter(annotationDocument -> annotationDocument.getOrthologyGeneDocument() != null).count(), equalTo(5L));
-        List<String> orthoGeneName = doc.getAnnotations().stream()
-                .filter(annotationDocument -> annotationDocument.getOrthologyGeneDocument() != null)
-                .map(annotationDocument -> annotationDocument.getOrthologyGeneDocument().getSymbol())
-                .collect(Collectors.toList());
-        // five ortho geneMap (symbols)
-        assertThat(orthoGeneName, containsInAnyOrder("IGF1R",
-                "Igf1r",
-                "Insr",
-                "INSR",
-                "Igf1r"));
-
     }
 
 }

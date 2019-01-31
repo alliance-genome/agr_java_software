@@ -41,7 +41,7 @@ public class DiseaseService {
         return getDiseaseAnnotations(result);
     }
 
-    private List<DiseaseAnnotation> getEmpiricalDiseaseAnnotationList(String geneID, Pagination pagination, boolean empiricalDisease) {
+    public List<DiseaseAnnotation> getEmpiricalDiseaseAnnotationList(String geneID, Pagination pagination, boolean empiricalDisease) {
         Result result = diseaseRepository.getDiseaseAssociation(geneID, null, pagination, empiricalDisease);
         return getDiseaseAnnotations(result);
     }
