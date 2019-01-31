@@ -32,8 +32,6 @@ public class Allele extends GeneticEntity implements Comparable<Allele> {
     private String release;
     private String localId;
     private String globalId;
-    @JsonView({View.GeneAllelesAPI.class, View.AlleleAPI.class})
-    @JsonProperty(value = "url")
     private String modCrossRefCompleteUrl;
 
     @Relationship(type = "ALSO_KNOWN_AS")
@@ -81,4 +79,5 @@ public class Allele extends GeneticEntity implements Comparable<Allele> {
     public int compareTo(Allele o) {
         return 0;
     }
+
 }

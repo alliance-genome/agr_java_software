@@ -52,6 +52,7 @@ public class DiseaseService {
             DiseaseAnnotation document = new DiseaseAnnotation();
             Gene gene = (Gene) objectMap.get("gene");
             gene.setSpecies((Species) objectMap.get("species"));
+//            gene.setUrl(((CrossReference) objectMap.get("geneCrossReference")).getCrossRefCompleteUrl());
             document.setGene(gene);
             DOTerm disease = (DOTerm) objectMap.get("disease");
             document.setDisease(disease);

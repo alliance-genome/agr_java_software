@@ -212,6 +212,7 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
                 "       disease as disease, " +
                 "       gene as gene, " +
                 "       species as species, " +
+//                "       geneCrossRef as geneCrossReference, " +
                 "       feature.symbol, " +
                 "       feature as feature, " +
                 "       collect(diseaseEntityJoin) as diseaseEntityJoin, " +
@@ -244,6 +245,10 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
         cypher += "--(diseaseEntityJoin:DiseaseEntityJoin)-[:EVIDENCE]-(publication:Publication), " +
                 "              p1=(diseaseEntityJoin)--(evidence:EvidenceCode), " +
                 "              p2=(diseaseEntityJoin)-[:ASSOCIATION]-(gene:Gene)--(species:Species) ";
+/*
+        "              p2=(diseaseEntityJoin)-[:ASSOCIATION]-(gene:Gene)--(species:Species), " +
+                "              p3=(gene:Gene)--(geneCrossRef:CrossReference {crossRefType:'gene'}) ";
+*/
 
         if (diseaseViaEmpiricalData != null && !diseaseViaEmpiricalData) {
             cypher += cypherViaOrthology;

@@ -1,52 +1,68 @@
 package org.alliancegenome.api
 
 import groovy.json.JsonSlurper
-import spock.lang.Ignore
 import spock.lang.Specification
 import spock.lang.Unroll
 
 class DiseaseAnnotationSpec extends Specification {
 
-    @Ignore("Not working until we get disease data on geneMap")
     @Unroll
-    def "When querying for #query with #filter, #betterResult comes before #worseResult"() {
+    def "Disease page for #query"() {
         when:
         def encodedQuery = URLEncoder.encode(query, "UTF-8")
         //todo: need to set the base search url in a nicer way
-        def url = new URL("http://localhost:8080/api/search?category=gene&limit=500&offset=0&q=$encodedQuery$filter")
-        def results = new JsonSlurper().parseText(url.text).results
-        def betterResult = results.find { it.id == betterResultId }
-        def worseResult = results.find { it.id == worseResultId }
-        def betterResultPosition = results.findIndexValues() { it.id == betterResultId }?.first()
-        def worseResultPosition = results.findIndexValues() { it.id == worseResultId }?.first()
+        def url = new URL("http://localhost:8080/api/disease/$encodedQuery")
+        def disease = new JsonSlurper().parseText(url.text)
 
         then:
-        betterResult
-        worseResult
-        betterResultPosition < worseResultPosition
-
+        disease //should be some results
+        id == disease.id
+        name == disease.name
+        disease.definition.startsWith(definition)
+        defLink == disease.definitionLinks.first()
+        parents == disease.parents.size()
+        children == disease.children.size()
+        crossRefs == disease.crossReferences.keySet().toList()[0]
+        crossRefsOther < disease.crossReferences[crossRefs].size()
+        crossRefOtherName == disease.crossReferences[crossRefs][0].name
+        disease.crossReferences[crossRefs][0].url.startsWith(crossRefOtherUrl)
+        disease.url.contains(doUrl)
+        sources == disease.sources.size()
         where:
-        query                 | filter                 | betterResultId             | worseResultId             | issue
-        "parkinson's disease" | "&species=Danio+rerio" | "ZFIN:ZDB-GENE-050417-109" | "ZFIN:ZDB-GENE-040827-4"  | "AGR-461"
-// sadly, this one is a tougher nut to crack
-//      "melanogaster kinase" | ""                     | "FB:FBgn0028427"                | "RGD:1308199"        | "AGR-461"
+        query       | id          | name                         | parents | children | doUrl             | sources | crossRefs | crossRefsOther | crossRefOtherName | crossRefOtherUrl | definition                 | defLink
+        "DOID:9952" | "DOID:9952" | "acute lymphocytic leukemia" | 1       | 4        | "disease-ontology"| 6       | "other"   | 10             | "NCI:C3167"       | "https://ncit.n" | "A lymphoblastic leukemia" | "http://www.cancer.gov/dictionary?CdrID=46332"
+
     }
 
     @Unroll
-    def "When querying for #query in genes the symbol should start with #query"() {
+    def "Disease page - Annotations for #doid"() {
         when:
-        def encodedQuery = URLEncoder.encode(query, "UTF-8")
-        //todo: need to set the base search url in a nicer way
-        def url = new URL("http://localhost:8080/api/search?category=gene&limit=50&offset=0&q=$encodedQuery")
-        def results = new JsonSlurper().parseText(url.text).results
-        def firstResultSymbol = results.first().get("symbol").toLowerCase()
+        def encodedQuery = URLEncoder.encode(doid, "UTF-8")
+        def url = new URL("http://localhost:8080/api/disease/$encodedQuery/associations?limit=50")
+        def retObj = new JsonSlurper().parseText(url.text)
+        def results = retObj.results
+        def ezha = results.find{it.gene.symbol == 'Ezh2' && it.allele}
 
         then:
         results //should be some results
-        firstResultSymbol.startsWith(query)
-
+        totalResults == retObj.total
+        returned == results.size()
+        firstGene == results.first().gene.id
+        //firstGeneUrl == results.first().gene.url
+        geneSymbol == results.first().gene.symbol
+        ezha
+        alleleSymbol == ezha.allele.symbol
+        alleleUrl == ezha.allele.url
+        crossRef == ezha.publications[0].id
+        geneticEntityType == ezha.geneticEntityType
+        evCode == ezha.evidenceCodes[0].name
+        disease == ezha.disease.name
+        doID == ezha.disease.id
+        doURL == ezha.disease.url
+        species == ezha.gene.species.name
         where:
-        query << ["fgf", "pax"]
+        doid       | totalResults | returned | firstGene       | geneSymbol | crossRef        | geneticEntityType | evCode | disease                      | alleleSymbol             | alleleUrl                                     | doID        | doURL                                            | species
+        "DOID:9952"| 66           | 50       | "FB:FBgn0265598"| "Bx"       | "PMID:22431509" | "allele"          | "TAS"  | "acute lymphocytic leukemia" | "Ezh2<sup>tm2.1Sho</sup>"| "http://www.informatics.jax.org/allele/MGI:3823218"|  "DOID:9952"| "http://www.disease-ontology.org/?id=DOID:9952"  | "Mus musculus"
 
     }
 }

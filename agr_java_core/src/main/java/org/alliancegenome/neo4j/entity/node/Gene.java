@@ -1,11 +1,9 @@
 package org.alliancegenome.neo4j.entity.node;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonView;
+import lombok.Getter;
+import lombok.Setter;
 import org.alliancegenome.es.util.DateConverter;
 import org.alliancegenome.neo4j.entity.relationship.GenomeLocation;
 import org.alliancegenome.neo4j.entity.relationship.Orthologous;
@@ -15,11 +13,7 @@ import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.typeconversion.Convert;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonView;
-
-import lombok.Getter;
-import lombok.Setter;
+import java.util.*;
 
 @NodeEntity
 @Getter
@@ -29,7 +23,7 @@ public class Gene extends GeneticEntity implements Comparable<Gene> {
     public Gene() {
         this.crossReferenceType = CrossReferenceType.GENE;
     }
-    
+
     @JsonView({View.Orthology.class, View.Expression.class})
     private String taxonId;
 
@@ -85,7 +79,7 @@ public class Gene extends GeneticEntity implements Comparable<Gene> {
     @JsonView(value = {View.GeneAPI.class})
     @JsonProperty(value = "secondaryIds")
     public List<String> getSecondaryIdsList() {
-        List<String> list = new ArrayList<String>();
+        List<String> list = new ArrayList<>();
         for (SecondaryId s : secondaryIds) {
             list.add(s.getName());
         }
@@ -137,9 +131,7 @@ public class Gene extends GeneticEntity implements Comparable<Gene> {
 
     public Set<GOTerm> getGoParentTerms() {
         Set<GOTerm> parentTerms = new HashSet<>();
-        CollectionUtils.emptyIfNull(goTerms).forEach(term -> {
-            parentTerms.addAll(term.getParentTerms());
-        });
+        CollectionUtils.emptyIfNull(goTerms).forEach(term -> parentTerms.addAll(term.getParentTerms()));
         return parentTerms;
     }
 
