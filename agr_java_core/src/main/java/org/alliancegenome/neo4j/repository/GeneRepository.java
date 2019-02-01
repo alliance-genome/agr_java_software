@@ -1,43 +1,28 @@
 package org.alliancegenome.neo4j.repository;
 
-import static java.util.stream.Collectors.joining;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import org.alliancegenome.es.model.query.FieldFilter;
+import org.alliancegenome.es.model.query.Pagination;
+import org.alliancegenome.neo4j.entity.SpeciesType;
+import org.alliancegenome.neo4j.entity.node.*;
+import org.alliancegenome.neo4j.view.OrthologyFilter;
+import org.apache.commons.collections4.IterableUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.neo4j.ogm.model.Result;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.StringJoiner;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-import org.alliancegenome.es.model.query.FieldFilter;
-import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.neo4j.entity.SpeciesType;
-import org.alliancegenome.neo4j.entity.node.Allele;
-import org.alliancegenome.neo4j.entity.node.BioEntityGeneExpressionJoin;
-import org.alliancegenome.neo4j.entity.node.GOTerm;
-import org.alliancegenome.neo4j.entity.node.Gene;
-import org.alliancegenome.neo4j.entity.node.Ontology;
-import org.alliancegenome.neo4j.entity.node.UBERONTerm;
-import org.alliancegenome.neo4j.view.OrthologyFilter;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.neo4j.ogm.model.Result;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
+import static java.util.stream.Collectors.joining;
 
 public class GeneRepository extends Neo4jRepository<Gene> {
 
@@ -70,7 +55,7 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         }
         return null;
     }
-    
+
 
     public List<Allele> getAlleles(String primaryKey) {
         HashMap<String, String> map = new HashMap<>();
@@ -81,7 +66,7 @@ public class GeneRepository extends Neo4jRepository<Gene> {
                 + "OPTIONAL MATCH p3=(a:Feature)--(:DOTerm) "
                 + "OPTIONAL MATCH p4=(a:Feature)--(:CrossReference) "
                 + "RETURN p1, p2, p3, p4";
-        
+
         Iterable<Gene> genes = query(query, map);
         for (Gene g : genes) {
             if (g.getPrimaryKey().equals(primaryKey)) {
@@ -90,15 +75,21 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         }
         return null;
     }
-    
-    public Gene getGeneBySecondary(String primaryKey) {
+
+    public Gene getGeneBySecondary(String id) {
         HashMap<String, String> map = new HashMap<>();
 
-        map.put("primaryKey", primaryKey);
-        String query = "";
-        // TODO fix this to return something more then null
-        
-        return null;
+        map.put("id", id);
+        String query = "MATCH p1=(g:Gene)-[:ALSO_KNOWN_AS]-(sec:SecondaryId), " +
+                "             p2=(g)--(species:Species) " +
+                " where sec.primaryKey = {id} return p1, p2";
+
+        List<Gene> genes = IterableUtils.toList(query(query, map));
+        if (genes.size() == 0)
+            return null;
+        if (genes.size() > 1)
+            throw new RuntimeException("More than one Gene found for secondary ID: " + id);
+        return genes.get(0);
     }
 
 
@@ -119,14 +110,14 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         }
         String speciesFilterClause = addAndWhereClauseString("species.name", FieldFilter.FSPECIES, pagination.getFieldFilterValueMap());
         if (speciesFilterClause != null) {
-            query +=  speciesFilterClause;
+            query += speciesFilterClause;
         }
         if (sourceFilterClause != null) {
             query += sourceFilterClause;
         }
         String termFilterClause = addAndWhereClauseString("exp.whereExpressedStatement", FieldFilter.TERM_NAME, pagination.getFieldFilterValueMap());
         if (termFilterClause != null) {
-            query +=termFilterClause;
+            query += termFilterClause;
         }
         if (sourceFilterClause == null) {
             query += " OPTIONAL MATCH crossReference = (s:BioEntityGeneExpressionJoin)--(crossRef:CrossReference) ";

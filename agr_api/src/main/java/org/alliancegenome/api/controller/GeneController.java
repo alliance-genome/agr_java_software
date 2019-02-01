@@ -2,7 +2,6 @@ package org.alliancegenome.api.controller;
 
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.alliancegenome.api.rest.interfaces.GeneRESTInterface;
 import org.alliancegenome.api.service.DiseaseService;
 import org.alliancegenome.api.service.ExpressionService;
@@ -46,7 +45,6 @@ public class GeneController extends BaseController implements GeneRESTInterface 
 
     private final PhenotypeAnnotationToTdfTranslator translator = new PhenotypeAnnotationToTdfTranslator();
     private final DiseaseAnnotationToTdfTranslator diseaseTranslator = new DiseaseAnnotationToTdfTranslator();
-    private ObjectMapper mapper = new ObjectMapper();
 
     @Override
     public Gene getGene(String id) {
@@ -55,7 +53,6 @@ public class GeneController extends BaseController implements GeneRESTInterface 
             RestErrorMessage error = new RestErrorMessage("No gene found with ID: " + id);
             throw new RestErrorException(error);
         } else {
-
             return gene;
         }
     }
