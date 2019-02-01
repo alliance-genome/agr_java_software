@@ -76,10 +76,10 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         HashMap<String, String> map = new HashMap<>();
 
         map.put("primaryKey", primaryKey);
-        String query = " MATCH p1=(g:Gene)--(a:Allele) WHERE g.primaryKey = {primaryKey} "
-                + "OPTIONAL MATCH p2=(a:Allele)--(:Synonym) "
-                + "OPTIONAL MATCH p3=(a:Allele)--(:DOTerm) "
-                + "OPTIONAL MATCH p4=(a:Allele)--(:CrossReference) "
+        String query = " MATCH p1=(g:Gene)--(a:Feature) WHERE g.primaryKey = {primaryKey} "
+                + "OPTIONAL MATCH p2=(a:Feature)--(:Synonym) "
+                + "OPTIONAL MATCH p3=(a:Feature)--(:DOTerm) "
+                + "OPTIONAL MATCH p4=(a:Feature)--(:CrossReference) "
                 + "RETURN p1, p2, p3, p4";
         
         Iterable<Gene> genes = query(query, map);
