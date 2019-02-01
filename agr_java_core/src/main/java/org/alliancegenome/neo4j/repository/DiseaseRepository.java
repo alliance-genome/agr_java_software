@@ -194,7 +194,7 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
                 cypher += "return distinct (disease.name + diseaseEntityJoin.joinType) as nameJoin, ";
             } else {
                 cypher += "return distinct (";
-                cypher += createReturnListToOrder(pagination.getSortByList(), FieldFilter.GENE_NAME, FieldFilter.FSPECIES, FieldFilter.DISEASE, FieldFilter.ASSOCIATION_TYPE);
+                cypher += createReturnListToOrder(pagination.getSortByList(), FieldFilter.GENE_NAME, FieldFilter.SPECIES, FieldFilter.DISEASE, FieldFilter.ASSOCIATION_TYPE);
                 cypher += ") as nameJoin, ";
             }
         } else {
@@ -202,7 +202,7 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
                 cypher += "return distinct (disease.name + diseaseEntityJoin.joinType + orthoGene.primaryKey) as nameJoin, ";
             else {
                 cypher += "return distinct (";
-                cypher += createReturnListToOrder(pagination.getSortByList(), FieldFilter.GENE_NAME, FieldFilter.FSPECIES, FieldFilter.DISEASE);
+                cypher += createReturnListToOrder(pagination.getSortByList(), FieldFilter.GENE_NAME, FieldFilter.SPECIES, FieldFilter.DISEASE);
                 cypher += ") as nameJoin, ";
             }
         }
@@ -306,13 +306,16 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
 
     static {
         sortByMapping.put(FieldFilter.GENE_NAME, "gene.symbol + substring('               ', 0, size(gene.symbol))");
-        sortByMapping.put(FieldFilter.FSPECIES, "species.name");
+        sortByMapping.put(FieldFilter.SPECIES, "species.name");
         sortByMapping.put(FieldFilter.DISEASE, "disease.name");
         sortByMapping.put(FieldFilter.ASSOCIATION_TYPE, "diseaseEntityJoin.joinType");
     }
 
     private String getFilterClauses(Pagination pagination, boolean filterForCounting) {
         String cypherWhereClause = "";
+        // add gene name filter
+        cypherWhereClause += addToCypherWhereClause(pagination.getFieldFilterValueMap(), "gene.symbol", FieldFilter.GENE_NAME);
+
         // add disease name filter
         cypherWhereClause += addToCypherWhereClause(pagination.getFieldFilterValueMap(), "disease.name", FieldFilter.DISEASE);
 

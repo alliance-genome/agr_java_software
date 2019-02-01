@@ -12,7 +12,6 @@ public enum FieldFilter {
     GENETIC_ENTITY_TYPE("geneticEntityType"),
     DISEASE("disease"),
     SOURCE("source"),
-    FSOURCE("filter.source"),
     STAGE("filter.stage"),
     ASSAY("filter.assay"),
     REFERENCE("reference"),

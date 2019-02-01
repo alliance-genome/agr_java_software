@@ -175,7 +175,7 @@ public class DiseaseTest {
         Pagination pagination = new Pagination(1, 5, null, null);
         // acute lymphocytic lukemia
         String diseaseID = "DOID:9952";
-        pagination.setSortBy("filter.species");
+        pagination.setSortBy("species");
         JsonResultResponse<DiseaseAnnotation> response = geneService.getDiseaseAnnotationsByDisease(diseaseID, pagination);
 
         DiseaseAnnotationToTdfTranslator translator = new DiseaseAnnotationToTdfTranslator();
@@ -224,7 +224,7 @@ public class DiseaseTest {
         assertEquals(result, output);
 
         // sort by disease and filter.species
-        pagination.setSortBy("disease,filter.species");
+        pagination.setSortBy("disease,species");
         response = geneService.getDiseaseAnnotationsByDisease(diseaseID, pagination);
 
         translator = new DiseaseAnnotationToTdfTranslator();

@@ -81,7 +81,7 @@ public class ExpressionController implements ExpressionRESTInterface {
         filterMap.put(FieldFilter.FSPECIES, filterSpecies);
         filterMap.put(FieldFilter.GENE_NAME, filterGene);
         filterMap.put(FieldFilter.FREFERENCE, filterReference);
-        filterMap.put(FieldFilter.FSOURCE, filterSource);
+        filterMap.put(FieldFilter.SOURCE, filterSource);
         filterMap.put(FieldFilter.TERM_NAME, filterTerm);
         filterMap.put(FieldFilter.ASSAY, filterAssay);
         filterMap.put(FieldFilter.STAGE, filterStage);

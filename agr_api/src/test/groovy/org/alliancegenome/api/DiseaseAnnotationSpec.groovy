@@ -29,8 +29,8 @@ class DiseaseAnnotationSpec extends Specification {
         disease.url.contains(doUrl)
         sources == disease.sources.size()
         where:
-        query       | id          | name                         | parents | children | doUrl             | sources | crossRefs | crossRefsOther | crossRefOtherName | crossRefOtherUrl | definition                 | defLink
-        "DOID:9952" | "DOID:9952" | "acute lymphocytic leukemia" | 1       | 4        | "disease-ontology"| 6       | "other"   | 10             | "NCI:C3167"       | "https://ncit.n" | "A lymphoblastic leukemia" | "http://www.cancer.gov/dictionary?CdrID=46332"
+        query       | id          | name                         | parents | children | doUrl              | sources | crossRefs | crossRefsOther | crossRefOtherName | crossRefOtherUrl | definition                 | defLink
+        "DOID:9952" | "DOID:9952" | "acute lymphocytic leukemia" | 1       | 4        | "disease-ontology" | 6       | "other"   | 10             | "NCI:C3167"       | "https://ncit.n" | "A lymphoblastic leukemia" | "http://www.cancer.gov/dictionary?CdrID=46332"
 
     }
 
@@ -41,7 +41,7 @@ class DiseaseAnnotationSpec extends Specification {
         def url = new URL("http://localhost:8080/api/disease/$encodedQuery/associations?limit=50")
         def retObj = new JsonSlurper().parseText(url.text)
         def results = retObj.results
-        def ezha = results.find{it.gene.symbol == 'Ezh2' && it.allele}
+        def ezha = results.find { it.gene.symbol == 'Ezh2' && it.allele }
 
         then:
         results //should be some results
@@ -61,8 +61,72 @@ class DiseaseAnnotationSpec extends Specification {
         doURL == ezha.disease.url
         species == ezha.gene.species.name
         where:
-        doid       | totalResults | returned | firstGene       | geneSymbol | crossRef        | geneticEntityType | evCode | disease                      | alleleSymbol             | alleleUrl                                     | doID        | doURL                                            | species
-        "DOID:9952"| 66           | 50       | "FB:FBgn0265598"| "Bx"       | "PMID:22431509" | "allele"          | "TAS"  | "acute lymphocytic leukemia" | "Ezh2<sup>tm2.1Sho</sup>"| "http://www.informatics.jax.org/allele/MGI:3823218"|  "DOID:9952"| "http://www.disease-ontology.org/?id=DOID:9952"  | "Mus musculus"
+        doid        | totalResults | returned | firstGene        | geneSymbol | crossRef        | geneticEntityType | evCode | disease                      | alleleSymbol              | alleleUrl                                           | doID        | doURL                                           | species
+        "DOID:9952" | 66           | 50       | "FB:FBgn0265598" | "Bx"       | "PMID:22431509" | "allele"          | "TAS"  | "acute lymphocytic leukemia" | "Ezh2<sup>tm2.1Sho</sup>" | "http://www.informatics.jax.org/allele/MGI:3823218" | "DOID:9952" | "http://www.disease-ontology.org/?id=DOID:9952" | "Mus musculus"
 
+    }
+
+    @Unroll
+    def "Disease page - Annotations for #sortBy - Sorting"() {
+        when:
+        def url = new URL("http://localhost:8080/api/disease/DOID:9952/associations?limit=15&sortBy=$sortBy")
+        def retObj = new JsonSlurper().parseText(url.text)
+        def results = retObj.results
+        def symbols = results.gene.symbol.findAll { it }
+        def species = results.gene.species.name.findAll { it }
+        def disease = results.disease.name.findAll { it }
+
+        then:
+        results
+        symbols.join(",") == geneSymbolList
+        species.join(",") == speciesList
+        disease.join(",") == diseaseList
+
+        where:
+        sortBy        | geneSymbolList                                                                              | speciesList                                                                                                                                                                                                                                                                                          | diseaseList
+        "geneName"    | "Bx,ces-2,CG7786,cntn2,CNTN2,Cntn2,Cntn2,Cont,daf-18,DBP,Dbp,Dbp,dot-1.1,dot-1.2,dot-1.4"   |  "Drosophila melanogaster,Caenorhabditis elegans,Drosophila melanogaster,Danio rerio,Homo sapiens,Mus musculus,Rattus norvegicus,Drosophila melanogaster,Caenorhabditis elegans,Homo sapiens,Mus musculus,Rattus norvegicus,Caenorhabditis elegans,Caenorhabditis elegans,Caenorhabditis elegans"    | "acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,T-cell adult acute lymphocytic leukemia,T-cell adult acute lymphocytic leukemia,T-cell adult acute lymphocytic leukemia,T-cell adult acute lymphocytic leukemia,T-cell adult acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,B- and T-cell mixed leukemia,B- and T-cell mixed leukemia,B- and T-cell mixed leukemia"
+        "species"     | "ces-2,daf-18,dot-1.1,dot-1.2,dot-1.4,dot-1.5,glp-1,lin-12,mes-2,cntn2,dot1l,ezh2,hlfa,kmt2a,kmt2a" | "Caenorhabditis elegans,Caenorhabditis elegans,Caenorhabditis elegans,Caenorhabditis elegans,Caenorhabditis elegans,Caenorhabditis elegans,Caenorhabditis elegans,Caenorhabditis elegans,Caenorhabditis elegans,Danio rerio,Danio rerio,Danio rerio,Danio rerio,Danio rerio,Danio rerio"     | "acute lymphocytic leukemia,acute lymphocytic leukemia,B- and T-cell mixed leukemia,B- and T-cell mixed leukemia,B- and T-cell mixed leukemia,B- and T-cell mixed leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,T-cell adult acute lymphocytic leukemia,B- and T-cell mixed leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,B- and T-cell mixed leukemia"
+        "disease"     | "Bx,ces-2,CG7786,daf-18,DBP,Dbp,Dbp,E(z),ezh2,EZH2,Ezh2,Ezh2,Ezh2,Ezh2,glp-1" | "Drosophila melanogaster,Caenorhabditis elegans,Drosophila melanogaster,Caenorhabditis elegans,Homo sapiens,Mus musculus,Rattus norvegicus,Drosophila melanogaster,Danio rerio,Homo sapiens,Mus musculus,Mus musculus,Mus musculus,Rattus norvegicus,Caenorhabditis elegans"     | "acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia"
+
+    }
+
+    @Unroll
+    def "Disease page - Annotations for #limit - limit"() {
+        when:
+        def url = new URL("http://localhost:8080/api/disease/DOID:9952/associations?limit=$limit")
+        def retObj = new JsonSlurper().parseText(url.text)
+        def results = retObj.results
+
+        then:
+        results
+        results.size() == resultSize
+
+        where:
+        limit | resultSize
+        5     | 5
+        10    | 10
+        50    | 50
+        500   | 66
+
+    }
+
+    @Unroll
+    def "Disease page - Annotation Filtering for #geneSymbolQuery "() {
+        when:
+        def url = new URL("http://localhost:8080/api/disease/DOID:9952/associations?limit=50&filter.geneName=$geneSymbolQuery")
+        def retObj = new JsonSlurper().parseText(url.text)
+        def results = retObj.results
+        def symbols = results.gene.symbol.findAll { it }
+
+        then:
+        results
+        results.size() == resultSize
+        symbols.join(",") == geneSymbolList
+
+        where:
+        geneSymbolQuery | resultSize | geneSymbolList
+        "ot"            | 13         | "dot-1.1,dot-1.2,dot-1.4,dot-1.5,DOT1,dot1l,DOT1L,Dot1l,Dot1l,notch3,NOTCH3,Notch3,Notch3"
+        "2a"            | 9          | "kmt2a,kmt2a,KMT2A,KMT2A,Kmt2a,Kmt2a,Kmt2a,Kmt2a,Kmt2a"
+        "r"             | 2          | "trx,trx"
     }
 }
