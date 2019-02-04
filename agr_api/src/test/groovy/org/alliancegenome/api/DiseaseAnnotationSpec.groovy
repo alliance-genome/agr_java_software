@@ -83,10 +83,10 @@ class DiseaseAnnotationSpec extends Specification {
         disease.join(",") == diseaseList
 
         where:
-        sortBy        | geneSymbolList                                                                              | speciesList                                                                                                                                                                                                                                                                                          | diseaseList
-        "geneName"    | "Bx,ces-2,CG7786,cntn2,CNTN2,Cntn2,Cntn2,Cont,daf-18,DBP,Dbp,Dbp,dot-1.1,dot-1.2,dot-1.4"   |  "Drosophila melanogaster,Caenorhabditis elegans,Drosophila melanogaster,Danio rerio,Homo sapiens,Mus musculus,Rattus norvegicus,Drosophila melanogaster,Caenorhabditis elegans,Homo sapiens,Mus musculus,Rattus norvegicus,Caenorhabditis elegans,Caenorhabditis elegans,Caenorhabditis elegans"    | "acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,T-cell adult acute lymphocytic leukemia,T-cell adult acute lymphocytic leukemia,T-cell adult acute lymphocytic leukemia,T-cell adult acute lymphocytic leukemia,T-cell adult acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,B- and T-cell mixed leukemia,B- and T-cell mixed leukemia,B- and T-cell mixed leukemia"
-        "species"     | "ces-2,daf-18,dot-1.1,dot-1.2,dot-1.4,dot-1.5,glp-1,lin-12,mes-2,cntn2,dot1l,ezh2,hlfa,kmt2a,kmt2a" | "Caenorhabditis elegans,Caenorhabditis elegans,Caenorhabditis elegans,Caenorhabditis elegans,Caenorhabditis elegans,Caenorhabditis elegans,Caenorhabditis elegans,Caenorhabditis elegans,Caenorhabditis elegans,Danio rerio,Danio rerio,Danio rerio,Danio rerio,Danio rerio,Danio rerio"     | "acute lymphocytic leukemia,acute lymphocytic leukemia,B- and T-cell mixed leukemia,B- and T-cell mixed leukemia,B- and T-cell mixed leukemia,B- and T-cell mixed leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,T-cell adult acute lymphocytic leukemia,B- and T-cell mixed leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,B- and T-cell mixed leukemia"
-        "disease"     | "Bx,ces-2,CG7786,daf-18,DBP,Dbp,Dbp,E(z),ezh2,EZH2,Ezh2,Ezh2,Ezh2,Ezh2,glp-1" | "Drosophila melanogaster,Caenorhabditis elegans,Drosophila melanogaster,Caenorhabditis elegans,Homo sapiens,Mus musculus,Rattus norvegicus,Drosophila melanogaster,Danio rerio,Homo sapiens,Mus musculus,Mus musculus,Mus musculus,Rattus norvegicus,Caenorhabditis elegans"     | "acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia"
+        sortBy     | geneSymbolList                                                                                      | speciesList                                                                                                                                                                                                                                                                                      | diseaseList
+        "geneName" | "Bx,ces-2,CG7786,cntn2,CNTN2,Cntn2,Cntn2,Cont,daf-18,DBP,Dbp,Dbp,dot-1.1,dot-1.2,dot-1.4"           | "Drosophila melanogaster,Caenorhabditis elegans,Drosophila melanogaster,Danio rerio,Homo sapiens,Mus musculus,Rattus norvegicus,Drosophila melanogaster,Caenorhabditis elegans,Homo sapiens,Mus musculus,Rattus norvegicus,Caenorhabditis elegans,Caenorhabditis elegans,Caenorhabditis elegans" | "acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,T-cell adult acute lymphocytic leukemia,T-cell adult acute lymphocytic leukemia,T-cell adult acute lymphocytic leukemia,T-cell adult acute lymphocytic leukemia,T-cell adult acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,B- and T-cell mixed leukemia,B- and T-cell mixed leukemia,B- and T-cell mixed leukemia"
+        "species"  | "ces-2,daf-18,dot-1.1,dot-1.2,dot-1.4,dot-1.5,glp-1,lin-12,mes-2,cntn2,dot1l,ezh2,hlfa,kmt2a,kmt2a" | "Caenorhabditis elegans,Caenorhabditis elegans,Caenorhabditis elegans,Caenorhabditis elegans,Caenorhabditis elegans,Caenorhabditis elegans,Caenorhabditis elegans,Caenorhabditis elegans,Caenorhabditis elegans,Danio rerio,Danio rerio,Danio rerio,Danio rerio,Danio rerio,Danio rerio"         | "acute lymphocytic leukemia,acute lymphocytic leukemia,B- and T-cell mixed leukemia,B- and T-cell mixed leukemia,B- and T-cell mixed leukemia,B- and T-cell mixed leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,T-cell adult acute lymphocytic leukemia,B- and T-cell mixed leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,B- and T-cell mixed leukemia"
+        "disease"  | "Bx,ces-2,CG7786,daf-18,DBP,Dbp,Dbp,E(z),ezh2,EZH2,Ezh2,Ezh2,Ezh2,Ezh2,glp-1"                       | "Drosophila melanogaster,Caenorhabditis elegans,Drosophila melanogaster,Caenorhabditis elegans,Homo sapiens,Mus musculus,Rattus norvegicus,Drosophila melanogaster,Danio rerio,Homo sapiens,Mus musculus,Mus musculus,Mus musculus,Rattus norvegicus,Caenorhabditis elegans"                     | "acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia"
 
     }
 
@@ -120,13 +120,57 @@ class DiseaseAnnotationSpec extends Specification {
 
         then:
         results
-        results.size() == resultSize
-        symbols.join(",") == geneSymbolList
+        resultSize == results.size()
+        geneSymbolList == symbols.join(",")
 
         where:
         geneSymbolQuery | resultSize | geneSymbolList
         "ot"            | 13         | "dot-1.1,dot-1.2,dot-1.4,dot-1.5,DOT1,dot1l,DOT1L,Dot1l,Dot1l,notch3,NOTCH3,Notch3,Notch3"
         "2a"            | 9          | "kmt2a,kmt2a,KMT2A,KMT2A,Kmt2a,Kmt2a,Kmt2a,Kmt2a,Kmt2a"
         "r"             | 2          | "trx,trx"
+    }
+
+    @Unroll
+    def "Gene page - Annotation via Experiment #geneID "() {
+        when:
+        def url = new URL("http://localhost:8080/api/gene/$geneID/diseases-by-experiment?limit=5")
+        def retObj = new JsonSlurper().parseText(url.text)
+        def results = retObj.results
+
+        then:
+        results
+        retObj.total == resultSize
+        results[0].disease.name == diseaseName
+        results[0].disease.id == diseaseID
+        results[0].disease.url == diseaseURl
+        results[0].allele.symbol == alleleSymbol
+        results[0].allele.url == alleleUrl
+
+        where:
+        geneID                   | resultSize | diseaseName                  | diseaseID    | diseaseURl                                       | alleleSymbol            | alleleUrl
+        "MGI:109583"             | 50         | "acute lymphocytic leukemia" | "DOID:9952"  | "http://www.disease-ontology.org/?id=DOID:9952"  | "Pten<sup>tm1Hwu</sup>" | "http://www.informatics.jax.org/allele/MGI:2156086"
+        "ZFIN:ZDB-GENE-990415-8" | 1          | "coloboma"                   | "DOID:12270" | "http://www.disease-ontology.org/?id=DOID:12270" | "tu29a"                 | "https://zfin.org/ZDB-ALT-980203-1248"
+    }
+
+    @Unroll
+    def "Gene page - Annotation via Orthology #geneID "() {
+        when:
+        def url = new URL("http://localhost:8080/api/gene/$geneID/diseases-via-orthology?limit=5")
+        def retObj = new JsonSlurper().parseText(url.text)
+        def results = retObj.results
+
+        then:
+        results
+        retObj.total == resultSize
+        results[0].disease.name == diseaseName
+        results[0].disease.id == diseaseID
+        results[0].disease.url == diseaseURl
+        results[0].orthologyGene.id == orthoGene
+        results[0].source.name == source
+
+        where:
+        geneID                   | resultSize | diseaseName                            | diseaseID      | source     | orthoGene   | diseaseURl
+        "MGI:109583"             | 30         | "angiomyolipoma"                       | "DOID:3314"    | "Alliance" | "HGNC:9588" | "http://www.disease-ontology.org/?id=DOID:3314"
+        "ZFIN:ZDB-GENE-990415-8" | 5          | "focal segmental glomerulosclerosis 7" | "DOID:0111132" | "Alliance" | "HGNC:8616" | "http://www.disease-ontology.org/?id=DOID:0111132"
     }
 }
