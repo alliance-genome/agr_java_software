@@ -8,7 +8,7 @@ Here is an example using curl:
 ```
 curl \
 	-H "api_access_token: 2C07D715..." \
-	-X POST "http://www.alliancegenome.org/api/data/submit" \
+	-X POST "https://www.alliancegenome.org/api/data/submit" \
 	-F "SchemaVersion_DataType_TaxonId=@/full/path/to/file1.json" \
 	-F "SchemaVersion_DataType_TaxonId=@/full/path/to/file2.json"
 ```
@@ -55,6 +55,9 @@ This will be the current release of the schema can be found in the [releases](ht
 | DAF | Disease Annotations File (DAF) | diseaseMetaDataDefinition.json | json | true | true | true |
 | ORTHO | Orthology File | orthoHeader.json | json | true | true | true |
 | ALLELE | Allele File | alleleMetadata.json | json | true | true | true |
+| PHENOTYPE | Phenotype File | phenotypeMetaDataDefinition.json | json | true | true | true |
+| EXPRESSION | Expression File | wildtypeExpressionMetaDataDefinition.json | json | true | true | true |
+| INTERACTION | Expression File |  | json | false | false | false |
 | GAF | Gene Annotations File (GAF) | - | gaf | true | false | false |
 | GFF | Gene Feature File | - | gff | true | false | false |
 
@@ -88,30 +91,30 @@ Valid combinations for Schema-DataType-TaxonId are as follows:
 
 	> curl \
 		-H "api_access_token: 2C07D715..." \
-		-X POST "http://www.alliancegenome.org/api/data/submit" \
+		-X POST "https://www.alliancegenome.org/api/data/submit" \
 		-F "0.7.0_GFF_10090=@MGI_1.0.4_GFF.gff"
 	> curl \
 		-H "api_access_token: 2C07D715..." \
-		-X POST "http://www.alliancegenome.org/api/data/submit" \
+		-X POST "https://www.alliancegenome.org/api/data/submit" \
 		-F "0.6.2_FEATURE_10090=@MGI_1.0.4_feature.json"
 	> curl \
 		-H "api_access_token: 2C07D715..." \
-		-X POST "http://www.alliancegenome.org/api/data/submit" \
+		-X POST "https://www.alliancegenome.org/api/data/submit" \
 		-F "0.6.1_BGI_7227=@FB_1.0.4_BGI.json"
 	> curl \
 		-H "api_access_token: 2C07D715..." \
-		-X POST "http://www.alliancegenome.org/api/data/submit" \
+		-X POST "https://www.alliancegenome.org/api/data/submit" \
 		-F "GAF_10090=@gene_association_1.0.mgi.gaf"
 	> curl \
 		-H "api_access_token: 2C07D715..." \
-		-X POST "http://www.alliancegenome.org/api/data/submit" \
+		-X POST "https://www.alliancegenome.org/api/data/submit" \
 		-F "FEATURE_7955=@ZFIN_1.0.4_feature.json"
 	
 #### Multiple files at a time
 
 	> curl \
 		-H "api_access_token: 2C07D715..." \
-		-X POST "http://www.alliancegenome.org/api/data/submit" \
+		-X POST "https://www.alliancegenome.org/api/data/submit" \
 		-F "0.7.0_BGI_7227=@FB_1.0.4_BGI.json" \
 		-F "0.7.0_FEATURE_7227=@FB_1.0.4_feature.json" \
 		-F "0.7.0_DAF_7227=@FB_1.0.4_disease.json" \
@@ -119,7 +122,7 @@ Valid combinations for Schema-DataType-TaxonId are as follows:
 		
 	> curl \
 		-H "api_access_token: 2C07D715..." \
-		-X POST "http://www.alliancegenome.org/api/data/submit" \
+		-X POST "https://www.alliancegenome.org/api/data/submit" \
 		-F "BGI_7227=@FB_1.0.4_BGI.json" \
 		-F "FEATURE_7227=@FB_1.0.4_feature.json" \
 		-F "DAF_7227=@FB_1.0.4_disease.json" \
@@ -136,7 +139,7 @@ For the following command:
 
 	> curl \
 		-H "api_access_token: 2C07D715..." \
-		-X POST "http://www.alliancegenome.org/api/data/submit" \
+		-X POST "https://www.alliancegenome.org/api/data/submit" \
 		-F "0.7.0_BGI_7227=@FB_1.0.4_BGI.json" \
 		-F "0.7.0_FEATURE_7227=@FB_1.0.4_feature.json" \
 		-F "0.7.0_DAF_7227=@FB_1.0.4_disease.json" \
@@ -161,7 +164,7 @@ For the following command:
 For the following command (Missing API Access Token):
 
 	> curl \
-		-X POST "http://www.alliancegenome.org/api/data/submit" \
+		-X POST "https://www.alliancegenome.org/api/data/submit" \
 		-F "0.7.0_BGI_10090=@MGI_1.0.4_BGI.json" \
 		-F "0.7.0_FEATURE_10090=@MGI_1.0.4_feature.json" \
 		-F "0.7.0_DAF_10090=@MGI_1.0.4_disease.json" \
@@ -185,7 +188,7 @@ For the following command (Errors in BGI):
 
 	> curl \
 		-H "api_access_token: 2C07D715..." \
-		-X POST "http://www.alliancegenome.org/api/data/submit" \
+		-X POST "https://www.alliancegenome.org/api/data/submit" \
 		-F "0.7.0_BGI_10090=@MGI_1.0.4_BGI.json" \
 		-F "0.7.0_FEATURE_10090=@MGI_1.0.4_feature.json" \
 		-F "0.7.0_DAF_10090=@MGI_1.0.4_disease.json" \
@@ -209,7 +212,7 @@ In a failed example only the files that failed need to be attempted again:
 
 	> curl \
 		-H "api_access_token: 2C07D715..." \
-		-X POST "http://www.alliancegenome.org/api/data/submit" \
+		-X POST "https://www.alliancegenome.org/api/data/submit" \
 		-F "0.7.0_BGI_10090=@MGI_1.0.4_BGI.json" \
 		-F "0.7.0_GFF_10090=@MGI_1.0.4_GFF.gff" 
 
@@ -235,7 +238,7 @@ The loader will run against the snapshot and releases API's, using the API Acces
 
 The following command can be used to pull a list of releases from the system that are available:
 	
-	> curl "http://www.alliancegenome.org/api/data/releases"
+	> curl "https://www.alliancegenome.org/api/data/releases"
 
 <details>
 <summary>View Success Response</summary>
@@ -251,7 +254,7 @@ The following command can be used to pull a list of releases from the system tha
 
 The following command, can be used to pull a specific SnapShot by release version, release version is required.
 
-	> curl "http://www.alliancegenome.org/api/data/snapshot?releaseVersion=1.4.0.0"
+	> curl "https://www.alliancegenome.org/api/data/snapshot?releaseVersion=1.4.0.0"
 
 <details>
 <summary>View Success Response</summary>
@@ -313,7 +316,7 @@ The following command, can be used to pull a specific SnapShot by release versio
 This will take a snapshot of all the latest datafiles for each Taxon Id by each DataType. 
 
 	> curl -H "api_access_token: 2C07D715..." \
-	"http://www.alliancegenome.org/api/data/takesnapshot?system=production&releaseVersion=1.4.0.0"
+	"https://www.alliancegenome.org/api/data/takesnapshot?system=production&releaseVersion=1.4.0.0"
 
 <details>
 <summary>View Success Response</summary>
