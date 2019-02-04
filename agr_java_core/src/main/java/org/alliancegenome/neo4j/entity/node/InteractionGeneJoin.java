@@ -15,57 +15,57 @@ import lombok.Setter;
 @NodeEntity
 public class InteractionGeneJoin extends Association {
     
-    @JsonView({View.InteractionView.class})
+    @JsonView({View.Interaction.class})
     private String primaryKey;
-    @JsonView({View.InteractionView.class})
+    @JsonView({View.Interaction.class})
     private String joinType;
 
-    @JsonView({View.InteractionView.class})
+    @JsonView({View.Interaction.class})
     @Relationship(type = "ASSOCIATION", direction = Relationship.INCOMING)
     private Gene geneA;
 
-    @JsonView({View.InteractionView.class})
+    @JsonView({View.Interaction.class})
     @Relationship(type = "ASSOCIATION", direction = Relationship.OUTGOING)
     private Gene geneB;
 
-    @JsonView({View.InteractionView.class})
+    @JsonView({View.Interaction.class})
     @Relationship(type = "CROSS_REFERENCE")
     private List<CrossReference> crossReferences;
 
-    @JsonView({View.InteractionView.class})
+    @JsonView({View.Interaction.class})
     @Relationship(type = "EVIDENCE")
     private Publication publication;
 
-    @JsonView({View.InteractionView.class})
+    @JsonView({View.Interaction.class})
     @Relationship(type = "SOURCE_DATABASE")
     private MITerm sourceDatabase;
 
-    @JsonView({View.InteractionView.class})
+    @JsonView({View.Interaction.class})
     @Relationship(type = "AGGREGATION_DATABASE")
     private MITerm aggregationDatabase;
 
-    @JsonView({View.InteractionView.class})
+    @JsonView({View.Interaction.class})
     @Relationship(type = "DETECTION_METHOD")
     private List<MITerm> detectionsMethods;
 
-    @JsonView({View.InteractionView.class})
+    @JsonView({View.Interaction.class})
     @Relationship(type = "INTERACTION_TYPE")
     private MITerm interactionType;
 
-    @JsonView({View.InteractionView.class})
+    @JsonView({View.Interaction.class})
     @Relationship(type = "INTERACTOR_A_TYPE")
-    private MITerm interactionAType;
+    private MITerm interactorAType;
 
-    @JsonView({View.InteractionView.class})
+    @JsonView({View.Interaction.class})
     @Relationship(type = "INTERACTOR_A_ROLE")
-    private MITerm interactionARole;
+    private MITerm interactorARole;
 
-    @JsonView({View.InteractionView.class})
+    @JsonView({View.Interaction.class})
     @Relationship(type = "INTERACTOR_B_TYPE")
-    private MITerm interactionBType;
+    private MITerm interactorBType;
 
-    @JsonView({View.InteractionView.class})
+    @JsonView({View.Interaction.class})
     @Relationship(type = "INTERACTOR_B_ROLE")
-    private MITerm interactionBRole;
+    private MITerm interactorBRole;
     
 }

@@ -1,5 +1,10 @@
 package org.alliancegenome.indexer;
 
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
+
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.es.util.IndexManager;
 import org.alliancegenome.indexer.config.IndexerConfig;
@@ -7,18 +12,17 @@ import org.alliancegenome.indexer.indexers.Indexer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.*;
-
 public class Main {
 
     private static Logger log = LogManager.getLogger(Main.class);
 
     public static void main(String[] args) {
-
+        ConfigHelper.init();
+        
         Date start = new Date();
         log.info("Start Time: " + start);
 
-        Boolean keepIndex = System.getProperty("KEEPINDEX") != null;
+        Boolean keepIndex = ConfigHelper.getKeepIndex();
 
         IndexManager im = new  IndexManager();
 

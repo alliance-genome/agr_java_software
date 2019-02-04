@@ -1,10 +1,10 @@
 package org.alliancegenome.shared;
 
-import org.alliancegenome.neo4j.entity.SpeciesType;
-import org.junit.Test;
-
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsEqual.equalTo;
+
+import org.alliancegenome.neo4j.entity.SpeciesType;
+import org.junit.Test;
 
 public class SpeciesTypeTest {
 

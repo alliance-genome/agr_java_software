@@ -1,19 +1,17 @@
 package org.alliancegenome.api.service;
 
-import java.util.Map;
-
 import javax.enterprise.context.RequestScoped;
 
-import org.alliancegenome.es.index.site.dao.GoDAO;
+import org.alliancegenome.neo4j.entity.node.GOTerm;
+import org.alliancegenome.neo4j.repository.GoRepository;
 
 @RequestScoped
 public class GoService {
 
-    private static GoDAO goDAO = new GoDAO();
+    private static GoRepository goRepo = new GoRepository();
 
-    public Map<String, Object> getById(String id) {
-        return goDAO.getById(id);
+    public GOTerm getById(String id) {
+        return goRepo.getOneGoTerm(id);
     }
-
     
 }

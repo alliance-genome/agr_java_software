@@ -2,9 +2,12 @@ package org.alliancegenome.es.index.site.doclet;
 
 import java.util.Set;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.alliancegenome.es.index.ESDoclet;
+import org.alliancegenome.neo4j.view.View;
 import org.apache.commons.lang3.StringUtils;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonView;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -14,10 +17,15 @@ import lombok.Setter;
 public class PublicationDoclet extends ESDoclet implements Comparable<PublicationDoclet> {
 
     private String primaryKey;
+    @JsonView({View.Default.class})
     private String pubMedId;
+    @JsonView({View.Default.class})
     private String pubMedUrl;
+    @JsonView({View.Default.class})
     private String pubModId;
+    @JsonView({View.Default.class})
     private String pubModUrl;
+    @JsonView({View.Default.class})
     private Set<String> evidenceCodes;
 
     @Override

@@ -1,21 +1,15 @@
 package org.alliancegenome.core.translators.tdf;
 
-import java.io.IOException;
+import java.util.List;
 import java.util.StringJoiner;
 
-import org.alliancegenome.es.index.site.document.PhenotypeAnnotationDocument;
-import org.alliancegenome.es.util.SearchHitIterator;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.elasticsearch.search.SearchHit;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.alliancegenome.core.config.ConfigHelper;
+import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
+import org.alliancegenome.neo4j.entity.node.GeneticEntity;
 
 public class PhenotypeAnnotationToTdfTranslator {
 
-    private Log log = LogFactory.getLog(getClass());
-
-    public String getAllRows(SearchHitIterator hitIterator) {
+    public String getAllRows(List<PhenotypeAnnotation> annotations) {
         StringBuilder builder = new StringBuilder();
         StringJoiner headerJoiner = new StringJoiner("\t");
         headerJoiner.add("Phenotype");
@@ -24,25 +18,14 @@ public class PhenotypeAnnotationToTdfTranslator {
         headerJoiner.add("Genetic Entity Type");
         headerJoiner.add("References");
         builder.append(headerJoiner.toString());
-        builder.append(System.getProperty("line.separator"));
+        builder.append(ConfigHelper.getJavaLineSeparator());
 
-        while (hitIterator.hasNext()) {
-            SearchHit hit = hitIterator.next();
-            String sourceAsString = hit.getSourceAsString();
-
-            PhenotypeAnnotationDocument phenotypeAnnotationDocument = null;
-            try {
-                ObjectMapper mapper = new ObjectMapper();
-                phenotypeAnnotationDocument = mapper.readValue(sourceAsString, PhenotypeAnnotationDocument.class);
-            } catch (IOException e) {
-                log.error("Could not deserialize", e);
-                continue;
-            }
+        annotations.forEach(annotation -> {
             StringJoiner joiner = new StringJoiner("\t");
-            joiner.add(phenotypeAnnotationDocument.getPhenotype());
-            if (phenotypeAnnotationDocument.getFeatureDocument() != null) {
-                joiner.add(phenotypeAnnotationDocument.getFeatureDocument().getPrimaryKey());
-                joiner.add(phenotypeAnnotationDocument.getFeatureDocument().getSymbol());
+            joiner.add(annotation.getPhenotype());
+            if (annotation.getGeneticEntity().getType().equals(GeneticEntity.CrossReferenceType.ALLELE.name())) {
+                joiner.add(annotation.getGeneticEntity().getPrimaryKey());
+                joiner.add(annotation.getGeneticEntity().getSymbol());
                 joiner.add("allele");
             } else {
                 joiner.add("");
@@ -51,13 +34,11 @@ public class PhenotypeAnnotationToTdfTranslator {
             }
             // publication list
             StringJoiner pubJoiner = new StringJoiner(",");
-            phenotypeAnnotationDocument.getPublications().forEach(publication -> {
-                pubJoiner.add(publication.getPubId());
-            });
+            annotation.getPublications().forEach(publication -> pubJoiner.add(publication.getPubId()));
             joiner.add(pubJoiner.toString());
             builder.append(joiner.toString());
-            builder.append(System.getProperty("line.separator"));
-        }
+            builder.append(ConfigHelper.getJavaLineSeparator());
+        });
 
         return builder.toString();
 

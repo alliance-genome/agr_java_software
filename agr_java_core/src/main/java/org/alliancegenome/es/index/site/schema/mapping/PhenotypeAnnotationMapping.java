@@ -1,8 +1,8 @@
  package org.alliancegenome.es.index.site.schema.mapping;
 
-import org.alliancegenome.es.index.site.schema.Mapping;
-
 import java.io.IOException;
+
+import org.alliancegenome.es.index.site.schema.Mapping;
 
 public class PhenotypeAnnotationMapping extends Mapping {
 
@@ -21,7 +21,7 @@ public class PhenotypeAnnotationMapping extends Mapping {
             new FieldBuilder(builder,"publications.pubModId","text").symbol().autocomplete().keyword().standardText().build();
             new FieldBuilder(builder,"publications.pubMedId","text").symbol().autocomplete().keyword().standardText().build();
 
-            buildNestedDocument("featureDocument");
+            buildNestedDocument("alleleDocument");
             buildNestedDocument("geneDocument");
 
             builder.endObject();

@@ -1,26 +1,28 @@
 package org.alliancegenome.neo4j.entity.node;
 
-import com.fasterxml.jackson.annotation.JsonView;
-import lombok.Getter;
-import lombok.Setter;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import org.alliancegenome.neo4j.view.View;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import com.fasterxml.jackson.annotation.JsonView;
+
+import lombok.Getter;
+import lombok.Setter;
 
 @NodeEntity
 @Getter @Setter
 public class UBERONTerm extends Ontology {
 
-    @JsonView(View.ExpressionView.class)
+    @JsonView(View.Expression.class)
     private String name;
     private String description;
     private String href;
     private String type;
-    @JsonView(View.ExpressionView.class)
+    @JsonView(View.Expression.class)
     private String primaryKey;
     private String is_obsolete;
     private List<String> subset;

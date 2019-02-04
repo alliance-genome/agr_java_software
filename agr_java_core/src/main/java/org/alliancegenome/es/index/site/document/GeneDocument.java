@@ -1,14 +1,17 @@
 package org.alliancegenome.es.index.site.document;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.alliancegenome.es.index.site.doclet.CrossReferenceDoclet;
 import org.alliancegenome.es.index.site.doclet.GenomeLocationDoclet;
-import org.alliancegenome.es.index.site.doclet.OrthologyDoclet;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -41,9 +44,9 @@ public class GeneDocument extends SearchableItemDocument {
     private Map<String, List<CrossReferenceDoclet>> crossReferencesMap;
     private String dataProvider;
     private Date dateProduced;
+
     private List<DiseaseDocument> diseasesViaExperiment = new ArrayList<>();
     private List<DiseaseDocument> diseasesViaOrthology = new ArrayList<>();
-    private List<PhenotypeDocument> phenotypes = new ArrayList<>();
     private String geneSynopsisUrl;
     private String primaryId;
     private List<GenomeLocationDoclet> genomeLocations;
@@ -53,8 +56,7 @@ public class GeneDocument extends SearchableItemDocument {
     private String release;
     private String geneSynopsis;
     private String automatedGeneSynopsis;
-    private List<OrthologyDoclet> orthology;
-    private List<String> strictOrthologySymbols;
+    private Set<String> strictOrthologySymbols;
     private String geneticEntityExternalUrl;
     private Set<String> whereExpressed;
     private Set<String> anatomicalExpression;         //uberon slim
@@ -67,7 +69,7 @@ public class GeneDocument extends SearchableItemDocument {
     private String modGlobalCrossRefId;
     private String modGlobalId;
 
-    private List<FeatureDocument> alleles;
+    //private List<AlleleDocument> alleles;
 
     @Override
     @JsonIgnore

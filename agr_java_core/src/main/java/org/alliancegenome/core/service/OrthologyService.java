@@ -1,25 +1,27 @@
 package org.alliancegenome.core.service;
 
-import com.fasterxml.jackson.annotation.JsonView;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.Getter;
-import lombok.Setter;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.alliancegenome.es.index.site.doclet.OrthologyDoclet;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.entity.node.OrthoAlgorithm;
 import org.alliancegenome.neo4j.entity.node.OrthologyGeneJoin;
 import org.alliancegenome.neo4j.entity.relationship.Orthologous;
+import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.alliancegenome.neo4j.view.OrthologView;
 import org.alliancegenome.neo4j.view.OrthologyFilter;
 import org.alliancegenome.neo4j.view.OrthologyModule;
 import org.alliancegenome.neo4j.view.View;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.stream.Collectors;
+import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import lombok.Getter;
+import lombok.Setter;
 
 public class OrthologyService {
 
@@ -100,7 +102,7 @@ public class OrthologyService {
     }
 
 
-    public static JsonResultResponse<OrthologView> getOrthologViewList(Gene gene, OrthologyFilter filter) {
+    private static JsonResultResponse<OrthologView> getOrthologViewList(Gene gene, OrthologyFilter filter) {
         JsonResultResponse<OrthologView> response = new JsonResultResponse<>();
         if (gene.getOrthologyGeneJoins().size() > 0) {
             List<OrthologView> orthologList = new ArrayList<>();
@@ -122,9 +124,9 @@ public class OrthologyService {
                     .forEach(join -> {
                         Orthologous ortho = lookup.get(join.getPrimaryKey());
                         OrthologView view = new OrthologView();
-                        gene.setSpeciesName(ortho.getGene1().getSpecies() == null ? null : ortho.getGene1().getSpecies().getName());
+                        //gene.setSpeciesName(ortho.getGene1().getSpecies() == null ? null : ortho.getGene1().getSpecies().getName());
                         view.setGene(gene);
-                        ortho.getGene2().setSpeciesName(ortho.getGene2().getSpecies() == null ? null : ortho.getGene2().getSpecies().getName());
+                        //ortho.getGene2().setSpeciesName(ortho.getGene2().getSpecies() == null ? null : ortho.getGene2().getSpecies().getName());
                         view.setHomologGene(ortho.getGene2());
                         view.setBest(ortho.isBestScore());
                         view.setBestReverse(ortho.isBestRevScore());
@@ -165,7 +167,10 @@ public class OrthologyService {
         return response;
     }
 
-    public static JsonResultResponse<OrthologView> getOrthologyMultiGeneJson(Collection<Gene> geneList, OrthologyFilter filter) {
+    public static JsonResultResponse<OrthologView> getOrthologyMultiGeneJson(List<String> geneIDs, OrthologyFilter filter) {
+        GeneRepository repo = new GeneRepository();
+        List<Gene> geneList = repo.getOrthologyGenes(geneIDs);
+
         List<Integer> sum = new ArrayList<>();
         List<OrthologView> orthologViewList =
                 geneList.stream()
@@ -189,11 +194,11 @@ public class OrthologyService {
     @Getter
     public static class Response extends JsonResultResponse<OrthologView> {
 
-        @JsonView(View.OrthologyView.class)
+        @JsonView(View.Orthology.class)
         private List<OrthologView> results;
-        @JsonView(View.OrthologyView.class)
+        @JsonView(View.Orthology.class)
         private int total;
-        @JsonView(View.OrthologyView.class)
+        @JsonView(View.Orthology.class)
         private String errorMessage;
     }
 }

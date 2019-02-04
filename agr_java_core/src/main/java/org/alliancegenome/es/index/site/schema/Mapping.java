@@ -2,7 +2,12 @@ package org.alliancegenome.es.index.site.schema;
 
 import java.io.IOException;
 
-import org.alliancegenome.es.index.site.schema.mapping.*;
+import org.alliancegenome.es.index.site.schema.mapping.AlleleMapping;
+import org.alliancegenome.es.index.site.schema.mapping.DiseaseAnnotationMapping;
+import org.alliancegenome.es.index.site.schema.mapping.DiseaseMapping;
+import org.alliancegenome.es.index.site.schema.mapping.GeneMapping;
+import org.alliancegenome.es.index.site.schema.mapping.GoMapping;
+import org.alliancegenome.es.index.site.schema.mapping.PhenotypeAnnotationMapping;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 
 public abstract class Mapping extends Builder {
@@ -46,6 +51,8 @@ public abstract class Mapping extends Builder {
         new FieldBuilder(builder, "href","keyword");
         new FieldBuilder(builder, "id","keyword");
         new FieldBuilder(builder, "description","text");
+        new FieldBuilder(builder, "diseases", "text").keyword().build();
+        new FieldBuilder(builder, "alleles", "text").keyword().build();
         new FieldBuilder(builder, "phenotypeStatements", "text")
                 .keyword()
                 .build();
@@ -76,7 +83,7 @@ public abstract class Mapping extends Builder {
     public enum MappingClass {
         Disease("disease", DiseaseMapping.class),
         DiseaseAnnotation("diseaseAnnotation", DiseaseAnnotationMapping.class),
-        Feature("feature", FeatureMapping.class),
+        Allele("allele", AlleleMapping.class),
         Gene("gene", GeneMapping.class),
         PHENOTYPE("termName", PhenotypeAnnotationMapping.class),
         PHENOTYPE_ANNOTATION("phenotypeAnnotation", PhenotypeAnnotationMapping.class),

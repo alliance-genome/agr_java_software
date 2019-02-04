@@ -1,27 +1,33 @@
 package org.alliancegenome.core.translators.document;
 
-import org.alliancegenome.core.service.OrthologyService;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.alliancegenome.core.translators.EntityDocumentTranslator;
 import org.alliancegenome.core.translators.doclet.CrossReferenceDocletTranslator;
 import org.alliancegenome.es.index.site.doclet.CrossReferenceDoclet;
 import org.alliancegenome.es.index.site.doclet.GenomeLocationDoclet;
-import org.alliancegenome.es.index.site.doclet.OrthologyDoclet;
-import org.alliancegenome.es.index.site.document.*;
-import org.alliancegenome.neo4j.entity.node.*;
+import org.alliancegenome.es.index.site.document.AlleleDocument;
+import org.alliancegenome.es.index.site.document.AnnotationDocument;
+import org.alliancegenome.es.index.site.document.DiseaseDocument;
+import org.alliancegenome.es.index.site.document.GeneDocument;
+import org.alliancegenome.neo4j.entity.node.GOTerm;
+import org.alliancegenome.neo4j.entity.node.Gene;
+import org.alliancegenome.neo4j.entity.node.SecondaryId;
+import org.alliancegenome.neo4j.entity.node.Synonym;
 import org.alliancegenome.neo4j.entity.relationship.GenomeLocation;
 import org.alliancegenome.neo4j.entity.relationship.Orthologous;
-import org.apache.commons.collections4.CollectionUtils;
-
-import java.util.*;
-import java.util.stream.Collectors;
 
 public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument> {
 
     //private final Logger log = LogManager.getLogger(getClass());
 
     private static DiseaseTranslator diseaseTranslator = new DiseaseTranslator();
-    private static PhenotypeTranslator phenotypeTranslator = new PhenotypeTranslator();
-    private static FeatureTranslator alleleTranslator = new FeatureTranslator();
+    private static AlleleTranslator alleleTranslator = new AlleleTranslator();
     private static CrossReferenceDocletTranslator crossReferenceTranslator = new CrossReferenceDocletTranslator();
 
     @Override
@@ -37,7 +43,6 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
         geneDocument.setDataProvider(gene.getDataProvider());
         geneDocument.setDescription(gene.getDescription());
 
-        geneDocument.setGeneLiteratureUrl(gene.getGeneLiteratureUrl());
         geneDocument.setAutomatedGeneSynopsis(gene.getAutomatedGeneSynopsis());
         geneDocument.setGeneSynopsis(gene.getGeneSynopsis());
         geneDocument.setGeneSynopsisUrl(gene.getGeneSynopsisUrl());
@@ -65,7 +70,7 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
         }
 
         // Setup Go Terms by type
-        for (GOTerm term : gene.getGOTerms()) {
+        for (GOTerm term : gene.getGoTerms()) {
             Set<GOTerm> terms = goTerms.get(term.getType());
             if (terms == null) {
                 terms = new HashSet<>();
@@ -75,15 +80,15 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
             }
         }
 
-        geneDocument.setBiologicalProcessWithParents(gene.getBiologicalProcessWithParents());
-        geneDocument.setCellularComponentWithParents(gene.getCellularComponentWithParents());
-        geneDocument.setMolecularFunctionWithParents(gene.getMolecularFunctionWithParents());
+//      geneDocument.setBiologicalProcessWithParents(gene.getBiologicalProcessWithParents());
+//      geneDocument.setCellularComponentWithParents(gene.getCellularComponentWithParents());
+//      geneDocument.setMolecularFunctionWithParents(gene.getMolecularFunctionWithParents());
+//
+//      geneDocument.setBiologicalProcessAgrSlim(gene.getBiologicalProcessAgrSlim());
+//      geneDocument.setCellularComponentAgrSlim(gene.getCellularComponentAgrSlim());
+//      geneDocument.setMolecularFunctionAgrSlim(gene.getMolecularFunctionAgrSlim());
 
-        geneDocument.setBiologicalProcessAgrSlim(gene.getBiologicalProcessAgrSlim());
-        geneDocument.setCellularComponentAgrSlim(gene.getCellularComponentAgrSlim());
-        geneDocument.setMolecularFunctionAgrSlim(gene.getMolecularFunctionAgrSlim());
-
-        // This code is duplicated in Gene and Feature should be pulled out into its own translator
+        // This code is duplicated in Gene and Allele should be pulled out into its own translator
         ArrayList<String> secondaryIds = new ArrayList<>();
         if (gene.getSecondaryIds() != null) {
             for (SecondaryId secondaryId : gene.getSecondaryIds()) {
@@ -93,13 +98,13 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
         geneDocument.setSecondaryIds(secondaryIds);
 
 
-        if (gene.getSOTerm() != null) {
-            geneDocument.setSoTermId(gene.getSOTerm().getPrimaryKey());
-            geneDocument.setSoTermName(gene.getSOTerm().getName());
+        if (gene.getSoTerm() != null) {
+            geneDocument.setSoTermId(gene.getSoTerm().getPrimaryKey());
+            geneDocument.setSoTermName(gene.getSoTerm().getName());
         }
         geneDocument.setSymbol(gene.getSymbol());
 
-        // This code is duplicated in Gene and Feature should be pulled out into its own translator
+        // This code is duplicated in Gene and Allele should be pulled out into its own translator
         ArrayList<String> synonyms = new ArrayList<>();
         if (gene.getSynonyms() != null) {
             for (Synonym synonym : gene.getSynonyms()) {
@@ -112,19 +117,12 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
         }
         geneDocument.setSynonyms(synonyms);
 
-
-        if (gene.getOrthologyGeneJoins().size() > 0 && translationDepth > 0) {
-            List<OrthologyDoclet> doclets = OrthologyService.getOrthologyDoclets(gene);
-            geneDocument.setOrthology(doclets);
-        }
-
         geneDocument.setStrictOrthologySymbols(
                 gene.getOrthoGenes().stream()
                         .filter(Orthologous::isStrictFilter)
                         .map(Orthologous::getGene2)
                         .map(Gene::getSymbol)
-                        .distinct()
-                        .collect(Collectors.toList())
+                        .collect(Collectors.toSet())
         );
 
         if (gene.getDiseaseEntityJoins() != null && translationDepth > 0) {
@@ -165,23 +163,14 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
             geneDocument.setDiseasesViaExperiment(diseaseViaExperiment);
         }
 
-        geneDocument.setPhenotypeStatements(
-                gene.getPhenotypes().stream()
-                        .map(Phenotype::getPhenotypeStatement)
-                        .collect(Collectors.toList())
-        );
-
-        if (gene.getPhenotypeEntityJoins() != null && gene.getPhenotypeEntityJoins().size() > 0 && translationDepth > 0) {
-            List<PhenotypeDocument> phenotypeList = phenotypeTranslator.getPhenotypeDocuments(gene, gene.getPhenotypeEntityJoins(), translationDepth - 1);
-            geneDocument.setPhenotypes(phenotypeList);
-        }
-
-        geneDocument.setWhereExpressed(gene.getWhereExpressed());
-        geneDocument.setAnatomicalExpression(gene.getAnatomicalExpression());
-        geneDocument.setAnatomicalExpressionWithParents(gene.getAnatomicalExpressionWithParents());
-
-        geneDocument.setCellularComponentExpressionWithParents(gene.getCellularComponentExpressionWithParents());
-        geneDocument.setCellularComponentExpressionAgrSlim(gene.getCellularComponentExpressionAgrSlim());
+//      geneDocument.setPhenotypeStatements(gene.getPhenotypeStatements());
+//
+//      geneDocument.setWhereExpressed(gene.getWhereExpressed());
+//      geneDocument.setAnatomicalExpression(gene.getAnatomicalExpression());
+//      geneDocument.setAnatomicalExpressionWithParents(gene.getAnatomicalExpressionWithParents());
+//
+//      geneDocument.setCellularComponentExpressionWithParents(gene.getCellularComponentExpressionWithParents());
+//      geneDocument.setCellularComponentExpressionAgrSlim(gene.getCellularComponentExpressionAgrSlim());
 
         if (gene.getGenomeLocations() != null) {
             List<GenomeLocationDoclet> gllist = new ArrayList<>();
@@ -207,12 +196,13 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
                             .collect(Collectors.groupingBy(CrossReferenceDoclet::getType, Collectors.toList())));
         }
 
-        if (gene.getFeatures() != null && translationDepth > 0) {
-            List<FeatureDocument> featureList = new ArrayList<>();
-            gene.getFeatures().forEach(feature ->
-                    featureList.add(alleleTranslator.entityToDocument(feature, translationDepth - 1))
+        if (gene.getAlleles() != null && translationDepth > 0) {
+            List<AlleleDocument> alleleList = new ArrayList<>();
+            gene.getAlleles().forEach(allele ->
+            alleleList.add(alleleTranslator.entityToDocument(allele, translationDepth - 1))
             );
-            geneDocument.setAlleles(featureList);
+            // Parent class also has a variable called alleles
+            //geneDocument.setAlleles(alleleList);
         }
 
         return geneDocument;

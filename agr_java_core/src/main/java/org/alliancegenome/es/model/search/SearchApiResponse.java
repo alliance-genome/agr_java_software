@@ -4,11 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter @Setter
 public class SearchApiResponse {
 
-    public ArrayList<AggResult> aggregations;
-    public ArrayList<Map<String, Object>> results;
-    public List<SearchResult> searchResults;
-    public long total;
-    public List<String> errorMessages;
+    private ArrayList<AggResult> aggregations;
+    private ArrayList<Map<String, Object>> results;
+    private List<SearchResult> searchResults;
+    private long total;
+    private List<String> errorMessages;
 }

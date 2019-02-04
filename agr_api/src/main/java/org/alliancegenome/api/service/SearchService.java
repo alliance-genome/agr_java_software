@@ -1,22 +1,11 @@
 package org.alliancegenome.api.service;
 
-import org.alliancegenome.api.service.helper.SearchHelper;
-import org.alliancegenome.es.index.site.dao.SearchDAO;
-import org.alliancegenome.es.model.search.RelatedDataLink;
-import org.alliancegenome.es.model.search.SearchApiResponse;
-import org.apache.commons.lang3.StringUtils;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.index.query.*;
-import org.elasticsearch.index.query.functionscore.FunctionScoreQueryBuilder;
-import org.elasticsearch.index.query.functionscore.ScoreFunctionBuilders;
-import org.elasticsearch.search.aggregations.AggregationBuilder;
-import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
-import org.jboss.logging.Logger;
+import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
+import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
+import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
+import static org.elasticsearch.index.query.QueryBuilders.multiMatchQuery;
+import static org.elasticsearch.index.query.QueryBuilders.queryStringQuery;
 
-import javax.enterprise.context.RequestScoped;
-import javax.ws.rs.core.MultivaluedHashMap;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.UriInfo;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -25,7 +14,28 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static org.elasticsearch.index.query.QueryBuilders.*;
+import javax.enterprise.context.RequestScoped;
+import javax.ws.rs.core.MultivaluedHashMap;
+import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.UriInfo;
+
+import org.alliancegenome.api.service.helper.SearchHelper;
+import org.alliancegenome.es.index.site.dao.SearchDAO;
+import org.alliancegenome.es.model.search.RelatedDataLink;
+import org.alliancegenome.es.model.search.SearchApiResponse;
+import org.apache.commons.lang3.StringUtils;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.MultiMatchQueryBuilder;
+import org.elasticsearch.index.query.Operator;
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryStringQueryBuilder;
+import org.elasticsearch.index.query.TermQueryBuilder;
+import org.elasticsearch.index.query.functionscore.FunctionScoreQueryBuilder;
+import org.elasticsearch.index.query.functionscore.ScoreFunctionBuilders;
+import org.elasticsearch.search.aggregations.AggregationBuilder;
+import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
+import org.jboss.logging.Logger;
 
 @RequestScoped
 public class SearchService {
@@ -60,11 +70,11 @@ public class SearchService {
 
         log.debug("Search Query: " + q);
 
-        result.total = searchResponse.getHits().totalHits;
-        result.results = searchHelper.formatResults(searchResponse, tokenizeQuery(q));
+        result.setTotal(searchResponse.getHits().totalHits);
+        result.setResults(searchHelper.formatResults(searchResponse, tokenizeQuery(q)));
         //still too slow to leave on
-        addRelatedDataLinks(result.results);
-        result.aggregations = searchHelper.formatAggResults(category, searchResponse);
+        addRelatedDataLinks(result.getResults());
+        result.setAggregations(searchHelper.formatAggResults(category, searchResponse));
 
         return result;
     }

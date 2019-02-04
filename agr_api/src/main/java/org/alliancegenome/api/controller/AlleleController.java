@@ -1,11 +1,11 @@
 package org.alliancegenome.api.controller;
 
-import org.alliancegenome.api.rest.interfaces.AlleleRESTInterface;
-import org.alliancegenome.api.service.AlleleService;
-
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
-import java.util.Map;
+
+import org.alliancegenome.api.rest.interfaces.AlleleRESTInterface;
+import org.alliancegenome.api.service.AlleleService;
+import org.alliancegenome.neo4j.entity.node.Allele;
 
 @RequestScoped
 public class AlleleController implements AlleleRESTInterface {
@@ -14,7 +14,7 @@ public class AlleleController implements AlleleRESTInterface {
     private AlleleService alleleService;
 
     @Override
-    public Map<String, Object> getAllele(String id) {
+    public Allele getAllele(String id) {
         return alleleService.getById(id);
     }
 

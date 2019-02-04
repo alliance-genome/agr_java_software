@@ -10,8 +10,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.alliancegenome.es.index.site.doclet.SpeciesDoclet;
-import org.alliancegenome.neo4j.entity.node.Species;
 
 @Getter @Setter
 public class AnnotationDocument extends ESDocument implements Comparable<AnnotationDocument> {
@@ -22,7 +20,7 @@ public class AnnotationDocument extends ESDocument implements Comparable<Annotat
     private SourceDoclet source;
     private GeneDocument orthologyGeneDocument;
     private GeneDocument geneDocument;
-    private FeatureDocument featureDocument;
+    private AlleleDocument alleleDocument;
     private List<PublicationDoclet> publications;
 
     @JsonIgnore
@@ -52,7 +50,7 @@ public class AnnotationDocument extends ESDocument implements Comparable<Annotat
         source = doc.source;
         orthologyGeneDocument = doc.orthologyGeneDocument;
         geneDocument = doc.geneDocument;
-        featureDocument = doc.featureDocument;
+        alleleDocument = doc.alleleDocument;
         publications = doc.publications;
     }
 }

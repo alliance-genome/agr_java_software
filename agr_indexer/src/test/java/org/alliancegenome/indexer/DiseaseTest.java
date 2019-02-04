@@ -1,5 +1,9 @@
 package org.alliancegenome.indexer;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.IsEqual.equalTo;
+import static org.junit.Assert.assertNotNull;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -9,18 +13,18 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.alliancegenome.core.config.ConfigHelper;
+import org.alliancegenome.core.translators.document.AlleleTranslator;
 import org.alliancegenome.core.translators.document.DiseaseTranslator;
-import org.alliancegenome.core.translators.document.FeatureTranslator;
+import org.alliancegenome.es.index.site.document.AlleleDocument;
 import org.alliancegenome.es.index.site.document.DiseaseAnnotationDocument;
 import org.alliancegenome.es.index.site.document.DiseaseDocument;
-import org.alliancegenome.es.index.site.document.FeatureDocument;
+import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.DOTerm;
 import org.alliancegenome.neo4j.entity.node.DiseaseEntityJoin;
-import org.alliancegenome.neo4j.entity.node.Feature;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.entity.node.Publication;
+import org.alliancegenome.neo4j.repository.AlleleRepository;
 import org.alliancegenome.neo4j.repository.DiseaseRepository;
-import org.alliancegenome.neo4j.repository.FeatureRepository;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.alliancegenome.neo4j.repository.Neo4jRepository;
 import org.apache.logging.log4j.Level;
@@ -33,17 +37,13 @@ import org.junit.Test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.IsEqual.equalTo;
-import static org.junit.Assert.assertNotNull;
-
 public class DiseaseTest {
 
-    private FeatureRepository featureRepository;
+    private AlleleRepository alleleRepository;
     private DiseaseRepository diseaseRepository;
     private GeneRepository geneRepository;
 
-    private FeatureTranslator featureTranslator;
+    private AlleleTranslator alleleTranslator;
     private DiseaseTranslator diseaseTranslator;
 
     @Before
@@ -54,11 +54,11 @@ public class DiseaseTest {
         log.info("Hallo");
         ConfigHelper.init();
 
-        featureRepository = new FeatureRepository();
+        alleleRepository = new AlleleRepository();
         diseaseRepository = new DiseaseRepository();
         geneRepository = new GeneRepository();
 
-        featureTranslator = new FeatureTranslator();
+        alleleTranslator = new AlleleTranslator();
         diseaseTranslator = new DiseaseTranslator();
     }
 
@@ -69,13 +69,13 @@ public class DiseaseTest {
         log.info("Hallo");
 
         DiseaseRepository diseaseRepository = new DiseaseRepository();
-        FeatureRepository featureRepository = new FeatureRepository();
+        AlleleRepository alleleRepository = new AlleleRepository();
         GeneRepository geneRepository = new GeneRepository();
 /*
         Iterable<DOTerm> disease_entities = neo4jService.getPage(0, 1000, 3);
 
         disease_entities.forEach(entity -> {
-            if (entity.getGenes() != null)
+            if (entity.getGeneMap() != null)
                 System.out.println(entity);
         });
         Collection<DOTerm> entityt = neo4jService.getEntity("primaryKey", "DOID:9281");
@@ -87,14 +87,14 @@ public class DiseaseTest {
         Neo4jRepository<DOTerm> neo4jService = new Neo4jRepository<>(DOTerm.class);
 
         DiseaseTranslator translator = new DiseaseTranslator();
-        FeatureTranslator featureTranslator = new FeatureTranslator();
-        //Feature feature = featureRepository.getFeature("ZFIN:ZDB-ALT-980203-985");
+        AlleleTranslator alleleTranslator = new AlleleTranslator();
+        //Allele allele = alleleRepository.getAllele("ZFIN:ZDB-ALT-980203-985");
 
         //Gene gene = geneRepository.getOneGene("MGI:94909");
         //Gene gene = geneRepository.getOneGene("MGI:1202717");
         Gene gene = geneRepository.getOneGene("MGI:97747");
-        Feature feature = featureRepository.getFeature("MGI:3029164");
-        FeatureDocument featureDoc = featureTranslator.translate(feature);
+        Allele allele = alleleRepository.getAllele("MGI:3029164");
+        AlleleDocument alleleDoc = alleleTranslator.translate(allele);
         Map<DOTerm, List<DiseaseEntityJoin>> map = gene.getDiseaseEntityJoins().stream()
                 .collect(Collectors.groupingBy(o -> o.getDisease()));
 
@@ -133,30 +133,30 @@ public class DiseaseTest {
     }
 
     public void testReferencesForAllele() {
-        Feature feature = featureRepository.getFeature("MGI:2156738");
-        FeatureDocument featureDoc = featureTranslator.translate(feature);
+        Allele allele = alleleRepository.getAllele("MGI:2156738");
+        AlleleDocument alleleDoc = alleleTranslator.translate(allele);
 
-        assertNotNull(feature);
+        assertNotNull(allele);
     }
 
     @Test
     @Ignore
-    public void getGeneFeatureAnnotationMap() {
+    public void getGeneAlleleAnnotationMap() {
         // Peters anomaly
         DOTerm disease = diseaseRepository.getDiseaseTerm("DOID:0060673");
         // Pax6
         Gene gene = geneRepository.getOneGene("MGI:97490");
-        Map<Gene, Map<Optional<Feature>, List<DiseaseEntityJoin>>> map = diseaseTranslator.getGeneFeatureAnnotationMap(disease, gene);
+        Map<Gene, Map<Optional<Allele>, List<DiseaseEntityJoin>>> map = diseaseTranslator.getGeneAlleleAnnotationMap(disease, gene);
 
         assertNotNull(map);
         assert (map.keySet().size() == 1);
-        Map<Optional<Feature>, List<DiseaseEntityJoin>> diseaseMap = map.get(gene);
+        Map<Optional<Allele>, List<DiseaseEntityJoin>> diseaseMap = map.get(gene);
         assert (diseaseMap.keySet().size() == 6);
-        diseaseMap.forEach((feature, diseaseEntityJoinList) -> {
-            if (!feature.isPresent()) {
-                assertThat("There should be 3 publications for the featureless record", diseaseEntityJoinList.size(), equalTo(3));
+        diseaseMap.forEach((allele, diseaseEntityJoinList) -> {
+            if (!allele.isPresent()) {
+                assertThat("There should be 3 publications for the alleleless record", diseaseEntityJoinList.size(), equalTo(3));
             }
-            if (feature.isPresent() && feature.get().getSymbol().contains("7Neu")) {
+            if (allele.isPresent() && allele.get().getSymbol().contains("7Neu")) {
                 assertThat("There should be 1 publication for Pax6<7Neu> record", diseaseEntityJoinList.size(), equalTo(1));
                 assertThat(diseaseEntityJoinList.get(0).getPublication().getPubMedId(), equalTo("PMID:11779807"));
 

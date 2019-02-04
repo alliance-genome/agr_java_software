@@ -1,11 +1,12 @@
 package org.alliancegenome.api.controller;
 
-import org.alliancegenome.api.rest.interfaces.EntityRESTInterface;
-import org.alliancegenome.api.service.EntityService;
+import java.util.Map;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
-import java.util.Map;
+
+import org.alliancegenome.api.rest.interfaces.EntityRESTInterface;
+import org.alliancegenome.api.service.EntityService;
 
 @RequestScoped
 public class EntityController implements EntityRESTInterface {

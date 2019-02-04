@@ -8,8 +8,9 @@ import org.alliancegenome.es.index.data.document.DataFileDocument;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
-@Getter @Setter
+@Getter @Setter @ToString
 public class SnapShotDoclet {
 
     private String releaseVersion;

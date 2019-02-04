@@ -31,7 +31,7 @@ public class DiseaseMapping extends Mapping {
 
             builder.startObject("annotations");
             builder.startObject("properties");
-            buildNestedDocument("featureDocument");
+            buildNestedDocument("alleleDocument");
             buildNestedDocument("geneDocument");
             builder.endObject();
             builder.endObject();

@@ -38,7 +38,7 @@ public class SiteMapCacherApplication {
     private final HashMap<String, File> files = new HashMap<>();
 
     public SiteMapCacherApplication() {
-        File dir = new File(System.getProperty("java.io.tmpdir") + "/sitemap/");
+        File dir = new File(ConfigHelper.getJavaTmpDir() + "/sitemap/");
         if(!dir.exists()) dir.mkdir();
     }
     
@@ -97,7 +97,7 @@ public class SiteMapCacherApplication {
 
     private void saveFile(List<XMLURL> urls, String category, int c) {
         String fileName = category + "-sitemap-" + c;
-        String filePath = System.getProperty("java.io.tmpdir") + "/sitemap/" + fileName;
+        String filePath = ConfigHelper.getJavaTmpDir() + "/sitemap/" + fileName;
         files.put(fileName, new File(filePath));
         log.trace("Saving File: " + filePath);
         save(urls, files.get(fileName));

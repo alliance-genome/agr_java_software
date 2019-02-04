@@ -2,8 +2,6 @@ package org.alliancegenome.github;
 
 import java.util.List;
 
-import org.alliancegenome.github.interfaces.GithubRESTAPIInterface;
-import org.alliancegenome.github.model.GithubRelease;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 

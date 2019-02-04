@@ -2,28 +2,41 @@ package org.alliancegenome.es.model.query;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.alliancegenome.neo4j.view.BaseFilter;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.StringJoiner;
+import java.util.stream.Collectors;
 
 @Setter
 @Getter
 public class Pagination {
 
-    private int page;
-    private int limit;
+    public static final String SORTING_DELIMITER = ",";
+    private Integer page = 1;
+    private Integer limit = 20;
     private String sortBy;
     private FieldFilter sortByField;
     private Boolean asc;
-    private Map<FieldFilter, String> fieldFilterValueMap = new HashMap<>(10);
+    private BaseFilter fieldFilterValueMap = new BaseFilter();
     private List<String> errorList = new ArrayList<>();
 
     private boolean isCount = false;
-    public Pagination(int page, int limit, String sortBy, String asc) {
-        this.page = page;
-        this.limit = limit;
+
+    public Pagination(Integer page, Integer limit, String sortBy, String asc) {
+        if (page != null)
+            this.page = page;
+        if (limit != null)
+            this.limit = limit;
         this.sortBy = sortBy;
         sortByField = FieldFilter.getFieldFilterByName(sortBy);
+        if (this.page < 1)
+            errorList.add("'page' request parameter invalid: Found [" + page + "]. It has to be an integer number greater than 0");
+        if (this.limit < 0)
+            errorList.add("'limit' request parameter invalid: Found [" + limit + "].  It has to be an integer number greater than 0");
         init(asc);
     }
 
@@ -31,16 +44,11 @@ public class Pagination {
         isCount = true;
     }
 
-    public boolean isCountPagination(){
+    public boolean isCountPagination() {
         return isCount;
     }
 
     private void init(String asc) {
-        if (page < 1)
-            errorList.add("Invalid 'page' value. Needs to be greater or equal than 1");
-        if (limit < 1)
-            errorList.add("Invalid 'limit' value. Needs to be greater or equal than 1");
-
         if (asc == null) {
             this.asc = true;
         } else {
@@ -55,6 +63,15 @@ public class Pagination {
 
     public void addFieldFilter(FieldFilter fieldFilter, String value) {
         fieldFilterValueMap.put(fieldFilter, value);
+    }
+
+    public void makeSingleFieldFilter(FieldFilter fieldFilter, String value) {
+        fieldFilterValueMap.clear();
+        fieldFilterValueMap.put(fieldFilter, value);
+    }
+
+    public void removeFieldFilter(FieldFilter fieldFilter) {
+        fieldFilterValueMap.remove(fieldFilter);
     }
 
     public boolean hasErrors() {
@@ -73,12 +90,27 @@ public class Pagination {
         return false;
     }
 
+    public String getAscending() {
+        return asc ? "ASC" : "DESC";
+    }
+
     public int getStart() {
+        if (page == null || limit == null)
+            return 0;
         return (page - 1) * limit;
     }
 
     public int getEnd() {
         return page * limit;
+    }
+
+    public List<FieldFilter> getSortByList() {
+        if (StringUtils.isEmpty(sortBy))
+            return null;
+        String[] sortingTokens = sortBy.split(SORTING_DELIMITER);
+        return Arrays.stream(sortingTokens)
+                .map(FieldFilter::getFieldFilterByName)
+                .collect(Collectors.toList());
     }
 
     enum AscendingValues {
@@ -100,8 +132,8 @@ public class Pagination {
 
         public static String getAllValues() {
             StringJoiner values = new StringJoiner(",");
-            for (AscendingValues sorting : values())
-                values.add(sorting.name());
+            Arrays.asList(values()).forEach(sorting ->
+                    values.add(sorting.name()));
             return values.toString();
         }
 

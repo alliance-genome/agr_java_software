@@ -1,23 +1,30 @@
 package org.alliancegenome.indexer.indexers;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.stream.Collectors;
+
+import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.translators.document.GeneTranslator;
+import org.alliancegenome.es.index.site.cache.GeneDocumentCache;
 import org.alliancegenome.es.index.site.document.GeneDocument;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.neo4j.entity.node.Gene;
+import org.alliancegenome.neo4j.repository.GeneIndexerRepository;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.LinkedBlockingDeque;
-
 public class GeneIndexer extends Indexer<GeneDocument> {
 
     private final Logger log = LogManager.getLogger(getClass());
+    private GeneDocumentCache geneDocumentCache;
+    private String species = null;
 
     public GeneIndexer(IndexerConfig config) {
         super(config);
+        species = ConfigHelper.getSpecies();
     }
 
     @Override
@@ -26,9 +33,18 @@ public class GeneIndexer extends Indexer<GeneDocument> {
         try {
             LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>();
             GeneRepository geneRepo = new GeneRepository();
-            List<String> fulllist = geneRepo.getAllGeneKeys();
+            GeneIndexerRepository geneIndexerRepository = new GeneIndexerRepository();
+
+            List<String> fulllist;
+            if (species != null) {
+                geneDocumentCache = geneIndexerRepository.getGeneDocumentCache(species);
+                fulllist = geneDocumentCache.getGeneMap().keySet().stream().collect(Collectors.toList());
+            } else {
+                geneDocumentCache = geneIndexerRepository.getGeneDocumentCache();
+                fulllist = geneRepo.getAllGeneKeys();
+            }
+
             queue.addAll(fulllist);
-//            readIndexFile();
             geneRepo.clearCache();
             initiateThreading(queue);
         } catch (InterruptedException e) {
@@ -38,30 +54,28 @@ public class GeneIndexer extends Indexer<GeneDocument> {
 
     protected void startSingleThread(LinkedBlockingDeque<String> queue) {
         ArrayList<Gene> list = new ArrayList<>();
-        GeneRepository repo = new GeneRepository();
         GeneTranslator geneTrans = new GeneTranslator();
         while (true) {
             try {
                 if (list.size() >= indexerConfig.getBufferSize()) {
-                    saveDocuments(geneTrans.translateEntities(list));
-                    repo.clearCache();
+                    Iterable<GeneDocument> geneDocuments = geneTrans.translateEntities(list);
+                    geneDocumentCache.addCachedFields(geneDocuments);
+                    saveDocuments(geneDocuments);
                     list.clear();
                 }
                 if (queue.isEmpty()) {
                     if (list.size() > 0) {
-                        saveDocuments(geneTrans.translateEntities(list));
-                        repo.clearCache();
+                        Iterable<GeneDocument> geneDocuments = geneTrans.translateEntities(list);
+                        geneDocumentCache.addCachedFields(geneDocuments);
+                        saveDocuments(geneDocuments);
                         list.clear();
                     }
                     return;
                 }
 
                 String key = queue.takeFirst();
-/*
-                if (!isEntitySubset(key))
-                    continue;
-*/
-                Gene gene = repo.getOneGene(key);
+                Gene gene = geneDocumentCache.getGeneMap().get(key);
+
                 if (gene != null)
                     list.add(gene);
                 else

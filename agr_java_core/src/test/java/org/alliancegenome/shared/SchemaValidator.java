@@ -47,7 +47,7 @@ public class SchemaValidator {
         schemaFiles.add(new File(path + "/gene/geneMetaData.json"));
         schemaFiles.add(new File(path + "/gene/genomeLocation.json"));
 
-        schemaFiles.add(new File(path + "/genotype/featureInstance.json"));
+        schemaFiles.add(new File(path + "/genotype/alleleInstance.json"));
         schemaFiles.add(new File(path + "/genotype/genotype.json"));
         schemaFiles.add(new File(path + "/genotype/genotypeMetaDataDefinition.json"));
 

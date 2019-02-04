@@ -1,19 +1,40 @@
 package org.alliancegenome.api.service;
 
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
+
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.StringJoiner;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
+
 import org.alliancegenome.api.service.helper.ExpressionDetail;
 import org.alliancegenome.api.service.helper.ExpressionSummary;
 import org.alliancegenome.api.service.helper.ExpressionSummaryGroup;
 import org.alliancegenome.api.service.helper.ExpressionSummaryGroupTerm;
+import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.neo4j.entity.node.*;
+import org.alliancegenome.neo4j.entity.node.BioEntityGeneExpressionJoin;
+import org.alliancegenome.neo4j.entity.node.CrossReference;
+import org.alliancegenome.neo4j.entity.node.ExpressionBioEntity;
+import org.alliancegenome.neo4j.entity.node.GOTerm;
+import org.alliancegenome.neo4j.entity.node.Gene;
+import org.alliancegenome.neo4j.entity.node.MMOTerm;
+import org.alliancegenome.neo4j.entity.node.Publication;
+import org.alliancegenome.neo4j.entity.node.Stage;
+import org.alliancegenome.neo4j.entity.node.UBERONTerm;
 import org.alliancegenome.neo4j.repository.GeneRepository;
-
-import java.util.*;
-import java.util.stream.Collectors;
-
-import static java.util.stream.Collectors.*;
 
 public class ExpressionService {
 
@@ -110,7 +131,10 @@ public class ExpressionService {
                         groupingBy(join -> Optional.ofNullable(join.getStageTerm()), groupingBy(BioEntityGeneExpressionJoin::getAssay, toSet())))));
     }
 
-    public ExpressionSummary getExpressionSummary(List<BioEntityGeneExpressionJoin> joins) {
+    public ExpressionSummary getExpressionSummary(String id) {
+        GeneRepository geneRepository = new GeneRepository();
+        List<BioEntityGeneExpressionJoin> joins = geneRepository.getExpressionAnnotationSummary(id);
+
         if (joins == null)
             joins = new ArrayList<>();
         // group together records where only publication is different and treat them as a single record
@@ -200,10 +224,10 @@ public class ExpressionService {
         headerJoiner.add("Source");
         headerJoiner.add("Reference");
         builder.append(headerJoiner.toString());
-        builder.append(System.getProperty("line.separator"));
+        builder.append(ConfigHelper.getJavaLineSeparator());
         result.getResults().forEach(expressionDetail -> {
             StringJoiner rowJoiner = new StringJoiner("\t");
-            rowJoiner.add(expressionDetail.getGene().getSpeciesName());
+            rowJoiner.add(expressionDetail.getGene().getSpecies().getName());
             rowJoiner.add(expressionDetail.getGene().getSymbol());
             rowJoiner.add(expressionDetail.getGene().getModGlobalId());
             rowJoiner.add(expressionDetail.getTermName());
@@ -212,7 +236,7 @@ public class ExpressionService {
             rowJoiner.add(expressionDetail.getCrossReferences().stream().map(CrossReference::getDisplayName).collect(Collectors.joining(",")));
             rowJoiner.add(expressionDetail.getPublications().stream().map(Publication::getPubId).collect(Collectors.joining(",")));
             builder.append(rowJoiner.toString());
-            builder.append(System.getProperty("line.separator"));
+            builder.append(ConfigHelper.getJavaLineSeparator());
         });
         return builder.toString();
     }

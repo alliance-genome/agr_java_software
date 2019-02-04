@@ -1,15 +1,23 @@
 package org.alliancegenome.api.rest.interfaces;
 
 
+import java.util.List;
+
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
+
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import java.util.List;
 
 
 @Path("/expression")
@@ -20,7 +28,7 @@ public interface ExpressionRESTInterface {
 
     @GET
     @Path("")
-    @ApiOperation(value = "Retrieve all expression records of a given set of genes")
+    @ApiOperation(value = "Retrieve all expression records of a given set of geneMap")
     String getExpressionAnnotations(
             @ApiParam(name = "geneID", value = "Gene by ID", required = true)
             @QueryParam("geneID") List<String> geneIDs,
@@ -70,7 +78,7 @@ public interface ExpressionRESTInterface {
 
     @GET
     @Path("/{taxonID}")
-    @ApiOperation(value = "Retrieve all expression records of a given set of genes")
+    @ApiOperation(value = "Retrieve all expression records of a given set of geneMap")
     String getExpressionAnnotationsByTaxon(
             @ApiParam(name = "taxonID", value = "Taxon ID for the first gene: Could be the full ID, e.g. 'NCBITaxon:10090', or just the ID, i.e. '10090'. Alternatively, part of a species name uniquely identifying a single species, e.g. 'danio' or 'mus'.", required = true, type = "String")
             @PathParam("taxonID") String speciesOne,

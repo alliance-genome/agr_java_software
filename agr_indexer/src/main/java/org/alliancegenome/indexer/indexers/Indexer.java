@@ -1,20 +1,5 @@
 package org.alliancegenome.indexer.indexers;
 
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.alliancegenome.core.config.ConfigHelper;
-import org.alliancegenome.es.index.ESDocument;
-import org.alliancegenome.indexer.config.IndexerConfig;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.elasticsearch.action.bulk.BulkRequestBuilder;
-import org.elasticsearch.action.bulk.BulkResponse;
-import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.common.transport.InetSocketTransportAddress;
-import org.elasticsearch.common.xcontent.XContentType;
-import org.elasticsearch.xpack.client.PreBuiltXPackTransportClient;
-
 import java.io.File;
 import java.net.InetAddress;
 import java.nio.file.Files;
@@ -27,6 +12,22 @@ import java.util.List;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+
+import org.alliancegenome.core.config.ConfigHelper;
+import org.alliancegenome.es.index.ESDocument;
+import org.alliancegenome.indexer.config.IndexerConfig;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.elasticsearch.action.bulk.BulkRequestBuilder;
+import org.elasticsearch.action.bulk.BulkResponse;
+import org.elasticsearch.common.settings.Settings;
+import org.elasticsearch.common.transport.InetSocketTransportAddress;
+import org.elasticsearch.common.xcontent.XContentType;
+import org.elasticsearch.xpack.client.PreBuiltXPackTransportClient;
+
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public abstract class Indexer<D extends ESDocument> extends Thread {
 

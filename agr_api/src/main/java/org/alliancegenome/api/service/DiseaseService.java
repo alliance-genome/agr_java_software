@@ -1,29 +1,113 @@
 package org.alliancegenome.api.service;
 
-import java.util.Map;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import org.alliancegenome.core.service.JsonResultResponse;
+import org.alliancegenome.es.model.query.Pagination;
+import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
+import org.alliancegenome.neo4j.entity.DiseaseSummary;
+import org.alliancegenome.neo4j.entity.node.*;
+import org.alliancegenome.neo4j.repository.DiseaseRepository;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.neo4j.ogm.model.Result;
 
 import javax.enterprise.context.RequestScoped;
-
-import org.alliancegenome.es.index.site.dao.DiseaseDAO;
-import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.es.model.search.SearchApiResponse;
-import org.alliancegenome.es.util.SearchHitIterator;
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @RequestScoped
 public class DiseaseService {
 
-    private static DiseaseDAO diseaseDAO = new DiseaseDAO();
+    private Log log = LogFactory.getLog(getClass());
+    private static DiseaseRepository diseaseRepository = new DiseaseRepository();
 
-    public Map<String, Object> getById(String id) {
-        return diseaseDAO.getById(id);
+    public DOTerm getById(String id) {
+        return diseaseRepository.getDiseaseTerm(id);
     }
 
-    public SearchApiResponse getDiseaseAnnotations(String id, Pagination pagination) {
-        return diseaseDAO.getDiseaseAnnotations(id, pagination);
+    public JsonResultResponse<DiseaseAnnotation> getDiseaseAnnotationsByDisease(String diseaseID, Pagination pagination) {
+        LocalDateTime startDate = LocalDateTime.now();
+        List<DiseaseAnnotation> list = getDiseaseAnnotationList(diseaseID, pagination);
+        JsonResultResponse<DiseaseAnnotation> response = new JsonResultResponse<>();
+        response.calculateRequestDuration(startDate);
+        response.setResults(list);
+        Long count = diseaseRepository.getTotalDiseaseCount(diseaseID, pagination);
+        response.setTotal((int) (long) count);
+        return response;
     }
 
+    private List<DiseaseAnnotation> getDiseaseAnnotationList(String diseaseID, Pagination pagination) {
+        Result result = diseaseRepository.getDiseaseAssociation(null, diseaseID, pagination, null);
+        return getDiseaseAnnotations(result);
+    }
 
-    public SearchHitIterator getDiseaseAnnotationsDownload(String id, Pagination pagination) {
-        return diseaseDAO.getDiseaseAnnotationsDownload(id, pagination);
+    public List<DiseaseAnnotation> getEmpiricalDiseaseAnnotationList(String geneID, Pagination pagination, boolean empiricalDisease) {
+        Result result = diseaseRepository.getDiseaseAssociation(geneID, null, pagination, empiricalDisease);
+        return getDiseaseAnnotations(result);
+    }
+
+    private List<DiseaseAnnotation> getDiseaseAnnotations(Result result) {
+        List<DiseaseAnnotation> annotationDocuments = new ArrayList<>();
+        result.forEach(objectMap -> {
+            DiseaseAnnotation document = new DiseaseAnnotation();
+            Gene gene = (Gene) objectMap.get("gene");
+            gene.setSpecies((Species) objectMap.get("species"));
+//            gene.setUrl(((CrossReference) objectMap.get("geneCrossReference")).getCrossRefCompleteUrl());
+            document.setGene(gene);
+            DOTerm disease = (DOTerm) objectMap.get("disease");
+            document.setDisease(disease);
+
+            DiseaseEntityJoin diseaseEntityJoin = ((List<DiseaseEntityJoin>) objectMap.get("diseaseEntityJoin")).get(0);
+            diseaseEntityJoin.setDisease(disease);
+            document.setSource(diseaseEntityJoin.getSource());
+            document.setAssociationType(diseaseEntityJoin.getJoinType());
+            document.setDisease(disease);
+            Allele feature = (Allele) objectMap.get("feature");
+            document.setDiseaseEntityJoinSet((List<DiseaseEntityJoin>) objectMap.get("diseaseEntityJoin"));
+            document.setAssociationType(diseaseEntityJoin.getJoinType());
+            document.setEvidenceCodes((List<EvidenceCode>) objectMap.get("evidences"));
+            List<Gene> orthoGenes = (List<Gene>) objectMap.get("orthoGenes");
+            List<Species> orthoGeneSpecies = (List<Species>) objectMap.get("orthoSpecies");
+            if (orthoGenes != null) {
+                Set<Gene> orthoGeneSet = new HashSet<>(orthoGenes);
+                if (orthoGeneSet.size() > 1)
+                    log.warn("Annotation has more than one orthology Gene..." + document.getDisease().getName());
+                Gene next = orthoGeneSet.iterator().next();
+                next.setSpecies(orthoGeneSpecies.iterator().next());
+                document.setOrthologyGene(next);
+            }
+            if (feature != null) {
+                List<CrossReference> ref = (List<CrossReference>) objectMap.get("crossReferences");
+                feature.setCrossReferences(ref);
+                document.setFeature(feature);
+            }
+            List<Publication> publicationList = (List<Publication>) objectMap.get("publications");
+            publicationList.sort(Comparator.naturalOrder());
+            document.setPublications(publicationList.stream().distinct().collect(Collectors.toList()));
+            annotationDocuments.add(document);
+        });
+
+        return annotationDocuments;
+    }
+
+    public JsonResultResponse<DiseaseAnnotation> getEmpiricalDiseaseAnnotations(String id, Pagination pagination, boolean empiricalDisease) throws JsonProcessingException {
+        return getDiseaseAnnotations(id, pagination, empiricalDisease);
+    }
+
+    public JsonResultResponse<DiseaseAnnotation> getDiseaseAnnotations(String geneID, Pagination pagination, boolean empiricalDisease) {
+        LocalDateTime startDate = LocalDateTime.now();
+        List<DiseaseAnnotation> list = getEmpiricalDiseaseAnnotationList(geneID, pagination, empiricalDisease);
+        JsonResultResponse<DiseaseAnnotation> response = new JsonResultResponse<>();
+        response.calculateRequestDuration(startDate);
+        response.setResults(list);
+        Long count = diseaseRepository.getTotalDiseaseCount(geneID, pagination, empiricalDisease);
+        response.setTotal((int) (long) count);
+        return response;
+    }
+
+    public DiseaseSummary getDiseaseSummary(String id, DiseaseSummary.Type type) {
+        return diseaseRepository.getDiseaseSummary(id, type);
     }
 }
+

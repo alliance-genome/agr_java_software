@@ -1,22 +1,24 @@
 package org.alliancegenome.indexer;
 
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.alliancegenome.core.service.OrthologyService;
 import org.alliancegenome.core.translators.document.GeneTranslator;
-import org.alliancegenome.neo4j.entity.node.*;
+import org.alliancegenome.neo4j.entity.node.BioEntityGeneExpressionJoin;
+import org.alliancegenome.neo4j.entity.node.ExpressionBioEntity;
+import org.alliancegenome.neo4j.entity.node.Gene;
+import org.alliancegenome.neo4j.entity.node.UBERONTerm;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.alliancegenome.neo4j.repository.GoRepository;
 import org.alliancegenome.neo4j.view.OrthologyModule;
 import org.alliancegenome.neo4j.view.View;
-import org.alliancegenome.es.index.site.document.GeneDocument;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 
 public class GeneTest {
 
@@ -28,9 +30,6 @@ public class GeneTest {
 
         Gene gene = null;
         gene = repo.getOneGene("MGI:104798");
-        GeneDocument geneDocument = trans.translate(gene);
-
-        List<BioEntityGeneExpressionJoin> expressionJoinList = repo.getExpressionAnnotations(gene);
 
         List<String> uberonTermNames = new ArrayList<>();
         uberonTermNames.addAll(
@@ -45,13 +44,11 @@ public class GeneTest {
 
         //gene = repo.getOrthologyGene("ZFIN:ZDB-GENE-990415-72");
         gene = repo.getOrthologyGene("MGI:109583");
-        Set<Gene> genes = repo.getOrthologyByTwoSpecies("7955", "10090");
 
         //for(GOTerm go: gene.getGoParentTerms()) {
         //  System.out.println(go.getName());
         //}
 
-        GOTerm term = goRepo.getOneGoTerm("GO:0005488");
 
         Date start = new Date();
 //        gene = repo.getOneGene("MGI:97490");
@@ -66,7 +63,7 @@ public class GeneTest {
 
         mapper.registerModule(new OrthologyModule());
 //        mapper.writerWithView(View.OrthologyView.class).writeValue(System.out, gene.getOrthoGenes());
-        mapper.writerWithView(View.OrthologyView.class).writeValue(System.out, OrthologyService.getOrthologViewList(gene));
+        mapper.writerWithView(View.Orthology.class).writeValue(System.out, OrthologyService.getOrthologViewList(gene));
         //mapper.writeValue(System.out, OrthologyService.getOrthologyDoclets(gene));
 /*
         String json = mapper

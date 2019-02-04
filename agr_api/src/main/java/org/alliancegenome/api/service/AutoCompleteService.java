@@ -1,5 +1,10 @@
 package org.alliancegenome.api.service;
 
+import static org.elasticsearch.index.query.QueryBuilders.termQuery;
+
+import java.util.ArrayList;
+import java.util.Map;
+
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 
@@ -14,11 +19,6 @@ import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.functionscore.FunctionScoreQueryBuilder;
 import org.elasticsearch.search.SearchHit;
-
-import java.util.ArrayList;
-import java.util.Map;
-
-import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 
 @RequestScoped
 public class AutoCompleteService {
@@ -78,7 +78,7 @@ public class AutoCompleteService {
         for(SearchHit hit: res.getHits()) {
             String category = (String) hit.getSourceAsMap().get("category");
 
-            //this comes over from the Python code, use symbol for genes,
+            //this comes over from the Python code, use symbol for geneMap,
             //seems like maybe it could also use name_key for everyone...
             if (StringUtils.equals(category,"gene")) {
                 hit.getSourceAsMap().put("name", hit.getSourceAsMap().get("symbol"));

@@ -1,5 +1,15 @@
 package org.alliancegenome.neo4j.repository;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.StringJoiner;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
+
 import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.entity.node.Gene;
@@ -10,10 +20,6 @@ import org.alliancegenome.neo4j.view.OrthologyFilter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.neo4j.ogm.model.Result;
-
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 public class OrthologousRepository extends Neo4jRepository<Orthologous> {
 
@@ -61,14 +67,10 @@ public class OrthologousRepository extends Neo4jRepository<Orthologous> {
         result.forEach(objectMap -> {
             OrthologView view = new OrthologView();
             Gene gene = (Gene) objectMap.get("g");
-            gene.setSpeciesName(SpeciesType.fromTaxonId(taxonOne).getName());
+            //gene.setSpeciesName(SpeciesType.fromTaxonId(taxonOne).getName());
             view.setGene(gene);
 
             Gene homologGene = (Gene) objectMap.get("gh");
-            if (taxonTwo != null)
-                homologGene.setSpeciesName(SpeciesType.fromTaxonId(taxonTwo).getName());
-            else
-                homologGene.setSpeciesName(SpeciesType.fromTaxonId(homologGene.getTaxonId()).getName());
             view.setHomologGene(homologGene);
 
             view.setBest(((List<Orthologous>) objectMap.get("collect(distinct ortho)")).get(0).isBestScore());

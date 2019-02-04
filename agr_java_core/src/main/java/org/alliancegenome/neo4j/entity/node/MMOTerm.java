@@ -1,13 +1,15 @@
 package org.alliancegenome.neo4j.entity.node;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonView;
-import lombok.Getter;
-import lombok.Setter;
+import java.util.Objects;
+
 import org.alliancegenome.neo4j.view.View;
 import org.neo4j.ogm.annotation.NodeEntity;
 
-import java.util.Objects;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonView;
+
+import lombok.Getter;
+import lombok.Setter;
 
 @NodeEntity
 @Getter
@@ -15,9 +17,9 @@ import java.util.Objects;
 public class MMOTerm extends Ontology {
 
     private String primaryKey;
-    @JsonView(View.ExpressionView.class)
+    @JsonView(View.Expression.class)
     private String name;
-    @JsonView(View.ExpressionView.class)
+    @JsonView(View.Expression.class)
     @JsonProperty(value = "displaySynonym")
     private String display_synonym;
 
