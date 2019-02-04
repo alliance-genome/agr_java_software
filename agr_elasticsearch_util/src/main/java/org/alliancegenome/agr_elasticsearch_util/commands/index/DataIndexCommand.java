@@ -6,6 +6,7 @@ import org.alliancegenome.agr_elasticsearch_util.commands.Command;
 import org.alliancegenome.agr_elasticsearch_util.commands.CommandInterface;
 import org.alliancegenome.es.index.data.dao.MetaDataDAO;
 import org.alliancegenome.es.index.data.doclet.DataTypeDoclet;
+import org.alliancegenome.es.index.data.doclet.SnapShotDoclet;
 import org.alliancegenome.es.index.data.document.MetaDataDocument;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -31,6 +32,8 @@ public class DataIndexCommand extends Command implements CommandInterface {
         System.out.println("dataindex addreleaseschema <release> <schema> -- this adds a schema to a release, release to schema is M to 1 relationship");
         System.out.println("dataindex updatereleaseschema <release> <schema> -- this updates a release to a new schema, release to schema is M to 1 relationship");
         System.out.println("dataindex deletereleaseschema <release> <schema> -- this removes the release from the schema map, release to schema is M to 1 relationship");
+        
+        System.out.println("dataindex getsnapshot <system> <release> -- this retrieves a snap shot");
     }
 
     @Override
@@ -110,6 +113,13 @@ public class DataIndexCommand extends Command implements CommandInterface {
                 } else {
                     log.error("Release Doesn't exist please use addreleaseschema instead: " + releaseVersion + " " + schemaVersion);
                 }
+                
+            } else if(command.equals("getsnapshot")) {
+                String system = args.remove(0);
+                String releaseVersion = args.remove(0);
+                SnapShotDoclet ssd = metaDataDAO.getSnapShot(system, releaseVersion);
+                System.out.println(ssd);
+                
             } else if(command.equals("updateschemafile")) {
                 String dataType = args.remove(0);
                 String schemaVersion = args.remove(0);
