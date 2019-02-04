@@ -55,6 +55,9 @@ This will be the current release of the schema can be found in the [releases](ht
 | DAF | Disease Annotations File (DAF) | diseaseMetaDataDefinition.json | json | true | true | true |
 | ORTHO | Orthology File | orthoHeader.json | json | true | true | true |
 | ALLELE | Allele File | alleleMetadata.json | json | true | true | true |
+| PHENOTYPE | Phenotype File | phenotypeMetaDataDefinition.json | json | true | true | true |
+| EXPRESSION | Expression File | wildtypeExpressionMetaDataDefinition.json | json | true | true | true |
+| INTERACTION | Expression File |  | json | false | false | false |
 | GAF | Gene Annotations File (GAF) | - | gaf | true | false | false |
 | GFF | Gene Feature File | - | gff | true | false | false |
 
