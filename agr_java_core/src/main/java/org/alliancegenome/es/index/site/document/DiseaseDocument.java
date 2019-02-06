@@ -32,7 +32,7 @@ public class DiseaseDocument extends SearchableItemDocument {
     private Set<String> parentDiseaseNames;
     private String definition;
     private Date dateProduced;
-    private List<String> definitionLinks;
+    private String definitionLinks;
     private List<AnnotationDocument> annotations;
     private List<DiseaseDocument> parents;
     private List<DiseaseDocument> children;

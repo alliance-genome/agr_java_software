@@ -34,7 +34,7 @@ public class DOTerm extends SimpleTerm {
     private String definition;
     @JsonView({View.DiseaseAPI.class})
     @JsonProperty(value = "definitionLinks")
-    private List<String> defLinks;
+    private String defLinks;
     private List<String> subset;
 
     private String nameKey;

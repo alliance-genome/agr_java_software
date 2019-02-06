@@ -28,6 +28,7 @@ import java.util.stream.Collectors;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.greaterThan;
 import static org.junit.Assert.*;
 
 @Ignore
@@ -609,7 +610,7 @@ public class DiseaseTest {
         assertThat(term.getSynonyms().stream().map(Synonym::getPrimaryKey).collect(Collectors.toList()), containsInAnyOrder("Chorioepithelioma"));
         assertThat(term.getChildren().size(), equalTo(8));
         assertThat(term.getParents().size(), equalTo(1));
-        assertThat(term.getDefLinks().size(), equalTo(1));
+        assertThat(term.getDefLinks().length(), greaterThan(1));
     }
 
     @Test
