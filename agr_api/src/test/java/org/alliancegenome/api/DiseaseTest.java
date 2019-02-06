@@ -75,29 +75,29 @@ public class DiseaseTest {
         String result = "Gene ID\tGene Symbol\tSpecies\tGenetic Entity ID\tGenetic Entity Symbol\tGenetic Entity Type\tAssociation Type\tDisease ID\tDisease Name\tEvidence Code\tSource\tReferences\n" +
                 "WB:WBGene00019478\tcri-2\tCaenorhabditis elegans\t\t\t\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tIEA\tAlliance\tMGI:6194238\n" +
                 "WB:WBGene00000898\tdaf-2\tCaenorhabditis elegans\t\t\t\timplicated_via_orthology\tDOID:3594\tchoriocarcinoma\tIEA\tAlliance\tMGI:6194238\n" +
-                "HGNC:3686\tFGF8\tHomo sapiens\t\t\t\tis_marker_of\tDOID:3594\tchoriocarcinoma\tIEP\tnull\tPMID:11764380\n" +
+                "HGNC:3686\tFGF8\tHomo sapiens\t\t\t\tis_marker_of\tDOID:3594\tchoriocarcinoma\tIEP\tHuman\tPMID:11764380\n" +
                 "MGI:99604\tFgf8\tMus musculus\t\t\t\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tIEA\tAlliance\tMGI:6194238\n" +
                 "RGD:70891\tFgf8\tRattus norvegicus\t\t\t\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tIEA\tAlliance\tMGI:6194238\n" +
                 "ZFIN:ZDB-GENE-990415-72\tfgf8a\tDanio rerio\t\t\t\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tIEA\tAlliance\tMGI:6194238\n" +
                 "ZFIN:ZDB-GENE-010122-1\tfgf8b\tDanio rerio\t\t\t\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tIEA\tAlliance\tMGI:6194238\n" +
-                "HGNC:5466\tIGF2\tHomo sapiens\t\t\t\tis_implicated_in\tDOID:3594\tchoriocarcinoma\tIDA\tnull\tPMID:17556377\n" +
+                "HGNC:5466\tIGF2\tHomo sapiens\t\t\t\tis_implicated_in\tDOID:3594\tchoriocarcinoma\tIDA\tHuman\tPMID:17556377\n" +
                 "MGI:96434\tIgf2\tMus musculus\t\t\t\timplicated_via_orthology\tDOID:3594\tchoriocarcinoma\tIEA\tAlliance\tMGI:6194238\n" +
                 "RGD:2870\tIgf2\tRattus norvegicus\t\t\t\timplicated_via_orthology\tDOID:3594\tchoriocarcinoma\tIEA\tAlliance\tMGI:6194238\n" +
                 "ZFIN:ZDB-GENE-991111-3\tigf2a\tDanio rerio\t\t\t\timplicated_via_orthology\tDOID:3594\tchoriocarcinoma\tIEA\tAlliance\tMGI:6194238\n" +
                 "ZFIN:ZDB-GENE-030131-2935\tigf2b\tDanio rerio\t\t\t\timplicated_via_orthology\tDOID:3594\tchoriocarcinoma\tIEA\tAlliance\tMGI:6194238\n" +
                 "FB:FBgn0283499\tInR\tDrosophila melanogaster\t\t\t\timplicated_via_orthology\tDOID:3594\tchoriocarcinoma\tIEA\tAlliance\tMGI:6194238\n" +
-                "HGNC:6091\tINSR\tHomo sapiens\t\t\t\tis_implicated_in\tDOID:3594\tchoriocarcinoma\tIDA\tnull\tPMID:17556377\n" +
+                "HGNC:6091\tINSR\tHomo sapiens\t\t\t\tis_implicated_in\tDOID:3594\tchoriocarcinoma\tIDA\tHuman\tPMID:17556377\n" +
                 "MGI:96575\tInsr\tMus musculus\t\t\t\timplicated_via_orthology\tDOID:3594\tchoriocarcinoma\tIEA\tAlliance\tMGI:6194238\n" +
                 "RGD:2917\tInsr\tRattus norvegicus\t\t\t\timplicated_via_orthology\tDOID:3594\tchoriocarcinoma\tIEA\tAlliance\tMGI:6194238\n" +
                 "ZFIN:ZDB-GENE-020503-3\tinsra\tDanio rerio\t\t\t\timplicated_via_orthology\tDOID:3594\tchoriocarcinoma\tIEA\tAlliance\tMGI:6194238\n" +
                 "ZFIN:ZDB-GENE-020503-4\tinsrb\tDanio rerio\t\t\t\timplicated_via_orthology\tDOID:3594\tchoriocarcinoma\tIEA\tAlliance\tMGI:6194238\n" +
-                "HGNC:8800\tPDGFB\tHomo sapiens\t\t\t\tis_marker_of\tDOID:3594\tchoriocarcinoma\tIEP\tnull\tPMID:8504434\n" +
+                "HGNC:8800\tPDGFB\tHomo sapiens\t\t\t\tis_marker_of\tDOID:3594\tchoriocarcinoma\tIEP\tHuman\tPMID:8504434\n" +
                 "MGI:97528\tPdgfb\tMus musculus\t\t\t\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tIEA\tAlliance\tMGI:6194238\n" +
                 "RGD:3283\tPdgfb\tRattus norvegicus\t\t\t\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tIEA\tAlliance\tMGI:6194238\n" +
                 "ZFIN:ZDB-GENE-050208-525\tpdgfba\tDanio rerio\t\t\t\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tIEA\tAlliance\tMGI:6194238\n" +
                 "ZFIN:ZDB-GENE-131121-332\tpdgfbb\tDanio rerio\t\t\t\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tIEA\tAlliance\tMGI:6194238\n" +
                 "ZFIN:ZDB-GENE-030805-2\tpdgfrb\tDanio rerio\t\t\t\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tIEA\tAlliance\tMGI:6194238\n" +
-                "HGNC:8804\tPDGFRB\tHomo sapiens\t\t\t\tis_marker_of\tDOID:3594\tchoriocarcinoma\tIEP\tnull\tPMID:8504434\n" +
+                "HGNC:8804\tPDGFRB\tHomo sapiens\t\t\t\tis_marker_of\tDOID:3594\tchoriocarcinoma\tIEP\tHuman\tPMID:8504434\n" +
                 "MGI:97531\tPdgfrb\tMus musculus\t\t\t\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tIEA\tAlliance\tMGI:6194238\n" +
                 "RGD:3285\tPdgfrb\tRattus norvegicus\t\t\t\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tIEA\tAlliance\tMGI:6194238\n" +
                 "WB:WBGene00004249\tpvf-1\tCaenorhabditis elegans\t\t\t\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tIEA\tAlliance\tMGI:6194238\n" +
@@ -105,7 +105,7 @@ public class DiseaseTest {
                 "FB:FBgn0032006\tPvr\tDrosophila melanogaster\t\t\t\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tIEA\tAlliance\tMGI:6194238\n" +
                 "FB:FBgn0025879\tTimp\tDrosophila melanogaster\t\t\t\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tIEA\tAlliance\tMGI:6194238\n" +
                 "WB:WBGene00019476\ttimp-1\tCaenorhabditis elegans\t\t\t\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tIEA\tAlliance\tMGI:6194238\n" +
-                "HGNC:11822\tTIMP3\tHomo sapiens\t\t\t\tis_marker_of\tDOID:3594\tchoriocarcinoma\tIEP\tnull\tPMID:15507671\n" +
+                "HGNC:11822\tTIMP3\tHomo sapiens\t\t\t\tis_marker_of\tDOID:3594\tchoriocarcinoma\tIEP\tHuman\tPMID:15507671\n" +
                 "MGI:98754\tTimp3\tMus musculus\t\t\t\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tIEA\tAlliance\tMGI:6194238\n" +
                 "RGD:3865\tTimp3\tRattus norvegicus\t\t\t\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tIEA\tAlliance\tMGI:6194238\n";
         assertEquals(result, output);
@@ -142,11 +142,11 @@ public class DiseaseTest {
         assertNotNull(lines);
         String result = "Gene ID\tGene Symbol\tSpecies\tGenetic Entity ID\tGenetic Entity Symbol\tGenetic Entity Type\tAssociation Type\tDisease ID\tDisease Name\tEvidence Code\tSource\tReferences\n" +
                 "FB:FBgn0265598\tBx\tDrosophila melanogaster\t\t\t\timplicated_via_orthology\tDOID:9952\tacute lymphocytic leukemia\tIEA\tAlliance\tMGI:6194238\n" +
-                "WB:WBGene00000469\tces-2\tCaenorhabditis elegans\t\t\t\tis_implicated_in\tDOID:9952\tacute lymphocytic leukemia\tIMP\tnull\tPMID:8700229\n" +
+                "WB:WBGene00000469\tces-2\tCaenorhabditis elegans\t\t\t\tis_implicated_in\tDOID:9952\tacute lymphocytic leukemia\tIMP\tWB\tPMID:8700229\n" +
                 "FB:FBgn0034096\tCG7786\tDrosophila melanogaster\t\t\t\timplicated_via_orthology\tDOID:9952\tacute lymphocytic leukemia\tIEA\tAlliance\tMGI:6194238\n" +
                 "ZFIN:ZDB-GENE-990630-12\tcntn2\tDanio rerio\t\t\t\timplicated_via_orthology\tDOID:5602\tT-cell adult acute lymphocytic leukemia\tIEA\tAlliance\tMGI:6194238\n" +
                 "HGNC:2172\tCNTN2\tHomo sapiens\t\t\t\timplicated_via_orthology\tDOID:5602\tT-cell adult acute lymphocytic leukemia\tIEA\tAlliance\tMGI:6194238\n" +
-                "MGI:104518\tCntn2\tMus musculus\t\t\t\tis_implicated_in\tDOID:5602\tT-cell adult acute lymphocytic leukemia\tTAS\tnull\tPMID:16550188,PMID:25035162\n" +
+                "MGI:104518\tCntn2\tMus musculus\t\t\t\tis_implicated_in\tDOID:5602\tT-cell adult acute lymphocytic leukemia\tTAS\tMGI\tPMID:16550188,PMID:25035162\n" +
                 "RGD:3821\tCntn2\tRattus norvegicus\t\t\t\timplicated_via_orthology\tDOID:5602\tT-cell adult acute lymphocytic leukemia\tIEA\tAlliance\tMGI:6194238\n" +
                 "FB:FBgn0037240\tCont\tDrosophila melanogaster\t\t\t\timplicated_via_orthology\tDOID:5602\tT-cell adult acute lymphocytic leukemia\tIEA\tAlliance\tMGI:6194238\n" +
                 "WB:WBGene00000913\tdaf-18\tCaenorhabditis elegans\t\t\t\timplicated_via_orthology\tDOID:9952\tacute lymphocytic leukemia\tIEA\tAlliance\tMGI:6194238\n" +
@@ -159,13 +159,13 @@ public class DiseaseTest {
                 "WB:WBGene00022512\tdot-1.5\tCaenorhabditis elegans\t\t\t\timplicated_via_orthology\tDOID:9953\tB- and T-cell mixed leukemia\tIEA\tAlliance\tMGI:6194238\n" +
                 "SGD:S000002848\tDOT1\tSaccharomyces cerevisiae\t\t\t\timplicated_via_orthology\tDOID:9953\tB- and T-cell mixed leukemia\tIEA\tAlliance\tMGI:6194238\n" +
                 "ZFIN:ZDB-GENE-060503-341\tdot1l\tDanio rerio\t\t\t\timplicated_via_orthology\tDOID:9953\tB- and T-cell mixed leukemia\tIEA\tAlliance\tMGI:6194238\n" +
-                "HGNC:24948\tDOT1L\tHomo sapiens\t\t\t\tis_implicated_in\tDOID:9953\tB- and T-cell mixed leukemia\tIDA\tnull\tPMID:23801631\n" +
+                "HGNC:24948\tDOT1L\tHomo sapiens\t\t\t\tis_implicated_in\tDOID:9953\tB- and T-cell mixed leukemia\tIDA\tHuman\tPMID:23801631\n" +
                 "MGI:2143886\tDot1l\tMus musculus\t\t\t\timplicated_via_orthology\tDOID:9953\tB- and T-cell mixed leukemia\tIEA\tAlliance\tMGI:6194238\n" +
                 "RGD:1306644\tDot1l\tRattus norvegicus\t\t\t\timplicated_via_orthology\tDOID:9953\tB- and T-cell mixed leukemia\tIEA\tAlliance\tMGI:6194238\n" +
                 "FB:FBgn0000629\tE(z)\tDrosophila melanogaster\t\t\t\timplicated_via_orthology\tDOID:9952\tacute lymphocytic leukemia\tIEA\tAlliance\tMGI:6194238\n" +
                 "ZFIN:ZDB-GENE-041111-259\tezh2\tDanio rerio\t\t\t\timplicated_via_orthology\tDOID:9952\tacute lymphocytic leukemia\tIEA\tAlliance\tMGI:6194238\n" +
                 "HGNC:3527\tEZH2\tHomo sapiens\t\t\t\timplicated_via_orthology\tDOID:9952\tacute lymphocytic leukemia\tIEA\tAlliance\tMGI:6194238\n" +
-                "MGI:107940\tEzh2\tMus musculus\tMGI:3823218\tEzh2<sup>tm2.1Sho</sup>\tallele\tis_implicated_in\tDOID:9952\tacute lymphocytic leukemia\tTAS\tnull\tPMID:22431509\n";
+                "MGI:107940\tEzh2\tMus musculus\tMGI:3823218\tEzh2<sup>tm2.1Sho</sup>\tallele\tis_implicated_in\tDOID:9952\tacute lymphocytic leukemia\tTAS\tMGI\tPMID:22431509\n";
         assertEquals(result, output);
 
     }
@@ -183,7 +183,7 @@ public class DiseaseTest {
         List<String> lines = Arrays.asList(output.split("\n"));
         assertNotNull(lines);
         String result = "Gene ID\tGene Symbol\tSpecies\tGenetic Entity ID\tGenetic Entity Symbol\tGenetic Entity Type\tAssociation Type\tDisease ID\tDisease Name\tEvidence Code\tSource\tReferences\n" +
-                "WB:WBGene00000469\tces-2\tCaenorhabditis elegans\t\t\t\tis_implicated_in\tDOID:9952\tacute lymphocytic leukemia\tIMP\tnull\tPMID:8700229\n" +
+                "WB:WBGene00000469\tces-2\tCaenorhabditis elegans\t\t\t\tis_implicated_in\tDOID:9952\tacute lymphocytic leukemia\tIMP\tWB\tPMID:8700229\n" +
                 "WB:WBGene00000913\tdaf-18\tCaenorhabditis elegans\t\t\t\timplicated_via_orthology\tDOID:9952\tacute lymphocytic leukemia\tIEA\tAlliance\tMGI:6194238\n" +
                 "WB:WBGene00021474\tdot-1.1\tCaenorhabditis elegans\t\t\t\timplicated_via_orthology\tDOID:9953\tB- and T-cell mixed leukemia\tIEA\tAlliance\tMGI:6194238\n" +
                 "WB:WBGene00010067\tdot-1.2\tCaenorhabditis elegans\t\t\t\timplicated_via_orthology\tDOID:9953\tB- and T-cell mixed leukemia\tIEA\tAlliance\tMGI:6194238\n" +
