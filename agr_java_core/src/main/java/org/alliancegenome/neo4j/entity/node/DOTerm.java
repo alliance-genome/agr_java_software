@@ -24,7 +24,7 @@ public class DOTerm extends SimpleTerm {
 
     public static final String HIGH_LEVEL_TERM_LIST_SLIM = "DO_AGR_slim";
 
-    @JsonView({View.DiseaseAPI.class, View.Default.class})
+    @JsonView({View.API.class})
     @JsonProperty(value = "url")
     private String doUrl;
     private String doDisplayId;
