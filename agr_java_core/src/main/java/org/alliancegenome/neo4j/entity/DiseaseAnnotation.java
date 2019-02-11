@@ -2,6 +2,7 @@ package org.alliancegenome.neo4j.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,6 +13,7 @@ import java.util.List;
 
 @Getter
 @Setter
+@JsonPropertyOrder({ "disease", "gene", "allele", "geneticEntityType", "associationType", "evidenceCodes", "source", "publications" })
 public class DiseaseAnnotation implements Comparable<DiseaseAnnotation> {
 
     @JsonView({View.DiseaseAnnotation.class})

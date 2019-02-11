@@ -28,7 +28,7 @@ public class DiseaseEntityJoin extends EntityJoin {
     public Source getSource() {
         SourceService service = new SourceService();
         Optional<Source> first = service.getAllSources(disease).stream()
-                .filter(source -> source.getName().equals(dataProvider))
+                .filter(source -> source.getSpeciesType().getDisplayName().equalsIgnoreCase(dataProvider))
                 .findFirst();
         if(first.isPresent()) return first.get();
         Source source = new Source();

@@ -114,10 +114,6 @@ public class DOTerm extends SimpleTerm {
         return map;
     }
 
-    public void setDoId(String doId) {
-        this.doId = doId;
-    }
-
     @Override
     public String toString() {
         return primaryKey + ":" + name;
