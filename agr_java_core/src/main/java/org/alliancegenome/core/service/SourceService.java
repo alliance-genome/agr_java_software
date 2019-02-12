@@ -28,6 +28,7 @@ public class SourceService {
                 .map(speciesType -> {
                     Source source = new Source();
                     source.setName(speciesType.getDisplayName());
+                    source.setSpeciesType(speciesType);
                     if (speciesType.equals(SpeciesType.HUMAN)) {
                         source.setName(SpeciesType.RAT.getDisplayName());
                         source.setUrl(doTerm.getHumanOnlyRgdLink());
