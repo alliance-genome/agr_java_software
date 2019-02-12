@@ -72,7 +72,7 @@ public class ExpressionController implements ExpressionRESTInterface {
         response.setTotal(result.getTotal());
         response.setHttpServletRequest(request);
 
-        return mapper.writerWithView(View.Expression.class).writeValueAsString(response);
+        return mapper.writerWithView(View.ExpressionAPI.class).writeValueAsString(response);
     }
 
     private JsonResultResponse<ExpressionDetail> getExpressionDetailJsonResultResponse(List<String> geneIDs, String termID, String filterSpecies, String filterGene, String filterStage, String filterAssay, String filterReference, String filterTerm, String filterSource, int limit, int page, String sortBy, String asc) {
@@ -120,7 +120,7 @@ public class ExpressionController implements ExpressionRESTInterface {
         response.setResults(result.getResults());
         response.setTotal(result.getTotal());
         response.calculateRequestDuration(startDate);
-        return mapper.writerWithView(View.Expression.class).writeValueAsString(response);
+        return mapper.writerWithView(View.ExpressionAPI.class).writeValueAsString(response);
     }
 
     @Override

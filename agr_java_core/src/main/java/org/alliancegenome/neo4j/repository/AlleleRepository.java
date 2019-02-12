@@ -25,7 +25,7 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
         query += " OPTIONAL MATCH p3=(do:DOTerm)-[:ASSOCIATION]-(diseaseJoin:DiseaseEntityJoin)-[:EVIDENCE]-(ea)";
         query += " OPTIONAL MATCH p4=(a:Allele)-[:ALSO_KNOWN_AS]-(synonym:Synonym)";
         query += " OPTIONAL MATCH p5=(a:Allele)-[:ASSOCIATION]-(diseaseJoin:DiseaseEntityJoin)-[:ASSOCIATION]-(g:Gene)";
-        query += " OPTIONAL MATCH p6=(a:Allele)-[:HAS_PHENOTYPE]-(termName:Phenotype)";
+        query += " OPTIONAL MATCH p6=(a:Allele)-[:HAS_PHENOTYPE]-(termName:PhenotypeAPI)";
         query += " OPTIONAL MATCH crossRef=(a:Allele)-[:CROSS_REFERENCE]-(c:CrossReference)";
         query += " RETURN p1, p2, p3, p4, p5, p6, crossRef";
         

@@ -21,7 +21,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
 
-@Api(value = "Interaction Tests")
+@Api(value = "InteractionAPI Tests")
 @Ignore
 public class InteractionsTest {
 
@@ -43,7 +43,7 @@ public class InteractionsTest {
         mapper.disable(MapperFeature.DEFAULT_VIEW_INCLUSION);
         mapper.setSerializationInclusion(Include.NON_NULL);
 
-        String json = mapper.writerWithView(View.Interaction.class).writeValueAsString(list);
+        String json = mapper.writerWithView(View.InteractionAPI.class).writeValueAsString(list);
 
         log.info("Json: " + json);
         log.info("Count: " + list.size());

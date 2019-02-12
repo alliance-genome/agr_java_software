@@ -12,7 +12,7 @@ public class PhenotypeAnnotationToTdfTranslator {
     public String getAllRows(List<PhenotypeAnnotation> annotations) {
         StringBuilder builder = new StringBuilder();
         StringJoiner headerJoiner = new StringJoiner("\t");
-        headerJoiner.add("Phenotype");
+        headerJoiner.add("PhenotypeAPI");
         headerJoiner.add("Genetic Entity ID");
         headerJoiner.add("Genetic Entity Symbol");
         headerJoiner.add("Genetic Entity Type");

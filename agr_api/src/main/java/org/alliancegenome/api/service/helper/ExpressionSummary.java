@@ -14,9 +14,9 @@ import lombok.Setter;
 @Getter
 public class ExpressionSummary {
 
-    @JsonView({ View.Expression.class})
+    @JsonView({ View.ExpressionAPI.class})
     private int totalAnnotations;
-    @JsonView({ View.Expression.class})
+    @JsonView({ View.ExpressionAPI.class})
     private List<ExpressionSummaryGroup> groups = new ArrayList<>();
 
     public void addGroup(ExpressionSummaryGroup group){

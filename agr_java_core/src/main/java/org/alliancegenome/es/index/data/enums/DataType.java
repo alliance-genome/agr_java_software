@@ -12,8 +12,8 @@ public enum DataType {
     ORTHO("Orthology", "json", true, true, true),
     ALLELE("Allele Information", "json", true, true, true),
     GENOTYPE("Genotype Information File", "json", true, true, true),
-    PHENOTYPE("Phenotype Information File", "json", true, true, true),
-    EXPRESSION("Expression Information File", "json", true, true, true),
+    PHENOTYPE("PhenotypeAPI Information File", "json", true, true, true),
+    EXPRESSION("ExpressionAPI Information File", "json", true, true, true),
     
     // No schema required for these but will still stick them in the correct schema directory
     GAF("Gene Ontology Annotations File", "gaf", true, false, false),

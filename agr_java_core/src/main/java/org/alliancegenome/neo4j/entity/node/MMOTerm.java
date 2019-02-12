@@ -17,9 +17,9 @@ import lombok.Setter;
 public class MMOTerm extends Ontology {
 
     private String primaryKey;
-    @JsonView(View.Expression.class)
+    @JsonView(View.ExpressionAPI.class)
     private String name;
-    @JsonView(View.Expression.class)
+    @JsonView(View.ExpressionAPI.class)
     @JsonProperty(value = "displaySynonym")
     private String display_synonym;
 

@@ -17,12 +17,12 @@ import lombok.Setter;
 @Getter @Setter
 public class UBERONTerm extends Ontology {
 
-    @JsonView(View.Expression.class)
+    @JsonView(View.ExpressionAPI.class)
     private String name;
     private String description;
     private String href;
     private String type;
-    @JsonView(View.Expression.class)
+    @JsonView(View.ExpressionAPI.class)
     private String primaryKey;
     private String is_obsolete;
     private List<String> subset;

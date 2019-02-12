@@ -20,7 +20,7 @@ public class PhenotypeRepository extends Neo4jRepository<Phenotype> {
     }
 
     public List<String> getAllPhenotypeKeys() {
-        String query = "MATCH (termName:Phenotype) return termName.primaryKey";
+        String query = "MATCH (termName:PhenotypeAPI) return termName.primaryKey";
         log.debug("Starting Query: " + query);
         Result r = queryForResult(query);
         Iterator<Map<String, Object>> i = r.iterator();
@@ -37,7 +37,7 @@ public class PhenotypeRepository extends Neo4jRepository<Phenotype> {
 
     public Phenotype getPhenotypeTerm(String primaryKey) {
 
-        String cypher = "MATCH p0=(termName:Phenotype)--(phenotypeEntityJoin:PhenotypeEntityJoin)-[:EVIDENCE]-(publications:Publication)" +
+        String cypher = "MATCH p0=(termName:PhenotypeAPI)--(phenotypeEntityJoin:PhenotypeEntityJoin)-[:EVIDENCE]-(publications:Publication)" +
                 " WHERE termName.primaryKey = {primaryKey}   " +
                 " OPTIONAL MATCH p2=(phenotypeEntityJoin)--(g:Gene)-[:FROM_SPECIES]-(species:Species)" +
                 " OPTIONAL MATCH p4=(phenotypeEntityJoin)--(feature:Feature)" +
@@ -65,7 +65,7 @@ public class PhenotypeRepository extends Neo4jRepository<Phenotype> {
         HashMap<String, String> bindingValueMap = new HashMap<>();
         bindingValueMap.put("geneID", geneID);
 
-        String cypher = "MATCH p0=(phenotype:Phenotype)--(phenotypeEntityJoin:PhenotypeEntityJoin)-[:EVIDENCE]-(publication:Publication), " +
+        String cypher = "MATCH p0=(phenotype:PhenotypeAPI)--(phenotypeEntityJoin:PhenotypeEntityJoin)-[:EVIDENCE]-(publication:Publication), " +
                 "        p2=(phenotypeEntityJoin)--(gene:Gene)-[:FROM_SPECIES]-(geneSpecies:Species), p2a=(gene)--(geneCrossReference:CrossReference) ";
 
         String cypherFeatureOptional = "OPTIONAL MATCH p4=(phenotypeEntityJoin)--(feature:Feature)--(crossReference:CrossReference), " +
@@ -135,7 +135,7 @@ public class PhenotypeRepository extends Neo4jRepository<Phenotype> {
         HashMap<String, String> bindingValueMap = new HashMap<>();
         bindingValueMap.put("geneID", geneID);
 
-        String baseCypher = "MATCH p0=(phenotype:Phenotype)--(phenotypeEntityJoin:PhenotypeEntityJoin)-[:EVIDENCE]-(publication:Publication), " +
+        String baseCypher = "MATCH p0=(phenotype:PhenotypeAPI)--(phenotypeEntityJoin:PhenotypeEntityJoin)-[:EVIDENCE]-(publication:Publication), " +
                 "        p2=(phenotypeEntityJoin)--(gene:Gene) " +
                 "where gene.primaryKey = {geneID} ";
         // get feature-less phenotypes
@@ -187,7 +187,7 @@ public class PhenotypeRepository extends Neo4jRepository<Phenotype> {
     }
 
     private String getPhenotypeBaseQuery() {
-        return "MATCH p0=(phenotype:Phenotype)--(phenotypeEntityJoin:PhenotypeEntityJoin)-[:EVIDENCE]-(publication:Publication), " +
+        return "MATCH p0=(phenotype:PhenotypeAPI)--(phenotypeEntityJoin:PhenotypeEntityJoin)-[:EVIDENCE]-(publication:Publication), " +
                 "p2=(phenotypeEntityJoin)--(gene:Gene)-[:FROM_SPECIES]-(species:Species) " +
                 "where gene.primaryKey = {geneID} " +
                 "OPTIONAL MATCH p4=(phenotypeEntityJoin)--(feature:Feature) ";

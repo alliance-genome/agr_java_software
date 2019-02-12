@@ -59,7 +59,7 @@ public interface GeneRESTInterface {
 
     @GET
     @Path("/{id}/phenotypes")
-    @JsonView(value = {View.Phenotype.class})
+    @JsonView(value = {View.PhenotypeAPI.class})
     @ApiOperation(value = "Retrieve phenotype term name annotations for a given gene")
     JsonResultResponse<PhenotypeAnnotation> getPhenotypeAnnotations(
             @ApiParam(name = "id", value = "Gene by ID: e.g. ZFIN:ZDB-GENE-990415-8", required = true, type = "String")
@@ -125,14 +125,14 @@ public interface GeneRESTInterface {
     @GET
     @Path("/{id}/interactions")
     @ApiOperation(value = "Retrieve interations for a given gene")
-    @JsonView(value = {View.Interaction.class})
+    @JsonView(value = {View.InteractionAPI.class})
     JsonResultResponse<InteractionGeneJoin> getInteractions(
             @ApiParam(name = "id", value = "Gene ID", required = true)
             @PathParam("id") String id);
 
     @GET
     @Path("/{id}/expression-summary")
-    @JsonView(value = {View.Expression.class})
+    @JsonView(value = {View.ExpressionAPI.class})
     @ApiOperation(value = "Retrieve all expression records of a given gene")
     ExpressionSummary getExpressionSummary(
             @ApiParam(name = "id", value = "Gene by ID, e.g. 'RGD:2129' or 'ZFIN:ZDB-GENE-990415-72 fgf8a'", required = true, type = "String")
@@ -141,7 +141,7 @@ public interface GeneRESTInterface {
 
     @GET
     @Path("/{id}/interaction-summary")
-    @JsonView(value = {View.Expression.class})
+    @JsonView(value = {View.ExpressionAPI.class})
     @ApiOperation(value = "Retrieve all expression records of a given gene")
     EntitySummary  getInteractionSummary(
             @ApiParam(name = "id", value = "Gene by ID, e.g. 'RGD:2129' or 'ZFIN:ZDB-GENE-990415-72 fgf8a'", required = true, type = "String")

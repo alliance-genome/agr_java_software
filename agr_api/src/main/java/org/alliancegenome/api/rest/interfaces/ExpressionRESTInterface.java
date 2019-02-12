@@ -21,7 +21,7 @@ import io.swagger.annotations.ApiParam;
 
 
 @Path("/expression")
-@Api(value = "Expression")
+@Api(value = "ExpressionAPI")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public interface ExpressionRESTInterface {

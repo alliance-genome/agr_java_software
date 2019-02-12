@@ -11,12 +11,12 @@ import lombok.Setter;
 @NodeEntity
 @Getter @Setter
 public class MITerm extends Ontology {
-    @JsonView({View.Interaction.class})
+    @JsonView({View.InteractionAPI.class})
     private String primaryKey;
-    @JsonView({View.Interaction.class})
+    @JsonView({View.InteractionAPI.class})
     private String label;
-    @JsonView({View.Interaction.class})
+    @JsonView({View.InteractionAPI.class})
     private String definition;
-    @JsonView({View.Interaction.class})
+    @JsonView({View.InteractionAPI.class})
     private String url;
 }

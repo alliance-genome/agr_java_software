@@ -15,32 +15,32 @@ import lombok.Setter;
 @NodeEntity
 public class CrossReference extends Neo4jEntity {
 
-    @JsonView({View.Default.class})
+    @JsonView({View.API.class})
     @JsonProperty(value="url")
     private String crossRefCompleteUrl;
     
-    @JsonView({View.Interaction.class, View.Expression.class})
+    @JsonView({View.InteractionAPI.class, View.ExpressionAPI.class})
     private String localId;
     
-    @JsonView({View.Interaction.class, View.Expression.class})
+    @JsonView({View.InteractionAPI.class, View.ExpressionAPI.class})
     private String globalCrossRefId;
     
-    @JsonView({View.Interaction.class, View.Expression.class})
+    @JsonView({View.InteractionAPI.class, View.ExpressionAPI.class})
     private String prefix;
     
-    @JsonView({View.Phenotype.class, View.Interaction.class, View.Expression.class})
+    @JsonView({View.PhenotypeAPI.class, View.InteractionAPI.class, View.ExpressionAPI.class})
     private String name;
     
-    @JsonView({View.Interaction.class, View.Expression.class})
+    @JsonView({View.InteractionAPI.class, View.ExpressionAPI.class})
     private String displayName;
     
-    @JsonView({View.Interaction.class, View.Expression.class})
+    @JsonView({View.InteractionAPI.class, View.ExpressionAPI.class})
     private String primaryKey;
     
-    @JsonView({View.Interaction.class, View.Expression.class})
+    @JsonView({View.InteractionAPI.class, View.ExpressionAPI.class})
     private String crossRefType;
 
-    @JsonView({View.Default.class})
+    @JsonView({View.API.class})
     @JsonProperty(value="name")
     public String getDisplayNameAPI() {
         if(displayName != null && displayName.length() > 0) {

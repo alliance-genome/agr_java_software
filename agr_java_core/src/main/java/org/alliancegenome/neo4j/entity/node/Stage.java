@@ -17,10 +17,10 @@ import lombok.Setter;
 @Setter
 public class Stage extends Neo4jEntity implements Comparable<Stage> {
 
-    @JsonView({View.Orthology.class, View.Interaction.class, View.Expression.class})
+    @JsonView({View.Orthology.class, View.InteractionAPI.class, View.ExpressionAPI.class})
     @JsonProperty("stageID")
     private String primaryKey;
-    @JsonView({View.Expression.class})
+    @JsonView({View.ExpressionAPI.class})
     private String name;
 
     @Override

@@ -19,18 +19,18 @@ import lombok.Setter;
 @Getter
 public class ExpressionDetail {
 
-    @JsonView(View.Expression.class)
+    @JsonView(View.ExpressionAPI.class)
     private Gene gene;
-    @JsonView(View.Expression.class)
+    @JsonView(View.ExpressionAPI.class)
     private String termName;
-    @JsonView(View.Expression.class)
+    @JsonView(View.ExpressionAPI.class)
     private Stage stage;
-    @JsonView(View.Expression.class)
+    @JsonView(View.ExpressionAPI.class)
     private MMOTerm assay;
-    @JsonView(View.Expression.class)
+    @JsonView(View.ExpressionAPI.class)
     private TreeSet<Publication> publications;
-    @JsonView(View.Expression.class)
+    @JsonView(View.ExpressionAPI.class)
     private String dataProvider;
-    @JsonView(View.Expression.class)
+    @JsonView(View.ExpressionAPI.class)
     private List<CrossReference> crossReferences;
 }

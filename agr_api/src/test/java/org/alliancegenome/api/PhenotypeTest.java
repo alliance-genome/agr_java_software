@@ -24,7 +24,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
-@Api(value = "Phenotype Tests")
+@Api(value = "PhenotypeAPI Tests")
 @Ignore
 public class PhenotypeTest {
 

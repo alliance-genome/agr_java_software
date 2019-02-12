@@ -17,7 +17,7 @@ import org.alliancegenome.es.model.search.SearchApiResponse;
 import io.swagger.annotations.Api;
 
 @Path("/termName")
-@Api(value = "Phenotype Search")
+@Api(value = "PhenotypeAPI Search")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public interface PhenotypeRESTInterface {

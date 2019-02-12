@@ -13,11 +13,11 @@ import lombok.Setter;
 @Setter
 @Getter
 public class ExpressionSummaryGroup {
-    @JsonView({View.Expression.class})
+    @JsonView({View.ExpressionAPI.class})
     private String name;
-    @JsonView({View.Expression.class})
+    @JsonView({View.ExpressionAPI.class})
     private long totalAnnotations;
-    @JsonView({View.Expression.class})
+    @JsonView({View.ExpressionAPI.class})
     private List<ExpressionSummaryGroupTerm> terms;
 
     public void addGroupTerm(ExpressionSummaryGroupTerm term) {

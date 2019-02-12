@@ -305,7 +305,7 @@ public class GeneTest {
         int limit = 15;
         String responseString = controller.getExpressionAnnotations(Arrays.asList(geneIDs), termID, null, null, null, null, null, null, null, limit, 1, null, "true");
         JsonResultResponse<ExpressionDetail> response = mapper.readValue(responseString, JsonResultResponse.class);
-        assertThat("matches found for gene MGI:109583'", response.getResults().size(), equalTo(3));
+        assertThat("matches found for gene RGD:2129'", response.getResults().size(), equalTo(3));
 
         termID = "GO:0032991";
         responseString = controller.getExpressionAnnotations(Arrays.asList(geneIDs), termID, null, null, null, null, null, null, null, limit, 1, null, "true");

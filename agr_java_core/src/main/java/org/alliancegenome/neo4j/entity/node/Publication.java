@@ -19,17 +19,17 @@ import lombok.Setter;
 @Setter
 public class Publication extends Neo4jEntity implements Comparable<Publication> {
 
-    @JsonView({View.Interaction.class, View.Expression.class})
+    @JsonView({View.InteractionAPI.class, View.ExpressionAPI.class})
     private String primaryKey;
-    @JsonView({View.Interaction.class, View.Expression.class})
+    @JsonView({View.InteractionAPI.class, View.ExpressionAPI.class})
     private String pubMedId;
-    @JsonView({View.Interaction.class, View.Expression.class})
+    @JsonView({View.InteractionAPI.class, View.ExpressionAPI.class})
     private String pubMedUrl;
-    @JsonView({View.Interaction.class, View.Expression.class})
+    @JsonView({View.InteractionAPI.class, View.ExpressionAPI.class})
     private String pubModId;
-    @JsonView({View.Interaction.class, View.Expression.class})
+    @JsonView({View.InteractionAPI.class, View.ExpressionAPI.class})
     private String pubModUrl;
-    @JsonView({View.Expression.class})
+    @JsonView({View.ExpressionAPI.class})
     private String pubId;
 
     @Relationship(type = "ANNOTATED_TO")
@@ -43,7 +43,7 @@ public class Publication extends Neo4jEntity implements Comparable<Publication> 
         }
     }
 
-    @JsonView({View.Phenotype.class, View.Expression.class, View.DiseaseAnnotation.class})
+    @JsonView({View.PhenotypeAPI.class, View.ExpressionAPI.class, View.DiseaseAnnotation.class})
     @JsonProperty("id")
     private String getPublicationId() {
         if (StringUtils.isNotEmpty(pubMedId)) {
@@ -53,7 +53,7 @@ public class Publication extends Neo4jEntity implements Comparable<Publication> 
         }
     }
 
-    @JsonView({View.Phenotype.class, View.Expression.class, View.DiseaseAnnotation.class})
+    @JsonView({View.PhenotypeAPI.class, View.ExpressionAPI.class, View.DiseaseAnnotation.class})
     @JsonProperty("url")
     private String getPublicationUrl() {
         if (StringUtils.isNotEmpty(pubMedId)) {

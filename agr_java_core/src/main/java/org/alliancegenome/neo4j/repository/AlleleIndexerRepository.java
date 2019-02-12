@@ -74,7 +74,7 @@ public class AlleleIndexerRepository extends Neo4jRepository {
 
 
     public Map<String, Set<String>> getPhenotypeStatementsMap(String species) {
-        String query = "MATCH (species:Species)--(gene:Gene)-[:IS_ALLELE_OF]-(a:Allele)--(phenotype:Phenotype) ";
+        String query = "MATCH (species:Species)--(gene:Gene)-[:IS_ALLELE_OF]-(a:Allele)--(phenotype:PhenotypeAPI) ";
         query += getSpeciesWhere(species);
         query += " RETURN distinct a.primaryKey, phenotype.phenotypeStatement ";
 

@@ -10,11 +10,11 @@ import lombok.Setter;
 @Setter
 @Getter
 public class ExpressionSummaryGroupTerm {
-    @JsonView({ View.Expression.class})
+    @JsonView({ View.ExpressionAPI.class})
     private String id;
-    @JsonView({ View.Expression.class})
+    @JsonView({ View.ExpressionAPI.class})
     private String name;
-    @JsonView({ View.Expression.class})
+    @JsonView({ View.ExpressionAPI.class})
     private int numberOfAnnotations;
 
     @Override

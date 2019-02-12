@@ -105,14 +105,14 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
         log.info("Building gene -> whereExpressed map");
         geneDocumentCache.setWhereExpressed(getWhereExpressedMap(species));
 
-        log.info("Building gene -> Expression GO CC Ribbon map");
+        log.info("Building gene -> ExpressionAPI GO CC Ribbon map");
         geneDocumentCache.setCellularComponentAgrSlim(getCellularComponentExpressionAgrSlimMap(species));
-        log.info("Building gene -> Expression GO CC w/parents map");
+        log.info("Building gene -> ExpressionAPI GO CC w/parents map");
         geneDocumentCache.setCellularComponentExpressionWithParents(getCellularComponentExpressionWithParentsMap(species));
 
-        log.info("Building gene -> Expression Anatomy Ribbon map");
+        log.info("Building gene -> ExpressionAPI Anatomy Ribbon map");
         geneDocumentCache.setAnatomicalExpression(getAnatomicalExpressionMap(species));
-        log.info("Building gene -> Expression Anatomy w/parents map");
+        log.info("Building gene -> ExpressionAPI Anatomy w/parents map");
         geneDocumentCache.setAnatomicalExpressionWithParents(getAnatomicalExpressionWithParentsMap(species));
 
 
@@ -146,7 +146,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
 
 
     private Map<String,Set<String>> getPhenotypeStatementMap(String species) {
-        String query = "MATCH (species:Species)--(gene:Gene)--(phenotype:Phenotype) ";
+        String query = "MATCH (species:Species)--(gene:Gene)--(phenotype:PhenotypeAPI) ";
         query += getSpeciesWhere(species);
         query += " RETURN distinct gene.primaryKey, phenotype.phenotypeStatement ";
         return getMapSetForQuery(query, "gene.primaryKey", "phenotype.phenotypeStatement", getSpeciesParams(species));
