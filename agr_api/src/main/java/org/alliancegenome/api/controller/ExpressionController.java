@@ -1,15 +1,8 @@
 package org.alliancegenome.api.controller;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.alliancegenome.api.rest.interfaces.ExpressionRESTInterface;
 import org.alliancegenome.api.service.ExpressionService;
 import org.alliancegenome.api.service.helper.ExpressionDetail;
@@ -22,9 +15,14 @@ import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.alliancegenome.neo4j.view.BaseFilter;
 import org.alliancegenome.neo4j.view.View;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class ExpressionController implements ExpressionRESTInterface {
 
@@ -33,21 +31,21 @@ public class ExpressionController implements ExpressionRESTInterface {
 
     private ExpressionService expressionService = new ExpressionService();
     private GeneRepository geneRepository = new GeneRepository();
-    
+
     @Override
-    public String getExpressionAnnotations(List<String> geneIDs,
-                                           String termID,
-                                           String filterSpecies,
-                                           String filterGene,
-                                           String filterStage,
-                                           String filterAssay,
-                                           String filterReference,
-                                           String filterTerm,
-                                           String filterSource,
-                                           int limit,
-                                           int page,
-                                           String sortBy,
-                                           String asc) throws JsonProcessingException {
+    public JsonResultResponse<ExpressionDetail> getExpressionAnnotations(List<String> geneIDs,
+                                                                         String termID,
+                                                                         String filterSpecies,
+                                                                         String filterGene,
+                                                                         String filterStage,
+                                                                         String filterAssay,
+                                                                         String filterReference,
+                                                                         String filterTerm,
+                                                                         String filterSource,
+                                                                         int limit,
+                                                                         int page,
+                                                                         String sortBy,
+                                                                         String asc) {
 
         LocalDateTime startDate = LocalDateTime.now();
         JsonResultResponse<ExpressionDetail> result = getExpressionDetailJsonResultResponse(
@@ -71,8 +69,7 @@ public class ExpressionController implements ExpressionRESTInterface {
         response.calculateRequestDuration(startDate);
         response.setTotal(result.getTotal());
         response.setHttpServletRequest(request);
-
-        return mapper.writerWithView(View.Expression.class).writeValueAsString(response);
+        return response;
     }
 
     private JsonResultResponse<ExpressionDetail> getExpressionDetailJsonResultResponse(List<String> geneIDs, String termID, String filterSpecies, String filterGene, String filterStage, String filterAssay, String filterReference, String filterTerm, String filterSource, int limit, int page, String sortBy, String asc) {

@@ -22,15 +22,13 @@ class DiseaseAnnotationSpec extends Specification {
         defLink == disease.definitionLinks.first()
         parents == disease.parents.size()
         children == disease.children.size()
-        crossRefs == disease.crossReferences.keySet().toList()[0]
-        crossRefsOther < disease.crossReferences[crossRefs].size()
-        crossRefOtherName == disease.crossReferences[crossRefs][0].name
-        disease.crossReferences[crossRefs][0].url.startsWith(crossRefOtherUrl)
-        disease.url.contains(doUrl)
+        disease.crossReferences.keySet().toList()[0]
+        disease.crossReferences[crossRefs].size()
+        disease.crossReferences[crossRefs][0].name
         sources == disease.sources.size()
         where:
-        query       | id          | name                         | parents | children | doUrl              | sources | crossRefs | crossRefsOther | crossRefOtherName | crossRefOtherUrl | definition                 | defLink
-        "DOID:9952" | "DOID:9952" | "acute lymphocytic leukemia" | 1       | 4        | "disease-ontology" | 6       | "other"   | 10             | "NCI:C3167"       | "https://ncit.n" | "A lymphoblastic leukemia" | "http://www.cancer.gov/dictionary?CdrID=46332"
+        query       | id          | name                         | parents | children | doUrl              | sources | crossRefs | crossRefsOther | definition                 | defLink
+        "DOID:9952" | "DOID:9952" | "acute lymphocytic leukemia" | 1       | 4        | "disease-ontology" | 6       | "other"   | 10             | "A lymphoblastic leukemia" | "http://www.cancer.gov/dictionary?CdrID=46332"
 
     }
 
