@@ -12,7 +12,7 @@ public class View {
     public static class API extends Default { }
     
     public static class Orthology extends Default { }
-    public static class Phenotype extends Default { }
+    public static class PhenotypeAPI extends API { }
     public static class OrthologyMethod extends Default { }
     public static class Expression extends API { }
     public static class DiseaseAnnotation extends API { }

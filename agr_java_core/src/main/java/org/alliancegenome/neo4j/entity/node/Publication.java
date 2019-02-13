@@ -43,7 +43,7 @@ public class Publication extends Neo4jEntity implements Comparable<Publication> 
         }
     }
 
-    @JsonView({View.Phenotype.class, View.API.class, View.DiseaseAnnotation.class})
+    @JsonView({View.API.class, View.DiseaseAnnotation.class})
     @JsonGetter("url")
     private String getPubUrl() {
         if (StringUtils.isNotEmpty(pubMedId)) {

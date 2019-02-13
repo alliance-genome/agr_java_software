@@ -15,7 +15,7 @@ import lombok.Setter;
 @NodeEntity
 public class CrossReference extends Neo4jEntity {
 
-    @JsonView({View.API.class, View.Phenotype.class, View.Interaction.class, View.Expression.class})
+    @JsonView({View.API.class, View.Interaction.class, View.Expression.class})
     @JsonProperty(value="url")
     private String crossRefCompleteUrl;
     
@@ -28,7 +28,7 @@ public class CrossReference extends Neo4jEntity {
     @JsonView({View.Interaction.class, View.Expression.class})
     private String prefix;
     
-    @JsonView({View.Phenotype.class, View.Interaction.class, View.Expression.class})
+    @JsonView({View.Interaction.class, View.Expression.class})
     private String name;
     
     @JsonView({View.Interaction.class, View.Expression.class})
