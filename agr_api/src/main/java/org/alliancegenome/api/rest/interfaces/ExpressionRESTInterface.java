@@ -13,11 +13,15 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.alliancegenome.api.service.helper.ExpressionDetail;
+import org.alliancegenome.core.service.JsonResultResponse;
+import org.alliancegenome.neo4j.view.View;
 
 
 @Path("/expression")
@@ -28,8 +32,9 @@ public interface ExpressionRESTInterface {
 
     @GET
     @Path("")
+    @JsonView(value = {View.Expression.class})
     @ApiOperation(value = "Retrieve all expression records of a given set of geneMap")
-    String getExpressionAnnotations(
+    JsonResultResponse<ExpressionDetail> getExpressionAnnotations(
             @ApiParam(name = "geneID", value = "Gene by ID", required = true)
             @QueryParam("geneID") List<String> geneIDs,
             @ApiParam(name = "termID", value = "Term ID by which rollup should happen")

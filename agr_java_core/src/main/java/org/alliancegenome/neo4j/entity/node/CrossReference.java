@@ -19,25 +19,25 @@ public class CrossReference extends Neo4jEntity {
     @JsonProperty(value="url")
     private String crossRefCompleteUrl;
     
-    @JsonView({View.Interaction.class, View.Expression.class})
+    @JsonView({View.Interaction.class})
     private String localId;
     
-    @JsonView({View.Interaction.class, View.Expression.class})
+    @JsonView({View.Interaction.class})
     private String globalCrossRefId;
     
-    @JsonView({View.Interaction.class, View.Expression.class})
+    @JsonView({View.Interaction.class})
     private String prefix;
     
-    @JsonView({View.Interaction.class, View.Expression.class})
+    @JsonView({View.Interaction.class})
     private String name;
     
-    @JsonView({View.Interaction.class, View.Expression.class})
+    @JsonView({View.Interaction.class})
     private String displayName;
     
-    @JsonView({View.Interaction.class, View.Expression.class})
+    @JsonView({View.Interaction.class})
     private String primaryKey;
     
-    @JsonView({View.Interaction.class, View.Expression.class})
+    @JsonView({View.Interaction.class})
     private String crossRefType;
 
     @JsonView({View.API.class})
