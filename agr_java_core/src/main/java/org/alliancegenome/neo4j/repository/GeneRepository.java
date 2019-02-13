@@ -131,7 +131,6 @@ public class GeneRepository extends Neo4jRepository<Gene> {
             // the setter of gene.species is not called in neo4j...
             // Thus, setting it manually
             //join.getGene().setSpeciesName(join.getGene().getSpecies().getName());
-            join.getPublication().setPubIdFromId();
             joinList.add(join);
         }
 
@@ -188,7 +187,6 @@ public class GeneRepository extends Neo4jRepository<Gene> {
             // the setter of gene.species is not called in neo4j...
             // Thus, setting it manually
             //join.getGene().setSpeciesName(join.getGene().getSpecies().getName());
-            join.getPublication().setPubIdFromId();
             joinList.add(join);
         }
         return joinList;
