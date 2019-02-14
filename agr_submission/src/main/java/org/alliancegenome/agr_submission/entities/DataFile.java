@@ -43,5 +43,4 @@ public class DataFile extends BaseEntity {
     @JsonView({View.DataFileView.class})
     private DataSubType dataSubType;
 
-
 }
