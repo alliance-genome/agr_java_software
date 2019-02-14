@@ -1,18 +1,16 @@
 package org.alliancegenome.neo4j.view;
 
+import com.fasterxml.jackson.annotation.JsonView;
+import lombok.Getter;
+import lombok.Setter;
+import org.alliancegenome.neo4j.entity.node.Gene;
+
 import java.util.List;
 import java.util.Objects;
 
-import org.alliancegenome.neo4j.entity.node.Gene;
-
-import com.fasterxml.jackson.annotation.JsonView;
-
-import lombok.Getter;
-import lombok.Setter;
-
 @Setter
 @Getter
-public class OrthologView  {
+public class OrthologView {
 
     @JsonView(View.Orthology.class)
     private Gene gene;
@@ -39,7 +37,7 @@ public class OrthologView  {
     private Integer totalMethodCount;
 
     public void calculateCounts() {
-        methodCount=predictionMethodsMatched.size();
+        methodCount = predictionMethodsMatched.size();
         totalMethodCount = predictionMethodsMatched.size() + predictionMethodsNotMatched.size();
     }
 

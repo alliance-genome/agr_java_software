@@ -122,7 +122,7 @@ public class DiseaseTest {
         pagination.setSortBy("associationType");
 */
         JsonResultResponse<DiseaseAnnotation> response = geneService.getDiseaseAnnotationsByDisease(diseaseID, pagination);
-        assertResponse(response, 25, 66);
+        assertResponse(response, 25, 67);
 
         DiseaseAnnotation annotation = response.getResults().get(0);
         assertThat(annotation.getDisease().getName(), equalTo("acute lymphocytic leukemia"));
