@@ -17,7 +17,7 @@ public class RestDefaultObjectMapper implements ContextResolver<ObjectMapper> {
     public RestDefaultObjectMapper() {
         mapper = new ObjectMapper();
         mapper.configure(MapperFeature.DEFAULT_VIEW_INCLUSION, false);
-        mapper.getSerializerProvider().setNullValueSerializer(new NullSerializer());
+//        mapper.getSerializerProvider().setNullValueSerializer(new NullSerializer());
     }
 
     @Override
@@ -27,10 +27,11 @@ public class RestDefaultObjectMapper implements ContextResolver<ObjectMapper> {
 
 }
 
+/*
 class NullSerializer extends JsonSerializer<Object> {
 
     @Override
     public void serialize(Object o, com.fasterxml.jackson.core.JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException, com.fasterxml.jackson.core.JsonProcessingException {
         jsonGenerator.writeString("");
     }
-}
+}*/
