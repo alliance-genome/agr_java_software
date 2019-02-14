@@ -19,7 +19,7 @@ Valid values for SchemaVersion, DataType, and TaxonId can be found in the exampl
 
 - [Schema Version](#schema-version)
 - [Data Type](#data-type)
-- [TaxonId](#taxonid)
+- [Data SubType](#data-subtype)
 - [Examples](#examples)
   * [SchemaVersion DataType TaxonId String format](#schemaversion-datatype-taxonid-string-format)
   * [Valid examples for submitting files](#valid-examples-for-submitting-files)
@@ -43,35 +43,43 @@ This will be a key that is generated for the DQM's to use for uploading files.
 | 0.6.1.0 |
 | 0.7.0.0 |
 | 1.0.0.0 |
+| 1.0.0.1 |
+| 1.0.0.2 |
+| 1.0.0.3 |
+| 1.0.0.4 |
+| 1.0.0.5 |
+| 1.0.0.6 |
 | etc... |
 
 This will be the current release of the schema can be found in the [releases](https://github.com/alliance-genome/agr_schemas/releases) section for the schema repository. Schema does not follow the same release schedule as the main branches.
 
 ## Data Type
 
-| Data Type | What it means | Schema Validation File | Format | TaxonId Required | Validation Required | Mod Version Stored |
+| Data Type | What it means | Schema Validation File | Format | Data SubType Required | Validation Required |
 | --- | --- | --- | --- | --- | --- | --- |
-| BGI | Basic Gene information | geneMetadata.json | json | true | true | true |
-| DAF | Disease Annotations File (DAF) | diseaseMetaDataDefinition.json | json | true | true | true |
-| ORTHO | Orthology File | orthoHeader.json | json | true | true | true |
-| ALLELE | Allele File | alleleMetadata.json | json | true | true | true |
-| PHENOTYPE | Phenotype File | phenotypeMetaDataDefinition.json | json | true | true | true |
-| EXPRESSION | Expression File | wildtypeExpressionMetaDataDefinition.json | json | true | true | true |
-| INTERACTION | Expression File |  | json | false | false | false |
-| GAF | Gene Annotations File (GAF) | - | gaf | true | false | false |
-| GFF | Gene Feature File | - | gff | true | false | false |
+| BGI          | Basic Gene information            | /gene/geneMetaData.json                                   | json | true | true |
+| Disease      | Disease Ontology Annotations File | /disease/diseaseMetaDataDefinition.json                   | json | true | true |
+| Orthology    | Orthology Information File        | /orthology/orthologyMetaData.json                         | json | true | true |
+| Allele       | Allele Information File           | /allele/alleleMetaData.json                               | json | true | true |
+| Genotype     | Genotype Information File         | /genotype/genotypeMetaDataDefinition.json                 | json | true | true |
+| Phenotype    | Phenotype Information File        | /phenotype/phenotypeMetaDataDefinition.json               | json | true | true |
+| Expression   | Expression Information File       | /expression/wildtypeExpressionMetaDataDefinition.json     | json | true | true |
+| GAF          | Gene Ontology Annotations File    | - | tar.gz | true  | false |
+| GFF          | Gene Feature File                 | - | gff    | true  | false |
+| Ontology     | Ontology Information File         | - | obo    | true  | false |
+| Interactions | Consolidated Interactions File    | - | tar.gz | false | false |
 
-## TaxonId
+## Data SubType
 
-| Taxon Id | Mod Id | Mod Name |
-| --- | --- | --- |
-| 7227 | FB | Fly Base |
-| 9606 | Human | Human Supplied by RGD |
-| 10090 | MGD | Mouse Genome Database |
-| 10116 | RGD | Rat Genome Database |
-| 4932 | SGD | Saccharomyces Genome Database |
-| 6239 | WB | Worm Base |
-| 7955 | ZFIN | Zebrafish Information Network |
+| Name | Description |
+| --- | --- |
+| FB    | Fly Base |
+| Human | Human Supplied by RGD |
+| MGD   | Mouse Genome Database |
+| RGD   | Rat Genome Database |
+| SGD   | Saccharomyces Genome Database |
+| WB    | Worm Base |
+| ZFIN  | Zebrafish Information Network |
 
 ## Examples
 
@@ -81,8 +89,8 @@ Valid combinations for Schema-DataType-TaxonId are as follows:
 
 | Type | What does it mean? |
 | --------------- | --- |
-| SchemaVersion\_DataType\_TaxonId | Validation will occur for BGI, DAF, ORTHO, FEATURE and not for GAF and GFF, all files will be stored under the Schema Directory in S3. |
-| DataType\_TaxonId | Validation will occur for BGI, DAF, ORTHO, FEATURE and not for GAF and GFF, the current schema version will get looked up from Github. All files will be stored under the Schema Directory in S3.
+| SchemaVersion\_DataType\_DataSubType | Validation will occur for BGI, Disease, Orthology, Allele, Genotype, Phenotype, Expression and not for GAF, GFF, and Ontology, all files will be stored under the Schema Directory in S3. |
+| DataType\_DataSubType | Validation will occur for BGI, Disease, Orthology, Allele, Genotype, Phenotype, Expression and not for GAF, GFF, and Ontology, the current schema version will get looked up from Github. All files will be stored under the Schema Directory in S3.
 | SchemaVersion-DataType | Invalid (Data Type not found for: SchemaVersion) |
 
 ### Valid examples for submitting files
@@ -92,41 +100,41 @@ Valid combinations for Schema-DataType-TaxonId are as follows:
 	> curl \
 		-H "api_access_token: 2C07D715..." \
 		-X POST "https://www.alliancegenome.org/api/data/submit" \
-		-F "0.7.0_GFF_10090=@MGI_1.0.4_GFF.gff"
+		-F "0.7.0.0_GFF_MGD=@MGI_1.0.4_GFF.gff"
 	> curl \
 		-H "api_access_token: 2C07D715..." \
 		-X POST "https://www.alliancegenome.org/api/data/submit" \
-		-F "0.6.2_FEATURE_10090=@MGI_1.0.4_feature.json"
+		-F "0.6.2.0_Allele_MGD=@MGI_1.0.4_feature.json"
 	> curl \
 		-H "api_access_token: 2C07D715..." \
 		-X POST "https://www.alliancegenome.org/api/data/submit" \
-		-F "0.6.1_BGI_7227=@FB_1.0.4_BGI.json"
+		-F "0.6.1.0_BGI_FB=@FB_1.0.4_BGI.json"
 	> curl \
 		-H "api_access_token: 2C07D715..." \
 		-X POST "https://www.alliancegenome.org/api/data/submit" \
-		-F "GAF_10090=@gene_association_1.0.mgi.gaf"
+		-F "GAF_MGD=@gene_association_1.0.mgi.gaf"
 	> curl \
 		-H "api_access_token: 2C07D715..." \
 		-X POST "https://www.alliancegenome.org/api/data/submit" \
-		-F "FEATURE_7955=@ZFIN_1.0.4_feature.json"
+		-F "Allele_ZFIN=@ZFIN_1.0.4_feature.json"
 	
 #### Multiple files at a time
 
 	> curl \
 		-H "api_access_token: 2C07D715..." \
 		-X POST "https://www.alliancegenome.org/api/data/submit" \
-		-F "0.7.0_BGI_7227=@FB_1.0.4_BGI.json" \
-		-F "0.7.0_FEATURE_7227=@FB_1.0.4_feature.json" \
-		-F "0.7.0_DAF_7227=@FB_1.0.4_disease.json" \
-		-F "0.7.0_GFF_7227=@FB_1.0.4_GFF.gff"
+		-F "0.7.0.0_BGI_FB=@FB_1.0.4_BGI.json" \
+		-F "0.7.0.0_Allele_FB=@FB_1.0.4_feature.json" \
+		-F "0.7.0.0_Disease_FB=@FB_1.0.4_disease.json" \
+		-F "0.7.0.0_GFF_FB=@FB_1.0.4_GFF.gff"
 		
 	> curl \
 		-H "api_access_token: 2C07D715..." \
 		-X POST "https://www.alliancegenome.org/api/data/submit" \
-		-F "BGI_7227=@FB_1.0.4_BGI.json" \
-		-F "FEATURE_7227=@FB_1.0.4_feature.json" \
-		-F "DAF_7227=@FB_1.0.4_disease.json" \
-		-F "GFF_7227=@FB_1.0.4_GFF.gff"	
+		-F "BGI_FB=@FB_1.0.4_BGI.json" \
+		-F "Allele_FB=@FB_1.0.4_feature.json" \
+		-F "Disease_FB=@FB_1.0.4_disease.json" \
+		-F "GFF_FB=@FB_1.0.4_GFF.gff"	
 
 
 ## Return object
@@ -140,20 +148,20 @@ For the following command:
 	> curl \
 		-H "api_access_token: 2C07D715..." \
 		-X POST "https://www.alliancegenome.org/api/data/submit" \
-		-F "0.7.0_BGI_7227=@FB_1.0.4_BGI.json" \
-		-F "0.7.0_FEATURE_7227=@FB_1.0.4_feature.json" \
-		-F "0.7.0_DAF_7227=@FB_1.0.4_disease.json" \
-		-F "0.7.0_GFF_7227=@FB_1.0.4_GFF.gff"
+		-F "0.7.0.0_BGI_FB=@FB_1.0.4_BGI.json" \
+		-F "0.7.0.0_Allele_FB=@FB_1.0.4_feature.json" \
+		-F "0.7.0.0_Disease_FB=@FB_1.0.4_disease.json" \
+		-F "0.7.0.0_GFF_FB=@FB_1.0.4_GFF.gff"
 
 <details>
 <summary>View Response</summary>
 <pre>
 ```{
 	"fileStatus": {
-		"0.7.0_BGI_7227":"success",
-		"0.7.0_DAF_7227":"success",
-		"0.7.0_GFF_7227":"success",
-		"0.7.0_FEATURE_7227":"success"
+		"0.7.0.0_BGI_FB":"success",
+		"0.7.0.0_Disease_FB":"success",
+		"0.7.0.0_GFF_FB":"success",
+		"0.7.0.0_Allele_FB":"success"
 	},
 	"status":"success"
 }```
@@ -165,20 +173,20 @@ For the following command (Missing API Access Token):
 
 	> curl \
 		-X POST "https://www.alliancegenome.org/api/data/submit" \
-		-F "0.7.0_BGI_10090=@MGI_1.0.4_BGI.json" \
-		-F "0.7.0_FEATURE_10090=@MGI_1.0.4_feature.json" \
-		-F "0.7.0_DAF_10090=@MGI_1.0.4_disease.json" \
-		-F "0.7.0_GFF_10090=@MGI_1.0.4_GFF.gff" 
+		-F "0.7.0.0_BGI_MGD=@MGI_1.0.4_BGI.json" \
+		-F "0.7.0.0_Allele_MGD=@MGI_1.0.4_feature.json" \
+		-F "0.7.0.0_Disease_MGD=@MGI_1.0.4_disease.json" \
+		-F "0.7.0.0_GFF_MGD=@MGI_1.0.4_GFF.gff" 
 
 <details>
 <summary>View Failure Response</summary>
 <pre>
 {
 	"fileStatus": {
-		"0.7.0_BGI_10090":"Authentication Failure: Please check your api_access_token",
-		"0.7.0_FEATURE_10090":"Authentication Failure: Please check your api_access_token",
-		"0.7.0_DAF_10090":"Authentication Failure: Please check your api_access_token",
-		"0.7.0_GFF_10090":"Authentication Failure: Please check your api_access_token"
+		"0.7.0.0_BGI_MGD":"Authentication Failure: Please check your api_access_token",
+		"0.7.0.0_Allele_MGD":"Authentication Failure: Please check your api_access_token",
+		"0.7.0.0_Disease_MGD":"Authentication Failure: Please check your api_access_token",
+		"0.7.0.0_GFF_MGD":"Authentication Failure: Please check your api_access_token"
 	},
 	"status":"failed"
 }</pre>
@@ -189,20 +197,20 @@ For the following command (Errors in BGI):
 	> curl \
 		-H "api_access_token: 2C07D715..." \
 		-X POST "https://www.alliancegenome.org/api/data/submit" \
-		-F "0.7.0_BGI_10090=@MGI_1.0.4_BGI.json" \
-		-F "0.7.0_FEATURE_10090=@MGI_1.0.4_feature.json" \
-		-F "0.7.0_DAF_10090=@MGI_1.0.4_disease.json" \
-		-F "0.7.0_GFF_10090=@MGI_1.0.4_GFF.gff" 
+		-F "0.7.0.0_BGI_MGD=@MGI_1.0.4_BGI.json" \
+		-F "0.7.0.0_Allele_MGD=@MGI_1.0.4_feature.json" \
+		-F "0.7.0.0_Disease_MGD=@MGI_1.0.4_disease.json" \
+		-F "0.7.0.0_GFF_MGD=@MGI_1.0.4_GFF.gff" 
 
 <details>
 <summary>View Failure Response</summary>
 <pre>
 {
 	"fileStatus": {
-		"0.7.0_FEATURE_10090":"success",
-		"0.7.0_BGI_10090":"string \"https://en.wikipedia.org/wiki/Cathepsin L2\" is not a valid URI",
-		"0.7.0_DAF_10090":"success",
-		"0.7.0_GFF_10090":"Unable to complete multi-part upload. Individual part upload failed : Your socket connection to the server was not read from or written to within the timeout period. Idle connections will be closed. (Service: Amazon S3; Status Code: 400; Error Code: RequestTimeout; Request ID: 3ABBDFD90F0C4CAA)"
+		"0.7.0.0_Allele_MGD":"success",
+		"0.7.0.0_BGI_MGD":"string \"https://en.wikipedia.org/wiki/Cathepsin L2\" is not a valid URI",
+		"0.7.0.0_Disease_10090":"success",
+		"0.7.0.0_GFF_MGD":"Unable to complete multi-part upload. Individual part upload failed : Your socket connection to the server was not read from or written to within the timeout period. Idle connections will be closed. (Service: Amazon S3; Status Code: 400; Error Code: RequestTimeout; Request ID: 3ABBDFD90F0C4CAA)"
 	},
 	"status":"failed"
 }</pre>
@@ -213,16 +221,16 @@ In a failed example only the files that failed need to be attempted again:
 	> curl \
 		-H "api_access_token: 2C07D715..." \
 		-X POST "https://www.alliancegenome.org/api/data/submit" \
-		-F "0.7.0_BGI_10090=@MGI_1.0.4_BGI.json" \
-		-F "0.7.0_GFF_10090=@MGI_1.0.4_GFF.gff" 
+		-F "0.7.0.0_BGI_10090=@MGI_1.0.4_BGI.json" \
+		-F "0.7.0.0_GFF_10090=@MGI_1.0.4_GFF.gff" 
 
 <details>
 <summary>View Success Response</summary>
 <pre>
 {
 	"fileStatus": {
-		"0.7.0_BGI_10090":"success",
-		"0.7.0_GFF_10090":"success"
+		"0.7.0.0_BGI_10090":"success",
+		"0.7.0.0_GFF_10090":"success"
 	},
 	"status":"success"
 }</pre>
@@ -262,49 +270,48 @@ The following command, can be used to pull a specific SnapShot by release versio
 {
     "releaseVersion": "1.4.0.0",
     "schemaVersion": "1.0.0.2",
-    "system": "production",
     "snapShotDate": 1523284823719,
     "dataFiles": [
         {
             "schemaVersion": "1.0.0.2",
-            "dataType": "ALLELE",
-            "taxonId": "10090",
-            "path": "1.0.0.2/ALLELE/10090/1.0.0.2\_ALLELE\_10090\_0.json",
+            "dataType": "Allele",
+            "dataSubType": "MGD",
+            "s3path": "1.0.0.2/Allele/MGD/1.0.0.2\_Allele\_MGD\_0.json",
             "uploadDate": 1522181792721
         },
         {
             "schemaVersion": "1.0.0.2",
-            "dataType": "DAF",
-            "taxonId": "10090",
-            "path": "1.0.0.2/DAF/10090/1.0.0.2\_DAF\_10090\_0.json",
+            "dataType": "Disease",
+            "dataSubType": "MGD",
+            "s3path": "1.0.0.2/Disease/MGD/1.0.0.2\_Disease\_MGD\_0.json",
             "uploadDate": 1522181816273
         },
         {
             "schemaVersion": "1.0.0.2",
-            "dataType": "ALLELE",
-            "taxonId": "7955",
-            "path": "1.0.0.2/ALLELE/7955/1.0.0.2\_ALLELE\_7955\_2.json",
+            "dataType": "Allele",
+            "dataSubType": "ZFIN",
+            "path": "1.0.0.2/Allele/ZFIN/1.0.0.2\_Allele\_ZFIN\_2.json",
             "uploadDate": 1522179715428
         },
         {
             "schemaVersion": "1.0.0.2",
             "dataType": "BGI",
-            "taxonId": "7955",
-            "path": "1.0.0.2/BGI/7955/1.0.0.2\_BGI\_7955\_1.json",
+            "dataSubType": "ZFIN",
+            "s3path": "1.0.0.2/BGI/ZFIN/1.0.0.2\_BGI\_ZFIN\_1.json",
             "uploadDate": 1522181715592
         },
         {
             "schemaVersion": "1.0.0.2",
             "dataType": "GFF",
-            "taxonId": "7955",
-            "path": "1.0.0.2/GFF/7955/1.0.0.2\_GFF\_7955\_1.gff",
+            "dataSubType": "ZFIN",
+            "s3path": "1.0.0.2/GFF/ZFIN/1.0.0.2\_GFF\_ZFIN\_1.gff",
             "uploadDate": 1522181475376
         },
         {
             "schemaVersion": "1.0.0.2",
-            "dataType": "DAF",
-            "taxonId": "7955",
-            "path": "1.0.0.2/DAF/7955/1.0.0.2\_DAF\_7955\_1.json",
+            "dataType": "Disease",
+            "dataSubType": "ZFIN",
+            "s3path": "1.0.0.2/Disease/ZFIN/1.0.0.2\_Disease\_ZFIN\_1.json",
             "uploadDate": 1522180298184
         }
     ]
@@ -316,7 +323,7 @@ The following command, can be used to pull a specific SnapShot by release versio
 This will take a snapshot of all the latest datafiles for each Taxon Id by each DataType. 
 
 	> curl -H "api_access_token: 2C07D715..." \
-	"https://www.alliancegenome.org/api/data/takesnapshot?system=production&releaseVersion=1.4.0.0"
+	"https://www.alliancegenome.org/api/data/takesnapshot?releaseVersion=1.4.0.0"
 
 <details>
 <summary>View Success Response</summary>
@@ -324,54 +331,50 @@ This will take a snapshot of all the latest datafiles for each Taxon Id by each 
 {
     "releaseVersion": "1.4.0.0",
     "schemaVersion": "1.0.0.2",
-    "system": "production",
     "snapShotDate": 1523284823719,
     "dataFiles": [
         {
             "schemaVersion": "1.0.0.2",
-            "dataType": "ALLELE",
-            "taxonId": "10090",
-            "path": "1.0.0.2/ALLELE/10090/1.0.0.2\_ALLELE\_10090\_0.json",
+            "dataType": "Allele",
+            "dataSubType": "MGD",
+            "s3path": "1.0.0.2/Allele/MGD/1.0.0.2\_Allele\_MGD\_0.json",
             "uploadDate": 1522181792721
         },
         {
             "schemaVersion": "1.0.0.2",
-            "dataType": "DAF",
-            "taxonId": "10090",
-            "path": "1.0.0.2/DAF/10090/1.0.0.2\_DAF\_10090\_0.json",
+            "dataType": "Disease",
+            "dataSubType": "MGD",
+            "s3path": "1.0.0.2/Disease/MGD/1.0.0.2\_Disease\_MGD\_0.json",
             "uploadDate": 1522181816273
         },
         {
             "schemaVersion": "1.0.0.2",
-            "dataType": "ALLELE",
-            "taxonId": "7955",
-            "path": "1.0.0.2/ALLELE/7955/1.0.0.2\_ALLELE\_7955\_2.json",
+            "dataType": "Allele",
+            "dataSubType": "ZFIN",
+            "path": "1.0.0.2/Allele/ZFIN/1.0.0.2\_Allele\_ZFIN\_2.json",
             "uploadDate": 1522179715428
         },
         {
             "schemaVersion": "1.0.0.2",
             "dataType": "BGI",
-            "taxonId": "7955",
-            "path": "1.0.0.2/BGI/7955/1.0.0.2\_BGI\_7955\_1.json",
+            "dataSubType": "ZFIN",
+            "s3path": "1.0.0.2/BGI/ZFIN/1.0.0.2\_BGI\_ZFIN\_1.json",
             "uploadDate": 1522181715592
         },
         {
             "schemaVersion": "1.0.0.2",
             "dataType": "GFF",
-            "taxonId": "7955",
-            "path": "1.0.0.2/GFF/7955/1.0.0.2\_GFF\_7955\_1.gff",
+            "dataSubType": "ZFIN",
+            "s3path": "1.0.0.2/GFF/ZFIN/1.0.0.2\_GFF\_ZFIN\_1.gff",
             "uploadDate": 1522181475376
         },
         {
             "schemaVersion": "1.0.0.2",
-            "dataType": "DAF",
-            "taxonId": "7955",
-            "path": "1.0.0.2/DAF/7955/1.0.0.2\_DAF\_7955\_1.json",
+            "dataType": "Disease",
+            "dataSubType": "ZFIN",
+            "s3path": "1.0.0.2/Disease/ZFIN/1.0.0.2\_Disease\_ZFIN\_1.json",
             "uploadDate": 1522180298184
         }
     ]
 }</pre>
 </details>
-
-
-
