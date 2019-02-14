@@ -9,7 +9,7 @@ class PhenotypeSpec extends Specification {
     @Unroll
     def "Gene page - Phenotype Annotations for #geneId"() {
         when:
-        def url = new URL("https://www.alliancegenome.org/api/gene/$geneId/phenotypes?page=1&limit=10&sortBy=")
+        def url = new URL("http://localhost:8080/api/gene/$geneId/phenotypes?page=1&limit=10&sortBy=")
         def retObj = new JsonSlurper().parseText(url.text)
         def results = retObj.results
         def phenotypeNames = results.phenotype.findAll { it }

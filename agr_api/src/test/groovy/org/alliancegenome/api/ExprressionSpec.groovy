@@ -12,7 +12,7 @@ class ExpressionSpec extends Specification {
         def encodedQuery = URLEncoder.encode(geneId, "UTF-8")
         def url = new URL("http://localhost:8080/api/gene/$encodedQuery/expression-summary")
         def result = new JsonSlurper().parseText(url.text)
-
+        println result.groups[0].terms.name
         then:
         result
         totalAnnotations <= result.totalAnnotations
@@ -28,7 +28,7 @@ class ExpressionSpec extends Specification {
         where:
         geneId                   | totalAnnotations | groupCount | anatomyTerms | anatomyTotal | CCTerms | CCTotal | stageTerms | stageTotal
         "MGI:109583"             | 306              | 3          | 27           | 165          | 17      | 0       | 3          | 141
-        "RGD:2129"               | 14               | 3          | 27           | 0            | 17      | 10      | 3          | 0
+        "RGD:2129"               | 10               | 3          | 27           | 0            | 17      | 10      | 3          | 0
         "ZFIN:ZDB-GENE-001103-1" | 646              | 3          | 27           | 400          | 17      | 1       | 3          | 245
 
     }
