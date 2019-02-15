@@ -22,7 +22,7 @@ public class OrthologView {
     @JsonView(View.Orthology.class)
     private boolean bestReverse;
     @JsonView(View.Orthology.class)
-    private String stringencyFilter;
+    private String stringencyFilter = "all";
 
     @JsonView(View.Orthology.class)
     private List<String> predictionMethodsNotCalled;
