@@ -99,5 +99,9 @@ public class GeneticEntity extends Neo4jEntity {
         CrossReferenceType(String name) {
             this.displayName = name;
         }
+
+        public String getDisplayName() {
+            return displayName;
+        }
     }
 }
