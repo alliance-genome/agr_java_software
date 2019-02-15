@@ -9,6 +9,7 @@ import io.swagger.annotations.ApiOperation;
 import org.alliancegenome.api.service.GeneService;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.service.JsonResultResponse;
+import org.alliancegenome.core.translators.tdf.PhenotypeAnnotationToTdfTranslator;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.EntitySummary;
@@ -21,6 +22,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.greaterThan;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
@@ -158,6 +160,21 @@ public class PhenotypeTest {
         pagination.makeSingleFieldFilter(FieldFilter.FREFERENCE, "239");
         response = geneService.getPhenotypeAnnotations(geneID, pagination);
         assertResponse(response, 11, 63);
+    }
+
+    @Test
+    // ZFIN gene: Pten
+    public void checkPhenotypeDownload() throws JsonProcessingException {
+        JsonResultResponse<PhenotypeAnnotation> response = geneService.getPhenotypeAnnotations("MGI:105043", new Pagination());
+        PhenotypeAnnotationToTdfTranslator translator = new PhenotypeAnnotationToTdfTranslator();
+        String line = translator.getAllRows(response.getResults());
+        assertNotNull(line);
+        String[] lines = line.split("\n");
+        assertThat(21, equalTo(lines.length));
+        assertThat("Phenotype\tGenetic Entity ID\tGenetic Entity Symbol\tGenetic Entity Type\tReferences", equalTo(lines[0]));
+        assertThat("abnormal atrial thrombosis\tMGI:2151800\tAhr<sup>tm1Gonz</sup>\tallele\tPMID:9396142", equalTo(lines[1]));
+        assertThat("abnormal atrial thrombosis\t\t\tgene\tPMID:9396142", equalTo(lines[2]));
+
     }
 
     @Test

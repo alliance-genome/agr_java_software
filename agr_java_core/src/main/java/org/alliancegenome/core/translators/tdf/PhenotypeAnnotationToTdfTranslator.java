@@ -1,11 +1,11 @@
 package org.alliancegenome.core.translators.tdf;
 
-import java.util.List;
-import java.util.StringJoiner;
-
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
 import org.alliancegenome.neo4j.entity.node.GeneticEntity;
+
+import java.util.List;
+import java.util.StringJoiner;
 
 public class PhenotypeAnnotationToTdfTranslator {
 
@@ -23,14 +23,14 @@ public class PhenotypeAnnotationToTdfTranslator {
         annotations.forEach(annotation -> {
             StringJoiner joiner = new StringJoiner("\t");
             joiner.add(annotation.getPhenotype());
-            if (annotation.getGeneticEntity().getType().equals(GeneticEntity.CrossReferenceType.ALLELE.name())) {
+            if (annotation.getGeneticEntity().getType().equals(GeneticEntity.CrossReferenceType.ALLELE.getDisplayName())) {
                 joiner.add(annotation.getGeneticEntity().getPrimaryKey());
                 joiner.add(annotation.getGeneticEntity().getSymbol());
-                joiner.add("allele");
+                joiner.add(GeneticEntity.CrossReferenceType.ALLELE.getDisplayName());
             } else {
                 joiner.add("");
                 joiner.add("");
-                joiner.add("");
+                joiner.add(GeneticEntity.CrossReferenceType.GENE.getDisplayName());
             }
             // publication list
             StringJoiner pubJoiner = new StringJoiner(",");
