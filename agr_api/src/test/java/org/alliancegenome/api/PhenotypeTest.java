@@ -163,7 +163,6 @@ public class PhenotypeTest {
     }
 
     @Test
-    // ZFIN gene: Pten
     public void checkPhenotypeDownload() throws JsonProcessingException {
         JsonResultResponse<PhenotypeAnnotation> response = geneService.getPhenotypeAnnotations("MGI:105043", new Pagination());
         PhenotypeAnnotationToTdfTranslator translator = new PhenotypeAnnotationToTdfTranslator();
@@ -171,10 +170,15 @@ public class PhenotypeTest {
         assertNotNull(line);
         String[] lines = line.split("\n");
         assertThat(21, equalTo(lines.length));
+        assertThat(response.getTotal(), greaterThan(300));
         assertThat("Phenotype\tGenetic Entity ID\tGenetic Entity Symbol\tGenetic Entity Type\tReferences", equalTo(lines[0]));
         assertThat("abnormal atrial thrombosis\tMGI:2151800\tAhr<sup>tm1Gonz</sup>\tallele\tPMID:9396142", equalTo(lines[1]));
         assertThat("abnormal atrial thrombosis\t\t\tgene\tPMID:9396142", equalTo(lines[2]));
 
+        response = geneService.getPhenotypeAnnotations("MGI:109583", new Pagination());
+        line = translator.getAllRows(response.getResults());
+        assertNotNull(line);
+        assertThat(response.getTotal(), greaterThan(1200));
     }
 
     @Test

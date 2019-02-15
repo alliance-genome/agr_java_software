@@ -16,7 +16,6 @@ import lombok.Setter;
 @Getter @Setter
 public class PhenotypeAnnotation implements Comparable<PhenotypeAnnotation> {
 
-    @JsonView({View.PhenotypeAPI.class})
     private String primaryKey;
     private SourceDoclet source;
     @JsonView({View.PhenotypeAPI.class})

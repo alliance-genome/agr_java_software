@@ -22,10 +22,10 @@ public class GeneticEntity extends Neo4jEntity {
 
     protected CrossReferenceType crossReferenceType;
 
-    @JsonView({View.Default.class, View.PhenotypeAPI.class})
+    @JsonView({View.Default.class, View.API.class})
     @JsonProperty(value = "id")
     protected String primaryKey;
-    @JsonView({View.Default.class, View.PhenotypeAPI.class})
+    @JsonView({View.Default.class, View.API.class})
     protected String symbol;
 
     @JsonView({View.Default.class, View.PhenotypeAPI.class})
@@ -44,7 +44,7 @@ public class GeneticEntity extends Neo4jEntity {
     public GeneticEntity() {
     }
 
-    @JsonView({View.API.class, View.PhenotypeAPI.class})
+    @JsonView({View.API.class})
     @JsonProperty(value = "crossReferences")
     public Map<String, Object> getCrossReferenceMap() {
         Map<String, Object> map = new HashMap<>();
@@ -84,7 +84,7 @@ public class GeneticEntity extends Neo4jEntity {
     }
 
 
-    @JsonView({View.PhenotypeAPI.class})
+    @JsonView({View.API.class})
     @JsonProperty(value = "type")
     public String getType() {
         return crossReferenceType.displayName;
