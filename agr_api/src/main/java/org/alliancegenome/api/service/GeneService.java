@@ -70,7 +70,8 @@ public class GeneService {
             document.setPhenotype((String) objectMap.get("phenotype"));
             Allele allele = (Allele) objectMap.get("feature");
             if (allele != null) {
-                List<CrossReference> ref = (List<CrossReference>) objectMap.get("crossReferences");
+                List<CrossReference> ref = new ArrayList<>();
+                ref.add((CrossReference) objectMap.get("pimaryReference"));
                 allele.setCrossReferences(ref);
                 allele.setCrossReferenceType(GeneticEntity.CrossReferenceType.ALLELE);
                 allele.setSpecies((Species) objectMap.get("featureSpecies"));
@@ -79,8 +80,6 @@ public class GeneService {
                 Gene gene = (Gene) objectMap.get("gene");
                 gene.setCrossReferenceType(GeneticEntity.CrossReferenceType.GENE);
                 gene.setSpecies((Species) objectMap.get("geneSpecies"));
-                List<CrossReference> ref = (List<CrossReference>) objectMap.get("geneCrossReferences");
-                gene.setCrossReferences(ref);
                 document.setGeneticEntity(gene);
             }
             List<Publication> publications = (List<Publication>) objectMap.get("publications");

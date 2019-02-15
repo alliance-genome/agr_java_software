@@ -28,16 +28,18 @@ class PhenotypeSpec extends Specification {
     @Unroll
     def "Gene page - Phenotype Annotation Download for #geneId"() {
         when:
-        def url = new URL("http://localhost:8080/api/gene/$geneId/phenotypes/download")
+        def url = new URL("http://localhost:8080/api/gene/$geneId/phenotypes/download?limit=100000")
         def line = url.text
         def lines = line.split("\n")
         then:
         lines
         headerLine == lines[0]
         lineOne == lines[1]
+        totalSize <= lines.length
         where:
         geneId       | totalSize | lineOne | headerLine
-        "MGI:105043" | 10        | "abnormal atrial thrombosis\tMGI:2151800\tAhr<sup>tm1Gonz</sup>\tallele\tPMID:9396142"      | "Phenotype\tGenetic Entity ID\tGenetic Entity Symbol\tGenetic Entity Type\tReferences"
+        "MGI:105043" | 300        | "abnormal atrial thrombosis\tMGI:2151800\tAhr<sup>tm1Gonz</sup>\tallele\tPMID:9396142"      | "Phenotype\tGenetic Entity ID\tGenetic Entity Symbol\tGenetic Entity Type\tReferences"
+        "MGI:109583" | 1200        | "abnormal adipose tissue morphology\t\t\tgene\tPMID:22405073"      | "Phenotype\tGenetic Entity ID\tGenetic Entity Symbol\tGenetic Entity Type\tReferences"
     }
 
 }

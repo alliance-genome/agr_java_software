@@ -2,6 +2,7 @@ package org.alliancegenome.neo4j.repository;
 
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
+import org.alliancegenome.neo4j.entity.node.GeneticEntity;
 import org.alliancegenome.neo4j.entity.node.Phenotype;
 import org.alliancegenome.neo4j.view.BaseFilter;
 import org.apache.logging.log4j.LogManager;
@@ -60,19 +61,20 @@ public class PhenotypeRepository extends Neo4jRepository<Phenotype> {
         return primaryTerm;
     }
 
+    // ToDO: This query builder needs to be re-worked / simplified when we test the filtering part again.
     public Result getPhenotype(String geneID, Pagination pagination) {
 
         HashMap<String, String> bindingValueMap = new HashMap<>();
         bindingValueMap.put("geneID", geneID);
 
-        String cypher = "MATCH p0=(phenotype:Phenotype)--(phenotypeEntityJoin:PhenotypeEntityJoin)-[:EVIDENCE]-(publication:Publication), " +
-                "        p2=(phenotypeEntityJoin)--(gene:Gene)-[:FROM_SPECIES]-(geneSpecies:Species), p2a=(gene)--(geneCrossReference:CrossReference) ";
+        String cypher = "MATCH (phenotype:Phenotype)--(phenotypeEntityJoin:PhenotypeEntityJoin)-[:EVIDENCE]-(publication:Publication), " +
+                "        (phenotypeEntityJoin)--(gene:Gene)-[:FROM_SPECIES]-(geneSpecies:Species)";
 
-        String cypherFeatureOptional = "OPTIONAL MATCH p4=(phenotypeEntityJoin)--(feature:Feature)--(crossReference:CrossReference), " +
+        String cypherFeatureOptional = "OPTIONAL MATCH (phenotypeEntityJoin)--(feature:Feature)--(featureCrossRef:CrossReference), " +
                 "featSpecies=(feature)-[:FROM_SPECIES]-(featureSpecies:Species) ";
         String entityType = pagination.getFieldFilterValueMap().get(FieldFilter.GENETIC_ENTITY_TYPE);
         if (entityType != null && entityType.equals("allele")) {
-            cypher += ", p4=(phenotypeEntityJoin)--(feature:Feature)--(crossReference:CrossReference), " +
+            cypher += ", (phenotypeEntityJoin)--(feature:Feature)--(featureCrossRef:CrossReference), " +
                     "featSpecies=(feature)-[:FROM_SPECIES]-(featureSpecies:Species) ";
             cypherFeatureOptional = "";
         }
@@ -95,12 +97,18 @@ public class PhenotypeRepository extends Neo4jRepository<Phenotype> {
         if (geneticEntityFilterClause != null) {
             cypherWhereClause += geneticEntityFilterClause;
             bindingValueMap.put("feature", pagination.getFieldFilterValueMap().get(FieldFilter.GENETIC_ENTITY));
-            cypher += ", p4=(phenotypeEntityJoin)--(feature:Feature)--(crossReference:CrossReference), " +
+            cypher += ", (phenotypeEntityJoin)--(feature:Feature)--(featureCrossRef:CrossReference), " +
                     "featSpecies=(feature)-[:FROM_SPECIES]-(featureSpecies:Species) ";
         }
         cypher += cypherWhereClause;
         if (geneticEntityFilterClause == null) {
             cypher += cypherFeatureOptional;
+            if (cypherFeatureOptional.isEmpty()) {
+                cypher += " AND ";
+            } else {
+                cypher += " where ";
+            }
+            cypher += "featureCrossRef.crossRefType = '" + GeneticEntity.CrossReferenceType.ALLELE.getDisplayName() + "' ";
         }
         cypher += "return distinct phenotype.phenotypeStatement as phenotype, " +
                 "       feature.symbol, " +
@@ -108,13 +116,12 @@ public class PhenotypeRepository extends Neo4jRepository<Phenotype> {
                 "       gene as gene, " +
                 "       geneSpecies as geneSpecies, " +
                 "       featureSpecies as featureSpecies, " +
-                "       collect(geneCrossReference) as geneCrossReferences, " +
-                "       collect(crossReference) as crossReferences, " +
                 "       collect(publication.pubMedId), " +
                 "       collect(publication) as publications, " +
                 "       count(publication),         " +
-                "       collect(publication.pubModId) " +
-                "order by LOWER(phenotype.phenotypeStatement), LOWER(feature.symbol)";
+                "       collect(publication.pubModId), " +
+                "       featureCrossRef as pimaryReference " +
+                " ORDER BY LOWER(phenotype.phenotypeStatement), LOWER(feature.symbol)";
         cypher += " SKIP " + pagination.getStart() + " LIMIT " + pagination.getLimit();
 
         return queryForResult(cypher, bindingValueMap);
