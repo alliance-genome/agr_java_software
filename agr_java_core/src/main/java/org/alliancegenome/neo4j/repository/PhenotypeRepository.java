@@ -67,14 +67,14 @@ public class PhenotypeRepository extends Neo4jRepository<Phenotype> {
         HashMap<String, String> bindingValueMap = new HashMap<>();
         bindingValueMap.put("geneID", geneID);
 
-        String cypher = "MATCH p0=(phenotype:Phenotype)--(phenotypeEntityJoin:PhenotypeEntityJoin)-[:EVIDENCE]-(publication:Publication), " +
-                "        p2=(phenotypeEntityJoin)--(gene:Gene)-[:FROM_SPECIES]-(geneSpecies:Species)";
+        String cypher = "MATCH (phenotype:Phenotype)--(phenotypeEntityJoin:PhenotypeEntityJoin)-[:EVIDENCE]-(publication:Publication), " +
+                "        (phenotypeEntityJoin)--(gene:Gene)-[:FROM_SPECIES]-(geneSpecies:Species)";
 
-        String cypherFeatureOptional = "OPTIONAL MATCH p4=(phenotypeEntityJoin)--(feature:Feature)--(featureCrossRef:CrossReference), " +
+        String cypherFeatureOptional = "OPTIONAL MATCH (phenotypeEntityJoin)--(feature:Feature)--(featureCrossRef:CrossReference), " +
                 "featSpecies=(feature)-[:FROM_SPECIES]-(featureSpecies:Species) ";
         String entityType = pagination.getFieldFilterValueMap().get(FieldFilter.GENETIC_ENTITY_TYPE);
         if (entityType != null && entityType.equals("allele")) {
-            cypher += ", p4=(phenotypeEntityJoin)--(feature:Feature)--(featureCrossRef:CrossReference), " +
+            cypher += ", (phenotypeEntityJoin)--(feature:Feature)--(featureCrossRef:CrossReference), " +
                     "featSpecies=(feature)-[:FROM_SPECIES]-(featureSpecies:Species) ";
             cypherFeatureOptional = "";
         }
@@ -97,7 +97,7 @@ public class PhenotypeRepository extends Neo4jRepository<Phenotype> {
         if (geneticEntityFilterClause != null) {
             cypherWhereClause += geneticEntityFilterClause;
             bindingValueMap.put("feature", pagination.getFieldFilterValueMap().get(FieldFilter.GENETIC_ENTITY));
-            cypher += ", p4=(phenotypeEntityJoin)--(feature:Feature)--(featureCrossRef:CrossReference), " +
+            cypher += ", (phenotypeEntityJoin)--(feature:Feature)--(featureCrossRef:CrossReference), " +
                     "featSpecies=(feature)-[:FROM_SPECIES]-(featureSpecies:Species) ";
         }
         cypher += cypherWhereClause;

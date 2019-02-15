@@ -70,9 +70,8 @@ public class GeneService {
             document.setPhenotype((String) objectMap.get("phenotype"));
             Allele allele = (Allele) objectMap.get("feature");
             if (allele != null) {
-                //List<CrossReference> ref = (List<CrossReference>) objectMap.get("crossReferences");
                 List<CrossReference> ref = new ArrayList<>();
-                ref.add((CrossReference)objectMap.get("pimaryReference"));
+                ref.add((CrossReference) objectMap.get("pimaryReference"));
                 allele.setCrossReferences(ref);
                 allele.setCrossReferenceType(GeneticEntity.CrossReferenceType.ALLELE);
                 allele.setSpecies((Species) objectMap.get("featureSpecies"));
