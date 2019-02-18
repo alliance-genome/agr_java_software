@@ -12,14 +12,17 @@
 	xmlns="http://maven.apache.org/POM/4.0.0">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>org.alliancegenome</groupId>
-	<version>${revision}</version>
+	<parent>
+		<groupId>org.alliancegenome</groupId>
+		<artifactId>agr_java_software</artifactId>
+		<version>${revision}</version>
+	</parent>
+
 	<artifactId>agr_submission</artifactId>
+	<name>AGR Java :: Submission System</name>
 	<packaging>war</packaging>
-	<name>AGR Submission System</name>
 
 	<properties>
-		<revision>SNAPSHOT-0.0.1</revision>
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
 		<failOnMissingWebXml>false</failOnMissingWebXml>
@@ -37,8 +40,6 @@
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
-
-
 
 	<dependencies>
 		<dependency>

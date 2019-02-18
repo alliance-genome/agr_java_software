@@ -15,6 +15,7 @@
         <module>agr_indexer</module>
         <module>agr_api</module>
         <module>agr_schema_validation</module>
+        <module>agr_submission</module>
     </modules>
 
     <properties>

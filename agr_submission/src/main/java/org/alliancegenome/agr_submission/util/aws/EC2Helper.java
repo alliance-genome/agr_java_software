@@ -18,6 +18,9 @@ import com.amazonaws.services.ec2.model.RunInstancesRequest;
 import com.amazonaws.services.ec2.model.RunInstancesResult;
 import com.amazonaws.services.ec2.model.VolumeType;
 
+import lombok.extern.jbosslog.JBossLog;
+
+@JBossLog
 public class EC2Helper {
 
     public void listInstances() {
@@ -34,20 +37,14 @@ public class EC2Helper {
 
             for(Reservation reservation : response.getReservations()) {
                 for(Instance instance : reservation.getInstances()) {
-                    System.out.printf(
-                            "Instance: %s, " +
-                                    "AMI: %s, " +
-                                    "Type: %s, " +
-                                    "State: %s, " +
-                                    "Monitoring: %s, " +
-                                    "Name: %s\n",
-                                    instance.getInstanceId(),
-                                    instance.getImageId(),
-                                    instance.getInstanceType(),
-                                    instance.getState().getName(),
-                                    instance.getMonitoring().getState(),
-                                    instance.getTags().get(0).getValue()
-                            );
+                    System.out.printf("Instance: %s, AMI: %s, Type: %s, State: %s, Monitoring: %s, Name: %s\n",
+                        instance.getInstanceId(),
+                        instance.getImageId(),
+                        instance.getInstanceType(),
+                        instance.getState().getName(),
+                        instance.getMonitoring().getState(),
+                        instance.getTags().get(0).getValue()
+                    );
                 }
             }
 
@@ -67,34 +64,20 @@ public class EC2Helper {
 
         RunInstancesRequest runInstancesRequest = new RunInstancesRequest();
 
-        EbsBlockDevice root_ebs = new EbsBlockDevice()
-                .withVolumeSize(200)
-                .withVolumeType(VolumeType.Gp2);
+        EbsBlockDevice root_ebs = new EbsBlockDevice().withVolumeSize(200).withVolumeType(VolumeType.Gp2);
+        EbsBlockDevice swap_ebs = new EbsBlockDevice().withVolumeSize(64).withVolumeType(VolumeType.Gp2);
+        BlockDeviceMapping root = new BlockDeviceMapping().withDeviceName("/dev/xvda").withEbs(root_ebs);
+        BlockDeviceMapping swap = new BlockDeviceMapping().withDeviceName("/dev/sdb").withEbs(swap_ebs);
 
-        EbsBlockDevice swap_ebs = new EbsBlockDevice()
-                .withVolumeSize(64)
-                .withVolumeType(VolumeType.Gp2);
-
-        BlockDeviceMapping root = new BlockDeviceMapping()
-                .withDeviceName("/dev/xvda")
-                .withEbs(root_ebs);
-
-        BlockDeviceMapping swap = new BlockDeviceMapping()
-                .withDeviceName("/dev/sdb")
-                .withEbs(swap_ebs);
-
-        runInstancesRequest
-        .withImageId("ami-0b1db01d775d666c2")
-        // r5.2xlarge
-        .withInstanceType(InstanceType.R52xlarge)
-        .withMinCount(1)
-        .withMaxCount(1)
+        runInstancesRequest.withImageId("ami-0b1db01d775d666c2")
+        .withInstanceType(InstanceType.R52xlarge).withMinCount(1).withMaxCount(1)
         .withBlockDeviceMappings(root, swap)
         .withSecurityGroups("default", "ES Transport", "HTTP", "HTTPS SSL", "SSH") // Step 6 default, ES Transport, HTTP, HTTPS SSL, SSH
         .withKeyName("AGR-ssl2");
 
         RunInstancesResult result = ec2.runInstances(runInstancesRequest);
 
+        log.info(result);
 
     }
 
