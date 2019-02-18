@@ -1,6 +1,9 @@
 all:
 	mvn clean package
 
+api:
+	mvn package -pl agr_api -am
+
 apirun: api
 	make -C agr_api run
 
