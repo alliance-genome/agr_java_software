@@ -6,8 +6,6 @@ import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.jws.WebService;
 
-import org.alliancegenome.agr_submission.BaseController;
-import org.alliancegenome.agr_submission.entities.DataType;
 import org.alliancegenome.agr_submission.forms.AddDataSubTypeForm;
 
 import org.alliancegenome.agr_submission.BaseController;
