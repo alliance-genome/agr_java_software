@@ -10,6 +10,7 @@ import org.alliancegenome.agr_submission.forms.AddDataSubTypeForm;
 
 import org.alliancegenome.agr_submission.BaseController;
 import org.alliancegenome.agr_submission.entities.DataType;
+import org.alliancegenome.agr_submission.forms.AddDataSubTypeForm;
 import org.alliancegenome.agr_submission.forms.CreateSchemaFileForm;
 import org.alliancegenome.agr_submission.interfaces.DataTypeControllerInterface;
 import org.alliancegenome.agr_submission.services.DataTypeService;
