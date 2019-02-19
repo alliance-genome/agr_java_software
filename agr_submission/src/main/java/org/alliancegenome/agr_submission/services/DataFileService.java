@@ -3,6 +3,7 @@ package org.alliancegenome.agr_submission.services;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.List;
 
 import javax.inject.Inject;
 import javax.transaction.Transactional;
@@ -16,6 +17,7 @@ import org.alliancegenome.agr_submission.entities.DataFile;
 import org.alliancegenome.agr_submission.entities.DataSubType;
 import org.alliancegenome.agr_submission.entities.DataType;
 import org.alliancegenome.agr_submission.entities.SchemaVersion;
+import org.alliancegenome.agr_submission.entities.DataFile;
 
 import lombok.extern.jbosslog.JBossLog;
 
@@ -26,7 +28,6 @@ public class DataFileService extends BaseService<DataFile> {
     @Inject private DataTypeDAO dataTypeDAO;
     @Inject private DataSubTypeDAO dataSubTypeDAO;
     @Inject private SchemaVersionDAO schemaDAO;
-
 
     @Override
     public DataFile create(DataFile entity) {
@@ -71,7 +72,6 @@ public class DataFileService extends BaseService<DataFile> {
         return dao.remove(id);
     }
 
-    
     public List<DataFile> getDataFiles() {
         return dao.findAll();
     }

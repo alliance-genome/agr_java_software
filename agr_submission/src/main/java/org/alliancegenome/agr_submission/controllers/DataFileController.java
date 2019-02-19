@@ -51,6 +51,4 @@ public class DataFileController extends BaseController implements DataFileContro
         return dataFileService.getDataTypeSubTypeFiles(dataType, dataSubtype);
     }
 
-
-
 }
