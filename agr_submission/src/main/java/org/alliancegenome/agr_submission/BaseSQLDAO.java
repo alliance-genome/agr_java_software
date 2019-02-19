@@ -19,30 +19,30 @@ import lombok.extern.jbosslog.JBossLog;
 
 @JBossLog
 @Singleton
-public class BaseSqliteDAO<E extends BaseEntity> extends BaseDAO<E> {
+public class BaseSQLDAO<E extends BaseEntity> extends BaseDAO<E> {
 
     @PersistenceContext(name="primary")
     protected EntityManager entityManager;
 
-    protected BaseSqliteDAO(Class<E> myClass) {
+    protected BaseSQLDAO(Class<E> myClass) {
         super(myClass);
     }
     
     public E persist(E entity) {
-        log.info("SqliteDAO: persist: " + entityManager);
+        log.info("SqlDAO: persist: " + entityManager);
         entityManager.persist(entity);
         return entity;
     }
 
     public E find(Long id) {
-        log.info("SqliteDAO: find: " + id + " " + entityManager);
+        log.info("SqlDAO: find: " + id + " " + entityManager);
         E entity = entityManager.find(myClass, id);
         log.debug("Entity Found: " + entity);
         return entity;
     }
 
     public List<E> findAll() {
-        log.info("SqliteDAO: findAll: " + entityManager);
+        log.info("SqlDAO: findAll: " + entityManager);
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<E> cq = cb.createQuery(myClass);
         Root<E> rootEntry = cq.from(myClass);
@@ -52,7 +52,7 @@ public class BaseSqliteDAO<E extends BaseEntity> extends BaseDAO<E> {
     }
 
     public E merge(E entity) {
-        log.info("SqliteDAO: merge: " + entityManager);
+        log.info("SqlDAO: merge: " + entityManager);
         entityManager.merge(entity);
         return entity;
     }
@@ -65,7 +65,7 @@ public class BaseSqliteDAO<E extends BaseEntity> extends BaseDAO<E> {
     }
     
     public E findByField(String field, String value) {
-        log.info("SqliteDAO: findByField: " + field + " " + value + " " + entityManager);
+        log.info("SqlDAO: findByField: " + field + " " + value + " " + entityManager);
         HashMap<String, Object> params = new HashMap<>();
         params.put(field, value);
         List<E> list = search(params);
@@ -122,7 +122,7 @@ public class BaseSqliteDAO<E extends BaseEntity> extends BaseDAO<E> {
         }
 
         query.where(builder.and(restrictions.toArray(new Predicate[0])));
-        log.info("EM: " + entityManager);
+
         return entityManager.createQuery(query).getResultList();
     }
 

@@ -2,7 +2,7 @@ package org.alliancegenome.agr_submission.dao;
 
 import javax.enterprise.context.ApplicationScoped;
 
-import org.alliancegenome.agr_submission.BaseSqliteDAO;
+import org.alliancegenome.agr_submission.BaseSQLDAO;
 import org.alliancegenome.agr_submission.entities.SchemaVersion;
 import org.alliancegenome.agr_submission.util.github.GithubRESTAPI;
 import org.alliancegenome.agr_submission.util.github.GithubRelease;
@@ -11,7 +11,7 @@ import lombok.extern.jbosslog.JBossLog;
 
 @JBossLog
 @ApplicationScoped
-public class SchemaVersionDAO extends BaseSqliteDAO<SchemaVersion> {
+public class SchemaVersionDAO extends BaseSQLDAO<SchemaVersion> {
 
     private GithubRESTAPI githubAPI = new GithubRESTAPI();
     

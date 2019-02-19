@@ -6,6 +6,12 @@ public class View {
     public class Default { }
     public class API extends Default { }
 
+    public class DataFileView extends API { }
+    public class DataFileCreate extends DataFileView { }
+    public class DataFileRead extends DataFileView { }
+    public class DataFileUpdate extends DataFileView { }
+    public class DataFileDelete extends DataFileView { }
+    
     public class DataTypeView extends API { }
     public class DataTypeCreate extends DataTypeView { }
     public class DataTypeRead extends DataTypeView { }

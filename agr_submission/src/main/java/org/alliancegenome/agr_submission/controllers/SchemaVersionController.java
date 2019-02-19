@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
+import javax.jws.WebService;
 
 import org.alliancegenome.agr_submission.BaseController;
 import org.alliancegenome.agr_submission.entities.SchemaVersion;
@@ -11,6 +12,7 @@ import org.alliancegenome.agr_submission.interfaces.SchemaVersionControllerInter
 import org.alliancegenome.agr_submission.services.SchemaVersionService;
 
 @RequestScoped
+@WebService
 public class SchemaVersionController extends BaseController implements SchemaVersionControllerInterface {
 
     @Inject SchemaVersionService schemaVersionService;
