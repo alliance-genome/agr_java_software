@@ -18,8 +18,8 @@ public class DataFileController extends BaseController implements DataFileContro
     @Inject DataFileService dataFileService;
     
     @Override
-    public DataFile create(DataFile entity) {
-        return dataFileService.create(entity);
+    public DataFile create(String schemaVersion, String dataType, String dataSubtype, DataFile entity) {
+        return dataFileService.create(schemaVersion, dataType, dataSubtype, entity);
     }
 
     @Override
@@ -40,6 +40,17 @@ public class DataFileController extends BaseController implements DataFileContro
     public List<DataFile> getDataFiles() {
         return dataFileService.getDataFiles();
     }
+
+    @Override
+    public List<DataFile> getDataTypeFiles(String dataType) {
+        return dataFileService.getDataTypeFiles(dataType);
+    }
+
+    @Override
+    public List<DataFile> getDataTypeSubTypeFiles(String dataType, String dataSubtype) {
+        return dataFileService.getDataTypeSubTypeFiles(dataType, dataSubtype);
+    }
+
 
 
 }

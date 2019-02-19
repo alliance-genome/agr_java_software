@@ -21,9 +21,9 @@ import lombok.Setter;
 public class DataSubType extends BaseEntity {
 
     @Id @GeneratedValue
-    @JsonView({View.DataSubTypeView.class, View.DataTypeView.class})
+    @JsonView({View.DataSubTypeView.class, View.DataTypeView.class, View.DataFileView.class})
     private Long id;
-    @JsonView({View.DataSubTypeView.class, View.DataTypeView.class})
+    @JsonView({View.DataSubTypeView.class, View.DataTypeView.class, View.DataFileView.class})
     private String name;
     @JsonView({View.DataSubTypeView.class, View.DataTypeView.class})
     private String description;

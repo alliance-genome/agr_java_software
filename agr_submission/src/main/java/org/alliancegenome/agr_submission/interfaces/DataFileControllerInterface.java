@@ -28,10 +28,15 @@ import io.swagger.annotations.ApiParam;
 public interface DataFileControllerInterface {
 
     @POST
-    @Path("/")
+    @Path("/{schemaVersion}/{dataType}/{dataSubtype}")
     @ApiOperation("Create Entity")
     @JsonView(View.DataFileCreate.class)
-    public DataFile create(@ApiParam(value = "Create: Entity") DataFile entity);
+    public DataFile create(
+        @ApiParam(value = "SchemaVersion: data") @PathParam("schemaVersion") String schemaVersion,
+        @ApiParam(value = "DataType: id") @PathParam("dataType") String dataType,
+        @ApiParam(value = "DataSubType: id") @PathParam("dataSubtype") String dataSubtype,
+        @ApiParam(value = "Create: Entity") DataFile entity
+    );
     
     @GET
     @Path("/{id}")
@@ -56,5 +61,21 @@ public interface DataFileControllerInterface {
     @ApiOperation("Get All Entities")
     @JsonView(View.DataFileView.class)
     public List<DataFile> getDataFiles();
-
+    
+    @GET
+    @Path("/{dataType}")
+    @ApiOperation("Gets Data Files by Type")
+    @JsonView(View.DataFileView.class)
+    public List<DataFile> getDataTypeFiles(
+        @ApiParam(value = "DataType: id") @PathParam("dataType") String dataType
+    );
+    
+    @GET
+    @Path("/{dataType}/{dataSubtype}")
+    @ApiOperation("Gets Data Files by Type and subtype")
+    @JsonView(View.DataFileView.class)
+    public List<DataFile> getDataTypeSubTypeFiles(
+        @ApiParam(value = "DataType: id") @PathParam("dataType") String dataType,
+        @ApiParam(value = "DataSubType: id") @PathParam("dataSubtype") String dataSubtype
+    );
 }

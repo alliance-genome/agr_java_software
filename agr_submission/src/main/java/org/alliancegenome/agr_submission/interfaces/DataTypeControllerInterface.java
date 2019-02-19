@@ -13,6 +13,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import org.alliancegenome.agr_submission.entities.DataType;
+import org.alliancegenome.agr_submission.forms.AddDataSubTypeForm;
 import org.alliancegenome.agr_submission.forms.CreateSchemaFileForm;
 import org.alliancegenome.agr_submission.views.View;
 
@@ -65,6 +66,15 @@ public interface DataTypeControllerInterface {
     public DataType addSchemaFile(
             @ApiParam(value = "DataType: id") @PathParam("dataType") String dataType,
             @ApiParam(value = "Form: Data") CreateSchemaFileForm form
+    );
+    
+    @POST
+    @Path("/{dataType}/addsubtype")
+    @ApiOperation("Adds a Data Subtype to this datatype")
+    @JsonView({View.DataTypeView.class})
+    public DataType addDataSubType(
+        @ApiParam(value = "DataType: id") @PathParam("dataType") String dataType,
+        @ApiParam(value = "Form: Data") AddDataSubTypeForm form
     );
 
 }

@@ -8,6 +8,7 @@ import javax.jws.WebService;
 
 import org.alliancegenome.agr_submission.BaseController;
 import org.alliancegenome.agr_submission.entities.DataType;
+import org.alliancegenome.agr_submission.forms.AddDataSubTypeForm;
 import org.alliancegenome.agr_submission.forms.CreateSchemaFileForm;
 import org.alliancegenome.agr_submission.interfaces.DataTypeControllerInterface;
 import org.alliancegenome.agr_submission.services.DataTypeService;
@@ -45,6 +46,11 @@ public class DataTypeController extends BaseController implements DataTypeContro
     @Override
     public DataType addSchemaFile(String dataType, CreateSchemaFileForm form) {
         return dataTypeService.addSchemaFile(dataType, form);
+    }
+
+    @Override
+    public DataType addDataSubType(String dataType, AddDataSubTypeForm form) {
+        return dataTypeService.addDataSubType(dataType, form.getDataSubType());
     }
 
 }

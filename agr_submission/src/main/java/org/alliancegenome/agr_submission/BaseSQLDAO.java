@@ -42,7 +42,7 @@ public class BaseSQLDAO<E extends BaseEntity> extends BaseDAO<E> {
     }
 
     public List<E> findAll() {
-        log.info("SqlDAO: findAll: " + entityManager);
+        //log.info("SqlDAO: findAll: " + entityManager);
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<E> cq = cb.createQuery(myClass);
         Root<E> rootEntry = cq.from(myClass);
@@ -82,6 +82,7 @@ public class BaseSQLDAO<E extends BaseEntity> extends BaseDAO<E> {
     }
 
     public List<E> search(Map<String, Object> params, String orderByField) {
+        log.info("Search By Params: " + params + " Order by: " + orderByField);
         CriteriaBuilder builder = entityManager.getCriteriaBuilder();
         CriteriaQuery<E> query = builder.createQuery(myClass);
         Root<E> root = query.from(myClass);

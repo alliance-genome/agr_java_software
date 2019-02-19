@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
@@ -26,9 +27,9 @@ import lombok.ToString;
 public class DataType extends BaseEntity {
 
     @Id @GeneratedValue
-    @JsonView({View.DataTypeView.class, View.DataSubTypeView.class})
+    @JsonView({View.DataTypeView.class, View.DataSubTypeView.class, View.DataFileView.class})
     private Long id;
-    @JsonView({View.DataTypeView.class, View.DataSubTypeView.class})
+    @JsonView({View.DataTypeView.class, View.DataSubTypeView.class, View.DataFileView.class})
     private String name;
     @JsonView({View.DataTypeView.class, View.DataSubTypeView.class})
     private String description;
@@ -39,7 +40,8 @@ public class DataType extends BaseEntity {
     @JsonView({View.DataTypeView.class, View.DataSubTypeView.class})
     private boolean validationRequired;
 
-    @ManyToMany
+    @ManyToMany(fetch=FetchType.EAGER)
+    @JsonView({View.DataTypeView.class})
     private List<DataSubType> dataSubTypes;
 
     @OneToMany(mappedBy = "dataType")
