@@ -153,7 +153,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
     }
 
     private Map<String,Set<String>> getGOTermMap(String type, Boolean slim, String species) {
-        String query = "MATCH (species:Species)-[:FROM_SPECIES]-(gene:Gene)--(:GOTerm)-[:COMPUTED_CLOSURE]->(term:GOTerm) ";
+        String query = "MATCH (species:Species)-[:FROM_SPECIES]-(gene:Gene)--(:GOTerm)-[:IS_A_PART_OF_CLOSURE|IS_A_PART_OF_SELF_CLOSURE]->(term:GOTerm) ";
         query += "WHERE term.type = {type}";
         if (StringUtils.isNotEmpty(species)) {
             query += " AND species.name = {species} ";
@@ -163,6 +163,9 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
         }
         query += " RETURN distinct gene.primaryKey, term.name";
 
+        System.out.println(query);
+        System.out.println(type);
+        System.out.println(species);
         Map<String,String> params = new HashMap<String,String>();
         params.put("type",type);
         if (StringUtils.isNotEmpty(species)) {
@@ -181,7 +184,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
     }
 
     public Map<String,Set<String>> getCellularComponentExpressionAgrSlimMap(String species) {
-        String query = "MATCH (species:Species)-[:FROM_SPECIES]-(gene:Gene)--(ebe:ExpressionBioEntity)-[:CELLULAR_COMPONENT_RIBBON_TERM]-(:GOTerm)-[:COMPUTED_CLOSURE]->(term:GOTerm) ";
+        String query = "MATCH (species:Species)-[:FROM_SPECIES]-(gene:Gene)--(ebe:ExpressionBioEntity)-[:CELLULAR_COMPONENT_RIBBON_TERM]-(:GOTerm)-[:IS_A_PART_OF_CLOSURE|IS_A_PART_OF_SELF_CLOSURE]->(term:GOTerm) ";
         query += getSpeciesWhere(species);
         query +=  " RETURN distinct gene.primaryKey, term.name ";
 
@@ -189,7 +192,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
     }
 
     public Map<String,Set<String>> getCellularComponentExpressionWithParentsMap(String species) {
-        String query = "MATCH (species:Species)-[:FROM_SPECIES]-(gene:Gene)--(ebe:ExpressionBioEntity)-[:CELLULAR_COMPONENT]-(:GOTerm)-[:COMPUTED_CLOSURE]->(term:GOTerm) ";
+        String query = "MATCH (species:Species)-[:FROM_SPECIES]-(gene:Gene)--(ebe:ExpressionBioEntity)-[:CELLULAR_COMPONENT]-(:GOTerm)-[:IS_A_PART_OF_CLOSURE|IS_A_PART_OF_SELF_CLOSURE]->(term:GOTerm) ";
         query += getSpeciesWhere(species);
         query +=  " RETURN distinct gene.primaryKey, term.name ";
 
@@ -205,7 +208,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
     }
 
     public Map<String,Set<String>> getAnatomicalExpressionWithParentsMap(String species) {
-        String query = " MATCH (species:Species)-[:FROM_SPECIES]-(gene:Gene)--(ebe:ExpressionBioEntity)-[:ANATOMICAL_STRUCTURE]-(:Ontology)-[:COMPUTED_CLOSURE]->(term:Ontology) ";
+        String query = " MATCH (species:Species)-[:FROM_SPECIES]-(gene:Gene)--(ebe:ExpressionBioEntity)-[:ANATOMICAL_STRUCTURE]-(:Ontology)-[:IS_A_PART_OF_CLOSURE|IS_A_PART_OF_SELF_CLOSURE]->(term:Ontology) ";
         query += getSpeciesWhere(species);
         query +=  " RETURN distinct gene.primaryKey, term.name ";
 
