@@ -22,9 +22,9 @@ import lombok.ToString;
 public class SchemaVersion extends BaseEntity {
 
     @Id @GeneratedValue
-    @JsonView({View.SchemaVersionView.class, View.ReleaseVersionView.class, View.DataFileView.class})
+    @JsonView({View.SchemaVersionView.class, View.ReleaseVersionView.class, View.DataFileView.class, View.DataTypeView.class})
     private Long id;
-    @JsonView({View.SchemaVersionView.class, View.ReleaseVersionView.class, View.DataFileView.class})
+    @JsonView({View.SchemaVersionView.class, View.ReleaseVersionView.class, View.DataFileView.class, View.DataTypeView.class})
     private String schema;
     
     @ManyToMany(mappedBy="schemaVersions")

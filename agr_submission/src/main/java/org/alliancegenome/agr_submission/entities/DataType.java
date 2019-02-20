@@ -3,6 +3,7 @@ package org.alliancegenome.agr_submission.entities;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -42,10 +43,11 @@ public class DataType extends BaseEntity {
 
     @ManyToMany(fetch=FetchType.EAGER)
     @JsonView({View.DataTypeView.class})
-    private List<DataSubType> dataSubTypes;
+    private Set<DataSubType> dataSubTypes;
 
-    @OneToMany(mappedBy = "dataType")
-    private List<SchemaFile> schemaFiles;
+    @OneToMany(mappedBy = "dataType", fetch=FetchType.EAGER)
+    @JsonView({View.DataTypeView.class})
+    private Set<SchemaFile> schemaFiles;
 
     @Transient
     public Map<String, String> getSchemaFilesMap() {
