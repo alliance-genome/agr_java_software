@@ -162,10 +162,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
             query += " AND 'goslim_agr' IN term.subset ";
         }
         query += " RETURN distinct gene.primaryKey, term.name";
-
-        System.out.println(query);
-        System.out.println(type);
-        System.out.println(species);
+        
         Map<String,String> params = new HashMap<String,String>();
         params.put("type",type);
         if (StringUtils.isNotEmpty(species)) {
