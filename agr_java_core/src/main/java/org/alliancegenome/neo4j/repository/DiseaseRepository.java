@@ -14,7 +14,7 @@ import java.util.*;
 
 public class DiseaseRepository extends Neo4jRepository<DOTerm> {
 
-    public static final String DISEASE_INCLUDING_CHILDREN = "(diseaseParent:DOTerm)<-[:IS_A*0..50]-(disease:DOTerm)";
+    public static final String DISEASE_INCLUDING_CHILDREN = "(diseaseParent:DOTerm)<-[:IS_A_PART_OF_CLOSURE]-(disease:DOTerm)";
     public static final String FEATURE_JOIN = " p4=(diseaseEntityJoin)--(feature:Feature)--(crossReference:CrossReference) ";
     private Logger log = LogManager.getLogger(getClass());
     public static final String TOTAL_COUNT = "totalCount";
@@ -453,7 +453,7 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
 
 
         //String cypherAll = getCypherSelectPart(pagination, null, false, bindingValueMap);
-        String cypherAll = "MATCH p0=(diseaseParent:DOTerm)<-[:IS_A*0..50]-(disease:DOTerm)--" +
+        String cypherAll = "MATCH p0=" + DISEASE_INCLUDING_CHILDREN + "--" +
                 "(diseaseEntityJoin:DiseaseEntityJoin)-[:EVIDENCE]-(publication:Publication), " +
                 "p1=(diseaseEntityJoin)--(evidence:EvidenceCode),               " +
                 "p2=(diseaseEntityJoin)-[:ASSOCIATION]-(gene:Gene)--(species:Species)  " +
@@ -467,7 +467,7 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
         }
 
         // feature-related phenotypes
-        cypherAll = "MATCH p0=(diseaseParent:DOTerm)<-[:IS_A*0..50]-(disease:DOTerm)--" +
+        cypherAll = "MATCH p0=" + DISEASE_INCLUDING_CHILDREN + "--" +
                 "(diseaseEntityJoin:DiseaseEntityJoin)-[:EVIDENCE]-(publication:Publication), " +
                 "p1=(diseaseEntityJoin)--(evidence:EvidenceCode),               " +
                 "p2=(diseaseEntityJoin)-[:ASSOCIATION]-(gene:Gene)--(species:Species),  ";
