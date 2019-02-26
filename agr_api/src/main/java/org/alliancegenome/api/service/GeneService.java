@@ -30,7 +30,7 @@ public class GeneService {
         Gene gene = geneRepo.getOneGene(id);
         // if not found directly check if it is a secondary id on a different gene
         if (gene == null) {
-            return geneRepo.getGeneBySecondary(id);
+            return geneRepo.getOneGeneBySecondaryId(id);
         }
         return gene;
     }

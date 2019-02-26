@@ -9,5 +9,6 @@ import lombok.Setter;
 @Getter @Setter
 public class SecondaryId extends Identifier {
 
+    private String primaryKey;
     private String name;
 }
