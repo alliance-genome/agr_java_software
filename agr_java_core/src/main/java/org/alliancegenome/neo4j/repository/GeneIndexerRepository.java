@@ -159,7 +159,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
             query += " AND species.name = {species} ";
         }
         if (slim) {
-            query += " AND 'goslim_agr' IN term.subset ";
+            query += " AND term.subset =~ '.*goslim_agr.*' ";
         }
         query += " RETURN distinct gene.primaryKey, term.name";
         
