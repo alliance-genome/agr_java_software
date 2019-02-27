@@ -28,6 +28,7 @@ import java.util.stream.Collectors;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.greaterThan;
 import static org.junit.Assert.*;
 
 @Ignore
@@ -58,56 +59,56 @@ public class DiseaseTest {
 
         DiseaseAnnotation annotation = response.getResults().get(0);
         assertThat(annotation.getDisease().getName(), equalTo("choriocarcinoma"));
-        assertThat(annotation.getGene().getSymbol(), equalTo("cri-2"));
-        assertThat(annotation.getAssociationType(), equalTo("biomarker_via_orthology"));
-        assertThat(annotation.getPublications().stream().map(Publication::getPubId).collect(Collectors.joining()), equalTo("MGI:6194238"));
+        assertThat(annotation.getGene().getSymbol(), equalTo("FGF8"));
+        assertThat(annotation.getAssociationType(), equalTo("is_marker_of"));
+        assertThat(annotation.getPublications().stream().map(Publication::getPubId).collect(Collectors.joining()), equalTo("PMID:11764380"));
 
         annotation = response.getResults().get(1);
-        assertThat(annotation.getGene().getSymbol(), equalTo("daf-2"));
+        assertThat(annotation.getGene().getSymbol(), equalTo("IGF2"));
         assertNull(annotation.getFeature());
         assertThat(annotation.getDisease().getName(), equalTo("choriocarcinoma"));
-        assertThat(annotation.getAssociationType(), equalTo("implicated_via_orthology"));
+        assertThat(annotation.getAssociationType(), equalTo("is_implicated_in"));
 
         DiseaseAnnotationToTdfTranslator translator = new DiseaseAnnotationToTdfTranslator();
         String output = translator.getAllRows(response.getResults());
         List<String> lines = Arrays.asList(output.split("\n"));
         assertNotNull(lines);
         String result = "Gene ID\tGene Symbol\tSpecies\tGenetic Entity ID\tGenetic Entity Symbol\tGenetic Entity Type\tAssociation Type\tDisease ID\tDisease Name\tEvidence Code\tSource\tReferences\n" +
-                "WB:WBGene00019478\tcri-2\tCaenorhabditis elegans\t\t\t\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tIEA\tAlliance\tMGI:6194238\n" +
-                "WB:WBGene00000898\tdaf-2\tCaenorhabditis elegans\t\t\t\timplicated_via_orthology\tDOID:3594\tchoriocarcinoma\tIEA\tAlliance\tMGI:6194238\n" +
                 "HGNC:3686\tFGF8\tHomo sapiens\t\t\t\tis_marker_of\tDOID:3594\tchoriocarcinoma\tIEP\tRGD\tPMID:11764380\n" +
-                "MGI:99604\tFgf8\tMus musculus\t\t\t\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tIEA\tAlliance\tMGI:6194238\n" +
+                "HGNC:5466\tIGF2\tHomo sapiens\t\t\t\tis_implicated_in\tDOID:3594\tchoriocarcinoma\tIDA\tRGD\tPMID:17556377\n" +
+                "HGNC:6091\tINSR\tHomo sapiens\t\t\t\tis_implicated_in\tDOID:3594\tchoriocarcinoma\tIDA\tRGD\tPMID:17556377\n" +
+                "HGNC:8800\tPDGFB\tHomo sapiens\t\t\t\tis_marker_of\tDOID:3594\tchoriocarcinoma\tIEP\tRGD\tPMID:8504434\n" +
+                "HGNC:8804\tPDGFRB\tHomo sapiens\t\t\t\tis_marker_of\tDOID:3594\tchoriocarcinoma\tIEP\tRGD\tPMID:8504434\n" +
+                "HGNC:11822\tTIMP3\tHomo sapiens\t\t\t\tis_marker_of\tDOID:3594\tchoriocarcinoma\tIEP\tRGD\tPMID:15507671\n" +
                 "RGD:70891\tFgf8\tRattus norvegicus\t\t\t\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tIEA\tAlliance\tMGI:6194238\n" +
+                "RGD:2870\tIgf2\tRattus norvegicus\t\t\t\timplicated_via_orthology\tDOID:3594\tchoriocarcinoma\tIEA\tAlliance\tMGI:6194238\n" +
+                "RGD:2917\tInsr\tRattus norvegicus\t\t\t\timplicated_via_orthology\tDOID:3594\tchoriocarcinoma\tIEA\tAlliance\tMGI:6194238\n" +
+                "RGD:3283\tPdgfb\tRattus norvegicus\t\t\t\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tIEA\tAlliance\tMGI:6194238\n" +
+                "RGD:3285\tPdgfrb\tRattus norvegicus\t\t\t\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tIEA\tAlliance\tMGI:6194238\n" +
+                "RGD:3865\tTimp3\tRattus norvegicus\t\t\t\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tIEA\tAlliance\tMGI:6194238\n" +
+                "MGI:99604\tFgf8\tMus musculus\t\t\t\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tIEA\tAlliance\tMGI:6194238\n" +
+                "MGI:96434\tIgf2\tMus musculus\t\t\t\timplicated_via_orthology\tDOID:3594\tchoriocarcinoma\tIEA\tAlliance\tMGI:6194238\n" +
+                "MGI:96575\tInsr\tMus musculus\t\t\t\timplicated_via_orthology\tDOID:3594\tchoriocarcinoma\tIEA\tAlliance\tMGI:6194238\n" +
+                "MGI:97528\tPdgfb\tMus musculus\t\t\t\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tIEA\tAlliance\tMGI:6194238\n" +
+                "MGI:97531\tPdgfrb\tMus musculus\t\t\t\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tIEA\tAlliance\tMGI:6194238\n" +
+                "MGI:98754\tTimp3\tMus musculus\t\t\t\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tIEA\tAlliance\tMGI:6194238\n" +
                 "ZFIN:ZDB-GENE-990415-72\tfgf8a\tDanio rerio\t\t\t\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tIEA\tAlliance\tMGI:6194238\n" +
                 "ZFIN:ZDB-GENE-010122-1\tfgf8b\tDanio rerio\t\t\t\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tIEA\tAlliance\tMGI:6194238\n" +
-                "HGNC:5466\tIGF2\tHomo sapiens\t\t\t\tis_implicated_in\tDOID:3594\tchoriocarcinoma\tIDA\tRGD\tPMID:17556377\n" +
-                "MGI:96434\tIgf2\tMus musculus\t\t\t\timplicated_via_orthology\tDOID:3594\tchoriocarcinoma\tIEA\tAlliance\tMGI:6194238\n" +
-                "RGD:2870\tIgf2\tRattus norvegicus\t\t\t\timplicated_via_orthology\tDOID:3594\tchoriocarcinoma\tIEA\tAlliance\tMGI:6194238\n" +
                 "ZFIN:ZDB-GENE-991111-3\tigf2a\tDanio rerio\t\t\t\timplicated_via_orthology\tDOID:3594\tchoriocarcinoma\tIEA\tAlliance\tMGI:6194238\n" +
                 "ZFIN:ZDB-GENE-030131-2935\tigf2b\tDanio rerio\t\t\t\timplicated_via_orthology\tDOID:3594\tchoriocarcinoma\tIEA\tAlliance\tMGI:6194238\n" +
-                "FB:FBgn0283499\tInR\tDrosophila melanogaster\t\t\t\timplicated_via_orthology\tDOID:3594\tchoriocarcinoma\tIEA\tAlliance\tMGI:6194238\n" +
-                "HGNC:6091\tINSR\tHomo sapiens\t\t\t\tis_implicated_in\tDOID:3594\tchoriocarcinoma\tIDA\tRGD\tPMID:17556377\n" +
-                "MGI:96575\tInsr\tMus musculus\t\t\t\timplicated_via_orthology\tDOID:3594\tchoriocarcinoma\tIEA\tAlliance\tMGI:6194238\n" +
-                "RGD:2917\tInsr\tRattus norvegicus\t\t\t\timplicated_via_orthology\tDOID:3594\tchoriocarcinoma\tIEA\tAlliance\tMGI:6194238\n" +
                 "ZFIN:ZDB-GENE-020503-3\tinsra\tDanio rerio\t\t\t\timplicated_via_orthology\tDOID:3594\tchoriocarcinoma\tIEA\tAlliance\tMGI:6194238\n" +
                 "ZFIN:ZDB-GENE-020503-4\tinsrb\tDanio rerio\t\t\t\timplicated_via_orthology\tDOID:3594\tchoriocarcinoma\tIEA\tAlliance\tMGI:6194238\n" +
-                "HGNC:8800\tPDGFB\tHomo sapiens\t\t\t\tis_marker_of\tDOID:3594\tchoriocarcinoma\tIEP\tRGD\tPMID:8504434\n" +
-                "MGI:97528\tPdgfb\tMus musculus\t\t\t\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tIEA\tAlliance\tMGI:6194238\n" +
-                "RGD:3283\tPdgfb\tRattus norvegicus\t\t\t\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tIEA\tAlliance\tMGI:6194238\n" +
                 "ZFIN:ZDB-GENE-050208-525\tpdgfba\tDanio rerio\t\t\t\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tIEA\tAlliance\tMGI:6194238\n" +
                 "ZFIN:ZDB-GENE-131121-332\tpdgfbb\tDanio rerio\t\t\t\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tIEA\tAlliance\tMGI:6194238\n" +
                 "ZFIN:ZDB-GENE-030805-2\tpdgfrb\tDanio rerio\t\t\t\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tIEA\tAlliance\tMGI:6194238\n" +
-                "HGNC:8804\tPDGFRB\tHomo sapiens\t\t\t\tis_marker_of\tDOID:3594\tchoriocarcinoma\tIEP\tRGD\tPMID:8504434\n" +
-                "MGI:97531\tPdgfrb\tMus musculus\t\t\t\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tIEA\tAlliance\tMGI:6194238\n" +
-                "RGD:3285\tPdgfrb\tRattus norvegicus\t\t\t\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tIEA\tAlliance\tMGI:6194238\n" +
-                "WB:WBGene00004249\tpvf-1\tCaenorhabditis elegans\t\t\t\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tIEA\tAlliance\tMGI:6194238\n" +
+                "FB:FBgn0283499\tInR\tDrosophila melanogaster\t\t\t\timplicated_via_orthology\tDOID:3594\tchoriocarcinoma\tIEA\tAlliance\tMGI:6194238\n" +
                 "FB:FBgn0030964\tPvf1\tDrosophila melanogaster\t\t\t\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tIEA\tAlliance\tMGI:6194238\n" +
                 "FB:FBgn0032006\tPvr\tDrosophila melanogaster\t\t\t\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tIEA\tAlliance\tMGI:6194238\n" +
                 "FB:FBgn0025879\tTimp\tDrosophila melanogaster\t\t\t\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tIEA\tAlliance\tMGI:6194238\n" +
-                "WB:WBGene00019476\ttimp-1\tCaenorhabditis elegans\t\t\t\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tIEA\tAlliance\tMGI:6194238\n" +
-                "HGNC:11822\tTIMP3\tHomo sapiens\t\t\t\tis_marker_of\tDOID:3594\tchoriocarcinoma\tIEP\tRGD\tPMID:15507671\n" +
-                "MGI:98754\tTimp3\tMus musculus\t\t\t\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tIEA\tAlliance\tMGI:6194238\n" +
-                "RGD:3865\tTimp3\tRattus norvegicus\t\t\t\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tIEA\tAlliance\tMGI:6194238\n";
+                "WB:WBGene00019478\tcri-2\tCaenorhabditis elegans\t\t\t\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tIEA\tAlliance\tMGI:6194238\n" +
+                "WB:WBGene00000898\tdaf-2\tCaenorhabditis elegans\t\t\t\timplicated_via_orthology\tDOID:3594\tchoriocarcinoma\tIEA\tAlliance\tMGI:6194238\n" +
+                "WB:WBGene00004249\tpvf-1\tCaenorhabditis elegans\t\t\t\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tIEA\tAlliance\tMGI:6194238\n" +
+                "WB:WBGene00019476\ttimp-1\tCaenorhabditis elegans\t\t\t\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tIEA\tAlliance\tMGI:6194238\n";
         assertEquals(result, output);
 
     }
@@ -122,15 +123,15 @@ public class DiseaseTest {
         pagination.setSortBy("associationType");
 */
         JsonResultResponse<DiseaseAnnotation> response = geneService.getDiseaseAnnotationsByDisease(diseaseID, pagination);
-        assertResponse(response, 25, 67);
+        assertResponse(response, 25, 74);
 
         DiseaseAnnotation annotation = response.getResults().get(0);
-        assertThat(annotation.getDisease().getName(), equalTo("acute lymphocytic leukemia"));
-        assertThat(annotation.getGene().getSymbol(), equalTo("Bx"));
-        assertThat(annotation.getAssociationType(), equalTo("implicated_via_orthology"));
-        assertThat(annotation.getPublications().stream().map(Publication::getPubId).collect(Collectors.joining()), equalTo("MGI:6194238"));
+        assertThat(annotation.getDisease().getName(), equalTo("B- and T-cell mixed leukemia"));
+        assertThat(annotation.getGene().getSymbol(), equalTo("DOT1L"));
+        assertThat(annotation.getAssociationType(), equalTo("is_implicated_in"));
+        assertThat(annotation.getPublications().stream().map(Publication::getPubId).collect(Collectors.joining()), equalTo("PMID:23801631"));
 
-        annotation = response.getResults().get(24);
+        annotation = response.getResults().get(3);
         assertThat(annotation.getGene().getSymbol(), equalTo("Ezh2"));
         assertNotNull(annotation.getFeature());
         assertThat(annotation.getDisease().getName(), equalTo("acute lymphocytic leukemia"));
@@ -141,31 +142,31 @@ public class DiseaseTest {
         List<String> lines = Arrays.asList(output.split("\n"));
         assertNotNull(lines);
         String result = "Gene ID\tGene Symbol\tSpecies\tGenetic Entity ID\tGenetic Entity Symbol\tGenetic Entity Type\tAssociation Type\tDisease ID\tDisease Name\tEvidence Code\tSource\tReferences\n" +
-                "FB:FBgn0265598\tBx\tDrosophila melanogaster\t\t\t\timplicated_via_orthology\tDOID:9952\tacute lymphocytic leukemia\tIEA\tAlliance\tMGI:6194238\n" +
-                "WB:WBGene00000469\tces-2\tCaenorhabditis elegans\t\t\t\tis_implicated_in\tDOID:9952\tacute lymphocytic leukemia\tIMP\tWB\tPMID:8700229\n" +
-                "FB:FBgn0034096\tCG7786\tDrosophila melanogaster\t\t\t\timplicated_via_orthology\tDOID:9952\tacute lymphocytic leukemia\tIEA\tAlliance\tMGI:6194238\n" +
-                "ZFIN:ZDB-GENE-990630-12\tcntn2\tDanio rerio\t\t\t\timplicated_via_orthology\tDOID:5602\tT-cell adult acute lymphocytic leukemia\tIEA\tAlliance\tMGI:6194238\n" +
-                "HGNC:2172\tCNTN2\tHomo sapiens\t\t\t\timplicated_via_orthology\tDOID:5602\tT-cell adult acute lymphocytic leukemia\tIEA\tAlliance\tMGI:6194238\n" +
-                "MGI:104518\tCntn2\tMus musculus\t\t\t\tis_implicated_in\tDOID:5602\tT-cell adult acute lymphocytic leukemia\tTAS\tMGI\tPMID:16550188,PMID:25035162\n" +
-                "RGD:3821\tCntn2\tRattus norvegicus\t\t\t\timplicated_via_orthology\tDOID:5602\tT-cell adult acute lymphocytic leukemia\tIEA\tAlliance\tMGI:6194238\n" +
-                "FB:FBgn0037240\tCont\tDrosophila melanogaster\t\t\t\timplicated_via_orthology\tDOID:5602\tT-cell adult acute lymphocytic leukemia\tIEA\tAlliance\tMGI:6194238\n" +
-                "WB:WBGene00000913\tdaf-18\tCaenorhabditis elegans\t\t\t\timplicated_via_orthology\tDOID:9952\tacute lymphocytic leukemia\tIEA\tAlliance\tMGI:6194238\n" +
-                "HGNC:2697\tDBP\tHomo sapiens\t\t\t\timplicated_via_orthology\tDOID:9952\tacute lymphocytic leukemia\tIEA\tAlliance\tMGI:6194238\n" +
-                "MGI:94866\tDbp\tMus musculus\t\t\t\timplicated_via_orthology\tDOID:9952\tacute lymphocytic leukemia\tIEA\tAlliance\tMGI:6194238\n" +
-                "RGD:2491\tDbp\tRattus norvegicus\t\t\t\timplicated_via_orthology\tDOID:9952\tacute lymphocytic leukemia\tIEA\tAlliance\tMGI:6194238\n" +
-                "WB:WBGene00021474\tdot-1.1\tCaenorhabditis elegans\t\t\t\timplicated_via_orthology\tDOID:9953\tB- and T-cell mixed leukemia\tIEA\tAlliance\tMGI:6194238\n" +
-                "WB:WBGene00010067\tdot-1.2\tCaenorhabditis elegans\t\t\t\timplicated_via_orthology\tDOID:9953\tB- and T-cell mixed leukemia\tIEA\tAlliance\tMGI:6194238\n" +
-                "WB:WBGene00010120\tdot-1.4\tCaenorhabditis elegans\t\t\t\timplicated_via_orthology\tDOID:9953\tB- and T-cell mixed leukemia\tIEA\tAlliance\tMGI:6194238\n" +
-                "WB:WBGene00022512\tdot-1.5\tCaenorhabditis elegans\t\t\t\timplicated_via_orthology\tDOID:9953\tB- and T-cell mixed leukemia\tIEA\tAlliance\tMGI:6194238\n" +
-                "SGD:S000002848\tDOT1\tSaccharomyces cerevisiae\t\t\t\timplicated_via_orthology\tDOID:9953\tB- and T-cell mixed leukemia\tIEA\tAlliance\tMGI:6194238\n" +
-                "ZFIN:ZDB-GENE-060503-341\tdot1l\tDanio rerio\t\t\t\timplicated_via_orthology\tDOID:9953\tB- and T-cell mixed leukemia\tIEA\tAlliance\tMGI:6194238\n" +
                 "HGNC:24948\tDOT1L\tHomo sapiens\t\t\t\tis_implicated_in\tDOID:9953\tB- and T-cell mixed leukemia\tIDA\tRGD\tPMID:23801631\n" +
-                "MGI:2143886\tDot1l\tMus musculus\t\t\t\timplicated_via_orthology\tDOID:9953\tB- and T-cell mixed leukemia\tIEA\tAlliance\tMGI:6194238\n" +
-                "RGD:1306644\tDot1l\tRattus norvegicus\t\t\t\timplicated_via_orthology\tDOID:9953\tB- and T-cell mixed leukemia\tIEA\tAlliance\tMGI:6194238\n" +
-                "FB:FBgn0000629\tE(z)\tDrosophila melanogaster\t\t\t\timplicated_via_orthology\tDOID:9952\tacute lymphocytic leukemia\tIEA\tAlliance\tMGI:6194238\n" +
-                "ZFIN:ZDB-GENE-041111-259\tezh2\tDanio rerio\t\t\t\timplicated_via_orthology\tDOID:9952\tacute lymphocytic leukemia\tIEA\tAlliance\tMGI:6194238\n" +
+                "HGNC:7132\tKMT2A\tHomo sapiens\t\t\t\tis_implicated_in\tDOID:9953\tB- and T-cell mixed leukemia\tIAGP\tRGD\tRGD:7240710\n" +
+                "MGI:104518\tCntn2\tMus musculus\t\t\t\tis_implicated_in\tDOID:5602\tT-cell adult acute lymphocytic leukemia\tTAS\tMGI\tPMID:16550188,PMID:25035162\n" +
+                "MGI:107940\tEzh2\tMus musculus\tMGI:3823218\tEzh2<sup>tm2.1Sho</sup>\tallele\tis_implicated_in\tDOID:9952\tacute lymphocytic leukemia\tTAS\tMGI\tPMID:22431509\n" +
+                "MGI:107940\tEzh2\tMus musculus\tMGI:3823217\tEzh2<sup>tm2Sho</sup>\tallele\tis_implicated_in\tDOID:9952\tacute lymphocytic leukemia\tTAS\tMGI\tPMID:22431509\n" +
+                "MGI:107940\tEzh2\tMus musculus\t\t\t\tis_implicated_in\tDOID:9952\tacute lymphocytic leukemia\tTAS\tMGI\tPMID:22431509\n" +
+                "MGI:96995\tKmt2a\tMus musculus\tMGI:3814567\tKmt2a<sup>tm1Saam</sup>\tallele\tis_implicated_in\tDOID:9952\tacute lymphocytic leukemia\tTAS\tMGI\tPMID:18977325\n" +
+                "MGI:96995\tKmt2a\tMus musculus\t\t\t\tis_implicated_in\tDOID:9952\tacute lymphocytic leukemia\tTAS\tMGI\tPMID:18977325\n" +
+                "MGI:102811\tLmo2\tMus musculus\t\t\t\tis_implicated_in\tDOID:9952\tacute lymphocytic leukemia\tTAS\tMGI\tPMID:1461647\n" +
+                "MGI:99460\tNotch3\tMus musculus\t\t\t\tis_implicated_in\tDOID:9952\tacute lymphocytic leukemia\tTAS\tMGI\tPMID:10880446\n" +
+                "MGI:109583\tPten\tMus musculus\tMGI:2156086\tPten<sup>tm1Hwu</sup>\tallele\tis_implicated_in\tDOID:9952\tacute lymphocytic leukemia\tTAS\tMGI\tPMID:21262837\n" +
+                "MGI:109583\tPten\tMus musculus\t\t\t\tis_implicated_in\tDOID:9952\tacute lymphocytic leukemia\tTAS\tMGI\tPMID:21262837\n" +
+                "MGI:1344407\tZeb2\tMus musculus\t\t\t\tis_implicated_in\tDOID:5602\tT-cell adult acute lymphocytic leukemia\tTAS\tMGI\tPMID:25565005\n" +
+                "WB:WBGene00000469\tces-2\tCaenorhabditis elegans\tWB:WBVar00089714\tn732\tallele\tis_implicated_in\tDOID:9952\tacute lymphocytic leukemia\tIMP\tWB\tPMID:8700229\n" +
+                "WB:WBGene00000469\tces-2\tCaenorhabditis elegans\t\t\t\tis_implicated_in\tDOID:9952\tacute lymphocytic leukemia\tIMP\tWB\tPMID:8700229\n" +
+                "HGNC:2172\tCNTN2\tHomo sapiens\t\t\t\timplicated_via_orthology\tDOID:5602\tT-cell adult acute lymphocytic leukemia\tIEA\tAlliance\tMGI:6194238\n" +
+                "HGNC:2697\tDBP\tHomo sapiens\t\t\t\timplicated_via_orthology\tDOID:9952\tacute lymphocytic leukemia\tIEA\tAlliance\tMGI:6194238\n" +
                 "HGNC:3527\tEZH2\tHomo sapiens\t\t\t\timplicated_via_orthology\tDOID:9952\tacute lymphocytic leukemia\tIEA\tAlliance\tMGI:6194238\n" +
-                "MGI:107940\tEzh2\tMus musculus\tMGI:3823218\tEzh2<sup>tm2.1Sho</sup>\tallele\tis_implicated_in\tDOID:9952\tacute lymphocytic leukemia\tTAS\tMGI\tPMID:22431509\n";
+                "HGNC:7132\tKMT2A\tHomo sapiens\t\t\t\timplicated_via_orthology\tDOID:9952\tacute lymphocytic leukemia\tIEA\tAlliance\tMGI:6194238\n" +
+                "HGNC:6642\tLMO2\tHomo sapiens\t\t\t\timplicated_via_orthology\tDOID:9952\tacute lymphocytic leukemia\tIEA\tAlliance\tMGI:6194238\n" +
+                "HGNC:7883\tNOTCH3\tHomo sapiens\t\t\t\timplicated_via_orthology\tDOID:9952\tacute lymphocytic leukemia\tIEA\tAlliance\tMGI:6194238\n" +
+                "HGNC:9588\tPTEN\tHomo sapiens\t\t\t\timplicated_via_orthology\tDOID:9952\tacute lymphocytic leukemia\tIEA\tAlliance\tMGI:6194238\n" +
+                "HGNC:11722\tTEF\tHomo sapiens\t\t\t\timplicated_via_orthology\tDOID:9952\tacute lymphocytic leukemia\tIEA\tAlliance\tMGI:6194238\n" +
+                "HGNC:14881\tZEB2\tHomo sapiens\t\t\t\timplicated_via_orthology\tDOID:5602\tT-cell adult acute lymphocytic leukemia\tIEA\tAlliance\tMGI:6194238\n" +
+                "RGD:3821\tCntn2\tRattus norvegicus\t\t\t\timplicated_via_orthology\tDOID:5602\tT-cell adult acute lymphocytic leukemia\tIEA\tAlliance\tMGI:6194238\n";
         assertEquals(result, output);
 
     }
@@ -183,11 +184,11 @@ public class DiseaseTest {
         List<String> lines = Arrays.asList(output.split("\n"));
         assertNotNull(lines);
         String result = "Gene ID\tGene Symbol\tSpecies\tGenetic Entity ID\tGenetic Entity Symbol\tGenetic Entity Type\tAssociation Type\tDisease ID\tDisease Name\tEvidence Code\tSource\tReferences\n" +
-                "WB:WBGene00000469\tces-2\tCaenorhabditis elegans\tWB:WBVar00089714\tn732\tallele\tis_implicated_in\tDOID:9952\tacute lymphocytic leukemia\tIMP\tWB\tPMID:8700229\n" +
-                "WB:WBGene00000469\tces-2\tCaenorhabditis elegans\t\t\t\tis_implicated_in\tDOID:9952\tacute lymphocytic leukemia\tIMP\tWB\tPMID:8700229\n" +
-                "WB:WBGene00000913\tdaf-18\tCaenorhabditis elegans\t\t\t\timplicated_via_orthology\tDOID:9952\tacute lymphocytic leukemia\tIEA\tAlliance\tMGI:6194238\n" +
-                "WB:WBGene00021474\tdot-1.1\tCaenorhabditis elegans\t\t\t\timplicated_via_orthology\tDOID:9953\tB- and T-cell mixed leukemia\tIEA\tAlliance\tMGI:6194238\n" +
-                "WB:WBGene00010067\tdot-1.2\tCaenorhabditis elegans\t\t\t\timplicated_via_orthology\tDOID:9953\tB- and T-cell mixed leukemia\tIEA\tAlliance\tMGI:6194238\n";
+                "HGNC:24948\tDOT1L\tHomo sapiens\t\t\t\tis_implicated_in\tDOID:9953\tB- and T-cell mixed leukemia\tIDA\tRGD\tPMID:23801631\n" +
+                "HGNC:7132\tKMT2A\tHomo sapiens\t\t\t\tis_implicated_in\tDOID:9953\tB- and T-cell mixed leukemia\tIAGP\tRGD\tRGD:7240710\n" +
+                "MGI:104518\tCntn2\tMus musculus\t\t\t\tis_implicated_in\tDOID:5602\tT-cell adult acute lymphocytic leukemia\tTAS\tMGI\tPMID:16550188,PMID:25035162\n" +
+                "MGI:107940\tEzh2\tMus musculus\tMGI:3823218\tEzh2<sup>tm2.1Sho</sup>\tallele\tis_implicated_in\tDOID:9952\tacute lymphocytic leukemia\tTAS\tMGI\tPMID:22431509\n" +
+                "MGI:107940\tEzh2\tMus musculus\tMGI:3823217\tEzh2<sup>tm2Sho</sup>\tallele\tis_implicated_in\tDOID:9952\tacute lymphocytic leukemia\tTAS\tMGI\tPMID:22431509\n";
         assertEquals(result, output);
 
         // descending sorting
@@ -199,11 +200,11 @@ public class DiseaseTest {
         lines = Arrays.asList(output.split("\n"));
         assertNotNull(lines);
         result = "Gene ID\tGene Symbol\tSpecies\tGenetic Entity ID\tGenetic Entity Symbol\tGenetic Entity Type\tAssociation Type\tDisease ID\tDisease Name\tEvidence Code\tSource\tReferences\n" +
-                "SGD:S000005072\tTEP1\tSaccharomyces cerevisiae\t\t\t\timplicated_via_orthology\tDOID:9952\tacute lymphocytic leukemia\tIEA\tAlliance\tMGI:6194238\n" +
-                "SGD:S000002848\tDOT1\tSaccharomyces cerevisiae\t\t\t\timplicated_via_orthology\tDOID:9953\tB- and T-cell mixed leukemia\tIEA\tAlliance\tMGI:6194238\n" +
-                "RGD:3841\tTef\tRattus norvegicus\t\t\t\timplicated_via_orthology\tDOID:9952\tacute lymphocytic leukemia\tIEA\tAlliance\tMGI:6194238\n" +
-                "RGD:61995\tPten\tRattus norvegicus\t\t\t\timplicated_via_orthology\tDOID:9952\tacute lymphocytic leukemia\tIEA\tAlliance\tMGI:6194238\n" +
-                "RGD:620761\tNotch3\tRattus norvegicus\t\t\t\timplicated_via_orthology\tDOID:9952\tacute lymphocytic leukemia\tIEA\tAlliance\tMGI:6194238\n";
+                "HGNC:7132\tKMT2A\tHomo sapiens\t\t\t\tis_implicated_in\tDOID:9953\tB- and T-cell mixed leukemia\tIAGP\tRGD\tRGD:7240710\n" +
+                "HGNC:24948\tDOT1L\tHomo sapiens\t\t\t\tis_implicated_in\tDOID:9953\tB- and T-cell mixed leukemia\tIDA\tRGD\tPMID:23801631\n" +
+                "MGI:1344407\tZeb2\tMus musculus\t\t\t\tis_implicated_in\tDOID:5602\tT-cell adult acute lymphocytic leukemia\tTAS\tMGI\tPMID:25565005\n" +
+                "MGI:109583\tPten\tMus musculus\tMGI:2156086\tPten<sup>tm1Hwu</sup>\tallele\tis_implicated_in\tDOID:9952\tacute lymphocytic leukemia\tTAS\tMGI\tPMID:21262837\n" +
+                "MGI:109583\tPten\tMus musculus\t\t\t\tis_implicated_in\tDOID:9952\tacute lymphocytic leukemia\tTAS\tMGI\tPMID:21262837\n";
         assertEquals(result, output);
         pagination.setAsc(true);
 
@@ -216,11 +217,11 @@ public class DiseaseTest {
         lines = Arrays.asList(output.split("\n"));
         assertNotNull(lines);
         result = "Gene ID\tGene Symbol\tSpecies\tGenetic Entity ID\tGenetic Entity Symbol\tGenetic Entity Type\tAssociation Type\tDisease ID\tDisease Name\tEvidence Code\tSource\tReferences\n" +
-                "FB:FBgn0265598\tBx\tDrosophila melanogaster\t\t\t\timplicated_via_orthology\tDOID:9952\tacute lymphocytic leukemia\tIEA\tAlliance\tMGI:6194238\n" +
-                "FB:FBgn0034096\tCG7786\tDrosophila melanogaster\t\t\t\timplicated_via_orthology\tDOID:9952\tacute lymphocytic leukemia\tIEA\tAlliance\tMGI:6194238\n" +
-                "ZFIN:ZDB-GENE-990630-12\tcntn2\tDanio rerio\t\t\t\timplicated_via_orthology\tDOID:5602\tT-cell adult acute lymphocytic leukemia\tIEA\tAlliance\tMGI:6194238\n" +
-                "HGNC:2172\tCNTN2\tHomo sapiens\t\t\t\timplicated_via_orthology\tDOID:5602\tT-cell adult acute lymphocytic leukemia\tIEA\tAlliance\tMGI:6194238\n" +
-                "RGD:3821\tCntn2\tRattus norvegicus\t\t\t\timplicated_via_orthology\tDOID:5602\tT-cell adult acute lymphocytic leukemia\tIEA\tAlliance\tMGI:6194238\n";
+                "HGNC:24948\tDOT1L\tHomo sapiens\t\t\t\tis_implicated_in\tDOID:9953\tB- and T-cell mixed leukemia\tIDA\tRGD\tPMID:23801631\n" +
+                "HGNC:7132\tKMT2A\tHomo sapiens\t\t\t\tis_implicated_in\tDOID:9953\tB- and T-cell mixed leukemia\tIAGP\tRGD\tRGD:7240710\n" +
+                "MGI:104518\tCntn2\tMus musculus\t\t\t\tis_implicated_in\tDOID:5602\tT-cell adult acute lymphocytic leukemia\tTAS\tMGI\tPMID:16550188,PMID:25035162\n" +
+                "MGI:107940\tEzh2\tMus musculus\tMGI:3823218\tEzh2<sup>tm2.1Sho</sup>\tallele\tis_implicated_in\tDOID:9952\tacute lymphocytic leukemia\tTAS\tMGI\tPMID:22431509\n" +
+                "MGI:107940\tEzh2\tMus musculus\tMGI:3823217\tEzh2<sup>tm2Sho</sup>\tallele\tis_implicated_in\tDOID:9952\tacute lymphocytic leukemia\tTAS\tMGI\tPMID:22431509\n";
         assertEquals(result, output);
 
         // sort by disease and filter.species
@@ -232,11 +233,11 @@ public class DiseaseTest {
         lines = Arrays.asList(output.split("\n"));
         assertNotNull(lines);
         result = "Gene ID\tGene Symbol\tSpecies\tGenetic Entity ID\tGenetic Entity Symbol\tGenetic Entity Type\tAssociation Type\tDisease ID\tDisease Name\tEvidence Code\tSource\tReferences\n" +
-                "WB:WBGene00000469\tces-2\tCaenorhabditis elegans\tWB:WBVar00089714\tn732\tallele\tis_implicated_in\tDOID:9952\tacute lymphocytic leukemia\tIMP\tWB\tPMID:8700229\n" +
-                "WB:WBGene00000469\tces-2\tCaenorhabditis elegans\t\t\t\tis_implicated_in\tDOID:9952\tacute lymphocytic leukemia\tIMP\tWB\tPMID:8700229\n" +
-                "WB:WBGene00000913\tdaf-18\tCaenorhabditis elegans\t\t\t\timplicated_via_orthology\tDOID:9952\tacute lymphocytic leukemia\tIEA\tAlliance\tMGI:6194238\n" +
-                "WB:WBGene00001609\tglp-1\tCaenorhabditis elegans\t\t\t\timplicated_via_orthology\tDOID:9952\tacute lymphocytic leukemia\tIEA\tAlliance\tMGI:6194238\n" +
-                "WB:WBGene00003001\tlin-12\tCaenorhabditis elegans\t\t\t\timplicated_via_orthology\tDOID:9952\tacute lymphocytic leukemia\tIEA\tAlliance\tMGI:6194238\n";
+                "HGNC:24948\tDOT1L\tHomo sapiens\t\t\t\tis_implicated_in\tDOID:9953\tB- and T-cell mixed leukemia\tIDA\tRGD\tPMID:23801631\n" +
+                "HGNC:7132\tKMT2A\tHomo sapiens\t\t\t\tis_implicated_in\tDOID:9953\tB- and T-cell mixed leukemia\tIAGP\tRGD\tRGD:7240710\n" +
+                "MGI:107940\tEzh2\tMus musculus\tMGI:3823218\tEzh2<sup>tm2.1Sho</sup>\tallele\tis_implicated_in\tDOID:9952\tacute lymphocytic leukemia\tTAS\tMGI\tPMID:22431509\n" +
+                "MGI:107940\tEzh2\tMus musculus\tMGI:3823217\tEzh2<sup>tm2Sho</sup>\tallele\tis_implicated_in\tDOID:9952\tacute lymphocytic leukemia\tTAS\tMGI\tPMID:22431509\n" +
+                "MGI:107940\tEzh2\tMus musculus\t\t\t\tis_implicated_in\tDOID:9952\tacute lymphocytic leukemia\tTAS\tMGI\tPMID:22431509\n";
         assertEquals(result, output);
 
     }
@@ -298,8 +299,8 @@ public class DiseaseTest {
 
         summary = geneService.getDiseaseSummary(geneID, DiseaseSummary.Type.ORTHOLOGY);
         assertNotNull(summary);
-        assertThat(30L, equalTo(summary.getNumberOfAnnotations()));
-        assertThat(27L, equalTo(summary.getNumberOfEntities()));
+        assertThat(summary.getNumberOfAnnotations(), greaterThan(30L));
+        assertThat(summary.getNumberOfEntities(), greaterThan(27L));
 
         DiseaseAnnotation annotation = response.getResults().get(0);
         assertThat(annotation.getDisease().getName(), equalTo("urinary bladder cancer"));
@@ -466,12 +467,12 @@ public class DiseaseTest {
 
         summary = geneService.getDiseaseSummary(geneID, DiseaseSummary.Type.ORTHOLOGY);
         assertNotNull(summary);
-        assertThat(22L, equalTo(summary.getNumberOfAnnotations()));
-        assertThat(19L, equalTo(summary.getNumberOfEntities()));
+        assertThat(summary.getNumberOfAnnotations(), greaterThan(22L));
+        assertThat(summary.getNumberOfEntities(), greaterThan(19L));
 
 
         JsonResultResponse<DiseaseAnnotation> response = geneService.getDiseaseAnnotations(geneID, pagination, false);
-        assertResponse(response, 10, 22);
+        assertResponse(response, 10, 23);
 
         DiseaseAnnotation annotation = response.getResults().get(0);
         assertThat(annotation.getDisease().getName(), equalTo("angiomyolipoma"));
@@ -548,7 +549,7 @@ public class DiseaseTest {
         // add filter on disease
         pagination.makeSingleFieldFilter(FieldFilter.ASSOCIATION_TYPE, "ImplicaT");
         JsonResultResponse<DiseaseAnnotation> response = geneService.getDiseaseAnnotations(geneID, pagination, false);
-        assertResponse(response, 13, 13);
+        assertResponse(response, 14, 14);
 
         DiseaseAnnotation annotation = response.getResults().get(0);
         assertThat(annotation.getDisease().getName(), equalTo("Bannayan-Riley-Ruvalcaba syndrome"));

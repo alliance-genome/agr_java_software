@@ -216,6 +216,7 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
                 "       feature.symbol, " +
                 "       feature as feature, " +
                 "       collect(diseaseEntityJoin) as diseaseEntityJoin, " +
+                "       max(diseaseEntityJoin.sortOrder) as associationSortOrder, " +
                 "       collect(crossReference) as crossReferences, " +
                 "       collect(publication.pubMedId), " +
                 "       collect(publication) as publications, " +
@@ -227,7 +228,7 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
 
         cypher += "       count(publication),         " +
                 "       collect(publication.pubModId) ";
-        cypher += "order by LOWER(nameJoin) " + pagination.getAscending() + ", LOWER(feature.symbol)";
+        cypher += "order by associationSortOrder ASC, species.phylogeneticOrder ASC, LOWER(nameJoin) " + pagination.getAscending() + ", LOWER(feature.symbol)";
         cypher += " SKIP " + pagination.getStart();
         if (pagination.getLimit() != null && pagination.getLimit() > -1)
             cypher += " LIMIT " + pagination.getLimit();
