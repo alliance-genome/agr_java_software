@@ -54,7 +54,8 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
         query += " OPTIONAL MATCH pSyn=(g:Gene)-[:ALSO_KNOWN_AS]-(:Synonym) ";
         query += " OPTIONAL MATCH pCR=(g:Gene)-[:CROSS_REFERENCE]-(:CrossReference)";
         query += " OPTIONAL MATCH pChr=(g:Gene)-[:LOCATED_ON]-(:Chromosome)";
-        query += " RETURN p1, pSyn, pCR, pChr";
+        query += " OPTIONAL MATCH pSecondaryId=(g:Gene)-[:ALSO_KNOWN_AS]-(s:SecondaryId)";
+        query += " RETURN p1, pSyn, pCR, pChr, pSecondaryId";
 
         Iterable<Gene> genes = query(query, map);
         for (Gene g : genes) {
