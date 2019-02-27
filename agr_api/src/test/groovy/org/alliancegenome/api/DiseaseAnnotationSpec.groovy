@@ -59,8 +59,8 @@ class DiseaseAnnotationSpec extends Specification {
         doURL == ezha.disease.url
         species == ezha.gene.species.name
         where:
-        doid        | totalResults | returned | firstGene        | geneSymbol | crossRef        | geneticEntityType | evCode | disease                      | alleleSymbol              | alleleUrl                                           | doID        | doURL                                           | species
-        "DOID:9952" | 66           | 50       | "FB:FBgn0265598" | "Bx"       | "PMID:22431509" | "allele"          | "TAS"  | "acute lymphocytic leukemia" | "Ezh2<sup>tm2.1Sho</sup>" | "http://www.informatics.jax.org/allele/MGI:3823218" | "DOID:9952" | "http://www.disease-ontology.org/?id=DOID:9952" | "Mus musculus"
+        doid        | totalResults | returned | firstGene    | geneSymbol | crossRef        | geneticEntityType | evCode | disease                      | alleleSymbol              | alleleUrl                                           | doID        | doURL                                           | species
+        "DOID:9952" | 66           | 50       | "HGNC:24948" | "DOT1L"    | "PMID:22431509" | "allele"          | "TAS"  | "acute lymphocytic leukemia" | "Ezh2<sup>tm2.1Sho</sup>" | "http://www.informatics.jax.org/allele/MGI:3823218" | "DOID:9952" | "http://www.disease-ontology.org/?id=DOID:9952" | "Mus musculus"
 
     }
 
@@ -81,10 +81,10 @@ class DiseaseAnnotationSpec extends Specification {
         disease.join(",") == diseaseList
 
         where:
-        sortBy     | geneSymbolList                                                                                      | speciesList                                                                                                                                                                                                                                                                                         | diseaseList
-        "geneName" | "Bx,ces-2,ces-2,CG7786,cntn2,CNTN2,Cntn2,Cntn2,Cont,daf-18,DBP,Dbp,Dbp,dot-1.1,dot-1.2"             | "Drosophila melanogaster,Caenorhabditis elegans,Caenorhabditis elegans,Drosophila melanogaster,Danio rerio,Homo sapiens,Mus musculus,Rattus norvegicus,Drosophila melanogaster,Caenorhabditis elegans,Homo sapiens,Mus musculus,Rattus norvegicus,Caenorhabditis elegans,Caenorhabditis elegans"    | "acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,T-cell adult acute lymphocytic leukemia,T-cell adult acute lymphocytic leukemia,T-cell adult acute lymphocytic leukemia,T-cell adult acute lymphocytic leukemia,T-cell adult acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,B- and T-cell mixed leukemia,B- and T-cell mixed leukemia"
-        "species"  | "ces-2,ces-2,daf-18,dot-1.1,dot-1.2,dot-1.4,dot-1.5,glp-1,lin-12,mes-2,cntn2,dot1l,ezh2,hlfa,kmt2a" | "Caenorhabditis elegans,Caenorhabditis elegans,Caenorhabditis elegans,Caenorhabditis elegans,Caenorhabditis elegans,Caenorhabditis elegans,Caenorhabditis elegans,Caenorhabditis elegans,Caenorhabditis elegans,Caenorhabditis elegans,Danio rerio,Danio rerio,Danio rerio,Danio rerio,Danio rerio" | "acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,B- and T-cell mixed leukemia,B- and T-cell mixed leukemia,B- and T-cell mixed leukemia,B- and T-cell mixed leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,T-cell adult acute lymphocytic leukemia,B- and T-cell mixed leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia"
-        "disease"  | "Bx,ces-2,ces-2,CG7786,daf-18,DBP,Dbp,Dbp,E(z),ezh2,EZH2,Ezh2,Ezh2,Ezh2,Ezh2"                       | "Drosophila melanogaster,Caenorhabditis elegans,Caenorhabditis elegans,Drosophila melanogaster,Caenorhabditis elegans,Homo sapiens,Mus musculus,Rattus norvegicus,Drosophila melanogaster,Danio rerio,Homo sapiens,Mus musculus,Mus musculus,Mus musculus,Rattus norvegicus"                        | "acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia"
+        sortBy     | geneSymbolList                                                                        | speciesList                                                                                                                                                                                                              | diseaseList
+        "geneName" | "DOT1L,KMT2A,Cntn2,Ezh2,Ezh2,Ezh2,Kmt2a,Kmt2a,Lmo2,Notch3,Pten,Pten,Zeb2,ces-2,ces-2" | "Homo sapiens,Homo sapiens,Mus musculus,Mus musculus,Mus musculus,Mus musculus,Mus musculus,Mus musculus,Mus musculus,Mus musculus,Mus musculus,Mus musculus,Mus musculus,Caenorhabditis elegans,Caenorhabditis elegans" | "B- and T-cell mixed leukemia,B- and T-cell mixed leukemia,T-cell adult acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,T-cell adult acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia"
+        "species"  | "DOT1L,KMT2A,Cntn2,Ezh2,Ezh2,Ezh2,Kmt2a,Kmt2a,Lmo2,Notch3,Pten,Pten,Zeb2,ces-2,ces-2" | "Homo sapiens,Homo sapiens,Mus musculus,Mus musculus,Mus musculus,Mus musculus,Mus musculus,Mus musculus,Mus musculus,Mus musculus,Mus musculus,Mus musculus,Mus musculus,Caenorhabditis elegans,Caenorhabditis elegans" | "B- and T-cell mixed leukemia,B- and T-cell mixed leukemia,T-cell adult acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,T-cell adult acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia"
+        "disease"  | "DOT1L,KMT2A,Ezh2,Ezh2,Ezh2,Kmt2a,Kmt2a,Lmo2,Notch3,Pten,Pten,Cntn2,Zeb2,ces-2,ces-2" | "Homo sapiens,Homo sapiens,Mus musculus,Mus musculus,Mus musculus,Mus musculus,Mus musculus,Mus musculus,Mus musculus,Mus musculus,Mus musculus,Mus musculus,Mus musculus,Caenorhabditis elegans,Caenorhabditis elegans" | "B- and T-cell mixed leukemia,B- and T-cell mixed leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,T-cell adult acute lymphocytic leukemia,T-cell adult acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia"
 
     }
 
@@ -123,8 +123,8 @@ class DiseaseAnnotationSpec extends Specification {
 
         where:
         geneSymbolQuery | resultSize | geneSymbolList
-        "ot"            | 13         | "dot-1.1,dot-1.2,dot-1.4,dot-1.5,DOT1,dot1l,DOT1L,Dot1l,Dot1l,notch3,NOTCH3,Notch3,Notch3"
-        "2a"            | 9          | "kmt2a,kmt2a,KMT2A,KMT2A,Kmt2a,Kmt2a,Kmt2a,Kmt2a,Kmt2a"
+        "ot"            | 13         | "DOT1L,Notch3,NOTCH3,Dot1l,Notch3,Dot1l,dot1l,notch3,dot-1.1,dot-1.2,dot-1.4,dot-1.5,DOT1"
+        "2a"            | 10         | "KMT2A,Kmt2a,Kmt2a,KMT2A,Kmt2a,Kmt2a,Kmt2a,kmt2a,kmt2a,zeb2a"
         "r"             | 2          | "trx,trx"
     }
 
@@ -168,7 +168,7 @@ class DiseaseAnnotationSpec extends Specification {
 
         where:
         geneID                   | resultSize | diseaseName                            | diseaseID      | source     | orthoGene   | diseaseURl
-        "MGI:109583"             | 30         | "angiomyolipoma"                       | "DOID:3314"    | "Alliance" | "HGNC:9588" | "http://www.disease-ontology.org/?id=DOID:3314"
+        "MGI:109583"             | 31         | "angiomyolipoma"                       | "DOID:3314"    | "Alliance" | "HGNC:9588" | "http://www.disease-ontology.org/?id=DOID:3314"
         "ZFIN:ZDB-GENE-990415-8" | 5          | "focal segmental glomerulosclerosis 7" | "DOID:0111132" | "Alliance" | "HGNC:8616" | "http://www.disease-ontology.org/?id=DOID:0111132"
     }
 

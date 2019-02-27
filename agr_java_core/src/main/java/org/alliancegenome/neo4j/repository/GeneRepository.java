@@ -55,7 +55,29 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         }
         return null;
     }
+    
+    public Gene getOneGeneBySecondaryId(String secondaryIdPrimaryKey) {
+        HashMap<String, String> map = new HashMap<>();
 
+        map.put("primaryKey", secondaryIdPrimaryKey);
+        String query = " MATCH p1=(q:Species)-[:FROM_SPECIES]-(g:Gene)-[:ALSO_KNOWN_AS]-(s:SecondaryId) WHERE s.primaryKey = {primaryKey} "
+                + "OPTIONAL MATCH p2=(g:Gene)--(:SOTerm) "
+                + "OPTIONAL MATCH p3=(g:Gene)--(:Synonym) "
+                + "OPTIONAL MATCH p4=(g:Gene)--(:Chromosome) "
+                + "OPTIONAL MATCH p5=(g:Gene)--(:CrossReference) "
+                + "RETURN p1, p2, p3, p4, p5";
+
+        Iterable<Gene> genes = query(query, map);
+        for (Gene g : genes) {
+            for(SecondaryId s: g.getSecondaryIds()) {
+                if (s.getPrimaryKey().equals(secondaryIdPrimaryKey)) {
+                    return g;
+                }
+            }
+            
+        }
+        return null;
+    }
 
     public List<Allele> getAlleles(String primaryKey) {
         HashMap<String, String> map = new HashMap<>();
@@ -75,23 +97,6 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         }
         return null;
     }
-
-    public Gene getGeneBySecondary(String id) {
-        HashMap<String, String> map = new HashMap<>();
-
-        map.put("id", id);
-        String query = "MATCH p1=(g:Gene)-[:ALSO_KNOWN_AS]-(sec:SecondaryId), " +
-                "             p2=(g)--(species:Species) " +
-                " where sec.primaryKey = {id} return p1, p2";
-
-        List<Gene> genes = IterableUtils.toList(query(query, map));
-        if (genes.size() == 0)
-            return null;
-        if (genes.size() > 1)
-            throw new RuntimeException("More than one Gene found for secondary ID: " + id);
-        return genes.get(0);
-    }
-
 
     public List<BioEntityGeneExpressionJoin> getExpressionAnnotations(List<String> geneIDs, String termID, Pagination pagination) {
         StringJoiner sj = new StringJoiner(",", "[", "]");
