@@ -5,7 +5,7 @@ import spock.lang.Specification
 import spock.lang.Unroll
 
 
-class QueryRankIT extends Specification {
+class QueryRankIntegrationSpec extends Specification {
 
     @Unroll
     def "When querying for #query with #filter, #betterResult comes before #worseResult"() {

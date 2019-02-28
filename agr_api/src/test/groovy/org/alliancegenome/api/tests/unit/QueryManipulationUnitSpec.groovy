@@ -3,7 +3,7 @@ import spock.lang.Specification
 import spock.lang.Shared
 import spock.lang.Unroll
 
-class QueryManipulationTest extends Specification {
+class QueryManipulationUnitSpec extends Specification {
 
     @Shared
     private QueryManipulationService queryManipulationService = new QueryManipulationService()

@@ -4,7 +4,7 @@ import groovy.json.JsonSlurper
 import spock.lang.Specification
 import spock.lang.Unroll
 
-class PhenotypeIT extends Specification {
+class PhenotypeIntegrationSpec extends Specification {
 
     @Unroll
     def "Gene page - Phenotype Annotations for #geneId"() {

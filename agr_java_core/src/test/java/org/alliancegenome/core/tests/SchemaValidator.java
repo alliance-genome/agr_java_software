@@ -1,4 +1,4 @@
-package org.alliancegenome.core.tests.unit;
+package org.alliancegenome.core.tests;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -15,7 +15,7 @@ public class SchemaValidator {
 
     public static void main(String[] args) throws Exception {
 
-        String path = "/Users/oblod/git/agr_architecture/agr_loader/schemas";
+        String path = "/Users/balrog/git/agr_loader/schemas";
 
         List<File> schemaFiles = new ArrayList<File>();
 
@@ -47,17 +47,25 @@ public class SchemaValidator {
         schemaFiles.add(new File(path + "/gene/geneMetaData.json"));
         schemaFiles.add(new File(path + "/gene/genomeLocation.json"));
 
-        schemaFiles.add(new File(path + "/genotype/alleleInstance.json"));
         schemaFiles.add(new File(path + "/genotype/genotype.json"));
-        schemaFiles.add(new File(path + "/genotype/genotypeMetaDataDefinition.json"));
+        schemaFiles.add(new File(path + "/genotype/genotypeMetaData.json"));
+        schemaFiles.add(new File(path + "/genotype/genotypeComponent.json"));
+        schemaFiles.add(new File(path + "/genotype/sequenceTargetingReagent.json"));
 
         schemaFiles.add(new File(path + "/orthology/orthology.json"));
         schemaFiles.add(new File(path + "/orthology/orthologyMetaData.json"));
 
-        schemaFiles.add(new File(path + "/termName/phenotypeMetaDataDefinition.json"));
-        schemaFiles.add(new File(path + "/termName/phenotypeModelAnnotation.json"));
-        schemaFiles.add(new File(path + "/termName/phenotypeTermIdentifier.json"));
+        schemaFiles.add(new File(path + "/phenotype/phenotypeMetaDataDefinition.json"));
+        schemaFiles.add(new File(path + "/phenotype/phenotypeModelAnnotation.json"));
+        schemaFiles.add(new File(path + "/phenotype/phenotypeTermIdentifier.json"));
 
+        schemaFiles.add(new File(path + "/genedescription/description.json"));
+        schemaFiles.add(new File(path + "/genedescription/single_stats.json"));
+        schemaFiles.add(new File(path + "/genedescription/overall_properties.json"));
+        schemaFiles.add(new File(path + "/genedescription/gd_report.json"));
+        schemaFiles.add(new File(path + "/genedescription/aggregate_stats.json"));
+
+        
         // Test Schema Syntax
         for(File schemaFile: schemaFiles) {
             System.out.print("Testing: " + schemaFile.getAbsolutePath());

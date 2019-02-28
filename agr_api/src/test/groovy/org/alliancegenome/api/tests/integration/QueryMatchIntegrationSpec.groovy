@@ -5,7 +5,7 @@ import spock.lang.Specification
 import spock.lang.Unroll
 
 
-class QueryMatchIT extends Specification {
+class QueryMatchIntegrationSpec extends Specification {
 
     @Unroll
     def "#query should return some results"() {

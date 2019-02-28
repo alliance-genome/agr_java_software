@@ -7,7 +7,7 @@ import spock.lang.Shared
 import spock.lang.Unroll
 import spock.lang.Ignore
 
-class GeneDocumentIT extends Specification {
+class GeneDocumentIntegrationSpec extends Specification {
 
     @Shared GeneRepository repo
 

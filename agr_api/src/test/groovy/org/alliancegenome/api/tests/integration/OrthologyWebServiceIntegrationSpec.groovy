@@ -5,7 +5,7 @@ import spock.lang.Ignore
 import spock.lang.Specification
 import spock.lang.Unroll
 
-class OrthologyWebServiceIT extends Specification {
+class OrthologyWebServiceIntegrationSpec extends Specification {
 
     //@Ignore("Not working until we get test data into travis")
     @Unroll

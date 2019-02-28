@@ -4,7 +4,7 @@ import spock.lang.Shared
 import spock.lang.Unroll
 import spock.lang.Specification
 
-class GOTermIT extends Specification {
+class GOTermIntegrationSpec extends Specification {
 
     @Shared GoRepository goRepository
 

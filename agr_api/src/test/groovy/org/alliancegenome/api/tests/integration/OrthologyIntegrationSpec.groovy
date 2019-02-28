@@ -4,7 +4,7 @@ import groovy.json.JsonSlurper
 import spock.lang.Specification
 import spock.lang.Unroll
 
-class OrthologyIT extends Specification {
+class OrthologyIntegrationSpec extends Specification {
 
     @Unroll
     def "Gene page - Homology for #geneId and #stringencyFilter "() {

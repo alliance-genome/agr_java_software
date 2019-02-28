@@ -5,7 +5,7 @@ import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Unroll
 
-class QueryTokenizationTest extends Specification {
+class QueryTokenizationUnitSpec extends Specification {
 
     @Shared SearchService searchService
 

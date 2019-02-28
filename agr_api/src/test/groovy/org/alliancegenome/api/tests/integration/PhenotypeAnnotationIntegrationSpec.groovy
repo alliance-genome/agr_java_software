@@ -5,7 +5,7 @@ import spock.lang.Specification
 import spock.lang.Unroll
 
 
-class PhenotypeAnnotationIT extends Specification {
+class PhenotypeAnnotationIntegrationSpec extends Specification {
 
     @Unroll
     def "Check that there are phenotype annotations for #query"() {

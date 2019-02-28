@@ -5,7 +5,7 @@ import spock.lang.Specification
 import spock.lang.Unroll
 
 
-class AutocompleteIT extends Specification {
+class AutocompleteIntegrationSpec extends Specification {
 
     @Unroll
     def "an autocomplete query for #query should return results that start with #query"() {

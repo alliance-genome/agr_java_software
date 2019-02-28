@@ -1,4 +1,4 @@
-package org.alliancegenome.core.tests.unit;
+package org.alliancegenome.core.tests;
 
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.es.model.query.FieldFilter;
