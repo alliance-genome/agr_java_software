@@ -16,6 +16,7 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
 
     public static final String DISEASE_INCLUDING_CHILDREN = "(diseaseParent:DOTerm)<-[:IS_A_PART_OF_CLOSURE]-(disease:DOTerm)";
     public static final String FEATURE_JOIN = " p4=(diseaseEntityJoin)--(feature:Feature)--(crossReference:CrossReference) ";
+    public static final String AND_NOT_DISEASE_ENTITY_JOIN_FEATURE = " AND NOT (diseaseEntityJoin)--(:Feature) ";
     private Logger log = LogManager.getLogger(getClass());
     public static final String TOTAL_COUNT = "totalCount";
 
@@ -379,7 +380,7 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
 
         baseCypher += getFilterClauses(pagination, true);
 
-        String cypher = baseCypher + " AND NOT (diseaseEntityJoin)--(:Feature) ";
+        String cypher = baseCypher + AND_NOT_DISEASE_ENTITY_JOIN_FEATURE;
         if (empiricalDisease) {
             cypher += cypherEmpirical;
             cypher += "return count(distinct disease.name + diseaseEntityJoin.joinType) as " + TOTAL_COUNT;
@@ -454,11 +455,11 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
 
 
         //String cypherAll = getCypherSelectPart(pagination, null, false, bindingValueMap);
-        String cypherAll = "MATCH p0=" + DISEASE_INCLUDING_CHILDREN + "--" +
-                "(diseaseEntityJoin:DiseaseEntityJoin)-[:EVIDENCE]-(publication:Publication), " +
-                "p1=(diseaseEntityJoin)--(evidence:EvidenceCode),               " +
-                "p2=(diseaseEntityJoin)-[:ASSOCIATION]-(gene:Gene)--(species:Species)  " +
+        String cypherAll = "MATCH " + DISEASE_INCLUDING_CHILDREN + "--" +
+                "(diseaseEntityJoin:DiseaseEntityJoin), " +
+                "(diseaseEntityJoin)-[:ASSOCIATION]-(gene:Gene)--(species:Species)  " +
                 "where diseaseParent.primaryKey = {diseaseID} ";
+        cypherAll += AND_NOT_DISEASE_ENTITY_JOIN_FEATURE;
         cypherAll += "return count(distinct gene.symbol + disease.name + species.name + diseaseEntityJoin.joinType ) as " + TOTAL_COUNT;
 
         String geneticEntityFilterClause = addWhereClauseString("feature.symbol", FieldFilter.GENETIC_ENTITY, pagination.getFieldFilterValueMap(), "WHERE");
@@ -468,10 +469,9 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
         }
 
         // feature-related phenotypes
-        cypherAll = "MATCH p0=" + DISEASE_INCLUDING_CHILDREN + "--" +
-                "(diseaseEntityJoin:DiseaseEntityJoin)-[:EVIDENCE]-(publication:Publication), " +
-                "p1=(diseaseEntityJoin)--(evidence:EvidenceCode),               " +
-                "p2=(diseaseEntityJoin)-[:ASSOCIATION]-(gene:Gene)--(species:Species),  ";
+        cypherAll = "MATCH " + DISEASE_INCLUDING_CHILDREN + "--" +
+                "(diseaseEntityJoin:DiseaseEntityJoin), " +
+                "(diseaseEntityJoin)-[:ASSOCIATION]-(gene:Gene)--(species:Species),  ";
         cypherAll += FEATURE_JOIN +
                 " where diseaseParent.primaryKey = {diseaseID} ";
         cypherAll += "return count(distinct gene.symbol + disease.name + species.name + diseaseEntityJoin.joinType + feature.symbol ) as " + TOTAL_COUNT;
