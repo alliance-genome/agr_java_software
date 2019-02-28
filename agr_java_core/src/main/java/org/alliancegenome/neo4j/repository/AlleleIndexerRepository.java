@@ -50,6 +50,8 @@ public class AlleleIndexerRepository extends Neo4jRepository {
         alleleDocumentCache.setGenes(getGenesMap(species));
         log.info("Building allele -> phenotype statements map");
         alleleDocumentCache.setPhenotypeStatements(getPhenotypeStatementsMap(species));
+        log.info("Building allele -> species map");
+        alleleDocumentCache.setSpeciesMap(getSpeciesMap(species));
 
         return alleleDocumentCache;
 
@@ -64,12 +66,11 @@ public class AlleleIndexerRepository extends Neo4jRepository {
     }
 
     public Map<String, Set<String>> getGenesMap(String species) {
-        //todo: needs to be nameKey, but nameKey needs to be set in neo
         String query = "MATCH (species:Species)--(gene:Gene)-[:IS_ALLELE_OF]-(a:Allele) ";
         query += getSpeciesWhere(species);
-        query += "RETURN distinct a.primaryKey, gene.symbol";
+        query += "RETURN distinct a.primaryKey, gene.symbolWithSpecies";
 
-        return getMapSetForQuery(query, "a.primaryKey", "gene.symbol", getSpeciesParams(species));
+        return getMapSetForQuery(query, "a.primaryKey", "gene.symbolWithSpecies", getSpeciesParams(species));
     }
 
 
@@ -80,4 +81,15 @@ public class AlleleIndexerRepository extends Neo4jRepository {
 
         return getMapSetForQuery(query, "a.primaryKey", "phenotype.phenotypeStatement", getSpeciesParams(species));
     }
+
+    //this is kind of silly, but since species comes in via gene and we don't actually
+    //want the whole gene back...here we are
+    public Map<String, Set<String>> getSpeciesMap(String species) {
+        String query = "MATCH (species:Species)--(gene:Gene)-[:IS_ALLELE_OF]-(a:Allele) ";
+        query += getSpeciesWhere(species);
+        query += "RETURN distinct a.primaryKey, species.name";
+
+        return getMapSetForQuery(query, "a.primaryKey", "species.name", getSpeciesParams(species));
+    }
+
 }

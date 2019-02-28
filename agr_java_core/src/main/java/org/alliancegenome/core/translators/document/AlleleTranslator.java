@@ -49,43 +49,27 @@ public class AlleleTranslator extends EntityDocumentTranslator<Allele, AlleleDoc
             }
         }
 
-        if (translationDepth > 0) {
-            if (entity.getGene().getSpecies() != null)
-                alleleDocument.setNameKeyWithSpecies(entity.getSymbol(), entity.getGene().getSpecies().getType().getAbbreviation());
-
-            // This code is duplicated in Gene and Allele should be pulled out into its own translator
-            ArrayList<String> secondaryIds = new ArrayList<>();
-            if (entity.getSecondaryIds() != null) {
-                for (SecondaryId secondaryId : entity.getSecondaryIds()) {
-                    secondaryIds.add(secondaryId.getName());
-                }
+        // This code is duplicated in Gene and Allele should be pulled out into its own translator
+        ArrayList<String> secondaryIds = new ArrayList<>();
+        if (entity.getSecondaryIds() != null) {
+            for (SecondaryId secondaryId : entity.getSecondaryIds()) {
+                secondaryIds.add(secondaryId.getName());
             }
-            alleleDocument.setSecondaryIds(secondaryIds);
-
-            // This code is duplicated in Gene and Allele should be pulled out into its own translator
-            ArrayList<String> synonyms = new ArrayList<>();
-            if (entity.getSynonyms() != null) {
-                for (Synonym synonym : entity.getSynonyms()) {
-                    if (synonym.getPrimaryKey() != null) {
-                        synonyms.add(synonym.getPrimaryKey());
-                    } else {
-                        synonyms.add(synonym.getName());
-                    }
-                }
-            }
-            alleleDocument.setSynonyms(synonyms);
-            alleleDocument.setGeneDocument(geneTranslator.translate(entity.getGene(), translationDepth - 1));
-            if (CollectionUtils.isNotEmpty(entity.getDiseaseEntityJoins())) {
-                List<DiseaseDocument> diseaseList = diseaseTranslator.getDiseaseDocuments(entity.getGene(), entity.getDiseaseEntityJoins(), translationDepth);
-                alleleDocument.setDiseaseDocuments(diseaseList);
-            }
-
-            alleleDocument.setPhenotypeStatements(
-                    entity.getPhenotypes().stream()
-                            .map(Phenotype::getPhenotypeStatement)
-                            .collect(Collectors.toSet()));
-
         }
+        alleleDocument.setSecondaryIds(secondaryIds);
+
+        // This code is duplicated in Gene and Allele should be pulled out into its own translator
+        ArrayList<String> synonyms = new ArrayList<>();
+        if (entity.getSynonyms() != null) {
+            for (Synonym synonym : entity.getSynonyms()) {
+                if (synonym.getPrimaryKey() != null) {
+                    synonyms.add(synonym.getPrimaryKey());
+                } else {
+                    synonyms.add(synonym.getName());
+                }
+            }
+        }
+        alleleDocument.setSynonyms(synonyms);
 
         return alleleDocument;
     }

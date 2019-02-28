@@ -65,9 +65,9 @@ public class SearchHelper {
             });
             put("allele", new ArrayList<String>() {
                 {
-                    add("geneDocument.species");
-                    add("diseaseDocuments.name");
-                    add("geneDocument.name_key");
+                    add("species");
+                    add("diseases");
+                    add("genes");
                 }
             });
         }
