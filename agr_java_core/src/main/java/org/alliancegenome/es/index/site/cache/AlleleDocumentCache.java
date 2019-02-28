@@ -15,7 +15,6 @@ import lombok.Setter;
 public class AlleleDocumentCache extends IndexerCache {
 
     private Map<String, Allele> alleleMap = new HashMap<>();
-    private Map<String, Set<String>> speciesMap = new HashMap<>();
 
     public void addCachedFields(Iterable<AlleleDocument> alleleDocuments) {
 
@@ -25,7 +24,6 @@ public class AlleleDocumentCache extends IndexerCache {
             alleleDocument.setDiseases(diseases.get(id));
             alleleDocument.setGenes(genes.get(id));
             alleleDocument.setPhenotypeStatements(phenotypeStatements.get(id));
-            alleleDocument.setSpecies(speciesMap.get(id).iterator().next());
         }
 
     }

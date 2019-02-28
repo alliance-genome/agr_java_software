@@ -35,6 +35,7 @@ public class AlleleTranslator extends EntityDocumentTranslator<Allele, AlleleDoc
         alleleDocument.setRelease(entity.getRelease());
         alleleDocument.setSymbol(entity.getSymbol());
         alleleDocument.setName(entity.getSymbol());
+        alleleDocument.setSpecies(entity.getSpecies().getName());
 
         if (entity.getCrossReferences() != null && entity.getCrossReferences().size() > 0) {
             CrossReference allele = entity.getCrossReferences().stream()
