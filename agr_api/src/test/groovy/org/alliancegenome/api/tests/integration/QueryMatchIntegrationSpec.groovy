@@ -96,6 +96,9 @@ class QueryMatchIntegrationSpec extends Specification {
         "AGR-755"  | "ZFIN:ZDB-GENE-010323-11" | "ena"
         "AGR-755"  | "ZFIN:ZDB-GENE-010323-11" | "ENAH"
         "AGR-755"  | "ZFIN:ZDB-GENE-010323-11" | "en" //confirm starts-with match too
+
+        //secondaryId
+        "AGR-1437" | "MGI:109583"              | "MGI:1917411"
     }
 
     @Unroll

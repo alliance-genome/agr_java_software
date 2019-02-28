@@ -80,14 +80,6 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
             }
         }
 
-//      geneDocument.setBiologicalProcessWithParents(gene.getBiologicalProcessWithParents());
-//      geneDocument.setCellularComponentWithParents(gene.getCellularComponentWithParents());
-//      geneDocument.setMolecularFunctionWithParents(gene.getMolecularFunctionWithParents());
-//
-//      geneDocument.setBiologicalProcessAgrSlim(gene.getBiologicalProcessAgrSlim());
-//      geneDocument.setCellularComponentAgrSlim(gene.getCellularComponentAgrSlim());
-//      geneDocument.setMolecularFunctionAgrSlim(gene.getMolecularFunctionAgrSlim());
-
         // This code is duplicated in Gene and Allele should be pulled out into its own translator
         ArrayList<String> secondaryIds = new ArrayList<>();
         if (gene.getSecondaryIds() != null) {
