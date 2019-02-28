@@ -2,7 +2,7 @@ import groovy.json.JsonSlurper
 import spock.lang.Specification
 import spock.lang.Unroll
 
-class CategoriesAndFieldsIntegrationSpec extends Specification {
+class CategoriesAndFieldsIntegrationForLaterSpec extends Specification {
 
 
     @Unroll
