@@ -1,4 +1,4 @@
-package org.alliancegenome.shared;
+package org.alliancegenome.core.tests.unit;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsEqual.equalTo;

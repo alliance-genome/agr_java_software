@@ -1,4 +1,4 @@
-package org.alliancegenome.api;
+package org.alliancegenome.api.tests.integration;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -26,7 +26,6 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.config.Configurator;
 import org.jboss.logging.Logger;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -44,18 +43,17 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
 @Api(value = "hallo")
-@Ignore
-public class GeneTest {
+public class GeneIT {
 
     private GeneService geneService;
 
-    private static Logger log = Logger.getLogger(GeneTest.class);
+    private static Logger log = Logger.getLogger(GeneIT.class);
     private ObjectMapper mapper = new ObjectMapper();
 
     @ApiOperation(value = "Retrieve a Gene for given ID")
     public static void main(String[] args) {
 
-        GeneTest test = new GeneTest();
+        GeneIT test = new GeneIT();
         Api annotation = test.getClass().getAnnotation(Api.class);
         Method method = new Object() {
         }
@@ -362,7 +360,6 @@ public class GeneTest {
     }
 
     @Test
-    @Ignore
     public void checkExpressionAPI() throws IOException {
 
         ExpressionController controller = new ExpressionController();

@@ -1,4 +1,4 @@
-package org.alliancegenome.api;
+package org.alliancegenome.api.tests.integration;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -18,17 +18,14 @@ import org.alliancegenome.neo4j.view.OrthologyModule;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.config.Configurator;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
 @Api(value = "Phenotype Tests")
-@Ignore
-public class PhenotypeTest {
+public class PhenotypeIT {
 
     private ObjectMapper mapper = new ObjectMapper();
     private GeneService geneService;
@@ -119,8 +116,8 @@ public class PhenotypeTest {
 
         EntitySummary summary = geneService.getPhenotypeSummary(geneID);
         assertNotNull(summary);
-        assertThat(295L, equalTo(summary.getNumberOfAnnotations()));
-        assertThat(110L, equalTo(summary.getNumberOfEntities()));
+        assertThat(summary.getNumberOfAnnotations(), greaterThanOrEqualTo(295L));
+        assertThat(summary.getNumberOfEntities(), greaterThanOrEqualTo(110L));
 
 
         // add filter on phenotype
@@ -154,7 +151,7 @@ public class PhenotypeTest {
         response = geneService.getPhenotypeAnnotations(geneID, pagination);
         assertResponse(response, 11, 245);
 
-        assertThat("zfin pubs plus PUB MED pubs gives total number ", totalSize, equalTo(zfinRefCount + response.getTotal()));
+        assertThat("zfin pubs plus PUB MED pubs gives total number ", zfinRefCount + response.getTotal(), greaterThanOrEqualTo(totalSize));
 
         // add filter on reference: pubmed
         pagination.makeSingleFieldFilter(FieldFilter.FREFERENCE, "239");
@@ -192,8 +189,8 @@ public class PhenotypeTest {
 
         EntitySummary summary = geneService.getPhenotypeSummary(geneID);
         assertNotNull(summary);
-        assertThat(1251L, equalTo(summary.getNumberOfAnnotations()));
-        assertThat(526L, equalTo(summary.getNumberOfEntities()));
+        assertThat(summary.getNumberOfAnnotations(), greaterThanOrEqualTo(1251L));
+        assertThat(summary.getNumberOfEntities(), greaterThanOrEqualTo(526L));
 
 
         // add filter on phenotype
@@ -209,8 +206,8 @@ public class PhenotypeTest {
 
     private void assertResponse(JsonResultResponse<PhenotypeAnnotation> response, int resultSize, int totalSize) {
         assertNotNull(response);
-        assertThat("Number of returned records", response.getResults().size(), equalTo(resultSize));
-        assertThat("Number of total records", response.getTotal(), equalTo(totalSize));
+        assertThat("Number of returned records", response.getResults().size(), greaterThanOrEqualTo(resultSize));
+        assertThat("Number of total records", response.getTotal(), greaterThanOrEqualTo(totalSize));
     }
 
 

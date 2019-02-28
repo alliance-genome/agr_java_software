@@ -4,7 +4,7 @@ import groovy.json.JsonSlurper
 import spock.lang.Specification
 import spock.lang.Unroll
 
-class ExpressionSpec extends Specification {
+class ExpressionIntegrationSpec extends Specification {
 
     @Unroll
     def "Gene page - Expression Summary for #geneId"() {
