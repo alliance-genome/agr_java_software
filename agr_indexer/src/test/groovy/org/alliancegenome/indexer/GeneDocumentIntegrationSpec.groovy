@@ -5,11 +5,12 @@ import org.alliancegenome.neo4j.entity.node.Gene
 import org.alliancegenome.es.index.site.document.GeneDocument
 import spock.lang.Shared
 import spock.lang.Unroll
-
+import spock.lang.Ignore
 
 class GeneDocumentIntegrationSpec extends Specification {
 
     @Shared GeneRepository repo
+
     @Shared GeneTranslator trans
 
     def setup() {
@@ -22,6 +23,7 @@ class GeneDocumentIntegrationSpec extends Specification {
         trans = null
     }
 
+    @Ignore
     def "GeneDocument has GOTerm parents, slim terms"() {
         when: //we get a gene document
         Gene gene = repo.getOneGene("FB:FBgn0014020")
@@ -44,6 +46,7 @@ class GeneDocumentIntegrationSpec extends Specification {
 
     }
 
+    @Ignore
     @Unroll
     def "GeneDocument for #geneID has expressionBioEntities #entities"() {
         when:
@@ -62,6 +65,7 @@ class GeneDocumentIntegrationSpec extends Specification {
 
     }
 
+    @Ignore
     @Unroll
     def "GeneDocument for #geneID has UBERON anitomicalExpression for #entities"() {
         when:
@@ -79,6 +83,7 @@ class GeneDocumentIntegrationSpec extends Specification {
 
     }
 
+    @Ignore
     @Unroll
     def "GeneDocument for #geneID has cellularComponentExpression for #entities"() {
         when:
@@ -97,6 +102,8 @@ class GeneDocumentIntegrationSpec extends Specification {
 
     }
 
+    @Ignore
+    @Unroll
     def "#geneID has #strict in strict list, but not #otherOrthologue"() {
         when:
         Gene gene = repo.getOneGene(geneID)
