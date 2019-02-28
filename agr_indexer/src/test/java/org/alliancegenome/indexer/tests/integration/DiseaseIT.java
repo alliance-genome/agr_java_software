@@ -1,4 +1,4 @@
-package org.alliancegenome.indexer;
+package org.alliancegenome.indexer.tests.integration;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsEqual.equalTo;
@@ -28,8 +28,6 @@ import org.alliancegenome.neo4j.repository.DiseaseRepository;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.alliancegenome.neo4j.repository.Neo4jRepository;
 import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.config.Configurator;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -37,7 +35,10 @@ import org.junit.Test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class DiseaseTest {
+import lombok.extern.log4j.Log4j2;
+
+@Log4j2
+public class DiseaseIT {
 
     private AlleleRepository alleleRepository;
     private DiseaseRepository diseaseRepository;
@@ -50,7 +51,6 @@ public class DiseaseTest {
     public void before() {
         Configurator.setRootLevel(Level.WARN);
         //Configurator.setLevel("org.neo4j",Level.DEBUG);
-        Logger log = LogManager.getLogger(DiseaseTest.class);
         log.info("Hallo");
         ConfigHelper.init();
 
@@ -65,7 +65,6 @@ public class DiseaseTest {
     public static void main(String[] args) throws Exception {
         Configurator.setRootLevel(Level.WARN);
         //Configurator.setLevel("org.neo4j",Level.DEBUG);
-        Logger log = LogManager.getLogger(DiseaseTest.class);
         log.info("Hallo");
 
         DiseaseRepository diseaseRepository = new DiseaseRepository();
@@ -81,7 +80,7 @@ public class DiseaseTest {
         Collection<DOTerm> entityt = neo4jService.getEntity("primaryKey", "DOID:9281");
 */
 
-        DiseaseTest test = new DiseaseTest();
+        DiseaseIT test = new DiseaseIT();
 //        test.testReferencesForAllele();
         test.testReferencesForAlleleDiseaseAnnotations();
         Neo4jRepository<DOTerm> neo4jService = new Neo4jRepository<>(DOTerm.class);

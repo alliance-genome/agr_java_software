@@ -4,7 +4,7 @@ import groovy.json.JsonSlurper
 import spock.lang.Specification
 import spock.lang.Unroll
 
-class DiseaseAnnotationSpec extends Specification {
+class DiseaseAnnotationIntegrationSpec extends Specification {
 
     @Unroll
     def "Disease page for #query"() {

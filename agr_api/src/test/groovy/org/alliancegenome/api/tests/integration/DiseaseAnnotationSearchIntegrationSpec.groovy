@@ -5,7 +5,7 @@ import spock.lang.Ignore
 import spock.lang.Specification
 import spock.lang.Unroll
 
-class DiseaseAnnotationSearchSpec extends Specification {
+class DiseaseAnnotationSearchIntegrationSpec extends Specification {
 
     @Ignore("Not working until we get disease data on geneMap")
     @Unroll

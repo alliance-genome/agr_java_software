@@ -180,32 +180,6 @@
 				</executions>
 			</plugin>
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-source-plugin</artifactId>
-				<version>3.0.1</version>
-				<executions>
-					<execution>
-						<id>attach-sources</id>
-						<goals>
-							<goal>jar</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>3.0.0</version>
-				<executions>
-					<execution>
-						<id>attach-javadocs</id>
-						<goals>
-							<goal>jar</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
 				<groupId>org.codehaus.gmavenplus</groupId>
 				<artifactId>gmavenplus-plugin</artifactId>
 				<version>1.0</version>
@@ -249,10 +223,6 @@
 				<configuration>
 					<parallel>methods</parallel>
 					<threadCount>5</threadCount>
-					<excludes>
-						<exclude>**/IntegrationSpec.*</exclude>
-						<exclude>**/Abstract*.java</exclude>
-					</excludes>
 					<includes>
 						<include>**/*Test.*</include>
 						<include>**/*UnitSpec.*</include>
@@ -275,8 +245,8 @@
 				<configuration>
 					<skipAfterFailureCount>0</skipAfterFailureCount>
 					<includes>
-						<include>**/*IntegrationSpec.groovy</include>
-						<include>**/*IntegrationSpec.java</include>
+						<include>**/*IT.*</include>
+						<include>**/*IntegrationSpec.*</include>
 					</includes>
 				</configuration>
 			</plugin>

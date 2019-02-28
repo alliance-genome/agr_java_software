@@ -1,4 +1,4 @@
-package org.alliancegenome.api;
+package org.alliancegenome.api.tests.integration;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -18,7 +18,6 @@ import org.alliancegenome.neo4j.view.OrthologyModule;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.config.Configurator;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.*;
@@ -26,8 +25,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
 @Api(value = "Phenotype Tests")
-@Ignore
-public class PhenotypeTest {
+public class PhenotypeIT {
 
     private ObjectMapper mapper = new ObjectMapper();
     private GeneService geneService;
