@@ -5,4 +5,3 @@ WORKDIR /workdir/agr_java_software
 ADD . .
 
 RUN mvn -B clean package -pl agr_api -am
-RUN mvn -B verify -pl agr_api -am
