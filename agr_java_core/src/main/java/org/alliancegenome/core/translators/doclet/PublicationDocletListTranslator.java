@@ -16,7 +16,6 @@ public class PublicationDocletListTranslator {
     private static PublicationDocletTranslator publicationDocletTranslator = new PublicationDocletTranslator();
 
     public List<PublicationDoclet> getPublicationDoclets(List<? extends EntityJoin> entityJoinList) {
-/*
         List<PublicationDoclet> pubDocletListRaw = entityJoinList.stream()
                 // filter out records that do not have valid pub / evidence code entries
                 .filter(entityJoin ->
@@ -36,11 +35,9 @@ public class PublicationDocletListTranslator {
                     publicationDoclet.setEvidenceCodes(evidencesDocument);
                     return publicationDoclet;
                 }).distinct().filter(Objects::nonNull).sorted(PublicationDoclet::compareTo).collect(Collectors.toList());
-*/
 
         // get evidence codes for same pub onto s
         List<PublicationDoclet> pubDocletList = new ArrayList<>();
-/*
         for (PublicationDoclet doclet : pubDocletListRaw) {
             PublicationDoclet existingDoclet = null;
             for (PublicationDoclet finalDoclet : pubDocletList) {
@@ -55,7 +52,6 @@ public class PublicationDocletListTranslator {
                     existingDoclet.getEvidenceCodes().addAll(doclet.getEvidenceCodes());
             }
         }
-*/
         return pubDocletList;
     }
 
