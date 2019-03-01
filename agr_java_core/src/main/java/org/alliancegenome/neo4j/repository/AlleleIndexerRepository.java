@@ -17,7 +17,7 @@ public class AlleleIndexerRepository extends Neo4jRepository {
 
     public Map<String, Allele> getAlleleMap(String species) {
 
-        String query = "MATCH p1=(species:Species)--(feature:Feature)-[:IS_ALLELE_OF]-(:Gene) ";
+        String query = "MATCH p1=(species:Species)-[:FROM_SPECIES]-(feature:Feature:Allele)-[:IS_ALLELE_OF]-(:Gene) ";
         query += getSpeciesWhere(species);
         query += " OPTIONAL MATCH pSyn=(feature:Feature)-[:ALSO_KNOWN_AS]-(synonym:Synonym) ";
         query += " OPTIONAL MATCH crossRef=(feature:Feature)-[:CROSS_REFERENCE]-(c:CrossReference) ";
