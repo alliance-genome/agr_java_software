@@ -14,7 +14,7 @@ class CategoriesAndFieldsIntegrationForLaterSpec extends Specification {
         total > 0
 
         where:
-        category << ["gene", "disease", "go"]
+        category << ["gene", "disease", "go", "allele"]
     }
 
     @Unroll
@@ -31,6 +31,7 @@ class CategoriesAndFieldsIntegrationForLaterSpec extends Specification {
         category  | field
 
         "gene"    | "primaryId"
+        "gene"    | "secondaryIds"
         "gene"    | "category"
         "gene"    | "name"
         "gene"    | "name.keyword"
@@ -58,6 +59,16 @@ class CategoriesAndFieldsIntegrationForLaterSpec extends Specification {
         "disease" | "synonyms"
         "disease" | "synonyms.autocomplete"
 
+        "allele"  | "primaryId"
+        "allele"  | "category"
+        "allele"  | "name"
+        "allele"  | "name.keyword"
+        "allele"  | "name.autocomplete"
+        "allele"  | "synonyms"
+        "allele"  | "synonyms.autocomplete"
+        "allele"  | "species"
+        "allele"  | "genes"
+        "allele"  | "diseases"
 
     }
 

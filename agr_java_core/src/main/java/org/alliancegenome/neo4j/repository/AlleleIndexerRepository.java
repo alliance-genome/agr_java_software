@@ -17,7 +17,7 @@ public class AlleleIndexerRepository extends Neo4jRepository {
 
     public Map<String, Allele> getAlleleMap(String species) {
 
-        String query = "MATCH p1=(feature:Feature)-[:IS_ALLELE_OF]-(:Gene)-[:FROM_SPECIES]-(species:Species) ";
+        String query = "MATCH p1=(species:Species)-[:FROM_SPECIES]-(feature:Feature:Allele)-[:IS_ALLELE_OF]-(:Gene) ";
         query += getSpeciesWhere(species);
         query += " OPTIONAL MATCH pSyn=(feature:Feature)-[:ALSO_KNOWN_AS]-(synonym:Synonym) ";
         query += " OPTIONAL MATCH crossRef=(feature:Feature)-[:CROSS_REFERENCE]-(c:CrossReference) ";
@@ -60,16 +60,15 @@ public class AlleleIndexerRepository extends Neo4jRepository {
         query += getSpeciesWhere(species);
         query += " RETURN a.primaryKey, disease.nameKey ";
 
-        return getMapSetForQuery(query, "feature.primaryKey", "disease.nameKey", getSpeciesParams(species));
+        return getMapSetForQuery(query, "a.primaryKey", "disease.nameKey", getSpeciesParams(species));
     }
 
     public Map<String, Set<String>> getGenesMap(String species) {
-        //todo: needs to be nameKey, but nameKey needs to be set in neo
         String query = "MATCH (species:Species)--(gene:Gene)-[:IS_ALLELE_OF]-(a:Allele) ";
         query += getSpeciesWhere(species);
-        query += "RETURN distinct a.primaryKey, gene.symbol";
+        query += "RETURN distinct a.primaryKey, gene.symbolWithSpecies";
 
-        return getMapSetForQuery(query, "a.primaryKey", "gene.symbol", getSpeciesParams(species));
+        return getMapSetForQuery(query, "a.primaryKey", "gene.symbolWithSpecies", getSpeciesParams(species));
     }
 
 
@@ -80,4 +79,5 @@ public class AlleleIndexerRepository extends Neo4jRepository {
 
         return getMapSetForQuery(query, "a.primaryKey", "phenotype.phenotypeStatement", getSpeciesParams(species));
     }
+
 }

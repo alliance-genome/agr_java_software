@@ -23,7 +23,7 @@ public class AlleleDocument extends SearchableItemDocument {
 
     private String primaryKey;
     private String symbol;
-    // cleaned up symbol
+    private String species;
     private String searchSymbol;
     private Date dateProduced;
     private Date dataProvider;
@@ -34,8 +34,6 @@ public class AlleleDocument extends SearchableItemDocument {
 
     private List<String> secondaryIds;
     private List<String> synonyms;
-    private GeneDocument geneDocument;
-    private List<DiseaseDocument> diseaseDocuments = new ArrayList<>();
     private List<CrossReferenceDoclet> crossReferenceList;
 
     @Override
