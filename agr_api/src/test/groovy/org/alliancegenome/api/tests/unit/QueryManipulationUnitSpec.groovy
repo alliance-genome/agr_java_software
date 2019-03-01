@@ -1,7 +1,7 @@
+
 import org.alliancegenome.api.service.QueryManipulationService
-import spock.lang.Specification
-import spock.lang.Shared
-import spock.lang.Unroll
+
+import spock.lang.*
 
 class QueryManipulationUnitSpec extends Specification {
 

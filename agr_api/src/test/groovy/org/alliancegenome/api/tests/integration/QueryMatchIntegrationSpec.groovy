@@ -1,19 +1,15 @@
 package org.alliancegenome.api
 
-import groovy.json.JsonSlurper
-import spock.lang.Specification
 import spock.lang.Unroll
 
-
-class QueryMatchIntegrationSpec extends Specification {
+class QueryMatchIntegrationSpec extends AbstractSpec {
 
     @Unroll
     def "#query should return some results"() {
         when:
         def encodedQuery = URLEncoder.encode(query, "UTF-8")
         //todo: need to set the base search url in a nicer way
-        def url = new URL("http://localhost:8080/api/search?limit=5000&offset=0&q=$encodedQuery$filter")
-        def results = new JsonSlurper().parseText(url.text).results
+        def results = getApiResults("/api/search?limit=5000&offset=0&q=$encodedQuery$filter").results
 
         then:
         results
@@ -37,8 +33,7 @@ class QueryMatchIntegrationSpec extends Specification {
         when:
         def encodedQuery = URLEncoder.encode("$query AND $id", "UTF-8")
         //todo: need to set the base search url in a nicer way
-        def url = new URL("http://localhost:8080/api/search?limit=10&offset=0&q=$encodedQuery")
-        def results = new JsonSlurper().parseText(url.text).results
+        def results = getApiResults("/api/search?limit=10&offset=0&q=$encodedQuery").results
 
         then:
         results
@@ -106,8 +101,7 @@ class QueryMatchIntegrationSpec extends Specification {
         when:
         def encodedQuery = URLEncoder.encode("NOT $query AND $id", "UTF-8")
         //todo: need to set the base search url in a nicer way
-        def url = new URL("http://localhost:8080/api/search?limit=10&offset=0&q=$encodedQuery")
-        def results = new JsonSlurper().parseText(url.text).results
+        def results = getApiResults("/api/search?limit=10&offset=0&q=$encodedQuery").results
 
         then:
         results

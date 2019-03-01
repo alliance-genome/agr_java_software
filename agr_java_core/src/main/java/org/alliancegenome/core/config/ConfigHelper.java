@@ -51,6 +51,10 @@ public class ConfigHelper {
         defaults.put("KEEPINDEX", "false");
         defaults.put("SPECIES", null);
         
+        defaults.put("API_HOST", "localhost");
+        defaults.put("API_PORT", "8080");
+        defaults.put("API_SECURE", "false");
+        
         defaults.put("NEO4J_HOST", "localhost");
         defaults.put("NEO4J_PORT", "7687");
 
@@ -124,6 +128,44 @@ public class ConfigHelper {
             return 9300;
         }
     }
+    
+    public static String getApiHost() {
+        if(!init) init();
+        return config.get("API_HOST");
+    }
+    public static int getApiPort() {
+        if(!init) init();
+        try {
+            return Integer.parseInt(config.get("API_PORT"));
+        } catch (NumberFormatException e) {
+            return 443;
+        }
+    }
+    public static Boolean isApiSecure() {
+        if(!init) init();
+        return Boolean.parseBoolean(config.get("API_SECURE"));
+    }
+    
+    public static String getApiBaseUrl() {
+        String url = "";
+        
+        if(isApiSecure()) {
+            url = "https://";
+            url += getApiHost();
+            if(getApiPort() != 443) {
+                url += ":" + getApiPort();
+            }
+        } else {
+            url = "http://";
+            url += getApiHost();
+            if(getApiPort() != 80) {
+                url += ":" + getApiPort();
+            }
+        }
+        
+        return url;
+    }
+    
     public static String getNeo4jHost() {
         if(!init) init();
         return config.get("NEO4J_HOST");

@@ -1,19 +1,16 @@
 package org.alliancegenome.api
 
-import groovy.json.JsonSlurper
-import spock.lang.Specification
 import spock.lang.Unroll
 
-
-class QueryRankIntegrationSpec extends Specification {
+class QueryRankIntegrationSpec extends AbstractSpec {
 
     @Unroll
     def "When querying for #query with #filter, #betterResult comes before #worseResult"() {
         when:
         def encodedQuery = URLEncoder.encode(query, "UTF-8")
         //todo: need to set the base search url in a nicer way
-        def url = new URL("http://localhost:8080/api/search?limit=5000&offset=0&q=$encodedQuery$filter")
-        def results = new JsonSlurper().parseText(url.text).results
+        def results = getApiResults("/api/search?limit=5000&offset=0&q=$encodedQuery$filter").results
+
         def betterResult = results.find { it.id == betterResultId }
         def worseResult = results.find { it.id == worseResultId }
         def betterResultPosition = results.findIndexValues() { it.id == betterResultId }?.first()
@@ -39,8 +36,7 @@ class QueryRankIntegrationSpec extends Specification {
         when:
         def encodedQuery = URLEncoder.encode(query, "UTF-8")
         //todo: need to set the base search url in a nicer way
-        def url = new URL("http://localhost:8080/api/search?category=gene&limit=50&offset=0&q=$encodedQuery")
-        def results = new JsonSlurper().parseText(url.text).results
+        def results = getApiResults("/api/search?category=gene&limit=50&offset=0&q=$encodedQuery")
         def firstResultSymbol = results.first().get("symbol").toLowerCase()
 
         then:
@@ -57,11 +53,11 @@ class QueryRankIntegrationSpec extends Specification {
         when:
         def encodedQuery = URLEncoder.encode(query, "UTF-8")
         //todo: need to set the base search url in a nicer way
-        def url = new URL("http://localhost:8080/api/search?category=gene&limit=50&offset=0&q=$encodedQuery")
-        def names = (new JsonSlurper().parseText(url.text).results.take(n)*.symbol)*.toLowerCase()
+        def results = getApiResults("/api/search?category=gene&limit=50&offset=0&q=$encodedQuery").results
+        def names = (results.take(n)*.symbol)*.toLowerCase()
 
-        def autocompleteUrl = new URL("http://localhost:8080/api/search_autocomplete?q=$encodedQuery")
-        def autoCompleteNames = (new JsonSlurper().parseText(autocompleteUrl.text).results.take(n)*.symbol)*.toLowerCase()
+        def results2 = new URL("http://localhost:8080/api/search_autocomplete?q=$encodedQuery").results
+        def autoCompleteNames = (results2.take(n)*.symbol)*.toLowerCase()
 
         then:
         names == Collections.nCopies(n,query)
@@ -80,8 +76,8 @@ class QueryRankIntegrationSpec extends Specification {
         when:
         def encodedQuery = URLEncoder.encode(query, "UTF-8")
         //todo: need to set the base search url in a nicer way
-        def url = new URL("http://localhost:8080/api/search?category=gene&limit=50&offset=0&q=$encodedQuery")
-        def results = new JsonSlurper().parseText(url.text).results
+        def results = getApiResults("/api/search?category=gene&limit=50&offset=0&q=$encodedQuery").results
+
         def resultIds = results*.id
 
         then:
@@ -105,8 +101,8 @@ class QueryRankIntegrationSpec extends Specification {
         when:
         def encodedQuery = URLEncoder.encode(query, "UTF-8")
         //todo: need to set the base search url in a nicer way
-        def url = new URL("http://localhost:8080/api/search?limit=50&offset=0&q=$encodedQuery")
-        def results = new JsonSlurper().parseText(url.text).results
+        def results = getApiResults("/api/search?limit=50&offset=0&q=$encodedQuery").results
+
         def firstResultNameKey = results.first().get("name_key")
 
         then:

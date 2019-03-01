@@ -1,18 +1,15 @@
 package org.alliancegenome.api
 
-import groovy.json.JsonSlurper
-import spock.lang.Specification
 import spock.lang.Unroll
 
-
-class AutocompleteIntegrationSpec extends Specification {
+class AutocompleteIntegrationSpec extends AbstractSpec {
 
     @Unroll
     def "an autocomplete query for #query should return results that start with #query"() {
         when:
         //todo: need to set the base search url in a nicer way
-        def url = new URL("http://localhost:8080/api/search_autocomplete?q=$query")
-        def results = new JsonSlurper().parseText(url.text).results
+        def results = getApiResults("/api/search_autocomplete?q=$query").results
+
         def firstResult = results.first()
 
         then:
@@ -30,8 +27,8 @@ class AutocompleteIntegrationSpec extends Specification {
         when:
         def query = "f"
         //todo: need to set the base search url in a nicer way
-        def url = new URL("http://localhost:8080/api/search_autocomplete?q=$query&category=$category")
-        def results = new JsonSlurper().parseText(url.text).results
+        def results = getApiResults("/api/search_autocomplete?q=$query&category=$category").results
+
         def categories = results*.category.unique()
 
         then:
@@ -49,8 +46,7 @@ class AutocompleteIntegrationSpec extends Specification {
     def "an autocomplete for #query should return #category results first"() {
         when:
         //todo: need to set the base search url in a nicer way
-        def url = new URL("http://localhost:8080/api/search_autocomplete?q=$query")
-        def results = new JsonSlurper().parseText(url.text).results
+        def results = getApiResults("/api/search_autocomplete?q=$query").results
 
         then:
         results
