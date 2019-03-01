@@ -7,6 +7,7 @@ import org.neo4j.ogm.annotation.Relationship;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
 import java.util.Optional;
 
 @NodeEntity
@@ -19,6 +20,10 @@ public class DiseaseEntityJoin extends EntityJoin {
 
     @Relationship(type = "FROM_ORTHOLOGOUS_GENE")
     private Gene orthologyGene;
+
+    @Relationship(type = "EVIDENCE")
+    private List<PublicationEvidenceCodeJoin> publicationEvidenceCodeJoin;
+
 
     // Singular at the moment.
     // Make sure this is singular here

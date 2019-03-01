@@ -38,7 +38,7 @@ public class DiseaseService {
     }
 
     private List<DiseaseAnnotation> getDiseaseAnnotationList(String diseaseID, Pagination pagination) {
-        Result result = diseaseRepository.getDiseaseAssociation(null, diseaseID, pagination, null);
+        Result result = diseaseRepository.getDiseaseAssociations(diseaseID, pagination);
         return getDiseaseAnnotations(result);
     }
 
@@ -58,15 +58,19 @@ public class DiseaseService {
             DOTerm disease = (DOTerm) objectMap.get("disease");
             document.setDisease(disease);
 
-            DiseaseEntityJoin diseaseEntityJoin = ((List<DiseaseEntityJoin>) objectMap.get("diseaseEntityJoin")).get(0);
+
+            DiseaseEntityJoin join = (DiseaseEntityJoin) objectMap.get("diseaseEntityJoin");
+            DiseaseEntityJoin diseaseEntityJoin = diseaseRepository.getDiseaseEntityJoinByID(join.getPrimaryKey());
             diseaseEntityJoin.setDisease(disease);
             document.setSource(diseaseEntityJoin.getSource());
             document.setAssociationType(diseaseEntityJoin.getJoinType());
+///            document.setDiseaseEntityJoinSet(diseaseEntityJoin1);
             document.setDisease(disease);
-            Allele feature = (Allele) objectMap.get("feature");
-            document.setDiseaseEntityJoinSet((List<DiseaseEntityJoin>) objectMap.get("diseaseEntityJoin"));
-            document.setAssociationType(diseaseEntityJoin.getJoinType());
-            document.setEvidenceCodes((List<EvidenceCode>) objectMap.get("evidences"));
+            Set<EvidenceCode> evidences = diseaseEntityJoin.getPublicationEvidenceCodeJoin().stream()
+                    .map(PublicationEvidenceCodeJoin::getEvidenceCodes)
+                    .flatMap(Collection::stream)
+                    .collect(Collectors.toSet());
+            document.setEvidenceCodes(new ArrayList<>(evidences));
             List<Gene> orthoGenes = (List<Gene>) objectMap.get("orthoGenes");
             List<Species> orthoGeneSpecies = (List<Species>) objectMap.get("orthoSpecies");
             if (orthoGenes != null) {
@@ -77,12 +81,12 @@ public class DiseaseService {
                 next.setSpecies(orthoGeneSpecies.iterator().next());
                 document.setOrthologyGene(next);
             }
-            if (feature != null) {
-                List<CrossReference> ref = (List<CrossReference>) objectMap.get("crossReferences");
-                feature.setCrossReferences(ref);
-                document.setFeature(feature);
+            if (diseaseEntityJoin.getAllele() != null) {
+                document.setFeature(diseaseEntityJoin.getAllele());
             }
-            List<Publication> publicationList = (List<Publication>) objectMap.get("publications");
+            List<Publication> publicationList = diseaseEntityJoin.getPublicationEvidenceCodeJoin().stream()
+                    .map(PublicationEvidenceCodeJoin::getPublication)
+                    .collect(Collectors.toList());
             publicationList.sort(Comparator.naturalOrder());
             document.setPublications(publicationList.stream().distinct().collect(Collectors.toList()));
             annotationDocuments.add(document);
