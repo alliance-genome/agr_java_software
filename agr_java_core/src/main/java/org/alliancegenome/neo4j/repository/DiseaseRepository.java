@@ -449,8 +449,8 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
         HashMap<String, String> bindingValueMap = new HashMap<>();
         bindingValueMap.put("geneID", geneID);
 
-        String baseCypher = "MATCH p0=(disease:DOTerm)--(diseaseEntityJoin:DiseaseEntityJoin)-[:EVIDENCE]-(publication:Publication), " +
-                "              p1=(diseaseEntityJoin)--(evidence:EvidenceCode), " +
+        String baseCypher = "MATCH p0=(disease:DOTerm)--(diseaseEntityJoin:DiseaseEntityJoin)--(pubEvJoin:PublicationEvidenceCodeJoin), " +
+                "              p1=(evidence:EvidenceCode)--(pubEvJoin:PublicationEvidenceCodeJoin)--(publication:Publication), " +
                 "              p2=(diseaseEntityJoin)--(gene:Gene)-[:FROM_SPECIES]-(species:Species) ";
         if (!empiricalDisease) {
             baseCypher += cypherViaOrthology;
@@ -476,7 +476,7 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
         //String cypherAll = getCypherSelectPart(pagination, null, false, bindingValueMap);
         String cypherAll = "MATCH " + DISEASE_INCLUDING_CHILDREN + "--" +
                 "(diseaseEntityJoin:DiseaseEntityJoin), " +
-                "(diseaseEntityJoin)-[:ASSOCIATION]-(gene:Gene)--(species:Species)  " +
+                "(diseaseEntityJoin)-[:ASSOCIATION]-(gene:Gene)  " +
                 "where diseaseParent.primaryKey = {diseaseID} ";
         cypherAll += AND_NOT_DISEASE_ENTITY_JOIN_FEATURE;
         cypherAll += "return count(distinct diseaseEntityJoin) as " + TOTAL_COUNT;
@@ -490,7 +490,7 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
         // feature-related phenotypes
         cypherAll = "MATCH " + DISEASE_INCLUDING_CHILDREN + "--" +
                 "(diseaseEntityJoin:DiseaseEntityJoin), " +
-                "(diseaseEntityJoin)-[:ASSOCIATION]-(gene:Gene)--(species:Species),  ";
+                "(diseaseEntityJoin)-[:ASSOCIATION]-(gene:Gene),  ";
         cypherAll += FEATURE_JOIN +
                 " where diseaseParent.primaryKey = {diseaseID} ";
         cypherAll += "return count(distinct diseaseEntityJoin) as " + TOTAL_COUNT;
