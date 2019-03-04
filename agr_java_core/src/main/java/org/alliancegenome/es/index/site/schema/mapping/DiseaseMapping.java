@@ -19,23 +19,6 @@ public class DiseaseMapping extends Mapping {
 
             buildSharedSearchableDocumentMappings();
 
-            builder.startObject("disease_species");
-                builder.startObject("properties");
-                    new FieldBuilder(builder, "orderID", "long").keyword().build();
-                builder.endObject();
-            builder.endObject();
-
-            new FieldBuilder(builder, "diseaseID", "keyword").keyword().build(); //odd that a keyword field has a keyword subfield...necessary?
-            new FieldBuilder(builder, "diseaseName", "text").keyword().build();
-            new FieldBuilder(builder, "parentDiseaseIDs", "keyword").keyword().build(); //odd for the same reason
-
-            builder.startObject("annotations");
-            builder.startObject("properties");
-            buildNestedDocument("alleleDocument");
-            buildNestedDocument("geneDocument");
-            builder.endObject();
-            builder.endObject();
-
             builder.endObject();
 
             builder.endObject();

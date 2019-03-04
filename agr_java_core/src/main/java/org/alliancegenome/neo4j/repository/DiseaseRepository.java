@@ -119,22 +119,6 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
     //      return s;
     //  }
 
-    public List<String> getAllDiseaseKeys() {
-        String query = "MATCH (term:DOTerm) WHERE term.is_obsolete='false' RETURN term.primaryKey";
-        log.debug("Starting Query: " + query);
-        Result r = queryForResult(query);
-        Iterator<Map<String, Object>> i = r.iterator();
-
-        ArrayList<String> list = new ArrayList<>();
-
-        while (i.hasNext()) {
-            Map<String, Object> map2 = i.next();
-            list.add((String) map2.get("term.primaryKey"));
-        }
-        log.debug("Query Finished: " + list.size());
-        return list;
-    }
-
     public Set<String> getAllDiseaseWithAnnotationsKeys() {
         String query = "MATCH (term:DOTerm)-[q:ASSOCIATION]-(dej:DiseaseEntityJoin) WHERE term.is_obsolete='false' " +
                 " RETURN term.primaryKey";

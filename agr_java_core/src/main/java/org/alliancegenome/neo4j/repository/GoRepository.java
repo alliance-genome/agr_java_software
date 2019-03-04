@@ -35,7 +35,7 @@ public class GoRepository extends Neo4jRepository<GOTerm> {
     }
     
     public Iterable<GOTerm> getAllTerms() {
-        String query = "MATCH p0=(go:GOTerm) " +
+        String query = "MATCH p0=(go:GOTerm) WHERE go.is_obsolete = 'false' " +
                 " OPTIONAL MATCH p2=(go)-[:ALSO_KNOWN_AS]-(:Synonym)";
         query += " RETURN p0, p2";
         

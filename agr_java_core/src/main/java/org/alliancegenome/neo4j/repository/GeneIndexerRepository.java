@@ -25,7 +25,8 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
         query += " OPTIONAL MATCH pSyn=(g:Gene)-[:ALSO_KNOWN_AS]-(:Synonym) ";
         query += " OPTIONAL MATCH pCR=(g:Gene)-[:CROSS_REFERENCE]-(:CrossReference)";
         query += " OPTIONAL MATCH pChr=(g:Gene)-[:LOCATED_ON]-(:Chromosome)";
-        query += " RETURN p1, pSyn, pCR, pChr";
+        query += " OPTIONAL MATCH pSecondaryId=(g:Gene)-[:ALSO_KNOWN_AS]-(s:SecondaryId)";
+        query += " RETURN p1, pSyn, pCR, pChr, pSecondaryId";
 
         Iterable<Gene> genes = null;
 
@@ -42,29 +43,6 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
 
         return geneMap;
 
-    }
-
-    public Gene getIndexableGene(String primaryKey) {
-        HashMap<String, String> map = new HashMap<>();
-
-        map.put("primaryKey", primaryKey);
-        String query = "";
-
-        query += " MATCH p1=(q:Species)-[:FROM_SPECIES]-(g:Gene) WHERE g.primaryKey = {primaryKey}";
-        query += " OPTIONAL MATCH pSyn=(g:Gene)-[:ALSO_KNOWN_AS]-(:Synonym) ";
-        query += " OPTIONAL MATCH pCR=(g:Gene)-[:CROSS_REFERENCE]-(:CrossReference)";
-        query += " OPTIONAL MATCH pChr=(g:Gene)-[:LOCATED_ON]-(:Chromosome)";
-        query += " OPTIONAL MATCH pSecondaryId=(g:Gene)-[:ALSO_KNOWN_AS]-(s:SecondaryId)";
-        query += " RETURN p1, pSyn, pCR, pChr, pSecondaryId";
-
-        Iterable<Gene> genes = query(query, map);
-        for (Gene g : genes) {
-            if (g.getPrimaryKey().equals(primaryKey)) {
-                return g;
-            }
-        }
-
-        return null;
     }
 
     public GeneDocumentCache getGeneDocumentCache() {
@@ -122,11 +100,11 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
 
 
     private Map<String, Set<String>> getAllelesMap(String species) {
-        String query = "MATCH (species:Species)--(gene:Gene)-[:IS_ALLELE_OF]-(feature:Feature) ";
+        String query = "MATCH (species:Species)--(gene:Gene)-[:IS_ALLELE_OF]-(allele:Allele) ";
         query += getSpeciesWhere(species);
-        query += " RETURN gene.primaryKey,feature.symbolText ";
+        query += " RETURN gene.primaryKey as id,allele.symbolText as value ";
 
-        return getMapSetForQuery(query, "gene.primaryKey", "feature.symbolText", getSpeciesParams(species));
+        return getMapSetForQuery(query, "id", "value", getSpeciesParams(species));
     }
 
     private Map<String, Set<String>> getStrictOrthologySymbolsMap(String species) {
