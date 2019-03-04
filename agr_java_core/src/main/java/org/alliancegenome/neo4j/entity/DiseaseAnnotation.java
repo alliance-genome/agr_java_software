@@ -37,6 +37,7 @@ public class DiseaseAnnotation implements Comparable<DiseaseAnnotation> {
     private List<EvidenceCode> evidenceCodes;
     @JsonView({View.DiseaseAnnotation.class})
     private String associationType;
+    private int sortOrder;
     private List<DiseaseEntityJoin> diseaseEntityJoinSet;
 
     @JsonIgnore

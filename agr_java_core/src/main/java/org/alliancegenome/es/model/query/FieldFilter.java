@@ -20,6 +20,7 @@ public enum FieldFilter {
     PHENOTYPE("termName"),
     ASSOCIATION_TYPE("associationType"),
     ORTHOLOG("filter.orthologGene"),
+    EXPERIMENT("filter.experiment"),
     ORTHOLOG_SPECIES("filter.orthologGeneSpecies");
     private String name;
 
