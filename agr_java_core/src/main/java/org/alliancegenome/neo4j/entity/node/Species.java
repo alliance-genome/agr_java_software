@@ -26,7 +26,8 @@ public class Species extends Neo4jEntity implements Comparable<Species> {
 
     @JsonView({View.Default.class})
     private String name;
-    
+    private int phylogeneticOrder;
+
     private String species;
     
     @Relationship(type = "CREATED_BY")

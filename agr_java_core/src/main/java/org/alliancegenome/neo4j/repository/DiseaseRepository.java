@@ -1,5 +1,7 @@
 package org.alliancegenome.neo4j.repository;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.DiseaseSummary;
@@ -12,6 +14,8 @@ import org.apache.logging.log4j.Logger;
 import org.neo4j.ogm.model.Result;
 
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 public class DiseaseRepository extends Neo4jRepository<DOTerm> {
 
@@ -180,23 +184,71 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
         return primaryTerm;
     }
 
-    public Result getDiseaseAssociations(String diseaseID, Pagination pagination) {
-        HashMap<String, String> bindingValueMap = new HashMap<>();
-        bindingValueMap.put("diseaseID", diseaseID);
-        String cypher = "MATCH (diseaseEntityJoin:DiseaseEntityJoin)-[:ASSOCIATION]-(gene:Gene)--(species:Species) " +
-                "OPTIONAL MATCH (diseaseEntityJoin:DiseaseEntityJoin)--(feature:Feature) " +
-                "WITH diseaseEntityJoin, gene, feature, species " +
-                "ORDER BY diseaseEntityJoin.sortOrder,species.phylogeneticOrder, gene.symbol " +
-                "MATCH (diseaseParent:DOTerm)<-[:IS_A_PART_OF_CLOSURE]-(disease:DOTerm)--(diseaseEntityJoin) " +
-                "WHERE diseaseParent.primaryKey = {diseaseID} " +
-                "RETURN ";
-        cypher += "gene, disease, species, feature, diseaseEntityJoin ";
+    private Set<DiseaseEntityJoin> allDiseaseEntityJoins = new HashSet<>(200000);
+    private Map<String, Set<String>> closureMap = null;
 
-        cypher += " SKIP " + pagination.getStart();
-        if (pagination.getLimit() != null && pagination.getLimit() > -1)
-            cypher += " LIMIT " + pagination.getLimit();
+    public Set<DiseaseEntityJoin> getDiseaseAssociations(String diseaseID, Pagination pagination) {
+        Set<DiseaseEntityJoin> allDiseaseEntityJoinSet = getAllDiseaseEntityJoins();
+        return allDiseaseEntityJoinSet;
+    }
 
-        return queryForResult(cypher, bindingValueMap);
+    public Map<String, Set<String>> getClosureMapping() {
+        if (closureMap != null)
+            return closureMap;
+        //closure
+        String cypher = "MATCH (diseaseParent:DOTerm)<-[:IS_A_PART_OF_CLOSURE]-(disease:DOTerm) " +
+                " return diseaseParent.primaryKey as parent, disease.primaryKey as child";
+
+        HashMap<String, String> bindingMap = new HashMap<>();
+        //bindingMap.put("rootDiseaseID", "DOID:9952");
+        Result result = queryForResult(cypher, bindingMap);
+        //Iterable<Object> all = neo4jSession.query(String.class, cypher, bindingMap);
+        //Map<String, Set<String>> closureMap = new HashMap<>();
+        Set<Map<String, Object>> colosure = StreamSupport.stream(result.spliterator(), false).collect(Collectors.toSet());
+
+/*
+        Map<String, Set<String>> closureMap = colosure.stream()
+                .collect(Collectors.groupingBy(o -> o.get("parent"), Collectors.mapping(o -> ((String) o.get("child")))));
+*/
+
+        List<Closure> cls = StreamSupport.stream(result.spliterator(), false)
+                .map(stringObjectMap -> {
+                    Closure cl = new Closure();
+                    cl.setParent((String) stringObjectMap.get("parent"));
+                    cl.setChild((String) stringObjectMap.get("child"));
+                    return cl;
+                })
+                .collect(Collectors.toList());
+        closureMap = cls.stream()
+                .collect(Collectors.groupingBy(Closure::getParent, Collectors.mapping(Closure::getChild, Collectors.toSet())));
+        return closureMap;
+    }
+
+    @Setter
+    @Getter
+    class Closure {
+        String parent;
+        String child;
+    }
+
+    public Set<DiseaseEntityJoin> getAllDiseaseEntityJoins() {
+        if (allDiseaseEntityJoins.size() > 1000)
+            return allDiseaseEntityJoins;
+        String limit = "200000";
+        String cypher = "MATCH p=(disease:DOTerm)--(diseaseEntityJoin:DiseaseEntityJoin)-[:ASSOCIATION]-(gene:Gene)--(species:Species)," +
+                "              p2=(diseaseEntityJoin:DiseaseEntityJoin)-[:EVIDENCE]-(pubEvCode:PublicationEvidenceCodeJoin)," +
+                "              p3=(publication:Publication)--(pubEvCode)--(evidence:EvidenceCode) " +
+                "        OPTIONAL MATCH p1=(diseaseEntityJoin:DiseaseEntityJoin)--(feature:Feature)--(crossReference:CrossReference) " +
+                "RETURN p, p1, p2, p3 limit " + limit;
+
+        long start = System.currentTimeMillis();
+        Iterable<DiseaseEntityJoin> joins = neo4jSession.query(DiseaseEntityJoin.class, cypher, new HashMap<>());
+
+        allDiseaseEntityJoins = StreamSupport.stream(joins.spliterator(), false).
+                collect(Collectors.toSet());
+        System.out.println("Total DiseaseEntityJoinRecords: " + allDiseaseEntityJoins.size());
+        System.out.println("Loaded in:  " + ((System.currentTimeMillis() - start) / 1000) + " s");
+        return allDiseaseEntityJoins;
     }
 
 

@@ -29,6 +29,7 @@ public class DiseaseEntityJoin extends EntityJoin {
     // Make sure this is singular here
     // might turn into a collection i
     private String dataProvider;
+    private int sortOrder;
 
     public Source getSource() {
         SourceService service = new SourceService();
