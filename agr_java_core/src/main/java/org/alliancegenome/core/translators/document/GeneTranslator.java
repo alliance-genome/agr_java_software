@@ -1,40 +1,29 @@
 package org.alliancegenome.core.translators.document;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import org.alliancegenome.core.translators.EntityDocumentTranslator;
 import org.alliancegenome.core.translators.doclet.CrossReferenceDocletTranslator;
 import org.alliancegenome.es.index.site.doclet.CrossReferenceDoclet;
 import org.alliancegenome.es.index.site.doclet.GenomeLocationDoclet;
-import org.alliancegenome.es.index.site.document.AlleleDocument;
-import org.alliancegenome.es.index.site.document.AnnotationDocument;
-import org.alliancegenome.es.index.site.document.DiseaseDocument;
 import org.alliancegenome.es.index.site.document.GeneDocument;
-import org.alliancegenome.neo4j.entity.node.GOTerm;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.entity.node.SecondaryId;
 import org.alliancegenome.neo4j.entity.node.Synonym;
 import org.alliancegenome.neo4j.entity.relationship.GenomeLocation;
 import org.alliancegenome.neo4j.entity.relationship.Orthologous;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
 public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument> {
 
     //private final Logger log = LogManager.getLogger(getClass());
-
-    private static DiseaseTranslator diseaseTranslator = new DiseaseTranslator();
-    private static AlleleTranslator alleleTranslator = new AlleleTranslator();
+    
     private static CrossReferenceDocletTranslator crossReferenceTranslator = new CrossReferenceDocletTranslator();
 
     @Override
     protected GeneDocument entityToDocument(Gene gene, int translationDepth) {
         //log.info(entity);
-
-        HashMap<String, Set<GOTerm>> goTerms = new HashMap<>();
 
         GeneDocument geneDocument = new GeneDocument();
 
@@ -67,17 +56,6 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
         }
         if (gene.getSpecies() != null) {
             geneDocument.setSpecies(gene.getSpecies().getName());
-        }
-
-        // Setup Go Terms by type
-        for (GOTerm term : gene.getGoTerms()) {
-            Set<GOTerm> terms = goTerms.get(term.getType());
-            if (terms == null) {
-                terms = new HashSet<>();
-                goTerms.put(term.getType(), terms);
-            } else {
-                terms.add(term);
-            }
         }
 
         // This code is duplicated in Gene and Allele should be pulled out into its own translator
@@ -117,53 +95,6 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
                         .collect(Collectors.toSet())
         );
 
-        if (gene.getDiseaseEntityJoins() != null && translationDepth > 0) {
-            List<DiseaseDocument> diseaseList = diseaseTranslator.getDiseaseDocuments(gene, gene.getDiseaseEntityJoins(), translationDepth - 1);
-            // group into experiment or orthology
-            // check if a doc has an orthology-related record
-            List<DiseaseDocument> diseaseViaOrthology = diseaseList.stream()
-                    .filter(diseaseDocument -> diseaseDocument.getAnnotations()
-                            .stream().anyMatch(annotationDocument -> annotationDocument.getOrthologyGeneDocument() != null))
-                    .collect(Collectors.toList());
-            // create a semi-deep clone as we have to separate diseaseDocuments with the empirical or orthology annotation docs
-            diseaseViaOrthology = diseaseViaOrthology.stream()
-                    .map(DiseaseDocument::new).collect(Collectors.toList());
-            // filter for orthology records.
-            // check if a doc has other annotations than orthology
-            List<DiseaseDocument> diseaseViaExperiment = diseaseList.stream()
-                    .filter(diseaseDocument -> diseaseDocument.getAnnotations()
-                            .stream().anyMatch(annotationDocument -> annotationDocument.getOrthologyGeneDocument() == null))
-                    .collect(Collectors.toList());
-            // create a semi-deep clone as we have to separate diseaseDocuments with the empirical or orthology annotation docs
-            diseaseViaExperiment = diseaseViaExperiment.stream()
-                    .map(DiseaseDocument::new).collect(Collectors.toList());
-
-            // filter out the records for orthology
-            diseaseViaOrthology.forEach(diseaseDocument ->
-                    diseaseDocument.getAnnotations().removeIf(annotationDocument -> annotationDocument.getOrthologyGeneDocument() == null));
-            geneDocument.setDiseasesViaOrthology(diseaseViaOrthology);
-            // Remove orthology annotations
-            diseaseViaExperiment = diseaseViaExperiment.stream()
-                    .peek(diseaseDocument -> {
-                        List<AnnotationDocument> docs = diseaseDocument.getAnnotations().stream()
-                                .filter(annotationDocument -> annotationDocument.getPublications().stream()
-                                        .anyMatch(publicationDoclet -> !publicationDoclet.getEvidenceCodes().contains("IEA")))
-                                .collect(Collectors.toList());
-                        diseaseDocument.setAnnotations(docs);
-                    })
-                    .collect(Collectors.toList());
-            geneDocument.setDiseasesViaExperiment(diseaseViaExperiment);
-        }
-
-//      geneDocument.setPhenotypeStatements(gene.getPhenotypeStatements());
-//
-//      geneDocument.setWhereExpressed(gene.getWhereExpressed());
-//      geneDocument.setAnatomicalExpression(gene.getAnatomicalExpression());
-//      geneDocument.setAnatomicalExpressionWithParents(gene.getAnatomicalExpressionWithParents());
-//
-//      geneDocument.setCellularComponentExpressionWithParents(gene.getCellularComponentExpressionWithParents());
-//      geneDocument.setCellularComponentExpressionAgrSlim(gene.getCellularComponentExpressionAgrSlim());
-
         if (gene.getGenomeLocations() != null) {
             List<GenomeLocationDoclet> gllist = new ArrayList<>();
             for (GenomeLocation location : gene.getGenomeLocations()) {
@@ -186,15 +117,6 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
                                 return crossReferenceTranslator.translate(crossReference);
                             })
                             .collect(Collectors.groupingBy(CrossReferenceDoclet::getType, Collectors.toList())));
-        }
-
-        if (gene.getAlleles() != null && translationDepth > 0) {
-            List<AlleleDocument> alleleList = new ArrayList<>();
-            gene.getAlleles().forEach(allele ->
-            alleleList.add(alleleTranslator.entityToDocument(allele, translationDepth - 1))
-            );
-            // Parent class also has a variable called alleles
-            //geneDocument.setAlleles(alleleList);
         }
 
         return geneDocument;

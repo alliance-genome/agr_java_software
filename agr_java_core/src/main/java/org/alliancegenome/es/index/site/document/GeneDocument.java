@@ -45,8 +45,6 @@ public class GeneDocument extends SearchableItemDocument {
     private String dataProvider;
     private Date dateProduced;
 
-    private List<DiseaseDocument> diseasesViaExperiment = new ArrayList<>();
-    private List<DiseaseDocument> diseasesViaOrthology = new ArrayList<>();
     private String geneSynopsisUrl;
     private String primaryId;
     private List<GenomeLocationDoclet> genomeLocations;
@@ -58,6 +56,7 @@ public class GeneDocument extends SearchableItemDocument {
     private String automatedGeneSynopsis;
     private Set<String> strictOrthologySymbols;
     private String geneticEntityExternalUrl;
+    private Set<String> alleles;
     private Set<String> whereExpressed;
     private Set<String> anatomicalExpression;         //uberon slim
     private Set<String> anatomicalExpressionWithParents;
@@ -68,8 +67,6 @@ public class GeneDocument extends SearchableItemDocument {
     private String modLocalId;
     private String modGlobalCrossRefId;
     private String modGlobalId;
-
-    //private List<AlleleDocument> alleles;
 
     @Override
     @JsonIgnore

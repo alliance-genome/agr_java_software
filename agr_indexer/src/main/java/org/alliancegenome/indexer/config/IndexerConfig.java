@@ -1,7 +1,6 @@
 package org.alliancegenome.indexer.config;
 
 import org.alliancegenome.indexer.indexers.AlleleIndexer;
-import org.alliancegenome.indexer.indexers.DiseaseAnnotationIndexer;
 import org.alliancegenome.indexer.indexers.DiseaseIndexer;
 import org.alliancegenome.indexer.indexers.GeneIndexer;
 import org.alliancegenome.indexer.indexers.GoIndexer;
@@ -11,7 +10,6 @@ public enum IndexerConfig {
     // These numbers target a 10KB document batch size
     GeneIndexer("gene", GeneIndexer.class, 1, 240),
     DiseaseIndexer("disease", DiseaseIndexer.class, 2, 150),
-    DiseaseAnnotationIndexer("diseaseAnnotation", DiseaseAnnotationIndexer.class, 2, 635),
     AlleleIndexer("allele", AlleleIndexer.class, 2, 743),
     GoIndexer("go", GoIndexer.class, 2, 2300),;
 

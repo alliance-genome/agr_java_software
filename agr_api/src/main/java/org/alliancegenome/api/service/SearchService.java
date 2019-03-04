@@ -226,20 +226,20 @@ public class SearchService {
         List<RelatedDataLink> links = new ArrayList<>();
 
         if (StringUtils.equals(category,"gene")) {
-            links.add(getRelatedDataLink("disease", "annotations.geneDocument.name_key", nameKey));
-            links.add(getRelatedDataLink("allele", "geneDocument.name_key", nameKey));
+            links.add(getRelatedDataLink("disease", "genes", nameKey));
+            links.add(getRelatedDataLink("allele", "genes", nameKey));
             links.add(getRelatedDataLink("go", "go_genes", nameKey));
         } else if (StringUtils.equals(category,"disease")) {
-            links.add(getRelatedDataLink("gene", "diseasesViaExperiment.name", nameKey));
-            links.add(getRelatedDataLink("allele", "diseaseDocuments.name", nameKey));
+            links.add(getRelatedDataLink("gene", "diseases", nameKey));
+            links.add(getRelatedDataLink("allele", "diseases", nameKey));
         } else if (StringUtils.equals(category, "allele")) {
-            links.add(getRelatedDataLink("gene", "alleles.name", nameKey));
+            links.add(getRelatedDataLink("gene", "alleles", nameKey));
         } else if (StringUtils.equals(category,"go")) {
             String goType = (String) result.get("go_type");
             if (StringUtils.equals(goType, "biological_process")) {
-                links.add(getRelatedDataLink("gene", "biologicalProcessWithParents", nameKey));
+                links.add(getRelatedDataLink("gene", "biologicalProcessWithParents", nameKey,"Genes Annotated with this GO Term"));
             } else if (StringUtils.equals(goType, "molecular_function")) {
-                links.add(getRelatedDataLink("gene", "molecularFunctionWithParents", nameKey));
+                links.add(getRelatedDataLink("gene", "molecularFunctionWithParents", nameKey,"Genes Annotated with this GO Term"));
             } else if (StringUtils.equals(goType, "cellular_component")) {
                 links.add(getRelatedDataLink("gene", "cellularComponentWithParents", nameKey, "Genes Annotated with this GO Term"));
                 links.add(getRelatedDataLink("gene", "cellularComponentExpressionWithParents", nameKey, "Genes Expressed in this Structure"));
