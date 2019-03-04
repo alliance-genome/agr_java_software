@@ -29,14 +29,14 @@ public class DiseaseDocument extends SearchableItemDocument {
     private String doId;
     private String primaryKey;
 
-    private Set<String> parentDiseaseNames;
+
     private String definition;
     private Date dateProduced;
     private List<String> definitionLinks;
-    private List<AnnotationDocument> annotations;
-    private List<DiseaseDocument> parents;
-    private List<DiseaseDocument> children;
     private List<String> synonyms;
+    private Set<String> associatedSpecies;
+    private Set<String> parentDiseaseNames;
+    private Set<String> diseaseGroup;
     @JsonProperty("crossReferences")
     private Map<String, List<CrossReferenceDoclet>> crossReferencesMap;
     private List<SourceDoclet> sourceList;
@@ -63,11 +63,8 @@ public class DiseaseDocument extends SearchableItemDocument {
         searchable = doc.searchable;
         definition = doc.definition;
         dateProduced = doc.getDateProduced();
-        annotations = doc.getAnnotations().stream().map(AnnotationDocument::new).collect(Collectors.toList());
         // note these attributes are not cloned deeply (they typically do not change)
         definitionLinks = doc.definitionLinks;
-        parents = doc.parents;
-        children = doc.children;
         synonyms = doc.synonyms;
         crossReferencesMap = doc.crossReferencesMap;
         sourceList = doc.sourceList;

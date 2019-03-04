@@ -58,9 +58,9 @@ public class SearchHelper {
             });
             put("disease", new ArrayList<String>() {
                 {
-                    add("disease_group");
-                    add("annotations.geneDocument.name_key");
-                    add("annotations.geneDocument.species");
+                    add("diseaseGroup");
+                    add("genes");
+                    add("species");
                 }
             });
             put("allele", new ArrayList<String>() {
@@ -106,6 +106,8 @@ public class SearchHelper {
             add("symbol");
             add("symbol.autocomplete");
             add("symbol.keyword");
+            add("symbol.htmlSmoosh");
+            add("symbolText");
             add("synonyms");
             add("synonyms.keyword");
             add("synonyms.htmlSmoosh");
@@ -117,23 +119,17 @@ public class SearchHelper {
             add("biologicalProcessWithParents"); add("molecularFunctionWithParents"); add("cellularComponentWithParents");
             add("go_type"); add("go_genes"); add("go_synonyms");
             add("disease_genes"); add("disease_synonyms");
-
             add("diseases");
-
             //disease cross references:
             add("crossReferences.ontology_provided_cross_reference.name");
             add("crossReferences.ontology_provided_cross_reference.localId");
             //gene cross references:
             add("crossReferences.generic_cross_reference.name");
             add("crossReferences.generic_cross_reference.localId");
-            add("geneDocument.name");
-            add("geneDocument.name_key");
-            add("diseaseDocuments.name");
-            add("alleles.symbol");
-            add("annotations.alleleDocument.symbol");
-            add("annotations.alleleDocument.name");
-            add("annotations.geneDocument.symbol");
-            add("annotations.geneDocument.name");
+            add("genes"); add("genes.keyword"); add("genes.autocomplete"); add("genes.keywordAutocomplete");
+
+            add("diseases");
+            add("alleles"); add("alleles.text"); add("alleles.autocomplete");
             add("phenotypeStatements");
             add("strictOrthologySymbols.autocomplete");
             add("strictOrthologySymbols.keyword");

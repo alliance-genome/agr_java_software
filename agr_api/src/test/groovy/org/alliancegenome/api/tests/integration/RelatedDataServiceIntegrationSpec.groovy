@@ -22,7 +22,7 @@ class RelatedDataServiceIntegrationSpec extends Specification {
 
         where:
         nameKey        |  category        | targetField
-        "fgf8a (Dre)"  | "disease"        | "annotations.geneDocument.name_key"
+        "fgf8a (Dre)"  | "disease"        | "genes"
     }
 
 

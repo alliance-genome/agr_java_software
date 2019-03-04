@@ -52,12 +52,14 @@ public abstract class Mapping extends Builder {
         new FieldBuilder(builder, "id","keyword");
         new FieldBuilder(builder, "description","text");
         new FieldBuilder(builder, "diseases", "text").keyword().build();
-        new FieldBuilder(builder, "alleles", "text").keyword().build();
+        new FieldBuilder(builder, "alleles", "text").keyword().autocomplete().build();
+        new FieldBuilder(builder, "genes","text").keyword().autocomplete().keywordAutocomplete().build();
         new FieldBuilder(builder, "phenotypeStatements", "text")
                 .keyword()
                 .build();
         new FieldBuilder(builder, "symbol","text").analyzer("symbols")
                 .autocomplete()
+                .htmlSmoosh()
                 .keyword()
                 .keywordAutocomplete()
                 .sort()
