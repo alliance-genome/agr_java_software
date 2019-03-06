@@ -2,7 +2,7 @@ package org.alliancegenome.api.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.alliancegenome.core.service.JsonResultResponse;
-import org.alliancegenome.es.model.query.FieldFilter;
+import org.alliancegenome.core.service.SortingField;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.DiseaseSummary;
@@ -24,6 +24,10 @@ public class DiseaseService {
 
     private Log log = LogFactory.getLog(getClass());
     private static DiseaseRepository diseaseRepository = new DiseaseRepository();
+
+    public DiseaseService() {
+
+    }
 
     public DOTerm getById(String id) {
         return diseaseRepository.getDiseaseTerm(id);
@@ -57,7 +61,20 @@ public class DiseaseService {
         }
         if (caching)
             return null;
-        return diseaseAnnotationMap.get(diseaseID).stream()
+
+        List<DiseaseAnnotation> fullDiseaseAnnotationList = diseaseAnnotationMap.get(diseaseID);
+
+        // sorting
+        SortingField sortingField = null;
+        String sortBy = pagination.getSortBy();
+        if (sortBy != null && !sortBy.isEmpty())
+            sortingField = SortingField.valueOf(sortBy.toUpperCase());
+
+        DiseaseAnnotationSorting sorting = new DiseaseAnnotationSorting();
+        fullDiseaseAnnotationList.sort(sorting.getComparator(sortingField));
+
+        // paginating
+        return fullDiseaseAnnotationList.stream()
                 .skip(pagination.getStart())
                 .limit(pagination.getLimit())
                 .collect(Collectors.toList());
@@ -87,35 +104,25 @@ public class DiseaseService {
                     return document;
                 })
                 .collect(toList());
-        // sorting
-        HashMap<FieldFilter, Comparator<DiseaseAnnotation>> sortingMapping = new LinkedHashMap<>();
-        sortingMapping.put(FieldFilter.EXPERIMENT, Comparator.comparing(DiseaseAnnotation::getSortOrder));
-        sortingMapping.put(FieldFilter.FSPECIES, Comparator.comparing(o -> o.getGene().getSpecies().getPhylogeneticOrder()));
-        sortingMapping.put(FieldFilter.GENE_NAME, Comparator.comparing(o -> o.getGene().getSymbol()));
-        sortingMapping.put(FieldFilter.TERM_NAME, Comparator.comparing(o -> o.getDisease().getName().toUpperCase()));
-
-        Comparator<DiseaseAnnotation> comparator = null;
-        for (FieldFilter fieldFilter : sortingMapping.keySet()) {
-            Comparator<DiseaseAnnotation> comp = sortingMapping.get(fieldFilter);
-            if (comparator == null)
-                comparator = comp;
-            else
-                comparator = comparator.thenComparing(comp);
-        }
-        allDiseaseAnnotations.sort(comparator);
+        // default sorting
+        DiseaseAnnotationSorting sorting = new DiseaseAnnotationSorting();
+        allDiseaseAnnotations.sort(sorting.getDefaultComparator());
         log.info("Retrieved " + allDiseaseAnnotations.size() + " annotations");
         long startCreateHistogram = System.currentTimeMillis();
         Map<String, Set<String>> closureMapping = diseaseRepository.getClosureMapping();
         log.info("Number of Disease IDs: " + closureMapping.size());
+        final Set<String> allIDs = closureMapping.keySet();
+
         // loop over all disease IDs (termID)
         // and store the annotations in a map for quick retrieval
-        closureMapping.keySet().forEach(termID -> {
+        allIDs.forEach(termID -> {
             Set<String> allDiseaseIDs = closureMapping.get(termID);
             List<DiseaseAnnotation> joins = allDiseaseAnnotations.stream()
                     .filter(join -> allDiseaseIDs.contains(join.getDisease().getPrimaryKey()))
                     .collect(Collectors.toList());
             diseaseAnnotationMap.put(termID, joins);
         });
+        log.info("Number of Disease IDs in disease Map: " + diseaseAnnotationMap.size());
         log.info("Time to create annotation histogram: " + (System.currentTimeMillis() - startCreateHistogram) / 1000);
     }
 

@@ -19,6 +19,7 @@ import org.alliancegenome.neo4j.view.OrthologyModule;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.config.Configurator;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -118,14 +119,13 @@ public class DiseaseIT {
     }
 
     @Test
+    @Ignore
     public void checkDiseaseAssociationByDiseaseAcuteLymphocyticLeukemia() {
         Pagination pagination = new Pagination(1, 25, null, null);
         // acute lymphocytic lukemia
         String diseaseID = "DOID:9952";
-/*
-        pagination.setSortBy("filter.species");
+
         pagination.setSortBy("associationType");
-*/
         JsonResultResponse<DiseaseAnnotation> response = geneService.getDiseaseAnnotationsByDisease(diseaseID, pagination);
         assertResponse(response, 25, 74);
 
@@ -188,12 +188,12 @@ public class DiseaseIT {
         List<String> lines = Arrays.asList(output.split("\n"));
         assertNotNull(lines);
         String result = "Gene ID\tGene Symbol\tSpecies\tGenetic Entity ID\tGenetic Entity Symbol\tGenetic Entity Type\tAssociation Type\tDisease ID\tDisease Name\tEvidence Code\tSource\tReferences\n" +
-                "HGNC:24948\tDOT1L\tHomo sapiens\t\t\t\tis_implicated_in\tDOID:9953\tB- and T-cell mixed leukemia\tIDA\tRGD\tPMID:23801631\n" +
-                "HGNC:7132\tKMT2A\tHomo sapiens\t\t\t\tis_implicated_in\tDOID:9953\tB- and T-cell mixed leukemia\tIAGP\tRGD\tRGD:7240710\n" +
-                "MGI:104518\tCntn2\tMus musculus\t\t\t\tis_implicated_in\tDOID:5602\tT-cell adult acute lymphocytic leukemia\tTAS\tMGI\tPMID:16550188,PMID:25035162\n" +
-                "MGI:107940\tEzh2\tMus musculus\tMGI:3823217\tEzh2<sup>tm2Sho</sup>\tallele\tis_implicated_in\tDOID:9952\tacute lymphocytic leukemia\tTAS\tMGI\tPMID:22431509\n" +
-                "MGI:107940\tEzh2\tMus musculus\tMGI:3823218\tEzh2<sup>tm2.1Sho</sup>\tallele\tis_implicated_in\tDOID:9952\tacute lymphocytic leukemia\tTAS\tMGI\tPMID:22431509\n";
-        assertEquals(result, output);
+                "WB:WBGene00000469\tces-2\tCaenorhabditis elegans\tWB:WBVar00089714\tn732\tallele\tis_implicated_in\tDOID:9952\tacute lymphocytic leukemia\tIMP\tWB\tPMID:8700229\n" +
+                "WB:WBGene00000469\tces-2\tCaenorhabditis elegans\t\t\t\tis_implicated_in\tDOID:9952\tacute lymphocytic leukemia\tIMP\tWB\tPMID:8700229\n" +
+                "WB:WBGene00000913\tdaf-18\tCaenorhabditis elegans\t\t\t\timplicated_via_orthology\tDOID:9952\tacute lymphocytic leukemia\tIEA\tAlliance\tMGI:6194238\n" +
+                "WB:WBGene00021474\tdot-1.1\tCaenorhabditis elegans\t\t\t\timplicated_via_orthology\tDOID:9953\tB- and T-cell mixed leukemia\tIEA\tAlliance\tMGI:6194238\n" +
+                "WB:WBGene00010067\tdot-1.2\tCaenorhabditis elegans\t\t\t\timplicated_via_orthology\tDOID:9953\tB- and T-cell mixed leukemia\tIEA\tAlliance\tMGI:6194238\n";
+                assertEquals(result, output);
 
         // descending sorting
         pagination.setAsc(false);

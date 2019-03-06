@@ -180,21 +180,12 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
         if (closureMap != null)
             return closureMap;
         //closure
-        String cypher = "MATCH (diseaseParent:DOTerm)<-[:IS_A_PART_OF_CLOSURE]-(disease:DOTerm) " +
-                " return diseaseParent.primaryKey as parent, disease.primaryKey as child";
+        String cypher = "MATCH (diseaseParent:DOTerm)<-[:IS_A_PART_OF_CLOSURE]-(disease:DOTerm) where diseaseParent.is_obsolete = 'false' " +
+                " return diseaseParent.primaryKey as parent, disease.primaryKey as child ";
 
         HashMap<String, String> bindingMap = new HashMap<>();
         //bindingMap.put("rootDiseaseID", "DOID:9952");
         Result result = queryForResult(cypher, bindingMap);
-        //Iterable<Object> all = neo4jSession.query(String.class, cypher, bindingMap);
-        //Map<String, Set<String>> closureMap = new HashMap<>();
-        Set<Map<String, Object>> colosure = StreamSupport.stream(result.spliterator(), false).collect(Collectors.toSet());
-
-/*
-        Map<String, Set<String>> closureMap = colosure.stream()
-                .collect(Collectors.groupingBy(o -> o.get("parent"), Collectors.mapping(o -> ((String) o.get("child")))));
-*/
-
         List<Closure> cls = StreamSupport.stream(result.spliterator(), false)
                 .map(stringObjectMap -> {
                     Closure cl = new Closure();

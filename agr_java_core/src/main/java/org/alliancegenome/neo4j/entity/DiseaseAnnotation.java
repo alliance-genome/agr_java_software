@@ -6,15 +6,17 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Getter;
 import lombok.Setter;
+import org.alliancegenome.core.service.SortingField;
 import org.alliancegenome.neo4j.entity.node.*;
 import org.alliancegenome.neo4j.view.View;
 
-import java.util.List;
+import java.io.Serializable;
+import java.util.*;
 
 @Getter
 @Setter
-@JsonPropertyOrder({ "disease", "gene", "allele", "geneticEntityType", "associationType", "evidenceCodes", "source", "publications" })
-public class DiseaseAnnotation implements Comparable<DiseaseAnnotation> {
+@JsonPropertyOrder({"disease", "gene", "allele", "geneticEntityType", "associationType", "evidenceCodes", "source", "publications"})
+public class DiseaseAnnotation implements Comparable<DiseaseAnnotation>, Serializable {
 
     @JsonView({View.DiseaseAnnotation.class})
     private String primaryKey;
@@ -38,7 +40,6 @@ public class DiseaseAnnotation implements Comparable<DiseaseAnnotation> {
     @JsonView({View.DiseaseAnnotation.class})
     private String associationType;
     private int sortOrder;
-    private List<DiseaseEntityJoin> diseaseEntityJoinSet;
 
     @JsonIgnore
     public String getDocumentId() {
@@ -53,5 +54,8 @@ public class DiseaseAnnotation implements Comparable<DiseaseAnnotation> {
     @JsonView({View.Default.class})
     public String getGeneticEntityType() {
         return feature != null ? "allele" : "gene";
+    }
+
+    public DiseaseAnnotation() {
     }
 }
