@@ -58,8 +58,9 @@ class CategoriesAndFieldsIntegrationForLaterSpec extends Specification {
         "disease" | "name.autocomplete"
         "disease" | "synonyms"
         "disease" | "synonyms.autocomplete"
+        "disease" | "associatedSpecies"
 
-        "allele"  | "primaryId"
+        "allele"  | "primaryKey"
         "allele"  | "category"
         "allele"  | "name"
         "allele"  | "name.keyword"
