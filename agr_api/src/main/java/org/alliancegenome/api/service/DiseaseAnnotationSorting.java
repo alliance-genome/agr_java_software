@@ -3,18 +3,25 @@ package org.alliancegenome.api.service;
 import org.alliancegenome.core.service.SortingField;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.Sorting;
+import org.alliancegenome.neo4j.entity.node.DiseaseEntityJoin;
+import org.alliancegenome.neo4j.entity.node.Gene;
 
 import java.util.*;
+
+import static java.util.Comparator.naturalOrder;
 
 public class DiseaseAnnotationSorting implements Sorting<DiseaseAnnotation> {
 
 
-    Comparator<DiseaseAnnotation> getComparator(SortingField field) {
+    Comparator<DiseaseAnnotation> getComparator(SortingField field, Boolean ascending) {
         if (field == null)
             return getDefaultComparator();
 
         List<Comparator<DiseaseAnnotation>> comparatorList = new ArrayList<>();
-        comparatorList.add(sortingFieldMap.get(field));
+        Comparator<DiseaseAnnotation> comparator = sortingFieldMap.get(field);
+        if (!ascending)
+            comparator = comparator.reversed();
+        comparatorList.add(comparator);
         sortingFieldMap.keySet().stream()
                 // default ordering of phylogenetic and experiment / orthology should not be used.
                 // only used for the first time sorting. Any subsequent sorting will ignore that
@@ -49,7 +56,7 @@ public class DiseaseAnnotationSorting implements Sorting<DiseaseAnnotation> {
                 if (annotation.getFeature() == null)
                     return null;
                 return annotation.getFeature().getSymbol().toLowerCase();
-            }, Comparator.nullsLast(Comparator.naturalOrder()));
+            }, Comparator.nullsLast(naturalOrder()));
 
     private static Comparator<DiseaseAnnotation> diseaseSymbolOrder =
             Comparator.comparing(annotation -> annotation.getDisease().getName().toLowerCase());

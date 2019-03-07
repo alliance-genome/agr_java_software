@@ -50,6 +50,8 @@ public class DiseaseIT {
         Pagination pagination = new Pagination(1, 10, null, null);
         // cancer
         String diseaseID = "DOID:9952";
+        pagination.setSortBy("gene_symbol");
+        pagination.setAsc(true);
         JsonResultResponse<DiseaseAnnotation> response = geneService.getDiseaseAnnotationsByDisease(diseaseID, pagination);
         assertResponse(response, 10, 74);
     }

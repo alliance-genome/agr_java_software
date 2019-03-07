@@ -71,7 +71,7 @@ public class DiseaseService {
             sortingField = SortingField.valueOf(sortBy.toUpperCase());
 
         DiseaseAnnotationSorting sorting = new DiseaseAnnotationSorting();
-        fullDiseaseAnnotationList.sort(sorting.getComparator(sortingField));
+        fullDiseaseAnnotationList.sort(sorting.getComparator(sortingField, pagination.getAsc()));
 
         // paginating
         return fullDiseaseAnnotationList.stream()
