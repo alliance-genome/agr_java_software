@@ -45,7 +45,11 @@ public class DiseaseAnnotationSorting implements Sorting<DiseaseAnnotation> {
             Comparator.comparing(annotation -> annotation.getGene().getSymbol().toLowerCase());
 
     static public Comparator<DiseaseAnnotation> alleleSymbolOrder =
-            Comparator.comparing(annotation -> annotation.getGene().getSymbol().toLowerCase());
+            Comparator.comparing(annotation -> {
+                if (annotation.getFeature() == null)
+                    return null;
+                return annotation.getFeature().getSymbol().toLowerCase();
+            }, Comparator.nullsLast(Comparator.naturalOrder()));
 
     private static Comparator<DiseaseAnnotation> diseaseSymbolOrder =
             Comparator.comparing(annotation -> annotation.getDisease().getName().toLowerCase());
@@ -59,6 +63,7 @@ public class DiseaseAnnotationSorting implements Sorting<DiseaseAnnotation> {
         sortingFieldMap.put(SortingField.SPECIES_PHYLOGENETIC, phylogeneticOrder);
         sortingFieldMap.put(SortingField.EXPERIMENT_ORTHOLOGY, experimentOrthologyOrder);
         sortingFieldMap.put(SortingField.GENE_SYMBOL, geneSymbolOrder);
+        sortingFieldMap.put(SortingField.ALLELE_SYMBOL, alleleSymbolOrder);
         sortingFieldMap.put(SortingField.SPECIES, speciesSymbolOrder);
         sortingFieldMap.put(SortingField.DISEASE, diseaseSymbolOrder);
     }

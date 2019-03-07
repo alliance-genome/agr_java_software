@@ -6,12 +6,12 @@ import java.util.List;
 public interface Sorting<T> {
 
     default Comparator<T> getJoinedComparator(List<Comparator<T>> comparatorList) {
-        Comparator<T> joinedComparator = null;
+        if (comparatorList.isEmpty())
+            return null;
+        Comparator<T> joinedComparator = comparatorList.get(0);
+        comparatorList.remove(0);
         for (Comparator<T> comparator : comparatorList) {
-            if (joinedComparator == null)
-                joinedComparator = comparator;
-            else
-                joinedComparator = joinedComparator.thenComparing(comparator);
+            joinedComparator = joinedComparator.thenComparing(comparator);
         }
         return joinedComparator;
     }
