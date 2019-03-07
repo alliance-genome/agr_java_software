@@ -69,8 +69,8 @@ public class DiseaseAnnotationSorting implements Sorting<DiseaseAnnotation> {
     static {
         sortingFieldMap.put(SortingField.SPECIES_PHYLOGENETIC, phylogeneticOrder);
         sortingFieldMap.put(SortingField.EXPERIMENT_ORTHOLOGY, experimentOrthologyOrder);
-        sortingFieldMap.put(SortingField.GENE_SYMBOL, geneSymbolOrder);
-        sortingFieldMap.put(SortingField.ALLELE_SYMBOL, alleleSymbolOrder);
+        sortingFieldMap.put(SortingField.GENESYMBOL, geneSymbolOrder);
+        sortingFieldMap.put(SortingField.ALLELESYMBOL, alleleSymbolOrder);
         sortingFieldMap.put(SortingField.SPECIES, speciesSymbolOrder);
         sortingFieldMap.put(SortingField.DISEASE, diseaseSymbolOrder);
     }
