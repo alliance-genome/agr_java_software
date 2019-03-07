@@ -1,18 +1,16 @@
-package groovy.org.alliancegenome.api
+package org.alliancegenome.api
 
-import groovy.json.JsonSlurper
 import spock.lang.Ignore
-import spock.lang.Specification
 import spock.lang.Unroll
 
-class OrthologyWebServiceIntegrationSpec extends Specification {
+class OrthologyWebServiceIntegrationSpec extends AbstractSpec {
 
     //@Ignore("Not working until we get test data into travis")
     @Unroll
     def "When querying for #species "() {
         when:
-        def url = new URL("http://localhost:8080/api/orthology/$species")
-        def jsonResponseResult = new JsonSlurper().parseText(url.text)
+        def jsonResponseResult = getApiResults("/api/orthology/$species")
+
         def results = jsonResponseResult.results
         def total = jsonResponseResult.total
         def Set<String> genePair = new HashSet<>()
@@ -39,8 +37,8 @@ class OrthologyWebServiceIntegrationSpec extends Specification {
     @Unroll
     def "When querying for #species1 and #species2 "() {
         when:
-        def url = new URL("http://localhost:8080/api/orthology/$species1/$species2")
-        def jsonResponseResult = new JsonSlurper().parseText(url.text)
+        def jsonResponseResult = getApiResults("/api/orthology/$species1/$species2")
+
         def results = jsonResponseResult.results
         def total = jsonResponseResult.total
         def Set<String> genePair = new HashSet<>()
@@ -67,8 +65,8 @@ class OrthologyWebServiceIntegrationSpec extends Specification {
     @Unroll
     def "When querying for #geneID, #taxonID and #filter "() {
         when:
-        def url = new URL("http://localhost:8080/api/gene/$geneID/orthology?filter=$filter&start=$start&rows=$rows&taxonID=$taxonID")
-        def jsonResponseResult = new JsonSlurper().parseText(url.text)
+        def jsonResponseResult = getApiResults("/api/gene/$geneID/orthology?filter=$filter&start=$start&rows=$rows&taxonID=$taxonID")
+
         def results = jsonResponseResult.results
         def total = jsonResponseResult.total
         def Set<String> genePair = new HashSet<>()

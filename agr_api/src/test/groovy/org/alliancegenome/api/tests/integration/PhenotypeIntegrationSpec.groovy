@@ -1,17 +1,14 @@
 package org.alliancegenome.api
 
-import groovy.json.JsonSlurper
-import spock.lang.Specification
 import spock.lang.Unroll
 
-class PhenotypeIntegrationSpec extends Specification {
+class PhenotypeIntegrationSpec extends AbstractSpec {
 
     @Unroll
     def "Gene page - Phenotype Annotations for #geneId"() {
         when:
-        def url = new URL("http://localhost:8080/api/gene/$geneId/phenotypes?page=1&limit=10&sortBy=")
-        def retObj = new JsonSlurper().parseText(url.text)
-        def results = retObj.results
+        def results = getApiResults("/api/gene/$geneId/phenotypes?page=1&limit=10&sortBy=").results
+
         def phenotypeNames = results.phenotype.findAll { it }
 
         then:

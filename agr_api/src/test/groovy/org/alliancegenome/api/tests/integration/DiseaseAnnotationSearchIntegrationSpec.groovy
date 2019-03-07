@@ -1,11 +1,9 @@
 package org.alliancegenome.api
 
-import groovy.json.JsonSlurper
 import spock.lang.Ignore
-import spock.lang.Specification
 import spock.lang.Unroll
 
-class DiseaseAnnotationSearchIntegrationSpec extends Specification {
+class DiseaseAnnotationSearchIntegrationSpec extends AbstractSpec {
 
     @Ignore("Not working until we get disease data on geneMap")
     @Unroll
@@ -13,8 +11,8 @@ class DiseaseAnnotationSearchIntegrationSpec extends Specification {
         when:
         def encodedQuery = URLEncoder.encode(query, "UTF-8")
         //todo: need to set the base search url in a nicer way
-        def url = new URL("http://localhost:8080/api/search?category=gene&limit=500&offset=0&q=$encodedQuery$filter")
-        def results = new JsonSlurper().parseText(url.text).results
+        def results = getApiResults("/api/search?category=gene&limit=500&offset=0&q=$encodedQuery$filter").results
+
         def betterResult = results.find { it.id == betterResultId }
         def worseResult = results.find { it.id == worseResultId }
         def betterResultPosition = results.findIndexValues() { it.id == betterResultId }?.first()
@@ -37,8 +35,7 @@ class DiseaseAnnotationSearchIntegrationSpec extends Specification {
         when:
         def encodedQuery = URLEncoder.encode(query, "UTF-8")
         //todo: need to set the base search url in a nicer way
-        def url = new URL("http://localhost:8080/api/search?category=gene&limit=50&offset=0&q=$encodedQuery")
-        def results = new JsonSlurper().parseText(url.text).results
+        def results = getApiResults("/api/search?category=gene&limit=50&offset=0&q=$encodedQuery").results
         def firstResultSymbol = results.first().get("symbol").toLowerCase()
 
         then:

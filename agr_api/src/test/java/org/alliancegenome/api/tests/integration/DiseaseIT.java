@@ -36,7 +36,7 @@ public class DiseaseIT {
 
     @Before
     public void before() {
-        Configurator.setRootLevel(Level.WARN);
+        //Configurator.setRootLevel(Level.WARN);
         ConfigHelper.init();
 
         mapper.disable(MapperFeature.DEFAULT_VIEW_INCLUSION);
