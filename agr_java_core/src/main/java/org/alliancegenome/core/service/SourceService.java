@@ -1,15 +1,13 @@
 package org.alliancegenome.core.service;
 
-import org.alliancegenome.es.index.site.doclet.SourceDoclet;
-import org.alliancegenome.neo4j.entity.SpeciesType;
-import org.alliancegenome.neo4j.entity.node.DOTerm;
-import org.alliancegenome.neo4j.entity.node.DiseaseEntityJoin;
-import org.alliancegenome.neo4j.entity.node.Source;
+import static java.util.stream.Collectors.toList;
 
 import java.util.Arrays;
 import java.util.List;
 
-import static java.util.stream.Collectors.toList;
+import org.alliancegenome.neo4j.entity.SpeciesType;
+import org.alliancegenome.neo4j.entity.node.DOTerm;
+import org.alliancegenome.neo4j.entity.node.Source;
 
 public class SourceService {
 

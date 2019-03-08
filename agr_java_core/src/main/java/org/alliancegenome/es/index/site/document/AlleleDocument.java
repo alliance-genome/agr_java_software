@@ -1,6 +1,5 @@
 package org.alliancegenome.es.index.site.document;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 

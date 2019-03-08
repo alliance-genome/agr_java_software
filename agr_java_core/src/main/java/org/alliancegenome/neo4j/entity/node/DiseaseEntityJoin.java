@@ -1,14 +1,14 @@
 package org.alliancegenome.neo4j.entity.node;
 
+import java.util.List;
+import java.util.Optional;
+
 import org.alliancegenome.core.service.SourceService;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.List;
-import java.util.Optional;
 
 @NodeEntity
 @Getter

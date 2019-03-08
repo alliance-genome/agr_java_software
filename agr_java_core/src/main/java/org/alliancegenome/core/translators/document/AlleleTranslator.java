@@ -8,13 +8,10 @@ import org.alliancegenome.core.translators.EntityDocumentTranslator;
 import org.alliancegenome.core.translators.doclet.CrossReferenceDocletTranslator;
 import org.alliancegenome.es.index.site.doclet.CrossReferenceDoclet;
 import org.alliancegenome.es.index.site.document.AlleleDocument;
-import org.alliancegenome.es.index.site.document.DiseaseDocument;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.CrossReference;
-import org.alliancegenome.neo4j.entity.node.Phenotype;
 import org.alliancegenome.neo4j.entity.node.SecondaryId;
 import org.alliancegenome.neo4j.entity.node.Synonym;
-import org.apache.commons.collections4.CollectionUtils;
 
 public class AlleleTranslator extends EntityDocumentTranslator<Allele, AlleleDocument> {
 
