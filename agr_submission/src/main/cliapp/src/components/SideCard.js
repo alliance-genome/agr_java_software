@@ -9,7 +9,7 @@ import DataTypeList from './DataTypeList';
 import { loadDataTypes } from '../actions/dataTypeActions';
 
 class SideCard extends Component {
- 
+
 	constructor(props) {
 		super(props);
 		const { dispatch } = props;
@@ -17,7 +17,7 @@ class SideCard extends Component {
 	}
 
 	componentDidMount() {
-		//this.props.dispatch(loadDataTypes());
+		this.props.dispatch(loadDataTypes());
 	}
 
 	componentDidUpdate() {
@@ -28,12 +28,12 @@ class SideCard extends Component {
 
 		return (
 			<Fragment>
-				{ this.props.datatypes && <Card>
+				{this.props.datatypes && <Card>
 					<CardBody>
 						Data Types:
 						<DataTypeList data={this.props.datatypes} />
 					</CardBody>
-				</Card> }
+				</Card>}
 			</Fragment>
 		);
 	}

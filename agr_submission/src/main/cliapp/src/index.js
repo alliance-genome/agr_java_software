@@ -3,35 +3,43 @@ import './index.css';
 
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { BrowserRouter as Router, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import { Container, Row } from 'reactstrap';
 import { Provider } from "react-redux";
 
-import configureStore from "./store/configureStore";
+import * as serviceWorker from './serviceWorker';
+
+import { createStore } from "redux";
 
 import Homepage from './containers/homepage';
 import AdminPage from './containers/adminpage';
 import LoginPage from './containers/loginpage';
-import AdminDataTypes from './containers/admin/AdminDataTypes';
+import AdminDataTypes from './containers/adminpage/AdminDataTypes';
 import DataFiles from './containers/datafiles';
 
 import Header from './components/Header';
 
+import rootReducer from './reducers/rootReducer';
+
+const store = createStore(rootReducer);
 
 ReactDOM.render(
-	<Provider store={ configureStore() }>
+	<Provider store={store}>
 		<Router>
 			<div>
 				<Header />
 				<main className="my-5 py-5">
 					<Container className="px-0">
 						<Row noGutters className="pt-2 pt-md-5 w-100 px-4 px-xl-0 position-relative">
-							<Route exact path="/" component={Homepage} />
-							<Route exact path="/admin" name="adminshort" component={AdminPage} />
-							<Route path="/admin/datatypes/:datatype?" name="adminlong" component={AdminDataTypes} />
-							<Route exact path="/datafiles" name="datafilesshort" component={DataFiles} />
-							<Route exact path="/login" component={LoginPage} />
-							<Route path="/datafiles/:datatype/:subdatatype" name="datafileslong" component={DataFiles} />
+							<Switch>
+								<Route exact path="/" component={Homepage} />
+								<Route exact path="/admin" component={AdminPage} />
+								<Route path="/admin/datatypes" component={AdminDataTypes} />
+								<Route path="/admin/datatypes/:datatype?" component={AdminDataTypes} />
+								<Route path="/login" component={LoginPage} />
+								<Route path="/datafiles" component={DataFiles} />
+								<Route path="/datafiles/:datatype/:subdatatype" component={DataFiles} />
+							</Switch>
 						</Row>
 					</Container>
 				</main>
@@ -40,3 +48,4 @@ ReactDOM.render(
 	</Provider>,
 	document.getElementById('root')
 );
+serviceWorker.unregister();

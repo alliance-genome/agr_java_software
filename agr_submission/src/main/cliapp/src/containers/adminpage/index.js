@@ -23,7 +23,7 @@ class Admin extends Component {
 						</Nav>
 					</CardBody>
 				</Col>
-							   
+
 				<Col xs={{ order: 1 }} md={{ size: 7, offset: 1 }} tag="section" className="py-5 mb-5 py-md-0 mb-md-0">
 					Please Choose something to administrator
 				</Col>

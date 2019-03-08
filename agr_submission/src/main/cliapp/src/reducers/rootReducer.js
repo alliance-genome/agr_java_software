@@ -1,8 +1,8 @@
 import { combineReducers } from 'redux';
-import dataTypes from './dataTypeReducer';
+import dataTypeReducer from './dataTypeReducer';
 
 const rootReducer = combineReducers({
-    dataTypes
+    dataTypeReducer
 })
 
 export default rootReducer
