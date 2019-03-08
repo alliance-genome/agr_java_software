@@ -47,8 +47,9 @@ public class GeneIndexer extends Indexer<GeneDocument> {
             queue.addAll(fulllist);
             geneRepo.clearCache();
             initiateThreading(queue);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            log.error("Error while indexing...", e);
+            System.exit(-1);
         }
     }
 

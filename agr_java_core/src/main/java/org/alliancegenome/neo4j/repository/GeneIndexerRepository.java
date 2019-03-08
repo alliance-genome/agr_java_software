@@ -1,5 +1,6 @@
 package org.alliancegenome.neo4j.repository;
 
+import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -13,7 +14,9 @@ import org.apache.logging.log4j.Logger;
 public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
 
     private final Logger log = LogManager.getLogger(getClass());
-
+    protected Runtime runtime = Runtime.getRuntime();
+    protected DecimalFormat df = new DecimalFormat("#");
+    
     public GeneIndexerRepository() {
         super(Gene.class);
     }
@@ -52,52 +55,85 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
     public GeneDocumentCache getGeneDocumentCache(String species) {
         GeneDocumentCache geneDocumentCache = new GeneDocumentCache();
 
+        checkMemory();
         log.info("Fetching genes");
         geneDocumentCache.setGeneMap(getGeneMap(species));
 
+        checkMemory();
         log.info("Building gene -> alleles map");
         geneDocumentCache.setAlleles(getAllelesMap(species));
 
+        checkMemory();
         log.info("Building gene -> strictOrthologySymbols map");
         geneDocumentCache.setStrictOrthologySymbols(getStrictOrthologySymbolsMap(species));
 
+        checkMemory();
         log.info("Building gene -> diseases map");
         geneDocumentCache.setDiseases(getDiseasesMap(species));
 
+        checkMemory();
         log.info("Building gene -> phenotypeStatement map");
         geneDocumentCache.setPhenotypeStatements(getPhenotypeStatementMap(species));
 
+        checkMemory();
         log.info("Building gene -> GO BP Slim map");
         geneDocumentCache.setBiologicalProcessAgrSlim(getGOTermMap("biological_process", true, species));
+        
+        checkMemory();
         log.info("Building gene -> GO CC Slim map");
         geneDocumentCache.setBiologicalProcessWithParents(getGOTermMap("cellular_component", true, species));
+        
+        checkMemory();
         log.info("Building gene -> GO MF Slim map");
         geneDocumentCache.setMolecularFunctionAgrSlim(getGOTermMap("molecular_function", true, species));
 
+        checkMemory();
         log.info("Building gene -> GO BP w/parents map");
         geneDocumentCache.setBiologicalProcessWithParents(getGOTermMap("biological_process", false, species));
+        
+        checkMemory();
         log.info("Building gene -> GO CC w/parents map");
         geneDocumentCache.setCellularComponentWithParents(getGOTermMap("cellular_component", false, species));
+        
+        checkMemory();
         log.info("Building gene -> GO MF w/parents map");
         geneDocumentCache.setMolecularFunctionWithParents(getGOTermMap("molecular_function", false, species));
 
+        checkMemory();
         log.info("Building gene -> whereExpressed map");
         geneDocumentCache.setWhereExpressed(getWhereExpressedMap(species));
 
+        checkMemory();
         log.info("Building gene -> Expression GO CC Ribbon map");
         geneDocumentCache.setCellularComponentAgrSlim(getCellularComponentExpressionAgrSlimMap(species));
+        
+        checkMemory();
         log.info("Building gene -> Expression GO CC w/parents map");
         geneDocumentCache.setCellularComponentExpressionWithParents(getCellularComponentExpressionWithParentsMap(species));
 
+        checkMemory();
         log.info("Building gene -> Expression Anatomy Ribbon map");
         geneDocumentCache.setAnatomicalExpression(getAnatomicalExpressionMap(species));
+        
+        checkMemory();
         log.info("Building gene -> Expression Anatomy w/parents map");
         geneDocumentCache.setAnatomicalExpressionWithParents(getAnatomicalExpressionWithParentsMap(species));
 
-
+        checkMemory();
         return geneDocumentCache;
     }
+    
+    private void checkMemory() {
+        log.info("Memory Warning: " + df.format(memoryPercent() * 100) + "%");
+        log.info("Used Mem: " + (runtime.totalMemory() - runtime.freeMemory()));
+        log.info("Free Mem: " + runtime.freeMemory());
+        log.info("Total Mem: " + runtime.totalMemory());
+        log.info("Max Memory: " + runtime.maxMemory());
+    }
 
+    private double memoryPercent() {
+        return ((double) runtime.totalMemory() - (double) runtime.freeMemory()) / (double) runtime.maxMemory();
+    }
 
     private Map<String, Set<String>> getAllelesMap(String species) {
         String query = "MATCH (species:Species)--(gene:Gene)-[:IS_ALLELE_OF]-(allele:Allele) ";

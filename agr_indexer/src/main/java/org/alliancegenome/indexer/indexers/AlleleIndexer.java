@@ -38,8 +38,9 @@ public class AlleleIndexer extends Indexer<AlleleDocument> {
             queue.addAll(fulllist);
 
             initiateThreading(queue);
-        } catch (InterruptedException e) {
+        } catch (Exception e) {
             log.error("Error while indexing...", e);
+            System.exit(-1);
         }
 
     }
