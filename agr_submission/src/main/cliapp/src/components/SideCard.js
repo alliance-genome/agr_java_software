@@ -1,32 +1,44 @@
 import React, { Component, Fragment } from 'react';
-import axios from 'axios';
+//import PropTypes from 'prop-types';
 import { CardBody, Card } from 'reactstrap';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
+
 import DataTypeList from './DataTypeList';
 
+import { loadDataTypes } from '../actions/dataTypeActions';
+
 class SideCard extends Component {
+ 
+	constructor(props) {
+		super(props);
+		const { dispatch } = props;
+		this.boundActions = bindActionCreators(loadDataTypes, dispatch);
+	}
 
-  state = { datatypes: null }
+	componentDidMount() {
+		//this.props.dispatch(loadDataTypes());
+	}
 
-  componentDidMount() {
-    axios.get('http://localhost:8080/api/datatype/all')
-      .then(response => {
-        this.setState({ datatypes: response.data });
-      });
-  }
+	componentDidUpdate() {
+		//this.props.dispatch(loadDataTypes());
+	}
 
-  render() {
+	render() {
 
-    return (
-      <Fragment>
-        { this.state.datatypes && <Card>
-          <CardBody>
-            Data Types:
-            <DataTypeList data={this.state.datatypes} />
-          </CardBody>
-        </Card> }
-      </Fragment>
-    );
-  }
+		return (
+			<Fragment>
+				{ this.props.datatypes && <Card>
+					<CardBody>
+						Data Types:
+						<DataTypeList data={this.props.datatypes} />
+					</CardBody>
+				</Card> }
+			</Fragment>
+		);
+	}
 }
 
-export default SideCard;
+
+
+export default connect(store => ({ datatypes: store.datatypes }))(SideCard);

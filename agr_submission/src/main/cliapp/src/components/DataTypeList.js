@@ -1,10 +1,11 @@
-import React, { Component } from 'react';
+import React from 'react';
+//import PropTypes from 'prop-types';
 import { NavLink as RRNavLink } from 'react-router-dom';
 //import { Route } from 'react-router-dom';
 //import axios from 'axios';
 import { Navbar, NavItem, NavLink, Nav, UncontrolledTooltip } from 'reactstrap';
 
-class DataTypeList extends Component {
+class DataTypeList extends React.Component {
 
 	datasubtypes(parentname, data) {
 		if(data) {
@@ -31,6 +32,6 @@ class DataTypeList extends Component {
 	render() {
 		return <Navbar><Nav vertical>{ this.datatypes(this.props.data) }</Nav></Navbar>
 	}
-}
+};
 
 export default DataTypeList;

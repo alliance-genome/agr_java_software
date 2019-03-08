@@ -8,7 +8,10 @@ class DataTypes extends Component {
 	state = { datatypes: null }
 
 	componentDidMount() {
-		axios.get('http://localhost:8080/api/datatype/all').then(response => { this.setState({ datatypes: response.data }); });
+		axios.get('http://localhost:8080/api/datatype/all').then(response => {
+			console.log("Old DataType API Running");
+			this.setState({ datatypes: response.data });
+		});
 	}
 
 	renderdatatypes() {

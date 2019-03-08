@@ -70,7 +70,7 @@ public class EC2Helper {
         BlockDeviceMapping swap = new BlockDeviceMapping().withDeviceName("/dev/sdb").withEbs(swap_ebs);
 
         runInstancesRequest.withImageId("ami-0b1db01d775d666c2")
-        .withInstanceType(InstanceType.R52xlarge).withMinCount(1).withMaxCount(1)
+        .withInstanceType(InstanceType.C54xlarge).withMinCount(1).withMaxCount(1)
         .withBlockDeviceMappings(root, swap)
         .withSecurityGroups("default", "ES Transport", "HTTP", "HTTPS SSL", "SSH") // Step 6 default, ES Transport, HTTP, HTTPS SSL, SSH
         .withKeyName("AGR-ssl2");

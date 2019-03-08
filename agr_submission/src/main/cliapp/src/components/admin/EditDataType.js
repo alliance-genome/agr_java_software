@@ -6,18 +6,18 @@ import { Button, ListGroupItem, ListGroup, Form, FormGroup, Label, Input, Card, 
 
 class AdminEditDataType extends Component {
 
-	state = { }
+	state = { form_data: { } };
 	formRef = React.createRef();
 
 	componentDidMount() {
 		this.formRef.current.reset()
-		this.setState(this.props.data);
+		this.setState({ form_data: this.props.data});
 	}
 
 	componentDidUpdate(prevProps) {
 		if (this.props.data.id !== prevProps.data.id) {
-			this.formRef.current.reset()
-			this.setState(this.props.data);
+			this.formRef.current.reset();
+			this.setState({ form_data: this.props.data});
 		}
 	}
 
@@ -46,41 +46,49 @@ class AdminEditDataType extends Component {
 		const value = event.target.value;
 		console.log("Name: " + event.target.name);
 		console.log("Value: " + event.target.value);
-		this.setState({ [name]: value });
+		
+		const { form_data } = this.state;
+		const newFormData = {
+			...form_data,
+			[name]: value
+		};
+
+		this.setState({ form_data: newFormData });
 		console.log("Change: Json: " + JSON.stringify(this.state));
 	}
 
 	saveDataType = formSubmitEvent => {
 		formSubmitEvent.preventDefault();
-		console.log("saveDataType: Json: " + JSON.stringify(this.state));
+		//this.props.data = this.state.form_data;
+		console.log("saveDataType: Json: " + JSON.stringify(this.state.form_data));
 	}
 
 	render() {
 		return (
 			<Card>
 				<CardBody>
-					<CardTitle>ID: {this.state.id }</CardTitle>
+					<CardTitle>ID: {this.state.form_data.id }</CardTitle>
 					<Form onSubmit={ this.saveDataType } innerRef={this.formRef}>
 						<FormGroup>
 							<Label for="name">Name:</Label>
-							<Input name="name" defaultValue={ this.state.name } onChange={ this.changeHandler } />
+							<Input name="name" defaultValue={ this.state.form_data.name } onChange={ this.changeHandler } />
 						</FormGroup>
 						<FormGroup>
 							<Label for="description">Description:</Label>
-							<Input name="description" defaultValue={ this.state.description } onChange={ this.changeHandler } />
+							<Input name="description" defaultValue={ this.state.form_data.description } onChange={ this.changeHandler } />
 						</FormGroup>
 						<FormGroup>
 							<Label for="fileExtension">File Extension (Leave off the ".")</Label>
-							<Input name="fileExtension" defaultValue={ this.state.fileExtension } onChange={ this.changeHandler } />
+							<Input name="fileExtension" defaultValue={ this.state.form_data.fileExtension } onChange={ this.changeHandler } />
 						</FormGroup>
 						<FormGroup check>
 							<Label>
-								<Input name="dataSubTypeRequired" type="checkbox" defaultChecked={ this.state.dataSubTypeRequired } onChange={ this.changeHandler } />{' '}Does this Data Type have sub types?
+								<Input name="dataSubTypeRequired" type="checkbox" defaultChecked={ this.state.form_data.dataSubTypeRequired } onChange={ this.changeHandler } />{' '}Does this Data Type have sub types?
 							</Label>
 						</FormGroup>
 						<FormGroup check>
 							<Label>
-								<Input name="validationRequired" type="checkbox" defaultChecked={ this.state.validationRequired } onChange={ this.changeHandler } />{' '}Will this Data Type be validated?
+								<Input name="validationRequired" type="checkbox" defaultChecked={ this.state.form_data.validationRequired } onChange={ this.changeHandler } />{' '}Will this Data Type be validated?
 							</Label>
 						</FormGroup>
 						<FormGroup>
