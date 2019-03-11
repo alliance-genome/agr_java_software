@@ -12,6 +12,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import org.alliancegenome.agr_submission.auth.Secured;
 import org.alliancegenome.agr_submission.entities.DataType;
 import org.alliancegenome.agr_submission.forms.AddDataSubTypeForm;
 import org.alliancegenome.agr_submission.forms.CreateSchemaFileForm;
@@ -20,6 +21,8 @@ import org.alliancegenome.agr_submission.views.View;
 import com.fasterxml.jackson.annotation.JsonView;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 
@@ -37,6 +40,10 @@ public interface DataTypeControllerInterface {
     
     @GET
     @Path("/{id}")
+    @Secured
+    @ApiImplicitParams({
+        @ApiImplicitParam(name = "Authorization", value = "Authorization token", 
+                          required = true, dataType = "string", paramType = "header") })
     @ApiOperation("Reads Entity")
     @JsonView(View.DataTypeRead.class)
     public DataType get(@ApiParam(value = "Read: id") @PathParam("id") Long id);
