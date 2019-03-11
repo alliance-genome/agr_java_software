@@ -1,30 +1,30 @@
 import React, { Fragment, Component } from 'react';
 import { Col } from 'reactstrap';
-import axios from 'axios';
-
+import { connect } from 'react-redux';
 import DataTypes from '../../components/DataTypes';
-import AdminEditDataType from '../../components/admin/EditDataType'
+import AdminEditDataType from '../../components/admin/EditDataType';
+import { loadDataType, loadDataTypes } from '../../actions/dataTypeActions';
 
 class AdminDataTypes extends Component {
 
-	state = { datatype: null }
-
 	getData(datatype) {
-		if(datatype != null) {
-			axios.get('http://localhost:8080/api/datatype/' + datatype).then(response => { this.setState({ datatype: response.data }); });
-		}
+		this.props.dispatch(loadDataType(this.props.match.params.dataType));
 	}
 
 	componentDidUpdate(prevProps) {
-		if (this.props.match.params.datatype !== prevProps.match.params.datatype) {
-			this.getData(this.props.match.params.datatype);
+		console.log("Update: ", this.props);
+		if (this.props.match.params.datatype !== prevProps.match.params.dataType) {
+			this.getData(this.props.match.params.dataType);
 		}
 	}
 
 	componentDidMount() {
+		//console.log("Did Mount: ", loadDataTypes());
+		//this.props.dispatch(loadDataTypes());
 		var match = this.props.match;
-		if(match != null) {
-			this.getData(this.props.match.params.datatype);
+		console.log("Did Mount: ", this.props);
+		if (match != null && match.params != null && match.params.dataType != null) {
+			this.getData(this.props.match.params.dataType);
 		}
 	}
 
@@ -32,16 +32,16 @@ class AdminDataTypes extends Component {
 		return (
 			<Fragment>
 				<Col xs={{ order: 2 }} md={{ size: 4, order: 1 }} tag="aside" className="pb-5 mb-5 pb-md-0 mb-md-0 mx-auto mx-md-0">
-					<DataTypes />
+					<DataTypes dataTypes={this.props.dataTypes} />
 				</Col>
-							   
+
 				<Col xs={{ order: 1 }} md={{ size: 7, offset: 1 }} tag="section" className="py-5 mb-5 py-md-0 mb-md-0">
-					{ this.state.datatype == null && <span>Please choose a data type</span> }
-					{ this.state.datatype != null && <AdminEditDataType data={ this.state.datatype } /> }
+					{this.props.datatype == null && <span>Please choose a data type</span>}
+					{this.props.datatype != null && <AdminEditDataType data={this.state.datatype} />}
 				</Col>
 			</Fragment>
 		)
 	}
 }
 
-export default AdminDataTypes;
+export default connect()(AdminDataTypes);
