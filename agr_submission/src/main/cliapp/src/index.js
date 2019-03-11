@@ -33,9 +33,12 @@ ReactDOM.render(
 						<Row noGutters className="pt-2 pt-md-5 w-100 px-4 px-xl-0 position-relative">
 							<Switch>
 								<Route exact path="/" component={Homepage} />
-								<Route exact path="/admin" component={AdminPage} />
-								<Route path="/admin/datatypes" component={AdminDataTypes} />
+								
 								<Route path="/admin/datatypes/:datatype?" component={AdminDataTypes} />
+								<Route path="/admin/datatypes" component={AdminDataTypes} />
+								<Route exact path="/admin" component={AdminPage} />
+								
+								
 								<Route path="/login" component={LoginPage} />
 								<Route path="/datafiles" component={DataFiles} />
 								<Route path="/datafiles/:datatype/:subdatatype" component={DataFiles} />

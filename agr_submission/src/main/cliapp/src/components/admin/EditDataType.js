@@ -41,11 +41,9 @@ class AdminEditDataType extends Component {
 		})
 	}
 
-	changeHandler = event => {
+	changeHandler = (event) => {
 		const name = event.target.name;
-		const value = event.target.value;
-		console.log("Name: " + event.target.name);
-		console.log("Value: " + event.target.value);
+		const value = event.target.type === 'checkbox' ? event.target.checked : event.target.value;
 		
 		const { form_data } = this.state;
 		const newFormData = {
@@ -54,11 +52,11 @@ class AdminEditDataType extends Component {
 		};
 
 		this.setState({ form_data: newFormData });
-		console.log("Change: Json: " + JSON.stringify(this.state));
+		//console.log("Change: Json: " + JSON.stringify(this.state));
 	}
 
-	saveDataType = formSubmitEvent => {
-		formSubmitEvent.preventDefault();
+	saveDataType = (event) => {
+		event.preventDefault();
 		//this.props.data = this.state.form_data;
 		console.log("saveDataType: Json: " + JSON.stringify(this.state.form_data));
 	}
@@ -82,12 +80,12 @@ class AdminEditDataType extends Component {
 							<Input name="fileExtension" defaultValue={ this.state.form_data.fileExtension } onChange={ this.changeHandler } />
 						</FormGroup>
 						<FormGroup check>
-							<Label>
+							<Label check>
 								<Input name="dataSubTypeRequired" type="checkbox" defaultChecked={ this.state.form_data.dataSubTypeRequired } onChange={ this.changeHandler } />{' '}Does this Data Type have sub types?
 							</Label>
 						</FormGroup>
 						<FormGroup check>
-							<Label>
+							<Label check>
 								<Input name="validationRequired" type="checkbox" defaultChecked={ this.state.form_data.validationRequired } onChange={ this.changeHandler } />{' '}Will this Data Type be validated?
 							</Label>
 						</FormGroup>
