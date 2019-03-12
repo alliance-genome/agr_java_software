@@ -82,7 +82,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
         
         checkMemory();
         log.info("Building gene -> GO CC Slim map");
-        geneDocumentCache.setCellularComponentWithParents(getGOTermMap("cellular_component", true, species));
+        geneDocumentCache.setCellularComponentAgrSlim(getGOTermMap("cellular_component", true, species));
         
         checkMemory();
         log.info("Building gene -> GO MF Slim map");
