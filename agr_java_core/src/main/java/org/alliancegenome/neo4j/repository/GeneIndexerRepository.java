@@ -29,7 +29,8 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
         query += " OPTIONAL MATCH pCR=(g:Gene)-[:CROSS_REFERENCE]-(:CrossReference)";
         query += " OPTIONAL MATCH pChr=(g:Gene)-[:LOCATED_ON]-(:Chromosome)";
         query += " OPTIONAL MATCH pSecondaryId=(g:Gene)-[:ALSO_KNOWN_AS]-(s:SecondaryId)";
-        query += " RETURN p1, pSyn, pCR, pChr, pSecondaryId";
+        query += " OPTIONAL MATCH pSoTerm=(g:Gene)-[:ANNOTATED_TO]-(soTerm:SOTerm)";
+        query += " RETURN p1, pSyn, pCR, pChr, pSecondaryId, pSoTerm";
 
         Iterable<Gene> genes = null;
 
@@ -81,7 +82,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
         
         checkMemory();
         log.info("Building gene -> GO CC Slim map");
-        geneDocumentCache.setBiologicalProcessWithParents(getGOTermMap("cellular_component", true, species));
+        geneDocumentCache.setCellularComponentWithParents(getGOTermMap("cellular_component", true, species));
         
         checkMemory();
         log.info("Building gene -> GO MF Slim map");
@@ -105,7 +106,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
 
         checkMemory();
         log.info("Building gene -> Expression GO CC Ribbon map");
-        geneDocumentCache.setCellularComponentAgrSlim(getCellularComponentExpressionAgrSlimMap(species));
+        geneDocumentCache.setCellularComponentExpressionAgrSlim(getCellularComponentExpressionAgrSlimMap(species));
         
         checkMemory();
         log.info("Building gene -> Expression GO CC w/parents map");
@@ -196,7 +197,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
     }
 
     public Map<String,Set<String>> getCellularComponentExpressionAgrSlimMap(String species) {
-        String query = "MATCH (species:Species)-[:FROM_SPECIES]-(gene:Gene)--(ebe:ExpressionBioEntity)-[:CELLULAR_COMPONENT_RIBBON_TERM]-(:GOTerm)-[:IS_A_PART_OF_CLOSURE|IS_A_PART_OF_SELF_CLOSURE]->(term:GOTerm) ";
+        String query = "MATCH (species:Species)-[:FROM_SPECIES]-(gene:Gene)--(ebe:ExpressionBioEntity)-[:CELLULAR_COMPONENT_RIBBON_TERM]->(term:GOTerm) ";
         query += getSpeciesWhere(species);
         query +=  " RETURN distinct gene.primaryKey, term.name ";
 
