@@ -9,7 +9,7 @@ import { Provider } from "react-redux";
 
 import * as serviceWorker from './serviceWorker';
 
-import { createStore } from "redux";
+import { createStore, applyMiddleware } from 'redux';
 
 import Homepage from './containers/homepage';
 import AdminPage from './containers/adminpage';
@@ -21,7 +21,9 @@ import Header from './components/Header';
 
 import rootReducer from './reducers/rootReducer';
 
-const store = createStore(rootReducer);
+import thunk from 'redux-thunk';
+
+const store = createStore(rootReducer, applyMiddleware(thunk));
 
 ReactDOM.render(
 	<Provider store={store}>
@@ -33,15 +35,16 @@ ReactDOM.render(
 						<Row noGutters className="pt-2 pt-md-5 w-100 px-4 px-xl-0 position-relative">
 							<Switch>
 								<Route exact path="/" component={Homepage} />
+								<Route path="/login" component={LoginPage} />
+
 
 								<Route path="/admin/datatypes/:dataType?" component={AdminDataTypes} />
 								<Route path="/admin/datatypes" component={AdminDataTypes} />
 								<Route exact path="/admin" component={AdminPage} />
-
-
-								<Route path="/login" component={LoginPage} />
-								<Route path="/datafiles" component={DataFiles} />
+								
 								<Route path="/datafiles/:datatype/:subdatatype" component={DataFiles} />
+								<Route path="/datafiles" component={DataFiles} />
+								
 							</Switch>
 						</Row>
 					</Container>

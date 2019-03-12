@@ -1,38 +1,59 @@
-import * as types from './actionTypes';
+import {
+	LOAD_DATATYPES_BEGIN,
+	LOAD_DATATYPES_SUCCESS,
+	LOAD_DATATYPES_FAILURE,
+	LOAD_DATATYPE_BEGIN,
+	LOAD_DATATYPE_SUCCESS,
+	LOAD_DATATYPE_FAILURE
+} from './actionTypes';
 import dataTypeApi from '../api/dataTypeApi';
 
 export function loadDataTypes() {
 	return (dispatch) => {
-		//console.log("This is a test");
+		dispatch(loadDataTypesBegin());
 		dataTypeApi.getAll().then(dataTypes => {
-			//console.log("DataTypes: " + dataTypes.length);
 			dispatch(loadDataTypesSuccess(dataTypes));
 		}).catch(error => {
-			throw (error);
+			dispatch(loadDataTypesFailure(error));
 		});
 	};
 }
 
 export const loadDataType = (id) => {
-	console.log("This is another test");
 	return function (dispatch) {
+		dispatch(loadDataTypeBegin());
 		dataTypeApi.getDataType(id).then(dataType => {
-			console.log("DataType: " + dataType);
 			dispatch(loadDataTypeSuccess(dataType));
 		}).catch(error => {
-			throw (error);
+			dispatch(loadDataTypeFailure(error));
 		});
-	}
+	};
 }
 
-export function loadDataTypeAction() {
-	return { type: types.LOAD_DATATYPES };
-}
+export const loadDataTypesBegin = () => ({
+	type: LOAD_DATATYPES_BEGIN
+});
 
-export function loadDataTypesSuccess(dataTypes) {
-	return { type: types.LOAD_DATATYPES_SUCCESS, dataTypes };
-}
+export const loadDataTypesSuccess = payload => ({
+	type: LOAD_DATATYPES_SUCCESS,
+	payload 
+});
 
-export function loadDataTypeSuccess(dataType) {
-	return { type: types.LOAD_DATATYPE_SUCCESS, dataType };
-}
+export const loadDataTypesFailure = error => ({
+	type: LOAD_DATATYPES_FAILURE,
+	payload: { error }
+});
+
+export const loadDataTypeBegin = () => ({
+	type: LOAD_DATATYPE_BEGIN
+});
+
+export const loadDataTypeSuccess = payload => ({
+	type: LOAD_DATATYPE_SUCCESS,
+	payload
+});
+
+export const loadDataTypeFailure = error => ({
+	type: LOAD_DATATYPE_FAILURE,
+	payload: { error }
+});

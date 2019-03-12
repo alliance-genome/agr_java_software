@@ -1,29 +1,14 @@
 import React, { Component, Fragment } from 'react';
 import { NavLink as RRNavLink } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { loadDataTypes } from "../actions/dataTypeActions";
+//import { loadDataTypes } from "../actions/dataTypeActions";
 
 import { CardBody, Card, ListGroup, ListGroupItem, NavLink, Badge } from 'reactstrap';
 
 class DataTypes extends Component {
 
-	//state = { datatypes: null }
-
-	componentDidMount() {
-
-		//console.log(this.props);
-		//this.props.dispatch(loadDataTypes());
-		//console.log();
-		//this.props.dispatch();
-		//axios.get('http://localhost:8080/api/datatype/all').then(response => {
-		//	console.log("Old DataType API Running");
-		//	this.setState({ datatypes: response.data });
-		//});
-
-	}
-
 	renderdatatypes() {
-		return this.props.datatypes.map((node, index) => {
+		return this.props.dataTypes.map((node, index) => {
 			return (
 				<ListGroupItem className="text-nowrap" key={node.id}>
 					<NavLink to={"/admin/datatypes/" + node.id} tag={RRNavLink}>
@@ -37,7 +22,7 @@ class DataTypes extends Component {
 	render() {
 		return (
 			<Fragment>
-				{this.props.dataTypes && <Card>
+				{this.props.dataTypes.length > 0 && <Card>
 					<CardBody>
 						<ListGroup>
 							Data Types: {this.renderdatatypes()}
@@ -48,7 +33,5 @@ class DataTypes extends Component {
 		);
 	}
 }
-
-
 
 export default connect()(DataTypes);

@@ -22,23 +22,27 @@ class AdminEditDataType extends Component {
 	}
 
 	renderSchemaFiles(schemaFiles) {
-		return schemaFiles.map((node, index) => {
-			return (
-				<ListGroup key={ node.id }>
-					<ListGroupItem >{ node.schemaVersion.schema } -> { node.filePath }</ListGroupItem>
-				</ListGroup>
-			)
-		})
+		if(schemaFiles != null) {
+			return schemaFiles.map((node, index) => {
+				return (
+					<ListGroup key={ node.id }>
+						<ListGroupItem >{ node.schemaVersion.schema } -> { node.filePath }</ListGroupItem>
+					</ListGroup>
+				)
+			})
+		}
 	}
 
 	renderDataSubTypes(dataSubTypes) {
-		return dataSubTypes.map((node, index) => {
-			return (
-				<ListGroup key={ node.id }>
-					<ListGroupItem >{ node.name }</ListGroupItem>
-				</ListGroup>
-			)
-		})
+		if(dataSubTypes != null) {
+			return dataSubTypes.map((node, index) => {
+				return (
+					<ListGroup key={ node.id }>
+						<ListGroupItem >{ node.name }</ListGroupItem>
+					</ListGroup>
+				)
+			})
+		}
 	}
 
 	changeHandler = (event) => {

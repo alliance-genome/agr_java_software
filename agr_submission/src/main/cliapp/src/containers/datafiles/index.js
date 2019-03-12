@@ -1,6 +1,6 @@
 import React, { Fragment, Component } from 'react';
 import { ListGroup, ListGroupItem, Badge, Col } from 'reactstrap';
-import axios from 'axios';
+//import axios from 'axios';
 
 import SideCard from '../../components/SideCard';
 
@@ -11,21 +11,21 @@ class DataFiles extends Component {
     state = { datafiles: null }
 
     componentDidUpdate(prevProps) {
-        if (this.props.match.params.datatype !== prevProps.match.params.datatype || this.props.match.params.subdatatype !== prevProps.match.params.subdatatype) {
-            axios.get('http://localhost:8080/api/datafile/' + this.props.match.params.datatype + '/' + this.props.match.params.subdatatype)
-                .then(response => {
-                    this.setState({ datafiles: response.data });
-                });
-        }
+        //if (this.props.match.params.datatype !== prevProps.match.params.datatype || this.props.match.params.subdatatype !== prevProps.match.params.subdatatype) {
+        //    axios.get('http://localhost:8080/api/datafile/' + this.props.match.params.datatype + '/' + this.props.match.params.subdatatype)
+        //        .then(response => {
+        //            this.setState({ datafiles: response.data });
+        //        });
+        //}
     }
 
     componentDidMount() {
-        if (this.props.match.params.datatype != null || this.props.match.params.subdatatype != null) {
-            axios.get('http://localhost:8080/api/datafile/' + this.props.match.params.datatype + '/' + this.props.match.params.subdatatype)
-                .then(response => {
-                    this.setState({ datafiles: response.data });
-                });
-        }
+        //if (this.props.match.params.datatype != null || this.props.match.params.subdatatype != null) {
+        //    axios.get('http://localhost:8080/api/datafile/' + this.props.match.params.datatype + '/' + this.props.match.params.subdatatype)
+        //        .then(response => {
+        //            this.setState({ datafiles: response.data });
+        //        });
+        //}
     }
 
     datafiles(data) {
