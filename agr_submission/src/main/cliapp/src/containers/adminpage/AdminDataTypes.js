@@ -44,7 +44,7 @@ class AdminDataTypes extends Component {
 }
 
 const mapStateToProps = (state) => {
-	console.log("State: ", state);
+	//console.log("State: ", state);
 	return {
 		dataType: state.dataTypeReducer.dataType,
 		dataTypes: state.dataTypeReducer.dataTypes

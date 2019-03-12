@@ -42,7 +42,7 @@ ReactDOM.render(
 								<Route path="/admin/datatypes" component={AdminDataTypes} />
 								<Route exact path="/admin" component={AdminPage} />
 								
-								<Route path="/datafiles/:datatype/:subdatatype" component={DataFiles} />
+								<Route path="/datafiles/:dataType/:dataSubType" component={DataFiles} />
 								<Route path="/datafiles" component={DataFiles} />
 								
 							</Switch>
