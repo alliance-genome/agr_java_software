@@ -11,6 +11,7 @@ import org.alliancegenome.neo4j.repository.DiseaseRepository;
 import org.alliancegenome.neo4j.view.BaseFilter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.lucene.search.SortField;
 import org.neo4j.ogm.model.Result;
 
 import javax.enterprise.context.RequestScoped;
@@ -85,7 +86,7 @@ public class DiseaseService {
         SortingField sortingField = null;
         String sortBy = pagination.getSortBy();
         if (sortBy != null && !sortBy.isEmpty())
-            sortingField = SortingField.valueOf(sortBy.toUpperCase());
+            sortingField = SortingField.getSortingField(sortBy.toUpperCase());
 
         DiseaseAnnotationSorting sorting = new DiseaseAnnotationSorting();
         fullDiseaseAnnotationList.sort(sorting.getComparator(sortingField, pagination.getAsc()));
@@ -276,6 +277,12 @@ public class DiseaseService {
         LocalDateTime startDate = LocalDateTime.now();
         List<DiseaseAnnotation> list = getDiseaseAnnotationList(geneID, pagination, empiricalDisease);
         JsonResultResponse<DiseaseAnnotation> response = new JsonResultResponse<>();
+        if (!SortingField.isValidSortingFieldValue(pagination.getSortBy())) {
+            String note = "Invalid sorting name provided: " + pagination.getSortBy();
+            note += ". Sorting is ignored! ";
+            note += "Allowed values are (case insensitive): " + SortingField.getAllValues();
+            response.setNote(note);
+        }
         response.calculateRequestDuration(startDate);
         response.setResults(list);
         response.setTotal(getTotalDiseaseAnnotation(geneID, pagination, empiricalDisease));

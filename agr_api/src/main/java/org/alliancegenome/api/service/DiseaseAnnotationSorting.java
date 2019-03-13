@@ -62,6 +62,9 @@ public class DiseaseAnnotationSorting implements Sorting<DiseaseAnnotation> {
     private static Comparator<DiseaseAnnotation> speciesSymbolOrder =
             Comparator.comparing(annotation -> annotation.getGene().getSpecies().getName());
 
+    private static Comparator<DiseaseAnnotation> associationTypeOrder =
+            Comparator.comparing(DiseaseAnnotation::getAssociationType);
+
     private static Map<SortingField, Comparator<DiseaseAnnotation>> sortingFieldMap = new LinkedHashMap<>();
 
     static {
@@ -71,6 +74,7 @@ public class DiseaseAnnotationSorting implements Sorting<DiseaseAnnotation> {
         sortingFieldMap.put(SortingField.ALLELESYMBOL, alleleSymbolOrder);
         sortingFieldMap.put(SortingField.SPECIES, speciesSymbolOrder);
         sortingFieldMap.put(SortingField.DISEASE, diseaseSymbolOrder);
+        sortingFieldMap.put(SortingField.ASSOCIATIONTYPE, associationTypeOrder);
     }
 
 }
