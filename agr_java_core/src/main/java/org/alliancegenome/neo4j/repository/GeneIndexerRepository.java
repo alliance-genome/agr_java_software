@@ -191,9 +191,9 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
     public Map<String, Set<String>> getWhereExpressedMap(String species) {
         String query = "MATCH (species:Species)-[:FROM_SPECIES]-(gene:Gene)--(ebe:ExpressionBioEntity) ";
         query += getSpeciesWhere(species);
-        query += " RETURN distinct gene.primaryKey, ebe.whereExpressed";
+        query += " RETURN distinct gene.primaryKey as id, ebe.whereExpressedStatement as value";
 
-        return getMapSetForQuery(query, "gene.primaryKey", "ebe.whereExpressed", getSpeciesParams(species));
+        return getMapSetForQuery(query, "id", "value", getSpeciesParams(species));
     }
 
     public Map<String,Set<String>> getCellularComponentExpressionAgrSlimMap(String species) {

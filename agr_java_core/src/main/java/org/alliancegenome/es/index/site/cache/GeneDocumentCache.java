@@ -61,6 +61,7 @@ public class GeneDocumentCache extends IndexerCache {
             geneDocument.setAnatomicalExpressionWithParents(anatomicalExpressionWithParents.get(id));
 
             geneDocument.setPhenotypeStatements(phenotypeStatements.get(id));
+
         }
     }
 
