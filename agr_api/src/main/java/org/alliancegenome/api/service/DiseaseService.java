@@ -8,6 +8,7 @@ import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.DiseaseSummary;
 import org.alliancegenome.neo4j.entity.node.*;
 import org.alliancegenome.neo4j.repository.DiseaseRepository;
+import org.alliancegenome.neo4j.view.BaseFilter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.neo4j.ogm.model.Result;
@@ -17,6 +18,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
 
 @RequestScoped
@@ -37,6 +39,10 @@ public class DiseaseService {
     private static List<DiseaseAnnotation> allDiseaseAnnotations = null;
     // Map<disease ID, List<DiseaseAnnotation>> including annotations to child terms
     private static Map<String, List<DiseaseAnnotation>> diseaseAnnotationMap = new HashMap<>();
+    // Map<gene ID, List<DiseaseAnnotation>> including annotations to child terms
+    private static Map<String, List<DiseaseAnnotation>> diseaseAnnotationExperimentGeneMap = new HashMap<>();
+    // Map<gene ID, List<DiseaseAnnotation>> including annotations to child terms
+    private static Map<String, List<DiseaseAnnotation>> diseaseAnnotationOrthologGeneMap = new HashMap<>();
     private static boolean caching;
 
     public JsonResultResponse<DiseaseAnnotation> getDiseaseAnnotationsByDisease(String diseaseID, Pagination pagination) {
@@ -53,17 +59,28 @@ public class DiseaseService {
         return diseaseAnnotationMap.get(diseaseID).size();
     }
 
+    private int getTotalDiseaseAnnotation(String geneID, Pagination pagination, boolean empiricalDisease) {
+        List<DiseaseAnnotation> list;
+        if (empiricalDisease)
+            list = diseaseAnnotationExperimentGeneMap.get(geneID);
+        else
+            list = diseaseAnnotationOrthologGeneMap.get(geneID);
+        if (list == null)
+            return 0;
+        return list.size();
+    }
+
     private List<DiseaseAnnotation> getDiseaseAnnotationList(String diseaseID, Pagination pagination) {
-        if (allDiseaseAnnotations == null && !caching) {
-            caching = true;
-            cacheAllDiseaseAnnotations();
-            caching = false;
-        }
+        checkCache();
         if (caching)
             return null;
 
         List<DiseaseAnnotation> fullDiseaseAnnotationList = diseaseAnnotationMap.get(diseaseID);
+        return getSortedAndPaginatedDiseaseAnnotations(pagination, fullDiseaseAnnotationList);
 
+    }
+
+    private List<DiseaseAnnotation> getSortedAndPaginatedDiseaseAnnotations(Pagination pagination, List<DiseaseAnnotation> fullDiseaseAnnotationList) {
         // sorting
         SortingField sortingField = null;
         String sortBy = pagination.getSortBy();
@@ -80,6 +97,58 @@ public class DiseaseService {
                 .collect(Collectors.toList());
     }
 
+    private List<DiseaseAnnotation> getDiseaseAnnotationList(String geneID, Pagination pagination, boolean empiricalDisease) {
+        checkCache();
+        if (caching)
+            return null;
+
+        List<DiseaseAnnotation> diseaseAnnotationList;
+        if (empiricalDisease)
+            diseaseAnnotationList = diseaseAnnotationExperimentGeneMap.get(geneID);
+        else
+            diseaseAnnotationList = diseaseAnnotationOrthologGeneMap.get(geneID);
+        if (diseaseAnnotationList == null)
+            return null;
+
+        //filtering
+        List<DiseaseAnnotation> filteredDiseaseAnnotationList = filterDiseaseAnnotations(diseaseAnnotationList, pagination.getFieldFilterValueMap());
+
+        // sorting
+        return getSortedAndPaginatedDiseaseAnnotations(pagination, filteredDiseaseAnnotationList);
+    }
+
+    private List<DiseaseAnnotation> filterDiseaseAnnotations(List<DiseaseAnnotation> diseaseAnnotationList, BaseFilter fieldFilterValueMap) {
+        if (diseaseAnnotationList == null)
+            return null;
+        if (fieldFilterValueMap == null)
+            return diseaseAnnotationList;
+        return diseaseAnnotationList.stream()
+                .filter(annotation -> containsFilterValue(annotation, fieldFilterValueMap))
+                .collect(Collectors.toList());
+    }
+
+    private boolean containsFilterValue(DiseaseAnnotation annotation, BaseFilter fieldFilterValueMap) {
+        // remove entries with null values.
+        fieldFilterValueMap.values().removeIf(Objects::isNull);
+
+        Set<Boolean> filterResults = fieldFilterValueMap.entrySet().stream()
+                .map((entry) -> {
+                    FilterFunction<DiseaseAnnotation, String> filterFunction = DiseaseAnnotationFiltering.filterFieldMap.get(entry.getKey());
+                    return filterFunction.containsFilterValue(annotation, entry.getValue());
+                })
+                .collect(Collectors.toSet());
+
+        return !filterResults.contains(false);
+    }
+
+    private void checkCache() {
+        if (allDiseaseAnnotations == null && !caching) {
+            caching = true;
+            cacheAllDiseaseAnnotations();
+            caching = false;
+        }
+    }
+
     private void cacheAllDiseaseAnnotations() {
         Set<DiseaseEntityJoin> joinList = diseaseRepository.getAllDiseaseEntityJoins();
         if (joinList == null)
@@ -93,6 +162,7 @@ public class DiseaseService {
                     document.setSource(diseaseEntityJoin.getSource());
                     document.setAssociationType(diseaseEntityJoin.getJoinType());
                     document.setSortOrder(diseaseEntityJoin.getSortOrder());
+                    document.setOrthologyGene(diseaseEntityJoin.getOrthologyGene());
                     List<Publication> publicationList = diseaseEntityJoin.getPublicationEvidenceCodeJoin().stream()
                             .map(PublicationEvidenceCodeJoin::getPublication).sorted(Comparator.naturalOrder()).collect(Collectors.toList());
                     document.setPublications(publicationList.stream().distinct().collect(Collectors.toList()));
@@ -113,6 +183,7 @@ public class DiseaseService {
         log.info("Number of Disease IDs: " + closureMapping.size());
         final Set<String> allIDs = closureMapping.keySet();
 
+        long start = System.currentTimeMillis();
         // loop over all disease IDs (termID)
         // and store the annotations in a map for quick retrieval
         allIDs.forEach(termID -> {
@@ -122,6 +193,22 @@ public class DiseaseService {
                     .collect(Collectors.toList());
             diseaseAnnotationMap.put(termID, joins);
         });
+
+        System.out.println("Time populating diseaseAnnotationMap:  " + ((System.currentTimeMillis() - start) / 1000) + " s");
+
+        // group by gene IDs
+        start = System.currentTimeMillis();
+        diseaseAnnotationExperimentGeneMap = allDiseaseAnnotations.stream()
+                .filter(annotation -> annotation.getSortOrder() < 10)
+                .collect(groupingBy(o -> o.getGene().getPrimaryKey(), Collectors.toList()));
+        System.out.println("Time populating diseaseAnnotationExperimentGeneMap:  " + ((System.currentTimeMillis() - start) / 1000) + " s");
+
+        start = System.currentTimeMillis();
+        diseaseAnnotationOrthologGeneMap = allDiseaseAnnotations.stream()
+                .filter(annotation -> annotation.getSortOrder() == 10)
+                .collect(groupingBy(o -> o.getGene().getPrimaryKey(), Collectors.toList()));
+        System.out.println("Time populating diseaseAnnotationOrthologGeneMap:  " + ((System.currentTimeMillis() - start) / 1000) + " s");
+
         log.info("Number of Disease IDs in disease Map: " + diseaseAnnotationMap.size());
         log.info("Time to create annotation histogram: " + (System.currentTimeMillis() - startCreateHistogram) / 1000);
     }
@@ -187,12 +274,11 @@ public class DiseaseService {
 
     public JsonResultResponse<DiseaseAnnotation> getDiseaseAnnotations(String geneID, Pagination pagination, boolean empiricalDisease) {
         LocalDateTime startDate = LocalDateTime.now();
-        List<DiseaseAnnotation> list = getEmpiricalDiseaseAnnotationList(geneID, pagination, empiricalDisease);
+        List<DiseaseAnnotation> list = getDiseaseAnnotationList(geneID, pagination, empiricalDisease);
         JsonResultResponse<DiseaseAnnotation> response = new JsonResultResponse<>();
         response.calculateRequestDuration(startDate);
         response.setResults(list);
-        Long count = diseaseRepository.getTotalDiseaseCount(geneID, pagination, empiricalDisease);
-        response.setTotal((int) (long) count);
+        response.setTotal(getTotalDiseaseAnnotation(geneID, pagination, empiricalDisease));
         return response;
     }
 

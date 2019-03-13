@@ -50,7 +50,7 @@ public class DiseaseIT {
         Pagination pagination = new Pagination(1, 10, null, null);
         // cancer
         String diseaseID = "DOID:9952";
-        pagination.setSortBy("gene_symbol");
+        pagination.setSortBy("geneSymbol");
         pagination.setAsc(true);
         JsonResultResponse<DiseaseAnnotation> response = geneService.getDiseaseAnnotationsByDisease(diseaseID, pagination);
         assertResponse(response, 10, 74);
@@ -231,7 +231,7 @@ public class DiseaseIT {
                 "MGI:107940\tEzh2\tMus musculus\tMGI:3823217\tEzh2<sup>tm2Sho</sup>\tallele\tis_implicated_in\tDOID:9952\tacute lymphocytic leukemia\tTAS\tMGI\tPMID:22431509\n";
         assertEquals(result, output);
 
-        // sort by disease and filter.species
+        // sort by disease and containsFilterValue.species
         pagination.setSortBy("disease,species");
         response = geneService.getDiseaseAnnotationsByDisease(diseaseID, pagination);
 
@@ -295,7 +295,7 @@ public class DiseaseIT {
         // Pten
         String geneID = "MGI:109583";
 
-        // add filter on disease
+        // add containsFilterValue on disease
         pagination.makeSingleFieldFilter(FieldFilter.DISEASE, "BL");
         JsonResultResponse<DiseaseAnnotation> response = geneService.getDiseaseAnnotations(geneID, pagination, true);
         assertResponse(response, 3, 3);
@@ -340,7 +340,7 @@ public class DiseaseIT {
         // Pten
         String geneID = "MGI:109583";
 
-        // add filter on feature symbol
+        // add containsFilterValue on feature symbol
         pagination.makeSingleFieldFilter(FieldFilter.GENETIC_ENTITY, "tm1h");
         JsonResultResponse<DiseaseAnnotation> response = geneService.getDiseaseAnnotations(geneID, pagination, true);
         assertResponse(response, 10, 10);
@@ -376,7 +376,7 @@ public class DiseaseIT {
         // Pten
         String geneID = "MGI:109583";
 
-        // add filter on feature symbol
+        // add containsFilterValue on feature symbol
         pagination.makeSingleFieldFilter(FieldFilter.GENETIC_ENTITY_TYPE, "allele");
         JsonResultResponse<DiseaseAnnotation> response = geneService.getDiseaseAnnotations(geneID, pagination, true);
         assertResponse(response, 20, 36);
@@ -412,7 +412,7 @@ public class DiseaseIT {
         assertThat(3L, equalTo(summary.getNumberOfAnnotations()));
         assertThat(3L, equalTo(summary.getNumberOfEntities()));
 
-        // add filter on feature symbol
+        // add containsFilterValue on feature symbol
         pagination.makeSingleFieldFilter(FieldFilter.ASSOCIATION_TYPE, "IMPLICATED");
         JsonResultResponse<DiseaseAnnotation> response = geneService.getDiseaseAnnotations(geneID, pagination, true);
         assertResponse(response, 2, 2);
@@ -437,7 +437,7 @@ public class DiseaseIT {
         // Pten
         String geneID = "HGNC:3686";
 
-        // add filter on evidence code
+        // add containsFilterValue on evidence code
         pagination.makeSingleFieldFilter(FieldFilter.EVIDENCE_CODE, "IEP");
         JsonResultResponse<DiseaseAnnotation> response = geneService.getDiseaseAnnotations(geneID, pagination, true);
         assertResponse(response, 4, 4);
@@ -453,7 +453,7 @@ public class DiseaseIT {
         // Pten
         String geneID = "HGNC:3686";
 
-        // add filter on reference
+        // add containsFilterValue on reference
         pagination.makeSingleFieldFilter(FieldFilter.FREFERENCE, "380");
         JsonResultResponse<DiseaseAnnotation> response = geneService.getDiseaseAnnotations(geneID, pagination, true);
         assertResponse(response, 3, 3);
@@ -518,7 +518,7 @@ public class DiseaseIT {
         // Pten
         String geneID = "MGI:109583";
 
-        // add filter on disease
+        // add containsFilterValue on disease
         pagination.makeSingleFieldFilter(FieldFilter.DISEASE, "OmA");
         JsonResultResponse<DiseaseAnnotation> response = geneService.getDiseaseAnnotations(geneID, pagination, false);
         assertResponse(response, 11, 11);
@@ -554,7 +554,7 @@ public class DiseaseIT {
         // Pten
         String geneID = "MGI:109583";
 
-        // add filter on disease
+        // add containsFilterValue on disease
         pagination.makeSingleFieldFilter(FieldFilter.ASSOCIATION_TYPE, "ImplicaT");
         JsonResultResponse<DiseaseAnnotation> response = geneService.getDiseaseAnnotations(geneID, pagination, false);
         assertResponse(response, 14, 14);
@@ -577,7 +577,7 @@ public class DiseaseIT {
         // Pten
         String geneID = "MGI:109583";
 
-        // add filter on disease
+        // add containsFilterValue on disease
         pagination.makeSingleFieldFilter(FieldFilter.ORTHOLOG, "daF");
         JsonResultResponse<DiseaseAnnotation> response = geneService.getDiseaseAnnotations(geneID, pagination, false);
         assertResponse(response, 1, 1);
@@ -596,7 +596,7 @@ public class DiseaseIT {
         // Pten
         String geneID = "MGI:109583";
 
-        // add filter on disease
+        // add containsFilterValue on disease
         pagination.makeSingleFieldFilter(FieldFilter.ORTHOLOG_SPECIES, "ratt");
         JsonResultResponse<DiseaseAnnotation> response = geneService.getDiseaseAnnotations(geneID, pagination, false);
         assertResponse(response, 10, 10);

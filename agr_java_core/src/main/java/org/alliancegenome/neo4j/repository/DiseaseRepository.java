@@ -214,7 +214,8 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
                 "              p2=(diseaseEntityJoin:DiseaseEntityJoin)-[:EVIDENCE]-(pubEvCode:PublicationEvidenceCodeJoin)," +
                 "              p3=(publication:Publication)--(pubEvCode)--(evidence:EvidenceCode) " +
                 "        OPTIONAL MATCH p1=(diseaseEntityJoin:DiseaseEntityJoin)--(feature:Feature)--(crossReference:CrossReference) " +
-                "RETURN p, p1, p2, p3 limit " + limit;
+                "        OPTIONAL MATCH p4=(diseaseEntityJoin:DiseaseEntityJoin)-[:FROM_ORTHOLOGOUS_GENE]-(orthoGene:Gene)-[:FROM_SPECIES]-(orthoSpecies:Species) " +
+                "RETURN p, p1, p2, p3, p4 limit " + limit;
 
         long start = System.currentTimeMillis();
         Iterable<DiseaseEntityJoin> joins = neo4jSession.query(DiseaseEntityJoin.class, cypher, new HashMap<>());

@@ -38,24 +38,24 @@ public interface DiseaseRESTInterface {
             @DefaultValue("1") @QueryParam("page") int page,
             @ApiParam(value = "Field / column name by which to sort", allowableValues = "geneName,species,geneticEntity,geneticEntityType,disease,source,reference,evidenceCode,associationType", defaultValue = "geneName")
             @QueryParam("sortBy") String sortBy,
-            @ApiParam(value = "filter by gene symbol")
-            @QueryParam("filter.geneName") String geneName,
-            @ApiParam(value = "filter by species")
-            @QueryParam("filter.species") String species,
-            @ApiParam(value = "filter by gene genetic Entity")
-            @QueryParam("filter.geneticEntity") String geneticEntity,
-            @ApiParam(value = "filter by gene genetic Entity type", allowableValues = "gene,allele")
-            @QueryParam("filter.geneticEntityType") String geneticEntityType,
-            @ApiParam(value = "filter by disease")
-            @QueryParam("filter.disease") String disease,
-            @ApiParam(value = "filter by source")
-            @QueryParam("filter.source") String source,
-            @ApiParam(value = "filter by referece")
-            @QueryParam("filter.reference") String reference,
-            @ApiParam(value = "filter by evidence code")
-            @QueryParam("filter.evidenceCode") String evidenceCode,
-            @ApiParam(value = "filter by association type")
-            @QueryParam("filter.associationType") String associationType,
+            @ApiParam(value = "containsFilterValue by gene symbol")
+            @QueryParam("containsFilterValue.geneName") String geneName,
+            @ApiParam(value = "containsFilterValue by species")
+            @QueryParam("containsFilterValue.species") String species,
+            @ApiParam(value = "containsFilterValue by gene genetic Entity")
+            @QueryParam("containsFilterValue.geneticEntity") String geneticEntity,
+            @ApiParam(value = "containsFilterValue by gene genetic Entity type", allowableValues = "gene,allele")
+            @QueryParam("containsFilterValue.geneticEntityType") String geneticEntityType,
+            @ApiParam(value = "containsFilterValue by disease")
+            @QueryParam("containsFilterValue.disease") String disease,
+            @ApiParam(value = "containsFilterValue by source")
+            @QueryParam("containsFilterValue.source") String source,
+            @ApiParam(value = "containsFilterValue by referece")
+            @QueryParam("containsFilterValue.reference") String reference,
+            @ApiParam(value = "containsFilterValue by evidence code")
+            @QueryParam("containsFilterValue.evidenceCode") String evidenceCode,
+            @ApiParam(value = "containsFilterValue by association type")
+            @QueryParam("containsFilterValue.associationType") String associationType,
             @ApiParam(value = "ascending order: true or false", allowableValues = "true,false", defaultValue = "true")
             @QueryParam("asc") String asc);
 

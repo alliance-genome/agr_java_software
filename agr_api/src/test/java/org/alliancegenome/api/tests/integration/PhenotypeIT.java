@@ -76,9 +76,9 @@ public class PhenotypeIT {
 
         // 5 annotations with different orthology geneMap
 /*
-        assertThat(doc.getAnnotations().stream().filter(annotationDocument -> annotationDocument.getOrthologyGeneDocument() != null).count(), equalTo(5L));
+        assertThat(doc.getAnnotations().stream().containsFilterValue(annotationDocument -> annotationDocument.getOrthologyGeneDocument() != null).count(), equalTo(5L));
         List<String> orthoGeneName = doc.getAnnotations().stream()
-                .filter(annotationDocument -> annotationDocument.getOrthologyGeneDocument() != null)
+                .containsFilterValue(annotationDocument -> annotationDocument.getOrthologyGeneDocument() != null)
                 .map(annotationDocument -> annotationDocument.getOrthologyGeneDocument().getSymbol())
                 .collect(Collectors.toList());
         // five ortho geneMap (symbols)
@@ -120,17 +120,17 @@ public class PhenotypeIT {
         assertThat(summary.getNumberOfEntities(), greaterThanOrEqualTo(110L));
 
 
-        // add filter on phenotype
+        // add containsFilterValue on phenotype
         pagination.makeSingleFieldFilter(FieldFilter.PHENOTYPE, "CirC");
         response = geneService.getPhenotypeAnnotations(geneID, pagination);
         assertResponse(response, 7, 7);
 
-        // add filter on allele
+        // add containsFilterValue on allele
         pagination.makeSingleFieldFilter(FieldFilter.GENETIC_ENTITY, "21");
         response = geneService.getPhenotypeAnnotations(geneID, pagination);
         assertResponse(response, 11, 27);
 
-        // add filter on genetic entity type
+        // add containsFilterValue on genetic entity type
         pagination.makeSingleFieldFilter(FieldFilter.GENETIC_ENTITY_TYPE, "allele");
         response = geneService.getPhenotypeAnnotations(geneID, pagination);
         assertResponse(response, 11, 185);
@@ -140,7 +140,7 @@ public class PhenotypeIT {
         assertResponse(response, 11, 110);
 
 
-        // add filter on reference: pubmod
+        // add containsFilterValue on reference: pubmod
         pagination.makeSingleFieldFilter(FieldFilter.FREFERENCE, "zfin:zdb-pub");
         response = geneService.getPhenotypeAnnotations(geneID, pagination);
         assertResponse(response, 11, 50);
@@ -153,7 +153,7 @@ public class PhenotypeIT {
 
         assertThat("zfin pubs plus PUB MED pubs gives total number ", zfinRefCount + response.getTotal(), greaterThanOrEqualTo(totalSize));
 
-        // add filter on reference: pubmed
+        // add containsFilterValue on reference: pubmed
         pagination.makeSingleFieldFilter(FieldFilter.FREFERENCE, "239");
         response = geneService.getPhenotypeAnnotations(geneID, pagination);
         assertResponse(response, 11, 63);
@@ -193,12 +193,12 @@ public class PhenotypeIT {
         assertThat(summary.getNumberOfEntities(), greaterThanOrEqualTo(526L));
 
 
-        // add filter on phenotype
+        // add containsFilterValue on phenotype
         pagination.makeSingleFieldFilter(FieldFilter.PHENOTYPE, "DEV");
         response = geneService.getPhenotypeAnnotations(geneID, pagination);
         assertResponse(response, 25, 25);
 
-        // add filter on phenotype
+        // add containsFilterValue on phenotype
         pagination.makeSingleFieldFilter(FieldFilter.GENETIC_ENTITY, "1hW");
         response = geneService.getPhenotypeAnnotations(geneID, pagination);
         assertResponse(response, 42, 337);

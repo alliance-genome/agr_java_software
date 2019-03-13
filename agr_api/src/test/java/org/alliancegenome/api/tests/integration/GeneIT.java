@@ -90,7 +90,7 @@ public class GeneIT {
         GeneController controller = new GeneController();
         String[] geneIDs = {"RGD:2129"};
         JsonResultResponse<OrthologView> response = controller.getGeneOrthology("MGI:109583", Arrays.asList(geneIDs), null, "stringENT", null, null, 20, 1);
-        assertThat("Matches found for filter 'stringent", response.getTotal(), greaterThan(0));
+        assertThat("Matches found for containsFilterValue 'stringent", response.getTotal(), greaterThan(0));
     }
 
     @Test
@@ -98,7 +98,7 @@ public class GeneIT {
 
         GeneController controller = new GeneController();
         JsonResultResponse<OrthologView> response = controller.getGeneOrthology("MGI:109583", null, null, "stringENT", null, null, 20, 1);
-        assertThat("Matches found for filter 'stringent", response.getTotal(), greaterThan(0));
+        assertThat("Matches found for containsFilterValue 'stringent", response.getTotal(), greaterThan(0));
     }
 
     @Test

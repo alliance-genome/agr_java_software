@@ -104,8 +104,9 @@ class DiseaseAnnotationIntegrationSpec extends AbstractSpec {
     @Unroll
     def "Disease page - Annotation Filtering for #geneSymbolQuery "() {
         when:
-        def results = getApiResults("/api/disease/DOID:9952/associations?limit=50&filter.geneName=$geneSymbolQuery").results
-
+        def url = new URL("http://localhost:8080/api/disease/DOID:9952/associations?limit=50&containsFilterValue.geneName=$geneSymbolQuery")
+        def retObj = new JsonSlurper().parseText(url.text)
+        def results = retObj.results
         def symbols = results.gene.symbol.findAll { it }
 
         then:

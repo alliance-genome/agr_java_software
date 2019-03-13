@@ -156,7 +156,7 @@ public class GeneController extends BaseController implements GeneRESTInterface 
         pagination.addFieldFilter(FieldFilter.ORTHOLOG, orthologyGene);
         pagination.addFieldFilter(FieldFilter.ORTHOLOG_SPECIES, orthologyGeneSpecies);
         pagination.addFieldFilter(FieldFilter.DISEASE, disease);
-        pagination.addFieldFilter(FieldFilter.FREFERENCE, reference);
+        pagination.addFieldFilter(FieldFilter.REFERENCE, reference);
         return diseaseService.getEmpiricalDiseaseAnnotations(id, pagination, empiricalDisease);
     }
 
