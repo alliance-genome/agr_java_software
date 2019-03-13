@@ -18,7 +18,7 @@ public class Main {
 
     public static void main(String[] args) {
         ConfigHelper.init();
-        
+
         Date start = new Date();
         log.info("Start Time: " + start);
 
@@ -31,6 +31,14 @@ public class Main {
         } else {
             Indexer.indexName = im.getBaseIndexName();
         }
+
+        Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+            @Override public void uncaughtException(Thread t, Throwable e) {
+                log.error("Thread: " + t.getId() + " has uncaught exceptions");
+                e.printStackTrace();
+                System.exit(-1);
+            }
+        });
 
         HashMap<String, Indexer> indexers = new HashMap<>();
         for (IndexerConfig ic : IndexerConfig.values()) {
@@ -70,7 +78,7 @@ public class Main {
                 if (i.isAlive()) {
                     i.join();
                 }
-            } catch (InterruptedException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
                 log.error(e.getMessage());
                 System.exit(-1);
