@@ -166,8 +166,8 @@ public interface GeneRESTInterface {
             @QueryParam("geneticEntity") String geneticEntity,
             @ApiParam(name = "geneticEntityType", value = "genetic entity type", allowableValues = "allele,gene")
             @QueryParam("geneticEntityType") String geneticEntityType,
-            @ApiParam(value = "termName annotation")
-            @QueryParam("termName") String phenotype,
+            @ApiParam(value = "disease name")
+            @QueryParam("disease") String disease,
             @ApiParam(value = "association type")
             @QueryParam("associationType") String associationType,
             @ApiParam(value = "Evidence Code")
@@ -196,8 +196,8 @@ public interface GeneRESTInterface {
             @QueryParam("orthologyGene") String orthologyGene,
             @ApiParam(name = "orthologyGeneSpecies", value = "genetic entity type", allowableValues = "allele,gene")
             @QueryParam("orthologyGeneSpecies") String orthologyGeneSpecies,
-            @ApiParam(value = "termName annotation")
-            @QueryParam("termName") String disease,
+            @ApiParam(value = "disease name")
+            @QueryParam("disease") String disease,
             @ApiParam(value = "association type")
             @QueryParam("associationType") String associationType,
             @ApiParam(value = "Evidence Code")
