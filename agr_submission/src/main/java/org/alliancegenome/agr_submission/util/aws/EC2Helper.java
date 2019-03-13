@@ -76,7 +76,7 @@ public class EC2Helper {
 
         RunInstancesRequest runInstancesRequest = new RunInstancesRequest();
 
-        EbsBlockDevice root_ebs = new EbsBlockDevice().withVolumeSize(300).withVolumeType(VolumeType.Gp2);
+        EbsBlockDevice root_ebs = new EbsBlockDevice().withVolumeSize(200).withVolumeType(VolumeType.Gp2);
         BlockDeviceMapping root = new BlockDeviceMapping().withDeviceName("/dev/xvda").withEbs(root_ebs);
         
         EbsBlockDevice swap_ebs = new EbsBlockDevice().withVolumeSize(64).withVolumeType(VolumeType.Gp2);
@@ -88,11 +88,11 @@ public class EC2Helper {
         // C518xlarge  72 281 144 - $3.06  - 
         // C5d18xlarge 72 281 144 - $3.456 - BGI:00:10:43, EXPRESSION:00:15:32
         // I316xlarge  64 200 488 - $4.992 - BGI:00:13:55, EXPRESSION:00:23:53
-        // R54xlarge   16  71 128 - $1.008 - 
-        .withInstanceType(InstanceType.R54xlarge).withMinCount(1).withMaxCount(1)
+        // R54xlarge   16  71 128 - $1.008 - BGI:00:09:33, EXPRESSION:00:17:16
+        .withInstanceType(InstanceType.C54xlarge).withMinCount(1).withMaxCount(1)
         .withBlockDeviceMappings(root, swap)
         .withUserData(makeUserData())
-        .withTagSpecifications(getTagSpec("JavaCreateInstance"))
+        .withTagSpecifications(getTagSpec("Docker Stage2"))
         .withSecurityGroups("default", "ES Transport", "HTTP", "HTTPS SSL", "SSH") // Step 6 default, ES Transport, HTTP, HTTPS SSL, SSH
         .withKeyName("AGR-ssl2");
 
