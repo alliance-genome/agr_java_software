@@ -1,11 +1,13 @@
 package org.alliancegenome.agr_elasticsearch_util.commands.index;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.TreeMap;
 
 import org.alliancegenome.agr_elasticsearch_util.commands.Command;
 import org.alliancegenome.agr_elasticsearch_util.commands.CommandInterface;
+import org.bouncycastle.pqc.crypto.gmss.Treehash;
 import org.elasticsearch.cluster.metadata.RepositoryMetaData;
 import org.elasticsearch.snapshots.SnapshotInfo;
 
@@ -20,6 +22,7 @@ public class SnapShotCommand extends Command implements CommandInterface {
 
         System.out.println("snapshot list <reponame> -- Where <reponame> is the name of a loaded repository");
         System.out.println("snapshot restore <reponame> <snapshot> <index>");
+        System.out.println("snapshot restorelatest <reponame>");
     }
 
     @Override
@@ -44,6 +47,47 @@ public class SnapShotCommand extends Command implements CommandInterface {
                 } else {
                     printHelp();
                 }
+            } else if(command.equals("restorelatest")) {
+                if(args.size() > 0) {
+                    String repo = args.remove(0);
+                    List<String> indexes = im.getIndexList();
+                    List<SnapshotInfo> list = im.getSnapshots(repo);
+                    TreeMap<Date, SnapshotInfo> map = new TreeMap<>();
+                    for(SnapshotInfo info: list) {
+                        String[] array = info.snapshotId().getName().split("_");
+                        Date d = new Date(Long.parseLong(array[array.length - 1]));
+                        map.put(d, info);
+                    }
+                    
+                    System.out.println("First Snapshot: " + map.firstKey());
+                    System.out.println("Lastest Snapshot: " + map.lastKey());
+                    SnapshotInfo info = map.get(map.lastKey());
+                    
+                    if(indexes.contains(info.snapshotId().getName())) {
+                        System.out.println("Index already exists: " + info.snapshotId().getName() + " not restoring");
+                    } else {
+                        System.out.println("Need to restore index: " + info.snapshotId().getName());
+                        String snapshot_name = info.snapshotId().getName();
+                        
+                        List<String> index_list = new ArrayList<String>();
+                        index_list.add(snapshot_name);
+                        im.restoreSnapShot(repo, snapshot_name, new ArrayList<String>(index_list));
+                        try {
+                            Thread.sleep(90000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        System.out.println("Restore: " + snapshot_name + " is complete");
+                        System.out.println("Switching Aliases: ");
+                        im.removeAlias("site_index", "site_index");
+                        im.createAlias("site_index", snapshot_name);
+                        System.out.println("Index restore complete");
+                    }
+
+                    
+                } else {
+                    printHelp();
+                }
             } else if(command.equals("restore")) {
                 //snapshot restore repo_name snapshot_name index_name
                 //snapshot restore stage site_index_stage_1522084524618 site_index_stage_1522084524618
@@ -57,8 +101,8 @@ public class SnapShotCommand extends Command implements CommandInterface {
                     List<String> list = new ArrayList<String>();
                     list.add(index_name);
                     im.restoreSnapShot(repo, snapshotName, new ArrayList<String>(list));
-                    im.removeAlias("site_index", index_name);
-                    im.updateIndexSetting(index_name, "index.number_of_replicas", 2);
+                    //im.removeAlias("site_index", index_name);
+                    //im.updateIndexSetting(index_name, "index.number_of_replicas", 2);
                 } else {
                     printHelp();
                 }

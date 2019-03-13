@@ -9,3 +9,6 @@ apirun: api
 
 indexer:
 	mvn clean package -pl agr_indexer -am
+
+esutil:
+	mvn clean package -pl agr_elasticsearch_util -am
