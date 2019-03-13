@@ -1,7 +1,10 @@
 import React, { Component } from 'react';
-//import { NavLink as RRNavLink } from 'react-router-dom';
-//import { Route } from 'react-router-dom';
-//import axios from 'axios';
+
+import "@kenshooui/react-multi-select/dist/style.css"
+import MultiSelect from "@kenshooui/react-multi-select";
+import { loadDataSubTypes } from '../../actions/dataSubTypeActions';
+import { connect } from 'react-redux';
+
 import { Button, ListGroupItem, ListGroup, Form, FormGroup, Label, Input, Card, CardBody, CardTitle } from 'reactstrap';
 
 class AdminEditDataType extends Component {
@@ -9,15 +12,23 @@ class AdminEditDataType extends Component {
 	state = { form_data: { } };
 	formRef = React.createRef();
 
+	constructor(props) {
+		super(props);
+		this.handleSelectChange = this.handleSelectChange.bind(this);
+	}
+
 	componentDidMount() {
+		console.log(this.props);
 		this.formRef.current.reset()
-		this.setState({ form_data: this.props.data});
+		this.props.dispatch(loadDataSubTypes());
+		this.setState({ form_data: this.props.dataType});
 	}
 
 	componentDidUpdate(prevProps) {
-		if (this.props.data.id !== prevProps.data.id) {
+		//console.log(this.props);
+		if (this.props.dataType.id !== prevProps.dataType.id) {
 			this.formRef.current.reset();
-			this.setState({ form_data: this.props.data});
+			this.setState({ form_data: this.props.dataType});
 		}
 	}
 
@@ -45,6 +56,19 @@ class AdminEditDataType extends Component {
 		}
 	}
 
+	handleSelectChange(selectedItems) {
+		console.log("Selected Items: ", selectedItems);
+
+		const { form_data } = this.state;
+		const newFormData = {
+			...form_data,
+			dataSubTypes: selectedItems
+		};
+
+		this.setState({ form_data: newFormData });
+		//this.setState({ selectedItems });
+	}
+
 	changeHandler = (event) => {
 		const name = event.target.name;
 		const value = event.target.type === 'checkbox' ? event.target.checked : event.target.value;
@@ -69,37 +93,37 @@ class AdminEditDataType extends Component {
 		return (
 			<Card>
 				<CardBody>
-					<CardTitle>ID: {this.state.form_data.id }</CardTitle>
+					<CardTitle>ID: {this.props.dataType.id }</CardTitle>
 					<Form onSubmit={ this.saveDataType } innerRef={this.formRef}>
 						<FormGroup>
 							<Label for="name">Name:</Label>
-							<Input name="name" defaultValue={ this.state.form_data.name } onChange={ this.changeHandler } />
+							<Input name="name" defaultValue={ this.props.dataType.name } onChange={ this.changeHandler } />
 						</FormGroup>
 						<FormGroup>
 							<Label for="description">Description:</Label>
-							<Input name="description" defaultValue={ this.state.form_data.description } onChange={ this.changeHandler } />
+							<Input name="description" defaultValue={ this.props.dataType.description } onChange={ this.changeHandler } />
 						</FormGroup>
 						<FormGroup>
 							<Label for="fileExtension">File Extension (Leave off the ".")</Label>
-							<Input name="fileExtension" defaultValue={ this.state.form_data.fileExtension } onChange={ this.changeHandler } />
+							<Input name="fileExtension" defaultValue={ this.props.dataType.fileExtension } onChange={ this.changeHandler } />
 						</FormGroup>
 						<FormGroup check>
 							<Label check>
-								<Input name="dataSubTypeRequired" type="checkbox" defaultChecked={ this.state.form_data.dataSubTypeRequired } onChange={ this.changeHandler } />{' '}Does this Data Type have sub types?
+								<Input name="dataSubTypeRequired" type="checkbox" defaultChecked={ this.props.dataType.dataSubTypeRequired } onChange={ this.changeHandler } />{' '}Does this Data Type have sub types?
 							</Label>
 						</FormGroup>
 						<FormGroup check>
 							<Label check>
-								<Input name="validationRequired" type="checkbox" defaultChecked={ this.state.form_data.validationRequired } onChange={ this.changeHandler } />{' '}Will this Data Type be validated?
+								<Input name="validationRequired" type="checkbox" defaultChecked={ this.props.dataType.validationRequired } onChange={ this.changeHandler } />{' '}Will this Data Type be validated?
 							</Label>
 						</FormGroup>
 						<FormGroup>
 							<Label for="schema_files">Schema Files:</Label>
-							{ this.renderSchemaFiles(this.props.data.schemaFiles) }
+							{ this.renderSchemaFiles(this.props.dataType.schemaFiles) }
 						</FormGroup>
 						<FormGroup>
 							<Label for="data_subtypes">Sub Types:</Label>
-							{ this.renderDataSubTypes(this.props.data.dataSubTypes) }
+							<MultiSelect items={this.props.dataSubTypes} selectedItems={this.state.form_data.dataSubTypes} onChange={this.handleSelectChange} />
 						</FormGroup>
 						<Button type="submit">Submit</Button>
 					</Form>
@@ -111,4 +135,11 @@ class AdminEditDataType extends Component {
 	}
 }
 
-export default AdminEditDataType;
+const mapStateToProps = (state) => {
+    //console.log("State: ", state);
+    return {
+        dataSubTypes: state.dataSubTypeReducer.dataSubTypes
+    }
+}
+
+export default connect(mapStateToProps)(AdminEditDataType);

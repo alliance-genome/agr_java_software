@@ -11,7 +11,7 @@ class DataTypes extends Component {
 		return this.props.dataTypes.map((node, index) => {
 			return (
 				<ListGroupItem className="text-nowrap" key={node.id}>
-					<NavLink to={"/admin/datatypes/" + node.id} tag={RRNavLink}>
+					<NavLink to={"/admin/datatype/" + node.id} tag={RRNavLink}>
 						<Badge>{node.name}</Badge>: {node.description}
 					</NavLink>
 				</ListGroupItem>

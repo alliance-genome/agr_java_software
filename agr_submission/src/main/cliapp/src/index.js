@@ -15,6 +15,7 @@ import Homepage from './containers/homepage';
 import AdminPage from './containers/adminpage';
 import LoginPage from './containers/loginpage';
 import AdminDataTypes from './containers/adminpage/AdminDataTypes';
+import AdminSchemaVersions from './containers/adminpage/AdminSchemaVersions';
 import DataFiles from './containers/datafiles';
 
 import Header from './components/Header';
@@ -38,8 +39,12 @@ ReactDOM.render(
 								<Route path="/login" component={LoginPage} />
 
 
-								<Route path="/admin/datatypes/:dataType?" component={AdminDataTypes} />
+								<Route path="/admin/datatype/:dataType?" component={AdminDataTypes} />
 								<Route path="/admin/datatypes" component={AdminDataTypes} />
+
+								<Route path="/admin/schemaversion/:schemaVersion?" component={AdminSchemaVersions} />
+								<Route path="/admin/schemaversions" component={AdminSchemaVersions} />
+
 								<Route exact path="/admin" component={AdminPage} />
 								
 								<Route path="/datafiles/:dataType/:dataSubType" component={DataFiles} />
