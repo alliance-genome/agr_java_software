@@ -41,7 +41,7 @@ public class GeneIndexer extends Indexer<GeneDocument> {
                 fulllist = geneDocumentCache.getGeneMap().keySet().stream().collect(Collectors.toList());
             } else {
                 geneDocumentCache = geneIndexerRepository.getGeneDocumentCache();
-                fulllist = geneRepo.getAllGeneKeys();
+                fulllist = geneDocumentCache.getGeneMap().keySet().stream().collect(Collectors.toList());
             }
 
             queue.addAll(fulllist);

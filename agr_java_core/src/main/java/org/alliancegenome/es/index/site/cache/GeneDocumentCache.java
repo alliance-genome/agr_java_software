@@ -9,10 +9,14 @@ import org.alliancegenome.neo4j.entity.node.Gene;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 @Getter
 @Setter
 public class GeneDocumentCache extends IndexerCache {
+
+    private final Logger log = LogManager.getLogger(getClass());
 
     private Map<String, Gene> geneMap = new HashMap<>();
 
@@ -57,6 +61,7 @@ public class GeneDocumentCache extends IndexerCache {
             geneDocument.setAnatomicalExpressionWithParents(anatomicalExpressionWithParents.get(id));
 
             geneDocument.setPhenotypeStatements(phenotypeStatements.get(id));
+
         }
     }
 
