@@ -1,11 +1,13 @@
 package org.alliancegenome.agr_submission.entities;
 
-import java.util.List;
+import java.util.Set;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 
 import org.alliancegenome.agr_submission.BaseEntity;
 import org.alliancegenome.agr_submission.views.View;
@@ -15,10 +17,9 @@ import com.fasterxml.jackson.annotation.JsonView;
 import io.swagger.annotations.ApiModel;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
 
 @Entity @ApiModel
-@Getter @Setter @ToString
+@Getter @Setter
 public class SchemaVersion extends BaseEntity {
 
     @Id @GeneratedValue
@@ -27,7 +28,16 @@ public class SchemaVersion extends BaseEntity {
     @JsonView({View.SchemaVersionView.class, View.ReleaseVersionView.class, View.DataFileView.class, View.DataTypeView.class})
     private String schema;
     
-    @ManyToMany(mappedBy="schemaVersions")
-    private List<ReleaseVersion> releaseVersions;
+    @OneToMany(mappedBy="schemaVersion", fetch=FetchType.EAGER)
+    @JsonView({View.SchemaVersionView.class})
+    private Set<SchemaFile> schemaFiles;
+    
+    @ManyToMany(mappedBy="schemaVersions", fetch=FetchType.EAGER)
+    @JsonView({View.SchemaVersionView.class})
+    private Set<ReleaseVersion> releaseVersions;
+    
+    @OneToMany(mappedBy="schemaVersion", fetch=FetchType.EAGER)
+    @JsonView({View.SchemaVersionView.class})
+    private Set<DataFile> dataFiles;
 
 }

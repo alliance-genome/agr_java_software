@@ -22,9 +22,9 @@ import lombok.Setter;
 public class ReleaseVersion extends BaseEntity {
 
     @Id @GeneratedValue
-    @JsonView({View.ReleaseVersionView.class})
+    @JsonView({View.ReleaseVersionView.class, View.SchemaVersionView.class})
     private Long id;
-    @JsonView({View.ReleaseVersionView.class})
+    @JsonView({View.ReleaseVersionView.class, View.SchemaVersionView.class})
     private String releaseVersion;
     
     @OneToMany(mappedBy="releaseVersion")

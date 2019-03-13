@@ -6,6 +6,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
+import javax.persistence.Transient;
 
 import org.alliancegenome.agr_submission.BaseEntity;
 import org.alliancegenome.agr_submission.views.View;
@@ -21,14 +22,20 @@ import lombok.Setter;
 public class DataSubType extends BaseEntity {
 
     @Id @GeneratedValue
-    @JsonView({View.DataSubTypeView.class, View.DataTypeView.class, View.DataFileView.class})
+    @JsonView({View.DataSubTypeView.class, View.DataTypeView.class, View.DataFileView.class, View.SchemaVersionView.class})
     private Long id;
-    @JsonView({View.DataSubTypeView.class, View.DataTypeView.class, View.DataFileView.class})
+    @JsonView({View.DataSubTypeView.class, View.DataTypeView.class, View.DataFileView.class, View.SchemaVersionView.class})
     private String name;
-    @JsonView({View.DataSubTypeView.class, View.DataTypeView.class})
+    @JsonView({View.DataSubTypeView.class, View.DataTypeView.class, View.SchemaVersionView.class})
     private String description;
     
     @ManyToMany(mappedBy = "dataSubTypes")
     private List<DataType> dataTypes;
+    
+    @Transient
+    @JsonView({View.DataSubTypeView.class, View.DataTypeView.class, View.DataFileView.class, View.SchemaVersionView.class})
+    public String getLabel() {
+        return name;
+    }
     
 }

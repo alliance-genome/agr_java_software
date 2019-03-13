@@ -29,13 +29,13 @@ public class BaseSQLDAO<E extends BaseEntity> extends BaseDAO<E> {
     }
     
     public E persist(E entity) {
-        log.info("SqlDAO: persist: " + entityManager);
+        log.trace("SqlDAO: persist: " + entityManager);
         entityManager.persist(entity);
         return entity;
     }
 
     public E find(Long id) {
-        log.info("SqlDAO: find: " + id + " " + entityManager);
+        log.trace("SqlDAO: find: " + id + " " + entityManager);
         E entity = entityManager.find(myClass, id);
         log.debug("Entity Found: " + entity);
         return entity;
@@ -52,20 +52,20 @@ public class BaseSQLDAO<E extends BaseEntity> extends BaseDAO<E> {
     }
 
     public E merge(E entity) {
-        log.info("SqlDAO: merge: " + entityManager);
+        log.trace("SqlDAO: merge: " + entityManager);
         entityManager.merge(entity);
         return entity;
     }
     
     public E remove(Long id) {
-        log.info("SqliteDAO: remove: " + id + " " + entityManager);
+        log.debug("SqliteDAO: remove: " + id);
         E entity = find(id);
         entityManager.remove(entity);
         return entity;
     }
     
     public E findByField(String field, String value) {
-        log.info("SqlDAO: findByField: " + field + " " + value + " " + entityManager);
+        log.debug("SqlDAO: findByField: " + field + " " + value);
         HashMap<String, Object> params = new HashMap<>();
         params.put(field, value);
         List<E> list = search(params);
@@ -82,7 +82,7 @@ public class BaseSQLDAO<E extends BaseEntity> extends BaseDAO<E> {
     }
 
     public List<E> search(Map<String, Object> params, String orderByField) {
-        log.info("Search By Params: " + params + " Order by: " + orderByField);
+        log.debug("Search By Params: " + params + " Order by: " + orderByField);
         CriteriaBuilder builder = entityManager.getCriteriaBuilder();
         CriteriaQuery<E> query = builder.createQuery(myClass);
         Root<E> root = query.from(myClass);
