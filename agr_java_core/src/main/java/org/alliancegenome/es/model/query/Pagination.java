@@ -23,6 +23,7 @@ public class Pagination {
     private Boolean asc;
     private BaseFilter fieldFilterValueMap = new BaseFilter();
     private List<String> errorList = new ArrayList<>();
+    private List<String> invalidFilterList = new ArrayList<>();
 
     private boolean isCount = false;
 
@@ -111,6 +112,11 @@ public class Pagination {
         return Arrays.stream(sortingTokens)
                 .map(FieldFilter::getFieldFilterByName)
                 .collect(Collectors.toList());
+    }
+
+    public boolean hasInvalidElements() {
+        return invalidFilterList == null || !invalidFilterList.isEmpty();
+
     }
 
     enum AscendingValues {

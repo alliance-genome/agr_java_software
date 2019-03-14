@@ -19,7 +19,7 @@ public enum SortingField {
         return getSortingField(value) != null;
     }
 
-    public static List<String> getAllValues() {
+    public static List<SortingField> getAllValues() {
         return Arrays.stream(values()).collect(Collectors.toList());
     }
 }

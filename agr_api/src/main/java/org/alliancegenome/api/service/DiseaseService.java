@@ -1,8 +1,8 @@
 package org.alliancegenome.api.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.core.service.SortingField;
+import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.DiseaseSummary;
@@ -11,7 +11,6 @@ import org.alliancegenome.neo4j.repository.DiseaseRepository;
 import org.alliancegenome.neo4j.view.BaseFilter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.lucene.search.SortField;
 import org.neo4j.ogm.model.Result;
 
 import javax.enterprise.context.RequestScoped;
@@ -61,14 +60,18 @@ public class DiseaseService {
     }
 
     private int getTotalDiseaseAnnotation(String geneID, Pagination pagination, boolean empiricalDisease) {
-        List<DiseaseAnnotation> list;
+        List<DiseaseAnnotation> diseaseAnnotationList;
         if (empiricalDisease)
-            list = diseaseAnnotationExperimentGeneMap.get(geneID);
+            diseaseAnnotationList = diseaseAnnotationExperimentGeneMap.get(geneID);
         else
-            list = diseaseAnnotationOrthologGeneMap.get(geneID);
-        if (list == null)
+            diseaseAnnotationList = diseaseAnnotationOrthologGeneMap.get(geneID);
+        if (diseaseAnnotationList == null)
             return 0;
-        return list.size();
+
+        //filtering
+        List<DiseaseAnnotation> filteredDiseaseAnnotationList = filterDiseaseAnnotations(diseaseAnnotationList, pagination.getFieldFilterValueMap());
+
+        return filteredDiseaseAnnotationList.size();
     }
 
     private List<DiseaseAnnotation> getDiseaseAnnotationList(String diseaseID, Pagination pagination) {
@@ -135,6 +138,8 @@ public class DiseaseService {
         Set<Boolean> filterResults = fieldFilterValueMap.entrySet().stream()
                 .map((entry) -> {
                     FilterFunction<DiseaseAnnotation, String> filterFunction = DiseaseAnnotationFiltering.filterFieldMap.get(entry.getKey());
+                    if (filterFunction == null)
+                        return null;
                     return filterFunction.containsFilterValue(annotation, entry.getValue());
                 })
                 .collect(Collectors.toSet());
@@ -269,7 +274,7 @@ public class DiseaseService {
         return annotationDocuments;
     }
 
-    public JsonResultResponse<DiseaseAnnotation> getEmpiricalDiseaseAnnotations(String id, Pagination pagination, boolean empiricalDisease) throws JsonProcessingException {
+    public JsonResultResponse<DiseaseAnnotation> getEmpiricalDiseaseAnnotations(String id, Pagination pagination, boolean empiricalDisease) {
         return getDiseaseAnnotations(id, pagination, empiricalDisease);
     }
 
@@ -277,15 +282,23 @@ public class DiseaseService {
         LocalDateTime startDate = LocalDateTime.now();
         List<DiseaseAnnotation> list = getDiseaseAnnotationList(geneID, pagination, empiricalDisease);
         JsonResultResponse<DiseaseAnnotation> response = new JsonResultResponse<>();
+        String note = "";
         if (!SortingField.isValidSortingFieldValue(pagination.getSortBy())) {
-            String note = "Invalid sorting name provided: " + pagination.getSortBy();
+            note += "Invalid sorting name provided: " + pagination.getSortBy();
             note += ". Sorting is ignored! ";
             note += "Allowed values are (case insensitive): " + SortingField.getAllValues();
-            response.setNote(note);
         }
-        response.calculateRequestDuration(startDate);
+        if (pagination.hasInvalidElements()) {
+            note += "Invalid filtering name(s) provided: " + pagination.getInvalidFilterList();
+            note += ". Filtering for these elements is ignored! ";
+            note += "Allowed values are (case insensitive): " + FieldFilter.getAllValues();
+        }
+        if (!note.isEmpty())
+            response.setNote(note);
+
         response.setResults(list);
         response.setTotal(getTotalDiseaseAnnotation(geneID, pagination, empiricalDisease));
+        response.calculateRequestDuration(startDate);
         return response;
     }
 

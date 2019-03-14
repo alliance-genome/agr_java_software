@@ -20,8 +20,10 @@ import org.alliancegenome.neo4j.view.View.GeneAPI;
 import org.alliancegenome.neo4j.view.View.GeneAllelesAPI;
 
 import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 import java.io.IOException;
 import java.util.List;
 
@@ -177,7 +179,8 @@ public interface GeneRESTInterface {
             @ApiParam(value = "Reference number: PUBMED or a Pub ID from the MOD")
             @QueryParam("publications") String reference,
             @ApiParam(value = "ascending order: true or false", allowableValues = "true,false", defaultValue = "true")
-            @QueryParam("asc") String asc) throws JsonProcessingException;
+            @QueryParam("asc") String asc,
+            @Context UriInfo ui) throws JsonProcessingException;
 
     @GET
     @Path("/{id}/diseases-via-orthology")
@@ -207,7 +210,8 @@ public interface GeneRESTInterface {
             @ApiParam(value = "Reference number: PUBMED or a Pub ID from the MOD")
             @QueryParam("publications") String reference,
             @ApiParam(value = "ascending order: true or false", allowableValues = "true,false", defaultValue = "true")
-            @QueryParam("asc") String asc) throws JsonProcessingException;
+            @QueryParam("asc") String asc,
+            @Context UriInfo ui) throws JsonProcessingException;
 
     @GET
     @Path("/{id}/diseases-by-experiment/download")
@@ -232,7 +236,8 @@ public interface GeneRESTInterface {
             @ApiParam(value = "Reference number: PUBMED or a Pub ID from the MOD")
             @QueryParam("filter.reference") String reference,
             @ApiParam(value = "ascending order: true or false", allowableValues = "true,false", defaultValue = "true")
-            @QueryParam("asc") String asc) throws JsonProcessingException;
+            @QueryParam("asc") String asc,
+            @Context UriInfo ui) throws JsonProcessingException;
 
     @GET
     @Path("/{id}/diseases-via-orthology/download")
@@ -257,7 +262,9 @@ public interface GeneRESTInterface {
             @ApiParam(value = "Reference number: PUBMED or a Pub ID from the MOD")
             @QueryParam("filter.reference") String reference,
             @ApiParam(value = "ascending order: true or false", allowableValues = "true,false", defaultValue = "true")
-            @QueryParam("asc") String asc) throws JsonProcessingException;
+            @QueryParam("asc") String asc,
+            @Context UriInfo ui) throws JsonProcessingException;
+
 
     @GET
     @Path("/{id}/disease-summary")

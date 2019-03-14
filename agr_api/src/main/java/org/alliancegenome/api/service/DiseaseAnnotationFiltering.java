@@ -5,6 +5,7 @@ import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.node.Gene;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -17,11 +18,21 @@ public class DiseaseAnnotationFiltering {
     public static FilterFunction<DiseaseAnnotation, String> termNameFilter =
             (annotation, value) -> contains(annotation.getDisease().getName(), value);
 
+    public static FilterFunction<DiseaseAnnotation, String> geneticEntityFilter =
+            (annotation, value) -> {
+                if (annotation.getFeature() == null)
+                    return false;
+                return contains(annotation.getFeature().getSymbolText(), value);
+            };
+
     public static FilterFunction<DiseaseAnnotation, String> associationFilter =
             (annotation, value) -> contains(annotation.getAssociationType(), value);
 
     public static FilterFunction<DiseaseAnnotation, String> sourceFilter =
             (annotation, value) -> contains(annotation.getSource().getName(), value);
+
+    public static FilterFunction<DiseaseAnnotation, String> geneticEntityTypeFilter =
+            (annotation, value) -> contains(annotation.getGeneticEntityType(), value);
 
     public static FilterFunction<DiseaseAnnotation, String> evidenceCodeFilter =
             (annotation, value) -> {
@@ -36,7 +47,8 @@ public class DiseaseAnnotationFiltering {
                 Set<Boolean> filteringPassed = annotation.getPublications().stream()
                         .map(publication -> contains(publication.getPubId(), value))
                         .collect(Collectors.toSet());
-                return !filteringPassed.contains(false);
+                // return true if at least one pub is found
+                return filteringPassed.contains(true);
             };
 
     public static FilterFunction<DiseaseAnnotation, String> orthologFilter =
@@ -66,7 +78,24 @@ public class DiseaseAnnotationFiltering {
         filterFieldMap.put(FieldFilter.EVIDENCE_CODE, evidenceCodeFilter);
         filterFieldMap.put(FieldFilter.REFERENCE, referenceFilter);
         filterFieldMap.put(FieldFilter.SOURCE, sourceFilter);
+        filterFieldMap.put(FieldFilter.GENETIC_ENTITY_TYPE, geneticEntityTypeFilter);
+        filterFieldMap.put(FieldFilter.GENETIC_ENTITY, geneticEntityFilter);
     }
 
+    public static boolean isValidFiltering(Map<FieldFilter, String> fieldFilterValueMap) {
+        if (fieldFilterValueMap == null)
+            return true;
+        Set<Boolean> result = fieldFilterValueMap.entrySet().stream()
+                .map(entry -> filterFieldMap.containsKey(entry.getKey()))
+                .collect(Collectors.toSet());
+        return !result.contains(false);
+    }
+
+    public static List<String> getInvalidFieldFilter(Map<FieldFilter, String> fieldFilterValueMap) {
+        return fieldFilterValueMap.entrySet().stream()
+                .filter(entry -> !filterFieldMap.containsKey(entry.getKey()))
+                .map(entry -> entry.getKey().getFullName())
+                .collect(Collectors.toList());
+    }
 }
 
