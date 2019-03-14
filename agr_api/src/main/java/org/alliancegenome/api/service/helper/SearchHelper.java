@@ -137,6 +137,7 @@ public class SearchHelper {
             add("strictOrthologySymbols.keyword");
             add("whereExpressed"); add("whereExpressed.keyword");
             add("anatomicalExpression"); add("anatomicalExpression.keyword");
+            add("anatomicalExpressionWithParents"); add("anatomicalExpressionWithParents.keyword");
             add("cellularComponentExpression"); add("cellularComponentExpression.keyword");
             add("cellularComponentExpressionWithParents"); add("cellularComponentExpressionWithParents.keyword");
             add("cellularComponentExpressionAgrSlim"); add("cellularComponentExpressionAgrSlim.keyword");
