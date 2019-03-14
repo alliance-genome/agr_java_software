@@ -59,21 +59,6 @@ public class DiseaseService {
         return diseaseAnnotationMap.get(diseaseID).size();
     }
 
-    private int getTotalDiseaseAnnotation(String geneID, Pagination pagination, boolean empiricalDisease) {
-        List<DiseaseAnnotation> diseaseAnnotationList;
-        if (empiricalDisease)
-            diseaseAnnotationList = diseaseAnnotationExperimentGeneMap.get(geneID);
-        else
-            diseaseAnnotationList = diseaseAnnotationOrthologGeneMap.get(geneID);
-        if (diseaseAnnotationList == null)
-            return 0;
-
-        //filtering
-        List<DiseaseAnnotation> filteredDiseaseAnnotationList = filterDiseaseAnnotations(diseaseAnnotationList, pagination.getFieldFilterValueMap());
-
-        return filteredDiseaseAnnotationList.size();
-    }
-
     private List<DiseaseAnnotation> getDiseaseAnnotationList(String diseaseID, Pagination pagination) {
         checkCache();
         if (caching)
@@ -101,7 +86,7 @@ public class DiseaseService {
                 .collect(Collectors.toList());
     }
 
-    private List<DiseaseAnnotation> getDiseaseAnnotationList(String geneID, Pagination pagination, boolean empiricalDisease) {
+    private PaginationResult<DiseaseAnnotation> getDiseaseAnnotationList(String geneID, Pagination pagination, boolean empiricalDisease) {
         checkCache();
         if (caching)
             return null;
@@ -116,10 +101,14 @@ public class DiseaseService {
 
         //filtering
         List<DiseaseAnnotation> filteredDiseaseAnnotationList = filterDiseaseAnnotations(diseaseAnnotationList, pagination.getFieldFilterValueMap());
+        PaginationResult<DiseaseAnnotation> result = new PaginationResult<>();
+        result.setTotalNumber(filteredDiseaseAnnotationList.size());
 
         // sorting
-        return getSortedAndPaginatedDiseaseAnnotations(pagination, filteredDiseaseAnnotationList);
+        result.setResult(getSortedAndPaginatedDiseaseAnnotations(pagination, filteredDiseaseAnnotationList));
+        return result;
     }
+
 
     private List<DiseaseAnnotation> filterDiseaseAnnotations(List<DiseaseAnnotation> diseaseAnnotationList, BaseFilter fieldFilterValueMap) {
         if (diseaseAnnotationList == null)
@@ -280,7 +269,7 @@ public class DiseaseService {
 
     public JsonResultResponse<DiseaseAnnotation> getDiseaseAnnotations(String geneID, Pagination pagination, boolean empiricalDisease) {
         LocalDateTime startDate = LocalDateTime.now();
-        List<DiseaseAnnotation> list = getDiseaseAnnotationList(geneID, pagination, empiricalDisease);
+        PaginationResult<DiseaseAnnotation> result = getDiseaseAnnotationList(geneID, pagination, empiricalDisease);
         JsonResultResponse<DiseaseAnnotation> response = new JsonResultResponse<>();
         String note = "";
         if (!SortingField.isValidSortingFieldValue(pagination.getSortBy())) {
@@ -295,9 +284,10 @@ public class DiseaseService {
         }
         if (!note.isEmpty())
             response.setNote(note);
-
-        response.setResults(list);
-        response.setTotal(getTotalDiseaseAnnotation(geneID, pagination, empiricalDisease));
+        if (result != null) {
+            response.setResults(result.getResult());
+            response.setTotal(result.getTotalNumber());
+        }
         response.calculateRequestDuration(startDate);
         return response;
     }
