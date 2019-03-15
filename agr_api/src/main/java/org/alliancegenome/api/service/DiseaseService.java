@@ -47,26 +47,29 @@ public class DiseaseService {
 
     public JsonResultResponse<DiseaseAnnotation> getDiseaseAnnotationsByDisease(String diseaseID, Pagination pagination) {
         LocalDateTime startDate = LocalDateTime.now();
-        List<DiseaseAnnotation> list = getDiseaseAnnotationList(diseaseID, pagination);
+        PaginationResult<DiseaseAnnotation> paginationResult = getDiseaseAnnotationList(diseaseID, pagination);
         JsonResultResponse<DiseaseAnnotation> response = new JsonResultResponse<>();
         response.calculateRequestDuration(startDate);
-        response.setResults(list);
-        response.setTotal(getTotalDiseaseAnnotation(diseaseID, pagination));
+        if (paginationResult != null) {
+            response.setResults(paginationResult.getResult());
+            response.setTotal(paginationResult.getTotalNumber());
+        }
         return response;
     }
 
-    private int getTotalDiseaseAnnotation(String diseaseID, Pagination pagination) {
-        return diseaseAnnotationMap.get(diseaseID).size();
-    }
-
-    private List<DiseaseAnnotation> getDiseaseAnnotationList(String diseaseID, Pagination pagination) {
+    private PaginationResult<DiseaseAnnotation> getDiseaseAnnotationList(String diseaseID, Pagination pagination) {
         checkCache();
         if (caching)
             return null;
 
         List<DiseaseAnnotation> fullDiseaseAnnotationList = diseaseAnnotationMap.get(diseaseID);
-        return getSortedAndPaginatedDiseaseAnnotations(pagination, fullDiseaseAnnotationList);
+        //filtering
+        List<DiseaseAnnotation> filteredDiseaseAnnotationList = filterDiseaseAnnotations(fullDiseaseAnnotationList, pagination.getFieldFilterValueMap());
 
+        PaginationResult<DiseaseAnnotation> result = new PaginationResult<>();
+        result.setTotalNumber(filteredDiseaseAnnotationList.size());
+        result.setResult(getSortedAndPaginatedDiseaseAnnotations(pagination, filteredDiseaseAnnotationList));
+        return result;
     }
 
     private List<DiseaseAnnotation> getSortedAndPaginatedDiseaseAnnotations(Pagination pagination, List<DiseaseAnnotation> fullDiseaseAnnotationList) {
@@ -192,17 +195,13 @@ public class DiseaseService {
         System.out.println("Time populating diseaseAnnotationMap:  " + ((System.currentTimeMillis() - start) / 1000) + " s");
 
         // group by gene IDs
-        start = System.currentTimeMillis();
         diseaseAnnotationExperimentGeneMap = allDiseaseAnnotations.stream()
                 .filter(annotation -> annotation.getSortOrder() < 10)
                 .collect(groupingBy(o -> o.getGene().getPrimaryKey(), Collectors.toList()));
-        System.out.println("Time populating diseaseAnnotationExperimentGeneMap:  " + ((System.currentTimeMillis() - start) / 1000) + " s");
 
-        start = System.currentTimeMillis();
         diseaseAnnotationOrthologGeneMap = allDiseaseAnnotations.stream()
                 .filter(annotation -> annotation.getSortOrder() == 10)
                 .collect(groupingBy(o -> o.getGene().getPrimaryKey(), Collectors.toList()));
-        System.out.println("Time populating diseaseAnnotationOrthologGeneMap:  " + ((System.currentTimeMillis() - start) / 1000) + " s");
 
         log.info("Number of Disease IDs in disease Map: " + diseaseAnnotationMap.size());
         log.info("Time to create annotation histogram: " + (System.currentTimeMillis() - startCreateHistogram) / 1000);

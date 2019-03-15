@@ -195,7 +195,7 @@ public class DiseaseIT {
                 "WB:WBGene00000913\tdaf-18\tCaenorhabditis elegans\t\t\t\timplicated_via_orthology\tDOID:9952\tacute lymphocytic leukemia\tIEA\tAlliance\tMGI:6194238\n" +
                 "WB:WBGene00021474\tdot-1.1\tCaenorhabditis elegans\t\t\t\timplicated_via_orthology\tDOID:9953\tB- and T-cell mixed leukemia\tIEA\tAlliance\tMGI:6194238\n" +
                 "WB:WBGene00010067\tdot-1.2\tCaenorhabditis elegans\t\t\t\timplicated_via_orthology\tDOID:9953\tB- and T-cell mixed leukemia\tIEA\tAlliance\tMGI:6194238\n";
-                assertEquals(result, output);
+        assertEquals(result, output);
 
         // descending sorting
         pagination.setAsc(false);
@@ -625,14 +625,14 @@ public class DiseaseIT {
     // Test SHH from Human for disease via experiment records
     public void checkDiseaseAnnotationNonDuplicated3() {
         DiseaseService service = new DiseaseService();
-        List<DiseaseAnnotation> annotations = service.getEmpiricalDiseaseAnnotationList("HGNC:10848", new Pagination(1, 30, null, null), true);
+        JsonResultResponse<DiseaseAnnotation> annotations = service.getDiseaseAnnotations("HGNC:10848", new Pagination(1, 30, null, null), true);
 
         assertNotNull(annotations);
         // 14 different disease terms
-        assertThat(annotations.size(), equalTo(14));
+        assertThat(annotations.getTotal(), equalTo(14));
         // pick autism spectrum disorder
         // one record (no duplication
-        List<DiseaseAnnotation> annots = annotations.stream().filter(diseaseDocument -> diseaseDocument.getDisease().getName().equals("autism spectrum disorder")).collect(Collectors.toList());
+        List<DiseaseAnnotation> annots = annotations.getResults().stream().filter(diseaseDocument -> diseaseDocument.getDisease().getName().equals("autism spectrum disorder")).collect(Collectors.toList());
         assertThat(1, equalTo(annots.size()));
 
     }

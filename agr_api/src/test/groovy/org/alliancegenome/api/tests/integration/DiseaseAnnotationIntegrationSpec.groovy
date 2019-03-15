@@ -45,8 +45,8 @@ class DiseaseAnnotationIntegrationSpec extends AbstractSpec {
         //firstGeneUrl == results.first().gene.url
         geneSymbol == results.first().gene.symbol
         ezha
-        alleleSymbol == ezha.allele.symbol
-        alleleUrl == ezha.allele.url
+        ezha.allele.symbol != null
+        ezha.allele.url != null
         crossRef == ezha.publications[0].id
         geneticEntityType == ezha.geneticEntityType
         evCode == ezha.evidenceCodes[0].name
@@ -55,8 +55,8 @@ class DiseaseAnnotationIntegrationSpec extends AbstractSpec {
         doURL == ezha.disease.url
         species == ezha.gene.species.name
         where:
-        doid        | totalResults | returned | firstGene    | geneSymbol | crossRef        | geneticEntityType | evCode | disease                      | alleleSymbol              | alleleUrl                                           | doID        | doURL                                           | species
-        "DOID:9952" | 66           | 50       | "HGNC:24948" | "DOT1L"    | "PMID:22431509" | "allele"          | "TAS"  | "acute lymphocytic leukemia" | "Ezh2<sup>tm2.1Sho</sup>" | "http://www.informatics.jax.org/allele/MGI:3823218" | "DOID:9952" | "http://www.disease-ontology.org/?id=DOID:9952" | "Mus musculus"
+        doid        | totalResults | returned | firstGene    | geneSymbol | crossRef        | geneticEntityType | evCode | disease                      | doID        | doURL                                           | species
+        "DOID:9952" | 66           | 50       | "HGNC:24948" | "DOT1L"    | "PMID:22431509" | "allele"          | "TAS"  | "acute lymphocytic leukemia" | "DOID:9952" | "http://www.disease-ontology.org/?id=DOID:9952" | "Mus musculus"
 
     }
 
@@ -104,7 +104,7 @@ class DiseaseAnnotationIntegrationSpec extends AbstractSpec {
     @Unroll
     def "Disease page - Annotation Filtering for #geneSymbolQuery "() {
         when:
-        def url = new URL("http://localhost:8080/api/disease/DOID:9952/associations?limit=50&containsFilterValue.geneName=$geneSymbolQuery")
+        def url = new URL("http://localhost:8080/api/disease/DOID:9952/associations?limit=50&filter.geneName=$geneSymbolQuery")
         def retObj = new JsonSlurper().parseText(url.text)
         def results = retObj.results
         def symbols = results.gene.symbol.findAll { it }
@@ -119,6 +119,27 @@ class DiseaseAnnotationIntegrationSpec extends AbstractSpec {
         "ot"            | 13         | "DOT1L,Notch3,NOTCH3,Dot1l,Notch3,Dot1l,dot1l,notch3,dot-1.1,dot-1.2,dot-1.4,dot-1.5,DOT1"
         "2a"            | 10         | "KMT2A,Kmt2a,Kmt2a,KMT2A,Kmt2a,Kmt2a,Kmt2a,kmt2a,kmt2a,zeb2a"
         "r"             | 2          | "trx,trx"
+    }
+
+    @Unroll
+    def "Disease page - Annotation Filtering for geneticEntity "() {
+        when:
+        def geneUrl = new URL("http://localhost:8080/api/disease/DOID:9952/associations?limit=50&filter.geneticEntityType=gene")
+        def geneRetObj = new JsonSlurper().parseText(geneUrl.text)
+
+        def alleleUrl = new URL("http://localhost:8080/api/disease/DOID:9952/associations?limit=50&filter.geneticEntityType=allele")
+        def alleleRetObj = new JsonSlurper().parseText(alleleUrl.text)
+
+        def url = new URL("http://localhost:8080/api/disease/DOID:9952/associations?limit=50")
+        def totalAll = new JsonSlurper().parseText(url.text)
+
+        then:
+        geneRetObj
+        alleleRetObj.total > 3
+        totalAll
+        // alleles and genes add up to the total
+        totalAll.total == geneRetObj.total + alleleRetObj.total
+
     }
 
     @Unroll

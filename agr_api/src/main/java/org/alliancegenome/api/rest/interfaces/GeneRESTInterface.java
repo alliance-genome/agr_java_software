@@ -219,18 +219,18 @@ public interface GeneRESTInterface {
     Response getDiseaseByExperimentDownload(
             @ApiParam(name = "id", value = "Gene by ID: e.g. MGI:1097693", required = true, type = "String")
             @PathParam("id") String id,
-            @ApiParam(value = "Field name by which to sort", allowableValues = "termName,geneticEntity")
-            @DefaultValue("termName") @QueryParam("sortBy") String sortBy,
+            @ApiParam(value = "Field name by which to sort", allowableValues = "disease,geneticEntity")
+            @DefaultValue("disease") @QueryParam("sortBy") String sortBy,
             @ApiParam(name = "geneticEntity", value = "genetic entity symbol")
-            @QueryParam("geneticEntity") String geneticEntity,
+            @QueryParam("filter.geneticEntity") String geneticEntity,
             @ApiParam(name = "geneticEntityType", value = "genetic entity type", allowableValues = "allele,gene")
-            @QueryParam("geneticEntityType") String geneticEntityType,
-            @ApiParam(value = "termName annotation")
-            @QueryParam("termName") String phenotype,
+            @QueryParam("filter.geneticEntityType") String geneticEntityType,
+            @ApiParam(value = "disease annotation")
+            @QueryParam("filter.disease") String phenotype,
             @ApiParam(value = "association type")
-            @QueryParam("associationType") String associationType,
+            @QueryParam("filter.associationType") String associationType,
             @ApiParam(value = "Evidence Code")
-            @QueryParam("evidenceCode") String evidenceCode,
+            @QueryParam("filter.evidenceCode") String evidenceCode,
             @ApiParam(value = "Data Source")
             @QueryParam("filter.source") String source,
             @ApiParam(value = "Reference number: PUBMED or a Pub ID from the MOD")
@@ -245,20 +245,20 @@ public interface GeneRESTInterface {
     Response getDiseaseViaOrthologyDownload(
             @ApiParam(name = "id", value = "Gene by ID: e.g. MGI:1097693", required = true, type = "String")
             @PathParam("id") String id,
-            @ApiParam(value = "Field name by which to sort", allowableValues = "termName,geneticEntity")
-            @DefaultValue("termName") @QueryParam("sortBy") String sortBy,
+            @ApiParam(value = "Field name by which to sort", allowableValues = "disease,geneticEntity")
+            @DefaultValue("disease") @QueryParam("sortBy") String sortBy,
             @ApiParam(name = "orthologyGene", value = "Orthologous Gene Symbol")
-            @QueryParam("containsFilterValue.orthologyGene") String orthologyGene,
+            @QueryParam("filter.orthologyGene") String orthologyGene,
             @ApiParam(name = "containsFilterValue.orthologyGeneSpecies", value = "Orthologous Gene Species")
-            @QueryParam("orthologyGeneSpecies") String orthologyGeneSpecies,
+            @QueryParam("filter.orthologyGeneSpecies") String orthologyGeneSpecies,
             @ApiParam(value = "termName annotation")
-            @QueryParam("termName") String phenotype,
+            @QueryParam("filter.disease") String phenotype,
             @ApiParam(value = "association type")
-            @QueryParam("associationType") String associationType,
+            @QueryParam("filter.associationType") String associationType,
             @ApiParam(value = "Evidence Code")
-            @QueryParam("evidenceCode") String evidenceCode,
+            @QueryParam("filter.evidenceCode") String evidenceCode,
             @ApiParam(value = "Data Source")
-            @QueryParam("filter..source") String source,
+            @QueryParam("filter.source") String source,
             @ApiParam(value = "Reference number: PUBMED or a Pub ID from the MOD")
             @QueryParam("filter.reference") String reference,
             @ApiParam(value = "ascending order: true or false", allowableValues = "true,false", defaultValue = "true")

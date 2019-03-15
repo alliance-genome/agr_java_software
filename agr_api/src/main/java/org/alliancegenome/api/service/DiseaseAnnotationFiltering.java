@@ -34,6 +34,12 @@ public class DiseaseAnnotationFiltering {
     public static FilterFunction<DiseaseAnnotation, String> geneticEntityTypeFilter =
             (annotation, value) -> contains(annotation.getGeneticEntityType(), value);
 
+    public static FilterFunction<DiseaseAnnotation, String> geneNameFilter =
+            (annotation, value) -> contains(annotation.getGene().getSymbol(), value);
+
+    public static FilterFunction<DiseaseAnnotation, String> geneSpeciesFilter =
+            (annotation, value) -> contains(annotation.getGene().getSpecies().getName(), value);
+
     public static FilterFunction<DiseaseAnnotation, String> evidenceCodeFilter =
             (annotation, value) -> {
                 Set<Boolean> filteringPassed = annotation.getEvidenceCodes().stream()
@@ -80,6 +86,8 @@ public class DiseaseAnnotationFiltering {
         filterFieldMap.put(FieldFilter.SOURCE, sourceFilter);
         filterFieldMap.put(FieldFilter.GENETIC_ENTITY_TYPE, geneticEntityTypeFilter);
         filterFieldMap.put(FieldFilter.GENETIC_ENTITY, geneticEntityFilter);
+        filterFieldMap.put(FieldFilter.GENE_NAME, geneNameFilter);
+        filterFieldMap.put(FieldFilter.SPECIES, geneSpeciesFilter);
     }
 
     public static boolean isValidFiltering(Map<FieldFilter, String> fieldFilterValueMap) {
