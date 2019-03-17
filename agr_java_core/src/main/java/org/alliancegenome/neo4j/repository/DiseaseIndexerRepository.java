@@ -19,7 +19,6 @@ public class DiseaseIndexerRepository extends Neo4jRepository<DOTerm> {
     //todo: maps for gene, species, diseaseGroup, parentNames
 
     public Map<String,DOTerm> getDiseaseMap() {
-
         String query = "MATCH pDisease=(disease:DOTerm) WHERE disease.is_obsolete = 'false' ";
         query += " OPTIONAL MATCH pSyn=(disease:DOTerm)-[:ALSO_KNOWN_AS]-(:Synonym) ";
         query += " OPTIONAL MATCH pCR=(disease:DOTerm)-[:CROSS_REFERENCE]-(:CrossReference)";
