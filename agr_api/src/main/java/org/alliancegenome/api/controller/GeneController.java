@@ -174,7 +174,7 @@ public class GeneController extends BaseController implements GeneRESTInterface 
                 .map(Map.Entry::getKey)
                 .collect(Collectors.toList());
         pagination.setInvalidFilterList(invalidFilterNames);
-        return diseaseService.getEmpiricalDiseaseAnnotations(id, pagination, empiricalDisease);
+        return diseaseService.getDiseaseAnnotations(id, pagination, empiricalDisease);
     }
 
     @Override
@@ -290,7 +290,7 @@ public class GeneController extends BaseController implements GeneRESTInterface 
                                                    String asc,
                                                    UriInfo ui) throws JsonProcessingException {
         JsonResultResponse<DiseaseAnnotation> response = getEmpiricalDiseaseAnnotation(id,
-                null,
+                Integer.MAX_VALUE,
                 null,
                 sortBy,
                 geneticEntity,
@@ -321,7 +321,7 @@ public class GeneController extends BaseController implements GeneRESTInterface 
                                                    String asc,
                                                    UriInfo ui) throws JsonProcessingException {
         JsonResultResponse<DiseaseAnnotation> response = getDiseaseViaOrthologyAnnotation(id,
-                null,
+                Integer.MAX_VALUE,
                 null,
                 sortBy,
                 orthologyGene,

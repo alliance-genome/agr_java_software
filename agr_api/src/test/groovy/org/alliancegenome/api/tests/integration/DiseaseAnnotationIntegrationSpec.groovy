@@ -199,4 +199,25 @@ class DiseaseAnnotationIntegrationSpec extends AbstractSpec {
         "DOID:0111077" | 858
     }
 
+    @Unroll
+    def "Verify that the downloads endpoint have results"() {
+        when:
+        def url = new URL("http://localhost:8080/api/disease/DOID:9952/associations/download?limit=10")
+        def results = url.text.split('\n')
+
+        def urlExperiment = new URL("http://localhost:8080/api/gene/MGI:109583/diseases-by-experiment/download?page=1&limit=100&sortBy=disease")
+        def resultsExperiment = urlExperiment.text.split('\n')
+
+        def urlOrtho = new URL("http://localhost:8080/api/gene/MGI:109583/diseases-via-orthology/download?page=1&limit=100&sortBy=disease")
+        def resultsOrtho = urlOrtho.text.split('\n')
+
+        then:
+        results.size() > 70
+        resultsExperiment.size() > 48
+        resultsExperiment.size() > 48
+        resultsOrtho.size() > 30
+
+    }
+
+
 }

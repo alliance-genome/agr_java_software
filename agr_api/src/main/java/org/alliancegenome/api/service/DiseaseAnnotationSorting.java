@@ -36,6 +36,8 @@ public class DiseaseAnnotationSorting implements Sorting<DiseaseAnnotation> {
         comparatorList.add(phylogeneticOrder);
         comparatorList.add(geneSymbolOrder);
         comparatorList.add(diseaseSymbolOrder);
+        comparatorList.add(associationTypeOrder);
+        comparatorList.add(alleleSymbolOrder);
 
         return getJoinedComparator(comparatorList);
     }
