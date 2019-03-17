@@ -32,7 +32,6 @@ public class DiseaseDocumentCache extends IndexerCache {
            diseaseDocument.setDiseaseGroup(diseaseGroupMap.get(id));
            diseaseDocument.setParentDiseaseNames(parentNameMap.get(id));
            diseaseDocument.setAssociatedSpecies(speciesMap.get(id));
-
         }
     }
 
