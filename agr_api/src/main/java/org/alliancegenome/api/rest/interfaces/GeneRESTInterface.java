@@ -166,16 +166,16 @@ public interface GeneRESTInterface {
             @QueryParam("geneticEntity") String geneticEntity,
             @ApiParam(name = "geneticEntityType", value = "genetic entity type", allowableValues = "allele,gene")
             @QueryParam("geneticEntityType") String geneticEntityType,
-            @ApiParam(value = "termName annotation")
-            @QueryParam("termName") String phenotype,
+            @ApiParam(value = "disease name")
+            @QueryParam("disease") String disease,
             @ApiParam(value = "association type")
             @QueryParam("associationType") String associationType,
             @ApiParam(value = "Evidence Code")
             @QueryParam("evidenceCode") String evidenceCode,
             @ApiParam(value = "Data Source")
-            @QueryParam("filter.source") String source,
+            @QueryParam("source") String source,
             @ApiParam(value = "Reference number: PUBMED or a Pub ID from the MOD")
-            @QueryParam("filter.reference") String reference,
+            @QueryParam("publications") String reference,
             @ApiParam(value = "ascending order: true or false", allowableValues = "true,false", defaultValue = "true")
             @QueryParam("asc") String asc) throws JsonProcessingException;
 
@@ -196,16 +196,16 @@ public interface GeneRESTInterface {
             @QueryParam("orthologyGene") String orthologyGene,
             @ApiParam(name = "orthologyGeneSpecies", value = "genetic entity type", allowableValues = "allele,gene")
             @QueryParam("orthologyGeneSpecies") String orthologyGeneSpecies,
-            @ApiParam(value = "termName annotation")
-            @QueryParam("termName") String disease,
+            @ApiParam(value = "disease name")
+            @QueryParam("disease") String disease,
             @ApiParam(value = "association type")
             @QueryParam("associationType") String associationType,
             @ApiParam(value = "Evidence Code")
             @QueryParam("evidenceCode") String evidenceCode,
             @ApiParam(value = "Data Source")
-            @QueryParam("filter.source") String source,
+            @QueryParam("source") String source,
             @ApiParam(value = "Reference number: PUBMED or a Pub ID from the MOD")
-            @QueryParam("filter.reference") String reference,
+            @QueryParam("publications") String reference,
             @ApiParam(value = "ascending order: true or false", allowableValues = "true,false", defaultValue = "true")
             @QueryParam("asc") String asc) throws JsonProcessingException;
 
@@ -228,9 +228,9 @@ public interface GeneRESTInterface {
             @ApiParam(value = "Evidence Code")
             @QueryParam("evidenceCode") String evidenceCode,
             @ApiParam(value = "Data Source")
-            @QueryParam("filter.source") String source,
+            @QueryParam("source") String source,
             @ApiParam(value = "Reference number: PUBMED or a Pub ID from the MOD")
-            @QueryParam("filter.reference") String reference,
+            @QueryParam("publications") String reference,
             @ApiParam(value = "ascending order: true or false", allowableValues = "true,false", defaultValue = "true")
             @QueryParam("asc") String asc) throws JsonProcessingException;
 
@@ -253,9 +253,9 @@ public interface GeneRESTInterface {
             @ApiParam(value = "Evidence Code")
             @QueryParam("evidenceCode") String evidenceCode,
             @ApiParam(value = "Data Source")
-            @QueryParam("filter.source") String source,
+            @QueryParam("source") String source,
             @ApiParam(value = "Reference number: PUBMED or a Pub ID from the MOD")
-            @QueryParam("filter.reference") String reference,
+            @QueryParam("publications") String reference,
             @ApiParam(value = "ascending order: true or false", allowableValues = "true,false", defaultValue = "true")
             @QueryParam("asc") String asc) throws JsonProcessingException;
 

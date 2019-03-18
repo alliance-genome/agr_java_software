@@ -4,8 +4,7 @@ import org.alliancegenome.es.model.search.RelatedDataLink
 import org.alliancegenome.api.service.SearchService
 import spock.lang.*
 
-
-class RelatedDataServiceIntegrationSpec extends Specification {
+class RelatedDataServiceIntegrationSpec extends AbstractSpec {
 
     @Shared
     private SearchService searchService = new SearchService()

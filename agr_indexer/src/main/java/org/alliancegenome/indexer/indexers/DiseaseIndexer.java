@@ -34,8 +34,9 @@ public class DiseaseIndexer extends Indexer<DiseaseDocument> {
             queue.addAll(allDiseaseIDs);
             diseaseIndexerRepository.clearCache();
             initiateThreading(queue);
-        } catch (InterruptedException e) {
+        } catch (Exception e) {
             log.error("Error while indexing...", e);
+            System.exit(-1);
         }
     }
 

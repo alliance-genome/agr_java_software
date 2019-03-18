@@ -60,7 +60,7 @@ public class SearchHelper {
                 {
                     add("diseaseGroup");
                     add("genes");
-                    add("species");
+                    add("associatedSpecies");
                 }
             });
             put("allele", new ArrayList<String>() {
@@ -115,7 +115,9 @@ public class SearchHelper {
             add("automatedGeneSynopsis");
             add("geneSynopsis");
             add("external_ids");
-            add("species"); add("species.synonyms"); add("modLocalId");
+            add("species"); add("species.synonyms");
+            add("associatedSpecies"); add("associatedSpecies.synonyms");
+            add("modLocalId");
             add("biologicalProcessWithParents"); add("molecularFunctionWithParents"); add("cellularComponentWithParents");
             add("go_type"); add("go_genes"); add("go_synonyms");
             add("disease_genes"); add("disease_synonyms");
@@ -135,6 +137,7 @@ public class SearchHelper {
             add("strictOrthologySymbols.keyword");
             add("whereExpressed"); add("whereExpressed.keyword");
             add("anatomicalExpression"); add("anatomicalExpression.keyword");
+            add("anatomicalExpressionWithParents"); add("anatomicalExpressionWithParents.keyword");
             add("cellularComponentExpression"); add("cellularComponentExpression.keyword");
             add("cellularComponentExpressionWithParents"); add("cellularComponentExpressionWithParents.keyword");
             add("cellularComponentExpressionAgrSlim"); add("cellularComponentExpressionAgrSlim.keyword");

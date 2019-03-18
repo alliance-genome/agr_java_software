@@ -1,17 +1,14 @@
 package org.alliancegenome.api
 
-import groovy.json.JsonSlurper
-import spock.lang.Specification
 import spock.lang.Unroll
 
-class ExpressionIntegrationSpec extends Specification {
+class ExpressionIntegrationSpec extends AbstractSpec {
 
     @Unroll
     def "Gene page - Expression Summary for #geneId"() {
         when:
         def encodedQuery = URLEncoder.encode(geneId, "UTF-8")
-        def url = new URL("http://localhost:8080/api/gene/$encodedQuery/expression-summary")
-        def result = new JsonSlurper().parseText(url.text)
+        def result = getApiResults("/api/gene/$encodedQuery/expression-summary")
         println result.groups[0].terms.name
         then:
         result
@@ -36,9 +33,8 @@ class ExpressionIntegrationSpec extends Specification {
     @Unroll
     def "Gene page - Expression Annotations for #geneId"() {
         when:
-        def url = new URL("https://www.alliancegenome.org/api/expression?geneID=$geneId&page=1&limit=10&sortBy=")
-        def retObj = new JsonSlurper().parseText(url.text)
-        def results = retObj.results
+        def results = getApiResults("/api/expression?geneID=$geneId&page=1&limit=10&sortBy=").results
+
         def termNames = results.termName.findAll { it }
 
         then:
