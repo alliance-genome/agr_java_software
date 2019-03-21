@@ -102,7 +102,7 @@ public class SnapShotCommand extends Command implements CommandInterface {
                     
                     List<String> list = new ArrayList<String>();
                     list.add(index_name);
-                    im.restoreSnapShot(repo, snapshotName, new ArrayList<String>(list));
+                    im.restoreSnapShot(repo, snapShotName, new ArrayList<String>(list));
                     //im.removeAlias("site_index", index_name);
                     //im.updateIndexSetting(index_name, "index.number_of_replicas", 2);
                 } else {
