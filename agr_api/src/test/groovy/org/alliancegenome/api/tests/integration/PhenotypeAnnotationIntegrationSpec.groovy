@@ -39,8 +39,8 @@ class PhenotypeAnnotationIntegrationSpec extends AbstractSpec {
     @Unroll
     def "Verify that the downloads endpoint has results"() {
         when:
-        def url = new URL("http://localhost:8080/api/gene/$gene/phenotypes/download")
-        def results = url.text.split('\n')
+        def result = getApiResult("/api/gene/$gene/phenotypes/download")
+        def results = result.text.split('\n')
 
         then:
         results.size() > 10

@@ -1,5 +1,6 @@
 package org.alliancegenome.api
 
+
 import spock.lang.Unroll
 
 class DiseaseAnnotationIntegrationSpec extends AbstractSpec {
@@ -9,7 +10,7 @@ class DiseaseAnnotationIntegrationSpec extends AbstractSpec {
         when:
         def encodedQuery = URLEncoder.encode(query, "UTF-8")
         //todo: need to set the base search url in a nicer way
-        def disease = getApiResults("/api/disease/$encodedQuery")
+        def disease = getApiResult("/api/disease/$encodedQuery")
 
         then:
         disease //should be some results
@@ -33,8 +34,8 @@ class DiseaseAnnotationIntegrationSpec extends AbstractSpec {
     def "Disease page - Annotations for #doid"() {
         when:
         def encodedQuery = URLEncoder.encode(doid, "UTF-8")
-        def results = getApiResults("/api/disease/$encodedQuery/associations?limit=50").results
-
+        def retObj = getApiMetaData("/api/disease/$encodedQuery/associations?limit=50")
+        def results = retObj.results
         def ezha = results.find { it.gene.symbol == 'Ezh2' && it.allele }
 
         then:
@@ -63,7 +64,7 @@ class DiseaseAnnotationIntegrationSpec extends AbstractSpec {
     @Unroll
     def "Disease page - Annotations for #sortBy - Sorting"() {
         when:
-        def results = getApiResults("/api/disease/DOID:9952/associations?limit=15&sortBy=$sortBy").results
+        def results = getApiResults("/api/disease/DOID:9952/associations?limit=15&sortBy=$sortBy")
 
         def symbols = results.gene.symbol.findAll { it }
         def species = results.gene.species.name.findAll { it }
@@ -104,8 +105,7 @@ class DiseaseAnnotationIntegrationSpec extends AbstractSpec {
     @Unroll
     def "Disease page - Annotation Filtering for #geneSymbolQuery "() {
         when:
-        def url = new URL("http://localhost:8080/api/disease/DOID:9952/associations?limit=50&filter.geneName=$geneSymbolQuery")
-        def retObj = new JsonSlurper().parseText(url.text)
+        def retObj = getApiResult("/api/disease/DOID:9952/associations?limit=50&filter.geneName=$geneSymbolQuery")
         def results = retObj.results
         def symbols = results.gene.symbol.findAll { it }
 
@@ -124,14 +124,9 @@ class DiseaseAnnotationIntegrationSpec extends AbstractSpec {
     @Unroll
     def "Disease page - Annotation Filtering for geneticEntity "() {
         when:
-        def geneUrl = new URL("http://localhost:8080/api/disease/DOID:9952/associations?limit=50&filter.geneticEntityType=gene")
-        def geneRetObj = new JsonSlurper().parseText(geneUrl.text)
-
-        def alleleUrl = new URL("http://localhost:8080/api/disease/DOID:9952/associations?limit=50&filter.geneticEntityType=allele")
-        def alleleRetObj = new JsonSlurper().parseText(alleleUrl.text)
-
-        def url = new URL("http://localhost:8080/api/disease/DOID:9952/associations?limit=50")
-        def totalAll = new JsonSlurper().parseText(url.text)
+        def geneRetObj = getApiMetaData("/api/disease/DOID:9952/associations?limit=50&filter.geneticEntityType=gene")
+        def alleleRetObj = getApiMetaData("/api/disease/DOID:9952/associations?limit=50&filter.geneticEntityType=allele")
+        def totalAll = getApiMetaData("/api/disease/DOID:9952/associations?limit=50")
 
         then:
         geneRetObj
@@ -145,7 +140,8 @@ class DiseaseAnnotationIntegrationSpec extends AbstractSpec {
     @Unroll
     def "Gene page - Annotation via Experiment #geneID "() {
         when:
-        def results = getApiResults("/api/gene/$geneID/diseases-by-experiment?limit=5").results
+        def retObj = getApiResult("/api/gene/$geneID/diseases-by-experiment?limit=5")
+        def results = retObj.results
 
         then:
         results
@@ -165,7 +161,8 @@ class DiseaseAnnotationIntegrationSpec extends AbstractSpec {
     @Unroll
     def "Gene page - Annotation via Orthology #geneID "() {
         when:
-        def results = getApiResults("/api/gene/$geneID/diseases-via-orthology?limit=5").results
+        def retObj = getApiResult("/api/gene/$geneID/diseases-via-orthology?limit=5")
+        def results = retObj.results
 
         then:
         results
@@ -222,8 +219,7 @@ class DiseaseAnnotationIntegrationSpec extends AbstractSpec {
     @Unroll
     def "Check different query parameters #query for disease #disease annotation endpoint"() {
         when:
-        def url = new URL("http://localhost:8080/api/disease/$disease/associations?limit=1000&$query")
-        def results = new JsonSlurper().parseText(url.text).results
+        def results = getApiResults("/api/disease/$disease/associations?limit=1000&$query")
 
         then:
         results.size() > resultSizeLowerLimit

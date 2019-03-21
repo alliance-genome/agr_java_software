@@ -8,7 +8,7 @@ class ExpressionIntegrationSpec extends AbstractSpec {
     def "Gene page - Expression Summary for #geneId"() {
         when:
         def encodedQuery = URLEncoder.encode(geneId, "UTF-8")
-        def result = getApiResults("/api/gene/$encodedQuery/expression-summary")
+        def result = getApiResult("/api/gene/$encodedQuery/expression-summary")
         println result.groups[0].terms.name
         then:
         result
@@ -33,7 +33,7 @@ class ExpressionIntegrationSpec extends AbstractSpec {
     @Unroll
     def "Gene page - Expression Annotations for #geneId"() {
         when:
-        def results = getApiResults("/api/expression?geneID=$geneId&page=1&limit=10&sortBy=").results
+        def results = getApiResults("/api/expression?geneID=$geneId&page=1&limit=10&sortBy=")
 
         def termNames = results.termName.findAll { it }
 
@@ -46,7 +46,7 @@ class ExpressionIntegrationSpec extends AbstractSpec {
         geneId                           | totalSize | locationList
         "MGI:109583"                     | 10        | "2-cell stage embryo,4-cell stage embryo,alimentary system,amnion,amnion,amygdala,axial skeleton,basal ganglia,bladder,brain"
         "RGD:2129"                       | 7         | "extracellular space,high-density lipoprotein particle,intracellular membrane-bounded organelle,low-density lipoprotein particle,very-low-density lipoprotein particle,vesicle lumen,vesicle membrane"
-        "ZFIN:ZDB-GENE-001103-1"         | 10        | "anal fin,anal fin,anal fin,anal fin pterygiophore,anal fin pterygiophore,anatomical structure,brain,brain,caudal fin lepidotrichium,ceratobranchial bone"
+        "ZFIN:ZDB-GENE-001103-1"         | 10        | "anal fin,anal fin,anal fin,anal fin pterygiophore,anal fin pterygiophore,brain,brain,caudal fin lepidotrichium,ceratobranchial bone,ceratobranchial cartilage"
     }
 
 }
