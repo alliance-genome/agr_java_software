@@ -15,7 +15,7 @@ class ExpressionIntegrationSpec extends AbstractSpec {
         totalAnnotations <= result.totalAnnotations
         result.groups
         groupCount == result.groups.size()
-        anatomyTerms == result.groups[0].terms.size()
+        anatomyTerms <= result.groups[0].terms.size()
         anatomyTotal <= result.groups[0].totalAnnotations
         CCTerms == result.groups[1].terms.size()
         CCTotal <= result.groups[1].totalAnnotations
