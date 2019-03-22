@@ -7,7 +7,7 @@ class PhenotypeIntegrationSpec extends AbstractSpec {
     @Unroll
     def "Gene page - Phenotype Annotations for #geneId"() {
         when:
-        def results = getApiResults("/api/gene/$geneId/phenotypes?page=1&limit=10&sortBy=").results
+        def results = getApiResults("/api/gene/$geneId/phenotypes?page=1&limit=10&sortBy=")
 
         def phenotypeNames = results.phenotype.findAll { it }
 
@@ -25,18 +25,17 @@ class PhenotypeIntegrationSpec extends AbstractSpec {
     @Unroll
     def "Gene page - Phenotype Annotation Download for #geneId"() {
         when:
-        def url = new URL("http://localhost:8080/api/gene/$geneId/phenotypes/download?limit=100000")
-        def line = url.text
-        def lines = line.split("\n")
+        def output = getApiResultRaw("/api/gene/$geneId/phenotypes/download?limit=100000")
+        def lines = output.split("\n")
         then:
         lines
         headerLine == lines[0]
         lineOne == lines[1]
         totalSize <= lines.length
         where:
-        geneId       | totalSize | lineOne | headerLine
-        "MGI:105043" | 300        | "abnormal atrial thrombosis\tMGI:2151800\tAhr<sup>tm1Gonz</sup>\tallele\tPMID:9396142"      | "Phenotype\tGenetic Entity ID\tGenetic Entity Symbol\tGenetic Entity Type\tReferences"
-        "MGI:109583" | 1200        | "abnormal adipose tissue morphology\t\t\tgene\tPMID:22405073"      | "Phenotype\tGenetic Entity ID\tGenetic Entity Symbol\tGenetic Entity Type\tReferences"
+        geneId       | totalSize | lineOne                                                                                | headerLine
+        "MGI:105043" | 300       | "abnormal atrial thrombosis\tMGI:2151800\tAhr<sup>tm1Gonz</sup>\tallele\tPMID:9396142" | "Phenotype\tGenetic Entity ID\tGenetic Entity Symbol\tGenetic Entity Type\tReferences"
+        "MGI:109583" | 1200      | "abnormal adipose tissue morphology\t\t\tgene\tPMID:22405073"                          | "Phenotype\tGenetic Entity ID\tGenetic Entity Symbol\tGenetic Entity Type\tReferences"
     }
 
 }

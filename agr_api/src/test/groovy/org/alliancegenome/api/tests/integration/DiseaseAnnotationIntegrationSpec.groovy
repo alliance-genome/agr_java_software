@@ -199,14 +199,14 @@ class DiseaseAnnotationIntegrationSpec extends AbstractSpec {
     @Unroll
     def "Verify that the downloads endpoint have results"() {
         when:
-        def url = new URL("http://localhost:8080/api/disease/DOID:9952/associations/download?limit=10")
-        def results = url.text.split('\n')
+        def output = getApiResultRaw("/api/disease/DOID:9952/associations/download?limit=10")
+        def results = output.split('\n')
 
-        def urlExperiment = new URL("http://localhost:8080/api/gene/MGI:109583/diseases-by-experiment/download?page=1&limit=100&sortBy=disease")
-        def resultsExperiment = urlExperiment.text.split('\n')
+        def outputExperiment = getApiResultRaw("/api/gene/MGI:109583/diseases-by-experiment/download?page=1&limit=100&sortBy=disease")
+        def resultsExperiment = outputExperiment.split('\n')
 
-        def urlOrtho = new URL("http://localhost:8080/api/gene/MGI:109583/diseases-via-orthology/download?page=1&limit=100&sortBy=disease")
-        def resultsOrtho = urlOrtho.text.split('\n')
+        def outputOrtho = getApiResultRaw("/api/gene/MGI:109583/diseases-via-orthology/download?page=1&limit=100&sortBy=disease")
+        def resultsOrtho = outputOrtho.split('\n')
 
         then:
         results.size() > 70

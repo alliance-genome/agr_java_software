@@ -7,7 +7,7 @@ class OrthologyIntegrationSpec extends AbstractSpec {
     @Unroll
     def "Gene page - Homology for #geneId and #stringencyFilter "() {
         when:
-        def results = getApiResults("/api/gene/$geneId/homologs?stringencyFilter=$stringencyFilter").results
+        def results = getApiResults("/api/gene/$geneId/homologs?stringencyFilter=$stringencyFilter")
 
         def stringencyNames = results.stringencyFilter.findAll { it }
 
@@ -25,9 +25,9 @@ class OrthologyIntegrationSpec extends AbstractSpec {
 
         where:
         geneId                   | stringencyFilter | totalSize | geneSymbol | orthologousGenes
-        "MGI:109583"             | "stringent"      | 7         | "Pten"     | "ptenb,ptena,Pten,daf-18,TEP1,Pten,PTEN"
-        "FB:FBgn0026379"         | "all"            | 25        | "Pten"     | "TEP1,CDC14,Tns2,Tns3,Cdc14b,Pten,cdc14b,tns2b,tns1a,ptena,tns1b,ptenb,cdc14ab,si:ch211-191a24.3,tns2a,Pten,Tns2,Tns3,CDC14B,TNS2,TNS1,TNS3,PTEN,daf-18,tns-1"
-        "ZFIN:ZDB-GENE-990415-8" | "all"            | 10        | "pax2a"    | "PAX2,PAX5,PAX8,egl-38,pax-2,Poxn,eyg,toe,sv,Pax2,Pax8,Pax5,Pax8,Pax2"
+        "MGI:109583"             | "stringent"      | 7         | "Pten"     | "ptenb,ptena,daf-18,Pten,PTEN,TEP1,Pten"
+        "FB:FBgn0026379"         | "all"            | 25        | "Pten"     | "TEP1,CDC14,daf-18,tns-1,cdc14b,tns2b,tns1a,ptena,tns1b,ptenb,cdc14ab,si:ch211-191a24.3,tns2a,TNS2,CDC14B,PTEN,TNS3,TNS1,Pten,Cdc14b,Tns2,Tns3,Tns3,Tns2,Pten"
+        "ZFIN:ZDB-GENE-990415-8" | "all"            | 10        | "pax2a"    | "PAX5,PAX2,PAX8,eyg,toe,Poxn,sv,Pax2,Pax5,Pax8,Pax2,Pax8,egl-38,pax-2"
     }
 
 }
