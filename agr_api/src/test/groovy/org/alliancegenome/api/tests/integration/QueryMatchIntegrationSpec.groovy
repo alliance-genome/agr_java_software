@@ -9,7 +9,7 @@ class QueryMatchIntegrationSpec extends AbstractSpec {
         when:
         def encodedQuery = URLEncoder.encode(query, "UTF-8")
         //todo: need to set the base search url in a nicer way
-        def results = getApiResults("/api/search?limit=5000&offset=0&q=$encodedQuery$filter").results
+        def results = getApiResults("/api/search?limit=5000&offset=0&q=$encodedQuery$filter")
 
         then:
         results
@@ -33,7 +33,7 @@ class QueryMatchIntegrationSpec extends AbstractSpec {
         when:
         def encodedQuery = URLEncoder.encode("$query AND $id", "UTF-8")
         //todo: need to set the base search url in a nicer way
-        def results = getApiResults("/api/search?limit=10&offset=0&q=$encodedQuery").results
+        def results = getApiResults("/api/search?limit=10&offset=0&q=$encodedQuery")
 
         then:
         results
@@ -101,7 +101,7 @@ class QueryMatchIntegrationSpec extends AbstractSpec {
         when:
         def encodedQuery = URLEncoder.encode("NOT $query AND $id", "UTF-8")
         //todo: need to set the base search url in a nicer way
-        def results = getApiResults("/api/search?limit=10&offset=0&q=$encodedQuery").results
+        def results = getApiResults("/api/search?limit=10&offset=0&q=$encodedQuery")
 
         then:
         results
