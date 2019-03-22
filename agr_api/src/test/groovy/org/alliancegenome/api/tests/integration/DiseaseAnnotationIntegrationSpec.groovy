@@ -166,7 +166,7 @@ class DiseaseAnnotationIntegrationSpec extends AbstractSpec {
 
         then:
         results
-        retObj.total == resultSize
+        retObj.total >= resultSize
         results[0].disease.name == diseaseName
         results[0].disease.id == diseaseID
         results[0].disease.url == diseaseURl
