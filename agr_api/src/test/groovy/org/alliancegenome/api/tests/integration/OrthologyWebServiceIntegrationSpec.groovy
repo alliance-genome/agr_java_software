@@ -5,14 +5,14 @@ import spock.lang.Unroll
 
 class OrthologyWebServiceIntegrationSpec extends AbstractSpec {
 
-    //@Ignore("Not working until we get test data into travis")
+    @Ignore("Not working until we get test data into travis")
     @Unroll
     def "When querying for #species "() {
         when:
-        def jsonResponseResult = getApiResults("/api/orthology/$species")
+        def result = getApiResult("/api/homologs/$species")
+        def results = result.results
 
-        def results = jsonResponseResult.results
-        def total = jsonResponseResult.total
+        def total = result.total
         def Set<String> genePair = new HashSet<>()
         def Set<String> geneIdPair = new HashSet<>()
         for (Map map : results) {
@@ -29,20 +29,18 @@ class OrthologyWebServiceIntegrationSpec extends AbstractSpec {
         geneIdPair.contains(pairID)
 
         where:
-        species | numberOfRecords | pairName       | pairID
-        "10090" | 5               | "Pten | ptenb" | "MGI:109583 | ZFIN:ZDB-GENE-030616-47"
+        species | numberOfRecords | pairName         | pairID
+        "10090" | 20              | "Fscn2 | fscn2b" | "MGI:109583 | ZFIN:ZDB-GENE-030616-47"
     }
 
     @Ignore("Not working until we get test data into travis")
     @Unroll
     def "When querying for #species1 and #species2 "() {
         when:
-        def jsonResponseResult = getApiResults("/api/orthology/$species1/$species2")
-
-        def results = jsonResponseResult.results
-        def total = jsonResponseResult.total
-        def Set<String> genePair = new HashSet<>()
-        def Set<String> geneIdPair = new HashSet<>()
+        def results = getApiResults("/api/homologs/$species1/$species2")
+        def total = results.total
+        Set<String> genePair = new HashSet<>()
+        Set<String> geneIdPair = new HashSet<>()
         for (Map map : results) {
             String gene = map.get("gene").get("symbol")
             String homologGene = map.get("homologGene").get("symbol")
@@ -61,24 +59,18 @@ class OrthologyWebServiceIntegrationSpec extends AbstractSpec {
         "10090"  | "10116"  | 5               | "Pten | Pten" | "RGD:61995 | MGI:109583"
     }
 
-    //@Ignore("Not working until we get test data into travis")
     @Unroll
     def "When querying for #geneID, #taxonID and #filter "() {
         when:
-        def jsonResponseResult = getApiResults("/api/gene/$geneID/orthology?filter=$filter&start=$start&rows=$rows&taxonID=$taxonID")
-
-        def results = jsonResponseResult.results
-        def total = jsonResponseResult.total
-        def Set<String> genePair = new HashSet<>()
-        def Set<String> geneIdPair = new HashSet<>()
-        for (Map map : results) {
-            String gene = map.get("gene").get("symbol")
-            String homologGene = map.get("homologGene").get("symbol")
-            String geneId = map.get("gene").get("geneID")
-            String homologGeneId = map.get("homologGene").get("geneID")
-            genePair.add(gene + " | " + homologGene);
-            geneIdPair.add(geneId + " | " + homologGeneId);
+        def result = getApiResult("/api/gene/$geneID/homologs?stringencyFilter=$filter&start=$start&rows=$rows&taxonID=$taxonID")
+        def total = result.total
+        Set<String> genePair = new HashSet<>()
+        Set<String> geneIdPair = new HashSet<>()
+        result.results.each {
+            genePair.add(it.gene.symbol + " | " + it.homologGene.symbol);
+            geneIdPair.add(it.gene.geneID + " | " + it.homologGene.geneID);
         }
+
         then:
         total > lowerCount
         genePair.contains(pairName)

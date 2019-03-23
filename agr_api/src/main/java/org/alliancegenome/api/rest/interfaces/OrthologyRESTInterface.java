@@ -3,12 +3,7 @@ package org.alliancegenome.api.rest.interfaces;
 import java.io.IOException;
 import java.util.List;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 
 import org.alliancegenome.core.service.JsonResultResponse;
@@ -25,6 +20,7 @@ import io.swagger.annotations.ApiParam;
 
 @Path("/homologs")
 @Api(value = "Homology")
+@Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public interface OrthologyRESTInterface {
 
