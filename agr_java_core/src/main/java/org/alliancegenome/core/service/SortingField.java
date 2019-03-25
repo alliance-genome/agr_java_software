@@ -1,5 +1,7 @@
 package org.alliancegenome.core.service;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -16,6 +18,8 @@ public enum SortingField {
     }
 
     public static boolean isValidSortingFieldValue(String value) {
+        if (value == null || StringUtils.isBlank(value))
+            return true;
         return getSortingField(value) != null;
     }
 
