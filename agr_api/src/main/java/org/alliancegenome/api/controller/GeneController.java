@@ -152,8 +152,6 @@ public class GeneController extends BaseController implements GeneRESTInterface 
                                                                        String asc,
                                                                        UriInfo ui,
                                                                        boolean empiricalDisease) throws JsonProcessingException {
-        if (sortBy.isEmpty())
-            sortBy = FieldFilter.PHENOTYPE.getName();
         Pagination pagination = new Pagination(page, limit, sortBy, asc);
         pagination.addFieldFilter(FieldFilter.GENETIC_ENTITY, geneticEntity);
         pagination.addFieldFilter(FieldFilter.GENETIC_ENTITY_TYPE, geneticEntityType);
