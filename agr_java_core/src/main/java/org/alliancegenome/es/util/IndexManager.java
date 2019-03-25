@@ -219,6 +219,15 @@ public class IndexManager {
             createSnapShot(ConfigHelper.getEsIndexSuffix(), newIndexName, indices);
         }
     }
+    
+    public void deleteSnapShot(String repo, String snapShotName) {
+        try {
+            log.info("Deleting Snapshot: " + snapShotName + " in: " + repo);
+            client.admin().cluster().prepareDeleteSnapshot(repo, snapShotName).get();
+        } catch (Exception ex) {
+            log.error("Exception in restoreSnapShot method: " + ex.toString());
+        }
+    }
 
     public void restoreSnapShot(String repo, String snapShotName, List<String> indices) {
         try {

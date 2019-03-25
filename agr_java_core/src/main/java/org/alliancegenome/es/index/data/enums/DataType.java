@@ -15,6 +15,7 @@ public enum DataType {
     PHENOTYPE("Phenotype Information File", "json", true, true, true),
     EXPRESSION("Expression Information File", "json", true, true, true),
     VARIATION("Variation Information File", "json", true, true, true),
+    SQTR("Sequence Targeting Reagent File", "json", true, true, true),
     
     // No schema required for these but will still stick them in the correct schema directory
     GAF("Gene Ontology Annotations File", "gaf", true, false, false),

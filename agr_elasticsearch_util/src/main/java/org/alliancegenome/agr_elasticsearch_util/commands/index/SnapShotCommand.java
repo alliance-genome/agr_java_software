@@ -23,6 +23,7 @@ public class SnapShotCommand extends Command implements CommandInterface {
         System.out.println("snapshot list <reponame> -- Where <reponame> is the name of a loaded repository");
         System.out.println("snapshot restore <reponame> <snapshot> <index>");
         System.out.println("snapshot restorelatest <reponame>");
+        System.out.println("snapshot delete <reponame> <snapshot>");
     }
 
     @Override
@@ -36,13 +37,14 @@ public class SnapShotCommand extends Command implements CommandInterface {
                     String repo = args.remove(0);
                     List<SnapshotInfo> list = im.getSnapshots(repo);
                     for(SnapshotInfo info: list) {
+                        Date end = new Date(info.endTime());
                         System.out.print(info.snapshotId() + "[");
                         String delim = "";
                         for(String index: info.indices()) {
                             System.out.print(delim + index);
                             delim = ",";
                         }
-                        System.out.println("]");
+                        System.out.println("] " + end);
                     }
                 } else {
                     printHelp();
@@ -95,14 +97,22 @@ public class SnapShotCommand extends Command implements CommandInterface {
                 // change the index setting to 2 replicas
                 if(args.size() > 2) {
                     String repo = args.remove(0);
-                    String snapshotName = args.remove(0);
+                    String snapShotName = args.remove(0);
                     String index_name = args.remove(0);
                     
                     List<String> list = new ArrayList<String>();
                     list.add(index_name);
-                    im.restoreSnapShot(repo, snapshotName, new ArrayList<String>(list));
+                    im.restoreSnapShot(repo, snapShotName, new ArrayList<String>(list));
                     //im.removeAlias("site_index", index_name);
                     //im.updateIndexSetting(index_name, "index.number_of_replicas", 2);
+                } else {
+                    printHelp();
+                }
+            } else if(command.equals("delete")) {
+                if(args.size() > 1) {
+                    String repo = args.remove(0);
+                    String snapShotName = args.remove(0);
+                    im.deleteSnapShot(repo, snapShotName);
                 } else {
                     printHelp();
                 }
