@@ -16,6 +16,7 @@ import org.junit.Test;
 import java.util.List;
 
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
@@ -54,13 +55,13 @@ public class InteractionsIT {
     public void getInteractionSummary() {
         EntitySummary summary = geneService.getInteractionSummary("MGI:109583");
         assertNotNull(summary);
-        assertThat(summary.getNumberOfAnnotations(), equalTo(34L));
-        assertThat(summary.getNumberOfEntities(), equalTo(18L));
+        assertThat(summary.getNumberOfAnnotations(), greaterThanOrEqualTo(34L));
+        assertThat(summary.getNumberOfEntities(), greaterThanOrEqualTo(18L));
 
         summary = geneService.getInteractionSummary("HGNC:4601");
         assertNotNull(summary);
-        assertThat(summary.getNumberOfAnnotations(), equalTo(183L));
-        assertThat(summary.getNumberOfEntities(), equalTo(95L));
+        assertThat(summary.getNumberOfAnnotations(), greaterThanOrEqualTo(183L));
+        assertThat(summary.getNumberOfEntities(), greaterThanOrEqualTo(95L));
 
     }
 }

@@ -20,8 +20,10 @@ import org.alliancegenome.neo4j.view.View.GeneAPI;
 import org.alliancegenome.neo4j.view.View.GeneAllelesAPI;
 
 import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 import java.io.IOException;
 import java.util.List;
 
@@ -71,11 +73,11 @@ public interface GeneRESTInterface {
             @ApiParam(value = "Field name by which to sort", allowableValues = "termName,geneticEntity")
             @DefaultValue("termName") @QueryParam("sortBy") String sortBy,
             @ApiParam(name = "geneticEntity", value = "genetic entity symbol")
-            @QueryParam("geneticEntity") String geneticEntity,
+            @QueryParam("filter.geneticEntity") String geneticEntity,
             @ApiParam(name = "geneticEntityType", value = "genetic entity type", allowableValues = "allele,gene")
-            @QueryParam("geneticEntityType") String geneticEntityType,
+            @QueryParam("filter.geneticEntityType") String geneticEntityType,
             @ApiParam(value = "termName annotation")
-            @QueryParam("termName") String phenotype,
+            @QueryParam("filter.termName") String phenotype,
             @ApiParam(value = "Reference number: PUBMED or a Pub ID from the MOD")
             @QueryParam("filter.reference") String reference,
             @ApiParam(value = "ascending order: true or false", allowableValues = "true,false", defaultValue = "true")
@@ -91,11 +93,11 @@ public interface GeneRESTInterface {
             @ApiParam(value = "Field name by which to sort", allowableValues = "termName,geneticEntity")
             @DefaultValue("termName") @QueryParam("sortBy") String sortBy,
             @ApiParam(name = "geneticEntity", value = "genetic entity symbol")
-            @QueryParam("geneticEntity") String geneticEntity,
+            @QueryParam("filter.geneticEntity") String geneticEntity,
             @ApiParam(name = "geneticEntityType", value = "genetic entity type", allowableValues = "allele")
-            @QueryParam("geneticEntityType") String geneticEntityType,
+            @QueryParam("filter.geneticEntityType") String geneticEntityType,
             @ApiParam(value = "termName annotation")
-            @QueryParam("termName") String phenotype,
+            @QueryParam("filter.termName") String phenotype,
             @ApiParam(value = "Reference number: PUBMED or a Pub ID from the MOD")
             @QueryParam("filter.reference") String reference,
             @ApiParam(value = "ascending order: true or false", allowableValues = "true,false", defaultValue = "true")
@@ -111,7 +113,7 @@ public interface GeneRESTInterface {
                                                       @QueryParam("geneId") List<String> geneID,
                                                       @ApiParam(name = "geneIdList", value = "List of additional source gene IDs for which homology is retrieved in a comma-delimited list, e.g. 'MGI:109583,RGD:2129,MGI:97570'")
                                                       @QueryParam("geneIdList") String geneList,
-                                                      @ApiParam(value = "apply stringency filter", allowableValues = "stringent, moderate, all", defaultValue = "stringent")
+                                                      @ApiParam(value = "apply stringency containsFilterValue", allowableValues = "stringent, moderate, all", defaultValue = "stringent")
                                                       @DefaultValue("stringent") @QueryParam("stringencyFilter") String stringencyFilter,
                                                       @ApiParam(name = "taxonID", value = "Species identifier: Could be the full ID, e.g. 'NCBITaxon:10090', or just the ID, i.e. '10090'. Alternatively, part of a species name uniquely identifying a single species, e.g. 'danio' or 'mus'.", type = "String")
                                                       @QueryParam("taxonID") List<String> taxonID,
@@ -143,7 +145,7 @@ public interface GeneRESTInterface {
     @Path("/{id}/interaction-summary")
     @JsonView(value = {View.Expression.class})
     @ApiOperation(value = "Retrieve all expression records of a given gene")
-    EntitySummary  getInteractionSummary(
+    EntitySummary getInteractionSummary(
             @ApiParam(name = "id", value = "Gene by ID, e.g. 'RGD:2129' or 'ZFIN:ZDB-GENE-990415-72 fgf8a'", required = true, type = "String")
             @PathParam("id") String id
     ) throws JsonProcessingException;
@@ -160,24 +162,25 @@ public interface GeneRESTInterface {
             @DefaultValue("20") @QueryParam("limit") int limit,
             @ApiParam(name = "page", value = "Page number")
             @DefaultValue("1") @QueryParam("page") int page,
-            @ApiParam(value = "Field name by which to sort", allowableValues = "termName,geneticEntity")
-            @DefaultValue("termName") @QueryParam("sortBy") String sortBy,
+            @ApiParam(value = "Field name by which to sort", allowableValues = "disease,geneticEntity")
+            @DefaultValue("disease") @QueryParam("sortBy") String sortBy,
             @ApiParam(name = "geneticEntity", value = "genetic entity symbol")
-            @QueryParam("geneticEntity") String geneticEntity,
+            @QueryParam("filter.geneticEntity") String geneticEntity,
             @ApiParam(name = "geneticEntityType", value = "genetic entity type", allowableValues = "allele,gene")
-            @QueryParam("geneticEntityType") String geneticEntityType,
-            @ApiParam(value = "disease name")
-            @QueryParam("disease") String disease,
+            @QueryParam("filter.geneticEntityType") String geneticEntityType,
+            @ApiParam(value = "termName annotation")
+            @QueryParam("filter.disease") String phenotype,
             @ApiParam(value = "association type")
-            @QueryParam("associationType") String associationType,
+            @QueryParam("filter.associationType") String associationType,
             @ApiParam(value = "Evidence Code")
-            @QueryParam("evidenceCode") String evidenceCode,
+            @QueryParam("filter.evidenceCode") String evidenceCode,
             @ApiParam(value = "Data Source")
             @QueryParam("source") String source,
             @ApiParam(value = "Reference number: PUBMED or a Pub ID from the MOD")
             @QueryParam("publications") String reference,
             @ApiParam(value = "ascending order: true or false", allowableValues = "true,false", defaultValue = "true")
-            @QueryParam("asc") String asc) throws JsonProcessingException;
+            @QueryParam("asc") String asc,
+            @Context UriInfo ui) throws JsonProcessingException;
 
     @GET
     @Path("/{id}/diseases-via-orthology")
@@ -190,74 +193,78 @@ public interface GeneRESTInterface {
             @DefaultValue("20") @QueryParam("limit") int limit,
             @ApiParam(name = "page", value = "Page number")
             @DefaultValue("1") @QueryParam("page") int page,
-            @ApiParam(value = "Field name by which to sort", allowableValues = "termName,geneticEntity")
-            @DefaultValue("termName") @QueryParam("sortBy") String sortBy,
+            @ApiParam(value = "Field name by which to sort", allowableValues = "disease,geneticEntity")
+            @DefaultValue("disease") @QueryParam("sortBy") String sortBy,
             @ApiParam(name = "orthologyGene", value = "genetic entity symbol")
-            @QueryParam("orthologyGene") String orthologyGene,
+            @QueryParam("filter.orthologyGene") String orthologyGene,
             @ApiParam(name = "orthologyGeneSpecies", value = "genetic entity type", allowableValues = "allele,gene")
             @QueryParam("orthologyGeneSpecies") String orthologyGeneSpecies,
             @ApiParam(value = "disease name")
             @QueryParam("disease") String disease,
             @ApiParam(value = "association type")
-            @QueryParam("associationType") String associationType,
+            @QueryParam("filter.associationType") String associationType,
             @ApiParam(value = "Evidence Code")
-            @QueryParam("evidenceCode") String evidenceCode,
+            @QueryParam("filter.evidenceCode") String evidenceCode,
             @ApiParam(value = "Data Source")
             @QueryParam("source") String source,
             @ApiParam(value = "Reference number: PUBMED or a Pub ID from the MOD")
             @QueryParam("publications") String reference,
             @ApiParam(value = "ascending order: true or false", allowableValues = "true,false", defaultValue = "true")
-            @QueryParam("asc") String asc) throws JsonProcessingException;
+            @QueryParam("asc") String asc,
+            @Context UriInfo ui) throws JsonProcessingException;
 
     @GET
     @Path("/{id}/diseases-by-experiment/download")
-    @ApiOperation(value = "Retrieve all disease annotations for a given gene and filter option")
+    @ApiOperation(value = "Retrieve all disease annotations for a given gene and containsFilterValue option")
     Response getDiseaseByExperimentDownload(
             @ApiParam(name = "id", value = "Gene by ID: e.g. MGI:1097693", required = true, type = "String")
             @PathParam("id") String id,
-            @ApiParam(value = "Field name by which to sort", allowableValues = "termName,geneticEntity")
-            @DefaultValue("termName") @QueryParam("sortBy") String sortBy,
+            @ApiParam(value = "Field name by which to sort", allowableValues = "disease,geneticEntity")
+            @DefaultValue("disease") @QueryParam("sortBy") String sortBy,
             @ApiParam(name = "geneticEntity", value = "genetic entity symbol")
-            @QueryParam("geneticEntity") String geneticEntity,
+            @QueryParam("filter.geneticEntity") String geneticEntity,
             @ApiParam(name = "geneticEntityType", value = "genetic entity type", allowableValues = "allele,gene")
-            @QueryParam("geneticEntityType") String geneticEntityType,
-            @ApiParam(value = "termName annotation")
-            @QueryParam("termName") String phenotype,
+            @QueryParam("filter.geneticEntityType") String geneticEntityType,
+            @ApiParam(value = "disease annotation")
+            @QueryParam("filter.disease") String phenotype,
             @ApiParam(value = "association type")
-            @QueryParam("associationType") String associationType,
+            @QueryParam("filter.associationType") String associationType,
             @ApiParam(value = "Evidence Code")
-            @QueryParam("evidenceCode") String evidenceCode,
+            @QueryParam("filter.evidenceCode") String evidenceCode,
             @ApiParam(value = "Data Source")
-            @QueryParam("source") String source,
+            @QueryParam("filter.source") String source,
             @ApiParam(value = "Reference number: PUBMED or a Pub ID from the MOD")
-            @QueryParam("publications") String reference,
+            @QueryParam("filter.reference") String reference,
             @ApiParam(value = "ascending order: true or false", allowableValues = "true,false", defaultValue = "true")
-            @QueryParam("asc") String asc) throws JsonProcessingException;
+            @QueryParam("asc") String asc,
+            @Context UriInfo ui) throws JsonProcessingException;
 
     @GET
     @Path("/{id}/diseases-via-orthology/download")
-    @ApiOperation(value = "Retrieve all disease annotations for a given gene and filter option")
+    @ApiOperation(value = "Retrieve all disease annotations for a given gene and containsFilterValue option")
     Response getDiseaseViaOrthologyDownload(
             @ApiParam(name = "id", value = "Gene by ID: e.g. MGI:1097693", required = true, type = "String")
             @PathParam("id") String id,
-            @ApiParam(value = "Field name by which to sort", allowableValues = "termName,geneticEntity")
-            @DefaultValue("termName") @QueryParam("sortBy") String sortBy,
+            @ApiParam(value = "Field name by which to sort", allowableValues = "disease,geneticEntity")
+            @DefaultValue("disease") @QueryParam("sortBy") String sortBy,
             @ApiParam(name = "orthologyGene", value = "Orthologous Gene Symbol")
             @QueryParam("filter.orthologyGene") String orthologyGene,
-            @ApiParam(name = "filter.orthologyGeneSpecies", value = "Orthologous Gene Species")
-            @QueryParam("orthologyGeneSpecies") String orthologyGeneSpecies,
+            @ApiParam(name = "containsFilterValue.orthologyGeneSpecies", value = "Orthologous Gene Species")
+            @QueryParam("filter.orthologyGeneSpecies") String orthologyGeneSpecies,
             @ApiParam(value = "termName annotation")
-            @QueryParam("termName") String phenotype,
+            @QueryParam("filter.disease") String phenotype,
             @ApiParam(value = "association type")
-            @QueryParam("associationType") String associationType,
+            @QueryParam("filter.associationType") String associationType,
             @ApiParam(value = "Evidence Code")
-            @QueryParam("evidenceCode") String evidenceCode,
+            @QueryParam("filter.evidenceCode") String evidenceCode,
             @ApiParam(value = "Data Source")
-            @QueryParam("source") String source,
+            @QueryParam("filter.source") String source,
             @ApiParam(value = "Reference number: PUBMED or a Pub ID from the MOD")
-            @QueryParam("publications") String reference,
+            @QueryParam("filter.reference") String reference,
             @ApiParam(value = "ascending order: true or false", allowableValues = "true,false", defaultValue = "true")
-            @QueryParam("asc") String asc) throws JsonProcessingException;
+            @QueryParam("asc") String asc,
+            @Context UriInfo ui) throws JsonProcessingException;
+
 
     @GET
     @Path("/{id}/disease-summary")

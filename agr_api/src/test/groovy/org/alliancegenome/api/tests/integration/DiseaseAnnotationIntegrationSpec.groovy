@@ -1,5 +1,6 @@
 package org.alliancegenome.api
 
+
 import spock.lang.Unroll
 
 class DiseaseAnnotationIntegrationSpec extends AbstractSpec {
@@ -9,7 +10,7 @@ class DiseaseAnnotationIntegrationSpec extends AbstractSpec {
         when:
         def encodedQuery = URLEncoder.encode(query, "UTF-8")
         //todo: need to set the base search url in a nicer way
-        def disease = getApiResults("/api/disease/$encodedQuery")
+        def disease = getApiResult("/api/disease/$encodedQuery")
 
         then:
         disease //should be some results
@@ -33,8 +34,8 @@ class DiseaseAnnotationIntegrationSpec extends AbstractSpec {
     def "Disease page - Annotations for #doid"() {
         when:
         def encodedQuery = URLEncoder.encode(doid, "UTF-8")
-        def results = getApiResults("/api/disease/$encodedQuery/associations?limit=50").results
-
+        def retObj = getApiMetaData("/api/disease/$encodedQuery/associations?limit=50")
+        def results = retObj.results
         def ezha = results.find { it.gene.symbol == 'Ezh2' && it.allele }
 
         then:
@@ -45,8 +46,8 @@ class DiseaseAnnotationIntegrationSpec extends AbstractSpec {
         //firstGeneUrl == results.first().gene.url
         geneSymbol == results.first().gene.symbol
         ezha
-        alleleSymbol == ezha.allele.symbol
-        alleleUrl == ezha.allele.url
+        ezha.allele.symbol != null
+        ezha.allele.url != null
         crossRef == ezha.publications[0].id
         geneticEntityType == ezha.geneticEntityType
         evCode == ezha.evidenceCodes[0].name
@@ -55,15 +56,15 @@ class DiseaseAnnotationIntegrationSpec extends AbstractSpec {
         doURL == ezha.disease.url
         species == ezha.gene.species.name
         where:
-        doid        | totalResults | returned | firstGene    | geneSymbol | crossRef        | geneticEntityType | evCode | disease                      | alleleSymbol              | alleleUrl                                           | doID        | doURL                                           | species
-        "DOID:9952" | 66           | 50       | "HGNC:24948" | "DOT1L"    | "PMID:22431509" | "allele"          | "TAS"  | "acute lymphocytic leukemia" | "Ezh2<sup>tm2.1Sho</sup>" | "http://www.informatics.jax.org/allele/MGI:3823218" | "DOID:9952" | "http://www.disease-ontology.org/?id=DOID:9952" | "Mus musculus"
+        doid        | totalResults | returned | firstGene    | geneSymbol | crossRef        | geneticEntityType | evCode | disease                      | doID        | doURL                                           | species
+        "DOID:9952" | 66           | 50       | "HGNC:24948" | "DOT1L"    | "PMID:22431509" | "allele"          | "TAS"  | "acute lymphocytic leukemia" | "DOID:9952" | "http://www.disease-ontology.org/?id=DOID:9952" | "Mus musculus"
 
     }
 
     @Unroll
     def "Disease page - Annotations for #sortBy - Sorting"() {
         when:
-        def results = getApiResults("/api/disease/DOID:9952/associations?limit=15&sortBy=$sortBy").results
+        def results = getApiResults("/api/disease/DOID:9952/associations?limit=15&sortBy=$sortBy")
 
         def symbols = results.gene.symbol.findAll { it }
         def species = results.gene.species.name.findAll { it }
@@ -76,10 +77,10 @@ class DiseaseAnnotationIntegrationSpec extends AbstractSpec {
         disease.join(",") == diseaseList
 
         where:
-        sortBy     | geneSymbolList                                                                        | speciesList                                                                                                                                                                                                              | diseaseList
-        "geneName" | "DOT1L,KMT2A,Cntn2,Ezh2,Ezh2,Ezh2,Kmt2a,Kmt2a,Lmo2,Notch3,Pten,Pten,Zeb2,ces-2,ces-2" | "Homo sapiens,Homo sapiens,Mus musculus,Mus musculus,Mus musculus,Mus musculus,Mus musculus,Mus musculus,Mus musculus,Mus musculus,Mus musculus,Mus musculus,Mus musculus,Caenorhabditis elegans,Caenorhabditis elegans" | "B- and T-cell mixed leukemia,B- and T-cell mixed leukemia,T-cell adult acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,T-cell adult acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia"
-        "species"  | "DOT1L,KMT2A,Cntn2,Ezh2,Ezh2,Ezh2,Kmt2a,Kmt2a,Lmo2,Notch3,Pten,Pten,Zeb2,ces-2,ces-2" | "Homo sapiens,Homo sapiens,Mus musculus,Mus musculus,Mus musculus,Mus musculus,Mus musculus,Mus musculus,Mus musculus,Mus musculus,Mus musculus,Mus musculus,Mus musculus,Caenorhabditis elegans,Caenorhabditis elegans" | "B- and T-cell mixed leukemia,B- and T-cell mixed leukemia,T-cell adult acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,T-cell adult acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia"
-        "disease"  | "DOT1L,KMT2A,Ezh2,Ezh2,Ezh2,Kmt2a,Kmt2a,Lmo2,Notch3,Pten,Pten,Cntn2,Zeb2,ces-2,ces-2" | "Homo sapiens,Homo sapiens,Mus musculus,Mus musculus,Mus musculus,Mus musculus,Mus musculus,Mus musculus,Mus musculus,Mus musculus,Mus musculus,Mus musculus,Mus musculus,Caenorhabditis elegans,Caenorhabditis elegans" | "B- and T-cell mixed leukemia,B- and T-cell mixed leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,T-cell adult acute lymphocytic leukemia,T-cell adult acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia"
+        sortBy       | geneSymbolList                                                                                      | speciesList                                                                                                                                                                                                                                                                                                    | diseaseList
+        "geneSymbol" | "Bx,ces-2,ces-2,CG7786,cntn2,CNTN2,Cntn2,Cntn2,Cont,daf-18,DBP,Dbp,Dbp,dot-1.1,dot-1.2"             | "Drosophila melanogaster,Caenorhabditis elegans,Caenorhabditis elegans,Drosophila melanogaster,Danio rerio,Homo sapiens,Mus musculus,Rattus norvegicus,Drosophila melanogaster,Caenorhabditis elegans,Homo sapiens,Mus musculus,Rattus norvegicus,Caenorhabditis elegans,Caenorhabditis elegans"               | "acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,T-cell adult acute lymphocytic leukemia,T-cell adult acute lymphocytic leukemia,T-cell adult acute lymphocytic leukemia,T-cell adult acute lymphocytic leukemia,T-cell adult acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,B- and T-cell mixed leukemia,B- and T-cell mixed leukemia"
+        "species"    | "ces-2,ces-2,daf-18,dot-1.1,dot-1.2,dot-1.4,dot-1.5,glp-1,lin-12,mes-2,zag-1,cntn2,dot1l,ezh2,hlfa" | "Caenorhabditis elegans,Caenorhabditis elegans,Caenorhabditis elegans,Caenorhabditis elegans,Caenorhabditis elegans,Caenorhabditis elegans,Caenorhabditis elegans,Caenorhabditis elegans,Caenorhabditis elegans,Caenorhabditis elegans,Caenorhabditis elegans,Danio rerio,Danio rerio,Danio rerio,Danio rerio" | "acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,B- and T-cell mixed leukemia,B- and T-cell mixed leukemia,B- and T-cell mixed leukemia,B- and T-cell mixed leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,T-cell adult acute lymphocytic leukemia,T-cell adult acute lymphocytic leukemia,B- and T-cell mixed leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia"
+        "disease"    | "Bx,ces-2,ces-2,CG7786,daf-18,DBP,Dbp,Dbp,E(z),Ezh2,Ezh2,ezh2,EZH2,Ezh2,Ezh2"                       | "Drosophila melanogaster,Caenorhabditis elegans,Caenorhabditis elegans,Drosophila melanogaster,Caenorhabditis elegans,Homo sapiens,Mus musculus,Rattus norvegicus,Drosophila melanogaster,Mus musculus,Mus musculus,Danio rerio,Homo sapiens,Mus musculus,Rattus norvegicus"                                   | "acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia"
 
     }
 
@@ -104,8 +105,8 @@ class DiseaseAnnotationIntegrationSpec extends AbstractSpec {
     @Unroll
     def "Disease page - Annotation Filtering for #geneSymbolQuery "() {
         when:
-        def results = getApiResults("/api/disease/DOID:9952/associations?limit=50&filter.geneName=$geneSymbolQuery").results
-
+        def retObj = getApiResult("/api/disease/DOID:9952/associations?limit=50&filter.geneName=$geneSymbolQuery")
+        def results = retObj.results
         def symbols = results.gene.symbol.findAll { it }
 
         then:
@@ -121,9 +122,26 @@ class DiseaseAnnotationIntegrationSpec extends AbstractSpec {
     }
 
     @Unroll
+    def "Disease page - Annotation Filtering for geneticEntity "() {
+        when:
+        def geneRetObj = getApiMetaData("/api/disease/DOID:9952/associations?limit=50&filter.geneticEntityType=gene")
+        def alleleRetObj = getApiMetaData("/api/disease/DOID:9952/associations?limit=50&filter.geneticEntityType=allele")
+        def totalAll = getApiMetaData("/api/disease/DOID:9952/associations?limit=50")
+
+        then:
+        geneRetObj
+        alleleRetObj.total > 3
+        totalAll
+        // alleles and genes add up to the total
+        totalAll.total == geneRetObj.total + alleleRetObj.total
+
+    }
+
+    @Unroll
     def "Gene page - Annotation via Experiment #geneID "() {
         when:
-        def results = getApiResults("/api/gene/$geneID/diseases-by-experiment?limit=5").results
+        def retObj = getApiResult("/api/gene/$geneID/diseases-by-experiment?limit=5")
+        def results = retObj.results
 
         then:
         results
@@ -143,11 +161,12 @@ class DiseaseAnnotationIntegrationSpec extends AbstractSpec {
     @Unroll
     def "Gene page - Annotation via Orthology #geneID "() {
         when:
-        def results = getApiResults("/api/gene/$geneID/diseases-via-orthology?limit=5").results
+        def retObj = getApiResult("/api/gene/$geneID/diseases-via-orthology?limit=5")
+        def results = retObj.results
 
         then:
         results
-        retObj.total == resultSize
+        retObj.total >= resultSize
         results[0].disease.name == diseaseName
         results[0].disease.id == diseaseID
         results[0].disease.url == diseaseURl
@@ -176,5 +195,52 @@ class DiseaseAnnotationIntegrationSpec extends AbstractSpec {
         "DOID:1686"    | 858
         "DOID:0111077" | 858
     }
+
+    @Unroll
+    def "Verify that the downloads endpoint have results"() {
+        when:
+        def output = getApiResultRaw("/api/disease/DOID:9952/associations/download?limit=10")
+        def results = output.split('\n')
+
+        def outputExperiment = getApiResultRaw("/api/gene/MGI:109583/diseases-by-experiment/download?page=1&limit=100&sortBy=disease")
+        def resultsExperiment = outputExperiment.split('\n')
+
+        def outputOrtho = getApiResultRaw("/api/gene/MGI:109583/diseases-via-orthology/download?page=1&limit=100&sortBy=disease")
+        def resultsOrtho = outputOrtho.split('\n')
+
+        then:
+        results.size() > 70
+        resultsExperiment.size() > 48
+        resultsExperiment.size() > 48
+        resultsOrtho.size() > 30
+
+    }
+
+    @Unroll
+    def "Check different query parameters #query for disease #disease annotation endpoint"() {
+        when:
+        def results = getApiResults("/api/disease/$disease/associations?limit=1000&$query")
+
+        then:
+        results.size() > resultSizeLowerLimit
+        results.size() < resultSizeUpperLimit
+
+        where:
+        disease     | query                          | resultSizeLowerLimit | resultSizeUpperLimit
+        "DOID:9952" | ""                             | 60                   | 80
+        "DOID:9952" | "filter.geneName=2"            | 30                   | 40
+        "DOID:9952" | "filter.disease=cell"          | 10                   | 40
+        "DOID:9952" | "filter.geneticEntity=tm"      | 0                    | 10
+        "DOID:9952" | "filter.geneticEntityType=al"  | 0                    | 10
+        "DOID:9952" | "filter.associationType=is"    | 10                   | 80
+        "DOID:9952" | "filter.associationType=OrTHo" | 40                   | 80
+        "DOID:9952" | "filter.reference=PMID:1"      | 0                    | 50
+        "DOID:9952" | "filter.reference=MGI:6194"    | 10                   | 70
+        "DOID:9952" | "filter.evidenceCode=As"       | 10                   | 20
+        "DOID:9952" | "filter.source=gD"             | 0                    | 10
+        "DOID:9952" | "filter.source=aLLIANc"        | 50                   | 70
+        "DOID:9952" | "filter.species=ELeG"          | 10                   | 20
+    }
+
 
 }

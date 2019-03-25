@@ -39,20 +39,20 @@ public interface ExpressionRESTInterface {
             @QueryParam("geneID") List<String> geneIDs,
             @ApiParam(name = "termID", value = "Term ID by which rollup should happen")
             @QueryParam("termID") String termID,
-            @ApiParam(name = "filter.species", value = "Species by taxon ID", type = "String")
-            @QueryParam("filter.species") String filterSpecies,
-            @ApiParam(name = "filter.gene", value = "Gene symbol", type = "String")
-            @QueryParam("filter.gene") String filterGene,
-            @ApiParam(name = "filter.stage", value = "Stage name", type = "String")
-            @QueryParam("filter.stage") String filterStage,
-            @ApiParam(name = "filter.assay", value = "Assay name", type = "String")
-            @QueryParam("filter.assay") String filterAssay,
-            @ApiParam(name = "filter.reference", value = "Reference", type = "String")
-            @QueryParam("filter.reference") String filterReference,
-            @ApiParam(name = "filter.term", value = "Ontology term name", type = "String")
-            @QueryParam("filter.term") String filterTerm,
-            @ApiParam(name = "filter.source", value = "Source", type = "String")
-            @QueryParam("filter.source") String filterSource,
+            @ApiParam(name = "containsFilterValue.species", value = "Species by taxon ID", type = "String")
+            @QueryParam("containsFilterValue.species") String filterSpecies,
+            @ApiParam(name = "containsFilterValue.gene", value = "Gene symbol", type = "String")
+            @QueryParam("containsFilterValue.gene") String filterGene,
+            @ApiParam(name = "containsFilterValue.stage", value = "Stage name", type = "String")
+            @QueryParam("containsFilterValue.stage") String filterStage,
+            @ApiParam(name = "containsFilterValue.assay", value = "Assay name", type = "String")
+            @QueryParam("containsFilterValue.assay") String filterAssay,
+            @ApiParam(name = "containsFilterValue.reference", value = "Reference", type = "String")
+            @QueryParam("containsFilterValue.reference") String filterReference,
+            @ApiParam(name = "containsFilterValue.term", value = "Ontology term name", type = "String")
+            @QueryParam("containsFilterValue.term") String filterTerm,
+            @ApiParam(name = "containsFilterValue.source", value = "Source", type = "String")
+            @QueryParam("containsFilterValue.source") String filterSource,
             @ApiParam(name = "limit", value = "Number of rows returned", defaultValue = "20")
             @DefaultValue("20") @QueryParam("limit") int limit,
             @ApiParam(name = "page", value = "Page number")
@@ -68,13 +68,13 @@ public interface ExpressionRESTInterface {
     Response getExpressionAnnotationsDownload(
             @QueryParam("geneID") List<String> geneIDs,
             @QueryParam("termID") String termID,
-            @QueryParam("filter.species") String filterSpecies,
-            @QueryParam("filter.gene") String filterGene,
-            @QueryParam("filter.stage") String filterStage,
-            @QueryParam("filter.assay") String filterAssay,
-            @QueryParam("filter.reference") String filterReference,
-            @QueryParam("filter.term") String filterTerm,
-            @QueryParam("filter.source") String filterSource,
+            @QueryParam("containsFilterValue.species") String filterSpecies,
+            @QueryParam("containsFilterValue.gene") String filterGene,
+            @QueryParam("containsFilterValue.stage") String filterStage,
+            @QueryParam("containsFilterValue.assay") String filterAssay,
+            @QueryParam("containsFilterValue.reference") String filterReference,
+            @QueryParam("containsFilterValue.term") String filterTerm,
+            @QueryParam("containsFilterValue.source") String filterSource,
             @DefaultValue("20") @QueryParam("limit") int limit,
             @DefaultValue("1") @QueryParam("page") int page,
             @QueryParam("sortBy") String sortBy,

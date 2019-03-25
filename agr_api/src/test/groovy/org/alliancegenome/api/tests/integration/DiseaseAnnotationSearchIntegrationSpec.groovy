@@ -11,7 +11,7 @@ class DiseaseAnnotationSearchIntegrationSpec extends AbstractSpec {
         when:
         def encodedQuery = URLEncoder.encode(query, "UTF-8")
         //todo: need to set the base search url in a nicer way
-        def results = getApiResults("/api/search?category=gene&limit=500&offset=0&q=$encodedQuery$filter").results
+        def results = getApiResults("/api/search?category=gene&limit=500&offset=0&q=$encodedQuery$filter")
 
         def betterResult = results.find { it.id == betterResultId }
         def worseResult = results.find { it.id == worseResultId }
@@ -35,7 +35,7 @@ class DiseaseAnnotationSearchIntegrationSpec extends AbstractSpec {
         when:
         def encodedQuery = URLEncoder.encode(query, "UTF-8")
         //todo: need to set the base search url in a nicer way
-        def results = getApiResults("/api/search?category=gene&limit=50&offset=0&q=$encodedQuery").results
+        def results = getApiResults("/api/search?category=gene&limit=50&offset=0&q=$encodedQuery")
         def firstResultSymbol = results.first().get("symbol").toLowerCase()
 
         then:

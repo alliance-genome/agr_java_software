@@ -1,5 +1,6 @@
 package org.alliancegenome.es.model.query;
 
+import java.util.Arrays;
 import java.util.StringJoiner;
 
 public enum FieldFilter {
@@ -22,6 +23,7 @@ public enum FieldFilter {
     ORTHOLOG("filter.orthologGene"),
     EXPERIMENT("filter.experiment"),
     ORTHOLOG_SPECIES("filter.orthologGeneSpecies");
+    public static final String FILTER_PREFIX = "filter.";
     private String name;
 
     FieldFilter(String name) {
@@ -45,7 +47,21 @@ public enum FieldFilter {
         return values.toString();
     }
 
+    public static boolean isFieldFilterValue(String value) {
+        return Arrays.stream(values()).anyMatch(fieldFilter -> fieldFilter.getFullName().equalsIgnoreCase(value));
+    }
+
+    public static boolean hasFieldFilterPrefix(String value) {
+        if (value == null)
+            return false;
+        return value.toLowerCase().startsWith(FILTER_PREFIX);
+    }
+
     public String getName() {
         return name;
+    }
+
+    public String getFullName() {
+        return FILTER_PREFIX + name;
     }
 }

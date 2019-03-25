@@ -44,13 +44,13 @@ public interface DiseaseRESTInterface {
             @QueryParam("filter.species") String species,
             @ApiParam(value = "filter by gene genetic Entity")
             @QueryParam("filter.geneticEntity") String geneticEntity,
-            @ApiParam(value = "filter by gene genetic Entity type", allowableValues = "gene,allele")
+            @ApiParam(value = "filter by genetic Entity type", allowableValues = "gene,allele")
             @QueryParam("filter.geneticEntityType") String geneticEntityType,
             @ApiParam(value = "filter by disease")
             @QueryParam("filter.disease") String disease,
             @ApiParam(value = "filter by source")
             @QueryParam("filter.source") String source,
-            @ApiParam(value = "filter by referece")
+            @ApiParam(value = "filter by reference")
             @QueryParam("filter.reference") String reference,
             @ApiParam(value = "filter by evidence code")
             @QueryParam("filter.evidenceCode") String evidenceCode,
