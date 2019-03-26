@@ -6,7 +6,6 @@ import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.EntitySummary;
 import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
 import org.alliancegenome.neo4j.entity.node.*;
-import org.alliancegenome.neo4j.repository.DiseaseRepository;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.alliancegenome.neo4j.repository.InteractionRepository;
 import org.alliancegenome.neo4j.repository.PhenotypeRepository;
@@ -24,7 +23,6 @@ public class GeneService {
     private static GeneRepository geneRepo = new GeneRepository();
     private static InteractionRepository interRepo = new InteractionRepository();
     private static PhenotypeRepository phenoRepo = new PhenotypeRepository();
-    private static DiseaseRepository diseaseRepository = new DiseaseRepository();
 
     public Gene getById(String id) {
         Gene gene = geneRepo.getOneGene(id);
@@ -35,12 +33,12 @@ public class GeneService {
         return gene;
     }
 
+    // ToDo: Needs pagination logic
     public JsonResultResponse<Allele> getAlleles(String id, int limit, int page, String sortBy, String asc) {
         JsonResultResponse<Allele> ret = new JsonResultResponse<>();
-        Pagination pagination = new Pagination(page, limit, sortBy, asc);
-        //return geneService.getPhenotypeAnnotations(id, pagination);
-
-        ret.setResults(geneRepo.getAlleles(id));
+        List<Allele> alleles = geneRepo.getAlleles(id);
+        ret.setResults(alleles);
+        ret.setTotal(alleles.size());
         return ret;
     }
 
