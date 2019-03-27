@@ -1,13 +1,11 @@
 package org.alliancegenome.neo4j.repository;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.neo4j.ogm.model.Result;
+
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 public class AlleleRepository extends Neo4jRepository<Allele> {
 
@@ -28,9 +26,9 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
         query += " OPTIONAL MATCH p6=(a:Allele)-[:HAS_PHENOTYPE]-(termName:Phenotype)";
         query += " OPTIONAL MATCH crossRef=(a:Allele)-[:CROSS_REFERENCE]-(c:CrossReference)";
         query += " RETURN p1, p2, p3, p4, p5, p6, crossRef";
-        
+
         Iterable<Allele> alleles = query(query, map);
-        for (Allele a: alleles) {
+        for (Allele a : alleles) {
             if (a.getPrimaryKey().equals(primaryKey)) {
                 return a;
             }
@@ -53,5 +51,19 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
             list.add((String) map2.get("feature.primaryKey"));
         }
         return list;
+    }
+
+    public Set<Allele> getAllAlleles() {
+        HashMap<String, String> map = new HashMap<>();
+
+        String query = "";
+        query += " MATCH p1=(:Species)<-[:FROM_SPECIES]-(a:Allele)-[:IS_ALLELE_OF]->(g:Gene)";
+        query += " OPTIONAL MATCH p2=(a:Allele)-[:ALSO_KNOWN_AS]->(synonym:Synonym)";
+        query += " OPTIONAL MATCH crossRef=(a:Allele)-[:CROSS_REFERENCE]->(c:CrossReference)";
+        query += " RETURN p1, p2, crossRef limit 1000000";
+
+        Iterable<Allele> alleles = query(query, map);
+        return StreamSupport.stream(alleles.spliterator(), false)
+                .collect(Collectors.toSet());
     }
 }
