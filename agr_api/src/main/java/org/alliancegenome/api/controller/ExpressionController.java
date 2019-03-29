@@ -12,12 +12,13 @@ import javax.ws.rs.core.Response;
 
 import org.alliancegenome.api.rest.interfaces.ExpressionRESTInterface;
 import org.alliancegenome.api.service.ExpressionService;
-import org.alliancegenome.api.service.helper.ExpressionDetail;
+import org.alliancegenome.core.ExpressionDetail;
 import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.entity.node.BioEntityGeneExpressionJoin;
+import org.alliancegenome.neo4j.repository.ExpressionCacheRepository;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.alliancegenome.neo4j.view.BaseFilter;
 import org.alliancegenome.neo4j.view.View;
@@ -87,9 +88,10 @@ public class ExpressionController implements ExpressionRESTInterface {
         filterMap.values().removeIf(Objects::isNull);
         pagination.setFieldFilterValueMap(filterMap);
 
-        GeneRepository geneRepository = new GeneRepository();
-        List<BioEntityGeneExpressionJoin> joins = geneRepository.getExpressionAnnotations(geneIDs, termID, pagination);
-        return expressionService.getExpressionDetails(joins, pagination);
+        ExpressionCacheRepository expressionCacheRepository = new ExpressionCacheRepository();
+        List<ExpressionDetail> joins = expressionCacheRepository.getExpressionAnnotations(geneIDs, termID, pagination);
+        return null;
+        ////return expressionService.getExpressionDetails(joins, pagination);
     }
 
     @Override

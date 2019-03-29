@@ -17,7 +17,7 @@ import java.util.StringJoiner;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
-import org.alliancegenome.api.service.helper.ExpressionDetail;
+import org.alliancegenome.core.ExpressionDetail;
 import org.alliancegenome.api.service.helper.ExpressionSummary;
 import org.alliancegenome.api.service.helper.ExpressionSummaryGroup;
 import org.alliancegenome.api.service.helper.ExpressionSummaryGroupTerm;

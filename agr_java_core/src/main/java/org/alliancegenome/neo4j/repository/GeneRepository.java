@@ -1,44 +1,27 @@
 package org.alliancegenome.neo4j.repository;
 
-import static java.util.stream.Collectors.joining;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import org.alliancegenome.es.model.query.FieldFilter;
+import org.alliancegenome.es.model.query.Pagination;
+import org.alliancegenome.neo4j.entity.SpeciesType;
+import org.alliancegenome.neo4j.entity.node.*;
+import org.alliancegenome.neo4j.view.OrthologyFilter;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.neo4j.ogm.model.Result;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.StringJoiner;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-import org.alliancegenome.es.model.query.FieldFilter;
-import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.neo4j.entity.SpeciesType;
-import org.alliancegenome.neo4j.entity.node.Allele;
-import org.alliancegenome.neo4j.entity.node.BioEntityGeneExpressionJoin;
-import org.alliancegenome.neo4j.entity.node.GOTerm;
-import org.alliancegenome.neo4j.entity.node.Gene;
-import org.alliancegenome.neo4j.entity.node.Ontology;
-import org.alliancegenome.neo4j.entity.node.SecondaryId;
-import org.alliancegenome.neo4j.entity.node.UBERONTerm;
-import org.alliancegenome.neo4j.view.OrthologyFilter;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.neo4j.ogm.model.Result;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
+import static java.util.stream.Collectors.joining;
 
 public class GeneRepository extends Neo4jRepository<Gene> {
 
@@ -71,6 +54,7 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         }
         return null;
     }
+
 
     public Gene getShallowGene(String primaryKey) {
         HashMap<String, String> map = new HashMap<>();
@@ -172,10 +156,12 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         }
 
         // filtering
+/*
         joinList = joinList.stream()
                 .filter(join -> passFilter(join, pagination.getFieldFilterValueMap()))
                 .collect(Collectors.toList());
 
+*/
 
         // check for rollup term existence
         // Check for GO terms
@@ -229,6 +215,7 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         return joinList;
     }
 
+/*
     private boolean passFilter(BioEntityGeneExpressionJoin
                                        bioEntityGeneExpressionJoin, Map<FieldFilter, String> fieldFilterValueMap) {
         Map<FieldFilter, FilterComparator<BioEntityGeneExpressionJoin, String>> map = new HashMap<>();
@@ -248,6 +235,7 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         }
         return true;
     }
+*/
 
     public List<BioEntityGeneExpressionJoin> getExpressionAnnotationSummary(String geneID) {
         String query = " MATCH p1=(gene:Gene)-->(s:BioEntityGeneExpressionJoin)--(t) ";
@@ -602,6 +590,7 @@ public class GeneRepository extends Neo4jRepository<Gene> {
                 .collect(Collectors.toMap(GOTerm::getPrimaryKey, GOTerm::getName, (x, y) -> x + ", " + y, LinkedHashMap::new));
     }
 
+
     public List<Gene> getAllGenes() {
         String cypher = " MATCH p1=(q:Species)-[:FROM_SPECIES]-(g:Gene) "
                 + "OPTIONAL MATCH p5=(g:Gene)--(:CrossReference) "
@@ -612,26 +601,42 @@ public class GeneRepository extends Neo4jRepository<Gene> {
                 collect(Collectors.toList());
     }
 
-    @FunctionalInterface
-    public interface FilterComparator<T, U> {
-        boolean compare(T o, U oo);
+        public Set<BioEntityGeneExpressionJoin> getAllExpressionAnnotations() {
+            String cypher = " MATCH p1=(species:Species)--(gene:Gene)-->(s:BioEntityGeneExpressionJoin)--(t), " +
+                    " entity = (s:BioEntityGeneExpressionJoin)--(exp:ExpressionBioEntity)--(o:Ontology) ";
+            cypher += ", crossReference = (s:BioEntityGeneExpressionJoin)--(crossRef:CrossReference) ";
+            cypher += "return p1, entity limit 10000000 ";
 
-        default FilterComparator<T, U> thenCompare(FilterComparator<T, U> other) {
-            Objects.requireNonNull(other);
-            return (FilterComparator<T, U> & Serializable) (c1, c2) -> {
-                boolean res = compare(c1, c2);
-                return (!res) ? res : other.compare(c1, c2);
-            };
+            long start = System.currentTimeMillis();
+            Iterable<BioEntityGeneExpressionJoin> joins = neo4jSession.query(BioEntityGeneExpressionJoin.class, cypher, new HashMap<>());
+
+            Set<BioEntityGeneExpressionJoin> allBioEntityExpressionJoins = StreamSupport.stream(joins.spliterator(), false).
+                    collect(Collectors.toSet());
+            System.out.println("Total BioEntityGeneExpressionJoin: " + allBioEntityExpressionJoins.size());
+            System.out.println("Loaded in:  " + ((System.currentTimeMillis() - start) / 1000) + " s");
+            return allBioEntityExpressionJoins;
         }
+
+        @FunctionalInterface
+        public interface FilterComparator<T, U> {
+            boolean compare(T o, U oo);
+
+            default FilterComparator<T, U> thenCompare(FilterComparator<T, U> other) {
+                Objects.requireNonNull(other);
+                return (FilterComparator<T, U> & Serializable) (c1, c2) -> {
+                    boolean res = compare(c1, c2);
+                    return (!res) ? res : other.compare(c1, c2);
+                };
+            }
+        }
+
+        class GoHighLevelTerms {
+            @JsonProperty("class_id")
+            private String id;
+            @JsonProperty("class_label")
+            private String label;
+            private String separator;
+        }
+
+
     }
-
-    class GoHighLevelTerms {
-        @JsonProperty("class_id")
-        private String id;
-        @JsonProperty("class_label")
-        private String label;
-        private String separator;
-    }
-
-
-}

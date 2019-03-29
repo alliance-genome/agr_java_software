@@ -1,4 +1,4 @@
-package org.alliancegenome.api.service.helper;
+package org.alliancegenome.core;
 
 import java.util.List;
 import java.util.TreeSet;
