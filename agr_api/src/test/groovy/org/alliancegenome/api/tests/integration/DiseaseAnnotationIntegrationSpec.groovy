@@ -226,20 +226,37 @@ class DiseaseAnnotationIntegrationSpec extends AbstractSpec {
         results.size() < resultSizeUpperLimit
 
         where:
-        disease     | query                          | resultSizeLowerLimit | resultSizeUpperLimit
-        "DOID:9952" | ""                             | 60                   | 80
-        "DOID:9952" | "filter.geneName=2"            | 30                   | 40
-        "DOID:9952" | "filter.disease=cell"          | 10                   | 40
-        "DOID:9952" | "filter.geneticEntity=tm"      | 0                    | 10
-        "DOID:9952" | "filter.geneticEntityType=al"  | 0                    | 10
-        "DOID:9952" | "filter.associationType=is"    | 10                   | 80
-        "DOID:9952" | "filter.associationType=OrTHo" | 40                   | 80
-        "DOID:9952" | "filter.reference=PMID:1"      | 0                    | 50
-        "DOID:9952" | "filter.reference=MGI:6194"    | 10                   | 70
-        "DOID:9952" | "filter.evidenceCode=As"       | 10                   | 20
-        "DOID:9952" | "filter.source=gD"             | 0                    | 10
-        "DOID:9952" | "filter.source=aLLIANc"        | 50                   | 70
-        "DOID:9952" | "filter.species=ELeG"          | 10                   | 20
+        disease     | query                             | resultSizeLowerLimit | resultSizeUpperLimit
+        "DOID:9952" | ""                                | 60                   | 80
+        "DOID:9952" | "filter.geneName=2"               | 30                   | 40
+        "DOID:9952" | "filter.disease=cell"             | 10                   | 40
+        "DOID:9952" | "filter.geneticEntity=tm"         | 0                    | 10
+        "DOID:9952" | "filter.geneticEntityType=allele" | 0                    | 10
+        "DOID:9952" | "filter.associationType=is"       | 10                   | 80
+        "DOID:9952" | "filter.associationType=OrTHo"    | 40                   | 80
+        "DOID:9952" | "filter.reference=PMID:1"         | 0                    | 50
+        "DOID:9952" | "filter.reference=MGI:6194"       | 10                   | 70
+        "DOID:9952" | "filter.evidenceCode=As"          | 10                   | 20
+        "DOID:9952" | "filter.source=gD"                | 0                    | 10
+        "DOID:9952" | "filter.source=aLLIANc"           | 50                   | 70
+        "DOID:9952" | "filter.species=ELeG"             | 10                   | 20
+    }
+
+    @Unroll
+    def "Check disease #disease annotation endpoint for genetic entity type filtering with geneticEntityType filter query #query"() {
+        when:
+        def results = getApiResults("/api/disease/$disease/associations?limit=100&filter.geneticEntityType=$query")
+
+        then:
+        results.size() > resultSizeLowerLimit
+        results.size() < resultSizeUpperLimit
+
+        where:
+        disease     | query         | resultSizeLowerLimit | resultSizeUpperLimit
+        "DOID:9952" | ""            | 60                   | 80
+        "DOID:9952" | "gene"        | 60                   | 80
+        "DOID:9952" | "allele"      | 3                    | 40
+        "DOID:9952" | "allele|GENE" | 60                   | 80
     }
 
 
