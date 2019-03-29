@@ -4,13 +4,11 @@ import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.node.Gene;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.alliancegenome.api.service.FilterFunction.contains;
+import static org.alliancegenome.api.service.FilterFunction.fullMatchMultiValueOR;
 
 public class DiseaseAnnotationFiltering {
 
@@ -32,7 +30,7 @@ public class DiseaseAnnotationFiltering {
             (annotation, value) -> contains(annotation.getSource().getName(), value);
 
     public static FilterFunction<DiseaseAnnotation, String> geneticEntityTypeFilter =
-            (annotation, value) -> contains(annotation.getGeneticEntityType(), value);
+            (annotation, value) -> FilterFunction.fullMatchMultiValueOR(annotation.getGeneticEntityType(), value);
 
     public static FilterFunction<DiseaseAnnotation, String> geneNameFilter =
             (annotation, value) -> contains(annotation.getGene().getSymbol(), value);
@@ -105,5 +103,6 @@ public class DiseaseAnnotationFiltering {
                 .map(entry -> entry.getKey().getFullName())
                 .collect(Collectors.toList());
     }
+
 }
 

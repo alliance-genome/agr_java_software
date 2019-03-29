@@ -1,6 +1,7 @@
 package org.alliancegenome.api.service;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -21,5 +22,23 @@ public interface FilterFunction<Entity, FilterValue> {
                 .collect(Collectors.toSet());
         return !resultSet.contains(false);
     }
+
+    static boolean fullMatchMultiValueOR(String entity, String value) {
+        return fullMatchMultiValueOR(entity, value, "\\|");
+    }
+
+    // List of values should match exactly the entity
+    // but in an OR connector
+    static boolean fullMatchMultiValueOR(String entity, String value, String delimiter) {
+        String[] tokenList = value.split(delimiter);
+        List<String> cleanedValues = Arrays.stream(tokenList)
+                .map(s -> s.toLowerCase().trim())
+                .collect(Collectors.toList());
+        cleanedValues.removeIf(String::isEmpty);
+        if (cleanedValues.isEmpty())
+            return true;
+        return cleanedValues.contains(entity);
+    }
+
 
 }
