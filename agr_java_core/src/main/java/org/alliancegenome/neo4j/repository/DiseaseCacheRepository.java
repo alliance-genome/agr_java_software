@@ -3,10 +3,7 @@ package org.alliancegenome.neo4j.repository;
 import org.alliancegenome.core.service.*;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
-import org.alliancegenome.neo4j.entity.node.DiseaseEntityJoin;
-import org.alliancegenome.neo4j.entity.node.EvidenceCode;
-import org.alliancegenome.neo4j.entity.node.Publication;
-import org.alliancegenome.neo4j.entity.node.PublicationEvidenceCodeJoin;
+import org.alliancegenome.neo4j.entity.node.*;
 import org.alliancegenome.neo4j.view.BaseFilter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -21,6 +18,7 @@ public class DiseaseCacheRepository {
 
     private Log log = LogFactory.getLog(getClass());
     private static DiseaseRepository diseaseRepository = new DiseaseRepository();
+    private GeneCacheRepository geneCacheRepository = new GeneCacheRepository();
 
 
     // cached value
@@ -128,16 +126,19 @@ public class DiseaseCacheRepository {
         Set<DiseaseEntityJoin> joinList = diseaseRepository.getAllDiseaseEntityJoins();
         if (joinList == null)
             return;
+        // replace Gene references with the cached Gene references to keep the memory imprint low.
         allDiseaseAnnotations = joinList.stream()
                 .map(diseaseEntityJoin -> {
                     DiseaseAnnotation document = new DiseaseAnnotation();
-                    document.setGene(diseaseEntityJoin.getGene());
+                    document.setGene(geneCacheRepository.getGene(diseaseEntityJoin.getGene().getPrimaryKey()));
                     document.setFeature(diseaseEntityJoin.getAllele());
                     document.setDisease(diseaseEntityJoin.getDisease());
                     document.setSource(diseaseEntityJoin.getSource());
                     document.setAssociationType(diseaseEntityJoin.getJoinType());
                     document.setSortOrder(diseaseEntityJoin.getSortOrder());
-                    document.setOrthologyGene(diseaseEntityJoin.getOrthologyGene());
+                    Gene orthologyGene = diseaseEntityJoin.getOrthologyGene();
+                    if (orthologyGene != null)
+                        document.setOrthologyGene(geneCacheRepository.getGene(orthologyGene.getPrimaryKey()));
                     List<Publication> publicationList = diseaseEntityJoin.getPublicationEvidenceCodeJoin().stream()
                             .map(PublicationEvidenceCodeJoin::getPublication).sorted(Comparator.naturalOrder()).collect(Collectors.toList());
                     document.setPublications(publicationList.stream().distinct().collect(Collectors.toList()));

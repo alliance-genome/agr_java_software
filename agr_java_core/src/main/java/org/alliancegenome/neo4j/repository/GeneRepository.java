@@ -6,7 +6,6 @@ import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.entity.node.*;
 import org.alliancegenome.neo4j.view.OrthologyFilter;
-import org.apache.commons.collections4.IterableUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.neo4j.ogm.model.Result;
@@ -55,7 +54,7 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         }
         return null;
     }
-    
+
     public Gene getOneGeneBySecondaryId(String secondaryIdPrimaryKey) {
         HashMap<String, String> map = new HashMap<>();
 
@@ -69,12 +68,12 @@ public class GeneRepository extends Neo4jRepository<Gene> {
 
         Iterable<Gene> genes = query(query, map);
         for (Gene g : genes) {
-            for(SecondaryId s: g.getSecondaryIds()) {
+            for (SecondaryId s : g.getSecondaryIds()) {
                 if (s.getPrimaryKey().equals(secondaryIdPrimaryKey)) {
                     return g;
                 }
             }
-            
+
         }
         return null;
     }
@@ -568,6 +567,16 @@ public class GeneRepository extends Neo4jRepository<Gene> {
                     return o1.getName().compareToIgnoreCase(o2.getName());
                 })
                 .collect(Collectors.toMap(GOTerm::getPrimaryKey, GOTerm::getName, (x, y) -> x + ", " + y, LinkedHashMap::new));
+    }
+
+    public List<Gene> getAllGenes() {
+        String cypher = " MATCH p1=(q:Species)-[:FROM_SPECIES]-(g:Gene) "
+                + "OPTIONAL MATCH p5=(g:Gene)--(:CrossReference) "
+                + "RETURN p1, p5 limit 10000000 ";
+
+        Iterable<Gene> joins = neo4jSession.query(Gene.class, cypher, new HashMap<>());
+        return StreamSupport.stream(joins.spliterator(), false).
+                collect(Collectors.toList());
     }
 
     @FunctionalInterface
