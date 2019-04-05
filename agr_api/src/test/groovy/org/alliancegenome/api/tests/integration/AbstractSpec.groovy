@@ -2,6 +2,7 @@ package org.alliancegenome.api
 
 import groovy.json.JsonSlurper
 import org.alliancegenome.core.config.ConfigHelper
+import spock.lang.Specification
 
 class AbstractSpec extends Specification {
 
