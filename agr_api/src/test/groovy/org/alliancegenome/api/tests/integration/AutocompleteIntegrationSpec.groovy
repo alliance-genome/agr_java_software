@@ -8,8 +8,7 @@ class AutocompleteIntegrationSpec extends AbstractSpec {
     def "an autocomplete query for #query should return results that start with #query"() {
         when:
         //todo: need to set the base search url in a nicer way
-        def results = getApiResults("/api/search_autocomplete?q=$query").results
-
+        def results = getApiResults("/api/search_autocomplete?q=$query")
         def firstResult = results.first()
 
         then:
@@ -27,7 +26,7 @@ class AutocompleteIntegrationSpec extends AbstractSpec {
         when:
         def query = "f"
         //todo: need to set the base search url in a nicer way
-        def results = getApiResults("/api/search_autocomplete?q=$query&category=$category").results
+        def results = getApiResults("/api/search_autocomplete?q=$query&category=$category")
 
         def categories = results*.category.unique()
 
@@ -46,16 +45,14 @@ class AutocompleteIntegrationSpec extends AbstractSpec {
     def "an autocomplete for #query should return #category results first"() {
         when:
         //todo: need to set the base search url in a nicer way
-        def results = getApiResults("/api/search_autocomplete?q=$query").results
+        def results = getApiResults("/api/search_autocomplete?q=$query")
 
         then:
         results
-        results.size() > 4
+        results.size() > 3
         results.get(0).category == category
         results.get(1).category == category
         results.get(2).category == category
-        results.get(3).category == category
-        results.get(4).category == category
 
         where:
         category | query
