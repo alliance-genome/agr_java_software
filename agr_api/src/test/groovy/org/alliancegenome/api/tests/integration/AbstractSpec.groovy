@@ -3,7 +3,7 @@ package org.alliancegenome.api
 import groovy.json.JsonSlurper
 import org.alliancegenome.core.config.ConfigHelper
 
-class AbstractSpec {
+class AbstractSpec extends Specification {
 
     def getApiResults(String apiPath) {
         URL url = new URL(ConfigHelper.getApiBaseUrl() + apiPath)
