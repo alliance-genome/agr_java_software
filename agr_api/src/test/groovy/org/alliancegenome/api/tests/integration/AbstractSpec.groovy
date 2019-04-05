@@ -6,22 +6,22 @@ import spock.lang.Specification
 
 class AbstractSpec extends Specification {
 
-    def getApiResults(String apiPath) {
+    protected def getApiResults(String apiPath) {
         URL url = new URL(ConfigHelper.getApiBaseUrl() + apiPath)
         return new JsonSlurper().parseText(url.text).results
     }
 
-    def getApiResult(String apiPath) {
+    protected def getApiResult(String apiPath) {
         URL url = new URL(ConfigHelper.getApiBaseUrl() + apiPath)
         return new JsonSlurper().parseText(url.text)
     }
 
-    def getApiResultRaw(String apiPath) {
+    protected def getApiResultRaw(String apiPath) {
         URL url = new URL(ConfigHelper.getApiBaseUrl() + apiPath)
         return url.text
     }
 
-    def getApiMetaData(String apiPath) {
+    protected def getApiMetaData(String apiPath) {
         return getApiResult(apiPath)
     }
 
