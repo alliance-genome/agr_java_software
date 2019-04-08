@@ -5,8 +5,6 @@ import java.util.List;
 
 import org.alliancegenome.agr_elasticsearch_util.commands.Command;
 import org.alliancegenome.agr_elasticsearch_util.commands.CommandInterface;
-import org.alliancegenome.core.config.ConfigHelper;
-import org.alliancegenome.es.index.data.dao.MetaDataDAO;
 import org.elasticsearch.cluster.metadata.IndexMetaData;
 
 import com.carrotsearch.hppc.cursors.ObjectCursor;
@@ -57,18 +55,6 @@ public class IndexCommand extends Command implements CommandInterface {
                 } else {
                     printHelp();
                 }
-            } else if(command.equals("check")) {
-                if(args.size() > 0) {
-                    String index = args.remove(0);
-                    if(index.equals(ConfigHelper.getEsDataIndex())) {
-                        new MetaDataDAO();
-                    } else {
-                        System.out.println("Don't know about that index: " + index);
-                    }
-                } else {
-                    printHelp();
-                }
-
             } else if(command.equals("start")) {
 
                 // check tmp index and delete
