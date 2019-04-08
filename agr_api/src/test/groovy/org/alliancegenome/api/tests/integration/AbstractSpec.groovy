@@ -8,19 +8,16 @@ class AbstractSpec extends Specification {
 
     protected def getApiResults(String apiPath) {
         URL url = new URL(ConfigHelper.getApiBaseUrl() + apiPath)
-        println url
         return new JsonSlurper().parseText(url.text).results
     }
 
     protected def getApiResult(String apiPath) {
         URL url = new URL(ConfigHelper.getApiBaseUrl() + apiPath)
-        println url
         return new JsonSlurper().parseText(url.text)
     }
 
     protected def getApiResultRaw(String apiPath) {
         URL url = new URL(ConfigHelper.getApiBaseUrl() + apiPath)
-        println url
         return url.text
     }
 
