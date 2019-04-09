@@ -130,7 +130,7 @@ public class DiseaseCacheRepository {
         allDiseaseAnnotations = joinList.stream()
                 .map(diseaseEntityJoin -> {
                     DiseaseAnnotation document = new DiseaseAnnotation();
-                    document.setGene(geneCacheRepository.getGene(diseaseEntityJoin.getGene().getPrimaryKey()));
+                    document.setGene(diseaseEntityJoin.getGene());
                     document.setFeature(diseaseEntityJoin.getAllele());
                     document.setDisease(diseaseEntityJoin.getDisease());
                     document.setSource(diseaseEntityJoin.getSource());
