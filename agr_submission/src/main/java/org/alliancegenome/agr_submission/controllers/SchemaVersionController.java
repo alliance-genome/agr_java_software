@@ -37,7 +37,7 @@ public class SchemaVersionController extends BaseController implements SchemaVer
         return schemaVersionService.delete(id);
     }
     
-    public List<SchemaVersion> getDataTypes() {
+    public List<SchemaVersion> getSchemaVersions() {
         return schemaVersionService.getSchemaVersions();
     }
 

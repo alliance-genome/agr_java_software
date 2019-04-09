@@ -1,4 +1,4 @@
-package org.alliancegenome.agr_submission.interfaces.client;
+package org.alliancegenome.agr_submission_client;
 
 import java.util.List;
 

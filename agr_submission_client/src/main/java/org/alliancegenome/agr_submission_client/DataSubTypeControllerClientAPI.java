@@ -1,4 +1,4 @@
-package org.alliancegenome.agr_submission.interfaces.client;
+package org.alliancegenome.agr_submission_client;
 
 import java.util.List;
 
@@ -38,8 +38,8 @@ public class DataSubTypeControllerClientAPI implements DataSubTypeControllerInte
     }
 
     @Override
-    public List<DataSubType> getDataTypes() {
-        return api.getDataTypes();
+    public List<DataSubType> getDataSubTypes() {
+        return api.getDataSubTypes();
     }
 
 }

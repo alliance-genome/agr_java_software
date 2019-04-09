@@ -1,12 +1,12 @@
-package org.alliancegenome.agr_submission.main;
+package org.alliancegenome.agr_submission_client.main;
 
 import org.alliancegenome.agr_submission.config.ConfigHelper;
-import org.alliancegenome.agr_submission.main.migrationmodels.ESDataFile;
-import org.alliancegenome.agr_submission.main.migrationmodels.ESHit;
-import org.alliancegenome.agr_submission.main.migrationmodels.ESMetaData;
-import org.alliancegenome.agr_submission.main.migrationmodels.ESResultInterface;
-import org.alliancegenome.agr_submission.main.migrationmodels.ESResults;
-import org.alliancegenome.agr_submission.main.migrationmodels.ESSnapshot;
+import org.alliancegenome.agr_submission_client.main.migrationmodels.ESDataFile;
+import org.alliancegenome.agr_submission_client.main.migrationmodels.ESHit;
+import org.alliancegenome.agr_submission_client.main.migrationmodels.ESMetaData;
+import org.alliancegenome.agr_submission_client.main.migrationmodels.ESResultInterface;
+import org.alliancegenome.agr_submission_client.main.migrationmodels.ESResults;
+import org.alliancegenome.agr_submission_client.main.migrationmodels.ESSnapshot;
 
 import lombok.extern.log4j.Log4j2;
 import si.mazi.rescu.RestProxyFactory;
@@ -32,6 +32,7 @@ public class MainESMigration {
             } else if(hit instanceof ESMetaData) {
                 log.info("ESMetaData: " + hit);
             }
+            System.exit(-1);
         }
         
     }

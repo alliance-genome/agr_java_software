@@ -1,4 +1,4 @@
-package org.alliancegenome.agr_submission.main.migrationmodels;
+package org.alliancegenome.agr_submission_client.main.migrationmodels;
 
 import lombok.Getter;
 import lombok.Setter;

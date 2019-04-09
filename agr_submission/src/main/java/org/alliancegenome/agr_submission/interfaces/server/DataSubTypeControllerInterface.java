@@ -55,6 +55,6 @@ public interface DataSubTypeControllerInterface {
     @Path("/all")
     @ApiOperation("Get All Entities")
     @JsonView(View.DataSubTypeView.class)
-    public List<DataSubType> getDataTypes();
+    public List<DataSubType> getDataSubTypes();
 
 }

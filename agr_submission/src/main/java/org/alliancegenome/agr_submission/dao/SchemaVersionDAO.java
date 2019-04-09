@@ -29,6 +29,10 @@ public class SchemaVersionDAO extends BaseSQLDAO<SchemaVersion> {
         //}
     }
     
+    public SchemaVersion getByName(String schemaVersion) {
+        return findByField("schema", schemaVersion);
+    }
+    
     // Null -> Returns current schema from release marked current
     // Invalid schema -> null
     // Schema not in ES but in Github -> schema version

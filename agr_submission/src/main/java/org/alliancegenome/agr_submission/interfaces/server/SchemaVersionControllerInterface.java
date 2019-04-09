@@ -31,7 +31,7 @@ public interface SchemaVersionControllerInterface {
     @Path("/")
     @ApiOperation("Create Entity")
     @JsonView(View.SchemaVersionCreate.class)
-    public SchemaVersion create(@ApiParam(value = "Create: Entity") SchemaVersion entity);
+    public SchemaVersion create(SchemaVersion entity);
     
     @GET
     @Path("/{id}")
@@ -55,6 +55,6 @@ public interface SchemaVersionControllerInterface {
     @Path("/all")
     @ApiOperation("Get All Entities")
     @JsonView(View.SchemaVersionView.class)
-    public List<SchemaVersion> getDataTypes();
+    public List<SchemaVersion> getSchemaVersions();
 
 }

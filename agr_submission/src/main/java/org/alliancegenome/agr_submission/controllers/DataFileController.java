@@ -5,6 +5,7 @@ import java.util.List;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.jws.WebService;
+import javax.ws.rs.core.Response;
 
 import org.alliancegenome.agr_submission.BaseController;
 import org.alliancegenome.agr_submission.entities.DataFile;
@@ -19,7 +20,11 @@ public class DataFileController extends BaseController implements DataFileContro
     
     @Override
     public DataFile create(String schemaVersion, String dataType, String dataSubtype, DataFile entity) {
-        return dataFileService.create(schemaVersion, dataType, dataSubtype, entity);
+        if(entity != null) {
+            return dataFileService.create(schemaVersion, dataType, dataSubtype, entity);
+        } else {
+            return null;
+        }
     }
 
     @Override

@@ -1,4 +1,4 @@
-package org.alliancegenome.agr_submission.interfaces.client;
+package org.alliancegenome.agr_submission_client;
 
 import java.util.List;
 
@@ -38,8 +38,8 @@ public class SchemaVersionControllerClientAPI implements SchemaVersionController
     }
 
     @Override
-    public List<SchemaVersion> getDataTypes() {
-        return api.getDataTypes();
+    public List<SchemaVersion> getSchemaVersions() {
+        return api.getSchemaVersions();
     }
 
 }

@@ -35,7 +35,7 @@ public interface DataFileControllerInterface {
         @ApiParam(value = "SchemaVersion: data") @PathParam("schemaVersion") String schemaVersion,
         @ApiParam(value = "DataType: id") @PathParam("dataType") String dataType,
         @ApiParam(value = "DataSubType: id") @PathParam("dataSubtype") String dataSubtype,
-        @ApiParam(value = "Create: Entity") DataFile entity
+        DataFile entity
     );
     
     @GET
