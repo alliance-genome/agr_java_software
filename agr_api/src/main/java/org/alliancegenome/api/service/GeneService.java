@@ -2,12 +2,14 @@ package org.alliancegenome.api.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.alliancegenome.core.service.JsonResultResponse;
+import org.alliancegenome.core.service.PaginationResult;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.EntitySummary;
 import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
 import org.alliancegenome.neo4j.entity.node.*;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.alliancegenome.neo4j.repository.InteractionRepository;
+import org.alliancegenome.neo4j.repository.PhenotypeCacheRepository;
 import org.alliancegenome.neo4j.repository.PhenotypeRepository;
 import org.neo4j.ogm.model.Result;
 
@@ -23,6 +25,7 @@ public class GeneService {
     private static GeneRepository geneRepo = new GeneRepository();
     private static InteractionRepository interRepo = new InteractionRepository();
     private static PhenotypeRepository phenoRepo = new PhenotypeRepository();
+    private static PhenotypeCacheRepository phenoCacheRepo = new PhenotypeCacheRepository();
 
     public Gene getById(String id) {
         Gene gene = geneRepo.getOneGene(id);
@@ -50,12 +53,11 @@ public class GeneService {
 
     public JsonResultResponse<PhenotypeAnnotation> getPhenotypeAnnotations(String geneID, Pagination pagination) throws JsonProcessingException {
         LocalDateTime startDate = LocalDateTime.now();
-        List<PhenotypeAnnotation> list = getPhenotypeAnnotationList(geneID, pagination);
+        PaginationResult<PhenotypeAnnotation> list = phenoCacheRepo.getPhenotypeAnnotationList(geneID, pagination);
         JsonResultResponse<PhenotypeAnnotation> response = new JsonResultResponse<>();
         response.calculateRequestDuration(startDate);
-        response.setResults(list);
-        Long count = phenoRepo.getTotalPhenotypeCount(geneID, pagination);
-        response.setTotal((int) (long) count);
+        response.setResults(list.getResult());
+        response.setTotal(list.getTotalNumber());
         return response;
     }
 

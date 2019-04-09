@@ -29,6 +29,8 @@ public class GeneCacheRepository {
     }
 
     public Gene getGene(String geneID) {
+        return geneRepository.getOneGene(geneID);
+/*
         if (geneID == null)
             return null;
         checkCache();
@@ -36,6 +38,7 @@ public class GeneCacheRepository {
             return null;
 
         return allGeneMap.get(geneID);
+*/
     }
 
     private synchronized void checkCache() {

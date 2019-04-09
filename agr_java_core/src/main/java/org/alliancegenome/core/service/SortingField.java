@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 
 public enum SortingField {
 
-    SPECIES_PHYLOGENETIC, EXPERIMENT_ORTHOLOGY, GENESYMBOL, ALLELESYMBOL, SPECIES, DISEASE, ASSOCIATIONTYPE;
+    SPECIES_PHYLOGENETIC, EXPERIMENT_ORTHOLOGY, GENESYMBOL, ALLELESYMBOL, SPECIES, DISEASE, ASSOCIATIONTYPE, PHENOTYPE;
 
     public static SortingField getSortingField(String name) {
         return Arrays.stream(values())
