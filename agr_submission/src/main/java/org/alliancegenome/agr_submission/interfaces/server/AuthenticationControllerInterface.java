@@ -1,4 +1,4 @@
-package org.alliancegenome.agr_submission.interfaces;
+package org.alliancegenome.agr_submission.interfaces.server;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;

@@ -1,4 +1,4 @@
-package org.alliancegenome.agr_submission.interfaces;
+package org.alliancegenome.agr_submission.interfaces.server;
 
 import java.util.List;
 
@@ -21,7 +21,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 
-@Path("datasubtype")
+@Path("/datasubtype")
 @Api(value = "Data SubType Endpoints")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)

@@ -14,7 +14,7 @@ import javax.jws.WebService;
 import org.alliancegenome.agr_submission.BaseController;
 import org.alliancegenome.agr_submission.entities.SnapShot;
 import org.alliancegenome.agr_submission.exceptions.GenericException;
-import org.alliancegenome.agr_submission.interfaces.SubmissionControllerInterface;
+import org.alliancegenome.agr_submission.interfaces.server.SubmissionControllerInterface;
 import org.alliancegenome.agr_submission.responces.APIResponce;
 import org.alliancegenome.agr_submission.responces.GetReleasesResponce;
 import org.alliancegenome.agr_submission.responces.SnapShotResponce;

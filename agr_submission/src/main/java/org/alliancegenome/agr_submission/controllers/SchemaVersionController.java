@@ -8,7 +8,7 @@ import javax.jws.WebService;
 
 import org.alliancegenome.agr_submission.BaseController;
 import org.alliancegenome.agr_submission.entities.SchemaVersion;
-import org.alliancegenome.agr_submission.interfaces.SchemaVersionControllerInterface;
+import org.alliancegenome.agr_submission.interfaces.server.SchemaVersionControllerInterface;
 import org.alliancegenome.agr_submission.services.SchemaVersionService;
 
 @RequestScoped

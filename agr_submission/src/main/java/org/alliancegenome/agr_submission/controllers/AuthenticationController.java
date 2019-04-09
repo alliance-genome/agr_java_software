@@ -6,7 +6,7 @@ import javax.ws.rs.core.Response;
 
 import org.alliancegenome.agr_submission.auth.AuthToken;
 import org.alliancegenome.agr_submission.auth.Credentials;
-import org.alliancegenome.agr_submission.interfaces.AuthenticationControllerInterface;
+import org.alliancegenome.agr_submission.interfaces.server.AuthenticationControllerInterface;
 
 @WebService
 @RequestScoped

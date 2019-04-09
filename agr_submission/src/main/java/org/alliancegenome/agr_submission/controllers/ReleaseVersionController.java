@@ -8,7 +8,7 @@ import javax.jws.WebService;
 
 import org.alliancegenome.agr_submission.BaseController;
 import org.alliancegenome.agr_submission.entities.ReleaseVersion;
-import org.alliancegenome.agr_submission.interfaces.ReleaseVersionControllerInterface;
+import org.alliancegenome.agr_submission.interfaces.server.ReleaseVersionControllerInterface;
 import org.alliancegenome.agr_submission.services.ReleaseVersionService;
 
 @RequestScoped

@@ -8,7 +8,7 @@ import javax.jws.WebService;
 
 import org.alliancegenome.agr_submission.BaseController;
 import org.alliancegenome.agr_submission.entities.DataSubType;
-import org.alliancegenome.agr_submission.interfaces.DataSubTypeControllerInterface;
+import org.alliancegenome.agr_submission.interfaces.server.DataSubTypeControllerInterface;
 import org.alliancegenome.agr_submission.services.DataSubTypeService;
 
 @RequestScoped
