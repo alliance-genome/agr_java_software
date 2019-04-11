@@ -125,6 +125,15 @@ public interface GeneRESTInterface {
                                                       @DefaultValue("1") @QueryParam("start") Integer start) throws IOException;
 
     @GET
+    @Path("/{id}/homologs-with-expression")
+    @JsonView(value = {View.Orthology.class})
+    @ApiOperation(value = "Retrieve homologous gene records that have expression data", notes = "Download homology records.")
+    JsonResultResponse<OrthologView> getGeneOrthologyWithExpression(@ApiParam(name = "id", value = "Source Gene ID: the gene for which you are searching homologous gene, e.g. 'MGI:109583'", required = true, type = "String")
+                                                                    @PathParam("id") String id,
+                                                                    @ApiParam(value = "apply stringency containsFilterValue", allowableValues = "stringent, moderate, all", defaultValue = "stringent")
+                                                                    @DefaultValue("stringent") @QueryParam("stringencyFilter") String stringencyFilter);
+
+    @GET
     @Path("/{id}/interactions")
     @ApiOperation(value = "Retrieve interations for a given gene")
     @JsonView(value = {View.Interaction.class})

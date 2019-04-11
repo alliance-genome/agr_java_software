@@ -9,7 +9,7 @@ class ExpressionIntegrationSpec extends AbstractSpec {
         when:
         def encodedQuery = URLEncoder.encode(geneId, "UTF-8")
         def result = getApiResult("/api/gene/$encodedQuery/expression-summary")
-        println result.groups[0].terms.name
+
         then:
         result
         totalAnnotations <= result.totalAnnotations
@@ -43,10 +43,27 @@ class ExpressionIntegrationSpec extends AbstractSpec {
         locationList == termNames.join(',')
 
         where:
-        geneId                           | totalSize | locationList
-        "MGI:109583"                     | 10        | "2-cell stage embryo,4-cell stage embryo,alimentary system,amnion,amnion,amygdala,axial skeleton,basal ganglia,bladder,brain"
-        "RGD:2129"                       | 7         | "extracellular space,high-density lipoprotein particle,intracellular membrane-bounded organelle,low-density lipoprotein particle,very-low-density lipoprotein particle,vesicle lumen,vesicle membrane"
-        "ZFIN:ZDB-GENE-001103-1"         | 10        | "anal fin,anal fin,anal fin,anal fin pterygiophore,anal fin pterygiophore,brain,brain,caudal fin lepidotrichium,ceratobranchial bone,ceratobranchial cartilage"
+        geneId                   | totalSize | locationList
+        "MGI:109583"             | 10        | "2-cell stage embryo,4-cell stage embryo,alimentary system,amnion,amnion,amygdala,axial skeleton,basal ganglia,bladder,brain"
+        "RGD:2129"               | 7         | "extracellular space,high-density lipoprotein particle,intracellular membrane-bounded organelle,low-density lipoprotein particle,very-low-density lipoprotein particle,vesicle lumen,vesicle membrane"
+        "ZFIN:ZDB-GENE-001103-1" | 10        | "anal fin,anal fin,anal fin,anal fin pterygiophore,anal fin pterygiophore,brain,brain,caudal fin lepidotrichium,ceratobranchial bone,ceratobranchial cartilage"
+    }
+
+    @Unroll
+    def "Gene page - Expression Section - orthopicker for #geneId"() {
+        when:
+        def results = getApiResults("/api/gene/$geneId/homologs-with-expression?stringencyFilter=stringent")
+
+        def homologGenes = results.homologGene.findAll { it }
+
+        then:
+        results
+        totalSize <= results.size()
+        locationList == homologGenes.symbol.join(',')
+
+        where:
+        geneId       | totalSize | locationList
+        "MGI:109583" | 5         | "daf-18,Pten,Pten,ptena,ptenb,TEP1"
     }
 
 }
