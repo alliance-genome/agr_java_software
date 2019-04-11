@@ -1,5 +1,6 @@
 package org.alliancegenome.agr_submission_client.main.migrationmodels;
 
+import org.alliancegenome.agr_submission.entities.DataSubType;
 import org.alliancegenome.agr_submission.entities.DataType;
 import org.alliancegenome.agr_submission.entities.ReleaseVersion;
 import org.alliancegenome.agr_submission.entities.SchemaVersion;
@@ -53,20 +54,22 @@ public class ESMetaData extends ESHit {
                 DataType newDataType = addSchemaFile(dataType.getName(), form);
                 log.debug("New Data Type: " + newDataType);
             }
-            
-            
         }
-    }
-    
-    private ReleaseVersion createRelease(String release) {
-        ReleaseVersion rv = getReleaseVersion(release);
-        if(rv == null) {
-            rv = new ReleaseVersion();
-            rv.setReleaseVersion(release);
-            return createReleaseVersion(rv);
-        } else {
-            log.info("Release Version already exists: " + rv);
-            return rv;
+        
+        for(String key: _source.getSpecies().keySet()) {
+            ESSpecies sp = _source.getSpecies().get(key);
+            
+            DataSubType subType = getDataSubType(sp.getDisplayName());
+
+            if(subType == null) {
+                subType = new DataSubType();
+                subType.setDescription(sp.getDatabaseName());
+                subType.setName(sp.getDisplayName());
+                createDataSubType(subType);
+            } else {
+                log.info("Data Sub Type already exists: " + subType);
+            }
+            
         }
     }
 
@@ -84,12 +87,3 @@ public class ESMetaData extends ESHit {
 
 }
 
-
-
-//private String name;
-//private String fileExtension;
-//private String description;
-//private Boolean taxonIdRequired;
-//private Boolean validationRequired;
-//private Boolean modVersionStored;
-//private Map<String, String> schemaFiles;

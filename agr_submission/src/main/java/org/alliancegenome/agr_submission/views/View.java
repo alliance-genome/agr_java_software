@@ -35,4 +35,11 @@ public class View {
     public class SchemaVersionRead extends SchemaVersionView { }
     public class SchemaVersionUpdate extends SchemaVersionView { }
     public class SchemaVersionDelete extends SchemaVersionView { }
+    
+    public class SnapShotView extends API { }
+    public class SnapShotCreate extends SnapShotView { }
+    public class SnapShotRead extends SnapShotView { }
+    public class SnapShotUpdate extends SnapShotView { }
+    public class SnapShotDelete extends SnapShotView { }
+    
 }

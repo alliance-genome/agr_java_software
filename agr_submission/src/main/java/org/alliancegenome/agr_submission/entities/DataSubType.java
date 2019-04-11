@@ -11,6 +11,7 @@ import javax.persistence.Transient;
 import org.alliancegenome.agr_submission.BaseEntity;
 import org.alliancegenome.agr_submission.views.View;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
 
 import io.swagger.annotations.ApiModel;
@@ -33,6 +34,7 @@ public class DataSubType extends BaseEntity {
     private List<DataType> dataTypes;
     
     @Transient
+    @JsonIgnore
     @JsonView({View.DataSubTypeView.class, View.DataTypeView.class, View.DataFileView.class, View.SchemaVersionView.class})
     public String getLabel() {
         return name;

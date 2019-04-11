@@ -28,13 +28,17 @@ public class MainESMigration {
                 //log.info("DataFile: " + hit);
                 //hit.generateAPICalls();
             } else if(hit instanceof ESSnapshot) {
-                log.info("ESSnapshot: " + hit);
+                // Run Last
+                //log.info("ESSnapshot: " + hit);
+                //hit.generateAPICalls();
             } else if(hit instanceof ESMetaData) {
-                log.info("ESMetaData: " + hit);
-                hit.generateAPICalls();
+                // Run First
+                //log.info("ESMetaData: " + hit);
+                //hit.generateAPICalls();
             }
             //System.exit(-1);
         }
-        
+        //ESHit.addSubTypes(ESDataFile.typeToSubTypes);
+
     }
 }
