@@ -63,7 +63,7 @@ class ExpressionIntegrationSpec extends AbstractSpec {
 
         where:
         geneId       | totalSize | locationList
-        "MGI:109583" | 5         | "ptena,ptenb,Pten,Pten,daf-18,TEP1"
+        "MGI:109583" | 5         | "daf-18,Pten,Pten,ptena,ptenb,TEP1"
     }
 
 }
