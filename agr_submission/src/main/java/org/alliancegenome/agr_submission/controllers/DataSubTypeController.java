@@ -37,7 +37,7 @@ public class DataSubTypeController extends BaseController implements DataSubType
         return dataSubTypeService.delete(id);
     }
     
-    public List<DataSubType> getDataTypes() {
+    public List<DataSubType> getDataSubTypes() {
         return dataSubTypeService.getDataSubTypes();
     }
 

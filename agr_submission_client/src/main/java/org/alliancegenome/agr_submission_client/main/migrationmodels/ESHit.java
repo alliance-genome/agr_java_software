@@ -4,9 +4,13 @@ import java.util.List;
 
 import org.alliancegenome.agr_submission.entities.DataSubType;
 import org.alliancegenome.agr_submission.entities.DataType;
+import org.alliancegenome.agr_submission.entities.ReleaseVersion;
+import org.alliancegenome.agr_submission.entities.SchemaFile;
 import org.alliancegenome.agr_submission.entities.SchemaVersion;
+import org.alliancegenome.agr_submission.forms.CreateSchemaFileForm;
 import org.alliancegenome.agr_submission_client.DataSubTypeControllerClientAPI;
 import org.alliancegenome.agr_submission_client.DataTypeControllerClientAPI;
+import org.alliancegenome.agr_submission_client.ReleaseVersionControllerClientAPI;
 import org.alliancegenome.agr_submission_client.SchemaVersionControllerClientAPI;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
@@ -31,14 +35,15 @@ public abstract class ESHit {
     private String _index;
     
     private static SchemaVersionControllerClientAPI schemaApi = new SchemaVersionControllerClientAPI("http://localhost:8080/api");
+    private static ReleaseVersionControllerClientAPI releaseApi = new ReleaseVersionControllerClientAPI("http://localhost:8080/api");
     private static DataTypeControllerClientAPI dataTypeApi = new DataTypeControllerClientAPI("http://localhost:8080/api");
     private static DataSubTypeControllerClientAPI dataSubTypeApi = new DataSubTypeControllerClientAPI("http://localhost:8080/api");
+    
     
     public abstract void generateAPICalls();
     
     public SchemaVersion getSchemaVersion(String schemaVersion) {
         List<SchemaVersion> list = schemaApi.getSchemaVersions();
-        log.debug(list);
         SchemaVersion selected = null;
         for(SchemaVersion o: list) {
             if(schemaVersion.equals(o.getSchema())) {
@@ -46,17 +51,24 @@ public abstract class ESHit {
                 break;
             }
         }
-        if(selected == null) {
-            selected = new SchemaVersion();
-            selected.setSchema(schemaVersion);
-            schemaApi.create(selected);
+        return selected;
+    }
+    
+    
+    public ReleaseVersion getReleaseVersion(String release) {
+        List<ReleaseVersion> list = releaseApi.getReleaseVersions();
+        ReleaseVersion selected = null;
+        for(ReleaseVersion o: list) {
+            if(release.equals(o.getReleaseVersion())) {
+                selected = o;
+                break;
+            }
         }
         return selected;
     }
     
     public DataType getDataType(String dataType) {
         List<DataType> list = dataTypeApi.getDataTypes();
-        log.debug(list);
         DataType selected = null;
         for(DataType o: list) {
             if(dataType.equals(o.getName())) {
@@ -69,7 +81,6 @@ public abstract class ESHit {
     
     public DataSubType getDataSubType(String dataSubType) {
         List<DataSubType> list = dataSubTypeApi.getDataSubTypes();
-        log.debug(list);
         DataSubType selected = null;
         for(DataSubType o: list) {
             if(dataSubType.equals(o.getName())) {
@@ -78,6 +89,43 @@ public abstract class ESHit {
             }
         }
         return selected;
+    }
+    
+    
+    public ReleaseVersion addReleaseSchema(String releaseVersion, String schema) {
+        return releaseApi.addSchema(releaseVersion, schema);
+    }
+
+    public ReleaseVersion createReleaseVersion(ReleaseVersion entity) {
+        return releaseApi.create(entity);
+    }
+
+    public SchemaVersion createSchemaVersion(SchemaVersion entity) {
+        return schemaApi.create(entity);
+    }
+    
+    public DataType createDataType(DataType dataType) {
+        return dataTypeApi.create(dataType);
+    }
+    
+    public DataType addSchemaFile(String dataType, CreateSchemaFileForm form) {
+        DataType type = getDataType(dataType);
+        if(type != null) {
+            boolean exists = false;
+            for(SchemaFile sf: type.getSchemaFiles()) {
+                if(sf.getSchemaVersion().getSchema().equals(form.getSchema())) {
+                    exists = true;
+                    break;
+                }
+            }
+            if(!exists) {
+                return dataTypeApi.addSchemaFile(dataType, form);
+            } else {
+                return null;
+            }
+        } else {
+            return null;
+        }
     }
     
 }

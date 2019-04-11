@@ -31,7 +31,7 @@ public interface ReleaseVersionControllerInterface {
     @Path("/")
     @ApiOperation("Create Entity")
     @JsonView(View.ReleaseVersionCreate.class)
-    public ReleaseVersion create(@ApiParam(value = "Create: Entity") ReleaseVersion entity);
+    public ReleaseVersion create(ReleaseVersion entity);
     
     @GET
     @Path("/{id}")
@@ -55,15 +55,15 @@ public interface ReleaseVersionControllerInterface {
     @Path("/all")
     @ApiOperation("Get All Entities")
     @JsonView(View.ReleaseVersionView.class)
-    public List<ReleaseVersion> getDataTypes();
+    public List<ReleaseVersion> getReleaseVersions();
 
     @GET
     @Path("/{release}/addschema/{schema}")
     @ApiOperation("Added Schema to Release")
     @JsonView(View.ReleaseVersionRead.class)
     public ReleaseVersion addSchema(
-            @ApiParam(value = "Release") @PathParam("release") String release_id,
-            @ApiParam(value = "Schema") @PathParam("schema") String schema_id
+            @ApiParam(value = "Release") @PathParam("release") String release,
+            @ApiParam(value = "Schema") @PathParam("schema") String schema
     );
     
 }

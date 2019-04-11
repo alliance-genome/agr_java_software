@@ -33,7 +33,7 @@ public interface DataTypeControllerInterface {
     @Path("/")
     @ApiOperation("Create Entity")
     @JsonView(View.DataTypeCreate.class)
-    public DataType create(@ApiParam(value = "Create: Entity") DataType entity);
+    public DataType create(DataType entity);
     
     @GET
     @Path("/{id}")
@@ -65,7 +65,7 @@ public interface DataTypeControllerInterface {
     @JsonView({View.DataTypeView.class})
     public DataType addSchemaFile(
             @ApiParam(value = "DataType: id") @PathParam("dataType") String dataType,
-            @ApiParam(value = "Form: Data") CreateSchemaFileForm form
+            CreateSchemaFileForm form
     );
     
     @POST
@@ -74,7 +74,7 @@ public interface DataTypeControllerInterface {
     @JsonView({View.DataTypeView.class})
     public DataType addDataSubType(
         @ApiParam(value = "DataType: id") @PathParam("dataType") String dataType,
-        @ApiParam(value = "Form: Data") AddDataSubTypeForm form
+        AddDataSubTypeForm form
     );
 
 }

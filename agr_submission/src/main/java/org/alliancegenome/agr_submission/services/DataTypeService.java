@@ -62,7 +62,7 @@ public class DataTypeService extends BaseService<DataType> {
     public DataType addSchemaFile(String dataType, CreateSchemaFileForm form) {
         DataType type = dao.findByField("name", dataType);
         SchemaVersion sv = schemaDAO.findByField("schema", form.getSchema());
-        if(type != null && sv != null) {
+        if(type != null && sv != null && !type.getSchemaFilesMap().containsKey(form.getSchema())) {
             SchemaFile file = new SchemaFile();
             file.setDataType(type);
             file.setSchemaVersion(sv);
@@ -71,6 +71,7 @@ public class DataTypeService extends BaseService<DataType> {
             type.getSchemaFiles().add(file);
             return type;
         } else {
+            log.error("Failed adding Schema File: " + type + " " + sv + " " + type.getSchemaFilesMap());
             return null;
         }
     }

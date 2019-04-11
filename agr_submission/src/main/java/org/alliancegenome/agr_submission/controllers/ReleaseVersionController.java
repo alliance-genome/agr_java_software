@@ -37,7 +37,7 @@ public class ReleaseVersionController extends BaseController implements ReleaseV
         return releaseVersionService.delete(id);
     }
     
-    public List<ReleaseVersion> getDataTypes() {
+    public List<ReleaseVersion> getReleaseVersions() {
         return releaseVersionService.getReleaseVersions();
     }
 

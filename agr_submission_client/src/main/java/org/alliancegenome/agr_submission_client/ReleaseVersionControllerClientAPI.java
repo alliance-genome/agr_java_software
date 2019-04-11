@@ -38,13 +38,13 @@ public class ReleaseVersionControllerClientAPI implements ReleaseVersionControll
     }
 
     @Override
-    public List<ReleaseVersion> getDataTypes() {
-        return api.getDataTypes();
+    public List<ReleaseVersion> getReleaseVersions() {
+        return api.getReleaseVersions();
     }
 
     @Override
-    public ReleaseVersion addSchema(String release_id, String schema_id) {
-        return api.addSchema(release_id, schema_id);
+    public ReleaseVersion addSchema(String release, String schema) {
+        return api.addSchema(release, schema);
     }
 
 }

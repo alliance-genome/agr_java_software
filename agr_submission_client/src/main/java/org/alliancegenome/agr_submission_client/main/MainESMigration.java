@@ -25,14 +25,15 @@ public class MainESMigration {
         for(ESHit hit: result.getHits().getHits()) {
             //log.info(hit);
             if(hit instanceof ESDataFile) {
-                log.info("DataFile: " + hit);
-                hit.generateAPICalls();
+                //log.info("DataFile: " + hit);
+                //hit.generateAPICalls();
             } else if(hit instanceof ESSnapshot) {
                 log.info("ESSnapshot: " + hit);
             } else if(hit instanceof ESMetaData) {
                 log.info("ESMetaData: " + hit);
+                hit.generateAPICalls();
             }
-            System.exit(-1);
+            //System.exit(-1);
         }
         
     }
