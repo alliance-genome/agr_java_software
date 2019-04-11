@@ -205,6 +205,25 @@ public class GeneController extends BaseController implements GeneRESTInterface 
     }
 
     @Override
+    public JsonResultResponse<OrthologView> getGeneOrthologyWithExpression(String id,
+                                                                           String stringencyFilter) {
+
+        List<String> geneList = new ArrayList<>();
+        if (id != null) {
+            geneList.add(id);
+        }
+        OrthologyFilter orthologyFilter = new OrthologyFilter(stringencyFilter, null, null);
+        orthologyFilter.setStart(1);
+        JsonResultResponse<OrthologView> orthologs = OrthologyService.getOrthologyMultiGeneJson(geneList, orthologyFilter);
+        List<OrthologView> filteredList = orthologs.getResults().stream()
+                .filter(orthologView -> getExpressionSummary(orthologView.getHomologGene().getPrimaryKey()).hasData())
+                .collect(Collectors.toList());
+        orthologs.setResults(filteredList);
+        orthologs.setTotal(filteredList.size());
+        return orthologs;
+    }
+
+    @Override
     public ExpressionSummary getExpressionSummary(String id) {
 
         ExpressionService service = new ExpressionService();
