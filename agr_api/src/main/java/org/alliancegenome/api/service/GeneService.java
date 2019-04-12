@@ -47,9 +47,7 @@ public class GeneService {
     public JsonResultResponse<InteractionGeneJoin> getInteractions(String id) {
         JsonResultResponse<InteractionGeneJoin> ret = new JsonResultResponse<>();
         ret.setResults(interRepo.getInteractions(id));
-        Map<String, Object> map = new LinkedHashMap<>();
-        map.put("interactionSummary", getInteractionSummary(id));
-        ret.setSupplementalData(map);
+        ret.addSupplementalData("interactionSummary", getInteractionSummary(id));
         return ret;
     }
 
