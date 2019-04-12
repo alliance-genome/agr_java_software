@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -38,6 +39,8 @@ public class JsonResultResponse<T> {
     private String apiVersion;
     @JsonView({View.Default.class})
     private String requestDate;
+    @JsonView({View.Default.class})
+    private Map<String, Object> supplementalData;
 
     public JsonResultResponse() {
         requestDate = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(Calendar.getInstance().getTime());

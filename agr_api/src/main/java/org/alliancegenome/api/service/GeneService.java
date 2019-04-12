@@ -14,7 +14,9 @@ import org.neo4j.ogm.model.Result;
 import javax.enterprise.context.RequestScoped;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RequestScoped
@@ -45,6 +47,9 @@ public class GeneService {
     public JsonResultResponse<InteractionGeneJoin> getInteractions(String id) {
         JsonResultResponse<InteractionGeneJoin> ret = new JsonResultResponse<>();
         ret.setResults(interRepo.getInteractions(id));
+        Map<String, Object> map = new LinkedHashMap<>();
+        map.put("interactionSummary", getInteractionSummary(id));
+        ret.setSupplementalData(map);
         return ret;
     }
 
