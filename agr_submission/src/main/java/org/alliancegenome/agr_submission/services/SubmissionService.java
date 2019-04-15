@@ -7,6 +7,7 @@ import java.util.List;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 
 import org.alliancegenome.agr_submission.dao.DataFileDAO;
 import org.alliancegenome.agr_submission.dao.DataSubTypeDAO;
@@ -50,6 +51,7 @@ public class SubmissionService {
     private static GitHelper gitHelper = new GitHelper();
     private static S3Helper s3Helper = new S3Helper();
 
+    @Transactional
     public boolean submitAndValidateDataFile(String key, File inFile, boolean saveFile) throws GenericException {
 
         // Split the keys by underscore
@@ -83,20 +85,18 @@ public class SubmissionService {
     
         if(saveFile) {
             saveFile(schemaVersion, dataType, dataSubType, inFile);
-            return true;
-        } else {
-            throw new ValidataionException("This file can not be validated: " + key);
         }
+        return true;
     }
 
     private boolean validateData(SchemaVersion schemaVersionName, DataType dataType, File inFile) throws GenericException {
 
 //      // TODO fix this method to actullly validate data
-        log.info("Need to validate file: " + schemaVersionName + " " + dataType);
+        log.info("Need to validate file: " + schemaVersionName.getSchema() + " " + dataType.getName());
         String dataTypeFilePath = dataType.getSchemaFilesMap().get(schemaVersionName.getSchema());
 
         if(dataTypeFilePath == null) {
-            log.info("No Data type file found for: " + schemaVersionName + " looking backwards for older schema versions");
+            log.info("No Data type file found for: " + schemaVersionName.getSchema() + " looking backwards for older schema versions");
 
             String previousVersion = null;
             for(previousVersion = schemaVersionDAO.getPreviousVersion(schemaVersionName.getSchema()); previousVersion != null;  previousVersion = schemaVersionDAO.getPreviousVersion(previousVersion) ) {
@@ -150,22 +150,22 @@ public class SubmissionService {
     private void saveFile(SchemaVersion schemaVersion, DataType dataType, DataSubType dataSubType, File inFile) throws GenericException {
         if(dataSubType == null) {
             int fileIndex = s3Helper.listFiles(schemaVersion + "/" + dataType.getName() + "/");
-            String filePath = schemaVersion + "/" + dataType.getName() + "/" + schemaVersion + "_" + dataType.getName() + "_" + fileIndex + "." + dataType.getFileExtension();
+            String filePath = schemaVersion.getSchema() + "/" + dataType.getName() + "/" + schemaVersion.getSchema() + "_" + dataType.getName() + "_" + fileIndex + "." + dataType.getFileExtension();
             s3Helper.saveFile(filePath, inFile);
             createDataFile(schemaVersion, dataType, null, filePath);
         } else {
-            int fileIndex = s3Helper.listFiles(schemaVersion + "/" + dataType.getName() + "/" + dataSubType.getName() + "/");
+            int fileIndex = s3Helper.listFiles(schemaVersion.getSchema() + "/" + dataType.getName() + "/" + dataSubType.getName() + "/");
 
             String filePath =
-                    schemaVersion + "/" + dataType.getName() + "/" + dataSubType.getName() + "/" +
-                            schemaVersion + "_" + dataType.getName() + "_" + dataSubType.getName() + "_" + fileIndex + "." + dataType.getFileExtension();
+                    schemaVersion.getSchema() + "/" + dataType.getName() + "/" + dataSubType.getName() + "/" +
+                            schemaVersion.getSchema() + "_" + dataType.getName() + "_" + dataSubType.getName() + "_" + fileIndex + "." + dataType.getFileExtension();
 
             s3Helper.saveFile(filePath, inFile);
             createDataFile(schemaVersion, dataType, dataSubType, filePath);
         }
     }
     
-    public void createDataFile(SchemaVersion schemaVersion, DataType dataType, DataSubType dataSubType, String filePath) {
+    private void createDataFile(SchemaVersion schemaVersion, DataType dataType, DataSubType dataSubType, String filePath) {
         DataFile df = new DataFile();
         df.setDataType(dataType);
         df.setS3Path(filePath);
@@ -175,6 +175,7 @@ public class SubmissionService {
         dataFileDAO.persist(df);
     }
 
+    @Transactional
     public SnapShot getShapShot(String releaseVersion) {
         ReleaseVersion rv = releaseDAO.findByField("releaseVersion", releaseVersion);
         if(rv != null) {
@@ -189,10 +190,12 @@ public class SubmissionService {
         return null;
     }
 
+    @Transactional
     public List<ReleaseVersion> getReleases() {
         return releaseDAO.findAll();
     }
 
+    @Transactional
     public SnapShot takeSnapShot(String releaseVersion) {
         SnapShot s = new SnapShot();
         

@@ -45,8 +45,10 @@ public class SchemaVersionDAO extends BaseSQLDAO<SchemaVersion> {
                 GithubRelease gitHubSchema = githubAPI.getRelease("agr_schemas", schemaVersion);
 
                 if(gitHubSchema != null) {
-                    // TODO Add schema to database
-
+                    log.info("Found Github Schema need to save to DB: ");
+                    sv = new SchemaVersion();
+                    sv.setSchema(schemaVersion);
+                    persist(sv);
                     return sv;
                 } else {
                     log.debug("Github Schema Version was null: " + gitHubSchema);
