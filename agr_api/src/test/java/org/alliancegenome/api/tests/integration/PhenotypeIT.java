@@ -20,6 +20,9 @@ import org.apache.logging.log4j.core.config.Configurator;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
@@ -74,21 +77,6 @@ public class PhenotypeIT {
         assertThat(19L, equalTo(summary.getNumberOfAnnotations()));
         assertThat(19L, equalTo(summary.getNumberOfEntities()));
 
-        // 5 annotations with different orthology geneMap
-/*
-        assertThat(doc.getAnnotations().stream().containsFilterValue(annotationDocument -> annotationDocument.getOrthologyGeneDocument() != null).count(), equalTo(5L));
-        List<String> orthoGeneName = doc.getAnnotations().stream()
-                .containsFilterValue(annotationDocument -> annotationDocument.getOrthologyGeneDocument() != null)
-                .map(annotationDocument -> annotationDocument.getOrthologyGeneDocument().getSymbol())
-                .collect(Collectors.toList());
-        // five ortho geneMap (symbols)
-        assertThat(orthoGeneName, containsInAnyOrder("IGF1R",
-                "Igf1r",
-                "Insr",
-                "INSR",
-                "Igf1r"));
-*/
-
     }
 
     @Test
@@ -100,6 +88,15 @@ public class PhenotypeIT {
         Pagination pagination = new Pagination(1, 11, null, null);
         JsonResultResponse<PhenotypeAnnotation> response = geneService.getPhenotypeAnnotations(geneID, pagination);
         assertResponse(response, 11, 19);
+
+        // add containsFilterValue on phenotype
+        pagination.makeSingleFieldFilter(FieldFilter.PHENOTYPE, "som");
+        response = geneService.getPhenotypeAnnotations(geneID, pagination);
+        response.getResults().forEach(phenotypeAnnotation ->
+                System.out.println("kk "+phenotypeAnnotation.getPhenotype()));
+        ;
+        assertResponse(response, 7, 7);
+
     }
 
     @Test

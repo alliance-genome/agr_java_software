@@ -1,4 +1,4 @@
-package org.alliancegenome.api.service;
+package org.alliancegenome.core.service;
 
 import java.util.Arrays;
 import java.util.List;

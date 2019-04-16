@@ -5,7 +5,7 @@ import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.junit.Test;
 
-import static org.alliancegenome.api.service.DiseaseAnnotationFiltering.geneticEntityTypeFilter;
+import static org.alliancegenome.core.service.DiseaseAnnotationFiltering.geneticEntityTypeFilter;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 

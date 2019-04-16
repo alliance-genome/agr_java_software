@@ -1,4 +1,4 @@
-package org.alliancegenome.api.service;
+package org.alliancegenome.core.service;
 
 import org.alliancegenome.core.service.SortingField;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
@@ -11,7 +11,7 @@ import static java.util.Comparator.naturalOrder;
 public class DiseaseAnnotationSorting implements Sorting<DiseaseAnnotation> {
 
 
-    Comparator<DiseaseAnnotation> getComparator(SortingField field, Boolean ascending) {
+    public Comparator<DiseaseAnnotation> getComparator(SortingField field, Boolean ascending) {
         if (field == null)
             return getDefaultComparator();
 
@@ -30,7 +30,7 @@ public class DiseaseAnnotationSorting implements Sorting<DiseaseAnnotation> {
         return getJoinedComparator(comparatorList);
     }
 
-    Comparator<DiseaseAnnotation> getDefaultComparator() {
+    public Comparator<DiseaseAnnotation> getDefaultComparator() {
         List<Comparator<DiseaseAnnotation>> comparatorList = new ArrayList<>();
         comparatorList.add(experimentOrthologyOrder);
         comparatorList.add(phylogeneticOrder);

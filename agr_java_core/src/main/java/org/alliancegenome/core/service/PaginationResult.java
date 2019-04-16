@@ -1,4 +1,4 @@
-package org.alliancegenome.api.service;
+package org.alliancegenome.core.service;
 
 import lombok.Getter;
 import lombok.Setter;

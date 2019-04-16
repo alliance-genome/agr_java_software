@@ -1,8 +1,8 @@
 package org.alliancegenome.api.tests.integration;
 
 import lombok.extern.log4j.Log4j2;
-import org.alliancegenome.api.service.DiseaseAnnotationFiltering;
-import org.alliancegenome.api.service.FilterFunction;
+import org.alliancegenome.core.service.DiseaseAnnotationFiltering;
+import org.alliancegenome.core.service.FilterFunction;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.node.DOTerm;
 import org.junit.Test;
