@@ -1,20 +1,15 @@
 package org.alliancegenome.core.service;
 
+import com.fasterxml.jackson.annotation.JsonView;
+import lombok.Getter;
+import lombok.Setter;
+import org.alliancegenome.neo4j.view.View;
+
+import javax.servlet.http.HttpServletRequest;
 import java.net.URLDecoder;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-
-import org.alliancegenome.neo4j.view.View;
-
-import com.fasterxml.jackson.annotation.JsonView;
-
-import lombok.Getter;
-import lombok.Setter;
+import java.util.*;
 
 @Setter
 @Getter
@@ -38,6 +33,8 @@ public class JsonResultResponse<T> {
     private String apiVersion;
     @JsonView({View.Default.class})
     private String requestDate;
+    @JsonView({View.Default.class})
+    private Map<String, Object> supplementalData;
 
     public JsonResultResponse() {
         requestDate = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(Calendar.getInstance().getTime());
@@ -66,4 +63,10 @@ public class JsonResultResponse<T> {
         this.request.setParameterMap(request.getParameterMap());
     }
 
+    public void addSupplementalData(String attribute, Object object) {
+        if (supplementalData == null)
+            supplementalData = new LinkedHashMap<>();
+        supplementalData.put(attribute, object);
+
+    }
 }
