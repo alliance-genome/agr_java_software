@@ -1,3 +1,0 @@
-swarm.logging=INFO
-
-swarm.ds.connection.url=jdbc:h2:./agr_submission
