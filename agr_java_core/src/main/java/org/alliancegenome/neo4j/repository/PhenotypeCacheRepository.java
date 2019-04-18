@@ -1,19 +1,27 @@
 package org.alliancegenome.neo4j.repository;
 
-import org.alliancegenome.core.service.*;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toList;
+
+import java.text.DecimalFormat;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.alliancegenome.core.service.FilterFunction;
+import org.alliancegenome.core.service.PaginationResult;
+import org.alliancegenome.core.service.PhenotypeAnnotationFiltering;
+import org.alliancegenome.core.service.PhenotypeAnnotationSorting;
+import org.alliancegenome.core.service.SortingField;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
 import org.alliancegenome.neo4j.entity.node.PhenotypeEntityJoin;
 import org.alliancegenome.neo4j.view.BaseFilter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import java.text.DecimalFormat;
-import java.util.*;
-import java.util.stream.Collectors;
-
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.toList;
 
 public class PhenotypeCacheRepository {
 

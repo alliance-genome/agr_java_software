@@ -7,7 +7,6 @@ import java.util.TreeMap;
 
 import org.alliancegenome.agr_elasticsearch_util.commands.Command;
 import org.alliancegenome.agr_elasticsearch_util.commands.CommandInterface;
-import org.bouncycastle.pqc.crypto.gmss.Treehash;
 import org.elasticsearch.cluster.metadata.RepositoryMetaData;
 import org.elasticsearch.snapshots.SnapshotInfo;
 

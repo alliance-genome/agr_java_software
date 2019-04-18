@@ -1,9 +1,13 @@
 package org.alliancegenome.core.service;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
 import org.alliancegenome.neo4j.entity.Sorting;
-
-import java.util.*;
 
 public class PhenotypeAnnotationSorting implements Sorting<PhenotypeAnnotation> {
 

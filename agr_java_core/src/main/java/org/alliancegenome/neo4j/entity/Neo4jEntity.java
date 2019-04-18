@@ -1,9 +1,9 @@
 package org.alliancegenome.neo4j.entity;
 
+import java.io.Serializable;
+
 import lombok.Getter;
 import lombok.Setter;
-
-import java.io.Serializable;
 
 @Getter @Setter
 public abstract class Neo4jEntity implements Serializable {

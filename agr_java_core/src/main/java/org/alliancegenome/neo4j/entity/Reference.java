@@ -1,13 +1,12 @@
 package org.alliancegenome.neo4j.entity;
 
+import java.io.Serializable;
 import java.util.List;
 
 import org.alliancegenome.neo4j.entity.node.EvidenceCode;
 import org.alliancegenome.neo4j.entity.node.Publication;
 import org.alliancegenome.neo4j.view.View;
 
-import java.io.Serializable;
-import java.util.List;
 import com.fasterxml.jackson.annotation.JsonView;
 
 import lombok.Getter;

@@ -1,6 +1,9 @@
 package org.alliancegenome.api.service;
 
-import org.alliancegenome.core.service.DiseaseAnnotationSorting;
+import java.time.LocalDateTime;
+
+import javax.enterprise.context.RequestScoped;
+
 import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.core.service.PaginationResult;
 import org.alliancegenome.core.service.SortingField;
@@ -8,19 +11,11 @@ import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.DiseaseSummary;
-import org.alliancegenome.neo4j.entity.node.*;
+import org.alliancegenome.neo4j.entity.node.DOTerm;
 import org.alliancegenome.neo4j.repository.DiseaseCacheRepository;
 import org.alliancegenome.neo4j.repository.DiseaseRepository;
-import org.alliancegenome.neo4j.view.BaseFilter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import javax.enterprise.context.RequestScoped;
-import java.time.LocalDateTime;
-import java.util.*;
-import java.util.stream.Collectors;
-
-import static java.util.stream.Collectors.groupingBy;
 
 @RequestScoped
 public class DiseaseService {
