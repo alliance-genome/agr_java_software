@@ -6,11 +6,11 @@ import java.util.Set;
 
 import org.alliancegenome.es.index.site.document.GeneDocument;
 import org.alliancegenome.neo4j.entity.node.Gene;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 @Getter
 @Setter

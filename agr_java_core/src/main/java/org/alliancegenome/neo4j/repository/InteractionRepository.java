@@ -1,10 +1,10 @@
 package org.alliancegenome.neo4j.repository;
 
-import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
+import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
 
 public class InteractionRepository extends Neo4jRepository<InteractionGeneJoin> {
 

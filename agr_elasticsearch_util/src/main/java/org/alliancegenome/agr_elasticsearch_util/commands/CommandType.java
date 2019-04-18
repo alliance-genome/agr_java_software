@@ -1,10 +1,8 @@
 package org.alliancegenome.agr_elasticsearch_util.commands;
 
 import org.alliancegenome.agr_elasticsearch_util.commands.config.ConfigCommand;
-import org.alliancegenome.agr_elasticsearch_util.commands.ec2.EC2Command;
 import org.alliancegenome.agr_elasticsearch_util.commands.es.RepoCommand;
 import org.alliancegenome.agr_elasticsearch_util.commands.index.AliasCommand;
-import org.alliancegenome.agr_elasticsearch_util.commands.index.DataIndexCommand;
 import org.alliancegenome.agr_elasticsearch_util.commands.index.IndexCommand;
 import org.alliancegenome.agr_elasticsearch_util.commands.index.SnapShotCommand;
 
@@ -16,8 +14,6 @@ public enum CommandType {
     alias(AliasCommand.class),
     index(IndexCommand.class),
     config(ConfigCommand.class),
-    dataindex(DataIndexCommand.class),
-    ec2(EC2Command.class),
     ;
 
     private Class<?> implClass;

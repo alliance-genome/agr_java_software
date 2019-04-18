@@ -1,12 +1,12 @@
 package org.alliancegenome.neo4j.repository;
 
-import org.alliancegenome.neo4j.entity.node.Gene;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.alliancegenome.neo4j.entity.node.Gene;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 public class GeneCacheRepository {
 

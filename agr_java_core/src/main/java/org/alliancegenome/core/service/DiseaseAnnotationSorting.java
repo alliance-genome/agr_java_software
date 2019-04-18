@@ -1,12 +1,15 @@
 package org.alliancegenome.core.service;
 
-import org.alliancegenome.core.service.SortingField;
+import static java.util.Comparator.naturalOrder;
+
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.Sorting;
-
-import java.util.*;
-
-import static java.util.Comparator.naturalOrder;
 
 public class DiseaseAnnotationSorting implements Sorting<DiseaseAnnotation> {
 

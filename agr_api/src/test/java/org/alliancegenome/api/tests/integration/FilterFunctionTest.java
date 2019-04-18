@@ -1,14 +1,15 @@
 package org.alliancegenome.api.tests.integration;
 
-import lombok.extern.log4j.Log4j2;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import org.alliancegenome.core.service.DiseaseAnnotationFiltering;
 import org.alliancegenome.core.service.FilterFunction;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.node.DOTerm;
 import org.junit.Test;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 public class FilterFunctionTest {

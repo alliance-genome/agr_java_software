@@ -13,15 +13,16 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.alliancegenome.api.service.helper.ExpressionDetail;
+import org.alliancegenome.core.service.JsonResultResponse;
+import org.alliancegenome.neo4j.view.View;
+
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import org.alliancegenome.api.service.helper.ExpressionDetail;
-import org.alliancegenome.core.service.JsonResultResponse;
-import org.alliancegenome.neo4j.view.View;
 
 
 @Path("/expression")

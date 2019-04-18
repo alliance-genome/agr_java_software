@@ -1,17 +1,23 @@
 package org.alliancegenome.neo4j.entity;
 
+import java.io.Serializable;
+import java.util.List;
+
+import org.alliancegenome.neo4j.entity.node.Allele;
+import org.alliancegenome.neo4j.entity.node.DOTerm;
+import org.alliancegenome.neo4j.entity.node.EvidenceCode;
+import org.alliancegenome.neo4j.entity.node.Gene;
+import org.alliancegenome.neo4j.entity.node.Publication;
+import org.alliancegenome.neo4j.entity.node.Source;
+import org.alliancegenome.neo4j.view.View;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonView;
+
 import lombok.Getter;
 import lombok.Setter;
-import org.alliancegenome.core.service.SortingField;
-import org.alliancegenome.neo4j.entity.node.*;
-import org.alliancegenome.neo4j.view.View;
-
-import java.io.Serializable;
-import java.util.*;
 
 @Getter
 @Setter
