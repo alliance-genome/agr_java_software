@@ -2,7 +2,7 @@ all:
 	mvn clean package
 
 api:
-	mvn package -pl agr_api -am
+	mvn clean package -pl agr_api -am
 
 apirun: api
 	make -C agr_api run
@@ -15,9 +15,6 @@ indexer:
 
 esutil:
 	mvn clean package -pl agr_elasticsearch_util -am
-
-submit:
-	mvn clean package -pl agr_submission -am
 
 core:
 	mvn clean package -pl agr_java_core -am
