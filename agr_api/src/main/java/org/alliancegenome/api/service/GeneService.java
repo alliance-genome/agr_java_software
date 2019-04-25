@@ -49,7 +49,9 @@ public class GeneService {
         JsonResultResponse<Allele> ret = new JsonResultResponse<>();
         List<Allele> alleles = geneRepo.getAlleles(id);
         ret.setResults(alleles);
-        ret.setTotal(alleles.size());
+        if(alleles != null) {
+            ret.setTotal(alleles.size());
+        }
         return ret;
     }
 

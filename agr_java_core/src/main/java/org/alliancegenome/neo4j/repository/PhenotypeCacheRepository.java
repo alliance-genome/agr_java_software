@@ -47,8 +47,10 @@ public class PhenotypeCacheRepository {
         List<PhenotypeAnnotation> filteredPhenotypeAnnotationList = filterDiseaseAnnotations(fullPhenotypeAnnotationList, pagination.getFieldFilterValueMap());
 
         PaginationResult<PhenotypeAnnotation> result = new PaginationResult<>();
-        result.setTotalNumber(fullPhenotypeAnnotationList.size());
-        result.setResult(getSortedAndPaginatedDiseaseAnnotations(pagination, filteredPhenotypeAnnotationList));
+        if(fullPhenotypeAnnotationList != null) {
+            result.setTotalNumber(fullPhenotypeAnnotationList.size());
+            result.setResult(getSortedAndPaginatedDiseaseAnnotations(pagination, filteredPhenotypeAnnotationList));
+        }
         return result;
     }
 
