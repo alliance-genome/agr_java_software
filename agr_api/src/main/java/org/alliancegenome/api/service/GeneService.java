@@ -1,31 +1,23 @@
 package org.alliancegenome.api.service;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import javax.enterprise.context.RequestScoped;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.core.service.PaginationResult;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.EntitySummary;
 import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
-import org.alliancegenome.neo4j.entity.node.Allele;
-import org.alliancegenome.neo4j.entity.node.CrossReference;
-import org.alliancegenome.neo4j.entity.node.Gene;
-import org.alliancegenome.neo4j.entity.node.GeneticEntity;
-import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
-import org.alliancegenome.neo4j.entity.node.Publication;
-import org.alliancegenome.neo4j.entity.node.Species;
+import org.alliancegenome.neo4j.entity.node.*;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.alliancegenome.neo4j.repository.InteractionRepository;
 import org.alliancegenome.neo4j.repository.PhenotypeCacheRepository;
 import org.alliancegenome.neo4j.repository.PhenotypeRepository;
 import org.neo4j.ogm.model.Result;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import javax.enterprise.context.RequestScoped;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RequestScoped
 public class GeneService {
@@ -56,7 +48,7 @@ public class GeneService {
     public JsonResultResponse<InteractionGeneJoin> getInteractions(String id) {
         JsonResultResponse<InteractionGeneJoin> ret = new JsonResultResponse<>();
         ret.setResults(interRepo.getInteractions(id));
-        ret.addSupplementalData("interactionSummary", getInteractionSummary(id));
+        ret.addAnnotationSummarySupplementalData(getInteractionSummary(id));
         return ret;
     }
 
