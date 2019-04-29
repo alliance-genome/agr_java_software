@@ -623,7 +623,7 @@ public class DiseaseIT {
         assertNotNull(term);
         assertThat(term.getName(), equalTo("choriocarcinoma"));
         assertThat(term.getSynonyms().stream().map(Synonym::getPrimaryKey).collect(Collectors.toList()), containsInAnyOrder("Chorioepithelioma"));
-        assertThat(term.getChildren().size(), equalTo(8));
+        assertThat(term.getChildren().size(), greaterThanOrEqualTo(8));
         assertThat(term.getParents().size(), equalTo(1));
         assertThat(term.getDefLinks().size(), equalTo(1));
     }
