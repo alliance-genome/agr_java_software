@@ -76,4 +76,11 @@ public class JsonResultResponse<T> {
         supplementalData.put(attribute, object);
 
     }
+
+    public void addAnnotationSummarySupplementalData(Object object) {
+        if (supplementalData == null)
+            supplementalData = new LinkedHashMap<>();
+        supplementalData.put("annotationSummary", object);
+
+    }
 }

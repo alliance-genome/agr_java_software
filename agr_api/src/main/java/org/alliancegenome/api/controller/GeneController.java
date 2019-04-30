@@ -1,19 +1,7 @@
 package org.alliancegenome.api.controller;
 
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.alliancegenome.api.rest.interfaces.GeneRESTInterface;
 import org.alliancegenome.api.service.DiseaseService;
 import org.alliancegenome.api.service.ExpressionService;
@@ -38,7 +26,17 @@ import org.alliancegenome.neo4j.view.OrthologView;
 import org.alliancegenome.neo4j.view.OrthologyFilter;
 import org.apache.commons.collections.CollectionUtils;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @RequestScoped
 public class GeneController extends BaseController implements GeneRESTInterface {
@@ -103,7 +101,9 @@ public class GeneController extends BaseController implements GeneRESTInterface 
         pagination.addFieldFilter(FieldFilter.GENETIC_ENTITY_TYPE, geneticEntityType);
         pagination.addFieldFilter(FieldFilter.PHENOTYPE, phenotype);
         pagination.addFieldFilter(FieldFilter.FREFERENCE, reference);
-        return geneService.getPhenotypeAnnotations(id, pagination);
+        JsonResultResponse<PhenotypeAnnotation> phenotypeAnnotations = geneService.getPhenotypeAnnotations(id, pagination);
+        phenotypeAnnotations.addAnnotationSummarySupplementalData(getPhenotypeSummary(id));
+        return phenotypeAnnotations;
     }
 
     private JsonResultResponse<DiseaseAnnotation> getEmpiricalDiseaseAnnotation(String id,
