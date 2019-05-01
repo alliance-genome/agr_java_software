@@ -16,6 +16,7 @@ import org.alliancegenome.core.translators.tdf.DiseaseAnnotationToTdfTranslator;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
+import org.alliancegenome.neo4j.entity.DiseaseAnnotationOrthologySummary;
 import org.alliancegenome.neo4j.entity.node.DOTerm;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
