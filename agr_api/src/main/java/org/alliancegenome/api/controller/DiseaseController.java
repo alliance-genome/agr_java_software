@@ -1,12 +1,5 @@
 package org.alliancegenome.api.controller;
 
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
 import org.alliancegenome.api.rest.interfaces.DiseaseRESTInterface;
 import org.alliancegenome.api.service.DiseaseService;
 import org.alliancegenome.core.exceptions.RestErrorException;
@@ -16,10 +9,16 @@ import org.alliancegenome.core.translators.tdf.DiseaseAnnotationToTdfTranslator;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
-import org.alliancegenome.neo4j.entity.DiseaseAnnotationOrthologySummary;
 import org.alliancegenome.neo4j.entity.node.DOTerm;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 @RequestScoped
 public class DiseaseController extends BaseController implements DiseaseRESTInterface {
