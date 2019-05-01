@@ -256,7 +256,7 @@ class DiseaseAnnotationIntegrationSpec extends AbstractSpec {
         "DOID:9952" | ""            | 60                   | 80
         "DOID:9952" | "gene"        | 60                   | 80
         "DOID:9952" | "allele"      | 3                    | 40
-        "DOID:9952" | "allele|GENE" | 60                   | 80
+        "DOID:9952" | "allele%7CGENE" | 60                   | 80
     }
 
 
