@@ -252,10 +252,10 @@ class DiseaseAnnotationIntegrationSpec extends AbstractSpec {
         results.size() < resultSizeUpperLimit
 
         where:
-        disease     | query         | resultSizeLowerLimit | resultSizeUpperLimit
-        "DOID:9952" | ""            | 60                   | 80
-        "DOID:9952" | "gene"        | 60                   | 80
-        "DOID:9952" | "allele"      | 3                    | 40
+        disease     | query           | resultSizeLowerLimit | resultSizeUpperLimit
+        "DOID:9952" | ""              | 60                   | 80
+        "DOID:9952" | "gene"          | 60                   | 80
+        "DOID:9952" | "allele"        | 3                    | 40
         "DOID:9952" | "allele%7CGENE" | 60                   | 80
     }
 

@@ -1,13 +1,13 @@
 package org.alliancegenome.core.service;
 
+import org.alliancegenome.es.model.query.FieldFilter;
+import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import org.alliancegenome.es.model.query.FieldFilter;
-import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
 
 public class PhenotypeAnnotationFiltering {
 
@@ -17,7 +17,10 @@ public class PhenotypeAnnotationFiltering {
 
     public static FilterFunction<PhenotypeAnnotation, String> geneticEntityFilter =
             (annotation, value) -> {
-                return FilterFunction.contains(annotation.getGeneticEntity().getSymbol(), value);
+                if (annotation.getGeneticEntity() != null)
+                    return FilterFunction.contains(annotation.getGeneticEntity().getSymbol(), value);
+                else
+                    return false;
             };
 
     public static FilterFunction<PhenotypeAnnotation, String> sourceFilter =
