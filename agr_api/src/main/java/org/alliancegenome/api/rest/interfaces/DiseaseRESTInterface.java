@@ -35,7 +35,7 @@ public interface DiseaseRESTInterface {
 
     @GET
     @Path("/{id}/associations")
-    @JsonView(value = {View.DiseaseAnnotation.class})
+    @JsonView(value = {View.DiseaseAnnotationSummary.class})
     @ApiOperation(value = "Retrieve all DiseaseAnnotation records for a given disease id")
     public JsonResultResponse<DiseaseAnnotation> getDiseaseAnnotationsSorted(
             @ApiParam(name = "id", value = "Disease by DOID: e.g. DOID:9952", required = true, type = "String")

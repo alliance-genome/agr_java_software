@@ -1,33 +1,18 @@
 package org.alliancegenome.neo4j.repository;
 
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.toList;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import org.alliancegenome.core.service.DiseaseAnnotationFiltering;
-import org.alliancegenome.core.service.DiseaseAnnotationSorting;
-import org.alliancegenome.core.service.FilterFunction;
-import org.alliancegenome.core.service.PaginationResult;
-import org.alliancegenome.core.service.SortingField;
+import org.alliancegenome.core.service.*;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
-import org.alliancegenome.neo4j.entity.node.DiseaseEntityJoin;
-import org.alliancegenome.neo4j.entity.node.EvidenceCode;
-import org.alliancegenome.neo4j.entity.node.Gene;
-import org.alliancegenome.neo4j.entity.node.Publication;
-import org.alliancegenome.neo4j.entity.node.PublicationEvidenceCodeJoin;
+import org.alliancegenome.neo4j.entity.node.*;
 import org.alliancegenome.neo4j.view.BaseFilter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toList;
 
 public class DiseaseCacheRepository {
 
@@ -40,6 +25,8 @@ public class DiseaseCacheRepository {
     private static List<DiseaseAnnotation> allDiseaseAnnotations = null;
     // Map<disease ID, List<DiseaseAnnotation>> including annotations to child terms
     private static Map<String, List<DiseaseAnnotation>> diseaseAnnotationMap = new HashMap<>();
+    // Map<disease ID, List<DiseaseAnnotation>> including annotations to child terms
+    private static Map<String, List<DiseaseAnnotation>> diseaseAnnotationSummaryMap = new HashMap<>();
     // Map<gene ID, List<DiseaseAnnotation>> including annotations to child terms
     private static Map<String, List<DiseaseAnnotation>> diseaseAnnotationExperimentGeneMap = new HashMap<>();
     // Map<gene ID, List<DiseaseAnnotation>> including annotations to child terms
@@ -51,7 +38,8 @@ public class DiseaseCacheRepository {
         if (caching)
             return null;
 
-        List<DiseaseAnnotation> fullDiseaseAnnotationList = diseaseAnnotationMap.get(diseaseID);
+        List<DiseaseAnnotation> fullDiseaseAnnotationList = diseaseAnnotationSummaryMap.get(diseaseID);
+
         //filtering
         List<DiseaseAnnotation> filteredDiseaseAnnotationList = filterDiseaseAnnotations(fullDiseaseAnnotationList, pagination.getFieldFilterValueMap());
 
@@ -141,6 +129,10 @@ public class DiseaseCacheRepository {
         Set<DiseaseEntityJoin> joinList = diseaseRepository.getAllDiseaseEntityJoins();
         if (joinList == null)
             return;
+
+        // grouping orthologous records
+        List<DiseaseAnnotation> summaryList = new ArrayList<>();
+
         // replace Gene references with the cached Gene references to keep the memory imprint low.
         allDiseaseAnnotations = joinList.stream()
                 .map(diseaseEntityJoin -> {
@@ -165,9 +157,23 @@ public class DiseaseCacheRepository {
                     return document;
                 })
                 .collect(toList());
+
         // default sorting
         DiseaseAnnotationSorting sorting = new DiseaseAnnotationSorting();
         allDiseaseAnnotations.sort(sorting.getDefaultComparator());
+
+        int currentHashCode = 0;
+        for (DiseaseAnnotation document : allDiseaseAnnotations) {
+            int hash = document.hashCode();
+            if (currentHashCode == hash) {
+                summaryList.get(summaryList.size() - 1).addOrthologousGene(document.getOrthologyGene());
+            } else {
+                summaryList.add(document);
+            }
+            currentHashCode = hash;
+        }
+
+
         log.info("Retrieved " + allDiseaseAnnotations.size() + " annotations");
         long startCreateHistogram = System.currentTimeMillis();
         Map<String, Set<String>> closureMapping = diseaseRepository.getClosureMapping();
@@ -183,6 +189,11 @@ public class DiseaseCacheRepository {
                     .filter(join -> allDiseaseIDs.contains(join.getDisease().getPrimaryKey()))
                     .collect(Collectors.toList());
             diseaseAnnotationMap.put(termID, joins);
+
+            List<DiseaseAnnotation> summaryJoins = summaryList.stream()
+                    .filter(join -> allDiseaseIDs.contains(join.getDisease().getPrimaryKey()))
+                    .collect(Collectors.toList());
+            diseaseAnnotationSummaryMap.put(termID, summaryJoins);
         });
 
         System.out.println("Time populating diseaseAnnotationMap:  " + ((System.currentTimeMillis() - start) / 1000) + " s");

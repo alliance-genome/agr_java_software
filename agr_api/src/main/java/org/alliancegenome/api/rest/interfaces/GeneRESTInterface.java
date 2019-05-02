@@ -203,7 +203,7 @@ public interface GeneRESTInterface {
     @GET
     @Path("/{id}/diseases-via-orthology")
     @ApiOperation(value = "Retrieve disease annotations for a given gene")
-    @JsonView(value = {View.DiseaseAnnotation.class})
+    @JsonView(value = {View.DiseaseAnnotationAll.class})
     JsonResultResponse<DiseaseAnnotation> getDiseaseViaOrthology(
             @ApiParam(name = "id", value = "Gene by ID: e.g. ZFIN:ZDB-GENE-990415-8", required = true, type = "String")
             @PathParam("id") String id,
