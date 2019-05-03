@@ -169,7 +169,8 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
     }
 
     private Set<DiseaseEntityJoin> allDiseaseEntityJoins = new HashSet<>(200000);
-    private Map<String, Set<String>> closureMap = null;
+    private static Map<String, Set<String>> closureMap = null;
+    private static Map<String, Set<String>> closureChildMap = null;
 
     public Set<DiseaseEntityJoin> getDiseaseAssociations(String diseaseID, Pagination pagination) {
         Set<DiseaseEntityJoin> allDiseaseEntityJoinSet = getAllDiseaseEntityJoins();
@@ -200,8 +201,8 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
     }
 
     public Map<String, Set<String>> getClosureChildMapping() {
-        if (closureMap != null)
-            return closureMap;
+        if (closureChildMap != null)
+            return closureChildMap;
         //closure
         String cypher = "MATCH (diseaseParent:DOTerm)<-[:IS_A_PART_OF_CLOSURE]-(disease:DOTerm) where diseaseParent.is_obsolete = 'false' " +
                 " return diseaseParent.primaryKey as parent, disease.primaryKey as child order by disease.name";
@@ -217,9 +218,9 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
                     return cl;
                 })
                 .collect(Collectors.toList());
-        closureMap = cls.stream()
+        closureChildMap = cls.stream()
                 .collect(Collectors.groupingBy(Closure::getChild, Collectors.mapping(Closure::getParent, Collectors.toSet())));
-        return closureMap;
+        return closureChildMap;
     }
 
     private List<DOTerm> doAgrDoList;

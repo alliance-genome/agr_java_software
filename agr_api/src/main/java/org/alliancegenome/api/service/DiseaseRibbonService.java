@@ -16,16 +16,9 @@ public class DiseaseRibbonService {
 
     private Log log = LogFactory.getLog(getClass());
     private DiseaseRepository diseaseRepository = new DiseaseRepository();
-    private DiseaseRibbonSummary summary;
 
     public DiseaseRibbonSummary getDiseaseRibbonSectionInfo() {
-        if (summary != null)
-            return summary;
-
-        summary = new DiseaseRibbonSummary();
-
-        DiseaseRibbonSection section0 = new DiseaseRibbonSection();
-        summary.addRibbonSection(section0);
+        DiseaseRibbonSummary summary = new DiseaseRibbonSummary();
 
         DiseaseRibbonSection section1 = new DiseaseRibbonSection();
         section1.setLabel("Infection");

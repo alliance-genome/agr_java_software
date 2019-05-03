@@ -4,10 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Getter;
 import lombok.Setter;
-import org.alliancegenome.api.entity.DiseaseEntitySlim;
-import org.alliancegenome.api.entity.DiseaseEntitySubgroupSlim;
-import org.alliancegenome.api.entity.DiseaseRibbonEntity;
-import org.alliancegenome.api.entity.DiseaseRibbonSection;
+import org.alliancegenome.api.entity.*;
 import org.alliancegenome.neo4j.view.View;
 
 import java.util.ArrayList;
@@ -54,7 +51,11 @@ public class DiseaseRibbonSummary {
 
     public DiseaseRibbonSummary() {
         DiseaseRibbonSection allAnnotations = new DiseaseRibbonSection();
-        allAnnotations.setLabel("All annotations");
+        final String allAnnotation = "All annotations";
+        allAnnotations.setLabel(allAnnotation);
+        DiseaseSectionSlim slim = new DiseaseSectionSlim();
+        slim.setLabel(allAnnotation);
+        allAnnotations.addDiseaseSlim(slim);
         addRibbonSection(allAnnotations);
     }
 }
