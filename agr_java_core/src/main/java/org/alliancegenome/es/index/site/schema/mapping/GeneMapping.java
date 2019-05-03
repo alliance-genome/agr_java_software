@@ -44,7 +44,6 @@ public class GeneMapping extends Mapping {
                     new FieldBuilder(builder,"cellularComponentExpressionAgrSlim","text").keyword().build();
 
                     buildGenomeLocationsField();
-                    buildNestedDocument("diseasesViaExperiment");
 
                     new FieldBuilder(builder,"secondaryIds","keyword").build();
                     new FieldBuilder(builder,"soTermId","keyword").build();

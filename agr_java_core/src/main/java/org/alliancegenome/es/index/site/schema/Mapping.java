@@ -8,6 +8,7 @@ import org.alliancegenome.es.index.site.schema.mapping.DiseaseMapping;
 import org.alliancegenome.es.index.site.schema.mapping.GeneMapping;
 import org.alliancegenome.es.index.site.schema.mapping.GoMapping;
 import org.alliancegenome.es.index.site.schema.mapping.PhenotypeAnnotationMapping;
+import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 
 public abstract class Mapping extends Builder {
