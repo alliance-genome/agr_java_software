@@ -1,18 +1,7 @@
 package org.alliancegenome.neo4j.repository;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.StringJoiner;
-import java.util.TreeMap;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
-
+import lombok.Getter;
+import lombok.Setter;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.DiseaseSummary;
@@ -24,8 +13,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.neo4j.ogm.model.Result;
 
-import lombok.Getter;
-import lombok.Setter;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 public class DiseaseRepository extends Neo4jRepository<DOTerm> {
 
@@ -207,6 +197,54 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
         closureMap = cls.stream()
                 .collect(Collectors.groupingBy(Closure::getParent, Collectors.mapping(Closure::getChild, Collectors.toSet())));
         return closureMap;
+    }
+
+    public Map<String, Set<String>> getClosureChildMapping() {
+        if (closureMap != null)
+            return closureMap;
+        //closure
+        String cypher = "MATCH (diseaseParent:DOTerm)<-[:IS_A_PART_OF_CLOSURE]-(disease:DOTerm) where diseaseParent.is_obsolete = 'false' " +
+                " return diseaseParent.primaryKey as parent, disease.primaryKey as child order by disease.name";
+
+        HashMap<String, String> bindingMap = new HashMap<>();
+        //bindingMap.put("rootDiseaseID", "DOID:9952");
+        Result result = queryForResult(cypher, bindingMap);
+        List<Closure> cls = StreamSupport.stream(result.spliterator(), false)
+                .map(stringObjectMap -> {
+                    Closure cl = new Closure();
+                    cl.setParent((String) stringObjectMap.get("parent"));
+                    cl.setChild((String) stringObjectMap.get("child"));
+                    return cl;
+                })
+                .collect(Collectors.toList());
+        closureMap = cls.stream()
+                .collect(Collectors.groupingBy(Closure::getChild, Collectors.mapping(Closure::getParent, Collectors.toSet())));
+        return closureMap;
+    }
+
+    private List<DOTerm> doAgrDoList;
+
+    public List<DOTerm> getAgrDoSlim() {
+        // cache the high-level terms of AGR Do slim
+        if (doAgrDoList != null)
+            return doAgrDoList;
+        String cypher = "MATCH (disease:DOTerm) where disease.is_obsolete = 'false' and disease.primaryKey IN ['DOID:104','DOID:1564'," +
+                "'DOID:1398','DOID:162','DOID:0080015','DOID:0014667','DOID:0050155','DOID:0050177','DOID:0060071','DOID:0060072'," +
+                "'DOID:0060118','DOID:0080014','DOID:15','DOID:150','DOID:1579','DOID:16','DOID:17','DOID:18','DOID:225','DOID:28'," +
+                "'DOID:2914','DOID:331','DOID:574','DOID:74','DOID:77','DOID:934','DOID:1287'] return disease order by disease.name";
+
+/*
+            String cypher = "MATCH (disease:DOTerm) " +
+                    "where all (subset IN ['" + DOTerm.HIGH_LEVEL_TERM_LIST_SLIM + "'] where subset in disease.subset)  RETURN disease ";
+*/
+
+        Iterable<DOTerm> joins = query(cypher);
+
+        doAgrDoList = StreamSupport.stream(joins.spliterator(), false)
+                .collect(Collectors.toList());
+        System.out.println("AGR-DO slim: " + doAgrDoList.size());
+        return doAgrDoList;
+
     }
 
     @Setter

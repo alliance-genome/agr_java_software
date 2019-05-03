@@ -72,6 +72,22 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         return null;
     }
 
+    public Gene getShallowGene(String primaryKey) {
+        HashMap<String, String> map = new HashMap<>();
+
+        map.put("primaryKey", primaryKey);
+        String query = " MATCH p1=(q:Species)-[:FROM_SPECIES]-(g:Gene) WHERE g.primaryKey = {primaryKey} "
+                + "RETURN p1";
+
+        Iterable<Gene> genes = query(query, map);
+        for (Gene g : genes) {
+            if (g.getPrimaryKey().equals(primaryKey)) {
+                return g;
+            }
+        }
+        return null;
+    }
+
     public Gene getOneGeneBySecondaryId(String secondaryIdPrimaryKey) {
         HashMap<String, String> map = new HashMap<>();
 

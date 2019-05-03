@@ -1,21 +1,11 @@
 package org.alliancegenome.api.tests.integration;
 
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.greaterThanOrEqualTo;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.log4j.Log4j2;
 import org.alliancegenome.api.service.DiseaseService;
+import org.alliancegenome.api.service.helper.DiseaseRibbonSummary;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.core.translators.tdf.DiseaseAnnotationToTdfTranslator;
@@ -31,17 +21,19 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
-import lombok.extern.log4j.Log4j2;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.*;
 
 @Log4j2
 public class DiseaseIT {
 
     private ObjectMapper mapper = new ObjectMapper();
-    private DiseaseService geneService = new DiseaseService();
+    private DiseaseService diseaseService = new DiseaseService();
 
     @Before
     public void before() {
@@ -60,7 +52,7 @@ public class DiseaseIT {
         String diseaseID = "DOID:9952";
         pagination.setSortBy("geneSymbol");
         pagination.setAsc(true);
-        JsonResultResponse<DiseaseAnnotation> response = geneService.getDiseaseAnnotationsByDisease(diseaseID, pagination);
+        JsonResultResponse<DiseaseAnnotation> response = diseaseService.getDiseaseAnnotationsByDisease(diseaseID, pagination);
         assertResponse(response, 10, 74);
     }
 
@@ -69,7 +61,7 @@ public class DiseaseIT {
         Pagination pagination = new Pagination(1, 100, null, null);
         // choriocarcinoma
         String diseaseID = "DOID:3594";
-        JsonResultResponse<DiseaseAnnotation> response = geneService.getDiseaseAnnotationsByDisease(diseaseID, pagination);
+        JsonResultResponse<DiseaseAnnotation> response = diseaseService.getDiseaseAnnotationsByDisease(diseaseID, pagination);
         assertResponse(response, 35, 35);
 
         DiseaseAnnotation annotation = response.getResults().get(0);
@@ -136,7 +128,7 @@ public class DiseaseIT {
         String diseaseID = "DOID:9952";
 
         pagination.setSortBy("associationType");
-        JsonResultResponse<DiseaseAnnotation> response = geneService.getDiseaseAnnotationsByDisease(diseaseID, pagination);
+        JsonResultResponse<DiseaseAnnotation> response = diseaseService.getDiseaseAnnotationsByDisease(diseaseID, pagination);
         assertResponse(response, 25, 74);
 
         DiseaseAnnotation annotation = response.getResults().get(0);
@@ -191,7 +183,7 @@ public class DiseaseIT {
         // acute lymphocytic lukemia
         String diseaseID = "DOID:9952";
         pagination.setSortBy("species");
-        JsonResultResponse<DiseaseAnnotation> response = geneService.getDiseaseAnnotationsByDisease(diseaseID, pagination);
+        JsonResultResponse<DiseaseAnnotation> response = diseaseService.getDiseaseAnnotationsByDisease(diseaseID, pagination);
 
         DiseaseAnnotationToTdfTranslator translator = new DiseaseAnnotationToTdfTranslator();
         String output = translator.getAllRows(response.getResults());
@@ -207,7 +199,7 @@ public class DiseaseIT {
 
         // descending sorting
         pagination.setAsc(false);
-        response = geneService.getDiseaseAnnotationsByDisease(diseaseID, pagination);
+        response = diseaseService.getDiseaseAnnotationsByDisease(diseaseID, pagination);
 
 /*
         translator = new DiseaseAnnotationToTdfTranslator();
@@ -225,7 +217,7 @@ public class DiseaseIT {
 
         // sort by association type
         pagination.setSortBy("associationType");
-        response = geneService.getDiseaseAnnotationsByDisease(diseaseID, pagination);
+        response = diseaseService.getDiseaseAnnotationsByDisease(diseaseID, pagination);
 
         translator = new DiseaseAnnotationToTdfTranslator();
         output = translator.getAllRows(response.getResults());
@@ -241,7 +233,7 @@ public class DiseaseIT {
 
         // sort by disease and containsFilterValue.species
         pagination.setSortBy("disease,species");
-        response = geneService.getDiseaseAnnotationsByDisease(diseaseID, pagination);
+        response = diseaseService.getDiseaseAnnotationsByDisease(diseaseID, pagination);
 
         translator = new DiseaseAnnotationToTdfTranslator();
         output = translator.getAllRows(response.getResults());
@@ -263,7 +255,7 @@ public class DiseaseIT {
         Pagination pagination = new Pagination(1, 10, null, null);
         // Pten
         String geneID = "MGI:109583";
-        JsonResultResponse<DiseaseAnnotation> response = geneService.getDiseaseAnnotations(geneID, pagination, true);
+        JsonResultResponse<DiseaseAnnotation> response = diseaseService.getDiseaseAnnotations(geneID, pagination, true);
         assertResponse(response, 10, 50);
 
         DiseaseAnnotation annotation = response.getResults().get(0);
@@ -305,15 +297,15 @@ public class DiseaseIT {
 
         // add containsFilterValue on disease
         pagination.makeSingleFieldFilter(FieldFilter.DISEASE, "BL");
-        JsonResultResponse<DiseaseAnnotation> response = geneService.getDiseaseAnnotations(geneID, pagination, true);
+        JsonResultResponse<DiseaseAnnotation> response = diseaseService.getDiseaseAnnotations(geneID, pagination, true);
         assertResponse(response, 3, 3);
 
-        DiseaseSummary summary = geneService.getDiseaseSummary(geneID, DiseaseSummary.Type.EXPERIMENT);
+        DiseaseSummary summary = diseaseService.getDiseaseSummary(geneID, DiseaseSummary.Type.EXPERIMENT);
         assertNotNull(summary);
         assertThat(50L, equalTo(summary.getNumberOfAnnotations()));
         assertThat(14L, equalTo(summary.getNumberOfEntities()));
 
-        summary = geneService.getDiseaseSummary(geneID, DiseaseSummary.Type.ORTHOLOGY);
+        summary = diseaseService.getDiseaseSummary(geneID, DiseaseSummary.Type.ORTHOLOGY);
         assertNotNull(summary);
         assertThat(summary.getNumberOfAnnotations(), greaterThan(30L));
         assertThat(summary.getNumberOfEntities(), greaterThan(27L));
@@ -350,7 +342,7 @@ public class DiseaseIT {
 
         // add containsFilterValue on feature symbol
         pagination.makeSingleFieldFilter(FieldFilter.GENETIC_ENTITY, "tm1h");
-        JsonResultResponse<DiseaseAnnotation> response = geneService.getDiseaseAnnotations(geneID, pagination, true);
+        JsonResultResponse<DiseaseAnnotation> response = diseaseService.getDiseaseAnnotations(geneID, pagination, true);
         assertResponse(response, 10, 10);
 
         DiseaseAnnotation annotation = response.getResults().get(0);
@@ -386,7 +378,7 @@ public class DiseaseIT {
 
         // add containsFilterValue on feature symbol
         pagination.makeSingleFieldFilter(FieldFilter.GENETIC_ENTITY_TYPE, "allele");
-        JsonResultResponse<DiseaseAnnotation> response = geneService.getDiseaseAnnotations(geneID, pagination, true);
+        JsonResultResponse<DiseaseAnnotation> response = diseaseService.getDiseaseAnnotations(geneID, pagination, true);
         assertResponse(response, 20, 36);
 
         DiseaseAnnotation annotation = response.getResults().get(0);
@@ -397,7 +389,7 @@ public class DiseaseIT {
         assertThat(annotation.getPublications().stream().map(Publication::getPubId).collect(Collectors.joining()), equalTo("PMID:21262837"));
 
         pagination.makeSingleFieldFilter(FieldFilter.GENETIC_ENTITY_TYPE, "gene");
-        response = geneService.getDiseaseAnnotations(geneID, pagination, true);
+        response = diseaseService.getDiseaseAnnotations(geneID, pagination, true);
         assertResponse(response, 14, 14);
         annotation = response.getResults().get(1);
         assertThat(annotation.getDisease().getName(), equalTo("autistic disorder"));
@@ -410,19 +402,19 @@ public class DiseaseIT {
         Pagination pagination = new Pagination(1, null, null, null);
         // Pten
         String geneID = "HGNC:3686";
-        DiseaseSummary summary = geneService.getDiseaseSummary(geneID, DiseaseSummary.Type.EXPERIMENT);
+        DiseaseSummary summary = diseaseService.getDiseaseSummary(geneID, DiseaseSummary.Type.EXPERIMENT);
         assertNotNull(summary);
         assertThat(summary.getNumberOfAnnotations(), greaterThan(6L));
         assertThat(summary.getNumberOfEntities(), greaterThanOrEqualTo(6L));
 
-        summary = geneService.getDiseaseSummary(geneID, DiseaseSummary.Type.ORTHOLOGY);
+        summary = diseaseService.getDiseaseSummary(geneID, DiseaseSummary.Type.ORTHOLOGY);
         assertNotNull(summary);
         assertThat(3L, equalTo(summary.getNumberOfAnnotations()));
         assertThat(3L, equalTo(summary.getNumberOfEntities()));
 
         // add containsFilterValue on feature symbol
         pagination.makeSingleFieldFilter(FieldFilter.ASSOCIATION_TYPE, "IMPLICATED");
-        JsonResultResponse<DiseaseAnnotation> response = geneService.getDiseaseAnnotations(geneID, pagination, true);
+        JsonResultResponse<DiseaseAnnotation> response = diseaseService.getDiseaseAnnotations(geneID, pagination, true);
         assertResponse(response, 2, 2);
 
         DiseaseAnnotation annotation = response.getResults().get(0);
@@ -431,7 +423,7 @@ public class DiseaseIT {
         assertThat(annotation.getPublications().stream().map(Publication::getPubId).collect(Collectors.joining()), equalTo("RGD:7240710"));
 
         pagination.makeSingleFieldFilter(FieldFilter.ASSOCIATION_TYPE, "MARKER");
-        response = geneService.getDiseaseAnnotations(geneID, pagination, true);
+        response = diseaseService.getDiseaseAnnotations(geneID, pagination, true);
         assertLimitResponse(response, 4, 4);
         assertNull(annotation.getFeature());
     }
@@ -444,11 +436,11 @@ public class DiseaseIT {
 
         // add containsFilterValue on evidence code
         pagination.makeSingleFieldFilter(FieldFilter.EVIDENCE_CODE, "IEP");
-        JsonResultResponse<DiseaseAnnotation> response = geneService.getDiseaseAnnotations(geneID, pagination, true);
+        JsonResultResponse<DiseaseAnnotation> response = diseaseService.getDiseaseAnnotations(geneID, pagination, true);
         assertLimitResponse(response, 4, 4);
 
         pagination.makeSingleFieldFilter(FieldFilter.EVIDENCE_CODE, "iAG");
-        response = geneService.getDiseaseAnnotations(geneID, pagination, true);
+        response = diseaseService.getDiseaseAnnotations(geneID, pagination, true);
         assertResponse(response, 1, 1);
     }
 
@@ -460,11 +452,11 @@ public class DiseaseIT {
 
         // add filter on reference
         pagination.makeSingleFieldFilter(FieldFilter.REFERENCE, "380");
-        JsonResultResponse<DiseaseAnnotation> response = geneService.getDiseaseAnnotations(geneID, pagination, true);
+        JsonResultResponse<DiseaseAnnotation> response = diseaseService.getDiseaseAnnotations(geneID, pagination, true);
         assertResponse(response, 3, 3);
 
         pagination.makeSingleFieldFilter(FieldFilter.REFERENCE, "710");
-        response = geneService.getDiseaseAnnotations(geneID, pagination, true);
+        response = diseaseService.getDiseaseAnnotations(geneID, pagination, true);
         assertResponse(response, 1, 1);
     }
 
@@ -473,18 +465,18 @@ public class DiseaseIT {
         Pagination pagination = new Pagination(1, 10, null, null);
         // Ogg1
         String geneID = "MGI:1097693";
-        DiseaseSummary summary = geneService.getDiseaseSummary(geneID, DiseaseSummary.Type.EXPERIMENT);
+        DiseaseSummary summary = diseaseService.getDiseaseSummary(geneID, DiseaseSummary.Type.EXPERIMENT);
         assertNotNull(summary);
         assertThat(0L, equalTo(summary.getNumberOfAnnotations()));
         assertThat(0L, equalTo(summary.getNumberOfEntities()));
 
-        summary = geneService.getDiseaseSummary(geneID, DiseaseSummary.Type.ORTHOLOGY);
+        summary = diseaseService.getDiseaseSummary(geneID, DiseaseSummary.Type.ORTHOLOGY);
         assertNotNull(summary);
         assertThat(summary.getNumberOfAnnotations(), greaterThan(22L));
         assertThat(summary.getNumberOfEntities(), greaterThan(19L));
 
 
-        JsonResultResponse<DiseaseAnnotation> response = geneService.getDiseaseAnnotations(geneID, pagination, false);
+        JsonResultResponse<DiseaseAnnotation> response = diseaseService.getDiseaseAnnotations(geneID, pagination, false);
         assertLimitResponse(response, 10, 23);
 
         DiseaseAnnotation annotation = response.getResults().get(0);
@@ -524,7 +516,7 @@ public class DiseaseIT {
 
         // add containsFilterValue on disease
         pagination.makeSingleFieldFilter(FieldFilter.DISEASE, "OmA");
-        JsonResultResponse<DiseaseAnnotation> response = geneService.getDiseaseAnnotations(geneID, pagination, false);
+        JsonResultResponse<DiseaseAnnotation> response = diseaseService.getDiseaseAnnotations(geneID, pagination, false);
         assertResponse(response, 11, 11);
 
         DiseaseAnnotation annotation = response.getResults().get(0);
@@ -562,7 +554,7 @@ public class DiseaseIT {
 
         // add containsFilterValue on disease
         pagination.makeSingleFieldFilter(FieldFilter.ASSOCIATION_TYPE, "ImplicaT");
-        JsonResultResponse<DiseaseAnnotation> response = geneService.getDiseaseAnnotations(geneID, pagination, false);
+        JsonResultResponse<DiseaseAnnotation> response = diseaseService.getDiseaseAnnotations(geneID, pagination, false);
         assertLimitResponse(response, 14, 14);
 
         DiseaseAnnotation annotation = response.getResults().get(0);
@@ -573,7 +565,7 @@ public class DiseaseIT {
         assertThat(annotation.getPublications().stream().map(Publication::getPubId).collect(Collectors.joining()), equalTo("MGI:6194238"));
 
         pagination.makeSingleFieldFilter(FieldFilter.ASSOCIATION_TYPE, "BIo");
-        response = geneService.getDiseaseAnnotations(geneID, pagination, false);
+        response = diseaseService.getDiseaseAnnotations(geneID, pagination, false);
         assertLimitResponse(response, 17, 17);
 
     }
@@ -586,7 +578,7 @@ public class DiseaseIT {
 
         // add containsFilterValue on disease
         pagination.makeSingleFieldFilter(FieldFilter.ORTHOLOG, "daF");
-        JsonResultResponse<DiseaseAnnotation> response = geneService.getDiseaseAnnotations(geneID, pagination, false);
+        JsonResultResponse<DiseaseAnnotation> response = diseaseService.getDiseaseAnnotations(geneID, pagination, false);
         assertResponse(response, 1, 1);
 
         DiseaseAnnotation annotation = response.getResults().get(0);
@@ -605,7 +597,7 @@ public class DiseaseIT {
 
         // add containsFilterValue on disease
         pagination.makeSingleFieldFilter(FieldFilter.ORTHOLOG_SPECIES, "ratt");
-        JsonResultResponse<DiseaseAnnotation> response = geneService.getDiseaseAnnotations(geneID, pagination, false);
+        JsonResultResponse<DiseaseAnnotation> response = diseaseService.getDiseaseAnnotations(geneID, pagination, false);
         assertResponse(response, 10, 10);
 
         DiseaseAnnotation annotation = response.getResults().get(0);
@@ -695,6 +687,14 @@ public class DiseaseIT {
                 "Sox9<sup>tm1Gsr</sup>",
                 "Sox9<sup>Bbfc</sup>"));
 
+    }
+
+
+    @Test
+    // Test Sox9 from MGI for disease via experiment records
+    public void checkDiseaseRibbonHeader() {
+        DiseaseRibbonSummary summary = diseaseService.getDiseaseRibbonSummary("MGI:109583");
+        assertNotNull(summary);
     }
 
 

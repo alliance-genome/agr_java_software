@@ -6,6 +6,7 @@ import org.alliancegenome.api.rest.interfaces.GeneRESTInterface;
 import org.alliancegenome.api.service.DiseaseService;
 import org.alliancegenome.api.service.ExpressionService;
 import org.alliancegenome.api.service.GeneService;
+import org.alliancegenome.api.service.helper.DiseaseRibbonSummary;
 import org.alliancegenome.api.service.helper.ExpressionSummary;
 import org.alliancegenome.core.exceptions.RestErrorException;
 import org.alliancegenome.core.exceptions.RestErrorMessage;
@@ -230,6 +231,13 @@ public class GeneController extends BaseController implements GeneRESTInterface 
 
         ExpressionService service = new ExpressionService();
         return service.getExpressionSummary(id);
+    }
+
+    @Override
+    public DiseaseRibbonSummary getDiseaseSummary(String id) {
+
+        DiseaseService service = new DiseaseService();
+        return service.getDiseaseRibbonSummary(id);
     }
 
     @Override
