@@ -15,14 +15,17 @@ import java.util.*;
 public class DiseaseRibbonService {
 
     private Log log = LogFactory.getLog(getClass());
-    private static DiseaseRepository diseaseRepository = new DiseaseRepository();
-    private static DiseaseRibbonSummary summary;
+    private DiseaseRepository diseaseRepository = new DiseaseRepository();
+    private DiseaseRibbonSummary summary;
 
-    public static DiseaseRibbonSummary getDiseaseRibbonSectionInfo() {
+    public DiseaseRibbonSummary getDiseaseRibbonSectionInfo() {
         if (summary != null)
             return summary;
 
         summary = new DiseaseRibbonSummary();
+
+        DiseaseRibbonSection section0 = new DiseaseRibbonSection();
+        summary.addRibbonSection(section0);
 
         DiseaseRibbonSection section1 = new DiseaseRibbonSection();
         section1.setLabel("Infection");
@@ -75,7 +78,7 @@ public class DiseaseRibbonService {
         return summary;
     }
 
-    public static Set<String> getSlimId(String doID) {
+    public Set<String> getSlimId(String doID) {
         Map<String, Set<String>> closureMapping = diseaseRepository.getClosureChildMapping();
         List<DOTerm> doList = diseaseRepository.getAgrDoSlim();
         Set<String> partOfSlimList = new HashSet<>(3);

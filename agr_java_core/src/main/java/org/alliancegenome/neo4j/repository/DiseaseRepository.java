@@ -228,15 +228,8 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
         // cache the high-level terms of AGR Do slim
         if (doAgrDoList != null)
             return doAgrDoList;
-        String cypher = "MATCH (disease:DOTerm) where disease.is_obsolete = 'false' and disease.primaryKey IN ['DOID:104','DOID:1564'," +
-                "'DOID:1398','DOID:162','DOID:0080015','DOID:0014667','DOID:0050155','DOID:0050177','DOID:0060071','DOID:0060072'," +
-                "'DOID:0060118','DOID:0080014','DOID:15','DOID:150','DOID:1579','DOID:16','DOID:17','DOID:18','DOID:225','DOID:28'," +
-                "'DOID:2914','DOID:331','DOID:574','DOID:74','DOID:77','DOID:934','DOID:1287'] return disease order by disease.name";
-
-/*
-            String cypher = "MATCH (disease:DOTerm) " +
-                    "where all (subset IN ['" + DOTerm.HIGH_LEVEL_TERM_LIST_SLIM + "'] where subset in disease.subset)  RETURN disease ";
-*/
+        String cypher = "MATCH (disease:DOTerm) where disease.subset =~ '.*" + DOTerm.HIGH_LEVEL_TERM_LIST_SLIM
+                + ".*' RETURN disease order by disease.name";
 
         Iterable<DOTerm> joins = query(cypher);
 

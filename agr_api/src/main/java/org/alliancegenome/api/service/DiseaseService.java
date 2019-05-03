@@ -86,24 +86,22 @@ public class DiseaseService {
     }
 
     public DiseaseRibbonSummary getDiseaseRibbonSummary(String geneID) {
-
-        DiseaseRibbonSummary summary = DiseaseRibbonService.getDiseaseRibbonSectionInfo();
-        PaginationResult<DiseaseAnnotation> paginationResult = diseaseCacheRepository.getDiseaseAnnotationList(geneID, new Pagination(), true);
+        DiseaseRibbonService diseaseRibbonService = new DiseaseRibbonService();
+        DiseaseRibbonSummary summary = diseaseRibbonService.getDiseaseRibbonSectionInfo();
+        Pagination pagination = new Pagination();
+        pagination.setLimitToAll();
+        PaginationResult<DiseaseAnnotation> paginationResult = diseaseCacheRepository.getDiseaseAnnotationList(geneID, pagination, true);
         // calculate histogram
-        Map<String, List<DiseaseAnnotation>> histogram = new HashMap<>();
-        paginationResult.getResult().forEach(annotation -> {
-            Set<String> slimIds = DiseaseRibbonService.getSlimId(annotation.getDisease().getPrimaryKey());
-            slimIds.forEach(slimId -> {
-                List<DiseaseAnnotation> list = histogram.get(slimId);
-                if (list == null)
-                    list = new ArrayList<>();
-                list.add(annotation);
-                histogram.put(slimId, list);
-            });
-        });
+        Map<String, List<DiseaseAnnotation>> histogram = getDiseaseAnnotationHistogram(paginationResult);
 
         Gene gene = geneRepository.getShallowGene(geneID);
         // populate diseaseEntity records
+        populateDiseaseRibbonSummary(geneID, summary, histogram, gene);
+        summary.addAllAnnotationsCount(geneID, paginationResult.getTotalNumber());
+        return summary;
+    }
+
+    private void populateDiseaseRibbonSummary(String geneID, DiseaseRibbonSummary summary, Map<String, List<DiseaseAnnotation>> histogram, Gene gene) {
         DiseaseRibbonEntity entity = new DiseaseRibbonEntity();
         entity.setId(geneID);
         entity.setLabel(gene.getSymbol());
@@ -115,6 +113,7 @@ public class DiseaseService {
             entitySlim.setId(slimId.getDoId());
 
             DiseaseEntitySubgroupSlim group = new DiseaseEntitySubgroupSlim();
+            group.setGroupName("Disease Annotations");
             int size = 0;
             if (histogram.get(slimId.getDoId()) != null)
                 size = histogram.get(slimId.getDoId()).size();
@@ -122,9 +121,22 @@ public class DiseaseService {
             entitySlim.addDiseaseEntitySubgroupSlim(group);
             entity.addDiseaseSlim(entitySlim);
         });
+    }
 
-
-        return summary;
+    private Map<String, List<DiseaseAnnotation>> getDiseaseAnnotationHistogram(PaginationResult<DiseaseAnnotation> paginationResult) {
+        Map<String, List<DiseaseAnnotation>> histogram = new HashMap<>();
+        DiseaseRibbonService diseaseRibbonService = new DiseaseRibbonService();
+        paginationResult.getResult().forEach(annotation -> {
+            Set<String> slimIds = diseaseRibbonService.getSlimId(annotation.getDisease().getPrimaryKey());
+            slimIds.forEach(slimId -> {
+                List<DiseaseAnnotation> list = histogram.get(slimId);
+                if (list == null)
+                    list = new ArrayList<>();
+                list.add(annotation);
+                histogram.put(slimId, list);
+            });
+        });
+        return histogram;
     }
 }
 
