@@ -120,6 +120,10 @@ public class Pagination {
 
     }
 
+    public void setLimitToAll() {
+        limit = Integer.MAX_VALUE;
+    }
+
     enum AscendingValues {
         TRUE(true), FALSE(false), YES(true), NO(false), UP(true), DOWN(false);
 
