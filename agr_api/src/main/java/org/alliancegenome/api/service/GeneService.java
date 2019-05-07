@@ -3,6 +3,7 @@ package org.alliancegenome.api.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.core.service.PaginationResult;
+import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.EntitySummary;
 import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
@@ -14,6 +15,7 @@ import org.alliancegenome.neo4j.repository.PhenotypeRepository;
 import org.neo4j.ogm.model.Result;
 
 import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +28,7 @@ public class GeneService {
     private static InteractionRepository interRepo = new InteractionRepository();
     private static PhenotypeRepository phenoRepo = new PhenotypeRepository();
     private static PhenotypeCacheRepository phenoCacheRepo = new PhenotypeCacheRepository();
+    private AlleleService alleleService = new AlleleService();
 
     public Gene getById(String id) {
         Gene gene = geneRepo.getOneGene(id);
@@ -36,15 +39,12 @@ public class GeneService {
         return gene;
     }
 
-    // ToDo: Needs pagination logic
-    public JsonResultResponse<Allele> getAlleles(String id, int limit, int page, String sortBy, String asc) {
-        JsonResultResponse<Allele> ret = new JsonResultResponse<>();
-        List<Allele> alleles = geneRepo.getAlleles(id);
-        ret.setResults(alleles);
-        if(alleles != null) {
-            ret.setTotal(alleles.size());
-        }
-        return ret;
+    public JsonResultResponse<Allele> getAlleles(String geneId, Pagination pagination) {
+        long startTime = System.currentTimeMillis();
+        JsonResultResponse<Allele> response = alleleService.getAllelesByGene(geneId, pagination);
+        Long duration = (System.currentTimeMillis() - startTime) / 1000;
+        response.setRequestDuration(duration.toString());
+        return response;
     }
 
     public JsonResultResponse<InteractionGeneJoin> getInteractions(String id) {

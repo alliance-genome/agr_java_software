@@ -11,7 +11,6 @@ public enum FieldFilter {
     SPECIES_DEFAULT("species_default"),
     GENETIC_ENTITY("geneticEntity"),
     GENETIC_ENTITY_TYPE("geneticEntityType"),
-    DISEASE("disease"),
     SOURCE("source"),
     STAGE("filter.stage"),
     ASSAY("filter.assay"),
@@ -22,7 +21,10 @@ public enum FieldFilter {
     ASSOCIATION_TYPE("associationType"),
     ORTHOLOG("filter.orthologGene"),
     EXPERIMENT("filter.experiment"),
-    ORTHOLOG_SPECIES("filter.orthologGeneSpecies");
+    ORTHOLOG_SPECIES("filter.orthologGeneSpecies"),
+    SYMBOL("filter.symbol"),
+    DISEASE("filter.disease"),
+    SYNONYMS("filter.synonyms");
     public static final String FILTER_PREFIX = "filter.";
     private String name;
 
