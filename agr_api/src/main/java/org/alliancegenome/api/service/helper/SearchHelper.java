@@ -40,7 +40,7 @@ public class SearchHelper {
             put("gene", new ArrayList<String>() {
                 {
                     add("species");
-                    add("soTermName");
+                    add("soTermNameAgrSlim");
                     add("diseases");
                     add("biologicalProcessAgrSlim");
                     add("molecularFunctionAgrSlim");

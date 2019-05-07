@@ -50,6 +50,8 @@ public class GeneDocument extends SearchableItemDocument {
     private String soTermId;
     private List<String> secondaryIds;
     private String soTermName;
+    private Set<String> soTermNameWithParents;
+    private Set<String> soTermNameAgrSlim;
     private String release;
     private String geneSynopsis;
     private String automatedGeneSynopsis;
