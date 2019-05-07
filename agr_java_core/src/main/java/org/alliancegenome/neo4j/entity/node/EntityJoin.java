@@ -16,8 +16,8 @@ public class EntityJoin extends Association {
     protected String primaryKey;
     protected String joinType;
 
-    @Relationship(type = "EVIDENCE")
-    private Publication publication;
+    @Relationship(type = "EVIDENCE", direction = Relationship.INCOMING)
+    private List<Publication> publications;
 
     @Relationship(type = "EVIDENCE")
     private List<EvidenceCode> evidenceCodes;

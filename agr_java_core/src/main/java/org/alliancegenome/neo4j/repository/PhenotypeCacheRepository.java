@@ -40,8 +40,8 @@ public class PhenotypeCacheRepository {
         List<PhenotypeAnnotation> filteredPhenotypeAnnotationList = filterDiseaseAnnotations(fullPhenotypeAnnotationList, pagination.getFieldFilterValueMap());
 
         PaginationResult<PhenotypeAnnotation> result = new PaginationResult<>();
-        if(fullPhenotypeAnnotationList != null) {
-            result.setTotalNumber(fullPhenotypeAnnotationList.size());
+        if(filteredPhenotypeAnnotationList != null) {
+            result.setTotalNumber(filteredPhenotypeAnnotationList.size());
             result.setResult(getSortedAndPaginatedDiseaseAnnotations(pagination, filteredPhenotypeAnnotationList));
         }
         return result;
@@ -116,9 +116,7 @@ public class PhenotypeCacheRepository {
                     else
                         document.setGeneticEntity(phenotypeEntityJoin.getGene());
                     document.setPhenotype(phenotypeEntityJoin.getPhenotype().getPhenotypeStatement());
-                    List<Publication> pubs = new ArrayList<>();
-                    pubs.add(phenotypeEntityJoin.getPublication());
-                    document.setPublications(pubs);
+                    document.setPublications(phenotypeEntityJoin.getPublications());
                     return document;
                 })
                 .collect(toList());
