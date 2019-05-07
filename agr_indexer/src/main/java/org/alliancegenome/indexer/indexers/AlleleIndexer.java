@@ -30,12 +30,11 @@ public class AlleleIndexer extends Indexer<AlleleDocument> {
     @Override
     public void index() {
         try {
-            LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>();
             repo = new AlleleIndexerRepository();
             alleleDocumentCache = repo.getAlleleDocumentCache(species);
 
-            List<String> fulllist = alleleDocumentCache.getAlleleMap().keySet().stream().collect(Collectors.toList());
-            queue.addAll(fulllist);
+            List<String> fulllist = new ArrayList<>(alleleDocumentCache.getAlleleMap().keySet());
+            LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>(fulllist);
 
             initiateThreading(queue);
         } catch (Exception e) {

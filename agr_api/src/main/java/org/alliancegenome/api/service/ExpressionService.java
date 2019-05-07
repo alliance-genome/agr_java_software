@@ -38,7 +38,7 @@ import org.alliancegenome.neo4j.repository.GeneRepository;
 
 public class ExpressionService {
 
-    public static final String CELLULAR_COMPONENT = "Cellular Component";
+    public static final String CELLULAR_COMPONENT = "Subcellular";
 
     public JsonResultResponse<ExpressionDetail> getExpressionDetails(List<BioEntityGeneExpressionJoin> joins, Pagination pagination) {
         Map<Gene, Map<ExpressionBioEntity, Map<Optional<Stage>, Map<MMOTerm, Set<BioEntityGeneExpressionJoin>>>>> groupedRecords = getGeneTermStageAssayMap(joins);
