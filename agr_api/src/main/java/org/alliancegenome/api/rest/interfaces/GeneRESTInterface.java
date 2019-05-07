@@ -58,9 +58,9 @@ public interface GeneRESTInterface {
             @DefaultValue("symbol") @QueryParam("sortBy") String sortBy,
             @ApiParam(value = "ascending order: true or false", allowableValues = "true,false", defaultValue = "true")
             @QueryParam("asc") String asc,
-            @ApiParam(name = "symbol", value="symbol of allele")
+            @ApiParam(name = "filter.symbol", value="symbol of allele")
             @QueryParam("filter.symbol") String symbol,
-            @ApiParam(name = "synonym", value = "Allele synonyms")
+            @ApiParam(name = "filter.synonym", value = "Allele synonyms")
             @QueryParam("filter.synonym") String synonym,
             @ApiParam(value = "source")
             @QueryParam("filter.source") String source,
