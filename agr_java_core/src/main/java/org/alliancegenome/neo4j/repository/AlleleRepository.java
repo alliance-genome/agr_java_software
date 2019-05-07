@@ -65,7 +65,8 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
         query += " MATCH p1=(:Species)<-[:FROM_SPECIES]-(a:Allele)-[:IS_ALLELE_OF]->(g:Gene)";
         query += " OPTIONAL MATCH p2=(a:Allele)-[:ALSO_KNOWN_AS]->(synonym:Synonym)";
         query += " OPTIONAL MATCH crossRef=(a:Allele)-[:CROSS_REFERENCE]->(c:CrossReference)";
-        query += " RETURN p1, p2, crossRef limit 1000000";
+        query += " OPTIONAL MATCH disease=(a:Allele)-[:IS_IMPLICATED_IN]->(term:DOTerm)";
+        query += " RETURN p1, p2, crossRef, disease limit 1000000";
 
         Iterable<Allele> alleles = query(query, map);
         return StreamSupport.stream(alleles.spliterator(), false)

@@ -29,6 +29,7 @@ import org.apache.commons.collections.CollectionUtils;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
@@ -47,6 +48,8 @@ public class GeneController extends BaseController implements GeneRESTInterface 
 
     @Inject
     private DiseaseService diseaseService;
+    @Inject
+    private HttpServletRequest request;
 
     private final PhenotypeAnnotationToTdfTranslator translator = new PhenotypeAnnotationToTdfTranslator();
     private final DiseaseAnnotationToTdfTranslator diseaseTranslator = new DiseaseAnnotationToTdfTranslator();
@@ -63,8 +66,24 @@ public class GeneController extends BaseController implements GeneRESTInterface 
     }
 
     @Override
-    public JsonResultResponse<Allele> getAllelesPerGene(String id, int limit, int page, String sortBy, String asc) {
-        return geneService.getAlleles(id, limit, page, sortBy, asc);
+    public JsonResultResponse<Allele> getAllelesPerGene(String id, int limit, int page, String sortBy, String asc,
+                                                        String symbol, String synonym, String source, String disease) {
+        long startTime = System.currentTimeMillis();
+        Pagination pagination = new Pagination(page, limit, sortBy, asc);
+        pagination.addFieldFilter(FieldFilter.SYMBOL, symbol);
+        pagination.addFieldFilter(FieldFilter.SYNONYMS, synonym);
+        pagination.addFieldFilter(FieldFilter.SOURCE, source);
+        pagination.addFieldFilter(FieldFilter.DISEASE, disease);
+        if (pagination.hasErrors()) {
+            RestErrorMessage message = new RestErrorMessage();
+            message.setErrors(pagination.getErrors());
+            throw new RestErrorException(message);
+        }
+
+        JsonResultResponse<Allele> alleles = geneService.getAlleles(id, pagination);
+        alleles.setHttpServletRequest(request);
+        alleles.calculateRequestDuration(startTime);
+        return alleles;
     }
 
     @Override
