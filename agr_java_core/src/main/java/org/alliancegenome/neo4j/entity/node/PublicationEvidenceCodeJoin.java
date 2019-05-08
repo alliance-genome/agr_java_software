@@ -20,7 +20,6 @@ public class PublicationEvidenceCodeJoin extends Association {
     private Publication publication;
 
     @Relationship(type = "ASSOCIATION")
-    private List<EvidenceCode> evidenceCodes;
-
+    private List<ECOTerm> ecoCode;
 
 }

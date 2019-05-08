@@ -149,11 +149,11 @@ public class DiseaseCacheRepository {
                     List<Publication> publicationList = diseaseEntityJoin.getPublicationEvidenceCodeJoin().stream()
                             .map(PublicationEvidenceCodeJoin::getPublication).sorted(Comparator.naturalOrder()).collect(Collectors.toList());
                     document.setPublications(publicationList.stream().distinct().collect(Collectors.toList()));
-                    Set<EvidenceCode> evidences = diseaseEntityJoin.getPublicationEvidenceCodeJoin().stream()
-                            .map(PublicationEvidenceCodeJoin::getEvidenceCodes)
+                    Set<ECOTerm> evidences = diseaseEntityJoin.getPublicationEvidenceCodeJoin().stream()
+                            .map(PublicationEvidenceCodeJoin::getEcoCode)
                             .flatMap(Collection::stream)
                             .collect(Collectors.toSet());
-                    document.setEvidenceCodes(new ArrayList<>(evidences));
+                    document.setEcoCodes(new ArrayList<>(evidences));
                     return document;
                 })
                 .collect(toList());

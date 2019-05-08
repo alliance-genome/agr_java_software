@@ -65,7 +65,7 @@ public class DiseaseController extends BaseController implements DiseaseRESTInte
         pagination.addFieldFilter(FieldFilter.GENETIC_ENTITY_TYPE, geneticEntityType);
         pagination.addFieldFilter(FieldFilter.DISEASE, disease);
         pagination.addFieldFilter(FieldFilter.SOURCE, source);
-        pagination.addFieldFilter(FieldFilter.REFERENCE, reference);
+        pagination.addFieldFilter(FieldFilter.FREFERENCE, reference);
         pagination.addFieldFilter(FieldFilter.EVIDENCE_CODE, evidenceCode);
         pagination.addFieldFilter(FieldFilter.ASSOCIATION_TYPE, associationType);
         if (pagination.hasErrors()) {

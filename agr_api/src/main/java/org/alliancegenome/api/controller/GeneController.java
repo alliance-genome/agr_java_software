@@ -183,7 +183,7 @@ public class GeneController extends BaseController implements GeneRESTInterface 
         pagination.addFieldFilter(FieldFilter.ORTHOLOG, orthologyGene);
         pagination.addFieldFilter(FieldFilter.ORTHOLOG_SPECIES, orthologyGeneSpecies);
         pagination.addFieldFilter(FieldFilter.DISEASE, disease);
-        pagination.addFieldFilter(FieldFilter.REFERENCE, reference);
+        pagination.addFieldFilter(FieldFilter.FREFERENCE, reference);
         MultivaluedMap<String, String> parameterMap = ui.getQueryParameters();
         List<String> invalidFilterNames = parameterMap.entrySet().stream()
                 .filter(entry -> {

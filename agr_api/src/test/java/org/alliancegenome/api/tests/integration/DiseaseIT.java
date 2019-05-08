@@ -451,11 +451,11 @@ public class DiseaseIT {
         String geneID = "HGNC:3686";
 
         // add filter on reference
-        pagination.makeSingleFieldFilter(FieldFilter.REFERENCE, "380");
+        pagination.makeSingleFieldFilter(FieldFilter.FREFERENCE, "380");
         JsonResultResponse<DiseaseAnnotation> response = diseaseService.getDiseaseAnnotations(geneID, pagination, true);
         assertResponse(response, 3, 3);
 
-        pagination.makeSingleFieldFilter(FieldFilter.REFERENCE, "710");
+        pagination.makeSingleFieldFilter(FieldFilter.FREFERENCE, "710");
         response = diseaseService.getDiseaseAnnotations(geneID, pagination, true);
         assertResponse(response, 1, 1);
     }

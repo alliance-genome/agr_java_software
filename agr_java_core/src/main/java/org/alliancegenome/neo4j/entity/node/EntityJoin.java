@@ -20,7 +20,7 @@ public class EntityJoin extends Association {
     private List<Publication> publications;
 
     @Relationship(type = "EVIDENCE")
-    private List<EvidenceCode> evidenceCodes;
+    private List<ECOTerm> evidenceCodes;
 
     @Relationship(type = "ASSOCIATION", direction = Relationship.INCOMING)
     private Gene gene;
