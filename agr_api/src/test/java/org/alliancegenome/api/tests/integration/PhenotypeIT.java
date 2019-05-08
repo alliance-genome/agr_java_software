@@ -93,10 +93,7 @@ public class PhenotypeIT {
         // add containsFilterValue on phenotype
         pagination.makeSingleFieldFilter(FieldFilter.PHENOTYPE, "som");
         response = geneService.getPhenotypeAnnotations(geneID, pagination);
-        response.getResults().forEach(phenotypeAnnotation ->
-                System.out.println("kk "+phenotypeAnnotation.getPhenotype()));
-        ;
-        assertResponse(response, 7, 7);
+        assertResponse(response, 6, 6);
 
     }
 
