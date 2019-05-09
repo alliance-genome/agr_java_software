@@ -29,8 +29,8 @@ public class GeneDocumentCache extends IndexerCache {
     private Map<String,Set<String>> molecularFunctionWithParents = new HashMap<>();
     private Map<String,Set<String>> molecularFunctionAgrSlim = new HashMap<>();
 
-    private Map<String,Set<String>> cellularComponentExpressionWithParents = new HashMap<>();
-    private Map<String,Set<String>> cellularComponentExpressionAgrSlim = new HashMap<>();
+    private Map<String,Set<String>> subcellularExpressionWithParents = new HashMap<>();
+    private Map<String,Set<String>> subcellularExpressionAgrSlim = new HashMap<>();
 
     private Map<String,Set<String>> whereExpressed = new HashMap<>();
     private Map<String,Set<String>> anatomicalExpression = new HashMap<>();         //uberon slim
@@ -56,8 +56,8 @@ public class GeneDocumentCache extends IndexerCache {
             geneDocument.setMolecularFunctionWithParents(molecularFunctionWithParents.get(id));
             geneDocument.setMolecularFunctionAgrSlim(molecularFunctionAgrSlim.get(id));
 
-            geneDocument.setCellularComponentExpressionWithParents(cellularComponentExpressionWithParents.get(id));
-            geneDocument.setCellularComponentExpressionAgrSlim(cellularComponentExpressionAgrSlim.get(id));
+            geneDocument.setSubcellularExpressionWithParents(subcellularExpressionWithParents.get(id));
+            geneDocument.setSubcellularExpressionAgrSlim(subcellularExpressionAgrSlim.get(id));
 
             geneDocument.setWhereExpressed(whereExpressed.get(id));
             geneDocument.setAnatomicalExpression(anatomicalExpression.get(id));
