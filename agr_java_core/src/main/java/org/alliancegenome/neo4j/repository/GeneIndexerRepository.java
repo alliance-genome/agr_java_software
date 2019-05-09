@@ -153,7 +153,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
     }
 
     private Map<String, Set<String>> getSoTermNameWithParentsMap(String species) {
-        String query = "MATCH (species:Species)--(gene:Gene)-[:ANNOTATED_TO]-(:SOTerm)-[:IS_A_PART_OF_CLOSURE]-(term:SOTerm) ";
+        String query = "MATCH (species:Species)--(gene:Gene)-[:ANNOTATED_TO]-(:SOTerm)-[:IS_A_PART_OF_CLOSURE]->(term:SOTerm) ";
         query += getSpeciesWhere(species);
         query += " RETURN gene.primaryKey as id, term.name as value";
 
@@ -162,8 +162,13 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
 
     //todo: some kind of slimming, possibly with manual filtering
     private Map<String, Set<String>> getSoTermNameAgrSlimMap(String species) {
-        String query = "MATCH (species:Species)--(gene:Gene)-[:ANNOTATED_TO]-(:SOTerm)-[:IS_A_PART_OF_CLOSURE]-(term:SOTerm) ";
-        query += getSpeciesWhere(species);
+        String query = "MATCH (species:Species)--(gene:Gene)-[:ANNOTATED_TO]-(:SOTerm)-[:IS_A_PART_OF_CLOSURE]->(term:SOTerm) ";
+        query += " WHERE not term.name in ['region'," +
+                "'biological_region'," +
+                "'sequence_feature']";
+        if (StringUtils.isNotEmpty(species)) {
+            query += " AND species.name = {species} ";
+        }
         query += " RETURN gene.primaryKey as id, term.name as value";
 
         return getMapSetForQuery(query, "id", "value", getSpeciesParams(species));
