@@ -36,6 +36,9 @@ public class GeneDocumentCache extends IndexerCache {
     private Map<String,Set<String>> anatomicalExpression = new HashMap<>();         //uberon slim
     private Map<String,Set<String>> anatomicalExpressionWithParents = new HashMap<>();
 
+    private Map<String,Set<String>> soTermNameWithParents = new HashMap<>();
+    private Map<String,Set<String>> soTermNameAgrSlim = new HashMap<>();
+
 
 
     public void addCachedFields(Iterable<GeneDocument> geneDocuments) {
@@ -61,6 +64,9 @@ public class GeneDocumentCache extends IndexerCache {
             geneDocument.setAnatomicalExpressionWithParents(anatomicalExpressionWithParents.get(id));
 
             geneDocument.setPhenotypeStatements(phenotypeStatements.get(id));
+
+            geneDocument.setSoTermNameWithParents(soTermNameWithParents.get(id));
+            geneDocument.setSoTermNameAgrSlim(soTermNameAgrSlim.get(id));
 
         }
     }

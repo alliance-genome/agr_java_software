@@ -69,6 +69,14 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
         geneDocumentCache.setStrictOrthologySymbols(getStrictOrthologySymbolsMap(species));
 
         checkMemory();
+        log.info("Building gene -> soTermNameWithParents map");
+        geneDocumentCache.setSoTermNameWithParents(getSoTermNameWithParentsMap(species));
+
+        checkMemory();
+        log.info("Building gene -> soTermNameAgrSlim map");
+        geneDocumentCache.setSoTermNameAgrSlim(getSoTermNameAgrSlimMap(species));
+
+        checkMemory();
         log.info("Building gene -> diseases map");
         geneDocumentCache.setDiseases(getDiseasesMap(species));
 
@@ -140,6 +148,28 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
         String query = "MATCH (species:Species)--(gene:Gene)-[:IS_ALLELE_OF]-(allele:Allele) ";
         query += getSpeciesWhere(species);
         query += " RETURN gene.primaryKey as id,allele.symbolText as value ";
+
+        return getMapSetForQuery(query, "id", "value", getSpeciesParams(species));
+    }
+
+    private Map<String, Set<String>> getSoTermNameWithParentsMap(String species) {
+        String query = "MATCH (species:Species)--(gene:Gene)-[:ANNOTATED_TO]-(:SOTerm)-[:IS_A_PART_OF_CLOSURE]->(term:SOTerm) ";
+        query += getSpeciesWhere(species);
+        query += " RETURN gene.primaryKey as id, term.name as value";
+
+        return getMapSetForQuery(query,"id","value", getSpeciesParams(species));
+    }
+
+    //todo: some kind of slimming, possibly with manual filtering
+    private Map<String, Set<String>> getSoTermNameAgrSlimMap(String species) {
+        String query = "MATCH (species:Species)--(gene:Gene)-[:ANNOTATED_TO]-(:SOTerm)-[:IS_A_PART_OF_CLOSURE]->(term:SOTerm) ";
+        query += " WHERE not term.name in ['region'," +
+                "'biological_region'," +
+                "'sequence_feature']";
+        if (StringUtils.isNotEmpty(species)) {
+            query += " AND species.name = {species} ";
+        }
+        query += " RETURN gene.primaryKey as id, term.name as value";
 
         return getMapSetForQuery(query, "id", "value", getSpeciesParams(species));
     }
