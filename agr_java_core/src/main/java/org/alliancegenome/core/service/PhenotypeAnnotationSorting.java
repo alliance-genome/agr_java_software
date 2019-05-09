@@ -1,13 +1,9 @@
 package org.alliancegenome.core.service;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
 import org.alliancegenome.neo4j.entity.Sorting;
+
+import java.util.*;
 
 public class PhenotypeAnnotationSorting implements Sorting<PhenotypeAnnotation> {
 
@@ -17,24 +13,25 @@ public class PhenotypeAnnotationSorting implements Sorting<PhenotypeAnnotation> 
             return getDefaultComparator();
 
         List<Comparator<PhenotypeAnnotation>> comparatorList = new ArrayList<>();
-        Comparator<PhenotypeAnnotation> comparator = sortingFieldMap.get(field);
-        if (!ascending)
-            comparator = comparator.reversed();
-        comparatorList.add(comparator);
-        sortingFieldMap.keySet().stream()
-                // default ordering of phylogenetic and experiment / orthology should not be used.
-                // only used for the first time sorting. Any subsequent sorting will ignore that
-                .skip(2)
-                .filter(sortingField -> !sortingField.equals(field))
-                .forEach(sortingField -> comparatorList.add(sortingFieldMap.get(sortingField)));
-
+        switch (field) {
+            case PHENOTYPE:
+                return getDefaultComparator();
+            case GENETIC_ENTITY:
+                comparatorList.add(geneticEntityTypeOrder);
+                comparatorList.add(geneticEntityOrder);
+                comparatorList.add(phenotypeOrder);
+                break;
+            default:
+                break;
+        }
         return getJoinedComparator(comparatorList);
     }
 
     public Comparator<PhenotypeAnnotation> getDefaultComparator() {
         List<Comparator<PhenotypeAnnotation>> comparatorList = new ArrayList<>();
         comparatorList.add(phenotypeOrder);
-
+        comparatorList.add(geneticEntityTypeOrder);
+        comparatorList.add(geneticEntityOrder);
         return getJoinedComparator(comparatorList);
     }
 
@@ -50,10 +47,19 @@ public class PhenotypeAnnotationSorting implements Sorting<PhenotypeAnnotation> 
     private static Comparator<PhenotypeAnnotation> phenotypeOrder =
             Comparator.comparing(annotation -> annotation.getPhenotype().toLowerCase());
 
+    private static Comparator<PhenotypeAnnotation> geneticEntityOrder =
+            Comparator.comparing(annotation -> annotation.getGeneticEntity().getSymbol().toLowerCase()
+            );
+
+    private static Comparator<PhenotypeAnnotation> geneticEntityTypeOrder =
+            Comparator.comparing(annotation -> annotation.getGeneticEntity().getType());
+
     private static Map<SortingField, Comparator<PhenotypeAnnotation>> sortingFieldMap = new LinkedHashMap<>();
 
     static {
         sortingFieldMap.put(SortingField.PHENOTYPE, phenotypeOrder);
+        sortingFieldMap.put(SortingField.GENETIC_ENTITY_TYPE, geneticEntityTypeOrder);
+        sortingFieldMap.put(SortingField.GENETIC_ENTITY, geneticEntityOrder);
     }
 
 }

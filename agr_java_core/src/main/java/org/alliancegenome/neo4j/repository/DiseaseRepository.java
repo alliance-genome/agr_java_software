@@ -7,6 +7,8 @@ import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.DiseaseSummary;
 import org.alliancegenome.neo4j.entity.node.DOTerm;
 import org.alliancegenome.neo4j.entity.node.DiseaseEntityJoin;
+import org.alliancegenome.neo4j.entity.node.ECOTerm;
+import org.alliancegenome.neo4j.entity.node.PublicationEvidenceCodeJoin;
 import org.alliancegenome.neo4j.view.BaseFilter;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.logging.log4j.LogManager;
@@ -16,6 +18,9 @@ import org.neo4j.ogm.model.Result;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.mapping;
 
 public class DiseaseRepository extends Neo4jRepository<DOTerm> {
 
@@ -28,50 +33,6 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
     public DiseaseRepository() {
         super(DOTerm.class);
     }
-
-    //  public List<DOTerm> getAllDiseaseTerms(int start, int maxSize) {
-    //      String cypher = "match (root:DOTerm) WHERE  root.is_obsolete = 'false' " +
-    //              "WITH root SKIP " + start + " LIMIT " + maxSize + " " +
-    //              "optional match (diseaseGeneJoin:DiseaseEntityJoin)-[q:ASSOCIATION]->(root), " +
-    //              "(gene:Gene)-[geneDiseaseRelation:ASSOCIATION]->(diseaseGeneJoin), " +
-    //              "(publication:Publication)<-[publicationRelation]-(diseaseGeneJoin), " +
-    //              "(evidence:EvidenceCode)<-[evidenceRelation:EVIDENCE]-(diseaseGeneJoin), " +
-    //              "(species:Species)<-[speciesRelation:FROM_SPECIES]-(gene), " +
-    //              "(root)-[crossReferenceRelation:CROSS_REFERENCE]->(crossReference:CrossReference) " +
-    //              "return distinct root, q,diseaseGeneJoin, geneDiseaseRelation, gene, publicationRelation, publication, evidenceRelation, evidence, " +
-    //              "species, speciesRelation, crossReference, crossReferenceRelation ";
-    //      return (List<DOTerm>) query(cypher);
-    //  }
-
-    //  public List<DOTerm> getAllDiseaseTerms() {
-    //      String cypher = "match (root:DOTerm) " +
-    //              "optional match (a:Association)-[q:ASSOCIATION]->(root), " +
-    //              "(m:Gene)-[qq:ASSOCIATION]->(a), " +
-    //              "(p:Publication)<-[qqq*]-(a), " +
-    //              "(e:EvidenceCode)<-[ee:EVIDENCE]-(a), " +
-    //              "(s:Species)<-[ss:FROM_SPECIES]-(m), " +
-    //              "(root)-[ex:CROSS_REFERENCE]->(exx:CrossReference), " +
-    //              "(root)-[synonymRelation:ALSO_KNOWN_AS]->(synonym:Synonym)  " +
-    //              "optional match (parent:DOTerm)<-[parentRelation:IS_A]-(root:DOTerm), " +
-    //              "(child:DOTerm)-[childRelation:IS_A]->(root:DOTerm) " +
-    //              "return distinct root, q,a,qq,m,qqq,p, ee, e, s, ss, ex, exx, parent, " +
-    //              "parentRelation, child, childRelation, synonymRelation, synonym ";
-    //      return (List<DOTerm>) query(cypher);
-    //  }
-
-
-    //  public List<DOTerm> getDiseaseTermsWithAnnotations() {
-    //      String cypher = "match (root:DOTerm),  " +
-    //              "(a:Association)-[q:ASSOCIATION]->(root), " +
-    //              "(gene:Gene)-[geneAssociation:ASSOCIATION]->(a), " +
-    //              "(publication:Publication)<-[qqq]-(a), " +
-    //              "(evidence:EvidenceCode)<-[evidenceRelation:EVIDENCE]-(a), " +
-    //
-    //              "(root)-[parentChildRelation:IS_A*]->(parent:DOTerm) " +
-    //              "return root, q,a, geneAssociation,gene ,qqq, publication, evidenceRelation, evidence, " +
-    //              "species, speciesRelation, parentChildRelation, parent";
-    //
-    //      return (List<DOTerm>) query(cypher);
 
     public DOTerm getDiseaseTermWithAnnotations(String primaryKey) {
         String cypher = "match p0=(root:DOTerm)--(join:DiseaseEntityJoin)-[:EVIDENCE]-(pe),"
@@ -106,18 +67,6 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
     //      return (List<DOTerm>) query(cypher);
     //  }
     //
-    //  public long getDiseaseTermsWithAnnotationsCount() {
-    //      String cypher = "match (root:DOTerm), " +
-    //              "(a:Association)-[q:ASSOCIATION]->(root), " +
-    //              "(m:Gene)-[qq:ASSOCIATION]->(a), " +
-    //              "(p:Publication)<-[qqq*]-(a), " +
-    //              "(e:EvidenceCode)<-[ee:EVIDENCE]-(a), " +
-    //              "(s:Species)<-[ss:FROM_SPECIES]-(m), " +
-    //              "(root)-[ex:CROSS_REFERENCE]->(exx:CrossReference) " +
-    //              "return count(root)";
-    //      Long s = queryCount(cypher);
-    //      return s;
-    //  }
 
     public Set<String> getAllDiseaseWithAnnotationsKeys() {
         String query = "MATCH (term:DOTerm)-[q:ASSOCIATION]-(dej:DiseaseEntityJoin) WHERE term.is_obsolete='false' " +
@@ -196,7 +145,7 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
                 })
                 .collect(Collectors.toList());
         closureMap = cls.stream()
-                .collect(Collectors.groupingBy(Closure::getParent, Collectors.mapping(Closure::getChild, Collectors.toSet())));
+                .collect(groupingBy(Closure::getParent, mapping(Closure::getChild, Collectors.toSet())));
         return closureMap;
     }
 
@@ -219,7 +168,7 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
                 })
                 .collect(Collectors.toList());
         closureChildMap = cls.stream()
-                .collect(Collectors.groupingBy(Closure::getChild, Collectors.mapping(Closure::getParent, Collectors.toSet())));
+                .collect(groupingBy(Closure::getChild, mapping(Closure::getParent, Collectors.toSet())));
         return closureChildMap;
     }
 
@@ -241,6 +190,60 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
 
     }
 
+    public Set<ECOTerm> getEcoTerms(List<PublicationEvidenceCodeJoin> publicationEvidenceCodeJoin) {
+        StringJoiner joiner = new StringJoiner(",", "'", "'");
+        publicationEvidenceCodeJoin.forEach(codeJoin -> joiner.add(codeJoin.getPrimaryKey()));
+        String ids = joiner.toString();
+        String cypher = "MATCH p=(pubEvCode:PublicationEvidenceCodeJoin)-[:ASSOCIATION]->(ev:ECOTerm) " +
+                "where pubEvCode.primaryKey in [" + ids + "]" +
+                "RETURN p";
+
+        Iterable<ECOTerm> joins = neo4jSession.query(ECOTerm.class, cypher, new HashMap<>());
+
+        return StreamSupport.stream(joins.spliterator(), false).
+                collect(Collectors.toSet());
+    }
+
+    private Map<String, List<ECOTerm>> ecoTermMap = new HashMap<>();
+
+    private void populateAllPubEvidenceCodeJoins() {
+        String pubCodeID = "pubCodeID";
+        String ecoName = "ecoName";
+        String cypher = "MATCH p=(pubEvCode:PublicationEvidenceCodeJoin)-[:ASSOCIATION]->(ev:ECOTerm) " +
+                "RETURN pubEvCode.primaryKey as " + pubCodeID + ", collect(ev) as " + ecoName;
+
+        Result result = queryForResult(cypher, new HashMap<>());
+        result.forEach(resultMap -> {
+            String id = (String) resultMap.get(pubCodeID);
+            List<ECOTerm> terms = ecoTermMap.get(id);
+            List<ECOTerm> names = (List<ECOTerm>) resultMap.get(ecoName);
+            if (terms == null) {
+                ecoTermMap.put(id, names);
+            } else {
+                terms.addAll(names);
+            }
+        });
+
+        //Iterable<PublicationEvidenceCodeJoin> joins = neo4jSession.query(PublicationEvidenceCodeJoin.class, cypher, new HashMap<>());
+        System.out.println("Number of PublicationEvidenceCodeJoin records retrieved: " + ecoTermMap.size());
+    }
+
+    public List<ECOTerm> getEcoTerm(String publicationEvidenceCodeJoinID) {
+        if (ecoTermMap.isEmpty()) {
+            populateAllPubEvidenceCodeJoins();
+        }
+        return ecoTermMap.get(publicationEvidenceCodeJoinID);
+    }
+
+    public List<ECOTerm> getEcoTerm(List<PublicationEvidenceCodeJoin> joins) {
+        if (ecoTermMap.isEmpty()) {
+            populateAllPubEvidenceCodeJoins();
+        }
+        List<ECOTerm> terms = new ArrayList<>();
+        joins.forEach(publicationEvidenceCodeJoin -> terms.addAll(ecoTermMap.get(publicationEvidenceCodeJoin.getPrimaryKey())));
+        return terms;
+    }
+
     @Setter
     @Getter
     class Closure {
@@ -251,10 +254,10 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
     public Set<DiseaseEntityJoin> getAllDiseaseEntityJoins() {
         if (allDiseaseEntityJoins.size() > 1000)
             return allDiseaseEntityJoins;
-        String limit = "200000";
-        String cypher = "MATCH p=(disease:DOTerm)--(diseaseEntityJoin:DiseaseEntityJoin)-[:ASSOCIATION]-(gene:Gene)--(species:Species)," +
-                "              p2=(diseaseEntityJoin:DiseaseEntityJoin)-[:EVIDENCE]-(pubEvCode:PublicationEvidenceCodeJoin)," +
-                "              p3=(publication:Publication)--(pubEvCode)--(evidence:EvidenceCode) " +
+        String limit = "200000000";
+        String cypher = "MATCH p=(disease:DOTerm)--(diseaseEntityJoin:DiseaseEntityJoin)<-[:ASSOCIATION]-(gene:Gene)--(species:Species)," +
+                "              p2=(diseaseEntityJoin:DiseaseEntityJoin)-[:EVIDENCE]->(pubEvCode:PublicationEvidenceCodeJoin)," +
+                "              p3=(publication:Publication)-[:ASSOCIATION]->(pubEvCode:PublicationEvidenceCodeJoin)" +
                 "        OPTIONAL MATCH p1=(diseaseEntityJoin:DiseaseEntityJoin)--(feature:Feature)--(crossReference:CrossReference) " +
                 "        OPTIONAL MATCH p4=(diseaseEntityJoin:DiseaseEntityJoin)-[:FROM_ORTHOLOGOUS_GENE]-(orthoGene:Gene)-[:FROM_SPECIES]-(orthoSpecies:Species) " +
                 "RETURN p, p1, p2, p3, p4 limit " + limit;
@@ -270,7 +273,8 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
     }
 
 
-    public Result getDiseaseAssociation(String geneID, String diseaseID, Pagination pagination, Boolean diseaseViaEmpiricalData) {
+    public Result getDiseaseAssociation(String geneID, String diseaseID, Pagination pagination, Boolean
+            diseaseViaEmpiricalData) {
         boolean isGene = geneID != null && diseaseID == null;
         HashMap<String, String> bindingValueMap = new HashMap<>();
         if (isGene)
@@ -326,7 +330,8 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
         return queryForResult(cypher, bindingValueMap);
     }
 
-    private String getCypherSelectPart(Pagination pagination, Boolean diseaseViaEmpiricalData, boolean isGene, HashMap<String, String> bindingValueMap) {
+    private String getCypherSelectPart(Pagination pagination, Boolean diseaseViaEmpiricalData,
+                                       boolean isGene, HashMap<String, String> bindingValueMap) {
         String cypher = "MATCH p0=";
         if (isGene) {
             cypher += "(disease:DOTerm)";
@@ -334,7 +339,7 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
             cypher += DISEASE_INCLUDING_CHILDREN;
         }
         cypher += "--(diseaseEntityJoin:DiseaseEntityJoin)-[:EVIDENCE]-(pubEvCode:PublicationEvidenceCodeJoin), " +
-                "              p1=(publication:Publication)--(pubEvCode)--(evidence:EvidenceCode), " +
+                "              p1=(publication:Publication)--(pubEvCode)--(evidence:ECOTerm), " +
                 "              p2=(diseaseEntityJoin)-[:ASSOCIATION]-(gene:Gene)--(species:Species) ";
 /*
         "              p2=(diseaseEntityJoin)-[:ASSOCIATION]-(gene:Gene)--(species:Species), " +
@@ -441,7 +446,8 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
         return "";
     }
 
-    private String addAndWhereClauseORString(String eitherElement, String orElement, FieldFilter fieldFilter, BaseFilter baseFilter) {
+    private String addAndWhereClauseORString(String eitherElement, String orElement, FieldFilter
+            fieldFilter, BaseFilter baseFilter) {
         String eitherClause = addWhereClauseString(eitherElement, fieldFilter, baseFilter, null);
         if (eitherClause == null)
             return null;
@@ -459,7 +465,7 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
         bindingValueMap.put("geneID", geneID);
 
         String baseCypher = "MATCH p0=(disease:DOTerm)--(diseaseEntityJoin:DiseaseEntityJoin)-[:EVIDENCE]-(pubEvCode:PublicationEvidenceCodeJoin), " +
-                "              p1=(publication:Publication)--(pubEvCode:PublicationEvidenceCodeJoin)--(evidence:EvidenceCode), " +
+                "              p1=(publication:Publication)--(pubEvCode:PublicationEvidenceCodeJoin)--(evidence:ECOTerm), " +
                 "              p2=(diseaseEntityJoin)--(gene:Gene)-[:FROM_SPECIES]-(species:Species) ";
         if (!empiricalDisease) {
             baseCypher += cypherViaOrthology;
@@ -520,7 +526,7 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
         bindingValueMap.put("geneID", geneID);
 
         String baseCypher = "MATCH p0=(disease:DOTerm)--(diseaseEntityJoin:DiseaseEntityJoin)--(pubEvJoin:PublicationEvidenceCodeJoin), " +
-                "              p1=(evidence:EvidenceCode)--(pubEvJoin:PublicationEvidenceCodeJoin)--(publication:Publication), " +
+                "              p1=(evidence:ECOTerm)--(pubEvJoin:PublicationEvidenceCodeJoin)--(publication:Publication), " +
                 "              p2=(diseaseEntityJoin)--(gene:Gene)-[:FROM_SPECIES]-(species:Species) ";
         if (!empiricalDisease) {
             baseCypher += cypherViaOrthology;
@@ -584,7 +590,7 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
 
         String cypher = "MATCH p0=(diseaseEntityJoin:DiseaseEntityJoin)-[:ASSOCIATION]-(gene:Gene), " +
                 "p1=(disease:DOTerm)--(diseaseEntityJoin:DiseaseEntityJoin)--(pubEvJoin:PublicationEvidenceCodeJoin), " +
-                "p2=(evidence:EvidenceCode)--(pubEvJoin:PublicationEvidenceCodeJoin)--(publication:Publication) " +
+                "p2=(evidence:ECOTerm)--(pubEvJoin:PublicationEvidenceCodeJoin)--(publication:Publication) " +
                 "WHERE diseaseEntityJoin.primaryKey = {diseaseEntityJoinID} " +
                 "OPTIONAL MATCH p3=(diseaseEntityJoin:DiseaseEntityJoin)--(feature:Feature)--(crossReference:CrossReference) " +
                 "RETURN p0, p1, p3, p2 ";

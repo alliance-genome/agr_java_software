@@ -40,7 +40,7 @@ public class DiseaseAnnotationFiltering {
 
     public static FilterFunction<DiseaseAnnotation, String> evidenceCodeFilter =
             (annotation, value) -> {
-                Set<Boolean> filteringPassed = annotation.getEvidenceCodes().stream()
+                Set<Boolean> filteringPassed = annotation.getEcoCodes().stream()
                         .map(evidenceCode -> FilterFunction.contains(evidenceCode.getName(), value))
                         .collect(Collectors.toSet());
                 return !filteringPassed.contains(false);
@@ -80,7 +80,7 @@ public class DiseaseAnnotationFiltering {
         filterFieldMap.put(FieldFilter.ORTHOLOG, orthologFilter);
         filterFieldMap.put(FieldFilter.ORTHOLOG_SPECIES, orthologSpeciesFilter);
         filterFieldMap.put(FieldFilter.EVIDENCE_CODE, evidenceCodeFilter);
-        filterFieldMap.put(FieldFilter.REFERENCE, referenceFilter);
+        filterFieldMap.put(FieldFilter.FREFERENCE, referenceFilter);
         filterFieldMap.put(FieldFilter.SOURCE, sourceFilter);
         filterFieldMap.put(FieldFilter.GENETIC_ENTITY_TYPE, geneticEntityTypeFilter);
         filterFieldMap.put(FieldFilter.GENETIC_ENTITY, geneticEntityFilter);

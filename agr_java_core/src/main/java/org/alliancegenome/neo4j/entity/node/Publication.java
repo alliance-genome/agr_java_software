@@ -34,7 +34,7 @@ public class Publication extends Neo4jEntity implements Comparable<Publication> 
     private String pubUrl;
 
     @Relationship(type = "ANNOTATED_TO")
-    private List<EvidenceCode> evidence;
+    private List<ECOTerm> evidence;
 
     public void setPubIdFromId() {
         if (StringUtils.isNotEmpty(pubMedId)) {

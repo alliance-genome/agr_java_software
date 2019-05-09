@@ -42,7 +42,7 @@ public class PhenotypeAnnotationFiltering {
 
     static {
         filterFieldMap.put(FieldFilter.PHENOTYPE, termNameFilter);
-        filterFieldMap.put(FieldFilter.REFERENCE, referenceFilter);
+        filterFieldMap.put(FieldFilter.FREFERENCE, referenceFilter);
         filterFieldMap.put(FieldFilter.GENETIC_ENTITY_TYPE, geneticEntityTypeFilter);
         filterFieldMap.put(FieldFilter.GENETIC_ENTITY, geneticEntityFilter);
     }

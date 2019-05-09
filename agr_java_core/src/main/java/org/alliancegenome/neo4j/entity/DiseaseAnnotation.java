@@ -5,12 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import org.alliancegenome.neo4j.entity.node.Allele;
-import org.alliancegenome.neo4j.entity.node.DOTerm;
-import org.alliancegenome.neo4j.entity.node.EvidenceCode;
-import org.alliancegenome.neo4j.entity.node.Gene;
-import org.alliancegenome.neo4j.entity.node.Publication;
-import org.alliancegenome.neo4j.entity.node.Source;
+import org.alliancegenome.neo4j.entity.node.*;
 import org.alliancegenome.neo4j.view.View;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -23,7 +18,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@JsonPropertyOrder({"disease", "gene", "allele", "geneticEntityType", "associationType", "evidenceCodes", "source", "publications"})
+@JsonPropertyOrder({"disease", "gene", "allele", "geneticEntityType", "associationType", "ecoCode", "source", "publications"})
 public class DiseaseAnnotation implements Comparable<DiseaseAnnotation>, Serializable {
 
     @JsonView({View.DiseaseAnnotation.class})
@@ -44,7 +39,8 @@ public class DiseaseAnnotation implements Comparable<DiseaseAnnotation>, Seriali
     @JsonView({View.DiseaseAnnotation.class})
     private List<Publication> publications;
     @JsonView({View.DiseaseAnnotation.class})
-    private List<EvidenceCode> evidenceCodes;
+    @JsonProperty(value = "evidenceCodes")
+    private List<ECOTerm> ecoCodes;
     @JsonView({View.DiseaseAnnotation.class})
     private String associationType;
     private int sortOrder;
@@ -88,12 +84,12 @@ public class DiseaseAnnotation implements Comparable<DiseaseAnnotation>, Seriali
                 Objects.equals(feature, that.feature) &&
                 Objects.equals(references, that.references) &&
                 Objects.equals(publications, that.publications) &&
-                Objects.equals(evidenceCodes, that.evidenceCodes) &&
+                Objects.equals(ecoCodes, that.ecoCodes) &&
                 Objects.equals(associationType, that.associationType);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(primaryKey, source, disease, gene, feature, references, publications, evidenceCodes, associationType, sortOrder);
+        return Objects.hash(primaryKey, source, disease, gene, feature, references, publications, ecoCodes, associationType, sortOrder);
     }
 }

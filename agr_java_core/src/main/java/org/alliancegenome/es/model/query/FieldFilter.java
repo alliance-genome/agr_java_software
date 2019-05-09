@@ -14,7 +14,6 @@ public enum FieldFilter {
     SOURCE("source"),
     STAGE("filter.stage"),
     ASSAY("filter.assay"),
-    REFERENCE("reference"),
     FREFERENCE("filter.reference"),
     EVIDENCE_CODE("evidenceCode"),
     PHENOTYPE("termName"),
