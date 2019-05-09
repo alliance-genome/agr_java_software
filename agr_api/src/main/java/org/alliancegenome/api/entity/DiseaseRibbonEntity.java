@@ -23,7 +23,7 @@ public class DiseaseRibbonEntity {
     private String annotationLabel;
 
     @JsonView(View.DiseaseAnnotation.class)
-    @JsonProperty("slim")
+    @JsonProperty("groups")
     private List<DiseaseEntitySlim> slims = new ArrayList<>();
 
     public void addDiseaseSlim(DiseaseEntitySlim slim) {
