@@ -59,8 +59,8 @@ public class GeneDocument extends SearchableItemDocument {
     private Set<String> whereExpressed;
     private Set<String> anatomicalExpression;         //uberon slim
     private Set<String> anatomicalExpressionWithParents;
-    private Set<String> cellularComponentExpressionWithParents;
-    private Set<String> cellularComponentExpressionAgrSlim;
+    private Set<String> subcellularExpressionWithParents;
+    private Set<String> subcellularExpressionAgrSlim;
 
     private String modCrossRefCompleteUrl;
     private String modLocalId;

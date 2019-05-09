@@ -105,12 +105,12 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
         geneDocumentCache.setWhereExpressed(getWhereExpressedMap(species));
 
         checkMemory();
-        log.info("Building gene -> Expression GO CC Ribbon map");
-        geneDocumentCache.setCellularComponentExpressionAgrSlim(getCellularComponentExpressionAgrSlimMap(species));
+        log.info("Building gene -> Subcellular Expression Ribbon map");
+        geneDocumentCache.setSubcellularExpressionAgrSlim(getSubcellularExpressionAgrSlimMap(species));
         
         checkMemory();
-        log.info("Building gene -> Expression GO CC w/parents map");
-        geneDocumentCache.setCellularComponentExpressionWithParents(getCellularComponentExpressionWithParentsMap(species));
+        log.info("Building gene -> Subcellular Expression w/parents map");
+        geneDocumentCache.setSubcellularExpressionWithParents(getSubcellularExpressionWithParentsMap(species));
 
         checkMemory();
         log.info("Building gene -> Expression Anatomy Ribbon map");
@@ -196,7 +196,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
         return getMapSetForQuery(query, "id", "value", getSpeciesParams(species));
     }
 
-    public Map<String,Set<String>> getCellularComponentExpressionAgrSlimMap(String species) {
+    public Map<String,Set<String>> getSubcellularExpressionAgrSlimMap(String species) {
         String query = "MATCH (species:Species)-[:FROM_SPECIES]-(gene:Gene)--(ebe:ExpressionBioEntity)-[:CELLULAR_COMPONENT_RIBBON_TERM]->(term:GOTerm) ";
         query += getSpeciesWhere(species);
         query +=  " RETURN distinct gene.primaryKey, term.name ";
@@ -204,7 +204,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
         return getMapSetForQuery(query, "gene.primaryKey", "term.name", getSpeciesParams(species));
     }
 
-    public Map<String,Set<String>> getCellularComponentExpressionWithParentsMap(String species) {
+    public Map<String,Set<String>> getSubcellularExpressionWithParentsMap(String species) {
         String query = "MATCH (species:Species)-[:FROM_SPECIES]-(gene:Gene)--(ebe:ExpressionBioEntity)-[:CELLULAR_COMPONENT]-(:GOTerm)-[:IS_A_PART_OF_CLOSURE|IS_A_PART_OF_SELF_CLOSURE]->(term:GOTerm) ";
         query += getSpeciesWhere(species);
         query +=  " RETURN distinct gene.primaryKey, term.name ";
