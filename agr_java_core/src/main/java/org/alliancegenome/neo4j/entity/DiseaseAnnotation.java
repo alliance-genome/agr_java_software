@@ -39,6 +39,7 @@ public class DiseaseAnnotation implements Comparable<DiseaseAnnotation>, Seriali
     @JsonView({View.DiseaseAnnotation.class})
     private List<Publication> publications;
     @JsonView({View.DiseaseAnnotation.class})
+    @JsonProperty(value = "evidenceCodes")
     private List<ECOTerm> ecoCodes;
     @JsonView({View.DiseaseAnnotation.class})
     private String associationType;

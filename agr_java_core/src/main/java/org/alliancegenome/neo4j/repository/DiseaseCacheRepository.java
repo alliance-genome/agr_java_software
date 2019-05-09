@@ -149,11 +149,15 @@ public class DiseaseCacheRepository {
                     List<Publication> publicationList = diseaseEntityJoin.getPublicationEvidenceCodeJoin().stream()
                             .map(PublicationEvidenceCodeJoin::getPublication).sorted(Comparator.naturalOrder()).collect(Collectors.toList());
                     document.setPublications(publicationList.stream().distinct().collect(Collectors.toList()));
+                    // workaraound as I cannot figure out how to include the ECOTerm in the overall query without slowing down the time.
+/*
                     Set<ECOTerm> evidences = diseaseEntityJoin.getPublicationEvidenceCodeJoin().stream()
                             .map(PublicationEvidenceCodeJoin::getEcoCode)
                             .flatMap(Collection::stream)
                             .collect(Collectors.toSet());
-                    document.setEcoCodes(new ArrayList<>(evidences));
+*/
+                    List<ECOTerm> evidences = diseaseRepository.getEcoTerm(diseaseEntityJoin.getPublicationEvidenceCodeJoin());
+                    document.setEcoCodes(evidences);
                     return document;
                 })
                 .collect(toList());

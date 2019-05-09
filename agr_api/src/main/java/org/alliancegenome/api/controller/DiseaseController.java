@@ -15,6 +15,7 @@ import org.apache.logging.log4j.Logger;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -26,6 +27,8 @@ public class DiseaseController extends BaseController implements DiseaseRESTInte
     private final Logger log = LogManager.getLogger(getClass());
     @Context  //injected response proxy supporting multiple threads
     private HttpServletResponse response;
+    @Inject
+    private HttpServletRequest request;
 
     @Inject
     private DiseaseService diseaseService;
@@ -58,6 +61,7 @@ public class DiseaseController extends BaseController implements DiseaseRESTInte
                                                                              String evidenceCode,
                                                                              String associationType,
                                                                              String asc) {
+        long startTime = System.currentTimeMillis();
         Pagination pagination = new Pagination(page, limit, sortBy, asc);
         pagination.addFieldFilter(FieldFilter.GENE_NAME, geneName);
         pagination.addFieldFilter(FieldFilter.SPECIES, species);
@@ -74,7 +78,11 @@ public class DiseaseController extends BaseController implements DiseaseRESTInte
             throw new RestErrorException(message);
         }
         try {
-            return diseaseService.getDiseaseAnnotationsByDisease(id, pagination);
+            JsonResultResponse<DiseaseAnnotation> response = diseaseService.getDiseaseAnnotationsByDisease(id, pagination);
+            response.setHttpServletRequest(request);
+            response.calculateRequestDuration(startTime);
+
+            return response;
         } catch (Exception e) {
             log.error(e);
             RestErrorMessage error = new RestErrorMessage();
