@@ -87,8 +87,27 @@ public class GeneController extends BaseController implements GeneRESTInterface 
     }
 
     @Override
-    public JsonResultResponse<InteractionGeneJoin> getInteractions(String id) {
-        return geneService.getInteractions(id);
+    public JsonResultResponse<InteractionGeneJoin> getInteractions(String id, int limit, int page, String sortBy, String asc,
+                                                                   String moleculeType,
+                                                                   String interactorGeneSymbol,
+                                                                   String interactorSpecies,
+                                                                   String interactorMoleculeType,
+                                                                   String detectionMethod,
+                                                                   String source,
+                                                                   String reference) {
+        long startTime = System.currentTimeMillis();
+        Pagination pagination = new Pagination(page, limit, sortBy, asc);
+        pagination.addFieldFilter(FieldFilter.MOLECULE_TYPE, moleculeType);
+        pagination.addFieldFilter(FieldFilter.INTERACTOR_GENE_SYMBOL, interactorGeneSymbol);
+        pagination.addFieldFilter(FieldFilter.INTERACTOR_SPECIES, interactorSpecies);
+        pagination.addFieldFilter(FieldFilter.INTERACTOR_MOLECULE_TYPE, interactorMoleculeType);
+        pagination.addFieldFilter(FieldFilter.DETECTION_METHOD, detectionMethod);
+        pagination.addFieldFilter(FieldFilter.SOURCE, source);
+        pagination.addFieldFilter(FieldFilter.FREFERENCE, reference);
+        JsonResultResponse<InteractionGeneJoin> interactions = geneService.getInteractions(id, pagination);
+        interactions.setHttpServletRequest(request);
+        interactions.calculateRequestDuration(startTime);
+        return interactions;
     }
 
     @Override

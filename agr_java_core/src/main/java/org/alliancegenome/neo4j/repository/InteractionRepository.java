@@ -1,10 +1,12 @@
 package org.alliancegenome.neo4j.repository;
 
+import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
-import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 public class InteractionRepository extends Neo4jRepository<InteractionGeneJoin> {
 
@@ -45,5 +47,24 @@ public class InteractionRepository extends Neo4jRepository<InteractionGeneJoin> 
 
         String cypher = interactionsQuery + " RETURN count(distinct g2) as total";
         return (Long) queryForResult(cypher, bindingValueMap).iterator().next().get("total");
+    }
+
+    List<InteractionGeneJoin> getAllInteractions() {
+        String allInteractionsQuery = "MATCH p1=(species1:Species)--(g1:Gene)--(igj:InteractionGeneJoin)--(g2:Gene)--(species2:Species), " +
+                "p2=(igj:InteractionGeneJoin)-[:INTERACTOR_A_ROLE]->(mA:MITerm), "+
+                "p3=(igj:InteractionGeneJoin)-[:INTERACTOR_B_ROLE]->(mB:MITerm), " +
+                "p4=(igj:InteractionGeneJoin)-[:CROSS_REFERENCE]->(cross:CrossReference), " +
+                "p5=(igj:InteractionGeneJoin)-[:DETECTION_METHOD]->(mde:MITerm), " +
+                "p6=(igj:InteractionGeneJoin)-[:INTERACTOR_A_TYPE]->(typea:MITerm), " +
+                "p7=(igj:InteractionGeneJoin)-[:INTERACTOR_B_TYPE]->(typeb:MITerm), " +
+                "p8=(igj:InteractionGeneJoin)-[:INTERACTION_TYPE]->(type:MITerm), " +
+                "p10=(igj:InteractionGeneJoin)-[:SOURCE_DATABASE]->(source:MITerm), " +
+                "p11=(igj:InteractionGeneJoin)-[:AGGREGATION_DATABASE]->(aggregation:MITerm), " +
+                "p9=(igj:InteractionGeneJoin)-[:EVIDENCE]->(pub:Publication) ";
+//                " where g1.primaryKey = 'MGI:109583' ";
+        String query = allInteractionsQuery + " RETURN p1, p2, p3, p5, p6, p7, p8, p4, p9, p10, p11 ";
+        Iterable<InteractionGeneJoin> joins = query(query, new HashMap<>());
+        return StreamSupport.stream(joins.spliterator(), false)
+                .collect(Collectors.toList());
     }
 }
