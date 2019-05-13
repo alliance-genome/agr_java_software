@@ -11,23 +11,17 @@ import java.util.stream.Collectors;
 public class InteractionAnnotationFiltering extends AnnotationFiltering {
 
 
-    private static FilterFunction<InteractionGeneJoin, String> interactorMoleculeTypeFilterA =
-            (annotation, value) -> FilterFunction.contains(annotation.getInteractorAType().getLabel(), value);
-
-    private static FilterFunction<InteractionGeneJoin, String> interactorMoleculeTypeFilterB =
+    private static FilterFunction<InteractionGeneJoin, String> interactorMoleculeTypeFilter =
             (annotation, value) -> FilterFunction.contains(annotation.getInteractorBType().getLabel(), value);
 
-    private static FilterFunction<InteractionGeneJoin, String> interactorGeneSymbolFilterB =
+    private static FilterFunction<InteractionGeneJoin, String> moleculeTypeFilter =
+            (annotation, value) -> FilterFunction.contains(annotation.getInteractorAType().getLabel(), value);
+
+    private static FilterFunction<InteractionGeneJoin, String> interactorGeneSymbolFilter =
             (annotation, value) -> FilterFunction.contains(annotation.getGeneB().getSymbol(), value);
 
-    private static FilterFunction<InteractionGeneJoin, String> interactorGeneSymbolFilterA =
-            (annotation, value) -> FilterFunction.contains(annotation.getGeneA().getSymbol(), value);
-
-    private static FilterFunction<InteractionGeneJoin, String> speciesFilterB =
+    private static FilterFunction<InteractionGeneJoin, String> speciesFilter =
             (annotation, value) -> FilterFunction.contains(annotation.getGeneB().getSpecies().getName(), value);
-
-    private static FilterFunction<InteractionGeneJoin, String> speciesFilterA =
-            (annotation, value) -> FilterFunction.contains(annotation.getGeneA().getSpecies().getName(), value);
 
     private static FilterFunction<InteractionGeneJoin, String> referenceFilter =
             (annotation, value) -> FilterFunction.contains(annotation.getPublication().getPubId(), value);
@@ -54,12 +48,10 @@ public class InteractionAnnotationFiltering extends AnnotationFiltering {
     public static Map<FieldFilter, FilterFunction<InteractionGeneJoin, String>> filterFieldMap = new HashMap<>();
 
     static {
-        filterFieldMap.put(FieldFilter.INTERACTOR_GENE_SYMBOL_A, interactorGeneSymbolFilterA);
-        filterFieldMap.put(FieldFilter.INTERACTOR_GENE_SYMBOL_B, interactorGeneSymbolFilterB);
-        filterFieldMap.put(FieldFilter.INTERACTOR_SPECIES_A, speciesFilterA);
-        filterFieldMap.put(FieldFilter.INTERACTOR_SPECIES_B, speciesFilterB);
-        filterFieldMap.put(FieldFilter.MOLECULE_TYPE_A, interactorMoleculeTypeFilterA);
-        filterFieldMap.put(FieldFilter.MOLECULE_TYPE_B, interactorMoleculeTypeFilterB);
+        filterFieldMap.put(FieldFilter.INTERACTOR_GENE_SYMBOL, interactorGeneSymbolFilter);
+        filterFieldMap.put(FieldFilter.INTERACTOR_SPECIES, speciesFilter);
+        filterFieldMap.put(FieldFilter.MOLECULE_TYPE, moleculeTypeFilter);
+        filterFieldMap.put(FieldFilter.INTERACTOR_MOLECULE_TYPE, interactorMoleculeTypeFilter);
         filterFieldMap.put(FieldFilter.DETECTION_METHOD, detectionMethodFilter);
         filterFieldMap.put(FieldFilter.FREFERENCE, referenceFilter);
         filterFieldMap.put(FieldFilter.SOURCE, sourceFilter);

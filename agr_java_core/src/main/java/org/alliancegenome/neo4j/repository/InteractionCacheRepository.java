@@ -1,9 +1,10 @@
 package org.alliancegenome.neo4j.repository;
 
 import org.alliancegenome.core.service.*;
-import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
+import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
+import org.alliancegenome.neo4j.entity.node.Species;
 import org.alliancegenome.neo4j.view.BaseFilter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -24,9 +25,7 @@ public class InteractionCacheRepository {
     private static List<InteractionGeneJoin> allInteractionAnnotations = null;
     // Map<gene ID, List<PhenotypeAnnotation>> including annotations to child terms
     // used for filtering and sorting on GeneA
-    private static Map<String, List<InteractionGeneJoin>> interactionAnnotationMapGeneA = new HashMap<>();
-    // used for filtering and sorting on GeneB
-    private static Map<String, List<InteractionGeneJoin>> interactionAnnotationMapGeneB = new HashMap<>();
+    private static Map<String, List<InteractionGeneJoin>> interactionAnnotationMapGene = new HashMap<>();
     private static boolean caching;
 
     public PaginationResult<InteractionGeneJoin> getInteractionAnnotationList(String geneID, Pagination pagination) {
@@ -34,40 +33,10 @@ public class InteractionCacheRepository {
         if (caching)
             return null;
 
-        // check geneA map
-        List<InteractionGeneJoin> interactionAnnotationListA = interactionAnnotationMapGeneA.get(geneID);
+        // check gene map
+        List<InteractionGeneJoin> interactionAnnotationList = interactionAnnotationMapGene.get(geneID);
         //filtering
-        List<InteractionGeneJoin> filteredInteractionAnnotationListA = filterInteractionAnnotations(interactionAnnotationListA, pagination.getFieldFilterValueMap(), true);
-
-        // check geneB map
-        List<InteractionGeneJoin> interactionAnnotationListB = interactionAnnotationMapGeneB.get(geneID);
-        //filtering
-        List<InteractionGeneJoin> filteredInteractionAnnotationListB = filterInteractionAnnotations(interactionAnnotationListB, pagination.getFieldFilterValueMap(), false);
-
-        List<InteractionGeneJoin> filteredInteractionAnnotationList = new ArrayList<>(filteredInteractionAnnotationListA);
-        // create new InteractionGeneJoin objects to be able to sort on the full collection
-        List<InteractionGeneJoin> convertedList = filteredInteractionAnnotationListB.parallelStream()
-                .map(join -> {
-                    InteractionGeneJoin newJoin = new InteractionGeneJoin();
-                    newJoin.setPrimaryKey(join.getPrimaryKey());
-                    newJoin.setJoinType(join.getJoinType());
-                    newJoin.setAggregationDatabase(join.getAggregationDatabase());
-                    newJoin.setCrossReferences(join.getCrossReferences());
-                    newJoin.setDetectionsMethods(join.getDetectionsMethods());
-                    newJoin.setGeneA(join.getGeneB());
-                    newJoin.setGeneB(join.getGeneA());
-                    newJoin.setInteractionType(join.getInteractionType());
-                    newJoin.setInteractorARole(join.getInteractorBRole());
-                    newJoin.setInteractorAType(join.getInteractorBType());
-                    newJoin.setInteractorBRole(join.getInteractorARole());
-                    newJoin.setInteractorBType(join.getInteractorAType());
-                    newJoin.setPublication(join.getPublication());
-                    newJoin.setSourceDatabase(join.getSourceDatabase());
-                    newJoin.setId(join.getId());
-                    return newJoin;
-                })
-                .collect(Collectors.toList());
-        filteredInteractionAnnotationList.addAll(convertedList);
+        List<InteractionGeneJoin> filteredInteractionAnnotationList = filterInteractionAnnotations(interactionAnnotationList, pagination.getFieldFilterValueMap(), true);
 
         PaginationResult<InteractionGeneJoin> result = new PaginationResult<>();
         if (!filteredInteractionAnnotationList.isEmpty()) {
@@ -109,15 +78,6 @@ public class InteractionCacheRepository {
     private boolean containsFilterValue(InteractionGeneJoin annotation, BaseFilter fieldFilterValueMap, boolean useGeneAasSource) {
         // remove entries with null values.
         fieldFilterValueMap.values().removeIf(Objects::isNull);
-        // remove GeneA and GeneB elements
-        FieldFilter interactorGeneSymbolB = FieldFilter.INTERACTOR_GENE_SYMBOL_B;
-        FieldFilter interactorGeneSymbolA = FieldFilter.INTERACTOR_GENE_SYMBOL_A;
-        FieldFilter interactorGeneSymbol = FieldFilter.INTERACTOR_GENE_SYMBOL;
-        resetFilterMapWithA(fieldFilterValueMap, useGeneAasSource, interactorGeneSymbol, interactorGeneSymbolA, interactorGeneSymbolB);
-        resetFilterMapWithA(fieldFilterValueMap, useGeneAasSource, FieldFilter.INTERACTOR_SPECIES, FieldFilter.INTERACTOR_SPECIES_A, FieldFilter.INTERACTOR_SPECIES_B);
-        resetFilterMapWithA(fieldFilterValueMap, useGeneAasSource, FieldFilter.MOLECULE_TYPE, FieldFilter.MOLECULE_TYPE_B, FieldFilter.MOLECULE_TYPE_A);
-        resetFilterMapWithA(fieldFilterValueMap, useGeneAasSource, FieldFilter.INTERACTOR_MOLECULE_TYPE, FieldFilter.MOLECULE_TYPE_A, FieldFilter.MOLECULE_TYPE_B);
-
         Set<Boolean> filterResults = fieldFilterValueMap.entrySet().stream()
                 .map((entry) -> {
                     FilterFunction<InteractionGeneJoin, String> filterFunction = InteractionAnnotationFiltering.filterFieldMap.get(entry.getKey());
@@ -129,20 +89,6 @@ public class InteractionCacheRepository {
 
         return !filterResults.contains(false);
     }
-
-    private void resetFilterMapWithA(BaseFilter fieldFilterValueMap, boolean useGeneAasSource, FieldFilter externalFilter, FieldFilter internalFieldA, FieldFilter internalFieldB) {
-        fieldFilterValueMap.keySet().removeIf(fieldFilter ->
-                fieldFilter.equals(internalFieldA) || fieldFilter.equals(internalFieldB)
-        );
-        String value = fieldFilterValueMap.get(externalFilter);
-        if (value != null) {
-            if (useGeneAasSource)
-                fieldFilterValueMap.addFieldFilter(internalFieldB, value);
-            else
-                fieldFilterValueMap.addFieldFilter(internalFieldA, value);
-        }
-    }
-
 
     private void checkCache() {
         if (allInteractionAnnotations == null && !caching) {
@@ -160,16 +106,41 @@ public class InteractionCacheRepository {
         System.out.println("Retrieved " + myFormatter.format(size) + " interaction records");
         // replace Gene references with the cached Gene references to keep the memory imprint low.
 
-        // group by gene ID as geneA or GeneB
-        interactionAnnotationMapGeneA = allInteractionAnnotations.parallelStream()
+        // group by gene ID with geneA
+        interactionAnnotationMapGene = allInteractionAnnotations.parallelStream()
+                // exclude self-interaction
+                .filter(interactionGeneJoin -> !interactionGeneJoin.getGeneA().getPrimaryKey().equals(interactionGeneJoin.getGeneB().getPrimaryKey()))
                 .collect(groupingBy(phenotypeAnnotation -> phenotypeAnnotation.getGeneA().getPrimaryKey()));
 
-        interactionAnnotationMapGeneB = allInteractionAnnotations.parallelStream()
-                // exclude self interaction as it is use in the 'A' version already
-                .filter(join -> !join.getGeneA().getPrimaryKey().equals(join.getGeneB().getPrimaryKey()))
-                .collect(groupingBy(phenotypeAnnotation -> phenotypeAnnotation.getGeneB().getPrimaryKey()));
-
+        // add to grouping with geneB as a reference
+        // this includes self-interaction
+        allInteractionAnnotations.forEach(join -> {
+            String primaryKey = join.getGeneB().getPrimaryKey();
+            List<InteractionGeneJoin> joins = interactionAnnotationMapGene.computeIfAbsent(primaryKey, k -> new ArrayList<>());
+            joins.add(createNewInteractionGeneJoin(join));
+        });
+        log.info("Number of gene with interactions: " + interactionAnnotationMapGene.size());
         log.info("Time to create annotation histogram: " + (System.currentTimeMillis() - start) / 1000);
+    }
+
+    private InteractionGeneJoin createNewInteractionGeneJoin(InteractionGeneJoin join) {
+        InteractionGeneJoin newJoin = new InteractionGeneJoin();
+        newJoin.setPrimaryKey(join.getPrimaryKey());
+        newJoin.setJoinType(join.getJoinType());
+        newJoin.setAggregationDatabase(join.getAggregationDatabase());
+        newJoin.setCrossReferences(join.getCrossReferences());
+        newJoin.setDetectionsMethods(join.getDetectionsMethods());
+        newJoin.setGeneA(join.getGeneB());
+        newJoin.setGeneB(join.getGeneA());
+        newJoin.setInteractionType(join.getInteractionType());
+        newJoin.setInteractorARole(join.getInteractorBRole());
+        newJoin.setInteractorAType(join.getInteractorBType());
+        newJoin.setInteractorBRole(join.getInteractorARole());
+        newJoin.setInteractorBType(join.getInteractorAType());
+        newJoin.setPublication(join.getPublication());
+        newJoin.setSourceDatabase(join.getSourceDatabase());
+        newJoin.setId(join.getId());
+        return newJoin;
     }
 
     public List<InteractionGeneJoin> getInteractions(String id, Pagination pagination) {

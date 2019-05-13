@@ -27,14 +27,8 @@ public enum FieldFilter {
     INTERACTOR_MOLECULE_TYPE("filter.interactorMoleculeType"),
     INTERACTOR_GENE_SYMBOL("filter.interactorGeneSymbol"),
     DETECTION_METHOD("filter.detectionMethod"),
-    INTERACTOR_GENE_SYMBOL_A("UsedInternallyForGeneA"),
-    INTERACTOR_GENE_SYMBOL_B("UsedInternallyForGeneB"),
     INTERACTOR_SPECIES("filter.interactorSpecies"),
-    INTERACTOR_SPECIES_A("UsedInternallyForGeneA"),
-    INTERACTOR_SPECIES_B("UsedInternallyForGeneA"),
     MOLECULE_TYPE("filter.moleculeType"),
-    MOLECULE_TYPE_A("UnusedInternalA"),
-    MOLECULE_TYPE_B("UnusedInternalB"),
     ;
     public static final String FILTER_PREFIX = "filter.";
     private String name;
