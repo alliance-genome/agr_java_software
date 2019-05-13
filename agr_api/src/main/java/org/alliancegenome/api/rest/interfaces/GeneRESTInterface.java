@@ -58,7 +58,7 @@ public interface GeneRESTInterface {
             @DefaultValue("symbol") @QueryParam("sortBy") String sortBy,
             @ApiParam(value = "ascending order: true or false", allowableValues = "true,false", defaultValue = "true")
             @QueryParam("asc") String asc,
-            @ApiParam(name = "filter.symbol", value="symbol of allele")
+            @ApiParam(name = "filter.symbol", value = "symbol of allele")
             @QueryParam("filter.symbol") String symbol,
             @ApiParam(name = "filter.synonym", value = "Allele synonyms")
             @QueryParam("filter.synonym") String synonym,
@@ -66,7 +66,7 @@ public interface GeneRESTInterface {
             @QueryParam("filter.source") String source,
             @ApiParam(value = "Disease for a given allele")
             @QueryParam("filter.disease") String disease
-            );
+    );
 
     @GET
     @Path("/{id}/phenotypes")
@@ -148,7 +148,30 @@ public interface GeneRESTInterface {
     @JsonView(value = {View.Interaction.class})
     JsonResultResponse<InteractionGeneJoin> getInteractions(
             @ApiParam(name = "id", value = "Gene ID", required = true)
-            @PathParam("id") String id);
+            @PathParam("id") String id,
+            @ApiParam(name = "limit", value = "Number of rows returned", defaultValue = "20")
+            @DefaultValue("20") @QueryParam("limit") int limit,
+            @ApiParam(name = "page", value = "Page number")
+            @DefaultValue("1") @QueryParam("page") int page,
+            @ApiParam(value = "Field name by which to sort", allowableValues = "symbol,name")
+            @QueryParam("sortBy") String sortBy,
+            @ApiParam(value = "ascending order: true or false", allowableValues = "true,false", defaultValue = "true")
+            @QueryParam("asc") String asc,
+            @ApiParam(name = "filter.moleculeType", value = "symbol of allele")
+            @QueryParam("filter.moleculeType") String moleculeType,
+            @ApiParam(name = "filter.interactorGeneSymbol", value = "Allele synonyms")
+            @QueryParam("filter.interactorGeneSymbol") String interactorGeneSymbol,
+            @ApiParam(name = "filter.interactorSpecies", value = "Allele synonyms")
+            @QueryParam("filter.interactorSpecies") String interactorSpecies,
+            @ApiParam(name = "filter.interactorMoleculeType", value = "symbol of allele")
+            @QueryParam("filter.interactorMoleculeType") String interactorMoleculeType,
+            @ApiParam(name = "filter.detectionMethod", value = "Allele synonyms")
+            @QueryParam("filter.detectionMethod") String detectionMethod,
+            @ApiParam(name = "filter.source", value = "Allele synonyms")
+            @QueryParam("filter.source") String source,
+            @ApiParam(name = "filter.reference", value = "References")
+            @QueryParam("filter.reference") String reference
+            );
 
     @GET
     @Path("/{id}/expression-summary")

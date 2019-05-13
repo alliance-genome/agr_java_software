@@ -23,7 +23,13 @@ public enum FieldFilter {
     ORTHOLOG_SPECIES("filter.orthologGeneSpecies"),
     SYMBOL("filter.symbol"),
     DISEASE("filter.disease"),
-    SYNONYMS("filter.synonyms");
+    SYNONYMS("filter.synonyms"),
+    INTERACTOR_MOLECULE_TYPE("filter.interactorMoleculeType"),
+    INTERACTOR_GENE_SYMBOL("filter.interactorGeneSymbol"),
+    DETECTION_METHOD("filter.detectionMethod"),
+    INTERACTOR_SPECIES("filter.interactorSpecies"),
+    MOLECULE_TYPE("filter.moleculeType"),
+    ;
     public static final String FILTER_PREFIX = "filter.";
     private String name;
 

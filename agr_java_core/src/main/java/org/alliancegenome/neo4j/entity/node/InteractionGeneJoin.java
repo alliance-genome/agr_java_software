@@ -1,20 +1,20 @@
 package org.alliancegenome.neo4j.entity.node;
 
-import java.util.List;
-
+import com.fasterxml.jackson.annotation.JsonView;
+import lombok.Getter;
+import lombok.Setter;
+import org.alliancegenome.neo4j.entity.Neo4jEntity;
 import org.alliancegenome.neo4j.view.View;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 
-import com.fasterxml.jackson.annotation.JsonView;
+import java.util.List;
 
-import lombok.Getter;
-import lombok.Setter;
-
-@Getter @Setter
+@Getter
+@Setter
 @NodeEntity
-public class InteractionGeneJoin extends Association {
-    
+public class InteractionGeneJoin extends Neo4jEntity implements Comparable {
+
     @JsonView({View.Interaction.class})
     private String primaryKey;
     @JsonView({View.Interaction.class})
@@ -25,7 +25,7 @@ public class InteractionGeneJoin extends Association {
     private Gene geneA;
 
     @JsonView({View.Interaction.class})
-    @Relationship(type = "ASSOCIATION", direction = Relationship.OUTGOING)
+    @Relationship(type = "ASSOCIATION")
     private Gene geneB;
 
     @JsonView({View.Interaction.class})
@@ -67,5 +67,14 @@ public class InteractionGeneJoin extends Association {
     @JsonView({View.Interaction.class})
     @Relationship(type = "INTERACTOR_B_ROLE")
     private MITerm interactorBRole;
-    
+
+    @Override
+    public String toString() {
+        return geneA.getSymbol() + " : " + geneB.getSymbol();
+    }
+
+    @Override
+    public int compareTo(Object o) {
+        return 0;
+    }
 }

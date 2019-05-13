@@ -1,19 +1,17 @@
 package org.alliancegenome.neo4j.entity.node;
 
-import java.util.HashSet;
-import java.util.Set;
-
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonView;
+import lombok.Getter;
+import lombok.Setter;
 import org.alliancegenome.neo4j.entity.Neo4jEntity;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.view.View;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonView;
-
-import lombok.Getter;
-import lombok.Setter;
+import java.util.HashSet;
+import java.util.Set;
 
 @NodeEntity
 @Getter
@@ -32,6 +30,17 @@ public class Species extends Neo4jEntity implements Comparable<Species> {
 
     @Relationship(type = "CREATED_BY")
     private Set<Gene> genes = new HashSet<>();
+
+    public static Species getSpeciesFromTaxonId(String taxonID) {
+        for (SpeciesType species : SpeciesType.values()) {
+            if (species.getTaxonID().equals(taxonID)) {
+                Species spec = new Species();
+                spec.setName(species.getName());
+                return spec;
+            }
+        }
+        return null;
+    }
 
     @Override
     public int compareTo(Species species1) {

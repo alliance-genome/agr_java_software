@@ -7,7 +7,7 @@ api:
 apiq:
 	mvn -q clean package -pl agr_api -am
 
-apirun: api
+apirun:
 	make -C agr_api run
 
 api:
