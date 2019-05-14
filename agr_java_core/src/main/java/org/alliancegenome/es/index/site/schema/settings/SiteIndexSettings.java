@@ -24,7 +24,7 @@ public class SiteIndexSettings extends Settings {
                         .startObject("default")
                             .field("type", "custom")
                             .field("tokenizer", "whitespace")
-                            .array("filter", new String[]{"lowercase","apostrophe","english_stemmer"})
+                            .array("filter", new String[]{"lowercase","apostrophe"/*,"english_stemmer"*/})
                         .endObject()
                         .startObject("autocomplete")
                             .field("type", "custom")
