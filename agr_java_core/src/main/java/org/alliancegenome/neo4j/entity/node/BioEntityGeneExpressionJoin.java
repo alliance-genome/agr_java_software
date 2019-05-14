@@ -6,6 +6,8 @@ import org.neo4j.ogm.annotation.Relationship;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 @NodeEntity
 @Getter
 @Setter
@@ -15,7 +17,7 @@ public class BioEntityGeneExpressionJoin extends Association {
     private ExpressionBioEntity entity;
 
     @Relationship(type = "EVIDENCE")
-    private Publication publication;
+    private List<Publication> publications;
 
     @Relationship(type = "DURING")
     private Stage stage;

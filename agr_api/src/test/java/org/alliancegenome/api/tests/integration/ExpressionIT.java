@@ -7,6 +7,7 @@ import io.swagger.annotations.Api;
 import org.alliancegenome.api.service.AlleleService;
 import org.alliancegenome.core.ExpressionDetail;
 import org.alliancegenome.core.config.ConfigHelper;
+import org.alliancegenome.core.service.PaginationResult;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.repository.ExpressionCacheRepository;
 import org.alliancegenome.neo4j.view.OrthologyModule;
@@ -45,8 +46,8 @@ public class ExpressionIT {
         List<String> geneIDs = new ArrayList<>();
         geneIDs.add("MGI:109583");
 
-        List<ExpressionDetail> response = repository.getExpressionAnnotations(geneIDs, "UBERON:0000924", pagination);
-        System.out.println(response.size());
+        PaginationResult<ExpressionDetail> response = repository.getExpressionAnnotations(geneIDs, "UBERON:0000924", pagination);
+        System.out.println(response.getTotalNumber());
     }
 
 

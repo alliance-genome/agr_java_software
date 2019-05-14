@@ -1,40 +1,22 @@
 package org.alliancegenome.api.service;
 
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toSet;
-
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.StringJoiner;
-import java.util.TreeSet;
-import java.util.stream.Collectors;
-
-import org.alliancegenome.core.ExpressionDetail;
 import org.alliancegenome.api.service.helper.ExpressionSummary;
 import org.alliancegenome.api.service.helper.ExpressionSummaryGroup;
 import org.alliancegenome.api.service.helper.ExpressionSummaryGroupTerm;
+import org.alliancegenome.core.ExpressionDetail;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.service.JsonResultResponse;
+import org.alliancegenome.core.service.PaginationResult;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.neo4j.entity.node.BioEntityGeneExpressionJoin;
-import org.alliancegenome.neo4j.entity.node.CrossReference;
-import org.alliancegenome.neo4j.entity.node.ExpressionBioEntity;
-import org.alliancegenome.neo4j.entity.node.GOTerm;
-import org.alliancegenome.neo4j.entity.node.Gene;
-import org.alliancegenome.neo4j.entity.node.MMOTerm;
-import org.alliancegenome.neo4j.entity.node.Publication;
-import org.alliancegenome.neo4j.entity.node.Stage;
-import org.alliancegenome.neo4j.entity.node.UBERONTerm;
+import org.alliancegenome.neo4j.entity.node.*;
+import org.alliancegenome.neo4j.repository.ExpressionCacheRepository;
 import org.alliancegenome.neo4j.repository.GeneRepository;
+
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.*;
 
 public class ExpressionService {
 
@@ -54,12 +36,14 @@ public class ExpressionService {
                         detail.setAssay(assay);
                         detail.setDataProvider(gene.getDataProvider());
                         stage.ifPresent(detail::setStage);
-                        detail.setPublications(bioJoins.stream().map(BioEntityGeneExpressionJoin::getPublication).collect(Collectors.toCollection(TreeSet::new)));
+                        //detail.setPublications(bioJoins.stream().map(BioEntityGeneExpressionJoin::getPublications).collect(Collectors.toCollection(TreeSet::new)));
+/*
                         detail.setCrossReferences(bioJoins.stream()
                                 .map(BioEntityGeneExpressionJoin::getCrossReference)
                                 .filter(Objects::nonNull)
                                 .collect(toList())
                         );
+*/
                         expressionDetails.add(detail);
                     });
                 });
@@ -137,7 +121,7 @@ public class ExpressionService {
 
         if (joins == null)
             joins = new ArrayList<>();
-        // group together records where only publication is different and treat them as a single record
+        // group together records where only publications is different and treat them as a single record
         Map<Gene, Map<ExpressionBioEntity, Map<Optional<Stage>, Map<MMOTerm, Set<BioEntityGeneExpressionJoin>>>>> groupedRecords = getGeneTermStageAssayMap(joins);
 
         ExpressionSummary summary = new ExpressionSummary();
@@ -233,11 +217,20 @@ public class ExpressionService {
             rowJoiner.add(expressionDetail.getTermName());
             rowJoiner.add(expressionDetail.getStage().getPrimaryKey());
             rowJoiner.add(expressionDetail.getAssay().getDisplay_synonym());
-            rowJoiner.add(expressionDetail.getCrossReferences().stream().map(CrossReference::getDisplayName).collect(Collectors.joining(",")));
+            //rowJoiner.add(expressionDetail.getCrossReferences().stream().map(CrossReference::getDisplayName).collect(Collectors.joining(",")));
             rowJoiner.add(expressionDetail.getPublications().stream().map(Publication::getPubId).collect(Collectors.joining(",")));
             builder.append(rowJoiner.toString());
             builder.append(ConfigHelper.getJavaLineSeparator());
         });
         return builder.toString();
+    }
+
+    public JsonResultResponse<ExpressionDetail> getExpressionDetails(List<String> geneIDs, String termID, Pagination pagination) {
+        JsonResultResponse<ExpressionDetail> ret = new JsonResultResponse<>();
+        ExpressionCacheRepository expressionCacheRepository = new ExpressionCacheRepository();
+        PaginationResult<ExpressionDetail> joins = expressionCacheRepository.getExpressionAnnotations(geneIDs, termID, pagination);
+        ret.setResults(joins.getResult());
+        ret.setTotal(joins.getTotalNumber());
+        return ret;
     }
 }

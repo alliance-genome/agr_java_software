@@ -224,7 +224,7 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         map.put(FieldFilter.TERM_NAME, (join, filterValue) -> join.getEntity().getWhereExpressedStatement().toLowerCase().contains(filterValue.toLowerCase()));
         map.put(FieldFilter.STAGE, (join, filterValue) -> join.getStage().getPrimaryKey().toLowerCase().contains(filterValue.toLowerCase()));
         map.put(FieldFilter.ASSAY, (join, filterValue) -> join.getAssay().getDisplay_synonym().toLowerCase().contains(filterValue.toLowerCase()));
-        map.put(FieldFilter.FREFERENCE, (join, filterValue) -> join.getPublication().getPubId().toLowerCase().contains(filterValue.toLowerCase()));
+        map.put(FieldFilter.FREFERENCE, (join, filterValue) -> join.getPublications().getPubId().toLowerCase().contains(filterValue.toLowerCase()));
         map.put(FieldFilter.SOURCE, (join, filterValue) -> join.getCrossReference().getDisplayName().toLowerCase().contains(filterValue.toLowerCase()));
 
         if (fieldFilterValueMap == null || fieldFilterValueMap.size() == 0)
@@ -601,42 +601,43 @@ public class GeneRepository extends Neo4jRepository<Gene> {
                 collect(Collectors.toList());
     }
 
-        public Set<BioEntityGeneExpressionJoin> getAllExpressionAnnotations() {
-            String cypher = " MATCH p1=(species:Species)--(gene:Gene)-->(s:BioEntityGeneExpressionJoin)--(t), " +
-                    " entity = (s:BioEntityGeneExpressionJoin)--(exp:ExpressionBioEntity)--(o:Ontology) ";
-            cypher += ", crossReference = (s:BioEntityGeneExpressionJoin)--(crossRef:CrossReference) ";
-            cypher += "return p1, entity limit 10000000 ";
+    public List<BioEntityGeneExpressionJoin> getAllExpressionAnnotations() {
+        String cypher = " MATCH p1=(gene:Gene)-->(s:BioEntityGeneExpressionJoin)--(t), " +
+                " entity = (s:BioEntityGeneExpressionJoin)--(exp:ExpressionBioEntity)--(o:Ontology) ";
+//        cypher += "  where gene.primaryKey in ['MGI:109583','ZFIN:ZDB-GENE-980526-166'] ";
+        cypher += "OPTIONAL MATCH crossReference = (s:BioEntityGeneExpressionJoin)--(crossRef:CrossReference) ";
+        cypher += "return p1, entity, crossRef ";
 
-            long start = System.currentTimeMillis();
-            Iterable<BioEntityGeneExpressionJoin> joins = neo4jSession.query(BioEntityGeneExpressionJoin.class, cypher, new HashMap<>());
+        long start = System.currentTimeMillis();
+        Iterable<BioEntityGeneExpressionJoin> joins = neo4jSession.query(BioEntityGeneExpressionJoin.class, cypher, new HashMap<>());
 
-            Set<BioEntityGeneExpressionJoin> allBioEntityExpressionJoins = StreamSupport.stream(joins.spliterator(), false).
-                    collect(Collectors.toSet());
-            System.out.println("Total BioEntityGeneExpressionJoin: " + allBioEntityExpressionJoins.size());
-            System.out.println("Loaded in:  " + ((System.currentTimeMillis() - start) / 1000) + " s");
-            return allBioEntityExpressionJoins;
-        }
-
-        @FunctionalInterface
-        public interface FilterComparator<T, U> {
-            boolean compare(T o, U oo);
-
-            default FilterComparator<T, U> thenCompare(FilterComparator<T, U> other) {
-                Objects.requireNonNull(other);
-                return (FilterComparator<T, U> & Serializable) (c1, c2) -> {
-                    boolean res = compare(c1, c2);
-                    return (!res) ? res : other.compare(c1, c2);
-                };
-            }
-        }
-
-        class GoHighLevelTerms {
-            @JsonProperty("class_id")
-            private String id;
-            @JsonProperty("class_label")
-            private String label;
-            private String separator;
-        }
-
-
+        List<BioEntityGeneExpressionJoin> allBioEntityExpressionJoins = StreamSupport.stream(joins.spliterator(), false).
+                collect(Collectors.toList());
+        log.info("Total BioEntityGeneExpressionJoin nodes: " + allBioEntityExpressionJoins.size());
+        log.info("Loaded in:  " + ((System.currentTimeMillis() - start) / 1000) + " s");
+        return allBioEntityExpressionJoins;
     }
+
+    @FunctionalInterface
+    public interface FilterComparator<T, U> {
+        boolean compare(T o, U oo);
+
+        default FilterComparator<T, U> thenCompare(FilterComparator<T, U> other) {
+            Objects.requireNonNull(other);
+            return (FilterComparator<T, U> & Serializable) (c1, c2) -> {
+                boolean res = compare(c1, c2);
+                return (!res) ? res : other.compare(c1, c2);
+            };
+        }
+    }
+
+    class GoHighLevelTerms {
+        @JsonProperty("class_id")
+        private String id;
+        @JsonProperty("class_label")
+        private String label;
+        private String separator;
+    }
+
+
+}

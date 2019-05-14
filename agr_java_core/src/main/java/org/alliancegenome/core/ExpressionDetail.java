@@ -1,23 +1,18 @@
 package org.alliancegenome.core;
 
+import com.fasterxml.jackson.annotation.JsonView;
+import lombok.Getter;
+import lombok.Setter;
+import org.alliancegenome.neo4j.entity.node.*;
+import org.alliancegenome.neo4j.view.View;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeSet;
 
-import org.alliancegenome.neo4j.entity.node.CrossReference;
-import org.alliancegenome.neo4j.entity.node.Gene;
-import org.alliancegenome.neo4j.entity.node.MMOTerm;
-import org.alliancegenome.neo4j.entity.node.Publication;
-import org.alliancegenome.neo4j.entity.node.Stage;
-import org.alliancegenome.neo4j.view.View;
-
-import com.fasterxml.jackson.annotation.JsonView;
-
-import lombok.Getter;
-import lombok.Setter;
-
 @Setter
 @Getter
-public class ExpressionDetail {
+public class ExpressionDetail implements Comparable{
 
     @JsonView(View.Expression.class)
     private Gene gene;
@@ -32,5 +27,20 @@ public class ExpressionDetail {
     @JsonView(View.Expression.class)
     private String dataProvider;
     @JsonView(View.Expression.class)
-    private List<CrossReference> crossReferences;
+    private CrossReference crossReference;
+
+    private List<String> termIDs = new ArrayList<>(6);
+
+    public void addTermIDs(List<String> ids) {
+        termIDs.addAll(ids);
+    }
+
+    public void addTermID(String primaryKey) {
+        termIDs.add(primaryKey);
+    }
+
+    @Override
+    public int compareTo(Object o) {
+        return 0;
+    }
 }

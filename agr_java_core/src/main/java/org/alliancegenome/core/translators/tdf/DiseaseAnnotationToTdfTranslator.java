@@ -63,7 +63,7 @@ public class DiseaseAnnotationToTdfTranslator {
             // source list
             joiner.add(diseaseAnnotation.getSource().getName());
 
-            // publication list
+            // publications list
             StringJoiner pubJoiner = new StringJoiner(",");
             diseaseAnnotation.getPublications().forEach(publication -> pubJoiner.add(publication.getPubId()));
             joiner.add(pubJoiner.toString());
@@ -115,7 +115,7 @@ public class DiseaseAnnotationToTdfTranslator {
             joiner.add(evidenceJoiner.toString());
             //joiner.add(diseaseAnnotation.getSource().getName());
 
-            // publication list
+            // publications list
             StringJoiner pubJoiner = new StringJoiner(",");
             diseaseAnnotation.getPublications().forEach(publication -> pubJoiner.add(publication.getPubId()));
             joiner.add(pubJoiner.toString());
@@ -160,7 +160,7 @@ public class DiseaseAnnotationToTdfTranslator {
             joiner.add("Alliance");
             //joiner.add(diseaseAnnotation.getSource().getName());
 
-            // publication list
+            // publications list
             StringJoiner pubJoiner = new StringJoiner(",");
             diseaseAnnotation.getPublications().forEach(publication -> pubJoiner.add(publication.getPubId()));
             joiner.add(pubJoiner.toString());

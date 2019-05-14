@@ -1,12 +1,12 @@
 package org.alliancegenome.neo4j.repository;
 
 import org.alliancegenome.core.ExpressionDetail;
-import org.alliancegenome.core.service.JsonResultResponse;
+import org.alliancegenome.core.service.*;
 import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.neo4j.entity.SpeciesType;
-import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.BioEntityGeneExpressionJoin;
-import org.alliancegenome.neo4j.entity.node.GeneticEntity;
+import org.alliancegenome.neo4j.entity.node.GOTerm;
+import org.alliancegenome.neo4j.entity.node.UBERONTerm;
+import org.alliancegenome.neo4j.view.BaseFilter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -17,104 +17,121 @@ import static java.util.stream.Collectors.groupingBy;
 
 public class ExpressionCacheRepository {
 
-    public JsonResultResponse<Allele> getAllelesBySpecies(String species, Pagination pagination) {
+    public PaginationResult<ExpressionDetail> getExpressionAnnotations(List<String> geneIDs, String termID, Pagination pagination) {
         checkCache();
         if (caching)
             return null;
 
-        List<Allele> allAlleles = taxonAlleleMap.get(species);
-        return getAlleleJsonResultResponse(pagination, allAlleles);
+        List<ExpressionDetail> fullExpressionAnnotationList = new ArrayList<>();
+        geneIDs.forEach(geneID -> fullExpressionAnnotationList.addAll(geneExpressionMap.get(geneID)));
+
+        //filtering
+        // filter on termID
+        List<ExpressionDetail> filterTermIDList = fullExpressionAnnotationList;
+        if (termID != null) {
+            filterTermIDList = fullExpressionAnnotationList.stream()
+                    .filter(expressionDetail -> expressionDetail.getTermIDs().contains(termID))
+                    .collect(Collectors.toList());
+        }
+        List<ExpressionDetail> filteredExpressionAnnotationList = filterExpressionAnnotations(filterTermIDList, pagination.getFieldFilterValueMap());
+
+        PaginationResult<ExpressionDetail> result = new PaginationResult<>();
+        if (!filteredExpressionAnnotationList.isEmpty()) {
+            result.setTotalNumber(filteredExpressionAnnotationList.size());
+            result.setResult(getSortedAndPaginatedExpressions(filteredExpressionAnnotationList, pagination));
+        }
+        return result;
     }
 
-    public JsonResultResponse<Allele> getAllelesByGene(String geneID, Pagination pagination) {
-        checkCache();
-        if (caching)
+    private List<ExpressionDetail> filterExpressionAnnotations(List<ExpressionDetail> expressionDetails, BaseFilter fieldFilterValueMap) {
+        if (expressionDetails == null)
             return null;
-
-        List<Allele> allAlleles = geneAlleleMap.get(geneID);
-        return getAlleleJsonResultResponse(pagination, allAlleles);
+        if (fieldFilterValueMap == null)
+            return expressionDetails;
+        return expressionDetails.stream()
+                .filter(annotation -> containsFilterValue(annotation, fieldFilterValueMap))
+                .collect(Collectors.toList());
     }
 
-    private List<Allele> getSortedAndPaginatedAlleles(List<Allele> alleleList, Pagination pagination) {
+    private boolean containsFilterValue(ExpressionDetail annotation, BaseFilter fieldFilterValueMap) {
+        // remove entries with null values.
+        fieldFilterValueMap.values().removeIf(Objects::isNull);
+        Set<Boolean> filterResults = fieldFilterValueMap.entrySet().stream()
+                .map((entry) -> {
+                    FilterFunction<ExpressionDetail, String> filterFunction = ExpressionAnnotationFiltering.filterFieldMap.get(entry.getKey());
+                    if (filterFunction == null)
+                        return null;
+                    return filterFunction.containsFilterValue(annotation, entry.getValue());
+                })
+                .collect(Collectors.toSet());
+
+        return !filterResults.contains(false);
+    }
+
+    private List<ExpressionDetail> getSortedAndPaginatedExpressions(List<ExpressionDetail> expressionList, Pagination pagination) {
         // sorting
-/*
         SortingField sortingField = null;
         String sortBy = pagination.getSortBy();
         if (sortBy != null && !sortBy.isEmpty())
             sortingField = SortingField.getSortingField(sortBy.toUpperCase());
 
-        DiseaseAnnotationSorting sorting = new DiseaseAnnotationSorting();
-        alleleList.sort(sorting.getComparator(sortingField, pagination.getAsc()));
-*/
+        ExpressionAnnotationSorting sorting = new ExpressionAnnotationSorting();
+        expressionList.sort(sorting.getComparator(sortingField, pagination.getAsc()));
 
         // paginating
-        return alleleList.stream()
+        return expressionList.stream()
                 .skip(pagination.getStart())
                 .limit(pagination.getLimit())
                 .collect(Collectors.toList());
     }
 
-    private JsonResultResponse<Allele> getAlleleJsonResultResponse(Pagination pagination, List<Allele> allAlleles) {
-        JsonResultResponse<Allele> response = new JsonResultResponse<>();
-        response.setResults(getSortedAndPaginatedAlleles(allAlleles, pagination));
-        response.setTotal(allAlleles.size());
-        return response;
-    }
-
     private Log log = LogFactory.getLog(getClass());
     // cached value
-    private static List<Allele> allAlleles = null;
+    private static List<ExpressionDetail> allExpression = null;
     // Map<gene ID, List<Allele>> grouped by gene ID
-    private static Map<String, List<Allele>> geneAlleleMap;
-    // Map<taxon ID, List<Allele>> grouped by taxon ID
-    private static Map<String, List<Allele>> taxonAlleleMap;
+    private static Map<String, List<ExpressionDetail>> geneExpressionMap;
 
     private static boolean caching;
-    private AlleleRepository alleleRepo = new AlleleRepository();
 
     private void checkCache() {
-        if (allAlleles == null && !caching) {
+        if (allExpression == null && !caching) {
             caching = true;
-            cacheAllAlleles();
+            cacheAllExpression();
             caching = false;
         }
     }
 
-    private void cacheAllAlleles() {
+    private void cacheAllExpression() {
         long startTime = System.currentTimeMillis();
-        Set<Allele> allAlleleSet = alleleRepo.getAllAlleles();
-        if (allAlleleSet == null)
-            return;
+        GeneRepository geneRepository = new GeneRepository();
+        List<BioEntityGeneExpressionJoin> joins = geneRepository.getAllExpressionAnnotations();
 
-        allAlleles = new ArrayList<>(allAlleleSet);
-        allAlleles.sort(Comparator.comparing(GeneticEntity::getSymbol));
-        geneAlleleMap = allAlleles.stream()
-                .collect(groupingBy(allele -> allele.getGene().getPrimaryKey()));
+        allExpression = joins.stream()
+                .map(expressionJoin -> {
+                    ExpressionDetail detail = new ExpressionDetail();
+                    detail.setGene(expressionJoin.getGene());
+                    detail.setTermName(expressionJoin.getEntity().getWhereExpressedStatement());
+                    detail.setAssay(expressionJoin.getAssay());
+                    detail.setDataProvider(expressionJoin.getGene().getDataProvider());
+                    if (expressionJoin.getStage() != null)
+                        detail.setStage(expressionJoin.getStage());
+                    detail.setPublications(new TreeSet<>(expressionJoin.getPublications()));
+                    detail.setCrossReference(expressionJoin.getCrossReference());
+                    detail.addTermIDs(expressionJoin.getEntity().getAoTermList().stream().map(UBERONTerm::getPrimaryKey).collect(Collectors.toList()));
+                    detail.addTermIDs(expressionJoin.getEntity().getCcRibbonTermList().stream().map(GOTerm::getPrimaryKey).collect(Collectors.toList()));
+                    if (expressionJoin.getStageTerm() != null)
+                        detail.addTermID(expressionJoin.getStageTerm().getPrimaryKey());
+                    return detail;
+                })
+                .collect(Collectors.toList());
 
+        geneExpressionMap = allExpression.stream()
+                .collect(groupingBy(expressionDetail -> expressionDetail.getGene().getPrimaryKey()));
 
-        taxonAlleleMap = allAlleles.stream()
-                .collect(groupingBy(allele -> allele.getSpecies().getPrimaryKey()));
-
-        log.info("Number of all Alleles: " + allAlleles.size());
-        log.info("Number of all Genes with Alleles: " + geneAlleleMap.size());
-        printTaxonMap();
+        log.info("Number of all expression records: " + allExpression.size());
+        log.info("Number of all Genes with Expression: " + geneExpressionMap.size());
         log.info("Time to create cache: " + (System.currentTimeMillis() - startTime) / 1000);
 
     }
 
-    private void printTaxonMap() {
-        log.info("Taxon / Allele map: ");
-        StringBuilder builder = new StringBuilder();
-        taxonAlleleMap.forEach((key, value) -> builder.append(SpeciesType.fromTaxonId(key).getDisplayName() + ": " + value.size() + ", "));
-        log.info(builder.toString());
-
-    }
-
-    public List<ExpressionDetail> getExpressionAnnotations(List<String> geneIDs, String termID, Pagination pagination) {
-
-        GeneRepository geneRepository = new GeneRepository();
-        Set<BioEntityGeneExpressionJoin> joins = geneRepository.getAllExpressionAnnotations();
-        System.out.println(joins.size());
-        return null;
-    }
 }

@@ -32,7 +32,7 @@ public class PhenotypeAnnotationToTdfTranslator {
                 joiner.add("");
                 joiner.add(GeneticEntity.CrossReferenceType.GENE.getDisplayName());
             }
-            // publication list
+            // publications list
             StringJoiner pubJoiner = new StringJoiner(",");
             annotation.getPublications().forEach(publication -> pubJoiner.add(publication.getPubId()));
             joiner.add(pubJoiner.toString());

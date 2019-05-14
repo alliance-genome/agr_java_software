@@ -74,7 +74,7 @@ public class PhenotypeRepository extends Neo4jRepository<Phenotype> {
         HashMap<String, String> bindingValueMap = new HashMap<>();
         bindingValueMap.put("geneID", geneID);
 
-        String cypher = "MATCH (phenotype:Phenotype)--(phenotypeEntityJoin:PhenotypeEntityJoin)-[:EVIDENCE]-(publication:Publication), " +
+        String cypher = "MATCH (phenotype:Phenotype)--(phenotypeEntityJoin:PhenotypeEntityJoin)-[:EVIDENCE]-(publications:Publication), " +
                 "        (phenotypeEntityJoin)--(gene:Gene)-[:FROM_SPECIES]-(geneSpecies:Species)";
 
         String cypherFeatureOptional = "OPTIONAL MATCH (phenotypeEntityJoin)--(feature:Feature)--(featureCrossRef:CrossReference), " +
@@ -95,7 +95,7 @@ public class PhenotypeRepository extends Neo4jRepository<Phenotype> {
         }
 
         // add reference filter clause
-        String referenceFilterClause = addAndWhereClauseORString("publication.pubModId", "publication.pubMedId", FieldFilter.FREFERENCE, pagination.getFieldFilterValueMap());
+        String referenceFilterClause = addAndWhereClauseORString("publications.pubModId", "publications.pubMedId", FieldFilter.FREFERENCE, pagination.getFieldFilterValueMap());
         if (referenceFilterClause != null) {
             cypherWhereClause += referenceFilterClause;
         }
@@ -123,10 +123,10 @@ public class PhenotypeRepository extends Neo4jRepository<Phenotype> {
                 "       gene as gene, " +
                 "       geneSpecies as geneSpecies, " +
                 "       featureSpecies as featureSpecies, " +
-                "       collect(publication.pubMedId), " +
-                "       collect(publication) as publications, " +
-                "       count(publication),         " +
-                "       collect(publication.pubModId), " +
+                "       collect(publications.pubMedId), " +
+                "       collect(publications) as publications, " +
+                "       count(publications),         " +
+                "       collect(publications.pubModId), " +
                 "       featureCrossRef as pimaryReference " +
                 " ORDER BY LOWER(phenotype.phenotypeStatement), LOWER(feature.symbol)";
         cypher += " SKIP " + pagination.getStart() + " LIMIT " + pagination.getLimit();
@@ -149,7 +149,7 @@ public class PhenotypeRepository extends Neo4jRepository<Phenotype> {
         HashMap<String, String> bindingValueMap = new HashMap<>();
         bindingValueMap.put("geneID", geneID);
 
-        String baseCypher = "MATCH p0=(phenotype:Phenotype)--(phenotypeEntityJoin:PhenotypeEntityJoin)-[:EVIDENCE]-(publication:Publication), " +
+        String baseCypher = "MATCH p0=(phenotype:Phenotype)--(phenotypeEntityJoin:PhenotypeEntityJoin)-[:EVIDENCE]-(publications:Publication), " +
                 "        p2=(phenotypeEntityJoin)--(gene:Gene) " +
                 "where gene.primaryKey = {geneID} ";
         // get feature-less phenotypes
@@ -160,7 +160,7 @@ public class PhenotypeRepository extends Neo4jRepository<Phenotype> {
         }
 
         // add reference filter clause
-        String referenceFilterClause = addAndWhereClauseORString("publication.pubModId", "publication.pubMedId", FieldFilter.FREFERENCE, pagination.getFieldFilterValueMap());
+        String referenceFilterClause = addAndWhereClauseORString("publications.pubModId", "publications.pubMedId", FieldFilter.FREFERENCE, pagination.getFieldFilterValueMap());
         if (referenceFilterClause != null) {
             baseCypher += referenceFilterClause;
         }
@@ -201,7 +201,7 @@ public class PhenotypeRepository extends Neo4jRepository<Phenotype> {
     }
 
     private String getPhenotypeBaseQuery() {
-        return "MATCH p0=(phenotype:Phenotype)--(phenotypeEntityJoin:PhenotypeEntityJoin)-[:EVIDENCE]-(publication:Publication), " +
+        return "MATCH p0=(phenotype:Phenotype)--(phenotypeEntityJoin:PhenotypeEntityJoin)-[:EVIDENCE]-(publications:Publication), " +
                 "p2=(phenotypeEntityJoin)--(gene:Gene)-[:FROM_SPECIES]-(species:Species) " +
                 "where gene.primaryKey = {geneID} " +
                 "OPTIONAL MATCH p4=(phenotypeEntityJoin)--(feature:Feature) ";
@@ -217,7 +217,7 @@ public class PhenotypeRepository extends Neo4jRepository<Phenotype> {
     }
 
     public List<PhenotypeEntityJoin> getAllPhenotypeAnnotations() {
-        String cypher = "MATCH p0=(phenotype:Phenotype)--(phenotypeEntityJoin:PhenotypeEntityJoin)<-[:EVIDENCE]-(publication:Publication), " +
+        String cypher = "MATCH p0=(phenotype:Phenotype)--(phenotypeEntityJoin:PhenotypeEntityJoin)<-[:EVIDENCE]-(publications:Publication), " +
                 "p2=(phenotypeEntityJoin)--(gene:Gene)-[:FROM_SPECIES]-(species:Species) " +
                 "OPTIONAL MATCH p4=(phenotypeEntityJoin)--(feature:Feature) " +
                 "return p0, p2, p4 limit 10000000";

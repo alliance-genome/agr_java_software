@@ -14,6 +14,7 @@ import org.alliancegenome.api.rest.interfaces.ExpressionRESTInterface;
 import org.alliancegenome.api.service.ExpressionService;
 import org.alliancegenome.core.ExpressionDetail;
 import org.alliancegenome.core.service.JsonResultResponse;
+import org.alliancegenome.core.service.PaginationResult;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.SpeciesType;
@@ -76,6 +77,7 @@ public class ExpressionController implements ExpressionRESTInterface {
     }
 
     private JsonResultResponse<ExpressionDetail> getExpressionDetailJsonResultResponse(List<String> geneIDs, String termID, String filterSpecies, String filterGene, String filterStage, String filterAssay, String filterReference, String filterTerm, String filterSource, int limit, int page, String sortBy, String asc) {
+        long startTime = System.currentTimeMillis();
         Pagination pagination = new Pagination(page, limit, sortBy, asc);
         BaseFilter filterMap = new BaseFilter();
         filterMap.put(FieldFilter.FSPECIES, filterSpecies);
@@ -88,10 +90,11 @@ public class ExpressionController implements ExpressionRESTInterface {
         filterMap.values().removeIf(Objects::isNull);
         pagination.setFieldFilterValueMap(filterMap);
 
-        ExpressionCacheRepository expressionCacheRepository = new ExpressionCacheRepository();
-        List<ExpressionDetail> joins = expressionCacheRepository.getExpressionAnnotations(geneIDs, termID, pagination);
-        return null;
-        ////return expressionService.getExpressionDetails(joins, pagination);
+        JsonResultResponse<ExpressionDetail> expressions= expressionService.getExpressionDetails(geneIDs, termID, pagination);
+        expressions.setHttpServletRequest(request);
+        expressions.calculateRequestDuration(startTime);
+        return expressions;
+
     }
 
     @Override
