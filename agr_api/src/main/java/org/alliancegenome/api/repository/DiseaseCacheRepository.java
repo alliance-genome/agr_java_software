@@ -1,5 +1,6 @@
-package org.alliancegenome.api.service;
+package org.alliancegenome.api.repository;
 
+import org.alliancegenome.api.service.DiseaseRibbonService;
 import org.alliancegenome.core.service.*;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
