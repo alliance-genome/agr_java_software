@@ -10,6 +10,8 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import org.alliancegenome.api.service.helper.ExpressionDetail;
 import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.node.DOTerm;
@@ -20,6 +22,8 @@ import com.fasterxml.jackson.annotation.JsonView;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+
+import java.util.List;
 
 @Path("/disease")
 @Api(value = "Disease ")
@@ -78,5 +82,42 @@ public interface DiseaseRESTInterface {
     @Produces(MediaType.TEXT_PLAIN)
     @ApiOperation(value = "Retrieve all DiseaseAnnotation records for a given disease id disregarding sorting / filtering parameters")
     public String getDiseaseAnnotationsDownload(@PathParam("id") String id);
+
+    @GET
+    @Path("")
+    @JsonView(value = {View.DiseaseAnnotation.class})
+    @ApiOperation(value = "Retrieve all expression records of a given set of geneMap")
+    JsonResultResponse<DiseaseAnnotation> getDiseaseAnnotationsRibbonDetails(
+            @ApiParam(name = "geneID", value = "Gene by ID", required = true)
+            @QueryParam("geneID") List<String> geneIDs,
+            @ApiParam(name = "termID", value = "Term ID by which rollup should happen")
+            @QueryParam("termID") String termID,
+            @ApiParam(name = "filter.species", value = "Species by taxon ID", type = "String")
+            @QueryParam("filter.species") String filterSpecies,
+            @ApiParam(name = "filter.gene", value = "Gene symbol", type = "String")
+            @QueryParam("filter.gene") String filterGene,
+            @ApiParam(name = "filter.reference", value = "Reference", type = "String")
+            @QueryParam("filter.reference") String filterReference,
+            @ApiParam(name = "filter.disease", value = "Ontology term name", type = "String")
+            @QueryParam("filter.disease") String diseaseTerm,
+            @ApiParam(name = "filter.source", value = "Source", type = "String")
+            @QueryParam("filter.source") String filterSource,
+            @ApiParam(name = "filter.geneticEntity", value = "geneticEntity", type = "String")
+            @QueryParam("filter.geneticEntity") String geneticEntity,
+            @ApiParam(name = "filter.geneticEntityType", value = "geneticEntityType", type = "String")
+            @QueryParam("filter.geneticEntityType") String geneticEntityType,
+            @ApiParam(name = "filter.associationType", value = "associationType", type = "String")
+            @QueryParam("filter.associationType") String associationType,
+            @ApiParam(name = "filter.evidenceCode", value = "evidenceCode", type = "String")
+            @QueryParam("filter.evidenceCode") String evidenceCode,
+            @ApiParam(name = "limit", value = "Number of rows returned", defaultValue = "20")
+            @DefaultValue("20") @QueryParam("limit") int limit,
+            @ApiParam(name = "page", value = "Page number")
+            @DefaultValue("1") @QueryParam("page") int page,
+            @ApiParam(name = "sortBy", value = "Sort by field name")
+            @QueryParam("sortBy") String sortBy,
+            @ApiParam(name = "asc", allowableValues = "true,false", value = "ascending or descending")
+            @QueryParam("asc") String asc
+    ) throws JsonProcessingException;
 
 }

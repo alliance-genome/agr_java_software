@@ -1,7 +1,10 @@
 package org.alliancegenome.api.controller;
 
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.alliancegenome.api.rest.interfaces.DiseaseRESTInterface;
 import org.alliancegenome.api.service.DiseaseService;
+import org.alliancegenome.api.service.helper.ExpressionDetail;
 import org.alliancegenome.core.exceptions.RestErrorException;
 import org.alliancegenome.core.exceptions.RestErrorMessage;
 import org.alliancegenome.core.service.JsonResultResponse;
@@ -10,6 +13,7 @@ import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.node.DOTerm;
+import org.alliancegenome.neo4j.view.BaseFilter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -20,6 +24,9 @@ import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Objects;
 
 @RequestScoped
 public class DiseaseController extends BaseController implements DiseaseRESTInterface {
@@ -105,6 +112,56 @@ public class DiseaseController extends BaseController implements DiseaseRESTInte
         Pagination pagination = new Pagination(1, Integer.MAX_VALUE, null, null);
         // retrieve all records
         return translator.getAllRows(diseaseService.getDiseaseAnnotationsByDisease(id, pagination).getResults());
+    }
+
+    @Override
+    public JsonResultResponse<DiseaseAnnotation> getDiseaseAnnotationsRibbonDetails(List<String> geneIDs,
+                                                                                    String termID,
+                                                                                    String filterSpecies,
+                                                                                    String filterGene,
+                                                                                    String filterReference,
+                                                                                    String diseaseTerm,
+                                                                                    String filterSource,
+                                                                                    String geneticEntity,
+                                                                                    String geneticEntityType,
+                                                                                    String associationType,
+                                                                                    String evidenceCode,
+                                                                                    int limit,
+                                                                                    int page,
+                                                                                    String sortBy,
+                                                                                    String asc) {
+
+        LocalDateTime startDate = LocalDateTime.now();
+        Pagination pagination = new Pagination(page, limit, sortBy, asc);
+        BaseFilter filterMap = new BaseFilter();
+        filterMap.put(FieldFilter.FSPECIES, filterSpecies);
+        filterMap.put(FieldFilter.GENE_NAME, filterGene);
+        filterMap.put(FieldFilter.FREFERENCE, filterReference);
+        filterMap.put(FieldFilter.SOURCE, filterSource);
+        filterMap.put(FieldFilter.DISEASE, diseaseTerm);
+        filterMap.put(FieldFilter.GENETIC_ENTITY_TYPE, geneticEntityType);
+        filterMap.put(FieldFilter.GENETIC_ENTITY, geneticEntity);
+        filterMap.put(FieldFilter.ASSOCIATION_TYPE, associationType);
+        filterMap.put(FieldFilter.EVIDENCE_CODE, evidenceCode);
+        filterMap.values().removeIf(Objects::isNull);
+        pagination.setFieldFilterValueMap(filterMap);
+
+        if (pagination.hasErrors()) {
+            RestErrorMessage message = new RestErrorMessage();
+            message.setErrors(pagination.getErrors());
+            throw new RestErrorException(message);
+        }
+        try {
+            JsonResultResponse<DiseaseAnnotation> response = diseaseService.getRibbonDiseaseAnnotations(geneIDs, termID, pagination);
+            response.setHttpServletRequest(request);
+            response.calculateRequestDuration(startDate);
+            return response;
+        } catch (Exception e) {
+            log.error(e);
+            RestErrorMessage error = new RestErrorMessage();
+            error.addErrorMessage(e.getMessage());
+            throw new RestErrorException(error);
+        }
     }
 
 }

@@ -254,13 +254,14 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
     public Set<DiseaseEntityJoin> getAllDiseaseEntityJoins() {
         if (allDiseaseEntityJoins.size() > 1000)
             return allDiseaseEntityJoins;
-        String limit = "200000000";
         String cypher = "MATCH p=(disease:DOTerm)--(diseaseEntityJoin:DiseaseEntityJoin)<-[:ASSOCIATION]-(gene:Gene)--(species:Species)," +
                 "              p2=(diseaseEntityJoin:DiseaseEntityJoin)-[:EVIDENCE]->(pubEvCode:PublicationEvidenceCodeJoin)," +
-                "              p3=(publication:Publication)-[:ASSOCIATION]->(pubEvCode:PublicationEvidenceCodeJoin)" +
-                "        OPTIONAL MATCH p1=(diseaseEntityJoin:DiseaseEntityJoin)--(feature:Feature)--(crossReference:CrossReference) " +
+                "              p3=(publication:Publication)-[:ASSOCIATION]->(pubEvCode:PublicationEvidenceCodeJoin)";
+        cypher += " where disease.is_obsolete = 'false' ";
+        //cypher += " where disease.primaryKey = 'DOID:1838' ";
+        cypher += "        OPTIONAL MATCH p1=(diseaseEntityJoin:DiseaseEntityJoin)--(feature:Feature)--(crossReference:CrossReference) " +
                 "        OPTIONAL MATCH p4=(diseaseEntityJoin:DiseaseEntityJoin)-[:FROM_ORTHOLOGOUS_GENE]-(orthoGene:Gene)-[:FROM_SPECIES]-(orthoSpecies:Species) " +
-                "RETURN p, p1, p2, p3, p4 limit " + limit;
+                "RETURN p, p1, p2, p3, p4 ";
 
         long start = System.currentTimeMillis();
         Iterable<DiseaseEntityJoin> joins = neo4jSession.query(DiseaseEntityJoin.class, cypher, new HashMap<>());
