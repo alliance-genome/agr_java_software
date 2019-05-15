@@ -77,9 +77,10 @@ public class DiseaseRibbonService {
         Set<String> partOfSlimList = new HashSet<>(3);
         List<String> slimFoundList = new ArrayList<>();
         doList.forEach(doTerm -> {
-            if (closureMapping.get(doID).contains(doTerm.getPrimaryKey())) {
-                partOfSlimList.add(doTerm.getPrimaryKey());
-                slimFoundList.add(doTerm.getPrimaryKey());
+            final String slimDoID = doTerm.getPrimaryKey();
+            if (closureMapping.get(doID).contains(slimDoID)) {
+                partOfSlimList.add(slimDoID);
+                slimFoundList.add(slimDoID);
             }
         });
         if (slimFoundList.isEmpty()) {

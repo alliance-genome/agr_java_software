@@ -3,6 +3,7 @@ package org.alliancegenome.api.service;
 import org.alliancegenome.api.entity.DiseaseEntitySlim;
 import org.alliancegenome.api.entity.DiseaseEntitySubgroupSlim;
 import org.alliancegenome.api.entity.DiseaseRibbonEntity;
+import org.alliancegenome.api.repository.DiseaseCacheRepository;
 import org.alliancegenome.api.service.helper.DiseaseRibbonSummary;
 import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.core.service.PaginationResult;
@@ -13,7 +14,6 @@ import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.DiseaseSummary;
 import org.alliancegenome.neo4j.entity.node.DOTerm;
 import org.alliancegenome.neo4j.entity.node.Gene;
-import org.alliancegenome.neo4j.repository.DiseaseCacheRepository;
 import org.alliancegenome.neo4j.repository.DiseaseRepository;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.apache.commons.logging.Log;
@@ -123,9 +123,10 @@ public class DiseaseService {
         });
     }
 
+    DiseaseRibbonService diseaseRibbonService = new DiseaseRibbonService();
+
     private Map<String, List<DiseaseAnnotation>> getDiseaseAnnotationHistogram(PaginationResult<DiseaseAnnotation> paginationResult) {
         Map<String, List<DiseaseAnnotation>> histogram = new HashMap<>();
-        DiseaseRibbonService diseaseRibbonService = new DiseaseRibbonService();
         paginationResult.getResult().forEach(annotation -> {
             Set<String> slimIds = diseaseRibbonService.getSlimId(annotation.getDisease().getPrimaryKey());
             slimIds.forEach(slimId -> {
@@ -137,6 +138,18 @@ public class DiseaseService {
             });
         });
         return histogram;
+    }
+
+    public JsonResultResponse<DiseaseAnnotation> getRibbonDiseaseAnnotations(List<String> geneIDs, String termID, Pagination pagination) {
+        LocalDateTime startDate = LocalDateTime.now();
+        PaginationResult<DiseaseAnnotation> paginationResult = diseaseCacheRepository.getRibbonDiseaseAnnotations(geneIDs, termID, pagination);
+        JsonResultResponse<DiseaseAnnotation> response = new JsonResultResponse<>();
+        response.calculateRequestDuration(startDate);
+        if (paginationResult != null) {
+            response.setResults(paginationResult.getResult());
+            response.setTotal(paginationResult.getTotalNumber());
+        }
+        return response;
     }
 }
 

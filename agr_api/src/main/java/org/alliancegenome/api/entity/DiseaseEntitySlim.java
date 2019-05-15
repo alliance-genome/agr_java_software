@@ -16,7 +16,7 @@ public class DiseaseEntitySlim {
     @JsonView(View.DiseaseAnnotation.class)
     private String id;
     @JsonView(View.DiseaseAnnotation.class)
-    @JsonProperty("subgroup")
+    @JsonProperty("subgroups")
     private List<DiseaseEntitySubgroupSlim> slims = new ArrayList<>();
 
     public void addDiseaseEntitySubgroupSlim(DiseaseEntitySubgroupSlim slim) {

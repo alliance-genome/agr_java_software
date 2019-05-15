@@ -1,10 +1,14 @@
-package org.alliancegenome.neo4j.repository;
+package org.alliancegenome.api.repository;
 
+import org.alliancegenome.api.service.DiseaseRibbonService;
 import org.alliancegenome.core.service.*;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.node.*;
+import org.alliancegenome.neo4j.repository.DiseaseRepository;
+import org.alliancegenome.neo4j.repository.GeneCacheRepository;
 import org.alliancegenome.neo4j.view.BaseFilter;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -42,6 +46,35 @@ public class DiseaseCacheRepository {
 
         //filtering
         List<DiseaseAnnotation> filteredDiseaseAnnotationList = filterDiseaseAnnotations(fullDiseaseAnnotationList, pagination.getFieldFilterValueMap());
+
+        PaginationResult<DiseaseAnnotation> result = new PaginationResult<>();
+        result.setTotalNumber(filteredDiseaseAnnotationList.size());
+        result.setResult(getSortedAndPaginatedDiseaseAnnotations(pagination, filteredDiseaseAnnotationList));
+        return result;
+    }
+
+    public PaginationResult<DiseaseAnnotation> getRibbonDiseaseAnnotations(List<String> geneIDs, String diseaseSlimID, Pagination pagination) {
+        checkCache();
+        if (caching)
+            return null;
+
+        if (geneIDs == null)
+            return null;
+        List<DiseaseAnnotation> fullDiseaseAnnotationList = new ArrayList<>();
+        // filter by gene
+        geneIDs.forEach(geneID ->
+                fullDiseaseAnnotationList.addAll(diseaseAnnotationExperimentGeneMap.get(geneID))
+        );
+        // filter by slim ID
+        List<DiseaseAnnotation> slimDiseaseAnnotationList = fullDiseaseAnnotationList;
+        if (StringUtils.isNotEmpty(diseaseSlimID)) {
+            slimDiseaseAnnotationList = fullDiseaseAnnotationList.stream()
+                    .filter(diseaseAnnotation -> diseaseAnnotation.getParentIDs().contains(diseaseSlimID))
+                    .collect(toList());
+        }
+
+        //filtering
+        List<DiseaseAnnotation> filteredDiseaseAnnotationList = filterDiseaseAnnotations(slimDiseaseAnnotationList, pagination.getFieldFilterValueMap());
 
         PaginationResult<DiseaseAnnotation> result = new PaginationResult<>();
         result.setTotalNumber(filteredDiseaseAnnotationList.size());
@@ -134,6 +167,8 @@ public class DiseaseCacheRepository {
         List<DiseaseAnnotation> summaryList = new ArrayList<>();
 
         // replace Gene references with the cached Gene references to keep the memory imprint low.
+        DiseaseRibbonService diseaseRibbonService = new DiseaseRibbonService();
+
         allDiseaseAnnotations = joinList.stream()
                 .map(diseaseEntityJoin -> {
                     DiseaseAnnotation document = new DiseaseAnnotation();
@@ -144,12 +179,15 @@ public class DiseaseCacheRepository {
                     document.setAssociationType(diseaseEntityJoin.getJoinType());
                     document.setSortOrder(diseaseEntityJoin.getSortOrder());
                     Gene orthologyGene = diseaseEntityJoin.getOrthologyGene();
-                    if (orthologyGene != null)
-                        document.setOrthologyGene(geneCacheRepository.getGene(orthologyGene.getPrimaryKey()));
+                    if (orthologyGene != null) {
+                        document.setOrthologyGene(orthologyGene);
+// for memory savings reason use cached gene objects.
+//                        document.setOrthologyGene(geneCacheRepository.getGene(orthologyGene.getPrimaryKey()));
+                    }
                     List<Publication> publicationList = diseaseEntityJoin.getPublicationEvidenceCodeJoin().stream()
                             .map(PublicationEvidenceCodeJoin::getPublication).sorted(Comparator.naturalOrder()).collect(Collectors.toList());
                     document.setPublications(publicationList.stream().distinct().collect(Collectors.toList()));
-                    // workaraound as I cannot figure out how to include the ECOTerm in the overall query without slowing down the time.
+                    // work around as I cannot figure out how to include the ECOTerm in the overall query without slowing down the performance.
 /*
                     Set<ECOTerm> evidences = diseaseEntityJoin.getPublicationEvidenceCodeJoin().stream()
                             .map(PublicationEvidenceCodeJoin::getEcoCode)
@@ -158,6 +196,8 @@ public class DiseaseCacheRepository {
 */
                     List<ECOTerm> evidences = diseaseRepository.getEcoTerm(diseaseEntityJoin.getPublicationEvidenceCodeJoin());
                     document.setEcoCodes(evidences);
+                    Set<String> slimId = diseaseRibbonService.getSlimId(diseaseEntityJoin.getDisease().getPrimaryKey());
+                    document.setParentIDs(slimId);
                     return document;
                 })
                 .collect(toList());

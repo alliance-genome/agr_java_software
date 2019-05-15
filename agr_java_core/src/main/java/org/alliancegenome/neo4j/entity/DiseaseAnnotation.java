@@ -1,20 +1,19 @@
 package org.alliancegenome.neo4j.entity;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-
-import org.alliancegenome.neo4j.entity.node.*;
-import org.alliancegenome.neo4j.view.View;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonView;
-
 import lombok.Getter;
 import lombok.Setter;
+import org.alliancegenome.neo4j.entity.node.*;
+import org.alliancegenome.neo4j.view.View;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -52,6 +51,10 @@ public class DiseaseAnnotation implements Comparable<DiseaseAnnotation>, Seriali
             orthologyGenes = new ArrayList<>();
         orthologyGenes.add(gene);
     }
+
+    @JsonIgnore
+    // lists the agr_do slim parents
+    private Set<String> parentIDs;
 
     @JsonIgnore
     public String getDocumentId() {

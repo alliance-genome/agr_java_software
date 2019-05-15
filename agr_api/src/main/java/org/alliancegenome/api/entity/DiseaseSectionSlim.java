@@ -15,5 +15,7 @@ public class DiseaseSectionSlim {
     private String label;
     @JsonView({View.DiseaseAnnotation.class})
     private String classLabel;
+    @JsonView({View.DiseaseAnnotation.class})
+    private String type = "Term";
 
 }

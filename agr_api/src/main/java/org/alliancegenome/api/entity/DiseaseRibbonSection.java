@@ -1,5 +1,6 @@
 package org.alliancegenome.api.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Getter;
 import lombok.Setter;
@@ -16,10 +17,15 @@ public class DiseaseRibbonSection {
     private String id;
     @JsonView({View.DiseaseAnnotation.class})
     private String label;
+    @JsonProperty("class_label")
+    private String classLabel;
+    @JsonProperty("annotation_label")
+    private String annotationLabel;
     @JsonView({View.DiseaseAnnotation.class})
     private String taxonId;
 
     @JsonView({View.DiseaseAnnotation.class})
+    @JsonProperty("groups")
     private List<DiseaseSectionSlim> slims = new ArrayList<>();
 
     public void addDiseaseSlim(DiseaseSectionSlim slim) {

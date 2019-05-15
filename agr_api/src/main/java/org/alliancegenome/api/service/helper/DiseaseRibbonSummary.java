@@ -16,11 +16,11 @@ import java.util.Optional;
 public class DiseaseRibbonSummary {
 
     @JsonView(View.DiseaseAnnotation.class)
-    @JsonProperty("section")
+    @JsonProperty("sections")
     private List<DiseaseRibbonSection> diseaseRibbonSections = new ArrayList<>();
 
     @JsonView(View.DiseaseAnnotation.class)
-    @JsonProperty("entity")
+    @JsonProperty("entities")
     private List<DiseaseRibbonEntity> diseaseRibbonEntities = new ArrayList<>();
 
     public void addRibbonSection(DiseaseRibbonSection section) {
