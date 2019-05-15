@@ -91,7 +91,7 @@ public class SiteIndexSettings extends Settings {
                                     "mus musculus => mouse, mmu",
                                     "drosophila melanogaster => fly, fruit fly, dme",
                                     "caenorhabditis elegans => worm, cel",
-                                    "saccharomyces cerevisiae => yeast. sce",
+                                    "saccharomyces cerevisiae => yeast, sce",
                                     "danio rerio => fish, zebrafish, dre"
                             })
                         .endObject()
