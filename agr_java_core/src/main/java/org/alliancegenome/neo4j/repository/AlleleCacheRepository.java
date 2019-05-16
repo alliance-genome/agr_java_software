@@ -31,6 +31,8 @@ public class AlleleCacheRepository {
             return null;
 
         List<Allele> allAlleles = geneAlleleMap.get(geneID);
+        if (allAlleles == null)
+            return null;
         return getAlleleJsonResultResponse(pagination, allAlleles);
     }
 
