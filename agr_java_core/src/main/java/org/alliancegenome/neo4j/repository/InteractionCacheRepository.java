@@ -35,6 +35,8 @@ public class InteractionCacheRepository {
 
         // check gene map
         List<InteractionGeneJoin> interactionAnnotationList = interactionAnnotationMapGene.get(geneID);
+        if(interactionAnnotationList == null)
+            return null;
         //filtering
         List<InteractionGeneJoin> filteredInteractionAnnotationList = filterInteractionAnnotations(interactionAnnotationList, pagination.getFieldFilterValueMap(), true);
 

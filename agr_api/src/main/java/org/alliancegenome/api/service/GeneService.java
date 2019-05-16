@@ -36,6 +36,8 @@ public class GeneService {
     public JsonResultResponse<Allele> getAlleles(String geneId, Pagination pagination) {
         long startTime = System.currentTimeMillis();
         JsonResultResponse<Allele> response = alleleService.getAllelesByGene(geneId, pagination);
+        if(response == null)
+            response = new JsonResultResponse<>();
         Long duration = (System.currentTimeMillis() - startTime) / 1000;
         response.setRequestDuration(duration.toString());
         return response;
@@ -44,6 +46,8 @@ public class GeneService {
     public JsonResultResponse<InteractionGeneJoin> getInteractions(String id, Pagination pagination) {
         JsonResultResponse<InteractionGeneJoin> ret = new JsonResultResponse<>();
         PaginationResult<InteractionGeneJoin> interactions = interCacheRepo.getInteractionAnnotationList(id, pagination);
+        if(interactions == null)
+            return ret;
         ret.setResults(interactions.getResult());
         ret.setTotal(interactions.getTotalNumber());
         ret.addAnnotationSummarySupplementalData(getInteractionSummary(id));

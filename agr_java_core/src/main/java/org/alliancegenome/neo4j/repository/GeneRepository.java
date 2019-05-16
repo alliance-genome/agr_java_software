@@ -602,7 +602,7 @@ public class GeneRepository extends Neo4jRepository<Gene> {
     }
 
     public List<BioEntityGeneExpressionJoin> getAllExpressionAnnotations() {
-        String cypher = " MATCH p1=(gene:Gene)-->(s:BioEntityGeneExpressionJoin)--(t), " +
+        String cypher = " MATCH p1=(q:Species)<-[:FROM_SPECIES]-(gene:Gene)-->(s:BioEntityGeneExpressionJoin)--(t), " +
                 " entity = (s:BioEntityGeneExpressionJoin)--(exp:ExpressionBioEntity)--(o:Ontology) ";
 //        cypher += "  where gene.primaryKey in ['MGI:109583','ZFIN:ZDB-GENE-980526-166'] ";
         cypher += "OPTIONAL MATCH crossReference = (s:BioEntityGeneExpressionJoin)--(crossRef:CrossReference) ";
