@@ -24,9 +24,9 @@ class ExpressionIntegrationSpec extends AbstractSpec {
 
         where:
         geneId                   | totalAnnotations | groupCount | anatomyTerms | anatomyTotal | CCTerms | CCTotal | stageTerms | stageTotal
-        "MGI:109583"             | 306              | 3          | 26           | 165          | 17      | 0       | 3          | 141
-        "RGD:2129"               | 10               | 3          | 26           | 0            | 17      | 10      | 3          | 0
-        "ZFIN:ZDB-GENE-001103-1" | 646              | 3          | 26           | 400          | 17      | 1       | 3          | 245
+        "MGI:109583"             | 141              | 3          | 19           | 165          | 17      | 0       | 3          | 141
+        "RGD:2129"               | 10               | 3          | 19           | 0            | 17      | 10      | 3          | 0
+        "ZFIN:ZDB-GENE-001103-1" | 248              | 3          | 26           | 400          | 17      | 1       | 3          | 245
 
     }
 

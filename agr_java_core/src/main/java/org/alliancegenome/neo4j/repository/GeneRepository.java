@@ -1,44 +1,27 @@
 package org.alliancegenome.neo4j.repository;
 
-import static java.util.stream.Collectors.joining;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import org.alliancegenome.es.model.query.FieldFilter;
+import org.alliancegenome.es.model.query.Pagination;
+import org.alliancegenome.neo4j.entity.SpeciesType;
+import org.alliancegenome.neo4j.entity.node.*;
+import org.alliancegenome.neo4j.view.OrthologyFilter;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.neo4j.ogm.model.Result;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.StringJoiner;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-import org.alliancegenome.es.model.query.FieldFilter;
-import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.neo4j.entity.SpeciesType;
-import org.alliancegenome.neo4j.entity.node.Allele;
-import org.alliancegenome.neo4j.entity.node.BioEntityGeneExpressionJoin;
-import org.alliancegenome.neo4j.entity.node.GOTerm;
-import org.alliancegenome.neo4j.entity.node.Gene;
-import org.alliancegenome.neo4j.entity.node.Ontology;
-import org.alliancegenome.neo4j.entity.node.SecondaryId;
-import org.alliancegenome.neo4j.entity.node.UBERONTerm;
-import org.alliancegenome.neo4j.view.OrthologyFilter;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.neo4j.ogm.model.Result;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
+import static java.util.stream.Collectors.joining;
 
 public class GeneRepository extends Neo4jRepository<Gene> {
 
@@ -71,6 +54,7 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         }
         return null;
     }
+
 
     public Gene getShallowGene(String primaryKey) {
         HashMap<String, String> map = new HashMap<>();
@@ -172,10 +156,12 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         }
 
         // filtering
+/*
         joinList = joinList.stream()
                 .filter(join -> passFilter(join, pagination.getFieldFilterValueMap()))
                 .collect(Collectors.toList());
 
+*/
 
         // check for rollup term existence
         // Check for GO terms
@@ -229,6 +215,7 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         return joinList;
     }
 
+/*
     private boolean passFilter(BioEntityGeneExpressionJoin
                                        bioEntityGeneExpressionJoin, Map<FieldFilter, String> fieldFilterValueMap) {
         Map<FieldFilter, FilterComparator<BioEntityGeneExpressionJoin, String>> map = new HashMap<>();
@@ -237,7 +224,7 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         map.put(FieldFilter.TERM_NAME, (join, filterValue) -> join.getEntity().getWhereExpressedStatement().toLowerCase().contains(filterValue.toLowerCase()));
         map.put(FieldFilter.STAGE, (join, filterValue) -> join.getStage().getPrimaryKey().toLowerCase().contains(filterValue.toLowerCase()));
         map.put(FieldFilter.ASSAY, (join, filterValue) -> join.getAssay().getDisplay_synonym().toLowerCase().contains(filterValue.toLowerCase()));
-        map.put(FieldFilter.FREFERENCE, (join, filterValue) -> join.getPublication().getPubId().toLowerCase().contains(filterValue.toLowerCase()));
+        map.put(FieldFilter.FREFERENCE, (join, filterValue) -> join.getPublications().getPubId().toLowerCase().contains(filterValue.toLowerCase()));
         map.put(FieldFilter.SOURCE, (join, filterValue) -> join.getCrossReference().getDisplayName().toLowerCase().contains(filterValue.toLowerCase()));
 
         if (fieldFilterValueMap == null || fieldFilterValueMap.size() == 0)
@@ -248,6 +235,7 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         }
         return true;
     }
+*/
 
     public List<BioEntityGeneExpressionJoin> getExpressionAnnotationSummary(String geneID) {
         String query = " MATCH p1=(gene:Gene)-->(s:BioEntityGeneExpressionJoin)--(t) ";
@@ -602,6 +590,7 @@ public class GeneRepository extends Neo4jRepository<Gene> {
                 .collect(Collectors.toMap(GOTerm::getPrimaryKey, GOTerm::getName, (x, y) -> x + ", " + y, LinkedHashMap::new));
     }
 
+
     public List<Gene> getAllGenes() {
         String cypher = " MATCH p1=(q:Species)-[:FROM_SPECIES]-(g:Gene) "
                 + "OPTIONAL MATCH p5=(g:Gene)--(:CrossReference) "
@@ -610,6 +599,23 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         Iterable<Gene> joins = neo4jSession.query(Gene.class, cypher, new HashMap<>());
         return StreamSupport.stream(joins.spliterator(), false).
                 collect(Collectors.toList());
+    }
+
+    public List<BioEntityGeneExpressionJoin> getAllExpressionAnnotations() {
+        String cypher = " MATCH p1=(gene:Gene)-->(s:BioEntityGeneExpressionJoin)--(t), " +
+                " entity = (s:BioEntityGeneExpressionJoin)--(exp:ExpressionBioEntity)--(o:Ontology) ";
+//        cypher += "  where gene.primaryKey in ['MGI:109583','ZFIN:ZDB-GENE-980526-166'] ";
+        cypher += "OPTIONAL MATCH crossReference = (s:BioEntityGeneExpressionJoin)--(crossRef:CrossReference) ";
+        cypher += "return p1, entity, crossRef ";
+
+        long start = System.currentTimeMillis();
+        Iterable<BioEntityGeneExpressionJoin> joins = neo4jSession.query(BioEntityGeneExpressionJoin.class, cypher, new HashMap<>());
+
+        List<BioEntityGeneExpressionJoin> allBioEntityExpressionJoins = StreamSupport.stream(joins.spliterator(), false).
+                collect(Collectors.toList());
+        log.info("Total BioEntityGeneExpressionJoin nodes: " + allBioEntityExpressionJoins.size());
+        log.info("Loaded in:  " + ((System.currentTimeMillis() - start) / 1000) + " s");
+        return allBioEntityExpressionJoins;
     }
 
     @FunctionalInterface

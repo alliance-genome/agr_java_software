@@ -321,8 +321,8 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
                     "         collect(orthoSpecies) as orthoSpecies, ";
         }
 
-        cypher += "       count(publication),         " +
-                "       collect(publication.pubModId) ";
+        cypher += "       count(publications),         " +
+                "       collect(publications.pubModId) ";
         cypher += "order by associationSortOrder ASC, species.phylogeneticOrder ASC, LOWER(nameJoin) " + pagination.getAscending() + ", LOWER(feature.symbol)";
         cypher += " SKIP " + pagination.getStart();
         if (pagination.getLimit() != null && pagination.getLimit() > -1)
@@ -340,7 +340,7 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
             cypher += DISEASE_INCLUDING_CHILDREN;
         }
         cypher += "--(diseaseEntityJoin:DiseaseEntityJoin)-[:EVIDENCE]-(pubEvCode:PublicationEvidenceCodeJoin), " +
-                "              p1=(publication:Publication)--(pubEvCode)--(evidence:ECOTerm), " +
+                "              p1=(publications:Publication)--(pubEvCode)--(evidence:ECOTerm), " +
                 "              p2=(diseaseEntityJoin)-[:ASSOCIATION]-(gene:Gene)--(species:Species) ";
 /*
         "              p2=(diseaseEntityJoin)-[:ASSOCIATION]-(gene:Gene)--(species:Species), " +
@@ -431,7 +431,7 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
         }
 
         // add reference filter clause
-        String referenceFilterClause = addAndWhereClauseORString("publication.pubModId", "publication.pubMedId", FieldFilter.FREFERENCE, pagination.getFieldFilterValueMap());
+        String referenceFilterClause = addAndWhereClauseORString("publications.pubModId", "publications.pubMedId", FieldFilter.FREFERENCE, pagination.getFieldFilterValueMap());
         if (referenceFilterClause != null) {
             cypherWhereClause += referenceFilterClause;
         }
@@ -466,7 +466,7 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
         bindingValueMap.put("geneID", geneID);
 
         String baseCypher = "MATCH p0=(disease:DOTerm)--(diseaseEntityJoin:DiseaseEntityJoin)-[:EVIDENCE]-(pubEvCode:PublicationEvidenceCodeJoin), " +
-                "              p1=(publication:Publication)--(pubEvCode:PublicationEvidenceCodeJoin)--(evidence:ECOTerm), " +
+                "              p1=(publications:Publication)--(pubEvCode:PublicationEvidenceCodeJoin)--(evidence:ECOTerm), " +
                 "              p2=(diseaseEntityJoin)--(gene:Gene)-[:FROM_SPECIES]-(species:Species) ";
         if (!empiricalDisease) {
             baseCypher += cypherViaOrthology;
@@ -527,7 +527,7 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
         bindingValueMap.put("geneID", geneID);
 
         String baseCypher = "MATCH p0=(disease:DOTerm)--(diseaseEntityJoin:DiseaseEntityJoin)--(pubEvJoin:PublicationEvidenceCodeJoin), " +
-                "              p1=(evidence:ECOTerm)--(pubEvJoin:PublicationEvidenceCodeJoin)--(publication:Publication), " +
+                "              p1=(evidence:ECOTerm)--(pubEvJoin:PublicationEvidenceCodeJoin)--(publications:Publication), " +
                 "              p2=(diseaseEntityJoin)--(gene:Gene)-[:FROM_SPECIES]-(species:Species) ";
         if (!empiricalDisease) {
             baseCypher += cypherViaOrthology;
@@ -591,7 +591,7 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
 
         String cypher = "MATCH p0=(diseaseEntityJoin:DiseaseEntityJoin)-[:ASSOCIATION]-(gene:Gene), " +
                 "p1=(disease:DOTerm)--(diseaseEntityJoin:DiseaseEntityJoin)--(pubEvJoin:PublicationEvidenceCodeJoin), " +
-                "p2=(evidence:ECOTerm)--(pubEvJoin:PublicationEvidenceCodeJoin)--(publication:Publication) " +
+                "p2=(evidence:ECOTerm)--(pubEvJoin:PublicationEvidenceCodeJoin)--(publications:Publication) " +
                 "WHERE diseaseEntityJoin.primaryKey = {diseaseEntityJoinID} " +
                 "OPTIONAL MATCH p3=(diseaseEntityJoin:DiseaseEntityJoin)--(feature:Feature)--(crossReference:CrossReference) " +
                 "RETURN p0, p1, p3, p2 ";
