@@ -244,6 +244,20 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
         return terms;
     }
 
+    public DOTerm getShallowDiseaseTerm(String id) {
+
+        String cypher = "MATCH (disease:DOTerm) WHERE disease.primaryKey = {primaryKey}   " +
+                " RETURN disease ";
+
+        HashMap<String, String> map = new HashMap<>();
+        map.put("primaryKey", id);
+
+        Iterable<DOTerm> terms = query(cypher, map);
+        if (terms == null)
+            return null;
+        return terms.iterator().next();
+    }
+
     @Setter
     @Getter
     class Closure {

@@ -1,5 +1,6 @@
 package org.alliancegenome.api.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.alliancegenome.api.entity.DiseaseRibbonSection;
 import org.alliancegenome.api.entity.DiseaseSectionSlim;
 import org.alliancegenome.api.service.helper.DiseaseRibbonSummary;
@@ -9,7 +10,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import javax.enterprise.context.RequestScoped;
+import java.io.IOException;
 import java.util.*;
+
+import static org.alliancegenome.api.service.helper.DiseaseRibbonSummary.DOID_ALL_ANNOTATIONS;
+import static org.alliancegenome.api.service.helper.DiseaseRibbonSummary.DOID_OTHER;
 
 @RequestScoped
 public class DiseaseRibbonService {
@@ -17,45 +22,75 @@ public class DiseaseRibbonService {
     private Log log = LogFactory.getLog(getClass());
     private DiseaseRepository diseaseRepository = new DiseaseRepository();
 
+    private static DiseaseRibbonSummary diseaseRibbonSummary;
+
     public DiseaseRibbonSummary getDiseaseRibbonSectionInfo() {
-        DiseaseRibbonSummary summary = new DiseaseRibbonSummary();
+        // get a deep clone of a template object
+        // by serialization and deserialization (JSON)
+        ObjectMapper objectMapper = new ObjectMapper();
+        DiseaseRibbonSummary deepCopy = null;
+        try {
+            deepCopy = objectMapper.readValue(objectMapper.writeValueAsString(getDiseaseRibbonSections()), DiseaseRibbonSummary.class);
+        } catch (IOException e) {
+            log.error(e);
+        }
+
+        return deepCopy;
+    }
+
+    private DiseaseRibbonSummary getDiseaseRibbonSections() {
+        if (diseaseRibbonSummary != null) {
+            return diseaseRibbonSummary;
+        }
+
+        diseaseRibbonSummary = new DiseaseRibbonSummary();
 
         DiseaseRibbonSection section1 = new DiseaseRibbonSection();
         section1.setLabel("Infection");
         section1.setId("DOID:0050117");
-        summary.addRibbonSection(section1);
+        diseaseRibbonSummary.addRibbonSection(section1);
 
         DiseaseRibbonSection section2 = new DiseaseRibbonSection();
         section2.setLabel("Disease of Anatomy");
         section2.setId("DOID:7");
-        summary.addRibbonSection(section2);
+        diseaseRibbonSummary.addRibbonSection(section2);
 
         DiseaseRibbonSection section3 = new DiseaseRibbonSection();
         section3.setLabel("Neoplasm");
         section3.setId("DOID:14566");
-        summary.addRibbonSection(section3);
+        diseaseRibbonSummary.addRibbonSection(section3);
 
 
         DiseaseRibbonSection section4 = new DiseaseRibbonSection();
         section4.setLabel("Genetic Disease");
         section4.setId("DOID:630");
-        summary.addRibbonSection(section4);
+        diseaseRibbonSummary.addRibbonSection(section4);
 
         DiseaseRibbonSection section5 = new DiseaseRibbonSection();
         section5.setLabel("Other Disease");
-        section5.setId("DOID:000");
-        summary.addRibbonSection(section5);
+        section5.setId(DOID_OTHER);
+        diseaseRibbonSummary.addRibbonSection(section5);
+
+        diseaseRibbonSummary.getDiseaseRibbonSections().stream()
+                .filter(diseaseRibbonSection -> diseaseRibbonSection.getId() != null)
+                .filter(diseaseRibbonSection -> !diseaseRibbonSection.getId().equals(DOID_ALL_ANNOTATIONS))
+                .filter(diseaseRibbonSection -> !diseaseRibbonSection.getId().equals(DOID_OTHER))
+                .forEach(diseaseRibbonSection -> {
+                    DOTerm term = diseaseRepository.getShallowDiseaseTerm(diseaseRibbonSection.getId());
+                    diseaseRibbonSection.setDescription(term.getDefinition());
+                });
 
         Map<String, Set<String>> closureMapping = diseaseRepository.getClosureChildMapping();
 
         List<DOTerm> doList = diseaseRepository.getAgrDoSlim();
         doList.forEach(doTerm -> {
             List<String> slimFoundList = new ArrayList<>();
-            summary.getDiseaseRibbonSections().forEach(diseaseRibbonSection -> {
+            diseaseRibbonSummary.getDiseaseRibbonSections().forEach(diseaseRibbonSection -> {
                 if (closureMapping.get(doTerm.getPrimaryKey()).contains(diseaseRibbonSection.getId())) {
                     DiseaseSectionSlim slim = new DiseaseSectionSlim();
                     slim.setId(doTerm.getPrimaryKey());
                     slim.setLabel(doTerm.getName());
+                    slim.setDescription(doTerm.getDefinition());
                     diseaseRibbonSection.addDiseaseSlim(slim);
                     slimFoundList.add(doTerm.getPrimaryKey());
                 }
@@ -64,11 +99,11 @@ public class DiseaseRibbonService {
                 DiseaseSectionSlim slim = new DiseaseSectionSlim();
                 slim.setId(doTerm.getPrimaryKey());
                 slim.setLabel(doTerm.getName());
-                summary.getOtherSection().addDiseaseSlim(slim);
+                diseaseRibbonSummary.getOtherSection().addDiseaseSlim(slim);
             }
         });
 
-        return summary;
+        return diseaseRibbonSummary;
     }
 
     public Set<String> getSlimId(String doID) {

@@ -1,5 +1,6 @@
 package org.alliancegenome.api.service.helper;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Getter;
@@ -7,20 +8,23 @@ import lombok.Setter;
 import org.alliancegenome.api.entity.*;
 import org.alliancegenome.neo4j.view.View;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @Setter
 @Getter
-public class DiseaseRibbonSummary {
+public class DiseaseRibbonSummary implements Serializable {
 
+    public static final String DOID_ALL_ANNOTATIONS = "DOID:allAnnotations";
+    public static final String DOID_OTHER = "DOID:Other";
     @JsonView(View.DiseaseAnnotation.class)
-    @JsonProperty("sections")
+    @JsonProperty("categories")
     private List<DiseaseRibbonSection> diseaseRibbonSections = new ArrayList<>();
 
     @JsonView(View.DiseaseAnnotation.class)
-    @JsonProperty("entities")
+    @JsonProperty("subjects")
     private List<DiseaseRibbonEntity> diseaseRibbonEntities = new ArrayList<>();
 
     public void addRibbonSection(DiseaseRibbonSection section) {
@@ -32,6 +36,7 @@ public class DiseaseRibbonSummary {
     }
 
     // return the last section
+    @JsonIgnore
     public DiseaseRibbonSection getOtherSection() {
         return diseaseRibbonSections.get(diseaseRibbonSections.size() - 1);
     }
@@ -54,8 +59,20 @@ public class DiseaseRibbonSummary {
         final String allAnnotation = "All annotations";
         allAnnotations.setLabel(allAnnotation);
         DiseaseSectionSlim slim = new DiseaseSectionSlim();
+        slim.setId(DOID_ALL_ANNOTATIONS);
         slim.setLabel(allAnnotation);
+        slim.setTypeAll();
         allAnnotations.addDiseaseSlim(slim);
         addRibbonSection(allAnnotations);
+    }
+
+    protected DiseaseRibbonSummary clone() throws CloneNotSupportedException {
+        DiseaseRibbonSummary clone = null;
+        try {
+            clone = (DiseaseRibbonSummary) super.clone();
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
+        }
+        return clone;
     }
 }

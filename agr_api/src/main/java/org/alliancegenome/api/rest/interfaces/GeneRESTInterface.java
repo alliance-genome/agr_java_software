@@ -144,7 +144,7 @@ public interface GeneRESTInterface {
 
     @GET
     @Path("/{id}/interactions")
-    @ApiOperation(value = "Retrieve interations for a given gene")
+    @ApiOperation(value = "Retrieve interactions for a given gene")
     @JsonView(value = {View.Interaction.class})
     JsonResultResponse<InteractionGeneJoin> getInteractions(
             @ApiParam(name = "id", value = "Gene ID", required = true)
