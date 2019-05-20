@@ -9,8 +9,11 @@ import org.alliancegenome.neo4j.view.View;
 @Getter
 public class DiseaseEntitySubgroupSlim {
 
+    private String id;
+/*
     @JsonView(View.DiseaseAnnotation.class)
     private String groupName;
+*/
     @JsonView(View.DiseaseAnnotation.class)
     private int numberOfClasses;
     @JsonView(View.DiseaseAnnotation.class)
