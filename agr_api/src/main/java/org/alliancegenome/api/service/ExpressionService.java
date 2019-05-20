@@ -1,8 +1,8 @@
 package org.alliancegenome.api.service;
 
-import org.alliancegenome.api.service.helper.ExpressionSummary;
-import org.alliancegenome.api.service.helper.ExpressionSummaryGroup;
-import org.alliancegenome.api.service.helper.ExpressionSummaryGroupTerm;
+import org.alliancegenome.api.entity.ExpressionSummary;
+import org.alliancegenome.api.entity.ExpressionSummaryGroup;
+import org.alliancegenome.api.entity.ExpressionSummaryGroupTerm;
 import org.alliancegenome.core.ExpressionDetail;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.service.JsonResultResponse;
