@@ -46,11 +46,9 @@ public class DiseaseRibbonSummary implements Serializable {
         if (!entity.isPresent())
             throw new RuntimeException("No ribbon entity for gene " + geneID);
         DiseaseEntitySubgroupSlim group = new DiseaseEntitySubgroupSlim();
-        group.setGroupName("Disease Annotations");
         group.setNumberOfAnnotations(totalNumber);
-        DiseaseEntitySlim slim = new DiseaseEntitySlim();
-        slim.addDiseaseEntitySubgroupSlim(group);
-        entity.get().getSlims().add(0, slim);
+        group.setId(geneID);
+        entity.get().addDiseaseSlim(group);
     }
 
     public DiseaseRibbonSummary() {
@@ -67,11 +65,7 @@ public class DiseaseRibbonSummary implements Serializable {
 
     protected DiseaseRibbonSummary clone() throws CloneNotSupportedException {
         DiseaseRibbonSummary clone = null;
-        try {
-            clone = (DiseaseRibbonSummary) super.clone();
-        } catch (CloneNotSupportedException e) {
-            e.printStackTrace();
-        }
+        clone = (DiseaseRibbonSummary) super.clone();
         return clone;
     }
 }

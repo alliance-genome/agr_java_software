@@ -6,8 +6,8 @@ import lombok.Getter;
 import lombok.Setter;
 import org.alliancegenome.neo4j.view.View;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 @Getter
 @Setter
@@ -24,9 +24,13 @@ public class DiseaseRibbonEntity {
 
     @JsonView(View.DiseaseAnnotation.class)
     @JsonProperty("groups")
-    private List<DiseaseEntitySlim> slims = new ArrayList<>();
+    // <disease ID, DiseaseEntitySubgroupSlim
+    private Map<String, DiseaseEntitySubgroupSlim> slims = new LinkedHashMap<>();
 
-    public void addDiseaseSlim(DiseaseEntitySlim slim) {
-        slims.add(slim);
+    public void addDiseaseSlim(DiseaseEntitySubgroupSlim slim) {
+        String id = slim.getId();
+        if (id == null)
+            id = "nullID";
+        slims.put(id, slim);
     }
 }

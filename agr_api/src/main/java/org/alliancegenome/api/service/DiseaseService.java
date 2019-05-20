@@ -3,8 +3,8 @@ package org.alliancegenome.api.service;
 import org.alliancegenome.api.entity.DiseaseEntitySlim;
 import org.alliancegenome.api.entity.DiseaseEntitySubgroupSlim;
 import org.alliancegenome.api.entity.DiseaseRibbonEntity;
-import org.alliancegenome.api.repository.DiseaseCacheRepository;
 import org.alliancegenome.api.entity.DiseaseRibbonSummary;
+import org.alliancegenome.api.repository.DiseaseCacheRepository;
 import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.core.service.PaginationResult;
 import org.alliancegenome.core.service.SortingField;
@@ -111,15 +111,13 @@ public class DiseaseService {
         diseaseRepository.getAgrDoSlim().forEach(slimId -> {
             DiseaseEntitySlim entitySlim = new DiseaseEntitySlim();
             entitySlim.setId(slimId.getDoId());
-
             DiseaseEntitySubgroupSlim group = new DiseaseEntitySubgroupSlim();
-            group.setGroupName("Disease Annotations");
             int size = 0;
             if (histogram.get(slimId.getDoId()) != null)
                 size = histogram.get(slimId.getDoId()).size();
             group.setNumberOfAnnotations(size);
-            entitySlim.addDiseaseEntitySubgroupSlim(group);
-            entity.addDiseaseSlim(entitySlim);
+            group.setId(slimId.getDoId());
+            entity.addDiseaseSlim(group);
         });
     }
 
