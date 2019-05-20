@@ -1,4 +1,4 @@
-package org.alliancegenome.api.service.helper;
+package org.alliancegenome.api.entity;
 
 import java.util.ArrayList;
 import java.util.List;

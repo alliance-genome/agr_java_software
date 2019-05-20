@@ -3,7 +3,7 @@ package org.alliancegenome.api.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.alliancegenome.api.entity.DiseaseRibbonSection;
 import org.alliancegenome.api.entity.DiseaseSectionSlim;
-import org.alliancegenome.api.service.helper.DiseaseRibbonSummary;
+import org.alliancegenome.api.entity.DiseaseRibbonSummary;
 import org.alliancegenome.neo4j.entity.node.DOTerm;
 import org.alliancegenome.neo4j.repository.DiseaseRepository;
 import org.apache.commons.logging.Log;
@@ -13,8 +13,8 @@ import javax.enterprise.context.RequestScoped;
 import java.io.IOException;
 import java.util.*;
 
-import static org.alliancegenome.api.service.helper.DiseaseRibbonSummary.DOID_ALL_ANNOTATIONS;
-import static org.alliancegenome.api.service.helper.DiseaseRibbonSummary.DOID_OTHER;
+import static org.alliancegenome.api.entity.DiseaseRibbonSummary.DOID_ALL_ANNOTATIONS;
+import static org.alliancegenome.api.entity.DiseaseRibbonSummary.DOID_OTHER;
 
 @RequestScoped
 public class DiseaseRibbonService {

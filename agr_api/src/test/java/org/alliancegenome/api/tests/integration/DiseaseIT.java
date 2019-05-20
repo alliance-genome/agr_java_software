@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.log4j.Log4j2;
 import org.alliancegenome.api.service.DiseaseService;
-import org.alliancegenome.api.service.helper.DiseaseRibbonSummary;
+import org.alliancegenome.api.entity.DiseaseRibbonSummary;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.core.translators.tdf.DiseaseAnnotationToTdfTranslator;

@@ -1,11 +1,10 @@
-package org.alliancegenome.api.service.helper;
+package org.alliancegenome.api.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Getter;
 import lombok.Setter;
-import org.alliancegenome.api.entity.*;
 import org.alliancegenome.neo4j.view.View;
 
 import java.io.Serializable;
