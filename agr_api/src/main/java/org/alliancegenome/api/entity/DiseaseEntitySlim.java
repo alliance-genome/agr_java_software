@@ -7,20 +7,20 @@ import lombok.Setter;
 import org.alliancegenome.neo4j.view.View;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @Getter
 @Setter
 public class DiseaseEntitySlim {
 
+    public static final String ALL = "ALL";
     @JsonView(View.DiseaseAnnotation.class)
-    private String id;
-    @JsonView(View.DiseaseAnnotation.class)
-    @JsonProperty("subgroups")
-    private List<DiseaseEntitySubgroupSlim> slims = new ArrayList<>();
+    private Map<String, DiseaseEntitySubgroupSlim> slimMap = new LinkedHashMap<>();
 
     public void addDiseaseEntitySubgroupSlim(DiseaseEntitySubgroupSlim slim) {
-        slims.add(slim);
+        slimMap.put(ALL,slim);
     }
 
 }
