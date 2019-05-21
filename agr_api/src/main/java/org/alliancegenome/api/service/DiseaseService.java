@@ -1,6 +1,5 @@
 package org.alliancegenome.api.service;
 
-import org.alliancegenome.api.entity.DiseaseEntitySlim;
 import org.alliancegenome.api.entity.DiseaseEntitySubgroupSlim;
 import org.alliancegenome.api.entity.DiseaseRibbonEntity;
 import org.alliancegenome.api.entity.DiseaseRibbonSummary;
@@ -106,18 +105,18 @@ public class DiseaseService {
         entity.setId(geneID);
         entity.setLabel(gene.getSymbol());
         entity.setTaxonID(gene.getTaxonId());
+        entity.setTaxonName(gene.getSpecies().getName());
         summary.addRibbonEntity(entity);
 
         diseaseRepository.getAgrDoSlim().forEach(slimId -> {
-            DiseaseEntitySlim entitySlim = new DiseaseEntitySlim();
-            entitySlim.setId(slimId.getDoId());
             DiseaseEntitySubgroupSlim group = new DiseaseEntitySubgroupSlim();
             int size = 0;
             if (histogram.get(slimId.getDoId()) != null)
                 size = histogram.get(slimId.getDoId()).size();
             group.setNumberOfAnnotations(size);
             group.setId(slimId.getDoId());
-            entity.addDiseaseSlim(group);
+            if (size > 0)
+                entity.addDiseaseSlim(group);
         });
     }
 

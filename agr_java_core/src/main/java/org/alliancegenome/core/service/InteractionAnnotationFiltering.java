@@ -29,7 +29,10 @@ public class InteractionAnnotationFiltering extends AnnotationFiltering {
     public static FilterFunction<InteractionGeneJoin, String> sourceFilter =
             (annotation, value) -> {
                 Set<Boolean> filteringPassed = annotation.getCrossReferences().stream()
-                        .map(referenceName -> FilterFunction.contains(referenceName.getName(), value))
+                        .map(referenceName -> {
+                            String entityName = referenceName.getPrefix() + ":" + referenceName.getDisplayName();
+                            return FilterFunction.contains(entityName, value);
+                        })
                         .collect(Collectors.toSet());
                 // return true if at least one source is found
                 return filteringPassed.contains(true);

@@ -18,19 +18,22 @@ public class DiseaseRibbonEntity {
     @JsonView(View.DiseaseAnnotation.class)
     private String label;
     @JsonView(View.DiseaseAnnotation.class)
+    @JsonProperty("taxon_id")
     private String taxonID;
-    @JsonView(View.DiseaseAnnotation.class)
-    private String annotationLabel;
+    @JsonProperty("taxon_label")
+    private String taxonName;
 
     @JsonView(View.DiseaseAnnotation.class)
     @JsonProperty("groups")
     // <disease ID, DiseaseEntitySubgroupSlim
-    private Map<String, DiseaseEntitySubgroupSlim> slims = new LinkedHashMap<>();
+    private Map<String, Map<String, DiseaseEntitySubgroupSlim>> slims = new LinkedHashMap<>();
 
     public void addDiseaseSlim(DiseaseEntitySubgroupSlim slim) {
         String id = slim.getId();
         if (id == null)
             id = "nullID";
-        slims.put(id, slim);
+        Map<String, DiseaseEntitySubgroupSlim> subgroupSlimMap = new LinkedHashMap<>();
+        subgroupSlimMap.put("ALL", slim);
+        slims.put(id, subgroupSlimMap);
     }
 }
