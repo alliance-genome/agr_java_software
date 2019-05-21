@@ -22,6 +22,12 @@ public class DiseaseRibbonEntity {
     private String taxonID;
     @JsonProperty("taxon_label")
     private String taxonName;
+    @JsonView(View.DiseaseAnnotation.class)
+    @JsonProperty("nb_classes")
+    private int numberOfClasses;
+    @JsonView(View.DiseaseAnnotation.class)
+    @JsonProperty("nb_annotations")
+    private int numberOfAnnotations;
 
     @JsonView(View.DiseaseAnnotation.class)
     @JsonProperty("groups")
