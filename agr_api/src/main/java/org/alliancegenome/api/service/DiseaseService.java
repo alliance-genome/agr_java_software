@@ -21,6 +21,7 @@ import org.apache.commons.logging.LogFactory;
 import javax.enterprise.context.RequestScoped;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @RequestScoped
 public class DiseaseService {
@@ -108,16 +109,27 @@ public class DiseaseService {
         entity.setTaxonName(gene.getSpecies().getName());
         summary.addRibbonEntity(entity);
 
+        Set<String> allTerms = new HashSet<>();
+        Set<DiseaseAnnotation> allAnnotations = new HashSet<>();
         diseaseRepository.getAgrDoSlim().forEach(slimId -> {
             DiseaseEntitySubgroupSlim group = new DiseaseEntitySubgroupSlim();
             int size = 0;
-            if (histogram.get(slimId.getDoId()) != null)
-                size = histogram.get(slimId.getDoId()).size();
+            List<DiseaseAnnotation> diseaseAnnotations = histogram.get(slimId.getDoId());
+            if (diseaseAnnotations != null) {
+                allAnnotations.addAll(diseaseAnnotations);
+                size = diseaseAnnotations.size();
+                Set<String> terms = diseaseAnnotations.stream().map(diseaseAnnotation -> diseaseAnnotation.getDisease().getPrimaryKey())
+                        .collect(Collectors.toSet());
+                allTerms.addAll(terms);
+                group.setNumberOfClasses(terms.size());
+            }
             group.setNumberOfAnnotations(size);
             group.setId(slimId.getDoId());
             if (size > 0)
                 entity.addDiseaseSlim(group);
         });
+        entity.setNumberOfClasses(allTerms.size());
+        entity.setNumberOfAnnotations(allAnnotations.size());
     }
 
     DiseaseRibbonService diseaseRibbonService = new DiseaseRibbonService();
