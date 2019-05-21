@@ -38,36 +38,31 @@ public class InteractionAnnotationSorting implements Sorting<InteractionGeneJoin
     private static Comparator<InteractionGeneJoin> interactorSpeciesOrder =
             Comparator.comparing(annotation -> annotation.getGeneB().getSpecies().getName().toLowerCase());
 
-    private static List<Comparator<InteractionGeneJoin>> defaultList = new ArrayList<>();
+    private static List<Comparator<InteractionGeneJoin>> defaultList;
+    private static List<Comparator<InteractionGeneJoin>> moleculeList;
+    private static List<Comparator<InteractionGeneJoin>> detectionList;
+    private static List<Comparator<InteractionGeneJoin>> interactorSpeciesList;
 
     static {
+        defaultList = new ArrayList<>(4);
         defaultList.add(interactorGeneSymbolOrder);
         defaultList.add(moleculeOrder);
         defaultList.add(interactorMoleculeOrder);
         defaultList.add(interactorSpeciesOrder);
-    }
 
-    private static List<Comparator<InteractionGeneJoin>> moleculeList = new ArrayList<>();
-
-    static {
+        moleculeList = new ArrayList<>(4);
         moleculeList.add(moleculeOrder);
         moleculeList.add(interactorMoleculeOrder);
         moleculeList.add(interactorGeneSymbolOrder);
         moleculeList.add(interactorSpeciesOrder);
-    }
 
-    private static List<Comparator<InteractionGeneJoin>> detectionList = new ArrayList<>();
-
-    static {
+        detectionList = new ArrayList<>(4);
         detectionList.add(moleculeOrder);
         detectionList.add(interactorMoleculeOrder);
         detectionList.add(interactorGeneSymbolOrder);
         detectionList.add(interactorSpeciesOrder);
-    }
 
-    private static List<Comparator<InteractionGeneJoin>> interactorSpeciesList = new ArrayList<>();
-
-    static {
+        interactorSpeciesList = new ArrayList<>(4);
         interactorSpeciesList.add(interactorSpeciesOrder);
         interactorSpeciesList.add(interactorGeneSymbolOrder);
         interactorSpeciesList.add(moleculeOrder);
