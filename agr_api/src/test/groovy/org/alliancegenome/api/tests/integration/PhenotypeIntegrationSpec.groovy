@@ -74,4 +74,22 @@ class PhenotypeIntegrationSpec extends AbstractSpec {
 
     }
 
+    @Unroll
+    def "Gene page - Sort phenotype by genetic entity smartfor #geneId"() {
+        when:
+        def encodedGeneID = URLEncoder.encode(geneId, "UTF-8")
+        def result = getApiResult("/api/gene/$encodedGeneID/phenotypes?sortBy=geneticEntity&filter.geneticEntity=m")
+
+        then:
+        result
+        phenotype == result.results[0].phenotype
+        geneticEntity == result.results[0].geneticEntity.symbol
+
+        where:
+        geneId              | phenotype            | geneticEntity
+        "WB:WBGene00000898" | "dauer constitutive" | "m41"
+        "MGI:109583"        | "cardia bifida"      | "Pten<sup>m1un</sup>"
+
+    }
+
 }

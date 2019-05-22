@@ -14,9 +14,10 @@ public class InteractionAnnotationSorting implements Sorting<InteractionGeneJoin
     private List<Comparator<InteractionGeneJoin>> moleculeList;
     private List<Comparator<InteractionGeneJoin>> detectionList;
     private List<Comparator<InteractionGeneJoin>> interactorSpeciesList;
+    private List<Comparator<InteractionGeneJoin>> referenceList;
 
     private static Comparator<InteractionGeneJoin> interactorGeneSymbolOrder =
-            Comparator.comparing(annotation -> annotation.getGeneB().getSymbol().toLowerCase());
+            Comparator.comparing(annotation -> Sorting.getSmartKey(annotation.getGeneB().getSymbol()));
 
     private static Comparator<InteractionGeneJoin> moleculeOrder =
             Comparator.comparing(annotation -> annotation.getInteractorAType().getLabel().toLowerCase());
@@ -26,6 +27,9 @@ public class InteractionAnnotationSorting implements Sorting<InteractionGeneJoin
 
     private static Comparator<InteractionGeneJoin> interactorSpeciesOrder =
             Comparator.comparing(annotation -> annotation.getGeneB().getSpecies().getName().toLowerCase());
+
+    private static Comparator<InteractionGeneJoin> referenceOrder =
+            Comparator.comparing(annotation -> annotation.getPublication().getPubId().toLowerCase());
 
     private static Comparator<InteractionGeneJoin> detectionOrder =
             Comparator.comparing(annotation -> {
@@ -61,6 +65,12 @@ public class InteractionAnnotationSorting implements Sorting<InteractionGeneJoin
         interactorSpeciesList.add(interactorGeneSymbolOrder);
         interactorSpeciesList.add(moleculeOrder);
         interactorSpeciesList.add(interactorMoleculeOrder);
+
+        referenceList = new ArrayList<>(4);
+        referenceList.add(referenceOrder);
+        referenceList.add(interactorGeneSymbolOrder);
+        referenceList.add(moleculeOrder);
+        referenceList.add(interactorMoleculeOrder);
     }
 
     public Comparator<InteractionGeneJoin> getComparator(SortingField field, Boolean ascending) {
@@ -76,6 +86,8 @@ public class InteractionAnnotationSorting implements Sorting<InteractionGeneJoin
                 return getJoinedComparator(interactorSpeciesList);
             case INTERACTOR_DETECTION_METHOD:
                 return getJoinedComparator(detectionList);
+            case REFERENCE:
+                return getJoinedComparator(referenceList);
             default:
                 return getJoinedComparator(defaultList);
         }
