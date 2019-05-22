@@ -2,64 +2,60 @@ package org.alliancegenome.core.service;
 
 import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
 import org.alliancegenome.neo4j.entity.Sorting;
+import org.alliancegenome.neo4j.entity.node.GeneticEntity;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
 public class PhenotypeAnnotationSorting implements Sorting<PhenotypeAnnotation> {
 
-
-    public Comparator<PhenotypeAnnotation> getComparator(SortingField field, Boolean ascending) {
-        if (field == null)
-            return getDefaultComparator();
-
-        List<Comparator<PhenotypeAnnotation>> comparatorList = new ArrayList<>();
-        switch (field) {
-            case PHENOTYPE:
-                return getDefaultComparator();
-            case GENETIC_ENTITY:
-                comparatorList.add(geneticEntityTypeOrder);
-                comparatorList.add(geneticEntityOrder);
-                comparatorList.add(phenotypeOrder);
-                break;
-            default:
-                break;
-        }
-        return getJoinedComparator(comparatorList);
-    }
-
-    public Comparator<PhenotypeAnnotation> getDefaultComparator() {
-        List<Comparator<PhenotypeAnnotation>> comparatorList = new ArrayList<>();
-        comparatorList.add(phenotypeOrder);
-        comparatorList.add(geneticEntityTypeOrder);
-        comparatorList.add(geneticEntityOrder);
-        return getJoinedComparator(comparatorList);
-    }
-
-/*
-    static public Comparator<PhenotypeAnnotation> alleleSymbolOrder =
-            Comparator.comparing(annotation -> {
-                if (annotation.getFeature() == null)
-                    return null;
-                return annotation.getFeature().getSymbol().toLowerCase();
-            }, Comparator.nullsLast(naturalOrder()));
-*/
+    private List<Comparator<PhenotypeAnnotation>> defaultList;
+    private List<Comparator<PhenotypeAnnotation>> geneticEntityList;
 
     private static Comparator<PhenotypeAnnotation> phenotypeOrder =
             Comparator.comparing(annotation -> annotation.getPhenotype().toLowerCase());
 
     private static Comparator<PhenotypeAnnotation> geneticEntityOrder =
-            Comparator.comparing(annotation -> annotation.getGeneticEntity().getSymbol().toLowerCase()
+            Comparator.comparing(annotation -> {
+                        GeneticEntity geneticEntity = annotation.getGeneticEntity();
+                        if (geneticEntity.getType().equals(GeneticEntity.CrossReferenceType.GENE.getDisplayName()))
+                            return "zzz";
+                        // create alpha-smart key
+                        String smartSymbol = Sorting.getSmartKey(geneticEntity.getSymbol());
+                        return smartSymbol;
+                    }
             );
+
 
     private static Comparator<PhenotypeAnnotation> geneticEntityTypeOrder =
             Comparator.comparing(annotation -> annotation.getGeneticEntity().getType());
 
-    private static Map<SortingField, Comparator<PhenotypeAnnotation>> sortingFieldMap = new LinkedHashMap<>();
 
-    static {
-        sortingFieldMap.put(SortingField.PHENOTYPE, phenotypeOrder);
-        sortingFieldMap.put(SortingField.GENETIC_ENTITY_TYPE, geneticEntityTypeOrder);
-        sortingFieldMap.put(SortingField.GENETIC_ENTITY, geneticEntityOrder);
+    public PhenotypeAnnotationSorting() {
+        super();
+
+        defaultList = new ArrayList<>(2);
+        defaultList.add(phenotypeOrder);
+        defaultList.add(geneticEntityOrder);
+
+        geneticEntityList = new ArrayList<>(2);
+        geneticEntityList.add(geneticEntityOrder);
+        geneticEntityList.add(phenotypeOrder);
+    }
+
+    public Comparator<PhenotypeAnnotation> getComparator(SortingField field, Boolean ascending) {
+        if (field == null)
+            return getJoinedComparator(defaultList);
+
+        switch (field) {
+            case PHENOTYPE:
+                return getJoinedComparator(defaultList);
+            case GENETIC_ENTITY:
+                return getJoinedComparator(geneticEntityList);
+            default:
+                return getJoinedComparator(defaultList);
+        }
     }
 
 }
