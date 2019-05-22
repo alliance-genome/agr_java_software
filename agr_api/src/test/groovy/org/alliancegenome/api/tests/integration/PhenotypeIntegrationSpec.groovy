@@ -38,4 +38,40 @@ class PhenotypeIntegrationSpec extends AbstractSpec {
         "MGI:109583" | 1200      | "abnormal adipose tissue morphology\t\t\tgene\tPMID:22405073"                          | "Phenotype\tGenetic Entity ID\tGenetic Entity Symbol\tGenetic Entity Type\tReferences"
     }
 
+    @Unroll
+    def "Gene page - Sort phenotype by phenotype for #geneId"() {
+        when:
+        def encodedGeneID = URLEncoder.encode(geneId, "UTF-8")
+        def result = getApiResult("/api/gene/$encodedGeneID/phenotypes")
+
+        then:
+        result
+        phenotype == result.results[0].phenotype
+        geneticEntity == result.results[0].geneticEntity.symbol
+
+        where:
+        geneId              | phenotype                            | geneticEntity
+        "WB:WBGene00000898" | "aging variant"                      | "e1370"
+        "MGI:109583"        | "abnormal adipose tissue morphology" | "Pten"
+
+    }
+
+    @Unroll
+    def "Gene page - Sort phenotype by genetic entity for #geneId"() {
+        when:
+        def encodedGeneID = URLEncoder.encode(geneId, "UTF-8")
+        def result = getApiResult("/api/gene/$encodedGeneID/phenotypes?sortBy=geneticEntity")
+
+        then:
+        result
+        phenotype == result.results[0].phenotype
+        geneticEntity == result.results[0].geneticEntity.symbol
+
+        where:
+        geneId              | phenotype            | geneticEntity
+        "WB:WBGene00000898" | "dauer constitutive" | "e979"
+        "MGI:109583"        | "cardia bifida"      | "Pten<sup>m1un</sup>"
+
+    }
+
 }

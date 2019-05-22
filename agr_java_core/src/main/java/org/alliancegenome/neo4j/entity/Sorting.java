@@ -16,4 +16,15 @@ public interface Sorting<T> {
         return joinedComparator;
     }
 
+    // the last number in a string gets padded with zeros
+    static String getSmartKey(String symbol) {
+        String[] parts = symbol.split("(?=\\d+$)", 2);
+        if(parts.length == 1)
+            return symbol;
+        int num = Integer.parseInt(parts[1]);
+        // make an 8 digit number padding with a number or zeros as needed
+        return parts[0].toLowerCase() + String.format("%08d", num);
+    }
+
+
 }
