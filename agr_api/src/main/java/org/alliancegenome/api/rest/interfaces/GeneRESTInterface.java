@@ -153,7 +153,7 @@ public interface GeneRESTInterface {
             @DefaultValue("20") @QueryParam("limit") int limit,
             @ApiParam(name = "page", value = "Page number")
             @DefaultValue("1") @QueryParam("page") int page,
-            @ApiParam(value = "Field name by which to sort", allowableValues = "symbol,name")
+            @ApiParam(value = "Name by which to sort", allowableValues = "interactorGeneSymbol,interactorMoleculeType,interactorSpecies,interactorSpecies,reference")
             @QueryParam("sortBy") String sortBy,
             @ApiParam(value = "ascending order: true or false", allowableValues = "true,false", defaultValue = "true")
             @QueryParam("asc") String asc,
@@ -171,7 +171,7 @@ public interface GeneRESTInterface {
             @QueryParam("filter.source") String source,
             @ApiParam(name = "filter.reference", value = "References")
             @QueryParam("filter.reference") String reference
-            );
+    );
 
     @GET
     @Path("/{id}/expression-summary")
@@ -188,7 +188,9 @@ public interface GeneRESTInterface {
     @ApiOperation(value = "Retrieve all expression records of a given gene")
     DiseaseRibbonSummary getDiseaseSummary(
             @ApiParam(name = "id", value = "Gene by ID, e.g. 'RGD:2129' or 'ZFIN:ZDB-GENE-990415-72 fgf8a'", required = true, type = "String")
-            @PathParam("id") String id
+            @PathParam("id") String id,
+            @ApiParam(name = "geneID", value = "additional orthologous genes", required = true)
+            @QueryParam("geneID") List<String> geneIDs
     ) throws JsonProcessingException;
 
     @GET
