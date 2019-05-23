@@ -22,9 +22,9 @@ public class JsonResultResponse<T> {
     @JsonView({View.Default.class})
     private int returnedRecords;
     @JsonView({View.Default.class})
-    private String errorMessage;
+    private String errorMessage = "";
     @JsonView({View.Default.class})
-    private String note;
+    private String note = "";
     @JsonView({View.Default.class})
     private String requestDuration;
     @JsonView({View.Default.class})

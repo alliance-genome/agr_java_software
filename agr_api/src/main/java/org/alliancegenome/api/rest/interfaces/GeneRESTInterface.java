@@ -171,7 +171,7 @@ public interface GeneRESTInterface {
             @QueryParam("filter.source") String source,
             @ApiParam(name = "filter.reference", value = "References")
             @QueryParam("filter.reference") String reference
-            );
+    );
 
     @GET
     @Path("/{id}/expression-summary")
@@ -188,7 +188,9 @@ public interface GeneRESTInterface {
     @ApiOperation(value = "Retrieve all expression records of a given gene")
     DiseaseRibbonSummary getDiseaseSummary(
             @ApiParam(name = "id", value = "Gene by ID, e.g. 'RGD:2129' or 'ZFIN:ZDB-GENE-990415-72 fgf8a'", required = true, type = "String")
-            @PathParam("id") String id
+            @PathParam("id") String id,
+            @ApiParam(name = "geneID", value = "additional orthologous genes", required = true)
+            @QueryParam("geneID") List<String> geneIDs
     ) throws JsonProcessingException;
 
     @GET

@@ -2,12 +2,13 @@ package org.alliancegenome.api.controller;
 
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import lombok.extern.log4j.Log4j2;
+import org.alliancegenome.api.entity.DiseaseRibbonSummary;
+import org.alliancegenome.api.entity.ExpressionSummary;
 import org.alliancegenome.api.rest.interfaces.GeneRESTInterface;
 import org.alliancegenome.api.service.DiseaseService;
 import org.alliancegenome.api.service.ExpressionService;
 import org.alliancegenome.api.service.GeneService;
-import org.alliancegenome.api.entity.DiseaseRibbonSummary;
-import org.alliancegenome.api.entity.ExpressionSummary;
 import org.alliancegenome.core.exceptions.RestErrorException;
 import org.alliancegenome.core.exceptions.RestErrorMessage;
 import org.alliancegenome.core.service.JsonResultResponse;
@@ -41,6 +42,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @RequestScoped
+@Log4j2
 public class GeneController extends BaseController implements GeneRESTInterface {
 
     @Inject
@@ -157,7 +159,7 @@ public class GeneController extends BaseController implements GeneRESTInterface 
                                                                                 String source,
                                                                                 String reference,
                                                                                 String asc,
-                                                                                UriInfo ui) throws JsonProcessingException {
+                                                                                UriInfo ui) {
         return getDiseaseAnnotation(id, limit, page, sortBy, geneticEntity, geneticEntityType, disease, associationType, reference, null, null, evidenceCode, source, asc, ui, true);
     }
 
@@ -173,7 +175,7 @@ public class GeneController extends BaseController implements GeneRESTInterface 
                                                                                    String source,
                                                                                    String reference,
                                                                                    String asc,
-                                                                                   UriInfo ui) throws JsonProcessingException {
+                                                                                   UriInfo ui) {
         return getDiseaseAnnotation(id, limit, page, sortBy, null, null, disease, associationType, reference, orthologyGene, orthologyGeneSpecies, evidenceCode, source, asc, ui, false);
     }
 
@@ -192,7 +194,7 @@ public class GeneController extends BaseController implements GeneRESTInterface 
                                                                        String source,
                                                                        String asc,
                                                                        UriInfo ui,
-                                                                       boolean empiricalDisease) throws JsonProcessingException {
+                                                                       boolean empiricalDisease) {
         Pagination pagination = new Pagination(page, limit, sortBy, asc);
         pagination.addFieldFilter(FieldFilter.GENETIC_ENTITY, geneticEntity);
         pagination.addFieldFilter(FieldFilter.GENETIC_ENTITY_TYPE, geneticEntityType);
@@ -272,10 +274,21 @@ public class GeneController extends BaseController implements GeneRESTInterface 
     }
 
     @Override
-    public DiseaseRibbonSummary getDiseaseSummary(String id) {
-
+    // the List passed in here is unmodifiable
+    public DiseaseRibbonSummary getDiseaseSummary(String id, List<String> geneIDs) {
+        List<String> ids = new ArrayList<>();
+        if (geneIDs != null)
+            ids.addAll(geneIDs);
+        ids.add(id);
         DiseaseService service = new DiseaseService();
-        return service.getDiseaseRibbonSummary(id);
+        try {
+            return service.getDiseaseRibbonSummary(ids);
+        } catch (Exception e) {
+            log.error(e);
+            RestErrorMessage error = new RestErrorMessage();
+            error.addErrorMessage(e.getMessage());
+            throw new RestErrorException(error);
+        }
     }
 
     @Override
@@ -296,7 +309,7 @@ public class GeneController extends BaseController implements GeneRESTInterface 
                                                                         String source,
                                                                         String reference,
                                                                         String asc,
-                                                                        UriInfo ui) throws JsonProcessingException {
+                                                                        UriInfo ui) {
         return getEmpiricalDiseaseAnnotation(id,
                 limit,
                 page,
@@ -325,7 +338,7 @@ public class GeneController extends BaseController implements GeneRESTInterface 
                                                                         String source,
                                                                         String reference,
                                                                         String asc,
-                                                                        UriInfo ui) throws JsonProcessingException {
+                                                                        UriInfo ui) {
         return getDiseaseViaOrthologyAnnotation(id,
                 limit,
                 page,
@@ -353,7 +366,7 @@ public class GeneController extends BaseController implements GeneRESTInterface 
                                                    String source,
                                                    String reference,
                                                    String asc,
-                                                   UriInfo ui) throws JsonProcessingException {
+                                                   UriInfo ui) {
         JsonResultResponse<DiseaseAnnotation> response = getEmpiricalDiseaseAnnotation(id,
                 Integer.MAX_VALUE,
                 null,
@@ -384,7 +397,7 @@ public class GeneController extends BaseController implements GeneRESTInterface 
                                                    String source,
                                                    String reference,
                                                    String asc,
-                                                   UriInfo ui) throws JsonProcessingException {
+                                                   UriInfo ui) {
         JsonResultResponse<DiseaseAnnotation> response = getDiseaseViaOrthologyAnnotation(id,
                 Integer.MAX_VALUE,
                 null,

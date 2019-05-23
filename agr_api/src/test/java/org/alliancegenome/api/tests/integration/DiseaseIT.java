@@ -22,6 +22,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -693,7 +694,7 @@ public class DiseaseIT {
     @Test
     // Test Sox9 from MGI for disease via experiment records
     public void checkDiseaseRibbonHeader() {
-        DiseaseRibbonSummary summary = diseaseService.getDiseaseRibbonSummary("MGI:109583");
+        DiseaseRibbonSummary summary = diseaseService.getDiseaseRibbonSummary(Collections.singletonList("MGI:109583"));
         assertNotNull(summary);
     }
 

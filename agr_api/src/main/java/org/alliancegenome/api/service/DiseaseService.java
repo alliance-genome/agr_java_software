@@ -86,19 +86,24 @@ public class DiseaseService {
         return diseaseRepository.getDiseaseSummary(id, type);
     }
 
-    public DiseaseRibbonSummary getDiseaseRibbonSummary(String geneID) {
+    public DiseaseRibbonSummary getDiseaseRibbonSummary(List<String> geneIDs) {
         DiseaseRibbonService diseaseRibbonService = new DiseaseRibbonService();
         DiseaseRibbonSummary summary = diseaseRibbonService.getDiseaseRibbonSectionInfo();
         Pagination pagination = new Pagination();
         pagination.setLimitToAll();
-        PaginationResult<DiseaseAnnotation> paginationResult = diseaseCacheRepository.getDiseaseAnnotationList(geneID, pagination, true);
-        // calculate histogram
-        Map<String, List<DiseaseAnnotation>> histogram = getDiseaseAnnotationHistogram(paginationResult);
+        // loop over all genes provided
+        geneIDs.forEach(geneID -> {
+            PaginationResult<DiseaseAnnotation> paginationResult = diseaseCacheRepository.getDiseaseAnnotationList(geneID, pagination, true);
+            if(paginationResult == null)
+                return;
+            // calculate histogram
+            Map<String, List<DiseaseAnnotation>> histogram = getDiseaseAnnotationHistogram(paginationResult);
 
-        Gene gene = geneRepository.getShallowGene(geneID);
-        // populate diseaseEntity records
-        populateDiseaseRibbonSummary(geneID, summary, histogram, gene);
-        summary.addAllAnnotationsCount(geneID, paginationResult.getTotalNumber());
+            Gene gene = geneRepository.getShallowGene(geneID);
+            // populate diseaseEntity records
+            populateDiseaseRibbonSummary(geneID, summary, histogram, gene);
+            summary.addAllAnnotationsCount(geneID, paginationResult.getTotalNumber());
+        });
         return summary;
     }
 
