@@ -99,6 +99,8 @@ public class ExpressionCacheRepository {
             cacheAllExpression();
             caching = false;
         }
+        if(caching)
+            throw new RuntimeException("Expression records are still being cached. Please wait...");
     }
 
     private void cacheAllExpression() {
