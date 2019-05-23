@@ -13,6 +13,7 @@ import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.DiseaseSummary;
 import org.alliancegenome.neo4j.entity.node.DOTerm;
 import org.alliancegenome.neo4j.entity.node.Gene;
+import org.alliancegenome.neo4j.entity.node.SimpleTerm;
 import org.alliancegenome.neo4j.repository.DiseaseRepository;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.apache.commons.logging.Log;
@@ -111,10 +112,15 @@ public class DiseaseService {
 
         Set<String> allTerms = new HashSet<>();
         Set<DiseaseAnnotation> allAnnotations = new HashSet<>();
-        diseaseRepository.getAgrDoSlim().forEach(slimId -> {
+        List<String> agrDoSlimIDs = diseaseRepository.getAgrDoSlim().stream()
+                .map(SimpleTerm::getPrimaryKey)
+                .collect(Collectors.toList());
+        // add category term IDs to get the full histogram mapped into the response
+        agrDoSlimIDs.addAll(DiseaseRibbonService.slimParentTermIdMap.keySet());
+        agrDoSlimIDs.forEach(slimId -> {
             DiseaseEntitySubgroupSlim group = new DiseaseEntitySubgroupSlim();
             int size = 0;
-            List<DiseaseAnnotation> diseaseAnnotations = histogram.get(slimId.getDoId());
+            List<DiseaseAnnotation> diseaseAnnotations = histogram.get(slimId);
             if (diseaseAnnotations != null) {
                 allAnnotations.addAll(diseaseAnnotations);
                 size = diseaseAnnotations.size();
@@ -124,7 +130,7 @@ public class DiseaseService {
                 group.setNumberOfClasses(terms.size());
             }
             group.setNumberOfAnnotations(size);
-            group.setId(slimId.getDoId());
+            group.setId(slimId);
             if (size > 0)
                 entity.addDiseaseSlim(group);
         });
@@ -132,7 +138,7 @@ public class DiseaseService {
         entity.setNumberOfAnnotations(allAnnotations.size());
     }
 
-    DiseaseRibbonService diseaseRibbonService = new DiseaseRibbonService();
+    private DiseaseRibbonService diseaseRibbonService = new DiseaseRibbonService();
 
     private Map<String, List<DiseaseAnnotation>> getDiseaseAnnotationHistogram(PaginationResult<DiseaseAnnotation> paginationResult) {
         Map<String, List<DiseaseAnnotation>> histogram = new HashMap<>();

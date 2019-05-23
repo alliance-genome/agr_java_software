@@ -153,7 +153,7 @@ public interface GeneRESTInterface {
             @DefaultValue("20") @QueryParam("limit") int limit,
             @ApiParam(name = "page", value = "Page number")
             @DefaultValue("1") @QueryParam("page") int page,
-            @ApiParam(value = "Field name by which to sort", allowableValues = "symbol,name")
+            @ApiParam(value = "Name by which to sort", allowableValues = "interactorGeneSymbol,interactorMoleculeType,interactorSpecies,interactorSpecies,reference")
             @QueryParam("sortBy") String sortBy,
             @ApiParam(value = "ascending order: true or false", allowableValues = "true,false", defaultValue = "true")
             @QueryParam("asc") String asc,

@@ -2,8 +2,8 @@ package org.alliancegenome.api.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.alliancegenome.api.entity.DiseaseRibbonSection;
-import org.alliancegenome.api.entity.DiseaseSectionSlim;
 import org.alliancegenome.api.entity.DiseaseRibbonSummary;
+import org.alliancegenome.api.entity.DiseaseSectionSlim;
 import org.alliancegenome.neo4j.entity.node.DOTerm;
 import org.alliancegenome.neo4j.repository.DiseaseRepository;
 import org.apache.commons.logging.Log;
@@ -38,6 +38,15 @@ public class DiseaseRibbonService {
         return deepCopy;
     }
 
+    public static Map<String, String> slimParentTermIdMap = new LinkedHashMap<>();
+
+    static {
+        slimParentTermIdMap.put("DOID:0050117", "Infection");
+        slimParentTermIdMap.put("DOID:7", "Disease of Anatomy");
+        slimParentTermIdMap.put("DOID:14566", "Neoplasm");
+        slimParentTermIdMap.put("DOID:630", "Genetic Disease");
+    }
+
     private DiseaseRibbonSummary getDiseaseRibbonSections() {
         if (diseaseRibbonSummary != null) {
             return diseaseRibbonSummary;
@@ -45,26 +54,12 @@ public class DiseaseRibbonService {
 
         diseaseRibbonSummary = new DiseaseRibbonSummary();
 
-        DiseaseRibbonSection section1 = new DiseaseRibbonSection();
-        section1.setLabel("Infection");
-        section1.setId("DOID:0050117");
-        diseaseRibbonSummary.addRibbonSection(section1);
-
-        DiseaseRibbonSection section2 = new DiseaseRibbonSection();
-        section2.setLabel("Disease of Anatomy");
-        section2.setId("DOID:7");
-        diseaseRibbonSummary.addRibbonSection(section2);
-
-        DiseaseRibbonSection section3 = new DiseaseRibbonSection();
-        section3.setLabel("Neoplasm");
-        section3.setId("DOID:14566");
-        diseaseRibbonSummary.addRibbonSection(section3);
-
-
-        DiseaseRibbonSection section4 = new DiseaseRibbonSection();
-        section4.setLabel("Genetic Disease");
-        section4.setId("DOID:630");
-        diseaseRibbonSummary.addRibbonSection(section4);
+        slimParentTermIdMap.forEach((id, name) -> {
+            DiseaseRibbonSection section = new DiseaseRibbonSection();
+            section.setLabel(name);
+            section.setId(id);
+            diseaseRibbonSummary.addRibbonSection(section);
+        });
 
         DiseaseRibbonSection section5 = new DiseaseRibbonSection();
         section5.setLabel("Other Disease");
@@ -116,6 +111,12 @@ public class DiseaseRibbonService {
             if (closureMapping.get(doID).contains(slimDoID)) {
                 partOfSlimList.add(slimDoID);
                 slimFoundList.add(slimDoID);
+            }
+        });
+        slimParentTermIdMap.keySet().forEach(id -> {
+            if (closureMapping.get(doID).contains(id)) {
+                partOfSlimList.add(id);
+                slimFoundList.add(id);
             }
         });
         if (slimFoundList.isEmpty()) {
