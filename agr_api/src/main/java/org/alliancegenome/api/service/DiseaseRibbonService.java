@@ -38,13 +38,28 @@ public class DiseaseRibbonService {
         return deepCopy;
     }
 
-    public static Map<String, String> slimParentTermIdMap = new LinkedHashMap<>();
+    public static Map<String, List<String>> slimParentTermIdMap = new LinkedHashMap<>();
 
     static {
-        slimParentTermIdMap.put("DOID:0050117", "Infection");
-        slimParentTermIdMap.put("DOID:7", "Disease of Anatomy");
-        slimParentTermIdMap.put("DOID:14566", "Neoplasm");
-        slimParentTermIdMap.put("DOID:630", "Genetic Disease");
+        List<String> infection = new ArrayList<>();
+        infection.add("Infection");
+        infection.add("All disease by infectious agent");
+        slimParentTermIdMap.put("DOID:0050117", infection);
+
+        List<String> anatomy = new ArrayList<>();
+        anatomy.add("Disease of Anatomy");
+        anatomy.add("All Disease of Anatomy");
+        slimParentTermIdMap.put("DOID:7", anatomy);
+
+        List<String> neoplasm = new ArrayList<>();
+        neoplasm.add("Neoplasm");
+        neoplasm.add("All Neoplasm");
+        slimParentTermIdMap.put("DOID:14566", neoplasm);
+
+        List<String> disease = new ArrayList<>();
+        disease.add("Genetic Disease");
+        disease.add("All Genetic Disease");
+        slimParentTermIdMap.put("DOID:630", disease);
     }
 
     private DiseaseRibbonSummary getDiseaseRibbonSections() {
@@ -54,10 +69,15 @@ public class DiseaseRibbonService {
 
         diseaseRibbonSummary = new DiseaseRibbonSummary();
 
-        slimParentTermIdMap.forEach((id, name) -> {
+        slimParentTermIdMap.forEach((id, names) -> {
             DiseaseRibbonSection section = new DiseaseRibbonSection();
-            section.setLabel(name);
+            section.setLabel(names.get(0));
             section.setId(id);
+            DiseaseSectionSlim allSlimElement = new DiseaseSectionSlim();
+            allSlimElement.setId(id);
+            allSlimElement.setLabel(names.get(1));
+            allSlimElement.setTypeAll();
+            section.addDiseaseSlim(allSlimElement);
             diseaseRibbonSummary.addRibbonSection(section);
         });
 
