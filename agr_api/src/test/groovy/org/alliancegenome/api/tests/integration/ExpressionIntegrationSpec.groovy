@@ -50,6 +50,24 @@ class ExpressionIntegrationSpec extends AbstractSpec {
     }
 
     @Unroll
+    def "Gene page - Expression Annotations for #geneId : sorted #sortBy"() {
+        when:
+        def results = getApiResults("/api/expression?geneID=$geneId&page=1&limit=10&sortBy=$sortBy")
+
+        def termNames = results.termName.findAll { it }
+
+        then:
+        results
+        locationList == termNames.join(',')
+        stage == results.stage.name.findAll { it }.join(',')
+        where:
+        geneId       | sortBy    | locationList                                                                                                                  | stage
+        "MGI:109583" | "default" | "2-cell stage embryo,4-cell stage embryo,alimentary system,amnion,amnion,amygdala,axial skeleton,basal ganglia,bladder,brain" | "TS02,TS03,TS22,TS12,TS14,TS28,TS22,TS28,TS23,TS19"
+        "MGI:109583" | "assay"   | "amnion,amnion,cartilage,dental sac,epidermis,gut,heart,lung,neural tube,neural tube"                                         | "TS12,TS14,TS24,TS23,TS24,TS16,TS19,TS22,TS12,TS16"
+        "MGI:109583" | "stage"   | "2-cell stage embryo,4-cell stage embryo,embryo,embryo,extraembryonic component,amnion,neural tube,somite,trunk,yolk sac"     | "TS02,TS03,TS10,TS10,TS10,TS12,TS12,TS12,TS12,TS12"
+    }
+
+    @Unroll
     def "Gene page - Expression Section - orthopicker for #geneId"() {
         when:
         def results = getApiResults("/api/gene/$geneId/homologs-with-expression?stringencyFilter=stringent")
