@@ -204,7 +204,7 @@ public class DiseaseCacheRepository {
 
         // default sorting
         DiseaseAnnotationSorting sorting = new DiseaseAnnotationSorting();
-        allDiseaseAnnotations.sort(sorting.getDefaultComparator());
+        allDiseaseAnnotations.sort(sorting.getComparator(SortingField.DEFAULT, Boolean.TRUE));
 
         int currentHashCode = 0;
         for (DiseaseAnnotation document : allDiseaseAnnotations) {

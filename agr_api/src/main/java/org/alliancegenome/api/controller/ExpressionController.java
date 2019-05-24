@@ -1,33 +1,33 @@
 package org.alliancegenome.api.controller;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.log4j.Log4j2;
+import org.alliancegenome.api.rest.interfaces.ExpressionRESTInterface;
+import org.alliancegenome.api.service.ExpressionService;
+import org.alliancegenome.core.ExpressionDetail;
+import org.alliancegenome.core.exceptions.RestErrorException;
+import org.alliancegenome.core.exceptions.RestErrorMessage;
+import org.alliancegenome.core.service.JsonResultResponse;
+import org.alliancegenome.es.model.query.FieldFilter;
+import org.alliancegenome.es.model.query.Pagination;
+import org.alliancegenome.neo4j.entity.SpeciesType;
+import org.alliancegenome.neo4j.entity.node.BioEntityGeneExpressionJoin;
+import org.alliancegenome.neo4j.repository.GeneRepository;
+import org.alliancegenome.neo4j.view.BaseFilter;
+import org.alliancegenome.neo4j.view.View;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
-import org.alliancegenome.api.rest.interfaces.ExpressionRESTInterface;
-import org.alliancegenome.api.service.ExpressionService;
-import org.alliancegenome.core.ExpressionDetail;
-import org.alliancegenome.core.service.JsonResultResponse;
-import org.alliancegenome.core.service.PaginationResult;
-import org.alliancegenome.es.model.query.FieldFilter;
-import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.neo4j.entity.SpeciesType;
-import org.alliancegenome.neo4j.entity.node.BioEntityGeneExpressionJoin;
-import org.alliancegenome.neo4j.repository.ExpressionCacheRepository;
-import org.alliancegenome.neo4j.repository.GeneRepository;
-import org.alliancegenome.neo4j.view.BaseFilter;
-import org.alliancegenome.neo4j.view.View;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
+@Log4j2
 public class ExpressionController implements ExpressionRESTInterface {
 
     @Context
@@ -52,28 +52,34 @@ public class ExpressionController implements ExpressionRESTInterface {
                                                                          String asc) {
 
         LocalDateTime startDate = LocalDateTime.now();
-        JsonResultResponse<ExpressionDetail> result = getExpressionDetailJsonResultResponse(
-                geneIDs,
-                termID,
-                filterSpecies,
-                filterGene,
-                filterStage,
-                filterAssay,
-                filterReference,
-                filterTerm,
-                filterSource,
-                limit,
-                page,
-                sortBy,
-                asc);
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.disable(MapperFeature.DEFAULT_VIEW_INCLUSION);
-        JsonResultResponse<ExpressionDetail> response = new JsonResultResponse<>();
-        response.setResults(result.getResults());
-        response.calculateRequestDuration(startDate);
-        response.setTotal(result.getTotal());
-        response.setHttpServletRequest(request);
-        return response;
+        try {
+            JsonResultResponse<ExpressionDetail> result = getExpressionDetailJsonResultResponse(
+                    geneIDs,
+                    termID,
+                    filterSpecies,
+                    filterGene,
+                    filterStage,
+                    filterAssay,
+                    filterReference,
+                    filterTerm,
+                    filterSource,
+                    limit,
+                    page,
+                    sortBy,
+                    asc);
+            JsonResultResponse<ExpressionDetail> response = new JsonResultResponse<>();
+            response.setResults(result.getResults());
+            response.calculateRequestDuration(startDate);
+            response.setTotal(result.getTotal());
+            response.calculateRequestDuration(startDate);
+            response.setHttpServletRequest(request);
+            return response;
+        } catch (Exception e) {
+            log.error(e);
+            RestErrorMessage error = new RestErrorMessage();
+            error.addErrorMessage(e.getMessage());
+            throw new RestErrorException(error);
+        }
     }
 
     private JsonResultResponse<ExpressionDetail> getExpressionDetailJsonResultResponse(List<String> geneIDs, String termID, String filterSpecies, String filterGene, String filterStage, String filterAssay, String filterReference, String filterTerm, String filterSource, int limit, int page, String sortBy, String asc) {
@@ -90,9 +96,7 @@ public class ExpressionController implements ExpressionRESTInterface {
         filterMap.values().removeIf(Objects::isNull);
         pagination.setFieldFilterValueMap(filterMap);
 
-        JsonResultResponse<ExpressionDetail> expressions= expressionService.getExpressionDetails(geneIDs, termID, pagination);
-        expressions.setHttpServletRequest(request);
-        expressions.calculateRequestDuration(startTime);
+        JsonResultResponse<ExpressionDetail> expressions = expressionService.getExpressionDetails(geneIDs, termID, pagination);
         return expressions;
 
     }

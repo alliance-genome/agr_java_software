@@ -38,7 +38,7 @@ public interface DiseaseRESTInterface {
             @DefaultValue("20") @QueryParam("limit") int limit,
             @ApiParam(name = "page", value = "Page number")
             @DefaultValue("1") @QueryParam("page") int page,
-            @ApiParam(value = "Field / column name by which to sort", allowableValues = "geneName,species,geneticEntity,geneticEntityType,disease,source,reference,evidenceCode,associationType", defaultValue = "geneName")
+            @ApiParam(value = "Field / column name by which to sort", allowableValues = "Default,Gene,Disease,Species", defaultValue = "geneName")
             @QueryParam("sortBy") String sortBy,
             @ApiParam(value = "filter by gene symbol")
             @QueryParam("filter.geneName") String geneName,
