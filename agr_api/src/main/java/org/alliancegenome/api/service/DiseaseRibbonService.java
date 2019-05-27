@@ -48,17 +48,17 @@ public class DiseaseRibbonService {
 
         List<String> anatomy = new ArrayList<>();
         anatomy.add("Disease of Anatomy");
-        anatomy.add("All Disease of Anatomy");
+        anatomy.add("All Disease of anatomical entity");
         slimParentTermIdMap.put("DOID:7", anatomy);
 
         List<String> neoplasm = new ArrayList<>();
         neoplasm.add("Neoplasm");
-        neoplasm.add("All Neoplasm");
+        neoplasm.add("All disease of cellular proliferation");
         slimParentTermIdMap.put("DOID:14566", neoplasm);
 
         List<String> disease = new ArrayList<>();
         disease.add("Genetic Disease");
-        disease.add("All Genetic Disease");
+        disease.add("All genetic disease");
         slimParentTermIdMap.put("DOID:630", disease);
     }
 

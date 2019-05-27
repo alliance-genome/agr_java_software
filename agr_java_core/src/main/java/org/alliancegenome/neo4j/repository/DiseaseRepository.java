@@ -118,6 +118,8 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
     }
 
     private Set<DiseaseEntityJoin> allDiseaseEntityJoins = new HashSet<>(200000);
+    private static Map<String, Set<String>> closureMapUberon = null;
+    private static Map<String, Set<String>> closureMapUberonChild = null;
     private static Map<String, Set<String>> closureMap = null;
     private static Map<String, Set<String>> closureChildMap = null;
 
@@ -148,6 +150,40 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
                 .collect(groupingBy(Closure::getParent, mapping(Closure::getChild, Collectors.toSet())));
         return closureMap;
     }
+
+    public Map<String, Set<String>> getClosureMappingUberonChild() {
+        if (closureMapUberonChild != null)
+            return closureMapUberonChild;
+        getClosureMappingUberon();
+        return closureMapUberonChild;
+    }
+
+    public Map<String, Set<String>> getClosureMappingUberon() {
+        if (closureMapUberon != null)
+            return closureMapUberon;
+        //closure
+        String cypher = "MATCH (uberonParent:UBERONTerm)<-[:IS_A_PART_OF_CLOSURE]-(uberon:UBERONTerm) where uberonParent.is_obsolete = 'false' ";
+        cypher += " return uberonParent.primaryKey as parent, uberon.primaryKey as child ";
+
+        HashMap<String, String> bindingMap = new HashMap<>();
+        //bindingMap.put("rootDiseaseID", "DOID:9952");
+        Result result = queryForResult(cypher, bindingMap);
+        List<Closure> cls = StreamSupport.stream(result.spliterator(), false)
+                .map(stringObjectMap -> {
+                    Closure cl = new Closure();
+                    cl.setParent((String) stringObjectMap.get("parent"));
+                    cl.setChild((String) stringObjectMap.get("child"));
+                    return cl;
+                })
+                .collect(Collectors.toList());
+        closureMapUberon = cls.stream()
+                .collect(groupingBy(Closure::getParent, mapping(Closure::getChild, Collectors.toSet())));
+
+        closureMapUberonChild = cls.stream()
+                .collect(groupingBy(Closure::getChild, mapping(Closure::getParent, Collectors.toSet())));
+        return closureMapUberon;
+    }
+
 
     public Map<String, Set<String>> getClosureChildMapping() {
         if (closureChildMap != null)

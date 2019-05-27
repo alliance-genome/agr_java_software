@@ -97,6 +97,7 @@ public class ExpressionController implements ExpressionRESTInterface {
         pagination.setFieldFilterValueMap(filterMap);
 
         JsonResultResponse<ExpressionDetail> expressions = expressionService.getExpressionDetails(geneIDs, termID, pagination);
+        expressions.calculateRequestDuration(startTime);
         return expressions;
 
     }

@@ -12,7 +12,7 @@ import java.util.TreeSet;
 
 @Setter
 @Getter
-public class ExpressionDetail implements Comparable{
+public class ExpressionDetail implements Comparable {
 
     @JsonView(View.Expression.class)
     private Gene gene;
@@ -29,6 +29,7 @@ public class ExpressionDetail implements Comparable{
     @JsonView(View.Expression.class)
     private CrossReference crossReference;
 
+    @JsonView(View.Expression.class)
     private List<String> termIDs = new ArrayList<>(6);
 
     public void addTermIDs(List<String> ids) {
