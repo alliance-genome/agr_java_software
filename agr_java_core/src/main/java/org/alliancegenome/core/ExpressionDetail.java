@@ -7,6 +7,7 @@ import org.alliancegenome.neo4j.entity.node.*;
 import org.alliancegenome.neo4j.view.View;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.TreeSet;
 
@@ -32,7 +33,7 @@ public class ExpressionDetail implements Comparable {
     @JsonView(View.Expression.class)
     private List<String> termIDs = new ArrayList<>(6);
 
-    public void addTermIDs(List<String> ids) {
+    public void addTermIDs(Collection<String> ids) {
         termIDs.addAll(ids);
     }
 

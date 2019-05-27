@@ -125,8 +125,11 @@ public class ExpressionCacheRepository {
                     aoList.addAll(parentTermIDs);
                     detail.addTermIDs(aoList);
                     detail.addTermIDs(expressionJoin.getEntity().getCcRibbonTermList().stream().map(GOTerm::getPrimaryKey).collect(Collectors.toList()));
-                    if (expressionJoin.getStageTerm() != null)
-                        detail.addTermID(expressionJoin.getStageTerm().getPrimaryKey());
+                    if (expressionJoin.getStageTerm() != null) {
+                        String stageID = expressionJoin.getStageTerm().getPrimaryKey();
+                        detail.addTermID(stageID);
+                        detail.addTermIDs(expressionRepository.getParentTermIDs(stageID));
+                    }
                     return detail;
                 })
                 .collect(Collectors.toList());
@@ -146,9 +149,13 @@ public class ExpressionCacheRepository {
         // anatomical entity
         parentTermIDs.add("UBERON:0001062");
         // life cycle stage
-        parentTermIDs.add("UBERON:0000105");
+        parentTermIDs.add("UBERON:0000000");
         // cellular Component
         parentTermIDs.add("GO:0005575");
+    }
+
+    private Set<String> getParentTermIDs(String id) {
+        return getParentTermIDs(Collections.singletonList(id));
     }
 
     private Set<String> getParentTermIDs(List<String> aoList) {
@@ -164,6 +171,8 @@ public class ExpressionCacheRepository {
             });
             if (id.equals("UBERON:AnatomyOtherLocation"))
                 parentSet.add(parentTermIDs.get(0));
+            if (id.equals("UBERON:PostEmbryonicPreAdult"))
+                parentSet.add(parentTermIDs.get(1));
         });
         return parentSet;
     }
