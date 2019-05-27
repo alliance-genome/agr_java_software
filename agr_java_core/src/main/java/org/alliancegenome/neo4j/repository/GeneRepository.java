@@ -506,7 +506,7 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         String cypher = " MATCH p1=(q:Species)<-[:FROM_SPECIES]-(gene:Gene)-->(s:BioEntityGeneExpressionJoin)--(t), " +
                 " entity = (s:BioEntityGeneExpressionJoin)--(exp:ExpressionBioEntity)--(o:Ontology) ";
         //cypher += "  where gene.primaryKey in ['MGI:109583','ZFIN:ZDB-GENE-980526-166'] ";
-        cypher += "  where gene.primaryKey = 'ZFIN:ZDB-GENE-980526-166' ";
+        //cypher += "  where gene.primaryKey = 'RGD:2129' ";
         cypher += "OPTIONAL MATCH crossReference = (s:BioEntityGeneExpressionJoin)--(crossRef:CrossReference) ";
         cypher += "return p1, entity, crossRef ";
 

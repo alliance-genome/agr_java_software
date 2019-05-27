@@ -106,7 +106,6 @@ public class ExpressionCacheRepository {
     private void cacheAllExpression() {
         long startTime = System.currentTimeMillis();
         GeneRepository geneRepository = new GeneRepository();
-        ExpressionCacheRepository expressionRepository = new ExpressionCacheRepository();
         List<BioEntityGeneExpressionJoin> joins = geneRepository.getAllExpressionAnnotations();
 
         allExpression = joins.stream()
@@ -120,15 +119,24 @@ public class ExpressionCacheRepository {
                         detail.setStage(expressionJoin.getStage());
                     detail.setPublications(new TreeSet<>(expressionJoin.getPublications()));
                     detail.setCrossReference(expressionJoin.getCrossReference());
+                    // add AO terms and All AO parent term
                     List<String> aoList = expressionJoin.getEntity().getAoTermList().stream().map(UBERONTerm::getPrimaryKey).collect(Collectors.toList());
-                    Set<String> parentTermIDs = expressionRepository.getParentTermIDs(aoList);
-                    aoList.addAll(parentTermIDs);
+                    Set<String> parentTermIDs = getParentTermIDs(aoList);
+                    if (parentTermIDs != null)
+                        aoList.addAll(parentTermIDs);
                     detail.addTermIDs(aoList);
-                    detail.addTermIDs(expressionJoin.getEntity().getCcRibbonTermList().stream().map(GOTerm::getPrimaryKey).collect(Collectors.toList()));
+
+                    // add GO terms and All-GO parent term
+                    List<String> goList = expressionJoin.getEntity().getCcRibbonTermList().stream().map(GOTerm::getPrimaryKey).collect(Collectors.toList());
+                    Set<String> goParentTerms = getGOParentTermIDs(goList);
+                    if (goParentTerms != null) {
+                        goList.addAll(goParentTerms);
+                    }
+                    detail.addTermIDs(goList);
                     if (expressionJoin.getStageTerm() != null) {
                         String stageID = expressionJoin.getStageTerm().getPrimaryKey();
                         detail.addTermID(stageID);
-                        detail.addTermIDs(expressionRepository.getParentTermIDs(stageID));
+                        detail.addTermIDs(getParentTermIDs(stageID));
                     }
                     return detail;
                 })
@@ -173,6 +181,23 @@ public class ExpressionCacheRepository {
                 parentSet.add(parentTermIDs.get(0));
             if (id.equals("UBERON:PostEmbryonicPreAdult"))
                 parentSet.add(parentTermIDs.get(1));
+        });
+        return parentSet;
+    }
+
+    private Set<String> getGOParentTermIDs(List<String> goList) {
+        if (goList == null || goList.isEmpty())
+            return null;
+        DiseaseRepository repository = new DiseaseRepository();
+        Set<String> parentSet = new HashSet<>(4);
+        Map<String, Set<String>> map = repository.getClosureMappingGO();
+        goList.forEach(id -> {
+            parentTermIDs.forEach(parentTermID -> {
+                if (map.get(parentTermID) != null && map.get(parentTermID).contains(id))
+                    parentSet.add(parentTermID);
+            });
+            if (id.equals("GO:otherLocations"))
+                parentSet.add(parentTermIDs.get(2));
         });
         return parentSet;
     }
