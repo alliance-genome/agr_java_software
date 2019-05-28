@@ -154,7 +154,7 @@ public class GeneController extends BaseController implements GeneRESTInterface 
         JsonResultResponse<InteractionGeneJoin> interactions = geneService.getInteractions(id, pagination);
 
         Response.ResponseBuilder responseBuilder = Response.ok(interactionTanslator.getAllRows(interactions.getResults()));
-        APIService.setDownloadHeader(id, EntityType.GENE, EntityType.ALLELE, responseBuilder);
+        APIService.setDownloadHeader(id, EntityType.GENE, EntityType.INTERACTION, responseBuilder);
         return responseBuilder.build();
     }
 
