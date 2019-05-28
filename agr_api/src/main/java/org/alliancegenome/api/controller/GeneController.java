@@ -10,6 +10,7 @@ import org.alliancegenome.core.exceptions.RestErrorException;
 import org.alliancegenome.core.exceptions.RestErrorMessage;
 import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.core.service.OrthologyService;
+import org.alliancegenome.core.translators.tdf.AlleleToTdfTranslator;
 import org.alliancegenome.core.translators.tdf.DiseaseAnnotationToTdfTranslator;
 import org.alliancegenome.core.translators.tdf.PhenotypeAnnotationToTdfTranslator;
 import org.alliancegenome.es.model.query.FieldFilter;
@@ -51,6 +52,7 @@ public class GeneController extends BaseController implements GeneRESTInterface 
     private HttpServletRequest request;
 
     private final PhenotypeAnnotationToTdfTranslator translator = new PhenotypeAnnotationToTdfTranslator();
+    private final AlleleToTdfTranslator alleleTanslator = new AlleleToTdfTranslator();
     private final DiseaseAnnotationToTdfTranslator diseaseTranslator = new DiseaseAnnotationToTdfTranslator();
 
     @Override
@@ -83,6 +85,27 @@ public class GeneController extends BaseController implements GeneRESTInterface 
         alleles.setHttpServletRequest(request);
         alleles.calculateRequestDuration(startTime);
         return alleles;
+    }
+
+    @Override
+    public Response getAllelesPerGeneDownload(String id, String sortBy, String asc,
+                                                        String symbol, String synonym, String source, String disease) {
+        Pagination pagination = new Pagination(1, Integer.MAX_VALUE, sortBy, asc);
+        pagination.addFieldFilter(FieldFilter.SYMBOL, symbol);
+        pagination.addFieldFilter(FieldFilter.SYNONYMS, synonym);
+        pagination.addFieldFilter(FieldFilter.SOURCE, source);
+        pagination.addFieldFilter(FieldFilter.DISEASE, disease);
+        if (pagination.hasErrors()) {
+            RestErrorMessage message = new RestErrorMessage();
+            message.setErrors(pagination.getErrors());
+            throw new RestErrorException(message);
+        }
+
+        JsonResultResponse<Allele> alleles = geneService.getAlleles(id, pagination);
+
+        Response.ResponseBuilder responseBuilder = Response.ok(alleleTanslator.getAllRows(alleles.getResults()));
+        APIService.setDownloadHeader(id, EntityType.GENE, EntityType.ALLELE, responseBuilder);
+        return responseBuilder.build();
     }
 
     @Override
@@ -137,7 +160,7 @@ public class GeneController extends BaseController implements GeneRESTInterface 
                         reference,
                         asc);
         Response.ResponseBuilder responseBuilder = Response.ok(translator.getAllRows(response.getResults()));
-        APIService.setDownloadHeader(id, EntityType.GENE, EntityType.ALLELE, responseBuilder);
+        APIService.setDownloadHeader(id, EntityType.GENE, EntityType.PHENOTYPE, responseBuilder);
         return responseBuilder.build();
     }
 

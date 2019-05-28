@@ -16,7 +16,7 @@ public class APIService {
         fileName += id;
         fileName += "-";
         // make the entity name plural
-        fileName += collectionType.toString() + "s";
+        fileName += collectionType.toString().toLowerCase() + "s";
         fileName += "-";
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         fileName += dateFormat.format(new Date());

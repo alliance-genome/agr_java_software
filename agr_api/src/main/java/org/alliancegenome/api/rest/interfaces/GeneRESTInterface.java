@@ -69,6 +69,27 @@ public interface GeneRESTInterface {
     );
 
     @GET
+    @Path("/{id}/alleles/download")
+    @ApiOperation(value = "Retrieve all alleles for a given gene")
+    @Produces(MediaType.TEXT_PLAIN)
+    Response getAllelesPerGeneDownload(
+            @ApiParam(name = "id", value = "Search for Alleles for a given Gene by ID")
+            @PathParam("id") String id,
+            @ApiParam(value = "Field name by which to sort", allowableValues = "symbol,name")
+            @DefaultValue("symbol") @QueryParam("sortBy") String sortBy,
+            @ApiParam(value = "ascending order: true or false", allowableValues = "true,false", defaultValue = "true")
+            @QueryParam("asc") String asc,
+            @ApiParam(name = "filter.symbol", value = "symbol of allele")
+            @QueryParam("filter.symbol") String symbol,
+            @ApiParam(name = "filter.synonym", value = "Allele synonyms")
+            @QueryParam("filter.synonym") String synonym,
+            @ApiParam(value = "source")
+            @QueryParam("filter.source") String source,
+            @ApiParam(value = "Disease for a given allele")
+            @QueryParam("filter.disease") String disease
+    );
+
+    @GET
     @Path("/{id}/phenotypes")
     @JsonView(value = {View.PhenotypeAPI.class})
     @ApiOperation(value = "Retrieve phenotype term name annotations for a given gene")
