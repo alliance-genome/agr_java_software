@@ -61,4 +61,18 @@ class InteractionIntegrationSpec extends AbstractSpec {
 
     }
 
+    @Unroll
+    def "Verify that the downloads endpoint has results for #gene"() {
+        when:
+        def result = getApiResultRaw("/api/gene/$gene/interactions/download")
+        def results = result.split('\n')
+
+        then:
+        results.size() > 10
+
+        where:
+        gene << ["MGI:109583"]
+    }
+
+
 }
