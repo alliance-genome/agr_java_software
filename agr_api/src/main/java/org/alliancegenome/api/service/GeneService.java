@@ -1,6 +1,5 @@
 package org.alliancegenome.api.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.core.service.PaginationResult;
 import org.alliancegenome.es.model.query.Pagination;
@@ -36,7 +35,7 @@ public class GeneService {
     public JsonResultResponse<Allele> getAlleles(String geneId, Pagination pagination) {
         long startTime = System.currentTimeMillis();
         JsonResultResponse<Allele> response = alleleService.getAllelesByGene(geneId, pagination);
-        if(response == null)
+        if (response == null)
             response = new JsonResultResponse<>();
         Long duration = (System.currentTimeMillis() - startTime) / 1000;
         response.setRequestDuration(duration.toString());
@@ -46,7 +45,7 @@ public class GeneService {
     public JsonResultResponse<InteractionGeneJoin> getInteractions(String id, Pagination pagination) {
         JsonResultResponse<InteractionGeneJoin> ret = new JsonResultResponse<>();
         PaginationResult<InteractionGeneJoin> interactions = interCacheRepo.getInteractionAnnotationList(id, pagination);
-        if(interactions == null)
+        if (interactions == null)
             return ret;
         ret.setResults(interactions.getResult());
         ret.setTotal(interactions.getTotalNumber());
@@ -54,7 +53,7 @@ public class GeneService {
         return ret;
     }
 
-    public JsonResultResponse<PhenotypeAnnotation> getPhenotypeAnnotations(String geneID, Pagination pagination) throws JsonProcessingException {
+    public JsonResultResponse<PhenotypeAnnotation> getPhenotypeAnnotations(String geneID, Pagination pagination) {
         LocalDateTime startDate = LocalDateTime.now();
         PaginationResult<PhenotypeAnnotation> list = phenoCacheRepo.getPhenotypeAnnotationList(geneID, pagination);
         JsonResultResponse<PhenotypeAnnotation> response = new JsonResultResponse<>();

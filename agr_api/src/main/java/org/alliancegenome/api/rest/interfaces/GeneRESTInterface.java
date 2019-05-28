@@ -90,7 +90,7 @@ public interface GeneRESTInterface {
             @ApiParam(value = "Reference number: PUBMED or a Pub ID from the MOD")
             @QueryParam("filter.reference") String reference,
             @ApiParam(value = "ascending order: true or false", allowableValues = "true,false", defaultValue = "true")
-            @QueryParam("asc") String asc) throws JsonProcessingException;
+            @QueryParam("asc") String asc);
 
     @GET
     @Path("/{id}/phenotypes/download")
@@ -110,7 +110,7 @@ public interface GeneRESTInterface {
             @ApiParam(value = "Reference number: PUBMED or a Pub ID from the MOD")
             @QueryParam("filter.reference") String reference,
             @ApiParam(value = "ascending order: true or false", allowableValues = "true,false", defaultValue = "true")
-            @QueryParam("asc") String asc) throws JsonProcessingException;
+            @QueryParam("asc") String asc);
 
     @GET
     @Path("/{id}/homologs")
