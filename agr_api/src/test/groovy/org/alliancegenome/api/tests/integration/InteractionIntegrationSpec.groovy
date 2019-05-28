@@ -38,7 +38,7 @@ class InteractionIntegrationSpec extends AbstractSpec {
         where:
         geneId           | firstMoleculeType | firstGeneB | firstInteractorType
         "FB:FBgn0029891" | "protein"         | "CG11656"  | "protein"
-        "MGI:109583"     | "protein"         | "Cdc27"    | "protein"
+        "MGI:109583"     | "gene"            | "Gfi1"     | "protein"
 
     }
 
@@ -70,9 +70,13 @@ class InteractionIntegrationSpec extends AbstractSpec {
         def resultFilter = getApiResultRaw("/api/gene/$gene/interactions/download?filter.detectionMethod=bait")
         def resultsFilter = resultFilter.split('\n')
 
+        def resultFilterMoleculeType = getApiResultRaw("/api/gene/$gene/interactions/download?sortBy=moleculeType")
+        def resultsFilterMoleculeType = resultFilterMoleculeType.split('\n')
+
         then:
         results.size() > 10
         results.size() > resultsFilter.size()
+        resultsFilterMoleculeType[2] != results[2]
 
         where:
         gene << ["MGI:109583"]

@@ -5,11 +5,14 @@ import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.log4j.Log4j2;
 import org.alliancegenome.api.rest.interfaces.ExpressionRESTInterface;
+import org.alliancegenome.api.service.APIService;
+import org.alliancegenome.api.service.EntityType;
 import org.alliancegenome.api.service.ExpressionService;
 import org.alliancegenome.core.ExpressionDetail;
 import org.alliancegenome.core.exceptions.RestErrorException;
 import org.alliancegenome.core.exceptions.RestErrorMessage;
 import org.alliancegenome.core.service.JsonResultResponse;
+import org.alliancegenome.core.translators.tdf.ExpressionToTdfTranslator;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.SpeciesType;
@@ -20,12 +23,10 @@ import org.alliancegenome.neo4j.view.View;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Log4j2
 public class ExpressionController implements ExpressionRESTInterface {
@@ -35,6 +36,7 @@ public class ExpressionController implements ExpressionRESTInterface {
 
     private ExpressionService expressionService = new ExpressionService();
     private GeneRepository geneRepository = new GeneRepository();
+    private final ExpressionToTdfTranslator expressionTranslator = new ExpressionToTdfTranslator();
 
     @Override
     public JsonResultResponse<ExpressionDetail> getExpressionAnnotations(List<String> geneIDs,
@@ -142,8 +144,6 @@ public class ExpressionController implements ExpressionRESTInterface {
                                                      String filterReference,
                                                      String filterTerm,
                                                      String filterSource,
-                                                     int limit,
-                                                     int page,
                                                      String sortBy,
                                                      String asc) {
 
@@ -158,15 +158,13 @@ public class ExpressionController implements ExpressionRESTInterface {
                 filterTerm,
                 filterSource,
                 Integer.MAX_VALUE,
-                page,
+                1,
                 sortBy,
                 asc);
 
-        Response.ResponseBuilder response = Response.ok((expressionService.getTextFile(result)));
-        response.type(MediaType.TEXT_PLAIN_TYPE);
-        String fileName = geneIDs.stream().collect(Collectors.joining("::"));
-        response.header("Content-Disposition", "attachment; filename=\"expression-annotations-" + fileName + ".tsv\"");
-        return response.build();
+        Response.ResponseBuilder responseBuilder = Response.ok(expressionTranslator.getAllRows(result.getResults(), geneIDs.size() > 1));
+        APIService.setDownloadHeader(geneIDs.get(0), EntityType.GENE, EntityType.EXPRESSION, responseBuilder);
+        return responseBuilder.build();
     }
 
 }

@@ -48,7 +48,7 @@ public class DiseaseRibbonService {
 
         List<String> anatomy = new ArrayList<>();
         anatomy.add("Disease of Anatomy");
-        anatomy.add("All Disease of anatomical entity");
+        anatomy.add("All disease of anatomical entity");
         slimParentTermIdMap.put("DOID:7", anatomy);
 
         List<String> neoplasm = new ArrayList<>();
