@@ -69,6 +69,27 @@ public interface GeneRESTInterface {
     );
 
     @GET
+    @Path("/{id}/alleles/download")
+    @ApiOperation(value = "Retrieve all alleles for a given gene")
+    @Produces(MediaType.TEXT_PLAIN)
+    Response getAllelesPerGeneDownload(
+            @ApiParam(name = "id", value = "Search for Alleles for a given Gene by ID")
+            @PathParam("id") String id,
+            @ApiParam(value = "Field name by which to sort", allowableValues = "symbol,name")
+            @DefaultValue("symbol") @QueryParam("sortBy") String sortBy,
+            @ApiParam(value = "ascending order: true or false", allowableValues = "true,false", defaultValue = "true")
+            @QueryParam("asc") String asc,
+            @ApiParam(name = "filter.symbol", value = "symbol of allele")
+            @QueryParam("filter.symbol") String symbol,
+            @ApiParam(name = "filter.synonym", value = "Allele synonyms")
+            @QueryParam("filter.synonym") String synonym,
+            @ApiParam(value = "source")
+            @QueryParam("filter.source") String source,
+            @ApiParam(value = "Disease for a given allele")
+            @QueryParam("filter.disease") String disease
+    );
+
+    @GET
     @Path("/{id}/phenotypes")
     @JsonView(value = {View.PhenotypeAPI.class})
     @ApiOperation(value = "Retrieve phenotype term name annotations for a given gene")
@@ -90,7 +111,7 @@ public interface GeneRESTInterface {
             @ApiParam(value = "Reference number: PUBMED or a Pub ID from the MOD")
             @QueryParam("filter.reference") String reference,
             @ApiParam(value = "ascending order: true or false", allowableValues = "true,false", defaultValue = "true")
-            @QueryParam("asc") String asc) throws JsonProcessingException;
+            @QueryParam("asc") String asc);
 
     @GET
     @Path("/{id}/phenotypes/download")
@@ -110,7 +131,7 @@ public interface GeneRESTInterface {
             @ApiParam(value = "Reference number: PUBMED or a Pub ID from the MOD")
             @QueryParam("filter.reference") String reference,
             @ApiParam(value = "ascending order: true or false", allowableValues = "true,false", defaultValue = "true")
-            @QueryParam("asc") String asc) throws JsonProcessingException;
+            @QueryParam("asc") String asc);
 
     @GET
     @Path("/{id}/homologs")
@@ -153,6 +174,33 @@ public interface GeneRESTInterface {
             @DefaultValue("20") @QueryParam("limit") int limit,
             @ApiParam(name = "page", value = "Page number")
             @DefaultValue("1") @QueryParam("page") int page,
+            @ApiParam(value = "Name by which to sort", allowableValues = "interactorGeneSymbol,interactorMoleculeType,interactorSpecies,interactorSpecies,reference")
+            @QueryParam("sortBy") String sortBy,
+            @ApiParam(value = "ascending order: true or false", allowableValues = "true,false", defaultValue = "true")
+            @QueryParam("asc") String asc,
+            @ApiParam(name = "filter.moleculeType", value = "symbol of allele")
+            @QueryParam("filter.moleculeType") String moleculeType,
+            @ApiParam(name = "filter.interactorGeneSymbol", value = "Allele synonyms")
+            @QueryParam("filter.interactorGeneSymbol") String interactorGeneSymbol,
+            @ApiParam(name = "filter.interactorSpecies", value = "Allele synonyms")
+            @QueryParam("filter.interactorSpecies") String interactorSpecies,
+            @ApiParam(name = "filter.interactorMoleculeType", value = "symbol of allele")
+            @QueryParam("filter.interactorMoleculeType") String interactorMoleculeType,
+            @ApiParam(name = "filter.detectionMethod", value = "Allele synonyms")
+            @QueryParam("filter.detectionMethod") String detectionMethod,
+            @ApiParam(name = "filter.source", value = "Allele synonyms")
+            @QueryParam("filter.source") String source,
+            @ApiParam(name = "filter.reference", value = "References")
+            @QueryParam("filter.reference") String reference
+    );
+
+    @GET
+    @Path("/{id}/interactions/download")
+    @ApiOperation(value = "Retrieve interactions for a given gene")
+    @Produces(MediaType.TEXT_PLAIN)
+    Response getInteractionsDownload(
+            @ApiParam(name = "id", value = "Gene ID", required = true)
+            @PathParam("id") String id,
             @ApiParam(value = "Name by which to sort", allowableValues = "interactorGeneSymbol,interactorMoleculeType,interactorSpecies,interactorSpecies,reference")
             @QueryParam("sortBy") String sortBy,
             @ApiParam(value = "ascending order: true or false", allowableValues = "true,false", defaultValue = "true")

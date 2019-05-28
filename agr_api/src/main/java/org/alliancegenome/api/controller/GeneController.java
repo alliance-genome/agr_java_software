@@ -1,19 +1,18 @@
 package org.alliancegenome.api.controller;
 
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.log4j.Log4j2;
 import org.alliancegenome.api.entity.DiseaseRibbonSummary;
 import org.alliancegenome.api.entity.ExpressionSummary;
 import org.alliancegenome.api.rest.interfaces.GeneRESTInterface;
-import org.alliancegenome.api.service.DiseaseService;
-import org.alliancegenome.api.service.ExpressionService;
-import org.alliancegenome.api.service.GeneService;
+import org.alliancegenome.api.service.*;
 import org.alliancegenome.core.exceptions.RestErrorException;
 import org.alliancegenome.core.exceptions.RestErrorMessage;
 import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.core.service.OrthologyService;
+import org.alliancegenome.core.translators.tdf.AlleleToTdfTranslator;
 import org.alliancegenome.core.translators.tdf.DiseaseAnnotationToTdfTranslator;
+import org.alliancegenome.core.translators.tdf.InteractionToTdfTranslator;
 import org.alliancegenome.core.translators.tdf.PhenotypeAnnotationToTdfTranslator;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
@@ -54,6 +53,8 @@ public class GeneController extends BaseController implements GeneRESTInterface 
     private HttpServletRequest request;
 
     private final PhenotypeAnnotationToTdfTranslator translator = new PhenotypeAnnotationToTdfTranslator();
+    private final AlleleToTdfTranslator alleleTanslator = new AlleleToTdfTranslator();
+    private final InteractionToTdfTranslator interactionTanslator = new InteractionToTdfTranslator();
     private final DiseaseAnnotationToTdfTranslator diseaseTranslator = new DiseaseAnnotationToTdfTranslator();
 
     @Override
@@ -89,6 +90,27 @@ public class GeneController extends BaseController implements GeneRESTInterface 
     }
 
     @Override
+    public Response getAllelesPerGeneDownload(String id, String sortBy, String asc,
+                                              String symbol, String synonym, String source, String disease) {
+        Pagination pagination = new Pagination(1, Integer.MAX_VALUE, sortBy, asc);
+        pagination.addFieldFilter(FieldFilter.SYMBOL, symbol);
+        pagination.addFieldFilter(FieldFilter.SYNONYMS, synonym);
+        pagination.addFieldFilter(FieldFilter.SOURCE, source);
+        pagination.addFieldFilter(FieldFilter.DISEASE, disease);
+        if (pagination.hasErrors()) {
+            RestErrorMessage message = new RestErrorMessage();
+            message.setErrors(pagination.getErrors());
+            throw new RestErrorException(message);
+        }
+
+        JsonResultResponse<Allele> alleles = geneService.getAlleles(id, pagination);
+
+        Response.ResponseBuilder responseBuilder = Response.ok(alleleTanslator.getAllRows(alleles.getResults()));
+        APIService.setDownloadHeader(id, EntityType.GENE, EntityType.ALLELE, responseBuilder);
+        return responseBuilder.build();
+    }
+
+    @Override
     public JsonResultResponse<InteractionGeneJoin> getInteractions(String id, int limit, int page, String sortBy, String asc,
                                                                    String moleculeType,
                                                                    String interactorGeneSymbol,
@@ -113,7 +135,36 @@ public class GeneController extends BaseController implements GeneRESTInterface 
     }
 
     @Override
-    public JsonResultResponse<PhenotypeAnnotation> getPhenotypeAnnotations(String id, int limit, int page, String sortBy, String geneticEntity, String geneticEntityType, String phenotype, String reference, String asc) throws JsonProcessingException {
+    public Response getInteractionsDownload(String id, String sortBy, String asc,
+                                            String moleculeType,
+                                            String interactorGeneSymbol,
+                                            String interactorSpecies,
+                                            String interactorMoleculeType,
+                                            String detectionMethod,
+                                            String source,
+                                            String reference) {
+        Pagination pagination = new Pagination(1, Integer.MAX_VALUE, sortBy, asc);
+        pagination.addFieldFilter(FieldFilter.MOLECULE_TYPE, moleculeType);
+        pagination.addFieldFilter(FieldFilter.INTERACTOR_GENE_SYMBOL, interactorGeneSymbol);
+        pagination.addFieldFilter(FieldFilter.INTERACTOR_SPECIES, interactorSpecies);
+        pagination.addFieldFilter(FieldFilter.INTERACTOR_MOLECULE_TYPE, interactorMoleculeType);
+        pagination.addFieldFilter(FieldFilter.DETECTION_METHOD, detectionMethod);
+        pagination.addFieldFilter(FieldFilter.SOURCE, source);
+        pagination.addFieldFilter(FieldFilter.FREFERENCE, reference);
+        JsonResultResponse<InteractionGeneJoin> interactions = geneService.getInteractions(id, pagination);
+
+        Response.ResponseBuilder responseBuilder = Response.ok(interactionTanslator.getAllRows(interactions.getResults()));
+        APIService.setDownloadHeader(id, EntityType.GENE, EntityType.INTERACTION, responseBuilder);
+        return responseBuilder.build();
+    }
+
+    @Override
+    public JsonResultResponse<PhenotypeAnnotation> getPhenotypeAnnotations(String id, int limit, int page, String sortBy,
+                                                                           String geneticEntity,
+                                                                           String geneticEntityType,
+                                                                           String phenotype,
+                                                                           String reference,
+                                                                           String asc) {
         return getPhenotypeAnnotationDocumentJsonResultResponse(id, limit, page, sortBy, geneticEntity, geneticEntityType, phenotype, reference, asc);
     }
 
@@ -125,16 +176,21 @@ public class GeneController extends BaseController implements GeneRESTInterface 
             String geneticEntityType,
             String phenotype,
             String reference,
-            String asc) throws JsonProcessingException {
+            String asc) {
         // retrieve all records
-        JsonResultResponse<PhenotypeAnnotation> response = getPhenotypeAnnotationDocumentJsonResultResponse(id, Integer.MAX_VALUE, 1, sortBy, geneticEntity, geneticEntityType, phenotype, reference, asc);
+        JsonResultResponse<PhenotypeAnnotation> response =
+                getPhenotypeAnnotationDocumentJsonResultResponse(id, Integer.MAX_VALUE, 1, sortBy,
+                        geneticEntity,
+                        geneticEntityType,
+                        phenotype,
+                        reference,
+                        asc);
         Response.ResponseBuilder responseBuilder = Response.ok(translator.getAllRows(response.getResults()));
-        responseBuilder.type(MediaType.TEXT_PLAIN_TYPE);
-        responseBuilder.header("Content-Disposition", "attachment; filename=\"termName-annotations-" + id.replace(":", "-") + ".tsv\"");
+        APIService.setDownloadHeader(id, EntityType.GENE, EntityType.PHENOTYPE, responseBuilder);
         return responseBuilder.build();
     }
 
-    private JsonResultResponse<PhenotypeAnnotation> getPhenotypeAnnotationDocumentJsonResultResponse(String id, int limit, int page, String sortBy, String geneticEntity, String geneticEntityType, String phenotype, String reference, String asc) throws JsonProcessingException {
+    private JsonResultResponse<PhenotypeAnnotation> getPhenotypeAnnotationDocumentJsonResultResponse(String id, int limit, int page, String sortBy, String geneticEntity, String geneticEntityType, String phenotype, String reference, String asc) {
         if (sortBy.isEmpty())
             sortBy = FieldFilter.PHENOTYPE.getName();
         Pagination pagination = new Pagination(page, limit, sortBy, asc);

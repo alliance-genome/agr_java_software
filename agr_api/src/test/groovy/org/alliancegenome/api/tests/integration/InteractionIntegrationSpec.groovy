@@ -61,4 +61,22 @@ class InteractionIntegrationSpec extends AbstractSpec {
 
     }
 
+    @Unroll
+    def "Verify that the downloads endpoint has results for #gene"() {
+        when:
+        def result = getApiResultRaw("/api/gene/$gene/interactions/download")
+        def results = result.split('\n')
+
+        def resultFilter = getApiResultRaw("/api/gene/$gene/interactions/download?filter.detectionMethod=bait")
+        def resultsFilter = resultFilter.split('\n')
+
+        then:
+        results.size() > 10
+        results.size() > resultsFilter.size()
+
+        where:
+        gene << ["MGI:109583"]
+    }
+
+
 }

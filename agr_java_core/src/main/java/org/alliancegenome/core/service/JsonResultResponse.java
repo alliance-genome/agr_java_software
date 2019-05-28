@@ -26,6 +26,8 @@ public class JsonResultResponse<T> {
     @JsonView({View.Default.class})
     private String note = "";
     @JsonView({View.Default.class})
+    private String title = "";
+    @JsonView({View.Default.class})
     private String requestDuration;
     @JsonView({View.Default.class})
     private Request request;

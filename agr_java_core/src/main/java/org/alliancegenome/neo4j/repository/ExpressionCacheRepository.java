@@ -156,7 +156,7 @@ public class ExpressionCacheRepository {
     static {
         // anatomical entity
         parentTermIDs.add("UBERON:0001062");
-        // life cycle stage
+        // processual entity stage
         parentTermIDs.add("UBERON:0000000");
         // cellular Component
         parentTermIDs.add("GO:0005575");
