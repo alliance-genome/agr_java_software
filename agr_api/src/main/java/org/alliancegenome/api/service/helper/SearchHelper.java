@@ -41,7 +41,7 @@ public class SearchHelper {
                 {
                     add("species");
                     add("soTermNameAgrSlim");
-                    add("diseases");
+                    add("diseasesAgrSlim");
                     add("biologicalProcessAgrSlim");
                     add("molecularFunctionAgrSlim");
                     add("cellularComponentAgrSlim");
@@ -66,7 +66,7 @@ public class SearchHelper {
             put("allele", new ArrayList<String>() {
                 {
                     add("species");
-                    add("diseases");
+                    add("diseasesAgrSlim");
                     add("genes");
                 }
             });
@@ -129,8 +129,9 @@ public class SearchHelper {
             add("crossReferences.generic_cross_reference.name");
             add("crossReferences.generic_cross_reference.localId");
             add("genes"); add("genes.keyword"); add("genes.autocomplete"); add("genes.keywordAutocomplete");
-
             add("diseases");
+            add("diseasesAgrSlim");
+            add("diseasesWithParents");
             add("alleles"); add("alleles.text"); add("alleles.autocomplete");
             add("phenotypeStatements");
             add("strictOrthologySymbols.autocomplete");

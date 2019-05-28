@@ -21,6 +21,8 @@ public class AlleleDocumentCache extends IndexerCache {
             String id = alleleDocument.getPrimaryKey();
 
             alleleDocument.setDiseases(diseases.get(id));
+            alleleDocument.setDiseasesAgrSlim(diseasesAgrSlim.get(id));
+            alleleDocument.setDiseasesWithParents(diseasesWithParents.get(id));
             alleleDocument.setGenes(genes.get(id));
             alleleDocument.setPhenotypeStatements(phenotypeStatements.get(id));
         }
