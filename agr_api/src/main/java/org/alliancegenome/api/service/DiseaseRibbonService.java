@@ -73,10 +73,13 @@ public class DiseaseRibbonService {
             DiseaseRibbonSection section = new DiseaseRibbonSection();
             section.setLabel(names.get(0));
             section.setId(id);
+            DOTerm term = diseaseRepository.getShallowDiseaseTerm(id);
+            section.setDescription(term.getDefinition());
             DiseaseSectionSlim allSlimElement = new DiseaseSectionSlim();
             allSlimElement.setId(id);
             allSlimElement.setLabel(names.get(1));
             allSlimElement.setTypeAll();
+            allSlimElement.setDescription(term.getDefinition());
             section.addDiseaseSlim(allSlimElement);
             diseaseRibbonSummary.addRibbonSection(section);
         });
