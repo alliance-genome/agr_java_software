@@ -137,7 +137,7 @@ public class GeneController extends BaseController implements GeneRESTInterface 
                         reference,
                         asc);
         Response.ResponseBuilder responseBuilder = Response.ok(translator.getAllRows(response.getResults()));
-        APIService.setDownloadHeader(id, EntityType.GENE, responseBuilder);
+        APIService.setDownloadHeader(id, EntityType.GENE, EntityType.ALLELE, responseBuilder);
         return responseBuilder.build();
     }
 

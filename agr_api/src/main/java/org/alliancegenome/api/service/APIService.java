@@ -10,10 +10,13 @@ import java.util.Date;
 
 public class APIService {
 
-    public static String getFileName(String title, String id) {
+    public static String getFileName(String title, String id, EntityType collectionType) {
         String fileName = title;
         fileName += "-";
         fileName += id;
+        fileName += "-";
+        // make the entity name plural
+        fileName += collectionType.toString() + "s";
         fileName += "-";
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         fileName += dateFormat.format(new Date());
@@ -21,9 +24,9 @@ public class APIService {
         return fileName;
     }
 
-    public static void setDownloadHeader(String id, EntityType type, Response.ResponseBuilder responseBuilder) {
+    public static void setDownloadHeader(String id, EntityType type, EntityType collectionType, Response.ResponseBuilder responseBuilder) {
         String title = getEntityName(id, type);
-        String fileName = APIService.getFileName(title, id);
+        String fileName = APIService.getFileName(title, id, collectionType);
         responseBuilder.header("Content-Disposition", "attachment; filename=\"" + fileName + "\"");
         responseBuilder.type(MediaType.TEXT_PLAIN_TYPE);
     }
