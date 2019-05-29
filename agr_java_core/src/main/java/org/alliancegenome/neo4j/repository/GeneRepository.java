@@ -124,7 +124,7 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         map.put(FieldFilter.GENE_NAME, (join, filterValue) -> join.getGene().getSymbol().toLowerCase().contains(filterValue.toLowerCase()));
         map.put(FieldFilter.TERM_NAME, (join, filterValue) -> join.getEntity().getWhereExpressedStatement().toLowerCase().contains(filterValue.toLowerCase()));
         map.put(FieldFilter.STAGE, (join, filterValue) -> join.getStage().getPrimaryKey().toLowerCase().contains(filterValue.toLowerCase()));
-        map.put(FieldFilter.ASSAY, (join, filterValue) -> join.getAssay().getDisplay_synonym().toLowerCase().contains(filterValue.toLowerCase()));
+        map.put(FieldFilter.ASSAY, (join, filterValue) -> join.getAssay().getDisplaySynonym().toLowerCase().contains(filterValue.toLowerCase()));
         map.put(FieldFilter.FREFERENCE, (join, filterValue) -> join.getPublications().getPubId().toLowerCase().contains(filterValue.toLowerCase()));
         map.put(FieldFilter.SOURCE, (join, filterValue) -> join.getCrossReference().getDisplayName().toLowerCase().contains(filterValue.toLowerCase()));
 
