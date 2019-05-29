@@ -102,6 +102,8 @@ public class DiseaseService {
             Map<String, List<DiseaseAnnotation>> histogram = getDiseaseAnnotationHistogram(paginationResult);
 
             Gene gene = geneRepository.getShallowGene(geneID);
+            if (gene == null)
+                return;
             // populate diseaseEntity records
             populateDiseaseRibbonSummary(geneID, summary, histogram, gene);
             summary.addAllAnnotationsCount(geneID, paginationResult.getTotalNumber());
