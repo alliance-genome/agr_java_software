@@ -20,7 +20,7 @@ public class GOTerm extends Ontology {
     private String href;
     private String type;
     private String primaryKey;
-    private String is_obsolete;
+    private String isObsolete;
     private List<String> subset;
 
     @Relationship(type = "ANNOTATED_TO", direction=Relationship.INCOMING)

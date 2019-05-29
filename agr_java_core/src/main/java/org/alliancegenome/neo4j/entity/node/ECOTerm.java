@@ -19,7 +19,7 @@ public class ECOTerm extends SimpleTerm {
     @JsonView({View.DiseaseAPI.class})
     private String definition;
 
-    private String is_obsolete;
+    private String isObsolete;
 
     @Relationship(type = "ASSOCIATION", direction = Relationship.INCOMING)
     private List<PublicationEvidenceCodeJoin> publicationEntityJoins;

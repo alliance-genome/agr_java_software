@@ -44,7 +44,7 @@ public class DOTerm extends SimpleTerm {
     private List<String> subset;
 
     private String nameKey;
-    private String is_obsolete;
+    private String isObsolete;
 
     @Convert(value = DateConverter.class)
     private Date dateProduced;

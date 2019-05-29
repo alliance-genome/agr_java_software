@@ -20,12 +20,11 @@ public class MMOTerm extends Ontology {
     @JsonView(View.Expression.class)
     private String name;
     @JsonView(View.Expression.class)
-    @JsonProperty(value = "displaySynonym")
-    private String display_synonym;
+    private String displaySynonym;
 
     @Override
     public String toString() {
-        return display_synonym + " [" + primaryKey + "]";
+        return displaySynonym + " [" + primaryKey + "]";
     }
 
     @Override

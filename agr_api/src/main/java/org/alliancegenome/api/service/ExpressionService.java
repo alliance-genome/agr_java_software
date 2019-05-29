@@ -216,7 +216,7 @@ public class ExpressionService {
             rowJoiner.add(expressionDetail.getGene().getModGlobalId());
             rowJoiner.add(expressionDetail.getTermName());
             rowJoiner.add(expressionDetail.getStage().getPrimaryKey());
-            rowJoiner.add(expressionDetail.getAssay().getDisplay_synonym());
+            rowJoiner.add(expressionDetail.getAssay().getDisplaySynonym());
             //rowJoiner.add(expressionDetail.getCrossReferences().stream().map(CrossReference::getDisplayName).collect(Collectors.joining(",")));
             rowJoiner.add(expressionDetail.getPublications().stream().map(Publication::getPubId).collect(Collectors.joining(",")));
             builder.append(rowJoiner.toString());

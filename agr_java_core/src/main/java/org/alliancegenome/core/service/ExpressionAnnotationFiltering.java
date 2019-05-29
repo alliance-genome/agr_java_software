@@ -15,7 +15,7 @@ public class ExpressionAnnotationFiltering extends AnnotationFiltering {
             (annotation, value) -> FilterFunction.contains(annotation.getTermName(), value);
 
     private static FilterFunction<ExpressionDetail, String> assayFilter =
-            (annotation, value) -> FilterFunction.contains(annotation.getAssay().getDisplay_synonym(), value);
+            (annotation, value) -> FilterFunction.contains(annotation.getAssay().getDisplaySynonym(), value);
 
     private static FilterFunction<ExpressionDetail, String> stageFilter =
             (annotation, value) -> FilterFunction.contains(annotation.getStage().getName(), value);

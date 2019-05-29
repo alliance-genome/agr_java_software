@@ -69,7 +69,7 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
     //
 
     public Set<String> getAllDiseaseWithAnnotationsKeys() {
-        String query = "MATCH (term:DOTerm)-[q:ASSOCIATION]-(dej:DiseaseEntityJoin) WHERE term.is_obsolete='false' " +
+        String query = "MATCH (term:DOTerm)-[q:ASSOCIATION]-(dej:DiseaseEntityJoin) WHERE term.isObsolete='false' " +
                 " RETURN term.primaryKey";
 
         Result r = queryForResult(query);
@@ -133,7 +133,7 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
         if (closureMap != null)
             return closureMap;
         //closure
-        String cypher = "MATCH (diseaseParent:DOTerm)<-[:IS_A_PART_OF_CLOSURE]-(disease:DOTerm) where diseaseParent.is_obsolete = 'false' " +
+        String cypher = "MATCH (diseaseParent:DOTerm)<-[:IS_A_PART_OF_CLOSURE]-(disease:DOTerm) where diseaseParent.isObsolete = 'false' " +
                 " return diseaseParent.primaryKey as parent, disease.primaryKey as child ";
 
         List<Closure> cls = getClosures(cypher);
@@ -153,7 +153,7 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
         if (closureMapUberon != null)
             return closureMapUberon;
         //closure
-        String cypher = "MATCH (uberonParent:UBERONTerm)<-[:IS_A_PART_OF_CLOSURE]-(uberon:UBERONTerm) where uberonParent.is_obsolete = 'false' ";
+        String cypher = "MATCH (uberonParent:UBERONTerm)<-[:IS_A_PART_OF_CLOSURE]-(uberon:UBERONTerm) where uberonParent.isObsolete = 'false' ";
         cypher += " return uberonParent.primaryKey as parent, uberon.primaryKey as child ";
 
         List<Closure> cls = getClosures(cypher);
@@ -169,7 +169,7 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
         if (closureMapGO != null)
             return closureMapGO;
         //closure
-        String cypher = "MATCH (goParent:GOTerm)<-[:IS_A_PART_OF_CLOSURE]-(go:GOTerm) where goParent.is_obsolete = 'false' ";
+        String cypher = "MATCH (goParent:GOTerm)<-[:IS_A_PART_OF_CLOSURE]-(go:GOTerm) where goParent.isObsolete = 'false' ";
         cypher += " return goParent.primaryKey as parent, go.primaryKey as child ";
 
         List<Closure> cls = getClosures(cypher);
@@ -198,7 +198,7 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
         if (closureChildMap != null)
             return closureChildMap;
         //closure
-        String cypher = "MATCH (diseaseParent:DOTerm)<-[:IS_A_PART_OF_CLOSURE]-(disease:DOTerm) where diseaseParent.is_obsolete = 'false' " +
+        String cypher = "MATCH (diseaseParent:DOTerm)<-[:IS_A_PART_OF_CLOSURE]-(disease:DOTerm) where diseaseParent.isObsolete = 'false' " +
                 " return diseaseParent.primaryKey as parent, disease.primaryKey as child order by disease.name";
 
         List<Closure> cls = getClosures(cypher);
@@ -306,7 +306,7 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
         String cypher = "MATCH p=(disease:DOTerm)--(diseaseEntityJoin:DiseaseEntityJoin)<-[:ASSOCIATION]-(gene:Gene)--(species:Species)," +
                 "              p2=(diseaseEntityJoin:DiseaseEntityJoin)-[:EVIDENCE]->(pubEvCode:PublicationEvidenceCodeJoin)," +
                 "              p3=(publication:Publication)-[:ASSOCIATION]->(pubEvCode:PublicationEvidenceCodeJoin)";
-        cypher += " where disease.is_obsolete = 'false' ";
+        cypher += " where disease.isObsolete = 'false' ";
         //cypher += " where disease.primaryKey = 'DOID:1838' ";
         cypher += "        OPTIONAL MATCH p1=(diseaseEntityJoin:DiseaseEntityJoin)--(feature:Feature)--(crossReference:CrossReference) " +
                 "        OPTIONAL MATCH p4=(diseaseEntityJoin:DiseaseEntityJoin)-[:FROM_ORTHOLOGOUS_GENE]-(orthoGene:Gene)-[:FROM_SPECIES]-(orthoSpecies:Species) " +

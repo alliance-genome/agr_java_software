@@ -33,7 +33,7 @@ public class ExpressionToTdfTranslator {
             }
             joiner.add(expressionDetail.getTermName());
             joiner.add(expressionDetail.getStage().getName());
-            joiner.add(expressionDetail.getAssay().getDisplay_synonym());
+            joiner.add(expressionDetail.getAssay().getDisplaySynonym());
             joiner.add(expressionDetail.getDataProvider());
             // add list of publications
             String publications = "";

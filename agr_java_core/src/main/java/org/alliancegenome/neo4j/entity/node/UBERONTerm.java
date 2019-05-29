@@ -24,7 +24,7 @@ public class UBERONTerm extends Ontology {
     private String type;
     @JsonView(View.Expression.class)
     private String primaryKey;
-    private String is_obsolete;
+    private String isObsolete;
     private List<String> subset;
 
     @Relationship(type = "ANNOTATED_TO", direction=Relationship.INCOMING)
