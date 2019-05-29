@@ -117,6 +117,7 @@ public class DiseaseRibbonService {
                 DiseaseSectionSlim slim = new DiseaseSectionSlim();
                 slim.setId(doTerm.getPrimaryKey());
                 slim.setLabel(doTerm.getName());
+                slim.setDescription(doTerm.getDefinition());
                 diseaseRibbonSummary.getOtherSection().addDiseaseSlim(slim);
             }
         });

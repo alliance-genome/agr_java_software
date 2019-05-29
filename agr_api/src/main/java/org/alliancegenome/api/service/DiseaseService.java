@@ -94,8 +94,10 @@ public class DiseaseService {
         // loop over all genes provided
         geneIDs.forEach(geneID -> {
             PaginationResult<DiseaseAnnotation> paginationResult = diseaseCacheRepository.getDiseaseAnnotationList(geneID, pagination, true);
-            if(paginationResult == null)
-                return;
+            if (paginationResult == null) {
+                paginationResult = new PaginationResult<>();
+                paginationResult.setTotalNumber(0);
+            }
             // calculate histogram
             Map<String, List<DiseaseAnnotation>> histogram = getDiseaseAnnotationHistogram(paginationResult);
 
@@ -147,6 +149,8 @@ public class DiseaseService {
 
     private Map<String, List<DiseaseAnnotation>> getDiseaseAnnotationHistogram(PaginationResult<DiseaseAnnotation> paginationResult) {
         Map<String, List<DiseaseAnnotation>> histogram = new HashMap<>();
+        if (paginationResult.getResult() == null)
+            return histogram;
         paginationResult.getResult().forEach(annotation -> {
             Set<String> slimIds = diseaseRibbonService.getSlimId(annotation.getDisease().getPrimaryKey());
             slimIds.forEach(slimId -> {
