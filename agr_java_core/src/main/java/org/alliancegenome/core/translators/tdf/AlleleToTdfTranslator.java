@@ -2,7 +2,9 @@ package org.alliancegenome.core.translators.tdf;
 
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.neo4j.entity.node.Allele;
+import org.alliancegenome.neo4j.entity.node.SimpleTerm;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.StringJoiner;
 
@@ -36,7 +38,7 @@ public class AlleleToTdfTranslator {
             String disease = "";
             if (allele.getDiseases() != null) {
                 StringJoiner diseaseJoiner = new StringJoiner(",");
-                allele.getDiseases().forEach(diseaseTerm -> diseaseJoiner.add(diseaseTerm.getName()));
+                allele.getDiseases().stream().sorted(Comparator.comparing(SimpleTerm::getName)).forEach(diseaseTerm -> diseaseJoiner.add(diseaseTerm.getName()));
                 disease = diseaseJoiner.toString();
             }
             joiner.add(disease);
