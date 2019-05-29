@@ -20,9 +20,9 @@ public class OrthologView {
     private Gene homologGene;
 
     @JsonView(View.Orthology.class)
-    private boolean best;
+    private String best;
     @JsonView(View.Orthology.class)
-    private boolean bestReverse;
+    private String bestReverse;
     @JsonView(View.Orthology.class)
     private String stringencyFilter = "all";
 
