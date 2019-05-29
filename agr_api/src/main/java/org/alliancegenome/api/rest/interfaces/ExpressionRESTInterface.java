@@ -60,15 +60,13 @@ public interface ExpressionRESTInterface {
     Response getExpressionAnnotationsDownload(
             @QueryParam("geneID") List<String> geneIDs,
             @QueryParam("termID") String termID,
-            @QueryParam("containsFilterValue.species") String filterSpecies,
-            @QueryParam("containsFilterValue.gene") String filterGene,
-            @QueryParam("containsFilterValue.stage") String filterStage,
-            @QueryParam("containsFilterValue.assay") String filterAssay,
-            @QueryParam("containsFilterValue.reference") String filterReference,
-            @QueryParam("containsFilterValue.term") String filterTerm,
-            @QueryParam("containsFilterValue.source") String filterSource,
-            @DefaultValue("20") @QueryParam("limit") int limit,
-            @DefaultValue("1") @QueryParam("page") int page,
+            @QueryParam("filter.species") String filterSpecies,
+            @QueryParam("filter.gene") String filterGene,
+            @QueryParam("filter.stage") String filterStage,
+            @QueryParam("filter.assay") String filterAssay,
+            @QueryParam("filter.reference") String filterReference,
+            @QueryParam("filter.term") String filterTerm,
+            @QueryParam("filter.source") String filterSource,
             @QueryParam("sortBy") String sortBy,
             @QueryParam("asc") String asc
     );

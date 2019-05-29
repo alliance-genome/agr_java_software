@@ -84,4 +84,21 @@ class ExpressionIntegrationSpec extends AbstractSpec {
         "MGI:109583" | 5         | "daf-18,Pten,Pten,ptena,ptenb,TEP1"
     }
 
+    @Unroll
+    def "Verify that the downloads endpoint has results for #gene"() {
+        when:
+        def result = getApiResultRaw("/api/expression/download?geneID=$gene")
+        def results = result.split('\n')
+
+        def resultFilter = getApiResultRaw("/api/expression/download?geneID=$gene&filter.term=ton")
+        def resultsFilter = resultFilter.split('\n')
+
+        then:
+        results.size() > 10
+        results.size() > resultsFilter.size()
+
+        where:
+        gene << ["MGI:109583"]
+    }
+
 }

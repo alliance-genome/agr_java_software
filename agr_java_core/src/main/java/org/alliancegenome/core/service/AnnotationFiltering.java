@@ -16,7 +16,7 @@ public abstract class AnnotationFiltering {
 /*
 
     static {
-        filterFieldMap.put(FieldFilter.INTERACTOR_MOLECULE_TYPE, interactorMoleculeTypeFilter);
+        filterFieldMap.put(FieldFilter.MOLECULE_TYPE, interactorMoleculeTypeFilter);
         filterFieldMap.put(FieldFilter.INTERACTOR_GENE_SYMBOL, interactorGeneSymbolFilter);
         filterFieldMap.put(FieldFilter.FREFERENCE, referenceFilter);
         filterFieldMap.put(FieldFilter.SOURCE, sourceFilter);

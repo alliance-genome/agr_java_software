@@ -80,7 +80,7 @@ public class InteractionAnnotationSorting implements Sorting<InteractionGeneJoin
         switch (field) {
             case INTERACTOR_GENE_SYMBOL:
                 return getJoinedComparator(defaultList);
-            case INTERACTOR_MOLECULE_TYPE:
+            case MOLECULE_TYPE:
                 return getJoinedComparator(moleculeList);
             case INTERACTOR_SPECIES:
                 return getJoinedComparator(interactorSpeciesList);
