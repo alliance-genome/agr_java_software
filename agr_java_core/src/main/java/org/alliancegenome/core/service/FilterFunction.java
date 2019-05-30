@@ -37,7 +37,7 @@ public interface FilterFunction<Entity, FilterValue> {
         cleanedValues.removeIf(String::isEmpty);
         if (cleanedValues.isEmpty())
             return true;
-        return cleanedValues.contains(entity);
+        return cleanedValues.contains(entity.toLowerCase());
     }
 
 

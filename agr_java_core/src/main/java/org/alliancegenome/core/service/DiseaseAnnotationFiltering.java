@@ -36,7 +36,7 @@ public class DiseaseAnnotationFiltering {
             (annotation, value) -> FilterFunction.contains(annotation.getGene().getSymbol(), value);
 
     public static FilterFunction<DiseaseAnnotation, String> geneSpeciesFilter =
-            (annotation, value) -> FilterFunction.contains(annotation.getGene().getSpecies().getName(), value);
+            (annotation, value) -> FilterFunction.fullMatchMultiValueOR(annotation.getGene().getSpecies().getName(), value);
 
     public static FilterFunction<DiseaseAnnotation, String> evidenceCodeFilter =
             (annotation, value) -> {
