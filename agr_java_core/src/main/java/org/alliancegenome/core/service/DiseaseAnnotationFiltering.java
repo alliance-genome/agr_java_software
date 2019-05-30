@@ -24,7 +24,7 @@ public class DiseaseAnnotationFiltering {
             };
 
     public static FilterFunction<DiseaseAnnotation, String> associationFilter =
-            (annotation, value) -> FilterFunction.contains(annotation.getAssociationType(), value);
+            (annotation, value) -> FilterFunction.fullMatchMultiValueOR(annotation.getAssociationType(), value);
 
     public static FilterFunction<DiseaseAnnotation, String> sourceFilter =
             (annotation, value) -> FilterFunction.contains(annotation.getSource().getName(), value);
