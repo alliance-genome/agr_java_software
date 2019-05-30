@@ -45,8 +45,8 @@ public class OrthologyService {
                 Orthologous orth = lookup.get(join.getPrimaryKey());
                 OrthologyDoclet doc = new OrthologyDoclet(
                         orth.getPrimaryKey(),
-                        orth.isBestScore(),
-                        orth.isBestRevScore(),
+                        orth.getIsBestScore(),
+                        orth.getIsBestRevScore(),
                         orth.getConfidence(),
                         orth.getGene1().getSpecies() == null ? null : orth.getGene1().getSpecies().getPrimaryKey(),
                         orth.getGene2().getSpecies() == null ? null : orth.getGene2().getSpecies().getPrimaryKey(),
@@ -129,8 +129,8 @@ public class OrthologyService {
                         view.setGene(gene);
                         //ortho.getGene2().setSpeciesName(ortho.getGene2().getSpecies() == null ? null : ortho.getGene2().getSpecies().getName());
                         view.setHomologGene(ortho.getGene2());
-                        view.setBest(ortho.isBestScore());
-                        view.setBestReverse(ortho.isBestRevScore());
+                        view.setBest(ortho.getIsBestScore());
+                        view.setBestReverse(ortho.getIsBestRevScore());
                         if (ortho.isStrictFilter()) {
                             view.setStringencyFilter("stringent");
                         } else if (ortho.isModerateFilter()) {

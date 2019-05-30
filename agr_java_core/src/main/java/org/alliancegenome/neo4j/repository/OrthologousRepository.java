@@ -73,8 +73,8 @@ public class OrthologousRepository extends Neo4jRepository<Orthologous> {
             Gene homologGene = (Gene) objectMap.get("gh");
             view.setHomologGene(homologGene);
 
-            view.setBest(((List<Orthologous>) objectMap.get("collect(distinct ortho)")).get(0).isBestScore());
-            view.setBestReverse(((List<Orthologous>) objectMap.get("collect(distinct ortho)")).get(0).isBestRevScore());
+            view.setBest(((List<Orthologous>) objectMap.get("collect(distinct ortho)")).get(0).getIsBestScore());
+            view.setBestReverse(((List<Orthologous>) objectMap.get("collect(distinct ortho)")).get(0).getIsBestRevScore());
 
             setPredictionInfo(objectMap, view);
             orthologViews.add(view);

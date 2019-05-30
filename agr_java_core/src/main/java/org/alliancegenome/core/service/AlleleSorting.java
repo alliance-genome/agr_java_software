@@ -2,38 +2,47 @@ package org.alliancegenome.core.service;
 
 import org.alliancegenome.neo4j.entity.Sorting;
 import org.alliancegenome.neo4j.entity.node.Allele;
+import org.alliancegenome.neo4j.entity.node.SimpleTerm;
+import org.apache.commons.collections4.CollectionUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static java.util.Comparator.naturalOrder;
 
 public class AlleleSorting implements Sorting<Allele> {
 
+    private List<Comparator<Allele>> defaultList;
+    private List<Comparator<Allele>> diseaseList;
+
+    public AlleleSorting() {
+        super();
+
+        defaultList = new ArrayList<>(2);
+        defaultList.add(alleleSymbolOrder);
+
+        diseaseList = new ArrayList<>(2);
+        diseaseList.add(diseaseOrder);
+        diseaseList.add(alleleSymbolOrder);
+
+    }
 
     public Comparator<Allele> getComparator(SortingField field, Boolean ascending) {
         if (field == null)
-            return getDefaultComparator();
+            return getJoinedComparator(defaultList);
 
-        List<Comparator<Allele>> comparatorList = new ArrayList<>();
-        Comparator<Allele> comparator = sortingFieldMap.get(field);
-        if (!ascending)
-            comparator = comparator.reversed();
-        comparatorList.add(comparator);
-        sortingFieldMap.keySet().stream()
-                // default ordering of phylogenetic and experiment / orthology should not be used.
-                // only used for the first time sorting. Any subsequent sorting will ignore that
-                .skip(2)
-                .filter(sortingField -> !sortingField.equals(field))
-                .forEach(sortingField -> comparatorList.add(sortingFieldMap.get(sortingField)));
-
-        return getJoinedComparator(comparatorList);
-    }
-
-    public Comparator<Allele> getDefaultComparator() {
-        List<Comparator<Allele>> comparatorList = new ArrayList<>();
-        comparatorList.add(alleleSymbolOrder);
-
-        return getJoinedComparator(comparatorList);
+        switch (field) {
+            case DEFAULT:
+                return getJoinedComparator(defaultList);
+            case ALLELESYMBOL:
+                return getJoinedComparator(defaultList);
+            case DISEASE:
+                return getJoinedComparator(diseaseList);
+            default:
+                return getJoinedComparator(defaultList);
+        }
     }
 
     static public Comparator<Allele> alleleSymbolOrder =
@@ -43,10 +52,12 @@ public class AlleleSorting implements Sorting<Allele> {
                 return allele.getSymbolText().toLowerCase();
             }, Comparator.nullsLast(naturalOrder()));
 
-    private static Map<SortingField, Comparator<Allele>> sortingFieldMap = new LinkedHashMap<>();
-
-    static {
-        sortingFieldMap.put(SortingField.SYMBOL, alleleSymbolOrder);
-    }
+    static public Comparator<Allele> diseaseOrder =
+            Comparator.comparing(allele -> {
+                if (CollectionUtils.isEmpty(allele.getDiseases()))
+                    return null;
+                String diseaseJoin = allele.getDiseases().stream().sorted(Comparator.comparing(SimpleTerm::getName)).map(SimpleTerm::getName).collect(Collectors.joining(""));
+                return diseaseJoin.toLowerCase();
+            }, Comparator.nullsLast(naturalOrder()));
 
 }

@@ -16,9 +16,9 @@ public class OrthologyDoclet extends ESDoclet {
     
     private String primaryKey;
     @JsonView(View.Orthology.class)
-    private Boolean isBestScore;
+    private String isBestScore;
     @JsonView(View.Orthology.class)
-    private Boolean isBestRevScore;
+    private String isBestRevScore;
     private String confidence;
 
     private String gene1Species;

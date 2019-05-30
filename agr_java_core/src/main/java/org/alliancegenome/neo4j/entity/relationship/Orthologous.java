@@ -27,9 +27,9 @@ public class Orthologous extends Neo4jEntity {
 
     private String primaryKey;
     @JsonView(View.Orthology.class)
-    private boolean isBestRevScore;
+    private String isBestRevScore;
     @JsonView(View.Orthology.class)
-    private boolean isBestScore;
+    private String isBestScore;
     private String confidence;
     private boolean moderateFilter;
     private boolean strictFilter;
