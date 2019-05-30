@@ -12,16 +12,16 @@ public class InteractionAnnotationFiltering extends AnnotationFiltering {
 
 
     private static FilterFunction<InteractionGeneJoin, String> interactorMoleculeTypeFilter =
-            (annotation, value) -> FilterFunction.contains(annotation.getInteractorBType().getDisplayName(), value);
+            (annotation, value) -> FilterFunction.fullMatchMultiValueOR(annotation.getInteractorBType().getDisplayName(), value);
 
     private static FilterFunction<InteractionGeneJoin, String> moleculeTypeFilter =
-            (annotation, value) -> FilterFunction.contains(annotation.getInteractorAType().getDisplayName(), value);
+            (annotation, value) -> FilterFunction.fullMatchMultiValueOR(annotation.getInteractorAType().getDisplayName(), value);
 
     private static FilterFunction<InteractionGeneJoin, String> interactorGeneSymbolFilter =
             (annotation, value) -> FilterFunction.contains(annotation.getGeneB().getSymbol(), value);
 
     private static FilterFunction<InteractionGeneJoin, String> speciesFilter =
-            (annotation, value) -> FilterFunction.contains(annotation.getGeneB().getSpecies().getName(), value);
+            (annotation, value) -> FilterFunction.fullMatchMultiValueOR(annotation.getGeneB().getSpecies().getName(), value);
 
     private static FilterFunction<InteractionGeneJoin, String> referenceFilter =
             (annotation, value) -> FilterFunction.contains(annotation.getPublication().getPubId(), value);

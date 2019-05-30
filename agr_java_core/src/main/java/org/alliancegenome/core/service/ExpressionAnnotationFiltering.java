@@ -10,6 +10,11 @@ import java.util.stream.Collectors;
 
 public class ExpressionAnnotationFiltering extends AnnotationFiltering {
 
+    private static FilterFunction<ExpressionDetail, String> speciesFilter =
+            (annotation, value) -> FilterFunction.fullMatchMultiValueOR(annotation.getGene().getSpecies().getName(), value);
+
+    private static FilterFunction<ExpressionDetail, String> geneNameFilter =
+            (annotation, value) -> FilterFunction.contains(annotation.getGene().getSymbol(), value);
 
     private static FilterFunction<ExpressionDetail, String> filterTermFilter =
             (annotation, value) -> FilterFunction.contains(annotation.getTermName(), value);
@@ -37,6 +42,8 @@ public class ExpressionAnnotationFiltering extends AnnotationFiltering {
     public static Map<FieldFilter, FilterFunction<ExpressionDetail, String>> filterFieldMap = new HashMap<>();
 
     static {
+        filterFieldMap.put(FieldFilter.FSPECIES, speciesFilter);
+        filterFieldMap.put(FieldFilter.GENE_NAME, geneNameFilter);
         filterFieldMap.put(FieldFilter.TERM_NAME, filterTermFilter);
         filterFieldMap.put(FieldFilter.ASSAY, assayFilter);
         filterFieldMap.put(FieldFilter.STAGE, stageFilter);
