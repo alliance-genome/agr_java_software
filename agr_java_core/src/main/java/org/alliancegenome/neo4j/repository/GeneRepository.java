@@ -1,7 +1,6 @@
 package org.alliancegenome.neo4j.repository;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.entity.node.*;
@@ -178,13 +177,27 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         StringJoiner geneJoiner = new StringJoiner(",", "[", "]");
         geneIDs.forEach(geneID -> geneJoiner.add("'" + geneID + "'"));
 
-        String query = " MATCH p1=(q:Species)-[:FROM_SPECIES]-(g:Gene)--(s) WHERE g.primaryKey in " + geneJoiner;
-        query += " OPTIONAL MATCH p4=(g)--(s:OrthologyGeneJoin)--(a:OrthoAlgorithm), p3=(g)-[o:ORTHOLOGOUS]-(g2:Gene)-[:FROM_SPECIES]-(q2:Species), (s)--(g2)";
-        query += " RETURN p1, p3, p4";
+        //String query = " MATCH p1=(q:Species)-[:FROM_SPECIES]-(g:Gene)--(s) WHERE g.primaryKey in " + geneJoiner;
+        String query = " MATCH p1=(q:Species)<-[:FROM_SPECIES]-(g:Gene)--(s:OrthologyGeneJoin)--(a:OrthoAlgorithm), " +
+                "p3=(g:Gene)-[o:ORTHOLOGOUS]-(g2:Gene)-[:FROM_SPECIES]->(q2:Species) WHERE g.primaryKey in " + geneJoiner;
+        query += " RETURN p1, p3";
 
         Iterable<Gene> genes = query(query, map);
         List<Gene> geneList = StreamSupport.stream(genes.spliterator(), false)
                 .filter(gene -> geneIDs.contains(gene.getPrimaryKey()))
+                .collect(Collectors.toList());
+
+        return geneList;
+    }
+
+    public List<Gene> getAllOrthologyGenes() {
+        HashMap<String, String> map = new HashMap<>();
+
+        String query = " MATCH p1=(q:Species)<-[:FROM_SPECIES]-(g:Gene)-[o:ORTHOLOGOUS]->(g2:Gene)-[:FROM_SPECIES]->(q2:Species)";
+        query += " RETURN p1 ";
+
+        Iterable<Gene> genes = query(query, map);
+        List<Gene> geneList = StreamSupport.stream(genes.spliterator(), false)
                 .collect(Collectors.toList());
 
         return geneList;
