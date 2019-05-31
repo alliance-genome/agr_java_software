@@ -81,6 +81,14 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
         geneDocumentCache.setDiseases(getDiseasesMap(species));
 
         checkMemory();
+        log.info("Building gene -> diseasesAgrSlim map");
+        geneDocumentCache.setDiseasesAgrSlim(getDiseasesAgrSlimMap(species));
+
+        checkMemory();
+        log.info("Building gene -> diseasesWithParents map");
+        geneDocumentCache.setDiseasesWithParents(getDiseasesWithParents(species));
+
+        checkMemory();
         log.info("Building gene -> phenotypeStatement map");
         geneDocumentCache.setPhenotypeStatements(getPhenotypeStatementMap(species));
 
@@ -190,6 +198,28 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
         return getMapSetForQuery(query, "gene.primaryKey", "disease.nameKey", getSpeciesParams(species));
     }
 
+    private Map<String, Set<String>> getDiseasesAgrSlimMap(String species) {
+        String query = "MATCH (species:Species)--(gene:Gene)-[:IS_IMPLICATED_IN]-(:DOTerm)-[:IS_A_PART_OF_CLOSURE]->(disease:DOTerm) ";
+        query += " WHERE disease.subset =~ '.*DO_AGR_slim.*' ";
+        if (StringUtils.isNotEmpty(species)) {
+            query += " AND species.name = {species} ";
+        }
+        query += " RETURN distinct gene.primaryKey, disease.nameKey ";
+
+        Map<String,String> params = new HashMap<String,String>();
+        if (StringUtils.isNotEmpty(species)) {
+            params.put("species",species);
+        }
+        return getMapSetForQuery(query, "gene.primaryKey", "disease.nameKey", params);
+    }
+
+    private Map<String, Set<String>> getDiseasesWithParents(String species) {
+        String query = "MATCH (species:Species)--(gene:Gene)-[:IS_IMPLICATED_IN]-(:DOTerm)-[:IS_A_PART_OF_CLOSURE]->(disease:DOTerm) ";
+        query += getSpeciesWhere(species);
+        query += " RETURN distinct gene.primaryKey, disease.nameKey ";
+
+        return getMapSetForQuery(query, "gene.primaryKey", "disease.nameKey", getSpeciesParams(species));
+    }
 
     private Map<String,Set<String>> getPhenotypeStatementMap(String species) {
         String query = "MATCH (species:Species)--(gene:Gene)--(phenotype:Phenotype) ";

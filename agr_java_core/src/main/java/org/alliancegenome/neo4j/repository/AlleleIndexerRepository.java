@@ -6,6 +6,7 @@ import java.util.Set;
 
 import org.alliancegenome.es.index.site.cache.AlleleDocumentCache;
 import org.alliancegenome.neo4j.entity.node.Allele;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -46,6 +47,13 @@ public class AlleleIndexerRepository extends Neo4jRepository {
 
         log.info("Building allele -> diseases map");
         alleleDocumentCache.setDiseases(getDiseaseMap(species));
+
+        log.info("Building allele -> diseasesAgrSlim map");
+        alleleDocumentCache.setDiseasesAgrSlim(getDiseasesAgrSlimMap(species));
+
+        log.info("Building allele -> diseasesWithParents map");
+        alleleDocumentCache.setDiseasesWithParents(getDiseasesWithParents(species));
+
         log.info("Building allele -> genes map");
         alleleDocumentCache.setGenes(getGenesMap(species));
         log.info("Building allele -> phenotype statements map");
@@ -57,6 +65,31 @@ public class AlleleIndexerRepository extends Neo4jRepository {
 
     public Map<String, Set<String>> getDiseaseMap(String species) {
         String query = "MATCH (species:Species)--(:Gene)-[:IS_ALLELE_OF]-(a:Allele)--(disease:DOTerm) ";
+        query += getSpeciesWhere(species);
+        query += " RETURN a.primaryKey, disease.nameKey ";
+
+        return getMapSetForQuery(query, "a.primaryKey", "disease.nameKey", getSpeciesParams(species));
+    }
+
+
+    public Map<String, Set<String>> getDiseasesAgrSlimMap(String species) {
+        String query = "MATCH (species:Species)--(:Gene)-[:IS_ALLELE_OF]-(a:Allele)--(:DOTerm)-[:IS_A_PART_OF_CLOSURE]->(disease:DOTerm)";
+        query += " WHERE disease.subset =~ '.*DO_AGR_slim.*' ";
+        if (StringUtils.isNotEmpty(species)) {
+            query += " AND species.name = {species} ";
+        }
+        query += " RETURN a.primaryKey, disease.nameKey ";
+
+        Map<String,String> params = new HashMap<String,String>();
+        if (StringUtils.isNotEmpty(species)) {
+            params.put("species",species);
+        }
+
+        return getMapSetForQuery(query, "a.primaryKey", "disease.nameKey", params);
+    }
+
+    public Map<String, Set<String>> getDiseasesWithParents(String species) {
+        String query = "MATCH (species:Species)--(:Gene)-[:IS_ALLELE_OF]-(a:Allele)--(:DOTerm)-[:IS_A_PART_OF_CLOSURE]->(disease:DOTerm)";
         query += getSpeciesWhere(species);
         query += " RETURN a.primaryKey, disease.nameKey ";
 

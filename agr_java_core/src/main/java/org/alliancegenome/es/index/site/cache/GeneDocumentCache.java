@@ -48,6 +48,8 @@ public class GeneDocumentCache extends IndexerCache {
             geneDocument.setAlleles(alleles.get(id));
             geneDocument.setStrictOrthologySymbols(strictOrthologySymbols.get(id));
             geneDocument.setDiseases(diseases.get(id));
+            geneDocument.setDiseasesAgrSlim(diseasesAgrSlim.get(id));
+            geneDocument.setDiseasesWithParents(diseasesWithParents.get(id));
 
             geneDocument.setBiologicalProcessWithParents(biologicalProcessWithParents.get(id));
             geneDocument.setBiologicalProcessAgrSlim(biologicalProcessAgrSlim.get(id));
