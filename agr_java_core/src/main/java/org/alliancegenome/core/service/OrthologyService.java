@@ -1,28 +1,27 @@
 package org.alliancegenome.core.service;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.stream.Collectors;
-
+import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.Getter;
+import lombok.Setter;
 import org.alliancegenome.es.index.site.doclet.OrthologyDoclet;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.entity.node.OrthoAlgorithm;
 import org.alliancegenome.neo4j.entity.node.OrthologyGeneJoin;
 import org.alliancegenome.neo4j.entity.relationship.Orthologous;
+import org.alliancegenome.neo4j.repository.GeneCacheRepository;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.alliancegenome.neo4j.view.OrthologView;
 import org.alliancegenome.neo4j.view.OrthologyFilter;
 import org.alliancegenome.neo4j.view.OrthologyModule;
 import org.alliancegenome.neo4j.view.View;
 
-import com.fasterxml.jackson.annotation.JsonView;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import lombok.Getter;
-import lombok.Setter;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class OrthologyService {
 
@@ -171,6 +170,31 @@ public class OrthologyService {
     public static JsonResultResponse<OrthologView> getOrthologyMultiGeneJson(List<String> geneIDs, OrthologyFilter filter) {
         GeneRepository repo = new GeneRepository();
         List<Gene> geneList = repo.getOrthologyGenes(geneIDs);
+        System.out.println("Number of genes for orthology: " + geneList.size());
+
+        List<Integer> sum = new ArrayList<>();
+        List<OrthologView> orthologViewList =
+                geneList.stream()
+                        .flatMap(gene -> {
+                            JsonResultResponse<OrthologView> view = OrthologyService.getOrthologViewList(gene, filter);
+                            sum.add(view.getTotal());
+                            return view.getResults().stream();
+                        }).sorted(Comparator.comparing(o -> o.getHomologGene().getSymbol().toLowerCase()))
+                        .collect(Collectors.toList());
+        orthologViewList = orthologViewList.stream()
+                .skip(filter.getStart() - 1)
+                .limit(filter.getRows())
+                .collect(Collectors.toList());
+        JsonResultResponse<OrthologView> response = new JsonResultResponse<>();
+        response.setResults(orthologViewList);
+        response.setTotal(sum.stream().mapToInt(Integer::intValue).sum());
+        return response;
+    }
+
+    public static JsonResultResponse<OrthologView> getOrthologyGenes(List<String> geneIDList, OrthologyFilter filter) {
+        GeneCacheRepository repo = new GeneCacheRepository();
+        List<Gene> geneList = repo.getAllOrthologyGenes();
+        System.out.println("Number of genes for orthology: " + geneList.size());
 
         List<Integer> sum = new ArrayList<>();
         List<OrthologView> orthologViewList =
