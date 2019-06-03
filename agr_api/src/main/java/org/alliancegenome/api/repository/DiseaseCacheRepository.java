@@ -62,8 +62,13 @@ public class DiseaseCacheRepository {
             return null;
         List<DiseaseAnnotation> fullDiseaseAnnotationList = new ArrayList<>();
         // filter by gene
-        geneIDs.forEach(geneID ->
-                fullDiseaseAnnotationList.addAll(diseaseAnnotationExperimentGeneMap.get(geneID))
+        geneIDs.forEach(geneID -> {
+                    List<DiseaseAnnotation> annotations = diseaseAnnotationExperimentGeneMap.get(geneID);
+                    if (annotations != null)
+                        fullDiseaseAnnotationList.addAll(annotations);
+                    else
+                        log.info("no disease annotation found for gene: " + geneID);
+                }
         );
         // filter by slim ID
         List<DiseaseAnnotation> slimDiseaseAnnotationList = fullDiseaseAnnotationList;
