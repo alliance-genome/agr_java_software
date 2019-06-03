@@ -20,6 +20,7 @@ public class DiseaseRibbonEntity {
     @JsonView(View.DiseaseAnnotation.class)
     @JsonProperty("taxon_id")
     private String taxonID;
+    @JsonView(View.DiseaseAnnotation.class)
     @JsonProperty("taxon_label")
     private String taxonName;
     @JsonView(View.DiseaseAnnotation.class)
