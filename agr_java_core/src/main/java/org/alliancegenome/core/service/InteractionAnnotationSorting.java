@@ -13,6 +13,7 @@ public class InteractionAnnotationSorting implements Sorting<InteractionGeneJoin
     private List<Comparator<InteractionGeneJoin>> defaultList;
     private List<Comparator<InteractionGeneJoin>> moleculeList;
     private List<Comparator<InteractionGeneJoin>> detectionList;
+    private List<Comparator<InteractionGeneJoin>> interactorMoleculeTypeList;
     private List<Comparator<InteractionGeneJoin>> interactorSpeciesList;
     private List<Comparator<InteractionGeneJoin>> referenceList;
 
@@ -54,6 +55,12 @@ public class InteractionAnnotationSorting implements Sorting<InteractionGeneJoin
         moleculeList.add(interactorGeneSymbolOrder);
         moleculeList.add(interactorSpeciesOrder);
 
+        interactorMoleculeTypeList = new ArrayList<>(4);
+        interactorMoleculeTypeList.add(interactorMoleculeOrder);
+        interactorMoleculeTypeList.add(moleculeOrder);
+        interactorMoleculeTypeList.add(interactorGeneSymbolOrder);
+        interactorMoleculeTypeList.add(interactorSpeciesOrder);
+
         detectionList = new ArrayList<>(4);
         detectionList.add(detectionOrder);
         detectionList.add(interactorGeneSymbolOrder);
@@ -82,6 +89,8 @@ public class InteractionAnnotationSorting implements Sorting<InteractionGeneJoin
                 return getJoinedComparator(defaultList);
             case MOLECULE_TYPE:
                 return getJoinedComparator(moleculeList);
+            case INTERACTOR_MOLECULE_TYPE:
+                return getJoinedComparator(interactorMoleculeTypeList);
             case INTERACTOR_SPECIES:
                 return getJoinedComparator(interactorSpeciesList);
             case INTERACTOR_DETECTION_METHOD:
