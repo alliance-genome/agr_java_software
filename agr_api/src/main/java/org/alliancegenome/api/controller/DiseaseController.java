@@ -136,7 +136,7 @@ public class DiseaseController extends BaseController implements DiseaseRESTInte
         LocalDateTime startDate = LocalDateTime.now();
         Pagination pagination = new Pagination(page, limit, sortBy, asc);
         BaseFilter filterMap = new BaseFilter();
-        filterMap.put(FieldFilter.FSPECIES, filterSpecies);
+        filterMap.put(FieldFilter.SPECIES, filterSpecies);
         filterMap.put(FieldFilter.GENE_NAME, filterGene);
         filterMap.put(FieldFilter.FREFERENCE, filterReference);
         filterMap.put(FieldFilter.SOURCE, filterSource);
