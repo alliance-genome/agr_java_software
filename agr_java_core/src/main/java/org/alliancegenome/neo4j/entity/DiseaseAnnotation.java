@@ -93,6 +93,6 @@ public class DiseaseAnnotation implements Comparable<DiseaseAnnotation>, Seriali
 
     @Override
     public int hashCode() {
-        return Objects.hash(primaryKey, source, disease, gene, feature, references, publications, ecoCodes, associationType, sortOrder);
+        return Objects.hash(source, disease, gene, feature, publications, ecoCodes, associationType);
     }
 }

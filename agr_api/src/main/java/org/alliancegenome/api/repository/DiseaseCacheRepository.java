@@ -186,6 +186,7 @@ public class DiseaseCacheRepository {
                     Gene orthologyGene = diseaseEntityJoin.getOrthologyGene();
                     if (orthologyGene != null) {
                         document.setOrthologyGene(orthologyGene);
+                        document.addOrthologousGene(orthologyGene);
 // for memory savings reason use cached gene objects.
 //                        document.setOrthologyGene(geneCacheRepository.getGene(orthologyGene.getPrimaryKey()));
                     }
