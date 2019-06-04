@@ -202,4 +202,7 @@ public class ExpressionCacheRepository {
         return parentSet;
     }
 
+    public boolean getCacheStatus() {
+        return caching;
+    }
 }

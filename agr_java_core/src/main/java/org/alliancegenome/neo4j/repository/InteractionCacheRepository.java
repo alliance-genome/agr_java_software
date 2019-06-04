@@ -148,4 +148,8 @@ public class InteractionCacheRepository {
     public List<InteractionGeneJoin> getInteractions(String id, Pagination pagination) {
         return null;
     }
+
+    public boolean getCacheStatus() {
+        return caching;
+    }
 }

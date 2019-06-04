@@ -1,5 +1,7 @@
 package org.alliancegenome.api.controller;
 
+import org.alliancegenome.api.repository.CacheStatus;
+import org.alliancegenome.api.repository.DiseaseCacheRepository;
 import org.alliancegenome.api.rest.interfaces.DiseaseRESTInterface;
 import org.alliancegenome.api.service.DiseaseService;
 import org.alliancegenome.core.exceptions.RestErrorException;
@@ -10,6 +12,9 @@ import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.node.DOTerm;
+import org.alliancegenome.neo4j.repository.ExpressionCacheRepository;
+import org.alliancegenome.neo4j.repository.InteractionCacheRepository;
+import org.alliancegenome.neo4j.repository.PhenotypeCacheRepository;
 import org.alliancegenome.neo4j.view.BaseFilter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -159,6 +164,20 @@ public class DiseaseController extends BaseController implements DiseaseRESTInte
             error.addErrorMessage(e.getMessage());
             throw new RestErrorException(error);
         }
+    }
+
+    @Override
+    public CacheStatus getCacheStatus() {
+        DiseaseCacheRepository cacheRepository = new DiseaseCacheRepository();
+        CacheStatus status = new CacheStatus();
+        status.addCacheInfo("Disease", cacheRepository.getCacheStatus());
+        InteractionCacheRepository interactionCacheRepository = new InteractionCacheRepository();
+        status.addCacheInfo("Interaction", interactionCacheRepository.getCacheStatus());
+        ExpressionCacheRepository expressionCacheRepository = new ExpressionCacheRepository();
+        status.addCacheInfo("Expression", expressionCacheRepository.getCacheStatus());
+        PhenotypeCacheRepository phenotypeCacheRepository = new PhenotypeCacheRepository();
+        status.addCacheInfo("Phenotype", phenotypeCacheRepository.getCacheStatus());
+        return status;
     }
 
 }

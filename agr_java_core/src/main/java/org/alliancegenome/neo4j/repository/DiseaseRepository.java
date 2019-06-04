@@ -260,7 +260,8 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
         });
 
         //Iterable<PublicationEvidenceCodeJoin> joins = neo4jSession.query(PublicationEvidenceCodeJoin.class, cypher, new HashMap<>());
-        System.out.println("Number of PublicationEvidenceCodeJoin records retrieved: " + ecoTermMap.size());
+
+        System.out.println("Number of PublicationEvidenceCodeJoin records retrieved: " + String.format("%,d", ecoTermMap.size()));
     }
 
     public List<ECOTerm> getEcoTerm(String publicationEvidenceCodeJoinID) {
@@ -317,7 +318,7 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
 
         allDiseaseEntityJoins = StreamSupport.stream(joins.spliterator(), false).
                 collect(Collectors.toSet());
-        System.out.println("Total DiseaseEntityJoinRecords: " + allDiseaseEntityJoins.size());
+        System.out.println("Total DiseaseEntityJoinRecords: " + String.format("%,d", allDiseaseEntityJoins.size()));
         System.out.println("Loaded in:  " + ((System.currentTimeMillis() - start) / 1000) + " s");
         return allDiseaseEntityJoins;
     }
