@@ -154,6 +154,9 @@ public class DiseaseCacheRepository {
         return !filterResults.contains(false);
     }
 
+    public boolean getCacheStatus() {
+        return caching;
+    }
 
     private void checkCache() {
         if (allDiseaseAnnotations == null && !caching) {
@@ -186,6 +189,7 @@ public class DiseaseCacheRepository {
                     Gene orthologyGene = diseaseEntityJoin.getOrthologyGene();
                     if (orthologyGene != null) {
                         document.setOrthologyGene(orthologyGene);
+                        document.addOrthologousGene(orthologyGene);
 // for memory savings reason use cached gene objects.
 //                        document.setOrthologyGene(geneCacheRepository.getGene(orthologyGene.getPrimaryKey()));
                     }
@@ -223,7 +227,7 @@ public class DiseaseCacheRepository {
         }
 
 
-        log.info("Retrieved " + allDiseaseAnnotations.size() + " annotations");
+        log.info("Retrieved " + String.format("%,d", allDiseaseAnnotations.size()) + " annotations");
         long startCreateHistogram = System.currentTimeMillis();
         Map<String, Set<String>> closureMapping = diseaseRepository.getClosureMapping();
         log.info("Number of Disease IDs: " + closureMapping.size());

@@ -260,7 +260,8 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
         });
 
         //Iterable<PublicationEvidenceCodeJoin> joins = neo4jSession.query(PublicationEvidenceCodeJoin.class, cypher, new HashMap<>());
-        System.out.println("Number of PublicationEvidenceCodeJoin records retrieved: " + ecoTermMap.size());
+
+        System.out.println("Number of PublicationEvidenceCodeJoin records retrieved: " + String.format("%,d", ecoTermMap.size()));
     }
 
     public List<ECOTerm> getEcoTerm(String publicationEvidenceCodeJoinID) {
@@ -307,7 +308,7 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
                 "              p2=(diseaseEntityJoin:DiseaseEntityJoin)-[:EVIDENCE]->(pubEvCode:PublicationEvidenceCodeJoin)," +
                 "              p3=(publication:Publication)-[:ASSOCIATION]->(pubEvCode:PublicationEvidenceCodeJoin)";
         cypher += " where disease.isObsolete = 'false' ";
-        //cypher += " where disease.primaryKey = 'DOID:1838' ";
+        //cypher += " AND disease.primaryKey = 'DOID:1838' ";
         cypher += "        OPTIONAL MATCH p1=(diseaseEntityJoin:DiseaseEntityJoin)--(feature:Feature)--(crossReference:CrossReference) " +
                 "        OPTIONAL MATCH p4=(diseaseEntityJoin:DiseaseEntityJoin)-[:FROM_ORTHOLOGOUS_GENE]-(orthoGene:Gene)-[:FROM_SPECIES]-(orthoSpecies:Species) " +
                 "RETURN p, p1, p2, p3, p4 ";
@@ -317,7 +318,7 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
 
         allDiseaseEntityJoins = StreamSupport.stream(joins.spliterator(), false).
                 collect(Collectors.toSet());
-        System.out.println("Total DiseaseEntityJoinRecords: " + allDiseaseEntityJoins.size());
+        System.out.println("Total DiseaseEntityJoinRecords: " + String.format("%,d", allDiseaseEntityJoins.size()));
         System.out.println("Loaded in:  " + ((System.currentTimeMillis() - start) / 1000) + " s");
         return allDiseaseEntityJoins;
     }

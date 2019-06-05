@@ -4,7 +4,6 @@ import org.alliancegenome.core.service.*;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
 import org.alliancegenome.neo4j.entity.node.PhenotypeEntityJoin;
-import org.alliancegenome.neo4j.entity.node.Publication;
 import org.alliancegenome.neo4j.view.BaseFilter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -40,7 +39,7 @@ public class PhenotypeCacheRepository {
         List<PhenotypeAnnotation> filteredPhenotypeAnnotationList = filterDiseaseAnnotations(fullPhenotypeAnnotationList, pagination.getFieldFilterValueMap());
 
         PaginationResult<PhenotypeAnnotation> result = new PaginationResult<>();
-        if(filteredPhenotypeAnnotationList != null) {
+        if (filteredPhenotypeAnnotationList != null) {
             result.setTotalNumber(filteredPhenotypeAnnotationList.size());
             result.setResult(getSortedAndPaginatedDiseaseAnnotations(pagination, filteredPhenotypeAnnotationList));
         }
@@ -138,4 +137,7 @@ public class PhenotypeCacheRepository {
         log.info("Time to create annotation histogram: " + (System.currentTimeMillis() - start) / 1000);
     }
 
+    public boolean getCacheStatus() {
+        return caching;
+    }
 }
