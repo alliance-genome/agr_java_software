@@ -5,6 +5,7 @@ import javax.ws.rs.ext.Provider;
 
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 
 @Provider
 public class RestDefaultObjectMapper implements ContextResolver<ObjectMapper> {
@@ -14,6 +15,7 @@ public class RestDefaultObjectMapper implements ContextResolver<ObjectMapper> {
     public RestDefaultObjectMapper() {
         mapper = new ObjectMapper();
         mapper.configure(MapperFeature.DEFAULT_VIEW_INCLUSION, false);
+        mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
 //        mapper.getSerializerProvider().setNullValueSerializer(new NullSerializer());
     }
 
