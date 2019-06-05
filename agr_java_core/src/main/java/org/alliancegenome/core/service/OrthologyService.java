@@ -193,25 +193,18 @@ public class OrthologyService {
 
     public static JsonResultResponse<OrthologView> getOrthologyGenes(List<String> geneIDList, OrthologyFilter filter) {
         GeneCacheRepository repo = new GeneCacheRepository();
-        List<Gene> geneList = repo.getAllOrthologyGenes();
-        System.out.println("Number of genes for orthology: " + geneList.size());
+        List<OrthologView> orthologViewList = repo.getAllOrthologyGenes(geneIDList);
+        List<OrthologView> filteredOrthologViewList = orthologViewList;
+        if (filter.getStringency() != null && !filter.getStringency().equals(OrthologyFilter.Stringency.ALL)) {
+            filteredOrthologViewList = orthologViewList.stream()
+                    .filter(orthologView -> orthologView.getStringencyFilter().equalsIgnoreCase(filter.getStringency().name()))
+                    .collect(Collectors.toList());
+        }
+        System.out.println("Number of genes for orthology: " + filteredOrthologViewList.size());
 
-        List<Integer> sum = new ArrayList<>();
-        List<OrthologView> orthologViewList =
-                geneList.stream()
-                        .flatMap(gene -> {
-                            JsonResultResponse<OrthologView> view = OrthologyService.getOrthologViewList(gene, filter);
-                            sum.add(view.getTotal());
-                            return view.getResults().stream();
-                        }).sorted(Comparator.comparing(o -> o.getHomologGene().getSymbol().toLowerCase()))
-                        .collect(Collectors.toList());
-        orthologViewList = orthologViewList.stream()
-                .skip(filter.getStart() - 1)
-                .limit(filter.getRows())
-                .collect(Collectors.toList());
         JsonResultResponse<OrthologView> response = new JsonResultResponse<>();
-        response.setResults(orthologViewList);
-        response.setTotal(sum.stream().mapToInt(Integer::intValue).sum());
+        response.setResults(filteredOrthologViewList);
+        response.setTotal(filteredOrthologViewList.size());
         return response;
     }
 

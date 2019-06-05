@@ -194,12 +194,13 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         HashMap<String, String> map = new HashMap<>();
 
         String query = " MATCH p1=(q:Species)<-[:FROM_SPECIES]-(g:Gene)-[o:ORTHOLOGOUS]->(g2:Gene)-[:FROM_SPECIES]->(q2:Species)";
+        //query += " where g.primaryKey = 'ZFIN:ZDB-GENE-001103-1' ";
         query += " RETURN p1 ";
 
         Iterable<Gene> genes = query(query, map);
         List<Gene> geneList = StreamSupport.stream(genes.spliterator(), false)
                 .collect(Collectors.toList());
-
+        log.info("ORTHOLOGOUS genes: " + geneList.size());
         return geneList;
     }
 

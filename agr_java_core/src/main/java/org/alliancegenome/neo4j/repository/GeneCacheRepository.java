@@ -1,24 +1,16 @@
 package org.alliancegenome.neo4j.repository;
 
-import org.alliancegenome.core.service.DiseaseAnnotationSorting;
-import org.alliancegenome.core.service.JsonResultResponse;
-import org.alliancegenome.core.service.OrthologyService;
-import org.alliancegenome.core.service.SortingField;
-import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
-import org.alliancegenome.neo4j.entity.node.ECOTerm;
+import org.alliancegenome.api.entity.CacheStatus;
 import org.alliancegenome.neo4j.entity.node.Gene;
-import org.alliancegenome.neo4j.entity.node.Publication;
-import org.alliancegenome.neo4j.entity.node.PublicationEvidenceCodeJoin;
 import org.alliancegenome.neo4j.view.OrthologView;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import java.time.LocalDateTime;
 import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
 
 public class GeneCacheRepository {
 
@@ -70,22 +62,26 @@ public class GeneCacheRepository {
     }
 
     private static boolean orthologyCaching;
-    private List<OrthologView> orthologViewList;
-    private Map<Gene, Set<OrthologView>> orthologViewMap = new HashMap<>();
+    private static LocalDateTime startOrthology;
+    private static LocalDateTime endOrthology;
 
-    public List<Gene> getAllOrthologyGenes() {
+    private List<OrthologView> orthologViewList;
+    private static Map<String, Set<OrthologView>> orthologViewMap = new HashMap<>();
+
+    public List<OrthologView> getAllOrthologyGenes(List<String> geneIDs) {
         orthologyCheckCache();
         if (orthologyCaching)
             return null;
 
-//        List<DiseaseAnnotation> fullDiseaseAnnotationList = diseaseAnnotationSummaryMap.get(diseaseID);
+        List<OrthologView> fullOrthologyList = new ArrayList<>();
+        geneIDs.forEach(id -> fullOrthologyList.addAll(orthologViewMap.get(id)));
 
-        return null;
+        return fullOrthologyList;
 
     }
 
     private synchronized void orthologyCheckCache() {
-        if (orthologViewList == null && !caching) {
+        if (MapUtils.isEmpty(orthologViewMap) && !orthologyCaching) {
             orthologyCaching = true;
             cacheAllOrthology();
             orthologyCaching = false;
@@ -93,44 +89,43 @@ public class GeneCacheRepository {
     }
 
     private void cacheAllOrthology() {
+        startOrthology = LocalDateTime.now();
+        long start = System.currentTimeMillis();
         List<Gene> geneList = geneRepository.getAllOrthologyGenes();
         if (geneList == null)
             return;
 
-//        List<OrthologView> orthologViewList =
-
-        orthologViewMap = geneList.stream()
-/*
-                .map(gene -> {
-                    return gene.getOrthoGenes().stream()
-                            .map(orthologous -> {
-                                        OrthologView view = new OrthologView();
-                                        view.setGene(gene);
-                                        view.setHomologGene(orthologous.getGene2());
-                                        view.setBest(orthologous.getIsBestScore());
-                                        view.setBestReverse(orthologous.getIsBestRevScore());
-                                        if (orthologous.isStrictFilter()) {
-                                            view.setStringencyFilter("stringent");
-                                        } else if (orthologous.isModerateFilter()) {
-                                            view.setStringencyFilter("moderate");
-                                        }
-                                        return view;
-                                    })
-                            .collect(Collectors.toSet()); })
-*/
-                .collect(groupingBy(Function.identity(),  Collectors.mapping(gene -> gene.)))
+        geneList.forEach(gene -> {
+            Set<OrthologView> orthologySet = gene.getOrthoGenes().stream()
+                    .map(orthologous -> {
+                        OrthologView view = new OrthologView();
+                        view.setGene(gene);
+                        view.setHomologGene(orthologous.getGene2());
+                        view.setBest(orthologous.getIsBestScore());
+                        view.setBestReverse(orthologous.getIsBestRevScore());
+                        if (orthologous.isStrictFilter()) {
+                            view.setStringencyFilter("stringent");
+                        } else if (orthologous.isModerateFilter()) {
+                            view.setStringencyFilter("moderate");
+                        }
+                        return view;
+                    })
+                    .collect(toSet());
+            orthologViewMap.put(gene.getPrimaryKey(), orthologySet);
+        });
 
 
-/*
-        orthologViewList = orthologViewList.stream()
-                .skip(filter.getStart() - 1)
-                .limit(filter.getRows())
-                .collect(Collectors.toList());
-*/
+        log.info("Number of Gene IDs in gene / orthologyView Map: " + orthologViewMap.size());
+        log.info("Time to create orthology cache: " + (System.currentTimeMillis() - start) / 1000);
+        startOrthology = LocalDateTime.now();
+    }
 
-        log.info("Number of Disease IDs in disease Map: " + orthologViewMap.size());
-//        log.info("Time to create annotation histogram: " + (System.currentTimeMillis() - startCreateHistogram) / 1000);
-
+    public CacheStatus getCacheStatus() {
+        CacheStatus status = new CacheStatus("Orthology");
+        status.setCaching(orthologyCaching);
+        status.setStart(startOrthology);
+        status.setEnd(endOrthology);
+        return status;
     }
 
 }

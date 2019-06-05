@@ -23,6 +23,7 @@ import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
+import org.alliancegenome.neo4j.repository.ExpressionCacheRepository;
 import org.alliancegenome.neo4j.view.OrthologView;
 import org.alliancegenome.neo4j.view.OrthologyFilter;
 import org.apache.commons.collections.CollectionUtils;
@@ -312,11 +313,13 @@ public class GeneController extends BaseController implements GeneRESTInterface 
         if (id != null) {
             geneList.add(id);
         }
+
+        ExpressionCacheRepository expressionCacheRepository = new ExpressionCacheRepository();
         OrthologyFilter orthologyFilter = new OrthologyFilter(stringencyFilter, null, null);
         orthologyFilter.setStart(1);
         JsonResultResponse<OrthologView> orthologs = OrthologyService.getOrthologyGenes(geneList, orthologyFilter);
         List<OrthologView> filteredList = orthologs.getResults().stream()
-                .filter(orthologView -> getExpressionSummary(orthologView.getHomologGene().getPrimaryKey()).hasData())
+                .filter(orthologView -> expressionCacheRepository.hasExpression(orthologView.getHomologGene().getPrimaryKey()))
                 .collect(Collectors.toList());
         orthologs.setResults(filteredList);
         orthologs.setTotal(filteredList.size());
