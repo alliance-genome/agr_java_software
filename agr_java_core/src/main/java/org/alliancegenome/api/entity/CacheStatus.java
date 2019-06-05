@@ -1,4 +1,4 @@
-package org.alliancegenome.api.repository;
+package org.alliancegenome.api.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;

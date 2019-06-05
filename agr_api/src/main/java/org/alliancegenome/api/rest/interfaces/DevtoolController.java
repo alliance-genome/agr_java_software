@@ -1,7 +1,6 @@
 package org.alliancegenome.api.rest.interfaces;
 
-import org.alliancegenome.api.repository.CacheStatus;
-import org.alliancegenome.api.repository.CacheSummary;
+import org.alliancegenome.api.entity.CacheSummary;
 import org.alliancegenome.api.repository.DiseaseCacheRepository;
 import org.alliancegenome.neo4j.repository.ExpressionCacheRepository;
 import org.alliancegenome.neo4j.repository.InteractionCacheRepository;

@@ -1,7 +1,6 @@
 package org.alliancegenome.api.rest.interfaces;
 
-import org.alliancegenome.api.repository.CacheStatus;
-import org.alliancegenome.api.repository.CacheSummary;
+import org.alliancegenome.api.entity.CacheSummary;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;

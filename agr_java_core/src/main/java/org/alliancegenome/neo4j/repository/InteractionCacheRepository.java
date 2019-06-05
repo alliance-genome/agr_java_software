@@ -1,6 +1,6 @@
 package org.alliancegenome.neo4j.repository;
 
-import org.alliancegenome.api.repository.CacheStatus;
+import org.alliancegenome.api.entity.CacheStatus;
 import org.alliancegenome.core.service.*;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
