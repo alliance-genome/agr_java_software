@@ -166,18 +166,4 @@ public class DiseaseController extends BaseController implements DiseaseRESTInte
         }
     }
 
-    @Override
-    public CacheStatus getCacheStatus() {
-        DiseaseCacheRepository cacheRepository = new DiseaseCacheRepository();
-        CacheStatus status = new CacheStatus();
-        status.addCacheInfo("Disease", cacheRepository.getCacheStatus());
-        InteractionCacheRepository interactionCacheRepository = new InteractionCacheRepository();
-        status.addCacheInfo("Interaction", interactionCacheRepository.getCacheStatus());
-        ExpressionCacheRepository expressionCacheRepository = new ExpressionCacheRepository();
-        status.addCacheInfo("Expression", expressionCacheRepository.getCacheStatus());
-        PhenotypeCacheRepository phenotypeCacheRepository = new PhenotypeCacheRepository();
-        status.addCacheInfo("Phenotype", phenotypeCacheRepository.getCacheStatus());
-        return status;
-    }
-
 }

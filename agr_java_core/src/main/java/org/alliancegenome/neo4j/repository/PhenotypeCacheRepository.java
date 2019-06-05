@@ -1,5 +1,6 @@
 package org.alliancegenome.neo4j.repository;
 
+import org.alliancegenome.api.repository.CacheStatus;
 import org.alliancegenome.core.service.*;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
@@ -9,6 +10,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.text.DecimalFormat;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -27,6 +29,8 @@ public class PhenotypeCacheRepository {
     // Map<gene ID, List<PhenotypeAnnotation>> including annotations to child terms
     private static Map<String, List<PhenotypeAnnotation>> phenotypeAnnotationMap = new HashMap<>();
     private static boolean caching;
+    private static LocalDateTime start;
+    private static LocalDateTime end;
 
     public PaginationResult<PhenotypeAnnotation> getPhenotypeAnnotationList(String geneID, Pagination pagination) {
         checkCache();
@@ -100,6 +104,7 @@ public class PhenotypeCacheRepository {
     }
 
     private void cacheAllPhenotypeAnnotations() {
+        start = LocalDateTime.now();
         long start = System.currentTimeMillis();
         List<PhenotypeEntityJoin> joinList = phenotypeRepository.getAllPhenotypeAnnotations();
         int size = joinList.size();
@@ -135,9 +140,16 @@ public class PhenotypeCacheRepository {
         final Set<String> allIDs = closureMapping.keySet();
 */
         log.info("Time to create annotation histogram: " + (System.currentTimeMillis() - start) / 1000);
+        end = LocalDateTime.now();
+
     }
 
-    public boolean getCacheStatus() {
-        return caching;
+    public CacheStatus getCacheStatus() {
+        CacheStatus status = new CacheStatus("Phenotype");
+        status.setCaching(caching);
+        status.setStart(start);
+        status.setEnd(end);
+        return status;
     }
+
 }

@@ -12,6 +12,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -36,6 +37,8 @@ public class DiseaseCacheRepository {
     // Map<gene ID, List<DiseaseAnnotation>> including annotations to child terms
     private static Map<String, List<DiseaseAnnotation>> diseaseAnnotationOrthologGeneMap = new HashMap<>();
     private static boolean caching;
+    private static LocalDateTime start;
+    private static LocalDateTime end;
 
     public PaginationResult<DiseaseAnnotation> getDiseaseAnnotationList(String diseaseID, Pagination pagination) {
         checkCache();
@@ -154,8 +157,12 @@ public class DiseaseCacheRepository {
         return !filterResults.contains(false);
     }
 
-    public boolean getCacheStatus() {
-        return caching;
+    public CacheStatus getCacheStatus() {
+        CacheStatus status = new CacheStatus("Disease");
+        status.setCaching(caching);
+        status.setStart(start);
+        status.setEnd(end);
+        return status;
     }
 
     private void checkCache() {
@@ -167,6 +174,7 @@ public class DiseaseCacheRepository {
     }
 
     private void cacheAllDiseaseAnnotations() {
+        start = LocalDateTime.now();
         Set<DiseaseEntityJoin> joinList = diseaseRepository.getAllDiseaseEntityJoins();
         if (joinList == null)
             return;
@@ -261,7 +269,8 @@ public class DiseaseCacheRepository {
                 .collect(groupingBy(o -> o.getGene().getPrimaryKey(), Collectors.toList()));
 
         log.info("Number of Disease IDs in disease Map: " + diseaseAnnotationMap.size());
-        log.info("Time to create annotation histogram: " + (System.currentTimeMillis() - startCreateHistogram) / 1000);
+        log.info("Time to create annotation  list: " + (System.currentTimeMillis() - startCreateHistogram) / 1000);
+        end = LocalDateTime.now();
     }
 
 

@@ -1,5 +1,6 @@
 package org.alliancegenome.neo4j.repository;
 
+import org.alliancegenome.api.repository.CacheStatus;
 import org.alliancegenome.core.ExpressionDetail;
 import org.alliancegenome.core.service.*;
 import org.alliancegenome.es.model.query.Pagination;
@@ -10,6 +11,7 @@ import org.alliancegenome.neo4j.view.BaseFilter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -92,6 +94,8 @@ public class ExpressionCacheRepository {
     private static Map<String, List<ExpressionDetail>> geneExpressionMap;
 
     private static boolean caching;
+    private static LocalDateTime start;
+    private static LocalDateTime end;
 
     private void checkCache() {
         if (allExpression == null && !caching) {
@@ -104,6 +108,7 @@ public class ExpressionCacheRepository {
     }
 
     private void cacheAllExpression() {
+        start = LocalDateTime.now();
         long startTime = System.currentTimeMillis();
         GeneRepository geneRepository = new GeneRepository();
         List<BioEntityGeneExpressionJoin> joins = geneRepository.getAllExpressionAnnotations();
@@ -148,6 +153,7 @@ public class ExpressionCacheRepository {
         log.info("Number of all expression records: " + allExpression.size());
         log.info("Number of all Genes with Expression: " + geneExpressionMap.size());
         log.info("Time to create cache: " + (System.currentTimeMillis() - startTime) / 1000);
+        end = LocalDateTime.now();
 
     }
 
@@ -202,7 +208,12 @@ public class ExpressionCacheRepository {
         return parentSet;
     }
 
-    public boolean getCacheStatus() {
-        return caching;
+    public CacheStatus getCacheStatus() {
+        CacheStatus status = new CacheStatus("Expression");
+        status.setCaching(caching);
+        status.setStart(start);
+        status.setEnd(end);
+        return status;
     }
+
 }

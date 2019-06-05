@@ -1,15 +1,15 @@
 package org.alliancegenome.neo4j.repository;
 
+import org.alliancegenome.api.repository.CacheStatus;
 import org.alliancegenome.core.service.*;
 import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
-import org.alliancegenome.neo4j.entity.node.Species;
 import org.alliancegenome.neo4j.view.BaseFilter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.text.DecimalFormat;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -27,6 +27,8 @@ public class InteractionCacheRepository {
     // used for filtering and sorting on GeneA
     private static Map<String, List<InteractionGeneJoin>> interactionAnnotationMapGene = new HashMap<>();
     private static boolean caching;
+    private static LocalDateTime start;
+    private static LocalDateTime end;
 
     public PaginationResult<InteractionGeneJoin> getInteractionAnnotationList(String geneID, Pagination pagination) {
         checkCache();
@@ -35,7 +37,7 @@ public class InteractionCacheRepository {
 
         // check gene map
         List<InteractionGeneJoin> interactionAnnotationList = interactionAnnotationMapGene.get(geneID);
-        if(interactionAnnotationList == null)
+        if (interactionAnnotationList == null)
             return null;
         //filtering
         List<InteractionGeneJoin> filteredInteractionAnnotationList = filterInteractionAnnotations(interactionAnnotationList, pagination.getFieldFilterValueMap(), true);
@@ -101,6 +103,7 @@ public class InteractionCacheRepository {
     }
 
     private void cacheAllInteractionAnnotations() {
+        start = LocalDateTime.now();
         long start = System.currentTimeMillis();
         allInteractionAnnotations = interactionRepository.getAllInteractions();
         int size = allInteractionAnnotations.size();
@@ -123,6 +126,7 @@ public class InteractionCacheRepository {
         });
         log.info("Number of gene with interactions: " + interactionAnnotationMapGene.size());
         log.info("Time to create annotation histogram: " + (System.currentTimeMillis() - start) / 1000);
+        end = LocalDateTime.now();
     }
 
     private InteractionGeneJoin createNewInteractionGeneJoin(InteractionGeneJoin join) {
@@ -149,7 +153,12 @@ public class InteractionCacheRepository {
         return null;
     }
 
-    public boolean getCacheStatus() {
-        return caching;
+    public CacheStatus getCacheStatus() {
+        CacheStatus status = new CacheStatus("Interaction");
+        status.setCaching(caching);
+        status.setStart(start);
+        status.setEnd(end);
+        return status;
     }
+
 }

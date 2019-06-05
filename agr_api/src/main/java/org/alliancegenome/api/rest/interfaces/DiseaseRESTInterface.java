@@ -111,8 +111,4 @@ public interface DiseaseRESTInterface {
             @QueryParam("asc") String asc
     ) throws JsonProcessingException;
 
-    @GET
-    @Path("/cache-status")
-    public CacheStatus getCacheStatus();
-
 }
