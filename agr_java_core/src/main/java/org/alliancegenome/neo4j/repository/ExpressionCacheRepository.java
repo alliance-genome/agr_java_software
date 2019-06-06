@@ -8,6 +8,7 @@ import org.alliancegenome.neo4j.entity.node.BioEntityGeneExpressionJoin;
 import org.alliancegenome.neo4j.entity.node.GOTerm;
 import org.alliancegenome.neo4j.entity.node.UBERONTerm;
 import org.alliancegenome.neo4j.view.BaseFilter;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -216,4 +217,10 @@ public class ExpressionCacheRepository {
         return status;
     }
 
+    public boolean hasExpression(String geneID) {
+        checkCache();
+        if (caching)
+            return false;
+        return CollectionUtils.isNotEmpty(geneExpressionMap.get(geneID));
+    }
 }
