@@ -1,5 +1,6 @@
 package org.alliancegenome.neo4j.repository;
 
+import org.alliancegenome.api.entity.CacheStatus;
 import org.alliancegenome.core.service.*;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.SpeciesType;
@@ -9,6 +10,7 @@ import org.alliancegenome.neo4j.view.BaseFilter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -99,6 +101,9 @@ public class AlleleCacheRepository {
     private static Map<String, List<Allele>> taxonAlleleMap;
 
     private static boolean caching;
+    private static LocalDateTime start;
+    private static LocalDateTime end;
+
     private AlleleRepository alleleRepo = new AlleleRepository();
 
     private void checkCache() {
@@ -110,6 +115,7 @@ public class AlleleCacheRepository {
     }
 
     private void cacheAllAlleles() {
+        start = LocalDateTime.now();
         long startTime = System.currentTimeMillis();
         Set<Allele> allAlleleSet = alleleRepo.getAllAlleles();
         if (allAlleleSet == null)
@@ -128,7 +134,7 @@ public class AlleleCacheRepository {
         log.info("Number of all Genes with Alleles: " + geneAlleleMap.size());
         printTaxonMap();
         log.info("Time to create cache: " + (System.currentTimeMillis() - startTime) / 1000);
-
+        end = LocalDateTime.now();
     }
 
     private void printTaxonMap() {
@@ -139,4 +145,11 @@ public class AlleleCacheRepository {
 
     }
 
+    public CacheStatus getCacheStatus() {
+        CacheStatus status = new CacheStatus("Orthology");
+        status.setCaching(caching);
+        status.setStart(start);
+        status.setEnd(end);
+        return status;
+    }
 }
