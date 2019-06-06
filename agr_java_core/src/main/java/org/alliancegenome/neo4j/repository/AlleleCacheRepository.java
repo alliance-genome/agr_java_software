@@ -7,6 +7,7 @@ import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.GeneticEntity;
 import org.alliancegenome.neo4j.view.BaseFilter;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -146,10 +147,11 @@ public class AlleleCacheRepository {
     }
 
     public CacheStatus getCacheStatus() {
-        CacheStatus status = new CacheStatus("Orthology");
+        CacheStatus status = new CacheStatus("Allele");
         status.setCaching(caching);
         status.setStart(start);
         status.setEnd(end);
+        status.setNumberOfEntities(CollectionUtils.size(allAlleles));
         return status;
     }
 }

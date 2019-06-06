@@ -163,6 +163,8 @@ public class DiseaseCacheRepository {
         status.setCaching(caching);
         status.setStart(start);
         status.setEnd(end);
+        if (allDiseaseAnnotations != null)
+            status.setNumberOfEntities(allDiseaseAnnotations.size());
         return status;
     }
 

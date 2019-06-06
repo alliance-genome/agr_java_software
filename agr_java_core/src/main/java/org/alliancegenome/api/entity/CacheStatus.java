@@ -1,6 +1,8 @@
 package org.alliancegenome.api.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 import org.alliancegenome.core.service.Duration;
@@ -12,6 +14,8 @@ import java.time.LocalDateTime;
 public class CacheStatus {
 
     private String name;
+    @JsonIgnore
+    private int numberOfEntities;
     private boolean caching;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime start;
@@ -29,6 +33,11 @@ public class CacheStatus {
             end = LocalDateTime.now();
         Duration duration = new Duration(start, end);
         return duration.toString();
+    }
+
+    @JsonProperty("entitiesInCache")
+    public String getEntitiesInCache() {
+        return String.format("%,d", numberOfEntities);
     }
 
 }

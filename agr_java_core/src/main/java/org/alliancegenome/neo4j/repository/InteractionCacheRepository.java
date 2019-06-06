@@ -5,6 +5,7 @@ import org.alliancegenome.core.service.*;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
 import org.alliancegenome.neo4j.view.BaseFilter;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -158,6 +159,8 @@ public class InteractionCacheRepository {
         status.setCaching(caching);
         status.setStart(start);
         status.setEnd(end);
+        if (allInteractionAnnotations != null)
+            status.setNumberOfEntities(allInteractionAnnotations.size());
         return status;
     }
 
