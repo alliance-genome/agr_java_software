@@ -10,8 +10,8 @@ apiq:
 apirun:
 	make -C agr_api run
 
-api:
-	mvn clean package -pl agr_api -am
+apidebug:
+	make -C agr_api debug
 
 indexer:
 	mvn clean package -pl agr_indexer -am
