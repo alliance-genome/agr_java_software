@@ -1,6 +1,7 @@
 package org.alliancegenome.api.controller;
 
 import org.alliancegenome.api.rest.interfaces.DiseaseRESTInterface;
+import org.alliancegenome.api.service.APIService;
 import org.alliancegenome.api.service.DiseaseService;
 import org.alliancegenome.core.exceptions.RestErrorException;
 import org.alliancegenome.core.exceptions.RestErrorMessage;
@@ -24,6 +25,9 @@ import javax.ws.rs.core.Response;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
+
+import static org.alliancegenome.api.service.EntityType.DISEASE;
+import static org.alliancegenome.api.service.EntityType.GENE;
 
 @RequestScoped
 public class DiseaseController extends BaseController implements DiseaseRESTInterface {
@@ -159,6 +163,59 @@ public class DiseaseController extends BaseController implements DiseaseRESTInte
             error.addErrorMessage(e.getMessage());
             throw new RestErrorException(error);
         }
+    }
+
+    @Override
+    public Response getDiseaseAnnotationsRibbonDetailsDownload(List<String> geneIDs,
+                                                               String termID,
+                                                               String filterSpecies,
+                                                               String filterGene,
+                                                               String filterReference,
+                                                               String diseaseTerm,
+                                                               String filterSource,
+                                                               String geneticEntity,
+                                                               String geneticEntityType,
+                                                               String associationType,
+                                                               String evidenceCode,
+                                                               String sortBy,
+                                                               String asc) {
+
+        LocalDateTime startDate = LocalDateTime.now();
+        Pagination pagination = new Pagination(1, Integer.MAX_VALUE, sortBy, asc);
+        BaseFilter filterMap = new BaseFilter();
+        filterMap.put(FieldFilter.SPECIES, filterSpecies);
+        filterMap.put(FieldFilter.GENE_NAME, filterGene);
+        filterMap.put(FieldFilter.FREFERENCE, filterReference);
+        filterMap.put(FieldFilter.SOURCE, filterSource);
+        filterMap.put(FieldFilter.DISEASE, diseaseTerm);
+        filterMap.put(FieldFilter.GENETIC_ENTITY_TYPE, geneticEntityType);
+        filterMap.put(FieldFilter.GENETIC_ENTITY, geneticEntity);
+        filterMap.put(FieldFilter.ASSOCIATION_TYPE, associationType);
+        filterMap.put(FieldFilter.EVIDENCE_CODE, evidenceCode);
+        filterMap.values().removeIf(Objects::isNull);
+        pagination.setFieldFilterValueMap(filterMap);
+        Response.ResponseBuilder responseBuilder = null;
+        if (pagination.hasErrors()) {
+            RestErrorMessage message = new RestErrorMessage();
+            message.setErrors(pagination.getErrors());
+            throw new RestErrorException(message);
+        }
+        try {
+            JsonResultResponse<DiseaseAnnotation> response = diseaseService.getRibbonDiseaseAnnotations(geneIDs, termID, pagination);
+            response.setHttpServletRequest(request);
+            response.calculateRequestDuration(startDate);
+            // translate all records
+            responseBuilder = Response.ok(translator.getAllRowsForRibbon(response.getResults()));
+            responseBuilder.type(MediaType.TEXT_PLAIN_TYPE);
+            APIService.setDownloadHeader(geneIDs.get(0), GENE, DISEASE, responseBuilder);
+        } catch (Exception e) {
+            log.error(e);
+            RestErrorMessage error = new RestErrorMessage();
+            error.addErrorMessage(e.getMessage());
+            throw new RestErrorException(error);
+        }
+
+        return responseBuilder.build();
     }
 
 }

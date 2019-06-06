@@ -3,6 +3,7 @@ package org.alliancegenome.core.translators.tdf;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.node.ECOTerm;
+import org.alliancegenome.neo4j.entity.node.Gene;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -62,6 +63,66 @@ public class DiseaseAnnotationToTdfTranslator {
             joiner.add(evidenceJoiner.toString());
             // source list
             joiner.add(diseaseAnnotation.getSource().getName());
+
+            // publications list
+            StringJoiner pubJoiner = new StringJoiner(",");
+            diseaseAnnotation.getPublications().forEach(publication -> pubJoiner.add(publication.getPubId()));
+            joiner.add(pubJoiner.toString());
+            builder.append(joiner.toString());
+            builder.append(ConfigHelper.getJavaLineSeparator());
+
+        });
+
+        return builder.toString();
+
+    }
+
+    public String getAllRowsForRibbon(List<DiseaseAnnotation> diseaseAnnotations) {
+        StringBuilder builder = new StringBuilder();
+        StringJoiner headerJoiner = new StringJoiner("\t");
+        headerJoiner.add("Species");
+        headerJoiner.add("Gene ID");
+        headerJoiner.add("Gene Symbol");
+        headerJoiner.add("Disease ID");
+        headerJoiner.add("Disease Name");
+        headerJoiner.add("Association Type");
+        headerJoiner.add("Evidence Codes");
+        headerJoiner.add("Source");
+        headerJoiner.add("Based-On Genes");
+        headerJoiner.add("References");
+        builder.append(headerJoiner.toString());
+        builder.append(ConfigHelper.getJavaLineSeparator());
+
+        diseaseAnnotations.forEach(diseaseAnnotation -> {
+            StringJoiner joiner = new StringJoiner("\t");
+            joiner.add(diseaseAnnotation.getGene().getSpecies().getSpecies());
+            joiner.add(diseaseAnnotation.getGene().getPrimaryKey());
+            joiner.add(diseaseAnnotation.getGene().getSymbol());
+            joiner.add(diseaseAnnotation.getDisease().getPrimaryKey());
+            joiner.add(diseaseAnnotation.getDisease().getName());
+            joiner.add(diseaseAnnotation.getAssociationType());
+
+            // evidence code list
+            StringJoiner evidenceJoiner = new StringJoiner(",");
+            Set<String> evidenceCodes = diseaseAnnotation.getEcoCodes()
+                    .stream()
+                    .map(ECOTerm::getPrimaryKey)
+                    .collect(Collectors.toSet());
+
+            evidenceCodes.forEach(evidenceJoiner::add);
+            joiner.add(evidenceJoiner.toString());
+            // source list
+            joiner.add(diseaseAnnotation.getSource().getName());
+
+            // basedOn info
+
+            List<Gene> orthologyGenes = diseaseAnnotation.getOrthologyGenes();
+            if (orthologyGenes != null) {
+                StringJoiner basedOnJoiner = new StringJoiner(",");
+                orthologyGenes.forEach(gene -> basedOnJoiner.add(gene.getPrimaryKey() + ":" + gene.getSymbol()));
+                joiner.add(basedOnJoiner.toString());
+            } else
+                joiner.add("");
 
             // publications list
             StringJoiner pubJoiner = new StringJoiner(",");

@@ -110,4 +110,37 @@ public interface DiseaseRESTInterface {
             @QueryParam("asc") String asc
     ) throws JsonProcessingException;
 
+    @GET
+    @Path("/download")
+    @JsonView(value = {View.DiseaseAnnotation.class})
+    @ApiOperation(value = "Retrieve all expression records of a given set of genes")
+    Response getDiseaseAnnotationsRibbonDetailsDownload(
+            @ApiParam(name = "geneID", value = "Gene by ID", required = true)
+            @QueryParam("geneID") List<String> geneIDs,
+            @ApiParam(name = "termID", value = "Term ID by which rollup should happen")
+            @QueryParam("termID") String termID,
+            @ApiParam(name = "filter.species", value = "Species by taxon ID", type = "String")
+            @QueryParam("filter.species") String filterSpecies,
+            @ApiParam(name = "filter.gene", value = "Gene symbol", type = "String")
+            @QueryParam("filter.gene") String filterGene,
+            @ApiParam(name = "filter.reference", value = "Reference", type = "String")
+            @QueryParam("filter.reference") String filterReference,
+            @ApiParam(name = "filter.disease", value = "Ontology term name", type = "String")
+            @QueryParam("filter.disease") String diseaseTerm,
+            @ApiParam(name = "filter.source", value = "Source", type = "String")
+            @QueryParam("filter.source") String filterSource,
+            @ApiParam(name = "filter.geneticEntity", value = "geneticEntity", type = "String")
+            @QueryParam("filter.geneticEntity") String geneticEntity,
+            @ApiParam(name = "filter.geneticEntityType", value = "geneticEntityType", type = "String")
+            @QueryParam("filter.geneticEntityType") String geneticEntityType,
+            @ApiParam(name = "filter.associationType", value = "associationType", type = "String")
+            @QueryParam("filter.associationType") String associationType,
+            @ApiParam(name = "filter.evidenceCode", value = "evidenceCode", type = "String")
+            @QueryParam("filter.evidenceCode") String evidenceCode,
+            @ApiParam(name = "sortBy", value = "Sort by field name")
+            @QueryParam("sortBy") String sortBy,
+            @ApiParam(name = "asc", allowableValues = "true,false", value = "ascending or descending")
+            @QueryParam("asc") String asc
+    ) throws JsonProcessingException;
+
 }
