@@ -214,6 +214,8 @@ public class ExpressionCacheRepository {
         status.setCaching(caching);
         status.setStart(start);
         status.setEnd(end);
+        if (allExpression != null)
+            status.setNumberOfEntities(allExpression.size());
         return status;
     }
 
