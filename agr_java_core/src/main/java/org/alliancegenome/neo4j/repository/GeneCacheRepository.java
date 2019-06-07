@@ -117,7 +117,7 @@ public class GeneCacheRepository {
 
         log.info("Number of Gene IDs in gene / orthologyView Map: " + orthologViewMap.size());
         log.info("Time to create orthology cache: " + (System.currentTimeMillis() - start) / 1000);
-        startOrthology = LocalDateTime.now();
+        endOrthology = LocalDateTime.now();
     }
 
     public CacheStatus getCacheStatus() {
