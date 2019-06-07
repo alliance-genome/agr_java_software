@@ -149,6 +149,8 @@ public class PhenotypeCacheRepository {
         status.setCaching(caching);
         status.setStart(start);
         status.setEnd(end);
+        if (allPhenotypeAnnotations != null)
+            status.setNumberOfEntities(allPhenotypeAnnotations.size());
         return status;
     }
 

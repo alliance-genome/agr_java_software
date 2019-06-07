@@ -151,7 +151,8 @@ public class AlleleCacheRepository {
         status.setCaching(caching);
         status.setStart(start);
         status.setEnd(end);
-        status.setNumberOfEntities(CollectionUtils.size(allAlleles));
+        if (allAlleles != null)
+            status.setNumberOfEntities(allAlleles.size());
         return status;
     }
 }
