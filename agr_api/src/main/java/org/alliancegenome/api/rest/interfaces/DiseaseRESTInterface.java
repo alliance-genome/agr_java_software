@@ -65,7 +65,31 @@ public interface DiseaseRESTInterface {
     @Path("/{id}/associations/download")
     @Produces(MediaType.TEXT_PLAIN)
     @ApiOperation(value = "Download all DiseaseAnnotation records for a given disease id and sorting / filtering parameters")
-    public Response getDiseaseAnnotationsDownloadFile(@PathParam("id") String id);
+    public Response getDiseaseAnnotationsDownloadFile(
+            @ApiParam(name = "id", value = "Disease by DOID: e.g. DOID:9952", required = true, type = "String")
+            @PathParam("id") String id,
+            @ApiParam(value = "Field / column name by which to sort", allowableValues = "Default,Gene,Disease,Species", defaultValue = "geneName")
+            @QueryParam("sortBy") String sortBy,
+            @ApiParam(value = "filter by gene symbol")
+            @QueryParam("filter.geneName") String geneName,
+            @ApiParam(value = "filter by species")
+            @QueryParam("filter.species") String species,
+            @ApiParam(value = "filter by gene genetic Entity")
+            @QueryParam("filter.geneticEntity") String geneticEntity,
+            @ApiParam(value = "filter by genetic Entity type", allowableValues = "gene,allele")
+            @QueryParam("filter.geneticEntityType") String geneticEntityType,
+            @ApiParam(value = "filter by disease")
+            @QueryParam("filter.disease") String disease,
+            @ApiParam(value = "filter by source")
+            @QueryParam("filter.source") String source,
+            @ApiParam(value = "filter by reference")
+            @QueryParam("filter.reference") String reference,
+            @ApiParam(value = "filter by evidence code")
+            @QueryParam("filter.evidenceCode") String evidenceCode,
+            @ApiParam(value = "filter by association type")
+            @QueryParam("filter.associationType") String associationType,
+            @ApiParam(value = "ascending order: true or false", allowableValues = "true,false", defaultValue = "true")
+            @QueryParam("asc") String asc);
 
     @GET
     @Path("/{id}/associations/download/all")

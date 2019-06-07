@@ -100,12 +100,46 @@ public class DiseaseController extends BaseController implements DiseaseRESTInte
     }
 
     @Override
-    public Response getDiseaseAnnotationsDownloadFile(String id) {
-
-        Response.ResponseBuilder response = Response.ok(getDiseaseAnnotationsDownload(id));
-        response.type(MediaType.TEXT_PLAIN_TYPE);
-        response.header("Content-Disposition", "attachment; filename=\"disease-annotations-" + id.replace(":", "-") + ".tsv\"");
-        return response.build();
+    public Response getDiseaseAnnotationsDownloadFile(String id,
+                                                      String sortBy,
+                                                      String geneName,
+                                                      String species,
+                                                      String geneticEntity,
+                                                      String geneticEntityType,
+                                                      String disease,
+                                                      String source,
+                                                      String reference,
+                                                      String evidenceCode,
+                                                      String associationType,
+                                                      String asc) {
+        Pagination pagination = new Pagination(1, Integer.MAX_VALUE, sortBy, asc);
+        pagination.addFieldFilter(FieldFilter.GENE_NAME, geneName);
+        pagination.addFieldFilter(FieldFilter.SPECIES, species);
+        pagination.addFieldFilter(FieldFilter.GENETIC_ENTITY, geneticEntity);
+        pagination.addFieldFilter(FieldFilter.GENETIC_ENTITY_TYPE, geneticEntityType);
+        pagination.addFieldFilter(FieldFilter.DISEASE, disease);
+        pagination.addFieldFilter(FieldFilter.SOURCE, source);
+        pagination.addFieldFilter(FieldFilter.FREFERENCE, reference);
+        pagination.addFieldFilter(FieldFilter.EVIDENCE_CODE, evidenceCode);
+        pagination.addFieldFilter(FieldFilter.ASSOCIATION_TYPE, associationType);
+        Response.ResponseBuilder responseBuilder = null;
+        if (pagination.hasErrors()) {
+            RestErrorMessage message = new RestErrorMessage();
+            message.setErrors(pagination.getErrors());
+            throw new RestErrorException(message);
+        }
+        try {
+            JsonResultResponse<DiseaseAnnotation> jsonResponse = diseaseService.getDiseaseAnnotationsByDisease(id, pagination);
+            responseBuilder = Response.ok(translator.getAllRows(jsonResponse.getResults()));
+            responseBuilder.type(MediaType.TEXT_PLAIN_TYPE);
+            APIService.setDownloadHeader(id, DISEASE, GENE, responseBuilder);
+        } catch (Exception e) {
+            log.error(e);
+            RestErrorMessage error = new RestErrorMessage();
+            error.addErrorMessage(e.getMessage());
+            throw new RestErrorException(error);
+        }
+        return responseBuilder.build();
     }
 
     @Override
