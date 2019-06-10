@@ -214,8 +214,8 @@ public class PhenotypeRepository extends Neo4jRepository<Phenotype> {
 
     public List<PhenotypeEntityJoin> getAllPhenotypeAnnotations() {
         String cypher = "MATCH p0=(phenotype:Phenotype)--(phenotypeEntityJoin:PhenotypeEntityJoin)<-[:EVIDENCE]-(publications:Publication), " +
-                "p2=(phenotypeEntityJoin)--(gene:Gene)-[:FROM_SPECIES]-(species:Species) " +
-                "OPTIONAL MATCH p4=(phenotypeEntityJoin)--(feature:Feature) " +
+                "p2=(phenotypeEntityJoin:PhenotypeEntityJoin)--(gene:Gene)-[:FROM_SPECIES]-(species:Species) " +
+                "OPTIONAL MATCH p4=(phenotypeEntityJoin:PhenotypeEntityJoin)--(feature:Feature)-[:CROSS_REFERENCE]->(crossRef:CrossReference) " +
                 "return p0, p2, p4 ";
 
         Iterable<PhenotypeEntityJoin> joins = neo4jSession.query(PhenotypeEntityJoin.class, cypher, new HashMap<>());
