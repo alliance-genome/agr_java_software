@@ -26,7 +26,9 @@ public class ExpressionCacheRepository {
             return null;
 
         List<ExpressionDetail> fullExpressionAnnotationList = new ArrayList<>();
-        geneIDs.forEach(geneID -> fullExpressionAnnotationList.addAll(geneExpressionMap.get(geneID)));
+        geneIDs.stream()
+                .filter(geneID -> geneExpressionMap.get(geneID) != null)
+                .forEach(geneID -> fullExpressionAnnotationList.addAll(geneExpressionMap.get(geneID)));
 
         //filtering
         // filter on termID
