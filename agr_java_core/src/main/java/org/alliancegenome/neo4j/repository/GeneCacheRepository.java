@@ -125,6 +125,8 @@ public class GeneCacheRepository {
         status.setCaching(orthologyCaching);
         status.setStart(startOrthology);
         status.setEnd(endOrthology);
+        if (orthologViewMap != null)
+            status.setNumberOfEntities(orthologViewMap.size());
         return status;
     }
 
