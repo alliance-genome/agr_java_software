@@ -273,6 +273,7 @@ public class DiseaseCacheRepository {
 
         log.info("Number of Disease IDs in disease Map: " + diseaseAnnotationMap.size());
         log.info("Time to create annotation  list: " + (System.currentTimeMillis() - startCreateHistogram) / 1000);
+        diseaseRepository.clearCache();
         end = LocalDateTime.now();
     }
 

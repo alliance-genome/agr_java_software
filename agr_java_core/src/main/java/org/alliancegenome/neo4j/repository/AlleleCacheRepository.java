@@ -135,6 +135,7 @@ public class AlleleCacheRepository {
         log.info("Number of all Genes with Alleles: " + geneAlleleMap.size());
         printTaxonMap();
         log.info("Time to create cache: " + (System.currentTimeMillis() - startTime) / 1000);
+        alleleRepo.clearCache();
         end = LocalDateTime.now();
     }
 
