@@ -140,6 +140,7 @@ public class PhenotypeCacheRepository {
         final Set<String> allIDs = closureMapping.keySet();
 */
         log.info("Time to create annotation histogram: " + (System.currentTimeMillis() - start) / 1000);
+        phenotypeRepository.clearCache();
         end = LocalDateTime.now();
 
     }

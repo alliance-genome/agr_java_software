@@ -127,6 +127,7 @@ public class InteractionCacheRepository {
         });
         log.info("Number of gene with interactions: " + interactionAnnotationMapGene.size());
         log.info("Time to create annotation histogram: " + (System.currentTimeMillis() - start) / 1000);
+        interactionRepository.clearCache();
         end = LocalDateTime.now();
     }
 

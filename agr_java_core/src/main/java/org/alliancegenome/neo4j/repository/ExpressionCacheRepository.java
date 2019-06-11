@@ -156,6 +156,7 @@ public class ExpressionCacheRepository {
         log.info("Number of all expression records: " + allExpression.size());
         log.info("Number of all Genes with Expression: " + geneExpressionMap.size());
         log.info("Time to create cache: " + (System.currentTimeMillis() - startTime) / 1000);
+        geneRepository.clearCache();
         end = LocalDateTime.now();
 
     }
