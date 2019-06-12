@@ -72,7 +72,6 @@ public class SnapShotCommand extends Command implements CommandInterface {
                         
                         List<String> index_list = new ArrayList<String>();
                         index_list.add(snapshot_name);
-                        checkRepo(repo);
                         im.restoreSnapShot(repo, snapshot_name, new ArrayList<String>(index_list));
                         try {
                             Thread.sleep(90000);
@@ -99,9 +98,7 @@ public class SnapShotCommand extends Command implements CommandInterface {
                     String repo = args.remove(0);
                     String snapShotName = args.remove(0);
                     String index_name = args.remove(0);
-                    
-                    checkRepo(repo);
-                    
+
                     List<String> list = new ArrayList<String>();
                     list.add(index_name);
                     im.restoreSnapShot(repo, snapShotName, new ArrayList<String>(list));
@@ -154,23 +151,6 @@ public class SnapShotCommand extends Command implements CommandInterface {
             printHelp();
         }
 
-    }
-
-    private void checkRepo(String repo) {
-        boolean found = false;
-        List<RepositoryMetaData> meta = im.listRepos();
-        for(RepositoryMetaData data: meta) {
-            if(data.name().equals(repo)) {
-                found = true;
-                System.out.println("Repo Found Name: " + data.name() + " Type: " + data.type());
-                break;
-            }
-        }
-        
-        if(!found) {
-            System.out.println("Repo Not Found: " + repo);
-            im.getCreateRepo(repo);
-        }
     }
 
 }
