@@ -98,6 +98,20 @@ public class SnapShotCommand extends Command implements CommandInterface {
                     String repo = args.remove(0);
                     String snapShotName = args.remove(0);
                     String index_name = args.remove(0);
+
+                    boolean found = false;
+                    List<RepositoryMetaData> meta = im.listRepos();
+                    for(RepositoryMetaData data: meta) {
+                        if(data.name().equals(repo)) {
+                            found = true;
+                            System.out.println("Name: " + data.name() + " Type: " + data.type());
+                            break;
+                        }
+                    }
+                    
+                    if(!found) {
+                        im.getCreateRepo(repo);
+                    }
                     
                     List<String> list = new ArrayList<String>();
                     list.add(index_name);
