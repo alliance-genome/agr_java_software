@@ -221,6 +221,7 @@ public class SearchService {
 
     public void addRelatedDataLinks(Map<String,Object> result) {
         String nameKey = (String) result.get("name_key");
+        String name = (String) result.get("name");
         String category = (String) result.get("category");
 
         List<RelatedDataLink> links = new ArrayList<>();
@@ -233,7 +234,7 @@ public class SearchService {
             links.add(getRelatedDataLink("gene", "diseases", nameKey));
             links.add(getRelatedDataLink("allele", "diseases", nameKey));
         } else if (StringUtils.equals(category, "allele")) {
-            links.add(getRelatedDataLink("gene", "alleles", nameKey));
+            links.add(getRelatedDataLink("gene", "alleles", name));
         } else if (StringUtils.equals(category,"go")) {
             String goType = (String) result.get("go_type");
             if (StringUtils.equals(goType, "biological_process")) {
