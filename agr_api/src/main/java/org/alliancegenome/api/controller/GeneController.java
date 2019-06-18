@@ -84,10 +84,17 @@ public class GeneController extends BaseController implements GeneRESTInterface 
             throw new RestErrorException(message);
         }
 
-        JsonResultResponse<Allele> alleles = geneService.getAlleles(id, pagination);
-        alleles.setHttpServletRequest(request);
-        alleles.calculateRequestDuration(startTime);
-        return alleles;
+        try {
+            JsonResultResponse<Allele> alleles = geneService.getAlleles(id, pagination);
+            alleles.setHttpServletRequest(request);
+            alleles.calculateRequestDuration(startTime);
+            return alleles;
+        } catch (Exception e) {
+            log.error(e);
+            RestErrorMessage error = new RestErrorMessage();
+            error.addErrorMessage(e.getMessage());
+            throw new RestErrorException(error);
+        }
     }
 
     @Override
