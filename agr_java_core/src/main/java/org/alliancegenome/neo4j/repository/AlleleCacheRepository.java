@@ -113,6 +113,8 @@ public class AlleleCacheRepository {
             cacheAllAlleles();
             caching = false;
         }
+        if (caching)
+            throw new RuntimeException("Cache Issue: Allele data are still being cached. Please wait...");
     }
 
     private void cacheAllAlleles() {

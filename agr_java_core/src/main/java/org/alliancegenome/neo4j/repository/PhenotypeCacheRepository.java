@@ -101,6 +101,8 @@ public class PhenotypeCacheRepository {
             cacheAllPhenotypeAnnotations();
             caching = false;
         }
+        if (caching)
+            throw new RuntimeException("Cache Issue: Phenotype data are still being cached. Please wait...");
     }
 
     private void cacheAllPhenotypeAnnotations() {
