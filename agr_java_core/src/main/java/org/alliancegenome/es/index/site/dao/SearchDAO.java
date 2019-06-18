@@ -42,6 +42,7 @@ public class SearchDAO extends ESDAO {
 
     public Long performCountQuery(QueryBuilder query) {
         SearchRequestBuilder searchRequestBuilder = searchClient.prepareSearch();
+        searchRequestBuilder.setIndices(ConfigHelper.getEsIndex());
         searchRequestBuilder.setQuery(query);
         searchRequestBuilder.setSize(0);
 
