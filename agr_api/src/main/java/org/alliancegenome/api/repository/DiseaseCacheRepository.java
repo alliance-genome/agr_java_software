@@ -174,6 +174,8 @@ public class DiseaseCacheRepository {
             cacheAllDiseaseAnnotations();
             caching = false;
         }
+        if (caching)
+            throw new RuntimeException("Cache Issue: Disease data are still being cached. Please wait...");
     }
 
     private void cacheAllDiseaseAnnotations() {

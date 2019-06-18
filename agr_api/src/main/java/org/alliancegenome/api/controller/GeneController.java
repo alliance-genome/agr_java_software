@@ -129,10 +129,17 @@ public class GeneController extends BaseController implements GeneRESTInterface 
         pagination.addFieldFilter(FieldFilter.DETECTION_METHOD, detectionMethod);
         pagination.addFieldFilter(FieldFilter.SOURCE, source);
         pagination.addFieldFilter(FieldFilter.FREFERENCE, reference);
-        JsonResultResponse<InteractionGeneJoin> interactions = geneService.getInteractions(id, pagination);
-        interactions.setHttpServletRequest(request);
-        interactions.calculateRequestDuration(startTime);
-        return interactions;
+        try {
+            JsonResultResponse<InteractionGeneJoin> interactions = geneService.getInteractions(id, pagination);
+            interactions.setHttpServletRequest(request);
+            interactions.calculateRequestDuration(startTime);
+            return interactions;
+        } catch (Exception e) {
+            log.error(e);
+            RestErrorMessage error = new RestErrorMessage();
+            error.addErrorMessage(e.getMessage());
+            throw new RestErrorException(error);
+        }
     }
 
     @Override
@@ -166,7 +173,18 @@ public class GeneController extends BaseController implements GeneRESTInterface 
                                                                            String phenotype,
                                                                            String reference,
                                                                            String asc) {
-        return getPhenotypeAnnotationDocumentJsonResultResponse(id, limit, page, sortBy, geneticEntity, geneticEntityType, phenotype, reference, asc);
+        long startTime = System.currentTimeMillis();
+        try {
+            JsonResultResponse<PhenotypeAnnotation> phenotypes = getPhenotypeAnnotationDocumentJsonResultResponse(id, limit, page, sortBy, geneticEntity, geneticEntityType, phenotype, reference, asc);
+            phenotypes.setHttpServletRequest(request);
+            phenotypes.calculateRequestDuration(startTime);
+            return phenotypes;
+        } catch (Exception e) {
+            log.error(e);
+            RestErrorMessage error = new RestErrorMessage();
+            error.addErrorMessage(e.getMessage());
+            throw new RestErrorException(error);
+        }
     }
 
     @Override

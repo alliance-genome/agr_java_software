@@ -101,6 +101,8 @@ public class InteractionCacheRepository {
             cacheAllInteractionAnnotations();
             caching = false;
         }
+        if (caching)
+            throw new RuntimeException("Cache Issue: Interaction data are still being cached. Please wait...");
     }
 
     private void cacheAllInteractionAnnotations() {
