@@ -53,7 +53,7 @@ public class InteractionToTdfTranslator {
             
             joiner.add(interactionGeneJoin.getGeneB().getPrimaryKey());
             joiner.add(interactionGeneJoin.getGeneB().getSymbol());
-            joiner.add(interactionGeneJoin.getGeneB().getSpecies().getType().getTaxonID());
+            joiner.add(interactionGeneJoin.getGeneB().getSpecies().getPrimaryKey());
             joiner.add(interactionGeneJoin.getGeneB().getSpecies().getName());
             
             joiner.add(interactionGeneJoin.getInteractorBType().getPrimaryKey());
