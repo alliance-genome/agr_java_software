@@ -113,6 +113,8 @@ public class AlleleCacheRepository {
             cacheAllAlleles();
             caching = false;
         }
+        if (caching)
+            throw new RuntimeException("Cache Issue: Allele data are still being cached. Please wait...");
     }
 
     private void cacheAllAlleles() {
@@ -135,6 +137,7 @@ public class AlleleCacheRepository {
         log.info("Number of all Genes with Alleles: " + geneAlleleMap.size());
         printTaxonMap();
         log.info("Time to create cache: " + (System.currentTimeMillis() - startTime) / 1000);
+        alleleRepo.clearCache();
         end = LocalDateTime.now();
     }
 

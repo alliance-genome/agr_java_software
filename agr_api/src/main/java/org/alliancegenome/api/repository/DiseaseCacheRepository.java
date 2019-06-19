@@ -174,6 +174,8 @@ public class DiseaseCacheRepository {
             cacheAllDiseaseAnnotations();
             caching = false;
         }
+        if (caching)
+            throw new RuntimeException("Cache Issue: Disease data are still being cached. Please wait...");
     }
 
     private void cacheAllDiseaseAnnotations() {
@@ -273,6 +275,7 @@ public class DiseaseCacheRepository {
 
         log.info("Number of Disease IDs in disease Map: " + diseaseAnnotationMap.size());
         log.info("Time to create annotation  list: " + (System.currentTimeMillis() - startCreateHistogram) / 1000);
+        diseaseRepository.clearCache();
         end = LocalDateTime.now();
     }
 

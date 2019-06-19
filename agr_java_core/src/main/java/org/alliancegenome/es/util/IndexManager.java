@@ -234,6 +234,7 @@ public class IndexManager {
             log.info("Restoring Snapshot: " + snapShotName + " in: " + repo + " with: " + indices);
             String[] array = new String[indices.size()];
             indices.toArray(array);
+            checkRepo(repo);
             client.admin().cluster()
             .prepareRestoreSnapshot(repo, snapShotName)
             .setIndices(array).get();
@@ -303,6 +304,7 @@ public class IndexManager {
     //  }
 
     public List<SnapshotInfo> getSnapshots(String repo) {
+        checkRepo(repo);
         GetSnapshotsResponse res  = client.admin().cluster().prepareGetSnapshots(repo).get();
         return res.getSnapshots();
     }
@@ -322,6 +324,23 @@ public class IndexManager {
             //ClusterHealthStatus status = health.getStatus();
         }
         return ret;
+    }
+    
+    private void checkRepo(String repo) {
+        boolean found = false;
+        List<RepositoryMetaData> meta = listRepos();
+        for(RepositoryMetaData data: meta) {
+            if(data.name().equals(repo)) {
+                found = true;
+                System.out.println("Repo Found Name: " + data.name() + " Type: " + data.type());
+                break;
+            }
+        }
+        
+        if(!found) {
+            System.out.println("Repo Not Found: " + repo);
+            getCreateRepo(repo);
+        }
     }
 
     public String getBaseIndexName() { return baseIndexName; }

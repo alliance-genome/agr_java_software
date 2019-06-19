@@ -98,7 +98,7 @@ public class SnapShotCommand extends Command implements CommandInterface {
                     String repo = args.remove(0);
                     String snapShotName = args.remove(0);
                     String index_name = args.remove(0);
-                    
+
                     List<String> list = new ArrayList<String>();
                     list.add(index_name);
                     im.restoreSnapShot(repo, snapShotName, new ArrayList<String>(list));

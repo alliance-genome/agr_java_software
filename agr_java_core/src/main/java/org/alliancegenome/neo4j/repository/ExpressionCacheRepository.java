@@ -26,7 +26,9 @@ public class ExpressionCacheRepository {
             return null;
 
         List<ExpressionDetail> fullExpressionAnnotationList = new ArrayList<>();
-        geneIDs.forEach(geneID -> fullExpressionAnnotationList.addAll(geneExpressionMap.get(geneID)));
+        geneIDs.stream()
+                .filter(geneID -> geneExpressionMap.get(geneID) != null)
+                .forEach(geneID -> fullExpressionAnnotationList.addAll(geneExpressionMap.get(geneID)));
 
         //filtering
         // filter on termID
@@ -105,7 +107,7 @@ public class ExpressionCacheRepository {
             caching = false;
         }
         if (caching)
-            throw new RuntimeException("Expression records are still being cached. Please wait...");
+            throw new RuntimeException("Cache Issue: Expression data are still being cached. Please wait...");
     }
 
     private void cacheAllExpression() {
@@ -154,6 +156,7 @@ public class ExpressionCacheRepository {
         log.info("Number of all expression records: " + allExpression.size());
         log.info("Number of all Genes with Expression: " + geneExpressionMap.size());
         log.info("Time to create cache: " + (System.currentTimeMillis() - startTime) / 1000);
+        geneRepository.clearCache();
         end = LocalDateTime.now();
 
     }

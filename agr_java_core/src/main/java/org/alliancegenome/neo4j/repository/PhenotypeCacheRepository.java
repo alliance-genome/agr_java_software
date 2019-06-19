@@ -101,6 +101,8 @@ public class PhenotypeCacheRepository {
             cacheAllPhenotypeAnnotations();
             caching = false;
         }
+        if (caching)
+            throw new RuntimeException("Cache Issue: Phenotype data are still being cached. Please wait...");
     }
 
     private void cacheAllPhenotypeAnnotations() {
@@ -140,6 +142,7 @@ public class PhenotypeCacheRepository {
         final Set<String> allIDs = closureMapping.keySet();
 */
         log.info("Time to create annotation histogram: " + (System.currentTimeMillis() - start) / 1000);
+        phenotypeRepository.clearCache();
         end = LocalDateTime.now();
 
     }
