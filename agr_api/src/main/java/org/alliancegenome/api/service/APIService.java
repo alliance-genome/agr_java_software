@@ -1,6 +1,8 @@
 package org.alliancegenome.api.service;
 
+import org.alliancegenome.neo4j.entity.node.DOTerm;
 import org.alliancegenome.neo4j.entity.node.Gene;
+import org.alliancegenome.neo4j.repository.DiseaseRepository;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 
 import javax.ws.rs.core.MediaType;
@@ -45,6 +47,12 @@ public class APIService {
                 Gene gene = repository.getShallowGene(id);
                 if (gene != null)
                     entityName = gene.getSymbol();
+                break;
+            case DISEASE:
+                DiseaseRepository diseaseRepository = new DiseaseRepository();
+                DOTerm disease = diseaseRepository.getDiseaseTerm(id);
+                if (disease != null)
+                    entityName = disease.getName();
                 break;
             default:
         }
