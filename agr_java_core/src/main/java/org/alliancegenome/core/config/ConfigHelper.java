@@ -55,6 +55,9 @@ public class ConfigHelper {
         defaults.put("API_PORT", "8080");
         defaults.put("API_SECURE", "false");
         
+        defaults.put("CACHE_HOST", "localhost");
+        defaults.put("CACHE_PORT", "11222");
+        
         defaults.put("NEO4J_HOST", "localhost");
         defaults.put("NEO4J_PORT", "7687");
 
@@ -116,6 +119,19 @@ public class ConfigHelper {
         return ret;
     }
 
+    public static String getCacheHost() {
+        if(!init) init();
+        return config.get("CACHE_HOST");
+    }
+    public static int getCachePort() {
+        if(!init) init();
+        try {
+            return Integer.parseInt(config.get("CACHE_PORT"));
+        } catch (NumberFormatException e) {
+            return 11222;
+        }
+    }
+    
     public static String getEsHost() {
         if(!init) init();
         return config.get("ES_HOST");
