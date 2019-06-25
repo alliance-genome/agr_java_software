@@ -90,7 +90,6 @@
 			<artifactId>cache-api</artifactId>
 			<version>1.1.0</version>
 		</dependency>
-
 	</dependencies>
 
 	<build>

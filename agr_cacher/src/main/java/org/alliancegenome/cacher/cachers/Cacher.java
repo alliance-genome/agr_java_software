@@ -10,7 +10,6 @@ import java.util.concurrent.TimeUnit;
 @Log4j2
 public abstract class Cacher extends Thread {
 
-
     protected abstract void cache();
 
     public void runCache() {
@@ -87,12 +86,14 @@ public abstract class Cacher extends Thread {
 //      return String.format("%,d", number);
 //  }
 //
+
     public static String getHumanReadableTimeDisplay(long duration) {
         long hours = TimeUnit.MILLISECONDS.toHours(duration) - TimeUnit.DAYS.toHours(TimeUnit.MILLISECONDS.toDays(duration));
         long minutes = TimeUnit.MILLISECONDS.toMinutes(duration) - TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(duration));
         long seconds = TimeUnit.MILLISECONDS.toSeconds(duration) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(duration));
         return String.format("%02d:%02d:%02d", hours, minutes, seconds);
     }
+
 //
 //  private void checkMemory() {
 //      if (memoryPercent() > 0.95) {
