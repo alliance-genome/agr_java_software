@@ -1,21 +1,18 @@
-package org.alliancegenome.cacher.cachers;
+package org.alliancegenome.cacher.cachers.db;
 
 import java.util.List;
 
-import org.alliancegenome.cacher.config.CacherConfig;
+import org.alliancegenome.cacher.cachers.DBCacher;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 
-import lombok.extern.log4j.Log4j2;
-
-@Log4j2
-public class GeneCacher extends Cacher<Gene> {
+public class GeneDBCacher extends DBCacher<Gene> {
 
     private static GeneRepository geneRepository = new GeneRepository();
     private static List<Gene> allGenes = null;
 
-    public GeneCacher(CacherConfig cacherConfig) {
-        super(cacherConfig);
+    public GeneDBCacher(String cacheName) {
+        super(cacheName);
     }
 
     @Override
