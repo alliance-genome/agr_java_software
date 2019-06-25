@@ -1,22 +1,25 @@
 package org.alliancegenome.cacher.cachers.db;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import org.alliancegenome.cache.CacheAlliance;
-import org.alliancegenome.cache.ExpressionAllianceCacheManager;
-import org.alliancegenome.cacher.cachers.Cacher;
+import static java.util.stream.Collectors.groupingBy;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
+
+import org.alliancegenome.cacher.cachers.DBCacher;
 import org.alliancegenome.core.ExpressionDetail;
-import org.alliancegenome.core.service.JsonResultResponseExpression;
+
 import org.alliancegenome.neo4j.entity.node.BioEntityGeneExpressionJoin;
 import org.alliancegenome.neo4j.entity.node.GOTerm;
 import org.alliancegenome.neo4j.entity.node.UBERONTerm;
 import org.alliancegenome.neo4j.repository.DiseaseRepository;
 import org.alliancegenome.neo4j.repository.GeneRepository;
-import org.alliancegenome.neo4j.view.View;
-
-import java.util.*;
-import java.util.stream.Collectors;
-
-import static java.util.stream.Collectors.groupingBy;
 
 public class ExpressionDBCacher extends Cacher {
 
@@ -29,6 +32,10 @@ public class ExpressionDBCacher extends Cacher {
         parentTermIDs.add("UBERON:0000000");
         // cellular Component
         parentTermIDs.add("GO:0005575");
+    }
+    
+    public ExpressionDBCacher(String cacheName) {
+        super(cacheName);
     }
 
     @Override
@@ -50,7 +57,9 @@ public class ExpressionDBCacher extends Cacher {
                     detail.setCrossReference(expressionJoin.getCrossReference());
                     // add AO terms and All AO parent term
                     List<String> aoList = expressionJoin.getEntity().getAoTermList().stream().map(UBERONTerm::getPrimaryKey).collect(Collectors.toList());
-                    Set<String> parentTermIDs = null;
+
+                    Set<String> parentTermIDs = getParentTermIDs(aoList);
+
                     if (parentTermIDs != null)
                         aoList.addAll(parentTermIDs);
                     detail.addTermIDs(aoList);
@@ -65,7 +74,7 @@ public class ExpressionDBCacher extends Cacher {
                     if (expressionJoin.getStageTerm() != null) {
                         String stageID = expressionJoin.getStageTerm().getPrimaryKey();
                         detail.addTermID(stageID);
-                        //detail.addTermIDs(getParentTermIDs(stageID));
+                        detail.addTermIDs(getParentTermIDs(stageID));
                     }
                     return detail;
                 })

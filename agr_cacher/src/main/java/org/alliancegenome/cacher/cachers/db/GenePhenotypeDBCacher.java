@@ -1,31 +1,24 @@
 package org.alliancegenome.cacher.cachers.db;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import org.alliancegenome.cache.AllianceCacheManager;
-import org.alliancegenome.cache.CacheAlliance;
-import org.alliancegenome.cache.PhenotypeCacheManager;
-import org.alliancegenome.cacher.cachers.Cacher;
-import org.alliancegenome.core.service.JsonResultResponse;
-import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
-import org.alliancegenome.neo4j.entity.node.PhenotypeEntityJoin;
-import org.alliancegenome.neo4j.repository.PhenotypeRepository;
-import org.alliancegenome.neo4j.view.View;
-import org.ehcache.Cache;
-
-import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
 
-public class GenePhenotypeDBCacher extends Cacher {
+import java.text.DecimalFormat;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
+import org.alliancegenome.cacher.cachers.DBCacher;
+import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
+import org.alliancegenome.neo4j.entity.node.PhenotypeEntityJoin;
+import org.alliancegenome.neo4j.repository.PhenotypeRepository;
+
+public class GenePhenotypeDBCacher extends DBCacher<List<PhenotypeAnnotation>> {
+    
     private static PhenotypeRepository phenotypeRepository = new PhenotypeRepository();
-
-    public GenePhenotypeDBCacher() {
-        super();
+    
+    public GenePhenotypeDBCacher(String cacheName) {
+        super(cacheName);
     }
 
     @Override
@@ -65,6 +58,5 @@ public class GenePhenotypeDBCacher extends Cacher {
             }
         });
     }
-
 
 }
