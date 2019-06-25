@@ -1,14 +1,14 @@
 package org.alliancegenome.core.service;
 
+import org.alliancegenome.es.model.query.FieldFilter;
+import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
+import org.alliancegenome.neo4j.entity.node.Gene;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import org.alliancegenome.es.model.query.FieldFilter;
-import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
-import org.alliancegenome.neo4j.entity.node.Gene;
 
 public class DiseaseAnnotationFiltering {
 
@@ -42,6 +42,16 @@ public class DiseaseAnnotationFiltering {
             (annotation, value) -> {
                 Set<Boolean> filteringPassed = annotation.getEcoCodes().stream()
                         .map(evidenceCode -> FilterFunction.contains(evidenceCode.getName(), value))
+                        .collect(Collectors.toSet());
+                return !filteringPassed.contains(false);
+            };
+
+    public static FilterFunction<DiseaseAnnotation, String> basedOnGeneFilter =
+            (annotation, value) -> {
+                if (annotation.getOrthologyGenes() == null)
+                    return false;
+                Set<Boolean> filteringPassed = annotation.getOrthologyGenes().stream()
+                        .map(gene -> FilterFunction.contains(gene.getSymbol(), value))
                         .collect(Collectors.toSet());
                 return !filteringPassed.contains(false);
             };
@@ -86,6 +96,7 @@ public class DiseaseAnnotationFiltering {
         filterFieldMap.put(FieldFilter.GENETIC_ENTITY, geneticEntityFilter);
         filterFieldMap.put(FieldFilter.GENE_NAME, geneNameFilter);
         filterFieldMap.put(FieldFilter.SPECIES, geneSpeciesFilter);
+        filterFieldMap.put(FieldFilter.BASED_ON_GENE, basedOnGeneFilter);
     }
 
     public static boolean isValidFiltering(Map<FieldFilter, String> fieldFilterValueMap) {
