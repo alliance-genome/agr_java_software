@@ -67,6 +67,7 @@ public class DiseaseController extends BaseController implements DiseaseRESTInte
                                                                              String source,
                                                                              String reference,
                                                                              String evidenceCode,
+                                                                             String basedOnGeneSymbol,
                                                                              String associationType,
                                                                              String asc) {
         long startTime = System.currentTimeMillis();
@@ -79,6 +80,7 @@ public class DiseaseController extends BaseController implements DiseaseRESTInte
         pagination.addFieldFilter(FieldFilter.SOURCE, source);
         pagination.addFieldFilter(FieldFilter.FREFERENCE, reference);
         pagination.addFieldFilter(FieldFilter.EVIDENCE_CODE, evidenceCode);
+        pagination.addFieldFilter(FieldFilter.BASED_ON_GENE, basedOnGeneSymbol);
         pagination.addFieldFilter(FieldFilter.ASSOCIATION_TYPE, associationType);
         if (pagination.hasErrors()) {
             RestErrorMessage message = new RestErrorMessage();
@@ -110,6 +112,7 @@ public class DiseaseController extends BaseController implements DiseaseRESTInte
                                                       String source,
                                                       String reference,
                                                       String evidenceCode,
+                                                      String basedOnGeneSymbol,
                                                       String associationType,
                                                       String asc) {
         Pagination pagination = new Pagination(1, Integer.MAX_VALUE, sortBy, asc);
@@ -121,6 +124,7 @@ public class DiseaseController extends BaseController implements DiseaseRESTInte
         pagination.addFieldFilter(FieldFilter.SOURCE, source);
         pagination.addFieldFilter(FieldFilter.FREFERENCE, reference);
         pagination.addFieldFilter(FieldFilter.EVIDENCE_CODE, evidenceCode);
+        pagination.addFieldFilter(FieldFilter.BASED_ON_GENE, basedOnGeneSymbol);
         pagination.addFieldFilter(FieldFilter.ASSOCIATION_TYPE, associationType);
         Response.ResponseBuilder responseBuilder = null;
         if (pagination.hasErrors()) {
@@ -161,6 +165,7 @@ public class DiseaseController extends BaseController implements DiseaseRESTInte
                                                                                     String geneticEntityType,
                                                                                     String associationType,
                                                                                     String evidenceCode,
+                                                                                    String basedOnGeneSymbol,
                                                                                     int limit,
                                                                                     int page,
                                                                                     String sortBy,
@@ -178,6 +183,7 @@ public class DiseaseController extends BaseController implements DiseaseRESTInte
         filterMap.put(FieldFilter.GENETIC_ENTITY, geneticEntity);
         filterMap.put(FieldFilter.ASSOCIATION_TYPE, associationType);
         filterMap.put(FieldFilter.EVIDENCE_CODE, evidenceCode);
+        filterMap.put(FieldFilter.BASED_ON_GENE, basedOnGeneSymbol);
         filterMap.values().removeIf(Objects::isNull);
         pagination.setFieldFilterValueMap(filterMap);
 
@@ -211,6 +217,7 @@ public class DiseaseController extends BaseController implements DiseaseRESTInte
                                                                String geneticEntityType,
                                                                String associationType,
                                                                String evidenceCode,
+                                                               String basedOnGeneSymbol,
                                                                String sortBy,
                                                                String asc) {
 
@@ -226,6 +233,7 @@ public class DiseaseController extends BaseController implements DiseaseRESTInte
         filterMap.put(FieldFilter.GENETIC_ENTITY, geneticEntity);
         filterMap.put(FieldFilter.ASSOCIATION_TYPE, associationType);
         filterMap.put(FieldFilter.EVIDENCE_CODE, evidenceCode);
+        filterMap.put(FieldFilter.BASED_ON_GENE, basedOnGeneSymbol);
         filterMap.values().removeIf(Objects::isNull);
         pagination.setFieldFilterValueMap(filterMap);
         Response.ResponseBuilder responseBuilder = null;
