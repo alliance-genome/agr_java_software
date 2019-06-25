@@ -1,21 +1,29 @@
 package org.alliancegenome.neo4j.repository;
 
-import org.alliancegenome.api.entity.CacheStatus;
-import org.alliancegenome.core.service.*;
-import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
-import org.alliancegenome.neo4j.view.BaseFilter;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toList;
 
 import java.text.DecimalFormat;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.toList;
+import org.alliancegenome.api.entity.CacheStatus;
+import org.alliancegenome.core.service.FilterFunction;
+import org.alliancegenome.core.service.InteractionAnnotationFiltering;
+import org.alliancegenome.core.service.InteractionAnnotationSorting;
+import org.alliancegenome.core.service.PaginationResult;
+import org.alliancegenome.core.service.SortingField;
+import org.alliancegenome.es.model.query.Pagination;
+import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
+import org.alliancegenome.neo4j.view.BaseFilter;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 public class InteractionCacheRepository {
 

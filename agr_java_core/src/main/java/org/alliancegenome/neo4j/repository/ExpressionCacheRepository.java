@@ -1,25 +1,46 @@
 package org.alliancegenome.neo4j.repository;
 
+import static java.util.stream.Collectors.groupingBy;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
+
 import org.alliancegenome.api.entity.CacheStatus;
 import org.alliancegenome.core.ExpressionDetail;
-import org.alliancegenome.core.service.*;
+import org.alliancegenome.core.service.ExpressionAnnotationFiltering;
+import org.alliancegenome.core.service.ExpressionAnnotationSorting;
+import org.alliancegenome.core.service.FilterFunction;
+import org.alliancegenome.core.service.PaginationResult;
+import org.alliancegenome.core.service.SortingField;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.node.BioEntityGeneExpressionJoin;
 import org.alliancegenome.neo4j.entity.node.GOTerm;
 import org.alliancegenome.neo4j.entity.node.UBERONTerm;
 import org.alliancegenome.neo4j.view.BaseFilter;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
-import java.time.LocalDateTime;
-import java.util.*;
-import java.util.stream.Collectors;
+import lombok.extern.log4j.Log4j2;
 
-import static java.util.stream.Collectors.groupingBy;
-
+@Log4j2
 public class ExpressionCacheRepository {
+    
 
+    private static List<ExpressionDetail> allExpression = null;
+    // Map<gene ID, List<Allele>> grouped by gene ID
+    private static Map<String, List<ExpressionDetail>> geneExpressionMap;
+
+    private static boolean caching;
+    private static LocalDateTime start;
+    private static LocalDateTime end;
+    
     public PaginationResult<ExpressionDetail> getExpressionAnnotations(List<String> geneIDs, String termID, Pagination pagination) {
         checkCache();
         if (caching)
@@ -89,16 +110,6 @@ public class ExpressionCacheRepository {
                 .limit(pagination.getLimit())
                 .collect(Collectors.toList());
     }
-
-    private Log log = LogFactory.getLog(getClass());
-    // cached value
-    private static List<ExpressionDetail> allExpression = null;
-    // Map<gene ID, List<Allele>> grouped by gene ID
-    private static Map<String, List<ExpressionDetail>> geneExpressionMap;
-
-    private static boolean caching;
-    private static LocalDateTime start;
-    private static LocalDateTime end;
 
     private void checkCache() {
         if (allExpression == null && !caching) {

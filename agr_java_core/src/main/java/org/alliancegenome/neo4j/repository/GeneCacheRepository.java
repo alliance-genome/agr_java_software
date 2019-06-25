@@ -1,22 +1,25 @@
 package org.alliancegenome.neo4j.repository;
 
+import static java.util.stream.Collectors.toSet;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.alliancegenome.api.entity.CacheStatus;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.view.OrthologView;
 import org.apache.commons.collections4.MapUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
-import java.time.LocalDateTime;
-import java.util.*;
+import lombok.extern.log4j.Log4j2;
 
-import static java.util.stream.Collectors.toSet;
-
+@Log4j2
 public class GeneCacheRepository {
 
-    private Log log = LogFactory.getLog(getClass());
     private static GeneRepository geneRepository = new GeneRepository();
-
 
     // cached value
     private static List<Gene> allGenes = null;
@@ -24,6 +27,13 @@ public class GeneCacheRepository {
     private static Map<String, Gene> allGeneMap = new HashMap<>();
     private static boolean caching;
 
+    private static boolean orthologyCaching;
+    private static LocalDateTime startOrthology;
+    private static LocalDateTime endOrthology;
+
+    private static Map<String, Set<OrthologView>> orthologViewMap = new HashMap<>();
+    
+    
     public List<Gene> getAllGenes() {
         checkCache();
         if (caching)
@@ -60,13 +70,6 @@ public class GeneCacheRepository {
         log.info("Retrieved " + allGenes.size() + " genes");
         log.info("Time to retrieve genes " + ((System.currentTimeMillis() - start) / 1000) + " s");
     }
-
-    private static boolean orthologyCaching;
-    private static LocalDateTime startOrthology;
-    private static LocalDateTime endOrthology;
-
-    private List<OrthologView> orthologViewList;
-    private static Map<String, Set<OrthologView>> orthologViewMap = new HashMap<>();
 
     public List<OrthologView> getAllOrthologyGenes(List<String> geneIDs) {
         orthologyCheckCache();
