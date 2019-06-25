@@ -32,6 +32,38 @@ public abstract class Cacher extends Thread {
         }
     }
 
+    public <T> RemoteCache<String, T> setupCache(String cacheName) {
+        
+        ConfigurationBuilder cb = new ConfigurationBuilder();
+
+        cb.addServer()
+        .host(ConfigHelper.getCacheHost())
+        .port(ConfigHelper.getCachePort())
+        .socketTimeout(500)
+        .connectionTimeout(500)
+        .tcpNoDelay(true);
+
+        RemoteCacheManager rmc = new RemoteCacheManager(cb.build());
+        
+        //cache = rmc.administration().withFlags(AdminFlag.PERMANENT).getOrCreateCache(cacherConfig.getCacheName(), cacherConfig.getCacheTemplate());
+
+        org.infinispan.configuration.cache.ConfigurationBuilder cb2 = new org.infinispan.configuration.cache.ConfigurationBuilder();
+        
+        cb2.persistence()
+        .passivation(false)
+        .addSingleFileStore()
+            .shared(false)
+            .preload(true)
+            .fetchPersistentState(true)
+            .purgeOnStartup(false)
+            .location("/tmp/" + cacheName)
+            .async()
+               .enabled(true)
+               .threadPoolSize(5);
+
+        return rmc.administration().getOrCreateCache(cacheName, cb2.build());
+    }
+
 //  protected Runtime runtime = Runtime.getRuntime();
 //  protected DecimalFormat df = new DecimalFormat("#");
 //
@@ -41,8 +73,8 @@ public abstract class Cacher extends Thread {
 //  private int lastSize;
 //  private long batchTotalSize = 0;
 //  private long batchCount = 0;
-
-    //  protected void startProcess(int amountBatches, int batchSize, int totalDocAmount) {
+    
+//  protected void startProcess(int amountBatches, int batchSize, int totalDocAmount) {
 //      log.info("Starting Processing: batches: " + amountBatches + " size: " + batchSize + " total: " + getBigNumber(totalDocAmount) + " at: " + startTime);
 //      lastTime = new Date();
 //  }
@@ -86,7 +118,6 @@ public abstract class Cacher extends Thread {
 //      return String.format("%,d", number);
 //  }
 //
-
     public static String getHumanReadableTimeDisplay(long duration) {
         long hours = TimeUnit.MILLISECONDS.toHours(duration) - TimeUnit.DAYS.toHours(TimeUnit.MILLISECONDS.toDays(duration));
         long minutes = TimeUnit.MILLISECONDS.toMinutes(duration) - TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(duration));

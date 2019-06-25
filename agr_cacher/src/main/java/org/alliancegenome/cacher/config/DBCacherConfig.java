@@ -16,17 +16,21 @@ public enum DBCacherConfig {
     private String cacherName;
     private Class<?> cacherClass;
 
-    DBCacherConfig(String cacherName, Class<?> indexClazz) {
+    DBCacherConfig(String cacherName, Class<?> cacherClazz) {
         this.cacherName = cacherName;
-        this.cacherClass = indexClazz;
+        this.cacherClass = cacherClazz;
     }
 
     public String getCacherName() {
         return cacherName;
     }
-
-    public Class<?> getCacherClass() {
-        return cacherClass;
+    
+    public Class<?> getCacherClazz() {
+        return cacherClazz;
+    }
+    
+    public Caches getCache() {
+        return cache;
     }
 
 }
