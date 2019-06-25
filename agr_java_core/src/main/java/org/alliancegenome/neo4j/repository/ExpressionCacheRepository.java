@@ -39,6 +39,17 @@ public class ExpressionCacheRepository {
     private static LocalDateTime start;
     private static LocalDateTime end;
     
+    private static List<String> parentTermIDs = new ArrayList<>();
+
+    static {
+        // anatomical entity
+        parentTermIDs.add("UBERON:0001062");
+        // processual entity stage
+        parentTermIDs.add("UBERON:0000000");
+        // cellular Component
+        parentTermIDs.add("GO:0005575");
+    }
+    
     public PaginationResult<ExpressionDetail> getExpressionAnnotations(List<String> geneIDs, String termID, Pagination pagination) {
 
         List<ExpressionDetail> fullExpressionAnnotationList = new ArrayList<>();

@@ -2,7 +2,9 @@ package org.alliancegenome.cacher.config;
 
 public enum Caches {
 
-    GeneCache("gene"), 
+    GeneCache("gene"),
+    GeneExpressionCache("geneExpression"),
+    GenePhenotypeCache("genePhenotype"),
     AlleleCache("allele"),
     SpeciesCache("species"),
     GeneAlleleCache("geneAllele"),
