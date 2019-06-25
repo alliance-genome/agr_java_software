@@ -19,6 +19,21 @@ import static java.util.stream.Collectors.groupingBy;
 
 public class AlleleCacheRepository {
 
+    private Log log = LogFactory.getLog(getClass());
+    // cached value
+    private static List<Allele> allAlleles = null;
+    // Map<gene ID, List<Allele>> grouped by gene ID
+    private static Map<String, List<Allele>> geneAlleleMap;
+    // Map<taxon ID, List<Allele>> grouped by taxon ID
+    private static Map<String, List<Allele>> taxonAlleleMap;
+
+    private static boolean caching;
+    private static LocalDateTime start;
+    private static LocalDateTime end;
+
+    private AlleleRepository alleleRepo = new AlleleRepository();
+    
+    
     public JsonResultResponse<Allele> getAllelesBySpecies(String species, Pagination pagination) {
         checkCache();
         if (caching)
@@ -91,21 +106,6 @@ public class AlleleCacheRepository {
 
         return !filterResults.contains(false);
     }
-
-
-    private Log log = LogFactory.getLog(getClass());
-    // cached value
-    private static List<Allele> allAlleles = null;
-    // Map<gene ID, List<Allele>> grouped by gene ID
-    private static Map<String, List<Allele>> geneAlleleMap;
-    // Map<taxon ID, List<Allele>> grouped by taxon ID
-    private static Map<String, List<Allele>> taxonAlleleMap;
-
-    private static boolean caching;
-    private static LocalDateTime start;
-    private static LocalDateTime end;
-
-    private AlleleRepository alleleRepo = new AlleleRepository();
 
     private void checkCache() {
         if (allAlleles == null && !caching) {
