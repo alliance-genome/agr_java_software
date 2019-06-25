@@ -32,12 +32,11 @@ public class Main {
             System.exit(-1);
         });
 
-        // Create all the DB Cachers
-        HashMap<String, Cacher> dbcachers = new HashMap<>();
-        for (DBCacherConfig cc : DBCacherConfig.values()) {
+        HashMap<String, Cacher> cachers = new HashMap<>();
+        for (CacherConfig cc : CacherConfig.values()) {
             try {
                 Cacher i = (Cacher) cc.getCacherClass().getDeclaredConstructor().newInstance();
-                dbcachers.put(cc.getCacherName(), i);
+                cachers.put(cc.getCacheName(), i);
             } catch (Exception e) {
                 e.printStackTrace();
                 log.error(e.getMessage());
@@ -45,15 +44,14 @@ public class Main {
             }
         }
 
-        // Run all the DB Cachers
-        for (String type : dbcachers.keySet()) {
+        for (String type : cachers.keySet()) {
             if (argumentSet.size() == 0 || argumentSet.contains(type)) {
                 if (ConfigHelper.isThreaded()) {
                     log.info("Starting in threaded mode for: " + type);
-                    dbcachers.get(type).start();
+                    cachers.get(type).start();
                 } else {
                     log.info("Starting cacher sequentially: " + type);
-                    dbcachers.get(type).runCache();
+                    cachers.get(type).runCache();
                 }
             } else {
                 log.info("Not Starting: " + type);
@@ -61,8 +59,8 @@ public class Main {
         }
 
         // Wait for all the DB Cachers to finish
-        log.debug("Waiting for DBCachers to finish");
-        for (Cacher i : dbcachers.values()) {
+        log.debug("Waiting for Cachers to finish");
+        for (Cacher i : cachers.values()) {
             try {
                 if (i.isAlive()) {
                     i.join();
@@ -73,6 +71,7 @@ public class Main {
                 System.exit(-1);
             }
         }
+
         AllianceCacheManager.close();
 
         Date end = new Date();
