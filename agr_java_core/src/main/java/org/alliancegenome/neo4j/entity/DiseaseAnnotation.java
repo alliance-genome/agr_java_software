@@ -95,4 +95,9 @@ public class DiseaseAnnotation implements Comparable<DiseaseAnnotation>, Seriali
     public int hashCode() {
         return Objects.hash(source, disease, gene, feature, publications, ecoCodes, associationType);
     }
+
+    @Override
+    public String toString() {
+        return disease.getPrimaryKey()+" : "+getGene().getPrimaryKey();
+    }
 }

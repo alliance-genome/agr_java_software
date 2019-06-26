@@ -2,6 +2,7 @@ package org.alliancegenome.core.service;
 
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
+import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.entity.node.Gene;
 
 import java.util.HashMap;
@@ -50,10 +51,18 @@ public class DiseaseAnnotationFiltering {
             (annotation, value) -> {
                 if (annotation.getOrthologyGenes() == null)
                     return false;
-                Set<Boolean> filteringPassed = annotation.getOrthologyGenes().stream()
-                        .map(gene -> FilterFunction.contains(gene.getSymbol(), value))
-                        .collect(Collectors.toSet());
-                return !filteringPassed.contains(false);
+                StringBuilder fullGeneSpeciesName = new StringBuilder();
+
+                annotation.getOrthologyGenes().forEach(gene -> {
+                    String fullName = gene.getSymbol();
+                    final String primaryKey = gene.getSpecies().getPrimaryKey();
+                    SpeciesType speciesType = SpeciesType.getTypeByID(primaryKey);
+                    if (speciesType == null)
+                        throw new RuntimeException("No Species found for " + primaryKey);
+                    fullName += " (" + speciesType.getAbbreviation() + ") ";
+                    fullGeneSpeciesName.append(fullName);
+                });
+                return FilterFunction.contains(fullGeneSpeciesName.toString(), value);
             };
 
     public static FilterFunction<DiseaseAnnotation, String> referenceFilter =
