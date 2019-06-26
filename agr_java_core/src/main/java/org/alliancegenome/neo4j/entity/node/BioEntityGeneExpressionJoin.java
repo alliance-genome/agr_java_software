@@ -29,7 +29,7 @@ public class BioEntityGeneExpressionJoin extends Association {
     private MMOTerm assay;
 
     @Relationship(type = "CROSS_REFERENCE")
-    private CrossReference crossReference;
+    private List<CrossReference> crossReferences;
 
     @Relationship(type = "ASSOCIATION", direction = Relationship.INCOMING)
     private Gene gene;

@@ -28,7 +28,7 @@ public class ExpressionDetail implements Comparable {
     @JsonView(View.Expression.class)
     private String dataProvider;
     @JsonView(View.Expression.class)
-    private CrossReference crossReference;
+    private List<CrossReference> crossReferences;
 
     @JsonView(View.Expression.class)
     private List<String> termIDs = new ArrayList<>(6);
