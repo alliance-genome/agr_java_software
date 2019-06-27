@@ -2,6 +2,9 @@ package org.alliancegenome.api.service;
 
 import org.alliancegenome.api.entity.EntitySubgroupSlim;
 import org.alliancegenome.api.entity.RibbonEntity;
+import org.alliancegenome.api.DiseaseCacheRepository;
+import org.alliancegenome.api.entity.DiseaseEntitySubgroupSlim;
+import org.alliancegenome.api.entity.DiseaseRibbonEntity;
 import org.alliancegenome.api.entity.DiseaseRibbonSummary;
 import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.core.service.PaginationResult;
@@ -13,7 +16,6 @@ import org.alliancegenome.neo4j.entity.DiseaseSummary;
 import org.alliancegenome.neo4j.entity.node.DOTerm;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.entity.node.SimpleTerm;
-import org.alliancegenome.neo4j.repository.DiseaseCacheRepository;
 import org.alliancegenome.neo4j.repository.DiseaseRepository;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.apache.commons.logging.Log;

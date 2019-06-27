@@ -2,14 +2,13 @@ package org.alliancegenome.api;
 
 import org.alliancegenome.api.entity.CacheStatus;
 import org.alliancegenome.api.service.DiseaseRibbonService;
-import org.alliancegenome.cache.DiseaseAllianceCacheManager;
 import org.alliancegenome.core.service.*;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.node.*;
 import org.alliancegenome.neo4j.repository.DiseaseRepository;
+import org.alliancegenome.neo4j.repository.GeneCacheRepository;
 import org.alliancegenome.neo4j.view.BaseFilter;
-import org.alliancegenome.neo4j.view.View;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -25,6 +24,7 @@ public class DiseaseCacheRepository {
 
     private Log log = LogFactory.getLog(getClass());
     private static DiseaseRepository diseaseRepository = new DiseaseRepository();
+    private GeneCacheRepository geneCacheRepository = new GeneCacheRepository();
 
 
     // cached value
@@ -40,11 +40,14 @@ public class DiseaseCacheRepository {
     private static boolean caching;
     private static LocalDateTime start;
     private static LocalDateTime end;
-    private DiseaseAllianceCacheManager manager = new DiseaseAllianceCacheManager();
 
     public PaginationResult<DiseaseAnnotation> getDiseaseAnnotationList(String diseaseID, Pagination pagination) {
+        checkCache();
+        if (caching)
+            return null;
 
-        List<DiseaseAnnotation> fullDiseaseAnnotationList = manager.getDiseaseAnnotationsWeb(diseaseID, View.DiseaseAnnotationSummary.class);
+        List<DiseaseAnnotation> fullDiseaseAnnotationList = diseaseAnnotationSummaryMap.get(diseaseID);
+
         //filtering
         List<DiseaseAnnotation> filteredDiseaseAnnotationList = filterDiseaseAnnotations(fullDiseaseAnnotationList, pagination.getFieldFilterValueMap());
 
@@ -55,12 +58,16 @@ public class DiseaseCacheRepository {
     }
 
     public PaginationResult<DiseaseAnnotation> getRibbonDiseaseAnnotations(List<String> geneIDs, String diseaseSlimID, Pagination pagination) {
+        checkCache();
+        if (caching)
+            return null;
+
         if (geneIDs == null)
             return null;
         List<DiseaseAnnotation> fullDiseaseAnnotationList = new ArrayList<>();
         // filter by gene
         geneIDs.forEach(geneID -> {
-                    List<DiseaseAnnotation> annotations = manager.getDiseaseAnnotationsWeb(geneID, View.DiseaseAnnotationSummary.class);
+                    List<DiseaseAnnotation> annotations = diseaseAnnotationExperimentGeneMap.get(geneID);
                     if (annotations != null)
                         fullDiseaseAnnotationList.addAll(annotations);
                     else
@@ -85,10 +92,15 @@ public class DiseaseCacheRepository {
     }
 
     public PaginationResult<DiseaseAnnotation> getDiseaseAnnotationList(String geneID, Pagination pagination, boolean empiricalDisease) {
+        checkCache();
+        if (caching)
+            return null;
 
         List<DiseaseAnnotation> diseaseAnnotationList;
-        diseaseAnnotationList = manager.getDiseaseAnnotationsWeb(geneID, View.DiseaseAnnotationSummary.class);
-
+        if (empiricalDisease)
+            diseaseAnnotationList = diseaseAnnotationExperimentGeneMap.get(geneID);
+        else
+            diseaseAnnotationList = diseaseAnnotationOrthologGeneMap.get(geneID);
         if (diseaseAnnotationList == null)
             return null;
 
