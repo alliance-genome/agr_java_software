@@ -1,4 +1,4 @@
-package org.alliancegenome.neo4j.repository;
+package org.alliancegenome.api;
 
 import org.alliancegenome.api.entity.CacheStatus;
 import org.alliancegenome.api.service.DiseaseRibbonService;
