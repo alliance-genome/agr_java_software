@@ -4,18 +4,19 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.logging.LogManager;
 
 import org.alliancegenome.cacher.cachers.Cacher;
 import org.alliancegenome.cacher.config.Caches;
 import org.alliancegenome.cacher.config.DBCacherConfig;
 import org.alliancegenome.cacher.config.IOCacherConfig;
 import org.alliancegenome.core.config.ConfigHelper;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.jboss.logging.Logger;
 
+import lombok.extern.log4j.Log4j2;
+
+@Log4j2
 public class Main {
-    
-    private static Logger log = LogManager.getLogger(Main.class);
     
     public static void main( String[] args ) {
         ConfigHelper.init();
@@ -37,10 +38,11 @@ public class Main {
             }
         });
         
+        // Create all the DB Cachers
         HashMap<String, Cacher> dbcachers = new HashMap<>();
         for (DBCacherConfig cc : DBCacherConfig.values()) {
             try {
-                Cacher i = (Cacher) cc.getCacherClazz().getDeclaredConstructor(Caches.class).newInstance(cc.getCache());
+                Cacher i = (Cacher) cc.getCacherClazz().getDeclaredConstructor(String.class).newInstance(cc.getCache().getCacheName());
                 dbcachers.put(cc.getCacherName(), i);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -49,6 +51,7 @@ public class Main {
             }
         }
 
+        // Run all the DB Cachers
         for (String type : dbcachers.keySet()) {
             if (argumentSet.size() == 0 || argumentSet.contains(type)) {
                 if (ConfigHelper.isThreaded()) {
@@ -63,6 +66,7 @@ public class Main {
             }
         }
         
+        // Wait for all the DB Cachers to finish
         log.debug("Waiting for DBCachers to finish");
         for (Cacher i : dbcachers.values()) {
             try {
@@ -76,11 +80,11 @@ public class Main {
             }
         }
         
-        
+        // Create all the IO Cachers
         HashMap<String, Cacher> iocachers = new HashMap<>();
         for (IOCacherConfig cc : IOCacherConfig.values()) {
             try {
-                Cacher i = (Cacher) cc.getCacherClazz().getDeclaredConstructor(Caches.class, Caches.class).newInstance(cc.getInputCache(), cc.getOutputCache());
+                Cacher i = (Cacher) cc.getCacherClazz().getDeclaredConstructor(String.class, String.class).newInstance(cc.getInputCache().getCacheName(), cc.getOutputCache().getCacheName());
                 iocachers.put(cc.getCacherName(), i);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -89,6 +93,7 @@ public class Main {
             }
         }
 
+        // Run all the IO Cachers
         for (String type : iocachers.keySet()) {
             if (argumentSet.size() == 0 || argumentSet.contains(type)) {
                 if (ConfigHelper.isThreaded()) {
@@ -103,6 +108,7 @@ public class Main {
             }
         }
         
+        // Wait for all the IO Cachers to finish
         log.debug("Waiting for IOCachers to finish");
         for (Cacher i : iocachers.values()) {
             try {
@@ -115,11 +121,6 @@ public class Main {
                 System.exit(-1);
             }
         }
-        
-        
-        
-        
-        
 
         Date end = new Date();
         log.info("End Time: " + end);

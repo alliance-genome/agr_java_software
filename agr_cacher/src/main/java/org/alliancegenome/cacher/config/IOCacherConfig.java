@@ -1,10 +1,12 @@
 package org.alliancegenome.cacher.config;
 
 import org.alliancegenome.cacher.cachers.io.GeneAlleleIOCacher;
+import org.alliancegenome.cacher.cachers.io.TaxonAlleleIOCacher;
 
 public enum IOCacherConfig {
 
     GeneAlleleIOCacher("geneAlleleCacher", GeneAlleleIOCacher.class, Caches.AlleleCache, Caches.GeneAlleleCache),
+    TaxonAlleleIOCacher("taxonAlleleIOCacher", TaxonAlleleIOCacher.class, Caches.AlleleCache, Caches.TaxonAlleleCache),
     ;
 
     private String cacherName;
