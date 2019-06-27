@@ -1,10 +1,12 @@
 package org.alliancegenome.cacher.config;
 
+import org.alliancegenome.cacher.cachers.db.AlleleDBCacher;
 import org.alliancegenome.cacher.cachers.db.GeneDBCacher;
 import org.alliancegenome.cacher.cachers.db.GenePhenotypeDBCacher;
 
 public enum DBCacherConfig {
 
+    AlleleDBCacher("alleleDBCacher", AlleleDBCacher.class, Caches.AlleleCache),
     GeneDBCacher("geneDBCacher", GeneDBCacher.class, Caches.GeneCache),
     GenePhenotypeDBCacher("genePhenotypeDBCacher", GenePhenotypeDBCacher.class, Caches.GenePhenotypeCache),
     ;
