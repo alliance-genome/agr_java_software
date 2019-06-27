@@ -49,17 +49,20 @@ public abstract class Cacher extends Thread {
 
         org.infinispan.configuration.cache.ConfigurationBuilder cb2 = new org.infinispan.configuration.cache.ConfigurationBuilder();
         
-        cb2.persistence()
-        .passivation(false)
-        .addSingleFileStore()
-            .shared(false)
-            .preload(true)
-            .fetchPersistentState(true)
-            .purgeOnStartup(false)
-            .location("/tmp/" + cacheName)
-            .async()
-               .enabled(true)
-               .threadPoolSize(5);
+//        cb2.persistence()
+//        .passivation(false)
+//        .addSingleFileStore()
+//            .shared(false)
+//            .preload(true)
+//            .fetchPersistentState(true)
+//            .purgeOnStartup(false)
+//            .location("/tmp/" + cacheName)
+//            .async()
+//               .enabled(true)
+//               .threadPoolSize(5);
+        
+        cb2.jmxStatistics();
+        cb2.clustering().cacheMode(CacheMode.LOCAL).create();
 
         return rmc.administration().getOrCreateCache(cacheName, cb2.build());
     }

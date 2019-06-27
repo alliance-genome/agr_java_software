@@ -100,7 +100,6 @@ public class Main2 {
         Object value = cache.get("genotype");
 */
 
-
     }
 
 }
