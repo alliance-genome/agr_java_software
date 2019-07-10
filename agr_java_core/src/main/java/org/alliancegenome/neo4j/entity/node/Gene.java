@@ -97,29 +97,29 @@ public class Gene extends GeneticEntity implements Comparable<Gene> {
     private List<GenomeLocation> genomeLocations;
 
     @Relationship(type = "IS_ALLELE_OF", direction = Relationship.INCOMING)
-    //@JsonView(value = {View.GeneAllelesAPI.class})
-    private List<Allele> alleles;
+    @JsonView(value = {View.GeneAllelesAPI.class})
+    transient private List<Allele> alleles;
 
     @Relationship(type = "ASSOCIATION", direction = Relationship.UNDIRECTED)
-    private List<DiseaseEntityJoin> diseaseEntityJoins = new ArrayList<>();
+    transient private List<DiseaseEntityJoin> diseaseEntityJoins = new ArrayList<>();
 
     @Relationship(type = "ASSOCIATION", direction = Relationship.UNDIRECTED)
-    private List<BioEntityGeneExpressionJoin> entityGeneExpressionJoins = new ArrayList<>();
+    transient private List<BioEntityGeneExpressionJoin> entityGeneExpressionJoins = new ArrayList<>();
 
     @Relationship(type = "ASSOCIATION")
-    private List<PhenotypeEntityJoin> phenotypeEntityJoins = new ArrayList<>();
+    transient private List<PhenotypeEntityJoin> phenotypeEntityJoins = new ArrayList<>();
 
     @Relationship(type = "ASSOCIATION", direction = Relationship.UNDIRECTED)
-    private List<OrthologyGeneJoin> orthologyGeneJoins = new ArrayList<>();
+    transient private List<OrthologyGeneJoin> orthologyGeneJoins = new ArrayList<>();
 
     @Relationship(type = "HAS_PHENOTYPE")
-    private List<Phenotype> phenotypes = new ArrayList<>();
+    transient private List<Phenotype> phenotypes = new ArrayList<>();
 
     @Relationship(type = "ASSOCIATION")
-    private List<InteractionGeneJoin> interactions = new ArrayList<>();
+    transient private List<InteractionGeneJoin> interactions = new ArrayList<>();
 
     @Relationship(type = "EXPRESSED_IN")
-    private List<ExpressionBioEntity> expressionBioEntities = new ArrayList<>();
+    transient private List<ExpressionBioEntity> expressionBioEntities = new ArrayList<>();
 
     public String getNameKey() {
         String nameKey = symbol;
