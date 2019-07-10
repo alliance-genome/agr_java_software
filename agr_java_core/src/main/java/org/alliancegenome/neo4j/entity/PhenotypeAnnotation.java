@@ -1,5 +1,6 @@
 package org.alliancegenome.neo4j.entity;
 
+import java.io.Serializable;
 import java.util.List;
 
 import org.alliancegenome.es.index.site.doclet.SourceDoclet;
@@ -15,7 +16,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Getter @Setter
-public class PhenotypeAnnotation implements Comparable<PhenotypeAnnotation> {
+public class PhenotypeAnnotation implements Comparable<PhenotypeAnnotation>, Serializable {
 
     private String primaryKey;
     private SourceDoclet source;

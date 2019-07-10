@@ -1,22 +1,22 @@
 package org.alliancegenome.cacher.cachers.db;
 
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.toList;
-
-import java.text.DecimalFormat;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
 import org.alliancegenome.cacher.cachers.DBCacher;
 import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
 import org.alliancegenome.neo4j.entity.node.PhenotypeEntityJoin;
 import org.alliancegenome.neo4j.repository.PhenotypeRepository;
 
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toList;
+
 public class GenePhenotypeDBCacher extends DBCacher<List<PhenotypeAnnotation>> {
-    
+
     private static PhenotypeRepository phenotypeRepository = new PhenotypeRepository();
-    
+
     public GenePhenotypeDBCacher(String cacheName) {
         super(cacheName);
     }
@@ -46,11 +46,8 @@ public class GenePhenotypeDBCacher extends DBCacher<List<PhenotypeAnnotation>> {
         // group by gene IDs
         Map<String, List<PhenotypeAnnotation>> phenotypeAnnotationMap = allPhenotypeAnnotations.stream()
                 .collect(groupingBy(phenotypeAnnotation -> phenotypeAnnotation.getGene().getPrimaryKey()));
+        phenotypeAnnotationMap.forEach((key, value) -> cache.put(key, new ArrayList<>(value)));
 
-        for(Entry<String, List<PhenotypeAnnotation>> entry: phenotypeAnnotationMap.entrySet()) {
-            cache.put(entry.getKey(), entry.getValue());
-        }
-        
     }
 
 }
