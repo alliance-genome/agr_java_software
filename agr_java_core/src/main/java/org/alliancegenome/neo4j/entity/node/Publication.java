@@ -1,5 +1,6 @@
 package org.alliancegenome.neo4j.entity.node;
 
+import java.io.Serializable;
 import java.util.List;
 
 import org.alliancegenome.neo4j.entity.Neo4jEntity;
@@ -18,7 +19,7 @@ import lombok.Setter;
 @NodeEntity
 @Getter
 @Setter
-public class Publication extends Neo4jEntity implements Comparable<Publication> {
+public class Publication extends Neo4jEntity implements Comparable<Publication>, Serializable {
 
     @JsonView({View.Interaction.class})
     private String primaryKey;

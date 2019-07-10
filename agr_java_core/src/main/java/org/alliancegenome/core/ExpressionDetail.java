@@ -6,6 +6,7 @@ import lombok.Setter;
 import org.alliancegenome.neo4j.entity.node.*;
 import org.alliancegenome.neo4j.view.View;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -13,7 +14,7 @@ import java.util.TreeSet;
 
 @Setter
 @Getter
-public class ExpressionDetail implements Comparable {
+public class ExpressionDetail implements Comparable, Serializable {
 
     @JsonView(View.Expression.class)
     private Gene gene;
