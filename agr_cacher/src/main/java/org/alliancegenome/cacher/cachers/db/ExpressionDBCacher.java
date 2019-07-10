@@ -56,7 +56,7 @@ public class ExpressionDBCacher extends DBCacher<List<ExpressionDetail>> {
                     detail.setCrossReference(expressionJoin.getCrossReference());
                     // add AO terms and All AO parent term
                     List<String> aoList = expressionJoin.getEntity().getAoTermList().stream().map(UBERONTerm::getPrimaryKey).collect(Collectors.toList());
-                    Set<String> parentTermIDs = getParentTermIDs(aoList);
+                    Set<String> parentTermIDs = null;
                     if (parentTermIDs != null)
                         aoList.addAll(parentTermIDs);
                     detail.addTermIDs(aoList);
@@ -71,7 +71,7 @@ public class ExpressionDBCacher extends DBCacher<List<ExpressionDetail>> {
                     if (expressionJoin.getStageTerm() != null) {
                         String stageID = expressionJoin.getStageTerm().getPrimaryKey();
                         detail.addTermID(stageID);
-                        detail.addTermIDs(getParentTermIDs(stageID));
+                        //detail.addTermIDs(getParentTermIDs(stageID));
                     }
                     return detail;
                 })
@@ -80,6 +80,7 @@ public class ExpressionDBCacher extends DBCacher<List<ExpressionDetail>> {
         Map<String, List<ExpressionDetail>> geneExpressionMap = allExpression.stream()
                 .collect(groupingBy(expressionDetail -> expressionDetail.getGene().getPrimaryKey()));
 
+        System.out.println("Done with cache preparation. Storing in infinispan: "+geneExpressionMap.entrySet().size());
         for(Entry<String, List<ExpressionDetail>> entry: geneExpressionMap.entrySet()) {
             cache.put(entry.getKey(), entry.getValue());
         }
@@ -89,7 +90,8 @@ public class ExpressionDBCacher extends DBCacher<List<ExpressionDetail>> {
     }
     
     private Set<String> getParentTermIDs(String id) {
-        return getParentTermIDs(Collections.singletonList(id));
+        return null;
+        //return getParentTermIDs(Collections.singletonList(id));
     }
     
     private Set<String> getParentTermIDs(List<String> aoList) {
