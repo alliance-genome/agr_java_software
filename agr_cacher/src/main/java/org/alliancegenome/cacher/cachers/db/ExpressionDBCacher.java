@@ -59,7 +59,6 @@ public class ExpressionDBCacher extends Cacher {
                     List<String> aoList = expressionJoin.getEntity().getAoTermList().stream().map(UBERONTerm::getPrimaryKey).collect(Collectors.toList());
 
                     Set<String> parentTermIDs = getParentTermIDs(aoList);
-
                     if (parentTermIDs != null)
                         aoList.addAll(parentTermIDs);
                     detail.addTermIDs(aoList);
@@ -74,7 +73,7 @@ public class ExpressionDBCacher extends Cacher {
                     if (expressionJoin.getStageTerm() != null) {
                         String stageID = expressionJoin.getStageTerm().getPrimaryKey();
                         detail.addTermID(stageID);
-                        detail.addTermIDs(getParentTermIDs(stageID));
+                        //detail.addTermIDs(getParentTermIDs(stageID));
                     }
                     return detail;
                 })

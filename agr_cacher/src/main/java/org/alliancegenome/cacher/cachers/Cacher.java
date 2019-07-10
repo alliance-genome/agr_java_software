@@ -39,8 +39,8 @@ public abstract class Cacher extends Thread {
         cb.addServer()
         .host(ConfigHelper.getCacheHost())
         .port(ConfigHelper.getCachePort())
-        .socketTimeout(500)
-        .connectionTimeout(500)
+        .socketTimeout(500000)
+        .connectionTimeout(500000)
         .tcpNoDelay(true);
 
         RemoteCacheManager rmc = new RemoteCacheManager(cb.build());
