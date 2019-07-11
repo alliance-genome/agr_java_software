@@ -56,6 +56,8 @@ public interface DiseaseRESTInterface {
             @QueryParam("filter.reference") String reference,
             @ApiParam(value = "filter by evidence code")
             @QueryParam("filter.evidenceCode") String evidenceCode,
+            @ApiParam(value = "filter by based-on-gene")
+            @QueryParam("filter.basedOnGeneSymbol") String basedOnGeneSymbol,
             @ApiParam(value = "filter by association type")
             @QueryParam("filter.associationType") String associationType,
             @ApiParam(value = "ascending order: true or false", allowableValues = "true,false", defaultValue = "true")
@@ -86,6 +88,8 @@ public interface DiseaseRESTInterface {
             @QueryParam("filter.reference") String reference,
             @ApiParam(value = "filter by evidence code")
             @QueryParam("filter.evidenceCode") String evidenceCode,
+            @ApiParam(value = "filter by based-on-gene")
+            @QueryParam("filter.basedOnGeneSymbol") String basedOnGeneSymbol,
             @ApiParam(value = "filter by association type")
             @QueryParam("filter.associationType") String associationType,
             @ApiParam(value = "ascending order: true or false", allowableValues = "true,false", defaultValue = "true")
@@ -124,6 +128,8 @@ public interface DiseaseRESTInterface {
             @QueryParam("filter.associationType") String associationType,
             @ApiParam(name = "filter.evidenceCode", value = "evidenceCode", type = "String")
             @QueryParam("filter.evidenceCode") String evidenceCode,
+            @ApiParam(name = "filter.basedOnGeneSymbol", value = "basedOnGeneSymbol", type = "String")
+            @QueryParam("filter.basedOnGeneSymbol") String basedOnGeneSymbol,
             @ApiParam(name = "limit", value = "Number of rows returned", defaultValue = "20")
             @DefaultValue("20") @QueryParam("limit") int limit,
             @ApiParam(name = "page", value = "Page number")
@@ -161,6 +167,8 @@ public interface DiseaseRESTInterface {
             @QueryParam("filter.associationType") String associationType,
             @ApiParam(name = "filter.evidenceCode", value = "evidenceCode", type = "String")
             @QueryParam("filter.evidenceCode") String evidenceCode,
+            @ApiParam(name = "filter.basedOnGeneSymbol", value = "basedOnGeneSymbol", type = "String")
+            @QueryParam("filter.basedOnGeneSymbol") String basedOnGeneSymbol,
             @ApiParam(name = "sortBy", value = "Sort by field name")
             @QueryParam("sortBy") String sortBy,
             @ApiParam(name = "asc", allowableValues = "true,false", value = "ascending or descending")

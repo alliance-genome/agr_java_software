@@ -19,7 +19,7 @@ public class DiseaseEntityJoin extends EntityJoin {
     private DOTerm disease;
 
     @Relationship(type = "FROM_ORTHOLOGOUS_GENE")
-    private Gene orthologyGene;
+    private List<Gene> orthologyGenes;
 
     @Relationship(type = "EVIDENCE")
     private List<PublicationEvidenceCodeJoin> publicationEvidenceCodeJoin;

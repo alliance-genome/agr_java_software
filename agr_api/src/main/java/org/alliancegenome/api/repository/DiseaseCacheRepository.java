@@ -199,10 +199,9 @@ public class DiseaseCacheRepository {
                     document.setSource(diseaseEntityJoin.getSource());
                     document.setAssociationType(diseaseEntityJoin.getJoinType());
                     document.setSortOrder(diseaseEntityJoin.getSortOrder());
-                    Gene orthologyGene = diseaseEntityJoin.getOrthologyGene();
+                    List<Gene> orthologyGene = diseaseEntityJoin.getOrthologyGenes();
                     if (orthologyGene != null) {
-                        document.setOrthologyGene(orthologyGene);
-                        document.addOrthologousGene(orthologyGene);
+                        document.setOrthologyGenes(orthologyGene);
 // for memory savings reason use cached gene objects.
 //                        document.setOrthologyGene(geneCacheRepository.getGene(orthologyGene.getPrimaryKey()));
                     }

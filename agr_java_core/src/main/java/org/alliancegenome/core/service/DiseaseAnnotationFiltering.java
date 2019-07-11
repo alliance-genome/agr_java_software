@@ -1,14 +1,15 @@
 package org.alliancegenome.core.service;
 
+import org.alliancegenome.es.model.query.FieldFilter;
+import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
+import org.alliancegenome.neo4j.entity.SpeciesType;
+import org.alliancegenome.neo4j.entity.node.Gene;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import org.alliancegenome.es.model.query.FieldFilter;
-import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
-import org.alliancegenome.neo4j.entity.node.Gene;
 
 public class DiseaseAnnotationFiltering {
 
@@ -44,6 +45,24 @@ public class DiseaseAnnotationFiltering {
                         .map(evidenceCode -> FilterFunction.contains(evidenceCode.getName(), value))
                         .collect(Collectors.toSet());
                 return !filteringPassed.contains(false);
+            };
+
+    public static FilterFunction<DiseaseAnnotation, String> basedOnGeneFilter =
+            (annotation, value) -> {
+                if (annotation.getOrthologyGenes() == null)
+                    return false;
+                StringBuilder fullGeneSpeciesName = new StringBuilder();
+
+                annotation.getOrthologyGenes().forEach(gene -> {
+                    String fullName = gene.getSymbol();
+                    final String primaryKey = gene.getSpecies().getPrimaryKey();
+                    SpeciesType speciesType = SpeciesType.getTypeByID(primaryKey);
+                    if (speciesType == null)
+                        throw new RuntimeException("No Species found for " + primaryKey);
+                    fullName += " (" + speciesType.getAbbreviation() + ") ";
+                    fullGeneSpeciesName.append(fullName);
+                });
+                return FilterFunction.contains(fullGeneSpeciesName.toString(), value);
             };
 
     public static FilterFunction<DiseaseAnnotation, String> referenceFilter =
@@ -86,6 +105,7 @@ public class DiseaseAnnotationFiltering {
         filterFieldMap.put(FieldFilter.GENETIC_ENTITY, geneticEntityFilter);
         filterFieldMap.put(FieldFilter.GENE_NAME, geneNameFilter);
         filterFieldMap.put(FieldFilter.SPECIES, geneSpeciesFilter);
+        filterFieldMap.put(FieldFilter.BASED_ON_GENE, basedOnGeneFilter);
     }
 
     public static boolean isValidFiltering(Map<FieldFilter, String> fieldFilterValueMap) {

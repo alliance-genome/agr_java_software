@@ -37,6 +37,13 @@ public enum SpeciesType {
         return null;
     }
 
+    public static SpeciesType getTypeByID(String ID) {
+        for (SpeciesType type : values())
+            if (type.taxonID.equals(ID))
+                return type;
+        return null;
+    }
+
     public static SpeciesType getTypeByPartialName(String name) {
         List<SpeciesType> species = Arrays.stream(values())
                 .filter(type -> type.name.toLowerCase().contains(name.toLowerCase()))

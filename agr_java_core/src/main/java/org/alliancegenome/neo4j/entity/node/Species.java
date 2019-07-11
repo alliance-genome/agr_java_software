@@ -35,6 +35,7 @@ public class Species extends Neo4jEntity implements Comparable<Species> {
         for (SpeciesType species : SpeciesType.values()) {
             if (species.getTaxonID().equals(taxonID)) {
                 Species spec = new Species();
+                spec.setPrimaryKey(taxonID); // Needed for the download file
                 spec.setName(species.getName());
                 return spec;
             }

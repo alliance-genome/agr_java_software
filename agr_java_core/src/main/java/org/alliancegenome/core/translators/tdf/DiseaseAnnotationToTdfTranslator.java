@@ -29,6 +29,7 @@ public class DiseaseAnnotationToTdfTranslator {
         headerJoiner.add("Disease ID");
         headerJoiner.add("Disease Name");
         headerJoiner.add("Evidence Code");
+        headerJoiner.add("Based On");
         headerJoiner.add("Source");
         headerJoiner.add("References");
         builder.append(headerJoiner.toString());
@@ -61,6 +62,15 @@ public class DiseaseAnnotationToTdfTranslator {
 
             evidenceCodes.forEach(evidenceJoiner::add);
             joiner.add(evidenceJoiner.toString());
+
+            List<Gene> orthologyGenes = diseaseAnnotation.getOrthologyGenes();
+            if (orthologyGenes != null) {
+                StringJoiner basedOnJoiner = new StringJoiner(",");
+                orthologyGenes.forEach(gene -> basedOnJoiner.add(gene.getPrimaryKey() + ":" + gene.getSymbol()));
+                joiner.add(basedOnJoiner.toString());
+            } else
+                joiner.add("");
+
             // source list
             joiner.add(diseaseAnnotation.getSource().getName());
 
@@ -85,6 +95,9 @@ public class DiseaseAnnotationToTdfTranslator {
         headerJoiner.add("Gene Symbol");
         headerJoiner.add("Disease ID");
         headerJoiner.add("Disease Name");
+        headerJoiner.add("Genetic entity type");
+        headerJoiner.add("Genetic entity Symbol");
+        headerJoiner.add("Genetic entity ID");
         headerJoiner.add("Association Type");
         headerJoiner.add("Evidence Codes");
         headerJoiner.add("Source");
@@ -100,6 +113,17 @@ public class DiseaseAnnotationToTdfTranslator {
             joiner.add(diseaseAnnotation.getGene().getSymbol());
             joiner.add(diseaseAnnotation.getDisease().getPrimaryKey());
             joiner.add(diseaseAnnotation.getDisease().getName());
+            joiner.add(diseaseAnnotation.getGeneticEntityType());
+            if(diseaseAnnotation.getFeature() != null){
+                joiner.add(diseaseAnnotation.getFeature().getSymbolText());
+                joiner.add(diseaseAnnotation.getFeature().getPrimaryKey());
+
+            } else {
+                joiner.add("");
+                joiner.add("");
+            }
+
+
             joiner.add(diseaseAnnotation.getAssociationType());
 
             // evidence code list

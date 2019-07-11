@@ -29,7 +29,7 @@ public enum FieldFilter {
     DETECTION_METHOD("filter.detectionMethod"),
     INTERACTOR_SPECIES("filter.interactorSpecies"),
     MOLECULE_TYPE("filter.moleculeType"),
-    ;
+    BASED_ON_GENE("filter.basedOnGeneSymbol");
     public static final String FILTER_PREFIX = "filter.";
     private String name;
 
