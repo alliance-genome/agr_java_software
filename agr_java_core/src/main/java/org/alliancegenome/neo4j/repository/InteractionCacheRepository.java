@@ -14,6 +14,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.alliancegenome.api.entity.CacheStatus;
+import org.alliancegenome.cache.AllianceCacheManager;
+import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.core.service.FilterFunction;
 import org.alliancegenome.core.service.InteractionAnnotationFiltering;
 import org.alliancegenome.core.service.InteractionAnnotationSorting;
@@ -40,12 +42,8 @@ public class InteractionCacheRepository {
     private static LocalDateTime end;
 
     public PaginationResult<InteractionGeneJoin> getInteractionAnnotationList(String geneID, Pagination pagination) {
-        checkCache();
-        if (caching)
-            return null;
-
         // check gene map
-        List<InteractionGeneJoin> interactionAnnotationList = interactionAnnotationMapGene.get(geneID);
+        List<InteractionGeneJoin> interactionAnnotationList = AllianceCacheManager.getCacheSpaceWeb(CacheAlliance.INTERACTION).get(geneID);
         if (interactionAnnotationList == null)
             return null;
         //filtering
@@ -101,68 +99,6 @@ public class InteractionCacheRepository {
                 .collect(Collectors.toSet());
 
         return !filterResults.contains(false);
-    }
-
-    private void checkCache() {
-        if (allInteractionAnnotations == null && !caching) {
-            caching = true;
-            cacheAllInteractionAnnotations();
-            caching = false;
-        }
-        if (caching)
-            throw new RuntimeException("Cache Issue: Interaction data are still being cached. Please wait...");
-    }
-
-    private void cacheAllInteractionAnnotations() {
-        start = LocalDateTime.now();
-        long start = System.currentTimeMillis();
-        allInteractionAnnotations = interactionRepository.getAllInteractions();
-        int size = allInteractionAnnotations.size();
-        DecimalFormat myFormatter = new DecimalFormat("###,###.##");
-        System.out.println("Retrieved " + myFormatter.format(size) + " interaction records");
-        // replace Gene references with the cached Gene references to keep the memory imprint low.
-
-        // group by gene ID with geneA
-        interactionAnnotationMapGene = allInteractionAnnotations.parallelStream()
-                // exclude self-interaction
-                .filter(interactionGeneJoin -> !interactionGeneJoin.getGeneA().getPrimaryKey().equals(interactionGeneJoin.getGeneB().getPrimaryKey()))
-                .collect(groupingBy(phenotypeAnnotation -> phenotypeAnnotation.getGeneA().getPrimaryKey()));
-
-        // add to grouping with geneB as a reference
-        // this includes self-interaction
-        allInteractionAnnotations.forEach(join -> {
-            String primaryKey = join.getGeneB().getPrimaryKey();
-            List<InteractionGeneJoin> joins = interactionAnnotationMapGene.computeIfAbsent(primaryKey, k -> new ArrayList<>());
-            joins.add(createNewInteractionGeneJoin(join));
-        });
-        log.info("Number of gene with interactions: " + interactionAnnotationMapGene.size());
-        log.info("Time to create annotation histogram: " + (System.currentTimeMillis() - start) / 1000);
-        interactionRepository.clearCache();
-        end = LocalDateTime.now();
-    }
-
-    private InteractionGeneJoin createNewInteractionGeneJoin(InteractionGeneJoin join) {
-        InteractionGeneJoin newJoin = new InteractionGeneJoin();
-        newJoin.setPrimaryKey(join.getPrimaryKey());
-        newJoin.setJoinType(join.getJoinType());
-        newJoin.setAggregationDatabase(join.getAggregationDatabase());
-        newJoin.setCrossReferences(join.getCrossReferences());
-        newJoin.setDetectionsMethods(join.getDetectionsMethods());
-        newJoin.setGeneA(join.getGeneB());
-        newJoin.setGeneB(join.getGeneA());
-        newJoin.setInteractionType(join.getInteractionType());
-        newJoin.setInteractorARole(join.getInteractorBRole());
-        newJoin.setInteractorAType(join.getInteractorBType());
-        newJoin.setInteractorBRole(join.getInteractorARole());
-        newJoin.setInteractorBType(join.getInteractorAType());
-        newJoin.setPublication(join.getPublication());
-        newJoin.setSourceDatabase(join.getSourceDatabase());
-        newJoin.setId(join.getId());
-        return newJoin;
-    }
-
-    public List<InteractionGeneJoin> getInteractions(String id, Pagination pagination) {
-        return null;
     }
 
     public CacheStatus getCacheStatus() {
