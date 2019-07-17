@@ -76,8 +76,8 @@ public abstract class Cacher extends Thread {
 //  private int lastSize;
 //  private long batchTotalSize = 0;
 //  private long batchCount = 0;
-    
-//  protected void startProcess(int amountBatches, int batchSize, int totalDocAmount) {
+
+    //  protected void startProcess(int amountBatches, int batchSize, int totalDocAmount) {
 //      log.info("Starting Processing: batches: " + amountBatches + " size: " + batchSize + " total: " + getBigNumber(totalDocAmount) + " at: " + startTime);
 //      lastTime = new Date();
 //  }

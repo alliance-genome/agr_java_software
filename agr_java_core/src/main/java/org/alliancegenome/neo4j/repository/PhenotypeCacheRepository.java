@@ -4,6 +4,9 @@ import lombok.extern.log4j.Log4j2;
 import org.alliancegenome.cache.AllianceCacheManager;
 import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.cache.PhenotypeCacheManager;
+import org.alliancegenome.api.entity.CacheStatus;
+import org.alliancegenome.cache.AllianceCacheManager;
+import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.core.service.*;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
@@ -24,7 +27,7 @@ public class PhenotypeCacheRepository {
     public PaginationResult<PhenotypeAnnotation> getPhenotypeAnnotationList(String geneID, Pagination pagination) {
 
         PhenotypeCacheManager manager = new PhenotypeCacheManager();
-        List<PhenotypeAnnotation> fullPhenotypeAnnotationList = manager.getPhenotypeAnnotationsWeb(geneID, View.PhenotypeAPI.class);
+        List<PhenotypeAnnotation> fullPhenotypeAnnotationList = manager.getPhenotypeAnnotations(geneID, View.PhenotypeAPI.class);
 
         //filtering
         List<PhenotypeAnnotation> filteredPhenotypeAnnotationList = filterDiseaseAnnotations(fullPhenotypeAnnotationList, pagination.getFieldFilterValueMap());

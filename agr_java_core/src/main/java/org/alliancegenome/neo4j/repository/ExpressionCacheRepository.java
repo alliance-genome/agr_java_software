@@ -14,6 +14,8 @@ import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import org.alliancegenome.api.entity.CacheStatus;
+import org.alliancegenome.cache.AllianceCacheManager;
+import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.core.ExpressionDetail;
 import org.alliancegenome.core.service.ExpressionAnnotationFiltering;
 import org.alliancegenome.core.service.ExpressionAnnotationSorting;
@@ -54,8 +56,8 @@ public class ExpressionCacheRepository {
 
         List<ExpressionDetail> fullExpressionAnnotationList = new ArrayList<>();
         geneIDs.stream()
-                .filter(geneID -> manager.getExpressionsWeb(geneID, View.Expression.class) != null)
-                .forEach(geneID -> fullExpressionAnnotationList.addAll(manager.getExpressionsWeb(geneID, View.Expression.class)));
+                .filter(geneID -> AllianceCacheManager.getCacheSpaceWeb(CacheAlliance.EXPRESSION).get(geneID) != null)
+                .forEach(geneID -> fullExpressionAnnotationList.addAll(AllianceCacheManager.getCacheSpaceWeb(CacheAlliance.EXPRESSION).get(geneID)));
 
         //filtering
         // filter on termID

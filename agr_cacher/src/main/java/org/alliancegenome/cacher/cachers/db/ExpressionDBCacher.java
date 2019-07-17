@@ -1,18 +1,8 @@
 package org.alliancegenome.cacher.cachers.db;
 
-import static java.util.stream.Collectors.groupingBy;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.stream.Collectors;
-
-import org.alliancegenome.cacher.cachers.DBCacher;
+import org.alliancegenome.cache.AllianceCacheManager;
+import org.alliancegenome.cache.CacheAlliance;
+import org.alliancegenome.cacher.cachers.Cacher;
 import org.alliancegenome.core.ExpressionDetail;
 
 import org.alliancegenome.neo4j.entity.node.BioEntityGeneExpressionJoin;
@@ -20,6 +10,12 @@ import org.alliancegenome.neo4j.entity.node.GOTerm;
 import org.alliancegenome.neo4j.entity.node.UBERONTerm;
 import org.alliancegenome.neo4j.repository.DiseaseRepository;
 import org.alliancegenome.neo4j.repository.GeneRepository;
+import org.ehcache.Cache;
+
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.groupingBy;
 
 public class ExpressionDBCacher extends Cacher {
 
@@ -32,10 +28,6 @@ public class ExpressionDBCacher extends Cacher {
         parentTermIDs.add("UBERON:0000000");
         // cellular Component
         parentTermIDs.add("GO:0005575");
-    }
-    
-    public ExpressionDBCacher(String cacheName) {
-        super(cacheName);
     }
 
     @Override
@@ -82,18 +74,8 @@ public class ExpressionDBCacher extends Cacher {
         Map<String, List<ExpressionDetail>> geneExpressionMap = allExpression.stream()
                 .collect(groupingBy(expressionDetail -> expressionDetail.getGene().getPrimaryKey()));
 
-        ExpressionAllianceCacheManager manager = new ExpressionAllianceCacheManager();
-
-        geneExpressionMap.forEach((key, value) -> {
-            JsonResultResponseExpression result = new JsonResultResponseExpression();
-            result.setResults(value);
-            try {
-                manager.putCache(key, result, View.Expression.class, CacheAlliance.EXPRESSION);
-            } catch (JsonProcessingException e) {
-                throw new RuntimeException(e);
-            }
-
-        });
+        Cache<String, ArrayList> cache = AllianceCacheManager.getCacheSpace(CacheAlliance.EXPRESSION);
+        geneExpressionMap.forEach((key, value) -> cache.put(key, new ArrayList<>(value)));
         geneRepository.clearCache();
 
     }

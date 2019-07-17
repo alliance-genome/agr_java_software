@@ -1,15 +1,12 @@
 package org.alliancegenome.cacher.cachers.db;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.alliancegenome.cache.AllianceCacheManager;
 import org.alliancegenome.cache.CacheAlliance;
-import org.alliancegenome.cache.OrthologyAllianceCacheManager;
 import org.alliancegenome.cacher.cachers.Cacher;
-import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.alliancegenome.neo4j.view.OrthologView;
-import org.alliancegenome.neo4j.view.View;
+import org.ehcache.Cache;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,8 +25,6 @@ public class GeneOrthologCacher extends Cacher {
         if (geneList == null)
             return;
 
-        OrthologyAllianceCacheManager manager = new OrthologyAllianceCacheManager();
-
         geneList.forEach(gene -> {
             Set<OrthologView> orthologySet = gene.getOrthoGenes().stream()
                     .map(orthologous -> {
@@ -46,14 +41,8 @@ public class GeneOrthologCacher extends Cacher {
                         return view;
                     })
                     .collect(toSet());
-
-            JsonResultResponse<OrthologView> result = new JsonResultResponse<>();
-            result.setResults(new ArrayList<>(orthologySet));
-            try {
-                manager.putCache(gene.getPrimaryKey(), result, View.Orthology.class, CacheAlliance.ORTHOLOGY);
-            } catch (JsonProcessingException e) {
-                throw new RuntimeException(e);
-            }
+            Cache<String, ArrayList> cache = AllianceCacheManager.getCacheSpace(CacheAlliance.ORTHOLOGY);
+            cache.put(gene.getPrimaryKey(), new ArrayList<>(orthologySet));
         });
 
     }
