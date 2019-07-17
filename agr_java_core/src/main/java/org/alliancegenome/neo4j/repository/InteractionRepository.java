@@ -51,7 +51,7 @@ public class InteractionRepository extends Neo4jRepository<InteractionGeneJoin> 
         return (Long) queryForResult(cypher, bindingValueMap).iterator().next().get("total");
     }
 
-    List<InteractionGeneJoin> getAllInteractions() {
+    public List<InteractionGeneJoin> getAllInteractions() {
         String allInteractionsQuery = "MATCH p1=(g1:Gene)--(igj:InteractionGeneJoin)--(g2:Gene), " +
                 "p2=(igj:InteractionGeneJoin)-[:INTERACTOR_A_ROLE]->(mA:MITerm), " +
                 "p3=(igj:InteractionGeneJoin)-[:INTERACTOR_B_ROLE]->(mB:MITerm), " +

@@ -1,26 +1,26 @@
 package org.alliancegenome.cacher.cachers.db;
 
-import static java.util.stream.Collectors.toSet;
-
-import java.util.List;
-import java.util.Set;
-
-import org.alliancegenome.cacher.cachers.DBCacher;
+import org.alliancegenome.cache.AllianceCacheManager;
+import org.alliancegenome.cache.CacheAlliance;
+import org.alliancegenome.cacher.cachers.Cacher;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.alliancegenome.neo4j.view.OrthologView;
+import org.ehcache.Cache;
 
-public class GeneOrthologDBCacher extends DBCacher<Set<OrthologView>> {
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
+import static java.util.stream.Collectors.toSet;
+
+public class GeneOrthologCacher extends Cacher {
 
     private static GeneRepository geneRepository = new GeneRepository();
-    
-    public GeneOrthologDBCacher(String cacheName) {
-        super(cacheName);
-    }
-    
+
     @Override
     protected void cache() {
-        
+
         List<Gene> geneList = geneRepository.getAllOrthologyGenes();
         if (geneList == null)
             return;
@@ -41,8 +41,9 @@ public class GeneOrthologDBCacher extends DBCacher<Set<OrthologView>> {
                         return view;
                     })
                     .collect(toSet());
-            cache.put(gene.getPrimaryKey(), orthologySet);
+            Cache<String, ArrayList> cache = AllianceCacheManager.getCacheSpace(CacheAlliance.ORTHOLOGY);
+            cache.put(gene.getPrimaryKey(), new ArrayList<>(orthologySet));
         });
-        
+
     }
 }

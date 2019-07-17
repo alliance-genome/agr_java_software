@@ -1,5 +1,6 @@
 package org.alliancegenome.neo4j.view;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
 
@@ -12,7 +13,7 @@ import lombok.Setter;
 
 @Setter
 @Getter
-public class OrthologView {
+public class OrthologView implements Serializable {
 
     @JsonView(View.Orthology.class)
     private Gene gene;

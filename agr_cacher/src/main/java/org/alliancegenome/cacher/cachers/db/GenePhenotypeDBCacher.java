@@ -1,9 +1,12 @@
 package org.alliancegenome.cacher.cachers.db;
 
-import org.alliancegenome.cacher.cachers.DBCacher;
+import org.alliancegenome.cache.AllianceCacheManager;
+import org.alliancegenome.cache.CacheAlliance;
+import org.alliancegenome.cacher.cachers.Cacher;
 import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
 import org.alliancegenome.neo4j.entity.node.PhenotypeEntityJoin;
 import org.alliancegenome.neo4j.repository.PhenotypeRepository;
+import org.ehcache.Cache;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -13,12 +16,12 @@ import java.util.Map;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
 
-public class GenePhenotypeDBCacher extends DBCacher<List<PhenotypeAnnotation>> {
+public class GenePhenotypeDBCacher extends Cacher {
 
     private static PhenotypeRepository phenotypeRepository = new PhenotypeRepository();
 
-    public GenePhenotypeDBCacher(String cacheName) {
-        super(cacheName);
+    public GenePhenotypeDBCacher() {
+        super();
     }
 
     @Override
@@ -46,8 +49,10 @@ public class GenePhenotypeDBCacher extends DBCacher<List<PhenotypeAnnotation>> {
         // group by gene IDs
         Map<String, List<PhenotypeAnnotation>> phenotypeAnnotationMap = allPhenotypeAnnotations.stream()
                 .collect(groupingBy(phenotypeAnnotation -> phenotypeAnnotation.getGene().getPrimaryKey()));
-        phenotypeAnnotationMap.forEach((key, value) -> cache.put(key, new ArrayList<>(value)));
 
+        Cache<String, ArrayList> phenotypeCache = AllianceCacheManager.getCacheSpace(CacheAlliance.PHENOTYPE);
+        phenotypeAnnotationMap.forEach((key, value) -> phenotypeCache.put(key, new ArrayList<>(value)));
     }
+
 
 }

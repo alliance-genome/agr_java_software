@@ -7,6 +7,9 @@ api:
 cacher:
 	mvn clean package -pl agr_cacher -am
 
+cacherq:
+	mvn -q clean package -pl agr_cacher -am
+
 cacherrun:
 	java -jar agr_cacher/target/agr_cacher-jar-with-dependencies.jar
 
