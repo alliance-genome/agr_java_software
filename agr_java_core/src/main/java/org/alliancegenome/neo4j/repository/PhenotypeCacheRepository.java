@@ -1,6 +1,8 @@
 package org.alliancegenome.neo4j.repository;
 
 import org.alliancegenome.api.entity.CacheStatus;
+import org.alliancegenome.cache.AllianceCacheManager;
+import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.core.service.*;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
@@ -33,11 +35,8 @@ public class PhenotypeCacheRepository {
     private static LocalDateTime end;
 
     public PaginationResult<PhenotypeAnnotation> getPhenotypeAnnotationList(String geneID, Pagination pagination) {
-        checkCache();
-        if (caching)
-            return null;
 
-        List<PhenotypeAnnotation> fullPhenotypeAnnotationList = phenotypeAnnotationMap.get(geneID);
+        List<PhenotypeAnnotation> fullPhenotypeAnnotationList = AllianceCacheManager.getCacheSpaceWeb(CacheAlliance.PHENOTYPE).get(geneID);
 
         //filtering
         List<PhenotypeAnnotation> filteredPhenotypeAnnotationList = filterDiseaseAnnotations(fullPhenotypeAnnotationList, pagination.getFieldFilterValueMap());

@@ -1,17 +1,10 @@
 package org.alliancegenome.cacher.cachers;
 
-import java.util.concurrent.TimeUnit;
-
-import org.alliancegenome.cacher.config.Caches;
-import org.alliancegenome.cacher.config.IOCacherConfig;
-import org.alliancegenome.core.config.ConfigHelper;
-import org.infinispan.client.hotrod.RemoteCache;
-import org.infinispan.client.hotrod.RemoteCacheManager;
-import org.infinispan.client.hotrod.configuration.ConfigurationBuilder;
-import org.infinispan.configuration.cache.CacheMode;
-
 import lombok.extern.log4j.Log4j2;
 
+import java.util.concurrent.TimeUnit;
+
+@Log4j2
 public abstract class Cacher extends Thread {
 
     protected abstract void cache();
@@ -35,43 +28,6 @@ public abstract class Cacher extends Thread {
             System.exit(-1);
         }
     }
-    
-    public <T> RemoteCache<String, T> setupCache(String cacheName) {
-        
-        ConfigurationBuilder cb = new ConfigurationBuilder();
-
-        cb.addServer()
-        .host(ConfigHelper.getCacheHost())
-        .port(ConfigHelper.getCachePort())
-        .socketTimeout(500000)
-        .connectionTimeout(500000)
-        .tcpNoDelay(true);
-
-        RemoteCacheManager rmc = new RemoteCacheManager(cb.build());
-        
-        //cache = rmc.administration().withFlags(AdminFlag.PERMANENT).getOrCreateCache(cacherConfig.getCacheName(), cacherConfig.getCacheTemplate());
-
-        org.infinispan.configuration.cache.ConfigurationBuilder cb2 = new org.infinispan.configuration.cache.ConfigurationBuilder();
-        
-//        cb2.persistence()
-//        .passivation(false)
-//        .addSingleFileStore()
-//            .shared(false)
-//            .preload(true)
-//            .fetchPersistentState(true)
-//            .purgeOnStartup(false)
-//            .location("/tmp/" + cacheName)
-//            .async()
-//               .enabled(true)
-//               .threadPoolSize(5);
-        
-        cb2.jmxStatistics();
-        cb2.clustering().cacheMode(CacheMode.LOCAL).create();
-
-        return rmc.administration().getOrCreateCache(cacheName, cb2.build());
-    }
-
-    
 
 //  protected Runtime runtime = Runtime.getRuntime();
 //  protected DecimalFormat df = new DecimalFormat("#");
@@ -82,8 +38,8 @@ public abstract class Cacher extends Thread {
 //  private int lastSize;
 //  private long batchTotalSize = 0;
 //  private long batchCount = 0;
-    
-//  protected void startProcess(int amountBatches, int batchSize, int totalDocAmount) {
+
+    //  protected void startProcess(int amountBatches, int batchSize, int totalDocAmount) {
 //      log.info("Starting Processing: batches: " + amountBatches + " size: " + batchSize + " total: " + getBigNumber(totalDocAmount) + " at: " + startTime);
 //      lastTime = new Date();
 //  }

@@ -200,7 +200,7 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         Iterable<Gene> genes = query(query, map);
         List<Gene> geneList = StreamSupport.stream(genes.spliterator(), false)
                 .collect(Collectors.toList());
-        log.info("ORTHOLOGOUS genes: " + geneList.size());
+        log.info("ORTHOLOGOUS genes: " + String.format("%,d", geneList.size()));
         return geneList;
     }
 

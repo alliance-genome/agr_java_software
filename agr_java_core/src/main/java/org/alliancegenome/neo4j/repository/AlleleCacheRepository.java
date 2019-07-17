@@ -1,13 +1,13 @@
 package org.alliancegenome.neo4j.repository;
 
 import org.alliancegenome.api.entity.CacheStatus;
+import org.alliancegenome.cache.AllianceCacheManager;
+import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.core.service.*;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.entity.node.Allele;
-import org.alliancegenome.neo4j.entity.node.GeneticEntity;
 import org.alliancegenome.neo4j.view.BaseFilter;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -35,20 +35,13 @@ public class AlleleCacheRepository {
     
     
     public JsonResultResponse<Allele> getAllelesBySpecies(String species, Pagination pagination) {
-        checkCache();
-        if (caching)
-            return null;
-
         List<Allele> allAlleles = taxonAlleleMap.get(species);
         return getAlleleJsonResultResponse(pagination, allAlleles);
     }
 
     public JsonResultResponse<Allele> getAllelesByGene(String geneID, Pagination pagination) {
-        checkCache();
-        if (caching)
-            return null;
 
-        List<Allele> allAlleles = geneAlleleMap.get(geneID);
+        List<Allele> allAlleles = AllianceCacheManager.getCacheSpaceWeb(CacheAlliance.ALLELE).get(geneID);
         if (allAlleles == null)
             return null;
         return getAlleleJsonResultResponse(pagination, allAlleles);
@@ -105,40 +98,6 @@ public class AlleleCacheRepository {
                 .collect(Collectors.toSet());
 
         return !filterResults.contains(false);
-    }
-
-    private void checkCache() {
-        if (allAlleles == null && !caching) {
-            caching = true;
-            cacheAllAlleles();
-            caching = false;
-        }
-        if (caching)
-            throw new RuntimeException("Cache Issue: Allele data are still being cached. Please wait...");
-    }
-
-    private void cacheAllAlleles() {
-        start = LocalDateTime.now();
-        long startTime = System.currentTimeMillis();
-        Set<Allele> allAlleleSet = alleleRepo.getAllAlleles();
-        if (allAlleleSet == null)
-            return;
-
-        allAlleles = new ArrayList<>(allAlleleSet);
-        allAlleles.sort(Comparator.comparing(GeneticEntity::getSymbol));
-        geneAlleleMap = allAlleles.stream()
-                .collect(groupingBy(allele -> allele.getGene().getPrimaryKey()));
-
-
-        taxonAlleleMap = allAlleles.stream()
-                .collect(groupingBy(allele -> allele.getSpecies().getPrimaryKey()));
-
-        log.info("Number of all Alleles: " + allAlleles.size());
-        log.info("Number of all Genes with Alleles: " + geneAlleleMap.size());
-        printTaxonMap();
-        log.info("Time to create cache: " + (System.currentTimeMillis() - startTime) / 1000);
-        alleleRepo.clearCache();
-        end = LocalDateTime.now();
     }
 
     private void printTaxonMap() {

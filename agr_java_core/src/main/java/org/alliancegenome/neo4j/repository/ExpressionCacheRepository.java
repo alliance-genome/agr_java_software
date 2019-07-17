@@ -14,6 +14,8 @@ import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import org.alliancegenome.api.entity.CacheStatus;
+import org.alliancegenome.cache.AllianceCacheManager;
+import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.core.ExpressionDetail;
 import org.alliancegenome.core.service.ExpressionAnnotationFiltering;
 import org.alliancegenome.core.service.ExpressionAnnotationSorting;
@@ -53,14 +55,11 @@ public class ExpressionCacheRepository {
     }
     
     public PaginationResult<ExpressionDetail> getExpressionAnnotations(List<String> geneIDs, String termID, Pagination pagination) {
-        checkCache();
-        if (caching)
-            return null;
 
         List<ExpressionDetail> fullExpressionAnnotationList = new ArrayList<>();
         geneIDs.stream()
-                .filter(geneID -> geneExpressionMap.get(geneID) != null)
-                .forEach(geneID -> fullExpressionAnnotationList.addAll(geneExpressionMap.get(geneID)));
+                .filter(geneID -> AllianceCacheManager.getCacheSpaceWeb(CacheAlliance.EXPRESSION).get(geneID) != null)
+                .forEach(geneID -> fullExpressionAnnotationList.addAll(AllianceCacheManager.getCacheSpaceWeb(CacheAlliance.EXPRESSION).get(geneID)));
 
         //filtering
         // filter on termID

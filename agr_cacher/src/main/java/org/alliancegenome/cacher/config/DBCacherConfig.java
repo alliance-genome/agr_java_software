@@ -1,38 +1,32 @@
 package org.alliancegenome.cacher.config;
 
-import org.alliancegenome.cacher.cachers.db.AlleleDBCacher;
-import org.alliancegenome.cacher.cachers.db.ExpressionDBCacher;
-import org.alliancegenome.cacher.cachers.db.GeneDBCacher;
-import org.alliancegenome.cacher.cachers.db.GenePhenotypeDBCacher;
+import org.alliancegenome.cacher.cachers.db.*;
 
 public enum DBCacherConfig {
 
-    AlleleDBCacher("alleleDBCacher", AlleleDBCacher.class, Caches.AlleleCache),
-    //GeneDBCacher("geneDBCacher", GeneDBCacher.class, Caches.GeneCache),
-    GenePhenotypeDBCacher("genePhenotypeDBCacher", GenePhenotypeDBCacher.class, Caches.GenePhenotypeCache),
-    //GeneExpressionDBCacher("geneExpressionDBCacher", ExpressionDBCacher.class, Caches.GeneExpressionCache),
+    AlleleDBCacher("geneAlleleCacher", AlleleDBCacher.class),
+    //GeneDBCacher("geneDBCacher", GeneDBCacher.class),
+    GenePhenotypeCacher("genePhenotypeCacher", GenePhenotypeDBCacher.class),
+    GeneInteractionCacher("geneInteractionCacher", InteractionCacher.class),
+    DiseaseCacher("DiseaseCacher", DiseaseDBCacher.class),
+    GeneExpressionCacher("geneExpressionDBCacher", ExpressionDBCacher.class),
+    GeneOrthologCacher("geneOrthologCacher", GeneOrthologCacher.class),
     ;
 
     private String cacherName;
-    private Class<?> cacherClazz;
-    private Caches cache;
+    private Class<?> cacherClass;
 
-    DBCacherConfig(String cacherName, Class<?> indexClazz, Caches cache) {
+    DBCacherConfig(String cacherName, Class<?> indexClazz) {
         this.cacherName = cacherName;
-        this.cacherClazz = indexClazz;
-        this.cache = cache;
+        this.cacherClass = indexClazz;
     }
 
     public String getCacherName() {
         return cacherName;
     }
-    
-    public Class<?> getCacherClazz() {
-        return cacherClazz;
-    }
-    
-    public Caches getCache() {
-        return cache;
+
+    public Class<?> getCacherClass() {
+        return cacherClass;
     }
 
 }
