@@ -24,13 +24,9 @@ public enum DBCacherConfig {
     public String getCacherName() {
         return cacherName;
     }
-    
-    public Class<?> getCacherClazz() {
-        return cacherClazz;
-    }
-    
-    public Caches getCache() {
-        return cache;
+
+    public Class<?> getCacherClass() {
+        return cacherClass;
     }
 
 }

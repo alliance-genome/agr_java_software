@@ -15,6 +15,8 @@ import org.neo4j.ogm.annotation.typeconversion.Convert;
 
 import java.util.*;
 
+import javax.persistence.Transient;
+
 @NodeEntity
 @Getter
 @Setter
@@ -90,7 +92,7 @@ public class Gene extends GeneticEntity implements Comparable<Gene> {
     private Set<GOTerm> goTerms = new HashSet<>();
 
     @Relationship(type = "ORTHOLOGOUS")
-    private List<Orthologous> orthoGenes = new ArrayList<>();
+    transient private List<Orthologous> orthoGenes = new ArrayList<>();
 
     @Relationship(type = "LOCATED_ON")
     @JsonView({View.GeneAPI.class})

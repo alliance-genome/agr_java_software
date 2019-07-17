@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.log4j.Log4j2;
 import org.alliancegenome.core.service.JsonResultResponse;
+import lombok.extern.log4j.Log4j2;
 import org.ehcache.Cache;
 import org.ehcache.PersistentCacheManager;
 import org.ehcache.config.builders.CacheConfigurationBuilder;

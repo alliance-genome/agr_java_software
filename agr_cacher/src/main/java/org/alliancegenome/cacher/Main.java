@@ -10,7 +10,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.logging.LogManager;
 
 @Log4j2
 public class Main {
@@ -45,6 +44,21 @@ public class Main {
             }
         }
 
+        // Run all the DB Cachers
+        for (String type : cachers.keySet()) {
+            if (argumentSet.size() == 0 || argumentSet.contains(type)) {
+                if (ConfigHelper.isThreaded()) {
+                    log.info("Starting in threaded mode for: " + type);
+                    cachers.get(type).start();
+                } else {
+                    log.info("Starting cacher sequentially: " + type);
+                    cachers.get(type).runCache();
+                }
+            } else {
+                log.info("Not Starting: " + type);
+            }
+        }
+
         // Wait for all the DB Cachers to finish
         log.debug("Waiting for Cachers to finish");
         for (Cacher i : cachers.values()) {
@@ -60,7 +74,7 @@ public class Main {
         }
 
         AllianceCacheManager.close();
-        
+
         Date end = new Date();
         log.info("End Time: " + end);
         long duration = end.getTime() - start.getTime();
