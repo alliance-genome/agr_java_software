@@ -17,13 +17,6 @@ public class DevtoolController implements DevtoolRESTInterface {
         GeneCacheRepository geneCacheRepository = new GeneCacheRepository();
         AlleleCacheRepository alleleCacheRepository = new AlleleCacheRepository();
 
-        summary.addCacheStatus(diseaseCacheRepository.getCacheStatus());
-        summary.addCacheStatus(interactionCacheRepository.getCacheStatus());
-        summary.addCacheStatus(expressionCacheRepository.getCacheStatus());
-        summary.addCacheStatus(phenotypeCacheRepository.getCacheStatus());
-        summary.addCacheStatus(geneCacheRepository.getCacheStatus());
-        summary.addCacheStatus(alleleCacheRepository.getCacheStatus());
-
         return summary;
     }
 }
