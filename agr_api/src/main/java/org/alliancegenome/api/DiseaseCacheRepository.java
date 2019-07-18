@@ -2,6 +2,8 @@ package org.alliancegenome.api;
 
 import org.alliancegenome.api.entity.CacheStatus;
 import org.alliancegenome.api.service.DiseaseRibbonService;
+import org.alliancegenome.cache.AllianceCacheManager;
+import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.core.service.*;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
@@ -40,11 +42,8 @@ public class DiseaseCacheRepository {
     private static LocalDateTime end;
 
     public PaginationResult<DiseaseAnnotation> getDiseaseAnnotationList(String diseaseID, Pagination pagination) {
-        checkCache();
-        if (caching)
-            return null;
 
-        List<DiseaseAnnotation> fullDiseaseAnnotationList = diseaseAnnotationSummaryMap.get(diseaseID);
+        List<DiseaseAnnotation> fullDiseaseAnnotationList = AllianceCacheManager.getCacheSpaceWeb(CacheAlliance.DISEASE_ANNOTATION).get(diseaseID);
 
         //filtering
         List<DiseaseAnnotation> filteredDiseaseAnnotationList = filterDiseaseAnnotations(fullDiseaseAnnotationList, pagination.getFieldFilterValueMap());

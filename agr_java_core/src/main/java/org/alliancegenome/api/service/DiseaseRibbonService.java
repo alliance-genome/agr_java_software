@@ -86,13 +86,13 @@ public class DiseaseRibbonService {
 
         RibbonSection section5 = new RibbonSection();
         section5.setLabel("Other Disease");
-        section5.setId(DOID_OTHER);
+        section5.setId(DiseaseRibbonSummary.DOID_OTHER);
         diseaseRibbonSummary.addRibbonSection(section5);
 
         diseaseRibbonSummary.getDiseaseRibbonSections().stream()
                 .filter(diseaseRibbonSection -> diseaseRibbonSection.getId() != null)
-                .filter(diseaseRibbonSection -> !diseaseRibbonSection.getId().equals(DOID_ALL_ANNOTATIONS))
-                .filter(diseaseRibbonSection -> !diseaseRibbonSection.getId().equals(DOID_OTHER))
+                .filter(diseaseRibbonSection -> !diseaseRibbonSection.getId().equals(DiseaseRibbonSummary.DOID_ALL_ANNOTATIONS))
+                .filter(diseaseRibbonSection -> !diseaseRibbonSection.getId().equals(DiseaseRibbonSummary.DOID_OTHER))
                 .forEach(diseaseRibbonSection -> {
                     DOTerm term = diseaseRepository.getShallowDiseaseTerm(diseaseRibbonSection.getId());
                     diseaseRibbonSection.setDescription(term.getDefinition());

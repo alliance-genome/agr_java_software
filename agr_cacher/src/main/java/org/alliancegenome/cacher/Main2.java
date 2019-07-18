@@ -54,7 +54,7 @@ public class Main2 {
         List listInt = cacheInteraction.get("MGI:109583");
         List listExp = cacheExpression.get("MGI:109583");
         List listGeneDis = cacheGeneDisease.get("RGD:1593249");
-        List listDisease = cacheDisease.get("DOID:0080120");
+        List listDisease = cacheDisease.get("DOID:9952");
 
         System.out.println("Pheno: "+ CollectionUtils.size(listPheno));
         System.out.println("Allele: "+ CollectionUtils.size(listAllel));
