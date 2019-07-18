@@ -1,41 +1,26 @@
 package org.alliancegenome.neo4j.repository;
 
-import org.alliancegenome.api.entity.CacheStatus;
+import lombok.extern.log4j.Log4j2;
 import org.alliancegenome.cache.AllianceCacheManager;
 import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.core.service.*;
 import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.view.BaseFilter;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
-import java.time.LocalDateTime;
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
-import static java.util.stream.Collectors.groupingBy;
-
+@Log4j2
 public class AlleleCacheRepository {
 
-    private Log log = LogFactory.getLog(getClass());
     // cached value
     private static List<Allele> allAlleles = null;
-    // Map<gene ID, List<Allele>> grouped by gene ID
-    private static Map<String, List<Allele>> geneAlleleMap;
-    // Map<taxon ID, List<Allele>> grouped by taxon ID
-    private static Map<String, List<Allele>> taxonAlleleMap;
 
-    private static boolean caching;
-    private static LocalDateTime start;
-    private static LocalDateTime end;
-
-    private AlleleRepository alleleRepo = new AlleleRepository();
-    
-    
     public JsonResultResponse<Allele> getAllelesBySpecies(String species, Pagination pagination) {
-        List<Allele> allAlleles = taxonAlleleMap.get(species);
+//todo        List<Allele> allAlleles = taxonAlleleMap.get(species);
         return getAlleleJsonResultResponse(pagination, allAlleles);
     }
 
@@ -103,18 +88,9 @@ public class AlleleCacheRepository {
     private void printTaxonMap() {
         log.info("Taxon / Allele map: ");
         StringBuilder builder = new StringBuilder();
-        taxonAlleleMap.forEach((key, value) -> builder.append(SpeciesType.fromTaxonId(key).getDisplayName() + ": " + value.size() + ", "));
+//todo        taxonAlleleMap.forEach((key, value) -> builder.append(SpeciesType.fromTaxonId(key).getDisplayName() + ": " + value.size() + ", "));
         log.info(builder.toString());
 
     }
 
-    public CacheStatus getCacheStatus() {
-        CacheStatus status = new CacheStatus("Allele");
-        status.setCaching(caching);
-        status.setStart(start);
-        status.setEnd(end);
-        if (allAlleles != null)
-            status.setNumberOfEntities(allAlleles.size());
-        return status;
-    }
 }

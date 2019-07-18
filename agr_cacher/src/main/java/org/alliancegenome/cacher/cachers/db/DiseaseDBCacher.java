@@ -1,6 +1,7 @@
 package org.alliancegenome.cacher.cachers.db;
 
 import lombok.extern.log4j.Log4j2;
+import org.alliancegenome.api.service.DiseaseRibbonService;
 import org.alliancegenome.cache.AllianceCacheManager;
 import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.cacher.cachers.Cacher;
@@ -30,7 +31,7 @@ public class DiseaseDBCacher extends Cacher {
         // grouping orthologous records
         List<DiseaseAnnotation> summaryList = new ArrayList<>();
 
-///        DiseaseRibbonService diseaseRibbonService = new DiseaseRibbonService();
+        DiseaseRibbonService diseaseRibbonService = new DiseaseRibbonService();
 
         List<DiseaseAnnotation> allDiseaseAnnotations = joinList.stream()
                 .map(diseaseEntityJoin -> {
@@ -52,18 +53,10 @@ public class DiseaseDBCacher extends Cacher {
                             .map(PublicationEvidenceCodeJoin::getPublication).sorted(Comparator.naturalOrder()).collect(Collectors.toList());
                     document.setPublications(publicationList.stream().distinct().collect(Collectors.toList()));
                     // work around as I cannot figure out how to include the ECOTerm in the overall query without slowing down the performance.
-/*
-                    Set<ECOTerm> evidences = diseaseEntityJoin.getPublicationEvidenceCodeJoin().stream()
-                            .map(PublicationEvidenceCodeJoin::getEcoCode)
-                            .flatMap(Collection::stream)
-                            .collect(Collectors.toSet());
-*/
                     List<ECOTerm> evidences = diseaseRepository.getEcoTerm(diseaseEntityJoin.getPublicationEvidenceCodeJoin());
                     document.setEcoCodes(evidences);
-/*
                     Set<String> slimId = diseaseRibbonService.getSlimId(diseaseEntityJoin.getDisease().getPrimaryKey());
                     document.setParentIDs(slimId);
-*/
                     return document;
                 })
                 .collect(toList());
@@ -117,10 +110,6 @@ public class DiseaseDBCacher extends Cacher {
 
         diseaseAnnotationExperimentGeneMap = allDiseaseAnnotations.stream()
                 .filter(annotation -> annotation.getSortOrder() < 10)
-                .collect(groupingBy(o -> o.getGene().getPrimaryKey(), Collectors.toList()));
-
-        diseaseAnnotationOrthologGeneMap = allDiseaseAnnotations.stream()
-                .filter(annotation -> annotation.getSortOrder() == 10)
                 .collect(groupingBy(o -> o.getGene().getPrimaryKey(), Collectors.toList()));
 
         log.info("Number of Disease IDs in disease Map: " + diseaseAnnotationMap.size());

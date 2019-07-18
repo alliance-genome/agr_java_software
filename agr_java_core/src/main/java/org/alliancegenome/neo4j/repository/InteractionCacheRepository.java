@@ -1,45 +1,22 @@
 package org.alliancegenome.neo4j.repository;
 
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.toList;
+import lombok.extern.log4j.Log4j2;
+import org.alliancegenome.cache.AllianceCacheManager;
+import org.alliancegenome.cache.CacheAlliance;
+import org.alliancegenome.core.service.*;
+import org.alliancegenome.es.model.query.Pagination;
+import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
+import org.alliancegenome.neo4j.view.BaseFilter;
 
-import java.text.DecimalFormat;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.alliancegenome.api.entity.CacheStatus;
-import org.alliancegenome.cache.AllianceCacheManager;
-import org.alliancegenome.cache.CacheAlliance;
-import org.alliancegenome.core.service.FilterFunction;
-import org.alliancegenome.core.service.InteractionAnnotationFiltering;
-import org.alliancegenome.core.service.InteractionAnnotationSorting;
-import org.alliancegenome.core.service.PaginationResult;
-import org.alliancegenome.core.service.SortingField;
-import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
-import org.alliancegenome.neo4j.view.BaseFilter;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import static java.util.stream.Collectors.toList;
 
+@Log4j2
 public class InteractionCacheRepository {
-
-    private Log log = LogFactory.getLog(getClass());
-    private static InteractionRepository interactionRepository = new InteractionRepository();
-
-    // cached value
-    private static List<InteractionGeneJoin> allInteractionAnnotations = null;
-    // Map<gene ID, List<PhenotypeAnnotation>> including annotations to child terms
-    // used for filtering and sorting on GeneA
-    private static Map<String, List<InteractionGeneJoin>> interactionAnnotationMapGene = new HashMap<>();
-    private static boolean caching;
-    private static LocalDateTime start;
-    private static LocalDateTime end;
 
     public PaginationResult<InteractionGeneJoin> getInteractionAnnotationList(String geneID, Pagination pagination) {
         // check gene map
@@ -99,16 +76,6 @@ public class InteractionCacheRepository {
                 .collect(Collectors.toSet());
 
         return !filterResults.contains(false);
-    }
-
-    public CacheStatus getCacheStatus() {
-        CacheStatus status = new CacheStatus("Interaction");
-        status.setCaching(caching);
-        status.setStart(start);
-        status.setEnd(end);
-        if (allInteractionAnnotations != null)
-            status.setNumberOfEntities(allInteractionAnnotations.size());
-        return status;
     }
 
 }

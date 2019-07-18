@@ -1,38 +1,22 @@
 package org.alliancegenome.neo4j.repository;
 
-import org.alliancegenome.api.entity.CacheStatus;
+import lombok.extern.log4j.Log4j2;
 import org.alliancegenome.cache.AllianceCacheManager;
 import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.core.service.*;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
-import org.alliancegenome.neo4j.entity.node.PhenotypeEntityJoin;
 import org.alliancegenome.neo4j.view.BaseFilter;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
-import java.text.DecimalFormat;
-import java.time.LocalDateTime;
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
-import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
 
+@Log4j2
 public class PhenotypeCacheRepository {
-
-    private Log log = LogFactory.getLog(getClass());
-    private static PhenotypeRepository phenotypeRepository = new PhenotypeRepository();
-    private GeneCacheRepository geneCacheRepository = new GeneCacheRepository();
-
-
-    // cached value
-    private static List<PhenotypeAnnotation> allPhenotypeAnnotations = null;
-    // Map<gene ID, List<PhenotypeAnnotation>> including annotations to child terms
-    private static Map<String, List<PhenotypeAnnotation>> phenotypeAnnotationMap = new HashMap<>();
-    private static boolean caching;
-    private static LocalDateTime start;
-    private static LocalDateTime end;
 
     public PaginationResult<PhenotypeAnnotation> getPhenotypeAnnotationList(String geneID, Pagination pagination) {
 
@@ -91,69 +75,6 @@ public class PhenotypeCacheRepository {
                 .collect(Collectors.toSet());
 
         return !filterResults.contains(false);
-    }
-
-
-    private void checkCache() {
-        if (allPhenotypeAnnotations == null && !caching) {
-            caching = true;
-            cacheAllPhenotypeAnnotations();
-            caching = false;
-        }
-        if (caching)
-            throw new RuntimeException("Cache Issue: Phenotype data are still being cached. Please wait...");
-    }
-
-    private void cacheAllPhenotypeAnnotations() {
-        start = LocalDateTime.now();
-        long start = System.currentTimeMillis();
-        List<PhenotypeEntityJoin> joinList = phenotypeRepository.getAllPhenotypeAnnotations();
-        int size = joinList.size();
-        DecimalFormat myFormatter = new DecimalFormat("###,###.##");
-        System.out.println("Retrieved " + myFormatter.format(size) + " phenotype records");
-        // replace Gene references with the cached Gene references to keep the memory imprint low.
-        allPhenotypeAnnotations = joinList.stream()
-                .map(phenotypeEntityJoin -> {
-                    PhenotypeAnnotation document = new PhenotypeAnnotation();
-                    document.setGene(phenotypeEntityJoin.getGene());
-                    if (phenotypeEntityJoin.getAllele() != null)
-                        document.setGeneticEntity(phenotypeEntityJoin.getAllele());
-                    else
-                        document.setGeneticEntity(phenotypeEntityJoin.getGene());
-                    document.setPhenotype(phenotypeEntityJoin.getPhenotype().getPhenotypeStatement());
-                    document.setPublications(phenotypeEntityJoin.getPublications());
-                    return document;
-                })
-                .collect(toList());
-
-        // group by gene IDs
-        phenotypeAnnotationMap = allPhenotypeAnnotations.stream()
-                .collect(groupingBy(phenotypeAnnotation -> phenotypeAnnotation.getGene().getPrimaryKey()));
-
-        // default sorting
-/*
-        DiseaseAnnotationSorting sorting = new DiseaseAnnotationSorting();
-        allPhenotypeAnnotations.sort(sorting.getDefaultComparator());
-        log.info("Retrieved " + allPhenotypeAnnotations.size() + " annotations");
-        long startCreateHistogram = System.currentTimeMillis();
-        Map<String, Set<String>> closureMapping = phenotypeRepository.getClosureMapping();
-        log.info("Number of Disease IDs: " + closureMapping.size());
-        final Set<String> allIDs = closureMapping.keySet();
-*/
-        log.info("Time to create annotation histogram: " + (System.currentTimeMillis() - start) / 1000);
-        phenotypeRepository.clearCache();
-        end = LocalDateTime.now();
-
-    }
-
-    public CacheStatus getCacheStatus() {
-        CacheStatus status = new CacheStatus("Phenotype");
-        status.setCaching(caching);
-        status.setStart(start);
-        status.setEnd(end);
-        if (allPhenotypeAnnotations != null)
-            status.setNumberOfEntities(allPhenotypeAnnotations.size());
-        return status;
     }
 
 }
