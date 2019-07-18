@@ -38,7 +38,7 @@ public class AllianceCacheManager<T, U extends JsonResultResponse> {
             return;
 
         log.info("Setting up persistent cache Manager: ");
-        File rootDirectory = new File(".", "ehcache-data");
+        File rootDirectory = new File(".", "ehcache-data.1");
         if (web)
             rootDirectory = new File("../.", "ehcache-data");
         System.out.println("ehcache directory: " + rootDirectory.getAbsolutePath());

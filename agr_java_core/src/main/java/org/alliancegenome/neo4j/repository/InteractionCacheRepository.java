@@ -17,16 +17,10 @@ import static java.util.stream.Collectors.toList;
 import org.alliancegenome.api.entity.CacheStatus;
 import org.alliancegenome.cache.AllianceCacheManager;
 import org.alliancegenome.cache.CacheAlliance;
-import org.alliancegenome.core.service.FilterFunction;
-import org.alliancegenome.core.service.InteractionAnnotationFiltering;
-import org.alliancegenome.core.service.InteractionAnnotationSorting;
-import org.alliancegenome.core.service.PaginationResult;
-import org.alliancegenome.core.service.SortingField;
+import org.alliancegenome.core.service.*;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
 import org.alliancegenome.neo4j.view.BaseFilter;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 @Log4j2
 public class InteractionCacheRepository {
@@ -89,16 +83,6 @@ public class InteractionCacheRepository {
                 .collect(Collectors.toSet());
 
         return !filterResults.contains(false);
-    }
-
-    public CacheStatus getCacheStatus() {
-        CacheStatus status = new CacheStatus("Interaction");
-        status.setCaching(caching);
-        status.setStart(start);
-        status.setEnd(end);
-        if (allInteractionAnnotations != null)
-            status.setNumberOfEntities(allInteractionAnnotations.size());
-        return status;
     }
 
 }
