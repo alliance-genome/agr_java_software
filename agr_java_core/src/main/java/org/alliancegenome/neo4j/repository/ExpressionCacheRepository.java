@@ -1,48 +1,21 @@
 package org.alliancegenome.neo4j.repository;
 
-import static java.util.stream.Collectors.groupingBy;
-
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.stream.Collectors;
-
-import org.alliancegenome.api.entity.CacheStatus;
+import lombok.extern.log4j.Log4j2;
 import org.alliancegenome.cache.AllianceCacheManager;
 import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.core.ExpressionDetail;
-import org.alliancegenome.core.service.ExpressionAnnotationFiltering;
-import org.alliancegenome.core.service.ExpressionAnnotationSorting;
-import org.alliancegenome.core.service.FilterFunction;
-import org.alliancegenome.core.service.PaginationResult;
-import org.alliancegenome.core.service.SortingField;
+import org.alliancegenome.core.service.*;
 import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.neo4j.entity.node.BioEntityGeneExpressionJoin;
-import org.alliancegenome.neo4j.entity.node.GOTerm;
-import org.alliancegenome.neo4j.entity.node.UBERONTerm;
 import org.alliancegenome.neo4j.view.BaseFilter;
 import org.apache.commons.collections4.CollectionUtils;
 
-import lombok.extern.log4j.Log4j2;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Log4j2
 public class ExpressionCacheRepository {
-    
 
-    private static List<ExpressionDetail> allExpression = null;
-    // Map<gene ID, List<Allele>> grouped by gene ID
-    private static Map<String, List<ExpressionDetail>> geneExpressionMap;
 
-    private static boolean caching;
-    private static LocalDateTime start;
-    private static LocalDateTime end;
-    
     private static List<String> parentTermIDs = new ArrayList<>();
 
     static {
@@ -53,7 +26,7 @@ public class ExpressionCacheRepository {
         // cellular Component
         parentTermIDs.add("GO:0005575");
     }
-    
+
     public PaginationResult<ExpressionDetail> getExpressionAnnotations(List<String> geneIDs, String termID, Pagination pagination) {
 
         List<ExpressionDetail> fullExpressionAnnotationList = new ArrayList<>();
@@ -121,67 +94,6 @@ public class ExpressionCacheRepository {
                 .collect(Collectors.toList());
     }
 
-    private void checkCache() {
-        if (allExpression == null && !caching) {
-            caching = true;
-            cacheAllExpression();
-            caching = false;
-        }
-        if (caching)
-            throw new RuntimeException("Cache Issue: Expression data are still being cached. Please wait...");
-    }
-
-    private void cacheAllExpression() {
-        start = LocalDateTime.now();
-        long startTime = System.currentTimeMillis();
-        GeneRepository geneRepository = new GeneRepository();
-        List<BioEntityGeneExpressionJoin> joins = geneRepository.getAllExpressionAnnotations();
-
-        allExpression = joins.stream()
-                .map(expressionJoin -> {
-                    ExpressionDetail detail = new ExpressionDetail();
-                    detail.setGene(expressionJoin.getGene());
-                    detail.setTermName(expressionJoin.getEntity().getWhereExpressedStatement());
-                    detail.setAssay(expressionJoin.getAssay());
-                    detail.setDataProvider(expressionJoin.getGene().getDataProvider());
-                    if (expressionJoin.getStage() != null)
-                        detail.setStage(expressionJoin.getStage());
-                    detail.setPublications(new TreeSet<>(expressionJoin.getPublications()));
-                    detail.setCrossReferences(expressionJoin.getCrossReferences());
-                    // add AO terms and All AO parent term
-                    List<String> aoList = expressionJoin.getEntity().getAoTermList().stream().map(UBERONTerm::getPrimaryKey).collect(Collectors.toList());
-                    Set<String> parentTermIDs = getParentTermIDs(aoList);
-                    if (parentTermIDs != null)
-                        aoList.addAll(parentTermIDs);
-                    detail.addTermIDs(aoList);
-
-                    // add GO terms and All-GO parent term
-                    List<String> goList = expressionJoin.getEntity().getCcRibbonTermList().stream().map(GOTerm::getPrimaryKey).collect(Collectors.toList());
-                    Set<String> goParentTerms = getGOParentTermIDs(goList);
-                    if (goParentTerms != null) {
-                        goList.addAll(goParentTerms);
-                    }
-                    detail.addTermIDs(goList);
-                    if (expressionJoin.getStageTerm() != null) {
-                        String stageID = expressionJoin.getStageTerm().getPrimaryKey();
-                        detail.addTermID(stageID);
-                        detail.addTermIDs(getParentTermIDs(stageID));
-                    }
-                    return detail;
-                })
-                .collect(Collectors.toList());
-
-        geneExpressionMap = allExpression.stream()
-                .collect(groupingBy(expressionDetail -> expressionDetail.getGene().getPrimaryKey()));
-
-        log.info("Number of all expression records: " + allExpression.size());
-        log.info("Number of all Genes with Expression: " + geneExpressionMap.size());
-        log.info("Time to create cache: " + (System.currentTimeMillis() - startTime) / 1000);
-        geneRepository.clearCache();
-        end = LocalDateTime.now();
-
-    }
-
     private static List<String> parentTermIDs = new ArrayList<>();
 
     public static final String UBERON_ANATOMY_ROOT = "UBERON:0001062";
@@ -239,20 +151,7 @@ public class ExpressionCacheRepository {
         return parentSet;
     }
 
-    public CacheStatus getCacheStatus() {
-        CacheStatus status = new CacheStatus("Expression");
-        status.setCaching(caching);
-        status.setStart(start);
-        status.setEnd(end);
-        if (allExpression != null)
-            status.setNumberOfEntities(allExpression.size());
-        return status;
-    }
-
     public boolean hasExpression(String geneID) {
-        checkCache();
-        if (caching)
-            return false;
-        return CollectionUtils.isNotEmpty(geneExpressionMap.get(geneID));
+        return CollectionUtils.isNotEmpty(AllianceCacheManager.getCacheSpaceWeb(CacheAlliance.EXPRESSION).get(geneID));
     }
 }
