@@ -14,6 +14,7 @@ import org.alliancegenome.neo4j.view.BaseFilter;
 import org.alliancegenome.neo4j.view.View;
 
 import java.util.ArrayList;
+
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;

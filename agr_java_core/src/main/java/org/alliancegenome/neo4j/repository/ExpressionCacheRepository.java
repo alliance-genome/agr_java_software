@@ -1,46 +1,22 @@
 package org.alliancegenome.neo4j.repository;
 
-import static java.util.stream.Collectors.groupingBy;
-
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.stream.Collectors;
-
-import org.alliancegenome.api.entity.CacheStatus;
+import lombok.extern.log4j.Log4j2;
 import org.alliancegenome.cache.AllianceCacheManager;
 import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.core.ExpressionDetail;
-import org.alliancegenome.core.service.ExpressionAnnotationFiltering;
-import org.alliancegenome.core.service.ExpressionAnnotationSorting;
-import org.alliancegenome.core.service.FilterFunction;
-import org.alliancegenome.core.service.PaginationResult;
-import org.alliancegenome.core.service.SortingField;
+import org.alliancegenome.core.service.*;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.view.BaseFilter;
 import org.alliancegenome.neo4j.view.View;
 import org.apache.commons.collections4.CollectionUtils;
 
-import lombok.extern.log4j.Log4j2;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Log4j2
 public class ExpressionCacheRepository {
-    
 
-    private static List<ExpressionDetail> allExpression = null;
-    // Map<gene ID, List<Allele>> grouped by gene ID
-    private static Map<String, List<ExpressionDetail>> geneExpressionMap;
 
-    private static boolean caching;
-    private static LocalDateTime start;
-    private static LocalDateTime end;
-    
     private static List<String> parentTermIDs = new ArrayList<>();
 
     static {
@@ -51,7 +27,7 @@ public class ExpressionCacheRepository {
         // cellular Component
         parentTermIDs.add("GO:0005575");
     }
-    
+
     public PaginationResult<ExpressionDetail> getExpressionAnnotations(List<String> geneIDs, String termID, Pagination pagination) {
 
         List<ExpressionDetail> fullExpressionAnnotationList = new ArrayList<>();
@@ -177,6 +153,6 @@ public class ExpressionCacheRepository {
     }
 
     public boolean hasExpression(String geneID) {
-        return CollectionUtils.isNotEmpty(manager.getExpressionsWeb(geneID, View.Expression.class));
+        return CollectionUtils.isNotEmpty(AllianceCacheManager.getCacheSpaceWeb(CacheAlliance.EXPRESSION).get(geneID));
     }
 }
