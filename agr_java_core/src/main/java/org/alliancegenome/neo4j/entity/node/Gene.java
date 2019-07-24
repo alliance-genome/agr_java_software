@@ -1,11 +1,9 @@
 package org.alliancegenome.neo4j.entity.node;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonView;
+import lombok.Getter;
+import lombok.Setter;
 import org.alliancegenome.es.util.DateConverter;
 import org.alliancegenome.neo4j.entity.relationship.GenomeLocation;
 import org.alliancegenome.neo4j.entity.relationship.Orthologous;
@@ -15,13 +13,7 @@ import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.typeconversion.Convert;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonView;
-
-import lombok.Getter;
-import lombok.Setter;
-
-import javax.persistence.Transient;
+import java.util.*;
 
 @NodeEntity
 @Getter
@@ -98,36 +90,36 @@ public class Gene extends GeneticEntity implements Comparable<Gene> {
     private Set<GOTerm> goTerms = new HashSet<>();
 
     @Relationship(type = "ORTHOLOGOUS")
-    transient private List<Orthologous> orthoGenes = new ArrayList<>();
+    private List<Orthologous> orthoGenes = new ArrayList<>();
 
     @Relationship(type = "LOCATED_ON")
     @JsonView({View.GeneAPI.class})
     private List<GenomeLocation> genomeLocations;
 
     @Relationship(type = "IS_ALLELE_OF", direction = Relationship.INCOMING)
-    @JsonView(value = {View.GeneAllelesAPI.class})
-    transient private List<Allele> alleles;
+    //@JsonView(value = {View.GeneAllelesAPI.class})
+    private List<Allele> alleles;
 
     @Relationship(type = "ASSOCIATION", direction = Relationship.UNDIRECTED)
-    transient private List<DiseaseEntityJoin> diseaseEntityJoins = new ArrayList<>();
+    private List<DiseaseEntityJoin> diseaseEntityJoins = new ArrayList<>();
 
     @Relationship(type = "ASSOCIATION", direction = Relationship.UNDIRECTED)
-    transient private List<BioEntityGeneExpressionJoin> entityGeneExpressionJoins = new ArrayList<>();
+    private List<BioEntityGeneExpressionJoin> entityGeneExpressionJoins = new ArrayList<>();
 
     @Relationship(type = "ASSOCIATION")
-    transient private List<PhenotypeEntityJoin> phenotypeEntityJoins = new ArrayList<>();
+    private List<PhenotypeEntityJoin> phenotypeEntityJoins = new ArrayList<>();
 
     @Relationship(type = "ASSOCIATION", direction = Relationship.UNDIRECTED)
-    transient private List<OrthologyGeneJoin> orthologyGeneJoins = new ArrayList<>();
+    private List<OrthologyGeneJoin> orthologyGeneJoins = new ArrayList<>();
 
     @Relationship(type = "HAS_PHENOTYPE")
-    transient private List<Phenotype> phenotypes = new ArrayList<>();
+    private List<Phenotype> phenotypes = new ArrayList<>();
 
     @Relationship(type = "ASSOCIATION")
-    transient private List<InteractionGeneJoin> interactions = new ArrayList<>();
+    private List<InteractionGeneJoin> interactions = new ArrayList<>();
 
     @Relationship(type = "EXPRESSED_IN")
-    transient private List<ExpressionBioEntity> expressionBioEntities = new ArrayList<>();
+    private List<ExpressionBioEntity> expressionBioEntities = new ArrayList<>();
 
     public String getNameKey() {
         String nameKey = symbol;

@@ -1,12 +1,12 @@
 package org.alliancegenome.neo4j.repository;
 
 import lombok.extern.log4j.Log4j2;
-import org.alliancegenome.cache.AllianceCacheManager;
-import org.alliancegenome.cache.CacheAlliance;
+import org.alliancegenome.cache.AlleleAllianceCacheManager;
 import org.alliancegenome.core.service.*;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.view.BaseFilter;
+import org.alliancegenome.neo4j.view.View;
 
 import java.util.List;
 import java.util.Objects;
@@ -26,7 +26,8 @@ public class AlleleCacheRepository {
 
     public JsonResultResponse<Allele> getAllelesByGene(String geneID, Pagination pagination) {
 
-        List<Allele> allAlleles = AllianceCacheManager.getCacheSpaceWeb(CacheAlliance.ALLELE).get(geneID);
+        AlleleAllianceCacheManager manager = new AlleleAllianceCacheManager();
+        List<Allele> allAlleles = manager.getAllelesWeb(geneID, View.GeneAllelesAPI.class);
         if (allAlleles == null)
             return null;
         return getAlleleJsonResultResponse(pagination, allAlleles);
