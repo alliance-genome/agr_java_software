@@ -31,7 +31,8 @@ public class AlleleCacheRepository {
 
     public JsonResultResponse<Allele> getAllelesByGene(String geneID, Pagination pagination) {
 
-        List<Allele> allAlleles = AllianceCacheManager.getCacheSpaceWeb(CacheAlliance.ALLELE).get(geneID);
+        AlleleAllianceCacheManager manager = new AlleleAllianceCacheManager();
+        List<Allele> allAlleles = manager.getAllelesWeb(geneID, View.GeneAllelesAPI.class);
         if (allAlleles == null)
             return null;
         return getAlleleJsonResultResponse(pagination, allAlleles);

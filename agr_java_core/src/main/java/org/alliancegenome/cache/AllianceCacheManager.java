@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.log4j.Log4j2;
 import org.alliancegenome.core.service.JsonResultResponse;
 import lombok.extern.log4j.Log4j2;
+import org.alliancegenome.core.service.JsonResultResponse;
 import org.ehcache.Cache;
 import org.ehcache.PersistentCacheManager;
 import org.ehcache.config.builders.CacheConfigurationBuilder;
@@ -38,7 +39,7 @@ public class AllianceCacheManager<T, U extends JsonResultResponse> {
             return;
 
         log.info("Setting up persistent cache Manager: ");
-        File rootDirectory = new File(".", "ehcache-data.1");
+        File rootDirectory = new File(".", "ehcache-data");
         if (web)
             rootDirectory = new File("../.", "ehcache-data");
         System.out.println("ehcache directory: " + rootDirectory.getAbsolutePath());
@@ -95,7 +96,6 @@ public class AllianceCacheManager<T, U extends JsonResultResponse> {
         }
         return result.getResults();
     }
-
 
     public static Cache<String, String> getCacheSpaceWeb(CacheAlliance cache) {
         if (persistentCacheManager == null) {

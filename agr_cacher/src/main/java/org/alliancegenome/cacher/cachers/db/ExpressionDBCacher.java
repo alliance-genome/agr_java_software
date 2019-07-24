@@ -1,16 +1,18 @@
 package org.alliancegenome.cacher.cachers.db;
 
-import org.alliancegenome.cache.AllianceCacheManager;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.alliancegenome.cache.CacheAlliance;
+import org.alliancegenome.cache.ExpressionAllianceCacheManager;
 import org.alliancegenome.cacher.cachers.Cacher;
 import org.alliancegenome.core.ExpressionDetail;
 
+import org.alliancegenome.core.service.JsonResultResponseExpression;
 import org.alliancegenome.neo4j.entity.node.BioEntityGeneExpressionJoin;
 import org.alliancegenome.neo4j.entity.node.GOTerm;
 import org.alliancegenome.neo4j.entity.node.UBERONTerm;
 import org.alliancegenome.neo4j.repository.DiseaseRepository;
 import org.alliancegenome.neo4j.repository.GeneRepository;
-import org.ehcache.Cache;
+import org.alliancegenome.neo4j.view.View;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -74,8 +76,18 @@ public class ExpressionDBCacher extends Cacher {
         Map<String, List<ExpressionDetail>> geneExpressionMap = allExpression.stream()
                 .collect(groupingBy(expressionDetail -> expressionDetail.getGene().getPrimaryKey()));
 
-        Cache<String, ArrayList> cache = AllianceCacheManager.getCacheSpace(CacheAlliance.EXPRESSION);
-        geneExpressionMap.forEach((key, value) -> cache.put(key, new ArrayList<>(value)));
+        ExpressionAllianceCacheManager manager = new ExpressionAllianceCacheManager();
+
+        geneExpressionMap.forEach((key, value) -> {
+            JsonResultResponseExpression result = new JsonResultResponseExpression();
+            result.setResults(value);
+            try {
+                manager.putCache(key, result, View.Expression.class, CacheAlliance.EXPRESSION);
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
+            }
+
+        });
         geneRepository.clearCache();
 
     }

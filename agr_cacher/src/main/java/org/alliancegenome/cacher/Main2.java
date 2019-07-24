@@ -30,7 +30,7 @@ import java.util.List;
 
 public class Main2 {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
 
 
 /*
@@ -61,41 +61,50 @@ public class Main2 {
 */
 
         //Cache<String, ArrayList> cache = persistentCacheManager.getCache("genePhenotype", String.class, ArrayList.class);
-        Cache<String, ArrayList> cache = AllianceCacheManager.getCacheSpace(CacheAlliance.PHENOTYPE);
-        Cache<String, ArrayList> cacheAllele = AllianceCacheManager.getCacheSpace(CacheAlliance.ALLELE);
-        Cache<String, ArrayList> cacheInteraction = AllianceCacheManager.getCacheSpace(CacheAlliance.INTERACTION);
-        Cache<String, ArrayList> cacheExpression = AllianceCacheManager.getCacheSpace(CacheAlliance.EXPRESSION);
-        Cache<String, ArrayList> cacheDisease = AllianceCacheManager.getCacheSpace(CacheAlliance.DISEASE_ANNOTATION);
-        Cache<String, ArrayList> cacheGeneDisease = AllianceCacheManager.getCacheSpace(CacheAlliance.GENE_DISEASE_ANNOTATION);
-        Cache<String, ArrayList> cacheOrtho = AllianceCacheManager.getCacheSpace(CacheAlliance.ORTHOLOGY);
-        List listPheno = cache.get("MGI:109583");
-        List listAllel = cacheAllele.get("MGI:109583");
-        List listInt = cacheInteraction.get("MGI:109583");
-        List listExp = cacheExpression.get("MGI:109583");
-        List listGeneDis = cacheGeneDisease.get("RGD:1593249");
-        List listDisease = cacheDisease.get("DOID:9952");
-
-        System.out.println("Pheno: "+ CollectionUtils.size(listPheno));
-        System.out.println("Allele: "+ CollectionUtils.size(listAllel));
-        System.out.println("Interactions: "+ CollectionUtils.size(listInt));
-        System.out.println("Expression: "+ CollectionUtils.size(listExp));
-        System.out.println("Disease: "+ CollectionUtils.size(listDisease));
-        System.out.println("Gene Disease: "+ CollectionUtils.size(listGeneDis));
-        System.out.println("Gene Ortho: "+ CollectionUtils.size(cacheOrtho.get("MGI:109583")));
-
-        //cacheOrtho.forEach(entry -> System.out.println(entry.getKey()));
-
-
-
-//        Cache<String, ArrayList> cache1 = persistentCacheManager.getCache("mycache", String.class, ArrayList.class);
+/*
+        String id = "ZFIN:ZDB-GENE-001103-1";
+        AllianceCacheManager<Allele> resultAllele = new AllianceCacheManager<>();
+        List<Allele> resultsAllele = resultAllele.getResultList(id, CacheAlliance.ALLELE);
+        System.out.println("Allele: " + resultsAllele.size());
+*/
 
 /*
-        Cache<String, HashMap> myCache = persistentCacheManager.createCache("mycache",
-                CacheConfigurationBuilder.newCacheConfigurationBuilder(String.class, HashMap.class,
-                        ResourcePoolsBuilder.heap(100)).build());
+        AllianceCacheManager<OrthologView> resultOrtho = new AllianceCacheManager<>();
+        List<OrthologView> results = resultOrtho.getResultList(id, CacheAlliance.ORTHOLOGY);
+        System.out.println("Ortho: " + results.size());
 
 */
 
+        try {
+
+            ExpressionAllianceCacheManager managerExp = new ExpressionAllianceCacheManager();
+            List<ExpressionDetail> resultsExp = managerExp.getExpressions("MGI:109583", View.Expression.class);
+            System.out.println("Expression: " + resultsExp.size());
+
+            OrthologyAllianceCacheManager managerOrtho = new OrthologyAllianceCacheManager();
+            List<OrthologView> resultsOrtho = managerOrtho.getOrthology("MGI:109583", View.Orthology.class);
+            System.out.println("Orthology: " + resultsOrtho.size());
+
+            InteractionAllianceCacheManager managerInter = new InteractionAllianceCacheManager();
+            List<InteractionGeneJoin> resultsInter = managerInter.getInteractions("MGI:109583", View.Interaction.class);
+            System.out.println("Interactions: " + resultsInter.size());
+
+
+            PhenotypeCacheManager managerPheno = new PhenotypeCacheManager();
+            List<PhenotypeAnnotation> resultsPheno = managerPheno.getPhenotypeAnnotations("MGI:109583", View.PhenotypeAPI.class);
+            System.out.println("Phenotype: " + resultsPheno.size());
+
+            DiseaseAllianceCacheManager resultDisease = new DiseaseAllianceCacheManager();
+            List<DiseaseAnnotation> resultsDisease = resultDisease.getDiseaseAnnotations("DOID:9952", View.DiseaseAnnotationSummary.class);
+            System.out.println("Disease Annotations: " + resultsDisease.size());
+
+            AlleleAllianceCacheManager managerAllele = new AlleleAllianceCacheManager();
+            List<Allele> resultAllele = managerAllele.getAlleles("MGI:109583", View.GeneAllelesAPI.class);
+            System.out.println("Alleles: " + resultAllele.size());
+        } catch (Exception ignored) {
+        } finally {
+            AllianceCacheManager.close();
+        }
 /*
         HashMap<String, List<String>> map = new HashMap<>();
         ArrayList<String> list = new ArrayList<>();
@@ -106,8 +115,6 @@ public class Main2 {
         cache.put("genotype", list);
         Object value = cache.get("genotype");
 */
-
-        AllianceCacheManager.close();
 
 
     }

@@ -92,36 +92,36 @@ public class Gene extends GeneticEntity implements Comparable<Gene> {
     private Set<GOTerm> goTerms = new HashSet<>();
 
     @Relationship(type = "ORTHOLOGOUS")
-    transient private List<Orthologous> orthoGenes = new ArrayList<>();
+    private List<Orthologous> orthoGenes = new ArrayList<>();
 
     @Relationship(type = "LOCATED_ON")
     @JsonView({View.GeneAPI.class})
     private List<GenomeLocation> genomeLocations;
 
     @Relationship(type = "IS_ALLELE_OF", direction = Relationship.INCOMING)
-    @JsonView(value = {View.GeneAllelesAPI.class})
-    transient private List<Allele> alleles;
+    //@JsonView(value = {View.GeneAllelesAPI.class})
+    private List<Allele> alleles;
 
     @Relationship(type = "ASSOCIATION", direction = Relationship.UNDIRECTED)
-    transient private List<DiseaseEntityJoin> diseaseEntityJoins = new ArrayList<>();
+    private List<DiseaseEntityJoin> diseaseEntityJoins = new ArrayList<>();
 
     @Relationship(type = "ASSOCIATION", direction = Relationship.UNDIRECTED)
-    transient private List<BioEntityGeneExpressionJoin> entityGeneExpressionJoins = new ArrayList<>();
+    private List<BioEntityGeneExpressionJoin> entityGeneExpressionJoins = new ArrayList<>();
 
     @Relationship(type = "ASSOCIATION")
-    transient private List<PhenotypeEntityJoin> phenotypeEntityJoins = new ArrayList<>();
+    private List<PhenotypeEntityJoin> phenotypeEntityJoins = new ArrayList<>();
 
     @Relationship(type = "ASSOCIATION", direction = Relationship.UNDIRECTED)
-    transient private List<OrthologyGeneJoin> orthologyGeneJoins = new ArrayList<>();
+    private List<OrthologyGeneJoin> orthologyGeneJoins = new ArrayList<>();
 
     @Relationship(type = "HAS_PHENOTYPE")
-    transient private List<Phenotype> phenotypes = new ArrayList<>();
+    private List<Phenotype> phenotypes = new ArrayList<>();
 
     @Relationship(type = "ASSOCIATION")
-    transient private List<InteractionGeneJoin> interactions = new ArrayList<>();
+    private List<InteractionGeneJoin> interactions = new ArrayList<>();
 
     @Relationship(type = "EXPRESSED_IN")
-    transient private List<ExpressionBioEntity> expressionBioEntities = new ArrayList<>();
+    private List<ExpressionBioEntity> expressionBioEntities = new ArrayList<>();
 
     public String getNameKey() {
         String nameKey = symbol;
