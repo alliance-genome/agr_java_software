@@ -2,14 +2,14 @@ package org.alliancegenome.api;
 
 import org.alliancegenome.api.entity.CacheStatus;
 import org.alliancegenome.api.service.DiseaseRibbonService;
-import org.alliancegenome.cache.AllianceCacheManager;
-import org.alliancegenome.cache.CacheAlliance;
+import org.alliancegenome.cache.DiseaseAllianceCacheManager;
 import org.alliancegenome.core.service.*;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.node.*;
 import org.alliancegenome.neo4j.repository.DiseaseRepository;
 import org.alliancegenome.neo4j.view.BaseFilter;
+import org.alliancegenome.neo4j.view.View;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -43,8 +43,8 @@ public class DiseaseCacheRepository {
 
     public PaginationResult<DiseaseAnnotation> getDiseaseAnnotationList(String diseaseID, Pagination pagination) {
 
-        List<DiseaseAnnotation> fullDiseaseAnnotationList = AllianceCacheManager.getCacheSpaceWeb(CacheAlliance.DISEASE_ANNOTATION).get(diseaseID);
-
+        DiseaseAllianceCacheManager manager = new DiseaseAllianceCacheManager();
+        List<DiseaseAnnotation> fullDiseaseAnnotationList = manager.getDiseaseAnnotationsWeb(diseaseID, View.DiseaseAnnotationSummary.class);
         //filtering
         List<DiseaseAnnotation> filteredDiseaseAnnotationList = filterDiseaseAnnotations(fullDiseaseAnnotationList, pagination.getFieldFilterValueMap());
 

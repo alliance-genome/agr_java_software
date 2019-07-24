@@ -10,6 +10,7 @@ import java.util.concurrent.TimeUnit;
 @Log4j2
 public abstract class Cacher extends Thread {
 
+
     protected abstract void cache();
 
     public void runCache() {

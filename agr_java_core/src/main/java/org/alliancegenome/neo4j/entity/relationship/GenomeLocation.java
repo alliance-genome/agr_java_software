@@ -19,7 +19,7 @@ import lombok.Setter;
 public class GenomeLocation extends Neo4jEntity {
 
     @StartNode
-    transient private Gene gene;
+    private Gene gene;
     @EndNode
     private Chromosome chromosome;
 
