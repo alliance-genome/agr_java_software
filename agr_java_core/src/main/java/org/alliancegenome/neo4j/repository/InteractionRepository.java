@@ -64,6 +64,7 @@ public class InteractionRepository extends Neo4jRepository<InteractionGeneJoin> 
                 "p11=(igj:InteractionGeneJoin)-[:AGGREGATION_DATABASE]->(aggregation:MITerm), " +
                 "p9=(igj:InteractionGeneJoin)-[:EVIDENCE]->(pub:Publication) ";
         //allInteractionsQuery += " where g1.primaryKey = 'MGI:109583' ";
+        //allInteractionsQuery += " where g1.primaryKey = 'MGI:103170' ";
         //allInteractionsQuery += " where g1.primaryKey = 'FB:FBgn0029891' ";
         String query = allInteractionsQuery + " RETURN p1, p2, p3, p5, p6, p7, p8, p4, p9, p10, p11 ";
         Iterable<InteractionGeneJoin> joins = query(query, new HashMap<>());

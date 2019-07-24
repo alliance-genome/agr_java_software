@@ -1,16 +1,18 @@
 package org.alliancegenome.cacher.cachers.db;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.log4j.Log4j2;
 import org.alliancegenome.api.service.DiseaseRibbonService;
-import org.alliancegenome.cache.AllianceCacheManager;
 import org.alliancegenome.cache.CacheAlliance;
+import org.alliancegenome.cache.DiseaseAllianceCacheManager;
 import org.alliancegenome.cacher.cachers.Cacher;
 import org.alliancegenome.core.service.DiseaseAnnotationSorting;
+import org.alliancegenome.core.service.JsonResultResponseDiseaseAnnotation;
 import org.alliancegenome.core.service.SortingField;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.node.*;
 import org.alliancegenome.neo4j.repository.DiseaseRepository;
-import org.ehcache.Cache;
+import org.alliancegenome.neo4j.view.View;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -116,16 +118,29 @@ public class DiseaseDBCacher extends Cacher {
         log.info("Time to create annotation  list: " + (System.currentTimeMillis() - startCreateHistogram) / 1000);
         diseaseRepository.clearCache();
 
-        Cache<String, ArrayList> cache = AllianceCacheManager.getCacheSpace(CacheAlliance.DISEASE_ANNOTATION);
+        DiseaseAllianceCacheManager manager = new DiseaseAllianceCacheManager();
+        diseaseAnnotationMap.forEach((key, value) -> {
+            JsonResultResponseDiseaseAnnotation result = new JsonResultResponseDiseaseAnnotation();
+            result.setResults(value);
+            try {
+                manager.putCache(key, result, View.DiseaseAnnotationSummary.class, CacheAlliance.DISEASE_ANNOTATION);
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
+            }
+        });
+/*
+
+        Cache<String, ArrayList> cache = null;
         for (Map.Entry<String, List<DiseaseAnnotation>> entry : diseaseAnnotationMap.entrySet()) {
             cache.put(entry.getKey(), new ArrayList(entry.getValue()));
         }
 
-        Cache<String, ArrayList> cacheGene = AllianceCacheManager.getCacheSpace(CacheAlliance.GENE_DISEASE_ANNOTATION);
+        Cache<String, ArrayList> cacheGene = null;
         for (Map.Entry<String, List<DiseaseAnnotation>> entry : diseaseAnnotationExperimentGeneMap.entrySet()) {
             cacheGene.put(entry.getKey(), new ArrayList(entry.getValue()));
         }
 
+*/
 
     }
 

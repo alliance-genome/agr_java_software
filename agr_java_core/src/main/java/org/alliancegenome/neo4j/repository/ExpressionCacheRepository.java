@@ -1,12 +1,12 @@
 package org.alliancegenome.neo4j.repository;
 
 import lombok.extern.log4j.Log4j2;
-import org.alliancegenome.cache.AllianceCacheManager;
-import org.alliancegenome.cache.CacheAlliance;
+import org.alliancegenome.cache.ExpressionAllianceCacheManager;
 import org.alliancegenome.core.ExpressionDetail;
 import org.alliancegenome.core.service.*;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.view.BaseFilter;
+import org.alliancegenome.neo4j.view.View;
 import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.*;
@@ -17,6 +17,7 @@ public class ExpressionCacheRepository {
 
 
     private static List<String> parentTermIDs = new ArrayList<>();
+    private ExpressionAllianceCacheManager manager = new ExpressionAllianceCacheManager();
 
     static {
         // anatomical entity
@@ -31,8 +32,8 @@ public class ExpressionCacheRepository {
 
         List<ExpressionDetail> fullExpressionAnnotationList = new ArrayList<>();
         geneIDs.stream()
-                .filter(geneID -> AllianceCacheManager.getCacheSpaceWeb(CacheAlliance.EXPRESSION).get(geneID) != null)
-                .forEach(geneID -> fullExpressionAnnotationList.addAll(AllianceCacheManager.getCacheSpaceWeb(CacheAlliance.EXPRESSION).get(geneID)));
+                .filter(geneID -> manager.getExpressionsWeb(geneID, View.Expression.class) != null)
+                .forEach(geneID -> fullExpressionAnnotationList.addAll(manager.getExpressionsWeb(geneID, View.Expression.class)));
 
         //filtering
         // filter on termID
@@ -152,6 +153,6 @@ public class ExpressionCacheRepository {
     }
 
     public boolean hasExpression(String geneID) {
-        return CollectionUtils.isNotEmpty(AllianceCacheManager.getCacheSpaceWeb(CacheAlliance.EXPRESSION).get(geneID));
+        return CollectionUtils.isNotEmpty(manager.getExpressionsWeb(geneID, View.Expression.class));
     }
 }

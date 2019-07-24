@@ -1,12 +1,12 @@
 package org.alliancegenome.neo4j.repository;
 
 import lombok.extern.log4j.Log4j2;
-import org.alliancegenome.cache.AllianceCacheManager;
-import org.alliancegenome.cache.CacheAlliance;
+import org.alliancegenome.cache.InteractionAllianceCacheManager;
 import org.alliancegenome.core.service.*;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
 import org.alliancegenome.neo4j.view.BaseFilter;
+import org.alliancegenome.neo4j.view.View;
 
 import java.util.List;
 import java.util.Objects;
@@ -20,7 +20,8 @@ public class InteractionCacheRepository {
 
     public PaginationResult<InteractionGeneJoin> getInteractionAnnotationList(String geneID, Pagination pagination) {
         // check gene map
-        List<InteractionGeneJoin> interactionAnnotationList = AllianceCacheManager.getCacheSpaceWeb(CacheAlliance.INTERACTION).get(geneID);
+        InteractionAllianceCacheManager manager = new InteractionAllianceCacheManager();
+        List<InteractionGeneJoin> interactionAnnotationList = manager.getInteractionsWeb(geneID, View.Interaction.class);
         if (interactionAnnotationList == null)
             return null;
         //filtering

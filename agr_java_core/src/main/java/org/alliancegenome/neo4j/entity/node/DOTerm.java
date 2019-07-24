@@ -79,13 +79,13 @@ public class DOTerm extends SimpleTerm {
     private List<Gene> genes;
 
     @Relationship(type = "ASSOCIATION", direction = Relationship.INCOMING)
-    transient private List<DiseaseEntityJoin> diseaseEntityJoins;
+    private List<DiseaseEntityJoin> diseaseEntityJoins;
 
     @Relationship(type = "IS_A")
-    transient private List<DOTerm> parents;
+    private List<DOTerm> parents;
 
     @Relationship(type = "IS_A", direction = Relationship.INCOMING)
-    transient protected List<DOTerm> children;
+    protected List<DOTerm> children;
 
     @Relationship(type = "ALSO_KNOWN_AS")
     private List<Synonym> synonyms;
