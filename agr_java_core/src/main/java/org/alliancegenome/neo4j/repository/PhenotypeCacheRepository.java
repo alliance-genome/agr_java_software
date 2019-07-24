@@ -3,11 +3,14 @@ package org.alliancegenome.neo4j.repository;
 import lombok.extern.log4j.Log4j2;
 import org.alliancegenome.cache.AllianceCacheManager;
 import org.alliancegenome.cache.CacheAlliance;
+import org.alliancegenome.cache.PhenotypeCacheManager;
 import org.alliancegenome.core.service.*;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
 import org.alliancegenome.neo4j.view.BaseFilter;
+import org.alliancegenome.neo4j.view.View;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -20,7 +23,8 @@ public class PhenotypeCacheRepository {
 
     public PaginationResult<PhenotypeAnnotation> getPhenotypeAnnotationList(String geneID, Pagination pagination) {
 
-        List<PhenotypeAnnotation> fullPhenotypeAnnotationList = AllianceCacheManager.getCacheSpaceWeb(CacheAlliance.PHENOTYPE).get(geneID);
+        PhenotypeCacheManager manager = new PhenotypeCacheManager();
+        List<PhenotypeAnnotation> fullPhenotypeAnnotationList = manager.getPhenotypeAnnotationsWeb(geneID, View.PhenotypeAPI.class);
 
         //filtering
         List<PhenotypeAnnotation> filteredPhenotypeAnnotationList = filterDiseaseAnnotations(fullPhenotypeAnnotationList, pagination.getFieldFilterValueMap());

@@ -1,22 +1,16 @@
 package org.alliancegenome.neo4j.entity.node;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonView;
+import lombok.Getter;
+import lombok.Setter;
 import org.alliancegenome.es.util.DateConverter;
 import org.alliancegenome.neo4j.view.View;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.typeconversion.Convert;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonView;
-
-import lombok.Getter;
-import lombok.Setter;
+import java.util.*;
 
 @NodeEntity(label = "Feature")
 @Getter
@@ -26,7 +20,7 @@ public class Allele extends GeneticEntity implements Comparable<Allele> {
     public Allele() {
         this.crossReferenceType = CrossReferenceType.ALLELE;
     }
-    
+
     @Convert(value = DateConverter.class)
     private Date dateProduced;
     private String release;
@@ -47,6 +41,17 @@ public class Allele extends GeneticEntity implements Comparable<Allele> {
             list.add(s.getName());
         }
         return list;
+    }
+
+    @JsonProperty(value = "synonyms")
+    public void setSynonymList(List<String> list) {
+        if (list != null) {
+            list.forEach(syn -> {
+                Synonym synonym = new Synonym();
+                synonym.setName(syn);
+                synonyms.add(synonym);
+            });
+        }
     }
 
     @Relationship(type = "ALSO_KNOWN_AS")

@@ -71,6 +71,10 @@ public class DiseaseAnnotation implements Comparable<DiseaseAnnotation>, Seriali
         return feature != null ? "allele" : "gene";
     }
 
+    public void setGeneticEntityType(String name) {
+        //can be ignored as is it calculated from the existence from the feature attribute.
+    }
+
     public DiseaseAnnotation() {
     }
 

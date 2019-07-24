@@ -1,11 +1,15 @@
 package org.alliancegenome.cacher.cachers;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.log4j.Log4j2;
 
 import java.util.concurrent.TimeUnit;
 
 @Log4j2
 public abstract class Cacher extends Thread {
+
 
     protected abstract void cache();
 

@@ -57,7 +57,7 @@ public class Publication extends Neo4jEntity implements Comparable<Publication>,
 
     @JsonSetter("url")
     private void setPubUrl(String value) {
-        pubUrl = value;
+        pubMedUrl = value;
     }
 
     @Override
@@ -81,7 +81,7 @@ public class Publication extends Neo4jEntity implements Comparable<Publication>,
 
     @JsonSetter("id")
     private void setPubId(String value) {
-        pubId = value;
+        pubMedId = value;
     }
 
 

@@ -28,6 +28,11 @@ public class MITerm extends Ontology {
         return type.orElseGet(() -> label);
     }
 
+    @JsonView({View.Interaction.class})
+    public void setDisplayName(String name) {
+        //ignore
+    }
+
     enum MiTermType {
         DS_RNA("IA:2966", "dsRNA"),
         MI_RNA("IA:2984", "miRNA"),

@@ -8,7 +8,7 @@ public enum DBCacherConfig {
     //GeneDBCacher("geneDBCacher", GeneDBCacher.class),
     GenePhenotypeCacher("genePhenotypeCacher", GenePhenotypeDBCacher.class),
     GeneInteractionCacher("geneInteractionCacher", InteractionCacher.class),
-    DiseaseCacher("DiseaseCacher", DiseaseDBCacher.class),
+    DiseaseCacher("diseaseCacher", DiseaseDBCacher.class),
     GeneExpressionCacher("geneExpressionDBCacher", ExpressionDBCacher.class),
     GeneOrthologCacher("geneOrthologCacher", GeneOrthologCacher.class),
     ;
