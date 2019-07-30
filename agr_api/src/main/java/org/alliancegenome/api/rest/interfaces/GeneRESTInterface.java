@@ -205,17 +205,17 @@ public interface GeneRESTInterface {
             @QueryParam("sortBy") String sortBy,
             @ApiParam(value = "ascending order: true or false", allowableValues = "true,false", defaultValue = "true")
             @QueryParam("asc") String asc,
-            @ApiParam(name = "filter.moleculeType", value = "symbol of allele")
+            @ApiParam(name = "filter.moleculeType", value = "molecule type")
             @QueryParam("filter.moleculeType") String moleculeType,
-            @ApiParam(name = "filter.interactorGeneSymbol", value = "Allele synonyms")
+            @ApiParam(name = "filter.interactorGeneSymbol", value = "gene symbol")
             @QueryParam("filter.interactorGeneSymbol") String interactorGeneSymbol,
-            @ApiParam(name = "filter.interactorSpecies", value = "Allele synonyms")
+            @ApiParam(name = "filter.interactorSpecies", value = "species")
             @QueryParam("filter.interactorSpecies") String interactorSpecies,
-            @ApiParam(name = "filter.interactorMoleculeType", value = "symbol of allele")
+            @ApiParam(name = "filter.interactorMoleculeType", value = "molecule type")
             @QueryParam("filter.interactorMoleculeType") String interactorMoleculeType,
-            @ApiParam(name = "filter.detectionMethod", value = "Allele synonyms")
+            @ApiParam(name = "filter.detectionMethod", value = "detection method")
             @QueryParam("filter.detectionMethod") String detectionMethod,
-            @ApiParam(name = "filter.source", value = "Allele synonyms")
+            @ApiParam(name = "filter.source", value = "database")
             @QueryParam("filter.source") String source,
             @ApiParam(name = "filter.reference", value = "References")
             @QueryParam("filter.reference") String reference
