@@ -123,7 +123,7 @@ public class DiseaseDBCacher extends Cacher {
             diseaseAnnotationSummaryMap.put(termID, summaryJoins);
         });
 
-        System.out.println("Time populating diseaseAnnotationMap:  " + ((System.currentTimeMillis() - start) / 1000) + " s");
+        log.info("Time populating diseaseAnnotationMap:  " + ((System.currentTimeMillis() - start) / 1000) + " s");
 
         // group by gene IDs
         Map<String, List<DiseaseAnnotation>> diseaseAnnotationExperimentGeneMap = new HashMap<>();
