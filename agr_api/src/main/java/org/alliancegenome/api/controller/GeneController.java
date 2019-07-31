@@ -242,62 +242,21 @@ public class GeneController extends BaseController implements GeneRESTInterface 
                                                                                 String reference,
                                                                                 String asc,
                                                                                 UriInfo ui) {
-        return getDiseaseAnnotation(id, limit, page, sortBy, geneticEntity, geneticEntityType, disease, associationType, reference, null, null, evidenceCode, source, asc, ui, true);
-    }
-
-    private JsonResultResponse<DiseaseAnnotation> getDiseaseViaOrthologyAnnotation(String id,
-                                                                                   Integer limit,
-                                                                                   Integer page,
-                                                                                   String sortBy,
-                                                                                   String orthologyGene,
-                                                                                   String orthologyGeneSpecies,
-                                                                                   String disease,
-                                                                                   String associationType,
-                                                                                   String evidenceCode,
-                                                                                   String source,
-                                                                                   String reference,
-                                                                                   String asc,
-                                                                                   UriInfo ui) {
-        return getDiseaseAnnotation(id, limit, page, sortBy, null, null, disease, associationType, reference, orthologyGene, orthologyGeneSpecies, evidenceCode, source, asc, ui, false);
-    }
-
-    private JsonResultResponse<DiseaseAnnotation> getDiseaseAnnotation(String id,
-                                                                       Integer limit,
-                                                                       Integer page,
-                                                                       String sortBy,
-                                                                       String geneticEntity,
-                                                                       String geneticEntityType,
-                                                                       String disease,
-                                                                       String associationType,
-                                                                       String reference,
-                                                                       String orthologyGene,
-                                                                       String orthologyGeneSpecies,
-                                                                       String evidenceCode,
-                                                                       String source,
-                                                                       String asc,
-                                                                       UriInfo ui,
-                                                                       boolean empiricalDisease) {
         Pagination pagination = new Pagination(page, limit, sortBy, asc);
         pagination.addFieldFilter(FieldFilter.GENETIC_ENTITY, geneticEntity);
         pagination.addFieldFilter(FieldFilter.GENETIC_ENTITY_TYPE, geneticEntityType);
         pagination.addFieldFilter(FieldFilter.ASSOCIATION_TYPE, associationType);
         pagination.addFieldFilter(FieldFilter.EVIDENCE_CODE, evidenceCode);
         pagination.addFieldFilter(FieldFilter.SOURCE, source);
-        pagination.addFieldFilter(FieldFilter.ORTHOLOG, orthologyGene);
-        pagination.addFieldFilter(FieldFilter.ORTHOLOG_SPECIES, orthologyGeneSpecies);
         pagination.addFieldFilter(FieldFilter.DISEASE, disease);
         pagination.addFieldFilter(FieldFilter.FREFERENCE, reference);
         MultivaluedMap<String, String> parameterMap = ui.getQueryParameters();
         List<String> invalidFilterNames = parameterMap.entrySet().stream()
-                .filter(entry -> {
-                    if (FieldFilter.hasFieldFilterPrefix(entry.getKey()) && !FieldFilter.isFieldFilterValue(entry.getKey()))
-                        return true;
-                    return false;
-                })
+                .filter(entry -> FieldFilter.hasFieldFilterPrefix(entry.getKey()) && !FieldFilter.isFieldFilterValue(entry.getKey()))
                 .map(Map.Entry::getKey)
                 .collect(Collectors.toList());
         pagination.setInvalidFilterList(invalidFilterNames);
-        return diseaseService.getDiseaseAnnotations(id, pagination, empiricalDisease);
+        return diseaseService.getDiseaseAnnotations(id, pagination);
     }
 
     @Override
@@ -413,36 +372,6 @@ public class GeneController extends BaseController implements GeneRESTInterface 
     }
 
     @Override
-    public JsonResultResponse<DiseaseAnnotation> getDiseaseViaOrthology(String id,
-                                                                        int limit,
-                                                                        int page,
-                                                                        String sortBy,
-                                                                        String orthologyGene,
-                                                                        String orthologyGeneSpecies,
-                                                                        String disease,
-                                                                        String associationType,
-                                                                        String evidenceCode,
-                                                                        String source,
-                                                                        String reference,
-                                                                        String asc,
-                                                                        UriInfo ui) {
-        return getDiseaseViaOrthologyAnnotation(id,
-                limit,
-                page,
-                sortBy,
-                orthologyGene,
-                orthologyGeneSpecies,
-                disease,
-                associationType,
-                evidenceCode,
-                source,
-                reference,
-                asc,
-                ui);
-
-    }
-
-    @Override
     public Response getDiseaseByExperimentDownload(String id,
                                                    String sortBy,
                                                    String geneticEntity,
@@ -470,37 +399,6 @@ public class GeneController extends BaseController implements GeneRESTInterface 
         Response.ResponseBuilder responseBuilder = Response.ok(diseaseTranslator.getEmpiricalDiseaseByGene(response.getResults()));
         responseBuilder.type(MediaType.TEXT_PLAIN_TYPE);
         responseBuilder.header("Content-Disposition", "attachment; filename=\"DiseaseAssociationsViaEmpiricalData-" + id.replace(":", "-") + ".tsv\"");
-        return responseBuilder.build();
-    }
-
-    @Override
-    public Response getDiseaseViaOrthologyDownload(String id,
-                                                   String sortBy,
-                                                   String orthologyGene,
-                                                   String orthologyGeneSpecies,
-                                                   String disease,
-                                                   String associationType,
-                                                   String evidenceCode,
-                                                   String source,
-                                                   String reference,
-                                                   String asc,
-                                                   UriInfo ui) {
-        JsonResultResponse<DiseaseAnnotation> response = getDiseaseViaOrthologyAnnotation(id,
-                Integer.MAX_VALUE,
-                null,
-                sortBy,
-                orthologyGene,
-                orthologyGeneSpecies,
-                disease,
-                associationType,
-                evidenceCode,
-                source,
-                reference,
-                asc,
-                ui);
-        Response.ResponseBuilder responseBuilder = Response.ok(diseaseTranslator.getDiseaseViaOrthologyByGene(response.getResults()));
-        responseBuilder.type(MediaType.TEXT_PLAIN_TYPE);
-        responseBuilder.header("Content-Disposition", "attachment; filename=\"DiseaseAssociationsViaOrthologyData-" + id.replace(":", "-") + ".tsv\"");
         return responseBuilder.build();
     }
 

@@ -7,7 +7,6 @@ import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.node.*;
 import org.alliancegenome.neo4j.repository.DiseaseRepository;
-import org.alliancegenome.neo4j.repository.GeneCacheRepository;
 import org.alliancegenome.neo4j.view.BaseFilter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
@@ -24,7 +23,6 @@ public class DiseaseCacheRepository {
 
     private Log log = LogFactory.getLog(getClass());
     private static DiseaseRepository diseaseRepository = new DiseaseRepository();
-    private GeneCacheRepository geneCacheRepository = new GeneCacheRepository();
 
 
     // cached value
@@ -91,16 +89,12 @@ public class DiseaseCacheRepository {
         return result;
     }
 
-    public PaginationResult<DiseaseAnnotation> getDiseaseAnnotationList(String geneID, Pagination pagination, boolean empiricalDisease) {
+    public PaginationResult<DiseaseAnnotation> getDiseaseAnnotationByGeneList(String geneID, Pagination pagination) {
         checkCache();
         if (caching)
             return null;
 
-        List<DiseaseAnnotation> diseaseAnnotationList;
-        if (empiricalDisease)
-            diseaseAnnotationList = diseaseAnnotationExperimentGeneMap.get(geneID);
-        else
-            diseaseAnnotationList = diseaseAnnotationOrthologGeneMap.get(geneID);
+        List<DiseaseAnnotation> diseaseAnnotationList = diseaseAnnotationExperimentGeneMap.get(geneID);
         if (diseaseAnnotationList == null)
             return null;
 
