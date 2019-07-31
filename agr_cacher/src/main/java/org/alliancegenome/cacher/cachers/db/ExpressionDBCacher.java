@@ -1,6 +1,15 @@
 package org.alliancegenome.cacher.cachers.db;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import static java.util.stream.Collectors.groupingBy;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
+
 import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.cache.ExpressionAllianceCacheManager;
 import org.alliancegenome.cacher.cachers.Cacher;
@@ -13,10 +22,7 @@ import org.alliancegenome.neo4j.repository.DiseaseRepository;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.alliancegenome.neo4j.view.View;
 
-import java.util.*;
-import java.util.stream.Collectors;
-
-import static java.util.stream.Collectors.groupingBy;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 public class ExpressionDBCacher extends Cacher {
 

@@ -9,9 +9,12 @@ import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
 import org.alliancegenome.neo4j.view.OrthologView;
 import org.alliancegenome.neo4j.view.View;
 
+import lombok.extern.log4j.Log4j2;
+
 import java.io.IOException;
 import java.util.List;
 
+@Log4j2
 public class Main2 {
 
     public static void main(String[] args) throws IOException {

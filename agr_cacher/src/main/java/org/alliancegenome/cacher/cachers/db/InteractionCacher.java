@@ -1,7 +1,12 @@
 package org.alliancegenome.cacher.cachers.db;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import lombok.extern.log4j.Log4j2;
+import static java.util.stream.Collectors.groupingBy;
+
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.cache.InteractionAllianceCacheManager;
 import org.alliancegenome.cacher.cachers.Cacher;
@@ -10,12 +15,9 @@ import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
 import org.alliancegenome.neo4j.repository.InteractionRepository;
 import org.alliancegenome.neo4j.view.View;
 
-import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
-import static java.util.stream.Collectors.groupingBy;
+import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 public class InteractionCacher extends Cacher {
