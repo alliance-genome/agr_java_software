@@ -1,5 +1,5 @@
 all:
-	mvn clean package
+	mvn -T 4 clean package
 
 api:
 	mvn clean package -pl agr_api -am
