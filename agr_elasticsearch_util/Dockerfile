@@ -11,8 +11,8 @@ ADD . .
 
 ARG VERSION=1.0.0
 ENV VERSION ${VERSION}
-RUN mvn -B versions:set -DnewVersion=$VERSION
+RUN mvn -T 4 -B versions:set -DnewVersion=$VERSION
 
-RUN mvn -B clean package
+RUN mvn -T 4 -B clean package
 
 CMD mvn -B deploy
