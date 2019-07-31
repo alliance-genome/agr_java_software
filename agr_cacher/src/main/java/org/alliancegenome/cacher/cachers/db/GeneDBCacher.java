@@ -1,10 +1,10 @@
 package org.alliancegenome.cacher.cachers.db;
 
+import java.util.List;
+
 import org.alliancegenome.cacher.cachers.Cacher;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.repository.GeneRepository;
-
-import java.util.List;
 
 public class GeneDBCacher extends Cacher {
 

@@ -1,7 +1,11 @@
 package org.alliancegenome.cacher.cachers.db;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import org.alliancegenome.cache.AllianceCacheManager;
+import static java.util.stream.Collectors.toSet;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
 import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.cache.OrthologyAllianceCacheManager;
 import org.alliancegenome.cacher.cachers.Cacher;
@@ -11,11 +15,7 @@ import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.alliancegenome.neo4j.view.OrthologView;
 import org.alliancegenome.neo4j.view.View;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-
-import static java.util.stream.Collectors.toSet;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 public class GeneOrthologCacher extends Cacher {
 
