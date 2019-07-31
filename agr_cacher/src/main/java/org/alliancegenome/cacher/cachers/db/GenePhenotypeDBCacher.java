@@ -35,7 +35,7 @@ public class GenePhenotypeDBCacher extends Cacher {
         List<PhenotypeEntityJoin> joinList = phenotypeRepository.getAllPhenotypeAnnotations();
         int size = joinList.size();
         DecimalFormat myFormatter = new DecimalFormat("###,###.##");
-        System.out.println("Retrieved " + myFormatter.format(size) + " phenotype records");
+        log.info("Retrieved " + myFormatter.format(size) + " phenotype records");
         // replace Gene references with the cached Gene references to keep the memory imprint low.
         List<PhenotypeAnnotation> allPhenotypeAnnotations = joinList.stream()
                 .map(phenotypeEntityJoin -> {

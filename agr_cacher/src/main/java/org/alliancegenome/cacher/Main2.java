@@ -52,46 +52,51 @@ public class Main2 {
         String id = "ZFIN:ZDB-GENE-001103-1";
         AllianceCacheManager<Allele> resultAllele = new AllianceCacheManager<>();
         List<Allele> resultsAllele = resultAllele.getResultList(id, CacheAlliance.ALLELE);
-        System.out.println("Allele: " + resultsAllele.size());
+        log.info("Allele: " + resultsAllele.size());
 */
 
 /*
         AllianceCacheManager<OrthologView> resultOrtho = new AllianceCacheManager<>();
         List<OrthologView> results = resultOrtho.getResultList(id, CacheAlliance.ORTHOLOGY);
-        System.out.println("Ortho: " + results.size());
+        log.info("Ortho: " + results.size());
 
 */
 
+/*
         try {
 
             ExpressionAllianceCacheManager managerExp = new ExpressionAllianceCacheManager();
             List<ExpressionDetail> resultsExp = managerExp.getExpressions("MGI:109583", View.Expression.class);
-            System.out.println("Expression: " + resultsExp.size());
+            log.info("Expression: " + resultsExp.size());
 
             OrthologyAllianceCacheManager managerOrtho = new OrthologyAllianceCacheManager();
             List<OrthologView> resultsOrtho = managerOrtho.getOrthology("MGI:109583", View.Orthology.class);
-            System.out.println("Orthology: " + resultsOrtho.size());
+            log.info("Orthology: " + resultsOrtho.size());
 
             InteractionAllianceCacheManager managerInter = new InteractionAllianceCacheManager();
             List<InteractionGeneJoin> resultsInter = managerInter.getInteractions("MGI:109583", View.Interaction.class);
-            System.out.println("Interactions: " + resultsInter.size());
+            log.info("Interactions: " + resultsInter.size());
 
 
             PhenotypeCacheManager managerPheno = new PhenotypeCacheManager();
             List<PhenotypeAnnotation> resultsPheno = managerPheno.getPhenotypeAnnotations("MGI:109583", View.PhenotypeAPI.class);
-            System.out.println("Phenotype: " + resultsPheno.size());
+            log.info("Phenotype: " + resultsPheno.size());
 
             DiseaseAllianceCacheManager resultDisease = new DiseaseAllianceCacheManager();
             List<DiseaseAnnotation> resultsDisease = resultDisease.getDiseaseAnnotations("DOID:9952", View.DiseaseAnnotationSummary.class);
-            System.out.println("Disease Annotations: " + resultsDisease.size());
+            log.info("Disease Annotations: " + resultsDisease.size());
 
             AlleleAllianceCacheManager managerAllele = new AlleleAllianceCacheManager();
             List<Allele> resultAllele = managerAllele.getAlleles("MGI:109583", View.GeneAllelesAPI.class);
-            System.out.println("Alleles: " + resultAllele.size());
+            log.info("Alleles: " + resultAllele.size());
         } catch (Exception ignored) {
         } finally {
             AllianceCacheManager.close();
         }
+*/
+        
+        AlleleAllianceCacheManager managerAllele = new AlleleAllianceCacheManager();
+        
 /*
         HashMap<String, List<String>> map = new HashMap<>();
         ArrayList<String> list = new ArrayList<>();
