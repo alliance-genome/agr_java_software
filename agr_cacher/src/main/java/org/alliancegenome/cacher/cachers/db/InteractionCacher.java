@@ -42,7 +42,7 @@ public class InteractionCacher extends Cacher {
         List<InteractionGeneJoin> allInteractionAnnotations = interactionRepository.getAllInteractions();
         int size = allInteractionAnnotations.size();
         DecimalFormat myFormatter = new DecimalFormat("###,###.##");
-        System.out.println("Retrieved " + myFormatter.format(size) + " interaction records");
+        log.info("Retrieved " + myFormatter.format(size) + " interaction records");
         // replace Gene references with the cached Gene references to keep the memory imprint low.
 
         // group by gene ID with geneA
@@ -72,10 +72,7 @@ public class InteractionCacher extends Cacher {
                 throw new RuntimeException(e);
             }
         });
-/*
-        List<InteractionGeneJoin> resultsInter = manager.getInteractions("MGI:109583", View.Interaction.class);
-        System.out.println("Interactions: " + resultsInter.size());
-*/
+
     }
 
     private InteractionGeneJoin createNewInteractionGeneJoin(InteractionGeneJoin join) {
