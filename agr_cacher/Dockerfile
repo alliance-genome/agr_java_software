@@ -4,7 +4,7 @@ WORKDIR /workdir/agr_cacher
 
 ADD . .
 
-RUN mvn -B clean package
+RUN mvn -T 4 -B clean package
 
 CMD java -jar target/agr_cacher-jar-with-dependencies.jar
 

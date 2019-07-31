@@ -4,4 +4,4 @@ WORKDIR /workdir/agr_java_software
 
 ADD . .
 
-RUN mvn -B clean package
+RUN mvn -T 4 -B clean package
