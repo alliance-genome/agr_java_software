@@ -52,14 +52,9 @@ public class DiseaseService {
         return response;
     }
 
-    private PaginationResult<DiseaseAnnotation> getDiseaseAnnotationList(String geneID, Pagination pagination, boolean empiricalDisease) {
-        return diseaseCacheRepository.getDiseaseAnnotationList(geneID, pagination, empiricalDisease);
-    }
-
-
-    public JsonResultResponse<DiseaseAnnotation> getDiseaseAnnotations(String geneID, Pagination pagination, boolean empiricalDisease) {
+    public JsonResultResponse<DiseaseAnnotation> getDiseaseAnnotations(String geneID, Pagination pagination) {
         LocalDateTime startDate = LocalDateTime.now();
-        PaginationResult<DiseaseAnnotation> result = getDiseaseAnnotationList(geneID, pagination, empiricalDisease);
+        PaginationResult<DiseaseAnnotation> result = diseaseCacheRepository.getDiseaseAnnotationByGeneList(geneID, pagination);
         JsonResultResponse<DiseaseAnnotation> response = new JsonResultResponse<>();
         String note = "";
         if (!SortingField.isValidSortingFieldValue(pagination.getSortBy())) {
@@ -93,7 +88,7 @@ public class DiseaseService {
         pagination.setLimitToAll();
         // loop over all genes provided
         geneIDs.forEach(geneID -> {
-            PaginationResult<DiseaseAnnotation> paginationResult = diseaseCacheRepository.getDiseaseAnnotationList(geneID, pagination, true);
+            PaginationResult<DiseaseAnnotation> paginationResult = diseaseCacheRepository.getDiseaseAnnotationByGeneList(geneID, pagination);
             if (paginationResult == null) {
                 paginationResult = new PaginationResult<>();
                 paginationResult.setTotalNumber(0);
