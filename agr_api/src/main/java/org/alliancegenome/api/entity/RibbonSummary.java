@@ -3,8 +3,10 @@ package org.alliancegenome.api.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import org.alliancegenome.neo4j.view.View;
 
 import java.io.Serializable;
@@ -14,15 +16,15 @@ import java.util.Optional;
 
 @Setter
 @Getter
-public class DiseaseRibbonSummary implements Serializable {
+public class RibbonSummary implements Serializable {
 
-    public static final String DOID_ALL_ANNOTATIONS = "DOID:allAnnotations";
-    public static final String DOID_OTHER = "DOID:Other";
-    @JsonView(View.DiseaseAnnotation.class)
+    public static final String ALL_ANNOTATIONS = "ALL:allAnnotations";
+    public static final String OTHER = "DOID:Other";
+    @JsonView({View.DiseaseAnnotation.class, View.Expression.class})
     @JsonProperty("categories")
     private List<RibbonSection> diseaseRibbonSections = new ArrayList<>();
 
-    @JsonView(View.DiseaseAnnotation.class)
+    @JsonView({View.DiseaseAnnotation.class, View.Expression.class})
     @JsonProperty("subjects")
     private List<RibbonEntity> diseaseRibbonEntities = new ArrayList<>();
 
@@ -42,7 +44,7 @@ public class DiseaseRibbonSummary implements Serializable {
 
     public void addAllAnnotationsCount(String geneID, int totalNumber) {
         Optional<RibbonEntity> entity = diseaseRibbonEntities.stream()
-                .filter(diseaseRibbonEntity -> diseaseRibbonEntity.getId().equals(geneID))
+                .filter(ribbonEntity -> ribbonEntity.getId().equals(geneID))
                 .findFirst();
         if (!entity.isPresent())
             throw new RuntimeException("No ribbon entity for gene " + geneID);
@@ -52,12 +54,12 @@ public class DiseaseRibbonSummary implements Serializable {
         entity.get().addEntitySlim(group);
     }
 
-    public DiseaseRibbonSummary() {
+    public RibbonSummary() {
     }
 
-    protected DiseaseRibbonSummary clone() throws CloneNotSupportedException {
-        DiseaseRibbonSummary clone = null;
-        clone = (DiseaseRibbonSummary) super.clone();
+    protected RibbonSummary clone() throws CloneNotSupportedException {
+        RibbonSummary clone = null;
+        clone = (RibbonSummary) super.clone();
         return clone;
     }
 }

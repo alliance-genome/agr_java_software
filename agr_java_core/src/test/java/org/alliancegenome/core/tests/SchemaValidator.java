@@ -59,7 +59,7 @@ public class SchemaValidator {
         schemaFiles.add(new File(path + "/phenotype/phenotypeModelAnnotation.json"));
         schemaFiles.add(new File(path + "/phenotype/phenotypeTermIdentifier.json"));
 
-        schemaFiles.add(new File(path + "/genedescription/description.json"));
+        schemaFiles.add(new File(path + "/genedescription/definition.json"));
         schemaFiles.add(new File(path + "/genedescription/single_stats.json"));
         schemaFiles.add(new File(path + "/genedescription/overall_properties.json"));
         schemaFiles.add(new File(path + "/genedescription/gd_report.json"));

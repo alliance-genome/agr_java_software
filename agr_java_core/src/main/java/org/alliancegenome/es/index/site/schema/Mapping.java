@@ -51,7 +51,7 @@ public abstract class Mapping extends Builder {
         new FieldBuilder(builder, "external_ids","text").analyzer("symbols");
         new FieldBuilder(builder, "href","keyword");
         new FieldBuilder(builder, "id","keyword");
-        new FieldBuilder(builder, "description","text");
+        new FieldBuilder(builder, "definition","text");
         new FieldBuilder(builder, "diseases", "text").keyword().build();
         new FieldBuilder(builder, "diseasesAgrSlim", "text").keyword().build();
         new FieldBuilder(builder, "diseasesWithParents", "text").keyword().build();

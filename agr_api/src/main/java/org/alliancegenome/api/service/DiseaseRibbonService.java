@@ -1,9 +1,9 @@
 package org.alliancegenome.api.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.alliancegenome.api.entity.DiseaseRibbonSection;
+import org.alliancegenome.api.entity.RibbonSection;
 import org.alliancegenome.api.entity.DiseaseRibbonSummary;
-import org.alliancegenome.api.entity.DiseaseSectionSlim;
+import org.alliancegenome.api.entity.SectionSlim;
 import org.alliancegenome.neo4j.entity.node.DOTerm;
 import org.alliancegenome.neo4j.repository.DiseaseRepository;
 import org.apache.commons.logging.Log;
@@ -70,12 +70,12 @@ public class DiseaseRibbonService {
         diseaseRibbonSummary = new DiseaseRibbonSummary();
 
         slimParentTermIdMap.forEach((id, names) -> {
-            DiseaseRibbonSection section = new DiseaseRibbonSection();
+            RibbonSection section = new RibbonSection();
             section.setLabel(names.get(0));
             section.setId(id);
             DOTerm term = diseaseRepository.getShallowDiseaseTerm(id);
             section.setDescription(term.getDefinition());
-            DiseaseSectionSlim allSlimElement = new DiseaseSectionSlim();
+            SectionSlim allSlimElement = new SectionSlim();
             allSlimElement.setId(id);
             allSlimElement.setLabel(names.get(1));
             allSlimElement.setTypeAll();
@@ -84,7 +84,7 @@ public class DiseaseRibbonService {
             diseaseRibbonSummary.addRibbonSection(section);
         });
 
-        DiseaseRibbonSection section5 = new DiseaseRibbonSection();
+        RibbonSection section5 = new RibbonSection();
         section5.setLabel("Other Disease");
         section5.setId(DOID_OTHER);
         diseaseRibbonSummary.addRibbonSection(section5);
@@ -105,7 +105,7 @@ public class DiseaseRibbonService {
             List<String> slimFoundList = new ArrayList<>();
             diseaseRibbonSummary.getDiseaseRibbonSections().forEach(diseaseRibbonSection -> {
                 if (closureMapping.get(doTerm.getPrimaryKey()).contains(diseaseRibbonSection.getId())) {
-                    DiseaseSectionSlim slim = new DiseaseSectionSlim();
+                    SectionSlim slim = new SectionSlim();
                     slim.setId(doTerm.getPrimaryKey());
                     slim.setLabel(doTerm.getName());
                     slim.setDescription(doTerm.getDefinition());
@@ -114,7 +114,7 @@ public class DiseaseRibbonService {
                 }
             });
             if (slimFoundList.isEmpty()) {
-                DiseaseSectionSlim slim = new DiseaseSectionSlim();
+                SectionSlim slim = new SectionSlim();
                 slim.setId(doTerm.getPrimaryKey());
                 slim.setLabel(doTerm.getName());
                 slim.setDescription(doTerm.getDefinition());

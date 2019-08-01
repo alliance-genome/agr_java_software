@@ -436,6 +436,7 @@ public class GeneRepository extends Neo4jRepository<Gene> {
     // stage categories
     // cached
     Map<String, String> stageMap;
+    List<UBERONTerm> stageList;
 
     static List<String> stageOrder = new ArrayList<>();
 
@@ -469,6 +470,30 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         return stageMap;
     }
 
+    public List<UBERONTerm> getStageTermList() {
+        if (stageList != null)
+            return stageList;
+
+        String cypher = "match p=(uber:UBERONTerm)-[:STAGE_RIBBON_TERM]-(:BioEntityGeneExpressionJoin) return distinct uber";
+
+        Iterable<UBERONTerm> terms = neo4jSession.query(UBERONTerm.class, cypher, new HashMap<>());
+        if (!StreamSupport.stream(terms.spliterator(), false).allMatch(uberonTerm ->
+                stageOrder.indexOf(uberonTerm.getName()) > -1)) {
+            String expectedValues = String.join(", ", stageOrder);
+            throw new RuntimeException("One or more stage name in UBERON has changed: \nFound values: " +
+                    StreamSupport.stream(terms.spliterator(), false)
+                            .map(UBERONTerm::getName)
+                            .collect(joining(", ")) + " Expected Values: " + expectedValues);
+        }
+
+        stageList = StreamSupport.stream(terms.spliterator(), false)
+                .sorted(Comparator.comparingInt(o ->
+                        stageOrder.indexOf(o.getName())))
+                .collect(Collectors.toList());
+
+        return stageList;
+    }
+
     public Map<String, String> getFullAoList() {
         String cypher = "match p=(uber:UBERONTerm)-[:ANATOMICAL_RIBBON_TERM]-(:ExpressionBioEntity) return distinct uber";
 
@@ -488,6 +513,25 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         return map;
     }
 
+    public List<UBERONTerm> getFullAoTermList() {
+        String cypher = "match p=(uber:UBERONTerm)-[:ANATOMICAL_RIBBON_TERM]-(:ExpressionBioEntity) return distinct uber";
+
+        Iterable<UBERONTerm> terms = neo4jSession.query(UBERONTerm.class, cypher, new HashMap<>());
+        String alwaysLast = "other";
+        List<UBERONTerm> map = StreamSupport.stream(terms.spliterator(), false)
+                .sorted((o1, o2) -> {
+                    if (o1.getName().equalsIgnoreCase(alwaysLast)) {
+                        return 1;
+                    }
+                    if (o2.getName().equalsIgnoreCase(alwaysLast)) {
+                        return -1;
+                    }
+                    return o1.getName().compareTo(o2.getName());
+                })
+                .collect(Collectors.toList());
+        return map;
+    }
+
     public Map<String, String> getFullGoList() {
         String cypher = "match p=(uber:GOTerm)-[:CELLULAR_COMPONENT_RIBBON_TERM]-(:ExpressionBioEntity) return distinct uber";
         Iterable<GOTerm> terms = neo4jSession.query(GOTerm.class, cypher, new HashMap<>());
@@ -503,6 +547,23 @@ public class GeneRepository extends Neo4jRepository<Gene> {
                     return o1.getName().compareToIgnoreCase(o2.getName());
                 })
                 .collect(Collectors.toMap(GOTerm::getPrimaryKey, GOTerm::getName, (x, y) -> x + ", " + y, LinkedHashMap::new));
+    }
+
+    public List<GOTerm> getFullGoTermList() {
+        String cypher = "match p=(uber:GOTerm)-[:CELLULAR_COMPONENT_RIBBON_TERM]-(:ExpressionBioEntity) return distinct uber";
+        Iterable<GOTerm> terms = neo4jSession.query(GOTerm.class, cypher, new HashMap<>());
+        String alwaysLast = "other locations";
+        return StreamSupport.stream(terms.spliterator(), false)
+                .sorted((o1, o2) -> {
+                    if (o1.getName().equalsIgnoreCase(alwaysLast)) {
+                        return 1;
+                    }
+                    if (o2.getName().equalsIgnoreCase(alwaysLast)) {
+                        return -1;
+                    }
+                    return o1.getName().compareToIgnoreCase(o2.getName());
+                })
+                .collect(Collectors.toList());
     }
 
 

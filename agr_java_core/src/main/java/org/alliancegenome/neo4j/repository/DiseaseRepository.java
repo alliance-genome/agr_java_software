@@ -5,10 +5,7 @@ import lombok.Setter;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.DiseaseSummary;
-import org.alliancegenome.neo4j.entity.node.DOTerm;
-import org.alliancegenome.neo4j.entity.node.DiseaseEntityJoin;
-import org.alliancegenome.neo4j.entity.node.ECOTerm;
-import org.alliancegenome.neo4j.entity.node.PublicationEvidenceCodeJoin;
+import org.alliancegenome.neo4j.entity.node.*;
 import org.alliancegenome.neo4j.view.BaseFilter;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.logging.log4j.LogManager;
@@ -207,6 +204,19 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
         return closureChildMap;
     }
 
+    public Map<String, Set<String>> getGOClosureChildMapping() {
+        if (closureChildMap != null)
+            return closureChildMap;
+        //closure
+        String cypher = "MATCH (diseaseParent:GOTerm)<-[:IS_A_PART_OF_CLOSURE]-(disease:GOTerm) where diseaseParent.isObsolete = 'false' " +
+                " return diseaseParent.primaryKey as parent, disease.primaryKey as child order by disease.name";
+
+        List<Closure> cls = getClosures(cypher);
+        closureChildMap = cls.stream()
+                .collect(groupingBy(Closure::getChild, mapping(Closure::getParent, Collectors.toSet())));
+        return closureChildMap;
+    }
+
     private List<DOTerm> doAgrDoList;
 
     public List<DOTerm> getAgrDoSlim() {
@@ -292,6 +302,44 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
         if (terms == null)
             return null;
         return terms.iterator().next();
+    }
+
+    public UBERONTerm getShallowUberonTerm(String id) {
+
+        String cypher = "MATCH (disease:UBERONTerm) WHERE disease.primaryKey = {primaryKey}   " +
+                " RETURN disease ";
+
+        HashMap<String, String> map = new HashMap<>();
+        map.put("primaryKey", id);
+
+        Iterable<UBERONTerm> terms = neo4jSession.query(UBERONTerm.class, cypher, map);
+        if (terms == null)
+            return null;
+        return terms.iterator().next();
+    }
+
+    public GOTerm getGOTerm(String id) {
+
+        String cypher = "MATCH (disease:GOTerm) WHERE disease.primaryKey = {primaryKey}   " +
+                " RETURN disease ";
+
+        HashMap<String, String> map = new HashMap<>();
+        map.put("primaryKey", id);
+
+        Iterable<GOTerm> terms = neo4jSession.query(GOTerm.class, cypher, map);
+        if (terms == null)
+            return null;
+        return terms.iterator().next();
+    }
+
+    public String getTermDefinition(String id) {
+        if (id.startsWith("DOID"))
+            return getShallowDiseaseTerm(id).getDefinition();
+        if (id.startsWith("UBERON"))
+            return getShallowUberonTerm(id).getDefinition();
+        if (id.startsWith("GO:"))
+            return getGOTerm(id).getDefinition();
+        return null;
     }
 
     @Setter

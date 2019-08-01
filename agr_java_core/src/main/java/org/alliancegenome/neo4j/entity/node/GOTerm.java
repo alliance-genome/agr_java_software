@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import lombok.ToString;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 
@@ -16,7 +17,7 @@ public class GOTerm extends Ontology {
 
     private String nameKey;
     private String name;
-    private String description;
+    private String definition;
     private String href;
     private String type;
     private String primaryKey;
@@ -70,6 +71,5 @@ public class GOTerm extends Ontology {
         return primaryKey.hashCode();
     }
 
-    @Override
-    public String toString() { return name; }
+
 }

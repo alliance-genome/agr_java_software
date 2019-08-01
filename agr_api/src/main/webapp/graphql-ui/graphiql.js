@@ -408,7 +408,7 @@ var FieldDoc = function (_React$Component) {
                 _react2.default.createElement(_Argument2.default, { arg: arg, onClickType: _this2.props.onClickType })
               ),
               _react2.default.createElement(_MarkdownContent2.default, {
-                className: 'doc-value-description',
+                className: 'doc-value-definition',
                 markdown: arg.description
               })
             );
@@ -420,7 +420,7 @@ var FieldDoc = function (_React$Component) {
         'div',
         null,
         _react2.default.createElement(_MarkdownContent2.default, {
-          className: 'doc-type-description',
+          className: 'doc-type-definition',
           markdown: field.description || 'No Description'
         }),
         field.deprecationReason && _react2.default.createElement(_MarkdownContent2.default, {
@@ -593,7 +593,7 @@ var SchemaDoc = function (_React$Component) {
         'div',
         null,
         _react2.default.createElement(_MarkdownContent2.default, {
-          className: 'doc-type-description',
+          className: 'doc-type-definition',
           markdown: 'A GraphQL schema provides a root type for each kind of operation.'
         }),
         _react2.default.createElement(
@@ -1191,7 +1191,7 @@ var TypeDoc = function (_React$Component) {
         'div',
         null,
         _react2.default.createElement(_MarkdownContent2.default, {
-          className: 'doc-type-description',
+          className: 'doc-type-definition',
           markdown: type.description || 'No Description'
         }),
         type instanceof _graphql.GraphQLObjectType && typesDef,
@@ -1249,7 +1249,7 @@ function Field(_ref) {
     _react2.default.createElement(_TypeLink2.default, { type: field.type, onClick: onClickType }),
     field.description && _react2.default.createElement(
       'p',
-      { className: 'field-short-description' },
+      { className: 'field-short-definition' },
       field.description
     ),
     field.deprecationReason && _react2.default.createElement(_MarkdownContent2.default, {
@@ -1278,7 +1278,7 @@ function EnumValue(_ref2) {
       value.name
     ),
     _react2.default.createElement(_MarkdownContent2.default, {
-      className: 'doc-value-description',
+      className: 'doc-value-definition',
       markdown: value.description
     }),
     value.deprecationReason && _react2.default.createElement(_MarkdownContent2.default, {
@@ -3047,7 +3047,7 @@ var QueryEditor = exports.QueryEditor = function (_React$Component) {
 
     /**
      * Render a custom UI for CodeMirror's hint which includes additional info
-     * about the type and description for the selected context.
+     * about the type and definition for the selected context.
      */
 
   }, {
@@ -4729,7 +4729,7 @@ Object.defineProperty(exports, 'introspectionQuery', {
 // Some GraphQL services do not support subscriptions and fail an introspection
 // query which includes the `subscriptionType` field as the stock introspection
 // query does. This backup query removes that field.
-var introspectionQuerySansSubscriptions = exports.introspectionQuerySansSubscriptions = '\n  query IntrospectionQuery {\n    __schema {\n      queryType { name }\n      mutationType { name }\n      types {\n        ...FullType\n      }\n      directives {\n        name\n        description\n        locations\n        args {\n          ...InputValue\n        }\n      }\n    }\n  }\n\n  fragment FullType on __Type {\n    kind\n    name\n    description\n    fields(includeDeprecated: true) {\n      name\n      description\n      args {\n        ...InputValue\n      }\n      type {\n        ...TypeRef\n      }\n      isDeprecated\n      deprecationReason\n    }\n    inputFields {\n      ...InputValue\n    }\n    interfaces {\n      ...TypeRef\n    }\n    enumValues(includeDeprecated: true) {\n      name\n      description\n      isDeprecated\n      deprecationReason\n    }\n    possibleTypes {\n      ...TypeRef\n    }\n  }\n\n  fragment InputValue on __InputValue {\n    name\n    description\n    type { ...TypeRef }\n    defaultValue\n  }\n\n  fragment TypeRef on __Type {\n    kind\n    name\n    ofType {\n      kind\n      name\n      ofType {\n        kind\n        name\n        ofType {\n          kind\n          name\n          ofType {\n            kind\n            name\n            ofType {\n              kind\n              name\n              ofType {\n                kind\n                name\n                ofType {\n                  kind\n                  name\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n';
+var introspectionQuerySansSubscriptions = exports.introspectionQuerySansSubscriptions = '\n  query IntrospectionQuery {\n    __schema {\n      queryType { name }\n      mutationType { name }\n      types {\n        ...FullType\n      }\n      directives {\n        name\n        definition\n        locations\n        args {\n          ...InputValue\n        }\n      }\n    }\n  }\n\n  fragment FullType on __Type {\n    kind\n    name\n    definition\n    fields(includeDeprecated: true) {\n      name\n      definition\n      args {\n        ...InputValue\n      }\n      type {\n        ...TypeRef\n      }\n      isDeprecated\n      deprecationReason\n    }\n    inputFields {\n      ...InputValue\n    }\n    interfaces {\n      ...TypeRef\n    }\n    enumValues(includeDeprecated: true) {\n      name\n      definition\n      isDeprecated\n      deprecationReason\n    }\n    possibleTypes {\n      ...TypeRef\n    }\n  }\n\n  fragment InputValue on __InputValue {\n    name\n    definition\n    type { ...TypeRef }\n    defaultValue\n  }\n\n  fragment TypeRef on __Type {\n    kind\n    name\n    ofType {\n      kind\n      name\n      ofType {\n        kind\n        name\n        ofType {\n          kind\n          name\n          ofType {\n            kind\n            name\n            ofType {\n              kind\n              name\n              ofType {\n                kind\n                name\n                ofType {\n                  kind\n                  name\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n';
 },{"graphql":92}],32:[function(require,module,exports){
 'use strict';
 
@@ -4774,7 +4774,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 /**
  * Render a custom UI for CodeMirror's hint which includes additional info
- * about the type and description for the selected context.
+ * about the type and definition for the selected context.
  */
 /**
  *  Copyright (c) Facebook, Inc.
@@ -5457,7 +5457,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *
  *   - schema: GraphQLSchema provides positionally relevant info.
  *   - hoverTime: The number of ms to wait before showing info. (Default 500)
- *   - renderDescription: Convert a description to some HTML, Useful since
+ *   - renderDescription: Convert a definition to some HTML, Useful since
  *                        descriptions are often Markdown formatted.
  *   - onClick: A function called when a named thing is clicked.
  *
@@ -5573,7 +5573,7 @@ function renderDescription(into, options, def) {
   var description = def.description;
   if (description) {
     var descriptionDiv = document.createElement('div');
-    descriptionDiv.className = 'info-description';
+    descriptionDiv.className = 'info-definition';
     if (options.renderDescription) {
       descriptionDiv.innerHTML = options.renderDescription(description);
     } else {
@@ -5756,11 +5756,11 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *   * Function: Provided a token and the stream, returns an expected next step.
  *   * Array: A list of steps to take in order.
  *
- * A step is either another rule, or a terminal description of a token. If it
+ * A step is either another rule, or a terminal definition of a token. If it
  * is a rule, that rule is pushed onto the stack and the parsing continues from
  * that point.
  *
- * If it is a terminal description, the token is checked against it using a
+ * If it is a terminal definition, the token is checked against it using a
  * `match` function. If the match is successful, the token is colored and the
  * rule is stepped forward. If the match is unsuccessful, the remainder of the
  * rule is skipped and the previous rule is advanced.
@@ -22749,7 +22749,7 @@ function syntaxError(source, position, description) {
 }
 
 /**
- * Render a helpful description of the location of the error in the GraphQL
+ * Render a helpful definition of the location of the error in the GraphQL
  * Source document.
  */
 function highlightSourceAtLocation(source, location) {
@@ -29163,7 +29163,7 @@ var __DirectiveLocation = exports.__DirectiveLocation = new _definition.GraphQLE
 var __Type = exports.__Type = new _definition.GraphQLObjectType({
   name: '__Type',
   isIntrospection: true,
-  description: 'The fundamental unit of any GraphQL Schema is the type. There are ' + 'many kinds of types in GraphQL as represented by the `__TypeKind` enum.' + '\n\nDepending on the kind of a type, certain fields describe ' + 'information about that type. Scalar types provide no information ' + 'beyond a name and description, while Enum types provide their values. ' + 'Object and Interface types provide the fields they describe. Abstract ' + 'types, Union and Interface, provide the Object types possible ' + 'at runtime. List and NonNull types compose other types.',
+  description: 'The fundamental unit of any GraphQL Schema is the type. There are ' + 'many kinds of types in GraphQL as represented by the `__TypeKind` enum.' + '\n\nDepending on the kind of a type, certain fields describe ' + 'information about that type. Scalar types provide no information ' + 'beyond a name and definition, while Enum types provide their values. ' + 'Object and Interface types provide the fields they describe. Abstract ' + 'types, Union and Interface, provide the Object types possible ' + 'at runtime. List and NonNull types compose other types.',
   fields: function fields() {
     return {
       kind: {
@@ -30696,7 +30696,7 @@ function getDeprecationReason(node) {
 }
 
 /**
- * Given an ast node, returns its string description based on a contiguous
+ * Given an ast node, returns its string definition based on a contiguous
  * block full-line of comments preceding it.
  */
 function getDescription(node) {
@@ -32379,7 +32379,7 @@ Object.defineProperty(exports, 'findDeprecatedUsages', {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-var introspectionQuery = exports.introspectionQuery = '\n  query IntrospectionQuery {\n    __schema {\n      queryType { name }\n      mutationType { name }\n      subscriptionType { name }\n      types {\n        ...FullType\n      }\n      directives {\n        name\n        description\n        locations\n        args {\n          ...InputValue\n        }\n      }\n    }\n  }\n\n  fragment FullType on __Type {\n    kind\n    name\n    description\n    fields(includeDeprecated: true) {\n      name\n      description\n      args {\n        ...InputValue\n      }\n      type {\n        ...TypeRef\n      }\n      isDeprecated\n      deprecationReason\n    }\n    inputFields {\n      ...InputValue\n    }\n    interfaces {\n      ...TypeRef\n    }\n    enumValues(includeDeprecated: true) {\n      name\n      description\n      isDeprecated\n      deprecationReason\n    }\n    possibleTypes {\n      ...TypeRef\n    }\n  }\n\n  fragment InputValue on __InputValue {\n    name\n    description\n    type { ...TypeRef }\n    defaultValue\n  }\n\n  fragment TypeRef on __Type {\n    kind\n    name\n    ofType {\n      kind\n      name\n      ofType {\n        kind\n        name\n        ofType {\n          kind\n          name\n          ofType {\n            kind\n            name\n            ofType {\n              kind\n              name\n              ofType {\n                kind\n                name\n                ofType {\n                  kind\n                  name\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n';
+var introspectionQuery = exports.introspectionQuery = '\n  query IntrospectionQuery {\n    __schema {\n      queryType { name }\n      mutationType { name }\n      subscriptionType { name }\n      types {\n        ...FullType\n      }\n      directives {\n        name\n        definition\n        locations\n        args {\n          ...InputValue\n        }\n      }\n    }\n  }\n\n  fragment FullType on __Type {\n    kind\n    name\n    definition\n    fields(includeDeprecated: true) {\n      name\n      definition\n      args {\n        ...InputValue\n      }\n      type {\n        ...TypeRef\n      }\n      isDeprecated\n      deprecationReason\n    }\n    inputFields {\n      ...InputValue\n    }\n    interfaces {\n      ...TypeRef\n    }\n    enumValues(includeDeprecated: true) {\n      name\n      definition\n      isDeprecated\n      deprecationReason\n    }\n    possibleTypes {\n      ...TypeRef\n    }\n  }\n\n  fragment InputValue on __InputValue {\n    name\n    definition\n    type { ...TypeRef }\n    defaultValue\n  }\n\n  fragment TypeRef on __Type {\n    kind\n    name\n    ofType {\n      kind\n      name\n      ofType {\n        kind\n        name\n        ofType {\n          kind\n          name\n          ofType {\n            kind\n            name\n            ofType {\n              kind\n              name\n              ofType {\n                kind\n                name\n                ofType {\n                  kind\n                  name\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n';
 /**
  *  Copyright (c) 2015, Facebook, Inc.
  *  All rights reserved.
@@ -32729,7 +32729,7 @@ function printSchemaDefinition(schema) {
  *     mutation: Mutation
  *   }
  *
- * When using this naming convention, the schema description can be omitted.
+ * When using this naming convention, the schema definition can be omitted.
  */
 function isSchemaOfCommonNames(schema) {
   var queryType = schema.getQueryType();
@@ -32823,7 +32823,7 @@ function printArgs(args) {
     return '';
   }
 
-  // If every arg does not have a description, print them on one line.
+  // If every arg does not have a definition, print them on one line.
   if (args.every(function (arg) {
     return !arg.description;
   })) {
@@ -38467,8 +38467,8 @@ module.exports = function(isValidElement, throwOnDirectAccess) {
    *   var Props = require('ReactPropTypes');
    *   var MyArticle = React.createClass({
    *     propTypes: {
-   *       // An optional string prop named "description".
-   *       description: Props.string,
+   *       // An optional string prop named "definition".
+   *       definition: Props.string,
    *
    *       // A required enum prop named "category".
    *       category: Props.oneOf(['News','Photos']).isRequired,

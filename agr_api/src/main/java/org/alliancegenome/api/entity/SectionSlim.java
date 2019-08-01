@@ -9,15 +9,15 @@ import java.io.Serializable;
 
 @Getter
 @Setter
-public class DiseaseSectionSlim implements Serializable {
+public class SectionSlim implements Serializable {
 
-    @JsonView({View.DiseaseAnnotation.class})
+    @JsonView({View.DiseaseAnnotation.class,View.Expression.class})
     private String id;
-    @JsonView({View.DiseaseAnnotation.class})
+    @JsonView({View.DiseaseAnnotation.class,View.Expression.class})
     private String label;
-    @JsonView({View.DiseaseAnnotation.class})
+    @JsonView({View.DiseaseAnnotation.class,View.Expression.class})
     private String description;
-    @JsonView({View.DiseaseAnnotation.class})
+    @JsonView({View.DiseaseAnnotation.class,View.Expression.class})
     private String type = "Term";
 
     public void setTypeAll() {

@@ -4,8 +4,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.log4j.Log4j2;
+import org.alliancegenome.api.entity.DiseaseRibbonSummary;
+import org.alliancegenome.api.entity.RibbonSummary;
 import org.alliancegenome.api.rest.interfaces.ExpressionRESTInterface;
 import org.alliancegenome.api.service.APIService;
+import org.alliancegenome.api.service.DiseaseService;
 import org.alliancegenome.api.service.EntityType;
 import org.alliancegenome.api.service.ExpressionService;
 import org.alliancegenome.core.ExpressionDetail;
@@ -25,6 +28,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -132,6 +136,22 @@ public class ExpressionController implements ExpressionRESTInterface {
         response.setTotal(result.getTotal());
         response.calculateRequestDuration(startDate);
         return mapper.writerWithView(View.Expression.class).writeValueAsString(response);
+    }
+
+    @Override
+    public RibbonSummary getExpressionSummary(List<String> geneIDs) {
+        List<String> ids = new ArrayList<>();
+        if (geneIDs != null)
+            ids.addAll(geneIDs);
+        ExpressionService service = new ExpressionService();
+        try {
+            return service.getExpressionRibbonSummary(ids);
+        } catch (Exception e) {
+            log.error(e);
+            RestErrorMessage error = new RestErrorMessage();
+            error.addErrorMessage(e.getMessage());
+            throw new RestErrorException(error);
+        }
     }
 
     @Override

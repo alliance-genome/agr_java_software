@@ -1,7 +1,7 @@
 package org.alliancegenome.api.service;
 
-import org.alliancegenome.api.entity.DiseaseEntitySubgroupSlim;
-import org.alliancegenome.api.entity.DiseaseRibbonEntity;
+import org.alliancegenome.api.entity.EntitySubgroupSlim;
+import org.alliancegenome.api.entity.RibbonEntity;
 import org.alliancegenome.api.entity.DiseaseRibbonSummary;
 import org.alliancegenome.api.repository.DiseaseCacheRepository;
 import org.alliancegenome.core.service.JsonResultResponse;
@@ -107,7 +107,7 @@ public class DiseaseService {
     }
 
     private void populateDiseaseRibbonSummary(String geneID, DiseaseRibbonSummary summary, Map<String, List<DiseaseAnnotation>> histogram, Gene gene) {
-        DiseaseRibbonEntity entity = new DiseaseRibbonEntity();
+        RibbonEntity entity = new RibbonEntity();
         entity.setId(geneID);
         entity.setLabel(gene.getSymbol());
         entity.setTaxonID(gene.getTaxonId());
@@ -122,7 +122,7 @@ public class DiseaseService {
         // add category term IDs to get the full histogram mapped into the response
         agrDoSlimIDs.addAll(DiseaseRibbonService.slimParentTermIdMap.keySet());
         agrDoSlimIDs.forEach(slimId -> {
-            DiseaseEntitySubgroupSlim group = new DiseaseEntitySubgroupSlim();
+            EntitySubgroupSlim group = new EntitySubgroupSlim();
             int size = 0;
             List<DiseaseAnnotation> diseaseAnnotations = histogram.get(slimId);
             if (diseaseAnnotations != null) {
@@ -136,7 +136,7 @@ public class DiseaseService {
             group.setNumberOfAnnotations(size);
             group.setId(slimId);
             if (size > 0)
-                entity.addDiseaseSlim(group);
+                entity.addEntitySlim(group);
         });
         entity.setNumberOfClasses(allTerms.size());
         entity.setNumberOfAnnotations(allAnnotations.size());

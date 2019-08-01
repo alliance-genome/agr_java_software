@@ -12,24 +12,24 @@ import java.util.List;
 
 @Getter
 @Setter
-public class DiseaseRibbonSection implements Serializable {
+public class RibbonSection implements Serializable {
 
-    @JsonView({View.DiseaseAnnotation.class})
+    @JsonView({View.DiseaseAnnotation.class,View.Expression.class})
     private String id;
-    @JsonView({View.DiseaseAnnotation.class})
+    @JsonView({View.DiseaseAnnotation.class,View.Expression.class})
     private String label;
-    @JsonView({View.DiseaseAnnotation.class})
+    @JsonView({View.DiseaseAnnotation.class,View.Expression.class})
     private String description;
     @JsonProperty("class_label")
     private String classLabel;
     @JsonProperty("annotation_label")
     private String annotationLabel;
 
-    @JsonView({View.DiseaseAnnotation.class})
+    @JsonView({View.DiseaseAnnotation.class,View.Expression.class})
     @JsonProperty("groups")
-    private List<DiseaseSectionSlim> slims = new ArrayList<>();
+    private List<SectionSlim> slims = new ArrayList<>();
 
-    public void addDiseaseSlim(DiseaseSectionSlim slim) {
+    public void addDiseaseSlim(SectionSlim slim) {
         slims.add(slim);
     }
 }
