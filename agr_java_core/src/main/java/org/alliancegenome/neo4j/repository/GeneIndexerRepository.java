@@ -191,7 +191,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
     }
 
     private Map<String, Set<String>> getDiseasesMap(String species) {
-        String query = "MATCH (species:Species)--(gene:Gene)-[:IS_IMPLICATED_IN]-(disease:DOTerm) ";
+        String query = "MATCH (species:Species)--(gene:Gene)--(:DiseaseEntityJoin)--(disease:DOTerm) ";
         query += getSpeciesWhere(species);
         query += " RETURN distinct gene.primaryKey, disease.nameKey ";
 
@@ -199,7 +199,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
     }
 
     private Map<String, Set<String>> getDiseasesAgrSlimMap(String species) {
-        String query = "MATCH (species:Species)--(gene:Gene)-[:IS_IMPLICATED_IN]-(:DOTerm)-[:IS_A_PART_OF_CLOSURE]->(disease:DOTerm) ";
+        String query = "MATCH (species:Species)--(gene:Gene)--(:DiseaseEntityJoin)--(:DOTerm)-[:IS_A_PART_OF_CLOSURE]->(disease:DOTerm) ";
         query += " WHERE disease.subset =~ '.*DO_AGR_slim.*' ";
         if (StringUtils.isNotEmpty(species)) {
             query += " AND species.name = {species} ";
@@ -214,7 +214,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
     }
 
     private Map<String, Set<String>> getDiseasesWithParents(String species) {
-        String query = "MATCH (species:Species)--(gene:Gene)-[:IS_IMPLICATED_IN]-(:DOTerm)-[:IS_A_PART_OF_CLOSURE]->(disease:DOTerm) ";
+        String query = "MATCH (species:Species)--(gene:Gene)--(:DiseaseEntityJoin)--(:DOTerm)-[:IS_A_PART_OF_CLOSURE]->(disease:DOTerm) ";
         query += getSpeciesWhere(species);
         query += " RETURN distinct gene.primaryKey, disease.nameKey ";
 
