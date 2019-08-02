@@ -1,8 +1,6 @@
 package org.alliancegenome.api.service;
 
-import org.alliancegenome.api.entity.ExpressionSummary;
-import org.alliancegenome.api.entity.ExpressionSummaryGroup;
-import org.alliancegenome.api.entity.ExpressionSummaryGroupTerm;
+import org.alliancegenome.api.entity.*;
 import org.alliancegenome.core.ExpressionDetail;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.service.JsonResultResponse;
@@ -180,6 +178,91 @@ public class ExpressionService {
         return summary;
     }
 
+    public RibbonSummary getExpressionRibbonSummary(List<String> geneIDs) {
+        GeneRepository geneRepository = new GeneRepository();
+
+        String id = geneIDs.get(0);
+        List<BioEntityGeneExpressionJoin> joins = geneRepository.getExpressionAnnotationSummary(id);
+
+        if (joins == null)
+            joins = new ArrayList<>();
+        // group together records where only publications is different and treat them as a single record
+        Map<Gene, Map<ExpressionBioEntity, Map<Optional<Stage>, Map<MMOTerm, Set<BioEntityGeneExpressionJoin>>>>> groupedRecords = getGeneTermStageAssayMap(joins);
+
+        ExpressionSummary summary = new ExpressionSummary();
+        GeneRepository repository = new GeneRepository();
+
+        // create GO & AO histograms
+        // list of all terms over grouped list
+        List<UBERONTerm> aoGroupedList = new ArrayList<>();
+        List<GOTerm> goGroupedList = new ArrayList<>();
+        List<UBERONTerm> stageGroupedList = new ArrayList<>();
+
+        groupedRecords.forEach((gene, termNameMap) ->
+                termNameMap.forEach((entity, stageMap) -> {
+                    stageMap.forEach((stage, assayMap) -> assayMap.forEach((assay, bioJoins) -> {
+                        // do not loop over bioJoins as they are the pubs per the full grouping.
+                        aoGroupedList.addAll(entity.getAoTermList());
+                        goGroupedList.addAll(entity.getCcRibbonTermList());
+                        // use the first join element (they all have the same stage info
+                        UBERONTerm stageTerm = bioJoins.iterator().next().getStageTerm();
+                        if (stageTerm != null)
+                            stageGroupedList.add(stageTerm);
+                    }));
+                }));
+
+        // create histogram from list
+        Map<String, Long> aoHistogram = aoGroupedList.stream()
+                .collect(Collectors.groupingBy(UBERONTerm::getPrimaryKey, Collectors.counting()));
+
+        ExpressionSummaryGroup aoGroup = populateGroupInfo("Anatomy", aoHistogram, repository.getFullAoList());
+        summary.addGroup(aoGroup);
+
+        int sumAO = aoGroup.getTerms().stream().mapToInt(ExpressionSummaryGroupTerm::getNumberOfAnnotations).sum();
+        aoGroup.setTotalAnnotations(sumAO);
+
+        Map<String, Long> goHistogram = goGroupedList.stream()
+                .collect(Collectors.groupingBy(GOTerm::getPrimaryKey, Collectors.counting()));
+        ExpressionSummaryGroup goGroup = populateGroupInfo(CELLULAR_COMPONENT, goHistogram, repository.getFullGoList());
+        int sumGo = goGroup.getTerms().stream().mapToInt(ExpressionSummaryGroupTerm::getNumberOfAnnotations).sum();
+        goGroup.setTotalAnnotations(sumGo);
+        summary.addGroup(goGroup);
+
+        Map<String, Long> stageHistogram = stageGroupedList.stream()
+                .collect(Collectors.groupingBy(UBERONTerm::getPrimaryKey, Collectors.counting()));
+
+        ExpressionSummaryGroup stageGroup = populateGroupInfo("Stage", stageHistogram, repository.getStageList());
+        summary.addGroup(stageGroup);
+
+        int sumStage = stageGroup.getTerms().stream().mapToInt(ExpressionSummaryGroupTerm::getNumberOfAnnotations).sum();
+        stageGroup.setTotalAnnotations(sumStage);
+
+        // add all annotations per goCcGroup
+        int totalAnnotations = sumGo + sumAO + sumStage;
+        summary.setTotalAnnotations(totalAnnotations);
+
+        ExpressionRibbonService service = new ExpressionRibbonService();
+        RibbonSummary ribbonSummary = service.getRibbonSectionInfo();
+
+        Gene gene = geneRepository.getShallowGene(id);
+        RibbonEntity entity = new RibbonEntity();
+        entity.setId(id);
+        entity.setLabel(gene.getSymbol());
+        entity.setTaxonID(gene.getTaxonId());
+        entity.setTaxonName(gene.getSpecies().getName());
+        ribbonSummary.addRibbonEntity(entity);
+        ribbonSummary.addAllAnnotationsCount(id, totalAnnotations);
+
+        summary.getGroups().forEach(summaryGroup -> summaryGroup.getTerms().forEach(term -> {
+            EntitySubgroupSlim slim = new EntitySubgroupSlim();
+            slim.setId(term.getId());
+            slim.setNumberOfAnnotations(term.getNumberOfAnnotations());
+            entity.addEntitySlim(slim);
+        }));
+
+        return ribbonSummary;
+    }
+
     private ExpressionSummaryGroup populateGroupInfo(String groupName, Map<String, Long> histogram, Map<String, String> entityList) {
         ExpressionSummaryGroup group = new ExpressionSummaryGroup();
         group.setName(groupName);
@@ -233,4 +316,5 @@ public class ExpressionService {
         ret.setTotal(joins.getTotalNumber());
         return ret;
     }
+
 }

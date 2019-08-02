@@ -19,7 +19,7 @@ public class UBERONTerm extends Ontology {
 
     @JsonView(View.Expression.class)
     private String name;
-    private String description;
+    private String definition;
     private String href;
     private String type;
     @JsonView(View.Expression.class)

@@ -4,7 +4,10 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.Api;
+import org.alliancegenome.api.entity.DiseaseRibbonSummary;
+import org.alliancegenome.api.entity.RibbonSummary;
 import org.alliancegenome.api.service.AlleleService;
+import org.alliancegenome.api.service.ExpressionService;
 import org.alliancegenome.core.ExpressionDetail;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.service.PaginationResult;
@@ -17,7 +20,10 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+
+import static org.junit.Assert.assertNotNull;
 
 @Api(value = "Expression Tests")
 public class ExpressionIT {
@@ -25,6 +31,7 @@ public class ExpressionIT {
     private ObjectMapper mapper = new ObjectMapper();
     private AlleleService alleleService;
     private ExpressionCacheRepository repository = new ExpressionCacheRepository();
+    private ExpressionService expressionService = new ExpressionService();
 
     @Before
     public void before() {
@@ -50,5 +57,13 @@ public class ExpressionIT {
         System.out.println(response.getTotalNumber());
     }
 
+    @Test
+    // Test Pten from MGI for expression ribbon summary
+    public void checkExpressionRibbonHeader() {
+        RibbonSummary summary = expressionService.getExpressionRibbonSummary(Collections.singletonList("MGI:109583"));
+        assertNotNull(summary);
+
+
+    }
 
 }

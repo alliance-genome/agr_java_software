@@ -6,6 +6,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.alliancegenome.api.entity.DiseaseRibbonSummary;
+import org.alliancegenome.api.entity.RibbonSummary;
 import org.alliancegenome.core.ExpressionDetail;
 import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.neo4j.view.View;
@@ -84,5 +86,14 @@ public interface ExpressionRESTInterface {
             @ApiParam(name = "page", value = "Page number")
             @DefaultValue("1") @QueryParam("page") int page
     ) throws JsonProcessingException;
+
+    @GET
+    @Path("/ribbon-summary")
+    @JsonView(value = {View.Expression.class})
+    @ApiOperation(value = "Retrieve summary of expression for given list of genes")
+    RibbonSummary getExpressionSummary(
+            @ApiParam(name = "geneID", value = "list of genes for which expression data is requested", required = true)
+            @QueryParam("geneID") List<String> geneIDs
+    ) ;
 
 }
