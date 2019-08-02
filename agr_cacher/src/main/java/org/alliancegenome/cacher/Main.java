@@ -78,7 +78,7 @@ public class Main {
         Date end = new Date();
         log.info("End Time: " + end);
         long duration = end.getTime() - start.getTime();
-        log.info("Total Indexing time: " + Cacher.getHumanReadableTimeDisplay(duration));
+        log.info("Total Caching time: " + Cacher.getHumanReadableTimeDisplay(duration));
         System.exit(0);
 
     }
