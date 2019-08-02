@@ -582,8 +582,8 @@ public class GeneRepository extends Neo4jRepository<Gene> {
                 " entity = (s:BioEntityGeneExpressionJoin)--(exp:ExpressionBioEntity)--(o:Ontology) ";
         //cypher += "  where gene.primaryKey in ['MGI:109583','ZFIN:ZDB-GENE-980526-166'] ";
         //cypher += "  where gene.primaryKey = 'RGD:2129' ";
-        cypher += "OPTIONAL MATCH crossReference = (s:BioEntityGeneExpressionJoin)--(crossRef:CrossReference) ";
-        cypher += "return p1, entity, crossRef ";
+        //cypher += "OPTIONAL MATCH crossReference = (s:BioEntityGeneExpressionJoin)--(crossRef:CrossReference) ";
+        cypher += "return p1, entity";
 
         long start = System.currentTimeMillis();
         Iterable<BioEntityGeneExpressionJoin> joins = neo4jSession.query(BioEntityGeneExpressionJoin.class, cypher, new HashMap<>());

@@ -52,21 +52,11 @@ public class InteractionRepository extends Neo4jRepository<InteractionGeneJoin> 
     }
 
     public List<InteractionGeneJoin> getAllInteractions() {
-        String allInteractionsQuery = "MATCH p1=(g1:Gene)--(igj:InteractionGeneJoin)--(g2:Gene), " +
-                "p2=(igj:InteractionGeneJoin)-[:INTERACTOR_A_ROLE]->(mA:MITerm), " +
-                "p3=(igj:InteractionGeneJoin)-[:INTERACTOR_B_ROLE]->(mB:MITerm), " +
-                "p4=(igj:InteractionGeneJoin)-[:CROSS_REFERENCE]->(cross:CrossReference), " +
-                "p5=(igj:InteractionGeneJoin)-[:DETECTION_METHOD]->(mde:MITerm), " +
-                "p6=(igj:InteractionGeneJoin)-[:INTERACTOR_A_TYPE]->(typea:MITerm), " +
-                "p7=(igj:InteractionGeneJoin)-[:INTERACTOR_B_TYPE]->(typeb:MITerm), " +
-                "p8=(igj:InteractionGeneJoin)-[:INTERACTION_TYPE]->(type:MITerm), " +
-                "p10=(igj:InteractionGeneJoin)-[:SOURCE_DATABASE]->(source:MITerm), " +
-                "p11=(igj:InteractionGeneJoin)-[:AGGREGATION_DATABASE]->(aggregation:MITerm), " +
-                "p9=(igj:InteractionGeneJoin)-[:EVIDENCE]->(pub:Publication) ";
+        String allInteractionsQuery = "MATCH p=(igj:InteractionGeneJoin)--(t) ";
         //allInteractionsQuery += " where g1.primaryKey = 'MGI:109583' ";
         //allInteractionsQuery += " where g1.primaryKey = 'MGI:103170' ";
         //allInteractionsQuery += " where g1.primaryKey = 'FB:FBgn0029891' ";
-        String query = allInteractionsQuery + " RETURN p1, p2, p3, p5, p6, p7, p8, p4, p9, p10, p11 ";
+        String query = allInteractionsQuery + " RETURN p ";
         Iterable<InteractionGeneJoin> joins = query(query, new HashMap<>());
         return StreamSupport.stream(joins.spliterator(), false)
                 .peek(this::populateSpeciesInfo)
