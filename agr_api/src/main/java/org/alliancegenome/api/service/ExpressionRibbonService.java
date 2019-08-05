@@ -4,9 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.alliancegenome.api.entity.RibbonSection;
 import org.alliancegenome.api.entity.RibbonSummary;
 import org.alliancegenome.api.entity.SectionSlim;
-import org.alliancegenome.neo4j.entity.node.DOTerm;
 import org.alliancegenome.neo4j.entity.node.GOTerm;
 import org.alliancegenome.neo4j.repository.DiseaseRepository;
+import org.alliancegenome.neo4j.repository.ExpressionCacheRepository;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
@@ -49,17 +49,17 @@ public class ExpressionRibbonService {
         List<String> infection = new ArrayList<>();
         infection.add("Expression grouped by Locations");
         infection.add("All expression in Locations");
-        slimParentTermIdMap.put(LOC_ALL, infection);
+        slimParentTermIdMap.put(ExpressionCacheRepository.UBERON_ANATOMY_ROOT, infection);
 
         List<String> anatomy = new ArrayList<>();
         anatomy.add("Expression grouped by Stages");
         anatomy.add("All expression in stages");
-        slimParentTermIdMap.put(STAGE_ALL, anatomy);
+        slimParentTermIdMap.put(ExpressionCacheRepository.UBERON_STAGE_ROOT, anatomy);
 
-        List<String> neoplasm = new ArrayList<>();
-        neoplasm.add("Expression grouped by GO CC terms");
-        neoplasm.add("All expression for GO cellular Components");
-        slimParentTermIdMap.put("GO:0005575", neoplasm);
+        List<String> goTerms = new ArrayList<>();
+        goTerms.add("Expression grouped by GO CC terms");
+        goTerms.add("All expression for GO cellular Components");
+        slimParentTermIdMap.put(ExpressionCacheRepository.GO_CC_ROOT, goTerms);
 
     }
 
@@ -88,19 +88,19 @@ public class ExpressionRibbonService {
             section.addDiseaseSlim(allSlimElement);
             ribbonSummary.addRibbonSection(section);
             List<GOTerm> goSlimList = geneRepository.getFullGoTermList();
-            if (id.equals("GO:0005575")) {
+            if (id.equals(ExpressionCacheRepository.GO_CC_ROOT)) {
                 goSlimList.forEach(term -> {
                     SectionSlim slim = getSectionSlim(term.getPrimaryKey(), term.getName(), term.getDefinition());
                     section.addDiseaseSlim(slim);
                 });
             }
-            if (id.equals(LOC_ALL)) {
+            if (id.equals(ExpressionCacheRepository.UBERON_ANATOMY_ROOT)) {
                 geneRepository.getFullAoTermList().forEach(term -> {
                     SectionSlim slim = getSectionSlim(term.getPrimaryKey(), term.getName(), term.getDefinition());
                     section.addDiseaseSlim(slim);
                 });
             }
-            if (id.equals(STAGE_ALL)) {
+            if (id.equals(ExpressionCacheRepository.UBERON_STAGE_ROOT)) {
                 geneRepository.getStageTermList().forEach(term -> {
                     SectionSlim slim = getSectionSlim(term.getPrimaryKey(), term.getName(), term.getDefinition());
                     section.addDiseaseSlim(slim);

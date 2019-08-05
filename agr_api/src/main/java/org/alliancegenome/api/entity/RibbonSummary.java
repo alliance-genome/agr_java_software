@@ -3,10 +3,8 @@ package org.alliancegenome.api.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
 import org.alliancegenome.neo4j.view.View;
 
 import java.io.Serializable;
@@ -48,10 +46,7 @@ public class RibbonSummary implements Serializable {
                 .findFirst();
         if (!entity.isPresent())
             throw new RuntimeException("No ribbon entity for gene " + geneID);
-        EntitySubgroupSlim group = new EntitySubgroupSlim();
-        group.setNumberOfAnnotations(totalNumber);
-        group.setId(geneID);
-        entity.get().addEntitySlim(group);
+        entity.get().setNumberOfAnnotations(totalNumber);
     }
 
     public RibbonSummary() {
