@@ -40,15 +40,6 @@ public class RibbonSummary implements Serializable {
         return diseaseRibbonSections.get(diseaseRibbonSections.size() - 1);
     }
 
-    public void addAllAnnotationsCount(String geneID, int totalNumber) {
-        Optional<RibbonEntity> entity = diseaseRibbonEntities.stream()
-                .filter(ribbonEntity -> ribbonEntity.getId().equals(geneID))
-                .findFirst();
-        if (!entity.isPresent())
-            throw new RuntimeException("No ribbon entity for gene " + geneID);
-        entity.get().setNumberOfAnnotations(totalNumber);
-    }
-
     public RibbonSummary() {
     }
 

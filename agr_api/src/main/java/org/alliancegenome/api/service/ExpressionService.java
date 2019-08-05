@@ -181,9 +181,19 @@ public class ExpressionService {
     }
 
     public RibbonSummary getExpressionRibbonSummary(List<String> geneIDs) {
-        GeneRepository geneRepository = new GeneRepository();
+        if (geneIDs == null)
+            return null;
+        ExpressionRibbonService service = new ExpressionRibbonService();
+        RibbonSummary ribbonSummary = service.getRibbonSectionInfo();
+        geneIDs.forEach(geneID -> {
+            ribbonSummary.addRibbonEntity(getExpressionRibbonSummary(geneID));
+        });
+        return ribbonSummary;
+    }
 
-        String geneID = geneIDs.get(0);
+
+    private RibbonEntity getExpressionRibbonSummary(String geneID) {
+        GeneRepository geneRepository = new GeneRepository();
         List<BioEntityGeneExpressionJoin> joins = geneRepository.getExpressionAnnotationSummary(geneID);
 
         if (joins == null)
@@ -221,17 +231,12 @@ public class ExpressionService {
             }
         });
 
-        ExpressionRibbonService service = new ExpressionRibbonService();
-        RibbonSummary ribbonSummary = service.getRibbonSectionInfo();
-
         Gene gene = geneRepository.getShallowGene(geneID);
         RibbonEntity entity = new RibbonEntity();
         entity.setId(geneID);
         entity.setLabel(gene.getSymbol());
         entity.setTaxonID(gene.getTaxonId());
         entity.setTaxonName(gene.getSpecies().getName());
-        ribbonSummary.addRibbonEntity(entity);
-        ribbonSummary.addAllAnnotationsCount(geneID, joins.size());
 
         // add the AO root term
         EntitySubgroupSlim slimRoot = getEntitySubgroupSlim(ExpressionCacheRepository.UBERON_ANATOMY_ROOT, aoAnnotations);
@@ -257,9 +262,9 @@ public class ExpressionService {
             entity.addEntitySlim(slim);
         });
 
-
         entity.setNumberOfClasses(getDistinctClassSize(joins));
-        return ribbonSummary;
+        entity.setNumberOfAnnotations(joins.size());
+        return entity;
     }
 
     private EntitySubgroupSlim getEntitySubgroupSlim(String primaryKey, Collection<BioEntityGeneExpressionJoin> aoAnnotations) {
