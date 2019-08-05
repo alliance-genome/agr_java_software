@@ -163,13 +163,19 @@ public class ExpressionCacheRepository {
 
     private static List<String> parentTermIDs = new ArrayList<>();
 
+    public static final String UBERON_ANATOMY_ROOT = "UBERON:0001062";
+
+    public static final String UBERON_STAGE_ROOT = "UBERON:0000000";
+
+    public static final String GO_CC_ROOT = "GO:0005575";
+
     static {
         // anatomical entity
-        parentTermIDs.add("UBERON:0001062");
+        parentTermIDs.add(UBERON_ANATOMY_ROOT);
         // processual entity stage
-        parentTermIDs.add("UBERON:0000000");
+        parentTermIDs.add(UBERON_STAGE_ROOT);
         // cellular Component
-        parentTermIDs.add("GO:0005575");
+        parentTermIDs.add(GO_CC_ROOT);
     }
 
     private Set<String> getParentTermIDs(String id) {

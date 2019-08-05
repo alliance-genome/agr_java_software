@@ -2,7 +2,6 @@ package org.alliancegenome.api.service;
 
 import org.alliancegenome.api.entity.*;
 import org.alliancegenome.core.ExpressionDetail;
-import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.core.service.PaginationResult;
 import org.alliancegenome.es.model.query.FieldFilter;
@@ -10,6 +9,9 @@ import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.node.*;
 import org.alliancegenome.neo4j.repository.ExpressionCacheRepository;
 import org.alliancegenome.neo4j.repository.GeneRepository;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.MultiValuedMap;
+import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -151,7 +153,7 @@ public class ExpressionService {
         Map<String, Long> aoHistogram = aoGroupedList.stream()
                 .collect(Collectors.groupingBy(UBERONTerm::getPrimaryKey, Collectors.counting()));
 
-        ExpressionSummaryGroup aoGroup = populateGroupInfo("Anatomy", aoHistogram, repository.getFullAoList());
+        ExpressionSummaryGroup aoGroup = populateGroupInfo("Anatomy", aoHistogram, null, repository.getFullAoList());
         summary.addGroup(aoGroup);
 
         int sumAO = aoGroup.getTerms().stream().mapToInt(ExpressionSummaryGroupTerm::getNumberOfAnnotations).sum();
@@ -159,7 +161,7 @@ public class ExpressionService {
 
         Map<String, Long> goHistogram = goGroupedList.stream()
                 .collect(Collectors.groupingBy(GOTerm::getPrimaryKey, Collectors.counting()));
-        ExpressionSummaryGroup goGroup = populateGroupInfo(CELLULAR_COMPONENT, goHistogram, repository.getFullGoList());
+        ExpressionSummaryGroup goGroup = populateGroupInfo(CELLULAR_COMPONENT, goHistogram, null, repository.getFullGoList());
         int sumGo = goGroup.getTerms().stream().mapToInt(ExpressionSummaryGroupTerm::getNumberOfAnnotations).sum();
         goGroup.setTotalAnnotations(sumGo);
         summary.addGroup(goGroup);
@@ -167,7 +169,7 @@ public class ExpressionService {
         Map<String, Long> stageHistogram = stageGroupedList.stream()
                 .collect(Collectors.groupingBy(UBERONTerm::getPrimaryKey, Collectors.counting()));
 
-        ExpressionSummaryGroup stageGroup = populateGroupInfo("Stage", stageHistogram, repository.getStageList());
+        ExpressionSummaryGroup stageGroup = populateGroupInfo("Stage", stageHistogram, null, repository.getStageList());
         summary.addGroup(stageGroup);
 
         int sumStage = stageGroup.getTerms().stream().mapToInt(ExpressionSummaryGroupTerm::getNumberOfAnnotations).sum();
@@ -179,91 +181,108 @@ public class ExpressionService {
     }
 
     public RibbonSummary getExpressionRibbonSummary(List<String> geneIDs) {
-        GeneRepository geneRepository = new GeneRepository();
-
-        String id = geneIDs.get(0);
-        List<BioEntityGeneExpressionJoin> joins = geneRepository.getExpressionAnnotationSummary(id);
-
-        if (joins == null)
-            joins = new ArrayList<>();
-        // group together records where only publications is different and treat them as a single record
-        Map<Gene, Map<ExpressionBioEntity, Map<Optional<Stage>, Map<MMOTerm, Set<BioEntityGeneExpressionJoin>>>>> groupedRecords = getGeneTermStageAssayMap(joins);
-
-        ExpressionSummary summary = new ExpressionSummary();
-        GeneRepository repository = new GeneRepository();
-
-        // create GO & AO histograms
-        // list of all terms over grouped list
-        List<UBERONTerm> aoGroupedList = new ArrayList<>();
-        List<GOTerm> goGroupedList = new ArrayList<>();
-        List<UBERONTerm> stageGroupedList = new ArrayList<>();
-
-        groupedRecords.forEach((gene, termNameMap) ->
-                termNameMap.forEach((entity, stageMap) -> {
-                    stageMap.forEach((stage, assayMap) -> assayMap.forEach((assay, bioJoins) -> {
-                        // do not loop over bioJoins as they are the pubs per the full grouping.
-                        aoGroupedList.addAll(entity.getAoTermList());
-                        goGroupedList.addAll(entity.getCcRibbonTermList());
-                        // use the first join element (they all have the same stage info
-                        UBERONTerm stageTerm = bioJoins.iterator().next().getStageTerm();
-                        if (stageTerm != null)
-                            stageGroupedList.add(stageTerm);
-                    }));
-                }));
-
-        // create histogram from list
-        Map<String, Long> aoHistogram = aoGroupedList.stream()
-                .collect(Collectors.groupingBy(UBERONTerm::getPrimaryKey, Collectors.counting()));
-
-        ExpressionSummaryGroup aoGroup = populateGroupInfo("Anatomy", aoHistogram, repository.getFullAoList());
-        summary.addGroup(aoGroup);
-
-        int sumAO = aoGroup.getTerms().stream().mapToInt(ExpressionSummaryGroupTerm::getNumberOfAnnotations).sum();
-        aoGroup.setTotalAnnotations(sumAO);
-
-        Map<String, Long> goHistogram = goGroupedList.stream()
-                .collect(Collectors.groupingBy(GOTerm::getPrimaryKey, Collectors.counting()));
-        ExpressionSummaryGroup goGroup = populateGroupInfo(CELLULAR_COMPONENT, goHistogram, repository.getFullGoList());
-        int sumGo = goGroup.getTerms().stream().mapToInt(ExpressionSummaryGroupTerm::getNumberOfAnnotations).sum();
-        goGroup.setTotalAnnotations(sumGo);
-        summary.addGroup(goGroup);
-
-        Map<String, Long> stageHistogram = stageGroupedList.stream()
-                .collect(Collectors.groupingBy(UBERONTerm::getPrimaryKey, Collectors.counting()));
-
-        ExpressionSummaryGroup stageGroup = populateGroupInfo("Stage", stageHistogram, repository.getStageList());
-        summary.addGroup(stageGroup);
-
-        int sumStage = stageGroup.getTerms().stream().mapToInt(ExpressionSummaryGroupTerm::getNumberOfAnnotations).sum();
-        stageGroup.setTotalAnnotations(sumStage);
-
-        // add all annotations per goCcGroup
-        int totalAnnotations = sumGo + sumAO + sumStage;
-        summary.setTotalAnnotations(totalAnnotations);
-
+        if (geneIDs == null)
+            return null;
         ExpressionRibbonService service = new ExpressionRibbonService();
         RibbonSummary ribbonSummary = service.getRibbonSectionInfo();
-
-        Gene gene = geneRepository.getShallowGene(id);
-        RibbonEntity entity = new RibbonEntity();
-        entity.setId(id);
-        entity.setLabel(gene.getSymbol());
-        entity.setTaxonID(gene.getTaxonId());
-        entity.setTaxonName(gene.getSpecies().getName());
-        ribbonSummary.addRibbonEntity(entity);
-        ribbonSummary.addAllAnnotationsCount(id, totalAnnotations);
-
-        summary.getGroups().forEach(summaryGroup -> summaryGroup.getTerms().forEach(term -> {
-            EntitySubgroupSlim slim = new EntitySubgroupSlim();
-            slim.setId(term.getId());
-            slim.setNumberOfAnnotations(term.getNumberOfAnnotations());
-            entity.addEntitySlim(slim);
-        }));
-
+        geneIDs.forEach(geneID -> {
+            ribbonSummary.addRibbonEntity(getExpressionRibbonSummary(geneID));
+        });
         return ribbonSummary;
     }
 
-    private ExpressionSummaryGroup populateGroupInfo(String groupName, Map<String, Long> histogram, Map<String, String> entityList) {
+
+    private RibbonEntity getExpressionRibbonSummary(String geneID) {
+        GeneRepository geneRepository = new GeneRepository();
+        List<BioEntityGeneExpressionJoin> joins = geneRepository.getExpressionAnnotationSummary(geneID);
+
+        if (joins == null)
+            joins = new ArrayList<>();
+
+        // create GO & AO histograms
+        // list of all terms over grouped list
+        List<BioEntityGeneExpressionJoin> aoAnnotations = new ArrayList<>();
+        MultiValuedMap<UBERONTerm, BioEntityGeneExpressionJoin> aoUberonMap = new ArrayListValuedHashMap<>();
+
+        List<BioEntityGeneExpressionJoin> goAnnotations = new ArrayList<>();
+        MultiValuedMap<GOTerm, BioEntityGeneExpressionJoin> goTermMap = new ArrayListValuedHashMap<>();
+
+        List<BioEntityGeneExpressionJoin> stageAnnotations = new ArrayList<>();
+        MultiValuedMap<UBERONTerm, BioEntityGeneExpressionJoin> stageUberonMap = new ArrayListValuedHashMap<>();
+
+        joins.forEach(join -> {
+            // do not loop over bioJoins as they are the pubs per the full grouping.
+            final ExpressionBioEntity entity = join.getEntity();
+
+            if (CollectionUtils.isNotEmpty(entity.getAoTermList())) {
+                aoAnnotations.add(join);
+                entity.getAoTermList().forEach(uberonTerm -> aoUberonMap.put(uberonTerm, join));
+            }
+
+            // use the first join element (they all have the same stage info
+            if (CollectionUtils.isNotEmpty(entity.getCcRibbonTermList())) {
+                goAnnotations.add(join);
+                entity.getCcRibbonTermList().forEach(goTerm -> goTermMap.put(goTerm, join));
+            }
+            UBERONTerm stageTerm = join.getStageTerm();
+            if (stageTerm != null) {
+                stageAnnotations.add(join);
+                stageUberonMap.put(stageTerm, join);
+            }
+        });
+
+        Gene gene = geneRepository.getShallowGene(geneID);
+        RibbonEntity entity = new RibbonEntity();
+        entity.setId(geneID);
+        entity.setLabel(gene.getSymbol());
+        entity.setTaxonID(gene.getTaxonId());
+        entity.setTaxonName(gene.getSpecies().getName());
+
+        // add the AO root term
+        EntitySubgroupSlim slimRoot = getEntitySubgroupSlim(ExpressionCacheRepository.UBERON_ANATOMY_ROOT, aoAnnotations);
+        entity.addEntitySlim(slimRoot);
+        aoUberonMap.keySet().forEach(uberonTerm -> {
+            EntitySubgroupSlim slim = getEntitySubgroupSlim(uberonTerm.getPrimaryKey(), aoUberonMap.get(uberonTerm));
+            entity.addEntitySlim(slim);
+        });
+
+        // add the Stage root term
+        EntitySubgroupSlim slimRootStage = getEntitySubgroupSlim(ExpressionCacheRepository.UBERON_STAGE_ROOT, stageAnnotations);
+        entity.addEntitySlim(slimRootStage);
+        stageUberonMap.keySet().forEach(uberonTerm -> {
+            EntitySubgroupSlim slim = getEntitySubgroupSlim(uberonTerm.getPrimaryKey(), stageUberonMap.get(uberonTerm));
+            entity.addEntitySlim(slim);
+        });
+
+        // add the GO root term
+        EntitySubgroupSlim slimRootGO = getEntitySubgroupSlim(ExpressionCacheRepository.GO_CC_ROOT, goAnnotations);
+        entity.addEntitySlim(slimRootGO);
+        goTermMap.keySet().forEach(goTerm -> {
+            EntitySubgroupSlim slim = getEntitySubgroupSlim(goTerm.getPrimaryKey(), goTermMap.get(goTerm));
+            entity.addEntitySlim(slim);
+        });
+
+        entity.setNumberOfClasses(getDistinctClassSize(joins));
+        entity.setNumberOfAnnotations(joins.size());
+        return entity;
+    }
+
+    private EntitySubgroupSlim getEntitySubgroupSlim(String primaryKey, Collection<BioEntityGeneExpressionJoin> aoAnnotations) {
+        EntitySubgroupSlim slim = new EntitySubgroupSlim();
+        slim.setId(primaryKey);
+        slim.setNumberOfAnnotations(aoAnnotations.size());
+        slim.setNumberOfClasses(getDistinctClassSize(aoAnnotations));
+        return slim;
+    }
+
+    private int getDistinctClassSize(Collection<BioEntityGeneExpressionJoin> aoAnnotations) {
+        return aoAnnotations.stream().collect(groupingBy(join -> join.getEntity().getWhereExpressedStatement())).size();
+    }
+
+    private ExpressionSummaryGroup populateGroupInfo(String groupName,
+                                                     Map<String, Long> histogram,
+                                                     Map<String, Long> rawHistogram,
+                                                     Map<String, String> entityList) {
         ExpressionSummaryGroup group = new ExpressionSummaryGroup();
         group.setName(groupName);
         entityList.forEach((id, name) ->
@@ -273,39 +292,12 @@ public class ExpressionService {
             term.setName(name);
             if (histogram.get(id) != null) {
                 term.setNumberOfAnnotations((int) (long) histogram.get(id));
+                if (rawHistogram != null && rawHistogram.get(id) != null)
+                    term.setNumberOfClasses((int) (long) rawHistogram.get(id));
             }
             group.addGroupTerm(term);
         });
         return group;
-    }
-
-    public String getTextFile(JsonResultResponse<ExpressionDetail> result) {
-        StringBuilder builder = new StringBuilder();
-        StringJoiner headerJoiner = new StringJoiner("\t");
-        headerJoiner.add("Species");
-        headerJoiner.add("Gene Symbol");
-        headerJoiner.add("Gene ID");
-        headerJoiner.add("Term");
-        headerJoiner.add("Stage");
-        headerJoiner.add("Assay");
-        headerJoiner.add("Source");
-        headerJoiner.add("Reference");
-        builder.append(headerJoiner.toString());
-        builder.append(ConfigHelper.getJavaLineSeparator());
-        result.getResults().forEach(expressionDetail -> {
-            StringJoiner rowJoiner = new StringJoiner("\t");
-            rowJoiner.add(expressionDetail.getGene().getSpecies().getName());
-            rowJoiner.add(expressionDetail.getGene().getSymbol());
-            rowJoiner.add(expressionDetail.getGene().getModGlobalId());
-            rowJoiner.add(expressionDetail.getTermName());
-            rowJoiner.add(expressionDetail.getStage().getPrimaryKey());
-            rowJoiner.add(expressionDetail.getAssay().getDisplaySynonym());
-            //rowJoiner.add(expressionDetail.getCrossReferences().stream().map(CrossReference::getDisplayName).collect(Collectors.joining(",")));
-            rowJoiner.add(expressionDetail.getPublications().stream().map(Publication::getPubId).collect(Collectors.joining(",")));
-            builder.append(rowJoiner.toString());
-            builder.append(ConfigHelper.getJavaLineSeparator());
-        });
-        return builder.toString();
     }
 
     public JsonResultResponse<ExpressionDetail> getExpressionDetails(List<String> geneIDs, String termID, Pagination pagination) {
