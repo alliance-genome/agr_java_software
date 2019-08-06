@@ -104,7 +104,7 @@ public interface DiseaseRESTInterface {
     @GET
     @Path("")
     @JsonView(value = {View.DiseaseAnnotation.class})
-    @ApiOperation(value = "Retrieve all expression records of a given set of geneMap")
+    @ApiOperation(value = "Retrieve all disease annotations of a given set of genes")
     JsonResultResponse<DiseaseAnnotation> getDiseaseAnnotationsRibbonDetails(
             @ApiParam(name = "geneID", value = "Gene by ID", required = true)
             @QueryParam("geneID") List<String> geneIDs,
@@ -143,7 +143,7 @@ public interface DiseaseRESTInterface {
     @GET
     @Path("/download")
     @JsonView(value = {View.DiseaseAnnotation.class})
-    @ApiOperation(value = "Retrieve all expression records of a given set of genes")
+    @ApiOperation(value = "Download all disease annotations of a given set of genes")
     Response getDiseaseAnnotationsRibbonDetailsDownload(
             @ApiParam(name = "geneID", value = "Gene by ID", required = true)
             @QueryParam("geneID") List<String> geneIDs,

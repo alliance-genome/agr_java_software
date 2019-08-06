@@ -89,28 +89,18 @@ public class DiseaseDBCacher extends Cacher {
         // loop over all disease IDs (termID)
         // and store the annotations in a map for quick retrieval
         Map<String, List<DiseaseAnnotation>> diseaseAnnotationMap = new HashMap<>();
-        Map<String, List<DiseaseAnnotation>> diseaseAnnotationSummaryMap = new HashMap<>();
         allIDs.forEach(termID -> {
             Set<String> allDiseaseIDs = closureMapping.get(termID);
             List<DiseaseAnnotation> joins = allDiseaseAnnotations.stream()
                     .filter(join -> allDiseaseIDs.contains(join.getDisease().getPrimaryKey()))
                     .collect(Collectors.toList());
             diseaseAnnotationMap.put(termID, joins);
-
-            List<DiseaseAnnotation> summaryJoins = summaryList.stream()
-                    .filter(join -> allDiseaseIDs.contains(join.getDisease().getPrimaryKey()))
-                    .collect(Collectors.toList());
-            diseaseAnnotationSummaryMap.put(termID, summaryJoins);
         });
 
         System.out.println("Time populating diseaseAnnotationMap:  " + ((System.currentTimeMillis() - start) / 1000) + " s");
 
         // group by gene IDs
-        Map<String, List<DiseaseAnnotation>> diseaseAnnotationExperimentGeneMap = new HashMap<>();
-        // Map<gene ID, List<DiseaseAnnotation>> including annotations to child terms
-        Map<String, List<DiseaseAnnotation>> diseaseAnnotationOrthologGeneMap = new HashMap<>();
-
-        diseaseAnnotationExperimentGeneMap = allDiseaseAnnotations.stream()
+        Map<String, List<DiseaseAnnotation>> diseaseAnnotationExperimentGeneMap = allDiseaseAnnotations.stream()
                 .filter(annotation -> annotation.getSortOrder() < 10)
                 .collect(groupingBy(o -> o.getGene().getPrimaryKey(), Collectors.toList()));
 
@@ -120,6 +110,16 @@ public class DiseaseDBCacher extends Cacher {
 
         DiseaseAllianceCacheManager manager = new DiseaseAllianceCacheManager();
         diseaseAnnotationMap.forEach((key, value) -> {
+            JsonResultResponseDiseaseAnnotation result = new JsonResultResponseDiseaseAnnotation();
+            result.setResults(value);
+            try {
+                manager.putCache(key, result, View.DiseaseAnnotationSummary.class, CacheAlliance.DISEASE_ANNOTATION);
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
+            }
+        });
+
+        diseaseAnnotationExperimentGeneMap.forEach((key, value) -> {
             JsonResultResponseDiseaseAnnotation result = new JsonResultResponseDiseaseAnnotation();
             result.setResults(value);
             try {

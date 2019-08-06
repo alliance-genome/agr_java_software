@@ -40,10 +40,10 @@ public class DiseaseCacheRepository {
     private static boolean caching;
     private static LocalDateTime start;
     private static LocalDateTime end;
+    private DiseaseAllianceCacheManager manager = new DiseaseAllianceCacheManager();
 
     public PaginationResult<DiseaseAnnotation> getDiseaseAnnotationList(String diseaseID, Pagination pagination) {
 
-        DiseaseAllianceCacheManager manager = new DiseaseAllianceCacheManager();
         List<DiseaseAnnotation> fullDiseaseAnnotationList = manager.getDiseaseAnnotationsWeb(diseaseID, View.DiseaseAnnotationSummary.class);
         //filtering
         List<DiseaseAnnotation> filteredDiseaseAnnotationList = filterDiseaseAnnotations(fullDiseaseAnnotationList, pagination.getFieldFilterValueMap());
@@ -55,16 +55,12 @@ public class DiseaseCacheRepository {
     }
 
     public PaginationResult<DiseaseAnnotation> getRibbonDiseaseAnnotations(List<String> geneIDs, String diseaseSlimID, Pagination pagination) {
-        checkCache();
-        if (caching)
-            return null;
-
         if (geneIDs == null)
             return null;
         List<DiseaseAnnotation> fullDiseaseAnnotationList = new ArrayList<>();
         // filter by gene
         geneIDs.forEach(geneID -> {
-                    List<DiseaseAnnotation> annotations = diseaseAnnotationExperimentGeneMap.get(geneID);
+                    List<DiseaseAnnotation> annotations = manager.getDiseaseAnnotationsWeb(geneID, View.DiseaseAnnotationSummary.class);
                     if (annotations != null)
                         fullDiseaseAnnotationList.addAll(annotations);
                     else
@@ -88,12 +84,11 @@ public class DiseaseCacheRepository {
         return result;
     }
 
-    public PaginationResult<DiseaseAnnotation> getDiseaseAnnotationByGeneList(String geneID, Pagination pagination) {
-        checkCache();
-        if (caching)
-            return null;
+    public PaginationResult<DiseaseAnnotation> getDiseaseAnnotationList(String geneID, Pagination pagination, boolean empiricalDisease) {
 
-        List<DiseaseAnnotation> diseaseAnnotationList = diseaseAnnotationExperimentGeneMap.get(geneID);
+        List<DiseaseAnnotation> diseaseAnnotationList;
+        diseaseAnnotationList = manager.getDiseaseAnnotationsWeb(geneID, View.DiseaseAnnotationSummary.class);
+
         if (diseaseAnnotationList == null)
             return null;
 
