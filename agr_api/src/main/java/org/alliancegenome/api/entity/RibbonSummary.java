@@ -1,6 +1,5 @@
 package org.alliancegenome.api.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Getter;
@@ -10,7 +9,6 @@ import org.alliancegenome.neo4j.view.View;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Setter
 @Getter
@@ -34,17 +32,11 @@ public class RibbonSummary implements Serializable {
         diseaseRibbonEntities.add(entity);
     }
 
-    // return the last section
-    @JsonIgnore
-    public RibbonSection getOtherSection() {
-        return diseaseRibbonSections.get(diseaseRibbonSections.size() - 1);
-    }
-
     public RibbonSummary() {
     }
 
     protected RibbonSummary clone() throws CloneNotSupportedException {
-        RibbonSummary clone = null;
+        RibbonSummary clone;
         clone = (RibbonSummary) super.clone();
         return clone;
     }

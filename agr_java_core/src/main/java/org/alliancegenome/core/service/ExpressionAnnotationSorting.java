@@ -72,7 +72,7 @@ public class ExpressionAnnotationSorting implements Sorting<ExpressionDetail> {
                 return getJoinedComparator(defaultList);
             case SPECIES:
                 return getJoinedComparator(defaultList);
-            case EXPRESSION:
+            case LOCATION:
                 return getJoinedComparator(locationList);
             case ASSAY:
                 return getJoinedComparator(assayList);

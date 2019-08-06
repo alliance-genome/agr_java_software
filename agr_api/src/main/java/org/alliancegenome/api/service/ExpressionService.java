@@ -185,9 +185,7 @@ public class ExpressionService {
             return null;
         ExpressionRibbonService service = new ExpressionRibbonService();
         RibbonSummary ribbonSummary = service.getRibbonSectionInfo();
-        geneIDs.forEach(geneID -> {
-            ribbonSummary.addRibbonEntity(getExpressionRibbonSummary(geneID));
-        });
+        geneIDs.forEach(geneID -> ribbonSummary.addRibbonEntity(getExpressionRibbonSummary(geneID)));
         return ribbonSummary;
     }
 
@@ -199,8 +197,7 @@ public class ExpressionService {
         if (joins == null)
             joins = new ArrayList<>();
 
-        // create GO & AO histograms
-        // list of all terms over grouped list
+        // create histograms for each of the three ontologies
         List<BioEntityGeneExpressionJoin> aoAnnotations = new ArrayList<>();
         MultiValuedMap<UBERONTerm, BioEntityGeneExpressionJoin> aoUberonMap = new ArrayListValuedHashMap<>();
 
@@ -211,7 +208,6 @@ public class ExpressionService {
         MultiValuedMap<UBERONTerm, BioEntityGeneExpressionJoin> stageUberonMap = new ArrayListValuedHashMap<>();
 
         joins.forEach(join -> {
-            // do not loop over bioJoins as they are the pubs per the full grouping.
             final ExpressionBioEntity entity = join.getEntity();
 
             if (CollectionUtils.isNotEmpty(entity.getAoTermList())) {
@@ -219,7 +215,6 @@ public class ExpressionService {
                 entity.getAoTermList().forEach(uberonTerm -> aoUberonMap.put(uberonTerm, join));
             }
 
-            // use the first join element (they all have the same stage info
             if (CollectionUtils.isNotEmpty(entity.getCcRibbonTermList())) {
                 goAnnotations.add(join);
                 entity.getCcRibbonTermList().forEach(goTerm -> goTermMap.put(goTerm, join));
