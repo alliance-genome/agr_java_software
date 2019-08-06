@@ -51,7 +51,7 @@ public interface ExpressionRESTInterface {
             @DefaultValue("20") @QueryParam("limit") int limit,
             @ApiParam(name = "page", value = "Page number")
             @DefaultValue("1") @QueryParam("page") int page,
-            @ApiParam(name = "sortBy", value = "Sort by field name", allowableValues = "Default,Species,Location,Assay,Stage")
+            @ApiParam(name = "sortBy", value = "Sort by field name", allowableValues = "Default,Species,Location,Assay,Stage,Gene")
             @QueryParam("sortBy") String sortBy,
             @ApiParam(name = "asc", allowableValues = "true,false", value = "ascending or descending")
             @QueryParam("asc") String asc
