@@ -14,8 +14,4 @@ public class InteractionAllianceCacheManager extends AllianceCacheManager<Intera
         return getResultList(entityID, classView, JsonResultResponseInteraction.class, CacheAlliance.INTERACTION);
     }
 
-    public List<InteractionGeneJoin> getInteractionsWeb(String entityID, Class classView) {
-        return getResultListWeb(entityID, classView, JsonResultResponseInteraction.class, CacheAlliance.INTERACTION);
-    }
-
 }

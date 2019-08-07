@@ -12,8 +12,4 @@ public class ExpressionAllianceCacheManager extends AllianceCacheManager<Express
         return getResultList(entityID, classView, JsonResultResponseExpression.class, CacheAlliance.EXPRESSION);
     }
 
-    public List<ExpressionDetail> getExpressionsWeb(String entityID, Class classView) {
-        return getResultListWeb(entityID, classView, JsonResultResponseExpression.class, CacheAlliance.EXPRESSION);
-    }
-
 }

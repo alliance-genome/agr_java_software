@@ -12,8 +12,4 @@ public class OrthologyAllianceCacheManager extends AllianceCacheManager<Ortholog
         return getResultList(entityID, classView, JsonResultResponseOrthology.class, CacheAlliance.ORTHOLOGY);
     }
 
-    public List<OrthologView> getOrthologyWeb(String entityID, Class classView) {
-        return getResultListWeb(entityID, classView, JsonResultResponseOrthology.class, CacheAlliance.ORTHOLOGY);
-    }
-
 }
