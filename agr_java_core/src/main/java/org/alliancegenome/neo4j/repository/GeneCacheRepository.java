@@ -73,7 +73,7 @@ public class GeneCacheRepository {
         OrthologyAllianceCacheManager manager = new OrthologyAllianceCacheManager();
 
         List<OrthologView> fullOrthologyList = new ArrayList<>();
-        geneIDs.forEach(id -> fullOrthologyList.addAll(manager.getOrthologyWeb(id, View.Orthology.class)));
+        geneIDs.forEach(id -> fullOrthologyList.addAll(manager.getOrthology(id, View.Orthology.class)));
 
         return fullOrthologyList;
 
