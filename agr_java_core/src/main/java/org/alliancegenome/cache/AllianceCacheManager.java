@@ -146,15 +146,11 @@ public class AllianceCacheManager<T, U extends JsonResultResponse> {
         cache.put(primaryKey, value);
     }
 
-    public List<T> getResultListWeb(String entityID, Class classView, Class<? extends JsonResultResponse> clazz, CacheAlliance cacheSpace) {
-        return getResultListGeneric(entityID, classView, clazz, cacheSpace, true);
-    }
-
     public List<T> getResultList(String entityID, Class classView, Class<? extends JsonResultResponse> clazz, CacheAlliance cacheSpace) {
-        return getResultListGeneric(entityID, classView, clazz, cacheSpace, false);
+        return getResultListGeneric(entityID, classView, clazz, cacheSpace);
     }
 
-    private List<T> getResultListGeneric(String entityID, Class classView, Class<? extends JsonResultResponse> clazz, CacheAlliance cacheSpace, boolean web) {
+    private List<T> getResultListGeneric(String entityID, Class classView, Class<? extends JsonResultResponse> clazz, CacheAlliance cacheSpace) {
 
         if (rmc == null) {
             setupCaches();

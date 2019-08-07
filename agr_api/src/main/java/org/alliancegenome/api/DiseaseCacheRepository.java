@@ -44,7 +44,7 @@ public class DiseaseCacheRepository {
     public PaginationResult<DiseaseAnnotation> getDiseaseAnnotationList(String diseaseID, Pagination pagination) {
 
         DiseaseAllianceCacheManager manager = new DiseaseAllianceCacheManager();
-        List<DiseaseAnnotation> fullDiseaseAnnotationList = manager.getDiseaseAnnotationsWeb(diseaseID, View.DiseaseAnnotationSummary.class);
+        List<DiseaseAnnotation> fullDiseaseAnnotationList = manager.getDiseaseAnnotations(diseaseID, View.DiseaseAnnotationSummary.class);
         //filtering
         List<DiseaseAnnotation> filteredDiseaseAnnotationList = filterDiseaseAnnotations(fullDiseaseAnnotationList, pagination.getFieldFilterValueMap());
 

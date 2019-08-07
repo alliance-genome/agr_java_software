@@ -12,8 +12,4 @@ public class DiseaseAllianceCacheManager extends AllianceCacheManager<DiseaseAnn
         return getResultList(entityID, classView, JsonResultResponseDiseaseAnnotation.class, CacheAlliance.DISEASE_ANNOTATION);
     }
 
-    public List<DiseaseAnnotation> getDiseaseAnnotationsWeb(String entityID, Class classView) {
-        return getResultListWeb(entityID, classView, JsonResultResponseDiseaseAnnotation.class, CacheAlliance.DISEASE_ANNOTATION);
-    }
-
 }
