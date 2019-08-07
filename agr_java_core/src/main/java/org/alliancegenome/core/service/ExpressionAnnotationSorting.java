@@ -50,7 +50,7 @@ public class ExpressionAnnotationSorting implements Sorting<ExpressionDetail> {
         assayList = new ArrayList<>(5);
         assayList.add(assayOrder);
         assayList.add(speciesOrder);
-        stageList.add(geneOrder);
+        assayList.add(geneOrder);
         assayList.add(termNameOrder);
         assayList.add(stageOrder);
 
