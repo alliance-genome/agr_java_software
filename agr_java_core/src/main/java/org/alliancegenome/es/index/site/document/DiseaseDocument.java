@@ -61,7 +61,7 @@ public class DiseaseDocument extends SearchableItemDocument {
         primaryId = doc.primaryId;
         searchable = doc.searchable;
         definition = doc.definition;
-        dateProduced = doc.getDateProduced();
+        dateProduced = doc.dateProduced;
         // note these attributes are not cloned deeply (they typically do not change)
         definitionLinks = doc.definitionLinks;
         synonyms = doc.synonyms;

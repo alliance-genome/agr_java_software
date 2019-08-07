@@ -24,7 +24,7 @@ public class PhenotypeCacheRepository {
     public PaginationResult<PhenotypeAnnotation> getPhenotypeAnnotationList(String geneID, Pagination pagination) {
 
         PhenotypeCacheManager manager = new PhenotypeCacheManager();
-        List<PhenotypeAnnotation> fullPhenotypeAnnotationList = manager.getPhenotypeAnnotationsWeb(geneID, View.PhenotypeAPI.class);
+        List<PhenotypeAnnotation> fullPhenotypeAnnotationList = manager.getPhenotypeAnnotations(geneID, View.PhenotypeAPI.class);
 
         //filtering
         List<PhenotypeAnnotation> filteredPhenotypeAnnotationList = filterDiseaseAnnotations(fullPhenotypeAnnotationList, pagination.getFieldFilterValueMap());

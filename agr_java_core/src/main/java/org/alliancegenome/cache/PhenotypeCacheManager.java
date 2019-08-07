@@ -13,9 +13,4 @@ public class PhenotypeCacheManager extends AllianceCacheManager<PhenotypeAnnotat
         return getResultList(entityID, classView, JsonResultResponsePhenotype.class, CacheAlliance.PHENOTYPE);
     }
 
-
-    public List<PhenotypeAnnotation> getPhenotypeAnnotationsWeb(String entityID, Class classView) {
-        return getResultListWeb(entityID, classView, JsonResultResponsePhenotype.class, CacheAlliance.PHENOTYPE);
-    }
-
 }

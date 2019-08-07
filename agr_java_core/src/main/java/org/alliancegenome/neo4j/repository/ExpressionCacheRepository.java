@@ -32,8 +32,8 @@ public class ExpressionCacheRepository {
 
         List<ExpressionDetail> fullExpressionAnnotationList = new ArrayList<>();
         geneIDs.stream()
-                .filter(geneID -> manager.getExpressionsWeb(geneID, View.Expression.class) != null)
-                .forEach(geneID -> fullExpressionAnnotationList.addAll(manager.getExpressionsWeb(geneID, View.Expression.class)));
+                .filter(geneID -> manager.getExpressions(geneID, View.Expression.class) != null)
+                .forEach(geneID -> fullExpressionAnnotationList.addAll(manager.getExpressions(geneID, View.Expression.class)));
 
         //filtering
         // filter on termID
@@ -136,6 +136,6 @@ public class ExpressionCacheRepository {
     }
 
     public boolean hasExpression(String geneID) {
-        return CollectionUtils.isNotEmpty(manager.getExpressionsWeb(geneID, View.Expression.class));
+        return CollectionUtils.isNotEmpty(manager.getExpressions(geneID, View.Expression.class));
     }
 }

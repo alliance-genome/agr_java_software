@@ -12,8 +12,4 @@ public class AlleleAllianceCacheManager extends AllianceCacheManager<Allele, Jso
         return getResultList(entityID, classView, JsonResultResponseAllele.class, CacheAlliance.ALLELE);
     }
 
-    public List<Allele> getAllelesWeb(String entityID, Class classView) {
-        return getResultListWeb(entityID, classView, JsonResultResponseAllele.class, CacheAlliance.ALLELE);
-    }
-
 }

@@ -21,7 +21,7 @@ public class InteractionCacheRepository {
     public PaginationResult<InteractionGeneJoin> getInteractionAnnotationList(String geneID, Pagination pagination) {
         // check gene map
         InteractionAllianceCacheManager manager = new InteractionAllianceCacheManager();
-        List<InteractionGeneJoin> interactionAnnotationList = manager.getInteractionsWeb(geneID, View.Interaction.class);
+        List<InteractionGeneJoin> interactionAnnotationList = manager.getInteractions(geneID, View.Interaction.class);
         if (interactionAnnotationList == null)
             return null;
         //filtering
