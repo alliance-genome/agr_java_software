@@ -1,12 +1,14 @@
 package org.alliancegenome.api.entity;
 
-import com.fasterxml.jackson.annotation.JsonView;
-import lombok.Getter;
-import lombok.Setter;
-import org.alliancegenome.neo4j.view.View;
-
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import org.alliancegenome.neo4j.view.View;
+
+import com.fasterxml.jackson.annotation.JsonView;
+
+import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 @Setter

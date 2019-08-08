@@ -1,5 +1,9 @@
 package org.alliancegenome.api.service;
 
+import java.time.LocalDateTime;
+
+import javax.enterprise.context.RequestScoped;
+
 import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.core.service.PaginationResult;
 import org.alliancegenome.es.model.query.Pagination;
@@ -8,10 +12,11 @@ import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
-import org.alliancegenome.neo4j.repository.*;
-
-import javax.enterprise.context.RequestScoped;
-import java.time.LocalDateTime;
+import org.alliancegenome.neo4j.repository.GeneRepository;
+import org.alliancegenome.neo4j.repository.InteractionCacheRepository;
+import org.alliancegenome.neo4j.repository.InteractionRepository;
+import org.alliancegenome.neo4j.repository.PhenotypeCacheRepository;
+import org.alliancegenome.neo4j.repository.PhenotypeRepository;
 
 @RequestScoped
 public class GeneService {

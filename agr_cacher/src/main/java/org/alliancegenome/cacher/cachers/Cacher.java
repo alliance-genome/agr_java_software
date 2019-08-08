@@ -2,6 +2,12 @@ package org.alliancegenome.cacher.cachers;
 
 import java.util.concurrent.TimeUnit;
 
+import org.alliancegenome.core.config.ConfigHelper;
+import org.infinispan.client.hotrod.RemoteCache;
+import org.infinispan.client.hotrod.RemoteCacheManager;
+import org.infinispan.client.hotrod.configuration.ConfigurationBuilder;
+import org.infinispan.configuration.cache.CacheMode;
+
 import lombok.extern.log4j.Log4j2;
 
 @Log4j2

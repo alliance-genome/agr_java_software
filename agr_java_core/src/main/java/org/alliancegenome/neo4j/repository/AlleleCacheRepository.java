@@ -1,22 +1,22 @@
 package org.alliancegenome.neo4j.repository;
 
-import lombok.extern.log4j.Log4j2;
-import org.alliancegenome.cache.AlleleAllianceCacheManager;
-import org.alliancegenome.api.entity.CacheStatus;
-import org.alliancegenome.cache.AllianceCacheManager;
-import org.alliancegenome.cache.CacheAlliance;
-import org.alliancegenome.core.service.*;
-import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.neo4j.entity.node.Allele;
-import org.alliancegenome.neo4j.view.BaseFilter;
-import org.alliancegenome.neo4j.view.View;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import org.alliancegenome.cache.AlleleAllianceCacheManager;
+import org.alliancegenome.core.service.AlleleFiltering;
+import org.alliancegenome.core.service.AlleleSorting;
+import org.alliancegenome.core.service.FilterFunction;
+import org.alliancegenome.core.service.JsonResultResponse;
+import org.alliancegenome.core.service.SortingField;
+import org.alliancegenome.es.model.query.Pagination;
+import org.alliancegenome.neo4j.entity.node.Allele;
+import org.alliancegenome.neo4j.view.BaseFilter;
+import org.alliancegenome.neo4j.view.View;
+
+import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 public class AlleleCacheRepository {

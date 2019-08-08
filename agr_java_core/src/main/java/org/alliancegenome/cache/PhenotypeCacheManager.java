@@ -1,11 +1,10 @@
 package org.alliancegenome.cache;
 
+import java.util.List;
+
 import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.core.service.JsonResultResponsePhenotype;
-import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
-
-import java.util.List;
 
 public class PhenotypeCacheManager extends AllianceCacheManager<PhenotypeAnnotation, JsonResultResponse<PhenotypeAnnotation>> {
 

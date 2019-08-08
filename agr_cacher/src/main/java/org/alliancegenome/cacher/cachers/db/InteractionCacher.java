@@ -14,14 +14,6 @@ import org.alliancegenome.core.service.JsonResultResponseInteraction;
 import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
 import org.alliancegenome.neo4j.repository.InteractionRepository;
 import org.alliancegenome.neo4j.view.View;
-import lombok.extern.log4j.Log4j2;
-import org.alliancegenome.cache.CacheAlliance;
-import org.alliancegenome.cache.InteractionAllianceCacheManager;
-import org.alliancegenome.cacher.cachers.Cacher;
-import org.alliancegenome.core.service.JsonResultResponseInteraction;
-import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
-import org.alliancegenome.neo4j.repository.InteractionRepository;
-import org.alliancegenome.neo4j.view.View;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 

@@ -1,12 +1,10 @@
 package org.alliancegenome.cache;
 
-import org.alliancegenome.core.service.JsonResultResponse;
-import org.alliancegenome.core.service.JsonResultResponseAllele;
-import org.alliancegenome.core.service.JsonResultResponseInteraction;
-import org.alliancegenome.neo4j.entity.node.Allele;
-import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
-
 import java.util.List;
+
+import org.alliancegenome.core.service.JsonResultResponse;
+import org.alliancegenome.core.service.JsonResultResponseInteraction;
+import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
 
 public class InteractionAllianceCacheManager extends AllianceCacheManager<InteractionGeneJoin, JsonResultResponse<InteractionGeneJoin>> {
 

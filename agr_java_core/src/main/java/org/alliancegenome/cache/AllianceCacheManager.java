@@ -5,14 +5,11 @@ import java.util.List;
 
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.service.JsonResultResponse;
-import org.infinispan.client.hotrod.AdminFlag;
 import org.infinispan.client.hotrod.RemoteCache;
 import org.infinispan.client.hotrod.RemoteCacheManager;
 import org.infinispan.client.hotrod.configuration.ConfigurationBuilder;
-import org.infinispan.configuration.cache.CacheMode;
 import org.infinispan.configuration.cache.StorageType;
 import org.infinispan.eviction.EvictionType;
-import org.infinispan.functional.Param.PersistenceMode;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -21,19 +18,6 @@ import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.extern.log4j.Log4j2;
-import org.alliancegenome.core.service.JsonResultResponse;
-import lombok.extern.log4j.Log4j2;
-import org.alliancegenome.core.service.JsonResultResponse;
-import org.ehcache.Cache;
-import org.ehcache.PersistentCacheManager;
-import org.ehcache.config.builders.CacheConfigurationBuilder;
-import org.ehcache.config.builders.CacheManagerBuilder;
-import org.ehcache.config.builders.ResourcePoolsBuilder;
-import org.ehcache.config.units.MemoryUnit;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
 
 @Log4j2
 public class AllianceCacheManager<T, U extends JsonResultResponse> {

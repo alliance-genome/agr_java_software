@@ -1,10 +1,10 @@
 package org.alliancegenome.cache;
 
+import java.util.List;
+
 import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.core.service.JsonResultResponseAllele;
 import org.alliancegenome.neo4j.entity.node.Allele;
-
-import java.util.List;
 
 public class AlleleAllianceCacheManager extends AllianceCacheManager<Allele, JsonResultResponse<Allele>> {
 

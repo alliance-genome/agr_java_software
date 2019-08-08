@@ -17,13 +17,6 @@ import org.alliancegenome.cache.DiseaseAllianceCacheManager;
 import org.alliancegenome.cacher.cachers.Cacher;
 import org.alliancegenome.core.service.DiseaseAnnotationSorting;
 import org.alliancegenome.core.service.JsonResultResponseDiseaseAnnotation;
-import lombok.extern.log4j.Log4j2;
-import org.alliancegenome.api.service.DiseaseRibbonService;
-import org.alliancegenome.cache.CacheAlliance;
-import org.alliancegenome.cache.DiseaseAllianceCacheManager;
-import org.alliancegenome.cacher.cachers.Cacher;
-import org.alliancegenome.core.service.DiseaseAnnotationSorting;
-import org.alliancegenome.core.service.JsonResultResponseDiseaseAnnotation;
 import org.alliancegenome.core.service.SortingField;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.node.DiseaseEntityJoin;
@@ -33,7 +26,6 @@ import org.alliancegenome.neo4j.entity.node.Publication;
 import org.alliancegenome.neo4j.entity.node.PublicationEvidenceCodeJoin;
 import org.alliancegenome.neo4j.repository.DiseaseRepository;
 import org.alliancegenome.neo4j.view.View;
-import org.ehcache.Cache;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
