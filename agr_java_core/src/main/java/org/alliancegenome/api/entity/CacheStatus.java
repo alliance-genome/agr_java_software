@@ -1,13 +1,15 @@
 package org.alliancegenome.api.entity;
 
+import java.time.LocalDateTime;
+
+import org.alliancegenome.core.service.Duration;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import lombok.Getter;
 import lombok.Setter;
-import org.alliancegenome.core.service.Duration;
-
-import java.time.LocalDateTime;
 
 @Getter
 @Setter

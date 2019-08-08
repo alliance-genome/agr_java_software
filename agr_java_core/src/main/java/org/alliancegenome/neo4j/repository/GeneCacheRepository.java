@@ -1,17 +1,18 @@
 package org.alliancegenome.neo4j.repository;
 
-import lombok.extern.log4j.Log4j2;
-import org.alliancegenome.api.entity.CacheStatus;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.alliancegenome.cache.OrthologyAllianceCacheManager;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.view.OrthologView;
 import org.alliancegenome.neo4j.view.View;
-import org.apache.commons.collections4.MapUtils;
 
-import java.time.LocalDateTime;
-import java.util.*;
-
-import static java.util.stream.Collectors.toSet;
+import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 public class GeneCacheRepository {

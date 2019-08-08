@@ -1,14 +1,15 @@
 package org.alliancegenome.api.service;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+
 import org.alliancegenome.neo4j.entity.node.DOTerm;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.repository.DiseaseRepository;
 import org.alliancegenome.neo4j.repository.GeneRepository;
-
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 public class APIService {
 

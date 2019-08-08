@@ -1,10 +1,10 @@
 package org.alliancegenome.cache;
 
+import java.util.List;
+
 import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.core.service.JsonResultResponseOrthology;
 import org.alliancegenome.neo4j.view.OrthologView;
-
-import java.util.List;
 
 public class OrthologyAllianceCacheManager extends AllianceCacheManager<OrthologView, JsonResultResponse<OrthologView>> {
 

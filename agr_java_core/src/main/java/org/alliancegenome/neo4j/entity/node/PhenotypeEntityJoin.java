@@ -6,8 +6,6 @@ import org.neo4j.ogm.annotation.Relationship;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.List;
-
 @NodeEntity
 @Getter
 @Setter

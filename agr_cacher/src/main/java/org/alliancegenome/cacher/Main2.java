@@ -1,34 +1,10 @@
 package org.alliancegenome.cacher;
 
-import org.alliancegenome.cache.*;
-import org.alliancegenome.core.ExpressionDetail;
-import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
-import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
-import org.alliancegenome.neo4j.entity.node.Allele;
-import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
-import org.alliancegenome.neo4j.view.OrthologView;
-import org.alliancegenome.neo4j.view.View;
+import java.io.IOException;
+
+import org.alliancegenome.cache.AlleleAllianceCacheManager;
 
 import lombok.extern.log4j.Log4j2;
-
-import java.io.IOException;
-import java.util.List;
-import org.alliancegenome.core.ExpressionDetail;
-import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
-import org.alliancegenome.neo4j.entity.node.Allele;
-import org.alliancegenome.neo4j.entity.node.Gene;
-import org.infinispan.client.hotrod.RemoteCache;
-import org.infinispan.client.hotrod.RemoteCacheManager;
-import org.infinispan.client.hotrod.configuration.ConfigurationBuilder;
-import org.infinispan.configuration.cache.CacheMode;
-import org.alliancegenome.cache.AllianceCacheManager;
-import org.alliancegenome.cache.CacheAlliance;
-import org.apache.commons.collections4.CollectionUtils;
-import org.ehcache.Cache;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 
 @Log4j2
 public class Main2 {

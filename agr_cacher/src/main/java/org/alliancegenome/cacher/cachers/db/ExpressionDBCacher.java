@@ -14,7 +14,6 @@ import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.cache.ExpressionAllianceCacheManager;
 import org.alliancegenome.cacher.cachers.Cacher;
 import org.alliancegenome.core.ExpressionDetail;
-
 import org.alliancegenome.core.service.JsonResultResponseExpression;
 import org.alliancegenome.neo4j.entity.node.BioEntityGeneExpressionJoin;
 import org.alliancegenome.neo4j.entity.node.GOTerm;

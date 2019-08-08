@@ -1,12 +1,12 @@
 package org.alliancegenome.core.service;
 
-import org.alliancegenome.core.ExpressionDetail;
-import org.alliancegenome.es.model.query.FieldFilter;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import org.alliancegenome.core.ExpressionDetail;
+import org.alliancegenome.es.model.query.FieldFilter;
 
 public class ExpressionAnnotationFiltering extends AnnotationFiltering {
 

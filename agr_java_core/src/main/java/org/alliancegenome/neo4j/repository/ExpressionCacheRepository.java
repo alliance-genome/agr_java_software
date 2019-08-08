@@ -1,16 +1,27 @@
 package org.alliancegenome.neo4j.repository;
 
-import lombok.extern.log4j.Log4j2;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.alliancegenome.cache.ExpressionAllianceCacheManager;
 import org.alliancegenome.core.ExpressionDetail;
-import org.alliancegenome.core.service.*;
+import org.alliancegenome.core.service.ExpressionAnnotationFiltering;
+import org.alliancegenome.core.service.ExpressionAnnotationSorting;
+import org.alliancegenome.core.service.FilterFunction;
+import org.alliancegenome.core.service.PaginationResult;
+import org.alliancegenome.core.service.SortingField;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.view.BaseFilter;
 import org.alliancegenome.neo4j.view.View;
 import org.apache.commons.collections4.CollectionUtils;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 public class ExpressionCacheRepository {
@@ -19,13 +30,19 @@ public class ExpressionCacheRepository {
     private static List<String> parentTermIDs = new ArrayList<>();
     private ExpressionAllianceCacheManager manager = new ExpressionAllianceCacheManager();
 
+    public static final String UBERON_ANATOMY_ROOT = "UBERON:0001062";
+
+    public static final String UBERON_STAGE_ROOT = "UBERON:0000000";
+
+    public static final String GO_CC_ROOT = "GO:0005575";
+
     static {
         // anatomical entity
-        parentTermIDs.add("UBERON:0001062");
+        parentTermIDs.add(UBERON_ANATOMY_ROOT);
         // processual entity stage
-        parentTermIDs.add("UBERON:0000000");
+        parentTermIDs.add(UBERON_STAGE_ROOT);
         // cellular Component
-        parentTermIDs.add("GO:0005575");
+        parentTermIDs.add(GO_CC_ROOT);
     }
 
     public PaginationResult<ExpressionDetail> getExpressionAnnotations(List<String> geneIDs, String termID, Pagination pagination) {
@@ -93,23 +110,6 @@ public class ExpressionCacheRepository {
                 .skip(pagination.getStart())
                 .limit(pagination.getLimit())
                 .collect(Collectors.toList());
-    }
-
-    private static List<String> parentTermIDs = new ArrayList<>();
-
-    public static final String UBERON_ANATOMY_ROOT = "UBERON:0001062";
-
-    public static final String UBERON_STAGE_ROOT = "UBERON:0000000";
-
-    public static final String GO_CC_ROOT = "GO:0005575";
-
-    static {
-        // anatomical entity
-        parentTermIDs.add(UBERON_ANATOMY_ROOT);
-        // processual entity stage
-        parentTermIDs.add(UBERON_STAGE_ROOT);
-        // cellular Component
-        parentTermIDs.add(GO_CC_ROOT);
     }
 
     private Set<String> getParentTermIDs(String id) {

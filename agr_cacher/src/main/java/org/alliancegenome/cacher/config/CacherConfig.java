@@ -1,8 +1,13 @@
 package org.alliancegenome.cacher.config;
 
-import org.alliancegenome.cacher.cachers.db.*;
+import org.alliancegenome.cacher.cachers.db.AlleleDBCacher;
+import org.alliancegenome.cacher.cachers.db.DiseaseDBCacher;
+import org.alliancegenome.cacher.cachers.db.ExpressionDBCacher;
+import org.alliancegenome.cacher.cachers.db.GeneOrthologCacher;
+import org.alliancegenome.cacher.cachers.db.GenePhenotypeDBCacher;
+import org.alliancegenome.cacher.cachers.db.InteractionCacher;
 
-public enum DBCacherConfig {
+public enum CacherConfig {
 
     AlleleDBCacher("geneAlleleCacher", AlleleDBCacher.class),
     //GeneDBCacher("geneDBCacher", GeneDBCacher.class),
@@ -16,7 +21,7 @@ public enum DBCacherConfig {
     private String cacherName;
     private Class<?> cacherClass;
 
-    DBCacherConfig(String cacherName, Class<?> cacherClazz) {
+    CacherConfig(String cacherName, Class<?> cacherClazz) {
         this.cacherName = cacherName;
         this.cacherClass = cacherClazz;
     }

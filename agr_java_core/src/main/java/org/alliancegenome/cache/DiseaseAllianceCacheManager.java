@@ -1,10 +1,10 @@
 package org.alliancegenome.cache;
 
+import java.util.List;
+
 import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.core.service.JsonResultResponseDiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
-
-import java.util.List;
 
 public class DiseaseAllianceCacheManager extends AllianceCacheManager<DiseaseAnnotation, JsonResultResponse<DiseaseAnnotation>> {
 

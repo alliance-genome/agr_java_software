@@ -1,10 +1,10 @@
 package org.alliancegenome.cache;
 
+import java.util.List;
+
 import org.alliancegenome.core.ExpressionDetail;
 import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.core.service.JsonResultResponseExpression;
-
-import java.util.List;
 
 public class ExpressionAllianceCacheManager extends AllianceCacheManager<ExpressionDetail, JsonResultResponse<ExpressionDetail>> {
 

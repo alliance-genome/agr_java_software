@@ -1,15 +1,16 @@
 package org.alliancegenome.cacher;
 
-import lombok.extern.log4j.Log4j2;
-import org.alliancegenome.cache.AllianceCacheManager;
-import org.alliancegenome.cacher.cachers.Cacher;
-import org.alliancegenome.cacher.config.DBCacherConfig;
-import org.alliancegenome.core.config.ConfigHelper;
-
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
+
+import org.alliancegenome.cache.AllianceCacheManager;
+import org.alliancegenome.cacher.cachers.Cacher;
+import org.alliancegenome.cacher.config.CacherConfig;
+import org.alliancegenome.core.config.ConfigHelper;
+
+import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 public class Main {
@@ -36,7 +37,7 @@ public class Main {
         for (CacherConfig cc : CacherConfig.values()) {
             try {
                 Cacher i = (Cacher) cc.getCacherClass().getDeclaredConstructor().newInstance();
-                cachers.put(cc.getCacheName(), i);
+                cachers.put(cc.getCacherName(), i);
             } catch (Exception e) {
                 e.printStackTrace();
                 log.error(e.getMessage());
