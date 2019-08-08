@@ -52,7 +52,7 @@ public class ExpressionCacher extends Cacher {
                     if (expressionJoin.getStage() != null)
                         detail.setStage(expressionJoin.getStage());
                     detail.setPublications(new TreeSet<>(expressionJoin.getPublications()));
-                    detail.setCrossReference(expressionJoin.getCrossReference());
+                    detail.setCrossReferences(expressionJoin.getCrossReferences());
                     // add AO terms and All AO parent term
                     List<String> aoList = expressionJoin.getEntity().getAoTermList().stream().map(UBERONTerm::getPrimaryKey).collect(Collectors.toList());
 
