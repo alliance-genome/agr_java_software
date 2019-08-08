@@ -1,26 +1,17 @@
 package org.alliancegenome.api.service;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.enterprise.context.RequestScoped;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.alliancegenome.api.entity.DiseaseRibbonSection;
 import org.alliancegenome.api.entity.DiseaseRibbonSummary;
 import org.alliancegenome.api.entity.DiseaseSectionSlim;
-import org.alliancegenome.api.entity.RibbonSection;
-import org.alliancegenome.api.entity.SectionSlim;
 import org.alliancegenome.neo4j.entity.node.DOTerm;
 import org.alliancegenome.neo4j.repository.DiseaseRepository;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import javax.enterprise.context.RequestScoped;
+import java.io.IOException;
+import java.util.*;
 
 @RequestScoped
 public class DiseaseRibbonService {
@@ -89,11 +80,6 @@ public class DiseaseRibbonService {
             section.addDiseaseSlim(allSlimElement);
             diseaseRibbonSummary.addDiseaseRibbonSection(section);
         });
-
-        DiseaseSectionSlim section5 = new DiseaseSectionSlim();
-        section5.setLabel("Other Disease");
-        section5.setId(DiseaseRibbonSummary.DOID_OTHER);
-        diseaseRibbonSummary.addDiseaseRibbonSection(section5);
 
         diseaseRibbonSummary.getDiseaseRibbonSections().stream()
                 .filter(diseaseRibbonSection -> diseaseRibbonSection.getId() != null)
