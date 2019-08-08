@@ -1,39 +1,24 @@
 package org.alliancegenome.api;
 
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.toList;
-
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
-
+import lombok.extern.log4j.Log4j2;
 import org.alliancegenome.api.entity.CacheStatus;
 import org.alliancegenome.api.service.DiseaseRibbonService;
 import org.alliancegenome.cache.DiseaseAllianceCacheManager;
-import org.alliancegenome.core.service.DiseaseAnnotationFiltering;
-import org.alliancegenome.core.service.DiseaseAnnotationSorting;
-import org.alliancegenome.core.service.FilterFunction;
-import org.alliancegenome.core.service.PaginationResult;
-import org.alliancegenome.core.service.SortingField;
+import org.alliancegenome.core.service.*;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
-import org.alliancegenome.neo4j.entity.node.DiseaseEntityJoin;
-import org.alliancegenome.neo4j.entity.node.ECOTerm;
-import org.alliancegenome.neo4j.entity.node.Gene;
-import org.alliancegenome.neo4j.entity.node.Publication;
-import org.alliancegenome.neo4j.entity.node.PublicationEvidenceCodeJoin;
+import org.alliancegenome.neo4j.entity.node.*;
 import org.alliancegenome.neo4j.repository.DiseaseRepository;
 import org.alliancegenome.neo4j.view.BaseFilter;
 import org.alliancegenome.neo4j.view.View;
 import org.apache.commons.lang3.StringUtils;
 
-import lombok.extern.log4j.Log4j2;
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toList;
 
 @Log4j2
 public class DiseaseCacheRepository {
@@ -209,9 +194,9 @@ public class DiseaseCacheRepository {
                     document.setSource(diseaseEntityJoin.getSource());
                     document.setAssociationType(diseaseEntityJoin.getJoinType());
                     document.setSortOrder(diseaseEntityJoin.getSortOrder());
-                    List<Gene> orthologyGene = diseaseEntityJoin.getOrthologyGenes();
+                    Gene orthologyGene = diseaseEntityJoin.getOrthologyGene();
                     if (orthologyGene != null) {
-                        document.setOrthologyGenes(orthologyGene);
+                        document.addOrthologousGene(orthologyGene);
 // for memory savings reason use cached gene objects.
 //                        document.setOrthologyGene(geneCacheRepository.getGene(orthologyGene.getPrimaryKey()));
                     }
