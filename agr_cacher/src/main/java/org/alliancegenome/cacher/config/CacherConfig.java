@@ -1,20 +1,20 @@
 package org.alliancegenome.cacher.config;
 
-import org.alliancegenome.cacher.cachers.db.AlleleDBCacher;
-import org.alliancegenome.cacher.cachers.db.DiseaseDBCacher;
-import org.alliancegenome.cacher.cachers.db.ExpressionDBCacher;
-import org.alliancegenome.cacher.cachers.db.GeneOrthologCacher;
-import org.alliancegenome.cacher.cachers.db.GenePhenotypeDBCacher;
-import org.alliancegenome.cacher.cachers.db.InteractionCacher;
+import org.alliancegenome.cacher.cachers.AlleleCacher;
+import org.alliancegenome.cacher.cachers.DiseaseCacher;
+import org.alliancegenome.cacher.cachers.ExpressionCacher;
+import org.alliancegenome.cacher.cachers.GeneOrthologCacher;
+import org.alliancegenome.cacher.cachers.GenePhenotypeCacher;
+import org.alliancegenome.cacher.cachers.InteractionCacher;
 
 public enum CacherConfig {
 
-    AlleleDBCacher("geneAlleleCacher", AlleleDBCacher.class),
+    AlleleDBCacher("geneAlleleCacher", AlleleCacher.class),
     //GeneDBCacher("geneDBCacher", GeneDBCacher.class),
-    GenePhenotypeCacher("genePhenotypeCacher", GenePhenotypeDBCacher.class),
+    GenePhenotypeCacher("genePhenotypeCacher", GenePhenotypeCacher.class),
     GeneInteractionCacher("geneInteractionCacher", InteractionCacher.class),
-    DiseaseCacher("diseaseCacher", DiseaseDBCacher.class),
-    GeneExpressionCacher("geneExpressionDBCacher", ExpressionDBCacher.class),
+    DiseaseCacher("diseaseCacher", DiseaseCacher.class),
+    GeneExpressionCacher("geneExpressionDBCacher", ExpressionCacher.class),
     GeneOrthologCacher("geneOrthologCacher", GeneOrthologCacher.class),
     ;
 

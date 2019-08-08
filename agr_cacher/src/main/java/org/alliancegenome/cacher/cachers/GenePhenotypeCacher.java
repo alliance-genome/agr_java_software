@@ -1,4 +1,4 @@
-package org.alliancegenome.cacher.cachers.db;
+package org.alliancegenome.cacher.cachers;
 
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
@@ -9,7 +9,6 @@ import java.util.Map;
 
 import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.cache.PhenotypeCacheManager;
-import org.alliancegenome.cacher.cachers.Cacher;
 import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
 import org.alliancegenome.neo4j.entity.node.PhenotypeEntityJoin;
@@ -21,11 +20,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.log4j.Log4j2;
 
 @Log4j2
-public class GenePhenotypeDBCacher extends Cacher {
+public class GenePhenotypeCacher extends Cacher {
 
     private static PhenotypeRepository phenotypeRepository = new PhenotypeRepository();
 
-    public GenePhenotypeDBCacher() {
+    public GenePhenotypeCacher() {
         super();
     }
 

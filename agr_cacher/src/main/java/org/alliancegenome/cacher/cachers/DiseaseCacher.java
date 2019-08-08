@@ -1,4 +1,4 @@
-package org.alliancegenome.cacher.cachers.db;
+package org.alliancegenome.cacher.cachers;
 
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
@@ -14,7 +14,6 @@ import java.util.stream.Collectors;
 import org.alliancegenome.api.service.DiseaseRibbonService;
 import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.cache.DiseaseAllianceCacheManager;
-import org.alliancegenome.cacher.cachers.Cacher;
 import org.alliancegenome.core.service.DiseaseAnnotationSorting;
 import org.alliancegenome.core.service.JsonResultResponseDiseaseAnnotation;
 import org.alliancegenome.core.service.SortingField;
@@ -32,7 +31,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.log4j.Log4j2;
 
 @Log4j2
-public class DiseaseDBCacher extends Cacher {
+public class DiseaseCacher extends Cacher {
 
     private static DiseaseRepository diseaseRepository = new DiseaseRepository();
 

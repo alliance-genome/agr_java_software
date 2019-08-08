@@ -1,4 +1,4 @@
-package org.alliancegenome.cacher.cachers.db;
+package org.alliancegenome.cacher.cachers;
 
 import static java.util.stream.Collectors.groupingBy;
 
@@ -12,7 +12,6 @@ import java.util.stream.Collectors;
 
 import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.cache.ExpressionAllianceCacheManager;
-import org.alliancegenome.cacher.cachers.Cacher;
 import org.alliancegenome.core.ExpressionDetail;
 import org.alliancegenome.core.service.JsonResultResponseExpression;
 import org.alliancegenome.neo4j.entity.node.BioEntityGeneExpressionJoin;
@@ -24,7 +23,7 @@ import org.alliancegenome.neo4j.view.View;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
-public class ExpressionDBCacher extends Cacher {
+public class ExpressionCacher extends Cacher {
 
     private static List<String> parentTermIDs = new ArrayList<>();
 
