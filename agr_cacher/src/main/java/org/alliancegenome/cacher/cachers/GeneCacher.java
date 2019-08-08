@@ -1,12 +1,11 @@
-package org.alliancegenome.cacher.cachers.db;
+package org.alliancegenome.cacher.cachers;
 
 import java.util.List;
 
-import org.alliancegenome.cacher.cachers.Cacher;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 
-public class GeneDBCacher extends Cacher {
+public class GeneCacher extends Cacher {
 
     private static GeneRepository geneRepository = new GeneRepository();
     private static List<Gene> allGenes = null;

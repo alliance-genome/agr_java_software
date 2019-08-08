@@ -1,4 +1,4 @@
-package org.alliancegenome.cacher.cachers.db;
+package org.alliancegenome.cacher.cachers;
 
 import static java.util.stream.Collectors.groupingBy;
 
@@ -8,7 +8,6 @@ import java.util.Set;
 
 import org.alliancegenome.cache.AlleleAllianceCacheManager;
 import org.alliancegenome.cache.CacheAlliance;
-import org.alliancegenome.cacher.cachers.Cacher;
 import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.repository.AlleleRepository;
@@ -16,7 +15,7 @@ import org.alliancegenome.neo4j.view.View;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
-public class AlleleDBCacher extends Cacher {
+public class AlleleCacher extends Cacher {
 
     private static AlleleRepository alleleRepository = new AlleleRepository();
 
