@@ -9,6 +9,7 @@ import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.node.Allele;
+import org.alliancegenome.neo4j.repository.AlleleRepository;
 import org.alliancegenome.neo4j.view.OrthologyModule;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.config.Configurator;
@@ -20,6 +21,8 @@ import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.swagger.annotations.Api;
+
+import java.util.Set;
 
 @Api(value = "Allele Tests")
 public class AlleleIT {
@@ -54,6 +57,13 @@ public class AlleleIT {
         Pagination pagination = new Pagination();
         JsonResultResponse<Allele> response = alleleService.getAllelesByGene("MGI:109583", pagination);
         assertResponse(response, 19, 19);
+    }
+
+    @Test
+    public void checkAlleles() {
+        AlleleRepository repository = new AlleleRepository();
+        Set<Allele> response = repository.getAllAlleles();
+        assertThat(response.size(), greaterThanOrEqualTo(10));
     }
 
     private void assertResponse(JsonResultResponse<Allele> response, int resultSize, int totalSize) {
