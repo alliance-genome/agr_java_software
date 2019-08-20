@@ -51,7 +51,7 @@ public class InteractionCacher extends Cacher {
         });
         log.info("Number of gene with interactions: " + interactionAnnotationMapGene.size());
         log.info("Time to create annotation histogram: " + (System.currentTimeMillis() - start) / 1000);
-        interactionRepository.clearCache();
+        //interactionRepository.clearCache();
 
         InteractionAllianceCacheManager manager = new InteractionAllianceCacheManager();
         interactionAnnotationMapGene.forEach((key, value) -> {
