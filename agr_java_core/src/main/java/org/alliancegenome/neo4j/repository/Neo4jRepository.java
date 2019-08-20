@@ -26,7 +26,7 @@ public class Neo4jRepository<E> {
     private final Logger log = LogManager.getLogger(getClass());
 
     protected Class<E> entityTypeClazz;
-    private Session neo4jSession = Neo4jSessionFactory.getInstance().getNeo4jSession();
+    protected Session neo4jSession = Neo4jSessionFactory.getInstance().getNeo4jSession();
 
     public Neo4jRepository(Class<E> entityTypeClazz) {
         this.entityTypeClazz = entityTypeClazz;
