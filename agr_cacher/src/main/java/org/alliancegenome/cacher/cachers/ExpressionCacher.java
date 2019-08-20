@@ -92,7 +92,7 @@ public class ExpressionCacher extends Cacher {
             }
 
         });
-        geneRepository.clearCache();
+        //geneRepository.clearCache();
 
     }
 

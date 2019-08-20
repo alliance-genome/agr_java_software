@@ -127,7 +127,7 @@ public class DiseaseCacher extends Cacher {
 
         log.info("Number of Disease IDs in disease Map: " + diseaseAnnotationMap.size());
         log.info("Time to create annotation  list: " + (System.currentTimeMillis() - startCreateHistogram) / 1000);
-        diseaseRepository.clearCache();
+        //diseaseRepository.clearCache();
 
         DiseaseAllianceCacheManager manager = new DiseaseAllianceCacheManager();
         diseaseAnnotationMap.forEach((key, value) -> {
