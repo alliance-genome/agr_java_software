@@ -1,41 +1,27 @@
 package org.alliancegenome.neo4j.repository;
 
-import static java.util.stream.Collectors.joining;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import org.alliancegenome.es.model.query.Pagination;
+import org.alliancegenome.neo4j.entity.SpeciesType;
+import org.alliancegenome.neo4j.entity.node.*;
+import org.alliancegenome.neo4j.view.OrthologyFilter;
+import org.apache.commons.collections4.map.MultiKeyMap;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.neo4j.ogm.model.Result;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.StringJoiner;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.neo4j.entity.SpeciesType;
-import org.alliancegenome.neo4j.entity.node.BioEntityGeneExpressionJoin;
-import org.alliancegenome.neo4j.entity.node.GOTerm;
-import org.alliancegenome.neo4j.entity.node.Gene;
-import org.alliancegenome.neo4j.entity.node.SecondaryId;
-import org.alliancegenome.neo4j.entity.node.UBERONTerm;
-import org.alliancegenome.neo4j.view.OrthologyFilter;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.neo4j.ogm.model.Result;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
+import static java.util.stream.Collectors.joining;
 
 public class GeneRepository extends Neo4jRepository<Gene> {
 
@@ -217,6 +203,44 @@ public class GeneRepository extends Neo4jRepository<Gene> {
                 .collect(Collectors.toList());
         log.info("ORTHOLOGOUS genes: " + String.format("%,d", geneList.size()));
         return geneList;
+    }
+
+    public MultiKeyMap<String, Map<String, Set<String>>> getAllOrthologyGeneJoin() {
+
+        String query = " MATCH p1=(g:Gene)<-[:ASSOCIATION]-(s:OrthologyGeneJoin)-[:MATCHED]-(a:OrthoAlgorithm), " +
+                " p2=(g2:Gene)-[:ASSOCIATION]->(s:OrthologyGeneJoin) ";
+        //query += " where g.primaryKey = 'ZFIN:ZDB-GENE-001103-1' ";
+        //query += " where g.primaryKey = 'MGI:109583' ";
+        query += " OPTIONAL MATCH p3=(s:OrthologyGeneJoin)-[:NOT_MATCHED]-(b:OrthoAlgorithm) ";
+        //query += " OPTIONAL MATCH p4=(s:OrthologyGeneJoin)-[:NOT_CALLED]-(c:OrthoAlgorithm) ";
+        query += " RETURN g.primaryKey, g2.primaryKey, collect(a.name) as match, " +
+                " collect(b.name) as notMatch ";
+/*
+        query += " RETURN g.primaryKey, g2.primaryKey, collect(a.name) as match, " +
+                " collect(b.name) as notMatch, collect(c.name) as notCalled ";
+*/
+
+        Result result = queryForResult(query);
+        MultiKeyMap<String, Map<String, Set<String>>> map = new MultiKeyMap<>();
+        StreamSupport.stream(result.spliterator(), false).forEach(join -> {
+            Map<String, Set<String>> predictionMap = new HashMap<>();
+            Set<String> matches = new HashSet<>(Arrays.asList((String[]) join.get("match")));
+            predictionMap.put("match", matches);
+
+            Object notMatchesO = join.get("notMatch");
+            if (notMatchesO != null) {
+                Set<String> notMatchesStrings = null;
+                if (((Object[]) join.get("notMatch")).length > 0) {
+                    String[] notMatches = (String[]) join.get("notMatch");
+                    notMatchesStrings = new HashSet<>(Arrays.asList(notMatches));
+                    predictionMap.put("notMatch", notMatchesStrings);
+                }
+            }
+            map.put((String) join.get("g.primaryKey"), (String) join.get("g2.primaryKey"), predictionMap);
+        });
+        log.info("ORTHOLOGOUS genes: " + String.format("%,d", map.size()));
+        System.out.println("ORTHOLOGOUS genes: " + String.format("%,d", map.size()));
+        return map;
     }
 
     public Set<Gene> getOrthologyByTwoSpecies(String speciesOne, String speciesTwo) {
@@ -613,6 +637,14 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         log.info("Total BioEntityGeneExpressionJoin nodes: " + allBioEntityExpressionJoins.size());
         log.info("Loaded in:  " + ((System.currentTimeMillis() - start) / 1000) + " s");
         return allBioEntityExpressionJoins;
+    }
+
+    public List<String> getAllMethods() {
+        String query = " MATCH (algorithm:OrthoAlgorithm) return distinct(algorithm) ";
+        Iterable<OrthoAlgorithm> algorithms = neo4jSession.query(OrthoAlgorithm.class, query, new HashMap<>());
+        return StreamSupport.stream(algorithms.spliterator(), false)
+                .map(OrthoAlgorithm::getName)
+                .collect(Collectors.toList());
     }
 
     @FunctionalInterface

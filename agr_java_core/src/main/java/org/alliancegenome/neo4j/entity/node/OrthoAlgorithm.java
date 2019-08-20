@@ -1,13 +1,11 @@
 package org.alliancegenome.neo4j.entity.node;
 
+import com.fasterxml.jackson.annotation.JsonView;
+import lombok.Getter;
+import lombok.Setter;
 import org.alliancegenome.neo4j.entity.Neo4jEntity;
 import org.alliancegenome.neo4j.view.View;
 import org.neo4j.ogm.annotation.NodeEntity;
-
-import com.fasterxml.jackson.annotation.JsonView;
-
-import lombok.Getter;
-import lombok.Setter;
 
 @Getter
 @Setter
@@ -20,5 +18,10 @@ public class OrthoAlgorithm extends Neo4jEntity implements Comparable<OrthoAlgor
     @Override
     public int compareTo(OrthoAlgorithm o) {
         return name.compareTo(o.getName());
+    }
+
+    @Override
+    public String toString() {
+        return name;
     }
 }

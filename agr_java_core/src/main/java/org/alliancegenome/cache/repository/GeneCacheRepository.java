@@ -11,6 +11,7 @@ import org.alliancegenome.cache.manager.OrthologyAllianceCacheManager;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.alliancegenome.neo4j.view.OrthologView;
+import org.alliancegenome.neo4j.view.OrthologyFilter;
 import org.alliancegenome.neo4j.view.View;
 
 import lombok.extern.log4j.Log4j2;
