@@ -22,12 +22,13 @@ public class ProcessDisplayHelper {
     public void startProcess(String message, int totalSize) {
         this.message = message + ": ";
         this.totalSize = totalSize;
+        startTime = new Date();
         sizeCounter = 0;
         log.info(this.message + "Starting Processing: total: " + getBigNumber(totalSize) + " at: " + startTime);
         lastTime = new Date();
     }
 
-    public void progress() {
+    public void progressProcess() {
         sizeCounter++;
         double percent = ((double) (totalSize - sizeCounter) / (double) totalSize);
         Date now = new Date();

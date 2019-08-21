@@ -30,8 +30,12 @@ public class GenePhenotypeCacher extends Cacher {
 
     @Override
     protected void cache() {
-
+        startProcess("phenotypeRepository.getAllPhenotypeAnnotations");
+        
         List<PhenotypeEntityJoin> joinList = phenotypeRepository.getAllPhenotypeAnnotations();
+        
+        finishProcess();
+        
         int size = joinList.size();
         DecimalFormat myFormatter = new DecimalFormat("###,###.##");
         log.info("Retrieved " + myFormatter.format(size) + " phenotype records");
@@ -48,7 +52,7 @@ public class GenePhenotypeCacher extends Cacher {
                         document.setGeneticEntity(phenotypeEntityJoin.getGene());
                     document.setPhenotype(phenotypeEntityJoin.getPhenotype().getPhenotypeStatement());
                     document.setPublications(phenotypeEntityJoin.getPublications());
-                    progress();
+                    progressProcess();
                     return document;
                 })
                 .collect(toList());
@@ -68,7 +72,7 @@ public class GenePhenotypeCacher extends Cacher {
             result.setResults(value);
             try {
                 manager.putCache(key, result, View.PhenotypeAPI.class, CacheAlliance.PHENOTYPE);
-                progress();
+                progressProcess();
             } catch (JsonProcessingException e) {
                 throw new RuntimeException(e);
             }

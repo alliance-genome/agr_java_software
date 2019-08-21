@@ -9,20 +9,20 @@ import org.alliancegenome.cacher.cachers.InteractionCacher;
 
 public enum CacherConfig {
 
-    AlleleDBCacher("geneAlleleCacher", AlleleCacher.class),
-    //GeneDBCacher("geneDBCacher", GeneDBCacher.class),
-    GenePhenotypeCacher("genePhenotypeCacher", GenePhenotypeCacher.class),
-    GeneInteractionCacher("geneInteractionCacher", InteractionCacher.class),
-    DiseaseCacher("diseaseCacher", DiseaseCacher.class),
-    GeneExpressionCacher("geneExpressionDBCacher", ExpressionCacher.class),
-    GeneOrthologCacher("geneOrthologCacher", GeneOrthologCacher.class),
+    AlleleDBCacher(AlleleCacher.class),
+    //GeneDBCacher(GeneCacher.class),
+    GenePhenotypeCacher(GenePhenotypeCacher.class),
+    GeneInteractionCacher(InteractionCacher.class),
+    DiseaseCacher(DiseaseCacher.class),
+    GeneExpressionCacher(ExpressionCacher.class),
+    GeneOrthologCacher(GeneOrthologCacher.class),
     ;
 
     private String cacherName;
     private Class<?> cacherClass;
 
-    CacherConfig(String cacherName, Class<?> cacherClazz) {
-        this.cacherName = cacherName;
+    CacherConfig(Class<?> cacherClazz) {
+        this.cacherName = cacherClazz.getName();
         this.cacherClass = cacherClazz;
     }
 

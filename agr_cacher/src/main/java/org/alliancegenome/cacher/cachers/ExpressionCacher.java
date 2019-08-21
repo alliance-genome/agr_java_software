@@ -49,7 +49,7 @@ public class ExpressionCacher extends Cacher {
         
         startProcess("allExpression", joins.size());
 
-        List<ExpressionDetail> allExpression = joins.stream()
+        List<ExpressionDetail> allExpression = joins.parallelStream()
                 .map(expressionJoin -> {
                     ExpressionDetail detail = new ExpressionDetail();
                     detail.setGene(expressionJoin.getGene());
@@ -80,7 +80,7 @@ public class ExpressionCacher extends Cacher {
                         detail.addTermID(stageID);
                         //detail.addTermIDs(getParentTermIDs(stageID));
                     }
-                    progress();
+                    progressProcess();
                     return detail;
                 })
                 .collect(Collectors.toList());
@@ -103,7 +103,7 @@ public class ExpressionCacher extends Cacher {
             result.setResults(value);
             try {
                 manager.putCache(key, result, View.Expression.class, CacheAlliance.EXPRESSION);
-                progress();
+                progressProcess();
             } catch (JsonProcessingException e) {
                 throw new RuntimeException(e);
             }
