@@ -40,8 +40,13 @@ public class ExpressionCacher extends Cacher {
     protected void cache() {
 
         GeneRepository geneRepository = new GeneRepository();
+        
+        startProcess("geneRepository.getAllExpressionAnnotations");
+        
         List<BioEntityGeneExpressionJoin> joins = geneRepository.getAllExpressionAnnotations();
-
+        
+        finishProcess();
+        
         startProcess("allExpression", joins.size());
 
         List<ExpressionDetail> allExpression = joins.stream()

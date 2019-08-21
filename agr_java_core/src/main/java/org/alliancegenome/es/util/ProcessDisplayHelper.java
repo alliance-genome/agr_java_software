@@ -32,11 +32,10 @@ public class ProcessDisplayHelper {
         double percent = ((double) (totalSize - sizeCounter) / (double) totalSize);
         Date now = new Date();
         long diff = now.getTime() - startTime.getTime();
-        
-        if(diff > 30000) return; // report every 30 seconds
+        long time = now.getTime() - lastTime.getTime();
+        if(time < 30000) return; // report every 30 seconds
         checkMemory();
         
-        long time = (now.getTime() - lastTime.getTime());
         int processedAmount = (lastSize - sizeCounter);
         String message = "" + getBigNumber(totalSize - sizeCounter) + " records [" + getBigNumber(totalSize) + "] ";
         message += (int) (percent * 100) + "% took: " + (time / 1000) + "s to process " + processedAmount;

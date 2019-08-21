@@ -67,6 +67,10 @@ public abstract class Cacher extends Thread {
         return rmc.administration().getOrCreateCache(cacheName, cb2.build());
     }
 
+    protected void startProcess(String message) {
+        startProcess(message, 0);
+    }
+    
     protected void startProcess(String message, int totalSize) {
         display.startProcess(message, totalSize);
     }
