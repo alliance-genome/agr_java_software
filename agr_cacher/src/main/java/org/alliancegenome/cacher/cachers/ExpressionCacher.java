@@ -26,7 +26,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 public class ExpressionCacher extends Cacher {
 
     private static List<String> parentTermIDs = new ArrayList<>();
-
+    
     static {
         // anatomical entity
         parentTermIDs.add("UBERON:0001062");
@@ -41,6 +41,8 @@ public class ExpressionCacher extends Cacher {
 
         GeneRepository geneRepository = new GeneRepository();
         List<BioEntityGeneExpressionJoin> joins = geneRepository.getAllExpressionAnnotations();
+
+        startProcess("allExpression", joins.size());
 
         List<ExpressionDetail> allExpression = joins.stream()
                 .map(expressionJoin -> {
@@ -73,32 +75,38 @@ public class ExpressionCacher extends Cacher {
                         detail.addTermID(stageID);
                         //detail.addTermIDs(getParentTermIDs(stageID));
                     }
+                    progress();
                     return detail;
                 })
                 .collect(Collectors.toList());
 
+        finishProcess();
+        
+        startProcess("geneExpressionMap", allExpression.size());
+        
         Map<String, List<ExpressionDetail>> geneExpressionMap = allExpression.stream()
                 .collect(groupingBy(expressionDetail -> expressionDetail.getGene().getPrimaryKey()));
 
+        finishProcess();
+        
         ExpressionAllianceCacheManager manager = new ExpressionAllianceCacheManager();
 
+        startProcess("geneExpressionMap into Cache", geneExpressionMap.size());
+        
         geneExpressionMap.forEach((key, value) -> {
             JsonResultResponseExpression result = new JsonResultResponseExpression();
             result.setResults(value);
             try {
                 manager.putCache(key, result, View.Expression.class, CacheAlliance.EXPRESSION);
+                progress();
             } catch (JsonProcessingException e) {
                 throw new RuntimeException(e);
             }
 
         });
+        finishProcess();
         //geneRepository.clearCache();
 
-    }
-
-    private Set<String> getParentTermIDs(String id) {
-        return null;
-        //return getParentTermIDs(Collections.singletonList(id));
     }
 
     private Set<String> getParentTermIDs(List<String> aoList) {
