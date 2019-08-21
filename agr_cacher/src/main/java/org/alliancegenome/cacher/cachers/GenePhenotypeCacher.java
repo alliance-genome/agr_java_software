@@ -36,6 +36,8 @@ public class GenePhenotypeCacher extends Cacher {
         DecimalFormat myFormatter = new DecimalFormat("###,###.##");
         log.info("Retrieved " + myFormatter.format(size) + " phenotype records");
         // replace Gene references with the cached Gene references to keep the memory imprint low.
+        startProcess("allPhenotypeAnnotations", joinList.size());
+        
         List<PhenotypeAnnotation> allPhenotypeAnnotations = joinList.stream()
                 .map(phenotypeEntityJoin -> {
                     PhenotypeAnnotation document = new PhenotypeAnnotation();
@@ -46,24 +48,32 @@ public class GenePhenotypeCacher extends Cacher {
                         document.setGeneticEntity(phenotypeEntityJoin.getGene());
                     document.setPhenotype(phenotypeEntityJoin.getPhenotype().getPhenotypeStatement());
                     document.setPublications(phenotypeEntityJoin.getPublications());
+                    progress();
                     return document;
                 })
                 .collect(toList());
 
+        finishProcess();
+        
         // group by gene IDs
         Map<String, List<PhenotypeAnnotation>> phenotypeAnnotationMap = allPhenotypeAnnotations.stream()
                 .collect(groupingBy(phenotypeAnnotation -> phenotypeAnnotation.getGene().getPrimaryKey()));
 
         PhenotypeCacheManager manager = new PhenotypeCacheManager();
+        
+        startProcess("phenotypeAnnotationMap into cache", phenotypeAnnotationMap.size());
+        
         phenotypeAnnotationMap.forEach((key, value) -> {
             JsonResultResponse<PhenotypeAnnotation> result = new JsonResultResponse<>();
             result.setResults(value);
             try {
                 manager.putCache(key, result, View.PhenotypeAPI.class, CacheAlliance.PHENOTYPE);
+                progress();
             } catch (JsonProcessingException e) {
                 throw new RuntimeException(e);
             }
         });
+        finishProcess();
     }
 
 
