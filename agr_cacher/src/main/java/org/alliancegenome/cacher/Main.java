@@ -9,6 +9,7 @@ import org.alliancegenome.cache.AllianceCacheManager;
 import org.alliancegenome.cacher.cachers.Cacher;
 import org.alliancegenome.cacher.config.CacherConfig;
 import org.alliancegenome.core.config.ConfigHelper;
+import org.alliancegenome.es.util.ProcessDisplayHelper;
 
 import lombok.extern.log4j.Log4j2;
 
@@ -79,7 +80,7 @@ public class Main {
         Date end = new Date();
         log.info("End Time: " + end);
         long duration = end.getTime() - start.getTime();
-        log.info("Total Caching time: " + Cacher.getHumanReadableTimeDisplay(duration));
+        log.info("Total Caching time: " + ProcessDisplayHelper.getHumanReadableTimeDisplay(duration));
         System.exit(0);
 
     }
