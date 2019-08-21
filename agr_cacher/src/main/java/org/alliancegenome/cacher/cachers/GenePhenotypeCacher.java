@@ -36,7 +36,7 @@ public class GenePhenotypeCacher extends Cacher {
         DecimalFormat myFormatter = new DecimalFormat("###,###.##");
         log.info("Retrieved " + myFormatter.format(size) + " phenotype records");
         // replace Gene references with the cached Gene references to keep the memory imprint low.
-        startProcess("allPhenotypeAnnotations", joinList.size());
+        startProcess("allPhenotypeAnnotations", size);
         
         List<PhenotypeAnnotation> allPhenotypeAnnotations = joinList.stream()
                 .map(phenotypeEntityJoin -> {
