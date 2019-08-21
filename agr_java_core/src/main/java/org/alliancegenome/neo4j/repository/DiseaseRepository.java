@@ -27,19 +27,19 @@ import org.alliancegenome.neo4j.entity.node.PublicationEvidenceCodeJoin;
 import org.alliancegenome.neo4j.entity.node.UBERONTerm;
 import org.alliancegenome.neo4j.view.BaseFilter;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.neo4j.ogm.model.Result;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.log4j.Log4j2;
 
+@Log4j2
 public class DiseaseRepository extends Neo4jRepository<DOTerm> {
 
     public static final String DISEASE_INCLUDING_CHILDREN = "(diseaseParent:DOTerm)<-[:IS_A_PART_OF_CLOSURE]-(disease:DOTerm)";
     public static final String FEATURE_JOIN = " p4=(diseaseEntityJoin)--(feature:Feature)--(crossReference:CrossReference) ";
     public static final String AND_NOT_DISEASE_ENTITY_JOIN_FEATURE = " AND NOT (diseaseEntityJoin)--(:Feature) ";
-    private Logger log = LogManager.getLogger(getClass());
+
     public static final String TOTAL_COUNT = "totalCount";
 
     public DiseaseRepository() {
@@ -245,7 +245,7 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
 
         doAgrDoList = StreamSupport.stream(joins.spliterator(), false)
                 .collect(Collectors.toList());
-        System.out.println("AGR-DO slim: " + doAgrDoList.size());
+        log.info("AGR-DO slim: " + doAgrDoList.size());
         return doAgrDoList;
 
     }
@@ -286,7 +286,7 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
 
         //Iterable<PublicationEvidenceCodeJoin> joins = neo4jSession.query(PublicationEvidenceCodeJoin.class, cypher, new HashMap<>());
 
-        System.out.println("Number of PublicationEvidenceCodeJoin records retrieved: " + String.format("%,d", ecoTermMap.size()));
+        log.info("Number of PublicationEvidenceCodeJoin records retrieved: " + String.format("%,d", ecoTermMap.size()));
     }
 
     public List<ECOTerm> getEcoTerm(String publicationEvidenceCodeJoinID) {
@@ -381,8 +381,8 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
 
         allDiseaseEntityJoins = StreamSupport.stream(joins.spliterator(), false).
                 collect(Collectors.toSet());
-        System.out.println("Total DiseaseEntityJoinRecords: " + String.format("%,d", allDiseaseEntityJoins.size()));
-        System.out.println("Loaded in:  " + ((System.currentTimeMillis() - start) / 1000) + " s");
+        log.info("Total DiseaseEntityJoinRecords: " + String.format("%,d", allDiseaseEntityJoins.size()));
+        log.info("Loaded in:    " + ((System.currentTimeMillis() - start) / 1000) + " s");
         return allDiseaseEntityJoins;
     }
 

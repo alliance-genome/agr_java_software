@@ -36,16 +36,23 @@ public class DiseaseCacher extends Cacher {
     private static DiseaseRepository diseaseRepository = new DiseaseRepository();
 
     protected void cache() {
+        
+        startProcess("diseaseRepository.getAllDiseaseEntityJoins");
+        
         Set<DiseaseEntityJoin> joinList = diseaseRepository.getAllDiseaseEntityJoins();
         if (joinList == null)
             return;
+        
+        finishProcess();
 
         // grouping orthologous records
         List<DiseaseAnnotation> summaryList = new ArrayList<>();
 
         DiseaseRibbonService diseaseRibbonService = new DiseaseRibbonService();
-///        DiseaseRibbonService diseaseRibbonService = new DiseaseRibbonService();
 
+
+        startProcess("diseaseRepository.getAllDiseaseEntityJoins");
+        
         List<DiseaseAnnotation> allDiseaseAnnotations = joinList.stream()
                 .map(diseaseEntityJoin -> {
                     DiseaseAnnotation document = new DiseaseAnnotation();
@@ -59,8 +66,6 @@ public class DiseaseCacher extends Cacher {
                     if (orthologyGene != null) {
                         document.setOrthologyGene(orthologyGene);
                         document.addOrthologousGene(orthologyGene);
-// for memory savings reason use cached gene objects.
-//                        document.setOrthologyGene(geneCacheRepository.getGene(orthologyGene.getPrimaryKey()));
                     }
                     List<Publication> publicationList = diseaseEntityJoin.getPublicationEvidenceCodeJoin().stream()
                             .map(PublicationEvidenceCodeJoin::getPublication).sorted(Comparator.naturalOrder()).collect(Collectors.toList());
@@ -70,9 +75,12 @@ public class DiseaseCacher extends Cacher {
                     document.setEcoCodes(evidences);
                     Set<String> slimId = diseaseRibbonService.getSlimId(diseaseEntityJoin.getDisease().getPrimaryKey());
                     document.setParentIDs(slimId);
+                    progressProcess();
                     return document;
                 })
                 .collect(toList());
+        
+        finishProcess();
 
         // default sorting
         DiseaseAnnotationSorting sorting = new DiseaseAnnotationSorting();
