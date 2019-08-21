@@ -2,7 +2,6 @@ package org.alliancegenome.cacher.cachers;
 
 import static java.util.stream.Collectors.groupingBy;
 
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -16,9 +15,6 @@ import org.alliancegenome.neo4j.view.View;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
-import lombok.extern.log4j.Log4j2;
-
-@Log4j2
 public class InteractionCacher extends Cacher {
 
     private static InteractionRepository interactionRepository = new InteractionRepository();
@@ -29,40 +25,49 @@ public class InteractionCacher extends Cacher {
 
     @Override
     protected void cache() {
-        long start = System.currentTimeMillis();
-        List<InteractionGeneJoin> allInteractionAnnotations = interactionRepository.getAllInteractions();
-        int size = allInteractionAnnotations.size();
-        DecimalFormat myFormatter = new DecimalFormat("###,###.##");
-        log.info("Retrieved " + myFormatter.format(size) + " interaction records");
-        // replace Gene references with the cached Gene references to keep the memory imprint low.
 
-        // group by gene ID with geneA
+        startProcess("interactionRepository.getAllInteractions");
+
+        List<InteractionGeneJoin> allInteractionAnnotations = interactionRepository.getAllInteractions();
+        
+        finishProcess();
+
+        
+        startProcess("interactionAnnotationMapGene", allInteractionAnnotations.size());
+        
         Map<String, List<InteractionGeneJoin>> interactionAnnotationMapGene = allInteractionAnnotations.parallelStream()
                 // exclude self-interaction
                 .filter(interactionGeneJoin -> !interactionGeneJoin.getGeneA().getPrimaryKey().equals(interactionGeneJoin.getGeneB().getPrimaryKey()))
                 .collect(groupingBy(phenotypeAnnotation -> phenotypeAnnotation.getGeneA().getPrimaryKey()));
 
-        // add to grouping with geneB as a reference
-        // this includes self-interaction
+        finishProcess();
+        
+        startProcess("create joins", allInteractionAnnotations.size());
+        
         allInteractionAnnotations.forEach(join -> {
             String primaryKey = join.getGeneB().getPrimaryKey();
             List<InteractionGeneJoin> joins = interactionAnnotationMapGene.computeIfAbsent(primaryKey, k -> new ArrayList<>());
             joins.add(createNewInteractionGeneJoin(join));
         });
-        log.info("Number of gene with interactions: " + interactionAnnotationMapGene.size());
-        log.info("Time to create annotation histogram: " + (System.currentTimeMillis() - start) / 1000);
-        //interactionRepository.clearCache();
+        
+        finishProcess();
 
         InteractionAllianceCacheManager manager = new InteractionAllianceCacheManager();
+        
+        startProcess("add interactions to cache", allInteractionAnnotations.size());
+        
         interactionAnnotationMapGene.forEach((key, value) -> {
             JsonResultResponseInteraction result = new JsonResultResponseInteraction();
             result.setResults(value);
             try {
                 manager.putCache(key, result, View.Interaction.class, CacheAlliance.INTERACTION);
+                progressProcess();
             } catch (JsonProcessingException e) {
                 throw new RuntimeException(e);
             }
         });
+        
+        finishProcess();
 
     }
 

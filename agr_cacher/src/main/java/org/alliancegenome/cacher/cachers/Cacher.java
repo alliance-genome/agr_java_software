@@ -75,8 +75,8 @@ public abstract class Cacher extends Thread {
         display.startProcess(message, totalSize);
     }
 
-    protected void progress() {
-        display.progress();
+    protected void progressProcess() {
+        display.progressProcess();
     }
 
     protected void finishProcess() {
