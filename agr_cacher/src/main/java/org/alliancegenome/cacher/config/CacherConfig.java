@@ -22,7 +22,7 @@ public enum CacherConfig {
     private Class<?> cacherClass;
 
     CacherConfig(Class<?> cacherClazz) {
-        this.cacherName = cacherClazz.getName();
+        this.cacherName = cacherClazz.getCanonicalName();
         this.cacherClass = cacherClazz;
     }
 
