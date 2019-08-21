@@ -24,7 +24,7 @@ public class Neo4jRepository<E> {
     private final Logger log = LogManager.getLogger(getClass());
 
     protected Class<E> entityTypeClazz;
-    protected Session neo4jSession = Neo4jSessionFactory.getInstance().getNeo4jSession();
+    private Session neo4jSession = Neo4jSessionFactory.getInstance().getNeo4jSession();
 
     public Neo4jRepository(Class<E> entityTypeClazz) {
         this.entityTypeClazz = entityTypeClazz;
@@ -64,6 +64,14 @@ public class Neo4jRepository<E> {
     }
 
     public Iterable<E> query(String cypherQuery, Map<String, ?> params) {
+        return neo4jSession.query(entityTypeClazz, cypherQuery, params);
+    }
+    
+    public <T> Iterable<T> query(Class<T> entityTypeClazz, String cypherQuery) {
+        return query(entityTypeClazz, cypherQuery, Collections.EMPTY_MAP);
+    }
+    
+    public <T> Iterable<T> query(Class<T> entityTypeClazz, String cypherQuery, Map<String, ?> params) {
         return neo4jSession.query(entityTypeClazz, cypherQuery, params);
     }
 

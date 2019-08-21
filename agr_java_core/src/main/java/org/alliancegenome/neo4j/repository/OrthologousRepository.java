@@ -123,7 +123,7 @@ public class OrthologousRepository extends Neo4jRepository<Orthologous> {
         if (algorithmList != null)
             return algorithmList;
         String query = " MATCH (algorithm:OrthoAlgorithm) return distinct algorithm order by algorithm.name ";
-        Iterable<OrthoAlgorithm> algorithms = neo4jSession.query(OrthoAlgorithm.class, query, new HashMap<>());
+        Iterable<OrthoAlgorithm> algorithms = query(OrthoAlgorithm.class, query);
         algorithmList = StreamSupport.stream(algorithms.spliterator(), false)
                 .collect(Collectors.toList());
         return algorithmList;
