@@ -258,7 +258,7 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
                 "where pubEvCode.primaryKey in [" + ids + "]" +
                 "RETURN p";
 
-        Iterable<ECOTerm> joins = neo4jSession.query(ECOTerm.class, cypher, new HashMap<>());
+        Iterable<ECOTerm> joins = query(ECOTerm.class, cypher);
 
         return StreamSupport.stream(joins.spliterator(), false).
                 collect(Collectors.toSet());
@@ -327,7 +327,7 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
         HashMap<String, String> map = new HashMap<>();
         map.put("primaryKey", id);
 
-        Iterable<UBERONTerm> terms = neo4jSession.query(UBERONTerm.class, cypher, map);
+        Iterable<UBERONTerm> terms = query(UBERONTerm.class, cypher, map);
         if (terms == null)
             return null;
         return terms.iterator().next();
@@ -341,7 +341,7 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
         HashMap<String, String> map = new HashMap<>();
         map.put("primaryKey", id);
 
-        Iterable<GOTerm> terms = neo4jSession.query(GOTerm.class, cypher, map);
+        Iterable<GOTerm> terms = query(GOTerm.class, cypher, map);
         if (terms == null)
             return null;
         return terms.iterator().next();
@@ -377,7 +377,7 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
                 "RETURN p, p1, p2, p3, p4 ";
 
         long start = System.currentTimeMillis();
-        Iterable<DiseaseEntityJoin> joins = neo4jSession.query(DiseaseEntityJoin.class, cypher, new HashMap<>());
+        Iterable<DiseaseEntityJoin> joins = query(DiseaseEntityJoin.class, cypher);
 
         allDiseaseEntityJoins = StreamSupport.stream(joins.spliterator(), false).
                 collect(Collectors.toSet());
@@ -712,7 +712,7 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
         HashMap<String, String> bindingValueMap = new HashMap<>();
         bindingValueMap.put("diseaseEntityJoinID", diseaseEntityJoinID);
 
-        Iterable<DiseaseEntityJoin> joins = neo4jSession.query(DiseaseEntityJoin.class, cypher, bindingValueMap);
+        Iterable<DiseaseEntityJoin> joins = query(DiseaseEntityJoin.class, cypher, bindingValueMap);
         return joins.iterator().next();
     }
 }

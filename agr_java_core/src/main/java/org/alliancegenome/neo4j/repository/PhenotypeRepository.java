@@ -223,7 +223,7 @@ public class PhenotypeRepository extends Neo4jRepository<Phenotype> {
                 "OPTIONAL MATCH p4=(phenotypeEntityJoin:PhenotypeEntityJoin)--(feature:Feature)-[:CROSS_REFERENCE]->(crossRef:CrossReference) " +
                 "return p0, p2, p4 ";
 
-        Iterable<PhenotypeEntityJoin> joins = neo4jSession.query(PhenotypeEntityJoin.class, cypher, new HashMap<>());
+        Iterable<PhenotypeEntityJoin> joins = query(PhenotypeEntityJoin.class, cypher);
         return StreamSupport.stream(joins.spliterator(), false).
                 collect(Collectors.toList());
     }
