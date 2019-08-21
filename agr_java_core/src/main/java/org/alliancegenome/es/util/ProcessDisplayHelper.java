@@ -23,7 +23,7 @@ public class ProcessDisplayHelper {
         this.message = message + ": ";
         this.totalSize = totalSize;
         sizeCounter = 0;
-        log.info(message + "Starting Processing: total: " + getBigNumber(totalSize) + " at: " + startTime);
+        log.info(this.message + "Starting Processing: total: " + getBigNumber(totalSize) + " at: " + startTime);
         lastTime = new Date();
     }
 
@@ -33,7 +33,7 @@ public class ProcessDisplayHelper {
         Date now = new Date();
         long diff = now.getTime() - startTime.getTime();
         
-        if(diff < 30000) return; // report every 30 seconds
+        if(diff > 30000) return; // report every 30 seconds
         checkMemory();
         
         long time = (now.getTime() - lastTime.getTime());
