@@ -34,7 +34,8 @@ public class ProcessDisplayHelper {
         Date now = new Date();
         long diff = now.getTime() - startTime.getTime();
         long time = now.getTime() - lastTime.getTime();
-        if(time < 30000) return; // report every 30 seconds
+        log.info("diff: " + diff + " time: " + time + " now: " + now + " startTime: " + startTime + " lastTime: " + lastTime);
+        //if(time < 30000) return; // report every 30 seconds
         checkMemory();
         
         int processedAmount = (lastSize - sizeCounter);
