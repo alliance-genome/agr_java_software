@@ -30,12 +30,15 @@ public class ProcessDisplayHelper {
 
     public void progressProcess() {
         sizeCounter++;
-        double percent = ((double) (totalSize - sizeCounter) / (double) totalSize);
+        double percent = 0;
+        if(totalSize > 0) {
+            percent = ((double) (totalSize - sizeCounter) / (double) totalSize);
+        }
         Date now = new Date();
         long diff = now.getTime() - startTime.getTime();
         long time = now.getTime() - lastTime.getTime();
-        log.info("diff: " + diff + " time: " + time + " now: " + now + " startTime: " + startTime + " lastTime: " + lastTime);
-        //if(time < 30000) return; // report every 30 seconds
+        //log.info(this.message + "diff: " + diff + " time: " + time + " now: " + now + " startTime: " + startTime + " lastTime: " + lastTime);
+        if(time < 30000) return; // report every 30 seconds
         checkMemory();
         
         int processedAmount = (lastSize - sizeCounter);
