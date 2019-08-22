@@ -7,6 +7,9 @@ import org.infinispan.client.hotrod.RemoteCacheManager;
 import org.infinispan.client.hotrod.configuration.ConfigurationBuilder;
 import org.infinispan.configuration.cache.CacheMode;
 
+import lombok.extern.log4j.Log4j2;
+
+@Log4j2
 public abstract class Cacher extends Thread {
 
     protected abstract void cache();
@@ -14,7 +17,9 @@ public abstract class Cacher extends Thread {
 
     public void runCache() {
         try {
+            log.info(this.getClass().getCanonicalName() + " started: ");
             cache();
+            log.info(this.getClass().getCanonicalName() + " finished: ");
         } catch (Exception e) {
             e.printStackTrace();
             System.exit(-1);
@@ -25,7 +30,9 @@ public abstract class Cacher extends Thread {
     public void run() {
         super.run();
         try {
+            log.info(this.getClass().getCanonicalName() + " started: ");
             cache();
+            log.info(this.getClass().getCanonicalName() + " finished: ");
         } catch (Exception e) {
             e.printStackTrace();
             System.exit(-1);
