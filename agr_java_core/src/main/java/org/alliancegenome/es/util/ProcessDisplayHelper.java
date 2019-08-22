@@ -15,13 +15,14 @@ public class ProcessDisplayHelper {
     private Date startTime = new Date();
     private Date lastTime = new Date();
     private String message;
-    private int lastSizeCounter;
+    private int lastSizeCounter = 0;
     private int totalSize;
     private int sizeCounter = 0;
     
     public void startProcess(String message, int totalSize) {
         this.message = message + ": ";
         this.totalSize = totalSize;
+        lastSizeCounter = 0;
         startTime = new Date();
         sizeCounter = 0;
         log.info(this.message + "Starting Processing: total: " + getBigNumber(totalSize) + " at: " + startTime);
@@ -29,7 +30,6 @@ public class ProcessDisplayHelper {
     }
 
     public void progressProcess() {
-        sizeCounter++;
         double percent = 0;
         if(totalSize > 0) {
             percent = ((double) (totalSize - sizeCounter) / (double) totalSize);
@@ -56,6 +56,7 @@ public class ProcessDisplayHelper {
         log.info(this.message + message);
         lastSizeCounter = sizeCounter;
         lastTime = now;
+        sizeCounter++;
     }
 
     public void finishProcess() {
