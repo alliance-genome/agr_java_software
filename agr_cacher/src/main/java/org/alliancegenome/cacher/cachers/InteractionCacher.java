@@ -68,7 +68,9 @@ public class InteractionCacher extends Cacher {
         });
         
         finishProcess();
-
+        
+        
+        interactionRepository.clearCache();
     }
 
     private InteractionGeneJoin createNewInteractionGeneJoin(InteractionGeneJoin join) {

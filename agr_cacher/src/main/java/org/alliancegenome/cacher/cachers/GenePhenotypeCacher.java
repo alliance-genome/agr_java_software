@@ -78,6 +78,8 @@ public class GenePhenotypeCacher extends Cacher {
             }
         });
         finishProcess();
+        
+        phenotypeRepository.clearCache();
     }
 
 
