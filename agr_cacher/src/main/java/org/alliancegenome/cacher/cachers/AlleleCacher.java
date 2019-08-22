@@ -40,7 +40,7 @@ public class AlleleCacher extends Cacher {
             }
         }
 
-        //alleleRepository.clearCache();
+        alleleRepository.clearCache();
         
     }
 

@@ -23,12 +23,19 @@ public class GeneOrthologCacher extends Cacher {
     @Override
     protected void cache() {
 
+        startProcess("geneRepository.getAllOrthologyGenes");
+        
         List<Gene> geneList = geneRepository.getAllOrthologyGenes();
+        
+        finishProcess();
+        
         if (geneList == null)
             return;
 
         OrthologyAllianceCacheManager manager = new OrthologyAllianceCacheManager();
 
+        startProcess("create geneList into cache");
+        
         geneList.forEach(gene -> {
             Set<OrthologView> orthologySet = gene.getOrthoGenes().stream()
                     .map(orthologous -> {
@@ -42,6 +49,7 @@ public class GeneOrthologCacher extends Cacher {
                         } else if (orthologous.isModerateFilter()) {
                             view.setStringencyFilter("moderate");
                         }
+                        progressProcess();
                         return view;
                     })
                     .collect(toSet());
@@ -54,6 +62,10 @@ public class GeneOrthologCacher extends Cacher {
                 throw new RuntimeException(e);
             }
         });
+        
+        finishProcess();
+        
+        geneRepository.clearCache();
 
     }
 }
