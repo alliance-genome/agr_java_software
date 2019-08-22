@@ -62,8 +62,8 @@ public class AllianceCacheManager<T, U extends JsonResultResponse<T>> {
         cb.addServer()
         .host(ConfigHelper.getCacheHost())
         .port(ConfigHelper.getCachePort())
-        .socketTimeout(5000)
-        .connectionTimeout(5000)
+        .socketTimeout(500000)
+        .connectionTimeout(500000)
         .tcpNoDelay(true);
 
         rmc = new RemoteCacheManager(cb.build());
