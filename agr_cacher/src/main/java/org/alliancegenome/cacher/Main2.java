@@ -2,11 +2,7 @@ package org.alliancegenome.cacher;
 
 import java.io.IOException;
 
-import org.alliancegenome.cache.AlleleAllianceCacheManager;
 
-import lombok.extern.log4j.Log4j2;
-
-@Log4j2
 public class Main2 {
 
     public static void main(String[] args) throws IOException {
@@ -87,7 +83,7 @@ public class Main2 {
         }
 */
         
-        AlleleAllianceCacheManager managerAllele = new AlleleAllianceCacheManager();
+        //AlleleAllianceCacheManager managerAllele = new AlleleAllianceCacheManager();
         
 /*
         HashMap<String, List<String>> map = new HashMap<>();
