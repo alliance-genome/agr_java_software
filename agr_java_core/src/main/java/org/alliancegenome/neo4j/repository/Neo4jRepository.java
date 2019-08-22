@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.alliancegenome.es.model.query.FieldFilter;
+import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.neo4j.view.BaseFilter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -74,7 +75,7 @@ public class Neo4jRepository<E> {
         log.debug("Running Query: " + cypherQuery);
         Iterable<T> ret = neo4jSession.query(entityTypeClazz, cypherQuery, params);
         Date end = new Date();
-        log.debug("Query took: " + (end.getTime() - start.getTime()) + "ms to run");
+        log.debug("Query took: " + ProcessDisplayHelper.getHumanReadableTimeDisplay(end.getTime() - start.getTime()) + " to run");
         return ret;
     }
     
@@ -92,7 +93,7 @@ public class Neo4jRepository<E> {
         log.debug("Running Query: " + cypherQuery);
         Result ret = neo4jSession.query(cypherQuery, Collections.EMPTY_MAP);
         Date end = new Date();
-        log.debug("Query took: " + (end.getTime() - start.getTime()) + "ms to run");
+        log.debug("Query took: " + ProcessDisplayHelper.getHumanReadableTimeDisplay(end.getTime() - start.getTime()) + " to run");
         return ret;
     }
     
