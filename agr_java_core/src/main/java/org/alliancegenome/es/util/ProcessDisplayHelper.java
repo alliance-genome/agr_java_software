@@ -15,7 +15,7 @@ public class ProcessDisplayHelper {
     private Date startTime = new Date();
     private Date lastTime = new Date();
     private String message;
-    private int lastSize;
+    private int lastSizeCounter;
     private int totalSize;
     private int sizeCounter = 0;
     
@@ -41,7 +41,7 @@ public class ProcessDisplayHelper {
         if(time < 30000) return; // report every 30 seconds
         checkMemory();
         
-        int processedAmount = (lastSize - sizeCounter);
+        int processedAmount = (sizeCounter - lastSizeCounter);
         String message = "" + getBigNumber(totalSize - sizeCounter) + " records [" + getBigNumber(totalSize) + "] ";
         message += (int) (percent * 100) + "% took: " + (time / 1000) + "s to process " + processedAmount;
 
@@ -54,7 +54,7 @@ public class ProcessDisplayHelper {
             message += ", Memory: " + df.format(memoryPercent() * 100) + "%, ETA: " + expectedDuration + " [" + end + "]";
         }
         log.info(this.message + message);
-        lastSize = sizeCounter;
+        lastSizeCounter = sizeCounter;
         lastTime = now;
     }
 
