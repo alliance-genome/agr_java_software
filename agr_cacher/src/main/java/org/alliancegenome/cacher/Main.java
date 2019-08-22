@@ -54,7 +54,7 @@ public class Main {
                     cachers.get(type).start();
                 } else {
                     log.info("Starting cacher sequentially: " + type);
-                    cachers.get(type).runCache();
+                    cachers.get(type).run();
                 }
             } else {
                 log.info("Not Starting: " + type);

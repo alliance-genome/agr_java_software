@@ -15,9 +15,6 @@ import org.alliancegenome.neo4j.view.View;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
-import lombok.extern.log4j.Log4j2;
-
-@Log4j2
 public class AlleleCacher extends Cacher {
 
     private static AlleleRepository alleleRepository = new AlleleRepository();

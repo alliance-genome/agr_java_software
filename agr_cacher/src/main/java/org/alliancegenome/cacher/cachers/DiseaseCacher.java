@@ -1,6 +1,5 @@
 package org.alliancegenome.cacher.cachers;
 
-import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
 
 import java.util.ArrayList;
@@ -123,16 +122,6 @@ public class DiseaseCacher extends Cacher {
         });
 
         log.info("Time populating diseaseAnnotationMap:  " + ((System.currentTimeMillis() - start) / 1000) + " s");
-
-        // group by gene IDs
-        Map<String, List<DiseaseAnnotation>> diseaseAnnotationExperimentGeneMap = new HashMap<>();
-        // Map<gene ID, List<DiseaseAnnotation>> including annotations to child terms
-        Map<String, List<DiseaseAnnotation>> diseaseAnnotationOrthologGeneMap = new HashMap<>();
-
-        diseaseAnnotationExperimentGeneMap = allDiseaseAnnotations.stream()
-                .filter(annotation -> annotation.getSortOrder() < 10)
-                .collect(groupingBy(o -> o.getGene().getPrimaryKey(), Collectors.toList()));
-
         log.info("Number of Disease IDs in disease Map: " + diseaseAnnotationMap.size());
         log.info("Time to create annotation  list: " + (System.currentTimeMillis() - startCreateHistogram) / 1000);
         //diseaseRepository.clearCache();
