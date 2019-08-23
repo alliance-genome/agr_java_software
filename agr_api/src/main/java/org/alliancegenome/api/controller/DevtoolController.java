@@ -1,16 +1,9 @@
 package org.alliancegenome.api.controller;
 
-import org.alliancegenome.api.DiseaseCacheRepository;
-import org.alliancegenome.api.entity.CacheStatus;
 import org.alliancegenome.api.entity.CacheSummary;
 import org.alliancegenome.api.rest.interfaces.DevtoolRESTInterface;
 import org.alliancegenome.cache.AllianceCacheManager;
 import org.alliancegenome.cache.CacheAlliance;
-import org.alliancegenome.neo4j.repository.AlleleCacheRepository;
-import org.alliancegenome.neo4j.repository.ExpressionCacheRepository;
-import org.alliancegenome.neo4j.repository.GeneCacheRepository;
-import org.alliancegenome.neo4j.repository.InteractionCacheRepository;
-import org.alliancegenome.neo4j.repository.PhenotypeCacheRepository;
 
 import lombok.extern.log4j.Log4j2;
 
