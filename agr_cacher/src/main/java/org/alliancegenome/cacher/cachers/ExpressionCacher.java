@@ -102,7 +102,7 @@ public class ExpressionCacher extends Cacher {
             JsonResultResponseExpression result = new JsonResultResponseExpression();
             result.setResults(value);
             try {
-                manager.putCache(key, result, View.Expression.class, CacheAlliance.EXPRESSION);
+                manager.putCache(key, result, View.Expression.class, CacheAlliance.GENE_EXPRESSION);
                 progressProcess();
             } catch (JsonProcessingException e) {
                 throw new RuntimeException(e);

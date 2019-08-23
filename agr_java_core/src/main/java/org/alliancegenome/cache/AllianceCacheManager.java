@@ -3,9 +3,9 @@ package org.alliancegenome.cache;
 import java.io.IOException;
 import java.util.List;
 
+import org.alliancegenome.api.entity.CacheStatus;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.service.JsonResultResponse;
-import org.alliancegenome.neo4j.view.View;
 import org.infinispan.client.hotrod.RemoteCache;
 import org.infinispan.client.hotrod.RemoteCacheManager;
 import org.infinispan.client.hotrod.configuration.ConfigurationBuilder;
@@ -71,7 +71,7 @@ public class AllianceCacheManager<T, U extends JsonResultResponse<T>> {
         rmc.start();
 
         for (CacheAlliance cache : CacheAlliance.values()) {
-            log.info("Creating Cache: " + cache.getCacheName());
+            log.debug("Creating Cache: " + cache.getCacheName());
             
             org.infinispan.configuration.cache.ConfigurationBuilder cb2 = new org.infinispan.configuration.cache.ConfigurationBuilder();
             
@@ -90,23 +90,21 @@ public class AllianceCacheManager<T, U extends JsonResultResponse<T>> {
             
             
             rmc.administration().getOrCreateCache(cache.getCacheName(), cb2.build());
-            log.info("Clearing cache if exists");
-            rmc.getCache(cache.getCacheName()).clear();
-            log.info("Cache: " + cache.getCacheName() + " finished creating");
+            
+            // log.info("Clearing cache if exists"); // This might need to run if the cacher is running
+            // rmc.getCache(cache.getCacheName()).clear(); // But should not be run via the API
+            
+            log.debug("Cache: " + cache.getCacheName() + " finished creating");
         }
 
     }
 
     private static RemoteCache<String, String> getCacheSpace(CacheAlliance cache) {
-        if (rmc == null)
-            setupCaches();
         //log.info("Getting Cache Space: " + cache.getCacheName());
         return rmc.getCache(cache.getCacheName());
     }
 
     public void putCache(String primaryKey, JsonResultResponse<T> result, Class<?> classView, CacheAlliance cacheSpace) throws JsonProcessingException {
-        if (rmc == null)
-            setupCaches();
         RemoteCache<String, String> cache = getCacheSpace(cacheSpace);
         String value = mapper.writerWithView(classView).writeValueAsString(result);
 
@@ -116,12 +114,22 @@ public class AllianceCacheManager<T, U extends JsonResultResponse<T>> {
     public List<T> getResultList(String entityID, Class<?> classView, Class<? extends JsonResultResponse<T>> clazz, CacheAlliance cacheSpace) {
         return getResultListGeneric(entityID, classView, clazz, cacheSpace);
     }
+    
+    public static CacheStatus getCacheStatus(CacheAlliance cacheSpace) {
+    
+        CacheStatus status = new CacheStatus(cacheSpace.getCacheName());
+        
+        RemoteCache<String, String> cache = getCacheSpace(cacheSpace);
+        
+        status.setNumberOfEntities(cache.size());
+        
+        log.info("Cache Status: " + status);
+        
+        return status;
+    }
 
     private List<T> getResultListGeneric(String entityID, Class<?> classView, Class<? extends JsonResultResponse<T>> clazz, CacheAlliance cacheSpace) {
 
-        if (rmc == null) {
-            setupCaches();
-        }
         String json = getCacheSpace(cacheSpace).get(entityID);
         if (json == null)
             return null;

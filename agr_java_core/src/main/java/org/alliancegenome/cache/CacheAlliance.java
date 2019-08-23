@@ -1,23 +1,25 @@
 package org.alliancegenome.cache;
 
-import org.eclipse.jgit.util.StringUtils;
-
 public enum CacheAlliance {
 
-    // @formatter:off
     GENE(),
-        EXPRESSION(GENE),
-        PHENOTYPE(GENE),
-        INTERACTION(GENE),
-        ORTHOLOGY(GENE),
-        ALLELE(GENE),
-            SPECIES(ALLELE),
-            TAXON(ALLELE),
-        GENE_DISEASE_ANNOTATION(GENE),
+    GENE_EXPRESSION(),
+    GENE_PHENOTYPE(),
+    GENE_INTERACTION(),
+    GENE_ORTHOLOGY(),
+    GENE_ALLELE(),
+    GENE_DISEASE_ANNOTATION(),
+    GENE_SITEMAP(),
+
+    ALLELE(),
+    ALLELE_SPECIES(),
+    ALLELE_TAXON(),
+    ALLELE_SITEMAP(),
+
     DISEASE(),
-         DISEASE_ANNOTATION(DISEASE),
+    DISEASE_ANNOTATION(),
+    DISEASE_SITEMAP(),
     ;
-    // @formatter:on
 
     private String cacheName;
 
@@ -27,36 +29,6 @@ public enum CacheAlliance {
 
     public String getCacheName() {
         return cacheName;
-    }
-
-    private CacheAlliance parent = null;
-
-    CacheAlliance(CacheAlliance parents) {
-        this.parent = parents;
-        cacheName = parent.getCacheName();
-        createCacheName();
-    }
-
-    private void createCacheName() {
-        cacheName += StringUtils.capitalize(name().toLowerCase());
-    }
-
-    public boolean is(CacheAlliance type) {
-        if (type == null)
-            return false;
-        if (this.equals(type))
-            return true;
-        if (parent.equals(type))
-            return true;
-        if (parent.hasParent()) {
-            if (parent.is(type))
-                return true;
-        }
-        return false;
-    }
-
-    private boolean hasParent() {
-        return parent != null;
     }
 
 }

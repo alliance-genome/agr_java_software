@@ -57,7 +57,7 @@ public class GeneOrthologCacher extends Cacher {
             JsonResultResponse<OrthologView> result = new JsonResultResponse<>();
             result.setResults(new ArrayList<>(orthologySet));
             try {
-                manager.putCache(gene.getPrimaryKey(), result, View.Orthology.class, CacheAlliance.ORTHOLOGY);
+                manager.putCache(gene.getPrimaryKey(), result, View.Orthology.class, CacheAlliance.GENE_ORTHOLOGY);
             } catch (JsonProcessingException e) {
                 throw new RuntimeException(e);
             }
