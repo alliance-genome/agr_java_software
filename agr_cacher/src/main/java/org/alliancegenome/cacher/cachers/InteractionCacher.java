@@ -55,12 +55,12 @@ public class InteractionCacher extends Cacher {
         InteractionAllianceCacheManager manager = new InteractionAllianceCacheManager();
         
         startProcess("add interactions to cache", allInteractionAnnotations.size());
-        
+
         interactionAnnotationMapGene.forEach((key, value) -> {
             JsonResultResponseInteraction result = new JsonResultResponseInteraction();
             result.setResults(value);
             try {
-                manager.putCache(key, result, View.Interaction.class, CacheAlliance.INTERACTION);
+                manager.putCache(key, result, View.Interaction.class, CacheAlliance.GENE_INTERACTION);
                 progressProcess();
             } catch (JsonProcessingException e) {
                 throw new RuntimeException(e);

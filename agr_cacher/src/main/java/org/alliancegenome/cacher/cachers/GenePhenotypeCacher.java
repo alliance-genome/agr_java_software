@@ -71,7 +71,7 @@ public class GenePhenotypeCacher extends Cacher {
             JsonResultResponse<PhenotypeAnnotation> result = new JsonResultResponse<>();
             result.setResults(value);
             try {
-                manager.putCache(key, result, View.PhenotypeAPI.class, CacheAlliance.PHENOTYPE);
+                manager.putCache(key, result, View.PhenotypeAPI.class, CacheAlliance.GENE_PHENOTYPE);
                 progressProcess();
             } catch (JsonProcessingException e) {
                 throw new RuntimeException(e);

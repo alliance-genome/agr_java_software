@@ -43,9 +43,7 @@ public class ProcessDisplayHelper {
         
         int processedAmount = (sizeCounter - lastSizeCounter);
         String message = "" + getBigNumber(totalSize - sizeCounter) + " records [" + getBigNumber(totalSize) + "] ";
-        message += (int) (percent * 100) + "% took: " + (time / 1000) + "s to process " + processedAmount;
-
-        message += " rate: " + ((processedAmount * 1000) / time) + "r/s";
+        message += (int) (percent * 100) + "% took: " + (time / 1000) + "s to process " + processedAmount + " records at " + ((processedAmount * 1000) / time) + "r/s";
 
         if (percent > 0) {
             int perms = (int) (diff / percent);
@@ -63,7 +61,7 @@ public class ProcessDisplayHelper {
         Date now = new Date();
         long duration = now.getTime() - startTime.getTime();
         String result = getHumanReadableTimeDisplay(duration);
-        log.info(message + "Finished: took: " + result + " to process " + getBigNumber(totalSize) + " records at a rate of: " + ((totalSize * 1000) / duration) + "r/s");
+        log.info(message + "Finished: took: " + result + " to process " + getBigNumber(sizeCounter) + " records at a rate of: " + ((sizeCounter * 1000) / duration) + "r/s");
     }
 
     private static String getBigNumber(int number) {

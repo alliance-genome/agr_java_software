@@ -8,8 +8,8 @@ import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
 
 public class InteractionAllianceCacheManager extends AllianceCacheManager<InteractionGeneJoin, JsonResultResponse<InteractionGeneJoin>> {
 
-    public List<InteractionGeneJoin> getInteractions(String entityID, Class classView) {
-        return getResultList(entityID, classView, JsonResultResponseInteraction.class, CacheAlliance.INTERACTION);
+    public List<InteractionGeneJoin> getInteractions(String entityID, Class<?> classView) {
+        return getResultList(entityID, classView, JsonResultResponseInteraction.class, CacheAlliance.GENE_INTERACTION);
     }
 
 }
