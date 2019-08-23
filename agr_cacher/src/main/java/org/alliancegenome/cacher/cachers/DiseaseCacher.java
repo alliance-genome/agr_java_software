@@ -108,6 +108,8 @@ public class DiseaseCacher extends Cacher {
         // and store the annotations in a map for quick retrieval
         Map<String, List<DiseaseAnnotation>> diseaseAnnotationMap = new HashMap<>();
         Map<String, List<DiseaseAnnotation>> diseaseAnnotationSummaryMap = new HashMap<>();
+        
+        
         allIDs.forEach(termID -> {
             Set<String> allDiseaseIDs = closureMapping.get(termID);
             List<DiseaseAnnotation> joins = allDiseaseAnnotations.stream()

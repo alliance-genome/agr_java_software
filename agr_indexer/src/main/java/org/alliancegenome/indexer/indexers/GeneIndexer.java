@@ -32,7 +32,7 @@ public class GeneIndexer extends Indexer<GeneDocument> {
 
         try {
             LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>();
-            GeneRepository geneRepo = new GeneRepository();
+
             GeneIndexerRepository geneIndexerRepository = new GeneIndexerRepository();
 
             List<String> fulllist;
@@ -45,7 +45,7 @@ public class GeneIndexer extends Indexer<GeneDocument> {
             }
 
             queue.addAll(fulllist);
-            geneRepo.clearCache();
+
             initiateThreading(queue);
         } catch (Exception e) {
             log.error("Error while indexing...", e);

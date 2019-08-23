@@ -91,7 +91,7 @@ public class Neo4jRepository<E> {
     private Result loggedQuery(String cypherQuery, Map<String, ?> params) {
         Date start = new Date();
         log.debug("Running Query: " + cypherQuery);
-        Result ret = neo4jSession.query(cypherQuery, Collections.EMPTY_MAP);
+        Result ret = neo4jSession.query(cypherQuery, params);
         Date end = new Date();
         log.debug("Query took: " + ProcessDisplayHelper.getHumanReadableTimeDisplay(end.getTime() - start.getTime()) + " to run");
         return ret;
@@ -125,8 +125,7 @@ public class Neo4jRepository<E> {
     }
 
     //used by indexer repositories
-    protected Map<String, Set<String>> getMapSetForQuery(String query, String keyField,
-                                                         String returnField, Map<String, String> params) {
+    protected Map<String, Set<String>> getMapSetForQuery(String query, String keyField, String returnField, Map<String, String> params) {
 
         Map<String, Set<String>> returnMap = new HashMap<>();
 
