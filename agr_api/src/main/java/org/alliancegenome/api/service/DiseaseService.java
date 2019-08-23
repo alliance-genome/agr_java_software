@@ -15,8 +15,6 @@ import org.alliancegenome.api.DiseaseCacheRepository;
 import org.alliancegenome.api.entity.DiseaseEntitySubgroupSlim;
 import org.alliancegenome.api.entity.DiseaseRibbonEntity;
 import org.alliancegenome.api.entity.DiseaseRibbonSummary;
-import org.alliancegenome.api.entity.EntitySubgroupSlim;
-import org.alliancegenome.api.entity.RibbonEntity;
 import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.core.service.PaginationResult;
 import org.alliancegenome.core.service.SortingField;

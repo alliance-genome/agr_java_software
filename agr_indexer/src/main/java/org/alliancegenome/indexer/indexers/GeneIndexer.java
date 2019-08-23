@@ -12,7 +12,6 @@ import org.alliancegenome.es.index.site.document.GeneDocument;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.repository.GeneIndexerRepository;
-import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

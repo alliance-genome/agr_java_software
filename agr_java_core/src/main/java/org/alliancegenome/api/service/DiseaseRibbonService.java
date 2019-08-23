@@ -1,6 +1,15 @@
 package org.alliancegenome.api.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.enterprise.context.RequestScoped;
+
 import org.alliancegenome.api.entity.DiseaseRibbonSection;
 import org.alliancegenome.api.entity.DiseaseRibbonSummary;
 import org.alliancegenome.api.entity.DiseaseSectionSlim;
@@ -9,9 +18,7 @@ import org.alliancegenome.neo4j.repository.DiseaseRepository;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import javax.enterprise.context.RequestScoped;
-import java.io.IOException;
-import java.util.*;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RequestScoped
 public class DiseaseRibbonService {

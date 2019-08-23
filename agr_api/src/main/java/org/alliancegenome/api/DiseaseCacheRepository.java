@@ -1,24 +1,29 @@
 package org.alliancegenome.api;
 
-import lombok.extern.log4j.Log4j2;
-import org.alliancegenome.api.entity.CacheStatus;
-import org.alliancegenome.api.service.DiseaseRibbonService;
+import static java.util.stream.Collectors.toList;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.alliancegenome.cache.DiseaseAllianceCacheManager;
-import org.alliancegenome.core.service.*;
+import org.alliancegenome.core.service.DiseaseAnnotationFiltering;
+import org.alliancegenome.core.service.DiseaseAnnotationSorting;
+import org.alliancegenome.core.service.FilterFunction;
+import org.alliancegenome.core.service.PaginationResult;
+import org.alliancegenome.core.service.SortingField;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
-import org.alliancegenome.neo4j.entity.node.*;
 import org.alliancegenome.neo4j.repository.DiseaseRepository;
 import org.alliancegenome.neo4j.view.BaseFilter;
 import org.alliancegenome.neo4j.view.View;
 import org.apache.commons.lang3.StringUtils;
 
-import java.time.LocalDateTime;
-import java.util.*;
-import java.util.stream.Collectors;
-
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.toList;
+import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 public class DiseaseCacheRepository {
