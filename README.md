@@ -14,4 +14,4 @@ Could be that wildfly (application server) is called before it is fully started:
 4. Build the API `make api`
 5. Change directory into agr_java_software/agr_api
 6. Start app server (thorntail): `make run`
-7. Now you can call API endpoints, e.g. `http://localhost:8080/api/gene/MGI:109448/alleles`
+7. Now you can call API endpoints, e.g. `http://localhost:8080/api/gene/MGI:109583/alleles`
