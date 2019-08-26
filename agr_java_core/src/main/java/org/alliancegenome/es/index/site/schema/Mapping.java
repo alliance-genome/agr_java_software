@@ -75,6 +75,7 @@ public abstract class Mapping extends Builder {
                 .build();
         new FieldBuilder(builder, "species","text").keyword().synonym().sort().build();
         new FieldBuilder(builder, "associatedSpecies","text").keyword().synonym().sort().build();
+        new FieldBuilder(builder, "variantTypes", "text").keyword().build();
     }
 
     protected void buildNestedDocument(String name) throws IOException {
