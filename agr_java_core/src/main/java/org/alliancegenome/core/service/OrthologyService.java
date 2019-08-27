@@ -6,12 +6,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.alliancegenome.cache.repository.GeneCacheRepository;
 import org.alliancegenome.es.index.site.doclet.OrthologyDoclet;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.entity.node.OrthoAlgorithm;
 import org.alliancegenome.neo4j.entity.node.OrthologyGeneJoin;
 import org.alliancegenome.neo4j.entity.relationship.Orthologous;
-import org.alliancegenome.neo4j.repository.GeneCacheRepository;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.alliancegenome.neo4j.view.OrthologView;
 import org.alliancegenome.neo4j.view.OrthologyFilter;

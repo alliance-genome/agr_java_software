@@ -1,4 +1,4 @@
-package org.alliancegenome.neo4j.repository;
+package org.alliancegenome.cache.repository;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -9,7 +9,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.alliancegenome.cache.ExpressionAllianceCacheManager;
+import org.alliancegenome.cache.manager.ExpressionAllianceCacheManager;
 import org.alliancegenome.core.ExpressionDetail;
 import org.alliancegenome.core.service.ExpressionAnnotationFiltering;
 import org.alliancegenome.core.service.ExpressionAnnotationSorting;
@@ -17,6 +17,7 @@ import org.alliancegenome.core.service.FilterFunction;
 import org.alliancegenome.core.service.PaginationResult;
 import org.alliancegenome.core.service.SortingField;
 import org.alliancegenome.es.model.query.Pagination;
+import org.alliancegenome.neo4j.repository.DiseaseRepository;
 import org.alliancegenome.neo4j.view.BaseFilter;
 import org.alliancegenome.neo4j.view.View;
 import org.apache.commons.collections4.CollectionUtils;

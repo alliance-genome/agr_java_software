@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.alliancegenome.cache.AllianceCacheManager;
+import org.alliancegenome.cache.manager.CacheManager;
 import org.alliancegenome.cacher.cachers.Cacher;
 import org.alliancegenome.cacher.config.CacherConfig;
 import org.alliancegenome.core.config.ConfigHelper;
@@ -75,7 +75,7 @@ public class Main {
             }
         }
 
-        AllianceCacheManager.close();
+        CacheManager.close();
 
         Date end = new Date();
         log.info("End Time: " + end);

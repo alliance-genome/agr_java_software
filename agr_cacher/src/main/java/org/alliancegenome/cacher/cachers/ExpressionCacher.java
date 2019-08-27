@@ -11,7 +11,7 @@ import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import org.alliancegenome.cache.CacheAlliance;
-import org.alliancegenome.cache.ExpressionAllianceCacheManager;
+import org.alliancegenome.cache.manager.ExpressionAllianceCacheManager;
 import org.alliancegenome.core.ExpressionDetail;
 import org.alliancegenome.core.service.JsonResultResponseExpression;
 import org.alliancegenome.neo4j.entity.node.BioEntityGeneExpressionJoin;

@@ -1,11 +1,11 @@
-package org.alliancegenome.neo4j.repository;
+package org.alliancegenome.cache.repository;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.alliancegenome.cache.AlleleAllianceCacheManager;
+import org.alliancegenome.cache.manager.AlleleAllianceCacheManager;
 import org.alliancegenome.core.service.AlleleFiltering;
 import org.alliancegenome.core.service.AlleleSorting;
 import org.alliancegenome.core.service.FilterFunction;
