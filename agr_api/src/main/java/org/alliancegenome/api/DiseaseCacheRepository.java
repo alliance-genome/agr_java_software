@@ -1,21 +1,8 @@
 package org.alliancegenome.api;
 
-import static java.util.stream.Collectors.toList;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
-
+import lombok.extern.log4j.Log4j2;
 import org.alliancegenome.cache.DiseaseAllianceCacheManager;
-import org.alliancegenome.core.service.DiseaseAnnotationFiltering;
-import org.alliancegenome.core.service.DiseaseAnnotationSorting;
-import org.alliancegenome.core.service.FilterFunction;
-import org.alliancegenome.core.service.PaginationResult;
-import org.alliancegenome.core.service.SortingField;
+import org.alliancegenome.core.service.*;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.repository.DiseaseRepository;
@@ -23,7 +10,10 @@ import org.alliancegenome.neo4j.view.BaseFilter;
 import org.alliancegenome.neo4j.view.View;
 import org.apache.commons.lang3.StringUtils;
 
-import lombok.extern.log4j.Log4j2;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toList;
 
 @Log4j2
 public class DiseaseCacheRepository {
@@ -48,10 +38,14 @@ public class DiseaseCacheRepository {
 
         DiseaseAllianceCacheManager manager = new DiseaseAllianceCacheManager();
         List<DiseaseAnnotation> fullDiseaseAnnotationList = manager.getDiseaseAnnotations(diseaseID, View.DiseaseAnnotationSummary.class);
+        PaginationResult<DiseaseAnnotation> result = new PaginationResult<>();
+        if (fullDiseaseAnnotationList == null) {
+            return result;
+        }
+
         //filtering
         List<DiseaseAnnotation> filteredDiseaseAnnotationList = filterDiseaseAnnotations(fullDiseaseAnnotationList, pagination.getFieldFilterValueMap());
 
-        PaginationResult<DiseaseAnnotation> result = new PaginationResult<>();
         result.setTotalNumber(filteredDiseaseAnnotationList.size());
         result.setResult(getSortedAndPaginatedDiseaseAnnotations(pagination, filteredDiseaseAnnotationList));
         return result;
