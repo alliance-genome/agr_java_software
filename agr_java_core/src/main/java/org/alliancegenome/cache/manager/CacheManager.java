@@ -37,27 +37,6 @@ public class CacheManager<T, U extends JsonResultResponse<T>> {
 
     public synchronized static void setupCaches() {
 
-
-        //  private synchronized static void setupCache() {
-        //      if (rmc != null)
-        //          return;
-        //
-        //      log.info("Setting up persistent cache Manager: ");
-        //      File rootDirectory = new File(".", "ehcache-data");
-        //      if (web)
-        //          rootDirectory = new File("../.", "ehcache-data");
-        //      System.out.println("ehcache directory: " + rootDirectory.getAbsolutePath());
-        //      CacheManagerBuilder<PersistentCacheManager> cacheManagerBuilder = CacheManagerBuilder.newCacheManagerBuilder()
-        //              .with(CacheManagerBuilder.persistence(rootDirectory));
-        //      // create individual cache name spaces
-        //      for (CacheAlliance cache : CacheAlliance.values()) {
-        //          cacheManagerBuilder = cacheManagerBuilder.withCache(cache.getCacheName(), CacheConfigurationBuilder.newCacheConfigurationBuilder(String.class, String.class,
-        //                  ResourcePoolsBuilder.newResourcePoolsBuilder().disk(8, MemoryUnit.GB, true))
-        //          );
-        //      }
-        //      rmc = cacheManagerBuilder.build(true);
-        //  }
-        
         ConfigurationBuilder cb = new ConfigurationBuilder();
 
         cb.addServer()
