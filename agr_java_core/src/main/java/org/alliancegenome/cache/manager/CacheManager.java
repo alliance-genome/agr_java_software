@@ -1,9 +1,10 @@
-package org.alliancegenome.cache;
+package org.alliancegenome.cache.manager;
 
 import java.io.IOException;
 import java.util.List;
 
 import org.alliancegenome.api.entity.CacheStatus;
+import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.service.JsonResultResponse;
 import org.infinispan.client.hotrod.RemoteCache;
@@ -21,7 +22,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.log4j.Log4j2;
 
 @Log4j2
-public class AllianceCacheManager<T, U extends JsonResultResponse<T>> {
+public class CacheManager<T, U extends JsonResultResponse<T>> {
 
     public static RemoteCacheManager rmc = null;
     public static ObjectMapper mapper = new ObjectMapper();

@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.alliancegenome.cache.AlleleAllianceCacheManager;
 import org.alliancegenome.cache.CacheAlliance;
+import org.alliancegenome.cache.manager.AlleleAllianceCacheManager;
 import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.repository.AlleleRepository;

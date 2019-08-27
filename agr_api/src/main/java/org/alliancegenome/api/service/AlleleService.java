@@ -2,11 +2,11 @@ package org.alliancegenome.api.service;
 
 import javax.enterprise.context.RequestScoped;
 
+import org.alliancegenome.cache.repository.AlleleCacheRepository;
 import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.entity.node.Allele;
-import org.alliancegenome.neo4j.repository.AlleleCacheRepository;
 import org.alliancegenome.neo4j.repository.AlleleRepository;
 
 @RequestScoped

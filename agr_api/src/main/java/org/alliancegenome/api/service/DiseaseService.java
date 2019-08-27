@@ -11,10 +11,10 @@ import java.util.stream.Collectors;
 
 import javax.enterprise.context.RequestScoped;
 
-import org.alliancegenome.api.DiseaseCacheRepository;
 import org.alliancegenome.api.entity.DiseaseEntitySubgroupSlim;
 import org.alliancegenome.api.entity.DiseaseRibbonEntity;
 import org.alliancegenome.api.entity.DiseaseRibbonSummary;
+import org.alliancegenome.cache.repository.DiseaseCacheRepository;
 import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.core.service.PaginationResult;
 import org.alliancegenome.core.service.SortingField;

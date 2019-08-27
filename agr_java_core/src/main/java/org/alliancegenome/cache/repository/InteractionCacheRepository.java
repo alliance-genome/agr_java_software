@@ -1,4 +1,4 @@
-package org.alliancegenome.neo4j.repository;
+package org.alliancegenome.cache.repository;
 
 import static java.util.stream.Collectors.toList;
 
@@ -7,7 +7,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.alliancegenome.cache.InteractionAllianceCacheManager;
+import org.alliancegenome.cache.manager.InteractionAllianceCacheManager;
 import org.alliancegenome.core.service.FilterFunction;
 import org.alliancegenome.core.service.InteractionAnnotationFiltering;
 import org.alliancegenome.core.service.InteractionAnnotationSorting;

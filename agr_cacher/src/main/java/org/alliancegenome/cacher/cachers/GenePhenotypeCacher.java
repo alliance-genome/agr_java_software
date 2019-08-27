@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.alliancegenome.cache.CacheAlliance;
-import org.alliancegenome.cache.PhenotypeCacheManager;
+import org.alliancegenome.cache.manager.PhenotypeCacheManager;
 import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
 import org.alliancegenome.neo4j.entity.node.PhenotypeEntityJoin;

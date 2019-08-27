@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.alliancegenome.cache.CacheAlliance;
-import org.alliancegenome.cache.OrthologyAllianceCacheManager;
+import org.alliancegenome.cache.manager.OrthologyAllianceCacheManager;
 import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.repository.GeneRepository;
