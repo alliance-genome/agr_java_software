@@ -2,6 +2,7 @@ package org.alliancegenome.es.index.site.document;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import org.alliancegenome.es.index.site.doclet.CrossReferenceDoclet;
 
@@ -34,6 +35,7 @@ public class AlleleDocument extends SearchableItemDocument {
     private List<String> secondaryIds;
     private List<String> synonyms;
     private List<CrossReferenceDoclet> crossReferenceList;
+    private Set<String> variantTypes;
 
     @Override
     @JsonIgnore

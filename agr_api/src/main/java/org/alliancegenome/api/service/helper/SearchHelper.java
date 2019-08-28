@@ -66,6 +66,7 @@ public class SearchHelper {
             put("allele", new ArrayList<String>() {
                 {
                     add("species");
+                    add("variantTypes");
                     add("diseasesAgrSlim");
                     add("genes");
                 }

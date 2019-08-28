@@ -1,8 +1,11 @@
 package org.alliancegenome.cache.manager;
 
-import java.io.IOException;
-import java.util.List;
-
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.log4j.Log4j2;
 import org.alliancegenome.api.entity.CacheStatus;
 import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.core.config.ConfigHelper;
@@ -13,13 +16,8 @@ import org.infinispan.client.hotrod.configuration.ConfigurationBuilder;
 import org.infinispan.configuration.cache.StorageType;
 import org.infinispan.eviction.EvictionType;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import lombok.extern.log4j.Log4j2;
+import java.io.IOException;
+import java.util.List;
 
 @Log4j2
 public class CacheManager<T, U extends JsonResultResponse<T>> {
@@ -37,35 +35,14 @@ public class CacheManager<T, U extends JsonResultResponse<T>> {
 
     public synchronized static void setupCaches() {
 
-
-        //  private synchronized static void setupCache() {
-        //      if (rmc != null)
-        //          return;
-        //
-        //      log.info("Setting up persistent cache Manager: ");
-        //      File rootDirectory = new File(".", "ehcache-data");
-        //      if (web)
-        //          rootDirectory = new File("../.", "ehcache-data");
-        //      System.out.println("ehcache directory: " + rootDirectory.getAbsolutePath());
-        //      CacheManagerBuilder<PersistentCacheManager> cacheManagerBuilder = CacheManagerBuilder.newCacheManagerBuilder()
-        //              .with(CacheManagerBuilder.persistence(rootDirectory));
-        //      // create individual cache name spaces
-        //      for (CacheAlliance cache : CacheAlliance.values()) {
-        //          cacheManagerBuilder = cacheManagerBuilder.withCache(cache.getCacheName(), CacheConfigurationBuilder.newCacheConfigurationBuilder(String.class, String.class,
-        //                  ResourcePoolsBuilder.newResourcePoolsBuilder().disk(8, MemoryUnit.GB, true))
-        //          );
-        //      }
-        //      rmc = cacheManagerBuilder.build(true);
-        //  }
-        
         ConfigurationBuilder cb = new ConfigurationBuilder();
 
         cb.addServer()
-        .host(ConfigHelper.getCacheHost())
-        .port(ConfigHelper.getCachePort())
-        .socketTimeout(500000)
-        .connectionTimeout(500000)
-        .tcpNoDelay(true);
+                .host(ConfigHelper.getCacheHost())
+                .port(ConfigHelper.getCachePort())
+                .socketTimeout(500000)
+                .connectionTimeout(500000)
+                .tcpNoDelay(true);
 
         rmc = new RemoteCacheManager(cb.build());
 
@@ -73,28 +50,28 @@ public class CacheManager<T, U extends JsonResultResponse<T>> {
 
         for (CacheAlliance cache : CacheAlliance.values()) {
             log.debug("Creating Cache: " + cache.getCacheName());
-            
+
             org.infinispan.configuration.cache.ConfigurationBuilder cb2 = new org.infinispan.configuration.cache.ConfigurationBuilder();
-            
+
             cb2
-            .memory()
-            .storageType(StorageType.BINARY)
-            .evictionType(EvictionType.MEMORY)
-            .size(1_500_000_000)
-            .persistence()
-            .passivation(false)
-            .addSingleFileStore()
-                .preload(true)
-                .shared(false)
-                .fetchPersistentState(true)
-                .location("/data/" + cache.getCacheName()).async().enable().threadPoolSize(5);
-            
-            
+                    .memory()
+                    .storageType(StorageType.BINARY)
+                    .evictionType(EvictionType.MEMORY)
+                    .size(1_500_000_000)
+                    .persistence()
+                    .passivation(false)
+                    .addSingleFileStore()
+                    .preload(true)
+                    .shared(false)
+                    .fetchPersistentState(true)
+                    .location("/data/" + cache.getCacheName()).async().enable().threadPoolSize(5);
+
+
             rmc.administration().getOrCreateCache(cache.getCacheName(), cb2.build());
-            
+
             // log.info("Clearing cache if exists"); // This might need to run if the cacher is running
             // rmc.getCache(cache.getCacheName()).clear(); // But should not be run via the API
-            
+
             log.debug("Cache: " + cache.getCacheName() + " finished creating");
         }
 
@@ -115,17 +92,17 @@ public class CacheManager<T, U extends JsonResultResponse<T>> {
     public List<T> getResultList(String entityID, Class<?> classView, Class<? extends JsonResultResponse<T>> clazz, CacheAlliance cacheSpace) {
         return getResultListGeneric(entityID, classView, clazz, cacheSpace);
     }
-    
+
     public static CacheStatus getCacheStatus(CacheAlliance cacheSpace) {
-    
+
         CacheStatus status = new CacheStatus(cacheSpace.getCacheName());
-        
+
         RemoteCache<String, String> cache = getCacheSpace(cacheSpace);
-        
+
         status.setNumberOfEntities(cache.size());
-        
+
         log.info("Cache Status: " + status);
-        
+
         return status;
     }
 
