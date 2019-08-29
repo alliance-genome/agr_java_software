@@ -33,6 +33,7 @@ public class Allele extends GeneticEntity implements Comparable<Allele> {
     private String localId;
     private String globalId;
     private String modCrossRefCompleteUrl;
+    @JsonView({View.Default.class})
     private String symbolText;
 
     @Relationship(type = "ALSO_KNOWN_AS")

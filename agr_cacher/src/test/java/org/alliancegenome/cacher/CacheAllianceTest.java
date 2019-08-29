@@ -1,6 +1,7 @@
 package org.alliancegenome.cacher;
 
 import org.alliancegenome.cache.CacheAlliance;
+import org.alliancegenome.cacher.cachers.DiseaseCacher;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -19,6 +20,12 @@ public class CacheAllianceTest {
         assertEquals(CacheAlliance.ALLELE_SPECIES.getCacheName(), "allele_species");
 
 
+    }
+
+    @Test
+    public void gett(){
+        DiseaseCacher cacher = new DiseaseCacher();
+        //cacher.run();
     }
 
 }

@@ -64,7 +64,7 @@ public class GeneOrthologCacher extends Cacher {
         });
         
         finishProcess();
-        
+        setCacheStatus(geneList.size(), CacheAlliance.GENE_ORTHOLOGY.getCacheName());
         geneRepository.clearCache();
 
     }

@@ -49,21 +49,25 @@ public class DiseaseAnnotationSorting implements Sorting<DiseaseAnnotation> {
         defaultList.add(phylogeneticOrder);
         defaultList.add(geneSymbolOrder);
         defaultList.add(diseaseOrder);
+        defaultList.add(alleleSymbolOrder);
 
         diseaseList = new ArrayList<>(4);
         diseaseList.add(diseaseOrder);
         diseaseList.add(phylogeneticOrder);
         diseaseList.add(geneSymbolOrder);
+        diseaseList.add(alleleSymbolOrder);
 
         geneList = new ArrayList<>(4);
         geneList.add(geneSymbolOrder);
         geneList.add(diseaseOrder);
         geneList.add(phylogeneticOrder);
+        geneList.add(alleleSymbolOrder);
 
         speciesList = new ArrayList<>(4);
         speciesList.add(speciesSymbolOrder);
         speciesList.add(geneSymbolOrder);
         speciesList.add(diseaseOrder);
+        speciesList.add(alleleSymbolOrder);
     }
 
     public Comparator<DiseaseAnnotation> getComparator(SortingField field, Boolean ascending) {

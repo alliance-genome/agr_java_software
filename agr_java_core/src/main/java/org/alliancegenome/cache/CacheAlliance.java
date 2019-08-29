@@ -19,6 +19,8 @@ public enum CacheAlliance {
     DISEASE(),
     DISEASE_ANNOTATION(),
     DISEASE_SITEMAP(),
+
+    CACHING_STATS(),
     ;
 
     private String cacheName;

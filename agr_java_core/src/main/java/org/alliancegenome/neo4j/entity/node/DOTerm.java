@@ -150,8 +150,4 @@ public class DOTerm extends SimpleTerm {
                 .collect(Collectors.toList());
     }
 
-    public String getID() {
-        return doId;
-    }
-
 }

@@ -117,13 +117,22 @@ public class DiseaseCacher extends Cacher {
         log.info("Number of Disease IDs in disease Map: " + diseaseAnnotationMap.size());
         log.info("Time to create annotation  list: " + (System.currentTimeMillis() - startCreateHistogram) / 1000);
 
+        setCacheStatus(joinList.size(), CacheAlliance.DISEASE_ANNOTATION.getCacheName());
 
         DiseaseAllianceCacheManager manager = new DiseaseAllianceCacheManager();
+        // Create map with genes as keys
+        // Map<gene ID, List<DiseaseAnnotation>> including annotations to child terms
+        Map<String, List<DiseaseAnnotation>> diseaseAnnotationExperimentGeneMap = allDiseaseAnnotations.stream()
+                .filter(annotation -> annotation.getSortOrder() < 10)
+                .collect(groupingBy(o -> o.getGene().getPrimaryKey(), Collectors.toList()));
+        diseaseAnnotationMap.putAll(diseaseAnnotationExperimentGeneMap);
+
+        log.info("Number of Disease IDs in disease Map after adding gene grouping: " + diseaseAnnotationMap.size());
         diseaseAnnotationMap.forEach((key, value) -> {
             JsonResultResponseDiseaseAnnotation result = new JsonResultResponseDiseaseAnnotation();
             result.setResults(value);
             try {
-                manager.putCache(key, result, View.DiseaseAnnotationSummary.class, CacheAlliance.DISEASE_ANNOTATION);
+                manager.putCache(key, result, View.DiseaseCacher.class, CacheAlliance.DISEASE_ANNOTATION);
             } catch (JsonProcessingException e) {
                 throw new RuntimeException(e);
             }
@@ -131,19 +140,6 @@ public class DiseaseCacher extends Cacher {
 
         diseaseRepository.clearCache();
 
-        // Map<gene ID, List<DiseaseAnnotation>> including annotations to child terms
-        Map<String, List<DiseaseAnnotation>> diseaseAnnotationExperimentGeneMap = allDiseaseAnnotations.stream()
-                .filter(annotation -> annotation.getSortOrder() < 10)
-                .collect(groupingBy(o -> o.getGene().getPrimaryKey(), Collectors.toList()));
-        diseaseAnnotationExperimentGeneMap.forEach((key, value) -> {
-            JsonResultResponseDiseaseAnnotation result = new JsonResultResponseDiseaseAnnotation();
-            result.setResults(value);
-            try {
-                manager.putCache(key, result, View.DiseaseAnnotationSummary.class, CacheAlliance.DISEASE_ANNOTATION);
-            } catch (JsonProcessingException e) {
-                throw new RuntimeException(e);
-            }
-        });
     }
 
 }

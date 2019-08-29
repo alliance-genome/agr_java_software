@@ -56,8 +56,8 @@ class DiseaseAnnotationIntegrationSpec extends AbstractSpec {
         doURL == ezha.disease.url
         species == ezha.gene.species.name
         where:
-        doid        | totalResults | returned | firstGene    | geneSymbol | crossRef        | geneticEntityType | evCode | disease                      | doID        | doURL                                           | species
-        "DOID:9952" | 66           | 50       | "HGNC:24948" | "DOT1L"    | "PMID:22431509" | "allele"          | "TAS"  | "acute lymphocytic leukemia" | "DOID:9952" | "http://www.disease-ontology.org/?id=DOID:9952" | "Mus musculus"
+        doid        | totalResults | returned | firstGene    | geneSymbol | crossRef        | geneticEntityType | evCode                                              | disease                      | doID        | doURL                                           | species
+        "DOID:9952" | 66           | 50       | "HGNC:24948" | "DOT1L"    | "PMID:22431509" | "allele"          | "author statement supported by traceable reference" | "acute lymphocytic leukemia" | "DOID:9952" | "http://www.disease-ontology.org/?id=DOID:9952" | "Mus musculus"
 
     }
 
@@ -160,27 +160,6 @@ class DiseaseAnnotationIntegrationSpec extends AbstractSpec {
     }
 
     @Unroll
-    def "Gene page - Annotation via Orthology #geneID "() {
-        when:
-        def retObj = getApiResult("/api/gene/$geneID/diseases-via-orthology?limit=5")
-        def results = retObj.results
-
-        then:
-        results
-        retObj.total >= resultSize
-        results[0].disease.name == diseaseName
-        results[0].disease.id == diseaseID
-        results[0].disease.url == diseaseURl
-        results[0].orthologyGene.id == orthoGene
-        results[0].source.name == source
-
-        where:
-        geneID                   | resultSize | diseaseName                            | diseaseID      | source     | orthoGene   | diseaseURl
-        "MGI:109583"             | 31         | "angiomyolipoma"                       | "DOID:3314"    | "Alliance" | "HGNC:9588" | "http://www.disease-ontology.org/?id=DOID:3314"
-        "ZFIN:ZDB-GENE-990415-8" | 5          | "focal segmental glomerulosclerosis 7" | "DOID:0111132" | "Alliance" | "HGNC:8616" | "http://www.disease-ontology.org/?id=DOID:0111132"
-    }
-
-    @Unroll
     def "Disease page - Annotations including child terms #doID "() {
         when:
         def results = getApiResults("/api/disease/$doID/associations").results
@@ -206,14 +185,9 @@ class DiseaseAnnotationIntegrationSpec extends AbstractSpec {
         def outputExperiment = getApiResultRaw("/api/gene/MGI:109583/diseases-by-experiment/download?page=1&limit=100&sortBy=disease")
         def resultsExperiment = outputExperiment.split('\n')
 
-        def outputOrtho = getApiResultRaw("/api/gene/MGI:109583/diseases-via-orthology/download?page=1&limit=100&sortBy=disease")
-        def resultsOrtho = outputOrtho.split('\n')
-
         then:
         results.size() > 70
         resultsExperiment.size() > 48
-        resultsExperiment.size() > 48
-        resultsOrtho.size() > 30
 
     }
 
@@ -227,20 +201,20 @@ class DiseaseAnnotationIntegrationSpec extends AbstractSpec {
         results.size() < resultSizeUpperLimit
 
         where:
-        disease     | query                             | resultSizeLowerLimit | resultSizeUpperLimit
-        "DOID:9952" | ""                                | 60                   | 80
-        "DOID:9952" | "filter.geneName=2"               | 30                   | 40
-        "DOID:9952" | "filter.disease=cell"             | 10                   | 40
-        "DOID:9952" | "filter.geneticEntity=tm"         | 0                    | 10
-        "DOID:9952" | "filter.geneticEntityType=allele" | 0                    | 10
-        "DOID:9952" | "filter.associationType=is"       | 10                   | 80
-        "DOID:9952" | "filter.associationType=OrTHo"    | 40                   | 80
-        "DOID:9952" | "filter.reference=PMID:1"         | 0                    | 50
-        "DOID:9952" | "filter.reference=MGI:6194"       | 10                   | 70
-        "DOID:9952" | "filter.evidenceCode=As"          | 10                   | 20
-        "DOID:9952" | "filter.source=gD"                | 0                    | 10
-        "DOID:9952" | "filter.source=aLLIANc"           | 50                   | 70
-        "DOID:9952" | "filter.species=ELeG"             | 10                   | 20
+        disease     | query                                             | resultSizeLowerLimit | resultSizeUpperLimit
+        "DOID:9952" | ""                                                | 60                   | 80
+        "DOID:9952" | "filter.geneName=2"                               | 30                   | 40
+        "DOID:9952" | "filter.disease=cell"                             | 10                   | 40
+        "DOID:9952" | "filter.geneticEntity=tm"                         | 0                    | 10
+        "DOID:9952" | "filter.geneticEntityType=allele"                 | 0                    | 10
+        "DOID:9952" | "filter.associationType=is_implicated_in"         | 10                   | 80
+        "DOID:9952" | "filter.associationType=implicated_via_orthology" | 40                   | 80
+        "DOID:9952" | "filter.reference=PMID:1"                         | 0                    | 50
+        "DOID:9952" | "filter.reference=MGI:6194"                       | 10                   | 70
+        "DOID:9952" | "filter.evidenceCode=author"                      | 10                   | 20
+        "DOID:9952" | "filter.source=gD"                                | 0                    | 10
+        "DOID:9952" | "filter.source=aLLIANc"                           | 50                   | 70
+        "DOID:9952" | "filter.species=Danio%20Rerio"                    | 10                   | 20
     }
 
     @Unroll
