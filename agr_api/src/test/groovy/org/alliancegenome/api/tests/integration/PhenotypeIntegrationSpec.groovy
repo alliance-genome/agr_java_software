@@ -47,12 +47,11 @@ class PhenotypeIntegrationSpec extends AbstractSpec {
         then:
         result
         phenotype == result.results[0].phenotype
-        geneticEntity == result.results[0].geneticEntity.symbol
+        geneticEntity == result.results[0].allele.symbol
 
         where:
         geneId              | phenotype                            | geneticEntity
         "WB:WBGene00000898" | "aging variant"                      | "e1370"
-        "MGI:109583"        | "abnormal adipose tissue morphology" | "Pten"
 
     }
 
@@ -65,7 +64,7 @@ class PhenotypeIntegrationSpec extends AbstractSpec {
         then:
         result
         phenotype == result.results[0].phenotype
-        geneticEntity == result.results[0].geneticEntity.symbol
+        geneticEntity == result.results[0].allele.symbol
 
         where:
         geneId              | phenotype            | geneticEntity
@@ -83,7 +82,7 @@ class PhenotypeIntegrationSpec extends AbstractSpec {
         then:
         result
         phenotype == result.results[0].phenotype
-        geneticEntity == result.results[0].geneticEntity.symbol
+        geneticEntity == result.results[0].allele.symbol
 
         where:
         geneId              | phenotype            | geneticEntity

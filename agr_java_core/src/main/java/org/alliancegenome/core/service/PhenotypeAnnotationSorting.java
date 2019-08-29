@@ -1,12 +1,12 @@
 package org.alliancegenome.core.service;
 
+import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
+import org.alliancegenome.neo4j.entity.Sorting;
+import org.alliancegenome.neo4j.entity.node.Allele;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-
-import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
-import org.alliancegenome.neo4j.entity.Sorting;
-import org.alliancegenome.neo4j.entity.node.GeneticEntity;
 
 public class PhenotypeAnnotationSorting implements Sorting<PhenotypeAnnotation> {
 
@@ -18,18 +18,19 @@ public class PhenotypeAnnotationSorting implements Sorting<PhenotypeAnnotation> 
 
     private static Comparator<PhenotypeAnnotation> geneticEntityOrder =
             Comparator.comparing(annotation -> {
-                        GeneticEntity geneticEntity = annotation.getGeneticEntity();
-                        if (geneticEntity.getType().equals(GeneticEntity.CrossReferenceType.GENE.getDisplayName()))
+                        Allele allele = annotation.getAllele();
+                        // sort gene records without alleles after alleles
+                        if (allele == null)
                             return "zzz";
                         // create alpha-smart key
-                        String smartSymbol = Sorting.getSmartKey(geneticEntity.getSymbol());
+                        String smartSymbol = Sorting.getSmartKey(allele.getSymbol());
                         return smartSymbol;
                     }
             );
 
 
     private static Comparator<PhenotypeAnnotation> geneticEntityTypeOrder =
-            Comparator.comparing(annotation -> annotation.getGeneticEntity().getType());
+            Comparator.comparing(annotation -> annotation.getAllele().getType());
 
 
     public PhenotypeAnnotationSorting() {

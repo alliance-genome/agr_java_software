@@ -119,8 +119,7 @@ public class DiseaseCacher extends Cacher {
 
         setCacheStatus(joinList.size(), CacheAlliance.DISEASE_ANNOTATION.getCacheName());
 
-        DiseaseAllianceCacheManager manager = new DiseaseAllianceCacheManager();
-        // Create map with genes as keys
+        // Create map with genes as keys and their associated disease annotations as values
         // Map<gene ID, List<DiseaseAnnotation>> including annotations to child terms
         Map<String, List<DiseaseAnnotation>> diseaseAnnotationExperimentGeneMap = allDiseaseAnnotations.stream()
                 .filter(annotation -> annotation.getSortOrder() < 10)
@@ -128,6 +127,7 @@ public class DiseaseCacher extends Cacher {
         diseaseAnnotationMap.putAll(diseaseAnnotationExperimentGeneMap);
 
         log.info("Number of Disease IDs in disease Map after adding gene grouping: " + diseaseAnnotationMap.size());
+        DiseaseAllianceCacheManager manager = new DiseaseAllianceCacheManager();
         diseaseAnnotationMap.forEach((key, value) -> {
             JsonResultResponseDiseaseAnnotation result = new JsonResultResponseDiseaseAnnotation();
             result.setResults(value);

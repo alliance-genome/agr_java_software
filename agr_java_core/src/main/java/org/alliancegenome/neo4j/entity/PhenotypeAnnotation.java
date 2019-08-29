@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.List;
 
 import org.alliancegenome.es.index.site.doclet.SourceDoclet;
+import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.entity.node.GeneticEntity;
 import org.alliancegenome.neo4j.entity.node.Publication;
@@ -25,7 +26,7 @@ public class PhenotypeAnnotation implements Comparable<PhenotypeAnnotation>, Ser
     @JsonView({View.PhenotypeAPI.class})
     private Gene gene;
     @JsonView({View.PhenotypeAPI.class})
-    private GeneticEntity geneticEntity;
+    private Allele allele;
     @JsonView({View.PhenotypeAPI.class})
     private List<Publication> publications;
 
