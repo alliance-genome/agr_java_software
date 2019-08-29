@@ -39,6 +39,7 @@ public class AlleleCacher extends Cacher {
                 throw new RuntimeException(e);
             }
         }
+        setCacheStatus(allAlleles.size(), CacheAlliance.ALLELE.getCacheName());
 
         alleleRepository.clearCache();
         

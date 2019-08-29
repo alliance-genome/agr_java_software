@@ -68,8 +68,8 @@ public class InteractionCacher extends Cacher {
         });
         
         finishProcess();
-        
-        
+        setCacheStatus(allInteractionAnnotations.size(), CacheAlliance.GENE_INTERACTION.getCacheName());
+
         interactionRepository.clearCache();
     }
 
