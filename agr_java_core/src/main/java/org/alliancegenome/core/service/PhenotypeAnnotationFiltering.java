@@ -1,13 +1,13 @@
 package org.alliancegenome.core.service;
 
+import org.alliancegenome.es.model.query.FieldFilter;
+import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import org.alliancegenome.es.model.query.FieldFilter;
-import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
 
 public class PhenotypeAnnotationFiltering {
 
@@ -17,8 +17,8 @@ public class PhenotypeAnnotationFiltering {
 
     public static FilterFunction<PhenotypeAnnotation, String> geneticEntityFilter =
             (annotation, value) -> {
-                if (annotation.getGeneticEntity() != null)
-                    return FilterFunction.contains(annotation.getGeneticEntity().getSymbol(), value);
+                if (annotation.getAllele() != null)
+                    return FilterFunction.contains(annotation.getAllele().getSymbol(), value);
                 else
                     return false;
             };
@@ -27,7 +27,14 @@ public class PhenotypeAnnotationFiltering {
             (annotation, value) -> FilterFunction.contains(annotation.getSource().getName(), value);
 
     public static FilterFunction<PhenotypeAnnotation, String> geneticEntityTypeFilter =
-            (annotation, value) -> FilterFunction.fullMatchMultiValueOR(annotation.getGeneticEntity().getType(), value);
+            (annotation, value) -> {
+                // if a gene
+                if (annotation.getAllele() == null) {
+                    return FilterFunction.fullMatchMultiValueOR(annotation.getGene().getType(), value);
+                } else {
+                    return FilterFunction.fullMatchMultiValueOR(annotation.getAllele().getType(), value);
+                }
+            };
 
     public static FilterFunction<PhenotypeAnnotation, String> referenceFilter =
             (annotation, value) -> {

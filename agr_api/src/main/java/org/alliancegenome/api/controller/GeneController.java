@@ -187,7 +187,7 @@ public class GeneController extends BaseController implements GeneRESTInterface 
             phenotypes.calculateRequestDuration(startTime);
             return phenotypes;
         } catch (Exception e) {
-            log.error(e);
+            log.error("Error while retrieving phenotypes", e);
             RestErrorMessage error = new RestErrorMessage();
             error.addErrorMessage(e.getMessage());
             throw new RestErrorException(error);
