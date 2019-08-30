@@ -4,4 +4,4 @@ WORKDIR /workdir/agr_java_software
 
 ADD . .
 
-RUN mvn -B clean package -pl agr_indexer -am
+RUN mvn -T 4 -B clean package -pl agr_indexer -am

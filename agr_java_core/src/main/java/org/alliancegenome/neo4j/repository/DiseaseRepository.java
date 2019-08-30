@@ -1,30 +1,45 @@
 package org.alliancegenome.neo4j.repository;
 
-import lombok.Getter;
-import lombok.Setter;
-import org.alliancegenome.es.model.query.FieldFilter;
-import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.neo4j.entity.DiseaseSummary;
-import org.alliancegenome.neo4j.entity.node.*;
-import org.alliancegenome.neo4j.view.BaseFilter;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.neo4j.ogm.model.Result;
-
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
-
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.StringJoiner;
+import java.util.TreeMap;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
+
+import org.alliancegenome.es.model.query.FieldFilter;
+import org.alliancegenome.es.model.query.Pagination;
+import org.alliancegenome.neo4j.entity.DiseaseSummary;
+import org.alliancegenome.neo4j.entity.node.DOTerm;
+import org.alliancegenome.neo4j.entity.node.DiseaseEntityJoin;
+import org.alliancegenome.neo4j.entity.node.ECOTerm;
+import org.alliancegenome.neo4j.entity.node.GOTerm;
+import org.alliancegenome.neo4j.entity.node.PublicationEvidenceCodeJoin;
+import org.alliancegenome.neo4j.entity.node.UBERONTerm;
+import org.alliancegenome.neo4j.view.BaseFilter;
+import org.apache.commons.collections4.CollectionUtils;
+import org.neo4j.ogm.model.Result;
+
+import lombok.Getter;
+import lombok.Setter;
+import lombok.extern.log4j.Log4j2;
+
+@Log4j2
 public class DiseaseRepository extends Neo4jRepository<DOTerm> {
 
     public static final String DISEASE_INCLUDING_CHILDREN = "(diseaseParent:DOTerm)<-[:IS_A_PART_OF_CLOSURE]-(disease:DOTerm)";
     public static final String FEATURE_JOIN = " p4=(diseaseEntityJoin)--(feature:Feature)--(crossReference:CrossReference) ";
     public static final String AND_NOT_DISEASE_ENTITY_JOIN_FEATURE = " AND NOT (diseaseEntityJoin)--(:Feature) ";
-    private Logger log = LogManager.getLogger(getClass());
+
     public static final String TOTAL_COUNT = "totalCount";
 
     public DiseaseRepository() {
@@ -230,7 +245,7 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
 
         doAgrDoList = StreamSupport.stream(joins.spliterator(), false)
                 .collect(Collectors.toList());
-        System.out.println("AGR-DO slim: " + doAgrDoList.size());
+        log.info("AGR-DO slim: " + doAgrDoList.size());
         return doAgrDoList;
 
     }
@@ -243,7 +258,7 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
                 "where pubEvCode.primaryKey in [" + ids + "]" +
                 "RETURN p";
 
-        Iterable<ECOTerm> joins = neo4jSession.query(ECOTerm.class, cypher, new HashMap<>());
+        Iterable<ECOTerm> joins = query(ECOTerm.class, cypher);
 
         return StreamSupport.stream(joins.spliterator(), false).
                 collect(Collectors.toSet());
@@ -271,7 +286,7 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
 
         //Iterable<PublicationEvidenceCodeJoin> joins = neo4jSession.query(PublicationEvidenceCodeJoin.class, cypher, new HashMap<>());
 
-        System.out.println("Number of PublicationEvidenceCodeJoin records retrieved: " + String.format("%,d", ecoTermMap.size()));
+        log.info("Number of PublicationEvidenceCodeJoin records retrieved: " + String.format("%,d", ecoTermMap.size()));
     }
 
     public List<ECOTerm> getEcoTerm(String publicationEvidenceCodeJoinID) {
@@ -312,7 +327,7 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
         HashMap<String, String> map = new HashMap<>();
         map.put("primaryKey", id);
 
-        Iterable<UBERONTerm> terms = neo4jSession.query(UBERONTerm.class, cypher, map);
+        Iterable<UBERONTerm> terms = query(UBERONTerm.class, cypher, map);
         if (terms == null)
             return null;
         return terms.iterator().next();
@@ -326,7 +341,7 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
         HashMap<String, String> map = new HashMap<>();
         map.put("primaryKey", id);
 
-        Iterable<GOTerm> terms = neo4jSession.query(GOTerm.class, cypher, map);
+        Iterable<GOTerm> terms = query(GOTerm.class, cypher, map);
         if (terms == null)
             return null;
         return terms.iterator().next();
@@ -356,18 +371,18 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
                 "              p2=(diseaseEntityJoin:DiseaseEntityJoin)-[:EVIDENCE]->(pubEvCode:PublicationEvidenceCodeJoin)," +
                 "              p3=(publication:Publication)-[:ASSOCIATION]->(pubEvCode:PublicationEvidenceCodeJoin)";
         cypher += " where disease.isObsolete = 'false' ";
-        //cypher += " AND disease.primaryKey = 'DOID:1838' ";
+        //cypher += " AND disease.primaryKey = 'DOID:9952' ";
         cypher += "        OPTIONAL MATCH p1=(diseaseEntityJoin:DiseaseEntityJoin)--(feature:Feature)--(crossReference:CrossReference) " +
                 "        OPTIONAL MATCH p4=(diseaseEntityJoin:DiseaseEntityJoin)-[:FROM_ORTHOLOGOUS_GENE]-(orthoGene:Gene)-[:FROM_SPECIES]-(orthoSpecies:Species) " +
                 "RETURN p, p1, p2, p3, p4 ";
 
         long start = System.currentTimeMillis();
-        Iterable<DiseaseEntityJoin> joins = neo4jSession.query(DiseaseEntityJoin.class, cypher, new HashMap<>());
+        Iterable<DiseaseEntityJoin> joins = query(DiseaseEntityJoin.class, cypher);
 
         allDiseaseEntityJoins = StreamSupport.stream(joins.spliterator(), false).
                 collect(Collectors.toSet());
-        System.out.println("Total DiseaseEntityJoinRecords: " + String.format("%,d", allDiseaseEntityJoins.size()));
-        System.out.println("Loaded in:  " + ((System.currentTimeMillis() - start) / 1000) + " s");
+        log.info("Total DiseaseEntityJoinRecords: " + String.format("%,d", allDiseaseEntityJoins.size()));
+        log.info("Loaded in:    " + ((System.currentTimeMillis() - start) / 1000) + " s");
         return allDiseaseEntityJoins;
     }
 
@@ -697,7 +712,7 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
         HashMap<String, String> bindingValueMap = new HashMap<>();
         bindingValueMap.put("diseaseEntityJoinID", diseaseEntityJoinID);
 
-        Iterable<DiseaseEntityJoin> joins = neo4jSession.query(DiseaseEntityJoin.class, cypher, bindingValueMap);
+        Iterable<DiseaseEntityJoin> joins = query(DiseaseEntityJoin.class, cypher, bindingValueMap);
         return joins.iterator().next();
     }
 }

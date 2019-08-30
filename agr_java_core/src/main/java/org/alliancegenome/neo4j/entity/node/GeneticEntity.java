@@ -1,6 +1,7 @@
 package org.alliancegenome.neo4j.entity.node;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,11 +47,16 @@ public class GeneticEntity extends Neo4jEntity {
     public GeneticEntity() {
     }
 
+    // only used for JsonView
+    /// set when deserialized
+    private Map<String, Object> map = null;
+
     @JsonView({View.API.class})
     @JsonProperty(value = "crossReferences")
     public Map<String, Object> getCrossReferenceMap() {
-        Map<String, Object> map = new HashMap<>();
-
+        if (map != null)
+            return map;
+        map = new HashMap<>();
         List<CrossReference> othersList = new ArrayList<>();
         for (CrossReference cr : crossReferences) {
             String typeName = crossReferenceType.displayName;
@@ -65,6 +71,13 @@ public class GeneticEntity extends Neo4jEntity {
             }
         }
         return map;
+    }
+
+    @JsonProperty(value = "crossReferences")
+    public void setCrossReferenceMap(Map<String, Object> map) {
+        if (map == null)
+            return;
+        this.map = map;
     }
 
     private String url;
@@ -92,6 +105,11 @@ public class GeneticEntity extends Neo4jEntity {
         return crossReferenceType.displayName;
     }
 
+    @JsonProperty(value = "type")
+    public void setType(String type) {
+        crossReferenceType = CrossReferenceType.getCrossReferenceType(type);
+    }
+
     public enum CrossReferenceType {
 
         GENE("gene"), ALLELE("allele");
@@ -104,6 +122,12 @@ public class GeneticEntity extends Neo4jEntity {
 
         public String getDisplayName() {
             return displayName;
+        }
+
+        public static CrossReferenceType getCrossReferenceType(String name) {
+            return Arrays.stream(values())
+                    .filter(type -> type.getDisplayName().equals(name))
+                    .findFirst().orElse(null);
         }
     }
 }

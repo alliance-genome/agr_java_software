@@ -1,5 +1,13 @@
 package org.alliancegenome.neo4j.repository;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
+
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.node.GeneticEntity;
@@ -9,10 +17,6 @@ import org.alliancegenome.neo4j.view.BaseFilter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.neo4j.ogm.model.Result;
-
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 public class PhenotypeRepository extends Neo4jRepository<Phenotype> {
 
@@ -215,10 +219,11 @@ public class PhenotypeRepository extends Neo4jRepository<Phenotype> {
     public List<PhenotypeEntityJoin> getAllPhenotypeAnnotations() {
         String cypher = "MATCH p0=(phenotype:Phenotype)--(phenotypeEntityJoin:PhenotypeEntityJoin)<-[:EVIDENCE]-(publications:Publication), " +
                 "p2=(phenotypeEntityJoin:PhenotypeEntityJoin)--(gene:Gene)-[:FROM_SPECIES]-(species:Species) " +
+                //"where gene.primaryKey = 'MGI:109583' " +
                 "OPTIONAL MATCH p4=(phenotypeEntityJoin:PhenotypeEntityJoin)--(feature:Feature)-[:CROSS_REFERENCE]->(crossRef:CrossReference) " +
                 "return p0, p2, p4 ";
 
-        Iterable<PhenotypeEntityJoin> joins = neo4jSession.query(PhenotypeEntityJoin.class, cypher, new HashMap<>());
+        Iterable<PhenotypeEntityJoin> joins = query(PhenotypeEntityJoin.class, cypher);
         return StreamSupport.stream(joins.spliterator(), false).
                 collect(Collectors.toList());
     }

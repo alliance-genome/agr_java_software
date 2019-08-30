@@ -1,9 +1,20 @@
 package org.alliancegenome.api.service;
 
-import org.alliancegenome.api.entity.EntitySubgroupSlim;
-import org.alliancegenome.api.entity.RibbonEntity;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import javax.enterprise.context.RequestScoped;
+
+import org.alliancegenome.api.entity.DiseaseEntitySubgroupSlim;
+import org.alliancegenome.api.entity.DiseaseRibbonEntity;
 import org.alliancegenome.api.entity.DiseaseRibbonSummary;
-import org.alliancegenome.api.repository.DiseaseCacheRepository;
+import org.alliancegenome.cache.repository.DiseaseCacheRepository;
 import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.core.service.PaginationResult;
 import org.alliancegenome.core.service.SortingField;
@@ -18,11 +29,6 @@ import org.alliancegenome.neo4j.repository.DiseaseRepository;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import javax.enterprise.context.RequestScoped;
-import java.time.LocalDateTime;
-import java.util.*;
-import java.util.stream.Collectors;
 
 @RequestScoped
 public class DiseaseService {
@@ -54,7 +60,7 @@ public class DiseaseService {
 
     public JsonResultResponse<DiseaseAnnotation> getDiseaseAnnotations(String geneID, Pagination pagination) {
         LocalDateTime startDate = LocalDateTime.now();
-        PaginationResult<DiseaseAnnotation> result = diseaseCacheRepository.getDiseaseAnnotationByGeneList(geneID, pagination);
+        PaginationResult<DiseaseAnnotation> result = diseaseCacheRepository.getDiseaseAnnotationList(geneID, pagination);
         JsonResultResponse<DiseaseAnnotation> response = new JsonResultResponse<>();
         String note = "";
         if (!SortingField.isValidSortingFieldValue(pagination.getSortBy())) {
@@ -88,7 +94,7 @@ public class DiseaseService {
         pagination.setLimitToAll();
         // loop over all genes provided
         geneIDs.forEach(geneID -> {
-            PaginationResult<DiseaseAnnotation> paginationResult = diseaseCacheRepository.getDiseaseAnnotationByGeneList(geneID, pagination);
+            PaginationResult<DiseaseAnnotation> paginationResult = diseaseCacheRepository.getDiseaseAnnotationList(geneID, pagination);
             if (paginationResult == null) {
                 paginationResult = new PaginationResult<>();
                 paginationResult.setTotalNumber(0);
@@ -107,12 +113,12 @@ public class DiseaseService {
     }
 
     private void populateDiseaseRibbonSummary(String geneID, DiseaseRibbonSummary summary, Map<String, List<DiseaseAnnotation>> histogram, Gene gene) {
-        RibbonEntity entity = new RibbonEntity();
+        DiseaseRibbonEntity entity = new DiseaseRibbonEntity();
         entity.setId(geneID);
         entity.setLabel(gene.getSymbol());
         entity.setTaxonID(gene.getTaxonId());
         entity.setTaxonName(gene.getSpecies().getName());
-        summary.addRibbonEntity(entity);
+        summary.addDiseaseRibbonEntity(entity);
 
         Set<String> allTerms = new HashSet<>();
         Set<DiseaseAnnotation> allAnnotations = new HashSet<>();
@@ -122,7 +128,7 @@ public class DiseaseService {
         // add category term IDs to get the full histogram mapped into the response
         agrDoSlimIDs.addAll(DiseaseRibbonService.slimParentTermIdMap.keySet());
         agrDoSlimIDs.forEach(slimId -> {
-            EntitySubgroupSlim group = new EntitySubgroupSlim();
+            DiseaseEntitySubgroupSlim group = new DiseaseEntitySubgroupSlim();
             int size = 0;
             List<DiseaseAnnotation> diseaseAnnotations = histogram.get(slimId);
             if (diseaseAnnotations != null) {
@@ -136,7 +142,7 @@ public class DiseaseService {
             group.setNumberOfAnnotations(size);
             group.setId(slimId);
             if (size > 0)
-                entity.addEntitySlim(group);
+                entity.addDiseaseSlim(group);
         });
         entity.setNumberOfClasses(allTerms.size());
         entity.setNumberOfAnnotations(allAnnotations.size());

@@ -26,6 +26,16 @@
 
 	<dependencies>
 		<dependency>
+			<groupId>org.infinispan</groupId>
+			<artifactId>infinispan-core</artifactId>
+			<version>9.4.14.Final</version>
+		</dependency>
+		<dependency>
+			<groupId>org.infinispan</groupId>
+			<artifactId>infinispan-client-hotrod</artifactId>
+			<version>9.4.14.Final</version>
+		</dependency>
+		<dependency>
 			<groupId>com.github.mmazi</groupId>
 			<artifactId>rescu</artifactId>
 			<version>2.0.1</version>
@@ -59,12 +69,12 @@
 		<dependency>
 			<groupId>org.neo4j</groupId>
 			<artifactId>neo4j-ogm-bolt-driver</artifactId>
-			<version>3.0.3</version>
+			<version>3.1.12</version>
 		</dependency>
 		<dependency>
 			<groupId>org.neo4j</groupId>
 			<artifactId>neo4j-ogm-core</artifactId>
-			<version>3.0.3</version>
+			<version>3.1.12</version>
 		</dependency>
 		<dependency>
 			<groupId>commons-io</groupId>
@@ -129,7 +139,7 @@
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
-			<version>2.9.9</version>
+			<version>2.9.9.2</version>
 		</dependency>
 		<dependency>
 			<groupId>com.fasterxml.jackson.datatype</groupId>
@@ -153,13 +163,7 @@
 			<version>1.0-groovy-2.4</version>
 			<scope>test</scope>
 		</dependency>
-		<dependency>
-			<groupId>org.jboss.arquillian.spock</groupId>
-			<artifactId>arquillian-spock-example-groovy-2.x</artifactId>
-			<version>1.0.0.Beta3</version>
-			<scope>test</scope>
-		</dependency>
-	</dependencies>
+    </dependencies>
 
 	<build>
 		<finalName>${project.artifactId}</finalName>

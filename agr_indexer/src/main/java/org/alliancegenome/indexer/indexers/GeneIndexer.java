@@ -12,7 +12,6 @@ import org.alliancegenome.es.index.site.document.GeneDocument;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.repository.GeneIndexerRepository;
-import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -32,7 +31,7 @@ public class GeneIndexer extends Indexer<GeneDocument> {
 
         try {
             LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>();
-            GeneRepository geneRepo = new GeneRepository();
+
             GeneIndexerRepository geneIndexerRepository = new GeneIndexerRepository();
 
             List<String> fulllist;
@@ -45,7 +44,7 @@ public class GeneIndexer extends Indexer<GeneDocument> {
             }
 
             queue.addAll(fulllist);
-            geneRepo.clearCache();
+
             initiateThreading(queue);
         } catch (Exception e) {
             log.error("Error while indexing...", e);

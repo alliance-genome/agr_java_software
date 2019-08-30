@@ -1,26 +1,41 @@
 package org.alliancegenome.neo4j.repository;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.neo4j.entity.SpeciesType;
-import org.alliancegenome.neo4j.entity.node.*;
-import org.alliancegenome.neo4j.view.OrthologyFilter;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.neo4j.ogm.model.Result;
+import static java.util.stream.Collectors.joining;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.StringJoiner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-import static java.util.stream.Collectors.joining;
+import org.alliancegenome.es.model.query.Pagination;
+import org.alliancegenome.neo4j.entity.SpeciesType;
+import org.alliancegenome.neo4j.entity.node.BioEntityGeneExpressionJoin;
+import org.alliancegenome.neo4j.entity.node.GOTerm;
+import org.alliancegenome.neo4j.entity.node.Gene;
+import org.alliancegenome.neo4j.entity.node.SecondaryId;
+import org.alliancegenome.neo4j.entity.node.UBERONTerm;
+import org.alliancegenome.neo4j.view.OrthologyFilter;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.neo4j.ogm.model.Result;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class GeneRepository extends Neo4jRepository<Gene> {
 
@@ -102,7 +117,7 @@ public class GeneRepository extends Neo4jRepository<Gene> {
                 "WHERE gene.taxonId = {taxon} ";
         query += " OPTIONAL MATCH p2=(t:ExpressionBioEntity)-->(o:Ontology) ";
         query += " RETURN s, p1, p2 ";
-        Iterable<BioEntityGeneExpressionJoin> joins = neo4jSession.query(BioEntityGeneExpressionJoin.class, query, parameters);
+        Iterable<BioEntityGeneExpressionJoin> joins = query(BioEntityGeneExpressionJoin.class, query, parameters);
 
 
         List<BioEntityGeneExpressionJoin> joinList = new ArrayList<>();
@@ -143,7 +158,7 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         query += " OPTIONAL MATCH p2=(t:ExpressionBioEntity)--(o:Ontology) ";
         query += " RETURN s, p1, p2 order by gene.taxonID, gene.symbol ";
 
-        Iterable<BioEntityGeneExpressionJoin> joins = neo4jSession.query(BioEntityGeneExpressionJoin.class, query, new HashMap<>());
+        Iterable<BioEntityGeneExpressionJoin> joins = query(BioEntityGeneExpressionJoin.class, query);
 
         List<BioEntityGeneExpressionJoin> joinList = new ArrayList<>();
         for (BioEntityGeneExpressionJoin join : joins) {
@@ -200,7 +215,7 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         Iterable<Gene> genes = query(query, map);
         List<Gene> geneList = StreamSupport.stream(genes.spliterator(), false)
                 .collect(Collectors.toList());
-        log.info("ORTHOLOGOUS genes: " + geneList.size());
+        log.info("ORTHOLOGOUS genes: " + String.format("%,d", geneList.size()));
         return geneList;
     }
 
@@ -324,7 +339,7 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         String cypher = "MATCH (goTerm:GOTerm) " +
                 "where all (subset IN ['" + GOSLIM_AGR + "'] where subset in goTerm.subset)  RETURN goTerm ";
 
-        Iterable<GOTerm> joins = neo4jSession.query(GOTerm.class, cypher, new HashMap<>());
+        Iterable<GOTerm> joins = query(GOTerm.class, cypher);
 
         // used for sorting the GO terms according to the order in the java script file.
         // feels pretty hacky to me but the obo file does not contain sorting info...
@@ -452,7 +467,7 @@ public class GeneRepository extends Neo4jRepository<Gene> {
 
         String cypher = "match p=(uber:UBERONTerm)-[:STAGE_RIBBON_TERM]-(:BioEntityGeneExpressionJoin) return distinct uber";
 
-        Iterable<UBERONTerm> terms = neo4jSession.query(UBERONTerm.class, cypher, new HashMap<>());
+        Iterable<UBERONTerm> terms = query(UBERONTerm.class, cypher);
         if (!StreamSupport.stream(terms.spliterator(), false).allMatch(uberonTerm ->
                 stageOrder.indexOf(uberonTerm.getName()) > -1)) {
             String expectedValues = stageOrder.stream().collect(joining(", "));
@@ -476,7 +491,7 @@ public class GeneRepository extends Neo4jRepository<Gene> {
 
         String cypher = "match p=(uber:UBERONTerm)-[:STAGE_RIBBON_TERM]-(:BioEntityGeneExpressionJoin) return distinct uber";
 
-        Iterable<UBERONTerm> terms = neo4jSession.query(UBERONTerm.class, cypher, new HashMap<>());
+        Iterable<UBERONTerm> terms = query(UBERONTerm.class, cypher);
         if (!StreamSupport.stream(terms.spliterator(), false).allMatch(uberonTerm ->
                 stageOrder.indexOf(uberonTerm.getName()) > -1)) {
             String expectedValues = String.join(", ", stageOrder);
@@ -497,7 +512,7 @@ public class GeneRepository extends Neo4jRepository<Gene> {
     public Map<String, String> getFullAoList() {
         String cypher = "match p=(uber:UBERONTerm)-[:ANATOMICAL_RIBBON_TERM]-(:ExpressionBioEntity) return distinct uber";
 
-        Iterable<UBERONTerm> terms = neo4jSession.query(UBERONTerm.class, cypher, new HashMap<>());
+        Iterable<UBERONTerm> terms = query(UBERONTerm.class, cypher);
         String alwaysLast = "other";
         Map<String, String> map = StreamSupport.stream(terms.spliterator(), false)
                 .sorted((o1, o2) -> {
@@ -516,7 +531,7 @@ public class GeneRepository extends Neo4jRepository<Gene> {
     public List<UBERONTerm> getFullAoTermList() {
         String cypher = "match p=(uber:UBERONTerm)-[:ANATOMICAL_RIBBON_TERM]-(:ExpressionBioEntity) return distinct uber";
 
-        Iterable<UBERONTerm> terms = neo4jSession.query(UBERONTerm.class, cypher, new HashMap<>());
+        Iterable<UBERONTerm> terms = query(UBERONTerm.class, cypher);
         String alwaysLast = "other";
         List<UBERONTerm> map = StreamSupport.stream(terms.spliterator(), false)
                 .sorted((o1, o2) -> {
@@ -534,7 +549,7 @@ public class GeneRepository extends Neo4jRepository<Gene> {
 
     public Map<String, String> getFullGoList() {
         String cypher = "match p=(uber:GOTerm)-[:CELLULAR_COMPONENT_RIBBON_TERM]-(:ExpressionBioEntity) return distinct uber";
-        Iterable<GOTerm> terms = neo4jSession.query(GOTerm.class, cypher, new HashMap<>());
+        Iterable<GOTerm> terms = query(GOTerm.class, cypher);
         String alwaysLast = "other locations";
         return StreamSupport.stream(terms.spliterator(), false)
                 .sorted((o1, o2) -> {
@@ -551,7 +566,7 @@ public class GeneRepository extends Neo4jRepository<Gene> {
 
     public List<GOTerm> getFullGoTermList() {
         String cypher = "match p=(uber:GOTerm)-[:CELLULAR_COMPONENT_RIBBON_TERM]-(:ExpressionBioEntity) return distinct uber";
-        Iterable<GOTerm> terms = neo4jSession.query(GOTerm.class, cypher, new HashMap<>());
+        Iterable<GOTerm> terms = query(GOTerm.class, cypher);
         String alwaysLast = "other locations";
         return StreamSupport.stream(terms.spliterator(), false)
                 .sorted((o1, o2) -> {
@@ -572,21 +587,26 @@ public class GeneRepository extends Neo4jRepository<Gene> {
                 + "OPTIONAL MATCH p5=(g:Gene)--(:CrossReference) "
                 + "RETURN p1, p5 limit 10000000 ";
 
-        Iterable<Gene> joins = neo4jSession.query(Gene.class, cypher, new HashMap<>());
+        Iterable<Gene> joins = query(Gene.class, cypher);
         return StreamSupport.stream(joins.spliterator(), false).
                 collect(Collectors.toList());
     }
 
     public List<BioEntityGeneExpressionJoin> getAllExpressionAnnotations() {
-        String cypher = " MATCH p1=(q:Species)<-[:FROM_SPECIES]-(gene:Gene)-->(s:BioEntityGeneExpressionJoin)--(t), " +
-                " entity = (s:BioEntityGeneExpressionJoin)--(exp:ExpressionBioEntity)--(o:Ontology) ";
+        //String cypher = " MATCH p1=(q:Species)<-[:FROM_SPECIES]-(gene:Gene)-->(s:BioEntityGeneExpressionJoin)--(t), " +
+        //      " entity = (s:BioEntityGeneExpressionJoin)--(exp:ExpressionBioEntity)--(o:Ontology) ";
+        
+        String cypher = "MATCH p1=(q:Species)<-[:FROM_SPECIES]-(gene:Gene)-[:ASSOCIATION]->(s:BioEntityGeneExpressionJoin)--(t), "
+                + "entity = (s:BioEntityGeneExpressionJoin)<-[:ASSOCIATION]-(exp:ExpressionBioEntity)-->(o:Ontology) "
+                + "WHERE o:GOTerm OR o:UBERONTerm ";
+        
         //cypher += "  where gene.primaryKey in ['MGI:109583','ZFIN:ZDB-GENE-980526-166'] ";
         //cypher += "  where gene.primaryKey = 'RGD:2129' ";
-        cypher += "OPTIONAL MATCH crossReference = (s:BioEntityGeneExpressionJoin)--(crossRef:CrossReference) ";
-        cypher += "return p1, entity, crossRef ";
+        //cypher += "OPTIONAL MATCH crossReference = (s:BioEntityGeneExpressionJoin)--(crossRef:CrossReference) ";
+        cypher += "return p1, entity";
 
         long start = System.currentTimeMillis();
-        Iterable<BioEntityGeneExpressionJoin> joins = neo4jSession.query(BioEntityGeneExpressionJoin.class, cypher, new HashMap<>());
+        Iterable<BioEntityGeneExpressionJoin> joins = query(BioEntityGeneExpressionJoin.class, cypher);
 
         List<BioEntityGeneExpressionJoin> allBioEntityExpressionJoins = StreamSupport.stream(joins.spliterator(), false).
                 collect(Collectors.toList());

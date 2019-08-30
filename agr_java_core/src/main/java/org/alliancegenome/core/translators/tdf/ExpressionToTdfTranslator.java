@@ -1,10 +1,10 @@
 package org.alliancegenome.core.translators.tdf;
 
-import org.alliancegenome.core.ExpressionDetail;
-import org.alliancegenome.core.config.ConfigHelper;
-
 import java.util.List;
 import java.util.StringJoiner;
+
+import org.alliancegenome.core.ExpressionDetail;
+import org.alliancegenome.core.config.ConfigHelper;
 
 public class ExpressionToTdfTranslator {
 

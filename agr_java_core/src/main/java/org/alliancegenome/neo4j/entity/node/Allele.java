@@ -26,13 +26,14 @@ public class Allele extends GeneticEntity implements Comparable<Allele> {
     public Allele() {
         this.crossReferenceType = CrossReferenceType.ALLELE;
     }
-    
+
     @Convert(value = DateConverter.class)
     private Date dateProduced;
     private String release;
     private String localId;
     private String globalId;
     private String modCrossRefCompleteUrl;
+    @JsonView({View.Default.class})
     private String symbolText;
 
     @Relationship(type = "ALSO_KNOWN_AS")
@@ -47,6 +48,17 @@ public class Allele extends GeneticEntity implements Comparable<Allele> {
             list.add(s.getName());
         }
         return list;
+    }
+
+    @JsonProperty(value = "synonyms")
+    public void setSynonymList(List<String> list) {
+        if (list != null) {
+            list.forEach(syn -> {
+                Synonym synonym = new Synonym();
+                synonym.setName(syn);
+                synonyms.add(synonym);
+            });
+        }
     }
 
     @Relationship(type = "ALSO_KNOWN_AS")

@@ -6,6 +6,7 @@ import org.alliancegenome.api.entity.DiseaseRibbonSummary;
 import org.alliancegenome.api.entity.ExpressionSummary;
 import org.alliancegenome.api.rest.interfaces.GeneRESTInterface;
 import org.alliancegenome.api.service.*;
+import org.alliancegenome.cache.repository.ExpressionCacheRepository;
 import org.alliancegenome.core.exceptions.RestErrorException;
 import org.alliancegenome.core.exceptions.RestErrorMessage;
 import org.alliancegenome.core.service.JsonResultResponse;
@@ -23,7 +24,6 @@ import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
-import org.alliancegenome.neo4j.repository.ExpressionCacheRepository;
 import org.alliancegenome.neo4j.view.OrthologView;
 import org.alliancegenome.neo4j.view.OrthologyFilter;
 import org.apache.commons.collections.CollectionUtils;
@@ -187,7 +187,7 @@ public class GeneController extends BaseController implements GeneRESTInterface 
             phenotypes.calculateRequestDuration(startTime);
             return phenotypes;
         } catch (Exception e) {
-            log.error(e);
+            log.error("Error while retrieving phenotypes", e);
             RestErrorMessage error = new RestErrorMessage();
             error.addErrorMessage(e.getMessage());
             throw new RestErrorException(error);
@@ -325,12 +325,13 @@ public class GeneController extends BaseController implements GeneRESTInterface 
         List<String> ids = new ArrayList<>();
         if (geneIDs != null)
             ids.addAll(geneIDs);
-        ids.add(id);
+        if (!id.equals("*"))
+            ids.add(id);
         DiseaseService service = new DiseaseService();
         try {
             return service.getDiseaseRibbonSummary(ids);
         } catch (Exception e) {
-            log.error(e);
+            log.error("Error while creating disease ribbon summary", e);
             RestErrorMessage error = new RestErrorMessage();
             error.addErrorMessage(e.getMessage());
             throw new RestErrorException(error);

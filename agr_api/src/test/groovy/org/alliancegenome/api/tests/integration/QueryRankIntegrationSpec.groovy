@@ -1,10 +1,12 @@
 package org.alliancegenome.api
 
+import spock.lang.Ignore
 import spock.lang.Unroll
 
 class QueryRankIntegrationSpec extends AbstractSpec {
 
     @Unroll
+    @Ignore
     def "When querying for #query with #filter, #betterResult comes before #worseResult"() {
         when:
         def encodedQuery = URLEncoder.encode(query, "UTF-8")
@@ -32,6 +34,7 @@ class QueryRankIntegrationSpec extends AbstractSpec {
     }
 
     @Unroll
+    @Ignore
     def "When querying for #query in genes the symbol should start with #query"() {
         when:
         def encodedQuery = URLEncoder.encode(query, "UTF-8")
@@ -49,6 +52,7 @@ class QueryRankIntegrationSpec extends AbstractSpec {
     }
 
     @Unroll
+    @Ignore
     def "All #query #n query genes should be on top when searching for #query"() {
         when:
         def encodedQuery = URLEncoder.encode(query, "UTF-8")
@@ -72,6 +76,7 @@ class QueryRankIntegrationSpec extends AbstractSpec {
     }
 
     @Unroll
+    @Ignore
     def "When querying genes for #query #id should come back as a result according to #issue"() {
         when:
         def encodedQuery = URLEncoder.encode(query, "UTF-8")
@@ -97,6 +102,7 @@ class QueryRankIntegrationSpec extends AbstractSpec {
     }
 
     @Unroll
+    @Ignore
     def "When querying for #query first result name_key should be #nameKey"() {
         when:
         def encodedQuery = URLEncoder.encode(query, "UTF-8")

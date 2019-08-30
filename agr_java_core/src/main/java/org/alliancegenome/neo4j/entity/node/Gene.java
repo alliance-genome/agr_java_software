@@ -103,7 +103,7 @@ public class Gene extends GeneticEntity implements Comparable<Gene> {
     private List<GenomeLocation> genomeLocations;
 
     @Relationship(type = "IS_ALLELE_OF", direction = Relationship.INCOMING)
-    @JsonView(value = {View.GeneAllelesAPI.class})
+    //@JsonView(value = {View.GeneAllelesAPI.class})
     private List<Allele> alleles;
 
     @Relationship(type = "ASSOCIATION", direction = Relationship.UNDIRECTED)

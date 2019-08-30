@@ -1,10 +1,10 @@
 package org.alliancegenome.core.translators.tdf;
 
-import org.alliancegenome.core.config.ConfigHelper;
-import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
-
 import java.util.List;
 import java.util.StringJoiner;
+
+import org.alliancegenome.core.config.ConfigHelper;
+import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
 
 public class InteractionToTdfTranslator {
 

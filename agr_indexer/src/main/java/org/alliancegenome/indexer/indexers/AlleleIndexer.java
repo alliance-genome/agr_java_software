@@ -3,7 +3,6 @@ package org.alliancegenome.indexer.indexers;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingDeque;
-import java.util.stream.Collectors;
 
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.translators.document.AlleleTranslator;

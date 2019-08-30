@@ -201,15 +201,15 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
     private Map<String, Set<String>> getDiseasesAgrSlimMap(String species) {
         String query = "MATCH (species:Species)--(gene:Gene)--(:DiseaseEntityJoin)--(:DOTerm)-[:IS_A_PART_OF_CLOSURE]->(disease:DOTerm) ";
         query += " WHERE disease.subset =~ '.*DO_AGR_slim.*' ";
+        
+        Map<String,String> params = new HashMap<String,String>();
+        
         if (StringUtils.isNotEmpty(species)) {
             query += " AND species.name = {species} ";
+            params.put("species",species);
         }
         query += " RETURN distinct gene.primaryKey, disease.nameKey ";
 
-        Map<String,String> params = new HashMap<String,String>();
-        if (StringUtils.isNotEmpty(species)) {
-            params.put("species",species);
-        }
         return getMapSetForQuery(query, "gene.primaryKey", "disease.nameKey", params);
     }
 
@@ -231,19 +231,19 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
     private Map<String,Set<String>> getGOTermMap(String type, Boolean slim, String species) {
         String query = "MATCH (species:Species)-[:FROM_SPECIES]-(gene:Gene)--(:GOTerm)-[:IS_A_PART_OF_CLOSURE|IS_A_PART_OF_SELF_CLOSURE]->(term:GOTerm) ";
         query += "WHERE term.type = {type}";
+        
+        Map<String,String> params = new HashMap<String,String>();
+        
         if (StringUtils.isNotEmpty(species)) {
             query += " AND species.name = {species} ";
+            params.put("species",species);
         }
         if (slim) {
             query += " AND term.subset =~ '.*goslim_agr.*' ";
         }
         query += " RETURN distinct gene.primaryKey, term.name";
         
-        Map<String,String> params = new HashMap<String,String>();
-        params.put("type",type);
-        if (StringUtils.isNotEmpty(species)) {
-            params.put("species",species);
-        }
+        params.put("type", type);
 
         return getMapSetForQuery(query, "gene.primaryKey", "term.name", params);
     }

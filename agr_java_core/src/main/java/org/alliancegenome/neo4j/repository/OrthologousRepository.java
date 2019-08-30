@@ -1,7 +1,6 @@
 package org.alliancegenome.neo4j.repository;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -123,7 +122,7 @@ public class OrthologousRepository extends Neo4jRepository<Orthologous> {
         if (algorithmList != null)
             return algorithmList;
         String query = " MATCH (algorithm:OrthoAlgorithm) return distinct algorithm order by algorithm.name ";
-        Iterable<OrthoAlgorithm> algorithms = neo4jSession.query(OrthoAlgorithm.class, query, new HashMap<>());
+        Iterable<OrthoAlgorithm> algorithms = query(OrthoAlgorithm.class, query);
         algorithmList = StreamSupport.stream(algorithms.spliterator(), false)
                 .collect(Collectors.toList());
         return algorithmList;
