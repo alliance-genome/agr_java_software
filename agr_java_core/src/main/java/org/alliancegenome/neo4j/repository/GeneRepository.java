@@ -641,7 +641,7 @@ public class GeneRepository extends Neo4jRepository<Gene> {
 
     public List<String> getAllMethods() {
         String query = " MATCH (algorithm:OrthoAlgorithm) return distinct(algorithm) ";
-        Iterable<OrthoAlgorithm> algorithms = neo4jSession.query(OrthoAlgorithm.class, query, new HashMap<>());
+        Iterable<OrthoAlgorithm> algorithms = query(OrthoAlgorithm.class, query);
         return StreamSupport.stream(algorithms.spliterator(), false)
                 .map(OrthoAlgorithm::getName)
                 .collect(Collectors.toList());
