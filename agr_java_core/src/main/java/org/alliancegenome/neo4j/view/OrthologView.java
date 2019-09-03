@@ -1,15 +1,14 @@
 package org.alliancegenome.neo4j.view;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonView;
+import lombok.Getter;
+import lombok.Setter;
+import org.alliancegenome.neo4j.entity.node.Gene;
+
 import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
-
-import org.alliancegenome.neo4j.entity.node.Gene;
-
-import com.fasterxml.jackson.annotation.JsonView;
-
-import lombok.Getter;
-import lombok.Setter;
 
 @Setter
 @Getter
@@ -35,13 +34,31 @@ public class OrthologView implements Serializable {
     private List<String> predictionMethodsNotMatched;
 
     @JsonView(View.Orthology.class)
-    private Integer methodCount;
-    @JsonView(View.Orthology.class)
-    private Integer totalMethodCount;
+    @JsonProperty(value = "methodCount")
+    public Integer getMethodCount() {
+        if (predictionMethodsMatched == null)
+            return 0;
+        return predictionMethodsMatched.size();
+    }
 
-    public void calculateCounts() {
-        methodCount = predictionMethodsMatched.size();
-        totalMethodCount = predictionMethodsMatched.size() + predictionMethodsNotMatched.size();
+    @JsonProperty(value = "methodCount")
+    public void setMethodCount(Integer count) {
+    }
+
+    @JsonView(View.Orthology.class)
+    @JsonProperty(value = "totalMethodCount")
+    public Integer getTotalMethodCount() {
+        if (predictionMethodsMatched == null && predictionMethodsNotMatched == null)
+            return 0;
+        if (predictionMethodsMatched == null)
+            return predictionMethodsNotMatched.size();
+        if (predictionMethodsNotMatched == null)
+            return predictionMethodsMatched.size();
+        return predictionMethodsMatched.size() + predictionMethodsNotMatched.size();
+    }
+
+    @JsonProperty(value = "totalMethodCount")
+    public void setTotalMethodCount(Integer count) {
     }
 
     @Override

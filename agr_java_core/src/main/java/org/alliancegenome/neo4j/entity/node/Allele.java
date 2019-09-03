@@ -75,16 +75,21 @@ public class Allele extends GeneticEntity implements Comparable<Allele> {
         return list;
     }
 
-    @Relationship(type = "IS_ALLELE_OF", direction = Relationship.OUTGOING)
+    @Relationship(type = "IS_ALLELE_OF")
     private Gene gene;
 
     @JsonView({View.GeneAllelesAPI.class, View.AlleleAPI.class})
     @Relationship(type = "IS_IMPLICATED_IN")
     private List<DOTerm> diseases = new ArrayList<>();
 
+    @JsonView({View.GeneAllelesAPI.class, View.AlleleAPI.class})
+    @Relationship(type = "VARIATION", direction = Relationship.INCOMING)
+    private List<Variant> variants = new ArrayList<>();
+
     @Relationship(type = "ASSOCIATION", direction = Relationship.UNDIRECTED)
     private List<DiseaseEntityJoin> diseaseEntityJoins = new ArrayList<>();
 
+    @JsonView({View.GeneAllelesAPI.class, View.AlleleAPI.class})
     @Relationship(type = "HAS_PHENOTYPE")
     private List<Phenotype> phenotypes = new ArrayList<>();
 
