@@ -1,24 +1,24 @@
 package org.alliancegenome.es.util;
 
+import lombok.extern.log4j.Log4j2;
+
 import java.text.DecimalFormat;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
-
-import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 public class ProcessDisplayHelper {
 
     private Runtime runtime = Runtime.getRuntime();
     private DecimalFormat df = new DecimalFormat("#");
-    
+
     private Date startTime = new Date();
     private Date lastTime = new Date();
     private String message;
     private int lastSizeCounter = 0;
     private int totalSize;
     private int sizeCounter = 0;
-    
+
     public void startProcess(String message, int totalSize) {
         this.message = message + ": ";
         this.totalSize = totalSize;
@@ -31,16 +31,16 @@ public class ProcessDisplayHelper {
 
     public void progressProcess() {
         double percent = 0;
-        if(totalSize > 0) {
+        if (totalSize > 0) {
             percent = ((double) (totalSize - sizeCounter) / (double) totalSize);
         }
         Date now = new Date();
         long diff = now.getTime() - startTime.getTime();
         long time = now.getTime() - lastTime.getTime();
         //log.info(this.message + "diff: " + diff + " time: " + time + " now: " + now + " startTime: " + startTime + " lastTime: " + lastTime);
-        if(time < 30000) return; // report every 30 seconds
+        if (time < 30000) return; // report every 30 seconds
         checkMemory();
-        
+
         int processedAmount = (sizeCounter - lastSizeCounter);
         String message = "" + getBigNumber(totalSize - sizeCounter) + " records [" + getBigNumber(totalSize) + "] ";
         message += (int) (percent * 100) + "% took: " + (time / 1000) + "s to process " + processedAmount + " records at " + ((processedAmount * 1000) / time) + "r/s";
@@ -61,7 +61,10 @@ public class ProcessDisplayHelper {
         Date now = new Date();
         long duration = now.getTime() - startTime.getTime();
         String result = getHumanReadableTimeDisplay(duration);
-        log.info(message + "Finished: took: " + result + " to process " + getBigNumber(sizeCounter) + " records at a rate of: " + ((sizeCounter * 1000) / duration) + "r/s");
+        if (duration != 0)
+            log.info(message + "Finished: took: " + result + " to process " + getBigNumber(sizeCounter) + " records at a rate of: " + ((sizeCounter * 1000) / duration) + "r/s");
+        else
+            log.info(message + "Finished: took: " + result + " to process " + getBigNumber(sizeCounter) + " records  ");
     }
 
     private static String getBigNumber(int number) {

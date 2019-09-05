@@ -1,15 +1,7 @@
 package org.alliancegenome.cacher.cachers;
 
-import static java.util.stream.Collectors.groupingBy;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.stream.Collectors;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
+import lombok.extern.log4j.Log4j2;
 import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.cache.manager.ExpressionAllianceCacheManager;
 import org.alliancegenome.core.ExpressionDetail;
@@ -21,12 +13,16 @@ import org.alliancegenome.neo4j.repository.DiseaseRepository;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.alliancegenome.neo4j.view.View;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import java.util.*;
+import java.util.stream.Collectors;
 
+import static java.util.stream.Collectors.groupingBy;
+
+@Log4j2
 public class ExpressionCacher extends Cacher {
 
     private static List<String> parentTermIDs = new ArrayList<>();
-    
+
     static {
         // anatomical entity
         parentTermIDs.add("UBERON:0001062");
@@ -40,13 +36,13 @@ public class ExpressionCacher extends Cacher {
     protected void cache() {
 
         GeneRepository geneRepository = new GeneRepository();
-        
+
         startProcess("geneRepository.getAllExpressionAnnotations");
-        
+
         List<BioEntityGeneExpressionJoin> joins = geneRepository.getAllExpressionAnnotations();
-        
+
         finishProcess();
-        
+
         startProcess("allExpression", joins.size());
 
         List<ExpressionDetail> allExpression = joins.stream()
@@ -59,6 +55,11 @@ public class ExpressionCacher extends Cacher {
                     if (expressionJoin.getStage() != null)
                         detail.setStage(expressionJoin.getStage());
                     detail.setPublications(new TreeSet<>(expressionJoin.getPublications()));
+                    // Remove this check in future checkins.
+                    if (expressionJoin.getCrossReferences() != null) {
+                        if (expressionJoin.getCrossReferences().get(0).getName() == null)
+                            log.info("CrossRef: " + expressionJoin.getCrossReferences().get(0));
+                    }
                     detail.setCrossReferences(expressionJoin.getCrossReferences());
                     // add AO terms and All AO parent term
                     List<String> aoList = expressionJoin.getEntity().getAoTermList().stream().map(UBERONTerm::getPrimaryKey).collect(Collectors.toList());
@@ -86,18 +87,18 @@ public class ExpressionCacher extends Cacher {
                 .collect(Collectors.toList());
 
         finishProcess();
-        
+
         startProcess("geneExpressionMap", allExpression.size());
-        
+
         Map<String, List<ExpressionDetail>> geneExpressionMap = allExpression.stream()
                 .collect(groupingBy(expressionDetail -> expressionDetail.getGene().getPrimaryKey()));
 
         finishProcess();
-        
+
         ExpressionAllianceCacheManager manager = new ExpressionAllianceCacheManager();
 
         startProcess("geneExpressionMap into Cache", geneExpressionMap.size());
-        
+
         geneExpressionMap.forEach((key, value) -> {
             JsonResultResponseExpression result = new JsonResultResponseExpression();
             result.setResults(value);
