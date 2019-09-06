@@ -60,7 +60,7 @@ public class DiseaseAnnotation implements Comparable<DiseaseAnnotation>, Seriali
         orthologyGenes.add(gene);
     }
 
-    @JsonIgnore
+    @JsonView({View.DiseaseCacher.class})
     // lists the agr_do slim parents
     private Set<String> parentIDs;
 
