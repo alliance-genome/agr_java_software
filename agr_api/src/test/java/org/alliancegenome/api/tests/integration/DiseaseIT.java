@@ -20,6 +20,7 @@ import org.alliancegenome.neo4j.entity.node.DOTerm;
 import org.alliancegenome.neo4j.entity.node.Publication;
 import org.alliancegenome.neo4j.entity.node.Synonym;
 import org.alliancegenome.neo4j.view.OrthologyModule;
+import org.alliancegenome.neo4j.view.View;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -281,9 +282,9 @@ public class DiseaseIT {
         String result = "Disease\tGenetic Entity ID\tGenetic Entity Symbol\tGenetic Entity Type\tAssociation Type\tEvidence Code\tSource\tReferences\n" +
                 "acute lymphocytic leukemia\tMGI:2156086\tPten<sup>tm1Hwu</sup>\tallele\tis_implicated_in\tECO:0000033\tPMID:21262837\n" +
                 "acute lymphocytic leukemia\t\t\tgene\tis_implicated_in\tECO:0000033\tPMID:21262837\n" +
-                "autistic disorder\tMGI:2151804\tPten<sup>tm1Rps</sup>\tallele\tis_implicated_in\tECO:0000033\tPMID:19208814,PMID:23142422,PMID:25561290\n" +
-                "autistic disorder\tMGI:2679886\tPten<sup>tm2.1Ppp</sup>\tallele\tis_implicated_in\tECO:0000033\tPMID:22302806\n" +
-                "autistic disorder\t\t\tgene\tis_implicated_in\tECO:0000033\tPMID:22302806,PMID:25561290\n" +
+                "autism spectrum disorder\tMGI:2151804\tPten<sup>tm1Rps</sup>\tallele\tis_implicated_in\tECO:0000033\tPMID:19208814,PMID:25561290\n" +
+                "autism spectrum disorder\tMGI:2679886\tPten<sup>tm2.1Ppp</sup>\tallele\tis_implicated_in\tECO:0000033\tPMID:22302806\n" +
+                "autism spectrum disorder\t\t\tgene\tis_implicated_in\tECO:0000033\tPMID:22302806,PMID:25561290\n" +
                 "Bannayan-Riley-Ruvalcaba syndrome\tMGI:1857937\tPten<sup>tm1Mak</sup>\tallele\tis_implicated_in\tECO:0000033\tPMID:10910075\n" +
                 "Bannayan-Riley-Ruvalcaba syndrome\tMGI:1857936\tPten<sup>tm1Ppp</sup>\tallele\tis_implicated_in\tECO:0000033\tPMID:9697695\n" +
                 "Bannayan-Riley-Ruvalcaba syndrome\tMGI:2151804\tPten<sup>tm1Rps</sup>\tallele\tis_implicated_in\tECO:0000033\tPMID:27889578,PMID:9990064\n" +
@@ -396,7 +397,7 @@ public class DiseaseIT {
         response = diseaseService.getDiseaseAnnotations(geneID, pagination);
         assertResponse(response, 14, 14);
         annotation = response.getResults().get(1);
-        assertThat(annotation.getDisease().getName(), equalTo("autistic disorder"));
+        assertThat(annotation.getDisease().getName(), equalTo("autism spectrum disorder"));
         assertThat(annotation.getAssociationType(), equalTo("is_implicated_in"));
         assertNull(annotation.getFeature());
     }

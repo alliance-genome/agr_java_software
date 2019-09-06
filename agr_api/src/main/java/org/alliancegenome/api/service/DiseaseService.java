@@ -1,16 +1,5 @@
 package org.alliancegenome.api.service;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import javax.enterprise.context.RequestScoped;
-
 import org.alliancegenome.api.entity.DiseaseEntitySubgroupSlim;
 import org.alliancegenome.api.entity.DiseaseRibbonEntity;
 import org.alliancegenome.api.entity.DiseaseRibbonSummary;
@@ -27,19 +16,30 @@ import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.entity.node.SimpleTerm;
 import org.alliancegenome.neo4j.repository.DiseaseRepository;
 import org.alliancegenome.neo4j.repository.GeneRepository;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
+import javax.enterprise.context.RequestScoped;
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @RequestScoped
 public class DiseaseService {
 
-    private Log log = LogFactory.getLog(getClass());
     private static DiseaseRepository diseaseRepository = new DiseaseRepository();
     private static GeneRepository geneRepository = new GeneRepository();
     private static DiseaseCacheRepository diseaseCacheRepository = new DiseaseCacheRepository();
 
     public DiseaseService() {
 
+    }
+
+    public static List<String> getDiseaseParents(String diseaseSlimID) {
+        if (!diseaseSlimID.equals(DiseaseRibbonSummary.DOID_OTHER)) {
+            ArrayList<String> strings = new ArrayList<>();
+            strings.add(diseaseSlimID);
+            return strings;
+        }
+        return new ArrayList<>(Arrays.asList("DOID:0080015", "DOID:0014667", "DOID:150", "DOID:225"));
     }
 
     public DOTerm getById(String id) {

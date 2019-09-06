@@ -199,7 +199,7 @@ public class DiseaseController extends BaseController implements DiseaseRESTInte
             response.calculateRequestDuration(startDate);
             return response;
         } catch (Exception e) {
-            log.error(e);
+            log.error("Error while retrieving disease annotations",e);
             RestErrorMessage error = new RestErrorMessage();
             error.addErrorMessage(e.getMessage());
             throw new RestErrorException(error);

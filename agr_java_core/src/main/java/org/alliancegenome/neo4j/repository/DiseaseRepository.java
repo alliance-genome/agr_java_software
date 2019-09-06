@@ -206,7 +206,7 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
     }
 
 
-    public Map<String, Set<String>> getClosureChildMapping() {
+    public Map<String, Set<String>> getClosureChildToParentsMapping() {
         if (closureChildMap != null)
             return closureChildMap;
         //closure
