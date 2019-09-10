@@ -16,7 +16,6 @@ public class DevtoolController implements DevtoolRESTInterface {
     public CacheSummary getCacheStatus() {
         CacheSummary summary = new CacheSummary();
 
-        //DiseaseCacheRepository diseaseCacheRepository = new DiseaseCacheRepository();
         //InteractionCacheRepository interactionCacheRepository = new InteractionCacheRepository();
         //ExpressionCacheRepository expressionCacheRepository = new ExpressionCacheRepository();
         //PhenotypeCacheRepository phenotypeCacheRepository = new PhenotypeCacheRepository();

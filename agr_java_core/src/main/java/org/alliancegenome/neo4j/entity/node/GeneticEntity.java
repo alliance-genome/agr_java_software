@@ -1,11 +1,8 @@
 package org.alliancegenome.neo4j.entity.node;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
+import org.alliancegenome.es.util.DateConverter;
 import org.alliancegenome.neo4j.entity.Neo4jEntity;
 import org.alliancegenome.neo4j.view.View;
 import org.neo4j.ogm.annotation.NodeEntity;
@@ -17,6 +14,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.neo4j.ogm.annotation.typeconversion.Convert;
 
 @NodeEntity
 @Getter
@@ -30,6 +28,8 @@ public class GeneticEntity extends Neo4jEntity {
     protected String primaryKey;
     @JsonView({View.Default.class, View.API.class})
     protected String symbol;
+    @Convert(value = DateConverter.class)
+    private Date dateProduced;
 
     @JsonView({View.Default.class, View.PhenotypeAPI.class})
     @Relationship(type = "FROM_SPECIES")
@@ -112,7 +112,7 @@ public class GeneticEntity extends Neo4jEntity {
 
     public enum CrossReferenceType {
 
-        GENE("gene"), ALLELE("allele");
+        GENE("gene"), ALLELE("allele"), GENOTYPE("genotype"), FISH("fish");
 
         private String displayName;
 

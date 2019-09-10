@@ -1,12 +1,12 @@
 package org.alliancegenome.neo4j.entity.node;
 
-import java.util.List;
-
+import lombok.Getter;
+import lombok.Setter;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 
-import lombok.Getter;
-import lombok.Setter;
+import java.util.List;
+import java.util.Set;
 
 @NodeEntity
 @Getter
@@ -27,5 +27,8 @@ public class EntityJoin extends Association {
 
     @Relationship(type = "ASSOCIATION", direction = Relationship.INCOMING)
     private Allele allele;
+
+    @Relationship(type = "PRIMARY_GENETIC_ENTITY")
+    private Set<AffectedGenomicModel> models;
 
 }

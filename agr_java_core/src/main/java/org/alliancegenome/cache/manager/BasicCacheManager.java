@@ -6,10 +6,9 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.log4j.Log4j2;
-import org.alliancegenome.api.entity.CacheStatus;
 import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.core.config.ConfigHelper;
-import org.alliancegenome.core.service.JsonResultResponse;
+import org.alliancegenome.neo4j.entity.node.ECOTerm;
 import org.infinispan.client.hotrod.RemoteCache;
 import org.infinispan.client.hotrod.RemoteCacheManager;
 import org.infinispan.client.hotrod.configuration.ConfigurationBuilder;
@@ -127,4 +126,14 @@ public class BasicCacheManager<O> {
         log.info("closing cache");
     }
 
+    public void setCache(String primaryKey, List ecoTerms, Class<?> classView, CacheAlliance cacheAlliance) {
+        RemoteCache<String, String> cache = rmc.getCache(cacheAlliance.getCacheName());
+        try {
+            String value = mapper.writerWithView(classView).writeValueAsString(ecoTerms);
+            cache.put(primaryKey, value);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+
+    }
 }

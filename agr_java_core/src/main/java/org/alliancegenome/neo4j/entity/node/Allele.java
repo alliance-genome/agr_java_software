@@ -27,8 +27,6 @@ public class Allele extends GeneticEntity implements Comparable<Allele> {
         this.crossReferenceType = CrossReferenceType.ALLELE;
     }
 
-    @Convert(value = DateConverter.class)
-    private Date dateProduced;
     private String release;
     private String localId;
     private String globalId;

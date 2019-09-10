@@ -6,12 +6,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
-import org.alliancegenome.neo4j.entity.node.Allele;
-import org.alliancegenome.neo4j.entity.node.DOTerm;
-import org.alliancegenome.neo4j.entity.node.ECOTerm;
-import org.alliancegenome.neo4j.entity.node.Gene;
-import org.alliancegenome.neo4j.entity.node.Publication;
-import org.alliancegenome.neo4j.entity.node.Source;
+import org.alliancegenome.neo4j.entity.node.*;
 import org.alliancegenome.neo4j.view.View;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -41,6 +36,8 @@ public class DiseaseAnnotation implements Comparable<DiseaseAnnotation>, Seriali
     @JsonProperty(value = "allele")
     private Allele feature;
     @JsonView({View.DiseaseAnnotation.class})
+    private List<PrimaryAnnotatedEntity> primaryAnnotatedEntities;
+    @JsonView({View.DiseaseAnnotation.class})
     private List<Reference> references;
     @JsonView({View.DiseaseAnnotation.class})
     private List<Publication> publications;
@@ -58,6 +55,12 @@ public class DiseaseAnnotation implements Comparable<DiseaseAnnotation>, Seriali
         if (orthologyGenes == null)
             orthologyGenes = new ArrayList<>();
         orthologyGenes.add(gene);
+    }
+
+    public void addPrimaryAnnotatedEntity(PrimaryAnnotatedEntity entity) {
+        if (primaryAnnotatedEntities == null)
+            primaryAnnotatedEntities = new ArrayList<>();
+        primaryAnnotatedEntities.add(entity);
     }
 
     @JsonView({View.DiseaseCacher.class})
