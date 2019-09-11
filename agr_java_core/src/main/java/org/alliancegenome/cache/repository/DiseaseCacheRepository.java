@@ -29,10 +29,14 @@ public class DiseaseCacheRepository {
     // Map<gene ID, List<DiseaseAnnotation>> including annotations to child terms
     private static Map<String, List<DiseaseAnnotation>> diseaseAnnotationOrthologGeneMap = new HashMap<>();
 
+    public List<DiseaseAnnotation> getDiseaseAnnotationList(String diseaseID) {
+        DiseaseAllianceCacheManager manager = new DiseaseAllianceCacheManager();
+        return manager.getDiseaseAnnotations(diseaseID, View.DiseaseCacher.class);
+    }
+
     public PaginationResult<DiseaseAnnotation> getDiseaseAnnotationList(String diseaseID, Pagination pagination) {
 
-        DiseaseAllianceCacheManager manager = new DiseaseAllianceCacheManager();
-        List<DiseaseAnnotation> fullDiseaseAnnotationList = manager.getDiseaseAnnotations(diseaseID, View.DiseaseCacher.class);
+        List<DiseaseAnnotation> fullDiseaseAnnotationList = getDiseaseAnnotationList(diseaseID);
         PaginationResult<DiseaseAnnotation> result = new PaginationResult<>();
         if (fullDiseaseAnnotationList == null) {
             return result;
@@ -144,6 +148,8 @@ public class DiseaseCacheRepository {
     }
 
     public List<ECOTerm> getEcoTerm(List<PublicationEvidenceCodeJoin> joins) {
+        if (joins == null)
+            return null;
         BasicCacheManager<String> manager = new BasicCacheManager<>();
         List<ECOTerm> list = new ArrayList<>();
         CollectionType javaType = BasicCacheManager.mapper.getTypeFactory()
@@ -151,6 +157,8 @@ public class DiseaseCacheRepository {
 
         joins.forEach(join -> {
             String json = manager.getCache(join.getPrimaryKey(), CacheAlliance.ECO_MAP);
+            if (json == null)
+                return;
             try {
                 list.addAll(BasicCacheManager.mapper.readValue(json, javaType));
             } catch (IOException e) {
