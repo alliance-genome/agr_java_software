@@ -1,14 +1,20 @@
 package org.alliancegenome.cache.repository;
 
+import com.fasterxml.jackson.databind.type.CollectionType;
 import lombok.extern.log4j.Log4j2;
+import org.alliancegenome.cache.CacheAlliance;
+import org.alliancegenome.cache.manager.BasicCacheManager;
 import org.alliancegenome.cache.manager.DiseaseAllianceCacheManager;
 import org.alliancegenome.core.service.*;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
+import org.alliancegenome.neo4j.entity.node.ECOTerm;
+import org.alliancegenome.neo4j.entity.node.PublicationEvidenceCodeJoin;
 import org.alliancegenome.neo4j.view.BaseFilter;
 import org.alliancegenome.neo4j.view.View;
 import org.apache.commons.lang3.StringUtils;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -23,10 +29,14 @@ public class DiseaseCacheRepository {
     // Map<gene ID, List<DiseaseAnnotation>> including annotations to child terms
     private static Map<String, List<DiseaseAnnotation>> diseaseAnnotationOrthologGeneMap = new HashMap<>();
 
+    public List<DiseaseAnnotation> getDiseaseAnnotationList(String diseaseID) {
+        DiseaseAllianceCacheManager manager = new DiseaseAllianceCacheManager();
+        return manager.getDiseaseAnnotations(diseaseID, View.DiseaseCacher.class);
+    }
+
     public PaginationResult<DiseaseAnnotation> getDiseaseAnnotationList(String diseaseID, Pagination pagination) {
 
-        DiseaseAllianceCacheManager manager = new DiseaseAllianceCacheManager();
-        List<DiseaseAnnotation> fullDiseaseAnnotationList = manager.getDiseaseAnnotations(diseaseID, View.DiseaseCacher.class);
+        List<DiseaseAnnotation> fullDiseaseAnnotationList = getDiseaseAnnotationList(diseaseID);
         PaginationResult<DiseaseAnnotation> result = new PaginationResult<>();
         if (fullDiseaseAnnotationList == null) {
             return result;
@@ -137,4 +147,41 @@ public class DiseaseCacheRepository {
         return !filterResults.contains(false);
     }
 
+    public List<ECOTerm> getEcoTerm(List<PublicationEvidenceCodeJoin> joins) {
+        if (joins == null)
+            return null;
+        BasicCacheManager<String> manager = new BasicCacheManager<>();
+        List<ECOTerm> list = new ArrayList<>();
+        CollectionType javaType = BasicCacheManager.mapper.getTypeFactory()
+                .constructCollectionType(List.class, ECOTerm.class);
+
+        joins.forEach(join -> {
+            String json = manager.getCache(join.getPrimaryKey(), CacheAlliance.ECO_MAP);
+            if (json == null)
+                return;
+            try {
+                list.addAll(BasicCacheManager.mapper.readValue(json, javaType));
+            } catch (IOException e) {
+                log.error("Error during deserialization ", e);
+                throw new RuntimeException(e);
+            }
+        });
+        return list;
+    }
+
+    public List<String> getChildren(String id) {
+        BasicCacheManager<String> manager = new BasicCacheManager<>();
+        List<String> list = new ArrayList<>();
+        CollectionType javaType = BasicCacheManager.mapper.getTypeFactory()
+                .constructCollectionType(List.class, String.class);
+
+        String json = manager.getCache(id, CacheAlliance.CLOSURE_MAP);
+        try {
+            list.addAll(BasicCacheManager.mapper.readValue(json, javaType));
+        } catch (IOException e) {
+            log.error("Error during deserialization ", e);
+            throw new RuntimeException(e);
+        }
+        return list;
+    }
 }

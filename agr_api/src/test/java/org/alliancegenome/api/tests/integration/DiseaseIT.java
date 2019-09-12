@@ -62,6 +62,24 @@ public class DiseaseIT {
     }
 
     @Test
+    public void checkAlleleDiseaseAssociationByDisease() {
+        Pagination pagination = new Pagination(1, 100, null, null);
+        // Menkes
+        String diseaseID = "DOID:1838";
+        JsonResultResponse<DiseaseAnnotation> response = diseaseService.getDiseaseAnnotationsWithAlleles(diseaseID, pagination);
+        assertResponse(response, 10, 10);
+    }
+
+    @Test
+    public void checkGeneDiseaseAssociationByDisease() {
+        Pagination pagination = new Pagination(1, 100, null, null);
+        // Menkes
+        String diseaseID = "DOID:1838";
+        JsonResultResponse<DiseaseAnnotation> response = diseaseService.getDiseaseAnnotationsWithGenes(diseaseID, pagination);
+        assertResponse(response, 10, 10);
+    }
+
+    @Test
     public void checkDiseaseAssociationByDisease() {
         Pagination pagination = new Pagination(1, 100, null, null);
         // choriocarcinoma

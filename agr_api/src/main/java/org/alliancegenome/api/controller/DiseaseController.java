@@ -95,7 +95,89 @@ public class DiseaseController extends BaseController implements DiseaseRESTInte
 
             return response;
         } catch (Exception e) {
-            log.error(e);
+            log.error("Error while retrieving disease annotations",e);
+            RestErrorMessage error = new RestErrorMessage();
+            error.addErrorMessage(e.getMessage());
+            throw new RestErrorException(error);
+        }
+    }
+
+    @Override
+    public JsonResultResponse<DiseaseAnnotation> getDiseaseAnnotationsByAllele(String id,
+                                                                             int limit,
+                                                                             int page,
+                                                                             String sortBy,
+                                                                             String allele,
+                                                                             String species,
+                                                                             String disease,
+                                                                             String source,
+                                                                             String reference,
+                                                                             String evidenceCode,
+                                                                             String associationType,
+                                                                             String asc) {
+        long startTime = System.currentTimeMillis();
+        Pagination pagination = new Pagination(page, limit, sortBy, asc);
+        pagination.addFieldFilter(FieldFilter.ALLELE, allele);
+        pagination.addFieldFilter(FieldFilter.SPECIES, species);
+        pagination.addFieldFilter(FieldFilter.DISEASE, disease);
+        pagination.addFieldFilter(FieldFilter.SOURCE, source);
+        pagination.addFieldFilter(FieldFilter.FREFERENCE, reference);
+        pagination.addFieldFilter(FieldFilter.EVIDENCE_CODE, evidenceCode);
+        pagination.addFieldFilter(FieldFilter.ASSOCIATION_TYPE, associationType);
+        if (pagination.hasErrors()) {
+            RestErrorMessage message = new RestErrorMessage();
+            message.setErrors(pagination.getErrors());
+            throw new RestErrorException(message);
+        }
+        try {
+            JsonResultResponse<DiseaseAnnotation> response = diseaseService.getDiseaseAnnotationsWithAlleles(id, pagination);
+            response.setHttpServletRequest(request);
+            response.calculateRequestDuration(startTime);
+
+            return response;
+        } catch (Exception e) {
+            log.error("Error while retrieving disease annotations by allele",e);
+            RestErrorMessage error = new RestErrorMessage();
+            error.addErrorMessage(e.getMessage());
+            throw new RestErrorException(error);
+        }
+    }
+
+    @Override
+    public JsonResultResponse<DiseaseAnnotation> getDiseaseAnnotationsByGene(String id,
+                                                                             int limit,
+                                                                             int page,
+                                                                             String sortBy,
+                                                                             String geneName,
+                                                                             String species,
+                                                                             String disease,
+                                                                             String source,
+                                                                             String reference,
+                                                                             String evidenceCode,
+                                                                             String associationType,
+                                                                             String asc) {
+        long startTime = System.currentTimeMillis();
+        Pagination pagination = new Pagination(page, limit, sortBy, asc);
+        pagination.addFieldFilter(FieldFilter.GENE_NAME, geneName);
+        pagination.addFieldFilter(FieldFilter.SPECIES, species);
+        pagination.addFieldFilter(FieldFilter.DISEASE, disease);
+        pagination.addFieldFilter(FieldFilter.SOURCE, source);
+        pagination.addFieldFilter(FieldFilter.FREFERENCE, reference);
+        pagination.addFieldFilter(FieldFilter.EVIDENCE_CODE, evidenceCode);
+        pagination.addFieldFilter(FieldFilter.ASSOCIATION_TYPE, associationType);
+        if (pagination.hasErrors()) {
+            RestErrorMessage message = new RestErrorMessage();
+            message.setErrors(pagination.getErrors());
+            throw new RestErrorException(message);
+        }
+        try {
+            JsonResultResponse<DiseaseAnnotation> response = diseaseService.getDiseaseAnnotationsWithGenes(id, pagination);
+            response.setHttpServletRequest(request);
+            response.calculateRequestDuration(startTime);
+
+            return response;
+        } catch (Exception e) {
+            log.error("Error while retrieving disease annotations by allele",e);
             RestErrorMessage error = new RestErrorMessage();
             error.addErrorMessage(e.getMessage());
             throw new RestErrorException(error);

@@ -2,6 +2,7 @@ package org.alliancegenome.cacher;
 
 import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.cacher.cachers.DiseaseCacher;
+import org.alliancegenome.cacher.cachers.EcoCodeHelperCacher;
 import org.alliancegenome.cacher.cachers.GeneOrthologCacher;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -25,9 +26,17 @@ public class CacheAllianceTest {
     }
 
     @Test
+    @Ignore
     public void gett(){
         DiseaseCacher cacher = new DiseaseCacher();
-        //cacher.run();
+        cacher.run();
+    }
+
+    @Test
+    @Ignore
+    public void cacheEcoTerms(){
+        EcoCodeHelperCacher cacher = new EcoCodeHelperCacher();
+        cacher.run();
     }
 
     @Ignore

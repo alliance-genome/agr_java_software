@@ -91,13 +91,13 @@ public class DiseaseRibbonService {
                     diseaseRibbonSection.setDescription(term.getDefinition());
                 });
 
-        Map<String, Set<String>> closureMapping = diseaseRepository.getClosureChildToParentsMapping();
+//        Map<String, Set<String>> closureMapping = diseaseRepository.getClosureChildToParentsMapping();
 
         List<DOTerm> doList = diseaseRepository.getAgrDoSlim();
         doList.forEach(doTerm -> {
             List<String> slimFoundList = new ArrayList<>();
             diseaseRibbonSummary.getDiseaseRibbonSections().forEach(diseaseRibbonSection -> {
-                if (closureMapping.get(doTerm.getPrimaryKey()).contains(diseaseRibbonSection.getId())) {
+                if (diseaseRepository.getChildren(doTerm.getPrimaryKey()).contains(diseaseRibbonSection.getId())) {
                     SectionSlim slim = new SectionSlim();
                     slim.setId(doTerm.getPrimaryKey());
                     slim.setLabel(doTerm.getName());
@@ -119,20 +119,20 @@ public class DiseaseRibbonService {
     }
 
     public Set<String> getSlimId(String doID) {
-        Map<String, Set<String>> closureMapping = diseaseRepository.getClosureChildToParentsMapping();
+        //Map<String, Set<String>> closureMapping = diseaseRepository.getClosureChildToParentsMapping();
         List<DOTerm> doList = diseaseRepository.getAgrDoSlim();
         Set<String> partOfSlimList = new HashSet<>(3);
         List<String> slimFoundList = new ArrayList<>();
         doList.forEach(doTerm -> {
             final String slimDoID = doTerm.getPrimaryKey();
-            if (closureMapping.get(doID).contains(slimDoID)) {
+            if (diseaseRepository.getChildren(doID).contains(slimDoID)) {
                 partOfSlimList.add(slimDoID);
                 slimFoundList.add(slimDoID);
             }
         });
 
         boolean parentFound = slimParentTermIdMap.keySet().stream()
-                .filter(id -> closureMapping.get(doID).contains(id))
+                .filter(id -> diseaseRepository.getChildren(doID).contains(id))
                 .peek(partOfSlimList::add)
                 .anyMatch(Objects::nonNull);
         if (!parentFound) {
