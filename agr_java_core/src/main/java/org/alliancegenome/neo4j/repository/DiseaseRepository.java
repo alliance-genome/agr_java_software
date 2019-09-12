@@ -291,7 +291,7 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
     public List<ECOTerm> getEcoTerm(List<PublicationEvidenceCodeJoin> joins) {
         DiseaseCacheRepository cacheRepository = new DiseaseCacheRepository();
         List<ECOTerm> cacheValue = cacheRepository.getEcoTerm(joins);
-        if (cacheValue != null) {
+        if (CollectionUtils.isEmpty(cacheValue)) {
             return cacheValue;
         }
         if (ecoTermMap.isEmpty()) {
@@ -383,7 +383,6 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
         //cypher += " AND gene.primaryKey = 'ZFIN:ZDB-GENE-040426-1716' AND disease.primaryKey in ['DOID:1339'] ";
         cypher += "      OPTIONAL MATCH p1=(diseaseEntityJoin:DiseaseEntityJoin)--(feature:Feature)--(crossReference:CrossReference) ";
         cypher += "      OPTIONAL MATCH aModel=(diseaseEntityJoin:DiseaseEntityJoin)-[:PRIMARY_GENETIC_ENTITY]-(model:AffectedGenomicModel) ";
-        //cypher += "      OPTIONAL MATCH aModel=(diseaseEntityJoin:DiseaseEntityJoin)-[:PRIMARY_GENETIC_ENTITY]-(model:AffectedGeneticModel) ";
         cypher += "      OPTIONAL MATCH p4=(diseaseEntityJoin:DiseaseEntityJoin)-[:FROM_ORTHOLOGOUS_GENE]-(orthoGene:Gene)-[:FROM_SPECIES]-(orthoSpecies:Species) ";
         cypher += " RETURN p, p1, p2, p3, p4, aModel ";
 

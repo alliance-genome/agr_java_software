@@ -76,6 +76,37 @@ public class DiseaseService {
         return result;
     }
 
+    public JsonResultResponse<DiseaseAnnotation> getDiseaseAnnotationsWithGenes(String diseaseID, Pagination pagination) {
+        LocalDateTime startDate = LocalDateTime.now();
+        List<DiseaseAnnotation> fullDiseaseAnnotationList = diseaseCacheRepository.getDiseaseAnnotationList(diseaseID);
+        JsonResultResponse<DiseaseAnnotation> result = new JsonResultResponse<>();
+        if (fullDiseaseAnnotationList == null) {
+            result.calculateRequestDuration(startDate);
+            return result;
+        }
+
+        // need to group annotations by gene / association type
+        Map<Gene, Map<String, List<DiseaseAnnotation>>> groupedByGeneList = fullDiseaseAnnotationList.stream()
+                .collect(Collectors.groupingBy(DiseaseAnnotation::getGene,
+                        Collectors.groupingBy(DiseaseAnnotation::getAssociationType)));
+
+        List<DiseaseAnnotation> geneDiseaseAnnotations = new ArrayList<>();
+        groupedByGeneList.forEach((gene, typeMap) -> {
+            typeMap.forEach((s, diseaseAnnotations) -> {
+                DiseaseAnnotation firstAnnotation = diseaseAnnotations.get(0);
+                diseaseAnnotations.forEach(annotation -> {
+                    firstAnnotation.addAllPrimaryAnnotatedEntities(annotation.getPrimaryAnnotatedEntities());
+                });
+                geneDiseaseAnnotations.add(firstAnnotation);
+            });
+        });
+        //filtering
+        List<DiseaseAnnotation> filteredDiseaseAnnotationList = filterDiseaseAnnotations(geneDiseaseAnnotations, pagination.getFieldFilterValueMap());
+        result.setTotal(geneDiseaseAnnotations.size());
+        result.setResults(getSortedAndPaginatedDiseaseAnnotations(pagination, filteredDiseaseAnnotationList));
+        return result;
+    }
+
     private List<DiseaseAnnotation> filterDiseaseAnnotations(List<DiseaseAnnotation> diseaseAnnotationList, BaseFilter fieldFilterValueMap) {
         if (diseaseAnnotationList == null)
             return null;
