@@ -70,14 +70,23 @@ public class GeneController extends BaseController implements GeneRESTInterface 
     }
 
     @Override
-    public JsonResultResponse<Allele> getAllelesPerGene(String id, int limit, int page, String sortBy, String asc,
-                                                        String symbol, String synonym, String source, String disease) {
+    public JsonResultResponse<Allele> getAllelesPerGene(String id,
+                                                        int limit,
+                                                        int page,
+                                                        String sortBy,
+                                                        String asc,
+                                                        String symbol,
+                                                        String synonym,
+                                                        String variantType,
+                                                        String source,
+                                                        String disease) {
         long startTime = System.currentTimeMillis();
         Pagination pagination = new Pagination(page, limit, sortBy, asc);
         pagination.addFieldFilter(FieldFilter.SYMBOL, symbol);
         pagination.addFieldFilter(FieldFilter.SYNONYMS, synonym);
         pagination.addFieldFilter(FieldFilter.SOURCE, source);
         pagination.addFieldFilter(FieldFilter.DISEASE, disease);
+        pagination.addFieldFilter(FieldFilter.VARIANT_TYPE, variantType);
         if (pagination.hasErrors()) {
             RestErrorMessage message = new RestErrorMessage();
             message.setErrors(pagination.getErrors());

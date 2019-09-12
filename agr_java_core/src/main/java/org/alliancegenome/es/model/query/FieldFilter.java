@@ -28,6 +28,7 @@ public enum FieldFilter {
     INTERACTOR_GENE_SYMBOL("filter.interactorGeneSymbol"),
     DETECTION_METHOD("filter.detectionMethod"),
     INTERACTOR_SPECIES("filter.interactorSpecies"),
+    VARIANT_TYPE("variantType"),
     MOLECULE_TYPE("filter.moleculeType"),
     BASED_ON_GENE("filter.basedOnGeneSymbol"), ALLELE("allele");
     public static final String FILTER_PREFIX = "filter.";
