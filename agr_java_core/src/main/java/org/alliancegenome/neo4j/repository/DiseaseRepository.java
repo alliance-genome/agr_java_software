@@ -291,7 +291,7 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
     public List<ECOTerm> getEcoTerm(List<PublicationEvidenceCodeJoin> joins) {
         DiseaseCacheRepository cacheRepository = new DiseaseCacheRepository();
         List<ECOTerm> cacheValue = cacheRepository.getEcoTerm(joins);
-        if (CollectionUtils.isEmpty(cacheValue)) {
+        if (CollectionUtils.isNotEmpty(cacheValue)) {
             return cacheValue;
         }
         if (ecoTermMap.isEmpty()) {
