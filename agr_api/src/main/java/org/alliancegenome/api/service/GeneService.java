@@ -17,6 +17,7 @@ import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.alliancegenome.neo4j.repository.InteractionRepository;
 import org.alliancegenome.neo4j.repository.PhenotypeRepository;
+import java.util.List;
 
 @RequestScoped
 public class GeneService {
@@ -58,9 +59,9 @@ public class GeneService {
         return ret;
     }
 
-    public JsonResultResponse<PhenotypeAnnotation> getPhenotypeAnnotations(String geneID, Pagination pagination) {
+    public JsonResultResponse<PhenotypeAnnotation> getPhenotypeAnnotations(List<String> geneIDs, Pagination pagination) {
         LocalDateTime startDate = LocalDateTime.now();
-        PaginationResult<PhenotypeAnnotation> list = phenoCacheRepo.getPhenotypeAnnotationList(geneID, pagination);
+        PaginationResult<PhenotypeAnnotation> list = phenoCacheRepo.getPhenotypeAnnotationList(geneIDs, pagination);
         JsonResultResponse<PhenotypeAnnotation> response = new JsonResultResponse<>();
         response.calculateRequestDuration(startDate);
         response.setResults(list.getResult());
@@ -68,10 +69,11 @@ public class GeneService {
         return response;
     }
 
-    public EntitySummary getPhenotypeSummary(String geneID) {
+    public EntitySummary getPhenotypeSummary(List<String> geneIDs) {
+
         EntitySummary summary = new EntitySummary();
-        summary.setNumberOfAnnotations(phenoRepo.getTotalPhenotypeCount(geneID, new Pagination()));
-        summary.setNumberOfEntities(phenoRepo.getDistinctPhenotypeCount(geneID));
+        geneIDs.forEach(geneID ->summary.setNumberOfAnnotations(phenoRepo.getTotalPhenotypeCount(geneID, new Pagination())));
+        geneIDs.forEach(geneID ->summary.setNumberOfEntities(phenoRepo.getDistinctPhenotypeCount(geneID)));
         return summary;
     }
 
