@@ -105,8 +105,7 @@ public interface GeneRESTInterface {
     @JsonView(value = {View.PhenotypeAPI.class})
     @ApiOperation(value = "Retrieve phenotype term name annotations for a given gene")
     JsonResultResponse<PhenotypeAnnotation> getPhenotypeAnnotations(
-            @ApiParam(name = "id", value = "Gene by ID: e.g. ZFIN:ZDB-GENE-990415-8", required = true, type = "String")
-            @PathParam("id") String id,
+            @ApiParam(name = "geneID",value = "Gene by ID",required = true) @QueryParam("geneID") List<String> var1,
             @ApiParam(name = "limit", value = "Number of rows returned", defaultValue = "20")
             @DefaultValue("20") @QueryParam("limit") int limit,
             @ApiParam(name = "page", value = "Page number")
@@ -129,8 +128,7 @@ public interface GeneRESTInterface {
     @ApiOperation(value = "Retrieve all termName annotations for a given gene", notes = "Download all termName annotations for a given gene")
     @Produces(MediaType.TEXT_PLAIN)
     Response getPhenotypeAnnotationsDownloadFile(
-            @ApiParam(name = "id", value = "Gene by ID", required = true, type = "String")
-            @PathParam("id") String id,
+            @QueryParam("geneID") List<String> var1,
             @ApiParam(value = "Field name by which to sort", allowableValues = "termName,geneticEntity")
             @DefaultValue("termName") @QueryParam("sortBy") String sortBy,
             @ApiParam(name = "geneticEntity", value = "genetic entity symbol")
@@ -333,7 +331,6 @@ public interface GeneRESTInterface {
     @Path("/{id}/phenotype-summary")
     @ApiOperation(value = "Retrieve phenotype summary info for a given gene")
     EntitySummary getPhenotypeSummary(
-            @ApiParam(name = "id", value = "Gene by ID: e.g. MGI:1097693", required = true, type = "String")
-            @PathParam("id") String id
+            @ApiParam(name = "geneID",value = "list of genes for which phenotype data is requested",required = true) @QueryParam("geneID") List<String> var1
     ) throws JsonProcessingException;
 }
