@@ -183,7 +183,7 @@ public class GeneController extends BaseController implements GeneRESTInterface 
     }
 
     @Override
-    public JsonResultResponse<PhenotypeAnnotation> getPhenotypeAnnotations(String id, int limit, int page, String sortBy,
+    public JsonResultResponse<PhenotypeAnnotation> getPhenotypeAnnotations(List<String> geneIDs, int limit, int page, String sortBy,
                                                                            String geneticEntity,
                                                                            String geneticEntityType,
                                                                            String phenotype,
@@ -191,7 +191,7 @@ public class GeneController extends BaseController implements GeneRESTInterface 
                                                                            String asc) {
         long startTime = System.currentTimeMillis();
         try {
-            JsonResultResponse<PhenotypeAnnotation> phenotypes = getPhenotypeAnnotationDocumentJsonResultResponse(id, limit, page, sortBy, geneticEntity, geneticEntityType, phenotype, reference, asc);
+            JsonResultResponse<PhenotypeAnnotation> phenotypes = getPhenotypeAnnotationDocumentJsonResultResponse(geneIDs, limit, page, sortBy, geneticEntity, geneticEntityType, phenotype, reference, asc);
             phenotypes.setHttpServletRequest(request);
             phenotypes.calculateRequestDuration(startTime);
             return phenotypes;
@@ -205,7 +205,7 @@ public class GeneController extends BaseController implements GeneRESTInterface 
 
     @Override
     public Response getPhenotypeAnnotationsDownloadFile(
-            String id,
+            List<String> geneIDs,
             String sortBy,
             String geneticEntity,
             String geneticEntityType,
@@ -214,18 +214,18 @@ public class GeneController extends BaseController implements GeneRESTInterface 
             String asc) {
         // retrieve all records
         JsonResultResponse<PhenotypeAnnotation> response =
-                getPhenotypeAnnotationDocumentJsonResultResponse(id, Integer.MAX_VALUE, 1, sortBy,
+                getPhenotypeAnnotationDocumentJsonResultResponse(geneIDs, Integer.MAX_VALUE, 1, sortBy,
                         geneticEntity,
                         geneticEntityType,
                         phenotype,
                         reference,
                         asc);
-        Response.ResponseBuilder responseBuilder = Response.ok(translator.getAllRows(response.getResults()));
-        APIService.setDownloadHeader(id, EntityType.GENE, EntityType.PHENOTYPE, responseBuilder);
+        Response.ResponseBuilder responseBuilder = Response.ok(translator.getAllRows(response.getResults(),geneIDs.size() > 1));
+        APIService.setDownloadHeader(geneIDs.get(0), EntityType.GENE, EntityType.PHENOTYPE, responseBuilder);
         return responseBuilder.build();
     }
 
-    private JsonResultResponse<PhenotypeAnnotation> getPhenotypeAnnotationDocumentJsonResultResponse(String id, int limit, int page, String sortBy, String geneticEntity, String geneticEntityType, String phenotype, String reference, String asc) {
+    private JsonResultResponse<PhenotypeAnnotation> getPhenotypeAnnotationDocumentJsonResultResponse(List<String> geneIDs, int limit, int page, String sortBy, String geneticEntity, String geneticEntityType, String phenotype, String reference, String asc) {
         if (sortBy.isEmpty())
             sortBy = FieldFilter.PHENOTYPE.getName();
         Pagination pagination = new Pagination(page, limit, sortBy, asc);
@@ -233,8 +233,8 @@ public class GeneController extends BaseController implements GeneRESTInterface 
         pagination.addFieldFilter(FieldFilter.GENETIC_ENTITY_TYPE, geneticEntityType);
         pagination.addFieldFilter(FieldFilter.PHENOTYPE, phenotype);
         pagination.addFieldFilter(FieldFilter.FREFERENCE, reference);
-        JsonResultResponse<PhenotypeAnnotation> phenotypeAnnotations = geneService.getPhenotypeAnnotations(id, pagination);
-        phenotypeAnnotations.addAnnotationSummarySupplementalData(getPhenotypeSummary(id));
+        JsonResultResponse<PhenotypeAnnotation> phenotypeAnnotations = geneService.getPhenotypeAnnotations(geneIDs, pagination);
+        phenotypeAnnotations.addAnnotationSummarySupplementalData(getPhenotypeSummary(geneIDs));
         return phenotypeAnnotations;
     }
 
@@ -419,8 +419,12 @@ public class GeneController extends BaseController implements GeneRESTInterface 
     }
 
     @Override
-    public EntitySummary getPhenotypeSummary(String id) {
-        return geneService.getPhenotypeSummary(id);
+    public EntitySummary getPhenotypeSummary( List<String> geneIDs) {
+
+        List<String> ids = new ArrayList<>();
+        if (geneIDs != null)
+            ids.addAll(geneIDs);
+        return geneService.getPhenotypeSummary(ids);
     }
 
 }
