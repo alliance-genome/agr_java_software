@@ -9,13 +9,16 @@ import org.alliancegenome.neo4j.entity.node.GeneticEntity;
 
 public class PhenotypeAnnotationToTdfTranslator {
 
-    public String getAllRows(List<PhenotypeAnnotation> annotations) {
+    public String getAllRows(List<PhenotypeAnnotation> annotations, boolean isMultipleGenes) {
         StringBuilder builder = new StringBuilder();
         StringJoiner headerJoiner = new StringJoiner("\t");
         headerJoiner.add("Phenotype");
-        headerJoiner.add("Genetic Entity ID");
-        headerJoiner.add("Genetic Entity Symbol");
-        headerJoiner.add("Genetic Entity Type");
+        if (isMultipleGenes) {
+            headerJoiner.add("Genetic Entity ID");
+            headerJoiner.add("Genetic Entity Symbol");
+            headerJoiner.add("Genetic Entity Type");
+        }
+
         headerJoiner.add("References");
         builder.append(headerJoiner.toString());
         builder.append(ConfigHelper.getJavaLineSeparator());
@@ -23,14 +26,16 @@ public class PhenotypeAnnotationToTdfTranslator {
         annotations.forEach(annotation -> {
             StringJoiner joiner = new StringJoiner("\t");
             joiner.add(annotation.getPhenotype());
-            if (annotation.getAllele() != null) {
-                joiner.add(annotation.getAllele().getPrimaryKey());
-                joiner.add(annotation.getAllele().getSymbol());
-                joiner.add(GeneticEntity.CrossReferenceType.ALLELE.getDisplayName());
-            } else {
-                joiner.add("");
-                joiner.add("");
-                joiner.add(GeneticEntity.CrossReferenceType.GENE.getDisplayName());
+            if (isMultipleGenes) {
+                if (annotation.getAllele() != null) {
+                    joiner.add(annotation.getAllele().getPrimaryKey());
+                    joiner.add(annotation.getAllele().getSymbol());
+                    joiner.add(GeneticEntity.CrossReferenceType.ALLELE.getDisplayName());
+                } else {
+                    joiner.add("");
+                    joiner.add("");
+                    joiner.add(GeneticEntity.CrossReferenceType.GENE.getDisplayName());
+                }
             }
             // publications list
             StringJoiner pubJoiner = new StringJoiner(",");

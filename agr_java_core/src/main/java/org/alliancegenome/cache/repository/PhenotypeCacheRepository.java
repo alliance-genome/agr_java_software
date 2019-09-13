@@ -18,15 +18,20 @@ import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
 import org.alliancegenome.neo4j.view.BaseFilter;
 import org.alliancegenome.neo4j.view.View;
 
+import java.util.ArrayList;
+
 import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 public class PhenotypeCacheRepository {
 
-    public PaginationResult<PhenotypeAnnotation> getPhenotypeAnnotationList(String geneID, Pagination pagination) {
-
+    public PaginationResult<PhenotypeAnnotation> getPhenotypeAnnotationList(List<String> geneIDs, Pagination pagination) {
+        List<PhenotypeAnnotation> fullPhenotypeAnnotationList = new ArrayList<>();
         PhenotypeCacheManager manager = new PhenotypeCacheManager();
-        List<PhenotypeAnnotation> fullPhenotypeAnnotationList = manager.getPhenotypeAnnotations(geneID, View.PhenotypeAPI.class);
+
+        geneIDs.stream()
+                .forEach(geneID -> fullPhenotypeAnnotationList.addAll(manager.getPhenotypeAnnotations(geneID, View.PhenotypeAPI.class)));
+
 
         //filtering
         List<PhenotypeAnnotation> filteredPhenotypeAnnotationList = filterDiseaseAnnotations(fullPhenotypeAnnotationList, pagination.getFieldFilterValueMap());
