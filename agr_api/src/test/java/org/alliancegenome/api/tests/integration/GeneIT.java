@@ -34,6 +34,9 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import static org.alliancegenome.api.service.ExpressionService.CELLULAR_COMPONENT;
 import static org.hamcrest.Matchers.*;

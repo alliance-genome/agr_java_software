@@ -27,6 +27,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 @Api(value = "Phenotype Tests")
 public class PhenotypeIT {
@@ -67,13 +70,15 @@ public class PhenotypeIT {
     public void checkPhenotypeByGeneWithoutPagination() throws JsonProcessingException {
         Pagination pagination = new Pagination(1, 100, null, null);
         // mkks
+        List<String> geneIDs = new ArrayList<>();
+        geneIDs.add("ZFIN:ZDB-GENE-040426-757");
 
-        String geneID = "ZFIN:ZDB-GENE-040426-757";
-        JsonResultResponse<PhenotypeAnnotation> response = geneService.getPhenotypeAnnotations(geneID, pagination);
+
+        JsonResultResponse<PhenotypeAnnotation> response = geneService.getPhenotypeAnnotations(geneIDs, pagination);
 
         assertResponse(response, 19, 19);
 
-        EntitySummary summary = geneService.getPhenotypeSummary(geneID);
+        EntitySummary summary = geneService.getPhenotypeSummary(geneIDs);
         assertNotNull(summary);
         assertThat(19L, equalTo(summary.getNumberOfAnnotations()));
         assertThat(19L, equalTo(summary.getNumberOfEntities()));
@@ -84,15 +89,17 @@ public class PhenotypeIT {
     // ZFIN gene: mkks
     public void checkPhenotypeByGeneWithPagination() throws JsonProcessingException {
 
-        String geneID = "ZFIN:ZDB-GENE-040426-757";
+        List<String> geneIDs = new ArrayList<>();
+        geneIDs.add("ZFIN:ZDB-GENE-040426-757");
+
 
         Pagination pagination = new Pagination(1, 11, null, null);
-        JsonResultResponse<PhenotypeAnnotation> response = geneService.getPhenotypeAnnotations(geneID, pagination);
+        JsonResultResponse<PhenotypeAnnotation> response = geneService.getPhenotypeAnnotations(geneIDs, pagination);
         assertResponse(response, 11, 19);
 
         // add containsFilterValue on phenotype
         pagination.makeSingleFieldFilter(FieldFilter.PHENOTYPE, "som");
-        response = geneService.getPhenotypeAnnotations(geneID, pagination);
+        response = geneService.getPhenotypeAnnotations(geneIDs, pagination);
         assertResponse(response, 6, 6);
 
     }
@@ -100,16 +107,18 @@ public class PhenotypeIT {
     @Test
     // ZFIN gene: pax2a
     public void checkPhenotypeByGeneWithPaginationPax2a() throws JsonProcessingException {
+        List<String> geneIDs = new ArrayList<>();
+        geneIDs.add("ZFIN:ZDB-GENE-990415-8");
 
-        String geneID = "ZFIN:ZDB-GENE-990415-8";
+
 
         Pagination pagination = new Pagination(1, 11, null, null);
-        JsonResultResponse<PhenotypeAnnotation> response = geneService.getPhenotypeAnnotations(geneID, pagination);
+        JsonResultResponse<PhenotypeAnnotation> response = geneService.getPhenotypeAnnotations(geneIDs, pagination);
         int resultSize = 11;
         int totalSize = 295;
         assertResponse(response, resultSize, totalSize);
 
-        EntitySummary summary = geneService.getPhenotypeSummary(geneID);
+        EntitySummary summary = geneService.getPhenotypeSummary(geneIDs);
         assertNotNull(summary);
         assertThat(summary.getNumberOfAnnotations(), greaterThanOrEqualTo(295L));
         assertThat(summary.getNumberOfEntities(), greaterThanOrEqualTo(110L));
@@ -117,48 +126,51 @@ public class PhenotypeIT {
 
         // add containsFilterValue on phenotype
         pagination.makeSingleFieldFilter(FieldFilter.PHENOTYPE, "CirC");
-        response = geneService.getPhenotypeAnnotations(geneID, pagination);
+        response = geneService.getPhenotypeAnnotations(geneIDs, pagination);
         assertResponse(response, 7, 7);
 
         // add containsFilterValue on allele
         pagination.makeSingleFieldFilter(FieldFilter.GENETIC_ENTITY, "21");
-        response = geneService.getPhenotypeAnnotations(geneID, pagination);
+        response = geneService.getPhenotypeAnnotations(geneIDs, pagination);
         assertResponse(response, 11, 27);
 
         // add containsFilterValue on genetic entity type
         pagination.makeSingleFieldFilter(FieldFilter.GENETIC_ENTITY_TYPE, "allele");
-        response = geneService.getPhenotypeAnnotations(geneID, pagination);
+        response = geneService.getPhenotypeAnnotations(geneIDs, pagination);
         assertResponse(response, 11, 185);
 
         pagination.makeSingleFieldFilter(FieldFilter.GENETIC_ENTITY_TYPE, "gene");
-        response = geneService.getPhenotypeAnnotations(geneID, pagination);
+        response = geneService.getPhenotypeAnnotations(geneIDs, pagination);
         assertResponse(response, 11, 110);
 
 
         // add containsFilterValue on reference: pubmod
         pagination.makeSingleFieldFilter(FieldFilter.FREFERENCE, "zfin:zdb-pub");
-        response = geneService.getPhenotypeAnnotations(geneID, pagination);
+        response = geneService.getPhenotypeAnnotations(geneIDs, pagination);
         assertResponse(response, 11, 50);
 
         int zfinRefCount = response.getTotal();
 
         pagination.makeSingleFieldFilter(FieldFilter.FREFERENCE, "pmid");
-        response = geneService.getPhenotypeAnnotations(geneID, pagination);
+        response = geneService.getPhenotypeAnnotations(geneIDs, pagination);
         assertResponse(response, 11, 245);
 
         assertThat("zfin pubs plus PUB MED pubs gives total number ", zfinRefCount + response.getTotal(), greaterThanOrEqualTo(totalSize));
 
         // add containsFilterValue on reference: pubmed
         pagination.makeSingleFieldFilter(FieldFilter.FREFERENCE, "239");
-        response = geneService.getPhenotypeAnnotations(geneID, pagination);
+        response = geneService.getPhenotypeAnnotations(geneIDs, pagination);
         assertResponse(response, 11, 63);
     }
 
     @Test
     public void checkPhenotypeDownload() throws JsonProcessingException {
-        JsonResultResponse<PhenotypeAnnotation> response = geneService.getPhenotypeAnnotations("MGI:105043", new Pagination());
+        List<String> geneIDs = new ArrayList<>();
+        geneIDs.add("MGI:105043");
+
+        JsonResultResponse<PhenotypeAnnotation> response = geneService.getPhenotypeAnnotations(geneIDs, new Pagination());
         PhenotypeAnnotationToTdfTranslator translator = new PhenotypeAnnotationToTdfTranslator();
-        String line = translator.getAllRows(response.getResults());
+        String line = translator.getAllRows(response.getResults(),geneIDs.size() > 1);
         assertNotNull(line);
         String[] lines = line.split("\n");
         assertThat(21, equalTo(lines.length));
@@ -166,9 +178,10 @@ public class PhenotypeIT {
         assertThat("Phenotype\tGenetic Entity ID\tGenetic Entity Symbol\tGenetic Entity Type\tReferences", equalTo(lines[0]));
         assertThat("abnormal atrial thrombosis\tMGI:2151800\tAhr<sup>tm1Gonz</sup>\tallele\tPMID:9396142", equalTo(lines[1]));
         assertThat("abnormal atrial thrombosis\t\t\tgene\tPMID:9396142", equalTo(lines[2]));
-
-        response = geneService.getPhenotypeAnnotations("MGI:109583", new Pagination());
-        line = translator.getAllRows(response.getResults());
+        List<String> geneID1s = new ArrayList<>();
+        geneID1s.add("MGI:109583");
+        response = geneService.getPhenotypeAnnotations(geneID1s, new Pagination());
+        line = translator.getAllRows(response.getResults(),geneID1s.size() > 1);
         assertNotNull(line);
         assertThat(response.getTotal(), greaterThan(1200));
     }
@@ -177,12 +190,13 @@ public class PhenotypeIT {
     // ZFIN gene: Pten
     public void checkPhenotypeByGeneWithPaginationPten() throws JsonProcessingException {
 
-        String geneID = "MGI:109583";
+        List<String> geneIDs = new ArrayList<>();
+        geneIDs.add("MGI:109583");
         Pagination pagination = new Pagination(1, 42, null, null);
-        JsonResultResponse<PhenotypeAnnotation> response = geneService.getPhenotypeAnnotations(geneID, pagination);
+        JsonResultResponse<PhenotypeAnnotation> response = geneService.getPhenotypeAnnotations(geneIDs, pagination);
         assertResponse(response, 42, 1251);
 
-        EntitySummary summary = geneService.getPhenotypeSummary(geneID);
+        EntitySummary summary = geneService.getPhenotypeSummary(geneIDs);
         assertNotNull(summary);
         assertThat(summary.getNumberOfAnnotations(), greaterThanOrEqualTo(1251L));
         assertThat(summary.getNumberOfEntities(), greaterThanOrEqualTo(526L));
@@ -190,12 +204,12 @@ public class PhenotypeIT {
 
         // add containsFilterValue on phenotype
         pagination.makeSingleFieldFilter(FieldFilter.PHENOTYPE, "DEV");
-        response = geneService.getPhenotypeAnnotations(geneID, pagination);
+        response = geneService.getPhenotypeAnnotations(geneIDs, pagination);
         assertResponse(response, 25, 25);
 
         // add containsFilterValue on phenotype
         pagination.makeSingleFieldFilter(FieldFilter.GENETIC_ENTITY, "1hW");
-        response = geneService.getPhenotypeAnnotations(geneID, pagination);
+        response = geneService.getPhenotypeAnnotations(geneIDs, pagination);
         assertResponse(response, 42, 337);
     }
 
@@ -204,6 +218,8 @@ public class PhenotypeIT {
         assertThat("Number of returned records", response.getResults().size(), greaterThanOrEqualTo(resultSize));
         assertThat("Number of total records", response.getTotal(), greaterThanOrEqualTo(totalSize));
     }
+
+
 
 
 }
