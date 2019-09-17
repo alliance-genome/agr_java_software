@@ -9,12 +9,12 @@ import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.DiseaseSummary;
+import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
 import org.alliancegenome.neo4j.entity.node.DOTerm;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.entity.node.SimpleTerm;
 import org.alliancegenome.neo4j.repository.DiseaseRepository;
 import org.alliancegenome.neo4j.repository.GeneRepository;
-import org.alliancegenome.neo4j.view.BaseFilter;
 
 import javax.enterprise.context.RequestScoped;
 import java.time.LocalDateTime;
@@ -70,9 +70,10 @@ public class DiseaseService {
                 .filter(annotation -> annotation.getFeature() != null)
                 .collect(Collectors.toList());
         //filtering
-        List<DiseaseAnnotation> filteredDiseaseAnnotationList = filterDiseaseAnnotations(alleleDiseaseAnnotations, pagination.getFieldFilterValueMap());
+        FilterService<DiseaseAnnotation> filterService = new FilterService<>(new DiseaseAnnotationFiltering());
+        List<DiseaseAnnotation> filteredDiseaseAnnotationList = filterService.filterAnnotations(alleleDiseaseAnnotations, pagination.getFieldFilterValueMap());
         result.setTotal(alleleDiseaseAnnotations.size());
-        result.setResults(getSortedAndPaginatedDiseaseAnnotations(pagination, filteredDiseaseAnnotationList));
+        result.setResults(filterService.getSortedAndPaginatedAnnotations(pagination, filteredDiseaseAnnotationList, new DiseaseAnnotationSorting()));
         return result;
     }
 
@@ -101,53 +102,40 @@ public class DiseaseService {
             });
         });
         //filtering
-        List<DiseaseAnnotation> filteredDiseaseAnnotationList = filterDiseaseAnnotations(geneDiseaseAnnotations, pagination.getFieldFilterValueMap());
-        result.setTotal(geneDiseaseAnnotations.size());
-        result.setResults(getSortedAndPaginatedDiseaseAnnotations(pagination, filteredDiseaseAnnotationList));
+        FilterService<DiseaseAnnotation> filterService = new FilterService<>(new DiseaseAnnotationFiltering());
+        List<DiseaseAnnotation> filteredDiseaseAnnotationList = filterService.filterAnnotations(geneDiseaseAnnotations, pagination.getFieldFilterValueMap());
+        result.setTotal(filteredDiseaseAnnotationList.size());
+        result.setResults(filterService.getSortedAndPaginatedAnnotations(pagination, filteredDiseaseAnnotationList, new DiseaseAnnotationSorting()));
         return result;
     }
 
-    private List<DiseaseAnnotation> filterDiseaseAnnotations(List<DiseaseAnnotation> diseaseAnnotationList, BaseFilter fieldFilterValueMap) {
-        if (diseaseAnnotationList == null)
-            return null;
-        if (fieldFilterValueMap == null)
-            return diseaseAnnotationList;
-        return diseaseAnnotationList.stream()
-                .filter(annotation -> containsFilterValue(annotation, fieldFilterValueMap))
-                .collect(Collectors.toList());
-    }
+    public JsonResultResponse<PrimaryAnnotatedEntity> getDiseaseAnnotationsWithAGM(String diseaseID, Pagination pagination) {
+        LocalDateTime startDate = LocalDateTime.now();
+        List<DiseaseAnnotation> fullDiseaseAnnotationList = diseaseCacheRepository.getDiseaseAnnotationList(diseaseID);
+        JsonResultResponse<PrimaryAnnotatedEntity> result = new JsonResultResponse<>();
+        if (fullDiseaseAnnotationList == null) {
+            result.calculateRequestDuration(startDate);
+            return result;
+        }
 
-    private boolean containsFilterValue(DiseaseAnnotation annotation, BaseFilter fieldFilterValueMap) {
-        // remove entries with null values.
-        fieldFilterValueMap.values().removeIf(Objects::isNull);
-
-        Set<Boolean> filterResults = fieldFilterValueMap.entrySet().stream()
-                .map((entry) -> {
-                    FilterFunction<DiseaseAnnotation, String> filterFunction = DiseaseAnnotationFiltering.filterFieldMap.get(entry.getKey());
-                    if (filterFunction == null)
-                        return null;
-                    return filterFunction.containsFilterValue(annotation, entry.getValue());
-                })
-                .collect(Collectors.toSet());
-
-        return !filterResults.contains(false);
-    }
-
-    private List<DiseaseAnnotation> getSortedAndPaginatedDiseaseAnnotations(Pagination pagination, List<DiseaseAnnotation> fullDiseaseAnnotationList) {
-        // sorting
-        SortingField sortingField = null;
-        String sortBy = pagination.getSortBy();
-        if (sortBy != null && !sortBy.isEmpty())
-            sortingField = SortingField.getSortingField(sortBy.toUpperCase());
-
-        DiseaseAnnotationSorting sorting = new DiseaseAnnotationSorting();
-        fullDiseaseAnnotationList.sort(sorting.getComparator(sortingField, pagination.getAsc()));
-
-        // paginating
-        return fullDiseaseAnnotationList.stream()
-                .skip(pagination.getStart())
-                .limit(pagination.getLimit())
-                .collect(Collectors.toList());
+        // create primary annotated entities list
+        List<PrimaryAnnotatedEntity> geneDiseaseAnnotations = new ArrayList<>();
+        fullDiseaseAnnotationList.stream()
+                .filter(diseaseAnnotation -> diseaseAnnotation.getPrimaryAnnotatedEntities() != null)
+                .forEach((annotation) -> {
+                    annotation.getPrimaryAnnotatedEntities().forEach(entity -> {
+                        entity.setSpecies(annotation.getGene().getSpecies());
+                        entity.setDisease(annotation.getDisease());
+                        geneDiseaseAnnotations.add(entity);
+                    });
+                });
+        //filtering
+        FilterService<PrimaryAnnotatedEntity> filterService = new FilterService<>(new PrimaryAnnotatedEntityFiltering());
+        List<PrimaryAnnotatedEntity> filteredDiseaseAnnotationList = filterService.filterAnnotations(geneDiseaseAnnotations, pagination.getFieldFilterValueMap());
+        result.setTotal(filteredDiseaseAnnotationList.size());
+        result.setResults(filterService.getSortedAndPaginatedAnnotations(pagination, filteredDiseaseAnnotationList, new PrimaryAnnotatedEntitySorting()));
+        result.calculateRequestDuration(startDate);
+        return result;
     }
 
     public JsonResultResponse<DiseaseAnnotation> getDiseaseAnnotations(String geneID, Pagination pagination) {
@@ -270,5 +258,6 @@ public class DiseaseService {
         }
         return response;
     }
+
 }
 

@@ -18,10 +18,7 @@ import javax.ws.rs.core.UriInfo;
 import org.alliancegenome.api.entity.DiseaseRibbonSummary;
 import org.alliancegenome.api.entity.ExpressionSummary;
 import org.alliancegenome.core.service.JsonResultResponse;
-import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
-import org.alliancegenome.neo4j.entity.DiseaseSummary;
-import org.alliancegenome.neo4j.entity.EntitySummary;
-import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
+import org.alliancegenome.neo4j.entity.*;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
@@ -143,6 +140,29 @@ public interface GeneRESTInterface {
             @QueryParam("filter.reference") String reference,
             @ApiParam(value = "ascending order: true or false", allowableValues = "true,false", defaultValue = "true")
             @QueryParam("asc") String asc);
+
+    @GET
+    @Path("/{id}/models")
+    @JsonView(value = {View.PrimaryAnnotation.class})
+    @ApiOperation(value = "Retrieve all DiseaseAnnotation records for a given disease id")
+    JsonResultResponse<PrimaryAnnotatedEntity> getPrimaryAnnotatedEntityForModel(
+            @ApiParam(name = "id", value = "gene ID: e.g. MGI:109583", required = true, type = "String")
+            @PathParam("id") String id,
+            @ApiParam(name = "limit", value = "Number of rows returned", defaultValue = "20")
+            @DefaultValue("20") @QueryParam("limit") int limit,
+            @ApiParam(name = "page", value = "Page number")
+            @DefaultValue("1") @QueryParam("page") int page,
+            @ApiParam(value = "Field / column name by which to sort", allowableValues = "Default,Gene,Disease,Species", defaultValue = "geneName")
+            @QueryParam("sortBy") String sortBy,
+            @ApiParam(value = "filter by species")
+            @QueryParam("filter.species") String species,
+            @ApiParam(value = "filter by disease")
+            @QueryParam("filter.disease") String disease,
+            @ApiParam(value = "filter by source")
+            @QueryParam("filter.source") String source,
+            @ApiParam(value = "ascending order: true or false", allowableValues = "true,false", defaultValue = "true")
+            @QueryParam("asc") String asc);
+
 
     @GET
     @Path("/{id}/homologs")

@@ -1,20 +1,5 @@
 package org.alliancegenome.api.controller;
 
-import static org.alliancegenome.api.service.EntityType.DISEASE;
-import static org.alliancegenome.api.service.EntityType.GENE;
-
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Objects;
-
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
 import org.alliancegenome.api.rest.interfaces.DiseaseRESTInterface;
 import org.alliancegenome.api.service.APIService;
 import org.alliancegenome.api.service.DiseaseService;
@@ -25,10 +10,25 @@ import org.alliancegenome.core.translators.tdf.DiseaseAnnotationToTdfTranslator;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
+import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
 import org.alliancegenome.neo4j.entity.node.DOTerm;
 import org.alliancegenome.neo4j.view.BaseFilter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Objects;
+
+import static org.alliancegenome.api.service.EntityType.DISEASE;
+import static org.alliancegenome.api.service.EntityType.GENE;
 
 @RequestScoped
 public class DiseaseController extends BaseController implements DiseaseRESTInterface {
@@ -95,7 +95,7 @@ public class DiseaseController extends BaseController implements DiseaseRESTInte
 
             return response;
         } catch (Exception e) {
-            log.error("Error while retrieving disease annotations",e);
+            log.error("Error while retrieving disease annotations", e);
             RestErrorMessage error = new RestErrorMessage();
             error.addErrorMessage(e.getMessage());
             throw new RestErrorException(error);
@@ -104,20 +104,22 @@ public class DiseaseController extends BaseController implements DiseaseRESTInte
 
     @Override
     public JsonResultResponse<DiseaseAnnotation> getDiseaseAnnotationsByAllele(String id,
-                                                                             int limit,
-                                                                             int page,
-                                                                             String sortBy,
-                                                                             String allele,
-                                                                             String species,
-                                                                             String disease,
-                                                                             String source,
-                                                                             String reference,
-                                                                             String evidenceCode,
-                                                                             String associationType,
-                                                                             String asc) {
+                                                                               int limit,
+                                                                               int page,
+                                                                               String sortBy,
+                                                                               String geneName,
+                                                                               String alleleName,
+                                                                               String species,
+                                                                               String disease,
+                                                                               String source,
+                                                                               String reference,
+                                                                               String evidenceCode,
+                                                                               String associationType,
+                                                                               String asc) {
         long startTime = System.currentTimeMillis();
         Pagination pagination = new Pagination(page, limit, sortBy, asc);
-        pagination.addFieldFilter(FieldFilter.ALLELE, allele);
+        pagination.addFieldFilter(FieldFilter.GENE_NAME, geneName);
+        pagination.addFieldFilter(FieldFilter.ALLELE, alleleName);
         pagination.addFieldFilter(FieldFilter.SPECIES, species);
         pagination.addFieldFilter(FieldFilter.DISEASE, disease);
         pagination.addFieldFilter(FieldFilter.SOURCE, source);
@@ -136,7 +138,7 @@ public class DiseaseController extends BaseController implements DiseaseRESTInte
 
             return response;
         } catch (Exception e) {
-            log.error("Error while retrieving disease annotations by allele",e);
+            log.error("Error while retrieving disease annotations by allele", e);
             RestErrorMessage error = new RestErrorMessage();
             error.addErrorMessage(e.getMessage());
             throw new RestErrorException(error);
@@ -177,7 +179,48 @@ public class DiseaseController extends BaseController implements DiseaseRESTInte
 
             return response;
         } catch (Exception e) {
-            log.error("Error while retrieving disease annotations by allele",e);
+            log.error("Error while retrieving disease annotations by allele", e);
+            RestErrorMessage error = new RestErrorMessage();
+            error.addErrorMessage(e.getMessage());
+            throw new RestErrorException(error);
+        }
+    }
+
+    @Override
+    public JsonResultResponse<PrimaryAnnotatedEntity> getDiseaseAnnotationsForModel(String id,
+                                                                                    int limit,
+                                                                                    int page,
+                                                                                    String sortBy,
+                                                                                    String modelName,
+                                                                                    String geneName,
+                                                                                    String species,
+                                                                                    String disease,
+                                                                                    String source,
+                                                                                    String reference,
+                                                                                    String evidenceCode,
+                                                                                    String asc) {
+        long startTime = System.currentTimeMillis();
+        Pagination pagination = new Pagination(page, limit, sortBy, asc);
+        pagination.addFieldFilter(FieldFilter.GENE_NAME, geneName);
+        pagination.addFieldFilter(FieldFilter.SPECIES, species);
+        pagination.addFieldFilter(FieldFilter.DISEASE, disease);
+        pagination.addFieldFilter(FieldFilter.SOURCE, source);
+        pagination.addFieldFilter(FieldFilter.FREFERENCE, reference);
+        pagination.addFieldFilter(FieldFilter.EVIDENCE_CODE, evidenceCode);
+        pagination.addFieldFilter(FieldFilter.MODEL_NAME, modelName);
+        if (pagination.hasErrors()) {
+            RestErrorMessage message = new RestErrorMessage();
+            message.setErrors(pagination.getErrors());
+            throw new RestErrorException(message);
+        }
+        try {
+            JsonResultResponse<PrimaryAnnotatedEntity> response = diseaseService.getDiseaseAnnotationsWithAGM(id, pagination);
+            response.setHttpServletRequest(request);
+            response.calculateRequestDuration(startTime);
+
+            return response;
+        } catch (Exception e) {
+            log.error("Error while retrieving disease annotations by allele", e);
             RestErrorMessage error = new RestErrorMessage();
             error.addErrorMessage(e.getMessage());
             throw new RestErrorException(error);
@@ -281,7 +324,7 @@ public class DiseaseController extends BaseController implements DiseaseRESTInte
             response.calculateRequestDuration(startDate);
             return response;
         } catch (Exception e) {
-            log.error("Error while retrieving disease annotations",e);
+            log.error("Error while retrieving disease annotations", e);
             RestErrorMessage error = new RestErrorMessage();
             error.addErrorMessage(e.getMessage());
             throw new RestErrorException(error);

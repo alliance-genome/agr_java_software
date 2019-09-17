@@ -65,6 +65,7 @@ public class DiseaseCacher extends Cacher {
                             PrimaryAnnotatedEntity entity = new PrimaryAnnotatedEntity();
                             entity.setId(model.getPrimaryKey());
                             entity.setName(model.getName());
+                            entity.setDisplayName(model.getNameText());
                             document.addPrimaryAnnotatedEntity(entity);
                         });
                     }

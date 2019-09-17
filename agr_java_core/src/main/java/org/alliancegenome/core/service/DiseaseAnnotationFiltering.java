@@ -1,45 +1,45 @@
 package org.alliancegenome.core.service;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.entity.node.Gene;
 
-public class DiseaseAnnotationFiltering {
+import java.util.Set;
+import java.util.stream.Collectors;
+
+public class DiseaseAnnotationFiltering extends AnnotationFiltering<DiseaseAnnotation> {
 
 
-    public static FilterFunction<DiseaseAnnotation, String> termNameFilter =
+    public FilterFunction<DiseaseAnnotation, String> termNameFilter =
             (annotation, value) -> FilterFunction.contains(annotation.getDisease().getName(), value);
 
-    public static FilterFunction<DiseaseAnnotation, String> geneticEntityFilter =
+    public FilterFunction<DiseaseAnnotation, String> alleleFilter =
+            (annotation, value) -> FilterFunction.contains(annotation.getFeature().getSymbolText(), value);
+
+    public FilterFunction<DiseaseAnnotation, String> geneticEntityFilter =
             (annotation, value) -> {
                 if (annotation.getFeature() == null)
                     return false;
                 return FilterFunction.contains(annotation.getFeature().getSymbolText(), value);
             };
 
-    public static FilterFunction<DiseaseAnnotation, String> associationFilter =
+    public FilterFunction<DiseaseAnnotation, String> associationFilter =
             (annotation, value) -> FilterFunction.fullMatchMultiValueOR(annotation.getAssociationType(), value);
 
-    public static FilterFunction<DiseaseAnnotation, String> sourceFilter =
+    public FilterFunction<DiseaseAnnotation, String> sourceFilter =
             (annotation, value) -> FilterFunction.contains(annotation.getSource().getName(), value);
 
-    public static FilterFunction<DiseaseAnnotation, String> geneticEntityTypeFilter =
+    public FilterFunction<DiseaseAnnotation, String> geneticEntityTypeFilter =
             (annotation, value) -> FilterFunction.fullMatchMultiValueOR(annotation.getGeneticEntityType(), value);
 
-    public static FilterFunction<DiseaseAnnotation, String> geneNameFilter =
+    public FilterFunction<DiseaseAnnotation, String> geneNameFilter =
             (annotation, value) -> FilterFunction.contains(annotation.getGene().getSymbol(), value);
 
-    public static FilterFunction<DiseaseAnnotation, String> geneSpeciesFilter =
+    public FilterFunction<DiseaseAnnotation, String> geneSpeciesFilter =
             (annotation, value) -> FilterFunction.fullMatchMultiValueOR(annotation.getGene().getSpecies().getName(), value);
 
-    public static FilterFunction<DiseaseAnnotation, String> evidenceCodeFilter =
+    public FilterFunction<DiseaseAnnotation, String> evidenceCodeFilter =
             (annotation, value) -> {
                 Set<Boolean> filteringPassed = annotation.getEcoCodes().stream()
                         .map(evidenceCode -> FilterFunction.contains(evidenceCode.getName(), value))
@@ -47,7 +47,7 @@ public class DiseaseAnnotationFiltering {
                 return !filteringPassed.contains(false);
             };
 
-    public static FilterFunction<DiseaseAnnotation, String> basedOnGeneFilter =
+    public FilterFunction<DiseaseAnnotation, String> basedOnGeneFilter =
             (annotation, value) -> {
                 if (annotation.getOrthologyGenes() == null)
                     return false;
@@ -65,7 +65,7 @@ public class DiseaseAnnotationFiltering {
                 return FilterFunction.contains(fullGeneSpeciesName.toString(), value);
             };
 
-    public static FilterFunction<DiseaseAnnotation, String> referenceFilter =
+    public FilterFunction<DiseaseAnnotation, String> referenceFilter =
             (annotation, value) -> {
                 Set<Boolean> filteringPassed = annotation.getPublications().stream()
                         .map(publication -> FilterFunction.contains(publication.getPubId(), value))
@@ -74,7 +74,7 @@ public class DiseaseAnnotationFiltering {
                 return filteringPassed.contains(true);
             };
 
-    public static FilterFunction<DiseaseAnnotation, String> orthologFilter =
+    public FilterFunction<DiseaseAnnotation, String> orthologFilter =
             (annotation, value) -> {
                 Gene orthologyGene = annotation.getOrthologyGene();
                 if (orthologyGene == null)
@@ -82,7 +82,7 @@ public class DiseaseAnnotationFiltering {
                 return FilterFunction.contains(orthologyGene.getSymbol(), value);
             };
 
-    public static FilterFunction<DiseaseAnnotation, String> orthologSpeciesFilter =
+    public FilterFunction<DiseaseAnnotation, String> orthologSpeciesFilter =
             (annotation, value) -> {
                 Gene orthologyGene = annotation.getOrthologyGene();
                 if (orthologyGene == null)
@@ -91,9 +91,8 @@ public class DiseaseAnnotationFiltering {
             };
 
 
-    public static Map<FieldFilter, FilterFunction<DiseaseAnnotation, String>> filterFieldMap = new HashMap<>();
-
-    static {
+    public DiseaseAnnotationFiltering() {
+        filterFieldMap.put(FieldFilter.ALLELE, alleleFilter);
         filterFieldMap.put(FieldFilter.DISEASE, termNameFilter);
         filterFieldMap.put(FieldFilter.ASSOCIATION_TYPE, associationFilter);
         filterFieldMap.put(FieldFilter.ORTHOLOG, orthologFilter);
@@ -106,22 +105,6 @@ public class DiseaseAnnotationFiltering {
         filterFieldMap.put(FieldFilter.GENE_NAME, geneNameFilter);
         filterFieldMap.put(FieldFilter.SPECIES, geneSpeciesFilter);
         filterFieldMap.put(FieldFilter.BASED_ON_GENE, basedOnGeneFilter);
-    }
-
-    public static boolean isValidFiltering(Map<FieldFilter, String> fieldFilterValueMap) {
-        if (fieldFilterValueMap == null)
-            return true;
-        Set<Boolean> result = fieldFilterValueMap.entrySet().stream()
-                .map(entry -> filterFieldMap.containsKey(entry.getKey()))
-                .collect(Collectors.toSet());
-        return !result.contains(false);
-    }
-
-    public static List<String> getInvalidFieldFilter(Map<FieldFilter, String> fieldFilterValueMap) {
-        return fieldFilterValueMap.entrySet().stream()
-                .filter(entry -> !filterFieldMap.containsKey(entry.getKey()))
-                .map(entry -> entry.getKey().getFullName())
-                .collect(Collectors.toList());
     }
 
 }

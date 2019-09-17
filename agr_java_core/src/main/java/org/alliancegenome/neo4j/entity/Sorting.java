@@ -1,5 +1,7 @@
 package org.alliancegenome.neo4j.entity;
 
+import org.alliancegenome.core.service.SortingField;
+
 import java.util.Comparator;
 import java.util.List;
 
@@ -27,5 +29,6 @@ public interface Sorting<T> {
         return s;
     }
 
+    Comparator<T> getComparator(SortingField field, Boolean ascending);
 
 }
