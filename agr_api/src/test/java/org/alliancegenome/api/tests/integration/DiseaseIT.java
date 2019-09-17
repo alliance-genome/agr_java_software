@@ -16,6 +16,7 @@ import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.DiseaseSummary;
+import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
 import org.alliancegenome.neo4j.entity.node.DOTerm;
 import org.alliancegenome.neo4j.entity.node.Publication;
 import org.alliancegenome.neo4j.entity.node.Synonym;
@@ -77,6 +78,15 @@ public class DiseaseIT {
         String diseaseID = "DOID:1838";
         JsonResultResponse<DiseaseAnnotation> response = diseaseService.getDiseaseAnnotationsWithGenes(diseaseID, pagination);
         assertResponse(response, 10, 10);
+    }
+
+    @Test
+    public void checkGetDiseaseAnnotationsWithAGM() {
+        Pagination pagination = new Pagination(1, 100, null, null);
+        // Menkes
+        String diseaseID = "DOID:1838";
+        JsonResultResponse<PrimaryAnnotatedEntity> response = diseaseService.getDiseaseAnnotationsWithAGM(diseaseID, pagination);
+        assertLimitResponse(response, 18, 18);
     }
 
     @Test
@@ -572,13 +582,13 @@ public class DiseaseIT {
 
     }
 
-    private void assertResponse(JsonResultResponse<DiseaseAnnotation> response, int resultSize, int totalSize) {
+    private void assertResponse(JsonResultResponse response, int resultSize, int totalSize) {
         assertNotNull(response);
         assertThat("Number of returned records", response.getResults().size(), equalTo(resultSize));
         assertThat("Number of total records", response.getTotal(), equalTo(totalSize));
     }
 
-    private void assertLimitResponse(JsonResultResponse<DiseaseAnnotation> response, int resultSize, int totalSize) {
+    private void assertLimitResponse(JsonResultResponse response, int resultSize, int totalSize) {
         assertNotNull(response);
         assertThat("Number of returned records", response.getResults().size(), greaterThanOrEqualTo(resultSize));
         assertThat("Number of total records", response.getTotal(), greaterThanOrEqualTo(totalSize));

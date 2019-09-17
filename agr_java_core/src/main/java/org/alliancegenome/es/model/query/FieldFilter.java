@@ -30,7 +30,9 @@ public enum FieldFilter {
     INTERACTOR_SPECIES("filter.interactorSpecies"),
     VARIANT_TYPE("variantType"),
     MOLECULE_TYPE("filter.moleculeType"),
-    BASED_ON_GENE("filter.basedOnGeneSymbol"), ALLELE("allele");
+    BASED_ON_GENE("filter.basedOnGeneSymbol"),
+    ALLELE("allele"),
+    MODEL_NAME("modelName");
     public static final String FILTER_PREFIX = "filter.";
     private String name;
 

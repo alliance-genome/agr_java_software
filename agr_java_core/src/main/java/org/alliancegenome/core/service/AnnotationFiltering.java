@@ -1,17 +1,17 @@
 package org.alliancegenome.core.service;
 
+import org.alliancegenome.es.model.query.FieldFilter;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.alliancegenome.es.model.query.FieldFilter;
+public abstract class AnnotationFiltering<T> {
 
-public abstract class AnnotationFiltering {
+    public Map<FieldFilter, FilterFunction<T, String>> filterFieldMap = new HashMap<>();
 
-
-    public static Map<FieldFilter, FilterFunction<?, String>> filterFieldMap = new HashMap<>();
 /*
 
     static {
@@ -22,7 +22,7 @@ public abstract class AnnotationFiltering {
     }
 */
 
-    public static boolean isValidFiltering(Map<FieldFilter, String> fieldFilterValueMap) {
+    public boolean isValidFiltering(Map<FieldFilter, String> fieldFilterValueMap) {
         if (fieldFilterValueMap == null)
             return true;
         Set<Boolean> result = fieldFilterValueMap.entrySet().stream()
@@ -31,7 +31,7 @@ public abstract class AnnotationFiltering {
         return !result.contains(false);
     }
 
-    public static List<String> getInvalidFieldFilter(Map<FieldFilter, String> fieldFilterValueMap) {
+    public List<String> getInvalidFieldFilter(Map<FieldFilter, String> fieldFilterValueMap) {
         return fieldFilterValueMap.entrySet().stream()
                 .filter(entry -> !filterFieldMap.containsKey(entry.getKey()))
                 .map(entry -> entry.getKey().getFullName())

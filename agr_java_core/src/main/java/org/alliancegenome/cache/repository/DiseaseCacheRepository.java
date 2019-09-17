@@ -2,21 +2,25 @@ package org.alliancegenome.cache.repository;
 
 import com.fasterxml.jackson.databind.type.CollectionType;
 import lombok.extern.log4j.Log4j2;
+import org.alliancegenome.api.service.FilterService;
 import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.cache.manager.BasicCacheManager;
 import org.alliancegenome.cache.manager.DiseaseAllianceCacheManager;
-import org.alliancegenome.core.service.*;
+import org.alliancegenome.core.service.DiseaseAnnotationFiltering;
+import org.alliancegenome.core.service.DiseaseAnnotationSorting;
+import org.alliancegenome.core.service.PaginationResult;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.node.ECOTerm;
 import org.alliancegenome.neo4j.entity.node.PublicationEvidenceCodeJoin;
-import org.alliancegenome.neo4j.view.BaseFilter;
 import org.alliancegenome.neo4j.view.View;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static java.util.stream.Collectors.toList;
 
@@ -43,10 +47,7 @@ public class DiseaseCacheRepository {
         }
 
         //filtering
-        List<DiseaseAnnotation> filteredDiseaseAnnotationList = filterDiseaseAnnotations(fullDiseaseAnnotationList, pagination.getFieldFilterValueMap());
-
-        result.setTotalNumber(filteredDiseaseAnnotationList.size());
-        result.setResult(getSortedAndPaginatedDiseaseAnnotations(pagination, filteredDiseaseAnnotationList));
+        result = getDiseaseAnnotationPaginationResult(pagination, fullDiseaseAnnotationList);
         return result;
     }
 
@@ -75,11 +76,17 @@ public class DiseaseCacheRepository {
         }
 
         //filtering
-        List<DiseaseAnnotation> filteredDiseaseAnnotationList = filterDiseaseAnnotations(slimDiseaseAnnotationList, pagination.getFieldFilterValueMap());
+        PaginationResult<DiseaseAnnotation> result = getDiseaseAnnotationPaginationResult(pagination, slimDiseaseAnnotationList);
+        return result;
+    }
+
+    private PaginationResult<DiseaseAnnotation> getDiseaseAnnotationPaginationResult(Pagination pagination, List<DiseaseAnnotation> slimDiseaseAnnotationList) {
+        FilterService<DiseaseAnnotation> filterService = new FilterService<>(new DiseaseAnnotationFiltering());
+        List<DiseaseAnnotation> filteredDiseaseAnnotationList = filterService.filterAnnotations(slimDiseaseAnnotationList, pagination.getFieldFilterValueMap());
 
         PaginationResult<DiseaseAnnotation> result = new PaginationResult<>();
         result.setTotalNumber(filteredDiseaseAnnotationList.size());
-        result.setResult(getSortedAndPaginatedDiseaseAnnotations(pagination, filteredDiseaseAnnotationList));
+        result.setResult(filterService.getSortedAndPaginatedAnnotations(pagination, filteredDiseaseAnnotationList, new DiseaseAnnotationSorting()));
         return result;
     }
 
@@ -94,57 +101,8 @@ public class DiseaseCacheRepository {
             return null;
 
         //filtering
-        List<DiseaseAnnotation> filteredDiseaseAnnotationList = filterDiseaseAnnotations(diseaseAnnotationList, pagination.getFieldFilterValueMap());
-        PaginationResult<DiseaseAnnotation> result = new PaginationResult<>();
-        result.setTotalNumber(filteredDiseaseAnnotationList.size());
-
-        // sorting
-        result.setResult(getSortedAndPaginatedDiseaseAnnotations(pagination, filteredDiseaseAnnotationList));
+        PaginationResult<DiseaseAnnotation> result = getDiseaseAnnotationPaginationResult(pagination, diseaseAnnotationList);
         return result;
-    }
-
-    private List<DiseaseAnnotation> getSortedAndPaginatedDiseaseAnnotations(Pagination pagination, List<DiseaseAnnotation> fullDiseaseAnnotationList) {
-        // sorting
-        SortingField sortingField = null;
-        String sortBy = pagination.getSortBy();
-        if (sortBy != null && !sortBy.isEmpty())
-            sortingField = SortingField.getSortingField(sortBy.toUpperCase());
-
-        DiseaseAnnotationSorting sorting = new DiseaseAnnotationSorting();
-        fullDiseaseAnnotationList.sort(sorting.getComparator(sortingField, pagination.getAsc()));
-
-        // paginating
-        return fullDiseaseAnnotationList.stream()
-                .skip(pagination.getStart())
-                .limit(pagination.getLimit())
-                .collect(Collectors.toList());
-    }
-
-
-    private List<DiseaseAnnotation> filterDiseaseAnnotations(List<DiseaseAnnotation> diseaseAnnotationList, BaseFilter fieldFilterValueMap) {
-        if (diseaseAnnotationList == null)
-            return null;
-        if (fieldFilterValueMap == null)
-            return diseaseAnnotationList;
-        return diseaseAnnotationList.stream()
-                .filter(annotation -> containsFilterValue(annotation, fieldFilterValueMap))
-                .collect(Collectors.toList());
-    }
-
-    private boolean containsFilterValue(DiseaseAnnotation annotation, BaseFilter fieldFilterValueMap) {
-        // remove entries with null values.
-        fieldFilterValueMap.values().removeIf(Objects::isNull);
-
-        Set<Boolean> filterResults = fieldFilterValueMap.entrySet().stream()
-                .map((entry) -> {
-                    FilterFunction<DiseaseAnnotation, String> filterFunction = DiseaseAnnotationFiltering.filterFieldMap.get(entry.getKey());
-                    if (filterFunction == null)
-                        return null;
-                    return filterFunction.containsFilterValue(annotation, entry.getValue());
-                })
-                .collect(Collectors.toSet());
-
-        return !filterResults.contains(false);
     }
 
     public List<ECOTerm> getEcoTerm(List<PublicationEvidenceCodeJoin> joins) {

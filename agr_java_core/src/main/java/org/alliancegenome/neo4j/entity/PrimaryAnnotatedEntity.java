@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.alliancegenome.es.util.DateConverter;
 import org.alliancegenome.neo4j.entity.node.CrossReference;
+import org.alliancegenome.neo4j.entity.node.DOTerm;
 import org.alliancegenome.neo4j.entity.node.GeneticEntity;
 import org.alliancegenome.neo4j.entity.node.Species;
 import org.alliancegenome.neo4j.view.View;
@@ -23,9 +24,13 @@ public class PrimaryAnnotatedEntity implements Comparable<PrimaryAnnotatedEntity
     @JsonView({View.Default.class, View.API.class})
     protected String name;
     @JsonView({View.Default.class, View.API.class})
+    protected String displayName;
+    @JsonView({View.Default.class, View.API.class})
     protected GeneticEntity.CrossReferenceType type;
     @JsonView({View.Default.class, View.API.class})
     protected CrossReference crossReference;
+    @JsonView({View.PrimaryAnnotation.class})
+    protected DOTerm disease;
     @Convert(value = DateConverter.class)
     private Date dateProduced;
 
