@@ -21,6 +21,8 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static java.util.stream.Collectors.toList;
+
 @RequestScoped
 public class DiseaseService {
 
@@ -68,7 +70,7 @@ public class DiseaseService {
 
         List<DiseaseAnnotation> alleleDiseaseAnnotations = fullDiseaseAnnotationList.stream()
                 .filter(annotation -> annotation.getFeature() != null)
-                .collect(Collectors.toList());
+                .collect(toList());
         //filtering
         FilterService<DiseaseAnnotation> filterService = new FilterService<>(new DiseaseAnnotationFiltering());
         List<DiseaseAnnotation> filteredDiseaseAnnotationList = filterService.filterAnnotations(alleleDiseaseAnnotations, pagination.getFieldFilterValueMap());
@@ -119,16 +121,15 @@ public class DiseaseService {
         }
 
         // create primary annotated entities list
-        List<PrimaryAnnotatedEntity> geneDiseaseAnnotations = new ArrayList<>();
+        Set<PrimaryAnnotatedEntity> primaryAnnotatedEntities = new HashSet<>();
         fullDiseaseAnnotationList.stream()
                 .filter(diseaseAnnotation -> diseaseAnnotation.getPrimaryAnnotatedEntities() != null)
-                .forEach((annotation) -> {
-                    annotation.getPrimaryAnnotatedEntities().forEach(entity -> {
-                        entity.setSpecies(annotation.getGene().getSpecies());
-                        entity.setDisease(annotation.getDisease());
-                        geneDiseaseAnnotations.add(entity);
-                    });
-                });
+                .forEach((annotation) -> annotation.getPrimaryAnnotatedEntities().forEach(entity -> {
+                    entity.setSpecies(annotation.getGene().getSpecies());
+                    entity.addDisease(annotation.getDisease());
+                    primaryAnnotatedEntities.add(entity);
+                }));
+        List<PrimaryAnnotatedEntity> geneDiseaseAnnotations = new ArrayList<>(primaryAnnotatedEntities);
         //filtering
         FilterService<PrimaryAnnotatedEntity> filterService = new FilterService<>(new PrimaryAnnotatedEntityFiltering());
         List<PrimaryAnnotatedEntity> filteredDiseaseAnnotationList = filterService.filterAnnotations(geneDiseaseAnnotations, pagination.getFieldFilterValueMap());
@@ -204,7 +205,7 @@ public class DiseaseService {
         Set<DiseaseAnnotation> allAnnotations = new HashSet<>();
         List<String> agrDoSlimIDs = diseaseRepository.getAgrDoSlim().stream()
                 .map(SimpleTerm::getPrimaryKey)
-                .collect(Collectors.toList());
+                .collect(toList());
         // add category term IDs to get the full histogram mapped into the response
         agrDoSlimIDs.addAll(DiseaseRibbonService.slimParentTermIdMap.keySet());
         agrDoSlimIDs.forEach(slimId -> {

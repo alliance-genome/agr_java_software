@@ -227,6 +227,7 @@ public class GeneController extends BaseController implements GeneRESTInterface 
                                                                                         int limit,
                                                                                         int page,
                                                                                         String sortBy,
+                                                                                        String modelName,
                                                                                         String species,
                                                                                         String disease,
                                                                                         String source,
@@ -236,6 +237,7 @@ public class GeneController extends BaseController implements GeneRESTInterface 
         pagination.addFieldFilter(FieldFilter.SPECIES, species);
         pagination.addFieldFilter(FieldFilter.DISEASE, disease);
         pagination.addFieldFilter(FieldFilter.SOURCE, source);
+        pagination.addFieldFilter(FieldFilter.MODEL_NAME, modelName);
         if (pagination.hasErrors()) {
             RestErrorMessage message = new RestErrorMessage();
             message.setErrors(pagination.getErrors());

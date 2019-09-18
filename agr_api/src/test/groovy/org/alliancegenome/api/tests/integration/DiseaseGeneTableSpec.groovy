@@ -55,15 +55,15 @@ class DiseaseGeneTableSpec extends AbstractSpec {
 
         then:
         results //should be some results
-        size < result.total
+        size <= result.total
         id == results[0].id
-        diseaseName == results[0].disease.name
+        diseaseName == results[0].diseases[0].name
         firstModelName == results[0].name
         firstSpecies == results[0].species.name
         where:
         diseaseID   | id            | diseaseName            | size | firstSpecies   | firstModelName
-        "DOID:1838" | "MGI:3618244" | "Menkes disease"       | 15   | "Mus musculus" | "Atp7a<sup>Mo-Tohm</sup>/Atp7a<sup>+</sup> [background:] B6.Cg-Atp7a<sup>Mo-Tohm</sup>"
-        "DOID:62"   | "MGI:2176568" | "aortic valve disease" | 15   | "Mus musculus" | "Egfr<sup>wa2</sup>/Egfr<sup>wa2</sup> [background:] STOCK Egfr<sup>wa2</sup>"
+        "DOID:1838" | "MGI:3618244" | "Menkes disease"       | 11   | "Mus musculus" | "Atp7a<sup>Mo-Tohm</sup>/Atp7a<sup>+</sup> [background:] B6.Cg-Atp7a<sup>Mo-Tohm</sup>"
+        "DOID:62"   | "MGI:2176568" | "aortic valve disease" | 9    | "Mus musculus" | "Egfr<sup>wa2</sup>/Egfr<sup>wa2</sup> [background:] STOCK Egfr<sup>wa2</sup>"
     }
 
     @Unroll
@@ -75,9 +75,9 @@ class DiseaseGeneTableSpec extends AbstractSpec {
 
         then:
         results //should be some results
-        size < result.total
-        id == results[0].disease.id
-        diseaseName == results[0].disease.name
+        size <= result.total
+        id == results[0].diseases[0].id
+        diseaseName == results[0].diseases[0].name
         firstSpecies == results[0].species.name
         firstModelName == results[0].name
         where:
