@@ -12,8 +12,7 @@ import org.alliancegenome.neo4j.view.View;
 import org.neo4j.ogm.annotation.typeconversion.Convert;
 
 import java.io.Serializable;
-import java.util.Date;
-import java.util.Objects;
+import java.util.*;
 
 @Getter
 @Setter
@@ -29,10 +28,12 @@ public class PrimaryAnnotatedEntity implements Comparable<PrimaryAnnotatedEntity
     protected GeneticEntity.CrossReferenceType type;
     @JsonView({View.Default.class, View.API.class})
     protected CrossReference crossReference;
-    @JsonView({View.PrimaryAnnotation.class})
-    protected DOTerm disease;
+    @JsonView({View.PrimaryAnnotation.class, View.DiseaseAnnotation.class})
+    protected List<DOTerm> diseases;
     @Convert(value = DateConverter.class)
     private Date dateProduced;
+
+    private List<DiseaseAnnotation> annotations;
 
     @JsonView({View.Default.class})
     protected Species species;
@@ -59,5 +60,12 @@ public class PrimaryAnnotatedEntity implements Comparable<PrimaryAnnotatedEntity
     @Override
     public int hashCode() {
         return Objects.hash(id);
+    }
+
+    public void addDisease(DOTerm disease) {
+        if (diseases == null)
+            diseases = new ArrayList<>();
+        diseases.add(disease);
+        diseases = new ArrayList<>(new HashSet<>(diseases));
     }
 }

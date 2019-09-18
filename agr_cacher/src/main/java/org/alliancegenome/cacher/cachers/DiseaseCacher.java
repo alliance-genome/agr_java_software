@@ -44,6 +44,8 @@ public class DiseaseCacher extends Cacher {
 
         startProcess("diseaseRepository.getAllDiseaseEntityJoins");
 
+        // used to populate the DOTerm object on the PrimaryAnnotationEntity object
+        Map<String, PrimaryAnnotatedEntity> entities = new HashMap<>();
         List<DiseaseAnnotation> allDiseaseAnnotations = joinList.stream()
                 .map(diseaseEntityJoin -> {
                     DiseaseAnnotation document = new DiseaseAnnotation();
@@ -62,10 +64,15 @@ public class DiseaseCacher extends Cacher {
                     Set<AffectedGenomicModel> models = diseaseEntityJoin.getModels();
                     if (CollectionUtils.isNotEmpty(models)) {
                         models.forEach(model -> {
-                            PrimaryAnnotatedEntity entity = new PrimaryAnnotatedEntity();
-                            entity.setId(model.getPrimaryKey());
-                            entity.setName(model.getName());
-                            entity.setDisplayName(model.getNameText());
+                            PrimaryAnnotatedEntity entity = entities.get(model.getPrimaryKey());
+                            if (entity == null) {
+                                entity = new PrimaryAnnotatedEntity();
+                                entity.setId(model.getPrimaryKey());
+                                entities.put(entity.getId(), entity);
+                                entity.setName(model.getName());
+                                entity.setDisplayName(model.getNameText());
+                            }
+                            entity.addDisease(document.getDisease());
                             document.addPrimaryAnnotatedEntity(entity);
                         });
                     }

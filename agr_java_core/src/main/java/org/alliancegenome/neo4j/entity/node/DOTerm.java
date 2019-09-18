@@ -1,10 +1,6 @@
 package org.alliancegenome.neo4j.entity.node;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.alliancegenome.core.service.SourceService;
@@ -150,4 +146,16 @@ public class DOTerm extends SimpleTerm {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        DOTerm doTerm = (DOTerm) o;
+        return Objects.equals(primaryKey, doTerm.primaryKey);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(primaryKey);
+    }
 }

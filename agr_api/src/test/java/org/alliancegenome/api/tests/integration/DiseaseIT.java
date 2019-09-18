@@ -86,6 +86,15 @@ public class DiseaseIT {
         // Menkes
         String diseaseID = "DOID:1838";
         JsonResultResponse<PrimaryAnnotatedEntity> response = diseaseService.getDiseaseAnnotationsWithAGM(diseaseID, pagination);
+        assertLimitResponse(response, 11, 11);
+    }
+
+    @Test
+    public void checkGetGeneDiseaseTable() {
+        Pagination pagination = new Pagination(1, 100, null, null);
+        // Menkes
+        String diseaseID = "DOID:1838";
+        JsonResultResponse<DiseaseAnnotation> response = diseaseService.getDiseaseAnnotationsWithGenes(diseaseID, pagination);
         assertLimitResponse(response, 18, 18);
     }
 
