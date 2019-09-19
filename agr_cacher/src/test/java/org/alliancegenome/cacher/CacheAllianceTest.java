@@ -4,6 +4,7 @@ import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.cacher.cachers.DiseaseCacher;
 import org.alliancegenome.cacher.cachers.EcoCodeHelperCacher;
 import org.alliancegenome.cacher.cachers.GeneOrthologCacher;
+import org.alliancegenome.cacher.cachers.GenePhenotypeCacher;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -27,22 +28,28 @@ public class CacheAllianceTest {
 
     @Test
     @Ignore
-    public void gett(){
+    public void diseaseCacher() {
         DiseaseCacher cacher = new DiseaseCacher();
         cacher.run();
     }
 
     @Test
+    public void phenotypeCacher() {
+        GenePhenotypeCacher cacher = new GenePhenotypeCacher();
+        cacher.run();
+    }
+
+    @Test
     @Ignore
-    public void cacheEcoTerms(){
+    public void cacheEcoTerms() {
         EcoCodeHelperCacher cacher = new EcoCodeHelperCacher();
         cacher.run();
     }
 
     @Ignore
     @Test
-    public void cacheOrthology(){
-        GeneOrthologCacher cacher= new GeneOrthologCacher();
+    public void cacheOrthology() {
+        GeneOrthologCacher cacher = new GeneOrthologCacher();
         cacher.run();
     }
 
