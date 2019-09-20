@@ -1,16 +1,17 @@
 package org.alliancegenome.core.service;
 
-import static java.util.Comparator.naturalOrder;
+import org.alliancegenome.neo4j.entity.Sorting;
+import org.alliancegenome.neo4j.entity.node.Allele;
+import org.alliancegenome.neo4j.entity.node.SimpleTerm;
+import org.alliancegenome.neo4j.entity.node.Variant;
+import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.alliancegenome.neo4j.entity.Sorting;
-import org.alliancegenome.neo4j.entity.node.Allele;
-import org.alliancegenome.neo4j.entity.node.SimpleTerm;
-import org.apache.commons.collections4.CollectionUtils;
+import static java.util.Comparator.naturalOrder;
 
 public class AlleleSorting implements Sorting<Allele> {
 
@@ -21,6 +22,7 @@ public class AlleleSorting implements Sorting<Allele> {
         super();
 
         defaultList = new ArrayList<>(2);
+        defaultList.add(variantExistOrder);
         defaultList.add(alleleSymbolOrder);
 
         diseaseList = new ArrayList<>(2);
@@ -44,6 +46,14 @@ public class AlleleSorting implements Sorting<Allele> {
                 return getJoinedComparator(defaultList);
         }
     }
+
+    static public Comparator<Allele> variantExistOrder =
+            Comparator.comparing(allele -> {
+                if (CollectionUtils.isEmpty(allele.getVariants()))
+                    return null;
+                String variantJoin = allele.getVariants().stream().sorted(Comparator.comparing(Variant::getName)).map(Variant::getName).collect(Collectors.joining(""));
+                return variantJoin.toLowerCase();
+            }, Comparator.nullsLast(naturalOrder()));
 
     static public Comparator<Allele> alleleSymbolOrder =
             Comparator.comparing(allele -> {

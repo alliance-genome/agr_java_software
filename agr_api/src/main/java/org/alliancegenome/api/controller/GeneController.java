@@ -75,6 +75,7 @@ public class GeneController extends BaseController implements GeneRESTInterface 
                                                         String symbol,
                                                         String synonym,
                                                         String variantType,
+                                                        String phenotype,
                                                         String source,
                                                         String disease) {
         long startTime = System.currentTimeMillis();
@@ -84,6 +85,7 @@ public class GeneController extends BaseController implements GeneRESTInterface 
         pagination.addFieldFilter(FieldFilter.SOURCE, source);
         pagination.addFieldFilter(FieldFilter.DISEASE, disease);
         pagination.addFieldFilter(FieldFilter.VARIANT_TYPE, variantType);
+        pagination.addFieldFilter(FieldFilter.PHENOTYPE, phenotype);
         if (pagination.hasErrors()) {
             RestErrorMessage message = new RestErrorMessage();
             message.setErrors(pagination.getErrors());
@@ -104,13 +106,22 @@ public class GeneController extends BaseController implements GeneRESTInterface 
     }
 
     @Override
-    public Response getAllelesPerGeneDownload(String id, String sortBy, String asc,
-                                              String symbol, String synonym, String source, String disease) {
+    public Response getAllelesPerGeneDownload(String id,
+                                              String sortBy,
+                                              String asc,
+                                              String symbol,
+                                              String synonym,
+                                              String variantType,
+                                              String phenotype,
+                                              String source,
+                                              String disease) {
         Pagination pagination = new Pagination(1, Integer.MAX_VALUE, sortBy, asc);
         pagination.addFieldFilter(FieldFilter.SYMBOL, symbol);
         pagination.addFieldFilter(FieldFilter.SYNONYMS, synonym);
         pagination.addFieldFilter(FieldFilter.SOURCE, source);
         pagination.addFieldFilter(FieldFilter.DISEASE, disease);
+        pagination.addFieldFilter(FieldFilter.VARIANT_TYPE, variantType);
+        pagination.addFieldFilter(FieldFilter.PHENOTYPE, phenotype);
         if (pagination.hasErrors()) {
             RestErrorMessage message = new RestErrorMessage();
             message.setErrors(pagination.getErrors());

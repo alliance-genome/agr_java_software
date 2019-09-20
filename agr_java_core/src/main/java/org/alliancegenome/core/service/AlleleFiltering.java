@@ -49,12 +49,20 @@ public class AlleleFiltering {
                 return !filteringPassed.isEmpty() && filteringPassed.contains(true);
             };
 
+    public static FilterFunction<Allele, String> phenotypeFilter =
+            (allele, value) -> {
+                Set<Boolean> filteringPassed = allele.getPhenotypes().stream()
+                        .map(term -> FilterFunction.contains(term.getPhenotypeStatement(), value))
+                        .collect(Collectors.toSet());
+                return !filteringPassed.isEmpty() && filteringPassed.contains(true);
+            };
+
     public static Map<FieldFilter, FilterFunction<Allele, String>> filterFieldMap = new HashMap<>();
 
     static {
         filterFieldMap.put(FieldFilter.SYMBOL, alleleFilter);
         filterFieldMap.put(FieldFilter.SYNONYMS, synonymFilter);
-        //filterFieldMap.put(FieldFilter.SOURCE, sourceFilter);
+        filterFieldMap.put(FieldFilter.PHENOTYPE, phenotypeFilter);
         filterFieldMap.put(FieldFilter.DISEASE, diseaseFilter);
         filterFieldMap.put(FieldFilter.VARIANT_TYPE, variantTypeFilter);
     }
