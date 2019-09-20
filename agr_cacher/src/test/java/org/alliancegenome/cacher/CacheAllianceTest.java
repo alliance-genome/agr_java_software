@@ -34,6 +34,7 @@ public class CacheAllianceTest {
     }
 
     @Test
+    @Ignore
     public void phenotypeCacher() {
         GenePhenotypeCacher cacher = new GenePhenotypeCacher();
         cacher.run();
