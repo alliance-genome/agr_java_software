@@ -99,6 +99,14 @@ public class DiseaseIT {
     }
 
     @Test
+    public void checkDiseaseAssociationByGene() {
+        Pagination pagination = new Pagination(1, 100, null, null);
+        // choriocarcinoma
+        String diseaseID = "MGI:107718";
+        JsonResultResponse<DiseaseAnnotation> response = diseaseService.getDiseaseAnnotationsByDisease(diseaseID, pagination);
+        assertLimitResponse(response, 35, 35);
+    }
+    @Test
     public void checkDiseaseAssociationByDisease() {
         Pagination pagination = new Pagination(1, 100, null, null);
         // choriocarcinoma
