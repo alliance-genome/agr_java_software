@@ -230,11 +230,16 @@ public class SearchService {
             links.add(getRelatedDataLink("disease", "genes", nameKey));
             links.add(getRelatedDataLink("allele", "genes", nameKey));
             links.add(getRelatedDataLink("go", "go_genes", nameKey));
+            links.add(getRelatedDataLink("model", "genes", nameKey));
         } else if (StringUtils.equals(category,"disease")) {
             links.add(getRelatedDataLink("gene", "diseasesWithParents", nameKey));
             links.add(getRelatedDataLink("allele", "diseases", nameKey));
+            links.add(getRelatedDataLink("model", "diseases", nameKey));
         } else if (StringUtils.equals(category, "allele")) {
             links.add(getRelatedDataLink("gene", "alleles", name));
+            links.add(getRelatedDataLink("model", "alleles", name));
+        } else if (StringUtils.equals(category,"model")) {
+            //todo: this won't work without indexing models as a part of other categories
         } else if (StringUtils.equals(category,"go")) {
             String goType = (String) result.get("go_type");
             if (StringUtils.equals(goType, "biological_process")) {

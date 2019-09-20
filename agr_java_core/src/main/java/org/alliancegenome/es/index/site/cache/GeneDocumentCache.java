@@ -43,34 +43,37 @@ public class GeneDocumentCache extends IndexerCache {
 
     public void addCachedFields(Iterable<GeneDocument> geneDocuments) {
         for (GeneDocument geneDocument : geneDocuments) {
-            String id = geneDocument.getPrimaryId();
-
-            geneDocument.setAlleles(alleles.get(id));
-            geneDocument.setStrictOrthologySymbols(strictOrthologySymbols.get(id));
-            geneDocument.setDiseases(diseases.get(id));
-            geneDocument.setDiseasesAgrSlim(diseasesAgrSlim.get(id));
-            geneDocument.setDiseasesWithParents(diseasesWithParents.get(id));
-
-            geneDocument.setBiologicalProcessWithParents(biologicalProcessWithParents.get(id));
-            geneDocument.setBiologicalProcessAgrSlim(biologicalProcessAgrSlim.get(id));
-            geneDocument.setCellularComponentWithParents(cellularComponentWithParents.get(id));
-            geneDocument.setCellularComponentAgrSlim(cellularComponentAgrSlim.get(id));
-            geneDocument.setMolecularFunctionWithParents(molecularFunctionWithParents.get(id));
-            geneDocument.setMolecularFunctionAgrSlim(molecularFunctionAgrSlim.get(id));
-
-            geneDocument.setSubcellularExpressionWithParents(subcellularExpressionWithParents.get(id));
-            geneDocument.setSubcellularExpressionAgrSlim(subcellularExpressionAgrSlim.get(id));
-
-            geneDocument.setWhereExpressed(whereExpressed.get(id));
-            geneDocument.setAnatomicalExpression(anatomicalExpression.get(id));
-            geneDocument.setAnatomicalExpressionWithParents(anatomicalExpressionWithParents.get(id));
-
-            geneDocument.setPhenotypeStatements(phenotypeStatements.get(id));
-
-            geneDocument.setSoTermNameWithParents(soTermNameWithParents.get(id));
-            geneDocument.setSoTermNameAgrSlim(soTermNameAgrSlim.get(id));
-
+            addCachedFields(geneDocument);
         }
     }
 
+    public void addCachedFields(GeneDocument geneDocument) {
+        String id = geneDocument.getPrimaryId();
+
+        super.addCachedFields(geneDocument);
+
+        geneDocument.setStrictOrthologySymbols(strictOrthologySymbols.get(id));
+        geneDocument.setDiseases(diseases.get(id));
+        geneDocument.setDiseasesAgrSlim(diseasesAgrSlim.get(id));
+        geneDocument.setDiseasesWithParents(diseasesWithParents.get(id));
+
+        geneDocument.setBiologicalProcessWithParents(biologicalProcessWithParents.get(id));
+        geneDocument.setBiologicalProcessAgrSlim(biologicalProcessAgrSlim.get(id));
+        geneDocument.setCellularComponentWithParents(cellularComponentWithParents.get(id));
+        geneDocument.setCellularComponentAgrSlim(cellularComponentAgrSlim.get(id));
+        geneDocument.setMolecularFunctionWithParents(molecularFunctionWithParents.get(id));
+        geneDocument.setMolecularFunctionAgrSlim(molecularFunctionAgrSlim.get(id));
+
+        geneDocument.setSubcellularExpressionWithParents(subcellularExpressionWithParents.get(id));
+        geneDocument.setSubcellularExpressionAgrSlim(subcellularExpressionAgrSlim.get(id));
+
+        geneDocument.setWhereExpressed(whereExpressed.get(id));
+        geneDocument.setAnatomicalExpression(anatomicalExpression.get(id));
+        geneDocument.setAnatomicalExpressionWithParents(anatomicalExpressionWithParents.get(id));
+
+        geneDocument.setPhenotypeStatements(phenotypeStatements.get(id));
+
+        geneDocument.setSoTermNameWithParents(soTermNameWithParents.get(id));
+        geneDocument.setSoTermNameAgrSlim(soTermNameAgrSlim.get(id));
+    }
 }

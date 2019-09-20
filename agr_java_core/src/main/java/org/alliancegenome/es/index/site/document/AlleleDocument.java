@@ -23,17 +23,13 @@ public class AlleleDocument extends SearchableItemDocument {
 
     private String primaryKey;
     private String symbol;
-    private String species;
     private String searchSymbol;
     private Date dateProduced;
     private Date dataProvider;
     private String release;
-    private String localId;
     private String globalId;
     private String modCrossRefFullUrl;
 
-    private List<String> secondaryIds;
-    private List<String> synonyms;
     private List<CrossReferenceDoclet> crossReferenceList;
     private Set<String> variantTypes;
 

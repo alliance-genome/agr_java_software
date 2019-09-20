@@ -1,10 +1,6 @@
 package org.alliancegenome.neo4j.entity.node;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.alliancegenome.neo4j.entity.Neo4jEntity;
 import org.alliancegenome.neo4j.view.View;
@@ -34,6 +30,46 @@ public class GeneticEntity extends Neo4jEntity {
     @JsonView({View.Default.class, View.PhenotypeAPI.class})
     @Relationship(type = "FROM_SPECIES")
     protected Species species;
+
+    @Relationship(type = "ALSO_KNOWN_AS")
+    private Set<Synonym> synonyms = new HashSet<>();
+
+    // Converts the list of synonym objects to a list of strings
+    @JsonView(value = {View.GeneAllelesAPI.class, View.AlleleAPI.class})
+    @JsonProperty(value = "synonyms")
+    public List<String> getSynonymList() {
+        List<String> list = new ArrayList<>();
+        for (Synonym s : synonyms) {
+            list.add(s.getName());
+        }
+        return list;
+    }
+
+    @JsonProperty(value = "synonyms")
+    public void setSynonymList(List<String> list) {
+        if (list != null) {
+            list.forEach(syn -> {
+                Synonym synonym = new Synonym();
+                synonym.setName(syn);
+                synonyms.add(synonym);
+            });
+        }
+    }
+
+    @Relationship(type = "ALSO_KNOWN_AS")
+    private Set<SecondaryId> secondaryIds = new HashSet<>();
+
+    // Converts the list of secondary ids objects to a list of strings
+    @JsonView(value = {View.GeneAllelesAPI.class, View.AlleleAPI.class})
+    @JsonProperty(value = "secondaryIds")
+    public List<String> getSecondaryIdsList() {
+        List<String> list = new ArrayList<>();
+        for (SecondaryId s : secondaryIds) {
+            list.add(s.getName());
+        }
+        return list;
+    }
+
 
     @Relationship(type = "CROSS_REFERENCE")
     private List<CrossReference> crossReferences = new ArrayList<>();

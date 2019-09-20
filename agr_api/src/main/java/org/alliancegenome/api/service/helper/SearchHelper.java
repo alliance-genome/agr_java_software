@@ -71,6 +71,14 @@ public class SearchHelper {
                     add("genes");
                 }
             });
+            put("model", new ArrayList<String>() {
+                {
+                    add("species");
+                    add("diseases");
+                    add("genes");
+                    add("alleles");
+                }
+            });
         }
     };
 

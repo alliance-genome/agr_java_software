@@ -22,82 +22,62 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
     private static CrossReferenceDocletTranslator crossReferenceTranslator = new CrossReferenceDocletTranslator();
 
     @Override
-    protected GeneDocument entityToDocument(Gene gene, int translationDepth) {
+    protected GeneDocument entityToDocument(Gene entity, int translationDepth) {
         //log.info(entity);
 
-        GeneDocument geneDocument = new GeneDocument();
+        GeneDocument document = new GeneDocument();
 
-        geneDocument.setCategory("gene");
+        document.setCategory("gene");
 
-        geneDocument.setDataProvider(gene.getDataProvider());
-        geneDocument.setDescription(gene.getDescription());
+        document.setDataProvider(entity.getDataProvider());
+        document.setDescription(entity.getDescription());
 
-        geneDocument.setAutomatedGeneSynopsis(gene.getAutomatedGeneSynopsis());
-        geneDocument.setGeneSynopsis(gene.getGeneSynopsis());
-        geneDocument.setGeneSynopsisUrl(gene.getGeneSynopsisUrl());
-        geneDocument.setGeneticEntityExternalUrl(gene.getGeneticEntityExternalUrl());
+        document.setAutomatedGeneSynopsis(entity.getAutomatedGeneSynopsis());
+        document.setGeneSynopsis(entity.getGeneSynopsis());
+        document.setGeneSynopsisUrl(entity.getGeneSynopsisUrl());
+        document.setGeneticEntityExternalUrl(entity.getGeneticEntityExternalUrl());
 
-        geneDocument.setModCrossRefCompleteUrl(gene.getModCrossRefCompleteUrl());
-        geneDocument.setModLocalId(gene.getModLocalId());
-        geneDocument.setModGlobalCrossRefId(gene.getModGlobalCrossRefId());
-        geneDocument.setModGlobalId(gene.getModGlobalId());
-        if (gene.getName() == null)
-            geneDocument.setName(gene.getSymbol());
+        document.setModCrossRefCompleteUrl(entity.getModCrossRefCompleteUrl());
+        document.setModLocalId(entity.getModLocalId());
+        document.setModGlobalCrossRefId(entity.getModGlobalCrossRefId());
+        document.setModGlobalId(entity.getModGlobalId());
+        if (entity.getName() == null)
+            document.setName(entity.getSymbol());
         else
-            geneDocument.setName(gene.getName());
-        geneDocument.setNameKey(gene.getNameKey());
-        geneDocument.setPrimaryId(gene.getPrimaryKey());
-        geneDocument.setDateProduced(gene.getDateProduced());
-        geneDocument.setTaxonId(gene.getTaxonId());
+            document.setName(entity.getName());
+        document.setNameKey(entity.getNameKey());
+        document.setPrimaryId(entity.getPrimaryKey());
+        document.setDateProduced(entity.getDateProduced());
+        document.setTaxonId(entity.getTaxonId());
 
 
-        if (gene.getCreatedBy() != null) {
-            geneDocument.setRelease(gene.getCreatedBy().getRelease());
+        if (entity.getCreatedBy() != null) {
+            document.setRelease(entity.getCreatedBy().getRelease());
         }
-        if (gene.getSpecies() != null) {
-            geneDocument.setSpecies(gene.getSpecies().getName());
+        if (entity.getSpecies() != null) {
+            document.setSpecies(entity.getSpecies().getName());
         }
 
-        // This code is duplicated in Gene and Allele should be pulled out into its own translator
-        ArrayList<String> secondaryIds = new ArrayList<>();
-        if (gene.getSecondaryIds() != null) {
-            for (SecondaryId secondaryId : gene.getSecondaryIds()) {
-                secondaryIds.add(secondaryId.getName());
-            }
+        addSecondaryIds(entity, document);
+        addSynonyms(entity, document);
+
+        if (entity.getSoTerm() != null) {
+            document.setSoTermId(entity.getSoTerm().getPrimaryKey());
+            document.setSoTermName(entity.getSoTerm().getName());
         }
-        geneDocument.setSecondaryIds(secondaryIds);
+        document.setSymbol(entity.getSymbol());
 
-
-        if (gene.getSoTerm() != null) {
-            geneDocument.setSoTermId(gene.getSoTerm().getPrimaryKey());
-            geneDocument.setSoTermName(gene.getSoTerm().getName());
-        }
-        geneDocument.setSymbol(gene.getSymbol());
-
-        // This code is duplicated in Gene and Allele should be pulled out into its own translator
-        ArrayList<String> synonyms = new ArrayList<>();
-        if (gene.getSynonyms() != null) {
-            for (Synonym synonym : gene.getSynonyms()) {
-                if (synonym.getPrimaryKey() != null) {
-                    synonyms.add(synonym.getPrimaryKey());
-                } else {
-                    synonyms.add(synonym.getName());
-                }
-            }
-        }
-        geneDocument.setSynonyms(synonyms);
-
-        geneDocument.setStrictOrthologySymbols(
-                gene.getOrthoGenes().stream()
+        document.setStrictOrthologySymbols(
+                entity.getOrthoGenes().stream()
                         .filter(Orthologous::isStrictFilter)
                         .map(Orthologous::getGene2)
                         .map(Gene::getSymbol)
                         .collect(Collectors.toSet())
         );
 
-        if (gene.getGenomeLocations() != null) {
+        if (entity.getGenomeLocations() != null) {
             List<GenomeLocationDoclet> gllist = new ArrayList<>();
-            for (GenomeLocation location : gene.getGenomeLocations()) {
+            for (GenomeLocation location : entity.getGenomeLocations()) {
                 GenomeLocationDoclet loc = new GenomeLocationDoclet(
                         location.getStart(),
                         location.getEnd(),
@@ -107,26 +87,19 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
 
                 gllist.add(loc);
             }
-            geneDocument.setGenomeLocations(gllist);
+            document.setGenomeLocations(gllist);
         }
 
-        if (gene.getCrossReferences() != null) {
-            geneDocument.setCrossReferencesMap(
-                    gene.getCrossReferences().stream()
+        if (entity.getCrossReferences() != null) {
+            document.setCrossReferencesMap(
+                    entity.getCrossReferences().stream()
                             .map(crossReference -> {
                                 return crossReferenceTranslator.translate(crossReference);
                             })
                             .collect(Collectors.groupingBy(CrossReferenceDoclet::getType, Collectors.toList())));
         }
 
-        return geneDocument;
-    }
-
-
-    @Override
-    protected Gene documentToEntity(GeneDocument document, int translationDepth) {
-        // We are not going to the database yet so will implement this when we need to
-        return null;
+        return document;
     }
 
 }

@@ -4,7 +4,7 @@ public enum Category {
 
     ALLELE("allele", true),
     DISEASE("disease", true),
-    DISEASE_ANNOTATION("diseaseAnnotation", false),
+    MODEL("model", true),
     GENE("gene", true),
     GO("go", true);
 

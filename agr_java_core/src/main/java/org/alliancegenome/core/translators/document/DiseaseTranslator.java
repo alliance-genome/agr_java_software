@@ -1,5 +1,6 @@
 package org.alliancegenome.core.translators.document;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -39,7 +40,7 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
             List<String> synonymList = doTerm.getSynonyms().stream()
                     .map(Synonym::getPrimaryKey)
                     .collect(Collectors.toList());
-            document.setSynonyms(synonymList);
+            document.setSynonyms(new HashSet<>(synonymList));
         }
         // add CrossReferences
         if (doTerm.getCrossReferences() != null) {
@@ -50,14 +51,6 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseD
         }
 
         return document;
-    }
-
-
-
-
-    @Override
-    protected DOTerm documentToEntity(DiseaseDocument document, int translationDepth) {
-        return null;
     }
 
 }

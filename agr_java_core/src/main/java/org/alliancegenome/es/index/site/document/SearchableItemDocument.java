@@ -1,6 +1,7 @@
 package org.alliancegenome.es.index.site.document;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.alliancegenome.es.index.ESDocument;
@@ -21,7 +22,13 @@ public abstract class SearchableItemDocument extends ESDocument {
     String name;
     @JsonProperty("name_key")
     String nameKey;
+    String nameText;
     String description;
+    String localId;
+    String globalId;
+    String modCrossRefCompleteUrl;
+    String species;
+
 
     Set<String> diseases = new HashSet<>();
     Set<String> diseasesAgrSlim = new HashSet<>();
@@ -29,6 +36,8 @@ public abstract class SearchableItemDocument extends ESDocument {
     Set<String> alleles = new HashSet<>();
     Set<String> genes = new HashSet<>();
     Set<String> phenotypeStatements = new HashSet<>();
+    Set<String> secondaryIds = new HashSet<>();
+    Set<String> synonyms = new HashSet<>();
 
     boolean searchable = true;
 

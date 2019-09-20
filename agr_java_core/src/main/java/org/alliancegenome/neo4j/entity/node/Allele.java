@@ -36,45 +36,6 @@ public class Allele extends GeneticEntity implements Comparable<Allele> {
     @JsonView({View.Default.class})
     private String symbolText;
 
-    @Relationship(type = "ALSO_KNOWN_AS")
-    private Set<Synonym> synonyms = new HashSet<>();
-
-    // Converts the list of synonym objects to a list of strings
-    @JsonView(value = {View.GeneAllelesAPI.class, View.AlleleAPI.class})
-    @JsonProperty(value = "synonyms")
-    public List<String> getSynonymList() {
-        List<String> list = new ArrayList<>();
-        for (Synonym s : synonyms) {
-            list.add(s.getName());
-        }
-        return list;
-    }
-
-    @JsonProperty(value = "synonyms")
-    public void setSynonymList(List<String> list) {
-        if (list != null) {
-            list.forEach(syn -> {
-                Synonym synonym = new Synonym();
-                synonym.setName(syn);
-                synonyms.add(synonym);
-            });
-        }
-    }
-
-    @Relationship(type = "ALSO_KNOWN_AS")
-    private Set<SecondaryId> secondaryIds = new HashSet<>();
-
-    // Converts the list of secondary ids objects to a list of strings
-    @JsonView(value = {View.GeneAllelesAPI.class, View.AlleleAPI.class})
-    @JsonProperty(value = "secondaryIds")
-    public List<String> getSecondaryIdsList() {
-        List<String> list = new ArrayList<>();
-        for (SecondaryId s : secondaryIds) {
-            list.add(s.getName());
-        }
-        return list;
-    }
-
     @Relationship(type = "IS_ALLELE_OF")
     private Gene gene;
 

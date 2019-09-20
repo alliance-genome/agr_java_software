@@ -19,7 +19,6 @@ public class AlleleIndexer extends Indexer<AlleleDocument> {
     private final Logger log = LogManager.getLogger(getClass());
     private AlleleDocumentCache alleleDocumentCache;
     private AlleleIndexerRepository repo;
-    private String species = null;
 
     public AlleleIndexer(IndexerConfig config) {
         super(config);
