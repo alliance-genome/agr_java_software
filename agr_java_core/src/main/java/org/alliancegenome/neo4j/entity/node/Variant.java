@@ -26,7 +26,7 @@ public class Variant extends Neo4jEntity implements Comparable<Variant> {
 
     @JsonView({View.Default.class, View.API.class})
     @JsonProperty(value = "displayName")
-    protected String hgvs_nomenclature;
+    protected String hgvsNomenclature;
     private String dataProvider;
     private String genomicReferenceSequence;
     private String genomicVariantSequence;
@@ -39,9 +39,16 @@ public class Variant extends Neo4jEntity implements Comparable<Variant> {
     @Relationship(type = "VARIATION_TYPE")
     private SOTerm type;
 
+    @JsonView({View.Default.class, View.API.class})
+    @Relationship(type = "ASSOCIATION")
+    private GenomicLocation location;
+
     @Override
     public int compareTo(Variant o) {
         return 0;
     }
 
+    public String getName() {
+        return hgvsNomenclature;
+    }
 }

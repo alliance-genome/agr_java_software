@@ -17,10 +17,7 @@ import org.alliancegenome.core.translators.tdf.InteractionToTdfTranslator;
 import org.alliancegenome.core.translators.tdf.PhenotypeAnnotationToTdfTranslator;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
-import org.alliancegenome.neo4j.entity.DiseaseSummary;
-import org.alliancegenome.neo4j.entity.EntitySummary;
-import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
+import org.alliancegenome.neo4j.entity.*;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
@@ -70,14 +67,25 @@ public class GeneController extends BaseController implements GeneRESTInterface 
     }
 
     @Override
-    public JsonResultResponse<Allele> getAllelesPerGene(String id, int limit, int page, String sortBy, String asc,
-                                                        String symbol, String synonym, String source, String disease) {
+    public JsonResultResponse<Allele> getAllelesPerGene(String id,
+                                                        int limit,
+                                                        int page,
+                                                        String sortBy,
+                                                        String asc,
+                                                        String symbol,
+                                                        String synonym,
+                                                        String variantType,
+                                                        String phenotype,
+                                                        String source,
+                                                        String disease) {
         long startTime = System.currentTimeMillis();
         Pagination pagination = new Pagination(page, limit, sortBy, asc);
         pagination.addFieldFilter(FieldFilter.SYMBOL, symbol);
         pagination.addFieldFilter(FieldFilter.SYNONYMS, synonym);
         pagination.addFieldFilter(FieldFilter.SOURCE, source);
         pagination.addFieldFilter(FieldFilter.DISEASE, disease);
+        pagination.addFieldFilter(FieldFilter.VARIANT_TYPE, variantType);
+        pagination.addFieldFilter(FieldFilter.PHENOTYPE, phenotype);
         if (pagination.hasErrors()) {
             RestErrorMessage message = new RestErrorMessage();
             message.setErrors(pagination.getErrors());
@@ -98,13 +106,22 @@ public class GeneController extends BaseController implements GeneRESTInterface 
     }
 
     @Override
-    public Response getAllelesPerGeneDownload(String id, String sortBy, String asc,
-                                              String symbol, String synonym, String source, String disease) {
+    public Response getAllelesPerGeneDownload(String id,
+                                              String sortBy,
+                                              String asc,
+                                              String symbol,
+                                              String synonym,
+                                              String variantType,
+                                              String phenotype,
+                                              String source,
+                                              String disease) {
         Pagination pagination = new Pagination(1, Integer.MAX_VALUE, sortBy, asc);
         pagination.addFieldFilter(FieldFilter.SYMBOL, symbol);
         pagination.addFieldFilter(FieldFilter.SYNONYMS, synonym);
         pagination.addFieldFilter(FieldFilter.SOURCE, source);
         pagination.addFieldFilter(FieldFilter.DISEASE, disease);
+        pagination.addFieldFilter(FieldFilter.VARIANT_TYPE, variantType);
+        pagination.addFieldFilter(FieldFilter.PHENOTYPE, phenotype);
         if (pagination.hasErrors()) {
             RestErrorMessage message = new RestErrorMessage();
             message.setErrors(pagination.getErrors());
@@ -214,6 +231,41 @@ public class GeneController extends BaseController implements GeneRESTInterface 
         Response.ResponseBuilder responseBuilder = Response.ok(translator.getAllRows(response.getResults()));
         APIService.setDownloadHeader(id, EntityType.GENE, EntityType.PHENOTYPE, responseBuilder);
         return responseBuilder.build();
+    }
+
+    @Override
+    public JsonResultResponse<PrimaryAnnotatedEntity> getPrimaryAnnotatedEntityForModel(String id,
+                                                                                        int limit,
+                                                                                        int page,
+                                                                                        String sortBy,
+                                                                                        String modelName,
+                                                                                        String species,
+                                                                                        String disease,
+                                                                                        String source,
+                                                                                        String asc) {
+        long startTime = System.currentTimeMillis();
+        Pagination pagination = new Pagination(page, limit, sortBy, asc);
+        pagination.addFieldFilter(FieldFilter.SPECIES, species);
+        pagination.addFieldFilter(FieldFilter.DISEASE, disease);
+        pagination.addFieldFilter(FieldFilter.SOURCE, source);
+        pagination.addFieldFilter(FieldFilter.MODEL_NAME, modelName);
+        if (pagination.hasErrors()) {
+            RestErrorMessage message = new RestErrorMessage();
+            message.setErrors(pagination.getErrors());
+            throw new RestErrorException(message);
+        }
+        try {
+            JsonResultResponse<PrimaryAnnotatedEntity> response = diseaseService.getDiseaseAnnotationsWithAGM(id, pagination);
+            response.setHttpServletRequest(request);
+            response.calculateRequestDuration(startTime);
+
+            return response;
+        } catch (Exception e) {
+            log.error("Error while retrieving disease annotations by allele", e);
+            RestErrorMessage error = new RestErrorMessage();
+            error.addErrorMessage(e.getMessage());
+            throw new RestErrorException(error);
+        }
     }
 
     private JsonResultResponse<PhenotypeAnnotation> getPhenotypeAnnotationDocumentJsonResultResponse(String id, int limit, int page, String sortBy, String geneticEntity, String geneticEntityType, String phenotype, String reference, String asc) {

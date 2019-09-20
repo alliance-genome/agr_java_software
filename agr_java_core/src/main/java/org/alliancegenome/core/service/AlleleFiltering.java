@@ -1,13 +1,13 @@
 package org.alliancegenome.core.service;
 
+import org.alliancegenome.es.model.query.FieldFilter;
+import org.alliancegenome.neo4j.entity.node.Allele;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import org.alliancegenome.es.model.query.FieldFilter;
-import org.alliancegenome.neo4j.entity.node.Allele;
 
 public class AlleleFiltering {
 
@@ -41,13 +41,30 @@ public class AlleleFiltering {
                 return !filteringPassed.isEmpty() && filteringPassed.contains(true);
             };
 
+    public static FilterFunction<Allele, String> variantTypeFilter =
+            (allele, value) -> {
+                Set<Boolean> filteringPassed = allele.getVariants().stream()
+                        .map(term -> FilterFunction.contains(term.getType().getName(), value))
+                        .collect(Collectors.toSet());
+                return !filteringPassed.isEmpty() && filteringPassed.contains(true);
+            };
+
+    public static FilterFunction<Allele, String> phenotypeFilter =
+            (allele, value) -> {
+                Set<Boolean> filteringPassed = allele.getPhenotypes().stream()
+                        .map(term -> FilterFunction.contains(term.getPhenotypeStatement(), value))
+                        .collect(Collectors.toSet());
+                return !filteringPassed.isEmpty() && filteringPassed.contains(true);
+            };
+
     public static Map<FieldFilter, FilterFunction<Allele, String>> filterFieldMap = new HashMap<>();
 
     static {
         filterFieldMap.put(FieldFilter.SYMBOL, alleleFilter);
         filterFieldMap.put(FieldFilter.SYNONYMS, synonymFilter);
-        //filterFieldMap.put(FieldFilter.SOURCE, sourceFilter);
+        filterFieldMap.put(FieldFilter.PHENOTYPE, phenotypeFilter);
         filterFieldMap.put(FieldFilter.DISEASE, diseaseFilter);
+        filterFieldMap.put(FieldFilter.VARIANT_TYPE, variantTypeFilter);
     }
 
     public static boolean isValidFiltering(Map<FieldFilter, String> fieldFilterValueMap) {

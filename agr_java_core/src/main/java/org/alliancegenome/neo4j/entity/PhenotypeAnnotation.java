@@ -1,22 +1,21 @@
 package org.alliancegenome.neo4j.entity;
 
-import java.io.Serializable;
-import java.util.List;
-
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonView;
+import lombok.Getter;
+import lombok.Setter;
 import org.alliancegenome.es.index.site.doclet.SourceDoclet;
+import org.alliancegenome.neo4j.entity.node.AffectedGenomicModel;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.Gene;
-import org.alliancegenome.neo4j.entity.node.GeneticEntity;
 import org.alliancegenome.neo4j.entity.node.Publication;
 import org.alliancegenome.neo4j.view.View;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonView;
+import java.io.Serializable;
+import java.util.List;
 
-import lombok.Getter;
-import lombok.Setter;
-
-@Getter @Setter
+@Getter
+@Setter
 public class PhenotypeAnnotation implements Comparable<PhenotypeAnnotation>, Serializable {
 
     private String primaryKey;
@@ -27,6 +26,8 @@ public class PhenotypeAnnotation implements Comparable<PhenotypeAnnotation>, Ser
     private Gene gene;
     @JsonView({View.PhenotypeAPI.class})
     private Allele allele;
+    @JsonView({View.PhenotypeAPI.class})
+    private List<AffectedGenomicModel> models;
     @JsonView({View.PhenotypeAPI.class})
     private List<Publication> publications;
 

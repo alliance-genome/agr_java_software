@@ -9,9 +9,11 @@ import org.alliancegenome.core.service.DiseaseAnnotationSorting;
 import org.alliancegenome.core.service.JsonResultResponseDiseaseAnnotation;
 import org.alliancegenome.core.service.SortingField;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
+import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
 import org.alliancegenome.neo4j.entity.node.*;
 import org.alliancegenome.neo4j.repository.DiseaseRepository;
 import org.alliancegenome.neo4j.view.View;
+import org.apache.commons.collections.CollectionUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -42,9 +44,12 @@ public class DiseaseCacher extends Cacher {
 
         startProcess("diseaseRepository.getAllDiseaseEntityJoins");
 
+        // used to populate the DOTerm object on the PrimaryAnnotationEntity object
+        Map<String, PrimaryAnnotatedEntity> entities = new HashMap<>();
         List<DiseaseAnnotation> allDiseaseAnnotations = joinList.stream()
                 .map(diseaseEntityJoin -> {
                     DiseaseAnnotation document = new DiseaseAnnotation();
+                    document.setPrimaryKey(diseaseEntityJoin.getPrimaryKey());
                     document.setGene(diseaseEntityJoin.getGene());
                     document.setFeature(diseaseEntityJoin.getAllele());
                     document.setDisease(diseaseEntityJoin.getDisease());
@@ -55,6 +60,21 @@ public class DiseaseCacher extends Cacher {
                     if (orthologyGene != null) {
                         document.setOrthologyGene(orthologyGene);
                         document.addOrthologousGene(orthologyGene);
+                    }
+                    Set<AffectedGenomicModel> models = diseaseEntityJoin.getModels();
+                    if (CollectionUtils.isNotEmpty(models)) {
+                        models.forEach(model -> {
+                            PrimaryAnnotatedEntity entity = entities.get(model.getPrimaryKey());
+                            if (entity == null) {
+                                entity = new PrimaryAnnotatedEntity();
+                                entity.setId(model.getPrimaryKey());
+                                entities.put(entity.getId(), entity);
+                                entity.setName(model.getName());
+                                entity.setDisplayName(model.getNameText());
+                            }
+                            entity.addDisease(document.getDisease());
+                            document.addPrimaryAnnotatedEntity(entity);
+                        });
                     }
                     List<Publication> publicationList = diseaseEntityJoin.getPublicationEvidenceCodeJoin().stream()
                             .map(PublicationEvidenceCodeJoin::getPublication).sorted(Comparator.naturalOrder()).collect(Collectors.toList());

@@ -29,9 +29,9 @@ public class DiseaseRibbonSection implements Serializable {
 
     @JsonView({View.DiseaseAnnotation.class})
     @JsonProperty("groups")
-    private List<DiseaseSectionSlim> slims = new ArrayList<>();
+    private List<SectionSlim> slims = new ArrayList<>();
 
-    public void addDiseaseSlim(DiseaseSectionSlim slim) {
+    public void addDiseaseSlim(SectionSlim slim) {
         slims.add(slim);
     }
 }

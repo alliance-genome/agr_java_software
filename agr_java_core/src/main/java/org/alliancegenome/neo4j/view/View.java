@@ -17,6 +17,7 @@ public class View {
     public static class Expression extends API { }
     public static class DiseaseAnnotation extends API { }
     public static class DiseaseAnnotationSummary extends DiseaseAnnotation { }
+    public static class PrimaryAnnotation extends API { }
     public static class DiseaseCacher extends DiseaseAnnotationSummary { }
     public static class DiseaseAnnotationAll extends DiseaseAnnotation { }
 

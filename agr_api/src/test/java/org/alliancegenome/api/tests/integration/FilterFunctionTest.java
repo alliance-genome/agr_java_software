@@ -16,7 +16,8 @@ public class FilterFunctionTest {
 
     @Test
     public void testSingleFilterFunction() {
-        FilterFunction<DiseaseAnnotation, String> diseaseFilterFunction = DiseaseAnnotationFiltering.termNameFilter;
+        DiseaseAnnotationFiltering filtering= new DiseaseAnnotationFiltering();
+        FilterFunction<DiseaseAnnotation, String> diseaseFilterFunction = filtering.termNameFilter;
 
         DiseaseAnnotation annotation = new DiseaseAnnotation();
         DOTerm disease = new DOTerm();

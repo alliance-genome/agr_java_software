@@ -16,10 +16,12 @@ import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.DiseaseSummary;
+import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
 import org.alliancegenome.neo4j.entity.node.DOTerm;
 import org.alliancegenome.neo4j.entity.node.Publication;
 import org.alliancegenome.neo4j.entity.node.Synonym;
 import org.alliancegenome.neo4j.view.OrthologyModule;
+import org.alliancegenome.neo4j.view.View;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -60,6 +62,50 @@ public class DiseaseIT {
         assertResponse(response, 10, 74);
     }
 
+    @Test
+    public void checkAlleleDiseaseAssociationByDisease() {
+        Pagination pagination = new Pagination(1, 100, null, null);
+        // Menkes
+        String diseaseID = "DOID:1838";
+        JsonResultResponse<DiseaseAnnotation> response = diseaseService.getDiseaseAnnotationsWithAlleles(diseaseID, pagination);
+        assertResponse(response, 10, 10);
+    }
+
+    @Test
+    public void checkGeneDiseaseAssociationByDisease() {
+        Pagination pagination = new Pagination(1, 100, null, null);
+        // Menkes
+        String diseaseID = "DOID:1838";
+        JsonResultResponse<DiseaseAnnotation> response = diseaseService.getDiseaseAnnotationsWithGenes(diseaseID, pagination);
+        assertLimitResponse(response, 20, 20);
+    }
+
+    @Test
+    public void checkGetDiseaseAnnotationsWithAGM() {
+        Pagination pagination = new Pagination(1, 100, null, null);
+        // Menkes
+        String diseaseID = "DOID:1838";
+        JsonResultResponse<PrimaryAnnotatedEntity> response = diseaseService.getDiseaseAnnotationsWithAGM(diseaseID, pagination);
+        assertLimitResponse(response, 11, 11);
+    }
+
+    @Test
+    public void checkGetGeneDiseaseTable() {
+        Pagination pagination = new Pagination(1, 100, null, null);
+        // Menkes
+        String diseaseID = "DOID:1838";
+        JsonResultResponse<DiseaseAnnotation> response = diseaseService.getDiseaseAnnotationsWithGenes(diseaseID, pagination);
+        assertLimitResponse(response, 18, 18);
+    }
+
+    @Test
+    public void checkDiseaseAssociationByGene() {
+        Pagination pagination = new Pagination(1, 100, null, null);
+        // choriocarcinoma
+        String diseaseID = "MGI:107718";
+        JsonResultResponse<DiseaseAnnotation> response = diseaseService.getDiseaseAnnotationsByDisease(diseaseID, pagination);
+        assertLimitResponse(response, 35, 35);
+    }
     @Test
     public void checkDiseaseAssociationByDisease() {
         Pagination pagination = new Pagination(1, 100, null, null);
@@ -281,9 +327,9 @@ public class DiseaseIT {
         String result = "Disease\tGenetic Entity ID\tGenetic Entity Symbol\tGenetic Entity Type\tAssociation Type\tEvidence Code\tSource\tReferences\n" +
                 "acute lymphocytic leukemia\tMGI:2156086\tPten<sup>tm1Hwu</sup>\tallele\tis_implicated_in\tECO:0000033\tPMID:21262837\n" +
                 "acute lymphocytic leukemia\t\t\tgene\tis_implicated_in\tECO:0000033\tPMID:21262837\n" +
-                "autistic disorder\tMGI:2151804\tPten<sup>tm1Rps</sup>\tallele\tis_implicated_in\tECO:0000033\tPMID:19208814,PMID:23142422,PMID:25561290\n" +
-                "autistic disorder\tMGI:2679886\tPten<sup>tm2.1Ppp</sup>\tallele\tis_implicated_in\tECO:0000033\tPMID:22302806\n" +
-                "autistic disorder\t\t\tgene\tis_implicated_in\tECO:0000033\tPMID:22302806,PMID:25561290\n" +
+                "autism spectrum disorder\tMGI:2151804\tPten<sup>tm1Rps</sup>\tallele\tis_implicated_in\tECO:0000033\tPMID:19208814,PMID:25561290\n" +
+                "autism spectrum disorder\tMGI:2679886\tPten<sup>tm2.1Ppp</sup>\tallele\tis_implicated_in\tECO:0000033\tPMID:22302806\n" +
+                "autism spectrum disorder\t\t\tgene\tis_implicated_in\tECO:0000033\tPMID:22302806,PMID:25561290\n" +
                 "Bannayan-Riley-Ruvalcaba syndrome\tMGI:1857937\tPten<sup>tm1Mak</sup>\tallele\tis_implicated_in\tECO:0000033\tPMID:10910075\n" +
                 "Bannayan-Riley-Ruvalcaba syndrome\tMGI:1857936\tPten<sup>tm1Ppp</sup>\tallele\tis_implicated_in\tECO:0000033\tPMID:9697695\n" +
                 "Bannayan-Riley-Ruvalcaba syndrome\tMGI:2151804\tPten<sup>tm1Rps</sup>\tallele\tis_implicated_in\tECO:0000033\tPMID:27889578,PMID:9990064\n" +
@@ -365,11 +411,11 @@ public class DiseaseIT {
                 "Cowden syndrome\tMGI:2156086\tPten<sup>tm1Hwu</sup>\tallele\tis_implicated_in\tECO:0000033\tPMID:12163417,PMID:17237784,PMID:18757421,PMID:23873941,PMID:27889578\n" +
                 "endometrial cancer\tMGI:2156086\tPten<sup>tm1Hwu</sup>\tallele\tis_implicated_in\tECO:0000033\tPMID:18632614,PMID:20418913\n" +
                 "fatty liver disease\tMGI:2156086\tPten<sup>tm1Hwu</sup>\tallele\tis_implicated_in\tECO:0000033\tPMID:24802098\n" +
-                "follicular thyroid carcinoma\tMGI:2156086\tPten<sup>tm1Hwu</sup>\tallele\tis_implicated_in\tECO:0000033\tPMID:22167068\n" +
                 "hepatocellular carcinoma\tMGI:2156086\tPten<sup>tm1Hwu</sup>\tallele\tis_implicated_in\tECO:0000033\tPMID:20837017,PMID:24027047,PMID:25132272\n" +
                 "intestinal pseudo-obstruction\tMGI:2156086\tPten<sup>tm1Hwu</sup>\tallele\tis_implicated_in\tECO:0000033\tPMID:19884655\n" +
                 "persistent fetal circulation syndrome\tMGI:2156086\tPten<sup>tm1Hwu</sup>\tallele\tis_implicated_in\tECO:0000033\tPMID:23023706\n" +
                 "prostate cancer\tMGI:2156086\tPten<sup>tm1Hwu</sup>\tallele\tis_implicated_in\tECO:0000033\tPMID:14522255,PMID:16489020,PMID:21620777,PMID:22350410,PMID:22836754,PMID:23300485,PMID:23348745,PMID:23434594,PMID:23610450,PMID:25455686,PMID:25526087,PMID:25693195,PMID:25948589,PMID:26640144,PMID:27345403,PMID:27357679,PMID:28059767,PMID:28515147,PMID:29720449\n" +
+                "thyroid gland follicular carcinoma	MGI:2156086	Pten<sup>tm1Hwu</sup>	allele	is_implicated_in	ECO:0000033	PMID:22167068\n" +
                 "urinary bladder cancer\tMGI:2156086\tPten<sup>tm1Hwu</sup>\tallele\tis_implicated_in\tECO:0000033\tPMID:19261747,PMID:25533675\n";
         assertEquals(result, output);
     }
@@ -396,7 +442,7 @@ public class DiseaseIT {
         response = diseaseService.getDiseaseAnnotations(geneID, pagination);
         assertResponse(response, 14, 14);
         annotation = response.getResults().get(1);
-        assertThat(annotation.getDisease().getName(), equalTo("autistic disorder"));
+        assertThat(annotation.getDisease().getName(), equalTo("autism spectrum disorder"));
         assertThat(annotation.getAssociationType(), equalTo("is_implicated_in"));
         assertNull(annotation.getFeature());
     }
@@ -553,13 +599,13 @@ public class DiseaseIT {
 
     }
 
-    private void assertResponse(JsonResultResponse<DiseaseAnnotation> response, int resultSize, int totalSize) {
+    private void assertResponse(JsonResultResponse response, int resultSize, int totalSize) {
         assertNotNull(response);
         assertThat("Number of returned records", response.getResults().size(), equalTo(resultSize));
         assertThat("Number of total records", response.getTotal(), equalTo(totalSize));
     }
 
-    private void assertLimitResponse(JsonResultResponse<DiseaseAnnotation> response, int resultSize, int totalSize) {
+    private void assertLimitResponse(JsonResultResponse response, int resultSize, int totalSize) {
         assertNotNull(response);
         assertThat("Number of returned records", response.getResults().size(), greaterThanOrEqualTo(resultSize));
         assertThat("Number of total records", response.getTotal(), greaterThanOrEqualTo(totalSize));

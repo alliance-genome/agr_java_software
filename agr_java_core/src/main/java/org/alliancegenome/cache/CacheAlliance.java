@@ -21,6 +21,8 @@ public enum CacheAlliance {
     DISEASE_SITEMAP(),
 
     CACHING_STATS(),
+    ECO_MAP(),
+    CLOSURE_MAP(),
     ;
 
     private String cacheName;

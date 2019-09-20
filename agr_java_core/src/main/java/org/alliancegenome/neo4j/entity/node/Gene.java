@@ -1,10 +1,6 @@
 package org.alliancegenome.neo4j.entity.node;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import org.alliancegenome.es.util.DateConverter;
 import org.alliancegenome.neo4j.entity.relationship.GenomeLocation;
@@ -135,5 +131,18 @@ public class Gene extends GeneticEntity implements Comparable<Gene> {
     @Override
     public String toString() {
         return primaryKey + ", " + symbol;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Gene gene = (Gene) o;
+        return Objects.equals(primaryKey, gene.primaryKey);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(primaryKey);
     }
 }

@@ -28,11 +28,11 @@ public class GeneOrthologCacher extends Cacher {
     protected void cache() {
 
         startProcess("geneRepository.getAllOrthologyGenes");
-        
+
         List<Gene> geneList = geneRepository.getAllOrthologyGenes();
-        
+
         finishProcess();
-        
+
         if (geneList == null)
             return;
 
@@ -43,7 +43,7 @@ public class GeneOrthologCacher extends Cacher {
         OrthologyAllianceCacheManager manager = new OrthologyAllianceCacheManager();
 
         startProcess("create geneList into cache");
-        
+
         geneList.forEach(gene -> {
             Set<OrthologView> orthologySet = gene.getOrthoGenes().stream()
                     .map(orthologous -> {
@@ -73,7 +73,7 @@ public class GeneOrthologCacher extends Cacher {
                 throw new RuntimeException(e);
             }
         });
-        
+
         finishProcess();
         setCacheStatus(geneList.size(), CacheAlliance.GENE_ORTHOLOGY.getCacheName());
         geneRepository.clearCache();
@@ -114,12 +114,13 @@ public class GeneOrthologCacher extends Cacher {
             log.warn("No algorithm found for " + primaryKey + " and " + primaryKey1);
             return null;
         }
+        // Always return non-null list
+        ArrayList<String> strings = new ArrayList<>();
         Set<String> algorithmSet = lists.get("notMatch");
         if (CollectionUtils.isNotEmpty(algorithmSet)) {
-            ArrayList<String> strings = new ArrayList<>(algorithmSet);
+            strings = new ArrayList<>(algorithmSet);
             strings.sort(Comparator.naturalOrder());
-            return strings;
         }
-        return null;
+        return strings;
     }
 }

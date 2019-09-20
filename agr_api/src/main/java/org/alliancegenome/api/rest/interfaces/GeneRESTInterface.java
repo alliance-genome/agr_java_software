@@ -1,27 +1,14 @@
 package org.alliancegenome.api.rest.interfaces;
 
-import java.io.IOException;
-import java.util.List;
-
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
-
+import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.alliancegenome.api.entity.DiseaseRibbonSummary;
 import org.alliancegenome.api.entity.ExpressionSummary;
 import org.alliancegenome.core.service.JsonResultResponse;
-import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
-import org.alliancegenome.neo4j.entity.DiseaseSummary;
-import org.alliancegenome.neo4j.entity.EntitySummary;
-import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
+import org.alliancegenome.neo4j.entity.*;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
@@ -30,12 +17,13 @@ import org.alliancegenome.neo4j.view.View;
 import org.alliancegenome.neo4j.view.View.GeneAPI;
 import org.alliancegenome.neo4j.view.View.GeneAllelesAPI;
 
-import com.fasterxml.jackson.annotation.JsonView;
-import com.fasterxml.jackson.core.JsonProcessingException;
-
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
+import java.io.IOException;
+import java.util.List;
 
 @Path("/gene")
 @Api(value = "Genes")
@@ -71,6 +59,10 @@ public interface GeneRESTInterface {
             @QueryParam("filter.symbol") String symbol,
             @ApiParam(name = "filter.synonym", value = "Allele synonyms")
             @QueryParam("filter.synonym") String synonym,
+            @ApiParam(name = "filter.variantType", value = "Variant types")
+            @QueryParam("filter.variantType") String variantType,
+            @ApiParam(name = "filter.phenotype", value = "Phenotypes")
+            @QueryParam("filter.phenotype") String phenotype,
             @ApiParam(value = "source")
             @QueryParam("filter.source") String source,
             @ApiParam(value = "Disease for a given allele")
@@ -92,6 +84,10 @@ public interface GeneRESTInterface {
             @QueryParam("filter.symbol") String symbol,
             @ApiParam(name = "filter.synonym", value = "Allele synonyms")
             @QueryParam("filter.synonym") String synonym,
+            @ApiParam(name = "filter.variantType", value = "Variant types")
+            @QueryParam("filter.variantType") String variantType,
+            @ApiParam(name = "filter.phenotype", value = "Phenotypes")
+            @QueryParam("filter.phenotype") String phenotype,
             @ApiParam(value = "source")
             @QueryParam("filter.source") String source,
             @ApiParam(value = "Disease for a given allele")
@@ -141,6 +137,31 @@ public interface GeneRESTInterface {
             @QueryParam("filter.reference") String reference,
             @ApiParam(value = "ascending order: true or false", allowableValues = "true,false", defaultValue = "true")
             @QueryParam("asc") String asc);
+
+    @GET
+    @Path("/{id}/models")
+    @JsonView(value = {View.PrimaryAnnotation.class})
+    @ApiOperation(value = "Retrieve all DiseaseAnnotation records for a given disease id")
+    JsonResultResponse<PrimaryAnnotatedEntity> getPrimaryAnnotatedEntityForModel(
+            @ApiParam(name = "id", value = "gene ID: e.g. MGI:109583", required = true, type = "String")
+            @PathParam("id") String id,
+            @ApiParam(name = "limit", value = "Number of rows returned", defaultValue = "20")
+            @DefaultValue("20") @QueryParam("limit") int limit,
+            @ApiParam(name = "page", value = "Page number")
+            @DefaultValue("1") @QueryParam("page") int page,
+            @ApiParam(value = "Field / column name by which to sort", allowableValues = "Default,Gene,Disease,Species", defaultValue = "geneName")
+            @QueryParam("sortBy") String sortBy,
+            @ApiParam(value = "filter by model name")
+            @QueryParam("filter.modelName") String modelName,
+            @ApiParam(value = "filter by species")
+            @QueryParam("filter.species") String species,
+            @ApiParam(value = "filter by disease")
+            @QueryParam("filter.disease") String disease,
+            @ApiParam(value = "filter by source")
+            @QueryParam("filter.source") String source,
+            @ApiParam(value = "ascending order: true or false", allowableValues = "true,false", defaultValue = "true")
+            @QueryParam("asc") String asc);
+
 
     @GET
     @Path("/{id}/homologs")
