@@ -48,4 +48,7 @@ public class Variant extends Neo4jEntity implements Comparable<Variant> {
         return 0;
     }
 
+    public String getName() {
+        return hgvsNomenclature;
+    }
 }
