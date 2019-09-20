@@ -49,6 +49,14 @@ public class AlleleFiltering {
                 return !filteringPassed.isEmpty() && filteringPassed.contains(true);
             };
 
+    public static FilterFunction<Allele, String> variantConsequenceFilter =
+            (allele, value) -> {
+                Set<Boolean> filteringPassed = allele.getVariants().stream()
+                        .map(term -> FilterFunction.contains(term.getGeneLevelConsequence(), value))
+                        .collect(Collectors.toSet());
+                return !filteringPassed.isEmpty() && filteringPassed.contains(true);
+            };
+
     public static FilterFunction<Allele, String> phenotypeFilter =
             (allele, value) -> {
                 Set<Boolean> filteringPassed = allele.getPhenotypes().stream()
@@ -65,6 +73,7 @@ public class AlleleFiltering {
         filterFieldMap.put(FieldFilter.PHENOTYPE, phenotypeFilter);
         filterFieldMap.put(FieldFilter.DISEASE, diseaseFilter);
         filterFieldMap.put(FieldFilter.VARIANT_TYPE, variantTypeFilter);
+        filterFieldMap.put(FieldFilter.VARIANT_CONSEQUENCE, variantConsequenceFilter);
     }
 
     public static boolean isValidFiltering(Map<FieldFilter, String> fieldFilterValueMap) {

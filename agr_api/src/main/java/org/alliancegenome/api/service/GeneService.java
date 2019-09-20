@@ -42,8 +42,8 @@ public class GeneService {
         JsonResultResponse<Allele> response = alleleService.getAllelesByGene(geneId, pagination);
         if (response == null)
             response = new JsonResultResponse<>();
-        Long duration = (System.currentTimeMillis() - startTime) / 1000;
-        response.setRequestDuration(duration.toString());
+        long duration = (System.currentTimeMillis() - startTime) / 1000;
+        response.setRequestDuration(Long.toString(duration));
         return response;
     }
 
