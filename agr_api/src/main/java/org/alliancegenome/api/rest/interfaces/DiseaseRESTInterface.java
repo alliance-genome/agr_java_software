@@ -128,9 +128,9 @@ public interface DiseaseRESTInterface {
 
     @GET
     @Path("/{id}/models")
-    @JsonView(value = {View.PrimaryAnnotation.class})
+    @JsonView(value = {View.DiseaseAnnotationSummary.class})
     @ApiOperation(value = "Retrieve all DiseaseAnnotation records for a given disease id")
-    JsonResultResponse<PrimaryAnnotatedEntity> getDiseaseAnnotationsForModel(
+    JsonResultResponse<DiseaseAnnotation> getDiseaseAnnotationsForModel(
             @ApiParam(name = "id", value = "Disease by DOID: e.g. DOID:9952", required = true, type = "String")
             @PathParam("id") String id,
             @ApiParam(name = "limit", value = "Number of rows returned", defaultValue = "20")

@@ -1,20 +1,18 @@
 package org.alliancegenome.neo4j.entity.node;
 
-import java.util.*;
-
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonView;
+import lombok.Getter;
+import lombok.Setter;
 import org.alliancegenome.es.util.DateConverter;
 import org.alliancegenome.neo4j.entity.Neo4jEntity;
 import org.alliancegenome.neo4j.view.View;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
-
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonView;
-
-import lombok.Getter;
-import lombok.Setter;
 import org.neo4j.ogm.annotation.typeconversion.Convert;
+
+import java.util.*;
 
 @NodeEntity
 @Getter
@@ -31,7 +29,7 @@ public class GeneticEntity extends Neo4jEntity {
     @Convert(value = DateConverter.class)
     private Date dateProduced;
 
-    @JsonView({View.Default.class, View.PhenotypeAPI.class})
+    @JsonView({View.Default.class, View.API.class, View.PhenotypeAPI.class, View.DiseaseAnnotation.class})
     @Relationship(type = "FROM_SPECIES")
     protected Species species;
 

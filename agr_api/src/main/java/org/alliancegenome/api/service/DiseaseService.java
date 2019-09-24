@@ -9,7 +9,6 @@ import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.DiseaseSummary;
-import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
 import org.alliancegenome.neo4j.entity.node.DOTerm;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.entity.node.SimpleTerm;
@@ -90,6 +89,7 @@ public class DiseaseService {
 
         // need to group annotations by gene / association type
         Map<Gene, Map<String, List<DiseaseAnnotation>>> groupedByGeneList = fullDiseaseAnnotationList.stream()
+                .filter(diseaseAnnotation -> diseaseAnnotation.getGene() != null)
                 .collect(Collectors.groupingBy(DiseaseAnnotation::getGene,
                         Collectors.groupingBy(DiseaseAnnotation::getAssociationType)));
 
@@ -111,30 +111,25 @@ public class DiseaseService {
         return result;
     }
 
-    public JsonResultResponse<PrimaryAnnotatedEntity> getDiseaseAnnotationsWithAGM(String diseaseID, Pagination pagination) {
+    public JsonResultResponse<DiseaseAnnotation> getDiseaseAnnotationsWithAGM(String diseaseID, Pagination pagination) {
         LocalDateTime startDate = LocalDateTime.now();
         List<DiseaseAnnotation> fullDiseaseAnnotationList = diseaseCacheRepository.getDiseaseAnnotationList(diseaseID);
-        JsonResultResponse<PrimaryAnnotatedEntity> result = new JsonResultResponse<>();
+        JsonResultResponse<DiseaseAnnotation> result = new JsonResultResponse<>();
         if (fullDiseaseAnnotationList == null) {
             result.calculateRequestDuration(startDate);
             return result;
         }
 
-        // create primary annotated entities list
-        Set<PrimaryAnnotatedEntity> primaryAnnotatedEntities = new HashSet<>();
-        fullDiseaseAnnotationList.stream()
-                .filter(diseaseAnnotation -> diseaseAnnotation.getPrimaryAnnotatedEntities() != null)
-                .forEach((annotation) -> annotation.getPrimaryAnnotatedEntities().forEach(entity -> {
-                    entity.setSpecies(annotation.getGene().getSpecies());
-                    entity.addDisease(annotation.getDisease());
-                    primaryAnnotatedEntities.add(entity);
-                }));
-        List<PrimaryAnnotatedEntity> geneDiseaseAnnotations = new ArrayList<>(primaryAnnotatedEntities);
+        // select list of annotations to model entities
+        List<DiseaseAnnotation> modelDiseaseAnnotations = fullDiseaseAnnotationList.stream()
+                .filter(diseaseAnnotation -> diseaseAnnotation.getModel() != null)
+                .collect(Collectors.toList());
+
         //filtering
-        FilterService<PrimaryAnnotatedEntity> filterService = new FilterService<>(new PrimaryAnnotatedEntityFiltering());
-        List<PrimaryAnnotatedEntity> filteredDiseaseAnnotationList = filterService.filterAnnotations(geneDiseaseAnnotations, pagination.getFieldFilterValueMap());
+        FilterService<DiseaseAnnotation> filterService = new FilterService<>(new ModelAnnotationFiltering());
+        List<DiseaseAnnotation> filteredDiseaseAnnotationList = filterService.filterAnnotations(modelDiseaseAnnotations, pagination.getFieldFilterValueMap());
         result.setTotal(filteredDiseaseAnnotationList.size());
-        result.setResults(filterService.getSortedAndPaginatedAnnotations(pagination, filteredDiseaseAnnotationList, new PrimaryAnnotatedEntitySorting()));
+        result.setResults(filterService.getSortedAndPaginatedAnnotations(pagination, filteredDiseaseAnnotationList, new ModelAnnotationsSorting()));
         result.calculateRequestDuration(startDate);
         return result;
     }

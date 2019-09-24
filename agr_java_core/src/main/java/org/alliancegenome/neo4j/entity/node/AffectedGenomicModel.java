@@ -1,7 +1,10 @@
 package org.alliancegenome.neo4j.entity.node;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Getter;
 import lombok.Setter;
+import org.alliancegenome.neo4j.view.View;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 
@@ -20,9 +23,15 @@ public class AffectedGenomicModel extends GeneticEntity implements Comparable<Af
     private String release;
     private String localId;
     private String globalId;
+    @JsonView({View.Default.class, View.API.class})
     private String modCrossRefCompleteUrl;
+    @JsonView({View.Default.class, View.API.class})
     private String name;
+    @JsonView({View.Default.class, View.API.class})
     private String nameText;
+    @JsonProperty(value = "type")
+    @JsonView({View.Default.class, View.API.class})
+    private String subType;
 
     @Relationship(type = "PRIMARY_GENETIC_ENTITY", direction = Relationship.INCOMING)
     private List<DiseaseEntityJoin> diseaseEntityJoins = new ArrayList<>();

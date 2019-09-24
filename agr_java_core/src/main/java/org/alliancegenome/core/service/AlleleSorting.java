@@ -17,17 +17,22 @@ public class AlleleSorting implements Sorting<Allele> {
 
     private List<Comparator<Allele>> defaultList;
     private List<Comparator<Allele>> diseaseList;
+    private List<Comparator<Allele>> speciesList;
 
     public AlleleSorting() {
         super();
 
-        defaultList = new ArrayList<>(2);
+        defaultList = new ArrayList<>(3);
         defaultList.add(variantExistOrder);
         defaultList.add(alleleSymbolOrder);
 
-        diseaseList = new ArrayList<>(2);
+        diseaseList = new ArrayList<>(3);
         diseaseList.add(diseaseOrder);
         diseaseList.add(alleleSymbolOrder);
+
+        speciesList = new ArrayList<>(3);
+        speciesList.add(diseaseOrder);
+        speciesList.add(alleleSymbolOrder);
 
     }
 
@@ -42,6 +47,8 @@ public class AlleleSorting implements Sorting<Allele> {
                 return getJoinedComparator(defaultList);
             case DISEASE:
                 return getJoinedComparator(diseaseList);
+            case SPECIES:
+                return getJoinedComparator(speciesList);
             default:
                 return getJoinedComparator(defaultList);
         }
@@ -56,6 +63,13 @@ public class AlleleSorting implements Sorting<Allele> {
             }, Comparator.nullsLast(naturalOrder()));
 
     static public Comparator<Allele> alleleSymbolOrder =
+            Comparator.comparing(allele -> {
+                if (allele.getSymbolText() == null)
+                    return null;
+                return allele.getSymbolText().toLowerCase();
+            }, Comparator.nullsLast(naturalOrder()));
+
+    static public Comparator<Allele> speciesOrder =
             Comparator.comparing(allele -> {
                 if (allele.getSymbolText() == null)
                     return null;

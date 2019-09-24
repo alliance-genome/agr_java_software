@@ -18,13 +18,23 @@ public class DiseaseAnnotationSorting implements Sorting<DiseaseAnnotation> {
     private List<Comparator<DiseaseAnnotation>> speciesList;
 
     private static Comparator<DiseaseAnnotation> phylogeneticOrder =
-            Comparator.comparing(annotation -> annotation.getGene().getSpecies().getPhylogeneticOrder());
+            Comparator.comparing(annotation -> {
+                if (annotation.getGene() == null)
+                    return 1;
+                if (annotation.getGene().getSpecies() == null)
+                    return 1;
+                return annotation.getGene().getSpecies().getPhylogeneticOrder();
+            });
 
     private static Comparator<DiseaseAnnotation> experimentOrthologyOrder =
             Comparator.comparing(DiseaseAnnotation::getSortOrder);
 
     private static Comparator<DiseaseAnnotation> geneSymbolOrder =
-            Comparator.comparing(annotation -> annotation.getGene().getSymbol().toLowerCase());
+            Comparator.comparing(annotation -> {
+                if (annotation.getGene() == null)
+                    return null;
+                return annotation.getGene().getSymbol().toLowerCase();
+            }, Comparator.nullsLast(naturalOrder()));
 
     static public Comparator<DiseaseAnnotation> alleleSymbolOrder =
             Comparator.comparing(annotation -> {

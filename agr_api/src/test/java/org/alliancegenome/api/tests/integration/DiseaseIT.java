@@ -85,7 +85,7 @@ public class DiseaseIT {
         Pagination pagination = new Pagination(1, 100, null, null);
         // Menkes
         String diseaseID = "DOID:1838";
-        JsonResultResponse<PrimaryAnnotatedEntity> response = diseaseService.getDiseaseAnnotationsWithAGM(diseaseID, pagination);
+        JsonResultResponse<DiseaseAnnotation> response = diseaseService.getDiseaseAnnotationsWithAGM(diseaseID, pagination);
         assertLimitResponse(response, 11, 11);
     }
 

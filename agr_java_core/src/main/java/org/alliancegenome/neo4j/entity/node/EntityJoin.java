@@ -28,7 +28,8 @@ public class EntityJoin extends Association {
     @Relationship(type = "ASSOCIATION", direction = Relationship.INCOMING)
     private Allele allele;
 
-    @Relationship(type = "PRIMARY_GENETIC_ENTITY")
-    private Set<AffectedGenomicModel> models;
+    // direct annotations
+    @Relationship(type = "ASSOCIATION", direction = Relationship.INCOMING)
+    private AffectedGenomicModel model;
 
 }

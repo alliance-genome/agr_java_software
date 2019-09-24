@@ -1,5 +1,6 @@
 package org.alliancegenome.neo4j.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,7 +14,7 @@ import java.util.*;
 
 @Getter
 @Setter
-public class PrimaryAnnotatedEntity implements Comparable<PrimaryAnnotatedEntity>, Serializable {
+public class PublicationEvidenceCode implements Comparable<PublicationEvidenceCode>, Serializable {
 
     @JsonView({View.Default.class, View.API.class})
     protected String id;
@@ -25,10 +26,13 @@ public class PrimaryAnnotatedEntity implements Comparable<PrimaryAnnotatedEntity
     protected GeneticEntity.CrossReferenceType type;
     @JsonView({View.Default.class, View.API.class})
     protected CrossReference crossReference;
-
+    @JsonView({View.PrimaryAnnotation.class, View.DiseaseAnnotation.class})
     protected List<DOTerm> diseases;
     @JsonView({View.DiseaseAnnotation.class})
-    private List<PublicationEvidenceCodeJoin> publicationEvidenceCodes;
+    private List<Publication> publications;
+    @JsonView({View.DiseaseAnnotation.class})
+    @JsonProperty(value = "evidenceCodes")
+    private List<ECOTerm> ecoCodes;
 
     @Convert(value = DateConverter.class)
     private Date dateProduced;
@@ -39,7 +43,7 @@ public class PrimaryAnnotatedEntity implements Comparable<PrimaryAnnotatedEntity
     protected Species species;
 
     @Override
-    public int compareTo(PrimaryAnnotatedEntity o) {
+    public int compareTo(PublicationEvidenceCode o) {
         return 0;
     }
 
@@ -53,7 +57,7 @@ public class PrimaryAnnotatedEntity implements Comparable<PrimaryAnnotatedEntity
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        PrimaryAnnotatedEntity that = (PrimaryAnnotatedEntity) o;
+        PublicationEvidenceCode that = (PublicationEvidenceCode) o;
         return Objects.equals(id, that.id);
     }
 
@@ -67,11 +71,5 @@ public class PrimaryAnnotatedEntity implements Comparable<PrimaryAnnotatedEntity
             diseases = new ArrayList<>();
         diseases.add(disease);
         diseases = new ArrayList<>(new HashSet<>(diseases));
-    }
-
-    public void addPublicationEvidenceCode(PublicationEvidenceCodeJoin pubJoin) {
-        if (publicationEvidenceCodes == null)
-            publicationEvidenceCodes = new ArrayList<>();
-        publicationEvidenceCodes.add(pubJoin);
     }
 }
