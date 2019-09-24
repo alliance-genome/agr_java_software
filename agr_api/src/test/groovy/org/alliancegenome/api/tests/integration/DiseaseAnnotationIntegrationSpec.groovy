@@ -6,6 +6,49 @@ import spock.lang.Unroll
 class DiseaseAnnotationIntegrationSpec extends AbstractSpec {
 
     @Unroll
+    def "Disease page: allele section sort by allele for #query"() {
+        when:
+        def doiID = URLEncoder.encode(query, "UTF-8")
+        //todo: need to set the base search url in a nicer way
+        def results = getApiResults("/api/disease/$doiID/alleles?sortBy=allele")
+        def alleleNames = results.allele.symbolText
+        def alleleNamesSorted = alleleNames.clone().sort { a, b -> a.compareToIgnoreCase b }
+
+        then:
+        results //should be some results
+        id == results[0].disease.id
+        name == results[0].disease.name
+        numOfRecords <= results.size()
+        alleleNames.equals(alleleNamesSorted)
+
+        where:
+        query       | id          | name             | numOfRecords
+        "DOID:1838" | "DOID:1838" | "Menkes disease" | 10
+
+    }
+
+    @Unroll
+    def "Disease page: allele section sort by disease for #query"() {
+        when:
+        def doiID = URLEncoder.encode(query, "UTF-8")
+        //todo: need to set the base search url in a nicer way
+        def results = getApiResults("/api/disease/$doiID/alleles?sortBy=disease&limit=100")
+        def diseaseNames = results.disease.name
+        def diseaseNamesSorted = diseaseNames.clone().sort { a, b -> a.compareToIgnoreCase b }
+
+        then:
+        results //should be some results
+        numOfRecords <= results.size()
+        diseaseNames.equals(diseaseNamesSorted)
+
+        where:
+        query       | numOfRecords
+        "DOID:2531" | 70
+
+    }
+
+
+    @Unroll
     def "Disease page for #query"() {
         when:
         def encodedQuery = URLEncoder.encode(query, "UTF-8")

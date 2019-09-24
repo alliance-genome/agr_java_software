@@ -61,6 +61,8 @@ public interface GeneRESTInterface {
             @QueryParam("filter.synonym") String synonym,
             @ApiParam(name = "filter.variantType", value = "Variant types")
             @QueryParam("filter.variantType") String variantType,
+            @ApiParam(name = "filter.variantConsequence", value = "Consequence")
+            @QueryParam("filter.variantConsequence") String consequence,
             @ApiParam(name = "filter.phenotype", value = "Phenotypes")
             @QueryParam("filter.phenotype") String phenotype,
             @ApiParam(value = "source")
@@ -86,6 +88,8 @@ public interface GeneRESTInterface {
             @QueryParam("filter.synonym") String synonym,
             @ApiParam(name = "filter.variantType", value = "Variant types")
             @QueryParam("filter.variantType") String variantType,
+            @ApiParam(name = "filter.variantConsequence", value = "Consequence")
+            @QueryParam("filter.variantConsequence") String consequence,
             @ApiParam(name = "filter.phenotype", value = "Phenotypes")
             @QueryParam("filter.phenotype") String phenotype,
             @ApiParam(value = "source")

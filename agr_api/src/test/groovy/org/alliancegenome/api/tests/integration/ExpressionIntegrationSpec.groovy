@@ -46,7 +46,7 @@ class ExpressionIntegrationSpec extends AbstractSpec {
         geneId                   | totalSize | locationList
         "MGI:109583"             | 10        | "2-cell stage embryo,4-cell stage embryo,alimentary system,amnion,amnion,amygdala,axial skeleton,basal ganglia,bladder,brain"
         "RGD:2129"               | 7         | "extracellular space,high-density lipoprotein particle,intracellular membrane-bounded organelle,low-density lipoprotein particle,very-low-density lipoprotein particle,vesicle lumen,vesicle membrane"
-        "ZFIN:ZDB-GENE-001103-1" | 10        | "anal fin,anal fin,anal fin,anal fin pterygiophore,anal fin pterygiophore,brain,brain,caudal fin lepidotrichium,ceratobranchial bone,ceratobranchial cartilage"
+        //"ZFIN:ZDB-GENE-001103-1" | 10        | "anal fin,anal fin,anal fin,anal fin pterygiophore,anal fin pterygiophore,brain,brain,caudal fin lepidotrichium,ceratobranchial bone,ceratobranchial cartilage"
     }
 
     @Unroll
@@ -101,4 +101,21 @@ class ExpressionIntegrationSpec extends AbstractSpec {
         gene << ["MGI:109583"]
     }
 
+    @Unroll
+    def "Gene page: expression section sort by assay for gene #geneID"() {
+        when:
+        def results = getApiResults("/api/expression?termID=UBERON:AnatomyOtherLocation&geneID=$geneID&geneID=MGI:98872&page=1&limit=100&sortBy=assay")
+        def assayNames = results.assay.displaySynonym
+        def assayNamesSorted = assayNames.clone().sort { a, b -> a.compareToIgnoreCase b }
+
+        then:
+        results //should be some results
+        numOfRecords <= results.size()
+        assayNames.equals(assayNamesSorted)
+
+        where:
+        geneID                   | numOfRecords
+        "ZFIN:ZDB-GENE-000210-7" | 10
+
+    }
 }

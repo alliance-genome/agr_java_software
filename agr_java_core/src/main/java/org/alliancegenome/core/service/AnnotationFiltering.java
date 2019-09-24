@@ -12,16 +12,6 @@ public abstract class AnnotationFiltering<T> {
 
     public Map<FieldFilter, FilterFunction<T, String>> filterFieldMap = new HashMap<>();
 
-/*
-
-    static {
-        filterFieldMap.put(FieldFilter.MOLECULE_TYPE, interactorMoleculeTypeFilter);
-        filterFieldMap.put(FieldFilter.INTERACTOR_GENE_SYMBOL, interactorGeneSymbolFilter);
-        filterFieldMap.put(FieldFilter.FREFERENCE, referenceFilter);
-        filterFieldMap.put(FieldFilter.SOURCE, sourceFilter);
-    }
-*/
-
     public boolean isValidFiltering(Map<FieldFilter, String> fieldFilterValueMap) {
         if (fieldFilterValueMap == null)
             return true;
