@@ -107,7 +107,7 @@ class DiseaseAnnotationIntegrationSpec extends AbstractSpec {
     @Unroll
     def "Disease page - Annotations for #sortBy - Sorting"() {
         when:
-        def results = getApiResults("/api/disease/DOID:9952/associations?limit=15&sortBy=$sortBy")
+        def results = getApiResults("/api/disease/DOID:9952/genes?limit=15&sortBy=$sortBy")
 
         def symbols = results.gene.symbol.findAll { it }
         def species = results.gene.species.name.findAll { it }
@@ -120,10 +120,10 @@ class DiseaseAnnotationIntegrationSpec extends AbstractSpec {
         disease.join(",") == diseaseList
 
         where:
-        sortBy    | geneSymbolList                                                                                      | speciesList                                                                                                                                                                                                                                                                                                    | diseaseList
-        "gene"    | "Bx,ces-2,ces-2,CG7786,CNTN2,Cntn2,Cntn2,cntn2,Cont,daf-18,DBP,Dbp,Dbp,dot-1.1,dot-1.2"             | "Drosophila melanogaster,Caenorhabditis elegans,Caenorhabditis elegans,Drosophila melanogaster,Homo sapiens,Rattus norvegicus,Mus musculus,Danio rerio,Drosophila melanogaster,Caenorhabditis elegans,Homo sapiens,Rattus norvegicus,Mus musculus,Caenorhabditis elegans,Caenorhabditis elegans"               | "acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,T-cell adult acute lymphocytic leukemia,T-cell adult acute lymphocytic leukemia,T-cell adult acute lymphocytic leukemia,T-cell adult acute lymphocytic leukemia,T-cell adult acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,B- and T-cell mixed leukemia,B- and T-cell mixed leukemia"
-        "species" | "ces-2,ces-2,daf-18,dot-1.1,dot-1.2,dot-1.4,dot-1.5,glp-1,lin-12,mes-2,zag-1,cntn2,dot1l,ezh2,hlfa" | "Caenorhabditis elegans,Caenorhabditis elegans,Caenorhabditis elegans,Caenorhabditis elegans,Caenorhabditis elegans,Caenorhabditis elegans,Caenorhabditis elegans,Caenorhabditis elegans,Caenorhabditis elegans,Caenorhabditis elegans,Caenorhabditis elegans,Danio rerio,Danio rerio,Danio rerio,Danio rerio" | "acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,B- and T-cell mixed leukemia,B- and T-cell mixed leukemia,B- and T-cell mixed leukemia,B- and T-cell mixed leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,T-cell adult acute lymphocytic leukemia,T-cell adult acute lymphocytic leukemia,B- and T-cell mixed leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia"
-        "disease" | "DBP,EZH2,KMT2A,LMO2,NOTCH3,PTEN,TEF,Dbp,Ezh2,Hlf,Kmt2a,Lmo2,Notch3,Pten,Tef"                       | "Homo sapiens,Homo sapiens,Homo sapiens,Homo sapiens,Homo sapiens,Homo sapiens,Homo sapiens,Rattus norvegicus,Rattus norvegicus,Rattus norvegicus,Rattus norvegicus,Rattus norvegicus,Rattus norvegicus,Rattus norvegicus,Rattus norvegicus"                                                                   | "acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia"
+        sortBy    | geneSymbolList                                                                                      | speciesList                                                                                                                                                                                                                                                                                         | diseaseList
+        "gene"    | "Bx,ces-2,CG7786,CNTN2,Cntn2,Cntn2,cntn2,Cont,daf-18,DBP,Dbp,Dbp,dot-1.1,dot-1.2,dot-1.4"           | "Drosophila melanogaster,Caenorhabditis elegans,Drosophila melanogaster,Homo sapiens,Rattus norvegicus,Mus musculus,Danio rerio,Drosophila melanogaster,Caenorhabditis elegans,Homo sapiens,Rattus norvegicus,Mus musculus,Caenorhabditis elegans,Caenorhabditis elegans,Caenorhabditis elegans"    | "acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,T-cell adult acute lymphocytic leukemia,T-cell adult acute lymphocytic leukemia,T-cell adult acute lymphocytic leukemia,T-cell adult acute lymphocytic leukemia,T-cell adult acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,B- and T-cell mixed leukemia,B- and T-cell mixed leukemia,B- and T-cell mixed leukemia"
+        "species" | "ces-2,daf-18,dot-1.1,dot-1.2,dot-1.4,dot-1.5,glp-1,lin-12,mes-2,zag-1,cntn2,dot1l,ezh2,hlfa,kmt2a" | "Caenorhabditis elegans,Caenorhabditis elegans,Caenorhabditis elegans,Caenorhabditis elegans,Caenorhabditis elegans,Caenorhabditis elegans,Caenorhabditis elegans,Caenorhabditis elegans,Caenorhabditis elegans,Caenorhabditis elegans,Danio rerio,Danio rerio,Danio rerio,Danio rerio,Danio rerio" | "acute lymphocytic leukemia,acute lymphocytic leukemia,B- and T-cell mixed leukemia,B- and T-cell mixed leukemia,B- and T-cell mixed leukemia,B- and T-cell mixed leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,T-cell adult acute lymphocytic leukemia,T-cell adult acute lymphocytic leukemia,B- and T-cell mixed leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia"
+        "disease" | "DBP,EZH2,KMT2A,LMO2,NOTCH3,PTEN,TEF,Dbp,Ezh2,Hlf,Kmt2a,Lmo2,Notch3,Pten,Tef"                       | "Homo sapiens,Homo sapiens,Homo sapiens,Homo sapiens,Homo sapiens,Homo sapiens,Homo sapiens,Rattus norvegicus,Rattus norvegicus,Rattus norvegicus,Rattus norvegicus,Rattus norvegicus,Rattus norvegicus,Rattus norvegicus,Rattus norvegicus"                                                        | "acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia,acute lymphocytic leukemia"
 
     }
 
@@ -148,7 +148,7 @@ class DiseaseAnnotationIntegrationSpec extends AbstractSpec {
     @Unroll
     def "Disease page - Annotation Filtering for #geneSymbolQuery "() {
         when:
-        def retObj = getApiResult("/api/disease/DOID:9952/associations?limit=50&filter.geneName=$geneSymbolQuery")
+        def retObj = getApiResult("/api/disease/DOID:9952/genes?limit=50&filter.geneName=$geneSymbolQuery")
         def results = retObj.results
         def symbols = results.gene.symbol.findAll { it }
 
@@ -160,8 +160,8 @@ class DiseaseAnnotationIntegrationSpec extends AbstractSpec {
         where:
         geneSymbolQuery | resultSize | geneSymbolList
         "ot"            | 13         | "DOT1L,Notch3,NOTCH3,Dot1l,Notch3,Dot1l,dot1l,notch3,dot-1.1,dot-1.2,dot-1.4,dot-1.5,DOT1"
-        "2a"            | 10         | "KMT2A,Kmt2a,Kmt2a,KMT2A,Kmt2a,Kmt2a,Kmt2a,kmt2a,kmt2a,zeb2a"
-        "r"             | 2          | "trx,trx"
+        "2a"            | 7          | "KMT2A,Kmt2a,KMT2A,Kmt2a,Kmt2a,kmt2a,zeb2a"
+        "r"             | 1          | "trx"
     }
 
     @Unroll
@@ -237,7 +237,7 @@ class DiseaseAnnotationIntegrationSpec extends AbstractSpec {
     @Unroll
     def "Check different query parameters #query for disease #disease annotation endpoint"() {
         when:
-        def results = getApiResults("/api/disease/$disease/associations?limit=1000&$query")
+        def results = getApiResults("/api/disease/$disease/genes?limit=1000&$query")
 
         then:
         results.size() > resultSizeLowerLimit
@@ -246,15 +246,13 @@ class DiseaseAnnotationIntegrationSpec extends AbstractSpec {
         where:
         disease     | query                                             | resultSizeLowerLimit | resultSizeUpperLimit
         "DOID:9952" | ""                                                | 60                   | 80
-        "DOID:9952" | "filter.geneName=2"                               | 30                   | 40
+        "DOID:9952" | "filter.geneName=2"                               | 25                   | 40
         "DOID:9952" | "filter.disease=cell"                             | 10                   | 40
-        "DOID:9952" | "filter.geneticEntity=tm"                         | 0                    | 10
-        "DOID:9952" | "filter.geneticEntityType=allele"                 | 0                    | 10
-        "DOID:9952" | "filter.associationType=is_implicated_in"         | 10                   | 80
+        "DOID:9952" | "filter.associationType=is_implicated_in"         | 8                    | 80
         "DOID:9952" | "filter.associationType=implicated_via_orthology" | 40                   | 80
         "DOID:9952" | "filter.reference=PMID:1"                         | 0                    | 50
         "DOID:9952" | "filter.reference=MGI:6194"                       | 10                   | 70
-        "DOID:9952" | "filter.evidenceCode=author"                      | 10                   | 20
+        "DOID:9952" | "filter.evidenceCode=author"                      | 6                    | 20
         "DOID:9952" | "filter.source=gD"                                | 0                    | 10
         "DOID:9952" | "filter.source=aLLIANc"                           | 50                   | 70
         "DOID:9952" | "filter.species=Danio%20Rerio"                    | 10                   | 20

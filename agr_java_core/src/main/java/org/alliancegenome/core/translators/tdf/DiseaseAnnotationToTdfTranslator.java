@@ -1,16 +1,17 @@
 package org.alliancegenome.core.translators.tdf;
 
-import java.util.List;
-import java.util.Set;
-import java.util.StringJoiner;
-import java.util.stream.Collectors;
-
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.node.ECOTerm;
 import org.alliancegenome.neo4j.entity.node.Gene;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import java.util.List;
+import java.util.Set;
+import java.util.StringJoiner;
+import java.util.stream.Collectors;
 
 public class DiseaseAnnotationToTdfTranslator {
 
@@ -55,13 +56,17 @@ public class DiseaseAnnotationToTdfTranslator {
 
             // evidence code list
             StringJoiner evidenceJoiner = new StringJoiner(",");
-            Set<String> evidenceCodes = diseaseAnnotation.getEcoCodes()
-                    .stream()
-                    .map(ECOTerm::getPrimaryKey)
-                    .collect(Collectors.toSet());
+            if (CollectionUtils.isNotEmpty(diseaseAnnotation.getEcoCodes())) {
+                Set<String> evidenceCodes = diseaseAnnotation.getEcoCodes()
+                        .stream()
+                        .map(ECOTerm::getPrimaryKey)
+                        .collect(Collectors.toSet());
 
-            evidenceCodes.forEach(evidenceJoiner::add);
-            joiner.add(evidenceJoiner.toString());
+                evidenceCodes.forEach(evidenceJoiner::add);
+                joiner.add(evidenceJoiner.toString());
+            } else {
+                joiner.add("");
+            }
 
             List<Gene> orthologyGenes = diseaseAnnotation.getOrthologyGenes();
             if (orthologyGenes != null) {
@@ -114,7 +119,7 @@ public class DiseaseAnnotationToTdfTranslator {
             joiner.add(diseaseAnnotation.getDisease().getPrimaryKey());
             joiner.add(diseaseAnnotation.getDisease().getName());
             joiner.add(diseaseAnnotation.getGeneticEntityType());
-            if(diseaseAnnotation.getFeature() != null){
+            if (diseaseAnnotation.getFeature() != null) {
                 joiner.add(diseaseAnnotation.getFeature().getSymbolText());
                 joiner.add(diseaseAnnotation.getFeature().getPrimaryKey());
 
@@ -191,13 +196,17 @@ public class DiseaseAnnotationToTdfTranslator {
 
             // evidence code list
             StringJoiner evidenceJoiner = new StringJoiner(",");
-            Set<String> evidenceCodes = diseaseAnnotation.getEcoCodes()
-                    .stream()
-                    .map(ECOTerm::getPrimaryKey)
-                    .collect(Collectors.toSet());
+            if (diseaseAnnotation.getEcoCodes() != null) {
+                Set<String> evidenceCodes = diseaseAnnotation.getEcoCodes()
+                        .stream()
+                        .map(ECOTerm::getPrimaryKey)
+                        .collect(Collectors.toSet());
 
-            evidenceCodes.forEach(evidenceJoiner::add);
-            joiner.add(evidenceJoiner.toString());
+                evidenceCodes.forEach(evidenceJoiner::add);
+                joiner.add(evidenceJoiner.toString());
+            } else {
+                joiner.add("");
+            }
             //joiner.add(diseaseAnnotation.getSource().getName());
 
             // publications list

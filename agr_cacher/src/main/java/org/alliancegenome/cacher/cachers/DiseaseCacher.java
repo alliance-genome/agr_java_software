@@ -84,6 +84,12 @@ public class DiseaseCacher extends Cacher {
                     List<Publication> publicationList = diseaseEntityJoin.getPublicationEvidenceCodeJoin().stream()
                             .map(PublicationEvidenceCodeJoin::getPublication).sorted(Comparator.naturalOrder()).collect(Collectors.toList());
                     document.setPublications(publicationList.stream().distinct().collect(Collectors.toList()));
+
+                    List<ECOTerm> ecoList = diseaseEntityJoin.getPublicationEvidenceCodeJoin().stream()
+                            .filter(join -> CollectionUtils.isNotEmpty(join.getEcoCode()))
+                            .map(PublicationEvidenceCodeJoin::getEcoCode)
+                            .flatMap(Collection::stream).sorted(Comparator.naturalOrder()).collect(Collectors.toList());
+                    document.setEcoCodes(ecoList.stream().distinct().collect(Collectors.toList()));
                     // work around as I cannot figure out how to include the ECOTerm in the overall query without slowing down the performance.
 /*
                     List<ECOTerm> evidences = diseaseRepository.getEcoTerm(diseaseEntityJoin.getPublicationEvidenceCodeJoin());
