@@ -59,7 +59,7 @@ public class DiseaseIT {
         pagination.setSortBy("geneSymbol");
         pagination.setAsc(true);
         JsonResultResponse<DiseaseAnnotation> response = diseaseService.getDiseaseAnnotationsByDisease(diseaseID, pagination);
-        assertResponse(response, 10, 74);
+        assertLimitResponse(response, 10, 74);
     }
 
     @Test

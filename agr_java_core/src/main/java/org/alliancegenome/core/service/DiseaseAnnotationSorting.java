@@ -47,7 +47,11 @@ public class DiseaseAnnotationSorting implements Sorting<DiseaseAnnotation> {
             Comparator.comparing(annotation -> annotation.getDisease().getName().toLowerCase());
 
     private static Comparator<DiseaseAnnotation> speciesSymbolOrder =
-            Comparator.comparing(annotation -> annotation.getGene().getSpecies().getName());
+            Comparator.comparing(annotation -> {
+                if (annotation.getModel() != null)
+                    return annotation.getModel().getSpecies().getName().toLowerCase();
+                return annotation.getGene().getSpecies().getName().toLowerCase();
+            }, Comparator.nullsLast(naturalOrder()));
 
     private static Comparator<DiseaseAnnotation> associationTypeOrder =
             Comparator.comparing(DiseaseAnnotation::getAssociationType);
