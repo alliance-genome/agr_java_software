@@ -52,6 +52,9 @@ public class ModelIndexerRepository extends Neo4jRepository {
        log.info("Fetching model -> gene map");
        cache.setGenes(getGeneMap(species));
 
+       log.info("Fetching model -> phenotypeStatement map");
+       cache.setPhenotypeStatements(getPhenotypeStatementMap(species));
+
        return cache;
     }
 
@@ -75,6 +78,14 @@ public class ModelIndexerRepository extends Neo4jRepository {
         String query = "MATCH (species:Species)-[:FROM_SPECIES]-(model:AffectedGenomicModel)--(allele:Allele)--(gene:Gene)";
         query += getSpeciesWhere(species);
         query += " RETURN model.primaryKey as id, gene.symbolWithSpecies as value";
+
+        return getMapSetForQuery(query, getSpeciesParams(species));
+    }
+
+    public Map<String, Set<String>> getPhenotypeStatementMap(String species) {
+        String query = "MATCH (species:Species)-[:FROM_SPECIES]-(model:AffectedGenomicModel)--(phenotype:Phenotype) ";
+        query += getSpeciesWhere(species);
+        query += " RETURN model.primaryKey as id, phenotype.phenotypeStatement as value ";
 
         return getMapSetForQuery(query, getSpeciesParams(species));
     }
