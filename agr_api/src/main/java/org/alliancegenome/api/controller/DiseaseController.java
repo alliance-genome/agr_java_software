@@ -10,7 +10,6 @@ import org.alliancegenome.core.translators.tdf.DiseaseAnnotationToTdfTranslator;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
-import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
 import org.alliancegenome.neo4j.entity.node.DOTerm;
 import org.alliancegenome.neo4j.view.BaseFilter;
 import org.apache.logging.log4j.LogManager;
@@ -187,18 +186,18 @@ public class DiseaseController extends BaseController implements DiseaseRESTInte
     }
 
     @Override
-    public JsonResultResponse<PrimaryAnnotatedEntity> getDiseaseAnnotationsForModel(String id,
-                                                                                    int limit,
-                                                                                    int page,
-                                                                                    String sortBy,
-                                                                                    String modelName,
-                                                                                    String geneName,
-                                                                                    String species,
-                                                                                    String disease,
-                                                                                    String source,
-                                                                                    String reference,
-                                                                                    String evidenceCode,
-                                                                                    String asc) {
+    public JsonResultResponse<DiseaseAnnotation> getDiseaseAnnotationsForModel(String id,
+                                                                               int limit,
+                                                                               int page,
+                                                                               String sortBy,
+                                                                               String modelName,
+                                                                               String geneName,
+                                                                               String species,
+                                                                               String disease,
+                                                                               String source,
+                                                                               String reference,
+                                                                               String evidenceCode,
+                                                                               String asc) {
         long startTime = System.currentTimeMillis();
         Pagination pagination = new Pagination(page, limit, sortBy, asc);
         pagination.addFieldFilter(FieldFilter.GENE_NAME, geneName);
@@ -214,7 +213,7 @@ public class DiseaseController extends BaseController implements DiseaseRESTInte
             throw new RestErrorException(message);
         }
         try {
-            JsonResultResponse<PrimaryAnnotatedEntity> response = diseaseService.getDiseaseAnnotationsWithAGM(id, pagination);
+            JsonResultResponse<DiseaseAnnotation> response = diseaseService.getDiseaseAnnotationsWithAGM(id, pagination);
             response.setHttpServletRequest(request);
             response.calculateRequestDuration(startTime);
 
