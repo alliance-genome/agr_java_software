@@ -393,9 +393,9 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
                 "              p2=(diseaseEntityJoin:DiseaseEntityJoin)-[:EVIDENCE]->(pubEvCode:PublicationEvidenceCodeJoin)," +
                 "              p3=(publication:Publication)-[:ASSOCIATION]->(pubEvCode:PublicationEvidenceCodeJoin)";
         cypher += " where disease.isObsolete = 'false' ";
-        cypher += " AND disease.primaryKey in ['DOID:1838'] ";
+        //cypher += " AND disease.primaryKey in ['DOID:1838'] ";
         //cypher += " AND gene.primaryKey = 'ZFIN:ZDB-GENE-040426-1716' AND disease.primaryKey in ['DOID:1339'] ";
-        cypher += "      OPTIONAL MATCH eco   =(pubEvCode:PublicationEvidenceCodeJoin)-[:ASSOCIATION->(ecoTerm:ECOTerm)";
+        cypher += "      OPTIONAL MATCH eco   =(pubEvCode:PublicationEvidenceCodeJoin)-[:ASSOCIATION]->(ecoTerm:ECOTerm)";
         cypher += "      OPTIONAL MATCH p0    =(diseaseEntityJoin:DiseaseEntityJoin)<-[:ASSOCIATION]-(gene:Gene)--(species:Species)";
         cypher += "      OPTIONAL MATCH p1    =(diseaseEntityJoin:DiseaseEntityJoin)<-[:ASSOCIATION]-(feature:Feature)--(crossReference:CrossReference) ";
         cypher += "      OPTIONAL MATCH aModel=(diseaseEntityJoin:DiseaseEntityJoin)<-[:ASSOCIATION]-(model:AffectedGenomicModel)--(speciesModel:Species) ";

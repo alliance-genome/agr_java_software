@@ -9,10 +9,10 @@ import org.alliancegenome.api.controller.ExpressionController;
 import org.alliancegenome.api.controller.GeneController;
 import org.alliancegenome.api.controller.GenesController;
 import org.alliancegenome.api.controller.OrthologyController;
-import org.alliancegenome.api.service.GeneService;
 import org.alliancegenome.api.entity.ExpressionSummary;
 import org.alliancegenome.api.entity.ExpressionSummaryGroup;
 import org.alliancegenome.api.entity.ExpressionSummaryGroupTerm;
+import org.alliancegenome.api.service.GeneService;
 import org.alliancegenome.core.ExpressionDetail;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.service.JsonResultResponse;
@@ -190,8 +190,7 @@ public class GeneIT {
         GenesController controller = new GenesController();
         String[] taxonIDs = {"danio"};
         String responseString = controller.getGeneIDs(Arrays.asList(taxonIDs), 5, 1);
-        assertThat("matches found for gene MGI:109583'", responseString,
-                equalTo("ZFIN:ZDB-GENE-990706-1,ZFIN:ZDB-GENE-000710-5,ZFIN:ZDB-GENE-030516-5,ZFIN:ZDB-GENE-030131-8698,ZFIN:ZDB-GENE-030131-8358"));
+        assertThat("matches found for gene MGI:109583'", responseString.split(",").length, equalTo(5));
     }
 
     @Test
