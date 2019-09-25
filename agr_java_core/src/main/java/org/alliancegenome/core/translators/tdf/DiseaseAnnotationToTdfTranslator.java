@@ -99,7 +99,7 @@ public class DiseaseAnnotationToTdfTranslator {
             StringJoiner joiner = new StringJoiner("\t");
             joiner.add(diseaseAnnotation.getModel().getPrimaryKey());
             joiner.add(diseaseAnnotation.getModel().getNameText());
-            joiner.add(diseaseAnnotation.getModel().getSpecies().getSpecies());
+            joiner.add(diseaseAnnotation.getModel().getSpecies().getName());
             joiner.add(diseaseAnnotation.getDisease().getPrimaryKey());
             joiner.add(diseaseAnnotation.getDisease().getName());
 
