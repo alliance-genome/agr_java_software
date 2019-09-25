@@ -3,6 +3,7 @@ package org.alliancegenome.api.controller;
 import org.alliancegenome.api.rest.interfaces.DiseaseRESTInterface;
 import org.alliancegenome.api.service.APIService;
 import org.alliancegenome.api.service.DiseaseService;
+import org.alliancegenome.api.service.EntityType;
 import org.alliancegenome.core.exceptions.RestErrorException;
 import org.alliancegenome.core.exceptions.RestErrorMessage;
 import org.alliancegenome.core.service.JsonResultResponse;
@@ -103,8 +104,8 @@ public class DiseaseController extends BaseController implements DiseaseRESTInte
 
     @Override
     public JsonResultResponse<DiseaseAnnotation> getDiseaseAnnotationsByAllele(String id,
-                                                                               int limit,
-                                                                               int page,
+                                                                               Integer limit,
+                                                                               Integer page,
                                                                                String sortBy,
                                                                                String geneName,
                                                                                String alleleName,
@@ -145,9 +146,69 @@ public class DiseaseController extends BaseController implements DiseaseRESTInte
     }
 
     @Override
+    public Response getDiseaseAnnotationsByAlleleDownload(String id,
+                                                          String sortBy,
+                                                          String geneName,
+                                                          String alleleName,
+                                                          String species,
+                                                          String disease,
+                                                          String source,
+                                                          String reference,
+                                                          String evidenceCode,
+                                                          String associationType,
+                                                          String asc) {
+
+        JsonResultResponse<DiseaseAnnotation> response = getDiseaseAnnotationsByAllele(id,
+                null,
+                null,
+                sortBy,
+                geneName,
+                alleleName,
+                species,
+                disease,
+                source,
+                reference,
+                evidenceCode,
+                associationType,
+                asc);
+        Response.ResponseBuilder responseBuilder = Response.ok(translator.getAllRowsForAllele(response.getResults()));
+        APIService.setDownloadHeader(id, EntityType.GENE, EntityType.PHENOTYPE, responseBuilder);
+        return responseBuilder.build();
+    }
+
+    @Override
+    public Response getDiseaseAnnotationsByGeneDownload(String id,
+                                                        String sortBy,
+                                                        String geneName,
+                                                        String species,
+                                                        String disease,
+                                                        String source,
+                                                        String reference,
+                                                        String evidenceCode,
+                                                        String associationType,
+                                                        String asc) {
+        JsonResultResponse<DiseaseAnnotation> response = getDiseaseAnnotationsByGene(id,
+                null,
+                null,
+                sortBy,
+                geneName,
+                species,
+                disease,
+                source,
+                reference,
+                evidenceCode,
+                associationType,
+                asc);
+        Response.ResponseBuilder responseBuilder = Response.ok(translator.getAllRows(response.getResults()));
+        APIService.setDownloadHeader(id, EntityType.GENE, EntityType.PHENOTYPE, responseBuilder);
+        return responseBuilder.build();
+
+    }
+
+    @Override
     public JsonResultResponse<DiseaseAnnotation> getDiseaseAnnotationsByGene(String id,
-                                                                             int limit,
-                                                                             int page,
+                                                                             Integer limit,
+                                                                             Integer page,
                                                                              String sortBy,
                                                                              String geneName,
                                                                              String species,
@@ -187,8 +248,8 @@ public class DiseaseController extends BaseController implements DiseaseRESTInte
 
     @Override
     public JsonResultResponse<DiseaseAnnotation> getDiseaseAnnotationsForModel(String id,
-                                                                               int limit,
-                                                                               int page,
+                                                                               Integer limit,
+                                                                               Integer page,
                                                                                String sortBy,
                                                                                String modelName,
                                                                                String geneName,
@@ -224,6 +285,34 @@ public class DiseaseController extends BaseController implements DiseaseRESTInte
             error.addErrorMessage(e.getMessage());
             throw new RestErrorException(error);
         }
+    }
+
+    @Override
+    public Response getDiseaseAnnotationsForModelDownload(String id,
+                                                          String sortBy,
+                                                          String modelName,
+                                                          String geneName,
+                                                          String species,
+                                                          String disease,
+                                                          String source,
+                                                          String reference,
+                                                          String evidenceCode,
+                                                          String asc) {
+        JsonResultResponse<DiseaseAnnotation> response = getDiseaseAnnotationsForModel(id,
+                null,
+                null,
+                sortBy,
+                modelName,
+                geneName,
+                species,
+                disease,
+                source,
+                reference,
+                evidenceCode,
+                asc);
+        Response.ResponseBuilder responseBuilder = Response.ok(translator.getAllRowsForModel(response.getResults()));
+        APIService.setDownloadHeader(id, EntityType.GENE, EntityType.PHENOTYPE, responseBuilder);
+        return responseBuilder.build();
     }
 
     @Override

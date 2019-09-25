@@ -77,7 +77,7 @@ class DiseaseAnnotationIntegrationSpec extends AbstractSpec {
     def "Disease page - Annotations for #doid"() {
         when:
         def encodedQuery = URLEncoder.encode(doid, "UTF-8")
-        def retObj = getApiMetaData("/api/disease/$encodedQuery/associations?limit=50")
+        def retObj = getApiMetaData("/api/disease/$encodedQuery/genes?limit=50")
         def results = retObj.results
         def ezha = results.find { it.gene.symbol == 'Ezh2' && it.allele }
 
@@ -222,14 +222,14 @@ class DiseaseAnnotationIntegrationSpec extends AbstractSpec {
     @Unroll
     def "Verify that the downloads endpoint have results"() {
         when:
-        def output = getApiResultRaw("/api/disease/DOID:9952/associations/download?limit=10")
+        def output = getApiResultRaw("/api/disease/DOID:9952/genes/download?limit=10")
         def results = output.split('\n')
 
         def outputExperiment = getApiResultRaw("/api/gene/MGI:109583/diseases-by-experiment/download?page=1&limit=100&sortBy=disease")
         def resultsExperiment = outputExperiment.split('\n')
 
         then:
-        results.size() > 70
+        results.size() >= 21
         resultsExperiment.size() > 48
 
     }
