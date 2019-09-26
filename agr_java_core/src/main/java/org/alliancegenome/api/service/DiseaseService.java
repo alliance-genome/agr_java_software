@@ -44,6 +44,10 @@ public class DiseaseService {
         return new ArrayList<>(Arrays.asList("DOID:0080015", "DOID:0014667", "DOID:150", "DOID:225"));
     }
 
+    public static List<String> getAllOtherDiseaseTerms() {
+        return new ArrayList<>(Arrays.asList("DOID:0080015", "DOID:0014667", "DOID:150", "DOID:225"));
+    }
+
     public DOTerm getById(String id) {
         return diseaseRepository.getDiseaseTerm(id);
     }
@@ -261,7 +265,7 @@ public class DiseaseService {
         if (paginationResult.getResult() == null)
             return histogram;
         paginationResult.getResult().forEach(annotation -> {
-            Set<String> slimIds = diseaseRibbonService.getSlimId(annotation.getDisease().getPrimaryKey());
+            Set<String> slimIds = diseaseRibbonService.getSlimIds(annotation.getDisease().getPrimaryKey());
             slimIds.forEach(slimId -> {
                 List<DiseaseAnnotation> list = histogram.get(slimId);
                 if (list == null)

@@ -118,26 +118,26 @@ public class DiseaseRibbonService {
         return diseaseRibbonSummary;
     }
 
-    public Set<String> getSlimId(String doID) {
+    public Set<String> getSlimIds(String doID) {
         //Map<String, Set<String>> closureMapping = diseaseRepository.getClosureChildToParentsMapping();
         List<DOTerm> doList = diseaseRepository.getAgrDoSlim();
         Set<String> partOfSlimList = new HashSet<>(3);
-        List<String> slimFoundList = new ArrayList<>();
         doList.forEach(doTerm -> {
             final String slimDoID = doTerm.getPrimaryKey();
             if (diseaseRepository.getChildren(doID).contains(slimDoID)) {
                 partOfSlimList.add(slimDoID);
-                slimFoundList.add(slimDoID);
             }
         });
-
-        boolean parentFound = slimParentTermIdMap.keySet().stream()
+        slimParentTermIdMap.keySet().stream()
                 .filter(id -> diseaseRepository.getChildren(doID).contains(id))
-                .peek(partOfSlimList::add)
-                .anyMatch(Objects::nonNull);
-        if (!parentFound) {
-            partOfSlimList.add(getDiseaseRibbonSectionInfo().getOtherSection().getId());
-        }
+                .forEach(partOfSlimList::add);
+        // check for parents of 'All Other Diseases' group. That high-level term does not exist in DO and
+        // consists of the sum of four other individual high-level terms.
+        DiseaseService.getAllOtherDiseaseTerms()
+                .forEach(rootTermID -> {
+                    if (diseaseRepository.getChildren(doID).contains(rootTermID))
+                        partOfSlimList.add(DOID_OTHER);
+                });
         return partOfSlimList;
     }
 

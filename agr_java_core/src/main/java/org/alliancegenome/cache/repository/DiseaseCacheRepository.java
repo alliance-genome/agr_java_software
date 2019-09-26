@@ -2,6 +2,8 @@ package org.alliancegenome.cache.repository;
 
 import com.fasterxml.jackson.databind.type.CollectionType;
 import lombok.extern.log4j.Log4j2;
+import org.alliancegenome.api.entity.DiseaseRibbonSummary;
+import org.alliancegenome.api.service.DiseaseService;
 import org.alliancegenome.api.service.FilterService;
 import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.cache.manager.BasicCacheManager;
@@ -17,10 +19,7 @@ import org.alliancegenome.neo4j.view.View;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static java.util.stream.Collectors.toList;
 
@@ -68,11 +67,24 @@ public class DiseaseCacheRepository {
                 }
         );
         // filter by slim ID
-        List<DiseaseAnnotation> slimDiseaseAnnotationList = fullDiseaseAnnotationList;
+        List<DiseaseAnnotation> slimDiseaseAnnotationList = new ArrayList<>();
         if (StringUtils.isNotEmpty(diseaseSlimID)) {
-            slimDiseaseAnnotationList = fullDiseaseAnnotationList.stream()
-                    .filter(diseaseAnnotation -> diseaseAnnotation.getParentIDs().contains(diseaseSlimID))
-                    .collect(toList());
+            if (!diseaseSlimID.equals(DiseaseRibbonSummary.DOID_OTHER)) {
+                slimDiseaseAnnotationList = fullDiseaseAnnotationList.stream()
+                        .filter(diseaseAnnotation -> diseaseAnnotation.getParentIDs().contains(diseaseSlimID))
+                        .collect(toList());
+            } else {
+                // loop over all Other root terms and check
+                slimDiseaseAnnotationList.addAll(DiseaseService.getAllOtherDiseaseTerms().stream()
+                        .map(termID -> fullDiseaseAnnotationList.stream()
+                                .filter(diseaseAnnotation -> diseaseAnnotation.getParentIDs().contains(diseaseSlimID))
+                                .collect(toList()))
+                        .flatMap(Collection::stream)
+                        .collect(toList()));
+            }
+
+        } else {
+            slimDiseaseAnnotationList = fullDiseaseAnnotationList;
         }
 
         //filtering

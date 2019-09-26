@@ -576,7 +576,7 @@ public class DiseaseIT {
     @Test
     // Test Sox9 from MGI for disease via experiment records
     public void checkDiseaseRibbonHeader() {
-        DiseaseRibbonSummary summary = diseaseService.getDiseaseRibbonSummary(Collections.singletonList("MGI:109583"));
+        DiseaseRibbonSummary summary = diseaseService.getDiseaseRibbonSummary(Collections.singletonList("MGI:98297"));
         assertNotNull(summary);
     }
 
