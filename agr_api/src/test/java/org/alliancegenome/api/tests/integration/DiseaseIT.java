@@ -21,7 +21,6 @@ import org.alliancegenome.neo4j.entity.node.DOTerm;
 import org.alliancegenome.neo4j.entity.node.Publication;
 import org.alliancegenome.neo4j.entity.node.Synonym;
 import org.alliancegenome.neo4j.view.OrthologyModule;
-import org.alliancegenome.neo4j.view.View;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -90,6 +89,15 @@ public class DiseaseIT {
     }
 
     @Test
+    public void checkGetDiseaseAnnotationsWithAGMAndGene() {
+        Pagination pagination = new Pagination(1, 100, null, null);
+        // Menkes
+        String geneID = "ZFIN:ZDB-GENE-060825-45";
+        JsonResultResponse<PrimaryAnnotatedEntity> response = diseaseService.getDiseaseAnnotationsWithGeneAndAGM(geneID, pagination);
+        assertLimitResponse(response, 3, 4);
+    }
+
+    @Test
     public void checkGetGeneDiseaseTable() {
         Pagination pagination = new Pagination(1, 100, null, null);
         // Menkes
@@ -106,6 +114,7 @@ public class DiseaseIT {
         JsonResultResponse<DiseaseAnnotation> response = diseaseService.getDiseaseAnnotationsByDisease(diseaseID, pagination);
         assertLimitResponse(response, 35, 35);
     }
+
     @Test
     public void checkDiseaseAssociationByDisease() {
         Pagination pagination = new Pagination(1, 100, null, null);
