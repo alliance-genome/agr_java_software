@@ -238,7 +238,7 @@ public class GeneController extends BaseController implements GeneRESTInterface 
     }
 
     @Override
-    public JsonResultResponse<DiseaseAnnotation> getPrimaryAnnotatedEntityForModel(String id,
+    public JsonResultResponse<PrimaryAnnotatedEntity> getPrimaryAnnotatedEntityForModel(String id,
                                                                                         int limit,
                                                                                         int page,
                                                                                         String sortBy,
@@ -259,7 +259,7 @@ public class GeneController extends BaseController implements GeneRESTInterface 
             throw new RestErrorException(message);
         }
         try {
-            JsonResultResponse<DiseaseAnnotation> response = diseaseService.getDiseaseAnnotationsWithAGM(id, pagination);
+            JsonResultResponse<PrimaryAnnotatedEntity> response = diseaseService.getDiseaseAnnotationsWithGeneAndAGM(id, pagination);
             response.setHttpServletRequest(request);
             response.calculateRequestDuration(startTime);
 

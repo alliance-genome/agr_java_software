@@ -8,10 +8,7 @@ import io.swagger.annotations.ApiParam;
 import org.alliancegenome.api.entity.DiseaseRibbonSummary;
 import org.alliancegenome.api.entity.ExpressionSummary;
 import org.alliancegenome.core.service.JsonResultResponse;
-import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
-import org.alliancegenome.neo4j.entity.DiseaseSummary;
-import org.alliancegenome.neo4j.entity.EntitySummary;
-import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
+import org.alliancegenome.neo4j.entity.*;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
@@ -149,7 +146,7 @@ public interface GeneRESTInterface {
     @Path("/{id}/models")
     @JsonView(value = {View.DiseaseAnnotationSummary.class})
     @ApiOperation(value = "Retrieve all DiseaseAnnotation records for a given disease id")
-    JsonResultResponse<DiseaseAnnotation> getPrimaryAnnotatedEntityForModel(
+    JsonResultResponse<PrimaryAnnotatedEntity> getPrimaryAnnotatedEntityForModel(
             @ApiParam(name = "id", value = "gene ID: e.g. MGI:109583", required = true, type = "String")
             @PathParam("id") String id,
             @ApiParam(name = "limit", value = "Number of rows returned", defaultValue = "20")
