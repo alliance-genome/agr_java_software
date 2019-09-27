@@ -79,7 +79,7 @@ public class ExpressionCacher extends Cacher {
                     if (expressionJoin.getStageTerm() != null) {
                         String stageID = expressionJoin.getStageTerm().getPrimaryKey();
                         detail.addTermID(stageID);
-                        //detail.addTermIDs(getParentTermIDs(stageID));
+                        detail.addTermIDs(getParentTermIDs(Collections.singletonList(stageID)));
                     }
                     progressProcess();
                     return detail;
@@ -117,13 +117,13 @@ public class ExpressionCacher extends Cacher {
 
     }
 
-    private Set<String> getParentTermIDs(List<String> aoList) {
-        if (aoList == null || aoList.isEmpty())
+    private Set<String> getParentTermIDs(List<String> idList) {
+        if (idList == null || idList.isEmpty())
             return null;
         DiseaseRepository repository = new DiseaseRepository();
         Set<String> parentSet = new HashSet<>(4);
         Map<String, Set<String>> map = repository.getClosureMappingUberon();
-        aoList.forEach(id -> {
+        idList.forEach(id -> {
             parentTermIDs.forEach(parentTermID -> {
                 if (map.get(parentTermID) != null && map.get(parentTermID).contains(id))
                     parentSet.add(parentTermID);

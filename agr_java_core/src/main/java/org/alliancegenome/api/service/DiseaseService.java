@@ -79,7 +79,7 @@ public class DiseaseService {
         //filtering
         FilterService<DiseaseAnnotation> filterService = new FilterService<>(new DiseaseAnnotationFiltering());
         List<DiseaseAnnotation> filteredDiseaseAnnotationList = filterService.filterAnnotations(alleleDiseaseAnnotations, pagination.getFieldFilterValueMap());
-        result.setTotal(alleleDiseaseAnnotations.size());
+        result.setTotal(filteredDiseaseAnnotationList.size());
         result.setResults(filterService.getSortedAndPaginatedAnnotations(pagination, filteredDiseaseAnnotationList, new DiseaseAnnotationSorting()));
         return result;
     }
