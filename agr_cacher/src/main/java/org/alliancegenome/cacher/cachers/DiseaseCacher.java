@@ -95,7 +95,7 @@ public class DiseaseCacher extends Cacher {
                     List<ECOTerm> evidences = diseaseRepository.getEcoTerm(diseaseEntityJoin.getPublicationEvidenceCodeJoin());
                     document.setEcoCodes(evidences);
 */
-                    Set<String> slimId = diseaseRibbonService.getSlimIds(diseaseEntityJoin.getDisease().getPrimaryKey());
+                    Set<String> slimId = diseaseRibbonService.getAllParentIDs(diseaseEntityJoin.getDisease().getPrimaryKey());
                     document.setParentIDs(slimId);
                     progressProcess();
                     return document;
