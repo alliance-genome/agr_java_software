@@ -70,7 +70,7 @@ public class ModelAnnotationsSorting implements Sorting<DiseaseAnnotation> {
             return getJoinedComparator(defaultList);
 
         switch (field) {
-            case MODEL_NAME:
+            case MODEL:
                 return getJoinedComparator(modelList);
             case SPECIES:
                 return getJoinedComparator(speciesList);
