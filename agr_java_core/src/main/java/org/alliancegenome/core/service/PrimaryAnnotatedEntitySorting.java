@@ -65,7 +65,7 @@ public class PrimaryAnnotatedEntitySorting implements Sorting<PrimaryAnnotatedEn
             return getJoinedComparator(defaultList);
 
         switch (field) {
-            case MODEL_NAME:
+            case MODEL:
                 return getJoinedComparator(modelList);
             case SPECIES:
                 return getJoinedComparator(speciesList);

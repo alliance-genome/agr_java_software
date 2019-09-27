@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import lombok.Setter;
+import org.alliancegenome.cache.repository.DiseaseCacheRepository;
+import org.alliancegenome.cache.repository.ExpressionCacheRepository;
 import org.alliancegenome.cache.repository.GeneCacheRepository;
 import org.alliancegenome.es.index.site.doclet.OrthologyDoclet;
 import org.alliancegenome.neo4j.entity.node.Gene;
@@ -16,10 +18,7 @@ import org.alliancegenome.neo4j.view.OrthologyFilter;
 import org.alliancegenome.neo4j.view.OrthologyModule;
 import org.alliancegenome.neo4j.view.View;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class OrthologyService {
@@ -165,6 +164,9 @@ public class OrthologyService {
         return response;
     }
 
+    private static ExpressionCacheRepository expressionCacheRepository = new ExpressionCacheRepository();
+    private static DiseaseCacheRepository diseaseCacheRepository = new DiseaseCacheRepository();
+
     public static JsonResultResponse<OrthologView> getOrthologyMultiGeneJson(List<String> geneIDs, OrthologyFilter filter) {
         GeneCacheRepository repo = new GeneCacheRepository();
         List<OrthologView> orthologViewList = repo.getAllOrthologyGenes(geneIDs);
@@ -177,10 +179,27 @@ public class OrthologyService {
                 .skip(filter.getStart() - 1)
                 .limit(filter.getRows())
                 .collect(Collectors.toList());
+
+        // <geneID, Map<variableName,variableValue>>
+        Map<String, Object> map = new HashMap<>();
+
+        orthologViewFiltered.forEach(orthologView -> {
+            putGeneInfo(map, orthologView.getGene());
+            putGeneInfo(map, orthologView.getHomologGene());
+        });
         JsonResultResponse<OrthologView> response = new JsonResultResponse<>();
         response.setResults(orthologViewFiltered);
         response.setTotal(orthologViewList.size());
+        response.setSupplementalData(map);
         return response;
+    }
+
+    private static void putGeneInfo(Map<String, Object> map, Gene gene) {
+        Map<String, Object> data = new HashMap<>();
+        data.put("taxonID", gene.getTaxonId());
+        data.put("hasExpressionAnnotations", expressionCacheRepository.hasExpression(gene.getPrimaryKey()));
+        data.put("hasDiseaseAnnotations", diseaseCacheRepository.hasDiseaseAnnotations(gene.getPrimaryKey()));
+        map.put(gene.getPrimaryKey(), data);
     }
 
     public static JsonResultResponse<OrthologView> getOrthologyGenes(List<String> geneIDList, OrthologyFilter filter) {

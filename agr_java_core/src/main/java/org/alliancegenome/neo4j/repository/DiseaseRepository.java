@@ -368,10 +368,10 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
         return null;
     }
 
-    public Set<String> getChildren(String doID) {
+    public Set<String> getParentTermIDs(String doID) {
         DiseaseCacheRepository cacheRepository = new DiseaseCacheRepository();
 /*
-        List<String> cacheValue = cacheRepository.getChildren(doID);
+        List<String> cacheValue = cacheRepository.getParentTermIDs(doID);
         if (cacheValue != null) {
             return new HashSet<>(cacheValue);
         }

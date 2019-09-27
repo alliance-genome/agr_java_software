@@ -265,13 +265,13 @@ public class DiseaseService {
         if (paginationResult.getResult() == null)
             return histogram;
         paginationResult.getResult().forEach(annotation -> {
-            Set<String> slimIds = diseaseRibbonService.getSlimIds(annotation.getDisease().getPrimaryKey());
-            slimIds.forEach(slimId -> {
-                List<DiseaseAnnotation> list = histogram.get(slimId);
+            Set<String> parentIDs = diseaseRibbonService.getAllParentIDs(annotation.getDisease().getPrimaryKey());
+            parentIDs.forEach(parentID -> {
+                List<DiseaseAnnotation> list = histogram.get(parentID);
                 if (list == null)
                     list = new ArrayList<>();
                 list.add(annotation);
-                histogram.put(slimId, list);
+                histogram.put(parentID, list);
             });
         });
         return histogram;
