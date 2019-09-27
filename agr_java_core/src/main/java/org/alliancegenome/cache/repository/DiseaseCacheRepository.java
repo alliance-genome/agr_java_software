@@ -8,6 +8,7 @@ import org.alliancegenome.api.service.FilterService;
 import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.cache.manager.BasicCacheManager;
 import org.alliancegenome.cache.manager.DiseaseAllianceCacheManager;
+import org.alliancegenome.cache.manager.ExpressionAllianceCacheManager;
 import org.alliancegenome.core.service.DiseaseAnnotationFiltering;
 import org.alliancegenome.core.service.DiseaseAnnotationSorting;
 import org.alliancegenome.core.service.PaginationResult;
@@ -16,6 +17,7 @@ import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.node.ECOTerm;
 import org.alliancegenome.neo4j.entity.node.PublicationEvidenceCodeJoin;
 import org.alliancegenome.neo4j.view.View;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
@@ -153,5 +155,11 @@ public class DiseaseCacheRepository {
             throw new RuntimeException(e);
         }
         return list;
+    }
+
+    private DiseaseAllianceCacheManager manager = new DiseaseAllianceCacheManager();
+
+    public boolean hasDiseaseAnnotations(String geneID) {
+        return CollectionUtils.isNotEmpty(manager.getDiseaseAnnotations(geneID, View.DiseaseAnnotation.class));
     }
 }
