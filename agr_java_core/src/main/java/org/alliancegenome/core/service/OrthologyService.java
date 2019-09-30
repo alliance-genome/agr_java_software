@@ -196,7 +196,7 @@ public class OrthologyService {
 
     private static void putGeneInfo(Map<String, Object> map, Gene gene) {
         Map<String, Object> data = new HashMap<>();
-        data.put("taxonID", gene.getTaxonId());
+        data.put("taxonId", gene.getTaxonId());
         data.put("hasExpressionAnnotations", expressionCacheRepository.hasExpression(gene.getPrimaryKey()));
         data.put("hasDiseaseAnnotations", diseaseCacheRepository.hasDiseaseAnnotations(gene.getPrimaryKey()));
         map.put(gene.getPrimaryKey(), data);
