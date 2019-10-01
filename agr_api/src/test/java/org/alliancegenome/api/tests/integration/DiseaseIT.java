@@ -424,7 +424,7 @@ public class DiseaseIT {
                 "intestinal pseudo-obstruction\tMGI:2156086\tPten<sup>tm1Hwu</sup>\tallele\tis_implicated_in\tECO:0000033\tPMID:19884655\n" +
                 "persistent fetal circulation syndrome\tMGI:2156086\tPten<sup>tm1Hwu</sup>\tallele\tis_implicated_in\tECO:0000033\tPMID:23023706\n" +
                 "prostate cancer\tMGI:2156086\tPten<sup>tm1Hwu</sup>\tallele\tis_implicated_in\tECO:0000033\tPMID:14522255,PMID:16489020,PMID:21620777,PMID:22350410,PMID:22836754,PMID:23300485,PMID:23348745,PMID:23434594,PMID:23610450,PMID:25455686,PMID:25526087,PMID:25693195,PMID:25948589,PMID:26640144,PMID:27345403,PMID:27357679,PMID:28059767,PMID:28515147,PMID:29720449\n" +
-                "thyroid gland follicular carcinoma	MGI:2156086	Pten<sup>tm1Hwu</sup>	allele	is_implicated_in	ECO:0000033	PMID:22167068\n" +
+                "thyroid gland follicular carcinoma MGI:2156086 Pten<sup>tm1Hwu</sup>   allele  is_implicated_in    ECO:0000033 PMID:22167068\n" +
                 "urinary bladder cancer\tMGI:2156086\tPten<sup>tm1Hwu</sup>\tallele\tis_implicated_in\tECO:0000033\tPMID:19261747,PMID:25533675\n";
         assertEquals(result, output);
     }
