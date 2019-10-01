@@ -10,10 +10,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.neo4j.ogm.model.Result;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Serializable;
+import java.io.*;
 import java.net.URL;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -533,23 +530,48 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         return stageList;
     }
 
-    public Map<String, String> getFullAoList() {
-        String cypher = "match p=(uber:UBERONTerm)-[:ANATOMICAL_RIBBON_TERM]-(:ExpressionBioEntity) return distinct uber";
+    private LinkedHashMap<String, String> aoOrderList;
+    private Map<String, Integer> aoOrderedPositionList;
 
-        Iterable<UBERONTerm> terms = query(UBERONTerm.class, cypher);
-        String alwaysLast = "other";
-        Map<String, String> map = StreamSupport.stream(terms.spliterator(), false)
-                .sorted((o1, o2) -> {
-                    if (o1.getName().equalsIgnoreCase(alwaysLast)) {
-                        return 1;
-                    }
-                    if (o2.getName().equalsIgnoreCase(alwaysLast)) {
-                        return -1;
-                    }
-                    return o1.getName().compareTo(o2.getName());
-                })
-                .collect(Collectors.toMap(UBERONTerm::getPrimaryKey, UBERONTerm::getName, (x, y) -> x + ", " + y, LinkedHashMap::new));
-        return map;
+    public LinkedHashMap<String, String> getOrderAoTermList() {
+        if (aoOrderList != null)
+            return aoOrderList;
+        LinkedHashMap<String, String> aoTermList = new LinkedHashMap<>();
+        InputStream in = null;
+        BufferedReader reader = null;
+        try {
+            String str = null;
+            in = this.getClass().getClassLoader().getResourceAsStream("anatomy-term-order.csv");
+            if (in != null) {
+                reader = new BufferedReader(new InputStreamReader(in));
+                while ((str = reader.readLine()) != null) {
+                    String[] token = str.split("\t");
+                    aoTermList.put(token[0], token[1]);
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                in.close();
+                reader.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return aoTermList;
+    }
+
+    private Map<String, Integer> getOrderedAoTermList() {
+        if (aoOrderedPositionList != null)
+            return aoOrderedPositionList;
+        aoOrderedPositionList = new HashMap<>();
+        int index = 0;
+        final LinkedHashMap<String, String> orderAoTermList = getOrderAoTermList();
+        for (String id : orderAoTermList.keySet()) {
+            aoOrderedPositionList.put(id, index++);
+        }
+        return aoOrderedPositionList;
     }
 
     public List<UBERONTerm> getFullAoTermList() {
@@ -558,15 +580,7 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         Iterable<UBERONTerm> terms = query(UBERONTerm.class, cypher);
         String alwaysLast = "other";
         List<UBERONTerm> map = StreamSupport.stream(terms.spliterator(), false)
-                .sorted((o1, o2) -> {
-                    if (o1.getName().equalsIgnoreCase(alwaysLast)) {
-                        return 1;
-                    }
-                    if (o2.getName().equalsIgnoreCase(alwaysLast)) {
-                        return -1;
-                    }
-                    return o1.getName().compareTo(o2.getName());
-                })
+                .sorted(Comparator.comparing(o -> getOrderedAoTermList().get(o.getPrimaryKey())))
                 .collect(Collectors.toList());
         return map;
     }
@@ -619,11 +633,11 @@ public class GeneRepository extends Neo4jRepository<Gene> {
     public List<BioEntityGeneExpressionJoin> getAllExpressionAnnotations() {
         //String cypher = " MATCH p1=(q:Species)<-[:FROM_SPECIES]-(gene:Gene)-->(s:BioEntityGeneExpressionJoin)--(t), " +
         //      " entity = (s:BioEntityGeneExpressionJoin)--(exp:ExpressionBioEntity)--(o:Ontology) ";
-        
+
         String cypher = "MATCH p1=(q:Species)<-[:FROM_SPECIES]-(gene:Gene)-[:ASSOCIATION]->(s:BioEntityGeneExpressionJoin)--(t), "
                 + "entity = (s:BioEntityGeneExpressionJoin)<-[:ASSOCIATION]-(exp:ExpressionBioEntity)-->(o:Ontology) "
                 + "WHERE (o:GOTerm OR o:UBERONTerm ) ";
-        
+
         //cypher += " AND gene.primaryKey in ['MGI:109583','ZFIN:ZDB-GENE-980526-166','RGD:61995','ZFIN:ZDB-GENE-030131-3776', 'ZFIN:ZDB-GENE-030616-47','FB:FBgn0026379','WB:WBGene00000913','SGD:S000005072'] ";
         //cypher += "  where gene.primaryKey = 'RGD:2129' ";
         //cypher += "OPTIONAL MATCH crossReference = (s:BioEntityGeneExpressionJoin)--(crossRef:CrossReference) ";
