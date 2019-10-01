@@ -1,9 +1,12 @@
 package org.alliancegenome.core.config;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Properties;
 import java.util.Set;
 
@@ -21,6 +24,38 @@ public class ConfigHelper {
     private static Set<String> allKeys;
     private static boolean init = false;
 
+    
+    public static final String THREADED = "THREADED";
+    public static final String API_ACCESS_TOKEN = "API_ACCESS_TOKEN";
+    public static final String DEBUG = "DEBUG";
+    public static final String GENERATE_SITEMAP = "GENERATE_SITEMAP";
+    public static final String ES_INDEX = "ES_INDEX";
+    public static final String ES_INDEX_SUFFIX = "ES_INDEX_SUFFIX";
+    public static final String ES_DATA_INDEX = "ES_DATA_INDEX";
+    public static final String ES_HOST = "ES_HOST";
+    public static final String ES_PORT = "ES_PORT";
+    
+    public static final String KEEPINDEX = "KEEPINDEX";
+    public static final String SPECIES = "SPECIES";
+    
+    public static final String API_HOST = "API_HOST";
+    public static final String API_PORT = "API_PORT";
+    public static final String API_SECURE = "API_SECURE";
+    
+    public static final String CACHE_HOST = "CACHE_HOST";
+    public static final String CACHE_PORT = "CACHE_PORT";
+    
+    public static final String NEO4J_HOST = "NEO4J_HOST";
+    public static final String NEO4J_PORT = "NEO4J_PORT";
+    
+    public static final String AWS_ACCESS_KEY = "AWS_ACCESS_KEY";
+    public static final String AWS_SECRET_KEY = "AWS_SECRET_KEY";
+    public static final String AWS_BUCKET_NAME = "AWS_BUCKET_NAME";
+    
+    public static final String AO_TERM_LIST = "AO_TERM_LIST";
+    public static final String GO_TERM_LIST = "GO_TERM_LIST";
+    
+    
     public ConfigHelper() {
         init();
     }
@@ -36,34 +71,37 @@ public class ConfigHelper {
          * The names and values need to not be changed as other things might depend on the defaulted values for executing. For each
          * key in the defaults map there should be a corresponding get method for that value.
          */
-        defaults.put("THREADED", "true"); // Indexer Value
-        defaults.put("API_ACCESS_TOKEN", "api_access_token"); // Api Value
+        defaults.put(THREADED, "true"); // Indexer Value
+        defaults.put(API_ACCESS_TOKEN, "api_access_token"); // Api Value
         
-        defaults.put("DEBUG", "false");
-        defaults.put("GENERATE_SITEMAP", "false"); // This will only be done in Production speeds up api startup
+        defaults.put(DEBUG, "false");
+        defaults.put(GENERATE_SITEMAP, "false"); // This will only be done in Production speeds up api startup
         
-        defaults.put("ES_INDEX", "site_index"); // Can be over written
-        defaults.put("ES_INDEX_SUFFIX", ""); // Prod, Dev, Stage, etc
-        defaults.put("ES_DATA_INDEX", "data_index");
-        defaults.put("ES_HOST", "localhost");
-        defaults.put("ES_PORT", "9300");
+        defaults.put(ES_INDEX, "site_index"); // Can be over written
+        defaults.put(ES_INDEX_SUFFIX, ""); // Prod, Dev, Stage, etc
+        defaults.put(ES_DATA_INDEX, "data_index");
+        defaults.put(ES_HOST, "localhost");
+        defaults.put(ES_PORT, "9300");
         
-        defaults.put("KEEPINDEX", "false");
-        defaults.put("SPECIES", null);
+        defaults.put(KEEPINDEX, "false");
+        defaults.put(SPECIES, null);
         
-        defaults.put("API_HOST", "localhost");
-        defaults.put("API_PORT", "8080");
-        defaults.put("API_SECURE", "false");
+        defaults.put(API_HOST, "localhost");
+        defaults.put(API_PORT, "8080");
+        defaults.put(API_SECURE, "false");
         
-        defaults.put("CACHE_HOST", "localhost");
-        defaults.put("CACHE_PORT", "11222");
+        defaults.put(CACHE_HOST, "localhost");
+        defaults.put(CACHE_PORT, "11222");
         
-        defaults.put("NEO4J_HOST", "localhost");
-        defaults.put("NEO4J_PORT", "7687");
+        defaults.put(NEO4J_HOST, "localhost");
+        defaults.put(NEO4J_PORT, "7687");
 
-        defaults.put("AWS_ACCESS_KEY", null);
-        defaults.put("AWS_SECRET_KEY", null);
-        defaults.put("AWS_BUCKET_NAME", "mod-datadumps-dev"); // This needs to always be a dev bucket unless running in production
+        defaults.put(AWS_ACCESS_KEY, null);
+        defaults.put(AWS_SECRET_KEY, null);
+        defaults.put(AWS_BUCKET_NAME, "mod-datadumps-dev"); // This needs to always be a dev bucket unless running in production
+        
+        defaults.put(AO_TERM_LIST, "anatomy-term-order.csv");
+        defaults.put(GO_TERM_LIST, "go-term-order.csv");
         
         
         allKeys = defaults.keySet();
@@ -121,12 +159,12 @@ public class ConfigHelper {
 
     public static String getCacheHost() {
         if(!init) init();
-        return config.get("CACHE_HOST");
+        return config.get(CACHE_HOST);
     }
     public static int getCachePort() {
         if(!init) init();
         try {
-            return Integer.parseInt(config.get("CACHE_PORT"));
+            return Integer.parseInt(config.get(CACHE_PORT));
         } catch (NumberFormatException e) {
             return 11222;
         }
@@ -134,12 +172,12 @@ public class ConfigHelper {
     
     public static String getEsHost() {
         if(!init) init();
-        return config.get("ES_HOST");
+        return config.get(ES_HOST);
     }
     public static int getEsPort() {
         if(!init) init();
         try {
-            return Integer.parseInt(config.get("ES_PORT"));
+            return Integer.parseInt(config.get(ES_PORT));
         } catch (NumberFormatException e) {
             return 9300;
         }
@@ -147,19 +185,19 @@ public class ConfigHelper {
     
     public static String getApiHost() {
         if(!init) init();
-        return config.get("API_HOST");
+        return config.get(API_HOST);
     }
     public static int getApiPort() {
         if(!init) init();
         try {
-            return Integer.parseInt(config.get("API_PORT"));
+            return Integer.parseInt(config.get(API_PORT));
         } catch (NumberFormatException e) {
             return 443;
         }
     }
     public static Boolean isApiSecure() {
         if(!init) init();
-        return Boolean.parseBoolean(config.get("API_SECURE"));
+        return Boolean.parseBoolean(config.get(API_SECURE));
     }
     
     public static String getApiBaseUrl() {
@@ -184,43 +222,43 @@ public class ConfigHelper {
     
     public static String getNeo4jHost() {
         if(!init) init();
-        return config.get("NEO4J_HOST");
+        return config.get(NEO4J_HOST);
     }
     public static int getNeo4jPort() {
         if(!init) init();
         try {
-            return Integer.parseInt(config.get("NEO4J_PORT"));
+            return Integer.parseInt(config.get(NEO4J_PORT));
         } catch (NumberFormatException e) {
             return 7687;
         }
     }
     public static boolean isThreaded() {
         if(!init) init();
-        return Boolean.parseBoolean(config.get("THREADED"));
+        return Boolean.parseBoolean(config.get(THREADED));
     }
     public static String getEsIndexSuffix() {
         if(!init) init();
-        return config.get("ES_INDEX_SUFFIX");
+        return config.get(ES_INDEX_SUFFIX);
     }
     public static String getAWSAccessKey() {
         if(!init) init();
-        return config.get("AWS_ACCESS_KEY");
+        return config.get(AWS_ACCESS_KEY);
     }
     public static String getAWSSecretKey() {
         if(!init) init();
-        return config.get("AWS_SECRET_KEY");
+        return config.get(AWS_SECRET_KEY);
     }
     public static String getEsIndex() {
         if(!init) init();
-        return config.get("ES_INDEX");
+        return config.get(ES_INDEX);
     }
     public static String getEsDataIndex() {
         if(!init) init();
-        return config.get("ES_DATA_INDEX");
+        return config.get(ES_DATA_INDEX);
     }
     public static String getApiAccessToken() {
         if(!init) init();
-        return config.get("API_ACCESS_TOKEN");
+        return config.get(API_ACCESS_TOKEN);
     }
     public static Date getAppStart() {
         if(!init) init();
@@ -228,23 +266,23 @@ public class ConfigHelper {
     }
     public static boolean getDebug() {
         if(!init) init();
-        return Boolean.parseBoolean(config.get("DEBUG"));
+        return Boolean.parseBoolean(config.get(DEBUG));
     }
     public static boolean getKeepIndex() {
         if(!init) init();
-        return Boolean.parseBoolean(config.get("KEEPINDEX"));
+        return Boolean.parseBoolean(config.get(KEEPINDEX));
     }
     public static boolean getGenerateSitemap() {
         if(!init) init();
-        return Boolean.parseBoolean(config.get("GENERATE_SITEMAP"));
+        return Boolean.parseBoolean(config.get(GENERATE_SITEMAP));
     }
     public static String getAWSBucketName() {
         if(!init) init();
-        return config.get("AWS_BUCKET_NAME");
+        return config.get(AWS_BUCKET_NAME);
     }
     public static String getSpecies() {
         if(!init) init();
-        return config.get("SPECIES");
+        return config.get(SPECIES);
     }
     public static String getJavaLineSeparator() {
         if(!init) init();
@@ -263,6 +301,16 @@ public class ConfigHelper {
         return (ConfigHelper.getEsIndexSuffix() != null && !ConfigHelper.getEsIndexSuffix().equals("") && ConfigHelper.getEsIndexSuffix().length() > 0);
     }
     
+    public static String getAOTermListFilePath() {
+        if(!init) init();
+        return config.get(AO_TERM_LIST);
+    }
+    
+    public static String getGOTermListFilePath() {
+        if(!init) init();
+        return config.get(GO_TERM_LIST);
+    }
+    
     public static void setNameValue(String key, String value) {
         config.put(key, value);
     }
@@ -272,6 +320,43 @@ public class ConfigHelper {
         for (String key : allKeys) {
             log.info("\t" + key + ": " + config.get(key));
         }
+    }
+    
+    private static LinkedHashMap<String, String> getNameValuePairsList(String filePath) {
+        
+        LinkedHashMap<String, String> nameValueList = new LinkedHashMap<>();
+        InputStream in = null;
+        BufferedReader reader = null;
+        try {
+            String str = null;
+            in = ConfigHelper.class.getClassLoader().getResourceAsStream(filePath);
+            if (in != null) {
+                reader = new BufferedReader(new InputStreamReader(in));
+                while ((str = reader.readLine()) != null) {
+                    String[] token = str.split("\t");
+                    nameValueList.put(token[0], token[1]);
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                in.close();
+                reader.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        
+        return nameValueList;
+    }
+
+    public static LinkedHashMap<String, String> getAOTermList() {
+        return getNameValuePairsList(getAOTermListFilePath());
+    }
+    
+    public static LinkedHashMap<String, String> getGOTermList() {
+        return getNameValuePairsList(getGOTermListFilePath());
     }
 
 }

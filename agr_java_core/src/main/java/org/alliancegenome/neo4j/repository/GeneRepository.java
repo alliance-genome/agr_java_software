@@ -1,35 +1,69 @@
 package org.alliancegenome.neo4j.repository;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.neo4j.entity.SpeciesType;
-import org.alliancegenome.neo4j.entity.node.*;
-import org.alliancegenome.neo4j.view.OrthologyFilter;
-import org.apache.commons.collections4.map.MultiKeyMap;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.neo4j.ogm.model.Result;
+import static java.util.stream.Collectors.joining;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.StringJoiner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-import static java.util.stream.Collectors.joining;
+import org.alliancegenome.core.config.ConfigHelper;
+import org.alliancegenome.es.model.query.Pagination;
+import org.alliancegenome.neo4j.entity.SpeciesType;
+import org.alliancegenome.neo4j.entity.node.BioEntityGeneExpressionJoin;
+import org.alliancegenome.neo4j.entity.node.GOTerm;
+import org.alliancegenome.neo4j.entity.node.Gene;
+import org.alliancegenome.neo4j.entity.node.OrthoAlgorithm;
+import org.alliancegenome.neo4j.entity.node.SecondaryId;
+import org.alliancegenome.neo4j.entity.node.UBERONTerm;
+import org.alliancegenome.neo4j.view.OrthologyFilter;
+import org.apache.commons.collections4.map.MultiKeyMap;
+import org.neo4j.ogm.model.Result;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import lombok.extern.log4j.Log4j2;
+
+@Log4j2
 public class GeneRepository extends Neo4jRepository<Gene> {
 
     public static final String GOSLIM_AGR = "goslim_agr";
     public static final String CELLULAR_COMPONENT = "CELLULAR_COMPONENT";
     public static final String OTHER_LOCATIONS = "other locations";
     public static final String GO_OTHER_LOCATIONS_ID = "GO:otherLocations";
-    private final Logger log = LogManager.getLogger(getClass());
+
+    private LinkedHashMap<String, String> aoOrderList;
+    private Map<String, Integer> aoOrderedPositionList;
+    private LinkedHashMap<String, String> goCcList;
+    private List<String> goTermOrderedList;
+    
+    Map<String, String> stageMap;
+    List<UBERONTerm> stageList;
+
+    static List<String> stageOrder = new ArrayList<>();
+
+    static {
+        stageOrder.add("embryo stage");
+        stageOrder.add("post embryonic, pre-adult");
+        stageOrder.add("post-juvenile adult stage");
+    }
 
     public GeneRepository() {
         super(Gene.class);
@@ -353,9 +387,7 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         }
         return list;
     }
-
-    private LinkedHashMap<String, String> goCcList;
-
+    
     public Map<String, String> getGoSlimList(String goType) {
         // cache the complete GO CC list.
         if (goCcList != null)
@@ -374,9 +406,6 @@ public class GeneRepository extends Neo4jRepository<Gene> {
                 .collect(Collectors.toMap(GOTerm::getPrimaryKey, GOTerm::getName, (s, s2) -> s, LinkedHashMap::new));
         return goCcList;
     }
-
-    // cache variable
-    private List<String> goTermOrderedList;
 
     private List<String> getGoTermListFromJavaScriptFile() {
         if (goTermOrderedList != null)
@@ -472,19 +501,6 @@ public class GeneRepository extends Neo4jRepository<Gene> {
                 .collect(Collectors.toList());
     }
 
-    // stage categories
-    // cached
-    Map<String, String> stageMap;
-    List<UBERONTerm> stageList;
-
-    static List<String> stageOrder = new ArrayList<>();
-
-    static {
-        stageOrder.add("embryo stage");
-        stageOrder.add("post embryonic, pre-adult");
-        stageOrder.add("post-juvenile adult stage");
-    }
-
     public Map<String, String> getStageList() {
         if (stageMap != null)
             return stageMap;
@@ -533,23 +549,23 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         return stageList;
     }
 
-    public Map<String, String> getFullAoList() {
-        String cypher = "match p=(uber:UBERONTerm)-[:ANATOMICAL_RIBBON_TERM]-(:ExpressionBioEntity) return distinct uber";
+    public LinkedHashMap<String, String> getOrderAoTermList() {
+        if (aoOrderList != null)
+            return aoOrderList;
 
-        Iterable<UBERONTerm> terms = query(UBERONTerm.class, cypher);
-        String alwaysLast = "other";
-        Map<String, String> map = StreamSupport.stream(terms.spliterator(), false)
-                .sorted((o1, o2) -> {
-                    if (o1.getName().equalsIgnoreCase(alwaysLast)) {
-                        return 1;
-                    }
-                    if (o2.getName().equalsIgnoreCase(alwaysLast)) {
-                        return -1;
-                    }
-                    return o1.getName().compareTo(o2.getName());
-                })
-                .collect(Collectors.toMap(UBERONTerm::getPrimaryKey, UBERONTerm::getName, (x, y) -> x + ", " + y, LinkedHashMap::new));
-        return map;
+        return ConfigHelper.getAOTermList();
+    }
+
+    private Map<String, Integer> getOrderedAoTermList() {
+        if (aoOrderedPositionList != null)
+            return aoOrderedPositionList;
+        aoOrderedPositionList = new HashMap<>();
+        int index = 0;
+        final LinkedHashMap<String, String> orderAoTermList = getOrderAoTermList();
+        for (String id : orderAoTermList.keySet()) {
+            aoOrderedPositionList.put(id, index++);
+        }
+        return aoOrderedPositionList;
     }
 
     public List<UBERONTerm> getFullAoTermList() {
@@ -558,15 +574,7 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         Iterable<UBERONTerm> terms = query(UBERONTerm.class, cypher);
         String alwaysLast = "other";
         List<UBERONTerm> map = StreamSupport.stream(terms.spliterator(), false)
-                .sorted((o1, o2) -> {
-                    if (o1.getName().equalsIgnoreCase(alwaysLast)) {
-                        return 1;
-                    }
-                    if (o2.getName().equalsIgnoreCase(alwaysLast)) {
-                        return -1;
-                    }
-                    return o1.getName().compareTo(o2.getName());
-                })
+                .sorted(Comparator.comparing(o -> getOrderedAoTermList().get(o.getPrimaryKey())))
                 .collect(Collectors.toList());
         return map;
     }
@@ -619,11 +627,11 @@ public class GeneRepository extends Neo4jRepository<Gene> {
     public List<BioEntityGeneExpressionJoin> getAllExpressionAnnotations() {
         //String cypher = " MATCH p1=(q:Species)<-[:FROM_SPECIES]-(gene:Gene)-->(s:BioEntityGeneExpressionJoin)--(t), " +
         //      " entity = (s:BioEntityGeneExpressionJoin)--(exp:ExpressionBioEntity)--(o:Ontology) ";
-        
+
         String cypher = "MATCH p1=(q:Species)<-[:FROM_SPECIES]-(gene:Gene)-[:ASSOCIATION]->(s:BioEntityGeneExpressionJoin)--(t), "
                 + "entity = (s:BioEntityGeneExpressionJoin)<-[:ASSOCIATION]-(exp:ExpressionBioEntity)-->(o:Ontology) "
                 + "WHERE (o:GOTerm OR o:UBERONTerm ) ";
-        
+
         //cypher += " AND gene.primaryKey in ['MGI:109583','ZFIN:ZDB-GENE-980526-166','RGD:61995','ZFIN:ZDB-GENE-030131-3776', 'ZFIN:ZDB-GENE-030616-47','FB:FBgn0026379','WB:WBGene00000913','SGD:S000005072'] ";
         //cypher += "  where gene.primaryKey = 'RGD:2129' ";
         //cypher += "OPTIONAL MATCH crossReference = (s:BioEntityGeneExpressionJoin)--(crossRef:CrossReference) ";
