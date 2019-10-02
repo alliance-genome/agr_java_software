@@ -124,8 +124,7 @@ public class DiseaseAnnotation implements Comparable<DiseaseAnnotation>, Seriali
 
     @Override
     public String toString() {
-        String primaryKey = getGene().getPrimaryKey();
-        return primaryKey != null ? disease.getPrimaryKey() + " : " + primaryKey : disease.getPrimaryKey();
+        return gene != null ? disease.getPrimaryKey() + " : " + gene.getPrimaryKey() : disease.getPrimaryKey();
     }
 
 }
