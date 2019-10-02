@@ -278,7 +278,7 @@ public interface GeneRESTInterface {
     @GET
     @Path("/{id}/interaction-summary")
     @JsonView(value = {View.Expression.class})
-    @ApiOperation(value = "Retrieve all expression records of a given gene")
+    @ApiOperation(value = "Retrieve interaction summary records of a given gene")
     EntitySummary getInteractionSummary(
             @ApiParam(name = "id", value = "Gene by ID, e.g. 'RGD:2129' or 'ZFIN:ZDB-GENE-990415-72 fgf8a'", required = true, type = "String")
             @PathParam("id") String id
