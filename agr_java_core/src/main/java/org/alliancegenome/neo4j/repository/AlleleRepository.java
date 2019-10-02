@@ -63,12 +63,12 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
 
         String query = "";
         query += " MATCH p1=(:Species)<-[:FROM_SPECIES]-(a:Allele)-[:IS_ALLELE_OF]->(g:Gene) ";
-        //query += " where g.primaryKey = 'MGI:109448' ";
-        query += " OPTIONAL MATCH vari=(a:Allele)<-[:VARIATION]-(variant:Variant)--(term:SOTerm)";
+        //query += " where g.primaryKey = 'ZFIN:ZDB-GENE-040426-1716' ";
+        query += " OPTIONAL MATCH vari=(a:Allele)<-[:VARIATION]-(variant:Variant)--(soTerm:SOTerm)";
         query += " OPTIONAL MATCH loc=(variant:Variant)-[:ASSOCIATION]->(genomicLocation:GenomicLocation)";
         query += " OPTIONAL MATCH p2=(a:Allele)-[:ALSO_KNOWN_AS]->(synonym:Synonym)";
         query += " OPTIONAL MATCH crossRef=(a:Allele)-[:CROSS_REFERENCE]->(c:CrossReference)";
-        query += " OPTIONAL MATCH disease=(a:Allele)-[:IS_IMPLICATED_IN]->(term:DOTerm)";
+        query += " OPTIONAL MATCH disease=(a:Allele)-[:IS_IMPLICATED_IN]->(doTerm:DOTerm)";
         query += " OPTIONAL MATCH pheno=(a:Allele)-[:HAS_PHENOTYPE]->(ph:Phenotype)";
         query += " RETURN p1, p2, vari, crossRef, disease, pheno, loc ";
 

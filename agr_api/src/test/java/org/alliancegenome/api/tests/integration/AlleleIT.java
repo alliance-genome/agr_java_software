@@ -1,9 +1,9 @@
 package org.alliancegenome.api.tests.integration;
 
-import static org.hamcrest.Matchers.greaterThanOrEqualTo;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
-
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.annotations.Api;
 import org.alliancegenome.api.service.AlleleService;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.service.JsonResultResponse;
@@ -14,15 +14,16 @@ import org.alliancegenome.neo4j.view.OrthologyModule;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.config.Configurator;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import io.swagger.annotations.Api;
-
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
 
 @Api(value = "Allele Tests")
 public class AlleleIT {
@@ -44,6 +45,7 @@ public class AlleleIT {
 
 
     @Test
+    @Ignore
     public void checkAllelesBySpecies() {
         Pagination pagination = new Pagination();
         pagination.setLimit(100000);
@@ -60,6 +62,15 @@ public class AlleleIT {
     }
 
     @Test
+    public void checkAllelesWithDiseases() {
+        Pagination pagination = new Pagination();
+        JsonResultResponse<Allele> response = alleleService.getAllelesByGene("ZFIN:ZDB-GENE-040426-1716", pagination);
+        List<Allele> term = response.getResults().stream().filter(allele -> allele.getDiseases() != null).collect(Collectors.toList());
+        assertThat(term.size(), greaterThanOrEqualTo(1));
+    }
+
+    @Test
+    @Ignore
     public void checkAlleles() {
         AlleleRepository repository = new AlleleRepository();
         Set<Allele> response = repository.getAllAlleles();
