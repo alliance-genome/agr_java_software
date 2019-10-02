@@ -1,17 +1,17 @@
-GO:0030054  extracellular region
-GO:0005886  plasma membrane
-GO:0045202  synapse
-GO:0030054  cell junction
-GO:0042995  cell projection
-GO:0031410  cytoplasmic vesicle
-GO:0005768  endosome
-GO:0005773  vacuole
-GO:0005794  Golgi apparatus
-GO:0005783  endoplasmic reticulum
-GO:0005829  cytosol
-GO:0005739  mitochondrion
-GO:0005634  nucleus
-GO:0005694  chromosome
-GO:0005856  cytoskeleton
-GO:0032991  protein-containing complex
-GO:otherLocations  other locations
+GO:0030054	extracellular region
+GO:0005886	plasma membrane
+GO:0045202	synapse
+GO:0030054	cell junction
+GO:0042995	cell projection
+GO:0031410	cytoplasmic vesicle
+GO:0005768	endosome
+GO:0005773	vacuole
+GO:0005794	Golgi apparatus
+GO:0005783	endoplasmic reticulum
+GO:0005829	cytosol
+GO:0005739	mitochondrion
+GO:0005634	nucleus
+GO:0005694	chromosome
+GO:0005856	cytoskeleton
+GO:0032991	protein-containing complex
+GO:otherLocations	other locations

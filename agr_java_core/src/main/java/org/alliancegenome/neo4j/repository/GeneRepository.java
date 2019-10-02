@@ -1,45 +1,27 @@
 package org.alliancegenome.neo4j.repository;
 
-import static java.util.stream.Collectors.joining;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.extern.log4j.Log4j2;
+import org.alliancegenome.core.config.ConfigHelper;
+import org.alliancegenome.es.model.query.Pagination;
+import org.alliancegenome.neo4j.entity.SpeciesType;
+import org.alliancegenome.neo4j.entity.node.*;
+import org.alliancegenome.neo4j.view.OrthologyFilter;
+import org.apache.commons.collections4.map.MultiKeyMap;
+import org.neo4j.ogm.model.Result;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.StringJoiner;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-import org.alliancegenome.core.config.ConfigHelper;
-import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.neo4j.entity.SpeciesType;
-import org.alliancegenome.neo4j.entity.node.BioEntityGeneExpressionJoin;
-import org.alliancegenome.neo4j.entity.node.GOTerm;
-import org.alliancegenome.neo4j.entity.node.Gene;
-import org.alliancegenome.neo4j.entity.node.OrthoAlgorithm;
-import org.alliancegenome.neo4j.entity.node.SecondaryId;
-import org.alliancegenome.neo4j.entity.node.UBERONTerm;
-import org.alliancegenome.neo4j.view.OrthologyFilter;
-import org.apache.commons.collections4.map.MultiKeyMap;
-import org.neo4j.ogm.model.Result;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-import lombok.extern.log4j.Log4j2;
+import static java.util.stream.Collectors.joining;
 
 @Log4j2
 public class GeneRepository extends Neo4jRepository<Gene> {
@@ -53,7 +35,8 @@ public class GeneRepository extends Neo4jRepository<Gene> {
     private Map<String, Integer> aoOrderedPositionList;
     private LinkedHashMap<String, String> goCcList;
     private List<String> goTermOrderedList;
-    
+    private Map<String, Integer> goCCOrderedPositionList;
+
     Map<String, String> stageMap;
     List<UBERONTerm> stageList;
 
@@ -387,7 +370,7 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         }
         return list;
     }
-    
+
     public Map<String, String> getGoSlimList(String goType) {
         // cache the complete GO CC list.
         if (goCcList != null)
@@ -556,6 +539,12 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         return ConfigHelper.getAOTermList();
     }
 
+    public LinkedHashMap<String, String> getOrderGoTermList() {
+        if (goCcList != null)
+            return goCcList;
+        return ConfigHelper.getGOTermList();
+    }
+
     private Map<String, Integer> getOrderedAoTermList() {
         if (aoOrderedPositionList != null)
             return aoOrderedPositionList;
@@ -572,7 +561,6 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         String cypher = "match p=(uber:UBERONTerm)-[:ANATOMICAL_RIBBON_TERM]-(:ExpressionBioEntity) return distinct uber";
 
         Iterable<UBERONTerm> terms = query(UBERONTerm.class, cypher);
-        String alwaysLast = "other";
         List<UBERONTerm> map = StreamSupport.stream(terms.spliterator(), false)
                 .sorted(Comparator.comparing(o -> getOrderedAoTermList().get(o.getPrimaryKey())))
                 .collect(Collectors.toList());
@@ -596,20 +584,25 @@ public class GeneRepository extends Neo4jRepository<Gene> {
                 .collect(Collectors.toMap(GOTerm::getPrimaryKey, GOTerm::getName, (x, y) -> x + ", " + y, LinkedHashMap::new));
     }
 
+    public Map<String, Integer> getGoOrderedList() {
+        if (goCCOrderedPositionList != null)
+            return goCCOrderedPositionList;
+        goCCOrderedPositionList = new HashMap<>();
+        int index = 0;
+        final LinkedHashMap<String, String> orderGoTermList = getOrderGoTermList();
+        for (String id : orderGoTermList.keySet()) {
+            goCCOrderedPositionList.put(id, index++);
+        }
+        return goCCOrderedPositionList;
+    }
+
     public List<GOTerm> getFullGoTermList() {
         String cypher = "match p=(uber:GOTerm)-[:CELLULAR_COMPONENT_RIBBON_TERM]-(:ExpressionBioEntity) return distinct uber";
         Iterable<GOTerm> terms = query(GOTerm.class, cypher);
-        String alwaysLast = "other locations";
         return StreamSupport.stream(terms.spliterator(), false)
-                .sorted((o1, o2) -> {
-                    if (o1.getName().equalsIgnoreCase(alwaysLast)) {
-                        return 1;
-                    }
-                    if (o2.getName().equalsIgnoreCase(alwaysLast)) {
-                        return -1;
-                    }
-                    return o1.getName().compareToIgnoreCase(o2.getName());
-                })
+                // exclude the GO-CC root term
+                .filter(goTerm -> !goTerm.getPrimaryKey().equals("GO:0005576"))
+                .sorted(Comparator.comparing(o -> getGoOrderedList().get(o.getPrimaryKey())))
                 .collect(Collectors.toList());
     }
 
