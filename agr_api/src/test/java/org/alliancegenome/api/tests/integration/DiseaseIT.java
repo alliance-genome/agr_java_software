@@ -139,42 +139,42 @@ public class DiseaseIT {
         String output = translator.getAllRows(response.getResults());
         List<String> lines = Arrays.asList(output.split("\n"));
         assertNotNull(lines);
-        String result = "Gene ID\tGene Symbol\tSpecies\tGenetic Entity ID\tGenetic Entity Symbol\tGenetic Entity Type\tAssociation Type\tDisease ID\tDisease Name\tEvidence Code\tBased On\tSource\tReferences\n" +
-                "HGNC:3686\tFGF8\tHomo sapiens\t\t\t\tis_marker_of\tDOID:3594\tchoriocarcinoma\tECO:0000270\t\tRGD\tPMID:11764380\n" +
-                "HGNC:5466\tIGF2\tHomo sapiens\t\t\t\tis_implicated_in\tDOID:3594\tchoriocarcinoma\tECO:0000314\t\tRGD\tPMID:17556377\n" +
-                "HGNC:6091\tINSR\tHomo sapiens\t\t\t\tis_implicated_in\tDOID:3594\tchoriocarcinoma\tECO:0000314\t\tRGD\tPMID:17556377\n" +
-                "HGNC:8800\tPDGFB\tHomo sapiens\t\t\t\tis_marker_of\tDOID:3594\tchoriocarcinoma\tECO:0000270\t\tRGD\tPMID:8504434\n" +
-                "HGNC:8804\tPDGFRB\tHomo sapiens\t\t\t\tis_marker_of\tDOID:3594\tchoriocarcinoma\tECO:0000270\t\tRGD\tPMID:8504434\n" +
-                "HGNC:11822\tTIMP3\tHomo sapiens\t\t\t\tis_marker_of\tDOID:3594\tchoriocarcinoma\tECO:0000270\t\tRGD\tPMID:15507671\n" +
-                "RGD:70891\tFgf8\tRattus norvegicus\t\t\t\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tHGNC:3686:FGF8\tAlliance\tMGI:6194238\n" +
-                "RGD:2870\tIgf2\tRattus norvegicus\t\t\t\timplicated_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tHGNC:5466:IGF2\tAlliance\tMGI:6194238\n" +
-                "RGD:2917\tInsr\tRattus norvegicus\t\t\t\timplicated_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tHGNC:6091:INSR\tAlliance\tMGI:6194238\n" +
-                "RGD:3283\tPdgfb\tRattus norvegicus\t\t\t\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tHGNC:8800:PDGFB\tAlliance\tMGI:6194238\n" +
-                "RGD:3285\tPdgfrb\tRattus norvegicus\t\t\t\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tHGNC:8804:PDGFRB\tAlliance\tMGI:6194238\n" +
-                "RGD:3865\tTimp3\tRattus norvegicus\t\t\t\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tHGNC:11822:TIMP3\tAlliance\tMGI:6194238\n" +
-                "MGI:99604\tFgf8\tMus musculus\t\t\t\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tHGNC:3686:FGF8\tAlliance\tMGI:6194238\n" +
-                "MGI:96434\tIgf2\tMus musculus\t\t\t\timplicated_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tHGNC:5466:IGF2\tAlliance\tMGI:6194238\n" +
-                "MGI:96575\tInsr\tMus musculus\t\t\t\timplicated_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tHGNC:6091:INSR\tAlliance\tMGI:6194238\n" +
-                "MGI:97528\tPdgfb\tMus musculus\t\t\t\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tHGNC:8800:PDGFB\tAlliance\tMGI:6194238\n" +
-                "MGI:97531\tPdgfrb\tMus musculus\t\t\t\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tHGNC:8804:PDGFRB\tAlliance\tMGI:6194238\n" +
-                "MGI:98754\tTimp3\tMus musculus\t\t\t\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tHGNC:11822:TIMP3\tAlliance\tMGI:6194238\n" +
-                "ZFIN:ZDB-GENE-990415-72\tfgf8a\tDanio rerio\t\t\t\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tHGNC:3686:FGF8\tAlliance\tMGI:6194238\n" +
-                "ZFIN:ZDB-GENE-010122-1\tfgf8b\tDanio rerio\t\t\t\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tHGNC:3686:FGF8\tAlliance\tMGI:6194238\n" +
-                "ZFIN:ZDB-GENE-991111-3\tigf2a\tDanio rerio\t\t\t\timplicated_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tHGNC:5466:IGF2\tAlliance\tMGI:6194238\n" +
-                "ZFIN:ZDB-GENE-030131-2935\tigf2b\tDanio rerio\t\t\t\timplicated_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tHGNC:5466:IGF2\tAlliance\tMGI:6194238\n" +
-                "ZFIN:ZDB-GENE-020503-3\tinsra\tDanio rerio\t\t\t\timplicated_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tHGNC:6091:INSR\tAlliance\tMGI:6194238\n" +
-                "ZFIN:ZDB-GENE-020503-4\tinsrb\tDanio rerio\t\t\t\timplicated_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tHGNC:6091:INSR\tAlliance\tMGI:6194238\n" +
-                "ZFIN:ZDB-GENE-050208-525\tpdgfba\tDanio rerio\t\t\t\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tHGNC:8800:PDGFB\tAlliance\tMGI:6194238\n" +
-                "ZFIN:ZDB-GENE-131121-332\tpdgfbb\tDanio rerio\t\t\t\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tHGNC:8800:PDGFB\tAlliance\tMGI:6194238\n" +
-                "ZFIN:ZDB-GENE-030805-2\tpdgfrb\tDanio rerio\t\t\t\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tHGNC:8804:PDGFRB\tAlliance\tMGI:6194238\n" +
-                "FB:FBgn0283499\tInR\tDrosophila melanogaster\t\t\t\timplicated_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tHGNC:6091:INSR\tAlliance\tMGI:6194238\n" +
-                "FB:FBgn0030964\tPvf1\tDrosophila melanogaster\t\t\t\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tHGNC:8800:PDGFB\tAlliance\tMGI:6194238\n" +
-                "FB:FBgn0032006\tPvr\tDrosophila melanogaster\t\t\t\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tHGNC:8804:PDGFRB\tAlliance\tMGI:6194238\n" +
-                "FB:FBgn0025879\tTimp\tDrosophila melanogaster\t\t\t\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tHGNC:11822:TIMP3\tAlliance\tMGI:6194238\n" +
-                "WB:WBGene00019478\tcri-2\tCaenorhabditis elegans\t\t\t\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tHGNC:11822:TIMP3\tAlliance\tMGI:6194238\n" +
-                "WB:WBGene00000898\tdaf-2\tCaenorhabditis elegans\t\t\t\timplicated_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tHGNC:6091:INSR\tAlliance\tMGI:6194238\n" +
-                "WB:WBGene00004249\tpvf-1\tCaenorhabditis elegans\t\t\t\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tHGNC:8800:PDGFB\tAlliance\tMGI:6194238\n" +
-                "WB:WBGene00019476\ttimp-1\tCaenorhabditis elegans\t\t\t\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tHGNC:11822:TIMP3\tAlliance\tMGI:6194238\n";
+        String result = "Gene ID\tGene Symbol\tSpecies\tAssociation Type\tDisease ID\tDisease Name\tEvidence Code\tBased On\tSource\tReferences\n" +
+                "HGNC:3686\tFGF8\tHomo sapiens\tis_marker_of\tDOID:3594\tchoriocarcinoma\tECO:0000270\t\tRGD\tPMID:11764380\n" +
+                "HGNC:5466\tIGF2\tHomo sapiens\tis_implicated_in\tDOID:3594\tchoriocarcinoma\tECO:0000314\t\tRGD\tPMID:17556377\n" +
+                "HGNC:6091\tINSR\tHomo sapiens\tis_implicated_in\tDOID:3594\tchoriocarcinoma\tECO:0000314\t\tRGD\tPMID:17556377\n" +
+                "HGNC:8800\tPDGFB\tHomo sapiens\tis_marker_of\tDOID:3594\tchoriocarcinoma\tECO:0000270\t\tRGD\tPMID:8504434\n" +
+                "HGNC:8804\tPDGFRB\tHomo sapiens\tis_marker_of\tDOID:3594\tchoriocarcinoma\tECO:0000270\t\tRGD\tPMID:8504434\n" +
+                "HGNC:11822\tTIMP3\tHomo sapiens\tis_marker_of\tDOID:3594\tchoriocarcinoma\tECO:0000270\t\tRGD\tPMID:15507671\n" +
+                "RGD:70891\tFgf8\tRattus norvegicus\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tHGNC:3686:FGF8\tAlliance\tMGI:6194238\n" +
+                "RGD:2870\tIgf2\tRattus norvegicus\timplicated_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tHGNC:5466:IGF2\tAlliance\tMGI:6194238\n" +
+                "RGD:2917\tInsr\tRattus norvegicus\timplicated_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tHGNC:6091:INSR\tAlliance\tMGI:6194238\n" +
+                "RGD:3283\tPdgfb\tRattus norvegicus\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tHGNC:8800:PDGFB\tAlliance\tMGI:6194238\n" +
+                "RGD:3285\tPdgfrb\tRattus norvegicus\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tHGNC:8804:PDGFRB\tAlliance\tMGI:6194238\n" +
+                "RGD:3865\tTimp3\tRattus norvegicus\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tHGNC:11822:TIMP3\tAlliance\tMGI:6194238\n" +
+                "MGI:99604\tFgf8\tMus musculus\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tHGNC:3686:FGF8\tAlliance\tMGI:6194238\n" +
+                "MGI:96434\tIgf2\tMus musculus\timplicated_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tHGNC:5466:IGF2\tAlliance\tMGI:6194238\n" +
+                "MGI:96575\tInsr\tMus musculus\timplicated_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tHGNC:6091:INSR\tAlliance\tMGI:6194238\n" +
+                "MGI:97528\tPdgfb\tMus musculus\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tHGNC:8800:PDGFB\tAlliance\tMGI:6194238\n" +
+                "MGI:97531\tPdgfrb\tMus musculus\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tHGNC:8804:PDGFRB\tAlliance\tMGI:6194238\n" +
+                "MGI:98754\tTimp3\tMus musculus\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tHGNC:11822:TIMP3\tAlliance\tMGI:6194238\n" +
+                "ZFIN:ZDB-GENE-990415-72\tfgf8a\tDanio rerio\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tHGNC:3686:FGF8\tAlliance\tMGI:6194238\n" +
+                "ZFIN:ZDB-GENE-010122-1\tfgf8b\tDanio rerio\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tHGNC:3686:FGF8\tAlliance\tMGI:6194238\n" +
+                "ZFIN:ZDB-GENE-991111-3\tigf2a\tDanio rerio\timplicated_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tHGNC:5466:IGF2\tAlliance\tMGI:6194238\n" +
+                "ZFIN:ZDB-GENE-030131-2935\tigf2b\tDanio rerio\timplicated_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tHGNC:5466:IGF2\tAlliance\tMGI:6194238\n" +
+                "ZFIN:ZDB-GENE-020503-3\tinsra\tDanio rerio\timplicated_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tHGNC:6091:INSR\tAlliance\tMGI:6194238\n" +
+                "ZFIN:ZDB-GENE-020503-4\tinsrb\tDanio rerio\timplicated_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tHGNC:6091:INSR\tAlliance\tMGI:6194238\n" +
+                "ZFIN:ZDB-GENE-050208-525\tpdgfba\tDanio rerio\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tHGNC:8800:PDGFB\tAlliance\tMGI:6194238\n" +
+                "ZFIN:ZDB-GENE-131121-332\tpdgfbb\tDanio rerio\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tHGNC:8800:PDGFB\tAlliance\tMGI:6194238\n" +
+                "ZFIN:ZDB-GENE-030805-2\tpdgfrb\tDanio rerio\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tHGNC:8804:PDGFRB\tAlliance\tMGI:6194238\n" +
+                "FB:FBgn0283499\tInR\tDrosophila melanogaster\timplicated_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tHGNC:6091:INSR\tAlliance\tMGI:6194238\n" +
+                "FB:FBgn0030964\tPvf1\tDrosophila melanogaster\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tHGNC:8800:PDGFB\tAlliance\tMGI:6194238\n" +
+                "FB:FBgn0032006\tPvr\tDrosophila melanogaster\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tHGNC:8804:PDGFRB\tAlliance\tMGI:6194238\n" +
+                "FB:FBgn0025879\tTimp\tDrosophila melanogaster\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tHGNC:11822:TIMP3\tAlliance\tMGI:6194238\n" +
+                "WB:WBGene00019478\tcri-2\tCaenorhabditis elegans\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tHGNC:11822:TIMP3\tAlliance\tMGI:6194238\n" +
+                "WB:WBGene00000898\tdaf-2\tCaenorhabditis elegans\timplicated_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tHGNC:6091:INSR\tAlliance\tMGI:6194238\n" +
+                "WB:WBGene00004249\tpvf-1\tCaenorhabditis elegans\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tHGNC:8800:PDGFB\tAlliance\tMGI:6194238\n" +
+                "WB:WBGene00019476\ttimp-1\tCaenorhabditis elegans\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tHGNC:11822:TIMP3\tAlliance\tMGI:6194238\n";
         assertEquals(result, output);
 
     }
@@ -248,12 +248,12 @@ public class DiseaseIT {
         String output = translator.getAllRows(response.getResults());
         List<String> lines = Arrays.asList(output.split("\n"));
         assertNotNull(lines);
-        String result = "Gene ID\tGene Symbol\tSpecies\tGenetic Entity ID\tGenetic Entity Symbol\tGenetic Entity Type\tAssociation Type\tDisease ID\tDisease Name\tEvidence Code\tBased On\tSource\tReferences\n" +
-                "WB:WBGene00000469\tces-2\tCaenorhabditis elegans\tWB:WBVar00089714\tn732\tallele\tis_implicated_in\tDOID:9952\tacute lymphocytic leukemia\tECO:0000315\t\tWB\tPMID:8700229\n" +
-                "WB:WBGene00000469\tces-2\tCaenorhabditis elegans\t\t\t\tis_implicated_in\tDOID:9952\tacute lymphocytic leukemia\tECO:0000315\t\tWB\tPMID:8700229\n" +
-                "WB:WBGene00000913\tdaf-18\tCaenorhabditis elegans\t\t\t\timplicated_via_orthology\tDOID:9952\tacute lymphocytic leukemia\tECO:0000501\tMGI:109583:Pten\tAlliance\tMGI:6194238\n" +
-                "WB:WBGene00021474\tdot-1.1\tCaenorhabditis elegans\t\t\t\timplicated_via_orthology\tDOID:9953\tB- and T-cell mixed leukemia\tECO:0000501\tHGNC:24948:DOT1L\tAlliance\tMGI:6194238\n" +
-                "WB:WBGene00010067\tdot-1.2\tCaenorhabditis elegans\t\t\t\timplicated_via_orthology\tDOID:9953\tB- and T-cell mixed leukemia\tECO:0000501\tHGNC:24948:DOT1L\tAlliance\tMGI:6194238\n";
+        String result = "Gene ID\tGene Symbol\tSpecies\tAssociation Type\tDisease ID\tDisease Name\tEvidence Code\tBased On\tSource\tReferences\n" +
+                "WB:WBGene00000469\tces-2\tCaenorhabditis elegans\tis_implicated_in\tDOID:9952\tacute lymphocytic leukemia\tECO:0000315\t\tWB\tPMID:8700229\n" +
+                "WB:WBGene00000469\tces-2\tCaenorhabditis elegans\tis_implicated_in\tDOID:9952\tacute lymphocytic leukemia\tECO:0000315\t\tWB\tPMID:8700229\n" +
+                "WB:WBGene00000913\tdaf-18\tCaenorhabditis elegans\timplicated_via_orthology\tDOID:9952\tacute lymphocytic leukemia\tECO:0000501\tMGI:109583:Pten\tAlliance\tMGI:6194238\n" +
+                "WB:WBGene00021474\tdot-1.1\tCaenorhabditis elegans\timplicated_via_orthology\tDOID:9953\tB- and T-cell mixed leukemia\tECO:0000501\tHGNC:24948:DOT1L\tAlliance\tMGI:6194238\n" +
+                "WB:WBGene00010067\tdot-1.2\tCaenorhabditis elegans\timplicated_via_orthology\tDOID:9953\tB- and T-cell mixed leukemia\tECO:0000501\tHGNC:24948:DOT1L\tAlliance\tMGI:6194238\n";
         assertEquals(result, output);
 
         // descending sorting
@@ -394,42 +394,6 @@ public class DiseaseIT {
     }
 
     @Test
-    public void checkEmpiricalDiseaseFilterByGeneticEntity() {
-        Pagination pagination = new Pagination(1, null, null, null);
-        // Pten
-        String geneID = "MGI:109583";
-
-        // add containsFilterValue on feature symbol
-        pagination.makeSingleFieldFilter(FieldFilter.GENETIC_ENTITY, "tm1h");
-        JsonResultResponse<DiseaseAnnotation> response = diseaseService.getDiseaseAnnotations(geneID, pagination);
-        assertResponse(response, 10, 10);
-
-        DiseaseAnnotation annotation = response.getResults().get(0);
-        assertThat(annotation.getDisease().getName(), equalTo("acute lymphocytic leukemia"));
-        assertThat(annotation.getAssociationType(), equalTo("is_implicated_in"));
-        assertNotNull(annotation.getFeature());
-        assertThat(annotation.getFeature().getSymbol(), equalTo("Pten<sup>tm1Hwu</sup>"));
-        assertThat(annotation.getPublications().stream().map(Publication::getPubId).collect(Collectors.joining()), equalTo("PMID:21262837"));
-
-        DiseaseAnnotationToTdfTranslator translator = new DiseaseAnnotationToTdfTranslator();
-        String output = translator.getEmpiricalDiseaseByGene(response.getResults());
-        List<String> lines = Arrays.asList(output.split("\n"));
-        assertNotNull(lines);
-        String result = "Disease\tGenetic Entity ID\tGenetic Entity Symbol\tGenetic Entity Type\tAssociation Type\tEvidence Code\tSource\tReferences\n" +
-                "acute lymphocytic leukemia\tMGI:2156086\tPten<sup>tm1Hwu</sup>\tallele\tis_implicated_in\tECO:0000033\tPMID:21262837\n" +
-                "Cowden syndrome\tMGI:2156086\tPten<sup>tm1Hwu</sup>\tallele\tis_implicated_in\tECO:0000033\tPMID:12163417,PMID:17237784,PMID:18757421,PMID:23873941,PMID:27889578\n" +
-                "endometrial cancer\tMGI:2156086\tPten<sup>tm1Hwu</sup>\tallele\tis_implicated_in\tECO:0000033\tPMID:18632614,PMID:20418913\n" +
-                "fatty liver disease\tMGI:2156086\tPten<sup>tm1Hwu</sup>\tallele\tis_implicated_in\tECO:0000033\tPMID:24802098\n" +
-                "hepatocellular carcinoma\tMGI:2156086\tPten<sup>tm1Hwu</sup>\tallele\tis_implicated_in\tECO:0000033\tPMID:20837017,PMID:24027047,PMID:25132272\n" +
-                "intestinal pseudo-obstruction\tMGI:2156086\tPten<sup>tm1Hwu</sup>\tallele\tis_implicated_in\tECO:0000033\tPMID:19884655\n" +
-                "persistent fetal circulation syndrome\tMGI:2156086\tPten<sup>tm1Hwu</sup>\tallele\tis_implicated_in\tECO:0000033\tPMID:23023706\n" +
-                "prostate cancer\tMGI:2156086\tPten<sup>tm1Hwu</sup>\tallele\tis_implicated_in\tECO:0000033\tPMID:14522255,PMID:16489020,PMID:21620777,PMID:22350410,PMID:22836754,PMID:23300485,PMID:23348745,PMID:23434594,PMID:23610450,PMID:25455686,PMID:25526087,PMID:25693195,PMID:25948589,PMID:26640144,PMID:27345403,PMID:27357679,PMID:28059767,PMID:28515147,PMID:29720449\n" +
-                "thyroid gland follicular carcinoma MGI:2156086 Pten<sup>tm1Hwu</sup>   allele  is_implicated_in    ECO:0000033 PMID:22167068\n" +
-                "urinary bladder cancer\tMGI:2156086\tPten<sup>tm1Hwu</sup>\tallele\tis_implicated_in\tECO:0000033\tPMID:19261747,PMID:25533675\n";
-        assertEquals(result, output);
-    }
-
-    @Test
     public void checkEmpiricalDiseaseFilterByGeneticEntityType() {
         Pagination pagination = new Pagination(1, null, null, null);
         // Pten
@@ -476,10 +440,10 @@ public class DiseaseIT {
         JsonResultResponse<DiseaseAnnotation> response = diseaseService.getDiseaseAnnotations(geneID, pagination);
         assertResponse(response, 2, 2);
 
-        DiseaseAnnotation annotation = response.getResults().get(0);
-        assertThat(annotation.getDisease().getName(), equalTo("Kallmann syndrome"));
+        DiseaseAnnotation annotation = response.getResults().get(1);
+        assertThat(annotation.getDisease().getName(), equalTo("prostate carcinoma in situ"));
         assertThat(annotation.getAssociationType(), equalTo("is_implicated_in"));
-        assertThat(annotation.getPublications().stream().map(Publication::getPubId).collect(Collectors.joining()), equalTo("RGD:7240710"));
+        assertThat(annotation.getPublications().stream().map(Publication::getPubId).collect(Collectors.joining()), equalTo("PMID:12208767"));
 
         pagination.makeSingleFieldFilter(FieldFilter.ASSOCIATION_TYPE, "IS_MARKER_OF");
         response = diseaseService.getDiseaseAnnotations(geneID, pagination);
