@@ -74,6 +74,7 @@ public class DiseaseCacher extends Cacher {
                                         entity.setId(pubJoin.getPrimaryKey());
                                         entity.setName(pubJoin.getModel().getName());
                                         entity.setDisplayName(pubJoin.getModel().getNameText());
+                                        entity.setType(GeneticEntity.getType(pubJoin.getModel().getSubtype()));
                                         entities.put(entity.getId(), entity);
                                         document.addPrimaryAnnotatedEntity(entity);
                                     }
@@ -91,10 +92,8 @@ public class DiseaseCacher extends Cacher {
                             .flatMap(Collection::stream).sorted(Comparator.naturalOrder()).collect(Collectors.toList());
                     document.setEcoCodes(ecoList.stream().distinct().collect(Collectors.toList()));
                     // work around as I cannot figure out how to include the ECOTerm in the overall query without slowing down the performance.
-/*
                     List<ECOTerm> evidences = diseaseRepository.getEcoTerm(diseaseEntityJoin.getPublicationEvidenceCodeJoin());
                     document.setEcoCodes(evidences);
-*/
                     Set<String> slimId = diseaseRibbonService.getAllParentIDs(diseaseEntityJoin.getDisease().getPrimaryKey());
                     document.setParentIDs(slimId);
                     progressProcess();

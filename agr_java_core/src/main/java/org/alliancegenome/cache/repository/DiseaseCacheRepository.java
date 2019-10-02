@@ -8,7 +8,6 @@ import org.alliancegenome.api.service.FilterService;
 import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.cache.manager.BasicCacheManager;
 import org.alliancegenome.cache.manager.DiseaseAllianceCacheManager;
-import org.alliancegenome.cache.manager.ExpressionAllianceCacheManager;
 import org.alliancegenome.core.service.DiseaseAnnotationFiltering;
 import org.alliancegenome.core.service.DiseaseAnnotationSorting;
 import org.alliancegenome.core.service.PaginationResult;
@@ -22,6 +21,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
@@ -56,18 +56,19 @@ public class DiseaseCacheRepository {
 
         if (geneIDs == null)
             return null;
-        List<DiseaseAnnotation> fullDiseaseAnnotationList = new ArrayList<>();
+        Set<DiseaseAnnotation> allDiseaseAnnotationList = new HashSet<>();
 
         DiseaseAllianceCacheManager manager = new DiseaseAllianceCacheManager();
         // filter by gene
         geneIDs.forEach(geneID -> {
                     List<DiseaseAnnotation> annotations = manager.getDiseaseAnnotations(geneID, View.DiseaseCacher.class);
                     if (annotations != null)
-                        fullDiseaseAnnotationList.addAll(annotations);
+                        allDiseaseAnnotationList.addAll(annotations);
                     else
                         log.info("no disease annotation found for gene: " + geneID);
                 }
         );
+        List<DiseaseAnnotation> fullDiseaseAnnotationList = new ArrayList<>(allDiseaseAnnotationList);
         // filter by slim ID
         List<DiseaseAnnotation> slimDiseaseAnnotationList = new ArrayList<>();
         if (StringUtils.isNotEmpty(diseaseSlimID)) {
@@ -77,12 +78,11 @@ public class DiseaseCacheRepository {
                         .collect(toList());
             } else {
                 // loop over all Other root terms and check
-                slimDiseaseAnnotationList.addAll(DiseaseService.getAllOtherDiseaseTerms().stream()
+                slimDiseaseAnnotationList = DiseaseService.getAllOtherDiseaseTerms().stream()
                         .map(termID -> fullDiseaseAnnotationList.stream()
                                 .filter(diseaseAnnotation -> diseaseAnnotation.getParentIDs().contains(diseaseSlimID))
                                 .collect(toList()))
-                        .flatMap(Collection::stream)
-                        .collect(toList()));
+                        .flatMap(Collection::stream).distinct().collect(Collectors.toList());
             }
 
         } else {

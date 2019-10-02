@@ -165,7 +165,7 @@ public class ExpressionService {
 
         Map<String, Long> goHistogram = goGroupedList.stream()
                 .collect(Collectors.groupingBy(GOTerm::getPrimaryKey, Collectors.counting()));
-        ExpressionSummaryGroup goGroup = populateGroupInfo(CELLULAR_COMPONENT, goHistogram, null, repository.getFullGoList());
+        ExpressionSummaryGroup goGroup = populateGroupInfo(CELLULAR_COMPONENT, goHistogram, null, repository.getOrderGoTermList());
         int sumGo = goGroup.getTerms().stream().mapToInt(ExpressionSummaryGroupTerm::getNumberOfAnnotations).sum();
         goGroup.setTotalAnnotations(sumGo);
         summary.addGroup(goGroup);

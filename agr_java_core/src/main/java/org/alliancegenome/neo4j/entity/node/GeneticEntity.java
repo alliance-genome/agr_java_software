@@ -96,6 +96,12 @@ public class GeneticEntity extends Neo4jEntity {
         return url;
     }
 
+    public static CrossReferenceType getType(String dbName) {
+        return Arrays.stream(CrossReferenceType.values())
+                .filter(type -> type.dbName.equals(dbName))
+                .findFirst()
+                .orElse(null);
+    }
 
     @JsonView({View.API.class})
     @JsonProperty(value = "type")
@@ -110,16 +116,27 @@ public class GeneticEntity extends Neo4jEntity {
 
     public enum CrossReferenceType {
 
-        GENE("gene"), ALLELE("allele"), GENOTYPE("genotype"), FISH("fish");
+        GENE("gene"), ALLELE("allele"), GENOTYPE("genotype"), FISH("fish", "affected_genomic_model"), STRAIN("strain");
 
         private String displayName;
+        private String dbName;
 
         CrossReferenceType(String name) {
             this.displayName = name;
+            this.dbName = name;
+        }
+
+        CrossReferenceType(String displayName, String dbName) {
+            this.displayName = displayName;
+            this.dbName = dbName;
         }
 
         public String getDisplayName() {
             return displayName;
+        }
+
+        public String getDbName() {
+            return dbName;
         }
 
         public static CrossReferenceType getCrossReferenceType(String name) {
