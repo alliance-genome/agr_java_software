@@ -75,6 +75,7 @@ public class GeneController extends BaseController implements GeneRESTInterface 
                                                         String symbol,
                                                         String synonym,
                                                         String variantType,
+                                                        String consequence,
                                                         String phenotype,
                                                         String source,
                                                         String disease) {
@@ -86,6 +87,7 @@ public class GeneController extends BaseController implements GeneRESTInterface 
         pagination.addFieldFilter(FieldFilter.DISEASE, disease);
         pagination.addFieldFilter(FieldFilter.VARIANT_TYPE, variantType);
         pagination.addFieldFilter(FieldFilter.PHENOTYPE, phenotype);
+        pagination.addFieldFilter(FieldFilter.VARIANT_CONSEQUENCE, consequence);
         if (pagination.hasErrors()) {
             RestErrorMessage message = new RestErrorMessage();
             message.setErrors(pagination.getErrors());
@@ -112,6 +114,7 @@ public class GeneController extends BaseController implements GeneRESTInterface 
                                               String symbol,
                                               String synonym,
                                               String variantType,
+                                              String consequence,
                                               String phenotype,
                                               String source,
                                               String disease) {
@@ -122,6 +125,7 @@ public class GeneController extends BaseController implements GeneRESTInterface 
         pagination.addFieldFilter(FieldFilter.DISEASE, disease);
         pagination.addFieldFilter(FieldFilter.VARIANT_TYPE, variantType);
         pagination.addFieldFilter(FieldFilter.PHENOTYPE, phenotype);
+        pagination.addFieldFilter(FieldFilter.VARIANT_CONSEQUENCE, consequence);
         if (pagination.hasErrors()) {
             RestErrorMessage message = new RestErrorMessage();
             message.setErrors(pagination.getErrors());
@@ -255,7 +259,7 @@ public class GeneController extends BaseController implements GeneRESTInterface 
             throw new RestErrorException(message);
         }
         try {
-            JsonResultResponse<PrimaryAnnotatedEntity> response = diseaseService.getDiseaseAnnotationsWithAGM(id, pagination);
+            JsonResultResponse<PrimaryAnnotatedEntity> response = diseaseService.getDiseaseAnnotationsWithGeneAndAGM(id, pagination);
             response.setHttpServletRequest(request);
             response.calculateRequestDuration(startTime);
 

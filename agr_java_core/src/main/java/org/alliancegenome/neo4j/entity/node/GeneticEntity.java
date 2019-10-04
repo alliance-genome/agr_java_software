@@ -1,20 +1,18 @@
 package org.alliancegenome.neo4j.entity.node;
 
-import java.util.*;
-
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonView;
+import lombok.Getter;
+import lombok.Setter;
 import org.alliancegenome.es.util.DateConverter;
 import org.alliancegenome.neo4j.entity.Neo4jEntity;
 import org.alliancegenome.neo4j.view.View;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
-
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonView;
-
-import lombok.Getter;
-import lombok.Setter;
 import org.neo4j.ogm.annotation.typeconversion.Convert;
+
+import java.util.*;
 
 @NodeEntity
 @Getter
@@ -33,7 +31,7 @@ public class GeneticEntity extends Neo4jEntity {
     @Convert(value = DateConverter.class)
     private Date dateProduced;
 
-    @JsonView({View.Default.class, View.PhenotypeAPI.class})
+    @JsonView({View.Default.class, View.API.class, View.PhenotypeAPI.class, View.DiseaseAnnotation.class})
     @Relationship(type = "FROM_SPECIES")
     protected Species species;
 
@@ -140,6 +138,12 @@ public class GeneticEntity extends Neo4jEntity {
         return url;
     }
 
+    public static CrossReferenceType getType(String dbName) {
+        return Arrays.stream(CrossReferenceType.values())
+                .filter(type -> type.dbName.equals(dbName))
+                .findFirst()
+                .orElse(null);
+    }
 
     @JsonView({View.API.class})
     @JsonProperty(value = "type")
@@ -154,16 +158,27 @@ public class GeneticEntity extends Neo4jEntity {
 
     public enum CrossReferenceType {
 
-        GENE("gene"), ALLELE("allele"), GENOTYPE("genotype"), FISH("fish");
+        GENE("gene"), ALLELE("allele"), GENOTYPE("genotype"), FISH("fish", "affected_genomic_model"), STRAIN("strain");
 
         private String displayName;
+        private String dbName;
 
         CrossReferenceType(String name) {
             this.displayName = name;
+            this.dbName = name;
+        }
+
+        CrossReferenceType(String displayName, String dbName) {
+            this.displayName = displayName;
+            this.dbName = dbName;
         }
 
         public String getDisplayName() {
             return displayName;
+        }
+
+        public String getDbName() {
+            return dbName;
         }
 
         public static CrossReferenceType getCrossReferenceType(String name) {

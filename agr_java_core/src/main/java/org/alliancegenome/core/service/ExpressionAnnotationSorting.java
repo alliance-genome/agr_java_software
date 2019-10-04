@@ -22,7 +22,7 @@ public class ExpressionAnnotationSorting implements Sorting<ExpressionDetail> {
             Comparator.comparing(annotation -> annotation.getStage().getName().toLowerCase());
 
     private static Comparator<ExpressionDetail> assayOrder =
-            Comparator.comparing(annotation -> annotation.getAssay().getName().toLowerCase());
+            Comparator.comparing(annotation -> annotation.getAssay().getDisplaySynonym().toLowerCase());
 
     private static Comparator<ExpressionDetail> speciesOrder =
             Comparator.comparing(annotation -> annotation.getGene().getSpecies().getName().toLowerCase());

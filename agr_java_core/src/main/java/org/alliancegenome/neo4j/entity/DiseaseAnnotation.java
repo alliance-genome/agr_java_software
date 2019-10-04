@@ -26,6 +26,8 @@ public class DiseaseAnnotation implements Comparable<DiseaseAnnotation>, Seriali
     private DOTerm disease;
     @JsonView({View.DiseaseAnnotation.class})
     private Gene gene;
+    @JsonView({View.DiseaseAnnotation.class})
+    private AffectedGenomicModel model;
     @JsonView({View.DiseaseAnnotationAll.class})
     private Gene orthologyGene;
     @JsonView({View.DiseaseAnnotation.class})
@@ -122,7 +124,7 @@ public class DiseaseAnnotation implements Comparable<DiseaseAnnotation>, Seriali
 
     @Override
     public String toString() {
-        return disease.getPrimaryKey() + " : " + getGene().getPrimaryKey();
+        return gene != null ? disease.getPrimaryKey() + " : " + gene.getPrimaryKey() : disease.getPrimaryKey();
     }
 
 }

@@ -1,43 +1,26 @@
 package org.alliancegenome.api.service;
 
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toSet;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import org.alliancegenome.api.entity.EntitySubgroupSlim;
-import org.alliancegenome.api.entity.ExpressionSummary;
-import org.alliancegenome.api.entity.ExpressionSummaryGroup;
-import org.alliancegenome.api.entity.ExpressionSummaryGroupTerm;
-import org.alliancegenome.api.entity.RibbonEntity;
-import org.alliancegenome.api.entity.RibbonSummary;
+import org.alliancegenome.api.entity.*;
 import org.alliancegenome.cache.repository.ExpressionCacheRepository;
 import org.alliancegenome.core.ExpressionDetail;
 import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.core.service.PaginationResult;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.neo4j.entity.node.BioEntityGeneExpressionJoin;
-import org.alliancegenome.neo4j.entity.node.ExpressionBioEntity;
-import org.alliancegenome.neo4j.entity.node.GOTerm;
-import org.alliancegenome.neo4j.entity.node.Gene;
-import org.alliancegenome.neo4j.entity.node.MMOTerm;
-import org.alliancegenome.neo4j.entity.node.Stage;
-import org.alliancegenome.neo4j.entity.node.UBERONTerm;
+import org.alliancegenome.neo4j.entity.node.*;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.*;
 
 public class ExpressionService {
 
@@ -174,7 +157,7 @@ public class ExpressionService {
         Map<String, Long> aoHistogram = aoGroupedList.stream()
                 .collect(Collectors.groupingBy(UBERONTerm::getPrimaryKey, Collectors.counting()));
 
-        ExpressionSummaryGroup aoGroup = populateGroupInfo("Anatomy", aoHistogram, null, repository.getFullAoList());
+        ExpressionSummaryGroup aoGroup = populateGroupInfo("Anatomy", aoHistogram, null, repository.getOrderAoTermList());
         summary.addGroup(aoGroup);
 
         int sumAO = aoGroup.getTerms().stream().mapToInt(ExpressionSummaryGroupTerm::getNumberOfAnnotations).sum();
@@ -182,7 +165,7 @@ public class ExpressionService {
 
         Map<String, Long> goHistogram = goGroupedList.stream()
                 .collect(Collectors.groupingBy(GOTerm::getPrimaryKey, Collectors.counting()));
-        ExpressionSummaryGroup goGroup = populateGroupInfo(CELLULAR_COMPONENT, goHistogram, null, repository.getFullGoList());
+        ExpressionSummaryGroup goGroup = populateGroupInfo(CELLULAR_COMPONENT, goHistogram, null, repository.getOrderGoTermList());
         int sumGo = goGroup.getTerms().stream().mapToInt(ExpressionSummaryGroupTerm::getNumberOfAnnotations).sum();
         goGroup.setTotalAnnotations(sumGo);
         summary.addGroup(goGroup);

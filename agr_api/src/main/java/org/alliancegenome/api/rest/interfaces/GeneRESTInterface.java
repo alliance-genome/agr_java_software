@@ -61,6 +61,8 @@ public interface GeneRESTInterface {
             @QueryParam("filter.synonym") String synonym,
             @ApiParam(name = "filter.variantType", value = "Variant types")
             @QueryParam("filter.variantType") String variantType,
+            @ApiParam(name = "filter.variantConsequence", value = "Consequence")
+            @QueryParam("filter.variantConsequence") String consequence,
             @ApiParam(name = "filter.phenotype", value = "Phenotypes")
             @QueryParam("filter.phenotype") String phenotype,
             @ApiParam(value = "source")
@@ -86,6 +88,8 @@ public interface GeneRESTInterface {
             @QueryParam("filter.synonym") String synonym,
             @ApiParam(name = "filter.variantType", value = "Variant types")
             @QueryParam("filter.variantType") String variantType,
+            @ApiParam(name = "filter.variantConsequence", value = "Consequence")
+            @QueryParam("filter.variantConsequence") String consequence,
             @ApiParam(name = "filter.phenotype", value = "Phenotypes")
             @QueryParam("filter.phenotype") String phenotype,
             @ApiParam(value = "source")
@@ -140,7 +144,7 @@ public interface GeneRESTInterface {
 
     @GET
     @Path("/{id}/models")
-    @JsonView(value = {View.PrimaryAnnotation.class})
+    @JsonView(value = {View.DiseaseAnnotationSummary.class})
     @ApiOperation(value = "Retrieve all DiseaseAnnotation records for a given disease id")
     JsonResultResponse<PrimaryAnnotatedEntity> getPrimaryAnnotatedEntityForModel(
             @ApiParam(name = "id", value = "gene ID: e.g. MGI:109583", required = true, type = "String")
@@ -274,7 +278,7 @@ public interface GeneRESTInterface {
     @GET
     @Path("/{id}/interaction-summary")
     @JsonView(value = {View.Expression.class})
-    @ApiOperation(value = "Retrieve all expression records of a given gene")
+    @ApiOperation(value = "Retrieve interaction summary records of a given gene")
     EntitySummary getInteractionSummary(
             @ApiParam(name = "id", value = "Gene by ID, e.g. 'RGD:2129' or 'ZFIN:ZDB-GENE-990415-72 fgf8a'", required = true, type = "String")
             @PathParam("id") String id

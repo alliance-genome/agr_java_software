@@ -1,10 +1,7 @@
 package org.alliancegenome.cacher;
 
 import org.alliancegenome.cache.CacheAlliance;
-import org.alliancegenome.cacher.cachers.DiseaseCacher;
-import org.alliancegenome.cacher.cachers.EcoCodeHelperCacher;
-import org.alliancegenome.cacher.cachers.GeneOrthologCacher;
-import org.alliancegenome.cacher.cachers.GenePhenotypeCacher;
+import org.alliancegenome.cacher.cachers.*;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -51,6 +48,20 @@ public class CacheAllianceTest {
     @Test
     public void cacheOrthology() {
         GeneOrthologCacher cacher = new GeneOrthologCacher();
+        cacher.run();
+    }
+
+    @Ignore
+    @Test
+    public void cacheAlleles() {
+        AlleleCacher cacher = new AlleleCacher();
+        cacher.run();
+    }
+
+    @Ignore
+    @Test
+    public void cachePhenotypes() {
+        GenePhenotypeCacher cacher = new GenePhenotypeCacher();
         cacher.run();
     }
 

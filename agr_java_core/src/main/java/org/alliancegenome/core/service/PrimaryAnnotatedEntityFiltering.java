@@ -10,14 +10,14 @@ public class PrimaryAnnotatedEntityFiltering extends AnnotationFiltering<Primary
 
 
     public FilterFunction<PrimaryAnnotatedEntity, String> modelNameFilter =
-            (annotedEntity, value) -> FilterFunction.contains(annotedEntity.getName(), value);
+            (annotedEntity, value) -> FilterFunction.contains(annotedEntity.getDisplayName(), value);
 
     public FilterFunction<PrimaryAnnotatedEntity, String> termNameFilter =
-            (annotatedEntity, value) -> {
-                Set<Boolean> filteringPassed = annotatedEntity.getDiseases().stream()
+            (annotation, value) -> {
+                Set<Boolean> filteringPassed = annotation.getDiseases().stream()
                         .map(disease -> FilterFunction.contains(disease.getName(), value))
                         .collect(Collectors.toSet());
-                return filteringPassed.contains(true);
+                return !filteringPassed.contains(false);
             };
 
     /*
@@ -29,8 +29,6 @@ public class PrimaryAnnotatedEntityFiltering extends AnnotationFiltering<Primary
             (annotation, value) -> FilterFunction.contains(annotation.getGene().getSymbol(), value);
 
 */
-    public FilterFunction<PrimaryAnnotatedEntity, String> geneSpeciesFilter =
-            (annotation, value) -> FilterFunction.fullMatchMultiValueOR(annotation.getSpecies().getName(), value);
 
     public PrimaryAnnotatedEntityFiltering() {
 /*
@@ -41,7 +39,6 @@ public class PrimaryAnnotatedEntityFiltering extends AnnotationFiltering<Primary
 */
         filterFieldMap.put(FieldFilter.DISEASE, termNameFilter);
         filterFieldMap.put(FieldFilter.MODEL_NAME, modelNameFilter);
-        filterFieldMap.put(FieldFilter.SPECIES, geneSpeciesFilter);
     }
 
 }

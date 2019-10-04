@@ -2,6 +2,8 @@ package org.alliancegenome.cache.repository;
 
 import com.fasterxml.jackson.databind.type.CollectionType;
 import lombok.extern.log4j.Log4j2;
+import org.alliancegenome.api.entity.DiseaseRibbonSummary;
+import org.alliancegenome.api.service.DiseaseService;
 import org.alliancegenome.api.service.FilterService;
 import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.cache.manager.BasicCacheManager;
@@ -14,13 +16,12 @@ import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.node.ECOTerm;
 import org.alliancegenome.neo4j.entity.node.PublicationEvidenceCodeJoin;
 import org.alliancegenome.neo4j.view.View;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
@@ -55,24 +56,37 @@ public class DiseaseCacheRepository {
 
         if (geneIDs == null)
             return null;
-        List<DiseaseAnnotation> fullDiseaseAnnotationList = new ArrayList<>();
+        Set<DiseaseAnnotation> allDiseaseAnnotationList = new HashSet<>();
 
         DiseaseAllianceCacheManager manager = new DiseaseAllianceCacheManager();
         // filter by gene
         geneIDs.forEach(geneID -> {
                     List<DiseaseAnnotation> annotations = manager.getDiseaseAnnotations(geneID, View.DiseaseCacher.class);
                     if (annotations != null)
-                        fullDiseaseAnnotationList.addAll(annotations);
+                        allDiseaseAnnotationList.addAll(annotations);
                     else
                         log.info("no disease annotation found for gene: " + geneID);
                 }
         );
+        List<DiseaseAnnotation> fullDiseaseAnnotationList = new ArrayList<>(allDiseaseAnnotationList);
         // filter by slim ID
-        List<DiseaseAnnotation> slimDiseaseAnnotationList = fullDiseaseAnnotationList;
+        List<DiseaseAnnotation> slimDiseaseAnnotationList = new ArrayList<>();
         if (StringUtils.isNotEmpty(diseaseSlimID)) {
-            slimDiseaseAnnotationList = fullDiseaseAnnotationList.stream()
-                    .filter(diseaseAnnotation -> diseaseAnnotation.getParentIDs().contains(diseaseSlimID))
-                    .collect(toList());
+            if (!diseaseSlimID.equals(DiseaseRibbonSummary.DOID_OTHER)) {
+                slimDiseaseAnnotationList = fullDiseaseAnnotationList.stream()
+                        .filter(diseaseAnnotation -> diseaseAnnotation.getParentIDs().contains(diseaseSlimID))
+                        .collect(toList());
+            } else {
+                // loop over all Other root terms and check
+                slimDiseaseAnnotationList = DiseaseService.getAllOtherDiseaseTerms().stream()
+                        .map(termID -> fullDiseaseAnnotationList.stream()
+                                .filter(diseaseAnnotation -> diseaseAnnotation.getParentIDs().contains(diseaseSlimID))
+                                .collect(toList()))
+                        .flatMap(Collection::stream).distinct().collect(Collectors.toList());
+            }
+
+        } else {
+            slimDiseaseAnnotationList = fullDiseaseAnnotationList;
         }
 
         //filtering
@@ -141,5 +155,11 @@ public class DiseaseCacheRepository {
             throw new RuntimeException(e);
         }
         return list;
+    }
+
+    private DiseaseAllianceCacheManager manager = new DiseaseAllianceCacheManager();
+
+    public boolean hasDiseaseAnnotations(String geneID) {
+        return CollectionUtils.isNotEmpty(manager.getDiseaseAnnotations(geneID, View.DiseaseAnnotation.class));
     }
 }

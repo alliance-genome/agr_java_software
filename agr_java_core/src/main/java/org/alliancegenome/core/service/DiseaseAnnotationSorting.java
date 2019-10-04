@@ -1,29 +1,40 @@
 package org.alliancegenome.core.service;
 
-import static java.util.Comparator.naturalOrder;
+import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
+import org.alliancegenome.neo4j.entity.Sorting;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
-import org.alliancegenome.neo4j.entity.Sorting;
+import static java.util.Comparator.naturalOrder;
 
 public class DiseaseAnnotationSorting implements Sorting<DiseaseAnnotation> {
 
     private List<Comparator<DiseaseAnnotation>> defaultList;
     private List<Comparator<DiseaseAnnotation>> diseaseList;
+    private List<Comparator<DiseaseAnnotation>> alleleList;
     private List<Comparator<DiseaseAnnotation>> geneList;
     private List<Comparator<DiseaseAnnotation>> speciesList;
 
     private static Comparator<DiseaseAnnotation> phylogeneticOrder =
-            Comparator.comparing(annotation -> annotation.getGene().getSpecies().getPhylogeneticOrder());
+            Comparator.comparing(annotation -> {
+                if (annotation.getGene() == null)
+                    return 1;
+                if (annotation.getGene().getSpecies() == null)
+                    return 1;
+                return annotation.getGene().getSpecies().getPhylogeneticOrder();
+            });
 
     private static Comparator<DiseaseAnnotation> experimentOrthologyOrder =
             Comparator.comparing(DiseaseAnnotation::getSortOrder);
 
     private static Comparator<DiseaseAnnotation> geneSymbolOrder =
-            Comparator.comparing(annotation -> annotation.getGene().getSymbol().toLowerCase());
+            Comparator.comparing(annotation -> {
+                if (annotation.getGene() == null)
+                    return null;
+                return annotation.getGene().getSymbol().toLowerCase();
+            }, Comparator.nullsLast(naturalOrder()));
 
     static public Comparator<DiseaseAnnotation> alleleSymbolOrder =
             Comparator.comparing(annotation -> {
@@ -36,7 +47,11 @@ public class DiseaseAnnotationSorting implements Sorting<DiseaseAnnotation> {
             Comparator.comparing(annotation -> annotation.getDisease().getName().toLowerCase());
 
     private static Comparator<DiseaseAnnotation> speciesSymbolOrder =
-            Comparator.comparing(annotation -> annotation.getGene().getSpecies().getName());
+            Comparator.comparing(annotation -> {
+                if (annotation.getModel() != null)
+                    return annotation.getModel().getSpecies().getName().toLowerCase();
+                return annotation.getGene().getSpecies().getName().toLowerCase();
+            }, Comparator.nullsLast(naturalOrder()));
 
     private static Comparator<DiseaseAnnotation> associationTypeOrder =
             Comparator.comparing(DiseaseAnnotation::getAssociationType);
@@ -50,6 +65,13 @@ public class DiseaseAnnotationSorting implements Sorting<DiseaseAnnotation> {
         defaultList.add(geneSymbolOrder);
         defaultList.add(diseaseOrder);
         defaultList.add(alleleSymbolOrder);
+
+        alleleList = new ArrayList<>(4);
+        alleleList.add(alleleSymbolOrder);
+        alleleList.add(diseaseOrder);
+        alleleList.add(experimentOrthologyOrder);
+        alleleList.add(phylogeneticOrder);
+        alleleList.add(geneSymbolOrder);
 
         diseaseList = new ArrayList<>(4);
         diseaseList.add(diseaseOrder);
@@ -81,6 +103,8 @@ public class DiseaseAnnotationSorting implements Sorting<DiseaseAnnotation> {
                 return getJoinedComparator(speciesList);
             case DISEASE:
                 return getJoinedComparator(diseaseList);
+            case ALLELE:
+                return getJoinedComparator(alleleList);
             default:
                 return getJoinedComparator(defaultList);
         }

@@ -1,48 +1,53 @@
 package org.alliancegenome.core.service;
 
-import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
+import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.Sorting;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-public class PrimaryAnnotatedEntitySorting implements Sorting<PrimaryAnnotatedEntity> {
+public class ModelAnnotationsSorting implements Sorting<DiseaseAnnotation> {
 
-    private List<Comparator<PrimaryAnnotatedEntity>> defaultList;
-    private List<Comparator<PrimaryAnnotatedEntity>> diseaseList;
-    private List<Comparator<PrimaryAnnotatedEntity>> modelList;
-    private List<Comparator<PrimaryAnnotatedEntity>> speciesList;
+    private List<Comparator<DiseaseAnnotation>> defaultList;
+    private List<Comparator<DiseaseAnnotation>> diseaseList;
+    private List<Comparator<DiseaseAnnotation>> modelList;
+    private List<Comparator<DiseaseAnnotation>> speciesList;
 
 /*
-    private static Comparator<PrimaryAnnotatedEntity> diseaseOrder =
+    private static Comparator<DiseaseAnnotation> diseaseOrder =
             Comparator.comparing(annotation -> annotation.getDisease().getName().toLowerCase());
 */
 
-    private static Comparator<PrimaryAnnotatedEntity> modelNameSymbolOrder =
-            Comparator.comparing(annotation -> annotation.getName().toLowerCase());
+    private static Comparator<DiseaseAnnotation> speciesSymbolOrder =
+            Comparator.comparing(annotation -> annotation.getModel().getSpecies().getName());
 
-/*
-    private static Comparator<PrimaryAnnotatedEntity> diseaseOrder =
+    private static Comparator<DiseaseAnnotation> modelNameSymbolOrder =
+            Comparator.comparing(annotation -> annotation.getModel().getName().toLowerCase());
+
+    private static Comparator<DiseaseAnnotation> diseaseOrder =
             Comparator.comparing(annotation -> annotation.getDisease().getName().toLowerCase());
-*/
 
 
+    private static Comparator<DiseaseAnnotation> phylogeneticOrder =
+            Comparator.comparing(annotation -> {
+                return annotation.getModel().getSpecies().getPhylogeneticOrder();
+            });
 
-    public PrimaryAnnotatedEntitySorting() {
+    public ModelAnnotationsSorting() {
         super();
 
         defaultList = new ArrayList<>(4);
+        defaultList.add(phylogeneticOrder);
         defaultList.add(modelNameSymbolOrder);
 
         modelList = new ArrayList<>(4);
         modelList.add(modelNameSymbolOrder);
-//        modelList.add(diseaseOrder);
+        modelList.add(diseaseOrder);
 
         diseaseList = new ArrayList<>(4);
-/*
         diseaseList.add(diseaseOrder);
-*/
+        diseaseList.add(phylogeneticOrder);
         diseaseList.add(modelNameSymbolOrder);
 /*
 
@@ -60,7 +65,7 @@ public class PrimaryAnnotatedEntitySorting implements Sorting<PrimaryAnnotatedEn
 */
     }
 
-    public Comparator<PrimaryAnnotatedEntity> getComparator(SortingField field, Boolean ascending) {
+    public Comparator<DiseaseAnnotation> getComparator(SortingField field, Boolean ascending) {
         if (field == null)
             return getJoinedComparator(defaultList);
 

@@ -13,7 +13,7 @@ import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
 import org.alliancegenome.neo4j.entity.node.*;
 import org.alliancegenome.neo4j.repository.DiseaseRepository;
 import org.alliancegenome.neo4j.view.View;
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -44,14 +44,13 @@ public class DiseaseCacher extends Cacher {
 
         startProcess("diseaseRepository.getAllDiseaseEntityJoins");
 
-        // used to populate the DOTerm object on the PrimaryAnnotationEntity object
-        Map<String, PrimaryAnnotatedEntity> entities = new HashMap<>();
         List<DiseaseAnnotation> allDiseaseAnnotations = joinList.stream()
                 .map(diseaseEntityJoin -> {
                     DiseaseAnnotation document = new DiseaseAnnotation();
                     document.setPrimaryKey(diseaseEntityJoin.getPrimaryKey());
                     document.setGene(diseaseEntityJoin.getGene());
                     document.setFeature(diseaseEntityJoin.getAllele());
+                    document.setModel(diseaseEntityJoin.getModel());
                     document.setDisease(diseaseEntityJoin.getDisease());
                     document.setSource(diseaseEntityJoin.getSource());
                     document.setAssociationType(diseaseEntityJoin.getJoinType());
@@ -61,28 +60,41 @@ public class DiseaseCacher extends Cacher {
                         document.setOrthologyGene(orthologyGene);
                         document.addOrthologousGene(orthologyGene);
                     }
-                    Set<AffectedGenomicModel> models = diseaseEntityJoin.getModels();
-                    if (CollectionUtils.isNotEmpty(models)) {
-                        models.forEach(model -> {
-                            PrimaryAnnotatedEntity entity = entities.get(model.getPrimaryKey());
-                            if (entity == null) {
-                                entity = new PrimaryAnnotatedEntity();
-                                entity.setId(model.getPrimaryKey());
-                                entities.put(entity.getId(), entity);
-                                entity.setName(model.getName());
-                                entity.setDisplayName(model.getNameText());
-                            }
-                            entity.addDisease(document.getDisease());
-                            document.addPrimaryAnnotatedEntity(entity);
-                        });
+
+                    if (CollectionUtils.isNotEmpty(diseaseEntityJoin.getPublicationEvidenceCodeJoin())) {
+                        // used to populate the DOTerm object on the PrimaryAnnotationEntity object
+                        Map<String, PrimaryAnnotatedEntity> entities = new HashMap<>();
+                        diseaseEntityJoin.getPublicationEvidenceCodeJoin()
+                                .stream()
+                                .filter(pubJoin -> pubJoin.getModel() != null)
+                                .forEach(pubJoin -> {
+                                    PrimaryAnnotatedEntity entity = entities.get(pubJoin.getModel().getPrimaryKey());
+                                    if (entity == null) {
+                                        entity = new PrimaryAnnotatedEntity();
+                                        entity.setId(pubJoin.getPrimaryKey());
+                                        entity.setName(pubJoin.getModel().getName());
+                                        entity.setDisplayName(pubJoin.getModel().getNameText());
+                                        entity.setType(GeneticEntity.getType(pubJoin.getModel().getSubtype()));
+                                        entities.put(entity.getId(), entity);
+                                        document.addPrimaryAnnotatedEntity(entity);
+                                    }
+                                    entity.addPublicationEvidenceCode(pubJoin);
+                                    entity.addDisease(document.getDisease());
+                                });
                     }
                     List<Publication> publicationList = diseaseEntityJoin.getPublicationEvidenceCodeJoin().stream()
                             .map(PublicationEvidenceCodeJoin::getPublication).sorted(Comparator.naturalOrder()).collect(Collectors.toList());
                     document.setPublications(publicationList.stream().distinct().collect(Collectors.toList()));
+
+                    List<ECOTerm> ecoList = diseaseEntityJoin.getPublicationEvidenceCodeJoin().stream()
+                            .filter(join -> CollectionUtils.isNotEmpty(join.getEcoCode()))
+                            .map(PublicationEvidenceCodeJoin::getEcoCode)
+                            .flatMap(Collection::stream).sorted(Comparator.naturalOrder()).collect(Collectors.toList());
+                    document.setEcoCodes(ecoList.stream().distinct().collect(Collectors.toList()));
                     // work around as I cannot figure out how to include the ECOTerm in the overall query without slowing down the performance.
                     List<ECOTerm> evidences = diseaseRepository.getEcoTerm(diseaseEntityJoin.getPublicationEvidenceCodeJoin());
                     document.setEcoCodes(evidences);
-                    Set<String> slimId = diseaseRibbonService.getSlimId(diseaseEntityJoin.getDisease().getPrimaryKey());
+                    Set<String> slimId = diseaseRibbonService.getAllParentIDs(diseaseEntityJoin.getDisease().getPrimaryKey());
                     document.setParentIDs(slimId);
                     progressProcess();
                     return document;
@@ -143,6 +155,7 @@ public class DiseaseCacher extends Cacher {
         // Map<gene ID, List<DiseaseAnnotation>> including annotations to child terms
         Map<String, List<DiseaseAnnotation>> diseaseAnnotationExperimentGeneMap = allDiseaseAnnotations.stream()
                 .filter(annotation -> annotation.getSortOrder() < 10)
+                .filter(annotation -> annotation.getGene() != null)
                 .collect(groupingBy(o -> o.getGene().getPrimaryKey(), Collectors.toList()));
         diseaseAnnotationMap.putAll(diseaseAnnotationExperimentGeneMap);
 

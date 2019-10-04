@@ -5,13 +5,17 @@ import org.alliancegenome.api.entity.DiseaseRibbonSection;
 import org.alliancegenome.api.entity.DiseaseRibbonSummary;
 import org.alliancegenome.api.entity.SectionSlim;
 import org.alliancegenome.neo4j.entity.node.DOTerm;
+import org.alliancegenome.neo4j.entity.node.SimpleTerm;
 import org.alliancegenome.neo4j.repository.DiseaseRepository;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import javax.enterprise.context.RequestScoped;
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.alliancegenome.api.entity.DiseaseRibbonSummary.DOID_OTHER;
 
@@ -97,7 +101,7 @@ public class DiseaseRibbonService {
         doList.forEach(doTerm -> {
             List<String> slimFoundList = new ArrayList<>();
             diseaseRibbonSummary.getDiseaseRibbonSections().forEach(diseaseRibbonSection -> {
-                if (diseaseRepository.getChildren(doTerm.getPrimaryKey()).contains(diseaseRibbonSection.getId())) {
+                if (diseaseRepository.getParentTermIDs(doTerm.getPrimaryKey()).contains(diseaseRibbonSection.getId())) {
                     SectionSlim slim = new SectionSlim();
                     slim.setId(doTerm.getPrimaryKey());
                     slim.setLabel(doTerm.getName());
@@ -118,27 +122,23 @@ public class DiseaseRibbonService {
         return diseaseRibbonSummary;
     }
 
-    public Set<String> getSlimId(String doID) {
-        //Map<String, Set<String>> closureMapping = diseaseRepository.getClosureChildToParentsMapping();
+    public Set<String> getAllParentIDs(String doID) {
         List<DOTerm> doList = diseaseRepository.getAgrDoSlim();
-        Set<String> partOfSlimList = new HashSet<>(3);
-        List<String> slimFoundList = new ArrayList<>();
-        doList.forEach(doTerm -> {
-            final String slimDoID = doTerm.getPrimaryKey();
-            if (diseaseRepository.getChildren(doID).contains(slimDoID)) {
-                partOfSlimList.add(slimDoID);
-                slimFoundList.add(slimDoID);
-            }
-        });
+        Set<String> parentSet = new HashSet<>();
 
-        boolean parentFound = slimParentTermIdMap.keySet().stream()
-                .filter(id -> diseaseRepository.getChildren(doID).contains(id))
-                .peek(partOfSlimList::add)
-                .anyMatch(Objects::nonNull);
-        if (!parentFound) {
-            partOfSlimList.add(getDiseaseRibbonSectionInfo().getOtherSection().getId());
-        }
-        return partOfSlimList;
+        parentSet.addAll(getParentIDsFromStream(doList.stream().map(SimpleTerm::getPrimaryKey), doID));
+        parentSet.addAll(getParentIDsFromStream(slimParentTermIdMap.keySet().stream(), doID));
+
+        // check for parents of 'All Other Diseases' group. That high-level term does not exist in DO and
+        // consists of the sum of four other individual high-level terms.
+        if (CollectionUtils.isNotEmpty(getParentIDsFromStream(DiseaseService.getAllOtherDiseaseTerms().stream(), doID)))
+            parentSet.add(DOID_OTHER);
+        return parentSet;
+    }
+
+    private Set<String> getParentIDsFromStream(Stream<String> stream, String doID) {
+        return stream.filter(id -> diseaseRepository.getParentTermIDs(doID).contains(id))
+                .collect(Collectors.toSet());
     }
 
 }
