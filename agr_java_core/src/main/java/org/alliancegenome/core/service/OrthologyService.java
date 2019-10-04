@@ -170,15 +170,37 @@ public class OrthologyService {
     public static JsonResultResponse<OrthologView> getOrthologyMultiGeneJson(List<String> geneIDs, OrthologyFilter filter) {
         GeneCacheRepository repo = new GeneCacheRepository();
         List<OrthologView> orthologViewList = repo.getAllOrthologyGenes(geneIDs);
+        List<OrthologView> orthologViewFiltered = orthologViewList;
+        List<OrthologView> orthologViewFilteredModerate = orthologViewList;
 
         System.out.println("Number of genes for orthology: " + geneIDs.size());
 
         orthologViewList.sort(Comparator.comparing(o -> o.getHomologGene().getSymbol().toLowerCase()));
-
-        List<OrthologView> orthologViewFiltered = orthologViewList.stream()
+        orthologViewFiltered = orthologViewList.stream()
+                .filter(orthologView -> orthologView.getStringencyFilter().equalsIgnoreCase("Stringent"))
                 .skip(filter.getStart() - 1)
                 .limit(filter.getRows())
                 .collect(Collectors.toList());
+
+
+         if (filter.getStringency() != null && filter.getStringency().equals(OrthologyFilter.Stringency.MODERATE)){
+
+             orthologViewFilteredModerate = orthologViewList.stream()
+                    .filter(orthologView -> orthologView.getStringencyFilter().equalsIgnoreCase(filter.getStringency().name()))
+                    .skip(filter.getStart() - 1)
+                    .limit(filter.getRows())
+                    .collect(Collectors.toList());
+             orthologViewFiltered.addAll(orthologViewFilteredModerate);
+        }
+        if (filter.getStringency() != null && filter.getStringency().equals(OrthologyFilter.Stringency.ALL))
+       {
+
+             orthologViewFiltered = orthologViewList.stream()
+                    .skip(filter.getStart() - 1)
+                    .limit(filter.getRows())
+                    .collect(Collectors.toList());
+        }
+        System.out.println("Number of genes for orthology: " + orthologViewFiltered.size());
 
         // <geneID, Map<variableName,variableValue>>
         Map<String, Object> map = new HashMap<>();
@@ -202,15 +224,19 @@ public class OrthologyService {
         map.put(gene.getPrimaryKey(), data);
     }
 
-    public static JsonResultResponse<OrthologView> getOrthologyGenes(List<String> geneIDList, OrthologyFilter filter) {
+    public static JsonResultResponse<OrthologView> getOrthologyGenes(List<String> geneIDList, OrthologyFilter orthoFilter) {
         GeneCacheRepository repo = new GeneCacheRepository();
         List<OrthologView> orthologViewList = repo.getAllOrthologyGenes(geneIDList);
         List<OrthologView> filteredOrthologViewList = orthologViewList;
-        if (filter.getStringency() != null && !filter.getStringency().equals(OrthologyFilter.Stringency.ALL)) {
-            filteredOrthologViewList = orthologViewList.stream()
-                    .filter(orthologView -> orthologView.getStringencyFilter().equalsIgnoreCase(filter.getStringency().name()))
+
+        System.out.println("Filter: " + orthoFilter.getStringency().name());
+        if (orthoFilter.getStringency() != null && !orthoFilter.getStringency().equals(OrthologyFilter.Stringency.ALL)) {
+             filteredOrthologViewList = orthologViewList.stream()
+                    .filter(orthologView -> orthologView.getStringencyFilter().equalsIgnoreCase(orthoFilter.getStringency().name()))
                     .collect(Collectors.toList());
         }
+
+
         System.out.println("Number of genes for orthology: " + filteredOrthologViewList.size());
 
         JsonResultResponse<OrthologView> response = new JsonResultResponse<>();
