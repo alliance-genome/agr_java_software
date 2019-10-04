@@ -73,6 +73,7 @@ public class DiseaseCacher extends Cacher {
                                         entity = new PrimaryAnnotatedEntity();
                                         entity.setId(pubJoin.getPrimaryKey());
                                         entity.setName(pubJoin.getModel().getName());
+                                        entity.setUrl(pubJoin.getModel().getModCrossRefCompleteUrl());
                                         entity.setDisplayName(pubJoin.getModel().getNameText());
                                         entity.setType(GeneticEntity.getType(pubJoin.getModel().getSubtype()));
                                         entities.put(pubJoin.getModel().getPrimaryKey(), entity);
@@ -123,7 +124,6 @@ public class DiseaseCacher extends Cacher {
 
 
         log.info("Retrieved " + String.format("%,d", allDiseaseAnnotations.size()) + " annotations");
-        long startCreateHistogram = System.currentTimeMillis();
         Map<String, Set<String>> closureMapping = diseaseRepository.getClosureMapping();
         log.info("Number of Disease IDs: " + closureMapping.size());
         final Set<String> allIDs = closureMapping.keySet();
@@ -145,7 +145,6 @@ public class DiseaseCacher extends Cacher {
             diseaseAnnotationMap.put(termID, allAnnotations);
         });
 
-        log.info("Time populating diseaseAnnotationMap:  " + ((System.currentTimeMillis() - start) / 1000) + " s");
         log.info("Number of Disease IDs in disease Map: " + diseaseAnnotationMap.size());
 
         setCacheStatus(joinList.size(), CacheAlliance.DISEASE_ANNOTATION.getCacheName());

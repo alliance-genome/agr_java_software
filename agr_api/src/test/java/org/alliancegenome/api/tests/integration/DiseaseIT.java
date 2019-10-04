@@ -313,7 +313,7 @@ public class DiseaseIT {
     public void checkEmpiricalDiseaseByGene() {
         Pagination pagination = new Pagination(1, 10, null, null);
         // Pten
-        String geneID = "MGI:109583";
+        String geneID = "ZFIN:ZDB-GENE-040625-147";
         JsonResultResponse<DiseaseAnnotation> response = diseaseService.getDiseaseAnnotations(geneID, pagination);
         assertResponse(response, 10, 50);
 

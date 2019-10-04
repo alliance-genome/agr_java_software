@@ -22,6 +22,8 @@ public class PrimaryAnnotatedEntity implements Comparable<PrimaryAnnotatedEntity
     @JsonView({View.Default.class, View.API.class})
     protected String displayName;
     @JsonView({View.Default.class, View.API.class})
+    protected String url;
+    @JsonView({View.Default.class, View.API.class})
     protected GeneticEntity.CrossReferenceType type;
     @JsonView({View.Default.class, View.API.class})
     protected CrossReference crossReference;

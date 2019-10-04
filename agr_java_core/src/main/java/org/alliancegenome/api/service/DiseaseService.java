@@ -84,9 +84,9 @@ public class DiseaseService {
         return result;
     }
 
-    public JsonResultResponse<DiseaseAnnotation> getDiseaseAnnotationsWithGenes(String diseaseID, Pagination pagination) {
+    public JsonResultResponse<DiseaseAnnotation> getDiseaseAnnotationsWithGenes(String geneID, Pagination pagination) {
         LocalDateTime startDate = LocalDateTime.now();
-        List<DiseaseAnnotation> fullDiseaseAnnotationList = diseaseCacheRepository.getDiseaseAnnotationList(diseaseID);
+        List<DiseaseAnnotation> fullDiseaseAnnotationList = diseaseCacheRepository.getDiseaseAnnotationList(geneID);
         JsonResultResponse<DiseaseAnnotation> result = new JsonResultResponse<>();
         if (fullDiseaseAnnotationList == null) {
             result.calculateRequestDuration(startDate);
@@ -169,8 +169,7 @@ public class DiseaseService {
 
     public JsonResultResponse<DiseaseAnnotation> getDiseaseAnnotations(String geneID, Pagination pagination) {
         LocalDateTime startDate = LocalDateTime.now();
-        PaginationResult<DiseaseAnnotation> result = diseaseCacheRepository.getDiseaseAnnotationList(geneID, pagination);
-        JsonResultResponse<DiseaseAnnotation> response = new JsonResultResponse<>();
+        JsonResultResponse<DiseaseAnnotation> response = getDiseaseAnnotationsWithGenes(geneID, pagination);
         String note = "";
         if (!SortingField.isValidSortingFieldValue(pagination.getSortBy())) {
             note += "Invalid sorting name provided: " + pagination.getSortBy();
@@ -184,10 +183,6 @@ public class DiseaseService {
         }
         if (!note.isEmpty())
             response.setNote(note);
-        if (result != null) {
-            response.setResults(result.getResult());
-            response.setTotal(result.getTotalNumber());
-        }
         response.calculateRequestDuration(startDate);
         return response;
     }
