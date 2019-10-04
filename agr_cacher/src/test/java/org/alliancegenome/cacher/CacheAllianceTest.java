@@ -58,5 +58,12 @@ public class CacheAllianceTest {
         cacher.run();
     }
 
+    @Ignore
+    @Test
+    public void cachePhenotypes() {
+        GenePhenotypeCacher cacher = new GenePhenotypeCacher();
+        cacher.run();
+    }
+
 
 }
