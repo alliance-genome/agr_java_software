@@ -44,6 +44,8 @@ public class DiseaseCacher extends Cacher {
 
         startProcess("diseaseRepository.getAllDiseaseEntityJoins");
 
+        // used to populate the DOTerm object on the PrimaryAnnotationEntity object
+        Map<String, PrimaryAnnotatedEntity> entities = new HashMap<>();
         List<DiseaseAnnotation> allDiseaseAnnotations = joinList.stream()
                 .map(diseaseEntityJoin -> {
                     DiseaseAnnotation document = new DiseaseAnnotation();
@@ -62,8 +64,6 @@ public class DiseaseCacher extends Cacher {
                     }
 
                     if (CollectionUtils.isNotEmpty(diseaseEntityJoin.getPublicationEvidenceCodeJoin())) {
-                        // used to populate the DOTerm object on the PrimaryAnnotationEntity object
-                        Map<String, PrimaryAnnotatedEntity> entities = new HashMap<>();
                         diseaseEntityJoin.getPublicationEvidenceCodeJoin()
                                 .stream()
                                 .filter(pubJoin -> pubJoin.getModel() != null)
@@ -75,22 +75,25 @@ public class DiseaseCacher extends Cacher {
                                         entity.setName(pubJoin.getModel().getName());
                                         entity.setDisplayName(pubJoin.getModel().getNameText());
                                         entity.setType(GeneticEntity.getType(pubJoin.getModel().getSubtype()));
-                                        entities.put(entity.getId(), entity);
-                                        document.addPrimaryAnnotatedEntity(entity);
+                                        entities.put(pubJoin.getModel().getPrimaryKey(), entity);
                                     }
+                                    document.addPrimaryAnnotatedEntity(entity);
                                     entity.addPublicationEvidenceCode(pubJoin);
-                                    entity.addDisease(document.getDisease());
+                                    entity.addDisease(diseaseEntityJoin.getDisease());
                                 });
                     }
+                    document.setPublicationEvidenceCodeJoins(diseaseRepository.populatePubEvCodeJoins(diseaseEntityJoin.getPublicationEvidenceCodeJoin()));
                     List<Publication> publicationList = diseaseEntityJoin.getPublicationEvidenceCodeJoin().stream()
                             .map(PublicationEvidenceCodeJoin::getPublication).sorted(Comparator.naturalOrder()).collect(Collectors.toList());
                     document.setPublications(publicationList.stream().distinct().collect(Collectors.toList()));
 
+/*
                     List<ECOTerm> ecoList = diseaseEntityJoin.getPublicationEvidenceCodeJoin().stream()
                             .filter(join -> CollectionUtils.isNotEmpty(join.getEcoCode()))
                             .map(PublicationEvidenceCodeJoin::getEcoCode)
                             .flatMap(Collection::stream).sorted(Comparator.naturalOrder()).collect(Collectors.toList());
                     document.setEcoCodes(ecoList.stream().distinct().collect(Collectors.toList()));
+*/
                     // work around as I cannot figure out how to include the ECOTerm in the overall query without slowing down the performance.
                     List<ECOTerm> evidences = diseaseRepository.getEcoTerm(diseaseEntityJoin.getPublicationEvidenceCodeJoin());
                     document.setEcoCodes(evidences);
@@ -129,25 +132,21 @@ public class DiseaseCacher extends Cacher {
         // loop over all disease IDs (termID)
         // and store the annotations in a map for quick retrieval
         Map<String, List<DiseaseAnnotation>> diseaseAnnotationMap = new HashMap<>();
-        Map<String, List<DiseaseAnnotation>> diseaseAnnotationSummaryMap = new HashMap<>();
 
+        Map<String, List<DiseaseAnnotation>> diseaseAnnotationTermMap = allDiseaseAnnotations.stream()
+                .collect(groupingBy(annotation -> annotation.getDisease().getPrimaryKey()));
 
         allIDs.forEach(termID -> {
             Set<String> allDiseaseIDs = closureMapping.get(termID);
-            List<DiseaseAnnotation> joins = allDiseaseAnnotations.stream()
-                    .filter(join -> allDiseaseIDs.contains(join.getDisease().getPrimaryKey()))
-                    .collect(Collectors.toList());
-            diseaseAnnotationMap.put(termID, joins);
-
-            List<DiseaseAnnotation> summaryJoins = summaryList.stream()
-                    .filter(join -> allDiseaseIDs.contains(join.getDisease().getPrimaryKey()))
-                    .collect(Collectors.toList());
-            diseaseAnnotationSummaryMap.put(termID, summaryJoins);
+            List<DiseaseAnnotation> allAnnotations = new ArrayList<>();
+            allDiseaseIDs.stream()
+                    .filter(id -> diseaseAnnotationTermMap.get(id) != null)
+                    .forEach(id -> allAnnotations.addAll(diseaseAnnotationTermMap.get(id)));
+            diseaseAnnotationMap.put(termID, allAnnotations);
         });
 
         log.info("Time populating diseaseAnnotationMap:  " + ((System.currentTimeMillis() - start) / 1000) + " s");
         log.info("Number of Disease IDs in disease Map: " + diseaseAnnotationMap.size());
-        log.info("Time to create annotation  list: " + (System.currentTimeMillis() - startCreateHistogram) / 1000);
 
         setCacheStatus(joinList.size(), CacheAlliance.DISEASE_ANNOTATION.getCacheName());
 

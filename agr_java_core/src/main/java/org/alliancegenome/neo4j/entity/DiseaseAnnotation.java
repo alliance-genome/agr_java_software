@@ -48,6 +48,8 @@ public class DiseaseAnnotation implements Comparable<DiseaseAnnotation>, Seriali
     private int sortOrder;
     @JsonView({View.DiseaseAnnotation.class})
     private List<Gene> orthologyGenes;
+    @JsonView({View.DiseaseAnnotation.class})
+    private List<PublicationEvidenceCodeJoin> publicationEvidenceCodeJoins;
 
     public void addOrthologousGene(Gene gene) {
         if (orthologyGenes == null)
@@ -58,7 +60,8 @@ public class DiseaseAnnotation implements Comparable<DiseaseAnnotation>, Seriali
     public void addPrimaryAnnotatedEntity(PrimaryAnnotatedEntity entity) {
         if (primaryAnnotatedEntities == null)
             primaryAnnotatedEntities = new ArrayList<>();
-        primaryAnnotatedEntities.add(entity);
+        if (!primaryAnnotatedEntities.contains(entity))
+            primaryAnnotatedEntities.add(entity);
     }
 
 

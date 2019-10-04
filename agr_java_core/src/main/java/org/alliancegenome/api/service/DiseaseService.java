@@ -101,7 +101,7 @@ public class DiseaseService {
 
         List<DiseaseAnnotation> geneDiseaseAnnotations = new ArrayList<>();
         groupedByGeneList.forEach((gene, typeMap) -> {
-            typeMap.forEach((s, diseaseAnnotations) -> {
+            typeMap.forEach((type, diseaseAnnotations) -> {
                 DiseaseAnnotation firstAnnotation = diseaseAnnotations.get(0);
                 diseaseAnnotations.forEach(annotation -> {
                     firstAnnotation.addAllPrimaryAnnotatedEntities(annotation.getPrimaryAnnotatedEntities());
@@ -150,13 +150,12 @@ public class DiseaseService {
         }
 
         // select list of annotations that have primaryAnnotatedEntity
-        List<DiseaseAnnotation> modelDiseaseAnnotations = fullDiseaseAnnotationList.stream()
-                .filter(diseaseAnnotation -> CollectionUtils.isNotEmpty(diseaseAnnotation.getPrimaryAnnotatedEntities()))
-                .collect(Collectors.toList());
-
         List<PrimaryAnnotatedEntity> primaryAnnotatedEntities = fullDiseaseAnnotationList.stream()
-                .map(diseaseAnnotation -> diseaseAnnotation.getPrimaryAnnotatedEntities())
+                // filter out annotations with primary annotated entities
+                .filter(diseaseAnnotation -> CollectionUtils.isNotEmpty(diseaseAnnotation.getPrimaryAnnotatedEntities()))
+                .map(DiseaseAnnotation::getPrimaryAnnotatedEntities)
                 .flatMap(Collection::stream)
+                .distinct()
                 .collect(Collectors.toList());
 
         //filtering
