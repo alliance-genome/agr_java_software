@@ -229,7 +229,7 @@ public class OrthologyService {
         List<OrthologView> orthologViewList = repo.getAllOrthologyGenes(geneIDList);
         List<OrthologView> filteredOrthologViewList = orthologViewList;
 
-        System.out.println("Filter: " + orthoFilter.getStringency().name());
+
         if (orthoFilter.getStringency() != null && !orthoFilter.getStringency().equals(OrthologyFilter.Stringency.ALL)) {
              filteredOrthologViewList = orthologViewList.stream()
                     .filter(orthologView -> orthologView.getStringencyFilter().equalsIgnoreCase(orthoFilter.getStringency().name()))
