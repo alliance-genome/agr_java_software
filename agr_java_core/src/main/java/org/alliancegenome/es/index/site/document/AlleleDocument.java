@@ -28,7 +28,6 @@ public class AlleleDocument extends SearchableItemDocument {
     private Date dataProvider;
     private String release;
     private String globalId;
-    private String modCrossRefFullUrl;
 
     private List<CrossReferenceDoclet> crossReferenceList;
     private Set<String> variantTypes;

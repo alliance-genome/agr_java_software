@@ -61,7 +61,7 @@ public class ModelIndexerRepository extends Neo4jRepository {
     public Map<String, Set<String>> getAlleleMap(String species) {
         String query = "MATCH (species:Species)-[:FROM_SPECIES]-(model:AffectedGenomicModel)--(allele:Allele)";
         query += getSpeciesWhere(species);
-        query += " RETURN model.primaryKey as id, allele.symbolText as value"; //todo: replace with symbolWithSpecies
+        query += " RETURN model.primaryKey as id, allele.symbolTextWithSpecies as value";
 
         return getMapSetForQuery(query, getSpeciesParams(species));
     }
@@ -75,7 +75,7 @@ public class ModelIndexerRepository extends Neo4jRepository {
     }
 
     public Map<String, Set<String>> getGeneMap(String species) {
-        String query = "MATCH (species:Species)-[:FROM_SPECIES]-(model:AffectedGenomicModel)--(allele:Allele)--(gene:Gene)";
+        String query = "MATCH (species:Species)-[:FROM_SPECIES]-(model:AffectedGenomicModel)-[:MODEL_COMPONENT|:SEQUENCE_TARGETING_REAGENT]-(feature)--(gene:Gene)";
         query += getSpeciesWhere(species);
         query += " RETURN model.primaryKey as id, gene.symbolWithSpecies as value";
 

@@ -23,6 +23,7 @@ public class AffectedGenomicModel extends GeneticEntity implements Comparable<Af
     private String modCrossRefCompleteUrl;
     private String name;
     private String nameText;
+    private String nameTextWithSpecies;
 
     @Relationship(type = "PRIMARY_GENETIC_ENTITY", direction = Relationship.INCOMING)
     private List<DiseaseEntityJoin> diseaseEntityJoins = new ArrayList<>();

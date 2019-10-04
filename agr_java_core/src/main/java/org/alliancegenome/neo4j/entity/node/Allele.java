@@ -28,6 +28,7 @@ public class Allele extends GeneticEntity implements Comparable<Allele> {
     private String modCrossRefCompleteUrl;
     @JsonView({View.Default.class})
     private String symbolText;
+    private String symbolTextWithSpecies;
 
     @Relationship(type = "IS_ALLELE_OF")
     private Gene gene;

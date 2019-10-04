@@ -236,10 +236,12 @@ public class SearchService {
             links.add(getRelatedDataLink("allele", "diseases", nameKey));
             links.add(getRelatedDataLink("model", "diseases", nameKey));
         } else if (StringUtils.equals(category, "allele")) {
-            links.add(getRelatedDataLink("gene", "alleles", name));
-            links.add(getRelatedDataLink("model", "alleles", name));
+            links.add(getRelatedDataLink("gene", "alleles", nameKey));
+            links.add(getRelatedDataLink("model", "alleles", nameKey));
         } else if (StringUtils.equals(category,"model")) {
-            //todo: this won't work without indexing models as a part of other categories
+            links.add(getRelatedDataLink("gene","models", nameKey));
+            links.add(getRelatedDataLink("allele","models", nameKey));
+            links.add(getRelatedDataLink("disease","models", nameKey));
         } else if (StringUtils.equals(category,"go")) {
             String goType = (String) result.get("go_type");
             if (StringUtils.equals(goType, "biological_process")) {
@@ -265,7 +267,6 @@ public class SearchService {
         MultivaluedMap<String,String> filters = new MultivaluedHashMap<>();
 
         filters.add(targetField, sourceName);
-        filters.add("category", targetCategory);
 
         Long count = searchDAO.performCountQuery(buildQuery(null, targetCategory, filters));
 

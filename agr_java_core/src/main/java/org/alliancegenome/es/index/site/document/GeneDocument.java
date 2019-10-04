@@ -43,7 +43,6 @@ public class GeneDocument extends SearchableItemDocument {
     private Date dateProduced;
 
     private String geneSynopsisUrl;
-    private String primaryId;
     private List<GenomeLocationDoclet> genomeLocations;
     private String soTermId;
     private String soTermName;
@@ -68,11 +67,11 @@ public class GeneDocument extends SearchableItemDocument {
     @Override
     @JsonIgnore
     public String getDocumentId() {
-        return primaryId;
+        return primaryKey;
     }
 
     @Override
     public String toString() {
-        return primaryId + ": " + symbol;
+        return primaryKey + ": " + symbol;
     }
 }

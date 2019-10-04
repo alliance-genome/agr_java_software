@@ -48,12 +48,11 @@ public class GeneDocumentCache extends IndexerCache {
     }
 
     public void addCachedFields(GeneDocument geneDocument) {
-        String id = geneDocument.getPrimaryId();
+        String id = geneDocument.getPrimaryKey();
 
         super.addCachedFields(geneDocument);
 
         geneDocument.setStrictOrthologySymbols(strictOrthologySymbols.get(id));
-        geneDocument.setDiseases(diseases.get(id));
         geneDocument.setDiseasesAgrSlim(diseasesAgrSlim.get(id));
         geneDocument.setDiseasesWithParents(diseasesWithParents.get(id));
 

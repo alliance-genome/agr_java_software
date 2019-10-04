@@ -19,7 +19,7 @@ public class GoTranslator extends EntityDocumentTranslator<GOTerm, GoDocument> {
 
         doc.setName(entity.getName());
         doc.setId(entity.getPrimaryKey());
-        doc.setPrimaryId(entity.getPrimaryKey());
+        doc.setPrimaryKey(entity.getPrimaryKey());
         doc.setNameKey(entity.getNameKey());
         doc.setGo_type(entity.getType());
         doc.setHref(entity.getHref());

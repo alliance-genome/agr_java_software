@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javafx.scene.shape.StrokeLineJoin;
 import org.alliancegenome.es.index.ESDocument;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -18,7 +19,7 @@ public abstract class SearchableItemDocument extends ESDocument {
 
     protected String category;
 
-    String primaryId;
+    String primaryKey;
     String name;
     @JsonProperty("name_key")
     String nameKey;
@@ -35,6 +36,7 @@ public abstract class SearchableItemDocument extends ESDocument {
     Set<String> diseasesWithParents = new HashSet<>();
     Set<String> alleles = new HashSet<>();
     Set<String> genes = new HashSet<>();
+    Set<String> models = new HashSet<>();
     Set<String> phenotypeStatements = new HashSet<>();
     Set<String> secondaryIds = new HashSet<>();
     Set<String> synonyms = new HashSet<>();
@@ -44,7 +46,7 @@ public abstract class SearchableItemDocument extends ESDocument {
     @Override
     @JsonIgnore
     public String getDocumentId() {
-        return primaryId;
+        return primaryKey;
     }
     
     @Override

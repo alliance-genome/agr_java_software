@@ -30,7 +30,7 @@ class CategoriesAndFieldsIntegrationForLaterSpec extends Specification {
         where:
         category  | field
 
-        "gene"    | "primaryId"
+        "gene"    | "primaryKey"
         "gene"    | "secondaryIds"
         "gene"    | "category"
         "gene"    | "name"
@@ -59,7 +59,7 @@ class CategoriesAndFieldsIntegrationForLaterSpec extends Specification {
         "gene"    | "cellularComponentExpressionAgrSlim"
         "gene"    | "cellularComponentExpressionWithParents"
 
-        "go"      | "primaryId"
+        "go"      | "primaryKey"
         "go"      | "category"
         "go"      | "name"
         "go"      | "name.keyword"
@@ -67,7 +67,7 @@ class CategoriesAndFieldsIntegrationForLaterSpec extends Specification {
         "go"      | "synonyms"
         "go"      | "synonyms.autocomplete"
 
-        "disease" | "primaryId"
+        "disease" | "primaryKey"
         "disease" | "category"
         "disease" | "name"
         "disease" | "name.keyword"

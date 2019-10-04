@@ -46,7 +46,7 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, GeneDocument>
         else
             document.setName(entity.getName());
         document.setNameKey(entity.getNameKey());
-        document.setPrimaryId(entity.getPrimaryKey());
+        document.setPrimaryKey(entity.getPrimaryKey());
         document.setDateProduced(entity.getDateProduced());
         document.setTaxonId(entity.getTaxonId());
 

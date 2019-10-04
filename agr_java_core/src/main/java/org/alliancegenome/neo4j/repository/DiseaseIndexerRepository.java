@@ -42,10 +42,13 @@ public class DiseaseIndexerRepository extends Neo4jRepository<DOTerm> {
         diseaseDocumentCache.setDiseaseMap(getDiseaseMap());
 
         log.info("Building disease -> gene map");
-        diseaseDocumentCache.setGenesMap(getGenesMap());
+        diseaseDocumentCache.setGenes(getGenesMap());
 
-        log.info("BUilding disease -> allele map");
-        diseaseDocumentCache.setAllelesMap(getAllelesMap());
+        log.info("Building disease -> allele map");
+        diseaseDocumentCache.setAlleles(getAllelesMap());
+
+        log.info("Building disease -> model map");
+        diseaseDocumentCache.setModels(getModelsMap());
 
         log.info("Building disease -> species map");
         diseaseDocumentCache.setSpeciesMap(getSpeciesMap());
@@ -67,7 +70,12 @@ public class DiseaseIndexerRepository extends Neo4jRepository<DOTerm> {
 
     public Map<String, Set<String>> getAllelesMap() {
         return getMapSetForQuery("MATCH (disease:DOTerm)--(:DiseaseEntityJoin)--(allele:Allele) " +
-                "RETURN disease.primaryKey as id, allele.symbolText as value;");
+                "RETURN disease.primaryKey as id, allele.symbolTextWithSpecies as value;");
+    }
+
+    public Map<String, Set<String>> getModelsMap() {
+        return getMapSetForQuery("MATCH (species:Species)-[:FROM_SPECIES]-(model:AffectedGenomicModel)--(disease:DOTerm)"
+                + " RETURN disease.primaryKey as id, model.nameTextWithSpecies as value");
     }
 
     public Map<String, Set<String>> getSpeciesMap() {

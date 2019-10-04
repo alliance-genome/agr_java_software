@@ -28,6 +28,8 @@ public class GeneticEntity extends Neo4jEntity {
     protected String primaryKey;
     @JsonView({View.Default.class, View.API.class})
     protected String symbol;
+
+    protected String symbolWithSpecies;
     @Convert(value = DateConverter.class)
     private Date dateProduced;
 

@@ -30,7 +30,7 @@ class QueryManipulationUnitSpec extends Specification {
         "WB:WBGene00000244"                   | "WB\\:WBGene00000244"
         "parkinson's disease"                 | "parkinson's disease"
         "__symbol:fgf8a"                      | "symbol:fgf8a"
-        "__primaryId:DOID:10314"              | "primaryId:DOID\\:10314"
+        "__primaryKey:DOID:10314"             | "primaryKey:DOID\\:10314"
         "si:ch211-133d24.26p"                 | "si\\:ch211-133d24.26p"
         "en::ftz::Mmus\\En1"                  | "en\\:\\:ftz\\:\\:Mmus\\En1"
         "Foxn1<sup>nu-StL</sup> (Mmu)"        | "Foxn1\\<sup\\>nu-StL\\<\\/sup\\> \\(Mmu\\)"

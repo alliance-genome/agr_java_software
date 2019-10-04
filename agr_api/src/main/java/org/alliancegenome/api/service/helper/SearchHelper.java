@@ -97,7 +97,6 @@ public class SearchHelper {
     public List<String> getSearchFields() { return searchFields; }
     private List<String> searchFields = new ArrayList<String>() {
         {
-            add("primaryId");
             add("primaryKey");
             add("id");
             add("localId");
@@ -144,6 +143,7 @@ public class SearchHelper {
             add("diseasesAgrSlim");
             add("diseasesWithParents");
             add("alleles"); add("alleles.text"); add("alleles.autocomplete");
+            add("models");
             add("phenotypeStatements");
             add("strictOrthologySymbols.autocomplete");
             add("strictOrthologySymbols.keyword");
