@@ -17,7 +17,7 @@ public class PrimaryAnnotatedEntityFiltering extends AnnotationFiltering<Primary
                 Set<Boolean> filteringPassed = annotation.getDiseases().stream()
                         .map(disease -> FilterFunction.contains(disease.getName(), value))
                         .collect(Collectors.toSet());
-                return !filteringPassed.contains(false);
+                return filteringPassed.contains(true);
             };
 
     /*

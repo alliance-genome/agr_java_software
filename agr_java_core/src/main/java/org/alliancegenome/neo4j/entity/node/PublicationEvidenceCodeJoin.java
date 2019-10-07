@@ -37,7 +37,7 @@ public class PublicationEvidenceCodeJoin extends Association {
     @Override
     public String toString() {
         String ecos = ecoCode.stream()
-                .map(ecoTerm -> ecoTerm.getName())
+                .map(SimpleTerm::getName)
                 .collect(Collectors.joining(","));
         return publication.getPubId() + ":" + ecoCode;
     }
