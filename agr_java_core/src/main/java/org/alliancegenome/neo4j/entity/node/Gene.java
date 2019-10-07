@@ -60,34 +60,6 @@ public class Gene extends GeneticEntity implements Comparable<Gene> {
     @JsonView(value = {View.GeneAPI.class})
     private SOTerm soTerm;
 
-    @Relationship(type = "ALSO_KNOWN_AS")
-    private Set<Synonym> synonyms = new HashSet<>();
-
-    // Converts the list of synonym objects to a list of strings
-    @JsonView(value = {View.GeneAPI.class})
-    @JsonProperty(value = "synonyms")
-    public List<String> getSynonymList() {
-        List<String> list = new ArrayList<>();
-        for (Synonym s : synonyms) {
-            list.add(s.getName());
-        }
-        return list;
-    }
-
-    @Relationship(type = "ALSO_KNOWN_AS")
-    private Set<SecondaryId> secondaryIds = new HashSet<>();
-
-    // Converts the list of secondary ids objects to a list of strings
-    @JsonView(value = {View.GeneAPI.class})
-    @JsonProperty(value = "secondaryIds")
-    public List<String> getSecondaryIdsList() {
-        List<String> list = new ArrayList<>();
-        for (SecondaryId s : secondaryIds) {
-            list.add(s.getName());
-        }
-        return list;
-    }
-
     @Relationship(type = "ANNOTATED_TO")
     private Set<GOTerm> goTerms = new HashSet<>();
 

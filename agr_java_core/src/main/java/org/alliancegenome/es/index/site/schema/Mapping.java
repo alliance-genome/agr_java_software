@@ -21,7 +21,6 @@ public abstract class Mapping extends Builder {
     //Mappings that must be shared / equivalent across searchable documents
     protected void buildSharedSearchableDocumentMappings() throws IOException {
 
-        new FieldBuilder(builder,"primaryId","keyword").build();
         new FieldBuilder(builder,"primaryKey","keyword").build();
         new FieldBuilder(builder,"category","keyword").symbol().autocomplete().keyword().build();
         new FieldBuilder(builder,"associationType","text").symbol().autocomplete().keyword().standardText().build();
@@ -55,6 +54,7 @@ public abstract class Mapping extends Builder {
         new FieldBuilder(builder, "diseasesAgrSlim", "text").keyword().build();
         new FieldBuilder(builder, "diseasesWithParents", "text").keyword().build();
         new FieldBuilder(builder, "alleles", "text").keyword().autocomplete().build();
+        new FieldBuilder(builder, "models", "text").keyword().autocomplete().build();
         new FieldBuilder(builder, "genes","text").keyword().autocomplete().keywordAutocomplete().build();
         new FieldBuilder(builder, "phenotypeStatements", "text")
                 .keyword()

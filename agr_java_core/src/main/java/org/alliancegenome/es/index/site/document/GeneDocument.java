@@ -27,7 +27,6 @@ public class GeneDocument extends SearchableItemDocument {
 
     private String taxonId;
     private String symbol;
-    private String species;
 
     private Set<String> biologicalProcessWithParents;
     private Set<String> molecularFunctionWithParents;
@@ -37,7 +36,6 @@ public class GeneDocument extends SearchableItemDocument {
     private Set<String> molecularFunctionAgrSlim;
     private Set<String> cellularComponentAgrSlim;
 
-    private List<String> synonyms;
     private String geneLiteratureUrl;
     @JsonProperty("crossReferences")
     private Map<String, List<CrossReferenceDoclet>> crossReferencesMap;
@@ -45,10 +43,8 @@ public class GeneDocument extends SearchableItemDocument {
     private Date dateProduced;
 
     private String geneSynopsisUrl;
-    private String primaryId;
     private List<GenomeLocationDoclet> genomeLocations;
     private String soTermId;
-    private List<String> secondaryIds;
     private String soTermName;
     private Set<String> soTermNameWithParents;
     private Set<String> soTermNameAgrSlim;
@@ -64,7 +60,6 @@ public class GeneDocument extends SearchableItemDocument {
     private Set<String> subcellularExpressionWithParents;
     private Set<String> subcellularExpressionAgrSlim;
 
-    private String modCrossRefCompleteUrl;
     private String modLocalId;
     private String modGlobalCrossRefId;
     private String modGlobalId;
@@ -72,11 +67,11 @@ public class GeneDocument extends SearchableItemDocument {
     @Override
     @JsonIgnore
     public String getDocumentId() {
-        return primaryId;
+        return primaryKey;
     }
 
     @Override
     public String toString() {
-        return primaryId + ": " + symbol;
+        return primaryKey + ": " + symbol;
     }
 }

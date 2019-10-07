@@ -35,6 +35,8 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
     protected DecimalFormat df = new DecimalFormat("#");
     protected ObjectMapper om = new ObjectMapper();
 
+    protected String species = null;
+
     // Used for showing progress
     private Date startTime = new Date();
     private Date lastTime = new Date();

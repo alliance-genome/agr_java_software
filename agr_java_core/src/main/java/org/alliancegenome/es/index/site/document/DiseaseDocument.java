@@ -32,7 +32,6 @@ public class DiseaseDocument extends SearchableItemDocument {
     private String definition;
     private Date dateProduced;
     private List<String> definitionLinks;
-    private List<String> synonyms;
     private Set<String> associatedSpecies;
     private Set<String> parentDiseaseNames;
     private Set<String> diseaseGroup;
@@ -58,7 +57,7 @@ public class DiseaseDocument extends SearchableItemDocument {
         name = doc.name;
         nameKey = doc.nameKey;
         description = doc.description;
-        primaryId = doc.primaryId;
+        primaryKey = doc.primaryKey;
         searchable = doc.searchable;
         definition = doc.definition;
         dateProduced = doc.dateProduced;

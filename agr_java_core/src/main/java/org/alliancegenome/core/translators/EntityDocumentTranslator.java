@@ -1,32 +1,25 @@
 package org.alliancegenome.core.translators;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.stream.Collectors;
 
 import org.alliancegenome.es.index.ESDocument;
+import org.alliancegenome.es.index.site.document.SearchableItemDocument;
 import org.alliancegenome.neo4j.entity.Neo4jEntity;
+import org.alliancegenome.neo4j.entity.node.GeneticEntity;
+import org.alliancegenome.neo4j.entity.node.SecondaryId;
+import org.alliancegenome.neo4j.entity.node.SimpleTerm;
+import org.alliancegenome.neo4j.entity.node.Synonym;
 
 public abstract class EntityDocumentTranslator<E extends Neo4jEntity, D extends ESDocument> {
 
-    public E translate(D doument) {
-        return translate(doument, 1);
-    }
     public D translate(E entity) {
         return translate(entity, 1);
     }
 
     public D translate(E entity, int depth) {
         return entityToDocument(entity, depth);
-    }
-    public E translate(D document, int depth) {
-        return documentToEntity(document, depth);
-    }
-
-    public Iterable<E> translateDocuments(Iterable<D> douments) {
-        ArrayList<E> entities = new ArrayList<E>();
-        for (D document : douments) {
-            entities.add(translate(document, 1));
-        }
-        return entities;
     }
 
     public Iterable<D> translateEntities(Iterable<E> entities) {
@@ -38,6 +31,28 @@ public abstract class EntityDocumentTranslator<E extends Neo4jEntity, D extends 
     }
 
     protected abstract D entityToDocument(E entity, int translationDepth);
-    protected abstract E documentToEntity(D doument, int translationDepth);
 
+    protected void addSecondaryIds(GeneticEntity entity, SearchableItemDocument document) {
+        ArrayList<String> secondaryIds = new ArrayList<>();
+        if (entity.getSecondaryIds() != null) {
+            for (SecondaryId secondaryId : entity.getSecondaryIds()) {
+                secondaryIds.add(secondaryId.getName());
+            }
+        }
+        document.setSecondaryIds(new HashSet<>(entity.getSecondaryIdsList()));
+    }
+
+    protected void addSynonyms(GeneticEntity entity, SearchableItemDocument document) {
+        ArrayList<String> synonyms = new ArrayList<>();
+        if (entity.getSynonyms() != null) {
+            for (Synonym synonym : entity.getSynonyms()) {
+                if (synonym.getPrimaryKey() != null) {
+                    synonyms.add(synonym.getPrimaryKey());
+                } else {
+                    synonyms.add(synonym.getName());
+                }
+            }
+        }
+        document.setSynonyms(new HashSet<>(entity.getSynonymList()));
+    }
 }

@@ -19,7 +19,6 @@ public class GeneIndexer extends Indexer<GeneDocument> {
 
     private final Logger log = LogManager.getLogger(getClass());
     private GeneDocumentCache geneDocumentCache;
-    private String species = null;
 
     public GeneIndexer(IndexerConfig config) {
         super(config);

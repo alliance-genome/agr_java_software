@@ -124,6 +124,11 @@ public class Neo4jRepository<E> {
         return getMapSetForQuery(query, "id", "value", null);
     }
 
+    //used by indexer repositories, assumes aliased id and value fields but accepts params
+    protected Map<String, Set<String>> getMapSetForQuery(String query, Map<String, String> params) {
+        return getMapSetForQuery(query, "id", "value", params);
+    }
+
     //used by indexer repositories
     protected Map<String, Set<String>> getMapSetForQuery(String query, String keyField, String returnField, Map<String, String> params) {
 

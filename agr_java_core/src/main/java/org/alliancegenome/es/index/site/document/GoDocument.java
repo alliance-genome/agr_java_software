@@ -20,7 +20,6 @@ public class GoDocument extends SearchableItemDocument {
     private String go_type;
     private String href;
     private String definition;
-    private List<String> synonyms;
     private Set<String> go_genes;
     private Set<String> go_species;
 

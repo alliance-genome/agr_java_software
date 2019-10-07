@@ -89,6 +89,10 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
         geneDocumentCache.setDiseasesWithParents(getDiseasesWithParents(species));
 
         checkMemory();
+        log.info("Building gene -> model map");
+        geneDocumentCache.setModels(getModelMap(species));
+
+        checkMemory();
         log.info("Building gene -> phenotypeStatement map");
         geneDocumentCache.setPhenotypeStatements(getPhenotypeStatementMap(species));
 
@@ -155,7 +159,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
     private Map<String, Set<String>> getAllelesMap(String species) {
         String query = "MATCH (species:Species)--(gene:Gene)-[:IS_ALLELE_OF]-(allele:Allele) ";
         query += getSpeciesWhere(species);
-        query += " RETURN gene.primaryKey as id,allele.symbolText as value ";
+        query += " RETURN gene.primaryKey as id,allele.symbolTextWithSpecies as value ";
 
         return getMapSetForQuery(query, "id", "value", getSpeciesParams(species));
     }
@@ -219,6 +223,14 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
         query += " RETURN distinct gene.primaryKey, disease.nameKey ";
 
         return getMapSetForQuery(query, "gene.primaryKey", "disease.nameKey", getSpeciesParams(species));
+    }
+
+    private Map<String,Set<String>> getModelMap(String species) {
+        String query = "MATCH (species:Species)-[:FROM_SPECIES]-(model:AffectedGenomicModel)-[:MODEL_COMPONENT|:SEQUENCE_TARGETING_REAGENT]-(feature)--(gene:Gene)";
+        query += getSpeciesWhere(species);
+        query += " RETURN gene.primaryKey as id, model.nameTextWithSpecies as value";
+
+        return getMapSetForQuery(query, getSpeciesParams(species));
     }
 
     private Map<String,Set<String>> getPhenotypeStatementMap(String species) {
