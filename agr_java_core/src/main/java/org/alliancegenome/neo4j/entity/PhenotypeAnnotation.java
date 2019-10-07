@@ -12,6 +12,7 @@ import org.alliancegenome.neo4j.entity.node.Publication;
 import org.alliancegenome.neo4j.view.View;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -30,6 +31,9 @@ public class PhenotypeAnnotation implements Comparable<PhenotypeAnnotation>, Ser
     private List<AffectedGenomicModel> models;
     @JsonView({View.PhenotypeAPI.class})
     private List<Publication> publications;
+    @JsonView({View.PhenotypeAPI.class})
+    private List<PrimaryAnnotatedEntity> primaryAnnotatedEntities;
+
 
     @JsonIgnore
     public String getDocumentId() {
@@ -41,4 +45,13 @@ public class PhenotypeAnnotation implements Comparable<PhenotypeAnnotation>, Ser
         return 0;
     }
 
+    public void addPrimaryAnnotatedEntity(PrimaryAnnotatedEntity entity) {
+        if (primaryAnnotatedEntities == null)
+            primaryAnnotatedEntities = new ArrayList<>();
+        if (!primaryAnnotatedEntities.contains(entity))
+            primaryAnnotatedEntities.add(entity);
+    }
+
+
 }
+

@@ -635,7 +635,7 @@ public class GeneRepository extends Neo4jRepository<Gene> {
 
         List<BioEntityGeneExpressionJoin> allBioEntityExpressionJoins = StreamSupport.stream(joins.spliterator(), false).
                 collect(Collectors.toList());
-        log.info("Total BioEntityGeneExpressionJoin nodes: " + allBioEntityExpressionJoins.size());
+        log.info("Total BioEntityGeneExpressionJoin nodes: " + String.format("%,d", allBioEntityExpressionJoins.size()));
         log.info("Loaded in:  " + ((System.currentTimeMillis() - start) / 1000) + " s");
         return allBioEntityExpressionJoins;
     }

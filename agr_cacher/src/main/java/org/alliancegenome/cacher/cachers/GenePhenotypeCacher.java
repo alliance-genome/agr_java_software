@@ -6,11 +6,14 @@ import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.cache.manager.PhenotypeCacheManager;
 import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
+import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
+import org.alliancegenome.neo4j.entity.node.GeneticEntity;
 import org.alliancegenome.neo4j.entity.node.PhenotypeEntityJoin;
 import org.alliancegenome.neo4j.repository.PhenotypeRepository;
 import org.alliancegenome.neo4j.view.View;
+import org.apache.commons.collections.CollectionUtils;
 
-import java.text.DecimalFormat;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -35,11 +38,11 @@ public class GenePhenotypeCacher extends Cacher {
         finishProcess();
 
         int size = joinList.size();
-        DecimalFormat myFormatter = new DecimalFormat("###,###.##");
-        log.info("Retrieved " + myFormatter.format(size) + " phenotype records");
-        // replace Gene references with the cached Gene references to keep the memory imprint low.
+        log.info("Retrieved " + String.format("%,d", size) + " PhenotypeEntityJoin records");
         startProcess("allPhenotypeAnnotations", size);
 
+        // used to populate the DOTerm object on the PrimaryAnnotationEntity object
+        Map<String, PrimaryAnnotatedEntity> entities = new HashMap<>();
         List<PhenotypeAnnotation> allPhenotypeAnnotations = joinList.stream()
                 .map(phenotypeEntityJoin -> {
                     PhenotypeAnnotation document = new PhenotypeAnnotation();
@@ -48,6 +51,24 @@ public class GenePhenotypeCacher extends Cacher {
                         document.setAllele(phenotypeEntityJoin.getAllele());
                     document.setPhenotype(phenotypeEntityJoin.getPhenotype().getPhenotypeStatement());
                     document.setPublications(phenotypeEntityJoin.getPublications());
+                    if (CollectionUtils.isNotEmpty(phenotypeEntityJoin.getPhenotypePublicationJoins())) {
+                        phenotypeEntityJoin.getPhenotypePublicationJoins()
+                                .stream()
+                                .filter(pubJoin -> pubJoin.getModels() != null)
+                                .forEach(pubJoin -> {
+                                    pubJoin.getModels().forEach(model -> {
+                                        PrimaryAnnotatedEntity entity = new PrimaryAnnotatedEntity();
+                                        entity = new PrimaryAnnotatedEntity();
+                                        entity.setId(pubJoin.getPrimaryKey());
+                                        entity.setName(model.getName());
+                                        entity.setUrl(model.getModCrossRefCompleteUrl());
+                                        entity.setDisplayName(model.getNameText());
+                                        entity.setType(GeneticEntity.getType(model.getSubtype()));
+                                        entities.put(model.getPrimaryKey(), entity);
+                                        document.addPrimaryAnnotatedEntity(entity);
+                                    });
+                                });
+                    }
                     progressProcess();
                     return document;
                 })
