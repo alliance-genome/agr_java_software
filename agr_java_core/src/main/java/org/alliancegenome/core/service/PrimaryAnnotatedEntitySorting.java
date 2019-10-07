@@ -2,6 +2,7 @@ package org.alliancegenome.core.service;
 
 import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
 import org.alliancegenome.neo4j.entity.Sorting;
+import org.apache.commons.collections.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -12,27 +13,22 @@ public class PrimaryAnnotatedEntitySorting implements Sorting<PrimaryAnnotatedEn
     private List<Comparator<PrimaryAnnotatedEntity>> defaultList;
     private List<Comparator<PrimaryAnnotatedEntity>> diseaseList;
     private List<Comparator<PrimaryAnnotatedEntity>> modelList;
-    private List<Comparator<PrimaryAnnotatedEntity>> speciesList;
-
-/*
-    private static Comparator<PrimaryAnnotatedEntity> diseaseOrder =
-            Comparator.comparing(annotation -> annotation.getDisease().getName().toLowerCase());
-*/
 
     private static Comparator<PrimaryAnnotatedEntity> modelNameSymbolOrder =
             Comparator.comparing(annotation -> annotation.getName().toLowerCase());
 
-/*
-    private static Comparator<PrimaryAnnotatedEntity> diseaseOrder =
-            Comparator.comparing(annotation -> annotation.getDisease().getName().toLowerCase());
-*/
+    private static Comparator<PrimaryAnnotatedEntity> diseaseExistOrder =
+            Comparator.comparing(annotation -> CollectionUtils.isEmpty(annotation.getDiseases()));
 
-
+    private static Comparator<PrimaryAnnotatedEntity> phenotypeExistsOrder =
+            Comparator.comparing(annotation -> CollectionUtils.isEmpty(annotation.getPhenotypes()));
 
     public PrimaryAnnotatedEntitySorting() {
         super();
 
         defaultList = new ArrayList<>(4);
+        defaultList.add(diseaseExistOrder);
+        defaultList.add(phenotypeExistsOrder);
         defaultList.add(modelNameSymbolOrder);
 
         modelList = new ArrayList<>(4);

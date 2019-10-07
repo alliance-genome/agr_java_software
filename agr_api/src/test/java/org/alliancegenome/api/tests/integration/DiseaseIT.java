@@ -92,7 +92,8 @@ public class DiseaseIT {
     public void checkGetDiseaseAnnotationsWithAGMAndGene() {
         Pagination pagination = new Pagination(1, 100, null, null);
         // Menkes
-        String geneID = "ZFIN:ZDB-GENE-060825-45";
+        //String geneID = "ZFIN:ZDB-GENE-060825-45";
+        String geneID = "MGI:109583";
         JsonResultResponse<PrimaryAnnotatedEntity> response = diseaseService.getDiseaseAnnotationsWithGeneAndAGM(geneID, pagination);
         assertLimitResponse(response, 3, 4);
     }

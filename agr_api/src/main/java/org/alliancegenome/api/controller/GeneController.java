@@ -262,7 +262,6 @@ public class GeneController extends BaseController implements GeneRESTInterface 
             JsonResultResponse<PrimaryAnnotatedEntity> response = diseaseService.getDiseaseAnnotationsWithGeneAndAGM(id, pagination);
             response.setHttpServletRequest(request);
             response.calculateRequestDuration(startTime);
-
             return response;
         } catch (Exception e) {
             log.error("Error while retrieving disease annotations by allele", e);

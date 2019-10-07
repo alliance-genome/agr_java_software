@@ -13,7 +13,6 @@ import org.alliancegenome.neo4j.repository.PhenotypeRepository;
 import org.alliancegenome.neo4j.view.View;
 import org.apache.commons.collections.CollectionUtils;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -42,7 +41,6 @@ public class GenePhenotypeCacher extends Cacher {
         startProcess("allPhenotypeAnnotations", size);
 
         // used to populate the DOTerm object on the PrimaryAnnotationEntity object
-        Map<String, PrimaryAnnotatedEntity> entities = new HashMap<>();
         List<PhenotypeAnnotation> allPhenotypeAnnotations = joinList.stream()
                 .map(phenotypeEntityJoin -> {
                     PhenotypeAnnotation document = new PhenotypeAnnotation();
@@ -58,14 +56,13 @@ public class GenePhenotypeCacher extends Cacher {
                                 .forEach(pubJoin -> {
                                     pubJoin.getModels().forEach(model -> {
                                         PrimaryAnnotatedEntity entity = new PrimaryAnnotatedEntity();
-                                        entity = new PrimaryAnnotatedEntity();
                                         entity.setId(pubJoin.getPrimaryKey());
                                         entity.setName(model.getName());
                                         entity.setUrl(model.getModCrossRefCompleteUrl());
                                         entity.setDisplayName(model.getNameText());
                                         entity.setType(GeneticEntity.getType(model.getSubtype()));
-                                        entities.put(model.getPrimaryKey(), entity);
                                         document.addPrimaryAnnotatedEntity(entity);
+                                        entity.addPhenotype(phenotypeEntityJoin.getPhenotype().getPhenotypeStatement());
                                     });
                                 });
                     }
