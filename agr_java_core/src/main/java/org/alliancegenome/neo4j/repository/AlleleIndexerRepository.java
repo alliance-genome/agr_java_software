@@ -66,6 +66,9 @@ public class AlleleIndexerRepository extends Neo4jRepository {
         log.info("Building allele -> variant types map");
         alleleDocumentCache.setVariantTypesMap(getVariantTypesMap(species));
 
+        log.info("Building allele -> molecular consequence map");
+        alleleDocumentCache.setMolecularConsequenceMap(getMolecularConsequence(species));
+
         return alleleDocumentCache;
 
     }
@@ -133,6 +136,14 @@ public class AlleleIndexerRepository extends Neo4jRepository {
         query += " RETURN distinct a.primaryKey,term.name ";
 
         return getMapSetForQuery(query, "a.primaryKey", "term.name", getSpeciesParams(species));
+    }
+
+    public Map<String, Set<String>> getMolecularConsequence(String species) {
+        String query = "MATCH (species:Species)--(:Gene)-[:IS_ALLELE_OF]-(a:Allele)--(v:Variant)--(consequence:GeneLevelConsequence) ";
+        query += getSpeciesWhere(species);
+        query += " RETURN a.primaryKey as id, consequence.geneLevelConsequence as value ";
+
+        return getMapSetForQuery(query, getSpeciesParams(species));
     }
 
 }

@@ -30,6 +30,7 @@ public class AlleleDocument extends SearchableItemDocument {
     private String globalId;
 
     private List<CrossReferenceDoclet> crossReferenceList;
+    private Set<String> molecularConsequence;
     private Set<String> variantTypes;
 
     @Override

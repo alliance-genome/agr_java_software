@@ -17,6 +17,7 @@ public class AlleleDocumentCache extends IndexerCache {
 
     private Map<String, Allele> alleleMap = new HashMap<>();
     private Map<String, Set<String>> variantTypesMap = new HashMap<>();
+    private Map<String, Set<String>> molecularConsequenceMap = new HashMap<>();
 
     public void addCachedFields(Iterable<AlleleDocument> alleleDocuments) {
 
@@ -24,10 +25,11 @@ public class AlleleDocumentCache extends IndexerCache {
             String id = alleleDocument.getPrimaryKey();
 
             super.addCachedFields(alleleDocument);
+            alleleDocument.setMolecularConsequence(molecularConsequenceMap.get(id));
 
             if (variantTypesMap.get(id) == null) {
                 Set<String> defaultValue = new HashSet<>();
-                defaultValue.add("unknown or unreported type");
+                defaultValue.add("unreported");
                 alleleDocument.setVariantTypes(defaultValue);
             } else {
                 alleleDocument.setVariantTypes(variantTypesMap.get(id));
