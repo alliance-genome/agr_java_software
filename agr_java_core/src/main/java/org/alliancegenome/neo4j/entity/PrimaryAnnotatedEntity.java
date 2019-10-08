@@ -30,6 +30,8 @@ public class PrimaryAnnotatedEntity implements Comparable<PrimaryAnnotatedEntity
 
     @JsonView({View.Default.class, View.API.class})
     protected List<DOTerm> diseases;
+    @JsonView({View.Default.class, View.API.class})
+    private List<String> phenotypes;
     @JsonView({View.DiseaseAnnotation.class})
     private List<PublicationEvidenceCodeJoin> publicationEvidenceCodes;
 
@@ -72,9 +74,22 @@ public class PrimaryAnnotatedEntity implements Comparable<PrimaryAnnotatedEntity
         diseases = new ArrayList<>(new HashSet<>(diseases));
     }
 
+    public void addPhenotype(String phenotype) {
+        if (phenotypes == null)
+            phenotypes = new ArrayList<>();
+        phenotypes.add(phenotype);
+        phenotypes = new ArrayList<>(new HashSet<>(phenotypes));
+    }
+
     public void addPublicationEvidenceCode(PublicationEvidenceCodeJoin pubJoin) {
         if (publicationEvidenceCodes == null)
             publicationEvidenceCodes = new ArrayList<>();
         publicationEvidenceCodes.add(pubJoin);
+    }
+
+    public void addPhenotypes(List<String> phenotypes) {
+        if (phenotypes != null) {
+            this.phenotypes.addAll(phenotypes);
+        }
     }
 }

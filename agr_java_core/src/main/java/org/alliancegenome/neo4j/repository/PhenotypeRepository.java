@@ -213,12 +213,12 @@ public class PhenotypeRepository extends Neo4jRepository<Phenotype> {
     }
 
     public List<PhenotypeEntityJoin> getAllPhenotypeAnnotations() {
-        String cypher = "MATCH p0=(phenotype:Phenotype)--(phenotypeEntityJoin:PhenotypeEntityJoin)<-[:EVIDENCE]-(publications:Publication), " +
-                "p2=(phenotypeEntityJoin:PhenotypeEntityJoin)--(gene:Gene)-[:FROM_SPECIES]-(species:Species) " +
+        String cypher = "MATCH p0=(phenotype:Phenotype)--(pej:PhenotypeEntityJoin)-[:EVIDENCE]->(ppj:PhenotypePublicationJoin)<-[:ASSOCIATION]-(publication:Publication)," +
+                " p2=(pej:PhenotypeEntityJoin)<-[:ASSOCIATION]-(gene:Gene)-[:FROM_SPECIES]->(species:Species) " +
                 //"where gene.primaryKey = 'MGI:109583' " +
-                "OPTIONAL MATCH p4=(phenotypeEntityJoin:PhenotypeEntityJoin)--(feature:Feature)-[:CROSS_REFERENCE]->(crossRef:CrossReference) " +
-                "OPTIONAL MATCH models=(phenotypeEntityJoin:PhenotypeEntityJoin)--(:AffectedGenomicModel) " +
-                "return p0, p2, p4, models ";
+                "OPTIONAL MATCH     p4=(pej:PhenotypeEntityJoin)--(feature:Feature)-[:CROSS_REFERENCE]->(crossRef:CrossReference) " +
+                "OPTIONAL MATCH models=(ppj:PhenotypePublicationJoin)-[:PRIMARY_GENETIC_ENTITY]->(:AffectedGenomicModel) " +
+                "return p0, p4, p2, models ";
 
         Iterable<PhenotypeEntityJoin> joins = query(PhenotypeEntityJoin.class, cypher);
         return StreamSupport.stream(joins.spliterator(), false).

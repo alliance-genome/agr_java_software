@@ -4,11 +4,13 @@ import org.alliancegenome.api.entity.DiseaseEntitySubgroupSlim;
 import org.alliancegenome.api.entity.DiseaseRibbonEntity;
 import org.alliancegenome.api.entity.DiseaseRibbonSummary;
 import org.alliancegenome.cache.repository.DiseaseCacheRepository;
+import org.alliancegenome.cache.repository.PhenotypeCacheRepository;
 import org.alliancegenome.core.service.*;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.DiseaseSummary;
+import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
 import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
 import org.alliancegenome.neo4j.entity.node.DOTerm;
 import org.alliancegenome.neo4j.entity.node.Gene;
@@ -30,6 +32,7 @@ public class DiseaseService {
     private static DiseaseRepository diseaseRepository = new DiseaseRepository();
     private static GeneRepository geneRepository = new GeneRepository();
     private static DiseaseCacheRepository diseaseCacheRepository = new DiseaseCacheRepository();
+    private static PhenotypeCacheRepository phenotypeCacheRepository = new PhenotypeCacheRepository();
 
     public DiseaseService() {
 
@@ -144,19 +147,66 @@ public class DiseaseService {
         LocalDateTime startDate = LocalDateTime.now();
         List<DiseaseAnnotation> fullDiseaseAnnotationList = diseaseCacheRepository.getDiseaseAnnotationList(geneID);
         JsonResultResponse<PrimaryAnnotatedEntity> result = new JsonResultResponse<>();
-        if (fullDiseaseAnnotationList == null) {
-            result.calculateRequestDuration(startDate);
+
+        // select list of annotations that have primaryAnnotatedEntity
+
+        Map<String, PrimaryAnnotatedEntity> diseaseEntities = null;
+        Map<String, PrimaryAnnotatedEntity> phenotypeEntities = null;
+        List<PrimaryAnnotatedEntity> primaryAnnotatedEntities = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(fullDiseaseAnnotationList)) {
+            primaryAnnotatedEntities = fullDiseaseAnnotationList.stream()
+                    // filter out annotations with primary annotated diseaseEntities
+                    .filter(diseaseAnnotation -> CollectionUtils.isNotEmpty(diseaseAnnotation.getPrimaryAnnotatedEntities()))
+                    .map(DiseaseAnnotation::getPrimaryAnnotatedEntities)
+                    .flatMap(Collection::stream)
+                    .distinct()
+                    .collect(Collectors.toList());
+            diseaseEntities = primaryAnnotatedEntities.stream()
+                    .collect(Collectors.toMap(PrimaryAnnotatedEntity::getId, entity -> entity));
+        }
+
+        List<PhenotypeAnnotation> allPhenotypeAnnotations = phenotypeCacheRepository.getPhenotypeAnnotationList(geneID, pagination).getResult();
+        // select annotations that have primaryAnnotated Entities
+        List<PrimaryAnnotatedEntity> primaryAnnotatedEntitiesPhenotype = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(allPhenotypeAnnotations)) {
+            primaryAnnotatedEntitiesPhenotype = allPhenotypeAnnotations.stream()
+                    // filter out annotations with primary annotated diseaseEntities
+                    .filter(annotation -> CollectionUtils.isNotEmpty(annotation.getPrimaryAnnotatedEntities()))
+                    .map(PhenotypeAnnotation::getPrimaryAnnotatedEntities)
+                    .flatMap(Collection::stream)
+                    .distinct()
+                    .collect(Collectors.toList());
+
+            phenotypeEntities = primaryAnnotatedEntitiesPhenotype.stream()
+                    .collect(Collectors.toMap(PrimaryAnnotatedEntity::getId, entity -> entity));
+        }
+
+        if (diseaseEntities == null && phenotypeEntities == null) {
             return result;
         }
 
-        // select list of annotations that have primaryAnnotatedEntity
-        List<PrimaryAnnotatedEntity> primaryAnnotatedEntities = fullDiseaseAnnotationList.stream()
-                // filter out annotations with primary annotated entities
-                .filter(diseaseAnnotation -> CollectionUtils.isNotEmpty(diseaseAnnotation.getPrimaryAnnotatedEntities()))
-                .map(DiseaseAnnotation::getPrimaryAnnotatedEntities)
-                .flatMap(Collection::stream)
-                .distinct()
-                .collect(Collectors.toList());
+        List<String> mergedEntities = new ArrayList<>();
+        // add AGMs to the ones created in the disease cycle
+        if (diseaseEntities != null && phenotypeEntities != null) {
+            for (String id : diseaseEntities.keySet()) {
+                if (phenotypeEntities.get(id) != null) {
+                    PrimaryAnnotatedEntity diseaseEntity = diseaseEntities.get(id);
+                    PrimaryAnnotatedEntity phenotypeEntity = phenotypeEntities.get(id);
+                    diseaseEntity.addPhenotypes(phenotypeEntity.getPhenotypes());
+                    mergedEntities.add(id);
+                }
+            }
+        }
+        // remove the merged ones
+        primaryAnnotatedEntitiesPhenotype = primaryAnnotatedEntitiesPhenotype.stream()
+                .filter(entity -> !mergedEntities.contains(entity.getId()))
+                .collect(toList());
+        primaryAnnotatedEntities.addAll(primaryAnnotatedEntitiesPhenotype);
+
+
+        if (CollectionUtils.isEmpty(primaryAnnotatedEntities)) {
+            return result;
+        }
 
         //filtering
         FilterService<PrimaryAnnotatedEntity> filterService = new FilterService<>(new PrimaryAnnotatedEntityFiltering());

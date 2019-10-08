@@ -24,7 +24,7 @@ public class PhenotypeEntityJoin extends EntityJoin {
     @Relationship(type = "ASSOCIATION")
     private Phenotype phenotype;
 
-    @Relationship(type = "ASSOCIATION", direction = Relationship.INCOMING)
-    private List<AffectedGenomicModel> phenotypeModels;
+    @Relationship(type = "EVIDENCE")
+    private List<PhenotypePublicationJoin> phenotypePublicationJoins;
 
 }
