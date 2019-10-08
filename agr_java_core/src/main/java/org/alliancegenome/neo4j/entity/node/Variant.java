@@ -29,7 +29,7 @@ public class Variant extends Neo4jEntity implements Comparable<Variant> {
     protected String hgvsNomenclature;
     @JsonView({View.Default.class, View.API.class})
     @JsonProperty(value = "consequence")
-    protected String geneLevelConsequence;
+    protected GeneLevelConsequence geneLevelConsequence;
     private String dataProvider;
     private String genomicReferenceSequence;
     private String genomicVariantSequence;

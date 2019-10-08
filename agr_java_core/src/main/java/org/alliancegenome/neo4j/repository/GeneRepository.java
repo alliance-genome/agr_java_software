@@ -60,8 +60,8 @@ public class GeneRepository extends Neo4jRepository<Gene> {
                 + "OPTIONAL MATCH p2=(g:Gene)--(:SOTerm) "
                 + "OPTIONAL MATCH p3=(g:Gene)--(:Synonym) "
                 + "OPTIONAL MATCH p4=(g:Gene)--(:Chromosome) "
-                + "OPTIONAL MATCH p5=(g:Gene)--(:CrossReference) "
-                + "RETURN p1, p2, p3, p4, p5";
+                + "OPTIONAL MATCH loc=(g:Gene)--(:GenomicLocation)--(:Chromosome) "
+                + "RETURN p1, p2, p3, p4, loc";
 
         Iterable<Gene> genes = query(query, map);
         for (Gene g : genes) {

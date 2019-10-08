@@ -4,9 +4,7 @@ import org.alliancegenome.neo4j.entity.Neo4jEntity;
 import org.alliancegenome.neo4j.entity.node.Chromosome;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.view.View;
-import org.neo4j.ogm.annotation.EndNode;
-import org.neo4j.ogm.annotation.RelationshipEntity;
-import org.neo4j.ogm.annotation.StartNode;
+import org.neo4j.ogm.annotation.*;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
@@ -14,13 +12,11 @@ import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Getter;
 import lombok.Setter;
 
+@NodeEntity(label = "GenomicLocation")
 @Getter @Setter
-@RelationshipEntity(type="LOCATED_ON")
 public class GenomeLocation extends Neo4jEntity {
 
-    @StartNode
-    private Gene gene;
-    @EndNode
+    @Relationship(type = "ASSOCIATION")
     private Chromosome chromosome;
 
     @JsonView({View.Default.class})
