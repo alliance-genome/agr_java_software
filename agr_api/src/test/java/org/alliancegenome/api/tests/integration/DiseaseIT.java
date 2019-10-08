@@ -67,7 +67,7 @@ public class DiseaseIT {
         // Menkes
         String diseaseID = "DOID:1838";
         JsonResultResponse<DiseaseAnnotation> response = diseaseService.getDiseaseAnnotationsWithAlleles(diseaseID, pagination);
-        assertResponse(response, 10, 10);
+        assertLimitResponse(response, 10, 10);
     }
 
     @Test
