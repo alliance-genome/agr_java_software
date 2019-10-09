@@ -12,13 +12,13 @@ import java.util.List;
 @NodeEntity
 @Getter
 @Setter
-public class PhenotypePublicationJoin extends Association {
+public class PublicationJoin extends Association {
 
-    @JsonView({View.PhenotypeAPI.class})
+    @JsonView({View.API.class})
     protected String primaryKey;
     protected String joinType;
 
-    @JsonView({View.PhenotypeAPI.class})
+    @JsonView({View.API.class})
     @Relationship(type = "ASSOCIATION", direction = Relationship.INCOMING)
     private Publication publication;
 

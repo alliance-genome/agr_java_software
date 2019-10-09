@@ -6,6 +6,7 @@ import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @NodeEntity
 @Getter
@@ -25,6 +26,13 @@ public class PhenotypeEntityJoin extends EntityJoin {
     private Phenotype phenotype;
 
     @Relationship(type = "EVIDENCE")
-    private List<PhenotypePublicationJoin> phenotypePublicationJoins;
+    private List<PublicationJoin> phenotypePublicationJoins;
 
+    public List<Publication> getPublications(){
+        if(phenotypePublicationJoins == null)
+            return null;
+        return phenotypePublicationJoins.stream()
+                .map(PublicationJoin::getPublication)
+                .collect(Collectors.toList());
+    }
 }
