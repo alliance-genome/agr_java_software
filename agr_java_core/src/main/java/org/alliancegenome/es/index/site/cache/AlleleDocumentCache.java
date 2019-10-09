@@ -25,7 +25,7 @@ public class AlleleDocumentCache extends IndexerCache {
             String id = alleleDocument.getPrimaryKey();
 
             super.addCachedFields(alleleDocument);
-            alleleDocument.setMolecularConsequence(molecularConsequenceMap.get(id).spliterator(","));
+            alleleDocument.setMolecularConsequence(molecularConsequenceMap.get(id));
 
             if (variantTypesMap.get(id) == null) {
                 Set<String> defaultValue = new HashSet<>();
