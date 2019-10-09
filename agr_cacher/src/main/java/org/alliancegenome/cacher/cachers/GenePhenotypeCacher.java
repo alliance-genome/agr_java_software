@@ -56,11 +56,12 @@ public class GenePhenotypeCacher extends Cacher {
                                 .forEach(pubJoin -> {
                                     pubJoin.getModels().forEach(model -> {
                                         PrimaryAnnotatedEntity entity = new PrimaryAnnotatedEntity();
-                                        entity.setId(pubJoin.getPrimaryKey());
+                                        entity.setId(model.getPrimaryKey());
                                         entity.setName(model.getName());
                                         entity.setUrl(model.getModCrossRefCompleteUrl());
                                         entity.setDisplayName(model.getNameText());
                                         entity.setType(GeneticEntity.getType(model.getSubtype()));
+                                        entity.setDataProvider(phenotypeEntityJoin.getDataProvider());
                                         entity.addPublicationEvidenceCode(pubJoin);
                                         document.addPrimaryAnnotatedEntity(entity);
                                         entity.addPhenotype(phenotypeEntityJoin.getPhenotype().getPhenotypeStatement());

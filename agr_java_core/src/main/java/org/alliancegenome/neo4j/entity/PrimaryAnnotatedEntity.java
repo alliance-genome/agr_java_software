@@ -27,6 +27,8 @@ public class PrimaryAnnotatedEntity implements Comparable<PrimaryAnnotatedEntity
     protected GeneticEntity.CrossReferenceType type;
     @JsonView({View.Default.class, View.API.class})
     protected CrossReference crossReference;
+    @JsonView({View.API.class})
+    private Source source;
 
     @JsonView({View.Default.class, View.API.class})
     protected List<DOTerm> diseases;
@@ -91,5 +93,10 @@ public class PrimaryAnnotatedEntity implements Comparable<PrimaryAnnotatedEntity
         if (phenotypes != null) {
             this.phenotypes.addAll(phenotypes);
         }
+    }
+
+    public void setDataProvider(String dataProvider) {
+        source = new Source();
+        source.setName(dataProvider);
     }
 }

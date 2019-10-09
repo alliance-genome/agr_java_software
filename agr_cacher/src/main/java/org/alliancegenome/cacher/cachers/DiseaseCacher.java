@@ -72,7 +72,7 @@ public class DiseaseCacher extends Cacher {
                                         PrimaryAnnotatedEntity entity = entities.get(model.getPrimaryKey());
                                         if (entity == null) {
                                             entity = new PrimaryAnnotatedEntity();
-                                            entity.setId(pubJoin.getPrimaryKey());
+                                            entity.setId(model.getPrimaryKey());
                                             entity.setName(model.getName());
                                             entity.setUrl(model.getModCrossRefCompleteUrl());
                                             entity.setDisplayName(model.getNameText());

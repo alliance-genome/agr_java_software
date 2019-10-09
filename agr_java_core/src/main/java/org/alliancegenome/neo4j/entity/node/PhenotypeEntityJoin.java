@@ -15,6 +15,7 @@ public class PhenotypeEntityJoin extends EntityJoin {
 
     private String primaryKey;
     private String joinType;
+    private String dataProvider;
 
     @Relationship(type = "ASSOCIATION", direction = Relationship.INCOMING)
     private Gene gene;
@@ -28,8 +29,8 @@ public class PhenotypeEntityJoin extends EntityJoin {
     @Relationship(type = "EVIDENCE")
     private List<PublicationJoin> phenotypePublicationJoins;
 
-    public List<Publication> getPublications(){
-        if(phenotypePublicationJoins == null)
+    public List<Publication> getPublications() {
+        if (phenotypePublicationJoins == null)
             return null;
         return phenotypePublicationJoins.stream()
                 .map(PublicationJoin::getPublication)
