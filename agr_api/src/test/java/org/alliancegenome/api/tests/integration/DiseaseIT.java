@@ -315,7 +315,7 @@ public class DiseaseIT {
         Pagination pagination = new Pagination(1, 10, null, null);
         // Pten
         String geneID = "MGI:109583";
-        JsonResultResponse<DiseaseAnnotation> response = diseaseService.getDiseaseAnnotations(geneID, pagination);
+        JsonResultResponse<DiseaseAnnotation> response = diseaseService.getRibbonDiseaseAnnotations(Collections.singletonList(geneID), null, pagination);
         assertResponse(response, 10, 50);
 
         DiseaseAnnotation annotation = response.getResults().get(0);
@@ -354,10 +354,9 @@ public class DiseaseIT {
         Pagination pagination = new Pagination(1, null, null, null);
         // Pten
         String geneID = "MGI:109583";
-
         // add containsFilterValue on disease
         pagination.makeSingleFieldFilter(FieldFilter.DISEASE, "BL");
-        JsonResultResponse<DiseaseAnnotation> response = diseaseService.getDiseaseAnnotations(geneID, pagination);
+        JsonResultResponse<DiseaseAnnotation> response = diseaseService.getRibbonDiseaseAnnotations(Collections.singletonList(geneID), null, pagination);
         assertResponse(response, 3, 3);
 
         DiseaseSummary summary = diseaseService.getDiseaseSummary(geneID, DiseaseSummary.Type.EXPERIMENT);
@@ -375,7 +374,7 @@ public class DiseaseIT {
         assertThat(annotation.getAssociationType(), equalTo("is_implicated_in"));
         assertNotNull(annotation.getFeature());
         //assertThat(annotation.getFeature().getSymbol(), equalTo("Pten<sup>tm1Hwu</sup>"));
-        assertThat(annotation.getPublications().stream().map(Publication::getPubId).collect(Collectors.joining()), equalTo("PMID:19261747PMID:25533675"));
+        assertThat(annotation.getPublications().stream().map(Publication::getPubId).collect(Collectors.joining()), equalTo("PMID:19261747PMID:25533675PMID:28082400"));
 
         annotation = response.getResults().get(2);
         assertNull(annotation.getFeature());
@@ -387,38 +386,11 @@ public class DiseaseIT {
         List<String> lines = Arrays.asList(output.split("\n"));
         assertNotNull(lines);
         String result = "Disease\tGenetic Entity ID\tGenetic Entity Symbol\tGenetic Entity Type\tAssociation Type\tEvidence Code\tSource\tReferences\n" +
-                "urinary bladder cancer\tMGI:2156086\tPten<sup>tm1Hwu</sup>\tallele\tis_implicated_in\tECO:0000033\tPMID:19261747,PMID:25533675\n" +
+                "urinary bladder cancer\tMGI:2156086\tPten<sup>tm1Hwu</sup>\tallele\tis_implicated_in\tECO:0000033\tPMID:19261747,PMID:25533675,PMID:28082400\n" +
                 "urinary bladder cancer\tMGI:2182005\tPten<sup>tm2Mak</sup>\tallele\tis_implicated_in\tECO:0000033\tPMID:16951148,PMID:21283818,PMID:25533675\n" +
                 "urinary bladder cancer\t\t\tgene\tis_implicated_in\tECO:0000033\tPMID:16951148\n";
         assertEquals(result, output);
 
-    }
-
-    @Test
-    public void checkEmpiricalDiseaseFilterByGeneticEntityType() {
-        Pagination pagination = new Pagination(1, null, null, null);
-        // Pten
-        String geneID = "MGI:109583";
-
-        // add containsFilterValue on feature symbol
-        pagination.makeSingleFieldFilter(FieldFilter.GENETIC_ENTITY_TYPE, "allele");
-        JsonResultResponse<DiseaseAnnotation> response = diseaseService.getDiseaseAnnotations(geneID, pagination);
-        assertResponse(response, 20, 36);
-
-        DiseaseAnnotation annotation = response.getResults().get(0);
-        assertThat(annotation.getDisease().getName(), equalTo("acute lymphocytic leukemia"));
-        assertThat(annotation.getAssociationType(), equalTo("is_implicated_in"));
-        assertNotNull(annotation.getFeature());
-        assertThat(annotation.getFeature().getSymbol(), equalTo("Pten<sup>tm1Hwu</sup>"));
-        assertThat(annotation.getPublications().stream().map(Publication::getPubId).collect(Collectors.joining()), equalTo("PMID:21262837"));
-
-        pagination.makeSingleFieldFilter(FieldFilter.GENETIC_ENTITY_TYPE, "gene");
-        response = diseaseService.getDiseaseAnnotations(geneID, pagination);
-        assertResponse(response, 14, 14);
-        annotation = response.getResults().get(1);
-        assertThat(annotation.getDisease().getName(), equalTo("autism spectrum disorder"));
-        assertThat(annotation.getAssociationType(), equalTo("is_implicated_in"));
-        assertNull(annotation.getFeature());
     }
 
     @Test
@@ -438,7 +410,7 @@ public class DiseaseIT {
 
         // add containsFilterValue on feature symbol
         pagination.makeSingleFieldFilter(FieldFilter.ASSOCIATION_TYPE, "IS_IMPLICATED_IN");
-        JsonResultResponse<DiseaseAnnotation> response = diseaseService.getDiseaseAnnotations(geneID, pagination);
+        JsonResultResponse<DiseaseAnnotation> response = diseaseService.getRibbonDiseaseAnnotations(Collections.singletonList(geneID), null, pagination);
         assertResponse(response, 2, 2);
 
         DiseaseAnnotation annotation = response.getResults().get(1);
@@ -447,7 +419,7 @@ public class DiseaseIT {
         assertThat(annotation.getPublications().stream().map(Publication::getPubId).collect(Collectors.joining()), equalTo("PMID:12208767"));
 
         pagination.makeSingleFieldFilter(FieldFilter.ASSOCIATION_TYPE, "IS_MARKER_OF");
-        response = diseaseService.getDiseaseAnnotations(geneID, pagination);
+        response = diseaseService.getRibbonDiseaseAnnotations(Collections.singletonList(geneID), null, pagination);
         assertLimitResponse(response, 4, 4);
         assertNull(annotation.getFeature());
     }
@@ -460,7 +432,7 @@ public class DiseaseIT {
 
         // add containsFilterValue on evidence code
         pagination.makeSingleFieldFilter(FieldFilter.EVIDENCE_CODE, "expression pattern");
-        JsonResultResponse<DiseaseAnnotation> response = diseaseService.getDiseaseAnnotations(geneID, pagination);
+        JsonResultResponse<DiseaseAnnotation> response = diseaseService.getRibbonDiseaseAnnotations(Collections.singletonList(geneID), null, pagination);
         assertLimitResponse(response, 4, 4);
 
         pagination.makeSingleFieldFilter(FieldFilter.EVIDENCE_CODE, "inference by association");
@@ -476,7 +448,7 @@ public class DiseaseIT {
 
         // add filter on reference
         pagination.makeSingleFieldFilter(FieldFilter.FREFERENCE, "380");
-        JsonResultResponse<DiseaseAnnotation> response = diseaseService.getDiseaseAnnotations(geneID, pagination);
+        JsonResultResponse<DiseaseAnnotation> response = diseaseService.getRibbonDiseaseAnnotations(Collections.singletonList(geneID), null, pagination);
         assertResponse(response, 3, 3);
 
         pagination.makeSingleFieldFilter(FieldFilter.FREFERENCE, "710");
@@ -500,7 +472,7 @@ public class DiseaseIT {
     // Test SHH from Human for disease via experiment records
     public void checkDiseaseAnnotationNonDuplicated3() {
         DiseaseService service = new DiseaseService();
-        JsonResultResponse<DiseaseAnnotation> annotations = service.getDiseaseAnnotations("HGNC:10848", new Pagination(1, 30, null, null));
+        JsonResultResponse<DiseaseAnnotation> annotations = service.getRibbonDiseaseAnnotations(Collections.singletonList("HGNC:10848"), null, new Pagination(1, 30, null, null));
 
         assertNotNull(annotations);
         // 14 different disease terms
@@ -516,7 +488,7 @@ public class DiseaseIT {
     // Test Sox9 from MGI for disease via experiment records
     public void checkDiseaseAnnotationNonDuplicated() {
         DiseaseService service = new DiseaseService();
-        JsonResultResponse<DiseaseAnnotation> annotations = service.getDiseaseAnnotations("MGI:98371", new Pagination(1, 80, null, null));
+        JsonResultResponse<DiseaseAnnotation> annotations = service.getRibbonDiseaseAnnotations(Collections.singletonList("MGI:98371"), null, new Pagination(1, 80, null, null));
         assertNotNull(annotations);
 
         assertThat(6, equalTo(annotations.getTotal()));

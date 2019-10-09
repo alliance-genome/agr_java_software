@@ -14,7 +14,7 @@ import org.alliancegenome.core.service.PaginationResult;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.node.ECOTerm;
-import org.alliancegenome.neo4j.entity.node.PublicationEvidenceCodeJoin;
+import org.alliancegenome.neo4j.entity.node.PublicationJoin;
 import org.alliancegenome.neo4j.view.View;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -119,7 +119,7 @@ public class DiseaseCacheRepository {
         return result;
     }
 
-    public List<ECOTerm> getEcoTerm(List<PublicationEvidenceCodeJoin> joins) {
+    public List<ECOTerm> getEcoTerm(List<PublicationJoin> joins) {
         if (joins == null)
             return null;
         BasicCacheManager<String> manager = new BasicCacheManager<>();

@@ -61,6 +61,7 @@ public class GenePhenotypeCacher extends Cacher {
                                         entity.setUrl(model.getModCrossRefCompleteUrl());
                                         entity.setDisplayName(model.getNameText());
                                         entity.setType(GeneticEntity.getType(model.getSubtype()));
+                                        entity.addPublicationEvidenceCode(pubJoin);
                                         document.addPrimaryAnnotatedEntity(entity);
                                         entity.addPhenotype(phenotypeEntityJoin.getPhenotype().getPhenotypeStatement());
                                     });

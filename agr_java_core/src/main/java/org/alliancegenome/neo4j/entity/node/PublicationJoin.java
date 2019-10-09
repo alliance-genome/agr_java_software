@@ -1,5 +1,6 @@
 package org.alliancegenome.neo4j.entity.node;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Getter;
 import lombok.Setter;
@@ -8,6 +9,7 @@ import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @NodeEntity
 @Getter
@@ -22,13 +24,22 @@ public class PublicationJoin extends Association {
     @Relationship(type = "ASSOCIATION", direction = Relationship.INCOMING)
     private Publication publication;
 
+    @JsonView({View.API.class})
+    @JsonProperty(value = "evidenceCodes")
+    @Relationship(type = "ASSOCIATION")
+    private List<ECOTerm> ecoCode;
+
     // annotation inferred on
     @Relationship(type = "PRIMARY_GENETIC_ENTITY")
     private List<AffectedGenomicModel> models;
 
     @Override
     public String toString() {
-        return publication.getPubId();
-        // return model != null ? publication.getPubId() + ":" + model.getName() : publication.getPubId();
+        if (ecoCode == null)
+            return publication.getPubId();
+        String ecos = ecoCode.stream()
+                .map(SimpleTerm::getName)
+                .collect(Collectors.joining(","));
+        return publication.getPubId() + ":" + ecos;
     }
 }

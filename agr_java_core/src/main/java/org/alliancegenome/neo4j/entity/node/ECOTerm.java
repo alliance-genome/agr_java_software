@@ -25,7 +25,7 @@ public class ECOTerm extends SimpleTerm implements Comparable<ECOTerm> {
     private String isObsolete;
 
     @Relationship(type = "ASSOCIATION", direction = Relationship.INCOMING)
-    private List<PublicationEvidenceCodeJoin> publicationEntityJoins;
+    private List<PublicationJoin> publicationEntityJoins;
 
     @Override
     public String toString() {

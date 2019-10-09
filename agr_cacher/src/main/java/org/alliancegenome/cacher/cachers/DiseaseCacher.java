@@ -63,40 +63,42 @@ public class DiseaseCacher extends Cacher {
                         document.addOrthologousGene(orthologyGene);
                     }
 
-                    if (CollectionUtils.isNotEmpty(diseaseEntityJoin.getPublicationEvidenceCodeJoin())) {
-                        diseaseEntityJoin.getPublicationEvidenceCodeJoin()
+                    if (CollectionUtils.isNotEmpty(diseaseEntityJoin.getPublicationJoins())) {
+                        diseaseEntityJoin.getPublicationJoins()
                                 .stream()
-                                .filter(pubJoin -> pubJoin.getModel() != null)
+                                .filter(pubJoin -> CollectionUtils.isNotEmpty(pubJoin.getModels()))
                                 .forEach(pubJoin -> {
-                                    PrimaryAnnotatedEntity entity = entities.get(pubJoin.getModel().getPrimaryKey());
-                                    if (entity == null) {
-                                        entity = new PrimaryAnnotatedEntity();
-                                        entity.setId(pubJoin.getPrimaryKey());
-                                        entity.setName(pubJoin.getModel().getName());
-                                        entity.setUrl(pubJoin.getModel().getModCrossRefCompleteUrl());
-                                        entity.setDisplayName(pubJoin.getModel().getNameText());
-                                        entity.setType(GeneticEntity.getType(pubJoin.getModel().getSubtype()));
-                                        entities.put(pubJoin.getModel().getPrimaryKey(), entity);
-                                    }
-                                    document.addPrimaryAnnotatedEntity(entity);
-                                    entity.addPublicationEvidenceCode(pubJoin);
-                                    entity.addDisease(diseaseEntityJoin.getDisease());
+                                    pubJoin.getModels().forEach(model -> {
+                                        PrimaryAnnotatedEntity entity = entities.get(model.getPrimaryKey());
+                                        if (entity == null) {
+                                            entity = new PrimaryAnnotatedEntity();
+                                            entity.setId(pubJoin.getPrimaryKey());
+                                            entity.setName(model.getName());
+                                            entity.setUrl(model.getModCrossRefCompleteUrl());
+                                            entity.setDisplayName(model.getNameText());
+                                            entity.setType(GeneticEntity.getType(model.getSubtype()));
+                                            entities.put(model.getPrimaryKey(), entity);
+                                        }
+                                        document.addPrimaryAnnotatedEntity(entity);
+                                        entity.addPublicationEvidenceCode(pubJoin);
+                                        entity.addDisease(diseaseEntityJoin.getDisease());
+                                    });
                                 });
                     }
-                    document.setPublicationEvidenceCodeJoins(diseaseRepository.populatePubEvCodeJoins(diseaseEntityJoin.getPublicationEvidenceCodeJoin()));
-                    List<Publication> publicationList = diseaseEntityJoin.getPublicationEvidenceCodeJoin().stream()
-                            .map(PublicationEvidenceCodeJoin::getPublication).sorted(Comparator.naturalOrder()).collect(Collectors.toList());
+                    document.setPublicationJoins(diseaseRepository.populatePublicationJoins(diseaseEntityJoin.getPublicationJoins()));
+                    List<Publication> publicationList = diseaseEntityJoin.getPublicationJoins().stream()
+                            .map(PublicationJoin::getPublication).sorted(Comparator.naturalOrder()).collect(Collectors.toList());
                     document.setPublications(publicationList.stream().distinct().collect(Collectors.toList()));
 
 /*
-                    List<ECOTerm> ecoList = diseaseEntityJoin.getPublicationEvidenceCodeJoin().stream()
+                    List<ECOTerm> ecoList = diseaseEntityJoin.getPublicationJoins().stream()
                             .filter(join -> CollectionUtils.isNotEmpty(join.getEcoCode()))
-                            .map(PublicationEvidenceCodeJoin::getEcoCode)
+                            .map(PublicationJoin::getEcoCode)
                             .flatMap(Collection::stream).sorted(Comparator.naturalOrder()).collect(Collectors.toList());
                     document.setEcoCodes(ecoList.stream().distinct().collect(Collectors.toList()));
 */
                     // work around as I cannot figure out how to include the ECOTerm in the overall query without slowing down the performance.
-                    List<ECOTerm> evidences = diseaseRepository.getEcoTerm(diseaseEntityJoin.getPublicationEvidenceCodeJoin());
+                    List<ECOTerm> evidences = diseaseRepository.getEcoTerm(diseaseEntityJoin.getPublicationJoins());
                     document.setEcoCodes(evidences);
                     Set<String> slimId = diseaseRibbonService.getAllParentIDs(diseaseEntityJoin.getDisease().getPrimaryKey());
                     document.setParentIDs(slimId);
