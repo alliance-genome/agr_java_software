@@ -67,6 +67,7 @@ public class SearchHelper {
                 {
                     add("species");
                     add("variantTypes");
+                    add("molecularConsequence");
                     add("diseasesAgrSlim");
                     add("genes");
                 }
@@ -144,6 +145,7 @@ public class SearchHelper {
             add("diseasesWithParents");
             add("alleles"); add("alleles.text"); add("alleles.autocomplete");
             add("models");
+            add("molecularConsequence");
             add("phenotypeStatements");
             add("strictOrthologySymbols.autocomplete");
             add("strictOrthologySymbols.keyword");
@@ -153,6 +155,7 @@ public class SearchHelper {
             add("cellularComponentExpression"); add("cellularComponentExpression.keyword");
             add("cellularComponentExpressionWithParents"); add("cellularComponentExpressionWithParents.keyword");
             add("cellularComponentExpressionAgrSlim"); add("cellularComponentExpressionAgrSlim.keyword");
+            add("variantTypes");
         }
     };
 
