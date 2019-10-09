@@ -13,7 +13,8 @@ Could be that wildfly (application server) is called before it is fully started:
 3. Start up an infinispan docker image (for BUILD / master repository): `docker run -p 11222:11222 -it --name infinispan -e MEM_OPTS="-Xms8g -Xmx8g" agrdocker/agr_infinispan_data_image:build`
 This image contains the latest cache values done on a BUILD pipeline. You can use it as is. If you made changes in the caching logic you need to run the cacher 
 4. Run the cache (unless you want to use the cache values as you can find them in the current infinispan docker image):
-`java -Xmx16g -jar agr_cacher/target/agr_cacher-jar-with-dependencies.jar ExpressionCacher` when running the expression annotations. The other entities are run with the following values (last command line option)
+First build the cacher via `make cacher` then run the individual cachers, e.g. via
+`java -Xmx16g -jar agr_cacher/target/agr_cacher-jar-with-dependencies.jar ExpressionCacher` when creating the expression annotations. The other entities are run with the following values (last command line option)
     DiseaseCacher
     AlleleCacher
     GenePhenotypeCacher
@@ -23,5 +24,5 @@ This image contains the latest cache values done on a BUILD pipeline. You can us
 3. Change directory into the agr_java_software directory
 4. Build the API `make api`
 5. Change directory into agr_java_software/agr_api
-6. Start app server (thorntail): `make run`
+6. Start app server (thorntail): `make run` If you want to be able to debug into the app server use `make debug` and remote connect to port 5045.
 7. Now you can call API endpoints, e.g. `http://localhost:8080/api/gene/MGI:109583/alleles`
