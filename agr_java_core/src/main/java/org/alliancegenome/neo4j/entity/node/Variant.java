@@ -27,9 +27,7 @@ public class Variant extends Neo4jEntity implements Comparable<Variant> {
     @JsonView({View.Default.class, View.API.class})
     @JsonProperty(value = "displayName")
     protected String hgvsNomenclature;
-    @JsonView({View.Default.class, View.API.class})
-    @JsonProperty(value = "consequence")
-    protected GeneLevelConsequence geneLevelConsequence;
+
     private String dataProvider;
     private String genomicReferenceSequence;
     private String genomicVariantSequence;
@@ -42,9 +40,28 @@ public class Variant extends Neo4jEntity implements Comparable<Variant> {
     @Relationship(type = "VARIATION_TYPE")
     private SOTerm type;
 
+    @Relationship(type = "ASSOCATION")
+    protected GeneLevelConsequence geneLevelConsequence;
+
     @JsonView({View.Default.class, View.API.class})
     @Relationship(type = "ASSOCIATION")
     private GenomicLocation location;
+
+    @JsonView({View.Default.class, View.API.class})
+    @JsonProperty(value = "consequence")
+    public String getConsequence() {
+        return geneLevelConsequence != null ? geneLevelConsequence.getGeneLevelConsequence() : null;
+    }
+
+    @JsonProperty(value = "consequence")
+    public void setConsequence(String consequence) {
+        if (geneLevelConsequence != null)
+            return;
+        GeneLevelConsequence co = new GeneLevelConsequence();
+        co.setGeneLevelConsequence(consequence);
+        this.geneLevelConsequence = co;
+    }
+
 
     @Override
     public int compareTo(Variant o) {

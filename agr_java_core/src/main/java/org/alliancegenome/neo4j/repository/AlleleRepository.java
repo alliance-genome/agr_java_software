@@ -1,16 +1,11 @@
 package org.alliancegenome.neo4j.repository;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
-
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.neo4j.ogm.model.Result;
+
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 public class AlleleRepository extends Neo4jRepository<Allele> {
 
@@ -63,9 +58,9 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
 
         String query = "";
         query += " MATCH p1=(:Species)<-[:FROM_SPECIES]-(a:Allele)-[:IS_ALLELE_OF]->(g:Gene) ";
-        //query += " where g.primaryKey = 'ZFIN:ZDB-GENE-040426-1716' ";
+        //query += " where g.primaryKey = 'FB:FBgn0002121' AND a.primaryKey = 'FB:FBal0051412' ";
         query += " OPTIONAL MATCH vari=(a:Allele)<-[:VARIATION]-(variant:Variant)--(soTerm:SOTerm)";
-        query += " OPTIONAL MATCH loc=(variant:Variant)-[:ASSOCIATION]->(genomicLocation:GenomicLocation)";
+        query += " OPTIONAL MATCH loc=(:GeneLevelConsequence)<-[:ASSOCATION]-(variant:Variant)-[:ASSOCIATION]->(genomicLocation:GenomicLocation)";
         query += " OPTIONAL MATCH p2=(a:Allele)-[:ALSO_KNOWN_AS]->(synonym:Synonym)";
         query += " OPTIONAL MATCH crossRef=(a:Allele)-[:CROSS_REFERENCE]->(c:CrossReference)";
         query += " OPTIONAL MATCH disease=(a:Allele)-[:IS_IMPLICATED_IN]->(doTerm:DOTerm)";

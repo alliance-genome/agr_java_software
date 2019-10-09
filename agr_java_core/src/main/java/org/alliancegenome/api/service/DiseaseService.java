@@ -165,7 +165,7 @@ public class DiseaseService {
                     .collect(Collectors.toMap(PrimaryAnnotatedEntity::getId, entity -> entity));
         }
 
-        List<PhenotypeAnnotation> allPhenotypeAnnotations = phenotypeCacheRepository.getPhenotypeAnnotationList(geneID, pagination).getResult();
+        List<PhenotypeAnnotation> allPhenotypeAnnotations = phenotypeCacheRepository.getPhenotypeAnnotationList(geneID);
         // select annotations that have primaryAnnotated Entities
         List<PrimaryAnnotatedEntity> primaryAnnotatedEntitiesPhenotype = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(allPhenotypeAnnotations)) {

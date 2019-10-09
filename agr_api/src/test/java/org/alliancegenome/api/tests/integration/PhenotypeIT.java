@@ -109,12 +109,6 @@ public class PhenotypeIT {
         int totalSize = 295;
         assertResponse(response, resultSize, totalSize);
 
-        EntitySummary summary = geneService.getPhenotypeSummary(geneID);
-        assertNotNull(summary);
-        assertThat(summary.getNumberOfAnnotations(), greaterThanOrEqualTo(295L));
-        assertThat(summary.getNumberOfEntities(), greaterThanOrEqualTo(110L));
-
-
         // add containsFilterValue on phenotype
         pagination.makeSingleFieldFilter(FieldFilter.PHENOTYPE, "CirC");
         response = geneService.getPhenotypeAnnotations(geneID, pagination);
@@ -180,12 +174,7 @@ public class PhenotypeIT {
         String geneID = "MGI:109583";
         Pagination pagination = new Pagination(1, 42, null, null);
         JsonResultResponse<PhenotypeAnnotation> response = geneService.getPhenotypeAnnotations(geneID, pagination);
-        assertResponse(response, 42, 1251);
-
-        EntitySummary summary = geneService.getPhenotypeSummary(geneID);
-        assertNotNull(summary);
-        assertThat(summary.getNumberOfAnnotations(), greaterThanOrEqualTo(1251L));
-        assertThat(summary.getNumberOfEntities(), greaterThanOrEqualTo(526L));
+        assertResponse(response, 42, 1247);
 
 
         // add containsFilterValue on phenotype
