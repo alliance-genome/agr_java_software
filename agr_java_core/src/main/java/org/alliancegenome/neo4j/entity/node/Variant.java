@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.alliancegenome.es.util.DateConverter;
 import org.alliancegenome.neo4j.entity.Neo4jEntity;
+import org.alliancegenome.neo4j.entity.relationship.GenomeLocation;
 import org.alliancegenome.neo4j.view.View;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
@@ -45,7 +46,7 @@ public class Variant extends Neo4jEntity implements Comparable<Variant> {
 
     @JsonView({View.Default.class, View.API.class})
     @Relationship(type = "ASSOCIATION")
-    private GenomicLocation location;
+    private GenomeLocation location;
 
     @JsonView({View.Default.class, View.API.class})
     @JsonProperty(value = "consequence")

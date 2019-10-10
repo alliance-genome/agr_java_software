@@ -89,10 +89,10 @@ public class PrimaryAnnotatedEntity implements Comparable<PrimaryAnnotatedEntity
         publicationEvidenceCodes.add(pubJoin);
     }
 
-    public void addPhenotypes(List<String> phenotypes) {
-        if (phenotypes != null) {
-            this.phenotypes.addAll(phenotypes);
-        }
+    public void addPhenotypes(List<String> phenotypeList) {
+        if (phenotypes == null)
+            phenotypes = new ArrayList<>();
+        phenotypes.addAll(phenotypeList);
     }
 
     public void setDataProvider(String dataProvider) {

@@ -69,14 +69,6 @@ public class AlleleIT {
         assertThat(term.size(), greaterThanOrEqualTo(1));
     }
 
-    @Test
-    @Ignore
-    public void checkAlleles() {
-        AlleleRepository repository = new AlleleRepository();
-        Set<Allele> response = repository.getAllAlleles();
-        assertThat(response.size(), greaterThanOrEqualTo(10));
-    }
-
     private void assertResponse(JsonResultResponse<Allele> response, int resultSize, int totalSize) {
         assertNotNull(response);
         assertThat("Number of returned records", response.getResults().size(), greaterThanOrEqualTo(resultSize));
