@@ -7,6 +7,7 @@ import org.alliancegenome.cache.manager.PhenotypeCacheManager;
 import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
 import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
+import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.entity.node.GeneticEntity;
 import org.alliancegenome.neo4j.entity.node.PhenotypeEntityJoin;
 import org.alliancegenome.neo4j.repository.PhenotypeRepository;
@@ -46,11 +47,13 @@ public class GenePhenotypeCacher extends Cacher {
         List<PhenotypeAnnotation> allPhenotypeAnnotations = joinList.stream()
                 .map(phenotypeEntityJoin -> {
                     PhenotypeAnnotation document = new PhenotypeAnnotation();
-                    document.setGene(phenotypeEntityJoin.getGene());
+                    final Gene gene = phenotypeEntityJoin.getGene();
+                    document.setGene(gene);
                     if (phenotypeEntityJoin.getAllele() != null)
                         document.setAllele(phenotypeEntityJoin.getAllele());
                     document.setPhenotype(phenotypeEntityJoin.getPhenotype().getPhenotypeStatement());
                     document.setPublications(phenotypeEntityJoin.getPublications());
+                    // if AGMs are present
                     if (CollectionUtils.isNotEmpty(phenotypeEntityJoin.getPhenotypePublicationJoins())) {
                         phenotypeEntityJoin.getPhenotypePublicationJoins()
                                 .stream()
@@ -69,6 +72,16 @@ public class GenePhenotypeCacher extends Cacher {
                                         entity.addPhenotype(phenotypeEntityJoin.getPhenotype().getPhenotypeStatement());
                                     });
                                 });
+                        // if Gene-only create a new PAE of type 'Gene'
+                        if (gene != null) {
+                            PrimaryAnnotatedEntity entity = new PrimaryAnnotatedEntity();
+                            entity.setId(gene.getPrimaryKey());
+                            entity.setName(gene.getSymbol());
+                            entity.setDisplayName(gene.getSymbol());
+                            entity.setType(GeneticEntity.getType("gene"));
+                            entity.setPublicationEvidenceCodes(phenotypeEntityJoin.getPhenotypePublicationJoins());
+                            document.addPrimaryAnnotatedEntity(entity);
+                        }
                     }
                     progressProcess();
                     return document;
