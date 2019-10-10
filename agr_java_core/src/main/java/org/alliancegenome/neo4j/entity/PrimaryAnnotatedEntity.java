@@ -27,13 +27,15 @@ public class PrimaryAnnotatedEntity implements Comparable<PrimaryAnnotatedEntity
     protected GeneticEntity.CrossReferenceType type;
     @JsonView({View.Default.class, View.API.class})
     protected CrossReference crossReference;
+    @JsonView({View.API.class})
+    private Source source;
 
     @JsonView({View.Default.class, View.API.class})
     protected List<DOTerm> diseases;
     @JsonView({View.Default.class, View.API.class})
     private List<String> phenotypes;
-    @JsonView({View.DiseaseAnnotation.class})
-    private List<PublicationEvidenceCodeJoin> publicationEvidenceCodes;
+    @JsonView({View.API.class})
+    private List<PublicationJoin> publicationEvidenceCodes;
 
     @Convert(value = DateConverter.class)
     private Date dateProduced;
@@ -81,7 +83,7 @@ public class PrimaryAnnotatedEntity implements Comparable<PrimaryAnnotatedEntity
         phenotypes = new ArrayList<>(new HashSet<>(phenotypes));
     }
 
-    public void addPublicationEvidenceCode(PublicationEvidenceCodeJoin pubJoin) {
+    public void addPublicationEvidenceCode(PublicationJoin pubJoin) {
         if (publicationEvidenceCodes == null)
             publicationEvidenceCodes = new ArrayList<>();
         publicationEvidenceCodes.add(pubJoin);
@@ -91,5 +93,10 @@ public class PrimaryAnnotatedEntity implements Comparable<PrimaryAnnotatedEntity
         if (phenotypes != null) {
             this.phenotypes.addAll(phenotypes);
         }
+    }
+
+    public void setDataProvider(String dataProvider) {
+        source = new Source();
+        source.setName(dataProvider);
     }
 }

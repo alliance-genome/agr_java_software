@@ -49,7 +49,7 @@ public class DiseaseAnnotation implements Comparable<DiseaseAnnotation>, Seriali
     @JsonView({View.DiseaseAnnotation.class})
     private List<Gene> orthologyGenes;
     @JsonView({View.DiseaseAnnotation.class})
-    private List<PublicationEvidenceCodeJoin> publicationEvidenceCodeJoins;
+    private List<PublicationJoin> publicationJoins;
 
     public void addOrthologousGene(Gene gene) {
         if (orthologyGenes == null)

@@ -22,7 +22,7 @@ public class DiseaseEntityJoin extends EntityJoin {
     private Gene orthologyGene;
 
     @Relationship(type = "EVIDENCE")
-    private List<PublicationEvidenceCodeJoin> publicationEvidenceCodeJoin;
+    private List<PublicationJoin> publicationJoins;
 
 
     // Singular at the moment.
