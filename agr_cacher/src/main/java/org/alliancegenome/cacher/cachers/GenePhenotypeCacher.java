@@ -13,6 +13,8 @@ import org.alliancegenome.neo4j.repository.PhenotypeRepository;
 import org.alliancegenome.neo4j.view.View;
 import org.apache.commons.collections.CollectionUtils;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -75,9 +77,30 @@ public class GenePhenotypeCacher extends Cacher {
 
         finishProcess();
 
+        // merge annotations with the same phenotype
+        // geneID, Map<phenotype, List<PhenotypeAnnotation>>
+        Map<String, Map<String, List<PhenotypeAnnotation>>> annotationMergeMap = allPhenotypeAnnotations.stream()
+                .collect(groupingBy(phenotypeAnnotation -> phenotypeAnnotation.getGene().getPrimaryKey(), groupingBy(PhenotypeAnnotation::getPhenotype)));
+
+        Map<String, List<PhenotypeAnnotation>> phenotypeAnnotationMap = new HashMap<>();
+        annotationMergeMap.forEach((geneID, value) -> {
+            List<PhenotypeAnnotation> mergedAnnotations = new ArrayList<>();
+            value.forEach((phenotype, phenotypeAnnotations) -> {
+                // get first element and put all info from other collection elements.
+                PhenotypeAnnotation entity = phenotypeAnnotations.get(0);
+                phenotypeAnnotations.stream()
+                        .filter(phenotypeAnnotation -> CollectionUtils.isNotEmpty(phenotypeAnnotation.getPrimaryAnnotatedEntities()))
+                        .forEach(annotation -> entity.addPrimaryAnnotatedEntities(annotation.getPrimaryAnnotatedEntities()));
+                mergedAnnotations.add(entity);
+            });
+            phenotypeAnnotationMap.put(geneID, mergedAnnotations);
+        });
+
+/*
         // group by gene IDs
-        Map<String, List<PhenotypeAnnotation>> phenotypeAnnotationMap = allPhenotypeAnnotations.stream()
+        Map<String, List<PhenotypeAnnotation>> phenotypeAnnotationMap = mergedAnnotations.stream()
                 .collect(groupingBy(phenotypeAnnotation -> phenotypeAnnotation.getGene().getPrimaryKey()));
+*/
 
         PhenotypeCacheManager manager = new PhenotypeCacheManager();
 

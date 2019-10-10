@@ -161,6 +161,8 @@ public interface GeneRESTInterface {
             @QueryParam("filter.species") String species,
             @ApiParam(value = "filter by disease")
             @QueryParam("filter.disease") String disease,
+            @ApiParam(value = "filter by phenotype")
+            @QueryParam("filter.phenotype") String phenotype,
             @ApiParam(value = "filter by source")
             @QueryParam("filter.source") String source,
             @ApiParam(value = "ascending order: true or false", allowableValues = "true,false", defaultValue = "true")
