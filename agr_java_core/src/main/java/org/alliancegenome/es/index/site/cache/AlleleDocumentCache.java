@@ -25,8 +25,11 @@ public class AlleleDocumentCache extends IndexerCache {
 
             super.addCachedFields(alleleDocument);
 
-            for (String consequence : molecularConsequenceMap.get(id)) {
-                alleleDocument.getMolecularConsequence().addAll(Arrays.asList(consequence.split(",")));
+            if (molecularConsequenceMap.get(id) != null) {
+                alleleDocument.setMolecularConsequence(new HashSet<>());
+                for (String consequence : molecularConsequenceMap.get(id)) {
+                    alleleDocument.getMolecularConsequence().addAll(Arrays.asList(consequence.split(",")));
+                }
             }
 
             if (variantTypesMap.get(id) == null) {
