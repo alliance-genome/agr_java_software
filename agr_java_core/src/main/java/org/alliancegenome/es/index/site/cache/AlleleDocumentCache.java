@@ -1,15 +1,14 @@
 package org.alliancegenome.es.index.site.cache;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import org.alliancegenome.es.index.site.document.AlleleDocument;
 import org.alliancegenome.neo4j.entity.node.Allele;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.lang3.StringUtils;
 
 @Getter
 @Setter
@@ -25,7 +24,13 @@ public class AlleleDocumentCache extends IndexerCache {
             String id = alleleDocument.getPrimaryKey();
 
             super.addCachedFields(alleleDocument);
-            alleleDocument.setMolecularConsequence(molecularConsequenceMap.get(id));
+
+            if (molecularConsequenceMap.get(id) != null) {
+                alleleDocument.setMolecularConsequence(new HashSet<>());
+                for (String consequence : molecularConsequenceMap.get(id)) {
+                    alleleDocument.getMolecularConsequence().addAll(Arrays.asList(consequence.split(",")));
+                }
+            }
 
             if (variantTypesMap.get(id) == null) {
                 Set<String> defaultValue = new HashSet<>();
