@@ -245,12 +245,14 @@ public class GeneController extends BaseController implements GeneRESTInterface 
                                                                                         String modelName,
                                                                                         String species,
                                                                                         String disease,
+                                                                                        String phenotype,
                                                                                         String source,
                                                                                         String asc) {
         long startTime = System.currentTimeMillis();
         Pagination pagination = new Pagination(page, limit, sortBy, asc);
         pagination.addFieldFilter(FieldFilter.SPECIES, species);
         pagination.addFieldFilter(FieldFilter.DISEASE, disease);
+        pagination.addFieldFilter(FieldFilter.PHENOTYPE, phenotype);
         pagination.addFieldFilter(FieldFilter.SOURCE, source);
         pagination.addFieldFilter(FieldFilter.MODEL_NAME, modelName);
         if (pagination.hasErrors()) {
