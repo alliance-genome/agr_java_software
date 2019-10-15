@@ -34,7 +34,7 @@ public class ModelCacher extends Cacher {
                     entity.setId(model.getPrimaryKey());
                     entity.setName(model.getName());
                     entity.setDisplayName(model.getNameText());
-                    entity.setAlleles(model.getAlleles());
+                    entity.setSequenceTargetingReagents(model.getSequenceTargetingReagents());
                     return entity;
                 })
                 .collect(Collectors.toList());
