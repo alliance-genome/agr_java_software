@@ -7,6 +7,7 @@ public enum CacheAlliance {
     GENE_PHENOTYPE(),
     GENE_INTERACTION(),
     GENE_ORTHOLOGY(),
+    GENE_MODEL(),
     GENE_ALLELE(),
     GENE_DISEASE_ANNOTATION(),
     GENE_SITEMAP(),

@@ -648,6 +648,22 @@ public class GeneRepository extends Neo4jRepository<Gene> {
                 .collect(Collectors.toList());
     }
 
+    public List<AffectedGenomicModel> getAllAffectedModelsAllele() {
+        String query = " MATCH p=(:AffectedGenomicModel)-[:MODEL_COMPONENT]-(:Allele)--(:Gene)" +
+                " return p ";
+        Iterable<AffectedGenomicModel> algorithms = query(AffectedGenomicModel.class, query);
+        return StreamSupport.stream(algorithms.spliterator(), false)
+                .collect(Collectors.toList());
+    }
+
+    public List<AffectedGenomicModel> getAllAffectedModelsSTR() {
+        String query = " MATCH p=(:AffectedGenomicModel)-[:SEQUENCE_TARGETING_REAGENT]-(:SequenceTargetingReagent)--(:Gene)" +
+                " return p ";
+        Iterable<AffectedGenomicModel> algorithms = query(AffectedGenomicModel.class, query);
+        return StreamSupport.stream(algorithms.spliterator(), false)
+                .collect(Collectors.toList());
+    }
+
     @FunctionalInterface
     public interface FilterComparator<T, U> {
         boolean compare(T o, U oo);

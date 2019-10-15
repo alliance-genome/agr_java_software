@@ -60,6 +60,13 @@ public class CacheAllianceTest {
 
     @Ignore
     @Test
+    public void cacheModels() {
+        ModelCacher cacher = new ModelCacher();
+        cacher.run();
+    }
+
+    @Ignore
+    @Test
     public void cachePhenotypes() {
         GenePhenotypeCacher cacher = new GenePhenotypeCacher();
         cacher.run();

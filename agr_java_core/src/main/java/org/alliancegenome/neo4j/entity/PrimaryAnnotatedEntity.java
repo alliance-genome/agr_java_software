@@ -36,6 +36,10 @@ public class PrimaryAnnotatedEntity implements Comparable<PrimaryAnnotatedEntity
     private List<String> phenotypes;
     @JsonView({View.API.class})
     private List<PublicationJoin> publicationEvidenceCodes;
+    @JsonView({View.API.class})
+    private List<Allele> alleles;
+    @JsonView({View.API.class})
+    private List<SequenceTargetingReagent> sequenceTargetingReagents;
 
     @Convert(value = DateConverter.class)
     private Date dateProduced;

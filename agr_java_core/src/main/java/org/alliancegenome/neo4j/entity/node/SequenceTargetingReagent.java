@@ -24,6 +24,7 @@ public class SequenceTargetingReagent extends GeneticEntity implements Comparabl
     private String name;
 
     @Relationship(type = "TARGETS")
+    @JsonView({View.API.class})
     private Gene gene;
 
     @Override
