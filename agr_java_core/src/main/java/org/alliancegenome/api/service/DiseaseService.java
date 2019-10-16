@@ -222,12 +222,14 @@ public class DiseaseService {
                 .map(PrimaryAnnotatedEntity::getId)
                 .collect(toList());
 
-
-        geneIDs.forEach(geneId -> {
-            fullModelList.removeIf(entity -> entity.getId().equals(geneId));
-        });
-
-        primaryAnnotatedEntities.addAll(fullModelList);
+        // remove the AGMs that are already accounted for by disease or phenotype relationship
+        // leaving only those AGMs that have no one of that kind
+        if (CollectionUtils.isNotEmpty(fullModelList)) {
+            geneIDs.forEach(geneId -> {
+                fullModelList.removeIf(entity -> entity.getId().equals(geneId));
+            });
+            primaryAnnotatedEntities.addAll(fullModelList);
+        }
 
         //filtering
         FilterService<PrimaryAnnotatedEntity> filterService = new FilterService<>(new PrimaryAnnotatedEntityFiltering());
