@@ -64,7 +64,7 @@ public class AlleleIT {
     }
 
     @Test
-    public void checkAllelesByGeneAndConsequenceFilter() {
+    public void checkAllelesByGeneFiltering() {
         Pagination pagination = new Pagination();
         BaseFilter filter = new BaseFilter();
         filter.addFieldFilter(FieldFilter.VARIANT_CONSEQUENCE, "deletion");
