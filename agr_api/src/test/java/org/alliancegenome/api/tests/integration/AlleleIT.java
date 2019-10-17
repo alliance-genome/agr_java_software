@@ -7,8 +7,10 @@ import io.swagger.annotations.Api;
 import org.alliancegenome.api.service.AlleleService;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.service.JsonResultResponse;
+import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.node.Allele;
+import org.alliancegenome.neo4j.view.BaseFilter;
 import org.alliancegenome.neo4j.view.OrthologyModule;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.config.Configurator;
@@ -59,6 +61,16 @@ public class AlleleIT {
         Pagination pagination = new Pagination();
         JsonResultResponse<Allele> response = alleleService.getAllelesByGene("MGI:109583", pagination);
         assertResponse(response, 19, 19);
+    }
+
+    @Test
+    public void checkAllelesByGeneAndConsequenceFilter() {
+        Pagination pagination = new Pagination();
+        BaseFilter filter = new BaseFilter();
+        filter.addFieldFilter(FieldFilter.VARIANT_CONSEQUENCE, "deletion");
+        pagination.setFieldFilterValueMap(filter);
+        JsonResultResponse<Allele> response = alleleService.getAllelesByGene("WB:WBGene00000898", pagination);
+        assertResponse(response, 1, 1);
     }
 
     @Test
