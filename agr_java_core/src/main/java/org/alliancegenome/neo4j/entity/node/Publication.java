@@ -2,6 +2,7 @@ package org.alliancegenome.neo4j.entity.node;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Objects;
 
 import org.alliancegenome.neo4j.entity.Neo4jEntity;
 import org.alliancegenome.neo4j.view.View;
@@ -84,5 +85,16 @@ public class Publication extends Neo4jEntity implements Comparable<Publication>,
         pubMedId = value;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Publication that = (Publication) o;
+        return Objects.equals(getPubId(), that.getPubId());
+    }
 
+    @Override
+    public int hashCode() {
+        return Objects.hash(getPubId());
+    }
 }
