@@ -27,6 +27,7 @@ public class CacheAllianceTest {
     @Ignore
     public void diseaseCacher() {
         DiseaseCacher cacher = new DiseaseCacher();
+        cacher.setUseCache(true);
         cacher.run();
     }
 

@@ -294,13 +294,6 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
     }
 
     public List<ECOTerm> getEcoTerm(List<PublicationJoin> joins) {
-        DiseaseCacheRepository cacheRepository = new DiseaseCacheRepository();
-        List<ECOTerm> cacheValue = cacheRepository.getEcoTerm(joins);
-/*
-        if (CollectionUtils.isNotEmpty(cacheValue)) {
-            return cacheValue;
-        }
-*/
         if (ecoTermMap.isEmpty()) {
             populateAllPublicationJoins();
         }
@@ -309,6 +302,16 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
                 .filter(join -> ecoTermMap.get(join.getPrimaryKey()) != null)
                 .forEach(publicationJoin -> terms.addAll(ecoTermMap.get(publicationJoin.getPrimaryKey())));
         return terms;
+    }
+
+    public List<ECOTerm> getEcoTermsFromCache(List<PublicationJoin> joins) {
+        if (joins == null)
+            return null;
+
+        return joins.stream()
+                .map(join -> cacheRepository.getEcoTerm(join))
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
     }
 
     public DOTerm getShallowDiseaseTerm(String id) {
@@ -363,8 +366,9 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
         return null;
     }
 
+    private DiseaseCacheRepository cacheRepository = new DiseaseCacheRepository();
+
     public Set<String> getParentTermIDs(String doID) {
-        DiseaseCacheRepository cacheRepository = new DiseaseCacheRepository();
 /*
         List<String> cacheValue = cacheRepository.getParentTermIDs(doID);
         if (cacheValue != null) {
@@ -375,14 +379,28 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
     }
 
     // Convenience method to populate the evidence codes on the publicationJoins object
-    public List<PublicationJoin> populatePublicationJoins(List<PublicationJoin> joins) {
+    public void populatePublicationJoins(List<PublicationJoin> joins) {
+        if (joins == null)
+            return;
+
         if (ecoTermMap.isEmpty()) {
             populateAllPublicationJoins();
         }
         joins.stream()
                 .filter(join -> ecoTermMap.get(join.getPrimaryKey()) != null)
                 .forEach(join -> join.setEcoCode(ecoTermMap.get(join.getPrimaryKey())));
-        return joins;
+    }
+
+    public void populatePublicationJoinsFromCache(List<PublicationJoin> joins) {
+        if (joins == null)
+            return;
+
+        joins.forEach(publicationJoin -> {
+            List<ECOTerm> cacheValue = cacheRepository.getEcoTerm(publicationJoin);
+            if (cacheValue != null) {
+                publicationJoin.setEcoCode(cacheValue);
+            }
+        });
     }
 
     @Setter
@@ -398,8 +416,9 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
         String cypher = "MATCH p=(disease:DOTerm)-[:ASSOCIATION]-(diseaseEntityJoin:DiseaseEntityJoin)-[:EVIDENCE]->(pubEvCode:PublicationJoin)-[:ASSOCIATION]-(publication:Publication) ";
         cypher += " where disease.isObsolete = 'false' ";
         //cypher += " AND disease.primaryKey in ['DOID:0050144','DOID:0110599','DOID:0050545'] ";
-        //cypher += " AND disease.primaryKey in ['DOID:1838'] ";
-        //cypher += " AND gene.primaryKey = 'MGI:107718' ";
+        //cypher += " AND disease.primaryKey in ['DOID:1339'] ";
+        //cypher += " AND disease.primaryKey in ['DOID:0050657'] ";
+        //cypher += " AND gene.primaryKey = 'ZFIN:ZDB-GENE-040426-1716' ";
         //cypher += "      OPTIONAL MATCH eco   =(pubEvCode:PublicationJoin)-[:ASSOCIATION]->(ecoTerm:ECOTerm)";
         cypher += "      OPTIONAL MATCH p0    =(diseaseEntityJoin:DiseaseEntityJoin)<-[:ASSOCIATION]-(gene:Gene)-[:FROM_SPECIES]->(species:Species)";
         cypher += "      OPTIONAL MATCH p1    =(diseaseEntityJoin:DiseaseEntityJoin)<-[:ASSOCIATION]-(feature:Feature)-[:CROSS_REFERENCE]->(crossReference:CrossReference) ";

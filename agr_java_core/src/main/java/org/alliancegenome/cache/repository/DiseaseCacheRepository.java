@@ -77,7 +77,7 @@ public class DiseaseCacheRepository {
         );
         List<DiseaseAnnotation> fullDiseaseAnnotationList = new ArrayList<>(allDiseaseAnnotationList);
         // filter by slim ID
-        List<DiseaseAnnotation> slimDiseaseAnnotationList = new ArrayList<>();
+        List<DiseaseAnnotation> slimDiseaseAnnotationList;
         if (StringUtils.isNotEmpty(diseaseSlimID)) {
             if (!diseaseSlimID.equals(DiseaseRibbonSummary.DOID_OTHER)) {
                 slimDiseaseAnnotationList = fullDiseaseAnnotationList.stream()
@@ -126,7 +126,7 @@ public class DiseaseCacheRepository {
         return result;
     }
 
-    public List<ECOTerm> getEcoTerm(List<PublicationJoin> joins) {
+    public List<ECOTerm> getEcoTerms(List<PublicationJoin> joins) {
         if (joins == null)
             return null;
         BasicCacheManager<String> manager = new BasicCacheManager<>();
@@ -145,6 +145,26 @@ public class DiseaseCacheRepository {
                 throw new RuntimeException(e);
             }
         });
+        return list;
+    }
+
+    public List<ECOTerm> getEcoTerm(PublicationJoin join) {
+        if (join == null)
+            return null;
+        BasicCacheManager<String> manager = new BasicCacheManager<>();
+        List<ECOTerm> list = new ArrayList<>();
+        CollectionType javaType = BasicCacheManager.mapper.getTypeFactory()
+                .constructCollectionType(List.class, ECOTerm.class);
+
+        String json = manager.getCache(join.getPrimaryKey(), CacheAlliance.ECO_MAP);
+        if (json == null)
+            return null;
+        try {
+            list.addAll(BasicCacheManager.mapper.readValue(json, javaType));
+        } catch (IOException e) {
+            log.error("Error during deserialization ", e);
+            throw new RuntimeException(e);
+        }
         return list;
     }
 

@@ -126,10 +126,10 @@ public class BasicCacheManager<O> {
         log.info("closing cache");
     }
 
-    public void setCache(String primaryKey, List ecoTerms, Class<?> classView, CacheAlliance cacheAlliance) {
+    public void setCache(String primaryKey, List items, Class<?> classView, CacheAlliance cacheAlliance) {
         RemoteCache<String, String> cache = rmc.getCache(cacheAlliance.getCacheName());
         try {
-            String value = mapper.writerWithView(classView).writeValueAsString(ecoTerms);
+            String value = mapper.writerWithView(classView).writeValueAsString(items);
             cache.put(primaryKey, value);
         } catch (JsonProcessingException e) {
             e.printStackTrace();

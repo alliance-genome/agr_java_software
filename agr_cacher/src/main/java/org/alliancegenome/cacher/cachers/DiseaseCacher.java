@@ -18,8 +18,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.*;
 
 @Log4j2
 public class DiseaseCacher extends Cacher {
@@ -34,14 +33,19 @@ public class DiseaseCacher extends Cacher {
         if (joinList == null)
             return;
 
+        if (useCache) {
+            joinList = joinList.stream()
+                    .filter(diseaseEntityJoin -> diseaseEntityJoin.getGene() != null)
+                    //.filter(diseaseEntityJoin -> diseaseEntityJoin.getGene().getPrimaryKey().equals("ZFIN:ZDB-GENE-040426-1716"))
+                    .filter(diseaseEntityJoin -> diseaseEntityJoin.getGene().getPrimaryKey().equals("MGI:109583"))
+                    .collect(toSet());
+        }
         finishProcess();
 
         DiseaseRibbonService diseaseRibbonService = new DiseaseRibbonService();
 
         startProcess("diseaseRepository.getAllDiseaseEntityJoins");
 
-        // used to populate the DOTerm object on the PrimaryAnnotationEntity object
-        Map<String, PrimaryAnnotatedEntity> entities = new HashMap<>();
         List<DiseaseAnnotation> allDiseaseAnnotations = joinList.stream()
                 .map(diseaseEntityJoin -> {
                     DiseaseAnnotation document = new DiseaseAnnotation();
@@ -59,6 +63,8 @@ public class DiseaseCacher extends Cacher {
                         document.setOrthologyGenes(orthologyGenes);
                     }
 
+                    // used to populate the DOTerm object on the PrimaryAnnotationEntity object
+                    Map<String, PrimaryAnnotatedEntity> entities = new HashMap<>();
                     if (CollectionUtils.isNotEmpty(diseaseEntityJoin.getPublicationJoins())) {
                         diseaseEntityJoin.getPublicationJoins()
                                 .stream()
@@ -79,11 +85,13 @@ public class DiseaseCacher extends Cacher {
                                     entity.addDisease(diseaseEntityJoin.getDisease());
                                 }));
                     }
-                    document.setPublicationJoins(diseaseRepository.populatePublicationJoins(diseaseEntityJoin.getPublicationJoins()));
-                    List<Publication> publicationList = diseaseEntityJoin.getPublicationJoins().stream()
-                            .map(PublicationJoin::getPublication).sorted(Comparator.naturalOrder()).collect(Collectors.toList());
-                    document.setPublications(publicationList.stream().distinct().collect(Collectors.toList()));
-
+                    List<PublicationJoin> publicationJoins = diseaseEntityJoin.getPublicationJoins();
+                    if (useCache) {
+                        diseaseRepository.populatePublicationJoinsFromCache(diseaseEntityJoin.getPublicationJoins());
+                    } else {
+                        diseaseRepository.populatePublicationJoins(publicationJoins);
+                    }
+                    document.setPublicationJoins(publicationJoins);
 /*
                     List<ECOTerm> ecoList = diseaseEntityJoin.getPublicationJoins().stream()
                             .filter(join -> CollectionUtils.isNotEmpty(join.getEcoCode()))
@@ -92,10 +100,15 @@ public class DiseaseCacher extends Cacher {
                     document.setEcoCodes(ecoList.stream().distinct().collect(Collectors.toList()));
 */
                     // work around as I cannot figure out how to include the ECOTerm in the overall query without slowing down the performance.
-                    List<ECOTerm> evidences = diseaseRepository.getEcoTerm(diseaseEntityJoin.getPublicationJoins());
+                    List<ECOTerm> evidences;
+                    if (useCache) {
+                        evidences = diseaseRepository.getEcoTermsFromCache(diseaseEntityJoin.getPublicationJoins());
+                    } else {
+                        evidences = diseaseRepository.getEcoTerm(diseaseEntityJoin.getPublicationJoins());
+                        Set<String> slimId = diseaseRibbonService.getAllParentIDs(diseaseEntityJoin.getDisease().getPrimaryKey());
+                        document.setParentIDs(slimId);
+                    }
                     document.setEcoCodes(evidences);
-                    Set<String> slimId = diseaseRibbonService.getAllParentIDs(diseaseEntityJoin.getDisease().getPrimaryKey());
-                    document.setParentIDs(slimId);
                     progressProcess();
                     return document;
                 })
@@ -103,11 +116,17 @@ public class DiseaseCacher extends Cacher {
 
         finishProcess();
 
+        log.info("Number of DiseaseAnnotation object before merge: " + String.format("%,d", allDiseaseAnnotations.size()));
+        // merge disease Annotations with the same
+        // disease / gene / association type combination
+        mergeDiseaseAnnotationsByAGM(allDiseaseAnnotations);
+        log.info("Number of DiseaseAnnotation object after merge: " + String.format("%,d", allDiseaseAnnotations.size()));
+
+
         // default sorting
         DiseaseAnnotationSorting sorting = new DiseaseAnnotationSorting();
         allDiseaseAnnotations.sort(sorting.getComparator(SortingField.DEFAULT, Boolean.TRUE));
 
-        log.info("Retrieved " + String.format("%,d", allDiseaseAnnotations.size()) + " annotations");
         Map<String, Set<String>> closureMapping = diseaseRepository.getClosureMapping();
         log.info("Number of Disease IDs: " + closureMapping.size());
         final Set<String> allIDs = closureMapping.keySet();
@@ -127,8 +146,6 @@ public class DiseaseCacher extends Cacher {
                     .forEach(id -> allAnnotations.addAll(diseaseAnnotationTermMap.get(id)));
             diseaseAnnotationMap.put(termID, allAnnotations);
         });
-
-        log.info("Number of Disease IDs in disease Map: " + diseaseAnnotationMap.size());
 
         setCacheStatus(joinList.size(), CacheAlliance.DISEASE_ANNOTATION.getCacheName());
 
@@ -154,6 +171,45 @@ public class DiseaseCacher extends Cacher {
 
         diseaseRepository.clearCache();
 
+    }
+
+    private void mergeDiseaseAnnotationsByAGM(List<DiseaseAnnotation> allDiseaseAnnotations) {
+        Map<DOTerm, Map<Gene, Map<String, List<DiseaseAnnotation>>>> multiIndex = allDiseaseAnnotations.stream()
+                .filter(diseaseAnnotation -> diseaseAnnotation.getGene() != null)
+                .collect(groupingBy(DiseaseAnnotation::getDisease,
+                        groupingBy(DiseaseAnnotation::getGene,
+                                groupingBy(DiseaseAnnotation::getAssociationType))));
+
+        multiIndex.forEach((doTerm, geneMapMap) -> {
+            geneMapMap.forEach((gene, stringListMap) -> {
+                stringListMap.forEach((type, diseaseAnnotations) -> {
+                    if (type.equals("is_implicated_in") && diseaseAnnotations.size() > 1) {
+
+                        List<PrimaryAnnotatedEntity> models = diseaseAnnotations.stream()
+                                .filter(diseaseAnnotation -> diseaseAnnotation.getPrimaryAnnotatedEntities() != null)
+                                .map(DiseaseAnnotation::getPrimaryAnnotatedEntities)
+                                .flatMap(Collection::stream)
+                                .collect(toList());
+
+                        // only merge annotations that have at least one PAE
+                        if (CollectionUtils.isEmpty(models))
+                            return;
+
+                        DiseaseAnnotation annotation = diseaseAnnotations.get(0);
+                        int index = 0;
+                        for (DiseaseAnnotation annot : diseaseAnnotations) {
+                            if (index++ == 0)
+                                continue;
+                            annotation.addAllPrimaryAnnotatedEntities(annot.getPrimaryAnnotatedEntities());
+                            annotation.addPublicationJoins(annot.getPublicationJoins());
+                            annot.setRemove(true);
+                        }
+                    }
+                });
+            });
+        });
+
+        allDiseaseAnnotations.removeIf(DiseaseAnnotation::isRemove);
     }
 
 }
