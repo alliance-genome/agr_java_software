@@ -20,6 +20,7 @@ import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
 import org.alliancegenome.neo4j.entity.node.DOTerm;
 import org.alliancegenome.neo4j.entity.node.Publication;
 import org.alliancegenome.neo4j.entity.node.Synonym;
+import org.alliancegenome.neo4j.view.BaseFilter;
 import org.alliancegenome.neo4j.view.OrthologyModule;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -105,6 +106,19 @@ public class DiseaseIT {
         String diseaseID = "DOID:1838";
         JsonResultResponse<DiseaseAnnotation> response = diseaseService.getDiseaseAnnotationsWithGenes(diseaseID, pagination);
         assertLimitResponse(response, 18, 18);
+
+        // make sure there are multiple orthology genes for HGNC:869
+        BaseFilter baseFilter = new BaseFilter();
+        baseFilter.addFieldFilter(FieldFilter.ASSOCIATION_TYPE, "implicated_via_orthology");
+        pagination.setFieldFilterValueMap(baseFilter);
+        response = diseaseService.getDiseaseAnnotationsWithGenes(diseaseID, pagination);
+        assertLimitResponse(response, 16, 16);
+
+        response.getResults().stream()
+                .filter(annotation -> annotation.getGene().getPrimaryKey().equals("HGNC:869"))
+                .forEach(diseaseAnnotation -> {
+                    assertThat(4, greaterThanOrEqualTo(diseaseAnnotation.getOrthologyGenes().size()));
+                });
     }
 
     @Test

@@ -61,7 +61,8 @@ public class GeneRepository extends Neo4jRepository<Gene> {
                 + "OPTIONAL MATCH p3=(g:Gene)--(:Synonym) "
                 + "OPTIONAL MATCH p4=(g:Gene)--(:Chromosome) "
                 + "OPTIONAL MATCH loc=(g:Gene)--(:GenomicLocation)--(:Chromosome) "
-                + "RETURN p1, p2, p3, p4, loc";
+                + "OPTIONAL MATCH p5=(g:Gene)--(:CrossReference) "
+                + "RETURN p1, p2, p3, p4, p5, loc";
 
         Iterable<Gene> genes = query(query, map);
         for (Gene g : genes) {
@@ -645,6 +646,22 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         Iterable<OrthoAlgorithm> algorithms = query(OrthoAlgorithm.class, query);
         return StreamSupport.stream(algorithms.spliterator(), false)
                 .map(OrthoAlgorithm::getName)
+                .collect(Collectors.toList());
+    }
+
+    public List<AffectedGenomicModel> getAllAffectedModelsAllele() {
+        String query = " MATCH p=(:AffectedGenomicModel)-[:MODEL_COMPONENT]-(:Allele)--(:Gene)" +
+                " return p ";
+        Iterable<AffectedGenomicModel> algorithms = query(AffectedGenomicModel.class, query);
+        return StreamSupport.stream(algorithms.spliterator(), false)
+                .collect(Collectors.toList());
+    }
+
+    public List<AffectedGenomicModel> getAllAffectedModelsSTR() {
+        String query = " MATCH p=(:AffectedGenomicModel)-[:SEQUENCE_TARGETING_REAGENT]-(:SequenceTargetingReagent)--(:Gene)" +
+                " return p ";
+        Iterable<AffectedGenomicModel> algorithms = query(AffectedGenomicModel.class, query);
+        return StreamSupport.stream(algorithms.spliterator(), false)
                 .collect(Collectors.toList());
     }
 

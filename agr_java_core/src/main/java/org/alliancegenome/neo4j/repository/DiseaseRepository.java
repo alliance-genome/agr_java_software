@@ -398,6 +398,7 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
         String cypher = "MATCH p=(disease:DOTerm)-[:ASSOCIATION]-(diseaseEntityJoin:DiseaseEntityJoin)-[:EVIDENCE]->(pubEvCode:PublicationJoin)-[:ASSOCIATION]-(publication:Publication) ";
         cypher += " where disease.isObsolete = 'false' ";
         //cypher += " AND disease.primaryKey in ['DOID:0050144','DOID:0110599','DOID:0050545'] ";
+        //cypher += " AND disease.primaryKey in ['DOID:1838'] ";
         //cypher += " AND gene.primaryKey = 'MGI:107718' ";
         //cypher += "      OPTIONAL MATCH eco   =(pubEvCode:PublicationJoin)-[:ASSOCIATION]->(ecoTerm:ECOTerm)";
         cypher += "      OPTIONAL MATCH p0    =(diseaseEntityJoin:DiseaseEntityJoin)<-[:ASSOCIATION]-(gene:Gene)-[:FROM_SPECIES]->(species:Species)";

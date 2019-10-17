@@ -9,7 +9,6 @@ import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.node.Allele;
-import org.alliancegenome.neo4j.repository.AlleleRepository;
 import org.alliancegenome.neo4j.view.OrthologyModule;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.config.Configurator;
@@ -17,8 +16,9 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import java.util.Collection;
 import java.util.List;
-import java.util.Set;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
@@ -59,6 +59,38 @@ public class AlleleIT {
         Pagination pagination = new Pagination();
         JsonResultResponse<Allele> response = alleleService.getAllelesByGene("MGI:109583", pagination);
         assertResponse(response, 19, 19);
+    }
+
+    @Test
+    public void checkVariantLocation() {
+        Pagination pagination = new Pagination();
+        JsonResultResponse<Allele> response = alleleService.getAllelesByGene("FB:FBgn0025832", pagination);
+        assertResponse(response, 2, 2);
+
+        response.getResults().stream()
+                .map(Allele::getVariants)
+                .flatMap(Collection::stream)
+                .filter(Objects::nonNull)
+                .filter(variant -> variant.getPrimaryKey().equals("NT_033778.4:g.16856124_16856125ins"))
+                .forEach(variant -> {
+                            assertNotNull("Variant location is missing", variant.getLocation());
+                        }
+                );
+
+        response = alleleService.getAllelesByGene("WB:WBGene00015146", pagination);
+        assertResponse(response, 1, 1);
+
+        response.getResults().stream()
+                .map(Allele::getVariants)
+                .flatMap(Collection::stream)
+                .filter(Objects::nonNull)
+                .filter(variant -> variant.getPrimaryKey().equals("NC_003281.10:g.5690389_5691072del"))
+                .forEach(variant -> {
+                            assertNotNull("Variant location is missing", variant.getLocation());
+                            assertNotNull("Variant consequence is missing", variant.getGeneLevelConsequence());
+                        }
+                );
+
     }
 
     @Test

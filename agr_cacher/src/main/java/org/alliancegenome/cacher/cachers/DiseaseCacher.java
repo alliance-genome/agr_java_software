@@ -36,11 +36,7 @@ public class DiseaseCacher extends Cacher {
 
         finishProcess();
 
-        // grouping orthologous records
-        List<DiseaseAnnotation> summaryList = new ArrayList<>();
-
         DiseaseRibbonService diseaseRibbonService = new DiseaseRibbonService();
-
 
         startProcess("diseaseRepository.getAllDiseaseEntityJoins");
 
@@ -57,33 +53,31 @@ public class DiseaseCacher extends Cacher {
                     document.setSource(diseaseEntityJoin.getSource());
                     document.setAssociationType(diseaseEntityJoin.getJoinType());
                     document.setSortOrder(diseaseEntityJoin.getSortOrder());
-                    Gene orthologyGene = diseaseEntityJoin.getOrthologyGene();
-                    if (orthologyGene != null) {
-                        document.setOrthologyGene(orthologyGene);
-                        document.addOrthologousGene(orthologyGene);
+                    List<Gene> orthologyGenes = diseaseEntityJoin.getOrthologyGenes();
+                    if (orthologyGenes != null) {
+                        orthologyGenes.sort(Comparator.comparing(gene -> gene.getSymbol().toLowerCase()));
+                        document.setOrthologyGenes(orthologyGenes);
                     }
 
                     if (CollectionUtils.isNotEmpty(diseaseEntityJoin.getPublicationJoins())) {
                         diseaseEntityJoin.getPublicationJoins()
                                 .stream()
                                 .filter(pubJoin -> CollectionUtils.isNotEmpty(pubJoin.getModels()))
-                                .forEach(pubJoin -> {
-                                    pubJoin.getModels().forEach(model -> {
-                                        PrimaryAnnotatedEntity entity = entities.get(model.getPrimaryKey());
-                                        if (entity == null) {
-                                            entity = new PrimaryAnnotatedEntity();
-                                            entity.setId(model.getPrimaryKey());
-                                            entity.setName(model.getName());
-                                            entity.setUrl(model.getModCrossRefCompleteUrl());
-                                            entity.setDisplayName(model.getNameText());
-                                            entity.setType(GeneticEntity.getType(model.getSubtype()));
-                                            entities.put(model.getPrimaryKey(), entity);
-                                        }
-                                        document.addPrimaryAnnotatedEntity(entity);
-                                        entity.addPublicationEvidenceCode(pubJoin);
-                                        entity.addDisease(diseaseEntityJoin.getDisease());
-                                    });
-                                });
+                                .forEach(pubJoin -> pubJoin.getModels().forEach(model -> {
+                                    PrimaryAnnotatedEntity entity = entities.get(model.getPrimaryKey());
+                                    if (entity == null) {
+                                        entity = new PrimaryAnnotatedEntity();
+                                        entity.setId(model.getPrimaryKey());
+                                        entity.setName(model.getName());
+                                        entity.setUrl(model.getModCrossRefCompleteUrl());
+                                        entity.setDisplayName(model.getNameText());
+                                        entity.setType(GeneticEntity.getType(model.getSubtype()));
+                                        entities.put(model.getPrimaryKey(), entity);
+                                    }
+                                    document.addPrimaryAnnotatedEntity(entity);
+                                    entity.addPublicationEvidenceCode(pubJoin);
+                                    entity.addDisease(diseaseEntityJoin.getDisease());
+                                }));
                     }
                     document.setPublicationJoins(diseaseRepository.populatePublicationJoins(diseaseEntityJoin.getPublicationJoins()));
                     List<Publication> publicationList = diseaseEntityJoin.getPublicationJoins().stream()
@@ -113,24 +107,11 @@ public class DiseaseCacher extends Cacher {
         DiseaseAnnotationSorting sorting = new DiseaseAnnotationSorting();
         allDiseaseAnnotations.sort(sorting.getComparator(SortingField.DEFAULT, Boolean.TRUE));
 
-        int currentHashCode = 0;
-        for (DiseaseAnnotation document : allDiseaseAnnotations) {
-            int hash = document.hashCode();
-            if (currentHashCode == hash) {
-                summaryList.get(summaryList.size() - 1).addOrthologousGene(document.getOrthologyGene());
-            } else {
-                summaryList.add(document);
-            }
-            currentHashCode = hash;
-        }
-
-
         log.info("Retrieved " + String.format("%,d", allDiseaseAnnotations.size()) + " annotations");
         Map<String, Set<String>> closureMapping = diseaseRepository.getClosureMapping();
         log.info("Number of Disease IDs: " + closureMapping.size());
         final Set<String> allIDs = closureMapping.keySet();
 
-        long start = System.currentTimeMillis();
         // loop over all disease IDs (termID)
         // and store the annotations in a map for quick retrieval
         Map<String, List<DiseaseAnnotation>> diseaseAnnotationMap = new HashMap<>();

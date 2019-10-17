@@ -8,11 +8,13 @@ import org.alliancegenome.api.service.FilterService;
 import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.cache.manager.BasicCacheManager;
 import org.alliancegenome.cache.manager.DiseaseAllianceCacheManager;
+import org.alliancegenome.cache.manager.ModelAllianceCacheManager;
 import org.alliancegenome.core.service.DiseaseAnnotationFiltering;
 import org.alliancegenome.core.service.DiseaseAnnotationSorting;
 import org.alliancegenome.core.service.PaginationResult;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
+import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
 import org.alliancegenome.neo4j.entity.node.ECOTerm;
 import org.alliancegenome.neo4j.entity.node.PublicationJoin;
 import org.alliancegenome.neo4j.view.View;
@@ -37,6 +39,11 @@ public class DiseaseCacheRepository {
     public List<DiseaseAnnotation> getDiseaseAnnotationList(String diseaseID) {
         DiseaseAllianceCacheManager manager = new DiseaseAllianceCacheManager();
         return manager.getDiseaseAnnotations(diseaseID, View.DiseaseCacher.class);
+    }
+
+    public List<PrimaryAnnotatedEntity> getPrimaryAnnotatedEntitList(String geneID) {
+        ModelAllianceCacheManager manager = new ModelAllianceCacheManager();
+        return manager.getModels(geneID, View.PrimaryAnnotation.class);
     }
 
     public PaginationResult<DiseaseAnnotation> getDiseaseAnnotationList(String diseaseID, Pagination pagination) {

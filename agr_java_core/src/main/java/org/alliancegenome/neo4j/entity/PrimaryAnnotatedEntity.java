@@ -15,34 +15,38 @@ import java.util.*;
 @Setter
 public class PrimaryAnnotatedEntity implements Comparable<PrimaryAnnotatedEntity>, Serializable {
 
-    @JsonView({View.Default.class, View.API.class})
+    @JsonView({View.PrimaryAnnotation.class, View.API.class})
     protected String id;
-    @JsonView({View.Default.class, View.API.class})
+    @JsonView({View.PrimaryAnnotation.class, View.API.class})
     protected String name;
-    @JsonView({View.Default.class, View.API.class})
+    @JsonView({View.PrimaryAnnotation.class, View.API.class})
     protected String displayName;
-    @JsonView({View.Default.class, View.API.class})
+    @JsonView({View.PrimaryAnnotation.class, View.API.class})
     protected String url;
-    @JsonView({View.Default.class, View.API.class})
+    @JsonView({View.PrimaryAnnotation.class, View.API.class})
     protected GeneticEntity.CrossReferenceType type;
-    @JsonView({View.Default.class, View.API.class})
+    @JsonView({View.PrimaryAnnotation.class, View.API.class})
     protected CrossReference crossReference;
-    @JsonView({View.API.class})
+    @JsonView({View.PrimaryAnnotation.class, View.API.class})
     private Source source;
 
-    @JsonView({View.Default.class, View.API.class})
+    @JsonView({View.PrimaryAnnotation.class, View.API.class})
     protected List<DOTerm> diseases;
-    @JsonView({View.Default.class, View.API.class})
+    @JsonView({View.PrimaryAnnotation.class, View.API.class})
     private List<String> phenotypes;
-    @JsonView({View.API.class})
+    @JsonView({View.PrimaryAnnotation.class, View.API.class})
     private List<PublicationJoin> publicationEvidenceCodes;
+    @JsonView({View.PrimaryAnnotation.class, View.API.class})
+    private List<Allele> alleles;
+    @JsonView({View.PrimaryAnnotation.class, View.API.class})
+    private List<SequenceTargetingReagent> sequenceTargetingReagents;
 
     @Convert(value = DateConverter.class)
     private Date dateProduced;
 
     private List<DiseaseAnnotation> annotations;
 
-    @JsonView({View.Default.class})
+    @JsonView({View.PrimaryAnnotation.class, View.Default.class})
     protected Species species;
 
     @Override

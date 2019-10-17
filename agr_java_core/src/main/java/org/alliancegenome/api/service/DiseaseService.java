@@ -152,6 +152,8 @@ public class DiseaseService {
 
         Map<String, PrimaryAnnotatedEntity> diseaseEntities = null;
         Map<String, PrimaryAnnotatedEntity> phenotypeEntities = null;
+        Map<String, PrimaryAnnotatedEntity> modelEntities = null;
+
         List<PrimaryAnnotatedEntity> primaryAnnotatedEntities = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(fullDiseaseAnnotationList)) {
             primaryAnnotatedEntities = fullDiseaseAnnotationList.stream()
@@ -181,9 +183,17 @@ public class DiseaseService {
                     .collect(Collectors.toMap(PrimaryAnnotatedEntity::getId, entity -> entity));
         }
 
-        if (diseaseEntities == null && phenotypeEntities == null) {
+        List<PrimaryAnnotatedEntity> fullModelList = diseaseCacheRepository.getPrimaryAnnotatedEntitList(geneID);
+
+        if (CollectionUtils.isNotEmpty(fullModelList)) {
+            modelEntities = fullModelList.stream()
+                    .collect(Collectors.toMap(PrimaryAnnotatedEntity::getId, entity -> entity));
+        }
+
+        if (diseaseEntities == null && phenotypeEntities == null && modelEntities == null) {
             return result;
         }
+
 
         List<String> mergedEntities = new ArrayList<>();
         // add AGMs to the ones created in the disease cycle
@@ -206,6 +216,19 @@ public class DiseaseService {
 
         if (CollectionUtils.isEmpty(primaryAnnotatedEntities)) {
             return result;
+        }
+
+        List<String> geneIDs = primaryAnnotatedEntities.stream()
+                .map(PrimaryAnnotatedEntity::getId)
+                .collect(toList());
+
+        // remove the AGMs that are already accounted for by disease or phenotype relationship
+        // leaving only those AGMs that have no one of that kind
+        if (CollectionUtils.isNotEmpty(fullModelList)) {
+            geneIDs.forEach(geneId -> {
+                fullModelList.removeIf(entity -> entity.getId().equals(geneId));
+            });
+            primaryAnnotatedEntities.addAll(fullModelList);
         }
 
         //filtering
