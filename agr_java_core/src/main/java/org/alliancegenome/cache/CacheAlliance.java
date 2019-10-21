@@ -19,6 +19,7 @@ public enum CacheAlliance {
 
     DISEASE(),
     DISEASE_ANNOTATION(),
+    DISEASE_ALLELE_ANNOTATION(),
     DISEASE_SITEMAP(),
 
     CACHING_STATS(),

@@ -7,6 +7,7 @@ import org.alliancegenome.cache.manager.PhenotypeCacheManager;
 import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
 import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
+import org.alliancegenome.neo4j.entity.node.AffectedGenomicModel;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.entity.node.GeneticEntity;
 import org.alliancegenome.neo4j.entity.node.PhenotypeEntityJoin;
@@ -57,20 +58,19 @@ public class GenePhenotypeCacher extends Cacher {
                     if (CollectionUtils.isNotEmpty(phenotypeEntityJoin.getPhenotypePublicationJoins())) {
                         phenotypeEntityJoin.getPhenotypePublicationJoins()
                                 .stream()
-                                .filter(pubJoin -> pubJoin.getModels() != null)
+                                .filter(pubJoin -> pubJoin.getModel() != null)
                                 .forEach(pubJoin -> {
-                                    pubJoin.getModels().forEach(model -> {
-                                        PrimaryAnnotatedEntity entity = new PrimaryAnnotatedEntity();
-                                        entity.setId(model.getPrimaryKey());
-                                        entity.setName(model.getName());
-                                        entity.setUrl(model.getModCrossRefCompleteUrl());
-                                        entity.setDisplayName(model.getNameText());
-                                        entity.setType(GeneticEntity.getType(model.getSubtype()));
-                                        entity.setDataProvider(phenotypeEntityJoin.getDataProvider());
-                                        entity.addPublicationEvidenceCode(pubJoin);
-                                        document.addPrimaryAnnotatedEntity(entity);
-                                        entity.addPhenotype(phenotypeEntityJoin.getPhenotype().getPhenotypeStatement());
-                                    });
+                                    AffectedGenomicModel model = pubJoin.getModel();
+                                    PrimaryAnnotatedEntity entity = new PrimaryAnnotatedEntity();
+                                    entity.setId(model.getPrimaryKey());
+                                    entity.setName(model.getName());
+                                    entity.setUrl(model.getModCrossRefCompleteUrl());
+                                    entity.setDisplayName(model.getNameText());
+                                    entity.setType(GeneticEntity.getType(model.getSubtype()));
+                                    entity.setDataProvider(phenotypeEntityJoin.getDataProvider());
+                                    entity.addPublicationEvidenceCode(pubJoin);
+                                    document.addPrimaryAnnotatedEntity(entity);
+                                    entity.addPhenotype(phenotypeEntityJoin.getPhenotype().getPhenotypeStatement());
                                 });
                         // if Gene-only create a new PAE of type 'Gene'
                         if (gene != null) {
