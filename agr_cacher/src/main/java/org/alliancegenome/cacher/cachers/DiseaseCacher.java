@@ -5,6 +5,7 @@ import lombok.extern.log4j.Log4j2;
 import org.alliancegenome.api.service.DiseaseRibbonService;
 import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.cache.manager.DiseaseAllianceCacheManager;
+import org.alliancegenome.cache.repository.DiseaseCacheRepository;
 import org.alliancegenome.core.service.DiseaseAnnotationSorting;
 import org.alliancegenome.core.service.JsonResultResponseDiseaseAnnotation;
 import org.alliancegenome.core.service.SortingField;
@@ -24,6 +25,7 @@ import static java.util.stream.Collectors.*;
 public class DiseaseCacher extends Cacher {
 
     private static DiseaseRepository diseaseRepository = new DiseaseRepository();
+    private static DiseaseCacheRepository diseaseCacheRepository = new DiseaseCacheRepository();
 
     protected void cache() {
 
@@ -205,7 +207,7 @@ public class DiseaseCacher extends Cacher {
                     }
                     List<PublicationJoin> publicationJoins = diseaseEntityJoin.getPublicationJoins();
                     if (useCache) {
-                        diseaseRepository.populatePublicationJoinsFromCache(diseaseEntityJoin.getPublicationJoins());
+                        diseaseCacheRepository.populatePublicationJoinsFromCache(diseaseEntityJoin.getPublicationJoins());
                     } else {
                         diseaseRepository.populatePublicationJoins(publicationJoins);
                     }
@@ -220,7 +222,7 @@ public class DiseaseCacher extends Cacher {
                     // work around as I cannot figure out how to include the ECOTerm in the overall query without slowing down the performance.
                     List<ECOTerm> evidences;
                     if (useCache) {
-                        evidences = diseaseRepository.getEcoTermsFromCache(diseaseEntityJoin.getPublicationJoins());
+                        evidences = diseaseCacheRepository.getEcoTermsFromCache(diseaseEntityJoin.getPublicationJoins());
                     } else {
                         evidences = diseaseRepository.getEcoTerm(diseaseEntityJoin.getPublicationJoins());
                         Set<String> slimId = diseaseRibbonService.getAllParentIDs(diseaseEntityJoin.getDisease().getPrimaryKey());

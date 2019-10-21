@@ -172,6 +172,28 @@ public class DiseaseCacheRepository {
         }
         return list;
     }
+    
+    public List<ECOTerm> getEcoTermsFromCache(List<PublicationJoin> joins) {
+        if (joins == null)
+            return null;
+
+        return joins.stream()
+                .map(join -> getEcoTerm(join))
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
+    }
+    
+    public void populatePublicationJoinsFromCache(List<PublicationJoin> joins) {
+        if (joins == null)
+            return;
+
+        joins.forEach(publicationJoin -> {
+            List<ECOTerm> cacheValue = getEcoTerm(publicationJoin);
+            if (cacheValue != null) {
+                publicationJoin.setEcoCode(cacheValue);
+            }
+        });
+    }
 
     public List<String> getChildren(String id) {
         BasicCacheManager<String> manager = new BasicCacheManager<>();
