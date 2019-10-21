@@ -177,6 +177,8 @@ public class DiseaseService {
                     .filter(annotation -> CollectionUtils.isNotEmpty(annotation.getPrimaryAnnotatedEntities()))
                     .map(PhenotypeAnnotation::getPrimaryAnnotatedEntities)
                     .flatMap(Collection::stream)
+                    // remove GENE type AGMs
+                    .filter(entity -> !entity.getType().equals(GeneticEntity.CrossReferenceType.GENE))
                     .distinct()
                     .collect(Collectors.toList());
 
@@ -228,8 +230,6 @@ public class DiseaseService {
         if (CollectionUtils.isNotEmpty(fullModelList)) {
             geneIDs.forEach(geneId -> {
                 fullModelList.removeIf(entity -> entity.getId().equals(geneId));
-                // remove GENE type AGMs
-                fullModelList.removeIf(entity -> entity.getType().equals(GeneticEntity.CrossReferenceType.GENE));
             });
             primaryAnnotatedEntities.addAll(fullModelList);
         }
