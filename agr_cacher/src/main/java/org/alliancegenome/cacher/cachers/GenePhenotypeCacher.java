@@ -7,10 +7,7 @@ import org.alliancegenome.cache.manager.PhenotypeCacheManager;
 import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
 import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
-import org.alliancegenome.neo4j.entity.node.AffectedGenomicModel;
-import org.alliancegenome.neo4j.entity.node.Gene;
-import org.alliancegenome.neo4j.entity.node.GeneticEntity;
-import org.alliancegenome.neo4j.entity.node.PhenotypeEntityJoin;
+import org.alliancegenome.neo4j.entity.node.*;
 import org.alliancegenome.neo4j.repository.PhenotypeRepository;
 import org.alliancegenome.neo4j.view.View;
 import org.apache.commons.collections.CollectionUtils;
@@ -50,35 +47,48 @@ public class GenePhenotypeCacher extends Cacher {
                     PhenotypeAnnotation document = new PhenotypeAnnotation();
                     final Gene gene = phenotypeEntityJoin.getGene();
                     document.setGene(gene);
-                    if (phenotypeEntityJoin.getAllele() != null)
-                        document.setAllele(phenotypeEntityJoin.getAllele());
+                    final Allele allele = phenotypeEntityJoin.getAllele();
+                    if (allele != null)
+                        document.setAllele(allele);
                     document.setPhenotype(phenotypeEntityJoin.getPhenotype().getPhenotypeStatement());
                     document.setPublications(phenotypeEntityJoin.getPublications());
                     // if AGMs are present
                     if (CollectionUtils.isNotEmpty(phenotypeEntityJoin.getPhenotypePublicationJoins())) {
-                        phenotypeEntityJoin.getPhenotypePublicationJoins()
-                                .stream()
-                                .filter(pubJoin -> pubJoin.getModel() != null)
-                                .forEach(pubJoin -> {
-                                    AffectedGenomicModel model = pubJoin.getModel();
-                                    PrimaryAnnotatedEntity entity = new PrimaryAnnotatedEntity();
-                                    entity.setId(model.getPrimaryKey());
-                                    entity.setName(model.getName());
-                                    entity.setUrl(model.getModCrossRefCompleteUrl());
-                                    entity.setDisplayName(model.getNameText());
-                                    entity.setType(GeneticEntity.getType(model.getSubtype()));
-                                    entity.setDataProvider(phenotypeEntityJoin.getDataProvider());
-                                    entity.addPublicationEvidenceCode(pubJoin);
-                                    document.addPrimaryAnnotatedEntity(entity);
-                                    entity.addPhenotype(phenotypeEntityJoin.getPhenotype().getPhenotypeStatement());
-                                });
-                        // if Gene-only create a new PAE of type 'Gene'
-                        if (gene != null) {
+                        boolean hasAGMs = phenotypeEntityJoin.getPhenotypePublicationJoins().stream()
+                                .anyMatch(join -> join.getModel() != null);
+
+                        if (hasAGMs) {
+                            phenotypeEntityJoin.getPhenotypePublicationJoins()
+                                    .stream()
+                                    .filter(pubJoin -> pubJoin.getModel() != null)
+                                    .forEach(pubJoin -> {
+                                        AffectedGenomicModel model = pubJoin.getModel();
+                                        PrimaryAnnotatedEntity entity = new PrimaryAnnotatedEntity();
+                                        entity.setId(model.getPrimaryKey());
+                                        entity.setName(model.getName());
+                                        entity.setUrl(model.getModCrossRefCompleteUrl());
+                                        entity.setDisplayName(model.getNameText());
+                                        entity.setType(GeneticEntity.getType(model.getSubtype()));
+                                        entity.setDataProvider(phenotypeEntityJoin.getDataProvider());
+                                        entity.addPublicationEvidenceCode(pubJoin);
+                                        document.addPrimaryAnnotatedEntity(entity);
+                                        entity.addPhenotype(phenotypeEntityJoin.getPhenotype().getPhenotypeStatement());
+                                    });
+                        } else {
                             PrimaryAnnotatedEntity entity = new PrimaryAnnotatedEntity();
-                            entity.setId(gene.getPrimaryKey());
-                            entity.setName(gene.getSymbol());
-                            entity.setDisplayName(gene.getSymbol());
-                            entity.setType(GeneticEntity.getType("gene"));
+                            if (allele != null) {
+                                entity.setId(allele.getPrimaryKey());
+                                entity.setName(allele.getSymbol());
+                                entity.setDisplayName(allele.getSymbolText());
+                                entity.setType(GeneticEntity.CrossReferenceType.ALLELE);
+                            }
+                            // if Gene-only create a new PAE of type 'Gene'
+                            else if (gene != null) {
+                                entity.setId(gene.getPrimaryKey());
+                                entity.setName(gene.getSymbol());
+                                entity.setDisplayName(gene.getSymbol());
+                                entity.setType(GeneticEntity.CrossReferenceType.GENE);
+                            }
                             entity.setPublicationEvidenceCodes(phenotypeEntityJoin.getPhenotypePublicationJoins());
                             document.addPrimaryAnnotatedEntity(entity);
                         }
