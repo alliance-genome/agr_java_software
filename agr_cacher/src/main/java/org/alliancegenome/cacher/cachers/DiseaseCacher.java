@@ -35,9 +35,11 @@ public class DiseaseCacher extends Cacher {
 
         if (useCache) {
             joinList = joinList.stream()
-                    .filter(diseaseEntityJoin -> diseaseEntityJoin.getGene() != null)
+                    //.filter(diseaseEntityJoin -> diseaseEntityJoin.getGene() != null)
+                    //.filter(diseaseEntityJoin -> diseaseEntityJoin.getAllele() != null)
                     //.filter(diseaseEntityJoin -> diseaseEntityJoin.getGene().getPrimaryKey().equals("ZFIN:ZDB-GENE-040426-1716"))
-                    .filter(diseaseEntityJoin -> diseaseEntityJoin.getGene().getPrimaryKey().equals("MGI:109583"))
+                    //.filter(diseaseEntityJoin -> diseaseEntityJoin.getAllele().getPrimaryKey().equals("FB:FBgn0030343"))
+                    //.filter(diseaseEntityJoin -> diseaseEntityJoin.getGene().getPrimaryKey().equals("FB:FBgn0030343"))
                     .collect(toSet());
         }
         finishProcess();
@@ -46,73 +48,7 @@ public class DiseaseCacher extends Cacher {
 
         startProcess("diseaseRepository.getAllDiseaseEntityJoins");
 
-        List<DiseaseAnnotation> allDiseaseAnnotations = joinList.stream()
-                .map(diseaseEntityJoin -> {
-                    DiseaseAnnotation document = new DiseaseAnnotation();
-                    document.setPrimaryKey(diseaseEntityJoin.getPrimaryKey());
-                    document.setGene(diseaseEntityJoin.getGene());
-                    document.setFeature(diseaseEntityJoin.getAllele());
-                    document.setModel(diseaseEntityJoin.getModel());
-                    document.setDisease(diseaseEntityJoin.getDisease());
-                    document.setSource(diseaseEntityJoin.getSource());
-                    document.setAssociationType(diseaseEntityJoin.getJoinType());
-                    document.setSortOrder(diseaseEntityJoin.getSortOrder());
-                    List<Gene> orthologyGenes = diseaseEntityJoin.getOrthologyGenes();
-                    if (orthologyGenes != null) {
-                        orthologyGenes.sort(Comparator.comparing(gene -> gene.getSymbol().toLowerCase()));
-                        document.setOrthologyGenes(orthologyGenes);
-                    }
-
-                    // used to populate the DOTerm object on the PrimaryAnnotationEntity object
-                    Map<String, PrimaryAnnotatedEntity> entities = new HashMap<>();
-                    if (CollectionUtils.isNotEmpty(diseaseEntityJoin.getPublicationJoins())) {
-                        diseaseEntityJoin.getPublicationJoins()
-                                .stream()
-                                .filter(pubJoin -> CollectionUtils.isNotEmpty(pubJoin.getModels()))
-                                .forEach(pubJoin -> pubJoin.getModels().forEach(model -> {
-                                    PrimaryAnnotatedEntity entity = entities.get(model.getPrimaryKey());
-                                    if (entity == null) {
-                                        entity = new PrimaryAnnotatedEntity();
-                                        entity.setId(model.getPrimaryKey());
-                                        entity.setName(model.getName());
-                                        entity.setUrl(model.getModCrossRefCompleteUrl());
-                                        entity.setDisplayName(model.getNameText());
-                                        entity.setType(GeneticEntity.getType(model.getSubtype()));
-                                        entities.put(model.getPrimaryKey(), entity);
-                                    }
-                                    document.addPrimaryAnnotatedEntity(entity);
-                                    entity.addPublicationEvidenceCode(pubJoin);
-                                    entity.addDisease(diseaseEntityJoin.getDisease());
-                                }));
-                    }
-                    List<PublicationJoin> publicationJoins = diseaseEntityJoin.getPublicationJoins();
-                    if (useCache) {
-                        diseaseRepository.populatePublicationJoinsFromCache(diseaseEntityJoin.getPublicationJoins());
-                    } else {
-                        diseaseRepository.populatePublicationJoins(publicationJoins);
-                    }
-                    document.setPublicationJoins(publicationJoins);
-/*
-                    List<ECOTerm> ecoList = diseaseEntityJoin.getPublicationJoins().stream()
-                            .filter(join -> CollectionUtils.isNotEmpty(join.getEcoCode()))
-                            .map(PublicationJoin::getEcoCode)
-                            .flatMap(Collection::stream).sorted(Comparator.naturalOrder()).collect(Collectors.toList());
-                    document.setEcoCodes(ecoList.stream().distinct().collect(Collectors.toList()));
-*/
-                    // work around as I cannot figure out how to include the ECOTerm in the overall query without slowing down the performance.
-                    List<ECOTerm> evidences;
-                    if (useCache) {
-                        evidences = diseaseRepository.getEcoTermsFromCache(diseaseEntityJoin.getPublicationJoins());
-                    } else {
-                        evidences = diseaseRepository.getEcoTerm(diseaseEntityJoin.getPublicationJoins());
-                        Set<String> slimId = diseaseRibbonService.getAllParentIDs(diseaseEntityJoin.getDisease().getPrimaryKey());
-                        document.setParentIDs(slimId);
-                    }
-                    document.setEcoCodes(evidences);
-                    progressProcess();
-                    return document;
-                })
-                .collect(toList());
+        List<DiseaseAnnotation> allDiseaseAnnotations = getDiseaseAnnotationsFromDEJs(joinList, diseaseRibbonService);
 
         finishProcess();
 
@@ -133,11 +69,11 @@ public class DiseaseCacher extends Cacher {
 
         // loop over all disease IDs (termID)
         // and store the annotations in a map for quick retrieval
-        Map<String, List<DiseaseAnnotation>> diseaseAnnotationMap = new HashMap<>();
 
         Map<String, List<DiseaseAnnotation>> diseaseAnnotationTermMap = allDiseaseAnnotations.stream()
                 .collect(groupingBy(annotation -> annotation.getDisease().getPrimaryKey()));
 
+        Map<String, List<DiseaseAnnotation>> diseaseAnnotationMap = new HashMap<>();
         allIDs.forEach(termID -> {
             Set<String> allDiseaseIDs = closureMapping.get(termID);
             List<DiseaseAnnotation> allAnnotations = new ArrayList<>();
@@ -169,8 +105,132 @@ public class DiseaseCacher extends Cacher {
             }
         });
 
+        // take care of allele
+
+        Set<DiseaseEntityJoin> alleleEntityJoins = diseaseRepository.getAllDiseaseAlleleEntityJoins();
+
+        List<DiseaseAnnotation> alleleList = getDiseaseAnnotationsFromDEJs(alleleEntityJoins, diseaseRibbonService);
+        if (alleleList == null)
+            return;
+
+        log.info("Number of DiseaseAnnotation objects with Alleles: " + String.format("%,d", alleleList.size()));
+        Map<String, List<DiseaseAnnotation>> diseaseAlleleAnnotationTermMap = alleleList.stream()
+                .collect(groupingBy(annotation -> annotation.getDisease().getPrimaryKey()));
+
+        Map<String, List<DiseaseAnnotation>> diseaseAlleleAnnotationMap = new HashMap<>();
+        allIDs.forEach(termID -> {
+            Set<String> allDiseaseIDs = closureMapping.get(termID);
+            List<DiseaseAnnotation> allAnnotations = new ArrayList<>();
+            allDiseaseIDs.stream()
+                    .filter(id -> diseaseAlleleAnnotationTermMap.get(id) != null)
+                    .forEach(id -> allAnnotations.addAll(diseaseAlleleAnnotationTermMap.get(id)));
+            diseaseAlleleAnnotationMap.put(termID, allAnnotations);
+        });
+        diseaseAlleleAnnotationMap.forEach((key, value) -> {
+            JsonResultResponseDiseaseAnnotation result = new JsonResultResponseDiseaseAnnotation();
+            result.setResults(value);
+            try {
+                manager.putCache(key, result, View.DiseaseCacher.class, CacheAlliance.DISEASE_ALLELE_ANNOTATION);
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
+            }
+        });
+
+
         diseaseRepository.clearCache();
 
+    }
+
+    private List<DiseaseAnnotation> getDiseaseAnnotationsFromDEJs(Set<DiseaseEntityJoin> joinList, DiseaseRibbonService diseaseRibbonService) {
+        return joinList.stream()
+                .map(diseaseEntityJoin -> {
+                    DiseaseAnnotation document = new DiseaseAnnotation();
+                    document.setPrimaryKey(diseaseEntityJoin.getPrimaryKey());
+                    document.setGene(diseaseEntityJoin.getGene());
+                    document.setFeature(diseaseEntityJoin.getAllele());
+                    document.setModel(diseaseEntityJoin.getModel());
+                    document.setDisease(diseaseEntityJoin.getDisease());
+                    document.setSource(diseaseEntityJoin.getSource());
+                    document.setAssociationType(diseaseEntityJoin.getJoinType());
+                    document.setSortOrder(diseaseEntityJoin.getSortOrder());
+                    List<Gene> orthologyGenes = diseaseEntityJoin.getOrthologyGenes();
+                    if (orthologyGenes != null) {
+                        orthologyGenes.sort(Comparator.comparing(gene -> gene.getSymbol().toLowerCase()));
+                        document.setOrthologyGenes(orthologyGenes);
+                    }
+
+                    // used to populate the DOTerm object on the PrimaryAnnotationEntity object
+                    // Needed as the same AGM can be reused on multiple pubJoin nodes.
+                    Map<String, PrimaryAnnotatedEntity> entities = new HashMap<>();
+                    if (CollectionUtils.isNotEmpty(diseaseEntityJoin.getPublicationJoins())) {
+                        // create PAEs from AGMs
+                        diseaseEntityJoin.getPublicationJoins()
+                                .stream()
+                                .filter(pubJoin -> pubJoin.getModel() != null)
+                                .forEach(pubJoin -> {
+                                    AffectedGenomicModel model = pubJoin.getModel();
+                                    PrimaryAnnotatedEntity entity = entities.get(model.getPrimaryKey());
+                                    if (entity == null) {
+                                        entity = new PrimaryAnnotatedEntity();
+                                        entity.setId(model.getPrimaryKey());
+                                        entity.setName(model.getName());
+                                        entity.setUrl(model.getModCrossRefCompleteUrl());
+                                        entity.setDisplayName(model.getNameText());
+                                        entity.setType(GeneticEntity.getType(model.getSubtype()));
+                                        entities.put(model.getPrimaryKey(), entity);
+                                    }
+                                    document.addPrimaryAnnotatedEntity(entity);
+                                    entity.addPublicationEvidenceCode(pubJoin);
+                                    entity.addDisease(diseaseEntityJoin.getDisease());
+                                });
+                        // create PAEs from Alleles
+                        diseaseEntityJoin.getPublicationJoins()
+                                .stream()
+                                .filter(pubJoin -> CollectionUtils.isNotEmpty(pubJoin.getAlleles()))
+                                .forEach(pubJoin -> pubJoin.getAlleles().forEach(allele -> {
+                                    PrimaryAnnotatedEntity entity = entities.get(allele.getPrimaryKey());
+                                    if (entity == null) {
+                                        entity = new PrimaryAnnotatedEntity();
+                                        entity.setId(allele.getPrimaryKey());
+                                        entity.setName(allele.getSymbol());
+                                        entity.setUrl(allele.getModCrossRefCompleteUrl());
+                                        entity.setDisplayName(allele.getSymbolText());
+                                        entity.setType(GeneticEntity.CrossReferenceType.ALLELE);
+                                        entities.put(allele.getPrimaryKey(), entity);
+                                    }
+                                    document.addPrimaryAnnotatedEntity(entity);
+                                    entity.addPublicationEvidenceCode(pubJoin);
+                                    entity.addDisease(diseaseEntityJoin.getDisease());
+                                }));
+                    }
+                    List<PublicationJoin> publicationJoins = diseaseEntityJoin.getPublicationJoins();
+                    if (useCache) {
+                        diseaseRepository.populatePublicationJoinsFromCache(diseaseEntityJoin.getPublicationJoins());
+                    } else {
+                        diseaseRepository.populatePublicationJoins(publicationJoins);
+                    }
+                    document.setPublicationJoins(publicationJoins);
+    /*
+                        List<ECOTerm> ecoList = diseaseEntityJoin.getPublicationJoins().stream()
+                                .filter(join -> CollectionUtils.isNotEmpty(join.getEcoCode()))
+                                .map(PublicationJoin::getEcoCode)
+                                .flatMap(Collection::stream).sorted(Comparator.naturalOrder()).collect(Collectors.toList());
+                        document.setEcoCodes(ecoList.stream().distinct().collect(Collectors.toList()));
+    */
+                    // work around as I cannot figure out how to include the ECOTerm in the overall query without slowing down the performance.
+                    List<ECOTerm> evidences;
+                    if (useCache) {
+                        evidences = diseaseRepository.getEcoTermsFromCache(diseaseEntityJoin.getPublicationJoins());
+                    } else {
+                        evidences = diseaseRepository.getEcoTerm(diseaseEntityJoin.getPublicationJoins());
+                        Set<String> slimId = diseaseRibbonService.getAllParentIDs(diseaseEntityJoin.getDisease().getPrimaryKey());
+                        document.setParentIDs(slimId);
+                    }
+                    document.setEcoCodes(evidences);
+                    progressProcess();
+                    return document;
+                })
+                .collect(toList());
     }
 
     private void mergeDiseaseAnnotationsByAGM(List<DiseaseAnnotation> allDiseaseAnnotations) {
@@ -192,8 +252,10 @@ public class DiseaseCacher extends Cacher {
                                 .collect(toList());
 
                         // only merge annotations that have at least one PAE
+/*
                         if (CollectionUtils.isEmpty(models))
                             return;
+*/
 
                         DiseaseAnnotation annotation = diseaseAnnotations.get(0);
                         int index = 0;

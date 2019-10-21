@@ -41,6 +41,11 @@ public class DiseaseCacheRepository {
         return manager.getDiseaseAnnotations(diseaseID, View.DiseaseCacher.class);
     }
 
+    public List<DiseaseAnnotation> getDiseaseAlleleAnnotationList(String diseaseID) {
+        DiseaseAllianceCacheManager manager = new DiseaseAllianceCacheManager();
+        return manager.getDiseaseAlleleAnnotations(diseaseID, View.DiseaseCacher.class);
+    }
+
     public List<PrimaryAnnotatedEntity> getPrimaryAnnotatedEntitList(String geneID) {
         ModelAllianceCacheManager manager = new ModelAllianceCacheManager();
         return manager.getModels(geneID, View.PrimaryAnnotation.class);
