@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-public class  ModelAnnotationsSorting implements Sorting<DiseaseAnnotation> {
+public class ModelAnnotationsSorting implements Sorting<DiseaseAnnotation> {
 
     private List<Comparator<DiseaseAnnotation>> defaultList;
     private List<Comparator<DiseaseAnnotation>> diseaseList;

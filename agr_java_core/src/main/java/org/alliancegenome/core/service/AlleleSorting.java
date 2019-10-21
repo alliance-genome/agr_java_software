@@ -4,8 +4,6 @@ import org.alliancegenome.neo4j.entity.Sorting;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.SimpleTerm;
 import org.alliancegenome.neo4j.entity.node.Variant;
-import org.alliancegenome.neo4j.entity.node.Phenotype;
-
 import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.ArrayList;
@@ -27,7 +25,6 @@ public class AlleleSorting implements Sorting<Allele> {
         defaultList = new ArrayList<>(3);
         defaultList.add(variantExistOrder);
         defaultList.add(alleleSymbolOrder);
-        defaultList.add(phenotypeStatementOrder);
 
         diseaseList = new ArrayList<>(3);
         diseaseList.add(diseaseOrder);
@@ -70,15 +67,6 @@ public class AlleleSorting implements Sorting<Allele> {
                 if (allele.getSymbolText() == null)
                     return null;
                 return allele.getSymbolText().toLowerCase();
-            }, Comparator.nullsLast(naturalOrder()));
-
-    static public Comparator<Allele> phenotypeStatementOrder =
-            Comparator.comparing(allele -> {
-                if (CollectionUtils.isEmpty(allele.getPhenotypes()))
-                    return null;
-                String phenoJoin = allele.getPhenotypes().stream().sorted(Comparator.comparing(Phenotype::getPhenotypeStatement)).map(Phenotype::getPhenotypeStatement).collect(Collectors.joining(""));
-                return phenoJoin.toLowerCase();
-
             }, Comparator.nullsLast(naturalOrder()));
 
     static public Comparator<Allele> speciesOrder =
