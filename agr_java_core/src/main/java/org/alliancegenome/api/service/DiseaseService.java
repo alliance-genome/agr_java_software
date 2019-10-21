@@ -14,6 +14,7 @@ import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
 import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
 import org.alliancegenome.neo4j.entity.node.DOTerm;
 import org.alliancegenome.neo4j.entity.node.Gene;
+import org.alliancegenome.neo4j.entity.node.GeneticEntity;
 import org.alliancegenome.neo4j.entity.node.SimpleTerm;
 import org.alliancegenome.neo4j.repository.DiseaseRepository;
 import org.alliancegenome.neo4j.repository.GeneRepository;
@@ -227,6 +228,8 @@ public class DiseaseService {
         if (CollectionUtils.isNotEmpty(fullModelList)) {
             geneIDs.forEach(geneId -> {
                 fullModelList.removeIf(entity -> entity.getId().equals(geneId));
+                // remove GENE type AGMs
+                fullModelList.removeIf(entity -> entity.getType().equals(GeneticEntity.CrossReferenceType.GENE));
             });
             primaryAnnotatedEntities.addAll(fullModelList);
         }
