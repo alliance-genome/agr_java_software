@@ -159,7 +159,7 @@ public class DiseaseController extends BaseController implements DiseaseRESTInte
                                                           String asc) {
 
         JsonResultResponse<DiseaseAnnotation> response = getDiseaseAnnotationsByAllele(id,
-                null,
+                Integer.MAX_VALUE,
                 null,
                 sortBy,
                 geneName,
@@ -172,7 +172,7 @@ public class DiseaseController extends BaseController implements DiseaseRESTInte
                 associationType,
                 asc);
         Response.ResponseBuilder responseBuilder = Response.ok(translator.getAllRowsForAllele(response.getResults()));
-        APIService.setDownloadHeader(id, EntityType.GENE, EntityType.PHENOTYPE, responseBuilder);
+        APIService.setDownloadHeader(id, EntityType.DISEASE, EntityType.ALLELE, responseBuilder);
         return responseBuilder.build();
     }
 
@@ -188,7 +188,7 @@ public class DiseaseController extends BaseController implements DiseaseRESTInte
                                                         String associationType,
                                                         String asc) {
         JsonResultResponse<DiseaseAnnotation> response = getDiseaseAnnotationsByGene(id,
-                null,
+                Integer.MAX_VALUE,
                 null,
                 sortBy,
                 geneName,
@@ -200,7 +200,7 @@ public class DiseaseController extends BaseController implements DiseaseRESTInte
                 associationType,
                 asc);
         Response.ResponseBuilder responseBuilder = Response.ok(translator.getAllRows(response.getResults()));
-        APIService.setDownloadHeader(id, EntityType.GENE, EntityType.PHENOTYPE, responseBuilder);
+        APIService.setDownloadHeader(id, EntityType.DISEASE, EntityType.GENE, responseBuilder);
         return responseBuilder.build();
 
     }
@@ -299,7 +299,7 @@ public class DiseaseController extends BaseController implements DiseaseRESTInte
                                                           String evidenceCode,
                                                           String asc) {
         JsonResultResponse<DiseaseAnnotation> response = getDiseaseAnnotationsForModel(id,
-                null,
+                Integer.MAX_VALUE,
                 null,
                 sortBy,
                 modelName,
@@ -311,7 +311,7 @@ public class DiseaseController extends BaseController implements DiseaseRESTInte
                 evidenceCode,
                 asc);
         Response.ResponseBuilder responseBuilder = Response.ok(translator.getAllRowsForModel(response.getResults()));
-        APIService.setDownloadHeader(id, EntityType.GENE, EntityType.PHENOTYPE, responseBuilder);
+        APIService.setDownloadHeader(id, EntityType.DISEASE, EntityType.MODEL, responseBuilder);
         return responseBuilder.build();
     }
 
