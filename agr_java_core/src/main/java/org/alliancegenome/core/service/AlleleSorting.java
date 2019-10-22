@@ -5,6 +5,7 @@ import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.SimpleTerm;
 import org.alliancegenome.neo4j.entity.node.Variant;
 import org.apache.commons.collections4.CollectionUtils;
+import org.alliancegenome.neo4j.entity.node.Phenotype;
 
 import java.util.ArrayList;
 import java.util.Comparator;
