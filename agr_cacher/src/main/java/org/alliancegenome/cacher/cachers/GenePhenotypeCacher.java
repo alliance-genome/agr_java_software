@@ -52,6 +52,8 @@ public class GenePhenotypeCacher extends Cacher {
                         document.setAllele(allele);
                     document.setPhenotype(phenotypeEntityJoin.getPhenotype().getPhenotypeStatement());
                     document.setPublications(phenotypeEntityJoin.getPublications());
+                    Map<String, PrimaryAnnotatedEntity> entities = new HashMap<>();
+
                     // if AGMs are present
                     if (CollectionUtils.isNotEmpty(phenotypeEntityJoin.getPhenotypePublicationJoins())) {
                         boolean hasAGMs = phenotypeEntityJoin.getPhenotypePublicationJoins().stream()
@@ -63,16 +65,20 @@ public class GenePhenotypeCacher extends Cacher {
                                     .filter(pubJoin -> pubJoin.getModel() != null)
                                     .forEach(pubJoin -> {
                                         AffectedGenomicModel model = pubJoin.getModel();
-                                        PrimaryAnnotatedEntity entity = new PrimaryAnnotatedEntity();
-                                        entity.setId(model.getPrimaryKey());
-                                        entity.setName(model.getName());
-                                        entity.setUrl(model.getModCrossRefCompleteUrl());
-                                        entity.setDisplayName(model.getNameText());
-                                        entity.setType(GeneticEntity.getType(model.getSubtype()));
+                                        PrimaryAnnotatedEntity entity = entities.get(model.getPrimaryKey());
+                                        if (entity == null) {
+                                            entity = new PrimaryAnnotatedEntity();
+                                            entity.setId(model.getPrimaryKey());
+                                            entity.setName(model.getName());
+                                            entity.setUrl(model.getModCrossRefCompleteUrl());
+                                            entity.setDisplayName(model.getNameText());
+                                            entity.setType(GeneticEntity.getType(model.getSubtype()));
+                                        }
                                         entity.setDataProvider(phenotypeEntityJoin.getDataProvider());
                                         entity.addPublicationEvidenceCode(pubJoin);
                                         document.addPrimaryAnnotatedEntity(entity);
                                         entity.addPhenotype(phenotypeEntityJoin.getPhenotype().getPhenotypeStatement());
+                                        entities.put(model.getPrimaryKey(), entity);
                                     });
                         } else {
                             PrimaryAnnotatedEntity entity = new PrimaryAnnotatedEntity();

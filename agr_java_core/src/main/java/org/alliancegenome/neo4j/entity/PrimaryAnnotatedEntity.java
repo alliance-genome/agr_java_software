@@ -6,10 +6,12 @@ import lombok.Setter;
 import org.alliancegenome.es.util.DateConverter;
 import org.alliancegenome.neo4j.entity.node.*;
 import org.alliancegenome.neo4j.view.View;
+import org.apache.commons.collections.CollectionUtils;
 import org.neo4j.ogm.annotation.typeconversion.Convert;
 
 import java.io.Serializable;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Getter
 @Setter
@@ -91,12 +93,32 @@ public class PrimaryAnnotatedEntity implements Comparable<PrimaryAnnotatedEntity
         if (publicationEvidenceCodes == null)
             publicationEvidenceCodes = new ArrayList<>();
         publicationEvidenceCodes.add(pubJoin);
+        // sort and make distinct by pub and evidence codes only
+        // this assumes only PublicationJoin records that belong to this PAE
+        Map<String, List<PublicationJoin>> keyMap = publicationEvidenceCodes.stream()
+                .collect(Collectors.groupingBy(join -> {
+                    String key = join.getPublication().getPrimaryKey();
+                    if (CollectionUtils.isNotEmpty(join.getEcoCode())) {
+                        key += join.getEcoCode().stream().map(SimpleTerm::getPrimaryKey).collect(Collectors.joining());
+                    }
+                    return key;
+                }));
+        publicationEvidenceCodes = keyMap.values().stream()
+                .map(publicationJoins -> publicationJoins.get(0))
+                .sorted(Comparator.comparing(o -> o.getPublication().getPrimaryKey()))
+                .collect(Collectors.toList());
     }
 
     public void addPhenotypes(List<String> phenotypeList) {
+        if (phenotypeList == null)
+            return;
         if (phenotypes == null)
             phenotypes = new ArrayList<>();
         phenotypes.addAll(phenotypeList);
+        phenotypes = phenotypes.stream()
+                .distinct()
+                .sorted(Comparator.naturalOrder())
+                .collect(Collectors.toList());
     }
 
     public void setDataProvider(String dataProvider) {

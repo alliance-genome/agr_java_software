@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.alliancegenome.api.service.DiseaseService;
 import org.alliancegenome.api.service.GeneService;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.service.JsonResultResponse;
@@ -25,8 +26,7 @@ import org.junit.Test;
 import java.util.List;
 
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 
 @Api(value = "Phenotype Tests")
 public class PhenotypeIT {
@@ -82,7 +82,7 @@ public class PhenotypeIT {
 
     @Test
     // ZFIN gene: mkks
-    public void checkPhenotypeByGeneWithPagination() throws JsonProcessingException {
+    public void checkPhenotypeByGeneWithPagination() {
 
         String geneID = "ZFIN:ZDB-GENE-040426-757";
 
@@ -98,8 +98,21 @@ public class PhenotypeIT {
     }
 
     @Test
+    public void checkPhenotypesByModels() {
+
+        // Tnf
+        String geneID = "MGI:104798";
+
+        Pagination pagination = new Pagination(1, 11, null, null);
+        DiseaseService diseaseService = new DiseaseService();
+        JsonResultResponse<PrimaryAnnotatedEntity> response = diseaseService.getDiseaseAnnotationsWithGeneAndAGM(geneID, pagination);
+        assertResponse(response, 11, 95);
+        assertTrue("More than one phenotype", response.getResults().get(0).getPhenotypes().size() > 1);
+    }
+
+    @Test
     // ZFIN gene: pax2a
-    public void checkPhenotypeByGeneWithPaginationPax2a() throws JsonProcessingException {
+    public void checkPhenotypeByGeneWithPaginationPax2a() {
 
         String geneID = "ZFIN:ZDB-GENE-990415-8";
 
@@ -182,7 +195,7 @@ public class PhenotypeIT {
 
     }
 
-    private void assertResponse(JsonResultResponse<PhenotypeAnnotation> response, int resultSize, int totalSize) {
+    private void assertResponse(JsonResultResponse response, int resultSize, int totalSize) {
         assertNotNull(response);
         assertThat("Number of returned records", response.getResults().size(), greaterThanOrEqualTo(resultSize));
         assertThat("Number of total records", response.getTotal(), greaterThanOrEqualTo(totalSize));

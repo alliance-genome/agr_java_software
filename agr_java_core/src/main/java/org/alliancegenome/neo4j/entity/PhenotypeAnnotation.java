@@ -60,6 +60,14 @@ public class PhenotypeAnnotation implements Comparable<PhenotypeAnnotation>, Ser
         primaryAnnotatedEntities = primaryAnnotatedEntities.stream().distinct().collect(Collectors.toList());
     }
 
-
+    @Override
+    public String toString() {
+        String message = "";
+        if (gene != null)
+            message += gene.getPrimaryKey();
+        if (primaryAnnotatedEntities != null)
+            message += ":" + primaryAnnotatedEntities.stream().map(PrimaryAnnotatedEntity::getName).collect(Collectors.joining(", "));
+        return message + ": " + phenotype;
+    }
 }
 
