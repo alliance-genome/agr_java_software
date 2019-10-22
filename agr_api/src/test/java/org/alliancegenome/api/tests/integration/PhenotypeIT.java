@@ -116,6 +116,21 @@ public class PhenotypeIT {
     }
 
     @Test
+    public void checkPureModels() {
+
+        // Abcc6
+        String geneID = "RGD:620268";
+
+        Pagination pagination = new Pagination(1, 10, null, null);
+        DiseaseService diseaseService = new DiseaseService();
+        JsonResultResponse<PrimaryAnnotatedEntity> response = diseaseService.getDiseaseAnnotationsWithGeneAndAGM(geneID, pagination);
+        assertResponse(response, 7, 7);
+        response.getResults().forEach(entity -> {
+            assertNotNull("URL of AGM is null: " + entity.getId(), entity.getUrl());
+        });
+    }
+
+    @Test
     public void checkPhenotypeReferenceNonDuplicated() {
 
         // top2b
