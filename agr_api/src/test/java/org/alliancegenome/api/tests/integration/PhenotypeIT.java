@@ -21,9 +21,11 @@ import org.alliancegenome.neo4j.view.OrthologyModule;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.config.Configurator;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
@@ -64,6 +66,9 @@ public class PhenotypeIT {
 
 
     @Test
+    @Ignore
+    // This can go away as we do not display those numbers any longer.
+    // Just waiting for curators to confirm
     public void checkPhenotypeByGeneWithoutPagination() throws JsonProcessingException {
         Pagination pagination = new Pagination(1, 100, null, null);
         // mkks
@@ -108,6 +113,23 @@ public class PhenotypeIT {
         JsonResultResponse<PrimaryAnnotatedEntity> response = diseaseService.getDiseaseAnnotationsWithGeneAndAGM(geneID, pagination);
         assertResponse(response, 11, 95);
         assertTrue("More than one phenotype", response.getResults().get(0).getPhenotypes().size() > 1);
+    }
+
+    @Test
+    public void checkPhenotypeReferenceNonDuplicated() {
+
+        // top2b
+        String geneID = "ZFIN:ZDB-GENE-041008-136";
+
+        Pagination pagination = new Pagination(1, 10, null, null);
+        JsonResultResponse<PhenotypeAnnotation> response = geneService.getPhenotypeAnnotations(geneID, pagination);
+        assertResponse(response, 10, 10);
+
+        response.getResults().forEach(phenotypeAnnotation -> {
+            int beforeSize = phenotypeAnnotation.getPublications().size();
+            int afterSize = phenotypeAnnotation.getPublications().stream().distinct().collect(Collectors.toList()).size();
+            assertEquals("No duplicated references", beforeSize, afterSize);
+        });
     }
 
     @Test

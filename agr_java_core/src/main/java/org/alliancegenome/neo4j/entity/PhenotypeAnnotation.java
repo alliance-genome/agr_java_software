@@ -13,6 +13,7 @@ import org.alliancegenome.neo4j.view.View;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -58,6 +59,15 @@ public class PhenotypeAnnotation implements Comparable<PhenotypeAnnotation>, Ser
             primaryAnnotatedEntities = new ArrayList<>();
         primaryAnnotatedEntities.addAll(entity);
         primaryAnnotatedEntities = primaryAnnotatedEntities.stream().distinct().collect(Collectors.toList());
+    }
+
+    public void setPublications(List<Publication> pubs) {
+        if (pubs == null)
+            return;
+        publications = pubs.stream()
+                .distinct()
+                .sorted(Comparator.naturalOrder())
+                .collect(Collectors.toList());
     }
 
     @Override
