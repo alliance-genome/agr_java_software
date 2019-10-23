@@ -179,6 +179,8 @@ public class DiseaseService {
                     .flatMap(Collection::stream)
                     // remove GENE type AGMs
                     .filter(entity -> !entity.getType().equals(GeneticEntity.CrossReferenceType.GENE))
+                    // remove Allele type AGMs
+                    .filter(entity -> !entity.getType().equals(GeneticEntity.CrossReferenceType.ALLELE))
                     .collect(Collectors.toList());
 
 
