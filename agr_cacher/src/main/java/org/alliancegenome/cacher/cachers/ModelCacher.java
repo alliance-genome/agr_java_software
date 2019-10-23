@@ -7,6 +7,7 @@ import org.alliancegenome.cache.manager.ModelAllianceCacheManager;
 import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
 import org.alliancegenome.neo4j.entity.node.AffectedGenomicModel;
+import org.alliancegenome.neo4j.entity.node.GeneticEntity;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.alliancegenome.neo4j.view.View;
 
@@ -33,8 +34,11 @@ public class ModelCacher extends Cacher {
                     PrimaryAnnotatedEntity entity = new PrimaryAnnotatedEntity();
                     entity.setId(model.getPrimaryKey());
                     entity.setName(model.getName());
+                    entity.setUrl(model.getModCrossRefCompleteUrl());
                     entity.setDisplayName(model.getNameText());
                     entity.setSequenceTargetingReagents(model.getSequenceTargetingReagents());
+                    if (model.getSubtype() != null)
+                        entity.setType(GeneticEntity.CrossReferenceType.getCrossReferenceType(model.getSubtype()));
                     return entity;
                 })
                 .collect(Collectors.toList());
@@ -69,7 +73,10 @@ public class ModelCacher extends Cacher {
                     entity.setId(model.getPrimaryKey());
                     entity.setName(model.getName());
                     entity.setDisplayName(model.getNameText());
+                    entity.setUrl(model.getModCrossRefCompleteUrl());
                     entity.setAlleles(model.getAlleles());
+                    if (model.getSubtype() != null)
+                        entity.setType(GeneticEntity.CrossReferenceType.getCrossReferenceType(model.getSubtype()));
                     return entity;
                 })
                 .collect(Collectors.toList());

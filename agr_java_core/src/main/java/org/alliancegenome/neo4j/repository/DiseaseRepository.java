@@ -26,7 +26,7 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
     public static final String AND_NOT_DISEASE_ENTITY_JOIN_FEATURE = " AND NOT (diseaseEntityJoin)--(:Feature) ";
     public static final String TOTAL_COUNT = "totalCount";
 
-    
+
     private String cypherEmpirical = " AND NOT (diseaseEntityJoin)-[:FROM_ORTHOLOGOUS_GENE]-(:Gene) ";
     private String cypherViaOrthology = " ,p5 =  (diseaseEntityJoin)-[:FROM_ORTHOLOGOUS_GENE]-(orthoGene:Gene)-[:FROM_SPECIES]-(orthoSpecies:Species) ";
 
@@ -45,7 +45,7 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
         sortByMapping.put(FieldFilter.DISEASE, "disease.name");
         sortByMapping.put(FieldFilter.ASSOCIATION_TYPE, "diseaseEntityJoin.joinType");
     }
-    
+
     @Setter
     @Getter
     private class Closure {

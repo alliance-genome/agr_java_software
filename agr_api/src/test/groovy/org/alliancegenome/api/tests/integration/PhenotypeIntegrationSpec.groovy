@@ -18,8 +18,8 @@ class PhenotypeIntegrationSpec extends AbstractSpec {
 
         where:
         geneId                   | totalSize | phenotype
-        "ZFIN:ZDB-GENE-990415-8" | 10        | "anatomical system quality, abnormal,anatomical system quality, abnormal,anatomical system quality, abnormal,anatomical system quality, abnormal,anatomical system quality, abnormal,anatomical system quality, abnormal,anatomical system quality, abnormal,ansulate commissure decreased size, abnormal,ansulate commissure decreased size, abnormal,apoptotic process increased occurrence, abnormal"
-        "MGI:88052"              | 10        | "abnormal blood homeostasis,abnormal blood homeostasis,abnormal cholesterol homeostasis,abnormal cholesterol homeostasis,abnormal cholesterol homeostasis,abnormal circulating cholesterol level,abnormal circulating cholesterol level,abnormal circulating cholesterol level,abnormal circulating HDL cholesterol level,abnormal circulating HDL cholesterol level"
+        "ZFIN:ZDB-GENE-990415-8" | 10        | "anatomical system quality, abnormal,ansulate commissure decreased size, abnormal,apoptotic process increased occurrence, abnormal,blood circulation disrupted, abnormal,brain hydrocephalic, abnormal,brain lacks all parts of type midbrain hindbrain boundary, abnormal,brain quality, abnormal,caudal commissure increased size, abnormal,cerebellum absent, abnormal,cerebellum malformed, abnormal"
+        "MGI:88052"              | 10        | "abnormal blood homeostasis,abnormal cholesterol homeostasis,abnormal circulating cholesterol level,abnormal circulating HDL cholesterol level,abnormal embryo development,abnormal triglyceride level,abnormal visceral yolk sac endoderm morphology,asthenozoospermia,decreased circulating cholesterol level,decreased circulating HDL cholesterol level"
     }
 
     @Unroll
@@ -33,9 +33,9 @@ class PhenotypeIntegrationSpec extends AbstractSpec {
         lineOne == lines[1]
         totalSize <= lines.length
         where:
-        geneId       | totalSize | lineOne                                                                                | headerLine
-        "MGI:105043" | 300       | "abnormal atrial thrombosis\tMGI:2151800\tAhr<sup>tm1Gonz</sup>\tallele\tPMID:9396142" | "Phenotype\tGenetic Entity ID\tGenetic Entity Symbol\tGenetic Entity Type\tReferences"
-        "MGI:109583" | 1200      | "abnormal adipose tissue morphology\t\t\tgene\tPMID:22405073"                          | "Phenotype\tGenetic Entity ID\tGenetic Entity Symbol\tGenetic Entity Type\tReferences"
+        geneId       | totalSize | lineOne                                             | headerLine
+        "MGI:105043" | 134       | "abnormal atrial thrombosis\tPMID:9396142"          | "Phenotype\tReferences"
+        "MGI:109583" | 516       | "abnormal adipose tissue morphology\tPMID:22405073" | "Phenotype\tReferences"
     }
 
     @Unroll
@@ -50,11 +50,12 @@ class PhenotypeIntegrationSpec extends AbstractSpec {
         geneticEntity == result.results[0].allele.symbol
 
         where:
-        geneId              | phenotype                            | geneticEntity
-        "WB:WBGene00000898" | "aging variant"                      | "e1370"
+        geneId              | phenotype       | geneticEntity
+        "WB:WBGene00000898" | "aging variant" | "e1370"
 
     }
 
+/*
     @Unroll
     def "Gene page - Sort phenotype by genetic entity for #geneId"() {
         when:
@@ -73,6 +74,7 @@ class PhenotypeIntegrationSpec extends AbstractSpec {
 
     }
 
+*/
     @Unroll
     def "Gene page - Sort phenotype by genetic entity smartfor #geneId"() {
         when:
