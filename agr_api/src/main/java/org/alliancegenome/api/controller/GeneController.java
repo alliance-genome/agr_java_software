@@ -15,6 +15,7 @@ import org.alliancegenome.core.translators.tdf.AlleleToTdfTranslator;
 import org.alliancegenome.core.translators.tdf.DiseaseAnnotationToTdfTranslator;
 import org.alliancegenome.core.translators.tdf.InteractionToTdfTranslator;
 import org.alliancegenome.core.translators.tdf.PhenotypeAnnotationToTdfTranslator;
+import org.alliancegenome.core.translators.tdf.ModelsToTdfTranslator;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.*;
@@ -53,6 +54,7 @@ public class GeneController extends BaseController implements GeneRESTInterface 
     private final PhenotypeAnnotationToTdfTranslator translator = new PhenotypeAnnotationToTdfTranslator();
     private final AlleleToTdfTranslator alleleTanslator = new AlleleToTdfTranslator();
     private final InteractionToTdfTranslator interactionTanslator = new InteractionToTdfTranslator();
+    private final ModelsToTdfTranslator modelsTranslator = new ModelsToTdfTranslator();
     private final DiseaseAnnotationToTdfTranslator diseaseTranslator = new DiseaseAnnotationToTdfTranslator();
 
     @Override
@@ -272,6 +274,28 @@ public class GeneController extends BaseController implements GeneRESTInterface 
             throw new RestErrorException(error);
         }
     }
+
+    @Override
+    public Response getPrimaryAnnotatedEntityForModelDownloadFile(String id,
+                                                                                        int limit,
+                                                                                        int page,
+                                                                                        String sortBy,
+                                                                                        String modelName,
+                                                                                        String species,
+                                                                                        String disease,
+                                                                                        String phenotype,
+                                                                                        String source,
+                                                                                        String asc) {
+        // retrieve all records
+        Pagination pagination = new Pagination(page, limit, sortBy, asc);
+        JsonResultResponse<PrimaryAnnotatedEntity> response =
+                diseaseService.getDiseaseAnnotationsWithGeneAndAGM(id, pagination);
+
+        Response.ResponseBuilder responseBuilder = Response.ok(modelsTranslator.getAllPrimaryModelRows(response.getResults()));
+        APIService.setDownloadHeader(id, EntityType.GENE, EntityType.MODEL, responseBuilder);
+        return responseBuilder.build();
+    }
+
 
     private JsonResultResponse<PhenotypeAnnotation> getPhenotypeAnnotationDocumentJsonResultResponse(String id, int limit, int page, String sortBy, String geneticEntity, String geneticEntityType, String phenotype, String reference, String asc) {
         if (sortBy.isEmpty())

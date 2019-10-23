@@ -144,8 +144,8 @@ public interface GeneRESTInterface {
 
     @GET
     @Path("/{id}/models")
-    @JsonView(value = {View.DiseaseAnnotationSummary.class})
-    @ApiOperation(value = "Retrieve all DiseaseAnnotation records for a given disease id")
+    @JsonView(value = {View.PrimaryAnnotation.class})
+    @ApiOperation(value = "Retrieve all Models for a given gene id")
     JsonResultResponse<PrimaryAnnotatedEntity> getPrimaryAnnotatedEntityForModel(
             @ApiParam(name = "id", value = "gene ID: e.g. MGI:109583", required = true, type = "String")
             @PathParam("id") String id,
@@ -168,6 +168,30 @@ public interface GeneRESTInterface {
             @ApiParam(value = "ascending order: true or false", allowableValues = "true,false", defaultValue = "true")
             @QueryParam("asc") String asc);
 
+    @GET
+    @Path("/{id}/models/download")
+    @ApiOperation(value = "Retrieve all Models for a given gene id", notes = "Download all models for a given gene")
+    @Produces(MediaType.TEXT_PLAIN)
+    Response getPrimaryAnnotatedEntityForModelDownloadFile(
+            @ApiParam(name = "id", value = "gene ID: e.g. MGI:109583", required = true, type = "String")
+            @PathParam("id") String id,
+            @ApiParam(name = "limit", value = "Number of rows returned", defaultValue = "20")
+            @DefaultValue("20") @QueryParam("limit") int limit,
+            @ApiParam(name = "page", value = "Page number")
+            @DefaultValue("1") @QueryParam("page") int page,
+            @QueryParam("sortBy") String sortBy,
+            @ApiParam(value = "filter by model name")
+            @QueryParam("filter.modelName") String modelName,
+            @ApiParam(value = "filter by species")
+            @QueryParam("filter.species") String species,
+            @ApiParam(value = "filter by disease")
+            @QueryParam("filter.disease") String disease,
+            @ApiParam(value = "filter by phenotype")
+            @QueryParam("filter.phenotype") String phenotype,
+            @ApiParam(value = "filter by source")
+            @QueryParam("filter.source") String source,
+            @ApiParam(value = "ascending order: true or false", allowableValues = "true,false", defaultValue = "true")
+            @QueryParam("asc") String asc);
 
     @GET
     @Path("/{id}/homologs")
