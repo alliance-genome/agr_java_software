@@ -121,6 +121,18 @@ public class PrimaryAnnotatedEntity implements Comparable<PrimaryAnnotatedEntity
                 .collect(Collectors.toList());
     }
 
+    public void addDiseases(List<DOTerm> diseaseList) {
+        if (diseaseList == null)
+            return;
+        if (diseases == null)
+            diseases = new ArrayList<>();
+        diseases.addAll(diseaseList);
+        diseases = diseases.stream()
+                .distinct()
+                .sorted(Comparator.comparing(SimpleTerm::getName))
+                .collect(Collectors.toList());
+    }
+
     public void setDataProvider(String dataProvider) {
         source = new Source();
         source.setName(dataProvider);

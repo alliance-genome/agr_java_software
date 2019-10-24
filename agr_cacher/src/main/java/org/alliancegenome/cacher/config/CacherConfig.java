@@ -12,6 +12,7 @@ public enum CacherConfig {
     GeneExpressionCacher(ExpressionCacher.class),
     GeneOrthologCacher(GeneOrthologCacher.class),
     ModelCacher(ModelCacher.class),
+    EcoCodeHelperCacher(EcoCodeHelperCacher.class),
     ;
 
     private String cacherName;

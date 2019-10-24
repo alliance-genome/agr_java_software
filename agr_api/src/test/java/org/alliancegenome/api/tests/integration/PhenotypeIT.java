@@ -1,7 +1,6 @@
 package org.alliancegenome.api.tests.integration;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.Api;
@@ -69,7 +68,7 @@ public class PhenotypeIT {
     @Ignore
     // This can go away as we do not display those numbers any longer.
     // Just waiting for curators to confirm
-    public void checkPhenotypeByGeneWithoutPagination() throws JsonProcessingException {
+    public void checkPhenotypeByGeneWithoutPagination() {
         Pagination pagination = new Pagination(1, 100, null, null);
         // mkks
 
@@ -111,8 +110,29 @@ public class PhenotypeIT {
         Pagination pagination = new Pagination(1, 11, null, null);
         DiseaseService diseaseService = new DiseaseService();
         JsonResultResponse<PrimaryAnnotatedEntity> response = diseaseService.getDiseaseAnnotationsWithGeneAndAGM(geneID, pagination);
-        assertResponse(response, 11, 95);
+        assertResponse(response, 11, 94);
         assertTrue("More than one phenotype", response.getResults().get(0).getPhenotypes().size() > 1);
+        response.getResults().forEach(entity -> {
+            assertNotEquals("No AGMs with Gene type", entity.getType(), GeneticEntity.CrossReferenceType.GENE);
+            assertNotEquals("No AGMs with Allele type", entity.getType(), GeneticEntity.CrossReferenceType.ALLELE);
+        });
+    }
+
+    @Test
+    public void checkPhenotypesByModelsZfin() {
+
+        // sox9a
+        String geneID = "ZFIN:ZDB-GENE-001103-1";
+
+        Pagination pagination = new Pagination(1, 11, null, null);
+        DiseaseService diseaseService = new DiseaseService();
+        JsonResultResponse<PrimaryAnnotatedEntity> response = diseaseService.getDiseaseAnnotationsWithGeneAndAGM(geneID, pagination);
+        assertResponse(response, 11, 38);
+        assertTrue("More than one phenotype", response.getResults().get(0).getPhenotypes().size() > 1);
+        response.getResults().forEach(entity -> {
+            assertNotEquals("No AGMs with Gene type", entity.getType(), GeneticEntity.CrossReferenceType.GENE);
+            assertNotEquals("No AGMs with Allele type", entity.getType(), GeneticEntity.CrossReferenceType.ALLELE);
+        });
     }
 
     @Test
@@ -124,10 +144,7 @@ public class PhenotypeIT {
         Pagination pagination = new Pagination(1, 10, null, null);
         DiseaseService diseaseService = new DiseaseService();
         JsonResultResponse<PrimaryAnnotatedEntity> response = diseaseService.getDiseaseAnnotationsWithGeneAndAGM(geneID, pagination);
-        assertResponse(response, 7, 7);
-        response.getResults().forEach(entity -> {
-            assertNotNull("URL of AGM is null: " + entity.getId(), entity.getUrl());
-        });
+        assertResponse(response, 0, 0);
     }
 
     @Test
@@ -230,6 +247,20 @@ public class PhenotypeIT {
         assertNotNull("Allele phenotype annotation", primaryAnnotatedEntities);
         assertThat("Allele phenotype annotation", primaryAnnotatedEntities.get(0).getType(), equalTo(GeneticEntity.CrossReferenceType.ALLELE));
 
+    }
+
+    @Test
+    public void checkDiseasesByModels() {
+
+        // Tnf
+        String geneID = "MGI:104993";
+
+        Pagination pagination = new Pagination(1, 11, null, null);
+        DiseaseService diseaseService = new DiseaseService();
+        JsonResultResponse<PrimaryAnnotatedEntity> response = diseaseService.getDiseaseAnnotationsWithGeneAndAGM(geneID, pagination);
+        assertResponse(response, 11, 105);
+        assertTrue("More than one disease", response.getResults().get(0).getDiseases().size() > 1);
+        assertTrue("More than one phenotype", response.getResults().get(0).getPhenotypes().size() > 1);
     }
 
     private void assertResponse(JsonResultResponse response, int resultSize, int totalSize) {
