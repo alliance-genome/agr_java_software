@@ -9,9 +9,11 @@ import org.alliancegenome.neo4j.repository.AlleleRepository;
 import org.alliancegenome.neo4j.view.View;
 import org.apache.commons.collections.CollectionUtils;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.groupingBy;
 
@@ -33,6 +35,9 @@ public class AlleleCacher extends Cacher {
             if (CollectionUtils.isNotEmpty(allele.getVariants())) {
                 String name = "";
             }
+            allele.setPhenotypes(allele.getPhenotypes().stream()
+                    .sorted(Comparator.comparing(phenotype -> phenotype.getPhenotypeStatement().toLowerCase()))
+                    .collect(Collectors.toList()));
         });
 
         AlleleAllianceCacheManager manager = new AlleleAllianceCacheManager();
