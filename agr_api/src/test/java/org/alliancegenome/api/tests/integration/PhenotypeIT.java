@@ -119,6 +119,23 @@ public class PhenotypeIT {
     }
 
     @Test
+    public void checkPhenotypesByModelsZfin() {
+
+        // sox9a
+        String geneID = "ZFIN:ZDB-GENE-001103-1";
+
+        Pagination pagination = new Pagination(1, 11, null, null);
+        DiseaseService diseaseService = new DiseaseService();
+        JsonResultResponse<PrimaryAnnotatedEntity> response = diseaseService.getDiseaseAnnotationsWithGeneAndAGM(geneID, pagination);
+        assertResponse(response, 11, 38);
+        assertTrue("More than one phenotype", response.getResults().get(0).getPhenotypes().size() > 1);
+        response.getResults().forEach(entity -> {
+            assertNotEquals("No AGMs with Gene type", entity.getType(), GeneticEntity.CrossReferenceType.GENE);
+            assertNotEquals("No AGMs with Allele type", entity.getType(), GeneticEntity.CrossReferenceType.ALLELE);
+        });
+    }
+
+    @Test
     public void checkPureModels() {
 
         // Abcc6

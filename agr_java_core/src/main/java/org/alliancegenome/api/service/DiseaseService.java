@@ -153,7 +153,7 @@ public class DiseaseService {
 
         Map<String, List<PrimaryAnnotatedEntity>> diseaseEntities = null;
         Map<String, List<PrimaryAnnotatedEntity>> phenotypeEntities = null;
-        Map<String, PrimaryAnnotatedEntity> modelEntities = null;
+        Map<String, List<PrimaryAnnotatedEntity>> modelEntities = null;
 
         List<PrimaryAnnotatedEntity> primaryAnnotatedEntities = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(fullDiseaseAnnotationList)) {
@@ -214,12 +214,8 @@ public class DiseaseService {
 
         List<PrimaryAnnotatedEntity> fullModelList = diseaseCacheRepository.getPrimaryAnnotatedEntitList(geneID);
 
-        if (CollectionUtils.isNotEmpty(fullModelList)) {
-            modelEntities = fullModelList.stream()
-                    .collect(Collectors.toMap(PrimaryAnnotatedEntity::getId, entity -> entity));
-        }
 
-        if (diseaseEntities == null && phenotypeEntities == null && modelEntities == null) {
+        if (diseaseEntities == null && phenotypeEntities == null && CollectionUtils.isEmpty(fullModelList)) {
             return result;
         }
 
