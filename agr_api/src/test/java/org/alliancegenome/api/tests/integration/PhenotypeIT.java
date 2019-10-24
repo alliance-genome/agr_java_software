@@ -232,6 +232,20 @@ public class PhenotypeIT {
 
     }
 
+    @Test
+    public void checkDiseasesByModels() {
+
+        // Tnf
+        String geneID = "MGI:104993";
+
+        Pagination pagination = new Pagination(1, 11, null, null);
+        DiseaseService diseaseService = new DiseaseService();
+        JsonResultResponse<PrimaryAnnotatedEntity> response = diseaseService.getDiseaseAnnotationsWithGeneAndAGM(geneID, pagination);
+        assertResponse(response, 11, 105);
+        assertTrue("More than one disease", response.getResults().get(0).getDiseases().size() > 1);
+        assertTrue("More than one phenotype", response.getResults().get(0).getPhenotypes().size() > 1);
+    }
+
     private void assertResponse(JsonResultResponse response, int resultSize, int totalSize) {
         assertNotNull(response);
         assertThat("Number of returned records", response.getResults().size(), greaterThanOrEqualTo(resultSize));
