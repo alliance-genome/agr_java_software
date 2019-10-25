@@ -71,9 +71,9 @@ public interface GeneRESTInterface {
             @QueryParam("filter.disease") String disease
     );
 
-    @GET
+//    @GET
     @Path("/{id}/alleles/download")
-    @ApiOperation(value = "Retrieve all alleles for a given gene")
+    @ApiOperation(value = "Retrieve all alleles for a given gene" , hidden=true)
     @Produces(MediaType.TEXT_PLAIN)
     Response getAllelesPerGeneDownload(
             @ApiParam(name = "id", value = "Search for Alleles for a given Gene by ID")
@@ -124,7 +124,7 @@ public interface GeneRESTInterface {
 
     @GET
     @Path("/{id}/phenotypes/download")
-    @ApiOperation(value = "Retrieve all termName annotations for a given gene", notes = "Download all termName annotations for a given gene")
+    @ApiOperation(value = "Retrieve all termName annotations for a given gene", notes = "Download all termName annotations for a given gene", hidden=true)
     @Produces(MediaType.TEXT_PLAIN)
     Response getPhenotypeAnnotationsDownloadFile(
             @ApiParam(name = "id", value = "Gene by ID", required = true, type = "String")
