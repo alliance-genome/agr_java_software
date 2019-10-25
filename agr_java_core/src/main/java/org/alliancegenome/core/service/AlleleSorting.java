@@ -26,7 +26,6 @@ public class AlleleSorting implements Sorting<Allele> {
         defaultList = new ArrayList<>(3);
         defaultList.add(variantExistOrder);
         defaultList.add(alleleSymbolOrder);
-        defaultList.add(phenotypeStatementOrder);
 
         diseaseList = new ArrayList<>(3);
         diseaseList.add(diseaseOrder);
