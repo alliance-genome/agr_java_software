@@ -30,6 +30,8 @@ public class PhenotypeAnnotation implements Comparable<PhenotypeAnnotation>, Ser
     @JsonView({View.PhenotypeAPI.class})
     private Allele allele;
     @JsonView({View.PhenotypeAPI.class})
+    private AffectedGenomicModel model;
+    @JsonView({View.PhenotypeAPI.class})
     private List<AffectedGenomicModel> models;
     @JsonView({View.PhenotypeAPI.class})
     private List<Publication> publications;

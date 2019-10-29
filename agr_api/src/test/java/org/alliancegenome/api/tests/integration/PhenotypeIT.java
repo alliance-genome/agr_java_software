@@ -148,6 +148,18 @@ public class PhenotypeIT {
     }
 
     @Test
+    public void checkModelsForPhenotype() {
+
+        // Tnf
+        String geneID = "MGI:104798";
+
+        Pagination pagination = new Pagination(1, 10, null, null);
+        DiseaseService diseaseService = new DiseaseService();
+        JsonResultResponse<PrimaryAnnotatedEntity> response = diseaseService.getDiseaseAnnotationsWithGeneAndAGM(geneID, pagination);
+        assertResponse(response, 0, 0);
+    }
+
+    @Test
     public void checkPhenotypeReferenceNonDuplicated() {
 
         // top2b
