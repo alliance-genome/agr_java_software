@@ -63,6 +63,13 @@ public class PhenotypeAnnotation implements Comparable<PhenotypeAnnotation>, Ser
         primaryAnnotatedEntities = primaryAnnotatedEntities.stream().distinct().collect(Collectors.toList());
     }
 
+    public void addPublications(List<Publication> pubs) {
+        if (publications == null)
+            publications = new ArrayList<>();
+        publications.addAll(pubs);
+        publications = publications.stream().distinct().collect(Collectors.toList());
+    }
+
     public void setPublications(List<Publication> pubs) {
         if (pubs == null)
             return;

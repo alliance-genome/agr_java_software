@@ -124,7 +124,10 @@ public class GenePhenotypeCacher extends Cacher {
                 PhenotypeAnnotation entity = phenotypeAnnotations.get(0);
                 phenotypeAnnotations.stream()
                         .filter(phenotypeAnnotation -> CollectionUtils.isNotEmpty(phenotypeAnnotation.getPrimaryAnnotatedEntities()))
-                        .forEach(annotation -> entity.addPrimaryAnnotatedEntities(annotation.getPrimaryAnnotatedEntities()));
+                        .forEach(annotation -> {
+                            entity.addPrimaryAnnotatedEntities(annotation.getPrimaryAnnotatedEntities());
+                            entity.addPublications(annotation.getPublications());
+                        });
                 mergedAnnotations.add(entity);
             });
             phenotypeAnnotationMap.put(geneID, mergedAnnotations);

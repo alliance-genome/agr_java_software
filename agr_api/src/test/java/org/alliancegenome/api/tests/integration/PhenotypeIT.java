@@ -16,6 +16,7 @@ import org.alliancegenome.neo4j.entity.EntitySummary;
 import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
 import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
 import org.alliancegenome.neo4j.entity.node.GeneticEntity;
+import org.alliancegenome.neo4j.entity.node.Publication;
 import org.alliancegenome.neo4j.view.OrthologyModule;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.config.Configurator;
@@ -136,6 +137,23 @@ public class PhenotypeIT {
     }
 
     @Test
+    public void checkPhenotypesWithReference() {
+
+        // sox9a
+        String geneID = "ZFIN:ZDB-GENE-001103-1";
+
+        Pagination pagination = new Pagination(1, 60, null, null);
+        DiseaseService diseaseService = new DiseaseService();
+        JsonResultResponse<PhenotypeAnnotation> response = geneService.getPhenotypeAnnotations(geneID, pagination);
+        List<PhenotypeAnnotation> pa = response.getResults().stream()
+                .filter(phenotypeAnnotation -> phenotypeAnnotation.getPhenotype().equals("cartilage development disrupted, abnormal"))
+                .collect(Collectors.toList());
+        assertNotNull(pa);
+        String pmids = pa.get(0).getPublications().stream().map(Publication::getPubId).collect(Collectors.joining(","));
+        assertEquals("Pmid list", "PMID:12397114,PMID:18950725,PMID:9007254", pmids);
+    }
+
+    @Test
     public void checkPureModels() {
 
         // Abcc6
@@ -144,11 +162,11 @@ public class PhenotypeIT {
         Pagination pagination = new Pagination(1, 10, null, null);
         DiseaseService diseaseService = new DiseaseService();
         JsonResultResponse<PrimaryAnnotatedEntity> response = diseaseService.getDiseaseAnnotationsWithGeneAndAGM(geneID, pagination);
-        assertResponse(response, 0, 0);
+        assertResponse(response, 6, 6);
     }
 
     @Test
-    public void checkModelsForPhenotype() {
+    public void checkModelsForPhenotypeAndDisease() {
 
         // Tnf
         String geneID = "MGI:104798";
@@ -156,7 +174,18 @@ public class PhenotypeIT {
         Pagination pagination = new Pagination(1, 10, null, null);
         DiseaseService diseaseService = new DiseaseService();
         JsonResultResponse<PrimaryAnnotatedEntity> response = diseaseService.getDiseaseAnnotationsWithGeneAndAGM(geneID, pagination);
-        assertResponse(response, 0, 0);
+        assertResponse(response, 10, 90);
+    }
+    @Test
+    public void checkModelsForPhenotypeWithoutDisease() {
+
+        // Arnt
+        String geneID = "MGI:88071";
+
+        Pagination pagination = new Pagination(1, 10, null, null);
+        DiseaseService diseaseService = new DiseaseService();
+        JsonResultResponse<PrimaryAnnotatedEntity> response = diseaseService.getDiseaseAnnotationsWithGeneAndAGM(geneID, pagination);
+        assertResponse(response, 8, 8);
     }
 
     @Test
