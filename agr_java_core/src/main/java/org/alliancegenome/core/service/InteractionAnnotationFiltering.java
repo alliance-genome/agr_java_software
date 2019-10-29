@@ -36,9 +36,9 @@ public class InteractionAnnotationFiltering extends AnnotationFiltering {
                         .collect(Collectors.toSet());
                 
                 String dbNames = 
-                        annotation.getSourceDatabase().getLabel() + ":" + 
-                        annotation.getSourceDatabase().getDisplayName() + ":" +
-                        annotation.getAggregationDatabase().getLabel() + ":" + 
+                        annotation.getSourceDatabase().getLabel() + " " + 
+                        annotation.getSourceDatabase().getDisplayName() + " " +
+                        annotation.getAggregationDatabase().getLabel() + " " + 
                         annotation.getAggregationDatabase().getDisplayName();
                 
                 filteringPassed.add(FilterFunction.contains(dbNames, value));
