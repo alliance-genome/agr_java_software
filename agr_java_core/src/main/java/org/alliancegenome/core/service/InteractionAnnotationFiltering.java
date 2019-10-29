@@ -34,7 +34,16 @@ public class InteractionAnnotationFiltering extends AnnotationFiltering {
                             return FilterFunction.contains(entityName, value);
                         })
                         .collect(Collectors.toSet());
-                // return true if at least one source is found
+                
+                String dbNames = 
+                        annotation.getSourceDatabase().getLabel() + ":" + 
+                        annotation.getSourceDatabase().getDisplayName() + ":" +
+                        annotation.getAggregationDatabase().getLabel() + ":" + 
+                        annotation.getAggregationDatabase().getDisplayName();
+                
+                filteringPassed.add(FilterFunction.contains(dbNames, value));
+                
+                // return true if at least one source is found in either crossreferences or source and agg db's
                 return filteringPassed.contains(true);
             };
 
