@@ -39,7 +39,7 @@ public class GeneticEntity extends Neo4jEntity {
     private Set<Synonym> synonyms = new HashSet<>();
 
     // Converts the list of synonym objects to a list of strings
-    @JsonView(value = {View.GeneAllelesAPI.class, View.AlleleAPI.class})
+    @JsonView(value = {View.API.class})
     @JsonProperty(value = "synonyms")
     public List<String> getSynonymList() {
         List<String> list = new ArrayList<>();
@@ -64,7 +64,7 @@ public class GeneticEntity extends Neo4jEntity {
     private Set<SecondaryId> secondaryIds = new HashSet<>();
 
     // Converts the list of secondary ids objects to a list of strings
-    @JsonView(value = {View.GeneAllelesAPI.class, View.AlleleAPI.class})
+    @JsonView(value = {View.API.class})
     @JsonProperty(value = "secondaryIds")
     public List<String> getSecondaryIdsList() {
         List<String> list = new ArrayList<>();
