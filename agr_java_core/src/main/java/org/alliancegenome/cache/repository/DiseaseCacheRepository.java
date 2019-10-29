@@ -172,7 +172,7 @@ public class DiseaseCacheRepository {
         }
         return list;
     }
-    
+
     public List<ECOTerm> getEcoTermsFromCache(List<PublicationJoin> joins) {
         if (joins == null)
             return null;
@@ -182,7 +182,7 @@ public class DiseaseCacheRepository {
                 .flatMap(Collection::stream)
                 .collect(Collectors.toList());
     }
-    
+
     public void populatePublicationJoinsFromCache(List<PublicationJoin> joins) {
         if (joins == null)
             return;
@@ -215,5 +215,10 @@ public class DiseaseCacheRepository {
 
     public boolean hasDiseaseAnnotations(String geneID) {
         return CollectionUtils.isNotEmpty(manager.getDiseaseAnnotations(geneID, View.DiseaseAnnotation.class));
+    }
+
+    public List<PrimaryAnnotatedEntity> getDiseaseAnnotationPureModeList(String geneID) {
+        ModelAllianceCacheManager modelManager = new ModelAllianceCacheManager();
+        return modelManager.getDiseaseAnnotationPureModeList(geneID, View.PrimaryAnnotation.class);
     }
 }

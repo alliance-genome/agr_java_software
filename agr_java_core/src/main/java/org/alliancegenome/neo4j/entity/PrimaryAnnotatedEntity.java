@@ -19,6 +19,7 @@ public class PrimaryAnnotatedEntity implements Comparable<PrimaryAnnotatedEntity
 
     @JsonView({View.PrimaryAnnotation.class, View.API.class})
     protected String id;
+    protected String entityJoinPk;
     @JsonView({View.PrimaryAnnotation.class, View.API.class})
     protected String name;
     @JsonView({View.PrimaryAnnotation.class, View.API.class})
@@ -80,6 +81,7 @@ public class PrimaryAnnotatedEntity implements Comparable<PrimaryAnnotatedEntity
             diseases = new ArrayList<>();
         diseases.add(disease);
         diseases = new ArrayList<>(new HashSet<>(diseases));
+        diseases.sort(Comparator.comparing(doTerm -> doTerm.getName().toLowerCase()));
     }
 
     public void addPhenotype(String phenotype) {
@@ -87,6 +89,17 @@ public class PrimaryAnnotatedEntity implements Comparable<PrimaryAnnotatedEntity
             phenotypes = new ArrayList<>();
         phenotypes.add(phenotype);
         phenotypes = new ArrayList<>(new HashSet<>(phenotypes));
+        phenotypes.sort(Comparator.naturalOrder());
+    }
+
+    public void addPublicationEvidenceCode(List<PublicationJoin> pubJoins) {
+        if (CollectionUtils.isEmpty(pubJoins))
+            return;
+        if (publicationEvidenceCodes == null)
+            publicationEvidenceCodes = new ArrayList<>();
+
+        publicationEvidenceCodes.addAll(pubJoins);
+        publicationEvidenceCodes = new ArrayList<>(new HashSet<>(publicationEvidenceCodes));
     }
 
     public void addPublicationEvidenceCode(PublicationJoin pubJoin) {

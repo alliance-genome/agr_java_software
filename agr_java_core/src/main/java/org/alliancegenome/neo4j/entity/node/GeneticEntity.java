@@ -183,7 +183,7 @@ public class GeneticEntity extends Neo4jEntity {
 
         public static CrossReferenceType getCrossReferenceType(String name) {
             return Arrays.stream(values())
-                    .filter(type -> type.getDisplayName().equals(name))
+                    .filter(type -> type.getDbName().equals(name))
                     .findFirst().orElse(null);
         }
     }
