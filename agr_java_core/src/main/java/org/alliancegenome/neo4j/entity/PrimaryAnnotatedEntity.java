@@ -81,6 +81,7 @@ public class PrimaryAnnotatedEntity implements Comparable<PrimaryAnnotatedEntity
             diseases = new ArrayList<>();
         diseases.add(disease);
         diseases = new ArrayList<>(new HashSet<>(diseases));
+        diseases.sort(Comparator.comparing(doTerm -> doTerm.getName().toLowerCase()));
     }
 
     public void addPhenotype(String phenotype) {

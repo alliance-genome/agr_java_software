@@ -25,7 +25,8 @@ public enum CacheAlliance {
     CACHING_STATS(),
     ECO_MAP(),
     CLOSURE_MAP(),
-    GENE_PURE_AGM_PHENOTYPE();
+    GENE_PURE_AGM_PHENOTYPE(),
+    GENE_PURE_AGM_DISEASE();
 
     private String cacheName;
 
