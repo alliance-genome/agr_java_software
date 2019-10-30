@@ -14,6 +14,8 @@ import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.core.service.PaginationResult;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
+import org.alliancegenome.neo4j.entity.node.GOTerm;
+import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.alliancegenome.neo4j.view.BaseFilter;
 import org.alliancegenome.neo4j.view.OrthologyModule;
 import org.apache.logging.log4j.Level;
@@ -24,8 +26,11 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 @Api(value = "Expression Tests")
 public class ExpressionIT {
@@ -64,6 +69,18 @@ public class ExpressionIT {
     public void checkExpressionRibbonHeader() {
         RibbonSummary summary = expressionService.getExpressionRibbonSummary(Collections.singletonList("MGI:109583"));
         assertNotNull(summary);
+
+
+    }
+
+    @Test
+    // Test Pten from MGI for expression ribbon summary
+    public void checkExpressionRibbonGoTerms() {
+        GeneRepository geneRepository = new GeneRepository();
+        List<GOTerm> terms =geneRepository.getFullGoTermList();
+        assertNotNull(terms);
+        String termNames = terms.stream().map(GOTerm::getName).collect(Collectors.joining(","));
+        assertTrue(termNames.contains("extracellular region"));
 
 
     }
