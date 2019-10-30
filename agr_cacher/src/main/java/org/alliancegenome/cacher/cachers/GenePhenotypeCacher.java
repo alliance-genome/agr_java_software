@@ -87,19 +87,25 @@ public class GenePhenotypeCacher extends Cacher {
                                     });
                         } else {
                             PrimaryAnnotatedEntity entity = new PrimaryAnnotatedEntity();
+                            List<CrossReference> refs = null;
                             if (allele != null) {
                                 entity.setId(allele.getPrimaryKey());
                                 entity.setName(allele.getSymbol());
                                 entity.setDisplayName(allele.getSymbolText());
                                 entity.setType(GeneticEntity.CrossReferenceType.ALLELE);
+                                refs = allele.getCrossReferences();
                             }
                             // if Gene-only create a new PAE of type 'Gene'
                             else if (gene != null) {
                                 entity.setId(gene.getPrimaryKey());
                                 entity.setName(gene.getSymbol());
                                 entity.setDisplayName(gene.getSymbol());
+                                entity.setUrl(gene.getModCrossRefCompleteUrl());
                                 entity.setType(GeneticEntity.CrossReferenceType.GENE);
+                                refs = gene.getCrossReferences();
                             }
+                            if (CollectionUtils.isNotEmpty(refs))
+                                entity.setUrl(refs.get(0).getCrossRefCompleteUrl());
                             entity.setPublicationEvidenceCodes(phenotypeEntityJoin.getPhenotypePublicationJoins());
                             document.addPrimaryAnnotatedEntity(entity);
                         }

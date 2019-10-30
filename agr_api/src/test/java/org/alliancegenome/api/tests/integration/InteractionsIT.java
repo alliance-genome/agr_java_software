@@ -62,7 +62,7 @@ public class InteractionsIT {
         summary = geneService.getInteractionSummary("HGNC:4601");
         assertNotNull(summary);
         assertThat(summary.getNumberOfAnnotations(), greaterThanOrEqualTo(154L));
-        assertThat(summary.getNumberOfEntities(), greaterThanOrEqualTo(95L));
+        assertThat(summary.getNumberOfEntities(), greaterThanOrEqualTo(84L));
 
     }
 }
