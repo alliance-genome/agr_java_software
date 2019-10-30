@@ -180,6 +180,23 @@ public class PhenotypeIT {
     }
 
     @Test
+    public void checkUrlForAllelesInPopup() {
+
+        // cua-1
+        String geneID = "WB:WBGene00000834";
+
+        Pagination pagination = new Pagination(1, 10, null, null);
+        JsonResultResponse<PhenotypeAnnotation> response = geneService.getPhenotypeAnnotations(geneID, pagination);
+        assertResponse(response, 1, 1);
+
+        response.getResults().forEach(phenotypeAnnotation -> {
+            phenotypeAnnotation.getPrimaryAnnotatedEntities().forEach(entity -> {
+                assertNotNull("URL for AGM should not be null: " + entity.getId(), entity.getUrl());
+            });
+        });
+    }
+
+    @Test
     public void checkModelsForPhenotypeAndDisease() {
 
         // Tnf

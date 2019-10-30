@@ -384,7 +384,6 @@ public class DiseaseIT {
         DiseaseAnnotation annotation = response.getResults().get(0);
         assertThat(annotation.getDisease().getName(), equalTo("urinary bladder cancer"));
         assertThat(annotation.getAssociationType(), equalTo("is_implicated_in"));
-        assertNotNull(annotation.getFeature());
         //assertThat(annotation.getFeature().getSymbol(), equalTo("Pten<sup>tm1Hwu</sup>"));
         assertThat(annotation.getPublications().stream().map(Publication::getPubId).collect(Collectors.joining()), equalTo("PMID:16951148PMID:19261747PMID:21283818PMID:25533675PMID:28082400"));
 
