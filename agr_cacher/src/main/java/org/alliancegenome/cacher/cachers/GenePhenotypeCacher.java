@@ -100,7 +100,6 @@ public class GenePhenotypeCacher extends Cacher {
                                 entity.setId(gene.getPrimaryKey());
                                 entity.setName(gene.getSymbol());
                                 entity.setDisplayName(gene.getSymbol());
-                                entity.setUrl(gene.getModCrossRefCompleteUrl());
                                 entity.setType(GeneticEntity.CrossReferenceType.GENE);
                                 refs = gene.getCrossReferences();
                             }
