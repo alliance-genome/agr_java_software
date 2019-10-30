@@ -17,6 +17,7 @@ import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
 import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
 import org.alliancegenome.neo4j.entity.node.GeneticEntity;
 import org.alliancegenome.neo4j.entity.node.Publication;
+import org.alliancegenome.neo4j.view.BaseFilter;
 import org.alliancegenome.neo4j.view.OrthologyModule;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.config.Configurator;
@@ -154,6 +155,19 @@ public class PhenotypeIT {
     }
 
     @Test
+    public void checkPhenotypesWithoutGenePopup() {
+
+        // ATP7
+        String geneID = "FB:FBgn0030343";
+
+        Pagination pagination = new Pagination(1, 60, null, null);
+        JsonResultResponse<PhenotypeAnnotation> response = geneService.getPhenotypeAnnotations(geneID, pagination);
+        response.getResults().forEach(phenotypeAnnotation -> phenotypeAnnotation.getPrimaryAnnotatedEntities().forEach(entity -> {
+            assertNotEquals("Direct Gene annotation found. Should be suppressed for: " + entity.getId(), entity.getType(), GeneticEntity.CrossReferenceType.GENE);
+        }));
+    }
+
+    @Test
     public void checkPureModels() {
 
         // Abcc6
@@ -176,6 +190,22 @@ public class PhenotypeIT {
         JsonResultResponse<PrimaryAnnotatedEntity> response = diseaseService.getDiseaseAnnotationsWithGeneAndAGM(geneID, pagination);
         assertResponse(response, 10, 90);
     }
+
+    @Test
+    public void checkModelsForPhenotypeFiltering() {
+
+        // Tnf
+        String geneID = "MGI:105043";
+
+        Pagination pagination = new Pagination(1, 10, null, null);
+        BaseFilter filter = new BaseFilter();
+        filter.addFieldFilter(FieldFilter.PHENOTYPE, "abnormal");
+        pagination.setFieldFilterValueMap(filter);
+        DiseaseService diseaseService = new DiseaseService();
+        JsonResultResponse<PrimaryAnnotatedEntity> response = diseaseService.getDiseaseAnnotationsWithGeneAndAGM(geneID, pagination);
+        assertResponse(response, 9, 9);
+    }
+
     @Test
     public void checkModelsForPhenotypeWithoutDisease() {
 

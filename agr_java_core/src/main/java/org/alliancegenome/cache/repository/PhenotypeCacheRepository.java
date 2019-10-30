@@ -17,6 +17,7 @@ import org.alliancegenome.core.service.SortingField;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
 import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
+import org.alliancegenome.neo4j.entity.node.GeneticEntity;
 import org.alliancegenome.neo4j.view.BaseFilter;
 import org.alliancegenome.neo4j.view.View;
 
@@ -31,6 +32,11 @@ public class PhenotypeCacheRepository {
 
         PhenotypeCacheManager manager = new PhenotypeCacheManager();
         List<PhenotypeAnnotation> fullPhenotypeAnnotationList = manager.getPhenotypeAnnotations(geneID, View.PhenotypeAPI.class);
+
+        // remove GENE annotations from PAE list
+        fullPhenotypeAnnotationList.forEach(phenotypeAnnotation -> {
+            phenotypeAnnotation.getPrimaryAnnotatedEntities().removeIf(entity -> entity.getType().equals(GeneticEntity.CrossReferenceType.GENE));
+        });
 
         //filtering
         List<PhenotypeAnnotation> filteredPhenotypeAnnotationList = filterDiseaseAnnotations(fullPhenotypeAnnotationList, pagination.getFieldFilterValueMap());
