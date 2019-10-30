@@ -98,7 +98,7 @@ public interface DiseaseRESTInterface {
     @GET
     @Path("/{id}/alleles/download")
     @Produces(MediaType.TEXT_PLAIN)
-    @ApiOperation(value = "Retrieve all DiseaseAnnotation records for a given disease id")
+    @ApiOperation(value = "Retrieve all DiseaseAnnotation records for a given disease id", hidden=true)
     Response getDiseaseAnnotationsByAlleleDownload(
             @ApiParam(name = "id", value = "Disease by DOID: e.g. DOID:9952", required = true, type = "String")
             @PathParam("id") String id,
@@ -156,7 +156,7 @@ public interface DiseaseRESTInterface {
     @GET
     @Path("/{id}/genes/download")
     @Produces(MediaType.TEXT_PLAIN)
-    @ApiOperation(value = "Retrieve all DiseaseAnnotation records for a given disease id")
+    @ApiOperation(value = "Retrieve all DiseaseAnnotation records for a given disease id", hidden=true)
     Response getDiseaseAnnotationsByGeneDownload(
             @ApiParam(name = "id", value = "Disease by DOID: e.g. DOID:9952", required = true, type = "String")
             @PathParam("id") String id,
