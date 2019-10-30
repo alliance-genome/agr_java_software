@@ -154,6 +154,19 @@ public class PhenotypeIT {
     }
 
     @Test
+    public void checkPhenotypesWithoutGenePopup() {
+
+        // ATP7
+        String geneID = "FB:FBgn0030343";
+
+        Pagination pagination = new Pagination(1, 60, null, null);
+        JsonResultResponse<PhenotypeAnnotation> response = geneService.getPhenotypeAnnotations(geneID, pagination);
+        response.getResults().forEach(phenotypeAnnotation -> phenotypeAnnotation.getPrimaryAnnotatedEntities().forEach(entity -> {
+            assertNotEquals("Direct Gene annotation found. Should be suppressed for: " + entity.getId(), entity.getType(), GeneticEntity.CrossReferenceType.GENE);
+        }));
+    }
+
+    @Test
     public void checkPureModels() {
 
         // Abcc6
@@ -176,6 +189,7 @@ public class PhenotypeIT {
         JsonResultResponse<PrimaryAnnotatedEntity> response = diseaseService.getDiseaseAnnotationsWithGeneAndAGM(geneID, pagination);
         assertResponse(response, 10, 90);
     }
+
     @Test
     public void checkModelsForPhenotypeWithoutDisease() {
 
