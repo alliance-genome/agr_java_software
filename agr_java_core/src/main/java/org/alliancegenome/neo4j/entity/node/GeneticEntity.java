@@ -39,7 +39,7 @@ public class GeneticEntity extends Neo4jEntity {
     private Set<Synonym> synonyms = new HashSet<>();
 
     // Converts the list of synonym objects to a list of strings
-    @JsonView(value = {View.GeneAllelesAPI.class, View.AlleleAPI.class})
+    @JsonView(value = {View.GeneAPI.class, View.GeneAllelesAPI.class, View.AlleleAPI.class})
     @JsonProperty(value = "synonyms")
     public List<String> getSynonymList() {
         List<String> list = new ArrayList<>();
@@ -49,22 +49,11 @@ public class GeneticEntity extends Neo4jEntity {
         return list;
     }
 
-    @JsonProperty(value = "synonyms")
-    public void setSynonymList(List<String> list) {
-        if (list != null) {
-            list.forEach(syn -> {
-                Synonym synonym = new Synonym();
-                synonym.setName(syn);
-                synonyms.add(synonym);
-            });
-        }
-    }
-
     @Relationship(type = "ALSO_KNOWN_AS")
     private Set<SecondaryId> secondaryIds = new HashSet<>();
 
     // Converts the list of secondary ids objects to a list of strings
-    @JsonView(value = {View.GeneAllelesAPI.class, View.AlleleAPI.class})
+    @JsonView(value = {View.GeneAPI.class, View.GeneAllelesAPI.class, View.AlleleAPI.class})
     @JsonProperty(value = "secondaryIds")
     public List<String> getSecondaryIdsList() {
         List<String> list = new ArrayList<>();
@@ -73,7 +62,6 @@ public class GeneticEntity extends Neo4jEntity {
         }
         return list;
     }
-
 
     @Relationship(type = "CROSS_REFERENCE")
     private List<CrossReference> crossReferences = new ArrayList<>();
