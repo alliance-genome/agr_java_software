@@ -48,6 +48,16 @@ public class GeneticEntity extends Neo4jEntity {
         }
         return list;
     }
+    
+    public void setSynonymList(List<String> list) {
+        if (list != null) {
+            list.forEach(syn -> {
+                Synonym synonym = new Synonym();
+                synonym.setName(syn);
+                synonyms.add(synonym);
+            });
+        }
+    }
 
     @Relationship(type = "ALSO_KNOWN_AS")
     private Set<SecondaryId> secondaryIds = new HashSet<>();
