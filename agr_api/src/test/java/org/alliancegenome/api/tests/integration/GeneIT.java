@@ -27,7 +27,6 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.config.Configurator;
 import org.jboss.logging.Logger;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -84,6 +83,15 @@ public class GeneIT {
         assertNotNull(gene);
         assertThat(gene.getPrimaryKey(), equalTo("ZFIN:ZDB-LINCRNAG-160518-1"));
         assertThat(gene.getSpecies().getName(), equalTo("Danio rerio"));
+    }
+
+    @Test
+    public void checkForSynonyms() {
+        // ZFIN:ZDB-GENE-030131-3355 is a secondary ID for ZFIN:ZDB-LINCRNAG-160518-1
+        Gene gene = geneService.getById("ZFIN:ZDB-GENE-001103-1");
+        assertNotNull(gene);
+        assertNotNull(gene.getSynonyms());
+        assertThat(gene.getSynonyms().size(), greaterThan(3));
     }
 
     @Test

@@ -5,11 +5,14 @@ import lombok.extern.log4j.Log4j2;
 import org.alliancegenome.api.service.DiseaseRibbonService;
 import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.cache.manager.DiseaseAllianceCacheManager;
+import org.alliancegenome.cache.manager.ModelAllianceCacheManager;
 import org.alliancegenome.cache.repository.DiseaseCacheRepository;
 import org.alliancegenome.core.service.DiseaseAnnotationSorting;
+import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.core.service.JsonResultResponseDiseaseAnnotation;
 import org.alliancegenome.core.service.SortingField;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
+import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
 import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
 import org.alliancegenome.neo4j.entity.node.*;
 import org.alliancegenome.neo4j.repository.DiseaseRepository;
@@ -30,6 +33,9 @@ public class DiseaseCacher extends Cacher {
     protected void cache() {
 
         startProcess("diseaseRepository.getAllDiseaseEntityJoins");
+
+        // model type of diseases
+        populateModelsWithDiseases();
 
         Set<DiseaseEntityJoin> joinList = diseaseRepository.getAllDiseaseEntityJoins();
         if (joinList == null)
@@ -108,12 +114,146 @@ public class DiseaseCacher extends Cacher {
         });
 
         // take care of allele
+        if (populateAllelesCache(diseaseRibbonService, closureMapping, allIDs, manager)) return;
 
+
+        diseaseRepository.clearCache();
+
+    }
+
+    private void populateModelsWithDiseases() {
+        // model type of diseases
+        List<DiseaseEntityJoin> pureAgmDiseases = diseaseRepository.getAllDiseaseAnnotationsPureAGM();
+        log.info("Retrieved " + String.format("%,d", pureAgmDiseases.size()) + " DiseaseEntityJoin records for pure AGMs");
+        // set the gene object on the join
+
+
+        // phenotypeEntityJoin PK, List<Gene>
+        Map<String, List<Gene>> modelGenesMap = new HashMap<>();
+
+        pureAgmDiseases.stream()
+                .filter(join -> org.apache.commons.collections.CollectionUtils.isNotEmpty(join.getModel().getAlleles()))
+                .forEach(join -> {
+                    Set<Gene> geneList = join.getModel().getAlleles().stream()
+                            .map(Allele::getGene)
+                            .collect(toSet());
+                    final String primaryKey = join.getPrimaryKey();
+                    List<Gene> genes = modelGenesMap.get(primaryKey);
+                    if (genes == null) {
+                        genes = new ArrayList<>();
+                    }
+                    genes.addAll(geneList);
+                    genes = genes.stream().distinct().collect(toList());
+                    modelGenesMap.put(primaryKey, genes);
+                });
+        pureAgmDiseases.stream()
+                .filter(join -> org.apache.commons.collections.CollectionUtils.isNotEmpty(join.getModel().getAlleles()))
+                .forEach(join -> {
+                    Set<Gene> geneList = join.getModel().getSequenceTargetingReagents().stream()
+                            .map(SequenceTargetingReagent::getGene)
+                            .collect(toSet());
+                    final String primaryKey = join.getPrimaryKey();
+                    List<Gene> genes = modelGenesMap.get(primaryKey);
+                    if (genes == null) {
+                        genes = new ArrayList<>();
+                    }
+                    genes.addAll(geneList);
+                    genes = genes.stream().distinct().collect(toList());
+                    modelGenesMap.put(primaryKey, genes);
+                });
+
+        List<DiseaseAnnotation> allDiseaseAnnotationsPure = pureAgmDiseases.stream()
+                .map(join -> {
+                    DiseaseAnnotation document = new DiseaseAnnotation();
+                    final AffectedGenomicModel model = join.getModel();
+                    document.setModel(model);
+                    document.setPrimaryKey(join.getPrimaryKey());
+                    document.setDisease(join.getDisease());
+                    document.setPublications(join.getPublications());
+
+                    PrimaryAnnotatedEntity entity = new PrimaryAnnotatedEntity();
+                    entity.setId(model.getPrimaryKey());
+                    entity.setEntityJoinPk(join.getPrimaryKey());
+                    entity.setName(model.getName());
+                    entity.setDisplayName(model.getNameText());
+                    entity.setUrl(model.getModCrossRefCompleteUrl());
+                    entity.setType(GeneticEntity.CrossReferenceType.getCrossReferenceType(model.getSubtype()));
+                    entity.addPublicationEvidenceCode(join.getPublicationJoins());
+                    entity.addDisease(join.getDisease());
+                    entity.setDataProvider(model.getDataProvider());
+                    document.addPrimaryAnnotatedEntity(entity);
+                    return document;
+                })
+                .collect(Collectors.toList());
+
+        Map<String, DiseaseAnnotation> paMap = allDiseaseAnnotationsPure.stream()
+                .collect(toMap(DiseaseAnnotation::getPrimaryKey, entity -> entity));
+        // merge annotations with the same model
+        // geneID, Map<modelID, List<PhenotypeAnnotation>>>
+/*
+        Map<String, Map<String, List<PhenotypeAnnotation>>> annotationPureMergeMap = allDiseaseAnnotationsPure.stream()
+                .collect(groupingBy(phenotypeAnnotation -> phenotypeAnnotation.getGene().getPrimaryKey(), groupingBy(annotation -> annotation.getModel().getPrimaryKey())));
+*/
+        Map<String, Map<String, List<DiseaseAnnotation>>> annotationPureMergeMap = new HashMap<>();
+
+        modelGenesMap.forEach((diseaseEntityJoinID, genes) -> {
+            DiseaseAnnotation diseaseAnnot = paMap.get(diseaseEntityJoinID);
+
+            genes.forEach(gene -> {
+                Map<String, List<DiseaseAnnotation>> annotations = annotationPureMergeMap.get(gene.getPrimaryKey());
+                if (annotations == null) {
+                    annotations = new HashMap<>();
+                    annotationPureMergeMap.put(gene.getPrimaryKey(), annotations);
+                }
+
+                List<DiseaseAnnotation> dease = annotations.get(diseaseAnnot.getModel().getPrimaryKey());
+                if (dease == null) {
+                    dease = new ArrayList<>();
+                    annotations.put(diseaseAnnot.getModel().getPrimaryKey(), dease);
+                }
+                dease.add(diseaseAnnot);
+            });
+        });
+
+
+        Map<String, List<PrimaryAnnotatedEntity>> diseaseAnnotationPureMap = new HashMap<>();
+        annotationPureMergeMap.forEach((geneID, modelIdMap) -> modelIdMap.forEach((modelID, diseaseAnnotations) -> {
+            List<PrimaryAnnotatedEntity> mergedAnnotations = diseaseAnnotationPureMap.get(geneID);
+            if (mergedAnnotations == null)
+                mergedAnnotations = new ArrayList<>();
+            PrimaryAnnotatedEntity entity = diseaseAnnotations.get(0).getPrimaryAnnotatedEntities().get(0);
+            diseaseAnnotations.forEach(diseaseAnnotation -> {
+                entity.addDisease(diseaseAnnotation.getDisease());
+                entity.addPublicationEvidenceCode(diseaseAnnotation.getPrimaryAnnotatedEntities().get(0).getPublicationEvidenceCodes());
+            });
+            mergedAnnotations.add(entity);
+            diseaseAnnotationPureMap.put(geneID, mergedAnnotations);
+        }));
+
+        ModelAllianceCacheManager managerModel = new ModelAllianceCacheManager();
+
+        diseaseAnnotationPureMap.forEach((geneID, value) -> {
+            JsonResultResponse<PrimaryAnnotatedEntity> result = new JsonResultResponse<>();
+            result.setResults(value);
+            try {
+                if (geneID.equals("MGI:104798")) {
+                    log.info("found gene: " + geneID + " with annotations: " + result.getResults().size());
+                    //result.getResults().forEach(entity -> log.info(entity.getId()));
+                }
+                managerModel.putCache(geneID, result, View.PrimaryAnnotation.class, CacheAlliance.GENE_PURE_AGM_DISEASE);
+                progressProcess();
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
+            }
+        });
+    }
+
+    private boolean populateAllelesCache(DiseaseRibbonService diseaseRibbonService, Map<String, Set<String>> closureMapping, Set<String> allIDs, DiseaseAllianceCacheManager manager) {
         Set<DiseaseEntityJoin> alleleEntityJoins = diseaseRepository.getAllDiseaseAlleleEntityJoins();
 
         List<DiseaseAnnotation> alleleList = getDiseaseAnnotationsFromDEJs(alleleEntityJoins, diseaseRibbonService);
         if (alleleList == null)
-            return;
+            return true;
 
         log.info("Number of DiseaseAnnotation objects with Alleles: " + String.format("%,d", alleleList.size()));
         Map<String, List<DiseaseAnnotation>> diseaseAlleleAnnotationTermMap = alleleList.stream()
@@ -137,10 +277,7 @@ public class DiseaseCacher extends Cacher {
                 throw new RuntimeException(e);
             }
         });
-
-
-        diseaseRepository.clearCache();
-
+        return false;
     }
 
     private List<DiseaseAnnotation> getDiseaseAnnotationsFromDEJs(Set<DiseaseEntityJoin> joinList, DiseaseRibbonService diseaseRibbonService) {

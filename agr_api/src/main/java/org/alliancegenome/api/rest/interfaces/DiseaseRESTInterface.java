@@ -315,7 +315,7 @@ public interface DiseaseRESTInterface {
     @GET
     @Path("/download")
     @JsonView(value = {View.DiseaseAnnotation.class})
-    @ApiOperation(value = "Download all disease annotations of a given set of genes")
+    @ApiOperation(value = "Download all disease annotations of a given set of genes", hidden=true)
     Response getDiseaseAnnotationsRibbonDetailsDownload(
             @ApiParam(name = "geneID", value = "Gene by ID", required = true)
             @QueryParam("geneID") List<String> geneIDs,

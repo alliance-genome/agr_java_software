@@ -46,6 +46,21 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
         sortByMapping.put(FieldFilter.ASSOCIATION_TYPE, "diseaseEntityJoin.joinType");
     }
 
+    public List<DiseaseEntityJoin> getAllDiseaseAnnotationsPureAGM() {
+
+        String cypher = "MATCH p0=(:DOTerm)--(dej:DiseaseEntityJoin)-[:EVIDENCE]->(:PublicationJoin)<-[:ASSOCIATION]-(publication:Publication), " +
+                " p2=(dej:DiseaseEntityJoin)--(agm:AffectedGenomicModel)--(:Allele)--(:Gene) " +
+                //"where agm.primaryKey in ['MGI:6272038','MGI:3622062'] " +
+                //"where agm.primaryKey in ['ZFIN:ZDB-FISH-180831-2'] " +
+                "OPTIONAL MATCH     p5=(dej:DiseaseEntityJoin)--(:AffectedGenomicModel)-[:CROSS_REFERENCE]->(crossRef:CrossReference) " +
+                "OPTIONAL MATCH modelAllele=(agm:AffectedGenomicModel)--(n)--(:Gene) where n:Allele OR n:SequenceTargetingReagent " +
+                "return p0,p2, p5, modelAllele ";
+
+        Iterable<DiseaseEntityJoin> joins = query(DiseaseEntityJoin.class, cypher);
+        return StreamSupport.stream(joins.spliterator(), false).
+                collect(Collectors.toList());
+    }
+
     @Setter
     @Getter
     private class Closure {

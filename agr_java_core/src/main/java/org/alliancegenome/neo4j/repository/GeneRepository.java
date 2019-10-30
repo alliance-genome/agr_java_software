@@ -599,12 +599,17 @@ public class GeneRepository extends Neo4jRepository<Gene> {
     }
 
     public List<GOTerm> getFullGoTermList() {
-        String cypher = "match p=(uber:GOTerm)-[:CELLULAR_COMPONENT_RIBBON_TERM]-(:ExpressionBioEntity) return distinct uber";
+        final Map<String, Integer> goOrderedList = getGoOrderedList();
+        StringJoiner joiner = new StringJoiner(",");
+        goOrderedList.forEach((id, integer) -> joiner.add("'" + id + "'"));
+        String cypher = "match p=(uber:GOTerm) where uber.primaryKey in [" + joiner.toString() + "] return distinct uber";
         Iterable<GOTerm> terms = query(GOTerm.class, cypher);
         return StreamSupport.stream(terms.spliterator(), false)
                 // exclude the GO-CC root term
-                .filter(goTerm -> !goTerm.getPrimaryKey().equals("GO:0005576"))
-                .sorted(Comparator.comparing(o -> getGoOrderedList().get(o.getPrimaryKey())))
+                .filter(goTerm -> !goTerm.getPrimaryKey().equals("GO:0005575"))
+                .sorted(Comparator.comparing(o -> {
+                    return goOrderedList.get(o.getPrimaryKey());
+                }))
                 .collect(Collectors.toList());
     }
 

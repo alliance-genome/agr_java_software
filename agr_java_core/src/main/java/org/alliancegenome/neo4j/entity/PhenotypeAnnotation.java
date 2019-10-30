@@ -30,6 +30,8 @@ public class PhenotypeAnnotation implements Comparable<PhenotypeAnnotation>, Ser
     @JsonView({View.PhenotypeAPI.class})
     private Allele allele;
     @JsonView({View.PhenotypeAPI.class})
+    private AffectedGenomicModel model;
+    @JsonView({View.PhenotypeAPI.class})
     private List<AffectedGenomicModel> models;
     @JsonView({View.PhenotypeAPI.class})
     private List<Publication> publications;
@@ -59,6 +61,13 @@ public class PhenotypeAnnotation implements Comparable<PhenotypeAnnotation>, Ser
             primaryAnnotatedEntities = new ArrayList<>();
         primaryAnnotatedEntities.addAll(entity);
         primaryAnnotatedEntities = primaryAnnotatedEntities.stream().distinct().collect(Collectors.toList());
+    }
+
+    public void addPublications(List<Publication> pubs) {
+        if (publications == null)
+            publications = new ArrayList<>();
+        publications.addAll(pubs);
+        publications = publications.stream().distinct().collect(Collectors.toList());
     }
 
     public void setPublications(List<Publication> pubs) {

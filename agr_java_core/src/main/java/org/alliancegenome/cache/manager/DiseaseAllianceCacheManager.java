@@ -6,6 +6,7 @@ import org.alliancegenome.core.service.JsonResultResponseDiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.view.View;
 
+import java.util.Collection;
 import java.util.List;
 
 public class DiseaseAllianceCacheManager extends CacheManager<DiseaseAnnotation, JsonResultResponse<DiseaseAnnotation>> {
