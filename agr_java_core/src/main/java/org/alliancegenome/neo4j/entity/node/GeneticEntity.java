@@ -76,10 +76,10 @@ public class GeneticEntity extends Neo4jEntity {
     @JsonProperty(value = "secondaryIds")
     public void setSecondaryIdsList(List<String> list) {
         if (list != null) {
-            list.forEach(syn -> {
-                Synonym synonym = new Synonym();
-                synonym.setName(syn);
-                synonyms.add(synonym);
+            list.forEach(idName -> {
+                SecondaryId secondaryId = new SecondaryId();
+                secondaryId.setName(idName);
+                secondaryIds.add(secondaryId);
             });
         }
     }
