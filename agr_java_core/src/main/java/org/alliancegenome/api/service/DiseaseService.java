@@ -212,39 +212,43 @@ public class DiseaseService {
             primaryAnnotatedEntitiesPhenotype = mergedEntities;
         }
 
+        List<PrimaryAnnotatedEntity> pureModelList = phenotypeCacheRepository.getPhenotypeAnnotationPureModeList(geneID);
+
+        List<PrimaryAnnotatedEntity> pureDiseaseModelList = diseaseCacheRepository.getDiseaseAnnotationPureModeList(geneID);
+
         List<PrimaryAnnotatedEntity> fullModelList = diseaseCacheRepository.getPrimaryAnnotatedEntitList(geneID);
 
 
-        if (diseaseEntities == null && phenotypeEntities == null && CollectionUtils.isEmpty(fullModelList)) {
+        if (CollectionUtils.isEmpty(pureModelList) && CollectionUtils.isEmpty(pureDiseaseModelList) && CollectionUtils.isEmpty(fullModelList)) {
             return result;
         }
 
-
         List<String> mergedEntities = new ArrayList<>();
         // add AGMs to the ones created in the disease cycle
-        if (CollectionUtils.isNotEmpty(primaryAnnotatedEntities) && phenotypeEntities != null) {
-            for (PrimaryAnnotatedEntity entity : primaryAnnotatedEntities) {
-                primaryAnnotatedEntitiesPhenotype.stream()
+        if (CollectionUtils.isNotEmpty(pureDiseaseModelList) && CollectionUtils.isNotEmpty(pureModelList)) {
+            for (PrimaryAnnotatedEntity entity : pureDiseaseModelList) {
+                pureModelList.stream()
                         .filter(entity1 -> entity1.getId().equals(entity.getId()))
                         .forEach(entity1 -> {
                             entity.addPhenotypes(entity1.getPhenotypes());
                             mergedEntities.add(entity.getId());
                         });
             }
-        }
-        // remove the merged ones
-        primaryAnnotatedEntitiesPhenotype = primaryAnnotatedEntitiesPhenotype.stream()
-                .filter(entity -> !mergedEntities.contains(entity.getId()))
-                .collect(toList());
-
-        primaryAnnotatedEntities.addAll(primaryAnnotatedEntitiesPhenotype);
-
-
-        if (CollectionUtils.isEmpty(primaryAnnotatedEntities)) {
-            return result;
+            // remove the merged ones
+            pureModelList = pureModelList.stream()
+                    .filter(entity -> !mergedEntities.contains(entity.getId()))
+                    .collect(toList());
+            pureDiseaseModelList.addAll(pureModelList);
         }
 
-        List<String> geneIDs = primaryAnnotatedEntities.stream()
+        if (CollectionUtils.isEmpty(pureDiseaseModelList) && CollectionUtils.isNotEmpty(pureModelList)) {
+            pureDiseaseModelList = pureModelList;
+        }
+        if (CollectionUtils.isEmpty(pureDiseaseModelList) && CollectionUtils.isEmpty(pureModelList)) {
+            pureDiseaseModelList = new ArrayList<>();
+        }
+
+        List<String> geneIDs = pureDiseaseModelList.stream()
                 .map(PrimaryAnnotatedEntity::getId)
                 .collect(toList());
 
@@ -254,12 +258,12 @@ public class DiseaseService {
             geneIDs.forEach(geneId -> {
                 fullModelList.removeIf(entity -> entity.getId().equals(geneId));
             });
-            primaryAnnotatedEntities.addAll(fullModelList);
+            pureDiseaseModelList.addAll(fullModelList);
         }
 
         //filtering
         FilterService<PrimaryAnnotatedEntity> filterService = new FilterService<>(new PrimaryAnnotatedEntityFiltering());
-        List<PrimaryAnnotatedEntity> filteredDiseaseAnnotationList = filterService.filterAnnotations(primaryAnnotatedEntities, pagination.getFieldFilterValueMap());
+        List<PrimaryAnnotatedEntity> filteredDiseaseAnnotationList = filterService.filterAnnotations(pureDiseaseModelList, pagination.getFieldFilterValueMap());
         result.setTotal(filteredDiseaseAnnotationList.size());
         result.setResults(filterService.getSortedAndPaginatedAnnotations(pagination, filteredDiseaseAnnotationList, new PrimaryAnnotatedEntitySorting()));
         result.calculateRequestDuration(startDate);

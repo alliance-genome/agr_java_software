@@ -34,7 +34,13 @@ public class ExpressionToTdfTranslator {
             joiner.add(expressionDetail.getTermName());
             joiner.add(expressionDetail.getStage().getName());
             joiner.add(expressionDetail.getAssay().getDisplaySynonym());
-            joiner.add(expressionDetail.getDataProvider());
+            String crossRefs = "";
+            if (expressionDetail.getCrossReferences() != null) {
+                StringJoiner crossRefJoiner = new StringJoiner(",");
+                expressionDetail.getCrossReferences().forEach(crossReference -> crossRefJoiner.add(crossReference.getDisplayName()));
+                crossRefs = crossRefJoiner.toString();
+            }
+            joiner.add(crossRefs);
             // add list of publications
             String publications = "";
             if (expressionDetail.getPublications() != null) {

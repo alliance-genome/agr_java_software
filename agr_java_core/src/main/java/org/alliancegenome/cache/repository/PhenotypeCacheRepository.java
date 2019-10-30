@@ -7,6 +7,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.alliancegenome.cache.manager.ModelAllianceCacheManager;
 import org.alliancegenome.cache.manager.PhenotypeCacheManager;
 import org.alliancegenome.core.service.FilterFunction;
 import org.alliancegenome.core.service.PaginationResult;
@@ -15,6 +16,7 @@ import org.alliancegenome.core.service.PhenotypeAnnotationSorting;
 import org.alliancegenome.core.service.SortingField;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
+import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
 import org.alliancegenome.neo4j.view.BaseFilter;
 import org.alliancegenome.neo4j.view.View;
 
@@ -88,5 +90,10 @@ public class PhenotypeCacheRepository {
     public List<PhenotypeAnnotation> getPhenotypeAnnotationList(String geneID) {
         PhenotypeCacheManager manager = new PhenotypeCacheManager();
         return manager.getPhenotypeAnnotations(geneID, View.PhenotypeAPI.class);
+    }
+
+    public List<PrimaryAnnotatedEntity> getPhenotypeAnnotationPureModeList(String geneID) {
+        ModelAllianceCacheManager manager = new ModelAllianceCacheManager();
+        return manager.getPhenotypeAnnotationsPureModel(geneID, View.PrimaryAnnotation.class);
     }
 }
