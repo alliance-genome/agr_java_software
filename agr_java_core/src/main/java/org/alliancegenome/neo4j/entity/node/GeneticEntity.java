@@ -14,7 +14,6 @@ import org.neo4j.ogm.annotation.typeconversion.Convert;
 
 import java.util.*;
 
-@NodeEntity
 @Getter
 @Setter
 public class GeneticEntity extends Neo4jEntity {
@@ -73,7 +72,17 @@ public class GeneticEntity extends Neo4jEntity {
         }
         return list;
     }
-
+    
+    @JsonProperty(value = "secondaryIds")
+    public void setSecondaryIdsList(List<String> list) {
+        if (list != null) {
+            list.forEach(idName -> {
+                SecondaryId secondaryId = new SecondaryId();
+                secondaryId.setName(idName);
+                secondaryIds.add(secondaryId);
+            });
+        }
+    }
 
     @Relationship(type = "CROSS_REFERENCE")
     private List<CrossReference> crossReferences = new ArrayList<>();
