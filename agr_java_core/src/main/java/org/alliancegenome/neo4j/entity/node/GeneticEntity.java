@@ -14,7 +14,6 @@ import org.neo4j.ogm.annotation.typeconversion.Convert;
 
 import java.util.*;
 
-@NodeEntity
 @Getter
 @Setter
 public class GeneticEntity extends Neo4jEntity {
@@ -48,7 +47,7 @@ public class GeneticEntity extends Neo4jEntity {
         }
         return list;
     }
-    
+
     @JsonProperty(value = "synonyms")
     public void setSynonymList(List<String> list) {
         if (list != null) {
