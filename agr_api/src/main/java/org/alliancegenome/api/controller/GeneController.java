@@ -27,6 +27,7 @@ import org.apache.commons.collections.CollectionUtils;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
+import javax.jws.WebService;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
@@ -39,6 +40,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @RequestScoped
+@WebService
 @Log4j2
 public class GeneController extends BaseController implements GeneRESTInterface {
 
