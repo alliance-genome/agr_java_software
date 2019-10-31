@@ -60,10 +60,9 @@ public class GeneRepository extends Neo4jRepository<Gene> {
                 + "OPTIONAL MATCH p2=(g:Gene)--(:SOTerm) "
                 + "OPTIONAL MATCH p3=(g:Gene)--(:Synonym) "
                 + "OPTIONAL MATCH p3=(g:Gene)--(:SecondaryId) "
-                + "OPTIONAL MATCH p4=(g:Gene)--(:Chromosome) "
                 + "OPTIONAL MATCH loc=(g:Gene)--(:GenomicLocation)--(:Chromosome) "
                 + "OPTIONAL MATCH p5=(g:Gene)--(:CrossReference) "
-                + "RETURN p1, p2, p3, p4, p5, loc";
+                + "RETURN p1, p2, p3, p5, loc";
 
         Iterable<Gene> genes = query(query, map);
         for (Gene g : genes) {
@@ -98,10 +97,9 @@ public class GeneRepository extends Neo4jRepository<Gene> {
                 + "OPTIONAL MATCH p2=(g:Gene)--(:SOTerm) "
                 + "OPTIONAL MATCH p3=(g:Gene)--(:Synonym) "
                 + "OPTIONAL MATCH p3=(g:Gene)--(:SecondaryId) "
-                + "OPTIONAL MATCH p4=(g:Gene)--(:Chromosome) "
                 + "OPTIONAL MATCH loc=(g:Gene)--(:GenomicLocation)--(:Chromosome) "
                 + "OPTIONAL MATCH p5=(g:Gene)--(:CrossReference) "
-                + "RETURN p1, p2, p3, p4, p5";
+                + "RETURN p1, p2, p3, p5, loc";
 
         Iterable<Gene> genes = query(query, map);
         for (Gene g : genes) {
