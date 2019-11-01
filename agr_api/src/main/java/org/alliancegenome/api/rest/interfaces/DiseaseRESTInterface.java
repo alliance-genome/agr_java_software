@@ -238,7 +238,7 @@ public interface DiseaseRESTInterface {
     @GET
     @Path("/{id}/associations/download")
     @Produces(MediaType.TEXT_PLAIN)
-    @ApiOperation(value = "Download all DiseaseAnnotation records for a given disease id and sorting / filtering parameters")
+    @ApiOperation(value = "Download all DiseaseAnnotation records for a given disease id and sorting / filtering parameters" , hidden = true)
     Response getDiseaseAnnotationsDownloadFile(
             @ApiParam(name = "id", value = "Disease by DOID: e.g. DOID:9952", required = true, type = "String")
             @PathParam("id") String id,
@@ -270,7 +270,7 @@ public interface DiseaseRESTInterface {
     @GET
     @Path("/{id}/associations/download/all")
     @Produces(MediaType.TEXT_PLAIN)
-    @ApiOperation(value = "Retrieve all DiseaseAnnotation records for a given disease id disregarding sorting / filtering parameters")
+    @ApiOperation(value = "Retrieve all DiseaseAnnotation records for a given disease id disregarding sorting / filtering parameters", hidden = true)
     String getDiseaseAnnotationsDownload(@PathParam("id") String id);
 
     @GET
