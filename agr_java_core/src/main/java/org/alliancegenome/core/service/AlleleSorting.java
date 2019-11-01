@@ -2,10 +2,9 @@ package org.alliancegenome.core.service;
 
 import org.alliancegenome.neo4j.entity.Sorting;
 import org.alliancegenome.neo4j.entity.node.Allele;
-import org.alliancegenome.neo4j.entity.node.SimpleTerm;
-import org.alliancegenome.neo4j.entity.node.Variant;
-import org.apache.commons.collections4.CollectionUtils;
 import org.alliancegenome.neo4j.entity.node.Phenotype;
+import org.alliancegenome.neo4j.entity.node.SimpleTerm;
+import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -59,8 +58,8 @@ public class AlleleSorting implements Sorting<Allele> {
             Comparator.comparing(allele -> {
                 if (CollectionUtils.isEmpty(allele.getVariants()))
                     return null;
-                String variantJoin = allele.getVariants().stream().sorted(Comparator.comparing(Variant::getName)).map(Variant::getName).collect(Collectors.joining(""));
-                return variantJoin.toLowerCase();
+                else
+                    return "";
             }, Comparator.nullsLast(naturalOrder()));
 
     static public Comparator<Allele> alleleSymbolOrder =

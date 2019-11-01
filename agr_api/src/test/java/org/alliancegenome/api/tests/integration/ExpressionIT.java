@@ -69,8 +69,13 @@ public class ExpressionIT {
     public void checkExpressionRibbonHeader() {
         RibbonSummary summary = expressionService.getExpressionRibbonSummary(Collections.singletonList("MGI:109583"));
         assertNotNull(summary);
+    }
 
-
+    @Test
+    // Test Pten from MGI for expression ribbon summary
+    public void checkExpressionRibbonNumbers() {
+        RibbonSummary summary = expressionService.getExpressionRibbonSummary(Collections.singletonList("MGI:98834"));
+        assertNotNull(summary);
     }
 
     @Test
