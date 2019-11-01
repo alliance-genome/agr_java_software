@@ -12,7 +12,6 @@ import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.core.service.JsonResultResponseDiseaseAnnotation;
 import org.alliancegenome.core.service.SortingField;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
-import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
 import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
 import org.alliancegenome.neo4j.entity.node.*;
 import org.alliancegenome.neo4j.repository.DiseaseRepository;
@@ -35,7 +34,7 @@ public class DiseaseCacher extends Cacher {
         startProcess("diseaseRepository.getAllDiseaseEntityJoins");
 
         // model type of diseases
-        populateModelsWithDiseases();
+        //populateModelsWithDiseases();
 
         Set<DiseaseEntityJoin> joinList = diseaseRepository.getAllDiseaseEntityJoins();
         if (joinList == null)
@@ -332,7 +331,10 @@ public class DiseaseCacher extends Cacher {
                                         entity = new PrimaryAnnotatedEntity();
                                         entity.setId(allele.getPrimaryKey());
                                         entity.setName(allele.getSymbol());
-                                        entity.setUrl(allele.getModCrossRefCompleteUrl());
+                                        List<CrossReference> refs = allele.getCrossReferences();
+                                        if (org.apache.commons.collections.CollectionUtils.isNotEmpty(refs))
+                                            entity.setUrl(refs.get(0).getCrossRefCompleteUrl());
+
                                         entity.setDisplayName(allele.getSymbolText());
                                         entity.setType(GeneticEntity.CrossReferenceType.ALLELE);
                                         entities.put(allele.getPrimaryKey(), entity);

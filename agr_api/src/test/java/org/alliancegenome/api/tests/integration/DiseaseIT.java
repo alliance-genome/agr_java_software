@@ -23,6 +23,7 @@ import org.alliancegenome.neo4j.entity.node.Synonym;
 import org.alliancegenome.neo4j.view.BaseFilter;
 import org.alliancegenome.neo4j.view.OrthologyModule;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -510,6 +511,24 @@ public class DiseaseIT {
         Map<String, CacheStatus> map = basicManager.getAllCacheEntries(CacheAlliance.CACHING_STATS);
         assertNotNull(map);
 
+    }
+
+    @Test
+    public void checkUrlForAllelesInPopup() {
+
+        // cua-1
+        String geneID = "FB:FBgn0030343";
+
+        Pagination pagination = new Pagination(1, 10, null, null);
+        JsonResultResponse<DiseaseAnnotation> response = diseaseService.getRibbonDiseaseAnnotations(Collections.singletonList(geneID), null, pagination);
+        assertResponse(response, 1, 1);
+
+        response.getResults().forEach(annotation -> {
+            annotation.getPrimaryAnnotatedEntities().forEach(entity -> {
+                assertNotNull("URL for AGM should not be null: " + entity.getId(), entity.getUrl());
+                assertTrue("URL for AGM should not be empty: " + entity.getId(), StringUtils.isNotEmpty(entity.getUrl()));
+            });
+        });
     }
 
 
