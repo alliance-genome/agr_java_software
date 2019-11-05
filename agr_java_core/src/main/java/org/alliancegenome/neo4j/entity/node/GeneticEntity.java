@@ -8,7 +8,6 @@ import lombok.Setter;
 import org.alliancegenome.es.util.DateConverter;
 import org.alliancegenome.neo4j.entity.Neo4jEntity;
 import org.alliancegenome.neo4j.view.View;
-import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.typeconversion.Convert;
 
@@ -72,7 +71,7 @@ public class GeneticEntity extends Neo4jEntity {
         }
         return list;
     }
-    
+
     @JsonProperty(value = "secondaryIds")
     public void setSecondaryIdsList(List<String> list) {
         if (list != null) {
@@ -157,6 +156,8 @@ public class GeneticEntity extends Neo4jEntity {
     @JsonView({View.API.class})
     @JsonProperty(value = "type")
     public String getType() {
+        if (crossReferenceType == null)
+            return "N/A";
         return crossReferenceType.displayName;
     }
 
