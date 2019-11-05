@@ -156,6 +156,8 @@ public class GeneticEntity extends Neo4jEntity {
     @JsonView({View.API.class})
     @JsonProperty(value = "type")
     public String getType() {
+        if (crossReferenceType == null)
+            return "N/A";
         return crossReferenceType.displayName;
     }
 
