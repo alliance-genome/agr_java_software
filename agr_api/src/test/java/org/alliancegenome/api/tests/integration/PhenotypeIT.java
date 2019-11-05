@@ -180,6 +180,22 @@ public class PhenotypeIT {
     }
 
     @Test
+    public void checkPureModelsWithSTR() {
+
+        // Abcc6
+        String geneID = "ZFIN:ZDB-GENE-060526-68";
+
+        Pagination pagination = new Pagination(1, 10, null, null);
+        BaseFilter filter = new BaseFilter();
+        filter.addFieldFilter(FieldFilter.MODEL_NAME, "WT");
+        pagination.setFieldFilterValueMap(filter);
+        DiseaseService diseaseService = new DiseaseService();
+        JsonResultResponse<PrimaryAnnotatedEntity> response = diseaseService.getDiseaseAnnotationsWithGeneAndAGM(geneID, pagination);
+        assertResponse(response, 1, 1);
+        assertNotNull(response.getResults().get(0).getSequenceTargetingReagents().get(0).getGene().getType());
+    }
+
+    @Test
     public void checkUrlForAllelesInPopup() {
 
         // cua-1
