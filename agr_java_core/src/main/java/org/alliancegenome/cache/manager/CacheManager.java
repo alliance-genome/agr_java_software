@@ -8,6 +8,7 @@ import org.alliancegenome.core.service.JsonResultResponse;
 import org.infinispan.client.hotrod.RemoteCache;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 @Log4j2
@@ -46,7 +47,7 @@ public class CacheManager<T, U extends JsonResultResponse<T>> extends BasicCache
 
         String json = getCacheSpace(cacheSpace).get(entityID);
         if (json == null)
-            return null;
+            return new ArrayList<>();
         JsonResultResponse<T> result;
         try {
             result = mapper.readerWithView(classView).forType(clazz).readValue(json);

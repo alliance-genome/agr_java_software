@@ -1,20 +1,14 @@
 package org.alliancegenome.cache.repository;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import lombok.extern.log4j.Log4j2;
 import org.alliancegenome.cache.manager.OrthologyAllianceCacheManager;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.alliancegenome.neo4j.view.OrthologView;
-import org.alliancegenome.neo4j.view.OrthologyFilter;
 import org.alliancegenome.neo4j.view.View;
 
-import lombok.extern.log4j.Log4j2;
+import java.time.LocalDateTime;
+import java.util.*;
 
 @Log4j2
 public class GeneCacheRepository {
@@ -75,7 +69,11 @@ public class GeneCacheRepository {
         OrthologyAllianceCacheManager manager = new OrthologyAllianceCacheManager();
 
         List<OrthologView> fullOrthologyList = new ArrayList<>();
-        geneIDs.forEach(id -> fullOrthologyList.addAll(manager.getOrthology(id, View.Orthology.class)));
+        geneIDs.forEach(id -> {
+            final List<OrthologView> orthology = manager.getOrthology(id, View.Orthology.class);
+            if (orthology != null)
+                fullOrthologyList.addAll(orthology);
+        });
 
         return fullOrthologyList;
 
