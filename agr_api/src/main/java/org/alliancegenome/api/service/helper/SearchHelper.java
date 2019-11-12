@@ -32,7 +32,7 @@ public class SearchHelper {
     private Logger log = Logger.getLogger(getClass());
 
     private static String[] SUFFIX_LIST = { ".htmlSmoosh", ".keywordAutocomplete", ".keyword", ".smoosh",
-                                            ".synonyms", ".symbols", ".text" };
+                                            ".synonyms", ".symbols", ".text",".standardText",".letterText" };
 
     
     private HashMap<String, List<String>> category_filters = new HashMap<String, List<String>>() {
@@ -155,6 +155,7 @@ public class SearchHelper {
             add("cellularComponentExpression"); add("cellularComponentExpression.keyword");
             add("cellularComponentExpressionWithParents"); add("cellularComponentExpressionWithParents.keyword");
             add("cellularComponentExpressionAgrSlim"); add("cellularComponentExpressionAgrSlim.keyword");
+            add("soTermName"); add("soTermName.letterText");
             add("variantTypes");
         }
     };
