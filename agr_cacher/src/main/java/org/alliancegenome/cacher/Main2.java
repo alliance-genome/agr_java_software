@@ -7,7 +7,6 @@ public class Main2 {
 
     public static void main(String[] args) throws IOException {
 
-
 /*
         CacheManagerBuilder<PersistentCacheManager> with = CacheManagerBuilder.newCacheManagerBuilder()
                 .with(CacheManagerBuilder.persistence(new File(".", "ehcache-data")));

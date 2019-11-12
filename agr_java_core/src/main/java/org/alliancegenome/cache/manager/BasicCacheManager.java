@@ -33,7 +33,7 @@ public class BasicCacheManager<O> {
         setupCaches();
     }
 
-    public synchronized static void setupCaches() {
+    private synchronized static void setupCaches() {
 
 
         //  private synchronized static void setupCache() {
