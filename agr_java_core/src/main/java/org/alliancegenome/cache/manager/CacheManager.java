@@ -1,15 +1,17 @@
 package org.alliancegenome.cache.manager;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import lombok.extern.log4j.Log4j2;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.alliancegenome.api.entity.CacheStatus;
 import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.core.service.JsonResultResponse;
 import org.infinispan.client.hotrod.RemoteCache;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import com.fasterxml.jackson.core.JsonProcessingException;
+
+import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 public class CacheManager<T, U extends JsonResultResponse<T>> extends BasicCacheManager<T> {
@@ -30,6 +32,12 @@ public class CacheManager<T, U extends JsonResultResponse<T>> extends BasicCache
         return getResultListGeneric(entityID, classView, clazz, cacheSpace);
     }
 
+    public List<String> getAllKeys(CacheAlliance cacheSpace) {
+        RemoteCache<String, String> cache = getCacheSpace(cacheSpace);
+        //System.out.println(cache);
+        return new ArrayList<String>(cache.keySet());
+    }
+    
     public static CacheStatus getCacheStatus(CacheAlliance cacheSpace) {
 
         CacheStatus status = new CacheStatus(cacheSpace.getCacheName());

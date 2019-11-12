@@ -1,17 +1,17 @@
 package org.alliancegenome.api.tests.integration;
 
-import org.alliancegenome.api.application.SiteMapCacherApplication;
+import org.alliancegenome.cache.manager.SiteMapCacheManager;
 import org.junit.Test;
 
 public class SiteMapGenIT {
 
     @Test
     public void testSiteMap() {
-        SiteMapCacherApplication smca = new SiteMapCacherApplication();
+        SiteMapCacheManager smca = new SiteMapCacheManager();
 
         //smca.cacheSiteMap("disease");
-        //smca.cacheSiteMap("gene");
-        smca.cacheSiteMap("allele");
+        smca.getGenesKeys();
+        //smca.cacheSiteMap("allele");
 
     }
 

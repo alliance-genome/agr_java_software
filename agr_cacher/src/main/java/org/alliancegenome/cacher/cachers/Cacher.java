@@ -51,7 +51,7 @@ public abstract class Cacher extends Thread {
         display.finishProcess();
     }
 
-    protected void setCacheStatus(int size, String name) {
+    public void setCacheStatus(int size, String name) {
         BasicCacheManager<CacheStatus> basicManager = new BasicCacheManager<>();
         CacheStatus status = new CacheStatus(name);
         status.setNumberOfEntities(size);
