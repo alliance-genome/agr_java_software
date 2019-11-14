@@ -8,13 +8,11 @@ import lombok.Setter;
 import org.alliancegenome.es.util.DateConverter;
 import org.alliancegenome.neo4j.entity.Neo4jEntity;
 import org.alliancegenome.neo4j.view.View;
-import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.typeconversion.Convert;
 
 import java.util.*;
 
-@NodeEntity
 @Getter
 @Setter
 public class GeneticEntity extends Neo4jEntity {
@@ -39,7 +37,7 @@ public class GeneticEntity extends Neo4jEntity {
     private Set<Synonym> synonyms = new HashSet<>();
 
     // Converts the list of synonym objects to a list of strings
-    @JsonView(value = {View.GeneAllelesAPI.class, View.AlleleAPI.class})
+    @JsonView(value = {View.API.class})
     @JsonProperty(value = "synonyms")
     public List<String> getSynonymList() {
         List<String> list = new ArrayList<>();
@@ -64,7 +62,7 @@ public class GeneticEntity extends Neo4jEntity {
     private Set<SecondaryId> secondaryIds = new HashSet<>();
 
     // Converts the list of secondary ids objects to a list of strings
-    @JsonView(value = {View.GeneAllelesAPI.class, View.AlleleAPI.class})
+    @JsonView(value = {View.API.class})
     @JsonProperty(value = "secondaryIds")
     public List<String> getSecondaryIdsList() {
         List<String> list = new ArrayList<>();
@@ -74,6 +72,16 @@ public class GeneticEntity extends Neo4jEntity {
         return list;
     }
 
+    @JsonProperty(value = "secondaryIds")
+    public void setSecondaryIdsList(List<String> list) {
+        if (list != null) {
+            list.forEach(idName -> {
+                SecondaryId secondaryId = new SecondaryId();
+                secondaryId.setName(idName);
+                secondaryIds.add(secondaryId);
+            });
+        }
+    }
 
     @Relationship(type = "CROSS_REFERENCE")
     private List<CrossReference> crossReferences = new ArrayList<>();
@@ -148,6 +156,8 @@ public class GeneticEntity extends Neo4jEntity {
     @JsonView({View.API.class})
     @JsonProperty(value = "type")
     public String getType() {
+        if (crossReferenceType == null)
+            return "N/A";
         return crossReferenceType.displayName;
     }
 
@@ -183,7 +193,7 @@ public class GeneticEntity extends Neo4jEntity {
 
         public static CrossReferenceType getCrossReferenceType(String name) {
             return Arrays.stream(values())
-                    .filter(type -> type.getDisplayName().equals(name))
+                    .filter(type -> type.getDbName().equals(name))
                     .findFirst().orElse(null);
         }
     }

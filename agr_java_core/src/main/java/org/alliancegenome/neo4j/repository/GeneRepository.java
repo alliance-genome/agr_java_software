@@ -59,9 +59,10 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         String query = " MATCH p1=(q:Species)-[:FROM_SPECIES]-(g:Gene) WHERE g.primaryKey = {primaryKey} "
                 + "OPTIONAL MATCH p2=(g:Gene)--(:SOTerm) "
                 + "OPTIONAL MATCH p3=(g:Gene)--(:Synonym) "
-                + "OPTIONAL MATCH p4=(g:Gene)--(:Chromosome) "
-                + "OPTIONAL MATCH loc=(g:Gene)--(:GenomicLocation)--(:Chromosome) "
-                + "RETURN p1, p2, p3, p4, loc";
+                + "OPTIONAL MATCH p4=(g:Gene)--(:SecondaryId) "
+                + "OPTIONAL MATCH p5=(g:Gene)--(:GenomicLocation)--(:Chromosome) "
+                + "OPTIONAL MATCH p6=(g:Gene)--(:CrossReference) "
+                + "RETURN p1, p2, p3, p4, p5, p6";
 
         Iterable<Gene> genes = query(query, map);
         for (Gene g : genes) {
@@ -77,8 +78,7 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         HashMap<String, String> map = new HashMap<>();
 
         map.put("primaryKey", primaryKey);
-        String query = " MATCH p1=(q:Species)-[:FROM_SPECIES]-(g:Gene) WHERE g.primaryKey = {primaryKey} "
-                + "RETURN p1";
+        String query = " MATCH p1=(q:Species)-[:FROM_SPECIES]-(g:Gene) WHERE g.primaryKey = {primaryKey} RETURN p1";
 
         Iterable<Gene> genes = query(query, map);
         for (Gene g : genes) {
@@ -96,9 +96,10 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         String query = " MATCH p1=(q:Species)-[:FROM_SPECIES]-(g:Gene)-[:ALSO_KNOWN_AS]-(s:SecondaryId) WHERE s.primaryKey = {primaryKey} "
                 + "OPTIONAL MATCH p2=(g:Gene)--(:SOTerm) "
                 + "OPTIONAL MATCH p3=(g:Gene)--(:Synonym) "
-                + "OPTIONAL MATCH p4=(g:Gene)--(:Chromosome) "
-                + "OPTIONAL MATCH p5=(g:Gene)--(:CrossReference) "
-                + "RETURN p1, p2, p3, p4, p5";
+                + "OPTIONAL MATCH p4=(g:Gene)--(:SecondaryId) "
+                + "OPTIONAL MATCH p5=(g:Gene)--(:GenomicLocation)--(:Chromosome) "
+                + "OPTIONAL MATCH p6=(g:Gene)--(:CrossReference) "
+                + "RETURN p1, p2, p3, p4, p5, p6";
 
         Iterable<Gene> genes = query(query, map);
         for (Gene g : genes) {
@@ -318,27 +319,6 @@ public class GeneRepository extends Neo4jRepository<Gene> {
             }
         }
         return geneList;
-    }
-
-    public HashMap<String, Gene> getGene(String primaryKey) {
-        HashMap<String, String> map = new HashMap<>();
-
-        map.put("primaryKey", primaryKey);
-        String query = "";
-
-        query += " MATCH p1=(q:Species)-[:FROM_SPECIES]-(g:Gene)--(s) WHERE g.primaryKey = {primaryKey}";
-        query += " OPTIONAL MATCH p5=(g)--(s:DiseaseEntityJoin)--(feature:Feature)";
-        query += " OPTIONAL MATCH p2=(do:DOTerm)--(s:DiseaseEntityJoin)-[:EVIDENCE]-(ea)";
-        query += " OPTIONAL MATCH p4=(g)--(s:OrthologyGeneJoin)--(a:OrthoAlgorithm), p3=(g)-[o:ORTHOLOGOUS]-(g2:Gene)-[:FROM_SPECIES]-(q2:Species), (s)--(g2)";
-        query += " RETURN p1, p2, p3, p4, p5";
-
-        HashMap<String, Gene> retMap = new HashMap<>();
-
-        Iterable<Gene> genes = query(query, map);
-        for (Gene g : genes) {
-            retMap.put(g.getPrimaryKey(), g);
-        }
-        return retMap;
     }
 
     public List<String> getAllGeneKeys() {
@@ -597,12 +577,17 @@ public class GeneRepository extends Neo4jRepository<Gene> {
     }
 
     public List<GOTerm> getFullGoTermList() {
-        String cypher = "match p=(uber:GOTerm)-[:CELLULAR_COMPONENT_RIBBON_TERM]-(:ExpressionBioEntity) return distinct uber";
+        final Map<String, Integer> goOrderedList = getGoOrderedList();
+        StringJoiner joiner = new StringJoiner(",");
+        goOrderedList.forEach((id, integer) -> joiner.add("'" + id + "'"));
+        String cypher = "match p=(uber:GOTerm) where uber.primaryKey in [" + joiner.toString() + "] return distinct uber";
         Iterable<GOTerm> terms = query(GOTerm.class, cypher);
         return StreamSupport.stream(terms.spliterator(), false)
                 // exclude the GO-CC root term
-                .filter(goTerm -> !goTerm.getPrimaryKey().equals("GO:0005576"))
-                .sorted(Comparator.comparing(o -> getGoOrderedList().get(o.getPrimaryKey())))
+                .filter(goTerm -> !goTerm.getPrimaryKey().equals("GO:0005575"))
+                .sorted(Comparator.comparing(o -> {
+                    return goOrderedList.get(o.getPrimaryKey());
+                }))
                 .collect(Collectors.toList());
     }
 
@@ -645,6 +630,24 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         Iterable<OrthoAlgorithm> algorithms = query(OrthoAlgorithm.class, query);
         return StreamSupport.stream(algorithms.spliterator(), false)
                 .map(OrthoAlgorithm::getName)
+                .collect(Collectors.toList());
+    }
+
+    public List<AffectedGenomicModel> getAllAffectedModelsAllele() {
+        String query = " MATCH p=(:AffectedGenomicModel)-[:MODEL_COMPONENT]-(:Allele)--(gene:Gene)";
+        //query += " where gene.primaryKey = 'RGD:620268' ";
+        query += " return p ";
+        Iterable<AffectedGenomicModel> algorithms = query(AffectedGenomicModel.class, query);
+        return StreamSupport.stream(algorithms.spliterator(), false)
+                .collect(Collectors.toList());
+    }
+
+    public List<AffectedGenomicModel> getAllAffectedModelsSTR() {
+        String query = " MATCH p=(:AffectedGenomicModel)-[:SEQUENCE_TARGETING_REAGENT]-(:SequenceTargetingReagent)--(gene:Gene)";
+        //query += " where gene.primaryKey = 'MGI:88059' ";
+        query += " return p ";
+        Iterable<AffectedGenomicModel> algorithms = query(AffectedGenomicModel.class, query);
+        return StreamSupport.stream(algorithms.spliterator(), false)
                 .collect(Collectors.toList());
     }
 

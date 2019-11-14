@@ -27,6 +27,7 @@ public class CacheAllianceTest {
     @Ignore
     public void diseaseCacher() {
         DiseaseCacher cacher = new DiseaseCacher();
+        cacher.setUseCache(true);
         cacher.run();
     }
 
@@ -55,6 +56,13 @@ public class CacheAllianceTest {
     @Test
     public void cacheAlleles() {
         AlleleCacher cacher = new AlleleCacher();
+        cacher.run();
+    }
+
+    @Ignore
+    @Test
+    public void cacheModels() {
+        ModelCacher cacher = new ModelCacher();
         cacher.run();
     }
 

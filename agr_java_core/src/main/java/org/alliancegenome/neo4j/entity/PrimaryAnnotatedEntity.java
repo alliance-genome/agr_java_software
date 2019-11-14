@@ -6,43 +6,50 @@ import lombok.Setter;
 import org.alliancegenome.es.util.DateConverter;
 import org.alliancegenome.neo4j.entity.node.*;
 import org.alliancegenome.neo4j.view.View;
+import org.apache.commons.collections.CollectionUtils;
 import org.neo4j.ogm.annotation.typeconversion.Convert;
 
 import java.io.Serializable;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Getter
 @Setter
 public class PrimaryAnnotatedEntity implements Comparable<PrimaryAnnotatedEntity>, Serializable {
 
-    @JsonView({View.Default.class, View.API.class})
+    @JsonView({View.PrimaryAnnotation.class, View.API.class})
     protected String id;
-    @JsonView({View.Default.class, View.API.class})
+    protected String entityJoinPk;
+    @JsonView({View.PrimaryAnnotation.class, View.API.class})
     protected String name;
-    @JsonView({View.Default.class, View.API.class})
+    @JsonView({View.PrimaryAnnotation.class, View.API.class})
     protected String displayName;
-    @JsonView({View.Default.class, View.API.class})
+    @JsonView({View.PrimaryAnnotation.class, View.API.class})
     protected String url;
-    @JsonView({View.Default.class, View.API.class})
+    @JsonView({View.PrimaryAnnotation.class, View.API.class})
     protected GeneticEntity.CrossReferenceType type;
-    @JsonView({View.Default.class, View.API.class})
+    @JsonView({View.PrimaryAnnotation.class, View.API.class})
     protected CrossReference crossReference;
-    @JsonView({View.API.class})
+    @JsonView({View.PrimaryAnnotation.class, View.API.class})
     private Source source;
 
-    @JsonView({View.Default.class, View.API.class})
+    @JsonView({View.PrimaryAnnotation.class, View.API.class})
     protected List<DOTerm> diseases;
-    @JsonView({View.Default.class, View.API.class})
+    @JsonView({View.PrimaryAnnotation.class, View.API.class})
     private List<String> phenotypes;
-    @JsonView({View.API.class})
+    @JsonView({View.PrimaryAnnotation.class, View.API.class})
     private List<PublicationJoin> publicationEvidenceCodes;
+    @JsonView({View.PrimaryAnnotation.class, View.API.class})
+    private List<Allele> alleles;
+    @JsonView({View.PrimaryAnnotation.class, View.API.class})
+    private List<SequenceTargetingReagent> sequenceTargetingReagents;
 
     @Convert(value = DateConverter.class)
     private Date dateProduced;
 
     private List<DiseaseAnnotation> annotations;
 
-    @JsonView({View.Default.class})
+    @JsonView({View.PrimaryAnnotation.class, View.Default.class})
     protected Species species;
 
     @Override
@@ -74,6 +81,7 @@ public class PrimaryAnnotatedEntity implements Comparable<PrimaryAnnotatedEntity
             diseases = new ArrayList<>();
         diseases.add(disease);
         diseases = new ArrayList<>(new HashSet<>(diseases));
+        diseases.sort(Comparator.comparing(doTerm -> doTerm.getName().toLowerCase()));
     }
 
     public void addPhenotype(String phenotype) {
@@ -81,18 +89,61 @@ public class PrimaryAnnotatedEntity implements Comparable<PrimaryAnnotatedEntity
             phenotypes = new ArrayList<>();
         phenotypes.add(phenotype);
         phenotypes = new ArrayList<>(new HashSet<>(phenotypes));
+        phenotypes.sort(Comparator.naturalOrder());
+    }
+
+    public void addPublicationEvidenceCode(List<PublicationJoin> pubJoins) {
+        if (CollectionUtils.isEmpty(pubJoins))
+            return;
+        if (publicationEvidenceCodes == null)
+            publicationEvidenceCodes = new ArrayList<>();
+
+        publicationEvidenceCodes.addAll(pubJoins);
+        publicationEvidenceCodes = new ArrayList<>(new HashSet<>(publicationEvidenceCodes));
     }
 
     public void addPublicationEvidenceCode(PublicationJoin pubJoin) {
         if (publicationEvidenceCodes == null)
             publicationEvidenceCodes = new ArrayList<>();
         publicationEvidenceCodes.add(pubJoin);
+        // sort and make distinct by pub and evidence codes only
+        // this assumes only PublicationJoin records that belong to this PAE
+        Map<String, List<PublicationJoin>> keyMap = publicationEvidenceCodes.stream()
+                .collect(Collectors.groupingBy(join -> {
+                    String key = join.getPublication().getPrimaryKey();
+                    if (CollectionUtils.isNotEmpty(join.getEcoCode())) {
+                        key += join.getEcoCode().stream().map(SimpleTerm::getPrimaryKey).collect(Collectors.joining());
+                    }
+                    return key;
+                }));
+        publicationEvidenceCodes = keyMap.values().stream()
+                .map(publicationJoins -> publicationJoins.get(0))
+                .sorted(Comparator.comparing(o -> o.getPublication().getPrimaryKey()))
+                .collect(Collectors.toList());
     }
 
     public void addPhenotypes(List<String> phenotypeList) {
+        if (phenotypeList == null)
+            return;
         if (phenotypes == null)
             phenotypes = new ArrayList<>();
         phenotypes.addAll(phenotypeList);
+        phenotypes = phenotypes.stream()
+                .distinct()
+                .sorted(Comparator.naturalOrder())
+                .collect(Collectors.toList());
+    }
+
+    public void addDiseases(List<DOTerm> diseaseList) {
+        if (diseaseList == null)
+            return;
+        if (diseases == null)
+            diseases = new ArrayList<>();
+        diseases.addAll(diseaseList);
+        diseases = diseases.stream()
+                .distinct()
+                .sorted(Comparator.comparing(SimpleTerm::getName))
+                .collect(Collectors.toList());
     }
 
     public void setDataProvider(String dataProvider) {

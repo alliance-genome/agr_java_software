@@ -33,9 +33,16 @@ public class AffectedGenomicModel extends GeneticEntity implements Comparable<Af
     @JsonProperty(value = "type")
     @JsonView({View.Default.class, View.API.class})
     private String subtype;
+    private String dataProvider;
 
     @Relationship(type = "PRIMARY_GENETIC_ENTITY", direction = Relationship.INCOMING)
     private List<DiseaseEntityJoin> diseaseEntityJoins = new ArrayList<>();
+
+    @Relationship(type = "SEQUENCE_TARGETING_REAGENT")
+    private List<SequenceTargetingReagent> sequenceTargetingReagents = new ArrayList<>();
+
+    @Relationship(type = "MODEL_COMPONENT")
+    private List<Allele> alleles = new ArrayList<>();
 
     @Override
     public int compareTo(AffectedGenomicModel o) {

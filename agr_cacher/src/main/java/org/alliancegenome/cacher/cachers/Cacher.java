@@ -1,6 +1,8 @@
 package org.alliancegenome.cacher.cachers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.log4j.Log4j2;
 import org.alliancegenome.api.entity.CacheStatus;
 import org.alliancegenome.cache.CacheAlliance;
@@ -10,9 +12,12 @@ import org.alliancegenome.es.util.ProcessDisplayHelper;
 import java.util.Date;
 
 @Log4j2
+@Setter
+@Getter
 public abstract class Cacher extends Thread {
 
     protected abstract void cache();
+    protected boolean useCache;
 
     private ProcessDisplayHelper display = new ProcessDisplayHelper();
 
@@ -46,7 +51,7 @@ public abstract class Cacher extends Thread {
         display.finishProcess();
     }
 
-    protected void setCacheStatus(int size, String name) {
+    public void setCacheStatus(int size, String name) {
         BasicCacheManager<CacheStatus> basicManager = new BasicCacheManager<>();
         CacheStatus status = new CacheStatus(name);
         status.setNumberOfEntities(size);

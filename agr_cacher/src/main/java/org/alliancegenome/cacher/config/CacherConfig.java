@@ -11,6 +11,9 @@ public enum CacherConfig {
     DiseaseCacher(DiseaseCacher.class),
     GeneExpressionCacher(ExpressionCacher.class),
     GeneOrthologCacher(GeneOrthologCacher.class),
+    ModelCacher(ModelCacher.class),
+    EcoCodeHelperCacher(EcoCodeHelperCacher.class),
+    SiteMapCacher(SiteMapCacher.class),
     ;
 
     private String cacherName;

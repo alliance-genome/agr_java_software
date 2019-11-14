@@ -8,5 +8,6 @@ public enum EntityType {
     EXPRESSION,
     INTERACTION,
     DISEASE,
-    ORTHOLOGY
+    ORTHOLOGY,
+    MODEL
 }

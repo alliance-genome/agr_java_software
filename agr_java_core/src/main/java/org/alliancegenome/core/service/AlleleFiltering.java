@@ -52,7 +52,8 @@ public class AlleleFiltering {
     public static FilterFunction<Allele, String> variantConsequenceFilter =
             (allele, value) -> {
                 Set<Boolean> filteringPassed = allele.getVariants().stream()
-                        .map(term -> FilterFunction.contains(term.getGeneLevelConsequence().getGeneLevelConsequence().toLowerCase(), value))
+                        .filter(variant -> variant.getGeneLevelConsequence() != null)
+                        .map(variant -> FilterFunction.contains(variant.getGeneLevelConsequence().getGeneLevelConsequence().toLowerCase(), value))
                         .collect(Collectors.toSet());
                 return !filteringPassed.isEmpty() && filteringPassed.contains(true);
             };

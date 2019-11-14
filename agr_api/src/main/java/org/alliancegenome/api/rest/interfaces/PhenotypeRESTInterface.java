@@ -15,6 +15,7 @@ import javax.ws.rs.core.Response;
 import org.alliancegenome.es.model.search.SearchApiResponse;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 
 @Path("/termName")
 @Api(value = "Phenotype Search")
@@ -42,11 +43,13 @@ public interface PhenotypeRESTInterface {
 
     @GET
     @Path("/{id}/associations/download")
+    @ApiOperation(value = "Phenotype search download" , hidden = true)
     @Produces(MediaType.TEXT_PLAIN)
     public Response getDiseaseAnnotationsDownloadFile(@PathParam("id") String id);
 
     @GET
     @Path("/{id}/associations/downloads")
+    @ApiOperation(value = "Phenotype search download" , hidden = true)
     @Produces(MediaType.TEXT_PLAIN)
     public String getDiseaseAnnotationsDownload(@PathParam("id") String id);
 

@@ -25,6 +25,8 @@ public class PrimaryAnnotatedEntityFiltering extends AnnotationFiltering<Primary
 
     public FilterFunction<PrimaryAnnotatedEntity, String> phenotypeFilter =
             (annotation, value) -> {
+                if (annotation.getPhenotypes() == null)
+                    return false;
                 Set<Boolean> filteringPassed = annotation.getPhenotypes().stream()
                         .map(phenotype -> FilterFunction.contains(phenotype, value))
                         .collect(Collectors.toSet());

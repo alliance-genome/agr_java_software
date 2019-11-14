@@ -36,4 +36,9 @@ public class PhenotypeEntityJoin extends EntityJoin {
                 .map(PublicationJoin::getPublication)
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public String toString() {
+        return primaryKey;
+    }
 }

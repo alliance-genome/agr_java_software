@@ -9,6 +9,7 @@ import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @NodeEntity
@@ -31,7 +32,11 @@ public class PublicationJoin extends Association {
 
     // annotation inferred on
     @Relationship(type = "PRIMARY_GENETIC_ENTITY")
-    private List<AffectedGenomicModel> models;
+    private AffectedGenomicModel model;
+
+    // annotation inferred on
+    @Relationship(type = "PRIMARY_GENETIC_ENTITY")
+    private List<Allele> alleles;
 
     @Override
     public String toString() {
@@ -41,5 +46,20 @@ public class PublicationJoin extends Association {
                 .map(SimpleTerm::getName)
                 .collect(Collectors.joining(","));
         return publication.getPubId() + ":" + ecos;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        PublicationJoin that = (PublicationJoin) o;
+        return Objects.equals(joinType, that.joinType) &&
+                Objects.equals(publication, that.publication) &&
+                Objects.equals(ecoCode, that.ecoCode);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(joinType, publication, ecoCode);
     }
 }

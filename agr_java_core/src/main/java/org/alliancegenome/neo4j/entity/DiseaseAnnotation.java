@@ -38,9 +38,11 @@ public class DiseaseAnnotation implements Comparable<DiseaseAnnotation>, Seriali
     @JsonView({View.DiseaseAnnotation.class})
     private List<Reference> references;
     @JsonView({View.DiseaseAnnotation.class})
+    // This attribute will go away and be replaced by publicationJoin objects that keep the pub/evCodes pairs
     private List<Publication> publications;
     @JsonView({View.DiseaseAnnotation.class})
     @JsonProperty(value = "evidenceCodes")
+    // This attribute will go away and be replaced by publicationJoin objects that keep the pub/evCodes pairs
     private List<ECOTerm> ecoCodes;
     @JsonView({View.DiseaseAnnotation.class})
     private String associationType;
@@ -127,7 +129,37 @@ public class DiseaseAnnotation implements Comparable<DiseaseAnnotation>, Seriali
 
     @Override
     public String toString() {
-        return gene != null ? disease.getPrimaryKey() + " : " + gene.getPrimaryKey() : disease.getPrimaryKey();
+        String primaryKey = disease.getPrimaryKey() + " : ";
+        if (gene != null)
+            primaryKey += gene.getPrimaryKey();
+        return primaryKey + " : " + associationType;
     }
 
+    transient boolean remove = false;
+
+    public void setPublicationJoins(List<PublicationJoin> publicationJoins) {
+        addPublicationJoins(publicationJoins);
+    }
+
+    public void addPublicationJoins(List<PublicationJoin> joins) {
+        if (joins == null)
+            return;
+        if (publicationJoins == null)
+            publicationJoins = new ArrayList<>();
+        publicationJoins.addAll(joins);
+        publicationJoins = publicationJoins.stream()
+                .distinct()
+                .collect(Collectors.toList());
+
+        if (publications == null)
+            publications = new ArrayList<>();
+        publications.addAll(publicationJoins.stream()
+                .map(PublicationJoin::getPublication)
+                .distinct()
+                .collect(Collectors.toList()));
+        publications = publications.stream()
+                .distinct()
+                .sorted(Comparator.naturalOrder())
+                .collect(Collectors.toList());
+    }
 }

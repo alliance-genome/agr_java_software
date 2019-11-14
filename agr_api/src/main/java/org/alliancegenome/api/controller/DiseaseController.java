@@ -1,5 +1,20 @@
 package org.alliancegenome.api.controller;
 
+import static org.alliancegenome.api.service.EntityType.DISEASE;
+import static org.alliancegenome.api.service.EntityType.GENE;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Objects;
+
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+
 import org.alliancegenome.api.rest.interfaces.DiseaseRESTInterface;
 import org.alliancegenome.api.service.APIService;
 import org.alliancegenome.api.service.DiseaseService;
@@ -15,20 +30,6 @@ import org.alliancegenome.neo4j.entity.node.DOTerm;
 import org.alliancegenome.neo4j.view.BaseFilter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Objects;
-
-import static org.alliancegenome.api.service.EntityType.DISEASE;
-import static org.alliancegenome.api.service.EntityType.GENE;
 
 @RequestScoped
 public class DiseaseController extends BaseController implements DiseaseRESTInterface {
@@ -159,7 +160,7 @@ public class DiseaseController extends BaseController implements DiseaseRESTInte
                                                           String asc) {
 
         JsonResultResponse<DiseaseAnnotation> response = getDiseaseAnnotationsByAllele(id,
-                null,
+                Integer.MAX_VALUE,
                 null,
                 sortBy,
                 geneName,
@@ -172,7 +173,7 @@ public class DiseaseController extends BaseController implements DiseaseRESTInte
                 associationType,
                 asc);
         Response.ResponseBuilder responseBuilder = Response.ok(translator.getAllRowsForAllele(response.getResults()));
-        APIService.setDownloadHeader(id, EntityType.GENE, EntityType.PHENOTYPE, responseBuilder);
+        APIService.setDownloadHeader(id, EntityType.DISEASE, EntityType.ALLELE, responseBuilder);
         return responseBuilder.build();
     }
 
@@ -188,7 +189,7 @@ public class DiseaseController extends BaseController implements DiseaseRESTInte
                                                         String associationType,
                                                         String asc) {
         JsonResultResponse<DiseaseAnnotation> response = getDiseaseAnnotationsByGene(id,
-                null,
+                Integer.MAX_VALUE,
                 null,
                 sortBy,
                 geneName,
@@ -200,7 +201,7 @@ public class DiseaseController extends BaseController implements DiseaseRESTInte
                 associationType,
                 asc);
         Response.ResponseBuilder responseBuilder = Response.ok(translator.getAllRows(response.getResults()));
-        APIService.setDownloadHeader(id, EntityType.GENE, EntityType.PHENOTYPE, responseBuilder);
+        APIService.setDownloadHeader(id, EntityType.DISEASE, EntityType.GENE, responseBuilder);
         return responseBuilder.build();
 
     }
@@ -299,7 +300,7 @@ public class DiseaseController extends BaseController implements DiseaseRESTInte
                                                           String evidenceCode,
                                                           String asc) {
         JsonResultResponse<DiseaseAnnotation> response = getDiseaseAnnotationsForModel(id,
-                null,
+                Integer.MAX_VALUE,
                 null,
                 sortBy,
                 modelName,
@@ -311,7 +312,7 @@ public class DiseaseController extends BaseController implements DiseaseRESTInte
                 evidenceCode,
                 asc);
         Response.ResponseBuilder responseBuilder = Response.ok(translator.getAllRowsForModel(response.getResults()));
-        APIService.setDownloadHeader(id, EntityType.GENE, EntityType.PHENOTYPE, responseBuilder);
+        APIService.setDownloadHeader(id, EntityType.DISEASE, EntityType.MODEL, responseBuilder);
         return responseBuilder.build();
     }
 

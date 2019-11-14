@@ -19,8 +19,10 @@ import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.entity.node.OrthoAlgorithm;
 import org.alliancegenome.neo4j.entity.node.Publication;
+import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.alliancegenome.neo4j.view.OrthologView;
 import org.alliancegenome.neo4j.view.OrthologyModule;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.config.Configurator;
 import org.jboss.logging.Logger;
@@ -35,6 +37,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static junit.framework.TestCase.assertTrue;
 import static org.alliancegenome.api.service.ExpressionService.CELLULAR_COMPONENT;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertNotNull;
@@ -80,6 +83,15 @@ public class GeneIT {
         assertNotNull(gene);
         assertThat(gene.getPrimaryKey(), equalTo("ZFIN:ZDB-LINCRNAG-160518-1"));
         assertThat(gene.getSpecies().getName(), equalTo("Danio rerio"));
+    }
+
+    @Test
+    public void checkForSynonyms() {
+        // ZFIN:ZDB-GENE-030131-3355 is a secondary ID for ZFIN:ZDB-LINCRNAG-160518-1
+        Gene gene = geneService.getById("ZFIN:ZDB-GENE-001103-1");
+        assertNotNull(gene);
+        assertNotNull(gene.getSynonyms());
+        assertThat(gene.getSynonyms().size(), greaterThan(3));
     }
 
     @Test
@@ -357,7 +369,7 @@ public class GeneIT {
     }
 
     @Test
-    public void checkExpressionAPI() throws IOException {
+    public void checkExpressionAPI() {
 
         ExpressionController controller = new ExpressionController();
         int limit = 15;
@@ -365,7 +377,7 @@ public class GeneIT {
     }
 
     @Test
-    public void checkExpressionAnnotationFiltering() throws IOException {
+    public void checkExpressionAnnotationFiltering() {
 
         ExpressionController controller = new ExpressionController();
         String[] geneIDs = {"MGI:97570", "ZFIN:ZDB-GENE-080204-52"};
@@ -378,6 +390,14 @@ public class GeneIT {
         List<String> termList = response.getResults().stream()
                 .map(ExpressionDetail::getTermName)
                 .collect(Collectors.toList());
+    }
+
+    @Test
+    public void checkCrossReferenceOnGene() {
+        GeneRepository repository = new GeneRepository();
+        Gene gene = repository.getOneGene("ZFIN:ZDB-GENE-001103-1");
+        assertNotNull(gene);
+        assertTrue("No CrossReferences on gene object", CollectionUtils.isNotEmpty(gene.getCrossReferences()));
     }
 
 }

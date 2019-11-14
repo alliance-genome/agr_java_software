@@ -82,7 +82,7 @@ public class ExpressionController implements ExpressionRESTInterface {
             response.setHttpServletRequest(request);
             return response;
         } catch (Exception e) {
-            log.error(e);
+            log.error("Error while retrieving expression data", e);
             RestErrorMessage error = new RestErrorMessage();
             error.addErrorMessage(e.getMessage());
             throw new RestErrorException(error);

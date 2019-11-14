@@ -27,8 +27,10 @@ public class ExpressionAnnotationFiltering extends AnnotationFiltering {
 
     private static FilterFunction<ExpressionDetail, String> sourceFilter =
             (annotation, value) -> {
+                if(annotation.getCrossReferences() == null)
+                    return false;
                 Set<Boolean> filteringPassed = annotation.getCrossReferences().stream()
-                        .map(crossReference -> FilterFunction.contains(crossReference.getName(), value))
+                        .map(crossReference -> FilterFunction.contains(crossReference.getDisplayName(), value))
                         .collect(Collectors.toSet());
                 // return true if at least one source is found
                 return filteringPassed.contains(true);
