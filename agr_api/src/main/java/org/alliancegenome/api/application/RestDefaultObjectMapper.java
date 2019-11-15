@@ -16,6 +16,7 @@ public class RestDefaultObjectMapper implements ContextResolver<ObjectMapper> {
         mapper = new ObjectMapper();
         mapper.configure(MapperFeature.DEFAULT_VIEW_INCLUSION, false);
         mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+        mapper.enable(SerializationFeature.INDENT_OUTPUT);
 //        mapper.getSerializerProvider().setNullValueSerializer(new NullSerializer());
     }
 

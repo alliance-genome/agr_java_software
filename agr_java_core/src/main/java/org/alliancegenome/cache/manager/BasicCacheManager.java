@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+import com.fasterxml.jackson.databind.SerializationFeature;
 import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.infinispan.client.hotrod.RemoteCache;
@@ -31,6 +32,7 @@ public class BasicCacheManager<O> {
         //mapper.configure(MapperFeature.DEFAULT_VIEW_INCLUSION, false);
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         mapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
+        mapper.enable(SerializationFeature.INDENT_OUTPUT);
         setupCaches();
     }
 
