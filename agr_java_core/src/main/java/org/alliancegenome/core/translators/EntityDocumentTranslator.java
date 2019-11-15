@@ -2,14 +2,12 @@ package org.alliancegenome.core.translators;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.stream.Collectors;
 
 import org.alliancegenome.es.index.ESDocument;
 import org.alliancegenome.es.index.site.document.SearchableItemDocument;
 import org.alliancegenome.neo4j.entity.Neo4jEntity;
 import org.alliancegenome.neo4j.entity.node.GeneticEntity;
 import org.alliancegenome.neo4j.entity.node.SecondaryId;
-import org.alliancegenome.neo4j.entity.node.SimpleTerm;
 import org.alliancegenome.neo4j.entity.node.Synonym;
 
 public abstract class EntityDocumentTranslator<E extends Neo4jEntity, D extends ESDocument> {

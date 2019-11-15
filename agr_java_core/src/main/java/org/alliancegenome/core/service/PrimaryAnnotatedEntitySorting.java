@@ -1,12 +1,12 @@
 package org.alliancegenome.core.service;
 
-import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
-import org.alliancegenome.neo4j.entity.Sorting;
-import org.apache.commons.collections.CollectionUtils;
-
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+
+import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
+import org.alliancegenome.neo4j.entity.Sorting;
+import org.apache.commons.collections.CollectionUtils;
 
 public class PrimaryAnnotatedEntitySorting implements Sorting<PrimaryAnnotatedEntity> {
 

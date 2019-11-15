@@ -1,7 +1,17 @@
 package org.alliancegenome.cache.repository;
 
-import com.fasterxml.jackson.databind.type.CollectionType;
-import lombok.extern.log4j.Log4j2;
+import static java.util.stream.Collectors.toList;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.alliancegenome.api.entity.DiseaseRibbonSummary;
 import org.alliancegenome.api.service.DiseaseService;
 import org.alliancegenome.api.service.FilterService;
@@ -21,11 +31,9 @@ import org.alliancegenome.neo4j.view.View;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import java.io.IOException;
-import java.util.*;
-import java.util.stream.Collectors;
+import com.fasterxml.jackson.databind.type.CollectionType;
 
-import static java.util.stream.Collectors.toList;
+import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 public class DiseaseCacheRepository {

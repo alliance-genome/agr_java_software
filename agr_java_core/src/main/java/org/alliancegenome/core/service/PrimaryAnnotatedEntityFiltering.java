@@ -1,11 +1,11 @@
 package org.alliancegenome.core.service;
 
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
 import org.apache.commons.collections4.CollectionUtils;
-
-import java.util.Set;
-import java.util.stream.Collectors;
 
 public class PrimaryAnnotatedEntityFiltering extends AnnotationFiltering<PrimaryAnnotatedEntity> {
 

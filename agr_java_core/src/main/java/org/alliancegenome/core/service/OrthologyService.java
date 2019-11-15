@@ -1,10 +1,12 @@
 package org.alliancegenome.core.service;
 
-import com.fasterxml.jackson.annotation.JsonView;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.Getter;
-import lombok.Setter;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import org.alliancegenome.cache.repository.DiseaseCacheRepository;
 import org.alliancegenome.cache.repository.ExpressionCacheRepository;
 import org.alliancegenome.cache.repository.GeneCacheRepository;
@@ -18,8 +20,12 @@ import org.alliancegenome.neo4j.view.OrthologyFilter;
 import org.alliancegenome.neo4j.view.OrthologyModule;
 import org.alliancegenome.neo4j.view.View;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import lombok.Getter;
+import lombok.Setter;
 
 public class OrthologyService {
 

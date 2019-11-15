@@ -1,6 +1,5 @@
 package org.alliancegenome.core.translators.document;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 

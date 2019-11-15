@@ -23,8 +23,6 @@ import org.alliancegenome.neo4j.view.View;
 
 import lombok.extern.log4j.Log4j2;
 
-import javax.xml.bind.util.JAXBResult;
-
 @Log4j2
 public class PhenotypeCacheRepository {
 

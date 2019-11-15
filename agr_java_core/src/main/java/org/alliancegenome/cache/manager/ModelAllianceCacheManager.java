@@ -1,13 +1,12 @@
 package org.alliancegenome.cache.manager;
 
-import org.alliancegenome.cache.CacheAlliance;
-import org.alliancegenome.core.service.*;
-import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
-import org.alliancegenome.neo4j.entity.node.Allele;
-import org.alliancegenome.neo4j.view.View;
-
-import java.util.Collection;
 import java.util.List;
+
+import org.alliancegenome.cache.CacheAlliance;
+import org.alliancegenome.core.service.JsonResultReponsePrimaryAnnotatedEntity;
+import org.alliancegenome.core.service.JsonResultResponse;
+import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
+import org.alliancegenome.neo4j.view.View;
 
 public class ModelAllianceCacheManager extends CacheManager<PrimaryAnnotatedEntity, JsonResultResponse<PrimaryAnnotatedEntity>> {
 

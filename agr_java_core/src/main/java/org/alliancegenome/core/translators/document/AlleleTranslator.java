@@ -1,6 +1,5 @@
 package org.alliancegenome.core.translators.document;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -10,8 +9,6 @@ import org.alliancegenome.es.index.site.doclet.CrossReferenceDoclet;
 import org.alliancegenome.es.index.site.document.AlleleDocument;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.CrossReference;
-import org.alliancegenome.neo4j.entity.node.SecondaryId;
-import org.alliancegenome.neo4j.entity.node.Synonym;
 
 public class AlleleTranslator extends EntityDocumentTranslator<Allele, AlleleDocument> {
 

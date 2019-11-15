@@ -1,14 +1,16 @@
 package org.alliancegenome.es.index.site.cache;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import org.alliancegenome.es.index.site.document.AlleleDocument;
 import org.alliancegenome.neo4j.entity.node.Allele;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.commons.lang3.StringUtils;
 
 @Getter
 @Setter
