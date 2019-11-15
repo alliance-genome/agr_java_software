@@ -1,5 +1,9 @@
 package org.alliancegenome.indexer.indexers;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.LinkedBlockingDeque;
+
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.translators.document.ModelTranslator;
 import org.alliancegenome.es.index.site.cache.ModelDocumentCache;
@@ -9,10 +13,6 @@ import org.alliancegenome.neo4j.entity.node.AffectedGenomicModel;
 import org.alliancegenome.neo4j.repository.ModelIndexerRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.LinkedBlockingDeque;
 
 public class ModelIndexer extends Indexer<ModelDocument> {
 

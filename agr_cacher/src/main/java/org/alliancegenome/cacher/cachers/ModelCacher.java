@@ -1,7 +1,11 @@
 package org.alliancegenome.cacher.cachers;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import lombok.extern.log4j.Log4j2;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.cache.manager.ModelAllianceCacheManager;
 import org.alliancegenome.core.service.JsonResultResponse;
@@ -11,11 +15,9 @@ import org.alliancegenome.neo4j.entity.node.GeneticEntity;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.alliancegenome.neo4j.view.View;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import com.fasterxml.jackson.core.JsonProcessingException;
+
+import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 public class ModelCacher extends Cacher {

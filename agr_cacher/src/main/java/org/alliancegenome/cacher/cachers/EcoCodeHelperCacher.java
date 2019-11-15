@@ -1,16 +1,17 @@
 package org.alliancegenome.cacher.cachers;
 
-import lombok.extern.log4j.Log4j2;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.cache.manager.BasicCacheManager;
 import org.alliancegenome.neo4j.entity.node.ECOTerm;
 import org.alliancegenome.neo4j.repository.DiseaseRepository;
 import org.alliancegenome.neo4j.view.View;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 public class EcoCodeHelperCacher extends Cacher {

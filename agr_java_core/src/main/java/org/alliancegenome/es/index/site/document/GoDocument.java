@@ -1,6 +1,5 @@
 package org.alliancegenome.es.index.site.document;
 
-import java.util.List;
 import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;

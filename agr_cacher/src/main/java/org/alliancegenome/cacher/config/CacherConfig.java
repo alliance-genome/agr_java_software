@@ -1,6 +1,14 @@
 package org.alliancegenome.cacher.config;
 
-import org.alliancegenome.cacher.cachers.*;
+import org.alliancegenome.cacher.cachers.AlleleCacher;
+import org.alliancegenome.cacher.cachers.DiseaseCacher;
+import org.alliancegenome.cacher.cachers.EcoCodeHelperCacher;
+import org.alliancegenome.cacher.cachers.ExpressionCacher;
+import org.alliancegenome.cacher.cachers.GeneOrthologCacher;
+import org.alliancegenome.cacher.cachers.GenePhenotypeCacher;
+import org.alliancegenome.cacher.cachers.InteractionCacher;
+import org.alliancegenome.cacher.cachers.ModelCacher;
+import org.alliancegenome.cacher.cachers.SiteMapCacher;
 
 public enum CacherConfig {
 

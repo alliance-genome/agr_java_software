@@ -5,7 +5,6 @@ import java.util.stream.Collectors;
 
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
-import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
 
 public class ModelAnnotationFiltering extends AnnotationFiltering<DiseaseAnnotation> {
 

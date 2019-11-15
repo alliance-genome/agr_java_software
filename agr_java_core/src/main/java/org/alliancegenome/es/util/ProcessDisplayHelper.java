@@ -1,10 +1,10 @@
 package org.alliancegenome.es.util;
 
-import lombok.extern.log4j.Log4j2;
-
 import java.text.DecimalFormat;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
+
+import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 public class ProcessDisplayHelper {

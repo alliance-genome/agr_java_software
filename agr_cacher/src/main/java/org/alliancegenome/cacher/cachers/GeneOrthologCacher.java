@@ -1,7 +1,14 @@
 package org.alliancegenome.cacher.cachers;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import lombok.extern.log4j.Log4j2;
+import static java.util.stream.Collectors.toSet;
+
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.cache.manager.OrthologyAllianceCacheManager;
 import org.alliancegenome.core.service.JsonResultResponse;
@@ -12,10 +19,9 @@ import org.alliancegenome.neo4j.view.View;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections4.map.MultiKeyMap;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
-import static java.util.stream.Collectors.toSet;
+import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 public class GeneOrthologCacher extends Cacher {

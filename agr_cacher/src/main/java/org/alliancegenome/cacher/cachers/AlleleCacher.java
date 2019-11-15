@@ -1,6 +1,13 @@
 package org.alliancegenome.cacher.cachers;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import static java.util.stream.Collectors.groupingBy;
+
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.cache.manager.AlleleAllianceCacheManager;
 import org.alliancegenome.core.service.JsonResultResponse;
@@ -9,13 +16,7 @@ import org.alliancegenome.neo4j.repository.AlleleRepository;
 import org.alliancegenome.neo4j.view.View;
 import org.apache.commons.collections.CollectionUtils;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import static java.util.stream.Collectors.groupingBy;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 public class AlleleCacher extends Cacher {
 

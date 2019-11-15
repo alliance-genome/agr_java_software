@@ -1,7 +1,19 @@
 package org.alliancegenome.cacher.cachers;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import lombok.extern.log4j.Log4j2;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.toSet;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.alliancegenome.api.service.DiseaseRibbonService;
 import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.cache.manager.DiseaseAllianceCacheManager;
@@ -13,15 +25,23 @@ import org.alliancegenome.core.service.JsonResultResponseDiseaseAnnotation;
 import org.alliancegenome.core.service.SortingField;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
-import org.alliancegenome.neo4j.entity.node.*;
+import org.alliancegenome.neo4j.entity.node.AffectedGenomicModel;
+import org.alliancegenome.neo4j.entity.node.Allele;
+import org.alliancegenome.neo4j.entity.node.CrossReference;
+import org.alliancegenome.neo4j.entity.node.DOTerm;
+import org.alliancegenome.neo4j.entity.node.DiseaseEntityJoin;
+import org.alliancegenome.neo4j.entity.node.ECOTerm;
+import org.alliancegenome.neo4j.entity.node.Gene;
+import org.alliancegenome.neo4j.entity.node.GeneticEntity;
+import org.alliancegenome.neo4j.entity.node.PublicationJoin;
+import org.alliancegenome.neo4j.entity.node.SequenceTargetingReagent;
 import org.alliancegenome.neo4j.repository.DiseaseRepository;
 import org.alliancegenome.neo4j.view.View;
 import org.apache.commons.collections4.CollectionUtils;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
-import static java.util.stream.Collectors.*;
+import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 public class DiseaseCacher extends Cacher {
