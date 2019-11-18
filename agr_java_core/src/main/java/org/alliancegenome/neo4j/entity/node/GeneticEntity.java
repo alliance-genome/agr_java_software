@@ -1,26 +1,17 @@
 package org.alliancegenome.neo4j.entity.node;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonView;
+import lombok.Getter;
+import lombok.Setter;
 import org.alliancegenome.es.util.DateConverter;
 import org.alliancegenome.neo4j.entity.Neo4jEntity;
 import org.alliancegenome.neo4j.view.View;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.typeconversion.Convert;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonView;
-
-import lombok.Getter;
-import lombok.Setter;
+import java.util.*;
 
 @Getter
 @Setter
@@ -43,7 +34,7 @@ public class GeneticEntity extends Neo4jEntity {
     protected Species species;
 
     @Relationship(type = "ALSO_KNOWN_AS")
-    private Set<Synonym> synonyms = new HashSet<>();
+    private List<Synonym> synonyms = new ArrayList<>();
 
     // Converts the list of synonym objects to a list of strings
     @JsonView(value = {View.API.class})
@@ -64,6 +55,7 @@ public class GeneticEntity extends Neo4jEntity {
                 synonym.setName(syn);
                 synonyms.add(synonym);
             });
+            synonyms.sort(Comparator.comparing(synonym -> synonym.getName().toLowerCase()));
         }
     }
 
