@@ -1,11 +1,12 @@
 package org.alliancegenome.api.application;
 
-import javax.ws.rs.ext.ContextResolver;
-import javax.ws.rs.ext.Provider;
-
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import org.alliancegenome.core.config.ConfigHelper;
+
+import javax.ws.rs.ext.ContextResolver;
+import javax.ws.rs.ext.Provider;
 
 @Provider
 public class RestDefaultObjectMapper implements ContextResolver<ObjectMapper> {
@@ -16,7 +17,8 @@ public class RestDefaultObjectMapper implements ContextResolver<ObjectMapper> {
         mapper = new ObjectMapper();
         mapper.configure(MapperFeature.DEFAULT_VIEW_INCLUSION, false);
         mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
-        mapper.enable(SerializationFeature.INDENT_OUTPUT);
+        if (ConfigHelper.isProduction())
+            mapper.enable(SerializationFeature.INDENT_OUTPUT);
 //        mapper.getSerializerProvider().setNullValueSerializer(new NullSerializer());
     }
 

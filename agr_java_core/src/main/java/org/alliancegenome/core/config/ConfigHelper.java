@@ -1,17 +1,13 @@
 package org.alliancegenome.core.config;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Properties;
-import java.util.Set;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import java.util.*;
 
 public class ConfigHelper {
 
@@ -386,4 +382,7 @@ public class ConfigHelper {
         return getNameValuePairsList(getGOTermListFilePath());
     }
 
+    public static boolean isProduction() {
+        return getNeo4jHost().contains("production");
+    }
 }
