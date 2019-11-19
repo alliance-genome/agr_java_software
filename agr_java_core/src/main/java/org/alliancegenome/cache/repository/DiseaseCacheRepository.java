@@ -1,22 +1,13 @@
 package org.alliancegenome.cache.repository;
 
-import static java.util.stream.Collectors.toList;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
+import com.fasterxml.jackson.databind.type.CollectionType;
+import lombok.extern.log4j.Log4j2;
 import org.alliancegenome.api.entity.DiseaseRibbonSummary;
 import org.alliancegenome.api.service.DiseaseService;
 import org.alliancegenome.api.service.FilterService;
 import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.cache.manager.BasicCacheManager;
+import org.alliancegenome.cache.manager.BasicCachingManager;
 import org.alliancegenome.cache.manager.DiseaseAllianceCacheManager;
 import org.alliancegenome.cache.manager.ModelAllianceCacheManager;
 import org.alliancegenome.core.service.DiseaseAnnotationFiltering;
@@ -31,9 +22,11 @@ import org.alliancegenome.neo4j.view.View;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import com.fasterxml.jackson.databind.type.CollectionType;
+import java.io.IOException;
+import java.util.*;
+import java.util.stream.Collectors;
 
-import lombok.extern.log4j.Log4j2;
+import static java.util.stream.Collectors.toList;
 
 @Log4j2
 public class DiseaseCacheRepository {
@@ -55,8 +48,8 @@ public class DiseaseCacheRepository {
     }
 
     public List<PrimaryAnnotatedEntity> getPrimaryAnnotatedEntitList(String geneID) {
-        ModelAllianceCacheManager manager = new ModelAllianceCacheManager();
-        return manager.getModels(geneID, View.PrimaryAnnotation.class);
+        BasicCachingManager<PrimaryAnnotatedEntity> manager = new BasicCachingManager<>(PrimaryAnnotatedEntity.class);
+        return manager.getCache(geneID, CacheAlliance.GENE_MODEL);
     }
 
     public PaginationResult<DiseaseAnnotation> getDiseaseAnnotationList(String diseaseID, Pagination pagination) {

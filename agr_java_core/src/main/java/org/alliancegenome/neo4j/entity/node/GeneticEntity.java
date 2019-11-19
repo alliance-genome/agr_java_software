@@ -60,7 +60,7 @@ public class GeneticEntity extends Neo4jEntity {
     }
 
     @Relationship(type = "ALSO_KNOWN_AS")
-    private Set<SecondaryId> secondaryIds = new HashSet<>();
+    private List<SecondaryId> secondaryIds = new ArrayList<>();
 
     // Converts the list of secondary ids objects to a list of strings
     @JsonView(value = {View.API.class})
@@ -81,6 +81,7 @@ public class GeneticEntity extends Neo4jEntity {
                 secondaryId.setName(idName);
                 secondaryIds.add(secondaryId);
             });
+            secondaryIds.sort(Comparator.comparing(secondaryId -> secondaryId.getName().toLowerCase()));
         }
     }
 

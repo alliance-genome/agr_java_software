@@ -1,13 +1,9 @@
 package org.alliancegenome.cacher.cachers;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
+import lombok.extern.log4j.Log4j2;
 import org.alliancegenome.cache.CacheAlliance;
-import org.alliancegenome.cache.manager.ModelAllianceCacheManager;
+import org.alliancegenome.cache.manager.BasicCacheManager;
 import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
 import org.alliancegenome.neo4j.entity.node.AffectedGenomicModel;
@@ -15,9 +11,11 @@ import org.alliancegenome.neo4j.entity.node.GeneticEntity;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.alliancegenome.neo4j.view.View;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-
-import lombok.extern.log4j.Log4j2;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Log4j2
 public class ModelCacher extends Cacher {
@@ -64,8 +62,6 @@ public class ModelCacher extends Cacher {
         if (models == null)
             return;
 
-        ModelAllianceCacheManager manager = new ModelAllianceCacheManager();
-
         startProcess("create models and place them into cache: ");
         log.info("Number of Allele Models: " + String.format("%,d", models.size()));
 
@@ -92,12 +88,14 @@ public class ModelCacher extends Cacher {
 
         log.info("Number of Genes with Models: " + String.format("%,d", geneMap.size()));
 
+        BasicCacheManager<String> manager = new BasicCacheManager<>();
+
         geneMap.forEach((geneID, annotations) -> {
 
             JsonResultResponse<PrimaryAnnotatedEntity> result = new JsonResultResponse<>();
             result.setResults(new ArrayList<>(annotations));
             try {
-                manager.putCache(geneID, result, View.PrimaryAnnotation.class, CacheAlliance.GENE_MODEL);
+                manager.setCache(geneID, annotations, View.PrimaryAnnotation.class, CacheAlliance.GENE_MODEL);
             } catch (JsonProcessingException e) {
                 throw new RuntimeException(e);
             }
