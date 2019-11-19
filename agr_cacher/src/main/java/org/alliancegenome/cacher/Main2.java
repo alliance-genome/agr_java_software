@@ -69,9 +69,6 @@ public class Main2 {
             List<PhenotypeAnnotation> resultsPheno = managerPheno.getPhenotypeAnnotations("MGI:109583", View.PhenotypeAPI.class);
             log.info("Phenotype: " + resultsPheno.size());
 
-            DiseaseAllianceCacheManager resultDisease = new DiseaseAllianceCacheManager();
-            List<DiseaseAnnotation> resultsDisease = resultDisease.getDiseaseAnnotations("DOID:9952", View.DiseaseAnnotationSummary.class);
-            log.info("Disease Annotations: " + resultsDisease.size());
 
         } catch (Exception ignored) {
         } finally {

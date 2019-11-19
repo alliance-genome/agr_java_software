@@ -8,7 +8,6 @@ import org.alliancegenome.api.service.FilterService;
 import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.cache.manager.BasicCacheManager;
 import org.alliancegenome.cache.manager.BasicCachingManager;
-import org.alliancegenome.cache.manager.DiseaseAllianceCacheManager;
 import org.alliancegenome.cache.manager.ModelAllianceCacheManager;
 import org.alliancegenome.core.service.DiseaseAnnotationFiltering;
 import org.alliancegenome.core.service.DiseaseAnnotationSorting;
@@ -31,6 +30,7 @@ import static java.util.stream.Collectors.toList;
 @Log4j2
 public class DiseaseCacheRepository {
 
+    private BasicCachingManager<DiseaseAnnotation> manager = new BasicCachingManager<>(DiseaseAnnotation.class);
 
     // Map<gene ID, List<DiseaseAnnotation>> including annotations to child terms
     private static Map<String, List<DiseaseAnnotation>> diseaseAnnotationExperimentGeneMap = new HashMap<>();
@@ -38,13 +38,12 @@ public class DiseaseCacheRepository {
     private static Map<String, List<DiseaseAnnotation>> diseaseAnnotationOrthologGeneMap = new HashMap<>();
 
     public List<DiseaseAnnotation> getDiseaseAnnotationList(String diseaseID) {
-        DiseaseAllianceCacheManager manager = new DiseaseAllianceCacheManager();
-        return manager.getDiseaseAnnotations(diseaseID, View.DiseaseCacher.class);
+        BasicCachingManager<DiseaseAnnotation> manager = new BasicCachingManager<>(DiseaseAnnotation.class);
+        return manager.getCache(diseaseID, CacheAlliance.DISEASE_ANNOTATION);
     }
 
     public List<DiseaseAnnotation> getDiseaseAlleleAnnotationList(String diseaseID) {
-        DiseaseAllianceCacheManager manager = new DiseaseAllianceCacheManager();
-        return manager.getDiseaseAlleleAnnotations(diseaseID, View.DiseaseCacher.class);
+        return manager.getCache(diseaseID, CacheAlliance.DISEASE_ALLELE_ANNOTATION);
     }
 
     public List<PrimaryAnnotatedEntity> getPrimaryAnnotatedEntitList(String geneID) {
@@ -71,10 +70,9 @@ public class DiseaseCacheRepository {
             return null;
         Set<DiseaseAnnotation> allDiseaseAnnotationList = new HashSet<>();
 
-        DiseaseAllianceCacheManager manager = new DiseaseAllianceCacheManager();
         // filter by gene
         geneIDs.forEach(geneID -> {
-                    List<DiseaseAnnotation> annotations = manager.getDiseaseAnnotations(geneID, View.DiseaseCacher.class);
+                    List<DiseaseAnnotation> annotations = manager.getCache(geneID, CacheAlliance.DISEASE_ANNOTATION);
                     if (annotations != null)
                         allDiseaseAnnotationList.addAll(annotations);
                     else
@@ -212,10 +210,8 @@ public class DiseaseCacheRepository {
         return list;
     }
 
-    private DiseaseAllianceCacheManager manager = new DiseaseAllianceCacheManager();
-
     public boolean hasDiseaseAnnotations(String geneID) {
-        return CollectionUtils.isNotEmpty(manager.getDiseaseAnnotations(geneID, View.DiseaseAnnotation.class));
+        return CollectionUtils.isNotEmpty(manager.getCache(geneID, CacheAlliance.DISEASE_ANNOTATION));
     }
 
     public List<PrimaryAnnotatedEntity> getDiseaseAnnotationPureModeList(String geneID) {
