@@ -73,17 +73,13 @@ public class Main2 {
             List<DiseaseAnnotation> resultsDisease = resultDisease.getDiseaseAnnotations("DOID:9952", View.DiseaseAnnotationSummary.class);
             log.info("Disease Annotations: " + resultsDisease.size());
 
-            AlleleAllianceCacheManager managerAllele = new AlleleAllianceCacheManager();
-            List<Allele> resultAllele = managerAllele.getAlleles("MGI:109583", View.GeneAllelesAPI.class);
-            log.info("Alleles: " + resultAllele.size());
         } catch (Exception ignored) {
         } finally {
             AllianceCacheManager.close();
         }
 */
         
-        //AlleleAllianceCacheManager managerAllele = new AlleleAllianceCacheManager();
-        
+
 /*
         HashMap<String, List<String>> map = new HashMap<>();
         ArrayList<String> list = new ArrayList<>();

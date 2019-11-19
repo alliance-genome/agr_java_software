@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.log4j.Log4j2;
 import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.cache.manager.BasicCacheManager;
+import org.alliancegenome.cache.manager.BasicCachingManager;
 import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
 import org.alliancegenome.neo4j.entity.node.AffectedGenomicModel;
@@ -88,7 +89,7 @@ public class ModelCacher extends Cacher {
 
         log.info("Number of Genes with Models: " + String.format("%,d", geneMap.size()));
 
-        BasicCacheManager<String> manager = new BasicCacheManager<>();
+        BasicCachingManager manager = new BasicCachingManager();
 
         geneMap.forEach((geneID, annotations) -> {
 

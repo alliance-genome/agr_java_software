@@ -41,6 +41,9 @@ public class BasicCachingManager<O> {
         setupCaches();
     }
 
+    public BasicCachingManager() {
+    }
+
     private synchronized static void setupCaches() {
 
 
@@ -146,9 +149,15 @@ public class BasicCachingManager<O> {
         log.info("closing cache");
     }
 
-    public void setCache(String primaryKey, List items, Class<?> classView, CacheAlliance cacheAlliance) throws JsonProcessingException {
+    public void setCache(String primaryKey, List items, Class<?> classView, CacheAlliance cacheAlliance) {
         RemoteCache<String, String> cache = rmc.getCache(cacheAlliance.getCacheName());
-        String value = mapper.writerWithView(classView).writeValueAsString(items);
-        cache.put(primaryKey, value);
+        String value;
+        try {
+            value = mapper.writerWithView(classView).writeValueAsString(items);
+            cache.put(primaryKey, value);
+        } catch (JsonProcessingException e) {
+            log.error("error while saving entry into cache", e);
+            throw new RuntimeException(e);
+        }
     }
 }
