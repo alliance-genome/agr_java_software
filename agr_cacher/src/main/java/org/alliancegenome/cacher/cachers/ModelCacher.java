@@ -94,11 +94,7 @@ public class ModelCacher extends Cacher {
 
             JsonResultResponse<PrimaryAnnotatedEntity> result = new JsonResultResponse<>();
             result.setResults(new ArrayList<>(annotations));
-            try {
-                manager.setCache(geneID, annotations, View.PrimaryAnnotation.class, CacheAlliance.GENE_MODEL);
-            } catch (JsonProcessingException e) {
-                throw new RuntimeException(e);
-            }
+            manager.setCache(geneID, annotations, View.PrimaryAnnotation.class, CacheAlliance.GENE_MODEL);
         });
 
         finishProcess();
