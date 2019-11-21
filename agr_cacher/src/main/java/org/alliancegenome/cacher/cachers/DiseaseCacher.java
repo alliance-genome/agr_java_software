@@ -320,7 +320,12 @@ public class DiseaseCacher extends Cacher {
                     // used to populate the DOTerm object on the PrimaryAnnotationEntity object
                     // Needed as the same AGM can be reused on multiple pubJoin nodes.
                     Map<String, PrimaryAnnotatedEntity> entities = new HashMap<>();
-                    if (CollectionUtils.isNotEmpty(diseaseEntityJoin.getPublicationJoins())) {
+
+                    // sort to ensure subsequent caching processes will generate the same PAEs with the
+                    // same PK. Note the merging that is happening
+                    List<PublicationJoin> publicationJoins1 = diseaseEntityJoin.getPublicationJoins();
+                    publicationJoins1.sort(Comparator.comparing(PublicationJoin::getPrimaryKey));
+                    if (CollectionUtils.isNotEmpty(publicationJoins1)) {
                         // create PAEs from AGMs
                         diseaseEntityJoin.getPublicationJoins()
                                 .stream()
@@ -417,7 +422,8 @@ public class DiseaseCacher extends Cacher {
                         if (CollectionUtils.isEmpty(models))
                             return;
 */
-
+                        // sort so we always pick the same base annotation to merge into
+                        diseaseAnnotations.sort(Comparator.comparing(DiseaseAnnotation::getPrimaryKey));
                         DiseaseAnnotation annotation = diseaseAnnotations.get(0);
                         int index = 0;
                         for (DiseaseAnnotation annot : diseaseAnnotations) {

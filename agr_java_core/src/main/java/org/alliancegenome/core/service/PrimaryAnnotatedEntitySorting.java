@@ -1,12 +1,12 @@
 package org.alliancegenome.core.service;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-
 import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
 import org.alliancegenome.neo4j.entity.Sorting;
 import org.apache.commons.collections.CollectionUtils;
+
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
 public class PrimaryAnnotatedEntitySorting implements Sorting<PrimaryAnnotatedEntity> {
 
@@ -16,6 +16,9 @@ public class PrimaryAnnotatedEntitySorting implements Sorting<PrimaryAnnotatedEn
 
     private static Comparator<PrimaryAnnotatedEntity> modelNameSymbolOrder =
             Comparator.comparing(annotation -> annotation.getName().toLowerCase());
+
+    private static Comparator<PrimaryAnnotatedEntity> primaryKeyOrder =
+            Comparator.comparing(PrimaryAnnotatedEntity::getId);
 
     private static Comparator<PrimaryAnnotatedEntity> diseaseExistOrder =
             Comparator.comparing(annotation -> CollectionUtils.isEmpty(annotation.getDiseases()));
@@ -30,6 +33,7 @@ public class PrimaryAnnotatedEntitySorting implements Sorting<PrimaryAnnotatedEn
         defaultList.add(diseaseExistOrder);
         defaultList.add(phenotypeExistsOrder);
         defaultList.add(modelNameSymbolOrder);
+        defaultList.add(primaryKeyOrder);
 
         modelList = new ArrayList<>(4);
         modelList.add(modelNameSymbolOrder);
