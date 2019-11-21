@@ -33,9 +33,7 @@ public class  ModelAnnotationsSorting implements Sorting<DiseaseAnnotation> {
 
 
     private static Comparator<DiseaseAnnotation> phylogeneticOrder =
-            Comparator.comparing(annotation -> {
-                return annotation.getModel().getSpecies().getPhylogeneticOrder();
-            });
+            Comparator.comparing(annotation -> annotation.getModel().getSpecies().getPhylogeneticOrder());
 
     public ModelAnnotationsSorting() {
         super();

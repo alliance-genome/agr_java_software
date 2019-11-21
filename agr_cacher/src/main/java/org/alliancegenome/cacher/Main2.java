@@ -60,11 +60,6 @@ public class Main2 {
             List<OrthologView> resultsOrtho = managerOrtho.getOrthology("MGI:109583", View.Orthology.class);
             log.info("Orthology: " + resultsOrtho.size());
 
-            InteractionAllianceCacheManager managerInter = new InteractionAllianceCacheManager();
-            List<InteractionGeneJoin> resultsInter = managerInter.getInteractions("MGI:109583", View.Interaction.class);
-            log.info("Interactions: " + resultsInter.size());
-
-
             PhenotypeCacheManager managerPheno = new PhenotypeCacheManager();
             List<PhenotypeAnnotation> resultsPheno = managerPheno.getPhenotypeAnnotations("MGI:109583", View.PhenotypeAPI.class);
             log.info("Phenotype: " + resultsPheno.size());
