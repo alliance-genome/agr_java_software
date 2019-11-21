@@ -28,11 +28,9 @@ public class AlleleCacher extends Cacher {
 
         Map<String, List<Allele>> map = allAlleles.stream().collect(groupingBy(allele -> allele.getGene().getPrimaryKey()));
 
-        allAlleles.forEach(allele -> {
-            allele.setPhenotypes(allele.getPhenotypes().stream()
-                    .sorted(Comparator.comparing(phenotype -> phenotype.getPhenotypeStatement().toLowerCase()))
-                    .collect(Collectors.toList()));
-        });
+        allAlleles.forEach(allele -> allele.setPhenotypes(allele.getPhenotypes().stream()
+                .sorted(Comparator.comparing(phenotype -> phenotype.getPhenotypeStatement().toLowerCase()))
+                .collect(Collectors.toList())));
 
         BasicCachingManager manager = new BasicCachingManager();
         for (Map.Entry<String, List<Allele>> entry : map.entrySet()) {

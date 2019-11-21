@@ -1,14 +1,11 @@
 package org.alliancegenome.cacher.cachers;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.log4j.Log4j2;
 import org.alliancegenome.api.service.DiseaseRibbonService;
 import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.cache.manager.BasicCachingManager;
-import org.alliancegenome.cache.manager.ModelAllianceCacheManager;
 import org.alliancegenome.cache.repository.DiseaseCacheRepository;
 import org.alliancegenome.core.service.DiseaseAnnotationSorting;
-import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.core.service.SortingField;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
@@ -223,21 +220,15 @@ public class DiseaseCacher extends Cacher {
             diseaseAnnotationPureMap.put(geneID, mergedAnnotations);
         }));
 
-        ModelAllianceCacheManager managerModel = new ModelAllianceCacheManager();
+        BasicCachingManager managerModel = new BasicCachingManager();
 
         diseaseAnnotationPureMap.forEach((geneID, value) -> {
-            JsonResultResponse<PrimaryAnnotatedEntity> result = new JsonResultResponse<>();
-            result.setResults(value);
-            try {
-                if (geneID.equals("MGI:104798")) {
-                    log.info("found gene: " + geneID + " with annotations: " + result.getResults().size());
-                    //result.getResults().forEach(entity -> log.info(entity.getId()));
-                }
-                managerModel.putCache(geneID, result, View.PrimaryAnnotation.class, CacheAlliance.GENE_PURE_AGM_DISEASE);
-                progressProcess();
-            } catch (JsonProcessingException e) {
-                throw new RuntimeException(e);
+            if (geneID.equals("MGI:104798")) {
+                log.info("found gene: " + geneID + " with annotations: " + value.size());
+                //result.getResults().forEach(entity -> log.info(entity.getId()));
             }
+            managerModel.setCache(geneID, value, View.PrimaryAnnotation.class, CacheAlliance.GENE_PURE_AGM_DISEASE);
+            progressProcess();
         });
     }
 

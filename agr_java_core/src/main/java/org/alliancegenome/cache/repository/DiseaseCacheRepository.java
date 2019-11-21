@@ -8,7 +8,6 @@ import org.alliancegenome.api.service.FilterService;
 import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.cache.manager.BasicCacheManager;
 import org.alliancegenome.cache.manager.BasicCachingManager;
-import org.alliancegenome.cache.manager.ModelAllianceCacheManager;
 import org.alliancegenome.core.service.DiseaseAnnotationFiltering;
 import org.alliancegenome.core.service.DiseaseAnnotationSorting;
 import org.alliancegenome.core.service.PaginationResult;
@@ -17,7 +16,6 @@ import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
 import org.alliancegenome.neo4j.entity.node.ECOTerm;
 import org.alliancegenome.neo4j.entity.node.PublicationJoin;
-import org.alliancegenome.neo4j.view.View;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -215,7 +213,7 @@ public class DiseaseCacheRepository {
     }
 
     public List<PrimaryAnnotatedEntity> getDiseaseAnnotationPureModeList(String geneID) {
-        ModelAllianceCacheManager modelManager = new ModelAllianceCacheManager();
-        return modelManager.getDiseaseAnnotationPureModeList(geneID, View.PrimaryAnnotation.class);
+        BasicCachingManager<PrimaryAnnotatedEntity> manager = new BasicCachingManager<>(PrimaryAnnotatedEntity.class);
+        return manager.getCache(geneID, CacheAlliance.GENE_PURE_AGM_DISEASE);
     }
 }

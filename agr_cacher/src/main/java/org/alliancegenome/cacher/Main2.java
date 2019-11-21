@@ -60,11 +60,6 @@ public class Main2 {
             List<OrthologView> resultsOrtho = managerOrtho.getOrthology("MGI:109583", View.Orthology.class);
             log.info("Orthology: " + resultsOrtho.size());
 
-            PhenotypeCacheManager managerPheno = new PhenotypeCacheManager();
-            List<PhenotypeAnnotation> resultsPheno = managerPheno.getPhenotypeAnnotations("MGI:109583", View.PhenotypeAPI.class);
-            log.info("Phenotype: " + resultsPheno.size());
-
-
         } catch (Exception ignored) {
         } finally {
             AllianceCacheManager.close();

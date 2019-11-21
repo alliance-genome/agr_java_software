@@ -1,37 +1,19 @@
 package org.alliancegenome.cacher.cachers;
 
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toMap;
-import static java.util.stream.Collectors.toSet;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
+import lombok.extern.log4j.Log4j2;
 import org.alliancegenome.cache.CacheAlliance;
-import org.alliancegenome.cache.manager.ModelAllianceCacheManager;
-import org.alliancegenome.cache.manager.PhenotypeCacheManager;
-import org.alliancegenome.core.service.JsonResultResponse;
+import org.alliancegenome.cache.manager.BasicCachingManager;
 import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
 import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
-import org.alliancegenome.neo4j.entity.node.AffectedGenomicModel;
-import org.alliancegenome.neo4j.entity.node.Allele;
-import org.alliancegenome.neo4j.entity.node.CrossReference;
-import org.alliancegenome.neo4j.entity.node.Gene;
-import org.alliancegenome.neo4j.entity.node.GeneticEntity;
-import org.alliancegenome.neo4j.entity.node.PhenotypeEntityJoin;
-import org.alliancegenome.neo4j.entity.node.SequenceTargetingReagent;
+import org.alliancegenome.neo4j.entity.node.*;
 import org.alliancegenome.neo4j.repository.PhenotypeRepository;
 import org.alliancegenome.neo4j.view.View;
 import org.apache.commons.collections.CollectionUtils;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import java.util.*;
+import java.util.stream.Collectors;
 
-import lombok.extern.log4j.Log4j2;
+import static java.util.stream.Collectors.*;
 
 @Log4j2
 public class GenePhenotypeCacher extends Cacher {
@@ -159,19 +141,13 @@ public class GenePhenotypeCacher extends Cacher {
                 .collect(groupingBy(phenotypeAnnotation -> phenotypeAnnotation.getGene().getPrimaryKey()));
 */
 
-        PhenotypeCacheManager manager = new PhenotypeCacheManager();
+        BasicCachingManager manager = new BasicCachingManager();
 
         startProcess("phenotypeAnnotationMap into cache", phenotypeAnnotationMap.size());
 
         phenotypeAnnotationMap.forEach((key, value) -> {
-            JsonResultResponse<PhenotypeAnnotation> result = new JsonResultResponse<>();
-            result.setResults(value);
-            try {
-                manager.putCache(key, result, View.PhenotypeAPI.class, CacheAlliance.GENE_PHENOTYPE);
-                progressProcess();
-            } catch (JsonProcessingException e) {
-                throw new RuntimeException(e);
-            }
+            manager.setCache(key, value, View.PhenotypeAPI.class, CacheAlliance.GENE_PHENOTYPE);
+            progressProcess();
         });
         finishProcess();
 
@@ -282,21 +258,14 @@ public class GenePhenotypeCacher extends Cacher {
             phenotypeAnnotationPureMap.put(geneID, mergedAnnotations);
         }));
 
-        ModelAllianceCacheManager managerModel = new ModelAllianceCacheManager();
+        BasicCachingManager managerModel = new BasicCachingManager();
 
         phenotypeAnnotationPureMap.forEach((geneID, value) -> {
-            JsonResultResponse<PrimaryAnnotatedEntity> result = new JsonResultResponse<>();
-            result.setResults(value);
-            try {
-                if (geneID.equals("MGI:104798")) {
-                    log.info("found gene: " + geneID + " with annotations: " + result.getResults().size());
-                    //result.getResults().forEach(entity -> log.info(entity.getId()));
-                }
-                managerModel.putCache(geneID, result, View.PrimaryAnnotation.class, CacheAlliance.GENE_PURE_AGM_PHENOTYPE);
-                progressProcess();
-            } catch (JsonProcessingException e) {
-                throw new RuntimeException(e);
+            if (geneID.equals("MGI:104798")) {
+                log.info("found gene: " + geneID + " with annotations: " + value.size());
             }
+            managerModel.setCache(geneID, value, View.PrimaryAnnotation.class, CacheAlliance.GENE_PURE_AGM_PHENOTYPE);
+            progressProcess();
         });
 
         phenotypeRepository.clearCache();
