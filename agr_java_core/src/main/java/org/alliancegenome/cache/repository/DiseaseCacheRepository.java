@@ -73,8 +73,6 @@ public class DiseaseCacheRepository {
                     List<DiseaseAnnotation> annotations = manager.getCache(geneID, CacheAlliance.DISEASE_ANNOTATION);
                     if (annotations != null)
                         allDiseaseAnnotationList.addAll(annotations);
-                    else
-                        log.info("no disease annotation found for gene: " + geneID);
                 }
         );
         List<DiseaseAnnotation> fullDiseaseAnnotationList = new ArrayList<>(allDiseaseAnnotationList);

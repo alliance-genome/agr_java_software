@@ -56,10 +56,6 @@ public class Main2 {
             List<ExpressionDetail> resultsExp = managerExp.getExpressions("MGI:109583", View.Expression.class);
             log.info("Expression: " + resultsExp.size());
 
-            OrthologyAllianceCacheManager managerOrtho = new OrthologyAllianceCacheManager();
-            List<OrthologView> resultsOrtho = managerOrtho.getOrthology("MGI:109583", View.Orthology.class);
-            log.info("Orthology: " + resultsOrtho.size());
-
         } catch (Exception ignored) {
         } finally {
             AllianceCacheManager.close();
