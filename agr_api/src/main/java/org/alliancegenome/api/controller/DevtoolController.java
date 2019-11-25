@@ -1,32 +1,30 @@
 package org.alliancegenome.api.controller;
 
-import java.util.Map;
-
+import lombok.extern.log4j.Log4j2;
 import org.alliancegenome.api.entity.CacheStatus;
 import org.alliancegenome.api.entity.CacheSummary;
 import org.alliancegenome.api.rest.interfaces.DevtoolRESTInterface;
+import org.alliancegenome.api.service.CacheStatusService;
 import org.alliancegenome.cache.CacheAlliance;
-import org.alliancegenome.cache.manager.BasicCacheManager;
 
-import lombok.extern.log4j.Log4j2;
+import java.util.Map;
 
 @Log4j2
 public class DevtoolController implements DevtoolRESTInterface {
 
+    private CacheStatusService service = new CacheStatusService();
+
     @Override
     public CacheSummary getCacheStatus() {
         CacheSummary summary = new CacheSummary();
-
-        //InteractionCacheRepository interactionCacheRepository = new InteractionCacheRepository();
-        //ExpressionCacheRepository expressionCacheRepository = new ExpressionCacheRepository();
-        //PhenotypeCacheRepository phenotypeCacheRepository = new PhenotypeCacheRepository();
-        //GeneCacheRepository geneCacheRepository = new GeneCacheRepository();
-        //AlleleCacheRepository alleleCacheRepository = new AlleleCacheRepository();
-
-        BasicCacheManager<CacheStatus> basicManager = new BasicCacheManager<>();
-        Map<String, CacheStatus> map = basicManager.getAllCacheEntries(CacheAlliance.CACHING_STATS);
-
+        Map<CacheAlliance, CacheStatus> map = service.getAllCachStatusRecords();
         map.forEach((name, cacheStatus) -> summary.addCacheStatus(cacheStatus));
         return summary;
+    }
+
+    @Override
+    public CacheStatus getCacheStatusPerSpace(String cacheSpace,
+                                              String entityID) {
+        return service.getCacheStatus(CacheAlliance.getTypeByName(cacheSpace), entityID);
     }
 }

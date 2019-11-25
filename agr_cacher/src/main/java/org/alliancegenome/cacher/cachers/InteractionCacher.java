@@ -1,5 +1,7 @@
 package org.alliancegenome.cacher.cachers;
 
+import lombok.extern.log4j.Log4j2;
+import org.alliancegenome.api.entity.CacheStatus;
 import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.cache.manager.BasicCachingManager;
 import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
@@ -7,11 +9,13 @@ import org.alliancegenome.neo4j.repository.InteractionRepository;
 import org.alliancegenome.neo4j.view.View;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import static java.util.stream.Collectors.groupingBy;
 
+@Log4j2
 public class InteractionCacher extends Cacher {
 
     private static InteractionRepository interactionRepository = new InteractionRepository();
@@ -59,7 +63,26 @@ public class InteractionCacher extends Cacher {
         });
 
         finishProcess();
-        setCacheStatus(allInteractionAnnotations.size(), CacheAlliance.GENE_INTERACTION.getCacheName());
+
+        log.info("All interactions: " + allInteractionAnnotations.size());
+        log.info("Genes with interactions: " + interactionAnnotationMapGene.size());
+        Map<String, Integer> stats = new HashMap<>(interactionAnnotationMapGene.size());
+        interactionAnnotationMapGene.forEach((geneID, joins) -> {
+            stats.put(geneID, joins.size());
+        });
+
+        Map<String, List<InteractionGeneJoin>> speciesStats = allInteractionAnnotations.stream().collect(groupingBy(join -> join.getGeneA().getSpecies().getName()));
+
+        Map<String, Integer> speciesStatsInt = new HashMap<>();
+        speciesStats.forEach((species, joins) -> {
+            stats.put(species, joins.size());
+        });
+
+        CacheStatus status = new CacheStatus(CacheAlliance.GENE_INTERACTION.getCacheName());
+        status.setNumberOfEntities(allInteractionAnnotations.size());
+        status.setEntityStats(stats);
+        status.setSpeciesStats(speciesStatsInt);
+        setCacheStatus(status);
 
         interactionRepository.clearCache();
     }

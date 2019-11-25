@@ -1,10 +1,13 @@
 package org.alliancegenome.cacher.cachers;
 
 import lombok.extern.log4j.Log4j2;
+import org.alliancegenome.api.entity.CacheStatus;
 import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.cache.manager.BasicCachingManager;
+import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
 import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
+import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.entity.node.*;
 import org.alliancegenome.neo4j.repository.PhenotypeRepository;
 import org.alliancegenome.neo4j.view.View;
@@ -149,6 +152,31 @@ public class GenePhenotypeCacher extends Cacher {
             manager.setCache(key, value, View.PhenotypeAPI.class, CacheAlliance.GENE_PHENOTYPE);
             progressProcess();
         });
+        CacheStatus status = new CacheStatus(CacheAlliance.GENE_PHENOTYPE.getCacheName());
+        status.setNumberOfEntities(joinList.size());
+
+        Map<String, List<PhenotypeAnnotation>> speciesStats = allPhenotypeAnnotations.stream()
+                .filter(annotation -> annotation.getGene() != null)
+                .collect(groupingBy(annotation -> annotation.getGene().getSpecies().getName()));
+
+        Map<String, Integer> stats = new HashMap<>(phenotypeAnnotationMap.size());
+        phenotypeAnnotationMap.forEach((diseaseID, annotations) -> {
+            stats.put(diseaseID, annotations.size());
+        });
+
+        Arrays.stream(SpeciesType.values())
+                .filter(speciesType -> !speciesStats.keySet().contains(speciesType.getName()))
+                .forEach(speciesType -> speciesStats.put(speciesType.getName(), new ArrayList<>()));
+
+        Map<String, Integer> speciesStatsInt = new HashMap<>();
+        speciesStats.forEach((species, alleles) -> {
+            speciesStatsInt.put(species, alleles.size());
+        });
+
+        status.setEntityStats(stats);
+        status.setSpeciesStats(speciesStatsInt);
+        setCacheStatus(status);
+
         finishProcess();
 
         List<PhenotypeEntityJoin> pureAgmPhenotypes = phenotypeRepository.getAllPhenotypeAnnotationsPureAGM();

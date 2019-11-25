@@ -40,6 +40,13 @@ public class CacheAllianceTest {
 
     @Test
     @Ignore
+    public void interactionCacher() {
+        InteractionCacher cacher = new InteractionCacher();
+        cacher.run();
+    }
+
+    @Test
+    @Ignore
     public void cacheEcoTerms() {
         EcoCodeHelperCacher cacher = new EcoCodeHelperCacher();
         cacher.run();

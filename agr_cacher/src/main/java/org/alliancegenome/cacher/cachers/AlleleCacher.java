@@ -1,19 +1,20 @@
 package org.alliancegenome.cacher.cachers;
 
+import lombok.extern.log4j.Log4j2;
+import org.alliancegenome.api.entity.CacheStatus;
 import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.cache.manager.BasicCachingManager;
+import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.repository.AlleleRepository;
 import org.alliancegenome.neo4j.view.View;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.groupingBy;
 
+@Log4j2
 public class AlleleCacher extends Cacher {
 
     private static AlleleRepository alleleRepository = new AlleleRepository();
@@ -22,6 +23,7 @@ public class AlleleCacher extends Cacher {
     protected void cache() {
 
         Set<Allele> allAlleles = alleleRepository.getAllAlleles();
+        log.info("Number of Alleles: " + String.format("%,d", allAlleles.size()));
 
         if (allAlleles == null)
             return;
@@ -36,7 +38,29 @@ public class AlleleCacher extends Cacher {
         for (Map.Entry<String, List<Allele>> entry : map.entrySet()) {
             manager.setCache(entry.getKey(), entry.getValue(), View.GeneAllelesAPI.class, CacheAlliance.ALLELE);
         }
-        setCacheStatus(allAlleles.size(), CacheAlliance.ALLELE.getCacheName());
+
+        CacheStatus status = new CacheStatus(CacheAlliance.ALLELE.getCacheName());
+        status.setNumberOfEntities(allAlleles.size());
+
+        Map<String, List<Allele>> speciesStats = allAlleles.stream().collect(groupingBy(allele -> allele.getGene().getSpecies().getName()));
+
+        Map<String, Integer> stats = new HashMap<>(map.size());
+        map.forEach((geneID, alleles) -> {
+            stats.put(geneID, alleles.size());
+        });
+
+        Arrays.stream(SpeciesType.values())
+                .filter(speciesType -> !speciesStats.keySet().contains(speciesType.getName()))
+                .forEach(speciesType -> speciesStats.put(speciesType.getName(), new ArrayList<>()));
+
+        Map<String, Integer> speciesStatsInt = new HashMap<>();
+        speciesStats.forEach((species, alleles) -> {
+            speciesStatsInt.put(species, alleles.size());
+        });
+
+        status.setEntityStats(stats);
+        status.setSpeciesStats(speciesStatsInt);
+        setCacheStatus(status);
 
         alleleRepository.clearCache();
 
