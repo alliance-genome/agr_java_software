@@ -49,19 +49,6 @@ public class Main2 {
 
 */
 
-/*
-        try {
-
-            ExpressionAllianceCacheManager managerExp = new ExpressionAllianceCacheManager();
-            List<ExpressionDetail> resultsExp = managerExp.getExpressions("MGI:109583", View.Expression.class);
-            log.info("Expression: " + resultsExp.size());
-
-        } catch (Exception ignored) {
-        } finally {
-            AllianceCacheManager.close();
-        }
-*/
-        
 
 /*
         HashMap<String, List<String>> map = new HashMap<>();

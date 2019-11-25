@@ -1,20 +1,9 @@
 package org.alliancegenome.cacher.cachers;
 
-import static java.util.stream.Collectors.groupingBy;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.stream.Collectors;
-
+import lombok.extern.log4j.Log4j2;
 import org.alliancegenome.cache.CacheAlliance;
-import org.alliancegenome.cache.manager.ExpressionAllianceCacheManager;
+import org.alliancegenome.cache.manager.BasicCachingManager;
 import org.alliancegenome.core.ExpressionDetail;
-import org.alliancegenome.core.service.JsonResultResponseExpression;
 import org.alliancegenome.neo4j.entity.node.BioEntityGeneExpressionJoin;
 import org.alliancegenome.neo4j.entity.node.GOTerm;
 import org.alliancegenome.neo4j.entity.node.UBERONTerm;
@@ -22,9 +11,10 @@ import org.alliancegenome.neo4j.repository.DiseaseRepository;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.alliancegenome.neo4j.view.View;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import java.util.*;
+import java.util.stream.Collectors;
 
-import lombok.extern.log4j.Log4j2;
+import static java.util.stream.Collectors.groupingBy;
 
 @Log4j2
 public class ExpressionCacher extends Cacher {
@@ -103,23 +93,14 @@ public class ExpressionCacher extends Cacher {
 
         finishProcess();
 
-        ExpressionAllianceCacheManager manager = new ExpressionAllianceCacheManager();
-
+        BasicCachingManager manager = new BasicCachingManager();
         startProcess("geneExpressionMap into Cache", geneExpressionMap.size());
 
         geneExpressionMap.forEach((key, value) -> {
-            JsonResultResponseExpression result = new JsonResultResponseExpression();
-            result.setResults(value);
-            try {
-                manager.putCache(key, result, View.Expression.class, CacheAlliance.GENE_EXPRESSION);
-                progressProcess();
-            } catch (JsonProcessingException e) {
-                throw new RuntimeException(e);
-            }
-
+            manager.setCache(key, value, View.Expression.class, CacheAlliance.GENE_EXPRESSION);
+            progressProcess();
         });
         finishProcess();
-        setCacheStatus(joins.size(), CacheAlliance.GENE_EXPRESSION.getCacheName());
 
         geneRepository.clearCache();
 
