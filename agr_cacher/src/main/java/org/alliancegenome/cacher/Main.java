@@ -1,17 +1,16 @@
 package org.alliancegenome.cacher;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
-
-import org.alliancegenome.cache.manager.CacheManager;
+import lombok.extern.log4j.Log4j2;
+import org.alliancegenome.cache.manager.BasicCachingManager;
 import org.alliancegenome.cacher.cachers.Cacher;
 import org.alliancegenome.cacher.config.CacherConfig;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
 
-import lombok.extern.log4j.Log4j2;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 @Log4j2
 public class Main {
@@ -75,7 +74,7 @@ public class Main {
             }
         }
 
-        CacheManager.close();
+        BasicCachingManager.close();
 
         Date end = new Date();
         log.info("End Time: " + end);

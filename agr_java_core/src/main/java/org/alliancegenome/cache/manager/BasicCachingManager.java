@@ -110,6 +110,12 @@ public class BasicCachingManager<O> {
 
     }
 
+    public List<String> getAllKeys(CacheAlliance cacheSpace) {
+        RemoteCache<String, String> cache = getCacheSpace(cacheSpace);
+        //System.out.println(cache);
+        return new ArrayList<>(cache.keySet());
+    }
+
     private RemoteCache<String, String> getCacheSpace(CacheAlliance cache) {
         //log.info("Getting Cache Space: " + cache.getCacheName());
         return rmc.getCache(cache.getCacheName());

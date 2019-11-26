@@ -2,7 +2,7 @@ package org.alliancegenome.cacher.cachers;
 
 import lombok.extern.log4j.Log4j2;
 import org.alliancegenome.cache.CacheAlliance;
-import org.alliancegenome.cache.manager.BasicCacheManager;
+import org.alliancegenome.cache.manager.BasicCachingManager;
 import org.alliancegenome.neo4j.entity.node.ECOTerm;
 import org.alliancegenome.neo4j.repository.DiseaseRepository;
 import org.alliancegenome.neo4j.view.View;
@@ -23,7 +23,7 @@ public class EcoCodeHelperCacher extends Cacher {
         // dej primary key, list of ECO terms
         Map<String, List<ECOTerm>> allEcos = diseaseRepository.getEcoTermMap();
 
-        BasicCacheManager<String> basicManager = new BasicCacheManager<>();
+        BasicCachingManager basicManager = new BasicCachingManager<>();
         final Class<View.DiseaseCacher> classView = View.DiseaseCacher.class;
 
         allEcos.forEach((key, ecoTerms) -> {

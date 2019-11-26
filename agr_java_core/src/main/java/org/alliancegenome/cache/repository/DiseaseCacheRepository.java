@@ -129,21 +129,10 @@ public class DiseaseCacheRepository {
     public List<ECOTerm> getEcoTerms(List<PublicationJoin> joins) {
         if (joins == null)
             return null;
-        BasicCacheManager<String> manager = new BasicCacheManager<>();
+        BasicCachingManager<ECOTerm> manager = new BasicCachingManager<>();
         List<ECOTerm> list = new ArrayList<>();
-        CollectionType javaType = BasicCacheManager.mapper.getTypeFactory()
-                .constructCollectionType(List.class, ECOTerm.class);
-
         joins.forEach(join -> {
-            String json = manager.getCache(join.getPrimaryKey(), CacheAlliance.ECO_MAP);
-            if (json == null)
-                return;
-            try {
-                list.addAll(BasicCacheManager.mapper.readValue(json, javaType));
-            } catch (IOException e) {
-                log.error("Error during deserialization ", e);
-                throw new RuntimeException(e);
-            }
+            list.addAll(manager.getCache(join.getPrimaryKey(), CacheAlliance.ECO_MAP));
         });
         return list;
     }
@@ -151,21 +140,8 @@ public class DiseaseCacheRepository {
     public List<ECOTerm> getEcoTerm(PublicationJoin join) {
         if (join == null)
             return null;
-        BasicCacheManager<String> manager = new BasicCacheManager<>();
-        List<ECOTerm> list = new ArrayList<>();
-        CollectionType javaType = BasicCacheManager.mapper.getTypeFactory()
-                .constructCollectionType(List.class, ECOTerm.class);
-
-        String json = manager.getCache(join.getPrimaryKey(), CacheAlliance.ECO_MAP);
-        if (json == null)
-            return null;
-        try {
-            list.addAll(BasicCacheManager.mapper.readValue(json, javaType));
-        } catch (IOException e) {
-            log.error("Error during deserialization ", e);
-            throw new RuntimeException(e);
-        }
-        return list;
+        BasicCachingManager<ECOTerm> manager = new BasicCachingManager<>();
+        return manager.getCache(join.getPrimaryKey(), CacheAlliance.ECO_MAP);
     }
 
     public List<ECOTerm> getEcoTermsFromCache(List<PublicationJoin> joins) {

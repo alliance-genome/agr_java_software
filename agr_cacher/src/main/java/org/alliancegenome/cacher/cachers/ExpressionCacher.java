@@ -1,9 +1,11 @@
 package org.alliancegenome.cacher.cachers;
 
 import lombok.extern.log4j.Log4j2;
+import org.alliancegenome.api.entity.CacheStatus;
 import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.cache.manager.BasicCachingManager;
 import org.alliancegenome.core.ExpressionDetail;
+import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.entity.node.BioEntityGeneExpressionJoin;
 import org.alliancegenome.neo4j.entity.node.GOTerm;
 import org.alliancegenome.neo4j.entity.node.UBERONTerm;
@@ -101,6 +103,27 @@ public class ExpressionCacher extends Cacher {
             progressProcess();
         });
         finishProcess();
+
+        CacheStatus status = new CacheStatus(CacheAlliance.GENE_EXPRESSION.getCacheName());
+        status.setNumberOfEntities(allExpression.size());
+
+        Map<String, List<ExpressionDetail>> speciesStats = allExpression.stream()
+                .filter(expressionDetail -> expressionDetail.getGene() != null)
+                .collect(groupingBy(annotation -> annotation.getGene().getSpecies().getName()));
+
+        Map<String, Integer> stats = new HashMap<>(geneExpressionMap.size());
+        geneExpressionMap.forEach((diseaseID, annotations) -> stats.put(diseaseID, annotations.size()));
+
+        Arrays.stream(SpeciesType.values())
+                .filter(speciesType -> !speciesStats.keySet().contains(speciesType.getName()))
+                .forEach(speciesType -> speciesStats.put(speciesType.getName(), new ArrayList<>()));
+
+        Map<String, Integer> speciesStatsInt = new HashMap<>();
+        speciesStats.forEach((species, alleles) -> speciesStatsInt.put(species, alleles.size()));
+
+        status.setEntityStats(stats);
+        status.setSpeciesStats(speciesStatsInt);
+        setCacheStatus(status);
 
         geneRepository.clearCache();
 
