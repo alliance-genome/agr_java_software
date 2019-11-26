@@ -18,7 +18,7 @@ public class ExpressionCacheRepository {
 
 
     private static List<String> parentTermIDs = new ArrayList<>();
-    private BasicCachingManager<ExpressionDetail> manager = new BasicCachingManager<>();
+    private BasicCachingManager<ExpressionDetail> manager = new BasicCachingManager<>(ExpressionDetail.class);
 
     public static final String UBERON_ANATOMY_ROOT = "UBERON:0001062";
 

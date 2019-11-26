@@ -1,16 +1,18 @@
 package org.alliancegenome.cacher.cachers;
 
 import lombok.extern.log4j.Log4j2;
+import org.alliancegenome.api.entity.CacheStatus;
 import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.cache.manager.BasicCachingManager;
+import org.alliancegenome.neo4j.entity.SpeciesType;
+import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.ECOTerm;
 import org.alliancegenome.neo4j.repository.DiseaseRepository;
 import org.alliancegenome.neo4j.view.View;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+
+import static java.util.stream.Collectors.groupingBy;
 
 @Log4j2
 public class EcoCodeHelperCacher extends Cacher {
@@ -31,6 +33,11 @@ public class EcoCodeHelperCacher extends Cacher {
         });
         log.info("Retrieved " + String.format("%,d", allEcos.size()) + " EcoTerm mappings");
 
+        CacheStatus status = new CacheStatus(CacheAlliance.ECO_MAP.getCacheName());
+        status.setNumberOfEntities(allEcos.size());
+        setCacheStatus(status);
+
+
         Map<String, Set<String>> closure = diseaseRepository.getClosureChildToParentsMapping();
 
         closure.forEach((parent, children) -> {
@@ -38,6 +45,10 @@ public class EcoCodeHelperCacher extends Cacher {
         });
 
         log.info("Retrieved " + String.format("%,d", closure.size()) + " closure parents");
+        CacheStatus statusClosure = new CacheStatus(CacheAlliance.CLOSURE_MAP.getCacheName());
+        status.setNumberOfEntities(closure.size());
+        setCacheStatus(status);
+
 
     }
 
