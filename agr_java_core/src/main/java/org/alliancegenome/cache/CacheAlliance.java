@@ -27,7 +27,7 @@ public enum CacheAlliance {
     CLOSURE_MAP(),
     GENE_PURE_AGM_PHENOTYPE(),
     GENE_PURE_AGM_DISEASE(),
-    
+
     ;
 
     private String cacheName;
@@ -38,6 +38,13 @@ public enum CacheAlliance {
 
     public String getCacheName() {
         return cacheName;
+    }
+
+    public static CacheAlliance getTypeByName(String name) {
+        for (CacheAlliance type : values())
+            if (type.cacheName.equals(name))
+                return type;
+        return null;
     }
 
 }

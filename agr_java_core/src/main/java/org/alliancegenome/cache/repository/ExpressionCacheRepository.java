@@ -1,35 +1,24 @@
 package org.alliancegenome.cache.repository;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import org.alliancegenome.cache.manager.ExpressionAllianceCacheManager;
+import lombok.extern.log4j.Log4j2;
+import org.alliancegenome.cache.CacheAlliance;
+import org.alliancegenome.cache.manager.BasicCachingManager;
 import org.alliancegenome.core.ExpressionDetail;
-import org.alliancegenome.core.service.ExpressionAnnotationFiltering;
-import org.alliancegenome.core.service.ExpressionAnnotationSorting;
-import org.alliancegenome.core.service.FilterFunction;
-import org.alliancegenome.core.service.PaginationResult;
-import org.alliancegenome.core.service.SortingField;
+import org.alliancegenome.core.service.*;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.repository.DiseaseRepository;
 import org.alliancegenome.neo4j.view.BaseFilter;
-import org.alliancegenome.neo4j.view.View;
 import org.apache.commons.collections4.CollectionUtils;
 
-import lombok.extern.log4j.Log4j2;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Log4j2
 public class ExpressionCacheRepository {
 
 
     private static List<String> parentTermIDs = new ArrayList<>();
-    private ExpressionAllianceCacheManager manager = new ExpressionAllianceCacheManager();
+    private BasicCachingManager<ExpressionDetail> manager = new BasicCachingManager<>(ExpressionDetail.class);
 
     public static final String UBERON_ANATOMY_ROOT = "UBERON:0001062";
 
@@ -50,8 +39,8 @@ public class ExpressionCacheRepository {
 
         List<ExpressionDetail> fullExpressionAnnotationList = new ArrayList<>();
         geneIDs.stream()
-                .filter(geneID -> manager.getExpressions(geneID, View.Expression.class) != null)
-                .forEach(geneID -> fullExpressionAnnotationList.addAll(manager.getExpressions(geneID, View.Expression.class)));
+                .filter(geneID -> manager.getCache(geneID, CacheAlliance.GENE_EXPRESSION) != null)
+                .forEach(geneID -> fullExpressionAnnotationList.addAll(manager.getCache(geneID, CacheAlliance.GENE_EXPRESSION)));
 
         //filtering
         // filter on termID
@@ -154,6 +143,6 @@ public class ExpressionCacheRepository {
     }
 
     public boolean hasExpression(String geneID) {
-        return CollectionUtils.isNotEmpty(manager.getExpressions(geneID, View.Expression.class));
+        return CollectionUtils.isNotEmpty(manager.getCache(geneID, CacheAlliance.GENE_EXPRESSION));
     }
 }

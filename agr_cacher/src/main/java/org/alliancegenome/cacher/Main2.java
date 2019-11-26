@@ -49,41 +49,7 @@ public class Main2 {
 
 */
 
-/*
-        try {
 
-            ExpressionAllianceCacheManager managerExp = new ExpressionAllianceCacheManager();
-            List<ExpressionDetail> resultsExp = managerExp.getExpressions("MGI:109583", View.Expression.class);
-            log.info("Expression: " + resultsExp.size());
-
-            OrthologyAllianceCacheManager managerOrtho = new OrthologyAllianceCacheManager();
-            List<OrthologView> resultsOrtho = managerOrtho.getOrthology("MGI:109583", View.Orthology.class);
-            log.info("Orthology: " + resultsOrtho.size());
-
-            InteractionAllianceCacheManager managerInter = new InteractionAllianceCacheManager();
-            List<InteractionGeneJoin> resultsInter = managerInter.getInteractions("MGI:109583", View.Interaction.class);
-            log.info("Interactions: " + resultsInter.size());
-
-
-            PhenotypeCacheManager managerPheno = new PhenotypeCacheManager();
-            List<PhenotypeAnnotation> resultsPheno = managerPheno.getPhenotypeAnnotations("MGI:109583", View.PhenotypeAPI.class);
-            log.info("Phenotype: " + resultsPheno.size());
-
-            DiseaseAllianceCacheManager resultDisease = new DiseaseAllianceCacheManager();
-            List<DiseaseAnnotation> resultsDisease = resultDisease.getDiseaseAnnotations("DOID:9952", View.DiseaseAnnotationSummary.class);
-            log.info("Disease Annotations: " + resultsDisease.size());
-
-            AlleleAllianceCacheManager managerAllele = new AlleleAllianceCacheManager();
-            List<Allele> resultAllele = managerAllele.getAlleles("MGI:109583", View.GeneAllelesAPI.class);
-            log.info("Alleles: " + resultAllele.size());
-        } catch (Exception ignored) {
-        } finally {
-            AllianceCacheManager.close();
-        }
-*/
-        
-        //AlleleAllianceCacheManager managerAllele = new AlleleAllianceCacheManager();
-        
 /*
         HashMap<String, List<String>> map = new HashMap<>();
         ArrayList<String> list = new ArrayList<>();

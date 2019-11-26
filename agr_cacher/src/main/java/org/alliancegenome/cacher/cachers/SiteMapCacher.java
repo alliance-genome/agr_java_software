@@ -43,18 +43,12 @@ public class SiteMapCacher extends Cacher {
     }
     
     private void cacheSiteMap(Iterable<String> list, CacheAlliance cache) {
-        List<String> idList = new ArrayList<String>();
+        List<String> idList = new ArrayList<>();
         int c = 0;
         for(String id: list) {
             idList.add(id);
             if(idList.size() >= batchSize) {
-                JsonResultResponse<String> result = new JsonResultResponse<>();
-                result.setResults(new ArrayList<>(idList));
-                try {
-                    manager.putCache(String.valueOf(c), result, View.Default.class, cache);
-                } catch (JsonProcessingException e) {
-                    throw new RuntimeException(e);
-                }
+                manager.setCache(String.valueOf(c), idList, View.Default.class, cache);
                 idList.clear();
                 c++;
             }
@@ -63,11 +57,7 @@ public class SiteMapCacher extends Cacher {
         if(idList.size() > 0) {
             JsonResultResponse<String> result = new JsonResultResponse<>();
             result.setResults(new ArrayList<>(idList));
-            try {
-                manager.putCache(String.valueOf(c), result, View.Default.class, cache);
-            } catch (JsonProcessingException e) {
-                throw new RuntimeException(e);
-            }
+            manager.setCache(String.valueOf(c), idList, View.Default.class, cache);
             idList.clear();
         }
         

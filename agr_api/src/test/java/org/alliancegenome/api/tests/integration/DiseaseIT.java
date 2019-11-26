@@ -6,9 +6,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.log4j.Log4j2;
 import org.alliancegenome.api.entity.CacheStatus;
 import org.alliancegenome.api.entity.DiseaseRibbonSummary;
+import org.alliancegenome.api.service.CacheStatusService;
 import org.alliancegenome.api.service.DiseaseService;
 import org.alliancegenome.cache.CacheAlliance;
-import org.alliancegenome.cache.manager.BasicCacheManager;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.core.translators.tdf.DiseaseAnnotationToTdfTranslator;
@@ -505,12 +505,11 @@ public class DiseaseIT {
     @Test
     // Test Sox9 from MGI for disease via experiment records
     public void checkStatus() {
-        BasicCacheManager<CacheStatus> basicManager = new BasicCacheManager<>();
-        CacheStatus status = basicManager.getCache(CacheAlliance.DISEASE_ANNOTATION.getCacheName(), CacheAlliance.CACHING_STATS);
+        CacheStatusService service = new CacheStatusService();
+        CacheStatus status = service.getCacheStatus(CacheAlliance.ALLELE, "FB:FBgn0031717");
         assertNotNull(status);
-        Map<String, CacheStatus> map = basicManager.getAllCacheEntries(CacheAlliance.CACHING_STATS);
+        Map<CacheAlliance, CacheStatus> map = service.getAllCachStatusRecords();
         assertNotNull(map);
-
     }
 
     @Test

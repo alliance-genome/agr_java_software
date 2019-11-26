@@ -1,47 +1,25 @@
 package org.alliancegenome.cacher.cachers;
 
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toMap;
-import static java.util.stream.Collectors.toSet;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
+import lombok.extern.log4j.Log4j2;
+import org.alliancegenome.api.entity.CacheStatus;
 import org.alliancegenome.api.service.DiseaseRibbonService;
 import org.alliancegenome.cache.CacheAlliance;
-import org.alliancegenome.cache.manager.DiseaseAllianceCacheManager;
-import org.alliancegenome.cache.manager.ModelAllianceCacheManager;
+import org.alliancegenome.cache.manager.BasicCachingManager;
 import org.alliancegenome.cache.repository.DiseaseCacheRepository;
 import org.alliancegenome.core.service.DiseaseAnnotationSorting;
-import org.alliancegenome.core.service.JsonResultResponse;
-import org.alliancegenome.core.service.JsonResultResponseDiseaseAnnotation;
 import org.alliancegenome.core.service.SortingField;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
-import org.alliancegenome.neo4j.entity.node.AffectedGenomicModel;
-import org.alliancegenome.neo4j.entity.node.Allele;
-import org.alliancegenome.neo4j.entity.node.CrossReference;
-import org.alliancegenome.neo4j.entity.node.DOTerm;
-import org.alliancegenome.neo4j.entity.node.DiseaseEntityJoin;
-import org.alliancegenome.neo4j.entity.node.ECOTerm;
-import org.alliancegenome.neo4j.entity.node.Gene;
-import org.alliancegenome.neo4j.entity.node.GeneticEntity;
-import org.alliancegenome.neo4j.entity.node.PublicationJoin;
-import org.alliancegenome.neo4j.entity.node.SequenceTargetingReagent;
+import org.alliancegenome.neo4j.entity.SpeciesType;
+import org.alliancegenome.neo4j.entity.node.*;
 import org.alliancegenome.neo4j.repository.DiseaseRepository;
 import org.alliancegenome.neo4j.view.View;
 import org.apache.commons.collections4.CollectionUtils;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import java.util.*;
+import java.util.stream.Collectors;
 
-import lombok.extern.log4j.Log4j2;
+import static java.util.stream.Collectors.*;
 
 @Log4j2
 public class DiseaseCacher extends Cacher {
@@ -110,8 +88,6 @@ public class DiseaseCacher extends Cacher {
             diseaseAnnotationMap.put(termID, allAnnotations);
         });
 
-        setCacheStatus(joinList.size(), CacheAlliance.DISEASE_ANNOTATION.getCacheName());
-
         // Create map with genes as keys and their associated disease annotations as values
         // Map<gene ID, List<DiseaseAnnotation>> including annotations to child terms
         Map<String, List<DiseaseAnnotation>> diseaseAnnotationExperimentGeneMap = allDiseaseAnnotations.stream()
@@ -121,16 +97,37 @@ public class DiseaseCacher extends Cacher {
         diseaseAnnotationMap.putAll(diseaseAnnotationExperimentGeneMap);
 
         log.info("Number of Disease IDs in disease Map after adding gene grouping: " + diseaseAnnotationMap.size());
-        DiseaseAllianceCacheManager manager = new DiseaseAllianceCacheManager();
+
+        BasicCachingManager manager = new BasicCachingManager();
         diseaseAnnotationMap.forEach((key, value) -> {
-            JsonResultResponseDiseaseAnnotation result = new JsonResultResponseDiseaseAnnotation();
-            result.setResults(value);
-            try {
-                manager.putCache(key, result, View.DiseaseCacher.class, CacheAlliance.DISEASE_ANNOTATION);
-            } catch (JsonProcessingException e) {
-                throw new RuntimeException(e);
-            }
+            manager.setCache(key, value, View.DiseaseCacher.class, CacheAlliance.DISEASE_ANNOTATION);
         });
+
+        CacheStatus status = new CacheStatus(CacheAlliance.DISEASE_ANNOTATION.getCacheName());
+        status.setNumberOfEntities(allDiseaseAnnotations.size());
+
+        Map<String, List<DiseaseAnnotation>> speciesStats = allDiseaseAnnotations.stream()
+                .filter(diseaseAnnotation -> diseaseAnnotation.getGene() != null)
+                .collect(groupingBy(annotation -> annotation.getGene().getSpecies().getName()));
+
+        Map<String, Integer> stats = new HashMap<>(diseaseAnnotationMap.size());
+        diseaseAnnotationMap.forEach((diseaseID, annotations) -> {
+            stats.put(diseaseID, annotations.size());
+        });
+
+        Arrays.stream(SpeciesType.values())
+                .filter(speciesType -> !speciesStats.keySet().contains(speciesType.getName()))
+                .forEach(speciesType -> speciesStats.put(speciesType.getName(), new ArrayList<>()));
+
+        Map<String, Integer> speciesStatsInt = new HashMap<>();
+        speciesStats.forEach((species, alleles) -> {
+            speciesStatsInt.put(species, alleles.size());
+        });
+
+        status.setEntityStats(stats);
+        status.setSpeciesStats(speciesStatsInt);
+        setCacheStatus(status);
+
 
         // take care of allele
         if (populateAllelesCache(diseaseRibbonService, closureMapping, allIDs, manager)) return;
@@ -249,25 +246,19 @@ public class DiseaseCacher extends Cacher {
             diseaseAnnotationPureMap.put(geneID, mergedAnnotations);
         }));
 
-        ModelAllianceCacheManager managerModel = new ModelAllianceCacheManager();
+        BasicCachingManager managerModel = new BasicCachingManager();
 
         diseaseAnnotationPureMap.forEach((geneID, value) -> {
-            JsonResultResponse<PrimaryAnnotatedEntity> result = new JsonResultResponse<>();
-            result.setResults(value);
-            try {
-                if (geneID.equals("MGI:104798")) {
-                    log.info("found gene: " + geneID + " with annotations: " + result.getResults().size());
-                    //result.getResults().forEach(entity -> log.info(entity.getId()));
-                }
-                managerModel.putCache(geneID, result, View.PrimaryAnnotation.class, CacheAlliance.GENE_PURE_AGM_DISEASE);
-                progressProcess();
-            } catch (JsonProcessingException e) {
-                throw new RuntimeException(e);
+            if (geneID.equals("MGI:104798")) {
+                log.info("found gene: " + geneID + " with annotations: " + value.size());
+                //result.getResults().forEach(entity -> log.info(entity.getId()));
             }
+            managerModel.setCache(geneID, value, View.PrimaryAnnotation.class, CacheAlliance.GENE_PURE_AGM_DISEASE);
+            progressProcess();
         });
     }
 
-    private boolean populateAllelesCache(DiseaseRibbonService diseaseRibbonService, Map<String, Set<String>> closureMapping, Set<String> allIDs, DiseaseAllianceCacheManager manager) {
+    private boolean populateAllelesCache(DiseaseRibbonService diseaseRibbonService, Map<String, Set<String>> closureMapping, Set<String> allIDs, BasicCachingManager manager) {
         Set<DiseaseEntityJoin> alleleEntityJoins = diseaseRepository.getAllDiseaseAlleleEntityJoins();
 
         List<DiseaseAnnotation> alleleList = getDiseaseAnnotationsFromDEJs(alleleEntityJoins, diseaseRibbonService);
@@ -288,14 +279,34 @@ public class DiseaseCacher extends Cacher {
             diseaseAlleleAnnotationMap.put(termID, allAnnotations);
         });
         diseaseAlleleAnnotationMap.forEach((key, value) -> {
-            JsonResultResponseDiseaseAnnotation result = new JsonResultResponseDiseaseAnnotation();
-            result.setResults(value);
-            try {
-                manager.putCache(key, result, View.DiseaseCacher.class, CacheAlliance.DISEASE_ALLELE_ANNOTATION);
-            } catch (JsonProcessingException e) {
-                throw new RuntimeException(e);
-            }
+            manager.setCache(key, value, View.DiseaseCacher.class, CacheAlliance.DISEASE_ALLELE_ANNOTATION);
         });
+        CacheStatus status = new CacheStatus(CacheAlliance.DISEASE_ALLELE_ANNOTATION.getCacheName());
+        status.setNumberOfEntities(alleleList.size());
+
+        Map<String, List<DiseaseAnnotation>> speciesStats = alleleList.stream()
+                .filter(diseaseAnnotation -> diseaseAnnotation.getGene() != null)
+                .collect(groupingBy(annotation -> annotation.getGene().getSpecies().getName()));
+
+        Map<String, Integer> stats = new HashMap<>(diseaseAlleleAnnotationMap.size());
+        diseaseAlleleAnnotationMap.forEach((diseaseID, annotations) -> {
+            stats.put(diseaseID, annotations.size());
+        });
+
+        Arrays.stream(SpeciesType.values())
+                .filter(speciesType -> !speciesStats.keySet().contains(speciesType.getName()))
+                .forEach(speciesType -> speciesStats.put(speciesType.getName(), new ArrayList<>()));
+
+        Map<String, Integer> speciesStatsInt = new HashMap<>();
+        speciesStats.forEach((species, alleles) -> {
+            speciesStatsInt.put(species, alleles.size());
+        });
+
+        status.setEntityStats(stats);
+        status.setSpeciesStats(speciesStatsInt);
+        setCacheStatus(status);
+
+
         return false;
     }
 
@@ -320,7 +331,12 @@ public class DiseaseCacher extends Cacher {
                     // used to populate the DOTerm object on the PrimaryAnnotationEntity object
                     // Needed as the same AGM can be reused on multiple pubJoin nodes.
                     Map<String, PrimaryAnnotatedEntity> entities = new HashMap<>();
-                    if (CollectionUtils.isNotEmpty(diseaseEntityJoin.getPublicationJoins())) {
+
+                    // sort to ensure subsequent caching processes will generate the same PAEs with the
+                    // same PK. Note the merging that is happening
+                    List<PublicationJoin> publicationJoins1 = diseaseEntityJoin.getPublicationJoins();
+                    publicationJoins1.sort(Comparator.comparing(PublicationJoin::getPrimaryKey));
+                    if (CollectionUtils.isNotEmpty(publicationJoins1)) {
                         // create PAEs from AGMs
                         diseaseEntityJoin.getPublicationJoins()
                                 .stream()
@@ -417,7 +433,8 @@ public class DiseaseCacher extends Cacher {
                         if (CollectionUtils.isEmpty(models))
                             return;
 */
-
+                        // sort so we always pick the same base annotation to merge into
+                        diseaseAnnotations.sort(Comparator.comparing(DiseaseAnnotation::getPrimaryKey));
                         DiseaseAnnotation annotation = diseaseAnnotations.get(0);
                         int index = 0;
                         for (DiseaseAnnotation annot : diseaseAnnotations) {

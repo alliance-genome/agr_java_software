@@ -1,22 +1,17 @@
 package org.alliancegenome.cache.repository;
 
+import lombok.extern.log4j.Log4j2;
+import org.alliancegenome.cache.CacheAlliance;
+import org.alliancegenome.cache.manager.BasicCachingManager;
+import org.alliancegenome.core.service.*;
+import org.alliancegenome.es.model.query.Pagination;
+import org.alliancegenome.neo4j.entity.node.Allele;
+import org.alliancegenome.neo4j.view.BaseFilter;
+
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import org.alliancegenome.cache.manager.AlleleAllianceCacheManager;
-import org.alliancegenome.core.service.AlleleFiltering;
-import org.alliancegenome.core.service.AlleleSorting;
-import org.alliancegenome.core.service.FilterFunction;
-import org.alliancegenome.core.service.JsonResultResponse;
-import org.alliancegenome.core.service.SortingField;
-import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.neo4j.entity.node.Allele;
-import org.alliancegenome.neo4j.view.BaseFilter;
-import org.alliancegenome.neo4j.view.View;
-
-import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 public class AlleleCacheRepository {
@@ -31,8 +26,8 @@ public class AlleleCacheRepository {
 
     public JsonResultResponse<Allele> getAllelesByGene(String geneID, Pagination pagination) {
 
-        AlleleAllianceCacheManager manager = new AlleleAllianceCacheManager();
-        List<Allele> allAlleles = manager.getAlleles(geneID, View.GeneAllelesAPI.class);
+        BasicCachingManager<Allele> manager = new BasicCachingManager<>(Allele.class);
+        List<Allele> allAlleles = manager.getCache(geneID, CacheAlliance.ALLELE);
         if (allAlleles == null)
             return null;
         return getAlleleJsonResultResponse(pagination, allAlleles);

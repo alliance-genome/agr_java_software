@@ -22,6 +22,9 @@ public class  ModelAnnotationsSorting implements Sorting<DiseaseAnnotation> {
     private static Comparator<DiseaseAnnotation> speciesSymbolOrder =
             Comparator.comparing(annotation -> annotation.getModel().getSpecies().getName());
 
+    private static Comparator<DiseaseAnnotation> primaryKeyOrder =
+            Comparator.comparing(annotation -> annotation.getModel().getPrimaryKey());
+
     private static Comparator<DiseaseAnnotation> modelNameSymbolOrder =
             Comparator.comparing(annotation -> annotation.getModel().getName().toLowerCase());
 
@@ -30,9 +33,7 @@ public class  ModelAnnotationsSorting implements Sorting<DiseaseAnnotation> {
 
 
     private static Comparator<DiseaseAnnotation> phylogeneticOrder =
-            Comparator.comparing(annotation -> {
-                return annotation.getModel().getSpecies().getPhylogeneticOrder();
-            });
+            Comparator.comparing(annotation -> annotation.getModel().getSpecies().getPhylogeneticOrder());
 
     public ModelAnnotationsSorting() {
         super();
@@ -40,6 +41,7 @@ public class  ModelAnnotationsSorting implements Sorting<DiseaseAnnotation> {
         defaultList = new ArrayList<>(4);
         defaultList.add(phylogeneticOrder);
         defaultList.add(modelNameSymbolOrder);
+        defaultList.add(primaryKeyOrder);
 
         modelList = new ArrayList<>(4);
         modelList.add(modelNameSymbolOrder);

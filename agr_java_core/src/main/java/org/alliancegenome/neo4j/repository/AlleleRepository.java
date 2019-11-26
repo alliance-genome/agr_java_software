@@ -62,7 +62,7 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
         HashMap<String, String> map = new HashMap<>();
 
         String query = "";
-        query += " MATCH p1=(:Species)<-[:FROM_SPECIES]-(a:Allele)-[:IS_ALLELE_OF]->(g:Gene) ";
+        query += " MATCH p1=(:Species)<-[:FROM_SPECIES]-(a:Allele)-[:IS_ALLELE_OF]->(g:Gene)-[:FROM_SPECIES]-(q:Species) ";
         //query += " where g.primaryKey = 'FB:FBgn0002121' AND a.primaryKey = 'FB:FBal0051412' ";
         //query += " where g.primaryKey = 'FB:FBgn0025832' ";
         query += " OPTIONAL MATCH vari=(a:Allele)<-[:VARIATION]-(variant:Variant)--(soTerm:SOTerm)";

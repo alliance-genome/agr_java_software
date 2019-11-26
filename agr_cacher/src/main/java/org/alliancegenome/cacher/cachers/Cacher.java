@@ -1,17 +1,15 @@
 package org.alliancegenome.cacher.cachers;
 
-import java.util.Date;
-
-import org.alliancegenome.api.entity.CacheStatus;
-import org.alliancegenome.cache.CacheAlliance;
-import org.alliancegenome.cache.manager.BasicCacheManager;
-import org.alliancegenome.es.util.ProcessDisplayHelper;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.log4j.Log4j2;
+import org.alliancegenome.api.entity.CacheStatus;
+import org.alliancegenome.cache.CacheAlliance;
+import org.alliancegenome.cache.manager.BasicCachingManager;
+import org.alliancegenome.es.util.ProcessDisplayHelper;
+import org.alliancegenome.neo4j.view.View;
+
+import java.util.Date;
 
 @Log4j2
 @Setter
@@ -19,9 +17,12 @@ import lombok.extern.log4j.Log4j2;
 public abstract class Cacher extends Thread {
 
     protected abstract void cache();
+
     protected boolean useCache;
 
     private ProcessDisplayHelper display = new ProcessDisplayHelper();
+
+    private BasicCachingManager basicManager = new BasicCachingManager();
 
     @Override
     public void run() {
@@ -53,15 +54,14 @@ public abstract class Cacher extends Thread {
         display.finishProcess();
     }
 
+    public void setCacheStatus(CacheStatus status) {
+        basicManager.setCache(status.getName(), status, View.CacherDetail.class, CacheAlliance.CACHING_STATS);
+    }
+
     public void setCacheStatus(int size, String name) {
-        BasicCacheManager<CacheStatus> basicManager = new BasicCacheManager<>();
         CacheStatus status = new CacheStatus(name);
         status.setNumberOfEntities(size);
-        try {
-            basicManager.putCache(name, status, CacheAlliance.CACHING_STATS);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
+        setCacheStatus(status);
     }
 
 

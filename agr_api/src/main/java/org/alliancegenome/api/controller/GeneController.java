@@ -173,7 +173,7 @@ public class GeneController extends BaseController implements GeneRESTInterface 
             interactions.calculateRequestDuration(startTime);
             return interactions;
         } catch (Exception e) {
-            log.error(e);
+            log.error("Error while retrieving interaction data", e);
             RestErrorMessage error = new RestErrorMessage();
             error.addErrorMessage(e.getMessage());
             throw new RestErrorException(error);

@@ -1,32 +1,27 @@
 package org.alliancegenome.cache.repository;
 
-import static java.util.stream.Collectors.toList;
+import lombok.extern.log4j.Log4j2;
+import org.alliancegenome.cache.CacheAlliance;
+import org.alliancegenome.cache.manager.BasicCachingManager;
+import org.alliancegenome.core.service.*;
+import org.alliancegenome.es.model.query.Pagination;
+import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
+import org.alliancegenome.neo4j.view.BaseFilter;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.alliancegenome.cache.manager.InteractionAllianceCacheManager;
-import org.alliancegenome.core.service.FilterFunction;
-import org.alliancegenome.core.service.InteractionAnnotationFiltering;
-import org.alliancegenome.core.service.InteractionAnnotationSorting;
-import org.alliancegenome.core.service.PaginationResult;
-import org.alliancegenome.core.service.SortingField;
-import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
-import org.alliancegenome.neo4j.view.BaseFilter;
-import org.alliancegenome.neo4j.view.View;
-
-import lombok.extern.log4j.Log4j2;
+import static java.util.stream.Collectors.toList;
 
 @Log4j2
 public class InteractionCacheRepository {
 
     public PaginationResult<InteractionGeneJoin> getInteractionAnnotationList(String geneID, Pagination pagination) {
         // check gene map
-        InteractionAllianceCacheManager manager = new InteractionAllianceCacheManager();
-        List<InteractionGeneJoin> interactionAnnotationList = manager.getInteractions(geneID, View.Interaction.class);
+        BasicCachingManager<InteractionGeneJoin> manager = new BasicCachingManager<>(InteractionGeneJoin.class);
+        List<InteractionGeneJoin> interactionAnnotationList = manager.getCache(geneID, CacheAlliance.GENE_INTERACTION);
         if (interactionAnnotationList == null)
             return null;
         //filtering

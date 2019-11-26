@@ -179,7 +179,7 @@ public class OrthologyService {
         List<OrthologView> orthologViewFiltered = orthologViewList;
         List<OrthologView> orthologViewFilteredModerate = orthologViewList;
 
-        System.out.println("Number of genes for orthology: " + geneIDs.size());
+        //System.out.println("Number of genes for orthology: " + geneIDs.size());
 
         orthologViewList.sort(Comparator.comparing(o -> o.getHomologGene().getSymbol().toLowerCase()));
         orthologViewFiltered = orthologViewList.stream()
@@ -206,7 +206,7 @@ public class OrthologyService {
                     .limit(filter.getRows())
                     .collect(Collectors.toList());
         }
-        System.out.println("Number of genes for orthology: " + orthologViewFiltered.size());
+        //System.out.println("Number of genes for orthology: " + orthologViewFiltered.size());
 
         // <geneID, Map<variableName,variableValue>>
         Map<String, Object> map = new HashMap<>();
@@ -241,9 +241,6 @@ public class OrthologyService {
                     .filter(orthologView -> orthologView.getStringencyFilter().equalsIgnoreCase(orthoFilter.getStringency().name()))
                     .collect(Collectors.toList());
         }
-
-
-        System.out.println("Number of genes for orthology: " + filteredOrthologViewList.size());
 
         JsonResultResponse<OrthologView> response = new JsonResultResponse<>();
         response.setResults(filteredOrthologViewList);

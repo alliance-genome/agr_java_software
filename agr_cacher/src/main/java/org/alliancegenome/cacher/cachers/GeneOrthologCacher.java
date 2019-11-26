@@ -1,17 +1,8 @@
 package org.alliancegenome.cacher.cachers;
 
-import static java.util.stream.Collectors.toSet;
-
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
+import lombok.extern.log4j.Log4j2;
 import org.alliancegenome.cache.CacheAlliance;
-import org.alliancegenome.cache.manager.OrthologyAllianceCacheManager;
-import org.alliancegenome.core.service.JsonResultResponse;
+import org.alliancegenome.cache.manager.BasicCachingManager;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.alliancegenome.neo4j.view.OrthologView;
@@ -19,9 +10,10 @@ import org.alliancegenome.neo4j.view.View;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections4.map.MultiKeyMap;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import java.util.*;
+import java.util.stream.Collectors;
 
-import lombok.extern.log4j.Log4j2;
+import static java.util.stream.Collectors.toSet;
 
 @Log4j2
 public class GeneOrthologCacher extends Cacher {
@@ -46,9 +38,8 @@ public class GeneOrthologCacher extends Cacher {
         allMethods = geneRepository.getAllMethods();
         log.info(geneGeneAlgorithm.size());
 
-        OrthologyAllianceCacheManager manager = new OrthologyAllianceCacheManager();
-
         startProcess("create geneList into cache");
+        BasicCachingManager manager = new BasicCachingManager();
 
         geneList.forEach(gene -> {
             Set<OrthologView> orthologySet = gene.getOrthoGenes().stream()
@@ -71,13 +62,7 @@ public class GeneOrthologCacher extends Cacher {
                     })
                     .collect(toSet());
 
-            JsonResultResponse<OrthologView> result = new JsonResultResponse<>();
-            result.setResults(new ArrayList<>(orthologySet));
-            try {
-                manager.putCache(gene.getPrimaryKey(), result, View.Orthology.class, CacheAlliance.GENE_ORTHOLOGY);
-            } catch (JsonProcessingException e) {
-                throw new RuntimeException(e);
-            }
+            manager.setCache(gene.getPrimaryKey(), new ArrayList<>(orthologySet), View.Orthology.class, CacheAlliance.GENE_ORTHOLOGY);
         });
 
         finishProcess();

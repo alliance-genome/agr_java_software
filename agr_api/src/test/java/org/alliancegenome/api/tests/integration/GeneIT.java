@@ -48,7 +48,6 @@ public class GeneIT {
 
     private GeneService geneService;
 
-    private static Logger log = Logger.getLogger(GeneIT.class);
     private ObjectMapper mapper = new ObjectMapper();
 
     @ApiOperation(value = "Retrieve a Gene for given ID")
@@ -95,7 +94,7 @@ public class GeneIT {
     }
 
     @Test
-    public void checkOrthologyAPIWithFilter() throws IOException {
+    public void checkOrthologyAPIWithFilter() {
 
         GeneController controller = new GeneController();
         String[] geneIDs = {"RGD:2129"};
@@ -104,7 +103,7 @@ public class GeneIT {
     }
 
     @Test
-    public void checkOrthologyForListOfGenes() throws IOException {
+    public void checkOrthologyForListOfGenes() {
 
         GeneController controller = new GeneController();
         JsonResultResponse<OrthologView> response = controller.getGeneOrthology("MGI:109583", null, null, "stringENT", null, null, 20, 1);
@@ -128,7 +127,7 @@ public class GeneIT {
     }
 
     @Test
-    public void checkOrthologyAPIWithSpecies() throws IOException {
+    public void checkOrthologyAPIWithSpecies() {
 
         GeneController controller = new GeneController();
         JsonResultResponse<OrthologView> response = controller.getGeneOrthology("MGI:109583", null, null, "stringent", null, null, 20, 1);
@@ -152,7 +151,7 @@ public class GeneIT {
     }
 
     @Test
-    public void checkOrthologyAPIWithMethods() throws IOException {
+    public void checkOrthologyAPIWithMethods() {
 
         GeneController controller = new GeneController();
         String[] methods = {"ZFIN"};
@@ -173,7 +172,7 @@ public class GeneIT {
     }
 
     @Test
-    public void checkOrthologyAPINoFilters() throws IOException {
+    public void checkOrthologyAPINoFilters() {
 
         GeneController controller = new GeneController();
         JsonResultResponse<OrthologView> response = controller.getGeneOrthology("MGI:109583", null, null, null, null, null, 20, 1);
@@ -197,7 +196,7 @@ public class GeneIT {
     }
 
     @Test
-    public void getAllGeneIDs() throws IOException {
+    public void getAllGeneIDs() {
 
         GenesController controller = new GenesController();
         String[] taxonIDs = {"danio"};
@@ -206,7 +205,7 @@ public class GeneIT {
     }
 
     @Test
-    public void checkExpressionSummary() throws IOException {
+    public void checkExpressionSummary() {
 
         GeneController controller = new GeneController();
         ExpressionSummary response = controller.getExpressionSummary("RGD:2129");
@@ -222,19 +221,25 @@ public class GeneIT {
                 .collect(Collectors.toList());
 
         terms.forEach(expressionSummaryGroupTerm -> {
-            if (expressionSummaryGroupTerm.getName().equals("extracellular region"))
-                assertThat(expressionSummaryGroupTerm.getNumberOfAnnotations(), equalTo(4));
-            else if (expressionSummaryGroupTerm.getName().equals("protein-containing complex"))
-                assertThat(expressionSummaryGroupTerm.getNumberOfAnnotations(), equalTo(3));
-            else if (expressionSummaryGroupTerm.getName().equals("other locations"))
-                assertThat(expressionSummaryGroupTerm.getNumberOfAnnotations(), equalTo(3));
-            else
-                assertThat(expressionSummaryGroupTerm.getNumberOfAnnotations(), equalTo(0));
+            switch (expressionSummaryGroupTerm.getName()) {
+                case "extracellular region":
+                    assertThat(expressionSummaryGroupTerm.getNumberOfAnnotations(), equalTo(4));
+                    break;
+                case "protein-containing complex":
+                    assertThat(expressionSummaryGroupTerm.getNumberOfAnnotations(), equalTo(3));
+                    break;
+                case "other locations":
+                    assertThat(expressionSummaryGroupTerm.getNumberOfAnnotations(), equalTo(3));
+                    break;
+                default:
+                    assertThat(expressionSummaryGroupTerm.getNumberOfAnnotations(), equalTo(0));
+                    break;
+            }
         });
     }
 
     @Test
-    public void checkExpressionSummaryGOAndAO() throws IOException {
+    public void checkExpressionSummaryGOAndAO() {
 
         GeneController controller = new GeneController();
         ExpressionSummary response = controller.getExpressionSummary("ZFIN:ZDB-GENE-980526-188");
@@ -242,7 +247,7 @@ public class GeneIT {
     }
 
     @Test
-    public void checkExpressionAnnotation() throws IOException {
+    public void checkExpressionAnnotation() {
 
         ExpressionController controller = new ExpressionController();
         //String[] geneIDs = {"MGI:97570", "ZFIN:ZDB-GENE-080204-52"};
@@ -295,7 +300,7 @@ public class GeneIT {
     }
 
     @Test
-    public void checkExpressionAnnotationWithTerm() throws IOException {
+    public void checkExpressionAnnotationWithTerm() {
 
         ExpressionController controller = new ExpressionController();
         String[] geneIDs = {"RGD:2129"};
@@ -310,7 +315,7 @@ public class GeneIT {
     }
 
     @Test
-    public void checkExpressionAnnotationWithTermOnZFIN() throws IOException {
+    public void checkExpressionAnnotationWithTermOnZFIN() {
 
         ExpressionController controller = new ExpressionController();
         String[] geneIDs = {"ZFIN:ZDB-GENE-980526-188"};
@@ -333,7 +338,7 @@ public class GeneIT {
     }
 
     @Test
-    public void checkExpressionAnnotationFilter() throws IOException {
+    public void checkExpressionAnnotationFilter() {
 
         ExpressionController controller = new ExpressionController();
         String[] geneIDs = {"ZFIN:ZDB-GENE-980526-166"};

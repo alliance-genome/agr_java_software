@@ -1,24 +1,13 @@
 package org.alliancegenome.cache.repository;
 
-import static java.util.stream.Collectors.toList;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
+import com.fasterxml.jackson.databind.type.CollectionType;
+import lombok.extern.log4j.Log4j2;
 import org.alliancegenome.api.entity.DiseaseRibbonSummary;
 import org.alliancegenome.api.service.DiseaseService;
 import org.alliancegenome.api.service.FilterService;
 import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.cache.manager.BasicCacheManager;
-import org.alliancegenome.cache.manager.DiseaseAllianceCacheManager;
-import org.alliancegenome.cache.manager.ModelAllianceCacheManager;
+import org.alliancegenome.cache.manager.BasicCachingManager;
 import org.alliancegenome.core.service.DiseaseAnnotationFiltering;
 import org.alliancegenome.core.service.DiseaseAnnotationSorting;
 import org.alliancegenome.core.service.PaginationResult;
@@ -27,17 +16,19 @@ import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
 import org.alliancegenome.neo4j.entity.node.ECOTerm;
 import org.alliancegenome.neo4j.entity.node.PublicationJoin;
-import org.alliancegenome.neo4j.view.View;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import com.fasterxml.jackson.databind.type.CollectionType;
+import java.io.IOException;
+import java.util.*;
+import java.util.stream.Collectors;
 
-import lombok.extern.log4j.Log4j2;
+import static java.util.stream.Collectors.toList;
 
 @Log4j2
 public class DiseaseCacheRepository {
 
+    private BasicCachingManager<DiseaseAnnotation> manager = new BasicCachingManager<>(DiseaseAnnotation.class);
 
     // Map<gene ID, List<DiseaseAnnotation>> including annotations to child terms
     private static Map<String, List<DiseaseAnnotation>> diseaseAnnotationExperimentGeneMap = new HashMap<>();
@@ -45,18 +36,17 @@ public class DiseaseCacheRepository {
     private static Map<String, List<DiseaseAnnotation>> diseaseAnnotationOrthologGeneMap = new HashMap<>();
 
     public List<DiseaseAnnotation> getDiseaseAnnotationList(String diseaseID) {
-        DiseaseAllianceCacheManager manager = new DiseaseAllianceCacheManager();
-        return manager.getDiseaseAnnotations(diseaseID, View.DiseaseCacher.class);
+        BasicCachingManager<DiseaseAnnotation> manager = new BasicCachingManager<>(DiseaseAnnotation.class);
+        return manager.getCache(diseaseID, CacheAlliance.DISEASE_ANNOTATION);
     }
 
     public List<DiseaseAnnotation> getDiseaseAlleleAnnotationList(String diseaseID) {
-        DiseaseAllianceCacheManager manager = new DiseaseAllianceCacheManager();
-        return manager.getDiseaseAlleleAnnotations(diseaseID, View.DiseaseCacher.class);
+        return manager.getCache(diseaseID, CacheAlliance.DISEASE_ALLELE_ANNOTATION);
     }
 
     public List<PrimaryAnnotatedEntity> getPrimaryAnnotatedEntitList(String geneID) {
-        ModelAllianceCacheManager manager = new ModelAllianceCacheManager();
-        return manager.getModels(geneID, View.PrimaryAnnotation.class);
+        BasicCachingManager<PrimaryAnnotatedEntity> manager = new BasicCachingManager<>(PrimaryAnnotatedEntity.class);
+        return manager.getCache(geneID, CacheAlliance.GENE_MODEL);
     }
 
     public PaginationResult<DiseaseAnnotation> getDiseaseAnnotationList(String diseaseID, Pagination pagination) {
@@ -78,14 +68,11 @@ public class DiseaseCacheRepository {
             return null;
         Set<DiseaseAnnotation> allDiseaseAnnotationList = new HashSet<>();
 
-        DiseaseAllianceCacheManager manager = new DiseaseAllianceCacheManager();
         // filter by gene
         geneIDs.forEach(geneID -> {
-                    List<DiseaseAnnotation> annotations = manager.getDiseaseAnnotations(geneID, View.DiseaseCacher.class);
+                    List<DiseaseAnnotation> annotations = manager.getCache(geneID, CacheAlliance.DISEASE_ANNOTATION);
                     if (annotations != null)
                         allDiseaseAnnotationList.addAll(annotations);
-                    else
-                        log.info("no disease annotation found for gene: " + geneID);
                 }
         );
         List<DiseaseAnnotation> fullDiseaseAnnotationList = new ArrayList<>(allDiseaseAnnotationList);
@@ -142,21 +129,10 @@ public class DiseaseCacheRepository {
     public List<ECOTerm> getEcoTerms(List<PublicationJoin> joins) {
         if (joins == null)
             return null;
-        BasicCacheManager<String> manager = new BasicCacheManager<>();
+        BasicCachingManager<ECOTerm> manager = new BasicCachingManager<>();
         List<ECOTerm> list = new ArrayList<>();
-        CollectionType javaType = BasicCacheManager.mapper.getTypeFactory()
-                .constructCollectionType(List.class, ECOTerm.class);
-
         joins.forEach(join -> {
-            String json = manager.getCache(join.getPrimaryKey(), CacheAlliance.ECO_MAP);
-            if (json == null)
-                return;
-            try {
-                list.addAll(BasicCacheManager.mapper.readValue(json, javaType));
-            } catch (IOException e) {
-                log.error("Error during deserialization ", e);
-                throw new RuntimeException(e);
-            }
+            list.addAll(manager.getCache(join.getPrimaryKey(), CacheAlliance.ECO_MAP));
         });
         return list;
     }
@@ -164,21 +140,8 @@ public class DiseaseCacheRepository {
     public List<ECOTerm> getEcoTerm(PublicationJoin join) {
         if (join == null)
             return null;
-        BasicCacheManager<String> manager = new BasicCacheManager<>();
-        List<ECOTerm> list = new ArrayList<>();
-        CollectionType javaType = BasicCacheManager.mapper.getTypeFactory()
-                .constructCollectionType(List.class, ECOTerm.class);
-
-        String json = manager.getCache(join.getPrimaryKey(), CacheAlliance.ECO_MAP);
-        if (json == null)
-            return null;
-        try {
-            list.addAll(BasicCacheManager.mapper.readValue(json, javaType));
-        } catch (IOException e) {
-            log.error("Error during deserialization ", e);
-            throw new RuntimeException(e);
-        }
-        return list;
+        BasicCachingManager<ECOTerm> manager = new BasicCachingManager<>();
+        return manager.getCache(join.getPrimaryKey(), CacheAlliance.ECO_MAP);
     }
 
     public List<ECOTerm> getEcoTermsFromCache(List<PublicationJoin> joins) {
@@ -219,14 +182,12 @@ public class DiseaseCacheRepository {
         return list;
     }
 
-    private DiseaseAllianceCacheManager manager = new DiseaseAllianceCacheManager();
-
     public boolean hasDiseaseAnnotations(String geneID) {
-        return CollectionUtils.isNotEmpty(manager.getDiseaseAnnotations(geneID, View.DiseaseAnnotation.class));
+        return CollectionUtils.isNotEmpty(manager.getCache(geneID, CacheAlliance.DISEASE_ANNOTATION));
     }
 
     public List<PrimaryAnnotatedEntity> getDiseaseAnnotationPureModeList(String geneID) {
-        ModelAllianceCacheManager modelManager = new ModelAllianceCacheManager();
-        return modelManager.getDiseaseAnnotationPureModeList(geneID, View.PrimaryAnnotation.class);
+        BasicCachingManager<PrimaryAnnotatedEntity> manager = new BasicCachingManager<>(PrimaryAnnotatedEntity.class);
+        return manager.getCache(geneID, CacheAlliance.GENE_PURE_AGM_DISEASE);
     }
 }

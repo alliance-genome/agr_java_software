@@ -6,9 +6,12 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.type.CollectionType;
 import lombok.extern.log4j.Log4j2;
+import org.alliancegenome.api.entity.CacheStatus;
 import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.core.config.ConfigHelper;
+import org.alliancegenome.neo4j.view.View;
 import org.infinispan.client.hotrod.RemoteCache;
 import org.infinispan.client.hotrod.RemoteCacheManager;
 import org.infinispan.client.hotrod.configuration.ConfigurationBuilder;
@@ -16,14 +19,19 @@ import org.infinispan.configuration.cache.StorageType;
 import org.infinispan.eviction.EvictionType;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Log4j2
-public class BasicCacheManager<O> {
+public class BasicCachingManager<O> {
 
     public static RemoteCacheManager rmc = null;
     public static ObjectMapper mapper = new ObjectMapper();
+
+    private Class<O> type;
+
+    public BasicCachingManager(Class<O> clazz) {
+        type = clazz;
+    }
 
     static {
         mapper.disable(MapperFeature.DEFAULT_VIEW_INCLUSION);
@@ -32,6 +40,9 @@ public class BasicCacheManager<O> {
         mapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
         mapper.enable(SerializationFeature.INDENT_OUTPUT);
         setupCaches();
+    }
+
+    public BasicCachingManager() {
     }
 
     private synchronized static void setupCaches() {
@@ -99,22 +110,68 @@ public class BasicCacheManager<O> {
 
     }
 
-    private RemoteCache<String, O> getCacheSpace(CacheAlliance cache) {
+    public List<String> getAllKeys(CacheAlliance cacheSpace) {
+        RemoteCache<String, String> cache = getCacheSpace(cacheSpace);
+        //System.out.println(cache);
+        return new ArrayList<>(cache.keySet());
+    }
+
+    private RemoteCache<String, String> getCacheSpace(CacheAlliance cache) {
         //log.info("Getting Cache Space: " + cache.getCacheName());
         return rmc.getCache(cache.getCacheName());
     }
 
-    public void putCache(String primaryKey, O o, CacheAlliance cacheSpace) throws JsonProcessingException {
-        RemoteCache<String, O> cache = getCacheSpace(cacheSpace);
+    public void putCache(String primaryKey, String o, CacheAlliance cacheSpace) throws JsonProcessingException {
+        RemoteCache<String, String> cache = getCacheSpace(cacheSpace);
         cache.put(primaryKey, o);
     }
 
-    public O getCache(String entityID, CacheAlliance cacheSpace) {
-        return getCacheSpace(cacheSpace).get(entityID);
+    public List<O> getCache(String entityID, CacheAlliance cacheSpace) {
+        CollectionType javaType = mapper.getTypeFactory()
+                .constructCollectionType(List.class, type);
+
+        String json = getCacheSpace(cacheSpace).get(entityID);
+        if (json == null)
+            return null;
+
+        List<O> list;
+
+        try {
+            list = new ArrayList<>(BasicCachingManager.mapper.readValue(json, javaType));
+        } catch (IOException e) {
+            log.error("Error during deserialization ", e);
+            throw new RuntimeException(e);
+        }
+
+        return list;
     }
 
-    public Map<String, O> getAllCacheEntries(CacheAlliance cacheSpace) {
-        return getCacheSpace(cacheSpace).getBulk();
+    public CacheStatus getCacheStatus(String entityName, CacheAlliance cacheSpace) {
+        String json = getCacheSpace(cacheSpace).get(entityName);
+        if (json == null)
+            return null;
+
+        try {
+            return mapper.readerWithView(View.Cacher.class).forType(CacheStatus.class).readValue(json);
+        } catch (IOException e) {
+            log.error("Error during deserialization ", e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    public O getEntityCache(String entityName, CacheAlliance cacheSpace) {
+
+        String json = getCacheSpace(cacheSpace).get(entityName);
+        if (json == null)
+            return null;
+
+        try {
+            return mapper.readValue(json, type);
+        } catch (IOException e) {
+            log.error("Error during deserialization ", e);
+            throw new RuntimeException(e);
+        }
+
     }
 
     public static void close() {
@@ -129,13 +186,25 @@ public class BasicCacheManager<O> {
 
     public void setCache(String primaryKey, List items, Class<?> classView, CacheAlliance cacheAlliance) {
         RemoteCache<String, String> cache = rmc.getCache(cacheAlliance.getCacheName());
+        String value;
         try {
-            String value = mapper.writerWithView(classView).writeValueAsString(items);
+            value = mapper.writerWithView(classView).writeValueAsString(items);
             cache.put(primaryKey, value);
         } catch (JsonProcessingException e) {
-            log.error("Error while storing cache entry", e);
+            log.error("error while saving entry into cache", e);
             throw new RuntimeException(e);
         }
+    }
 
+    public void setCache(String primaryKey, Object object, Class<?> classView, CacheAlliance cacheAlliance) {
+        RemoteCache<String, String> cache = rmc.getCache(cacheAlliance.getCacheName());
+        String value;
+        try {
+            value = mapper.writerWithView(classView).writeValueAsString(object);
+            cache.put(primaryKey, value);
+        } catch (JsonProcessingException e) {
+            log.error("error while saving entry into cache", e);
+            throw new RuntimeException(e);
+        }
     }
 }
