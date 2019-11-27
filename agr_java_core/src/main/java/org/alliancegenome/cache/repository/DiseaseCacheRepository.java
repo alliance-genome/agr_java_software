@@ -1,12 +1,10 @@
 package org.alliancegenome.cache.repository;
 
-import com.fasterxml.jackson.databind.type.CollectionType;
 import lombok.extern.log4j.Log4j2;
 import org.alliancegenome.api.entity.DiseaseRibbonSummary;
 import org.alliancegenome.api.service.DiseaseService;
 import org.alliancegenome.api.service.FilterService;
 import org.alliancegenome.cache.CacheAlliance;
-import org.alliancegenome.cache.manager.BasicCacheManager;
 import org.alliancegenome.cache.manager.BasicCachingManager;
 import org.alliancegenome.core.service.DiseaseAnnotationFiltering;
 import org.alliancegenome.core.service.DiseaseAnnotationSorting;
@@ -19,7 +17,6 @@ import org.alliancegenome.neo4j.entity.node.PublicationJoin;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -167,19 +164,8 @@ public class DiseaseCacheRepository {
     }
 
     public List<String> getChildren(String id) {
-        BasicCacheManager<String> manager = new BasicCacheManager<>();
-        List<String> list = new ArrayList<>();
-        CollectionType javaType = BasicCacheManager.mapper.getTypeFactory()
-                .constructCollectionType(List.class, String.class);
-
-        String json = manager.getCache(id, CacheAlliance.CLOSURE_MAP);
-        try {
-            list.addAll(BasicCacheManager.mapper.readValue(json, javaType));
-        } catch (IOException e) {
-            log.error("Error during deserialization ", e);
-            throw new RuntimeException(e);
-        }
-        return list;
+        BasicCachingManager<String> manager = new BasicCachingManager<>();
+        return manager.getCache(id, CacheAlliance.CLOSURE_MAP);
     }
 
     public boolean hasDiseaseAnnotations(String geneID) {
