@@ -103,14 +103,14 @@ public class DiseaseCacher extends Cacher {
             manager.setCache(key, value, View.DiseaseCacher.class, CacheAlliance.DISEASE_ANNOTATION);
         });
 
-        CacheStatus status = new CacheStatus(CacheAlliance.DISEASE_ANNOTATION.getCacheName());
+        CacheStatus status = new CacheStatus(CacheAlliance.DISEASE_ANNOTATION);
         status.setNumberOfEntities(allDiseaseAnnotations.size());
 
         Map<String, List<DiseaseAnnotation>> speciesStats = allDiseaseAnnotations.stream()
                 .filter(diseaseAnnotation -> diseaseAnnotation.getGene() != null)
                 .collect(groupingBy(annotation -> annotation.getGene().getSpecies().getName()));
 
-        Map<String, Integer> stats = new HashMap<>(diseaseAnnotationMap.size());
+        Map<String, Integer> stats = new TreeMap<>();
         diseaseAnnotationMap.forEach((diseaseID, annotations) -> {
             stats.put(diseaseID, annotations.size());
         });
@@ -120,9 +120,7 @@ public class DiseaseCacher extends Cacher {
                 .forEach(speciesType -> speciesStats.put(speciesType.getName(), new ArrayList<>()));
 
         Map<String, Integer> speciesStatsInt = new HashMap<>();
-        speciesStats.forEach((species, alleles) -> {
-            speciesStatsInt.put(species, alleles.size());
-        });
+        speciesStats.forEach((species, alleles) -> speciesStatsInt.put(species, alleles.size()));
 
         status.setEntityStats(stats);
         status.setSpeciesStats(speciesStatsInt);
@@ -281,26 +279,22 @@ public class DiseaseCacher extends Cacher {
         diseaseAlleleAnnotationMap.forEach((key, value) -> {
             manager.setCache(key, value, View.DiseaseCacher.class, CacheAlliance.DISEASE_ALLELE_ANNOTATION);
         });
-        CacheStatus status = new CacheStatus(CacheAlliance.DISEASE_ALLELE_ANNOTATION.getCacheName());
+        CacheStatus status = new CacheStatus(CacheAlliance.DISEASE_ALLELE_ANNOTATION);
         status.setNumberOfEntities(alleleList.size());
 
         Map<String, List<DiseaseAnnotation>> speciesStats = alleleList.stream()
                 .filter(diseaseAnnotation -> diseaseAnnotation.getGene() != null)
                 .collect(groupingBy(annotation -> annotation.getGene().getSpecies().getName()));
 
-        Map<String, Integer> stats = new HashMap<>(diseaseAlleleAnnotationMap.size());
-        diseaseAlleleAnnotationMap.forEach((diseaseID, annotations) -> {
-            stats.put(diseaseID, annotations.size());
-        });
+        Map<String, Integer> stats = new TreeMap<>();
+        diseaseAlleleAnnotationMap.forEach((diseaseID, annotations) -> stats.put(diseaseID, annotations.size()));
 
         Arrays.stream(SpeciesType.values())
                 .filter(speciesType -> !speciesStats.keySet().contains(speciesType.getName()))
                 .forEach(speciesType -> speciesStats.put(speciesType.getName(), new ArrayList<>()));
 
         Map<String, Integer> speciesStatsInt = new HashMap<>();
-        speciesStats.forEach((species, alleles) -> {
-            speciesStatsInt.put(species, alleles.size());
-        });
+        speciesStats.forEach((species, alleles) -> speciesStatsInt.put(species, alleles.size()));
 
         status.setEntityStats(stats);
         status.setSpeciesStats(speciesStatsInt);

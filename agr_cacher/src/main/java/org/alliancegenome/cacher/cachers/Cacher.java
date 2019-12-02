@@ -58,8 +58,8 @@ public abstract class Cacher extends Thread {
         basicManager.setCache(status.getName(), status, View.CacherDetail.class, CacheAlliance.CACHING_STATS);
     }
 
-    public void setCacheStatus(int size, String name) {
-        CacheStatus status = new CacheStatus(name);
+    public void setCacheStatus(int size, CacheAlliance cache) {
+        CacheStatus status = new CacheStatus(cache);
         status.setNumberOfEntities(size);
         setCacheStatus(status);
     }
