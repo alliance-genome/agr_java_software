@@ -473,7 +473,7 @@ public class DiseaseIT {
 
         assertNotNull(annotations);
         // 14 different disease terms
-        assertThat(annotations.getTotal(), equalTo(14));
+        assertThat(annotations.getTotal(), greaterThanOrEqualTo(14));
         // pick autism spectrum disorder
         // one record (no duplication
         List<DiseaseAnnotation> annots = annotations.getResults().stream().filter(diseaseDocument -> diseaseDocument.getDisease().getName().equals("autism spectrum disorder")).collect(Collectors.toList());

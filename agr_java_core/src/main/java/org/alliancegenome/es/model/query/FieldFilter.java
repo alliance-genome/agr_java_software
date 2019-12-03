@@ -32,7 +32,7 @@ public enum FieldFilter {
     MOLECULE_TYPE("filter.moleculeType"),
     BASED_ON_GENE("filter.basedOnGeneSymbol"),
     ALLELE("allele"),
-    MODEL_NAME("modelName"), VARIANT_CONSEQUENCE("consequence");
+    MODEL_NAME("modelName"), VARIANT_CONSEQUENCE("consequence"), STRINGENCY("stringency"), ORTHOLOGY_METHOD("method");
     public static final String FILTER_PREFIX = "filter.";
     private String name;
 

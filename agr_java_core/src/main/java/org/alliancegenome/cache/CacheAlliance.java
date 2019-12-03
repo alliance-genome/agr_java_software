@@ -28,7 +28,8 @@ public enum CacheAlliance {
     GENE_PURE_AGM_PHENOTYPE(),
     GENE_PURE_AGM_DISEASE(),
 
-    ;
+    SPECIES_ORTHOLOGY,
+    SPECIES_SPECIES_ORTHOLOGY;
 
     private String cacheName;
 

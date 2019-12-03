@@ -1,16 +1,16 @@
 package org.alliancegenome.api.service;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import org.alliancegenome.core.service.AnnotationFiltering;
 import org.alliancegenome.core.service.FilterFunction;
 import org.alliancegenome.core.service.SortingField;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.Sorting;
 import org.alliancegenome.neo4j.view.BaseFilter;
+
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class FilterService<T> {
 
