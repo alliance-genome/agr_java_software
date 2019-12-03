@@ -1,16 +1,17 @@
 package org.alliancegenome.core.service;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
+import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.Getter;
+import lombok.Setter;
+import org.alliancegenome.api.service.FilterService;
 import org.alliancegenome.cache.repository.DiseaseCacheRepository;
 import org.alliancegenome.cache.repository.ExpressionCacheRepository;
 import org.alliancegenome.cache.repository.GeneCacheRepository;
 import org.alliancegenome.es.index.site.doclet.OrthologyDoclet;
+import org.alliancegenome.es.model.query.Pagination;
+import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.entity.node.OrthoAlgorithm;
 import org.alliancegenome.neo4j.entity.node.OrthologyGeneJoin;
@@ -20,14 +21,16 @@ import org.alliancegenome.neo4j.view.OrthologyFilter;
 import org.alliancegenome.neo4j.view.OrthologyModule;
 import org.alliancegenome.neo4j.view.View;
 
-import com.fasterxml.jackson.annotation.JsonView;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+import java.util.*;
+import java.util.stream.Collectors;
 
-import lombok.Getter;
-import lombok.Setter;
-
+@RequestScoped
 public class OrthologyService {
+
+    @Inject
+    GeneCacheRepository repo = new GeneCacheRepository();
 
     public static List<OrthologyDoclet> getOrthologyDoclets(Gene gene) {
         if (gene.getOrthologyGeneJoins().size() > 0) {
@@ -173,35 +176,31 @@ public class OrthologyService {
     private static ExpressionCacheRepository expressionCacheRepository = new ExpressionCacheRepository();
     private static DiseaseCacheRepository diseaseCacheRepository = new DiseaseCacheRepository();
 
-    public static JsonResultResponse<OrthologView> getOrthologyMultiGeneJson(List<String> geneIDs, OrthologyFilter filter) {
-        GeneCacheRepository repo = new GeneCacheRepository();
+    public JsonResultResponse<OrthologView> getOrthologyMultiGeneJson(List<String> geneIDs, OrthologyFilter filter) {
         List<OrthologView> orthologViewList = repo.getAllOrthologyGenes(geneIDs);
-        List<OrthologView> orthologViewFiltered = orthologViewList;
-        List<OrthologView> orthologViewFilteredModerate = orthologViewList;
 
         //System.out.println("Number of genes for orthology: " + geneIDs.size());
 
         orthologViewList.sort(Comparator.comparing(o -> o.getHomologGene().getSymbol().toLowerCase()));
-        orthologViewFiltered = orthologViewList.stream()
+
+        List<OrthologView> orthologViewFiltered = orthologViewList.stream()
                 .filter(orthologView -> orthologView.getStringencyFilter().equalsIgnoreCase("Stringent"))
                 .skip(filter.getStart() - 1)
                 .limit(filter.getRows())
                 .collect(Collectors.toList());
 
 
-         if (filter.getStringency() != null && filter.getStringency().equals(OrthologyFilter.Stringency.MODERATE)){
-
-             orthologViewFilteredModerate = orthologViewList.stream()
+        if (filter.getStringency() != null && filter.getStringency().equals(OrthologyFilter.Stringency.MODERATE)) {
+            List<OrthologView> orthologViewFilteredModerate = orthologViewList.stream()
                     .filter(orthologView -> orthologView.getStringencyFilter().equalsIgnoreCase(filter.getStringency().name()))
                     .skip(filter.getStart() - 1)
                     .limit(filter.getRows())
                     .collect(Collectors.toList());
-             orthologViewFiltered.addAll(orthologViewFilteredModerate);
+            orthologViewFiltered.addAll(orthologViewFilteredModerate);
         }
-        if (filter.getStringency() != null && filter.getStringency().equals(OrthologyFilter.Stringency.ALL))
-       {
+        if (filter.getStringency() != null && filter.getStringency().equals(OrthologyFilter.Stringency.ALL)) {
 
-             orthologViewFiltered = orthologViewList.stream()
+            orthologViewFiltered = orthologViewList.stream()
                     .skip(filter.getStart() - 1)
                     .limit(filter.getRows())
                     .collect(Collectors.toList());
@@ -237,7 +236,7 @@ public class OrthologyService {
 
 
         if (orthoFilter.getStringency() != null && !orthoFilter.getStringency().equals(OrthologyFilter.Stringency.ALL)) {
-             filteredOrthologViewList = orthologViewList.stream()
+            filteredOrthologViewList = orthologViewList.stream()
                     .filter(orthologView -> orthologView.getStringencyFilter().equalsIgnoreCase(orthoFilter.getStringency().name()))
                     .collect(Collectors.toList());
         }
@@ -247,6 +246,33 @@ public class OrthologyService {
         response.setTotal(filteredOrthologViewList.size());
         return response;
     }
+
+    public JsonResultResponse<OrthologView> getOrthologyByTwoSpecies(String taxonIDOne, String taxonIDTwo, Pagination pagination) {
+
+        final String taxonOne = SpeciesType.getTaxonId(taxonIDOne);
+        final String taxonTwo = SpeciesType.getTaxonId(taxonIDTwo);
+
+        List<OrthologView> orthologViewList = repo.getOrthologyBySpeciesSpecies(taxonOne, taxonTwo);
+        JsonResultResponse<OrthologView> response = new JsonResultResponse<>();
+
+        //filtering
+        FilterService<OrthologView> filterService = new FilterService<>(new OrthologyFiltering());
+        List<OrthologView> filteredOrthologyList = filterService.filterAnnotations(orthologViewList, pagination.getFieldFilterValueMap());
+        response.setTotal(filteredOrthologyList.size());
+
+        // sorting and pagination
+        response.setResults(filterService.getSortedAndPaginatedAnnotations(pagination, filteredOrthologyList, new OrthologySorting()));
+        return response;
+    }
+
+    public String getSpeciesSpeciesID(OrthologView o) {
+        return o.getGene().getTaxonId() + ":" + o.getHomologGene().getTaxonId();
+    }
+
+    public String getSpeciesSpeciesID(String taxonOne, String taxonTwo) {
+        return taxonOne + ":" + taxonTwo;
+    }
+
 
     @Setter
     @Getter

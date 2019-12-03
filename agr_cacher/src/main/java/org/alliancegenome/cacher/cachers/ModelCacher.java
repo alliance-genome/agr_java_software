@@ -1,22 +1,21 @@
 package org.alliancegenome.cacher.cachers;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.log4j.Log4j2;
+import org.alliancegenome.api.entity.CacheStatus;
 import org.alliancegenome.cache.CacheAlliance;
-import org.alliancegenome.cache.manager.BasicCacheManager;
 import org.alliancegenome.cache.manager.BasicCachingManager;
 import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
+import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.entity.node.AffectedGenomicModel;
 import org.alliancegenome.neo4j.entity.node.GeneticEntity;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.alliancegenome.neo4j.view.View;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.groupingBy;
 
 @Log4j2
 public class ModelCacher extends Cacher {
@@ -40,6 +39,7 @@ public class ModelCacher extends Cacher {
                     entity.setSequenceTargetingReagents(model.getSequenceTargetingReagents());
                     if (model.getSubtype() != null)
                         entity.setType(GeneticEntity.CrossReferenceType.getCrossReferenceType(model.getSubtype()));
+                    entity.setSpecies(model.getSequenceTargetingReagents().get(0).getGene().getSpecies());
                     return entity;
                 })
                 .collect(Collectors.toList());
@@ -74,6 +74,7 @@ public class ModelCacher extends Cacher {
                     entity.setDisplayName(model.getNameText());
                     entity.setUrl(model.getModCrossRefCompleteUrl());
                     entity.setAlleles(model.getAlleles());
+                    entity.setSpecies(model.getAlleles().get(0).getGene().getSpecies());
                     if (model.getSubtype() != null)
                         entity.setType(GeneticEntity.CrossReferenceType.getCrossReferenceType(model.getSubtype()));
                     return entity;
@@ -97,6 +98,34 @@ public class ModelCacher extends Cacher {
             result.setResults(new ArrayList<>(annotations));
             manager.setCache(geneID, annotations, View.PrimaryAnnotation.class, CacheAlliance.GENE_MODEL);
         });
+
+        CacheStatus status = new CacheStatus(CacheAlliance.GENE_MODEL);
+        status.setNumberOfEntities(entities.size());
+
+        Map<String, List<PrimaryAnnotatedEntity>> speciesStats = entities.stream()
+                .filter(annotation -> annotation.getSpecies() != null)
+                .collect(groupingBy(annotation -> annotation.getSpecies().getName()));
+
+        Map<String, Integer> stats = new TreeMap<>();
+        geneMap.forEach((diseaseID, annotations) -> stats.put(diseaseID, annotations.size()));
+
+
+        Arrays.stream(SpeciesType.values())
+                .filter(speciesType -> !speciesStats.keySet().contains(speciesType.getName()))
+                .forEach(speciesType -> speciesStats.put(speciesType.getName(), new ArrayList<>()));
+
+        Map<String, Integer> speciesStatsInt = new HashMap<>();
+        speciesStats.forEach((species, alleles) -> speciesStatsInt.put(species, alleles.size()));
+
+        LinkedHashMap<String, Integer> speciesStatsIntSorted =
+                speciesStatsInt.entrySet().stream().
+                        sorted(Map.Entry.comparingByValue()).
+                        collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
+                                (e1, e2) -> e1, LinkedHashMap::new));
+
+        status.setEntityStats(stats);
+        status.setSpeciesStats(speciesStatsIntSorted);
+        setCacheStatus(status);
 
         finishProcess();
         //setCacheStatus(modeles.size(), CacheAlliance.GENE_ORTHOLOGY.getCacheName());

@@ -199,9 +199,9 @@ public interface GeneRESTInterface {
                                                       @ApiParam(value = "calculation methods", allowableValues = "Ensembl Compara, HGNC, Hieranoid, InParanoid, OMA, OrthoFinder, OrthoInspector, PANTHER, PhylomeDB, Roundup, TreeFam, ZFIN")
                                                       @QueryParam("methods") List<String> methods,
                                                       @ApiParam(value = "maximum number of rows returned")
-                                                      @QueryParam("rows") Integer rows,
+                                                      @QueryParam("limit") Integer rows,
                                                       @ApiParam(value = "starting row number (for pagination)")
-                                                      @DefaultValue("1") @QueryParam("start") Integer start) throws IOException;
+                                                      @DefaultValue("1") @QueryParam("page") Integer start) throws IOException;
 
     @GET
     @Path("/{id}/homologs-with-expression")

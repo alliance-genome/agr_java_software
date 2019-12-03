@@ -67,18 +67,14 @@ public class InteractionCacher extends Cacher {
         log.info("All interactions: " + allInteractionAnnotations.size());
         log.info("Genes with interactions: " + interactionAnnotationMapGene.size());
         Map<String, Integer> stats = new HashMap<>(interactionAnnotationMapGene.size());
-        interactionAnnotationMapGene.forEach((geneID, joins) -> {
-            stats.put(geneID, joins.size());
-        });
+        interactionAnnotationMapGene.forEach((geneID, joins) -> stats.put(geneID, joins.size()));
 
         Map<String, List<InteractionGeneJoin>> speciesStats = allInteractionAnnotations.stream().collect(groupingBy(join -> join.getGeneA().getSpecies().getName()));
 
         Map<String, Integer> speciesStatsInt = new HashMap<>();
-        speciesStats.forEach((species, joins) -> {
-            stats.put(species, joins.size());
-        });
+        speciesStats.forEach((species, joins) -> stats.put(species, joins.size()));
 
-        CacheStatus status = new CacheStatus(CacheAlliance.GENE_INTERACTION.getCacheName());
+        CacheStatus status = new CacheStatus(CacheAlliance.GENE_INTERACTION);
         status.setNumberOfEntities(allInteractionAnnotations.size());
         status.setEntityStats(stats);
         status.setSpeciesStats(speciesStatsInt);

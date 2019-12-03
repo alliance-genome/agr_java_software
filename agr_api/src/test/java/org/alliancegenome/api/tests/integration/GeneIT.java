@@ -111,14 +111,6 @@ public class GeneIT {
     }
 
     @Test
-    public void checkOrthologyForTwoSpecies() throws IOException {
-
-        OrthologyController controller = new OrthologyController();
-        JsonResultResponse<OrthologView> response = controller.getDoubleSpeciesOrthology("7955", "10090", "stringent", "ZFIN", 20, 1);
-        assertThat("Orthology records found for mouse - zebrafish", response.getTotal(), greaterThan(0));
-    }
-
-    @Test
     public void checkOrthologyForSingleSpecies() throws IOException {
 
         OrthologyController controller = new OrthologyController();

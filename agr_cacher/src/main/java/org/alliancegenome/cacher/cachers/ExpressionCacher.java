@@ -104,14 +104,14 @@ public class ExpressionCacher extends Cacher {
         });
         finishProcess();
 
-        CacheStatus status = new CacheStatus(CacheAlliance.GENE_EXPRESSION.getCacheName());
+        CacheStatus status = new CacheStatus(CacheAlliance.GENE_EXPRESSION);
         status.setNumberOfEntities(allExpression.size());
 
         Map<String, List<ExpressionDetail>> speciesStats = allExpression.stream()
                 .filter(expressionDetail -> expressionDetail.getGene() != null)
                 .collect(groupingBy(annotation -> annotation.getGene().getSpecies().getName()));
 
-        Map<String, Integer> stats = new HashMap<>(geneExpressionMap.size());
+        Map<String, Integer> stats = new TreeMap<>();
         geneExpressionMap.forEach((diseaseID, annotations) -> stats.put(diseaseID, annotations.size()));
 
         Arrays.stream(SpeciesType.values())
