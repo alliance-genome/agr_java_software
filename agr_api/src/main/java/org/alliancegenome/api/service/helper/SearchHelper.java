@@ -75,7 +75,7 @@ public class SearchHelper {
             put("model", new ArrayList<String>() {
                 {
                     add("species");
-                    add("diseases");
+                    add("diseasesAgrSlim");
                     add("genes");
                     add("alleles");
                 }
