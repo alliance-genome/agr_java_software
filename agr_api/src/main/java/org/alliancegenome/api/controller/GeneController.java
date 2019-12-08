@@ -323,10 +323,10 @@ public class GeneController extends BaseController implements GeneRESTInterface 
                                                              List<String> geneIDs,
                                                              String geneLister,
                                                              String stringencyFilter,
-                                                             List<String> taxonIDs,
-                                                             List<String> methods,
-                                                             Integer rows,
-                                                             Integer start) {
+                                                             String taxonID,
+                                                             String method,
+                                                             Integer limit,
+                                                             Integer page) {
 
         List<String> geneList = new ArrayList<>();
         if (id != null) {
@@ -339,12 +339,11 @@ public class GeneController extends BaseController implements GeneRESTInterface 
         if (CollectionUtils.isNotEmpty(geneIDs)) {
             geneList.addAll(geneIDs);
         }
-        OrthologyFilter orthologyFilter = new OrthologyFilter(stringencyFilter, taxonIDs, methods);
-        if (rows != null && rows > 0) {
-            orthologyFilter.setRows(rows);
-        }
-        orthologyFilter.setStart(start);
-        return orthologyService.getOrthologyMultiGeneJson(geneList, orthologyFilter);
+        Pagination pagination = new Pagination(page, limit, null, null);
+        pagination.addFieldFilter(FieldFilter.STRINGENCY, stringencyFilter);
+        pagination.addFieldFilter(FieldFilter.ORTHOLOGY_METHOD, method);
+        pagination.addFieldFilter(FieldFilter.ORTHOLOGY_TAXON, method);
+        return orthologyService.getOrthologyMultiGeneJson(geneList, pagination);
     }
 
     @Override

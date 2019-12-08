@@ -1,28 +1,14 @@
 package org.alliancegenome.api.rest.interfaces;
 
-import java.io.IOException;
-import java.util.List;
-
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
-
+import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.alliancegenome.api.entity.DiseaseRibbonSummary;
 import org.alliancegenome.api.entity.ExpressionSummary;
 import org.alliancegenome.core.service.JsonResultResponse;
-import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
-import org.alliancegenome.neo4j.entity.DiseaseSummary;
-import org.alliancegenome.neo4j.entity.EntitySummary;
-import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
-import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
+import org.alliancegenome.neo4j.entity.*;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
@@ -31,12 +17,13 @@ import org.alliancegenome.neo4j.view.View;
 import org.alliancegenome.neo4j.view.View.GeneAPI;
 import org.alliancegenome.neo4j.view.View.GeneAllelesAPI;
 
-import com.fasterxml.jackson.annotation.JsonView;
-import com.fasterxml.jackson.core.JsonProcessingException;
-
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
+import java.io.IOException;
+import java.util.List;
 
 @Path("/gene")
 @Api(value = "Genes")
@@ -84,9 +71,9 @@ public interface GeneRESTInterface {
             @QueryParam("filter.disease") String disease
     );
 
-//    @GET
+    //    @GET
     @Path("/{id}/alleles/download")
-    @ApiOperation(value = "Retrieve all alleles for a given gene" , hidden = true)
+    @ApiOperation(value = "Retrieve all alleles for a given gene", hidden = true)
     @Produces(MediaType.TEXT_PLAIN)
     Response getAllelesPerGeneDownload(
             @ApiParam(name = "id", value = "Search for Alleles for a given Gene by ID")
@@ -193,11 +180,11 @@ public interface GeneRESTInterface {
                                                       @ApiParam(name = "geneIdList", value = "List of additional source gene IDs for which homology is retrieved in a comma-delimited list, e.g. 'MGI:109583,RGD:2129,MGI:97570'")
                                                       @QueryParam("geneIdList") String geneList,
                                                       @ApiParam(value = "apply stringency containsFilterValue", allowableValues = "stringent, moderate, all", defaultValue = "stringent")
-                                                      @DefaultValue("stringent") @QueryParam("stringencyFilter") String stringencyFilter,
+                                                      @DefaultValue("stringent") @QueryParam("filter.stringency") String stringencyFilter,
                                                       @ApiParam(name = "taxonID", value = "Species identifier: Could be the full ID, e.g. 'NCBITaxon:10090', or just the ID, i.e. '10090'. Alternatively, part of a species name uniquely identifying a single species, e.g. 'danio' or 'mus'.", type = "String")
-                                                      @QueryParam("taxonID") List<String> taxonID,
+                                                      @QueryParam("filter.taxonID") String taxonID,
                                                       @ApiParam(value = "calculation methods", allowableValues = "Ensembl Compara, HGNC, Hieranoid, InParanoid, OMA, OrthoFinder, OrthoInspector, PANTHER, PhylomeDB, Roundup, TreeFam, ZFIN")
-                                                      @QueryParam("methods") List<String> methods,
+                                                      @QueryParam("filter.method") String method,
                                                       @ApiParam(value = "maximum number of rows returned")
                                                       @QueryParam("limit") Integer rows,
                                                       @ApiParam(value = "starting row number (for pagination)")

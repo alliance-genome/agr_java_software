@@ -85,7 +85,7 @@ public interface OrthologyRESTInterface {
             @ApiParam(value = "Select a stringency containsFilterValue", allowableValues = "stringent, moderate, all", defaultValue = "stringent")
             @QueryParam("stringencyFilter") String stringencyFilter,
             @ApiParam(value = "calculation methods", allowableValues = "Ensembl Compara, HGNC, Hieranoid, InParanoid, OMA, OrthoFinder, OrthoInspector, PANTHER, PhylomeDB, Roundup, TreeFam, ZFIN")
-            @QueryParam("methods") List<String> methods,
+            @QueryParam("method") String method,
             @ApiParam(value = "Number of returned rows")
             @DefaultValue("20") @QueryParam("rows") Integer rows,
             @ApiParam(value = "Starting row")

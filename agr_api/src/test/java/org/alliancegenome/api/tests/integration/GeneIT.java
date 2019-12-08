@@ -25,7 +25,6 @@ import org.alliancegenome.neo4j.view.OrthologyModule;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.config.Configurator;
-import org.jboss.logging.Logger;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -125,11 +124,11 @@ public class GeneIT {
         JsonResultResponse<OrthologView> response = controller.getGeneOrthology("MGI:109583", null, null, "stringent", null, null, 20, 1);
         assertThat("No matches found for species 'NCBITaxon:10115", response.getTotal(), greaterThan(5));
 
-        String[] taxonArray = {"NCBITaxon:10116"};
-        response = controller.getGeneOrthology("MGI:109583", null, null, null, Arrays.asList(taxonArray), null, 20, 1);
+        String taxonArray = "NCBITaxon:10116";
+        response = controller.getGeneOrthology("MGI:109583", null, null, null, taxonArray, null, 20, 1);
         assertThat("matches found for method species NCBITaxon:10116", response.getTotal(), greaterThan(0));
 
-        response = controller.getGeneOrthology("MGI:109583", null, null, "stringent", Arrays.asList(taxonArray), null, 20, 1);
+        response = controller.getGeneOrthology("MGI:109583", null, null, "stringent", taxonArray, null, 20, 1);
         assertThat("matches found for method species NCBITaxon:10116", response.getTotal(), greaterThan(0));
 
 /*
@@ -146,20 +145,20 @@ public class GeneIT {
     public void checkOrthologyAPIWithMethods() {
 
         GeneController controller = new GeneController();
-        String[] methods = {"ZFIN"};
-        JsonResultResponse<OrthologView> response = controller.getGeneOrthology("MGI:109583", null, null, null, null, Arrays.asList(methods), 20, 1);
+        String methods = "ZFIN";
+        JsonResultResponse<OrthologView> response = controller.getGeneOrthology("MGI:109583", null, null, null, null, methods, 20, 1);
         assertThat("No match against method 'ZFIN'", response.getTotal(), greaterThan(0));
 
-        methods = new String[]{"OrthoFinder"};
-        response = controller.getGeneOrthology("MGI:109583", null, null, null, null, Arrays.asList(methods), 20, 1);
+        methods = "OrthoFinder";
+        response = controller.getGeneOrthology("MGI:109583", null, null, null, null, methods, 20, 1);
         assertThat("matches found for method 'OrthoFinder'", response.getTotal(), greaterThan(0));
 
-        methods = new String[]{"OrthoFinder", "ZFIN"};
-        response = controller.getGeneOrthology("MGI:109583", null, null, null, null, Arrays.asList(methods), 20, 1);
+        methods = "ZFIN";
+        response = controller.getGeneOrthology("MGI:109583", null, null, null, null, methods, 20, 1);
         assertThat("no matches found for method 'OrthoFinder and ZFIN'", response.getTotal(), greaterThan(0));
 
-        methods = new String[]{"OrthoFinder", "PANTHER"};
-        response = controller.getGeneOrthology("MGI:109583", null, null, null, null, Arrays.asList(methods), 20, 1);
+        methods = "PANTHER";
+        response = controller.getGeneOrthology("MGI:109583", null, null, null, null,methods, 20, 1);
         assertThat("matches found for method 'OrthoFinder and Panther'", response.getTotal(), greaterThan(0));
     }
 
@@ -172,7 +171,7 @@ public class GeneIT {
     }
 
     @Test
-    public void getAllOrthologyMethods() throws IOException {
+    public void getAllOrthologyMethods() {
 
         OrthologyController controller = new OrthologyController();
         JsonResultResponse<OrthoAlgorithm> response = controller.getAllMethodsCalculations();

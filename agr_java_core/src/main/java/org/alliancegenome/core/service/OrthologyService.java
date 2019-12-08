@@ -176,47 +176,31 @@ public class OrthologyService {
     private static ExpressionCacheRepository expressionCacheRepository = new ExpressionCacheRepository();
     private static DiseaseCacheRepository diseaseCacheRepository = new DiseaseCacheRepository();
 
-    public JsonResultResponse<OrthologView> getOrthologyMultiGeneJson(List<String> geneIDs, OrthologyFilter filter) {
+    public JsonResultResponse<OrthologView> getOrthologyMultiGeneJson(List<String> geneIDs, Pagination pagination) {
         List<OrthologView> orthologViewList = repo.getAllOrthologyGenes(geneIDs);
+        //filtering
+        FilterService<OrthologView> filterService = new FilterService<>(new OrthologyFiltering());
+        List<OrthologView> orthologViewFiltered = filterService.filterAnnotations(orthologViewList, pagination.getFieldFilterValueMap());
+
+        List<OrthologView> paginatedViewFiltered = orthologViewFiltered.stream()
+                .skip(pagination.getStart())
+                .limit(pagination.getLimit()).sorted(Comparator.comparing(o -> o.getHomologGene().getSymbol().toLowerCase()))
+                .collect(Collectors.toList());
 
         //System.out.println("Number of genes for orthology: " + geneIDs.size());
 
-        orthologViewList.sort(Comparator.comparing(o -> o.getHomologGene().getSymbol().toLowerCase()));
-
-        List<OrthologView> orthologViewFiltered = orthologViewList.stream()
-                .filter(orthologView -> orthologView.getStringencyFilter().equalsIgnoreCase("Stringent"))
-                .skip(filter.getStart() - 1)
-                .limit(filter.getRows())
-                .collect(Collectors.toList());
-
-
-        if (filter.getStringency() != null && filter.getStringency().equals(OrthologyFilter.Stringency.MODERATE)) {
-            List<OrthologView> orthologViewFilteredModerate = orthologViewList.stream()
-                    .filter(orthologView -> orthologView.getStringencyFilter().equalsIgnoreCase(filter.getStringency().name()))
-                    .skip(filter.getStart() - 1)
-                    .limit(filter.getRows())
-                    .collect(Collectors.toList());
-            orthologViewFiltered.addAll(orthologViewFilteredModerate);
-        }
-        if (filter.getStringency() != null && filter.getStringency().equals(OrthologyFilter.Stringency.ALL)) {
-
-            orthologViewFiltered = orthologViewList.stream()
-                    .skip(filter.getStart() - 1)
-                    .limit(filter.getRows())
-                    .collect(Collectors.toList());
-        }
         //System.out.println("Number of genes for orthology: " + orthologViewFiltered.size());
 
         // <geneID, Map<variableName,variableValue>>
         Map<String, Object> map = new HashMap<>();
 
-        orthologViewFiltered.forEach(orthologView -> {
+        paginatedViewFiltered.forEach(orthologView -> {
             putGeneInfo(map, orthologView.getGene());
             putGeneInfo(map, orthologView.getHomologGene());
         });
         JsonResultResponse<OrthologView> response = new JsonResultResponse<>();
-        response.setResults(orthologViewFiltered);
-        response.setTotal(orthologViewList.size());
+        response.setResults(paginatedViewFiltered);
+        response.setTotal(orthologViewFiltered.size());
         response.setSupplementalData(map);
         return response;
     }
