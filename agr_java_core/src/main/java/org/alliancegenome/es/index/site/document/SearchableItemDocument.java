@@ -46,11 +46,11 @@ public abstract class SearchableItemDocument extends ESDocument {
     public String getDocumentId() {
         return primaryKey;
     }
-    
+
     @Override
     @JsonIgnore
     public String getType() {
-        return category;
+        return "searchable_item";
     }
 
     public void setNameKeyWithSpecies(String nameKey, String species) {
