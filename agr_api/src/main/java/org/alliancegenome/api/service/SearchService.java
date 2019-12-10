@@ -233,9 +233,10 @@ public class SearchService {
             links.add(getRelatedDataLink("model", "genes", nameKey));
         } else if (StringUtils.equals(category,"disease")) {
             links.add(getRelatedDataLink("gene", "diseasesWithParents", nameKey));
-            links.add(getRelatedDataLink("allele", "diseases", nameKey));
-            links.add(getRelatedDataLink("model", "diseases", nameKey));
+            links.add(getRelatedDataLink("allele", "diseasesWithParents", nameKey));
+            links.add(getRelatedDataLink("model", "diseasesWithParents", nameKey));
         } else if (StringUtils.equals(category, "allele")) {
+            links.add(getRelatedDataLink("disease", "alleles", nameKey));
             links.add(getRelatedDataLink("gene", "alleles", nameKey));
             links.add(getRelatedDataLink("model", "alleles", nameKey));
         } else if (StringUtils.equals(category,"model")) {
