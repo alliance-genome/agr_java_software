@@ -22,7 +22,6 @@ public class AlleleDocument extends SearchableItemDocument {
     }
 
     private String primaryKey;
-    private String symbol;
     private String searchSymbol;
     private Date dateProduced;
     private Date dataProvider;

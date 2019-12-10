@@ -32,6 +32,7 @@ public abstract class Mapping extends Builder {
                 .htmlSmoosh()
                 .standardBigrams()
                 .build();
+        new FieldBuilder(builder, "nameText", "text").keyword().standardText().build();
         new FieldBuilder(builder,"name_key","text").analyzer("symbols")
                 .autocomplete()
                 .keyword()
@@ -66,6 +67,7 @@ public abstract class Mapping extends Builder {
                 .keywordAutocomplete()
                 .sort()
                 .build();
+        new FieldBuilder(builder, "symbolText", "text").keyword().standardText().build();
         new FieldBuilder(builder, "searchSymbol","text").analyzer("symbols")
                 .autocomplete()
                 .keyword()

@@ -26,7 +26,7 @@ public class GeneDocument extends SearchableItemDocument {
 
 
     private String taxonId;
-    private String symbol;
+
 
     private Set<String> biologicalProcessWithParents;
     private Set<String> molecularFunctionWithParents;

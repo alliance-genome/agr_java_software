@@ -114,11 +114,16 @@ public class SearchHelper {
             add("name.htmlSmoosh");
             add("name.keyword");
             add("name.standardBigrams");
+            add("nameText");
+            add("nameText.keyword");
+            add("nameText.standardText");
             add("symbol");
             add("symbol.autocomplete");
             add("symbol.keyword");
             add("symbol.htmlSmoosh");
             add("symbolText");
+            add("symbolText.keyword");
+            add("symbolText.standardText");
             add("synonyms");
             add("synonyms.keyword");
             add("synonyms.htmlSmoosh");
