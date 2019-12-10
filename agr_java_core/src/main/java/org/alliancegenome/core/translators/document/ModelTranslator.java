@@ -14,6 +14,7 @@ public class ModelTranslator extends EntityDocumentTranslator<AffectedGenomicMod
         document.setPrimaryKey(entity.getPrimaryKey());
         document.setName(entity.getName());
         document.setNameKey(entity.getNameTextWithSpecies());
+        document.setNameText(entity.getNameText());
         document.setLocalId(entity.getLocalId());
         document.setGlobalId(entity.getGlobalId());
         document.setModCrossRefCompleteUrl(entity.getModCrossRefCompleteUrl());

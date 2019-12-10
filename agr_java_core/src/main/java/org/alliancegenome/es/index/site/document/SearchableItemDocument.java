@@ -27,6 +27,8 @@ public abstract class SearchableItemDocument extends ESDocument {
     String globalId;
     String modCrossRefCompleteUrl;
     String species;
+    String symbol;
+    String symbolText;
 
 
     Set<String> diseases = new HashSet<>();

@@ -28,6 +28,7 @@ public class AlleleTranslator extends EntityDocumentTranslator<Allele, AlleleDoc
         document.setPrimaryKey(entity.getPrimaryKey());
         document.setRelease(entity.getRelease());
         document.setSymbol(entity.getSymbol());
+        document.setSymbolText(entity.getSymbolText());
         document.setName(entity.getSymbol());
         document.setNameKey(entity.getSymbolTextWithSpecies());
         if (entity.getSpecies() != null) {
