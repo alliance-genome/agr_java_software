@@ -51,9 +51,9 @@ public class SearchHelper {
             });
             put("go", new ArrayList<String>() {
                 {
-                    add("go_type");
-                    add("go_species");
-                    add("go_genes");
+                    add("branch");
+                    add("associatedSpecies");
+                    add("genes");
                 }
             });
             put("disease", new ArrayList<String>() {
@@ -134,7 +134,7 @@ public class SearchHelper {
             add("genes.keywordAutocomplete");
             add("geneSynopsis");
             add("globalId");
-            add("go_type");
+            add("subtype");
             add("go_genes");
             add("go_synonyms");
             add("id");

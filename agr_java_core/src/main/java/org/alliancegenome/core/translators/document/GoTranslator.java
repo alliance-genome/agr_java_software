@@ -22,17 +22,17 @@ public class GoTranslator extends EntityDocumentTranslator<GOTerm, SearchableIte
         doc.setId(entity.getPrimaryKey());
         doc.setPrimaryKey(entity.getPrimaryKey());
         doc.setNameKey(entity.getNameKey());
-        doc.setGo_type(entity.getType());
+        doc.setBranch(entity.getType());
         doc.setHref(entity.getHref());
         doc.setDefinition(entity.getDefinition());
 
-        Set<String> go_synonyms = new HashSet<>();
+        Set<String> synonyms = new HashSet<>();
         for(Synonym s: entity.getSynonyms()) {
-            go_synonyms.add(s.getPrimaryKey());
+            synonyms.add(s.getPrimaryKey());
         }
-        doc.setSynonyms(go_synonyms);
-        doc.setGo_genes(entity.getGeneNameKeys());
-        doc.setGo_species(entity.getSpeciesNames());
+        doc.setSynonyms(synonyms);
+        doc.setGenes(entity.getGeneNameKeys());
+        doc.setAssociatedSpecies(entity.getSpeciesNames());
 
         return doc;
     }

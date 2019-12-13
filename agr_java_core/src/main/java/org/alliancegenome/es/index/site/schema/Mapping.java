@@ -30,6 +30,7 @@ public class Mapping extends Builder {
         new FieldBuilder(builder, "biologicalProcess", "text").keyword().build();
         new FieldBuilder(builder, "biologicalProcessAgrSlim", "text").keyword().build();
         new FieldBuilder(builder, "biologicalProcessWithParents", "text").keyword().build();
+        new FieldBuilder(builder, "branch", "text").keyword().build();
         new FieldBuilder(builder, "category", "keyword").symbol().autocomplete().keyword().build();
         new FieldBuilder(builder, "cellularComponent", "text").keyword().build();
         new FieldBuilder(builder, "cellularComponentAgrSlim", "text").keyword().build();
@@ -46,9 +47,6 @@ public class Mapping extends Builder {
         new FieldBuilder(builder, "geneLiteratureUrl", "keyword").build();
         new FieldBuilder(builder, "geneSynopsis", "text").build();
         new FieldBuilder(builder, "geneSynopsisUrl", "keyword").build();
-        new FieldBuilder(builder, "go_genes", "text").analyzer("symbols").keyword().build();
-        new FieldBuilder(builder, "go_species", "text").keyword().build();
-        new FieldBuilder(builder, "go_type", "text").keyword().build();
         new FieldBuilder(builder, "href", "keyword");
         new FieldBuilder(builder, "id", "keyword");
         new FieldBuilder(builder, "models", "text").keyword().autocomplete().build();

@@ -21,6 +21,7 @@ import org.alliancegenome.es.index.site.doclet.GenomeLocationDoclet;
 public class SearchableItemDocument extends ESDocument {
 
     String automatedGeneSynopsis;
+    String branch;
     String category;
     String description;
     String definition;
@@ -28,7 +29,6 @@ public class SearchableItemDocument extends ESDocument {
     String geneSynopsis;
     String geneSynopsisUrl;
     String globalId;
-    String go_type;
     String href; //GO terms use this rather than modCrossRefCompleteUrl
     String id; //GO terms use this rather than primaryKey
     String localId;
