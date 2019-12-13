@@ -75,7 +75,7 @@ public class IndexManager {
             if(addMappings) {
                 mapping.buildMapping();
                 client.admin().indices().preparePutMapping(index)
-                        .setType("searchable_item")
+                        .setType(ConfigHelper.SEARCHABLE_ITEM)
                         .setSource(mapping.getBuilder().string(),XContentType.JSON)
                         .get();
             }

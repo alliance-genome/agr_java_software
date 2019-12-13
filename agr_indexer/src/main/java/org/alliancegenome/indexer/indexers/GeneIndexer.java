@@ -8,14 +8,14 @@ import java.util.stream.Collectors;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.translators.document.GeneTranslator;
 import org.alliancegenome.es.index.site.cache.GeneDocumentCache;
-import org.alliancegenome.es.index.site.document.GeneDocument;
+import org.alliancegenome.es.index.site.document.SearchableItemDocument;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.repository.GeneIndexerRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class GeneIndexer extends Indexer<GeneDocument> {
+public class GeneIndexer extends Indexer<SearchableItemDocument> {
 
     private final Logger log = LogManager.getLogger(getClass());
     private GeneDocumentCache geneDocumentCache;
@@ -57,14 +57,14 @@ public class GeneIndexer extends Indexer<GeneDocument> {
         while (true) {
             try {
                 if (list.size() >= indexerConfig.getBufferSize()) {
-                    Iterable<GeneDocument> geneDocuments = geneTrans.translateEntities(list);
+                    Iterable<SearchableItemDocument> geneDocuments = geneTrans.translateEntities(list);
                     geneDocumentCache.addCachedFields(geneDocuments);
                     saveDocuments(geneDocuments);
                     list.clear();
                 }
                 if (queue.isEmpty()) {
                     if (list.size() > 0) {
-                        Iterable<GeneDocument> geneDocuments = geneTrans.translateEntities(list);
+                        Iterable<SearchableItemDocument> geneDocuments = geneTrans.translateEntities(list);
                         geneDocumentCache.addCachedFields(geneDocuments);
                         saveDocuments(geneDocuments);
                         list.clear();

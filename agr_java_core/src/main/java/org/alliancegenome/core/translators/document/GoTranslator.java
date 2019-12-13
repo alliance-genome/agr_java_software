@@ -4,17 +4,19 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.alliancegenome.core.translators.EntityDocumentTranslator;
-import org.alliancegenome.es.index.site.document.GoDocument;
+import org.alliancegenome.es.index.site.document.SearchableItemDocument;
 import org.alliancegenome.neo4j.entity.node.GOTerm;
 import org.alliancegenome.neo4j.entity.node.Synonym;
 
-public class GoTranslator extends EntityDocumentTranslator<GOTerm, GoDocument> {
+public class GoTranslator extends EntityDocumentTranslator<GOTerm, SearchableItemDocument> {
 
 
     @Override
-    protected GoDocument entityToDocument(GOTerm entity, int translationDepth) {
+    protected SearchableItemDocument entityToDocument(GOTerm entity, int translationDepth) {
         //log.info(entity);
-        GoDocument doc = new GoDocument();
+        SearchableItemDocument doc = new SearchableItemDocument();
+
+        doc.setCategory("go");
 
         doc.setName(entity.getName());
         doc.setId(entity.getPrimaryKey());

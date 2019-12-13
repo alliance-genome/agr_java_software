@@ -6,28 +6,28 @@ import java.util.stream.Collectors;
 import org.alliancegenome.core.translators.EntityDocumentTranslator;
 import org.alliancegenome.core.translators.doclet.CrossReferenceDocletTranslator;
 import org.alliancegenome.es.index.site.doclet.CrossReferenceDoclet;
-import org.alliancegenome.es.index.site.document.AlleleDocument;
+import org.alliancegenome.es.index.site.document.SearchableItemDocument;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.CrossReference;
 
-public class AlleleTranslator extends EntityDocumentTranslator<Allele, AlleleDocument> {
+public class AlleleTranslator extends EntityDocumentTranslator<Allele, SearchableItemDocument> {
 
     private static GeneTranslator geneTranslator = new GeneTranslator();
     private static DiseaseTranslator diseaseTranslator = new DiseaseTranslator();
     private static CrossReferenceDocletTranslator crossReferenceDocletTranslator = new CrossReferenceDocletTranslator();
 
     @Override
-    protected AlleleDocument entityToDocument(Allele entity, int translationDepth) {
+    protected SearchableItemDocument entityToDocument(Allele entity, int translationDepth) {
 
-        AlleleDocument document = new AlleleDocument();
+        SearchableItemDocument document = new SearchableItemDocument();
 
-        //allele.setDataProvider(entity.getDataProvider());
-        document.setDateProduced(entity.getDateProduced());
+        document.setCategory("allele");
+
         document.setGlobalId(entity.getGlobalId());
         document.setLocalId(entity.getLocalId());
         document.setPrimaryKey(entity.getPrimaryKey());
-        document.setRelease(entity.getRelease());
         document.setSymbol(entity.getSymbol());
+        document.setSymbolText(entity.getSymbolText());
         document.setName(entity.getSymbol());
         document.setNameKey(entity.getSymbolTextWithSpecies());
         if (entity.getSpecies() != null) {

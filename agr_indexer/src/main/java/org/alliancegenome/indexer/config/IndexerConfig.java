@@ -9,11 +9,12 @@ import org.alliancegenome.indexer.indexers.ModelIndexer;
 public enum IndexerConfig {
 
     // These numbers target a 10KB document batch size
-    GeneIndexer("searchable_item", GeneIndexer.class, 1, 240),
-    DiseaseIndexer("searchable_item", DiseaseIndexer.class, 2, 150),
-    AlleleIndexer("searchable_item", AlleleIndexer.class, 2, 743),
-    GoIndexer("searchable_item", GoIndexer.class, 2, 2300),
-    ModelIndexer("searchable_item", ModelIndexer.class, 2, 750); //just guessing at batching number
+    GeneIndexer("gene", GeneIndexer.class, 1, 240),
+    DiseaseIndexer("disease", DiseaseIndexer.class, 2, 150),
+    AlleleIndexer("allele", AlleleIndexer.class, 2, 743),
+    GoIndexer("go", GoIndexer.class, 2, 2300),
+    ModelIndexer("model", ModelIndexer.class, 2, 750); //just guessing at batching number
+
 
     private String typeName;
     private Class<?> indexClazz;

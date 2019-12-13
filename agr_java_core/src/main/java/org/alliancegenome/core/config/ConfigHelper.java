@@ -51,6 +51,7 @@ public class ConfigHelper {
     public static final String AO_TERM_LIST = "AO_TERM_LIST";
     public static final String GO_TERM_LIST = "GO_TERM_LIST";
 
+    public static final String SEARCHABLE_ITEM = "searchable_item";
 
     public ConfigHelper() {
         init();

@@ -7,33 +7,32 @@ import java.util.stream.Collectors;
 import org.alliancegenome.core.translators.EntityDocumentTranslator;
 import org.alliancegenome.core.translators.doclet.CrossReferenceDocletTranslator;
 import org.alliancegenome.es.index.site.doclet.CrossReferenceDoclet;
-import org.alliancegenome.es.index.site.document.DiseaseDocument;
+import org.alliancegenome.es.index.site.document.SearchableItemDocument;
 import org.alliancegenome.neo4j.entity.node.DOTerm;
 import org.alliancegenome.neo4j.entity.node.Synonym;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, DiseaseDocument> {
+public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, SearchableItemDocument> {
 
     private static CrossReferenceDocletTranslator crossReferenceTranslator = new CrossReferenceDocletTranslator();
 
     private final Logger log = LogManager.getLogger(getClass());
 
     @Override
-    protected DiseaseDocument entityToDocument(DOTerm entity, int translationDepth) {
+    protected SearchableItemDocument entityToDocument(DOTerm entity, int translationDepth) {
         return getTermDiseaseDocument(entity);
     }
 
-    private DiseaseDocument getTermDiseaseDocument(DOTerm doTerm) {
-        DiseaseDocument document = new DiseaseDocument();
-        if (doTerm.getDoId() != null)
-            document.setDoId(doTerm.getDoId());
+    private SearchableItemDocument getTermDiseaseDocument(DOTerm doTerm) {
+        SearchableItemDocument document = new SearchableItemDocument();
+
+        document.setCategory("disease");
+
         document.setPrimaryKey(doTerm.getPrimaryKey());
         document.setName(doTerm.getName());
         document.setNameKey(doTerm.getName());
         document.setDefinition(doTerm.getDefinition());
-        document.setDefinitionLinks(doTerm.getDefLinks());
-        document.setDateProduced(doTerm.getDateProduced());
 
         if (doTerm.getSynonyms() != null) {
             List<String> synonymList = doTerm.getSynonyms().stream()
