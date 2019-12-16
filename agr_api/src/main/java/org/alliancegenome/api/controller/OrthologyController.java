@@ -57,7 +57,7 @@ public class OrthologyController implements OrthologyRESTInterface {
                                                                       String stringencyFilter,
                                                                       String methods,
                                                                       Integer rows,
-                                                                      Integer start) throws IOException {
+                                                                      Integer start) {
         return getDoubleSpeciesOrthology(species, null, stringencyFilter, methods, rows, start);
     }
 
@@ -73,16 +73,16 @@ public class OrthologyController implements OrthologyRESTInterface {
     public JsonResultResponse<OrthologView> getMultiGeneOrthology(List<String> geneIDs,
                                                                   String geneList,
                                                                   String stringencyFilter,
-                                                                  List<String> methods,
+                                                                  String method,
                                                                   Integer rows,
-                                                                  Integer start) throws IOException {
+                                                                  Integer start) {
         GeneController controller = new GeneController();
         //controller.setRequest(request);
-        return controller.getGeneOrthology(null, geneIDs, geneList, stringencyFilter, null, methods, rows, start);
+        return controller.getGeneOrthology(null, geneIDs, geneList, stringencyFilter, null, method, rows, start);
     }
 
     @Override
-    public JsonResultResponse<OrthoAlgorithm> getAllMethodsCalculations() throws JsonProcessingException {
+    public JsonResultResponse<OrthoAlgorithm> getAllMethodsCalculations() {
         LocalDateTime startDate = LocalDateTime.now();
         OrthologousRepository orthoRepo = new OrthologousRepository();
         JsonResultResponse<OrthoAlgorithm> response = new JsonResultResponse<>();

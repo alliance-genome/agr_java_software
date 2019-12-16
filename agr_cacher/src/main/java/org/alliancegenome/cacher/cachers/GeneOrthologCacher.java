@@ -65,7 +65,7 @@ public class GeneOrthologCacher extends Cacher {
                     .collect(toSet());
             allOrthology.addAll(orthologySet);
 
-            manager.setCache(gene.getPrimaryKey(), new ArrayList<>(orthologySet), View.Orthology.class, CacheAlliance.GENE_ORTHOLOGY);
+            manager.setCache(gene.getPrimaryKey(), new ArrayList<>(orthologySet), View.OrthologyCacher.class, CacheAlliance.GENE_ORTHOLOGY);
         });
         finishProcess();
 
@@ -74,7 +74,7 @@ public class GeneOrthologCacher extends Cacher {
                 .collect(groupingBy(o -> o.getGene().getTaxonId()));
 
         map.forEach((speciesID, orthologViews) -> {
-            manager.setCache(speciesID, orthologViews, View.Orthology.class, CacheAlliance.SPECIES_ORTHOLOGY);
+            manager.setCache(speciesID, orthologViews, View.OrthologyCacher.class, CacheAlliance.SPECIES_ORTHOLOGY);
         });
 
         CacheStatus status = new CacheStatus(CacheAlliance.SPECIES_ORTHOLOGY);
@@ -92,7 +92,7 @@ public class GeneOrthologCacher extends Cacher {
                 .collect(groupingBy(service::getSpeciesSpeciesID));
 
         speciesToSpeciesMap.forEach((speciesSpeciesID, orthologViews) -> {
-            manager.setCache(speciesSpeciesID, orthologViews, View.Orthology.class, CacheAlliance.SPECIES_SPECIES_ORTHOLOGY);
+            manager.setCache(speciesSpeciesID, orthologViews, View.OrthologyCacher.class, CacheAlliance.SPECIES_SPECIES_ORTHOLOGY);
         });
 
         status = new CacheStatus(CacheAlliance.SPECIES_SPECIES_ORTHOLOGY);

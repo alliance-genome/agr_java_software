@@ -13,6 +13,9 @@ import org.hamcrest.Matchers;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.hamcrest.Matchers.greaterThan;
@@ -37,6 +40,18 @@ public class OrthologyIT {
         MultiKeyMap map = repo.getAllOrthologyGeneJoin();
 
         assertNotNull(map);
+    }
+
+    @Test
+    public void getGeneHomology() {
+        OrthologyService service = new OrthologyService();
+        Pagination pagination = new Pagination();
+        pagination.setLimit(10);
+        JsonResultResponse<OrthologView> response = service.getOrthologyMultiGeneJson(Collections.singletonList("MGI:109583"), pagination);
+        assertNotNull(response);
+        assertThat(response.getTotal(), greaterThan(86000));
+        // all source genes are ZFIN genes
+        response.getResults().forEach(view -> assertEquals(view.getGene().getTaxonId(), "NCBITaxon:7955"));
     }
 
     @Test

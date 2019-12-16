@@ -18,13 +18,18 @@ public class OrthologySorting implements Sorting<OrthologView> {
             Comparator.comparing(orthologView -> orthologView.getHomologGene().getSymbol().toLowerCase());
 
     private static Comparator<OrthologView> speciesOrder =
-            Comparator.comparing(orthologView -> orthologView.getHomologGene().getTaxonId());
+            Comparator.comparing(orthologView -> {
+                if (orthologView.getHomologGene().getSpecies() != null)
+                    return orthologView.getHomologGene().getSpecies().getPhylogeneticOrder();
+                return -1;
+            });
 
 
     public OrthologySorting() {
         super();
 
         defaultList = new ArrayList<>(4);
+        defaultList.add(speciesOrder);
         defaultList.add(geneSymbolOrder);
         defaultList.add(homologGeneSymbolOrder);
 
