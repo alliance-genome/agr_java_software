@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.alliancegenome.core.config.ConfigHelper;
+import org.alliancegenome.core.config.Constants;
 import org.alliancegenome.es.index.ESDocument;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -95,7 +96,7 @@ public class SearchableItemDocument extends ESDocument {
     @Override
     @JsonIgnore
     public String getType() {
-        return ConfigHelper.SEARCHABLE_ITEM;
+        return Constants.SEARCHABLE_ITEM;
     }
 
     public void setNameKeyWithSpecies(String nameKey, String species) {

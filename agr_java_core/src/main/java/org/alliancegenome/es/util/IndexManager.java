@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.alliancegenome.core.config.ConfigHelper;
+import org.alliancegenome.core.config.Constants;
 import org.alliancegenome.es.index.site.schema.Mapping;
 import org.alliancegenome.es.index.site.schema.settings.SiteIndexSettings;
 import org.apache.logging.log4j.LogManager;
@@ -75,7 +76,7 @@ public class IndexManager {
             if(addMappings) {
                 mapping.buildMapping();
                 client.admin().indices().preparePutMapping(index)
-                        .setType(ConfigHelper.SEARCHABLE_ITEM)
+                        .setType(Constants.SEARCHABLE_ITEM)
                         .setSource(mapping.getBuilder().string(),XContentType.JSON)
                         .get();
             }
