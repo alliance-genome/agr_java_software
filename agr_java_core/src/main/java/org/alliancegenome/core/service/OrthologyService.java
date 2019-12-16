@@ -177,6 +177,7 @@ public class OrthologyService {
     private static DiseaseCacheRepository diseaseCacheRepository = new DiseaseCacheRepository();
 
     public JsonResultResponse<OrthologView> getOrthologyMultiGeneJson(List<String> geneIDs, Pagination pagination) {
+        long start = System.currentTimeMillis();
         List<OrthologView> orthologViewList = repo.getAllOrthologyGenes(geneIDs);
         //filtering
         FilterService<OrthologView> filterService = new FilterService<>(new OrthologyFiltering());
@@ -202,6 +203,7 @@ public class OrthologyService {
         response.setResults(paginatedViewFiltered);
         response.setTotal(orthologViewFiltered.size());
         response.setSupplementalData(map);
+        response.calculateRequestDuration(start);
         return response;
     }
 
