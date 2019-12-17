@@ -343,7 +343,9 @@ public class GeneController extends BaseController implements GeneRESTInterface 
         pagination.addFieldFilter(FieldFilter.STRINGENCY, stringencyFilter);
         pagination.addFieldFilter(FieldFilter.ORTHOLOGY_METHOD, method);
         pagination.addFieldFilter(FieldFilter.ORTHOLOGY_TAXON, method);
-        return orthologyService.getOrthologyMultiGeneJson(geneList, pagination);
+        final JsonResultResponse<OrthologView> response = orthologyService.getOrthologyMultiGeneJson(geneList, pagination);
+        response.setHttpServletRequest(request);
+        return response;
     }
 
     @Override

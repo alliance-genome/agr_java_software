@@ -13,9 +13,7 @@ import org.hamcrest.Matchers;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.hamcrest.Matchers.greaterThan;
@@ -49,7 +47,11 @@ public class OrthologyIT {
         pagination.setLimit(10);
         JsonResultResponse<OrthologView> response = service.getOrthologyMultiGeneJson(Collections.singletonList("MGI:109583"), pagination);
         assertNotNull(response);
-        assertThat(response.getTotal(), greaterThan(86000));
+        assertThat(response.getTotal(), greaterThan(6));
+
+        response = service.getOrthologyBySpecies("danio", pagination);
+        assertNotNull(response);
+        assertThat(response.getTotal(), greaterThan(6));
         // all source genes are ZFIN genes
         response.getResults().forEach(view -> assertEquals(view.getGene().getTaxonId(), "NCBITaxon:7955"));
     }

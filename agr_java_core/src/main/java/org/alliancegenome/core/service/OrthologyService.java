@@ -177,6 +177,7 @@ public class OrthologyService {
     private static DiseaseCacheRepository diseaseCacheRepository = new DiseaseCacheRepository();
 
     public JsonResultResponse<OrthologView> getOrthologyMultiGeneJson(List<String> geneIDs, Pagination pagination) {
+        long start = System.currentTimeMillis();
         List<OrthologView> orthologViewList = repo.getAllOrthologyGenes(geneIDs);
         //filtering
         FilterService<OrthologView> filterService = new FilterService<>(new OrthologyFiltering());
@@ -202,6 +203,7 @@ public class OrthologyService {
         response.setResults(paginatedViewFiltered);
         response.setTotal(orthologViewFiltered.size());
         response.setSupplementalData(map);
+        response.calculateRequestDuration(start);
         return response;
     }
 
@@ -237,6 +239,23 @@ public class OrthologyService {
         final String taxonTwo = SpeciesType.getTaxonId(taxonIDTwo);
 
         List<OrthologView> orthologViewList = repo.getOrthologyBySpeciesSpecies(taxonOne, taxonTwo);
+        JsonResultResponse<OrthologView> response = new JsonResultResponse<>();
+
+        //filtering
+        FilterService<OrthologView> filterService = new FilterService<>(new OrthologyFiltering());
+        List<OrthologView> filteredOrthologyList = filterService.filterAnnotations(orthologViewList, pagination.getFieldFilterValueMap());
+        response.setTotal(filteredOrthologyList.size());
+
+        // sorting and pagination
+        response.setResults(filterService.getSortedAndPaginatedAnnotations(pagination, filteredOrthologyList, new OrthologySorting()));
+        return response;
+    }
+
+    public JsonResultResponse<OrthologView> getOrthologyBySpecies(String taxonIDOne, Pagination pagination) {
+
+        final String taxonOne = SpeciesType.getTaxonId(taxonIDOne);
+
+        List<OrthologView> orthologViewList = repo.getOrthologyBySpecies(Collections.singletonList(taxonOne));
         JsonResultResponse<OrthologView> response = new JsonResultResponse<>();
 
         //filtering
