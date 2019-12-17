@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.alliancegenome.es.index.site.document.DiseaseDocument;
+import org.alliancegenome.es.index.site.document.SearchableItemDocument;
 import org.alliancegenome.neo4j.entity.node.DOTerm;
 
 import lombok.Getter;
@@ -19,8 +19,8 @@ public class DiseaseDocumentCache extends IndexerCache {
     private Map<String, Set<String>> diseaseGroupMap = new HashMap<>();
     private Map<String, Set<String>> parentNameMap = new HashMap<>();
 
-    public void addCachedFields(Iterable<DiseaseDocument> diseaseDocuments) {
-        for (DiseaseDocument diseaseDocument : diseaseDocuments) {
+    public void addCachedFields(Iterable<SearchableItemDocument> diseaseDocuments) {
+        for (SearchableItemDocument diseaseDocument : diseaseDocuments) {
            String id =  diseaseDocument.getPrimaryKey();
 
            super.addCachedFields(diseaseDocument);

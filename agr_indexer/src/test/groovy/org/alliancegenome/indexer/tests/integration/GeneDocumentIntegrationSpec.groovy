@@ -1,8 +1,9 @@
 import org.alliancegenome.core.translators.document.GeneTranslator
+import org.alliancegenome.es.index.site.document.SearchableItemDocument
 import org.alliancegenome.neo4j.repository.GeneRepository
 import spock.lang.Specification
 import org.alliancegenome.neo4j.entity.node.Gene
-import org.alliancegenome.es.index.site.document.GeneDocument
+
 import spock.lang.Shared
 import spock.lang.Unroll
 import spock.lang.Ignore
@@ -24,10 +25,10 @@ class GeneDocumentIntegrationSpec extends Specification {
     }
 
     @Ignore
-    def "GeneDocument has GOTerm parents, slim terms"() {
+    def "Gene Document has GOTerm parents, slim terms"() {
         when: //we get a gene document
         Gene gene = repo.getOneGene("FB:FBgn0014020")
-        GeneDocument geneDocument = trans.translate(gene)
+        SearchableItemDocument geneDocument = trans.translate(gene)
 
         then: "the document exists and has all 3 root level GO terms"
         geneDocument
@@ -48,10 +49,10 @@ class GeneDocumentIntegrationSpec extends Specification {
 
     @Ignore
     @Unroll
-    def "GeneDocument for #geneID has expressionBioEntities #entities"() {
+    def "Gene Document for #geneID has expressionBioEntities #entities"() {
         when:
         Gene gene = repo.getOneGene(geneID)
-        GeneDocument geneDocument = trans.translate(gene)
+        SearchableItemDocument geneDocument = trans.translate(gene)
 
         then:
         geneDocument
@@ -67,10 +68,10 @@ class GeneDocumentIntegrationSpec extends Specification {
 
     @Ignore
     @Unroll
-    def "GeneDocument for #geneID has UBERON anitomicalExpression for #entities"() {
+    def "Gene Document for #geneID has UBERON anitomicalExpression for #entities"() {
         when:
         Gene gene = repo.getOneGene(geneID)
-        GeneDocument geneDocument = trans.translate(gene)
+        SearchableItemDocument geneDocument = trans.translate(gene)
 
         then:
         geneDocument
@@ -85,10 +86,10 @@ class GeneDocumentIntegrationSpec extends Specification {
 
     @Ignore
     @Unroll
-    def "GeneDocument for #geneID has cellularComponentExpression for #entities"() {
+    def "Gene Document for #geneID has cellularComponentExpression for #entities"() {
         when:
         Gene gene = repo.getOneGene(geneID)
-        GeneDocument geneDocument = trans.translate(gene)
+        SearchableItemDocument geneDocument = trans.translate(gene)
 
         then:
         geneDocument
@@ -107,7 +108,7 @@ class GeneDocumentIntegrationSpec extends Specification {
     def "#geneID has #strict in strict list, but not #otherOrthologue"() {
         when:
         Gene gene = repo.getOneGene(geneID)
-        GeneDocument geneDocument = trans.translate(gene)
+        SearchableItemDocument geneDocument = trans.translate(gene)
 
         then:
         geneDocument

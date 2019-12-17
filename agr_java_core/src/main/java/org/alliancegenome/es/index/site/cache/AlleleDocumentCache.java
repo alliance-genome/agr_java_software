@@ -6,7 +6,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.alliancegenome.es.index.site.document.AlleleDocument;
+import org.alliancegenome.es.index.site.document.SearchableItemDocument;
 import org.alliancegenome.neo4j.entity.node.Allele;
 
 import lombok.Getter;
@@ -20,26 +20,26 @@ public class AlleleDocumentCache extends IndexerCache {
     private Map<String, Set<String>> variantTypesMap = new HashMap<>();
     private Map<String, Set<String>> molecularConsequenceMap = new HashMap<>();
 
-    public void addCachedFields(Iterable<AlleleDocument> alleleDocuments) {
+    public void addCachedFields(Iterable<SearchableItemDocument> alleleDocuments) {
 
-        for (AlleleDocument alleleDocument : alleleDocuments) {
-            String id = alleleDocument.getPrimaryKey();
+        for (SearchableItemDocument document : alleleDocuments) {
+            String id = document.getPrimaryKey();
 
-            super.addCachedFields(alleleDocument);
+            super.addCachedFields(document);
 
             if (molecularConsequenceMap.get(id) != null) {
-                alleleDocument.setMolecularConsequence(new HashSet<>());
+                document.setMolecularConsequence(new HashSet<>());
                 for (String consequence : molecularConsequenceMap.get(id)) {
-                    alleleDocument.getMolecularConsequence().addAll(Arrays.asList(consequence.split(",")));
+                    document.getMolecularConsequence().addAll(Arrays.asList(consequence.split(",")));
                 }
             }
 
             if (variantTypesMap.get(id) == null) {
                 Set<String> defaultValue = new HashSet<>();
                 defaultValue.add("unreported");
-                alleleDocument.setVariantTypes(defaultValue);
+                document.setVariantTypes(defaultValue);
             } else {
-                alleleDocument.setVariantTypes(variantTypesMap.get(id));
+                document.setVariantTypes(variantTypesMap.get(id));
             }
         }
 

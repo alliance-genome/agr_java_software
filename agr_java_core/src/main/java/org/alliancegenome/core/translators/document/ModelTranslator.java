@@ -1,15 +1,17 @@
 package org.alliancegenome.core.translators.document;
 
 import org.alliancegenome.core.translators.EntityDocumentTranslator;
-import org.alliancegenome.es.index.site.document.ModelDocument;
+import org.alliancegenome.es.index.site.document.SearchableItemDocument;
 import org.alliancegenome.neo4j.entity.node.AffectedGenomicModel;
 
-public class ModelTranslator extends EntityDocumentTranslator<AffectedGenomicModel, ModelDocument> {
+public class ModelTranslator extends EntityDocumentTranslator<AffectedGenomicModel, SearchableItemDocument> {
 
     @Override
-    protected ModelDocument entityToDocument(AffectedGenomicModel entity, int translationDepth ) {
+    protected SearchableItemDocument entityToDocument(AffectedGenomicModel entity, int translationDepth ) {
 
-        ModelDocument document = new ModelDocument();
+        SearchableItemDocument document = new SearchableItemDocument();
+
+        document.setCategory("model");
 
         document.setPrimaryKey(entity.getPrimaryKey());
         document.setName(entity.getName());

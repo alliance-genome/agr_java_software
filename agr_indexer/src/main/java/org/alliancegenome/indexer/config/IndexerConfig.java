@@ -15,6 +15,7 @@ public enum IndexerConfig {
     GoIndexer("go", GoIndexer.class, 2, 2300),
     ModelIndexer("model", ModelIndexer.class, 2, 750); //just guessing at batching number
 
+
     private String typeName;
     private Class<?> indexClazz;
     private int threadCount;
