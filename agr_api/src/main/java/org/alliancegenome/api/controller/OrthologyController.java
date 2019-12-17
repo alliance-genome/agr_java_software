@@ -1,6 +1,5 @@
 package org.alliancegenome.api.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.alliancegenome.api.rest.interfaces.OrthologyRESTInterface;
 import org.alliancegenome.core.exceptions.RestErrorException;
 import org.alliancegenome.core.exceptions.RestErrorMessage;
@@ -56,9 +55,23 @@ public class OrthologyController implements OrthologyRESTInterface {
     public JsonResultResponse<OrthologView> getSingleSpeciesOrthology(String species,
                                                                       String stringencyFilter,
                                                                       String methods,
-                                                                      Integer rows,
-                                                                      Integer start) {
-        return getDoubleSpeciesOrthology(species, null, stringencyFilter, methods, rows, start);
+                                                                      Integer limit,
+                                                                      Integer page) {
+        LocalDateTime startDate = LocalDateTime.now();
+        Pagination pagination = new Pagination(page, limit, null, null);
+        pagination.addFieldFilter(FieldFilter.STRINGENCY, stringencyFilter);
+        pagination.addFieldFilter(FieldFilter.ORTHOLOGY_METHOD, methods);
+        if (pagination.hasErrors()) {
+            RestErrorMessage message = new RestErrorMessage();
+            message.setErrors(pagination.getErrors());
+            throw new RestErrorException(message);
+        }
+
+        JsonResultResponse<OrthologView> response = service.getOrthologyBySpecies(species, pagination);
+        response.calculateRequestDuration(startDate);
+        response.setApiVersion(API_VERSION);
+        response.setHttpServletRequest(request);
+        return response;
     }
 
     @Override
@@ -75,10 +88,10 @@ public class OrthologyController implements OrthologyRESTInterface {
                                                                   String stringencyFilter,
                                                                   String method,
                                                                   Integer rows,
-                                                                  Integer start) {
+                                                                  Integer page) {
         GeneController controller = new GeneController();
         //controller.setRequest(request);
-        return controller.getGeneOrthology(null, geneIDs, geneList, stringencyFilter, null, method, rows, start);
+        return controller.getGeneOrthology(null, geneIDs, geneList, stringencyFilter, null, method, rows, page);
     }
 
     @Override

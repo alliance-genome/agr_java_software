@@ -251,6 +251,23 @@ public class OrthologyService {
         return response;
     }
 
+    public JsonResultResponse<OrthologView> getOrthologyBySpecies(String taxonIDOne, Pagination pagination) {
+
+        final String taxonOne = SpeciesType.getTaxonId(taxonIDOne);
+
+        List<OrthologView> orthologViewList = repo.getOrthologyBySpecies(Collections.singletonList(taxonOne));
+        JsonResultResponse<OrthologView> response = new JsonResultResponse<>();
+
+        //filtering
+        FilterService<OrthologView> filterService = new FilterService<>(new OrthologyFiltering());
+        List<OrthologView> filteredOrthologyList = filterService.filterAnnotations(orthologViewList, pagination.getFieldFilterValueMap());
+        response.setTotal(filteredOrthologyList.size());
+
+        // sorting and pagination
+        response.setResults(filterService.getSortedAndPaginatedAnnotations(pagination, filteredOrthologyList, new OrthologySorting()));
+        return response;
+    }
+
     public String getSpeciesSpeciesID(OrthologView o) {
         return o.getGene().getTaxonId() + ":" + o.getHomologGene().getTaxonId();
     }
