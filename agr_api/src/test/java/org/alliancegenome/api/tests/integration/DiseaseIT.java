@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.log4j.Log4j2;
+import org.alliancegenome.api.controller.DiseaseController;
 import org.alliancegenome.api.entity.CacheStatus;
 import org.alliancegenome.api.entity.DiseaseRibbonSummary;
 import org.alliancegenome.api.service.CacheStatusService;
@@ -17,6 +18,7 @@ import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.DiseaseSummary;
 import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
+import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.DOTerm;
 import org.alliancegenome.neo4j.entity.node.Publication;
 import org.alliancegenome.neo4j.entity.node.Synonym;
@@ -28,6 +30,7 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import javax.ws.rs.core.Response;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -42,6 +45,7 @@ public class DiseaseIT {
 
     private ObjectMapper mapper = new ObjectMapper();
     private DiseaseService diseaseService = new DiseaseService();
+    private DiseaseController diseaseController = new DiseaseController();
 
     @Before
     public void before() {
@@ -520,6 +524,39 @@ public class DiseaseIT {
 
         Pagination pagination = new Pagination(1, 10, null, null);
         JsonResultResponse<DiseaseAnnotation> response = diseaseService.getRibbonDiseaseAnnotations(Collections.singletonList(geneID), null, pagination);
+        assertResponse(response, 1, 1);
+
+        response.getResults().forEach(annotation -> {
+            annotation.getPrimaryAnnotatedEntities().forEach(entity -> {
+                assertNotNull("URL for AGM should not be null: " + entity.getId(), entity.getUrl());
+                assertTrue("URL for AGM should not be empty: " + entity.getId(), StringUtils.isNotEmpty(entity.getUrl()));
+            });
+        });
+    }
+
+    @Test
+    public void diseaseAlleleDownload() {
+
+        // Diamond-Blackfan anemia
+        String diseaseID = "DOID:1339";
+
+        Pagination pagination = new Pagination(1, 10, null, null);
+
+        JsonResultResponse<DiseaseAnnotation> response = diseaseController.getDiseaseAnnotationsByAllele(diseaseID,
+                10,
+                1,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null
+                );
+
         assertResponse(response, 1, 1);
 
         response.getResults().forEach(annotation -> {
