@@ -40,8 +40,7 @@ public class DiseaseController extends BaseController implements DiseaseRESTInte
     @Inject
     private HttpServletRequest request;
 
-    @Inject
-    private DiseaseService diseaseService;
+    private DiseaseService diseaseService = new DiseaseService();
     private final DiseaseAnnotationToTdfTranslator translator = new DiseaseAnnotationToTdfTranslator();
 
 

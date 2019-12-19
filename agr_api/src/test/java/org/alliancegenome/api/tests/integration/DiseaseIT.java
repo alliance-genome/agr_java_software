@@ -18,7 +18,6 @@ import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.DiseaseSummary;
 import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
-import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.DOTerm;
 import org.alliancegenome.neo4j.entity.node.Publication;
 import org.alliancegenome.neo4j.entity.node.Synonym;
@@ -30,7 +29,6 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import javax.ws.rs.core.Response;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -555,16 +553,80 @@ public class DiseaseIT {
                 null,
                 null,
                 null
-                );
+        );
 
-        assertResponse(response, 1, 1);
+        assertResponse(response, 5, 5);
 
-        response.getResults().forEach(annotation -> {
-            annotation.getPrimaryAnnotatedEntities().forEach(entity -> {
-                assertNotNull("URL for AGM should not be null: " + entity.getId(), entity.getUrl());
-                assertTrue("URL for AGM should not be empty: " + entity.getId(), StringUtils.isNotEmpty(entity.getUrl()));
-            });
-        });
+        DiseaseAnnotationToTdfTranslator translator = new DiseaseAnnotationToTdfTranslator();
+        String output = translator.getAllRowsForAllele(response.getResults());
+        assertEquals(output, "Allele ID\tAllele Symbol\tGenetic Entity ID\tGenetic Entity Name\tGenetic Entity Type\tSpecies ID\tSpecies Name\tAssociation\tDisease ID\tDisease Name\tEvidence Code\tEvidence Code Name\tSource\tReference\n" +
+                "MGI:3776022\tFlvcr1<tm1.1Jlab>\tMGI:3807528\tFlvcr1<sup>tm1.1Jlab</sup>/Flvcr1<sup>tm1.1Jlab</sup> [background:] involves: 129S4/SvJae * C57BL/6 * DBA/2\tgenotype\tNCBITaxon:10090\tMus musculus\tis_implicated_in\tDOID:1339\tDiamond-Blackfan anemia\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tPMID:18258918\n" +
+                "MGI:3776021\tFlvcr1<tm1Jlab>\tMGI:2444881\tFlvcr1\tgene\tNCBITaxon:10090\tMus musculus\tis_implicated_in\tDOID:1339\tDiamond-Blackfan anemia\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tPMID:18258918\n" +
+                "MGI:3803603\tRpsa<tm1Ells>\tMGI:3804635\tRpsa<sup>tm1Ells</sup>/Rpsa<sup>+</sup> [background:] involves: 129S6/SvEvTac * C57BL/6\tgenotype\tNCBITaxon:10090\tMus musculus\tis_implicated_in\tDOID:1339\tDiamond-Blackfan anemia\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tMGI:3804630\n" +
+                "ZFIN:ZDB-ALT-041001-12\thi3820bTg\tZFIN:ZDB-FISH-150901-8506\trpl11<sup>hi3820bTg/hi3820bTg</sup>\tfish\tNCBITaxon:7955\tDanio rerio\tis_implicated_in\tDOID:1339\tDiamond-Blackfan anemia\tECO:0000304\tauthor statement supported by traceable reference used in manual assertion\tZFIN\tPMID:26109203\n" +
+                "ZFIN:ZDB-ALT-041001-12\thi3820bTg\tZFIN:ZDB-FISH-150901-8506\trpl11<sup>hi3820bTg/hi3820bTg</sup>\tfish\tNCBITaxon:7955\tDanio rerio\tis_implicated_in\tDOID:1339\tDiamond-Blackfan anemia\tECO:0000304\tauthor statement supported by traceable reference used in manual assertion\tZFIN\tPMID:29225165\n" +
+                "ZFIN:ZDB-ALT-041001-12\thi3820bTg\tZFIN:ZDB-FISH-150901-8506\trpl11<sup>hi3820bTg/hi3820bTg</sup>\tfish\tNCBITaxon:7955\tDanio rerio\tis_implicated_in\tDOID:1339\tDiamond-Blackfan anemia\tECO:0000304\tauthor statement supported by traceable reference used in manual assertion\tZFIN\tPMID:29581525\n" +
+                "ZFIN:ZDB-ALT-041001-12\thi3820bTg\tZFIN:ZDB-FISH-150901-16866\trpl11<sup>hi3820bTg/hi3820bTg</sup>\tfish\tNCBITaxon:7955\tDanio rerio\tis_implicated_in\tDOID:1339\tDiamond-Blackfan anemia\tECO:0000304\tauthor statement supported by traceable reference used in manual assertion\tZFIN\tPMID:24812435\n" +
+                "ZFIN:ZDB-ALT-041001-12\thi3820bTg\tZFIN:ZDB-FISH-150901-16866\trpl11<sup>hi3820bTg/hi3820bTg</sup>\tfish\tNCBITaxon:7955\tDanio rerio\tis_implicated_in\tDOID:1339\tDiamond-Blackfan anemia\tECO:0000304\tauthor statement supported by traceable reference used in manual assertion\tZFIN\tPMID:25058426\n" +
+                "ZFIN:ZDB-ALT-151012-9\tzf556\tZFIN:ZDB-FISH-151013-1\trps19<sup>zf556/zf556</sup>\tfish\tNCBITaxon:7955\tDanio rerio\tis_implicated_in\tDOID:1339\tDiamond-Blackfan anemia\tECO:0000304\tauthor statement supported by traceable reference used in manual assertion\tZFIN\tPMID:25058426\n" +
+                "ZFIN:ZDB-ALT-151012-9\tzf556\tZFIN:ZDB-FISH-151013-1\trps19<sup>zf556/zf556</sup>\tfish\tNCBITaxon:7955\tDanio rerio\tis_implicated_in\tDOID:1339\tDiamond-Blackfan anemia\tECO:0000304\tauthor statement supported by traceable reference used in manual assertion\tZFIN\tPMID:26109203\n");
+
+        // Menkes Disease
+        diseaseID = "DOID:1838";
+        response = diseaseController.getDiseaseAnnotationsByAllele(diseaseID,
+                10,
+                1,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null
+        );
+
+        assertResponse(response, 10, 14);
+
+        translator = new DiseaseAnnotationToTdfTranslator();
+        output = translator.getAllRowsForAllele(response.getResults());
+        assertEquals(output, "Allele ID\tAllele Symbol\tGenetic Entity ID\tGenetic Entity Name\tGenetic Entity Type\tSpecies ID\tSpecies Name\tAssociation\tDisease ID\tDisease Name\tEvidence Code\tEvidence Code Name\tSource\tReference\n" +
+                "MGI:1856097\tAtp7a<Mo-blo>\tMGI:6324209\tAtp7a<sup>Mo-blo</sup>/? [background:] involves: C57BL/6J\tgenotype\tNCBITaxon:10090\tMus musculus\tis_implicated_in\tDOID:1838\tMenkes disease\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tPMID:6685755\n" +
+                "MGI:1856097\tAtp7a<Mo-blo>\tMGI:6324210\tAtp7a<sup>Mo-blo</sup>/Atp7a<sup>+</sup> [background:] involves: C57BL/6J\tgenotype\tNCBITaxon:10090\tMus musculus\tis_implicated_in\tDOID:1838\tMenkes disease\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tPMID:10332039\n" +
+                "MGI:1856097\tAtp7a<Mo-blo>\tPMID:3674914\tAtp7a\tgene\tNCBITaxon:10090\tMus musculus\tis_implicated_in\tDOID:1838\tMenkes disease\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tPMID:3674914\n" +
+                "MGI:1856097\tAtp7a<Mo-blo>\tPMID:6542992\tAtp7a\tgene\tNCBITaxon:10090\tMus musculus\tis_implicated_in\tDOID:1838\tMenkes disease\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tPMID:6542992\n" +
+                "MGI:1856097\tAtp7a<Mo-blo>\tPMID:6441865\tAtp7a\tgene\tNCBITaxon:10090\tMus musculus\tis_implicated_in\tDOID:1838\tMenkes disease\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tPMID:6441865\n" +
+                "MGI:1856098\tAtp7a<Mo-br>\tMGI:3793780\tAtp7a<sup>Mo-br</sup>/? [background:] involves: C57BL\tgenotype\tNCBITaxon:10090\tMus musculus\tis_implicated_in\tDOID:1838\tMenkes disease\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tPMID:10332039\n" +
+                "MGI:1856098\tAtp7a<Mo-br>\tMGI:3793780\tAtp7a<sup>Mo-br</sup>/? [background:] involves: C57BL\tgenotype\tNCBITaxon:10090\tMus musculus\tis_implicated_in\tDOID:1838\tMenkes disease\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tPMID:4858102\n" +
+                "MGI:1856098\tAtp7a<Mo-br>\tPMID:26269458\tAtp7a\tgene\tNCBITaxon:10090\tMus musculus\tis_implicated_in\tDOID:1838\tMenkes disease\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tPMID:26269458\n" +
+                "MGI:1856098\tAtp7a<Mo-br>\tPMID:21878905\tAtp7a\tgene\tNCBITaxon:10090\tMus musculus\tis_implicated_in\tDOID:1838\tMenkes disease\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tPMID:21878905\n" +
+                "MGI:1856099\tAtp7a<Mo-dp>\tMGI:5696613\tAtp7a<sup>Mo-dp</sup>/Atp7a<sup>+</sup> [background:] involves: 101/H * C3H/HeH\tgenotype\tNCBITaxon:10090\tMus musculus\tis_implicated_in\tDOID:1838\tMenkes disease\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tPMID:25456742\n" +
+                "MGI:1856466\tAtp7a<Mo-ml>\tMGI:6324231\tAtp7a<sup>Mo-ml</sup>/? [background:] involves: C3Hf/He\tgenotype\tNCBITaxon:10090\tMus musculus\tis_implicated_in\tDOID:1838\tMenkes disease\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tMGI:60964\n" +
+                "MGI:1856466\tAtp7a<Mo-ml>\tMGI:6324231\tAtp7a<sup>Mo-ml</sup>/? [background:] involves: C3Hf/He\tgenotype\tNCBITaxon:10090\tMus musculus\tis_implicated_in\tDOID:1838\tMenkes disease\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tPMID:1819648\n" +
+                "MGI:1856466\tAtp7a<Mo-ml>\tMGI:6324231\tAtp7a<sup>Mo-ml</sup>/? [background:] involves: C3Hf/He\tgenotype\tNCBITaxon:10090\tMus musculus\tis_implicated_in\tDOID:1838\tMenkes disease\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tPMID:8245411\n" +
+                "MGI:1856466\tAtp7a<Mo-ml>\tMGI:63873\tAtp7a\tgene\tNCBITaxon:10090\tMus musculus\tis_implicated_in\tDOID:1838\tMenkes disease\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tMGI:63873\n" +
+                "MGI:1856466\tAtp7a<Mo-ml>\tPMID:9358851\tAtp7a\tgene\tNCBITaxon:10090\tMus musculus\tis_implicated_in\tDOID:1838\tMenkes disease\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tPMID:9358851\n" +
+                "MGI:1856466\tAtp7a<Mo-ml>\tPMID:8009964\tAtp7a\tgene\tNCBITaxon:10090\tMus musculus\tis_implicated_in\tDOID:1838\tMenkes disease\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tPMID:8009964\n" +
+                "MGI:1856466\tAtp7a<Mo-ml>\tPMID:9686356\tAtp7a\tgene\tNCBITaxon:10090\tMus musculus\tis_implicated_in\tDOID:1838\tMenkes disease\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tPMID:9686356\n" +
+                "MGI:1856466\tAtp7a<Mo-ml>\tPMID:7688531\tAtp7a\tgene\tNCBITaxon:10090\tMus musculus\tis_implicated_in\tDOID:1838\tMenkes disease\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tPMID:7688531\n" +
+                "MGI:1856466\tAtp7a<Mo-ml>\tPMID:8740228\tAtp7a\tgene\tNCBITaxon:10090\tMus musculus\tis_implicated_in\tDOID:1838\tMenkes disease\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tPMID:8740228\n" +
+                "MGI:1856466\tAtp7a<Mo-ml>\tPMID:7873696\tAtp7a\tgene\tNCBITaxon:10090\tMus musculus\tis_implicated_in\tDOID:1838\tMenkes disease\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tPMID:7873696\n" +
+                "MGI:1856466\tAtp7a<Mo-ml>\tPMID:1912099\tAtp7a\tgene\tNCBITaxon:10090\tMus musculus\tis_implicated_in\tDOID:1838\tMenkes disease\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tPMID:1912099\n" +
+                "MGI:1856466\tAtp7a<Mo-ml>\tPMID:9385451\tAtp7a\tgene\tNCBITaxon:10090\tMus musculus\tis_implicated_in\tDOID:1838\tMenkes disease\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tPMID:9385451\n" +
+                "MGI:1856466\tAtp7a<Mo-ml>\tPMID:2288383\tAtp7a\tgene\tNCBITaxon:10090\tMus musculus\tis_implicated_in\tDOID:1838\tMenkes disease\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tPMID:2288383\n" +
+                "MGI:1856466\tAtp7a<Mo-ml>\tPMID:7509170\tAtp7a\tgene\tNCBITaxon:10090\tMus musculus\tis_implicated_in\tDOID:1838\tMenkes disease\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tPMID:7509170\n" +
+                "MGI:1856466\tAtp7a<Mo-ml>\tPMID:8434133\tAtp7a\tgene\tNCBITaxon:10090\tMus musculus\tis_implicated_in\tDOID:1838\tMenkes disease\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tPMID:8434133\n" +
+                "MGI:1856466\tAtp7a<Mo-ml>\tPMID:2473662\tAtp7a\tgene\tNCBITaxon:10090\tMus musculus\tis_implicated_in\tDOID:1838\tMenkes disease\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tPMID:2473662\n" +
+                "MGI:1856100\tAtp7a<Mo-ms>\tMGI:4940051\tAtp7a<sup>Mo-ms</sup>/? [background:] Not Specified\tgenotype\tNCBITaxon:10090\tMus musculus\tis_implicated_in\tDOID:1838\tMenkes disease\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tPMID:20831904\n" +
+                "MGI:1856100\tAtp7a<Mo-ms>\tMGI:4940051\tAtp7a<sup>Mo-ms</sup>/? [background:] Not Specified\tgenotype\tNCBITaxon:10090\tMus musculus\tis_implicated_in\tDOID:1838\tMenkes disease\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tPMID:22815746\n" +
+                "MGI:1856100\tAtp7a<Mo-ms>\tMGI:4940051\tAtp7a<sup>Mo-ms</sup>/? [background:] Not Specified\tgenotype\tNCBITaxon:10090\tMus musculus\tis_implicated_in\tDOID:1838\tMenkes disease\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tPMID:25247420\n" +
+                "MGI:3588774\tAtp7a<Mo-Tohm>\tMGI:3618244\tAtp7a<sup>Mo-Tohm</sup>/Atp7a<sup>+</sup> [background:] B6.Cg-Atp7a<sup>Mo-Tohm</sup>\tgenotype\tNCBITaxon:10090\tMus musculus\tis_implicated_in\tDOID:1838\tMenkes disease\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tPMID:16338116\n" +
+                "MGI:1856102\tAtp7a<Mo-vbr>\tMGI:3793729\tAtp7a<sup>Mo-vbr</sup>/? [background:] Not Specified\tgenotype\tNCBITaxon:10090\tMus musculus\tis_implicated_in\tDOID:1838\tMenkes disease\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tPMID:10098864\n" +
+                "MGI:1856096\tAtp7a<Mo>\tMGI:2175712\tAtp7a<sup>Mo</sup>/Atp7a<sup>+</sup> [background:] Not Specified\tgenotype\tNCBITaxon:10090\tMus musculus\tis_implicated_in\tDOID:1838\tMenkes disease\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tPMID:13103353\n" +
+                "MGI:2657016\tLox<tm1Ikh>\tMGI:2657020\tLox<sup>tm1Ikh</sup>/Lox<sup>tm1Ikh</sup> [background:] involves: 129X1/SvJ * C57BL/6J\tgenotype\tNCBITaxon:10090\tMus musculus\tis_implicated_in\tDOID:1838\tMenkes disease\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tPMID:12473682\n" +
+                "ZFIN:ZDB-ALT-090212-1\tgw71\tZFIN:ZDB-FISH-180905-22\tatp7a<sup>gw71/gw71</sup>\tfish\tNCBITaxon:7955\tDanio rerio\tis_implicated_in\tDOID:1838\tMenkes disease\tECO:0000304\tauthor statement supported by traceable reference used in manual assertion\tZFIN\tPMID:29507920\n");
     }
 
 

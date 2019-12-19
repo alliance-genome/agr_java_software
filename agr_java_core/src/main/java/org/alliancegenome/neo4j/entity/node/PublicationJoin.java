@@ -1,18 +1,16 @@
 package org.alliancegenome.neo4j.entity.node;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
-
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonView;
+import lombok.Getter;
+import lombok.Setter;
 import org.alliancegenome.neo4j.view.View;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonView;
-
-import lombok.Getter;
-import lombok.Setter;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @NodeEntity
 @Getter
@@ -55,9 +53,14 @@ public class PublicationJoin extends Association {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         PublicationJoin that = (PublicationJoin) o;
-        return Objects.equals(joinType, that.joinType) &&
-                Objects.equals(publication, that.publication) &&
-                Objects.equals(ecoCode, that.ecoCode);
+        if (Objects.equals(joinType, that.joinType) &&
+                Objects.equals(publication, that.publication)) {
+            if (Objects.equals(ecoCode, that.ecoCode))
+                return true;
+            return ecoCode.containsAll(that.ecoCode) && that.ecoCode.containsAll(ecoCode);
+
+        }
+        return false;
     }
 
     @Override
