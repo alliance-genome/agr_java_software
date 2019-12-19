@@ -14,6 +14,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.hamcrest.Matchers.greaterThan;
@@ -31,8 +32,6 @@ public class OrthologyIT {
     public static void main(String[] args) {
     }
 
-    @Test
-    @Ignore
     public void getAllOrthologyGeneJoin() {
 
         MultiKeyMap map = repo.getAllOrthologyGeneJoin();
@@ -45,7 +44,7 @@ public class OrthologyIT {
         OrthologyService service = new OrthologyService();
         Pagination pagination = new Pagination();
         pagination.setLimit(10);
-        JsonResultResponse<OrthologView> response = service.getOrthologyMultiGeneJson(Collections.singletonList("MGI:109583"), pagination);
+        JsonResultResponse<OrthologView> response = service.getOrthologyMultiGeneJson(List.of("MGI:109583"), pagination);
         assertNotNull(response);
         assertThat(response.getTotal(), greaterThan(6));
 

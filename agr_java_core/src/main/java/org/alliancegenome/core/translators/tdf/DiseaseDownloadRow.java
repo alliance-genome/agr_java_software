@@ -18,6 +18,8 @@ public class DiseaseDownloadRow {
     private String association;
     private String diseaseID;
     private String diseaseName;
+    private String basedOnID;
+    private String basedOnName;
     private String evidenceCode;
     private String evidenceCodeName;
     private String source;
