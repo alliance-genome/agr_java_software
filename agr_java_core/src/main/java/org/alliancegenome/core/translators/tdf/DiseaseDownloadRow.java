@@ -7,8 +7,9 @@ import lombok.Setter;
 @Getter
 public class DiseaseDownloadRow {
 
-    private String alleleID;
-    private String alleleSymbol;
+    private String mainEntityID;
+    private String mainEntitySymbol;
+
     private String geneticEntityID;
     private String geneticEntityName;
     private String geneticEntityType;
