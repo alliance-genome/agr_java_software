@@ -4,14 +4,14 @@ import java.util.List;
 import java.util.concurrent.LinkedBlockingDeque;
 
 import org.alliancegenome.core.translators.document.GoTranslator;
-import org.alliancegenome.es.index.site.document.GoDocument;
+import org.alliancegenome.es.index.site.document.SearchableItemDocument;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.neo4j.entity.node.GOTerm;
 import org.alliancegenome.neo4j.repository.GoRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class GoIndexer extends Indexer<GoDocument> {
+public class GoIndexer extends Indexer<SearchableItemDocument> {
 
     private final Logger log = LogManager.getLogger(getClass());
 
@@ -44,7 +44,7 @@ public class GoIndexer extends Indexer<GoDocument> {
 
         log.info("Pulling All Terms Finished");
 
-        Iterable<GoDocument> docs = goTrans.translateEntities(terms);
+        Iterable<SearchableItemDocument> docs = goTrans.translateEntities(terms);
         log.info("Translation Done");
 
         saveDocuments(docs);

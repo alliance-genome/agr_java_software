@@ -38,6 +38,7 @@ public class ProcessDisplayHelper {
         long diff = now.getTime() - startTime.getTime();
         long time = now.getTime() - lastTime.getTime();
         //log.info(this.message + "diff: " + diff + " time: " + time + " now: " + now + " startTime: " + startTime + " lastTime: " + lastTime);
+        sizeCounter++;
         if (time < 30000) return; // report every 30 seconds
         checkMemory();
 
@@ -54,7 +55,6 @@ public class ProcessDisplayHelper {
         log.info(this.message + message);
         lastSizeCounter = sizeCounter;
         lastTime = now;
-        sizeCounter++;
     }
 
     public void finishProcess() {

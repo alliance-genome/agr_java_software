@@ -7,8 +7,8 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.alliancegenome.core.config.ConfigHelper;
+import org.alliancegenome.core.config.Constants;
 import org.alliancegenome.es.index.site.schema.Mapping;
-import org.alliancegenome.es.index.site.schema.Mapping.MappingClass;
 import org.alliancegenome.es.index.site.schema.settings.SiteIndexSettings;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -69,17 +69,16 @@ public class IndexManager {
 
         try {
             SiteIndexSettings settings = new SiteIndexSettings(true);
+            Mapping mapping = new Mapping(true);
             settings.buildSettings();
             client.admin().indices().create(new CreateIndexRequest(index).settings(settings.getBuilder().string(), XContentType.JSON)).get();
 
             if(addMappings) {
-                for(MappingClass mc: MappingClass.values()) {
-                    Mapping mappingClass = (Mapping) mc.getMappingClass().getDeclaredConstructor(Boolean.class).newInstance(true);
-                    mappingClass.buildMappings();
-
-                    log.debug("Getting Mapping for type: " + mc.getType());
-                    client.admin().indices().preparePutMapping(index).setType(mc.getType()).setSource(mappingClass.getBuilder().string(), XContentType.JSON).get();
-                }
+                mapping.buildMapping();
+                client.admin().indices().preparePutMapping(index)
+                        .setType(Constants.SEARCHABLE_ITEM)
+                        .setSource(mapping.getBuilder().string(),XContentType.JSON)
+                        .get();
             }
 
             //log.debug(t.toString());

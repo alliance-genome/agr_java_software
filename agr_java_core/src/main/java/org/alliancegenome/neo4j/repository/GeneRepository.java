@@ -633,7 +633,7 @@ public class GeneRepository extends Neo4jRepository<Gene> {
     }
 
     public List<AffectedGenomicModel> getAllAffectedModelsAllele() {
-        String query = " MATCH p=(:AffectedGenomicModel)-[:MODEL_COMPONENT]-(:Allele)--(gene:Gene)";
+        String query = " MATCH p=(:AffectedGenomicModel)-[:MODEL_COMPONENT]-(:Allele)--(gene:Gene)-[:FROM_SPECIES]->(:Species)";
         //query += " where gene.primaryKey = 'RGD:620268' ";
         query += " return p ";
         Iterable<AffectedGenomicModel> algorithms = query(AffectedGenomicModel.class, query);
@@ -642,7 +642,7 @@ public class GeneRepository extends Neo4jRepository<Gene> {
     }
 
     public List<AffectedGenomicModel> getAllAffectedModelsSTR() {
-        String query = " MATCH p=(:AffectedGenomicModel)-[:SEQUENCE_TARGETING_REAGENT]-(:SequenceTargetingReagent)--(gene:Gene)";
+        String query = " MATCH p=(:AffectedGenomicModel)-[:SEQUENCE_TARGETING_REAGENT]-(:SequenceTargetingReagent)--(gene:Gene)-[:FROM_SPECIES]->(:Species)";
         //query += " where gene.primaryKey = 'MGI:88059' ";
         query += " return p ";
         Iterable<AffectedGenomicModel> algorithms = query(AffectedGenomicModel.class, query);

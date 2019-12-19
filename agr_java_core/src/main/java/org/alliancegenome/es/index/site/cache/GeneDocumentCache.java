@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.alliancegenome.es.index.site.document.GeneDocument;
+import org.alliancegenome.es.index.site.document.SearchableItemDocument;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -41,38 +41,38 @@ public class GeneDocumentCache extends IndexerCache {
 
 
 
-    public void addCachedFields(Iterable<GeneDocument> geneDocuments) {
-        for (GeneDocument geneDocument : geneDocuments) {
-            addCachedFields(geneDocument);
+    public void addCachedFields(Iterable<SearchableItemDocument> documents) {
+        for (SearchableItemDocument document : documents) {
+            addCachedFields(document);
         }
     }
 
-    public void addCachedFields(GeneDocument geneDocument) {
-        String id = geneDocument.getPrimaryKey();
+    public void addCachedFields(SearchableItemDocument document) {
+        String id = document.getPrimaryKey();
 
-        super.addCachedFields(geneDocument);
+        super.addCachedFields(document);
 
-        geneDocument.setStrictOrthologySymbols(strictOrthologySymbols.get(id));
-        geneDocument.setDiseasesAgrSlim(diseasesAgrSlim.get(id));
-        geneDocument.setDiseasesWithParents(diseasesWithParents.get(id));
+        document.setStrictOrthologySymbols(strictOrthologySymbols.get(id));
+        document.setDiseasesAgrSlim(diseasesAgrSlim.get(id));
+        document.setDiseasesWithParents(diseasesWithParents.get(id));
 
-        geneDocument.setBiologicalProcessWithParents(biologicalProcessWithParents.get(id));
-        geneDocument.setBiologicalProcessAgrSlim(biologicalProcessAgrSlim.get(id));
-        geneDocument.setCellularComponentWithParents(cellularComponentWithParents.get(id));
-        geneDocument.setCellularComponentAgrSlim(cellularComponentAgrSlim.get(id));
-        geneDocument.setMolecularFunctionWithParents(molecularFunctionWithParents.get(id));
-        geneDocument.setMolecularFunctionAgrSlim(molecularFunctionAgrSlim.get(id));
+        document.setBiologicalProcessWithParents(biologicalProcessWithParents.get(id));
+        document.setBiologicalProcessAgrSlim(biologicalProcessAgrSlim.get(id));
+        document.setCellularComponentWithParents(cellularComponentWithParents.get(id));
+        document.setCellularComponentAgrSlim(cellularComponentAgrSlim.get(id));
+        document.setMolecularFunctionWithParents(molecularFunctionWithParents.get(id));
+        document.setMolecularFunctionAgrSlim(molecularFunctionAgrSlim.get(id));
 
-        geneDocument.setSubcellularExpressionWithParents(subcellularExpressionWithParents.get(id));
-        geneDocument.setSubcellularExpressionAgrSlim(subcellularExpressionAgrSlim.get(id));
+        document.setSubcellularExpressionWithParents(subcellularExpressionWithParents.get(id));
+        document.setSubcellularExpressionAgrSlim(subcellularExpressionAgrSlim.get(id));
 
-        geneDocument.setWhereExpressed(whereExpressed.get(id));
-        geneDocument.setAnatomicalExpression(anatomicalExpression.get(id));
-        geneDocument.setAnatomicalExpressionWithParents(anatomicalExpressionWithParents.get(id));
+        document.setWhereExpressed(whereExpressed.get(id));
+        document.setAnatomicalExpression(anatomicalExpression.get(id));
+        document.setAnatomicalExpressionWithParents(anatomicalExpressionWithParents.get(id));
 
-        geneDocument.setPhenotypeStatements(phenotypeStatements.get(id));
+        document.setPhenotypeStatements(phenotypeStatements.get(id));
 
-        geneDocument.setSoTermNameWithParents(soTermNameWithParents.get(id));
-        geneDocument.setSoTermNameAgrSlim(soTermNameAgrSlim.get(id));
+        document.setSoTermNameWithParents(soTermNameWithParents.get(id));
+        document.setSoTermNameAgrSlim(soTermNameAgrSlim.get(id));
     }
 }

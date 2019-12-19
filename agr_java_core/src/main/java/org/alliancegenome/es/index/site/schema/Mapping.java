@@ -2,29 +2,59 @@ package org.alliancegenome.es.index.site.schema;
 
 import java.io.IOException;
 
-import org.alliancegenome.es.index.site.schema.mapping.AlleleMapping;
-import org.alliancegenome.es.index.site.schema.mapping.DiseaseAnnotationMapping;
-import org.alliancegenome.es.index.site.schema.mapping.DiseaseMapping;
-import org.alliancegenome.es.index.site.schema.mapping.GeneMapping;
-import org.alliancegenome.es.index.site.schema.mapping.GoMapping;
-import org.alliancegenome.es.index.site.schema.mapping.PhenotypeAnnotationMapping;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 
-public abstract class Mapping extends Builder {
+public class Mapping extends Builder {
     
     public Mapping(Boolean pretty) {
         super(pretty);
     }
 
-    public abstract void buildMappings();
+    public void buildMapping() {
+        try {
+            builder.startObject();
+                builder.startObject("properties");
+                    buildSharedSearchableDocumentMappings();
+                builder.endObject();
+            builder.endObject();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
-    //Mappings that must be shared / equivalent across searchable documents
     protected void buildSharedSearchableDocumentMappings() throws IOException {
-
-        new FieldBuilder(builder,"primaryKey","keyword").build();
-        new FieldBuilder(builder,"category","keyword").symbol().autocomplete().keyword().build();
-        new FieldBuilder(builder,"associationType","text").symbol().autocomplete().keyword().standardText().build();
-        new FieldBuilder(builder,"name", "text")
+        new FieldBuilder(builder, "alleles", "text").keyword().autocomplete().build();
+        new FieldBuilder(builder, "anatomicalExpression", "text").keyword().build();
+        new FieldBuilder(builder, "associatedSpecies", "text").keyword().synonym().sort().build();
+        new FieldBuilder(builder, "associationType", "text").symbol().autocomplete().keyword().standardText().build();
+        new FieldBuilder(builder, "biologicalProcess", "text").keyword().build();
+        new FieldBuilder(builder, "biologicalProcessAgrSlim", "text").keyword().build();
+        new FieldBuilder(builder, "biologicalProcessWithParents", "text").keyword().build();
+        new FieldBuilder(builder, "branch", "text").keyword().build();
+        new FieldBuilder(builder, "category", "keyword").symbol().autocomplete().keyword().build();
+        new FieldBuilder(builder, "cellularComponent", "text").keyword().build();
+        new FieldBuilder(builder, "cellularComponentAgrSlim", "text").keyword().build();
+        new FieldBuilder(builder, "cellularComponentWithParents", "text").keyword().build();
+        new FieldBuilder(builder, "cellularComponentExpression", "text").keyword().build();
+        new FieldBuilder(builder, "cellularComponentExpressionWithParents", "text").keyword().build();
+        new FieldBuilder(builder, "cellularComponentExpressionAgrSlim", "text").keyword().build();
+        new FieldBuilder(builder, "description", "text");
+        new FieldBuilder(builder, "diseases", "text").keyword().build();
+        new FieldBuilder(builder, "diseasesAgrSlim", "text").keyword().build();
+        new FieldBuilder(builder, "diseasesWithParents", "text").keyword().build();
+        new FieldBuilder(builder, "external_ids", "text").analyzer("symbols");
+        new FieldBuilder(builder, "genes", "text").keyword().autocomplete().keywordAutocomplete().build();
+        new FieldBuilder(builder, "geneLiteratureUrl", "keyword").build();
+        new FieldBuilder(builder, "geneSynopsis", "text").build();
+        new FieldBuilder(builder, "geneSynopsisUrl", "keyword").build();
+        new FieldBuilder(builder, "href", "keyword");
+        new FieldBuilder(builder, "id", "keyword");
+        new FieldBuilder(builder, "models", "text").keyword().autocomplete().build();
+        new FieldBuilder(builder, "molecularConsequence", "text").keyword().build();
+        new FieldBuilder(builder, "molecularFunction", "text").keyword().build();
+        new FieldBuilder(builder, "molecularFunctionAgrSlim", "text").keyword().build();
+        new FieldBuilder(builder, "molecularFunctionWithParents", "text").keyword().build();
+        new FieldBuilder(builder, "name", "text")
                 .symbol()
                 .autocomplete()
                 .keyword()
@@ -32,50 +62,85 @@ public abstract class Mapping extends Builder {
                 .htmlSmoosh()
                 .standardBigrams()
                 .build();
-        new FieldBuilder(builder,"name_key","text").analyzer("symbols")
+        new FieldBuilder(builder, "nameText", "text").keyword().standardText().build();
+        new FieldBuilder(builder, "name_key", "text").analyzer("symbols")
                 .autocomplete()
                 .keyword()
                 .keywordAutocomplete()
                 .htmlSmoosh()
                 .standardBigrams()
                 .build();
-        new FieldBuilder(builder, "synonyms","text").analyzer("symbols")
-                .autocomplete()
-                .keyword()
-                .keywordAutocomplete()
-                .htmlSmoosh()
-                .standardBigrams()
-                .build();
-        new FieldBuilder(builder, "external_ids","text").analyzer("symbols");
-        new FieldBuilder(builder, "href","keyword");
-        new FieldBuilder(builder, "id","keyword");
-        new FieldBuilder(builder, "description","text");
-        new FieldBuilder(builder, "diseases", "text").keyword().build();
-        new FieldBuilder(builder, "diseasesAgrSlim", "text").keyword().build();
-        new FieldBuilder(builder, "diseasesWithParents", "text").keyword().build();
-        new FieldBuilder(builder, "alleles", "text").keyword().autocomplete().build();
-        new FieldBuilder(builder, "models", "text").keyword().autocomplete().build();
-        new FieldBuilder(builder, "genes","text").keyword().autocomplete().keywordAutocomplete().build();
         new FieldBuilder(builder, "phenotypeStatements", "text")
                 .keyword()
                 .build();
-        new FieldBuilder(builder, "symbol","text").analyzer("symbols")
+        new FieldBuilder(builder, "primaryKey", "keyword").build();
+        new FieldBuilder(builder, "symbol", "text").analyzer("symbols")
                 .autocomplete()
                 .htmlSmoosh()
                 .keyword()
                 .keywordAutocomplete()
                 .sort()
                 .build();
-        new FieldBuilder(builder, "searchSymbol","text").analyzer("symbols")
+        new FieldBuilder(builder, "symbolText", "text").keyword().standardText().build();
+        new FieldBuilder(builder, "searchSymbol", "text").analyzer("symbols")
                 .autocomplete()
                 .keyword()
                 .keywordAutocomplete()
                 .sort()
                 .build();
-        new FieldBuilder(builder, "species","text").keyword().synonym().sort().build();
-        new FieldBuilder(builder, "associatedSpecies","text").keyword().synonym().sort().build();
+        new FieldBuilder(builder, "secondaryIds", "keyword").build();
+        new FieldBuilder(builder, "soTermName", "text").keyword().letterText().build();
+        new FieldBuilder(builder, "soTermId", "keyword").build();
+        new FieldBuilder(builder, "species", "text").keyword().synonym().sort().build();
+        new FieldBuilder(builder, "strictOrthologySymbols", "text").keyword().autocomplete().build();
+        new FieldBuilder(builder, "synonyms", "text").analyzer("symbols")
+                .autocomplete()
+                .keyword()
+                .keywordAutocomplete()
+                .htmlSmoosh()
+                .standardBigrams()
+                .build();
+        new FieldBuilder(builder, "systematicName", "text").analyzer("symbols").build();
+        new FieldBuilder(builder, "taxonId", "keyword").build();
         new FieldBuilder(builder, "variantTypes", "text").keyword().build();
-        new FieldBuilder(builder, "molecularConsequence", "text").keyword().build();
+        new FieldBuilder(builder, "whereExpressed", "text").keyword().build();
+
+        buildCrossReferencesField();
+        buildGenomeLocationsField();
+        buildMetaDataField();
+
+
+    }
+
+    private void buildMetaDataField() throws IOException {
+        builder.startObject("metaData");
+        builder.startObject("properties");
+        new FieldBuilder(builder,"dateProduced","date").build();
+        new FieldBuilder(builder,"dataProvider","keyword").build();
+        new FieldBuilder(builder,"release","keyword").build();
+        builder.endObject();
+        builder.endObject();
+    }
+
+    private void buildGenomeLocationsField() throws IOException {
+        builder.startObject("genomeLocations");
+        builder.startObject("properties");
+        new FieldBuilder(builder,"assembly","keyword").build();
+        new FieldBuilder(builder,"startPosition","integer").build();
+        new FieldBuilder(builder,"endPosition","integer").build();
+        new FieldBuilder(builder,"chromosome","keyword").build();
+        new FieldBuilder(builder,"strand","keyword").build();
+        builder.endObject();
+        builder.endObject();
+    }
+
+    private void buildCrossReferencesField() throws IOException {
+        builder.startObject("crossReferences");
+        builder.startObject("properties");
+        new FieldBuilder(builder,"dataProvider","keyword").build();
+        new FieldBuilder(builder,"id","keyword").build();
+        builder.endObject();
+        builder.endObject();
     }
 
     protected void buildNestedDocument(String name) throws IOException {
@@ -87,33 +152,6 @@ public abstract class Mapping extends Builder {
         builder.endObject();
     }
 
-    public enum MappingClass {
-        Disease("disease", DiseaseMapping.class),
-        DiseaseAnnotation("diseaseAnnotation", DiseaseAnnotationMapping.class),
-        Allele("allele", AlleleMapping.class),
-        Gene("gene", GeneMapping.class),
-        PHENOTYPE("termName", PhenotypeAnnotationMapping.class),
-        PHENOTYPE_ANNOTATION("phenotypeAnnotation", PhenotypeAnnotationMapping.class),
-        Go("go", GoMapping.class),
-        ;
-
-        private String type;
-        private Class<?> mappingClass;
-
-        private MappingClass(String type, Class<?> mappingClass) {
-            this.type = type;
-            this.mappingClass = mappingClass;
-        }
-
-        public String getType() {
-            return type;
-        }
-        public Class<?> getMappingClass() {
-            return mappingClass;
-        }
-
-    }
-
     public static class FieldBuilder {
         XContentBuilder builder;
         String name;
@@ -123,6 +161,7 @@ public abstract class Mapping extends Builder {
         boolean htmlSmoosh;
         boolean keyword;
         boolean keywordAutocomplete;
+        boolean letterText;
         boolean sort;
         boolean standardBigrams;
         boolean standardText;
@@ -157,6 +196,11 @@ public abstract class Mapping extends Builder {
 
         public FieldBuilder keywordAutocomplete() {
             this.keywordAutocomplete = true;
+            return this;
+        }
+
+        public FieldBuilder letterText() {
+            this.letterText = true;
             return this;
         }
 
@@ -211,6 +255,7 @@ public abstract class Mapping extends Builder {
                 builder.startObject("fields");
                 if(keyword) { buildProperty("keyword", "keyword"); }
                 if(keywordAutocomplete) { buildProperty("keywordAutocomplete", "text", "keyword_autocomplete", "keyword_autocomplete_search", null); }
+                if(letterText) buildProperty("letterText", "text", "letter_text");
                 if(symbol) { buildProperty("symbol", "text", "symbols"); }
                 if(autocomplete) buildProperty("autocomplete", "text", "autocomplete", "autocomplete_search", null);
                 if(synonym) buildProperty("synonyms", "text", "generic_synonym", "autocomplete_search", null);

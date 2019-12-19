@@ -1,8 +1,10 @@
 package org.alliancegenome.cacher.cachers;
 
 import lombok.extern.log4j.Log4j2;
+import org.alliancegenome.api.entity.CacheStatus;
 import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.cache.manager.BasicCachingManager;
+import org.alliancegenome.core.service.OrthologyService;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.alliancegenome.neo4j.view.OrthologView;
@@ -11,9 +13,8 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections4.map.MultiKeyMap;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
-import static java.util.stream.Collectors.toSet;
+import static java.util.stream.Collectors.*;
 
 @Log4j2
 public class GeneOrthologCacher extends Cacher {
@@ -38,9 +39,10 @@ public class GeneOrthologCacher extends Cacher {
         allMethods = geneRepository.getAllMethods();
         log.info(geneGeneAlgorithm.size());
 
-        startProcess("create geneList into cache");
+        startProcess("create geneList into cache", geneList.size());
         BasicCachingManager manager = new BasicCachingManager();
 
+        List<OrthologView> allOrthology = new ArrayList<>();
         geneList.forEach(gene -> {
             Set<OrthologView> orthologySet = gene.getOrthoGenes().stream()
                     .map(orthologous -> {
@@ -61,14 +63,48 @@ public class GeneOrthologCacher extends Cacher {
                         return view;
                     })
                     .collect(toSet());
+            allOrthology.addAll(orthologySet);
 
-            manager.setCache(gene.getPrimaryKey(), new ArrayList<>(orthologySet), View.Orthology.class, CacheAlliance.GENE_ORTHOLOGY);
+            manager.setCache(gene.getPrimaryKey(), new ArrayList<>(orthologySet), View.OrthologyCacher.class, CacheAlliance.GENE_ORTHOLOGY);
+        });
+        finishProcess();
+
+        // get homology cache by species
+        Map<String, List<OrthologView>> map = allOrthology.stream()
+                .collect(groupingBy(o -> o.getGene().getTaxonId()));
+
+        map.forEach((speciesID, orthologViews) -> {
+            manager.setCache(speciesID, orthologViews, View.OrthologyCacher.class, CacheAlliance.SPECIES_ORTHOLOGY);
         });
 
-        finishProcess();
-        setCacheStatus(geneList.size(), CacheAlliance.GENE_ORTHOLOGY.getCacheName());
-        geneRepository.clearCache();
+        CacheStatus status = new CacheStatus(CacheAlliance.SPECIES_ORTHOLOGY);
+        //status.setNumberOfEntities(allExpression.size());
 
+        Map<String, Integer> speciesStatsInt = new TreeMap<>();
+        map.forEach((speciesID, orthology) -> speciesStatsInt.put(speciesID, orthology.size()));
+
+        status.setSpeciesStats(speciesStatsInt);
+        setCacheStatus(status);
+
+        OrthologyService service = new OrthologyService();
+        Map<String, List<OrthologView>> speciesToSpeciesMap;
+        speciesToSpeciesMap = allOrthology.stream()
+                .collect(groupingBy(service::getSpeciesSpeciesID));
+
+        speciesToSpeciesMap.forEach((speciesSpeciesID, orthologViews) -> {
+            manager.setCache(speciesSpeciesID, orthologViews, View.OrthologyCacher.class, CacheAlliance.SPECIES_SPECIES_ORTHOLOGY);
+        });
+
+        status = new CacheStatus(CacheAlliance.SPECIES_SPECIES_ORTHOLOGY);
+        //status.setNumberOfEntities(allExpression.size());
+
+        Map<String, Integer> speciesSpeciesStatsInt = new TreeMap<>();
+        speciesToSpeciesMap.forEach((speciesID, orthology) -> speciesSpeciesStatsInt.put(speciesID, orthology.size()));
+
+        status.setSpeciesStats(speciesSpeciesStatsInt);
+        setCacheStatus(status);
+
+        geneRepository.clearCache();
     }
 
     private List<String> getPredictionNotCalled(OrthologView view) {
@@ -78,7 +114,7 @@ public class GeneOrthologCacher extends Cacher {
         return allMethods.stream()
                 .filter(method -> !usedNames.contains(method))
                 .sorted(Comparator.naturalOrder())
-                .collect(Collectors.toList());
+                .collect(toList());
     }
 
     private List<String> getPredictionMatches(String primaryKey, String primaryKey1) {

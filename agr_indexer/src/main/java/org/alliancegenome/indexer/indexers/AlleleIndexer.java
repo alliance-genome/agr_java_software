@@ -7,14 +7,14 @@ import java.util.concurrent.LinkedBlockingDeque;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.translators.document.AlleleTranslator;
 import org.alliancegenome.es.index.site.cache.AlleleDocumentCache;
-import org.alliancegenome.es.index.site.document.AlleleDocument;
+import org.alliancegenome.es.index.site.document.SearchableItemDocument;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.repository.AlleleIndexerRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class AlleleIndexer extends Indexer<AlleleDocument> {
+public class AlleleIndexer extends Indexer<SearchableItemDocument> {
 
     private final Logger log = LogManager.getLogger(getClass());
     private AlleleDocumentCache alleleDocumentCache;
@@ -48,14 +48,14 @@ public class AlleleIndexer extends Indexer<AlleleDocument> {
         while (true) {
             try {
                 if (list.size() >= indexerConfig.getBufferSize()) {
-                    Iterable <AlleleDocument> alleleDocuments = alleleTranslator.translateEntities(list);
+                    Iterable<SearchableItemDocument> alleleDocuments = alleleTranslator.translateEntities(list);
                     alleleDocumentCache.addCachedFields(alleleDocuments);
                     saveDocuments(alleleDocuments);
                     list.clear();
                 }
                 if (queue.isEmpty()) {
                     if (list.size() > 0) {
-                        Iterable <AlleleDocument> alleleDocuments = alleleTranslator.translateEntities(list);
+                        Iterable <SearchableItemDocument> alleleDocuments = alleleTranslator.translateEntities(list);
                         alleleDocumentCache.addCachedFields(alleleDocuments);
                         saveDocuments(alleleDocuments);
                         repo.clearCache();

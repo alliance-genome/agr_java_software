@@ -10,6 +10,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 
 import org.alliancegenome.core.config.ConfigHelper;
+import org.alliancegenome.core.config.Constants;
 import org.alliancegenome.es.index.ESDocument;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.apache.logging.log4j.LogManager;
@@ -97,7 +98,7 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
                 try {
                     String json = om.writeValueAsString(doc);
                     //log.debug("JSON: " + json);
-                    bulkRequest.add(client.prepareIndex(Indexer.indexName, indexerConfig.getTypeName()).setSource(json, XContentType.JSON).setId(doc.getDocumentId()));
+                    bulkRequest.add(client.prepareIndex(Indexer.indexName, Constants.SEARCHABLE_ITEM).setSource(json, XContentType.JSON).setId(doc.getDocumentId()));
                     batchTotalSize += json.length();
                     batchCount += 1;
                 } catch (JsonProcessingException e) {

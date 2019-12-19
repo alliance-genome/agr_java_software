@@ -1,56 +1,77 @@
 package org.alliancegenome.api.controller;
 
-import java.io.IOException;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.alliancegenome.api.rest.interfaces.OrthologyRESTInterface;
+import org.alliancegenome.core.exceptions.RestErrorException;
+import org.alliancegenome.core.exceptions.RestErrorMessage;
 import org.alliancegenome.core.service.JsonResultResponse;
+import org.alliancegenome.core.service.OrthologyService;
+import org.alliancegenome.es.model.query.FieldFilter;
+import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.node.OrthoAlgorithm;
 import org.alliancegenome.neo4j.repository.OrthologousRepository;
 import org.alliancegenome.neo4j.view.OrthologView;
-import org.alliancegenome.neo4j.view.OrthologyFilter;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.Context;
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.util.List;
 
 public class OrthologyController implements OrthologyRESTInterface {
 
-    public static final String API_VERSION = "0.9";
+    public static final String API_VERSION = "0.91";
+
+    @Context
+    private HttpServletRequest request;
+
+    private OrthologyService service = new OrthologyService();
 
     @Override
     public JsonResultResponse<OrthologView> getDoubleSpeciesOrthology(String taxonIDOne,
-                                            String taxonIDTwo,
-                                            String stringencyFilter,
-                                            String methods,
-                                            Integer rows,
-                                            Integer start) throws IOException {
+                                                                      String taxonIDTwo,
+                                                                      String stringency,
+                                                                      String method,
+                                                                      Integer limit,
+                                                                      Integer page) {
 
         LocalDateTime startDate = LocalDateTime.now();
-        OrthologousRepository orthoRepo = new OrthologousRepository();
-        List<String> methodList = new ArrayList<>();
-        methodList.add(methods);
-        OrthologyFilter orthologyFilter = new OrthologyFilter(stringencyFilter, null, methodList);
+        Pagination pagination = new Pagination(page, limit, null, null);
+        pagination.addFieldFilter(FieldFilter.STRINGENCY, stringency);
+        pagination.addFieldFilter(FieldFilter.ORTHOLOGY_METHOD, method);
+        if (pagination.hasErrors()) {
+            RestErrorMessage message = new RestErrorMessage();
+            message.setErrors(pagination.getErrors());
+            throw new RestErrorException(message);
+        }
 
-        if (rows != null)
-            orthologyFilter.setRows(rows);
-        if (start != null)
-            orthologyFilter.setStart(start);
-
-        JsonResultResponse<OrthologView> response;
-        response = orthoRepo.getOrthologyByTwoSpecies(taxonIDOne, taxonIDTwo, orthologyFilter);
+        JsonResultResponse<OrthologView> response = service.getOrthologyByTwoSpecies(taxonIDOne, taxonIDTwo, pagination);
         response.calculateRequestDuration(startDate);
         response.setApiVersion(API_VERSION);
+        response.setHttpServletRequest(request);
         return response;
     }
 
     @Override
     public JsonResultResponse<OrthologView> getSingleSpeciesOrthology(String species,
-                                            String stringencyFilter,
-                                            String methods,
-                                            Integer rows,
-                                            Integer start) throws IOException {
-        return getDoubleSpeciesOrthology(species, null, stringencyFilter, methods, rows, start);
+                                                                      String stringencyFilter,
+                                                                      String methods,
+                                                                      Integer limit,
+                                                                      Integer page) {
+        LocalDateTime startDate = LocalDateTime.now();
+        Pagination pagination = new Pagination(page, limit, null, null);
+        pagination.addFieldFilter(FieldFilter.STRINGENCY, stringencyFilter);
+        pagination.addFieldFilter(FieldFilter.ORTHOLOGY_METHOD, methods);
+        if (pagination.hasErrors()) {
+            RestErrorMessage message = new RestErrorMessage();
+            message.setErrors(pagination.getErrors());
+            throw new RestErrorException(message);
+        }
+
+        JsonResultResponse<OrthologView> response = service.getOrthologyBySpecies(species, pagination);
+        response.calculateRequestDuration(startDate);
+        response.setApiVersion(API_VERSION);
+        response.setHttpServletRequest(request);
+        return response;
     }
 
     @Override
@@ -63,18 +84,18 @@ public class OrthologyController implements OrthologyRESTInterface {
 
     @Override
     public JsonResultResponse<OrthologView> getMultiGeneOrthology(List<String> geneIDs,
-                                        String geneList,
-                                        String stringencyFilter,
-                                        List<String> methods,
-                                        Integer rows,
-                                        Integer start) throws IOException {
+                                                                  String geneList,
+                                                                  String stringencyFilter,
+                                                                  String method,
+                                                                  Integer rows,
+                                                                  Integer page) {
         GeneController controller = new GeneController();
         //controller.setRequest(request);
-        return controller.getGeneOrthology(null, geneIDs, geneList, stringencyFilter, null, methods, rows, start);
+        return controller.getGeneOrthology(null, geneIDs, geneList, stringencyFilter, null, method, rows, page);
     }
 
     @Override
-    public JsonResultResponse<OrthoAlgorithm> getAllMethodsCalculations() throws JsonProcessingException {
+    public JsonResultResponse<OrthoAlgorithm> getAllMethodsCalculations() {
         LocalDateTime startDate = LocalDateTime.now();
         OrthologousRepository orthoRepo = new OrthologousRepository();
         JsonResultResponse<OrthoAlgorithm> response = new JsonResultResponse<>();

@@ -6,6 +6,7 @@ import java.util.Set;
 
 import org.alliancegenome.es.index.site.cache.ModelDocumentCache;
 import org.alliancegenome.neo4j.entity.node.AffectedGenomicModel;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -49,6 +50,12 @@ public class ModelIndexerRepository extends Neo4jRepository {
        log.info("Fetching model -> disease map");
        cache.setDiseases(getDiseaseMap(species));
 
+       log.info("Fetching model -> disease slim map");
+       cache.setDiseasesAgrSlim(getDiseasesAgrSlimMap(species));
+
+       log.info("Fetching model -> disease with parents map");
+       cache.setDiseasesWithParents(getDiseasesWithParents(species));
+
        log.info("Fetching model -> gene map");
        cache.setGenes(getGeneMap(species));
 
@@ -70,6 +77,29 @@ public class ModelIndexerRepository extends Neo4jRepository {
         String query = "MATCH (species:Species)-[:FROM_SPECIES]-(model:AffectedGenomicModel)--(disease:DOTerm)";
         query += getSpeciesWhere(species);
         query += " RETURN model.primaryKey as id, disease.name as value";
+
+        return getMapSetForQuery(query, getSpeciesParams(species));
+    }
+
+    private Map<String, Set<String>> getDiseasesAgrSlimMap(String species) {
+        String query = "MATCH (species:Species)--(model:AffectedGenomicModel)--(:DOTerm)-[:IS_A_PART_OF_CLOSURE]->(disease:DOTerm) ";
+        query += " WHERE disease.subset =~ '.*DO_AGR_slim.*' ";
+
+        Map<String,String> params = new HashMap<String,String>();
+
+        if (StringUtils.isNotEmpty(species)) {
+            query += " AND species.name = {species} ";
+            params.put("species",species);
+        }
+        query += " RETURN distinct model.primaryKey as id, disease.nameKey as value ";
+
+        return getMapSetForQuery(query, params);
+    }
+
+    private Map<String, Set<String>> getDiseasesWithParents(String species) {
+        String query = "MATCH (species:Species)--(model:AffectedGenomicModel)--(:DOTerm)-[:IS_A_PART_OF_CLOSURE]->(disease:DOTerm) ";
+        query += getSpeciesWhere(species);
+        query += " RETURN distinct model.primaryKey as id, disease.nameKey as value ";
 
         return getMapSetForQuery(query, getSpeciesParams(species));
     }

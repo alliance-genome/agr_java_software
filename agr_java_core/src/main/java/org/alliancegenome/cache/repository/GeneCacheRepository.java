@@ -3,14 +3,17 @@ package org.alliancegenome.cache.repository;
 import lombok.extern.log4j.Log4j2;
 import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.cache.manager.BasicCachingManager;
+import org.alliancegenome.core.service.OrthologyService;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.alliancegenome.neo4j.view.OrthologView;
 
+import javax.enterprise.context.RequestScoped;
 import java.time.LocalDateTime;
 import java.util.*;
 
 @Log4j2
+@RequestScoped
 public class GeneCacheRepository {
 
     private static GeneRepository geneRepository = new GeneRepository();
@@ -79,4 +82,28 @@ public class GeneCacheRepository {
 
     }
 
+    public List<OrthologView> getOrthologyBySpeciesSpecies(String taxonOne, String taxonTwo) {
+        BasicCachingManager<OrthologView> manager = new BasicCachingManager<>(OrthologView.class);
+        OrthologyService service = new OrthologyService();
+
+        List<OrthologView> fullOrthologyList = new ArrayList<>();
+        final List<OrthologView> orthology = manager.getCache(service.getSpeciesSpeciesID(taxonOne, taxonTwo), CacheAlliance.SPECIES_SPECIES_ORTHOLOGY);
+        if (orthology != null)
+            fullOrthologyList.addAll(orthology);
+
+        return fullOrthologyList;
+    }
+
+    public List<OrthologView> getOrthologyBySpecies(List<String> taxonIDs) {
+        BasicCachingManager<OrthologView> manager = new BasicCachingManager<>(OrthologView.class);
+
+        List<OrthologView> fullOrthologyList = new ArrayList<>();
+        taxonIDs.forEach(id -> {
+            final List<OrthologView> orthology = manager.getCache(id, CacheAlliance.SPECIES_ORTHOLOGY);
+            if (orthology != null)
+                fullOrthologyList.addAll(orthology);
+        });
+
+        return fullOrthologyList;
+    }
 }

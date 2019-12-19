@@ -23,10 +23,9 @@ public class AlleleCacher extends Cacher {
     protected void cache() {
 
         Set<Allele> allAlleles = alleleRepository.getAllAlleles();
-        log.info("Number of Alleles: " + String.format("%,d", allAlleles.size()));
-
         if (allAlleles == null)
             return;
+        log.info("Number of Alleles: " + String.format("%,d", allAlleles.size()));
 
         Map<String, List<Allele>> map = allAlleles.stream().collect(groupingBy(allele -> allele.getGene().getPrimaryKey()));
 
@@ -39,24 +38,20 @@ public class AlleleCacher extends Cacher {
             manager.setCache(entry.getKey(), entry.getValue(), View.GeneAllelesAPI.class, CacheAlliance.ALLELE);
         }
 
-        CacheStatus status = new CacheStatus(CacheAlliance.ALLELE.getCacheName());
+        CacheStatus status = new CacheStatus(CacheAlliance.ALLELE);
         status.setNumberOfEntities(allAlleles.size());
 
         Map<String, List<Allele>> speciesStats = allAlleles.stream().collect(groupingBy(allele -> allele.getGene().getSpecies().getName()));
 
-        Map<String, Integer> stats = new HashMap<>(map.size());
-        map.forEach((geneID, alleles) -> {
-            stats.put(geneID, alleles.size());
-        });
+        Map<String, Integer> stats = new TreeMap<>();
+        map.forEach((geneID, alleles) -> stats.put(geneID, alleles.size()));
 
         Arrays.stream(SpeciesType.values())
                 .filter(speciesType -> !speciesStats.keySet().contains(speciesType.getName()))
                 .forEach(speciesType -> speciesStats.put(speciesType.getName(), new ArrayList<>()));
 
         Map<String, Integer> speciesStatsInt = new HashMap<>();
-        speciesStats.forEach((species, alleles) -> {
-            speciesStatsInt.put(species, alleles.size());
-        });
+        speciesStats.forEach((species, alleles) -> speciesStatsInt.put(species, alleles.size()));
 
         status.setEntityStats(stats);
         status.setSpeciesStats(speciesStatsInt);

@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.neo4j.view.View;
 
 import java.io.Serializable;
@@ -28,8 +29,8 @@ public class CacheStatus implements Serializable {
     @JsonView(View.Cacher.class)
     private String entitiesInCache;
 
-    public CacheStatus(String name) {
-        this.name = name;
+    public CacheStatus(CacheAlliance cache) {
+        this.name = cache.getCacheName();
     }
 
     public CacheStatus() {

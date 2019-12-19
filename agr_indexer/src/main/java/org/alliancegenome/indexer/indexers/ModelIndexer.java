@@ -7,14 +7,14 @@ import java.util.concurrent.LinkedBlockingDeque;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.translators.document.ModelTranslator;
 import org.alliancegenome.es.index.site.cache.ModelDocumentCache;
-import org.alliancegenome.es.index.site.document.ModelDocument;
+import org.alliancegenome.es.index.site.document.SearchableItemDocument;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.neo4j.entity.node.AffectedGenomicModel;
 import org.alliancegenome.neo4j.repository.ModelIndexerRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class ModelIndexer extends Indexer<ModelDocument> {
+public class ModelIndexer extends Indexer<SearchableItemDocument> {
 
     private final Logger log = LogManager.getLogger(getClass());
     private ModelDocumentCache cache;
@@ -50,14 +50,14 @@ public class ModelIndexer extends Indexer<ModelDocument> {
         while (true) {
             try {
                 if (list.size() >= indexerConfig.getBufferSize()) {
-                    Iterable <ModelDocument> documents = translator.translateEntities(list);
+                    Iterable <SearchableItemDocument> documents = translator.translateEntities(list);
                     cache.addCachedFields(documents);
                     saveDocuments(documents);
                     list.clear();
                 }
                 if (queue.isEmpty()) {
                     if (list.size() > 0) {
-                        Iterable <ModelDocument> documents = translator.translateEntities(list);
+                        Iterable <SearchableItemDocument> documents = translator.translateEntities(list);
                         cache.addCachedFields(documents);
                         saveDocuments(documents);
                         repo.clearCache();

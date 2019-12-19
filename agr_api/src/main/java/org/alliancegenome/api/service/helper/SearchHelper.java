@@ -32,7 +32,7 @@ public class SearchHelper {
     private Logger log = Logger.getLogger(getClass());
 
     private static String[] SUFFIX_LIST = { ".htmlSmoosh", ".keywordAutocomplete", ".keyword", ".smoosh",
-                                            ".synonyms", ".symbols", ".text" };
+                                            ".synonyms", ".symbols", ".text",".standardText",".letterText" };
 
     
     private HashMap<String, List<String>> category_filters = new HashMap<String, List<String>>() {
@@ -51,9 +51,9 @@ public class SearchHelper {
             });
             put("go", new ArrayList<String>() {
                 {
-                    add("go_type");
-                    add("go_species");
-                    add("go_genes");
+                    add("branch");
+                    add("associatedSpecies");
+                    add("genes");
                 }
             });
             put("disease", new ArrayList<String>() {
@@ -75,7 +75,7 @@ public class SearchHelper {
             put("model", new ArrayList<String>() {
                 {
                     add("species");
-                    add("diseases");
+                    add("diseasesAgrSlim");
                     add("genes");
                     add("alleles");
                 }
@@ -98,11 +98,47 @@ public class SearchHelper {
     public List<String> getSearchFields() { return searchFields; }
     private List<String> searchFields = new ArrayList<String>() {
         {
-            add("primaryKey");
+            add("alleles");
+            add("alleles.text");
+            add("alleles.autocomplete");
+            add("anatomicalExpression");
+            add("anatomicalExpression.keyword");
+            add("anatomicalExpressionWithParents");
+            add("anatomicalExpressionWithParents.keyword");
+            add("associatedSpecies");
+            add("associatedSpecies.synonyms");
+            add("automatedGeneSynopsis");
+            add("biologicalProcessWithParents");
+            add("cellularComponentWithParents");
+            add("cellularComponentExpression");
+            add("cellularComponentExpression.keyword");
+            add("cellularComponentExpressionWithParents");
+            add("cellularComponentExpressionWithParents.keyword");
+            add("cellularComponentExpressionAgrSlim");
+            add("cellularComponentExpressionAgrSlim.keyword");
+            //disease cross references:
+            add("crossReferences.ontology_provided_cross_reference.name");
+            add("crossReferences.ontology_provided_cross_reference.localId");
+            //gene cross references:
+            add("crossReferences.generic_cross_reference.name");
+            add("crossReferences.generic_cross_reference.localId");
+            add("diseases");
+            add("diseasesAgrSlim");
+            add("diseasesWithParents");
+            add("disease_genes");
+            add("disease_synonyms");
+            add("external_ids");
+            add("genes");
+            add("genes.keyword");
+            add("genes.autocomplete");
+            add("genes.keywordAutocomplete");
+            add("geneSynopsis");
+            add("globalId");
+            add("subtype");
+            add("go_genes");
+            add("go_synonyms");
             add("id");
             add("localId");
-            add("globalId");
-            add("secondaryIds");
             add("name_key");
             add("name_key.autocomplete");
             add("name_key.htmlSmoosh");
@@ -114,47 +150,35 @@ public class SearchHelper {
             add("name.htmlSmoosh");
             add("name.keyword");
             add("name.standardBigrams");
+            add("nameText");
+            add("nameText.keyword");
+            add("nameText.standardText");
+            add("models");
+            add("modLocalId");
+            add("molecularConsequence");
+            add("molecularFunctionWithParents");
+            add("phenotypeStatements");
+            add("primaryKey");
             add("symbol");
             add("symbol.autocomplete");
             add("symbol.keyword");
             add("symbol.htmlSmoosh");
             add("symbolText");
+            add("symbolText.keyword");
+            add("symbolText.standardText");
             add("synonyms");
             add("synonyms.keyword");
             add("synonyms.htmlSmoosh");
             add("synonyms.standardBigrams");
-            add("automatedGeneSynopsis");
-            add("geneSynopsis");
-            add("external_ids");
-            add("species"); add("species.synonyms");
-            add("associatedSpecies"); add("associatedSpecies.synonyms");
-            add("modLocalId");
-            add("biologicalProcessWithParents"); add("molecularFunctionWithParents"); add("cellularComponentWithParents");
-            add("go_type"); add("go_genes"); add("go_synonyms");
-            add("disease_genes"); add("disease_synonyms");
-            add("diseases");
-            //disease cross references:
-            add("crossReferences.ontology_provided_cross_reference.name");
-            add("crossReferences.ontology_provided_cross_reference.localId");
-            //gene cross references:
-            add("crossReferences.generic_cross_reference.name");
-            add("crossReferences.generic_cross_reference.localId");
-            add("genes"); add("genes.keyword"); add("genes.autocomplete"); add("genes.keywordAutocomplete");
-            add("diseases");
-            add("diseasesAgrSlim");
-            add("diseasesWithParents");
-            add("alleles"); add("alleles.text"); add("alleles.autocomplete");
-            add("models");
-            add("molecularConsequence");
-            add("phenotypeStatements");
+            add("species");
+            add("species.synonyms");
+            add("secondaryIds");
+            add("soTermName");
+            add("soTermName.letterText");
             add("strictOrthologySymbols.autocomplete");
             add("strictOrthologySymbols.keyword");
-            add("whereExpressed"); add("whereExpressed.keyword");
-            add("anatomicalExpression"); add("anatomicalExpression.keyword");
-            add("anatomicalExpressionWithParents"); add("anatomicalExpressionWithParents.keyword");
-            add("cellularComponentExpression"); add("cellularComponentExpression.keyword");
-            add("cellularComponentExpressionWithParents"); add("cellularComponentExpressionWithParents.keyword");
-            add("cellularComponentExpressionAgrSlim"); add("cellularComponentExpressionAgrSlim.keyword");
+            add("whereExpressed");
+            add("whereExpressed.keyword");
             add("variantTypes");
         }
     };

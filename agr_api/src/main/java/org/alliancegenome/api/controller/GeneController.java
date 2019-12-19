@@ -1,28 +1,11 @@
 package org.alliancegenome.api.controller;
 
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
-
+import lombok.extern.log4j.Log4j2;
 import org.alliancegenome.api.entity.DiseaseRibbonSummary;
 import org.alliancegenome.api.entity.ExpressionSummary;
 import org.alliancegenome.api.rest.interfaces.GeneRESTInterface;
-import org.alliancegenome.api.service.APIService;
-import org.alliancegenome.api.service.DiseaseService;
-import org.alliancegenome.api.service.EntityType;
-import org.alliancegenome.api.service.ExpressionService;
-import org.alliancegenome.api.service.GeneService;
+import org.alliancegenome.api.service.*;
 import org.alliancegenome.cache.repository.ExpressionCacheRepository;
 import org.alliancegenome.core.exceptions.RestErrorException;
 import org.alliancegenome.core.exceptions.RestErrorMessage;
@@ -34,11 +17,7 @@ import org.alliancegenome.core.translators.tdf.InteractionToTdfTranslator;
 import org.alliancegenome.core.translators.tdf.PhenotypeAnnotationToTdfTranslator;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
-import org.alliancegenome.neo4j.entity.DiseaseSummary;
-import org.alliancegenome.neo4j.entity.EntitySummary;
-import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
-import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
+import org.alliancegenome.neo4j.entity.*;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
@@ -46,7 +25,18 @@ import org.alliancegenome.neo4j.view.OrthologView;
 import org.alliancegenome.neo4j.view.OrthologyFilter;
 import org.apache.commons.collections.CollectionUtils;
 
-import lombok.extern.log4j.Log4j2;
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @RequestScoped
 @Log4j2
@@ -54,6 +44,8 @@ public class GeneController extends BaseController implements GeneRESTInterface 
 
     @Inject
     private GeneService geneService;
+
+    private OrthologyService orthologyService = new OrthologyService();
 
     @Inject
     private DiseaseService diseaseService;
@@ -110,7 +102,7 @@ public class GeneController extends BaseController implements GeneRESTInterface 
             alleles.calculateRequestDuration(startTime);
             return alleles;
         } catch (Exception e) {
-            log.error("Error while retrieving allele info",e);
+            log.error("Error while retrieving allele info", e);
             RestErrorMessage error = new RestErrorMessage();
             error.addErrorMessage(e.getMessage());
             throw new RestErrorException(error);
@@ -331,10 +323,10 @@ public class GeneController extends BaseController implements GeneRESTInterface 
                                                              List<String> geneIDs,
                                                              String geneLister,
                                                              String stringencyFilter,
-                                                             List<String> taxonIDs,
-                                                             List<String> methods,
-                                                             Integer rows,
-                                                             Integer start) {
+                                                             String taxonID,
+                                                             String method,
+                                                             Integer limit,
+                                                             Integer page) {
 
         List<String> geneList = new ArrayList<>();
         if (id != null) {
@@ -347,12 +339,13 @@ public class GeneController extends BaseController implements GeneRESTInterface 
         if (CollectionUtils.isNotEmpty(geneIDs)) {
             geneList.addAll(geneIDs);
         }
-        OrthologyFilter orthologyFilter = new OrthologyFilter(stringencyFilter, taxonIDs, methods);
-        if (rows != null && rows > 0) {
-            orthologyFilter.setRows(rows);
-        }
-        orthologyFilter.setStart(start);
-        return OrthologyService.getOrthologyMultiGeneJson(geneList, orthologyFilter);
+        Pagination pagination = new Pagination(page, limit, null, null);
+        pagination.addFieldFilter(FieldFilter.STRINGENCY, stringencyFilter);
+        pagination.addFieldFilter(FieldFilter.ORTHOLOGY_METHOD, method);
+        pagination.addFieldFilter(FieldFilter.ORTHOLOGY_TAXON, method);
+        final JsonResultResponse<OrthologView> response = orthologyService.getOrthologyMultiGeneJson(geneList, pagination);
+        response.setHttpServletRequest(request);
+        return response;
     }
 
     @Override
