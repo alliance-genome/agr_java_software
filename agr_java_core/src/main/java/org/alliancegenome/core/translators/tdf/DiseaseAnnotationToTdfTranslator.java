@@ -249,7 +249,7 @@ public class DiseaseAnnotationToTdfTranslator {
                             .noneMatch(entity -> entity.getPublicationEvidenceCodes().contains(join)))
                     .forEach(join -> {
                         PrimaryAnnotatedEntity entity = createNewPrimaryAnnotatedEntity(annotation, join);
-                        annotation.addPrimaryAnnotatedEntity(entity);
+                        annotation.addPrimaryAnnotatedEntityDuplicate(entity);
                     });
         });
     }
@@ -263,7 +263,6 @@ public class DiseaseAnnotationToTdfTranslator {
             entity.setPublicationEvidenceCodes(annotation.getPublicationJoins());
         else {
             entity.addPublicationEvidenceCode(join);
-            entity.setId(join.getPublication().getPubId());
         }
         return entity;
     }

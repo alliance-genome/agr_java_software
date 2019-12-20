@@ -1,30 +1,17 @@
 package org.alliancegenome.neo4j.entity;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import org.alliancegenome.neo4j.entity.node.AffectedGenomicModel;
-import org.alliancegenome.neo4j.entity.node.Allele;
-import org.alliancegenome.neo4j.entity.node.DOTerm;
-import org.alliancegenome.neo4j.entity.node.ECOTerm;
-import org.alliancegenome.neo4j.entity.node.Gene;
-import org.alliancegenome.neo4j.entity.node.Publication;
-import org.alliancegenome.neo4j.entity.node.PublicationJoin;
-import org.alliancegenome.neo4j.entity.node.Source;
-import org.alliancegenome.neo4j.view.View;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonView;
-
 import lombok.Getter;
 import lombok.Setter;
+import org.alliancegenome.neo4j.entity.node.*;
+import org.alliancegenome.neo4j.view.View;
+
+import java.io.Serializable;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Getter
 @Setter
@@ -79,6 +66,11 @@ public class DiseaseAnnotation implements Comparable<DiseaseAnnotation>, Seriali
             primaryAnnotatedEntities.add(entity);
     }
 
+    public void addPrimaryAnnotatedEntityDuplicate(PrimaryAnnotatedEntity entity) {
+        if (primaryAnnotatedEntities == null)
+            primaryAnnotatedEntities = new ArrayList<>();
+        primaryAnnotatedEntities.add(entity);
+    }
 
     public void addAllPrimaryAnnotatedEntities(List<PrimaryAnnotatedEntity> annotatedEntities) {
         if (annotatedEntities == null)
