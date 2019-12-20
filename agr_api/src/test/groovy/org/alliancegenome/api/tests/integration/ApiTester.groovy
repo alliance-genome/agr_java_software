@@ -1,27 +1,26 @@
-package org.alliancegenome.api
+package org.alliancegenome.api.tests.integration
 
 import groovy.json.JsonSlurper
 import org.alliancegenome.core.config.ConfigHelper
-import spock.lang.Specification
 
-class AbstractSpec extends Specification {
+class ApiTester {
 
-    protected def getApiResults(String apiPath) {
+    static def getApiResults(String apiPath) {
         URL url = new URL(ConfigHelper.getApiBaseUrl() + apiPath)
         return new JsonSlurper().parseText(url.text).results
     }
 
-    protected def getApiResult(String apiPath) {
+    static getApiResult(String apiPath) {
         URL url = new URL(ConfigHelper.getApiBaseUrl() + apiPath)
         return new JsonSlurper().parseText(url.text)
     }
 
-    protected def getApiResultRaw(String apiPath) {
+    static getApiResultRaw(String apiPath) {
         URL url = new URL(ConfigHelper.getApiBaseUrl() + apiPath)
         return url.text
     }
 
-    protected def getApiMetaData(String apiPath) {
+    static getApiMetaData(String apiPath) {
         return getApiResult(apiPath)
     }
 

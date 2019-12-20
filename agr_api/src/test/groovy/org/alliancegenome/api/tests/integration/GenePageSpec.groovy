@@ -1,15 +1,16 @@
 package org.alliancegenome.api
 
-
+import org.alliancegenome.api.tests.integration.ApiTester
+import spock.lang.Specification
 import spock.lang.Unroll
 
-class GenePageSpec extends AbstractSpec {
+class GenePageSpec extends Specification {
 
     @Unroll
     def "AGM table on Gene page for #geneID"() {
         when:
         def gene = URLEncoder.encode(geneID, "UTF-8")
-        def result = getApiResult("/api/gene/$gene/models")
+        def result = ApiTester.getApiResult("/api/gene/$gene/models")
         def results = result.results
 
         then:
@@ -31,7 +32,7 @@ class GenePageSpec extends AbstractSpec {
     def "AGM table on Gene page for #geneID : filtering #filterQuery"() {
         when:
         def gene = URLEncoder.encode(geneID, "UTF-8")
-        def result = getApiResult("/api/gene/$gene/genes?$filterQuery")
+        def result = ApiTester.getApiResult("/api/gene/$gene/genes?$filterQuery")
         def results = result.results
 
         then:

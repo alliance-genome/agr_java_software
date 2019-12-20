@@ -1,15 +1,17 @@
 package org.alliancegenome.api
 
+import org.alliancegenome.api.tests.integration.ApiTester
 import spock.lang.Ignore
+import spock.lang.Specification
 import spock.lang.Unroll
 
-class AlleleWebServiceIntegrationSpec extends AbstractSpec {
+class AlleleWebServiceIntegrationSpec extends Specification {
 
     @Ignore("Not working until we get test data into travis")
     @Unroll
     def "Homologs for species #species "() {
         when:
-        def result = getApiResult("/api/homologs/$species")
+        def result = ApiTester.getApiResult("/api/homologs/$species")
 
         def total = result.total
         Set<String> genePair = new HashSet<>()
@@ -31,7 +33,7 @@ class AlleleWebServiceIntegrationSpec extends AbstractSpec {
     @Unroll
     def "Alleles for gene #geneID"() {
         when:
-        def result = getApiResult("/api/gene/$geneID/alleles")
+        def result = ApiTester.getApiResult("/api/gene/$geneID/alleles")
         def total = result.total
         Set<String> alleles = new HashSet<>()
         result.results.each {

@@ -1,14 +1,16 @@
 package org.alliancegenome.api
 
+import org.alliancegenome.api.tests.integration.ApiTester
 import spock.lang.Ignore
+import spock.lang.Specification
 import spock.lang.Unroll
 
-class OrthologyWebServiceIntegrationSpec extends AbstractSpec {
+class OrthologyWebServiceIntegrationSpec extends Specification {
 
     @Unroll
     def "Homologs for species #species "() {
         when:
-        def result = getApiResult("/api/homologs/$species")
+        def result = ApiTester.getApiResult("/api/homologs/$species")
 
         def total = result.total
         Set<String> genePair = new HashSet<>()
@@ -31,7 +33,7 @@ class OrthologyWebServiceIntegrationSpec extends AbstractSpec {
     @Unroll
     def "When querying for #species1 and #species2 "() {
         when:
-        def results = getApiResults("/api/homologs/$species1/$species2")
+        def results = ApiTester.getApiResults("/api/homologs/$species1/$species2")
         def total = results.total
         Set<String> genePair = new HashSet<>()
         Set<String> geneIdPair = new HashSet<>()
@@ -56,7 +58,7 @@ class OrthologyWebServiceIntegrationSpec extends AbstractSpec {
     @Unroll
     def "When querying for #geneID, #taxonID and #filter "() {
         when:
-        def result = getApiResult("/api/gene/$geneID/homologs?stringencyFilter=$filter&start=$start&rows=$rows")
+        def result = ApiTester.getApiResult("/api/gene/$geneID/homologs?stringencyFilter=$filter&start=$start&rows=$rows")
         def total = result.total
         Set<String> genePair = new HashSet<>()
         Set<String> geneIdPair = new HashSet<>()

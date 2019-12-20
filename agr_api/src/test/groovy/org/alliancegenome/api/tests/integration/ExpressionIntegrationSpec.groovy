@@ -1,14 +1,16 @@
 package org.alliancegenome.api
 
+import org.alliancegenome.api.tests.integration.ApiTester
+import spock.lang.Specification
 import spock.lang.Unroll
 
-class ExpressionIntegrationSpec extends AbstractSpec {
+class ExpressionIntegrationSpec extends Specification {
 
     @Unroll
     def "Gene page - Expression Summary for #geneId"() {
         when:
         def encodedQuery = URLEncoder.encode(geneId, "UTF-8")
-        def result = getApiResult("/api/gene/$encodedQuery/expression-summary")
+        def result = ApiTester.getApiResult("/api/gene/$encodedQuery/expression-summary")
 
         then:
         result
@@ -33,7 +35,7 @@ class ExpressionIntegrationSpec extends AbstractSpec {
     @Unroll
     def "Gene page - Expression Annotations for #geneId"() {
         when:
-        def results = getApiResults("/api/expression?geneID=$geneId&page=1&limit=10&sortBy=")
+        def results = ApiTester.getApiResults("/api/expression?geneID=$geneId&page=1&limit=10&sortBy=")
 
         def termNames = results.termName.findAll { it }
 
@@ -52,7 +54,7 @@ class ExpressionIntegrationSpec extends AbstractSpec {
     @Unroll
     def "Gene page - Expression Annotations for #geneId : sorted #sortBy"() {
         when:
-        def results = getApiResults("/api/expression?geneID=$geneId&page=1&limit=10&sortBy=$sortBy")
+        def results = ApiTester.getApiResults("/api/expression?geneID=$geneId&page=1&limit=10&sortBy=$sortBy")
 
         def termNames = results.termName.findAll { it }
 
@@ -70,7 +72,7 @@ class ExpressionIntegrationSpec extends AbstractSpec {
     @Unroll
     def "Gene page - Expression Section - orthopicker for #geneId"() {
         when:
-        def results = getApiResults("/api/gene/$geneId/homologs-with-expression?stringencyFilter=stringent")
+        def results = ApiTester.getApiResults("/api/gene/$geneId/homologs-with-expression?stringencyFilter=stringent")
 
         def homologGenes = results.homologGene.findAll { it }
 
@@ -87,7 +89,7 @@ class ExpressionIntegrationSpec extends AbstractSpec {
     @Unroll
     def "Verify that the downloads endpoint has results for #gene"() {
         when:
-        def result = getApiResultRaw("/api/expression/download?geneID=$gene")
+        def result = ApiTester.getApiResultRaw("/api/expression/download?geneID=$gene")
         def results = result.split('\n')
 
         def resultFilter = getApiResultRaw("/api/expression/download?geneID=$gene&filter.term=ton")
@@ -104,7 +106,7 @@ class ExpressionIntegrationSpec extends AbstractSpec {
     @Unroll
     def "Gene page: expression section sort by assay for gene #geneID"() {
         when:
-        def results = getApiResults("/api/expression?termID=UBERON:AnatomyOtherLocation&geneID=$geneID&geneID=MGI:98872&page=1&limit=100&sortBy=assay")
+        def results = ApiTester.getApiResults("/api/expression?termID=UBERON:AnatomyOtherLocation&geneID=$geneID&geneID=MGI:98872&page=1&limit=100&sortBy=assay")
         def assayNames = results.assay.displaySynonym
         def assayNamesSorted = assayNames.clone().sort { a, b -> a.compareToIgnoreCase b }
 
