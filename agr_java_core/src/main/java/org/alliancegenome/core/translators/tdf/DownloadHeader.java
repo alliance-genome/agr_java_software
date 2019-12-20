@@ -29,9 +29,7 @@ public class DownloadHeader<T> {
 
         list.forEach(row -> {
             StringJoiner dataJoiner = new StringJoiner("\t");
-            headers.forEach(header -> {
-                        dataJoiner.add(header.getFunction().apply(row).toString());
-                    }
+            headers.forEach(header -> dataJoiner.add(header.getFunction().apply(row).toString())
             );
             builder.append(dataJoiner.toString());
             builder.append(ConfigHelper.getJavaLineSeparator());

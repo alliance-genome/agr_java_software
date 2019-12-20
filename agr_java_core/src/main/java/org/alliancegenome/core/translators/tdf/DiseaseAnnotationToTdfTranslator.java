@@ -14,30 +14,14 @@ import java.util.stream.Collectors;
 
 public class DiseaseAnnotationToTdfTranslator {
 
-    public String getAllRows(List<DiseaseAnnotation> diseaseAnnotations) {
+    public String getAllRowsForGenes(List<DiseaseAnnotation> diseaseAnnotations) {
 
         denormalizeAnnotations(diseaseAnnotations);
 
         // convert collection of DiseaseAnnotation records to DiseaseDownloadRow records
-        List<DiseaseDownloadRow> list = diseaseAnnotations.stream()
-                .map(annotation -> annotation.getPrimaryAnnotatedEntities().stream()
-                        .map(entity -> entity.getPublicationEvidenceCodes().stream()
-                                .map(join -> {
-                                    if (CollectionUtils.isNotEmpty(annotation.getOrthologyGenes()))
-                                        return annotation.getOrthologyGenes().stream()
-                                                .map(gene -> getDiseaseDownloadRow(annotation, entity, join, gene))
-                                                .collect(Collectors.toList());
-                                    else
-                                        return List.of(getDiseaseDownloadRow(annotation, entity, join, null));
-                                })
-                                .flatMap(Collection::stream)
-                                .collect(Collectors.toList()))
-                        .flatMap(Collection::stream)
-                        .collect(Collectors.toList()))
-                .flatMap(Collection::stream)
-                .collect(Collectors.toList());
+        List<DiseaseDownloadRow> list = getDownloadRowsFromAnnotations(diseaseAnnotations);
 
-        List<DownloadHeader> headers = Arrays.asList(
+        List<DownloadHeader> headers = List.of(
                 new DownloadHeader<>("Gene ID", (DiseaseDownloadRow::getMainEntityID)),
                 new DownloadHeader<>("Gene Symbol", (DiseaseDownloadRow::getMainEntitySymbol)),
                 new DownloadHeader<>("Genetic Entity ID", (DiseaseDownloadRow::getGeneticEntityID)),
@@ -59,8 +43,29 @@ public class DiseaseAnnotationToTdfTranslator {
         return DownloadHeader.getDownloadOutput(list, headers);
     }
 
+    private List<DiseaseDownloadRow> getDownloadRowsFromAnnotations(List<DiseaseAnnotation> diseaseAnnotations) {
+        return diseaseAnnotations.stream()
+                .map(annotation -> annotation.getPrimaryAnnotatedEntities().stream()
+                        .map(entity -> entity.getPublicationEvidenceCodes().stream()
+                                .map(join -> {
+                                    if (CollectionUtils.isNotEmpty(annotation.getOrthologyGenes()))
+                                        return annotation.getOrthologyGenes().stream()
+                                                .map(gene -> getDiseaseDownloadRow(annotation, entity, join, gene))
+                                                .collect(Collectors.toList());
+                                    else
+                                        return List.of(getDiseaseDownloadRow(annotation, entity, join, null));
+                                })
+                                .flatMap(Collection::stream)
+                                .collect(Collectors.toList()))
+                        .flatMap(Collection::stream)
+                        .collect(Collectors.toList()))
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
+    }
+
     private DiseaseDownloadRow getDiseaseDownloadRow(DiseaseAnnotation annotation, PrimaryAnnotatedEntity entity, PublicationJoin join, Gene homologousGene) {
-        DiseaseDownloadRow row = new DiseaseDownloadRow();
+        DiseaseDownloadRow row = getBaseDownloadRow(annotation, join, homologousGene);
+
         row.setMainEntityID(annotation.getGene().getPrimaryKey());
         row.setMainEntitySymbol(annotation.getGene().getSymbol());
         row.setGeneticEntityID(entity.getId());
@@ -68,6 +73,12 @@ public class DiseaseAnnotationToTdfTranslator {
         row.setGeneticEntityType(entity.getType().getDisplayName());
         row.setSpeciesID(annotation.getGene().getSpecies().getPrimaryKey());
         row.setSpeciesName(annotation.getGene().getSpecies().getName());
+
+        return row;
+    }
+
+    private DiseaseDownloadRow getBaseDownloadRow(DiseaseAnnotation annotation, PublicationJoin join, Gene homologousGene) {
+        DiseaseDownloadRow row = new DiseaseDownloadRow();
         row.setAssociation(annotation.getAssociationType());
         row.setDiseaseID(annotation.getDisease().getPrimaryKey());
         row.setDiseaseName(annotation.getDisease().getName());
@@ -98,7 +109,6 @@ public class DiseaseAnnotationToTdfTranslator {
         }
         row.setEvidenceCodeName(evidenceJoinerName.toString());
         row.setReference(join.getPublication().getPubId());
-
         return row;
     }
 
@@ -107,46 +117,18 @@ public class DiseaseAnnotationToTdfTranslator {
         List<DiseaseDownloadRow> list = diseaseAnnotations.stream()
                 .map(annotation -> annotation.getPublicationJoins().stream()
                         .map(join -> {
-                            DiseaseDownloadRow row = new DiseaseDownloadRow();
+                            DiseaseDownloadRow row = getBaseDownloadRow(annotation, join, null);
                             row.setMainEntityID(annotation.getModel().getPrimaryKey());
                             row.setMainEntitySymbol(annotation.getModel().getNameText());
                             row.setSpeciesID(annotation.getModel().getSpecies().getPrimaryKey());
                             row.setSpeciesName(annotation.getModel().getSpecies().getName());
-                            row.setAssociation(annotation.getAssociationType());
-                            row.setDiseaseID(annotation.getDisease().getPrimaryKey());
-                            row.setDiseaseName(annotation.getDisease().getName());
-                            row.setSource(annotation.getSource().getName());
-
-                            StringJoiner evidenceJoiner = new StringJoiner("|");
-                            if (CollectionUtils.isNotEmpty(join.getEcoCode())) {
-                                Set<String> evidenceCodes = join.getEcoCode()
-                                        .stream()
-                                        .map(ECOTerm::getPrimaryKey)
-                                        .collect(Collectors.toSet());
-
-                                evidenceCodes.forEach(evidenceJoiner::add);
-                            }
-                            row.setEvidenceCode(evidenceJoiner.toString());
-
-                            StringJoiner evidenceJoinerName = new StringJoiner("|");
-                            if (CollectionUtils.isNotEmpty(join.getEcoCode())) {
-                                Set<String> evidenceCodes = join.getEcoCode()
-                                        .stream()
-                                        .map(ECOTerm::getName)
-                                        .collect(Collectors.toSet());
-
-                                evidenceCodes.forEach(evidenceJoinerName::add);
-                            }
-                            row.setEvidenceCodeName(evidenceJoinerName.toString());
-                            row.setReference(join.getPublication().getPubId());
-
                             return row;
                         })
                         .collect(Collectors.toList()))
                 .flatMap(Collection::stream)
                 .collect(Collectors.toList());
 
-        List<DownloadHeader> headers = Arrays.asList(
+        List<DownloadHeader> headers = List.of(
                 new DownloadHeader<>("Model ID", (DiseaseDownloadRow::getMainEntityID)),
                 new DownloadHeader<>("Model Symbol", (DiseaseDownloadRow::getMainEntitySymbol)),
                 new DownloadHeader<>("Species ID", (DiseaseDownloadRow::getSpeciesID)),
@@ -169,7 +151,7 @@ public class DiseaseAnnotationToTdfTranslator {
                 .map(annotation -> annotation.getPrimaryAnnotatedEntities().stream()
                         .map(entity -> entity.getPublicationEvidenceCodes().stream()
                                 .map(join -> {
-                                    DiseaseDownloadRow row = new DiseaseDownloadRow();
+                                    DiseaseDownloadRow row = getBaseDownloadRow(annotation, join, null);
                                     row.setMainEntityID(annotation.getFeature().getPrimaryKey());
                                     row.setMainEntitySymbol(annotation.getFeature().getSymbolText());
                                     row.setGeneticEntityID(entity.getId());
@@ -177,34 +159,6 @@ public class DiseaseAnnotationToTdfTranslator {
                                     row.setGeneticEntityType(entity.getType().getDisplayName());
                                     row.setSpeciesID(annotation.getGene().getSpecies().getPrimaryKey());
                                     row.setSpeciesName(annotation.getGene().getSpecies().getName());
-                                    row.setAssociation(annotation.getAssociationType());
-                                    row.setDiseaseID(annotation.getDisease().getPrimaryKey());
-                                    row.setDiseaseName(annotation.getDisease().getName());
-                                    row.setSource(annotation.getSource().getName());
-
-                                    StringJoiner evidenceJoiner = new StringJoiner("|");
-                                    if (CollectionUtils.isNotEmpty(join.getEcoCode())) {
-                                        Set<String> evidenceCodes = join.getEcoCode()
-                                                .stream()
-                                                .map(ECOTerm::getPrimaryKey)
-                                                .collect(Collectors.toSet());
-
-                                        evidenceCodes.forEach(evidenceJoiner::add);
-                                    }
-                                    row.setEvidenceCode(evidenceJoiner.toString());
-
-                                    StringJoiner evidenceJoinerName = new StringJoiner("|");
-                                    if (CollectionUtils.isNotEmpty(join.getEcoCode())) {
-                                        Set<String> evidenceCodes = join.getEcoCode()
-                                                .stream()
-                                                .map(ECOTerm::getName)
-                                                .collect(Collectors.toSet());
-
-                                        evidenceCodes.forEach(evidenceJoinerName::add);
-                                    }
-                                    row.setEvidenceCodeName(evidenceJoinerName.toString());
-                                    row.setReference(join.getPublication().getPubId());
-
                                     return row;
                                 })
                                 .collect(Collectors.toList()))
@@ -213,7 +167,7 @@ public class DiseaseAnnotationToTdfTranslator {
                 .flatMap(Collection::stream)
                 .collect(Collectors.toList());
 
-        List<DownloadHeader> headers = Arrays.asList(
+        List<DownloadHeader> headers = List.of(
                 new DownloadHeader<>("Allele ID", (DiseaseDownloadRow::getMainEntityID)),
                 new DownloadHeader<>("Allele Symbol", (DiseaseDownloadRow::getMainEntitySymbol)),
                 new DownloadHeader<>("Genetic Entity ID", (DiseaseDownloadRow::getGeneticEntityID)),
@@ -243,16 +197,14 @@ public class DiseaseAnnotationToTdfTranslator {
                 });
 
         // add genetic entity info for annotations that are not accounted in PAE
-        diseaseAnnotations.forEach(annotation -> {
-            annotation.getPublicationJoins().stream()
-                    // filter out the ones that are not found in an individual PAE
-                    .filter(join -> annotation.getPrimaryAnnotatedEntities().stream()
-                            .noneMatch(entity -> entity.getPublicationEvidenceCodes().contains(join)))
-                    .forEach(join -> {
-                        PrimaryAnnotatedEntity entity = createNewPrimaryAnnotatedEntity(annotation, join);
-                        annotation.addPrimaryAnnotatedEntityDuplicate(entity);
-                    });
-        });
+        diseaseAnnotations.forEach(annotation -> annotation.getPublicationJoins().stream()
+                // filter out the ones that are not found in an individual PAE
+                .filter(join -> annotation.getPrimaryAnnotatedEntities().stream()
+                        .noneMatch(entity -> entity.getPublicationEvidenceCodes().contains(join)))
+                .forEach(join -> {
+                    PrimaryAnnotatedEntity entity = createNewPrimaryAnnotatedEntity(annotation, join);
+                    annotation.addPrimaryAnnotatedEntityDuplicate(entity);
+                }));
     }
 
     private PrimaryAnnotatedEntity createNewPrimaryAnnotatedEntity(DiseaseAnnotation annotation, PublicationJoin join) {

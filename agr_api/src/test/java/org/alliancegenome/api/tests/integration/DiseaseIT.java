@@ -30,7 +30,6 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -158,7 +157,7 @@ public class DiseaseIT {
         assertThat(annotation.getAssociationType(), equalTo("is_implicated_in"));
 
         DiseaseAnnotationToTdfTranslator translator = new DiseaseAnnotationToTdfTranslator();
-        String output = translator.getAllRows(response.getResults());
+        String output = translator.getAllRowsForGenes(response.getResults());
         List<String> lines = Arrays.asList(output.split("\n"));
         assertNotNull(lines);
         String result = "Gene ID\tGene Symbol\tSpecies\tAssociation Type\tDisease ID\tDisease Name\tEvidence Code\tBased On\tSource\tReferences\n" +
@@ -225,7 +224,7 @@ public class DiseaseIT {
         assertThat(annotation.getAssociationType(), equalTo("is_implicated_in"));
 
         DiseaseAnnotationToTdfTranslator translator = new DiseaseAnnotationToTdfTranslator();
-        String output = translator.getAllRows(response.getResults());
+        String output = translator.getAllRowsForGenes(response.getResults());
         List<String> lines = Arrays.asList(output.split("\n"));
         assertNotNull(lines);
         String result = "Gene ID\tGene Symbol\tSpecies\tGenetic Entity ID\tGenetic Entity Symbol\tGenetic Entity Type\tAssociation Type\tDisease ID\tDisease Name\tEvidence Code\tSource\tReferences\n" +
@@ -268,7 +267,7 @@ public class DiseaseIT {
         JsonResultResponse<DiseaseAnnotation> response = diseaseService.getDiseaseAnnotationsByDisease(diseaseID, pagination);
 
         DiseaseAnnotationToTdfTranslator translator = new DiseaseAnnotationToTdfTranslator();
-        String output = translator.getAllRows(response.getResults());
+        String output = translator.getAllRowsForGenes(response.getResults());
         List<String> lines = Arrays.asList(output.split("\n"));
         assertNotNull(lines);
         String result = "Gene ID\tGene Symbol\tSpecies\tAssociation Type\tDisease ID\tDisease Name\tEvidence Code\tBased On\tSource\tReferences\n" +
@@ -285,7 +284,7 @@ public class DiseaseIT {
 
 /*
         translator = new DiseaseAnnotationToTdfTranslator();
-        output = translator.getAllRows(response.getResults());
+        output = translator.getAllRowsForGenes(response.getResults());
         lines = Arrays.asList(output.split("\n"));
         assertNotNull(lines);
         result = "Gene ID\tGene Symbol\tSpecies\tGenetic Entity ID\tGenetic Entity Symbol\tGenetic Entity Type\tAssociation Type\tDisease ID\tDisease Name\tEvidence Code\tSource\tReferences\n" +
@@ -302,7 +301,7 @@ public class DiseaseIT {
         response = diseaseService.getDiseaseAnnotationsByDisease(diseaseID, pagination);
 
         translator = new DiseaseAnnotationToTdfTranslator();
-        output = translator.getAllRows(response.getResults());
+        output = translator.getAllRowsForGenes(response.getResults());
         lines = Arrays.asList(output.split("\n"));
         assertNotNull(lines);
         result = "Gene ID\tGene Symbol\tSpecies\tGenetic Entity ID\tGenetic Entity Symbol\tGenetic Entity Type\tAssociation Type\tDisease ID\tDisease Name\tEvidence Code\tSource\tReferences\n" +
@@ -318,7 +317,7 @@ public class DiseaseIT {
         response = diseaseService.getDiseaseAnnotationsByDisease(diseaseID, pagination);
 
         translator = new DiseaseAnnotationToTdfTranslator();
-        output = translator.getAllRows(response.getResults());
+        output = translator.getAllRowsForGenes(response.getResults());
         lines = Arrays.asList(output.split("\n"));
         assertNotNull(lines);
         result = "Gene ID\tGene Symbol\tSpecies\tGenetic Entity ID\tGenetic Entity Symbol\tGenetic Entity Type\tAssociation Type\tDisease ID\tDisease Name\tEvidence Code\tSource\tReferences\n" +
@@ -598,7 +597,7 @@ public class DiseaseIT {
         assertResponse(response, 7, 16);
 
         DiseaseAnnotationToTdfTranslator translator = new DiseaseAnnotationToTdfTranslator();
-        String output = translator.getAllRows(response.getResults());
+        String output = translator.getAllRowsForGenes(response.getResults());
         assertEquals(output, "Gene ID\tGene Symbol\tGenetic Entity ID\tGenetic Entity Name\tGenetic Entity Type\tSpecies ID\tSpecies Name\tAssociation\tDisease ID\tDisease Name\tEvidence Code\tEvidence Code Name\tBased On ID\tBased On Name\tSource\tReference\n" +
                 "HGNC:869\tATP7A\tHGNC:869\tATP7A\tgene\tNCBITaxon:9606\tHomo sapiens\timplicated_via_orthology\tDOID:1838\tMenkes disease\tECO:0000501\tevidence used in automatic assertion\tFB:FBgn0030343\tATP7\tAlliance\tMGI:6194238\n" +
                 "HGNC:869\tATP7A\tHGNC:869\tATP7A\tgene\tNCBITaxon:9606\tHomo sapiens\timplicated_via_orthology\tDOID:1838\tMenkes disease\tECO:0000501\tevidence used in automatic assertion\tMGI:99400\tAtp7a\tAlliance\tMGI:6194238\n" +
@@ -726,7 +725,7 @@ public class DiseaseIT {
     public static void main(String[] args) {
         ConfigHelper.init();
 
-        //String str = translator.getAllRows(service.getDiseaseAnnotationsDownload("DOID:9351", Pagination.getDownloadPagination()));
+        //String str = translator.getAllRowsForGenes(service.getDiseaseAnnotationsDownload("DOID:9351", Pagination.getDownloadPagination()));
         Pagination pagination = new Pagination(1, 20, "gene", "true");
         pagination.addFieldFilter(FieldFilter.GENE_NAME, "l");
 //        System.out.println("Number of results " + response.getTotal());
@@ -734,7 +733,7 @@ public class DiseaseIT {
         pagination = new Pagination(1, Integer.MAX_VALUE, null, null);
         DiseaseAnnotationToTdfTranslator translator = new DiseaseAnnotationToTdfTranslator();
         DiseaseService diseaseService = new DiseaseService();
-        System.out.println(translator.getAllRows(diseaseService.getDiseaseAnnotationsByDisease("DOID:3594", pagination).getResults()));
+        System.out.println(translator.getAllRowsForGenes(diseaseService.getDiseaseAnnotationsByDisease("DOID:3594", pagination).getResults()));
 
     }
 

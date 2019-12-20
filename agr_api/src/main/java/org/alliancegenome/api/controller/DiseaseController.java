@@ -199,7 +199,7 @@ public class DiseaseController extends BaseController implements DiseaseRESTInte
                 evidenceCode,
                 associationType,
                 asc);
-        Response.ResponseBuilder responseBuilder = Response.ok(translator.getAllRows(response.getResults()));
+        Response.ResponseBuilder responseBuilder = Response.ok(translator.getAllRowsForGenes(response.getResults()));
         APIService.setDownloadHeader(id, EntityType.DISEASE, EntityType.GENE, responseBuilder);
         return responseBuilder.build();
 
@@ -348,7 +348,7 @@ public class DiseaseController extends BaseController implements DiseaseRESTInte
         }
         try {
             JsonResultResponse<DiseaseAnnotation> jsonResponse = diseaseService.getDiseaseAnnotationsByDisease(id, pagination);
-            responseBuilder = Response.ok(translator.getAllRows(jsonResponse.getResults()));
+            responseBuilder = Response.ok(translator.getAllRowsForGenes(jsonResponse.getResults()));
             responseBuilder.type(MediaType.TEXT_PLAIN_TYPE);
             APIService.setDownloadHeader(id, DISEASE, GENE, responseBuilder);
         } catch (Exception e) {
@@ -364,7 +364,7 @@ public class DiseaseController extends BaseController implements DiseaseRESTInte
     public String getDiseaseAnnotationsDownload(String id) {
         Pagination pagination = new Pagination(1, Integer.MAX_VALUE, null, null);
         // retrieve all records
-        return translator.getAllRows(diseaseService.getDiseaseAnnotationsByDisease(id, pagination).getResults());
+        return translator.getAllRowsForGenes(diseaseService.getDiseaseAnnotationsByDisease(id, pagination).getResults());
     }
 
     @Override
