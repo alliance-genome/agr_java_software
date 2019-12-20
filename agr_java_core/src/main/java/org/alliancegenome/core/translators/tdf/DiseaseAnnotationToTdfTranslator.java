@@ -18,6 +18,7 @@ public class DiseaseAnnotationToTdfTranslator {
 
         denormalizeAnnotations(diseaseAnnotations);
 
+        // convert collection of DiseaseAnnotation records to DiseaseDownloadRow records
         List<DiseaseDownloadRow> list = diseaseAnnotations.stream()
                 .map(annotation -> annotation.getPrimaryAnnotatedEntities().stream()
                         .map(entity -> entity.getPublicationEvidenceCodes().stream()
