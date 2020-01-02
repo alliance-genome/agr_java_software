@@ -255,7 +255,7 @@ public class OrthologyService {
 
         final String taxonOne = SpeciesType.getTaxonId(taxonIDOne);
 
-        List<OrthologView> orthologViewList = repo.getOrthologyBySpecies(Collections.singletonList(taxonOne));
+        List<OrthologView> orthologViewList = repo.getOrthologyBySpecies(List.of(taxonOne));
         JsonResultResponse<OrthologView> response = new JsonResultResponse<>();
 
         //filtering

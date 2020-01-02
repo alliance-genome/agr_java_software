@@ -67,14 +67,14 @@ public class ExpressionIT {
     @Test
     // Test Pten from MGI for expression ribbon summary
     public void checkExpressionRibbonHeader() {
-        RibbonSummary summary = expressionService.getExpressionRibbonSummary(Collections.singletonList("MGI:109583"));
+        RibbonSummary summary = expressionService.getExpressionRibbonSummary(List.of("MGI:109583"));
         assertNotNull(summary);
     }
 
     @Test
     // Test Pten from MGI for expression ribbon summary
     public void checkExpressionRibbonNumbers() {
-        RibbonSummary summary = expressionService.getExpressionRibbonSummary(Collections.singletonList("MGI:98834"));
+        RibbonSummary summary = expressionService.getExpressionRibbonSummary(List.of("MGI:98834"));
         assertNotNull(summary);
     }
 
@@ -97,7 +97,7 @@ public class ExpressionIT {
         BaseFilter filter = new BaseFilter();
         filter.addFieldFilter(FieldFilter.SOURCE, "9913");
         pagination.setFieldFilterValueMap(filter);
-        JsonResultResponse<ExpressionDetail> summary = expressionService.getExpressionDetails(Collections.singletonList("WB:WBGene00000898"), null, pagination);
+        JsonResultResponse<ExpressionDetail> summary = expressionService.getExpressionDetails(List.of("WB:WBGene00000898"), null, pagination);
         assertNotNull(summary);
 
 

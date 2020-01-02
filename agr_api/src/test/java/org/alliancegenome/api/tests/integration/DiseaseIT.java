@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.log4j.Log4j2;
+import org.alliancegenome.api.controller.DiseaseController;
 import org.alliancegenome.api.entity.CacheStatus;
 import org.alliancegenome.api.entity.DiseaseRibbonSummary;
 import org.alliancegenome.api.service.CacheStatusService;
@@ -29,7 +30,6 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -42,6 +42,7 @@ public class DiseaseIT {
 
     private ObjectMapper mapper = new ObjectMapper();
     private DiseaseService diseaseService = new DiseaseService();
+    private DiseaseController diseaseController = new DiseaseController();
 
     @Before
     public void before() {
@@ -156,7 +157,7 @@ public class DiseaseIT {
         assertThat(annotation.getAssociationType(), equalTo("is_implicated_in"));
 
         DiseaseAnnotationToTdfTranslator translator = new DiseaseAnnotationToTdfTranslator();
-        String output = translator.getAllRows(response.getResults());
+        String output = translator.getAllRowsForGenes(response.getResults());
         List<String> lines = Arrays.asList(output.split("\n"));
         assertNotNull(lines);
         String result = "Gene ID\tGene Symbol\tSpecies\tAssociation Type\tDisease ID\tDisease Name\tEvidence Code\tBased On\tSource\tReferences\n" +
@@ -223,7 +224,7 @@ public class DiseaseIT {
         assertThat(annotation.getAssociationType(), equalTo("is_implicated_in"));
 
         DiseaseAnnotationToTdfTranslator translator = new DiseaseAnnotationToTdfTranslator();
-        String output = translator.getAllRows(response.getResults());
+        String output = translator.getAllRowsForGenes(response.getResults());
         List<String> lines = Arrays.asList(output.split("\n"));
         assertNotNull(lines);
         String result = "Gene ID\tGene Symbol\tSpecies\tGenetic Entity ID\tGenetic Entity Symbol\tGenetic Entity Type\tAssociation Type\tDisease ID\tDisease Name\tEvidence Code\tSource\tReferences\n" +
@@ -266,7 +267,7 @@ public class DiseaseIT {
         JsonResultResponse<DiseaseAnnotation> response = diseaseService.getDiseaseAnnotationsByDisease(diseaseID, pagination);
 
         DiseaseAnnotationToTdfTranslator translator = new DiseaseAnnotationToTdfTranslator();
-        String output = translator.getAllRows(response.getResults());
+        String output = translator.getAllRowsForGenes(response.getResults());
         List<String> lines = Arrays.asList(output.split("\n"));
         assertNotNull(lines);
         String result = "Gene ID\tGene Symbol\tSpecies\tAssociation Type\tDisease ID\tDisease Name\tEvidence Code\tBased On\tSource\tReferences\n" +
@@ -283,7 +284,7 @@ public class DiseaseIT {
 
 /*
         translator = new DiseaseAnnotationToTdfTranslator();
-        output = translator.getAllRows(response.getResults());
+        output = translator.getAllRowsForGenes(response.getResults());
         lines = Arrays.asList(output.split("\n"));
         assertNotNull(lines);
         result = "Gene ID\tGene Symbol\tSpecies\tGenetic Entity ID\tGenetic Entity Symbol\tGenetic Entity Type\tAssociation Type\tDisease ID\tDisease Name\tEvidence Code\tSource\tReferences\n" +
@@ -300,7 +301,7 @@ public class DiseaseIT {
         response = diseaseService.getDiseaseAnnotationsByDisease(diseaseID, pagination);
 
         translator = new DiseaseAnnotationToTdfTranslator();
-        output = translator.getAllRows(response.getResults());
+        output = translator.getAllRowsForGenes(response.getResults());
         lines = Arrays.asList(output.split("\n"));
         assertNotNull(lines);
         result = "Gene ID\tGene Symbol\tSpecies\tGenetic Entity ID\tGenetic Entity Symbol\tGenetic Entity Type\tAssociation Type\tDisease ID\tDisease Name\tEvidence Code\tSource\tReferences\n" +
@@ -316,7 +317,7 @@ public class DiseaseIT {
         response = diseaseService.getDiseaseAnnotationsByDisease(diseaseID, pagination);
 
         translator = new DiseaseAnnotationToTdfTranslator();
-        output = translator.getAllRows(response.getResults());
+        output = translator.getAllRowsForGenes(response.getResults());
         lines = Arrays.asList(output.split("\n"));
         assertNotNull(lines);
         result = "Gene ID\tGene Symbol\tSpecies\tGenetic Entity ID\tGenetic Entity Symbol\tGenetic Entity Type\tAssociation Type\tDisease ID\tDisease Name\tEvidence Code\tSource\tReferences\n" +
@@ -335,7 +336,7 @@ public class DiseaseIT {
         Pagination pagination = new Pagination(1, 2, null, null);
         // Pten
         String geneID = "MGI:109583";
-        JsonResultResponse<DiseaseAnnotation> response = diseaseService.getRibbonDiseaseAnnotations(Collections.singletonList(geneID), null, pagination);
+        JsonResultResponse<DiseaseAnnotation> response = diseaseService.getRibbonDiseaseAnnotations(List.of(geneID), null, pagination);
         assertResponse(response, 2, 14);
 
         DiseaseAnnotation annotation = response.getResults().get(0);
@@ -369,7 +370,7 @@ public class DiseaseIT {
         String geneID = "MGI:109583";
         // add containsFilterValue on disease
         pagination.makeSingleFieldFilter(FieldFilter.DISEASE, "BL");
-        JsonResultResponse<DiseaseAnnotation> response = diseaseService.getRibbonDiseaseAnnotations(Collections.singletonList(geneID), null, pagination);
+        JsonResultResponse<DiseaseAnnotation> response = diseaseService.getRibbonDiseaseAnnotations(List.of(geneID), null, pagination);
         assertResponse(response, 1, 1);
 
         DiseaseSummary summary = diseaseService.getDiseaseSummary(geneID, DiseaseSummary.Type.EXPERIMENT);
@@ -407,7 +408,7 @@ public class DiseaseIT {
 
         // add containsFilterValue on feature symbol
         pagination.makeSingleFieldFilter(FieldFilter.ASSOCIATION_TYPE, "IS_IMPLICATED_IN");
-        JsonResultResponse<DiseaseAnnotation> response = diseaseService.getRibbonDiseaseAnnotations(Collections.singletonList(geneID), null, pagination);
+        JsonResultResponse<DiseaseAnnotation> response = diseaseService.getRibbonDiseaseAnnotations(List.of(geneID), null, pagination);
         assertResponse(response, 2, 2);
 
         DiseaseAnnotation annotation = response.getResults().get(1);
@@ -416,7 +417,7 @@ public class DiseaseIT {
         assertThat(annotation.getPublications().stream().map(Publication::getPubId).collect(Collectors.joining()), equalTo("PMID:12208767"));
 
         pagination.makeSingleFieldFilter(FieldFilter.ASSOCIATION_TYPE, "IS_MARKER_OF");
-        response = diseaseService.getRibbonDiseaseAnnotations(Collections.singletonList(geneID), null, pagination);
+        response = diseaseService.getRibbonDiseaseAnnotations(List.of(geneID), null, pagination);
         assertLimitResponse(response, 4, 4);
         assertNull(annotation.getFeature());
     }
@@ -429,7 +430,7 @@ public class DiseaseIT {
 
         // add containsFilterValue on evidence code
         pagination.makeSingleFieldFilter(FieldFilter.EVIDENCE_CODE, "expression pattern");
-        JsonResultResponse<DiseaseAnnotation> response = diseaseService.getRibbonDiseaseAnnotations(Collections.singletonList(geneID), null, pagination);
+        JsonResultResponse<DiseaseAnnotation> response = diseaseService.getRibbonDiseaseAnnotations(List.of(geneID), null, pagination);
         assertLimitResponse(response, 4, 4);
 
         pagination.makeSingleFieldFilter(FieldFilter.EVIDENCE_CODE, "inference by association");
@@ -445,7 +446,7 @@ public class DiseaseIT {
 
         // add filter on reference
         pagination.makeSingleFieldFilter(FieldFilter.FREFERENCE, "380");
-        JsonResultResponse<DiseaseAnnotation> response = diseaseService.getRibbonDiseaseAnnotations(Collections.singletonList(geneID), null, pagination);
+        JsonResultResponse<DiseaseAnnotation> response = diseaseService.getRibbonDiseaseAnnotations(List.of(geneID), null, pagination);
         assertResponse(response, 3, 3);
 
         pagination.makeSingleFieldFilter(FieldFilter.FREFERENCE, "710");
@@ -469,7 +470,7 @@ public class DiseaseIT {
     // Test SHH from Human for disease via experiment records
     public void checkDiseaseAnnotationNonDuplicated3() {
         DiseaseService service = new DiseaseService();
-        JsonResultResponse<DiseaseAnnotation> annotations = service.getRibbonDiseaseAnnotations(Collections.singletonList("HGNC:10848"), null, new Pagination(1, 30, null, null));
+        JsonResultResponse<DiseaseAnnotation> annotations = service.getRibbonDiseaseAnnotations(List.of("HGNC:10848"), null, new Pagination(1, 30, null, null));
 
         assertNotNull(annotations);
         // 14 different disease terms
@@ -485,7 +486,7 @@ public class DiseaseIT {
     // Test Sox9 from MGI for disease via experiment records
     public void checkDiseaseAnnotationNonDuplicated() {
         DiseaseService service = new DiseaseService();
-        JsonResultResponse<DiseaseAnnotation> annotations = service.getRibbonDiseaseAnnotations(Collections.singletonList("MGI:98371"), null, new Pagination(1, 80, null, null));
+        JsonResultResponse<DiseaseAnnotation> annotations = service.getRibbonDiseaseAnnotations(List.of("MGI:98371"), null, new Pagination(1, 80, null, null));
         assertNotNull(annotations);
 
         assertThat(1, equalTo(annotations.getTotal()));
@@ -498,7 +499,7 @@ public class DiseaseIT {
     @Test
     // Test Sox9 from MGI for disease via experiment records
     public void checkDiseaseRibbonHeader() {
-        DiseaseRibbonSummary summary = diseaseService.getDiseaseRibbonSummary(Collections.singletonList("MGI:98297"));
+        DiseaseRibbonSummary summary = diseaseService.getDiseaseRibbonSummary(List.of("MGI:98297"));
         assertNotNull(summary);
     }
 
@@ -519,7 +520,7 @@ public class DiseaseIT {
         String geneID = "FB:FBgn0030343";
 
         Pagination pagination = new Pagination(1, 10, null, null);
-        JsonResultResponse<DiseaseAnnotation> response = diseaseService.getRibbonDiseaseAnnotations(Collections.singletonList(geneID), null, pagination);
+        JsonResultResponse<DiseaseAnnotation> response = diseaseService.getRibbonDiseaseAnnotations(List.of(geneID), null, pagination);
         assertResponse(response, 1, 1);
 
         response.getResults().forEach(annotation -> {
@@ -530,12 +531,201 @@ public class DiseaseIT {
         });
     }
 
+    @Test
+    public void diseaseModelDownload() {
+
+        // Diamond-Blackfan anemia
+        String diseaseID = "DOID:1838";
+
+        JsonResultResponse<DiseaseAnnotation> response = diseaseController.getDiseaseAnnotationsForModel(diseaseID,
+                15,
+                1,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null
+        );
+
+        assertResponse(response, 15, 15);
+
+        DiseaseAnnotationToTdfTranslator translator = new DiseaseAnnotationToTdfTranslator();
+        String output = translator.getAllRowsForModel(response.getResults());
+        assertEquals(output, "Model ID\tModel Symbol\tSpecies ID\tSpecies Name\tDisease ID\tDisease Name\tEvidence Code\tEvidence Code Name\tSource\tReference\n" +
+                "MGI:6324209\tAtp7a<Mo-blo>/? [background:] involves: C57BL/6J\tNCBITaxon:10090\tMus musculus\tDOID:1838\tMenkes disease\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tPMID:6685755\n" +
+                "MGI:6324210\tAtp7a<Mo-blo>/Atp7a<+> [background:] involves: C57BL/6J\tNCBITaxon:10090\tMus musculus\tDOID:1838\tMenkes disease\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tPMID:6685755\n" +
+                "MGI:3793780\tAtp7a<Mo-br>/? [background:] involves: C57BL\tNCBITaxon:10090\tMus musculus\tDOID:1838\tMenkes disease\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tPMID:4858102\n" +
+                "MGI:5696621\tAtp7a<Mo-dp>/? [background:] involves: 101/H * C3H/HeH\tNCBITaxon:10090\tMus musculus\tDOID:1838\tMenkes disease\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tPMID:25456742\n" +
+                "MGI:5696613\tAtp7a<Mo-dp>/Atp7a<+> [background:] involves: 101/H * C3H/HeH\tNCBITaxon:10090\tMus musculus\tDOID:1838\tMenkes disease\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tPMID:25456742\n" +
+                "MGI:6324231\tAtp7a<Mo-ml>/? [background:] involves: C3Hf/He\tNCBITaxon:10090\tMus musculus\tDOID:1838\tMenkes disease\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tPMID:1819648\n" +
+                "MGI:6324231\tAtp7a<Mo-ml>/? [background:] involves: C3Hf/He\tNCBITaxon:10090\tMus musculus\tDOID:1838\tMenkes disease\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tMGI:60964\n" +
+                "MGI:4940051\tAtp7a<Mo-ms>/? [background:] Not Specified\tNCBITaxon:10090\tMus musculus\tDOID:1838\tMenkes disease\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tPMID:20831904\n" +
+                "MGI:3618244\tAtp7a<Mo-Tohm>/Atp7a<+> [background:] B6.Cg-Atp7a<Mo-Tohm>\tNCBITaxon:10090\tMus musculus\tDOID:1838\tMenkes disease\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tPMID:16338116\n" +
+                "MGI:3793729\tAtp7a<Mo-vbr>/? [background:] Not Specified\tNCBITaxon:10090\tMus musculus\tDOID:1838\tMenkes disease\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tPMID:10098864\n" +
+                "MGI:2175712\tAtp7a<Mo>/Atp7a<+> [background:] Not Specified\tNCBITaxon:10090\tMus musculus\tDOID:1838\tMenkes disease\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tPMID:13103353\n" +
+                "MGI:2657020\tLox<tm1Ikh>/Lox<tm1Ikh> [background:] involves: 129X1/SvJ * C57BL/6J\tNCBITaxon:10090\tMus musculus\tDOID:1838\tMenkes disease\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tPMID:12473682\n" +
+                "ZFIN:ZDB-FISH-180905-22\tatp7a<gw71/gw71>\tNCBITaxon:7955\tDanio rerio\tDOID:1838\tMenkes disease\tECO:0000304\tauthor statement supported by traceable reference used in manual assertion\tZFIN\tPMID:29507920\n" +
+                "ZFIN:ZDB-FISH-150901-6650\tatp7a<j246/j246>\tNCBITaxon:7955\tDanio rerio\tDOID:1838\tMenkes disease\tECO:0000304\tauthor statement supported by traceable reference used in manual assertion\tZFIN\tPMID:18316734\n" +
+                "ZFIN:ZDB-FISH-150901-17526\tatp7a<vu69/vu69>\tNCBITaxon:7955\tDanio rerio\tDOID:1838\tMenkes disease\tECO:0000304\tauthor statement supported by traceable reference used in manual assertion\tZFIN\tPMID:16890543\n" +
+                "ZFIN:ZDB-FISH-150901-27568\tatp7a<vu69/vu69>\tNCBITaxon:7955\tDanio rerio\tDOID:1838\tMenkes disease\tECO:0000304\tauthor statement supported by traceable reference used in manual assertion\tZFIN\tPMID:18316734\n");
+    }
+
+    @Test
+    public void diseaseGeneDownload() {
+
+        // Diamond-Blackfan anemia
+        String diseaseID = "DOID:1838";
+
+        JsonResultResponse<DiseaseAnnotation> response = diseaseController.getDiseaseAnnotationsByGene(diseaseID,
+                7,
+                1,
+                null,
+                null,
+                null,
+                null,
+                "Alliance",
+                null,
+                null,
+                null,
+                null
+        );
+
+        assertResponse(response, 7, 16);
+
+        DiseaseAnnotationToTdfTranslator translator = new DiseaseAnnotationToTdfTranslator();
+        String output = translator.getAllRowsForGenes(response.getResults());
+        assertEquals(output, "Gene ID\tGene Symbol\tGenetic Entity ID\tGenetic Entity Name\tGenetic Entity Type\tSpecies ID\tSpecies Name\tAssociation\tDisease ID\tDisease Name\tEvidence Code\tEvidence Code Name\tBased On ID\tBased On Name\tSource\tReference\n" +
+                "HGNC:869\tATP7A\tHGNC:869\tATP7A\tgene\tNCBITaxon:9606\tHomo sapiens\timplicated_via_orthology\tDOID:1838\tMenkes disease\tECO:0000501\tevidence used in automatic assertion\tFB:FBgn0030343\tATP7\tAlliance\tMGI:6194238\n" +
+                "HGNC:869\tATP7A\tHGNC:869\tATP7A\tgene\tNCBITaxon:9606\tHomo sapiens\timplicated_via_orthology\tDOID:1838\tMenkes disease\tECO:0000501\tevidence used in automatic assertion\tMGI:99400\tAtp7a\tAlliance\tMGI:6194238\n" +
+                "HGNC:869\tATP7A\tHGNC:869\tATP7A\tgene\tNCBITaxon:9606\tHomo sapiens\timplicated_via_orthology\tDOID:1838\tMenkes disease\tECO:0000501\tevidence used in automatic assertion\tSGD:S000002678\tCCC2\tAlliance\tMGI:6194238\n" +
+                "HGNC:869\tATP7A\tHGNC:869\tATP7A\tgene\tNCBITaxon:9606\tHomo sapiens\timplicated_via_orthology\tDOID:1838\tMenkes disease\tECO:0000501\tevidence used in automatic assertion\tWB:WBGene00000834\tcua-1\tAlliance\tMGI:6194238\n" +
+                "HGNC:870\tATP7B\tHGNC:870\tATP7B\tgene\tNCBITaxon:9606\tHomo sapiens\timplicated_via_orthology\tDOID:1838\tMenkes disease\tECO:0000501\tevidence used in automatic assertion\tFB:FBgn0030343\tATP7\tAlliance\tMGI:6194238\n" +
+                "HGNC:870\tATP7B\tHGNC:870\tATP7B\tgene\tNCBITaxon:9606\tHomo sapiens\timplicated_via_orthology\tDOID:1838\tMenkes disease\tECO:0000501\tevidence used in automatic assertion\tSGD:S000002678\tCCC2\tAlliance\tMGI:6194238\n" +
+                "HGNC:870\tATP7B\tHGNC:870\tATP7B\tgene\tNCBITaxon:9606\tHomo sapiens\timplicated_via_orthology\tDOID:1838\tMenkes disease\tECO:0000501\tevidence used in automatic assertion\tWB:WBGene00000834\tcua-1\tAlliance\tMGI:6194238\n" +
+                "HGNC:6664\tLOX\tHGNC:6664\tLOX\tgene\tNCBITaxon:9606\tHomo sapiens\timplicated_via_orthology\tDOID:1838\tMenkes disease\tECO:0000501\tevidence used in automatic assertion\tMGI:96817\tLox\tAlliance\tMGI:6194238\n" +
+                "RGD:2179\tAtp7a\tRGD:2179\tAtp7a\tgene\tNCBITaxon:10116\tRattus norvegicus\timplicated_via_orthology\tDOID:1838\tMenkes disease\tECO:0000501\tevidence used in automatic assertion\tFB:FBgn0030343\tATP7\tAlliance\tMGI:6194238\n" +
+                "RGD:2179\tAtp7a\tRGD:2179\tAtp7a\tgene\tNCBITaxon:10116\tRattus norvegicus\timplicated_via_orthology\tDOID:1838\tMenkes disease\tECO:0000501\tevidence used in automatic assertion\tMGI:99400\tAtp7a\tAlliance\tMGI:6194238\n" +
+                "RGD:2179\tAtp7a\tRGD:2179\tAtp7a\tgene\tNCBITaxon:10116\tRattus norvegicus\timplicated_via_orthology\tDOID:1838\tMenkes disease\tECO:0000501\tevidence used in automatic assertion\tHGNC:869\tATP7A\tAlliance\tMGI:6194238\n" +
+                "RGD:2179\tAtp7a\tRGD:2179\tAtp7a\tgene\tNCBITaxon:10116\tRattus norvegicus\timplicated_via_orthology\tDOID:1838\tMenkes disease\tECO:0000501\tevidence used in automatic assertion\tSGD:S000002678\tCCC2\tAlliance\tMGI:6194238\n" +
+                "RGD:2179\tAtp7a\tRGD:2179\tAtp7a\tgene\tNCBITaxon:10116\tRattus norvegicus\timplicated_via_orthology\tDOID:1838\tMenkes disease\tECO:0000501\tevidence used in automatic assertion\tWB:WBGene00000834\tcua-1\tAlliance\tMGI:6194238\n" +
+                "RGD:2180\tAtp7b\tRGD:2180\tAtp7b\tgene\tNCBITaxon:10116\tRattus norvegicus\timplicated_via_orthology\tDOID:1838\tMenkes disease\tECO:0000501\tevidence used in automatic assertion\tFB:FBgn0030343\tATP7\tAlliance\tMGI:6194238\n" +
+                "RGD:2180\tAtp7b\tRGD:2180\tAtp7b\tgene\tNCBITaxon:10116\tRattus norvegicus\timplicated_via_orthology\tDOID:1838\tMenkes disease\tECO:0000501\tevidence used in automatic assertion\tSGD:S000002678\tCCC2\tAlliance\tMGI:6194238\n" +
+                "RGD:2180\tAtp7b\tRGD:2180\tAtp7b\tgene\tNCBITaxon:10116\tRattus norvegicus\timplicated_via_orthology\tDOID:1838\tMenkes disease\tECO:0000501\tevidence used in automatic assertion\tWB:WBGene00000834\tcua-1\tAlliance\tMGI:6194238\n" +
+                "RGD:3015\tLox\tRGD:3015\tLox\tgene\tNCBITaxon:10116\tRattus norvegicus\timplicated_via_orthology\tDOID:1838\tMenkes disease\tECO:0000501\tevidence used in automatic assertion\tMGI:96817\tLox\tAlliance\tMGI:6194238\n" +
+                "RGD:3015\tLox\tRGD:3015\tLox\tgene\tNCBITaxon:10116\tRattus norvegicus\timplicated_via_orthology\tDOID:1838\tMenkes disease\tECO:0000501\tevidence used in automatic assertion\tHGNC:6664\tLOX\tAlliance\tMGI:6194238\n" +
+                "MGI:99400\tAtp7a\tMGI:99400\tAtp7a\tgene\tNCBITaxon:10090\tMus musculus\timplicated_via_orthology\tDOID:1838\tMenkes disease\tECO:0000501\tevidence used in automatic assertion\tFB:FBgn0030343\tATP7\tAlliance\tMGI:6194238\n" +
+                "MGI:99400\tAtp7a\tMGI:99400\tAtp7a\tgene\tNCBITaxon:10090\tMus musculus\timplicated_via_orthology\tDOID:1838\tMenkes disease\tECO:0000501\tevidence used in automatic assertion\tHGNC:869\tATP7A\tAlliance\tMGI:6194238\n" +
+                "MGI:99400\tAtp7a\tMGI:99400\tAtp7a\tgene\tNCBITaxon:10090\tMus musculus\timplicated_via_orthology\tDOID:1838\tMenkes disease\tECO:0000501\tevidence used in automatic assertion\tSGD:S000002678\tCCC2\tAlliance\tMGI:6194238\n" +
+                "MGI:99400\tAtp7a\tMGI:99400\tAtp7a\tgene\tNCBITaxon:10090\tMus musculus\timplicated_via_orthology\tDOID:1838\tMenkes disease\tECO:0000501\tevidence used in automatic assertion\tWB:WBGene00000834\tcua-1\tAlliance\tMGI:6194238\n");
+    }
+
+    @Test
+    public void diseaseAlleleDownload() {
+
+        // Diamond-Blackfan anemia
+        String diseaseID = "DOID:1339";
+
+        Pagination pagination = new Pagination(1, 10, null, null);
+
+        JsonResultResponse<DiseaseAnnotation> response = diseaseController.getDiseaseAnnotationsByAllele(diseaseID,
+                10,
+                1,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null
+        );
+
+        assertResponse(response, 5, 5);
+
+        DiseaseAnnotationToTdfTranslator translator = new DiseaseAnnotationToTdfTranslator();
+        String output = translator.getAllRowsForAllele(response.getResults());
+        assertEquals(output, "Allele ID\tAllele Symbol\tGenetic Entity ID\tGenetic Entity Name\tGenetic Entity Type\tSpecies ID\tSpecies Name\tAssociation\tDisease ID\tDisease Name\tEvidence Code\tEvidence Code Name\tSource\tReference\n" +
+                "MGI:3776022\tFlvcr1<tm1.1Jlab>\tMGI:3807528\tFlvcr1<sup>tm1.1Jlab</sup>/Flvcr1<sup>tm1.1Jlab</sup> [background:] involves: 129S4/SvJae * C57BL/6 * DBA/2\tgenotype\tNCBITaxon:10090\tMus musculus\tis_implicated_in\tDOID:1339\tDiamond-Blackfan anemia\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tPMID:18258918\n" +
+                "MGI:3776021\tFlvcr1<tm1Jlab>\tMGI:2444881\tFlvcr1\tgene\tNCBITaxon:10090\tMus musculus\tis_implicated_in\tDOID:1339\tDiamond-Blackfan anemia\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tPMID:18258918\n" +
+                "MGI:3803603\tRpsa<tm1Ells>\tMGI:3804635\tRpsa<sup>tm1Ells</sup>/Rpsa<sup>+</sup> [background:] involves: 129S6/SvEvTac * C57BL/6\tgenotype\tNCBITaxon:10090\tMus musculus\tis_implicated_in\tDOID:1339\tDiamond-Blackfan anemia\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tMGI:3804630\n" +
+                "ZFIN:ZDB-ALT-041001-12\thi3820bTg\tZFIN:ZDB-FISH-150901-8506\trpl11<sup>hi3820bTg/hi3820bTg</sup>\tfish\tNCBITaxon:7955\tDanio rerio\tis_implicated_in\tDOID:1339\tDiamond-Blackfan anemia\tECO:0000304\tauthor statement supported by traceable reference used in manual assertion\tZFIN\tPMID:26109203\n" +
+                "ZFIN:ZDB-ALT-041001-12\thi3820bTg\tZFIN:ZDB-FISH-150901-8506\trpl11<sup>hi3820bTg/hi3820bTg</sup>\tfish\tNCBITaxon:7955\tDanio rerio\tis_implicated_in\tDOID:1339\tDiamond-Blackfan anemia\tECO:0000304\tauthor statement supported by traceable reference used in manual assertion\tZFIN\tPMID:29225165\n" +
+                "ZFIN:ZDB-ALT-041001-12\thi3820bTg\tZFIN:ZDB-FISH-150901-8506\trpl11<sup>hi3820bTg/hi3820bTg</sup>\tfish\tNCBITaxon:7955\tDanio rerio\tis_implicated_in\tDOID:1339\tDiamond-Blackfan anemia\tECO:0000304\tauthor statement supported by traceable reference used in manual assertion\tZFIN\tPMID:29581525\n" +
+                "ZFIN:ZDB-ALT-041001-12\thi3820bTg\tZFIN:ZDB-FISH-150901-16866\trpl11<sup>hi3820bTg/hi3820bTg</sup>\tfish\tNCBITaxon:7955\tDanio rerio\tis_implicated_in\tDOID:1339\tDiamond-Blackfan anemia\tECO:0000304\tauthor statement supported by traceable reference used in manual assertion\tZFIN\tPMID:24812435\n" +
+                "ZFIN:ZDB-ALT-041001-12\thi3820bTg\tZFIN:ZDB-FISH-150901-16866\trpl11<sup>hi3820bTg/hi3820bTg</sup>\tfish\tNCBITaxon:7955\tDanio rerio\tis_implicated_in\tDOID:1339\tDiamond-Blackfan anemia\tECO:0000304\tauthor statement supported by traceable reference used in manual assertion\tZFIN\tPMID:25058426\n" +
+                "ZFIN:ZDB-ALT-151012-9\tzf556\tZFIN:ZDB-FISH-151013-1\trps19<sup>zf556/zf556</sup>\tfish\tNCBITaxon:7955\tDanio rerio\tis_implicated_in\tDOID:1339\tDiamond-Blackfan anemia\tECO:0000304\tauthor statement supported by traceable reference used in manual assertion\tZFIN\tPMID:25058426\n" +
+                "ZFIN:ZDB-ALT-151012-9\tzf556\tZFIN:ZDB-FISH-151013-1\trps19<sup>zf556/zf556</sup>\tfish\tNCBITaxon:7955\tDanio rerio\tis_implicated_in\tDOID:1339\tDiamond-Blackfan anemia\tECO:0000304\tauthor statement supported by traceable reference used in manual assertion\tZFIN\tPMID:26109203\n");
+
+        // Menkes Disease
+        diseaseID = "DOID:1838";
+        response = diseaseController.getDiseaseAnnotationsByAllele(diseaseID,
+                10,
+                1,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null
+        );
+
+        assertResponse(response, 10, 14);
+
+        translator = new DiseaseAnnotationToTdfTranslator();
+        output = translator.getAllRowsForAllele(response.getResults());
+        assertEquals(output, "Allele ID\tAllele Symbol\tGenetic Entity ID\tGenetic Entity Name\tGenetic Entity Type\tSpecies ID\tSpecies Name\tAssociation\tDisease ID\tDisease Name\tEvidence Code\tEvidence Code Name\tSource\tReference\n" +
+                "MGI:1856097\tAtp7a<Mo-blo>\tMGI:6324209\tAtp7a<sup>Mo-blo</sup>/? [background:] involves: C57BL/6J\tgenotype\tNCBITaxon:10090\tMus musculus\tis_implicated_in\tDOID:1838\tMenkes disease\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tPMID:6685755\n" +
+                "MGI:1856097\tAtp7a<Mo-blo>\tMGI:6324210\tAtp7a<sup>Mo-blo</sup>/Atp7a<sup>+</sup> [background:] involves: C57BL/6J\tgenotype\tNCBITaxon:10090\tMus musculus\tis_implicated_in\tDOID:1838\tMenkes disease\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tPMID:10332039\n" +
+                "MGI:1856097\tAtp7a<Mo-blo>\tMGI:99400\tAtp7a\tgene\tNCBITaxon:10090\tMus musculus\tis_implicated_in\tDOID:1838\tMenkes disease\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tPMID:3674914\n" +
+                "MGI:1856097\tAtp7a<Mo-blo>\tMGI:99400\tAtp7a\tgene\tNCBITaxon:10090\tMus musculus\tis_implicated_in\tDOID:1838\tMenkes disease\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tPMID:6542992\n" +
+                "MGI:1856097\tAtp7a<Mo-blo>\tMGI:99400\tAtp7a\tgene\tNCBITaxon:10090\tMus musculus\tis_implicated_in\tDOID:1838\tMenkes disease\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tPMID:6441865\n" +
+                "MGI:1856098\tAtp7a<Mo-br>\tMGI:3793780\tAtp7a<sup>Mo-br</sup>/? [background:] involves: C57BL\tgenotype\tNCBITaxon:10090\tMus musculus\tis_implicated_in\tDOID:1838\tMenkes disease\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tPMID:10332039\n" +
+                "MGI:1856098\tAtp7a<Mo-br>\tMGI:3793780\tAtp7a<sup>Mo-br</sup>/? [background:] involves: C57BL\tgenotype\tNCBITaxon:10090\tMus musculus\tis_implicated_in\tDOID:1838\tMenkes disease\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tPMID:4858102\n" +
+                "MGI:1856098\tAtp7a<Mo-br>\tMGI:99400\tAtp7a\tgene\tNCBITaxon:10090\tMus musculus\tis_implicated_in\tDOID:1838\tMenkes disease\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tPMID:26269458\n" +
+                "MGI:1856098\tAtp7a<Mo-br>\tMGI:99400\tAtp7a\tgene\tNCBITaxon:10090\tMus musculus\tis_implicated_in\tDOID:1838\tMenkes disease\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tPMID:21878905\n" +
+                "MGI:1856099\tAtp7a<Mo-dp>\tMGI:5696613\tAtp7a<sup>Mo-dp</sup>/Atp7a<sup>+</sup> [background:] involves: 101/H * C3H/HeH\tgenotype\tNCBITaxon:10090\tMus musculus\tis_implicated_in\tDOID:1838\tMenkes disease\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tPMID:25456742\n" +
+                "MGI:1856466\tAtp7a<Mo-ml>\tMGI:6324231\tAtp7a<sup>Mo-ml</sup>/? [background:] involves: C3Hf/He\tgenotype\tNCBITaxon:10090\tMus musculus\tis_implicated_in\tDOID:1838\tMenkes disease\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tMGI:60964\n" +
+                "MGI:1856466\tAtp7a<Mo-ml>\tMGI:6324231\tAtp7a<sup>Mo-ml</sup>/? [background:] involves: C3Hf/He\tgenotype\tNCBITaxon:10090\tMus musculus\tis_implicated_in\tDOID:1838\tMenkes disease\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tPMID:1819648\n" +
+                "MGI:1856466\tAtp7a<Mo-ml>\tMGI:6324231\tAtp7a<sup>Mo-ml</sup>/? [background:] involves: C3Hf/He\tgenotype\tNCBITaxon:10090\tMus musculus\tis_implicated_in\tDOID:1838\tMenkes disease\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tPMID:8245411\n" +
+                "MGI:1856466\tAtp7a<Mo-ml>\tMGI:99400\tAtp7a\tgene\tNCBITaxon:10090\tMus musculus\tis_implicated_in\tDOID:1838\tMenkes disease\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tMGI:63873\n" +
+                "MGI:1856466\tAtp7a<Mo-ml>\tMGI:99400\tAtp7a\tgene\tNCBITaxon:10090\tMus musculus\tis_implicated_in\tDOID:1838\tMenkes disease\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tPMID:9358851\n" +
+                "MGI:1856466\tAtp7a<Mo-ml>\tMGI:99400\tAtp7a\tgene\tNCBITaxon:10090\tMus musculus\tis_implicated_in\tDOID:1838\tMenkes disease\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tPMID:8009964\n" +
+                "MGI:1856466\tAtp7a<Mo-ml>\tMGI:99400\tAtp7a\tgene\tNCBITaxon:10090\tMus musculus\tis_implicated_in\tDOID:1838\tMenkes disease\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tPMID:9686356\n" +
+                "MGI:1856466\tAtp7a<Mo-ml>\tMGI:99400\tAtp7a\tgene\tNCBITaxon:10090\tMus musculus\tis_implicated_in\tDOID:1838\tMenkes disease\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tPMID:7688531\n" +
+                "MGI:1856466\tAtp7a<Mo-ml>\tMGI:99400\tAtp7a\tgene\tNCBITaxon:10090\tMus musculus\tis_implicated_in\tDOID:1838\tMenkes disease\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tPMID:8740228\n" +
+                "MGI:1856466\tAtp7a<Mo-ml>\tMGI:99400\tAtp7a\tgene\tNCBITaxon:10090\tMus musculus\tis_implicated_in\tDOID:1838\tMenkes disease\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tPMID:7873696\n" +
+                "MGI:1856466\tAtp7a<Mo-ml>\tMGI:99400\tAtp7a\tgene\tNCBITaxon:10090\tMus musculus\tis_implicated_in\tDOID:1838\tMenkes disease\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tPMID:1912099\n" +
+                "MGI:1856466\tAtp7a<Mo-ml>\tMGI:99400\tAtp7a\tgene\tNCBITaxon:10090\tMus musculus\tis_implicated_in\tDOID:1838\tMenkes disease\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tPMID:9385451\n" +
+                "MGI:1856466\tAtp7a<Mo-ml>\tMGI:99400\tAtp7a\tgene\tNCBITaxon:10090\tMus musculus\tis_implicated_in\tDOID:1838\tMenkes disease\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tPMID:2288383\n" +
+                "MGI:1856466\tAtp7a<Mo-ml>\tMGI:99400\tAtp7a\tgene\tNCBITaxon:10090\tMus musculus\tis_implicated_in\tDOID:1838\tMenkes disease\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tPMID:7509170\n" +
+                "MGI:1856466\tAtp7a<Mo-ml>\tMGI:99400\tAtp7a\tgene\tNCBITaxon:10090\tMus musculus\tis_implicated_in\tDOID:1838\tMenkes disease\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tPMID:8434133\n" +
+                "MGI:1856466\tAtp7a<Mo-ml>\tMGI:99400\tAtp7a\tgene\tNCBITaxon:10090\tMus musculus\tis_implicated_in\tDOID:1838\tMenkes disease\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tPMID:2473662\n" +
+                "MGI:1856100\tAtp7a<Mo-ms>\tMGI:4940051\tAtp7a<sup>Mo-ms</sup>/? [background:] Not Specified\tgenotype\tNCBITaxon:10090\tMus musculus\tis_implicated_in\tDOID:1838\tMenkes disease\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tPMID:20831904\n" +
+                "MGI:1856100\tAtp7a<Mo-ms>\tMGI:4940051\tAtp7a<sup>Mo-ms</sup>/? [background:] Not Specified\tgenotype\tNCBITaxon:10090\tMus musculus\tis_implicated_in\tDOID:1838\tMenkes disease\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tPMID:22815746\n" +
+                "MGI:1856100\tAtp7a<Mo-ms>\tMGI:4940051\tAtp7a<sup>Mo-ms</sup>/? [background:] Not Specified\tgenotype\tNCBITaxon:10090\tMus musculus\tis_implicated_in\tDOID:1838\tMenkes disease\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tPMID:25247420\n" +
+                "MGI:3588774\tAtp7a<Mo-Tohm>\tMGI:3618244\tAtp7a<sup>Mo-Tohm</sup>/Atp7a<sup>+</sup> [background:] B6.Cg-Atp7a<sup>Mo-Tohm</sup>\tgenotype\tNCBITaxon:10090\tMus musculus\tis_implicated_in\tDOID:1838\tMenkes disease\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tPMID:16338116\n" +
+                "MGI:1856102\tAtp7a<Mo-vbr>\tMGI:3793729\tAtp7a<sup>Mo-vbr</sup>/? [background:] Not Specified\tgenotype\tNCBITaxon:10090\tMus musculus\tis_implicated_in\tDOID:1838\tMenkes disease\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tPMID:10098864\n" +
+                "MGI:1856096\tAtp7a<Mo>\tMGI:2175712\tAtp7a<sup>Mo</sup>/Atp7a<sup>+</sup> [background:] Not Specified\tgenotype\tNCBITaxon:10090\tMus musculus\tis_implicated_in\tDOID:1838\tMenkes disease\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tPMID:13103353\n" +
+                "MGI:2657016\tLox<tm1Ikh>\tMGI:2657020\tLox<sup>tm1Ikh</sup>/Lox<sup>tm1Ikh</sup> [background:] involves: 129X1/SvJ * C57BL/6J\tgenotype\tNCBITaxon:10090\tMus musculus\tis_implicated_in\tDOID:1838\tMenkes disease\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tPMID:12473682\n" +
+                "ZFIN:ZDB-ALT-090212-1\tgw71\tZFIN:ZDB-FISH-180905-22\tatp7a<sup>gw71/gw71</sup>\tfish\tNCBITaxon:7955\tDanio rerio\tis_implicated_in\tDOID:1838\tMenkes disease\tECO:0000304\tauthor statement supported by traceable reference used in manual assertion\tZFIN\tPMID:29507920\n");
+    }
+
 
     @SuppressWarnings("unchecked")
     public static void main(String[] args) {
         ConfigHelper.init();
 
-        //String str = translator.getAllRows(service.getDiseaseAnnotationsDownload("DOID:9351", Pagination.getDownloadPagination()));
+        //String str = translator.getAllRowsForGenes(service.getDiseaseAnnotationsDownload("DOID:9351", Pagination.getDownloadPagination()));
         Pagination pagination = new Pagination(1, 20, "gene", "true");
         pagination.addFieldFilter(FieldFilter.GENE_NAME, "l");
 //        System.out.println("Number of results " + response.getTotal());
@@ -543,7 +733,7 @@ public class DiseaseIT {
         pagination = new Pagination(1, Integer.MAX_VALUE, null, null);
         DiseaseAnnotationToTdfTranslator translator = new DiseaseAnnotationToTdfTranslator();
         DiseaseService diseaseService = new DiseaseService();
-        System.out.println(translator.getAllRows(diseaseService.getDiseaseAnnotationsByDisease("DOID:3594", pagination).getResults()));
+        System.out.println(translator.getAllRowsForGenes(diseaseService.getDiseaseAnnotationsByDisease("DOID:3594", pagination).getResults()));
 
     }
 

@@ -1,6 +1,7 @@
 package org.alliancegenome.neo4j.entity.node;
 
 import java.util.List;
+import java.util.Objects;
 
 import org.alliancegenome.neo4j.view.View;
 import org.neo4j.ogm.annotation.NodeEntity;
@@ -32,6 +33,19 @@ public class ECOTerm extends SimpleTerm implements Comparable<ECOTerm> {
     @Override
     public String toString() {
         return primaryKey + ":" + name;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ECOTerm ecoTerm = (ECOTerm) o;
+        return Objects.equals(primaryKey, ecoTerm.primaryKey);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(definition);
     }
 
     @Override
