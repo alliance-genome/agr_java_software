@@ -57,6 +57,8 @@ public class PublicationJoin extends Association {
                 Objects.equals(publication, that.publication)) {
             if (Objects.equals(ecoCode, that.ecoCode))
                 return true;
+            if (ecoCode == null || that.ecoCode == null)
+                return false;
             return ecoCode.containsAll(that.ecoCode) && that.ecoCode.containsAll(ecoCode);
 
         }

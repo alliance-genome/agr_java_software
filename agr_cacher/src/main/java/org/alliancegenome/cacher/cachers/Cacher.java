@@ -43,6 +43,7 @@ public abstract class Cacher extends Thread {
     }
 
     protected void startProcess(String message, int totalSize) {
+        display = new ProcessDisplayHelper();
         display.startProcess(message, totalSize);
     }
 

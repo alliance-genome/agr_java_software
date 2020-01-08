@@ -1,10 +1,10 @@
 package org.alliancegenome.es.util;
 
+import lombok.extern.log4j.Log4j2;
+
 import java.text.DecimalFormat;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
-
-import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 public class ProcessDisplayHelper {
@@ -32,7 +32,7 @@ public class ProcessDisplayHelper {
     public void progressProcess() {
         double percent = 0;
         if (totalSize > 0) {
-            percent = ((double) (totalSize - sizeCounter) / (double) totalSize);
+            percent = ((double) (sizeCounter) / totalSize);
         }
         Date now = new Date();
         long diff = now.getTime() - startTime.getTime();
@@ -43,7 +43,7 @@ public class ProcessDisplayHelper {
         checkMemory();
 
         int processedAmount = (sizeCounter - lastSizeCounter);
-        String message = "" + getBigNumber(totalSize - sizeCounter) + " records [" + getBigNumber(totalSize) + "] ";
+        String message = "" + getBigNumber(sizeCounter) + " records [" + getBigNumber(totalSize) + "] ";
         message += (int) (percent * 100) + "% took: " + (time / 1000) + "s to process " + processedAmount + " records at " + ((processedAmount * 1000) / time) + "r/s";
 
         if (percent > 0) {
