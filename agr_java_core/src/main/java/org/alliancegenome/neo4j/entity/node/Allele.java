@@ -1,16 +1,14 @@
 package org.alliancegenome.neo4j.entity.node;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import com.fasterxml.jackson.annotation.JsonView;
+import lombok.Getter;
+import lombok.Setter;
 import org.alliancegenome.neo4j.view.View;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 
-import com.fasterxml.jackson.annotation.JsonView;
-
-import lombok.Getter;
-import lombok.Setter;
+import java.util.ArrayList;
+import java.util.List;
 
 @NodeEntity(label = "Feature")
 @Getter
@@ -29,21 +27,22 @@ public class Allele extends GeneticEntity implements Comparable<Allele> {
     private String symbolText;
     private String symbolTextWithSpecies;
 
+    @JsonView({View.AlleleAPI.class})
     @Relationship(type = "IS_ALLELE_OF")
     private Gene gene;
 
-    @JsonView({View.GeneAllelesAPI.class, View.AlleleAPI.class})
+    @JsonView({View.GeneAllelesAPI.class})
     @Relationship(type = "IS_IMPLICATED_IN")
     private List<DOTerm> diseases = new ArrayList<>();
 
-    @JsonView({View.GeneAllelesAPI.class, View.AlleleAPI.class})
+    @JsonView({View.GeneAllelesAPI.class})
     @Relationship(type = "VARIATION", direction = Relationship.INCOMING)
     private List<Variant> variants = new ArrayList<>();
 
     @Relationship(type = "ASSOCIATION", direction = Relationship.UNDIRECTED)
     private List<DiseaseEntityJoin> diseaseEntityJoins = new ArrayList<>();
 
-    @JsonView({View.GeneAllelesAPI.class, View.AlleleAPI.class})
+    @JsonView({View.GeneAllelesAPI.class})
     @Relationship(type = "HAS_PHENOTYPE")
     private List<Phenotype> phenotypes = new ArrayList<>();
 
