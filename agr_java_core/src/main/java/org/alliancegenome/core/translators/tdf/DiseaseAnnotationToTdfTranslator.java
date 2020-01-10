@@ -9,7 +9,10 @@ import org.alliancegenome.neo4j.entity.node.GeneticEntity;
 import org.alliancegenome.neo4j.entity.node.PublicationJoin;
 import org.apache.commons.collections.CollectionUtils;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
+import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
 public class DiseaseAnnotationToTdfTranslator {
@@ -114,19 +117,7 @@ public class DiseaseAnnotationToTdfTranslator {
 
     public String getAllRowsForModel(List<DiseaseAnnotation> diseaseAnnotations) {
 
-        List<DiseaseDownloadRow> list = diseaseAnnotations.stream()
-                .map(annotation -> annotation.getPublicationJoins().stream()
-                        .map(join -> {
-                            DiseaseDownloadRow row = getBaseDownloadRow(annotation, join, null);
-                            row.setMainEntityID(annotation.getModel().getPrimaryKey());
-                            row.setMainEntitySymbol(annotation.getModel().getNameText());
-                            row.setSpeciesID(annotation.getModel().getSpecies().getPrimaryKey());
-                            row.setSpeciesName(annotation.getModel().getSpecies().getName());
-                            return row;
-                        })
-                        .collect(Collectors.toList()))
-                .flatMap(Collection::stream)
-                .collect(Collectors.toList());
+        List<DiseaseDownloadRow> list = getDiseaseModelDownloadRows(diseaseAnnotations);
 
         List<DownloadHeader> headers = List.of(
                 new DownloadHeader<>("Model ID", (DiseaseDownloadRow::getMainEntityID)),
@@ -142,6 +133,22 @@ public class DiseaseAnnotationToTdfTranslator {
         );
 
         return DownloadHeader.getDownloadOutput(list, headers);
+    }
+
+    public List<DiseaseDownloadRow> getDiseaseModelDownloadRows(List<DiseaseAnnotation> diseaseAnnotations) {
+        return diseaseAnnotations.stream()
+                .map(annotation -> annotation.getPublicationJoins().stream()
+                        .map(join -> {
+                            DiseaseDownloadRow row = getBaseDownloadRow(annotation, join, null);
+                            row.setMainEntityID(annotation.getModel().getPrimaryKey());
+                            row.setMainEntitySymbol(annotation.getModel().getNameText());
+                            row.setSpeciesID(annotation.getModel().getSpecies().getPrimaryKey());
+                            row.setSpeciesName(annotation.getModel().getSpecies().getName());
+                            return row;
+                        })
+                        .collect(Collectors.toList()))
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
     }
 
     public String getAllRowsForAllele(List<DiseaseAnnotation> diseaseAnnotations) {

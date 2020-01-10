@@ -572,6 +572,26 @@ public class DiseaseIT {
                 "ZFIN:ZDB-FISH-150901-6650\tatp7a<j246/j246>\tNCBITaxon:7955\tDanio rerio\tDOID:1838\tMenkes disease\tECO:0000304\tauthor statement supported by traceable reference used in manual assertion\tZFIN\tPMID:18316734\n" +
                 "ZFIN:ZDB-FISH-150901-17526\tatp7a<vu69/vu69>\tNCBITaxon:7955\tDanio rerio\tDOID:1838\tMenkes disease\tECO:0000304\tauthor statement supported by traceable reference used in manual assertion\tZFIN\tPMID:16890543\n" +
                 "ZFIN:ZDB-FISH-150901-27568\tatp7a<vu69/vu69>\tNCBITaxon:7955\tDanio rerio\tDOID:1838\tMenkes disease\tECO:0000304\tauthor statement supported by traceable reference used in manual assertion\tZFIN\tPMID:18316734\n");
+
+        diseaseID = "DOID:1324";
+
+        response = diseaseController.getDiseaseAnnotationsForModel(diseaseID,
+                50,
+                1,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null
+        );
+
+        int rowSize = translator.getDiseaseModelDownloadRows(response.getResults()).size();
+        assertNotNull(response);
+        assertThat(rowSize, greaterThan(response.getTotal()));
     }
 
     @Test
