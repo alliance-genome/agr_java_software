@@ -19,8 +19,6 @@ public class DiseaseAnnotationToTdfTranslator {
 
     public String getAllRowsForGenes(List<DiseaseAnnotation> diseaseAnnotations) {
 
-        denormalizeAnnotations(diseaseAnnotations);
-
         // convert collection of DiseaseAnnotation records to DiseaseDownloadRow records
         List<DiseaseDownloadRow> list = getDownloadRowsFromAnnotations(diseaseAnnotations);
 
@@ -46,7 +44,8 @@ public class DiseaseAnnotationToTdfTranslator {
         return DownloadHeader.getDownloadOutput(list, headers);
     }
 
-    private List<DiseaseDownloadRow> getDownloadRowsFromAnnotations(List<DiseaseAnnotation> diseaseAnnotations) {
+    public List<DiseaseDownloadRow> getDownloadRowsFromAnnotations(List<DiseaseAnnotation> diseaseAnnotations) {
+        denormalizeAnnotations(diseaseAnnotations);
         return diseaseAnnotations.stream()
                 .map(annotation -> annotation.getPrimaryAnnotatedEntities().stream()
                         .map(entity -> entity.getPublicationEvidenceCodes().stream()

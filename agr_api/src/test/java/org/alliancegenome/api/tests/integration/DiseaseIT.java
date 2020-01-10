@@ -641,6 +641,25 @@ public class DiseaseIT {
                 "MGI:99400\tAtp7a\tMGI:99400\tAtp7a\tgene\tNCBITaxon:10090\tMus musculus\timplicated_via_orthology\tDOID:1838\tMenkes disease\tECO:0000501\tevidence used in automatic assertion\tHGNC:869\tATP7A\tAlliance\tMGI:6194238\n" +
                 "MGI:99400\tAtp7a\tMGI:99400\tAtp7a\tgene\tNCBITaxon:10090\tMus musculus\timplicated_via_orthology\tDOID:1838\tMenkes disease\tECO:0000501\tevidence used in automatic assertion\tSGD:S000002678\tCCC2\tAlliance\tMGI:6194238\n" +
                 "MGI:99400\tAtp7a\tMGI:99400\tAtp7a\tgene\tNCBITaxon:10090\tMus musculus\timplicated_via_orthology\tDOID:1838\tMenkes disease\tECO:0000501\tevidence used in automatic assertion\tWB:WBGene00000834\tcua-1\tAlliance\tMGI:6194238\n");
+
+        diseaseID = "DOID:1324";
+
+        response = diseaseController.getDiseaseAnnotationsByGene(diseaseID,
+                1500,
+                1,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null
+        );
+        int rowSize = translator.getDownloadRowsFromAnnotations(response.getResults()).size();
+        assertNotNull(response);
+        assertThat(rowSize, greaterThan(response.getTotal()));
     }
 
     @Test
