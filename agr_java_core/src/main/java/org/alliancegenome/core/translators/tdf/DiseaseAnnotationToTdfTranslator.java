@@ -160,9 +160,11 @@ public class DiseaseAnnotationToTdfTranslator {
                                     DiseaseDownloadRow row = getBaseDownloadRow(annotation, join, null);
                                     row.setMainEntityID(annotation.getFeature().getPrimaryKey());
                                     row.setMainEntitySymbol(annotation.getFeature().getSymbolText());
-                                    row.setGeneticEntityID(entity.getId());
-                                    row.setGeneticEntityName(entity.getName());
-                                    row.setGeneticEntityType(entity.getType().getDisplayName());
+                                    if (!entity.getType().equals(GeneticEntity.CrossReferenceType.GENE)) {
+                                        row.setGeneticEntityID(entity.getId());
+                                        row.setGeneticEntityName(entity.getName());
+                                        row.setGeneticEntityType(entity.getType().getDisplayName());
+                                    }
                                     row.setSpeciesID(annotation.getGene().getSpecies().getPrimaryKey());
                                     row.setSpeciesName(annotation.getGene().getSpecies().getName());
                                     return row;
@@ -354,48 +356,4 @@ public class DiseaseAnnotationToTdfTranslator {
         return builder.toString();
     }
 
-    public String getDiseaseViaOrthologyByGene(List<DiseaseAnnotation> diseaseAnnotations) {
-        StringBuilder builder = new StringBuilder();
-        StringJoiner headerJoiner = new StringJoiner("\t");
-        headerJoiner.add("Disease");
-        headerJoiner.add("Association");
-        headerJoiner.add("Ortholog Gene ID");
-        headerJoiner.add("Ortholog Gene Symbol");
-        headerJoiner.add("Ortholog Species");
-        headerJoiner.add("Evidence Code");
-        headerJoiner.add("Source");
-        headerJoiner.add("References");
-        builder.append(headerJoiner.toString());
-        builder.append(System.getProperty("line.separator"));
-
-        diseaseAnnotations.forEach(diseaseAnnotation -> {
-            StringJoiner joiner = new StringJoiner("\t");
-            joiner.add(diseaseAnnotation.getDisease().getName());
-            joiner.add(diseaseAnnotation.getAssociationType());
-            joiner.add(diseaseAnnotation.getOrthologyGene().getPrimaryKey());
-            joiner.add(diseaseAnnotation.getOrthologyGene().getSymbol());
-            joiner.add(diseaseAnnotation.getOrthologyGene().getSpecies().getName());
-
-            // evidence code list
-            StringJoiner evidenceJoiner = new StringJoiner(",");
-            Set<String> evidenceCodes = diseaseAnnotation.getEcoCodes()
-                    .stream()
-                    .map(ECOTerm::getPrimaryKey)
-                    .collect(Collectors.toSet());
-
-            evidenceCodes.forEach(evidenceJoiner::add);
-            joiner.add(evidenceJoiner.toString());
-            joiner.add("Alliance");
-            //joiner.add(diseaseAnnotation.getSource().getName());
-
-            // publications list
-            StringJoiner pubJoiner = new StringJoiner(",");
-            diseaseAnnotation.getPublications().forEach(publication -> pubJoiner.add(publication.getPubId()));
-            joiner.add(pubJoiner.toString());
-            builder.append(joiner.toString());
-            builder.append(System.getProperty("line.separator"));
-        });
-
-        return builder.toString();
-    }
 }
