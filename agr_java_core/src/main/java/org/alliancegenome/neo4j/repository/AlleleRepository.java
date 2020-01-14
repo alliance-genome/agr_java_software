@@ -1,6 +1,7 @@
 package org.alliancegenome.neo4j.repository;
 
 import org.alliancegenome.neo4j.entity.node.Allele;
+import org.alliancegenome.neo4j.entity.node.Variant;
 import org.neo4j.ogm.model.Result;
 
 import java.util.*;
@@ -68,5 +69,23 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
         Iterable<Allele> alleles = query(query, map);
         return StreamSupport.stream(alleles.spliterator(), false)
                 .collect(Collectors.toSet());
+    }
+
+    public List<Variant> getVariants(String id) {
+        HashMap<String, String> map = new HashMap<>();
+        String paramName = "alleleID";
+        map.put(paramName, id);
+        String query = "";
+        query += " MATCH p1=(a:Allele)<-[:VARIATION]-(variant:Variant)--(soTerm:SOTerm) ";
+        query += " WHERE a.primaryKey = {" + paramName + "}";
+        query += " OPTIONAL MATCH consequence=(:GeneLevelConsequence)<-[:ASSOCATION]-(variant:Variant)";
+        query += " OPTIONAL MATCH loc=(variant:Variant)-[:ASSOCIATION]->(:GenomicLocation)-[:ASSOCIATION]->(:Chromosome)";
+        query += " RETURN p1, loc, consequence ";
+
+        Iterable<Variant> alleles = query(Variant.class, query, map);
+        return StreamSupport.stream(alleles.spliterator(), false)
+                .collect(Collectors.toList());
+
+
     }
 }

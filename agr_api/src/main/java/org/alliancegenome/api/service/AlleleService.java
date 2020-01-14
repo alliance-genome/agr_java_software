@@ -1,13 +1,16 @@
 package org.alliancegenome.api.service;
 
-import javax.enterprise.context.RequestScoped;
-
 import org.alliancegenome.cache.repository.AlleleCacheRepository;
 import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.entity.node.Allele;
+import org.alliancegenome.neo4j.entity.node.Variant;
 import org.alliancegenome.neo4j.repository.AlleleRepository;
+
+import javax.enterprise.context.RequestScoped;
+import java.time.LocalDateTime;
+import java.util.List;
 
 @RequestScoped
 public class AlleleService {
@@ -29,4 +32,17 @@ public class AlleleService {
     }
 
 
+    public JsonResultResponse<Variant> getVariants(String id, Pagination pagination) {
+        LocalDateTime startDate = LocalDateTime.now();
+
+        List<Variant> variants = alleleRepo.getVariants(id);
+
+        JsonResultResponse<Variant> result = new JsonResultResponse<>();
+
+        FilterService<Variant> filterService = new FilterService<>(null);
+        result.setTotal(variants.size());
+        result.setResults(filterService.getPaginatedAnnotations(pagination, variants));
+        result.calculateRequestDuration(startDate);
+        return result;
+    }
 }

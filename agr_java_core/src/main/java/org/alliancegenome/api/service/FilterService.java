@@ -62,5 +62,13 @@ public class FilterService<T> {
                 .limit(pagination.getLimit())
                 .collect(Collectors.toList());
     }
+
+    public List<T> getPaginatedAnnotations(Pagination pagination, List<T> list) {
+        // paginating
+        return list.stream()
+                .skip(pagination.getStart())
+                .limit(pagination.getLimit())
+                .collect(Collectors.toList());
+    }
 }
 

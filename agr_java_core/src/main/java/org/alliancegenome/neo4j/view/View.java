@@ -29,5 +29,5 @@ public class View {
     public static class DiseaseAPI extends API { }
     public static class GeneAllelesAPI extends API { }
     public static class AlleleAPI extends API { }
-
+    public static class VariantAPI extends API {    }
 }
