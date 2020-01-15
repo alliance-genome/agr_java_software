@@ -283,6 +283,7 @@ public class GenePhenotypeCacher extends Cacher {
 
         BasicCachingManager managerModel = new BasicCachingManager();
 
+        startProcess("phenotypeAnnotationPureMap", phenotypeAnnotationPureMap.size());
         phenotypeAnnotationPureMap.forEach((geneID, value) -> {
             if (geneID.equals("MGI:104798")) {
                 log.info("found gene: " + geneID + " with annotations: " + value.size());
@@ -290,7 +291,7 @@ public class GenePhenotypeCacher extends Cacher {
             managerModel.setCache(geneID, value, View.PrimaryAnnotation.class, CacheAlliance.GENE_PURE_AGM_PHENOTYPE);
             progressProcess();
         });
-
+        finishProcess();
         phenotypeRepository.clearCache();
     }
 

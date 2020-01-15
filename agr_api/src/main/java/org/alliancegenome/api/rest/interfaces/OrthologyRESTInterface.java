@@ -58,19 +58,12 @@ public interface OrthologyRESTInterface {
     @GET
     @Path("/species")
     @JsonView(value = {View.Orthology.class})
-    @ApiOperation(value = "Retrieve homologous gene records for given list of species")
     JsonResultResponse<OrthologView> getMultiSpeciesOrthology(
-            @ApiParam(name = "taxonID", value = "List of taxon IDs for which homology is retrieved, e.g. 'NCBITaxon:10090'")
             @QueryParam("taxonID") List<String> taxonID,
-            @ApiParam(name = "taxonIdList", value = "List of source taxon IDs for which homology is retrieved in a comma-delimited list, e.g. 'MGI:109583,RGD:2129,MGI:97570")
             @QueryParam("taxonIdList") String taxonIdList,
-            @ApiParam(value = "Select a stringency containsFilterValue", allowableValues = "stringent, moderate, all", defaultValue = "stringent")
             @QueryParam("stringencyFilter") String stringencyFilter,
-            @ApiParam(value = "Select a calculation method", allowableValues = "Ensembl Compara, HGNC, Hieranoid, InParanoid, OMA, OrthoFinder, OrthoInspector, PANTHER, PhylomeDB, Roundup, TreeFam, ZFIN")
             @QueryParam("methods") String methods,
-            @ApiParam(value = "Number of returned rows")
             @DefaultValue("20") @QueryParam("rows") Integer rows,
-            @ApiParam(value = "Starting row")
             @DefaultValue("1") @QueryParam("start") Integer start) throws IOException;
 
     @GET

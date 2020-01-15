@@ -20,6 +20,7 @@ public class IndexerCache {
     protected Map<String, Set<String>> genes = new HashMap<>();
     protected Map<String, Set<String>> models = new HashMap<>();
     protected Map<String, Set<String>> phenotypeStatements = new HashMap<>();
+    protected Map<String, Set<String>> relatedVariants = new HashMap<>();
 
     protected void addCachedFields(SearchableItemDocument document) {
         String id = document.getPrimaryKey();
@@ -31,7 +32,7 @@ public class IndexerCache {
         document.setGenes(genes.get(id));
         document.setModels(models.get(id));
         document.setPhenotypeStatements(phenotypeStatements.get(id));
-
+        document.setRelatedVariants(relatedVariants.get(id));
     }
 
 }

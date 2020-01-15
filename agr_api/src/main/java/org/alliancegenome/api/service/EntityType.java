@@ -9,5 +9,5 @@ public enum EntityType {
     INTERACTION,
     DISEASE,
     ORTHOLOGY,
-    MODEL
+    VARIANT, MODEL
 }

@@ -79,7 +79,7 @@ public class ExpressionCacher extends Cacher {
                     if (expressionJoin.getStageTerm() != null) {
                         String stageID = expressionJoin.getStageTerm().getPrimaryKey();
                         detail.addTermID(stageID);
-                        detail.addTermIDs(getParentTermIDs(Collections.singletonList(stageID)));
+                        detail.addTermIDs(getParentTermIDs(List.of(stageID)));
                     }
                     progressProcess();
                     return detail;

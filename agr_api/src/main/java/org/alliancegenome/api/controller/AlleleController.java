@@ -1,15 +1,25 @@
 package org.alliancegenome.api.controller;
 
+import lombok.extern.log4j.Log4j2;
+import org.alliancegenome.api.rest.interfaces.AlleleRESTInterface;
+import org.alliancegenome.api.service.APIService;
+import org.alliancegenome.api.service.AlleleService;
+import org.alliancegenome.api.service.EntityType;
+import org.alliancegenome.core.exceptions.RestErrorException;
+import org.alliancegenome.core.exceptions.RestErrorMessage;
+import org.alliancegenome.core.service.JsonResultResponse;
+import org.alliancegenome.core.translators.tdf.AlleleToTdfTranslator;
+import org.alliancegenome.es.model.query.FieldFilter;
+import org.alliancegenome.es.model.query.Pagination;
+import org.alliancegenome.neo4j.entity.node.Allele;
+import org.alliancegenome.neo4j.entity.node.Variant;
+
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.Response;
 
-import org.alliancegenome.api.rest.interfaces.AlleleRESTInterface;
-import org.alliancegenome.api.service.AlleleService;
-import org.alliancegenome.core.service.JsonResultResponse;
-import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.neo4j.entity.node.Allele;
-
+@Log4j2
 @RequestScoped
 public class AlleleController implements AlleleRESTInterface {
 
@@ -19,9 +29,57 @@ public class AlleleController implements AlleleRESTInterface {
     @Inject
     private HttpServletRequest request;
 
+    private AlleleToTdfTranslator translator = new AlleleToTdfTranslator();
+
     @Override
     public Allele getAllele(String id) {
         return alleleService.getById(id);
+    }
+
+    @Override
+    public JsonResultResponse<Variant> getVariantsPerAllele(String id,
+                                                            int limit,
+                                                            int page,
+                                                            String sortBy,
+                                                            String variantType,
+                                                            String consequence) {
+        long startTime = System.currentTimeMillis();
+        Pagination pagination = new Pagination(page, limit, sortBy, null);
+        pagination.addFieldFilter(FieldFilter.VARIANT_TYPE, variantType);
+        pagination.addFieldFilter(FieldFilter.VARIANT_CONSEQUENCE, consequence);
+        if (pagination.hasErrors()) {
+            RestErrorMessage message = new RestErrorMessage();
+            message.setErrors(pagination.getErrors());
+            throw new RestErrorException(message);
+        }
+
+        try {
+            JsonResultResponse<Variant> alleles = alleleService.getVariants(id, pagination);
+            alleles.setHttpServletRequest(request);
+            alleles.calculateRequestDuration(startTime);
+            return alleles;
+        } catch (Exception e) {
+            log.error("Error while retrieving variant info", e);
+            RestErrorMessage error = new RestErrorMessage();
+            error.addErrorMessage(e.getMessage());
+            throw new RestErrorException(error);
+        }
+    }
+
+    @Override
+    public Response getVariantsPerAlleleDownload(String id,
+                                                 String sortBy,
+                                                 String variantType,
+                                                 String consequence) {
+        JsonResultResponse<Variant> response = getVariantsPerAllele(id,
+                Integer.MAX_VALUE,
+                1,
+                sortBy,
+                variantType,
+                consequence);
+        Response.ResponseBuilder responseBuilder = Response.ok(translator.getAllVariantsRows(response.getResults()));
+        APIService.setDownloadHeader(id, EntityType.ALLELE, EntityType.VARIANT, responseBuilder);
+        return responseBuilder.build();
     }
 
     @Override

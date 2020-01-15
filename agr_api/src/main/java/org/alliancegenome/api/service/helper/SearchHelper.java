@@ -159,6 +159,9 @@ public class SearchHelper {
             add("molecularFunctionWithParents");
             add("phenotypeStatements");
             add("primaryKey");
+            add("relatedVariants");
+            add("relatedVariants.keyword");
+            add("relatedVariants.standardText");
             add("symbol");
             add("symbol.autocomplete");
             add("symbol.keyword");

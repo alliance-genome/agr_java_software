@@ -1,12 +1,13 @@
 package org.alliancegenome.core.translators.tdf;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.StringJoiner;
-
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.SimpleTerm;
+import org.alliancegenome.neo4j.entity.node.Variant;
+
+import java.util.Comparator;
+import java.util.List;
+import java.util.StringJoiner;
 
 public class AlleleToTdfTranslator {
 
@@ -42,6 +43,34 @@ public class AlleleToTdfTranslator {
                 disease = diseaseJoiner.toString();
             }
             joiner.add(disease);
+            builder.append(joiner.toString());
+            builder.append(ConfigHelper.getJavaLineSeparator());
+        });
+
+        return builder.toString();
+
+    }
+
+    public String getAllVariantsRows(List<Variant> variants) {
+        StringBuilder builder = new StringBuilder();
+        StringJoiner headerJoiner = new StringJoiner("\t");
+        headerJoiner.add("Variant");
+        headerJoiner.add("Variant Type");
+        headerJoiner.add("Chromosome:Position");
+        headerJoiner.add("Nucleotide Change");
+        headerJoiner.add("Most severe Consequence");
+        builder.append(headerJoiner.toString());
+        builder.append(ConfigHelper.getJavaLineSeparator());
+
+        variants.forEach(variant -> {
+            StringJoiner joiner = new StringJoiner("\t");
+            joiner.add(variant.getName());
+//            joiner.add(variant.getPrimaryKey());
+            // add list of synonyms
+            joiner.add(variant.getType().getName());
+            joiner.add(variant.getLocation().getChromosomeAndPosition());
+            joiner.add(variant.getNucleotideChange());
+            joiner.add(variant.getConsequence());
             builder.append(joiner.toString());
             builder.append(ConfigHelper.getJavaLineSeparator());
         });

@@ -81,8 +81,14 @@ class QueryMatchIntegrationSpec extends Specification {
         "AGR-865"  | "RGD:12879860"            | "Tg<sup>rdw</sup>"
         "AGR-865"  | "MGI:5502315"             | "Rradtm1.1(KOMP)Vlcg"
         "AGR-865"  | "FB:FBal0151567"          | "rut[EP399]"
-
         "AGR-508"  | "FB:FBal0036007"          | "en11"
+
+        //variant hgvs names for alleles
+        "AGR-1899" | "MGI:5316784"               | "NC_000083.6:g.75273979T>A"
+        "AGR-1899" | "ZFIN:ZDB-ALT-161003-18649" | "NC_007116.7:g.23258951T>A"
+        "AGR-1899" | "RGD:13209000"              | "NC_005118.4:g.55252024_55252027del"
+        "AGR-1899" | "FB:FBal0000019"            | "NT_033777.3:g.7087759G>A"
+
 
         //diseasesViaExperiment found by allele and gene names
         "AGR-866"  | "DOID:11726"              | "tm1502"

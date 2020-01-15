@@ -11,6 +11,7 @@ import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.GeneticEntity;
+import org.alliancegenome.neo4j.entity.node.Variant;
 import org.alliancegenome.neo4j.view.BaseFilter;
 import org.alliancegenome.neo4j.view.OrthologyModule;
 import org.apache.commons.collections.CollectionUtils;
@@ -147,6 +148,13 @@ public class AlleleIT {
         JsonResultResponse<Allele> response = alleleService.getAllelesByGene("ZFIN:ZDB-GENE-040426-1716", pagination);
         List<Allele> term = response.getResults().stream().filter(allele -> allele.getDiseases() != null).collect(Collectors.toList());
         assertThat(term.size(), greaterThanOrEqualTo(1));
+    }
+
+    @Test
+    public void getVariantsPerAllele() {
+        Pagination pagination = new Pagination();
+        JsonResultResponse<Variant> response = alleleService.getVariants("ZFIN:ZDB-ALT-161003-18461", pagination);
+        assertThat(response.getTotal(), greaterThanOrEqualTo(1));
     }
 
     private void assertResponse(JsonResultResponse<Allele> response, int resultSize, int totalSize) {

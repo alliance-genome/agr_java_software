@@ -17,7 +17,7 @@
   </modules>
 
     <properties>
-        <revision>0-SNAPSHOT</revision>
+        <revision>3.0.0-SNAPSHOT</revision>
     </properties>
 
     <repositories>
@@ -34,8 +34,8 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
                     <configuration>
-                        <source>1.8</source>
-                        <target>1.8</target>
+                        <source>11</source>
+                        <target>11</target>
                     </configuration>
                 </plugin>
             </plugins>

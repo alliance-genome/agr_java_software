@@ -33,8 +33,8 @@ class QueryManipulationUnitSpec extends Specification {
         "__primaryKey:DOID:10314"             | "primaryKey:DOID\\:10314"
         "si:ch211-133d24.26p"                 | "si\\:ch211-133d24.26p"
         "en::ftz::Mmus\\En1"                  | "en\\:\\:ftz\\:\\:Mmus\\En1"
-        "Foxn1<sup>nu-StL</sup> (Mmu)"        | "Foxn1\\<sup\\>nu-StL\\<\\/sup\\> \\(Mmu\\)"
-        "Gt(ROSA)26Sor<sup>tm1(Pik3ca*H1047R)Egan</sup> (Mmu)" | "Gt\\(ROSA\\)26Sor\\<sup\\>tm1\\(Pik3ca*H1047R\\)Egan\\<\\/sup\\> \\(Mmu\\)"
+        "Foxn1<sup>nu-StL</sup> (Mmu)"        | "Foxn1<sup>nu-StL<\\/sup> \\(Mmu\\)"
+        "Gt(ROSA)26Sor<sup>tm1(Pik3ca*H1047R)Egan</sup> (Mmu)" | "Gt\\(ROSA\\)26Sor<sup>tm1\\(Pik3ca*H1047R\\)Egan<\\/sup> \\(Mmu\\)"
         "rut[EP399] (Dme)"                    | "rut\\[EP399\\] \\(Dme\\)"
     }
 
