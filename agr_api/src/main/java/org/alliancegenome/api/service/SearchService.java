@@ -110,6 +110,7 @@ public class SearchService {
         for (String token : tokens) {
             MultiMatchQueryBuilder mmq = multiMatchQuery(token);
             searchHelper.getSearchFields().stream().forEach(mmq::field);
+            mmq.analyzer("keyword");
             mmq.fields(searchHelper.getBoostMap());
             mmq.queryName(token);
             functionList.add(new FunctionScoreQueryBuilder.FilterFunctionBuilder(mmq, ScoreFunctionBuilders.weightFactorFunction(10.0F)));

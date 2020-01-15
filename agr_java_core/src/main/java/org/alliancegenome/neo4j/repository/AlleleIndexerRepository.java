@@ -63,6 +63,9 @@ public class AlleleIndexerRepository extends Neo4jRepository {
         log.info("Building allele -> phenotype statements map");
         alleleDocumentCache.setPhenotypeStatements(getPhenotypeStatementsMap(species));
 
+        log.info("Building allele -> variant name map");
+        alleleDocumentCache.setRelatedVariants(getRelatedVariants(species));
+
         log.info("Building allele -> variant types map");
         alleleDocumentCache.setVariantTypesMap(getVariantTypesMap(species));
 
@@ -128,6 +131,14 @@ public class AlleleIndexerRepository extends Neo4jRepository {
         query += " RETURN distinct a.primaryKey, phenotype.phenotypeStatement ";
 
         return getMapSetForQuery(query, "a.primaryKey", "phenotype.phenotypeStatement", getSpeciesParams(species));
+    }
+
+    public Map<String, Set<String>> getRelatedVariants(String species) {
+        String query = "MATCH (species:Species)--(:Gene)-[:IS_ALLELE_OF]-(a:Allele)--(v:Variant) ";
+        query += getSpeciesWhere(species);
+        query += " RETURN distinct a.primaryKey as id, v.hgvsNomenclature as value";
+
+        return getMapSetForQuery(query, getSpeciesParams(species));
     }
 
     public Map<String, Set<String>> getVariantTypesMap(String species) {
