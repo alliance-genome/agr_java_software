@@ -73,6 +73,7 @@ public class SearchableItemDocument extends ESDocument {
     Set<String> molecularFunctionWithParents = new HashSet<>();
     Set<String> parentDiseaseNames = new HashSet<>();
     Set<String> phenotypeStatements = new HashSet<>();
+    Set<String> relatedVariants = new HashSet<>();
     Set<String> secondaryIds = new HashSet<>();
     Set<String> strictOrthologySymbols = new HashSet<>();
     Set<String> soTermNameWithParents = new HashSet<>();
