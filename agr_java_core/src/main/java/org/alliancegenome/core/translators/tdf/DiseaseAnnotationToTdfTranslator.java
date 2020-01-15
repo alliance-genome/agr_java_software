@@ -71,7 +71,7 @@ public class DiseaseAnnotationToTdfTranslator {
         row.setMainEntityID(annotation.getGene().getPrimaryKey());
         row.setMainEntitySymbol(annotation.getGene().getSymbol());
         row.setGeneticEntityID(entity.getId());
-        row.setGeneticEntityName(entity.getName());
+        row.setGeneticEntityName(entity.getDisplayName());
         row.setGeneticEntityType(entity.getType().getDisplayName());
         row.setSpeciesID(annotation.getGene().getSpecies().getPrimaryKey());
         row.setSpeciesName(annotation.getGene().getSpecies().getName());
@@ -162,7 +162,7 @@ public class DiseaseAnnotationToTdfTranslator {
                                     row.setMainEntitySymbol(annotation.getFeature().getSymbolText());
                                     if (!entity.getType().equals(GeneticEntity.CrossReferenceType.GENE)) {
                                         row.setGeneticEntityID(entity.getId());
-                                        row.setGeneticEntityName(entity.getName());
+                                        row.setGeneticEntityName(entity.getDisplayName());
                                         row.setGeneticEntityType(entity.getType().getDisplayName());
                                     }
                                     row.setSpeciesID(annotation.getGene().getSpecies().getPrimaryKey());
