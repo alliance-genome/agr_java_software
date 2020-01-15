@@ -303,8 +303,8 @@ public class DiseaseAnnotationToTdfTranslator {
                         .map(entity -> entity.getPublicationEvidenceCodes().stream()
                                 .map(join -> {
                                     DiseaseDownloadRow row = getBaseDownloadRow(annotation, join, null);
-                                    row.setMainEntityID(annotation.getFeature().getPrimaryKey());
-                                    row.setMainEntitySymbol(annotation.getFeature().getSymbolText());
+                                    row.setMainEntityID(annotation.getGene().getPrimaryKey());
+                                    row.setMainEntitySymbol(annotation.getGene().getSymbolText());
                                     row.setGeneticEntityID(entity.getId());
                                     row.setGeneticEntityName(entity.getName());
                                     row.setGeneticEntityType(entity.getType().getDisplayName());
