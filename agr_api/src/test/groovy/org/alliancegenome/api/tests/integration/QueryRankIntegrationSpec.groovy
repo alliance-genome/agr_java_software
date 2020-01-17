@@ -1,9 +1,11 @@
 package org.alliancegenome.api
 
+import org.alliancegenome.api.tests.integration.ApiTester
 import spock.lang.Ignore
+import spock.lang.Specification
 import spock.lang.Unroll
 
-class QueryRankIntegrationSpec extends AbstractSpec {
+class QueryRankIntegrationSpec extends Specification {
 
     @Unroll
     @Ignore
@@ -11,7 +13,7 @@ class QueryRankIntegrationSpec extends AbstractSpec {
         when:
         def encodedQuery = URLEncoder.encode(query, "UTF-8")
         //todo: need to set the base search url in a nicer way
-        def results = getApiResults("/api/search?limit=5000&offset=0&q=$encodedQuery$filter")
+        def results = ApiTester.getApiResults("/api/search?limit=5000&offset=0&q=$encodedQuery$filter")
 
         def betterResult = results.find { it.id == betterResultId }
         def worseResult = results.find { it.id == worseResultId }
@@ -39,7 +41,7 @@ class QueryRankIntegrationSpec extends AbstractSpec {
         when:
         def encodedQuery = URLEncoder.encode(query, "UTF-8")
         //todo: need to set the base search url in a nicer way
-        def results = getApiResults("/api/search?category=gene&limit=50&offset=0&q=$encodedQuery")
+        def results = ApiTester.getApiResults("/api/search?category=gene&limit=50&offset=0&q=$encodedQuery")
         def firstResultSymbol = results.first().get("symbol").toLowerCase()
 
         then:
@@ -57,10 +59,10 @@ class QueryRankIntegrationSpec extends AbstractSpec {
         when:
         def encodedQuery = URLEncoder.encode(query, "UTF-8")
         //todo: need to set the base search url in a nicer way
-        def results = getApiResults("/api/search?category=gene&limit=50&offset=0&q=$encodedQuery")
+        def results = ApiTester.getApiResults("/api/search?category=gene&limit=50&offset=0&q=$encodedQuery")
         def names = (results.take(n)*.symbol)*.toLowerCase()
 
-        def results2 = getApiResults("/api/search_autocomplete?q=$encodedQuery")
+        def results2 = ApiTester.getApiResults("/api/search_autocomplete?q=$encodedQuery")
         def autoCompleteNames = (results2.take(n)*.symbol)*.toLowerCase()
 
         then:
@@ -81,7 +83,7 @@ class QueryRankIntegrationSpec extends AbstractSpec {
         when:
         def encodedQuery = URLEncoder.encode(query, "UTF-8")
         //todo: need to set the base search url in a nicer way
-        def results = getApiResults("/api/search?category=gene&limit=50&offset=0&q=$encodedQuery")
+        def results = ApiTester.getApiResults("/api/search?category=gene&limit=50&offset=0&q=$encodedQuery")
 
         def resultIds = results*.id
 
@@ -107,7 +109,7 @@ class QueryRankIntegrationSpec extends AbstractSpec {
         when:
         def encodedQuery = URLEncoder.encode(query, "UTF-8")
         //todo: need to set the base search url in a nicer way
-        def results = getApiResults("/api/search?limit=50&offset=0&q=$encodedQuery")
+        def results = ApiTester.getApiResults("/api/search?limit=50&offset=0&q=$encodedQuery")
 
         def firstResultNameKey = results.first().get("name_key")
 

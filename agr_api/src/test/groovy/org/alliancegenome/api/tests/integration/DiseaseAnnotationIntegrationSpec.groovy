@@ -1,16 +1,18 @@
 package org.alliancegenome.api
 
+import org.alliancegenome.api.tests.integration.ApiTester
 import spock.lang.Ignore
+import spock.lang.Specification
 import spock.lang.Unroll
 
-class DiseaseAnnotationIntegrationSpec extends AbstractSpec {
+class DiseaseAnnotationIntegrationSpec extends Specification {
 
     @Unroll
     def "Disease page: allele section sort by allele for #query"() {
         when:
         def doiID = URLEncoder.encode(query, "UTF-8")
         //todo: need to set the base search url in a nicer way
-        def results = getApiResults("/api/disease/$doiID/alleles?sortBy=allele")
+        def results = ApiTester.getApiResults("/api/disease/$doiID/alleles?sortBy=allele")
         def alleleNames = results.allele.symbolText
         def alleleNamesSorted = alleleNames.clone().sort { a, b -> a.compareToIgnoreCase b }
 
@@ -32,7 +34,7 @@ class DiseaseAnnotationIntegrationSpec extends AbstractSpec {
         when:
         def doiID = URLEncoder.encode(query, "UTF-8")
         //todo: need to set the base search url in a nicer way
-        def results = getApiResults("/api/disease/$doiID/alleles?sortBy=disease&limit=100")
+        def results = ApiTester.getApiResults("/api/disease/$doiID/alleles?sortBy=disease&limit=100")
         def diseaseNames = results.disease.name
         def diseaseNamesSorted = diseaseNames.clone().sort { a, b -> a.compareToIgnoreCase b }
 
@@ -53,7 +55,7 @@ class DiseaseAnnotationIntegrationSpec extends AbstractSpec {
         when:
         def encodedQuery = URLEncoder.encode(query, "UTF-8")
         //todo: need to set the base search url in a nicer way
-        def disease = getApiResult("/api/disease/$encodedQuery")
+        def disease = ApiTester.getApiResult("/api/disease/$encodedQuery")
 
         then:
         disease //should be some results

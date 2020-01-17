@@ -1,14 +1,16 @@
 package org.alliancegenome.api
 
+import org.alliancegenome.api.tests.integration.ApiTester
+import spock.lang.Specification
 import spock.lang.Unroll
 
-class AutocompleteIntegrationSpec extends AbstractSpec {
+class AutocompleteIntegrationSpec extends Specification {
 
     @Unroll
     def "an autocomplete query for #query should return results that start with #query"() {
         when:
         //todo: need to set the base search url in a nicer way
-        def results = getApiResults("/api/search_autocomplete?q=$query")
+        def results = ApiTester.getApiResults("/api/search_autocomplete?q=$query")
         def firstResult = results.first()
 
         then:
@@ -26,7 +28,7 @@ class AutocompleteIntegrationSpec extends AbstractSpec {
         when:
         def query = "f"
         //todo: need to set the base search url in a nicer way
-        def results = getApiResults("/api/search_autocomplete?q=$query&category=$category")
+        def results = ApiTester.getApiResults("/api/search_autocomplete?q=$query&category=$category")
 
         def categories = results*.category.unique()
 
@@ -45,7 +47,7 @@ class AutocompleteIntegrationSpec extends AbstractSpec {
     def "an autocomplete for #query should return #category results first"() {
         when:
         //todo: need to set the base search url in a nicer way
-        def results = getApiResults("/api/search_autocomplete?q=$query")
+        def results = ApiTester.getApiResults("/api/search_autocomplete?q=$query")
 
         then:
         results

@@ -1,14 +1,16 @@
 package org.alliancegenome.api
 
+import org.alliancegenome.api.tests.integration.ApiTester
+import spock.lang.Specification
 import spock.lang.Unroll
 
-class InteractionIntegrationSpec extends AbstractSpec {
+class InteractionIntegrationSpec extends Specification {
 
     @Unroll
     def "Gene page - Sort Interaction by geneB symbol for #geneId"() {
         when:
         def encodedGeneID = URLEncoder.encode(geneId, "UTF-8")
-        def result = getApiResult("/api/gene/$encodedGeneID/interactions?sortBy=InteractorGeneSymbol")
+        def result = ApiTester.getApiResult("/api/gene/$encodedGeneID/interactions?sortBy=InteractorGeneSymbol")
 
         then:
         result
@@ -27,7 +29,7 @@ class InteractionIntegrationSpec extends AbstractSpec {
     def "Gene page - Sort Interaction by moleculeType symbol for #geneId"() {
         when:
         def encodedGeneID = URLEncoder.encode(geneId, "UTF-8")
-        def result = getApiResult("/api/gene/$encodedGeneID/interactions?sortBy=moleculeType")
+        def result = ApiTester.getApiResult("/api/gene/$encodedGeneID/interactions?sortBy=moleculeType")
 
         then:
         result
@@ -46,7 +48,7 @@ class InteractionIntegrationSpec extends AbstractSpec {
     def "Gene page - Sort Interaction by detection method for #geneId"() {
         when:
         def encodedGeneID = URLEncoder.encode(geneId, "UTF-8")
-        def result = getApiResult("/api/gene/$encodedGeneID/interactions?sortBy=interactorDetectionMethod")
+        def result = ApiTester.getApiResult("/api/gene/$encodedGeneID/interactions?sortBy=interactorDetectionMethod")
 
         then:
         result
@@ -64,13 +66,13 @@ class InteractionIntegrationSpec extends AbstractSpec {
     @Unroll
     def "Verify that the downloads endpoint has results for #gene"() {
         when:
-        def result = getApiResultRaw("/api/gene/$gene/interactions/download")
+        def result = ApiTester.getApiResultRaw("/api/gene/$gene/interactions/download")
         def results = result.split('\n')
 
-        def resultFilter = getApiResultRaw("/api/gene/$gene/interactions/download?filter.detectionMethod=bait")
+        def resultFilter = ApiTester.getApiResultRaw("/api/gene/$gene/interactions/download?filter.detectionMethod=bait")
         def resultsFilter = resultFilter.split('\n')
 
-        def resultFilterMoleculeType = getApiResultRaw("/api/gene/$gene/interactions/download?sortBy=moleculeType")
+        def resultFilterMoleculeType = ApiTester.getApiResultRaw("/api/gene/$gene/interactions/download?sortBy=moleculeType")
         def resultsFilterMoleculeType = resultFilterMoleculeType.split('\n')
 
         then:
