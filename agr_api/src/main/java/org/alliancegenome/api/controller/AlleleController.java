@@ -11,6 +11,7 @@ import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.core.translators.tdf.AlleleToTdfTranslator;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
+import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.Variant;
 
@@ -91,6 +92,32 @@ public class AlleleController implements AlleleRESTInterface {
         Long duration = (System.currentTimeMillis() - startTime) / 1000;
         response.setRequestDuration(duration.toString());
         return response;
+    }
+
+    @Override
+    public JsonResultResponse<PhenotypeAnnotation> getPhenotypePerAllele(String id,
+                                                                         int limit,
+                                                                         int page,
+                                                                         String sortBy) {
+        long startTime = System.currentTimeMillis();
+        Pagination pagination = new Pagination(page, limit, sortBy, null);
+        if (pagination.hasErrors()) {
+            RestErrorMessage message = new RestErrorMessage();
+            message.setErrors(pagination.getErrors());
+            throw new RestErrorException(message);
+        }
+
+        try {
+            JsonResultResponse<PhenotypeAnnotation> alleles = alleleService.getPhenotype(id, pagination);
+            alleles.setHttpServletRequest(request);
+            alleles.calculateRequestDuration(startTime);
+            return alleles;
+        } catch (Exception e) {
+            log.error("Error while retrieving phenotype info", e);
+            RestErrorMessage error = new RestErrorMessage();
+            error.addErrorMessage(e.getMessage());
+            throw new RestErrorException(error);
+        }
     }
 
 }
