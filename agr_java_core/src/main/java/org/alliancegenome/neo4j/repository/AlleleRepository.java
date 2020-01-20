@@ -58,7 +58,7 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
         //query += " where g.primaryKey = 'FB:FBgn0002121' AND a.primaryKey = 'FB:FBal0051412' ";
         //query += " where g.primaryKey = 'FB:FBgn0025832' ";
         query += " OPTIONAL MATCH vari=(a:Allele)<-[:VARIATION]-(variant:Variant)--(soTerm:SOTerm)";
-        query += " OPTIONAL MATCH consequence=(:GeneLevelConsequence)<-[:ASSOCATION]-(variant:Variant)";
+        query += " OPTIONAL MATCH consequence=(:GeneLevelConsequence)<-[:ASSOCIATION]-(variant:Variant)";
         query += " OPTIONAL MATCH loc=(variant:Variant)-[:ASSOCIATION]->(:GenomicLocation)-[:ASSOCIATION]->(:Chromosome)";
         query += " OPTIONAL MATCH p2=(a:Allele)-[:ALSO_KNOWN_AS]->(synonym:Synonym)";
         query += " OPTIONAL MATCH crossRef=(a:Allele)-[:CROSS_REFERENCE]->(c:CrossReference)";
@@ -78,7 +78,7 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
         String query = "";
         query += " MATCH p1=(a:Allele)<-[:VARIATION]-(variant:Variant)--(soTerm:SOTerm) ";
         query += " WHERE a.primaryKey = {" + paramName + "}";
-        query += " OPTIONAL MATCH consequence=(:GeneLevelConsequence)<-[:ASSOCATION]-(variant:Variant)";
+        query += " OPTIONAL MATCH consequence=(:GeneLevelConsequence)<-[:ASSOCIATION]-(variant:Variant)";
         query += " OPTIONAL MATCH loc=(variant:Variant)-[:ASSOCIATION]->(:GenomicLocation)-[:ASSOCIATION]->(:Chromosome)";
         query += " RETURN p1, loc, consequence ";
 
