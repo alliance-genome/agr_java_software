@@ -1,21 +1,18 @@
 package org.alliancegenome.core.service;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
 
-public class PhenotypeAnnotationFiltering {
+import java.util.Set;
+import java.util.stream.Collectors;
+
+public class PhenotypeAnnotationFiltering extends AnnotationFiltering<PhenotypeAnnotation> {
 
 
-    public static FilterFunction<PhenotypeAnnotation, String> termNameFilter =
+    public FilterFunction<PhenotypeAnnotation, String> termNameFilter =
             (annotation, value) -> FilterFunction.contains(annotation.getPhenotype(), value);
 
-    public static FilterFunction<PhenotypeAnnotation, String> geneticEntityFilter =
+    public FilterFunction<PhenotypeAnnotation, String> geneticEntityFilter =
             (annotation, value) -> {
                 if (annotation.getAllele() != null)
                     return FilterFunction.contains(annotation.getAllele().getSymbol(), value);
@@ -23,10 +20,10 @@ public class PhenotypeAnnotationFiltering {
                     return false;
             };
 
-    public static FilterFunction<PhenotypeAnnotation, String> sourceFilter =
+    public FilterFunction<PhenotypeAnnotation, String> sourceFilter =
             (annotation, value) -> FilterFunction.contains(annotation.getSource().getName(), value);
 
-    public static FilterFunction<PhenotypeAnnotation, String> geneticEntityTypeFilter =
+    public FilterFunction<PhenotypeAnnotation, String> geneticEntityTypeFilter =
             (annotation, value) -> {
                 // if a gene
                 if (annotation.getAllele() == null) {
@@ -36,7 +33,7 @@ public class PhenotypeAnnotationFiltering {
                 }
             };
 
-    public static FilterFunction<PhenotypeAnnotation, String> referenceFilter =
+    public FilterFunction<PhenotypeAnnotation, String> referenceFilter =
             (annotation, value) -> {
                 Set<Boolean> filteringPassed = annotation.getPublications().stream()
                         .map(publication -> FilterFunction.contains(publication.getPubId(), value))
@@ -45,15 +42,13 @@ public class PhenotypeAnnotationFiltering {
                 return filteringPassed.contains(true);
             };
 
-    public static Map<FieldFilter, FilterFunction<PhenotypeAnnotation, String>> filterFieldMap = new HashMap<>();
-
-    static {
+    public PhenotypeAnnotationFiltering() {
         filterFieldMap.put(FieldFilter.PHENOTYPE, termNameFilter);
         filterFieldMap.put(FieldFilter.FREFERENCE, referenceFilter);
         filterFieldMap.put(FieldFilter.GENETIC_ENTITY_TYPE, geneticEntityTypeFilter);
         filterFieldMap.put(FieldFilter.GENETIC_ENTITY, geneticEntityFilter);
     }
-
+/*
     public static boolean isValidFiltering(Map<FieldFilter, String> fieldFilterValueMap) {
         if (fieldFilterValueMap == null)
             return true;
@@ -69,6 +64,7 @@ public class PhenotypeAnnotationFiltering {
                 .map(entry -> entry.getKey().getFullName())
                 .collect(Collectors.toList());
     }
+*/
 
 }
 

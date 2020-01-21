@@ -98,9 +98,15 @@ public class AlleleController implements AlleleRESTInterface {
     public JsonResultResponse<PhenotypeAnnotation> getPhenotypePerAllele(String id,
                                                                          int limit,
                                                                          int page,
+                                                                         String phenotype,
+                                                                         String source,
+                                                                         String reference,
                                                                          String sortBy) {
         long startTime = System.currentTimeMillis();
         Pagination pagination = new Pagination(page, limit, sortBy, null);
+        pagination.addFieldFilter(FieldFilter.PHENOTYPE, phenotype);
+        pagination.addFieldFilter(FieldFilter.SOURCE, source);
+        pagination.addFieldFilter(FieldFilter.FREFERENCE, reference);
         if (pagination.hasErrors()) {
             RestErrorMessage message = new RestErrorMessage();
             message.setErrors(pagination.getErrors());

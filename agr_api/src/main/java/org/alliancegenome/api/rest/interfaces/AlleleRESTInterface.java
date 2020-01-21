@@ -92,14 +92,14 @@ public interface AlleleRESTInterface {
             @DefaultValue("20") @QueryParam("limit") int limit,
             @ApiParam(name = "page", value = "Page number")
             @DefaultValue("1") @QueryParam("page") int page,
+            @ApiParam(value = "termName annotation")
+            @QueryParam("filter.termName") String phenotype,
+            @ApiParam(value = "Source")
+            @QueryParam("filter.source") String source,
+            @ApiParam(value = "Reference number: PUBMED or a Pub ID from the MOD")
+            @QueryParam("filter.reference") String reference,
             @ApiParam(value = "Field name by which to sort", allowableValues = "")
             @QueryParam("sortBy") String sortBy
-/*
-            @ApiParam(name = "filter.variantType", value = "Variant types")
-            @QueryParam("filter.variantType") String variantType,
-            @ApiParam(name = "filter.variantConsequence", value = "Consequence")
-            @QueryParam("filter.variantConsequence") String consequence
-*/
     );
 
 
