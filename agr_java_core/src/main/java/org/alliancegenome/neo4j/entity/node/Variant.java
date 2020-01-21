@@ -41,7 +41,7 @@ public class Variant extends Neo4jEntity implements Comparable<Variant> {
     @Relationship(type = "VARIATION_TYPE")
     private SOTerm type;
 
-    @Relationship(type = "ASSOCATION")
+    @Relationship(type = "ASSOCIATION")
     protected GeneLevelConsequence geneLevelConsequence;
 
     @JsonView({View.Default.class, View.API.class})
