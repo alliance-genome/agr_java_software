@@ -26,14 +26,14 @@ public class DiseaseCacher extends Cacher {
 
     private static DiseaseRepository diseaseRepository = new DiseaseRepository();
     private static DiseaseCacheRepository diseaseCacheRepository = new DiseaseCacheRepository();
+    private BasicCachingManager manager = new BasicCachingManager();
 
     protected void cache() {
-
-        startProcess("diseaseRepository.getAllDiseaseEntityJoins");
 
         // model type of diseases
         populateModelsWithDiseases();
 
+        startProcess("diseaseRepository.getAllDiseaseEntityJoins");
         Set<DiseaseEntityJoin> joinList = diseaseRepository.getAllDiseaseEntityJoins();
         if (joinList == null)
             return;
@@ -49,12 +49,8 @@ public class DiseaseCacher extends Cacher {
         }
         finishProcess();
 
-        DiseaseRibbonService diseaseRibbonService = new DiseaseRibbonService();
-
-        startProcess("diseaseRepository.getAllDiseaseEntityJoins");
-
-        List<DiseaseAnnotation> allDiseaseAnnotations = getDiseaseAnnotationsFromDEJs(joinList, diseaseRibbonService);
-
+        startProcess("Add PAEs to DiseaseAnnotations");
+        List<DiseaseAnnotation> allDiseaseAnnotations = getDiseaseAnnotationsFromDEJs(joinList);
         finishProcess();
 
         log.info("Number of DiseaseAnnotation object before merge: " + String.format("%,d", allDiseaseAnnotations.size()));
@@ -98,22 +94,31 @@ public class DiseaseCacher extends Cacher {
 
         log.info("Number of Disease IDs in disease Map after adding gene grouping: " + diseaseAnnotationMap.size());
 
-        BasicCachingManager manager = new BasicCachingManager();
+        storeIntoCache(allDiseaseAnnotations, diseaseAnnotationMap, CacheAlliance.DISEASE_ANNOTATION);
+
+        // take care of allele
+        if (populateAllelesCache(closureMapping, allIDs)) return;
+
+
+        diseaseRepository.clearCache();
+
+    }
+
+    private void storeIntoCache(List<DiseaseAnnotation> diseaseAnnotations, Map<String, List<DiseaseAnnotation>> diseaseAnnotationMap, CacheAlliance cacheSpace) {
+        startProcess(cacheSpace.name() + " into cache", diseaseAnnotationMap.size());
         diseaseAnnotationMap.forEach((key, value) -> {
-            manager.setCache(key, value, View.DiseaseCacher.class, CacheAlliance.DISEASE_ANNOTATION);
+            manager.setCache(key, value, View.DiseaseCacher.class, cacheSpace);
+            progressProcess();
         });
+        CacheStatus status = new CacheStatus(cacheSpace);
+        status.setNumberOfEntities(diseaseAnnotations.size());
 
-        CacheStatus status = new CacheStatus(CacheAlliance.DISEASE_ANNOTATION);
-        status.setNumberOfEntities(allDiseaseAnnotations.size());
-
-        Map<String, List<DiseaseAnnotation>> speciesStats = allDiseaseAnnotations.stream()
-                .filter(diseaseAnnotation -> diseaseAnnotation.getGene() != null)
+        Map<String, List<DiseaseAnnotation>> speciesStats = diseaseAnnotations.stream()
+                .filter(annotation -> annotation.getGene() != null)
                 .collect(groupingBy(annotation -> annotation.getGene().getSpecies().getName()));
 
         Map<String, Integer> stats = new TreeMap<>();
-        diseaseAnnotationMap.forEach((diseaseID, annotations) -> {
-            stats.put(diseaseID, annotations.size());
-        });
+        diseaseAnnotationMap.forEach((diseaseID, annotations) -> stats.put(diseaseID, annotations.size()));
 
         Arrays.stream(SpeciesType.values())
                 .filter(speciesType -> !speciesStats.keySet().contains(speciesType.getName()))
@@ -125,14 +130,7 @@ public class DiseaseCacher extends Cacher {
         status.setEntityStats(stats);
         status.setSpeciesStats(speciesStatsInt);
         setCacheStatus(status);
-
-
-        // take care of allele
-        if (populateAllelesCache(diseaseRibbonService, closureMapping, allIDs, manager)) return;
-
-
-        diseaseRepository.clearCache();
-
+        finishProcess();
     }
 
     private void populateModelsWithDiseases() {
@@ -256,10 +254,10 @@ public class DiseaseCacher extends Cacher {
         });
     }
 
-    private boolean populateAllelesCache(DiseaseRibbonService diseaseRibbonService, Map<String, Set<String>> closureMapping, Set<String> allIDs, BasicCachingManager manager) {
-        Set<DiseaseEntityJoin> alleleEntityJoins = diseaseRepository.getAllDiseaseAlleleEntityJoins();
+    private boolean populateAllelesCache(Map<String, Set<String>> closureMapping, Set<String> allIDs) {
 
-        List<DiseaseAnnotation> alleleList = getDiseaseAnnotationsFromDEJs(alleleEntityJoins, diseaseRibbonService);
+        Set<DiseaseEntityJoin> alleleEntityJoins = diseaseRepository.getAllDiseaseAlleleEntityJoins();
+        List<DiseaseAnnotation> alleleList = getDiseaseAnnotationsFromDEJs(alleleEntityJoins);
         if (alleleList == null)
             return true;
 
@@ -276,35 +274,20 @@ public class DiseaseCacher extends Cacher {
                     .forEach(id -> allAnnotations.addAll(diseaseAlleleAnnotationTermMap.get(id)));
             diseaseAlleleAnnotationMap.put(termID, allAnnotations);
         });
-        diseaseAlleleAnnotationMap.forEach((key, value) -> {
-            manager.setCache(key, value, View.DiseaseCacher.class, CacheAlliance.DISEASE_ALLELE_ANNOTATION);
-        });
-        CacheStatus status = new CacheStatus(CacheAlliance.DISEASE_ALLELE_ANNOTATION);
-        status.setNumberOfEntities(alleleList.size());
 
-        Map<String, List<DiseaseAnnotation>> speciesStats = alleleList.stream()
-                .filter(diseaseAnnotation -> diseaseAnnotation.getGene() != null)
-                .collect(groupingBy(annotation -> annotation.getGene().getSpecies().getName()));
+        storeIntoCache(alleleList, diseaseAlleleAnnotationMap, CacheAlliance.DISEASE_ALLELE_ANNOTATION);
 
-        Map<String, Integer> stats = new TreeMap<>();
-        diseaseAlleleAnnotationMap.forEach((diseaseID, annotations) -> stats.put(diseaseID, annotations.size()));
-
-        Arrays.stream(SpeciesType.values())
-                .filter(speciesType -> !speciesStats.keySet().contains(speciesType.getName()))
-                .forEach(speciesType -> speciesStats.put(speciesType.getName(), new ArrayList<>()));
-
-        Map<String, Integer> speciesStatsInt = new HashMap<>();
-        speciesStats.forEach((species, alleles) -> speciesStatsInt.put(species, alleles.size()));
-
-        status.setEntityStats(stats);
-        status.setSpeciesStats(speciesStatsInt);
-        setCacheStatus(status);
-
+        // <AlleleID, List of DAs>
+        Map<String, List<DiseaseAnnotation>> diseaseAlleleMap = alleleList.stream()
+                .collect(groupingBy(annotation -> annotation.getFeature().getPrimaryKey()));
+        storeIntoCache(alleleList, diseaseAlleleMap, CacheAlliance.ALLELE_DISEASE);
 
         return false;
     }
 
-    private List<DiseaseAnnotation> getDiseaseAnnotationsFromDEJs(Set<DiseaseEntityJoin> joinList, DiseaseRibbonService diseaseRibbonService) {
+    private List<DiseaseAnnotation> getDiseaseAnnotationsFromDEJs(Collection<DiseaseEntityJoin> joinList) {
+        DiseaseRibbonService diseaseRibbonService = new DiseaseRibbonService();
+
         return joinList.stream()
                 .map(diseaseEntityJoin -> {
                     DiseaseAnnotation document = new DiseaseAnnotation();

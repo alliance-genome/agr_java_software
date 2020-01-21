@@ -14,6 +14,7 @@ public enum CacheAlliance {
 
     ALLELE(),
     ALLELE_PHENOTYPE(),
+    ALLELE_DISEASE(),
     ALLELE_SPECIES(),
     ALLELE_TAXON(),
     ALLELE_SITEMAP(),

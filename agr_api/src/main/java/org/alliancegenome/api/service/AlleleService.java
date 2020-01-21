@@ -1,9 +1,7 @@
 package org.alliancegenome.api.service;
 
 import org.alliancegenome.cache.repository.AlleleCacheRepository;
-import org.alliancegenome.core.service.JsonResultResponse;
-import org.alliancegenome.core.service.PhenotypeAnnotationFiltering;
-import org.alliancegenome.core.service.PhenotypeAnnotationSorting;
+import org.alliancegenome.core.service.*;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
@@ -62,6 +60,24 @@ public class AlleleService {
         if (CollectionUtils.isNotEmpty(annotations)) {
             List<PhenotypeAnnotation> filteredAnnotations = filterService.filterAnnotations(annotations, pagination.getFieldFilterValueMap());
             filterService.getSortedAndPaginatedAnnotations(pagination, filteredAnnotations, new PhenotypeAnnotationSorting());
+            result.setTotal(filteredAnnotations.size());
+            result.setResults(filterService.getPaginatedAnnotations(pagination, filteredAnnotations));
+        }
+        result.calculateRequestDuration(startDate);
+        return result;
+    }
+
+    public JsonResultResponse<DiseaseAnnotation> getDisease(String alleleID, Pagination pagination) {
+        LocalDateTime startDate = LocalDateTime.now();
+
+        List<DiseaseAnnotation> annotations = alleleCacheRepo.getDisease(alleleID);
+
+        JsonResultResponse<DiseaseAnnotation> result = new JsonResultResponse<>();
+
+        FilterService<DiseaseAnnotation> filterService = new FilterService<>(new DiseaseAnnotationFiltering());
+        if (CollectionUtils.isNotEmpty(annotations)) {
+            List<DiseaseAnnotation> filteredAnnotations = filterService.filterAnnotations(annotations, pagination.getFieldFilterValueMap());
+            filterService.getSortedAndPaginatedAnnotations(pagination, filteredAnnotations, new DiseaseAnnotationSorting());
             result.setTotal(filteredAnnotations.size());
             result.setResults(filterService.getPaginatedAnnotations(pagination, filteredAnnotations));
         }

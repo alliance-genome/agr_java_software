@@ -9,6 +9,7 @@ import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
+import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.GeneticEntity;
@@ -171,10 +172,22 @@ public class AlleleIT {
         //String alleleID = "ZFIN:ZDB-ALT-041001-12";
         //String alleleID = "MGI:5442117";
         // hu3335
-        String alleleID = "ZFIN:ZDB-ALT-080523-3";
+        String alleleID = "ZFIN:ZFIN:ZDB-ALT-980203-692";
         JsonResultResponse<PhenotypeAnnotation> response = alleleService.getPhenotype(alleleID, new Pagination());
         assertNotNull(response);
         assertThat(response.getTotal(), greaterThanOrEqualTo(20));
+    }
+
+    @Test
+    public void getAlleleDisease() {
+        //String alleleID = "ZFIN:ZDB-ALT-041001-12";
+        //String alleleID = "MGI:5442117";
+        // hps5
+        //String alleleID = "ZFIN:ZDB-ALT-980203-692";
+        String alleleID = "MGI:1856424";
+        JsonResultResponse<DiseaseAnnotation> response = alleleService.getDisease(alleleID, new Pagination());
+        assertNotNull(response);
+        assertThat(response.getTotal(), greaterThanOrEqualTo(3));
     }
 
     private void assertResponse(JsonResultResponse<Allele> response, int resultSize, int totalSize) {

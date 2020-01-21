@@ -60,7 +60,7 @@ public class GenePhenotypeCacher extends Cacher {
         // merge annotations with the same phenotype
         Map<String, List<PhenotypeAnnotation>> phenotypeAnnotationMap = getMergedPhenotypeMap(annotationMergeMap);
 
-        // geneID, Map<phenotype, List<PhenotypeAnnotation>>
+        // alleleID, Map<phenotype, List<PhenotypeAnnotation>>
         Map<String, Map<String, List<PhenotypeAnnotation>>> annotationAlleleMergeMap = allelePhenotypeAnnotations.stream()
                 .collect(groupingBy(phenotypeAnnotation -> phenotypeAnnotation.getAllele().getPrimaryKey(), groupingBy(PhenotypeAnnotation::getPhenotype)));
 
