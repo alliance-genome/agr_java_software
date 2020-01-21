@@ -13,6 +13,7 @@ public enum CacheAlliance {
     GENE_SITEMAP(),
 
     ALLELE(),
+    ALLELE_PHENOTYPE(),
     ALLELE_SPECIES(),
     ALLELE_TAXON(),
     ALLELE_SITEMAP(),

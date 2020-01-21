@@ -9,6 +9,7 @@ import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
+import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.GeneticEntity;
 import org.alliancegenome.neo4j.entity.node.Variant;
@@ -155,6 +156,23 @@ public class AlleleIT {
         Pagination pagination = new Pagination();
         JsonResultResponse<Variant> response = alleleService.getVariants("ZFIN:ZDB-ALT-161003-18461", pagination);
         assertThat(response.getTotal(), greaterThanOrEqualTo(1));
+    }
+
+    @Test
+    public void getAlleleInfo() {
+        Allele allele = alleleService.getById("ZFIN:ZDB-ALT-161003-18461");
+        assertNotNull(allele.getCrossReferences());
+    }
+
+    @Test
+    public void getAllelePhenotype() {
+        //String alleleID = "ZFIN:ZDB-ALT-041001-12";
+        //String alleleID = "MGI:5442117";
+        // hu3335
+        String alleleID = "ZFIN:ZDB-ALT-080523-3";
+        JsonResultResponse<PhenotypeAnnotation> response = alleleService.getPhenotype(alleleID, new Pagination());
+        assertNotNull(response);
+        assertThat(response.getTotal(), greaterThanOrEqualTo(20));
     }
 
     private void assertResponse(JsonResultResponse<Allele> response, int resultSize, int totalSize) {

@@ -2,11 +2,16 @@ package org.alliancegenome.api.service;
 
 import org.alliancegenome.cache.repository.AlleleCacheRepository;
 import org.alliancegenome.core.service.JsonResultResponse;
+import org.alliancegenome.core.service.PhenotypeAnnotationFiltering;
+import org.alliancegenome.core.service.PhenotypeAnnotationSorting;
 import org.alliancegenome.es.model.query.Pagination;
+import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
+import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.Variant;
 import org.alliancegenome.neo4j.repository.AlleleRepository;
+import org.apache.commons.collections.CollectionUtils;
 
 import javax.enterprise.context.RequestScoped;
 import java.time.LocalDateTime;
@@ -42,6 +47,24 @@ public class AlleleService {
         FilterService<Variant> filterService = new FilterService<>(null);
         result.setTotal(variants.size());
         result.setResults(filterService.getPaginatedAnnotations(pagination, variants));
+        result.calculateRequestDuration(startDate);
+        return result;
+    }
+
+    public JsonResultResponse<PhenotypeAnnotation> getPhenotype(String id, Pagination pagination) {
+        LocalDateTime startDate = LocalDateTime.now();
+
+        List<PhenotypeAnnotation> annotations = alleleCacheRepo.getPhenotype(id);
+
+        JsonResultResponse<PhenotypeAnnotation> result = new JsonResultResponse<>();
+
+        FilterService<PhenotypeAnnotation> filterService = new FilterService<>(new PhenotypeAnnotationFiltering());
+        if (CollectionUtils.isNotEmpty(annotations)) {
+            List<PhenotypeAnnotation> filteredAnnotations = filterService.filterAnnotations(annotations, pagination.getFieldFilterValueMap());
+            filterService.getSortedAndPaginatedAnnotations(pagination, filteredAnnotations, new PhenotypeAnnotationSorting());
+            result.setTotal(filteredAnnotations.size());
+            result.setResults(filterService.getPaginatedAnnotations(pagination, filteredAnnotations));
+        }
         result.calculateRequestDuration(startDate);
         return result;
     }
