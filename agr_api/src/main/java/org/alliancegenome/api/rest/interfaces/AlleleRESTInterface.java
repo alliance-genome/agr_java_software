@@ -83,10 +83,32 @@ public interface AlleleRESTInterface {
 
     @GET
     @Path("/{id}/phenotypes")
-    @ApiOperation(value = "Retrieve all variants of a given allele")
+    @ApiOperation(value = "Retrieve all phenotypes of a given allele")
     @JsonView(value = {View.PhenotypeAPI.class})
     JsonResultResponse<PhenotypeAnnotation> getPhenotypePerAllele(
-            @ApiParam(name = "id", value = "Search for Variants for a given Allele by ID")
+            @ApiParam(name = "id", value = "Search for Phenotypes for a given Allele by ID")
+            @PathParam("id") String id,
+            @ApiParam(name = "limit", value = "Number of rows returned", defaultValue = "20")
+            @DefaultValue("20") @QueryParam("limit") int limit,
+            @ApiParam(name = "page", value = "Page number")
+            @DefaultValue("1") @QueryParam("page") int page,
+            @ApiParam(value = "termName annotation")
+            @QueryParam("filter.termName") String phenotype,
+            @ApiParam(value = "Source")
+            @QueryParam("filter.source") String source,
+            @ApiParam(value = "Reference number: PUBMED or a Pub ID from the MOD")
+            @QueryParam("filter.reference") String reference,
+            @ApiParam(value = "Field name by which to sort", allowableValues = "")
+            @QueryParam("sortBy") String sortBy
+    );
+
+    @GET
+    @Path("/{id}/phenotypes/download")
+    @ApiOperation(value = "Retrieve all phenotypes of a given allele in a download")
+    @JsonView(value = {View.PhenotypeAPI.class})
+    @Produces(MediaType.TEXT_PLAIN)
+    Response getPhenotypesPerAlleleDownload(
+            @ApiParam(name = "id", value = "Search for Phenotypes for a given Allele by ID")
             @PathParam("id") String id,
             @ApiParam(name = "limit", value = "Number of rows returned", defaultValue = "20")
             @DefaultValue("20") @QueryParam("limit") int limit,
