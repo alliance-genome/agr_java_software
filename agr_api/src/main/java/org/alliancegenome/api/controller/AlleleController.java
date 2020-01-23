@@ -9,6 +9,7 @@ import org.alliancegenome.core.exceptions.RestErrorException;
 import org.alliancegenome.core.exceptions.RestErrorMessage;
 import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.core.translators.tdf.AlleleToTdfTranslator;
+import org.alliancegenome.core.translators.tdf.PhenotypeAnnotationToTdfTranslator;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
@@ -31,6 +32,7 @@ public class AlleleController implements AlleleRESTInterface {
     private HttpServletRequest request;
 
     private AlleleToTdfTranslator translator = new AlleleToTdfTranslator();
+    private final PhenotypeAnnotationToTdfTranslator phenotypeAnnotationToTdfTranslator = new PhenotypeAnnotationToTdfTranslator();
 
     @Override
     public Allele getAllele(String id) {
@@ -114,10 +116,10 @@ public class AlleleController implements AlleleRESTInterface {
         }
 
         try {
-            JsonResultResponse<PhenotypeAnnotation> alleles = alleleService.getPhenotype(id, pagination);
-            alleles.setHttpServletRequest(request);
-            alleles.calculateRequestDuration(startTime);
-            return alleles;
+            JsonResultResponse<PhenotypeAnnotation> phenotypeAnnotation = alleleService.getPhenotype(id, pagination);
+            phenotypeAnnotation.setHttpServletRequest(request);
+            phenotypeAnnotation.calculateRequestDuration(startTime);
+            return phenotypeAnnotation;
         } catch (Exception e) {
             log.error("Error while retrieving phenotype info", e);
             RestErrorMessage error = new RestErrorMessage();
@@ -125,5 +127,26 @@ public class AlleleController implements AlleleRESTInterface {
             throw new RestErrorException(error);
         }
     }
+
+    @Override
+    public Response getPhenotypesPerAlleleDownload(String id,
+                                                   int limit,
+                                                   int page,
+                                                   String phenotype,
+                                                   String source,
+                                                   String reference,
+                                                   String sortBy) {
+        JsonResultResponse<PhenotypeAnnotation> response = getPhenotypePerAllele( id,
+        limit,
+        page,
+         phenotype,
+         source,
+         reference,
+         sortBy);
+        Response.ResponseBuilder responseBuilder = Response.ok(phenotypeAnnotationToTdfTranslator.getAllRows(response.getResults()));
+        APIService.setDownloadHeader(id, EntityType.ALLELE, EntityType.PHENOTYPE, responseBuilder);
+        return responseBuilder.build();
+    }
+
 
 }
