@@ -30,7 +30,9 @@ public class Variant extends Neo4jEntity implements Comparable<Variant> {
     protected String hgvsNomenclature;
 
     private String dataProvider;
+    @JsonView({View.API.class})
     private String genomicReferenceSequence;
+    @JsonView({View.API.class})
     private String genomicVariantSequence;
 
     @Convert(value = DateConverter.class)
@@ -40,6 +42,10 @@ public class Variant extends Neo4jEntity implements Comparable<Variant> {
     @JsonView({View.Default.class, View.API.class})
     @Relationship(type = "VARIATION_TYPE")
     private SOTerm type;
+
+    @JsonView({View.VariantAPI.class})
+    @Relationship(type = "COMPUTED_GENE")
+    private Gene gene;
 
     @Relationship(type = "ASSOCIATION")
     protected GeneLevelConsequence geneLevelConsequence;
