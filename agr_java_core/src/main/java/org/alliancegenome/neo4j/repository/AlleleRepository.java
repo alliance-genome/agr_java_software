@@ -76,11 +76,11 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
         String paramName = "alleleID";
         map.put(paramName, id);
         String query = "";
-        query += " MATCH p1=(a:Allele)<-[:VARIATION]-(variant:Variant)--(soTerm:SOTerm)," +
-                "        p2=(variant:Variant)-[]-(:Gene)-[:ASSOCIATION]->(:GenomicLocation)-[:ASSOCIATION]->(:Chromosome) ";
+        query += " MATCH p1=(a:Allele)<-[:VARIATION]-(variant:Variant)--(soTerm:SOTerm) ";
         query += " WHERE a.primaryKey = {" + paramName + "}";
         query += " OPTIONAL MATCH consequence=(:GeneLevelConsequence)<-[:ASSOCIATION]-(variant:Variant)";
         query += " OPTIONAL MATCH loc=(variant:Variant)-[:ASSOCIATION]->(:GenomicLocation)-[:ASSOCIATION]->(:Chromosome)";
+        query += " OPTIONAL MATCH p2=(variant:Variant)-[]-(:Gene)-[:ASSOCIATION]->(:GenomicLocation)-[:ASSOCIATION]->(:Chromosome)";
         query += " RETURN p1, p2, loc, consequence ";
 
         Iterable<Variant> alleles = query(Variant.class, query, map);
