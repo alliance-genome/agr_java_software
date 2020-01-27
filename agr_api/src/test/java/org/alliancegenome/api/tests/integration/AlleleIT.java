@@ -156,6 +156,8 @@ public class AlleleIT {
         Pagination pagination = new Pagination();
         JsonResultResponse<Variant> response = alleleService.getVariants("ZFIN:ZDB-ALT-161003-18461", pagination);
         assertThat(response.getTotal(), greaterThanOrEqualTo(1));
+        assertNotNull("Computed Gene exists", response.getResults().get(0).getGene());
+        assertNotNull("Genomic Location exists on computed Gene",response.getResults().get(0).getGene().getGenomeLocations());
     }
 
     @Test
