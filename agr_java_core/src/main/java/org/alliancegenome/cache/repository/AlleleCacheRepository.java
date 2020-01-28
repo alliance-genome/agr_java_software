@@ -5,6 +5,7 @@ import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.cache.manager.BasicCachingManager;
 import org.alliancegenome.core.service.*;
 import org.alliancegenome.es.model.query.Pagination;
+import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.view.BaseFilter;
@@ -95,11 +96,19 @@ public class AlleleCacheRepository {
 
     }
 
-    public List<PhenotypeAnnotation> getPhenotype(String allelId) {
+    public List<PhenotypeAnnotation> getPhenotype(String alleleId) {
         BasicCachingManager<PhenotypeAnnotation> manager = new BasicCachingManager<>(PhenotypeAnnotation.class);
-        List<PhenotypeAnnotation> phenotypeAnnotations = manager.getCache(allelId, CacheAlliance.ALLELE_PHENOTYPE);
+        List<PhenotypeAnnotation> phenotypeAnnotations = manager.getCache(alleleId, CacheAlliance.ALLELE_PHENOTYPE);
         if (phenotypeAnnotations == null)
             return null;
         return phenotypeAnnotations;
+    }
+
+    public List<DiseaseAnnotation> getDisease(String alleleId) {
+        BasicCachingManager<DiseaseAnnotation> manager = new BasicCachingManager<>(DiseaseAnnotation.class);
+        List<DiseaseAnnotation> diseaseAnnotations= manager.getCache(alleleId, CacheAlliance.ALLELE_DISEASE);
+        if (diseaseAnnotations == null)
+            return null;
+        return diseaseAnnotations;
     }
 }

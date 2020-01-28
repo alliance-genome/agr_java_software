@@ -12,6 +12,7 @@ import org.alliancegenome.core.translators.tdf.AlleleToTdfTranslator;
 import org.alliancegenome.core.translators.tdf.PhenotypeAnnotationToTdfTranslator;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
+import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.Variant;
@@ -148,5 +149,35 @@ public class AlleleController implements AlleleRESTInterface {
         return responseBuilder.build();
     }
 
+    public JsonResultResponse<DiseaseAnnotation> getDiseasePerAllele(String id,
+                                                                     int limit,
+                                                                     int page,
+                                                                     String disease,
+                                                                     String source,
+                                                                     String reference,
+                                                                     String sortBy) {
+        long startTime = System.currentTimeMillis();
+        Pagination pagination = new Pagination(page, limit, sortBy, null);
+        pagination.addFieldFilter(FieldFilter.DISEASE, disease);
+        pagination.addFieldFilter(FieldFilter.SOURCE, source);
+        pagination.addFieldFilter(FieldFilter.FREFERENCE, reference);
+        if (pagination.hasErrors()) {
+            RestErrorMessage message = new RestErrorMessage();
+            message.setErrors(pagination.getErrors());
+            throw new RestErrorException(message);
+        }
+
+        try {
+            JsonResultResponse<DiseaseAnnotation> alleles = alleleService.getDisease(id, pagination);
+            alleles.setHttpServletRequest(request);
+            alleles.calculateRequestDuration(startTime);
+            return alleles;
+        } catch (Exception e) {
+            log.error("Error while retrieving disease info", e);
+            RestErrorMessage error = new RestErrorMessage();
+            error.addErrorMessage(e.getMessage());
+            throw new RestErrorException(error);
+        }
+    }
 
 }
