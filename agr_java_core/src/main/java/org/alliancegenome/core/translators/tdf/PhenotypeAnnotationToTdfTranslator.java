@@ -57,17 +57,14 @@ public class PhenotypeAnnotationToTdfTranslator {
 
     public List<PhenotypeDownloadRow> getDownloadRowsFromAnnotations(List<PhenotypeAnnotation> phenotypeAnnotations) {
         denormalizeAnnotations(phenotypeAnnotations);
-
         return phenotypeAnnotations.stream()
+                .filter(annotation -> annotation.getPrimaryAnnotatedEntities()!=null)
+                .filter(annotation -> !CollectionUtils.isEmpty(annotation.getPrimaryAnnotatedEntities()))
                 .map(annotation -> annotation.getPrimaryAnnotatedEntities().stream()
                         .map(entity -> entity.getPublicationEvidenceCodes().stream()
                                 .map(join -> {
-                                    if (CollectionUtils.isNotEmpty(annotation.getPrimaryAnnotatedEntities()))
-                                        return annotation.getPrimaryAnnotatedEntities().stream()
-                                                .map(primaryAnnotatedEntry -> getPhenotypeDownloadRow(annotation, entity, join))
-                                                .collect(Collectors.toList());
-                                    else
-                                        return List.of(getPhenotypeDownloadRow(null, entity, join));
+
+                                        return List.of(getPhenotypeDownloadRow(annotation, entity, join, null));
                                 })
                                 .flatMap(Collection::stream)
                                 .collect(Collectors.toList()))
@@ -77,12 +74,8 @@ public class PhenotypeAnnotationToTdfTranslator {
                 .collect(Collectors.toList());
     }
 
-
-
-
-
-    private PhenotypeDownloadRow getPhenotypeDownloadRow(PhenotypeAnnotation annotation, PrimaryAnnotatedEntity entity, PublicationJoin join) {
-        PhenotypeDownloadRow row = getBaseDownloadRow(annotation, join, entity);
+    private PhenotypeDownloadRow getPhenotypeDownloadRow(PhenotypeAnnotation annotation, PrimaryAnnotatedEntity entity, PublicationJoin join, Gene homologousGene) {
+        PhenotypeDownloadRow row = getBaseDownloadRow(annotation, join, homologousGene);
 
         row.setPhenotype(annotation.getPhenotype());
         row.setReference(join.getPublication().getPubId());
@@ -96,7 +89,7 @@ public class PhenotypeAnnotationToTdfTranslator {
         return row;
     }
 
-    private PhenotypeDownloadRow getBaseDownloadRow(PhenotypeAnnotation annotation, PublicationJoin join, PrimaryAnnotatedEntity entity) {
+    private PhenotypeDownloadRow getBaseDownloadRow(PhenotypeAnnotation annotation, PublicationJoin join, Gene homologousGene) {
         PhenotypeDownloadRow row = new PhenotypeDownloadRow();
         row.setPhenotype(annotation.getPhenotype());
 
