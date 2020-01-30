@@ -1,12 +1,12 @@
 package org.alliancegenome.api.tests.integration;
 
-import static org.hamcrest.Matchers.greaterThanOrEqualTo;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
-
-import java.util.List;
-
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.annotations.Api;
 import org.alliancegenome.api.service.GeneService;
+import org.alliancegenome.core.service.JsonResultResponse;
+import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.EntitySummary;
 import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
 import org.alliancegenome.neo4j.repository.InteractionRepository;
@@ -15,11 +15,12 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.Test;
 
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.List;
+import java.util.Map;
 
-import io.swagger.annotations.Api;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
 
 
 @Api(value = "Interaction Tests")
@@ -63,6 +64,17 @@ public class InteractionsIT {
         assertNotNull(summary);
         assertThat(summary.getNumberOfAnnotations(), greaterThanOrEqualTo(154L));
         assertThat(summary.getNumberOfEntities(), greaterThanOrEqualTo(84L));
+
+    }
+
+    @Test
+    public void getInteractionFieldValues() {
+        JsonResultResponse<InteractionGeneJoin> response = geneService.getInteractions("MGI:109583", new Pagination());
+        assertNotNull(response);
+
+        final Map<String, List<String>> distinctFieldValues = response.getDistinctFieldValues();
+        assertNotNull(distinctFieldValues);
+        assertThat(3, greaterThanOrEqualTo(distinctFieldValues.size()));
 
     }
 }

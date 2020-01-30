@@ -551,7 +551,7 @@ public class DiseaseIT {
                 null
         );
 
-        assertResponse(response, 15, 15);
+        assertResponse(response, 15, 17);
 
         DiseaseAnnotationToTdfTranslator translator = new DiseaseAnnotationToTdfTranslator();
         String output = translator.getAllRowsForModel(response.getResults());

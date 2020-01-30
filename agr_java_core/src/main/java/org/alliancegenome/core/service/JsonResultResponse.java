@@ -1,27 +1,21 @@
 package org.alliancegenome.core.service;
 
+import com.fasterxml.jackson.annotation.JsonView;
+import lombok.Getter;
+import lombok.Setter;
+import org.alliancegenome.neo4j.view.View;
+
+import javax.servlet.http.HttpServletRequest;
 import java.net.URLDecoder;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-
-import org.alliancegenome.neo4j.view.View;
-
-import com.fasterxml.jackson.annotation.JsonView;
-
-import lombok.Getter;
-import lombok.Setter;
+import java.util.*;
 
 @Setter
 @Getter
 public class JsonResultResponse<T> {
 
+    public static final String DISTINCT_FIELD_VALUES = "distinctFieldValues";
     @JsonView({View.Default.class})
     private List<T> results = new ArrayList<T>();
     @JsonView({View.Default.class})
@@ -84,6 +78,16 @@ public class JsonResultResponse<T> {
             supplementalData = new LinkedHashMap<>();
         supplementalData.put("annotationSummary", object);
 
+    }
+
+    public void addDistinctFieldValueSupplementalData(Map object) {
+        if (supplementalData == null)
+            supplementalData = new LinkedHashMap<>();
+        supplementalData.put(DISTINCT_FIELD_VALUES, object);
+    }
+
+    public Map<String, List<String>> getDistinctFieldValues() {
+        return (Map<String, List<String>>) supplementalData.get(DISTINCT_FIELD_VALUES);
     }
 
     public void calculateRequestDuration(long startTime) {
