@@ -47,14 +47,15 @@ public class GeneService {
     }
 
     public JsonResultResponse<InteractionGeneJoin> getInteractions(String id, Pagination pagination) {
-        JsonResultResponse<InteractionGeneJoin> ret = new JsonResultResponse<>();
+        JsonResultResponse<InteractionGeneJoin> response = new JsonResultResponse<>();
         PaginationResult<InteractionGeneJoin> interactions = interCacheRepo.getInteractionAnnotationList(id, pagination);
-        ret.addAnnotationSummarySupplementalData(getInteractionSummary(id));
+        response.addAnnotationSummarySupplementalData(getInteractionSummary(id));
         if (interactions == null)
-            return ret;
-        ret.setResults(interactions.getResult());
-        ret.setTotal(interactions.getTotalNumber());
-        return ret;
+            return response;
+        response.addDistinctFieldValueSupplementalData(interactions.getDistinctFieldValueMap());
+        response.setResults(interactions.getResult());
+        response.setTotal(interactions.getTotalNumber());
+        return response;
     }
 
     public JsonResultResponse<PhenotypeAnnotation> getPhenotypeAnnotations(String geneID, Pagination pagination) {

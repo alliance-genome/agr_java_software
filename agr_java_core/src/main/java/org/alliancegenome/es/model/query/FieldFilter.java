@@ -78,4 +78,5 @@ public enum FieldFilter {
     public String getFullName() {
         return FILTER_PREFIX + name;
     }
+
 }

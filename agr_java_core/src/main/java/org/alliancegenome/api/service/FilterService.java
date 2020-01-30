@@ -4,12 +4,11 @@ import org.alliancegenome.core.service.AnnotationFiltering;
 import org.alliancegenome.core.service.FilterFunction;
 import org.alliancegenome.core.service.SortingField;
 import org.alliancegenome.es.model.query.Pagination;
+import org.alliancegenome.neo4j.entity.FieldValues;
 import org.alliancegenome.neo4j.entity.Sorting;
 import org.alliancegenome.neo4j.view.BaseFilter;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class FilterService<T> {
@@ -69,6 +68,16 @@ public class FilterService<T> {
                 .skip(pagination.getStart())
                 .limit(pagination.getLimit())
                 .collect(Collectors.toList());
+    }
+
+    public Map<String, List<String>> getDistinctFieldValues(List<T> list, FieldValues<T> fieldValue) {
+        Map<String, List<String>> map = new HashMap<>();
+        fieldValue.getFields().forEach((fieldFilter, function) -> {
+            Set<String> distinctValues = new HashSet<>();
+            list.forEach(entity -> distinctValues.add(function.apply(entity)));
+            map.put(fieldFilter.getName(), new ArrayList<>(distinctValues));
+        });
+        return map;
     }
 }
 

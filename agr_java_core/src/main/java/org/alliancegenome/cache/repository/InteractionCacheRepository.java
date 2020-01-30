@@ -1,10 +1,12 @@
 package org.alliancegenome.cache.repository;
 
 import lombok.extern.log4j.Log4j2;
+import org.alliancegenome.api.service.FilterService;
 import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.cache.manager.BasicCachingManager;
 import org.alliancegenome.core.service.*;
 import org.alliancegenome.es.model.query.Pagination;
+import org.alliancegenome.neo4j.entity.InteractionFieldValues;
 import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
 import org.alliancegenome.neo4j.view.BaseFilter;
 
@@ -24,10 +26,15 @@ public class InteractionCacheRepository {
         List<InteractionGeneJoin> interactionAnnotationList = manager.getCache(geneID, CacheAlliance.GENE_INTERACTION);
         if (interactionAnnotationList == null)
             return null;
+
+        PaginationResult<InteractionGeneJoin> result = new PaginationResult<>();
+
+        FilterService<InteractionGeneJoin> filterService = new FilterService<>(new InteractionAnnotationFiltering());
+        result.setDistinctFieldValueMap(filterService.getDistinctFieldValues(interactionAnnotationList, new InteractionFieldValues()));
+
         //filtering
         List<InteractionGeneJoin> filteredInteractionAnnotationList = filterInteractionAnnotations(interactionAnnotationList, pagination.getFieldFilterValueMap(), true);
 
-        PaginationResult<InteractionGeneJoin> result = new PaginationResult<>();
         if (!filteredInteractionAnnotationList.isEmpty()) {
             result.setTotalNumber(filteredInteractionAnnotationList.size());
             result.setResult(getSortedAndPaginatedInteractionAnnotations(pagination, filteredInteractionAnnotationList));
