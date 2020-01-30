@@ -57,12 +57,17 @@ public class PhenotypeAnnotationToTdfTranslator {
 
     public List<PhenotypeDownloadRow> getDownloadRowsFromAnnotations(List<PhenotypeAnnotation> phenotypeAnnotations) {
         denormalizeAnnotations(phenotypeAnnotations);
+
         return phenotypeAnnotations.stream()
                 .map(annotation -> annotation.getPrimaryAnnotatedEntities().stream()
                         .map(entity -> entity.getPublicationEvidenceCodes().stream()
                                 .map(join -> {
-
-                                        return List.of(getPhenotypeDownloadRow(annotation, entity, join, null));
+                                    if (CollectionUtils.isNotEmpty(annotation.getPrimaryAnnotatedEntities()))
+                                        return annotation.getPrimaryAnnotatedEntities().stream()
+                                                .map(primaryAnnotatedEntry -> getPhenotypeDownloadRow(annotation, entity, join))
+                                                .collect(Collectors.toList());
+                                    else
+                                        return List.of(getPhenotypeDownloadRow(null, entity, join));
                                 })
                                 .flatMap(Collection::stream)
                                 .collect(Collectors.toList()))
@@ -72,19 +77,26 @@ public class PhenotypeAnnotationToTdfTranslator {
                 .collect(Collectors.toList());
     }
 
-    private PhenotypeDownloadRow getPhenotypeDownloadRow(PhenotypeAnnotation annotation, PrimaryAnnotatedEntity entity, PublicationJoin join, Gene homologousGene) {
-        PhenotypeDownloadRow row = getBaseDownloadRow(annotation, join, homologousGene);
+
+
+
+
+    private PhenotypeDownloadRow getPhenotypeDownloadRow(PhenotypeAnnotation annotation, PrimaryAnnotatedEntity entity, PublicationJoin join) {
+        PhenotypeDownloadRow row = getBaseDownloadRow(annotation, join, entity);
 
         row.setPhenotype(annotation.getPhenotype());
         row.setReference(join.getPublication().getPubId());
-        row.setGeneticEntityID(entity.getId());
-        row.setGeneticEntityName(entity.getDisplayName());
-        row.setGeneticEntityType(entity.getType().getDisplayName());
-       
+        if (entity != null) {
+            row.setGeneticEntityID(entity.getId());
+            row.setGeneticEntityName(entity.getDisplayName());
+            row.setGeneticEntityType(entity.getType().getDisplayName());
+
+        }
+
         return row;
     }
 
-    private PhenotypeDownloadRow getBaseDownloadRow(PhenotypeAnnotation annotation, PublicationJoin join, Gene homologousGene) {
+    private PhenotypeDownloadRow getBaseDownloadRow(PhenotypeAnnotation annotation, PublicationJoin join, PrimaryAnnotatedEntity entity) {
         PhenotypeDownloadRow row = new PhenotypeDownloadRow();
         row.setPhenotype(annotation.getPhenotype());
 
