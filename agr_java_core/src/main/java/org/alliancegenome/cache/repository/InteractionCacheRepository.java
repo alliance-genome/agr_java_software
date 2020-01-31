@@ -1,12 +1,14 @@
 package org.alliancegenome.cache.repository;
 
 import lombok.extern.log4j.Log4j2;
+import org.alliancegenome.api.service.ColumnFieldMapping;
 import org.alliancegenome.api.service.FilterService;
+import org.alliancegenome.api.service.InteractionColumnFieldMapping;
+import org.alliancegenome.api.service.Table;
 import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.cache.manager.BasicCachingManager;
 import org.alliancegenome.core.service.*;
 import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.neo4j.entity.InteractionFieldValues;
 import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
 import org.alliancegenome.neo4j.view.BaseFilter;
 
@@ -30,7 +32,8 @@ public class InteractionCacheRepository {
         PaginationResult<InteractionGeneJoin> result = new PaginationResult<>();
 
         FilterService<InteractionGeneJoin> filterService = new FilterService<>(new InteractionAnnotationFiltering());
-        result.setDistinctFieldValueMap(filterService.getDistinctFieldValues(interactionAnnotationList, new InteractionFieldValues()));
+        ColumnFieldMapping<InteractionGeneJoin> mapping = new InteractionColumnFieldMapping();
+        result.setDistinctFieldValueMap(filterService.getDistinctFieldValues1(interactionAnnotationList, mapping.getSingleValuedFieldColumns(Table.INTERACTION), mapping));
 
         //filtering
         List<InteractionGeneJoin> filteredInteractionAnnotationList = filterInteractionAnnotations(interactionAnnotationList, pagination.getFieldFilterValueMap(), true);

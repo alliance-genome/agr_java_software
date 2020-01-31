@@ -1,11 +1,13 @@
 package org.alliancegenome.cache.repository;
 
 import lombok.extern.log4j.Log4j2;
+import org.alliancegenome.api.service.*;
 import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.cache.manager.BasicCachingManager;
 import org.alliancegenome.core.ExpressionDetail;
 import org.alliancegenome.core.service.*;
 import org.alliancegenome.es.model.query.Pagination;
+import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.repository.DiseaseRepository;
 import org.alliancegenome.neo4j.view.BaseFilter;
 import org.apache.commons.collections4.CollectionUtils;
@@ -50,12 +52,18 @@ public class ExpressionCacheRepository {
                     .filter(expressionDetail -> expressionDetail.getTermIDs().contains(termID))
                     .collect(Collectors.toList());
         }
+
         List<ExpressionDetail> filteredExpressionAnnotationList = filterExpressionAnnotations(filterTermIDList, pagination.getFieldFilterValueMap());
+
 
         PaginationResult<ExpressionDetail> result = new PaginationResult<>();
         if (!filteredExpressionAnnotationList.isEmpty()) {
             result.setTotalNumber(filteredExpressionAnnotationList.size());
             result.setResult(getSortedAndPaginatedExpressions(filteredExpressionAnnotationList, pagination));
+            FilterService<ExpressionDetail> filterService = new FilterService<>(new ExpressionAnnotationFiltering());
+            ColumnFieldMapping<ExpressionDetail> mapping = new ExpressionColumnFieldMapping();
+            result.setDistinctFieldValueMap(filterService.getDistinctFieldValues1(filterTermIDList,
+                    mapping.getSingleValuedFieldColumns(Table.EXPRESSION), mapping));
         }
         return result;
     }

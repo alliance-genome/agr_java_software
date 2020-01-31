@@ -81,7 +81,6 @@ public class FilterService<T> {
         return map;
     }
 
-    //Map<Column, Function<? extends PresentationEntity, String>>
     public Map<String, List<String>> getDistinctFieldValues1(List<T> list, Map<Column, Function<T, String>> fieldValueMap, ColumnFieldMapping mapping) {
         Map<String, List<String>> map = new HashMap<>();
         fieldValueMap.forEach((column, function) -> {

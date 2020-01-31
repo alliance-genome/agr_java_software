@@ -398,6 +398,7 @@ public class DiseaseService {
         if (paginationResult != null) {
             response.setResults(paginationResult.getResult());
             response.setTotal(paginationResult.getTotalNumber());
+            response.addDistinctFieldValueSupplementalData(paginationResult.getDistinctFieldValueMap());
         }
         return response;
     }

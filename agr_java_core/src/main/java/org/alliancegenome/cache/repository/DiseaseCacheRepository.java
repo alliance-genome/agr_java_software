@@ -99,6 +99,11 @@ public class DiseaseCacheRepository {
 
         //filtering
         PaginationResult<DiseaseAnnotation> result = getDiseaseAnnotationPaginationResult(pagination, slimDiseaseAnnotationList);
+        FilterService<DiseaseAnnotation> filterService = new FilterService<>(new DiseaseAnnotationFiltering());
+        ColumnFieldMapping<DiseaseAnnotation> mapping = new DiseaseColumnFieldMapping();
+        result.setDistinctFieldValueMap(filterService.getDistinctFieldValues1(slimDiseaseAnnotationList,
+                mapping.getSingleValuedFieldColumns(Table.DISEASE), mapping));
+
         return result;
     }
 
