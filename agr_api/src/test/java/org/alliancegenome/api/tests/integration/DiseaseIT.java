@@ -61,6 +61,7 @@ public class DiseaseIT {
         String diseaseID = "DOID:1838";
         JsonResultResponse<DiseaseAnnotation> response = diseaseService.getDiseaseAnnotationsWithAlleles(diseaseID, pagination);
         assertLimitResponse(response, 10, 10);
+        assertEquals(response.getDistinctFieldValues().size(), 2);
     }
 
     @Test
@@ -93,6 +94,7 @@ public class DiseaseIT {
         String diseaseID = "DOID:1838";
         JsonResultResponse<DiseaseAnnotation> response = diseaseService.getDiseaseAnnotationsWithAGM(diseaseID, pagination);
         assertLimitResponse(response, 11, 11);
+        assertEquals(response.getDistinctFieldValues().size(), 1);
     }
 
     @Test

@@ -6,6 +6,8 @@ public enum Table {
     INTERACTION(Page.GENE),
     PHENOTYPE(Page.GENE),
     ASSOCIATED_GENE(Page.DISEASE),
+    ALLELE(Page.DISEASE),
+    MODEL(Page.DISEASE),
     ;
 
     private Page page;

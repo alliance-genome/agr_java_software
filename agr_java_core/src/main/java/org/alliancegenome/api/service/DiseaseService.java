@@ -86,6 +86,11 @@ public class DiseaseService {
         List<DiseaseAnnotation> filteredDiseaseAnnotationList = filterService.filterAnnotations(alleleDiseaseAnnotations, pagination.getFieldFilterValueMap());
         result.setTotal(filteredDiseaseAnnotationList.size());
         result.setResults(filterService.getSortedAndPaginatedAnnotations(pagination, filteredDiseaseAnnotationList, new DiseaseAnnotationSorting()));
+
+        ColumnFieldMapping<DiseaseAnnotation> mapping = new DiseaseColumnFieldMapping();
+        result.addDistinctFieldValueSupplementalData(filterService.getDistinctFieldValues1(alleleDiseaseAnnotations,
+                mapping.getSingleValuedFieldColumns(Table.ALLELE), mapping));
+
         return result;
     }
 
@@ -119,6 +124,11 @@ public class DiseaseService {
         List<DiseaseAnnotation> filteredDiseaseAnnotationList = filterService.filterAnnotations(geneDiseaseAnnotations, pagination.getFieldFilterValueMap());
         result.setTotal(filteredDiseaseAnnotationList.size());
         result.setResults(filterService.getSortedAndPaginatedAnnotations(pagination, filteredDiseaseAnnotationList, new DiseaseAnnotationSorting()));
+
+        ColumnFieldMapping<DiseaseAnnotation> mapping = new DiseaseColumnFieldMapping();
+        result.addDistinctFieldValueSupplementalData(filterService.getDistinctFieldValues1(geneDiseaseAnnotations,
+                mapping.getSingleValuedFieldColumns(Table.ALLELE), mapping));
+
         return result;
     }
 
@@ -142,6 +152,11 @@ public class DiseaseService {
         result.setTotal(filteredDiseaseAnnotationList.size());
         result.setResults(filterService.getSortedAndPaginatedAnnotations(pagination, filteredDiseaseAnnotationList, new ModelAnnotationsSorting()));
         result.calculateRequestDuration(startDate);
+
+        ColumnFieldMapping<DiseaseAnnotation> mapping = new DiseaseColumnFieldMapping();
+        result.addDistinctFieldValueSupplementalData(filterService.getDistinctFieldValues1(modelDiseaseAnnotations,
+                mapping.getSingleValuedFieldColumns(Table.MODEL), mapping));
+
         return result;
     }
 
