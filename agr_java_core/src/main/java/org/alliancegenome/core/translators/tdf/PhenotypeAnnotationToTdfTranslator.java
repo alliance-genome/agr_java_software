@@ -58,6 +58,8 @@ public class PhenotypeAnnotationToTdfTranslator {
     public List<PhenotypeDownloadRow> getDownloadRowsFromAnnotations(List<PhenotypeAnnotation> phenotypeAnnotations) {
         denormalizeAnnotations(phenotypeAnnotations);
         return phenotypeAnnotations.stream()
+                .filter(annotation -> annotation.getPrimaryAnnotatedEntities()!=null)
+                .filter(annotation -> !CollectionUtils.isEmpty(annotation.getPrimaryAnnotatedEntities()))
                 .map(annotation -> annotation.getPrimaryAnnotatedEntities().stream()
                         .map(entity -> entity.getPublicationEvidenceCodes().stream()
                                 .map(join -> {
@@ -77,10 +79,13 @@ public class PhenotypeAnnotationToTdfTranslator {
 
         row.setPhenotype(annotation.getPhenotype());
         row.setReference(join.getPublication().getPubId());
-        row.setGeneticEntityID(entity.getId());
-        row.setGeneticEntityName(entity.getDisplayName());
-        row.setGeneticEntityType(entity.getType().getDisplayName());
-       
+        if (entity != null) {
+            row.setGeneticEntityID(entity.getId());
+            row.setGeneticEntityName(entity.getDisplayName());
+            row.setGeneticEntityType(entity.getType().getDisplayName());
+
+        }
+
         return row;
     }
 
