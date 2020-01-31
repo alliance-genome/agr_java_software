@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Getter;
 import lombok.Setter;
+import org.alliancegenome.api.entity.PresentationEntity;
 import org.alliancegenome.neo4j.entity.node.*;
 import org.alliancegenome.neo4j.view.View;
 
@@ -16,7 +17,7 @@ import java.util.stream.Collectors;
 @Getter
 @Setter
 @JsonPropertyOrder({"disease", "gene", "allele", "geneticEntityType", "associationType", "ecoCode", "source", "publications"})
-public class DiseaseAnnotation implements Comparable<DiseaseAnnotation>, Serializable {
+public class DiseaseAnnotation implements Comparable<DiseaseAnnotation>, Serializable, PresentationEntity {
 
     @JsonView({View.DiseaseAnnotation.class})
     private String primaryKey;

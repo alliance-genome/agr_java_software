@@ -2,6 +2,7 @@ package org.alliancegenome.neo4j.entity.node;
 
 import java.util.List;
 
+import org.alliancegenome.api.entity.PresentationEntity;
 import org.alliancegenome.neo4j.entity.Neo4jEntity;
 import org.alliancegenome.neo4j.view.View;
 import org.neo4j.ogm.annotation.NodeEntity;
@@ -15,7 +16,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NodeEntity
-public class InteractionGeneJoin extends Neo4jEntity implements Comparable {
+public class InteractionGeneJoin extends Neo4jEntity implements Comparable, PresentationEntity {
 
     @JsonView({View.Interaction.class})
     private String primaryKey;

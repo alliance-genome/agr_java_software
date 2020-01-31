@@ -136,7 +136,6 @@ public class DiseaseIT {
     }
 
     @Test
-    @Ignore
     public void checkDiseaseAssociationByDisease() {
         Pagination pagination = new Pagination(1, 100, null, null);
         // choriocarcinoma
@@ -156,6 +155,7 @@ public class DiseaseIT {
         assertThat(annotation.getDisease().getName(), equalTo("choriocarcinoma"));
         assertThat(annotation.getAssociationType(), equalTo("is_implicated_in"));
 
+        assertEquals(response.getDistinctFieldValues().size(), 2);
         DiseaseAnnotationToTdfTranslator translator = new DiseaseAnnotationToTdfTranslator();
         String output = translator.getAllRowsForGenes(response.getResults());
         List<String> lines = Arrays.asList(output.split("\n"));

@@ -1,34 +1,11 @@
 package org.alliancegenome.api.service;
 
-import static java.util.stream.Collectors.toList;
-
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import javax.enterprise.context.RequestScoped;
-
 import org.alliancegenome.api.entity.DiseaseEntitySubgroupSlim;
 import org.alliancegenome.api.entity.DiseaseRibbonEntity;
 import org.alliancegenome.api.entity.DiseaseRibbonSummary;
 import org.alliancegenome.cache.repository.DiseaseCacheRepository;
 import org.alliancegenome.cache.repository.PhenotypeCacheRepository;
-import org.alliancegenome.core.service.DiseaseAnnotationFiltering;
-import org.alliancegenome.core.service.DiseaseAnnotationSorting;
-import org.alliancegenome.core.service.JsonResultResponse;
-import org.alliancegenome.core.service.ModelAnnotationFiltering;
-import org.alliancegenome.core.service.ModelAnnotationsSorting;
-import org.alliancegenome.core.service.PaginationResult;
-import org.alliancegenome.core.service.PrimaryAnnotatedEntityFiltering;
-import org.alliancegenome.core.service.PrimaryAnnotatedEntitySorting;
-import org.alliancegenome.core.service.SortingField;
+import org.alliancegenome.core.service.*;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
@@ -42,6 +19,13 @@ import org.alliancegenome.neo4j.entity.node.SimpleTerm;
 import org.alliancegenome.neo4j.repository.DiseaseRepository;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.apache.commons.collections.CollectionUtils;
+
+import javax.enterprise.context.RequestScoped;
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toList;
 
 @RequestScoped
 public class DiseaseService {
@@ -80,6 +64,7 @@ public class DiseaseService {
         if (paginationResult != null) {
             response.setResults(paginationResult.getResult());
             response.setTotal(paginationResult.getTotalNumber());
+            response.addDistinctFieldValueSupplementalData(paginationResult.getDistinctFieldValueMap());
         }
         return response;
     }

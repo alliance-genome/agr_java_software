@@ -2,8 +2,7 @@ package org.alliancegenome.cache.repository;
 
 import lombok.extern.log4j.Log4j2;
 import org.alliancegenome.api.entity.DiseaseRibbonSummary;
-import org.alliancegenome.api.service.DiseaseService;
-import org.alliancegenome.api.service.FilterService;
+import org.alliancegenome.api.service.*;
 import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.cache.manager.BasicCachingManager;
 import org.alliancegenome.core.service.DiseaseAnnotationFiltering;
@@ -56,6 +55,11 @@ public class DiseaseCacheRepository {
 
         //filtering
         result = getDiseaseAnnotationPaginationResult(pagination, fullDiseaseAnnotationList);
+
+        FilterService filterService = new FilterService<>(new DiseaseAnnotationFiltering());
+        ColumnFieldMapping<DiseaseAnnotation> mapping = new DiseaseColumnFieldMapping();
+        result.setDistinctFieldValueMap(filterService.getDistinctFieldValues1(fullDiseaseAnnotationList,
+                mapping.getSingleValuedFieldColumns(Table.ASSOCIATED_GENE), mapping));
         return result;
     }
 
