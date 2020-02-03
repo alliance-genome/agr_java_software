@@ -8,8 +8,10 @@ import javax.ws.rs.core.Response;
 
 import org.alliancegenome.neo4j.entity.node.DOTerm;
 import org.alliancegenome.neo4j.entity.node.Gene;
+import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.repository.DiseaseRepository;
 import org.alliancegenome.neo4j.repository.GeneRepository;
+import org.alliancegenome.neo4j.repository.AlleleRepository;
 
 public class APIService {
 
@@ -54,6 +56,12 @@ public class APIService {
                 DOTerm disease = diseaseRepository.getDiseaseTerm(id);
                 if (disease != null)
                     entityName = disease.getName();
+                break;
+            case ALLELE:
+                AlleleRepository alleleRepository = new AlleleRepository();
+                Allele allele = alleleRepository.getAllele(id);
+                if (allele != null)
+                    entityName = allele.getSymbol();
                 break;
             default:
         }

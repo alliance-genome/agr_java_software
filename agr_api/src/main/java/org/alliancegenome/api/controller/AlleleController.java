@@ -131,15 +131,13 @@ public class AlleleController implements AlleleRESTInterface {
 
     @Override
     public Response getPhenotypesPerAlleleDownload(String id,
-                                                   int limit,
-                                                   int page,
                                                    String phenotype,
                                                    String source,
                                                    String reference,
                                                    String sortBy) {
         JsonResultResponse<PhenotypeAnnotation> response = getPhenotypePerAllele( id,
-        limit,
-        page,
+                Integer.MAX_VALUE,
+                1,
          phenotype,
          source,
          reference,

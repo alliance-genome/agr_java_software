@@ -111,10 +111,6 @@ public interface AlleleRESTInterface {
     Response getPhenotypesPerAlleleDownload(
             @ApiParam(name = "id", value = "Search for Phenotypes for a given Allele by ID")
             @PathParam("id") String id,
-            @ApiParam(name = "limit", value = "Number of rows returned", defaultValue = "20")
-            @DefaultValue("20") @QueryParam("limit") int limit,
-            @ApiParam(name = "page", value = "Page number")
-            @DefaultValue("1") @QueryParam("page") int page,
             @ApiParam(value = "termName annotation")
             @QueryParam("filter.termName") String phenotype,
             @ApiParam(value = "Source")
