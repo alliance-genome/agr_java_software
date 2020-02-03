@@ -47,7 +47,7 @@ public class PrimaryAnnotatedEntityFiltering extends AnnotationFiltering<Primary
 /*
         filterFieldMap.put(FieldFilter.EVIDENCE_CODE, evidenceCodeFilter);
         filterFieldMap.put(FieldFilter.FREFERENCE, referenceFilter);
-        filterFieldMap.put(FieldFilter.SOURCE, sourceFilter);
+        filterFieldMap.put(FieldFilter.INERACTION_SOURCE, sourceFilter);
         filterFieldMap.put(FieldFilter.GENE_NAME, geneNameFilter);
 */
         filterFieldMap.put(FieldFilter.DISEASE, termNameFilter);

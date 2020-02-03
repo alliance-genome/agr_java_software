@@ -1,14 +1,9 @@
 package org.alliancegenome.api.controller;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.Response;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.log4j.Log4j2;
 import org.alliancegenome.api.entity.RibbonSummary;
 import org.alliancegenome.api.rest.interfaces.ExpressionRESTInterface;
 import org.alliancegenome.api.service.APIService;
@@ -27,11 +22,13 @@ import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.alliancegenome.neo4j.view.BaseFilter;
 import org.alliancegenome.neo4j.view.View;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import lombok.extern.log4j.Log4j2;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.Response;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 @Log4j2
 public class ExpressionController implements ExpressionRESTInterface {
@@ -60,7 +57,7 @@ public class ExpressionController implements ExpressionRESTInterface {
 
         LocalDateTime startDate = LocalDateTime.now();
         try {
-            JsonResultResponse<ExpressionDetail> result = getExpressionDetailJsonResultResponse(
+            JsonResultResponse<ExpressionDetail> response = getExpressionDetailJsonResultResponse(
                     geneIDs,
                     termID,
                     filterSpecies,
@@ -74,10 +71,6 @@ public class ExpressionController implements ExpressionRESTInterface {
                     page,
                     sortBy,
                     asc);
-            JsonResultResponse<ExpressionDetail> response = new JsonResultResponse<>();
-            response.setResults(result.getResults());
-            response.calculateRequestDuration(startDate);
-            response.setTotal(result.getTotal());
             response.calculateRequestDuration(startDate);
             response.setHttpServletRequest(request);
             return response;

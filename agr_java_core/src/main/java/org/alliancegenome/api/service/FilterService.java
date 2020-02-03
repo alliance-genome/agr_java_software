@@ -9,6 +9,7 @@ import org.alliancegenome.neo4j.entity.Sorting;
 import org.alliancegenome.neo4j.view.BaseFilter;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class FilterService<T> {
@@ -76,6 +77,16 @@ public class FilterService<T> {
             Set<String> distinctValues = new HashSet<>();
             list.forEach(entity -> distinctValues.add(function.apply(entity)));
             map.put(fieldFilter.getName(), new ArrayList<>(distinctValues));
+        });
+        return map;
+    }
+
+    public Map<String, List<String>> getDistinctFieldValues1(List<T> list, Map<Column, Function<T, String>> fieldValueMap, ColumnFieldMapping mapping) {
+        Map<String, List<String>> map = new HashMap<>();
+        fieldValueMap.forEach((column, function) -> {
+            Set<String> distinctValues = new HashSet<>();
+            list.forEach(entity -> distinctValues.add(function.apply(entity)));
+            map.put(mapping.getFieldFilterName(column), new ArrayList<>(distinctValues));
         });
         return map;
     }
