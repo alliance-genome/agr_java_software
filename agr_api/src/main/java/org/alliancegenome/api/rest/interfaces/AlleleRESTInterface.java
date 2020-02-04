@@ -143,4 +143,22 @@ public interface AlleleRESTInterface {
     );
 
 
+    @GET
+    @Path("/{id}/diseases/download")
+    @ApiOperation(value = "Retrieve all diseases of a given allele in a download")
+    @JsonView(value = {View.DiseaseAnnotationSummary.class})
+    @Produces(MediaType.TEXT_PLAIN)
+    Response getDiseasePerAlleleDownload(
+            @ApiParam(name = "id", value = "Search for Disease for a given Allele by ID")
+            @PathParam("id") String id,
+            @ApiParam(value = "termName annotation")
+            @QueryParam("filter.termName") String phenotype,
+            @ApiParam(value = "Source")
+            @QueryParam("filter.source") String source,
+            @ApiParam(value = "Reference number: PUBMED or a Pub ID from the MOD")
+            @QueryParam("filter.reference") String reference,
+            @ApiParam(value = "Field name by which to sort", allowableValues = "")
+            @QueryParam("sortBy") String sortBy
+    );
+
 }

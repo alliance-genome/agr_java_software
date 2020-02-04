@@ -10,6 +10,7 @@ import org.alliancegenome.core.exceptions.RestErrorMessage;
 import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.core.translators.tdf.AlleleToTdfTranslator;
 import org.alliancegenome.core.translators.tdf.PhenotypeAnnotationToTdfTranslator;
+import org.alliancegenome.core.translators.tdf.DiseaseAnnotationToTdfTranslator;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
@@ -34,6 +35,7 @@ public class AlleleController implements AlleleRESTInterface {
 
     private AlleleToTdfTranslator translator = new AlleleToTdfTranslator();
     private final PhenotypeAnnotationToTdfTranslator phenotypeAnnotationToTdfTranslator = new PhenotypeAnnotationToTdfTranslator();
+    private final DiseaseAnnotationToTdfTranslator diseaseToTdfTranslator = new DiseaseAnnotationToTdfTranslator();
 
     @Override
     public Allele getAllele(String id) {
@@ -176,6 +178,25 @@ public class AlleleController implements AlleleRESTInterface {
             error.addErrorMessage(e.getMessage());
             throw new RestErrorException(error);
         }
+    }
+
+
+    @Override
+    public Response getDiseasePerAlleleDownload(String id,
+                                                   String disease,
+                                                   String source,
+                                                   String reference,
+                                                   String sortBy) {
+        JsonResultResponse<DiseaseAnnotation> response = getDiseasePerAllele( id,
+                Integer.MAX_VALUE,
+                1,
+                disease,
+                source,
+                reference,
+                sortBy);
+        Response.ResponseBuilder responseBuilder = Response.ok(diseaseToTdfTranslator.getAllRowsForAllele(response.getResults()));
+        APIService.setDownloadHeader(id, EntityType.ALLELE, EntityType.DISEASE, responseBuilder);
+        return responseBuilder.build();
     }
 
 }

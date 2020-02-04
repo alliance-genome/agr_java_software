@@ -461,7 +461,7 @@ public class DiseaseController extends BaseController implements DiseaseRESTInte
             response.setHttpServletRequest(request);
             response.calculateRequestDuration(startDate);
             // translate all records
-            responseBuilder = Response.ok(translator.getAllRowsForRibbon(response.getResults()));
+            responseBuilder = Response.ok(translator.getAllRowsForGenes(response.getResults()));
             responseBuilder.type(MediaType.TEXT_PLAIN_TYPE);
             APIService.setDownloadHeader(geneIDs.get(0), GENE, DISEASE, responseBuilder);
         } catch (Exception e) {
