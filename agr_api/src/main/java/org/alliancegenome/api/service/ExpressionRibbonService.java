@@ -53,17 +53,17 @@ public class ExpressionRibbonService {
     static {
         List<String> infection = new ArrayList<>();
         infection.add("Expression grouped by Locations");
-        infection.add("All Anatomical Structures");
+        infection.add("All anatomical structures");
         slimParentTermIdMap.put(ExpressionCacheRepository.UBERON_ANATOMY_ROOT, infection);
 
         List<String> anatomy = new ArrayList<>();
         anatomy.add("Expression grouped by Stages");
-        anatomy.add("All Stages");
+        anatomy.add("All stages");
         slimParentTermIdMap.put(ExpressionCacheRepository.UBERON_STAGE_ROOT, anatomy);
 
         List<String> goTerms = new ArrayList<>();
         goTerms.add("Expression grouped by GO CC terms");
-        goTerms.add("All Cellular Components");
+        goTerms.add("All cellular components");
         slimParentTermIdMap.put(ExpressionCacheRepository.GO_CC_ROOT, goTerms);
 
     }
