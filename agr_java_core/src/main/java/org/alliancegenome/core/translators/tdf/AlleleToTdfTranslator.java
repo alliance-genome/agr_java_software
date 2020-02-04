@@ -1,6 +1,7 @@
 package org.alliancegenome.core.translators.tdf;
 
 import org.alliancegenome.core.config.ConfigHelper;
+import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.SimpleTerm;
 import org.alliancegenome.neo4j.entity.node.Variant;
@@ -78,4 +79,6 @@ public class AlleleToTdfTranslator {
         return builder.toString();
 
     }
+
+
 }
