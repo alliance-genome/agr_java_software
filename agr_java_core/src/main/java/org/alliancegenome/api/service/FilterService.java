@@ -71,17 +71,7 @@ public class FilterService<T> {
                 .collect(Collectors.toList());
     }
 
-    public Map<String, List<String>> getDistinctFieldValues(List<T> list, FieldValues<T> fieldValue) {
-        Map<String, List<String>> map = new HashMap<>();
-        fieldValue.getFields().forEach((fieldFilter, function) -> {
-            Set<String> distinctValues = new HashSet<>();
-            list.forEach(entity -> distinctValues.add(function.apply(entity)));
-            map.put(fieldFilter.getName(), new ArrayList<>(distinctValues));
-        });
-        return map;
-    }
-
-    public Map<String, List<String>> getDistinctFieldValues1(List<T> list, Map<Column, Function<T, String>> fieldValueMap, ColumnFieldMapping mapping) {
+    public Map<String, List<String>> getDistinctFieldValues(List<T> list, Map<Column, Function<T, String>> fieldValueMap, ColumnFieldMapping mapping) {
         Map<String, List<String>> map = new HashMap<>();
         fieldValueMap.forEach((column, function) -> {
             Set<String> distinctValues = new HashSet<>();

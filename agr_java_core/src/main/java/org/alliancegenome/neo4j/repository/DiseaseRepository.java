@@ -5,7 +5,6 @@ import lombok.Setter;
 import lombok.extern.log4j.Log4j2;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.DiseaseSummary;
 import org.alliancegenome.neo4j.entity.node.*;
 import org.alliancegenome.neo4j.view.BaseFilter;
@@ -249,7 +248,7 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
 
         doAgrDoList = StreamSupport.stream(joins.spliterator(), false)
                 .collect(Collectors.toList());
-        log.info("AGR-DO slim: " + doAgrDoList.size());
+        log.debug("AGR-DO slim: " + doAgrDoList.size());
         return doAgrDoList;
 
     }

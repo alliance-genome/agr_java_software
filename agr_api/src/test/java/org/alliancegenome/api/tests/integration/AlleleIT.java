@@ -172,7 +172,7 @@ public class AlleleIT {
         //String alleleID = "ZFIN:ZDB-ALT-041001-12";
         //String alleleID = "MGI:5442117";
         // hu3335
-        String alleleID = "ZFIN:ZFIN:ZDB-ALT-980203-692";
+        String alleleID = "ZFIN:ZDB-ALT-980203-692";
         JsonResultResponse<PhenotypeAnnotation> response = alleleService.getPhenotype(alleleID, new Pagination());
         assertNotNull(response);
         assertThat(response.getTotal(), greaterThanOrEqualTo(20));

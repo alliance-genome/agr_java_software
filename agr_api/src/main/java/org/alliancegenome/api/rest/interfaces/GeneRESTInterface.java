@@ -227,8 +227,8 @@ public interface GeneRESTInterface {
             @ApiParam(name = "filter.source", value = "database")
             @QueryParam("filter.source") String source,
             @ApiParam(name = "filter.reference", value = "References")
-            @QueryParam("filter.reference") String reference
-    );
+            @QueryParam("filter.reference") String reference,
+            @Context UriInfo info);
 
     @GET
     @Path("/{id}/interactions/download")

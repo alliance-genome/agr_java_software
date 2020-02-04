@@ -28,10 +28,7 @@ import org.apache.commons.collections.CollectionUtils;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
+import javax.ws.rs.core.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -149,9 +146,10 @@ public class GeneController extends BaseController implements GeneRESTInterface 
                                                                    String interactorMoleculeType,
                                                                    String detectionMethod,
                                                                    String source,
-                                                                   String reference) {
+                                                                   String reference,
+                                                                   @Context UriInfo info) {
         long startTime = System.currentTimeMillis();
-        Pagination pagination = new Pagination(page, limit, sortBy, asc);
+        Pagination pagination = new Pagination(page, limit, sortBy, asc, new InteractionColumnFieldMapping());
         pagination.addFieldFilter(FieldFilter.MOLECULE_TYPE, moleculeType);
         pagination.addFieldFilter(FieldFilter.INTERACTOR_GENE_SYMBOL, interactorGeneSymbol);
         pagination.addFieldFilter(FieldFilter.INTERACTOR_SPECIES, interactorSpecies);
@@ -159,6 +157,12 @@ public class GeneController extends BaseController implements GeneRESTInterface 
         pagination.addFieldFilter(FieldFilter.DETECTION_METHOD, detectionMethod);
         pagination.addFieldFilter(FieldFilter.SOURCE, source);
         pagination.addFieldFilter(FieldFilter.FREFERENCE, reference);
+        pagination.validateFilterValues(info.getQueryParameters());
+        if (pagination.hasErrors()) {
+            RestErrorMessage message = new RestErrorMessage();
+            message.setErrors(pagination.getErrors());
+            throw new RestErrorException(message);
+        }
         try {
             JsonResultResponse<InteractionGeneJoin> interactions = geneService.getInteractions(id, pagination);
             interactions.setHttpServletRequest(request);

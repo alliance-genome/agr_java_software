@@ -1,13 +1,12 @@
 package org.alliancegenome.neo4j.entity.node;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
+import lombok.Getter;
+import lombok.Setter;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 
-import lombok.Getter;
-import lombok.Setter;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @NodeEntity
 @Getter
@@ -42,4 +41,11 @@ public class PhenotypeEntityJoin extends EntityJoin {
     public String toString() {
         return primaryKey;
     }
+
+    public Source getSource() {
+        Source source = new Source();
+        source.setName(dataProvider);
+        return source;
+    }
+
 }

@@ -253,6 +253,7 @@ public class GenePhenotypeCacher extends Cacher {
                         document.setAllele(allele);
                     document.setPhenotype(phenotypeEntityJoin.getPhenotype().getPhenotypeStatement());
                     document.setPublications(phenotypeEntityJoin.getPublications());
+                    document.setSource(phenotypeEntityJoin.getSource());
                     Map<String, PrimaryAnnotatedEntity> entities = new HashMap<>();
 
                     // if AGMs are present

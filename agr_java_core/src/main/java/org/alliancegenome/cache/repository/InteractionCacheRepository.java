@@ -33,7 +33,7 @@ public class InteractionCacheRepository {
 
         FilterService<InteractionGeneJoin> filterService = new FilterService<>(new InteractionAnnotationFiltering());
         ColumnFieldMapping<InteractionGeneJoin> mapping = new InteractionColumnFieldMapping();
-        result.setDistinctFieldValueMap(filterService.getDistinctFieldValues1(interactionAnnotationList, mapping.getSingleValuedFieldColumns(Table.INTERACTION), mapping));
+        result.setDistinctFieldValueMap(filterService.getDistinctFieldValues(interactionAnnotationList, mapping.getSingleValuedFieldColumns(Table.INTERACTION), mapping));
 
         //filtering
         List<InteractionGeneJoin> filteredInteractionAnnotationList = filterInteractionAnnotations(interactionAnnotationList, pagination.getFieldFilterValueMap(), true);
