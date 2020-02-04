@@ -7,7 +7,6 @@ import org.alliancegenome.cache.manager.BasicCachingManager;
 import org.alliancegenome.core.ExpressionDetail;
 import org.alliancegenome.core.service.*;
 import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.repository.DiseaseRepository;
 import org.alliancegenome.neo4j.view.BaseFilter;
 import org.apache.commons.collections4.CollectionUtils;
@@ -62,7 +61,7 @@ public class ExpressionCacheRepository {
             result.setResult(getSortedAndPaginatedExpressions(filteredExpressionAnnotationList, pagination));
             FilterService<ExpressionDetail> filterService = new FilterService<>(new ExpressionAnnotationFiltering());
             ColumnFieldMapping<ExpressionDetail> mapping = new ExpressionColumnFieldMapping();
-            result.setDistinctFieldValueMap(filterService.getDistinctFieldValues1(filterTermIDList,
+            result.setDistinctFieldValueMap(filterService.getDistinctFieldValues(filterTermIDList,
                     mapping.getSingleValuedFieldColumns(Table.EXPRESSION), mapping));
         }
         return result;

@@ -88,7 +88,7 @@ public class DiseaseService {
         result.setResults(filterService.getSortedAndPaginatedAnnotations(pagination, filteredDiseaseAnnotationList, new DiseaseAnnotationSorting()));
 
         ColumnFieldMapping<DiseaseAnnotation> mapping = new DiseaseColumnFieldMapping();
-        result.addDistinctFieldValueSupplementalData(filterService.getDistinctFieldValues1(alleleDiseaseAnnotations,
+        result.addDistinctFieldValueSupplementalData(filterService.getDistinctFieldValues(alleleDiseaseAnnotations,
                 mapping.getSingleValuedFieldColumns(Table.ALLELE), mapping));
 
         return result;
@@ -126,7 +126,7 @@ public class DiseaseService {
         result.setResults(filterService.getSortedAndPaginatedAnnotations(pagination, filteredDiseaseAnnotationList, new DiseaseAnnotationSorting()));
 
         ColumnFieldMapping<DiseaseAnnotation> mapping = new DiseaseColumnFieldMapping();
-        result.addDistinctFieldValueSupplementalData(filterService.getDistinctFieldValues1(geneDiseaseAnnotations,
+        result.addDistinctFieldValueSupplementalData(filterService.getDistinctFieldValues(geneDiseaseAnnotations,
                 mapping.getSingleValuedFieldColumns(Table.ALLELE), mapping));
 
         return result;
@@ -154,7 +154,7 @@ public class DiseaseService {
         result.calculateRequestDuration(startDate);
 
         ColumnFieldMapping<DiseaseAnnotation> mapping = new DiseaseColumnFieldMapping();
-        result.addDistinctFieldValueSupplementalData(filterService.getDistinctFieldValues1(modelDiseaseAnnotations,
+        result.addDistinctFieldValueSupplementalData(filterService.getDistinctFieldValues(modelDiseaseAnnotations,
                 mapping.getSingleValuedFieldColumns(Table.MODEL), mapping));
 
         return result;

@@ -1,9 +1,7 @@
 package org.alliancegenome.core.translators.tdf;
 
-import org.alliancegenome.core.config.ConfigHelper;
-import org.alliancegenome.neo4j.entity.*;
 import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
-import org.alliancegenome.neo4j.entity.node.ECOTerm;
+import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.entity.node.GeneticEntity;
 import org.alliancegenome.neo4j.entity.node.PublicationJoin;
@@ -11,10 +9,7 @@ import org.apache.commons.collections.CollectionUtils;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
-import java.util.StringJoiner;
 import java.util.stream.Collectors;
-import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
 
 public class PhenotypeAnnotationToTdfTranslator {
 
@@ -34,6 +29,7 @@ public class PhenotypeAnnotationToTdfTranslator {
 
         return DownloadHeader.getDownloadOutput(list, headers);
     }
+
     private void denormalizeAnnotations(List<PhenotypeAnnotation> phenotypeAnnotation) {
         // add genetic entity info for annotations with pure genes
         phenotypeAnnotation.stream()
@@ -41,10 +37,19 @@ public class PhenotypeAnnotationToTdfTranslator {
                 .forEach(annotation -> {
                     PrimaryAnnotatedEntity entity = createNewPrimaryAnnotatedEntity(annotation, null);
                     annotation.addPrimaryAnnotatedEntity(entity);
+                    List<PublicationJoin> joins = annotation.getPublications().stream()
+                            .map(publication -> {
+                                PublicationJoin join = new PublicationJoin();
+                                join.setPublication(publication);
+                                return join;
+                            })
+                            .collect(Collectors.toList());
+                    entity.addPublicationEvidenceCode(joins);
                 });
 
 
     }
+
     private PrimaryAnnotatedEntity createNewPrimaryAnnotatedEntity(PhenotypeAnnotation annotation, PublicationJoin join) {
         PrimaryAnnotatedEntity entity = new PrimaryAnnotatedEntity();
         entity.setId(annotation.getGene().getPrimaryKey());
@@ -64,7 +69,7 @@ public class PhenotypeAnnotationToTdfTranslator {
                         .map(entity -> entity.getPublicationEvidenceCodes().stream()
                                 .map(join -> {
 
-                                        return List.of(getPhenotypeDownloadRow(annotation, entity, join, null));
+                                    return List.of(getPhenotypeDownloadRow(annotation, entity, join, null));
                                 })
                                 .flatMap(Collection::stream)
                                 .collect(Collectors.toList()))
@@ -85,7 +90,6 @@ public class PhenotypeAnnotationToTdfTranslator {
             row.setGeneticEntityType(entity.getType().getDisplayName());
 
         }
-
         return row;
     }
 

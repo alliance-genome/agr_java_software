@@ -58,7 +58,7 @@ public class DiseaseCacheRepository {
 
         FilterService filterService = new FilterService<>(new DiseaseAnnotationFiltering());
         ColumnFieldMapping<DiseaseAnnotation> mapping = new DiseaseColumnFieldMapping();
-        result.setDistinctFieldValueMap(filterService.getDistinctFieldValues1(fullDiseaseAnnotationList,
+        result.setDistinctFieldValueMap(filterService.getDistinctFieldValues(fullDiseaseAnnotationList,
                 mapping.getSingleValuedFieldColumns(Table.ASSOCIATED_GENE), mapping));
         return result;
     }
@@ -101,7 +101,7 @@ public class DiseaseCacheRepository {
         PaginationResult<DiseaseAnnotation> result = getDiseaseAnnotationPaginationResult(pagination, slimDiseaseAnnotationList);
         FilterService<DiseaseAnnotation> filterService = new FilterService<>(new DiseaseAnnotationFiltering());
         ColumnFieldMapping<DiseaseAnnotation> mapping = new DiseaseColumnFieldMapping();
-        result.setDistinctFieldValueMap(filterService.getDistinctFieldValues1(slimDiseaseAnnotationList,
+        result.setDistinctFieldValueMap(filterService.getDistinctFieldValues(slimDiseaseAnnotationList,
                 mapping.getSingleValuedFieldColumns(Table.DISEASE), mapping));
 
         return result;
