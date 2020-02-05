@@ -289,17 +289,23 @@ public class DiseaseCacher extends Cacher {
         DiseaseRibbonService diseaseRibbonService = new DiseaseRibbonService();
 
         return joinList.stream()
-                .map(diseaseEntityJoin -> {
+                .map(join -> {
                     DiseaseAnnotation document = new DiseaseAnnotation();
-                    document.setPrimaryKey(diseaseEntityJoin.getPrimaryKey());
-                    document.setGene(diseaseEntityJoin.getGene());
-                    document.setFeature(diseaseEntityJoin.getAllele());
-                    document.setModel(diseaseEntityJoin.getModel());
-                    document.setDisease(diseaseEntityJoin.getDisease());
-                    document.setSource(diseaseEntityJoin.getSource());
-                    document.setAssociationType(diseaseEntityJoin.getJoinType());
-                    document.setSortOrder(diseaseEntityJoin.getSortOrder());
-                    List<Gene> orthologyGenes = diseaseEntityJoin.getOrthologyGenes();
+                    document.setPrimaryKey(join.getPrimaryKey());
+                    document.setGene(join.getGene());
+                    document.setFeature(join.getAllele());
+                    document.setModel(join.getModel());
+                    document.setDisease(join.getDisease());
+                    document.setSource(join.getSource());
+                    document.setAssociationType(join.getJoinType());
+                    document.setSortOrder(join.getSortOrder());
+                    if (join.getSourceProvider() != null) {
+                        Map<String, CrossReference> providerMap = new HashMap<>();
+                        providerMap.put("sourceProvider", join.getSourceProvider());
+                        providerMap.put("loadProvider", join.getLoadProvider());
+                        document.setProviders(providerMap);
+                    }
+                    List<Gene> orthologyGenes = join.getOrthologyGenes();
                     if (orthologyGenes != null) {
                         orthologyGenes.sort(Comparator.comparing(gene -> gene.getSymbol().toLowerCase()));
                         document.setOrthologyGenes(orthologyGenes);
@@ -311,11 +317,11 @@ public class DiseaseCacher extends Cacher {
 
                     // sort to ensure subsequent caching processes will generate the same PAEs with the
                     // same PK. Note the merging that is happening
-                    List<PublicationJoin> publicationJoins1 = diseaseEntityJoin.getPublicationJoins();
+                    List<PublicationJoin> publicationJoins1 = join.getPublicationJoins();
                     publicationJoins1.sort(Comparator.comparing(PublicationJoin::getPrimaryKey));
                     if (CollectionUtils.isNotEmpty(publicationJoins1)) {
                         // create PAEs from AGMs
-                        diseaseEntityJoin.getPublicationJoins()
+                        join.getPublicationJoins()
                                 .stream()
                                 .filter(pubJoin -> pubJoin.getModel() != null)
                                 .forEach(pubJoin -> {
@@ -332,10 +338,10 @@ public class DiseaseCacher extends Cacher {
                                     }
                                     document.addPrimaryAnnotatedEntity(entity);
                                     entity.addPublicationEvidenceCode(pubJoin);
-                                    entity.addDisease(diseaseEntityJoin.getDisease());
+                                    entity.addDisease(join.getDisease());
                                 });
                         // create PAEs from Alleles
-                        diseaseEntityJoin.getPublicationJoins()
+                        join.getPublicationJoins()
                                 .stream()
                                 .filter(pubJoin -> CollectionUtils.isNotEmpty(pubJoin.getAlleles()))
                                 .forEach(pubJoin -> pubJoin.getAlleles().forEach(allele -> {
@@ -354,18 +360,18 @@ public class DiseaseCacher extends Cacher {
                                     }
                                     document.addPrimaryAnnotatedEntity(entity);
                                     entity.addPublicationEvidenceCode(pubJoin);
-                                    entity.addDisease(diseaseEntityJoin.getDisease());
+                                    entity.addDisease(join.getDisease());
                                 }));
                     }
-                    List<PublicationJoin> publicationJoins = diseaseEntityJoin.getPublicationJoins();
+                    List<PublicationJoin> publicationJoins = join.getPublicationJoins();
                     if (useCache) {
-                        diseaseCacheRepository.populatePublicationJoinsFromCache(diseaseEntityJoin.getPublicationJoins());
+                        diseaseCacheRepository.populatePublicationJoinsFromCache(join.getPublicationJoins());
                     } else {
                         diseaseRepository.populatePublicationJoins(publicationJoins);
                     }
                     document.setPublicationJoins(publicationJoins);
     /*
-                        List<ECOTerm> ecoList = diseaseEntityJoin.getPublicationJoins().stream()
+                        List<ECOTerm> ecoList = join.getPublicationJoins().stream()
                                 .filter(join -> CollectionUtils.isNotEmpty(join.getEcoCode()))
                                 .map(PublicationJoin::getEcoCode)
                                 .flatMap(Collection::stream).sorted(Comparator.naturalOrder()).collect(Collectors.toList());
@@ -374,10 +380,10 @@ public class DiseaseCacher extends Cacher {
                     // work around as I cannot figure out how to include the ECOTerm in the overall query without slowing down the performance.
                     List<ECOTerm> evidences;
                     if (useCache) {
-                        evidences = diseaseCacheRepository.getEcoTermsFromCache(diseaseEntityJoin.getPublicationJoins());
+                        evidences = diseaseCacheRepository.getEcoTermsFromCache(join.getPublicationJoins());
                     } else {
-                        evidences = diseaseRepository.getEcoTerm(diseaseEntityJoin.getPublicationJoins());
-                        Set<String> slimId = diseaseRibbonService.getAllParentIDs(diseaseEntityJoin.getDisease().getPrimaryKey());
+                        evidences = diseaseRepository.getEcoTerm(join.getPublicationJoins());
+                        Set<String> slimId = diseaseRibbonService.getAllParentIDs(join.getDisease().getPrimaryKey());
                         document.setParentIDs(slimId);
                     }
                     document.setEcoCodes(evidences);
