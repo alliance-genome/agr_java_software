@@ -23,13 +23,13 @@ public class DiseaseAnnotationToTdfTranslator {
         List<DiseaseDownloadRow> list = getDownloadRowsFromAnnotations(diseaseAnnotations);
 
         List<DownloadHeader> headers = List.of(
+                new DownloadHeader<>("Species ID", (DiseaseDownloadRow::getSpeciesID)),
+                new DownloadHeader<>("Species Name", (DiseaseDownloadRow::getSpeciesName)),
                 new DownloadHeader<>("Gene ID", (DiseaseDownloadRow::getMainEntityID)),
                 new DownloadHeader<>("Gene Symbol", (DiseaseDownloadRow::getMainEntitySymbol)),
                 new DownloadHeader<>("Genetic Entity ID", (DiseaseDownloadRow::getGeneticEntityID)),
                 new DownloadHeader<>("Genetic Entity Name", (DiseaseDownloadRow::getGeneticEntityName)),
                 new DownloadHeader<>("Genetic Entity Type", (DiseaseDownloadRow::getGeneticEntityType)),
-                new DownloadHeader<>("Species ID", (DiseaseDownloadRow::getSpeciesID)),
-                new DownloadHeader<>("Species Name", (DiseaseDownloadRow::getSpeciesName)),
                 new DownloadHeader<>("Association", (DiseaseDownloadRow::getAssociation)),
                 new DownloadHeader<>("Disease ID", (DiseaseDownloadRow::getDiseaseID)),
                 new DownloadHeader<>("Disease Name", (DiseaseDownloadRow::getDiseaseName)),
