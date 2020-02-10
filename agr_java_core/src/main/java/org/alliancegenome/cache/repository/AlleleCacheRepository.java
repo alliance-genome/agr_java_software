@@ -21,8 +21,9 @@ public class AlleleCacheRepository {
     // cached value
     private static List<Allele> allAlleles = null;
 
-    public JsonResultResponse<Allele> getAllelesBySpecies(String species, Pagination pagination) {
-//todo        List<Allele> allAlleles = taxonAlleleMap.get(species);
+    public JsonResultResponse<Allele> getAllelesBySpecies(String taxonID, Pagination pagination) {
+        BasicCachingManager<Allele> manager = new BasicCachingManager<>(Allele.class);
+        List<Allele> allAlleles = manager.getCache(taxonID, CacheAlliance.ALLELE_SPECIES);
         return getAlleleJsonResultResponse(pagination, allAlleles);
     }
 
@@ -106,7 +107,7 @@ public class AlleleCacheRepository {
 
     public List<DiseaseAnnotation> getDisease(String alleleId) {
         BasicCachingManager<DiseaseAnnotation> manager = new BasicCachingManager<>(DiseaseAnnotation.class);
-        List<DiseaseAnnotation> diseaseAnnotations= manager.getCache(alleleId, CacheAlliance.ALLELE_DISEASE);
+        List<DiseaseAnnotation> diseaseAnnotations = manager.getCache(alleleId, CacheAlliance.ALLELE_DISEASE);
         if (diseaseAnnotations == null)
             return null;
         return diseaseAnnotations;

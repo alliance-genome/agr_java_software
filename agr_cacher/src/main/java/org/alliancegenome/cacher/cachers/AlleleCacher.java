@@ -3,7 +3,6 @@ package org.alliancegenome.cacher.cachers;
 import lombok.extern.log4j.Log4j2;
 import org.alliancegenome.api.entity.CacheStatus;
 import org.alliancegenome.cache.CacheAlliance;
-import org.alliancegenome.cache.manager.BasicCachingManager;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.repository.AlleleRepository;
@@ -33,10 +32,7 @@ public class AlleleCacher extends Cacher {
                 .sorted(Comparator.comparing(phenotype -> phenotype.getPhenotypeStatement().toLowerCase()))
                 .collect(Collectors.toList())));
 
-        BasicCachingManager manager = new BasicCachingManager();
-        for (Map.Entry<String, List<Allele>> entry : map.entrySet()) {
-            manager.setCache(entry.getKey(), entry.getValue(), View.GeneAllelesAPI.class, CacheAlliance.ALLELE);
-        }
+        populateCacheFromMap(map, View.GeneAllelesAPI.class, CacheAlliance.ALLELE);
 
         CacheStatus status = new CacheStatus(CacheAlliance.ALLELE);
         status.setNumberOfEntities(allAlleles.size());
@@ -57,8 +53,14 @@ public class AlleleCacher extends Cacher {
         status.setSpeciesStats(speciesStatsInt);
         setCacheStatus(status);
 
+        // create allele-species index
+        // <taxonID, List<Allele>>
+        Map<String, List<Allele>> speciesMap = allAlleles.stream().collect(groupingBy(allele -> allele.getGene().getTaxonId()));
+        populateCacheFromMap(speciesMap, View.GeneAllelesAPI.class, CacheAlliance.ALLELE_SPECIES);
+
         alleleRepository.clearCache();
 
     }
+
 
 }

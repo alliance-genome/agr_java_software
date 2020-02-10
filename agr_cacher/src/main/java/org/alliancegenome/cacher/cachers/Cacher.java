@@ -7,9 +7,12 @@ import org.alliancegenome.api.entity.CacheStatus;
 import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.cache.manager.BasicCachingManager;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
+import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.view.View;
 
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 @Log4j2
 @Setter
@@ -65,5 +68,11 @@ public abstract class Cacher extends Thread {
         setCacheStatus(status);
     }
 
+    void populateCacheFromMap(Map<String, List<Allele>> map, Class view, CacheAlliance cacheAlliance) {
+        BasicCachingManager manager = new BasicCachingManager();
+        for (Map.Entry<String, List<Allele>> entry : map.entrySet()) {
+            manager.setCache(entry.getKey(), entry.getValue(), view, cacheAlliance);
+        }
+    }
 
 }
