@@ -99,11 +99,25 @@ public class SearchService {
         functionList.add(new FunctionScoreQueryBuilder.FilterFunctionBuilder(matchQuery("category","gene"),
                 ScoreFunctionBuilders.weightFactorFunction(1.1F)));
 
+        //human data boost
+        functionList.add(new FunctionScoreQueryBuilder.FilterFunctionBuilder(matchQuery("species","Homo sapiens"),
+                ScoreFunctionBuilders.weightFactorFunction(1.5F)));
+
         functionList.add(new FunctionScoreQueryBuilder.FilterFunctionBuilder(matchQuery("name_key.keyword",q),
                 ScoreFunctionBuilders.weightFactorFunction(1000F)));
 
         functionList.add(new FunctionScoreQueryBuilder.FilterFunctionBuilder(matchQuery("name_key.keywordAutocomplete",q),
                 ScoreFunctionBuilders.weightFactorFunction(500F)));
+
+
+        functionList.add(new FunctionScoreQueryBuilder.FilterFunctionBuilder(matchQuery("automatedGeneSynopsis",q),
+                ScoreFunctionBuilders.weightFactorFunction(1.5F)));
+
+        functionList.add(new FunctionScoreQueryBuilder.FilterFunctionBuilder(matchQuery("diseases",q),
+                ScoreFunctionBuilders.weightFactorFunction(1.2F)));
+
+        functionList.add(new FunctionScoreQueryBuilder.FilterFunctionBuilder(matchQuery("diseasesWithParents",q),
+                ScoreFunctionBuilders.weightFactorFunction(1.01F)));
 
         //per term boost, add a 'should' clause for each individual term
         List<String> tokens = tokenizeQuery(q);
