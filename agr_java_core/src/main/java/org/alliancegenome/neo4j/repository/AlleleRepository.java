@@ -80,7 +80,7 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
         query += " WHERE a.primaryKey = {" + paramName + "}";
         query += " OPTIONAL MATCH consequence=(:GeneLevelConsequence)<-[:ASSOCIATION]-(variant:Variant)";
         query += " OPTIONAL MATCH loc=(variant:Variant)-[:ASSOCIATION]->(:GenomicLocation)-[:ASSOCIATION]->(:Chromosome)";
-        query += " OPTIONAL MATCH p2=(variant:Variant)-[]-(:Gene)-[:ASSOCIATION]->(:GenomicLocation)-[:ASSOCIATION]->(:Chromosome)";
+        query += " OPTIONAL MATCH p2=(variant:Variant)<-[:COMPUTED_GENE]-(:Gene)-[:ASSOCIATION]->(:GenomicLocation)-[:ASSOCIATION]->(:Chromosome)";
         query += " RETURN p1, p2, loc, consequence ";
 
         Iterable<Variant> alleles = query(Variant.class, query, map);

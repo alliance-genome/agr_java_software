@@ -158,7 +158,7 @@ public class AlleleIT {
         JsonResultResponse<Variant> response = alleleService.getVariants("ZFIN:ZDB-ALT-161003-18461", pagination);
         assertThat(response.getTotal(), greaterThanOrEqualTo(1));
         assertNotNull("Computed Gene exists", response.getResults().get(0).getGene());
-        assertNotNull("Genomic Location exists on computed Gene",response.getResults().get(0).getGene().getGenomeLocations());
+        assertNotNull("Genomic Location exists on computed Gene", response.getResults().get(0).getGene().getGenomeLocations());
     }
 
     @Test
@@ -176,6 +176,22 @@ public class AlleleIT {
         JsonResultResponse<PhenotypeAnnotation> response = alleleService.getPhenotype(alleleID, new Pagination());
         assertNotNull(response);
         assertThat(response.getTotal(), greaterThanOrEqualTo(20));
+    }
+
+    @Test
+    public void getAllelePhenotypeNoAllelePAESelfReference() {
+        // Ptentm1.1Mwst
+        String alleleID = "MGI:4366755";
+        JsonResultResponse<PhenotypeAnnotation> response = alleleService.getPhenotype(alleleID, new Pagination());
+        assertNotNull(response);
+        assertThat(response.getTotal(), greaterThanOrEqualTo(8));
+        response.getResults().stream()
+                .filter(phenotypeAnnotation -> phenotypeAnnotation.getPrimaryAnnotatedEntities() != null)
+                .forEach(annotation -> {
+                    annotation.getPrimaryAnnotatedEntities().forEach(entity -> {
+                        assertNotEquals("Do not have allele direct annotations reference alleles as PAE", entity.getType(), GeneticEntity.CrossReferenceType.ALLELE);
+                    });
+                });
     }
 
     @Test
