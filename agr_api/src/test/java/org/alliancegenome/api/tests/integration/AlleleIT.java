@@ -14,6 +14,7 @@ import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.GeneticEntity;
 import org.alliancegenome.neo4j.entity.node.Variant;
+import org.alliancegenome.neo4j.entity.relationship.GenomeLocation;
 import org.alliancegenome.neo4j.view.BaseFilter;
 import org.alliancegenome.neo4j.view.OrthologyModule;
 import org.apache.commons.collections.CollectionUtils;
@@ -26,6 +27,7 @@ import org.junit.Test;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.junit.Assert.*;
 
@@ -63,6 +65,20 @@ public class AlleleIT {
         Pagination pagination = new Pagination();
         JsonResultResponse<Allele> response = alleleService.getAllelesByGene("MGI:109583", pagination);
         assertResponse(response, 19, 19);
+    }
+
+    @Test
+    public void checkAllelesGeneLocation() {
+        Allele allele = alleleService.getById("ZFIN:ZDB-ALT-161003-18461");
+        assertNotNull(allele);
+        assertNotNull(allele.getGene());
+        List<GenomeLocation> genomeLocations = allele.getGene().getGenomeLocations();
+        assertNotNull("No Genome location found on associated gene", genomeLocations);
+        assertThat(genomeLocations.size(), greaterThanOrEqualTo(1));
+        GenomeLocation location = genomeLocations.get(0);
+        assertThat(location.getChromosome().getPrimaryKey(), equalTo("22"));
+        assertTrue(location.getStart() > 0);
+        assertTrue(location.getEnd() > 0);
     }
 
     @Test
@@ -128,7 +144,7 @@ public class AlleleIT {
                         }
                 );
 
-        response = alleleService.getAllelesByGene("WB:WBGene00015146", pagination);
+        response = alleleService.getAllelesByGene("WB:WBGene00006616", pagination);
         assertResponse(response, 1, 1);
 
         response.getResults().stream()

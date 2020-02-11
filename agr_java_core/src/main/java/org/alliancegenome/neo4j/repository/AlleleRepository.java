@@ -19,10 +19,11 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
 
         map.put("primaryKey", primaryKey);
         String query = "";
-        query += " MATCH p1=(:Species)-[:FROM_SPECIES]-(a:Allele)-[:IS_ALLELE_OF]-(:Gene)-[:FROM_SPECIES]-(:Species) WHERE a.primaryKey = {primaryKey}";
+        query += " MATCH p1=(:Species)-[:FROM_SPECIES]-(a:Allele)-[:IS_ALLELE_OF]-(gene:Gene)-[:FROM_SPECIES]-(:Species) WHERE a.primaryKey = {primaryKey}";
         query += " OPTIONAL MATCH p4=(a:Allele)-[:ALSO_KNOWN_AS]-(:Synonym)";
         query += " OPTIONAL MATCH crossRef=(a:Allele)-[:CROSS_REFERENCE]-(:CrossReference)";
-        query += " RETURN p1, p4, crossRef";
+        query += " OPTIONAL MATCH p2=(gene:Gene)-[:ASSOCIATION]->(:GenomicLocation)-[:ASSOCIATION]->(:Chromosome)";
+        query += " RETURN p1, p2, p4, crossRef";
 
         Iterable<Allele> alleles = query(query, map);
         for (Allele a : alleles) {
