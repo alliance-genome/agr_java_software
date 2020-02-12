@@ -99,7 +99,12 @@ public class PhenotypeAnnotationToTdfTranslator {
         row.setPhenotype(annotation.getPhenotype());
 
         row.setReference(join.getPublication().getPubId());
-        row.setSource(annotation.getSource().getName());
+        if (annotation.getSource()!=null) {
+            row.setSource(annotation.getSource().getName());
+        }
+        else{
+            row.setSource("");
+        }
         return row;
     }
 
