@@ -24,7 +24,8 @@ public class PhenotypeAnnotationToTdfTranslator {
                 new DownloadHeader<>("Genetic Entity ID", (PhenotypeDownloadRow::getGeneticEntityID)),
                 new DownloadHeader<>("Genetic Entity Name", (PhenotypeDownloadRow::getGeneticEntityName)),
                 new DownloadHeader<>("Genetic Entity Type", (PhenotypeDownloadRow::getGeneticEntityType)),
-                new DownloadHeader<>("Reference", (PhenotypeDownloadRow::getReference))
+                new DownloadHeader<>("Reference", (PhenotypeDownloadRow::getReference)),
+                new DownloadHeader<>("Source", (PhenotypeDownloadRow::getSource))
         );
 
         return DownloadHeader.getDownloadOutput(list, headers);
@@ -98,6 +99,7 @@ public class PhenotypeAnnotationToTdfTranslator {
         row.setPhenotype(annotation.getPhenotype());
 
         row.setReference(join.getPublication().getPubId());
+        row.setSource(annotation.getSource().getName());
         return row;
     }
 
