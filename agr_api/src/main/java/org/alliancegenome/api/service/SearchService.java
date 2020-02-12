@@ -66,7 +66,7 @@ public class SearchService {
 
         HighlightBuilder hlb = searchHelper.buildHighlights();
 
-        SearchResponse searchResponse = searchDAO.performQuery(query, aggBuilders, limit, offset, hlb, sort_by, debug);
+        SearchResponse searchResponse = searchDAO.performQuery(query, aggBuilders, searchHelper.getResponseFields(), limit, offset, hlb, sort_by, debug);
 
         log.debug("Search Query: " + q);
 
