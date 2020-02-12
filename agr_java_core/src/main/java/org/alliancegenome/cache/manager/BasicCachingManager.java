@@ -90,11 +90,11 @@ public class BasicCachingManager<O> {
                     .memory()
                     .storageType(StorageType.BINARY)
                     .evictionType(EvictionType.MEMORY)
-                    .size(1_500_000_000)
+                    .size(100_000)
                     .persistence()
                     .passivation(false)
                     .addSingleFileStore()
-                    .preload(true)
+                    .preload(false)
                     .shared(false)
                     .fetchPersistentState(true)
                     .location("/data/" + cache.getCacheName()).async().enable().threadPoolSize(5);
