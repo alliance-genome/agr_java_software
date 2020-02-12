@@ -16,4 +16,5 @@ public class PhenotypeDownloadRow {
     private String phenotype;
 
     private String reference;
+    private String source;
 }
