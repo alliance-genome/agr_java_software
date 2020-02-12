@@ -162,9 +162,12 @@ public class PhenotypeIT {
 
         Pagination pagination = new Pagination(1, 60, null, null);
         JsonResultResponse<PhenotypeAnnotation> response = geneService.getPhenotypeAnnotations(geneID, pagination);
-        response.getResults().forEach(phenotypeAnnotation -> phenotypeAnnotation.getPrimaryAnnotatedEntities().forEach(entity -> {
-            assertNotEquals("Direct Gene annotation found. Should be suppressed for: " + entity.getId(), entity.getType(), GeneticEntity.CrossReferenceType.GENE);
-        }));
+        response.getResults()
+                .stream()
+                .filter(phenotypeAnnotation -> phenotypeAnnotation.getPrimaryAnnotatedEntities() != null)
+                .forEach(phenotypeAnnotation -> phenotypeAnnotation.getPrimaryAnnotatedEntities().forEach(entity -> {
+                    assertNotEquals("Direct Gene annotation found. Should be suppressed for: " + entity.getId(), entity.getType(), GeneticEntity.CrossReferenceType.GENE);
+                }));
     }
 
     @Test
@@ -205,11 +208,14 @@ public class PhenotypeIT {
         JsonResultResponse<PhenotypeAnnotation> response = geneService.getPhenotypeAnnotations(geneID, pagination);
         assertResponse(response, 1, 1);
 
-        response.getResults().forEach(phenotypeAnnotation -> {
-            phenotypeAnnotation.getPrimaryAnnotatedEntities().forEach(entity -> {
-                assertNotNull("URL for AGM should not be null: " + entity.getId(), entity.getUrl());
-            });
-        });
+        response.getResults()
+                .stream()
+                .filter(phenotypeAnnotation -> phenotypeAnnotation.getPrimaryAnnotatedEntities() != null)
+                .forEach(phenotypeAnnotation -> {
+                    phenotypeAnnotation.getPrimaryAnnotatedEntities().forEach(entity -> {
+                        assertNotNull("URL for AGM should not be null: " + entity.getId(), entity.getUrl());
+                    });
+                });
     }
 
     @Test
@@ -348,9 +354,7 @@ public class PhenotypeIT {
         JsonResultResponse<PhenotypeAnnotation> response = geneService.getPhenotypeAnnotations(geneID, pagination);
         assertResponse(response, 1, 1);
         final List<PrimaryAnnotatedEntity> primaryAnnotatedEntities = response.getResults().get(0).getPrimaryAnnotatedEntities();
-        assertNotNull("Allele phenotype annotation", primaryAnnotatedEntities);
-        assertThat("Allele phenotype annotation", primaryAnnotatedEntities.get(0).getType(), equalTo(GeneticEntity.CrossReferenceType.ALLELE));
-
+        assertNull("Allele phenotype annotation", primaryAnnotatedEntities);
     }
 
     @Test
@@ -362,7 +366,7 @@ public class PhenotypeIT {
         Pagination pagination = new Pagination(1, 11, null, null);
         DiseaseService diseaseService = new DiseaseService();
         JsonResultResponse<PrimaryAnnotatedEntity> response = diseaseService.getDiseaseAnnotationsWithGeneAndAGM(geneID, pagination);
-        assertResponse(response, 11, 105);
+        assertResponse(response, 11, 92);
         assertTrue("More than one disease", response.getResults().get(0).getDiseases().size() > 1);
         assertTrue("More than one phenotype", response.getResults().get(0).getPhenotypes().size() > 1);
     }
