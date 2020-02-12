@@ -39,6 +39,7 @@ public class GenomeLocation extends Neo4jEntity {
     @JsonView({View.Default.class})
     private String assembly;
 
+    @JsonView({View.Default.class})
     private String strand;
 
     public String getChromosomeAndPosition() {
