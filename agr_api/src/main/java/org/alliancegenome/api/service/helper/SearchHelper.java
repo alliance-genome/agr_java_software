@@ -11,6 +11,7 @@ import java.util.Map;
 
 import javax.ws.rs.core.UriInfo;
 
+import lombok.Getter;
 import org.alliancegenome.es.model.search.AggDocCount;
 import org.alliancegenome.es.model.search.AggResult;
 import org.alliancegenome.es.model.search.Category;
@@ -182,6 +183,38 @@ public class SearchHelper {
             add("strictOrthologySymbols.keyword");
             add("whereExpressed");
             add("whereExpressed.keyword");
+            add("variantTypes");
+        }
+    };
+
+    @Getter
+    private final List<String> responseFields = new ArrayList<String>() {
+        {
+            add("biologicalProcess");
+            add("category");
+            add("cellularComponent");
+            add("crossReferences");
+            add("definition");
+            add("description");
+            add("diseases");
+            add("external_ids");
+            add("gene_chromosome_ends");
+            add("gene_chromosome_starts");
+            add("gene_chromosomes");
+            add("genes");
+            add("go_genes");
+            add("homologs");
+            add("href");
+            add("modCrossRefCompleteUrl");
+            add("molecularConsequence");
+            add("molecularFunction");
+            add("name");
+            add("name_key");
+            add("relatedVariants");
+            add("soTermName");
+            add("species");
+            add("symbol");
+            add("synonyms");
             add("variantTypes");
         }
     };
