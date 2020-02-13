@@ -26,6 +26,8 @@ public class Allele extends GeneticEntity implements Comparable<Allele> {
     @JsonView({View.Default.class})
     private String symbolText;
     private String symbolTextWithSpecies;
+    @JsonView({View.AlleleAPI.class})
+    private String description;
 
     @JsonView({View.AlleleAPI.class})
     @Relationship(type = "IS_ALLELE_OF")
