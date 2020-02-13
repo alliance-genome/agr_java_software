@@ -108,7 +108,7 @@ public class GeneOrthologCacher extends Cacher {
     }
 
     private List<String> getPredictionNotCalled(OrthologView view) {
-        List<String> usedNames = new ArrayList<>(view.getPredictionMethodsMatched());
+        List<String> usedNames = view.getPredictionMethodsMatched() != null ? new ArrayList<>(view.getPredictionMethodsMatched()) : new ArrayList<>();
         if (view.getPredictionMethodsNotMatched() != null)
             usedNames.addAll(view.getPredictionMethodsNotMatched());
         return allMethods.stream()
