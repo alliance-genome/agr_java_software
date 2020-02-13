@@ -36,6 +36,15 @@ class QueryManipulationUnitSpec extends Specification {
         "Foxn1<sup>nu-StL</sup> (Mmu)"        | "Foxn1<sup>nu-StL<\\/sup> \\(Mmu\\)"
         "Gt(ROSA)26Sor<sup>tm1(Pik3ca*H1047R)Egan</sup> (Mmu)" | "Gt\\(ROSA\\)26Sor<sup>tm1\\(Pik3ca*H1047R\\)Egan<\\/sup> \\(Mmu\\)"
         "rut[EP399] (Dme)"                    | "rut\\[EP399\\] \\(Dme\\)"
+        //auto-quoting hgvs nomenclature
+        "NC_000083.6:g.75273979T>A"           | "\"NC_000083.6\\:g.75273979T>A\""
+        "NC_005118.4:g.55252024_55252027del"  | "\"NC_005118.4\\:g.55252024_55252027del\""
+        "NC_007116.7:g.23258951T>A pax"       | "\"NC_007116.7\\:g.23258951T>A\" pax"
+        "cancer NT_033777.3:g.7087759G>A"     | "cancer \"NT_033777.3\\:g.7087759G>A\""
+        "\"NT_033777.3:g.7087759G>A\""        | "\"NT_033777.3\\:g.7087759G>A\""
+        "\"NC_007116.7:g.23258951T>A\" pax"   | "\"NC_007116.7\\:g.23258951T>A\" pax"
+        "NC_000083.6:g.75273979T>A NC_005118.4:g.55252024_55252027del" | "\"NC_000083.6\\:g.75273979T>A\" \"NC_005118.4\\:g.55252024_55252027del\""
+        "\"NC_000083.6:g.75273979T>A\" \"NC_005118.4:g.55252024_55252027del\"" | "\"NC_000083.6\\:g.75273979T>A\" \"NC_005118.4\\:g.55252024_55252027del\""
     }
 
 }
