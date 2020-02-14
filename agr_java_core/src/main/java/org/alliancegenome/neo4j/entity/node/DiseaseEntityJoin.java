@@ -3,6 +3,7 @@ package org.alliancegenome.neo4j.entity.node;
 import lombok.Getter;
 import lombok.Setter;
 import org.alliancegenome.core.service.SourceService;
+import org.apache.commons.collections.CollectionUtils;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 
@@ -56,9 +57,14 @@ public class DiseaseEntityJoin extends EntityJoin {
     public CrossReference getLoadProvider() {
         if (checkValidity()) return null;
 
-        return providerList.stream()
+        List<CrossReference> refs = providerList.stream()
+                .filter(crossReference -> crossReference.getLoadedDB() != null)
                 .filter(crossReference -> crossReference.getLoadedDB().equals("true"))
-                .collect(Collectors.toList()).get(0);
+                .collect(Collectors.toList());
+        if (CollectionUtils.isNotEmpty(refs))
+            return refs.get(0);
+        else
+            return null;
     }
 
     private boolean checkValidity() {

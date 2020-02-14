@@ -40,9 +40,9 @@ public class DiseaseCacher extends Cacher {
 
         if (useCache) {
             joinList = joinList.stream()
-                    //.filter(diseaseEntityJoin -> diseaseEntityJoin.getGene() != null)
+                    .filter(diseaseEntityJoin -> diseaseEntityJoin.getGene() != null)
                     //.filter(diseaseEntityJoin -> diseaseEntityJoin.getAllele() != null)
-                    //.filter(diseaseEntityJoin -> diseaseEntityJoin.getGene().getPrimaryKey().equals("ZFIN:ZDB-GENE-040426-1716"))
+                    .filter(diseaseEntityJoin -> diseaseEntityJoin.getGene().getPrimaryKey().equals("HGNC:7"))
                     //.filter(diseaseEntityJoin -> diseaseEntityJoin.getAllele().getPrimaryKey().equals("FB:FBgn0030343"))
                     //.filter(diseaseEntityJoin -> diseaseEntityJoin.getGene().getPrimaryKey().equals("FB:FBgn0030343"))
                     .collect(toSet());
@@ -302,7 +302,8 @@ public class DiseaseCacher extends Cacher {
                     if (join.getSourceProvider() != null) {
                         Map<String, CrossReference> providerMap = new HashMap<>();
                         providerMap.put("sourceProvider", join.getSourceProvider());
-                        providerMap.put("loadProvider", join.getLoadProvider());
+                        if (join.getLoadProvider() != null)
+                            providerMap.put("loadProvider", join.getLoadProvider());
                         document.setProviders(providerMap);
                     }
                     List<Gene> orthologyGenes = join.getOrthologyGenes();
