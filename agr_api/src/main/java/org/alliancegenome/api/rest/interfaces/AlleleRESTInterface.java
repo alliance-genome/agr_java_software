@@ -70,7 +70,7 @@ public interface AlleleRESTInterface {
     @ApiOperation(value = "Retrieve all alleles of a given species")
     @JsonView(value = {View.GeneAllelesAPI.class})
     JsonResultResponse<Allele> getAllelesPerSpecies(
-            @ApiParam(name = "taxonID", value = "Species identifier: Could be the full ID, e.g. 'NCBITaxon:10090', or just the ID, i.e. '10090'. Alternatively, part of a species name uniquely identifying a single species, e.g. 'danio' or 'mus'.", type = "String")
+            @ApiParam(name = "species", value = "Species identifier: Could be the full ID, e.g. 'NCBITaxon:10090', or just the ID, i.e. '10090'. Alternatively, part of a species name uniquely identifying a single species, e.g. 'danio' or 'mus'.", type = "String")
             @PathParam("species") String species,
             @ApiParam(name = "limit", value = "Number of rows returned", defaultValue = "20")
             @DefaultValue("20") @QueryParam("limit") int limit,
