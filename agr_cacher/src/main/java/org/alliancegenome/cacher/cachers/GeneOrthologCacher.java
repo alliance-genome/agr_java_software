@@ -123,7 +123,7 @@ public class GeneOrthologCacher extends Cacher {
 
         Map<String, Set<String>> lists = geneGeneAlgorithm.get(primaryKey, primaryKey1);
         if (lists == null) {
-            log.warn("No algorithm found for " + primaryKey + " and " + primaryKey1);
+            log.debug("No algorithm found for " + primaryKey + " and " + primaryKey1);
             return null;
         }
         Set<String> algorithmSet = lists.get("match");
@@ -138,7 +138,7 @@ public class GeneOrthologCacher extends Cacher {
 
         Map<String, Set<String>> lists = geneGeneAlgorithm.get(primaryKey, primaryKey1);
         if (lists == null) {
-            log.warn("No algorithm found for " + primaryKey + " and " + primaryKey1);
+            log.debug("No algorithm found for " + primaryKey + " and " + primaryKey1);
             return null;
         }
         // Always return non-null list
