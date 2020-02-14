@@ -35,6 +35,11 @@ public class Variant extends Neo4jEntity implements Comparable<Variant> {
     @JsonView({View.API.class})
     private String genomicVariantSequence;
 
+    @JsonView({View.API.class})
+    private String leftPadding;
+    @JsonView({View.API.class})
+    private String rightPadding;
+
     @Convert(value = DateConverter.class)
     private Date dateProduced;
     private String release;
