@@ -48,9 +48,14 @@ public class DiseaseEntityJoin extends EntityJoin {
     public CrossReference getSourceProvider() {
         if (checkValidity()) return null;
 
-        return providerList.stream()
-                .filter(crossReference -> crossReference.getLoadedDB())
-                .collect(Collectors.toList()).get(0);
+        List<CrossReference> refs = providerList.stream()
+                .filter(crossReference -> crossReference.getLoadedDB() != null)
+                .filter(CrossReference::getLoadedDB)
+                .collect(Collectors.toList());
+        if (CollectionUtils.isNotEmpty(refs))
+            return refs.get(0);
+        else
+            return null;
 
     }
 
@@ -59,7 +64,7 @@ public class DiseaseEntityJoin extends EntityJoin {
 
         List<CrossReference> refs = providerList.stream()
                 .filter(crossReference -> crossReference.getLoadedDB() != null)
-                .filter(crossReference -> crossReference.getLoadedDB())
+                .filter(CrossReference::getLoadedDB)
                 .collect(Collectors.toList());
         if (CollectionUtils.isNotEmpty(refs))
             return refs.get(0);
