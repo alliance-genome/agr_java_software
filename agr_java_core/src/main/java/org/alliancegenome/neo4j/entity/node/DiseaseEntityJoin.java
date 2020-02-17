@@ -49,7 +49,7 @@ public class DiseaseEntityJoin extends EntityJoin {
         if (checkValidity()) return null;
 
         return providerList.stream()
-                .filter(crossReference -> crossReference.getLoadedDB().equals("false"))
+                .filter(crossReference -> crossReference.getLoadedDB())
                 .collect(Collectors.toList()).get(0);
 
     }
@@ -58,13 +58,13 @@ public class DiseaseEntityJoin extends EntityJoin {
         if (checkValidity()) return null;
 
         List<CrossReference> refs = providerList.stream()
-                .filter(crossReference -> crossReference.getLoadedDB() != null)
-                .filter(crossReference -> crossReference.getLoadedDB().equals("true"))
+                .filter(crossReference -> crossReference.getLoadedDB())
                 .collect(Collectors.toList());
         if (CollectionUtils.isNotEmpty(refs))
             return refs.get(0);
         else
             return null;
+
     }
 
     private boolean checkValidity() {
