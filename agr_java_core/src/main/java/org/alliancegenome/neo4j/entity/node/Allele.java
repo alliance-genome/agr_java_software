@@ -34,7 +34,7 @@ public class Allele extends GeneticEntity implements Comparable<Allele> {
     private Gene gene;
 
     @JsonView({View.GeneAllelesAPI.class})
-    @Relationship(type = "IS_IMPLICATED_IN")
+    @Relationship(type = "IS_IMPLICATED_IN", direction = Relationship.INCOMING)
     private List<DOTerm> diseases = new ArrayList<>();
 
     @JsonView({View.GeneAllelesAPI.class})
