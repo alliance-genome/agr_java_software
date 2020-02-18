@@ -33,17 +33,15 @@ public class DiseaseCacher extends Cacher {
         // model type of diseases
         populateModelsWithDiseases();
 
-        startProcess("diseaseRepository.getAllDiseaseEntityJoins");
-        Set<DiseaseEntityJoin> joinList = diseaseRepository.getAllDiseaseEntityJoins();
+        startProcess("diseaseRepository.getAllDiseaseEntityGeneJoins");
+        Set<DiseaseEntityJoin> joinList = diseaseRepository.getAllDiseaseEntityGeneJoins();
         if (joinList == null)
             return;
 
         if (useCache) {
             joinList = joinList.stream()
                     .filter(diseaseEntityJoin -> diseaseEntityJoin.getGene() != null)
-                    //.filter(diseaseEntityJoin -> diseaseEntityJoin.getAllele() != null)
                     .filter(diseaseEntityJoin -> diseaseEntityJoin.getGene().getPrimaryKey().equals("HGNC:7"))
-                    //.filter(diseaseEntityJoin -> diseaseEntityJoin.getAllele().getPrimaryKey().equals("FB:FBgn0030343"))
                     //.filter(diseaseEntityJoin -> diseaseEntityJoin.getGene().getPrimaryKey().equals("FB:FBgn0030343"))
                     .collect(toSet());
         }
@@ -297,7 +295,7 @@ public class DiseaseCacher extends Cacher {
                     document.setModel(join.getModel());
                     document.setDisease(join.getDisease());
                     document.setSource(join.getSource());
-                    document.setAssociationType(join.getJoinType());
+                    document.setAssociationType(join.getJoinType().toLowerCase());
                     document.setSortOrder(join.getSortOrder());
                     if (join.getSourceProvider() != null) {
                         Map<String, CrossReference> providerMap = new HashMap<>();
