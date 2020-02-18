@@ -30,7 +30,6 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
     private String cypherEmpirical = " AND NOT (diseaseEntityJoin)-[:FROM_ORTHOLOGOUS_GENE]-(:Gene) ";
     private String cypherViaOrthology = " ,p5 =  (diseaseEntityJoin)-[:FROM_ORTHOLOGOUS_GENE]-(orthoGene:Gene)-[:FROM_SPECIES]-(orthoSpecies:Species) ";
 
-    private Set<DiseaseEntityJoin> allDiseaseEntityJoins = new HashSet<>(200000);
     private static Map<String, Set<String>> closureMapGO = null;
     private static Map<String, Set<String>> closureMapUberon = null;
     private static Map<String, Set<String>> closureMapUberonChild = null;
@@ -395,31 +394,28 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
                 .forEach(join -> join.setEcoCode(ecoTermMap.get(join.getPrimaryKey())));
     }
 
-    public Set<DiseaseEntityJoin> getAllDiseaseEntityJoins() {
-        if (allDiseaseEntityJoins.size() > 1000)
-            return allDiseaseEntityJoins;
-        String cypher = "MATCH p=(disease:DOTerm)-[:ASSOCIATION]-(diseaseEntityJoin:DiseaseEntityJoin)-[:EVIDENCE]->(pubEvCode:PublicationJoin)-[:ASSOCIATION]-(publication:Publication) ";
-        cypher += " where disease.isObsolete = 'false' ";
+    public Set<DiseaseEntityJoin> getAllDiseaseEntityGeneJoins() {
+        String cypher = "MATCH p=(disease:DOTerm)-[:ASSOCIATION]-(dej:DiseaseEntityJoin)-[:EVIDENCE]->(pubEvCode:PublicationJoin)-[:ASSOCIATION]-(publication:Publication) ";
+        cypher += " where disease.isObsolete = 'false' AND NOT EXISTS ((dej:DiseaseEntityJoin)--(:Feature))";
         //cypher += " AND disease.primaryKey in ['DOID:0050144','DOID:0110599','DOID:0050545'] ";
         //cypher += " AND disease.primaryKey in ['DOID:0080348'] ";
         //cypher += " AND diseaseEntityJoin.primaryKey = 'FB:FBgn0030343DOID:1838is_implicated_in'  ";
         //cypher += " AND disease.primaryKey in ['DOID:0080348'] ";
         //cypher += " AND gene.primaryKey = 'HGNC:7' ";
         //cypher += "      OPTIONAL MATCH eco   =(pubEvCode:PublicationJoin)-[:ASSOCIATION]->(ecoTerm:ECOTerm)";
-        cypher += "      OPTIONAL MATCH p7    =(diseaseEntityJoin:DiseaseEntityJoin)-[:ANNOTATION_SOURCE_CROSS_REFERENCE]-(:CrossReference)";
-        cypher += "      OPTIONAL MATCH p0    =(diseaseEntityJoin:DiseaseEntityJoin)<-[:ASSOCIATION]-(gene:Gene)-[:FROM_SPECIES]->(species:Species)";
-        cypher += "      OPTIONAL MATCH p1    =(diseaseEntityJoin:DiseaseEntityJoin)<-[:ASSOCIATION]-(feature:Feature)-[:CROSS_REFERENCE]->(crossReference:CrossReference) ";
-        cypher += "      OPTIONAL MATCH aModel=(diseaseEntityJoin:DiseaseEntityJoin)<-[:ASSOCIATION]-(model:AffectedGenomicModel)-[:FROM_SPECIES]->(speciesModel:Species) ";
-        cypher += "      OPTIONAL MATCH p4=(diseaseEntityJoin:DiseaseEntityJoin)-[:FROM_ORTHOLOGOUS_GENE]-(orthoGene:Gene)-[:FROM_SPECIES]->(orthoSpecies:Species) ";
+        cypher += "      OPTIONAL MATCH p7    =(dej:DiseaseEntityJoin)-[:ANNOTATION_SOURCE_CROSS_REFERENCE]-(:CrossReference)";
+        cypher += "      OPTIONAL MATCH p0    =(dej:DiseaseEntityJoin)<-[:ASSOCIATION]-(gene:Gene)-[:FROM_SPECIES]->(species:Species)";
+        cypher += "      OPTIONAL MATCH aModel=(dej:DiseaseEntityJoin)<-[:ASSOCIATION]-(model:AffectedGenomicModel)-[:FROM_SPECIES]->(speciesModel:Species) ";
+        cypher += "      OPTIONAL MATCH p4=(dej:DiseaseEntityJoin)-[:FROM_ORTHOLOGOUS_GENE]-(orthoGene:Gene)-[:FROM_SPECIES]->(orthoSpecies:Species) ";
         cypher += "      OPTIONAL MATCH p5=(pubEvCode:PublicationJoin)-[:PRIMARY_GENETIC_ENTITY]->(agm:AffectedGenomicModel) ";
         cypher += "      OPTIONAL MATCH p6=(pubEvCode:PublicationJoin)-[:PRIMARY_GENETIC_ENTITY]->(allele:Allele) ";
-        cypher += " RETURN p, p0, p1, p4, p5, p6, p7, aModel";
+        cypher += " RETURN p, p0, p4, p5, p6, p7, aModel";
         //cypher += " RETURN p, p0, p1, p2, p4, p5, aModel";
 
         long start = System.currentTimeMillis();
         Iterable<DiseaseEntityJoin> joins = query(DiseaseEntityJoin.class, cypher);
 
-        allDiseaseEntityJoins = StreamSupport.stream(joins.spliterator(), false).
+        Set<DiseaseEntityJoin> allDiseaseEntityJoins = StreamSupport.stream(joins.spliterator(), false).
                 collect(Collectors.toSet());
         log.info("Total DiseaseEntityJoinRecords: " + String.format("%,d", allDiseaseEntityJoins.size()));
         log.info("Loaded in:    " + ((System.currentTimeMillis() - start) / 1000) + " s");
