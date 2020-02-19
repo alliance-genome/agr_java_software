@@ -38,8 +38,8 @@ public class Variant extends Neo4jEntity implements Comparable<Variant> {
     @Getter(AccessLevel.NONE)
     private String genomicVariantSequence;
 
-    private String paddingLeft;
-    private String paddingRight;
+    private String paddingLeft = "";
+    private String paddingRight = "";
 
     @Convert(value = DateConverter.class)
     private Date dateProduced;
