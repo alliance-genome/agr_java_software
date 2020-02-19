@@ -179,7 +179,7 @@ public class PhenotypeIT {
         Pagination pagination = new Pagination(1, 10, null, null);
         DiseaseService diseaseService = new DiseaseService();
         JsonResultResponse<PrimaryAnnotatedEntity> response = diseaseService.getDiseaseAnnotationsWithGeneAndAGM(geneID, pagination);
-        assertResponse(response, 6, 6);
+        assertResponse(response, 1, 1);
     }
 
     @Test
@@ -317,11 +317,11 @@ public class PhenotypeIT {
         String line = translator.getAllRows(response.getResults());
         assertNotNull(line);
         String[] lines = line.split("\n");
-        assertThat(21, equalTo(lines.length));
+        assertThat(25, equalTo(lines.length));
         assertThat(response.getTotal(), greaterThan(130));
-        assertThat("Phenotype\tReferences", equalTo(lines[0]));
-        assertThat("abnormal atrial thrombosis\tPMID:9396142", equalTo(lines[1]));
-        assertThat("abnormal auchene hair morphology\tPMID:9396142", equalTo(lines[2]));
+        assertThat("Phenotype\tGenetic Entity ID\tGenetic Entity Name\tGenetic Entity Type\tReference\tSource", equalTo(lines[0]));
+        assertThat("abnormal atrial thrombosis\tMGI:2450836\tAhr<tm1Gonz>/Ahr<tm1Gonz> [background:] involves: 129S4/SvJae * C57BL/6N\tgenotype\tPMID:9396142\tMGI", equalTo(lines[1]));
+        assertThat("abnormal auchene hair morphology\tMGI:2450836\tAhr<tm1Gonz>/Ahr<tm1Gonz> [background:] involves: 129S4/SvJae * C57BL/6N\tgenotype\tPMID:9396142\tMGI", equalTo(lines[2]));
 
         response = geneService.getPhenotypeAnnotations("MGI:109583", new Pagination());
         line = translator.getAllRows(response.getResults());
