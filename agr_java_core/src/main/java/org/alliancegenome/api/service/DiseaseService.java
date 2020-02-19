@@ -127,7 +127,7 @@ public class DiseaseService {
 
         ColumnFieldMapping<DiseaseAnnotation> mapping = new DiseaseColumnFieldMapping();
         result.addDistinctFieldValueSupplementalData(filterService.getDistinctFieldValues(geneDiseaseAnnotations,
-                mapping.getSingleValuedFieldColumns(Table.ALLELE), mapping));
+                mapping.getSingleValuedFieldColumns(Table.ASSOCIATED_GENE), mapping));
 
         return result;
     }

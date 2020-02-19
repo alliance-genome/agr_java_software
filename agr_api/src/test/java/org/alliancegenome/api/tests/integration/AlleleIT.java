@@ -178,6 +178,25 @@ public class AlleleIT {
     }
 
     @Test
+    public void getVariantsWithInsertionDeletion() {
+        Pagination pagination = new Pagination();
+        JsonResultResponse<Variant> response = alleleService.getVariants("ZFIN:ZDB-ALT-181010-2", pagination);
+        assertThat(response.getTotal(), greaterThanOrEqualTo(1));
+        Variant variant = response.getResults().get(0);
+        assertEquals("Nucleotide change of Insertion", "TG>TTCCAGAAG", variant.getNucleotideChange());
+
+        response = alleleService.getVariants("ZFIN:ZDB-ALT-180925-10", pagination);
+        assertThat(response.getTotal(), greaterThanOrEqualTo(1));
+        variant = response.getResults().get(0);
+        assertEquals("Nucleotide change: Deletion", "AGCAGAGGTCAG>AG", variant.getNucleotideChange());
+
+        response = alleleService.getVariants("ZFIN:ZDB-ALT-161003-18461", pagination);
+        assertThat(response.getTotal(), greaterThanOrEqualTo(1));
+        variant = response.getResults().get(0);
+        assertEquals("Nucleotide change: non-insertion, non-deletion", "A>G", variant.getNucleotideChange());
+    }
+
+    @Test
     public void getAlleleInfo() {
         Allele allele = alleleService.getById("ZFIN:ZDB-ALT-161003-18461");
         assertNotNull(allele.getCrossReferences());

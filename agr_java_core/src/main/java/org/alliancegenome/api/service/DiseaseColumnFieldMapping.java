@@ -28,7 +28,7 @@ public class DiseaseColumnFieldMapping extends ColumnFieldMapping<DiseaseAnnotat
 
         mapColumnAttribute.put(ASSOCIATES_GENES_SPECIES, entity -> entity.getGene().getSpecies().getName());
         mapColumnAttribute.put(ASSOCIATES_GENES_ASSOCIATION, DiseaseAnnotation::getAssociationType);
-        mapColumnAttribute.put(ALLELE_SPECIES, entity -> entity.getGene().getSpecies().getName());
+        mapColumnAttribute.put(ALLELE_SPECIES, entity -> entity.getFeature().getSpecies().getName());
         mapColumnAttribute.put(ALLELE_ASSOCIATION, DiseaseAnnotation::getAssociationType);
         mapColumnAttribute.put(MODEL_SPECIES, entity -> entity.getModel().getSpecies().getName());
         mapColumnAttribute.put(DISEASE_SPECIES, entity -> entity.getGene().getSpecies().getName());
