@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.Api;
 import org.alliancegenome.api.service.AlleleService;
+import org.alliancegenome.api.service.GeneService;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.es.model.query.FieldFilter;
@@ -175,6 +176,14 @@ public class AlleleIT {
         assertThat(response.getTotal(), greaterThanOrEqualTo(1));
         assertNotNull("Computed Gene exists", response.getResults().get(0).getGene());
         assertNotNull("Genomic Location exists on computed Gene", response.getResults().get(0).getGene().getGenomeLocations());
+    }
+
+    @Test
+    public void getAllelesPerGene() {
+        Pagination pagination = new Pagination();
+        GeneService service = new GeneService();
+        JsonResultResponse<Allele> response = service.getAlleles("ZFIN:ZDB-GENE-990415-234", pagination);
+        assertThat(response.getTotal(), greaterThanOrEqualTo(1));
     }
 
     @Test
