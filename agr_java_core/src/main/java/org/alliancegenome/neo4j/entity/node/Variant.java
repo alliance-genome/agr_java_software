@@ -72,7 +72,6 @@ public class Variant extends Neo4jEntity implements Comparable<Variant> {
         this.geneLevelConsequence = co;
     }
 
-
     @Override
     public int compareTo(Variant o) {
         return 0;
@@ -80,6 +79,11 @@ public class Variant extends Neo4jEntity implements Comparable<Variant> {
 
     public String getName() {
         return hgvsNomenclature;
+    }
+
+    @JsonProperty(value = "nucleotideChange")
+    public void setNucleotideChange(String consequence) {
+        // ignore as this is always calculated
     }
 
     @JsonView({View.Default.class, View.API.class})
