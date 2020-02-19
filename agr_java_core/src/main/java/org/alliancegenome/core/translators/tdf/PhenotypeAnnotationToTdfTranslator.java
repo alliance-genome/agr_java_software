@@ -24,8 +24,8 @@ public class PhenotypeAnnotationToTdfTranslator {
                 new DownloadHeader<>("Genetic Entity ID", (PhenotypeDownloadRow::getGeneticEntityID)),
                 new DownloadHeader<>("Genetic Entity Name", (PhenotypeDownloadRow::getGeneticEntityName)),
                 new DownloadHeader<>("Genetic Entity Type", (PhenotypeDownloadRow::getGeneticEntityType)),
+                new DownloadHeader<>("Source", (PhenotypeDownloadRow::getSource)),
                 new DownloadHeader<>("Reference", (PhenotypeDownloadRow::getReference)),
-                new DownloadHeader<>("Source", (PhenotypeDownloadRow::getSource))
         );
 
         return DownloadHeader.getDownloadOutput(list, headers);
