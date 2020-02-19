@@ -164,9 +164,12 @@ public class DiseaseAnnotationToTdfTranslator {
                                         row.setGeneticEntityID(entity.getId());
                                         row.setGeneticEntityName(entity.getDisplayName());
                                         row.setGeneticEntityType(entity.getType().getDisplayName());
+                                        row.setSpeciesID(annotation.getFeature().getSpecies().getPrimaryKey());
+                                        row.setSpeciesName(annotation.getFeature().getSpecies().getName());
+                                    } else {
+                                        row.setSpeciesID(annotation.getGene().getSpecies().getPrimaryKey());
+                                        row.setSpeciesName(annotation.getGene().getSpecies().getName());
                                     }
-                                    row.setSpeciesID(annotation.getGene().getSpecies().getPrimaryKey());
-                                    row.setSpeciesName(annotation.getGene().getSpecies().getName());
                                     return row;
                                 })
                                 .collect(Collectors.toList()))
@@ -217,9 +220,15 @@ public class DiseaseAnnotationToTdfTranslator {
 
     private PrimaryAnnotatedEntity createNewPrimaryAnnotatedEntity(DiseaseAnnotation annotation, PublicationJoin join) {
         PrimaryAnnotatedEntity entity = new PrimaryAnnotatedEntity();
-        entity.setId(annotation.getGene().getPrimaryKey());
-        entity.setName(annotation.getGene().getSymbol());
-        entity.setType(GeneticEntity.CrossReferenceType.GENE);
+        if(annotation.getGene() != null) {
+            entity.setId(annotation.getGene().getPrimaryKey());
+            entity.setName(annotation.getGene().getSymbol());
+            entity.setType(GeneticEntity.CrossReferenceType.GENE);
+        } else {
+            entity.setId(annotation.getFeature().getPrimaryKey());
+            entity.setName(annotation.getFeature().getSymbolText());
+            entity.setType(GeneticEntity.CrossReferenceType.ALLELE);
+        }
         if (join == null)
             entity.setPublicationEvidenceCodes(annotation.getPublicationJoins());
         else {
@@ -347,15 +356,6 @@ public class DiseaseAnnotationToTdfTranslator {
 
         return DownloadHeader.getDownloadOutput(list, headers);
     }
-
-
-
-
-
-
-
-
-
 
 
 }
