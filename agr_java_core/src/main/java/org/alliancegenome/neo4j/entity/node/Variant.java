@@ -84,7 +84,19 @@ public class Variant extends Neo4jEntity implements Comparable<Variant> {
         return hgvsNomenclature;
     }
 
+    @JsonView({View.Default.class, View.API.class})
+    @JsonProperty(value = "nucleotideChange")
     public String getNucleotideChange() {
-        return genomicReferenceSequence + ">" + genomicVariantSequence;
+        String change = genomicReferenceSequence + ">" + genomicVariantSequence;
+        if (type.isInsertion() || type.isDeletion()) {
+            change = getPaddedChange(genomicReferenceSequence);
+            change += ">";
+            change += getPaddedChange(genomicVariantSequence);
+        }
+        return change;
+    }
+
+    private String getPaddedChange(String change) {
+        return paddingLeft.charAt(paddingLeft.length() - 1) + change + paddingRight.substring(0, 1);
     }
 }
