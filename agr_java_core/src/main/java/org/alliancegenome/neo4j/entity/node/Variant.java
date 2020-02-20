@@ -86,15 +86,30 @@ public class Variant extends Neo4jEntity implements Comparable<Variant> {
         // ignore as this is always calculated
     }
 
+    public String getGenomicReferenceSequence() {
+        if (genomicReferenceSequence != null)
+            return genomicReferenceSequence.toLowerCase();
+        return genomicReferenceSequence;
+    }
+
+
+    public String getGenomicVariantSequence() {
+        if (genomicVariantSequence != null)
+            return genomicVariantSequence.toLowerCase();
+        return genomicVariantSequence;
+    }
+
     @JsonView({View.Default.class, View.API.class})
     @JsonProperty(value = "nucleotideChange")
     public String getNucleotideChange() {
-        String change = genomicReferenceSequence + ">" + genomicVariantSequence;
+        String change = "";
         if (type.isInsertion() || type.isDeletion()) {
-            change = getPaddedChange(genomicReferenceSequence);
-            change += ">";
-            change += getPaddedChange(genomicVariantSequence);
+            change += getPaddedChange(genomicReferenceSequence);
+        } else {
+            change += genomicReferenceSequence;
         }
+        change += ">";
+        change += genomicVariantSequence;
         return change;
     }
 
