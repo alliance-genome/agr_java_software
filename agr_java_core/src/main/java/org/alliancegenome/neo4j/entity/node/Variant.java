@@ -2,6 +2,7 @@ package org.alliancegenome.neo4j.entity.node;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import org.alliancegenome.es.util.DateConverter;
@@ -31,8 +32,10 @@ public class Variant extends Neo4jEntity implements Comparable<Variant> {
 
     private String dataProvider;
     @JsonView({View.API.class})
+    @Getter(AccessLevel.NONE)
     private String genomicReferenceSequence;
     @JsonView({View.API.class})
+    @Getter(AccessLevel.NONE)
     private String genomicVariantSequence;
 
     private String paddingLeft;
@@ -86,19 +89,34 @@ public class Variant extends Neo4jEntity implements Comparable<Variant> {
         // ignore as this is always calculated
     }
 
+    public String getGenomicReferenceSequence() {
+        if (genomicReferenceSequence != null)
+            return genomicReferenceSequence.toLowerCase();
+        return genomicReferenceSequence;
+    }
+
+
+    public String getGenomicVariantSequence() {
+        if (genomicVariantSequence != null)
+            return genomicVariantSequence.toLowerCase();
+        return genomicVariantSequence;
+    }
+
     @JsonView({View.Default.class, View.API.class})
     @JsonProperty(value = "nucleotideChange")
     public String getNucleotideChange() {
-        String change = genomicReferenceSequence + ">" + genomicVariantSequence;
+        String change = "";
         if (type.isInsertion() || type.isDeletion()) {
-            change = getPaddedChange(genomicReferenceSequence);
-            change += ">";
-            change += getPaddedChange(genomicVariantSequence);
+            change += getPaddedChange(getGenomicReferenceSequence());
+        } else {
+            change += getGenomicReferenceSequence();
         }
+        change += ">";
+        change += getGenomicVariantSequence();
         return change;
     }
 
     private String getPaddedChange(String change) {
-        return paddingLeft.charAt(paddingLeft.length() - 1) + change + paddingRight.substring(0, 1);
+        return (paddingLeft.charAt(paddingLeft.length() - 1) + change + paddingRight.substring(0, 1)).toLowerCase();
     }
 }
