@@ -2,6 +2,7 @@ package org.alliancegenome.neo4j.entity.node;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import org.alliancegenome.es.util.DateConverter;
@@ -31,8 +32,10 @@ public class Variant extends Neo4jEntity implements Comparable<Variant> {
 
     private String dataProvider;
     @JsonView({View.API.class})
+    @Getter(AccessLevel.NONE)
     private String genomicReferenceSequence;
     @JsonView({View.API.class})
+    @Getter(AccessLevel.NONE)
     private String genomicVariantSequence;
 
     private String paddingLeft;
@@ -104,16 +107,16 @@ public class Variant extends Neo4jEntity implements Comparable<Variant> {
     public String getNucleotideChange() {
         String change = "";
         if (type.isInsertion() || type.isDeletion()) {
-            change += getPaddedChange(genomicReferenceSequence);
+            change += getPaddedChange(getGenomicReferenceSequence());
         } else {
-            change += genomicReferenceSequence;
+            change += getGenomicReferenceSequence();
         }
         change += ">";
-        change += genomicVariantSequence;
+        change += getGenomicVariantSequence();
         return change;
     }
 
     private String getPaddedChange(String change) {
-        return paddingLeft.charAt(paddingLeft.length() - 1) + change + paddingRight.substring(0, 1);
+        return (paddingLeft.charAt(paddingLeft.length() - 1) + change + paddingRight.substring(0, 1)).toLowerCase();
     }
 }
