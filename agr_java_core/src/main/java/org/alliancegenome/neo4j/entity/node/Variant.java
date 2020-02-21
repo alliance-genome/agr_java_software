@@ -2,7 +2,6 @@ package org.alliancegenome.neo4j.entity.node;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import org.alliancegenome.es.util.DateConverter;
@@ -108,6 +107,8 @@ public class Variant extends Neo4jEntity implements Comparable<Variant> {
     }
 
     private String getPaddedChange(String change) {
+        if (getPaddingLeft().length() == 0)
+            return change;
         return (getPaddingLeft().charAt(getPaddingLeft().length() - 1) + change);
     }
 }
