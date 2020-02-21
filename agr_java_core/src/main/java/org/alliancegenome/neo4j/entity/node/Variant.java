@@ -32,10 +32,8 @@ public class Variant extends Neo4jEntity implements Comparable<Variant> {
 
     private String dataProvider;
     @JsonView({View.API.class})
-    @Getter(AccessLevel.NONE)
     private String genomicReferenceSequence;
     @JsonView({View.API.class})
-    @Getter(AccessLevel.NONE)
     private String genomicVariantSequence;
 
     private String paddingLeft = "";
@@ -89,17 +87,8 @@ public class Variant extends Neo4jEntity implements Comparable<Variant> {
         // ignore as this is always calculated
     }
 
-    public String getGenomicReferenceSequence() {
-        if (genomicReferenceSequence != null)
-            return genomicReferenceSequence.toLowerCase();
-        return genomicReferenceSequence;
-    }
-
-
-    public String getGenomicVariantSequence() {
-        if (genomicVariantSequence != null)
-            return genomicVariantSequence.toLowerCase();
-        return genomicVariantSequence;
+    public String getPaddingLeft() {
+        return paddingLeft.toLowerCase();
     }
 
     @JsonView({View.Default.class, View.API.class})
@@ -108,15 +97,17 @@ public class Variant extends Neo4jEntity implements Comparable<Variant> {
         String change = "";
         if (type.isInsertion() || type.isDeletion()) {
             change += getPaddedChange(getGenomicReferenceSequence());
+            change += ">";
+            change += getPaddedChange(getGenomicVariantSequence());
         } else {
             change += getGenomicReferenceSequence();
+            change += ">";
+            change += getGenomicVariantSequence();
         }
-        change += ">";
-        change += getGenomicVariantSequence();
         return change;
     }
 
     private String getPaddedChange(String change) {
-        return (paddingLeft.charAt(paddingLeft.length() - 1) + change + paddingRight.substring(0, 1)).toLowerCase();
+        return (getPaddingLeft().charAt(getPaddingLeft().length() - 1) + change);
     }
 }
