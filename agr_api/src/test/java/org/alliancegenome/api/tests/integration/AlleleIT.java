@@ -192,17 +192,17 @@ public class AlleleIT {
         JsonResultResponse<Variant> response = alleleService.getVariants("ZFIN:ZDB-ALT-181010-2", pagination);
         assertThat(response.getTotal(), greaterThanOrEqualTo(1));
         Variant variant = response.getResults().get(0);
-        assertEquals("Nucleotide change of Insertion", "tg>tccagaa", variant.getNucleotideChange());
+        assertEquals("Nucleotide change of Insertion", "t>tTCCAGAA", variant.getNucleotideChange());
 
         response = alleleService.getVariants("ZFIN:ZDB-ALT-180925-10", pagination);
         assertThat(response.getTotal(), greaterThanOrEqualTo(1));
         variant = response.getResults().get(0);
-        assertEquals("Nucleotide change: Deletion", "agcagaggtcag>", variant.getNucleotideChange());
+        assertEquals("Nucleotide change: Deletion", "aGCAGAGGTCA>a", variant.getNucleotideChange());
 
         response = alleleService.getVariants("ZFIN:ZDB-ALT-161003-18461", pagination);
         assertThat(response.getTotal(), greaterThanOrEqualTo(1));
         variant = response.getResults().get(0);
-        assertEquals("Nucleotide change: non-insertion, non-deletion", "a>g", variant.getNucleotideChange());
+        assertEquals("Nucleotide change: non-insertion, non-deletion", "A>G", variant.getNucleotideChange());
     }
 
     @Test
