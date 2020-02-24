@@ -443,6 +443,18 @@ public class DiseaseIT {
     }
 
     @Test
+    public void checkDiseaseAnnotationWithOrthology() {
+        Pagination pagination = new Pagination(1, null, null, null);
+        // Tmc1
+        String geneID = "MGI:2151016";
+
+        // add containsFilterValue on evidence code
+        JsonResultResponse<DiseaseAnnotation> response = diseaseService.getRibbonDiseaseAnnotations(List.of(geneID), null, pagination);
+        assertLimitResponse(response, 4, 4);
+
+    }
+
+    @Test
     public void checkEmpiricalDiseaseFilterByPublication() {
         Pagination pagination = new Pagination(1, null, null, null);
         // Pten
