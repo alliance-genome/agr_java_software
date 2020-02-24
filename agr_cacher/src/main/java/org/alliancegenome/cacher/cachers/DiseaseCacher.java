@@ -85,7 +85,6 @@ public class DiseaseCacher extends Cacher {
         // Create map with genes as keys and their associated disease annotations as values
         // Map<gene ID, List<DiseaseAnnotation>> including annotations to child terms
         Map<String, List<DiseaseAnnotation>> diseaseAnnotationExperimentGeneMap = allDiseaseAnnotations.stream()
-                .filter(annotation -> annotation.getSortOrder() < 10)
                 .filter(annotation -> annotation.getGene() != null)
                 .collect(groupingBy(o -> o.getGene().getPrimaryKey(), Collectors.toList()));
         diseaseAnnotationMap.putAll(diseaseAnnotationExperimentGeneMap);
