@@ -40,8 +40,9 @@ public class GeneOrthologCacher extends Cacher {
         allMethods = geneRepository.getAllMethods();
         log.info(geneGeneAlgorithm.size());
 
-        long orthologousRecords = geneList.stream().map(gene -> gene.getOrthologyGeneJoins().size()).count();
-        startProcess("create geneList into cache", (int) orthologousRecords);
+        int orthologousRecords = geneList.stream().map(gene -> gene.getOrthoGenes().size()).mapToInt(Integer::intValue).sum();
+        log.info("Total Number of Ortho Records: ", orthologousRecords);
+        startProcess("create geneList into cache", orthologousRecords);
         BasicCachingManager manager = new BasicCachingManager();
 
         List<OrthologView> allOrthology = new ArrayList<>();
