@@ -19,6 +19,7 @@ import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.DiseaseSummary;
 import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
 import org.alliancegenome.neo4j.entity.node.DOTerm;
+import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.entity.node.Publication;
 import org.alliancegenome.neo4j.entity.node.Synonym;
 import org.alliancegenome.neo4j.view.BaseFilter;
@@ -139,11 +140,11 @@ public class DiseaseIT {
 
     @Test
     public void checkDiseaseAssociationByDisease() {
-        Pagination pagination = new Pagination(1, 100, null, null);
+        Pagination pagination = new Pagination(1, 33, null, null);
         // choriocarcinoma
         String diseaseID = "DOID:3594";
         JsonResultResponse<DiseaseAnnotation> response = diseaseService.getDiseaseAnnotationsByDisease(diseaseID, pagination);
-        assertResponse(response, 35, 35);
+        assertResponse(response, 33, 48);
 
         DiseaseAnnotation annotation = response.getResults().get(0);
         assertThat(annotation.getDisease().getName(), equalTo("choriocarcinoma"));
@@ -195,9 +196,7 @@ public class DiseaseIT {
                 "NCBITaxon:7227\tDrosophila melanogaster\tFB:FBgn0032006\tPvr\tFB:FBgn0032006\t\tgene\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tevidence used in automatic assertion\tHGNC:8804\tPDGFRB\tAlliance\tMGI:6194238\n" +
                 "NCBITaxon:7227\tDrosophila melanogaster\tFB:FBgn0025879\tTimp\tFB:FBgn0025879\t\tgene\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tevidence used in automatic assertion\tHGNC:11822\tTIMP3\tAlliance\tMGI:6194238\n" +
                 "NCBITaxon:6239\tCaenorhabditis elegans\tWB:WBGene00019478\tcri-2\tWB:WBGene00019478\t\tgene\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tevidence used in automatic assertion\tHGNC:11822\tTIMP3\tAlliance\tMGI:6194238\n" +
-                "NCBITaxon:6239\tCaenorhabditis elegans\tWB:WBGene00000898\tdaf-2\tWB:WBGene00000898\t\tgene\timplicated_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tevidence used in automatic assertion\tHGNC:6091\tINSR\tAlliance\tMGI:6194238\n" +
-                "NCBITaxon:6239\tCaenorhabditis elegans\tWB:WBGene00004249\tpvf-1\tWB:WBGene00004249\t\tgene\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tevidence used in automatic assertion\tHGNC:8800\tPDGFB\tAlliance\tMGI:6194238\n" +
-                "NCBITaxon:6239\tCaenorhabditis elegans\tWB:WBGene00019476\ttimp-1\tWB:WBGene00019476\t\tgene\tbiomarker_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tevidence used in automatic assertion\tHGNC:11822\tTIMP3\tAlliance\tMGI:6194238\n";
+                "NCBITaxon:6239\tCaenorhabditis elegans\tWB:WBGene00000898\tdaf-2\tWB:WBGene00000898\t\tgene\timplicated_via_orthology\tDOID:3594\tchoriocarcinoma\tECO:0000501\tevidence used in automatic assertion\tHGNC:6091\tINSR\tAlliance\tMGI:6194238\n";
         assertEquals(result, output);
 
     }
@@ -366,6 +365,49 @@ public class DiseaseIT {
     }
 
     @Test
+    public void checkDiseaseAssociationForYeast() {
+        Pagination pagination = new Pagination(1, 10, null, null);
+        // FAA1
+        String geneID = "SGD:S000005844";
+        JsonResultResponse<DiseaseAnnotation> response = diseaseService.getRibbonDiseaseAnnotations(List.of(geneID), null, pagination);
+        assertResponse(response, 2, 2);
+
+        DiseaseAnnotation annotation = response.getResults().get(0);
+        assertThat(annotation.getDisease().getName(), equalTo("Sjogren-Larsson syndrome"));
+        assertThat(annotation.getAssociationType().toLowerCase(), equalTo("is_implicated_in"));
+        assertThat(annotation.getPublications().stream().map(Publication::getPubId).collect(Collectors.joining()), equalTo("PMID:24269233"));
+        assertThat(annotation.getOrthologyGenes().stream().map(Gene::getPrimaryKey).collect(Collectors.joining()), equalTo("HGNC:29567HGNC:3570HGNC:3571HGNC:16526HGNC:16496HGNC:10996HGNC:10998"));
+        assertThat(annotation.getOrthologyGenes().stream().map(Gene::getSymbol).collect(Collectors.joining(",")), equalTo("ACSBG1,ACSL3,ACSL4,ACSL5,ACSL6,SLC27A2,SLC27A4"));
+
+        annotation = response.getResults().get(1);
+        assertThat(annotation.getDisease().getName(), equalTo("Sjogren-Larsson syndrome"));
+        assertThat(annotation.getAssociationType().toLowerCase(), equalTo("is_implicated_in"));
+        assertThat(annotation.getPublications().stream().map(Publication::getPubId).collect(Collectors.joining()), equalTo("PMID:22633490"));
+        assertThat(annotation.getOrthologyGenes().stream().map(Gene::getPrimaryKey).collect(Collectors.joining()), equalTo("HGNC:3569"));
+        assertThat(annotation.getOrthologyGenes().stream().map(Gene::getSymbol).collect(Collectors.joining()), equalTo("ACSL1"));
+
+        DiseaseAnnotationToTdfTranslator translator = new DiseaseAnnotationToTdfTranslator();
+        String output = translator.getEmpiricalDiseaseByGene(response.getResults());
+        List<String> lines = Arrays.asList(output.split("\n"));
+        assertNotNull(lines);
+        assertEquals(output, "Species ID\tSpecies Name\tGene ID\tGene Symbol\tGenetic Entity ID\tGenetic Entity Name\tGenetic Entity Type\tDisease ID\tDisease Name\tAssociation\tEvidence Code\tEvidence Code Name\tSource\tBased On ID\tBased On Name\tReference\n" +
+                "NCBITaxon:559292\tSaccharomyces cerevisiae\tSGD:S000005844\tFAA1\tSGD:S000005844\tFAA1\tgene\tDOID:14501\tSjogren-Larsson syndrome\tis_implicated_in\tECO:0000316|ECO:0000250\tgenetic interaction evidence used in manual assertion|sequence similarity evidence used in manual assertion\tSGD\t\t\tPMID:24269233\n" +
+                "NCBITaxon:559292\tSaccharomyces cerevisiae\tSGD:S000005844\tFAA1\tSGD:S000005844\tFAA1\tgene\tDOID:14501\tSjogren-Larsson syndrome\tis_implicated_in\tECO:0000316|ECO:0000250\tgenetic interaction evidence used in manual assertion|sequence similarity evidence used in manual assertion\tSGD\t\t\tPMID:22633490\n"
+        );
+    }
+
+    @Test
+    public void checkDiseaseAssociationJoinTypeOrthologou() {
+        Pagination pagination = new Pagination(1, 10, null, null);
+        // tmc-2
+        String geneID = "WB:WBGene00015177";
+//        String geneID = "ZFIN:ZDB-GENE-060526-261";
+        JsonResultResponse<DiseaseAnnotation> response = diseaseService.getRibbonDiseaseAnnotations(List.of(geneID), null, pagination);
+        assertResponse(response, 0, 0);
+
+    }
+
+    @Test
     public void checkEmpiricalDiseaseFilterByDisease() {
 
         // Pten
@@ -450,7 +492,7 @@ public class DiseaseIT {
 
         // add containsFilterValue on evidence code
         JsonResultResponse<DiseaseAnnotation> response = diseaseService.getRibbonDiseaseAnnotations(List.of(geneID), null, pagination);
-        assertLimitResponse(response, 4, 4);
+        assertLimitResponse(response, 2, 2);
 
     }
 

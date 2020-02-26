@@ -31,15 +31,18 @@ public class GeneOrthologCacher extends Cacher {
         List<Gene> geneList = geneRepository.getAllOrthologyGenes();
 
         finishProcess();
-
         if (geneList == null)
             return;
+
+        log.info("Total Number of Genes: ", geneList.size());
 
         geneGeneAlgorithm = geneRepository.getAllOrthologyGeneJoin();
         allMethods = geneRepository.getAllMethods();
         log.info(geneGeneAlgorithm.size());
 
-        startProcess("create geneList into cache", geneList.size());
+        int orthologousRecords = geneList.stream().map(gene -> gene.getOrthoGenes().size()).mapToInt(Integer::intValue).sum();
+        log.info("Total Number of Ortho Records: ", orthologousRecords);
+        startProcess("create geneList into cache", orthologousRecords);
         BasicCachingManager manager = new BasicCachingManager();
 
         List<OrthologView> allOrthology = new ArrayList<>();

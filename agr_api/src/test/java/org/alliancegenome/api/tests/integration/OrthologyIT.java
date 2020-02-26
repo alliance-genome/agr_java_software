@@ -46,6 +46,7 @@ public class OrthologyIT {
         pagination.setLimit(10);
         JsonResultResponse<OrthologView> response = service.getOrthologyMultiGeneJson(List.of("MGI:109583"), pagination);
         assertNotNull(response);
+        assertTrue(response.getResults().stream().anyMatch(orthologView -> orthologView.getHomologGene().getPrimaryKey().equals("MGI:97490")));
         assertThat(response.getTotal(), greaterThan(6));
 
         response = service.getOrthologyBySpecies("danio", pagination);

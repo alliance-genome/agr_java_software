@@ -54,7 +54,7 @@ public class DiseaseCacher extends Cacher {
         log.info("Number of DiseaseAnnotation object before merge: " + String.format("%,d", allDiseaseAnnotations.size()));
         // merge disease Annotations with the same
         // disease / gene / association type combination
-        mergeDiseaseAnnotationsByAGM(allDiseaseAnnotations);
+        //mergeDiseaseAnnotationsByAGM(allDiseaseAnnotations);
         log.info("Number of DiseaseAnnotation object after merge: " + String.format("%,d", allDiseaseAnnotations.size()));
 
 
@@ -81,15 +81,17 @@ public class DiseaseCacher extends Cacher {
                     .forEach(id -> allAnnotations.addAll(diseaseAnnotationTermMap.get(id)));
             diseaseAnnotationMap.put(termID, allAnnotations);
         });
+        log.info("Number of IDs in Map before adding gene IDs: " + diseaseAnnotationMap.size());
 
         // Create map with genes as keys and their associated disease annotations as values
         // Map<gene ID, List<DiseaseAnnotation>> including annotations to child terms
         Map<String, List<DiseaseAnnotation>> diseaseAnnotationExperimentGeneMap = allDiseaseAnnotations.stream()
+                .filter(annotation -> annotation.getSortOrder() < 10)
                 .filter(annotation -> annotation.getGene() != null)
                 .collect(groupingBy(o -> o.getGene().getPrimaryKey(), Collectors.toList()));
         diseaseAnnotationMap.putAll(diseaseAnnotationExperimentGeneMap);
 
-        log.info("Number of Disease IDs in disease Map after adding gene grouping: " + diseaseAnnotationMap.size());
+        log.info("Number of IDs in the Map after adding genes IDs: " + diseaseAnnotationMap.size());
 
         storeIntoCache(allDiseaseAnnotations, diseaseAnnotationMap, CacheAlliance.DISEASE_ANNOTATION);
 
