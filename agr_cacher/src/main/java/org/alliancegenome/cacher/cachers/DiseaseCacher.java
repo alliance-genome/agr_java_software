@@ -81,6 +81,7 @@ public class DiseaseCacher extends Cacher {
                     .forEach(id -> allAnnotations.addAll(diseaseAnnotationTermMap.get(id)));
             diseaseAnnotationMap.put(termID, allAnnotations);
         });
+        log.info("Number of IDs in Map before adding gene IDs: " + diseaseAnnotationMap.size());
 
         // Create map with genes as keys and their associated disease annotations as values
         // Map<gene ID, List<DiseaseAnnotation>> including annotations to child terms
@@ -90,7 +91,7 @@ public class DiseaseCacher extends Cacher {
                 .collect(groupingBy(o -> o.getGene().getPrimaryKey(), Collectors.toList()));
         diseaseAnnotationMap.putAll(diseaseAnnotationExperimentGeneMap);
 
-        log.info("Number of Disease IDs in disease Map after adding gene grouping: " + diseaseAnnotationMap.size());
+        log.info("Number of IDs in the Map after adding genes IDs: " + diseaseAnnotationMap.size());
 
         storeIntoCache(allDiseaseAnnotations, diseaseAnnotationMap, CacheAlliance.DISEASE_ANNOTATION);
 
