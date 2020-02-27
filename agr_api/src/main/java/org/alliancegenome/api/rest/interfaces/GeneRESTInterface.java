@@ -320,7 +320,7 @@ public interface GeneRESTInterface {
 
     @GET
     @Path("/{id}/diseases-by-experiment/download")
-    @ApiOperation(value = "Retrieve all disease annotations for a given gene and containsFilterValue option")
+    @ApiOperation(value = "Retrieve all disease annotations for a given gene and containsFilterValue option", hidden = true)
     Response getDiseaseByExperimentDownload(
             @ApiParam(name = "id", value = "Gene by ID: e.g. MGI:1097693", required = true, type = "String")
             @PathParam("id") String id,
