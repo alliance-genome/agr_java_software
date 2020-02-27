@@ -24,13 +24,10 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 @Api(value = "Expression Tests")
 public class ExpressionIT {
@@ -82,7 +79,7 @@ public class ExpressionIT {
     // Test Pten from MGI for expression ribbon summary
     public void checkExpressionRibbonGoTerms() {
         GeneRepository geneRepository = new GeneRepository();
-        List<GOTerm> terms =geneRepository.getFullGoTermList();
+        List<GOTerm> terms = geneRepository.getFullGoTermList();
         assertNotNull(terms);
         String termNames = terms.stream().map(GOTerm::getName).collect(Collectors.joining(","));
         assertTrue(termNames.contains("extracellular region"));
@@ -101,6 +98,17 @@ public class ExpressionIT {
         assertNotNull(summary);
 
 
+    }
+
+    @Test
+    public void checkExpressionAnatomy() {
+        Pagination pagination = new Pagination();
+        BaseFilter filter = new BaseFilter();
+        //filter.addFieldFilter(FieldFilter.SOURCE, "9913");
+        pagination.setFieldFilterValueMap(filter);
+        JsonResultResponse<ExpressionDetail> summary = expressionService.getExpressionDetails(List.of("ZFIN:ZDB-GENE-030131-845"), "UBERON:0001062", pagination);
+        assertNotNull(summary);
+        assertEquals(summary.getTotal(), 53);
     }
 
 }
