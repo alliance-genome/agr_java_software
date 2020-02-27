@@ -144,7 +144,7 @@ public class AlleleController implements AlleleRESTInterface {
          source,
          reference,
          sortBy);
-        Response.ResponseBuilder responseBuilder = Response.ok(phenotypeAnnotationToTdfTranslator.getAllRows(response.getResults()));
+        Response.ResponseBuilder responseBuilder = Response.ok(phenotypeAnnotationToTdfTranslator.getAllRowsForAlleles(response.getResults()));
         APIService.setDownloadHeader(id, EntityType.ALLELE, EntityType.PHENOTYPE, responseBuilder);
         return responseBuilder.build();
     }
