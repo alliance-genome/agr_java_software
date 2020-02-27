@@ -31,8 +31,50 @@ public class PhenotypeAnnotationToTdfTranslator {
         return DownloadHeader.getDownloadOutput(list, headers);
     }
 
+
+    public String getAllRowsForAlleles(List<PhenotypeAnnotation> annotations) {
+        denormalizeAnnotations(annotations);
+
+        // convert collection of PhenotypeAnnotation records to PhenotypeDownloadRow records
+        List<PhenotypeDownloadRow> list = annotations.stream()
+                .map(annotation -> annotation.getPrimaryAnnotatedEntities().stream()
+                        .map(entity -> entity.getPublicationEvidenceCodes().stream()
+                                .map(join -> {
+                                    PhenotypeDownloadRow row = getBaseDownloadRow(annotation, join, null);
+
+                                    if (!entity.getType().equals(GeneticEntity.CrossReferenceType.GENE)) {
+                                        row.setGeneticEntityID(entity.getId());
+                                        row.setGeneticEntityName(entity.getDisplayName());
+                                        row.setGeneticEntityType(entity.getType().getDisplayName());
+                                    }
+
+                                    return row;
+                                })
+                                .collect(Collectors.toList()))
+                        .flatMap(Collection::stream)
+                        .collect(Collectors.toList()))
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
+
+        List<DownloadHeader> headers = List.of(
+                new DownloadHeader<>("Phenotype", (PhenotypeDownloadRow::getPhenotype)),
+                new DownloadHeader<>("Genetic Entity ID", (PhenotypeDownloadRow::getGeneticEntityID)),
+                new DownloadHeader<>("Genetic Entity Name", (PhenotypeDownloadRow::getGeneticEntityName)),
+                new DownloadHeader<>("Genetic Entity Type", (PhenotypeDownloadRow::getGeneticEntityType)),
+                new DownloadHeader<>("Reference", (PhenotypeDownloadRow::getReference)),
+                new DownloadHeader<>("Source", (PhenotypeDownloadRow::getSource))
+        );
+
+        return DownloadHeader.getDownloadOutput(list, headers);
+    }
+
+
+
     private void denormalizeAnnotations(List<PhenotypeAnnotation> phenotypeAnnotation) {
         // add genetic entity info for annotations with pure genes
+
+        
+        
         phenotypeAnnotation.stream()
                 .filter(annotation -> CollectionUtils.isEmpty(annotation.getPrimaryAnnotatedEntities()))
                 .forEach(annotation -> {
