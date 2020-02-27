@@ -24,7 +24,7 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
         query += " OPTIONAL MATCH p4=(a:Allele)-[:ALSO_KNOWN_AS]-(:Synonym)";
         query += " OPTIONAL MATCH crossRef=(a:Allele)-[:CROSS_REFERENCE]-(:CrossReference)";
         query += " OPTIONAL MATCH p2=(gene:Gene)-[:ASSOCIATION]->(:GenomicLocation)-[:ASSOCIATION]->(:Chromosome)";
-        query += " RETURN p1, p2, p4, crossRef";
+        query += " RETURN p1, p2, p3, p4, crossRef";
 
         Iterable<Allele> alleles = query(query, map);
         for (Allele a : alleles) {
