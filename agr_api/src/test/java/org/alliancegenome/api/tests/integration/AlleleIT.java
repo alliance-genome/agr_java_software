@@ -83,6 +83,12 @@ public class AlleleIT {
     }
 
     @Test
+    public void checkAlleleWithoutGene() {
+        Allele allele = alleleService.getById("FB:FBal0316905");
+        assertNotNull(allele);
+    }
+
+    @Test
     public void checkAllelesSortedByVariantExistAndAlleleSymbol() {
         Pagination pagination = new Pagination();
         JsonResultResponse<Allele> response = alleleService.getAllelesByGene("WB:WBGene00004879", pagination);
