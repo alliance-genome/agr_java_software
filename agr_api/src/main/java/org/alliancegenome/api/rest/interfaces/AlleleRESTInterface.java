@@ -123,7 +123,7 @@ public interface AlleleRESTInterface {
 
     @GET
     @Path("/{id}/diseases")
-    @ApiOperation(value = "Retrieve all variants of a given allele")
+    @ApiOperation(value = "Retrieve all diseases of a given allele")
     @JsonView(value = {View.DiseaseAnnotationSummary.class})
     JsonResultResponse<DiseaseAnnotation> getDiseasePerAllele(
             @ApiParam(name = "id", value = "Search for Disease for a given Allele by ID")
