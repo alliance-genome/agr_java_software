@@ -61,6 +61,13 @@ public class CacheAllianceTest {
 
     @Ignore
     @Test
+    public void cacheExpression() {
+        ExpressionCacher cacher = new ExpressionCacher();
+        cacher.run();
+    }
+
+    @Ignore
+    @Test
     public void cacheAlleles() {
         AlleleCacher cacher = new AlleleCacher();
         cacher.run();
