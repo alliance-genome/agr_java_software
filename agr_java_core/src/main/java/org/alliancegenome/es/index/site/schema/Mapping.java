@@ -73,6 +73,7 @@ public class Mapping extends Builder {
         new FieldBuilder(builder, "phenotypeStatements", "text")
                 .keyword()
                 .build();
+        new FieldBuilder(builder, "popularity", "double").build();
         new FieldBuilder(builder, "primaryKey", "keyword").build();
         new FieldBuilder(builder, "relatedVariants", "text").keyword().standardText().build();
         new FieldBuilder(builder, "symbol", "text").analyzer("symbols")

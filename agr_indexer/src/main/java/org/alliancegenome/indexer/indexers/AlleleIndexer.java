@@ -30,7 +30,7 @@ public class AlleleIndexer extends Indexer<SearchableItemDocument> {
         try {
             repo = new AlleleIndexerRepository();
             alleleDocumentCache = repo.getAlleleDocumentCache(species);
-
+            alleleDocumentCache.setPopularity(popularityScore);
             List<String> fulllist = new ArrayList<>(alleleDocumentCache.getAlleleMap().keySet());
             LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>(fulllist);
 

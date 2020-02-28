@@ -39,6 +39,7 @@ public class SearchableItemDocument extends ESDocument {
     String nameText;
     String modCrossRefCompleteUrl;
     String modLocalId;
+    Double popularity;
     String primaryKey;
     String soTermId;
     String soTermName;

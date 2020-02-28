@@ -45,6 +45,8 @@ public class GoIndexer extends Indexer<SearchableItemDocument> {
         log.info("Pulling All Terms Finished");
 
         Iterable<SearchableItemDocument> docs = goTrans.translateEntities(terms);
+        docs.forEach(doc -> doc.setPopularity(popularityScore.get(doc.getId())));
+
         log.info("Translation Done");
 
         saveDocuments(docs);

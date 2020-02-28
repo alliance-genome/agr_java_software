@@ -42,6 +42,8 @@ public class GeneIndexer extends Indexer<SearchableItemDocument> {
                 fulllist = geneDocumentCache.getGeneMap().keySet().stream().collect(Collectors.toList());
             }
 
+            geneDocumentCache.setPopularity(popularityScore);
+
             queue.addAll(fulllist);
 
             initiateThreading(queue);
