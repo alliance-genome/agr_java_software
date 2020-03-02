@@ -83,6 +83,11 @@ class QueryMatchIntegrationSpec extends Specification {
         "AGR-865"  | "FB:FBal0151567"          | "rut[EP399]"
         "AGR-508"  | "FB:FBal0036007"          | "en11"
 
+        "AGR-2006" | "MGI:3524957"             | "Tg(APPswe,PSEN1dE9)85Dbo"
+        "AGR-2006" | "MGI:3618599"             | "Tg(PSEN1dE9)S9Dbo"
+        "AGR-2006" | "MGI:3693208"             | "Tg(APPSwFlLon,PSEN1*M146L*L286V)6799Vas"
+        "AGR-2006" | "ZFIN:ZDB-ALT-140814-9"   | "zou011Tg"
+
         //variant hgvs names for alleles
         "AGR-1899" | "MGI:5316784"               | "NC_000083.6:g.75273979T>A"
         "AGR-1899" | "ZFIN:ZDB-ALT-161003-18649" | "NC_007116.7:g.23258951T>A"

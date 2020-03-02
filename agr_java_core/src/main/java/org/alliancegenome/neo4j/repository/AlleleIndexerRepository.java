@@ -18,7 +18,7 @@ public class AlleleIndexerRepository extends Neo4jRepository {
 
     public Map<String, Allele> getAlleleMap(String species) {
 
-        String query = "MATCH p1=(species:Species)-[:FROM_SPECIES]-(feature:Feature:Allele)-[:IS_ALLELE_OF]-(:Gene) ";
+        String query = "MATCH p1=(species:Species)-[:FROM_SPECIES]-(feature:Feature:Allele) ";
         query += getSpeciesWhere(species);
         query += " OPTIONAL MATCH pSyn=(feature:Feature)-[:ALSO_KNOWN_AS]-(synonym:Synonym) ";
         query += " OPTIONAL MATCH crossRef=(feature:Feature)-[:CROSS_REFERENCE]-(c:CrossReference) ";
@@ -77,7 +77,7 @@ public class AlleleIndexerRepository extends Neo4jRepository {
     }
 
     public Map<String, Set<String>> getDiseaseMap(String species) {
-        String query = "MATCH (species:Species)--(:Gene)-[:IS_ALLELE_OF]-(a:Allele)--(disease:DOTerm) ";
+        String query = "MATCH (species:Species)--(a:Allele)--(disease:DOTerm) ";
         query += getSpeciesWhere(species);
         query += " RETURN a.primaryKey, disease.nameKey ";
 
@@ -86,7 +86,7 @@ public class AlleleIndexerRepository extends Neo4jRepository {
 
 
     public Map<String, Set<String>> getDiseasesAgrSlimMap(String species) {
-        String query = "MATCH (species:Species)--(:Gene)-[:IS_ALLELE_OF]-(a:Allele)--(:DOTerm)-[:IS_A_PART_OF_CLOSURE]->(disease:DOTerm)";
+        String query = "MATCH (species:Species)--(a:Allele)--(:DOTerm)-[:IS_A_PART_OF_CLOSURE]->(disease:DOTerm)";
         query += " WHERE disease.subset =~ '.*DO_AGR_slim.*' ";
         if (StringUtils.isNotEmpty(species)) {
             query += " AND species.name = {species} ";
@@ -102,7 +102,7 @@ public class AlleleIndexerRepository extends Neo4jRepository {
     }
 
     public Map<String, Set<String>> getDiseasesWithParents(String species) {
-        String query = "MATCH (species:Species)--(:Gene)-[:IS_ALLELE_OF]-(a:Allele)--(:DOTerm)-[:IS_A_PART_OF_CLOSURE]->(disease:DOTerm)";
+        String query = "MATCH (species:Species)--(a:Allele)--(:DOTerm)-[:IS_A_PART_OF_CLOSURE]->(disease:DOTerm)";
         query += getSpeciesWhere(species);
         query += " RETURN a.primaryKey, disease.nameKey ";
 
@@ -126,7 +126,7 @@ public class AlleleIndexerRepository extends Neo4jRepository {
     }
 
     public Map<String, Set<String>> getPhenotypeStatementsMap(String species) {
-        String query = "MATCH (species:Species)--(gene:Gene)-[:IS_ALLELE_OF]-(a:Allele)--(phenotype:Phenotype) ";
+        String query = "MATCH (species:Species)--(a:Allele)--(phenotype:Phenotype) ";
         query += getSpeciesWhere(species);
         query += " RETURN distinct a.primaryKey, phenotype.phenotypeStatement ";
 
@@ -134,7 +134,7 @@ public class AlleleIndexerRepository extends Neo4jRepository {
     }
 
     public Map<String, Set<String>> getRelatedVariants(String species) {
-        String query = "MATCH (species:Species)--(:Gene)-[:IS_ALLELE_OF]-(a:Allele)--(v:Variant) ";
+        String query = "MATCH (species:Species)--(a:Allele)--(v:Variant) ";
         query += getSpeciesWhere(species);
         query += " RETURN distinct a.primaryKey as id, v.hgvsNomenclature as value";
 
@@ -142,7 +142,7 @@ public class AlleleIndexerRepository extends Neo4jRepository {
     }
 
     public Map<String, Set<String>> getVariantTypesMap(String species) {
-        String query = "MATCH (species:Species)--(:Gene)-[:IS_ALLELE_OF]-(a:Allele)--(v:Variant)--(term:SOTerm) ";
+        String query = "MATCH (species:Species)--(a:Allele)--(v:Variant)--(term:SOTerm) ";
         query += getSpeciesWhere(species);
         query += " RETURN distinct a.primaryKey,term.name ";
 
@@ -150,7 +150,7 @@ public class AlleleIndexerRepository extends Neo4jRepository {
     }
 
     public Map<String, Set<String>> getMolecularConsequence(String species) {
-        String query = "MATCH (species:Species)--(:Gene)-[:IS_ALLELE_OF]-(a:Allele)--(v:Variant)--(consequence:GeneLevelConsequence) ";
+        String query = "MATCH (species:Species)--(a:Allele)--(v:Variant)--(consequence:GeneLevelConsequence) ";
         query += getSpeciesWhere(species);
         query += " RETURN a.primaryKey as id, consequence.geneLevelConsequence as value ";
 
