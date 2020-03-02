@@ -4,8 +4,11 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.Api;
+import org.alliancegenome.api.entity.CacheStatus;
 import org.alliancegenome.api.service.AlleleService;
+import org.alliancegenome.api.service.CacheStatusService;
 import org.alliancegenome.api.service.GeneService;
+import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.es.model.query.FieldFilter;
@@ -66,6 +69,16 @@ public class AlleleIT {
         Pagination pagination = new Pagination();
         JsonResultResponse<Allele> response = alleleService.getAllelesByGene("MGI:109583", pagination);
         assertResponse(response, 19, 19);
+    }
+
+    @Test
+    // Test Sox9 from MGI for disease via experiment records
+    public void checkStatus() {
+        CacheStatusService service = new CacheStatusService();
+        CacheStatus status = service.getCacheStatus(CacheAlliance.ALLELE, "FB:FBgn0031717");
+        assertNotNull(status);
+        Map<CacheAlliance, CacheStatus> map = service.getAllCachStatusRecords();
+        assertNotNull(map);
     }
 
     @Test

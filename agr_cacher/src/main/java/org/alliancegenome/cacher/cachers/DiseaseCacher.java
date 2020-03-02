@@ -41,7 +41,8 @@ public class DiseaseCacher extends Cacher {
         if (useCache) {
             joinList = joinList.stream()
                     .filter(diseaseEntityJoin -> diseaseEntityJoin.getGene() != null)
-                    .filter(diseaseEntityJoin -> diseaseEntityJoin.getGene().getPrimaryKey().equals("HGNC:7"))
+                    .filter(diseaseEntityJoin -> diseaseEntityJoin.getGene().getPrimaryKey().equals("SGD:S000005844") ||
+                            diseaseEntityJoin.getGene().getPrimaryKey().equals("MGI:109583"))
                     //.filter(diseaseEntityJoin -> diseaseEntityJoin.getGene().getPrimaryKey().equals("FB:FBgn0030343"))
                     .collect(toSet());
         }
@@ -85,10 +86,11 @@ public class DiseaseCacher extends Cacher {
 
         // Create map with genes as keys and their associated disease annotations as values
         // Map<gene ID, List<DiseaseAnnotation>> including annotations to child terms
-        Map<String, List<DiseaseAnnotation>> diseaseAnnotationExperimentGeneMap = allDiseaseAnnotations.stream()
+        Map<String, List<DiseaseAnnotation>> redundantDiseaseAnnotationGeneMap = allDiseaseAnnotations.stream()
                 .filter(annotation -> annotation.getSortOrder() < 10)
                 .filter(annotation -> annotation.getGene() != null)
                 .collect(groupingBy(o -> o.getGene().getPrimaryKey(), Collectors.toList()));
+        Map<String, List<DiseaseAnnotation>> diseaseAnnotationExperimentGeneMap = mergeDiseaseAnnotationsForGenes(redundantDiseaseAnnotationGeneMap);
         diseaseAnnotationMap.putAll(diseaseAnnotationExperimentGeneMap);
 
         log.info("Number of IDs in the Map after adding genes IDs: " + diseaseAnnotationMap.size());
@@ -101,6 +103,44 @@ public class DiseaseCacher extends Cacher {
 
         diseaseRepository.clearCache();
 
+    }
+
+    private Map<String, List<DiseaseAnnotation>> mergeDiseaseAnnotationsForGenes(Map<String, List<DiseaseAnnotation>> map) {
+        if (map == null)
+            return null;
+
+        Map<String, List<DiseaseAnnotation>> returnMap = new HashMap<>();
+        map.forEach((geneID, annotations) -> {
+            // group by association type and Disease
+            Map<String, Map<String, List<DiseaseAnnotation>>> groupedDA = annotations.stream()
+                    .collect(groupingBy(DiseaseAnnotation::getAssociationType, groupingBy(annotation -> annotation.getDisease().getPrimaryKey())));
+            // merge all DAs in a single group
+            List<DiseaseAnnotation> distinctAnnotations = new ArrayList<>();
+            groupedDA.forEach((assocType, annotationMap) -> {
+                annotationMap.forEach((diseaseID, diseaseAnnotations) -> {
+                    // if orthologyGenes present do not merge (SGD-specific rule)
+                    diseaseAnnotations.stream()
+                            .filter(diseaseAnnotation -> CollectionUtils.isNotEmpty(diseaseAnnotation.getOrthologyGenes()))
+                            .forEach(distinctAnnotations::add);
+
+                    // remove those from list of annotations that need to be merged.
+                    diseaseAnnotations.removeIf(diseaseAnnotation -> CollectionUtils.isNotEmpty(diseaseAnnotation.getOrthologyGenes()));
+                    if (CollectionUtils.isEmpty(diseaseAnnotations))
+                        return;
+                    // use first element as the merging element
+                    // merge: primaryAnnotatedEntity, PublicationJoin
+                    DiseaseAnnotation annotation = diseaseAnnotations.get(0);
+                    diseaseAnnotations.remove(0);
+                    diseaseAnnotations.forEach(singleAnnotation -> {
+                        annotation.addAllPrimaryAnnotatedEntities(singleAnnotation.getPrimaryAnnotatedEntities());
+                        annotation.addPublicationJoins(singleAnnotation.getPublicationJoins());
+                    });
+                    distinctAnnotations.add(annotation);
+                });
+            });
+            returnMap.put(geneID, distinctAnnotations);
+        });
+        return returnMap;
     }
 
     private void storeIntoCache(List<DiseaseAnnotation> diseaseAnnotations, Map<String, List<DiseaseAnnotation>> diseaseAnnotationMap, CacheAlliance cacheSpace) {
