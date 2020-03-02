@@ -25,7 +25,11 @@ public class ProcessDisplayHelper {
         lastSizeCounter = 0;
         startTime = new Date();
         sizeCounter = 0;
-        log.info(this.message + "Starting Processing: total: " + getBigNumber(totalSize) + " at: " + startTime);
+        if (totalSize > 0)
+            log.info(this.message + "Starting Process [total =  " + getBigNumber(totalSize) + "] at: " + startTime);
+        else
+            log.info(this.message + "Starting Process at: " + startTime);
+
         lastTime = new Date();
     }
 

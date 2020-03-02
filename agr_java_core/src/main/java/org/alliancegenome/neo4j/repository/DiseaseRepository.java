@@ -396,11 +396,11 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
 
     public Set<DiseaseEntityJoin> getAllDiseaseEntityGeneJoins() {
         String cypher = "MATCH p=(disease:DOTerm)-[:ASSOCIATION]-(dej:DiseaseEntityJoin)-[:EVIDENCE]->(pubEvCode:PublicationJoin)-[:ASSOCIATION]-(publication:Publication) ";
-        cypher += " where disease.isObsolete = 'false' AND NOT EXISTS ((dej:DiseaseEntityJoin)--(:Feature))";
+        cypher += " where disease.isObsolete = 'false' ";
         //cypher += " AND disease.primaryKey in ['DOID:0050144','DOID:0110599','DOID:0050545'] ";
         //cypher += " AND disease.primaryKey in ['DOID:0080348'] ";
         //cypher += " AND diseaseEntityJoin.primaryKey = 'FB:FBgn0030343DOID:1838is_implicated_in'  ";
-        //cypher += " AND disease.primaryKey in ['DOID:0080348'] ";
+        //cypher += " AND disease.primaryKey in ['DOID:9952','DOID:14501'] ";
         //cypher += " AND gene.primaryKey = 'HGNC:7' ";
         //cypher += "      OPTIONAL MATCH eco   =(pubEvCode:PublicationJoin)-[:ASSOCIATION]->(ecoTerm:ECOTerm)";
         cypher += "      OPTIONAL MATCH p7    =(dej:DiseaseEntityJoin)-[:ANNOTATION_SOURCE_CROSS_REFERENCE]-(:CrossReference)";

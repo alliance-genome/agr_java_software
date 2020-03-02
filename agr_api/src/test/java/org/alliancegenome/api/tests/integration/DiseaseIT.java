@@ -44,6 +44,7 @@ public class DiseaseIT {
     private ObjectMapper mapper = new ObjectMapper();
     private DiseaseService diseaseService = new DiseaseService();
     private DiseaseController diseaseController = new DiseaseController();
+    DiseaseService service = new DiseaseService();
 
     @Before
     public void before() {
@@ -433,7 +434,7 @@ public class DiseaseIT {
         assertThat(annotation.getDisease().getName(), equalTo("urinary bladder cancer"));
         assertThat(annotation.getAssociationType().toLowerCase(), equalTo("is_implicated_in"));
         //assertThat(annotation.getFeature().getSymbol(), equalTo("Pten<sup>tm1Hwu</sup>"));
-        assertThat(annotation.getPublications().stream().map(Publication::getPubId).collect(Collectors.joining()), equalTo("PMID:16951148"));
+        assertThat(annotation.getPublications().stream().map(Publication::getPubId).collect(Collectors.joining()), equalTo("PMID:16951148PMID:19261747PMID:21283818PMID:25533675PMID:28082400"));
 
     }
 
@@ -525,9 +526,20 @@ public class DiseaseIT {
     }
 
     @Test
+    public void checkDiseaseOnZFIN() {
+        // atp7a
+        JsonResultResponse<DiseaseAnnotation> response = service.getRibbonDiseaseAnnotations(List.of("ZFIN:ZDB-GENE-060825-45"), null, new Pagination(1, 30, null, null));
+        assertNotNull(response);
+        assertThat(response.getTotal(), greaterThanOrEqualTo(1));
+        List<DiseaseAnnotation> menkesAnnotations = response.getResults().stream().filter(diseaseAnnotation -> diseaseAnnotation.getDisease().getPrimaryKey().equals("DOID:1838")).collect(Collectors.toList());
+        // at least three annotations to Menke's disease
+        assertThat(response.getResults().get(0).getPrimaryAnnotatedEntities().size(), greaterThanOrEqualTo(3));
+
+    }
+
+    @Test
     // Test SHH from Human for disease via experiment records
     public void checkDiseaseAnnotationNonDuplicated3() {
-        DiseaseService service = new DiseaseService();
         JsonResultResponse<DiseaseAnnotation> annotations = service.getRibbonDiseaseAnnotations(List.of("HGNC:10848"), null, new Pagination(1, 30, null, null));
 
         assertNotNull(annotations);
@@ -543,7 +555,6 @@ public class DiseaseIT {
     @Test
     // Test Sox9 from MGI for disease via experiment records
     public void checkDiseaseAnnotationNonDuplicated() {
-        DiseaseService service = new DiseaseService();
         JsonResultResponse<DiseaseAnnotation> annotations = service.getRibbonDiseaseAnnotations(List.of("MGI:98371"), null, new Pagination(1, 80, null, null));
         assertNotNull(annotations);
 
@@ -556,16 +567,6 @@ public class DiseaseIT {
     public void checkDiseaseRibbonHeader() {
         DiseaseRibbonSummary summary = diseaseService.getDiseaseRibbonSummary(List.of("MGI:98297"));
         assertNotNull(summary);
-    }
-
-    @Test
-    // Test Sox9 from MGI for disease via experiment records
-    public void checkStatus() {
-        CacheStatusService service = new CacheStatusService();
-        CacheStatus status = service.getCacheStatus(CacheAlliance.ALLELE, "FB:FBgn0031717");
-        assertNotNull(status);
-        Map<CacheAlliance, CacheStatus> map = service.getAllCachStatusRecords();
-        assertNotNull(map);
     }
 
     @Test
