@@ -69,34 +69,54 @@ public class GeneOrthologCacher extends Cacher {
             allOrthology.addAll(orthologySet);
 
             manager.setCache(gene.getPrimaryKey(), new ArrayList<>(orthologySet), View.OrthologyCacher.class, CacheAlliance.GENE_ORTHOLOGY);
+            progressProcess();
         });
         finishProcess();
 
+        
+        
         // get homology cache by species
+        
+        startProcess("allOrthology.stream - group By o.getGene().getTaxonId()");
         Map<String, List<OrthologView>> map = allOrthology.stream()
                 .collect(groupingBy(o -> o.getGene().getTaxonId()));
-
+        finishProcess();
+        
+        
+        startProcess("allOrthology orthologViews into cache", map.size());
+        
         map.forEach((speciesID, orthologViews) -> {
             manager.setCache(speciesID, orthologViews, View.OrthologyCacher.class, CacheAlliance.SPECIES_ORTHOLOGY);
+            progressProcess();
         });
-
+        
+        finishProcess();
+        
         CacheStatus status = new CacheStatus(CacheAlliance.SPECIES_ORTHOLOGY);
         //status.setNumberOfEntities(allExpression.size());
 
         Map<String, Integer> speciesStatsInt = new TreeMap<>();
         map.forEach((speciesID, orthology) -> speciesStatsInt.put(speciesID, orthology.size()));
 
+        map.clear();
+        
         status.setSpeciesStats(speciesStatsInt);
         setCacheStatus(status);
 
         OrthologyService service = new OrthologyService();
-        Map<String, List<OrthologView>> speciesToSpeciesMap;
-        speciesToSpeciesMap = allOrthology.stream()
+        
+        startProcess("allOrthology.stream - group By getSpeciesSpeciesID");
+        Map<String, List<OrthologView>> speciesToSpeciesMap = allOrthology.stream()
                 .collect(groupingBy(service::getSpeciesSpeciesID));
-
+        finishProcess();
+        
+        startProcess("Cache speciesToSpeciesMap into cache", speciesToSpeciesMap.size());
+        
         speciesToSpeciesMap.forEach((speciesSpeciesID, orthologViews) -> {
             manager.setCache(speciesSpeciesID, orthologViews, View.OrthologyCacher.class, CacheAlliance.SPECIES_SPECIES_ORTHOLOGY);
+            progressProcess();
         });
+        finishProcess();
 
         status = new CacheStatus(CacheAlliance.SPECIES_SPECIES_ORTHOLOGY);
         //status.setNumberOfEntities(allExpression.size());
