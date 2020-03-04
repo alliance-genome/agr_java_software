@@ -25,13 +25,16 @@ import org.alliancegenome.es.model.search.RelatedDataLink;
 import org.alliancegenome.es.model.search.SearchApiResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.common.lucene.search.function.FieldValueFactorFunction;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.MultiMatchQueryBuilder;
 import org.elasticsearch.index.query.Operator;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryStringQueryBuilder;
 import org.elasticsearch.index.query.TermQueryBuilder;
+import org.elasticsearch.index.query.functionscore.FieldValueFactorFunctionBuilder;
 import org.elasticsearch.index.query.functionscore.FunctionScoreQueryBuilder;
+import org.elasticsearch.index.query.functionscore.ScoreFunctionBuilder;
 import org.elasticsearch.index.query.functionscore.ScoreFunctionBuilders;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
@@ -118,6 +121,16 @@ public class SearchService {
 
         functionList.add(new FunctionScoreQueryBuilder.FilterFunctionBuilder(matchQuery("diseasesWithParents",q),
                 ScoreFunctionBuilders.weightFactorFunction(1.01F)));
+
+/*
+        FieldValueFactorFunctionBuilder popularity = ScoreFunctionBuilders.fieldValueFactorFunction("popularity");
+        popularity.missing(1D);
+        popularity.modifier(FieldValueFactorFunction.Modifier.SQRT);
+        popularity.factor(1.0000001F);
+
+        functionList.add(new FunctionScoreQueryBuilder.FilterFunctionBuilder(matchAllQuery(),
+                popularity));
+*/
 
         //per term boost, add a 'should' clause for each individual term
         List<String> tokens = tokenizeQuery(q);
