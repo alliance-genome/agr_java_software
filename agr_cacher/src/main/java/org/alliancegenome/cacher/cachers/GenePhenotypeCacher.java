@@ -36,12 +36,12 @@ public class GenePhenotypeCacher extends Cacher {
         List<PhenotypeEntityJoin> joinListAllele = phenotypeRepository.getAllelePhenotypeAnnotations();
         finishProcess();
 
-
-        List<PhenotypeEntityJoin> list = joinList.stream()
-                .filter(join -> join.getPhenotypePublicationJoins().stream().anyMatch(join1 -> join1.getModel() != null))
-                .filter(join -> join.getPhenotypePublicationJoins().stream().anyMatch(join1 -> join1.getModel().getPrimaryKey().equals("MGI:6272038")))
-                .collect(Collectors.toList());
-
+        if(useCache) {
+            List<PhenotypeEntityJoin> list = joinList.stream()
+                    .filter(join -> join.getPhenotypePublicationJoins().stream().anyMatch(join1 -> join1.getModel() != null))
+                    .filter(join -> join.getPhenotypePublicationJoins().stream().anyMatch(join1 -> join1.getModel().getPrimaryKey().equals("MGI:6272038")))
+                    .collect(Collectors.toList());
+        }
 
         int size = joinList.size();
         log.info("Retrieved " + String.format("%,d", size) + " PhenotypeEntityJoin records");
