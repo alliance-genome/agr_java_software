@@ -52,6 +52,7 @@ public class DiseaseCacher extends Cacher {
         List<DiseaseAnnotation> allDiseaseAnnotations = getDiseaseAnnotationsFromDEJs(joinList);
         finishProcess();
 
+        joinList.clear();
         log.info("Number of DiseaseAnnotation object before merge: " + String.format("%,d", allDiseaseAnnotations.size()));
         // merge disease Annotations with the same
         // disease / gene / association type combination
@@ -96,11 +97,11 @@ public class DiseaseCacher extends Cacher {
         log.info("Number of IDs in the Map after adding genes IDs: " + diseaseAnnotationMap.size());
 
         storeIntoCache(allDiseaseAnnotations, diseaseAnnotationMap, CacheAlliance.DISEASE_ANNOTATION);
-
+        diseaseAnnotationTermMap.clear();
+        diseaseAnnotationExperimentGeneMap.clear();
+        allDiseaseAnnotations.clear();
         // take care of allele
         if (populateAllelesCache(closureMapping, allIDs)) return;
-
-
         diseaseRepository.clearCache();
 
     }
@@ -149,6 +150,7 @@ public class DiseaseCacher extends Cacher {
             manager.setCache(key, value, View.DiseaseCacher.class, cacheSpace);
             progressProcess();
         });
+        log.info("Calculate statistics...");
         CacheStatus status = new CacheStatus(cacheSpace);
         status.setNumberOfEntities(diseaseAnnotations.size());
 
@@ -169,6 +171,7 @@ public class DiseaseCacher extends Cacher {
         status.setEntityStats(stats);
         status.setSpeciesStats(speciesStatsInt);
         setCacheStatus(status);
+        log.info("Finished calculating statistics");
         finishProcess();
     }
 
