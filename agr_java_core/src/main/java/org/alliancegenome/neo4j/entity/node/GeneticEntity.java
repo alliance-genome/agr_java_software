@@ -110,6 +110,9 @@ public class GeneticEntity extends Neo4jEntity {
         List<CrossReference> othersList = new ArrayList<>();
         for (CrossReference cr : crossReferences) {
             String typeName = crossReferenceType.displayName;
+            // hard-coding WB speciality submission
+            if(cr.getCrossRefType().equals("transgene"))
+                typeName = "transgene";
             if (cr.getCrossRefType().startsWith(typeName + "/")) {
                 typeName = cr.getCrossRefType().replace(typeName + "/", "");
                 map.put(typeName, cr);
@@ -170,7 +173,8 @@ public class GeneticEntity extends Neo4jEntity {
 
     public enum CrossReferenceType {
 
-        GENE("gene"), ALLELE("allele"), GENOTYPE("genotype"), FISH("fish", "affected_genomic_model"), STRAIN("strain");
+        GENE("gene"), ALLELE("allele"), GENOTYPE("genotype"), FISH("fish", "affected_genomic_model"), STRAIN("strain"),
+        TRANSGENE("transgene");
 
         private String displayName;
         private String dbName;
