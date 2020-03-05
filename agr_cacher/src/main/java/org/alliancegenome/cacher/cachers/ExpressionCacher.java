@@ -45,7 +45,7 @@ public class ExpressionCacher extends Cacher {
 
         startProcess("allExpression", joins.size());
 
-        List<ExpressionDetail> allExpression = joins.parallelStream()
+        List<ExpressionDetail> allExpression = joins.stream()
                 .map(expressionJoin -> {
                     ExpressionDetail detail = new ExpressionDetail();
                     detail.setGene(expressionJoin.getGene());
