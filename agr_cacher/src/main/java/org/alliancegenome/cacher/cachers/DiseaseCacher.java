@@ -53,6 +53,10 @@ public class DiseaseCacher extends Cacher {
         finishProcess();
 
         joinList.clear();
+        
+        
+        
+        
         log.info("Number of DiseaseAnnotation object before merge: " + String.format("%,d", allDiseaseAnnotations.size()));
         // merge disease Annotations with the same
         // disease / gene / association type combination
@@ -83,6 +87,7 @@ public class DiseaseCacher extends Cacher {
                     .forEach(id -> allAnnotations.addAll(diseaseAnnotationTermMap.get(id)));
             diseaseAnnotationMap.put(termID, allAnnotations);
         });
+
         log.info("Number of IDs in Map before adding gene IDs: " + diseaseAnnotationMap.size());
 
         // Create map with genes as keys and their associated disease annotations as values
@@ -92,16 +97,26 @@ public class DiseaseCacher extends Cacher {
                 .filter(annotation -> annotation.getGene() != null)
                 .collect(groupingBy(o -> o.getGene().getPrimaryKey(), Collectors.toList()));
         Map<String, List<DiseaseAnnotation>> diseaseAnnotationExperimentGeneMap = mergeDiseaseAnnotationsForGenes(redundantDiseaseAnnotationGeneMap);
+        
         diseaseAnnotationMap.putAll(diseaseAnnotationExperimentGeneMap);
-
+        
+        redundantDiseaseAnnotationGeneMap.clear();
+        
         log.info("Number of IDs in the Map after adding genes IDs: " + diseaseAnnotationMap.size());
 
         storeIntoCache(allDiseaseAnnotations, diseaseAnnotationMap, CacheAlliance.DISEASE_ANNOTATION);
+        
+        diseaseAnnotationMap.clear();
         diseaseAnnotationTermMap.clear();
         diseaseAnnotationExperimentGeneMap.clear();
         allDiseaseAnnotations.clear();
+        
+        
+        
+        
         // take care of allele
-        if (populateAllelesCache(closureMapping, allIDs)) return;
+        populateAllelesCache(closureMapping, allIDs);
+        
         diseaseRepository.clearCache();
 
     }
@@ -239,9 +254,14 @@ public class DiseaseCacher extends Cacher {
                     return document;
                 })
                 .collect(Collectors.toList());
-
+        
+        pureAgmDiseases.clear();
+        
         Map<String, DiseaseAnnotation> paMap = allDiseaseAnnotationsPure.stream()
                 .collect(toMap(DiseaseAnnotation::getPrimaryKey, entity -> entity));
+        
+        allDiseaseAnnotationsPure.clear();
+        
         // merge annotations with the same model
         // geneID, Map<modelID, List<PhenotypeAnnotation>>>
 /*
@@ -268,9 +288,11 @@ public class DiseaseCacher extends Cacher {
                 dease.add(diseaseAnnot);
             });
         });
-
+        paMap.clear();
+        modelGenesMap.clear();
 
         Map<String, List<PrimaryAnnotatedEntity>> diseaseAnnotationPureMap = new HashMap<>();
+        
         annotationPureMergeMap.forEach((geneID, modelIdMap) -> modelIdMap.forEach((modelID, diseaseAnnotations) -> {
             List<PrimaryAnnotatedEntity> mergedAnnotations = diseaseAnnotationPureMap.get(geneID);
             if (mergedAnnotations == null)
@@ -284,6 +306,8 @@ public class DiseaseCacher extends Cacher {
             diseaseAnnotationPureMap.put(geneID, mergedAnnotations);
         }));
 
+        annotationPureMergeMap.clear();
+        
         BasicCachingManager managerModel = new BasicCachingManager();
 
         diseaseAnnotationPureMap.forEach((geneID, value) -> {
@@ -294,6 +318,7 @@ public class DiseaseCacher extends Cacher {
             managerModel.setCache(geneID, value, View.PrimaryAnnotation.class, CacheAlliance.GENE_PURE_AGM_DISEASE);
             progressProcess();
         });
+        diseaseAnnotationPureMap.clear();
     }
 
     private boolean populateAllelesCache(Map<String, Set<String>> closureMapping, Set<String> allIDs) {
@@ -302,6 +327,8 @@ public class DiseaseCacher extends Cacher {
         List<DiseaseAnnotation> alleleList = getDiseaseAnnotationsFromDEJs(alleleEntityJoins);
         if (alleleList == null)
             return true;
+        
+        alleleEntityJoins.clear();
 
         log.info("Number of DiseaseAnnotation objects with Alleles: " + String.format("%,d", alleleList.size()));
         Map<String, List<DiseaseAnnotation>> diseaseAlleleAnnotationTermMap = alleleList.stream()
@@ -318,12 +345,16 @@ public class DiseaseCacher extends Cacher {
         });
 
         storeIntoCache(alleleList, diseaseAlleleAnnotationMap, CacheAlliance.DISEASE_ALLELE_ANNOTATION);
-
+        
+        diseaseAlleleAnnotationMap.clear();
+        
         // <AlleleID, List of DAs>
         Map<String, List<DiseaseAnnotation>> diseaseAlleleMap = alleleList.stream()
                 .collect(groupingBy(annotation -> annotation.getFeature().getPrimaryKey()));
         storeIntoCache(alleleList, diseaseAlleleMap, CacheAlliance.ALLELE_DISEASE);
-
+        
+        alleleList.clear();
+        diseaseAlleleMap.clear();
         return false;
     }
 
