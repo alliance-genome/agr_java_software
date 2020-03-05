@@ -28,89 +28,103 @@ public class GenePhenotypeCacher extends Cacher {
 
     @Override
     protected void cache() {
+
+
+
         startProcess("GenePhenotypeCacher.getAllPhenotypeAnnotations");
-        List<PhenotypeEntityJoin> joinList = phenotypeRepository.getAllPhenotypeAnnotations();
+        List<PhenotypeEntityJoin> joinList_new = phenotypeRepository.getAllPhenotypeAnnotations();
         finishProcess();
-
-        startProcess("GenePhenotypeCacher.getAllelePhenotypeAnnotations");
-        List<PhenotypeEntityJoin> joinListAllele = phenotypeRepository.getAllelePhenotypeAnnotations();
-        finishProcess();
-
+        
         if(useCache) {
-            List<PhenotypeEntityJoin> list = joinList.stream()
+            List<PhenotypeEntityJoin> list = joinList_new.stream()
                     .filter(join -> join.getPhenotypePublicationJoins().stream().anyMatch(join1 -> join1.getModel() != null))
                     .filter(join -> join.getPhenotypePublicationJoins().stream().anyMatch(join1 -> join1.getModel().getPrimaryKey().equals("MGI:6272038")))
                     .collect(Collectors.toList());
         }
-
-        int size = joinList.size();
-        log.info("Retrieved " + String.format("%,d", size) + " PhenotypeEntityJoin records");
-        log.info("Retrieved " + String.format("%,d", joinListAllele.size()) + " PhenotypeEntityJoin records for Allele");
-
-        startProcess("allPhenotypeAnnotations", size);
-        // used to populate the DOTerm object on the PrimaryAnnotationEntity object
-        List<PhenotypeAnnotation> allPhenotypeAnnotations = getPhenotypeAnnotations(joinList);
-        List<PhenotypeAnnotation> allelePhenotypeAnnotations = getPhenotypeAnnotations(joinListAllele);
-        finishProcess();
-
+        
+        List<PhenotypeAnnotation> allPhenotypeAnnotations_new = getPhenotypeAnnotations(joinList_new);
         // geneID, Map<phenotype, List<PhenotypeAnnotation>>
-        Map<String, Map<String, List<PhenotypeAnnotation>>> annotationMergeMap = allPhenotypeAnnotations.stream()
+        startProcess("allPhenotypeAnnotations.groupingBy getPhenotype", allPhenotypeAnnotations_new.size());
+        Map<String, Map<String, List<PhenotypeAnnotation>>> annotationMergeMap_new = allPhenotypeAnnotations_new.stream()
                 .collect(groupingBy(phenotypeAnnotation -> phenotypeAnnotation.getGene().getPrimaryKey(), groupingBy(PhenotypeAnnotation::getPhenotype)));
-
+        finishProcess();
+        
         // merge annotations with the same phenotype
-        Map<String, List<PhenotypeAnnotation>> phenotypeAnnotationMap = getMergedPhenotypeMap(annotationMergeMap);
+        Map<String, List<PhenotypeAnnotation>> phenotypeAnnotationMap_new = getMergedPhenotypeMap(annotationMergeMap_new);
+
+        storeIntoCache(joinList_new, allPhenotypeAnnotations_new, phenotypeAnnotationMap_new, CacheAlliance.GENE_PHENOTYPE);
+        
+        allPhenotypeAnnotations_new.clear();
+        annotationMergeMap_new.clear();
+        phenotypeAnnotationMap_new.clear();
+
+        startProcess("GenePhenotypeCacher.getAllelePhenotypeAnnotations");
+        List<PhenotypeEntityJoin> joinListAllele_new = phenotypeRepository.getAllelePhenotypeAnnotations();
+        finishProcess();
+        
+        // used to populate the DOTerm object on the PrimaryAnnotationEntity object
+        List<PhenotypeAnnotation> allelePhenotypeAnnotations_new = getPhenotypeAnnotations(joinListAllele_new);
 
         // alleleID, Map<phenotype, List<PhenotypeAnnotation>>
-        Map<String, Map<String, List<PhenotypeAnnotation>>> annotationAlleleMergeMap = allelePhenotypeAnnotations.stream()
+        startProcess("allelePhenotypeAnnotations.groupingBy getPhenotype", allelePhenotypeAnnotations_new.size());
+        Map<String, Map<String, List<PhenotypeAnnotation>>> annotationAlleleMergeMap_new = allelePhenotypeAnnotations_new.stream()
                 .collect(groupingBy(phenotypeAnnotation -> phenotypeAnnotation.getAllele().getPrimaryKey(), groupingBy(PhenotypeAnnotation::getPhenotype)));
-
+        finishProcess();
+        
         // merge annotations with the same phenotype
-        Map<String, List<PhenotypeAnnotation>> phenotypeAnnotationAlleleMap = getMergedPhenotypeMap(annotationAlleleMergeMap);
-
-        storeIntoCache(joinList, allPhenotypeAnnotations, phenotypeAnnotationMap, CacheAlliance.GENE_PHENOTYPE);
-        storeIntoCache(joinList, allelePhenotypeAnnotations, phenotypeAnnotationAlleleMap, CacheAlliance.ALLELE_PHENOTYPE);
+        Map<String, List<PhenotypeAnnotation>> phenotypeAnnotationAlleleMap_new = getMergedPhenotypeMap(annotationAlleleMergeMap_new);
 
 
-        List<PhenotypeEntityJoin> pureAgmPhenotypes = phenotypeRepository.getAllPhenotypeAnnotationsPureAGM();
-        log.info("Retrieved " + String.format("%,d", pureAgmPhenotypes.size()) + " PhenotypeEntityJoin records for pure AGMs");
+        storeIntoCache(joinList_new, allelePhenotypeAnnotations_new, phenotypeAnnotationAlleleMap_new, CacheAlliance.ALLELE_PHENOTYPE);
+        
+        phenotypeAnnotationAlleleMap_new.clear();
+        allelePhenotypeAnnotations_new.clear();
+        annotationAlleleMergeMap_new.clear();
+        
+        joinList_new.clear();
+        
+        
+        startProcess("phenotypeRepository.getAllPhenotypeAnnotationsPureAGM");
+        List<PhenotypeEntityJoin> pureAgmPhenotypes_new = phenotypeRepository.getAllPhenotypeAnnotationsPureAGM();
+        log.info("Retrieved " + String.format("%,d", pureAgmPhenotypes_new.size()) + " PhenotypeEntityJoin records for pure AGMs");
         // set the gene object on the join
-
+        finishProcess();
 
         // phenotypeEntityJoin PK, List<Gene>
-        Map<String, List<Gene>> modelGenesMap = new HashMap<>();
+        Map<String, List<Gene>> modelGenesMap_new = new HashMap<>();
 
-        pureAgmPhenotypes.stream()
+        pureAgmPhenotypes_new.stream()
                 .filter(join -> CollectionUtils.isNotEmpty(join.getModel().getAlleles()))
                 .forEach(join -> {
                     Set<Gene> geneList = join.getModel().getAlleles().stream()
                             .map(Allele::getGene)
                             .collect(toSet());
                     final String primaryKey = join.getPrimaryKey();
-                    List<Gene> genes = modelGenesMap.get(primaryKey);
+                    List<Gene> genes = modelGenesMap_new.get(primaryKey);
                     if (genes == null) {
                         genes = new ArrayList<>();
                     }
                     genes.addAll(geneList);
                     genes = genes.stream().distinct().collect(toList());
-                    modelGenesMap.put(primaryKey, genes);
+                    modelGenesMap_new.put(primaryKey, genes);
                 });
-        pureAgmPhenotypes.stream()
+        pureAgmPhenotypes_new.stream()
                 .filter(join -> CollectionUtils.isNotEmpty(join.getModel().getAlleles()))
                 .forEach(join -> {
                     Set<Gene> geneList = join.getModel().getSequenceTargetingReagents().stream()
                             .map(SequenceTargetingReagent::getGene)
                             .collect(toSet());
                     final String primaryKey = join.getPrimaryKey();
-                    List<Gene> genes = modelGenesMap.get(primaryKey);
+                    List<Gene> genes = modelGenesMap_new.get(primaryKey);
                     if (genes == null) {
                         genes = new ArrayList<>();
                     }
                     genes.addAll(geneList);
                     genes = genes.stream().distinct().collect(toList());
-                    modelGenesMap.put(primaryKey, genes);
+                    modelGenesMap_new.put(primaryKey, genes);
                 });
 
-        List<PhenotypeAnnotation> allPhenotypeAnnotationsPure = pureAgmPhenotypes.stream()
+        List<PhenotypeAnnotation> allPhenotypeAnnotationsPure_new = pureAgmPhenotypes_new.stream()
                 .map(join -> {
                     PhenotypeAnnotation document = new PhenotypeAnnotation();
                     final AffectedGenomicModel model = join.getModel();
@@ -133,25 +147,31 @@ public class GenePhenotypeCacher extends Cacher {
                     return document;
                 })
                 .collect(Collectors.toList());
+        
+        pureAgmPhenotypes_new.clear();
+        
 
-        Map<String, PhenotypeAnnotation> paMap = allPhenotypeAnnotationsPure.stream()
+        Map<String, PhenotypeAnnotation> paMap_new = allPhenotypeAnnotationsPure_new.stream()
                 .collect(toMap(PhenotypeAnnotation::getPrimaryKey, entity -> entity));
+        
+        allPhenotypeAnnotationsPure_new.clear();
+        
         // merge annotations with the same model
         // geneID, Map<modelID, List<PhenotypeAnnotation>>>
 /*
         Map<String, Map<String, List<PhenotypeAnnotation>>> annotationPureMergeMap = allPhenotypeAnnotationsPure.stream()
                 .collect(groupingBy(phenotypeAnnotation -> phenotypeAnnotation.getGene().getPrimaryKey(), groupingBy(annotation -> annotation.getModel().getPrimaryKey())));
 */
-        Map<String, Map<String, List<PhenotypeAnnotation>>> annotationPureMergeMap = new HashMap<>();
+        Map<String, Map<String, List<PhenotypeAnnotation>>> annotationPureMergeMap_new = new HashMap<>();
 
-        modelGenesMap.forEach((phenotypeEntityJoinID, genes) -> {
-            PhenotypeAnnotation phenoAnnot = paMap.get(phenotypeEntityJoinID);
+        modelGenesMap_new.forEach((phenotypeEntityJoinID, genes) -> {
+            PhenotypeAnnotation phenoAnnot = paMap_new.get(phenotypeEntityJoinID);
 
             genes.forEach(gene -> {
-                Map<String, List<PhenotypeAnnotation>> annotations = annotationPureMergeMap.get(gene.getPrimaryKey());
+                Map<String, List<PhenotypeAnnotation>> annotations = annotationPureMergeMap_new.get(gene.getPrimaryKey());
                 if (annotations == null) {
                     annotations = new HashMap<>();
-                    annotationPureMergeMap.put(gene.getPrimaryKey(), annotations);
+                    annotationPureMergeMap_new.put(gene.getPrimaryKey(), annotations);
                 }
 
                 List<PhenotypeAnnotation> phenos = annotations.get(phenoAnnot.getModel().getPrimaryKey());
@@ -162,11 +182,15 @@ public class GenePhenotypeCacher extends Cacher {
                 phenos.add(phenoAnnot);
             });
         });
+        
+        modelGenesMap_new.clear();
+        paMap_new.clear();
 
 
-        Map<String, List<PrimaryAnnotatedEntity>> phenotypeAnnotationPureMap = new HashMap<>();
-        annotationPureMergeMap.forEach((geneID, modelIdMap) -> modelIdMap.forEach((modelID, phenotypeAnnotations) -> {
-            List<PrimaryAnnotatedEntity> mergedAnnotations = phenotypeAnnotationPureMap.get(geneID);
+        Map<String, List<PrimaryAnnotatedEntity>> phenotypeAnnotationPureMap_new = new HashMap<>();
+        
+        annotationPureMergeMap_new.forEach((geneID, modelIdMap) -> modelIdMap.forEach((modelID, phenotypeAnnotations) -> {
+            List<PrimaryAnnotatedEntity> mergedAnnotations = phenotypeAnnotationPureMap_new.get(geneID);
             if (mergedAnnotations == null)
                 mergedAnnotations = new ArrayList<>();
             PrimaryAnnotatedEntity entity = phenotypeAnnotations.get(0).getPrimaryAnnotatedEntities().get(0);
@@ -175,19 +199,25 @@ public class GenePhenotypeCacher extends Cacher {
                 entity.addPublicationEvidenceCode(phenotypeAnnotation.getPrimaryAnnotatedEntities().get(0).getPublicationEvidenceCodes());
             });
             mergedAnnotations.add(entity);
-            phenotypeAnnotationPureMap.put(geneID, mergedAnnotations);
+            phenotypeAnnotationPureMap_new.put(geneID, mergedAnnotations);
         }));
+        
+        annotationPureMergeMap_new.clear();
+        
 
         BasicCachingManager managerModel = new BasicCachingManager();
 
-        startProcess("phenotypeAnnotationPureMap", phenotypeAnnotationPureMap.size());
-        phenotypeAnnotationPureMap.forEach((geneID, value) -> {
+        startProcess("phenotypeAnnotationPureMap", phenotypeAnnotationPureMap_new.size());
+        phenotypeAnnotationPureMap_new.forEach((geneID, value) -> {
             if (geneID.equals("MGI:104798")) {
                 log.info("found gene: " + geneID + " with annotations: " + value.size());
             }
             managerModel.setCache(geneID, value, View.PrimaryAnnotation.class, CacheAlliance.GENE_PURE_AGM_PHENOTYPE);
             progressProcess();
         });
+        
+        phenotypeAnnotationPureMap_new.clear();
+        
         finishProcess();
         phenotypeRepository.clearCache();
     }
@@ -223,6 +253,7 @@ public class GenePhenotypeCacher extends Cacher {
     }
 
     private Map<String, List<PhenotypeAnnotation>> getMergedPhenotypeMap(Map<String, Map<String, List<PhenotypeAnnotation>>> annotationMergeMap) {
+        startProcess("getMergedPhenotypeMap annotationMergeMap", annotationMergeMap.size());
         Map<String, List<PhenotypeAnnotation>> phenotypeAnnotationMap = new HashMap<>();
         annotationMergeMap.forEach((geneID, value) -> {
             List<PhenotypeAnnotation> mergedAnnotations = new ArrayList<>();
@@ -239,6 +270,7 @@ public class GenePhenotypeCacher extends Cacher {
             });
             phenotypeAnnotationMap.put(geneID, mergedAnnotations);
         });
+        finishProcess();
         return phenotypeAnnotationMap;
     }
 
