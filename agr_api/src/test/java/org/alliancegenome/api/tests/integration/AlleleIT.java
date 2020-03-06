@@ -72,6 +72,13 @@ public class AlleleIT {
     }
 
     @Test
+    public void checkTransgeneCrossReference() {
+        Allele allele = alleleService.getById("WB:WBTransgene00004656");
+        assertNotNull(allele);
+        assertTrue(allele.getCrossReferenceMap().keySet().contains("primary"));
+    }
+
+    @Test
     // Test Sox9 from MGI for disease via experiment records
     public void checkStatus() {
         CacheStatusService service = new CacheStatusService();
