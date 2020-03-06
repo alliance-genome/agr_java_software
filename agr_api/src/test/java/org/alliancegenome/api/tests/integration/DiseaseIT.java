@@ -5,11 +5,8 @@ import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.log4j.Log4j2;
 import org.alliancegenome.api.controller.DiseaseController;
-import org.alliancegenome.api.entity.CacheStatus;
 import org.alliancegenome.api.entity.DiseaseRibbonSummary;
-import org.alliancegenome.api.service.CacheStatusService;
 import org.alliancegenome.api.service.DiseaseService;
-import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.core.translators.tdf.DiseaseAnnotationToTdfTranslator;
@@ -32,7 +29,6 @@ import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.hamcrest.Matchers.*;
@@ -107,6 +103,19 @@ public class DiseaseIT {
         String geneID = "MGI:109583";
         JsonResultResponse<PrimaryAnnotatedEntity> response = diseaseService.getDiseaseAnnotationsWithGeneAndAGM(geneID, pagination);
         assertLimitResponse(response, 3, 4);
+    }
+
+    @Test
+    public void checkGetDiseaseAnnotationsWithAGMAndSTRAndGene() {
+        Pagination pagination = new Pagination(1, 100, null, null);
+        // get fish with 'zf' allele in fish name
+        pagination.addFieldFilter(FieldFilter.MODEL_NAME, "ZF");
+        // spaw
+        String geneID = "ZFIN:ZDB-GENE-030219-1";
+        JsonResultResponse<PrimaryAnnotatedEntity> response = diseaseService.getDiseaseAnnotationsWithGeneAndAGM(geneID, pagination);
+        assertLimitResponse(response, 2, 2);
+        assertThat(response.getResults().get(0).getDiseases().stream().map(DOTerm::getName).collect(Collectors.joining()), equalTo("anxiety disorder"));
+        assertThat(response.getResults().get(0).getId(), equalTo("ZFIN:ZDB-FISH-160331-6"));
     }
 
     @Test
