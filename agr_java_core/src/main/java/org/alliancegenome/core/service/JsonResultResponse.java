@@ -43,6 +43,11 @@ public class JsonResultResponse<T> {
         requestDate = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(Calendar.getInstance().getTime());
     }
 
+    public static <T> JsonResultResponse getEmptyInstance() {
+        JsonResultResponse<T> response = new JsonResultResponse<>();
+        return response;
+    }
+
     public void calculateRequestDuration(LocalDateTime startTime) {
         LocalDateTime endTime = LocalDateTime.now();
         Duration duration = new Duration(startTime, endTime);

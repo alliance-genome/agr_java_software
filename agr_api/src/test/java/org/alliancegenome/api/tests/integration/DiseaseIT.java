@@ -407,14 +407,23 @@ public class DiseaseIT {
     }
 
     @Test
-    public void checkDiseaseAssociationJoinTypeOrthologou() {
+    public void checkDiseaseAssociationJoinTypeOrthologous() {
         Pagination pagination = new Pagination(1, 10, null, null);
         // tmc-2
         String geneID = "WB:WBGene00015177";
-//        String geneID = "ZFIN:ZDB-GENE-060526-261";
         JsonResultResponse<DiseaseAnnotation> response = diseaseService.getRibbonDiseaseAnnotations(List.of(geneID), null, pagination);
         assertResponse(response, 0, 0);
 
+    }
+
+    @Test
+    public void checkDiseaseForInference() {
+        Pagination pagination = new Pagination(1, 10, null, null);
+        // adamts16
+        String geneID = "ZFIN:ZDB-GENE-130530-760";
+        JsonResultResponse<DiseaseAnnotation> response = diseaseService.getRibbonDiseaseAnnotations(List.of(geneID), null, pagination);
+        assertResponse(response, 1, 1);
+        assertTrue("No PAE found for Disease Annotation", CollectionUtils.isNotEmpty(response.getResults().get(0).getPrimaryAnnotatedEntities()));
     }
 
     @Test
