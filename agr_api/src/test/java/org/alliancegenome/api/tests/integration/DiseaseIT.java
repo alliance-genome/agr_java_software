@@ -407,7 +407,7 @@ public class DiseaseIT {
     }
 
     @Test
-    public void checkDiseaseAssociationJoinTypeOrthologou() {
+    public void checkDiseaseAssociationJoinTypeOrthologous() {
         Pagination pagination = new Pagination(1, 10, null, null);
         // tmc-2
         String geneID = "WB:WBGene00015177";

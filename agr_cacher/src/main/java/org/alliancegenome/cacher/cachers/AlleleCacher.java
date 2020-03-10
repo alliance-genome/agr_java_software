@@ -26,7 +26,10 @@ public class AlleleCacher extends Cacher {
             return;
         log.info("Number of Alleles: " + String.format("%,d", allAlleles.size()));
 
-        Map<String, List<Allele>> map = allAlleles.stream().collect(groupingBy(allele -> allele.getGene().getPrimaryKey()));
+        // group by genes. This ignores alleles without gene associations
+        Map<String, List<Allele>> map = allAlleles.stream()
+                .filter(allele -> allele.getGene() != null)
+                .collect(groupingBy(allele -> allele.getGene().getPrimaryKey()));
 
         allAlleles.forEach(allele -> allele.setPhenotypes(allele.getPhenotypes().stream()
                 .sorted(Comparator.comparing(phenotype -> phenotype.getPhenotypeStatement().toLowerCase()))
@@ -37,7 +40,7 @@ public class AlleleCacher extends Cacher {
         CacheStatus status = new CacheStatus(CacheAlliance.ALLELE);
         status.setNumberOfEntities(allAlleles.size());
 
-        Map<String, List<Allele>> speciesStats = allAlleles.stream().collect(groupingBy(allele -> allele.getGene().getSpecies().getName()));
+        Map<String, List<Allele>> speciesStats = allAlleles.stream().collect(groupingBy(allele -> allele.getSpecies().getName()));
 
         Map<String, Integer> stats = new TreeMap<>();
         map.forEach((geneID, alleles) -> stats.put(geneID, alleles.size()));
@@ -55,7 +58,9 @@ public class AlleleCacher extends Cacher {
 
         // create allele-species index
         // <taxonID, List<Allele>>
-        Map<String, List<Allele>> speciesMap = allAlleles.stream().collect(groupingBy(allele -> allele.getGene().getTaxonId()));
+        // include alleles without gene associations
+        Map<String, List<Allele>> speciesMap = allAlleles.stream()
+                .collect(groupingBy(allele -> allele.getSpecies().getPrimaryKey()));
         populateCacheFromMap(speciesMap, View.GeneAllelesAPI.class, CacheAlliance.ALLELE_SPECIES);
 
         alleleRepository.clearCache();
