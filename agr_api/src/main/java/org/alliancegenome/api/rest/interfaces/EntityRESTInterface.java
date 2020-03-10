@@ -21,7 +21,7 @@ public interface EntityRESTInterface {
 
     @GET
     @Path("/{id}")
-    @ApiOperation(value = "Searches for any Entity", notes="Entity Notes")
+    @ApiOperation(value = "Searches for any Entity", notes="Entity Notes" , hidden = true )
     public Map<String, Object> getEntity(
             @ApiParam(name = "id", value = "Search for an entity ID")
             @PathParam("id") String id
