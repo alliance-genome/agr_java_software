@@ -9,6 +9,7 @@ import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.view.BaseFilter;
+import org.apache.commons.collections.CollectionUtils;
 
 import java.util.List;
 import java.util.Objects;
@@ -24,6 +25,9 @@ public class AlleleCacheRepository {
     public JsonResultResponse<Allele> getAllelesBySpecies(String taxonID, Pagination pagination) {
         BasicCachingManager<Allele> manager = new BasicCachingManager<>(Allele.class);
         List<Allele> allAlleles = manager.getCache(taxonID, CacheAlliance.ALLELE_SPECIES);
+        if (CollectionUtils.isEmpty(allAlleles)) {
+            return JsonResultResponse.getEmptyInstance();
+        }
         return getAlleleJsonResultResponse(pagination, allAlleles);
     }
 

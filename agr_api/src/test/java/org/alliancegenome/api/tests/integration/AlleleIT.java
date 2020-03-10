@@ -79,6 +79,21 @@ public class AlleleIT {
     }
 
     @Test
+    public void checkAlleleTransgeneInSpeciesEndpoint() {
+        Pagination pagination = new Pagination(1, 10, null, null);
+        // muIs61
+        String geneID = "WB:WBTransgene00001048";
+        JsonResultResponse<Allele> response = alleleService.getAllelesBySpecies("elegans", pagination);
+        assertResponse(response, 10, 8400);
+
+        pagination.addFieldFilter(FieldFilter.SYMBOL, "muIs61");
+        response = alleleService.getAllelesBySpecies("elegans", pagination);
+        assertResponse(response, 1, 1);
+        assertEquals(response.getResults().get(0).getPrimaryKey(), "WB:WBTransgene00001048");
+    }
+
+
+    @Test
     // Test Sox9 from MGI for disease via experiment records
     public void checkStatus() {
         CacheStatusService service = new CacheStatusService();
