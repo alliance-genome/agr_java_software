@@ -115,6 +115,7 @@ public class DiseaseService {
                 DiseaseAnnotation firstAnnotation = diseaseAnnotations.get(0);
                 diseaseAnnotations.forEach(annotation -> {
                     firstAnnotation.addAllPrimaryAnnotatedEntities(annotation.getPrimaryAnnotatedEntities());
+                    firstAnnotation.addOrthologousGenes(annotation.getOrthologyGenes());
                 });
                 geneDiseaseAnnotations.add(firstAnnotation);
             });
