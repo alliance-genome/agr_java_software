@@ -73,9 +73,15 @@ public class AlleleIT {
 
     @Test
     public void checkTransgeneCrossReference() {
-        Allele allele = alleleService.getById("WB:WBTransgene00004656");
+        Allele allele = alleleService.getById("WB:WBVar00143949");
         assertNotNull(allele);
         assertTrue(allele.getCrossReferenceMap().keySet().contains("primary"));
+        assertTrue(allele.getCrossReferenceMap().keySet().contains("references"));
+
+        allele = alleleService.getById("WB:WBTransgene00004656");
+        assertNotNull(allele);
+        assertTrue(allele.getCrossReferenceMap().keySet().contains("primary"));
+        assertTrue(allele.getCrossReferenceMap().keySet().contains("references"));
     }
 
     @Test
