@@ -387,7 +387,7 @@ public class PhenotypeIT {
         DiseaseService diseaseService = new DiseaseService();
         JsonResultResponse<PrimaryAnnotatedEntity> response = diseaseService.getDiseaseAnnotationsWithGeneAndAGM(geneID, pagination);
         assertResponse(response, 11, 92);
-        assertTrue("More than one disease", response.getResults().get(0).getDiseases().size() > 1);
+        assertTrue("More than one disease", response.getResults().get(1).getDiseases().size() > 1);
         assertTrue("More than one phenotype", response.getResults().get(0).getPhenotypes().size() > 1);
     }
 
