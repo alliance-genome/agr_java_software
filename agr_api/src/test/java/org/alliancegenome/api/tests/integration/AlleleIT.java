@@ -280,6 +280,16 @@ public class AlleleIT {
     }
 
     @Test
+    public void checkPhenotypeOnMouseTransgeneAlleles() {
+
+        String alleleID = "MGI:3832950";
+        Pagination pagination = new Pagination(1, 10, null, null);
+        JsonResultResponse<PhenotypeAnnotation> response = alleleService.getPhenotype(alleleID, pagination);
+        assertTrue(response.getTotal() > 0);
+    }
+
+
+    @Test
     public void getAlleleDisease() {
         //String alleleID = "ZFIN:ZDB-ALT-041001-12";
         //String alleleID = "MGI:5442117";

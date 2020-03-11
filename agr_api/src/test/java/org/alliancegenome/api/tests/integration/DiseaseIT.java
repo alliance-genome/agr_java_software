@@ -113,7 +113,7 @@ public class DiseaseIT {
         // spaw
         String geneID = "ZFIN:ZDB-GENE-030219-1";
         JsonResultResponse<PrimaryAnnotatedEntity> response = diseaseService.getDiseaseAnnotationsWithGeneAndAGM(geneID, pagination);
-        assertLimitResponse(response, 2, 2);
+        assertLimitResponse(response, 1, 1);
         assertThat(response.getResults().get(0).getDiseases().stream().map(DOTerm::getName).collect(Collectors.joining()), equalTo("anxiety disorder"));
         assertThat(response.getResults().get(0).getId(), equalTo("ZFIN:ZDB-FISH-160331-6"));
     }
