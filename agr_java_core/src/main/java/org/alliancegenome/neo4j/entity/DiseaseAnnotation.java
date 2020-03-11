@@ -62,6 +62,18 @@ public class DiseaseAnnotation implements Comparable<DiseaseAnnotation>, Seriali
         orthologyGenes.add(gene);
     }
 
+    public void addOrthologousGenes(List<Gene> genes) {
+        if (genes == null)
+            return;
+        if (orthologyGenes == null)
+            orthologyGenes = new ArrayList<>();
+        orthologyGenes.addAll(genes);
+        orthologyGenes = orthologyGenes.stream()
+                .distinct()
+                .sorted(Comparator.comparing(Gene::getSymbol))
+                .collect(Collectors.toList());
+    }
+
     public void addPrimaryAnnotatedEntity(PrimaryAnnotatedEntity entity) {
         if (primaryAnnotatedEntities == null)
             primaryAnnotatedEntities = new ArrayList<>();
