@@ -358,6 +358,26 @@ public class PhenotypeIT {
     }
 
     @Test
+    public void checkPhenotypeWithInferredOn() {
+
+        String geneID = "ZFIN:ZDB-GENE-990415-8";
+        Pagination pagination = new Pagination(1, 42, null, null);
+        JsonResultResponse<PhenotypeAnnotation> response = geneService.getPhenotypeAnnotations(geneID, pagination);
+        assertResponse(response, 1, 1);
+        final List<PrimaryAnnotatedEntity> primaryAnnotatedEntities = response.getResults().get(0).getPrimaryAnnotatedEntities();
+        assertNull("Allele phenotype annotation", primaryAnnotatedEntities);
+    }
+
+    @Test
+    public void checkPhenotypeOnWBGenes() {
+
+        String geneID = "WB:WBGene00000898";
+        Pagination pagination = new Pagination(1, 10, null, null);
+        JsonResultResponse<PhenotypeAnnotation> response = geneService.getPhenotypeAnnotations(geneID, pagination);
+        assertResponse(response, 1, 1);
+    }
+
+    @Test
     public void checkDiseasesByModels() {
 
         // Tnf

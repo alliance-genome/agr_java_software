@@ -215,7 +215,7 @@ public class PhenotypeRepository extends Neo4jRepository<Phenotype> {
     public List<PhenotypeEntityJoin> getAllPhenotypeAnnotations() {
         String cypher = "MATCH p0=(phenotype:Phenotype)--(pej:PhenotypeEntityJoin)-[:EVIDENCE]->(ppj:PublicationJoin)<-[:ASSOCIATION]-(publication:Publication), " +
                 " p2=(pej:PhenotypeEntityJoin)<-[:ASSOCIATION]-(gene:Gene)-[:FROM_SPECIES]->(species:Species) " +
-                //"where gene.primaryKey = 'ZFIN:ZDB-GENE-001103-1' " +
+                "where gene.primaryKey = 'ZFIN:ZDB-GENE-990415-8' " +
                 //"where gene.primaryKey = 'WB:WBGene00000834' " +
                 "OPTIONAL MATCH     p4=(pej:PhenotypeEntityJoin)--(feature:Feature)-[:CROSS_REFERENCE]->(crossRef:CrossReference) " +
                 "OPTIONAL MATCH models=(ppj:PublicationJoin)-[:PRIMARY_GENETIC_ENTITY]->(:AffectedGenomicModel) " +
@@ -242,9 +242,10 @@ public class PhenotypeRepository extends Neo4jRepository<Phenotype> {
 
     public List<PhenotypeEntityJoin> getAllelePhenotypeAnnotations() {
         String cypher = "MATCH p0=(phenotype:Phenotype)--(pej:PhenotypeEntityJoin)-[:EVIDENCE]->(ppj:PublicationJoin)<-[:ASSOCIATION]-(publication:Publication), " +
-                " p2=(pej:PhenotypeEntityJoin)--(:Feature)--(:Gene) " +
+                " p2=(pej:PhenotypeEntityJoin)--(feature:Feature) " +
                 //"where agm.primaryKey in ['MGI:6272038','MGI:5702925'] " +
                 //"where agm.primaryKey in ['ZFIN:ZDB-FISH-180831-2'] " +
+                "OPTIONAL MATCH gene=(feature:Feature)--(:Gene)" +
                 "OPTIONAL MATCH p4=(pej:PhenotypeEntityJoin)--(feature:Feature)-[:CROSS_REFERENCE]->(crossRef:CrossReference) " +
                 "return p0, p2, p4";
 

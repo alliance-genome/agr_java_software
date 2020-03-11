@@ -38,7 +38,7 @@ public class GenePhenotypeCacher extends Cacher {
         if(useCache) {
             List<PhenotypeEntityJoin> list = joinList.stream()
                     .filter(join -> join.getPhenotypePublicationJoins().stream().anyMatch(join1 -> join1.getModel() != null))
-                    .filter(join -> join.getPhenotypePublicationJoins().stream().anyMatch(join1 -> join1.getModel().getPrimaryKey().equals("MGI:6272038")))
+                    .filter(join -> join.getPhenotypePublicationJoins().stream().anyMatch(join1 -> join1.getModel().getPrimaryKey().equals("ZFIN:ZDB-GENE-990415-8")))
                     .collect(Collectors.toList());
         }
         
