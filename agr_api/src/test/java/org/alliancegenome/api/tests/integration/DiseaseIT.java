@@ -45,8 +45,6 @@ public class DiseaseIT {
     public void before() {
 //        Configurator.setRootLevel(Level.INFO);
         ConfigHelper.init();
-        System.setProperty("log4j.configurationFile","log4j2.xml");
-
 
         mapper.disable(MapperFeature.DEFAULT_VIEW_INCLUSION);
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
