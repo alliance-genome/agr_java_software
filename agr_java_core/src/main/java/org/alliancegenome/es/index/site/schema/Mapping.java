@@ -263,7 +263,7 @@ public class Mapping extends Builder {
                 if(sort) buildProperty("sort", "keyword", null, null, "lowercase");
                 if(htmlSmoosh) buildProperty("htmlSmoosh", "text", "html_smoosh");
                 if(standardBigrams) buildProperty("standardBigrams", "text", "standard_bigrams");
-                if(standardText) buildProperty("standardText", "text", "standard_text");
+                if(standardText) buildProperty("standardText", "text", "standard_text", "default", null);
                 builder.endObject();
             }
             builder.endObject();

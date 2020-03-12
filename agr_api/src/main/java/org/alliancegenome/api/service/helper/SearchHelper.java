@@ -191,6 +191,7 @@ public class SearchHelper {
     private final List<String> responseFields = new ArrayList<String>() {
         {
             add("biologicalProcess");
+            add("branch");
             add("category");
             add("cellularComponent");
             add("crossReferences");
