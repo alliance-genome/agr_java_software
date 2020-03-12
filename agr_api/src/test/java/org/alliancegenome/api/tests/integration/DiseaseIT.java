@@ -63,12 +63,34 @@ public class DiseaseIT {
     }
 
     @Test
+    public void checkAlleleDiseaseAssociationFilterSpecies() {
+        Pagination pagination = new Pagination(1, 100, null, null);
+        pagination.addFieldFilter(FieldFilter.SPECIES, "drosophila melanogaster");
+        // Menkes
+        String diseaseID = "DOID:10652";
+        JsonResultResponse<DiseaseAnnotation> response = diseaseService.getDiseaseAnnotationsWithAlleles(diseaseID, pagination);
+        assertLimitResponse(response, 10, 10);
+        assertEquals(response.getDistinctFieldValues().size(), 2);
+    }
+
+    @Test
     public void checkGeneDiseaseAssociationByDisease() {
         Pagination pagination = new Pagination(1, 100, null, null);
         // Menkes
         String diseaseID = "DOID:1838";
         JsonResultResponse<DiseaseAnnotation> response = diseaseService.getDiseaseAnnotationsWithGenes(diseaseID, pagination);
         assertLimitResponse(response, 20, 20);
+    }
+
+    @Test
+    public void checkGeneDiseaseAnnotations() {
+        Pagination pagination = new Pagination(1, 100, null, null);
+        pagination.addFieldFilter(FieldFilter.DISEASE, "acro");
+        // acrocephalosyndactylia
+        // Missing human and mouse genes
+        String diseaseID = "DOID:12960";
+        JsonResultResponse<DiseaseAnnotation> response = diseaseService.getDiseaseAnnotationsWithGenes(diseaseID, pagination);
+        assertLimitResponse(response, 2, 2);
     }
 
     @Test
