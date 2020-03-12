@@ -63,6 +63,17 @@ public class DiseaseIT {
     }
 
     @Test
+    public void checkAlleleDiseaseAssociationFilterSpecies() {
+        Pagination pagination = new Pagination(1, 100, null, null);
+        pagination.addFieldFilter(FieldFilter.SPECIES, "drosophila melanogaster");
+        // Menkes
+        String diseaseID = "DOID:10652";
+        JsonResultResponse<DiseaseAnnotation> response = diseaseService.getDiseaseAnnotationsWithAlleles(diseaseID, pagination);
+        assertLimitResponse(response, 10, 10);
+        assertEquals(response.getDistinctFieldValues().size(), 2);
+    }
+
+    @Test
     public void checkGeneDiseaseAssociationByDisease() {
         Pagination pagination = new Pagination(1, 100, null, null);
         // Menkes
