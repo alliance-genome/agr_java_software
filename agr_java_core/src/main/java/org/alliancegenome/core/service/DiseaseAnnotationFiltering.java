@@ -1,12 +1,12 @@
 package org.alliancegenome.core.service;
 
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.entity.node.Gene;
+
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class DiseaseAnnotationFiltering extends AnnotationFiltering<DiseaseAnnotation> {
 
@@ -37,7 +37,13 @@ public class DiseaseAnnotationFiltering extends AnnotationFiltering<DiseaseAnnot
             (annotation, value) -> FilterFunction.contains(annotation.getGene().getSymbol(), value);
 
     public FilterFunction<DiseaseAnnotation, String> geneSpeciesFilter =
-            (annotation, value) -> FilterFunction.fullMatchMultiValueOR(annotation.getGene().getSpecies().getName(), value);
+            (annotation, value) -> {
+                if (annotation.getGene() != null)
+                    return FilterFunction.fullMatchMultiValueOR(annotation.getGene().getSpecies().getName(), value);
+                if (annotation.getFeature() != null)
+                    FilterFunction.fullMatchMultiValueOR(annotation.getFeature().getSpecies().getName(), value);
+                return false;
+            };
 
     public FilterFunction<DiseaseAnnotation, String> evidenceCodeFilter =
             (annotation, value) -> {
