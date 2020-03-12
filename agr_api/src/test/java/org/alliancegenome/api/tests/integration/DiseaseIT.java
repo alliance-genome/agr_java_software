@@ -72,6 +72,17 @@ public class DiseaseIT {
     }
 
     @Test
+    public void checkGeneDiseaseAnnotations() {
+        Pagination pagination = new Pagination(1, 100, null, null);
+        pagination.addFieldFilter(FieldFilter.DISEASE, "acro");
+        // acrocephalosyndactylia
+        // Missing human and mouse genes
+        String diseaseID = "DOID:12960";
+        JsonResultResponse<DiseaseAnnotation> response = diseaseService.getDiseaseAnnotationsWithGenes(diseaseID, pagination);
+        assertLimitResponse(response, 2, 2);
+    }
+
+    @Test
     public void checkAssociatedGenesFly() {
         Pagination pagination = new Pagination(1, 100, null, null);
         BaseFilter baseFilter = new BaseFilter();

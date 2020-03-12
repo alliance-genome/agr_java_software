@@ -25,6 +25,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
 
 @RequestScoped
@@ -112,12 +113,16 @@ public class DiseaseService {
         List<DiseaseAnnotation> geneDiseaseAnnotations = new ArrayList<>();
         groupedByGeneList.forEach((gene, typeMap) -> {
             typeMap.forEach((type, diseaseAnnotations) -> {
-                DiseaseAnnotation firstAnnotation = diseaseAnnotations.get(0);
-                diseaseAnnotations.forEach(annotation -> {
-                    firstAnnotation.addAllPrimaryAnnotatedEntities(annotation.getPrimaryAnnotatedEntities());
-                    firstAnnotation.addOrthologousGenes(annotation.getOrthologyGenes());
+                Map<String, List<DiseaseAnnotation>> groupedDAs = diseaseAnnotations.stream()
+                        .collect(groupingBy(o -> o.getDisease().getPrimaryKey()));
+                groupedDAs.forEach((s, annotations) -> {
+                    DiseaseAnnotation firstAnnotation = annotations.get(0);
+                    annotations.forEach(annotation -> {
+                        firstAnnotation.addAllPrimaryAnnotatedEntities(annotation.getPrimaryAnnotatedEntities());
+                        firstAnnotation.addOrthologousGenes(annotation.getOrthologyGenes());
+                    });
+                    geneDiseaseAnnotations.add(firstAnnotation);
                 });
-                geneDiseaseAnnotations.add(firstAnnotation);
             });
         });
         //filtering
