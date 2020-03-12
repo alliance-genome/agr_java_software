@@ -15,14 +15,13 @@ import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.DiseaseSummary;
 import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
-import org.alliancegenome.neo4j.entity.node.DOTerm;
-import org.alliancegenome.neo4j.entity.node.Gene;
-import org.alliancegenome.neo4j.entity.node.Publication;
-import org.alliancegenome.neo4j.entity.node.Synonym;
+import org.alliancegenome.neo4j.entity.node.*;
 import org.alliancegenome.neo4j.view.BaseFilter;
 import org.alliancegenome.neo4j.view.OrthologyModule;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.core.config.Configurator;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -44,7 +43,7 @@ public class DiseaseIT {
 
     @Before
     public void before() {
-        //Configurator.setRootLevel(Level.WARN);
+//        Configurator.setRootLevel(Level.INFO);
         ConfigHelper.init();
 
         mapper.disable(MapperFeature.DEFAULT_VIEW_INCLUSION);
@@ -410,6 +409,20 @@ public class DiseaseIT {
         assertEquals(result, output);
 */
 
+    }
+
+    @Test
+    public void checkDiseaseAssociationByGeneMultipleAGM() {
+        Pagination pagination = new Pagination(1, 2, null, null);
+        // nlg-1
+        // has allele and strain AGMs
+        String geneID = "WB:WBGene00006412";
+        JsonResultResponse<DiseaseAnnotation> response = diseaseService.getRibbonDiseaseAnnotations(List.of(geneID), null, pagination);
+        assertResponse(response, 1, 1);
+        final List<PrimaryAnnotatedEntity> primaryAnnotatedEntities = response.getResults().get(0).getPrimaryAnnotatedEntities();
+//        assertTrue(primaryAnnotatedEntities.size() > 2);
+        assertTrue(primaryAnnotatedEntities.stream().anyMatch(entity -> entity.getType().equals(GeneticEntity.CrossReferenceType.ALLELE)));
+        assertTrue(primaryAnnotatedEntities.stream().anyMatch(entity -> entity.getType().equals(GeneticEntity.CrossReferenceType.STRAIN)));
     }
 
     @Test
