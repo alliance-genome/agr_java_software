@@ -86,6 +86,22 @@ public class DiseaseIT {
     }
 
     @Test
+    public void checkAssociatedGenesOrthology() {
+        Pagination pagination = new Pagination(1, 100, null, null);
+        BaseFilter baseFilter = new BaseFilter();
+        baseFilter.addFieldFilter(FieldFilter.SOURCE, "Alliance");
+        baseFilter.addFieldFilter(FieldFilter.GENE_NAME, "atp7a");
+        baseFilter.addFieldFilter(FieldFilter.SPECIES, "homo sapiens");
+        pagination.setFieldFilterValueMap(baseFilter);
+        // Menkes
+        String diseaseID = "DOID:1838";
+        JsonResultResponse<DiseaseAnnotation> response = diseaseService.getDiseaseAnnotationsWithGenes(diseaseID, pagination);
+        assertLimitResponse(response, 1, 1);
+        assertTrue("More than one ortholgous gene", CollectionUtils.isNotEmpty(response.getResults().get(0).getOrthologyGenes()));
+        assertThat("More than one ortholgous gene", response.getResults().get(0).getOrthologyGenes().size(), greaterThanOrEqualTo(4));
+    }
+
+    @Test
     public void checkGetDiseaseAnnotationsWithAGM() {
         Pagination pagination = new Pagination(1, 100, null, null);
         // Menkes
