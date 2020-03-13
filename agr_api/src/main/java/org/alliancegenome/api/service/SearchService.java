@@ -245,7 +245,7 @@ public class SearchService {
             links.add(getRelatedDataLink("allele","models", nameKey));
             links.add(getRelatedDataLink("disease","models", nameKey));
         } else if (StringUtils.equals(category,"go")) {
-            String goType = (String) result.get("go_type");
+            String goType = (String) result.get("branch");
             if (StringUtils.equals(goType, "biological_process")) {
                 links.add(getRelatedDataLink("gene", "biologicalProcessWithParents", nameKey,"Genes Annotated with this GO Term"));
             } else if (StringUtils.equals(goType, "molecular_function")) {

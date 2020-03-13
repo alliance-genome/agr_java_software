@@ -21,10 +21,11 @@ class RelatedDataServiceIntegrationSpec extends Specification {
         relatedDataLink.count <= max
 
         where:
-        nameKey        | category  | targetField              | min    | max
-        "fgf8a (Dre)"  | "disease" | "genes"                  | 1      | Integer.MAX_VALUE
-        "sa2545 (Dre)" | "gene"    | "alleles"                | 1      | 1
-        "cancer"       | "gene"    | "diseasesWithParents"    | 1000   | Integer.MAX_VALUE
+        nameKey                 | category  | targetField                    | min    | max
+        "fgf8a (Dre)"           | "disease" | "genes"                        | 1      | Integer.MAX_VALUE
+        "sa2545 (Dre)"          | "gene"    | "alleles"                      | 1      | 1
+        "cancer"                | "gene"    | "diseasesWithParents"          | 1000   | Integer.MAX_VALUE
+        "extracellular space"   | "gene"    | "cellularComponentWithParents" | 8000   | Integer.MAX_VALUE
     }
 
 
