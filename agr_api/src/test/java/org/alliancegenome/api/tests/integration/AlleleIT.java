@@ -15,6 +15,7 @@ import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
+import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.GeneticEntity;
 import org.alliancegenome.neo4j.entity.node.Variant;
@@ -292,6 +293,18 @@ public class AlleleIT {
         Pagination pagination = new Pagination(1, 10, null, null);
         JsonResultResponse<PhenotypeAnnotation> response = alleleService.getPhenotype(alleleID, pagination);
         assertTrue(response.getTotal() > 0);
+
+        assertPhenotype(response, "abnormal motor learning");
+        assertPhenotype(response, "short stride length");
+    }
+
+    private void assertPhenotype(JsonResultResponse<PhenotypeAnnotation> response, String phenotype) {
+        Optional<PhenotypeAnnotation> phenotytpeOptional = response.getResults().stream()
+                .filter(phenotypeAnnotation -> phenotypeAnnotation.getPhenotype().equals(phenotype)).findFirst();
+        assertTrue("No phenotype: " + phenotype + " found", phenotytpeOptional.isPresent());
+        List<PrimaryAnnotatedEntity> abnormalMotorLearning = phenotytpeOptional.get().getPrimaryAnnotatedEntities();
+        assertNotNull(abnormalMotorLearning);
+        assertThat("Mouse genotype not found for phenotype annotation: " + phenotype, abnormalMotorLearning.get(0).getId(), equalTo("MGI:3832988"));
     }
 
 
