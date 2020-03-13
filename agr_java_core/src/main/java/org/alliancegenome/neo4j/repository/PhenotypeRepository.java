@@ -247,7 +247,8 @@ public class PhenotypeRepository extends Neo4jRepository<Phenotype> {
                 //"where agm.primaryKey in ['ZFIN:ZDB-FISH-180831-2'] " +
                 "OPTIONAL MATCH gene=(feature:Feature)--(:Gene)" +
                 "OPTIONAL MATCH p4=(pej:PhenotypeEntityJoin)--(feature:Feature)-[:CROSS_REFERENCE]->(crossRef:CrossReference) " +
-                "return p0, p2, p4";
+                "OPTIONAL MATCH modelAllele=(ppj:PublicationJoin)--(agm:AffectedGenomicModel) " +
+                "return p0, p2, p4, modelAllele ";
 
         Iterable<PhenotypeEntityJoin> joins = query(PhenotypeEntityJoin.class, cypher);
         return StreamSupport.stream(joins.spliterator(), false).

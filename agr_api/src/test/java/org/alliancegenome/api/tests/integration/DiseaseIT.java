@@ -20,8 +20,6 @@ import org.alliancegenome.neo4j.view.BaseFilter;
 import org.alliancegenome.neo4j.view.OrthologyModule;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.core.config.Configurator;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -701,7 +699,7 @@ public class DiseaseIT {
         diseaseID = "DOID:1324";
 
         response = diseaseController.getDiseaseAnnotationsForModel(diseaseID,
-                50,
+                100,
                 1,
                 null,
                 null,
@@ -807,7 +805,7 @@ public class DiseaseIT {
                 null
         );
 
-        assertResponse(response, 5, 5);
+        assertResponse(response, 6, 6);
 
         DiseaseAnnotationToTdfTranslator translator = new DiseaseAnnotationToTdfTranslator();
         String output = translator.getAllRowsForAllele(response.getResults());

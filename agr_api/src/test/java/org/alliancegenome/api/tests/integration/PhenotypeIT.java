@@ -317,11 +317,11 @@ public class PhenotypeIT {
         String line = translator.getAllRows(response.getResults());
         assertNotNull(line);
         String[] lines = line.split("\n");
-        assertThat(25, equalTo(lines.length));
+        assertThat(24, equalTo(lines.length));
         assertThat(response.getTotal(), greaterThan(130));
-        assertThat("Phenotype\tGenetic Entity ID\tGenetic Entity Name\tGenetic Entity Type\tReference\tSource", equalTo(lines[0]));
-        assertThat("abnormal atrial thrombosis\tMGI:2450836\tAhr<tm1Gonz>/Ahr<tm1Gonz> [background:] involves: 129S4/SvJae * C57BL/6N\tgenotype\tPMID:9396142\tMGI", equalTo(lines[1]));
-        assertThat("abnormal auchene hair morphology\tMGI:2450836\tAhr<tm1Gonz>/Ahr<tm1Gonz> [background:] involves: 129S4/SvJae * C57BL/6N\tgenotype\tPMID:9396142\tMGI", equalTo(lines[2]));
+        assertThat("Phenotype\tGenetic Entity ID\tGenetic Entity Name\tGenetic Entity Type\tSource\tReference", equalTo(lines[0]));
+        assertThat("abnormal atrial thrombosis\tMGI:2450836\tAhr<tm1Gonz>/Ahr<tm1Gonz> [background:] involves: 129S4/SvJae * C57BL/6N\tgenotype\tMGI\tPMID:9396142", equalTo(lines[1]));
+        assertThat("abnormal auchene hair morphology\tMGI:2450836\tAhr<tm1Gonz>/Ahr<tm1Gonz> [background:] involves: 129S4/SvJae * C57BL/6N\tgenotype\tMGI\tPMID:9396142", equalTo(lines[2]));
 
         response = geneService.getPhenotypeAnnotations("MGI:109583", new Pagination());
         line = translator.getAllRows(response.getResults());
@@ -358,23 +358,25 @@ public class PhenotypeIT {
     }
 
     @Test
-    public void checkPhenotypeWithInferredOn() {
-
-        String geneID = "ZFIN:ZDB-GENE-990415-8";
-        Pagination pagination = new Pagination(1, 42, null, null);
-        JsonResultResponse<PhenotypeAnnotation> response = geneService.getPhenotypeAnnotations(geneID, pagination);
-        assertResponse(response, 1, 1);
-        final List<PrimaryAnnotatedEntity> primaryAnnotatedEntities = response.getResults().get(0).getPrimaryAnnotatedEntities();
-        assertNull("Allele phenotype annotation", primaryAnnotatedEntities);
-    }
-
-    @Test
     public void checkPhenotypeOnWBGenes() {
 
         String geneID = "WB:WBGene00000898";
         Pagination pagination = new Pagination(1, 10, null, null);
         JsonResultResponse<PhenotypeAnnotation> response = geneService.getPhenotypeAnnotations(geneID, pagination);
         assertResponse(response, 1, 1);
+    }
+
+    @Test
+    public void checkPhenotypeOnZFINpax2a() {
+
+        String geneID = "ZFIN:ZDB-GENE-990415-8";
+        Pagination pagination = new Pagination(1, 10, null, null);
+        JsonResultResponse<PhenotypeAnnotation> response = geneService.getPhenotypeAnnotations(geneID, pagination);
+        assertResponse(response, 1, 1);
+        assertThat(response.getResults().get(0).getPhenotype(), equalTo("anatomical system quality, abnormal"));
+        assertNotNull(response.getResults().get(0).getPrimaryAnnotatedEntities());
+        // more than 4 fish are found for primary entity annotations
+        assertThat(response.getResults().get(0).getPrimaryAnnotatedEntities().size(), greaterThanOrEqualTo(4));
     }
 
     @Test
