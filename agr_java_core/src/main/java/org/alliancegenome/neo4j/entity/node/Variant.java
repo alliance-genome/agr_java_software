@@ -8,6 +8,7 @@ import org.alliancegenome.es.util.DateConverter;
 import org.alliancegenome.neo4j.entity.Neo4jEntity;
 import org.alliancegenome.neo4j.entity.relationship.GenomeLocation;
 import org.alliancegenome.neo4j.view.View;
+import org.apache.commons.lang3.StringUtils;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.typeconversion.Convert;
@@ -98,6 +99,10 @@ public class Variant extends Neo4jEntity implements Comparable<Variant> {
             change += getPaddedChange(getGenomicReferenceSequence());
             change += ">";
             change += getPaddedChange(getGenomicVariantSequence());
+            // if no genomic sequence is available add 'N+'
+            if (StringUtils.isEmpty(getGenomicReferenceSequence()) &&
+                    StringUtils.isEmpty(getGenomicVariantSequence()))
+                change += "N+";
         } else {
             change += getGenomicReferenceSequence();
             change += ">";

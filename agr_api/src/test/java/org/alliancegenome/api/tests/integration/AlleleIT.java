@@ -254,6 +254,16 @@ public class AlleleIT {
     }
 
     @Test
+    public void getVariantsWithTransposon() {
+        Pagination pagination = new Pagination();
+        JsonResultResponse<Variant> response = alleleService.getVariants("FB:FBal0125489", pagination);
+        assertThat(response.getTotal(), greaterThanOrEqualTo(1));
+        Variant variant = response.getResults().get(0);
+        assertEquals("Nucleotide change of Insertion", "t>tTCCAGAA", variant.getNucleotideChange());
+
+    }
+
+    @Test
     public void getAlleleInfo() {
         Allele allele = alleleService.getById("ZFIN:ZDB-ALT-161003-18461");
         assertNotNull(allele.getCrossReferences());
