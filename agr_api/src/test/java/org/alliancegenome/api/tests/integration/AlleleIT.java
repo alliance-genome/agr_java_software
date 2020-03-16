@@ -259,7 +259,7 @@ public class AlleleIT {
         JsonResultResponse<Variant> response = alleleService.getVariants("FB:FBal0125489", pagination);
         assertThat(response.getTotal(), greaterThanOrEqualTo(1));
         Variant variant = response.getResults().get(0);
-        assertEquals("Nucleotide change of Insertion", "t>tTCCAGAA", variant.getNucleotideChange());
+        assertEquals("Nucleotide change of Insertion", "c>cN+", variant.getNucleotideChange());
 
     }
 
