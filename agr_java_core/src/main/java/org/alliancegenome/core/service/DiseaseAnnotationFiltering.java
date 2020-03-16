@@ -41,7 +41,7 @@ public class DiseaseAnnotationFiltering extends AnnotationFiltering<DiseaseAnnot
                 if (annotation.getGene() != null)
                     return FilterFunction.fullMatchMultiValueOR(annotation.getGene().getSpecies().getName(), value);
                 if (annotation.getFeature() != null)
-                    FilterFunction.fullMatchMultiValueOR(annotation.getFeature().getSpecies().getName(), value);
+                    return FilterFunction.fullMatchMultiValueOR(annotation.getFeature().getSpecies().getName(), value);
                 return false;
             };
 
