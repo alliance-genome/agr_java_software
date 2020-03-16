@@ -60,6 +60,22 @@ public class DiseaseIT {
     }
 
     @Test
+    public void checkAlleleDiseaseAssociationFilteredBySpecies() {
+        Pagination pagination = new Pagination(1, 100, null, null);
+        pagination.addFieldFilter(FieldFilter.ALLELE, "tg");
+        // Alzheimer's disease
+        String diseaseID = "DOID:10652";
+        // filtered by transgenes
+        JsonResultResponse<DiseaseAnnotation> response = diseaseService.getDiseaseAnnotationsWithAlleles(diseaseID, pagination);
+        assertLimitResponse(response, 60, 60);
+
+        // filtered by transgenes and mouse species
+        pagination.addFieldFilter(FieldFilter.SPECIES, "mus musculus");
+        response = diseaseService.getDiseaseAnnotationsWithAlleles(diseaseID, pagination);
+        assertLimitResponse(response, 60, 60);
+    }
+
+    @Test
     public void checkAlleleDiseaseAssociationFilterSpecies() {
         Pagination pagination = new Pagination(1, 100, null, null);
         pagination.addFieldFilter(FieldFilter.SPECIES, "drosophila melanogaster");
