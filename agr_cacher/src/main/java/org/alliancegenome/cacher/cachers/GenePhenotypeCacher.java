@@ -281,9 +281,9 @@ public class GenePhenotypeCacher extends Cacher {
                     PhenotypeAnnotation document = new PhenotypeAnnotation();
                     final Gene gene = phenotypeEntityJoin.getGene();
                     document.setGene(gene);
-                    final Allele allele = phenotypeEntityJoin.getAllele();
-                    if (allele != null)
-                        document.setAllele(allele);
+                    final Allele feature = phenotypeEntityJoin.getAllele();
+                    if (feature != null)
+                        document.setAllele(feature);
                     document.setPhenotype(phenotypeEntityJoin.getPhenotype().getPhenotypeStatement());
                     document.setPublications(phenotypeEntityJoin.getPublications());
                     document.setSource(phenotypeEntityJoin.getSource());
@@ -316,6 +316,29 @@ public class GenePhenotypeCacher extends Cacher {
                                         entities.put(model.getPrimaryKey(), entity);
                                     });
                         }
+                        // create PAEs from Alleles
+                        phenotypeEntityJoin.getPhenotypePublicationJoins()
+                                .stream()
+                                .filter(pubJoin -> org.apache.commons.collections4.CollectionUtils.isNotEmpty(pubJoin.getAlleles()))
+                                .forEach(pubJoin -> pubJoin.getAlleles().forEach(allele -> {
+                                    PrimaryAnnotatedEntity entity = entities.get(allele.getPrimaryKey());
+                                    if (entity == null) {
+                                        entity = new PrimaryAnnotatedEntity();
+                                        entity.setId(allele.getPrimaryKey());
+                                        entity.setName(allele.getSymbol());
+                                        List<CrossReference> refs = allele.getCrossReferences();
+                                        if (org.apache.commons.collections.CollectionUtils.isNotEmpty(refs))
+                                            entity.setUrl(refs.get(0).getCrossRefCompleteUrl());
+
+                                        entity.setDisplayName(allele.getSymbolText());
+                                        entity.setType(GeneticEntity.CrossReferenceType.ALLELE);
+                                        entities.put(allele.getPrimaryKey(), entity);
+                                    }
+                                    document.addPrimaryAnnotatedEntity(entity);
+                                    entity.addPublicationEvidenceCode(pubJoin);
+                                    entity.addPhenotype(phenotypeEntityJoin.getPhenotype().getPhenotypeStatement());
+                                }));
+
                     }
                     progressProcess();
                     return document;
