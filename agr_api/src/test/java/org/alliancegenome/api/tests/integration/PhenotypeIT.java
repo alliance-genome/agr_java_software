@@ -26,6 +26,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.hamcrest.Matchers.*;
@@ -344,6 +345,39 @@ public class PhenotypeIT {
         response = geneService.getPhenotypeAnnotations(geneID, pagination);
         assertResponse(response, 11, 1);
 
+    }
+
+    @Test
+    // Fly gene: FB:FBgn0267821
+    public void checkPhenotypeByGeneFly() {
+
+        String geneID = "FB:FBgn0267821";
+        Pagination pagination = new Pagination(1, 10, null, null);
+        JsonResultResponse<PhenotypeAnnotation> response = geneService.getPhenotypeAnnotations(geneID, pagination);
+        assertResponse(response, 10, 50);
+        PhenotypeAnnotation annotation = response.getResults().get(0);
+        assertEquals(annotation.getPhenotype(), "corpus cardiacum primordium");
+        final List<PrimaryAnnotatedEntity> primaryAnnotatedEntities = annotation.getPrimaryAnnotatedEntities();
+        assertNotNull("Phenotype annotation has Allele as the inferred AGM but missing.", primaryAnnotatedEntities);
+        assertEquals("Phenotype annotation with Allele as an inferred AGM", primaryAnnotatedEntities.get(0).getType(), GeneticEntity.CrossReferenceType.ALLELE);
+    }
+
+    @Test
+    // Fly gene: WB:WBGene00000898
+    public void checkPhenotypeByGeneWorm() {
+
+        String geneID = "WB:WBGene00002992";
+        Pagination pagination = new Pagination(1, 10, null, null);
+        JsonResultResponse<PhenotypeAnnotation> response = geneService.getPhenotypeAnnotations(geneID, pagination);
+        assertResponse(response, 10, 17);
+        final String ectopicExpressionTransgene = "ectopic expression transgene";
+        Optional<PhenotypeAnnotation> annotation = response.getResults().stream()
+                .filter(annot -> annot.getPhenotype().equals(ectopicExpressionTransgene))
+                .findFirst();
+        assertTrue("Did not find a phenotype: " + ectopicExpressionTransgene, annotation.isPresent());
+        final List<PrimaryAnnotatedEntity> primaryAnnotatedEntities = annotation.get().getPrimaryAnnotatedEntities();
+        assertNotNull("Phenotype annotation has Allele as the inferred AGM but missing.", primaryAnnotatedEntities);
+        assertEquals("Phenotype annotation with Allele as an inferred AGM", primaryAnnotatedEntities.get(0).getType(), GeneticEntity.CrossReferenceType.ALLELE);
     }
 
     @Test

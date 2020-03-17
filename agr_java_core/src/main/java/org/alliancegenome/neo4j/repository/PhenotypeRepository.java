@@ -216,10 +216,11 @@ public class PhenotypeRepository extends Neo4jRepository<Phenotype> {
         String cypher = "MATCH p0=(phenotype:Phenotype)--(pej:PhenotypeEntityJoin)-[:EVIDENCE]->(ppj:PublicationJoin)<-[:ASSOCIATION]-(publication:Publication), " +
                 " p2=(pej:PhenotypeEntityJoin)<-[:ASSOCIATION]-(gene:Gene)-[:FROM_SPECIES]->(species:Species) " +
                 //"where gene.primaryKey = 'ZFIN:ZDB-GENE-990415-8' " +
-                //"where gene.primaryKey = 'WB:WBGene00000898' " +
+                //"where gene.primaryKey = 'FB:FBgn0267821' " +
                 "OPTIONAL MATCH     p4=(pej:PhenotypeEntityJoin)--(feature:Feature)-[:CROSS_REFERENCE]->(crossRef:CrossReference) " +
                 "OPTIONAL MATCH models=(ppj:PublicationJoin)-[:PRIMARY_GENETIC_ENTITY]->(:AffectedGenomicModel) " +
-                "return p0, p4, p2, models ";
+                "OPTIONAL MATCH alleles=(ppj:PublicationJoin)-[:PRIMARY_GENETIC_ENTITY]->(:Allele)-[:FROM_SPECIES]->(species:Species) " +
+                "return p0, p4, p2, models, alleles ";
 
         Iterable<PhenotypeEntityJoin> joins = query(PhenotypeEntityJoin.class, cypher);
         return StreamSupport.stream(joins.spliterator(), false).
