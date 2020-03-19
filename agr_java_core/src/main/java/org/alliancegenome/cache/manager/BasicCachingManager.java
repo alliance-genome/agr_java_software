@@ -137,7 +137,7 @@ public class BasicCachingManager<O> {
         List<O> list;
 
         try {
-            list = new ArrayList<>(BasicCachingManager.mapper.readValue(json, javaType));
+            list = new ArrayList<>(mapper.readValue(json, javaType));
         } catch (IOException e) {
             log.error("Error during deserialization ", e);
             throw new RuntimeException(e);
