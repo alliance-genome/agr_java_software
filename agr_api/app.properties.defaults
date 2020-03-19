@@ -1,5 +1,4 @@
 swarm.logging=DEBUG
-swarm.undertow.servers.default-server.http-listeners.default.max-post-size=10485760000
 
 DEBUG=false
 ES_INDEX=site_index

@@ -69,7 +69,11 @@ public class ConfigHelper {
 
         defaults.put(AO_TERM_LIST, "anatomy-term-order.csv");
         defaults.put(GO_TERM_LIST, "go-term-order.csv");
-
+        
+        // This next item needs to be set in order to prevent the 
+        // Caused by: java.lang.IllegalStateException: availableProcessors is already set to [16], rejecting [16]
+        // error from happening.
+        System.setProperty("es.set.netty.runtime.available.processors", "false");
 
         allKeys = defaults.keySet();
 
