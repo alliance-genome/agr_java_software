@@ -1,13 +1,13 @@
 package org.alliancegenome.core.service;
 
-import static java.util.Comparator.naturalOrder;
+import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
+import org.alliancegenome.neo4j.entity.Sorting;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
-import org.alliancegenome.neo4j.entity.Sorting;
+import static java.util.Comparator.naturalOrder;
 
 public class DiseaseAnnotationSorting implements Sorting<DiseaseAnnotation> {
 
@@ -50,7 +50,11 @@ public class DiseaseAnnotationSorting implements Sorting<DiseaseAnnotation> {
             Comparator.comparing(annotation -> {
                 if (annotation.getModel() != null)
                     return annotation.getModel().getSpecies().getName().toLowerCase();
-                return annotation.getGene().getSpecies().getName().toLowerCase();
+                else if (annotation.getGene() != null)
+                    return annotation.getGene().getSpecies().getName().toLowerCase();
+                else if (annotation.getFeature() != null)
+                    return annotation.getFeature().getSpecies().getName().toLowerCase();
+                return "";
             }, Comparator.nullsLast(naturalOrder()));
 
     private static Comparator<DiseaseAnnotation> associationTypeOrder =
