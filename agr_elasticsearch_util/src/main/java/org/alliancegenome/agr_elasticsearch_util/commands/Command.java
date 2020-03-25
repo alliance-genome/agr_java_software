@@ -14,6 +14,6 @@ public abstract class Command {
     }
     
     protected void resetIndexManager() {
-        im = new IndexManager();
+        im.initClient();
     }
 }
