@@ -1,31 +1,44 @@
 package org.alliancegenome.cache.repository;
 
-import lombok.extern.log4j.Log4j2;
-import org.alliancegenome.api.service.ColumnFieldMapping;
-import org.alliancegenome.api.service.FilterService;
-import org.alliancegenome.api.service.InteractionColumnFieldMapping;
-import org.alliancegenome.api.service.Table;
-import org.alliancegenome.cache.CacheAlliance;
-import org.alliancegenome.cache.manager.BasicCachingManager;
-import org.alliancegenome.core.service.*;
-import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
-import org.alliancegenome.neo4j.view.BaseFilter;
+import static java.util.stream.Collectors.toList;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static java.util.stream.Collectors.toList;
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+
+import org.alliancegenome.api.service.ColumnFieldMapping;
+import org.alliancegenome.api.service.FilterService;
+import org.alliancegenome.api.service.InteractionColumnFieldMapping;
+import org.alliancegenome.api.service.Table;
+import org.alliancegenome.cache.CacheAlliance;
+import org.alliancegenome.cache.CacheService;
+import org.alliancegenome.cache.repository.helper.FilterFunction;
+import org.alliancegenome.cache.repository.helper.InteractionAnnotationFiltering;
+import org.alliancegenome.cache.repository.helper.InteractionAnnotationSorting;
+import org.alliancegenome.cache.repository.helper.PaginationResult;
+import org.alliancegenome.cache.repository.helper.SortingField;
+import org.alliancegenome.es.model.query.Pagination;
+import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
+import org.alliancegenome.neo4j.view.BaseFilter;
+
+import lombok.extern.log4j.Log4j2;
 
 @Log4j2
+@RequestScoped
 public class InteractionCacheRepository {
 
+    @Inject
+    private CacheService cacheService;
+    
+    private InteractionCacheRepository() {} // Cannot be instantiated needs to be @Injected
+    
     public PaginationResult<InteractionGeneJoin> getInteractionAnnotationList(String geneID, Pagination pagination) {
-        // check gene map
-        BasicCachingManager<InteractionGeneJoin> manager = new BasicCachingManager<>(InteractionGeneJoin.class);
-        List<InteractionGeneJoin> interactionAnnotationList = manager.getCache(geneID, CacheAlliance.GENE_INTERACTION);
+
+        List<InteractionGeneJoin> interactionAnnotationList = cacheService.getCacheEntries(geneID, CacheAlliance.GENE_INTERACTION, InteractionGeneJoin.class);
         if (interactionAnnotationList == null)
             return null;
 

@@ -48,7 +48,7 @@ public class CacheAllianceTest {
     @Test
     @Ignore
     public void cacheEcoTerms() {
-        EcoCodeHelperCacher cacher = new EcoCodeHelperCacher();
+        EcoCodeCacher cacher = new EcoCodeCacher();
         cacher.run();
     }
 

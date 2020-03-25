@@ -1,10 +1,18 @@
 package org.alliancegenome.cacher.cachers;
 
-import lombok.extern.log4j.Log4j2;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
+
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+
 import org.alliancegenome.api.entity.CacheStatus;
 import org.alliancegenome.cache.CacheAlliance;
-import org.alliancegenome.cache.manager.BasicCachingManager;
-import org.alliancegenome.core.service.OrthologyService;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.alliancegenome.neo4j.view.OrthologView;
@@ -12,9 +20,7 @@ import org.alliancegenome.neo4j.view.View;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections4.map.MultiKeyMap;
 
-import java.util.*;
-
-import static java.util.stream.Collectors.*;
+import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 public class GeneOrthologCacher extends Cacher {
@@ -43,7 +49,6 @@ public class GeneOrthologCacher extends Cacher {
         int orthologousRecords = geneList.stream().map(gene -> gene.getOrthoGenes().size()).mapToInt(Integer::intValue).sum();
         log.info("Total Number of Ortho Records: ", orthologousRecords);
         startProcess("create geneList into cache", orthologousRecords);
-        BasicCachingManager manager = new BasicCachingManager();
 
         List<OrthologView> allOrthology = new ArrayList<>();
         geneList.forEach(gene -> {
@@ -68,13 +73,11 @@ public class GeneOrthologCacher extends Cacher {
                     .collect(toSet());
             allOrthology.addAll(orthologySet);
 
-            manager.setCache(gene.getPrimaryKey(), new ArrayList<>(orthologySet), View.OrthologyCacher.class, CacheAlliance.GENE_ORTHOLOGY);
+            cacheService.putCacheEntry(gene.getPrimaryKey(), new ArrayList<>(orthologySet), View.OrthologyCacher.class, CacheAlliance.GENE_ORTHOLOGY);
             progressProcess();
         });
         finishProcess();
 
-        
-        
         // get homology cache by species
         
         startProcess("allOrthology.stream - group By o.getGene().getTaxonId()");
@@ -86,7 +89,7 @@ public class GeneOrthologCacher extends Cacher {
         startProcess("allOrthology orthologViews into cache", map.size());
         
         map.forEach((speciesID, orthologViews) -> {
-            manager.setCache(speciesID, orthologViews, View.OrthologyCacher.class, CacheAlliance.SPECIES_ORTHOLOGY);
+            cacheService.putCacheEntry(speciesID, orthologViews, View.OrthologyCacher.class, CacheAlliance.SPECIES_ORTHOLOGY);
             progressProcess();
         });
         
@@ -103,17 +106,15 @@ public class GeneOrthologCacher extends Cacher {
         status.setSpeciesStats(speciesStatsInt);
         setCacheStatus(status);
 
-        OrthologyService service = new OrthologyService();
-        
         startProcess("allOrthology.stream - group By getSpeciesSpeciesID");
         Map<String, List<OrthologView>> speciesToSpeciesMap = allOrthology.stream()
-                .collect(groupingBy(service::getSpeciesSpeciesID));
+                .collect(groupingBy(this::getSpeciesSpeciesID));
         finishProcess();
         
         startProcess("Cache speciesToSpeciesMap into cache", speciesToSpeciesMap.size());
         
         speciesToSpeciesMap.forEach((speciesSpeciesID, orthologViews) -> {
-            manager.setCache(speciesSpeciesID, orthologViews, View.OrthologyCacher.class, CacheAlliance.SPECIES_SPECIES_ORTHOLOGY);
+            cacheService.putCacheEntry(speciesSpeciesID, orthologViews, View.OrthologyCacher.class, CacheAlliance.SPECIES_SPECIES_ORTHOLOGY);
             progressProcess();
         });
         finishProcess();
@@ -128,6 +129,10 @@ public class GeneOrthologCacher extends Cacher {
         setCacheStatus(status);
 
         geneRepository.clearCache();
+    }
+
+    public String getSpeciesSpeciesID(OrthologView o) {
+        return o.getGene().getTaxonId() + ":" + o.getHomologGene().getTaxonId();
     }
 
     private List<String> getPredictionNotCalled(OrthologView view) {

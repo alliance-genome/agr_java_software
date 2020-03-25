@@ -3,7 +3,7 @@ package org.alliancegenome.neo4j.entity;
 import java.util.Comparator;
 import java.util.List;
 
-import org.alliancegenome.core.service.SortingField;
+import org.alliancegenome.cache.repository.helper.SortingField;
 
 public interface Sorting<T> {
 

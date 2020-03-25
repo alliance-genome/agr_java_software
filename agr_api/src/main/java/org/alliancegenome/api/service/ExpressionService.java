@@ -2,9 +2,9 @@ package org.alliancegenome.api.service;
 
 import org.alliancegenome.api.entity.*;
 import org.alliancegenome.cache.repository.ExpressionCacheRepository;
+import org.alliancegenome.cache.repository.helper.JsonResultResponse;
+import org.alliancegenome.cache.repository.helper.PaginationResult;
 import org.alliancegenome.core.ExpressionDetail;
-import org.alliancegenome.core.service.JsonResultResponse;
-import org.alliancegenome.core.service.PaginationResult;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.node.*;
@@ -16,12 +16,24 @@ import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+
 import static java.util.stream.Collectors.*;
 
+@RequestScoped
 public class ExpressionService {
 
+    @Inject
+    private ExpressionCacheRepository expressionCacheRepository;
+    
+    @Inject
+    private ExpressionRibbonService service;
+    
     public static final String CELLULAR_COMPONENT = "Subcellular";
-
+    
+    private ExpressionService() {} // Cannot be instantiated needs to be @Injected
+    
     public JsonResultResponse<ExpressionDetail> getExpressionDetails(List<BioEntityGeneExpressionJoin> joins, Pagination pagination) {
         Map<Gene, Map<ExpressionBioEntity, Map<Optional<Stage>, Map<MMOTerm, Set<BioEntityGeneExpressionJoin>>>>> groupedRecords = getGeneTermStageAssayMap(joins);
 
@@ -183,7 +195,6 @@ public class ExpressionService {
     public RibbonSummary getExpressionRibbonSummary(List<String> geneIDs) {
         if (geneIDs == null)
             return null;
-        ExpressionRibbonService service = new ExpressionRibbonService();
         RibbonSummary ribbonSummary = service.getRibbonSectionInfo();
         geneIDs.forEach(geneID -> ribbonSummary.addRibbonEntity(getExpressionRibbonSummary(geneID)));
         return ribbonSummary;
@@ -296,7 +307,6 @@ public class ExpressionService {
 
     public JsonResultResponse<ExpressionDetail> getExpressionDetails(List<String> geneIDs, String termID, Pagination pagination) {
         JsonResultResponse<ExpressionDetail> response = new JsonResultResponse<>();
-        ExpressionCacheRepository expressionCacheRepository = new ExpressionCacheRepository();
         PaginationResult<ExpressionDetail> joins = expressionCacheRepository.getExpressionAnnotations(geneIDs, termID, pagination);
         response.setResults(joins.getResult());
         response.setTotal(joins.getTotalNumber());

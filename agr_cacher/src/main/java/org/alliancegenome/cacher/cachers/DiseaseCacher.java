@@ -1,33 +1,51 @@
 package org.alliancegenome.cacher.cachers;
 
-import lombok.extern.log4j.Log4j2;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.toSet;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.stream.Collectors;
+
 import org.alliancegenome.api.entity.CacheStatus;
 import org.alliancegenome.api.service.DiseaseRibbonService;
 import org.alliancegenome.cache.CacheAlliance;
-import org.alliancegenome.cache.manager.BasicCachingManager;
-import org.alliancegenome.cache.repository.DiseaseCacheRepository;
-import org.alliancegenome.core.service.DiseaseAnnotationSorting;
-import org.alliancegenome.core.service.SortingField;
+import org.alliancegenome.cache.repository.helper.DiseaseAnnotationSorting;
+import org.alliancegenome.cache.repository.helper.SortingField;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
 import org.alliancegenome.neo4j.entity.SpeciesType;
-import org.alliancegenome.neo4j.entity.node.*;
+import org.alliancegenome.neo4j.entity.node.AffectedGenomicModel;
+import org.alliancegenome.neo4j.entity.node.Allele;
+import org.alliancegenome.neo4j.entity.node.CrossReference;
+import org.alliancegenome.neo4j.entity.node.DOTerm;
+import org.alliancegenome.neo4j.entity.node.DiseaseEntityJoin;
+import org.alliancegenome.neo4j.entity.node.ECOTerm;
+import org.alliancegenome.neo4j.entity.node.Gene;
+import org.alliancegenome.neo4j.entity.node.GeneticEntity;
+import org.alliancegenome.neo4j.entity.node.PublicationJoin;
+import org.alliancegenome.neo4j.entity.node.SequenceTargetingReagent;
 import org.alliancegenome.neo4j.repository.DiseaseRepository;
 import org.alliancegenome.neo4j.view.View;
 import org.apache.commons.collections4.CollectionUtils;
 
-import java.util.*;
-import java.util.stream.Collectors;
-
 import static java.util.Map.Entry.comparingByValue;
 import static java.util.stream.Collectors.*;
+import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 public class DiseaseCacher extends Cacher {
 
     private static DiseaseRepository diseaseRepository = new DiseaseRepository();
-    private static DiseaseCacheRepository diseaseCacheRepository = new DiseaseCacheRepository();
-    private BasicCachingManager manager = new BasicCachingManager();
 
     protected void cache() {
 
@@ -159,7 +177,7 @@ public class DiseaseCacher extends Cacher {
     private void storeIntoCache(List<DiseaseAnnotation> diseaseAnnotations, Map<String, List<DiseaseAnnotation>> diseaseAnnotationMap, CacheAlliance cacheSpace) {
         startProcess(cacheSpace.name() + " into cache", diseaseAnnotationMap.size());
         diseaseAnnotationMap.forEach((key, value) -> {
-            manager.setCache(key, value, View.DiseaseCacher.class, cacheSpace);
+            cacheService.putCacheEntry(key, value, View.DiseaseCacher.class, cacheSpace);
             progressProcess();
         });
         log.debug("Calculate statistics...");
@@ -328,10 +346,8 @@ public class DiseaseCacher extends Cacher {
 
         diseaseModelGeneMap.clear();
 
-        BasicCachingManager managerModel = new BasicCachingManager();
-
         diseaseAnnotationPureMap.forEach((geneID, value) -> {
-            managerModel.setCache(geneID, value, View.PrimaryAnnotation.class, CacheAlliance.DISEASE_MODEL_GENE_ANNOTATION);
+            cacheService.putCacheEntry(geneID, value, View.PrimaryAnnotation.class, CacheAlliance.DISEASE_MODEL_GENE_ANNOTATION);
             progressProcess();
         });
         diseaseAnnotationPureMap.clear();
@@ -455,7 +471,7 @@ public class DiseaseCacher extends Cacher {
                     }
                     List<PublicationJoin> publicationJoins = join.getPublicationJoins();
                     if (useCache) {
-                        diseaseCacheRepository.populatePublicationJoinsFromCache(join.getPublicationJoins());
+                        populatePublicationJoinsFromCache(join.getPublicationJoins());
                     } else {
                         diseaseRepository.populatePublicationJoins(publicationJoins);
                     }
@@ -470,7 +486,7 @@ public class DiseaseCacher extends Cacher {
                     // work around as I cannot figure out how to include the ECOTerm in the overall query without slowing down the performance.
                     List<ECOTerm> evidences;
                     if (useCache) {
-                        evidences = diseaseCacheRepository.getEcoTermsFromCache(join.getPublicationJoins());
+                        evidences = getEcoTermsFromCache(join.getPublicationJoins());
                     } else {
                         evidences = diseaseRepository.getEcoTerm(join.getPublicationJoins());
                         Set<String> slimId = diseaseRibbonService.getAllParentIDs(join.getDisease().getPrimaryKey());
@@ -481,6 +497,34 @@ public class DiseaseCacher extends Cacher {
                     return document;
                 })
                 .collect(toList());
+    }
+    
+    public List<ECOTerm> getEcoTerm(PublicationJoin join) {
+        if (join == null)
+            return null;
+        return cacheService.getCacheEntries(join.getPrimaryKey(), CacheAlliance.ECO_MAP, ECOTerm.class);
+    }
+
+    public List<ECOTerm> getEcoTermsFromCache(List<PublicationJoin> joins) {
+        if (joins == null)
+            return null;
+
+        return joins.stream()
+                .map(join -> getEcoTerm(join))
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
+    }
+
+    public void populatePublicationJoinsFromCache(List<PublicationJoin> joins) {
+        if (joins == null)
+            return;
+
+        joins.forEach(publicationJoin -> {
+            List<ECOTerm> cacheValue = getEcoTerm(publicationJoin);
+            if (cacheValue != null) {
+                publicationJoin.setEcoCode(cacheValue);
+            }
+        });
     }
 
     private void mergeDiseaseAnnotationsByAGM(List<DiseaseAnnotation> allDiseaseAnnotations) {

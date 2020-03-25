@@ -1,18 +1,22 @@
 package org.alliancegenome.api.controller;
 
-import lombok.extern.log4j.Log4j2;
+import java.util.Map;
+
+import javax.inject.Inject;
+
 import org.alliancegenome.api.entity.CacheStatus;
 import org.alliancegenome.api.entity.CacheSummary;
 import org.alliancegenome.api.rest.interfaces.DevtoolRESTInterface;
 import org.alliancegenome.api.service.CacheStatusService;
 import org.alliancegenome.cache.CacheAlliance;
 
-import java.util.Map;
+import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 public class DevtoolController implements DevtoolRESTInterface {
 
-    private CacheStatusService service = new CacheStatusService();
+    @Inject
+    private CacheStatusService service;
 
     @Override
     public CacheSummary getCacheStatus() {

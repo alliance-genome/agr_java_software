@@ -3,8 +3,8 @@ package org.alliancegenome.api.tests.integration;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import org.alliancegenome.core.service.DiseaseAnnotationFiltering;
-import org.alliancegenome.core.service.FilterFunction;
+import org.alliancegenome.cache.repository.helper.DiseaseAnnotationFiltering;
+import org.alliancegenome.cache.repository.helper.FilterFunction;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.node.DOTerm;
 import org.junit.Test;

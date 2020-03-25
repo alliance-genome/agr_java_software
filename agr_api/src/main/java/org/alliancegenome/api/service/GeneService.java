@@ -1,9 +1,14 @@
 package org.alliancegenome.api.service;
 
+import java.time.LocalDateTime;
+
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+
 import org.alliancegenome.cache.repository.InteractionCacheRepository;
 import org.alliancegenome.cache.repository.PhenotypeCacheRepository;
-import org.alliancegenome.core.service.JsonResultResponse;
-import org.alliancegenome.core.service.PaginationResult;
+import org.alliancegenome.cache.repository.helper.JsonResultResponse;
+import org.alliancegenome.cache.repository.helper.PaginationResult;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.EntitySummary;
 import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
@@ -14,19 +19,24 @@ import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.alliancegenome.neo4j.repository.InteractionRepository;
 import org.alliancegenome.neo4j.repository.PhenotypeRepository;
 
-import javax.enterprise.context.RequestScoped;
-import java.time.LocalDateTime;
-
 @RequestScoped
 public class GeneService {
 
     private static GeneRepository geneRepo = new GeneRepository();
     private static InteractionRepository interRepo = new InteractionRepository();
-    private static InteractionCacheRepository interCacheRepo = new InteractionCacheRepository();
     private static PhenotypeRepository phenoRepo = new PhenotypeRepository();
-    private static PhenotypeCacheRepository phenoCacheRepo = new PhenotypeCacheRepository();
-    private AlleleService alleleService = new AlleleService();
+    
+    @Inject
+    private InteractionCacheRepository interCacheRepo;
 
+    @Inject
+    private static PhenotypeCacheRepository phenoCacheRepo;
+    
+    @Inject
+    private AlleleService alleleService;
+
+    private GeneService() {} // Cannot be instantiated needs to be @Injected
+    
     public Gene getById(String id) {
         Gene gene = geneRepo.getOneGene(id);
         // if not found directly check if it is a secondary id on a different gene

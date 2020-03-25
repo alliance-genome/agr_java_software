@@ -36,8 +36,7 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
         return null;
     }
 
-
-    public List<String> getAllFeatureKeys() {
+    public List<String> getAllAlleleKeys() {
         String query = "MATCH (a:Allele)--(g:Gene)-[:FROM_SPECIES]-(q:Species) RETURN a.primaryKey";
 
         Result r = queryForResult(query);
@@ -47,7 +46,7 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
 
         while (i.hasNext()) {
             Map<String, Object> map2 = i.next();
-            list.add((String) map2.get("feature.primaryKey"));
+            list.add((String) map2.get("a.primaryKey"));
         }
         return list;
     }

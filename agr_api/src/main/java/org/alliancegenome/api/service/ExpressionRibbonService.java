@@ -21,15 +21,19 @@ import org.apache.commons.logging.LogFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import lombok.extern.log4j.Log4j2;
+
+@Log4j2
 @RequestScoped
 public class ExpressionRibbonService {
 
-    private Log log = LogFactory.getLog(getClass());
     private DiseaseRepository diseaseRepository = new DiseaseRepository();
     private GeneRepository geneRepository = new GeneRepository();
 
     private static RibbonSummary ribbonSummary;
 
+    private ExpressionRibbonService() {} // Cannot be instantiated needs to be @Injected
+    
     public RibbonSummary getRibbonSectionInfo() {
         // get a deep clone of a template object
         // by serialization and deserialization (JSON)

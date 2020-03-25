@@ -24,17 +24,17 @@
 		<dependency>
 			<groupId>org.infinispan</groupId>
 			<artifactId>infinispan-core</artifactId>
-			<version>9.4.17.Final</version>
+			<version>10.1.2.Final</version>
 		</dependency>
 		<dependency>
 			<groupId>org.infinispan</groupId>
 			<artifactId>infinispan-commons</artifactId>
-			<version>9.4.17.Final</version>
+			<version>10.1.2.Final</version>
 		</dependency>
 		<dependency>
 			<groupId>org.infinispan</groupId>
 			<artifactId>infinispan-client-hotrod</artifactId>
-			<version>9.4.17.Final</version>
+			<version>10.1.2.Final</version>
 		</dependency>
 		<dependency>
 			<groupId>org.alliancegenome</groupId>

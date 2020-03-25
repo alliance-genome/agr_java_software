@@ -1,8 +1,8 @@
 package org.alliancegenome.api.service;
 
-import org.alliancegenome.core.service.AnnotationFiltering;
-import org.alliancegenome.core.service.FilterFunction;
-import org.alliancegenome.core.service.SortingField;
+import org.alliancegenome.cache.repository.helper.AnnotationFiltering;
+import org.alliancegenome.cache.repository.helper.FilterFunction;
+import org.alliancegenome.cache.repository.helper.SortingField;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.FieldValues;
 import org.alliancegenome.neo4j.entity.Sorting;

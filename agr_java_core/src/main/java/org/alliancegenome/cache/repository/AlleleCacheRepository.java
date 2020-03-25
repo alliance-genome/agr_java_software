@@ -1,9 +1,20 @@
 package org.alliancegenome.cache.repository;
 
-import lombok.extern.log4j.Log4j2;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+
 import org.alliancegenome.cache.CacheAlliance;
-import org.alliancegenome.cache.manager.BasicCachingManager;
-import org.alliancegenome.core.service.*;
+import org.alliancegenome.cache.CacheService;
+import org.alliancegenome.cache.repository.helper.AlleleFiltering;
+import org.alliancegenome.cache.repository.helper.AlleleSorting;
+import org.alliancegenome.cache.repository.helper.FilterFunction;
+import org.alliancegenome.cache.repository.helper.JsonResultResponse;
+import org.alliancegenome.cache.repository.helper.SortingField;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
@@ -11,20 +22,19 @@ import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.view.BaseFilter;
 import org.apache.commons.collections.CollectionUtils;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
+import lombok.extern.log4j.Log4j2;
 
 @Log4j2
+@RequestScoped
 public class AlleleCacheRepository {
 
-    // cached value
-    private static List<Allele> allAlleles = null;
+    @Inject
+    private CacheService cacheService;
 
+    private AlleleCacheRepository() {} // Cannot be instantiated needs to be @Injected
+    
     public JsonResultResponse<Allele> getAllelesBySpecies(String taxonID, Pagination pagination) {
-        BasicCachingManager<Allele> manager = new BasicCachingManager<>(Allele.class);
-        List<Allele> allAlleles = manager.getCache(taxonID, CacheAlliance.ALLELE_SPECIES);
+        List<Allele> allAlleles = cacheService.getCacheEntries(taxonID, CacheAlliance.ALLELE_SPECIES, Allele.class);
         if (CollectionUtils.isEmpty(allAlleles)) {
             return JsonResultResponse.getEmptyInstance();
         }
@@ -32,9 +42,7 @@ public class AlleleCacheRepository {
     }
 
     public JsonResultResponse<Allele> getAllelesByGene(String geneID, Pagination pagination) {
-
-        BasicCachingManager<Allele> manager = new BasicCachingManager<>(Allele.class);
-        List<Allele> allAlleles = manager.getCache(geneID, CacheAlliance.ALLELE_GENE);
+        List<Allele> allAlleles = cacheService.getCacheEntries(geneID, CacheAlliance.ALLELE_GENE, Allele.class);
         if (allAlleles == null)
             return null;
         return getAlleleJsonResultResponse(pagination, allAlleles);
@@ -96,22 +104,22 @@ public class AlleleCacheRepository {
     private void printTaxonMap() {
         log.info("Taxon / Allele map: ");
         StringBuilder builder = new StringBuilder();
-//todo        taxonAlleleMap.forEach((key, value) -> builder.append(SpeciesType.fromTaxonId(key).getDisplayName() + ": " + value.size() + ", "));
+        // TODO taxonAlleleMap.forEach((key, value) -> builder.append(SpeciesType.fromTaxonId(key).getDisplayName() + ": " + value.size() + ", "));
         log.info(builder.toString());
 
     }
 
     public List<PhenotypeAnnotation> getPhenotype(String alleleId) {
-        BasicCachingManager<PhenotypeAnnotation> manager = new BasicCachingManager<>(PhenotypeAnnotation.class);
-        List<PhenotypeAnnotation> phenotypeAnnotations = manager.getCache(alleleId, CacheAlliance.ALLELE_PHENOTYPE);
+        //BasicCachingManager<PhenotypeAnnotation> manager = new BasicCachingManager<>(PhenotypeAnnotation.class);
+        List<PhenotypeAnnotation> phenotypeAnnotations = cacheService.getCacheEntries(alleleId, CacheAlliance.ALLELE_PHENOTYPE, PhenotypeAnnotation.class);
         if (phenotypeAnnotations == null)
             return null;
         return phenotypeAnnotations;
     }
 
     public List<DiseaseAnnotation> getDisease(String alleleId) {
-        BasicCachingManager<DiseaseAnnotation> manager = new BasicCachingManager<>(DiseaseAnnotation.class);
-        List<DiseaseAnnotation> diseaseAnnotations = manager.getCache(alleleId, CacheAlliance.ALLELE_DISEASE);
+
+        List<DiseaseAnnotation> diseaseAnnotations = cacheService.getCacheEntries(alleleId, CacheAlliance.ALLELE_DISEASE, DiseaseAnnotation.class);
         if (diseaseAnnotations == null)
             return null;
         return diseaseAnnotations;

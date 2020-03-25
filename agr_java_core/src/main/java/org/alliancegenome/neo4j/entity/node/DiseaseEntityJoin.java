@@ -2,7 +2,8 @@ package org.alliancegenome.neo4j.entity.node;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.alliancegenome.core.service.SourceService;
+
+import org.alliancegenome.cache.repository.helper.SourceServiceHelper;
 import org.apache.commons.collections.CollectionUtils;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
@@ -35,7 +36,7 @@ public class DiseaseEntityJoin extends EntityJoin {
     private int sortOrder;
 
     public Source getSource() {
-        SourceService service = new SourceService();
+        SourceServiceHelper service = new SourceServiceHelper();
         Optional<Source> first = service.getAllSources(disease).stream()
                 .filter(source -> source.getSpeciesType().getDisplayName().equalsIgnoreCase(dataProvider))
                 .findFirst();

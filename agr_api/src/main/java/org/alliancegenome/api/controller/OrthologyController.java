@@ -1,21 +1,23 @@
 package org.alliancegenome.api.controller;
 
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.util.List;
+
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.Context;
+
 import org.alliancegenome.api.rest.interfaces.OrthologyRESTInterface;
+import org.alliancegenome.cache.repository.OrthologyCacheRepository;
+import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.core.exceptions.RestErrorException;
 import org.alliancegenome.core.exceptions.RestErrorMessage;
-import org.alliancegenome.core.service.JsonResultResponse;
-import org.alliancegenome.core.service.OrthologyService;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.node.OrthoAlgorithm;
 import org.alliancegenome.neo4j.repository.OrthologousRepository;
 import org.alliancegenome.neo4j.view.OrthologView;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.core.Context;
-import java.io.IOException;
-import java.time.LocalDateTime;
-import java.util.List;
 
 public class OrthologyController implements OrthologyRESTInterface {
 
@@ -24,7 +26,8 @@ public class OrthologyController implements OrthologyRESTInterface {
     @Context
     private HttpServletRequest request;
 
-    private OrthologyService service = new OrthologyService();
+    @Inject
+    private OrthologyCacheRepository service;
 
     @Override
     public JsonResultResponse<OrthologView> getDoubleSpeciesOrthology(String taxonIDOne,

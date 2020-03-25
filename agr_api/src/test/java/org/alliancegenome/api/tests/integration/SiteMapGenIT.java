@@ -1,6 +1,6 @@
 package org.alliancegenome.api.tests.integration;
 
-import org.alliancegenome.cache.manager.SiteMapCacheManager;
+import org.alliancegenome.cache.repository.SiteMapCacheManager;
 import org.junit.Test;
 
 public class SiteMapGenIT {

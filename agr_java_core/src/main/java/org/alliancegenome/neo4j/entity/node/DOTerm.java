@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import org.alliancegenome.core.service.SourceService;
+import org.alliancegenome.cache.repository.helper.SourceServiceHelper;
 import org.alliancegenome.es.util.DateConverter;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.view.View;
@@ -63,7 +63,7 @@ public class DOTerm extends SimpleTerm {
     @JsonView(value = {View.DiseaseAPI.class})
     @JsonProperty(value = "sources")
     public List<Source> getSourceList() {
-        SourceService service = new SourceService();
+        SourceServiceHelper service = new SourceServiceHelper();
         List<Source> sources = new ArrayList<>();
         sources.add(service.getSource(SpeciesType.RAT, rgdLink));
         sources.add(service.getSource(SpeciesType.MOUSE, mgiLink));

@@ -1,7 +1,17 @@
 package org.alliancegenome.api.service;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+
 import org.alliancegenome.cache.repository.AlleleCacheRepository;
-import org.alliancegenome.core.service.*;
+import org.alliancegenome.cache.repository.helper.DiseaseAnnotationFiltering;
+import org.alliancegenome.cache.repository.helper.DiseaseAnnotationSorting;
+import org.alliancegenome.cache.repository.helper.JsonResultResponse;
+import org.alliancegenome.cache.repository.helper.PhenotypeAnnotationFiltering;
+import org.alliancegenome.cache.repository.helper.PhenotypeAnnotationSorting;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
@@ -11,16 +21,16 @@ import org.alliancegenome.neo4j.entity.node.Variant;
 import org.alliancegenome.neo4j.repository.AlleleRepository;
 import org.apache.commons.collections.CollectionUtils;
 
-import javax.enterprise.context.RequestScoped;
-import java.time.LocalDateTime;
-import java.util.List;
-
 @RequestScoped
 public class AlleleService {
 
     private AlleleRepository alleleRepo = new AlleleRepository();
-    private AlleleCacheRepository alleleCacheRepo = new AlleleCacheRepository();
+    
+    @Inject
+    private AlleleCacheRepository alleleCacheRepo;
 
+    private AlleleService() {} // Cannot be instantiated needs to be @Injected
+    
     public Allele getById(String id) {
         return alleleRepo.getAllele(id);
     }

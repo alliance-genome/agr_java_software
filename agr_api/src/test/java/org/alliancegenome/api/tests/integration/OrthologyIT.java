@@ -2,8 +2,9 @@ package org.alliancegenome.api.tests.integration;
 
 import io.swagger.annotations.Api;
 import lombok.extern.log4j.Log4j2;
-import org.alliancegenome.core.service.JsonResultResponse;
-import org.alliancegenome.core.service.OrthologyService;
+
+import org.alliancegenome.cache.repository.OrthologyCacheRepository;
+import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.repository.GeneRepository;
@@ -27,7 +28,7 @@ import static org.junit.Assert.*;
 public class OrthologyIT {
 
     public static GeneRepository repo = new GeneRepository();
-    OrthologyService service = new OrthologyService();
+    OrthologyCacheRepository service = new OrthologyCacheRepository();
 
     public static void main(String[] args) {
     }
@@ -41,7 +42,7 @@ public class OrthologyIT {
 
     @Test
     public void getGeneHomology() {
-        OrthologyService service = new OrthologyService();
+        OrthologyCacheRepository service = new OrthologyCacheRepository();
         Pagination pagination = new Pagination();
         pagination.setLimit(10);
         JsonResultResponse<OrthologView> response = service.getOrthologyMultiGeneJson(List.of("MGI:109583"), pagination);
@@ -58,7 +59,7 @@ public class OrthologyIT {
 
     @Test
     public void getSpeciesSpeciesOrthology() {
-        OrthologyService service = new OrthologyService();
+        OrthologyCacheRepository service = new OrthologyCacheRepository();
         Pagination pagination = new Pagination();
         pagination.setLimit(500);
         JsonResultResponse<OrthologView> response = service.getOrthologyByTwoSpecies("NCBITaxon:7955", "NCBITaxon:10090", pagination);
