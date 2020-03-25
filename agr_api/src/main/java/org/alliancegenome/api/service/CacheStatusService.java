@@ -20,8 +20,6 @@ public class CacheStatusService {
     @Inject
     private CacheService cacherService;
     
-    private CacheStatusService() {} // Cannot be instantiated needs to be @Injected
-
     public CacheStatus getCacheStatus(CacheAlliance type) {
         return getCacheStatus(type, null);
     }
@@ -33,7 +31,6 @@ public class CacheStatusService {
             entityCache.getEntityStats().keySet().removeIf(id -> !id.contains(entityID));
         return entityCache;
     }
-
 
     public Map<CacheAlliance, CacheStatus> getAllCachStatusRecords() {
         Map<CacheAlliance, CacheStatus> map = new HashMap<>();

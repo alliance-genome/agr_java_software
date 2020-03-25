@@ -30,9 +30,7 @@ public class PhenotypeCacheRepository {
 
     @Inject
     private CacheService cacheService;
-    
-    private PhenotypeCacheRepository() {} // Cannot be instantiated needs to be @Injected
-    
+
     public PaginationResult<PhenotypeAnnotation> getPhenotypeAnnotationList(String geneID, Pagination pagination) {
 
         List<PhenotypeAnnotation> fullPhenotypeAnnotationList = getPhenotypeAnnotationList(geneID);

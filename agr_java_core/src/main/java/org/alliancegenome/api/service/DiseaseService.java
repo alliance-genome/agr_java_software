@@ -57,8 +57,6 @@ public class DiseaseService {
     @Inject
     private PhenotypeCacheRepository phenotypeCacheRepository;
 
-    public DiseaseService() {} // Cannot be instantiated needs to be @Injected
-
     public static List<String> getDiseaseParents(String diseaseSlimID) {
         if (!diseaseSlimID.equals(DiseaseRibbonSummary.DOID_OTHER)) {
             ArrayList<String> strings = new ArrayList<>();

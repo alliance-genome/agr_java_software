@@ -5,6 +5,15 @@ import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.Api;
 import org.alliancegenome.api.entity.EntitySubgroupSlim;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import javax.inject.Inject;
 
 import org.alliancegenome.api.entity.RibbonSummary;
 import org.alliancegenome.api.service.ExpressionService;
@@ -24,18 +33,22 @@ import org.apache.logging.log4j.core.config.Configurator;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-import static org.junit.Assert.*;
+import io.swagger.annotations.Api;
 
 @Api(value = "Expression Tests")
 public class ExpressionIT {
 
     private ObjectMapper mapper = new ObjectMapper();
-    private ExpressionCacheRepository repository = new ExpressionCacheRepository();
-    private ExpressionService expressionService = new ExpressionService();
+
+    @Inject
+    private ExpressionCacheRepository repository;
+    
+    @Inject
+    private ExpressionService expressionService;
 
     @Before
     public void before() {

@@ -29,8 +29,6 @@ public class AutoCompleteService {
     @Inject
     private SearchService searchService;
 
-    private AutoCompleteService() {} // Cannot be instantiated needs to be @Injected
-    
     public AutoCompleteResult query(String q, String category) {
         QueryBuilder query = buildQuery(q, category);
         SearchResponse res = autoCompleteDAO.performQuery(query);

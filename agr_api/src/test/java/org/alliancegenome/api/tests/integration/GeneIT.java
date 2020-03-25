@@ -1,10 +1,23 @@
 package org.alliancegenome.api.tests.integration;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import static junit.framework.TestCase.assertTrue;
+import static org.alliancegenome.api.service.ExpressionService.CELLULAR_COMPONENT;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
+
+import java.io.IOException;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import javax.inject.Inject;
+
 import org.alliancegenome.api.controller.ExpressionController;
 import org.alliancegenome.api.controller.GeneController;
 import org.alliancegenome.api.controller.GenesController;
@@ -28,23 +41,17 @@ import org.apache.logging.log4j.core.config.Configurator;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.IOException;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-import static junit.framework.TestCase.assertTrue;
-import static org.alliancegenome.api.service.ExpressionService.CELLULAR_COMPONENT;
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 
 @Api(value = "hallo")
 public class GeneIT {
 
+    @Inject
     private GeneService geneService;
 
     private ObjectMapper mapper = new ObjectMapper();
@@ -67,7 +74,7 @@ public class GeneIT {
     public void before() {
         Configurator.setRootLevel(Level.WARN);
         ConfigHelper.init();
-        geneService = new GeneService();
+        //geneService = new GeneService();
         mapper.disable(MapperFeature.DEFAULT_VIEW_INCLUSION);
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         mapper.registerModule(new OrthologyModule());

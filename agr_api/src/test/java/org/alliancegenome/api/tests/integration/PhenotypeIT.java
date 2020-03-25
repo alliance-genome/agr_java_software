@@ -29,6 +29,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import javax.inject.Inject;
+
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
@@ -36,6 +38,8 @@ import static org.junit.Assert.*;
 public class PhenotypeIT {
 
     private ObjectMapper mapper = new ObjectMapper();
+    
+    @Inject
     private GeneService geneService;
 
     @ApiOperation(value = "Retrieve a Gene for given ID")
@@ -59,7 +63,7 @@ public class PhenotypeIT {
         Configurator.setRootLevel(Level.WARN);
         ConfigHelper.init();
 
-        geneService = new GeneService();
+        //geneService = new GeneService();
 
         mapper.disable(MapperFeature.DEFAULT_VIEW_INCLUSION);
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);

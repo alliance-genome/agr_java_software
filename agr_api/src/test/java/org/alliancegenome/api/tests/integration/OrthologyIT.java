@@ -1,7 +1,16 @@
 package org.alliancegenome.api.tests.integration;
 
-import io.swagger.annotations.Api;
-import lombok.extern.log4j.Log4j2;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.lessThan;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+import javax.inject.Inject;
 
 import org.alliancegenome.cache.repository.OrthologyCacheRepository;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
@@ -11,16 +20,10 @@ import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.alliancegenome.neo4j.view.OrthologView;
 import org.apache.commons.collections4.map.MultiKeyMap;
 import org.hamcrest.Matchers;
-import org.junit.Ignore;
 import org.junit.Test;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.lessThan;
-import static org.junit.Assert.*;
+import io.swagger.annotations.Api;
+import lombok.extern.log4j.Log4j2;
 
 
 @Api(value = "Orthology Tests")
@@ -28,7 +31,9 @@ import static org.junit.Assert.*;
 public class OrthologyIT {
 
     public static GeneRepository repo = new GeneRepository();
-    OrthologyCacheRepository service = new OrthologyCacheRepository();
+    
+    @Inject
+    OrthologyCacheRepository service;
 
     public static void main(String[] args) {
     }
@@ -42,7 +47,7 @@ public class OrthologyIT {
 
     @Test
     public void getGeneHomology() {
-        OrthologyCacheRepository service = new OrthologyCacheRepository();
+
         Pagination pagination = new Pagination();
         pagination.setLimit(10);
         JsonResultResponse<OrthologView> response = service.getOrthologyMultiGeneJson(List.of("MGI:109583"), pagination);
@@ -59,7 +64,6 @@ public class OrthologyIT {
 
     @Test
     public void getSpeciesSpeciesOrthology() {
-        OrthologyCacheRepository service = new OrthologyCacheRepository();
         Pagination pagination = new Pagination();
         pagination.setLimit(500);
         JsonResultResponse<OrthologView> response = service.getOrthologyByTwoSpecies("NCBITaxon:7955", "NCBITaxon:10090", pagination);

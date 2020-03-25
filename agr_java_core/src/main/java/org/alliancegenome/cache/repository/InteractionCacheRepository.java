@@ -33,9 +33,7 @@ public class InteractionCacheRepository {
 
     @Inject
     private CacheService cacheService;
-    
-    private InteractionCacheRepository() {} // Cannot be instantiated needs to be @Injected
-    
+
     public PaginationResult<InteractionGeneJoin> getInteractionAnnotationList(String geneID, Pagination pagination) {
 
         List<InteractionGeneJoin> interactionAnnotationList = cacheService.getCacheEntries(geneID, CacheAlliance.GENE_INTERACTION, InteractionGeneJoin.class);

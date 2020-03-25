@@ -21,8 +21,6 @@ public class GeneCacheRepository {
     
     @Inject
     private OrthologyCacheRepository service;
-    
-    private GeneCacheRepository() {} // Cannot be instantiated needs to be @Injected
 
     public List<OrthologView> getAllOrthologyGenes(List<String> geneIDs) {
         List<OrthologView> fullOrthologyList = new ArrayList<>();

@@ -37,8 +37,6 @@ public class ExpressionCacheRepository {
 
     @Inject
     private CacheService cacheService;
-    
-    private ExpressionCacheRepository() {} // Cannot be instantiated needs to be @Injected
 
     private static List<String> parentTermIDs = new ArrayList<>();
 

@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 
 import org.alliancegenome.api.entity.CacheStatus;
@@ -24,7 +25,7 @@ import com.fasterxml.jackson.databind.type.CollectionType;
 import lombok.extern.log4j.Log4j2;
 
 @Log4j2
-@ApplicationScoped
+@RequestScoped
 public class CacheService {
     
     @Inject
@@ -33,9 +34,7 @@ public class CacheService {
     private CacheProvider cacheProvider;
     
     public static ObjectMapper mapper = new ObjectMapper();
-    
-    private CacheService() {}
-    
+
     // Only the cacher should call this constructor
     public CacheService(CacheProvider cacheProvider) {
         this.cacheProvider = cacheProvider;

@@ -1,9 +1,14 @@
 package org.alliancegenome.api.tests.integration;
 
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.swagger.annotations.Api;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
+
+import java.util.List;
+import java.util.Map;
+
+import javax.inject.Inject;
+
 import org.alliancegenome.api.service.GeneService;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.es.model.query.Pagination;
@@ -15,19 +20,20 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.Test;
 
-import java.util.List;
-import java.util.Map;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-import static org.hamcrest.Matchers.greaterThanOrEqualTo;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
+import io.swagger.annotations.Api;
 
 
 @Api(value = "Interaction Tests")
 public class InteractionsIT {
 
     public static InteractionRepository repo = new InteractionRepository();
-    private GeneService geneService = new GeneService();
+    
+    @Inject
+    private GeneService geneService;
 
     public static void main(String[] args) throws Exception {
         Logger log = LogManager.getLogger(InteractionsIT.class);

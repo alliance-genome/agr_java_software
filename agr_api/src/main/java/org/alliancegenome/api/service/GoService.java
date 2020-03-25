@@ -10,8 +10,6 @@ public class GoService {
 
     private static GoRepository goRepo = new GoRepository();
 
-    private GoService() {} // Cannot be instantiated needs to be @Injected
-    
     public GOTerm getById(String id) {
         return goRepo.getOneGoTerm(id);
     }

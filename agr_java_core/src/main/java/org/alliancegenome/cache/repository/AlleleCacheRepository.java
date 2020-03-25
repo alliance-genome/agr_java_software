@@ -31,8 +31,6 @@ public class AlleleCacheRepository {
     @Inject
     private CacheService cacheService;
 
-    private AlleleCacheRepository() {} // Cannot be instantiated needs to be @Injected
-    
     public JsonResultResponse<Allele> getAllelesBySpecies(String taxonID, Pagination pagination) {
         List<Allele> allAlleles = cacheService.getCacheEntries(taxonID, CacheAlliance.ALLELE_SPECIES, Allele.class);
         if (CollectionUtils.isEmpty(allAlleles)) {

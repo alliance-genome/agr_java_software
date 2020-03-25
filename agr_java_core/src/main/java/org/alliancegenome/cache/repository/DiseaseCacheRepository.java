@@ -39,8 +39,6 @@ public class DiseaseCacheRepository {
 
     @Inject
     private CacheService cacheService;
-    
-    private DiseaseCacheRepository() {} // Cannot be instantiated needs to be @Injected
 
     public List<DiseaseAnnotation> getDiseaseAnnotationList(String diseaseID) {
         return cacheService.getCacheEntries(diseaseID, CacheAlliance.DISEASE_ANNOTATION, DiseaseAnnotation.class);

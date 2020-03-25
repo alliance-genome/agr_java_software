@@ -35,8 +35,6 @@ public class GeneService {
     @Inject
     private AlleleService alleleService;
 
-    private GeneService() {} // Cannot be instantiated needs to be @Injected
-    
     public Gene getById(String id) {
         Gene gene = geneRepo.getOneGene(id);
         // if not found directly check if it is a secondary id on a different gene

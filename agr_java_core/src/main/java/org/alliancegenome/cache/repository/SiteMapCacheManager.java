@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 
 import org.alliancegenome.api.model.xml.XMLURL;
@@ -14,12 +15,11 @@ import org.alliancegenome.core.config.ConfigHelper;
 import lombok.extern.log4j.Log4j2;
 
 @Log4j2
+@RequestScoped
 public class SiteMapCacheManager {
 
     @Inject
     private CacheService cacheService;
-    
-    private SiteMapCacheManager() {} // Cannot be instantiated needs to be @Injected
 
     public List<XMLURL> getGenes(String key) {
 

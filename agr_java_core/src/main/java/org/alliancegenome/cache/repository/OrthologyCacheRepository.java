@@ -45,8 +45,6 @@ public class OrthologyCacheRepository {
     @Inject
     private DiseaseCacheRepository diseaseCacheRepository;
 
-    private OrthologyCacheRepository() {} // Cannot be instantiated needs to be @Injected
-    
     public static List<OrthologyDoclet> getOrthologyDoclets(Gene gene) {
         if (gene.getOrthologyGeneJoins().size() > 0) {
             List<OrthologyDoclet> orthologyDoclets = new ArrayList<>();

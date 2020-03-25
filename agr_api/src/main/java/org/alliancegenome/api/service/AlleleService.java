@@ -29,8 +29,6 @@ public class AlleleService {
     @Inject
     private AlleleCacheRepository alleleCacheRepo;
 
-    private AlleleService() {} // Cannot be instantiated needs to be @Injected
-    
     public Allele getById(String id) {
         return alleleRepo.getAllele(id);
     }

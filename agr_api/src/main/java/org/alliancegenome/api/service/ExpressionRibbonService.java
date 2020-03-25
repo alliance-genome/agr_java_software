@@ -16,8 +16,6 @@ import org.alliancegenome.neo4j.entity.node.GOTerm;
 import org.alliancegenome.neo4j.repository.DiseaseRepository;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -32,8 +30,6 @@ public class ExpressionRibbonService {
 
     private static RibbonSummary ribbonSummary;
 
-    private ExpressionRibbonService() {} // Cannot be instantiated needs to be @Injected
-    
     public RibbonSummary getRibbonSectionInfo() {
         // get a deep clone of a template object
         // by serialization and deserialization (JSON)
