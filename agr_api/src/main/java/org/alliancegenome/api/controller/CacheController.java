@@ -1,5 +1,6 @@
 package org.alliancegenome.api.controller;
 
+import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -23,6 +24,7 @@ import lombok.extern.log4j.Log4j2;
 
 
 @Log4j2
+@RequestScoped
 @Path("/cache")
 @Api(value = "Cache")
 @Produces(MediaType.APPLICATION_JSON)

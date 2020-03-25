@@ -1,28 +1,20 @@
-package org.alliancegenome.core.application;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Produces;
+package org.alliancegenome.core.config;
 
 import org.alliancegenome.cache.CacheAlliance;
-import org.alliancegenome.core.config.ConfigHelper;
 import org.infinispan.client.hotrod.RemoteCache;
 import org.infinispan.client.hotrod.RemoteCacheManager;
 import org.infinispan.client.hotrod.configuration.ConfigurationBuilder;
 import org.infinispan.configuration.cache.StorageType;
 import org.infinispan.eviction.EvictionType;
 
-import lombok.Getter;
 import lombok.extern.log4j.Log4j2;
 
 @Log4j2
-@ApplicationScoped
-public class CacheProvider {
+public class CacheConfig {
 
     private static RemoteCacheManager manager;
     
-    @Produces
-    @ApplicationScoped
-    public RemoteCacheManager defaultRemoteCacheManager() {
+    public static RemoteCacheManager defaultRemoteCacheManager() {
         if(manager != null) return manager;
         
         log.info("Setting up cache manager");
@@ -42,8 +34,10 @@ public class CacheProvider {
         return manager;
     }
     
-    public RemoteCache<String, String> createCache(CacheAlliance cache) {
+    public static RemoteCache<String, String> createCache(CacheAlliance cache) {
 
+        if(manager == null) defaultRemoteCacheManager();
+        
         log.debug("Creating Cache: " + cache.getCacheName());
 
         org.infinispan.configuration.cache.ConfigurationBuilder cb2 = new org.infinispan.configuration.cache.ConfigurationBuilder();

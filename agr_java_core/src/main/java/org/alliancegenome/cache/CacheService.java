@@ -4,12 +4,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 
 import org.alliancegenome.api.entity.CacheStatus;
-import org.alliancegenome.core.application.CacheProvider;
+import org.alliancegenome.core.config.CacheConfig;
 import org.alliancegenome.neo4j.view.View;
 import org.infinispan.client.hotrod.RemoteCache;
 import org.infinispan.client.hotrod.RemoteCacheManager;
@@ -31,14 +30,12 @@ public class CacheService {
     @Inject
     private RemoteCacheManager manager;
 
-    private CacheProvider cacheProvider;
-    
     public static ObjectMapper mapper = new ObjectMapper();
 
     // Only the cacher should call this constructor
-    public CacheService(CacheProvider cacheProvider) {
-        this.cacheProvider = cacheProvider;
-        this.manager = cacheProvider.defaultRemoteCacheManager();
+    // In the context of an application server the manager will be injected
+    public CacheService() {
+        this.manager = CacheConfig.defaultRemoteCacheManager();
     }
 
     static {
@@ -60,7 +57,7 @@ public class CacheService {
         RemoteCache<String, String> remoteCache = manager.getCache(cache.getCacheName());
         
         if(remoteCache == null) {
-            return cacheProvider.createCache(cache);
+            return CacheConfig.createCache(cache);
         }
         
         return remoteCache;
@@ -115,7 +112,7 @@ public class CacheService {
     }
 
     public void putCacheEntry(String primaryKey, List items, Class<?> classView, CacheAlliance cacheAlliance) {
-        RemoteCache<String, String> cache = manager.getCache(cacheAlliance.getCacheName());
+        RemoteCache<String, String> cache = getCacheSpace(cacheAlliance);
         String value;
         try {
             value = mapper.writerWithView(classView).writeValueAsString(items);
@@ -127,7 +124,7 @@ public class CacheService {
     }
 
     public void putCacheEntry(String primaryKey, Object object, Class<?> classView, CacheAlliance cacheAlliance) {
-        RemoteCache<String, String> cache = manager.getCache(cacheAlliance.getCacheName());
+        RemoteCache<String, String> cache = getCacheSpace(cacheAlliance);
         String value;
         try {
             value = mapper.writerWithView(classView).writeValueAsString(object);

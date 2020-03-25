@@ -2,6 +2,7 @@ package org.alliancegenome.api.controller;
 
 import java.util.Map;
 
+import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 
 import org.alliancegenome.api.entity.CacheStatus;
@@ -13,6 +14,7 @@ import org.alliancegenome.cache.CacheAlliance;
 import lombok.extern.log4j.Log4j2;
 
 @Log4j2
+@RequestScoped
 public class DevtoolController implements DevtoolRESTInterface {
 
     @Inject

@@ -7,7 +7,6 @@ import java.util.Map;
 import org.alliancegenome.api.entity.CacheStatus;
 import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.cache.CacheService;
-import org.alliancegenome.core.application.CacheProvider;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.entity.node.Species;
@@ -33,7 +32,7 @@ public abstract class Cacher extends Thread {
 
     private ProcessDisplayHelper display = new ProcessDisplayHelper();
 
-    protected CacheService cacheService = new CacheService(new CacheProvider());
+    protected CacheService cacheService = new CacheService();
 
     @Override
     public void run() {
