@@ -84,7 +84,7 @@ public interface DiseaseRESTInterface {
             @ApiParam(name = "page", value = "Page number")
             @DefaultValue("1") @QueryParam("page") Integer page,
             @ApiParam(value = "Field / column name by which to sort", allowableValues = "Default,Allele,Disease,Species", defaultValue = "Allele")
-            @DefaultValue("Allele") @QueryParam("sortBy") String sortBy,
+            @DefaultValue("DiseaseAlleleDefault") @QueryParam("sortBy") String sortBy,
             @ApiParam(value = "filter by gene symbol")
             @QueryParam("filter.geneName") String geneName,
             @ApiParam(value = "filter by allele symbol")

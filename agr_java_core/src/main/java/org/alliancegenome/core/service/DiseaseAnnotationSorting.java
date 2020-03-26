@@ -16,6 +16,7 @@ public class DiseaseAnnotationSorting implements Sorting<DiseaseAnnotation> {
     private List<Comparator<DiseaseAnnotation>> alleleList;
     private List<Comparator<DiseaseAnnotation>> geneList;
     private List<Comparator<DiseaseAnnotation>> speciesList;
+    private List<Comparator<DiseaseAnnotation>> alleleDefaultList;
 
     private static Comparator<DiseaseAnnotation> phylogeneticOrder =
             Comparator.comparing(annotation -> {
@@ -24,6 +25,15 @@ public class DiseaseAnnotationSorting implements Sorting<DiseaseAnnotation> {
                 if (annotation.getGene().getSpecies() == null)
                     return 1;
                 return annotation.getGene().getSpecies().getPhylogeneticOrder();
+            });
+
+    private static Comparator<DiseaseAnnotation> phylogeneticAlleleOrder =
+            Comparator.comparing(annotation -> {
+                if (annotation.getFeature() == null)
+                    return 1;
+                if (annotation.getFeature().getSpecies() == null)
+                    return 1;
+                return annotation.getFeature().getSpecies().getPhylogeneticOrder();
             });
 
     private static Comparator<DiseaseAnnotation> experimentOrthologyOrder =
@@ -77,6 +87,11 @@ public class DiseaseAnnotationSorting implements Sorting<DiseaseAnnotation> {
         alleleList.add(phylogeneticOrder);
         alleleList.add(geneSymbolOrder);
 
+        alleleDefaultList = new ArrayList<>(4);
+        alleleDefaultList.add(phylogeneticAlleleOrder);
+        alleleDefaultList.add(alleleSymbolOrder);
+        alleleDefaultList.add(diseaseOrder);
+
         diseaseList = new ArrayList<>(4);
         diseaseList.add(diseaseOrder);
         diseaseList.add(phylogeneticOrder);
@@ -109,6 +124,8 @@ public class DiseaseAnnotationSorting implements Sorting<DiseaseAnnotation> {
                 return getJoinedComparator(diseaseList);
             case ALLELE:
                 return getJoinedComparator(alleleList);
+            case DISEASE_ALLELE_DEFAULT:
+                return getJoinedComparator(alleleDefaultList);
             default:
                 return getJoinedComparator(defaultList);
         }
