@@ -70,6 +70,16 @@ public class DiseaseIT {
     }
 
     @Test
+    public void checkAlleleDiseaseAssociationPhylogeneticSort() {
+        Pagination pagination = new Pagination(1, 100, "allele", null);
+        // Menkes
+        String diseaseID = "DOID:162";
+        JsonResultResponse<DiseaseAnnotation> response = diseaseService.getDiseaseAnnotationsWithAlleles(diseaseID, pagination);
+        assertLimitResponse(response, 10, 10);
+        assertThat(response.getResults().get(0).getFeature().getSpecies().getName(), equalTo("Mus musculus"));
+    }
+
+    @Test
     public void checkAlleleDiseaseAssociationFilteredBySpecies() {
         Pagination pagination = new Pagination(1, 100, null, null);
         pagination.addFieldFilter(FieldFilter.ALLELE, "tg");
