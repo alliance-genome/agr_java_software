@@ -1,49 +1,50 @@
 package org.alliancegenome.es.index.site.dao;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.es.index.ESDAO;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.elasticsearch.action.admin.indices.analyze.AnalyzeRequest;
-import org.elasticsearch.action.admin.indices.analyze.AnalyzeResponse;
-import org.elasticsearch.action.search.SearchRequestBuilder;
+import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.common.unit.TimeValue;
+import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.search.Scroll;
-import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.elasticsearch.search.sort.SortOrder;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 @SuppressWarnings("serial")
 public class SearchDAO extends ESDAO {
 
     private final Logger log = LogManager.getLogger(getClass());
-    
-    private final List<String> id_response_fields = new ArrayList<String>() {
-        {
-            add("_id");
-        }
-    };
 
     public Long performCountQuery(QueryBuilder query) {
-        SearchRequestBuilder searchRequestBuilder = searchClient.prepareSearch();
-        searchRequestBuilder.setIndices(ConfigHelper.getEsIndex());
-        searchRequestBuilder.setQuery(query);
-        searchRequestBuilder.setSize(0);
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
 
-        SearchResponse response = searchRequestBuilder.execute().actionGet();
+        searchSourceBuilder.query(query);
+        searchSourceBuilder.size(0);
+
+        SearchRequest searchRequest = new SearchRequest(ConfigHelper.getEsIndex());
+        searchRequest.source(searchSourceBuilder);
+
+        SearchResponse response = null;
+
+        try {
+            response = searchClient.search(searchRequest, RequestOptions.DEFAULT);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
         if (response != null && response.getHits() != null) {
-            return response.getHits().totalHits;
+            return response.getHits().getTotalHits().value;
         } else {
             return 0l;
         }
-
 
     }
 
@@ -54,64 +55,45 @@ public class SearchDAO extends ESDAO {
             HighlightBuilder highlighter,
             String sort, Boolean debug) {
 
-        SearchRequestBuilder searchRequestBuilder = searchClient.prepareSearch();
 
-        searchRequestBuilder.setFetchSource(responseFields.toArray(new String[responseFields.size()]), null);
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+
+
+        searchSourceBuilder.fetchSource(responseFields.toArray(new String[responseFields.size()]), null);
 
         if (debug) {
-            searchRequestBuilder.setExplain(true);
+            searchSourceBuilder.explain(true);
         }
 
-        searchRequestBuilder.setIndices(ConfigHelper.getEsIndex());
-        searchRequestBuilder.setQuery(query);
-        searchRequestBuilder.setSize(limit);
-        searchRequestBuilder.setFrom(offset);
+        searchSourceBuilder.query(query);
+        searchSourceBuilder.size(limit);
+        searchSourceBuilder.from(offset);
 
         if(sort != null && sort.equals("alphabetical")) {
-            searchRequestBuilder.addSort("name.keyword", SortOrder.ASC);
+            searchSourceBuilder.sort("name.keyword", SortOrder.ASC);
         }
-        searchRequestBuilder.highlighter(highlighter);
-        searchRequestBuilder.setPreference("p_" + query);
+        searchSourceBuilder.highlighter(highlighter);
+
 
         for(AggregationBuilder aggBuilder: aggBuilders) {
-            searchRequestBuilder.addAggregation(aggBuilder);
+            searchSourceBuilder.aggregation(aggBuilder);
         }
 
-        log.debug(searchRequestBuilder);
+        log.debug(searchSourceBuilder);
 
-        return  searchRequestBuilder.execute().actionGet();
+        SearchRequest searchRequest = new SearchRequest(ConfigHelper.getEsIndex());
+        searchRequest.source(searchSourceBuilder);
+//        searchRequest.preference("p_" + query);
 
+        SearchResponse response = null;
+
+        try {
+            response = searchClient.search(searchRequest, RequestOptions.DEFAULT);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return response;
     }
 
-
-    public List<String> analyze(String query) {
-        AnalyzeRequest request = (new AnalyzeRequest()).analyzer("standard").text(query);
-        List<AnalyzeResponse.AnalyzeToken> tokens = searchClient.admin().indices().analyze(request).actionGet().getTokens();
-        return tokens.stream().map(token -> token.getTerm()).collect(Collectors.toList());
-    }
-
-
-    public List<String> getAllIds(QueryBuilder query, Integer size) {
-        log.debug("Getting All ids, batch size: " + size);
-        ArrayList<String> ids = new ArrayList<String>();
-        
-        Scroll s = new Scroll(new TimeValue(60000));
-        SearchRequestBuilder req = searchClient.prepareSearch()
-                .setScroll(s)
-                .setQuery(query)
-                .setIndices(ConfigHelper.getEsIndex())
-                .setFetchSource(id_response_fields.toArray(new String[id_response_fields.size()]), null)
-                .setSize(size);
-        log.trace("Request: " + req);
-        SearchResponse scrollResp = req.execute().actionGet();
-
-        do {
-            for (SearchHit hit : scrollResp.getHits().getHits()) {
-                ids.add(hit.getId());
-            }
-            log.trace("Getting Batch: ");
-            scrollResp = searchClient.prepareSearchScroll(scrollResp.getScrollId()).setScroll(new TimeValue(60000)).execute().actionGet();
-        } while(scrollResp.getHits().getHits().length != 0);
-        return ids;
-    }
 }

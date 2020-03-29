@@ -1,10 +1,11 @@
 package org.alliancegenome.indexer.indexers;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.InetAddress;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -12,19 +13,26 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import org.alliancegenome.core.config.ConfigHelper;
-import org.alliancegenome.core.config.Constants;
 import org.alliancegenome.es.index.ESDocument;
 import org.alliancegenome.indexer.config.IndexerConfig;
+import org.apache.http.HttpHost;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.elasticsearch.action.bulk.BulkRequestBuilder;
+import org.elasticsearch.action.bulk.BackoffPolicy;
+import org.elasticsearch.action.bulk.BulkProcessor;
+import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
-import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.common.transport.InetSocketTransportAddress;
+import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.client.RestClient;
+import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.common.unit.ByteSizeUnit;
+import org.elasticsearch.common.unit.ByteSizeValue;
+import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.common.xcontent.XContentType;
-import org.elasticsearch.xpack.client.PreBuiltXPackTransportClient;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -35,7 +43,7 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
     public static String indexName;
     private Logger log = LogManager.getLogger(getClass());
     protected IndexerConfig indexerConfig;
-    private PreBuiltXPackTransportClient client;
+    private static RestHighLevelClient client;
     protected Runtime runtime = Runtime.getRuntime();
     protected DecimalFormat df = new DecimalFormat("#");
     protected ObjectMapper om = new ObjectMapper();
@@ -58,19 +66,16 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
 
         loadPopularityScore();
 
-        try {
-            client = new PreBuiltXPackTransportClient(Settings.EMPTY);
-            if (ConfigHelper.getEsHost().contains(",")) {
-                String[] hosts = ConfigHelper.getEsHost().split(",");
-                for (String host : hosts) {
-                    client.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(host), ConfigHelper.getEsPort()));
-                }
+        if(client == null) {
+            if(ConfigHelper.getEsHost().contains(",")) {
+                String[] hostnames = ConfigHelper.getEsHost().split(",");
+                List<HttpHost> hosts = Arrays.stream(hostnames).map(host -> new HttpHost(host, ConfigHelper.getEsPort())).collect(Collectors.toList());
+                client = new RestHighLevelClient(
+                        RestClient.builder((HttpHost[])hosts.toArray())
+                );
             } else {
-                client.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(ConfigHelper.getEsHost()), ConfigHelper.getEsPort()));
+                client = new RestHighLevelClient(RestClient.builder(new HttpHost(ConfigHelper.getEsHost(),ConfigHelper.getEsPort())));
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.exit(-1);
         }
     }
 
@@ -112,30 +117,98 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
         }
     }
 
+
+    public void saveDocumentsWithBulkListener(Iterable<D> docs) {
+
+
+        BulkProcessor.Listener listener = new BulkProcessor.Listener() {
+            @Override
+            public void beforeBulk(long executionId, BulkRequest request) {
+                int numberOfActions = request.numberOfActions();
+                log.debug("Executing bulk [{}] with {} requests",
+                        executionId, numberOfActions);
+            }
+
+            @Override
+            public void afterBulk(long executionId, BulkRequest request,
+                                  BulkResponse response) {
+                if (response.hasFailures()) {
+                    log.warn("Bulk [{}] executed with failures", executionId);
+                } else {
+                    log.debug("Bulk [{}] completed in {} milliseconds",
+                            executionId, response.getTook().getMillis());
+                }
+            }
+
+            @Override
+            public void afterBulk(long executionId, BulkRequest request,
+                                  Throwable failure) {
+                log.error("Failed to execute bulk", failure);
+            }
+        };
+
+        BulkProcessor.Builder builder = BulkProcessor.builder(
+                (request, bulkListener) ->
+                        client.bulkAsync(request, RequestOptions.DEFAULT, bulkListener),
+                listener);
+        builder.setBulkActions(500);
+        builder.setBulkSize(new ByteSizeValue(1L, ByteSizeUnit.MB));
+        builder.setFlushInterval(TimeValue.timeValueSeconds(10L));
+        builder.setBackoffPolicy(BackoffPolicy
+                .constantBackoff(TimeValue.timeValueSeconds(5L), 3));
+
+        BulkProcessor bulkProcessor = BulkProcessor.builder(
+                (request, bulkListener) ->
+                        client.bulkAsync(request, RequestOptions.DEFAULT, bulkListener),
+                listener).build();
+
+        for (D doc : docs) {
+            String json = null;
+            try {
+                json = om.writeValueAsString(doc);
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
+            bulkProcessor.add(new IndexRequest(indexName).id(doc.getDocumentId()).source(json, XContentType.JSON));
+        }
+
+        try {
+            bulkProcessor.awaitClose(30L, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void saveDocuments(Iterable<D> docs) {
         checkMemory();
 
         if (((Collection<D>) docs).size() > 0) {
+            BulkRequest request = new BulkRequest();
 
-            BulkRequestBuilder bulkRequest = client.prepareBulk();
             for (D doc : docs) {
                 try {
                     String json = om.writeValueAsString(doc);
                     //log.debug("JSON: " + json);
-                    bulkRequest.add(client.prepareIndex(Indexer.indexName, Constants.SEARCHABLE_ITEM).setSource(json, XContentType.JSON).setId(doc.getDocumentId()));
+                    request.add(new IndexRequest(indexName).id(doc.getDocumentId()).source(json, XContentType.JSON));
                     batchTotalSize += json.length();
                     batchCount += 1;
                 } catch (JsonProcessingException e) {
                     e.printStackTrace();
                 }
             }
-            BulkResponse bulkResponse = bulkRequest.get();
-            if (bulkResponse.hasFailures()) {
-                log.error("Has Failures in indexer: " + bulkResponse.buildFailureMessage());
-                // TODO process failures by iterating through each bulk response item
-                // Retry request until we get a success after that period FAIL
-                System.out.println("TODO process failures by iterating through each bulk response item");
-                System.out.println("Retry request until we get a success after that period FAIL");
+
+            try {
+                BulkResponse bulkResponse = client.bulk(request, RequestOptions.DEFAULT);
+                if (bulkResponse.hasFailures()) {
+                    log.error("Has Failures in indexer: " + bulkResponse.buildFailureMessage());
+                    // TODO process failures by iterating through each bulk response item
+                    // Retry request until we get a success after that period FAIL
+                    System.out.println("TODO process failures by iterating through each bulk response item");
+                    System.out.println("Retry request until we get a success after that period FAIL");
+                    System.exit(-1);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
                 System.exit(-1);
             }
         }

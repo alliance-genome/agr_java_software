@@ -1,4 +1,4 @@
-swarm.logging=DEBUG
+swarm.logging=INFO
 
 swarm.logging.loggers.[org.alliancegenome].level=DEBUG
 
