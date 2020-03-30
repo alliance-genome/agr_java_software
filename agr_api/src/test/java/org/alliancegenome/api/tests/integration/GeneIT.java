@@ -44,6 +44,9 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+
 public class GeneIT {
 
     @Inject

@@ -18,6 +18,7 @@ import javax.ws.rs.core.UriInfo;
 import org.alliancegenome.api.entity.DiseaseRibbonSummary;
 import org.alliancegenome.api.entity.ExpressionSummary;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
+import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.DiseaseSummary;
 import org.alliancegenome.neo4j.entity.EntitySummary;
@@ -211,6 +212,7 @@ public interface GeneRESTInterface {
             @QueryParam("limit") Integer rows,
             //@ApiParam(value = "starting row number (for pagination)")
             @DefaultValue("1") @QueryParam("page") Integer start) throws IOException;
+
     @GET
     @Path("/{id}/homologs-with-expression")
     @JsonView(value = {View.Orthology.class})
@@ -278,7 +280,6 @@ public interface GeneRESTInterface {
             @Parameter(in=ParameterIn.QUERY, name = "filter.source", description = "database")
             @QueryParam("filter.source") String source,
             @Parameter(in=ParameterIn.QUERY, name = "filter.reference", description = "References")
-            @QueryParam("filter.reference") String reference
     );
 
     @GET

@@ -33,6 +33,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.swagger.annotations.Api;
+
 public class ExpressionIT {
 
     private ObjectMapper mapper = new ObjectMapper();

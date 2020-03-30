@@ -26,7 +26,6 @@ public interface EntityRESTInterface {
     @Path("/{id}")
     @Operation(description = "Searches for any Entity", summary = "Entity Notes", hidden = true)
     public Map<String, Object> getEntity(
-
             @Parameter(in=ParameterIn.PATH, name = "id", description = "Search for an EntityID", required=true, schema = @Schema(type = SchemaType.STRING))
             @PathParam("id") String id
     );

@@ -11,6 +11,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
+import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
 import org.alliancegenome.neo4j.entity.node.Allele;
@@ -35,7 +36,7 @@ public interface AlleleRESTInterface {
     @Path("/{id}")
     @JsonView({View.AlleleAPI.class})
     @Operation(description = "Searches for an Allele", summary = "Allele Notes")
-    Allele getAllele(
+    public Allele getAllele(
             @Parameter(in = ParameterIn.PATH, name = "id", description = "Search for an Allele by ID", required = true, schema = @Schema(type = SchemaType.STRING))
             @PathParam("id") String id
     );
@@ -43,7 +44,7 @@ public interface AlleleRESTInterface {
     @GET
     @Path("/{id}/variants")
     @Operation(summary = "Retrieve all variants of a given allele", description="Retrieve all variants of a given allele")
-   @JsonView(value = {View.VariantAPI.class})
+    @JsonView(value = {View.VariantAPI.class})
     JsonResultResponse<Variant> getVariantsPerAllele(
             @Parameter(in=ParameterIn.PATH, name="id", description = "Search for Variants for a given Allele by ID", required=true, schema = @Schema(type = SchemaType.STRING))
             @PathParam("id") String id,
@@ -62,7 +63,7 @@ public interface AlleleRESTInterface {
     @GET
     @Path("/{id}/variants/download")
     @Operation(summary = "Retrieve all variants of a given allele in a download")
-   @JsonView(value = {View.VariantAPI.class})
+    @JsonView(value = {View.VariantAPI.class})
     @Produces(MediaType.TEXT_PLAIN)
     Response getVariantsPerAlleleDownload(
             @Parameter(in=ParameterIn.PATH, name="id", description = "Search for Variants for a given Allele by ID", required=true, schema = @Schema(type = SchemaType.STRING))
@@ -78,7 +79,7 @@ public interface AlleleRESTInterface {
     @GET
     @Path("/species/{species}")
     @Operation(summary = "Retrieve all alleles of a given species")
-   @JsonView(value = {View.GeneAllelesAPI.class})
+    @JsonView(value = {View.GeneAllelesAPI.class})
     JsonResultResponse<Allele> getAllelesPerSpecies(
             @Parameter(
                     in=ParameterIn.PATH, 
@@ -95,6 +96,7 @@ public interface AlleleRESTInterface {
             @DefaultValue("symbol") @QueryParam("sortBy") String sortBy, // allowedValues = "symbol,name"
             @Parameter(in=ParameterIn.QUERY, name = "asc", description = "order to sort by", schema = @Schema(type = SchemaType.STRING))
             @DefaultValue("true") @QueryParam("asc") String asc
+            @QueryParam("asc") String asc
     );
 
     @GET
@@ -116,7 +118,6 @@ public interface AlleleRESTInterface {
             @QueryParam("filter.reference") String reference,
             @Parameter(in=ParameterIn.QUERY, name="sortBy", description = "Field name by which to sort", schema = @Schema(type = SchemaType.STRING))
             @DefaultValue("symbol") @QueryParam("sortBy") String sortBy
-
 
     );
 
