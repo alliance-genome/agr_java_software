@@ -37,7 +37,6 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.junit.Assert.*;
 
-@Api(value = "Allele Tests")
 public class AlleleIT {
 
     private ObjectMapper mapper = new ObjectMapper();

@@ -271,7 +271,7 @@ public class SearchService {
 
     public void addRelatedDataLinks(Map<String,Object> result) {
         String nameKey = (String) result.get("name_key");
-        String name = (String) result.get("name");
+        //String name = (String) result.get("name");
         String category = (String) result.get("category");
 
         List<RelatedDataLink> links = new ArrayList<>();

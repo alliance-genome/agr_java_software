@@ -12,6 +12,13 @@ import org.alliancegenome.cache.repository.helper.DiseaseAnnotationSorting;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.cache.repository.helper.PhenotypeAnnotationFiltering;
 import org.alliancegenome.cache.repository.helper.PhenotypeAnnotationSorting;
+
+import org.alliancegenome.cache.repository.AlleleCacheRepository;
+import org.alliancegenome.core.service.DiseaseAnnotationFiltering;
+import org.alliancegenome.core.service.DiseaseAnnotationSorting;
+import org.alliancegenome.core.service.JsonResultResponse;
+import org.alliancegenome.core.service.PhenotypeAnnotationFiltering;
+import org.alliancegenome.core.service.PhenotypeAnnotationSorting;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;

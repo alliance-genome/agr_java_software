@@ -76,7 +76,19 @@
 		</dependency>
 		<dependency>
 			<groupId>io.thorntail</groupId>
-			<artifactId>swagger</artifactId>
+			<artifactId>infinispan</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>io.thorntail</groupId>
+			<artifactId>microprofile</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>io.thorntail</groupId>
+			<artifactId>microprofile-openapi</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>io.thorntail</groupId>
+			<artifactId>microprofile-config</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.alliancegenome</groupId>

@@ -48,7 +48,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
-@Api(value = "hallo")
 public class GeneIT {
 
     @Inject
@@ -56,16 +55,15 @@ public class GeneIT {
 
     private ObjectMapper mapper = new ObjectMapper();
 
-    @ApiOperation(value = "Retrieve a Gene for given ID")
     public static void main(String[] args) {
 
         GeneIT test = new GeneIT();
-        Api annotation = test.getClass().getAnnotation(Api.class);
+        //Api annotation = test.getClass().getAnnotation(Api.class);
         Method method = new Object() {
         }
                 .getClass()
                 .getEnclosingMethod();
-        Annotation[] annotations = method.getDeclaredAnnotations();
+        //Annotation[] annotations = method.getDeclaredAnnotations();
 
 
     }

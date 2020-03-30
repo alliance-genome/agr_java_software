@@ -39,7 +39,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.swagger.annotations.Api;
 
-@Api(value = "Expression Tests")
 public class ExpressionIT {
 
     private ObjectMapper mapper = new ObjectMapper();

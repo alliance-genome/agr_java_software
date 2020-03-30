@@ -8,6 +8,7 @@ import java.util.Map;
 
 import javax.ws.rs.core.UriInfo;
 
+import org.alliancegenome.es.model.search.AggDocCount;
 import org.alliancegenome.es.model.search.AggResult;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.text.Text;

@@ -14,6 +14,8 @@ import javax.inject.Inject;
 
 import org.alliancegenome.cache.repository.OrthologyCacheRepository;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
+import org.alliancegenome.core.service.JsonResultResponse;
+import org.alliancegenome.core.service.OrthologyService;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.repository.GeneRepository;
@@ -25,8 +27,8 @@ import org.junit.Test;
 import io.swagger.annotations.Api;
 import lombok.extern.log4j.Log4j2;
 
+import lombok.extern.log4j.Log4j2;
 
-@Api(value = "Orthology Tests")
 @Log4j2
 public class OrthologyIT {
 
