@@ -1,5 +1,9 @@
 package org.alliancegenome.api.service;
 
+import java.time.LocalDateTime;
+
+import javax.enterprise.context.RequestScoped;
+
 import org.alliancegenome.cache.repository.InteractionCacheRepository;
 import org.alliancegenome.cache.repository.PhenotypeCacheRepository;
 import org.alliancegenome.core.service.JsonResultResponse;
@@ -13,9 +17,6 @@ import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.alliancegenome.neo4j.repository.InteractionRepository;
 import org.alliancegenome.neo4j.repository.PhenotypeRepository;
-
-import javax.enterprise.context.RequestScoped;
-import java.time.LocalDateTime;
 
 @RequestScoped
 public class GeneService {

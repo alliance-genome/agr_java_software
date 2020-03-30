@@ -1,10 +1,20 @@
 package org.alliancegenome.api.tests.integration;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import static junit.framework.TestCase.assertTrue;
+import static org.alliancegenome.api.service.ExpressionService.CELLULAR_COMPONENT;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
+
+import java.io.IOException;
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.alliancegenome.api.controller.ExpressionController;
 import org.alliancegenome.api.controller.GeneController;
 import org.alliancegenome.api.controller.GenesController;
@@ -28,37 +38,25 @@ import org.apache.logging.log4j.core.config.Configurator;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.IOException;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-import static junit.framework.TestCase.assertTrue;
-import static org.alliancegenome.api.service.ExpressionService.CELLULAR_COMPONENT;
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
-
-@Api(value = "hallo")
 public class GeneIT {
 
     private GeneService geneService;
 
     private ObjectMapper mapper = new ObjectMapper();
 
-    @ApiOperation(value = "Retrieve a Gene for given ID")
     public static void main(String[] args) {
 
         GeneIT test = new GeneIT();
-        Api annotation = test.getClass().getAnnotation(Api.class);
+        //Api annotation = test.getClass().getAnnotation(Api.class);
         Method method = new Object() {
         }
                 .getClass()
                 .getEnclosingMethod();
-        Annotation[] annotations = method.getDeclaredAnnotations();
+        //Annotation[] annotations = method.getDeclaredAnnotations();
 
 
     }

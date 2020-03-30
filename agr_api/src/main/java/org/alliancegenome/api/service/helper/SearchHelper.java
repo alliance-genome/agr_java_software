@@ -11,7 +11,6 @@ import java.util.Map;
 
 import javax.ws.rs.core.UriInfo;
 
-import lombok.Getter;
 import org.alliancegenome.es.model.search.AggDocCount;
 import org.alliancegenome.es.model.search.AggResult;
 import org.alliancegenome.es.model.search.Category;
@@ -26,6 +25,8 @@ import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.jboss.logging.Logger;
+
+import lombok.Getter;
 
 @SuppressWarnings("serial")
 public class SearchHelper {

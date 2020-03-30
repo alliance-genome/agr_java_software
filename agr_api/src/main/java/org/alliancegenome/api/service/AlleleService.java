@@ -1,7 +1,16 @@
 package org.alliancegenome.api.service;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
+import javax.enterprise.context.RequestScoped;
+
 import org.alliancegenome.cache.repository.AlleleCacheRepository;
-import org.alliancegenome.core.service.*;
+import org.alliancegenome.core.service.DiseaseAnnotationFiltering;
+import org.alliancegenome.core.service.DiseaseAnnotationSorting;
+import org.alliancegenome.core.service.JsonResultResponse;
+import org.alliancegenome.core.service.PhenotypeAnnotationFiltering;
+import org.alliancegenome.core.service.PhenotypeAnnotationSorting;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
@@ -10,10 +19,6 @@ import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.Variant;
 import org.alliancegenome.neo4j.repository.AlleleRepository;
 import org.apache.commons.collections.CollectionUtils;
-
-import javax.enterprise.context.RequestScoped;
-import java.time.LocalDateTime;
-import java.util.List;
 
 @RequestScoped
 public class AlleleService {
