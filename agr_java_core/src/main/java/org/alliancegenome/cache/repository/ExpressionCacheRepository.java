@@ -1,7 +1,10 @@
 package org.alliancegenome.cache.repository;
 
 import lombok.extern.log4j.Log4j2;
-import org.alliancegenome.api.service.*;
+import org.alliancegenome.api.service.ColumnFieldMapping;
+import org.alliancegenome.api.service.ExpressionColumnFieldMapping;
+import org.alliancegenome.api.service.FilterService;
+import org.alliancegenome.api.service.Table;
 import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.cache.manager.BasicCachingManager;
 import org.alliancegenome.core.ExpressionDetail;
@@ -59,11 +62,11 @@ public class ExpressionCacheRepository {
         if (!filteredExpressionAnnotationList.isEmpty()) {
             result.setTotalNumber(filteredExpressionAnnotationList.size());
             result.setResult(getSortedAndPaginatedExpressions(filteredExpressionAnnotationList, pagination));
-            FilterService<ExpressionDetail> filterService = new FilterService<>(new ExpressionAnnotationFiltering());
-            ColumnFieldMapping<ExpressionDetail> mapping = new ExpressionColumnFieldMapping();
-            result.setDistinctFieldValueMap(filterService.getDistinctFieldValues(filterTermIDList,
-                    mapping.getSingleValuedFieldColumns(Table.EXPRESSION), mapping));
         }
+        FilterService<ExpressionDetail> filterService = new FilterService<>(new ExpressionAnnotationFiltering());
+        ColumnFieldMapping<ExpressionDetail> mapping = new ExpressionColumnFieldMapping();
+        result.setDistinctFieldValueMap(filterService.getDistinctFieldValues(filterTermIDList,
+                mapping.getSingleValuedFieldColumns(Table.EXPRESSION), mapping));
         return result;
     }
 
