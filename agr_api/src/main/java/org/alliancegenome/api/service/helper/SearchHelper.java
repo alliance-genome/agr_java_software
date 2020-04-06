@@ -238,6 +238,9 @@ public class SearchHelper {
             term.size(50);
             ret.add(term);
         } else {
+            if (category.equals("gene")) {
+                ret.add(getBiotypeAggQuery());
+            }
             for(String item: category_filters.get(category)) {
                 TermsAggregationBuilder term = AggregationBuilders.terms(item);
                 term.field(item + ".keyword");
@@ -249,6 +252,13 @@ public class SearchHelper {
         return ret;
     }
 
+    public TermsAggregationBuilder getBiotypeAggQuery() {
+        TermsAggregationBuilder biotype0 = AggregationBuilders.terms("biotype").field("biotype0.keyword")
+                .subAggregation(AggregationBuilders.terms("biotype1").field("biotype1.keyword")
+                        .subAggregation(AggregationBuilders.terms("biotype2").field("biotype2.keyword"))
+                );
+        return biotype0;
+    }
 
     public ArrayList<AggResult> formatAggResults(String category, SearchResponse res) {
         ArrayList<AggResult> ret = new ArrayList<>();
@@ -257,7 +267,7 @@ public class SearchHelper {
 
             Terms aggs = res.getAggregations().get("categories");
 
-            AggResult ares = new AggResult("category");
+            AggResult ares = new AggResult("category", aggs);
             for (Terms.Bucket entry : aggs.getBuckets()) {
                 ares.values.add(new AggDocCount(entry.getKeyAsString(), entry.getDocCount()));
             }
@@ -265,13 +275,13 @@ public class SearchHelper {
 
         } else {
             if(category_filters.containsKey(category)) {
+                if (category.equals("gene")) {
+                    Terms aggs = res.getAggregations().get("biotype");
+                    ret.add(new AggResult("biotype", aggs));
+                }
                 for(String item: category_filters.get(category)) {
                     Terms aggs = res.getAggregations().get(item);
-
-                    AggResult ares = new AggResult(item);
-                    for (Terms.Bucket entry : aggs.getBuckets()) {
-                        ares.values.add(new AggDocCount(entry.getKeyAsString(), entry.getDocCount()));
-                    }
+                    AggResult ares = new AggResult(item, aggs);
                     ret.add(ares);
                 }
             }

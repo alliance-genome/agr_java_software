@@ -1,11 +1,13 @@
 package org.alliancegenome.es.index.site.cache;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 import org.alliancegenome.es.index.site.document.SearchableItemDocument;
 import org.alliancegenome.neo4j.entity.node.Gene;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -39,7 +41,53 @@ public class GeneDocumentCache extends IndexerCache {
     private Map<String,Set<String>> soTermNameWithParents = new HashMap<>();
     private Map<String,Set<String>> soTermNameAgrSlim = new HashMap<>();
 
+    Set<String> biotypeLevel0 = new HashSet<>() {{
+        add("protein_coding_gene");
+        add("pseudogene");
+        add("ncRNA_gene");
+        add("other_gene");
+    }};
 
+    Set<String> biotypeLevel1 = new HashSet<>() {{
+        add("unclassified_ncRNA_gene");
+        add("lncRNA_gene");
+        add("piRNA_gene");
+        add("miRNA_gene");
+        add("snoRNA_gene");
+        add("tRNA_gene");
+        add("snRNA_gene");
+        add("rRNA_gene");
+        add("enzymatic_RNA_gene");
+        add("SRP_RNA_gene");
+        add("scRNA_gene");
+        add("RNase_P_RNA_gene");
+        add("telomerase_RNA_gene");
+        add("RNase_MRP_RNA_gene");
+        add("unclassified_gene");
+        add("heritable_phenotypic_marker");
+        add("gene_segment");
+        add("pseudogenic_gene_segment");
+        add("transposable_element_gene");
+        add("blocked_reading_frame");
+    }};
+
+    Set<String> biotypeLevel2 = new HashSet<>() {{
+        add("unclassified_lncRNA_gene");
+        add("lincRNA_gene");
+        add("antisense_lncRNA_gene");
+        add("sense intronic_ncRNA_gene");
+        add("bidirectional_promoter_lncRNA");
+        add("sense_overlap_ncRNA_gene");
+    }};
+
+    Set<String> otherGenes = new HashSet<>() {{
+        add("unclassified_gene");
+        add("heritable_phenotypic_marker");
+        add("gene_segment");
+        add("pseudogenic_gene_segment");
+        add("transposable_element_gene");
+        add("blocked_reading_frame");
+    }};
 
     public void addCachedFields(Iterable<SearchableItemDocument> documents) {
         for (SearchableItemDocument document : documents) {
@@ -72,7 +120,27 @@ public class GeneDocumentCache extends IndexerCache {
 
         document.setPhenotypeStatements(phenotypeStatements.get(id));
 
-        document.setSoTermNameWithParents(soTermNameWithParents.get(id));
-        document.setSoTermNameAgrSlim(soTermNameAgrSlim.get(id));
+        setSoTermNames(document);
+
     }
+
+    public void setSoTermNames(SearchableItemDocument document) {
+        String id = document.getPrimaryKey();
+
+        Set<String> allBiotypes = soTermNameWithParents.get(id);
+
+        document.setSoTermNameWithParents(allBiotypes);
+        document.setSoTermNameAgrSlim(soTermNameAgrSlim.get(id));
+
+        document.setBiotype0(new HashSet<String>(CollectionUtils.intersection(allBiotypes, biotypeLevel0)));
+        document.setBiotype1(new HashSet<String>(CollectionUtils.intersection(allBiotypes, biotypeLevel1)));
+        document.setBiotype2(new HashSet<String>(CollectionUtils.intersection(allBiotypes, biotypeLevel2)));
+
+        //add "other gene"
+        if (CollectionUtils.containsAny(document.getBiotype1(), otherGenes)) {
+            document.getBiotype0().add("other_gene");
+        }
+
+    }
+
 }

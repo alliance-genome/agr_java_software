@@ -53,6 +53,9 @@ public class SearchableItemDocument extends ESDocument {
     Set<String> associatedSpecies = new HashSet<>();
     Set<String> biologicalProcessAgrSlim = new HashSet<>();
     Set<String> biologicalProcessWithParents = new HashSet<>();
+    Set<String> biotype0 = new HashSet<>();
+    Set<String> biotype1 = new HashSet<>();
+    Set<String> biotype2 = new HashSet<>();
     Set<String> cellularComponentAgrSlim = new HashSet<>();
     Set<String> cellularComponentWithParents = new HashSet<>();
     @JsonProperty("crossReferences")

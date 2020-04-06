@@ -30,6 +30,9 @@ public class Mapping extends Builder {
         new FieldBuilder(builder, "biologicalProcess", "text").keyword().build();
         new FieldBuilder(builder, "biologicalProcessAgrSlim", "text").keyword().build();
         new FieldBuilder(builder, "biologicalProcessWithParents", "text").keyword().build();
+        new FieldBuilder(builder, "biotype0","text").keyword().build();
+        new FieldBuilder(builder, "biotype1","text").keyword().build();
+        new FieldBuilder(builder, "biotype2","text").keyword().build();
         new FieldBuilder(builder, "branch", "text").keyword().build();
         new FieldBuilder(builder, "category", "keyword").symbol().autocomplete().keyword().build();
         new FieldBuilder(builder, "cellularComponent", "text").keyword().build();
