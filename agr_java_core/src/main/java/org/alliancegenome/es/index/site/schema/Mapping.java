@@ -256,7 +256,7 @@ public class Mapping extends Builder {
                 builder.startObject("fields");
                 if(keyword) { buildProperty("keyword", "keyword"); }
                 if(keywordAutocomplete) { buildProperty("keywordAutocomplete", "text", "keyword_autocomplete", "keyword_autocomplete_search", null); }
-                if(letterText) buildProperty("letterText", "text", "letter_text");
+                if(letterText) buildProperty("letterText", "text", "letter_text", "default", null);
                 if(symbol) { buildProperty("symbol", "text", "symbols"); }
                 if(autocomplete) buildProperty("autocomplete", "text", "autocomplete", "autocomplete_search", null);
                 if(synonym) buildProperty("synonyms", "text", "generic_synonym", "autocomplete_search", null);

@@ -108,7 +108,21 @@ public class ExpressionIT {
         pagination.setFieldFilterValueMap(filter);
         JsonResultResponse<ExpressionDetail> summary = expressionService.getExpressionDetails(List.of("ZFIN:ZDB-GENE-030131-845"), "UBERON:0001062", pagination);
         assertNotNull(summary);
-        assertEquals(summary.getTotal(), 53);
+    }
+
+    @Test
+    public void checkExpressionNoResultDistinctFieldValues() {
+        Pagination pagination = new Pagination();
+        BaseFilter filter = new BaseFilter();
+        //filter.addFieldFilter(FieldFilter.SOURCE, "9913");
+        pagination.setFieldFilterValueMap(filter);
+        pagination.addFieldFilter(FieldFilter.FREFERENCE, "foot");
+        JsonResultResponse<ExpressionDetail> summary = expressionService.getExpressionDetails(List.of("RGD:2129"), null, pagination);
+        assertNotNull(summary);
+        assertEquals(summary.getTotal(), 0);
+        assertNotNull(summary.getDistinctFieldValues());
+        // Have at least one species value in the distinct value map.
+        assertEquals(summary.getDistinctFieldValues().values().size(), 1);
     }
 
 }
