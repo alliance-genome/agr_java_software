@@ -5,7 +5,7 @@ public class Constants {
     public static final String THREADED = "THREADED";
     public static final String API_ACCESS_TOKEN = "API_ACCESS_TOKEN";
     public static final String DEBUG = "DEBUG";
-    public static final String GENERATE_SITEMAP = "GENERATE_SITEMAP";
+    //public static final String GENERATE_SITEMAP = "GENERATE_SITEMAP";
     public static final String ES_INDEX = "ES_INDEX";
     public static final String ES_INDEX_SUFFIX = "ES_INDEX_SUFFIX";
     public static final String ES_DATA_INDEX = "ES_DATA_INDEX";

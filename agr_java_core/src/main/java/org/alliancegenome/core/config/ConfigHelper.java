@@ -42,7 +42,6 @@ public class ConfigHelper {
         defaults.put(API_ACCESS_TOKEN, "api_access_token"); // Api Value
 
         defaults.put(DEBUG, "false");
-        defaults.put(GENERATE_SITEMAP, "false"); // This will only be done in Production speeds up api startup
 
         defaults.put(ES_INDEX, "site_index"); // Can be over written
         defaults.put(ES_INDEX_SUFFIX, ""); // Prod, Dev, Stage, etc
@@ -257,11 +256,6 @@ public class ConfigHelper {
     public static boolean getKeepIndex() {
         if (!init) init();
         return Boolean.parseBoolean(config.get(KEEPINDEX));
-    }
-
-    public static boolean getGenerateSitemap() {
-        if (!init) init();
-        return Boolean.parseBoolean(config.get(GENERATE_SITEMAP));
     }
 
     public static String getAWSBucketName() {
