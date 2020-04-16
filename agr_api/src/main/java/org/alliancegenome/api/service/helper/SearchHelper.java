@@ -41,7 +41,7 @@ public class SearchHelper {
             put("gene", new ArrayList<String>() {
                 {
                     add("species");
-                    add("soTermNameAgrSlim");
+                    add("biotypes");
                     add("diseasesAgrSlim");
                     add("biologicalProcessAgrSlim");
                     add("molecularFunctionAgrSlim");
@@ -109,6 +109,7 @@ public class SearchHelper {
             add("associatedSpecies");
             add("associatedSpecies.synonyms");
             add("automatedGeneSynopsis");
+            add("biotypes");
             add("biologicalProcessWithParents");
             add("cellularComponentWithParents");
             add("cellularComponentExpression");
@@ -238,14 +239,15 @@ public class SearchHelper {
             term.size(50);
             ret.add(term);
         } else {
-            if (category.equals("gene")) {
-                ret.add(getBiotypeAggQuery());
-            }
             for(String item: category_filters.get(category)) {
-                TermsAggregationBuilder term = AggregationBuilders.terms(item);
-                term.field(item + ".keyword");
-                term.size(999);
-                ret.add(term);
+                if (item.equals("biotypes")) {
+                    ret.add(getBiotypeAggQuery());
+                } else {
+                    TermsAggregationBuilder term = AggregationBuilders.terms(item);
+                    term.field(item + ".keyword");
+                    term.size(999);
+                    ret.add(term);
+                }
             }
         }
 
@@ -253,7 +255,7 @@ public class SearchHelper {
     }
 
     public TermsAggregationBuilder getBiotypeAggQuery() {
-        TermsAggregationBuilder biotype0 = AggregationBuilders.terms("biotype").field("biotype0.keyword")
+        TermsAggregationBuilder biotype0 = AggregationBuilders.terms("biotypes").field("biotype0.keyword")
                 .subAggregation(AggregationBuilders.terms("biotype1").field("biotype1.keyword")
                         .subAggregation(AggregationBuilders.terms("biotype2").field("biotype2.keyword"))
                 );
@@ -268,17 +270,10 @@ public class SearchHelper {
             Terms aggs = res.getAggregations().get("categories");
 
             AggResult ares = new AggResult("category", aggs);
-            for (Terms.Bucket entry : aggs.getBuckets()) {
-                ares.values.add(new AggDocCount(entry.getKeyAsString(), entry.getDocCount()));
-            }
             ret.add(ares);
 
         } else {
             if(category_filters.containsKey(category)) {
-                if (category.equals("gene")) {
-                    Terms aggs = res.getAggregations().get("biotype");
-                    ret.add(new AggResult("biotype", aggs));
-                }
                 for(String item: category_filters.get(category)) {
                     Terms aggs = res.getAggregations().get(item);
                     AggResult ares = new AggResult(item, aggs);

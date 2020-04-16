@@ -130,7 +130,7 @@ public class GeneDocumentCache extends IndexerCache {
         Set<String> allBiotypes = soTermNameWithParents.get(id);
 
         document.setSoTermNameWithParents(allBiotypes);
-        document.setSoTermNameAgrSlim(soTermNameAgrSlim.get(id));
+        document.setBiotypes(soTermNameAgrSlim.get(id));
 
         document.setBiotype0(new HashSet<String>(CollectionUtils.intersection(allBiotypes, biotypeLevel0)));
         document.setBiotype1(new HashSet<String>(CollectionUtils.intersection(allBiotypes, biotypeLevel1)));
@@ -138,6 +138,7 @@ public class GeneDocumentCache extends IndexerCache {
 
         //add "other gene"
         if (CollectionUtils.containsAny(document.getBiotype1(), otherGenes)) {
+            document.getBiotypes().add("other_gene");
             document.getBiotype0().add("other_gene");
         }
 

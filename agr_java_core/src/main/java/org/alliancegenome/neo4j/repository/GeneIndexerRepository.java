@@ -172,7 +172,6 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
         return getMapSetForQuery(query,"id","value", getSpeciesParams(species));
     }
 
-    //todo: some kind of slimming, possibly with manual filtering
     private Map<String, Set<String>> getSoTermNameAgrSlimMap(String species) {
         String query = "MATCH (species:Species)--(gene:Gene)-[:ANNOTATED_TO]-(:SOTerm)-[:IS_A_PART_OF_CLOSURE]->(term:SOTerm) ";
         query += " WHERE not term.name in ['region'," +
