@@ -1,19 +1,17 @@
 package org.alliancegenome.neo4j.entity.node;
 
-import java.util.HashSet;
-import java.util.Set;
-
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonView;
+import lombok.Getter;
+import lombok.Setter;
 import org.alliancegenome.neo4j.entity.Neo4jEntity;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.view.View;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonView;
-
-import lombok.Getter;
-import lombok.Setter;
+import java.util.HashSet;
+import java.util.Set;
 
 @NodeEntity
 @Getter
@@ -26,7 +24,7 @@ public class Species extends Neo4jEntity implements Comparable<Species> {
 
     @JsonView({View.Default.class})
     private String name;
-    @JsonView({View.DiseaseCacher.class,View.OrthologyCacher.class})
+    @JsonView({View.DiseaseCacher.class, View.OrthologyCacher.class})
     private int phylogeneticOrder;
 
     @JsonView({View.Default.class})
@@ -56,4 +54,8 @@ public class Species extends Neo4jEntity implements Comparable<Species> {
         return SpeciesType.getTypeByName(this.species);
     }
 
+    @Override
+    public String toString() {
+        return primaryKey + " : " + name;
+    }
 }

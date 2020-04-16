@@ -47,29 +47,22 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
 
     public List<DiseaseEntityJoin> getAllDiseaseAnnotationsPureAGM() {
 
-        String cypher = "MATCH p0=(:DOTerm)--(dej:DiseaseEntityJoin)-[:EVIDENCE]->(:PublicationJoin)<-[:ASSOCIATION]-(publication:Publication), " +
-                " p2=(dej:DiseaseEntityJoin)--(agm:AffectedGenomicModel)--(:Allele)--(:Gene) " +
-                //"where agm.primaryKey in ['MGI:6272038','MGI:3622062'] " +
-                //" where agm.primaryKey in ['ZFIN:ZDB-FISH-160331-6'] " +
-                "OPTIONAL MATCH     p5=(dej:DiseaseEntityJoin)--(:AffectedGenomicModel)-[:CROSS_REFERENCE]->(crossRef:CrossReference) " +
-                "OPTIONAL MATCH modelAllele=(agm:AffectedGenomicModel)--(:SequenceTargetingReagent)--(:Gene) " +
-                "return p0,p2, p5, modelAllele ";
+        String cypher = "MATCH diseaseJoin=(disease:DOTerm)--(dej:DiseaseEntityJoin)-[:EVIDENCE]->(pubJoin:PublicationJoin)<-[:ASSOCIATION]-(publication:Publication), " +
+                " model=(dej:DiseaseEntityJoin)--(agm:AffectedGenomicModel) ," +
+                " modelSpecies=(agm:AffectedGenomicModel)-[:FROM_SPECIES]-(:Species), " +
+                " ecoCodes=(pubJoin:PublicationJoin)-[:ASSOCIATION]-(:ECOTerm) " +
+                //"where agm.primaryKey in ['ZFIN:ZDB-FISH-161004-2'] " +
+                //" where disease.primaryKey in ['DOID:1838'] " +
+                "OPTIONAL MATCH allele=(agm:AffectedGenomicModel)--(a:Allele) " +
+                "OPTIONAL MATCH alleleGene=(agm:AffectedGenomicModel)--(a:Allele)--(:Gene) " +
+                "OPTIONAL MATCH str=(agm:AffectedGenomicModel)--(:SequenceTargetingReagent)--(:Gene) " +
+                "OPTIONAL MATCH crossRef=(dej:DiseaseEntityJoin)--(:AffectedGenomicModel)-[:CROSS_REFERENCE]->(:CrossReference) " +
+                "return diseaseJoin, model, crossRef, alleleGene, modelSpecies, allele, str, ecoCodes ";
 
         Iterable<DiseaseEntityJoin> joins = query(DiseaseEntityJoin.class, cypher);
         List<DiseaseEntityJoin> allJoins = StreamSupport.stream(joins.spliterator(), false).
                 collect(Collectors.toList());
 
-        cypher = "MATCH p0=(:DOTerm)--(dej:DiseaseEntityJoin)-[:EVIDENCE]->(:PublicationJoin)<-[:ASSOCIATION]-(publication:Publication), " +
-                " p2=(dej:DiseaseEntityJoin)--(agm:AffectedGenomicModel)--(:SequenceTargetingReagent)--(:Gene) " +
-                //"where agm.primaryKey in ['MGI:6272038','MGI:3622062'] " +
-                //" where agm.primaryKey in ['ZFIN:ZDB-FISH-160331-6'] " +
-                "OPTIONAL MATCH     p4= (agm:AffectedGenomicModel)--(a:Allele)--(:Gene) " +
-                "OPTIONAL MATCH     p5=(dej:DiseaseEntityJoin)--(:AffectedGenomicModel)-[:CROSS_REFERENCE]->(crossRef:CrossReference) " +
-                "return p0,p2, p5, p4 ";
-
-        joins = query(DiseaseEntityJoin.class, cypher);
-        allJoins.addAll(StreamSupport.stream(joins.spliterator(), false).
-                collect(Collectors.toList()));
         return allJoins;
     }
 
@@ -408,8 +401,12 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
     }
 
     public Set<DiseaseEntityJoin> getAllDiseaseEntityGeneJoins() {
-        String cypher = "MATCH p=(disease:DOTerm)-[:ASSOCIATION]-(dej:DiseaseEntityJoin)-[:EVIDENCE]->(pubEvCode:PublicationJoin)-[:ASSOCIATION]-(publication:Publication) ";
-        cypher += " where disease.isObsolete = 'false' ";
+        String cypher = "MATCH p=(disease:DOTerm)-[:ASSOCIATION]-(dej:DiseaseEntityJoin)-[:EVIDENCE]->(pubEvCode:PublicationJoin)" +
+                "-[:ASSOCIATION]-(publication:Publication), " +
+                "p0=(dej:DiseaseEntityJoin)<-[:ASSOCIATION]-(gene:Gene)-[:FROM_SPECIES]->(species:Species) ";
+        cypher += " where disease.isObsolete = 'false' " +
+                " AND NOT (dej:DiseaseEntityJoin)--(:Allele) " +
+                " AND NOT (dej:DiseaseEntityJoin)--(:AffectedGenomicModel)";
         //cypher += " AND disease.primaryKey in ['DOID:0050144','DOID:0110599','DOID:0050545'] ";
         //cypher += " AND disease.primaryKey in ['DOID:0080348'] ";
         //cypher += " AND diseaseEntityJoin.primaryKey = 'FB:FBgn0030343DOID:1838is_implicated_in'  ";
@@ -417,12 +414,10 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
         //cypher += " AND gene.primaryKey = 'HGNC:7' ";
         //cypher += "      OPTIONAL MATCH eco   =(pubEvCode:PublicationJoin)-[:ASSOCIATION]->(ecoTerm:ECOTerm)";
         cypher += "      OPTIONAL MATCH p7    =(dej:DiseaseEntityJoin)-[:ANNOTATION_SOURCE_CROSS_REFERENCE]-(:CrossReference)";
-        cypher += "      OPTIONAL MATCH p0    =(dej:DiseaseEntityJoin)<-[:ASSOCIATION]-(gene:Gene)-[:FROM_SPECIES]->(species:Species)";
-        cypher += "      OPTIONAL MATCH aModel=(dej:DiseaseEntityJoin)<-[:ASSOCIATION]-(model:AffectedGenomicModel)-[:FROM_SPECIES]->(speciesModel:Species) ";
         cypher += "      OPTIONAL MATCH p4=(dej:DiseaseEntityJoin)-[:FROM_ORTHOLOGOUS_GENE]-(orthoGene:Gene)-[:FROM_SPECIES]->(orthoSpecies:Species) ";
         cypher += "      OPTIONAL MATCH p5=(pubEvCode:PublicationJoin)-[:PRIMARY_GENETIC_ENTITY]->(agm:AffectedGenomicModel) ";
         cypher += "      OPTIONAL MATCH p6=(pubEvCode:PublicationJoin)-[:PRIMARY_GENETIC_ENTITY]->(allele:Allele)--(:CrossReference) ";
-        cypher += " RETURN p, p0, p4, p5, p6, p7, aModel";
+        cypher += " RETURN p, p0, p4, p5, p6, p7";
         //cypher += " RETURN p, p0, p1, p2, p4, p5, aModel";
 
         long start = System.currentTimeMillis();

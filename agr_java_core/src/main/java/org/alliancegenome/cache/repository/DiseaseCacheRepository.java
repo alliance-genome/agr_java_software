@@ -36,6 +36,11 @@ public class DiseaseCacheRepository {
         return manager.getCache(diseaseID, CacheAlliance.DISEASE_ANNOTATION);
     }
 
+    public List<DiseaseAnnotation> getDiseaseModelAnnotations(String diseaseID) {
+        BasicCachingManager<DiseaseAnnotation> manager = new BasicCachingManager<>(DiseaseAnnotation.class);
+        return manager.getCache(diseaseID, CacheAlliance.DISEASE_MODEL_ANNOTATION);
+    }
+
     public List<DiseaseAnnotation> getDiseaseAlleleAnnotationList(String diseaseID) {
         return manager.getCache(diseaseID, CacheAlliance.DISEASE_ALLELE_ANNOTATION);
     }
