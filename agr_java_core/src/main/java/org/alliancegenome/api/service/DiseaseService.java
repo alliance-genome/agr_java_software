@@ -175,9 +175,8 @@ public class DiseaseService {
 
         Map<String, List<PrimaryAnnotatedEntity>> diseaseEntities = null;
         Map<String, List<PrimaryAnnotatedEntity>> phenotypeEntities = null;
-        Map<String, List<PrimaryAnnotatedEntity>> modelEntities = null;
 
-        List<PrimaryAnnotatedEntity> primaryAnnotatedEntities = new ArrayList<>();
+        List<PrimaryAnnotatedEntity> primaryAnnotatedEntities;
         if (CollectionUtils.isNotEmpty(fullDiseaseAnnotationList)) {
             primaryAnnotatedEntities = fullDiseaseAnnotationList.stream()
                     // filter out annotations with primary annotated diseaseEntities

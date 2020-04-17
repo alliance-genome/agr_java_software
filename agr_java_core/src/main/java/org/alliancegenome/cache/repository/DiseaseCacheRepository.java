@@ -188,6 +188,6 @@ public class DiseaseCacheRepository {
 
     public List<PrimaryAnnotatedEntity> getDiseaseAnnotationPureModeList(String geneID) {
         BasicCachingManager<PrimaryAnnotatedEntity> manager = new BasicCachingManager<>(PrimaryAnnotatedEntity.class);
-        return manager.getCache(geneID, CacheAlliance.GENE_PURE_AGM_DISEASE);
+        return manager.getCache(geneID, CacheAlliance.DISEASE_MODEL_GENE_ANNOTATION);
     }
 }

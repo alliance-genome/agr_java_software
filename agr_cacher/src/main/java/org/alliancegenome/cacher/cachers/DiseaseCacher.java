@@ -19,6 +19,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static java.util.Map.Entry.comparingByValue;
 import static java.util.stream.Collectors.*;
 
 @Log4j2
@@ -161,13 +162,14 @@ public class DiseaseCacher extends Cacher {
             manager.setCache(key, value, View.DiseaseCacher.class, cacheSpace);
             progressProcess();
         });
-        log.info("Calculate statistics...");
+        log.debug("Calculate statistics...");
         CacheStatus status = new CacheStatus(cacheSpace);
         status.setNumberOfEntities(diseaseAnnotations.size());
+        status.setCollectionEntity(DiseaseAnnotation.class.getSimpleName());
+        status.setViewClass(View.DiseaseAnnotationSummary.class.getSimpleName());
 
         Map<String, List<DiseaseAnnotation>> speciesStats = diseaseAnnotations.stream()
-                .filter(annotation -> annotation.getGene() != null)
-                .collect(groupingBy(annotation -> annotation.getGene().getSpecies().getName()));
+                .collect(groupingBy(annotation -> annotation.getSpecies().getName()));
 
         Map<String, Integer> stats = new TreeMap<>();
         diseaseAnnotationMap.forEach((diseaseID, annotations) -> stats.put(diseaseID, annotations.size()));
@@ -179,10 +181,16 @@ public class DiseaseCacher extends Cacher {
         Map<String, Integer> speciesStatsInt = new HashMap<>();
         speciesStats.forEach((species, alleles) -> speciesStatsInt.put(species, alleles.size()));
 
+        Map<String, Integer> sortedMap = speciesStatsInt
+                .entrySet()
+                .stream()
+                .sorted(Collections.reverseOrder(comparingByValue()))
+                .collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e2, LinkedHashMap::new));
+
         status.setEntityStats(stats);
-        status.setSpeciesStats(speciesStatsInt);
+        status.setSpeciesStats(sortedMap);
         setCacheStatus(status);
-        log.info("Finished calculating statistics");
+        log.debug("Finished calculating statistics");
         finishProcess();
     }
 
@@ -231,7 +239,7 @@ public class DiseaseCacher extends Cacher {
                     modelGenesMap.put(primaryKey, genes);
                 });
 
-        List<DiseaseAnnotation> allDiseaseAnnotationsPure = modelDiseaseJoins.stream()
+        List<DiseaseAnnotation> diseaseModelAnnotations = modelDiseaseJoins.stream()
                 .map(join -> {
                     DiseaseAnnotation document = new DiseaseAnnotation();
                     final AffectedGenomicModel model = join.getModel();
@@ -258,36 +266,38 @@ public class DiseaseCacher extends Cacher {
                 })
                 .collect(Collectors.toList());
 
-        Map<String, List<DiseaseAnnotation>> diseaseModelsMap = allDiseaseAnnotationsPure.stream()
+        Map<String, List<DiseaseAnnotation>> diseaseModelsMap = diseaseModelAnnotations.stream()
                 .collect(groupingBy(annotation -> annotation.getDisease().getPrimaryKey()));
 
 
-        storeIntoCache(allDiseaseAnnotationsPure, diseaseModelsMap, CacheAlliance.DISEASE_MODEL_ANNOTATION);
-
-
+        storeIntoCache(diseaseModelAnnotations, diseaseModelsMap, CacheAlliance.DISEASE_MODEL_ANNOTATION);
         modelDiseaseJoins.clear();
 
-        Map<String, DiseaseAnnotation> paMap = allDiseaseAnnotationsPure.stream()
+        Map<String, DiseaseAnnotation> diseaseAnnotationMap = diseaseModelAnnotations.stream()
                 .collect(toMap(DiseaseAnnotation::getPrimaryKey, entity -> entity));
 
-        allDiseaseAnnotationsPure.clear();
+        diseaseModelAnnotations.clear();
 
         // merge annotations with the same model
         // geneID, Map<modelID, List<PhenotypeAnnotation>>>
 /*
-        Map<String, Map<String, List<PhenotypeAnnotation>>> annotationPureMergeMap = allDiseaseAnnotationsPure.stream()
+        Map<String, Map<String, List<PhenotypeAnnotation>>> diseaseModelGeneMap = diseaseModelAnnotations.stream()
                 .collect(groupingBy(phenotypeAnnotation -> phenotypeAnnotation.getGene().getPrimaryKey(), groupingBy(annotation -> annotation.getModel().getPrimaryKey())));
 */
-        Map<String, Map<String, List<DiseaseAnnotation>>> annotationPureMergeMap = new HashMap<>();
+
+
+        // get index by geneID
+        // <geneID, Map<modelID, List<DiseaseAnnotation>>
+        Map<String, Map<String, List<DiseaseAnnotation>>> diseaseModelGeneMap = new HashMap<>();
 
         modelGenesMap.forEach((diseaseEntityJoinID, genes) -> {
-            DiseaseAnnotation diseaseAnnot = paMap.get(diseaseEntityJoinID);
+            DiseaseAnnotation diseaseAnnot = diseaseAnnotationMap.get(diseaseEntityJoinID);
 
             genes.forEach(gene -> {
-                Map<String, List<DiseaseAnnotation>> annotations = annotationPureMergeMap.get(gene.getPrimaryKey());
+                Map<String, List<DiseaseAnnotation>> annotations = diseaseModelGeneMap.get(gene.getPrimaryKey());
                 if (annotations == null) {
                     annotations = new HashMap<>();
-                    annotationPureMergeMap.put(gene.getPrimaryKey(), annotations);
+                    diseaseModelGeneMap.put(gene.getPrimaryKey(), annotations);
                 }
 
                 List<DiseaseAnnotation> dease = annotations.get(diseaseAnnot.getModel().getPrimaryKey());
@@ -298,12 +308,12 @@ public class DiseaseCacher extends Cacher {
                 dease.add(diseaseAnnot);
             });
         });
-        paMap.clear();
+        diseaseAnnotationMap.clear();
         modelGenesMap.clear();
 
         Map<String, List<PrimaryAnnotatedEntity>> diseaseAnnotationPureMap = new HashMap<>();
 
-        annotationPureMergeMap.forEach((geneID, modelIdMap) -> modelIdMap.forEach((modelID, diseaseAnnotations) -> {
+        diseaseModelGeneMap.forEach((geneID, modelIdMap) -> modelIdMap.forEach((modelID, diseaseAnnotations) -> {
             List<PrimaryAnnotatedEntity> mergedAnnotations = diseaseAnnotationPureMap.get(geneID);
             if (mergedAnnotations == null)
                 mergedAnnotations = new ArrayList<>();
@@ -316,12 +326,12 @@ public class DiseaseCacher extends Cacher {
             diseaseAnnotationPureMap.put(geneID, mergedAnnotations);
         }));
 
-        annotationPureMergeMap.clear();
+        diseaseModelGeneMap.clear();
 
         BasicCachingManager managerModel = new BasicCachingManager();
 
         diseaseAnnotationPureMap.forEach((geneID, value) -> {
-            managerModel.setCache(geneID, value, View.PrimaryAnnotation.class, CacheAlliance.GENE_PURE_AGM_DISEASE);
+            managerModel.setCache(geneID, value, View.PrimaryAnnotation.class, CacheAlliance.DISEASE_MODEL_GENE_ANNOTATION);
             progressProcess();
         });
         diseaseAnnotationPureMap.clear();

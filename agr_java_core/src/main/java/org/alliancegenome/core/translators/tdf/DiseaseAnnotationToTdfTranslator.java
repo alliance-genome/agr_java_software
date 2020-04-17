@@ -211,7 +211,8 @@ public class DiseaseAnnotationToTdfTranslator {
         diseaseAnnotations.forEach(annotation -> annotation.getPublicationJoins().stream()
                 // filter out the ones that are not found in an individual PAE
                 .filter(join -> annotation.getPrimaryAnnotatedEntities().stream()
-                        .noneMatch(entity -> entity.getPublicationEvidenceCodes().contains(join)))
+                        .noneMatch(entity -> String.join(":", entity.getPublicationEvidenceCodes().stream()
+                                .map(PublicationJoin::toString).collect(Collectors.toList())).contains(join.toString())))
                 .forEach(join -> {
                     PrimaryAnnotatedEntity entity = createNewPrimaryAnnotatedEntity(annotation, join);
                     annotation.addPrimaryAnnotatedEntityDuplicate(entity);
@@ -220,7 +221,7 @@ public class DiseaseAnnotationToTdfTranslator {
 
     private PrimaryAnnotatedEntity createNewPrimaryAnnotatedEntity(DiseaseAnnotation annotation, PublicationJoin join) {
         PrimaryAnnotatedEntity entity = new PrimaryAnnotatedEntity();
-        if(annotation.getGene() != null) {
+        if (annotation.getGene() != null) {
             entity.setId(annotation.getGene().getPrimaryKey());
             entity.setName(annotation.getGene().getSymbol());
             entity.setType(GeneticEntity.CrossReferenceType.GENE);
