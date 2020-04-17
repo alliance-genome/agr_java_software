@@ -140,7 +140,7 @@ public class DiseaseService {
 
     public JsonResultResponse<DiseaseAnnotation> getDiseaseAnnotationsWithAGM(String diseaseID, Pagination pagination) {
         LocalDateTime startDate = LocalDateTime.now();
-        List<DiseaseAnnotation> fullDiseaseAnnotationList = diseaseCacheRepository.getDiseaseAnnotationList(diseaseID);
+        List<DiseaseAnnotation> fullDiseaseAnnotationList = diseaseCacheRepository.getDiseaseModelAnnotations(diseaseID);
         JsonResultResponse<DiseaseAnnotation> result = new JsonResultResponse<>();
         if (fullDiseaseAnnotationList == null) {
             result.calculateRequestDuration(startDate);

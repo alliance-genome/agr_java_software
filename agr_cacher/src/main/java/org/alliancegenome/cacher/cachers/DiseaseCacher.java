@@ -187,21 +187,22 @@ public class DiseaseCacher extends Cacher {
     }
 
     private void populateModelsWithDiseases() {
-        // model type of diseases
-        List<DiseaseEntityJoin> pureAgmDiseases = diseaseRepository.getAllDiseaseAnnotationsPureAGM();
-        log.info("Retrieved " + String.format("%,d", pureAgmDiseases.size()) + " DiseaseEntityJoin records for pure AGMs");
-        // set the gene object on the join
+        // disease annotations for models (AGMs)
+        List<DiseaseEntityJoin> modelDiseaseJoins = diseaseRepository.getAllDiseaseAnnotationsPureAGM();
+        log.info("Retrieved " + String.format("%,d", modelDiseaseJoins.size()) + " DiseaseEntityJoin records for AGMs");
 
-
-        // phenotypeEntityJoin PK, List<Gene>
+        // diseaseEntityJoin PK, List<Gene>
         Map<String, List<Gene>> modelGenesMap = new HashMap<>();
 
-        pureAgmDiseases.stream()
+        modelDiseaseJoins.stream()
                 .filter(join -> CollectionUtils.isNotEmpty(join.getModel().getAlleles()))
                 .forEach(join -> {
                     Set<Gene> geneList = join.getModel().getAlleles().stream()
                             .map(Allele::getGene)
                             .collect(toSet());
+                    geneList.removeIf(Objects::isNull);
+                    if (CollectionUtils.isEmpty(geneList))
+                        return;
                     final String primaryKey = join.getPrimaryKey();
                     List<Gene> genes = modelGenesMap.get(primaryKey);
                     if (genes == null) {
@@ -211,12 +212,15 @@ public class DiseaseCacher extends Cacher {
                     genes = genes.stream().distinct().collect(toList());
                     modelGenesMap.put(primaryKey, genes);
                 });
-        pureAgmDiseases.stream()
+        modelDiseaseJoins.stream()
                 .filter(join -> CollectionUtils.isNotEmpty(join.getModel().getSequenceTargetingReagents()))
                 .forEach(join -> {
                     Set<Gene> geneList = join.getModel().getSequenceTargetingReagents().stream()
                             .map(SequenceTargetingReagent::getGene)
                             .collect(toSet());
+                    geneList.removeIf(Objects::isNull);
+                    if (CollectionUtils.isEmpty(geneList))
+                        return;
                     final String primaryKey = join.getPrimaryKey();
                     List<Gene> genes = modelGenesMap.get(primaryKey);
                     if (genes == null) {
@@ -227,7 +231,7 @@ public class DiseaseCacher extends Cacher {
                     modelGenesMap.put(primaryKey, genes);
                 });
 
-        List<DiseaseAnnotation> allDiseaseAnnotationsPure = pureAgmDiseases.stream()
+        List<DiseaseAnnotation> allDiseaseAnnotationsPure = modelDiseaseJoins.stream()
                 .map(join -> {
                     DiseaseAnnotation document = new DiseaseAnnotation();
                     final AffectedGenomicModel model = join.getModel();
@@ -247,11 +251,21 @@ public class DiseaseCacher extends Cacher {
                     entity.addDisease(join.getDisease());
                     entity.setDataProvider(model.getDataProvider());
                     document.addPrimaryAnnotatedEntity(entity);
+                    document.addPublicationJoins(join.getPublicationJoins());
+                    document.setSource(entity.getSource());
+                    document.setEcoCodes(join.getEvidenceCodes());
                     return document;
                 })
                 .collect(Collectors.toList());
 
-        pureAgmDiseases.clear();
+        Map<String, List<DiseaseAnnotation>> diseaseModelsMap = allDiseaseAnnotationsPure.stream()
+                .collect(groupingBy(annotation -> annotation.getDisease().getPrimaryKey()));
+
+
+        storeIntoCache(allDiseaseAnnotationsPure, diseaseModelsMap, CacheAlliance.DISEASE_MODEL_ANNOTATION);
+
+
+        modelDiseaseJoins.clear();
 
         Map<String, DiseaseAnnotation> paMap = allDiseaseAnnotationsPure.stream()
                 .collect(toMap(DiseaseAnnotation::getPrimaryKey, entity -> entity));
@@ -307,10 +321,6 @@ public class DiseaseCacher extends Cacher {
         BasicCachingManager managerModel = new BasicCachingManager();
 
         diseaseAnnotationPureMap.forEach((geneID, value) -> {
-            if (geneID.equals("MGI:104798")) {
-                log.info("found gene: " + geneID + " with annotations: " + value.size());
-                //result.getResults().forEach(entity -> log.info(entity.getId()));
-            }
             managerModel.setCache(geneID, value, View.PrimaryAnnotation.class, CacheAlliance.GENE_PURE_AGM_DISEASE);
             progressProcess();
         });
