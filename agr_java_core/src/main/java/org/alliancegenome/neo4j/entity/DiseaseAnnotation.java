@@ -182,4 +182,12 @@ public class DiseaseAnnotation implements Comparable<DiseaseAnnotation>, Seriali
                 .sorted(Comparator.naturalOrder())
                 .collect(Collectors.toList());
     }
+
+    public Species getSpecies() {
+        if (gene != null)
+            return gene.getSpecies();
+        if (feature != null)
+            return feature.getSpecies();
+        return model.getSpecies();
+    }
 }

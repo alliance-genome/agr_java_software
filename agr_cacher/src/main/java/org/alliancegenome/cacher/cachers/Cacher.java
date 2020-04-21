@@ -69,10 +69,13 @@ public abstract class Cacher extends Thread {
     }
 
     void populateCacheFromMap(Map<String, List<Allele>> map, Class view, CacheAlliance cacheAlliance) {
+        startProcess(cacheAlliance.name() + " into cache", map.size());
         BasicCachingManager manager = new BasicCachingManager();
         for (Map.Entry<String, List<Allele>> entry : map.entrySet()) {
             manager.setCache(entry.getKey(), entry.getValue(), view, cacheAlliance);
         }
+
+        finishProcess();
     }
 
 }

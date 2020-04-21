@@ -28,6 +28,10 @@ public class CacheStatus implements Serializable {
     Map<String, Integer> speciesStats;
     @JsonView(View.Cacher.class)
     private String entitiesInCache;
+    @JsonView(View.Cacher.class)
+    private String collectionEntity;
+    @JsonView(View.Cacher.class)
+    private String viewClass;
 
     public CacheStatus(CacheAlliance cache) {
         this.name = cache.getCacheName();

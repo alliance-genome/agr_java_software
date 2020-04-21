@@ -30,7 +30,7 @@ public class CacheStatusService {
     public Map<CacheAlliance, CacheStatus> getAllCachStatusRecords() {
         Map<CacheAlliance, CacheStatus> map = new HashMap<>();
         Arrays.stream(CacheAlliance.values()).forEach(cacheAlliance -> {
-            CacheStatus status = null;
+            CacheStatus status;
             try {
                 status = getCacheStatus(cacheAlliance);
                 if (status != null)
