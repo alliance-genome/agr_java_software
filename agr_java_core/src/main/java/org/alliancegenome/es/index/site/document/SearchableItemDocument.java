@@ -59,16 +59,16 @@ public class SearchableItemDocument extends ESDocument {
     Set<String> biotypes = new HashSet<>();
     Set<String> cellularComponentAgrSlim = new HashSet<>();
     Set<String> cellularComponentWithParents = new HashSet<>();
-    @JsonProperty("crossReferences")
+    Set<String> chromosomes = new HashSet<>();
     Map<String, List<CrossReferenceDoclet>> crossReferencesMap;
     List<CrossReferenceDoclet> crossReferenceList;
+    Set<String> crossReferences = new HashSet<>();
     Set<String> diseases = new HashSet<>();
     Set<String> diseasesAgrSlim = new HashSet<>();
     Set<String> diseaseGroup = new HashSet<>();
     Set<String> diseasesWithParents = new HashSet<>();
     Set<String> alleles = new HashSet<>();
     Set<String> genes = new HashSet<>();
-    Set<GenomeLocationDoclet> genomeLocations;
     Set<String> go_genes;
     Set<String> go_species;
     Set<String> models = new HashSet<>();

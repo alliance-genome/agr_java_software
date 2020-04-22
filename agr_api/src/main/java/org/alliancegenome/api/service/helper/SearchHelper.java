@@ -118,12 +118,8 @@ public class SearchHelper {
             add("cellularComponentExpressionWithParents.keyword");
             add("cellularComponentExpressionAgrSlim");
             add("cellularComponentExpressionAgrSlim.keyword");
-            //disease cross references:
-            add("crossReferences.ontology_provided_cross_reference.name");
-            add("crossReferences.ontology_provided_cross_reference.localId");
-            //gene cross references:
-            add("crossReferences.generic_cross_reference.name");
-            add("crossReferences.generic_cross_reference.localId");
+            add("chromosomes");
+            add("crossReferences");
             add("diseases");
             add("diseasesAgrSlim");
             add("diseasesWithParents");

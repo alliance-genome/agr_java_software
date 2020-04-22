@@ -42,6 +42,8 @@ public class Mapping extends Builder {
         new FieldBuilder(builder, "cellularComponentExpression", "text").keyword().build();
         new FieldBuilder(builder, "cellularComponentExpressionWithParents", "text").keyword().build();
         new FieldBuilder(builder, "cellularComponentExpressionAgrSlim", "text").keyword().build();
+        new FieldBuilder(builder, "chromosomes", "text").keyword().build();
+        new FieldBuilder(builder, "crossReferences", "text").keyword().build();
         new FieldBuilder(builder, "description", "text");
         new FieldBuilder(builder, "diseases", "text").keyword().build();
         new FieldBuilder(builder, "diseasesAgrSlim", "text").keyword().build();
@@ -140,7 +142,7 @@ public class Mapping extends Builder {
     }
 
     private void buildCrossReferencesField() throws IOException {
-        builder.startObject("crossReferences");
+        builder.startObject("crossReferenceDocuments");
         builder.startObject("properties");
         new FieldBuilder(builder,"dataProvider","keyword").build();
         new FieldBuilder(builder,"id","keyword").build();
