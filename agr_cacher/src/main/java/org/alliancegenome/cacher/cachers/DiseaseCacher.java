@@ -196,7 +196,7 @@ public class DiseaseCacher extends Cacher {
 
     private void populateModelsWithDiseases() {
         // disease annotations for models (AGMs)
-        List<DiseaseEntityJoin> modelDiseaseJoins = diseaseRepository.getAllDiseaseAnnotationsPureAGM();
+        List<DiseaseEntityJoin> modelDiseaseJoins = diseaseRepository.getAllDiseaseAnnotationsModelLevel();
         log.info("Retrieved " + String.format("%,d", modelDiseaseJoins.size()) + " DiseaseEntityJoin records for AGMs");
 
         // diseaseEntityJoin PK, List<Gene>

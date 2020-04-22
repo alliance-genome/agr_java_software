@@ -50,7 +50,7 @@ public class AlleleCacher extends Cacher {
         Map<String, Integer> entityStats = new TreeMap<>();
         map.forEach((geneID, alleles) -> entityStats.put(geneID, alleles.size()));
 
-        storeStatistics(status, entityStats, speciesStats);
+        populateStatisticsOnStatus(status, entityStats, speciesStats);
         status.setCollectionEntity(Allele.class.getSimpleName());
         status.setJsonViewClass(View.GeneAllelesAPI.class.getSimpleName());
         setCacheStatus(status);

@@ -45,7 +45,7 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
         sortByMapping.put(FieldFilter.ASSOCIATION_TYPE, "diseaseEntityJoin.joinType");
     }
 
-    public List<DiseaseEntityJoin> getAllDiseaseAnnotationsPureAGM() {
+    public List<DiseaseEntityJoin> getAllDiseaseAnnotationsModelLevel() {
 
         String cypher = "MATCH diseaseJoin=(disease:DOTerm)--(dej:DiseaseEntityJoin)-[:EVIDENCE]->(pubJoin:PublicationJoin)<-[:ASSOCIATION]-(publication:Publication), " +
                 " model=(dej:DiseaseEntityJoin)--(agm:AffectedGenomicModel) ," +

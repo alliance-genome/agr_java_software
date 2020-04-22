@@ -100,7 +100,7 @@ public class ModelCacher extends Cacher {
 
         Map<String, Integer> entityStats = new TreeMap<>();
         geneMap.forEach((diseaseID, annotations) -> entityStats.put(diseaseID, annotations.size()));
-        storeStatistics(status, entityStats, speciesStats);
+        populateStatisticsOnStatus(status, entityStats, speciesStats);
 
         status.setJsonViewClass(View.PrimaryAnnotation.class.getSimpleName());
         status.setCollectionEntity(PrimaryAnnotatedEntity.class.getSimpleName());

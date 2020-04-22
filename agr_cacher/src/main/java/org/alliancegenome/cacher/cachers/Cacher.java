@@ -80,7 +80,7 @@ public abstract class Cacher extends Thread {
         finishProcess();
     }
 
-    public void storeStatistics(CacheStatus status, Map<String, Integer> entityStats, Map<String, List<Species>> speciesStatistics) {
+    public void populateStatisticsOnStatus(CacheStatus status, Map<String, Integer> entityStats, Map<String, List<Species>> speciesStatistics) {
         Map<String, Integer> speciesStats = new HashMap<>();
         speciesStatistics.forEach((species, speciesList) -> {
             speciesStats.put(species, speciesList.size());
