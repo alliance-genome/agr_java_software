@@ -132,7 +132,7 @@ public class AlleleController implements AlleleRESTInterface {
         }
     }
 
-    @Override
+   @Override
     public Response getPhenotypesPerAlleleDownload(String id,
                                                    String phenotype,
                                                    String source,
@@ -182,7 +182,7 @@ public class AlleleController implements AlleleRESTInterface {
     }
 
 
-    @Override
+   @Override
     public Response getDiseasePerAlleleDownload(String id,
                                                    String disease,
                                                    String source,
