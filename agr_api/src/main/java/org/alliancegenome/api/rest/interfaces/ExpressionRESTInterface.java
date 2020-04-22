@@ -16,8 +16,14 @@ import javax.ws.rs.core.Response;
 import org.alliancegenome.api.entity.RibbonSummary;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.core.ExpressionDetail;
+import org.alliancegenome.core.service.JsonResultResponse;
+import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.view.View;
 import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.enums.ParameterIn;
+import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
+import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 import com.fasterxml.jackson.annotation.JsonView;
@@ -34,31 +40,32 @@ public interface ExpressionRESTInterface {
     @JsonView(value = {View.Expression.class})
     @Operation(summary = "Retrieve all expression records of a given set of geneMap")
     JsonResultResponse<ExpressionDetail> getExpressionAnnotations(
-            //@ApiParam(name = "geneID", value = "Gene by ID", required = true)
+            @Parameter(in=ParameterIn.PATH, name = "geneID", description = "Gene by ID", required = true)
             @QueryParam("geneID") List<String> geneIDs,
-            //@ApiParam(name = "termID", value = "Term ID by which rollup should happen")
+            @Parameter(in=ParameterIn.PATH,name = "termID", description = "Term ID by which rollup should happen",schema = @Schema(type = SchemaType.STRING))
             @QueryParam("termID") String termID,
-            //@ApiParam(name = "filter.species", value = "Species by taxon ID", type = "String")
+            @Parameter(in=ParameterIn.PATH,name = "filter.species", description = "Species by taxon ID",schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.species") String filterSpecies,
-            //@ApiParam(name = "filter.gene", value = "Gene symbol", type = "String")
+            @Parameter(in=ParameterIn.PATH,name = "filter.gene", description = "Gene symbol",schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.gene") String filterGene,
-            //@ApiParam(name = "filter.stage", value = "Stage name", type = "String")
+            @Parameter(in=ParameterIn.PATH,name = "filter.stage", description = "Stage name",schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.stage") String filterStage,
-            //@ApiParam(name = "filter.assay", value = "Assay name", type = "String")
+            @Parameter(in=ParameterIn.PATH,name = "filter.assay", description = "Assay name",schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.assay") String filterAssay,
-            //@ApiParam(name = "filter.reference", value = "Reference", type = "String")
+            @Parameter(in=ParameterIn.PATH,name = "filter.reference", description = "Reference",schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.reference") String filterReference,
-            //@ApiParam(name = "filter.term", value = "Ontology term name", type = "String")
+            @Parameter(in=ParameterIn.PATH,name = "filter.term", description = "Ontology term name",schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.term") String filterTerm,
-            //@ApiParam(name = "filter.source", value = "Source", type = "String")
+            @Parameter(in=ParameterIn.PATH,name = "filter.source", description = "Source",schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.source") String filterSource,
-            //@ApiParam(name = "limit", value = "Number of rows returned", defaultValue = "20")
+            @Parameter(in=ParameterIn.QUERY, name="limit", description = "Number of rows returned", schema = @Schema(type = SchemaType.INTEGER))
             @DefaultValue("20") @QueryParam("limit") int limit,
-            //@ApiParam(name = "page", value = "Page number")
+            @Parameter(in=ParameterIn.QUERY, name="page", description = "Page number", schema = @Schema(type = SchemaType.INTEGER))
             @DefaultValue("1") @QueryParam("page") int page,
-            //@ApiParam(name = "sortBy", value = "Sort by field name", allowableValues = "Default,Species,Location,Assay,Stage,Gene")
-            @QueryParam("sortBy") String sortBy,
-            //@ApiParam(name = "asc", allowableValues = "true,false", value = "ascending or descending")
+            @Parameter(in=ParameterIn.QUERY, name="sortBy", description = "Sort by field name",schema = @Schema(type = SchemaType.STRING))// allowableValues = "Default,Species,Location,Assay,Stage,Gene")
+            @DefaultValue("geneName") @QueryParam("sortBy") String sortBy,
+            @Parameter(in=ParameterIn.QUERY, name = "asc", description = "order to sort by", schema = @Schema(type = SchemaType.STRING))//,allowableValues = "true,false")
+            @DefaultValue("true")
             @QueryParam("asc") String asc
     ) throws JsonProcessingException;
 
@@ -82,13 +89,13 @@ public interface ExpressionRESTInterface {
     @Path("/{taxonID}")
     @Operation(summary = "Retrieve all expression records of a given set of geneMap")
     String getExpressionAnnotationsByTaxon(
-            //@ApiParam(name = "taxonID", value = "Taxon ID for the first gene: Could be the full ID, e.g. 'NCBITaxon:10090', or just the ID, i.e. '10090'. Alternatively, part of a species name uniquely identifying a single species, e.g. 'danio' or 'mus'.", required = true, type = "String")
+            @Parameter(in=ParameterIn.PATH,name = "taxonID", description = "Taxon ID for the first gene: Could be the full ID, e.g. 'NCBITaxon:10090', or just the ID, i.e. '10090'. Alternatively, part of a species name uniquely identifying a single species, e.g. 'danio' or 'mus'.", required = true,schema = @Schema(type = SchemaType.STRING))
             @PathParam("taxonID") String speciesOne,
-            //@ApiParam(name = "termID", value = "Term ID by which rollup should happen")
+            @Parameter(in=ParameterIn.PATH,name = "termID", description = "Term ID by which rollup should happen",schema = @Schema(type = SchemaType.STRING))
             @QueryParam("termID") String termID,
-            //@ApiParam(name = "limit", value = "Number of rows returned", defaultValue = "20")
+            @Parameter(in=ParameterIn.QUERY, name="limit", description = "Number of rows returned", schema = @Schema(type = SchemaType.INTEGER))
             @DefaultValue("20") @QueryParam("limit") int limit,
-            //@ApiParam(name = "page", value = "Page number")
+            @Parameter(in=ParameterIn.QUERY, name="page", description = "Page number", schema = @Schema(type = SchemaType.INTEGER))
             @DefaultValue("1") @QueryParam("page") int page
     ) throws JsonProcessingException;
 
@@ -97,7 +104,7 @@ public interface ExpressionRESTInterface {
     @JsonView(value = {View.Expression.class})
     @Operation(summary = "Retrieve summary of expression for given list of genes")
     RibbonSummary getExpressionSummary(
-            //@ApiParam(name = "geneID", value = "list of genes for which expression data is requested", required = true)
+            @Parameter(in=ParameterIn.PATH, name = "geneID", description = "list of genes for which expression data is requested", required = true)
             @QueryParam("geneID") List<String> geneIDs
     ) ;
 

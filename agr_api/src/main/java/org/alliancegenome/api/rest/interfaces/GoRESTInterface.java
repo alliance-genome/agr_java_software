@@ -8,6 +8,11 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import org.alliancegenome.neo4j.entity.node.GOTerm;
+import org.eclipse.microprofile.openapi.annotations.enums.ParameterIn;
+import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
+import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
+import org.eclipse.microprofile.openapi.annotations.Operation;
 
 @Path("/go")
 //@Api(value = "Go Search")
@@ -17,9 +22,9 @@ public interface GoRESTInterface {
 
     @GET
     @Path("/{id}")
-    //@ApiOperation(value = "Searches for a Go fields", notes="Go Notes", hidden = true)
+    @Operation(description = "Searches for a Go fields", summary="Go Notes", hidden = true)
     public GOTerm getGo(
-            //@ApiParam(name = "id", value = "Search for a Go Term by ID")
+            @Parameter(in=ParameterIn.PATH, name = "id", description = "Search for a Go Term by ID", required=true, schema = @Schema(type = SchemaType.STRING))
             @PathParam("id") String id
     );
     
