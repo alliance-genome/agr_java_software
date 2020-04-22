@@ -14,12 +14,13 @@ import java.util.Map;
 @Log4j2
 public class CacheStatusService {
 
+    private BasicCachingManager<CacheStatus> basicManager = new BasicCachingManager<>(CacheStatus.class);
+
     public CacheStatus getCacheStatus(CacheAlliance type) {
         return getCacheStatus(type, null);
     }
 
     public CacheStatus getCacheStatus(CacheAlliance type, String entityID) {
-        BasicCachingManager<CacheStatus> basicManager = new BasicCachingManager<>(CacheStatus.class);
         final CacheStatus entityCache = basicManager.getEntityCache(type.getCacheName(), CacheAlliance.CACHING_STATS);
         if (entityID != null)
             entityCache.getEntityStats().keySet().removeIf(id -> !id.contains(entityID));
@@ -40,5 +41,12 @@ public class CacheStatusService {
             }
         });
         return map;
+    }
+
+    public String getCacheObject(String id, String cacheName) {
+        CacheAlliance cache = CacheAlliance.getTypeByName(cacheName);
+        if (cache == null)
+            return "No Cache with name " + cacheName + " found";
+        return basicManager.getCache(id, cache.getCacheName());
     }
 }

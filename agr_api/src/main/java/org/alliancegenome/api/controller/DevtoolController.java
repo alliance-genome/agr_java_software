@@ -23,8 +23,12 @@ public class DevtoolController implements DevtoolRESTInterface {
     }
 
     @Override
-    public CacheStatus getCacheStatusPerSpace(String cacheSpace,
-                                              String entityID) {
-        return service.getCacheStatus(CacheAlliance.getTypeByName(cacheSpace), entityID);
+    public CacheStatus getCacheStatusPerSpace(String cacheSpace) {
+        return service.getCacheStatus(CacheAlliance.getTypeByName(cacheSpace));
+    }
+
+    @Override
+    public String getCacheObject(String entityId, String cacheName) {
+        return service.getCacheObject(entityId, cacheName);
     }
 }

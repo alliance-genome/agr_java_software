@@ -3,21 +3,17 @@ package org.alliancegenome.cacher.cachers;
 import lombok.extern.log4j.Log4j2;
 import org.alliancegenome.api.entity.CacheStatus;
 import org.alliancegenome.cache.CacheAlliance;
-import org.alliancegenome.cache.manager.BasicCachingManager;
-import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
-import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.entity.node.AffectedGenomicModel;
 import org.alliancegenome.neo4j.entity.node.GeneticEntity;
+import org.alliancegenome.neo4j.entity.node.Species;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.alliancegenome.neo4j.view.View;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static java.util.Map.Entry.comparingByValue;
 import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.toMap;
 
 @Log4j2
 public class ModelCacher extends Cacher {
@@ -27,7 +23,7 @@ public class ModelCacher extends Cacher {
     @Override
     protected void cache() {
 
-        startProcess("geneRepository.getAllAffectedModelsAllele");
+        startProcess("getAllAffectedModelsSTR");
 
         List<AffectedGenomicModel> modelSTRs = geneRepository.getAllAffectedModelsSTR();
         log.info("Number of STR Models: " + String.format("%,d", modelSTRs.size()));
@@ -92,46 +88,25 @@ public class ModelCacher extends Cacher {
 
         log.info("Number of Genes with Models: " + String.format("%,d", geneMap.size()));
 
-        BasicCachingManager manager = new BasicCachingManager();
-
-        geneMap.forEach((geneID, annotations) -> {
-
-            JsonResultResponse<PrimaryAnnotatedEntity> result = new JsonResultResponse<>();
-            result.setResults(new ArrayList<>(annotations));
-            manager.setCache(geneID, annotations, View.PrimaryAnnotation.class, CacheAlliance.GENE_MODEL);
-        });
+        populateCacheFromMap(geneMap, View.PrimaryAnnotation.class, CacheAlliance.GENE_MODEL);
 
         CacheStatus status = new CacheStatus(CacheAlliance.GENE_MODEL);
         status.setNumberOfEntities(entities.size());
 
-        Map<String, List<PrimaryAnnotatedEntity>> speciesStats = entities.stream()
+        Map<String, List<Species>> speciesStats = entities.stream()
                 .filter(annotation -> annotation.getSpecies() != null)
-                .collect(groupingBy(annotation -> annotation.getSpecies().getName()));
+                .map(PrimaryAnnotatedEntity::getSpecies)
+                .collect(groupingBy(Species::getName));
 
-        Map<String, Integer> stats = new TreeMap<>();
-        geneMap.forEach((diseaseID, annotations) -> stats.put(diseaseID, annotations.size()));
+        Map<String, Integer> entityStats = new TreeMap<>();
+        geneMap.forEach((diseaseID, annotations) -> entityStats.put(diseaseID, annotations.size()));
+        storeStatistics(status, entityStats, speciesStats);
 
-
-        Arrays.stream(SpeciesType.values())
-                .filter(speciesType -> !speciesStats.keySet().contains(speciesType.getName()))
-                .forEach(speciesType -> speciesStats.put(speciesType.getName(), new ArrayList<>()));
-
-        Map<String, Integer> speciesStatsInt = new HashMap<>();
-        speciesStats.forEach((species, alleles) -> speciesStatsInt.put(species, alleles.size()));
-
-        LinkedHashMap<String, Integer> speciesStatsIntSorted =
-                speciesStatsInt.entrySet().stream()
-                        .sorted(Collections.reverseOrder(comparingByValue()))
-                        .collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e2, LinkedHashMap::new));
-
-        status.setEntityStats(stats);
-        status.setSpeciesStats(speciesStatsIntSorted);
         status.setJsonViewClass(View.PrimaryAnnotation.class.getSimpleName());
         status.setCollectionEntity(PrimaryAnnotatedEntity.class.getSimpleName());
         setCacheStatus(status);
 
         finishProcess();
-        //setCacheStatus(modeles.size(), CacheAlliance.GENE_ORTHOLOGY.getCacheName());
         geneRepository.clearCache();
 
     }
