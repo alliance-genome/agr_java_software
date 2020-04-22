@@ -166,7 +166,7 @@ public class DiseaseCacher extends Cacher {
         CacheStatus status = new CacheStatus(cacheSpace);
         status.setNumberOfEntities(diseaseAnnotations.size());
         status.setCollectionEntity(DiseaseAnnotation.class.getSimpleName());
-        status.setViewClass(View.DiseaseAnnotationSummary.class.getSimpleName());
+        status.setJsonViewClass(View.DiseaseAnnotationSummary.class.getSimpleName());
 
         Map<String, List<DiseaseAnnotation>> speciesStats = diseaseAnnotations.stream()
                 .collect(groupingBy(annotation -> annotation.getSpecies().getName()));

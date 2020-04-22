@@ -15,7 +15,9 @@ import org.alliancegenome.neo4j.view.View;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static java.util.Map.Entry.comparingByValue;
 import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toMap;
 
 @Log4j2
 public class ModelCacher extends Cacher {
@@ -118,13 +120,14 @@ public class ModelCacher extends Cacher {
         speciesStats.forEach((species, alleles) -> speciesStatsInt.put(species, alleles.size()));
 
         LinkedHashMap<String, Integer> speciesStatsIntSorted =
-                speciesStatsInt.entrySet().stream().
-                        sorted(Map.Entry.comparingByValue()).
-                        collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
-                                (e1, e2) -> e1, LinkedHashMap::new));
+                speciesStatsInt.entrySet().stream()
+                        .sorted(Collections.reverseOrder(comparingByValue()))
+                        .collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e2, LinkedHashMap::new));
 
         status.setEntityStats(stats);
         status.setSpeciesStats(speciesStatsIntSorted);
+        status.setJsonViewClass(View.PrimaryAnnotation.class.getSimpleName());
+        status.setCollectionEntity(PrimaryAnnotatedEntity.class.getSimpleName());
         setCacheStatus(status);
 
         finishProcess();

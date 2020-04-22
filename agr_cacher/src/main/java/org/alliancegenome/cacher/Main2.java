@@ -38,7 +38,7 @@ public class Main2 {
 /*
         String id = "ZFIN:ZDB-GENE-001103-1";
         AllianceCacheManager<Allele> resultAllele = new AllianceCacheManager<>();
-        List<Allele> resultsAllele = resultAllele.getResultList(id, CacheAlliance.ALLELE);
+        List<Allele> resultsAllele = resultAllele.getResultList(id, CacheAlliance.ALLELE_GENE);
         log.info("Allele: " + resultsAllele.size());
 */
 
