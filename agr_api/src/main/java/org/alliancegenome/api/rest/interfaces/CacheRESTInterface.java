@@ -28,19 +28,19 @@ public interface CacheRESTInterface {
 
     @GET
     @JsonView(View.CacherDetail.class)
-    @Path("/{cacheSpace}")
-    CacheStatus getCacheStatusPerSpace(@PathParam("cacheSpace") String cacheSpace);
+    @Path("/{cacheName}")
+    CacheStatus getCacheStatusPerSpace(@PathParam("cacheName") String cacheName);
 
 
     @GET
-    @Path("/{cache_name}/{id}")
+    @Path("/{cacheName}/{id}")
     @ApiOperation(value = "Get Cache Object")
     @JsonView(value = {View.Default.class})
     String getCacheObject(
             @ApiParam(name = "id", value = "Search for an object by ID")
             @PathParam("id") String id,
-            @ApiParam(name = "cache_name", value = "Cache Type to Search by")
-            @PathParam("cache_name") String cache_name
+            @ApiParam(name = "cacheName", value = "Named Cache to Search by")
+            @PathParam("cacheName") String cacheName
     );
 
 }
