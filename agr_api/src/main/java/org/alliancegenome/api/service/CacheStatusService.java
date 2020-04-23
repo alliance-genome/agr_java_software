@@ -51,6 +51,6 @@ public class CacheStatusService {
         CacheAlliance cache = CacheAlliance.getTypeByName(cacheName);
         if (cache == null)
             return "No Cache with name " + cacheName + " found";
-        return basicManager.getCache(id, cache.getCacheName());
+        return cacherService.getCacheEntry(id, cache, String.class);
     }
 }
