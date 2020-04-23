@@ -192,37 +192,36 @@ public class ExpressionService {
 
     private RibbonEntity getExpressionRibbonSummary(String geneID) {
         GeneRepository geneRepository = new GeneRepository();
-        List<BioEntityGeneExpressionJoin> joins = geneRepository.getExpressionAnnotationSummary(geneID);
 
-        if (joins == null)
-            joins = new ArrayList<>();
+        ExpressionCacheRepository expressionCacheRepository = new ExpressionCacheRepository();
+        List<ExpressionDetail> expressionList = expressionCacheRepository.getExpressionDetails(geneID);
 
         // create histograms for each of the three ontologies
-        List<BioEntityGeneExpressionJoin> aoAnnotations = new ArrayList<>();
-        MultiValuedMap<UBERONTerm, BioEntityGeneExpressionJoin> aoUberonMap = new ArrayListValuedHashMap<>();
+        List<ExpressionDetail> uberonAnnotations = new ArrayList<>();
+        MultiValuedMap<String, ExpressionDetail> aoUberonMap = new ArrayListValuedHashMap<>();
 
-        List<BioEntityGeneExpressionJoin> goAnnotations = new ArrayList<>();
-        MultiValuedMap<GOTerm, BioEntityGeneExpressionJoin> goTermMap = new ArrayListValuedHashMap<>();
+        List<ExpressionDetail> goAnnotations = new ArrayList<>();
+        MultiValuedMap<String, ExpressionDetail> goTermMap = new ArrayListValuedHashMap<>();
 
-        List<BioEntityGeneExpressionJoin> stageAnnotations = new ArrayList<>();
-        MultiValuedMap<UBERONTerm, BioEntityGeneExpressionJoin> stageUberonMap = new ArrayListValuedHashMap<>();
+        List<ExpressionDetail> stageAnnotations = new ArrayList<>();
+        MultiValuedMap<String, ExpressionDetail> stageTermMap = new ArrayListValuedHashMap<>();
 
-        joins.forEach(join -> {
-            final ExpressionBioEntity entity = join.getEntity();
 
-            if (CollectionUtils.isNotEmpty(entity.getAoTermList())) {
-                aoAnnotations.add(join);
-                entity.getAoTermList().forEach(uberonTerm -> aoUberonMap.put(uberonTerm, join));
+        expressionList.forEach(detail -> {
+            if (CollectionUtils.isNotEmpty(detail.getUberonTermIDs())) {
+                uberonAnnotations.add(detail);
+                detail.getUberonTermIDs().forEach(uberonTerm -> aoUberonMap.put(uberonTerm, detail));
             }
 
-            if (CollectionUtils.isNotEmpty(entity.getCcRibbonTermList())) {
-                goAnnotations.add(join);
-                entity.getCcRibbonTermList().forEach(goTerm -> goTermMap.put(goTerm, join));
+            if (CollectionUtils.isNotEmpty(detail.getGoTermIDs())) {
+                goAnnotations.add(detail);
+                detail.getGoTermIDs().forEach(goTermId -> goTermMap.put(goTermId, detail));
             }
-            UBERONTerm stageTerm = join.getStageTerm();
-            if (stageTerm != null) {
-                stageAnnotations.add(join);
-                stageUberonMap.put(stageTerm, join);
+
+            String stageTermID = detail.getStageTermID();
+            if (stageTermID != null) {
+                stageAnnotations.add(detail);
+                stageTermMap.put(stageTermID, detail);
             }
         });
 
@@ -234,35 +233,35 @@ public class ExpressionService {
         entity.setTaxonName(gene.getSpecies().getName());
 
         // add the AO root term
-        EntitySubgroupSlim slimRoot = getEntitySubgroupSlim(ExpressionCacheRepository.UBERON_ANATOMY_ROOT, aoAnnotations);
+        EntitySubgroupSlim slimRoot = getEntitySubgroupSlim(ExpressionCacheRepository.UBERON_ANATOMY_ROOT, uberonAnnotations);
         entity.addEntitySlim(slimRoot);
-        aoUberonMap.keySet().forEach(uberonTerm -> {
-            EntitySubgroupSlim slim = getEntitySubgroupSlim(uberonTerm.getPrimaryKey(), aoUberonMap.get(uberonTerm));
+        aoUberonMap.keySet().forEach(uberonTermID -> {
+            EntitySubgroupSlim slim = getEntitySubgroupSlim(uberonTermID, aoUberonMap.get(uberonTermID));
             entity.addEntitySlim(slim);
         });
 
         // add the Stage root term
         EntitySubgroupSlim slimRootStage = getEntitySubgroupSlim(ExpressionCacheRepository.UBERON_STAGE_ROOT, stageAnnotations);
         entity.addEntitySlim(slimRootStage);
-        stageUberonMap.keySet().forEach(uberonTerm -> {
-            EntitySubgroupSlim slim = getEntitySubgroupSlim(uberonTerm.getPrimaryKey(), stageUberonMap.get(uberonTerm));
+        stageTermMap.keySet().forEach(uberonTermID -> {
+            EntitySubgroupSlim slim = getEntitySubgroupSlim(uberonTermID, stageTermMap.get(uberonTermID));
             entity.addEntitySlim(slim);
         });
 
         // add the GO root term
         EntitySubgroupSlim slimRootGO = getEntitySubgroupSlim(ExpressionCacheRepository.GO_CC_ROOT, goAnnotations);
         entity.addEntitySlim(slimRootGO);
-        goTermMap.keySet().forEach(goTerm -> {
-            EntitySubgroupSlim slim = getEntitySubgroupSlim(goTerm.getPrimaryKey(), goTermMap.get(goTerm));
+        goTermMap.keySet().forEach(goTermID -> {
+            EntitySubgroupSlim slim = getEntitySubgroupSlim(goTermID, goTermMap.get(goTermID));
             entity.addEntitySlim(slim);
         });
 
-        entity.setNumberOfClasses(getDistinctClassSize(joins));
-        entity.setNumberOfAnnotations(joins.size());
+        entity.setNumberOfClasses(getDistinctClassSize(expressionList));
+        entity.setNumberOfAnnotations(expressionList.size());
         return entity;
     }
 
-    private EntitySubgroupSlim getEntitySubgroupSlim(String primaryKey, Collection<BioEntityGeneExpressionJoin> aoAnnotations) {
+    private EntitySubgroupSlim getEntitySubgroupSlim(String primaryKey, Collection<ExpressionDetail> aoAnnotations) {
         EntitySubgroupSlim slim = new EntitySubgroupSlim();
         slim.setId(primaryKey);
         slim.setNumberOfAnnotations(aoAnnotations.size());
@@ -270,8 +269,8 @@ public class ExpressionService {
         return slim;
     }
 
-    private int getDistinctClassSize(Collection<BioEntityGeneExpressionJoin> aoAnnotations) {
-        return aoAnnotations.stream().collect(groupingBy(join -> join.getEntity().getWhereExpressedStatement())).size();
+    private int getDistinctClassSize(Collection<ExpressionDetail> aoAnnotations) {
+        return aoAnnotations.stream().collect(groupingBy(join -> join.getTermName())).size();
     }
 
     private ExpressionSummaryGroup populateGroupInfo(String groupName,

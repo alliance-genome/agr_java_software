@@ -44,7 +44,7 @@ public class ExpressionCacheRepository {
         List<ExpressionDetail> fullExpressionAnnotationList = new ArrayList<>();
         geneIDs.stream()
                 .filter(geneID -> manager.getCache(geneID, CacheAlliance.GENE_EXPRESSION) != null)
-                .forEach(geneID -> fullExpressionAnnotationList.addAll(manager.getCache(geneID, CacheAlliance.GENE_EXPRESSION)));
+                .forEach(geneID -> fullExpressionAnnotationList.addAll(getExpressionDetails(geneID)));
 
         //filtering
         // filter on termID
@@ -68,6 +68,10 @@ public class ExpressionCacheRepository {
         result.setDistinctFieldValueMap(filterService.getDistinctFieldValues(filterTermIDList,
                 mapping.getSingleValuedFieldColumns(Table.EXPRESSION), mapping));
         return result;
+    }
+
+    public List<ExpressionDetail> getExpressionDetails(String geneID) {
+        return manager.getCache(geneID, CacheAlliance.GENE_EXPRESSION);
     }
 
     private List<ExpressionDetail> filterExpressionAnnotations(List<ExpressionDetail> expressionDetails, BaseFilter fieldFilterValueMap) {

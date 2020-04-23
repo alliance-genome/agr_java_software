@@ -4,8 +4,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.Api;
+import org.alliancegenome.api.entity.EntitySubgroupSlim;
 import org.alliancegenome.api.entity.RibbonSummary;
-import org.alliancegenome.api.service.AlleleService;
 import org.alliancegenome.api.service.ExpressionService;
 import org.alliancegenome.cache.repository.ExpressionCacheRepository;
 import org.alliancegenome.core.ExpressionDetail;
@@ -33,7 +33,6 @@ import static org.junit.Assert.*;
 public class ExpressionIT {
 
     private ObjectMapper mapper = new ObjectMapper();
-    private AlleleService alleleService;
     private ExpressionCacheRepository repository = new ExpressionCacheRepository();
     private ExpressionService expressionService = new ExpressionService();
 
@@ -41,8 +40,6 @@ public class ExpressionIT {
     public void before() {
         Configurator.setRootLevel(Level.WARN);
         ConfigHelper.init();
-
-        alleleService = new AlleleService();
 
         mapper.disable(MapperFeature.DEFAULT_VIEW_INCLUSION);
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
@@ -66,6 +63,23 @@ public class ExpressionIT {
     public void checkExpressionRibbonHeader() {
         RibbonSummary summary = expressionService.getExpressionRibbonSummary(List.of("MGI:109583"));
         assertNotNull(summary);
+        assertEquals(summary.getDiseaseRibbonEntities().size(), 1);
+        EntitySubgroupSlim slim = summary.getDiseaseRibbonEntities().get(0)
+                .getSlims().get("UBERON:0001062").get("ALL");
+        assertEquals(slim.getNumberOfAnnotations(), 149);
+        assertEquals(slim.getNumberOfClasses(), 95);
+
+        // nervous system
+        slim = summary.getDiseaseRibbonEntities().get(0)
+                .getSlims().get("UBERON:0001016").get("ALL");
+        assertEquals(slim.getNumberOfAnnotations(), 51);
+        assertEquals(slim.getNumberOfClasses(), 33);
+
+        // post-juvenile adult stage
+        slim = summary.getDiseaseRibbonEntities().get(0)
+                .getSlims().get("UBERON:0000113").get("ALL");
+        assertEquals(slim.getNumberOfAnnotations(), 26);
+        assertEquals(slim.getNumberOfClasses(), 24);
     }
 
     @Test
@@ -73,6 +87,26 @@ public class ExpressionIT {
     public void checkExpressionRibbonNumbers() {
         RibbonSummary summary = expressionService.getExpressionRibbonSummary(List.of("MGI:98834"));
         assertNotNull(summary);
+    }
+
+    @Test
+    // Test Pten from MGI for expression ribbon summary
+    public void checkExpressionRibbonNumbersManyGenes() {
+        RibbonSummary summary = expressionService.getExpressionRibbonSummary(List.of("MGI:98834"));
+        assertNotNull(summary);
+    }
+
+    @Test
+    // Test Pten from MGI for expression ribbon summary
+    public void checkExpressionRibbonNumbersWorm() {
+        RibbonSummary summary = expressionService.getExpressionRibbonSummary(List.of("WB:WBGene00002881"));
+        assertNotNull(summary);
+
+        assertEquals(summary.getDiseaseRibbonEntities().size(), 1);
+        EntitySubgroupSlim slim = summary.getDiseaseRibbonEntities().get(0)
+                .getSlims().get("GO:0005634").get("ALL");
+        assertEquals(slim.getNumberOfAnnotations(), 4);
+        assertEquals(slim.getNumberOfClasses(), 3);
     }
 
     @Test
