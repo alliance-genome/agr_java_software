@@ -34,7 +34,7 @@ public class AlleleCacheRepository {
     public JsonResultResponse<Allele> getAllelesByGene(String geneID, Pagination pagination) {
 
         BasicCachingManager<Allele> manager = new BasicCachingManager<>(Allele.class);
-        List<Allele> allAlleles = manager.getCache(geneID, CacheAlliance.ALLELE);
+        List<Allele> allAlleles = manager.getCache(geneID, CacheAlliance.ALLELE_GENE);
         if (allAlleles == null)
             return null;
         return getAlleleJsonResultResponse(pagination, allAlleles);

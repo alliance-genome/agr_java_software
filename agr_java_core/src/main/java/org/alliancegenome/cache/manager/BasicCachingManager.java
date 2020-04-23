@@ -207,4 +207,8 @@ public class BasicCachingManager<O> {
             throw new RuntimeException(e);
         }
     }
+
+    public String getCache(String id, String cacheName) {
+        return (String) rmc.getCache(cacheName).get(id);
+    }
 }

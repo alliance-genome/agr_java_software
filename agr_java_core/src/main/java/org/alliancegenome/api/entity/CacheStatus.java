@@ -31,9 +31,12 @@ public class CacheStatus implements Serializable {
     @JsonView(View.Cacher.class)
     private String collectionEntity;
     @JsonView(View.Cacher.class)
-    private String viewClass;
+    private String jsonViewClass;
+    @JsonIgnore
+    private CacheAlliance cache;
 
     public CacheStatus(CacheAlliance cache) {
+        this.cache = cache;
         this.name = cache.getCacheName();
     }
 

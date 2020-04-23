@@ -104,7 +104,7 @@ public class AlleleIT {
     // Test Sox9 from MGI for disease via experiment records
     public void checkStatus() {
         CacheStatusService service = new CacheStatusService();
-        CacheStatus status = service.getCacheStatus(CacheAlliance.ALLELE, "FB:FBgn0031717");
+        CacheStatus status = service.getCacheStatus(CacheAlliance.ALLELE_GENE, "FB:FBgn0031717");
         assertNotNull(status);
         Map<CacheAlliance, CacheStatus> map = service.getAllCachStatusRecords();
         assertNotNull(map);

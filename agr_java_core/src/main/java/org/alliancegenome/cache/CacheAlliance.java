@@ -12,7 +12,7 @@ public enum CacheAlliance {
     GENE_DISEASE_ANNOTATION(),
     GENE_SITEMAP(),
 
-    ALLELE(),
+    ALLELE_GENE(),
     ALLELE_PHENOTYPE(),
     ALLELE_DISEASE(),
     ALLELE_SPECIES(),

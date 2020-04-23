@@ -7,12 +7,14 @@ import org.alliancegenome.api.entity.CacheStatus;
 import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.cache.manager.BasicCachingManager;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
-import org.alliancegenome.neo4j.entity.node.Allele;
+import org.alliancegenome.neo4j.entity.SpeciesType;
+import org.alliancegenome.neo4j.entity.node.Species;
 import org.alliancegenome.neo4j.view.View;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+
+import static java.util.Map.Entry.comparingByValue;
+import static java.util.stream.Collectors.toMap;
 
 @Log4j2
 @Setter
@@ -68,14 +70,36 @@ public abstract class Cacher extends Thread {
         setCacheStatus(status);
     }
 
-    void populateCacheFromMap(Map<String, List<Allele>> map, Class view, CacheAlliance cacheAlliance) {
+    void populateCacheFromMap(Map<String, ? extends Object> map, Class view, CacheAlliance cacheAlliance) {
         startProcess(cacheAlliance.name() + " into cache", map.size());
         BasicCachingManager manager = new BasicCachingManager();
-        for (Map.Entry<String, List<Allele>> entry : map.entrySet()) {
+        for (Map.Entry<String, ? extends Object> entry : map.entrySet()) {
             manager.setCache(entry.getKey(), entry.getValue(), view, cacheAlliance);
+            progressProcess();
         }
-
         finishProcess();
     }
+
+    public void populateStatisticsOnStatus(CacheStatus status, Map<String, Integer> entityStats, Map<String, List<Species>> speciesStatistics) {
+        Map<String, Integer> speciesStats = new HashMap<>();
+        speciesStatistics.forEach((species, speciesList) -> {
+            speciesStats.put(species, speciesList.size());
+        });
+
+        Arrays.stream(SpeciesType.values())
+                .filter(speciesType -> !speciesStats.keySet().contains(speciesType.getName()))
+                .forEach(speciesType -> speciesStats.put(speciesType.getName(), 0));
+
+
+        Map<String, Integer> sortedMap = speciesStats
+                .entrySet()
+                .stream()
+                .sorted(Collections.reverseOrder(comparingByValue()))
+                .collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e2, LinkedHashMap::new));
+
+        status.setEntityStats(entityStats);
+        status.setSpeciesStats(sortedMap);
+    }
+
 
 }

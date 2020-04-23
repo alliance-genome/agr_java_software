@@ -166,7 +166,7 @@ public class DiseaseCacher extends Cacher {
         CacheStatus status = new CacheStatus(cacheSpace);
         status.setNumberOfEntities(diseaseAnnotations.size());
         status.setCollectionEntity(DiseaseAnnotation.class.getSimpleName());
-        status.setViewClass(View.DiseaseAnnotationSummary.class.getSimpleName());
+        status.setJsonViewClass(View.DiseaseAnnotationSummary.class.getSimpleName());
 
         Map<String, List<DiseaseAnnotation>> speciesStats = diseaseAnnotations.stream()
                 .collect(groupingBy(annotation -> annotation.getSpecies().getName()));
@@ -196,7 +196,7 @@ public class DiseaseCacher extends Cacher {
 
     private void populateModelsWithDiseases() {
         // disease annotations for models (AGMs)
-        List<DiseaseEntityJoin> modelDiseaseJoins = diseaseRepository.getAllDiseaseAnnotationsPureAGM();
+        List<DiseaseEntityJoin> modelDiseaseJoins = diseaseRepository.getAllDiseaseAnnotationsModelLevel();
         log.info("Retrieved " + String.format("%,d", modelDiseaseJoins.size()) + " DiseaseEntityJoin records for AGMs");
 
         // diseaseEntityJoin PK, List<Gene>
