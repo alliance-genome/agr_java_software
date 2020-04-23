@@ -12,8 +12,6 @@ import javax.ws.rs.core.MediaType;
 import org.alliancegenome.neo4j.view.View;
 import org.infinispan.client.hotrod.RemoteCache;
 import org.infinispan.client.hotrod.RemoteCacheManager;
-import org.infinispan.configuration.cache.StorageType;
-import org.infinispan.eviction.EvictionType;
 
 import com.fasterxml.jackson.annotation.JsonView;
 

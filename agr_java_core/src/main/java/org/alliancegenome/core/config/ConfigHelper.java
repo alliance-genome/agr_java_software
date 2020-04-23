@@ -1,15 +1,40 @@
 package org.alliancegenome.core.config;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import static org.alliancegenome.core.config.Constants.AO_TERM_LIST;
+import static org.alliancegenome.core.config.Constants.API_ACCESS_TOKEN;
+import static org.alliancegenome.core.config.Constants.API_HOST;
+import static org.alliancegenome.core.config.Constants.API_PORT;
+import static org.alliancegenome.core.config.Constants.API_SECURE;
+import static org.alliancegenome.core.config.Constants.AWS_ACCESS_KEY;
+import static org.alliancegenome.core.config.Constants.AWS_BUCKET_NAME;
+import static org.alliancegenome.core.config.Constants.AWS_SECRET_KEY;
+import static org.alliancegenome.core.config.Constants.CACHE_HOST;
+import static org.alliancegenome.core.config.Constants.CACHE_PORT;
+import static org.alliancegenome.core.config.Constants.DEBUG;
+import static org.alliancegenome.core.config.Constants.ES_DATA_INDEX;
+import static org.alliancegenome.core.config.Constants.ES_HOST;
+import static org.alliancegenome.core.config.Constants.ES_INDEX;
+import static org.alliancegenome.core.config.Constants.ES_INDEX_SUFFIX;
+import static org.alliancegenome.core.config.Constants.ES_PORT;
+import static org.alliancegenome.core.config.Constants.GO_TERM_LIST;
+import static org.alliancegenome.core.config.Constants.KEEPINDEX;
+import static org.alliancegenome.core.config.Constants.NEO4J_HOST;
+import static org.alliancegenome.core.config.Constants.NEO4J_PORT;
+import static org.alliancegenome.core.config.Constants.SPECIES;
+import static org.alliancegenome.core.config.Constants.THREADED;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Properties;
+import java.util.Set;
 
-import static org.alliancegenome.core.config.Constants.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 
 public class ConfigHelper {

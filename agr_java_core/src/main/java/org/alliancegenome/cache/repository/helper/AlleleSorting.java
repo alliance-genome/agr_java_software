@@ -1,18 +1,18 @@
 package org.alliancegenome.cache.repository.helper;
 
-import org.alliancegenome.neo4j.entity.Sorting;
-import org.alliancegenome.neo4j.entity.node.Allele;
-import org.alliancegenome.neo4j.entity.node.Phenotype;
-import org.alliancegenome.neo4j.entity.node.SimpleTerm;
-import org.alliancegenome.neo4j.entity.node.Variant;
-import org.apache.commons.collections4.CollectionUtils;
+import static java.util.Comparator.naturalOrder;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static java.util.Comparator.naturalOrder;
+import org.alliancegenome.neo4j.entity.Sorting;
+import org.alliancegenome.neo4j.entity.node.Allele;
+import org.alliancegenome.neo4j.entity.node.Phenotype;
+import org.alliancegenome.neo4j.entity.node.SimpleTerm;
+import org.alliancegenome.neo4j.entity.node.Variant;
+import org.apache.commons.collections4.CollectionUtils;
 
 public class AlleleSorting implements Sorting<Allele> {
 

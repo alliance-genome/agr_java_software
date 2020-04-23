@@ -1,12 +1,10 @@
 package org.alliancegenome.neo4j.entity;
 
-import org.alliancegenome.es.model.query.FieldFilter;
-
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Function;
+
+import org.alliancegenome.es.model.query.FieldFilter;
 
 public abstract class FieldValues<T> {
 

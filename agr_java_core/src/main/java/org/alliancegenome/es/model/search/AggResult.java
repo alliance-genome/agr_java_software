@@ -1,11 +1,10 @@
 package org.alliancegenome.es.model.search;
 
-import org.apache.commons.collections.CollectionUtils;
-import org.elasticsearch.search.aggregations.Aggregation;
-import org.elasticsearch.search.aggregations.bucket.terms.Terms;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 
 public class AggResult {
 

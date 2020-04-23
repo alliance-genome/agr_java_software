@@ -2,9 +2,8 @@ package org.alliancegenome.cache.repository.helper;
 
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.neo4j.view.OrthologView;
+import org.alliancegenome.neo4j.view.OrthologyFilter.Stringency;
 import org.apache.commons.collections.CollectionUtils;
-
-import static org.alliancegenome.neo4j.view.OrthologyFilter.Stringency;
 
 public class OrthologyFiltering extends AnnotationFiltering<OrthologView> {
 

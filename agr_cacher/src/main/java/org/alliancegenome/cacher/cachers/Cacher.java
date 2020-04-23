@@ -1,6 +1,13 @@
 package org.alliancegenome.cacher.cachers;
 
+import static java.util.Map.Entry.comparingByValue;
+import static java.util.stream.Collectors.toMap;
+
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -12,14 +19,9 @@ import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.entity.node.Species;
 import org.alliancegenome.neo4j.view.View;
 
-import java.util.*;
-
-import static java.util.Map.Entry.comparingByValue;
-import static java.util.stream.Collectors.toMap;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.log4j.Log4j2;
->>>>>>> Massive refactor to get infinispan upgraded and single connection per applicationn
 
 @Log4j2
 @Setter

@@ -1,11 +1,11 @@
 package org.alliancegenome.cache.repository.helper;
 
-import org.alliancegenome.neo4j.entity.Sorting;
-import org.alliancegenome.neo4j.view.OrthologView;
-
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+
+import org.alliancegenome.neo4j.entity.Sorting;
+import org.alliancegenome.neo4j.view.OrthologView;
 
 public class OrthologySorting implements Sorting<OrthologView> {
 

@@ -1,12 +1,12 @@
 package org.alliancegenome.cache.repository.helper;
 
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.entity.node.Gene;
-
-import java.util.Set;
-import java.util.stream.Collectors;
 
 public class DiseaseAnnotationFiltering extends AnnotationFiltering<DiseaseAnnotation> {
 
