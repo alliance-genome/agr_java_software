@@ -2,12 +2,14 @@ package org.alliancegenome.core.translators.document;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.alliancegenome.core.translators.EntityDocumentTranslator;
 import org.alliancegenome.core.translators.doclet.CrossReferenceDocletTranslator;
 import org.alliancegenome.es.index.site.doclet.CrossReferenceDoclet;
 import org.alliancegenome.es.index.site.document.SearchableItemDocument;
+import org.alliancegenome.neo4j.entity.node.CrossReference;
 import org.alliancegenome.neo4j.entity.node.DOTerm;
 import org.alliancegenome.neo4j.entity.node.Synonym;
 import org.apache.logging.log4j.LogManager;
@@ -42,10 +44,7 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, Searchab
         }
         // add CrossReferences
         if (doTerm.getCrossReferences() != null) {
-            document.setCrossReferencesMap(doTerm.getCrossReferences()
-                    .stream()
-                    .map(crossReference -> crossReferenceTranslator.translate(crossReference))
-                    .collect(Collectors.groupingBy(CrossReferenceDoclet::getType, Collectors.toList())));
+            document.getCrossReferences().addAll(doTerm.getCrossReferences().stream().map(CrossReference::getName).collect(Collectors.toSet()));
         }
 
         return document;

@@ -13,6 +13,8 @@ import lombok.Setter;
 @Setter
 public class IndexerCache {
 
+    protected Map<String, Set<String>> chromosomes = new HashMap<>();
+    protected Map<String, Set<String>> crossReferences = new HashMap<>();
     protected Map<String, Set<String>> diseases = new HashMap<>();
     protected Map<String, Set<String>> diseasesAgrSlim = new HashMap<>();
     protected Map<String, Set<String>> diseasesWithParents = new HashMap<>();
@@ -21,11 +23,20 @@ public class IndexerCache {
     protected Map<String, Set<String>> models = new HashMap<>();
     protected Map<String, Set<String>> phenotypeStatements = new HashMap<>();
     protected Map<String, Set<String>> relatedVariants = new HashMap<>();
+    protected Map<String, Set<String>> secondaryIds = new HashMap<>();
+    protected Map<String, Set<String>> synonyms = new HashMap<>();
 
     protected void addCachedFields(SearchableItemDocument document) {
         String id = document.getPrimaryKey();
 
         document.setAlleles(alleles.get(id));
+        //addAll vs setter is because some fields may be set by a translator before this step
+        if (crossReferences.get(id) != null) {
+            document.getCrossReferences().addAll(crossReferences.get(id));
+        }
+        if (chromosomes.get(id) != null) {
+            document.getChromosomes().addAll(chromosomes.get(id));
+        }
         document.setDiseases(diseases.get(id));
         document.setDiseasesAgrSlim(diseasesAgrSlim.get(id));
         document.setDiseasesWithParents(diseasesWithParents.get(id));
@@ -33,6 +44,13 @@ public class IndexerCache {
         document.setModels(models.get(id));
         document.setPhenotypeStatements(phenotypeStatements.get(id));
         document.setRelatedVariants(relatedVariants.get(id));
+        if (secondaryIds.get(id) != null) {
+            document.getSecondaryIds().addAll(secondaryIds.get(id));
+        }
+        if (synonyms.get(id) != null) {
+            document.getSynonyms().addAll(synonyms.get(id));
+        }
+
     }
 
 }

@@ -46,8 +46,6 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, SearchableIte
             document.setSpecies(entity.getSpecies().getName());
         }
 
-        addSecondaryIds(entity, document);
-        addSynonyms(entity, document);
 
         if (entity.getSoTerm() != null) {
             document.setSoTermId(entity.getSoTerm().getPrimaryKey());
@@ -63,29 +61,6 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, SearchableIte
                         .collect(Collectors.toSet())
         );
 
-        if (entity.getGenomeLocations() != null) {
-            Set<GenomeLocationDoclet> gllist = new HashSet<>();
-            for (GenomeLocation location : entity.getGenomeLocations()) {
-                GenomeLocationDoclet loc = new GenomeLocationDoclet(
-                        location.getStart(),
-                        location.getEnd(),
-                        location.getAssembly(),
-                        location.getStrand(),
-                        location.getChromosome().getPrimaryKey());
-
-                gllist.add(loc);
-            }
-            document.setGenomeLocations(gllist);
-        }
-
-        if (entity.getCrossReferences() != null) {
-            document.setCrossReferencesMap(
-                    entity.getCrossReferences().stream()
-                            .map(crossReference -> {
-                                return crossReferenceTranslator.translate(crossReference);
-                            })
-                            .collect(Collectors.groupingBy(CrossReferenceDoclet::getType, Collectors.toList())));
-        }
 
         return document;
     }
