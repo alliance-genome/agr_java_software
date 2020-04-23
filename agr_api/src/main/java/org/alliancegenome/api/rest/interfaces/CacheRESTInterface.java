@@ -13,10 +13,13 @@ import org.alliancegenome.neo4j.view.View;
 
 import com.fasterxml.jackson.annotation.JsonView;
 
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+
 @Path("/cache")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-public interface DevtoolRESTInterface {
+public interface CacheRESTInterface {
 
     @GET
     @JsonView(View.Cacher.class)
@@ -30,9 +33,14 @@ public interface DevtoolRESTInterface {
 
 
     @GET
-    @Path("/{cacheSpace}/{id}")
+    @Path("/{cache_name}/{id}")
+    @ApiOperation(value = "Get Cache Object")
+    @JsonView(value = {View.Default.class})
     String getCacheObject(
+            @ApiParam(name = "id", value = "Search for an object by ID")
             @PathParam("id") String id,
-            @PathParam("cacheSpace") String cacheName
+            @ApiParam(name = "cache_name", value = "Cache Type to Search by")
+            @PathParam("cache_name") String cache_name
     );
+
 }

@@ -1,69 +1,48 @@
 package org.alliancegenome.api.controller;
 
+import java.util.Map;
+
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import org.alliancegenome.neo4j.view.View;
-import org.infinispan.client.hotrod.RemoteCache;
-import org.infinispan.client.hotrod.RemoteCacheManager;
-
-import com.fasterxml.jackson.annotation.JsonView;
+import org.alliancegenome.api.entity.CacheStatus;
+import org.alliancegenome.api.entity.CacheSummary;
+import org.alliancegenome.api.rest.interfaces.CacheRESTInterface;
+import org.alliancegenome.api.service.CacheStatusService;
+import org.alliancegenome.cache.CacheAlliance;
 
 import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import lombok.extern.log4j.Log4j2;
 
-
-@Log4j2
 @RequestScoped
 @Path("/cache")
 @Api(value = "Cache")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-public class CacheController {
+public class CacheController implements CacheRESTInterface {
 
     @Inject
-    private RemoteCacheManager manager;
-    
-    @GET
-    @Path("/{cache_name}/{id}")
-    @ApiOperation(value = "Get Cache Object")
-    @JsonView(value = {View.Default.class})
-    public String getCacheObject(
-            @ApiParam(name = "id", value = "Search for an object by ID")
-            @PathParam("id") String id,
-            @ApiParam(name = "cache_name", value = "Cache Type to Search by")
-            @PathParam("cache_name") String cache_name
-    ) {
-        
-//      org.infinispan.configuration.cache.ConfigurationBuilder cb2 = new org.infinispan.configuration.cache.ConfigurationBuilder();
-//
-//      cb2
-//              .memory()
-//              .storageType(StorageType.BINARY)
-//              .evictionType(EvictionType.MEMORY)
-//              .size(100_000)
-//              .persistence()
-//              .passivation(false)
-//              .addSingleFileStore()
-//              .preload(false)
-//              .shared(false)
-//              .fetchPersistentState(true)
-//              .location("/data/" + cache_name).async().enable().threadPoolSize(5);
-//      
-//      log.debug("Creating Cache: " + cache_name);
-//
-//      RemoteCache<String, String> cache = manager.administration().getOrCreateCache(cache_name, cb2.build());
-        
-        RemoteCache<String, String> cache = manager.getCache(cache_name);
-        
-        return (String)cache.get(id);
+    private CacheStatusService service;
+
+    @Override
+    public CacheSummary getCacheStatus() {
+        CacheSummary summary = new CacheSummary();
+        Map<CacheAlliance, CacheStatus> map = service.getAllCachStatusRecords();
+        map.forEach((name, cacheStatus) -> summary.addCacheStatus(cacheStatus));
+        return summary;
     }
+
+    @Override
+    public CacheStatus getCacheStatusPerSpace(String cacheSpace) {
+        return service.getCacheStatus(CacheAlliance.getTypeByName(cacheSpace));
+    }
+
+    @Override
+    public String getCacheObject(String entityId, String cacheName) {
+        return service.getCacheObject(entityId, cacheName);
+    }
+    
 }

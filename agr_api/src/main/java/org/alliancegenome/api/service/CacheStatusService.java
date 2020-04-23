@@ -18,15 +18,15 @@ import lombok.extern.log4j.Log4j2;
 public class CacheStatusService {
 
     @Inject
-    private CacheService cacherService;
-    
+    private CacheService cacheService;
+
     public CacheStatus getCacheStatus(CacheAlliance type) {
         return getCacheStatus(type, null);
     }
 
     public CacheStatus getCacheStatus(CacheAlliance type, String entityID) {
 
-        final CacheStatus entityCache = cacherService.getCacheEntry(type.getCacheName(), type, CacheStatus.class);
+        final CacheStatus entityCache = cacheService.getCacheEntry(type.getCacheName(), type, CacheStatus.class);
         if (entityID != null)
             entityCache.getEntityStats().keySet().removeIf(id -> !id.contains(entityID));
         return entityCache;
@@ -51,6 +51,6 @@ public class CacheStatusService {
         CacheAlliance cache = CacheAlliance.getTypeByName(cacheName);
         if (cache == null)
             return "No Cache with name " + cacheName + " found";
-        return cacherService.getCacheEntry(id, cache, String.class);
+        return cacheService.getCacheEntry(id, cache, String.class);
     }
 }
