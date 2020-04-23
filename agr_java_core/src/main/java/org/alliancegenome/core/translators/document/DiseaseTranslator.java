@@ -45,7 +45,6 @@ public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, Searchab
         // add CrossReferences
         if (doTerm.getCrossReferences() != null) {
             document.getCrossReferences().addAll(doTerm.getCrossReferences().stream().map(CrossReference::getName).collect(Collectors.toSet()));
-            document.getCrossReferences().addAll(doTerm.getCrossReferences().stream().map(CrossReference::getLocalId).collect(Collectors.toSet()));
         }
 
         return document;

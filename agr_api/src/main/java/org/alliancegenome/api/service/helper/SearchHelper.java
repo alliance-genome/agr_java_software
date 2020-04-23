@@ -120,6 +120,7 @@ public class SearchHelper {
             add("cellularComponentExpressionAgrSlim.keyword");
             add("chromosomes");
             add("crossReferences");
+            add("crossReferences.standardText");
             add("diseases");
             add("diseasesAgrSlim");
             add("diseasesWithParents");

@@ -43,7 +43,7 @@ public class Mapping extends Builder {
         new FieldBuilder(builder, "cellularComponentExpressionWithParents", "text").keyword().build();
         new FieldBuilder(builder, "cellularComponentExpressionAgrSlim", "text").keyword().build();
         new FieldBuilder(builder, "chromosomes", "text").keyword().build();
-        new FieldBuilder(builder, "crossReferences", "text").keyword().build();
+        new FieldBuilder(builder, "crossReferences", "text").keyword().standardText().build();
         new FieldBuilder(builder, "description", "text");
         new FieldBuilder(builder, "diseases", "text").keyword().build();
         new FieldBuilder(builder, "diseasesAgrSlim", "text").keyword().build();
@@ -112,8 +112,6 @@ public class Mapping extends Builder {
         new FieldBuilder(builder, "variantTypes", "text").keyword().build();
         new FieldBuilder(builder, "whereExpressed", "text").keyword().build();
 
-        buildCrossReferencesField();
-        buildGenomeLocationsField();
         buildMetaDataField();
 
 
@@ -125,27 +123,6 @@ public class Mapping extends Builder {
         new FieldBuilder(builder,"dateProduced","date").build();
         new FieldBuilder(builder,"dataProvider","keyword").build();
         new FieldBuilder(builder,"release","keyword").build();
-        builder.endObject();
-        builder.endObject();
-    }
-
-    private void buildGenomeLocationsField() throws IOException {
-        builder.startObject("genomeLocations");
-        builder.startObject("properties");
-        new FieldBuilder(builder,"assembly","keyword").build();
-        new FieldBuilder(builder,"startPosition","integer").build();
-        new FieldBuilder(builder,"endPosition","integer").build();
-        new FieldBuilder(builder,"chromosome","keyword").build();
-        new FieldBuilder(builder,"strand","keyword").build();
-        builder.endObject();
-        builder.endObject();
-    }
-
-    private void buildCrossReferencesField() throws IOException {
-        builder.startObject("crossReferenceDocuments");
-        builder.startObject("properties");
-        new FieldBuilder(builder,"dataProvider","keyword").build();
-        new FieldBuilder(builder,"id","keyword").build();
         builder.endObject();
         builder.endObject();
     }
