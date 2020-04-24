@@ -1,15 +1,15 @@
 package org.alliancegenome.core.translators.tdf;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
 import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.entity.node.GeneticEntity;
 import org.alliancegenome.neo4j.entity.node.PublicationJoin;
 import org.apache.commons.collections.CollectionUtils;
-
-import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
 
 public class PhenotypeAnnotationToTdfTranslator {
 

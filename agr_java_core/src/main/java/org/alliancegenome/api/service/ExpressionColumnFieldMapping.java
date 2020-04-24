@@ -1,13 +1,13 @@
 package org.alliancegenome.api.service;
 
-import org.alliancegenome.core.ExpressionDetail;
-import org.alliancegenome.es.model.query.FieldFilter;
+import static org.alliancegenome.api.service.Column.EXPRESSION_SPECIES;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
-import static org.alliancegenome.api.service.Column.EXPRESSION_SPECIES;
+import org.alliancegenome.core.ExpressionDetail;
+import org.alliancegenome.es.model.query.FieldFilter;
 
 public class ExpressionColumnFieldMapping extends ColumnFieldMapping<ExpressionDetail> {
 

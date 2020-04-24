@@ -1,13 +1,19 @@
 package org.alliancegenome.api.service;
 
-import org.alliancegenome.es.model.query.FieldFilter;
-import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
+import static org.alliancegenome.api.service.Column.ALLELE_ASSOCIATION;
+import static org.alliancegenome.api.service.Column.ALLELE_SPECIES;
+import static org.alliancegenome.api.service.Column.ASSOCIATES_GENES_ASSOCIATION;
+import static org.alliancegenome.api.service.Column.ASSOCIATES_GENES_SPECIES;
+import static org.alliancegenome.api.service.Column.DISEASE_ASSOCIATION;
+import static org.alliancegenome.api.service.Column.DISEASE_SPECIES;
+import static org.alliancegenome.api.service.Column.MODEL_SPECIES;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
-import static org.alliancegenome.api.service.Column.*;
+import org.alliancegenome.es.model.query.FieldFilter;
+import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 
 public class DiseaseColumnFieldMapping extends ColumnFieldMapping<DiseaseAnnotation> {
 

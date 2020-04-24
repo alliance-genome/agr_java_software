@@ -1,16 +1,20 @@
 package org.alliancegenome.api.controller;
 
-import lombok.extern.log4j.Log4j2;
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.Response;
+
 import org.alliancegenome.api.rest.interfaces.AlleleRESTInterface;
-import org.alliancegenome.api.service.APIService;
 import org.alliancegenome.api.service.AlleleService;
 import org.alliancegenome.api.service.EntityType;
+import org.alliancegenome.api.service.helper.APIServiceHelper;
+import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.core.exceptions.RestErrorException;
 import org.alliancegenome.core.exceptions.RestErrorMessage;
-import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.core.translators.tdf.AlleleToTdfTranslator;
-import org.alliancegenome.core.translators.tdf.PhenotypeAnnotationToTdfTranslator;
 import org.alliancegenome.core.translators.tdf.DiseaseAnnotationToTdfTranslator;
+import org.alliancegenome.core.translators.tdf.PhenotypeAnnotationToTdfTranslator;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
@@ -18,10 +22,7 @@ import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.Variant;
 
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.core.Response;
+import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 @RequestScoped
@@ -84,7 +85,7 @@ public class AlleleController implements AlleleRESTInterface {
                 variantType,
                 consequence);
         Response.ResponseBuilder responseBuilder = Response.ok(translator.getAllVariantsRows(response.getResults()));
-        APIService.setDownloadHeader(id, EntityType.ALLELE, EntityType.VARIANT, responseBuilder);
+        APIServiceHelper.setDownloadHeader(id, EntityType.ALLELE, EntityType.VARIANT, responseBuilder);
         return responseBuilder.build();
     }
 
@@ -145,7 +146,7 @@ public class AlleleController implements AlleleRESTInterface {
          reference,
          sortBy);
         Response.ResponseBuilder responseBuilder = Response.ok(phenotypeAnnotationToTdfTranslator.getAllRowsForAlleles(response.getResults()));
-        APIService.setDownloadHeader(id, EntityType.ALLELE, EntityType.PHENOTYPE, responseBuilder);
+        APIServiceHelper.setDownloadHeader(id, EntityType.ALLELE, EntityType.PHENOTYPE, responseBuilder);
         return responseBuilder.build();
     }
 
@@ -195,7 +196,7 @@ public class AlleleController implements AlleleRESTInterface {
                 reference,
                 sortBy);
         Response.ResponseBuilder responseBuilder = Response.ok(diseaseToTdfTranslator.getAllRowsForAllele(response.getResults()));
-        APIService.setDownloadHeader(id, EntityType.ALLELE, EntityType.DISEASE, responseBuilder);
+        APIServiceHelper.setDownloadHeader(id, EntityType.ALLELE, EntityType.DISEASE, responseBuilder);
         return responseBuilder.build();
     }
 

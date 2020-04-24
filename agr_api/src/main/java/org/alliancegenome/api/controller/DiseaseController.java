@@ -16,12 +16,12 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.alliancegenome.api.rest.interfaces.DiseaseRESTInterface;
-import org.alliancegenome.api.service.APIService;
 import org.alliancegenome.api.service.DiseaseService;
 import org.alliancegenome.api.service.EntityType;
+import org.alliancegenome.api.service.helper.APIServiceHelper;
+import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.core.exceptions.RestErrorException;
 import org.alliancegenome.core.exceptions.RestErrorMessage;
-import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.core.translators.tdf.DiseaseAnnotationToTdfTranslator;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
@@ -172,7 +172,7 @@ public class DiseaseController extends BaseController implements DiseaseRESTInte
                 associationType,
                 asc);
         Response.ResponseBuilder responseBuilder = Response.ok(translator.getAllRowsForAllele(response.getResults()));
-        APIService.setDownloadHeader(id, EntityType.DISEASE, EntityType.ALLELE, responseBuilder);
+        APIServiceHelper.setDownloadHeader(id, EntityType.DISEASE, EntityType.ALLELE, responseBuilder);
         return responseBuilder.build();
     }
 
@@ -200,7 +200,7 @@ public class DiseaseController extends BaseController implements DiseaseRESTInte
                 associationType,
                 asc);
         Response.ResponseBuilder responseBuilder = Response.ok(translator.getAllRowsForGenes(response.getResults()));
-        APIService.setDownloadHeader(id, EntityType.DISEASE, EntityType.GENE, responseBuilder);
+        APIServiceHelper.setDownloadHeader(id, EntityType.DISEASE, EntityType.GENE, responseBuilder);
         return responseBuilder.build();
 
     }
@@ -311,7 +311,7 @@ public class DiseaseController extends BaseController implements DiseaseRESTInte
                 evidenceCode,
                 asc);
         Response.ResponseBuilder responseBuilder = Response.ok(translator.getAllRowsForModel(response.getResults()));
-        APIService.setDownloadHeader(id, EntityType.DISEASE, EntityType.MODEL, responseBuilder);
+        APIServiceHelper.setDownloadHeader(id, EntityType.DISEASE, EntityType.MODEL, responseBuilder);
         return responseBuilder.build();
     }
 
@@ -350,7 +350,7 @@ public class DiseaseController extends BaseController implements DiseaseRESTInte
             JsonResultResponse<DiseaseAnnotation> jsonResponse = diseaseService.getDiseaseAnnotationsByDisease(id, pagination);
             responseBuilder = Response.ok(translator.getAllRowsForGenes(jsonResponse.getResults()));
             responseBuilder.type(MediaType.TEXT_PLAIN_TYPE);
-            APIService.setDownloadHeader(id, DISEASE, GENE, responseBuilder);
+            APIServiceHelper.setDownloadHeader(id, DISEASE, GENE, responseBuilder);
         } catch (Exception e) {
             log.error(e);
             RestErrorMessage error = new RestErrorMessage();
@@ -463,7 +463,7 @@ public class DiseaseController extends BaseController implements DiseaseRESTInte
             // translate all records
             responseBuilder = Response.ok(translator.getAllRowsForGenes(response.getResults()));
             responseBuilder.type(MediaType.TEXT_PLAIN_TYPE);
-            APIService.setDownloadHeader(geneIDs.get(0), GENE, DISEASE, responseBuilder);
+            APIServiceHelper.setDownloadHeader(geneIDs.get(0), GENE, DISEASE, responseBuilder);
         } catch (Exception e) {
             log.error(e);
             RestErrorMessage error = new RestErrorMessage();

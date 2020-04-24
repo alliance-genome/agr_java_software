@@ -5,17 +5,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.config.Constants;
 import org.alliancegenome.es.index.ESDocument;
+import org.alliancegenome.es.index.site.doclet.CrossReferenceDoclet;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.alliancegenome.es.index.site.doclet.CrossReferenceDoclet;
-import org.alliancegenome.es.index.site.doclet.GenomeLocationDoclet;
 
 @Getter
 @Setter

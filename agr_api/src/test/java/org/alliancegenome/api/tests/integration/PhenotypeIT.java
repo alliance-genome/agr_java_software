@@ -7,8 +7,8 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.alliancegenome.api.service.DiseaseService;
 import org.alliancegenome.api.service.GeneService;
+import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.core.config.ConfigHelper;
-import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.core.translators.tdf.PhenotypeAnnotationToTdfTranslator;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
@@ -29,6 +29,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import javax.inject.Inject;
+
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
@@ -36,6 +38,8 @@ import static org.junit.Assert.*;
 public class PhenotypeIT {
 
     private ObjectMapper mapper = new ObjectMapper();
+    
+    @Inject
     private GeneService geneService;
 
     @ApiOperation(value = "Retrieve a Gene for given ID")
@@ -59,7 +63,7 @@ public class PhenotypeIT {
         Configurator.setRootLevel(Level.WARN);
         ConfigHelper.init();
 
-        geneService = new GeneService();
+        //geneService = new GeneService();
 
         mapper.disable(MapperFeature.DEFAULT_VIEW_INCLUSION);
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);

@@ -1,12 +1,17 @@
 package org.alliancegenome.neo4j.repository;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
+
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.Variant;
 import org.neo4j.ogm.model.Result;
-
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 public class AlleleRepository extends Neo4jRepository<Allele> {
 
@@ -36,8 +41,7 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
         return null;
     }
 
-
-    public List<String> getAllFeatureKeys() {
+    public List<String> getAllAlleleKeys() {
         String query = "MATCH (a:Allele)--(g:Gene)-[:FROM_SPECIES]-(q:Species) RETURN a.primaryKey";
 
         Result r = queryForResult(query);
@@ -47,7 +51,7 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
 
         while (i.hasNext()) {
             Map<String, Object> map2 = i.next();
-            list.add((String) map2.get("feature.primaryKey"));
+            list.add((String) map2.get("a.primaryKey"));
         }
         return list;
     }

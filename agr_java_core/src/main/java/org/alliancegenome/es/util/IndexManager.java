@@ -35,7 +35,14 @@ public class IndexManager {
     private String tempIndexName = "site_index_temp";
 
     public IndexManager() {
+        initClient();
+    }
+    
+    public void initClient() {
         try {
+            if(client != null) {
+                client.close();
+            }
             client = new PreBuiltXPackTransportClient(Settings.EMPTY);
             if(ConfigHelper.getEsHost().contains(",")) {
                 String[] hosts = ConfigHelper.getEsHost().split(",");

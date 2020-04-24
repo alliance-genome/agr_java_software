@@ -1,20 +1,27 @@
 package org.alliancegenome.cacher.cachers;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.extern.log4j.Log4j2;
+import static java.util.Map.Entry.comparingByValue;
+import static java.util.stream.Collectors.toMap;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.alliancegenome.api.entity.CacheStatus;
 import org.alliancegenome.cache.CacheAlliance;
-import org.alliancegenome.cache.manager.BasicCachingManager;
+import org.alliancegenome.cache.CacheService;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.entity.node.Species;
 import org.alliancegenome.neo4j.view.View;
 
-import java.util.*;
-
-import static java.util.Map.Entry.comparingByValue;
-import static java.util.stream.Collectors.toMap;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 @Setter
@@ -27,7 +34,7 @@ public abstract class Cacher extends Thread {
 
     private ProcessDisplayHelper display = new ProcessDisplayHelper();
 
-    private BasicCachingManager basicManager = new BasicCachingManager();
+    protected CacheService cacheService = new CacheService();
 
     @Override
     public void run() {
@@ -61,7 +68,7 @@ public abstract class Cacher extends Thread {
     }
 
     public void setCacheStatus(CacheStatus status) {
-        basicManager.setCache(status.getName(), status, View.CacherDetail.class, CacheAlliance.CACHING_STATS);
+        cacheService.putCacheEntry(status.getName(), status, View.CacherDetail.class, CacheAlliance.CACHING_STATS);
     }
 
     public void setCacheStatus(int size, CacheAlliance cache) {
@@ -72,9 +79,8 @@ public abstract class Cacher extends Thread {
 
     void populateCacheFromMap(Map<String, ? extends Object> map, Class view, CacheAlliance cacheAlliance) {
         startProcess(cacheAlliance.name() + " into cache", map.size());
-        BasicCachingManager manager = new BasicCachingManager();
         for (Map.Entry<String, ? extends Object> entry : map.entrySet()) {
-            manager.setCache(entry.getKey(), entry.getValue(), view, cacheAlliance);
+            cacheService.putCacheEntry(entry.getKey(), entry.getValue(), view, cacheAlliance);
             progressProcess();
         }
         finishProcess();

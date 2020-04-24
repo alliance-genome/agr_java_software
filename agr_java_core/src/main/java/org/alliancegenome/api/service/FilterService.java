@@ -1,16 +1,21 @@
 package org.alliancegenome.api.service;
 
-import org.alliancegenome.core.service.AnnotationFiltering;
-import org.alliancegenome.core.service.FilterFunction;
-import org.alliancegenome.core.service.SortingField;
-import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.neo4j.entity.FieldValues;
-import org.alliancegenome.neo4j.entity.Sorting;
-import org.alliancegenome.neo4j.view.BaseFilter;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import org.alliancegenome.cache.repository.helper.AnnotationFiltering;
+import org.alliancegenome.cache.repository.helper.FilterFunction;
+import org.alliancegenome.cache.repository.helper.SortingField;
+import org.alliancegenome.es.model.query.Pagination;
+import org.alliancegenome.neo4j.entity.Sorting;
+import org.alliancegenome.neo4j.view.BaseFilter;
 
 public class FilterService<T> {
 

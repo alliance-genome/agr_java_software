@@ -32,16 +32,16 @@ public class Neo4jRepository<E> {
         this.entityTypeClazz = entityTypeClazz;
     }
 
-    public Iterable<E> getPage(int pageNumber, int pageSize, int depth) {
+    protected Iterable<E> getPage(int pageNumber, int pageSize, int depth) {
         Pagination p = new Pagination(pageNumber, pageSize);
         return neo4jSession.loadAll(entityTypeClazz, p, depth);
     }
 
-    public Iterable<E> getPage(int pageNumber, int pageSize) {
+    protected Iterable<E> getPage(int pageNumber, int pageSize) {
         return getPage(pageNumber, pageSize, 1);
     }
 
-    public int getCount() {
+    protected int getCount() {
         return (int) neo4jSession.countEntitiesOfType(entityTypeClazz);
     }
 
@@ -49,25 +49,25 @@ public class Neo4jRepository<E> {
         neo4jSession.clear();
     }
 
-    public Iterable<E> getEntity(String key, String value) {
+    protected Iterable<E> getEntity(String key, String value) {
         return neo4jSession.loadAll(entityTypeClazz, new Filter(key, ComparisonOperator.EQUALS, value));
     }
 
-    public E getSingleEntity(String primaryKey) {
+    protected E getSingleEntity(String primaryKey) {
         return neo4jSession.load(entityTypeClazz, primaryKey);
     }
     
 
-    public Iterable<E> query(String cypherQuery) {
+    protected Iterable<E> query(String cypherQuery) {
         return loggedQueryByClass(entityTypeClazz, cypherQuery, Collections.EMPTY_MAP);
     }
-    public Iterable<E> query(String cypherQuery, Map<String, ?> params) {
+    protected Iterable<E> query(String cypherQuery, Map<String, ?> params) {
         return loggedQueryByClass(entityTypeClazz, cypherQuery, params);
     }
-    public <T> Iterable<T> query(Class<T> entityTypeClazz, String cypherQuery) {
+    protected <T> Iterable<T> query(Class<T> entityTypeClazz, String cypherQuery) {
         return loggedQueryByClass(entityTypeClazz, cypherQuery, Collections.EMPTY_MAP);
     }
-    public <T> Iterable<T> query(Class<T> entityTypeClazz, String cypherQuery, Map<String, ?> params) {
+    protected <T> Iterable<T> query(Class<T> entityTypeClazz, String cypherQuery, Map<String, ?> params) {
         return loggedQueryByClass(entityTypeClazz, cypherQuery, params);
     }
     private <T> Iterable<T> loggedQueryByClass(Class<T> entityTypeClazz, String cypherQuery, Map<String, ?> params) {
@@ -79,16 +79,16 @@ public class Neo4jRepository<E> {
         return ret;
     }
     
-    public Long queryCount(String cypherQuery) {
+    protected Long queryCount(String cypherQuery) {
         return (Long) loggedQuery(cypherQuery, Collections.EMPTY_MAP).iterator().next().values().iterator().next();
     }
-    public Result queryForResult(String cypherQuery) {
+    protected Result queryForResult(String cypherQuery) {
         return loggedQuery(cypherQuery, Collections.EMPTY_MAP);
     }
-    public Result queryForResult(String cypherQuery, Map<String, ?> params) {
+    protected Result queryForResult(String cypherQuery, Map<String, ?> params) {
         return loggedQuery(cypherQuery, params);
     }
-    private Result loggedQuery(String cypherQuery, Map<String, ?> params) {
+    protected Result loggedQuery(String cypherQuery, Map<String, ?> params) {
         Date start = new Date();
         log.debug("Running Query: " + cypherQuery);
         Result ret = neo4jSession.query(cypherQuery, params);
@@ -158,12 +158,12 @@ public class Neo4jRepository<E> {
         return returnMap;
     }
 
-    String addAndWhereClauseString(String fieldName, FieldFilter fieldFilter, BaseFilter baseFilter) {
+    protected String addAndWhereClauseString(String fieldName, FieldFilter fieldFilter, BaseFilter baseFilter) {
         return addWhereClauseString(fieldName, fieldFilter, baseFilter, " AND ");
     }
 
 
-    String addWhereClauseString(String fieldName, FieldFilter fieldFilter, BaseFilter baseFilter, String connectorLogic) {
+    protected String addWhereClauseString(String fieldName, FieldFilter fieldFilter, BaseFilter baseFilter, String connectorLogic) {
         String value = baseFilter.get(fieldFilter);
         String query = null;
         if (value != null) {

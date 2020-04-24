@@ -1,16 +1,31 @@
 package org.alliancegenome.api.tests.integration;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.swagger.annotations.Api;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import javax.inject.Inject;
+
 import org.alliancegenome.api.entity.CacheStatus;
 import org.alliancegenome.api.service.AlleleService;
 import org.alliancegenome.api.service.CacheStatusService;
 import org.alliancegenome.api.service.GeneService;
 import org.alliancegenome.cache.CacheAlliance;
+import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.core.config.ConfigHelper;
-import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
@@ -29,25 +44,32 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.greaterThanOrEqualTo;
-import static org.junit.Assert.*;
+import io.swagger.annotations.Api;
 
 @Api(value = "Allele Tests")
 public class AlleleIT {
 
     private ObjectMapper mapper = new ObjectMapper();
+    
+    @Inject
     private AlleleService alleleService;
+    
+    @Inject
+    private GeneService geneService;
+    
+    @Inject
+    private CacheStatusService cacheStatusService;
 
     @Before
     public void before() {
         Configurator.setRootLevel(Level.WARN);
         ConfigHelper.init();
 
-        alleleService = new AlleleService();
+        //alleleService = new AlleleService();
 
         mapper.disable(MapperFeature.DEFAULT_VIEW_INCLUSION);
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
@@ -103,10 +125,9 @@ public class AlleleIT {
     @Test
     // Test Sox9 from MGI for disease via experiment records
     public void checkStatus() {
-        CacheStatusService service = new CacheStatusService();
-        CacheStatus status = service.getCacheStatus(CacheAlliance.ALLELE_GENE, "FB:FBgn0031717");
+        CacheStatus status = cacheStatusService.getCacheStatus(CacheAlliance.ALLELE_GENE, "FB:FBgn0031717");
         assertNotNull(status);
-        Map<CacheAlliance, CacheStatus> map = service.getAllCachStatusRecords();
+        Map<CacheAlliance, CacheStatus> map = cacheStatusService.getAllCachStatusRecords();
         assertNotNull(map);
     }
 
@@ -229,8 +250,7 @@ public class AlleleIT {
     @Test
     public void getAllelesPerGene() {
         Pagination pagination = new Pagination();
-        GeneService service = new GeneService();
-        JsonResultResponse<Allele> response = service.getAlleles("ZFIN:ZDB-GENE-990415-234", pagination);
+        JsonResultResponse<Allele> response = geneService.getAlleles("ZFIN:ZDB-GENE-990415-234", pagination);
         assertThat(response.getTotal(), greaterThanOrEqualTo(1));
     }
 

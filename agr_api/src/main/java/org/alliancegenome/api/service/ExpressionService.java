@@ -1,25 +1,56 @@
 package org.alliancegenome.api.service;
 
-import org.alliancegenome.api.entity.*;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+
+import org.alliancegenome.api.entity.EntitySubgroupSlim;
+import org.alliancegenome.api.entity.ExpressionSummary;
+import org.alliancegenome.api.entity.ExpressionSummaryGroup;
+import org.alliancegenome.api.entity.ExpressionSummaryGroupTerm;
+import org.alliancegenome.api.entity.RibbonEntity;
+import org.alliancegenome.api.entity.RibbonSummary;
 import org.alliancegenome.cache.repository.ExpressionCacheRepository;
+import org.alliancegenome.cache.repository.helper.JsonResultResponse;
+import org.alliancegenome.cache.repository.helper.PaginationResult;
 import org.alliancegenome.core.ExpressionDetail;
-import org.alliancegenome.core.service.JsonResultResponse;
-import org.alliancegenome.core.service.PaginationResult;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.neo4j.entity.node.*;
+import org.alliancegenome.neo4j.entity.node.BioEntityGeneExpressionJoin;
+import org.alliancegenome.neo4j.entity.node.ExpressionBioEntity;
+import org.alliancegenome.neo4j.entity.node.GOTerm;
+import org.alliancegenome.neo4j.entity.node.Gene;
+import org.alliancegenome.neo4j.entity.node.MMOTerm;
+import org.alliancegenome.neo4j.entity.node.Stage;
+import org.alliancegenome.neo4j.entity.node.UBERONTerm;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
 
-import java.util.*;
-import java.util.stream.Collectors;
-
-import static java.util.stream.Collectors.*;
-
+@RequestScoped
 public class ExpressionService {
 
+    @Inject
+    private ExpressionCacheRepository expressionCacheRepository;
+    
+    @Inject
+    private ExpressionRibbonService service;
+    
     public static final String CELLULAR_COMPONENT = "Subcellular";
 
     public JsonResultResponse<ExpressionDetail> getExpressionDetails(List<BioEntityGeneExpressionJoin> joins, Pagination pagination) {
@@ -183,7 +214,6 @@ public class ExpressionService {
     public RibbonSummary getExpressionRibbonSummary(List<String> geneIDs) {
         if (geneIDs == null)
             return null;
-        ExpressionRibbonService service = new ExpressionRibbonService();
         RibbonSummary ribbonSummary = service.getRibbonSectionInfo();
         geneIDs.forEach(geneID -> ribbonSummary.addRibbonEntity(getExpressionRibbonSummary(geneID)));
         return ribbonSummary;
@@ -296,7 +326,6 @@ public class ExpressionService {
 
     public JsonResultResponse<ExpressionDetail> getExpressionDetails(List<String> geneIDs, String termID, Pagination pagination) {
         JsonResultResponse<ExpressionDetail> response = new JsonResultResponse<>();
-        ExpressionCacheRepository expressionCacheRepository = new ExpressionCacheRepository();
         PaginationResult<ExpressionDetail> joins = expressionCacheRepository.getExpressionAnnotations(geneIDs, termID, pagination);
         response.setResults(joins.getResult());
         response.setTotal(joins.getTotalNumber());

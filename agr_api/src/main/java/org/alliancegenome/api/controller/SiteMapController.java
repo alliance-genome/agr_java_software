@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
 import javax.ws.rs.core.UriInfo;
 
 import org.alliancegenome.api.model.xml.SiteMap;
@@ -12,7 +13,7 @@ import org.alliancegenome.api.model.xml.SiteMapIndex;
 import org.alliancegenome.api.model.xml.XMLURL;
 import org.alliancegenome.api.model.xml.XMLURLSet;
 import org.alliancegenome.api.rest.interfaces.SiteMapRESTInterface;
-import org.alliancegenome.cache.manager.SiteMapCacheManager;
+import org.alliancegenome.cache.repository.SiteMapCacheManager;
 import org.alliancegenome.core.config.ConfigHelper;
 
 import lombok.extern.log4j.Log4j2;
@@ -21,7 +22,8 @@ import lombok.extern.log4j.Log4j2;
 @RequestScoped
 public class SiteMapController extends BaseController implements SiteMapRESTInterface {
 
-    private SiteMapCacheManager manager = new SiteMapCacheManager();
+    @Inject
+    private SiteMapCacheManager manager;
     //private final Logger log = Logger.getLogger(getClass());
 
     @Override

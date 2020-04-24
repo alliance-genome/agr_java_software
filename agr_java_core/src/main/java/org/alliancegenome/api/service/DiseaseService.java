@@ -1,11 +1,36 @@
 package org.alliancegenome.api.service;
 
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toList;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+
 import org.alliancegenome.api.entity.DiseaseEntitySubgroupSlim;
 import org.alliancegenome.api.entity.DiseaseRibbonEntity;
 import org.alliancegenome.api.entity.DiseaseRibbonSummary;
 import org.alliancegenome.cache.repository.DiseaseCacheRepository;
 import org.alliancegenome.cache.repository.PhenotypeCacheRepository;
-import org.alliancegenome.core.service.*;
+import org.alliancegenome.cache.repository.helper.DiseaseAnnotationFiltering;
+import org.alliancegenome.cache.repository.helper.DiseaseAnnotationSorting;
+import org.alliancegenome.cache.repository.helper.JsonResultResponse;
+import org.alliancegenome.cache.repository.helper.ModelAnnotationFiltering;
+import org.alliancegenome.cache.repository.helper.ModelAnnotationsSorting;
+import org.alliancegenome.cache.repository.helper.PaginationResult;
+import org.alliancegenome.cache.repository.helper.PrimaryAnnotatedEntityFiltering;
+import org.alliancegenome.cache.repository.helper.PrimaryAnnotatedEntitySorting;
+import org.alliancegenome.cache.repository.helper.SortingField;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
@@ -20,25 +45,17 @@ import org.alliancegenome.neo4j.repository.DiseaseRepository;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.apache.commons.collections.CollectionUtils;
 
-import javax.enterprise.context.RequestScoped;
-import java.time.LocalDateTime;
-import java.util.*;
-import java.util.stream.Collectors;
-
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.toList;
-
 @RequestScoped
 public class DiseaseService {
 
     private static DiseaseRepository diseaseRepository = new DiseaseRepository();
     private static GeneRepository geneRepository = new GeneRepository();
-    private static DiseaseCacheRepository diseaseCacheRepository = new DiseaseCacheRepository();
-    private static PhenotypeCacheRepository phenotypeCacheRepository = new PhenotypeCacheRepository();
-
-    public DiseaseService() {
-
-    }
+    
+    @Inject
+    private DiseaseCacheRepository diseaseCacheRepository;
+    
+    @Inject
+    private PhenotypeCacheRepository phenotypeCacheRepository;
 
     public static List<String> getDiseaseParents(String diseaseSlimID) {
         if (!diseaseSlimID.equals(DiseaseRibbonSummary.DOID_OTHER)) {

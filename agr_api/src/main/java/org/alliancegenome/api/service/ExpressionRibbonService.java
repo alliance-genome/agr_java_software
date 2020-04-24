@@ -16,15 +16,15 @@ import org.alliancegenome.neo4j.entity.node.GOTerm;
 import org.alliancegenome.neo4j.repository.DiseaseRepository;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import lombok.extern.log4j.Log4j2;
+
+@Log4j2
 @RequestScoped
 public class ExpressionRibbonService {
 
-    private Log log = LogFactory.getLog(getClass());
     private DiseaseRepository diseaseRepository = new DiseaseRepository();
     private GeneRepository geneRepository = new GeneRepository();
 
