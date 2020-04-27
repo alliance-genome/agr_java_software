@@ -22,9 +22,7 @@ public class CacheConfig {
                 .addServer()
                 .host(ConfigHelper.getCacheHost())
                 .port(ConfigHelper.getCachePort())
-                .security().authentication()
-                .saslMechanism("PLAIN")
-                .username("user").password("pass")
+                //.security().authentication().saslMechanism("PLAIN").username("user").password("pass")
                 .socketTimeout(500000)
                 .connectionTimeout(500000)
                 .tcpNoDelay(true);
