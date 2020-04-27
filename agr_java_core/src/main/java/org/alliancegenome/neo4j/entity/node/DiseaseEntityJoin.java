@@ -51,7 +51,7 @@ public class DiseaseEntityJoin extends EntityJoin {
 
         List<CrossReference> refs = providerList.stream()
                 .filter(crossReference -> crossReference.getLoadedDB() != null)
-                .filter(CrossReference::getLoadedDB)
+                .filter(CrossReference::getCuratedDB)
                 .collect(Collectors.toList());
         if (CollectionUtils.isNotEmpty(refs))
             return refs.get(0);
