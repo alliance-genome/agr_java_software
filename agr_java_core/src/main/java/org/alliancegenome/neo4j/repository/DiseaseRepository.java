@@ -41,15 +41,18 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
     public static final String AND_NOT_DISEASE_ENTITY_JOIN_FEATURE = " AND NOT (diseaseEntityJoin)--(:Feature) ";
     public static final String TOTAL_COUNT = "totalCount";
 
-
     private String cypherEmpirical = " AND NOT (diseaseEntityJoin)-[:FROM_ORTHOLOGOUS_GENE]-(:Gene) ";
     private String cypherViaOrthology = " ,p5 =  (diseaseEntityJoin)-[:FROM_ORTHOLOGOUS_GENE]-(orthoGene:Gene)-[:FROM_SPECIES]-(orthoSpecies:Species) ";
+
+    private List<DOTerm> doAgrDoList;
+
+    private Map<String, List<ECOTerm>> ecoTermMap = new HashMap<>();
 
     private static Map<String, Set<String>> closureMapGO = null;
     private static Map<String, Set<String>> closureMapUberon = null;
     private static Map<String, Set<String>> closureMapUberonChild = null;
     private static Map<String, Set<String>> closureMap = null;
-    private static Map<String, Set<String>> closureChildMap = null;
+    private static Map<String, Set<String>> doClosureChildMap = null;
 
     static Map<FieldFilter, String> sortByMapping = new TreeMap<>();
 
@@ -229,33 +232,18 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
     }
 
 
-    public Map<String, Set<String>> getClosureChildToParentsMapping() {
-        if (closureChildMap != null)
-            return closureChildMap;
+    public Map<String, Set<String>> getDOClosureChildMapping() {
+        if (doClosureChildMap != null)
+            return doClosureChildMap;
         //closure
         String cypher = "MATCH (diseaseParent:DOTerm)<-[:IS_A_PART_OF_CLOSURE]-(disease:DOTerm) where diseaseParent.isObsolete = 'false' " +
                 " return diseaseParent.primaryKey as parent, disease.primaryKey as child order by disease.name";
 
         List<Closure> cls = getClosures(cypher);
-        closureChildMap = cls.stream()
+        doClosureChildMap = cls.stream()
                 .collect(groupingBy(Closure::getChild, mapping(Closure::getParent, Collectors.toSet())));
-        return closureChildMap;
+        return doClosureChildMap;
     }
-
-    public Map<String, Set<String>> getGOClosureChildMapping() {
-        if (closureChildMap != null)
-            return closureChildMap;
-        //closure
-        String cypher = "MATCH (diseaseParent:GOTerm)<-[:IS_A_PART_OF_CLOSURE]-(disease:GOTerm) where diseaseParent.isObsolete = 'false' " +
-                " return diseaseParent.primaryKey as parent, disease.primaryKey as child order by disease.name";
-
-        List<Closure> cls = getClosures(cypher);
-        closureChildMap = cls.stream()
-                .collect(groupingBy(Closure::getChild, mapping(Closure::getParent, Collectors.toSet())));
-        return closureChildMap;
-    }
-
-    private List<DOTerm> doAgrDoList;
 
     public List<DOTerm> getAgrDoSlim() {
         // cache the high-level terms of AGR Do slim
@@ -286,8 +274,6 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
         return StreamSupport.stream(joins.spliterator(), false).
                 collect(Collectors.toSet());
     }
-
-    private Map<String, List<ECOTerm>> ecoTermMap = new HashMap<>();
 
     public Map<String, List<ECOTerm>> getEcoTermMap() {
         if (ecoTermMap.size() == 0)
@@ -398,8 +384,8 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
         return null;
     }
 
-    public Set<String> getParentTermIDs(String doID) {
-        return getClosureChildToParentsMapping().get(doID);
+    public Set<String> getDOParentTermIDs(String doID) {
+        return getDOClosureChildMapping().get(doID);
     }
 
     // Convenience method to populate the evidence codes on the publicationJoins object

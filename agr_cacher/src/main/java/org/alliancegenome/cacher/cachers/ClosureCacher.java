@@ -19,7 +19,7 @@ public class ClosureCacher extends Cacher {
     @Override
     protected void cache() {
     
-        Map<String, Set<String>> closure = diseaseRepository.getClosureChildToParentsMapping();
+        Map<String, Set<String>> closure = diseaseRepository.getDOClosureChildMapping();
     
         final Class<View.DiseaseCacher> classView = View.DiseaseCacher.class;
         closure.forEach((parent, children) -> cacheService.putCacheEntry(parent, new ArrayList(children), classView, CacheAlliance.CLOSURE_MAP));
