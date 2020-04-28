@@ -93,10 +93,11 @@ public class ModelCacher extends Cacher {
 
         log.info("Number of Genes with Models: " + String.format("%,d", geneMap.size()));
 
-        populateCacheFromMap(geneMap, View.PrimaryAnnotation.class, CacheAlliance.GENE_MODEL);
+        populateCacheFromMap(geneMap, View.PrimaryAnnotation.class, CacheAlliance.GENE_ASSOCIATION_MODEL_GENE);
 
-        CacheStatus status = new CacheStatus(CacheAlliance.GENE_MODEL);
-        status.setNumberOfEntities(entities.size());
+        CacheStatus status = new CacheStatus(CacheAlliance.GENE_ASSOCIATION_MODEL_GENE);
+        status.setNumberOfEntityIDs(entities.size());
+        status.setNumberOfEntities(geneMap.size());
 
         Map<String, List<Species>> speciesStats = entities.stream()
                 .filter(annotation -> annotation.getSpecies() != null)

@@ -43,7 +43,7 @@ public class DiseaseCacheRepository {
     }
 
     public List<PrimaryAnnotatedEntity> getPrimaryAnnotatedEntitList(String geneID) {
-        return cacheService.getCacheEntries(geneID, CacheAlliance.GENE_MODEL, PrimaryAnnotatedEntity.class);
+        return cacheService.getCacheEntries(geneID, CacheAlliance.GENE_ASSOCIATION_MODEL_GENE, PrimaryAnnotatedEntity.class);
     }
 
     public PaginationResult<DiseaseAnnotation> getDiseaseAnnotationList(String diseaseID, Pagination pagination) {
