@@ -108,7 +108,7 @@ public class DiseaseRibbonService {
         doList.forEach(doTerm -> {
             List<String> slimFoundList = new ArrayList<>();
             diseaseRibbonSummary.getDiseaseRibbonSections().forEach(diseaseRibbonSection -> {
-                if (diseaseRepository.getParentTermIDs(doTerm.getPrimaryKey()).contains(diseaseRibbonSection.getId())) {
+                if (diseaseRepository.getDOParentTermIDs(doTerm.getPrimaryKey()).contains(diseaseRibbonSection.getId())) {
                     SectionSlim slim = new SectionSlim();
                     slim.setId(doTerm.getPrimaryKey());
                     slim.setLabel(doTerm.getName());
@@ -144,7 +144,7 @@ public class DiseaseRibbonService {
     }
 
     private Set<String> getParentIDsFromStream(Stream<String> stream, String doID) {
-        return stream.filter(id -> diseaseRepository.getParentTermIDs(doID).contains(id))
+        return stream.filter(id -> diseaseRepository.getDOParentTermIDs(doID).contains(id))
                 .collect(Collectors.toSet());
     }
 
