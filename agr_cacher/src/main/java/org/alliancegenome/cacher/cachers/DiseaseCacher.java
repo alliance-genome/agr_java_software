@@ -28,16 +28,7 @@ import org.alliancegenome.cache.repository.helper.SortingField;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
 import org.alliancegenome.neo4j.entity.SpeciesType;
-import org.alliancegenome.neo4j.entity.node.AffectedGenomicModel;
-import org.alliancegenome.neo4j.entity.node.Allele;
-import org.alliancegenome.neo4j.entity.node.CrossReference;
-import org.alliancegenome.neo4j.entity.node.DOTerm;
-import org.alliancegenome.neo4j.entity.node.DiseaseEntityJoin;
-import org.alliancegenome.neo4j.entity.node.ECOTerm;
-import org.alliancegenome.neo4j.entity.node.Gene;
-import org.alliancegenome.neo4j.entity.node.GeneticEntity;
-import org.alliancegenome.neo4j.entity.node.PublicationJoin;
-import org.alliancegenome.neo4j.entity.node.SequenceTargetingReagent;
+import org.alliancegenome.neo4j.entity.node.*;
 import org.alliancegenome.neo4j.repository.DiseaseRepository;
 import org.alliancegenome.neo4j.view.View;
 import org.apache.commons.collections4.CollectionUtils;
@@ -123,7 +114,7 @@ public class DiseaseCacher extends Cacher {
 
         log.info("Number of IDs in the Map after adding genes IDs: " + diseaseAnnotationMap.size());
 
-        storeIntoCache(allDiseaseAnnotations, diseaseAnnotationMap, CacheAlliance.DISEASE_ANNOTATION);
+        storeIntoCache(allDiseaseAnnotations, diseaseAnnotationMap, CacheAlliance.DISEASE_ANNOTATION_GENE_LEVEL_GENE_DISEASE);
 
         diseaseAnnotationMap.clear();
         diseaseAnnotationTermMap.clear();
@@ -177,14 +168,12 @@ public class DiseaseCacher extends Cacher {
     }
 
     private void storeIntoCache(List<DiseaseAnnotation> diseaseAnnotations, Map<String, List<DiseaseAnnotation>> diseaseAnnotationMap, CacheAlliance cacheSpace) {
-        startProcess(cacheSpace.name() + " into cache", diseaseAnnotationMap.size());
-        diseaseAnnotationMap.forEach((key, value) -> {
-            cacheService.putCacheEntry(key, value, View.DiseaseCacher.class, cacheSpace);
-            progressProcess();
-        });
+        populateCacheFromMap(diseaseAnnotationMap, View.DiseaseCacher.class, cacheSpace);
+
         log.debug("Calculate statistics...");
         CacheStatus status = new CacheStatus(cacheSpace);
         status.setNumberOfEntities(diseaseAnnotations.size());
+        status.setNumberOfEntityIDs(diseaseAnnotationMap.size());
         status.setCollectionEntity(DiseaseAnnotation.class.getSimpleName());
         status.setJsonViewClass(View.DiseaseAnnotationSummary.class.getSimpleName());
 
@@ -210,6 +199,33 @@ public class DiseaseCacher extends Cacher {
         status.setEntityStats(stats);
         status.setSpeciesStats(sortedMap);
         setCacheStatus(status);
+        log.debug("Finished calculating statistics");
+        finishProcess();
+    }
+
+    public void storeIntoCachePAE(Map<String, List<PrimaryAnnotatedEntity>> primaryAnnotatedMap, CacheAlliance cacheSpace) {
+        populateCacheFromMap(primaryAnnotatedMap, View.PrimaryAnnotation.class, cacheSpace);
+        log.debug("Calculate statistics...");
+        CacheStatus status = new CacheStatus(cacheSpace);
+        status.setNumberOfEntityIDs(primaryAnnotatedMap.size());
+        status.setCollectionEntity(PrimaryAnnotatedEntity.class.getSimpleName());
+        status.setJsonViewClass(View.PrimaryAnnotation.class.getSimpleName());
+
+        List<PrimaryAnnotatedEntity> annotatedEntities = primaryAnnotatedMap.values().stream()
+                .flatMap(Collection::stream)
+                .collect(toList());
+        status.setNumberOfEntities(annotatedEntities.size());
+
+        Map<String, List<Species>> speciesStats = annotatedEntities.stream()
+                .map(PrimaryAnnotatedEntity::getSpecies)
+                .collect(groupingBy(Species::getName));
+
+        Map<String, Integer> entityStats = new TreeMap<>();
+        primaryAnnotatedMap.forEach((geneID, alleles) -> entityStats.put(geneID, alleles.size()));
+
+        populateStatisticsOnStatus(status, entityStats, speciesStats);
+        setCacheStatus(status);
+
         log.debug("Finished calculating statistics");
         finishProcess();
     }
@@ -278,6 +294,7 @@ public class DiseaseCacher extends Cacher {
                     entity.addPublicationEvidenceCode(join.getPublicationJoins());
                     entity.addDisease(join.getDisease());
                     entity.setDataProvider(model.getDataProvider());
+                    entity.setSpecies(model.getSpecies());
                     document.addPrimaryAnnotatedEntity(entity);
                     document.addPublicationJoins(join.getPublicationJoins());
                     document.setSource(entity.getSource());
@@ -290,7 +307,7 @@ public class DiseaseCacher extends Cacher {
                 .collect(groupingBy(annotation -> annotation.getDisease().getPrimaryKey()));
 
 
-        storeIntoCache(diseaseModelAnnotations, diseaseModelsMap, CacheAlliance.DISEASE_MODEL_ANNOTATION);
+        storeIntoCache(diseaseModelAnnotations, diseaseModelsMap, CacheAlliance.DISEASE_ANNOTATION_MODEL_LEVEL_MODEL);
         modelDiseaseJoins.clear();
 
         Map<String, DiseaseAnnotation> diseaseAnnotationMap = diseaseModelAnnotations.stream()
@@ -348,10 +365,8 @@ public class DiseaseCacher extends Cacher {
 
         diseaseModelGeneMap.clear();
 
-        diseaseAnnotationPureMap.forEach((geneID, value) -> {
-            cacheService.putCacheEntry(geneID, value, View.PrimaryAnnotation.class, CacheAlliance.DISEASE_MODEL_GENE_ANNOTATION);
-            progressProcess();
-        });
+        storeIntoCachePAE(diseaseAnnotationPureMap, CacheAlliance.DISEASE_ANNOTATION_MODEL_LEVEL_GENE);
+
         diseaseAnnotationPureMap.clear();
     }
 
@@ -378,7 +393,7 @@ public class DiseaseCacher extends Cacher {
             diseaseAlleleAnnotationMap.put(termID, allAnnotations);
         });
 
-        storeIntoCache(alleleList, diseaseAlleleAnnotationMap, CacheAlliance.DISEASE_ALLELE_ANNOTATION);
+        storeIntoCache(alleleList, diseaseAlleleAnnotationMap, CacheAlliance.DISEASE_ANNOTATION_ALLELE_LEVEL_ALLELE);
 
         diseaseAlleleAnnotationMap.clear();
 
