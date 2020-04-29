@@ -5,14 +5,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.enterprise.context.RequestScoped;
-
-import org.alliancegenome.api.entity.CacheStatus;
-import org.alliancegenome.cache.CacheAlliance;
-import org.alliancegenome.cache.manager.BasicCachingManager;
-
-import lombok.extern.log4j.Log4j2;
-
-import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 
 import org.alliancegenome.api.entity.CacheStatus;

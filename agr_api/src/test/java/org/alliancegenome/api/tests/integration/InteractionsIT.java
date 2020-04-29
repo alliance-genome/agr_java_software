@@ -24,8 +24,6 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.swagger.annotations.Api;
-
 public class InteractionsIT {
 
     public static InteractionRepository repo = new InteractionRepository();
