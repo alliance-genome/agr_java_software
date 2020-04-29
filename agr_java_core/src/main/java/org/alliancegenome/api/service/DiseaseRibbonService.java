@@ -4,6 +4,7 @@ import static org.alliancegenome.api.entity.DiseaseRibbonSummary.DOID_OTHER;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -138,7 +139,7 @@ public class DiseaseRibbonService {
 
         // check for parents of 'All Other Diseases' group. That high-level term does not exist in DO and
         // consists of the sum of four other individual high-level terms.
-        if (CollectionUtils.isNotEmpty(getParentIDsFromStream(DiseaseService.getAllOtherDiseaseTerms().stream(), doID)))
+        if (CollectionUtils.isNotEmpty(getParentIDsFromStream(DOTerm.getAllOtherDiseaseTerms().stream(), doID)))
             parentSet.add(DOID_OTHER);
         return parentSet;
     }

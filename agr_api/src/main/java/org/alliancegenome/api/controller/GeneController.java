@@ -52,7 +52,7 @@ import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 @RequestScoped
-public class GeneController extends BaseController implements GeneRESTInterface {
+public class GeneController implements GeneRESTInterface {
 
     @Inject
     private GeneService geneService;
@@ -409,15 +409,15 @@ public class GeneController extends BaseController implements GeneRESTInterface 
 
     @Override
     // the List passed in here is unmodifiable
-    public DiseaseRibbonSummary getDiseaseSummary(String id, List<String> geneIDs) {
+    public DiseaseRibbonSummary getDiseaseRibbonSummary(String id, List<String> geneIDs) {
         List<String> ids = new ArrayList<>();
         if (geneIDs != null)
             ids.addAll(geneIDs);
         if (!id.equals("*"))
             ids.add(id);
-        DiseaseService service = new DiseaseService();
+
         try {
-            return service.getDiseaseRibbonSummary(ids);
+            return diseaseService.getDiseaseRibbonSummary(ids);
         } catch (Exception e) {
             log.error("Error while creating disease ribbon summary", e);
             RestErrorMessage error = new RestErrorMessage();

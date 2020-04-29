@@ -10,7 +10,7 @@ import org.alliancegenome.es.model.search.SearchApiResponse;
 import org.jboss.logging.Logger;
 
 @RequestScoped
-public class SearchController extends BaseController implements SearchRESTInterface {
+public class SearchController implements SearchRESTInterface {
 
     @Inject
     private SearchService searchService;

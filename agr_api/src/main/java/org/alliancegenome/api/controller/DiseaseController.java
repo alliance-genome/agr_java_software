@@ -10,8 +10,6 @@ import java.util.Objects;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -28,19 +26,19 @@ import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.node.DOTerm;
 import org.alliancegenome.neo4j.view.BaseFilter;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
+import lombok.extern.log4j.Log4j2;
+
+@Log4j2
 @RequestScoped
-public class DiseaseController extends BaseController implements DiseaseRESTInterface {
+public class DiseaseController implements DiseaseRESTInterface {
 
-    private final Logger log = LogManager.getLogger(getClass());
-    @Context  //injected response proxy supporting multiple threads
-    private HttpServletResponse response;
     @Inject
     private HttpServletRequest request;
 
-    private DiseaseService diseaseService = new DiseaseService();
+    @Inject
+    private DiseaseService diseaseService;
+    
     private final DiseaseAnnotationToTdfTranslator translator = new DiseaseAnnotationToTdfTranslator();
 
 
