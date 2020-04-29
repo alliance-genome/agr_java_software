@@ -1,0 +1,8 @@
+###################################################################################################################
+# Disease Association Format (DAF)
+# Source: Alliance of Genome Resources (Alliance)
+# TaxonIDs: NCBI:txid10090,NCBI:txid9606,NCBI:txid7955,NCBI:txid10116,NCBI:txid7227,NCBI:txid6239,NCBI:txid559292
+# Datebase Version: ${dbVersion}
+# Date: ${date}
+#
+###################################################################################################################

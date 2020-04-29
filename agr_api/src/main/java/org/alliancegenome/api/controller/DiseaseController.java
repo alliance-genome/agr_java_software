@@ -14,12 +14,15 @@ import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.node.DOTerm;
 import org.alliancegenome.neo4j.view.BaseFilter;
+import org.apache.commons.io.FileUtils;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.io.File;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -181,6 +184,8 @@ public class DiseaseController implements DiseaseRESTInterface {
                                                         String reference,
                                                         String evidenceCode,
                                                         String associationType,
+                                                        boolean fullDownload,
+                                                        String downloadFileType,
                                                         String asc) {
         JsonResultResponse<DiseaseAnnotation> response = getDiseaseAnnotationsByGene(id,
                 Integer.MAX_VALUE,
@@ -194,8 +199,25 @@ public class DiseaseController implements DiseaseRESTInterface {
                 evidenceCode,
                 associationType,
                 asc);
-        Response.ResponseBuilder responseBuilder = Response.ok(translator.getAllRowsForGenes(response.getResults()));
-        APIServiceHelper.setDownloadHeader(id, EntityType.DISEASE, EntityType.GENE, responseBuilder);
+        Response.ResponseBuilder responseBuilder = null;
+        if (fullDownload) {
+            if (downloadFileType == null || downloadFileType.equals("tsv")) {
+                ClassLoader classLoader = getClass().getClassLoader();
+                File file = new File(classLoader.getResource("templates/all-disease-association-file-header.txt").getFile());
+                String data;
+                try {
+                    data = FileUtils.readFileToString(file, "UTF-8");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                String h = null;
+            } else {
+
+            }
+        } else {
+            responseBuilder = Response.ok(translator.getAllRowsForGenes(response.getResults()));
+            APIServiceHelper.setDownloadHeader(id, EntityType.DISEASE, EntityType.GENE, responseBuilder);
+        }
         return responseBuilder.build();
 
     }
