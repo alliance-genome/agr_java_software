@@ -18,7 +18,6 @@ import javax.ws.rs.core.UriInfo;
 import org.alliancegenome.api.entity.DiseaseRibbonSummary;
 import org.alliancegenome.api.entity.ExpressionSummary;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
-import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.DiseaseSummary;
 import org.alliancegenome.neo4j.entity.EntitySummary;
@@ -40,10 +39,6 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.core.JsonProcessingException;
-
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
 
 @Path("/gene")
 @Tag(name = "Genes")
@@ -303,7 +298,7 @@ public interface GeneRESTInterface {
     @Path("/{id}/disease-ribbon-summary")
     @JsonView(value = {View.DiseaseAnnotation.class})
     @Operation(summary = "Retrieve all disease records of a given gene")
-    DiseaseRibbonSummary getDiseaseSummary(
+    DiseaseRibbonSummary getDiseaseRibbonSummary(
             @Parameter(in=ParameterIn.PATH, name = "id", description = "Gene by ID, e.g. 'RGD:2129' or 'ZFIN:ZDB-GENE-990415-72 fgf8a'", required=true, schema = @Schema(type = SchemaType.STRING))
             @PathParam("id") String id,
             @Parameter(in=ParameterIn.QUERY, name = "geneID", description = "additional orthologous genes", required = true)

@@ -16,8 +16,6 @@ import javax.ws.rs.core.Response;
 import org.alliancegenome.api.entity.RibbonSummary;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.core.ExpressionDetail;
-import org.alliancegenome.core.service.JsonResultResponse;
-import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.view.View;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.enums.ParameterIn;
