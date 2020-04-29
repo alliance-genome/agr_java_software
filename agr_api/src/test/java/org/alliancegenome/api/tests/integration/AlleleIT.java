@@ -1,28 +1,14 @@
 package org.alliancegenome.api.tests.integration;
 
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.greaterThanOrEqualTo;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import javax.inject.Inject;
-
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.annotations.Api;
 import org.alliancegenome.api.entity.CacheStatus;
 import org.alliancegenome.api.service.AlleleService;
 import org.alliancegenome.api.service.CacheStatusService;
 import org.alliancegenome.api.service.GeneService;
+import org.alliancegenome.api.service.VariantService;
 import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.core.config.ConfigHelper;
@@ -33,6 +19,7 @@ import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
 import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.GeneticEntity;
+import org.alliancegenome.neo4j.entity.node.Transcript;
 import org.alliancegenome.neo4j.entity.node.Variant;
 import org.alliancegenome.neo4j.entity.relationship.GenomeLocation;
 import org.alliancegenome.neo4j.view.BaseFilter;
@@ -44,23 +31,29 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import java.util.*;
+import java.util.stream.Collectors;
 
-import io.swagger.annotations.Api;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.junit.Assert.*;
 
 @Api(value = "Allele Tests")
 public class AlleleIT {
 
     private ObjectMapper mapper = new ObjectMapper();
-    
+
     @Inject
     private AlleleService alleleService;
-    
+
+    @Inject
+    private VariantService variantService = new VariantService();
+
     @Inject
     private GeneService geneService;
-    
+
     @Inject
     private CacheStatusService cacheStatusService;
 
@@ -348,6 +341,14 @@ public class AlleleIT {
         JsonResultResponse<DiseaseAnnotation> response = alleleService.getDisease(alleleID, new Pagination());
         assertNotNull(response);
         assertThat(response.getTotal(), greaterThanOrEqualTo(3));
+    }
+
+    @Test
+    public void getVariantTranscripts() {
+        String variantID = "NC_007121.7:g.14484476_14484482del";
+        JsonResultResponse<Transcript> response = variantService.getTranscriptsByVariant(variantID, new Pagination());
+        assertNotNull(response);
+        assertThat(response.getTotal(), greaterThanOrEqualTo(2));
     }
 
     private void assertResponse(JsonResultResponse<Allele> response, int resultSize, int totalSize) {

@@ -1,7 +1,9 @@
 package org.alliancegenome.neo4j.entity.node;
 
-import java.util.Date;
-
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonView;
+import lombok.Getter;
+import lombok.Setter;
 import org.alliancegenome.es.util.DateConverter;
 import org.alliancegenome.neo4j.entity.Neo4jEntity;
 import org.alliancegenome.neo4j.entity.relationship.GenomeLocation;
@@ -11,11 +13,8 @@ import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.typeconversion.Convert;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonView;
-
-import lombok.Getter;
-import lombok.Setter;
+import java.util.Date;
+import java.util.List;
 
 @NodeEntity(label = "Variant")
 @Getter
@@ -59,6 +58,10 @@ public class Variant extends Neo4jEntity implements Comparable<Variant> {
     @JsonView({View.Default.class, View.API.class})
     @Relationship(type = "ASSOCIATION")
     private GenomeLocation location;
+
+    @JsonView({View.Default.class, View.API.class})
+    @Relationship(type = "ASSOCIATION", direction = Relationship.INCOMING)
+    private List<Transcript> transcriptList;
 
     @JsonView({View.Default.class, View.API.class})
     @JsonProperty(value = "consequence")
