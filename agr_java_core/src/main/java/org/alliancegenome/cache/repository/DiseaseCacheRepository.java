@@ -1,23 +1,8 @@
 package org.alliancegenome.cache.repository;
 
-import static java.util.stream.Collectors.toList;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-
+import lombok.extern.log4j.Log4j2;
 import org.alliancegenome.api.entity.DiseaseRibbonSummary;
-import org.alliancegenome.api.service.ColumnFieldMapping;
-import org.alliancegenome.api.service.DiseaseColumnFieldMapping;
-import org.alliancegenome.api.service.DiseaseService;
-import org.alliancegenome.api.service.FilterService;
-import org.alliancegenome.api.service.Table;
+import org.alliancegenome.api.service.*;
 import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.cache.CacheService;
 import org.alliancegenome.cache.repository.helper.DiseaseAnnotationFiltering;
@@ -31,7 +16,12 @@ import org.alliancegenome.neo4j.entity.node.PublicationJoin;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import lombok.extern.log4j.Log4j2;
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toList;
 
 @Log4j2
 @RequestScoped
@@ -41,19 +31,19 @@ public class DiseaseCacheRepository {
     private CacheService cacheService;
 
     public List<DiseaseAnnotation> getDiseaseAnnotationList(String diseaseID) {
-        return cacheService.getCacheEntries(diseaseID, CacheAlliance.DISEASE_ANNOTATION, DiseaseAnnotation.class);
+        return cacheService.getCacheEntries(diseaseID, CacheAlliance.DISEASE_ANNOTATION_GENE_LEVEL_GENE_DISEASE, DiseaseAnnotation.class);
     }
 
     public List<DiseaseAnnotation> getDiseaseModelAnnotations(String diseaseID) {
-        return cacheService.getCacheEntries(diseaseID, CacheAlliance.DISEASE_MODEL_ANNOTATION, DiseaseAnnotation.class);
+        return cacheService.getCacheEntries(diseaseID, CacheAlliance.DISEASE_ANNOTATION_MODEL_LEVEL_MODEL, DiseaseAnnotation.class);
     }
 
     public List<DiseaseAnnotation> getDiseaseAlleleAnnotationList(String diseaseID) {
-        return cacheService.getCacheEntries(diseaseID, CacheAlliance.DISEASE_ALLELE_ANNOTATION, DiseaseAnnotation.class);
+        return cacheService.getCacheEntries(diseaseID, CacheAlliance.DISEASE_ANNOTATION_ALLELE_LEVEL_ALLELE, DiseaseAnnotation.class);
     }
 
     public List<PrimaryAnnotatedEntity> getPrimaryAnnotatedEntitList(String geneID) {
-        return cacheService.getCacheEntries(geneID, CacheAlliance.GENE_MODEL, PrimaryAnnotatedEntity.class);
+        return cacheService.getCacheEntries(geneID, CacheAlliance.GENE_ASSOCIATION_MODEL_GENE, PrimaryAnnotatedEntity.class);
     }
 
     public PaginationResult<DiseaseAnnotation> getDiseaseAnnotationList(String diseaseID, Pagination pagination) {
@@ -82,7 +72,7 @@ public class DiseaseCacheRepository {
 
         // filter by gene
         geneIDs.forEach(geneID -> {
-                    List<DiseaseAnnotation> annotations = cacheService.getCacheEntries(geneID, CacheAlliance.DISEASE_ANNOTATION, DiseaseAnnotation.class);
+                    List<DiseaseAnnotation> annotations = cacheService.getCacheEntries(geneID, CacheAlliance.DISEASE_ANNOTATION_GENE_LEVEL_GENE_DISEASE, DiseaseAnnotation.class);
                     if (annotations != null)
                         allDiseaseAnnotationList.addAll(annotations);
                 }
@@ -143,10 +133,10 @@ public class DiseaseCacheRepository {
     }
 
     public boolean hasDiseaseAnnotations(String geneID) {
-        return CollectionUtils.isNotEmpty(cacheService.getCacheEntries(geneID, CacheAlliance.DISEASE_ANNOTATION, DiseaseAnnotation.class));
+        return CollectionUtils.isNotEmpty(cacheService.getCacheEntries(geneID, CacheAlliance.DISEASE_ANNOTATION_GENE_LEVEL_GENE_DISEASE, DiseaseAnnotation.class));
     }
 
     public List<PrimaryAnnotatedEntity> getDiseaseAnnotationPureModeList(String geneID) {
-        return cacheService.getCacheEntries(geneID, CacheAlliance.DISEASE_MODEL_GENE_ANNOTATION, PrimaryAnnotatedEntity.class);
+        return cacheService.getCacheEntries(geneID, CacheAlliance.DISEASE_ANNOTATION_MODEL_LEVEL_GENE, PrimaryAnnotatedEntity.class);
     }
 }

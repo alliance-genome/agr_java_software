@@ -1,18 +1,18 @@
 package org.alliancegenome.api.entity;
 
-import java.io.Serializable;
-import java.util.Map;
-
-import org.alliancegenome.cache.CacheAlliance;
-import org.alliancegenome.neo4j.view.View;
-
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonView;
-
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.alliancegenome.cache.CacheAlliance;
+import org.alliancegenome.neo4j.view.View;
+
+import java.io.Serializable;
+import java.util.Date;
+import java.util.Map;
 
 @Getter
 @Setter
@@ -22,6 +22,8 @@ public class CacheStatus implements Serializable {
 
     @JsonView(View.Cacher.class)
     private String name;
+    @JsonView(View.Cacher.class)
+    private int numberOfEntityIDs;
     @JsonIgnore
     private int numberOfEntities;
     @JsonView(View.CacherDetail.class)
@@ -34,6 +36,9 @@ public class CacheStatus implements Serializable {
     private String collectionEntity;
     @JsonView(View.Cacher.class)
     private String jsonViewClass;
+    @JsonView(View.Cacher.class)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
+    private Date dateCreated = new Date();
     @JsonIgnore
     private CacheAlliance cache;
 

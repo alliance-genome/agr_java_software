@@ -1,14 +1,11 @@
 package org.alliancegenome.api.rest.interfaces;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 
 import org.alliancegenome.api.entity.CacheStatus;
 import org.alliancegenome.api.entity.CacheSummary;
+import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.neo4j.view.View;
 
 import com.fasterxml.jackson.annotation.JsonView;
@@ -24,7 +21,13 @@ public interface CacheRESTInterface {
     @GET
     @JsonView(View.Cacher.class)
     @Path("/status")
-    CacheSummary getCacheStatus();
+    JsonResultResponse<CacheStatus> getCacheStatus(
+            @DefaultValue("20") @QueryParam("limit") int limit,
+            @DefaultValue("1") @QueryParam("page") int page,
+            @QueryParam("sortBy") String sortBy,
+            @QueryParam("asc") String asc,
+            @QueryParam("filter.indexName") String moleculeType
+    );
 
     @GET
     @JsonView(View.CacherDetail.class)

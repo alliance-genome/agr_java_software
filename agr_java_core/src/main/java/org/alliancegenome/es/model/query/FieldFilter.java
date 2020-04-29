@@ -36,7 +36,8 @@ public enum FieldFilter {
     VARIANT_CONSEQUENCE("consequence"),
     STRINGENCY("stringency"),
     ORTHOLOGY_METHOD("method"),
-    ORTHOLOGY_TAXON("taxon");
+    ORTHOLOGY_TAXON("taxon"),
+    INDEX_NAME("indexName");
     public static final String FILTER_PREFIX = "filter.";
     private String name;
 

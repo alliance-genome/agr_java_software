@@ -423,7 +423,7 @@ public class DiseaseIT {
         assertResponse(response, 2, 14);
 
         DiseaseAnnotation annotation = response.getResults().get(0);
-        assertThat(annotation.getDisease().getName(), equalTo("acute lymphocytic leukemia"));
+        assertThat(annotation.getDisease().getName(), equalTo("acute lymphoblastic leukemia"));
         assertThat(annotation.getAssociationType().toLowerCase(), equalTo("is_implicated_in"));
         assertThat(annotation.getPublications().stream().map(Publication::getPubId).collect(Collectors.joining()), equalTo("PMID:21262837"));
 
@@ -519,7 +519,7 @@ public class DiseaseIT {
         String geneID = "MGI:109583";
         DiseaseSummary summary = diseaseService.getDiseaseSummary(geneID, DiseaseSummary.Type.EXPERIMENT);
         assertNotNull(summary);
-        assertThat(50L, equalTo(summary.getNumberOfAnnotations()));
+        assertThat(14L, equalTo(summary.getNumberOfAnnotations()));
         assertThat(14L, equalTo(summary.getNumberOfEntities()));
 
         summary = diseaseService.getDiseaseSummary(geneID, DiseaseSummary.Type.ORTHOLOGY);
@@ -531,10 +531,10 @@ public class DiseaseIT {
         // add containsFilterValue on disease
         pagination.makeSingleFieldFilter(FieldFilter.DISEASE, "BL");
         JsonResultResponse<DiseaseAnnotation> response = diseaseService.getRibbonDiseaseAnnotations(List.of(geneID), null, pagination);
-        assertResponse(response, 1, 1);
+        assertResponse(response, 2, 2);
 
 
-        DiseaseAnnotation annotation = response.getResults().get(0);
+        DiseaseAnnotation annotation = response.getResults().get(1);
         assertThat(annotation.getDisease().getName(), equalTo("urinary bladder cancer"));
         assertThat(annotation.getAssociationType().toLowerCase(), equalTo("is_implicated_in"));
         //assertThat(annotation.getFeature().getSymbol(), equalTo("Pten<sup>tm1Hwu</sup>"));
@@ -612,7 +612,7 @@ public class DiseaseIT {
         JsonResultResponse<DiseaseAnnotation> response = diseaseService.getRibbonDiseaseAnnotations(List.of(geneID), null, pagination);
         assertResponse(response, 3, 3);
 
-        pagination.makeSingleFieldFilter(FieldFilter.FREFERENCE, "710");
+        pagination.makeSingleFieldFilter(FieldFilter.FREFERENCE, "351");
         response = diseaseService.getDiseaseAnnotations(geneID, pagination);
         assertResponse(response, 1, 1);
     }
@@ -735,7 +735,7 @@ public class DiseaseIT {
                 "MGI:3793780\tAtp7a<Mo-br>/? [background:] involves: C57BL\tNCBITaxon:10090\tMus musculus\tDOID:1838\tMenkes disease\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tPMID:4858102\n" +
                 "MGI:5696621\tAtp7a<Mo-dp>/? [background:] involves: 101/H * C3H/HeH\tNCBITaxon:10090\tMus musculus\tDOID:1838\tMenkes disease\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tPMID:25456742\n" +
                 "MGI:5696613\tAtp7a<Mo-dp>/Atp7a<+> [background:] involves: 101/H * C3H/HeH\tNCBITaxon:10090\tMus musculus\tDOID:1838\tMenkes disease\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tPMID:25456742\n" +
-                "MGI:6324231\tAtp7a<Mo-ml>/? [background:] involves: C3Hf/He\tNCBITaxon:10090\tMus musculus\tDOID:1838\tMenkes disease\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tMGI:60964\n" +
+                "MGI:6324231\tAtp7a<Mo-ml>/? [background:] involves: C3Hf/He\tNCBITaxon:10090\tMus musculus\tDOID:1838\tMenkes disease\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tPMID:1819648\n" +
                 "MGI:6324231\tAtp7a<Mo-ml>/? [background:] involves: C3Hf/He\tNCBITaxon:10090\tMus musculus\tDOID:1838\tMenkes disease\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tPMID:1819648\n" +
                 "MGI:4940051\tAtp7a<Mo-ms>/? [background:] Not Specified\tNCBITaxon:10090\tMus musculus\tDOID:1838\tMenkes disease\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tPMID:20831904\n" +
                 "MGI:3618244\tAtp7a<Mo-Tohm>/Atp7a<+> [background:] B6.Cg-Atp7a<Mo-Tohm>\tNCBITaxon:10090\tMus musculus\tDOID:1838\tMenkes disease\tECO:0000033\tauthor statement supported by traceable reference\tMGI\tPMID:16338116\n" +
@@ -775,8 +775,8 @@ public class DiseaseIT {
         final Pagination pagination = new Pagination();
         pagination.addFieldFilter(FieldFilter.DISEASE, "BL");
         JsonResultResponse<DiseaseAnnotation> response = diseaseService.getRibbonDiseaseAnnotations(List.of(pten), null, pagination);
-        assertEquals(1, response.getTotal());
-        DiseaseAnnotation annotation = response.getResults().get(0);
+        assertEquals(2, response.getTotal());
+        DiseaseAnnotation annotation = response.getResults().get(1);
         assertEquals(annotation.getPrimaryAnnotatedEntities().size(), 1);
         assertEquals(annotation.getPrimaryAnnotatedEntities().get(0).getId(), "MGI:5004866");
         // do not use the AGM that is inference for an allele annotation
