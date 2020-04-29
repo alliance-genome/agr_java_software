@@ -1,6 +1,7 @@
 package org.alliancegenome.neo4j.entity.node;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -8,6 +9,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import org.alliancegenome.api.entity.DiseaseRibbonSummary;
 import org.alliancegenome.cache.repository.helper.SourceServiceHelper;
 import org.alliancegenome.es.util.DateConverter;
 import org.alliancegenome.neo4j.entity.SpeciesType;
@@ -149,6 +151,19 @@ public class DOTerm extends SimpleTerm {
                     return term;
                 })
                 .collect(Collectors.toList());
+    }
+    
+    public static List<String> getDiseaseParents(String diseaseSlimID) {
+        if (!diseaseSlimID.equals(DiseaseRibbonSummary.DOID_OTHER)) {
+            ArrayList<String> strings = new ArrayList<>();
+            strings.add(diseaseSlimID);
+            return strings;
+        }
+        return new ArrayList<>(Arrays.asList("DOID:0080015", "DOID:0014667", "DOID:150", "DOID:225"));
+    }
+
+    public static List<String> getAllOtherDiseaseTerms() {
+        return new ArrayList<>(Arrays.asList("DOID:0080015", "DOID:0014667", "DOID:150", "DOID:225"));
     }
 
     @Override

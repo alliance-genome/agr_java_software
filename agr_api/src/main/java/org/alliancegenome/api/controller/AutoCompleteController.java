@@ -9,7 +9,7 @@ import org.alliancegenome.es.model.search.AutoCompleteResult;
 import org.jboss.logging.Logger;
 
 @RequestScoped
-public class AutoCompleteController extends BaseController implements AutoCompleteRESTInterface {
+public class AutoCompleteController implements AutoCompleteRESTInterface {
 
     @Inject
     private AutoCompleteService autoCompleteService;

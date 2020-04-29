@@ -16,7 +16,7 @@ import org.alliancegenome.neo4j.view.OrthologyFilter;
 import org.apache.commons.collections.CollectionUtils;
 
 @RequestScoped
-public class GenesController extends BaseController implements GenesRESTInterface {
+public class GenesController implements GenesRESTInterface {
 
     @Override
     public JsonResultResponse<Gene> getGenes(List<String> taxonID, Integer rows, Integer start) throws IOException {

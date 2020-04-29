@@ -283,7 +283,7 @@ public interface GeneRESTInterface {
     @Path("/{id}/disease-ribbon-summary")
     @JsonView(value = {View.DiseaseAnnotation.class})
     @ApiOperation(value = "Retrieve all disease records of a given gene")
-    DiseaseRibbonSummary getDiseaseSummary(
+    DiseaseRibbonSummary getDiseaseRibbonSummary(
             @ApiParam(name = "id", value = "Gene by ID, e.g. 'RGD:2129' or 'ZFIN:ZDB-GENE-990415-72 fgf8a'", required = true, type = "String")
             @PathParam("id") String id,
             @ApiParam(name = "geneID", value = "additional orthologous genes", required = true)

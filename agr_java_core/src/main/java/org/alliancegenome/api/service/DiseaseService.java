@@ -5,7 +5,6 @@ import static java.util.stream.Collectors.toList;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -56,19 +55,8 @@ public class DiseaseService {
     
     @Inject
     private PhenotypeCacheRepository phenotypeCacheRepository;
-
-    public static List<String> getDiseaseParents(String diseaseSlimID) {
-        if (!diseaseSlimID.equals(DiseaseRibbonSummary.DOID_OTHER)) {
-            ArrayList<String> strings = new ArrayList<>();
-            strings.add(diseaseSlimID);
-            return strings;
-        }
-        return new ArrayList<>(Arrays.asList("DOID:0080015", "DOID:0014667", "DOID:150", "DOID:225"));
-    }
-
-    public static List<String> getAllOtherDiseaseTerms() {
-        return new ArrayList<>(Arrays.asList("DOID:0080015", "DOID:0014667", "DOID:150", "DOID:225"));
-    }
+    
+    private DiseaseRibbonService diseaseRibbonService = new DiseaseRibbonService();
 
     public DOTerm getById(String id) {
         return diseaseRepository.getDiseaseTerm(id);
@@ -392,8 +380,6 @@ public class DiseaseService {
         entity.setNumberOfClasses(allTerms.size());
         entity.setNumberOfAnnotations(allAnnotations.size());
     }
-
-    private DiseaseRibbonService diseaseRibbonService = new DiseaseRibbonService();
 
     private Map<String, List<DiseaseAnnotation>> getDiseaseAnnotationHistogram(PaginationResult<DiseaseAnnotation> paginationResult) {
         Map<String, List<DiseaseAnnotation>> histogram = new HashMap<>();

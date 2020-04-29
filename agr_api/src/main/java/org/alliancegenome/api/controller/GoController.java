@@ -8,7 +8,7 @@ import org.alliancegenome.api.service.GoService;
 import org.alliancegenome.neo4j.entity.node.GOTerm;
 
 @RequestScoped
-public class GoController extends BaseController implements GoRESTInterface {
+public class GoController implements GoRESTInterface {
 
     @Inject
     private GoService goService;
