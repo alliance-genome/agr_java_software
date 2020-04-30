@@ -12,35 +12,37 @@ import javax.ws.rs.core.MediaType;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.neo4j.entity.node.Transcript;
 import org.alliancegenome.neo4j.view.View;
+import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.enums.ParameterIn;
+import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
+import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
+import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 import com.fasterxml.jackson.annotation.JsonView;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-
 @Path("/variant")
-@Api(value = "Variant Search")
+@Tag(name = "Variant Search")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public interface VariantRESTInterface {
 
     @GET
     @Path("/{id}/transcripts")
-    @ApiOperation(value = "Retrieve all transcripts of a given variant")
+    @Operation(summary = "Retrieve all transcripts of a given variant")
     @JsonView(value = {View.VariantAPI.class})
     JsonResultResponse<Transcript> getTranscriptsPerVariant(
-            @ApiParam(name = "id", value = "Search for transcripts for a given variant ID")
+            @Parameter(in=ParameterIn.PATH, name = "id", description = "Search for transcripts for a given variant ID", required=true, schema = @Schema(type = SchemaType.STRING))
             @PathParam("id") String id,
-            @ApiParam(name = "limit", value = "Number of rows returned", defaultValue = "20")
+            @Parameter(in=ParameterIn.QUERY, name = "limit", description = "Number of rows returned", schema = @Schema(type = SchemaType.INTEGER))
             @DefaultValue("20") @QueryParam("limit") int limit,
-            @ApiParam(name = "page", value = "Page number")
+            @Parameter(in=ParameterIn.QUERY, name = "page", description = "Page number", schema = @Schema(type = SchemaType.INTEGER))
             @DefaultValue("1") @QueryParam("page") int page,
-            @ApiParam(value = "Field name by which to sort", allowableValues = "")
-            @QueryParam("sortBy") String sortBy,
-            @ApiParam(name = "filter.transcriptType", value = "Transcript types")
+            @Parameter(in=ParameterIn.QUERY, name = "sortBy", description = "Field name by which to sort", schema = @Schema(type = SchemaType.STRING))
+            @DefaultValue("symbol") @QueryParam("sortBy") String sortBy,
+            @Parameter(in=ParameterIn.QUERY, name = "filter.transcriptType", description = "Transcript types", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.transcriptType") String transcriptType,
-            @ApiParam(name = "filter.transcriptConsequence", value = "Consequence")
+            @Parameter(in=ParameterIn.QUERY, name = "filter.transcriptConsequence", description = "Consequence", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.transcriptConsequence") String consequence
     );
 

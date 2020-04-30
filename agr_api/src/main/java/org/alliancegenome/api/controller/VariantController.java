@@ -1,9 +1,10 @@
-package org.alliancegenome.api.rest.interfaces;
+package org.alliancegenome.api.controller;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 
+import org.alliancegenome.api.rest.interfaces.VariantRESTInterface;
 import org.alliancegenome.api.service.VariantService;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.core.exceptions.RestErrorException;
@@ -56,4 +57,5 @@ public class VariantController implements VariantRESTInterface {
 
 
     }
+
 }

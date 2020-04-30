@@ -46,15 +46,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 @Consumes(MediaType.APPLICATION_JSON)
 public interface GeneRESTInterface {
 
-
-
-
     @GET
     @Path("/{id}")
     @JsonView(value = {GeneAPI.class})
     @Operation(description = "Retrieve a Gene for given ID")
     Gene getGene(
-            //@ApiParam(name = "id", description = "Gene by ID")
             @Parameter(in=ParameterIn.PATH, name = "id", description = "Retrieve a Gene for given ID", required=true, schema = @Schema(type = SchemaType.STRING))
             @PathParam("id") String id
     );
