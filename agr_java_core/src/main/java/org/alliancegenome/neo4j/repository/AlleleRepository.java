@@ -1,17 +1,12 @@
 package org.alliancegenome.neo4j.repository;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
-
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.Variant;
 import org.neo4j.ogm.model.Result;
+
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 public class AlleleRepository extends Neo4jRepository<Allele> {
 
@@ -95,5 +90,24 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
                 .collect(Collectors.toList());
 
 
+    }
+
+    public Variant getVariant(String variantID) {
+        HashMap<String, String> map = new HashMap<>();
+        String paramName = "variantID";
+        map.put(paramName, variantID);
+        String query = "";
+        query += " MATCH p1=(t:Transcript)-[:ASSOCIATION]->(variant:Variant)--(soTerm:SOTerm) ";
+        query += " WHERE variant.primaryKey = {" + paramName + "}";
+        query += " OPTIONAL MATCH consequence=(:TranscriptLevelConsequence)<-[:ASSOCIATION]-(t:Transcript)";
+        query += " RETURN p1, consequence ";
+
+        Iterable<Variant> variants = query(Variant.class, query, map);
+        for (Variant a : variants) {
+            if (a.getPrimaryKey().equals(variantID)) {
+                return a;
+            }
+        }
+        return null;
     }
 }
