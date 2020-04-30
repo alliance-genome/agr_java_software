@@ -46,9 +46,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 @Consumes(MediaType.APPLICATION_JSON)
 public interface GeneRESTInterface {
 
-
-
-
     @GET
     @Path("/{id}")
     @JsonView(value = {GeneAPI.class})
