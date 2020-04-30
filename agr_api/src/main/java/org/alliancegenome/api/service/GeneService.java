@@ -30,7 +30,7 @@ public class GeneService {
     private InteractionCacheRepository interCacheRepo;
 
     @Inject
-    private static PhenotypeCacheRepository phenoCacheRepo;
+    private PhenotypeCacheRepository phenoCacheRepo;
     
     @Inject
     private AlleleService alleleService;
