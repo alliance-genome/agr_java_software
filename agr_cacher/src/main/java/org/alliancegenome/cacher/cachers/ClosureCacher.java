@@ -28,8 +28,6 @@ public class ClosureCacher extends Cacher {
         CacheStatus statusClosure = new CacheStatus(CacheAlliance.CLOSURE_MAP);
         statusClosure.setNumberOfEntities(closure.size());
         setCacheStatus(statusClosure);
-    
-        closure.clear();
-    
+
     }
 }
