@@ -141,7 +141,7 @@ public interface GeneRESTInterface {
 
     @GET
     @Path("/{id}/phenotypes/download")
-    @Operation(description = "Retrieve all termName annotations for a given gene", summary = "Download all termName annotations for a given gene")
+    @Operation(summary = "Download all termName annotations for a given gene")
     @Produces(MediaType.TEXT_PLAIN)
     Response getPhenotypeAnnotationsDownloadFile(
             @Parameter(in=ParameterIn.PATH, name = "id", description = "Gene by ID", required=true, schema = @Schema(type = SchemaType.STRING))
@@ -193,28 +193,29 @@ public interface GeneRESTInterface {
     @GET
     @Path("/{id}/homologs")
     @JsonView(value = {View.Orthology.class})
-    @Operation(description = "Retrieve homologous gene records", summary = "Download homology records.")
+    @Operation(summary = "Download homology records.")
     JsonResultResponse<OrthologView> getGeneOrthology(
-            //@ApiParam(name = "id", value = "Source Gene ID: the gene for which you are searching homologous gene, e.g. 'MGI:109583'", required = true, type = "String")
+            @Parameter(in=ParameterIn.PATH, name = "id", description = "Source Gene ID: the gene for which you are searching homologous gene, e.g. 'MGI:109583'", required = true, schema = @Schema(type = SchemaType.STRING))
             @PathParam("id") String id,
-            //@ApiParam(name = "geneId", value = "List of additional source gene IDs for which homology is retrieved.")
+            @Parameter(in=ParameterIn.QUERY, name = "geneId", description = "List of additional source gene IDs for which homology is retrieved." , schema = @Schema(type = SchemaType.STRING))
             @QueryParam("geneId") List<String> geneID,
-            //@ApiParam(name = "geneIdList", value = "List of additional source gene IDs for which homology is retrieved in a comma-delimited list, e.g. 'MGI:109583,RGD:2129,MGI:97570'")
+            @Parameter(in=ParameterIn.QUERY, name = "geneList", description = "List of additional source gene IDs for which homology is retrieved in a comma-delimited list, e.g. 'MGI:109583,RGD:2129,MGI:97570'", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("geneIdList") String geneList,
-            //@ApiParam(value = "apply stringency containsFilterValue", allowableValues = "stringent, moderate, all", defaultValue = "stringent")
+            @Parameter(in=ParameterIn.QUERY, name = "filter.stringency", description = "apply stringency containsFilterValue", schema = @Schema(type = SchemaType.STRING))
             @DefaultValue("stringent") @QueryParam("filter.stringency") String stringencyFilter,
-            //@ApiParam(name = "taxonID", value = "Species identifier: Could be the full ID, e.g. 'NCBITaxon:10090', or just the ID, i.e. '10090'. Alternatively, part of a species name uniquely identifying a single species, e.g. 'danio' or 'mus'.", type = "String")
+            @Parameter(in=ParameterIn.QUERY, name = "taxonID", description = "Species identifier: Could be the full ID, e.g. 'NCBITaxon:10090', or just the ID, i.e. '10090'. Alternatively, part of a species name uniquely identifying a single species, e.g. 'danio' or 'mus'.", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.taxonID") String taxonID,
-            //@ApiParam(value = "calculation methods", allowableValues = "Ensembl Compara, HGNC, Hieranoid, InParanoid, OMA, OrthoFinder, OrthoInspector, PANTHER, PhylomeDB, Roundup, TreeFam, ZFIN")
+            @Parameter(in=ParameterIn.QUERY, name = "filter.method", description = "calculation methods", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.method") String method,
-            //@ApiParam(value = "maximum number of rows returned")
-            @QueryParam("limit") Integer rows,
-            //@ApiParam(value = "starting row number (for pagination)")
-            @DefaultValue("1") @QueryParam("page") Integer start) throws IOException;
+            @Parameter(in=ParameterIn.QUERY, name = "limit", description = "Number of rows returned", schema = @Schema(type = SchemaType.INTEGER))
+            @DefaultValue("20") @QueryParam("limit") int limit,
+            @Parameter(in=ParameterIn.QUERY, name = "page", description = "Page number", schema = @Schema(type = SchemaType.INTEGER))
+            @DefaultValue("1") @QueryParam("page") int page) throws IOException;
+
     @GET
     @Path("/{id}/homologs-with-expression")
     @JsonView(value = {View.Orthology.class})
-    @Operation(description = "Retrieve homologous gene records that have expression data", summary = "Download homology records.")
+    @Operation(summary = "Retrieve homologous gene records that have expression data")
     JsonResultResponse<OrthologView> getGeneOrthologyWithExpression(
             @Parameter(in=ParameterIn.PATH, name = "id", description = "Source Gene ID: the gene for which you are searching homologous gene, e.g. 'MGI:109583'", required=true, schema = @Schema(type = SchemaType.STRING))
             @PathParam("id") String id,
