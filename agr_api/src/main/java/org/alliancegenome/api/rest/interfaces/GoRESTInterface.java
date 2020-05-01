@@ -22,7 +22,7 @@ public interface GoRESTInterface {
 
     @GET
     @Path("/{id}")
-    @Operation(description = "Searches for a Go fields", summary="Go Notes", hidden = true)
+    @Operation(summary = "Searches for a Go fields", hidden = true)
     public GOTerm getGo(
             @Parameter(in=ParameterIn.PATH, name = "id", description = "Search for a Go Term by ID", required=true, schema = @Schema(type = SchemaType.STRING))
             @PathParam("id") String id
