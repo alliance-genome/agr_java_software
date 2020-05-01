@@ -24,7 +24,7 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 public interface SearchRESTInterface {
 
     @GET
-    @Operation(summary = "Searches Searchable Items for the following", summary = "Search Notes")
+    @Operation(summary = "Searches Searchable Items for the following")
     public SearchApiResponse search(
         //@ApiParam(name = "q", value = "This is what we search for")
         @Parameter(in=ParameterIn.QUERY, name = "q", description = "This is what we search for", schema = @Schema(type = SchemaType.STRING))

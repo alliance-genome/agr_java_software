@@ -356,8 +356,8 @@ public class GeneController implements GeneRESTInterface {
                                                              String stringencyFilter,
                                                              String taxonID,
                                                              String method,
-                                                             Integer limit,
-                                                             Integer page) {
+                                                             int limit,
+                                                             int page) {
 
         List<String> geneList = new ArrayList<>();
         if (id != null) {

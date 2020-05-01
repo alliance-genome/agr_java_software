@@ -52,7 +52,7 @@ public interface OrthologyRESTInterface {
     JsonResultResponse<OrthologView> getDoubleSpeciesOrthology(
             @Parameter(in=ParameterIn.PATH, name = "taxonIDOne", description = "Taxon ID for the first gene: Could be the full ID, e.g. 'NCBITaxon:10090', or just the ID, i.e. '10090'. Alternatively, part of a species name uniquely identifying a single species, e.g. 'danio' or 'mus'.", required = true, schema = @Schema(type = SchemaType.STRING))
             @PathParam("taxonIDOne") String speciesOne,
-            @Parameter(in=ParameterIn.PATH, name = = "taxonIDTwo", description = "Taxon ID for the second gene: Could be the full ID, e.g. 'NCBITaxon:10090', or just the ID, i.e. '10090'. Alternatively, part of a species name uniquely identifying a single species, e.g. 'danio' or 'mus'.", required = true, schema = @Schema(type = SchemaType.STRING))
+            @Parameter(in=ParameterIn.PATH, name = "taxonIDTwo", description = "Taxon ID for the second gene: Could be the full ID, e.g. 'NCBITaxon:10090', or just the ID, i.e. '10090'. Alternatively, part of a species name uniquely identifying a single species, e.g. 'danio' or 'mus'.", required = true, schema = @Schema(type = SchemaType.STRING))
             @PathParam("taxonIDTwo") String speciesTwo,
             @Parameter(in=ParameterIn.QUERY, name = "filter.stringency", description = "apply stringency containsFilterValue", schema = @Schema(type = SchemaType.STRING))
             @DefaultValue("stringent") @QueryParam("filter.stringency") String stringencyFilter,
