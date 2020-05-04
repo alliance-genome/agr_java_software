@@ -46,7 +46,7 @@ public interface CacheRESTInterface {
     @Path("/{cacheName}/{id}")
     @ApiOperation(value = "Get Cache Object")
     @JsonView(value = {View.Default.class})
-    String getCacheObject(
+    Object getCacheObject(
             @ApiParam(name = "id", value = "Search for an object by ID")
             @PathParam("id") String id,
             @ApiParam(name = "cacheName", value = "Named Cache to Search by")
