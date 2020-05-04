@@ -1,40 +1,15 @@
 package org.alliancegenome.core.config;
 
-import static org.alliancegenome.core.config.Constants.AO_TERM_LIST;
-import static org.alliancegenome.core.config.Constants.API_ACCESS_TOKEN;
-import static org.alliancegenome.core.config.Constants.API_HOST;
-import static org.alliancegenome.core.config.Constants.API_PORT;
-import static org.alliancegenome.core.config.Constants.API_SECURE;
-import static org.alliancegenome.core.config.Constants.AWS_ACCESS_KEY;
-import static org.alliancegenome.core.config.Constants.AWS_BUCKET_NAME;
-import static org.alliancegenome.core.config.Constants.AWS_SECRET_KEY;
-import static org.alliancegenome.core.config.Constants.CACHE_HOST;
-import static org.alliancegenome.core.config.Constants.CACHE_PORT;
-import static org.alliancegenome.core.config.Constants.DEBUG;
-import static org.alliancegenome.core.config.Constants.ES_DATA_INDEX;
-import static org.alliancegenome.core.config.Constants.ES_HOST;
-import static org.alliancegenome.core.config.Constants.ES_INDEX;
-import static org.alliancegenome.core.config.Constants.ES_INDEX_SUFFIX;
-import static org.alliancegenome.core.config.Constants.ES_PORT;
-import static org.alliancegenome.core.config.Constants.GO_TERM_LIST;
-import static org.alliancegenome.core.config.Constants.KEEPINDEX;
-import static org.alliancegenome.core.config.Constants.NEO4J_HOST;
-import static org.alliancegenome.core.config.Constants.NEO4J_PORT;
-import static org.alliancegenome.core.config.Constants.SPECIES;
-import static org.alliancegenome.core.config.Constants.THREADED;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import static org.alliancegenome.core.config.Constants.*;
 
 
 public class ConfigHelper {
@@ -93,7 +68,7 @@ public class ConfigHelper {
 
         defaults.put(AO_TERM_LIST, "anatomy-term-order.csv");
         defaults.put(GO_TERM_LIST, "go-term-order.csv");
-        
+
         // This next item needs to be set in order to prevent the 
         // Caused by: java.lang.IllegalStateException: availableProcessors is already set to [16], rejecting [16]
         // error from happening.
@@ -366,6 +341,34 @@ public class ConfigHelper {
         }
 
         return nameValueList;
+    }
+
+    public static String getFileContent(String filePath) {
+
+        InputStream in = null;
+        BufferedReader reader = null;
+        String result = "";
+        try {
+            String str = null;
+            in = ConfigHelper.class.getClassLoader().getResourceAsStream(filePath);
+            if (in != null) {
+                reader = new BufferedReader(new InputStreamReader(in));
+                while ((str = reader.readLine()) != null) {
+                    result += str + getJavaLineSeparator();
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                in.close();
+                reader.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return result;
     }
 
     public static LinkedHashMap<String, String> getAOTermList() {

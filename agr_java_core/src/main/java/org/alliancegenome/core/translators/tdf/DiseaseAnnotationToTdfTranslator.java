@@ -38,7 +38,8 @@ public class DiseaseAnnotationToTdfTranslator {
                 new DownloadHeader<>("Based On ID", (DiseaseDownloadRow::getBasedOnID)),
                 new DownloadHeader<>("Based On Name", (DiseaseDownloadRow::getBasedOnName)),
                 new DownloadHeader<>("Source", (DiseaseDownloadRow::getSource)),
-                new DownloadHeader<>("Reference", (DiseaseDownloadRow::getReference))
+                new DownloadHeader<>("Reference", (DiseaseDownloadRow::getReference)),
+                new DownloadHeader<>("Date", (DiseaseDownloadRow::getDateAssigned))
         );
 
         return DownloadHeader.getDownloadOutput(list, headers);
@@ -111,6 +112,7 @@ public class DiseaseAnnotationToTdfTranslator {
         }
         row.setEvidenceCodeName(evidenceJoinerName.toString());
         row.setReference(join.getPublication().getPubId());
+        row.setDateAssigned(join.getDateAssigned());
         return row;
     }
 
