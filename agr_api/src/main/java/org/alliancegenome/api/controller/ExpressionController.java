@@ -149,7 +149,7 @@ public class ExpressionController implements ExpressionRESTInterface {
         try {
             return expressionService.getExpressionRibbonSummary(ids);
         } catch (Exception e) {
-            log.error(e);
+            log.error("error",e);
             RestErrorMessage error = new RestErrorMessage();
             error.addErrorMessage(e.getMessage());
             throw new RestErrorException(error);

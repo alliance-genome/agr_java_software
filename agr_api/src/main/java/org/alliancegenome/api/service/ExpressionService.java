@@ -223,7 +223,6 @@ public class ExpressionService {
     private RibbonEntity getExpressionRibbonSummary(String geneID) {
         GeneRepository geneRepository = new GeneRepository();
 
-        ExpressionCacheRepository expressionCacheRepository = new ExpressionCacheRepository();
         List<ExpressionDetail> expressionList = expressionCacheRepository.getExpressionDetails(geneID);
 
         // create histograms for each of the three ontologies
