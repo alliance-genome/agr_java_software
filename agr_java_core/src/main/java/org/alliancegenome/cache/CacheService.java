@@ -63,9 +63,8 @@ public class CacheService {
         return remoteCache;
     }
 
-    public <O> List<O> getCacheEntries(String entityID, CacheAlliance cacheSpace, Class<O> clazz) {
-        CollectionType javaType = mapper.getTypeFactory()
-                .constructCollectionType(List.class, clazz);
+    public <O> List<O> getCacheEntries(String entityID, CacheAlliance cacheSpace) {
+        CollectionType javaType = mapper.getTypeFactory().constructCollectionType(List.class, cacheSpace.getClazz());
 
         String json = getCacheSpace(cacheSpace).get(entityID);
         if (json == null)

@@ -59,7 +59,7 @@ public class ExpressionCacheRepository {
 
         List<ExpressionDetail> fullExpressionAnnotationList = new ArrayList<>();
         geneIDs.stream()
-                .filter(geneID -> cacheService.getCacheEntries(geneID, CacheAlliance.GENE_EXPRESSION, ExpressionDetail.class) != null)
+                .filter(geneID -> cacheService.getCacheEntries(geneID, CacheAlliance.GENE_EXPRESSION) != null)
                 .forEach(geneID -> fullExpressionAnnotationList.addAll(getExpressionDetails(geneID)));
 
         //filtering
@@ -87,7 +87,7 @@ public class ExpressionCacheRepository {
     }
 
     public List<ExpressionDetail> getExpressionDetails(String geneID) {
-        return cacheService.getCacheEntries(geneID, CacheAlliance.GENE_EXPRESSION, ExpressionDetail.class);
+        return cacheService.getCacheEntries(geneID, CacheAlliance.GENE_EXPRESSION);
     }
 
     private List<ExpressionDetail> filterExpressionAnnotations(List<ExpressionDetail> expressionDetails, BaseFilter fieldFilterValueMap) {
@@ -173,6 +173,6 @@ public class ExpressionCacheRepository {
     }
 
     public boolean hasExpression(String geneID) {
-        return CollectionUtils.isNotEmpty(cacheService.getCacheEntries(geneID, CacheAlliance.GENE_EXPRESSION, ExpressionDetail.class));
+        return CollectionUtils.isNotEmpty(cacheService.getCacheEntries(geneID, CacheAlliance.GENE_EXPRESSION));
     }
 }

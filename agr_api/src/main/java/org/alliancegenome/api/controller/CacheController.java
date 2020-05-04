@@ -21,10 +21,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @RequestScoped
-@Path("/cache")
-@Api(value = "Cache")
-@Produces(MediaType.APPLICATION_JSON)
-@Consumes(MediaType.APPLICATION_JSON)
 public class CacheController implements CacheRESTInterface {
 
     @Inject

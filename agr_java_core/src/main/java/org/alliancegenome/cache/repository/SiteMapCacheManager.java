@@ -23,7 +23,7 @@ public class SiteMapCacheManager {
 
     public List<XMLURL> getGenes(String key) {
 
-        List<String> allIds = getCacheEntry(key, CacheAlliance.GENE_SITEMAP);
+        List<String> allIds = getCacheEntry(key, CacheAlliance.SITEMAP_GENE);
 
         List<XMLURL> urls = new ArrayList<XMLURL>();
 
@@ -44,7 +44,7 @@ public class SiteMapCacheManager {
 
     public List<XMLURL> getDiseases(String key) {
 
-        List<String> allIds = getCacheEntry(key, CacheAlliance.DISEASE_SITEMAP);
+        List<String> allIds = getCacheEntry(key, CacheAlliance.SITEMAP_DISEASE);
 
         List<XMLURL> urls = new ArrayList<XMLURL>();
 
@@ -65,16 +65,19 @@ public class SiteMapCacheManager {
 
 
     public List<String> getGenesKeys() {
-        return cacheService.getAllKeys(CacheAlliance.GENE_SITEMAP);
+        return cacheService.getAllKeys(CacheAlliance.SITEMAP_GENE);
     }
 
     public List<String> getDiseaseKeys() {
-        return cacheService.getAllKeys(CacheAlliance.DISEASE_SITEMAP);
+        return cacheService.getAllKeys(CacheAlliance.SITEMAP_DISEASE);
+    }
+    
+    public List<String> getAlleleKeys() {
+        return cacheService.getAllKeys(CacheAlliance.SITEMAP_ALLELE);
     }
 
     public List<String> getCacheEntry(String entityID, CacheAlliance cacheSpace) {
-        return cacheService.getCacheEntries(entityID, cacheSpace, String.class);
+        return cacheService.getCacheEntries(entityID, cacheSpace);
     }
-
 
 }
