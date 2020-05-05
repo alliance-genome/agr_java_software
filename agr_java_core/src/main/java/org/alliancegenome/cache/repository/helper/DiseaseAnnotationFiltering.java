@@ -3,6 +3,7 @@ package org.alliancegenome.cache.repository.helper;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.SpeciesType;
+import org.alliancegenome.neo4j.entity.node.CrossReference;
 import org.alliancegenome.neo4j.entity.node.Gene;
 
 import java.util.Set;
@@ -30,7 +31,11 @@ public class DiseaseAnnotationFiltering extends AnnotationFiltering<DiseaseAnnot
             (annotation, value) -> FilterFunction.fullMatchMultiValueOR(annotation.getAssociationType(), value);
 
     public FilterFunction<DiseaseAnnotation, String> sourceFilter =
-            (annotation, value) -> FilterFunction.contains(annotation.getSource().getName(), value);
+            (annotation, value) -> {
+                if (annotation.getProviders() == null)
+                    return FilterFunction.contains(annotation.getSource().getName(), value);
+                return FilterFunction.contains(annotation.getProviders().values().stream().map(CrossReference::getDisplayName).collect(Collectors.joining(",")), value);
+            };
 
     public FilterFunction<DiseaseAnnotation, String> geneticEntityTypeFilter =
             (annotation, value) -> FilterFunction.fullMatchMultiValueOR(annotation.getGeneticEntityType(), value);
