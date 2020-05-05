@@ -24,4 +24,5 @@ public class DiseaseDownloadRow {
     private String evidenceCodeName;
     private String source;
     private String reference;
+    private String dateAssigned;
 }

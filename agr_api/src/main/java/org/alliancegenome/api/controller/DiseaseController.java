@@ -1,26 +1,34 @@
 package org.alliancegenome.api.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.log4j.Log4j2;
+import org.alliancegenome.api.application.RestDefaultObjectMapper;
 import org.alliancegenome.api.rest.interfaces.DiseaseRESTInterface;
 import org.alliancegenome.api.service.DiseaseService;
 import org.alliancegenome.api.service.EntityType;
 import org.alliancegenome.api.service.helper.APIServiceHelper;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
+import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.exceptions.RestErrorException;
 import org.alliancegenome.core.exceptions.RestErrorMessage;
 import org.alliancegenome.core.translators.tdf.DiseaseAnnotationToTdfTranslator;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
+import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.entity.node.DOTerm;
 import org.alliancegenome.neo4j.view.BaseFilter;
+import org.alliancegenome.neo4j.view.View;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -33,6 +41,9 @@ public class DiseaseController implements DiseaseRESTInterface {
 
     @Inject
     private HttpServletRequest request;
+
+    @Inject
+    RestDefaultObjectMapper mapper;
 
     @Inject
     private DiseaseService diseaseService;
@@ -181,6 +192,8 @@ public class DiseaseController implements DiseaseRESTInterface {
                                                         String reference,
                                                         String evidenceCode,
                                                         String associationType,
+                                                        boolean fullDownload,
+                                                        String downloadFileType,
                                                         String asc) {
         JsonResultResponse<DiseaseAnnotation> response = getDiseaseAnnotationsByGene(id,
                 Integer.MAX_VALUE,
@@ -194,8 +207,39 @@ public class DiseaseController implements DiseaseRESTInterface {
                 evidenceCode,
                 associationType,
                 asc);
-        Response.ResponseBuilder responseBuilder = Response.ok(translator.getAllRowsForGenes(response.getResults()));
-        APIServiceHelper.setDownloadHeader(id, EntityType.DISEASE, EntityType.GENE, responseBuilder);
+        Response.ResponseBuilder responseBuilder = null;
+        String allRowsForGenes = translator.getAllRowsForGenes(response.getResults());
+        if (fullDownload) {
+            if (downloadFileType == null || downloadFileType.equalsIgnoreCase("tsv")) {
+                String data = ConfigHelper.getFileContent("templates/all-disease-association-file-header.txt");
+                SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+                String dateString = format.format(new Date());
+                data = data.replace("${date}", dateString);
+
+                String taxonIDs = species;
+                if (StringUtils.isEmpty(taxonIDs)) {
+                    taxonIDs = SpeciesType.getAllTaxonIDs();
+                }
+                data = data.replace("${taxonIDs}", taxonIDs);
+                data += allRowsForGenes;
+                responseBuilder = Response.ok(data);
+                APIServiceHelper.setDownloadHeader(id, EntityType.DISEASE, EntityType.GENE, responseBuilder);
+            } else if (downloadFileType.equalsIgnoreCase("JSON")) {
+                try {
+                    String data = mapper.getMapper().writerWithView(View.DiseaseAnnotationSummary.class).writeValueAsString(response);
+                    responseBuilder = Response.ok(data);
+                    APIServiceHelper.setDownloadHeader(id, EntityType.DISEASE, EntityType.GENE, responseBuilder);
+                } catch (JsonProcessingException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                responseBuilder = Response.ok("The file type [" + downloadFileType + "] is not supported. Please use tsv or JSON");
+                APIServiceHelper.setDownloadHeader(id, EntityType.DISEASE, EntityType.GENE, responseBuilder);
+            }
+        } else {
+            responseBuilder = Response.ok(allRowsForGenes);
+            APIServiceHelper.setDownloadHeader(id, EntityType.DISEASE, EntityType.GENE, responseBuilder);
+        }
         return responseBuilder.build();
 
     }

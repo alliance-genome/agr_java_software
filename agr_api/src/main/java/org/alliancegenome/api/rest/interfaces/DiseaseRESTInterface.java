@@ -1,28 +1,19 @@
 package org.alliancegenome.api.rest.interfaces;
 
-import java.util.List;
-
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
+import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.node.DOTerm;
 import org.alliancegenome.neo4j.view.View;
 
-import com.fasterxml.jackson.annotation.JsonView;
-import com.fasterxml.jackson.core.JsonProcessingException;
-
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import java.util.List;
 
 @Path("/disease")
 @Api(value = "Disease ")
@@ -39,7 +30,7 @@ public interface DiseaseRESTInterface {
     @GET
     @Path("/{id}/associations")
     @JsonView(value = {View.DiseaseAnnotationSummary.class})
-    @ApiOperation(value = "Retrieve all DiseaseAnnotation records for a given disease id" , hidden = true)
+    @ApiOperation(value = "Retrieve all DiseaseAnnotation records for a given disease id", hidden = true)
     JsonResultResponse<DiseaseAnnotation> getDiseaseAnnotationsSorted(
             @ApiParam(name = "id", value = "Disease by DOID: e.g. DOID:9952", required = true, type = "String")
             @PathParam("id") String id,
@@ -185,6 +176,10 @@ public interface DiseaseRESTInterface {
             @QueryParam("filter.evidenceCode") String evidenceCode,
             @ApiParam(value = "filter by association type")
             @QueryParam("filter.associationType") String associationType,
+            @ApiParam(value = "boolean for switching between table download and Download page")
+            @QueryParam("fullDownload") boolean fullDownload,
+            @ApiParam(value = "download file type")
+            @QueryParam("fileType") String downloadFileType,
             @ApiParam(value = "ascending order: true or false", allowableValues = "true,false", defaultValue = "true")
             @QueryParam("asc") String asc);
 
@@ -247,7 +242,7 @@ public interface DiseaseRESTInterface {
     @GET
     @Path("/{id}/associations/download")
     @Produces(MediaType.TEXT_PLAIN)
-    @ApiOperation(value = "Download all DiseaseAnnotation records for a given disease id and sorting / filtering parameters" , hidden = true)
+    @ApiOperation(value = "Download all DiseaseAnnotation records for a given disease id and sorting / filtering parameters", hidden = true)
     Response getDiseaseAnnotationsDownloadFile(
             @ApiParam(name = "id", value = "Disease by DOID: e.g. DOID:9952", required = true, type = "String")
             @PathParam("id") String id,
@@ -279,7 +274,7 @@ public interface DiseaseRESTInterface {
     @GET
     @Path("/{id}/associations/download/all")
     @Produces(MediaType.TEXT_PLAIN)
-    @ApiOperation(value = "Retrieve all DiseaseAnnotation records for a given disease id disregarding sorting / filtering parameters" , hidden = true)
+    @ApiOperation(value = "Retrieve all DiseaseAnnotation records for a given disease id disregarding sorting / filtering parameters", hidden = true)
     String getDiseaseAnnotationsDownload(@PathParam("id") String id);
 
     @GET

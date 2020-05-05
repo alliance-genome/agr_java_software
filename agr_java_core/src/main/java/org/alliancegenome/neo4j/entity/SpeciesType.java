@@ -1,14 +1,13 @@
 package org.alliancegenome.neo4j.entity;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
-
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import org.alliancegenome.es.index.site.doclet.SpeciesDoclet;
 import org.apache.commons.lang3.StringUtils;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Getter
 @AllArgsConstructor
@@ -88,6 +87,12 @@ public enum SpeciesType {
             return fromModName(string);
         }
         return null;
+    }
+
+    public static String getAllTaxonIDs() {
+        return List.of(values()).stream()
+                .map(SpeciesType::getTaxonID)
+                .collect(Collectors.joining(","));
     }
 
     public SpeciesDoclet getDoclet() {
