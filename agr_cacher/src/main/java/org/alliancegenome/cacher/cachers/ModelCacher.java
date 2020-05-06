@@ -43,6 +43,7 @@ public class ModelCacher extends Cacher {
                     if (model.getSubtype() != null)
                         entity.setType(GeneticEntity.CrossReferenceType.getCrossReferenceType(model.getSubtype()));
                     entity.setSpecies(model.getSequenceTargetingReagents().get(0).getGene().getSpecies());
+                    entity.setDataProvider(model.getDataProvider());
                     return entity;
                 })
                 .collect(Collectors.toList());
