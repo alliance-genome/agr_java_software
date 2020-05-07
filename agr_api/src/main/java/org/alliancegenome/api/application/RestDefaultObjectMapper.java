@@ -27,6 +27,10 @@ public class RestDefaultObjectMapper implements ContextResolver<ObjectMapper> {
         return mapper;
     }
 
+    public ObjectMapper getMapper() {
+        return mapper;
+    }
+
 }
 
 /*

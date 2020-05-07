@@ -42,7 +42,6 @@ public class ConfigHelper {
         defaults.put(API_ACCESS_TOKEN, "api_access_token"); // Api Value
 
         defaults.put(DEBUG, "false");
-        defaults.put(GENERATE_SITEMAP, "false"); // This will only be done in Production speeds up api startup
 
         defaults.put(ES_INDEX, "site_index"); // Can be over written
         defaults.put(ES_INDEX_SUFFIX, ""); // Prod, Dev, Stage, etc
@@ -70,6 +69,10 @@ public class ConfigHelper {
         defaults.put(AO_TERM_LIST, "anatomy-term-order.csv");
         defaults.put(GO_TERM_LIST, "go-term-order.csv");
 
+        // This next item needs to be set in order to prevent the 
+        // Caused by: java.lang.IllegalStateException: availableProcessors is already set to [16], rejecting [16]
+        // error from happening.
+        System.setProperty("es.set.netty.runtime.available.processors", "false");
 
         allKeys = defaults.keySet();
 
@@ -255,11 +258,6 @@ public class ConfigHelper {
         return Boolean.parseBoolean(config.get(KEEPINDEX));
     }
 
-    public static boolean getGenerateSitemap() {
-        if (!init) init();
-        return Boolean.parseBoolean(config.get(GENERATE_SITEMAP));
-    }
-
     public static String getAWSBucketName() {
         if (!init) init();
         return config.get(AWS_BUCKET_NAME);
@@ -343,6 +341,34 @@ public class ConfigHelper {
         }
 
         return nameValueList;
+    }
+
+    public static String getFileContent(String filePath) {
+
+        InputStream in = null;
+        BufferedReader reader = null;
+        String result = "";
+        try {
+            String str = null;
+            in = ConfigHelper.class.getClassLoader().getResourceAsStream(filePath);
+            if (in != null) {
+                reader = new BufferedReader(new InputStreamReader(in));
+                while ((str = reader.readLine()) != null) {
+                    result += str + getJavaLineSeparator();
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                in.close();
+                reader.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return result;
     }
 
     public static LinkedHashMap<String, String> getAOTermList() {

@@ -22,7 +22,7 @@ public class TestGetGene {
         //pagination.addFieldFilter(FieldFilter.ASSOCIATION_TYPE, "is_");
         //pagination.addFieldFilter(FieldFilter.REFERENCE, "PMID");
         //pagination.addFieldFilter(FieldFilter.SPECIES, "Homo");
-        //pagination.addFieldFilter(FieldFilter.SOURCE, "Mgi");
+        //pagination.addFieldFilter(FieldFilter.INERACTION_SOURCE, "Mgi");
         //pagination.addFieldFilter(FieldFilter.EVIDENCE_CODE, "TA");
         pagination.addFieldFilter(FieldFilter.GENETIC_ENTITY_TYPE, "allel");
         //SearchApiResponse response = service.getDiseaseAnnotations("DOID:655", pagination);

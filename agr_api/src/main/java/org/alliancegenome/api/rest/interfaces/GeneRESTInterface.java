@@ -1,14 +1,28 @@
 package org.alliancegenome.api.rest.interfaces;
 
-import com.fasterxml.jackson.annotation.JsonView;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+import java.io.IOException;
+import java.util.List;
+
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
+
 import org.alliancegenome.api.entity.DiseaseRibbonSummary;
 import org.alliancegenome.api.entity.ExpressionSummary;
-import org.alliancegenome.core.service.JsonResultResponse;
-import org.alliancegenome.neo4j.entity.*;
+import org.alliancegenome.cache.repository.helper.JsonResultResponse;
+import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
+import org.alliancegenome.neo4j.entity.DiseaseSummary;
+import org.alliancegenome.neo4j.entity.EntitySummary;
+import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
+import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
@@ -17,13 +31,12 @@ import org.alliancegenome.neo4j.view.View;
 import org.alliancegenome.neo4j.view.View.GeneAPI;
 import org.alliancegenome.neo4j.view.View.GeneAllelesAPI;
 
-import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
-import java.io.IOException;
-import java.util.List;
+import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.core.JsonProcessingException;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 
 @Path("/gene")
 @Api(value = "Genes")
@@ -124,7 +137,7 @@ public interface GeneRESTInterface {
 
     @GET
     @Path("/{id}/phenotypes/download")
-    @ApiOperation(value = "Retrieve all termName annotations for a given gene", notes = "Download all termName annotations for a given gene", hidden = true)
+    @ApiOperation(value = "Retrieve all termName annotations for a given gene", notes = "Download all termName annotations for a given gene")
     @Produces(MediaType.TEXT_PLAIN)
     Response getPhenotypeAnnotationsDownloadFile(
             @ApiParam(name = "id", value = "Gene by ID", required = true, type = "String")
@@ -227,8 +240,8 @@ public interface GeneRESTInterface {
             @ApiParam(name = "filter.source", value = "database")
             @QueryParam("filter.source") String source,
             @ApiParam(name = "filter.reference", value = "References")
-            @QueryParam("filter.reference") String reference
-    );
+            @QueryParam("filter.reference") String reference,
+            @Context UriInfo info);
 
     @GET
     @Path("/{id}/interactions/download")
@@ -270,7 +283,7 @@ public interface GeneRESTInterface {
     @Path("/{id}/disease-ribbon-summary")
     @JsonView(value = {View.DiseaseAnnotation.class})
     @ApiOperation(value = "Retrieve all disease records of a given gene")
-    DiseaseRibbonSummary getDiseaseSummary(
+    DiseaseRibbonSummary getDiseaseRibbonSummary(
             @ApiParam(name = "id", value = "Gene by ID, e.g. 'RGD:2129' or 'ZFIN:ZDB-GENE-990415-72 fgf8a'", required = true, type = "String")
             @PathParam("id") String id,
             @ApiParam(name = "geneID", value = "additional orthologous genes", required = true)

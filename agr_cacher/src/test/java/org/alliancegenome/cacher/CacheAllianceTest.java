@@ -16,7 +16,7 @@ public class CacheAllianceTest {
     @Test
     public void getCacheNames() {
         assertEquals(CacheAlliance.GENE.getCacheName(), "gene");
-        assertEquals(CacheAlliance.ALLELE.getCacheName(), "allele");
+        assertEquals(CacheAlliance.ALLELE_GENE.getCacheName(), "allele_gene");
         assertEquals(CacheAlliance.ALLELE_TAXON.getCacheName(), "allele_taxon");
         assertEquals(CacheAlliance.ALLELE_SPECIES.getCacheName(), "allele_species");
 
@@ -48,7 +48,7 @@ public class CacheAllianceTest {
     @Test
     @Ignore
     public void cacheEcoTerms() {
-        EcoCodeHelperCacher cacher = new EcoCodeHelperCacher();
+        EcoCodeCacher cacher = new EcoCodeCacher();
         cacher.run();
     }
 
@@ -56,6 +56,13 @@ public class CacheAllianceTest {
     @Test
     public void cacheOrthology() {
         GeneOrthologCacher cacher = new GeneOrthologCacher();
+        cacher.run();
+    }
+
+    @Ignore
+    @Test
+    public void cacheExpression() {
+        ExpressionCacher cacher = new ExpressionCacher();
         cacher.run();
     }
 

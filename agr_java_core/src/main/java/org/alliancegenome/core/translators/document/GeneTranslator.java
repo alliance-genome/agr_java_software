@@ -1,16 +1,11 @@
 package org.alliancegenome.core.translators.document;
 
-import java.util.HashSet;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.alliancegenome.core.translators.EntityDocumentTranslator;
 import org.alliancegenome.core.translators.doclet.CrossReferenceDocletTranslator;
-import org.alliancegenome.es.index.site.doclet.CrossReferenceDoclet;
-import org.alliancegenome.es.index.site.doclet.GenomeLocationDoclet;
 import org.alliancegenome.es.index.site.document.SearchableItemDocument;
 import org.alliancegenome.neo4j.entity.node.Gene;
-import org.alliancegenome.neo4j.entity.relationship.GenomeLocation;
 import org.alliancegenome.neo4j.entity.relationship.Orthologous;
 
 public class GeneTranslator extends EntityDocumentTranslator<Gene, SearchableItemDocument> {
@@ -46,8 +41,6 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, SearchableIte
             document.setSpecies(entity.getSpecies().getName());
         }
 
-        addSecondaryIds(entity, document);
-        addSynonyms(entity, document);
 
         if (entity.getSoTerm() != null) {
             document.setSoTermId(entity.getSoTerm().getPrimaryKey());
@@ -63,29 +56,6 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, SearchableIte
                         .collect(Collectors.toSet())
         );
 
-        if (entity.getGenomeLocations() != null) {
-            Set<GenomeLocationDoclet> gllist = new HashSet<>();
-            for (GenomeLocation location : entity.getGenomeLocations()) {
-                GenomeLocationDoclet loc = new GenomeLocationDoclet(
-                        location.getStart(),
-                        location.getEnd(),
-                        location.getAssembly(),
-                        location.getStrand(),
-                        location.getChromosome().getPrimaryKey());
-
-                gllist.add(loc);
-            }
-            document.setGenomeLocations(gllist);
-        }
-
-        if (entity.getCrossReferences() != null) {
-            document.setCrossReferencesMap(
-                    entity.getCrossReferences().stream()
-                            .map(crossReference -> {
-                                return crossReferenceTranslator.translate(crossReference);
-                            })
-                            .collect(Collectors.groupingBy(CrossReferenceDoclet::getType, Collectors.toList())));
-        }
 
         return document;
     }

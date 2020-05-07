@@ -5,8 +5,13 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
 import java.util.List;
+import java.util.Map;
+
+import javax.inject.Inject;
 
 import org.alliancegenome.api.service.GeneService;
+import org.alliancegenome.cache.repository.helper.JsonResultResponse;
+import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.EntitySummary;
 import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
 import org.alliancegenome.neo4j.repository.InteractionRepository;
@@ -26,7 +31,9 @@ import io.swagger.annotations.Api;
 public class InteractionsIT {
 
     public static InteractionRepository repo = new InteractionRepository();
-    private GeneService geneService = new GeneService();
+    
+    @Inject
+    private GeneService geneService;
 
     public static void main(String[] args) throws Exception {
         Logger log = LogManager.getLogger(InteractionsIT.class);
@@ -63,6 +70,17 @@ public class InteractionsIT {
         assertNotNull(summary);
         assertThat(summary.getNumberOfAnnotations(), greaterThanOrEqualTo(154L));
         assertThat(summary.getNumberOfEntities(), greaterThanOrEqualTo(84L));
+
+    }
+
+    @Test
+    public void getInteractionFieldValues() {
+        JsonResultResponse<InteractionGeneJoin> response = geneService.getInteractions("MGI:109583", new Pagination());
+        assertNotNull(response);
+
+        final Map<String, List<String>> distinctFieldValues = response.getDistinctFieldValues();
+        assertNotNull(distinctFieldValues);
+        assertThat(3, greaterThanOrEqualTo(distinctFieldValues.size()));
 
     }
 }

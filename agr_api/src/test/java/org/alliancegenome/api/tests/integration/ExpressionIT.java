@@ -4,14 +4,24 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.Api;
+import org.alliancegenome.api.entity.EntitySubgroupSlim;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import javax.inject.Inject;
+
 import org.alliancegenome.api.entity.RibbonSummary;
-import org.alliancegenome.api.service.AlleleService;
 import org.alliancegenome.api.service.ExpressionService;
 import org.alliancegenome.cache.repository.ExpressionCacheRepository;
+import org.alliancegenome.cache.repository.helper.JsonResultResponse;
+import org.alliancegenome.cache.repository.helper.PaginationResult;
 import org.alliancegenome.core.ExpressionDetail;
 import org.alliancegenome.core.config.ConfigHelper;
-import org.alliancegenome.core.service.JsonResultResponse;
-import org.alliancegenome.core.service.PaginationResult;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.node.GOTerm;
@@ -23,29 +33,27 @@ import org.apache.logging.log4j.core.config.Configurator;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import io.swagger.annotations.Api;
 
 @Api(value = "Expression Tests")
 public class ExpressionIT {
 
     private ObjectMapper mapper = new ObjectMapper();
-    private AlleleService alleleService;
-    private ExpressionCacheRepository repository = new ExpressionCacheRepository();
-    private ExpressionService expressionService = new ExpressionService();
+
+    @Inject
+    private ExpressionCacheRepository repository;
+    
+    @Inject
+    private ExpressionService expressionService;
 
     @Before
     public void before() {
         Configurator.setRootLevel(Level.WARN);
         ConfigHelper.init();
-
-        alleleService = new AlleleService();
 
         mapper.disable(MapperFeature.DEFAULT_VIEW_INCLUSION);
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
@@ -69,6 +77,23 @@ public class ExpressionIT {
     public void checkExpressionRibbonHeader() {
         RibbonSummary summary = expressionService.getExpressionRibbonSummary(List.of("MGI:109583"));
         assertNotNull(summary);
+        assertEquals(summary.getDiseaseRibbonEntities().size(), 1);
+        EntitySubgroupSlim slim = summary.getDiseaseRibbonEntities().get(0)
+                .getSlims().get("UBERON:0001062").get("ALL");
+        assertEquals(slim.getNumberOfAnnotations(), 149);
+        assertEquals(slim.getNumberOfClasses(), 95);
+
+        // nervous system
+        slim = summary.getDiseaseRibbonEntities().get(0)
+                .getSlims().get("UBERON:0001016").get("ALL");
+        assertEquals(slim.getNumberOfAnnotations(), 51);
+        assertEquals(slim.getNumberOfClasses(), 33);
+
+        // post-juvenile adult stage
+        slim = summary.getDiseaseRibbonEntities().get(0)
+                .getSlims().get("UBERON:0000113").get("ALL");
+        assertEquals(slim.getNumberOfAnnotations(), 26);
+        assertEquals(slim.getNumberOfClasses(), 24);
     }
 
     @Test
@@ -80,9 +105,29 @@ public class ExpressionIT {
 
     @Test
     // Test Pten from MGI for expression ribbon summary
+    public void checkExpressionRibbonNumbersManyGenes() {
+        RibbonSummary summary = expressionService.getExpressionRibbonSummary(List.of("MGI:98834"));
+        assertNotNull(summary);
+    }
+
+    @Test
+    // Test Pten from MGI for expression ribbon summary
+    public void checkExpressionRibbonNumbersWorm() {
+        RibbonSummary summary = expressionService.getExpressionRibbonSummary(List.of("WB:WBGene00002881"));
+        assertNotNull(summary);
+
+        assertEquals(summary.getDiseaseRibbonEntities().size(), 1);
+        EntitySubgroupSlim slim = summary.getDiseaseRibbonEntities().get(0)
+                .getSlims().get("GO:0005634").get("ALL");
+        assertEquals(slim.getNumberOfAnnotations(), 4);
+        assertEquals(slim.getNumberOfClasses(), 3);
+    }
+
+    @Test
+    // Test Pten from MGI for expression ribbon summary
     public void checkExpressionRibbonGoTerms() {
         GeneRepository geneRepository = new GeneRepository();
-        List<GOTerm> terms =geneRepository.getFullGoTermList();
+        List<GOTerm> terms = geneRepository.getFullGoTermList();
         assertNotNull(terms);
         String termNames = terms.stream().map(GOTerm::getName).collect(Collectors.joining(","));
         assertTrue(termNames.contains("extracellular region"));
@@ -101,6 +146,31 @@ public class ExpressionIT {
         assertNotNull(summary);
 
 
+    }
+
+    @Test
+    public void checkExpressionAnatomy() {
+        Pagination pagination = new Pagination();
+        BaseFilter filter = new BaseFilter();
+        //filter.addFieldFilter(FieldFilter.SOURCE, "9913");
+        pagination.setFieldFilterValueMap(filter);
+        JsonResultResponse<ExpressionDetail> summary = expressionService.getExpressionDetails(List.of("ZFIN:ZDB-GENE-030131-845"), "UBERON:0001062", pagination);
+        assertNotNull(summary);
+    }
+
+    @Test
+    public void checkExpressionNoResultDistinctFieldValues() {
+        Pagination pagination = new Pagination();
+        BaseFilter filter = new BaseFilter();
+        //filter.addFieldFilter(FieldFilter.SOURCE, "9913");
+        pagination.setFieldFilterValueMap(filter);
+        pagination.addFieldFilter(FieldFilter.FREFERENCE, "foot");
+        JsonResultResponse<ExpressionDetail> summary = expressionService.getExpressionDetails(List.of("RGD:2129"), null, pagination);
+        assertNotNull(summary);
+        assertEquals(summary.getTotal(), 0);
+        assertNotNull(summary.getDistinctFieldValues());
+        // Have at least one species value in the distinct value map.
+        assertEquals(summary.getDistinctFieldValues().values().size(), 1);
     }
 
 }

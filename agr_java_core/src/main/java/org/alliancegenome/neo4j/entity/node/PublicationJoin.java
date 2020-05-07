@@ -9,7 +9,6 @@ import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 @NodeEntity
@@ -38,6 +37,9 @@ public class PublicationJoin extends Association {
     @Relationship(type = "PRIMARY_GENETIC_ENTITY")
     private List<Allele> alleles;
 
+    @JsonView({View.API.class})
+    private String dateAssigned;
+
     @Override
     public String toString() {
         if (ecoCode == null)
@@ -48,25 +50,4 @@ public class PublicationJoin extends Association {
         return publication.getPubId() + ":" + ecos;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        PublicationJoin that = (PublicationJoin) o;
-        if (Objects.equals(joinType, that.joinType) &&
-                Objects.equals(publication, that.publication)) {
-            if (Objects.equals(ecoCode, that.ecoCode))
-                return true;
-            if (ecoCode == null || that.ecoCode == null)
-                return false;
-            return ecoCode.containsAll(that.ecoCode) && that.ecoCode.containsAll(ecoCode);
-
-        }
-        return false;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(joinType, publication, ecoCode);
-    }
 }

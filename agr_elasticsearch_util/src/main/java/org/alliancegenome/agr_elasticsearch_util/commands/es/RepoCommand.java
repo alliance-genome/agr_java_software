@@ -32,8 +32,12 @@ public class RepoCommand extends Command implements CommandInterface {
                 }
             } else if(command.equals("list")) {
                 List<RepositoryMetaData> meta = im.listRepos();
-                for(RepositoryMetaData data: meta) {
-                    System.out.println("Name: " + data.name() + " Type: " + data.type());
+                if(meta != null) {
+                    for(RepositoryMetaData data: meta) {
+                        System.out.println("Name: " + data.name() + " Type: " + data.type());
+                    }
+                } else {
+                    System.out.println("No Repos");
                 }
             } else {
                 printHelp();

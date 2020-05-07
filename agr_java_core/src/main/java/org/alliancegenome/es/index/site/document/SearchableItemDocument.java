@@ -5,17 +5,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.config.Constants;
 import org.alliancegenome.es.index.ESDocument;
+import org.alliancegenome.es.index.site.doclet.CrossReferenceDoclet;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.alliancegenome.es.index.site.doclet.CrossReferenceDoclet;
-import org.alliancegenome.es.index.site.doclet.GenomeLocationDoclet;
 
 @Getter
 @Setter
@@ -54,18 +52,22 @@ public class SearchableItemDocument extends ESDocument {
     Set<String> associatedSpecies = new HashSet<>();
     Set<String> biologicalProcessAgrSlim = new HashSet<>();
     Set<String> biologicalProcessWithParents = new HashSet<>();
+    Set<String> biotype0 = new HashSet<>();
+    Set<String> biotype1 = new HashSet<>();
+    Set<String> biotype2 = new HashSet<>();
+    Set<String> biotypes = new HashSet<>();
     Set<String> cellularComponentAgrSlim = new HashSet<>();
     Set<String> cellularComponentWithParents = new HashSet<>();
-    @JsonProperty("crossReferences")
+    Set<String> chromosomes = new HashSet<>();
     Map<String, List<CrossReferenceDoclet>> crossReferencesMap;
     List<CrossReferenceDoclet> crossReferenceList;
+    Set<String> crossReferences = new HashSet<>();
     Set<String> diseases = new HashSet<>();
     Set<String> diseasesAgrSlim = new HashSet<>();
     Set<String> diseaseGroup = new HashSet<>();
     Set<String> diseasesWithParents = new HashSet<>();
     Set<String> alleles = new HashSet<>();
     Set<String> genes = new HashSet<>();
-    Set<GenomeLocationDoclet> genomeLocations;
     Set<String> go_genes;
     Set<String> go_species;
     Set<String> models = new HashSet<>();
@@ -78,7 +80,6 @@ public class SearchableItemDocument extends ESDocument {
     Set<String> secondaryIds = new HashSet<>();
     Set<String> strictOrthologySymbols = new HashSet<>();
     Set<String> soTermNameWithParents = new HashSet<>();
-    Set<String> soTermNameAgrSlim = new HashSet<>();
     Set<String> subcellularExpressionWithParents = new HashSet<>();
     Set<String> subcellularExpressionAgrSlim = new HashSet<>();
     Set<String> synonyms = new HashSet<>();

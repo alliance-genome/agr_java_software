@@ -1,15 +1,16 @@
 package org.alliancegenome.api
 
-
+import org.alliancegenome.api.tests.integration.ApiTester
+import spock.lang.Specification
 import spock.lang.Unroll
 
-class DiseaseGeneTableSpec extends AbstractSpec {
+class DiseaseGeneTableSpec extends Specification {
 
     @Unroll
     def "Gene table on Disease page for #diseaseID"() {
         when:
         def disease = URLEncoder.encode(diseaseID, "UTF-8")
-        def result = getApiResult("/api/disease/$disease/genes")
+        def result = ApiTester.getApiResult("/api/disease/$disease/genes")
         def results = result.results
 
         then:
@@ -29,7 +30,7 @@ class DiseaseGeneTableSpec extends AbstractSpec {
     def "Gene table on Disease page for #diseaseID : filtering #filterQuery"() {
         when:
         def disease = URLEncoder.encode(diseaseID, "UTF-8")
-        def result = getApiResult("/api/disease/$disease/genes?$filterQuery")
+        def result = ApiTester.getApiResult("/api/disease/$disease/genes?$filterQuery")
         def results = result.results
 
         then:
@@ -50,7 +51,7 @@ class DiseaseGeneTableSpec extends AbstractSpec {
     def "Model table on Disease page for #diseaseID"() {
         when:
         def disease = URLEncoder.encode(diseaseID, "UTF-8")
-        def result = getApiResult("/api/disease/$disease/models")
+        def result = ApiTester.getApiResult("/api/disease/$disease/models")
         def results = result.results
 
         then:
@@ -70,7 +71,7 @@ class DiseaseGeneTableSpec extends AbstractSpec {
     def "Model table on Disease page for #diseaseID : filtering #filterQuery"() {
         when:
         def disease = URLEncoder.encode(diseaseID, "UTF-8")
-        def result = getApiResult("/api/disease/$disease/models?$filterQuery")
+        def result = ApiTester.getApiResult("/api/disease/$disease/models?$filterQuery")
         def results = result.results
 
         then:
@@ -92,7 +93,7 @@ class DiseaseGeneTableSpec extends AbstractSpec {
     def "Allele table on Disease page for #diseaseID"() {
         when:
         def disease = URLEncoder.encode(diseaseID, "UTF-8")
-        def result = getApiResult("/api/disease/$disease/alleles")
+        def result = ApiTester.getApiResult("/api/disease/$disease/alleles")
         def results = result.results
 
         then:
@@ -114,7 +115,7 @@ class DiseaseGeneTableSpec extends AbstractSpec {
     def "Allele table on Disease page for #diseaseID : filtering #filterQuery"() {
         when:
         def disease = URLEncoder.encode(diseaseID, "UTF-8")
-        def result = getApiResult("/api/disease/$disease/alleles?$filterQuery")
+        def result = ApiTester.getApiResult("/api/disease/$disease/alleles?$filterQuery")
         def results = result.results
 
         then:

@@ -2,6 +2,7 @@ package org.alliancegenome.neo4j.repository;
 
 import java.text.DecimalFormat;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -25,12 +26,8 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
 
         String query = " MATCH p1=(species:Species)-[:FROM_SPECIES]-(g:Gene) ";
         query += getSpeciesWhere(species);
-        query += " OPTIONAL MATCH pSyn=(g:Gene)-[:ALSO_KNOWN_AS]-(:Synonym) ";
-        query += " OPTIONAL MATCH pCR=(g:Gene)-[:CROSS_REFERENCE]-(:CrossReference)";
-        query += " OPTIONAL MATCH pChr=(g:Gene)-[:LOCATED_ON]-(:Chromosome)";
-        query += " OPTIONAL MATCH pSecondaryId=(g:Gene)-[:ALSO_KNOWN_AS]-(s:SecondaryId)";
         query += " OPTIONAL MATCH pSoTerm=(g:Gene)-[:ANNOTATED_TO]-(soTerm:SOTerm)";
-        query += " RETURN p1, pSyn, pCR, pChr, pSecondaryId, pSoTerm";
+        query += " RETURN p1, pSoTerm";
 
         Iterable<Gene> genes = null;
 
@@ -59,6 +56,22 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
         checkMemory();
         log.info("Fetching genes");
         geneDocumentCache.setGeneMap(getGeneMap(species));
+
+        checkMemory();
+        log.info("Building gene -> synonyms map");
+        geneDocumentCache.setSynonyms(getSynonyms(species));
+
+        checkMemory();
+        log.info("Building gene -> cross references map");
+        geneDocumentCache.setCrossReferences(getCrossReferences(species));
+
+        checkMemory();
+        log.info("Building gene -> chromosome map");
+        geneDocumentCache.setChromosomes(getChromosomes(species));
+
+        checkMemory();
+        log.info("Building gene -> secondaryId map");
+        geneDocumentCache.setSecondaryIds(getSecondaryIds(species));
 
         checkMemory();
         log.info("Building gene -> alleles map");
@@ -156,6 +169,59 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
         return ((double) runtime.totalMemory() - (double) runtime.freeMemory()) / (double) runtime.maxMemory();
     }
 
+    private Map<String, Set<String>> getSynonyms(String species) {
+        String query = "MATCH (species:Species)--(gene:Gene)-[:ALSO_KNOWN_AS]-(s:Synonym) ";
+        query += getSpeciesWhere(species);
+        query += " RETURN gene.primaryKey as id, s.name as value ";
+
+        return getMapSetForQuery(query, getSpeciesParams(species));
+    }
+
+    private Map<String, Set<String>> getCrossReferences(String species) {
+        String query = "MATCH (species:Species)--(gene:Gene)-[:CROSS_REFERENCE]-(cr:CrossReference) ";
+        query += getSpeciesWhere(species);
+        query += " RETURN gene.primaryKey as id, cr.name as value";
+
+        Map<String, Set<String>> names = getMapSetForQuery(query, getSpeciesParams(species));
+
+        query = "MATCH (species:Species)--(gene:Gene)-[:CROSS_REFERENCE]-(cr:CrossReference) ";
+        query += getSpeciesWhere(species);
+        query += " RETURN gene.primaryKey as id, cr.localId as value";
+
+        Map<String, Set<String>> localIds = getMapSetForQuery(query, getSpeciesParams(species));
+
+        Map<String, Set<String>> map = new HashMap<>();
+        Set<String> keys = new HashSet<>();
+
+        keys.addAll(names.keySet());
+        keys.addAll(localIds.keySet());
+
+        for (String key: keys) {
+            Set<String> values = new HashSet<>();
+            values.addAll(names.get(key));
+            values.addAll(localIds.get(key));
+            map.put(key, values);
+        }
+
+        return map;
+    }
+
+    private Map<String, Set<String>> getChromosomes(String species) {
+        String query = "MATCH (species:Species)--(gene:Gene)-[:LOCATED_ON]-(c:Chromosome) ";
+        query += getSpeciesWhere(species);
+        query += " RETURN gene.primaryKey as id, c.primaryKey as value ";
+
+        return getMapSetForQuery(query, getSpeciesParams(species));
+    }
+
+    private Map<String, Set<String>> getSecondaryIds(String species) {
+        String query = "MATCH (species:Species)--(gene:Gene)-[:ALSO_KNOWN_AS]-(s:SecondaryId) ";
+        query += getSpeciesWhere(species);
+        query += " RETURN gene.primaryKey as id, s.name as value ";
+
+        return getMapSetForQuery(query, getSpeciesParams(species));
+    }
+
     private Map<String, Set<String>> getAllelesMap(String species) {
         String query = "MATCH (species:Species)--(gene:Gene)-[:IS_ALLELE_OF]-(allele:Allele) ";
         query += getSpeciesWhere(species);
@@ -172,7 +238,6 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
         return getMapSetForQuery(query,"id","value", getSpeciesParams(species));
     }
 
-    //todo: some kind of slimming, possibly with manual filtering
     private Map<String, Set<String>> getSoTermNameAgrSlimMap(String species) {
         String query = "MATCH (species:Species)--(gene:Gene)-[:ANNOTATED_TO]-(:SOTerm)-[:IS_A_PART_OF_CLOSURE]->(term:SOTerm) ";
         query += " WHERE not term.name in ['region'," +

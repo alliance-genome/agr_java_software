@@ -1,39 +1,55 @@
 package org.alliancegenome.cache.repository;
 
-import lombok.extern.log4j.Log4j2;
+import static java.util.stream.Collectors.toList;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+
+import org.alliancegenome.api.service.FilterService;
 import org.alliancegenome.cache.CacheAlliance;
-import org.alliancegenome.cache.manager.BasicCachingManager;
-import org.alliancegenome.core.service.*;
+import org.alliancegenome.cache.CacheService;
+import org.alliancegenome.cache.repository.helper.PaginationResult;
+import org.alliancegenome.cache.repository.helper.PhenotypeAnnotationFiltering;
+import org.alliancegenome.cache.repository.helper.PhenotypeAnnotationSorting;
+import org.alliancegenome.cache.repository.helper.SortingField;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
 import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
 import org.alliancegenome.neo4j.entity.node.GeneticEntity;
-import org.alliancegenome.neo4j.view.BaseFilter;
+import org.apache.commons.collections.CollectionUtils;
 
-import java.util.*;
-import java.util.stream.Collectors;
-
-import static java.util.stream.Collectors.toList;
+import lombok.extern.log4j.Log4j2;
 
 @Log4j2
+@RequestScoped
 public class PhenotypeCacheRepository {
+
+    @Inject
+    private CacheService cacheService;
 
     public PaginationResult<PhenotypeAnnotation> getPhenotypeAnnotationList(String geneID, Pagination pagination) {
 
         List<PhenotypeAnnotation> fullPhenotypeAnnotationList = getPhenotypeAnnotationList(geneID);
 
         // remove GENE annotations from PAE list
-        fullPhenotypeAnnotationList.forEach(phenotypeAnnotation -> {
-            phenotypeAnnotation.getPrimaryAnnotatedEntities().removeIf(entity -> entity.getType().equals(GeneticEntity.CrossReferenceType.GENE));
-        });
+        fullPhenotypeAnnotationList.stream()
+                .filter(phenotypeAnnotation -> phenotypeAnnotation.getPrimaryAnnotatedEntities() != null)
+                .forEach(phenotypeAnnotation -> {
+                    phenotypeAnnotation.getPrimaryAnnotatedEntities().removeIf(entity -> entity.getType().equals(GeneticEntity.CrossReferenceType.GENE));
+                });
 
         //filtering
-        List<PhenotypeAnnotation> filteredPhenotypeAnnotationList = filterDiseaseAnnotations(fullPhenotypeAnnotationList, pagination.getFieldFilterValueMap());
-
         PaginationResult<PhenotypeAnnotation> result = new PaginationResult<>();
-        if (filteredPhenotypeAnnotationList != null) {
-            result.setTotalNumber(filteredPhenotypeAnnotationList.size());
-            result.setResult(getSortedAndPaginatedDiseaseAnnotations(pagination, filteredPhenotypeAnnotationList));
+        FilterService<PhenotypeAnnotation> filterService = new FilterService<>(new PhenotypeAnnotationFiltering());
+        if (CollectionUtils.isNotEmpty(fullPhenotypeAnnotationList)) {
+            List<PhenotypeAnnotation> filteredAnnotations = filterService.filterAnnotations(fullPhenotypeAnnotationList, pagination.getFieldFilterValueMap());
+            filterService.getSortedAndPaginatedAnnotations(pagination, filteredAnnotations, new PhenotypeAnnotationSorting());
+            result.setTotalNumber(filteredAnnotations.size());
+            result.setResult(filterService.getPaginatedAnnotations(pagination, filteredAnnotations));
         }
         return result;
     }
@@ -55,42 +71,14 @@ public class PhenotypeCacheRepository {
                 .collect(toList());
     }
 
-
-    private List<PhenotypeAnnotation> filterDiseaseAnnotations(List<PhenotypeAnnotation> phenotypeAnnotationList, BaseFilter fieldFilterValueMap) {
-        if (phenotypeAnnotationList == null)
-            return null;
-        if (fieldFilterValueMap == null)
-            return phenotypeAnnotationList;
-        return phenotypeAnnotationList.stream()
-                .filter(annotation -> containsFilterValue(annotation, fieldFilterValueMap))
-                .collect(Collectors.toList());
-    }
-
-    private boolean containsFilterValue(PhenotypeAnnotation annotation, BaseFilter fieldFilterValueMap) {
-        // remove entries with null values.
-        fieldFilterValueMap.values().removeIf(Objects::isNull);
-
-        Set<Boolean> filterResults = fieldFilterValueMap.entrySet().stream()
-                .map((entry) -> {
-                    FilterFunction<PhenotypeAnnotation, String> filterFunction = PhenotypeAnnotationFiltering.filterFieldMap.get(entry.getKey());
-                    if (filterFunction == null)
-                        return null;
-                    return filterFunction.containsFilterValue(annotation, entry.getValue());
-                })
-                .collect(Collectors.toSet());
-
-        return !filterResults.contains(false);
-    }
-
     public List<PhenotypeAnnotation> getPhenotypeAnnotationList(String geneID) {
-        BasicCachingManager<PhenotypeAnnotation> manager = new BasicCachingManager<>(PhenotypeAnnotation.class);
-        List<PhenotypeAnnotation> cache = manager.getCache(geneID, CacheAlliance.GENE_PHENOTYPE);
+
+        List<PhenotypeAnnotation> cache = cacheService.getCacheEntries(geneID, CacheAlliance.GENE_PHENOTYPE, PhenotypeAnnotation.class);
         Optional<List<PhenotypeAnnotation>> optional = Optional.ofNullable(cache);
         return optional.orElse(new ArrayList<>());
     }
 
     public List<PrimaryAnnotatedEntity> getPhenotypeAnnotationPureModeList(String geneID) {
-        BasicCachingManager<PrimaryAnnotatedEntity> manager = new BasicCachingManager<>(PrimaryAnnotatedEntity.class);
-        return manager.getCache(geneID, CacheAlliance.GENE_PURE_AGM_PHENOTYPE);
+        return cacheService.getCacheEntries(geneID, CacheAlliance.GENE_PURE_AGM_PHENOTYPE, PrimaryAnnotatedEntity.class);
     }
 }

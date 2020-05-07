@@ -4,6 +4,7 @@ import static org.alliancegenome.api.entity.DiseaseRibbonSummary.DOID_OTHER;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -108,7 +109,7 @@ public class DiseaseRibbonService {
         doList.forEach(doTerm -> {
             List<String> slimFoundList = new ArrayList<>();
             diseaseRibbonSummary.getDiseaseRibbonSections().forEach(diseaseRibbonSection -> {
-                if (diseaseRepository.getParentTermIDs(doTerm.getPrimaryKey()).contains(diseaseRibbonSection.getId())) {
+                if (diseaseRepository.getDOParentTermIDs(doTerm.getPrimaryKey()).contains(diseaseRibbonSection.getId())) {
                     SectionSlim slim = new SectionSlim();
                     slim.setId(doTerm.getPrimaryKey());
                     slim.setLabel(doTerm.getName());
@@ -138,13 +139,13 @@ public class DiseaseRibbonService {
 
         // check for parents of 'All Other Diseases' group. That high-level term does not exist in DO and
         // consists of the sum of four other individual high-level terms.
-        if (CollectionUtils.isNotEmpty(getParentIDsFromStream(DiseaseService.getAllOtherDiseaseTerms().stream(), doID)))
+        if (CollectionUtils.isNotEmpty(getParentIDsFromStream(DOTerm.getAllOtherDiseaseTerms().stream(), doID)))
             parentSet.add(DOID_OTHER);
         return parentSet;
     }
 
     private Set<String> getParentIDsFromStream(Stream<String> stream, String doID) {
-        return stream.filter(id -> diseaseRepository.getParentTermIDs(doID).contains(id))
+        return stream.filter(id -> diseaseRepository.getDOParentTermIDs(doID).contains(id))
                 .collect(Collectors.toSet());
     }
 

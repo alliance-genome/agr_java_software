@@ -16,15 +16,15 @@ import org.alliancegenome.neo4j.entity.node.GOTerm;
 import org.alliancegenome.neo4j.repository.DiseaseRepository;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import lombok.extern.log4j.Log4j2;
+
+@Log4j2
 @RequestScoped
 public class ExpressionRibbonService {
 
-    private Log log = LogFactory.getLog(getClass());
     private DiseaseRepository diseaseRepository = new DiseaseRepository();
     private GeneRepository geneRepository = new GeneRepository();
 
@@ -53,17 +53,17 @@ public class ExpressionRibbonService {
     static {
         List<String> infection = new ArrayList<>();
         infection.add("Expression grouped by Locations");
-        infection.add("All Anatomical Structures");
+        infection.add("All anatomical structures");
         slimParentTermIdMap.put(ExpressionCacheRepository.UBERON_ANATOMY_ROOT, infection);
 
         List<String> anatomy = new ArrayList<>();
         anatomy.add("Expression grouped by Stages");
-        anatomy.add("All Stages");
+        anatomy.add("All stages");
         slimParentTermIdMap.put(ExpressionCacheRepository.UBERON_STAGE_ROOT, anatomy);
 
         List<String> goTerms = new ArrayList<>();
         goTerms.add("Expression grouped by GO CC terms");
-        goTerms.add("All Cellular Components");
+        goTerms.add("All cellular components");
         slimParentTermIdMap.put(ExpressionCacheRepository.GO_CC_ROOT, goTerms);
 
     }

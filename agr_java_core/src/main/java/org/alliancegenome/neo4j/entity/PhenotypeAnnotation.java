@@ -6,11 +6,11 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.alliancegenome.es.index.site.doclet.SourceDoclet;
 import org.alliancegenome.neo4j.entity.node.AffectedGenomicModel;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.entity.node.Publication;
+import org.alliancegenome.neo4j.entity.node.Source;
 import org.alliancegenome.neo4j.view.View;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -24,7 +24,8 @@ import lombok.Setter;
 public class PhenotypeAnnotation implements Comparable<PhenotypeAnnotation>, Serializable {
 
     private String primaryKey;
-    private SourceDoclet source;
+    @JsonView({View.PhenotypeAPI.class})
+    private Source source;
     @JsonView({View.PhenotypeAPI.class})
     private String phenotype;
     @JsonView({View.PhenotypeAPI.class})

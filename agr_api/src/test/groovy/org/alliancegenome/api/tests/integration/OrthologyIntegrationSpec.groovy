@@ -1,13 +1,15 @@
 package org.alliancegenome.api
 
+import org.alliancegenome.api.tests.integration.ApiTester
+import spock.lang.Specification
 import spock.lang.Unroll
 
-class OrthologyIntegrationSpec extends AbstractSpec {
+class OrthologyIntegrationSpec extends Specification {
 
     @Unroll
     def "Gene page - Homology for #geneId and #stringencyFilter "() {
         when:
-        def results = getApiResults("/api/gene/$geneId/homologs?stringencyFilter=$stringencyFilter")
+        def results = ApiTester.getApiResults("/api/gene/$geneId/homologs?stringencyFilter=$stringencyFilter")
 
         def stringencyNames = results.stringencyFilter.findAll { it }
 

@@ -1,19 +1,22 @@
 package org.alliancegenome.neo4j.entity.node;
 
-import com.fasterxml.jackson.annotation.JsonView;
-import lombok.Getter;
-import lombok.Setter;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.alliancegenome.api.entity.PresentationEntity;
 import org.alliancegenome.neo4j.view.View;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.fasterxml.jackson.annotation.JsonView;
+
+import lombok.Getter;
+import lombok.Setter;
 
 @NodeEntity(label = "Feature")
 @Getter
 @Setter
-public class Allele extends GeneticEntity implements Comparable<Allele> {
+public class Allele extends GeneticEntity implements Comparable<Allele>, PresentationEntity {
 
     public Allele() {
         this.crossReferenceType = CrossReferenceType.ALLELE;
@@ -26,13 +29,15 @@ public class Allele extends GeneticEntity implements Comparable<Allele> {
     @JsonView({View.Default.class})
     private String symbolText;
     private String symbolTextWithSpecies;
+    @JsonView({View.AlleleAPI.class})
+    private String description;
 
     @JsonView({View.AlleleAPI.class})
     @Relationship(type = "IS_ALLELE_OF")
     private Gene gene;
 
     @JsonView({View.GeneAllelesAPI.class})
-    @Relationship(type = "IS_IMPLICATED_IN")
+    @Relationship(type = "IS_IMPLICATED_IN", direction = Relationship.INCOMING)
     private List<DOTerm> diseases = new ArrayList<>();
 
     @JsonView({View.GeneAllelesAPI.class})

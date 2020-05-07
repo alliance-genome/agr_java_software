@@ -1,10 +1,18 @@
 package org.alliancegenome.cacher.cachers;
 
-import lombok.extern.log4j.Log4j2;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
+
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+
 import org.alliancegenome.api.entity.CacheStatus;
 import org.alliancegenome.cache.CacheAlliance;
-import org.alliancegenome.cache.manager.BasicCachingManager;
-import org.alliancegenome.core.service.OrthologyService;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.alliancegenome.neo4j.view.OrthologView;
@@ -12,9 +20,7 @@ import org.alliancegenome.neo4j.view.View;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections4.map.MultiKeyMap;
 
-import java.util.*;
-
-import static java.util.stream.Collectors.*;
+import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 public class GeneOrthologCacher extends Cacher {
@@ -31,16 +37,18 @@ public class GeneOrthologCacher extends Cacher {
         List<Gene> geneList = geneRepository.getAllOrthologyGenes();
 
         finishProcess();
-
         if (geneList == null)
             return;
+
+        log.info("Total Number of Genes: ", geneList.size());
 
         geneGeneAlgorithm = geneRepository.getAllOrthologyGeneJoin();
         allMethods = geneRepository.getAllMethods();
         log.info(geneGeneAlgorithm.size());
 
-        startProcess("create geneList into cache", geneList.size());
-        BasicCachingManager manager = new BasicCachingManager();
+        int orthologousRecords = geneList.stream().map(gene -> gene.getOrthoGenes().size()).mapToInt(Integer::intValue).sum();
+        log.info("Total Number of Ortho Records: ", orthologousRecords);
+        startProcess("create geneList into cache", orthologousRecords);
 
         List<OrthologView> allOrthology = new ArrayList<>();
         geneList.forEach(gene -> {
@@ -65,35 +73,51 @@ public class GeneOrthologCacher extends Cacher {
                     .collect(toSet());
             allOrthology.addAll(orthologySet);
 
-            manager.setCache(gene.getPrimaryKey(), new ArrayList<>(orthologySet), View.OrthologyCacher.class, CacheAlliance.GENE_ORTHOLOGY);
+            cacheService.putCacheEntry(gene.getPrimaryKey(), new ArrayList<>(orthologySet), View.OrthologyCacher.class, CacheAlliance.GENE_ORTHOLOGY);
+            progressProcess();
         });
         finishProcess();
 
         // get homology cache by species
+        
+        startProcess("allOrthology.stream - group By o.getGene().getTaxonId()");
         Map<String, List<OrthologView>> map = allOrthology.stream()
                 .collect(groupingBy(o -> o.getGene().getTaxonId()));
-
+        finishProcess();
+        
+        
+        startProcess("allOrthology orthologViews into cache", map.size());
+        
         map.forEach((speciesID, orthologViews) -> {
-            manager.setCache(speciesID, orthologViews, View.OrthologyCacher.class, CacheAlliance.SPECIES_ORTHOLOGY);
+            cacheService.putCacheEntry(speciesID, orthologViews, View.OrthologyCacher.class, CacheAlliance.SPECIES_ORTHOLOGY);
+            progressProcess();
         });
-
+        
+        finishProcess();
+        
         CacheStatus status = new CacheStatus(CacheAlliance.SPECIES_ORTHOLOGY);
         //status.setNumberOfEntities(allExpression.size());
 
         Map<String, Integer> speciesStatsInt = new TreeMap<>();
         map.forEach((speciesID, orthology) -> speciesStatsInt.put(speciesID, orthology.size()));
 
+        map.clear();
+        
         status.setSpeciesStats(speciesStatsInt);
         setCacheStatus(status);
 
-        OrthologyService service = new OrthologyService();
-        Map<String, List<OrthologView>> speciesToSpeciesMap;
-        speciesToSpeciesMap = allOrthology.stream()
-                .collect(groupingBy(service::getSpeciesSpeciesID));
-
+        startProcess("allOrthology.stream - group By getSpeciesSpeciesID");
+        Map<String, List<OrthologView>> speciesToSpeciesMap = allOrthology.stream()
+                .collect(groupingBy(this::getSpeciesSpeciesID));
+        finishProcess();
+        
+        startProcess("Cache speciesToSpeciesMap into cache", speciesToSpeciesMap.size());
+        
         speciesToSpeciesMap.forEach((speciesSpeciesID, orthologViews) -> {
-            manager.setCache(speciesSpeciesID, orthologViews, View.OrthologyCacher.class, CacheAlliance.SPECIES_SPECIES_ORTHOLOGY);
+            cacheService.putCacheEntry(speciesSpeciesID, orthologViews, View.OrthologyCacher.class, CacheAlliance.SPECIES_SPECIES_ORTHOLOGY);
+            progressProcess();
         });
+        finishProcess();
 
         status = new CacheStatus(CacheAlliance.SPECIES_SPECIES_ORTHOLOGY);
         //status.setNumberOfEntities(allExpression.size());
@@ -107,8 +131,12 @@ public class GeneOrthologCacher extends Cacher {
         geneRepository.clearCache();
     }
 
+    public String getSpeciesSpeciesID(OrthologView o) {
+        return o.getGene().getTaxonId() + ":" + o.getHomologGene().getTaxonId();
+    }
+
     private List<String> getPredictionNotCalled(OrthologView view) {
-        List<String> usedNames = new ArrayList<>(view.getPredictionMethodsMatched());
+        List<String> usedNames = view.getPredictionMethodsMatched() != null ? new ArrayList<>(view.getPredictionMethodsMatched()) : new ArrayList<>();
         if (view.getPredictionMethodsNotMatched() != null)
             usedNames.addAll(view.getPredictionMethodsNotMatched());
         return allMethods.stream()
@@ -123,7 +151,7 @@ public class GeneOrthologCacher extends Cacher {
 
         Map<String, Set<String>> lists = geneGeneAlgorithm.get(primaryKey, primaryKey1);
         if (lists == null) {
-            log.warn("No algorithm found for " + primaryKey + " and " + primaryKey1);
+            log.debug("No algorithm found for " + primaryKey + " and " + primaryKey1);
             return null;
         }
         Set<String> algorithmSet = lists.get("match");
@@ -138,7 +166,7 @@ public class GeneOrthologCacher extends Cacher {
 
         Map<String, Set<String>> lists = geneGeneAlgorithm.get(primaryKey, primaryKey1);
         if (lists == null) {
-            log.warn("No algorithm found for " + primaryKey + " and " + primaryKey1);
+            log.debug("No algorithm found for " + primaryKey + " and " + primaryKey1);
             return null;
         }
         // Always return non-null list

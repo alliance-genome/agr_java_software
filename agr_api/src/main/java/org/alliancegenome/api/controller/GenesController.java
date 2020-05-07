@@ -9,14 +9,14 @@ import java.util.StringJoiner;
 import javax.enterprise.context.RequestScoped;
 
 import org.alliancegenome.api.rest.interfaces.GenesRESTInterface;
-import org.alliancegenome.core.service.JsonResultResponse;
+import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.alliancegenome.neo4j.view.OrthologyFilter;
 import org.apache.commons.collections.CollectionUtils;
 
 @RequestScoped
-public class GenesController extends BaseController implements GenesRESTInterface {
+public class GenesController implements GenesRESTInterface {
 
     @Override
     public JsonResultResponse<Gene> getGenes(List<String> taxonID, Integer rows, Integer start) throws IOException {

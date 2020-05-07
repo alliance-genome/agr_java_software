@@ -1,46 +1,52 @@
 package org.alliancegenome.api.controller;
 
-import static org.alliancegenome.api.service.EntityType.DISEASE;
-import static org.alliancegenome.api.service.EntityType.GENE;
-
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Objects;
-
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
+import lombok.extern.log4j.Log4j2;
+import org.alliancegenome.api.application.RestDefaultObjectMapper;
 import org.alliancegenome.api.rest.interfaces.DiseaseRESTInterface;
-import org.alliancegenome.api.service.APIService;
 import org.alliancegenome.api.service.DiseaseService;
 import org.alliancegenome.api.service.EntityType;
+import org.alliancegenome.api.service.helper.APIServiceHelper;
+import org.alliancegenome.cache.repository.helper.JsonResultResponse;
+import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.exceptions.RestErrorException;
 import org.alliancegenome.core.exceptions.RestErrorMessage;
-import org.alliancegenome.core.service.JsonResultResponse;
 import org.alliancegenome.core.translators.tdf.DiseaseAnnotationToTdfTranslator;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
+import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.entity.node.DOTerm;
 import org.alliancegenome.neo4j.view.BaseFilter;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.alliancegenome.neo4j.view.View;
+import org.apache.commons.lang3.StringUtils;
 
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
+
+import static org.alliancegenome.api.service.EntityType.DISEASE;
+import static org.alliancegenome.api.service.EntityType.GENE;
+
+@Log4j2
 @RequestScoped
-public class DiseaseController extends BaseController implements DiseaseRESTInterface {
+public class DiseaseController implements DiseaseRESTInterface {
 
-    private final Logger log = LogManager.getLogger(getClass());
-    @Context  //injected response proxy supporting multiple threads
-    private HttpServletResponse response;
     @Inject
     private HttpServletRequest request;
 
-    private DiseaseService diseaseService = new DiseaseService();
+    @Inject
+    RestDefaultObjectMapper mapper;
+
+    @Inject
+    private DiseaseService diseaseService;
     private final DiseaseAnnotationToTdfTranslator translator = new DiseaseAnnotationToTdfTranslator();
 
 
@@ -172,7 +178,7 @@ public class DiseaseController extends BaseController implements DiseaseRESTInte
                 associationType,
                 asc);
         Response.ResponseBuilder responseBuilder = Response.ok(translator.getAllRowsForAllele(response.getResults()));
-        APIService.setDownloadHeader(id, EntityType.DISEASE, EntityType.ALLELE, responseBuilder);
+        APIServiceHelper.setDownloadHeader(id, EntityType.DISEASE, EntityType.ALLELE, responseBuilder);
         return responseBuilder.build();
     }
 
@@ -186,6 +192,8 @@ public class DiseaseController extends BaseController implements DiseaseRESTInte
                                                         String reference,
                                                         String evidenceCode,
                                                         String associationType,
+                                                        boolean fullDownload,
+                                                        String downloadFileType,
                                                         String asc) {
         JsonResultResponse<DiseaseAnnotation> response = getDiseaseAnnotationsByGene(id,
                 Integer.MAX_VALUE,
@@ -199,8 +207,39 @@ public class DiseaseController extends BaseController implements DiseaseRESTInte
                 evidenceCode,
                 associationType,
                 asc);
-        Response.ResponseBuilder responseBuilder = Response.ok(translator.getAllRowsForGenes(response.getResults()));
-        APIService.setDownloadHeader(id, EntityType.DISEASE, EntityType.GENE, responseBuilder);
+        Response.ResponseBuilder responseBuilder = null;
+        String allRowsForGenes = translator.getAllRowsForGenes(response.getResults());
+        if (fullDownload) {
+            if (downloadFileType == null || downloadFileType.equalsIgnoreCase("tsv")) {
+                String data = ConfigHelper.getFileContent("templates/all-disease-association-file-header.txt");
+                SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+                String dateString = format.format(new Date());
+                data = data.replace("${date}", dateString);
+
+                String taxonIDs = species;
+                if (StringUtils.isEmpty(taxonIDs)) {
+                    taxonIDs = SpeciesType.getAllTaxonIDs();
+                }
+                data = data.replace("${taxonIDs}", taxonIDs);
+                data += allRowsForGenes;
+                responseBuilder = Response.ok(data);
+                APIServiceHelper.setDownloadHeader(id, EntityType.DISEASE, EntityType.GENE, responseBuilder);
+            } else if (downloadFileType.equalsIgnoreCase("JSON")) {
+                try {
+                    String data = mapper.getMapper().writerWithView(View.DiseaseAnnotationSummary.class).writeValueAsString(response);
+                    responseBuilder = Response.ok(data);
+                    APIServiceHelper.setDownloadHeader(id, EntityType.DISEASE, EntityType.GENE, responseBuilder);
+                } catch (JsonProcessingException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                responseBuilder = Response.ok("The file type [" + downloadFileType + "] is not supported. Please use tsv or JSON");
+                APIServiceHelper.setDownloadHeader(id, EntityType.DISEASE, EntityType.GENE, responseBuilder);
+            }
+        } else {
+            responseBuilder = Response.ok(allRowsForGenes);
+            APIServiceHelper.setDownloadHeader(id, EntityType.DISEASE, EntityType.GENE, responseBuilder);
+        }
         return responseBuilder.build();
 
     }
@@ -311,7 +350,7 @@ public class DiseaseController extends BaseController implements DiseaseRESTInte
                 evidenceCode,
                 asc);
         Response.ResponseBuilder responseBuilder = Response.ok(translator.getAllRowsForModel(response.getResults()));
-        APIService.setDownloadHeader(id, EntityType.DISEASE, EntityType.MODEL, responseBuilder);
+        APIServiceHelper.setDownloadHeader(id, EntityType.DISEASE, EntityType.MODEL, responseBuilder);
         return responseBuilder.build();
     }
 
@@ -350,7 +389,7 @@ public class DiseaseController extends BaseController implements DiseaseRESTInte
             JsonResultResponse<DiseaseAnnotation> jsonResponse = diseaseService.getDiseaseAnnotationsByDisease(id, pagination);
             responseBuilder = Response.ok(translator.getAllRowsForGenes(jsonResponse.getResults()));
             responseBuilder.type(MediaType.TEXT_PLAIN_TYPE);
-            APIService.setDownloadHeader(id, DISEASE, GENE, responseBuilder);
+            APIServiceHelper.setDownloadHeader(id, DISEASE, GENE, responseBuilder);
         } catch (Exception e) {
             log.error(e);
             RestErrorMessage error = new RestErrorMessage();
@@ -461,9 +500,9 @@ public class DiseaseController extends BaseController implements DiseaseRESTInte
             response.setHttpServletRequest(request);
             response.calculateRequestDuration(startDate);
             // translate all records
-            responseBuilder = Response.ok(translator.getAllRowsForRibbon(response.getResults()));
+            responseBuilder = Response.ok(translator.getAllRowsForGenes(response.getResults()));
             responseBuilder.type(MediaType.TEXT_PLAIN_TYPE);
-            APIService.setDownloadHeader(geneIDs.get(0), GENE, DISEASE, responseBuilder);
+            APIServiceHelper.setDownloadHeader(geneIDs.get(0), GENE, DISEASE, responseBuilder);
         } catch (Exception e) {
             log.error(e);
             RestErrorMessage error = new RestErrorMessage();

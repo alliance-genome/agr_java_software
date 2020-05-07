@@ -76,10 +76,6 @@
 		</dependency>
 		<dependency>
 			<groupId>io.thorntail</groupId>
-			<artifactId>infinispan</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>io.thorntail</groupId>
 			<artifactId>swagger</artifactId>
 		</dependency>
 		<dependency>
@@ -106,7 +102,7 @@
 		<dependency>
 			<groupId>org.codehaus.groovy</groupId>
 			<artifactId>groovy-all</artifactId>
-			<version>2.4.4</version>
+			<version>2.4.6</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -127,6 +123,21 @@
 			<artifactId>commons-beanutils</artifactId>
 			<version>1.9.3</version>
 		</dependency>
+		<dependency>
+			<groupId>org.infinispan</groupId>
+			<artifactId>infinispan-core</artifactId>
+			<version>10.1.3.Final</version>
+		</dependency>
+		<dependency>
+			<groupId>org.infinispan</groupId>
+			<artifactId>infinispan-client-hotrod</artifactId>
+			<version>10.1.3.Final</version>
+		</dependency>
+		<dependency>
+			<groupId>org.infinispan</groupId>
+			<artifactId>infinispan-commons</artifactId>
+			<version>10.1.3.Final</version>
+		</dependency>
 	</dependencies>
 
 	<dependencyManagement>
@@ -134,7 +145,7 @@
 			<dependency>
 				<groupId>io.thorntail</groupId>
 				<artifactId>bom-all</artifactId>
-				<version>2.4.0.Final</version>
+				<version>2.6.0.Final</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
@@ -156,7 +167,7 @@
 			<plugin>
 				<groupId>io.thorntail</groupId>
 				<artifactId>thorntail-maven-plugin</artifactId>
-				<version>2.4.0.Final</version>
+				<version>2.6.0.Final</version>
 				<executions>
 					<execution>
 						<goals>

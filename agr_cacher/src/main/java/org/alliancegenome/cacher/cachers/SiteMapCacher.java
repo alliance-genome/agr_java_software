@@ -5,13 +5,11 @@ import java.util.List;
 import java.util.Set;
 
 import org.alliancegenome.cache.CacheAlliance;
-import org.alliancegenome.cache.manager.SiteMapCacheManager;
-import org.alliancegenome.core.service.JsonResultResponse;
+import org.alliancegenome.cache.repository.helper.JsonResultResponse;
+import org.alliancegenome.neo4j.repository.AlleleRepository;
 import org.alliancegenome.neo4j.repository.DiseaseRepository;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.alliancegenome.neo4j.view.View;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
 
 import lombok.extern.log4j.Log4j2;
 
@@ -20,10 +18,9 @@ public class SiteMapCacher extends Cacher {
     
     private Integer batchSize = 15000;
     private GeneRepository geneRepository = new GeneRepository();
-    //private AlleleRepository alleleRepository = new AlleleRepository();
+    private AlleleRepository alleleRepository = new AlleleRepository();
     private DiseaseRepository diseaseRepository = new DiseaseRepository();
-    private SiteMapCacheManager manager = new SiteMapCacheManager();
-    
+
     @Override
     protected void cache() {
         
@@ -33,6 +30,10 @@ public class SiteMapCacher extends Cacher {
         cacheSiteMap(geneKeyList, CacheAlliance.GENE_SITEMAP);
         finishProcess();
         
+        List<String> alleleKeyList = alleleRepository.getAllAlleleKeys();
+        log.debug("Allele List Size: " + alleleKeyList.size());
+        cacheSiteMap(alleleKeyList, CacheAlliance.ALLELE_SITEMAP);
+        finishProcess();
 
         startProcess("diseaseRepository.getAllDiseaseWithAnnotationsKeys");
         Set<String> diseaseKeyList = diseaseRepository.getAllDiseaseWithAnnotationsKeys();
@@ -48,7 +49,7 @@ public class SiteMapCacher extends Cacher {
         for(String id: list) {
             idList.add(id);
             if(idList.size() >= batchSize) {
-                manager.setCache(String.valueOf(c), idList, View.Default.class, cache);
+                cacheService.putCacheEntry(String.valueOf(c), idList, View.Default.class, cache);
                 idList.clear();
                 c++;
             }
@@ -57,7 +58,7 @@ public class SiteMapCacher extends Cacher {
         if(idList.size() > 0) {
             JsonResultResponse<String> result = new JsonResultResponse<>();
             result.setResults(new ArrayList<>(idList));
-            manager.setCache(String.valueOf(c), idList, View.Default.class, cache);
+            cacheService.putCacheEntry(String.valueOf(c), idList, View.Default.class, cache);
             idList.clear();
         }
         

@@ -219,11 +219,12 @@ public class PhenotypeRepository extends Neo4jRepository<Phenotype> {
     public List<PhenotypeEntityJoin> getAllPhenotypeAnnotations() {
         String cypher = "MATCH p0=(phenotype:Phenotype)--(pej:PhenotypeEntityJoin)-[:EVIDENCE]->(ppj:PublicationJoin)<-[:ASSOCIATION]-(publication:Publication), " +
                 " p2=(pej:PhenotypeEntityJoin)<-[:ASSOCIATION]-(gene:Gene)-[:FROM_SPECIES]->(species:Species) " +
-                //"where gene.primaryKey = 'ZFIN:ZDB-GENE-001103-1' " +
-                //"where gene.primaryKey = 'WB:WBGene00000834' " +
+                //"where gene.primaryKey = 'ZFIN:ZDB-GENE-990415-8' " +
+                //"where gene.primaryKey = 'FB:FBgn0267821' " +
                 "OPTIONAL MATCH     p4=(pej:PhenotypeEntityJoin)--(feature:Feature)-[:CROSS_REFERENCE]->(crossRef:CrossReference) " +
                 "OPTIONAL MATCH models=(ppj:PublicationJoin)-[:PRIMARY_GENETIC_ENTITY]->(:AffectedGenomicModel) " +
-                "return p0, p4, p2, models ";
+                "OPTIONAL MATCH alleles=(ppj:PublicationJoin)-[:PRIMARY_GENETIC_ENTITY]->(:Allele)-[:FROM_SPECIES]->(species:Species) " +
+                "return p0, p4, p2, models, alleles ";
 
         Iterable<PhenotypeEntityJoin> joins = query(PhenotypeEntityJoin.class, cypher);
         return StreamSupport.stream(joins.spliterator(), false).
@@ -232,12 +233,27 @@ public class PhenotypeRepository extends Neo4jRepository<Phenotype> {
 
     public List<PhenotypeEntityJoin> getAllPhenotypeAnnotationsPureAGM() {
         String cypher = "MATCH p0=(phenotype:Phenotype)--(pej:PhenotypeEntityJoin)-[:EVIDENCE]->(ppj:PublicationJoin)<-[:ASSOCIATION]-(publication:Publication), " +
-                " p2=(pej:PhenotypeEntityJoin)--(agm:AffectedGenomicModel)--(:Allele)--(:Gene) "+
+                " p2=(pej:PhenotypeEntityJoin)--(agm:AffectedGenomicModel)--(:Allele)--(:Gene) " +
                 //"where agm.primaryKey in ['MGI:6272038','MGI:5702925'] " +
                 //"where agm.primaryKey in ['ZFIN:ZDB-FISH-180831-2'] " +
                 "OPTIONAL MATCH     p5=(pej:PhenotypeEntityJoin)--(:AffectedGenomicModel)-[:CROSS_REFERENCE]->(crossRef:CrossReference) " +
                 "OPTIONAL MATCH modelAllele=(agm:AffectedGenomicModel)--(n)--(:Gene) where n:Allele OR n:SequenceTargetingReagent " +
                 "return p0,p2, p5, modelAllele ";
+
+        Iterable<PhenotypeEntityJoin> joins = query(PhenotypeEntityJoin.class, cypher);
+        return StreamSupport.stream(joins.spliterator(), false).
+                collect(Collectors.toList());
+    }
+
+    public List<PhenotypeEntityJoin> getAllelePhenotypeAnnotations() {
+        String cypher = "MATCH p0=(phenotype:Phenotype)--(pej:PhenotypeEntityJoin)-[:EVIDENCE]->(ppj:PublicationJoin)<-[:ASSOCIATION]-(publication:Publication), " +
+                " p2=(pej:PhenotypeEntityJoin)--(feature:Feature) " +
+                //"where agm.primaryKey in ['MGI:6272038','MGI:5702925'] " +
+                //"where agm.primaryKey in ['ZFIN:ZDB-FISH-180831-2'] " +
+                "OPTIONAL MATCH gene=(feature:Feature)--(:Gene)" +
+                "OPTIONAL MATCH p4=(pej:PhenotypeEntityJoin)--(feature:Feature)-[:CROSS_REFERENCE]->(crossRef:CrossReference) " +
+                "OPTIONAL MATCH modelAllele=(ppj:PublicationJoin)--(agm:AffectedGenomicModel) " +
+                "return p0, p2, p4, modelAllele ";
 
         Iterable<PhenotypeEntityJoin> joins = query(PhenotypeEntityJoin.class, cypher);
         return StreamSupport.stream(joins.spliterator(), false).

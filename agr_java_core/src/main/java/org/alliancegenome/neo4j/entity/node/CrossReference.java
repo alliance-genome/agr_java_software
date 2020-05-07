@@ -40,6 +40,9 @@ public class CrossReference extends Neo4jEntity {
     @JsonView({View.Interaction.class})
     private String crossRefType;
 
+    private Boolean loadedDB;
+    private Boolean curatedDB;
+
     @JsonView({View.API.class})
     @JsonProperty(value = "name")
     public String getDisplayNameAPI() {

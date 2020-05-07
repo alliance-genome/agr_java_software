@@ -1,17 +1,25 @@
 package org.alliancegenome.neo4j.entity.node;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonView;
-import lombok.Getter;
-import lombok.Setter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.alliancegenome.es.util.DateConverter;
 import org.alliancegenome.neo4j.entity.Neo4jEntity;
 import org.alliancegenome.neo4j.view.View;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.typeconversion.Convert;
 
-import java.util.*;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonView;
+
+import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 @Setter
@@ -86,7 +94,7 @@ public class GeneticEntity extends Neo4jEntity {
     }
 
     @Relationship(type = "CROSS_REFERENCE")
-    private List<CrossReference> crossReferences = new ArrayList<>();
+    protected List<CrossReference> crossReferences = new ArrayList<>();
 
     // Only for manual construction (Neo needs to use the no-args constructor)
     public GeneticEntity(String primaryKey, CrossReferenceType crossReferenceType) {
@@ -99,7 +107,7 @@ public class GeneticEntity extends Neo4jEntity {
 
     // only used for JsonView
     /// set when deserialized
-    private Map<String, Object> map = null;
+    protected Map<String, Object> map = null;
 
     @JsonView({View.API.class})
     @JsonProperty(value = "crossReferences")
@@ -109,7 +117,12 @@ public class GeneticEntity extends Neo4jEntity {
         map = new HashMap<>();
         List<CrossReference> othersList = new ArrayList<>();
         for (CrossReference cr : crossReferences) {
-            String typeName = crossReferenceType.displayName;
+            String typeName = crossReferenceType.getDisplayName();
+            // hard-coding WB speciality submission
+            // Todo: Needs better modeling: use label=transgene in neo, or subclass, or something else
+            if (cr.getCrossRefType().startsWith("transgene")) {
+                typeName = "transgene";
+            }
             if (cr.getCrossRefType().startsWith(typeName + "/")) {
                 typeName = cr.getCrossRefType().replace(typeName + "/", "");
                 map.put(typeName, cr);
@@ -170,7 +183,8 @@ public class GeneticEntity extends Neo4jEntity {
 
     public enum CrossReferenceType {
 
-        GENE("gene"), ALLELE("allele"), GENOTYPE("genotype"), FISH("fish", "affected_genomic_model"), STRAIN("strain");
+        GENE("gene"), ALLELE("allele"), GENOTYPE("genotype"), FISH("fish", "affected_genomic_model"), STRAIN("strain"),
+        TRANSGENE("transgene");
 
         private String displayName;
         private String dbName;

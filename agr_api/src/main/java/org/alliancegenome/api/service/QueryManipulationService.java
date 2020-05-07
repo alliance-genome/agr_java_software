@@ -1,5 +1,6 @@
 package org.alliancegenome.api.service;
 
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
@@ -9,11 +10,12 @@ public class QueryManipulationService {
     private static final String ESCAPE_CHARS = "[/\\[\\]()]";
     private static final Pattern LUCENE_PATTERN = Pattern.compile(ESCAPE_CHARS);
     private static final String REPLACEMENT_STRING = "\\\\$0";
-
+    private static final Pattern HGVS_PATTERN = Pattern.compile("([A-Z]{2}_[0-9\\.]+[\\\\]*:g.[\\d\\w><_]+)");
 
     public String processQuery(String query) {
         query = luceneEscape(query);
         query = escapeColons(query);
+        query = quoteHgvs(query);
         return query;
     }
 
@@ -39,4 +41,19 @@ public class QueryManipulationService {
         return escaped;
     }
 
+    private String quoteHgvs(String value) {
+        if (StringUtils.isEmpty(value)) {
+            return value;
+        }
+
+        Matcher m = HGVS_PATTERN.matcher(value);
+        while(m.find()) {
+            String match = m.group(0);
+            value = value.replace(match,"\"" + match + "\"");
+        }
+        //an already quoted term will get an extra pair, so just clean them up all at once
+        value = value.replaceAll("\"\"","\"");
+
+        return value;
+    }
 }

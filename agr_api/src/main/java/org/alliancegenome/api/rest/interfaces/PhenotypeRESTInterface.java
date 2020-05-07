@@ -14,11 +14,11 @@ import javax.ws.rs.core.Response;
 
 import org.alliancegenome.es.model.search.SearchApiResponse;
 
-import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
+
 @Path("/termName")
-@Api(value = "Phenotype Search")
+//@Api(value = "Phenotype Search" , hidden = true)
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public interface PhenotypeRESTInterface {

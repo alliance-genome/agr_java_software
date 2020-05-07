@@ -1,13 +1,13 @@
 package org.alliancegenome.core.translators.tdf;
 
+import java.util.Comparator;
+import java.util.List;
+import java.util.StringJoiner;
+
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.SimpleTerm;
 import org.alliancegenome.neo4j.entity.node.Variant;
-
-import java.util.Comparator;
-import java.util.List;
-import java.util.StringJoiner;
 
 public class AlleleToTdfTranslator {
 
@@ -78,4 +78,6 @@ public class AlleleToTdfTranslator {
         return builder.toString();
 
     }
+
+
 }

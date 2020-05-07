@@ -11,7 +11,6 @@ import java.util.Map;
 
 import javax.ws.rs.core.UriInfo;
 
-import org.alliancegenome.es.model.search.AggDocCount;
 import org.alliancegenome.es.model.search.AggResult;
 import org.alliancegenome.es.model.search.Category;
 import org.elasticsearch.action.search.SearchResponse;
@@ -25,6 +24,8 @@ import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.jboss.logging.Logger;
+
+import lombok.Getter;
 
 @SuppressWarnings("serial")
 public class SearchHelper {
@@ -40,7 +41,7 @@ public class SearchHelper {
             put("gene", new ArrayList<String>() {
                 {
                     add("species");
-                    add("soTermNameAgrSlim");
+                    add("biotypes");
                     add("diseasesAgrSlim");
                     add("biologicalProcessAgrSlim");
                     add("molecularFunctionAgrSlim");
@@ -108,6 +109,7 @@ public class SearchHelper {
             add("associatedSpecies");
             add("associatedSpecies.synonyms");
             add("automatedGeneSynopsis");
+            add("biotypes");
             add("biologicalProcessWithParents");
             add("cellularComponentWithParents");
             add("cellularComponentExpression");
@@ -116,12 +118,9 @@ public class SearchHelper {
             add("cellularComponentExpressionWithParents.keyword");
             add("cellularComponentExpressionAgrSlim");
             add("cellularComponentExpressionAgrSlim.keyword");
-            //disease cross references:
-            add("crossReferences.ontology_provided_cross_reference.name");
-            add("crossReferences.ontology_provided_cross_reference.localId");
-            //gene cross references:
-            add("crossReferences.generic_cross_reference.name");
-            add("crossReferences.generic_cross_reference.localId");
+            add("chromosomes");
+            add("crossReferences");
+            add("crossReferences.standardText");
             add("diseases");
             add("diseasesAgrSlim");
             add("diseasesWithParents");
@@ -186,6 +185,39 @@ public class SearchHelper {
         }
     };
 
+    @Getter
+    private final List<String> responseFields = new ArrayList<String>() {
+        {
+            add("biologicalProcess");
+            add("branch");
+            add("category");
+            add("cellularComponent");
+            add("crossReferences");
+            add("definition");
+            add("description");
+            add("diseases");
+            add("external_ids");
+            add("gene_chromosome_ends");
+            add("gene_chromosome_starts");
+            add("gene_chromosomes");
+            add("genes");
+            add("go_genes");
+            add("homologs");
+            add("href");
+            add("modCrossRefCompleteUrl");
+            add("molecularConsequence");
+            add("molecularFunction");
+            add("name");
+            add("name_key");
+            add("relatedVariants");
+            add("soTermName");
+            add("species");
+            add("symbol");
+            add("synonyms");
+            add("variantTypes");
+        }
+    };
+
 
     private List<String> highlight_blacklist_fields = new ArrayList<String>() {
         {
@@ -205,16 +237,27 @@ public class SearchHelper {
             ret.add(term);
         } else {
             for(String item: category_filters.get(category)) {
-                TermsAggregationBuilder term = AggregationBuilders.terms(item);
-                term.field(item + ".keyword");
-                term.size(999);
-                ret.add(term);
+                if (item.equals("biotypes")) {
+                    ret.add(getBiotypeAggQuery());
+                } else {
+                    TermsAggregationBuilder term = AggregationBuilders.terms(item);
+                    term.field(item + ".keyword");
+                    term.size(999);
+                    ret.add(term);
+                }
             }
         }
 
         return ret;
     }
 
+    public TermsAggregationBuilder getBiotypeAggQuery() {
+        TermsAggregationBuilder biotype0 = AggregationBuilders.terms("biotypes").field("biotype0.keyword")
+                .subAggregation(AggregationBuilders.terms("biotype1").field("biotype1.keyword")
+                        .subAggregation(AggregationBuilders.terms("biotype2").field("biotype2.keyword"))
+                );
+        return biotype0;
+    }
 
     public ArrayList<AggResult> formatAggResults(String category, SearchResponse res) {
         ArrayList<AggResult> ret = new ArrayList<>();
@@ -223,21 +266,14 @@ public class SearchHelper {
 
             Terms aggs = res.getAggregations().get("categories");
 
-            AggResult ares = new AggResult("category");
-            for (Terms.Bucket entry : aggs.getBuckets()) {
-                ares.values.add(new AggDocCount(entry.getKeyAsString(), entry.getDocCount()));
-            }
+            AggResult ares = new AggResult("category", aggs);
             ret.add(ares);
 
         } else {
             if(category_filters.containsKey(category)) {
                 for(String item: category_filters.get(category)) {
                     Terms aggs = res.getAggregations().get(item);
-
-                    AggResult ares = new AggResult(item);
-                    for (Terms.Bucket entry : aggs.getBuckets()) {
-                        ares.values.add(new AggDocCount(entry.getKeyAsString(), entry.getDocCount()));
-                    }
+                    AggResult ares = new AggResult(item, aggs);
                     ret.add(ares);
                 }
             }

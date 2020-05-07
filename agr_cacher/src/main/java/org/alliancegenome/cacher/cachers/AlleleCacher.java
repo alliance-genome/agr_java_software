@@ -1,18 +1,23 @@
 package org.alliancegenome.cacher.cachers;
 
-import lombok.extern.log4j.Log4j2;
+import static java.util.stream.Collectors.groupingBy;
+
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.stream.Collectors;
+
 import org.alliancegenome.api.entity.CacheStatus;
 import org.alliancegenome.cache.CacheAlliance;
-import org.alliancegenome.cache.manager.BasicCachingManager;
-import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.entity.node.Allele;
+import org.alliancegenome.neo4j.entity.node.GeneticEntity;
+import org.alliancegenome.neo4j.entity.node.Species;
 import org.alliancegenome.neo4j.repository.AlleleRepository;
 import org.alliancegenome.neo4j.view.View;
 
-import java.util.*;
-import java.util.stream.Collectors;
-
-import static java.util.stream.Collectors.groupingBy;
+import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 public class AlleleCacher extends Cacher {
@@ -22,43 +27,49 @@ public class AlleleCacher extends Cacher {
     @Override
     protected void cache() {
 
+        startProcess("get All Alleles");
         Set<Allele> allAlleles = alleleRepository.getAllAlleles();
         if (allAlleles == null)
             return;
         log.info("Number of Alleles: " + String.format("%,d", allAlleles.size()));
 
-        Map<String, List<Allele>> map = allAlleles.stream().collect(groupingBy(allele -> allele.getGene().getPrimaryKey()));
+        // group by genes. This ignores alleles without gene associations
+        Map<String, List<Allele>> map = allAlleles.stream()
+                .filter(allele -> allele.getGene() != null)
+                .collect(groupingBy(allele -> allele.getGene().getPrimaryKey()));
 
         allAlleles.forEach(allele -> allele.setPhenotypes(allele.getPhenotypes().stream()
                 .sorted(Comparator.comparing(phenotype -> phenotype.getPhenotypeStatement().toLowerCase()))
                 .collect(Collectors.toList())));
+        finishProcess();
 
-        BasicCachingManager manager = new BasicCachingManager();
-        for (Map.Entry<String, List<Allele>> entry : map.entrySet()) {
-            manager.setCache(entry.getKey(), entry.getValue(), View.GeneAllelesAPI.class, CacheAlliance.ALLELE);
-        }
+        populateCacheFromMap(map, View.GeneAllelesAPI.class, CacheAlliance.ALLELE_GENE);
 
-        CacheStatus status = new CacheStatus(CacheAlliance.ALLELE);
+        CacheStatus status = new CacheStatus(CacheAlliance.ALLELE_GENE);
         status.setNumberOfEntities(allAlleles.size());
 
-        Map<String, List<Allele>> speciesStats = allAlleles.stream().collect(groupingBy(allele -> allele.getGene().getSpecies().getName()));
+        Map<String, List<Species>> speciesStats = allAlleles.stream()
+                .map(GeneticEntity::getSpecies)
+                .collect(groupingBy(Species::getName));
 
-        Map<String, Integer> stats = new TreeMap<>();
-        map.forEach((geneID, alleles) -> stats.put(geneID, alleles.size()));
+        Map<String, Integer> entityStats = new TreeMap<>();
+        map.forEach((geneID, alleles) -> entityStats.put(geneID, alleles.size()));
 
-        Arrays.stream(SpeciesType.values())
-                .filter(speciesType -> !speciesStats.keySet().contains(speciesType.getName()))
-                .forEach(speciesType -> speciesStats.put(speciesType.getName(), new ArrayList<>()));
-
-        Map<String, Integer> speciesStatsInt = new HashMap<>();
-        speciesStats.forEach((species, alleles) -> speciesStatsInt.put(species, alleles.size()));
-
-        status.setEntityStats(stats);
-        status.setSpeciesStats(speciesStatsInt);
+        populateStatisticsOnStatus(status, entityStats, speciesStats);
+        status.setCollectionEntity(Allele.class.getSimpleName());
+        status.setJsonViewClass(View.GeneAllelesAPI.class.getSimpleName());
         setCacheStatus(status);
+
+        // create allele-species index
+        // <taxonID, List<Allele>>
+        // include alleles without gene associations
+        Map<String, List<Allele>> speciesMap = allAlleles.stream()
+                .collect(groupingBy(allele -> allele.getSpecies().getPrimaryKey()));
+        populateCacheFromMap(speciesMap, View.GeneAllelesAPI.class, CacheAlliance.ALLELE_SPECIES);
 
         alleleRepository.clearCache();
 
     }
+
 
 }

@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import org.alliancegenome.api.entity.PresentationEntity;
 import org.alliancegenome.es.util.DateConverter;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.CrossReference;
@@ -31,7 +32,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class PrimaryAnnotatedEntity implements Comparable<PrimaryAnnotatedEntity>, Serializable {
+public class PrimaryAnnotatedEntity implements Comparable<PrimaryAnnotatedEntity>, Serializable, PresentationEntity {
 
     @JsonView({View.PrimaryAnnotation.class, View.API.class})
     protected String id;

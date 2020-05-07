@@ -1,10 +1,10 @@
 package org.alliancegenome.es.util;
 
-import lombok.extern.log4j.Log4j2;
-
 import java.text.DecimalFormat;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
+
+import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 public class ProcessDisplayHelper {
@@ -25,7 +25,11 @@ public class ProcessDisplayHelper {
         lastSizeCounter = 0;
         startTime = new Date();
         sizeCounter = 0;
-        log.info(this.message + "Starting Processing: total: " + getBigNumber(totalSize) + " at: " + startTime);
+        if (totalSize > 0)
+            log.info(this.message + "Starting Process [total =  " + getBigNumber(totalSize) + "] at: " + startTime);
+        else
+            log.info(this.message + "Starting Process at: " + startTime);
+
         lastTime = new Date();
     }
 

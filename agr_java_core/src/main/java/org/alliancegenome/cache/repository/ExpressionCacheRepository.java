@@ -1,24 +1,44 @@
 package org.alliancegenome.cache.repository;
 
-import lombok.extern.log4j.Log4j2;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+
+import org.alliancegenome.api.service.ColumnFieldMapping;
+import org.alliancegenome.api.service.ExpressionColumnFieldMapping;
+import org.alliancegenome.api.service.FilterService;
+import org.alliancegenome.api.service.Table;
 import org.alliancegenome.cache.CacheAlliance;
-import org.alliancegenome.cache.manager.BasicCachingManager;
+import org.alliancegenome.cache.CacheService;
+import org.alliancegenome.cache.repository.helper.ExpressionAnnotationFiltering;
+import org.alliancegenome.cache.repository.helper.ExpressionAnnotationSorting;
+import org.alliancegenome.cache.repository.helper.FilterFunction;
+import org.alliancegenome.cache.repository.helper.PaginationResult;
+import org.alliancegenome.cache.repository.helper.SortingField;
 import org.alliancegenome.core.ExpressionDetail;
-import org.alliancegenome.core.service.*;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.repository.DiseaseRepository;
 import org.alliancegenome.neo4j.view.BaseFilter;
 import org.apache.commons.collections4.CollectionUtils;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import lombok.extern.log4j.Log4j2;
 
 @Log4j2
+@RequestScoped
 public class ExpressionCacheRepository {
 
+    @Inject
+    private CacheService cacheService;
 
     private static List<String> parentTermIDs = new ArrayList<>();
-    private BasicCachingManager<ExpressionDetail> manager = new BasicCachingManager<>(ExpressionDetail.class);
 
     public static final String UBERON_ANATOMY_ROOT = "UBERON:0001062";
 
@@ -39,8 +59,8 @@ public class ExpressionCacheRepository {
 
         List<ExpressionDetail> fullExpressionAnnotationList = new ArrayList<>();
         geneIDs.stream()
-                .filter(geneID -> manager.getCache(geneID, CacheAlliance.GENE_EXPRESSION) != null)
-                .forEach(geneID -> fullExpressionAnnotationList.addAll(manager.getCache(geneID, CacheAlliance.GENE_EXPRESSION)));
+                .filter(geneID -> cacheService.getCacheEntries(geneID, CacheAlliance.GENE_EXPRESSION, ExpressionDetail.class) != null)
+                .forEach(geneID -> fullExpressionAnnotationList.addAll(getExpressionDetails(geneID)));
 
         //filtering
         // filter on termID
@@ -50,14 +70,24 @@ public class ExpressionCacheRepository {
                     .filter(expressionDetail -> expressionDetail.getTermIDs().contains(termID))
                     .collect(Collectors.toList());
         }
+
         List<ExpressionDetail> filteredExpressionAnnotationList = filterExpressionAnnotations(filterTermIDList, pagination.getFieldFilterValueMap());
+
 
         PaginationResult<ExpressionDetail> result = new PaginationResult<>();
         if (!filteredExpressionAnnotationList.isEmpty()) {
             result.setTotalNumber(filteredExpressionAnnotationList.size());
             result.setResult(getSortedAndPaginatedExpressions(filteredExpressionAnnotationList, pagination));
         }
+        FilterService<ExpressionDetail> filterService = new FilterService<>(new ExpressionAnnotationFiltering());
+        ColumnFieldMapping<ExpressionDetail> mapping = new ExpressionColumnFieldMapping();
+        result.setDistinctFieldValueMap(filterService.getDistinctFieldValues(filterTermIDList,
+                mapping.getSingleValuedFieldColumns(Table.EXPRESSION), mapping));
         return result;
+    }
+
+    public List<ExpressionDetail> getExpressionDetails(String geneID) {
+        return cacheService.getCacheEntries(geneID, CacheAlliance.GENE_EXPRESSION, ExpressionDetail.class);
     }
 
     private List<ExpressionDetail> filterExpressionAnnotations(List<ExpressionDetail> expressionDetails, BaseFilter fieldFilterValueMap) {
@@ -143,6 +173,6 @@ public class ExpressionCacheRepository {
     }
 
     public boolean hasExpression(String geneID) {
-        return CollectionUtils.isNotEmpty(manager.getCache(geneID, CacheAlliance.GENE_EXPRESSION));
+        return CollectionUtils.isNotEmpty(cacheService.getCacheEntries(geneID, CacheAlliance.GENE_EXPRESSION, ExpressionDetail.class));
     }
 }

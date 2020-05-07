@@ -42,4 +42,11 @@ public class PhenotypeEntityJoin extends EntityJoin {
     public String toString() {
         return primaryKey;
     }
+
+    public Source getSource() {
+        Source source = new Source();
+        source.setName(dataProvider);
+        return source;
+    }
+
 }

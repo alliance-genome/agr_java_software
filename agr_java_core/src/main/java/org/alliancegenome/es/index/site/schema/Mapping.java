@@ -30,6 +30,10 @@ public class Mapping extends Builder {
         new FieldBuilder(builder, "biologicalProcess", "text").keyword().build();
         new FieldBuilder(builder, "biologicalProcessAgrSlim", "text").keyword().build();
         new FieldBuilder(builder, "biologicalProcessWithParents", "text").keyword().build();
+        new FieldBuilder(builder, "biotype0","text").keyword().build();
+        new FieldBuilder(builder, "biotype1","text").keyword().build();
+        new FieldBuilder(builder, "biotype2","text").keyword().build();
+        new FieldBuilder(builder, "biotypes", "text").keyword().letterText().build();
         new FieldBuilder(builder, "branch", "text").keyword().build();
         new FieldBuilder(builder, "category", "keyword").symbol().autocomplete().keyword().build();
         new FieldBuilder(builder, "cellularComponent", "text").keyword().build();
@@ -38,6 +42,8 @@ public class Mapping extends Builder {
         new FieldBuilder(builder, "cellularComponentExpression", "text").keyword().build();
         new FieldBuilder(builder, "cellularComponentExpressionWithParents", "text").keyword().build();
         new FieldBuilder(builder, "cellularComponentExpressionAgrSlim", "text").keyword().build();
+        new FieldBuilder(builder, "chromosomes", "text").keyword().build();
+        new FieldBuilder(builder, "crossReferences", "text").keyword().standardText().build();
         new FieldBuilder(builder, "description", "text");
         new FieldBuilder(builder, "diseases", "text").keyword().build();
         new FieldBuilder(builder, "diseasesAgrSlim", "text").keyword().build();
@@ -107,8 +113,6 @@ public class Mapping extends Builder {
         new FieldBuilder(builder, "variantTypes", "text").keyword().build();
         new FieldBuilder(builder, "whereExpressed", "text").keyword().build();
 
-        buildCrossReferencesField();
-        buildGenomeLocationsField();
         buildMetaDataField();
 
 
@@ -120,27 +124,6 @@ public class Mapping extends Builder {
         new FieldBuilder(builder,"dateProduced","date").build();
         new FieldBuilder(builder,"dataProvider","keyword").build();
         new FieldBuilder(builder,"release","keyword").build();
-        builder.endObject();
-        builder.endObject();
-    }
-
-    private void buildGenomeLocationsField() throws IOException {
-        builder.startObject("genomeLocations");
-        builder.startObject("properties");
-        new FieldBuilder(builder,"assembly","keyword").build();
-        new FieldBuilder(builder,"startPosition","integer").build();
-        new FieldBuilder(builder,"endPosition","integer").build();
-        new FieldBuilder(builder,"chromosome","keyword").build();
-        new FieldBuilder(builder,"strand","keyword").build();
-        builder.endObject();
-        builder.endObject();
-    }
-
-    private void buildCrossReferencesField() throws IOException {
-        builder.startObject("crossReferences");
-        builder.startObject("properties");
-        new FieldBuilder(builder,"dataProvider","keyword").build();
-        new FieldBuilder(builder,"id","keyword").build();
         builder.endObject();
         builder.endObject();
     }
@@ -257,14 +240,14 @@ public class Mapping extends Builder {
                 builder.startObject("fields");
                 if(keyword) { buildProperty("keyword", "keyword"); }
                 if(keywordAutocomplete) { buildProperty("keywordAutocomplete", "text", "keyword_autocomplete", "keyword_autocomplete_search", null); }
-                if(letterText) buildProperty("letterText", "text", "letter_text");
+                if(letterText) buildProperty("letterText", "text", "letter_text", "default", null);
                 if(symbol) { buildProperty("symbol", "text", "symbols"); }
                 if(autocomplete) buildProperty("autocomplete", "text", "autocomplete", "autocomplete_search", null);
                 if(synonym) buildProperty("synonyms", "text", "generic_synonym", "autocomplete_search", null);
                 if(sort) buildProperty("sort", "keyword", null, null, "lowercase");
                 if(htmlSmoosh) buildProperty("htmlSmoosh", "text", "html_smoosh");
                 if(standardBigrams) buildProperty("standardBigrams", "text", "standard_bigrams");
-                if(standardText) buildProperty("standardText", "text", "standard_text");
+                if(standardText) buildProperty("standardText", "text", "standard_text", "default", null);
                 builder.endObject();
             }
             builder.endObject();

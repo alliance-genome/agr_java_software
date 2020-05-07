@@ -1,15 +1,17 @@
 package org.alliancegenome.api
 
+import org.alliancegenome.api.tests.integration.ApiTester
+import spock.lang.Specification
 import spock.lang.Unroll
 
-class QueryMatchIntegrationSpec extends AbstractSpec {
+class QueryMatchIntegrationSpec extends Specification {
 
     @Unroll
     def "#query should return some results"() {
         when:
         def encodedQuery = URLEncoder.encode(query, "UTF-8")
         //todo: need to set the base search url in a nicer way
-        def results = getApiResults("/api/search?limit=5000&offset=0&q=$encodedQuery$filter")
+        def results = ApiTester.getApiResults("/api/search?limit=5000&offset=0&q=$encodedQuery$filter")
 
         then:
         results
@@ -33,7 +35,7 @@ class QueryMatchIntegrationSpec extends AbstractSpec {
         when:
         def encodedQuery = URLEncoder.encode("$query AND $id", "UTF-8")
         //todo: need to set the base search url in a nicer way
-        def results = getApiResults("/api/search?limit=10&offset=0&q=$encodedQuery")
+        def results = ApiTester.getApiResults("/api/search?limit=10&offset=0&q=$encodedQuery")
 
         then:
         results
@@ -46,7 +48,7 @@ class QueryMatchIntegrationSpec extends AbstractSpec {
         "AGR-934"  | "ZFIN:ZDB-GENE-990415-72" | "ENSDARG00000003399"
         "AGR-1048" | "MGI:99604"               | "Predicted to have biological regulation, chemoattractant activity, and signaling receptor binding"
         //this is from automatedGeneSynopsis, so it may change over time
-        "AGR-1048" | "MGI:99604"               | "This protein is known to be a factor that supports androgen and anchorage independent growth of mammary tumor cells."
+        "AGR-1048" | "MGI:99604"               | "Predicted to have signaling receptor binding activity. Involved in several processes, including animal organ development; embryonic morphogenesis"
 
         //disease
         "AGR-865"  | "DOID:0110047"            | "ICD10CM:G30"
@@ -58,8 +60,7 @@ class QueryMatchIntegrationSpec extends AbstractSpec {
         "AGR-865"  | "ZFIN:ZDB-ALT-101119-1"   | "x15"
         "AGR-865"  | "MGI:1856016"             | "Edar<sup>dl</sup>"
         "AGR-865"  | "MGI:1856016"             | "Edar"
-//Would require loading a text version of the allele names with < > instead of <sup> tags
-//        "AGR-865"  | "MGI:1856016"     | "Edar<dl>"
+        "AGR-865"  | "MGI:1856016"             | "Edar<dl>"
         "AGR-865"  | "MGI:1856016"             | "Edardl"
         "AGR-865"  | "MGI:1855960"             | "Tyrp1<sup>b</sup>"
         "AGR-865"  | "MGI:3923395"             | "Cd99<sup>Gt(Ayu21-B6T44)Imeg</sup>"
@@ -80,12 +81,19 @@ class QueryMatchIntegrationSpec extends AbstractSpec {
         "AGR-865"  | "RGD:12879860"            | "Tg<sup>rdw</sup>"
         "AGR-865"  | "MGI:5502315"             | "Rradtm1.1(KOMP)Vlcg"
         "AGR-865"  | "FB:FBal0151567"          | "rut[EP399]"
+        "AGR-508"  | "FB:FBal0036007"          | "en11"
+
+        "AGR-2006" | "MGI:3524957"             | "Tg(APPswe,PSEN1dE9)85Dbo"
+        "AGR-2006" | "MGI:3618599"             | "Tg(PSEN1dE9)S9Dbo"
+        "AGR-2006" | "MGI:3693208"             | "Tg(APPSwFlLon,PSEN1*M146L*L286V)6799Vas"
+        "AGR-2006" | "ZFIN:ZDB-ALT-140814-9"   | "zou011Tg"
 
         //variant hgvs names for alleles
         "AGR-1899" | "MGI:5316784"               | "NC_000083.6:g.75273979T>A"
         "AGR-1899" | "ZFIN:ZDB-ALT-161003-18649" | "NC_007116.7:g.23258951T>A"
         "AGR-1899" | "RGD:13209000"              | "NC_005118.4:g.55252024_55252027del"
         "AGR-1899" | "FB:FBal0000019"            | "NT_033777.3:g.7087759G>A"
+
 
         //diseasesViaExperiment found by allele and gene names
         "AGR-866"  | "DOID:11726"              | "tm1502"
@@ -100,6 +108,7 @@ class QueryMatchIntegrationSpec extends AbstractSpec {
 
         //secondaryId
         "AGR-1437" | "MGI:109583"              | "MGI:1917411"
+
     }
 
     @Unroll
@@ -107,7 +116,7 @@ class QueryMatchIntegrationSpec extends AbstractSpec {
         when:
         def encodedQuery = URLEncoder.encode("NOT $query AND $id", "UTF-8")
         //todo: need to set the base search url in a nicer way
-        def results = getApiResults("/api/search?limit=10&offset=0&q=$encodedQuery")
+        def results = ApiTester.getApiResults("/api/search?limit=10&offset=0&q=$encodedQuery")
 
         then:
         results

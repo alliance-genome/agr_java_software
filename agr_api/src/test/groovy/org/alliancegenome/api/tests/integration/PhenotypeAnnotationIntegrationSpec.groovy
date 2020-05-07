@@ -1,13 +1,15 @@
 package org.alliancegenome.api
 
+import org.alliancegenome.api.tests.integration.ApiTester
+import spock.lang.Specification
 import spock.lang.Unroll
 
-class PhenotypeAnnotationIntegrationSpec extends AbstractSpec {
+class PhenotypeAnnotationIntegrationSpec extends Specification {
 
     @Unroll
     def "Check that there are phenotype annotations for #query"() {
         when:
-        def results = getApiResults("/api/gene/$query/phenotypes?limit=1000&").results
+        def results = ApiTester.getApiResults("/api/gene/$query/phenotypes?limit=1000&").results
 
         then:
         results.size() > 10
@@ -20,7 +22,7 @@ class PhenotypeAnnotationIntegrationSpec extends AbstractSpec {
     @Unroll
     def "Check different query parameters #query for phenotype annotation endpoint"() {
         when:
-        def results = getApiResults("/api/gene/$gene/phenotypes?limit=1000&$query").results
+        def results = ApiTester.getApiResults("/api/gene/$gene/phenotypes?limit=1000&$query").results
 
         then:
         results.size() > resultSizeLowerLimit
@@ -39,7 +41,7 @@ class PhenotypeAnnotationIntegrationSpec extends AbstractSpec {
     @Unroll
     def "Verify that the downloads endpoint has results"() {
         when:
-        def result = getApiResultRaw("/api/gene/$gene/phenotypes/download")
+        def result = ApiTester.getApiResultRaw("/api/gene/$gene/phenotypes/download")
         def results = result.split('\n')
 
         then:

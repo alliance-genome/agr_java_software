@@ -1,22 +1,39 @@
 package org.alliancegenome.neo4j.entity;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.alliancegenome.api.entity.PresentationEntity;
+import org.alliancegenome.neo4j.entity.node.AffectedGenomicModel;
+import org.alliancegenome.neo4j.entity.node.Allele;
+import org.alliancegenome.neo4j.entity.node.CrossReference;
+import org.alliancegenome.neo4j.entity.node.DOTerm;
+import org.alliancegenome.neo4j.entity.node.ECOTerm;
+import org.alliancegenome.neo4j.entity.node.Gene;
+import org.alliancegenome.neo4j.entity.node.Publication;
+import org.alliancegenome.neo4j.entity.node.PublicationJoin;
+import org.alliancegenome.neo4j.entity.node.Source;
+import org.alliancegenome.neo4j.entity.node.Species;
+import org.alliancegenome.neo4j.view.View;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonView;
+
 import lombok.Getter;
 import lombok.Setter;
-import org.alliancegenome.neo4j.entity.node.*;
-import org.alliancegenome.neo4j.view.View;
-
-import java.io.Serializable;
-import java.util.*;
-import java.util.stream.Collectors;
 
 @Getter
 @Setter
 @JsonPropertyOrder({"disease", "gene", "allele", "geneticEntityType", "associationType", "ecoCode", "source", "publications"})
-public class DiseaseAnnotation implements Comparable<DiseaseAnnotation>, Serializable {
+public class DiseaseAnnotation implements Comparable<DiseaseAnnotation>, Serializable, PresentationEntity {
 
     @JsonView({View.DiseaseAnnotation.class})
     private String primaryKey;
@@ -52,11 +69,25 @@ public class DiseaseAnnotation implements Comparable<DiseaseAnnotation>, Seriali
     private List<Gene> orthologyGenes;
     @JsonView({View.DiseaseAnnotation.class})
     private List<PublicationJoin> publicationJoins;
+    @JsonView({View.DiseaseAnnotation.class})
+    private Map<String, CrossReference> providers;
 
     public void addOrthologousGene(Gene gene) {
         if (orthologyGenes == null)
             orthologyGenes = new ArrayList<>();
         orthologyGenes.add(gene);
+    }
+
+    public void addOrthologousGenes(List<Gene> genes) {
+        if (genes == null)
+            return;
+        if (orthologyGenes == null)
+            orthologyGenes = new ArrayList<>();
+        orthologyGenes.addAll(genes);
+        orthologyGenes = orthologyGenes.stream()
+                .distinct()
+                .sorted(Comparator.comparing(Gene::getSymbol))
+                .collect(Collectors.toList());
     }
 
     public void addPrimaryAnnotatedEntity(PrimaryAnnotatedEntity entity) {
@@ -166,5 +197,13 @@ public class DiseaseAnnotation implements Comparable<DiseaseAnnotation>, Seriali
                 .distinct()
                 .sorted(Comparator.naturalOrder())
                 .collect(Collectors.toList());
+    }
+
+    public Species getSpecies() {
+        if (gene != null)
+            return gene.getSpecies();
+        if (feature != null)
+            return feature.getSpecies();
+        return model.getSpecies();
     }
 }

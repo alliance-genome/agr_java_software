@@ -25,15 +25,6 @@ public class SearchDAO extends ESDAO {
 
     private final Logger log = LogManager.getLogger(getClass());
     
-    private final List<String> response_fields = new ArrayList<String>() {
-        {
-            add("name"); add("symbol"); add("synonyms"); add("soTermName"); add("gene_chromosomes"); add("gene_chromosome_starts"); add("gene_chromosome_ends");
-            add("description"); add("definition"); add("external_ids"); add("species"); add("biologicalProcess"); add("molecularFunction"); add("cellularComponent");
-            add("go_type"); add("go_genes"); add("go_synonyms"); add("homologs"); add("crossReferences"); add("category");
-            add("href"); add("name_key"); add("geneDocument"); add("diseases"); add("modCrossRefCompleteUrl"); add("genes"); add("variantTypes"); add("molecularConsequence");
-        }
-    };
-    
     private final List<String> id_response_fields = new ArrayList<String>() {
         {
             add("_id");
@@ -58,13 +49,14 @@ public class SearchDAO extends ESDAO {
 
     public SearchResponse performQuery(QueryBuilder query,
             List<AggregationBuilder> aggBuilders,
+            List<String> responseFields,
             int limit, int offset,
             HighlightBuilder highlighter,
             String sort, Boolean debug) {
 
         SearchRequestBuilder searchRequestBuilder = searchClient.prepareSearch();
 
-        searchRequestBuilder.setFetchSource(response_fields.toArray(new String[response_fields.size()]), null);
+        searchRequestBuilder.setFetchSource(responseFields.toArray(new String[responseFields.size()]), null);
 
         if (debug) {
             searchRequestBuilder.setExplain(true);

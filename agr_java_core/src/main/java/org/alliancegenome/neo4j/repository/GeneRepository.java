@@ -1,27 +1,46 @@
 package org.alliancegenome.neo4j.repository;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.extern.log4j.Log4j2;
-import org.alliancegenome.core.config.ConfigHelper;
-import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.neo4j.entity.SpeciesType;
-import org.alliancegenome.neo4j.entity.node.*;
-import org.alliancegenome.neo4j.view.OrthologyFilter;
-import org.apache.commons.collections4.map.MultiKeyMap;
-import org.neo4j.ogm.model.Result;
+import static java.util.stream.Collectors.joining;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.StringJoiner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-import static java.util.stream.Collectors.joining;
+import org.alliancegenome.core.config.ConfigHelper;
+import org.alliancegenome.es.model.query.Pagination;
+import org.alliancegenome.neo4j.entity.SpeciesType;
+import org.alliancegenome.neo4j.entity.node.AffectedGenomicModel;
+import org.alliancegenome.neo4j.entity.node.BioEntityGeneExpressionJoin;
+import org.alliancegenome.neo4j.entity.node.GOTerm;
+import org.alliancegenome.neo4j.entity.node.Gene;
+import org.alliancegenome.neo4j.entity.node.OrthoAlgorithm;
+import org.alliancegenome.neo4j.entity.node.SecondaryId;
+import org.alliancegenome.neo4j.entity.node.UBERONTerm;
+import org.alliancegenome.neo4j.view.OrthologyFilter;
+import org.apache.commons.collections4.map.MultiKeyMap;
+import org.neo4j.ogm.model.Result;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 public class GeneRepository extends Neo4jRepository<Gene> {
@@ -144,7 +163,7 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         map.put(FieldFilter.STAGE, (join, filterValue) -> join.getStage().getPrimaryKey().toLowerCase().contains(filterValue.toLowerCase()));
         map.put(FieldFilter.ASSAY, (join, filterValue) -> join.getAssay().getDisplaySynonym().toLowerCase().contains(filterValue.toLowerCase()));
         map.put(FieldFilter.FREFERENCE, (join, filterValue) -> join.getPublications().getPubId().toLowerCase().contains(filterValue.toLowerCase()));
-        map.put(FieldFilter.SOURCE, (join, filterValue) -> join.getCrossReference().getDisplayName().toLowerCase().contains(filterValue.toLowerCase()));
+        map.put(FieldFilter.INERACTION_SOURCE, (join, filterValue) -> join.getCrossReference().getDisplayName().toLowerCase().contains(filterValue.toLowerCase()));
 
         if (fieldFilterValueMap == null || fieldFilterValueMap.size() == 0)
             return true;
@@ -608,7 +627,7 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         String cypher = "MATCH p1=(q:Species)<-[:FROM_SPECIES]-(gene:Gene)-[:ASSOCIATION]->(s:BioEntityGeneExpressionJoin)--(t), "
                 + "entity = (s:BioEntityGeneExpressionJoin)<-[:ASSOCIATION]-(exp:ExpressionBioEntity)-->(o:Ontology) "
                 + "WHERE (o:GOTerm OR o:UBERONTerm ) ";
-
+        //cypher += "AND gene.primaryKey in ['SGD:S000004489','MGI:108359','MGI:1859288','MGI:1859314','MGI:109617','MGI:2669849','MGI:94903','MGI:94904','MGI:2153518','MGI:95461','MGI:95667','MGI:95668','MGI:96086','MGI:96109','MGI:96170','MGI:96171','MGI:96172','MGI:96173','MGI:96175','MGI:96176','MGI:96177','MGI:96178','MGI:96179','MGI:96180','MGI:96182','MGI:107730','MGI:96183','MGI:96184','MGI:96186','MGI:96188','MGI:96190','MGI:96192','MGI:96193','MGI:96196','MGI:96199','MGI:96201','MGI:96202','MGI:96203','MGI:96207','MGI:96209','MGI:104867','MGI:96785','MGI:1316721','MGI:1888519','MGI:1100513','MGI:103220','MGI:103219','MGI:109160','MGI:97168','MGI:97169','MGI:97351','MGI:1270158','MGI:97352','MGI:1921811','MGI:108011','MGI:1918718','MGI:2149033','MGI:2149032','MGI:2149035','MGI:2149036','MGI:97451','MGI:97487','MGI:97488','MGI:97490','MGI:102851','MGI:1100882','MGI:109340','MGI:1100498','MGI:101896','MGI:101895','MGI:102564','MGI:101894','MGI:2148204','MGI:109632','MGI:98769','MGI:1350935','MGI:108013','MGI:1277163','MGI:1890816','RGD:1562672','RGD:619932','RGD:1303178','RGD:62387','RGD:3331','RGD:3332','RGD:619768','ZFIN:ZDB-GENE-050419-191','ZFIN:ZDB-GENE-050208-140','ZFIN:ZDB-GENE-050417-212','ZFIN:ZDB-GENE-060118-2','ZFIN:ZDB-GENE-050913-153','ZFIN:ZDB-GENE-050522-28','ZFIN:ZDB-GENE-040628-4','ZFIN:ZDB-GENE-980526-330','ZFIN:ZDB-GENE-000128-8','ZFIN:ZDB-GENE-980526-280','ZFIN:ZDB-GENE-990415-49','ZFIN:ZDB-GENE-020117-1','ZFIN:ZDB-GENE-980526-216','ZFIN:ZDB-GENE-980526-6','ZFIN:ZDB-GENE-980526-167','ZFIN:ZDB-GENE-980526-40','ZFIN:ZDB-GENE-020117-2','ZFIN:ZDB-GENE-020509-2','ZFIN:ZDB-GENE-980526-299','ZFIN:ZDB-GENE-030131-5304','ZFIN:ZDB-GENE-001020-1','ZFIN:ZDB-GENE-060825-142','ZFIN:ZDB-GENE-990415-97','ZFIN:ZDB-GENE-000823-8','ZFIN:ZDB-GENE-990415-4','ZFIN:ZDB-GENE-000823-5','ZFIN:ZDB-GENE-000823-3','ZFIN:ZDB-GENE-000823-9','ZFIN:ZDB-GENE-000823-2','ZFIN:ZDB-GENE-990415-101','ZFIN:ZDB-GENE-990415-104','ZFIN:ZDB-GENE-990415-105','ZFIN:ZDB-GENE-980526-70','ZFIN:ZDB-GENE-000823-6','ZFIN:ZDB-GENE-000329-2','ZFIN:ZDB-GENE-980526-291','ZFIN:ZDB-GENE-990415-109','ZFIN:ZDB-GENE-990415-110','ZFIN:ZDB-GENE-990415-111','ZFIN:ZDB-GENE-000822-3','ZFIN:ZDB-GENE-000329-17','ZFIN:ZDB-GENE-000822-2','ZFIN:ZDB-GENE-990415-112','ZFIN:ZDB-GENE-980526-533','ZFIN:ZDB-GENE-000328-5','ZFIN:ZDB-GENE-990415-116','ZFIN:ZDB-GENE-990415-117','ZFIN:ZDB-GENE-990415-120','ZFIN:ZDB-GENE-980526-214','ZFIN:ZDB-GENE-990415-121','ZFIN:ZDB-GENE-040724-40','ZFIN:ZDB-GENE-001206-2','ZFIN:ZDB-GENE-051220-1','ZFIN:ZDB-GENE-050417-210','ZFIN:ZDB-GENE-041014-332','ZFIN:ZDB-GENE-050114-3','ZFIN:ZDB-GENE-050114-2','ZFIN:ZDB-GENE-040718-149','ZFIN:ZDB-GENE-080613-1','ZFIN:ZDB-GENE-060503-853','ZFIN:ZDB-GENE-040409-1','ZFIN:ZDB-GENE-040415-1','ZFIN:ZDB-GENE-040415-2','ZFIN:ZDB-GENE-980526-26','ZFIN:ZDB-GENE-980526-492','ZFIN:ZDB-GENE-040615-1','ZFIN:ZDB-GENE-010404-1','ZFIN:ZDB-GENE-980526-321','ZFIN:ZDB-GENE-030127-1','ZFIN:ZDB-GENE-980526-400','ZFIN:ZDB-GENE-980526-406','ZFIN:ZDB-GENE-030508-1','ZFIN:ZDB-GENE-081022-10','ZFIN:ZDB-GENE-080917-54','ZFIN:ZDB-GENE-990415-122','ZFIN:ZDB-GENE-050407-3','ZFIN:ZDB-GENE-990714-27','ZFIN:ZDB-GENE-980526-372','ZFIN:ZDB-GENE-980526-370','ZFIN:ZDB-GENE-980526-140','ZFIN:ZDB-GENE-010108-1','FB:FBgn0000014','FB:FBgn0000015','FB:FBgn0000028','FB:FBgn0260642','FB:FBgn0004862','FB:FBgn0000166','FB:FBgn0038592','FB:FBgn0036274','FB:FBgn0000439','FB:FBgn0000606','FB:FBgn0041156','FB:FBgn0001170','FB:FBgn0038852','FB:FBgn0264005','FB:FBgn0002522','FB:FBgn0011278','FB:FBgn0008651','FB:FBgn0052105','FB:FBgn0051481','FB:FBgn0025334','FB:FBgn0020912','FB:FBgn0003267','FB:FBgn0003339','FB:FBgn0287186','FB:FBgn0019650','FB:FBgn0003944','FB:FBgn0015561','FB:FBgn0086680','FB:FBgn0004053','FB:FBgn0004054','WB:WBGene00044330','WB:WBGene00000439','WB:WBGene00000440','WB:WBGene00000429','WB:WBGene00000446','WB:WBGene00000451','WB:WBGene00022837','WB:WBGene00000431','WB:WBGene00019864','WB:WBGene00002988','WB:WBGene00003024','WB:WBGene00003377','WB:WBGene00004011','WB:WBGene00004024','WB:WBGene00006652','WB:WBGene00006744','WB:WBGene00006870','WB:WBGene00006970']  ";
         //cypher += " AND gene.primaryKey in ['MGI:109583','ZFIN:ZDB-GENE-980526-166','RGD:61995','ZFIN:ZDB-GENE-030131-3776', 'ZFIN:ZDB-GENE-030616-47','FB:FBgn0026379','WB:WBGene00000913','SGD:S000005072'] ";
         //cypher += "  where gene.primaryKey = 'RGD:2129' ";
         //cypher += "OPTIONAL MATCH crossReference = (s:BioEntityGeneExpressionJoin)--(crossRef:CrossReference) ";

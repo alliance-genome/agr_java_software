@@ -1,23 +1,46 @@
 package org.alliancegenome.api.controller;
 
 
-import lombok.extern.log4j.Log4j2;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
+
 import org.alliancegenome.api.entity.DiseaseRibbonSummary;
 import org.alliancegenome.api.entity.ExpressionSummary;
 import org.alliancegenome.api.rest.interfaces.GeneRESTInterface;
-import org.alliancegenome.api.service.*;
+import org.alliancegenome.api.service.DiseaseService;
+import org.alliancegenome.api.service.EntityType;
+import org.alliancegenome.api.service.ExpressionService;
+import org.alliancegenome.api.service.GeneService;
+import org.alliancegenome.api.service.InteractionColumnFieldMapping;
+import org.alliancegenome.api.service.helper.APIServiceHelper;
 import org.alliancegenome.cache.repository.ExpressionCacheRepository;
+import org.alliancegenome.cache.repository.OrthologyCacheRepository;
+import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.core.exceptions.RestErrorException;
 import org.alliancegenome.core.exceptions.RestErrorMessage;
-import org.alliancegenome.core.service.JsonResultResponse;
-import org.alliancegenome.core.service.OrthologyService;
 import org.alliancegenome.core.translators.tdf.AlleleToTdfTranslator;
 import org.alliancegenome.core.translators.tdf.DiseaseAnnotationToTdfTranslator;
 import org.alliancegenome.core.translators.tdf.InteractionToTdfTranslator;
 import org.alliancegenome.core.translators.tdf.PhenotypeAnnotationToTdfTranslator;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.neo4j.entity.*;
+import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
+import org.alliancegenome.neo4j.entity.DiseaseSummary;
+import org.alliancegenome.neo4j.entity.EntitySummary;
+import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
+import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
@@ -25,38 +48,38 @@ import org.alliancegenome.neo4j.view.OrthologView;
 import org.alliancegenome.neo4j.view.OrthologyFilter;
 import org.apache.commons.collections.CollectionUtils;
 
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import lombok.extern.log4j.Log4j2;
 
-@RequestScoped
 @Log4j2
-public class GeneController extends BaseController implements GeneRESTInterface {
+@RequestScoped
+public class GeneController implements GeneRESTInterface {
 
     @Inject
     private GeneService geneService;
 
-    private OrthologyService orthologyService = new OrthologyService();
+    @Inject
+    private OrthologyCacheRepository orthologyService;
 
     @Inject
+    private ExpressionCacheRepository expressionCacheRepository;
+    
+    @Inject
     private DiseaseService diseaseService;
+    
+    @Inject
+    private OrthologyCacheRepository orthologyCacheService;
+    
     @Inject
     private HttpServletRequest request;
 
+    @Inject
+    private ExpressionService service;
+    
     private final PhenotypeAnnotationToTdfTranslator translator = new PhenotypeAnnotationToTdfTranslator();
     private final AlleleToTdfTranslator alleleTanslator = new AlleleToTdfTranslator();
     private final InteractionToTdfTranslator interactionTanslator = new InteractionToTdfTranslator();
     private final DiseaseAnnotationToTdfTranslator diseaseTranslator = new DiseaseAnnotationToTdfTranslator();
-
+    
     @Override
     public Gene getGene(String id) {
         Gene gene = geneService.getById(id);
@@ -137,7 +160,7 @@ public class GeneController extends BaseController implements GeneRESTInterface 
         JsonResultResponse<Allele> alleles = geneService.getAlleles(id, pagination);
 
         Response.ResponseBuilder responseBuilder = Response.ok(alleleTanslator.getAllRows(alleles.getResults()));
-        APIService.setDownloadHeader(id, EntityType.GENE, EntityType.ALLELE, responseBuilder);
+        APIServiceHelper.setDownloadHeader(id, EntityType.GENE, EntityType.ALLELE, responseBuilder);
         return responseBuilder.build();
     }
 
@@ -149,9 +172,10 @@ public class GeneController extends BaseController implements GeneRESTInterface 
                                                                    String interactorMoleculeType,
                                                                    String detectionMethod,
                                                                    String source,
-                                                                   String reference) {
+                                                                   String reference,
+                                                                   @Context UriInfo info) {
         long startTime = System.currentTimeMillis();
-        Pagination pagination = new Pagination(page, limit, sortBy, asc);
+        Pagination pagination = new Pagination(page, limit, sortBy, asc, new InteractionColumnFieldMapping());
         pagination.addFieldFilter(FieldFilter.MOLECULE_TYPE, moleculeType);
         pagination.addFieldFilter(FieldFilter.INTERACTOR_GENE_SYMBOL, interactorGeneSymbol);
         pagination.addFieldFilter(FieldFilter.INTERACTOR_SPECIES, interactorSpecies);
@@ -159,6 +183,13 @@ public class GeneController extends BaseController implements GeneRESTInterface 
         pagination.addFieldFilter(FieldFilter.DETECTION_METHOD, detectionMethod);
         pagination.addFieldFilter(FieldFilter.SOURCE, source);
         pagination.addFieldFilter(FieldFilter.FREFERENCE, reference);
+        // Todo: needs to be made generic
+        //pagination.validateFilterValues(info.getQueryParameters());
+        if (pagination.hasErrors()) {
+            RestErrorMessage message = new RestErrorMessage();
+            message.setErrors(pagination.getErrors());
+            throw new RestErrorException(message);
+        }
         try {
             JsonResultResponse<InteractionGeneJoin> interactions = geneService.getInteractions(id, pagination);
             interactions.setHttpServletRequest(request);
@@ -192,7 +223,7 @@ public class GeneController extends BaseController implements GeneRESTInterface 
         JsonResultResponse<InteractionGeneJoin> interactions = geneService.getInteractions(id, pagination);
 
         Response.ResponseBuilder responseBuilder = Response.ok(interactionTanslator.getAllRows(interactions.getResults()));
-        APIService.setDownloadHeader(id, EntityType.GENE, EntityType.INTERACTION, responseBuilder);
+        APIServiceHelper.setDownloadHeader(id, EntityType.GENE, EntityType.INTERACTION, responseBuilder);
         return responseBuilder.build();
     }
 
@@ -235,7 +266,7 @@ public class GeneController extends BaseController implements GeneRESTInterface 
                         reference,
                         asc);
         Response.ResponseBuilder responseBuilder = Response.ok(translator.getAllRows(response.getResults()));
-        APIService.setDownloadHeader(id, EntityType.GENE, EntityType.PHENOTYPE, responseBuilder);
+        APIServiceHelper.setDownloadHeader(id, EntityType.GENE, EntityType.PHENOTYPE, responseBuilder);
         return responseBuilder.build();
     }
 
@@ -358,10 +389,9 @@ public class GeneController extends BaseController implements GeneRESTInterface 
             geneList.add(id);
         }
 
-        ExpressionCacheRepository expressionCacheRepository = new ExpressionCacheRepository();
         OrthologyFilter orthologyFilter = new OrthologyFilter(stringencyFilter, null, null);
         orthologyFilter.setStart(1);
-        JsonResultResponse<OrthologView> orthologs = OrthologyService.getOrthologyGenes(geneList, orthologyFilter);
+        JsonResultResponse<OrthologView> orthologs = orthologyCacheService.getOrthologyGenes(geneList, orthologyFilter);
         List<OrthologView> filteredList = orthologs.getResults().stream()
                 .filter(orthologView -> expressionCacheRepository.hasExpression(orthologView.getHomologGene().getPrimaryKey()))
                 .collect(Collectors.toList());
@@ -374,22 +404,20 @@ public class GeneController extends BaseController implements GeneRESTInterface 
 
     @Override
     public ExpressionSummary getExpressionSummary(String id) {
-
-        ExpressionService service = new ExpressionService();
         return service.getExpressionSummary(id);
     }
 
     @Override
     // the List passed in here is unmodifiable
-    public DiseaseRibbonSummary getDiseaseSummary(String id, List<String> geneIDs) {
+    public DiseaseRibbonSummary getDiseaseRibbonSummary(String id, List<String> geneIDs) {
         List<String> ids = new ArrayList<>();
         if (geneIDs != null)
             ids.addAll(geneIDs);
         if (!id.equals("*"))
             ids.add(id);
-        DiseaseService service = new DiseaseService();
+
         try {
-            return service.getDiseaseRibbonSummary(ids);
+            return diseaseService.getDiseaseRibbonSummary(ids);
         } catch (Exception e) {
             log.error("Error while creating disease ribbon summary", e);
             RestErrorMessage error = new RestErrorMessage();

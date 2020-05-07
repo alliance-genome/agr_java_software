@@ -1,13 +1,15 @@
 package org.alliancegenome.api
 
+import org.alliancegenome.api.tests.integration.ApiTester
+import spock.lang.Specification
 import spock.lang.Unroll
 
-class PhenotypeIntegrationSpec extends AbstractSpec {
+class PhenotypeIntegrationSpec extends Specification {
 
     @Unroll
     def "Gene page - Phenotype Annotations for #geneId"() {
         when:
-        def results = getApiResults("/api/gene/$geneId/phenotypes?page=1&limit=10&sortBy=")
+        def results = ApiTester.getApiResults("/api/gene/$geneId/phenotypes?page=1&limit=10&sortBy=")
 
         def phenotypeNames = results.phenotype.findAll { it }
 
@@ -25,7 +27,7 @@ class PhenotypeIntegrationSpec extends AbstractSpec {
     @Unroll
     def "Gene page - Phenotype Annotation Download for #geneId"() {
         when:
-        def output = getApiResultRaw("/api/gene/$geneId/phenotypes/download?limit=100000")
+        def output = ApiTester.getApiResultRaw("/api/gene/$geneId/phenotypes/download?limit=100000")
         def lines = output.split("\n")
         then:
         lines
@@ -42,7 +44,7 @@ class PhenotypeIntegrationSpec extends AbstractSpec {
     def "Gene page - Sort phenotype by phenotype for #geneId"() {
         when:
         def encodedGeneID = URLEncoder.encode(geneId, "UTF-8")
-        def result = getApiResult("/api/gene/$encodedGeneID/phenotypes")
+        def result = ApiTester.getApiResult("/api/gene/$encodedGeneID/phenotypes")
 
         then:
         result

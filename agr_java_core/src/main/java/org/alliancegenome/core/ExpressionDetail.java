@@ -40,6 +40,15 @@ public class ExpressionDetail implements Comparable, Serializable {
     @JsonView(View.Expression.class)
     private List<String> termIDs = new ArrayList<>(6);
 
+    @JsonView(View.Expression.class)
+    private List<String> uberonTermIDs = new ArrayList<>(6);
+
+    @JsonView(View.Expression.class)
+    private List<String> goTermIDs = new ArrayList<>(6);
+
+    @JsonView(View.Expression.class)
+    private String stageTermID;
+
     public void addTermIDs(Collection<String> ids) {
         termIDs.addAll(ids);
     }
