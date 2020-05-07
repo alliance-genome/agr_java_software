@@ -1,11 +1,5 @@
 package org.alliancegenome.api.service;
 
-import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
-import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
-import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
-import static org.elasticsearch.index.query.QueryBuilders.multiMatchQuery;
-import static org.elasticsearch.index.query.QueryBuilders.queryStringQuery;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -39,6 +33,8 @@ import org.elasticsearch.index.query.functionscore.ScoreFunctionBuilders;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.jboss.logging.Logger;
+
+import static org.elasticsearch.index.query.QueryBuilders.*;
 
 @RequestScoped
 public class SearchService {
@@ -87,7 +83,7 @@ public class SearchService {
         BoolQueryBuilder bool = buildQuery(q, category, filters);
 
         if (StringUtils.isEmpty(q)) {
-            return bool;
+            return new FunctionScoreQueryBuilder(bool, buildMatchAllBoostFunctions());
         }
 
         FunctionScoreQueryBuilder builder = new FunctionScoreQueryBuilder(bool, buildBoostFunctions(q));
@@ -95,16 +91,25 @@ public class SearchService {
         return builder;
     }
 
+    public FunctionScoreQueryBuilder.FilterFunctionBuilder[] buildMatchAllBoostFunctions() {
+        List<FunctionScoreQueryBuilder.FilterFunctionBuilder> functionList = new ArrayList<>();
+
+        functionList.add(geneCategoryBoost());
+        functionList.add(humanSpeciesBoost());
+        functionList.add(documentPopularityBoost());
+        functionList.add(documentHasDiseaseBoost());
+
+        return functionList.toArray(new FunctionScoreQueryBuilder.FilterFunctionBuilder[functionList.size()]);
+    }
+
     public FunctionScoreQueryBuilder.FilterFunctionBuilder[] buildBoostFunctions(String q) {
         List<FunctionScoreQueryBuilder.FilterFunctionBuilder> functionList = new ArrayList<>();
 
         //gene category boost
-        functionList.add(new FunctionScoreQueryBuilder.FilterFunctionBuilder(matchQuery("category","gene"),
-                ScoreFunctionBuilders.weightFactorFunction(1.1F)));
+        functionList.add(geneCategoryBoost());
 
         //human data boost
-        functionList.add(new FunctionScoreQueryBuilder.FilterFunctionBuilder(matchQuery("species","Homo sapiens"),
-                ScoreFunctionBuilders.weightFactorFunction(1.5F)));
+        functionList.add(humanSpeciesBoost());
 
         functionList.add(new FunctionScoreQueryBuilder.FilterFunctionBuilder(matchQuery("name_key.keyword",q),
                 ScoreFunctionBuilders.weightFactorFunction(1000F)));
@@ -122,16 +127,6 @@ public class SearchService {
         functionList.add(new FunctionScoreQueryBuilder.FilterFunctionBuilder(matchQuery("diseasesWithParents",q),
                 ScoreFunctionBuilders.weightFactorFunction(1.01F)));
 
-/*
-        FieldValueFactorFunctionBuilder popularity = ScoreFunctionBuilders.fieldValueFactorFunction("popularity");
-        popularity.missing(1D);
-        popularity.modifier(FieldValueFactorFunction.Modifier.SQRT);
-        popularity.factor(1.0000001F);
-
-        functionList.add(new FunctionScoreQueryBuilder.FilterFunctionBuilder(matchAllQuery(),
-                popularity));
-*/
-
         //per term boost, add a 'should' clause for each individual term
         List<String> tokens = tokenizeQuery(q);
         for (String token : tokens) {
@@ -148,7 +143,29 @@ public class SearchService {
 
     }
 
+    private FunctionScoreQueryBuilder.FilterFunctionBuilder geneCategoryBoost() {
+        return new FunctionScoreQueryBuilder.FilterFunctionBuilder(matchQuery("category","gene"),
+                ScoreFunctionBuilders.weightFactorFunction(1.1F));
+    }
 
+    private FunctionScoreQueryBuilder.FilterFunctionBuilder humanSpeciesBoost() {
+        return new FunctionScoreQueryBuilder.FilterFunctionBuilder(matchQuery("species","Homo sapiens"),
+                ScoreFunctionBuilders.weightFactorFunction(1.5F));
+    }
+
+    private FunctionScoreQueryBuilder.FilterFunctionBuilder documentHasDiseaseBoost() {
+        return new FunctionScoreQueryBuilder.FilterFunctionBuilder(existsQuery("diseases"),
+                ScoreFunctionBuilders.weightFactorFunction(1.1F));
+    }
+
+    private FunctionScoreQueryBuilder.FilterFunctionBuilder documentPopularityBoost() {
+        FieldValueFactorFunctionBuilder popularity = ScoreFunctionBuilders.fieldValueFactorFunction("popularity");
+        popularity.missing(1D);
+        popularity.modifier(FieldValueFactorFunction.Modifier.SQRT);
+        popularity.factor(1.1F);
+
+        return new FunctionScoreQueryBuilder.FilterFunctionBuilder(matchAllQuery(), popularity);
+    }
 
     public BoolQueryBuilder buildQuery(String q, String category, MultivaluedMap<String,String> filters) {
 
