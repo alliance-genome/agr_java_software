@@ -131,4 +131,31 @@ class QueryRankIntegrationSpec extends Specification {
 
     }
 
+    @Unroll
+    def "when querying for #query #id #nameKey should be in the top #n results"() {
+       when:
+       def encodedQuery = URLEncoder.encode(query, "UTF-8")
+       //todo: need to set the base search url in a nicer way
+
+       def results = ApiTester.getApiResults("/api/search?limit=50&offset=0&q=$encodedQuery")
+       def ids = results.take(n)*.id
+
+       then:
+       ids.contains(id)
+
+       where:
+       query                            | id           | nameKey        | n
+       "breast cancer"                  | "HGNC:1100"  | "BRCA1 (Hsa)"  | 3
+       "breast cancer"                  | "HGNC:1101"  | "BRCA2 (Hsa)"  | 3
+       //"Huntington’s"                   | "HGNC:4851"  | "HTT (Hsa)"    | 5 //failing
+       "familial adenomatous polyposis" | "HGNC:583"   | "APC (Hsa)"    | 3
+       // this has a huge number because there's so many disease hits first,
+       // maybe that means specifying a category is relevant?
+       "Parkinson’s disease"            | "HGNC:8607"   | "PRKN (Hsa)" | 20
+       //"Alzheimer’s disease"            | "HGNC:620"    | "APP (Hsa)"   | 5 //failing
+       "Alzheimer’s disease"            | "HGNC:9508"   | "PSEN1 (Hsa)" | 5
+       "Alzheimer’s disease"            | "HGNC:9509"   | "PSEN2 (Hsa)" | 5
+       "Cystic fibrosis"                | "HGNC:1884"   | "CFTR" | 2
+    }
+
 }
