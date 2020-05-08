@@ -3,6 +3,7 @@ package org.alliancegenome.api.service.ensembl;
 import java.util.List;
 
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -12,6 +13,7 @@ import javax.ws.rs.core.MediaType;
 import org.alliancegenome.api.service.ensembl.model.EnsemblVariant;
 import org.alliancegenome.api.service.ensembl.model.EnsemblVariantConsequence;
 import org.alliancegenome.api.service.ensembl.model.EnsemblVariantFeature;
+import org.alliancegenome.api.service.ensembl.model.VariantListForm;
 import org.alliancegenome.neo4j.view.View;
 
 import com.fasterxml.jackson.annotation.JsonView;
@@ -43,5 +45,11 @@ public interface EnsemblRestAPIInterface {
             @QueryParam("feature") String feature
     );
     
-
+    @POST
+    @Path("vep/{species}/id")
+    @JsonView({View.Default.class})
+    public List<EnsemblVariantConsequence> getVariantConsequences(
+            @PathParam("species") String species,
+            VariantListForm form
+    );
 }

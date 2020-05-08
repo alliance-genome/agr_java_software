@@ -7,6 +7,7 @@ import javax.enterprise.context.RequestScoped;
 import org.alliancegenome.api.service.ensembl.model.EnsemblVariant;
 import org.alliancegenome.api.service.ensembl.model.EnsemblVariantConsequence;
 import org.alliancegenome.api.service.ensembl.model.EnsemblVariantFeature;
+import org.alliancegenome.api.service.ensembl.model.VariantListForm;
 
 import si.mazi.rescu.RestProxyFactory;
 
@@ -58,6 +59,11 @@ public class EnsemblVariantService implements EnsemblRestAPIInterface {
     // https://rest.ensembl.org/overlap/id/ENSMUSG00000027168?feature=variation
     public List<EnsemblVariant> getVariants(String id, String feature) {
         return api.getVariants(id, feature);
+    }
+
+    @Override
+    public List<EnsemblVariantConsequence> getVariantConsequences(String species, VariantListForm form) {
+        return api.getVariantConsequences(species, form);
     }
     
 }
