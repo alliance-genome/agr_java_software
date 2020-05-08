@@ -15,12 +15,8 @@ public class CacheAllianceTest {
 
     @Test
     public void getCacheNames() {
-        assertEquals(CacheAlliance.GENE.getCacheName(), "gene");
         assertEquals(CacheAlliance.ALLELE_GENE.getCacheName(), "allele_gene");
-        assertEquals(CacheAlliance.ALLELE_TAXON.getCacheName(), "allele_taxon");
         assertEquals(CacheAlliance.ALLELE_SPECIES.getCacheName(), "allele_species");
-
-
     }
 
     @Test

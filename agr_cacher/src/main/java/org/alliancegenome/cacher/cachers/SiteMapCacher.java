@@ -27,18 +27,18 @@ public class SiteMapCacher extends Cacher {
         startProcess("geneRepository.getAllGeneKeys");
         List<String> geneKeyList = geneRepository.getAllGeneKeys();
         log.debug("Gene List Size: " + geneKeyList.size());
-        cacheSiteMap(geneKeyList, CacheAlliance.GENE_SITEMAP);
+        cacheSiteMap(geneKeyList, CacheAlliance.SITEMAP_GENE);
         finishProcess();
         
         List<String> alleleKeyList = alleleRepository.getAllAlleleKeys();
         log.debug("Allele List Size: " + alleleKeyList.size());
-        cacheSiteMap(alleleKeyList, CacheAlliance.ALLELE_SITEMAP);
+        cacheSiteMap(alleleKeyList, CacheAlliance.SITEMAP_ALLELE);
         finishProcess();
 
         startProcess("diseaseRepository.getAllDiseaseWithAnnotationsKeys");
         Set<String> diseaseKeyList = diseaseRepository.getAllDiseaseWithAnnotationsKeys();
         log.debug("Disease List Size: " + diseaseKeyList.size());
-        cacheSiteMap(diseaseKeyList, CacheAlliance.DISEASE_SITEMAP);
+        cacheSiteMap(diseaseKeyList, CacheAlliance.SITEMAP_DISEASE);
         finishProcess();
         
     }

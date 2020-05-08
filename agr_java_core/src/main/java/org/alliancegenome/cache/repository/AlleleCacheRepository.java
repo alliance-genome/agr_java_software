@@ -32,7 +32,7 @@ public class AlleleCacheRepository {
     private CacheService cacheService;
 
     public JsonResultResponse<Allele> getAllelesBySpecies(String taxonID, Pagination pagination) {
-        List<Allele> allAlleles = cacheService.getCacheEntries(taxonID, CacheAlliance.ALLELE_SPECIES, Allele.class);
+        List<Allele> allAlleles = cacheService.getCacheEntries(taxonID, CacheAlliance.ALLELE_SPECIES);
         if (CollectionUtils.isEmpty(allAlleles)) {
             return JsonResultResponse.getEmptyInstance();
         }
@@ -40,7 +40,7 @@ public class AlleleCacheRepository {
     }
 
     public JsonResultResponse<Allele> getAllelesByGene(String geneID, Pagination pagination) {
-        List<Allele> allAlleles = cacheService.getCacheEntries(geneID, CacheAlliance.ALLELE_GENE, Allele.class);
+        List<Allele> allAlleles = cacheService.getCacheEntries(geneID, CacheAlliance.ALLELE_GENE);
         if (allAlleles == null)
             return null;
         return getAlleleJsonResultResponse(pagination, allAlleles);
@@ -109,7 +109,7 @@ public class AlleleCacheRepository {
 
     public List<PhenotypeAnnotation> getPhenotype(String alleleId) {
         //BasicCachingManager<PhenotypeAnnotation> manager = new BasicCachingManager<>(PhenotypeAnnotation.class);
-        List<PhenotypeAnnotation> phenotypeAnnotations = cacheService.getCacheEntries(alleleId, CacheAlliance.ALLELE_PHENOTYPE, PhenotypeAnnotation.class);
+        List<PhenotypeAnnotation> phenotypeAnnotations = cacheService.getCacheEntries(alleleId, CacheAlliance.ALLELE_PHENOTYPE);
         if (phenotypeAnnotations == null)
             return null;
         return phenotypeAnnotations;
@@ -117,7 +117,7 @@ public class AlleleCacheRepository {
 
     public List<DiseaseAnnotation> getDisease(String alleleId) {
 
-        List<DiseaseAnnotation> diseaseAnnotations = cacheService.getCacheEntries(alleleId, CacheAlliance.ALLELE_DISEASE, DiseaseAnnotation.class);
+        List<DiseaseAnnotation> diseaseAnnotations = cacheService.getCacheEntries(alleleId, CacheAlliance.ALLELE_DISEASE);
         if (diseaseAnnotations == null)
             return null;
         return diseaseAnnotations;

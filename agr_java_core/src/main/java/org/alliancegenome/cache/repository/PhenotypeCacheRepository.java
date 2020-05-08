@@ -73,12 +73,12 @@ public class PhenotypeCacheRepository {
 
     public List<PhenotypeAnnotation> getPhenotypeAnnotationList(String geneID) {
 
-        List<PhenotypeAnnotation> cache = cacheService.getCacheEntries(geneID, CacheAlliance.GENE_PHENOTYPE, PhenotypeAnnotation.class);
+        List<PhenotypeAnnotation> cache = cacheService.getCacheEntries(geneID, CacheAlliance.GENE_PHENOTYPE);
         Optional<List<PhenotypeAnnotation>> optional = Optional.ofNullable(cache);
         return optional.orElse(new ArrayList<>());
     }
 
     public List<PrimaryAnnotatedEntity> getPhenotypeAnnotationPureModeList(String geneID) {
-        return cacheService.getCacheEntries(geneID, CacheAlliance.GENE_PURE_AGM_PHENOTYPE, PrimaryAnnotatedEntity.class);
+        return cacheService.getCacheEntries(geneID, CacheAlliance.GENE_PURE_AGM_PHENOTYPE);
     }
 }

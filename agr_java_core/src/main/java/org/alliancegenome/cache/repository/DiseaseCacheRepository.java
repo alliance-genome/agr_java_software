@@ -41,19 +41,19 @@ public class DiseaseCacheRepository {
     private CacheService cacheService;
 
     public List<DiseaseAnnotation> getDiseaseAnnotationList(String diseaseID) {
-        return cacheService.getCacheEntries(diseaseID, CacheAlliance.DISEASE_ANNOTATION_GENE_LEVEL_GENE_DISEASE, DiseaseAnnotation.class);
+        return cacheService.getCacheEntries(diseaseID, CacheAlliance.DISEASE_ANNOTATION_GENE_LEVEL_GENE_DISEASE);
     }
 
     public List<DiseaseAnnotation> getDiseaseModelAnnotations(String diseaseID) {
-        return cacheService.getCacheEntries(diseaseID, CacheAlliance.DISEASE_ANNOTATION_MODEL_LEVEL_MODEL, DiseaseAnnotation.class);
+        return cacheService.getCacheEntries(diseaseID, CacheAlliance.DISEASE_ANNOTATION_MODEL_LEVEL_MODEL);
     }
 
     public List<DiseaseAnnotation> getDiseaseAlleleAnnotationList(String diseaseID) {
-        return cacheService.getCacheEntries(diseaseID, CacheAlliance.DISEASE_ANNOTATION_ALLELE_LEVEL_ALLELE, DiseaseAnnotation.class);
+        return cacheService.getCacheEntries(diseaseID, CacheAlliance.DISEASE_ANNOTATION_ALLELE_LEVEL_ALLELE);
     }
 
     public List<PrimaryAnnotatedEntity> getPrimaryAnnotatedEntitList(String geneID) {
-        return cacheService.getCacheEntries(geneID, CacheAlliance.GENE_ASSOCIATION_MODEL_GENE, PrimaryAnnotatedEntity.class);
+        return cacheService.getCacheEntries(geneID, CacheAlliance.GENE_ASSOCIATION_MODEL_GENE);
     }
 
     public PaginationResult<DiseaseAnnotation> getDiseaseAnnotationList(String diseaseID, Pagination pagination) {
@@ -82,7 +82,7 @@ public class DiseaseCacheRepository {
 
         // filter by gene
         geneIDs.forEach(geneID -> {
-                    List<DiseaseAnnotation> annotations = cacheService.getCacheEntries(geneID, CacheAlliance.DISEASE_ANNOTATION_GENE_LEVEL_GENE_DISEASE, DiseaseAnnotation.class);
+                    List<DiseaseAnnotation> annotations = cacheService.getCacheEntries(geneID, CacheAlliance.DISEASE_ANNOTATION_GENE_LEVEL_GENE_DISEASE);
                     if (annotations != null)
                         allDiseaseAnnotationList.addAll(annotations);
                 }
@@ -133,20 +133,20 @@ public class DiseaseCacheRepository {
             return null;
         List<ECOTerm> list = new ArrayList<>();
         joins.forEach(join -> {
-            list.addAll(cacheService.getCacheEntries(join.getPrimaryKey(), CacheAlliance.ECO_MAP, ECOTerm.class));
+            list.addAll(cacheService.getCacheEntries(join.getPrimaryKey(), CacheAlliance.ECO_MAP));
         });
         return list;
     }
 
     public List<String> getChildren(String id) {
-        return cacheService.getCacheEntries(id, CacheAlliance.CLOSURE_MAP, String.class);
+        return cacheService.getCacheEntries(id, CacheAlliance.CLOSURE_MAP);
     }
 
     public boolean hasDiseaseAnnotations(String geneID) {
-        return CollectionUtils.isNotEmpty(cacheService.getCacheEntries(geneID, CacheAlliance.DISEASE_ANNOTATION_GENE_LEVEL_GENE_DISEASE, DiseaseAnnotation.class));
+        return CollectionUtils.isNotEmpty(cacheService.getCacheEntries(geneID, CacheAlliance.DISEASE_ANNOTATION_GENE_LEVEL_GENE_DISEASE));
     }
 
     public List<PrimaryAnnotatedEntity> getDiseaseAnnotationPureModeList(String geneID) {
-        return cacheService.getCacheEntries(geneID, CacheAlliance.DISEASE_ANNOTATION_MODEL_LEVEL_GENE, PrimaryAnnotatedEntity.class);
+        return cacheService.getCacheEntries(geneID, CacheAlliance.DISEASE_ANNOTATION_MODEL_LEVEL_GENE);
     }
 }

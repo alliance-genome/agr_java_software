@@ -503,7 +503,7 @@ public class DiseaseCacher extends Cacher {
     public List<ECOTerm> getEcoTerm(PublicationJoin join) {
         if (join == null)
             return null;
-        return cacheService.getCacheEntries(join.getPrimaryKey(), CacheAlliance.ECO_MAP, ECOTerm.class);
+        return cacheService.getCacheEntries(join.getPrimaryKey(), CacheAlliance.ECO_MAP);
     }
 
     public List<ECOTerm> getEcoTermsFromCache(List<PublicationJoin> joins) {

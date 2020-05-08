@@ -25,7 +25,7 @@ public class GeneCacheRepository {
     public List<OrthologView> getAllOrthologyGenes(List<String> geneIDs) {
         List<OrthologView> fullOrthologyList = new ArrayList<>();
         geneIDs.forEach(id -> {
-            final List<OrthologView> orthology = cacheService.getCacheEntries(id, CacheAlliance.GENE_ORTHOLOGY, OrthologView.class);
+            final List<OrthologView> orthology = cacheService.getCacheEntries(id, CacheAlliance.GENE_ORTHOLOGY);
             if (orthology != null)
                 fullOrthologyList.addAll(orthology);
         });
@@ -35,7 +35,7 @@ public class GeneCacheRepository {
 
     public List<OrthologView> getOrthologyBySpeciesSpecies(String taxonOne, String taxonTwo) {
         List<OrthologView> fullOrthologyList = new ArrayList<>();
-        final List<OrthologView> orthology = cacheService.getCacheEntries(taxonOne + ":" + taxonTwo, CacheAlliance.SPECIES_SPECIES_ORTHOLOGY, OrthologView.class);
+        final List<OrthologView> orthology = cacheService.getCacheEntries(taxonOne + ":" + taxonTwo, CacheAlliance.SPECIES_SPECIES_ORTHOLOGY);
         if (orthology != null)
             fullOrthologyList.addAll(orthology);
 
@@ -46,7 +46,7 @@ public class GeneCacheRepository {
 
         List<OrthologView> fullOrthologyList = new ArrayList<>();
         taxonIDs.forEach(id -> {
-            final List<OrthologView> orthology = cacheService.getCacheEntries(id, CacheAlliance.SPECIES_ORTHOLOGY, OrthologView.class);
+            final List<OrthologView> orthology = cacheService.getCacheEntries(id, CacheAlliance.SPECIES_ORTHOLOGY);
             if (orthology != null)
                 fullOrthologyList.addAll(orthology);
         });
