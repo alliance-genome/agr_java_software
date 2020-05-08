@@ -10,9 +10,10 @@ import javax.ws.rs.core.UriInfo;
 
 import org.alliancegenome.api.model.xml.SiteMapIndex;
 import org.alliancegenome.api.model.xml.XMLURLSet;
+import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 @Path("/")
-//@Api(value = "Site Map")
+@Tag(name = "Site Map")
 @Produces(MediaType.APPLICATION_XML)
 public interface SiteMapRESTInterface {
 

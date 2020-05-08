@@ -25,6 +25,7 @@ public class CacheConfig {
                 //.security().authentication().saslMechanism("PLAIN").username("user").password("pass")
                 .socketTimeout(500000)
                 .connectionTimeout(500000)
+                .statistics()
                 .tcpNoDelay(true);
         
         log.info("ConfigurationBuilder: " + builder);
