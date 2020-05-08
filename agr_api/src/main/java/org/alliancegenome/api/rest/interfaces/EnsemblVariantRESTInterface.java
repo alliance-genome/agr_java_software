@@ -25,7 +25,7 @@ public interface EnsemblVariantRESTInterface {
     
     @GET
     @Path("/get/{id}")
-    @JsonView(value = {View.Expression.class})
+    @JsonView(value = {View.Default.class})
     @ApiOperation(value = "Retrieve all expression records of a given set of geneMap")
     JsonResultResponse<EnsemblVariant> getEnsemblVariants(
         @ApiParam(name = "id", value = "Search for Ensembl Variants for a given Gene by ID")
