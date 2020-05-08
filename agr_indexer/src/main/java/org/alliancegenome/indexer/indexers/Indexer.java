@@ -1,11 +1,12 @@
 package org.alliancegenome.indexer.indexers;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 
@@ -45,10 +46,14 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
     private long batchTotalSize = 0;
     private long batchCount = 0;
 
+    protected Map<String,Double> popularityScore;
+
     public Indexer(IndexerConfig indexerConfig) {
         this.indexerConfig = indexerConfig;
 
         om.setSerializationInclusion(Include.NON_NULL);
+
+        loadPopularityScore();
 
         try {
             client = new PreBuiltXPackTransportClient(Settings.EMPTY);
@@ -60,6 +65,22 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
             } else {
                 client.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(ConfigHelper.getEsHost()), ConfigHelper.getEsPort()));
             }
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.exit(-1);
+        }
+    }
+
+    private void loadPopularityScore() {
+        ClassLoader classloader = Thread.currentThread().getContextClassLoader();
+
+        popularityScore = new HashMap<>();
+
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(classloader.getResourceAsStream("popularity.tsv")))) {
+            br.lines().forEach(line -> {
+                        String[] row = line.split("\t");
+                        popularityScore.put(row[0], Double.valueOf(row[1]));
+                    });
         } catch (Exception e) {
             e.printStackTrace();
             System.exit(-1);

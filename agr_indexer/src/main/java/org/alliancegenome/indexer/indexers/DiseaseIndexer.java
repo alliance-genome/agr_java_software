@@ -29,6 +29,7 @@ public class DiseaseIndexer extends Indexer<SearchableItemDocument> {
         try {
             DiseaseIndexerRepository diseaseIndexerRepository = new DiseaseIndexerRepository();
             diseaseDocumentCache = diseaseIndexerRepository.getDiseaseDocumentCache();
+            diseaseDocumentCache.setPopularity(popularityScore);
             LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>();
             List<String> allDiseaseIDs = diseaseDocumentCache.getDiseaseMap().keySet().stream().collect(Collectors.toList());
             queue.addAll(allDiseaseIDs);
