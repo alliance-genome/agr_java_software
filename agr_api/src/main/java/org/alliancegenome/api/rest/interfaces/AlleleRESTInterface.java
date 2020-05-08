@@ -38,12 +38,12 @@ public interface AlleleRESTInterface {
     public Allele getAllele(
             @Parameter(in = ParameterIn.PATH, name = "id", description = "Search for an Allele by ID", required = true, schema = @Schema(type = SchemaType.STRING))
             @PathParam("id") String id
-    );
+            );
 
     @GET
     @Path("/{id}/variants")
     @Operation(summary = "Retrieve all variants of a given allele", description="Retrieve all variants of a given allele")
-   @JsonView(value = {View.VariantAPI.class})
+    @JsonView(value = {View.VariantAPI.class})
     JsonResultResponse<Variant> getVariantsPerAllele(
             @Parameter(in=ParameterIn.PATH, name="id", description = "Search for Variants for a given Allele by ID", required=true, schema = @Schema(type = SchemaType.STRING))
             @PathParam("id") String id,
@@ -57,12 +57,12 @@ public interface AlleleRESTInterface {
             @QueryParam("filter.variantType") String variantType,
             @Parameter(in=ParameterIn.QUERY, name="filter.variantConsequence", description = "Consequence", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.variantConsequence") String consequence
-    );
+            );
 
     @GET
     @Path("/{id}/variants/download")
     @Operation(summary = "Retrieve all variants of a given allele in a download")
-   @JsonView(value = {View.VariantAPI.class})
+    @JsonView(value = {View.VariantAPI.class})
     @Produces(MediaType.TEXT_PLAIN)
     Response getVariantsPerAlleleDownload(
             @Parameter(in=ParameterIn.PATH, name="id", description = "Search for Variants for a given Allele by ID", required=true, schema = @Schema(type = SchemaType.STRING))
@@ -73,12 +73,12 @@ public interface AlleleRESTInterface {
             @QueryParam("filter.variantType") String variantType,
             @Parameter(in=ParameterIn.QUERY, name="filter.variantConsequence", description = "Consequence", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.variantConsequence") String consequence
-    );
+            );
 
     @GET
     @Path("/species/{species}")
     @Operation(summary = "Retrieve all alleles of a given species")
-   @JsonView(value = {View.GeneAllelesAPI.class})
+    @JsonView(value = {View.GeneAllelesAPI.class})
     JsonResultResponse<Allele> getAllelesPerSpecies(
             @Parameter(
                     in=ParameterIn.PATH, 
@@ -95,13 +95,12 @@ public interface AlleleRESTInterface {
             @DefaultValue("symbol") @QueryParam("sortBy") String sortBy, // allowedValues = "symbol,name"
             @Parameter(in=ParameterIn.QUERY, name = "asc", description = "order to sort by", schema = @Schema(type = SchemaType.STRING))
             @DefaultValue("true") @QueryParam("asc") String asc
-            @QueryParam("asc") String asc
-    );
+            );
 
     @GET
     @Path("/{id}/phenotypes")
     @Operation(summary = "Retrieve all phenotypes of a given allele")
-   @JsonView(value = {View.PhenotypeAPI.class})
+    @JsonView(value = {View.PhenotypeAPI.class})
     JsonResultResponse<PhenotypeAnnotation> getPhenotypePerAllele(
             @Parameter(in=ParameterIn.PATH, name = "id", description = "Search for Phenotypes for a given Allele by ID", required=true, schema = @Schema(type = SchemaType.STRING))
             @PathParam("id") String id,
@@ -118,12 +117,12 @@ public interface AlleleRESTInterface {
             @Parameter(in=ParameterIn.QUERY, name="sortBy", description = "Field name by which to sort", schema = @Schema(type = SchemaType.STRING))
             @DefaultValue("symbol") @QueryParam("sortBy") String sortBy
 
-    );
+            );
 
     @GET
     @Path("/{id}/phenotypes/download")
     @Operation(summary = "Retrieve all phenotypes of a given allele in a download")
-   @JsonView(value = {View.PhenotypeAPI.class})
+    @JsonView(value = {View.PhenotypeAPI.class})
     @Produces(MediaType.TEXT_PLAIN)
     Response getPhenotypesPerAlleleDownload(
             @Parameter(in=ParameterIn.PATH, name = "id", description = "Search for Phenotypes for a given Allele by ID", required=true, schema = @Schema(type = SchemaType.STRING))
@@ -136,12 +135,12 @@ public interface AlleleRESTInterface {
             @QueryParam("filter.reference") String reference,
             @Parameter(in=ParameterIn.QUERY, name="sortBy", description = "Field name by which to sort", schema = @Schema(type = SchemaType.STRING))
             @DefaultValue("symbol") @QueryParam("sortBy") String sortBy
-    );
+            );
 
     @GET
     @Path("/{id}/diseases")
     @Operation(summary = "Retrieve all diseases of a given allele")
-   @JsonView(value = {View.DiseaseAnnotationSummary.class})
+    @JsonView(value = {View.DiseaseAnnotationSummary.class})
     JsonResultResponse<DiseaseAnnotation> getDiseasePerAllele(
             @Parameter(in=ParameterIn.PATH, name = "id", description = "Search for Phenotypes for a given Allele by ID", required=true, schema = @Schema(type = SchemaType.STRING))
             @PathParam("id") String id,
@@ -158,13 +157,13 @@ public interface AlleleRESTInterface {
             @Parameter(in=ParameterIn.QUERY, name="sortBy", description = "Field name by which to sort", schema = @Schema(type = SchemaType.STRING))
             @DefaultValue("symbol") @QueryParam("sortBy") String sortBy
 
-    );
+            );
 
 
     @GET
     @Path("/{id}/diseases/download")
     @Operation(summary = "Retrieve all diseases of a given allele in a download")
-   @JsonView(value = {View.DiseaseAnnotationSummary.class})
+    @JsonView(value = {View.DiseaseAnnotationSummary.class})
     @Produces(MediaType.TEXT_PLAIN)
     Response getDiseasePerAlleleDownload(
             @Parameter(in=ParameterIn.PATH, name = "id", description = "Search for Phenotypes for a given Allele by ID", required=true, schema = @Schema(type = SchemaType.STRING))
@@ -177,6 +176,6 @@ public interface AlleleRESTInterface {
             @QueryParam("filter.reference") String reference,
             @Parameter(in=ParameterIn.QUERY, name="sortBy", description = "Field name by which to sort", schema = @Schema(type = SchemaType.STRING))
             @DefaultValue("symbol") @QueryParam("sortBy") String sortBy
-    );
+            );
 
 }
