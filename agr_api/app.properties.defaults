@@ -1,6 +1,7 @@
 swarm.logging=DEBUG
 
 swarm.logging.loggers.[org.alliancegenome].level=DEBUG
+#mp.openapi.scan.packages=org.alliancegenome.api.application
 
 DEBUG=false
 ES_INDEX=site_index
