@@ -159,9 +159,6 @@ public class SearchService {
 
         }
 
-        //include only searchable categories in search results
-        bool.filter(searchHelper.limitCategories());
-
         return bool;
     }
 

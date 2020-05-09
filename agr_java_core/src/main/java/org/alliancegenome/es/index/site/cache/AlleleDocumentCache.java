@@ -20,6 +20,7 @@ public class AlleleDocumentCache extends IndexerCache {
     private Map<String, Set<String>> variantTypesMap = new HashMap<>();
     private Map<String, Set<String>> molecularConsequenceMap = new HashMap<>();
 
+    @Override
     public void addCachedFields(Iterable<SearchableItemDocument> alleleDocuments) {
 
         for (SearchableItemDocument document : alleleDocuments) {
