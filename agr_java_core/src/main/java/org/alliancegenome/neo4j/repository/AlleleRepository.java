@@ -19,12 +19,17 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
 
         map.put("primaryKey", primaryKey);
         String query = "";
-        query += " MATCH p1=(:Species)-[:FROM_SPECIES]-(a:Allele) WHERE a.primaryKey = {primaryKey}";
-        query += " OPTIONAL MATCH p3=(a:Allele)-[:IS_ALLELE_OF]-(gene:Gene)-[:FROM_SPECIES]-(:Species)";
+        query += " MATCH p1=(aSpecies:Species)-[:FROM_SPECIES]-(a:Allele) WHERE a.primaryKey = {primaryKey}";
+        query += " OPTIONAL MATCH p3=(a:Allele)-[:IS_ALLELE_OF]-(gene:Gene)-[:FROM_SPECIES]-(gSpecies:Species)";
         query += " OPTIONAL MATCH p4=(a:Allele)-[:ALSO_KNOWN_AS]-(:Synonym)";
         query += " OPTIONAL MATCH crossRef=(a:Allele)-[:CROSS_REFERENCE]-(:CrossReference)";
+        query += " OPTIONAL MATCH construct=(a:Allele)-[:CONTAINS]-(con:Construct)";
+        query += " OPTIONAL MATCH crossRefCon=(con:Construct)-[:CROSS_REFERENCE]-(:CrossReference)";
+        query += " OPTIONAL MATCH regGene=(con:Construct)<-[:IS_REGULATED_BY]-(:Gene)";
+        query += " OPTIONAL MATCH expGene=(con:Construct)-[:EXPRESSES]-(:Gene)";
+        query += " OPTIONAL MATCH targetGene=(con:Construct)-[:TARGETS]-(:Gene)";
         query += " OPTIONAL MATCH p2=(gene:Gene)-[:ASSOCIATION]->(:GenomicLocation)-[:ASSOCIATION]->(:Chromosome)";
-        query += " RETURN p1, p2, p3, p4, crossRef";
+        query += " RETURN p1, p2, p3, p4, crossRef, construct, regGene, expGene, targetGene, crossRefCon";
 
         Iterable<Allele> alleles = query(query, map);
         for (Allele a : alleles) {

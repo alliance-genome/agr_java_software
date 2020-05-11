@@ -149,6 +149,7 @@ public class DiseaseService {
         JsonResultResponse<DiseaseAnnotation> result = new JsonResultResponse<>();
         if (fullDiseaseAnnotationList == null) {
             result.calculateRequestDuration(startDate);
+            result.addDistinctFieldValueSupplementalData(new HashMap());
             return result;
         }
 
