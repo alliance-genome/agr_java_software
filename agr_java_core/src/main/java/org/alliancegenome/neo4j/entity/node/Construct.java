@@ -29,7 +29,7 @@ public class Construct extends GeneticEntity implements Comparable<Construct>, P
     private String nameText;
 
     @Relationship(type = "CONTAINS", direction = Relationship.INCOMING)
-    private Allele allele;
+    private List<Allele> alleles;
 
     @JsonView({View.AlleleAPI.class})
     @Relationship(type = "IS_REGULATED_BY", direction = Relationship.INCOMING)

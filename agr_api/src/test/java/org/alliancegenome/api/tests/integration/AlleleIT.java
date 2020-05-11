@@ -29,7 +29,6 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -288,6 +287,18 @@ public class AlleleIT {
         assertEquals(c.getNameText(), "Tg(mitfa:GAL4-VP16,UAS:mCherry)");
         assertNotNull(c.getRegulatedByGenes());
         assertEquals(c.getRegulatedByGenes().get(0).getPrimaryKey(), "ZFIN:ZDB-GENE-990910-11");
+    }
+
+    @Test
+    public void getAlleleWithConstructFly() {
+        Allele allele = alleleService.getById("FB:FBal0240920");
+        assertNotNull(allele.getCrossReferences());
+        assertNotNull(allele.getConstructs());
+        Construct c = allele.getConstructs().get(0);
+        assertEquals(c.getNameText(), "P{UAS-imp13.G}");
+        assertTrue(CollectionUtils.isNotEmpty(c.getCrossReferences()));
+        assertNotNull(c.getExpressedGenes());
+        assertEquals(c.getExpressedGenes().get(0).getPrimaryKey(), "FB:FBgn0261532");
     }
 
     @Test
