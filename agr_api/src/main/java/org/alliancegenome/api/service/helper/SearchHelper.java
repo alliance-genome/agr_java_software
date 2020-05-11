@@ -377,17 +377,5 @@ public class SearchHelper {
 
         return hlb;
     }
-    
-    public BoolQueryBuilder limitCategories() {
-        BoolQueryBuilder bool = boolQuery();
-        Arrays.asList(Category.values()).stream()
-                .filter(cat ->  cat.isSearchable() )
-                .forEach(cat ->
-                        bool.should(termQuery("category", cat.getName()))
-                );
-        return bool;
-    }
-
-
 
 }

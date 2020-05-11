@@ -55,9 +55,6 @@ public class AutoCompleteService {
             bool.filter(termQuery("category", category));
         }
 
-        //include only searchable categories in search results
-        bool.filter(searchHelper.limitCategories());
-
         return bool;
     }
 

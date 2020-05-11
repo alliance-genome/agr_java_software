@@ -93,7 +93,9 @@ public class SearchableItemDocument extends ESDocument {
     @Override
     @JsonIgnore
     public String getDocumentId() {
-        return primaryKey;
+        //todo: Variant ids (hgvs nomenclature) can be too long for ES, while
+        // the odds of a collision are probably low, this isn't really the right solution
+        return primaryKey.substring(0, Math.min(primaryKey.length(),512));
     }
 
     @Override

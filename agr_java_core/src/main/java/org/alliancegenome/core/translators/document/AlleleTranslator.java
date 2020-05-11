@@ -12,8 +12,6 @@ import org.alliancegenome.neo4j.entity.node.CrossReference;
 
 public class AlleleTranslator extends EntityDocumentTranslator<Allele, SearchableItemDocument> {
 
-    private static GeneTranslator geneTranslator = new GeneTranslator();
-    private static DiseaseTranslator diseaseTranslator = new DiseaseTranslator();
     private static CrossReferenceDocletTranslator crossReferenceDocletTranslator = new CrossReferenceDocletTranslator();
 
     @Override

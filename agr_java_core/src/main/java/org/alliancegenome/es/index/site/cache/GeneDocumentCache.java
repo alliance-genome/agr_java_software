@@ -89,12 +89,6 @@ public class GeneDocumentCache extends IndexerCache {
         add("blocked_reading_frame");
     }};
 
-    public void addCachedFields(Iterable<SearchableItemDocument> documents) {
-        for (SearchableItemDocument document : documents) {
-            addCachedFields(document);
-        }
-    }
-
     public void addCachedFields(SearchableItemDocument document) {
         String id = document.getPrimaryKey();
 

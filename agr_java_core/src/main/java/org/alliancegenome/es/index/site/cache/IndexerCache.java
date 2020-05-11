@@ -8,10 +8,13 @@ import org.alliancegenome.es.index.site.document.SearchableItemDocument;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.alliancegenome.neo4j.entity.node.Variant;
 
 @Getter
 @Setter
 public class IndexerCache {
+
+    protected Map<String, Variant> variantMap = new HashMap<>();
 
     protected Map<String, Set<String>> chromosomes = new HashMap<>();
     protected Map<String, Set<String>> crossReferences = new HashMap<>();
@@ -27,7 +30,13 @@ public class IndexerCache {
     protected Map<String, Set<String>> secondaryIds = new HashMap<>();
     protected Map<String, Set<String>> synonyms = new HashMap<>();
 
-    protected void addCachedFields(SearchableItemDocument document) {
+    public void addCachedFields(Iterable<SearchableItemDocument> documents) {
+        for (SearchableItemDocument document : documents) {
+            addCachedFields(document);
+        }
+    }
+
+    public void addCachedFields(SearchableItemDocument document) {
         String id = document.getPrimaryKey();
 
         document.setAlleles(alleles.get(id));
