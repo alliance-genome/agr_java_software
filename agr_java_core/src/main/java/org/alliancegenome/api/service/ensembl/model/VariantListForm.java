@@ -9,8 +9,9 @@ import com.fasterxml.jackson.annotation.JsonView;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
-@Getter @Setter
+@Getter @Setter @ToString
 public class VariantListForm {
     @JsonView(View.Default.class)
     private List<String> ids = new ArrayList<String>();

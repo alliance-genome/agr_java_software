@@ -2,6 +2,7 @@ package org.alliancegenome.api.service.ensembl;
 
 import java.util.List;
 
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -20,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 
 @Path("/")
 @Produces(MediaType.APPLICATION_JSON)
+@Consumes(MediaType.APPLICATION_JSON)
 public interface EnsemblRestAPIInterface {
 
     @GET
@@ -51,5 +53,6 @@ public interface EnsemblRestAPIInterface {
     public List<EnsemblVariantConsequence> getVariantConsequences(
             @PathParam("species") String species,
             VariantListForm form
+            //@FormParam("ids") List<String> ids
     );
 }

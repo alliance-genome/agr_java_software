@@ -8,6 +8,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import org.alliancegenome.api.service.ensembl.model.EnsemblVariant;
+import org.alliancegenome.api.service.ensembl.model.EnsemblVariantConsequence;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.neo4j.view.View;
 
@@ -29,6 +30,15 @@ public interface EnsemblVariantRESTInterface {
     @ApiOperation(value = "Retrieve all expression records of a given set of geneMap")
     JsonResultResponse<EnsemblVariant> getEnsemblVariants(
         @ApiParam(name = "id", value = "Search for Ensembl Variants for a given Gene by ID")
+        @PathParam("id") String id
+    );
+    
+    @GET
+    @Path("/get/{id}/vep")
+    @JsonView(value = {View.Default.class})
+    @ApiOperation(value = "Retrieve all expression records of a given set of geneMap")
+    JsonResultResponse<EnsemblVariantConsequence> getEnsemblVariantsVEP(
+        @ApiParam(name = "id", value = "Search for Ensembl Variants VEP Data for a given Gene by ID")
         @PathParam("id") String id
     );
 
