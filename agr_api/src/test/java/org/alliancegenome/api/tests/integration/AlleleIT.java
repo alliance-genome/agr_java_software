@@ -287,6 +287,7 @@ public class AlleleIT {
         assertEquals(c.getNameText(), "Tg(mitfa:GAL4-VP16,UAS:mCherry)");
         assertNotNull(c.getRegulatedByGenes());
         assertEquals(c.getRegulatedByGenes().get(0).getPrimaryKey(), "ZFIN:ZDB-GENE-990910-11");
+        assertNotNull(c.getRegulatedByGenes().get(0).getSpecies());
     }
 
     @Test
@@ -299,6 +300,7 @@ public class AlleleIT {
         assertTrue(CollectionUtils.isNotEmpty(c.getCrossReferences()));
         assertNotNull(c.getExpressedGenes());
         assertEquals(c.getExpressedGenes().get(0).getPrimaryKey(), "FB:FBgn0261532");
+        assertNotNull(c.getExpressedGenes().get(0).getSpecies());
     }
 
     @Test

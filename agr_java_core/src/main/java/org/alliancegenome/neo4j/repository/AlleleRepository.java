@@ -25,9 +25,9 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
         query += " OPTIONAL MATCH crossRef=(a:Allele)-[:CROSS_REFERENCE]-(:CrossReference)";
         query += " OPTIONAL MATCH construct=(a:Allele)-[:CONTAINS]-(con:Construct)";
         query += " OPTIONAL MATCH crossRefCon=(con:Construct)-[:CROSS_REFERENCE]-(:CrossReference)";
-        query += " OPTIONAL MATCH regGene=(con:Construct)<-[:IS_REGULATED_BY]-(:Gene)";
-        query += " OPTIONAL MATCH expGene=(con:Construct)-[:EXPRESSES]-(:Gene)";
-        query += " OPTIONAL MATCH targetGene=(con:Construct)-[:TARGETS]-(:Gene)";
+        query += " OPTIONAL MATCH regGene=(con:Construct)<-[:IS_REGULATED_BY]-(:Gene)-[:FROM_SPECIES]->(:Species)";
+        query += " OPTIONAL MATCH expGene=(con:Construct)-[:EXPRESSES]-(:Gene)-[:FROM_SPECIES]->(:Species)";
+        query += " OPTIONAL MATCH targetGene=(con:Construct)-[:TARGETS]-(:Gene)-[:FROM_SPECIES]->(:Species)";
         query += " OPTIONAL MATCH p2=(gene:Gene)-[:ASSOCIATION]->(:GenomicLocation)-[:ASSOCIATION]->(:Chromosome)";
         query += " RETURN p1, p2, p3, p4, crossRef, construct, regGene, expGene, targetGene, crossRefCon";
 
