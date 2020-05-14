@@ -17,6 +17,7 @@ import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
 import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
+import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.entity.node.*;
 import org.alliancegenome.neo4j.entity.relationship.GenomeLocation;
 import org.alliancegenome.neo4j.view.BaseFilter;
@@ -287,7 +288,7 @@ public class AlleleIT {
         assertEquals(c.getNameText(), "Tg(mitfa:GAL4-VP16,UAS:mCherry)");
         assertNotNull(c.getRegulatedByGenes());
         assertEquals(c.getRegulatedByGenes().get(0).getPrimaryKey(), "ZFIN:ZDB-GENE-990910-11");
-        assertNotNull(c.getRegulatedByGenes().get(0).getSpecies());
+        assertEquals(c.getRegulatedByGenes().get(0).getSpecies().getType(), SpeciesType.ZEBRAFISH);
     }
 
     @Test
@@ -300,7 +301,7 @@ public class AlleleIT {
         assertTrue(CollectionUtils.isNotEmpty(c.getCrossReferences()));
         assertNotNull(c.getExpressedGenes());
         assertEquals(c.getExpressedGenes().get(0).getPrimaryKey(), "FB:FBgn0261532");
-        assertNotNull(c.getExpressedGenes().get(0).getSpecies());
+        assertEquals(c.getExpressedGenes().get(0).getSpecies().getType(), SpeciesType.FLY);
     }
 
     @Test
