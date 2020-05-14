@@ -59,9 +59,11 @@ public class SearchService {
 
         q = queryManipulationService.processQuery(q);
 
-        QueryBuilder query = buildFunctionQuery(q, category, getFilters(category, uriInfo));
+        MultivaluedMap filterMap = getFilters(category, uriInfo);
 
-        List<AggregationBuilder> aggBuilders = searchHelper.createAggBuilder(category);
+        QueryBuilder query = buildFunctionQuery(q, category, filterMap);
+
+        List<AggregationBuilder> aggBuilders = searchHelper.createAggBuilder(category, biotypeSelected(filterMap));
 
         HighlightBuilder hlb = searchHelper.buildHighlights();
 
@@ -322,6 +324,10 @@ public class SearchService {
         relatedDataLink.setLabel(label);
 
         return relatedDataLink;
+    }
+
+    private Boolean biotypeSelected(MultivaluedMap filterMap) {
+        return filterMap.containsKey("biotypes");
     }
 
 }
