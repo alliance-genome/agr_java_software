@@ -227,7 +227,7 @@ public class SearchHelper {
 
 
 
-    public List<AggregationBuilder> createAggBuilder(String category) {
+    public List<AggregationBuilder> createAggBuilder(String category, Boolean expandBiotypes) {
         List<AggregationBuilder> ret = new ArrayList<>();
 
         if(category == null || !category_filters.containsKey(category)) {
@@ -238,7 +238,13 @@ public class SearchHelper {
         } else {
             for(String item: category_filters.get(category)) {
                 if (item.equals("biotypes")) {
-                    ret.add(getBiotypeAggQuery());
+                    if (expandBiotypes) {
+                        ret.add(getBiotypeAggQuery());
+                    } else {
+                        TermsAggregationBuilder term = AggregationBuilders.terms("biotypes").field("biotype0.keyword");
+                        term.size(999);
+                        ret.add(term);
+                    }
                 } else {
                     TermsAggregationBuilder term = AggregationBuilders.terms(item);
                     term.field(item + ".keyword");

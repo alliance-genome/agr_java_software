@@ -130,12 +130,32 @@ public class GeneDocumentCache extends IndexerCache {
         document.setBiotype1(new HashSet<String>(CollectionUtils.intersection(allBiotypes, biotypeLevel1)));
         document.setBiotype2(new HashSet<String>(CollectionUtils.intersection(allBiotypes, biotypeLevel2)));
 
-        //add "other gene"
+
+        //if the type is ncRNA gene and not a child, also add "unclassified ncRNA" at level 1
+        if (document.getBiotypes().contains("ncRNA_gene") && CollectionUtils.isEmpty(document.getBiotype1())) {
+            document.getBiotypes().add("unclassified_ncRNA");
+            document.getBiotype1().add("unclassified_ncRNA");
+        }
+
+        //same for lncRNA genes, but one level deeper
+        if (document.getBiotypes().contains("lncRNA_gene") && CollectionUtils.isEmpty(document.getBiotype2())) {
+            document.getBiotypes().add("unclassified lncRNA gene");
+            document.getBiotype2().add("unclassified lncRNA gene");
+        }
+
+        //set "other gene" parent
         if (CollectionUtils.containsAny(document.getBiotype1(), otherGenes)) {
             document.getBiotypes().add("other_gene");
             document.getBiotype0().add("other_gene");
         }
 
+        //capture any gene that doesn't have anything more specific than "gene"
+        if (CollectionUtils.isEmpty(document.getBiotype0())) {
+            document.getBiotypes().add("other_gene");
+            document.getBiotype0().add("other_gene");
+            document.getBiotypes().add("unclassified gene");
+            document.getBiotype1().add("unclassified gene");
+        }
     }
 
 }
