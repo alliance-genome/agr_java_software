@@ -32,4 +32,12 @@ public class Transcript extends Neo4jEntity implements Comparable<Transcript> {
     @Relationship(type = "ASSOCIATION")
     private List<TranscriptLevelConsequence> consequences;
 
+    @JsonView({View.Default.class, View.API.class})
+    @Relationship(type = "TRANSCRIPT_TYPE", direction = Relationship.INCOMING)
+    private SOTerm type;
+
+    @JsonView({View.Default.class, View.API.class})
+    @Relationship(type = "TRANSCRIPT")
+    private Gene gene;
+
 }
