@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.alliancegenome.api.entity.PresentationEntity;
 import org.alliancegenome.neo4j.view.View;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 
@@ -16,6 +17,7 @@ import lombok.Setter;
 @NodeEntity(label = "Feature")
 @Getter
 @Setter
+@Schema(name="Allele", description="POJO that represents the Allele")
 public class Allele extends GeneticEntity implements Comparable<Allele>, PresentationEntity {
 
     public Allele() {

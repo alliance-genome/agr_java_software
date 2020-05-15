@@ -62,8 +62,8 @@ public class CacheController implements CacheRESTInterface {
     }
 
     @Override
-    public Object getCacheObject(String entityId, String cacheName) {
-        return service.getCacheObject(entityId, cacheName);
+    public String getCacheEntryString(String entityId, String cacheName) {
+        return service.getCacheEntryString(entityId, cacheName);
     }
 
 }

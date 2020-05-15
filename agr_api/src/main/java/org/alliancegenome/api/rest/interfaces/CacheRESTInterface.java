@@ -17,6 +17,8 @@ import org.eclipse.microprofile.openapi.annotations.enums.ParameterIn;
 import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 import com.fasterxml.jackson.annotation.JsonView;
@@ -30,7 +32,7 @@ public interface CacheRESTInterface {
     @GET
     @JsonView(View.Cacher.class)
     @Path("/status")
-    JsonResultResponse<CacheStatus> getCacheStatus(
+    public JsonResultResponse<CacheStatus> getCacheStatus(
             @DefaultValue("20") @QueryParam("limit") int limit,
             @DefaultValue("1") @QueryParam("page") int page,
             @QueryParam("sortBy") String sortBy,
@@ -41,14 +43,14 @@ public interface CacheRESTInterface {
     @GET
     @JsonView(View.CacherDetail.class)
     @Path("/{cacheName}")
-    CacheStatus getCacheStatusPerSpace(@PathParam("cacheName") String cacheName);
+    public CacheStatus getCacheStatusPerSpace(@PathParam("cacheName") String cacheName);
 
 
     @GET
     @Path("/{cacheName}/{id}")
     @Operation(summary = "Get Cache Object")
     @JsonView(value = {View.Default.class})
-    Object getCacheObject(
+    public String getCacheEntryString(
             @Parameter(in=ParameterIn.PATH, name = "id", description = "Search for an object by ID", required=true, schema = @Schema(type = SchemaType.STRING))
             @PathParam("id") String id,
             @Parameter(in=ParameterIn.PATH, name = "cacheName", description = "Named Cache to Search by", required=true, schema = @Schema(type = SchemaType.STRING))
