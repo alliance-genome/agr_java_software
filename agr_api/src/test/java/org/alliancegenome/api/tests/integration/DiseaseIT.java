@@ -97,6 +97,18 @@ public class DiseaseIT {
     }
 
     @Test
+    public void checkGeneDiseaseAssociationFilteredByProvider() {
+        Pagination pagination = new Pagination(1, 100, null, null);
+        pagination.addFieldFilter(FieldFilter.SOURCE, "sgd");
+        // primary hypomagnesemia
+        String diseaseID = "DOID:0060879";
+        // filtered by proivder SGD
+        JsonResultResponse<DiseaseAnnotation> response = diseaseService.getDiseaseAnnotationsWithGenes(diseaseID, pagination);
+        assertLimitResponse(response, 1, 1);
+
+    }
+
+    @Test
     public void checkAlleleDiseaseAssociationFilterSpecies() {
         Pagination pagination = new Pagination(1, 100, null, null);
         pagination.addFieldFilter(FieldFilter.SPECIES, "drosophila melanogaster");

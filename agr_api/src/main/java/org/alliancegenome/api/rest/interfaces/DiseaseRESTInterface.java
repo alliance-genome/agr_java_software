@@ -143,7 +143,7 @@ public interface DiseaseRESTInterface {
             @ApiParam(value = "filter by disease")
             @QueryParam("filter.disease") String disease,
             @ApiParam(value = "filter by source")
-            @QueryParam("filter.source") String source,
+            @QueryParam("filter.provider") String provider,
             @ApiParam(value = "filter by reference")
             @QueryParam("filter.reference") String reference,
             @ApiParam(value = "filter by evidence code")
@@ -169,7 +169,7 @@ public interface DiseaseRESTInterface {
             @ApiParam(value = "filter by disease")
             @QueryParam("filter.disease") String disease,
             @ApiParam(value = "filter by source")
-            @QueryParam("filter.source") String source,
+            @QueryParam("filter.provider") String provider,
             @ApiParam(value = "filter by reference")
             @QueryParam("filter.reference") String reference,
             @ApiParam(value = "filter by evidence code")
