@@ -22,9 +22,10 @@ public class VariantService {
         Variant variant = alleleRepo.getVariant(variantID);
 
         JsonResultResponse<Transcript> response = new JsonResultResponse<>();
-        response.setTotal(variant.getTranscriptList().size());
-        response.setResults(variant.getTranscriptList());
-
+        if (variant != null) {
+            response.setTotal(variant.getTranscriptList().size());
+            response.setResults(variant.getTranscriptList());
+        }
         return response;
     }
 
