@@ -28,6 +28,8 @@ public class Construct extends GeneticEntity implements Comparable<Construct>, P
     @JsonView({View.Default.class, View.API.class})
     private String nameText;
 
+    private String name;
+
     @Relationship(type = "CONTAINS", direction = Relationship.INCOMING)
     private List<Allele> alleles;
 
@@ -52,5 +54,10 @@ public class Construct extends GeneticEntity implements Comparable<Construct>, P
     @Override
     public String toString() {
         return primaryKey + " : " + nameText;
+    }
+
+    @JsonView({View.Default.class, View.API.class})
+    public String getName() {
+        return nameText;
     }
 }
