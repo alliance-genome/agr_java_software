@@ -126,10 +126,6 @@ public class GeneDocumentCache extends IndexerCache {
         document.setSoTermNameWithParents(allBiotypes);
         document.setBiotypes(allBiotypes);
 
-        if (document.getBiotypes() == null) {
-            log.error("biotypes is null!?");
-        }
-
         document.setBiotype0(new HashSet<String>(CollectionUtils.intersection(allBiotypes, biotypeLevel0)));
         document.setBiotype1(new HashSet<String>(CollectionUtils.intersection(allBiotypes, biotypeLevel1)));
         document.setBiotype2(new HashSet<String>(CollectionUtils.intersection(allBiotypes, biotypeLevel2)));
