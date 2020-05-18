@@ -104,8 +104,9 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
         String query = "";
         query += " MATCH p1=(t:Transcript)-[:ASSOCIATION]->(variant:Variant)--(soTerm:SOTerm) ";
         query += " WHERE variant.primaryKey = {" + paramName + "}";
-        query += " OPTIONAL MATCH consequence=(:TranscriptLevelConsequence)<-[:ASSOCIATION]-(t:Transcript)";
-        query += " RETURN p1, consequence ";
+        query += " OPTIONAL MATCH consequence=(:TranscriptLevelConsequence)<-[:ASSOCIATION]-(t:Transcript)<-[:TRANSCRIPT_TYPE]-(:SOTerm)";
+        query += " OPTIONAL MATCH gene=(t:Transcript)-[:TRANSCRIPT]-(:Gene)";
+        query += " RETURN p1, consequence, gene ";
 
         Iterable<Variant> variants = query(Variant.class, query, map);
         for (Variant a : variants) {

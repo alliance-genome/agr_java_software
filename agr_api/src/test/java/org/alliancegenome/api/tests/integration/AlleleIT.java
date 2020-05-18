@@ -371,6 +371,7 @@ public class AlleleIT {
         JsonResultResponse<Transcript> response = variantService.getTranscriptsByVariant(variantID, new Pagination());
         assertNotNull(response);
         assertThat(response.getTotal(), greaterThanOrEqualTo(2));
+        assertEquals(response.getResults().get(0).getType().getName(), "mRNA");
     }
 
     private void assertResponse(JsonResultResponse<Allele> response, int resultSize, int totalSize) {
