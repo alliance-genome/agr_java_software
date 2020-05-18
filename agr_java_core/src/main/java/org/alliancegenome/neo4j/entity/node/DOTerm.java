@@ -14,6 +14,7 @@ import org.alliancegenome.cache.repository.helper.SourceServiceHelper;
 import org.alliancegenome.es.util.DateConverter;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.view.View;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.typeconversion.Convert;
@@ -29,6 +30,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @JsonPropertyOrder({"id", "name", "definition", "definitionLinks", "synonyms", "parents", "children", "crossReferences", "sources"})
+@Schema(name="DOTerm", description="POJO that represents DO Term")
 public class DOTerm extends SimpleTerm {
 
     public static final String HIGH_LEVEL_TERM_LIST_SLIM = "DO_AGR_slim";

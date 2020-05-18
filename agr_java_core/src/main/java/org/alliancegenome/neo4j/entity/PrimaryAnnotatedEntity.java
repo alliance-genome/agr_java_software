@@ -23,6 +23,7 @@ import org.alliancegenome.neo4j.entity.node.Source;
 import org.alliancegenome.neo4j.entity.node.Species;
 import org.alliancegenome.neo4j.view.View;
 import org.apache.commons.collections.CollectionUtils;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.neo4j.ogm.annotation.typeconversion.Convert;
 
 import com.fasterxml.jackson.annotation.JsonView;
@@ -32,6 +33,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
+@Schema(name="PrimaryAnnotatedEntity", description="POJO that represents a Primary Annotated Entity")
 public class PrimaryAnnotatedEntity implements Comparable<PrimaryAnnotatedEntity>, Serializable, PresentationEntity {
 
     @JsonView({View.PrimaryAnnotation.class, View.API.class})

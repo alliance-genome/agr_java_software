@@ -17,9 +17,11 @@ import com.fasterxml.jackson.annotation.JsonView;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 @Setter
 @Getter
+@Schema(name="ExpressionDetail", description="POJO that represents Expression Detail")
 public class ExpressionDetail implements Comparable, Serializable {
 
     @JsonView(View.Expression.class)

@@ -17,7 +17,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NodeEntity
-@Schema(name="InteractionGeneJoin", description="POJO that represents the Intercation-Gene join")
+@Schema(name="InteractionGeneJoin", description="POJO that represents the Interaction-Gene join")
 public class InteractionGeneJoin extends Neo4jEntity implements Comparable, PresentationEntity {
 
     @JsonView({View.Interaction.class})

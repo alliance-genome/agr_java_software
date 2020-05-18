@@ -6,9 +6,11 @@ import com.fasterxml.jackson.annotation.JsonView;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 @Getter
 @Setter
+@Schema(name="EntitySummary", description="POJO that represents Entity Summary")
 public class EntitySummary {
 
     @JsonView({View.Default.class})

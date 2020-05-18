@@ -18,9 +18,11 @@ import com.fasterxml.jackson.annotation.JsonView;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 @Getter
 @Setter
+@Schema(name="PhenotypeAnnotation", description="POJO that represents a  Phenotype Annotation")
 public class PhenotypeAnnotation implements Comparable<PhenotypeAnnotation>, Serializable {
 
     private String primaryKey;
