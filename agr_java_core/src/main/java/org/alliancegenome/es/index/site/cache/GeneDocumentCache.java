@@ -124,7 +124,7 @@ public class GeneDocumentCache extends IndexerCache {
         Set<String> allBiotypes = soTermNameWithParents.get(id);
 
         document.setSoTermNameWithParents(allBiotypes);
-        document.setBiotypes(soTermNameAgrSlim.get(id));
+        document.setBiotypes(allBiotypes);
 
         document.setBiotype0(new HashSet<String>(CollectionUtils.intersection(allBiotypes, biotypeLevel0)));
         document.setBiotype1(new HashSet<String>(CollectionUtils.intersection(allBiotypes, biotypeLevel1)));
