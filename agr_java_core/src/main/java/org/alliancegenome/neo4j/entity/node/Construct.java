@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.alliancegenome.api.entity.PresentationEntity;
 import org.alliancegenome.neo4j.view.View;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 
@@ -17,6 +18,7 @@ import lombok.Setter;
 @NodeEntity(label = "Construct")
 @Getter
 @Setter
+@Schema(name="Construct", description="POJO that represents the Construct")
 public class Construct extends GeneticEntity implements Comparable<Construct>, PresentationEntity {
 
     public Construct() {

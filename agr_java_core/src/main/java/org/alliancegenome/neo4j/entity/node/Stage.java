@@ -4,6 +4,7 @@ import java.util.Objects;
 
 import org.alliancegenome.neo4j.entity.Neo4jEntity;
 import org.alliancegenome.neo4j.view.View;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.neo4j.ogm.annotation.NodeEntity;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -15,6 +16,7 @@ import lombok.Setter;
 @NodeEntity
 @Getter
 @Setter
+@Schema(name="Stage", description="POJO that represents the Stage")
 public class Stage extends Neo4jEntity implements Comparable<Stage> {
 
     @JsonView({View.Orthology.class, View.Interaction.class, View.Expression.class})

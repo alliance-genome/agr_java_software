@@ -7,6 +7,7 @@ import java.util.Objects;
 import org.alliancegenome.neo4j.entity.Neo4jEntity;
 import org.alliancegenome.neo4j.view.View;
 import org.apache.commons.lang3.StringUtils;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 
@@ -20,6 +21,7 @@ import lombok.Setter;
 @NodeEntity
 @Getter
 @Setter
+@Schema(name="Publication", description="POJO that represents the Publication")
 public class Publication extends Neo4jEntity implements Comparable<Publication>, Serializable {
 
     @JsonView({View.Interaction.class})

@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.alliancegenome.neo4j.view.View;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 
@@ -16,6 +17,7 @@ import lombok.Setter;
 @NodeEntity
 @Getter
 @Setter
+@Schema(name="PublicationJoin", description="POJO that represents the Publication Join")
 public class PublicationJoin extends Association {
 
     @JsonView({View.API.class})

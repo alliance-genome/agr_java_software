@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.alliancegenome.neo4j.view.View;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 
@@ -16,6 +17,7 @@ import lombok.Setter;
 @NodeEntity(label = "AffectedGenomicModel")
 @Getter
 @Setter
+@Schema(name="AffectedGenomicModel", description="POJO that represents the Affected Genomic model")
 public class AffectedGenomicModel extends GeneticEntity implements Comparable<AffectedGenomicModel> {
 
     public AffectedGenomicModel() {
