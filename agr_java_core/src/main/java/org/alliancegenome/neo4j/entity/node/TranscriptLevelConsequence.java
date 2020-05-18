@@ -51,6 +51,9 @@ public class TranscriptLevelConsequence extends Neo4jEntity implements Comparabl
     @JsonView({View.Default.class, View.API.class})
     private String proteinEndPosition;
 
+    @JsonView({View.Default.class, View.API.class})
+    private String hgvsProteinNomenclature;
+
     @Override
     public int compareTo(TranscriptLevelConsequence o) {
         return 0;
