@@ -15,12 +15,16 @@ import javax.ws.rs.core.Response;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.node.DOTerm;
+import org.alliancegenome.neo4j.entity.node.Transcript;
 import org.alliancegenome.neo4j.view.View;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.enums.ParameterIn;
 import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
+import org.eclipse.microprofile.openapi.annotations.media.Content;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 import com.fasterxml.jackson.annotation.JsonView;
@@ -36,6 +40,17 @@ public interface DiseaseRESTInterface {
     @Path("/{id}")
     @JsonView(value = {View.DiseaseAPI.class})
     @Operation(summary = "Retrieve a Disease object for a given id")
+    @APIResponses(
+            value = {
+                    @APIResponse(
+                            responseCode = "404",
+                            description = "Missing Disease object",
+                            content = @Content(mediaType = "text/plain")),
+                    @APIResponse(
+                            responseCode = "200",
+                            description = "Disease object.",
+                            content = @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = DOTerm.class))) })
 
     public DOTerm getDisease(
             @Parameter(in = ParameterIn.PATH, name = "id", description = "Search for a Disease by ID", required = true, schema = @Schema(type = SchemaType.STRING))
@@ -46,6 +61,17 @@ public interface DiseaseRESTInterface {
     @Path("/{id}/associations")
     @JsonView(value = {View.DiseaseAnnotationSummary.class})
     @Operation(summary = "Retrieve all DiseaseAnnotation records for a given disease id", hidden = true)
+    @APIResponses(
+            value = {
+                    @APIResponse(
+                            responseCode = "404",
+                            description = "Missing disease annotations",
+                            content = @Content(mediaType = "text/plain")),
+                    @APIResponse(
+                            responseCode = "200",
+                            description = "Disease Annotations for a disease id.",
+                            content = @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = View.DiseaseAnnotationSummary.class))) })
     JsonResultResponse<DiseaseAnnotation> getDiseaseAnnotationsSorted(
             @Parameter(in=ParameterIn.PATH, name="id", description = "Search for a disease by ID", required=true, schema = @Schema(type = SchemaType.STRING))
             @PathParam("id") String id,

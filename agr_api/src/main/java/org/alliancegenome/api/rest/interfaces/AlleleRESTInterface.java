@@ -14,13 +14,17 @@ import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
 import org.alliancegenome.neo4j.entity.node.Allele;
+import org.alliancegenome.neo4j.entity.node.Transcript;
 import org.alliancegenome.neo4j.entity.node.Variant;
 import org.alliancegenome.neo4j.view.View;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.enums.ParameterIn;
 import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
+import org.eclipse.microprofile.openapi.annotations.media.Content;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 import com.fasterxml.jackson.annotation.JsonView;
@@ -35,6 +39,17 @@ public interface AlleleRESTInterface {
     @Path("/{id}")
     @JsonView({View.AlleleAPI.class})
     @Operation(description = "Searches for an Allele", summary = "Allele Notes")
+    @APIResponses(
+            value = {
+                    @APIResponse(
+                            responseCode = "404",
+                            description = "Missing alleles",
+                            content = @Content(mediaType = "text/plain")),
+                    @APIResponse(
+                            responseCode = "200",
+                            description = "Search for alleles.",
+                            content = @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = Allele.class))) })
     public Allele getAllele(
             @Parameter(in = ParameterIn.PATH, name = "id", description = "Search for an Allele by ID", required = true, schema = @Schema(type = SchemaType.STRING))
             @PathParam("id") String id
@@ -43,6 +58,17 @@ public interface AlleleRESTInterface {
     @GET
     @Path("/{id}/variants")
     @Operation(summary = "Retrieve all variants of a given allele", description="Retrieve all variants of a given allele")
+    @APIResponses(
+            value = {
+                    @APIResponse(
+                            responseCode = "404",
+                            description = "Missing variants",
+                            content = @Content(mediaType = "text/plain")),
+                    @APIResponse(
+                            responseCode = "200",
+                            description = "Variants for a allele.",
+                            content = @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = Variant.class))) })
     @JsonView(value = {View.VariantAPI.class})
     JsonResultResponse<Variant> getVariantsPerAllele(
             @Parameter(in=ParameterIn.PATH, name="id", description = "Search for Variants for a given Allele by ID", required=true, schema = @Schema(type = SchemaType.STRING))
@@ -100,6 +126,17 @@ public interface AlleleRESTInterface {
     @GET
     @Path("/{id}/phenotypes")
     @Operation(summary = "Retrieve all phenotypes of a given allele")
+    @APIResponses(
+            value = {
+                    @APIResponse(
+                            responseCode = "404",
+                            description = "Missing phenotypes",
+                            content = @Content(mediaType = "text/plain")),
+                    @APIResponse(
+                            responseCode = "200",
+                            description = "Phenotypes for a given Allele.",
+                            content = @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = PhenotypeAnnotation.class))) })
     @JsonView(value = {View.PhenotypeAPI.class})
     JsonResultResponse<PhenotypeAnnotation> getPhenotypePerAllele(
             @Parameter(in=ParameterIn.PATH, name = "id", description = "Search for Phenotypes for a given Allele by ID", required=true, schema = @Schema(type = SchemaType.STRING))
@@ -140,6 +177,17 @@ public interface AlleleRESTInterface {
     @GET
     @Path("/{id}/diseases")
     @Operation(summary = "Retrieve all diseases of a given allele")
+    @APIResponses(
+            value = {
+                    @APIResponse(
+                            responseCode = "404",
+                            description = "Missing diseases",
+                            content = @Content(mediaType = "text/plain")),
+                    @APIResponse(
+                            responseCode = "200",
+                            description = "Diseases for a given Allele.",
+                            content = @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = DiseaseAnnotation.class))) })
     @JsonView(value = {View.DiseaseAnnotationSummary.class})
     JsonResultResponse<DiseaseAnnotation> getDiseasePerAllele(
             @Parameter(in=ParameterIn.PATH, name = "id", description = "Search for Phenotypes for a given Allele by ID", required=true, schema = @Schema(type = SchemaType.STRING))

@@ -26,6 +26,7 @@ import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
+import org.alliancegenome.neo4j.entity.node.Transcript;
 import org.alliancegenome.neo4j.view.OrthologView;
 import org.alliancegenome.neo4j.view.View;
 import org.alliancegenome.neo4j.view.View.GeneAPI;
@@ -33,8 +34,11 @@ import org.alliancegenome.neo4j.view.View.GeneAllelesAPI;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.enums.ParameterIn;
 import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
+import org.eclipse.microprofile.openapi.annotations.media.Content;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 import com.fasterxml.jackson.annotation.JsonView;
@@ -50,6 +54,17 @@ public interface GeneRESTInterface {
     @Path("/{id}")
     @JsonView(value = {GeneAPI.class})
     @Operation(description = "Retrieve a Gene for given ID")
+    @APIResponses(
+            value = {
+                    @APIResponse(
+                            responseCode = "404",
+                            description = "Missing genes",
+                            content = @Content(mediaType = "text/plain")),
+                    @APIResponse(
+                            responseCode = "200",
+                            description = "Genes for a give ID.",
+                            content = @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = Gene.class))) })
     Gene getGene(
             @Parameter(in=ParameterIn.PATH, name = "id", description = "Retrieve a Gene for given ID", required=true, schema = @Schema(type = SchemaType.STRING))
             @PathParam("id") String id
@@ -59,6 +74,17 @@ public interface GeneRESTInterface {
     @Path("/{id}/alleles")
     @Operation(summary = "Retrieve all alleles of a given gene")
     @JsonView(value = {GeneAllelesAPI.class})
+    @APIResponses(
+            value = {
+                    @APIResponse(
+                            responseCode = "404",
+                            description = "Missing alleles",
+                            content = @Content(mediaType = "text/plain")),
+                    @APIResponse(
+                            responseCode = "200",
+                            description = "Alleles for a gene.",
+                            content = @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = Allele.class))) })
     JsonResultResponse<Allele> getAllelesPerGene(
             //@ApiParam(name = "id", description = "Search for Alleles for a given Gene by ID")
             @Parameter(in=ParameterIn.PATH, name = "id", description = "Search for Alleles for a given Gene by ID", required=true, schema = @Schema(type = SchemaType.STRING))
@@ -118,6 +144,17 @@ public interface GeneRESTInterface {
     @Path("/{id}/phenotypes")
     @JsonView(value = {View.PhenotypeAPI.class})
     @Operation(summary = "Retrieve phenotype term name annotations for a given gene")
+    @APIResponses(
+            value = {
+                    @APIResponse(
+                            responseCode = "404",
+                            description = "Missing phenotype annotations",
+                            content = @Content(mediaType = "text/plain")),
+                    @APIResponse(
+                            responseCode = "200",
+                            description = "Phenotype annotations for a gene.",
+                            content = @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = PhenotypeAnnotation.class))) })
     JsonResultResponse<PhenotypeAnnotation> getPhenotypeAnnotations(
             @Parameter(in=ParameterIn.PATH, name = "id", description = "Gene by ID: e.g. ZFIN:ZDB-GENE-990415-8", required=true, schema = @Schema(type = SchemaType.STRING))
             @PathParam("id") String id,
@@ -164,6 +201,17 @@ public interface GeneRESTInterface {
     @Path("/{id}/models")
     @JsonView(value = {View.DiseaseAnnotationSummary.class})
     @Operation(summary = "Retrieve all DiseaseAnnotation records for a given disease id")
+    @APIResponses(
+            value = {
+                    @APIResponse(
+                            responseCode = "404",
+                            description = "Missing disease annotations",
+                            content = @Content(mediaType = "text/plain")),
+                    @APIResponse(
+                            responseCode = "200",
+                            description = "disease annotations for a gene.",
+                            content = @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = PrimaryAnnotatedEntity.class))) })
     JsonResultResponse<PrimaryAnnotatedEntity> getPrimaryAnnotatedEntityForModel(
             @Parameter(in=ParameterIn.PATH, name = "id", description = "gene ID: e.g. MGI:109583", required=true, schema = @Schema(type = SchemaType.STRING))
             @PathParam("id") String id,
@@ -225,6 +273,17 @@ public interface GeneRESTInterface {
     @GET
     @Path("/{id}/interactions")
     @Operation(summary = "Retrieve interactions for a given gene")
+    @APIResponses(
+            value = {
+                    @APIResponse(
+                            responseCode = "404",
+                            description = "Missing interactions",
+                            content = @Content(mediaType = "text/plain")),
+                    @APIResponse(
+                            responseCode = "200",
+                            description = "Interactions for a gene.",
+                            content = @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = InteractionGeneJoin.class))) })
     @JsonView(value = {View.Interaction.class})
     JsonResultResponse<InteractionGeneJoin> getInteractions(
             @Parameter(in=ParameterIn.PATH, name = "id", description = " Gene ID", required=true, schema = @Schema(type = SchemaType.STRING))
@@ -315,6 +374,17 @@ public interface GeneRESTInterface {
     @GET
     @Path("/{id}/diseases-by-experiment")
     @Operation(summary = "Retrieve disease annotations for a given gene")
+    @APIResponses(
+            value = {
+                    @APIResponse(
+                            responseCode = "404",
+                            description = "Missing disease",
+                            content = @Content(mediaType = "text/plain")),
+                    @APIResponse(
+                            responseCode = "200",
+                            description = "Disease annotations for a gene.",
+                            content = @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = DiseaseAnnotation.class))) })
     @JsonView(value = {View.DiseaseAnnotation.class})
     JsonResultResponse<DiseaseAnnotation> getDiseaseByExperiment(
             @Parameter(in=ParameterIn.PATH, name = "id", description = "Gene by ID, e.g. 'RGD:2129' or 'ZFIN:ZDB-GENE-990415-72 fgf8a'", required=true, schema = @Schema(type = SchemaType.STRING))
@@ -384,6 +454,17 @@ public interface GeneRESTInterface {
     @GET
     @Path("/{id}/phenotype-summary")
     @Operation(summary = "Retrieve phenotype summary info for a given gene")
+    @APIResponses(
+            value = {
+                    @APIResponse(
+                            responseCode = "404",
+                            description = "Missing phenotype",
+                            content = @Content(mediaType = "text/plain")),
+                    @APIResponse(
+                            responseCode = "200",
+                            description = "Phenotype for a gene.",
+                            content = @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = EntitySummary.class))) })
     EntitySummary getPhenotypeSummary(
             @Parameter(in=ParameterIn.PATH, name = "id", description = "Gene by ID, e.g. 'RGD:2129' or 'ZFIN:ZDB-GENE-990415-72 fgf8a'", required=true, schema = @Schema(type = SchemaType.STRING))
             @PathParam("id") String id
