@@ -82,6 +82,10 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
         geneDocumentCache.setStrictOrthologySymbols(getStrictOrthologySymbolsMap(species));
 
         checkMemory();
+        log.info("Building gene -> soTermName map");
+        geneDocumentCache.setSoTermNames(getSoTermNameMap(species));
+
+        checkMemory();
         log.info("Building gene -> soTermNameWithParents map");
         geneDocumentCache.setSoTermNameWithParents(getSoTermNameWithParentsMap(species));
 
@@ -228,6 +232,14 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
         query += " RETURN gene.primaryKey as id,allele.symbolTextWithSpecies as value ";
 
         return getMapSetForQuery(query, "id", "value", getSpeciesParams(species));
+    }
+
+    private Map<String, Set<String>> getSoTermNameMap(String species) {
+        String query = "MATCH (species:Species)--(gene:Gene)-[:ANNOTATED_TO]-(term:SOTerm) ";
+        query += getSpeciesWhere(species);
+        query += " RETURN gene.primaryKey as id, term.name as value";
+
+        return getMapSetForQuery(query,"id","value", getSpeciesParams(species));
     }
 
     private Map<String, Set<String>> getSoTermNameWithParentsMap(String species) {

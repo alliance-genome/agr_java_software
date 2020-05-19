@@ -4,10 +4,12 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.alliancegenome.es.index.site.document.SearchableItemDocument;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -38,6 +40,7 @@ public class GeneDocumentCache extends IndexerCache {
     private Map<String,Set<String>> anatomicalExpression = new HashMap<>();         //uberon slim
     private Map<String,Set<String>> anatomicalExpressionWithParents = new HashMap<>();
 
+    private Map<String,Set<String>> soTermNames = new HashMap<>();
     private Map<String,Set<String>> soTermNameWithParents = new HashMap<>();
     private Map<String,Set<String>> soTermNameAgrSlim = new HashMap<>();
 
@@ -79,16 +82,7 @@ public class GeneDocumentCache extends IndexerCache {
         add("bidirectional_promoter_lncRNA");
         add("sense_overlap_ncRNA_gene");
     }};
-
-    Set<String> otherGenes = new HashSet<>() {{
-        add("unclassified_gene");
-        add("heritable_phenotypic_marker");
-        add("gene_segment");
-        add("pseudogenic_gene_segment");
-        add("transposable_element_gene");
-        add("blocked_reading_frame");
-    }};
-
+    
     public void addCachedFields(SearchableItemDocument document) {
         String id = document.getPrimaryKey();
 
@@ -114,11 +108,11 @@ public class GeneDocumentCache extends IndexerCache {
 
         document.setPhenotypeStatements(phenotypeStatements.get(id));
 
-        setSoTermNames(document);
+        handleSoTermNames(document);
 
     }
 
-    public void setSoTermNames(SearchableItemDocument document) {
+    public void handleSoTermNames(SearchableItemDocument document) {
         String id = document.getPrimaryKey();
 
         Set<String> allBiotypes = soTermNameWithParents.get(id);
@@ -143,18 +137,15 @@ public class GeneDocumentCache extends IndexerCache {
             document.getBiotype2().add("unclassified lncRNA gene");
         }
 
-        //set "other gene" parent
-        if (CollectionUtils.containsAny(document.getBiotype1(), otherGenes)) {
-            document.getBiotypes().add("other_gene");
-            document.getBiotype0().add("other_gene");
-        }
-
-        //capture any gene that doesn't have anything more specific than "gene"
         if (CollectionUtils.isEmpty(document.getBiotype0())) {
             document.getBiotypes().add("other_gene");
             document.getBiotype0().add("other_gene");
-            document.getBiotypes().add("unclassified gene");
-            document.getBiotype1().add("unclassified gene");
+            document.getBiotype1().addAll(
+                    soTermNames.get(id).stream()
+                            .map(x -> {if (StringUtils.equals(x,"gene")) { return "unclassified gene";} return x;})
+                            .map(x -> {if (StringUtils.equals(x,"biological_region")) { return "unclassified biological region";} return x;})
+                            .collect(Collectors.toSet()));
+            document.getBiotypes().addAll(document.getBiotype1());
         }
     }
 
