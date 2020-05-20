@@ -32,20 +32,6 @@ public class AlleleTranslator extends EntityDocumentTranslator<Allele, Searchabl
             document.setSpecies(entity.getSpecies().getName());
         }
 
-        if (entity.getCrossReferences() != null && entity.getCrossReferences().size() > 0) {
-            CrossReference allele = entity.getCrossReferences().stream()
-                    .filter(ref -> ref.getCrossRefType().equals("allele"))
-                    .findFirst().orElse(null);
-            if (allele != null) {
-                document.setModCrossRefCompleteUrl(allele.getCrossRefCompleteUrl());
-                List<CrossReferenceDoclet> crossRefDoclets = entity.getCrossReferences().stream()
-                        .map(crossReference -> crossReferenceDocletTranslator.translate(crossReference))
-                        .collect(Collectors.toList());
-                document.setCrossReferenceList(crossRefDoclets);
-            }
-        }
-
-
         addSecondaryIds(entity, document);
         addSynonyms(entity, document);
 

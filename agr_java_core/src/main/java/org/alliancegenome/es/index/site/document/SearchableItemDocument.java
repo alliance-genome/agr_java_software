@@ -66,6 +66,7 @@ public class SearchableItemDocument extends ESDocument {
     Set<String> diseasesAgrSlim = new HashSet<>();
     Set<String> diseaseGroup = new HashSet<>();
     Set<String> diseasesWithParents = new HashSet<>();
+    Set<String> expressionStages = new HashSet<>();
     Set<String> alleles = new HashSet<>();
     Set<String> genes = new HashSet<>();
     Set<String> go_genes;

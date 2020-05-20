@@ -21,6 +21,7 @@ public class IndexerCache {
     protected Map<String, Set<String>> diseases = new HashMap<>();
     protected Map<String, Set<String>> diseasesAgrSlim = new HashMap<>();
     protected Map<String, Set<String>> diseasesWithParents = new HashMap<>();
+    protected Map<String, Set<String>> expressionStages = new HashMap<>();
     protected Map<String, Set<String>> alleles = new HashMap<>();
     protected Map<String, Set<String>> genes = new HashMap<>();
     protected Map<String, Set<String>> models = new HashMap<>();
@@ -50,6 +51,7 @@ public class IndexerCache {
         document.setDiseases(diseases.get(id));
         document.setDiseasesAgrSlim(diseasesAgrSlim.get(id));
         document.setDiseasesWithParents(diseasesWithParents.get(id));
+        document.setExpressionStages(expressionStages.get(id));
         document.setGenes(genes.get(id));
         document.setModels(models.get(id));
         document.setPhenotypeStatements(phenotypeStatements.get(id));

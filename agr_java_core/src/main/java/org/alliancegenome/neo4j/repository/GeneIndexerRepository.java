@@ -142,6 +142,10 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
         geneDocumentCache.setWhereExpressed(getWhereExpressedMap(species));
 
         checkMemory();
+        log.info("Building gene -> expressionStages map");
+        geneDocumentCache.setExpressionStages(getExpressionStagesMap(species));
+
+        checkMemory();
         log.info("Building gene -> Subcellular Expression Ribbon map");
         geneDocumentCache.setSubcellularExpressionAgrSlim(getSubcellularExpressionAgrSlimMap(species));
         
@@ -343,6 +347,14 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
         query += " RETURN distinct gene.primaryKey as id, ebe.whereExpressedStatement as value";
 
         return getMapSetForQuery(query, "id", "value", getSpeciesParams(species));
+    }
+
+    private Map<String, Set<String>> getExpressionStagesMap(String species) {
+        String query= "MATCH (species:Species)-[:FROM_SPECIES]-(gene:Gene)--(:BioEntityGeneExpressionJoin)--(stage:Stage) ";
+        query += getSpeciesWhere(species);
+        query += "RETURN distinct gene.primaryKey as id, stage.name as value";
+
+        return getMapSetForQuery(query, getSpeciesParams(species));
     }
 
     public Map<String,Set<String>> getSubcellularExpressionAgrSlimMap(String species) {

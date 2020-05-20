@@ -43,11 +43,12 @@ public class Mapping extends Builder {
         new FieldBuilder(builder, "cellularComponentExpressionWithParents", "text").keyword().build();
         new FieldBuilder(builder, "cellularComponentExpressionAgrSlim", "text").keyword().build();
         new FieldBuilder(builder, "chromosomes", "text").keyword().build();
-        new FieldBuilder(builder, "crossReferences", "text").keyword().standardText().build();
+        new FieldBuilder(builder, "crossReferences", "text").keyword().classicText().build();
         new FieldBuilder(builder, "description", "text");
         new FieldBuilder(builder, "diseases", "text").keyword().build();
         new FieldBuilder(builder, "diseasesAgrSlim", "text").keyword().build();
         new FieldBuilder(builder, "diseasesWithParents", "text").keyword().build();
+        new FieldBuilder(builder, "expressionStages", "text").keyword().standardText().build();
         new FieldBuilder(builder, "external_ids", "text").analyzer("symbols");
         new FieldBuilder(builder, "genes", "text").keyword().autocomplete().keywordAutocomplete().build();
         new FieldBuilder(builder, "geneLiteratureUrl", "keyword").build();
@@ -89,7 +90,6 @@ public class Mapping extends Builder {
                 .keywordAutocomplete()
                 .sort()
                 .build();
-        new FieldBuilder(builder, "symbolText", "text").keyword().standardText().build();
         new FieldBuilder(builder, "searchSymbol", "text").analyzer("symbols")
                 .autocomplete()
                 .keyword()
@@ -101,6 +101,7 @@ public class Mapping extends Builder {
         new FieldBuilder(builder, "soTermId", "keyword").build();
         new FieldBuilder(builder, "species", "text").keyword().synonym().sort().build();
         new FieldBuilder(builder, "strictOrthologySymbols", "text").keyword().autocomplete().build();
+        new FieldBuilder(builder, "symbolText", "text").keyword().standardText().build();
         new FieldBuilder(builder, "synonyms", "text").analyzer("symbols")
                 .autocomplete()
                 .keyword()
@@ -143,6 +144,7 @@ public class Mapping extends Builder {
         String type;
         String analyzer;
         boolean autocomplete;
+        boolean classicText;
         boolean htmlSmoosh;
         boolean keyword;
         boolean keywordAutocomplete;
@@ -166,6 +168,11 @@ public class Mapping extends Builder {
 
         public FieldBuilder autocomplete() {
             this.autocomplete = true;
+            return this;
+        }
+
+        public FieldBuilder classicText() {
+            this.classicText = true;
             return this;
         }
 
@@ -243,6 +250,7 @@ public class Mapping extends Builder {
                 if(letterText) buildProperty("letterText", "text", "letter_text", "default", null);
                 if(symbol) { buildProperty("symbol", "text", "symbols"); }
                 if(autocomplete) buildProperty("autocomplete", "text", "autocomplete", "autocomplete_search", null);
+                if(classicText) buildProperty("classicText", "text", "classic_text", "default", null);
                 if(synonym) buildProperty("synonyms", "text", "generic_synonym", "autocomplete_search", null);
                 if(sort) buildProperty("sort", "keyword", null, null, "lowercase");
                 if(htmlSmoosh) buildProperty("htmlSmoosh", "text", "html_smoosh");
