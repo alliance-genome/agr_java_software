@@ -109,6 +109,17 @@ class QueryMatchIntegrationSpec extends Specification {
         //secondaryId
         "AGR-1437" | "MGI:109583"              | "MGI:1917411"
 
+        //expression stages
+        "AGR-1956" | "ZFIN:ZDB-GENE-980605-16"   | "Segmentation:14-19 somites"
+        "AGR-1956" | "ZFIN:ZDB-GENE-040426-2238" | "Gastrula:50%-epiboly"
+        "AGR-1956" | "ZFIN:ZDB-GENE-040426-2238" | "Gastrula"
+        "AGR-1956" | "FB:FBgn0262417"            | "embryonic stage 13"
+        "AGR-1956" | "FB:FBgn0261439"            | "day 17 of adulthood"
+        "AGR-1956" | "WB:WBGene00077727"         | "Nematoda Life Stage"
+        "AGR-1956" | "WB:WBGene00000604"         | "dauer larva Ce"
+        "AGR-1956" | "MGI:97750"                 | "TS23"
+        "AGR-1956" | "MGI:88537"                 | "TS18"
+
     }
 
     @Unroll
@@ -128,7 +139,7 @@ class QueryMatchIntegrationSpec extends Specification {
         //strict orthology
         "AGR-755" | "ZFIN:ZDB-GENE-010323-11" | "Y20F4.4"
         "AGR-755" | "ZFIN:ZDB-GENE-010323-11" | "EVL"
-        "AGR-755" | "SGD:S000000004"          | "hspa1a"
+        "AGR-755" | "SGD:S000000004"          | "Hspa4l"
         "AGR-755" | "ZFIN:ZDB-GENE-121214-31" | "hspa1a"
         "AGR-755" | "FB:FBgn0001218"          | "hspa1a"
     }

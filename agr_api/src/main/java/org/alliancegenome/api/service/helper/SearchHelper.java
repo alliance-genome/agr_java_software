@@ -12,7 +12,6 @@ import java.util.Map;
 import javax.ws.rs.core.UriInfo;
 
 import org.alliancegenome.es.model.search.AggResult;
-import org.alliancegenome.es.model.search.Category;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.text.Text;
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -33,7 +32,8 @@ public class SearchHelper {
     private Logger log = Logger.getLogger(getClass());
 
     private static String[] SUFFIX_LIST = { ".htmlSmoosh", ".keywordAutocomplete", ".keyword", ".smoosh",
-                                            ".synonyms", ".symbols", ".text",".standardText",".letterText" };
+                                            ".synonyms", ".symbols", ".text", ".classicText", ".standardText",
+                                            ".letterText" };
 
     
     private HashMap<String, List<String>> category_filters = new HashMap<String, List<String>>() {
@@ -120,12 +120,14 @@ public class SearchHelper {
             add("cellularComponentExpressionAgrSlim.keyword");
             add("chromosomes");
             add("crossReferences");
-            add("crossReferences.standardText");
+            add("crossReferences.classicText");
             add("diseases");
             add("diseasesAgrSlim");
             add("diseasesWithParents");
             add("disease_genes");
             add("disease_synonyms");
+            add("expressionStages");
+            add("expressionStages.standardText");
             add("external_ids");
             add("genes");
             add("genes.keyword");

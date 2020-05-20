@@ -1,6 +1,7 @@
 package org.alliancegenome.neo4j.repository;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -18,11 +19,10 @@ public class AlleleIndexerRepository extends Neo4jRepository {
 
     public Map<String, Allele> getAlleleMap(String species) {
 
-        String query = "MATCH p1=(species:Species)-[:FROM_SPECIES]-(feature:Feature:Allele) ";
+        String query = "MATCH p1=(species:Species)-[:FROM_SPECIES]-(feature:Allele) ";
         query += getSpeciesWhere(species);
         query += " OPTIONAL MATCH pSyn=(feature:Feature)-[:ALSO_KNOWN_AS]-(synonym:Synonym) ";
-        query += " OPTIONAL MATCH crossRef=(feature:Feature)-[:CROSS_REFERENCE]-(c:CrossReference) ";
-        query += " RETURN p1, pSyn, crossRef ";
+        query += " RETURN p1, pSyn ";
 
         Iterable<Allele> alleles = null;
 
@@ -44,6 +44,9 @@ public class AlleleIndexerRepository extends Neo4jRepository {
 
         log.info("Fetching alleles");
         alleleDocumentCache.setAlleleMap(getAlleleMap(species));
+
+        log.info("Building allele -> crossReference map");
+        alleleDocumentCache.setCrossReferences(getCrossReferences(species));
 
         log.info("Building allele -> diseases map");
         alleleDocumentCache.setDiseases(getDiseaseMap(species));
@@ -74,6 +77,35 @@ public class AlleleIndexerRepository extends Neo4jRepository {
 
         return alleleDocumentCache;
 
+    }
+
+    private Map<String, Set<String>> getCrossReferences(String species) {
+        String query = "MATCH (species:Species)--(allele:Allele)-[:CROSS_REFERENCE]-(cr:CrossReference) ";
+        query += getSpeciesWhere(species);
+        query += " RETURN allele.primaryKey as id, cr.name as value";
+
+        Map<String, Set<String>> names = getMapSetForQuery(query, getSpeciesParams(species));
+
+        query = "MATCH (species:Species)--(allele:Allele)-[:CROSS_REFERENCE]-(cr:CrossReference) ";
+        query += getSpeciesWhere(species);
+        query += " RETURN allele.primaryKey as id, cr.localId as value";
+
+        Map<String, Set<String>> localIds = getMapSetForQuery(query, getSpeciesParams(species));
+
+        Map<String, Set<String>> map = new HashMap<>();
+        Set<String> keys = new HashSet<>();
+
+        keys.addAll(names.keySet());
+        keys.addAll(localIds.keySet());
+
+        for (String key: keys) {
+            Set<String> values = new HashSet<>();
+            values.addAll(names.get(key));
+            values.addAll(localIds.get(key));
+            map.put(key, values);
+        }
+
+        return map;
     }
 
     public Map<String, Set<String>> getDiseaseMap(String species) {
