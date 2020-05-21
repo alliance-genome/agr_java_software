@@ -134,7 +134,8 @@ public class SearchService {
         for (String token : tokens) {
             MultiMatchQueryBuilder mmq = multiMatchQuery(token);
             searchHelper.getSearchFields().stream().forEach(mmq::field);
-            mmq.analyzer("keyword");
+            mmq.type(MultiMatchQueryBuilder.Type.CROSS_FIELDS);
+            mmq.operator(Operator.AND);
             mmq.fields(searchHelper.getBoostMap());
             mmq.queryName(token);
             functionList.add(new FunctionScoreQueryBuilder.FilterFunctionBuilder(mmq, ScoreFunctionBuilders.weightFactorFunction(10.0F)));
@@ -246,13 +247,14 @@ public class SearchService {
         //add the tokens
         tokens.addAll(Arrays.asList(query.split("\\s")));
 
-        //strip boolean tokens
-        List<String> booleans = new ArrayList<>();
-        booleans.add("AND");
-        booleans.add("OR");
-        booleans.add("NOT");
+        //strip boolean tokens, empty strings and spaces strings
+        List<String> tokensToRemove = new ArrayList<>();
+        tokensToRemove.add("AND");
+        tokensToRemove.add("OR");
+        tokensToRemove.add("NOT");
+        tokensToRemove.add("");
 
-        tokens.removeAll(booleans);
+        tokens.removeAll(tokensToRemove);
 
         return tokens;
 
