@@ -3,20 +3,14 @@ package org.alliancegenome.core.translators.document;
 import java.util.stream.Collectors;
 
 import org.alliancegenome.core.translators.EntityDocumentTranslator;
-import org.alliancegenome.core.translators.doclet.CrossReferenceDocletTranslator;
 import org.alliancegenome.es.index.site.document.SearchableItemDocument;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.entity.relationship.Orthologous;
 
 public class GeneTranslator extends EntityDocumentTranslator<Gene, SearchableItemDocument> {
 
-    //private final Logger log = LogManager.getLogger(getClass());
-    
-    private static CrossReferenceDocletTranslator crossReferenceTranslator = new CrossReferenceDocletTranslator();
-
     @Override
     protected SearchableItemDocument entityToDocument(Gene entity, int translationDepth) {
-        //log.info(entity);
 
         SearchableItemDocument document = new SearchableItemDocument();
 

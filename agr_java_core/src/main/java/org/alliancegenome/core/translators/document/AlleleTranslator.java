@@ -1,5 +1,6 @@
 package org.alliancegenome.core.translators.document;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,12 +33,10 @@ public class AlleleTranslator extends EntityDocumentTranslator<Allele, Searchabl
             document.setSpecies(entity.getSpecies().getName());
         }
 
-        addSecondaryIds(entity, document);
-        addSynonyms(entity, document);
-
+        document.setSecondaryIds(new HashSet<>(entity.getSecondaryIdsList()));
+        document.setSynonyms(new HashSet<>(entity.getSynonymList()));
 
         return document;
     }
-
 
 }
