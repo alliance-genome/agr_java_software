@@ -1,14 +1,11 @@
 package org.alliancegenome.core.translators.document;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.HashSet;
 
 import org.alliancegenome.core.translators.EntityDocumentTranslator;
 import org.alliancegenome.core.translators.doclet.CrossReferenceDocletTranslator;
-import org.alliancegenome.es.index.site.doclet.CrossReferenceDoclet;
 import org.alliancegenome.es.index.site.document.SearchableItemDocument;
 import org.alliancegenome.neo4j.entity.node.Allele;
-import org.alliancegenome.neo4j.entity.node.CrossReference;
 
 public class AlleleTranslator extends EntityDocumentTranslator<Allele, SearchableItemDocument> {
 
@@ -32,12 +29,10 @@ public class AlleleTranslator extends EntityDocumentTranslator<Allele, Searchabl
             document.setSpecies(entity.getSpecies().getName());
         }
 
-        addSecondaryIds(entity, document);
-        addSynonyms(entity, document);
-
+        document.setSecondaryIds(new HashSet<>(entity.getSecondaryIdsList()));
+        document.setSynonyms(new HashSet<>(entity.getSynonymList()));
 
         return document;
     }
-
 
 }

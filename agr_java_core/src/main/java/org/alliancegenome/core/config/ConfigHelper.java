@@ -1,15 +1,41 @@
 package org.alliancegenome.core.config;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import static org.alliancegenome.core.config.Constants.AO_TERM_LIST;
+import static org.alliancegenome.core.config.Constants.API_HOST;
+import static org.alliancegenome.core.config.Constants.API_PORT;
+import static org.alliancegenome.core.config.Constants.API_SECURE;
+import static org.alliancegenome.core.config.Constants.AWS_ACCESS_KEY;
+import static org.alliancegenome.core.config.Constants.AWS_BUCKET_NAME;
+import static org.alliancegenome.core.config.Constants.AWS_SECRET_KEY;
+import static org.alliancegenome.core.config.Constants.CACHE_HOST;
+import static org.alliancegenome.core.config.Constants.CACHE_PORT;
+import static org.alliancegenome.core.config.Constants.DEBUG;
+import static org.alliancegenome.core.config.Constants.ES_DATA_INDEX;
+import static org.alliancegenome.core.config.Constants.ES_HOST;
+import static org.alliancegenome.core.config.Constants.ES_INDEX;
+import static org.alliancegenome.core.config.Constants.ES_INDEX_SUFFIX;
+import static org.alliancegenome.core.config.Constants.ES_PORT;
+import static org.alliancegenome.core.config.Constants.EXTRACTOR_OUTPUTDIR;
+import static org.alliancegenome.core.config.Constants.GO_TERM_LIST;
+import static org.alliancegenome.core.config.Constants.INDEX_VARIANTS;
+import static org.alliancegenome.core.config.Constants.KEEPINDEX;
+import static org.alliancegenome.core.config.Constants.NEO4J_HOST;
+import static org.alliancegenome.core.config.Constants.NEO4J_PORT;
+import static org.alliancegenome.core.config.Constants.SPECIES;
+import static org.alliancegenome.core.config.Constants.THREADED;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Properties;
+import java.util.Set;
 
-import static org.alliancegenome.core.config.Constants.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 
 public class ConfigHelper {
@@ -39,7 +65,6 @@ public class ConfigHelper {
          * key in the defaults map there should be a corresponding get method for that value.
          */
         defaults.put(THREADED, "true"); // Indexer Value
-        defaults.put(API_ACCESS_TOKEN, "api_access_token"); // Api Value
 
         defaults.put(DEBUG, "false");
 
@@ -59,6 +84,8 @@ public class ConfigHelper {
 
         defaults.put(CACHE_HOST, "localhost");
         defaults.put(CACHE_PORT, "11222");
+        
+        defaults.put(EXTRACTOR_OUTPUTDIR, "data");
 
         defaults.put(NEO4J_HOST, "localhost");
         defaults.put(NEO4J_PORT, "7687");
@@ -219,6 +246,11 @@ public class ConfigHelper {
         return config.get(ES_INDEX_SUFFIX);
     }
 
+    public static String getDataExtractorDirectory() {
+        if (!init) init();
+        return config.get(EXTRACTOR_OUTPUTDIR);
+    }
+    
     public static String getAWSAccessKey() {
         if (!init) init();
         return config.get(AWS_ACCESS_KEY);
@@ -237,11 +269,6 @@ public class ConfigHelper {
     public static String getEsDataIndex() {
         if (!init) init();
         return config.get(ES_DATA_INDEX);
-    }
-
-    public static String getApiAccessToken() {
-        if (!init) init();
-        return config.get(API_ACCESS_TOKEN);
     }
 
     public static Date getAppStart() {
@@ -388,4 +415,5 @@ public class ConfigHelper {
     public static boolean isProduction() {
         return getNeo4jHost().contains("production");
     }
+
 }

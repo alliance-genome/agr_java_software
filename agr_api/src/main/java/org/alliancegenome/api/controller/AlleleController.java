@@ -8,6 +8,7 @@ import javax.ws.rs.core.Response;
 import org.alliancegenome.api.rest.interfaces.AlleleRESTInterface;
 import org.alliancegenome.api.service.AlleleService;
 import org.alliancegenome.api.service.EntityType;
+import org.alliancegenome.api.service.VariantService;
 import org.alliancegenome.api.service.helper.APIServiceHelper;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.core.exceptions.RestErrorException;
@@ -30,6 +31,9 @@ public class AlleleController implements AlleleRESTInterface {
 
     @Inject
     private AlleleService alleleService;
+    
+    @Inject
+    private VariantService varinatSerivce;
 
     @Inject
     private HttpServletRequest request;
@@ -61,7 +65,7 @@ public class AlleleController implements AlleleRESTInterface {
         }
 
         try {
-            JsonResultResponse<Variant> alleles = alleleService.getVariants(id, pagination);
+            JsonResultResponse<Variant> alleles = varinatSerivce.getVariants(id, pagination);
             alleles.setHttpServletRequest(request);
             alleles.calculateRequestDuration(startTime);
             return alleles;

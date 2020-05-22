@@ -5,19 +5,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.alliancegenome.core.translators.EntityDocumentTranslator;
-import org.alliancegenome.core.translators.doclet.CrossReferenceDocletTranslator;
 import org.alliancegenome.es.index.site.document.SearchableItemDocument;
 import org.alliancegenome.neo4j.entity.node.CrossReference;
 import org.alliancegenome.neo4j.entity.node.DOTerm;
 import org.alliancegenome.neo4j.entity.node.Synonym;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, SearchableItemDocument> {
-
-    private static CrossReferenceDocletTranslator crossReferenceTranslator = new CrossReferenceDocletTranslator();
-
-    private final Logger log = LogManager.getLogger(getClass());
 
     @Override
     protected SearchableItemDocument entityToDocument(DOTerm entity, int translationDepth) {

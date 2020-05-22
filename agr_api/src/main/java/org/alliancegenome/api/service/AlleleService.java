@@ -17,7 +17,6 @@ import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.entity.node.Allele;
-import org.alliancegenome.neo4j.entity.node.Variant;
 import org.alliancegenome.neo4j.repository.AlleleRepository;
 import org.apache.commons.collections.CollectionUtils;
 
@@ -25,7 +24,7 @@ import org.apache.commons.collections.CollectionUtils;
 public class AlleleService {
 
     private AlleleRepository alleleRepo = new AlleleRepository();
-    
+
     @Inject
     private AlleleCacheRepository alleleCacheRepo;
 
@@ -40,21 +39,6 @@ public class AlleleService {
 
     public JsonResultResponse<Allele> getAllelesByGene(String geneID, Pagination pagination) {
         return alleleCacheRepo.getAllelesByGene(geneID, pagination);
-    }
-
-
-    public JsonResultResponse<Variant> getVariants(String id, Pagination pagination) {
-        LocalDateTime startDate = LocalDateTime.now();
-
-        List<Variant> variants = alleleRepo.getVariants(id);
-
-        JsonResultResponse<Variant> result = new JsonResultResponse<>();
-
-        FilterService<Variant> filterService = new FilterService<>(null);
-        result.setTotal(variants.size());
-        result.setResults(filterService.getPaginatedAnnotations(pagination, variants));
-        result.calculateRequestDuration(startDate);
-        return result;
     }
 
     public JsonResultResponse<PhenotypeAnnotation> getPhenotype(String id, Pagination pagination) {

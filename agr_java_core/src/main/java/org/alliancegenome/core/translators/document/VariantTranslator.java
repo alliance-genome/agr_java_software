@@ -1,6 +1,5 @@
 package org.alliancegenome.core.translators.document;
 
-import org.alliancegenome.core.translators.EntityDocletTranslator;
 import org.alliancegenome.core.translators.EntityDocumentTranslator;
 import org.alliancegenome.es.index.site.document.SearchableItemDocument;
 import org.alliancegenome.neo4j.entity.node.Variant;
