@@ -1,7 +1,12 @@
 package org.alliancegenome.es.util;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.alliancegenome.core.config.ConfigHelper;
@@ -12,7 +17,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpHost;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.lucene.util.CollectionUtil;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequest;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 import org.elasticsearch.action.admin.cluster.repositories.get.GetRepositoriesRequest;
@@ -49,6 +53,10 @@ public class IndexManager {
     private String tempIndexName = "site_index_temp";
 
     public IndexManager() {
+        initClient();
+    }
+    
+    public void initClient() {
         if(ConfigHelper.getEsHost().contains(",")) {
             String[] hostnames = ConfigHelper.getEsHost().split(",");
             List<HttpHost> hosts = Arrays.stream(hostnames).map(host -> new HttpHost(host, ConfigHelper.getEsPort())).collect(Collectors.toList());
