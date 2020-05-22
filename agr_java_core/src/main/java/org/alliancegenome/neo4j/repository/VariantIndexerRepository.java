@@ -1,13 +1,13 @@
 package org.alliancegenome.neo4j.repository;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
 import org.alliancegenome.es.index.site.cache.IndexerCache;
 import org.alliancegenome.neo4j.entity.node.Variant;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
 
 public class VariantIndexerRepository extends Neo4jRepository<Variant> {
 

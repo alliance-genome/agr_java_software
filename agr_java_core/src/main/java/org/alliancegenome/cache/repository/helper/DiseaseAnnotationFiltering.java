@@ -1,15 +1,15 @@
 package org.alliancegenome.cache.repository.helper;
 
+import static org.alliancegenome.neo4j.entity.SpeciesType.NCBITAXON;
+
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.entity.node.CrossReference;
 import org.alliancegenome.neo4j.entity.node.Gene;
-
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import static org.alliancegenome.neo4j.entity.SpeciesType.NCBITAXON;
 
 public class DiseaseAnnotationFiltering extends AnnotationFiltering<DiseaseAnnotation> {
 

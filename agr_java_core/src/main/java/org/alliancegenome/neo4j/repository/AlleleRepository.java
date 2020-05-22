@@ -1,12 +1,16 @@
 package org.alliancegenome.neo4j.repository;
 
-import org.alliancegenome.neo4j.entity.node.Allele;
-import org.alliancegenome.neo4j.entity.node.Variant;
-import org.neo4j.ogm.model.Result;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+
+import org.alliancegenome.neo4j.entity.node.Allele;
+import org.neo4j.ogm.model.Result;
 
 public class AlleleRepository extends Neo4jRepository<Allele> {
 

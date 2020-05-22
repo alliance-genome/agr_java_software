@@ -5,10 +5,10 @@ import java.util.Map;
 import java.util.Set;
 
 import org.alliancegenome.es.index.site.document.SearchableItemDocument;
+import org.alliancegenome.neo4j.entity.node.Variant;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.alliancegenome.neo4j.entity.node.Variant;
 
 @Getter
 @Setter
