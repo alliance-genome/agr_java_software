@@ -1,4 +1,4 @@
-package org.alliancegenome.intermine.translators;
+package org.alliancegenome.data_extractor.translators;
 
 import java.io.PrintWriter;
 import java.util.Arrays;
@@ -15,21 +15,27 @@ public class GeneTSVTranslator extends EntityTSVTranslator<Gene> {
     public GeneTSVTranslator(PrintWriter writer) {
         super(writer);
     }
-    
-    List<String> headers = Arrays.asList(
-        "Name",
-        "Species",
-        "Symbol"
-    );
 
+    @Override
+    protected List<String> getHeaders() {
+        return Arrays.asList(
+                "Id",
+                "Name",
+                "Species",
+                "Symbol"
+            );
+    }
+    
     @Override
     protected List<String> entityToRow(Gene entity) {
         
         return Arrays.asList(
+            entity.getPrimaryKey(),
             entity.getName(),
-            entity.getSpecies().getName(),
+            entity.getSpecies().getType().getTaxonID(),
             entity.getSymbol()  
         );
         
     }
+
 }

@@ -13,13 +13,17 @@ public abstract class EntityTSVTranslator<E extends Neo4jEntity> {
     
     public EntityTSVTranslator(PrintWriter writer) {
         this.writer = writer;
+        writer.print(getHeaderLine());
     }
     
     public void translateEntities(Iterable<E> entities) {
-        writer.println(getHeaderLine());
         for (E entity : entities) {
-            writer.println(getLine(entity));
+            writer.print(getLine(entity));
         }
+    }
+    
+    public void translateEntity(E entity) {
+        writer.print(getLine(entity));
     }
 
     private String getHeaderLine() {
