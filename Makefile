@@ -32,4 +32,4 @@ core:
 	mvn -T 4 clean package -pl agr_java_core -am
 
 searchtest:
-	mvn -q -T 4 -Dit.test="AutocompteIntegrationSpec,QueryMatchIntegrationSpec,QueryRankIntegrationSpec,RelatedDataServiceIntegrationSpec" -DfailIfNoTests=false verify
+	mvn -q -T 4 -Dit.test="AutocompteIntegrationSpec,QueryMatchIntegrationSpec,QueryRankIntegrationSpec,QueryTokenizationIntegrationSpec,RelatedDataServiceIntegrationSpec" -DfailIfNoTests=false verify
