@@ -1,14 +1,12 @@
-swarm.logging=DEBUG
+swarm.logging=INFO
 
 swarm.logging.loggers.[org.alliancegenome].level=DEBUG
-#mp.openapi.scan.packages=org.alliancegenome.api.application
+swarm.logging.loggers.[io.smallrye.openapi].level=DEBUG
+mp.openapi.scan.disable=false
+mp.openapi.scan.packages=org.alliancegenome.api.application,org.alliancegenome.api.controller,org.alliancegenome.api.rest.interfaces,org.alliancegenome.cache.repository.helper,org.alliancegenome.api.entity,org.alliancegenome.neo4j.entity,org.alliancegenome.neo4j.entity.node,org.alliancegenome.es.model.search,org.alliancegenome.api.model.xml
 
 DEBUG=false
 ES_INDEX=site_index
 ES_HOST=build.alliancegenome.org
 NEO4J_HOST=build.alliancegenome.org
 CACHE_HOST=build.alliancegenome.org
-
-AWS_BUCKET_NAME=
-AWS_ACCESS_KEY=
-AWS_SECRET_KEY=
