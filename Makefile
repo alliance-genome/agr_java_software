@@ -7,6 +7,9 @@ api:
 cacher:
 	mvn -T 4 clean package -pl agr_cacher -am
 
+dataextractor:
+	mvn -T 4 clean package -pl agr_intermine_data_extractor -am
+
 cacherq:
 	mvn -T 4 -q clean package -pl agr_cacher -am
 

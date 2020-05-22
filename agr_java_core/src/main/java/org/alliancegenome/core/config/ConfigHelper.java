@@ -39,7 +39,6 @@ public class ConfigHelper {
          * key in the defaults map there should be a corresponding get method for that value.
          */
         defaults.put(THREADED, "true"); // Indexer Value
-        defaults.put(API_ACCESS_TOKEN, "api_access_token"); // Api Value
 
         defaults.put(DEBUG, "false");
 
@@ -59,6 +58,8 @@ public class ConfigHelper {
 
         defaults.put(CACHE_HOST, "localhost");
         defaults.put(CACHE_PORT, "11222");
+        
+        defaults.put(EXTRACTOR_OUTPUTDIR, "data");
 
         defaults.put(NEO4J_HOST, "localhost");
         defaults.put(NEO4J_PORT, "7687");
@@ -219,6 +220,11 @@ public class ConfigHelper {
         return config.get(ES_INDEX_SUFFIX);
     }
 
+    public static String getDataExtractorDirectory() {
+        if (!init) init();
+        return config.get(EXTRACTOR_OUTPUTDIR);
+    }
+    
     public static String getAWSAccessKey() {
         if (!init) init();
         return config.get(AWS_ACCESS_KEY);
@@ -237,11 +243,6 @@ public class ConfigHelper {
     public static String getEsDataIndex() {
         if (!init) init();
         return config.get(ES_DATA_INDEX);
-    }
-
-    public static String getApiAccessToken() {
-        if (!init) init();
-        return config.get(API_ACCESS_TOKEN);
     }
 
     public static Date getAppStart() {
@@ -388,4 +389,5 @@ public class ConfigHelper {
     public static boolean isProduction() {
         return getNeo4jHost().contains("production");
     }
+
 }

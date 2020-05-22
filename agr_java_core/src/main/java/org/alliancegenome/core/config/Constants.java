@@ -2,10 +2,11 @@ package org.alliancegenome.core.config;
 
 public class Constants {
 
+    
+    // Config Helper Constants
     public static final String THREADED = "THREADED";
-    public static final String API_ACCESS_TOKEN = "API_ACCESS_TOKEN";
     public static final String DEBUG = "DEBUG";
-    //public static final String GENERATE_SITEMAP = "GENERATE_SITEMAP";
+    
     public static final String ES_INDEX = "ES_INDEX";
     public static final String ES_INDEX_SUFFIX = "ES_INDEX_SUFFIX";
     public static final String ES_DATA_INDEX = "ES_DATA_INDEX";
@@ -32,8 +33,10 @@ public class Constants {
 
     public static final String AO_TERM_LIST = "AO_TERM_LIST";
     public static final String GO_TERM_LIST = "GO_TERM_LIST";
+    public static final String EXTRACTOR_OUTPUTDIR = "EXTRACTOR_OUTPUTDIR";
+
+    // Other Constants
 
     public static final String SEARCHABLE_ITEM = "searchable_item";
-
-
+    
 }
