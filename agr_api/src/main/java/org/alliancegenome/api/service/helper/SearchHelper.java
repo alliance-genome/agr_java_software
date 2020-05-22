@@ -1,8 +1,5 @@
 package org.alliancegenome.api.service.helper;
 
-import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
-import static org.elasticsearch.index.query.QueryBuilders.termQuery;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;

@@ -231,7 +231,7 @@ public class AlleleIT {
     @Test
     public void getVariantsPerAllele() {
         Pagination pagination = new Pagination();
-        JsonResultResponse<Variant> response = alleleService.getVariants("ZFIN:ZDB-ALT-161003-18461", pagination);
+        JsonResultResponse<Variant> response = variantService.getVariants("ZFIN:ZDB-ALT-161003-18461", pagination);
         assertThat(response.getTotal(), greaterThanOrEqualTo(1));
         assertNotNull("Computed Gene exists", response.getResults().get(0).getGene());
         assertNotNull("Genomic Location exists on computed Gene", response.getResults().get(0).getGene().getGenomeLocations());
@@ -247,17 +247,17 @@ public class AlleleIT {
     @Test
     public void getVariantsWithInsertionDeletion() {
         Pagination pagination = new Pagination();
-        JsonResultResponse<Variant> response = alleleService.getVariants("ZFIN:ZDB-ALT-181010-2", pagination);
+        JsonResultResponse<Variant> response = variantService.getVariants("ZFIN:ZDB-ALT-181010-2", pagination);
         assertThat(response.getTotal(), greaterThanOrEqualTo(1));
         Variant variant = response.getResults().get(0);
         assertEquals("Nucleotide change of Insertion", "t>tTCCAGAA", variant.getNucleotideChange());
 
-        response = alleleService.getVariants("ZFIN:ZDB-ALT-180925-10", pagination);
+        response = variantService.getVariants("ZFIN:ZDB-ALT-180925-10", pagination);
         assertThat(response.getTotal(), greaterThanOrEqualTo(1));
         variant = response.getResults().get(0);
         assertEquals("Nucleotide change: Deletion", "aGCAGAGGTCA>a", variant.getNucleotideChange());
 
-        response = alleleService.getVariants("ZFIN:ZDB-ALT-161003-18461", pagination);
+        response = variantService.getVariants("ZFIN:ZDB-ALT-161003-18461", pagination);
         assertThat(response.getTotal(), greaterThanOrEqualTo(1));
         variant = response.getResults().get(0);
         assertEquals("Nucleotide change: non-insertion, non-deletion", "A>G", variant.getNucleotideChange());
@@ -266,7 +266,7 @@ public class AlleleIT {
     @Test
     public void getVariantsWithTransposon() {
         Pagination pagination = new Pagination();
-        JsonResultResponse<Variant> response = alleleService.getVariants("FB:FBal0125489", pagination);
+        JsonResultResponse<Variant> response = variantService.getVariants("FB:FBal0125489", pagination);
         assertThat(response.getTotal(), greaterThanOrEqualTo(1));
         Variant variant = response.getResults().get(0);
         assertEquals("Nucleotide change of Insertion", "c>cN+", variant.getNucleotideChange());
