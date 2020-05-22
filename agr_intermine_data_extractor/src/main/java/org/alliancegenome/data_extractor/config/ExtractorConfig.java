@@ -5,7 +5,8 @@ import org.alliancegenome.data_extractor.extractors.*;
 public enum ExtractorConfig {
     
     AlleleExtractor(AlleleExtractor.class),
-    GeneExtractor(GeneExtractor.class)
+    GeneExtractor(GeneExtractor.class),
+    DiseaseExtractor(DiseaseExtractor.class)
     ;
     
     private String extractorName;

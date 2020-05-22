@@ -22,6 +22,7 @@ public class GeneExtractor extends DataExtractor {
         for(String id: geneIds) {
             Gene g = geneRepo.getOneGene(id);
             translator.translateEntity(g);
+            
             progressProcess();
         }
         finishProcess();

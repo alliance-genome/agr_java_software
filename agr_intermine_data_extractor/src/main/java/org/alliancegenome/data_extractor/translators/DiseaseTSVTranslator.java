@@ -1,17 +1,19 @@
 package org.alliancegenome.data_extractor.translators;
 
 import java.io.PrintWriter;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
 
 import org.alliancegenome.core.translators.EntityTSVTranslator;
+import org.alliancegenome.neo4j.entity.node.DOTerm;
 import org.alliancegenome.neo4j.entity.node.Gene;
 
 import lombok.Getter;
 
 @Getter
-public class GeneTSVTranslator extends EntityTSVTranslator<Gene> {
+public class DiseaseTSVTranslator extends EntityTSVTranslator<DOTerm> {
 
-    public GeneTSVTranslator(PrintWriter writer) {
+    public DiseaseTSVTranslator(PrintWriter writer) {
         super(writer);
     }
 
@@ -19,22 +21,18 @@ public class GeneTSVTranslator extends EntityTSVTranslator<Gene> {
     protected List<String> getHeaders() {
         return Arrays.asList(
                 "Id",
-                "Name",
-                "Species",
-                "Description",
-                "Symbol"
+                "Definition",
+                "Prefix"
             );
     }
     
     @Override
-    protected List<String> entityToRow(Gene entity) {
+    protected List<String> entityToRow(DOTerm entity) {
         
         return Arrays.asList(
             entity.getPrimaryKey(),
-            entity.getName(),
-            entity.getSpecies().getType().getTaxonID(),
-            entity.getDescription(),
-            entity.getSymbol()  
+            entity.getDefinition(),
+            entity.getDoPrefix()
         );
         
     }
