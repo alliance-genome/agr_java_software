@@ -250,16 +250,6 @@ public class ConfigHelper {
         if (!init) init();
         return config.get(EXTRACTOR_OUTPUTDIR);
     }
-    
-    public static String getAWSAccessKey() {
-        if (!init) init();
-        return config.get(AWS_ACCESS_KEY);
-    }
-
-    public static String getAWSSecretKey() {
-        if (!init) init();
-        return config.get(AWS_SECRET_KEY);
-    }
 
     public static String getEsIndex() {
         if (!init) init();

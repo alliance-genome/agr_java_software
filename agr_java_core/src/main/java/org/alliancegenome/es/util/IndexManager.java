@@ -361,11 +361,11 @@ public class IndexManager {
 
     private String createRepo(String repoName) {
 
-        if(ConfigHelper.getAWSAccessKey() != null && ConfigHelper.getAWSAccessKey() != null && repoName != null) {
+        if(repoName != null) {
             try {
 
                 SiteIndexSettings settings = new SiteIndexSettings(true);
-                settings.buildRepositorySettings("agr-es-backup-" + repoName, ConfigHelper.getAWSAccessKey(), ConfigHelper.getAWSSecretKey());
+                settings.buildRepositorySettings("agr-es-backup-" + repoName, null, null);
 
                 PutRepositoryRequest request = new PutRepositoryRequest();
                 request.settings(Strings.toString(settings.getBuilder()), settings.getBuilder().contentType());

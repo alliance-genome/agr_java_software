@@ -38,12 +38,15 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import lombok.extern.log4j.Log4j2;
+
+@Log4j2
 public abstract class Indexer<D extends ESDocument> extends Thread {
 
     public static String indexName;
     private Logger log = LogManager.getLogger(getClass());
     protected IndexerConfig indexerConfig;
-    private static RestHighLevelClient client;
+    private RestHighLevelClient client;
     protected Runtime runtime = Runtime.getRuntime();
     protected DecimalFormat df = new DecimalFormat("#");
     protected ObjectMapper om = new ObjectMapper();
@@ -70,9 +73,7 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
             if(ConfigHelper.getEsHost().contains(",")) {
                 String[] hostnames = ConfigHelper.getEsHost().split(",");
                 List<HttpHost> hosts = Arrays.stream(hostnames).map(host -> new HttpHost(host, ConfigHelper.getEsPort())).collect(Collectors.toList());
-                client = new RestHighLevelClient(
-                        RestClient.builder((HttpHost[])hosts.toArray())
-                );
+                client = new RestHighLevelClient(RestClient.builder((HttpHost[])hosts.toArray()));
             } else {
                 client = new RestHighLevelClient(RestClient.builder(new HttpHost(ConfigHelper.getEsHost(),ConfigHelper.getEsPort())));
             }
