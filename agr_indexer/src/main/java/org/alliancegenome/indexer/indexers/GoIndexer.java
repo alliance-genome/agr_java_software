@@ -49,7 +49,7 @@ public class GoIndexer extends Indexer<SearchableItemDocument> {
 
         log.info("Translation Done");
 
-        saveDocuments(docs);
+        saveDocumentsWithBulkListener(docs);
         log.info("saveDocuments Done");
 
     }

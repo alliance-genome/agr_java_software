@@ -72,7 +72,7 @@ public class ConfigHelper {
         defaults.put(ES_INDEX_SUFFIX, ""); // Prod, Dev, Stage, etc
         defaults.put(ES_DATA_INDEX, "data_index");
         defaults.put(ES_HOST, "localhost");
-        defaults.put(ES_PORT, "9300");
+        defaults.put(ES_PORT, "9200");
 
         defaults.put(KEEPINDEX, "false");
         defaults.put(SPECIES, null);
@@ -249,16 +249,6 @@ public class ConfigHelper {
     public static String getDataExtractorDirectory() {
         if (!init) init();
         return config.get(EXTRACTOR_OUTPUTDIR);
-    }
-    
-    public static String getAWSAccessKey() {
-        if (!init) init();
-        return config.get(AWS_ACCESS_KEY);
-    }
-
-    public static String getAWSSecretKey() {
-        if (!init) init();
-        return config.get(AWS_SECRET_KEY);
     }
 
     public static String getEsIndex() {

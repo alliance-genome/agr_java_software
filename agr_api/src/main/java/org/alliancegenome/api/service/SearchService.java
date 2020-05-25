@@ -75,7 +75,7 @@ public class SearchService {
 
         log.debug("Search Query: " + q);
 
-        result.setTotal(searchResponse.getHits().totalHits);
+        result.setTotal(searchResponse.getHits().getTotalHits().value);
         result.setResults(searchHelper.formatResults(searchResponse, tokenizeQuery(q)));
         //still too slow to leave on
         addRelatedDataLinks(result.getResults());

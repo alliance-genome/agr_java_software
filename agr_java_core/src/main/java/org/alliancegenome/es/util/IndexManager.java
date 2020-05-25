@@ -1,35 +1,53 @@
 package org.alliancegenome.es.util;
 
-import java.net.InetAddress;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.alliancegenome.core.config.ConfigHelper;
-import org.alliancegenome.core.config.Constants;
 import org.alliancegenome.es.index.site.schema.Mapping;
 import org.alliancegenome.es.index.site.schema.settings.SiteIndexSettings;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.http.HttpHost;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequest;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
-import org.elasticsearch.action.admin.cluster.repositories.put.PutRepositoryResponse;
+import org.elasticsearch.action.admin.cluster.repositories.get.GetRepositoriesRequest;
+import org.elasticsearch.action.admin.cluster.repositories.get.GetRepositoriesResponse;
+import org.elasticsearch.action.admin.cluster.repositories.put.PutRepositoryRequest;
+import org.elasticsearch.action.admin.cluster.snapshots.create.CreateSnapshotRequest;
+import org.elasticsearch.action.admin.cluster.snapshots.delete.DeleteSnapshotRequest;
+import org.elasticsearch.action.admin.cluster.snapshots.get.GetSnapshotsRequest;
 import org.elasticsearch.action.admin.cluster.snapshots.get.GetSnapshotsResponse;
-import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
+import org.elasticsearch.action.admin.cluster.snapshots.restore.RestoreSnapshotRequest;
+import org.elasticsearch.action.admin.indices.alias.IndicesAliasesRequest;
+import org.elasticsearch.action.admin.indices.alias.get.GetAliasesRequest;
+import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
+import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
+import org.elasticsearch.action.support.master.AcknowledgedResponse;
+import org.elasticsearch.client.GetAliasesResponse;
+import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.client.RestClient;
+import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.client.indices.CreateIndexRequest;
 import org.elasticsearch.cluster.health.ClusterIndexHealth;
-import org.elasticsearch.cluster.metadata.IndexMetaData;
+import org.elasticsearch.cluster.metadata.AliasMetaData;
 import org.elasticsearch.cluster.metadata.RepositoryMetaData;
-import org.elasticsearch.common.collect.ImmutableOpenMap;
-import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.common.transport.InetSocketTransportAddress;
-import org.elasticsearch.common.xcontent.XContentType;
+import org.elasticsearch.common.Strings;
+import org.elasticsearch.repositories.fs.FsRepository;
 import org.elasticsearch.snapshots.SnapshotInfo;
-import org.elasticsearch.xpack.client.PreBuiltXPackTransportClient;
 
 public class IndexManager {
 
     private final Logger log = LogManager.getLogger(getClass());
-    private PreBuiltXPackTransportClient client;
+    private RestHighLevelClient client = null;
     private String newIndexName;
     private String baseIndexName = "site_index";
     private String tempIndexName = "site_index_temp";
@@ -39,86 +57,126 @@ public class IndexManager {
     }
     
     public void initClient() {
-        try {
-            if(client != null) {
-                client.close();
-            }
-            client = new PreBuiltXPackTransportClient(Settings.EMPTY);
-            if(ConfigHelper.getEsHost().contains(",")) {
-                String[] hosts = ConfigHelper.getEsHost().split(",");
-                for(String host: hosts) {
-                    client.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(host), ConfigHelper.getEsPort()));
-                }
-            } else {
-                client.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(ConfigHelper.getEsHost()), ConfigHelper.getEsPort()));
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.exit(-1);
+        if(ConfigHelper.getEsHost().contains(",")) {
+            String[] hostnames = ConfigHelper.getEsHost().split(",");
+            List<HttpHost> hosts = Arrays.stream(hostnames).map(host -> new HttpHost(host, ConfigHelper.getEsPort())).collect(Collectors.toList());
+            client = new RestHighLevelClient(
+                    RestClient.builder((HttpHost[])hosts.toArray())
+            );
+        } else {
+            client = new RestHighLevelClient(RestClient.builder(new HttpHost(ConfigHelper.getEsHost(),ConfigHelper.getEsPort())));
         }
     }
 
     public void createAlias(String alias, String index) {
         log.debug("Creating Alias: " + alias + " for index: " + index);
-        client.admin().indices().prepareAliases().addAlias(index, alias).get();
+
+
+        String realIndexName = getIndexNameForAlias(index);
+        if (realIndexName != null ) { index = realIndexName; }
+
+        IndicesAliasesRequest request = new IndicesAliasesRequest();
+        IndicesAliasesRequest.AliasActions aliasAction =
+                new IndicesAliasesRequest.AliasActions(IndicesAliasesRequest.AliasActions.Type.ADD)
+                        .index(index)
+                        .alias(alias);
+        request.addAliasAction(aliasAction);
+
+        try {
+            client.indices().updateAliases(request, RequestOptions.DEFAULT);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
     public void removeAlias(String alias, String index) {
         log.debug("Removing Alias: " + alias + " for index: " + index);
-        client.admin().indices().prepareAliases().removeAlias(index, alias).get();
-    }
 
-    public void createIndex(String index) {
-        createIndex(index, false);
+        IndicesAliasesRequest request = new IndicesAliasesRequest();
+        IndicesAliasesRequest.AliasActions removeAction =
+                new IndicesAliasesRequest.AliasActions(IndicesAliasesRequest.AliasActions.Type.REMOVE)
+                        .index(index)
+                        .alias(alias);
+        request.addAliasAction(removeAction);
+
+        try {
+            client.indices().updateAliases(request, RequestOptions.DEFAULT);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void createIndex(String index, boolean addMappings) {
         log.debug("Creating index: " + index);
-
+        System.out.println("creating index");
         try {
             SiteIndexSettings settings = new SiteIndexSettings(true);
             Mapping mapping = new Mapping(true);
             settings.buildSettings();
-            client.admin().indices().create(new CreateIndexRequest(index).settings(settings.getBuilder().string(), XContentType.JSON)).get();
+            CreateIndexRequest request = new CreateIndexRequest(index);
+            request.settings(settings.getBuilder());
 
             if(addMappings) {
                 mapping.buildMapping();
-                client.admin().indices().preparePutMapping(index)
-                        .setType(Constants.SEARCHABLE_ITEM)
-                        .setSource(mapping.getBuilder().string(),XContentType.JSON)
-                        .get();
+                request.mapping(mapping.getBuilder());
             }
-
-            //log.debug(t.toString());
+            client.indices().create(request, RequestOptions.DEFAULT);
         } catch (Exception e) {
-            client.admin().indices().prepareRefresh(index).get();
+            e.printStackTrace();
+            RefreshRequest refreshRequest = new RefreshRequest(index);
+            try {
+                client.indices().refresh(refreshRequest, RequestOptions.DEFAULT);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
             log.error("Indexing Failed: " + index);
             e.printStackTrace();
             System.exit(-1);
         }
     }
 
-    public void updateIndexSetting(String index, String name, Object value) {
+    public List<String> getAliasesForIndex(String index) {
+
+        List<String> aliases = new ArrayList<>();
+
+        GetAliasesResponse response = null;
         try {
-            log.debug("Updating Index Setting: " + name + " with: " + value + " for index: " + index);
-            client.admin().indices().prepareUpdateSettings(index).setSettings(Settings.builder().put(name, value)).get();
-        } catch (Exception e) {
-            log.error("Update Index Settings Failed: " + index + " Name: " + name + " Value: " + value);
+            GetAliasesRequest request = new GetAliasesRequest();
+            response = client.indices().getAlias(request, RequestOptions.DEFAULT);
+
+        } catch (IOException e) {
             e.printStackTrace();
         }
+
+        Set<AliasMetaData> aliasMetaDataSet = response.getAliases().get(index);
+
+        if (CollectionUtils.isNotEmpty(aliasMetaDataSet)) {
+            aliases.addAll(aliasMetaDataSet.stream().map(AliasMetaData::alias).collect(Collectors.toList()));
+        }
+
+        return aliases;
     }
 
-    public IndexMetaData getIndex(String index) {
-        log.debug("Getting index: " + index);
+    public String getIndexNameForAlias(String alias) {
 
-        ImmutableOpenMap<String, IndexMetaData> indexList = client.admin().cluster().prepareState().get().getState().getMetaData().getIndices();
-        Iterator<String> keys = indexList.keysIt();
+        GetAliasesResponse response = null;
+        try {
+            GetAliasesRequest request = new GetAliasesRequest();
+            response = client.indices().getAlias(request, RequestOptions.DEFAULT);
 
-        while(keys.hasNext()) {
-            String key = keys.next();
-            //System.out.println(key);
-            //System.out.println(indexList.get(key).getAliases());
-            if(index.equals(key) || indexList.get(key).getAliases().containsKey(index)) {
-                return indexList.get(key);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        if (response.getAliases() == null || response.getAliases().size() == 0) {
+            return null;
+        }
+
+        for (String index : response.getAliases().keySet()) {
+            for (AliasMetaData aliasMetaData : response.getAliases().get(index)) {
+                if (StringUtils.equals(alias, aliasMetaData.getAlias())) {
+                    return index;
+                }
             }
         }
         return null;
@@ -126,14 +184,19 @@ public class IndexManager {
 
     public void deleteIndex(String index) {
         log.info("Deleting Index: " + index);
-        client.admin().indices().prepareDelete(index).get();
+        DeleteIndexRequest request = new DeleteIndexRequest(index);
+        try {
+            client.indices().delete(request, RequestOptions.DEFAULT);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void deleteIndices(List<String> indices) {
         log.info("Deleting Indices: " + indices);
-        String[] array = new String[indices.size()];
-        indices.toArray(array);
-        client.admin().indices().prepareDelete(array).get();
+        for (String index : indices) {
+            deleteIndex(index);
+        }
     }
 
     public String startSiteIndex() {
@@ -144,10 +207,15 @@ public class IndexManager {
         }
 
         createIndex(newIndexName, true);
-        IndexMetaData imd = getIndex(tempIndexName);
-        if(imd != null && imd.getAliases().containsKey(tempIndexName)) {
-            removeAlias(tempIndexName, imd.getSettings().get("index.provided_name"));
+        for (String alias : getAliasesForIndex(tempIndexName)) {
+            removeAlias(alias, tempIndexName);
         }
+
+        String indexName = getIndexNameForAlias(tempIndexName);
+        if (StringUtils.isNotEmpty(indexName)) {
+            removeAlias(tempIndexName, indexName);
+        }
+
         createAlias(tempIndexName, newIndexName);
 
         log.debug("Main Index Starting: ");
@@ -157,16 +225,27 @@ public class IndexManager {
 
     public void finishIndex() {
         log.debug("Main Index Finished: ");
-        client.admin().indices().prepareRefresh(newIndexName).get();
+        RefreshRequest request = new RefreshRequest(newIndexName);
+        try {
+            client.indices().refresh(request, RequestOptions.DEFAULT);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         takeSnapShot();
-        IndexMetaData imd = getIndex(baseIndexName);
-        if(imd != null && imd.getAliases().containsKey(baseIndexName)) {
+
+        List<String> baseIndexAliases = getAliasesForIndex(baseIndexName);
+        if (baseIndexAliases != null && baseIndexAliases.contains(baseIndexName)) {
             removeAlias(baseIndexName, baseIndexName);
         }
+
         createAlias(baseIndexName, tempIndexName);
         removeOldIndexes();
-        client.close();
+        try {
+            client.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         log.debug(baseIndexName + " Finished: ");
     }
 
@@ -174,8 +253,11 @@ public class IndexManager {
         List<String> indexes = getIndexList();
         for(String indexName: indexes) {
             if(indexName.contains(baseIndexName)) {
-                IndexMetaData imd = getIndex(indexName);
-                if(!imd.getAliases().containsKey(baseIndexName) && !imd.getAliases().containsKey(tempIndexName)) {
+                List<String> aliases = getAliasesForIndex(indexName);
+
+                if(CollectionUtils.isNotEmpty(aliases)
+                        && !aliases.contains(baseIndexName)
+                        && !aliases.contains(tempIndexName)) {
                     log.debug("Removing Old Index: " + indexName);
                     deleteIndex(indexName);
                 }
@@ -185,7 +267,10 @@ public class IndexManager {
 
     public String getCreateRepo(String repoName) {
         try {
-            List<RepositoryMetaData> repositories = client.admin().cluster().prepareGetRepositories().get().repositories();
+
+            GetRepositoriesRequest request = new GetRepositoriesRequest();
+            GetRepositoriesResponse response = client.snapshot().getRepository(request, RequestOptions.DEFAULT);
+            List<RepositoryMetaData> repositories = response.repositories();
 
             if(repositories.size() == 0) {
                 log.debug("No Repo's found - Creating Repo");
@@ -207,7 +292,10 @@ public class IndexManager {
 
     public List<RepositoryMetaData> listRepos() {
         try {
-            List<RepositoryMetaData> repositories = client.admin().cluster().prepareGetRepositories().get().repositories();
+            GetRepositoriesRequest request = new GetRepositoriesRequest();
+            GetRepositoriesResponse response = client.snapshot().getRepository(request, RequestOptions.DEFAULT);
+            List<RepositoryMetaData> repositories = response.repositories();
+
             return repositories;
         } catch (Exception ex) {
             log.error("Exception in getRepository method: " + ex.toString());
@@ -229,7 +317,9 @@ public class IndexManager {
     public void deleteSnapShot(String repo, String snapShotName) {
         try {
             log.info("Deleting Snapshot: " + snapShotName + " in: " + repo);
-            client.admin().cluster().prepareDeleteSnapshot(repo, snapShotName).get();
+            DeleteSnapshotRequest request = new DeleteSnapshotRequest(repo);
+            request.snapshot(snapShotName);
+            client.snapshot().delete(request, RequestOptions.DEFAULT);
         } catch (Exception ex) {
             log.error("Exception in restoreSnapShot method: " + ex.toString());
         }
@@ -241,9 +331,11 @@ public class IndexManager {
             String[] array = new String[indices.size()];
             indices.toArray(array);
             checkRepo(repo);
-            client.admin().cluster()
-            .prepareRestoreSnapshot(repo, snapShotName)
-            .setIndices(array).get();
+
+            RestoreSnapshotRequest request = new RestoreSnapshotRequest(repo, snapShotName);
+            request.indices(indices);
+            client.snapshot().restore(request, RequestOptions.DEFAULT);
+
         } catch (Exception ex) {
             log.error("Exception in restoreSnapShot method: " + ex.toString());
         }
@@ -252,12 +344,15 @@ public class IndexManager {
     public void createSnapShot(String repo, String snapShotName, List<String> indices) {
         try {
             log.info("Creating Snapshot: " + snapShotName + " in: " + repo + " with: " + indices);
-            String[] array = new String[indices.size()];
-            indices.toArray(array);
-            client.admin().cluster()
-            .prepareCreateSnapshot(repo, snapShotName)
-            .setWaitForCompletion(true)
-            .setIndices(array).get();
+
+            CreateSnapshotRequest request = new CreateSnapshotRequest();
+            request.repository(repo);
+            request.snapshot(snapShotName);
+            request.indices(indices);
+            request.waitForCompletion(true);
+
+            client.snapshot().create(request, RequestOptions.DEFAULT);
+
             log.info("Snapshot " + snapShotName + " was created for indices: " + indices);
         } catch (Exception ex){
             log.error("Exception in createSnapshot method: " + ex.toString());
@@ -266,13 +361,24 @@ public class IndexManager {
 
     private String createRepo(String repoName) {
 
-        if(ConfigHelper.getAWSAccessKey() != null && ConfigHelper.getAWSAccessKey() != null && repoName != null) {
+        if(repoName != null) {
             try {
+
                 SiteIndexSettings settings = new SiteIndexSettings(true);
-                settings.buildRepositorySettings("agr-es-backup-" + repoName, ConfigHelper.getAWSAccessKey(), ConfigHelper.getAWSSecretKey());
-                log.info(repoName + " -> " + settings.getBuilder().string());
-                PutRepositoryResponse putRepositoryResponse = client.admin().cluster().preparePutRepository(repoName).setType("s3").setSettings(settings.getBuilder().string(), XContentType.JSON).get();
-                log.info("Repository was created: " + putRepositoryResponse.toString());
+                settings.buildRepositorySettings("agr-es-backup-" + repoName, null, null);
+
+                PutRepositoryRequest request = new PutRepositoryRequest();
+                request.settings(Strings.toString(settings.getBuilder()), settings.getBuilder().contentType());
+
+                log.info(repoName + " -> " + settings.getBuilder().toString());
+
+                request.name(repoName);
+                request.type(FsRepository.TYPE);
+                request.verify(true);
+
+                AcknowledgedResponse response = client.snapshot().createRepository(request, RequestOptions.DEFAULT);
+
+                log.info("Repository was created: " + response.toString());
                 return repoName;
             } catch(Exception ex) {
                 log.error("Exception in createRepository method: " + ex.toString());
@@ -283,53 +389,42 @@ public class IndexManager {
         return null;
     }
 
-    //  public void setCurrentIndex() {
-    //      try {
-    //          GetIndexResponse t = client.admin().indices().prepareGetIndex().addIndices(baseIndexName).get();
-    //          //log.debug("Index Found: " + t.getIndices()[0]);
-    //          oldIndexName = t.getIndices()[0];
-    //      } catch (Exception e) {
-    //          oldIndexName = null;
-    //      }
-    //      log.debug("Current Index: " + oldIndexName);
-    //
-    //      if(oldIndexName != null) {
-    //          ImmutableOpenMap<String, IndexMetaData> indexList = client.admin().cluster().prepareState().get().getState().getMetaData().getIndices();
-    //          Iterator<String> keys = indexList.keysIt();
-    //          while(keys.hasNext()) {
-    //              String key = keys.next();
-    //              IndexMetaData index = indexList.get(key);
-    //
-    //              if(!index.getIndex().getName().equals(oldIndexName)) {
-    //                  if(index.getIndex().getName().startsWith(baseIndexName + "_")) {
-    //                      deleteIndex(index.getIndex().getName());
-    //                  }
-    //              }
-    //          }
-    //      }
-    //  }
-
     public List<SnapshotInfo> getSnapshots(String repo) {
         checkRepo(repo);
-        GetSnapshotsResponse res  = client.admin().cluster().prepareGetSnapshots(repo).get();
-        return res.getSnapshots();
+
+        GetSnapshotsRequest request = new GetSnapshotsRequest();
+        request.repository(repo);
+
+        GetSnapshotsResponse response = null;
+
+        try {
+            response = client.snapshot().get(request, RequestOptions.DEFAULT);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        if (response == null) { return null; }
+
+        return response.getSnapshots();
     }
 
     public List<String> getIndexList() {
         List<String> ret = new ArrayList<>();
-        ClusterHealthResponse healths = client.admin().cluster().prepareHealth().get(); 
-        //String clusterName = healths.getClusterName();
-        //int numberOfDataNodes = healths.getNumberOfDataNodes();
-        //int numberOfNodes = healths.getNumberOfNodes();
 
-        for (ClusterIndexHealth health : healths.getIndices().values()) { 
-            String index = health.getIndex();
-            ret.add(index);
-            //int numberOfShards = health.getNumberOfShards();
-            //int numberOfReplicas = health.getNumberOfReplicas();
-            //ClusterHealthStatus status = health.getStatus();
+        ClusterHealthRequest request = new ClusterHealthRequest();
+
+        Map<String, ClusterIndexHealth> healths = null;
+
+        try {
+            ClusterHealthResponse response = client.cluster().health(request, RequestOptions.DEFAULT);
+            healths = response.getIndices();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        return ret;
+
+        if (healths == null) { return null; }
+
+        return new ArrayList<>(healths.keySet());
     }
     
     private void checkRepo(String repo) {

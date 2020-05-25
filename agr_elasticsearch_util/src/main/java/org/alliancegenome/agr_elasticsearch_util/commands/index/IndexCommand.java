@@ -2,9 +2,11 @@ package org.alliancegenome.agr_elasticsearch_util.commands.index;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.alliancegenome.agr_elasticsearch_util.commands.Command;
 import org.alliancegenome.agr_elasticsearch_util.commands.CommandInterface;
+import org.elasticsearch.cluster.metadata.AliasMetaData;
 import org.elasticsearch.cluster.metadata.IndexMetaData;
 
 import com.carrotsearch.hppc.cursors.ObjectCursor;
@@ -33,12 +35,13 @@ public class IndexCommand extends Command implements CommandInterface {
             } else if(command.equals("info")) {
                 if(args.size() > 0) {
                     String index = args.remove(0);
-                    IndexMetaData imd = im.getIndex(index);
-                    if(imd != null) {
-                        for(ObjectCursor<String> a: imd.getAliases().keys()) {
-                            System.out.println("Alias: " + a.value);
+//                    Set<AliasMetaData> aliases = im.getIndex(index);
+                    List<String> aliases = im.getAliasesForIndex(index);
+                    if(aliases != null) {
+                        for (String alias : aliases) {
+                            System.out.println("Alias: " + alias);
                         }
-                        System.out.println(imd.getSettings().get("index.provided_name"));
+                        System.out.println(index);
                     } else {
                         System.out.println("Index not found: " + index);
                     }
