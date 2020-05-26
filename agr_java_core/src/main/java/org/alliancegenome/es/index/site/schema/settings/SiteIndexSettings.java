@@ -69,7 +69,7 @@ public class SiteIndexSettings extends Settings {
                          .startObject("classic_text")
                             .field("type","custom")
                             .field("tokenizer","classic")
-                            .array("filter", new String[]{"apostrophe","standard","lowercase"})
+                            .array("filter", new String[]{"apostrophe","lowercase"})
                          .endObject()
                         .startObject("letter_text")
                             .field("type","custom")
