@@ -1,46 +1,25 @@
 package org.alliancegenome.api.service;
 
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toSet;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-
-import org.alliancegenome.api.entity.EntitySubgroupSlim;
-import org.alliancegenome.api.entity.ExpressionSummary;
-import org.alliancegenome.api.entity.ExpressionSummaryGroup;
-import org.alliancegenome.api.entity.ExpressionSummaryGroupTerm;
-import org.alliancegenome.api.entity.RibbonEntity;
-import org.alliancegenome.api.entity.RibbonSummary;
+import org.alliancegenome.api.entity.*;
 import org.alliancegenome.cache.repository.ExpressionCacheRepository;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.cache.repository.helper.PaginationResult;
 import org.alliancegenome.core.ExpressionDetail;
+import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.neo4j.entity.node.BioEntityGeneExpressionJoin;
-import org.alliancegenome.neo4j.entity.node.ExpressionBioEntity;
-import org.alliancegenome.neo4j.entity.node.GOTerm;
-import org.alliancegenome.neo4j.entity.node.Gene;
-import org.alliancegenome.neo4j.entity.node.MMOTerm;
-import org.alliancegenome.neo4j.entity.node.Stage;
-import org.alliancegenome.neo4j.entity.node.UBERONTerm;
+import org.alliancegenome.neo4j.entity.node.*;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
+
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.*;
 
 @RequestScoped
 public class ExpressionService {
@@ -254,6 +233,7 @@ public class ExpressionService {
             }
         });
 
+
         Gene gene = geneRepository.getShallowGene(geneID);
         RibbonEntity entity = new RibbonEntity();
         entity.setId(geneID);
@@ -262,26 +242,36 @@ public class ExpressionService {
         entity.setTaxonName(gene.getSpecies().getName());
 
         // add the AO root term
-        EntitySubgroupSlim slimRoot = getEntitySubgroupSlim(ExpressionCacheRepository.UBERON_ANATOMY_ROOT, uberonAnnotations);
+        EntitySubgroupSlim slimRoot = getEntitySubgroupSlim(ExpressionCacheRepository.UBERON_ANATOMY_ROOT, uberonAnnotations, gene.getSpecies());
         entity.addEntitySlim(slimRoot);
         aoUberonMap.keySet().forEach(uberonTermID -> {
-            EntitySubgroupSlim slim = getEntitySubgroupSlim(uberonTermID, aoUberonMap.get(uberonTermID));
+            EntitySubgroupSlim slim = getEntitySubgroupSlim(uberonTermID, aoUberonMap.get(uberonTermID), gene.getSpecies());
             entity.addEntitySlim(slim);
+        });
+        // populate the empty ribbon cell info
+        // need to set the 'available' attribute
+        // AO fixup
+        service.getRibbonSections().getDiseaseRibbonSections().get(0).getSlims().forEach(section -> {
+            if (CollectionUtils.isEmpty(aoUberonMap.get(section.getId()))) {
+                EntitySubgroupSlim slim = getEntitySubgroupSlim(section.getId(), null, gene.getSpecies());
+                entity.addEntitySlim(slim);
+            }
         });
 
         // add the Stage root term
-        EntitySubgroupSlim slimRootStage = getEntitySubgroupSlim(ExpressionCacheRepository.UBERON_STAGE_ROOT, stageAnnotations);
+        EntitySubgroupSlim slimRootStage = getEntitySubgroupSlim(ExpressionCacheRepository.UBERON_STAGE_ROOT, stageAnnotations, gene.getSpecies());
         entity.addEntitySlim(slimRootStage);
         stageTermMap.keySet().forEach(uberonTermID -> {
-            EntitySubgroupSlim slim = getEntitySubgroupSlim(uberonTermID, stageTermMap.get(uberonTermID));
-            entity.addEntitySlim(slim);
+            EntitySubgroupSlim slim = getEntitySubgroupSlim(uberonTermID, stageTermMap.get(uberonTermID), gene.getSpecies());
+            if (slim.getAvailable()!= null && !slim.getAvailable())
+                entity.addEntitySlim(slim);
         });
 
         // add the GO root term
-        EntitySubgroupSlim slimRootGO = getEntitySubgroupSlim(ExpressionCacheRepository.GO_CC_ROOT, goAnnotations);
+        EntitySubgroupSlim slimRootGO = getEntitySubgroupSlim(ExpressionCacheRepository.GO_CC_ROOT, goAnnotations, gene.getSpecies());
         entity.addEntitySlim(slimRootGO);
         goTermMap.keySet().forEach(goTermID -> {
-            EntitySubgroupSlim slim = getEntitySubgroupSlim(goTermID, goTermMap.get(goTermID));
+            EntitySubgroupSlim slim = getEntitySubgroupSlim(goTermID, goTermMap.get(goTermID), gene.getSpecies());
             entity.addEntitySlim(slim);
         });
 
@@ -290,11 +280,14 @@ public class ExpressionService {
         return entity;
     }
 
-    private EntitySubgroupSlim getEntitySubgroupSlim(String primaryKey, Collection<ExpressionDetail> aoAnnotations) {
+    private EntitySubgroupSlim getEntitySubgroupSlim(String primaryKey, Collection<ExpressionDetail> aoAnnotations, Species species) {
         EntitySubgroupSlim slim = new EntitySubgroupSlim();
         slim.setId(primaryKey);
-        slim.setNumberOfAnnotations(aoAnnotations.size());
-        slim.setNumberOfClasses(getDistinctClassSize(aoAnnotations));
+        if (aoAnnotations != null) {
+            slim.setNumberOfAnnotations(aoAnnotations.size());
+            slim.setNumberOfClasses(getDistinctClassSize(aoAnnotations));
+        }
+        slim.setAvailable(ConfigHelper.getRibbonTermSpeciesApplicability(primaryKey, species.getType().getDisplayName()));
         return slim;
     }
 

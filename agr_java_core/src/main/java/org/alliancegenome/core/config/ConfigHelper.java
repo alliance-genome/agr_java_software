@@ -1,47 +1,21 @@
 package org.alliancegenome.core.config;
 
-import static org.alliancegenome.core.config.Constants.AO_TERM_LIST;
-import static org.alliancegenome.core.config.Constants.API_HOST;
-import static org.alliancegenome.core.config.Constants.API_PORT;
-import static org.alliancegenome.core.config.Constants.API_SECURE;
-import static org.alliancegenome.core.config.Constants.AWS_ACCESS_KEY;
-import static org.alliancegenome.core.config.Constants.AWS_BUCKET_NAME;
-import static org.alliancegenome.core.config.Constants.AWS_SECRET_KEY;
-import static org.alliancegenome.core.config.Constants.CACHE_HOST;
-import static org.alliancegenome.core.config.Constants.CACHE_PORT;
-import static org.alliancegenome.core.config.Constants.DEBUG;
-import static org.alliancegenome.core.config.Constants.ES_DATA_INDEX;
-import static org.alliancegenome.core.config.Constants.ES_HOST;
-import static org.alliancegenome.core.config.Constants.ES_INDEX;
-import static org.alliancegenome.core.config.Constants.ES_INDEX_SUFFIX;
-import static org.alliancegenome.core.config.Constants.ES_PORT;
-import static org.alliancegenome.core.config.Constants.EXTRACTOR_OUTPUTDIR;
-import static org.alliancegenome.core.config.Constants.GO_TERM_LIST;
-import static org.alliancegenome.core.config.Constants.INDEX_VARIANTS;
-import static org.alliancegenome.core.config.Constants.KEEPINDEX;
-import static org.alliancegenome.core.config.Constants.NEO4J_HOST;
-import static org.alliancegenome.core.config.Constants.NEO4J_PORT;
-import static org.alliancegenome.core.config.Constants.SPECIES;
-import static org.alliancegenome.core.config.Constants.THREADED;
+import com.opencsv.CSVReader;
+import com.opencsv.exceptions.CsvException;
+import lombok.extern.log4j.Log4j2;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import static org.alliancegenome.core.config.Constants.*;
 
-
+@Log4j2
 public class ConfigHelper {
 
     private static Date appStart = new Date();
-    private static Logger log = LogManager.getLogger(ConfigHelper.class);
     private static Properties configProperties = new Properties();
 
     private static HashMap<String, String> defaults = new HashMap<>();
@@ -84,7 +58,7 @@ public class ConfigHelper {
 
         defaults.put(CACHE_HOST, "localhost");
         defaults.put(CACHE_PORT, "11222");
-        
+
         defaults.put(EXTRACTOR_OUTPUTDIR, "data");
 
         defaults.put(NEO4J_HOST, "localhost");
@@ -96,6 +70,7 @@ public class ConfigHelper {
 
         defaults.put(AO_TERM_LIST, "anatomy-term-order.csv");
         defaults.put(GO_TERM_LIST, "go-term-order.csv");
+        defaults.put(RIBBON_TERM_SPECIES_APPLICABILITY, "ribbon-term-species-applicability.csv");
 
         // This next item needs to be set in order to prevent the 
         // Caused by: java.lang.IllegalStateException: availableProcessors is already set to [16], rejecting [16]
@@ -321,6 +296,11 @@ public class ConfigHelper {
         return config.get(GO_TERM_LIST);
     }
 
+    private static String getRibbonTermSpeciesApplicabilityPath() {
+        if (!init) init();
+        return config.get(RIBBON_TERM_SPECIES_APPLICABILITY);
+    }
+
     public static void setNameValue(String key, String value) {
         config.put(key, value);
     }
@@ -402,8 +382,61 @@ public class ConfigHelper {
         return getNameValuePairsList(getGOTermListFilePath());
     }
 
+    public static Map<String, Map<String, Boolean>> getRibbonTermSpeciesApplicabilityMap() {
+        return getMapFromCSVFile(getRibbonTermSpeciesApplicabilityPath());
+    }
+
+    private static Map<String, Map<String, Boolean>> applicabilityMatrix = null;
+
+    private static Map<String, Map<String, Boolean>> getMapFromCSVFile(String ribbonTermSpeciesApplicabilityPath) {
+        // cache the applicability matrix
+        if (applicabilityMatrix != null)
+            return applicabilityMatrix;
+
+        InputStream in = null;
+        try {
+            in = ConfigHelper.class.getClassLoader().getResourceAsStream("ribbon-term-species-applicability.csv");
+            CSVReader reader = new CSVReader(new InputStreamReader(in));
+            List<String[]> values = reader.readAll();
+
+            String[] headerSpeciesNames = values.get(0);
+            Map<Integer, String> speciesColumnMapping = new HashMap<>();
+            for (int index = 1; index < headerSpeciesNames.length; index++) {
+                speciesColumnMapping.put(index, headerSpeciesNames[index]);
+            }
+
+            values.remove(0);
+            Map<String, Map<String, Boolean>> applicabilityMatrix = new HashMap<>();
+            speciesColumnMapping.forEach((index, speciesName) -> {
+                applicabilityMatrix.computeIfAbsent(speciesName, k -> new LinkedHashMap<>());
+                Map<String, Boolean> speciesMap = applicabilityMatrix.get(speciesName);
+                values.forEach(line -> speciesMap.put(line[0], Boolean.valueOf(line[index])));
+            });
+            return applicabilityMatrix;
+        } catch (IOException | CsvException e) {
+            log.error("error while reading applicability matrix in file " + "ribbon-term-species-applicability.csv", e);
+        } finally {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException e) {
+                    log.error("error closing input stream", e);
+                }
+            }
+        }
+        return null;
+    }
+
     public static boolean isProduction() {
         return getNeo4jHost().contains("production");
     }
 
+    public static Boolean getRibbonTermSpeciesApplicability(String id, String displayName) {
+        Map<String, Boolean> map = ConfigHelper.getRibbonTermSpeciesApplicabilityMap().get(displayName);
+        if (map == null) {
+            log.error("Could not find applicability matrix for species with mod name " + displayName);
+            return false;
+        }
+        return map.get(id);
+    }
 }

@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -39,7 +40,7 @@ public class ExpressionIT {
 
     @Inject
     private ExpressionCacheRepository repository;
-    
+
     @Inject
     private ExpressionService expressionService;
 
@@ -94,6 +95,15 @@ public class ExpressionIT {
     public void checkExpressionRibbonNumbers() {
         RibbonSummary summary = expressionService.getExpressionRibbonSummary(List.of("MGI:98834"));
         assertNotNull(summary);
+    }
+
+    @Test
+    public void checkExpressionRibbonAvailableAttribute() {
+        RibbonSummary summary = expressionService.getExpressionRibbonSummary(List.of("SGD:S000005442"));
+        assertNotNull(summary);
+        Map<String, EntitySubgroupSlim> map = summary.getDiseaseRibbonEntities().get(0).getSlims().values().stream().skip(1).findFirst().orElse(null);
+        assertEquals(map.values().stream().findFirst().get().getId(), "UBERON:0005409");
+        assertNotNull(map.values().stream().findFirst().get().getAvailable());
     }
 
     @Test
