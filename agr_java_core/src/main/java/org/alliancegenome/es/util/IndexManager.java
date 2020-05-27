@@ -16,6 +16,7 @@ import org.alliancegenome.es.index.site.schema.settings.SiteIndexSettings;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpHost;
+import org.apache.http.client.config.RequestConfig.Builder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequest;
@@ -36,15 +37,14 @@ import org.elasticsearch.action.support.master.AcknowledgedResponse;
 import org.elasticsearch.client.GetAliasesResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestClient;
+import org.elasticsearch.client.RestClientBuilder.RequestConfigCallback;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.client.indices.CreateIndexRequest;
 import org.elasticsearch.cluster.health.ClusterIndexHealth;
 import org.elasticsearch.cluster.metadata.AliasMetaData;
 import org.elasticsearch.cluster.metadata.RepositoryMetaData;
-import org.elasticsearch.common.Strings;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.unit.TimeValue;
-import org.elasticsearch.repositories.fs.FsRepository;
 import org.elasticsearch.snapshots.SnapshotInfo;
 
 public class IndexManager {
@@ -64,8 +64,16 @@ public class IndexManager {
             String[] hostnames = ConfigHelper.getEsHost().split(",");
             List<HttpHost> hosts = Arrays.stream(hostnames).map(host -> new HttpHost(host, ConfigHelper.getEsPort())).collect(Collectors.toList());
             client = new RestHighLevelClient(
-                    RestClient.builder((HttpHost[])hosts.toArray())
-                    );
+                RestClient.builder((HttpHost[])hosts.toArray())
+                .setRequestConfigCallback(
+                        new RequestConfigCallback() {
+                            @Override
+                            public Builder customizeRequestConfig(Builder requestConfigBuilder) {
+                                return requestConfigBuilder.setConnectTimeout(5000).setSocketTimeout(1800000);
+                            }
+                        }
+                    )
+                );
         } else {
             client = new RestHighLevelClient(RestClient.builder(new HttpHost(ConfigHelper.getEsHost(),ConfigHelper.getEsPort())));
         }
@@ -353,7 +361,7 @@ public class IndexManager {
             request.snapshot(snapShotName);
             request.indices(indices);
             request.waitForCompletion(true);
-            
+
             client.snapshot().create(request, RequestOptions.DEFAULT);
 
             log.info("Snapshot " + snapShotName + " was created for indices: " + indices);
@@ -411,7 +419,6 @@ public class IndexManager {
     }
 
     public List<String> getIndexList() {
-        List<String> ret = new ArrayList<>();
 
         ClusterHealthRequest request = new ClusterHealthRequest();
 
@@ -426,7 +433,7 @@ public class IndexManager {
 
         if (healths == null) { return null; }
 
-        return new ArrayList<>(healths.keySet());
+        return new ArrayList<String>(healths.keySet());
     }
 
     private void checkRepo(String repo) {
