@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.alliancegenome.core.config.ConfigHelper;
@@ -42,6 +43,7 @@ import org.elasticsearch.cluster.metadata.AliasMetaData;
 import org.elasticsearch.cluster.metadata.RepositoryMetaData;
 import org.elasticsearch.common.Strings;
 import org.elasticsearch.common.settings.Settings;
+import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.repositories.fs.FsRepository;
 import org.elasticsearch.snapshots.SnapshotInfo;
 
@@ -351,7 +353,7 @@ public class IndexManager {
             request.snapshot(snapShotName);
             request.indices(indices);
             request.waitForCompletion(true);
-
+            
             client.snapshot().create(request, RequestOptions.DEFAULT);
 
             log.info("Snapshot " + snapShotName + " was created for indices: " + indices);
@@ -372,6 +374,7 @@ public class IndexManager {
                 request.name(repoName);
                 request.type("s3");
                 request.verify(true);
+                request.timeout(new TimeValue(30, TimeUnit.MINUTES));
 
                 log.info(repoName + " -> " + settings.toString());
 
