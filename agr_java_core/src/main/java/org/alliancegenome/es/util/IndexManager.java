@@ -60,27 +60,33 @@ public class IndexManager {
     }
 
     public void initClient() {
+        
+        List<HttpHost> hosts;
+    
         if(ConfigHelper.getEsHost().contains(",")) {
             String[] hostnames = ConfigHelper.getEsHost().split(",");
-            List<HttpHost> hosts = Arrays.stream(hostnames).map(host -> new HttpHost(host, ConfigHelper.getEsPort())).collect(Collectors.toList());
-            client = new RestHighLevelClient(
-                RestClient.builder((HttpHost[])hosts.toArray())
-                .setRequestConfigCallback(
-                        new RequestConfigCallback() {
-                            @Override
-                            public Builder customizeRequestConfig(Builder requestConfigBuilder) {
-                                return requestConfigBuilder
-                                        .setConnectTimeout(5000)
-                                        .setSocketTimeout(1800000)
-                                        .setConnectionRequestTimeout(1800000)
-                                        ;
-                            }
-                        }
-                    )
-                );
+            hosts = Arrays.stream(hostnames).map(host -> new HttpHost(host, ConfigHelper.getEsPort())).collect(Collectors.toList());
         } else {
-            client = new RestHighLevelClient(RestClient.builder(new HttpHost(ConfigHelper.getEsHost(),ConfigHelper.getEsPort())));
+            hosts = new ArrayList<HttpHost>();
+            hosts.add(new HttpHost(ConfigHelper.getEsHost(),ConfigHelper.getEsPort()));
         }
+        
+        client = new RestHighLevelClient(
+            RestClient.builder((HttpHost[])hosts.toArray())
+            .setRequestConfigCallback(
+                new RequestConfigCallback() {
+                    @Override
+                    public Builder customizeRequestConfig(Builder requestConfigBuilder) {
+                        return requestConfigBuilder
+                                .setConnectTimeout(5000)
+                                .setSocketTimeout(1800000)
+                                .setConnectionRequestTimeout(1800000)
+                                ;
+                    }
+                }
+            )
+        );
+
     }
 
     public void createAlias(String alias, String index) {
