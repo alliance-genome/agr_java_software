@@ -292,7 +292,7 @@ public class ExpressionService {
     }
 
     private int getDistinctClassSize(Collection<ExpressionDetail> aoAnnotations) {
-        return aoAnnotations.stream().collect(groupingBy(join -> join.getTermName())).size();
+        return aoAnnotations.stream().collect(groupingBy(ExpressionDetail::getTermName)).size();
     }
 
     private ExpressionSummaryGroup populateGroupInfo(String groupName,
