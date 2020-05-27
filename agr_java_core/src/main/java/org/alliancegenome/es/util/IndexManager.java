@@ -61,18 +61,20 @@ public class IndexManager {
 
     public void initClient() {
         
-        List<HttpHost> hosts;
+        String[] hostnames;
+        HttpHost[] hosts;
     
         if(ConfigHelper.getEsHost().contains(",")) {
-            String[] hostnames = ConfigHelper.getEsHost().split(",");
-            hosts = Arrays.stream(hostnames).map(host -> new HttpHost(host, ConfigHelper.getEsPort())).collect(Collectors.toList());
+            hostnames = ConfigHelper.getEsHost().split(",");
+            hosts = (HttpHost[]) (Arrays.stream(hostnames).map(host -> new HttpHost(host, ConfigHelper.getEsPort())).collect(Collectors.toList())).toArray();
         } else {
-            hosts = new ArrayList<HttpHost>();
-            hosts.add(new HttpHost(ConfigHelper.getEsHost(),ConfigHelper.getEsPort()));
+            hosts = new HttpHost[1];
+            hosts[0] = new HttpHost(ConfigHelper.getEsHost(),ConfigHelper.getEsPort());
         }
+        log.info("Connection to hosts: " + ConfigHelper.getEsHost());
         
         client = new RestHighLevelClient(
-            RestClient.builder((HttpHost[])hosts.toArray())
+            RestClient.builder(hosts)
             .setRequestConfigCallback(
                 new RequestConfigCallback() {
                     @Override
@@ -86,7 +88,7 @@ public class IndexManager {
                 }
             )
         );
-
+        log.info("Finished Connecting to ES");
     }
 
     public void createAlias(String alias, String index) {
