@@ -437,4 +437,8 @@ public class IndexManager {
     }
 
     public String getBaseIndexName() { return baseIndexName; }
+
+    public void closeClient() throws Exception {
+        client.close();
+    }
 }

@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 
+import org.alliancegenome.agr_elasticsearch_util.commands.Command;
 import org.alliancegenome.agr_elasticsearch_util.commands.CommandInterface;
 import org.alliancegenome.agr_elasticsearch_util.commands.CommandType;
 
@@ -14,6 +15,7 @@ public class CommandProcessor {
         if(args.length > 0) {
             List<String> argList = new ArrayList<String>(Arrays.asList(args));
             processArgs(argList);
+            Command.close();
         } else {
             Scanner scanner = new Scanner(System.in);
             System.out.print("> ");
