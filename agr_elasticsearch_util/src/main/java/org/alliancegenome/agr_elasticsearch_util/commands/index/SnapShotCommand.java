@@ -80,7 +80,7 @@ public class SnapShotCommand extends Command implements CommandInterface {
                         }
                         System.out.println("Restore: " + snapshot_name + " is complete");
                         System.out.println("Switching Aliases: ");
-                        im.removeAlias("site_index", "site_index");
+                        im.removeAlias("site_index");
                         im.createAlias("site_index", snapshot_name);
                         System.out.println("Index restore complete");
                     }

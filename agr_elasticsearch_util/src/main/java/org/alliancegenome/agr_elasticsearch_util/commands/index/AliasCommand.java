@@ -14,7 +14,6 @@ public class AliasCommand extends Command implements CommandInterface {
     @Override
     public void printHelp() {
         
-
     }
 
     @Override
@@ -27,15 +26,12 @@ public class AliasCommand extends Command implements CommandInterface {
                 im.createAlias(alias, index);
             } else if(command.equals("remove")) {
                 String alias = args.remove(0);
-                String index = args.remove(0);
-                im.removeAlias(alias, index);
+                im.removeAlias(alias);
             } else {
                 printHelp();
             }
         } else {
             printHelp();
         }
-
     }
-
 }

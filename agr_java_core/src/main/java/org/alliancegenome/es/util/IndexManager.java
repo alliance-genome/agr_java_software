@@ -112,13 +112,16 @@ public class IndexManager {
         }
 
     }
-    public void removeAlias(String alias, String index) {
-        log.debug("Removing Alias: " + alias + " for index: " + index);
+    public void removeAlias(String alias) {
+        
+        String index_name = getIndexNameForAlias(alias);
+
+        log.debug("Removing Alias: " + alias + " for index: " + index_name);
 
         IndicesAliasesRequest request = new IndicesAliasesRequest();
         IndicesAliasesRequest.AliasActions removeAction =
                 new IndicesAliasesRequest.AliasActions(IndicesAliasesRequest.AliasActions.Type.REMOVE)
-                .index(index)
+                .index(index_name)
                 .alias(alias);
         request.addAliasAction(removeAction);
 
@@ -230,15 +233,6 @@ public class IndexManager {
         }
 
         createIndex(newIndexName, true);
-        for (String alias : getAliasesForIndex(tempIndexName)) {
-            removeAlias(alias, tempIndexName);
-        }
-
-        String indexName = getIndexNameForAlias(tempIndexName);
-        if (StringUtils.isNotEmpty(indexName)) {
-            removeAlias(tempIndexName, indexName);
-        }
-
         createAlias(tempIndexName, newIndexName);
 
         log.debug("Main Index Starting: ");
@@ -257,35 +251,12 @@ public class IndexManager {
 
         takeSnapShot();
 
-        List<String> baseIndexAliases = getAliasesForIndex(baseIndexName);
-        if (baseIndexAliases != null && baseIndexAliases.contains(baseIndexName)) {
-            removeAlias(baseIndexName, baseIndexName);
-        }
-
-        createAlias(baseIndexName, tempIndexName);
-        removeOldIndexes();
         try {
             client.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
         log.debug(baseIndexName + " Finished: ");
-    }
-
-    private void removeOldIndexes() {
-        List<String> indexes = getIndexList();
-        for(String indexName: indexes) {
-            if(indexName.contains(baseIndexName)) {
-                List<String> aliases = getAliasesForIndex(indexName);
-
-                if(CollectionUtils.isNotEmpty(aliases)
-                        && !aliases.contains(baseIndexName)
-                        && !aliases.contains(tempIndexName)) {
-                    log.debug("Removing Old Index: " + indexName);
-                    deleteIndex(indexName);
-                }
-            }
-        }
     }
 
     public String getCreateRepo(String repoName) {

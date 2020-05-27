@@ -54,7 +54,7 @@ public class IndexCommand extends Command implements CommandInterface {
                     String old_index = args.remove(0);
                     String new_index = args.remove(0);
                     im.createAlias(alias, new_index);
-                    im.removeAlias(alias, old_index);
+                    im.removeAlias(alias);
                 } else {
                     printHelp();
                 }
