@@ -41,6 +41,7 @@ import org.elasticsearch.cluster.health.ClusterIndexHealth;
 import org.elasticsearch.cluster.metadata.AliasMetaData;
 import org.elasticsearch.cluster.metadata.RepositoryMetaData;
 import org.elasticsearch.common.Strings;
+import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.repositories.fs.FsRepository;
 import org.elasticsearch.snapshots.SnapshotInfo;
 
@@ -55,14 +56,14 @@ public class IndexManager {
     public IndexManager() {
         initClient();
     }
-    
+
     public void initClient() {
         if(ConfigHelper.getEsHost().contains(",")) {
             String[] hostnames = ConfigHelper.getEsHost().split(",");
             List<HttpHost> hosts = Arrays.stream(hostnames).map(host -> new HttpHost(host, ConfigHelper.getEsPort())).collect(Collectors.toList());
             client = new RestHighLevelClient(
                     RestClient.builder((HttpHost[])hosts.toArray())
-            );
+                    );
         } else {
             client = new RestHighLevelClient(RestClient.builder(new HttpHost(ConfigHelper.getEsHost(),ConfigHelper.getEsPort())));
         }
@@ -78,8 +79,8 @@ public class IndexManager {
         IndicesAliasesRequest request = new IndicesAliasesRequest();
         IndicesAliasesRequest.AliasActions aliasAction =
                 new IndicesAliasesRequest.AliasActions(IndicesAliasesRequest.AliasActions.Type.ADD)
-                        .index(index)
-                        .alias(alias);
+                .index(index)
+                .alias(alias);
         request.addAliasAction(aliasAction);
 
         try {
@@ -95,8 +96,8 @@ public class IndexManager {
         IndicesAliasesRequest request = new IndicesAliasesRequest();
         IndicesAliasesRequest.AliasActions removeAction =
                 new IndicesAliasesRequest.AliasActions(IndicesAliasesRequest.AliasActions.Type.REMOVE)
-                        .index(index)
-                        .alias(alias);
+                .index(index)
+                .alias(alias);
         request.addAliasAction(removeAction);
 
         try {
@@ -313,7 +314,7 @@ public class IndexManager {
             createSnapShot(ConfigHelper.getEsIndexSuffix(), newIndexName, indices);
         }
     }
-    
+
     public void deleteSnapShot(String repo, String snapShotName) {
         try {
             log.info("Deleting Snapshot: " + snapShotName + " in: " + repo);
@@ -364,17 +365,15 @@ public class IndexManager {
         if(repoName != null) {
             try {
 
-                SiteIndexSettings settings = new SiteIndexSettings(true);
-                settings.buildRepositorySettings("agr-es-backup-" + repoName, null, null);
+                Settings settings = Settings.builder().put("bucket", "agr-es-backup-" + repoName).build();
 
                 PutRepositoryRequest request = new PutRepositoryRequest();
-                request.settings(Strings.toString(settings.getBuilder()), settings.getBuilder().contentType());
-
-                log.info(repoName + " -> " + settings.getBuilder().toString());
-
+                request.settings(settings);
                 request.name(repoName);
-                request.type(FsRepository.TYPE);
+                request.type("s3");
                 request.verify(true);
+
+                log.info(repoName + " -> " + settings.toString());
 
                 AcknowledgedResponse response = client.snapshot().createRepository(request, RequestOptions.DEFAULT);
 
@@ -426,7 +425,7 @@ public class IndexManager {
 
         return new ArrayList<>(healths.keySet());
     }
-    
+
     private void checkRepo(String repo) {
         boolean found = false;
         List<RepositoryMetaData> meta = listRepos();
@@ -437,7 +436,7 @@ public class IndexManager {
                 break;
             }
         }
-        
+
         if(!found) {
             System.out.println("Repo Not Found: " + repo);
             getCreateRepo(repo);
