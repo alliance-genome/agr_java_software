@@ -69,7 +69,11 @@ public class IndexManager {
                         new RequestConfigCallback() {
                             @Override
                             public Builder customizeRequestConfig(Builder requestConfigBuilder) {
-                                return requestConfigBuilder.setConnectTimeout(5000).setSocketTimeout(1800000);
+                                return requestConfigBuilder
+                                        .setConnectTimeout(5000)
+                                        .setSocketTimeout(1800000)
+                                        .setConnectionRequestTimeout(1800000)
+                                        ;
                             }
                         }
                     )
