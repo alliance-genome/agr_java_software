@@ -68,7 +68,7 @@ public class ExpressionRibbonService {
 
     }
 
-    private RibbonSummary getRibbonSections() {
+    public RibbonSummary getRibbonSections() {
         if (ribbonSummary != null) {
             return ribbonSummary;
         }
