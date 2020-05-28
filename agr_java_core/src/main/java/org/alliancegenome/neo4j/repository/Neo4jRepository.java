@@ -1,12 +1,7 @@
 package org.alliancegenome.neo4j.repository;
 
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
@@ -147,10 +142,19 @@ public class Neo4jRepository<E> {
         while (i.hasNext()) {
             Map<String, Object> resultMap = i.next();
             String key = (String) resultMap.get(keyField);
-            String value = (String) resultMap.get(returnField);
 
-            returnMap.computeIfAbsent(key, x -> new HashSet<>());
-            returnMap.get(key).add(value);
+            if (resultMap.get(returnField) instanceof String) {
+                String value = (String) resultMap.get(returnField);
+
+                returnMap.computeIfAbsent(key, x -> new HashSet<>());
+                returnMap.get(key).add(value);
+            } else if (resultMap.get(returnField) instanceof String[]) {
+                String[] values = (String[]) resultMap.get(returnField);
+                returnMap.computeIfAbsent(key, x -> new HashSet<>());
+                returnMap.get(key).addAll(Arrays.stream(values).filter(x -> StringUtils.isNotEmpty(x)).collect(Collectors.toSet()));
+            }
+
+
         }
 
         log.info(returnMap.size() + " map entries");

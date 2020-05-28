@@ -94,6 +94,26 @@ class QueryMatchIntegrationSpec extends Specification {
         "AGR-1899" | "RGD:13209000"              | "NC_005118.4:g.55252024_55252027del"
         "AGR-1899" | "FB:FBal0000019"            | "NT_033777.3:g.7087759G>A"
 
+        //VEP hgvs names for alleles
+        "AGR-2072" | "ZFIN:ZDB-ALT-190213-2"       | "NC_007121.7:g.14484476_14484482del"
+        "AGR-2072" | "ZFIN:ZDB-ALT-190213-2"       | "10:g.14484476_14484482del"
+        "AGR-2072" | "ZFIN:ZDB-ALT-190213-2"       | "ENSDART00000101298.1:c.106_112del"
+        "AGR-2072" | "ZFIN:ZDB-ALT-190213-2"       | ".1:p.Arg36GlyfsTer27"
+        "AGR-2072" | "ZFIN:ZDB-ALT-130411-3895"    | "NC_007112.7:g.117069A>T"
+        "AGR-2072" | "ZFIN:ZDB-ALT-130411-3895"    | "1:g.117069A>T"
+        "AGR-2072" | "ZFIN:ZDB-ALT-130411-3895"    | "ENSDART00000165402.1:c.749-2A>T"
+        "AGR-2072" | "FB:FBal0350326"       | "NT_037436.4:g.16857226C>T"
+        "AGR-2072" | "FB:FBal0350326"       | "3L:g.16857226C>T"
+        "AGR-2072" | "FB:FBal0350326"       | "FBtr0075332.1:c.809C>T"
+        "AGR-2072" | "FB:FBal0350326"       | ".1:p.Ala270Val"
+        "AGR-2072" | "FB:FBal0182263"       | "NT_037436.4:g.131764_131765ins"
+        "AGR-2072" | "FB:FBal0182263"       | "3L:g.27447_271602del"
+        "AGR-2072" | "FB:FBal0182263"       | "FBtr0333172.1:c.-151+15043A>T"
+        "AGR-2072" | "MGI:1856689"          | "NC_000074.6:g.11226343C>A"
+        "AGR-2072" | "MGI:1856689"          | "8:g.11226343C>A"
+        "AGR-2072" | "MGI:1856689"          | "XM_017312555.2:c.1879G>T"
+        "AGR-2072" | "MGI:1856689"          | "XP_017168044.1:p.Gly627Trp"
+
 
         //diseasesViaExperiment found by allele and gene names
         "AGR-866"  | "DOID:11726"              | "tm1502"

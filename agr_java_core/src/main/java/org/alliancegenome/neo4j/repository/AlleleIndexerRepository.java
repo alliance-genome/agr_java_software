@@ -166,9 +166,9 @@ public class AlleleIndexerRepository extends Neo4jRepository {
     }
 
     public Map<String, Set<String>> getRelatedVariants(String species) {
-        String query = "MATCH (species:Species)--(a:Allele)--(v:Variant) ";
+        String query = " MATCH (species:Species)--(a:Allele)--(v:Variant)--(tlc:TranscriptLevelConsequence) ";
         query += getSpeciesWhere(species);
-        query += " RETURN distinct a.primaryKey as id, v.hgvsNomenclature as value";
+        query += "RETURN distinct a.primaryKey as id, [v.hgvsNomenclature, tlc.hgvsVEPGeneNomenclature, tlc.hgvsProteinNomenclature, tlc.hgvsCodingNomenclature] as value  ";
 
         return getMapSetForQuery(query, getSpeciesParams(species));
     }
