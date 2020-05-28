@@ -1,29 +1,6 @@
 package org.alliancegenome.core.config;
 
-import static org.alliancegenome.core.config.Constants.AO_TERM_LIST;
-import static org.alliancegenome.core.config.Constants.API_HOST;
-import static org.alliancegenome.core.config.Constants.API_PORT;
-import static org.alliancegenome.core.config.Constants.API_SECURE;
-import static org.alliancegenome.core.config.Constants.AWS_ACCESS_KEY;
-import static org.alliancegenome.core.config.Constants.AWS_BUCKET_NAME;
-import static org.alliancegenome.core.config.Constants.AWS_SECRET_KEY;
-import static org.alliancegenome.core.config.Constants.CACHE_HOST;
-import static org.alliancegenome.core.config.Constants.CACHE_PORT;
-import static org.alliancegenome.core.config.Constants.DEBUG;
-import static org.alliancegenome.core.config.Constants.ES_DATA_INDEX;
-import static org.alliancegenome.core.config.Constants.ES_HOST;
-import static org.alliancegenome.core.config.Constants.ES_INDEX;
-import static org.alliancegenome.core.config.Constants.ES_INDEX_SUFFIX;
-import static org.alliancegenome.core.config.Constants.ES_PORT;
-import static org.alliancegenome.core.config.Constants.EXTRACTOR_OUTPUTDIR;
-import static org.alliancegenome.core.config.Constants.GO_TERM_LIST;
-import static org.alliancegenome.core.config.Constants.INDEX_VARIANTS;
-import static org.alliancegenome.core.config.Constants.KEEPINDEX;
-import static org.alliancegenome.core.config.Constants.NEO4J_HOST;
-import static org.alliancegenome.core.config.Constants.NEO4J_PORT;
-import static org.alliancegenome.core.config.Constants.RIBBON_TERM_SPECIES_APPLICABILITY;
-import static org.alliancegenome.core.config.Constants.SPECIES;
-import static org.alliancegenome.core.config.Constants.THREADED;
+import static org.alliancegenome.core.config.Constants.*;
 
 import java.util.Date;
 import java.util.HashMap;
