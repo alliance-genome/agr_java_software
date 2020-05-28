@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Optional;
 
 import org.alliancegenome.neo4j.view.View;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.neo4j.ogm.annotation.NodeEntity;
 
 import com.fasterxml.jackson.annotation.JsonView;
@@ -14,6 +15,7 @@ import lombok.Setter;
 @NodeEntity
 @Getter
 @Setter
+@Schema(name="MITerm", description="POJO that represents the MITerm join")
 public class MITerm extends Ontology {
     @JsonView({View.Interaction.class})
     private String primaryKey;

@@ -2,6 +2,7 @@ package org.alliancegenome.neo4j.entity.node;
 
 import org.alliancegenome.neo4j.entity.Neo4jEntity;
 import org.alliancegenome.neo4j.view.View;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.neo4j.ogm.annotation.NodeEntity;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -13,6 +14,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NodeEntity
+@Schema(name="CrossReference", description="POJO that represents CrossReferences")
 public class CrossReference extends Neo4jEntity {
 
     @JsonView({View.API.class, View.Interaction.class, View.Expression.class})

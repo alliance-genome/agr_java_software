@@ -22,11 +22,8 @@ import org.apache.commons.collections4.map.MultiKeyMap;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 
-import io.swagger.annotations.Api;
 import lombok.extern.log4j.Log4j2;
 
-
-@Api(value = "Orthology Tests")
 @Log4j2
 public class OrthologyIT {
 

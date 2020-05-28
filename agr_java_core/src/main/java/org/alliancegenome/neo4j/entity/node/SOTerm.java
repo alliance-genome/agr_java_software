@@ -1,6 +1,7 @@
 package org.alliancegenome.neo4j.entity.node;
 
 import org.alliancegenome.neo4j.view.View;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.neo4j.ogm.annotation.NodeEntity;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -12,6 +13,7 @@ import lombok.Setter;
 @NodeEntity
 @Getter
 @Setter
+@Schema(name="SOTerm", description="POJO that represents the SO Term")
 public class SOTerm extends Ontology {
 
     public static final String INSERTION = "SO:0000667";

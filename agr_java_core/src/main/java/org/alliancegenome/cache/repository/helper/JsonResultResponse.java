@@ -17,9 +17,11 @@ import com.fasterxml.jackson.annotation.JsonView;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 @Setter
 @Getter
+@Schema(name="JsonResultResponse", description="POJO that represents the JsonResultResponse")
 public class JsonResultResponse<T> {
 
     public static final String DISTINCT_FIELD_VALUES = "distinctFieldValues";

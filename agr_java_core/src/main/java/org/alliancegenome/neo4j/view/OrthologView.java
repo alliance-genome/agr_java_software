@@ -11,9 +11,11 @@ import com.fasterxml.jackson.annotation.JsonView;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 @Setter
 @Getter
+@Schema(name="OrthologView", description="POJO that represents the Ortholog view")
 public class OrthologView implements Serializable {
 
     @JsonView(View.Orthology.class)

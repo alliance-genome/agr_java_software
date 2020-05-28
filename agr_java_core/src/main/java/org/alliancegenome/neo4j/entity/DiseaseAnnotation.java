@@ -29,10 +29,12 @@ import com.fasterxml.jackson.annotation.JsonView;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 @Getter
 @Setter
 @JsonPropertyOrder({"disease", "gene", "allele", "geneticEntityType", "associationType", "ecoCode", "source", "publications"})
+@Schema(name="DiseaseAnnotation", description="POJO that represents a Disease Annotation")
 public class DiseaseAnnotation implements Comparable<DiseaseAnnotation>, Serializable, PresentationEntity {
 
     @JsonView({View.DiseaseAnnotation.class})

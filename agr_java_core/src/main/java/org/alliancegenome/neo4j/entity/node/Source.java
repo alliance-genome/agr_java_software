@@ -11,10 +11,12 @@ import com.fasterxml.jackson.annotation.JsonView;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 @Setter
 @Getter
 @JsonInclude()
+@Schema(name="Source", description="POJO that represents the Source")
 public class Source implements Serializable {
 
     @JsonView(value = {View.Default.class, View.API.class})

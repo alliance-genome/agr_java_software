@@ -2,6 +2,7 @@ package org.alliancegenome.neo4j.entity.node;
 
 import org.alliancegenome.neo4j.entity.Neo4jEntity;
 import org.alliancegenome.neo4j.view.View;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.neo4j.ogm.annotation.NodeEntity;
 
 import com.fasterxml.jackson.annotation.JsonView;
@@ -12,6 +13,7 @@ import lombok.Setter;
 @NodeEntity(label = "TranscriptLevelConsequence")
 @Getter
 @Setter
+@Schema(name="TranscriptLevelConsequence", description="POJO that represents Transcript Level Consequences")
 public class TranscriptLevelConsequence extends Neo4jEntity implements Comparable<TranscriptLevelConsequence> {
 
     @JsonView({View.API.class})

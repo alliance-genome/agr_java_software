@@ -13,12 +13,11 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.alliancegenome.es.model.search.SearchApiResponse;
-
-import io.swagger.annotations.ApiOperation;
-
+import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 @Path("/termName")
-//@Api(value = "Phenotype Search" , hidden = true)
+@Tag(name = "Phenotype Search") // hidden = true
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public interface PhenotypeRESTInterface {
@@ -43,13 +42,13 @@ public interface PhenotypeRESTInterface {
 
     @GET
     @Path("/{id}/associations/download")
-    @ApiOperation(value = "Phenotype search download" , hidden = true)
+    @Operation(summary = "Phenotype search download" , hidden = true)
     @Produces(MediaType.TEXT_PLAIN)
     public Response getDiseaseAnnotationsDownloadFile(@PathParam("id") String id);
 
     @GET
     @Path("/{id}/associations/downloads")
-    @ApiOperation(value = "Phenotype search download" , hidden = true)
+    @Operation(summary = "Phenotype search download" , hidden = true)
     @Produces(MediaType.TEXT_PLAIN)
     public String getDiseaseAnnotationsDownload(@PathParam("id") String id);
 

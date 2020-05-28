@@ -53,4 +53,11 @@ public class CacheStatusService {
             return "No Cache with name " + cacheName + " found";
         return cacheService.getCacheEntry(id, cache, cache.getClazz());
     }
+    
+    public String getCacheEntryString(String id, String cacheName) {
+        CacheAlliance cache = CacheAlliance.getTypeByName(cacheName);
+        if (cache == null)
+            return "No Cache with name " + cacheName + " found";
+        return cacheService.getCacheEntryString(id, cache, cache.getClazz());
+    }
 }

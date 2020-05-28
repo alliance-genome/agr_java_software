@@ -26,20 +26,26 @@ import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
+import org.alliancegenome.neo4j.entity.node.Transcript;
 import org.alliancegenome.neo4j.view.OrthologView;
 import org.alliancegenome.neo4j.view.View;
 import org.alliancegenome.neo4j.view.View.GeneAPI;
 import org.alliancegenome.neo4j.view.View.GeneAllelesAPI;
+import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.enums.ParameterIn;
+import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
+import org.eclipse.microprofile.openapi.annotations.media.Content;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
+import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
+import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-
 @Path("/gene")
-@Api(value = "Genes")
+@Tag(name = "Genes")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public interface GeneRESTInterface {
@@ -47,331 +53,420 @@ public interface GeneRESTInterface {
     @GET
     @Path("/{id}")
     @JsonView(value = {GeneAPI.class})
-    @ApiOperation(value = "Retrieve a Gene for given ID")
+    @Operation(description = "Retrieve a Gene for given ID")
+    @APIResponses(
+            value = {
+                    @APIResponse(
+                            responseCode = "404",
+                            description = "Missing genes",
+                            content = @Content(mediaType = "text/plain")),
+                    @APIResponse(
+                            responseCode = "200",
+                            description = "Genes for a give ID.",
+                            content = @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = Gene.class))) })
     Gene getGene(
-            @ApiParam(name = "id", value = "Gene by ID")
+            @Parameter(in=ParameterIn.PATH, name = "id", description = "Retrieve a Gene for given ID", required=true, schema = @Schema(type = SchemaType.STRING))
             @PathParam("id") String id
     );
 
     @GET
     @Path("/{id}/alleles")
-    @ApiOperation(value = "Retrieve all alleles of a given gene")
+    @Operation(summary = "Retrieve all alleles of a given gene")
     @JsonView(value = {GeneAllelesAPI.class})
+    @APIResponses(
+            value = {
+                    @APIResponse(
+                            responseCode = "404",
+                            description = "Missing alleles",
+                            content = @Content(mediaType = "text/plain")),
+                    @APIResponse(
+                            responseCode = "200",
+                            description = "Alleles for a gene.",
+                            content = @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = Allele.class))) })
     JsonResultResponse<Allele> getAllelesPerGene(
-            @ApiParam(name = "id", value = "Search for Alleles for a given Gene by ID")
+            //@ApiParam(name = "id", description = "Search for Alleles for a given Gene by ID")
+            @Parameter(in=ParameterIn.PATH, name = "id", description = "Search for Alleles for a given Gene by ID", required=true, schema = @Schema(type = SchemaType.STRING))
             @PathParam("id") String id,
-            @ApiParam(name = "limit", value = "Number of rows returned", defaultValue = "20")
+            @Parameter(in=ParameterIn.QUERY, name = "limit", description = "Number of rows returned", schema = @Schema(type = SchemaType.INTEGER))
             @DefaultValue("20") @QueryParam("limit") int limit,
-            @ApiParam(name = "page", value = "Page number")
+            @Parameter(in=ParameterIn.QUERY, name = "page", description = "Page number", schema = @Schema(type = SchemaType.INTEGER))
             @DefaultValue("1") @QueryParam("page") int page,
-            @ApiParam(value = "Field name by which to sort", allowableValues = "symbol,name")
-            @QueryParam("sortBy") String sortBy,
-            @ApiParam(value = "ascending order: true or false", allowableValues = "true,false", defaultValue = "true")
+            @Parameter(in=ParameterIn.QUERY, name = "sortBy", description = "Field name by which to sort", schema = @Schema(type = SchemaType.STRING))
+            @DefaultValue("symbol") @QueryParam("sortBy") String sortBy,
+            @Parameter(in=ParameterIn.QUERY, name = "asc", description = "order to sort by", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("asc") String asc,
-            @ApiParam(name = "filter.symbol", value = "symbol of allele")
+            @Parameter(in=ParameterIn.QUERY, name = "filter.symbol", description = "allele symbol", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.symbol") String symbol,
-            @ApiParam(name = "filter.synonym", value = "Allele synonyms")
+            @Parameter(in=ParameterIn.QUERY, name = "filter.synonym", description = "allele synonym", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.synonym") String synonym,
-            @ApiParam(name = "filter.variantType", value = "Variant types")
+            @Parameter(in=ParameterIn.QUERY, name = "filter.variantType", description = "Variant types", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.variantType") String variantType,
-            @ApiParam(name = "filter.variantConsequence", value = "Consequence")
+            @Parameter(in=ParameterIn.QUERY, name = "filter.variantConsequence", description = "Consequence", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.variantConsequence") String consequence,
-            @ApiParam(name = "filter.phenotype", value = "Phenotypes")
+            @Parameter(in=ParameterIn.QUERY, name = "filter.phenotype", description = "Phenotypes", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.phenotype") String phenotype,
-            @ApiParam(value = "source")
+            @Parameter(in=ParameterIn.QUERY, name = "filter.source", description = "Source", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.source") String source,
-            @ApiParam(value = "Disease for a given allele")
+            @Parameter(in=ParameterIn.QUERY, name = "filter.disease", description = "Disease for a given allele", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.disease") String disease
     );
 
     //    @GET
     @Path("/{id}/alleles/download")
-    @ApiOperation(value = "Retrieve all alleles for a given gene", hidden = true)
+    @Operation(summary = "Retrieve all alleles for a given gene", hidden = true)
     @Produces(MediaType.TEXT_PLAIN)
     Response getAllelesPerGeneDownload(
-            @ApiParam(name = "id", value = "Search for Alleles for a given Gene by ID")
+            @Parameter(in=ParameterIn.PATH, name = "id", description = "Search for Alleles for a given Gene by ID", required=true, schema = @Schema(type = SchemaType.STRING))
             @PathParam("id") String id,
-            @ApiParam(value = "Field name by which to sort", allowableValues = "symbol,name")
+            @Parameter(in=ParameterIn.QUERY, name = "sortBy", description = "Field name by which to sort", schema = @Schema(type = SchemaType.STRING))
             @DefaultValue("symbol") @QueryParam("sortBy") String sortBy,
-            @ApiParam(value = "ascending order: true or false", allowableValues = "true,false", defaultValue = "true")
-            @QueryParam("asc") String asc,
-            @ApiParam(name = "filter.symbol", value = "symbol of allele")
+            @Parameter(in = ParameterIn.QUERY, name = "asc", description = "order to sort by", schema = @Schema(type = SchemaType.STRING))
+            @DefaultValue("true") @QueryParam("asc") String asc,
+            @Parameter(in=ParameterIn.QUERY, name = "filter.symbol", description = "allele symbol", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.symbol") String symbol,
-            @ApiParam(name = "filter.synonym", value = "Allele synonyms")
+            @Parameter(in=ParameterIn.QUERY, name = "filter.synonym", description = "allele synonym", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.synonym") String synonym,
-            @ApiParam(name = "filter.variantType", value = "Variant types")
+            @Parameter(in=ParameterIn.QUERY, name = "filter.variantType", description = "Variant types", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.variantType") String variantType,
-            @ApiParam(name = "filter.variantConsequence", value = "Consequence")
+            @Parameter(in=ParameterIn.QUERY, name = "filter.variantConsequence", description = "Consequence", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.variantConsequence") String consequence,
-            @ApiParam(name = "filter.phenotype", value = "Phenotypes")
+            @Parameter(in=ParameterIn.QUERY, name = "filter.phenotype", description = "Phenotypes", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.phenotype") String phenotype,
-            @ApiParam(value = "source")
+            @Parameter(in=ParameterIn.QUERY, name = "filter.source", description = "Source", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.source") String source,
-            @ApiParam(value = "Disease for a given allele")
+            @Parameter(in=ParameterIn.QUERY, name = "filter.disease", description = "Disease for a given allele", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.disease") String disease
     );
 
     @GET
     @Path("/{id}/phenotypes")
     @JsonView(value = {View.PhenotypeAPI.class})
-    @ApiOperation(value = "Retrieve phenotype term name annotations for a given gene")
+    @Operation(summary = "Retrieve phenotype term name annotations for a given gene")
+    @APIResponses(
+            value = {
+                    @APIResponse(
+                            responseCode = "404",
+                            description = "Missing phenotype annotations",
+                            content = @Content(mediaType = "text/plain")),
+                    @APIResponse(
+                            responseCode = "200",
+                            description = "Phenotype annotations for a gene.",
+                            content = @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = PhenotypeAnnotation.class))) })
     JsonResultResponse<PhenotypeAnnotation> getPhenotypeAnnotations(
-            @ApiParam(name = "id", value = "Gene by ID: e.g. ZFIN:ZDB-GENE-990415-8", required = true, type = "String")
+            @Parameter(in=ParameterIn.PATH, name = "id", description = "Gene by ID: e.g. ZFIN:ZDB-GENE-990415-8", required=true, schema = @Schema(type = SchemaType.STRING))
             @PathParam("id") String id,
-            @ApiParam(name = "limit", value = "Number of rows returned", defaultValue = "20")
+            @Parameter(in=ParameterIn.QUERY, name = "limit", description = "Number of rows returned", schema = @Schema(type = SchemaType.INTEGER))
             @DefaultValue("20") @QueryParam("limit") int limit,
-            @ApiParam(name = "page", value = "Page number")
+            @Parameter(in=ParameterIn.QUERY, name = "page", description = "Page number", schema = @Schema(type = SchemaType.INTEGER))
             @DefaultValue("1") @QueryParam("page") int page,
-            @ApiParam(value = "Field name by which to sort", allowableValues = "termName,geneticEntity")
-            @DefaultValue("termName") @QueryParam("sortBy") String sortBy,
-            @ApiParam(name = "geneticEntity", value = "genetic entity symbol")
+            @Parameter(in=ParameterIn.QUERY, name = "sortBy", description = "Field name by which to sort", schema = @Schema(type = SchemaType.STRING))
+            @DefaultValue("term") @QueryParam("sortBy") String sortBy,
+            @Parameter(in=ParameterIn.QUERY, name = "filter.geneticEntity", description = "genetic entity symbol", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.geneticEntity") String geneticEntity,
-            @ApiParam(name = "geneticEntityType", value = "genetic entity type", allowableValues = "allele,gene")
+            @Parameter(in=ParameterIn.QUERY, name = "filter.geneticEntityType", description = "genetic entity type", schema = @Schema(type = SchemaType.STRING))
+            //allowedValues = "allele,gene"
             @QueryParam("filter.geneticEntityType") String geneticEntityType,
-            @ApiParam(value = "termName annotation")
+            @Parameter(in=ParameterIn.QUERY, name = "filter.termName", description = "term name", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.termName") String phenotype,
-            @ApiParam(value = "Reference number: PUBMED or a Pub ID from the MOD")
+            @Parameter(in=ParameterIn.QUERY, name = "filter.reference", description = "Reference number: PUBMED or a Pub ID from the MOD", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.reference") String reference,
-            @ApiParam(value = "ascending order: true or false", allowableValues = "true,false", defaultValue = "true")
-            @QueryParam("asc") String asc);
+            @Parameter(in=ParameterIn.QUERY, name = "asc", description = "order to sort by", schema = @Schema(type = SchemaType.STRING))
+            @DefaultValue("true") @QueryParam("asc") String asc);
 
     @GET
     @Path("/{id}/phenotypes/download")
-    @ApiOperation(value = "Retrieve all termName annotations for a given gene", notes = "Download all termName annotations for a given gene")
+    @Operation(summary = "Download all termName annotations for a given gene")
     @Produces(MediaType.TEXT_PLAIN)
     Response getPhenotypeAnnotationsDownloadFile(
-            @ApiParam(name = "id", value = "Gene by ID", required = true, type = "String")
+            @Parameter(in=ParameterIn.PATH, name = "id", description = "Gene by ID", required=true, schema = @Schema(type = SchemaType.STRING))
             @PathParam("id") String id,
-            @ApiParam(value = "Field name by which to sort", allowableValues = "termName,geneticEntity")
+            @Parameter(in=ParameterIn.QUERY, name = "sortBy", description = "Field name by which to sort", schema = @Schema(type = SchemaType.STRING)) //allowedValues = "termName,geneticEntity"
             @DefaultValue("termName") @QueryParam("sortBy") String sortBy,
-            @ApiParam(name = "geneticEntity", value = "genetic entity symbol")
+            @Parameter(in=ParameterIn.QUERY, name = "filter.geneticEntity", description = "genetic entity symbol", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.geneticEntity") String geneticEntity,
-            @ApiParam(name = "geneticEntityType", value = "genetic entity type", allowableValues = "allele")
+            @Parameter(in=ParameterIn.QUERY, name = "filter.geneticEntityType", description = "genetic entity type", schema = @Schema(type = SchemaType.STRING))//allowedValues = "allele"
             @QueryParam("filter.geneticEntityType") String geneticEntityType,
-            @ApiParam(value = "termName annotation")
+            @Parameter(in=ParameterIn.QUERY, name = "filter.termName", description = "term name", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.termName") String phenotype,
-            @ApiParam(value = "Reference number: PUBMED or a Pub ID from the MOD")
+            @Parameter(in=ParameterIn.QUERY, name = "filter.reference", description = "Reference number: PUBMED or a Pub ID from the MOD", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.reference") String reference,
-            @ApiParam(value = "ascending order: true or false", allowableValues = "true,false", defaultValue = "true")
+            @Parameter(in=ParameterIn.QUERY, name = "asc", description = "order to sort by", schema = @Schema(type = SchemaType.STRING))
+            @DefaultValue("true")
             @QueryParam("asc") String asc);
 
     @GET
     @Path("/{id}/models")
     @JsonView(value = {View.DiseaseAnnotationSummary.class})
-    @ApiOperation(value = "Retrieve all DiseaseAnnotation records for a given disease id")
+    @Operation(summary = "Retrieve all DiseaseAnnotation records for a given disease id")
+    @APIResponses(
+            value = {
+                    @APIResponse(
+                            responseCode = "404",
+                            description = "Missing disease annotations",
+                            content = @Content(mediaType = "text/plain")),
+                    @APIResponse(
+                            responseCode = "200",
+                            description = "disease annotations for a gene.",
+                            content = @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = PrimaryAnnotatedEntity.class))) })
     JsonResultResponse<PrimaryAnnotatedEntity> getPrimaryAnnotatedEntityForModel(
-            @ApiParam(name = "id", value = "gene ID: e.g. MGI:109583", required = true, type = "String")
+            @Parameter(in=ParameterIn.PATH, name = "id", description = "gene ID: e.g. MGI:109583", required=true, schema = @Schema(type = SchemaType.STRING))
             @PathParam("id") String id,
-            @ApiParam(name = "limit", value = "Number of rows returned", defaultValue = "20")
+            @Parameter(in=ParameterIn.QUERY, name = "limit", description = "Number of rows returned", schema = @Schema(type = SchemaType.INTEGER))
             @DefaultValue("20") @QueryParam("limit") int limit,
-            @ApiParam(name = "page", value = "Page number")
+            @Parameter(in=ParameterIn.QUERY, name = "page", description = "Page number", schema = @Schema(type = SchemaType.INTEGER))
             @DefaultValue("1") @QueryParam("page") int page,
-            @ApiParam(value = "Field / column name by which to sort", allowableValues = "Default,Gene,Disease,Species", defaultValue = "geneName")
-            @QueryParam("sortBy") String sortBy,
-            @ApiParam(value = "filter by model name")
+            @Parameter(in=ParameterIn.QUERY, name = "sortBy", description = "Field name by which to sort", schema = @Schema(type = SchemaType.STRING))// allowedValues = "Default,Gene,Disease,Species"
+            @DefaultValue("geneName") @QueryParam("sortBy") String sortBy,
+            @Parameter(in=ParameterIn.QUERY, name = "filter.modelName", description = "filter by model name", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.modelName") String modelName,
-            @ApiParam(value = "filter by species")
+            @Parameter(in=ParameterIn.QUERY, name = "filter.species", description = "filter by species", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.species") String species,
-            @ApiParam(value = "filter by disease")
+            @Parameter(in=ParameterIn.QUERY, name = "filter.disease", description = "filter by disease", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.disease") String disease,
-            @ApiParam(value = "filter by phenotype")
+            @Parameter(in=ParameterIn.QUERY, name = "filter.phenotype", description = "filter by phenotype", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.phenotype") String phenotype,
-            @ApiParam(value = "filter by source")
+            @Parameter(in=ParameterIn.QUERY, name = "filter.source", description = "filter by source", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.source") String source,
-            @ApiParam(value = "ascending order: true or false", allowableValues = "true,false", defaultValue = "true")
+            @Parameter(in=ParameterIn.QUERY, name = "asc", description = "order to sort by", schema = @Schema(type = SchemaType.STRING))//,allowedValues = "true,false"
+            @DefaultValue("true")
             @QueryParam("asc") String asc);
+
+
 
 
     @GET
     @Path("/{id}/homologs")
     @JsonView(value = {View.Orthology.class})
-    @ApiOperation(value = "Retrieve homologous gene records", notes = "Download homology records.")
-    JsonResultResponse<OrthologView> getGeneOrthology(@ApiParam(name = "id", value = "Source Gene ID: the gene for which you are searching homologous gene, e.g. 'MGI:109583'", required = true, type = "String")
-                                                      @PathParam("id") String id,
-                                                      @ApiParam(name = "geneId", value = "List of additional source gene IDs for which homology is retrieved.")
-                                                      @QueryParam("geneId") List<String> geneID,
-                                                      @ApiParam(name = "geneIdList", value = "List of additional source gene IDs for which homology is retrieved in a comma-delimited list, e.g. 'MGI:109583,RGD:2129,MGI:97570'")
-                                                      @QueryParam("geneIdList") String geneList,
-                                                      @ApiParam(value = "apply stringency containsFilterValue", allowableValues = "stringent, moderate, all", defaultValue = "stringent")
-                                                      @DefaultValue("stringent") @QueryParam("filter.stringency") String stringencyFilter,
-                                                      @ApiParam(name = "taxonID", value = "Species identifier: Could be the full ID, e.g. 'NCBITaxon:10090', or just the ID, i.e. '10090'. Alternatively, part of a species name uniquely identifying a single species, e.g. 'danio' or 'mus'.", type = "String")
-                                                      @QueryParam("filter.taxonID") String taxonID,
-                                                      @ApiParam(value = "calculation methods", allowableValues = "Ensembl Compara, HGNC, Hieranoid, InParanoid, OMA, OrthoFinder, OrthoInspector, PANTHER, PhylomeDB, Roundup, TreeFam, ZFIN")
-                                                      @QueryParam("filter.method") String method,
-                                                      @ApiParam(value = "maximum number of rows returned")
-                                                      @QueryParam("limit") Integer rows,
-                                                      @ApiParam(value = "starting row number (for pagination)")
-                                                      @DefaultValue("1") @QueryParam("page") Integer start) throws IOException;
+    @Operation(summary = "Download homology records.")
+    JsonResultResponse<OrthologView> getGeneOrthology(
+            @Parameter(in=ParameterIn.PATH, name = "id", description = "Source Gene ID: the gene for which you are searching homologous gene, e.g. 'MGI:109583'", required = true, schema = @Schema(type = SchemaType.STRING))
+            @PathParam("id") String id,
+            @Parameter(in=ParameterIn.QUERY, name = "geneId", description = "List of additional source gene IDs for which homology is retrieved." , schema = @Schema(type = SchemaType.STRING))
+            @QueryParam("geneId") List<String> geneID,
+            @Parameter(in=ParameterIn.QUERY, name = "geneList", description = "List of additional source gene IDs for which homology is retrieved in a comma-delimited list, e.g. 'MGI:109583,RGD:2129,MGI:97570'", schema = @Schema(type = SchemaType.STRING))
+            @QueryParam("geneIdList") String geneList,
+            @Parameter(in=ParameterIn.QUERY, name = "filter.stringency", description = "apply stringency containsFilterValue", schema = @Schema(type = SchemaType.STRING))
+            @DefaultValue("stringent") @QueryParam("filter.stringency") String stringencyFilter,
+            @Parameter(in=ParameterIn.QUERY, name = "taxonID", description = "Species identifier: Could be the full ID, e.g. 'NCBITaxon:10090', or just the ID, i.e. '10090'. Alternatively, part of a species name uniquely identifying a single species, e.g. 'danio' or 'mus'.", schema = @Schema(type = SchemaType.STRING))
+            @QueryParam("filter.taxonID") String taxonID,
+            @Parameter(in=ParameterIn.QUERY, name = "filter.method", description = "calculation methods", schema = @Schema(type = SchemaType.STRING))
+            @QueryParam("filter.method") String method,
+            @Parameter(in=ParameterIn.QUERY, name = "limit", description = "Number of rows returned", schema = @Schema(type = SchemaType.INTEGER))
+            @DefaultValue("20") @QueryParam("limit") int limit,
+            @Parameter(in=ParameterIn.QUERY, name = "page", description = "Page number", schema = @Schema(type = SchemaType.INTEGER))
+            @DefaultValue("1") @QueryParam("page") int page) throws IOException;
 
     @GET
     @Path("/{id}/homologs-with-expression")
     @JsonView(value = {View.Orthology.class})
-    @ApiOperation(value = "Retrieve homologous gene records that have expression data", notes = "Download homology records.")
-    JsonResultResponse<OrthologView> getGeneOrthologyWithExpression(@ApiParam(name = "id", value = "Source Gene ID: the gene for which you are searching homologous gene, e.g. 'MGI:109583'", required = true, type = "String")
-                                                                    @PathParam("id") String id,
-                                                                    @ApiParam(value = "apply stringency containsFilterValue", allowableValues = "stringent, moderate, all", defaultValue = "stringent")
-                                                                    @DefaultValue("stringent") @QueryParam("stringencyFilter") String stringencyFilter);
+    @Operation(summary = "Retrieve homologous gene records that have expression data")
+    JsonResultResponse<OrthologView> getGeneOrthologyWithExpression(
+            @Parameter(in=ParameterIn.PATH, name = "id", description = "Source Gene ID: the gene for which you are searching homologous gene, e.g. 'MGI:109583'", required=true, schema = @Schema(type = SchemaType.STRING))
+            @PathParam("id") String id,
+            @Parameter(in=ParameterIn.QUERY, name = "stringencyFilter", description = "apply stringency containsFilterdescription", schema = @Schema(type = SchemaType.STRING))
+            @DefaultValue("stringent") @QueryParam("stringencyFilter") String stringencyFilter);
 
     @GET
     @Path("/{id}/interactions")
-    @ApiOperation(value = "Retrieve interactions for a given gene")
+    @Operation(summary = "Retrieve interactions for a given gene")
+    @APIResponses(
+            value = {
+                    @APIResponse(
+                            responseCode = "404",
+                            description = "Missing interactions",
+                            content = @Content(mediaType = "text/plain")),
+                    @APIResponse(
+                            responseCode = "200",
+                            description = "Interactions for a gene.",
+                            content = @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = InteractionGeneJoin.class))) })
     @JsonView(value = {View.Interaction.class})
     JsonResultResponse<InteractionGeneJoin> getInteractions(
-            @ApiParam(name = "id", value = "Gene ID", required = true)
+            @Parameter(in=ParameterIn.PATH, name = "id", description = " Gene ID", required=true, schema = @Schema(type = SchemaType.STRING))
             @PathParam("id") String id,
-            @ApiParam(name = "limit", value = "Number of rows returned", defaultValue = "20")
+            @Parameter(in=ParameterIn.QUERY, name = "limit", description = "Number of rows returned", schema = @Schema(type = SchemaType.INTEGER))
             @DefaultValue("20") @QueryParam("limit") int limit,
-            @ApiParam(name = "page", value = "Page number")
+            @Parameter(in=ParameterIn.QUERY, name = "page", description = "Page number", schema = @Schema(type = SchemaType.INTEGER))
             @DefaultValue("1") @QueryParam("page") int page,
-            @ApiParam(value = "Name by which to sort", allowableValues = "interactorGeneSymbol,interactorMoleculeType,interactorSpecies,interactorSpecies,reference")
+            @Parameter(in=ParameterIn.QUERY, name = "sortBy", description = "Field name by which to sort", schema = @Schema(type = SchemaType.STRING))//, allowedValues = "nteractorGeneSymbol,interactorMoleculeType,interactorSpecies,interactorSpecies,reference")
             @QueryParam("sortBy") String sortBy,
-            @ApiParam(value = "ascending order: true or false", allowableValues = "true,false", defaultValue = "true")
+            @Parameter(in=ParameterIn.QUERY, name = "asc", description = "order to sort by", schema = @Schema(type = SchemaType.STRING))//,allowedValues = "true,false")
+            @DefaultValue("true")
             @QueryParam("asc") String asc,
-            @ApiParam(name = "filter.moleculeType", value = "molecule type")
+            @Parameter(in=ParameterIn.QUERY,name = "filter.moleculeType")
             @QueryParam("filter.moleculeType") String moleculeType,
-            @ApiParam(name = "filter.interactorGeneSymbol", value = "gene symbol")
+            @Parameter(in=ParameterIn.QUERY,name = "filter.interactorGeneSymbol" ,description = "Gene symbol")
             @QueryParam("filter.interactorGeneSymbol") String interactorGeneSymbol,
-            @ApiParam(name = "filter.interactorSpecies", value = "species")
+            @Parameter(in=ParameterIn.QUERY,name = "filter.interactorSpecies", description = "Species")
             @QueryParam("filter.interactorSpecies") String interactorSpecies,
-            @ApiParam(name = "filter.interactorMoleculeType", value = "molecule type")
+            @Parameter(in=ParameterIn.QUERY,name = "filter.interactorMoleculeType", description = "molecule type")
             @QueryParam("filter.interactorMoleculeType") String interactorMoleculeType,
-            @ApiParam(name = "filter.detectionMethod", value = "detection method")
+            @Parameter(in=ParameterIn.QUERY,name = "filter.detectionMethod", description = "detection method")
             @QueryParam("filter.detectionMethod") String detectionMethod,
-            @ApiParam(name = "filter.source", value = "database")
+            @Parameter(in=ParameterIn.QUERY,name = "filter.source", description = "database")
             @QueryParam("filter.source") String source,
-            @ApiParam(name = "filter.reference", value = "References")
+            @Parameter(in=ParameterIn.QUERY,name = "filter.reference", description = "References")
             @QueryParam("filter.reference") String reference,
             @Context UriInfo info);
 
     @GET
     @Path("/{id}/interactions/download")
-    @ApiOperation(value = "Retrieve interactions for a given gene")
+    @Operation(summary = "Retrieve interactions for a given gene")
     @Produces(MediaType.TEXT_PLAIN)
     Response getInteractionsDownload(
-            @ApiParam(name = "id", value = "Gene ID", required = true)
+            @Parameter(in=ParameterIn.PATH, name = "id", description = " Gene ID", required=true, schema = @Schema(type = SchemaType.STRING))
             @PathParam("id") String id,
-            @ApiParam(value = "Name by which to sort", allowableValues = "interactorGeneSymbol,interactorMoleculeType,interactorSpecies,interactorSpecies,reference")
+            @Parameter(in=ParameterIn.QUERY, name = "sortBy",description = "Name by which to sort", schema = @Schema(type = SchemaType.STRING))//allowedValues = "interactorGeneSymbol,interactorMoleculeType,interactorSpecies,interactorSpecies,reference")
             @QueryParam("sortBy") String sortBy,
-            @ApiParam(value = "ascending order: true or false", allowableValues = "true,false", defaultValue = "true")
+            @Parameter(in=ParameterIn.QUERY, name = "asc", description= "ascending order: true or false", schema = @Schema(type = SchemaType.STRING))// allowedValues = "true,false")
+            @DefaultValue("true")
             @QueryParam("asc") String asc,
-            @ApiParam(name = "filter.moleculeType", value = "molecule type")
+            @Parameter(in=ParameterIn.QUERY, name = "filter.moleculeType", description = "molecule type")
             @QueryParam("filter.moleculeType") String moleculeType,
-            @ApiParam(name = "filter.interactorGeneSymbol", value = "gene symbol")
+            @Parameter(in=ParameterIn.QUERY, name = "filter.interactorGeneSymbol", description = "gene symbol")
             @QueryParam("filter.interactorGeneSymbol") String interactorGeneSymbol,
-            @ApiParam(name = "filter.interactorSpecies", value = "species")
+            @Parameter(in=ParameterIn.QUERY, name = "filter.interactorSpecies", description = "species")
             @QueryParam("filter.interactorSpecies") String interactorSpecies,
-            @ApiParam(name = "filter.interactorMoleculeType", value = "molecule type")
+            @Parameter(in=ParameterIn.QUERY, name = "filter.interactorMoleculeType", description = "molecule type")
             @QueryParam("filter.interactorMoleculeType") String interactorMoleculeType,
-            @ApiParam(name = "filter.detectionMethod", value = "detection method")
+            @Parameter(in=ParameterIn.QUERY, name = "filter.detectionMethod", description = "detection method")
             @QueryParam("filter.detectionMethod") String detectionMethod,
-            @ApiParam(name = "filter.source", value = "database")
+            @Parameter(in=ParameterIn.QUERY, name = "filter.source", description = "database")
             @QueryParam("filter.source") String source,
-            @ApiParam(name = "filter.reference", value = "References")
+            @Parameter(in=ParameterIn.QUERY, name = "filter.reference", description = "References")
             @QueryParam("filter.reference") String reference
     );
 
     @GET
     @Path("/{id}/expression-summary")
     @JsonView(value = {View.Expression.class})
-    @ApiOperation(value = "Retrieve all expression records of a given gene")
+    @Operation(summary = "Retrieve all expression records of a given gene")
     ExpressionSummary getExpressionSummary(
-            @ApiParam(name = "id", value = "Gene by ID, e.g. 'RGD:2129' or 'ZFIN:ZDB-GENE-990415-72 fgf8a'", required = true, type = "String")
+            @Parameter(in=ParameterIn.PATH, name = "id", description = "Gene by ID, e.g. 'RGD:2129' or 'ZFIN:ZDB-GENE-990415-72 fgf8a'", required=true, schema = @Schema(type = SchemaType.STRING))
             @PathParam("id") String id
     ) throws JsonProcessingException;
 
     @GET
     @Path("/{id}/disease-ribbon-summary")
     @JsonView(value = {View.DiseaseAnnotation.class})
-    @ApiOperation(value = "Retrieve all disease records of a given gene")
+    @Operation(summary = "Retrieve all disease records of a given gene")
     DiseaseRibbonSummary getDiseaseRibbonSummary(
-            @ApiParam(name = "id", value = "Gene by ID, e.g. 'RGD:2129' or 'ZFIN:ZDB-GENE-990415-72 fgf8a'", required = true, type = "String")
+            @Parameter(in=ParameterIn.PATH, name = "id", description = "Gene by ID, e.g. 'RGD:2129' or 'ZFIN:ZDB-GENE-990415-72 fgf8a'", required=true, schema = @Schema(type = SchemaType.STRING))
             @PathParam("id") String id,
-            @ApiParam(name = "geneID", value = "additional orthologous genes", required = true)
+            @Parameter(in=ParameterIn.QUERY, name = "geneID", description = "additional orthologous genes", required = true)
             @QueryParam("geneID") List<String> geneIDs
     ) throws JsonProcessingException;
 
     @GET
     @Path("/{id}/interaction-summary")
     @JsonView(value = {View.Expression.class})
-    @ApiOperation(value = "Retrieve interaction summary records of a given gene")
+    @Operation(summary = "Retrieve interaction summary records of a given gene")
     EntitySummary getInteractionSummary(
-            @ApiParam(name = "id", value = "Gene by ID, e.g. 'RGD:2129' or 'ZFIN:ZDB-GENE-990415-72 fgf8a'", required = true, type = "String")
+            @Parameter(in=ParameterIn.PATH, name = "id", description = "Gene by ID, e.g. 'RGD:2129' or 'ZFIN:ZDB-GENE-990415-72 fgf8a'", required=true, schema = @Schema(type = SchemaType.STRING))
             @PathParam("id") String id
     ) throws JsonProcessingException;
 
 
     @GET
     @Path("/{id}/diseases-by-experiment")
-    @ApiOperation(value = "Retrieve disease annotations for a given gene")
+    @Operation(summary = "Retrieve disease annotations for a given gene")
+    @APIResponses(
+            value = {
+                    @APIResponse(
+                            responseCode = "404",
+                            description = "Missing disease",
+                            content = @Content(mediaType = "text/plain")),
+                    @APIResponse(
+                            responseCode = "200",
+                            description = "Disease annotations for a gene.",
+                            content = @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = DiseaseAnnotation.class))) })
     @JsonView(value = {View.DiseaseAnnotation.class})
     JsonResultResponse<DiseaseAnnotation> getDiseaseByExperiment(
-            @ApiParam(name = "id", value = "Gene by ID: e.g. ZFIN:ZDB-GENE-990415-8", required = true, type = "String")
+            @Parameter(in=ParameterIn.PATH, name = "id", description = "Gene by ID, e.g. 'RGD:2129' or 'ZFIN:ZDB-GENE-990415-72 fgf8a'", required=true, schema = @Schema(type = SchemaType.STRING))
             @PathParam("id") String id,
-            @ApiParam(name = "limit", value = "Number of rows returned", defaultValue = "20")
+            @Parameter(in=ParameterIn.QUERY, name = "limit", description = "Number of rows returned", schema = @Schema(type = SchemaType.INTEGER))
             @DefaultValue("20") @QueryParam("limit") int limit,
-            @ApiParam(name = "page", value = "Page number")
+            @Parameter(in=ParameterIn.QUERY, name = "page", description = "Page number", schema = @Schema(type = SchemaType.INTEGER))
             @DefaultValue("1") @QueryParam("page") int page,
-            @ApiParam(value = "Field name by which to sort", allowableValues = "disease,geneticEntity")
+            @Parameter(in=ParameterIn.QUERY, name = "sortBy", description = "Field name by which to sort", schema = @Schema(type = SchemaType.STRING))//, allowedValues = "disease,geneticEntity")
             @DefaultValue("disease") @QueryParam("sortBy") String sortBy,
-            @ApiParam(name = "geneticEntity", value = "genetic entity symbol")
+            @Parameter(in=ParameterIn.QUERY, name =  "geneticEntity", description = "genetic entity symbol", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.geneticEntity") String geneticEntity,
-            @ApiParam(name = "geneticEntityType", value = "genetic entity type", allowableValues = "allele,gene")
+            @Parameter(in=ParameterIn.QUERY, name = "filter.geneticEntityType", description = "genetic entity type",schema = @Schema(type = SchemaType.STRING))// allowedValues = "allele,gene")
             @QueryParam("filter.geneticEntityType") String geneticEntityType,
-            @ApiParam(value = "termName annotation")
+            @Parameter(in=ParameterIn.QUERY, name = "filter.disease", description = "termName annotation")
             @QueryParam("filter.disease") String phenotype,
-            @ApiParam(value = "association type")
+            @Parameter(in=ParameterIn.QUERY, name = "filter.associationType" ,description = "association type")
             @QueryParam("filter.associationType") String associationType,
-            @ApiParam(value = "Evidence Code")
+            @Parameter(in=ParameterIn.QUERY, name = "filter.evidenceCode", description = "Evidence Code")
             @QueryParam("filter.evidenceCode") String evidenceCode,
-            @ApiParam(value = "Data Source")
+            @Parameter(in=ParameterIn.QUERY, name = "source" , description = "Data Source")
             @QueryParam("source") String source,
-            @ApiParam(value = "Reference number: PUBMED or a Pub ID from the MOD")
+            @Parameter(in=ParameterIn.QUERY, name ="publicaions", description = "Reference number: PUBMED or a Pub ID from the MOD")
             @QueryParam("publications") String reference,
-            @ApiParam(value = "ascending order: true or false", allowableValues = "true,false", defaultValue = "true")
+            @Parameter(in=ParameterIn.QUERY, name = "asc", description = "order to sort by", schema = @Schema(type = SchemaType.STRING))//,allowedValues = "true,false")
+            @DefaultValue("true")
             @QueryParam("asc") String asc,
             @Context UriInfo ui) throws JsonProcessingException;
 
     @GET
     @Path("/{id}/diseases-by-experiment/download")
-    @ApiOperation(value = "Retrieve all disease annotations for a given gene and containsFilterValue option", hidden = true)
+    @Operation(summary = "Retrieve all disease annotations for a given gene and containsFilterdescription option", hidden = true)
     Response getDiseaseByExperimentDownload(
-            @ApiParam(name = "id", value = "Gene by ID: e.g. MGI:1097693", required = true, type = "String")
+            @Parameter(in=ParameterIn.PATH, name = "id", description = "Gene by ID, e.g. 'RGD:2129' or 'ZFIN:ZDB-GENE-990415-72 fgf8a'", required=true, schema = @Schema(type = SchemaType.STRING))
             @PathParam("id") String id,
-            @ApiParam(value = "Field name by which to sort", allowableValues = "disease,geneticEntity")
             @DefaultValue("disease") @QueryParam("sortBy") String sortBy,
-            @ApiParam(name = "geneticEntity", value = "genetic entity symbol")
+            @Parameter(in=ParameterIn.QUERY, name =  "geneticEntity", description = "genetic entity symbol",schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.geneticEntity") String geneticEntity,
-            @ApiParam(name = "geneticEntityType", value = "genetic entity type", allowableValues = "allele,gene")
+            @Parameter(in=ParameterIn.QUERY, name = "filter.geneticEntityType", description = "genetic entity type",schema = @Schema(type = SchemaType.STRING))// allowedValues = "allele,gene")
             @QueryParam("filter.geneticEntityType") String geneticEntityType,
-            @ApiParam(value = "disease annotation")
+            @Parameter(in=ParameterIn.QUERY, name = "filter.disease", description = "termName annotation")
             @QueryParam("filter.disease") String phenotype,
-            @ApiParam(value = "association type")
+            @Parameter(in=ParameterIn.QUERY, name = "filter.associationType" ,description = "association type")
             @QueryParam("filter.associationType") String associationType,
-            @ApiParam(value = "Evidence Code")
+            @Parameter(in=ParameterIn.QUERY, name = "filter.evidenceCode", description = "Evidence Code")
             @QueryParam("filter.evidenceCode") String evidenceCode,
-            @ApiParam(value = "Data Source")
-            @QueryParam("filter.source") String source,
-            @ApiParam(value = "Reference number: PUBMED or a Pub ID from the MOD")
-            @QueryParam("filter.reference") String reference,
-            @ApiParam(value = "ascending order: true or false", allowableValues = "true,false", defaultValue = "true")
+            @Parameter(in=ParameterIn.QUERY, name = "source" , description = "Data Source")
+            @QueryParam("source") String source,
+            @Parameter(in=ParameterIn.QUERY, name ="publicaions", description = "Reference number: PUBMED or a Pub ID from the MOD")
+            @QueryParam("publications") String reference,
+            @Parameter(in=ParameterIn.QUERY, name = "asc", description = "order to sort by", schema = @Schema(type = SchemaType.STRING))//,allowedValues = "true,false")
+            @DefaultValue("true")
             @QueryParam("asc") String asc,
             @Context UriInfo ui) throws JsonProcessingException;
 
     @GET
     @Path("/{id}/disease-summary")
-    @ApiOperation(value = "Retrieve disease summary info for a given gene and disease type")
+    @Operation(summary = "Retrieve disease summary info for a given gene and disease type")
     DiseaseSummary getDiseaseSummary(
-            @ApiParam(name = "id", value = "Gene by ID: e.g. MGI:1097693", required = true, type = "String")
+            @Parameter(in=ParameterIn.PATH, name = "id", description = "Gene by ID, e.g. 'RGD:2129' or 'ZFIN:ZDB-GENE-990415-72 fgf8a'", required=true, schema = @Schema(type = SchemaType.STRING))
             @PathParam("id") String id,
-            @ApiParam(value = "type", allowableValues = "experiment,orthology", defaultValue = "experiment")
+            @Parameter(in=ParameterIn.QUERY, name = "type",schema = @Schema(type = SchemaType.STRING))// allowedValues = "experiment,orthology")
+            @DefaultValue("experiment")
             @QueryParam("type") String type
     ) throws JsonProcessingException;
 
     @GET
     @Path("/{id}/phenotype-summary")
-    @ApiOperation(value = "Retrieve phenotype summary info for a given gene")
+    @Operation(summary = "Retrieve phenotype summary info for a given gene")
+    @APIResponses(
+            value = {
+                    @APIResponse(
+                            responseCode = "404",
+                            description = "Missing phenotype",
+                            content = @Content(mediaType = "text/plain")),
+                    @APIResponse(
+                            responseCode = "200",
+                            description = "Phenotype for a gene.",
+                            content = @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = EntitySummary.class))) })
     EntitySummary getPhenotypeSummary(
-            @ApiParam(name = "id", value = "Gene by ID: e.g. MGI:1097693", required = true, type = "String")
+            @Parameter(in=ParameterIn.PATH, name = "id", description = "Gene by ID, e.g. 'RGD:2129' or 'ZFIN:ZDB-GENE-990415-72 fgf8a'", required=true, schema = @Schema(type = SchemaType.STRING))
             @PathParam("id") String id
     ) throws JsonProcessingException;
 }

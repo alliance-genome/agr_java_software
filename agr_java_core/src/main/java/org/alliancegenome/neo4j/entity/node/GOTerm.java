@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 
@@ -12,6 +13,7 @@ import lombok.Setter;
 
 @NodeEntity
 @Getter @Setter
+@Schema(name="GoTerm", description="POJO that represents GO Terms")
 public class GOTerm extends Ontology {
 
     private String nameKey;

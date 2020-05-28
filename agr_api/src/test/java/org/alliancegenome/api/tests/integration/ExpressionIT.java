@@ -1,10 +1,5 @@
 package org.alliancegenome.api.tests.integration;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.swagger.annotations.Api;
-import org.alliancegenome.api.entity.EntitySubgroupSlim;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -15,6 +10,7 @@ import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
+import org.alliancegenome.api.entity.EntitySubgroupSlim;
 import org.alliancegenome.api.entity.RibbonSummary;
 import org.alliancegenome.api.service.ExpressionService;
 import org.alliancegenome.cache.repository.ExpressionCacheRepository;
@@ -37,9 +33,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.swagger.annotations.Api;
-
-@Api(value = "Expression Tests")
 public class ExpressionIT {
 
     private ObjectMapper mapper = new ObjectMapper();

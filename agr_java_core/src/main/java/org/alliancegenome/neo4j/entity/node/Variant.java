@@ -8,6 +8,7 @@ import org.alliancegenome.neo4j.entity.Neo4jEntity;
 import org.alliancegenome.neo4j.entity.relationship.GenomeLocation;
 import org.alliancegenome.neo4j.view.View;
 import org.apache.commons.lang3.StringUtils;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.typeconversion.Convert;
@@ -21,6 +22,7 @@ import lombok.Setter;
 @NodeEntity(label = "Variant")
 @Getter
 @Setter
+@Schema(name="Variant", description="POJO that represents the Variant")
 public class Variant extends Neo4jEntity implements Comparable<Variant> {
 
     protected GeneticEntity.CrossReferenceType crossReferenceType;

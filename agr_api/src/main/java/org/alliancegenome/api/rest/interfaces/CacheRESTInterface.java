@@ -12,23 +12,27 @@ import javax.ws.rs.core.MediaType;
 import org.alliancegenome.api.entity.CacheStatus;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.neo4j.view.View;
+import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.enums.ParameterIn;
+import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
+import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
+import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 import com.fasterxml.jackson.annotation.JsonView;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-
 @Path("/cache")
-@Api(value = "Cache")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
+@Tag(name = "Cache Search")
 public interface CacheRESTInterface {
 
     @GET
     @JsonView(View.Cacher.class)
     @Path("/status")
-    JsonResultResponse<CacheStatus> getCacheStatus(
+    public JsonResultResponse<CacheStatus> getCacheStatus(
             @DefaultValue("20") @QueryParam("limit") int limit,
             @DefaultValue("1") @QueryParam("page") int page,
             @QueryParam("sortBy") String sortBy,
@@ -39,17 +43,17 @@ public interface CacheRESTInterface {
     @GET
     @JsonView(View.CacherDetail.class)
     @Path("/{cacheName}")
-    CacheStatus getCacheStatusPerSpace(@PathParam("cacheName") String cacheName);
+    public CacheStatus getCacheStatusPerSpace(@PathParam("cacheName") String cacheName);
 
 
     @GET
     @Path("/{cacheName}/{id}")
-    @ApiOperation(value = "Get Cache Object")
+    @Operation(summary = "Get Cache Object")
     @JsonView(value = {View.Default.class})
-    Object getCacheObject(
-            @ApiParam(name = "id", value = "Search for an object by ID")
+    public String getCacheEntryString(
+            @Parameter(in=ParameterIn.PATH, name = "id", description = "Search for an object by ID", required=true, schema = @Schema(type = SchemaType.STRING))
             @PathParam("id") String id,
-            @ApiParam(name = "cacheName", value = "Named Cache to Search by")
+            @Parameter(in=ParameterIn.PATH, name = "cacheName", description = "Named Cache to Search by", required=true, schema = @Schema(type = SchemaType.STRING))
             @PathParam("cacheName") String cacheName
     );
 

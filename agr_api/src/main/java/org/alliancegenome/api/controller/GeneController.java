@@ -356,8 +356,8 @@ public class GeneController implements GeneRESTInterface {
                                                              String stringencyFilter,
                                                              String taxonID,
                                                              String method,
-                                                             Integer limit,
-                                                             Integer page) {
+                                                             int limit,
+                                                             int page) {
 
         List<String> geneList = new ArrayList<>();
         if (id != null) {
@@ -373,7 +373,7 @@ public class GeneController implements GeneRESTInterface {
         Pagination pagination = new Pagination(page, limit, null, null);
         pagination.addFieldFilter(FieldFilter.STRINGENCY, stringencyFilter);
         pagination.addFieldFilter(FieldFilter.ORTHOLOGY_METHOD, method);
-        pagination.addFieldFilter(FieldFilter.ORTHOLOGY_TAXON, method);
+        pagination.addFieldFilter(FieldFilter.ORTHOLOGY_TAXON, taxonID);
         final JsonResultResponse<OrthologView> response = orthologyService.getOrthologyMultiGeneJson(geneList, pagination);
         response.setHttpServletRequest(request);
         return response;

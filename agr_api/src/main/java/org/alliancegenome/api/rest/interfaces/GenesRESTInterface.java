@@ -15,43 +15,47 @@ import javax.ws.rs.core.MediaType;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.view.View;
+import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.enums.ParameterIn;
+import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
+import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
+import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 import com.fasterxml.jackson.annotation.JsonView;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-
 
 @Path("/geneMap")
-@Api(value = "Genes")
+@Tag(name = "Genes")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public interface GenesRESTInterface {
 
     @GET
     @Path("/")
-    @ApiOperation(value = "Retrieve gene records")
+    @Operation(summary = "Retrieve gene records")
     @JsonView({View.Orthology.class})
     JsonResultResponse<Gene> getGenes(
-            @ApiParam(name = "taxonID", value = "Species identifier: Could be the full ID, e.g. 'NCBITaxon:10090', or just the ID, i.e. '10090'. Alternatively, part of a species name uniquely identifying a single species, e.g. 'danio' or 'mus'.", type = "String")
+            //@ApiParam(name = "taxonID", value = "Species identifier: Could be the full ID, e.g. 'NCBITaxon:10090', or just the ID, i.e. '10090'. Alternatively, part of a species name uniquely identifying a single species, e.g. 'danio' or 'mus'.", type = "String")
+
+            @Parameter(in=ParameterIn.PATH, name = "taxonID", description = "Species identifier: Could be the full ID, e.g. 'NCBITaxon:10090', or just the ID, i.e. '10090'. Alternatively, part of a species name uniquely identifying a single species, e.g. 'danio' or 'mus'", required=true, schema = @Schema(type = SchemaType.STRING))
             @QueryParam("taxonID") List<String> taxonID,
-            @ApiParam(value = "maximum number of rows returned")
+            @Parameter(in=ParameterIn.QUERY, name = "rows", description = "Number of rows returned", schema = @Schema(type = SchemaType.INTEGER))
             @DefaultValue("20") @QueryParam("rows") Integer rows,
-            @ApiParam(value = "starting row number (for pagination)")
+            @Parameter(in=ParameterIn.QUERY, name = "page", description = "Page number", schema = @Schema(type = SchemaType.INTEGER))
             @DefaultValue("1") @QueryParam("start") Integer start) throws IOException;
 
 
     @GET
     @Path("/geneIDs")
-    @ApiOperation(value = "Retrieve list of gene IDs")
+    @Operation(summary = "Retrieve list of gene IDs")
     @Produces(MediaType.TEXT_PLAIN)
     String getGeneIDs(
-            @ApiParam(name = "taxonID", value = "Species identifier: Could be the full ID, e.g. 'NCBITaxon:10090', or just the ID, i.e. '10090'. Alternatively, part of a species name uniquely identifying a single species, e.g. 'danio' or 'mus'.", type = "String")
+            @Parameter(in=ParameterIn.PATH, name = "taxonID", description = "Species identifier: Could be the full ID, e.g. 'NCBITaxon:10090', or just the ID, i.e. '10090'. Alternatively, part of a species name uniquely identifying a single species, e.g. 'danio' or 'mus'", required=true, schema = @Schema(type = SchemaType.STRING))
             @QueryParam("taxonID") List<String> taxonID,
-            @ApiParam(value = "maximum number of rows returned")
+            @Parameter(in=ParameterIn.QUERY, name = "rows", description = "Number of rows returned", schema = @Schema(type = SchemaType.INTEGER))
             @DefaultValue("20") @QueryParam("rows") Integer rows,
-            @ApiParam(value = "starting row number (for pagination)")
+            @Parameter(in=ParameterIn.QUERY, name = "page", description = "Page number", schema = @Schema(type = SchemaType.INTEGER))
             @DefaultValue("1") @QueryParam("start") Integer start) throws IOException;
 
 

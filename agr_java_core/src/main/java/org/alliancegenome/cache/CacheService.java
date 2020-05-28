@@ -107,7 +107,10 @@ public class CacheService {
             log.error("Error during deserialization ", e);
             throw new RuntimeException(e);
         }
-
+    }
+    
+    public <O> String getCacheEntryString(String entityId, CacheAlliance cacheSpace, Class<O> clazz) {
+        return getCacheSpace(cacheSpace).get(entityId);
     }
 
     public void putCacheEntry(String primaryKey, List items, Class<?> classView, CacheAlliance cacheAlliance) {
