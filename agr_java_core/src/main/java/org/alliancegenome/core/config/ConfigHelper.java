@@ -1,13 +1,38 @@
 package org.alliancegenome.core.config;
 
-import lombok.extern.log4j.Log4j2;
+import static org.alliancegenome.core.config.Constants.AO_TERM_LIST;
+import static org.alliancegenome.core.config.Constants.API_HOST;
+import static org.alliancegenome.core.config.Constants.API_PORT;
+import static org.alliancegenome.core.config.Constants.API_SECURE;
+import static org.alliancegenome.core.config.Constants.AWS_ACCESS_KEY;
+import static org.alliancegenome.core.config.Constants.AWS_BUCKET_NAME;
+import static org.alliancegenome.core.config.Constants.AWS_SECRET_KEY;
+import static org.alliancegenome.core.config.Constants.CACHE_HOST;
+import static org.alliancegenome.core.config.Constants.CACHE_PORT;
+import static org.alliancegenome.core.config.Constants.DEBUG;
+import static org.alliancegenome.core.config.Constants.ES_DATA_INDEX;
+import static org.alliancegenome.core.config.Constants.ES_HOST;
+import static org.alliancegenome.core.config.Constants.ES_INDEX;
+import static org.alliancegenome.core.config.Constants.ES_INDEX_SUFFIX;
+import static org.alliancegenome.core.config.Constants.ES_PORT;
+import static org.alliancegenome.core.config.Constants.EXTRACTOR_OUTPUTDIR;
+import static org.alliancegenome.core.config.Constants.GO_TERM_LIST;
+import static org.alliancegenome.core.config.Constants.INDEX_VARIANTS;
+import static org.alliancegenome.core.config.Constants.KEEPINDEX;
+import static org.alliancegenome.core.config.Constants.NEO4J_HOST;
+import static org.alliancegenome.core.config.Constants.NEO4J_PORT;
+import static org.alliancegenome.core.config.Constants.RIBBON_TERM_SPECIES_APPLICABILITY;
+import static org.alliancegenome.core.config.Constants.SPECIES;
+import static org.alliancegenome.core.config.Constants.THREADED;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Properties;
+import java.util.Set;
+
 import org.alliancegenome.core.util.FileHelper;
 
-import java.util.*;
-
-import static org.alliancegenome.core.config.Constants.*;
-import static org.alliancegenome.core.util.FileHelper.getNameValuePairsList;
-import static org.alliancegenome.core.util.FileHelper.getPropertiesFromFile;
+import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 public class ConfigHelper {
@@ -78,7 +103,7 @@ public class ConfigHelper {
 
         if (configProperties.size() == 0) {
             final String configPropertiesFileName = "config.properties";
-            configProperties = getPropertiesFromFile(configPropertiesFileName);
+            configProperties = FileHelper.getPropertiesFromFile(configPropertiesFileName);
         }
 
         for (String key : allKeys) {
@@ -285,7 +310,7 @@ public class ConfigHelper {
         return config.get(GO_TERM_LIST);
     }
 
-    private static String getRibbonTermSpeciesApplicabilityPath() {
+    public static String getRibbonTermSpeciesApplicabilityPath() {
         if (!init) init();
         return config.get(RIBBON_TERM_SPECIES_APPLICABILITY);
     }
@@ -301,42 +326,9 @@ public class ConfigHelper {
         }
     }
 
-
-    public static LinkedHashMap<String, String> getAOTermList() {
-        return getNameValuePairsList(getAOTermListFilePath());
-    }
-
-    public static LinkedHashMap<String, String> getGOTermList() {
-        return getNameValuePairsList(getGOTermListFilePath());
-    }
-
-    public static Map<String, Map<String, Boolean>> getRibbonTermSpeciesApplicabilityMap() {
-        return getMapFromCSVFile();
-    }
-
-    private static Map<String, Map<String, Boolean>> applicabilityMatrix = null;
-
-    private static Map<String, Map<String, Boolean>> getMapFromCSVFile() {
-        // cache the applicability matrix
-        if (applicabilityMatrix != null)
-            return applicabilityMatrix;
-
-        String ribbonTermSpeciesApplicabilityPath = getRibbonTermSpeciesApplicabilityPath();
-        applicabilityMatrix = FileHelper.getApplicabilityMatrix(ribbonTermSpeciesApplicabilityPath);
-        return applicabilityMatrix;
-    }
-
-
     public static boolean isProduction() {
         return getNeo4jHost().contains("production");
     }
 
-    public static Boolean getRibbonTermSpeciesApplicability(String id, String displayName) {
-        Map<String, Boolean> map = ConfigHelper.getRibbonTermSpeciesApplicabilityMap().get(displayName);
-        if (map == null) {
-            log.error("Could not find applicability matrix for species with mod name " + displayName);
-            return false;
-        }
-        return map.get(id);
-    }
+
 }

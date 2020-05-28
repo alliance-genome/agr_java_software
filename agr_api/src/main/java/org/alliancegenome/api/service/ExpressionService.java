@@ -6,6 +6,7 @@ import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.cache.repository.helper.PaginationResult;
 import org.alliancegenome.core.ExpressionDetail;
 import org.alliancegenome.core.config.ConfigHelper;
+import org.alliancegenome.core.util.FileHelper;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.node.*;
@@ -287,7 +288,7 @@ public class ExpressionService {
             slim.setNumberOfAnnotations(aoAnnotations.size());
             slim.setNumberOfClasses(getDistinctClassSize(aoAnnotations));
         }
-        slim.setAvailable(ConfigHelper.getRibbonTermSpeciesApplicability(primaryKey, species.getType().getDisplayName()));
+        slim.setAvailable(FileHelper.getRibbonTermSpeciesApplicability(primaryKey, species.getType().getDisplayName()));
         return slim;
     }
 
