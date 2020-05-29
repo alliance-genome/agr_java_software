@@ -28,8 +28,9 @@ public class CacheConfig {
                 .statistics()
                 .tcpNoDelay(true);
         
-        log.info("ConfigurationBuilder: " + builder);
+        log.info("Creating RemoteCacheManager with Configuration Builder: " + builder);
         manager = new RemoteCacheManager(builder.build());
+        log.info("Finished Creating RemoteCacheManager");
         return manager;
     }
     
@@ -45,7 +46,7 @@ public class CacheConfig {
                 .memory()
                 .storageType(StorageType.BINARY)
                 .evictionType(EvictionType.MEMORY)
-                .size(100_000).expiration().lifespan(-1)
+                .size(cache.getCacheSize()).expiration().lifespan(-1)
                 .persistence()
                 .passivation(false)
                 .addSingleFileStore().purgeOnStartup(false)
