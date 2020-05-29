@@ -66,8 +66,8 @@ public class DiseaseController implements DiseaseRESTInterface {
 
     @Override
     public JsonResultResponse<DiseaseAnnotation> getDiseaseAnnotationsSorted(String id,
-                                                                             int limit,
-                                                                             int page,
+                                                                             Integer limit,
+                                                                             Integer page,
                                                                              String sortBy,
                                                                              String geneName,
                                                                              String species,
@@ -422,8 +422,8 @@ public class DiseaseController implements DiseaseRESTInterface {
                                                                                     String associationType,
                                                                                     String evidenceCode,
                                                                                     String basedOnGeneSymbol,
-                                                                                    int limit,
-                                                                                    int page,
+                                                                                    Integer limit,
+                                                                                    Integer page,
                                                                                     String sortBy,
                                                                                     String asc) {
 

@@ -48,9 +48,9 @@ public interface VariantRESTInterface {
             @Parameter(in=ParameterIn.PATH, name = "id", description = "Search for transcripts for a given variant ID", required=true, schema = @Schema(type = SchemaType.STRING))
             @PathParam("id") String id,
             @Parameter(in=ParameterIn.QUERY, name = "limit", description = "Number of rows returned", schema = @Schema(type = SchemaType.INTEGER))
-            @DefaultValue("20") @QueryParam("limit") int limit,
+            @DefaultValue("20") @QueryParam("limit") Integer limit,
             @Parameter(in=ParameterIn.QUERY, name = "page", description = "Page number", schema = @Schema(type = SchemaType.INTEGER))
-            @DefaultValue("1") @QueryParam("page") int page,
+            @DefaultValue("1") @QueryParam("page") Integer page,
             @Parameter(in=ParameterIn.QUERY, name = "sortBy", description = "Field name by which to sort", schema = @Schema(type = SchemaType.STRING))
             @DefaultValue("symbol") @QueryParam("sortBy") String sortBy,
             @Parameter(in=ParameterIn.QUERY, name = "filter.transcriptType", description = "Transcript types", schema = @Schema(type = SchemaType.STRING))

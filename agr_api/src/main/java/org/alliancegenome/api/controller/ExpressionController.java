@@ -58,8 +58,8 @@ public class ExpressionController implements ExpressionRESTInterface {
                                                                          String filterReference,
                                                                          String filterTerm,
                                                                          String filterSource,
-                                                                         int limit,
-                                                                         int page,
+                                                                         Integer limit,
+                                                                         Integer page,
                                                                          String sortBy,
                                                                          String asc) {
 
@@ -90,7 +90,7 @@ public class ExpressionController implements ExpressionRESTInterface {
         }
     }
 
-    private JsonResultResponse<ExpressionDetail> getExpressionDetailJsonResultResponse(List<String> geneIDs, String termID, String filterSpecies, String filterGene, String filterStage, String filterAssay, String filterReference, String filterTerm, String filterSource, int limit, int page, String sortBy, String asc) {
+    private JsonResultResponse<ExpressionDetail> getExpressionDetailJsonResultResponse(List<String> geneIDs, String termID, String filterSpecies, String filterGene, String filterStage, String filterAssay, String filterReference, String filterTerm, String filterSource, Integer limit, Integer page, String sortBy, String asc) {
         long startTime = System.currentTimeMillis();
         Pagination pagination = new Pagination(page, limit, sortBy, asc);
         BaseFilter filterMap = new BaseFilter();
@@ -113,8 +113,8 @@ public class ExpressionController implements ExpressionRESTInterface {
     @Override
     public String getExpressionAnnotationsByTaxon(String species,
                                                   String termID,
-                                                  int limit,
-                                                  int page) throws JsonProcessingException {
+                                                  Integer limit,
+                                                  Integer page) throws JsonProcessingException {
         Pagination pagination = new Pagination(page, limit, null, null);
         BaseFilter filterMap = new BaseFilter();
         filterMap.put(FieldFilter.TERM_NAME, termID);

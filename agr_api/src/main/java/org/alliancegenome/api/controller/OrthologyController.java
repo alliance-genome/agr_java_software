@@ -36,8 +36,8 @@ public class OrthologyController implements OrthologyRESTInterface {
                                                                       String taxonIDTwo,
                                                                       String stringency,
                                                                       String method,
-                                                                      int limit,
-                                                                      int page) {
+                                                                      Integer limit,
+                                                                      Integer page) {
 
         LocalDateTime startDate = LocalDateTime.now();
         Pagination pagination = new Pagination(page, limit, null, null);
@@ -60,8 +60,8 @@ public class OrthologyController implements OrthologyRESTInterface {
     public JsonResultResponse<OrthologView> getSingleSpeciesOrthology(String species,
                                                                       String stringencyFilter,
                                                                       String methods,
-                                                                      int limit,
-                                                                      int page) {
+                                                                      Integer limit,
+                                                                      Integer page) {
         LocalDateTime startDate = LocalDateTime.now();
         Pagination pagination = new Pagination(page, limit, null, null);
         pagination.addFieldFilter(FieldFilter.STRINGENCY, stringencyFilter);
@@ -92,8 +92,8 @@ public class OrthologyController implements OrthologyRESTInterface {
                                                                   String geneList,
                                                                   String stringencyFilter,
                                                                   String method,
-                                                                  int rows,
-                                                                  int page) {
+                                                                  Integer rows,
+                                                                  Integer page) {
         GeneController controller = new GeneController();
         //controller.setRequest(request);
         return controller.getGeneOrthology(null, geneIDs, geneList, stringencyFilter, null, method, rows, page);

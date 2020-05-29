@@ -30,8 +30,8 @@ public interface PhenotypeRESTInterface {
     @Path("/{id}/associations")
     public SearchApiResponse getDiseaseAnnotationsSorted(
             @PathParam("id") String id,
-            @DefaultValue("20") @QueryParam("limit") int limit,
-            @DefaultValue("1") @QueryParam("page") int page,
+            @DefaultValue("20") @QueryParam("limit") Integer limit,
+            @DefaultValue("1") @QueryParam("page") Integer page,
             @QueryParam("sortBy") String sortBy,
             @QueryParam("geneticEntity") String geneticEntity,
             @QueryParam("geneticEntityType") String geneticEntityType,

@@ -74,9 +74,9 @@ public interface AlleleRESTInterface {
             @Parameter(in=ParameterIn.PATH, name="id", description = "Search for Variants for a given Allele by ID", required=true, schema = @Schema(type = SchemaType.STRING))
             @PathParam("id") String id,
             @Parameter(in=ParameterIn.QUERY, name="limit", description = "Number of rows returned", schema = @Schema(type = SchemaType.INTEGER))
-            @DefaultValue("20") @QueryParam("limit") int limit,
+            @DefaultValue("20") @QueryParam("limit") Integer limit,
             @Parameter(in=ParameterIn.QUERY, name="page", description = "Page number", schema = @Schema(type = SchemaType.INTEGER))
-            @DefaultValue("1") @QueryParam("page") int page,
+            @DefaultValue("1") @QueryParam("page") Integer page,
             @Parameter(in=ParameterIn.QUERY, name="sortBy", description = "Field name by which to sort", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("sortBy") String sortBy,
             @Parameter(in=ParameterIn.QUERY, name="filter.variantType", description = "Variant types", schema = @Schema(type = SchemaType.STRING))
@@ -114,9 +114,9 @@ public interface AlleleRESTInterface {
                     schema = @Schema(type = SchemaType.STRING))
             @PathParam("species") String species,
             @Parameter(in=ParameterIn.QUERY, name="limit", description = "Number of rows returned", schema = @Schema(type = SchemaType.INTEGER))
-            @DefaultValue("20") @QueryParam("limit") int limit,
+            @DefaultValue("20") @QueryParam("limit") Integer limit,
             @Parameter(in=ParameterIn.QUERY, name="page", description = "Page number", schema = @Schema(type = SchemaType.INTEGER))
-            @DefaultValue("1") @QueryParam("page") int page,
+            @DefaultValue("1") @QueryParam("page") Integer page,
             @Parameter(in=ParameterIn.QUERY, name="sortBy", description = "Field name by which to sort", schema = @Schema(type = SchemaType.STRING))
             @DefaultValue("symbol") @QueryParam("sortBy") String sortBy, // allowedValues = "symbol,name"
             @Parameter(in=ParameterIn.QUERY, name = "asc", description = "order to sort by", schema = @Schema(type = SchemaType.STRING))
@@ -142,9 +142,9 @@ public interface AlleleRESTInterface {
             @Parameter(in=ParameterIn.PATH, name = "id", description = "Search for Phenotypes for a given Allele by ID", required=true, schema = @Schema(type = SchemaType.STRING))
             @PathParam("id") String id,
             @Parameter(in=ParameterIn.QUERY, name="limit", description = "Number of rows returned", schema = @Schema(type = SchemaType.INTEGER))
-            @DefaultValue("20") @QueryParam("limit") int limit,
+            @DefaultValue("20") @QueryParam("limit") Integer limit,
             @Parameter(in=ParameterIn.QUERY, name="page", description = "Page number", schema = @Schema(type = SchemaType.INTEGER))
-            @DefaultValue("1") @QueryParam("page") int page,
+            @DefaultValue("1") @QueryParam("page") Integer page,
             @Parameter(in=ParameterIn.QUERY, name = "filter.termName", description = "termName annotation")
             @QueryParam("filter.termName") String phenotype,
             @Parameter(in=ParameterIn.QUERY, name = "filter.source", description =  "Source")
@@ -193,9 +193,9 @@ public interface AlleleRESTInterface {
             @Parameter(in=ParameterIn.PATH, name = "id", description = "Search for Phenotypes for a given Allele by ID", required=true, schema = @Schema(type = SchemaType.STRING))
             @PathParam("id") String id,
             @Parameter(in=ParameterIn.QUERY, name="limit", description = "Number of rows returned", schema = @Schema(type = SchemaType.INTEGER))
-            @DefaultValue("20") @QueryParam("limit") int limit,
+            @DefaultValue("20") @QueryParam("limit") Integer limit,
             @Parameter(in=ParameterIn.QUERY, name="page", description = "Page number", schema = @Schema(type = SchemaType.INTEGER))
-            @DefaultValue("1") @QueryParam("page") int page,
+            @DefaultValue("1") @QueryParam("page") Integer page,
             @Parameter(in=ParameterIn.QUERY, name = "filter.disease", description = "termName annotation")
             @QueryParam("filter.disease") String disease,
             @Parameter(in=ParameterIn.QUERY, name = "filter.source", description = "Source")

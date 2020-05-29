@@ -93,8 +93,8 @@ public class GeneController implements GeneRESTInterface {
 
     @Override
     public JsonResultResponse<Allele> getAllelesPerGene(String id,
-                                                        int limit,
-                                                        int page,
+                                                        Integer limit,
+                                                        Integer page,
                                                         String sortBy,
                                                         String asc,
                                                         String symbol,
@@ -165,7 +165,7 @@ public class GeneController implements GeneRESTInterface {
     }
 
     @Override
-    public JsonResultResponse<InteractionGeneJoin> getInteractions(String id, int limit, int page, String sortBy, String asc,
+    public JsonResultResponse<InteractionGeneJoin> getInteractions(String id, Integer limit, Integer page, String sortBy, String asc,
                                                                    String moleculeType,
                                                                    String interactorGeneSymbol,
                                                                    String interactorSpecies,
@@ -228,7 +228,7 @@ public class GeneController implements GeneRESTInterface {
     }
 
     @Override
-    public JsonResultResponse<PhenotypeAnnotation> getPhenotypeAnnotations(String id, int limit, int page, String sortBy,
+    public JsonResultResponse<PhenotypeAnnotation> getPhenotypeAnnotations(String id, Integer limit, Integer page, String sortBy,
                                                                            String geneticEntity,
                                                                            String geneticEntityType,
                                                                            String phenotype,
@@ -272,8 +272,8 @@ public class GeneController implements GeneRESTInterface {
 
     @Override
     public JsonResultResponse<PrimaryAnnotatedEntity> getPrimaryAnnotatedEntityForModel(String id,
-                                                                                        int limit,
-                                                                                        int page,
+                                                                                        Integer limit,
+                                                                                        Integer page,
                                                                                         String sortBy,
                                                                                         String modelName,
                                                                                         String species,
@@ -306,7 +306,7 @@ public class GeneController implements GeneRESTInterface {
         }
     }
 
-    private JsonResultResponse<PhenotypeAnnotation> getPhenotypeAnnotationDocumentJsonResultResponse(String id, int limit, int page, String sortBy, String geneticEntity, String geneticEntityType, String phenotype, String reference, String asc) {
+    private JsonResultResponse<PhenotypeAnnotation> getPhenotypeAnnotationDocumentJsonResultResponse(String id, Integer limit, Integer page, String sortBy, String geneticEntity, String geneticEntityType, String phenotype, String reference, String asc) {
         if (sortBy.isEmpty())
             sortBy = FieldFilter.PHENOTYPE.getName();
         Pagination pagination = new Pagination(page, limit, sortBy, asc);
@@ -356,8 +356,8 @@ public class GeneController implements GeneRESTInterface {
                                                              String stringencyFilter,
                                                              String taxonID,
                                                              String method,
-                                                             int limit,
-                                                             int page) {
+                                                             Integer limit,
+                                                             Integer page) {
 
         List<String> geneList = new ArrayList<>();
         if (id != null) {
@@ -433,8 +433,8 @@ public class GeneController implements GeneRESTInterface {
 
     @Override
     public JsonResultResponse<DiseaseAnnotation> getDiseaseByExperiment(String id,
-                                                                        int limit,
-                                                                        int page,
+                                                                        Integer limit,
+                                                                        Integer page,
                                                                         String sortBy,
                                                                         String geneticEntity,
                                                                         String geneticEntityType,
