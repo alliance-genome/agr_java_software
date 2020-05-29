@@ -49,8 +49,8 @@ public class AlleleController implements AlleleRESTInterface {
 
     @Override
     public JsonResultResponse<Variant> getVariantsPerAllele(String id,
-                                                            int limit,
-                                                            int page,
+                                                            Integer limit,
+                                                            Integer page,
                                                             String sortBy,
                                                             String variantType,
                                                             String consequence) {
@@ -94,7 +94,7 @@ public class AlleleController implements AlleleRESTInterface {
     }
 
     @Override
-    public JsonResultResponse<Allele> getAllelesPerSpecies(String species, int limit, int page, String sortBy, String asc) {
+    public JsonResultResponse<Allele> getAllelesPerSpecies(String species, Integer limit, Integer page, String sortBy, String asc) {
         long startTime = System.currentTimeMillis();
         Pagination pagination = new Pagination(page, limit, sortBy, asc);
         JsonResultResponse<Allele> response = alleleService.getAllelesBySpecies(species, pagination);
@@ -106,8 +106,8 @@ public class AlleleController implements AlleleRESTInterface {
 
     @Override
     public JsonResultResponse<PhenotypeAnnotation> getPhenotypePerAllele(String id,
-                                                                         int limit,
-                                                                         int page,
+                                                                         Integer limit,
+                                                                         Integer page,
                                                                          String phenotype,
                                                                          String source,
                                                                          String reference,
@@ -155,8 +155,8 @@ public class AlleleController implements AlleleRESTInterface {
     }
 
     public JsonResultResponse<DiseaseAnnotation> getDiseasePerAllele(String id,
-                                                                     int limit,
-                                                                     int page,
+                                                                     Integer limit,
+                                                                     Integer page,
                                                                      String disease,
                                                                      String source,
                                                                      String reference,

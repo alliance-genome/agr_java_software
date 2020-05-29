@@ -61,9 +61,9 @@ public interface OrthologyRESTInterface {
             @Parameter(in=ParameterIn.QUERY, name = "filter.method", description = "calculation methods", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.method") String method,
             @Parameter(in=ParameterIn.QUERY, name = "limit", description = "Number of rows returned", schema = @Schema(type = SchemaType.INTEGER))
-            @DefaultValue("20") @QueryParam("limit") int limit,
+            @DefaultValue("20") @QueryParam("limit") Integer limit,
             @Parameter(in=ParameterIn.QUERY, name = "page", description = "Page number", schema = @Schema(type = SchemaType.INTEGER))
-            @DefaultValue("1") @QueryParam("page") int page) throws IOException;
+            @DefaultValue("1") @QueryParam("page") Integer page) throws IOException;
 
 
     @GET
@@ -78,9 +78,9 @@ public interface OrthologyRESTInterface {
             @Parameter(in=ParameterIn.QUERY, name = "filter.method", description = "calculation methods", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.method") String method,
             @Parameter(in=ParameterIn.QUERY, name = "limit", description = "Number of rows returned", schema = @Schema(type = SchemaType.INTEGER))
-            @DefaultValue("20") @QueryParam("limit") int limit,
+            @DefaultValue("20") @QueryParam("limit") Integer limit,
             @Parameter(in=ParameterIn.QUERY, name = "page", description = "Page number", schema = @Schema(type = SchemaType.INTEGER))
-            @DefaultValue("1") @QueryParam("page") int page) throws IOException;
+            @DefaultValue("1") @QueryParam("page") Integer page) throws IOException;
 
     @GET
     @Path("/species")
@@ -107,9 +107,9 @@ public interface OrthologyRESTInterface {
             @Parameter(in=ParameterIn.QUERY, name = "filter.method", description = "calculation methods", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.method") String method,
             @Parameter(in=ParameterIn.QUERY, name = "limit", description = "Number of rows returned", schema = @Schema(type = SchemaType.INTEGER))
-            @DefaultValue("20") @QueryParam("limit") int limit,
+            @DefaultValue("20") @QueryParam("limit") Integer limit,
             @Parameter(in=ParameterIn.QUERY, name = "page", description = "Page number", schema = @Schema(type = SchemaType.INTEGER))
-            @DefaultValue("1") @QueryParam("page") int page) throws IOException;
+            @DefaultValue("1") @QueryParam("page") Integer page) throws IOException;
 
     @GET
     @Path("/methods")

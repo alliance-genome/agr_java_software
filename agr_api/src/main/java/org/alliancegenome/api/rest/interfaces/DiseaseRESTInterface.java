@@ -76,9 +76,9 @@ public interface DiseaseRESTInterface {
             @Parameter(in=ParameterIn.PATH, name="id", description = "Search for a disease by ID", required=true, schema = @Schema(type = SchemaType.STRING))
             @PathParam("id") String id,
             @Parameter(in=ParameterIn.QUERY, name="limit", description = "Number of rows returned", schema = @Schema(type = SchemaType.INTEGER))
-            @DefaultValue("20") @QueryParam("limit") int limit,
+            @DefaultValue("20") @QueryParam("limit") Integer limit,
             @Parameter(in=ParameterIn.QUERY, name="page", description = "Page number", schema = @Schema(type = SchemaType.INTEGER))
-            @DefaultValue("1") @QueryParam("page") int page,
+            @DefaultValue("1") @QueryParam("page") Integer page,
             @Parameter(in=ParameterIn.QUERY, name="sortBy", description = "Field name by which to sort", schema = @Schema(type = SchemaType.STRING))//, allowedValues = "Default,Gene,Disease,Species")
             @DefaultValue("geneName") @QueryParam("sortBy") String sortBy,
             @Parameter(in=ParameterIn.QUERY, name="filter.geneName", description = "filter by gene symbol")
@@ -277,9 +277,9 @@ public interface DiseaseRESTInterface {
             @Parameter(in=ParameterIn.PATH, name="id", description = "Search for a disease by ID", required=true, schema = @Schema(type = SchemaType.STRING))
             @PathParam("id") String id,
             @Parameter(in=ParameterIn.QUERY, name="limit", description = "Number of rows returned", schema = @Schema(type = SchemaType.INTEGER))
-            @DefaultValue("20") @QueryParam("limit") int limit,
+            @DefaultValue("20") @QueryParam("limit") Integer limit,
             @Parameter(in=ParameterIn.QUERY, name="page", description = "Page number", schema = @Schema(type = SchemaType.INTEGER))
-            @DefaultValue("1") @QueryParam("page") int page,
+            @DefaultValue("1") @QueryParam("page") Integer page,
             @Parameter(in=ParameterIn.QUERY, name = "sortBy", description = "order to sort by", schema = @Schema(type = SchemaType.STRING))//, allowedValues = "Default,Gene,Disease,Species")
             @DefaultValue("Gene") @QueryParam("sortBy") String sortBy,
             @Parameter(in=ParameterIn.QUERY, name ="filter.modelName", description = "filter by model name")
@@ -398,9 +398,9 @@ public interface DiseaseRESTInterface {
             @Parameter(in=ParameterIn.PATH,name = "filter.basedOnGeneSymbol", description = "basedOnGeneSymbol", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.basedOnGeneSymbol") String basedOnGeneSymbol,
             @Parameter(in=ParameterIn.PATH,name = "limit", description = "Number of rows returned",schema = @Schema(type = SchemaType.INTEGER))
-            @DefaultValue("20") @QueryParam("limit") int limit,
+            @DefaultValue("20") @QueryParam("limit") Integer limit,
             @Parameter(in=ParameterIn.PATH,name = "page", description = "Page number")
-            @DefaultValue("1") @QueryParam("page") int page,
+            @DefaultValue("1") @QueryParam("page") Integer page,
             @Parameter(in=ParameterIn.PATH,name = "sortBy", description = "Sort by field name")
             @QueryParam("sortBy") String sortBy,
             @Parameter(in=ParameterIn.PATH,name = "asc",  description = "ascending or descending",schema = @Schema(type = SchemaType.STRING))//allowedValues = "true,false",

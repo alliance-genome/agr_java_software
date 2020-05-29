@@ -32,9 +32,9 @@ public interface SearchRESTInterface {
         @Parameter(in=ParameterIn.QUERY, name = "category", description = "This is the category we search in" , schema = @Schema(type = SchemaType.STRING))
         @QueryParam("category") String category,
         @Parameter(in=ParameterIn.QUERY, name = "limit", description = "This limits the returned amount of items (page size)" , schema = @Schema(type = SchemaType.INTEGER))
-        @QueryParam("limit") int limit,
+        @QueryParam("limit") Integer limit,
         @Parameter(in=ParameterIn.QUERY, name = "offset", description = "This specifies which (page size) to request for", schema = @Schema(type = SchemaType.INTEGER))
-        @QueryParam("offset") int offset,
+        @QueryParam("offset") Integer offset,
         @Parameter(in=ParameterIn.QUERY, name = "sort_by", description = "We will sort the results by this field" , schema = @Schema(type = SchemaType.STRING))
         @QueryParam("sort_by") String sort_by,
         @Context UriInfo uriInfo
