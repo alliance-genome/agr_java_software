@@ -21,8 +21,7 @@ public class DiseaseIndexerRepository extends Neo4jRepository<DOTerm> {
         String query = "MATCH pDisease=(disease:DOTerm) WHERE disease.isObsolete = 'false' ";
         query += " OPTIONAL MATCH pSyn=(disease:DOTerm)-[:ALSO_KNOWN_AS]-(:Synonym) ";
         query += " OPTIONAL MATCH pCR=(disease:DOTerm)-[:CROSS_REFERENCE]-(:CrossReference)";
-        query += " OPTIONAL MATCH pSecondaryId=(disease:DOTerm)-[:ALSO_KNOWN_AS]-(s:SecondaryId)";
-        query += " RETURN pDisease, pSyn, pCR, pSecondaryId";
+        query += " RETURN pDisease, pSyn, pCR";
 
         Iterable<DOTerm> diseases = query(query);
 
@@ -47,6 +46,9 @@ public class DiseaseIndexerRepository extends Neo4jRepository<DOTerm> {
 
         log.info("Building disease -> model map");
         diseaseDocumentCache.setModels(getModelsMap());
+
+        log.info("Building disease -> secondaryId map");
+        diseaseDocumentCache.setSecondaryIds(getSecondaryIdMap());
 
         log.info("Building disease -> species map");
         diseaseDocumentCache.setSpeciesMap(getSpeciesMap());
@@ -79,6 +81,11 @@ public class DiseaseIndexerRepository extends Neo4jRepository<DOTerm> {
     public Map<String, Set<String>> getSpeciesMap() {
         return getMapSetForQuery("MATCH (disease:DOTerm)--(:DiseaseEntityJoin)--(gene:Gene)--(species:Species) " +
                 " RETURN disease.primaryKey as id, species.name as value;");
+    }
+
+    public Map<String, Set<String>> getSecondaryIdMap() {
+        return getMapSetForQuery("MATCH (disease:DOTerm)-[:ALSO_KNOWN_AS]-(sid:SecondaryId) " +
+                " RETURN disease.primaryKey as id, sid.primaryKey as value");
     }
 
     public Map<String, Set<String>> getParentNameMap() {

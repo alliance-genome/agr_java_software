@@ -128,6 +128,8 @@ class QueryMatchIntegrationSpec extends Specification {
 
         //secondaryId
         "AGR-1437" | "MGI:109583"              | "MGI:1917411"
+        "AGR-1514" | "DOID:1698"               | "DOID:37"
+        "AGR-1514" | "DOID:8716"               | "DOID:9209"
 
         //expression stages
         "AGR-1956" | "ZFIN:ZDB-GENE-980605-16"   | "Segmentation:14-19 somites"
