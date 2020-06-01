@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import org.alliancegenome.core.config.ConfigHelper;
+import org.alliancegenome.core.util.FileHelper;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.entity.node.AffectedGenomicModel;
@@ -534,13 +535,13 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         if (aoOrderList != null)
             return aoOrderList;
 
-        return ConfigHelper.getAOTermList();
+        return FileHelper.getAOTermList();
     }
 
     public LinkedHashMap<String, String> getOrderGoTermList() {
         if (goCcList != null)
             return goCcList;
-        return ConfigHelper.getGOTermList();
+        return FileHelper.getGOTermList();
     }
 
     private Map<String, Integer> getOrderedAoTermList() {

@@ -128,4 +128,36 @@ public class FileHelper {
     }
 
 
+    public static LinkedHashMap<String, String> getAOTermList() {
+        return FileHelper.getNameValuePairsList(ConfigHelper.getAOTermListFilePath());
+    }
+
+    public static LinkedHashMap<String, String> getGOTermList() {
+        return FileHelper.getNameValuePairsList(ConfigHelper.getGOTermListFilePath());
+    }
+
+    public static Map<String, Map<String, Boolean>> getRibbonTermSpeciesApplicabilityMap() {
+        return getMapFromCSVFile();
+    }
+
+    private static Map<String, Map<String, Boolean>> applicabilityMatrix = null;
+
+    private static Map<String, Map<String, Boolean>> getMapFromCSVFile() {
+        // cache the applicability matrix
+        if (applicabilityMatrix != null)
+            return applicabilityMatrix;
+
+        String ribbonTermSpeciesApplicabilityPath = ConfigHelper.getRibbonTermSpeciesApplicabilityPath();
+        applicabilityMatrix = FileHelper.getApplicabilityMatrix(ribbonTermSpeciesApplicabilityPath);
+        return applicabilityMatrix;
+    }
+    public static Boolean getRibbonTermSpeciesApplicability(String id, String displayName) {
+        Map<String, Boolean> map = getRibbonTermSpeciesApplicabilityMap().get(displayName);
+        if (map == null) {
+            log.error("Could not find applicability matrix for species with mod name " + displayName);
+            return false;
+        }
+        return map.get(id);
+    }
+
 }
