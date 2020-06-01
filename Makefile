@@ -28,6 +28,9 @@ apidebug:
 indexer:
 	mvn -T 4 clean package -pl agr_indexer -am
 
+variant_indexer:
+	mvn -T 4 clean package -pl agr_variant_indexer -am
+
 esutil:
 	mvn -T 4 clean package -pl agr_elasticsearch_util -am
 

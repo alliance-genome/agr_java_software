@@ -33,11 +33,12 @@ public class Constants {
 
     public static final String AO_TERM_LIST = "AO_TERM_LIST";
     public static final String GO_TERM_LIST = "GO_TERM_LIST";
+    public static final String VARIANT_CONFIG_FILE = "VARIANT_CONFIG_FILE";
+    public static final String VARIANT_DOWNLOAD_PATH = "VARIANT_DOWNLOAD_PATH";
     public static final String RIBBON_TERM_SPECIES_APPLICABILITY = "RIBBON_TERM_SPECIES_APPLICABILITY";
     public static final String EXTRACTOR_OUTPUTDIR = "EXTRACTOR_OUTPUTDIR";
 
     // Other Constants
-
     public static final String SEARCHABLE_ITEM = "searchable_item";
     
 }

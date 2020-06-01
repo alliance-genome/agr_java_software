@@ -70,6 +70,9 @@ public class ConfigHelper {
         defaults.put(AO_TERM_LIST, "anatomy-term-order.csv");
         defaults.put(GO_TERM_LIST, "go-term-order.csv");
         defaults.put(RIBBON_TERM_SPECIES_APPLICABILITY, "ribbon-term-species-applicability.csv");
+        
+        defaults.put(VARIANT_DOWNLOAD_PATH, "data");
+        defaults.put(VARIANT_CONFIG_FILE, "downloadFileSet.yaml");
 
         // This next item needs to be set in order to prevent the 
         // Caused by: java.lang.IllegalStateException: availableProcessors is already set to [16], rejecting [16]
@@ -251,7 +254,17 @@ public class ConfigHelper {
         if (!init) init();
         return config.get(SPECIES);
     }
+    
+    public static String getVariantConfigFile() {
+        if (!init) init();
+        return config.get(VARIANT_CONFIG_FILE);
+    }
 
+    public static String getVariantDownloadPath() {
+        if (!init) init();
+        return config.get(VARIANT_DOWNLOAD_PATH);
+    }
+    
     public static boolean getIndexVariants() {
         if (!init) init();
         return Boolean.parseBoolean(config.get(INDEX_VARIANTS));
@@ -307,5 +320,13 @@ public class ConfigHelper {
         return getNeo4jHost().contains("production");
     }
 
+    public static Boolean getRibbonTermSpeciesApplicability(String id, String displayName) {
+        Map<String, Boolean> map = ConfigHelper.getRibbonTermSpeciesApplicabilityMap().get(displayName);
+        if (map == null) {
+            log.error("Could not find applicability matrix for species with mod name " + displayName);
+            return false;
+        }
+        return map.get(id);
+    }
 
 }
