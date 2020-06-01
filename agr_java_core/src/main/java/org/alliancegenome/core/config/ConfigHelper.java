@@ -349,4 +349,17 @@ public class ConfigHelper {
         return getNeo4jHost().contains("production");
     }
 
+<<<<<<< HEAD
+=======
+    public static Boolean getRibbonTermSpeciesApplicability(String id, String displayName) {
+        Map<String, Boolean> map = ConfigHelper.getRibbonTermSpeciesApplicabilityMap().get(displayName);
+        if (map == null) {
+            log.error("Could not find applicability matrix for species with mod name " + displayName);
+            return false;
+        }
+        return map.get(id);
+    }
+
+
+>>>>>>> Added initial code for variant indexer
 }
