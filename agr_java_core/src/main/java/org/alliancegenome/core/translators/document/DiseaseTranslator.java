@@ -1,5 +1,6 @@
 package org.alliancegenome.core.translators.document;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -8,6 +9,7 @@ import org.alliancegenome.core.translators.EntityDocumentTranslator;
 import org.alliancegenome.es.index.site.document.SearchableItemDocument;
 import org.alliancegenome.neo4j.entity.node.CrossReference;
 import org.alliancegenome.neo4j.entity.node.DOTerm;
+import org.alliancegenome.neo4j.entity.node.SecondaryId;
 import org.alliancegenome.neo4j.entity.node.Synonym;
 
 public class DiseaseTranslator extends EntityDocumentTranslator<DOTerm, SearchableItemDocument> {
