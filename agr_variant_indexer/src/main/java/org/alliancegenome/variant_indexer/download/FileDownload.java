@@ -51,7 +51,6 @@ class FileDownload extends Thread {
         size = -1;
         downloaded = 0;
         status = DOWNLOADING;
-        this.start();
     }
 
     private URL verifyUrl(String url) {
@@ -139,7 +138,6 @@ class FileDownload extends Thread {
 
             if (size == -1) {
                 size = contentLength;
-                stateChanged();
             }
             // used to update speed at regular intervals
             int i = 0;

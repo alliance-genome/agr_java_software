@@ -1,6 +1,6 @@
 downloadPath: ""
 fileDownloadThreads: 10
-documentCreatorThreads: 2
+documentCreatorThreads: 4
 documentIndexerThreads: 1
 
 downloadFileSet:

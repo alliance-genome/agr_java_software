@@ -28,7 +28,7 @@ public class VCFDocumentCreator extends Thread {
     
     private PrintWriter outFilePrinter;
 
-    private ThreadPoolExecutor variantContextProcessorTaskExecuter = new ThreadPoolExecutor(1, 8, 10, TimeUnit.MILLISECONDS, new LinkedBlockingDeque<Runnable>(10000));
+    private ThreadPoolExecutor variantContextProcessorTaskExecuter = new ThreadPoolExecutor(1, 6, 10, TimeUnit.MILLISECONDS, new LinkedBlockingDeque<Runnable>(100));
     private ThreadPoolExecutor variantDocumentWriterTaskExecuter = new ThreadPoolExecutor(1, 1, 10, TimeUnit.MILLISECONDS, new LinkedBlockingDeque<Runnable>(10000));
     
     public VCFDocumentCreator(DownloadableFile downloadFile) {
@@ -85,7 +85,7 @@ public class VCFDocumentCreator extends Thread {
                     VariantContext vc = iter1.next();
                     workChunk.add(vc);
                     
-                    if(workChunk.size() >= 60) { // 10 per 1G of memory
+                    if(workChunk.size() >= 100) {
                         variantContextProcessorTaskExecuter.execute(new VariantContextProcessorTask(workChunk));
                         workChunk = new ArrayList<>();
                     }
@@ -114,7 +114,8 @@ public class VCFDocumentCreator extends Thread {
             variantDocumentWriterTaskExecuter.shutdown();
             while (!variantDocumentWriterTaskExecuter.isTerminated()) {
             }
-            System.out.println("Finished all threads");
+            
+            log.debug("Finished all threads");
             reader.close();
             outFilePrinter.close();
         } catch (Exception e) {
