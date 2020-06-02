@@ -1,16 +1,15 @@
 package org.alliancegenome.neo4j.entity.node;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
+import lombok.Getter;
+import lombok.Setter;
 import org.alliancegenome.cache.repository.helper.SourceServiceHelper;
 import org.apache.commons.collections.CollectionUtils;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 
-import lombok.Getter;
-import lombok.Setter;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @NodeEntity
 @Getter
@@ -49,6 +48,12 @@ public class DiseaseEntityJoin extends EntityJoin {
     public CrossReference getSourceProvider() {
         if (checkValidity()) return null;
 
+        if (dataProvider != null && dataProvider.equals("Alliance")) {
+            CrossReference ref = new CrossReference();
+            ref.setDisplayName("Alliance");
+            return ref;
+        }
+
         List<CrossReference> refs = providerList.stream()
                 .filter(crossReference -> crossReference.getLoadedDB() != null)
                 .filter(CrossReference::getCuratedDB)
@@ -63,6 +68,9 @@ public class DiseaseEntityJoin extends EntityJoin {
     public CrossReference getLoadProvider() {
         if (checkValidity()) return null;
 
+        if (CollectionUtils.isEmpty(providerList))
+            return null;
+
         List<CrossReference> refs = providerList.stream()
                 .filter(crossReference -> crossReference.getLoadedDB() != null)
                 .filter(CrossReference::getLoadedDB)
@@ -75,6 +83,9 @@ public class DiseaseEntityJoin extends EntityJoin {
     }
 
     private boolean checkValidity() {
+        // Treat Alliance on dataProvider attribute as DataProviders
+        if (dataProvider != null && dataProvider.equals("Alliance"))
+            return false;
         if (providerList == null)
             return true;
 
