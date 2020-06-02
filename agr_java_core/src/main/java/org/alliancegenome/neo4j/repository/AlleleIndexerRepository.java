@@ -45,6 +45,9 @@ public class AlleleIndexerRepository extends Neo4jRepository {
         log.info("Fetching alleles");
         alleleDocumentCache.setAlleleMap(getAlleleMap(species));
 
+        log.info("Fetching allele -> constructs map");
+        alleleDocumentCache.setConstructs(getConstructs(species));
+
         log.info("Building allele -> crossReference map");
         alleleDocumentCache.setCrossReferences(getCrossReferences(species));
 
@@ -92,20 +95,15 @@ public class AlleleIndexerRepository extends Neo4jRepository {
 
         Map<String, Set<String>> localIds = getMapSetForQuery(query, getSpeciesParams(species));
 
-        Map<String, Set<String>> map = new HashMap<>();
-        Set<String> keys = new HashSet<>();
+        return merge(names, localIds);
+    }
 
-        keys.addAll(names.keySet());
-        keys.addAll(localIds.keySet());
+    public Map<String, Set<String>> getConstructs(String species) {
+        String query = "MATCH (species:Species)-[:FROM_SPECIES]-(allele:Allele)-[:CONTAINS]-(construct:Construct) ";
+        query += getSpeciesWhere(species);
+        query += " RETURN allele.primaryKey as id, construct.nameText as value";
 
-        for (String key: keys) {
-            Set<String> values = new HashSet<>();
-            values.addAll(names.get(key));
-            values.addAll(localIds.get(key));
-            map.put(key, values);
-        }
-
-        return map;
+        return getMapSetForQuery(query, getSpeciesParams(species));
     }
 
     public Map<String, Set<String>> getDiseaseMap(String species) {
@@ -166,11 +164,17 @@ public class AlleleIndexerRepository extends Neo4jRepository {
     }
 
     public Map<String, Set<String>> getRelatedVariants(String species) {
-        String query = " MATCH (species:Species)--(a:Allele)--(v:Variant)--(tlc:TranscriptLevelConsequence) ";
+        String query = " MATCH (species:Species)-[:FROM_SPECIES]-(a:Allele)-[:VARIATION]-(v:Variant) ";
+        query += getSpeciesWhere(species);
+        query += " RETURN distinct a.primaryKey as id, v.hgvsNomenclature as value";
+        Map<String,Set<String>> hgvsNames = getMapSetForQuery(query, getSpeciesParams(species));
+
+        query = " MATCH (species:Species)-[:FROM_SPECIES]-(a:Allele)-[:VARIATION]-(v:Variant)-[:ASSOCIATION]-(tlc:TranscriptLevelConsequence)  ";
         query += getSpeciesWhere(species);
         query += "RETURN distinct a.primaryKey as id, [v.hgvsNomenclature, tlc.hgvsVEPGeneNomenclature, tlc.hgvsProteinNomenclature, tlc.hgvsCodingNomenclature] as value  ";
+        Map<String,Set<String>> tlcNames = getMapSetForQuery(query, getSpeciesParams(species));
 
-        return getMapSetForQuery(query, getSpeciesParams(species));
+        return merge(hgvsNames, tlcNames);
     }
 
     public Map<String, Set<String>> getVariantTypesMap(String species) {

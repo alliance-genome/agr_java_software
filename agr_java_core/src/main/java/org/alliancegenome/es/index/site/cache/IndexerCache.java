@@ -17,6 +17,7 @@ public class IndexerCache {
     protected Map<String, Variant> variantMap = new HashMap<>();
 
     protected Map<String, Set<String>> chromosomes = new HashMap<>();
+    protected Map<String, Set<String>> constructs = new HashMap<>();
     protected Map<String, Set<String>> crossReferences = new HashMap<>();
     protected Map<String, Set<String>> diseases = new HashMap<>();
     protected Map<String, Set<String>> diseasesAgrSlim = new HashMap<>();
@@ -48,6 +49,7 @@ public class IndexerCache {
         if (chromosomes.get(id) != null) {
             document.getChromosomes().addAll(chromosomes.get(id));
         }
+        document.setConstructs(constructs.get(id));
         document.setDiseases(diseases.get(id));
         document.setDiseasesAgrSlim(diseasesAgrSlim.get(id));
         document.setDiseasesWithParents(diseasesWithParents.get(id));

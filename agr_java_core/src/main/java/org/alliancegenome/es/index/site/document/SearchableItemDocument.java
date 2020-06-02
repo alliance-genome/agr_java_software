@@ -59,6 +59,7 @@ public class SearchableItemDocument extends ESDocument {
     Set<String> cellularComponentAgrSlim = new HashSet<>();
     Set<String> cellularComponentWithParents = new HashSet<>();
     Set<String> chromosomes = new HashSet<>();
+    Set<String> constructs = new HashSet<>();
     Map<String, List<CrossReferenceDoclet>> crossReferencesMap;
     List<CrossReferenceDoclet> crossReferenceList;
     Set<String> crossReferences = new HashSet<>();

@@ -116,6 +116,9 @@ public class SearchHelper {
             add("cellularComponentExpressionAgrSlim");
             add("cellularComponentExpressionAgrSlim.keyword");
             add("chromosomes");
+            add("constructs");
+            add("constructs.keyword");
+            add("constructs.classicText");
             add("crossReferences");
             add("crossReferences.classicText");
             add("diseases");

@@ -43,6 +43,7 @@ public class Mapping extends Builder {
         new FieldBuilder(builder, "cellularComponentExpressionWithParents", "text").keyword().build();
         new FieldBuilder(builder, "cellularComponentExpressionAgrSlim", "text").keyword().build();
         new FieldBuilder(builder, "chromosomes", "text").keyword().build();
+        new FieldBuilder(builder, "constructs", "text").keyword().classicText().build();
         new FieldBuilder(builder, "crossReferences", "text").keyword().classicText().build();
         new FieldBuilder(builder, "description", "text");
         new FieldBuilder(builder, "diseases", "text").keyword().build();

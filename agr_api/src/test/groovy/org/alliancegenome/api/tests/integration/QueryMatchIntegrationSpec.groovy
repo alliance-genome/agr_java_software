@@ -140,6 +140,13 @@ class QueryMatchIntegrationSpec extends Specification {
         "AGR-1956" | "MGI:97750"                 | "TS23"
         "AGR-1956" | "MGI:88537"                 | "TS18"
 
+        "AGR-2147" | "ZFIN:ZDB-ALT-140814-9"     | "Tg(UAS:MYC-vangl2-Rno.P2rx2,NLS-RFP,myl7:EGFP)"
+        "AGR-2147" | "ZFIN:ZDB-ALT-120509-22"    | "Tg21(FRT-Xla.Actc1:DsRed-GAB-FRT,LOXP-Hsa.IRX3-LOXP-gata2a:EGFP-5HS4)"
+        "AGR-2147" | "ZFIN:ZDB-ALT-190410-2"     | "Tg(V5)"
+        "AGR-2147" | "FB:FBal0206052"            | "P{GD14076}"
+        "AGR-2147" | "FB:FBal0038870"            | "P{HBΔ-23}"
+        "AGR-2147" | "WB:WBVar02149945"          | "WBCnstr00040825"
+
     }
 
     @Unroll
