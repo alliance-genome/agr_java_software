@@ -410,10 +410,10 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
                 " AND NOT (dej:DiseaseEntityJoin)--(:Allele) " +
                 " AND NOT (dej:DiseaseEntityJoin)--(:AffectedGenomicModel)";
         //cypher += " AND disease.primaryKey in ['DOID:0050144','DOID:0110599','DOID:0050545'] ";
-        //cypher += " AND disease.primaryKey in ['DOID:0080348'] ";
+        //cypher += " AND disease.primaryKey in ['DOID:3890'] ";
         //cypher += " AND diseaseEntityJoin.primaryKey = 'FB:FBgn0030343DOID:1838is_implicated_in'  ";
         //cypher += " AND disease.primaryKey in ['DOID:9952','DOID:14501'] ";
-        //cypher += " AND gene.primaryKey = 'HGNC:7' ";
+        //cypher += " AND dej.primaryKey = 'MGI:1891259DOID:0110188IS_IMPLICATED_IN' ";
         //cypher += "      OPTIONAL MATCH eco   =(pubEvCode:PublicationJoin)-[:ASSOCIATION]->(ecoTerm:ECOTerm)";
         cypher += "      OPTIONAL MATCH p7    =(dej:DiseaseEntityJoin)-[:ANNOTATION_SOURCE_CROSS_REFERENCE]-(:CrossReference)";
         cypher += "      OPTIONAL MATCH p4=(dej:DiseaseEntityJoin)-[:FROM_ORTHOLOGOUS_GENE]-(orthoGene:Gene)-[:FROM_SPECIES]->(orthoSpecies:Species) ";

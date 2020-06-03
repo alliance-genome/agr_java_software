@@ -117,7 +117,7 @@ public interface DiseaseRESTInterface {
             @Parameter(in=ParameterIn.QUERY, name="page", description = "Page number", schema = @Schema(type = SchemaType.INTEGER))
             @DefaultValue("1") @QueryParam("page") Integer page,
             @Parameter(in=ParameterIn.QUERY, name="sortBy", description = "Field name by which to sort", schema = @Schema(type = SchemaType.STRING))
-            @DefaultValue("Allele") @QueryParam("sortBy") String sortBy,
+            @DefaultValue("diseaseAlleleDefault") @QueryParam("sortBy") String sortBy,
             @Parameter(in=ParameterIn.QUERY, name="filter.geneName", description = "filter by gene symbol", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.geneName") String geneName,
             @Parameter(in=ParameterIn.QUERY, name="filter.alleleName", description = "filter by allele symbol", schema = @Schema(type = SchemaType.STRING))

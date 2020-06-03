@@ -1,20 +1,20 @@
 package org.alliancegenome.neo4j.entity.node;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
+import lombok.Getter;
+import lombok.Setter;
+import lombok.extern.log4j.Log4j2;
 import org.alliancegenome.cache.repository.helper.SourceServiceHelper;
 import org.apache.commons.collections.CollectionUtils;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 
-import lombok.Getter;
-import lombok.Setter;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @NodeEntity
 @Getter
 @Setter
+@Log4j2
 public class DiseaseEntityJoin extends EntityJoin {
 
     @Relationship(type = "ASSOCIATION")
@@ -46,42 +46,54 @@ public class DiseaseEntityJoin extends EntityJoin {
         return source;
     }
 
-    public CrossReference getSourceProvider() {
-        if (checkValidity()) return null;
-
-        List<CrossReference> refs = providerList.stream()
-                .filter(crossReference -> crossReference.getLoadedDB() != null)
-                .filter(CrossReference::getCuratedDB)
-                .collect(Collectors.toList());
-        if (CollectionUtils.isNotEmpty(refs))
-            return refs.get(0);
-        else
+    // ToDo: This is hard-coded to handle the OMIM via RGD case.
+    // It's needs to be modelled differently. The CrossReference nodes need to be on
+    // the PublicationJoin  node
+    // This is just a quick fix and is not scalable
+    public List<Map<String, CrossReference>> getDataProviderList() {
+        if (providerList == null && dataProvider == null)
             return null;
-
-    }
-
-    public CrossReference getLoadProvider() {
-        if (checkValidity()) return null;
-
-        List<CrossReference> refs = providerList.stream()
-                .filter(crossReference -> crossReference.getLoadedDB() != null)
-                .filter(CrossReference::getLoadedDB)
-                .collect(Collectors.toList());
-        if (CollectionUtils.isNotEmpty(refs))
-            return refs.get(0);
-        else
+        if (providerList == null && !dataProvider.equals("Alliance")) {
             return null;
+        }
 
+        List<Map<String, CrossReference>> dataProviderList = new ArrayList<>(2);
+        if (dataProvider != null && dataProvider.equals("Alliance")) {
+            Map<String, CrossReference> providerMap = new HashMap<>();
+            CrossReference ref = new CrossReference();
+            ref.setDisplayName("Alliance");
+            providerMap.put("sourceProvider", ref);
+            dataProviderList.add(providerMap);
+            return dataProviderList;
+        }
+
+        if (providerList == null) {
+            return null;
+        }
+        try {
+            providerList.stream()
+                    .filter(crossReference -> crossReference.getLoadedDB() != null)
+                    .filter(CrossReference::getCuratedDB)
+                    .forEach(crossReference -> {
+                        Map<String, CrossReference> providerMap = new HashMap<>();
+                        providerMap.put("sourceProvider", crossReference);
+                        if (!crossReference.getDisplayName().equals("RGD")) {
+                            List<CrossReference> loadRefs = providerList.stream()
+                                    .filter(crossRef -> crossRef.getLoadedDB() != null)
+                                    .filter(CrossReference::getLoadedDB)
+                                    .collect(Collectors.toList());
+
+                            if (loadRefs.size() > 1)
+                                throw new RuntimeException(("There are more than 3 CrossReferences "));
+                            if (CollectionUtils.isNotEmpty(loadRefs))
+                                providerMap.put("loadProvider", loadRefs.get(0));
+                        }
+                        dataProviderList.add(providerMap);
+                    });
+        } catch (Exception e) {
+            log.error("error while looping PK " + primaryKey, e);
+        }
+        return dataProviderList;
     }
 
-    private boolean checkValidity() {
-        if (providerList == null)
-            return true;
-
-/*
-        if (providerList.size() > 2)
-            throw new RuntimeException("More than 2 CrossReference nodes per DiseaseEntityJoin found [" + primaryKey + "]");
-*/
-        return false;
-    }
 }
