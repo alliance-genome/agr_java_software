@@ -34,7 +34,12 @@ public class DiseaseAnnotationFiltering extends AnnotationFiltering<DiseaseAnnot
             (annotation, value) -> {
                 if (annotation.getProviders() == null)
                     return FilterFunction.contains(annotation.getSource().getName(), value);
-                return FilterFunction.contains(annotation.getProviders().values().stream().map(CrossReference::getDisplayName).collect(Collectors.joining(",")), value);
+/// ToDO                return FilterFunction.contains(annotation.getProviders().stream().values().stream().map(CrossReference::getDisplayName).collect(Collectors.joining(",")), value);
+/*
+                return FilterFunction.contains(annotation.getProviders().stream()
+                        .map(stringCrossReferenceMap -> stringCrossReferenceMap.values()).values().stream().map(CrossReference::getDisplayName).collect(Collectors.joining(",")), value);
+*/
+                return false;
             };
 
     public FilterFunction<DiseaseAnnotation, String> geneticEntityTypeFilter =
