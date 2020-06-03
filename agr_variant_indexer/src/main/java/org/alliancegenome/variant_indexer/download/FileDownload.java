@@ -27,7 +27,7 @@ class FileDownload extends Thread {
     private String downloadPath;
     private DownloadableFile file;
     private URL downloadUrl;
-    private String lastElapsedTime = "";
+    private int lastPercent = 0;
 
     @Getter
     private long size;
@@ -223,9 +223,9 @@ class FileDownload extends Thread {
     }
     
     private void stateChanged() {
-        if(!lastElapsedTime.equals(getElapsedTime())) {
+        if(lastPercent != (int)getProgress()) {
             log.info("File: " + getFilePath(downloadUrl) + ": " + (int)getProgress() + "% " + getElapsedTime() + " AvgSpeed: " + avgSpeed + " Rate: " + speed);
-            lastElapsedTime = getElapsedTime();
+            lastPercent = (int)getProgress();
         }
     }
 
