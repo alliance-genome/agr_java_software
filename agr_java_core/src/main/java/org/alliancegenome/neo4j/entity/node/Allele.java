@@ -53,7 +53,7 @@ public class Allele extends GeneticEntity implements Comparable<Allele>, Present
     @Relationship(type = "HAS_PHENOTYPE")
     private List<Phenotype> phenotypes = new ArrayList<>();
 
-    @JsonView({View.GeneAllelesAPI.class})
+    @JsonView({View.API.class})
     @Relationship(type = "CONTAINS")
     private List<Construct> constructs;
 
