@@ -1,9 +1,16 @@
 package org.alliancegenome.core.config;
 
 import static org.alliancegenome.core.config.Constants.*;
+import lombok.extern.log4j.Log4j2;
+import org.alliancegenome.core.util.FileHelper;
+import org.apache.commons.collections.map.MultiValueMap;
+
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
@@ -139,13 +146,39 @@ public class ConfigHelper {
         if (!init) init();
         return config.get(ES_HOST);
     }
+    
+    public static Multimap<String, Integer> getEsHostMap() {
+        
+        Multimap<String, Integer> hostMap = ArrayListMultimap.create();
+
+        String esHostConfig = getEsHost();
+        if(esHostConfig.contains(",")) {
+            String[] hosts = esHostConfig.split(",");
+            for(String host: hosts) {
+                if(host.contains(":")) {
+                    String[] array = host.split(":");
+                    hostMap.put(array[0], Integer.parseInt(array[1]));
+                } else {
+                    hostMap.put(host, getEsPort());
+                }
+            }
+        } else {
+            if(esHostConfig.contains(":")) {
+                String[] array = esHostConfig.split(":");
+                hostMap.put(array[0], Integer.parseInt(array[1]));
+            } else {
+                hostMap.put(esHostConfig, getEsPort());
+            }
+        }
+        return hostMap;
+    }
 
     public static int getEsPort() {
         if (!init) init();
         try {
             return Integer.parseInt(config.get(ES_PORT));
         } catch (NumberFormatException e) {
-            return 9300;
+            return 9200;
         }
     }
 
@@ -251,7 +284,7 @@ public class ConfigHelper {
         if (!init) init();
         return config.get(SPECIES);
     }
-
+    
     public static boolean getIndexVariants() {
         if (!init) init();
         return Boolean.parseBoolean(config.get(INDEX_VARIANTS));
@@ -306,6 +339,5 @@ public class ConfigHelper {
     public static boolean isProduction() {
         return getNeo4jHost().contains("production");
     }
-
 
 }

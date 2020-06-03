@@ -1,16 +1,11 @@
 package org.alliancegenome.es.index;
 
-import org.alliancegenome.core.config.ConfigHelper;
+import java.io.IOException;
+
+import org.alliancegenome.es.util.EsClientFactory;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.http.HttpHost;
-import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestHighLevelClient;
-
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
 
 public class ESDAO {
 
@@ -23,17 +18,7 @@ public class ESDAO {
     }
 
     public void init() {
-        if(searchClient == null) {
-            if(ConfigHelper.getEsHost().contains(",")) {
-                String[] hostnames = ConfigHelper.getEsHost().split(",");
-                List<HttpHost> hosts = Arrays.stream(hostnames).map(host -> new HttpHost(host, ConfigHelper.getEsPort())).collect(Collectors.toList());
-                searchClient = new RestHighLevelClient(
-                        RestClient.builder((HttpHost[])hosts.toArray())
-                );
-            } else {
-                searchClient = new RestHighLevelClient(RestClient.builder(new HttpHost(ConfigHelper.getEsHost(),ConfigHelper.getEsPort())));
-            }
-        }
+        searchClient = EsClientFactory.getDefaultEsClient();
     }
 
     public void close() {

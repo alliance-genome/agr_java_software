@@ -15,6 +15,7 @@
         <module>agr_api</module>
         <module>agr_schema_validation</module>
         <module>agr_intermine_data_extractor</module>
+        <module>agr_variant_indexer</module>
   </modules>
 
     <properties>

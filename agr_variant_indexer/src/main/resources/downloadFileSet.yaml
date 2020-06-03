@@ -1,0 +1,56 @@
+downloadPath: ""
+
+downloadFileSet:
+  - source: ensembl
+    species: human
+    fileList:
+      - chromosome: 1
+        url: http://ftp.ensembl.org/pub/release-99/variation/vcf/homo_sapiens/homo_sapiens_incl_consequences-chr1.vcf.gz
+      - chromosome: 2
+        url: http://ftp.ensembl.org/pub/release-99/variation/vcf/homo_sapiens/homo_sapiens_incl_consequences-chr2.vcf.gz
+      - chromosome: 3
+        url: http://ftp.ensembl.org/pub/release-99/variation/vcf/homo_sapiens/homo_sapiens_incl_consequences-chr3.vcf.gz
+      - chromosome: 4
+        url: http://ftp.ensembl.org/pub/release-99/variation/vcf/homo_sapiens/homo_sapiens_incl_consequences-chr4.vcf.gz
+      - chromosome: 5
+        url: http://ftp.ensembl.org/pub/release-99/variation/vcf/homo_sapiens/homo_sapiens_incl_consequences-chr5.vcf.gz
+      - chromosome: 6
+        url: http://ftp.ensembl.org/pub/release-99/variation/vcf/homo_sapiens/homo_sapiens_incl_consequences-chr6.vcf.gz
+      - chromosome: 7
+        url: http://ftp.ensembl.org/pub/release-99/variation/vcf/homo_sapiens/homo_sapiens_incl_consequences-chr7.vcf.gz
+      - chromosome: 8
+        url: http://ftp.ensembl.org/pub/release-99/variation/vcf/homo_sapiens/homo_sapiens_incl_consequences-chr8.vcf.gz
+      - chromosome: 9
+        url: http://ftp.ensembl.org/pub/release-99/variation/vcf/homo_sapiens/homo_sapiens_incl_consequences-chr9.vcf.gz
+      - chromosome: 10
+        url: http://ftp.ensembl.org/pub/release-99/variation/vcf/homo_sapiens/homo_sapiens_incl_consequences-chr10.vcf.gz
+      - chromosome: 11
+        url: http://ftp.ensembl.org/pub/release-99/variation/vcf/homo_sapiens/homo_sapiens_incl_consequences-chr11.vcf.gz
+      - chromosome: 12
+        url: http://ftp.ensembl.org/pub/release-99/variation/vcf/homo_sapiens/homo_sapiens_incl_consequences-chr12.vcf.gz
+      - chromosome: 13
+        url: http://ftp.ensembl.org/pub/release-99/variation/vcf/homo_sapiens/homo_sapiens_incl_consequences-chr13.vcf.gz
+      - chromosome: 14
+        url: http://ftp.ensembl.org/pub/release-99/variation/vcf/homo_sapiens/homo_sapiens_incl_consequences-chr14.vcf.gz
+      - chromosome: 15
+        url: http://ftp.ensembl.org/pub/release-99/variation/vcf/homo_sapiens/homo_sapiens_incl_consequences-chr15.vcf.gz
+      - chromosome: 16
+        url: http://ftp.ensembl.org/pub/release-99/variation/vcf/homo_sapiens/homo_sapiens_incl_consequences-chr16.vcf.gz
+      - chromosome: 17
+        url: http://ftp.ensembl.org/pub/release-99/variation/vcf/homo_sapiens/homo_sapiens_incl_consequences-chr17.vcf.gz
+      - chromosome: 18
+        url: http://ftp.ensembl.org/pub/release-99/variation/vcf/homo_sapiens/homo_sapiens_incl_consequences-chr18.vcf.gz
+      - chromosome: 19
+        url: http://ftp.ensembl.org/pub/release-99/variation/vcf/homo_sapiens/homo_sapiens_incl_consequences-chr19.vcf.gz
+      - chromosome: 20
+        url: http://ftp.ensembl.org/pub/release-99/variation/vcf/homo_sapiens/homo_sapiens_incl_consequences-chr20.vcf.gz
+      - chromosome: 21
+        url: http://ftp.ensembl.org/pub/release-99/variation/vcf/homo_sapiens/homo_sapiens_incl_consequences-chr21.vcf.gz
+      - chromosome: 22
+        url: http://ftp.ensembl.org/pub/release-99/variation/vcf/homo_sapiens/homo_sapiens_incl_consequences-chr22.vcf.gz
+      - chromosome: MT
+        url: http://ftp.ensembl.org/pub/release-99/variation/vcf/homo_sapiens/homo_sapiens_incl_consequences-chrMT.vcf.gz
+      - chromosome: X
+        url: http://ftp.ensembl.org/pub/release-99/variation/vcf/homo_sapiens/homo_sapiens_incl_consequences-chrX.vcf.gz
+      - chromosome: Y
+        url: http://ftp.ensembl.org/pub/release-99/variation/vcf/homo_sapiens/homo_sapiens_incl_consequences-chrY.vcf.gz

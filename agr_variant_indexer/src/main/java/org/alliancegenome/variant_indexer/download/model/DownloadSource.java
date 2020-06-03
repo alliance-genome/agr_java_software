@@ -1,0 +1,14 @@
+package org.alliancegenome.variant_indexer.download.model;
+
+import java.util.List;
+
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+
+@Getter @Setter @ToString
+public class DownloadSource {
+    private String source;
+    private String species;
+    private List<DownloadableFile> fileList;
+}

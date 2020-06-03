@@ -1,17 +1,23 @@
 package org.alliancegenome.core.util;
 
-import com.opencsv.CSVReader;
-import com.opencsv.exceptions.CsvException;
-import lombok.extern.log4j.Log4j2;
-import org.alliancegenome.core.config.ConfigHelper;
+import static org.alliancegenome.core.config.ConfigHelper.getJavaLineSeparator;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
-import static org.alliancegenome.core.config.ConfigHelper.getJavaLineSeparator;
+import org.alliancegenome.core.config.ConfigHelper;
+
+import com.opencsv.CSVReader;
+import com.opencsv.exceptions.CsvException;
+
+import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 public class FileHelper {
@@ -20,7 +26,7 @@ public class FileHelper {
         Map<String, Map<String, Boolean>> applicabilityMatrix = new HashMap<>();
         InputStream in = null;
         try {
-            in = ConfigHelper.class.getClassLoader().getResourceAsStream(ribbonTermSpeciesApplicabilityPath);
+            in = FileHelper.class.getClassLoader().getResourceAsStream(ribbonTermSpeciesApplicabilityPath);
             CSVReader reader = new CSVReader(new InputStreamReader(in));
             List<String[]> values = reader.readAll();
 
@@ -57,7 +63,7 @@ public class FileHelper {
         String result = "";
         try {
             String str = null;
-            in = ConfigHelper.class.getClassLoader().getResourceAsStream(filePath);
+            in = FileHelper.class.getClassLoader().getResourceAsStream(filePath);
             if (in != null) {
                 reader = new BufferedReader(new InputStreamReader(in));
                 while ((str = reader.readLine()) != null) {
@@ -85,7 +91,7 @@ public class FileHelper {
         BufferedReader reader = null;
         try {
             String str = null;
-            in = ConfigHelper.class.getClassLoader().getResourceAsStream(filePath);
+            in = FileHelper.class.getClassLoader().getResourceAsStream(filePath);
             if (in != null) {
                 reader = new BufferedReader(new InputStreamReader(in));
                 while ((str = reader.readLine()) != null) {
@@ -114,7 +120,7 @@ public class FileHelper {
 
     public static Properties getPropertiesFromFile(String configPropertiesFileName) {
         Properties configProperties = new Properties();
-        InputStream in = ConfigHelper.class.getClassLoader().getResourceAsStream(configPropertiesFileName);
+        InputStream in = FileHelper.class.getClassLoader().getResourceAsStream(configPropertiesFileName);
         if (in == null) {
             log.debug("No config.properties file, other config options will be used");
         } else {
@@ -151,6 +157,7 @@ public class FileHelper {
         applicabilityMatrix = FileHelper.getApplicabilityMatrix(ribbonTermSpeciesApplicabilityPath);
         return applicabilityMatrix;
     }
+    
     public static Boolean getRibbonTermSpeciesApplicability(String id, String displayName) {
         Map<String, Boolean> map = getRibbonTermSpeciesApplicabilityMap().get(displayName);
         if (map == null) {
