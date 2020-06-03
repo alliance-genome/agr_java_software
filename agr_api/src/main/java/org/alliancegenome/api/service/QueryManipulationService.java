@@ -7,7 +7,7 @@ import org.apache.commons.lang3.StringUtils;
 
 public class QueryManipulationService {
 
-    private static final String ESCAPE_CHARS = "[/\\[\\]()]";
+    private static final String ESCAPE_CHARS = "[/\\[\\](){}]";
     private static final Pattern LUCENE_PATTERN = Pattern.compile(ESCAPE_CHARS);
     private static final String REPLACEMENT_STRING = "\\\\$0";
     private static final Pattern HGVS_PATTERN = Pattern.compile("([A-Z]{2}_[0-9\\.]+[\\\\]*:g.[\\d\\w><_]+)");

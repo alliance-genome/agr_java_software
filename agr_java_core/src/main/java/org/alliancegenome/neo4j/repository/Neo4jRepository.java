@@ -180,5 +180,4 @@ public class Neo4jRepository<E> {
         return query;
     }
 
-
 }
