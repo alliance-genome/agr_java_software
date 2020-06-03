@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import org.alliancegenome.core.config.ConfigHelper;
+
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvException;
 
@@ -155,6 +157,7 @@ public class FileHelper {
         applicabilityMatrix = FileHelper.getApplicabilityMatrix(ribbonTermSpeciesApplicabilityPath);
         return applicabilityMatrix;
     }
+    
     public static Boolean getRibbonTermSpeciesApplicability(String id, String displayName) {
         Map<String, Boolean> map = getRibbonTermSpeciesApplicabilityMap().get(displayName);
         if (map == null) {

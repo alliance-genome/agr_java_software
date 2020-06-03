@@ -10,6 +10,7 @@ import com.google.common.collect.Multimap;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
@@ -337,15 +338,6 @@ public class ConfigHelper {
 
     public static boolean isProduction() {
         return getNeo4jHost().contains("production");
-    }
-
-    public static Boolean getRibbonTermSpeciesApplicability(String id, String displayName) {
-        Map<String, Boolean> map = ConfigHelper.getRibbonTermSpeciesApplicabilityMap().get(displayName);
-        if (map == null) {
-            log.error("Could not find applicability matrix for species with mod name " + displayName);
-            return false;
-        }
-        return map.get(id);
     }
 
 }

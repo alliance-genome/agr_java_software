@@ -2,8 +2,6 @@ package org.alliancegenome.variant_indexer.config;
 
 import static org.alliancegenome.core.config.Constants.*;
 
-import java.nio.file.Path;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Properties;
 import java.util.Set;
