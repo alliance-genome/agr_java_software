@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.alliancegenome.es.index.site.cache.AlleleDocumentCache;
+import org.alliancegenome.es.util.CollectionHelper;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -95,7 +96,7 @@ public class AlleleIndexerRepository extends Neo4jRepository {
 
         Map<String, Set<String>> localIds = getMapSetForQuery(query, getSpeciesParams(species));
 
-        return merge(names, localIds);
+        return CollectionHelper.merge(names, localIds);
     }
 
     public Map<String, Set<String>> getConstructs(String species) {
@@ -174,7 +175,7 @@ public class AlleleIndexerRepository extends Neo4jRepository {
         query += "RETURN distinct a.primaryKey as id, [v.hgvsNomenclature, tlc.hgvsVEPGeneNomenclature, tlc.hgvsProteinNomenclature, tlc.hgvsCodingNomenclature] as value  ";
         Map<String,Set<String>> tlcNames = getMapSetForQuery(query, getSpeciesParams(species));
 
-        return merge(hgvsNames, tlcNames);
+        return CollectionHelper.merge(hgvsNames, tlcNames);
     }
 
     public Map<String, Set<String>> getVariantTypesMap(String species) {
