@@ -43,6 +43,7 @@ public class Constants {
     public static final String VARIANT_CONFIG_FILE = "VARIANT_CONFIG_FILE";
     // Variant File Downloader
     public static final String VARIANT_FILE_DOWNLOAD_THREADS = "VARIANT_FILE_DOWNLOAD_THREADS";
+    public static final String VARIANT_FILE_DOWNLOAD_FILTER_THREADS = "VARIANT_FILE_DOWNLOAD_FILTER_THREADS";
     public static final String VARIANT_FILE_DOWNLOAD_PATH = "VARIANT_FILE_DOWNLOAD_PATH";
     // Variant Document Creator
     public static final String VARIANT_DOCUMENT_CREATOR_THREADS = "VARIANT_DOCUMENT_CREATOR_THREADS";

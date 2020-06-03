@@ -48,6 +48,7 @@ public class VariantConfigHelper {
         defaults.put(VARIANT_CONFIG_FILE, "downloadFileSet.yaml");
         
         defaults.put(VARIANT_FILE_DOWNLOAD_THREADS, "10");
+        defaults.put(VARIANT_FILE_DOWNLOAD_FILTER_THREADS, "10");
         defaults.put(VARIANT_FILE_DOWNLOAD_PATH, "data");
 
         defaults.put(VARIANT_DOCUMENT_CREATOR_THREADS, "4");
@@ -292,6 +293,15 @@ public class VariantConfigHelper {
             return Integer.parseInt(config.get(VARIANT_DOCUMENT_CREATOR_WORK_CHUNK_SIZE));
         } catch (NumberFormatException e) {
             return 100;
+        }
+    }
+
+    public static int getFileDownloadFilterThreads() {
+        if (!init) init();
+        try {
+            return Integer.parseInt(config.get(VARIANT_FILE_DOWNLOAD_FILTER_THREADS));
+        } catch (NumberFormatException e) {
+            return 10;
         }
     }
 

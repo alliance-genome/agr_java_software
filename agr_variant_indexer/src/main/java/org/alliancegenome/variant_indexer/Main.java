@@ -2,6 +2,7 @@ package org.alliancegenome.variant_indexer;
 
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.variant_indexer.config.VariantConfigHelper;
+import org.alliancegenome.variant_indexer.download.FileDownloadFilterManager;
 import org.alliancegenome.variant_indexer.download.FileDownloadManager;
 import org.alliancegenome.variant_indexer.download.model.DownloadFileSet;
 import org.alliancegenome.variant_indexer.vcf.VCFDocumentCreationManager;
@@ -28,9 +29,13 @@ public class Main {
             DownloadFileSet downloadSet = mapper.readValue(getClass().getClassLoader().getResourceAsStream(VariantConfigHelper.getVariantConfigFile()), DownloadFileSet.class);
             downloadSet.setDownloadPath(VariantConfigHelper.getVariantFileDownloadPath());
             
-            FileDownloadManager dm = new FileDownloadManager(downloadSet);
-            dm.start();
-            dm.join();
+            FileDownloadManager fdm = new FileDownloadManager(downloadSet);
+            fdm.start();
+            fdm.join();
+            
+            FileDownloadFilterManager fdfm = new FileDownloadFilterManager(downloadSet);
+            fdfm.start();
+            fdfm.join();
             
             VCFDocumentCreationManager vdm = new VCFDocumentCreationManager(downloadSet);
             vdm.start();
