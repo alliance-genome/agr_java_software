@@ -1,9 +1,16 @@
 package org.alliancegenome.variant_indexer.es;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
+import org.alliancegenome.core.config.ConfigHelper;
+import org.alliancegenome.es.util.EsClientFactory;
+import org.apache.commons.collections.map.MultiValueMap;
 import org.apache.http.HttpHost;
+import org.apache.http.client.config.RequestConfig.Builder;
 import org.elasticsearch.action.bulk.BackoffPolicy;
 import org.elasticsearch.action.bulk.BulkProcessor;
 import org.elasticsearch.action.bulk.BulkRequest;
@@ -12,6 +19,7 @@ import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.client.RestClientBuilder.RequestConfigCallback;
 import org.elasticsearch.client.indices.CreateIndexRequest;
 import org.elasticsearch.client.indices.CreateIndexResponse;
 import org.elasticsearch.common.settings.Settings;
@@ -31,19 +39,9 @@ public class ESDocumentInjector extends Thread {
     //private boolean createIndex = false;
     private LinkedBlockingQueue<IndexRequest> queue = new LinkedBlockingQueue<>(10_000);
     
-    private RestHighLevelClient client = new RestHighLevelClient(RestClient.builder(
-            new HttpHost("54.91.239.235", 9200, "http"),
-            new HttpHost("54.91.239.235", 9201, "http"),
-            new HttpHost("54.91.239.235", 9202, "http"),
-            new HttpHost("54.91.239.235", 9203, "http"),
-            new HttpHost("54.91.239.235", 9204, "http"),
-            new HttpHost("54.91.239.235", 9205, "http"),
-            new HttpHost("54.91.239.235", 9206, "http"),
-            new HttpHost("54.91.239.235", 9207, "http")
-    ));
+    private RestHighLevelClient client = EsClientFactory.getDefaultEsClient();
     
     public ESDocumentInjector(boolean createIndex) {
-        //this.createIndex = createIndex;
         
         BulkProcessor.Listener listener = new BulkProcessor.Listener() { 
             @Override
@@ -64,14 +62,17 @@ public class ESDocumentInjector extends Thread {
             }
         };
 
+        log.info("Creating Bulk Processor");
         builder = BulkProcessor.builder((request, bulkListener) -> client.bulkAsync(request, RequestOptions.DEFAULT, bulkListener), listener);
-        builder.setBulkActions(20000);
-        builder.setConcurrentRequests(12);
-        builder.setBulkSize(new ByteSizeValue(75, ByteSizeUnit.MB));
-        builder.setFlushInterval(TimeValue.timeValueSeconds(60L));
+        builder.setBulkActions(250_000);
+        builder.setConcurrentRequests(3);
+        builder.setBulkSize(new ByteSizeValue(100, ByteSizeUnit.MB));
+        builder.setFlushInterval(TimeValue.timeValueSeconds(180L));
         builder.setBackoffPolicy(BackoffPolicy.exponentialBackoff(TimeValue.timeValueSeconds(1L), 60));
 
         bulkProcessor = builder.build();
+        
+        log.info("Finished Creating Bulk Processor");
         
         if(createIndex) {
         
@@ -89,6 +90,7 @@ public class ESDocumentInjector extends Thread {
                 e.printStackTrace();
             }
         }
+        start();
     }
     
     public void run() {
@@ -103,9 +105,9 @@ public class ESDocumentInjector extends Thread {
         }
     }
     
-    public void addDocument(String id, String json) {
+    public void addDocument(String json) {
         try {
-            queue.offer(new IndexRequest(indexName).source(json, XContentType.JSON).id(id), 10, TimeUnit.DAYS);
+            queue.offer(new IndexRequest(indexName).source(json, XContentType.JSON), 10, TimeUnit.DAYS);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
