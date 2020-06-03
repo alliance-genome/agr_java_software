@@ -2,6 +2,8 @@ package org.alliancegenome.cache.repository.helper;
 
 import static org.alliancegenome.neo4j.entity.SpeciesType.NCBITAXON;
 
+import java.util.Collection;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -34,12 +36,10 @@ public class DiseaseAnnotationFiltering extends AnnotationFiltering<DiseaseAnnot
             (annotation, value) -> {
                 if (annotation.getProviders() == null)
                     return FilterFunction.contains(annotation.getSource().getName(), value);
-/// ToDO                return FilterFunction.contains(annotation.getProviders().stream().values().stream().map(CrossReference::getDisplayName).collect(Collectors.joining(",")), value);
-/*
                 return FilterFunction.contains(annotation.getProviders().stream()
-                        .map(stringCrossReferenceMap -> stringCrossReferenceMap.values()).values().stream().map(CrossReference::getDisplayName).collect(Collectors.joining(",")), value);
-*/
-                return false;
+                        .map(Map::values)
+                        .flatMap(Collection::stream)
+                        .map(CrossReference::getDisplayName).collect(Collectors.joining(",")), value);
             };
 
     public FilterFunction<DiseaseAnnotation, String> geneticEntityTypeFilter =
