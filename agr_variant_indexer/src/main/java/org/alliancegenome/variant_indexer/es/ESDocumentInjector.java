@@ -1,25 +1,17 @@
 package org.alliancegenome.variant_indexer.es;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
-import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.es.util.EsClientFactory;
-import org.apache.commons.collections.map.MultiValueMap;
-import org.apache.http.HttpHost;
-import org.apache.http.client.config.RequestConfig.Builder;
+import org.alliancegenome.variant_indexer.config.VariantConfigHelper;
 import org.elasticsearch.action.bulk.BackoffPolicy;
 import org.elasticsearch.action.bulk.BulkProcessor;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.client.RequestOptions;
-import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestHighLevelClient;
-import org.elasticsearch.client.RestClientBuilder.RequestConfigCallback;
 import org.elasticsearch.client.indices.CreateIndexRequest;
 import org.elasticsearch.client.indices.CreateIndexResponse;
 import org.elasticsearch.common.settings.Settings;
@@ -37,7 +29,7 @@ public class ESDocumentInjector extends Thread {
     private BulkProcessor bulkProcessor;
     private String indexName = "site_variant_index";
     //private boolean createIndex = false;
-    private LinkedBlockingQueue<IndexRequest> queue = new LinkedBlockingQueue<>(10_000);
+    private LinkedBlockingQueue<IndexRequest> queue = new LinkedBlockingQueue<>(VariantConfigHelper.getEsBulkRequestQueueSize());
     
     private RestHighLevelClient client = EsClientFactory.getDefaultEsClient();
     
@@ -64,9 +56,9 @@ public class ESDocumentInjector extends Thread {
 
         log.info("Creating Bulk Processor");
         builder = BulkProcessor.builder((request, bulkListener) -> client.bulkAsync(request, RequestOptions.DEFAULT, bulkListener), listener);
-        builder.setBulkActions(250_000);
-        builder.setConcurrentRequests(3);
-        builder.setBulkSize(new ByteSizeValue(100, ByteSizeUnit.MB));
+        builder.setBulkActions(VariantConfigHelper.getEsBulkActionSize());
+        builder.setConcurrentRequests(VariantConfigHelper.getEsBulkConcurrentRequestsAmount());
+        builder.setBulkSize(new ByteSizeValue(VariantConfigHelper.getEsBulkSizeMB(), ByteSizeUnit.MB));
         builder.setFlushInterval(TimeValue.timeValueSeconds(180L));
         builder.setBackoffPolicy(BackoffPolicy.exponentialBackoff(TimeValue.timeValueSeconds(1L), 60));
 
@@ -78,7 +70,7 @@ public class ESDocumentInjector extends Thread {
         
             CreateIndexRequest indexRequest = new CreateIndexRequest(indexName);
             indexRequest.settings(Settings.builder() 
-                    .put("index.number_of_shards", 8)
+                    .put("index.number_of_shards", VariantConfigHelper.getEsNumberOfShards())
                     .put("index.refresh_interval", -1)
                     .put("index.number_of_replicas", 0)
                     );

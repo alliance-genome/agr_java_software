@@ -76,9 +76,6 @@ public class ConfigHelper {
         defaults.put(AO_TERM_LIST, "anatomy-term-order.csv");
         defaults.put(GO_TERM_LIST, "go-term-order.csv");
         defaults.put(RIBBON_TERM_SPECIES_APPLICABILITY, "ribbon-term-species-applicability.csv");
-        
-        defaults.put(VARIANT_DOWNLOAD_PATH, "data");
-        defaults.put(VARIANT_CONFIG_FILE, "downloadFileSet.yaml");
 
         // This next item needs to be set in order to prevent the 
         // Caused by: java.lang.IllegalStateException: availableProcessors is already set to [16], rejecting [16]
@@ -285,16 +282,6 @@ public class ConfigHelper {
     public static String getSpecies() {
         if (!init) init();
         return config.get(SPECIES);
-    }
-    
-    public static String getVariantConfigFile() {
-        if (!init) init();
-        return config.get(VARIANT_CONFIG_FILE);
-    }
-
-    public static String getVariantDownloadPath() {
-        if (!init) init();
-        return config.get(VARIANT_DOWNLOAD_PATH);
     }
     
     public static boolean getIndexVariants() {

@@ -12,6 +12,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.zip.GZIPOutputStream;
 
+import org.alliancegenome.variant_indexer.config.VariantConfigHelper;
 import org.alliancegenome.variant_indexer.download.model.DownloadableFile;
 import org.alliancegenome.variant_indexer.util.VariantContextConverter;
 
@@ -28,8 +29,21 @@ public class VCFDocumentCreator extends Thread {
     
     private PrintWriter outFilePrinter;
 
-    private ThreadPoolExecutor variantContextProcessorTaskExecuter = new ThreadPoolExecutor(1, 6, 10, TimeUnit.MILLISECONDS, new LinkedBlockingDeque<Runnable>(100));
-    private ThreadPoolExecutor variantDocumentWriterTaskExecuter = new ThreadPoolExecutor(1, 1, 10, TimeUnit.MILLISECONDS, new LinkedBlockingDeque<Runnable>(10000));
+    private ThreadPoolExecutor variantContextProcessorTaskExecuter = new ThreadPoolExecutor(
+        1, 
+        VariantConfigHelper.getContextProcessorTaskThreads(), 
+        10, 
+        TimeUnit.MILLISECONDS, 
+        new LinkedBlockingDeque<Runnable>(VariantConfigHelper.getContextProcessorTaskQueueSize())
+    );
+    
+    private ThreadPoolExecutor variantDocumentWriterTaskExecuter = new ThreadPoolExecutor(
+        1,
+        VariantConfigHelper.getDocumentWriterTaskThreads(),
+        10,
+        TimeUnit.MILLISECONDS,
+        new LinkedBlockingDeque<Runnable>(VariantConfigHelper.getDocumentWriterTaskQueueSize())
+    );
     
     public VCFDocumentCreator(DownloadableFile downloadFile) {
         this.vcfFilePath = downloadFile.getLocalGzipFilePath();
@@ -85,7 +99,7 @@ public class VCFDocumentCreator extends Thread {
                     VariantContext vc = iter1.next();
                     workChunk.add(vc);
                     
-                    if(workChunk.size() >= 100) {
+                    if(workChunk.size() >= VariantConfigHelper.getDocumentCreatorWorkChunkSize()) {
                         variantContextProcessorTaskExecuter.execute(new VariantContextProcessorTask(workChunk));
                         workChunk = new ArrayList<>();
                     }

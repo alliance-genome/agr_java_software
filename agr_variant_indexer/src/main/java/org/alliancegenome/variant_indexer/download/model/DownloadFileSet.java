@@ -11,9 +11,6 @@ import lombok.ToString;
 public class DownloadFileSet {
     private List<DownloadSource> downloadFileSet;
     private String downloadPath;
-    private Integer fileDownloadThreads;
-    private Integer documentCreatorThreads;
-    private Integer documentIndexerThreads;
 
     public List<DownloadableFile> getFilesToDownload() {
         List<DownloadableFile> ret = new ArrayList<DownloadableFile>();

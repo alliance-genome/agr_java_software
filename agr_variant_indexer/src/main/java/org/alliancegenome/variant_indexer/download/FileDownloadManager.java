@@ -2,6 +2,7 @@ package org.alliancegenome.variant_indexer.download;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import org.alliancegenome.variant_indexer.config.VariantConfigHelper;
 import org.alliancegenome.variant_indexer.download.model.DownloadFileSet;
 import org.alliancegenome.variant_indexer.download.model.DownloadSource;
 import org.alliancegenome.variant_indexer.download.model.DownloadableFile;
@@ -19,7 +20,7 @@ public class FileDownloadManager extends Thread {
 
     public void run() {
         
-        ExecutorService executor = Executors.newFixedThreadPool(downloadSet.getFileDownloadThreads());
+        ExecutorService executor = Executors.newFixedThreadPool(VariantConfigHelper.getFileDownloadThreads());
         
         for(DownloadSource source: downloadSet.getDownloadFileSet()) {
             for(DownloadableFile df: source.getFileList()) {
