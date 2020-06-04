@@ -30,7 +30,9 @@ public class FileDownloadFilterManager extends Thread {
             }
             
             executor.shutdown();  
-            while (!executor.isTerminated()) {   } 
+            while (!executor.isTerminated()) {
+                Thread.sleep(100);
+            } 
             
         } catch (Exception e) {
             e.printStackTrace();

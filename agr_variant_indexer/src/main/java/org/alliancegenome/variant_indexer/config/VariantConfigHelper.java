@@ -55,8 +55,7 @@ public class VariantConfigHelper {
         defaults.put(VARIANT_DOCUMENT_CREATOR_DOCUMENT_WRITER_TASK_THREADS, "1");
         defaults.put(VARIANT_DOCUMENT_CREATOR_DOCUMENT_WRITER_TASK_QUEUE_SIZE, "10000");
         defaults.put(VARIANT_DOCUMENT_CREATOR_WORK_CHUNK_SIZE, "100");
-        
-        defaults.put(VARIANT_DOCUMENT_INDEXER_THREADS, "4");
+
         defaults.put(VARIANT_ES_BULK_REQUEST_QUEUE_SIZE, "10000");
         defaults.put(VARIANT_ES_BULK_ACTION_SIZE, "250000");
         defaults.put(VARIANT_ES_BULK_CONCURRENT_REQUEST_AMOUNT, "8");
@@ -237,15 +236,6 @@ public class VariantConfigHelper {
             return Integer.parseInt(config.get(VARIANT_DOCUMENT_CREATOR_THREADS));
         } catch (NumberFormatException e) {
             return 4;
-        }
-    }
-
-    public static Integer getDocumentIndexerThreads() {
-        if (!init) init();
-        try {
-            return Integer.parseInt(config.get(VARIANT_DOCUMENT_INDEXER_THREADS));
-        } catch (NumberFormatException e) {
-            return 1;
         }
     }
 

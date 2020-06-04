@@ -1,5 +1,6 @@
 package org.alliancegenome.variant_indexer.es;
 
+import java.io.IOException;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
@@ -94,6 +95,16 @@ public class ESDocumentInjector extends Thread {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+        }
+    }
+    
+    public void close() {
+        bulkProcessor.close();
+        try {
+            client.close();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
         }
     }
     
