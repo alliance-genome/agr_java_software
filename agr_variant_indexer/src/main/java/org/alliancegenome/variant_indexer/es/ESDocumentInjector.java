@@ -6,6 +6,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.alliancegenome.es.util.EsClientFactory;
 import org.alliancegenome.variant_indexer.config.VariantConfigHelper;
+import org.elasticsearch.action.DocWriteRequest;
 import org.elasticsearch.action.bulk.BackoffPolicy;
 import org.elasticsearch.action.bulk.BulkProcessor;
 import org.elasticsearch.action.bulk.BulkRequest;
@@ -48,10 +49,16 @@ public class ESDocumentInjector extends Thread {
 
             @Override
             public void afterBulk(long executionId, BulkRequest request, Throwable failure) {
-                log.error("Bulk Requet Failure: " + failure.getMessage());
-                log.error(request.toString());
-                failure.printStackTrace();
-                System.exit(-1);
+                log.error("Bulk Request Failure: " + failure.getMessage());
+                for(DocWriteRequest<?> req: request.requests()) {
+                    IndexRequest idxreq = (IndexRequest)req;
+                    try {
+                        queue.offer(idxreq, 10, TimeUnit.DAYS);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+                log.error("Finished Adding requests to Queue:");
             }
         };
 
@@ -87,10 +94,8 @@ public class ESDocumentInjector extends Thread {
 
     public void run() {
         while(true) {
-            IndexRequest req;
             try {
-                req = queue.take();
-                bulkProcessor.add(req);
+                bulkProcessor.add(queue.take());
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -98,14 +103,17 @@ public class ESDocumentInjector extends Thread {
     }
 
     public void close() {
+        log.info("Closing Down Injector: ");
         bulkProcessor.flush();
         bulkProcessor.close();
+        queue = null;
         try {
             client.close();
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
+        log.info("Injector Closed: ");
     }
 
     public void addDocument(String json) {
