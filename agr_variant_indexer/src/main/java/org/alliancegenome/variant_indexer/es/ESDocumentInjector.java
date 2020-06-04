@@ -104,13 +104,13 @@ public class ESDocumentInjector extends Thread {
 
     public void close() {
         log.info("Closing Down Injector: ");
-        bulkProcessor.flush();
-        bulkProcessor.close();
-        queue = null;
         try {
+            log.info("Closing Down bulkProcessor: ");
+            bulkProcessor.awaitClose(20, TimeUnit.MINUTES);
+            log.info("Closing Down bulkProcessor Finished: ");
+            queue = null;
             client.close();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
+        } catch (Exception e) {
             e.printStackTrace();
         }
         log.info("Injector Closed: ");
