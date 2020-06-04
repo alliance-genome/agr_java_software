@@ -202,8 +202,9 @@ class FileDownload extends Thread {
             /* Change status to complete if this point was reached because downloading has finished. */
             if (status == DOWNLOADING) {
                 status = COMPLETE;
-                stateChanged();
+                stateChanged(true);
             }
+            log.info("Finished Downloading: " + downloadUrl + " to: " + localFile.getAbsolutePath());
         } catch (Exception e) {
             System.out.println(e);
             error();
@@ -223,7 +224,11 @@ class FileDownload extends Thread {
     }
     
     private void stateChanged() {
-        if(lastPercent != (int)getProgress()) {
+        stateChanged(false);
+    }
+    
+    private void stateChanged(boolean show) {
+        if(lastPercent != (int)getProgress() || show) {
             log.info("File: " + getFilePath(downloadUrl) + ": " + (int)getProgress() + "% " + getElapsedTime() + " AvgSpeed: " + avgSpeed + " Rate: " + speed);
             lastPercent = (int)getProgress();
         }

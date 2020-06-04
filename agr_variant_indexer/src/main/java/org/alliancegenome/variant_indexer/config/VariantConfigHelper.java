@@ -49,7 +49,7 @@ public class VariantConfigHelper {
         defaults.put(VARIANT_FILE_DOWNLOAD_FILTER_THREADS, "10");
         defaults.put(VARIANT_FILE_DOWNLOAD_PATH, "data");
 
-        defaults.put(VARIANT_DOCUMENT_CREATOR_THREADS, "10");
+        defaults.put(VARIANT_DOCUMENT_CREATOR_THREADS, "12");
         defaults.put(VARIANT_DOCUMENT_CREATOR_CONTEXT_PROCESSOR_TASK_THREADS, "6");
         defaults.put(VARIANT_DOCUMENT_CREATOR_CONTEXT_PROCESSOR_TASK_QUEUE_SIZE, "100");
         defaults.put(VARIANT_DOCUMENT_CREATOR_DOCUMENT_WRITER_TASK_THREADS, "1");
