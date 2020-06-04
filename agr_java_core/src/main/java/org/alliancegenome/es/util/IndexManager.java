@@ -60,7 +60,7 @@ public class IndexManager {
     }
 
     public void initClient() {
-        client = EsClientFactory.getDefaultEsClient(true);
+        client = EsClientFactory.getDefaultEsClient();
     }
 
     public void createAlias(String alias, String index) {

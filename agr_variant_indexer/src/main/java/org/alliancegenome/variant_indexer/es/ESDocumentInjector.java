@@ -33,7 +33,7 @@ public class ESDocumentInjector extends Thread {
     //private boolean createIndex = false;
     private LinkedBlockingQueue<IndexRequest> queue = new LinkedBlockingQueue<>(VariantConfigHelper.getIndexRequestQueueSize());
 
-    private RestHighLevelClient client = EsClientFactory.getDefaultEsClient(true);
+    private RestHighLevelClient client = EsClientFactory.createNewClient();
 
     public ESDocumentInjector() {
 
