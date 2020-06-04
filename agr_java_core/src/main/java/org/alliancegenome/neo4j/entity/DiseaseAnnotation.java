@@ -1,40 +1,24 @@
 package org.alliancegenome.neo4j.entity;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import org.alliancegenome.api.entity.PresentationEntity;
-import org.alliancegenome.neo4j.entity.node.AffectedGenomicModel;
-import org.alliancegenome.neo4j.entity.node.Allele;
-import org.alliancegenome.neo4j.entity.node.CrossReference;
-import org.alliancegenome.neo4j.entity.node.DOTerm;
-import org.alliancegenome.neo4j.entity.node.ECOTerm;
-import org.alliancegenome.neo4j.entity.node.Gene;
-import org.alliancegenome.neo4j.entity.node.Publication;
-import org.alliancegenome.neo4j.entity.node.PublicationJoin;
-import org.alliancegenome.neo4j.entity.node.Source;
-import org.alliancegenome.neo4j.entity.node.Species;
-import org.alliancegenome.neo4j.view.View;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonView;
-
 import lombok.Getter;
 import lombok.Setter;
+import org.alliancegenome.api.entity.PresentationEntity;
+import org.alliancegenome.neo4j.entity.node.*;
+import org.alliancegenome.neo4j.view.View;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
+
+import java.io.Serializable;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Getter
 @Setter
 @JsonPropertyOrder({"disease", "gene", "allele", "geneticEntityType", "associationType", "ecoCode", "source", "publications"})
-@Schema(name="DiseaseAnnotation", description="POJO that represents a Disease Annotation")
+@Schema(name = "DiseaseAnnotation", description = "POJO that represents a Disease Annotation")
 public class DiseaseAnnotation implements Comparable<DiseaseAnnotation>, Serializable, PresentationEntity {
 
     @JsonView({View.DiseaseAnnotation.class})
@@ -59,8 +43,6 @@ public class DiseaseAnnotation implements Comparable<DiseaseAnnotation>, Seriali
     @JsonView({View.DiseaseAnnotation.class})
     // This attribute will go away and be replaced by publicationJoin objects that keep the pub/evCodes pairs
     private List<Publication> publications;
-    @JsonView({View.DiseaseAnnotation.class})
-    @JsonProperty(value = "evidenceCodes")
     // This attribute will go away and be replaced by publicationJoin objects that keep the pub/evCodes pairs
     private List<ECOTerm> ecoCodes;
     @JsonView({View.DiseaseAnnotation.class})
@@ -207,5 +189,22 @@ public class DiseaseAnnotation implements Comparable<DiseaseAnnotation>, Seriali
         if (feature != null)
             return feature.getSpecies();
         return model.getSpecies();
+    }
+
+    @JsonView({View.DiseaseAnnotation.class})
+    @JsonProperty(value = "evidenceCodes")
+    public List<ECOTerm> getEcoCodes() {
+        if (publicationJoins == null)
+            return null;
+        return publicationJoins.stream()
+                .map(PublicationJoin::getEcoCode)
+                .flatMap(Collection::stream)
+                .distinct()
+                .collect(Collectors.toList());
+    }
+
+    @JsonProperty(value = "evidenceCodes")
+    public void setEcoCodes(List<ECOTerm> ecoCodes) {
+        this.ecoCodes = ecoCodes;
     }
 }

@@ -1,11 +1,11 @@
-package org.alliancegenome.api.service;
+package org.alliancegenome.core.util;
 
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
 import org.alliancegenome.neo4j.entity.node.AffectedGenomicModel;
 import org.alliancegenome.neo4j.entity.node.GeneticEntity;
 
-public class ModelService {
+public class ModelHelper {
 
     public static PrimaryAnnotatedEntity getPrimaryAnnotatedEntity(DiseaseAnnotation annotation) {
         AffectedGenomicModel model = annotation.getModel();
