@@ -1,25 +1,6 @@
 package org.alliancegenome.cacher.cachers;
 
-import static java.util.Map.Entry.comparingByValue;
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toMap;
-import static java.util.stream.Collectors.toSet;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.stream.Collectors;
-
+import lombok.extern.log4j.Log4j2;
 import org.alliancegenome.api.entity.CacheStatus;
 import org.alliancegenome.api.service.DiseaseRibbonService;
 import org.alliancegenome.cache.CacheAlliance;
@@ -28,22 +9,16 @@ import org.alliancegenome.cache.repository.helper.SortingField;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
 import org.alliancegenome.neo4j.entity.SpeciesType;
-import org.alliancegenome.neo4j.entity.node.AffectedGenomicModel;
-import org.alliancegenome.neo4j.entity.node.Allele;
-import org.alliancegenome.neo4j.entity.node.CrossReference;
-import org.alliancegenome.neo4j.entity.node.DOTerm;
-import org.alliancegenome.neo4j.entity.node.DiseaseEntityJoin;
-import org.alliancegenome.neo4j.entity.node.ECOTerm;
-import org.alliancegenome.neo4j.entity.node.Gene;
-import org.alliancegenome.neo4j.entity.node.GeneticEntity;
-import org.alliancegenome.neo4j.entity.node.PublicationJoin;
-import org.alliancegenome.neo4j.entity.node.SequenceTargetingReagent;
-import org.alliancegenome.neo4j.entity.node.Species;
+import org.alliancegenome.neo4j.entity.node.*;
 import org.alliancegenome.neo4j.repository.DiseaseRepository;
 import org.alliancegenome.neo4j.view.View;
 import org.apache.commons.collections4.CollectionUtils;
 
-import lombok.extern.log4j.Log4j2;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static java.util.Map.Entry.comparingByValue;
+import static java.util.stream.Collectors.*;
 
 @Log4j2
 public class DiseaseCacher extends Cacher {
@@ -301,20 +276,10 @@ public class DiseaseCacher extends Cacher {
                     document.setDisease(join.getDisease());
                     document.setPublications(join.getPublications());
 
-                    PrimaryAnnotatedEntity entity = new PrimaryAnnotatedEntity();
-                    entity.setId(model.getPrimaryKey());
-                    entity.setEntityJoinPk(join.getPrimaryKey());
-                    entity.setName(model.getName());
-                    entity.setDisplayName(model.getNameText());
-                    entity.setUrl(model.getModCrossRefCompleteUrl());
-                    entity.setType(GeneticEntity.CrossReferenceType.getCrossReferenceType(model.getSubtype()));
-                    entity.addPublicationEvidenceCode(join.getPublicationJoins());
-                    entity.addDisease(join.getDisease());
-                    entity.setDataProvider(model.getDataProvider());
-                    entity.setSpecies(model.getSpecies());
-                    document.addPrimaryAnnotatedEntity(entity);
                     document.addPublicationJoins(join.getPublicationJoins());
-                    document.setSource(entity.getSource());
+                    Source source = new Source();
+                    source.setName(model.getDataProvider());
+                    document.setSource(source);
                     document.setEcoCodes(join.getEvidenceCodes());
                     return document;
                 })
@@ -334,14 +299,6 @@ public class DiseaseCacher extends Cacher {
                 .collect(toMap(DiseaseAnnotation::getPrimaryKey, entity -> entity));
 
         diseaseModelAnnotations.clear();
-
-        // merge annotations with the same model
-        // geneID, Map<modelID, List<PhenotypeAnnotation>>>
-/*
-        Map<String, Map<String, List<PhenotypeAnnotation>>> diseaseModelGeneMap = diseaseModelAnnotations.stream()
-                .collect(groupingBy(phenotypeAnnotation -> phenotypeAnnotation.getGene().getPrimaryKey(), groupingBy(annotation -> annotation.getModel().getPrimaryKey())));
-*/
-
 
         // get index by geneID
         // <geneID, Map<modelID, List<DiseaseAnnotation>>
