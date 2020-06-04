@@ -2,13 +2,13 @@ package org.alliancegenome.variant_indexer.vcf;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.variant_indexer.config.VariantConfigHelper;
 import org.alliancegenome.variant_indexer.download.model.DownloadableFile;
 import org.alliancegenome.variant_indexer.es.ESDocumentInjector;
@@ -25,6 +25,7 @@ public class VCFDocumentCreator extends Thread {
     private String vcfFilePath;
 
     private ESDocumentInjector docInjector;
+    private ProcessDisplayHelper ph = new ProcessDisplayHelper();
 
     private ThreadPoolExecutor variantContextProcessorTaskExecuter = new ThreadPoolExecutor(
         1, 
@@ -34,17 +35,16 @@ public class VCFDocumentCreator extends Thread {
         new LinkedBlockingDeque<Runnable>(VariantConfigHelper.getContextProcessorTaskQueueSize())
     );
     
-    public VCFDocumentCreator(DownloadableFile downloadFile, ESDocumentInjector edi) {
-        this.docInjector = edi;
+    public VCFDocumentCreator(DownloadableFile downloadFile) {
         this.vcfFilePath = downloadFile.getLocalGzipFilePath();
     }
 
     public void run() {
-        int count = 0;
-        log.info("Processing File: " + vcfFilePath);
+
+        docInjector = new ESDocumentInjector();
         
-        Date start = new Date();
-        Date end = new Date();
+        ph.startProcess("Starting File: " + vcfFilePath, 0);
+
         try {
             VCFFileReader reader = new VCFFileReader(new File(vcfFilePath), false);
             CloseableIterator<VariantContext> iter1 = reader.iterator();
@@ -58,8 +58,6 @@ public class VCFDocumentCreator extends Thread {
                     }
                 }
             });
-
-            int record_count = 1000000;
             
             List<VariantContext> workChunk = new ArrayList<>();
 
@@ -72,13 +70,7 @@ public class VCFDocumentCreator extends Thread {
                         variantContextProcessorTaskExecuter.execute(new VariantContextProcessorTask(workChunk));
                         workChunk = new ArrayList<>();
                     }
-
-                    if(count > 0 && count % record_count == 0) {
-                        end = new Date();
-                        log.info(vcfFilePath + " Count: " + count + " r/s: " + ((record_count * 1000) / (end.getTime() - start.getTime())));
-                        start = new Date();
-                    }
-                    count++;
+                    ph.progressProcess();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -86,10 +78,7 @@ public class VCFDocumentCreator extends Thread {
             if(workChunk.size() > 0) {
                 variantContextProcessorTaskExecuter.execute(new VariantContextProcessorTask(workChunk));
             }
-            end = new Date();
-            log.info(vcfFilePath + " Finished Count: " + count + " r/s: " + (((count % record_count) * 1000) / (end.getTime() - start.getTime())));
-            log.info(vcfFilePath + " Finished Processing File: " + vcfFilePath);
-            log.info(vcfFilePath + " Final: Count: " + count);
+            ph.finishProcess();
 
             variantContextProcessorTaskExecuter.shutdown();
             while (!variantContextProcessorTaskExecuter.isTerminated()) {
@@ -98,6 +87,7 @@ public class VCFDocumentCreator extends Thread {
             
             log.debug("Finished all threads");
             reader.close();
+            docInjector.close();
         } catch (Exception e) {
             e.printStackTrace();
         }

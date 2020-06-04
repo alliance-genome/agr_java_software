@@ -25,17 +25,17 @@ import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 public class ESDocumentInjector extends Thread {
-    
+
     private BulkProcessor.Builder builder;
     private BulkProcessor bulkProcessor;
     private String indexName = "site_variant_index";
     //private boolean createIndex = false;
-    private LinkedBlockingQueue<IndexRequest> queue = new LinkedBlockingQueue<>(VariantConfigHelper.getEsBulkRequestQueueSize());
-    
-    private RestHighLevelClient client = EsClientFactory.getDefaultEsClient();
-    
-    public ESDocumentInjector(boolean createIndex) {
-        
+    private LinkedBlockingQueue<IndexRequest> queue = new LinkedBlockingQueue<>(VariantConfigHelper.getIndexRequestQueueSize());
+
+    private RestHighLevelClient client = EsClientFactory.getDefaultEsClient(true);
+
+    public ESDocumentInjector() {
+
         BulkProcessor.Listener listener = new BulkProcessor.Listener() { 
             @Override
             public void beforeBulk(long executionId, BulkRequest request) {
@@ -43,7 +43,7 @@ public class ESDocumentInjector extends Thread {
 
             @Override
             public void afterBulk(long executionId, BulkRequest request, BulkResponse response) {
-                log.info("Size: " + request.requests().size() + " MB: " + request.estimatedSizeInBytes() + " Time: " + response.getTook() + " Bulk Requet Finished");
+                //log.info("Size: " + request.requests().size() + " MB: " + request.estimatedSizeInBytes() + " Time: " + response.getTook() + " Bulk Requet Finished");
             }
 
             @Override
@@ -64,28 +64,27 @@ public class ESDocumentInjector extends Thread {
         builder.setBackoffPolicy(BackoffPolicy.exponentialBackoff(TimeValue.timeValueSeconds(1L), 60));
 
         bulkProcessor = builder.build();
-        
+
         log.info("Finished Creating Bulk Processor");
-        
-        if(createIndex) {
-        
-            CreateIndexRequest indexRequest = new CreateIndexRequest(indexName);
-            indexRequest.settings(Settings.builder() 
-                    .put("index.number_of_shards", VariantConfigHelper.getEsNumberOfShards())
-                    .put("index.refresh_interval", -1)
-                    .put("index.number_of_replicas", 0)
-                    );
-    
-            try {
-                CreateIndexResponse createIndexResponse = client.indices().create(indexRequest, RequestOptions.DEFAULT);
-            } catch (Exception e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        }
+
         start();
     }
-    
+
+    public void createIndex() {
+        CreateIndexRequest indexRequest = new CreateIndexRequest(indexName);
+        indexRequest.settings(Settings.builder() 
+                .put("index.number_of_shards", VariantConfigHelper.getEsNumberOfShards())
+                .put("index.refresh_interval", -1)
+                .put("index.number_of_replicas", 0)
+                );
+
+        try {
+            CreateIndexResponse createIndexResponse = client.indices().create(indexRequest, RequestOptions.DEFAULT);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public void run() {
         while(true) {
             IndexRequest req;
@@ -97,8 +96,9 @@ public class ESDocumentInjector extends Thread {
             }
         }
     }
-    
+
     public void close() {
+        bulkProcessor.flush();
         bulkProcessor.close();
         try {
             client.close();
@@ -107,7 +107,7 @@ public class ESDocumentInjector extends Thread {
             e.printStackTrace();
         }
     }
-    
+
     public void addDocument(String json) {
         try {
             queue.offer(new IndexRequest(indexName).source(json, XContentType.JSON), 10, TimeUnit.DAYS);

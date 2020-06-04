@@ -4,6 +4,7 @@ import org.alliancegenome.variant_indexer.config.VariantConfigHelper;
 import org.alliancegenome.variant_indexer.download.FileDownloadFilterManager;
 import org.alliancegenome.variant_indexer.download.FileDownloadManager;
 import org.alliancegenome.variant_indexer.download.model.DownloadFileSet;
+import org.alliancegenome.variant_indexer.es.ESDocumentInjector;
 import org.alliancegenome.variant_indexer.vcf.VCFDocumentCreationManager;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -35,6 +36,9 @@ public class Main {
             fdfm.start();
             fdfm.join();
 
+            ESDocumentInjector edi = new ESDocumentInjector();
+            edi.createIndex();
+            
             VCFDocumentCreationManager vdm = new VCFDocumentCreationManager(downloadSet);
             vdm.start();
             vdm.join();

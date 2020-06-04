@@ -7,15 +7,10 @@ import org.alliancegenome.variant_indexer.config.VariantConfigHelper;
 import org.alliancegenome.variant_indexer.download.model.DownloadFileSet;
 import org.alliancegenome.variant_indexer.download.model.DownloadSource;
 import org.alliancegenome.variant_indexer.download.model.DownloadableFile;
-import org.alliancegenome.variant_indexer.es.ESDocumentInjector;
 
-import lombok.extern.log4j.Log4j2;
-
-@Log4j2
 public class VCFDocumentCreationManager extends Thread {
 
     private DownloadFileSet downloadSet;
-    private ESDocumentInjector edi = new ESDocumentInjector(true);
 
     public VCFDocumentCreationManager(DownloadFileSet downloadSet) {
         this.downloadSet = downloadSet;
@@ -29,7 +24,7 @@ public class VCFDocumentCreationManager extends Thread {
 
             for(DownloadSource source: downloadSet.getDownloadFileSet()) {
                 for(DownloadableFile df: source.getFileList()) {
-                    VCFDocumentCreator creator = new VCFDocumentCreator(df, edi);
+                    VCFDocumentCreator creator = new VCFDocumentCreator(df);
                     executor.execute(creator);
                 }
             }
@@ -37,8 +32,7 @@ public class VCFDocumentCreationManager extends Thread {
             executor.shutdown();  
             while (!executor.isTerminated()) {
                 Thread.sleep(100);
-            } 
-            edi.close();
+            }
 
         } catch (Exception e) {
             e.printStackTrace();
