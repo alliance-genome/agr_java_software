@@ -27,12 +27,14 @@ public class VCFDocumentCreator extends Thread {
     private ESDocumentInjector docInjector;
     private ProcessDisplayHelper ph = new ProcessDisplayHelper();
 
+    private LinkedBlockingDeque<Runnable> runningQueue = new LinkedBlockingDeque<Runnable>(VariantConfigHelper.getContextProcessorTaskQueueSize());
+    
     private ThreadPoolExecutor variantContextProcessorTaskExecuter = new ThreadPoolExecutor(
         1, 
         VariantConfigHelper.getContextProcessorTaskThreads(), 
         10, 
         TimeUnit.MILLISECONDS, 
-        new LinkedBlockingDeque<Runnable>(VariantConfigHelper.getContextProcessorTaskQueueSize())
+        runningQueue
     );
     
     public VCFDocumentCreator(DownloadableFile downloadFile) {
@@ -80,6 +82,10 @@ public class VCFDocumentCreator extends Thread {
             }
             ph.finishProcess();
 
+            while(runningQueue.size() > 0) {
+                Thread.sleep(1000);
+            }
+            
             variantContextProcessorTaskExecuter.shutdown();
             while (!variantContextProcessorTaskExecuter.isTerminated()) {
                 Thread.sleep(1000);
@@ -87,7 +93,6 @@ public class VCFDocumentCreator extends Thread {
             
             log.debug("Finished all threads");
             reader.close();
-            docInjector.close();
         } catch (Exception e) {
             e.printStackTrace();
         }

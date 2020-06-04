@@ -95,7 +95,14 @@ public class ESDocumentInjector extends Thread {
     public void run() {
         while(true) {
             try {
-                bulkProcessor.add(queue.take());
+                IndexRequest ir = queue.poll(5, TimeUnit.MINUTES);
+                if(ir != null) {
+                    bulkProcessor.add(ir);
+                } else {
+                    log.info("Waited for 5 minutes with no queue items");
+                    close();
+                    return;
+                }
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -106,10 +113,16 @@ public class ESDocumentInjector extends Thread {
         log.info("Closing Down Injector: ");
         try {
             while(queue.size() > 0) {
+                log.info("Work Queue Larger than 0: " + queue.size());
                 sleep(60000);
             }
+            log.info("Flushing bulkProcessor: ");
+            bulkProcessor.flush();
             log.info("Closing Down bulkProcessor: ");
-            bulkProcessor.awaitClose(20, TimeUnit.MINUTES);
+            while(!bulkProcessor.awaitClose(1, TimeUnit.MINUTES)) {
+                log.info("bulkProcessor.awaitClose false: ");
+                sleep(60000);
+            }
             log.info("Closing Down bulkProcessor Finished: ");
             queue = null;
             client.close();
