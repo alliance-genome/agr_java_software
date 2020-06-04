@@ -3,6 +3,7 @@ package org.alliancegenome.cacher.cachers;
 import lombok.extern.log4j.Log4j2;
 import org.alliancegenome.api.entity.CacheStatus;
 import org.alliancegenome.api.service.DiseaseRibbonService;
+import org.alliancegenome.core.util.ModelHelper;
 import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.cache.repository.helper.DiseaseAnnotationSorting;
 import org.alliancegenome.cache.repository.helper.SortingField;
@@ -332,10 +333,12 @@ public class DiseaseCacher extends Cacher {
             List<PrimaryAnnotatedEntity> mergedAnnotations = diseaseAnnotationPureMap.get(geneID);
             if (mergedAnnotations == null)
                 mergedAnnotations = new ArrayList<>();
-            PrimaryAnnotatedEntity entity = diseaseAnnotations.get(0).getPrimaryAnnotatedEntities().get(0);
+            if(CollectionUtils.isEmpty(diseaseAnnotations))
+                return;
+            PrimaryAnnotatedEntity entity = ModelHelper.getPrimaryAnnotatedEntity(diseaseAnnotations.get(0));
             diseaseAnnotations.forEach(diseaseAnnotation -> {
                 entity.addDisease(diseaseAnnotation.getDisease());
-                entity.addPublicationEvidenceCode(diseaseAnnotation.getPrimaryAnnotatedEntities().get(0).getPublicationEvidenceCodes());
+                entity.addPublicationEvidenceCode(diseaseAnnotation.getPublicationJoins());
             });
             mergedAnnotations.add(entity);
             diseaseAnnotationPureMap.put(geneID, mergedAnnotations);
