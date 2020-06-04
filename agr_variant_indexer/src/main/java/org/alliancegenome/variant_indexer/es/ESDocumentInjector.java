@@ -105,6 +105,9 @@ public class ESDocumentInjector extends Thread {
     public void close() {
         log.info("Closing Down Injector: ");
         try {
+            while(queue.size() > 0) {
+                sleep(1000);
+            }
             log.info("Closing Down bulkProcessor: ");
             bulkProcessor.awaitClose(20, TimeUnit.MINUTES);
             log.info("Closing Down bulkProcessor Finished: ");
