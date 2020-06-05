@@ -1,6 +1,5 @@
 package org.alliancegenome.variant_indexer.es;
 
-import java.io.IOException;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
@@ -52,11 +51,7 @@ public class ESDocumentInjector extends Thread {
                 log.error("Bulk Request Failure: " + failure.getMessage());
                 for(DocWriteRequest<?> req: request.requests()) {
                     IndexRequest idxreq = (IndexRequest)req;
-                    try {
-                        queue.offer(idxreq, 10, TimeUnit.DAYS);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
+                    bulkProcessor.add(idxreq);
                 }
                 log.error("Finished Adding requests to Queue:");
             }
@@ -72,7 +67,7 @@ public class ESDocumentInjector extends Thread {
 
         bulkProcessor = builder.build();
 
-        log.info("Finished Creating Bulk Processor");
+        //log.info("Finished Creating Bulk Processor");
 
         start();
     }
@@ -100,36 +95,12 @@ public class ESDocumentInjector extends Thread {
                     bulkProcessor.add(ir);
                 } else {
                     log.info("Waited for 5 minutes with no queue items");
-                    close();
                     return;
                 }
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
-    }
-
-    public void close() {
-        log.info("Closing Down Injector: ");
-        try {
-            while(queue.size() > 0) {
-                log.info("Work Queue Larger than 0: " + queue.size());
-                sleep(60000);
-            }
-            log.info("Flushing bulkProcessor: ");
-            bulkProcessor.flush();
-            log.info("Closing Down bulkProcessor: ");
-            while(!bulkProcessor.awaitClose(1, TimeUnit.MINUTES)) {
-                log.info("bulkProcessor.awaitClose false: ");
-                sleep(60000);
-            }
-            log.info("Closing Down bulkProcessor Finished: ");
-            queue = null;
-            client.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        log.info("Injector Closed: ");
     }
 
     public void addDocument(String json) {
