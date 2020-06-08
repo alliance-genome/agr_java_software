@@ -18,6 +18,6 @@ public abstract class Command {
     }
     
     public static void close() throws Exception {
-        //im.closeClient();
+        im.closeClient();
     }
 }
