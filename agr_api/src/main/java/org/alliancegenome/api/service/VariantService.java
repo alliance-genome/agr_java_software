@@ -1,15 +1,15 @@
 package org.alliancegenome.api.service;
 
-import java.time.LocalDateTime;
-import java.util.List;
-
-import javax.enterprise.context.RequestScoped;
-
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.node.Transcript;
 import org.alliancegenome.neo4j.entity.node.Variant;
 import org.alliancegenome.neo4j.repository.VariantRepository;
+
+import javax.enterprise.context.RequestScoped;
+import java.time.LocalDateTime;
+import java.util.Comparator;
+import java.util.List;
 
 @RequestScoped
 public class VariantService {
@@ -21,8 +21,14 @@ public class VariantService {
 
         JsonResultResponse<Transcript> response = new JsonResultResponse<>();
         if (variant != null) {
-            response.setTotal(variant.getTranscriptList().size());
-            response.setResults(variant.getTranscriptList());
+            List<Transcript> transcriptList = variant.getTranscriptList();
+            response.setTotal(transcriptList.size());
+
+            Comparator<Transcript> comparatorGene = Comparator.comparing(transcript -> transcript.getGene().getSymbol());
+            Comparator<Transcript> comparatorGeneSequence = comparatorGene.thenComparing(Transcript::getName);
+
+            transcriptList.sort(comparatorGeneSequence);
+            response.setResults(transcriptList);
         }
         return response;
     }
