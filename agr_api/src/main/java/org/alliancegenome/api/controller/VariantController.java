@@ -28,8 +28,8 @@ public class VariantController implements VariantRESTInterface {
     @Override
     public JsonResultResponse<Transcript> getTranscriptsPerVariant(
             String id,
-            int limit,
-            int page,
+            Integer limit,
+            Integer page,
             String sortBy,
             String transcriptType,
             String consequence) {

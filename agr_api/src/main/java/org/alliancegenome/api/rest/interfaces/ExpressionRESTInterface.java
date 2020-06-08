@@ -57,9 +57,9 @@ public interface ExpressionRESTInterface {
             @Parameter(in=ParameterIn.PATH,name = "filter.source", description = "Source",schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.source") String filterSource,
             @Parameter(in=ParameterIn.QUERY, name="limit", description = "Number of rows returned", schema = @Schema(type = SchemaType.INTEGER))
-            @DefaultValue("20") @QueryParam("limit") int limit,
+            @DefaultValue("20") @QueryParam("limit") Integer limit,
             @Parameter(in=ParameterIn.QUERY, name="page", description = "Page number", schema = @Schema(type = SchemaType.INTEGER))
-            @DefaultValue("1") @QueryParam("page") int page,
+            @DefaultValue("1") @QueryParam("page") Integer page,
             @Parameter(in=ParameterIn.QUERY, name="sortBy", description = "Sort by field name",schema = @Schema(type = SchemaType.STRING))// allowableValues = "Default,Species,Location,Assay,Stage,Gene")
             @DefaultValue("geneName") @QueryParam("sortBy") String sortBy,
             @Parameter(in=ParameterIn.QUERY, name = "asc", description = "order to sort by", schema = @Schema(type = SchemaType.STRING))//,allowableValues = "true,false")
@@ -92,9 +92,9 @@ public interface ExpressionRESTInterface {
             @Parameter(in=ParameterIn.PATH,name = "termID", description = "Term ID by which rollup should happen",schema = @Schema(type = SchemaType.STRING))
             @QueryParam("termID") String termID,
             @Parameter(in=ParameterIn.QUERY, name="limit", description = "Number of rows returned", schema = @Schema(type = SchemaType.INTEGER))
-            @DefaultValue("20") @QueryParam("limit") int limit,
+            @DefaultValue("20") @QueryParam("limit") Integer limit,
             @Parameter(in=ParameterIn.QUERY, name="page", description = "Page number", schema = @Schema(type = SchemaType.INTEGER))
-            @DefaultValue("1") @QueryParam("page") int page
+            @DefaultValue("1") @QueryParam("page") Integer page
     ) throws JsonProcessingException;
 
     @GET

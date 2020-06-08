@@ -18,7 +18,7 @@ public class SearchController implements SearchRESTInterface {
     private Logger log = Logger.getLogger(getClass());
 
     @Override
-    public SearchApiResponse search(String q, String category, int limit, int offset, String sort_by, UriInfo uriInfo) {
+    public SearchApiResponse search(String q, String category, Integer limit, Integer offset, String sort_by, UriInfo uriInfo) {
         if(limit == 0) limit = 10;
         if(q != null) { q = q.trim(); }
         log.info("This is the Search query: " + q);
