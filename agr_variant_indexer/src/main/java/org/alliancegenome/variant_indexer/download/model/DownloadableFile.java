@@ -9,6 +9,4 @@ public class DownloadableFile {
     private String chromosome;
     private String url;
     private String localGzipFilePath;
-    private String localJsonFilePath;
-
 }

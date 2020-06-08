@@ -1,12 +1,11 @@
 package org.alliancegenome.variant_indexer;
 
-import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.variant_indexer.config.VariantConfigHelper;
 import org.alliancegenome.variant_indexer.download.FileDownloadFilterManager;
 import org.alliancegenome.variant_indexer.download.FileDownloadManager;
 import org.alliancegenome.variant_indexer.download.model.DownloadFileSet;
+import org.alliancegenome.variant_indexer.es.ESDocumentInjector;
 import org.alliancegenome.variant_indexer.vcf.VCFDocumentCreationManager;
-import org.alliancegenome.variant_indexer.vcf.VCFDocumentIndexerManager;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
@@ -36,14 +35,13 @@ public class Main {
             FileDownloadFilterManager fdfm = new FileDownloadFilterManager(downloadSet);
             fdfm.start();
             fdfm.join();
+
+            ESDocumentInjector edi = new ESDocumentInjector();
+            edi.createIndex();
             
             VCFDocumentCreationManager vdm = new VCFDocumentCreationManager(downloadSet);
             vdm.start();
             vdm.join();
-            
-            VCFDocumentIndexerManager vdim = new VCFDocumentIndexerManager(downloadSet);
-            vdim.start();
-            vdim.join();
 
         } catch (Exception e) {
             e.printStackTrace();

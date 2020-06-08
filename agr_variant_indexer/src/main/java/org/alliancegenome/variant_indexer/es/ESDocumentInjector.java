@@ -5,6 +5,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.alliancegenome.es.util.EsClientFactory;
 import org.alliancegenome.variant_indexer.config.VariantConfigHelper;
+import org.elasticsearch.action.DocWriteRequest;
 import org.elasticsearch.action.bulk.BackoffPolicy;
 import org.elasticsearch.action.bulk.BulkProcessor;
 import org.elasticsearch.action.bulk.BulkRequest;
@@ -24,17 +25,17 @@ import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 public class ESDocumentInjector extends Thread {
-    
+
     private BulkProcessor.Builder builder;
     private BulkProcessor bulkProcessor;
-    private String indexName = "site_variant_index";
+    private String indexName = VariantConfigHelper.getEsIndex();
     //private boolean createIndex = false;
-    private LinkedBlockingQueue<IndexRequest> queue = new LinkedBlockingQueue<>(VariantConfigHelper.getEsBulkRequestQueueSize());
-    
-    private RestHighLevelClient client = EsClientFactory.getDefaultEsClient();
-    
-    public ESDocumentInjector(boolean createIndex) {
-        
+    private LinkedBlockingQueue<IndexRequest> queue = new LinkedBlockingQueue<>(VariantConfigHelper.getIndexRequestQueueSize());
+
+    private RestHighLevelClient client = EsClientFactory.createNewClient();
+
+    public ESDocumentInjector() {
+
         BulkProcessor.Listener listener = new BulkProcessor.Listener() { 
             @Override
             public void beforeBulk(long executionId, BulkRequest request) {
@@ -42,15 +43,17 @@ public class ESDocumentInjector extends Thread {
 
             @Override
             public void afterBulk(long executionId, BulkRequest request, BulkResponse response) {
-                log.info("Size: " + request.requests().size() + " MB: " + request.estimatedSizeInBytes() + " Time: " + response.getTook() + " Bulk Requet Finished");
+                //log.info("Size: " + request.requests().size() + " MB: " + request.estimatedSizeInBytes() + " Time: " + response.getTook() + " Bulk Requet Finished");
             }
 
             @Override
             public void afterBulk(long executionId, BulkRequest request, Throwable failure) {
-                log.error("Bulk Requet Failure: " + failure.getMessage());
-                log.error(request.toString());
-                failure.printStackTrace();
-                System.exit(-1);
+                log.error("Bulk Request Failure: " + failure.getMessage());
+                for(DocWriteRequest<?> req: request.requests()) {
+                    IndexRequest idxreq = (IndexRequest)req;
+                    bulkProcessor.add(idxreq);
+                }
+                log.error("Finished Adding requests to Queue:");
             }
         };
 
@@ -63,40 +66,43 @@ public class ESDocumentInjector extends Thread {
         builder.setBackoffPolicy(BackoffPolicy.exponentialBackoff(TimeValue.timeValueSeconds(1L), 60));
 
         bulkProcessor = builder.build();
-        
-        log.info("Finished Creating Bulk Processor");
-        
-        if(createIndex) {
-        
-            CreateIndexRequest indexRequest = new CreateIndexRequest(indexName);
-            indexRequest.settings(Settings.builder() 
-                    .put("index.number_of_shards", VariantConfigHelper.getEsNumberOfShards())
-                    .put("index.refresh_interval", -1)
-                    .put("index.number_of_replicas", 0)
-                    );
-    
-            try {
-                CreateIndexResponse createIndexResponse = client.indices().create(indexRequest, RequestOptions.DEFAULT);
-            } catch (Exception e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        }
+
+        //log.info("Finished Creating Bulk Processor");
+
         start();
     }
-    
+
+    public void createIndex() {
+        CreateIndexRequest indexRequest = new CreateIndexRequest(indexName);
+        indexRequest.settings(Settings.builder() 
+                .put("index.number_of_shards", VariantConfigHelper.getEsNumberOfShards())
+                .put("index.refresh_interval", -1)
+                .put("index.number_of_replicas", 0)
+                );
+
+        try {
+            CreateIndexResponse createIndexResponse = client.indices().create(indexRequest, RequestOptions.DEFAULT);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public void run() {
         while(true) {
-            IndexRequest req;
             try {
-                req = queue.take();
-                bulkProcessor.add(req);
+                IndexRequest ir = queue.poll(5, TimeUnit.MINUTES);
+                if(ir != null) {
+                    bulkProcessor.add(ir);
+                } else {
+                    log.info("Waited for 5 minutes with no queue items");
+                    return;
+                }
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
     }
-    
+
     public void addDocument(String json) {
         try {
             queue.offer(new IndexRequest(indexName).source(json, XContentType.JSON), 10, TimeUnit.DAYS);

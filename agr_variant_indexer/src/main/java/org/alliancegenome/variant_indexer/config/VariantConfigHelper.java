@@ -49,19 +49,18 @@ public class VariantConfigHelper {
         defaults.put(VARIANT_FILE_DOWNLOAD_FILTER_THREADS, "10");
         defaults.put(VARIANT_FILE_DOWNLOAD_PATH, "data");
 
-        defaults.put(VARIANT_DOCUMENT_CREATOR_THREADS, "4");
-        defaults.put(VARIANT_DOCUMENT_CREATOR_CONTEXT_PROCESSOR_TASK_THREADS, "6");
-        defaults.put(VARIANT_DOCUMENT_CREATOR_CONTEXT_PROCESSOR_TASK_QUEUE_SIZE, "100");
-        defaults.put(VARIANT_DOCUMENT_CREATOR_DOCUMENT_WRITER_TASK_THREADS, "1");
-        defaults.put(VARIANT_DOCUMENT_CREATOR_DOCUMENT_WRITER_TASK_QUEUE_SIZE, "10000");
-        defaults.put(VARIANT_DOCUMENT_CREATOR_WORK_CHUNK_SIZE, "100");
+        defaults.put(VARIANT_DOCUMENT_CREATOR_THREADS, "12");
+        defaults.put(VARIANT_DOCUMENT_CREATOR_CONTEXT_PROCESSOR_TASK_THREADS, "8");
+        defaults.put(VARIANT_DOCUMENT_CREATOR_CONTEXT_PROCESSOR_TASK_QUEUE_SIZE, "10");
+        defaults.put(VARIANT_DOCUMENT_CREATOR_WORK_CHUNK_SIZE, "1000");
+
+        // Average document size is 400b
+        defaults.put(VARIANT_INDEX_REQUEST_QUEUE_SIZE, "625000"); // Queue documents waiting to go into a bulk request ~250MB
+        defaults.put(VARIANT_ES_BULK_ACTION_SIZE, "62500"); // Max amount of documents in a bulk request ~25MB
+        defaults.put(VARIANT_ES_BULK_CONCURRENT_REQUEST_AMOUNT, "10"); // Amount of concurrent bulk requests running ~250MB
+        defaults.put(VARIANT_ES_BULK_SIZE_MB, "25"); // Max size of bulk request 25MB
         
-        defaults.put(VARIANT_DOCUMENT_INDEXER_THREADS, "1");
-        defaults.put(VARIANT_ES_BULK_REQUEST_QUEUE_SIZE, "10000");
-        defaults.put(VARIANT_ES_BULK_ACTION_SIZE, "250000");
-        defaults.put(VARIANT_ES_BULK_CONCURRENT_REQUEST_AMOUNT, "3");
-        defaults.put(VARIANT_ES_BULK_SIZE_MB, "100");
-        defaults.put(VARIANT_ES_INDEX_NUMBER_OF_SHARDS, "8");
+        defaults.put(VARIANT_ES_INDEX_NUMBER_OF_SHARDS, "32");
 
         allKeys = defaults.keySet();
 
@@ -177,10 +176,10 @@ public class VariantConfigHelper {
         }
     }
 
-    public static Integer getEsBulkRequestQueueSize() {
+    public static Integer getIndexRequestQueueSize() {
         if (!init) init();
         try {
-            return Integer.parseInt(config.get(VARIANT_ES_BULK_REQUEST_QUEUE_SIZE));
+            return Integer.parseInt(config.get(VARIANT_INDEX_REQUEST_QUEUE_SIZE));
         } catch (NumberFormatException e) {
             return 10000;
         }
@@ -240,15 +239,6 @@ public class VariantConfigHelper {
         }
     }
 
-    public static Integer getDocumentIndexerThreads() {
-        if (!init) init();
-        try {
-            return Integer.parseInt(config.get(VARIANT_DOCUMENT_INDEXER_THREADS));
-        } catch (NumberFormatException e) {
-            return 1;
-        }
-    }
-
     public static Integer getContextProcessorTaskThreads() {
         if (!init) init();
         try {
@@ -264,24 +254,6 @@ public class VariantConfigHelper {
             return Integer.parseInt(config.get(VARIANT_DOCUMENT_CREATOR_CONTEXT_PROCESSOR_TASK_QUEUE_SIZE));
         } catch (NumberFormatException e) {
             return 100;
-        }
-    }
-
-    public static Integer getDocumentWriterTaskThreads() {
-        if (!init) init();
-        try {
-            return Integer.parseInt(config.get(VARIANT_DOCUMENT_CREATOR_DOCUMENT_WRITER_TASK_THREADS));
-        } catch (NumberFormatException e) {
-            return 1;
-        }
-    }
-
-    public static Integer getDocumentWriterTaskQueueSize() {
-        if (!init) init();
-        try {
-            return Integer.parseInt(config.get(VARIANT_DOCUMENT_CREATOR_DOCUMENT_WRITER_TASK_QUEUE_SIZE));
-        } catch (NumberFormatException e) {
-            return 10000;
         }
     }
 

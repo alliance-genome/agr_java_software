@@ -23,7 +23,6 @@ public class CommandProcessor {
                 String line = scanner.nextLine();
 
                 List<String> argList = new ArrayList<String>(Arrays.asList(line.split(" ")));
-
                 processArgs(argList);
                 System.out.print("> ");
             }

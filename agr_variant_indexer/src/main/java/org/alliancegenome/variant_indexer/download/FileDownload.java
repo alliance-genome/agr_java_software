@@ -4,6 +4,8 @@ import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 import org.alliancegenome.variant_indexer.download.model.DownloadableFile;
 
@@ -25,7 +27,7 @@ class FileDownload extends Thread {
     private String downloadPath;
     private DownloadableFile file;
     private URL downloadUrl;
-    private String lastElapsedTime = "";
+    private int lastPercent = 0;
 
     @Getter
     private long size;
@@ -141,7 +143,12 @@ class FileDownload extends Thread {
             }
             // used to update speed at regular intervals
             int i = 0;
-            // Open file and seek to the end of it.
+            
+            // If dir does not exist create it
+            File dir = new File(downloadPath);
+            if(!dir.exists()) {
+                Files.createDirectories(Paths.get(downloadPath));
+            }
             
             File localFile = new File(downloadPath + "/" + getFilePath(downloadUrl));
             file.setLocalGzipFilePath(localFile.getAbsolutePath());
@@ -195,8 +202,9 @@ class FileDownload extends Thread {
             /* Change status to complete if this point was reached because downloading has finished. */
             if (status == DOWNLOADING) {
                 status = COMPLETE;
-                stateChanged();
+                stateChanged(true);
             }
+            log.info("Finished Downloading: " + downloadUrl + " to: " + localFile.getAbsolutePath());
         } catch (Exception e) {
             System.out.println(e);
             error();
@@ -216,9 +224,13 @@ class FileDownload extends Thread {
     }
     
     private void stateChanged() {
-        if(!lastElapsedTime.equals(getElapsedTime())) {
+        stateChanged(false);
+    }
+    
+    private void stateChanged(boolean show) {
+        if(lastPercent != (int)getProgress() || show) {
             log.info("File: " + getFilePath(downloadUrl) + ": " + (int)getProgress() + "% " + getElapsedTime() + " AvgSpeed: " + avgSpeed + " Rate: " + speed);
-            lastElapsedTime = getElapsedTime();
+            lastPercent = (int)getProgress();
         }
     }
 

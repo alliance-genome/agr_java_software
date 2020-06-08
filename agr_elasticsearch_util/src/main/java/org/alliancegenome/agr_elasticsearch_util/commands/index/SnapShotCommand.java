@@ -144,6 +144,15 @@ public class SnapShotCommand extends Command implements CommandInterface {
                 } else {
                     System.out.println("Please `repo create logs` first before doing a backup");
                 }
+            } else if(command.equals("create")) {
+                if(args.size() > 2) {
+                    String repo = args.remove(0);
+                    String snapShotName = args.remove(0);
+                    String index_name = args.remove(0);
+                    im.createSnapShot(repo, snapShotName, index_name);
+                } else {
+                    printHelp();
+                }
             } else {
                 printHelp();
             }

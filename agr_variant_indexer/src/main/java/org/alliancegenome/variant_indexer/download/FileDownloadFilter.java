@@ -33,10 +33,14 @@ public class FileDownloadFilter extends Thread {
                 log.info("Filtering: " + filePath);
                 String newFilePath = filePath.replace(".vcf.gz", ".filtered.vcf.gz");
                 File newFile = new File(newFilePath);
+                
+                downloadFile.setLocalGzipFilePath(newFilePath);
+                
                 if(newFile.exists()) {
                     log.info("File already filted: " + newFilePath);
                     return;
                 }
+                
                 PrintWriter outFile = new PrintWriter(new GZIPOutputStream(new FileOutputStream(newFilePath)), true);
                 BufferedReader inFile = new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(filePath))));
                 String line;
@@ -64,8 +68,7 @@ public class FileDownloadFilter extends Thread {
                 }
                 inFile.close();
                 outFile.close();
-                
-                downloadFile.setLocalGzipFilePath(newFilePath);
+
                 log.info(downloadFile.getLocalGzipFilePath() + ": Need to filter out bad line in file");
             }
         } catch (Exception e) {

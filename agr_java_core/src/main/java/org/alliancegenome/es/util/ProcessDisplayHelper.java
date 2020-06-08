@@ -15,9 +15,9 @@ public class ProcessDisplayHelper {
     private Date startTime = new Date();
     private Date lastTime = new Date();
     private String message;
-    private int lastSizeCounter = 0;
-    private int totalSize;
-    private int sizeCounter = 0;
+    private long lastSizeCounter = 0;
+    private long totalSize;
+    private long sizeCounter = 0;
 
     public void startProcess(String message, int totalSize) {
         this.message = message + ": ";
@@ -46,7 +46,7 @@ public class ProcessDisplayHelper {
         if (time < 30000) return; // report every 30 seconds
         checkMemory();
 
-        int processedAmount = (sizeCounter - lastSizeCounter);
+        long processedAmount = (sizeCounter - lastSizeCounter);
         String message = "" + getBigNumber(sizeCounter) + " records [" + getBigNumber(totalSize) + "] ";
         message += (int) (percent * 100) + "% took: " + (time / 1000) + "s to process " + processedAmount + " records at " + ((processedAmount * 1000) / time) + "r/s";
 
@@ -71,7 +71,7 @@ public class ProcessDisplayHelper {
             log.info(message + "Finished: took: " + result + " to process " + getBigNumber(sizeCounter) + " records  ");
     }
 
-    private static String getBigNumber(int number) {
+    private static String getBigNumber(long number) {
         return String.format("%,d", number);
     }
 
