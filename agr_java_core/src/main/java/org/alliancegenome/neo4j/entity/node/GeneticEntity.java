@@ -186,7 +186,7 @@ public class GeneticEntity extends Neo4jEntity {
     public enum CrossReferenceType {
 
         GENE("gene"), ALLELE("allele"), GENOTYPE("genotype"), FISH("fish", "affected_genomic_model"), STRAIN("strain"),
-        TRANSGENE("transgene"), CONSTRUCT("construct");
+        TRANSGENE("transgene"), CONSTRUCT("construct"), NON_BGI_CONSTRUCT_COMPONENTS("nonBGIConstructComponents");
 
         private String displayName;
         private String dbName;

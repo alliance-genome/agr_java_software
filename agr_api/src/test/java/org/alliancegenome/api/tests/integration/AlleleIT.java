@@ -1,24 +1,8 @@
 package org.alliancegenome.api.tests.integration;
 
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.greaterThanOrEqualTo;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import javax.inject.Inject;
-
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.alliancegenome.api.entity.CacheStatus;
 import org.alliancegenome.api.service.AlleleService;
 import org.alliancegenome.api.service.CacheStatusService;
@@ -33,11 +17,7 @@ import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
 import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
 import org.alliancegenome.neo4j.entity.SpeciesType;
-import org.alliancegenome.neo4j.entity.node.Allele;
-import org.alliancegenome.neo4j.entity.node.Construct;
-import org.alliancegenome.neo4j.entity.node.GeneticEntity;
-import org.alliancegenome.neo4j.entity.node.Transcript;
-import org.alliancegenome.neo4j.entity.node.Variant;
+import org.alliancegenome.neo4j.entity.node.*;
 import org.alliancegenome.neo4j.entity.relationship.GenomeLocation;
 import org.alliancegenome.neo4j.view.BaseFilter;
 import org.alliancegenome.neo4j.view.OrthologyModule;
@@ -48,9 +28,13 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import javax.inject.Inject;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.junit.Assert.*;
 
 public class AlleleIT {
 
@@ -96,6 +80,16 @@ public class AlleleIT {
         Pagination pagination = new Pagination();
         JsonResultResponse<Allele> response = alleleService.getAllelesByGene("MGI:109583", pagination);
         assertResponse(response, 19, 19);
+    }
+
+    @Test
+    public void checkTranscriptExpressedNonBGICC() {
+        Pagination pagination = new Pagination();
+        //Allele allele = alleleService.getById("FB:FBal0138114");
+        Allele allele = alleleService.getById("ZFIN:ZDB-ALT-181128-7");
+        assertNotNull(allele);
+        assertTrue(allele.getConstructs().get(0).getExpressedGenes().size() > 0);
+        assertTrue(allele.getConstructs().get(0).getNonBGIConstructComponents().size() > 0);
     }
 
     @Test
