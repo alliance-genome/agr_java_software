@@ -40,6 +40,8 @@ import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestClientBuilder.RequestConfigCallback;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.client.indices.CreateIndexRequest;
+import org.elasticsearch.client.indices.GetIndexRequest;
+import org.elasticsearch.client.indices.GetIndexResponse;
 import org.elasticsearch.cluster.health.ClusterIndexHealth;
 import org.elasticsearch.cluster.metadata.AliasMetaData;
 import org.elasticsearch.cluster.metadata.RepositoryMetaData;
@@ -379,21 +381,17 @@ public class IndexManager {
     }
 
     public List<String> getIndexList() {
-
-        ClusterHealthRequest request = new ClusterHealthRequest();
-
-        Map<String, ClusterIndexHealth> healths = null;
-
         try {
-            ClusterHealthResponse response = getClient().cluster().health(request, RequestOptions.DEFAULT);
-            healths = response.getIndices();
+            GetIndexRequest request = new GetIndexRequest("*");
+            GetIndexResponse response = getClient().indices().get(request, RequestOptions.DEFAULT);
+            String[] indices = response.getIndices();
+            return new ArrayList<String>(Arrays.asList(indices));
+
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        if (healths == null) { return null; }
-
-        return new ArrayList<String>(healths.keySet());
+        return null;
     }
 
     private void checkRepo(String repo) {
