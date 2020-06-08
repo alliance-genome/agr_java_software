@@ -70,7 +70,8 @@ public class VCFUtils {
                 String feature = new String();
                 String allele = new String();
                 try {
-                    allele = tokens[0];
+                   // allele = tokens[0];
+                    allele = tokens[0].replace("\\[","").trim();
                 } catch (Exception e) {
                 }
                 if (allele.equalsIgnoreCase(varNuc)) {
