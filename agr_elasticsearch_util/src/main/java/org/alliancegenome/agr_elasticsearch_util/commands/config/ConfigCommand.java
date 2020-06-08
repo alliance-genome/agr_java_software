@@ -17,6 +17,7 @@ public class ConfigCommand extends Command implements CommandInterface {
         System.out.println("config set KEY VALUE -- Example config set DEBUG true");
         System.out.println("config print -- prints out the current running config");
         System.out.println("config load <filePath> -- loads config from filePath");
+        System.out.println("config save <filePath> -- saves config to filePath");
     }
 
     @Override
@@ -36,6 +37,9 @@ public class ConfigCommand extends Command implements CommandInterface {
             } else if(command.equals("print")) {
                 ConfigHelper.printProperties();
             } else if(command.equals("load")) {
+                //String file = args.remove(0);
+                System.out.println("Not Implemented yet");
+            } else if(command.equals("save")) {
                 //String file = args.remove(0);
                 System.out.println("Not Implemented yet");
             } else {

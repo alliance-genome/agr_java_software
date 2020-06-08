@@ -14,10 +14,10 @@ public abstract class Command {
     }
     
     protected void resetIndexManager() {
-        im.initClient();
+        im.resetClient();
     }
     
     public static void close() throws Exception {
-        im.closeClient();
+        //im.closeClient();
     }
 }

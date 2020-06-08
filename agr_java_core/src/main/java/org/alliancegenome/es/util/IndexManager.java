@@ -50,17 +50,16 @@ import org.elasticsearch.snapshots.SnapshotInfo;
 public class IndexManager {
 
     private final Logger log = LogManager.getLogger(getClass());
-    private RestHighLevelClient client = null;
     private String newIndexName;
     private String baseIndexName = "site_index";
     private String tempIndexName = "site_index_temp";
 
-    public IndexManager() {
-        initClient();
+    public void resetClient() {
+        EsClientFactory.createNewClient();
     }
-
-    public void initClient() {
-        client = EsClientFactory.getDefaultEsClient();
+    
+    private RestHighLevelClient getClient() {
+        return EsClientFactory.getDefaultEsClient();
     }
 
     public void createAlias(String alias, String index) {
@@ -78,7 +77,7 @@ public class IndexManager {
         request.addAliasAction(aliasAction);
 
         try {
-            client.indices().updateAliases(request, RequestOptions.DEFAULT);
+            getClient().indices().updateAliases(request, RequestOptions.DEFAULT);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -98,7 +97,7 @@ public class IndexManager {
         request.addAliasAction(removeAction);
 
         try {
-            client.indices().updateAliases(request, RequestOptions.DEFAULT);
+            getClient().indices().updateAliases(request, RequestOptions.DEFAULT);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -118,12 +117,12 @@ public class IndexManager {
                 mapping.buildMapping();
                 request.mapping(mapping.getBuilder());
             }
-            client.indices().create(request, RequestOptions.DEFAULT);
+            getClient().indices().create(request, RequestOptions.DEFAULT);
         } catch (Exception e) {
             e.printStackTrace();
             RefreshRequest refreshRequest = new RefreshRequest(index);
             try {
-                client.indices().refresh(refreshRequest, RequestOptions.DEFAULT);
+                getClient().indices().refresh(refreshRequest, RequestOptions.DEFAULT);
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
@@ -140,7 +139,7 @@ public class IndexManager {
         GetAliasesResponse response = null;
         try {
             GetAliasesRequest request = new GetAliasesRequest();
-            response = client.indices().getAlias(request, RequestOptions.DEFAULT);
+            response = getClient().indices().getAlias(request, RequestOptions.DEFAULT);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -160,7 +159,7 @@ public class IndexManager {
         GetAliasesResponse response = null;
         try {
             GetAliasesRequest request = new GetAliasesRequest();
-            response = client.indices().getAlias(request, RequestOptions.DEFAULT);
+            response = getClient().indices().getAlias(request, RequestOptions.DEFAULT);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -184,7 +183,7 @@ public class IndexManager {
         log.info("Deleting Index: " + index);
         DeleteIndexRequest request = new DeleteIndexRequest(index);
         try {
-            client.indices().delete(request, RequestOptions.DEFAULT);
+            getClient().indices().delete(request, RequestOptions.DEFAULT);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -216,7 +215,7 @@ public class IndexManager {
         log.debug("Main Index Finished: ");
         RefreshRequest request = new RefreshRequest(newIndexName);
         try {
-            client.indices().refresh(request, RequestOptions.DEFAULT);
+            getClient().indices().refresh(request, RequestOptions.DEFAULT);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -224,7 +223,7 @@ public class IndexManager {
         takeSnapShot();
 
         try {
-            client.close();
+            getClient().close();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -235,7 +234,7 @@ public class IndexManager {
         try {
 
             GetRepositoriesRequest request = new GetRepositoriesRequest();
-            GetRepositoriesResponse response = client.snapshot().getRepository(request, RequestOptions.DEFAULT);
+            GetRepositoriesResponse response = getClient().snapshot().getRepository(request, RequestOptions.DEFAULT);
             List<RepositoryMetaData> repositories = response.repositories();
 
             if(repositories.size() == 0) {
@@ -259,7 +258,7 @@ public class IndexManager {
     public List<RepositoryMetaData> listRepos() {
         try {
             GetRepositoriesRequest request = new GetRepositoriesRequest();
-            GetRepositoriesResponse response = client.snapshot().getRepository(request, RequestOptions.DEFAULT);
+            GetRepositoriesResponse response = getClient().snapshot().getRepository(request, RequestOptions.DEFAULT);
             List<RepositoryMetaData> repositories = response.repositories();
 
             return repositories;
@@ -285,7 +284,7 @@ public class IndexManager {
             log.info("Deleting Snapshot: " + snapShotName + " in: " + repo);
             DeleteSnapshotRequest request = new DeleteSnapshotRequest(repo);
             request.snapshot(snapShotName);
-            client.snapshot().delete(request, RequestOptions.DEFAULT);
+            getClient().snapshot().delete(request, RequestOptions.DEFAULT);
         } catch (Exception ex) {
             log.error("Exception in restoreSnapShot method: " + ex.toString());
         }
@@ -300,11 +299,17 @@ public class IndexManager {
 
             RestoreSnapshotRequest request = new RestoreSnapshotRequest(repo, snapShotName);
             request.indices(indices);
-            client.snapshot().restore(request, RequestOptions.DEFAULT);
+            getClient().snapshot().restore(request, RequestOptions.DEFAULT);
 
         } catch (Exception ex) {
             log.error("Exception in restoreSnapShot method: " + ex.toString());
         }
+    }
+    
+    public void createSnapShot(String repo, String snapShotName, String index) {
+        List<String> indices = new ArrayList<String>();
+        indices.add(index);
+        createSnapShot(repo, snapShotName, indices);
     }
 
     public void createSnapShot(String repo, String snapShotName, List<String> indices) {
@@ -317,7 +322,7 @@ public class IndexManager {
             request.indices(indices);
             request.waitForCompletion(true);
 
-            client.snapshot().create(request, RequestOptions.DEFAULT);
+            getClient().snapshot().create(request, RequestOptions.DEFAULT);
 
             log.info("Snapshot " + snapShotName + " was created for indices: " + indices);
         } catch (Exception ex){
@@ -341,7 +346,7 @@ public class IndexManager {
 
                 log.info(repoName + " -> " + settings.toString());
 
-                AcknowledgedResponse response = client.snapshot().createRepository(request, RequestOptions.DEFAULT);
+                AcknowledgedResponse response = getClient().snapshot().createRepository(request, RequestOptions.DEFAULT);
 
                 log.info("Repository was created: " + response.toString());
                 return repoName;
@@ -363,7 +368,7 @@ public class IndexManager {
         GetSnapshotsResponse response = null;
 
         try {
-            response = client.snapshot().get(request, RequestOptions.DEFAULT);
+            response = getClient().snapshot().get(request, RequestOptions.DEFAULT);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -380,7 +385,7 @@ public class IndexManager {
         Map<String, ClusterIndexHealth> healths = null;
 
         try {
-            ClusterHealthResponse response = client.cluster().health(request, RequestOptions.DEFAULT);
+            ClusterHealthResponse response = getClient().cluster().health(request, RequestOptions.DEFAULT);
             healths = response.getIndices();
         } catch (IOException e) {
             e.printStackTrace();
@@ -408,9 +413,8 @@ public class IndexManager {
         }
     }
 
-    public String getBaseIndexName() { return baseIndexName; }
-
-    public void closeClient() throws Exception {
-        client.close();
+    public String getBaseIndexName() {
+        return baseIndexName;
     }
+
 }

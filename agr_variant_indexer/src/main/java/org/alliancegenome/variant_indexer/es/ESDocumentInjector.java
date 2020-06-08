@@ -28,7 +28,7 @@ public class ESDocumentInjector extends Thread {
 
     private BulkProcessor.Builder builder;
     private BulkProcessor bulkProcessor;
-    private String indexName = "site_variant_index";
+    private String indexName = VariantConfigHelper.getEsIndex();
     //private boolean createIndex = false;
     private LinkedBlockingQueue<IndexRequest> queue = new LinkedBlockingQueue<>(VariantConfigHelper.getIndexRequestQueueSize());
 

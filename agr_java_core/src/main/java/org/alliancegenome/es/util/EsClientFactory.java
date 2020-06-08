@@ -28,7 +28,8 @@ public class EsClientFactory {
     }
     
     public static RestHighLevelClient createNewClient() {
-        return createClient();
+        client = createClient();
+        return client;
     }
 
     // Used if APP needs to have multiple clients
