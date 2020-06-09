@@ -13,7 +13,7 @@ import lombok.Getter;
 import lombok.extern.log4j.Log4j2;
 
 @Log4j2
-class FileDownload extends Thread {
+public class FileDownload extends Thread {
 
     private static final int MAX_BUFFER_SIZE = 1024;
     public static final String STATUSES[] = {"Downloading", "Paused", "Complete", "Cancelled", "Error"};
