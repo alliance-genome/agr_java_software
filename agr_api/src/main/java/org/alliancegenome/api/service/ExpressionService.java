@@ -260,6 +260,8 @@ public class ExpressionService {
 
         // add the Stage root term
         EntitySubgroupSlim slimRootStage = getEntitySubgroupSlim(ExpressionCacheRepository.UBERON_STAGE_ROOT, stageAnnotations, gene.getSpecies());
+        int numberOfDistinctStageClasses = stageAnnotations.stream().map(detail -> detail.getStage().getPrimaryKey()).collect(toSet()).size();
+        slimRootStage.setNumberOfClasses(numberOfDistinctStageClasses);
         entity.addEntitySlim(slimRootStage);
         stageTermMap.keySet().forEach(uberonTermID -> {
             EntitySubgroupSlim slim = getEntitySubgroupSlim(uberonTermID, stageTermMap.get(uberonTermID), gene.getSpecies());
