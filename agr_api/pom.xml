@@ -167,10 +167,13 @@
 		<finalName>agr_api</finalName>
 		<plugins>
 			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.8.0</version>
 				<configuration>
 					<release>11</release>
+					<source>11</source>
+					<target>11</target>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -259,14 +262,6 @@
 						<include>**/*IT.*</include>
 						<include>**/*IntegrationSpec.*</include>
 					</includes>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<configuration>
-					<source>11</source>
-					<target>11</target>
 				</configuration>
 			</plugin>
 		</plugins>
