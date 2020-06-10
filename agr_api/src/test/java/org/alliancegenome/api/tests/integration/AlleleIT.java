@@ -310,6 +310,9 @@ public class AlleleIT {
         assertNotNull(c.getExpressedGenes());
         assertEquals(c.getExpressedGenes().get(0).getPrimaryKey(), "FB:FBgn0261532");
         assertEquals(c.getExpressedGenes().get(0).getSpecies().getType(), SpeciesType.FLY);
+        assertNotNull(c.getRegulatedByGenes());
+        assertEquals(c.getRegulatedByGenes().get(0).getSymbol(), "UASt");
+        assertEquals(c.getRegulatedByGenes().get(0).getCrossReferenceType(), GeneticEntity.CrossReferenceType.NON_BGI_CONSTRUCT_COMPONENTS);
     }
 
     @Test
