@@ -72,7 +72,6 @@ public class Construct extends GeneticEntity implements Comparable<Construct>, P
         if (nonBGIConstructComponents != null) {
             nonBGIConstructComponents.forEach(nonBGIConstructComponent -> {
                 GeneticEntity nonBGIConstructComponentGene = new GeneticEntity();
-                nonBGIConstructComponentGene.setPrimaryKey(nonBGIConstructComponent.getPrimaryKey());
                 nonBGIConstructComponentGene.setSymbol(nonBGIConstructComponent.getPrimaryKey());
                 nonBGIConstructComponentGene.setCrossReferenceType(CrossReferenceType.NON_BGI_CONSTRUCT_COMPONENTS);
                 entities.add(nonBGIConstructComponentGene);
