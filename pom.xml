@@ -1,45 +1,47 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-    <groupId>org.alliancegenome</groupId>
-    <artifactId>agr_java_software</artifactId>
-    <packaging>pom</packaging>
-    <version>${revision}</version>
-    <name>AGR Java</name>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.alliancegenome</groupId>
+	<artifactId>agr_java_software</artifactId>
+	<packaging>pom</packaging>
+	<version>${revision}</version>
+	<name>AGR Java</name>
 
-    <modules>
-        <module>agr_java_core</module>
-        <module>agr_elasticsearch_util</module>
-        <module>agr_indexer</module>
-        <module>agr_cacher</module>
-        <module>agr_api</module>
-        <module>agr_schema_validation</module>
-        <module>agr_intermine_data_extractor</module>
-        <module>agr_variant_indexer</module>
-  </modules>
+	<modules>
+		<module>agr_java_core</module>
+		<module>agr_elasticsearch_util</module>
+		<module>agr_indexer</module>
+		<module>agr_cacher</module>
+		<module>agr_api</module>
+		<module>agr_schema_validation</module>
+		<module>agr_intermine_data_extractor</module>
+		<module>agr_variant_indexer</module>
+	</modules>
 
-    <properties>
+	<properties>
 		<maven.compiler.release>11</maven.compiler.release>
-        <revision>3.1.0</revision>
-    </properties>
+		<revision>3.1.0</revision>
+	</properties>
 
-    <repositories>
-        <repository>
-            <id>elasticsearch-releases</id>
-            <url>https://artifacts.elastic.co/maven</url>
-        </repository>
-    </repositories>
+	<repositories>
+		<repository>
+			<id>elasticsearch-releases</id>
+			<url>https://artifacts.elastic.co/maven</url>
+		</repository>
+	</repositories>
 
-    <build>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-compiler-plugin</artifactId>
-				        <version>3.8.0</version>
-                </plugin>
-            </plugins>
-        </pluginManagement>
-    </build>
+	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<version>3.8.0</version>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
 
 </project>
