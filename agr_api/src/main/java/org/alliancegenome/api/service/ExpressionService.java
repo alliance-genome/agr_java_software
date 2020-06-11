@@ -26,10 +26,10 @@ public class ExpressionService {
 
     @Inject
     private ExpressionCacheRepository expressionCacheRepository;
-    
+
     @Inject
     private ExpressionRibbonService service;
-    
+
     public static final String CELLULAR_COMPONENT = "Subcellular";
 
     public JsonResultResponse<ExpressionDetail> getExpressionDetails(List<BioEntityGeneExpressionJoin> joins, Pagination pagination) {
@@ -259,14 +259,11 @@ public class ExpressionService {
         });
 
         // add the Stage root term
-        EntitySubgroupSlim slimRootStage = getEntitySubgroupSlim(ExpressionCacheRepository.UBERON_STAGE_ROOT, stageAnnotations, gene.getSpecies());
-        int numberOfDistinctStageClasses = stageAnnotations.stream().map(detail -> detail.getStage().getPrimaryKey()).collect(toSet()).size();
-        slimRootStage.setNumberOfClasses(numberOfDistinctStageClasses);
+        EntitySubgroupSlim slimRootStage = getEntitySubgroupStageSlim(ExpressionCacheRepository.UBERON_STAGE_ROOT, stageAnnotations, gene.getSpecies());
         entity.addEntitySlim(slimRootStage);
         stageTermMap.keySet().forEach(uberonTermID -> {
-            EntitySubgroupSlim slim = getEntitySubgroupSlim(uberonTermID, stageTermMap.get(uberonTermID), gene.getSpecies());
-            if (slim.getAvailable()!= null && !slim.getAvailable())
-                entity.addEntitySlim(slim);
+            EntitySubgroupSlim slim = getEntitySubgroupStageSlim(uberonTermID, stageTermMap.get(uberonTermID), gene.getSpecies());
+            entity.addEntitySlim(slim);
         });
 
         // add the GO root term
@@ -295,6 +292,21 @@ public class ExpressionService {
 
     private int getDistinctClassSize(Collection<ExpressionDetail> aoAnnotations) {
         return aoAnnotations.stream().collect(groupingBy(ExpressionDetail::getTermName)).size();
+    }
+
+    private EntitySubgroupSlim getEntitySubgroupStageSlim(String primaryKey, Collection<ExpressionDetail> stageAnnotations, Species species) {
+        EntitySubgroupSlim slim = new EntitySubgroupSlim();
+        slim.setId(primaryKey);
+        if (stageAnnotations != null) {
+            slim.setNumberOfAnnotations(stageAnnotations.size());
+            slim.setNumberOfClasses(getDistinctStageClassSize(stageAnnotations));
+        }
+        slim.setAvailable(ConfigHelper.getRibbonTermSpeciesApplicability(primaryKey, species.getType().getDisplayName()));
+        return slim;
+    }
+
+    private int getDistinctStageClassSize(Collection<ExpressionDetail> stageAnnotations) {
+        return stageAnnotations.stream().map(detail -> detail.getStage().getPrimaryKey()).collect(toSet()).size();
     }
 
     private ExpressionSummaryGroup populateGroupInfo(String groupName,
