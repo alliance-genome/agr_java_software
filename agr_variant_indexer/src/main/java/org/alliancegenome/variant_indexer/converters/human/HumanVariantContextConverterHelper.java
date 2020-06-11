@@ -1,4 +1,4 @@
-package org.alliancegenome.variant_indexer.util;
+package org.alliancegenome.variant_indexer.converters.human;
 
 
 import java.io.IOException;
@@ -8,19 +8,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.alliancegenome.variant_indexer.model.ClinicalSig;
-import org.alliancegenome.variant_indexer.model.Evidence;
-import org.alliancegenome.variant_indexer.model.Polyphen;
-import org.alliancegenome.variant_indexer.model.TranscriptFeature;
-import org.alliancegenome.variant_indexer.model.VariantEffect;
+import org.alliancegenome.variant_indexer.es.model.ClinicalSig;
+import org.alliancegenome.variant_indexer.es.model.Evidence;
+import org.alliancegenome.variant_indexer.es.model.Polyphen;
+import org.alliancegenome.variant_indexer.es.model.TranscriptFeature;
+import org.alliancegenome.variant_indexer.es.model.VariantEffect;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 import htsjdk.variant.variantcontext.CommonInfo;
 import htsjdk.variant.variantcontext.VariantContext;
 
-public class VCFUtils {
+public class HumanVariantContextConverterHelper {
 
     public List<String> mapEvidence(VariantContext ctx){
         CommonInfo info = ctx.getCommonInfo();

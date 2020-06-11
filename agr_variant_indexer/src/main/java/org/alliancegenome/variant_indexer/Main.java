@@ -1,11 +1,11 @@
 package org.alliancegenome.variant_indexer;
 
 import org.alliancegenome.variant_indexer.config.VariantConfigHelper;
-import org.alliancegenome.variant_indexer.download.model.DownloadFileSet;
 import org.alliancegenome.variant_indexer.es.ESDocumentInjector;
-import org.alliancegenome.variant_indexer.vcf.FileDownloadFilterManager;
-import org.alliancegenome.variant_indexer.vcf.FileDownloadManager;
-import org.alliancegenome.variant_indexer.vcf.VCFDocumentCreationManager;
+import org.alliancegenome.variant_indexer.es.document.VCFDocumentCreationManager;
+import org.alliancegenome.variant_indexer.filedownload.model.DownloadFileSet;
+import org.alliancegenome.variant_indexer.filedownload.process.FileDownloadFilterManager;
+import org.alliancegenome.variant_indexer.filedownload.process.FileDownloadManager;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;

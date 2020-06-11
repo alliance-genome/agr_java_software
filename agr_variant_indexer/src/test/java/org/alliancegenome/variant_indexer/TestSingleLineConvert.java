@@ -3,7 +3,10 @@ package org.alliancegenome.variant_indexer;
 import java.io.File;
 import java.util.List;
 
-import org.alliancegenome.variant_indexer.util.VariantContextConverter;
+import org.alliancegenome.es.util.ProcessDisplayHelper;
+import org.alliancegenome.variant_indexer.converters.VariantContextConverter;
+import org.alliancegenome.variant_indexer.converters.human.HumanVariantContextConverter;
+import org.alliancegenome.variant_indexer.converters.mouse.MouseVariantContextConverter;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
 import htsjdk.samtools.util.CloseableIterator;
@@ -20,23 +23,27 @@ public class TestSingleLineConvert {
         double avg = 0;
         DescriptiveStatistics ds = new DescriptiveStatistics();
         
+        MouseVariantContextConverter converter = new MouseVariantContextConverter();
+        
+        ProcessDisplayHelper ph = new ProcessDisplayHelper(2000);
+        ph.startProcess("Mouse SNPS");
+        
         while(iter1.hasNext()) {
             try {
                 VariantContext vc = iter1.next();
                 //if(vc.getID().equals("rs55780505")) {
-                List<String> docs = VariantContextConverter.convertVariantContext(vc);
+                List<String> docs = converter.convertVariantContext(vc);
                 for(String doc: docs) {
                     
                     ds.addValue(doc.length());
                     count++;
                     //sum += doc.length();
-                }
-                if(count % 10000 == 0 && count > 0) {
-                    System.out.println("Avg: " + ds.getMean() + " SD: " + ds.getStandardDeviation());
+                    ph.progressProcess();
                 }
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
+        ph.finishProcess();
     }
 }

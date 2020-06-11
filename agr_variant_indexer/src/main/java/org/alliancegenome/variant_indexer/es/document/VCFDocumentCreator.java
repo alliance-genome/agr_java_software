@@ -1,4 +1,4 @@
-package org.alliancegenome.variant_indexer.vcf;
+package org.alliancegenome.variant_indexer.es.document;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -10,9 +10,9 @@ import java.util.concurrent.TimeUnit;
 
 import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.variant_indexer.config.VariantConfigHelper;
-import org.alliancegenome.variant_indexer.download.model.DownloadableFile;
+import org.alliancegenome.variant_indexer.converters.VariantContextConverter;
 import org.alliancegenome.variant_indexer.es.ESDocumentInjector;
-import org.alliancegenome.variant_indexer.util.VariantContextConverter;
+import org.alliancegenome.variant_indexer.filedownload.model.DownloadableFile;
 
 import htsjdk.samtools.util.CloseableIterator;
 import htsjdk.variant.variantcontext.VariantContext;
@@ -29,6 +29,8 @@ public class VCFDocumentCreator extends Thread {
 
     private LinkedBlockingDeque<Runnable> runningQueue = new LinkedBlockingDeque<Runnable>(VariantConfigHelper.getContextProcessorTaskQueueSize());
     
+    private VariantContextConverter converter;
+    
     private ThreadPoolExecutor variantContextProcessorTaskExecuter = new ThreadPoolExecutor(
         1, 
         VariantConfigHelper.getContextProcessorTaskThreads(), 
@@ -37,8 +39,9 @@ public class VCFDocumentCreator extends Thread {
         runningQueue
     );
     
-    public VCFDocumentCreator(DownloadableFile downloadFile) {
+    public VCFDocumentCreator(DownloadableFile downloadFile, String speciesName) {
         this.vcfFilePath = downloadFile.getLocalGzipFilePath();
+        converter = VariantContextConverter.getConverter(speciesName);
     }
 
     public void run() {
@@ -109,7 +112,7 @@ public class VCFDocumentCreator extends Thread {
 
         public void run() {
             for(VariantContext ctx: workChunk) {
-                List<String> docs = VariantContextConverter.convertVariantContext(ctx);
+                List<String> docs = converter.convertVariantContext(ctx);
                 
                 for(String doc: docs) {
                     docInjector.addDocument(doc);

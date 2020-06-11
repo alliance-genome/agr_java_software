@@ -1,4 +1,4 @@
-package org.alliancegenome.variant_indexer.model;
+package org.alliancegenome.variant_indexer.es.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
