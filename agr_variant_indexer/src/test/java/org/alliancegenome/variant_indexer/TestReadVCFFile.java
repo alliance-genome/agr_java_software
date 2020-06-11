@@ -12,7 +12,7 @@ import lombok.extern.log4j.Log4j2;
 public class TestReadVCFFile {
 
     public static void main(String[] args) {
-        VCFFileReader reader = new VCFFileReader(new File("/Users/balrog/data/homo_sapiens_incl_consequences-chr3.filtered.vcf.gz"), false);
+        VCFFileReader reader = new VCFFileReader(new File("/Users/olinblodgett/Desktop/Variants/mgp.v5.merged.snps_all.dbSNP142.vcf.gz"), false);
         CloseableIterator<VariantContext> iter1 = reader.iterator();
 
         Date start = new Date();
