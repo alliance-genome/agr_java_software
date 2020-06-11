@@ -302,7 +302,7 @@ public class ExpressionService {
             slim.setNumberOfAnnotations(stageAnnotations.size());
             slim.setNumberOfClasses(getDistinctStageClassSize(stageAnnotations));
         }
-        slim.setAvailable(ConfigHelper.getRibbonTermSpeciesApplicability(primaryKey, species.getType().getDisplayName()));
+        slim.setAvailable(FileHelper.getRibbonTermSpeciesApplicability(primaryKey, species.getType().getDisplayName()));
         return slim;
     }
 
