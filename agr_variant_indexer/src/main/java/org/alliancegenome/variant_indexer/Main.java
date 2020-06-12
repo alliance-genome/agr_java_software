@@ -17,15 +17,15 @@ import lombok.extern.log4j.Log4j2;
 @Log4j2
 public class Main {
 
-    private ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-    private IndexManager im = new IndexManager(new VariantIndexSettings(true, VariantConfigHelper.getEsNumberOfShards()));
-    
     public static void main(String[] args) {
         new Main();
     }
 
     public Main() {
+        
         VariantConfigHelper.init();
+        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+        IndexManager im = new IndexManager(new VariantIndexSettings(true, VariantConfigHelper.getEsNumberOfShards()));
 
         try {
             DownloadFileSet downloadSet = mapper.readValue(getClass().getClassLoader().getResourceAsStream(VariantConfigHelper.getVariantConfigFile()), DownloadFileSet.class);

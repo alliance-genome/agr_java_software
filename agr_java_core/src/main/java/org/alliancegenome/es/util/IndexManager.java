@@ -346,7 +346,7 @@ public class IndexManager {
 
     private String createRepo(String repoName) {
 
-        if(repoName != null) {
+        if(repoName != null && repoName.length() > 0) {
             try {
 
                 SiteIndexSettings settings = new SiteIndexSettings(true);

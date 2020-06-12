@@ -46,13 +46,13 @@ public class VCFDocumentCreator extends Thread {
 
     public void run() {
 
-        docInjector = new ESDocumentInjector();
-        
         File indexFile = new File(vcfFilePath + ".indexed");
         if(indexFile.exists()) {
             log.info("File Already Processed: " + vcfFilePath);
             return;
         }
+        
+        docInjector = new ESDocumentInjector();
         
         ph.startProcess("Starting File: " + vcfFilePath, 0);
 
