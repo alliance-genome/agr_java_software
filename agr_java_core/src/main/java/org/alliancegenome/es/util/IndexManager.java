@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.es.index.site.schema.Mapping;
+import org.alliancegenome.es.index.site.schema.Settings;
 import org.alliancegenome.es.index.site.schema.settings.SiteIndexSettings;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -37,7 +38,7 @@ import org.elasticsearch.client.indices.GetIndexRequest;
 import org.elasticsearch.client.indices.GetIndexResponse;
 import org.elasticsearch.cluster.metadata.AliasMetaData;
 import org.elasticsearch.cluster.metadata.RepositoryMetaData;
-import org.elasticsearch.common.settings.Settings;
+import org.elasticsearch.common.Strings;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.snapshots.SnapshotInfo;
 
@@ -45,9 +46,27 @@ public class IndexManager {
 
     private final Logger log = LogManager.getLogger(getClass());
     private String newIndexName;
-    private String baseIndexName = "site_index";
-    private String tempIndexName = "site_index_temp";
-
+    private String baseIndexName = ConfigHelper.getEsIndex();
+    private String tempIndexName = baseIndexName + "_temp";
+    
+    private Settings settings;
+    private Mapping mapping;
+    
+    public IndexManager(Settings settings, Mapping mapping) {
+        this.settings = settings;
+        this.mapping = mapping;
+    }
+    
+    public IndexManager(Settings settings) {
+        this.settings = settings;
+        this.mapping = null;
+    }
+    
+    public IndexManager() {
+        settings = new SiteIndexSettings(true);
+        mapping = new Mapping(true);
+    }
+    
     public void resetClient() {
         EsClientFactory.createNewClient();
     }
@@ -97,21 +116,20 @@ public class IndexManager {
         }
     }
 
-    public void createIndex(String index, boolean addMappings) {
-        log.debug("Creating index: " + index);
-        System.out.println("creating index");
+    public void createIndex(String index) {
+        log.info("Creating index: " + index);
         try {
-            SiteIndexSettings settings = new SiteIndexSettings(true);
-            Mapping mapping = new Mapping(true);
-            settings.buildSettings();
-            CreateIndexRequest request = new CreateIndexRequest(index);
-            request.settings(settings.getBuilder());
-
-            if(addMappings) {
-                mapping.buildMapping();
-                request.mapping(mapping.getBuilder());
+            CreateIndexRequest createIndexRequest = new CreateIndexRequest(index);
+            if(settings != null) {
+                settings.buildSettings();
+                createIndexRequest.settings(settings.getBuilder());
             }
-            getClient().indices().create(request, RequestOptions.DEFAULT);
+
+            if(mapping != null) {
+                mapping.buildMapping();
+                createIndexRequest.mapping(mapping.getBuilder());
+            }
+            getClient().indices().create(createIndexRequest, RequestOptions.DEFAULT);
         } catch (Exception e) {
             e.printStackTrace();
             RefreshRequest refreshRequest = new RefreshRequest(index);
@@ -189,6 +207,8 @@ public class IndexManager {
             deleteIndex(index);
         }
     }
+    
+    
 
     public String startSiteIndex() {
         if(ConfigHelper.hasEsIndexSuffix()) {
@@ -197,7 +217,7 @@ public class IndexManager {
             newIndexName = baseIndexName + "_" + (new Date()).getTime();
         }
 
-        createIndex(newIndexName, true);
+        createIndex(newIndexName);
         createAlias(tempIndexName, newIndexName);
 
         log.debug("Main Index Starting: ");
@@ -329,10 +349,11 @@ public class IndexManager {
         if(repoName != null) {
             try {
 
-                Settings settings = Settings.builder().put("bucket", "agr-es-backup-" + repoName).build();
+                SiteIndexSettings settings = new SiteIndexSettings(true);
+                settings.buildRepositorySettings("agr-es-backup-" + repoName);
 
                 PutRepositoryRequest request = new PutRepositoryRequest();
-                request.settings(settings);
+                request.settings(Strings.toString(settings.getBuilder()), settings.getBuilder().contentType());
                 request.name(repoName);
                 request.type("s3");
                 request.verify(true);

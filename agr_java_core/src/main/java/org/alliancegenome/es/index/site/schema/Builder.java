@@ -5,7 +5,7 @@ import java.io.IOException;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 
-public class Builder {
+public abstract class Builder {
 
     protected XContentBuilder builder;
 

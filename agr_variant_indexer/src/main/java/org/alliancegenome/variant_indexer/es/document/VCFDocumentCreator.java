@@ -25,7 +25,7 @@ public class VCFDocumentCreator extends Thread {
     private String vcfFilePath;
 
     private ESDocumentInjector docInjector;
-    private ProcessDisplayHelper ph = new ProcessDisplayHelper();
+    private ProcessDisplayHelper ph = new ProcessDisplayHelper(10000);
 
     private LinkedBlockingDeque<Runnable> runningQueue = new LinkedBlockingDeque<Runnable>(VariantConfigHelper.getContextProcessorTaskQueueSize());
     
@@ -47,6 +47,12 @@ public class VCFDocumentCreator extends Thread {
     public void run() {
 
         docInjector = new ESDocumentInjector();
+        
+        File indexFile = new File(vcfFilePath + ".indexed");
+        if(indexFile.exists()) {
+            log.info("File Already Processed: " + vcfFilePath);
+            return;
+        }
         
         ph.startProcess("Starting File: " + vcfFilePath, 0);
 
@@ -95,6 +101,9 @@ public class VCFDocumentCreator extends Thread {
             }
             
             log.debug("Finished all threads");
+            
+            indexFile.createNewFile();
+            
             reader.close();
         } catch (Exception e) {
             e.printStackTrace();
