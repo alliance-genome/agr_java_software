@@ -3,6 +3,8 @@ package org.alliancegenome.core.exceptions;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.stream.Collectors;
+
 @Setter
 @Getter
 public class RestErrorException extends RuntimeException {
@@ -15,7 +17,7 @@ public class RestErrorException extends RuntimeException {
     }
 
     public RestErrorException(RestErrorMessage error) {
-        super();
+        super(String.join(", ", error.getErrors()));
         this.error = error;
     }
 

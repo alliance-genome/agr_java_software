@@ -1,13 +1,10 @@
 package org.alliancegenome.api.service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import org.alliancegenome.es.model.query.FieldFilter;
+
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
-import org.alliancegenome.es.model.query.FieldFilter;
 
 public abstract class ColumnFieldMapping<T> {
 
@@ -15,10 +12,10 @@ public abstract class ColumnFieldMapping<T> {
 
     List<Column> singleValueDistinctFieldColumns = new ArrayList<>();
 
-    public abstract Map<Column, Function<T, String>> getMapColumnAttribute();
+    public abstract Map<Column, Function<T, Set<String>>> getMapColumnAttribute();
 
-    public Map<Column, Function<T, String>> getSingleValuedFieldColumns(Table table) {
-        Map<Column, Function<T, String>> map = new HashMap<>();
+    public Map<Column, Function<T, Set<String>>> getSingleValuedFieldColumns(Table table) {
+        Map<Column, Function<T, Set<String>>> map = new HashMap<>();
         singleValueDistinctFieldColumns.stream()
                 .filter(column -> column.getTable().equals(table))
                 .forEach(column -> getMapColumnAttribute().entrySet().stream()

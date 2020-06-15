@@ -1,25 +1,20 @@
 package org.alliancegenome.api.service;
 
-import static org.alliancegenome.api.service.Column.INTERACTOR_DETECTION_METHOD;
-import static org.alliancegenome.api.service.Column.INTERACTOR_GENE_SYMBOL;
-import static org.alliancegenome.api.service.Column.INTERACTOR_MOLECULE_TYPE;
-import static org.alliancegenome.api.service.Column.INTERACTOR_REFERENCE;
-import static org.alliancegenome.api.service.Column.INTERACTOR_SOURCE;
-import static org.alliancegenome.api.service.Column.INTERACTOR_SPECIES;
-import static org.alliancegenome.api.service.Column.MOLECULE_TYPE;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.Function;
-
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
+
+import static org.alliancegenome.api.service.Column.*;
+
 public class InteractionColumnFieldMapping extends ColumnFieldMapping<InteractionGeneJoin> {
 
-    private Map<Column, Function<InteractionGeneJoin, String>> mapColumnAttribute = new HashMap<>();
+    private Map<Column, Function<InteractionGeneJoin, Set<String>>> mapColumnAttribute = new HashMap<>();
 
-    public Map<Column, Function<InteractionGeneJoin, String>> getMapColumnAttribute() {
+    public Map<Column, Function<InteractionGeneJoin, Set<String>>> getMapColumnAttribute() {
         return mapColumnAttribute;
     }
 
@@ -32,9 +27,9 @@ public class InteractionColumnFieldMapping extends ColumnFieldMapping<Interactio
         mapColumnFieldName.put(INTERACTOR_REFERENCE, FieldFilter.FREFERENCE);
         mapColumnFieldName.put(INTERACTOR_DETECTION_METHOD, FieldFilter.DETECTION_METHOD);
 
-        mapColumnAttribute.put(INTERACTOR_MOLECULE_TYPE, (join) -> join.getInteractorBType().getDisplayName());
-        mapColumnAttribute.put(MOLECULE_TYPE, (join) -> join.getInteractorAType().getDisplayName());
-        mapColumnAttribute.put(INTERACTOR_SPECIES, (join) -> join.getGeneB().getSpecies().getName());
+        mapColumnAttribute.put(INTERACTOR_MOLECULE_TYPE, (join) -> Set.of(join.getInteractorBType().getDisplayName()));
+        mapColumnAttribute.put(MOLECULE_TYPE, (join) -> Set.of(join.getInteractorAType().getDisplayName()));
+        mapColumnAttribute.put(INTERACTOR_SPECIES, (join) -> Set.of(join.getGeneB().getSpecies().getName()));
 
         singleValueDistinctFieldColumns.add(INTERACTOR_MOLECULE_TYPE);
         singleValueDistinctFieldColumns.add(MOLECULE_TYPE);

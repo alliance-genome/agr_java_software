@@ -1,15 +1,15 @@
 package org.alliancegenome.cache.repository.helper;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.neo4j.entity.node.Allele;
 
-public class AlleleFiltering {
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+public class AlleleFiltering extends AnnotationFiltering<Allele> {
 
 
     /*
@@ -42,21 +42,20 @@ public class AlleleFiltering {
             };
 
     public static FilterFunction<Allele, String> variantTypeFilter =
-            (allele, value) -> {
-                Set<Boolean> filteringPassed = allele.getVariants().stream()
-                        .map(term -> FilterFunction.contains(term.getType().getName(), value))
-                        .collect(Collectors.toSet());
-                return !filteringPassed.isEmpty() && filteringPassed.contains(true);
-            };
+            (allele, value) ->
+                    FilterFunction.fullMatchMultiValueOR(allele.getVariants().stream()
+                            .filter(Objects::nonNull)
+                            .map(variant -> variant.getType().getName())
+                            .collect(Collectors.toSet()), value);
 
     public static FilterFunction<Allele, String> variantConsequenceFilter =
-            (allele, value) -> {
-                Set<Boolean> filteringPassed = allele.getVariants().stream()
-                        .filter(variant -> variant.getGeneLevelConsequence() != null)
-                        .map(variant -> FilterFunction.contains(variant.getGeneLevelConsequence().getGeneLevelConsequence().toLowerCase(), value))
-                        .collect(Collectors.toSet());
-                return !filteringPassed.isEmpty() && filteringPassed.contains(true);
-            };
+            (allele, value) ->
+                    FilterFunction.fullMatchMultiValueOR(allele.getVariants().stream()
+                            .filter(Objects::nonNull)
+                            .filter(variant -> variant.getGeneLevelConsequence() != null)
+                            .map(variant -> variant.getGeneLevelConsequence().getGeneLevelConsequence())
+                            .collect(Collectors.toSet()), value);
+    ;
 
     public static FilterFunction<Allele, String> phenotypeFilter =
             (allele, value) -> {
@@ -68,29 +67,13 @@ public class AlleleFiltering {
 
     public static Map<FieldFilter, FilterFunction<Allele, String>> filterFieldMap = new HashMap<>();
 
-    static {
+    public AlleleFiltering() {
         filterFieldMap.put(FieldFilter.SYMBOL, alleleFilter);
         filterFieldMap.put(FieldFilter.SYNONYMS, synonymFilter);
         filterFieldMap.put(FieldFilter.PHENOTYPE, phenotypeFilter);
         filterFieldMap.put(FieldFilter.DISEASE, diseaseFilter);
         filterFieldMap.put(FieldFilter.VARIANT_TYPE, variantTypeFilter);
         filterFieldMap.put(FieldFilter.VARIANT_CONSEQUENCE, variantConsequenceFilter);
-    }
-
-    public static boolean isValidFiltering(Map<FieldFilter, String> fieldFilterValueMap) {
-        if (fieldFilterValueMap == null)
-            return true;
-        Set<Boolean> result = fieldFilterValueMap.entrySet().stream()
-                .map(entry -> filterFieldMap.containsKey(entry.getKey()))
-                .collect(Collectors.toSet());
-        return !result.isEmpty() && !result.contains(false);
-    }
-
-    public static List<String> getInvalidFieldFilter(Map<FieldFilter, String> fieldFilterValueMap) {
-        return fieldFilterValueMap.entrySet().stream()
-                .filter(entry -> !filterFieldMap.containsKey(entry.getKey()))
-                .map(entry -> entry.getKey().getFullName())
-                .collect(Collectors.toList());
     }
 
 }
