@@ -1,9 +1,5 @@
 package org.alliancegenome.api.tests.integration;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +29,9 @@ import org.junit.Test;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import static org.hamcrest.Matchers.greaterThan;
+import static org.junit.Assert.*;
 
 public class ExpressionIT {
 
@@ -72,22 +71,22 @@ public class ExpressionIT {
         RibbonSummary summary = expressionService.getExpressionRibbonSummary(List.of("MGI:109583"));
         assertNotNull(summary);
         assertEquals(summary.getDiseaseRibbonEntities().size(), 1);
-        EntitySubgroupSlim slim = summary.getDiseaseRibbonEntities().get(0)
+        EntitySubgroupSlim slim = (EntitySubgroupSlim) summary.getDiseaseRibbonEntities().get(0)
                 .getSlims().get("UBERON:0001062").get("ALL");
-        assertEquals(slim.getNumberOfAnnotations(), 149);
-        assertEquals(slim.getNumberOfClasses(), 95);
+        assertThat(slim.getNumberOfAnnotations(), greaterThan(150));
+        assertThat(slim.getNumberOfClasses(), greaterThan(90));
 
         // nervous system
-        slim = summary.getDiseaseRibbonEntities().get(0)
+        slim = (EntitySubgroupSlim) summary.getDiseaseRibbonEntities().get(0)
                 .getSlims().get("UBERON:0001016").get("ALL");
         assertEquals(slim.getNumberOfAnnotations(), 51);
         assertEquals(slim.getNumberOfClasses(), 33);
 
         // post-juvenile adult stage
-        slim = summary.getDiseaseRibbonEntities().get(0)
+        slim = (EntitySubgroupSlim) summary.getDiseaseRibbonEntities().get(0)
                 .getSlims().get("UBERON:0000113").get("ALL");
-        assertEquals(slim.getNumberOfAnnotations(), 26);
-        assertEquals(slim.getNumberOfClasses(), 24);
+        assertThat(slim.getNumberOfAnnotations(), greaterThan(25));
+        assertThat(slim.getNumberOfClasses(), greaterThan(0));
     }
 
     @Test
@@ -101,9 +100,9 @@ public class ExpressionIT {
     public void checkExpressionRibbonAvailableAttribute() {
         RibbonSummary summary = expressionService.getExpressionRibbonSummary(List.of("SGD:S000005442"));
         assertNotNull(summary);
-        Map<String, EntitySubgroupSlim> map = summary.getDiseaseRibbonEntities().get(0).getSlims().values().stream().skip(1).findFirst().orElse(null);
-        assertEquals(map.values().stream().findFirst().get().getId(), "UBERON:0005409");
-        assertNotNull(map.values().stream().findFirst().get().getAvailable());
+        Map<String, Object> map = summary.getDiseaseRibbonEntities().get(0).getSlims().values().stream().skip(1).findFirst().orElse(null);
+        assertEquals(((EntitySubgroupSlim) map.values().stream().findFirst().get()).getId(), "UBERON:0005409");
+        assertNotNull(map.values().stream().findFirst().get());
     }
 
     @Test
@@ -120,7 +119,7 @@ public class ExpressionIT {
         assertNotNull(summary);
 
         assertEquals(summary.getDiseaseRibbonEntities().size(), 1);
-        EntitySubgroupSlim slim = summary.getDiseaseRibbonEntities().get(0)
+        EntitySubgroupSlim slim = (EntitySubgroupSlim) summary.getDiseaseRibbonEntities().get(0)
                 .getSlims().get("GO:0005634").get("ALL");
         assertEquals(slim.getNumberOfAnnotations(), 4);
         assertEquals(slim.getNumberOfClasses(), 3);

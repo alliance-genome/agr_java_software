@@ -18,8 +18,7 @@ public class EntitySubgroupSlim {
     @JsonView({View.DiseaseAnnotation.class, View.Expression.class})
     @JsonProperty("nb_annotations")
     private int numberOfAnnotations;
-    @JsonView({View.DiseaseAnnotation.class, View.Expression.class})
-    @JsonInclude(JsonInclude.Include.NON_NULL)
+
     private Boolean available;
 
     public void setAvailable(Boolean available) {

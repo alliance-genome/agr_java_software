@@ -1,25 +1,20 @@
 package org.alliancegenome.api.service;
 
-import static org.alliancegenome.api.service.Column.ALLELE_ASSOCIATION;
-import static org.alliancegenome.api.service.Column.ALLELE_SPECIES;
-import static org.alliancegenome.api.service.Column.ASSOCIATES_GENES_ASSOCIATION;
-import static org.alliancegenome.api.service.Column.ASSOCIATES_GENES_SPECIES;
-import static org.alliancegenome.api.service.Column.DISEASE_ASSOCIATION;
-import static org.alliancegenome.api.service.Column.DISEASE_SPECIES;
-import static org.alliancegenome.api.service.Column.MODEL_SPECIES;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.Function;
-
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
+
+import static org.alliancegenome.api.service.Column.*;
+
 public class DiseaseColumnFieldMapping extends ColumnFieldMapping<DiseaseAnnotation> {
 
-    private Map<Column, Function<DiseaseAnnotation, String>> mapColumnAttribute = new HashMap<>();
+    private Map<Column, Function<DiseaseAnnotation, Set<String>>> mapColumnAttribute = new HashMap<>();
 
-    public Map<Column, Function<DiseaseAnnotation, String>> getMapColumnAttribute() {
+    public Map<Column, Function<DiseaseAnnotation, Set<String>>> getMapColumnAttribute() {
         return mapColumnAttribute;
     }
 
@@ -32,13 +27,13 @@ public class DiseaseColumnFieldMapping extends ColumnFieldMapping<DiseaseAnnotat
         mapColumnFieldName.put(DISEASE_SPECIES, FieldFilter.SPECIES);
         mapColumnFieldName.put(DISEASE_ASSOCIATION, FieldFilter.ASSOCIATION_TYPE);
 
-        mapColumnAttribute.put(ASSOCIATES_GENES_SPECIES, entity -> entity.getGene().getSpecies().getName());
-        mapColumnAttribute.put(ASSOCIATES_GENES_ASSOCIATION, DiseaseAnnotation::getAssociationType);
-        mapColumnAttribute.put(ALLELE_SPECIES, entity -> entity.getFeature().getSpecies().getName());
-        mapColumnAttribute.put(ALLELE_ASSOCIATION, DiseaseAnnotation::getAssociationType);
-        mapColumnAttribute.put(MODEL_SPECIES, entity -> entity.getModel().getSpecies().getName());
-        mapColumnAttribute.put(DISEASE_SPECIES, entity -> entity.getGene().getSpecies().getName());
-        mapColumnAttribute.put(DISEASE_ASSOCIATION, DiseaseAnnotation::getAssociationType);
+        mapColumnAttribute.put(ASSOCIATES_GENES_SPECIES, entity -> Set.of(entity.getGene().getSpecies().getName()));
+        mapColumnAttribute.put(ASSOCIATES_GENES_ASSOCIATION, entity -> Set.of(entity.getAssociationType()));
+        mapColumnAttribute.put(ALLELE_SPECIES, entity -> Set.of(entity.getFeature().getSpecies().getName()));
+        mapColumnAttribute.put(ALLELE_ASSOCIATION, entity -> Set.of(entity.getAssociationType()));
+        mapColumnAttribute.put(MODEL_SPECIES, entity -> Set.of(entity.getModel().getSpecies().getName()));
+        mapColumnAttribute.put(DISEASE_SPECIES, entity -> Set.of(entity.getGene().getSpecies().getName()));
+        mapColumnAttribute.put(DISEASE_ASSOCIATION, entity -> Set.of(entity.getAssociationType()));
 
         singleValueDistinctFieldColumns.add(ASSOCIATES_GENES_SPECIES);
         singleValueDistinctFieldColumns.add(ASSOCIATES_GENES_ASSOCIATION);

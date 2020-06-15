@@ -27,6 +27,10 @@ public interface FilterFunction<Entity, FilterValue> {
         return fullMatchMultiValueOR(entity, value, "\\|");
     }
 
+    static boolean fullMatchMultiValueOR(Set<String> entity, String value) {
+        return fullMatchMultiValueOR(entity, value, "\\|");
+    }
+
     // List of values should match exactly the entity
     // but in an OR connector
     static boolean fullMatchMultiValueOR(String entity, String value, String delimiter) {
@@ -38,6 +42,17 @@ public interface FilterFunction<Entity, FilterValue> {
         if (cleanedValues.isEmpty())
             return true;
         return cleanedValues.contains(entity.toLowerCase());
+    }
+
+    static boolean fullMatchMultiValueOR(Set<String> entities, String value, String delimiter) {
+        String[] tokenList = value.split(delimiter);
+        List<String> cleanedValues = Arrays.stream(tokenList)
+                .map(s -> s.toLowerCase().trim())
+                .collect(Collectors.toList());
+        cleanedValues.removeIf(String::isEmpty);
+        if (cleanedValues.isEmpty())
+            return true;
+        return entities.stream().anyMatch(entity -> cleanedValues.contains(entity.toLowerCase()));
     }
 
 
