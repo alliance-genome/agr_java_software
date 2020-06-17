@@ -5,7 +5,6 @@ import org.alliancegenome.cache.repository.ExpressionCacheRepository;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.cache.repository.helper.PaginationResult;
 import org.alliancegenome.core.ExpressionDetail;
-import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.util.FileHelper;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
@@ -249,15 +248,6 @@ public class ExpressionService {
             EntitySubgroupSlim slim = getEntitySubgroupSlim(uberonTermID, aoUberonMap.get(uberonTermID), gene.getSpecies());
             entity.addEntitySlim(slim);
         });
-        // populate the empty ribbon cell info
-        // need to set the 'available' attribute
-        // AO fixup
-        service.getRibbonSections().getDiseaseRibbonSections().get(0).getSlims().forEach(section -> {
-            if (CollectionUtils.isEmpty(aoUberonMap.get(section.getId()))) {
-                EntitySubgroupSlim slim = getEntitySubgroupSlim(section.getId(), null, gene.getSpecies());
-                entity.addEntitySlim(slim);
-            }
-        });
 
         // add the Stage root term
         EntitySubgroupSlim slimRootStage = getEntitySubgroupStageSlim(ExpressionCacheRepository.UBERON_STAGE_ROOT, stageAnnotations, gene.getSpecies());
@@ -277,6 +267,29 @@ public class ExpressionService {
 
         entity.setNumberOfClasses(getDistinctClassSize(expressionList));
         entity.setNumberOfAnnotations(expressionList.size());
+
+        // mark / add the 'not available' terms
+        // Note: Stages are still handled separately than ao / go because they are modelled differently in the database.
+        List<String> nonStageTerms = new ArrayList<>();
+        service.getRibbonSections().getDiseaseRibbonSections().get(0).getSlims()
+                .forEach(slim -> nonStageTerms.add(slim.getId()));
+        service.getRibbonSections().getDiseaseRibbonSections().get(2).getSlims()
+                .forEach(slim -> nonStageTerms.add(slim.getId()));
+        List<String> stageTerms = new ArrayList<>();
+        service.getRibbonSections().getDiseaseRibbonSections().get(1).getSlims()
+                .forEach(slim -> stageTerms.add(slim.getId()));
+        nonStageTerms.stream()
+                .filter(id -> !entity.getSlims().keySet().contains(id))
+                .forEach(id -> {
+                    EntitySubgroupSlim slim = getEntitySubgroupSlim(id, null, gene.getSpecies());
+                    entity.addEntitySlim(slim);
+                });
+        stageTerms.stream()
+                .filter(id -> !entity.getSlims().keySet().contains(id))
+                .forEach(id -> {
+                    EntitySubgroupSlim slim = getEntitySubgroupStageSlim(id, null, gene.getSpecies());
+                    entity.addEntitySlim(slim);
+                });
         return entity;
     }
 
