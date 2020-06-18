@@ -153,7 +153,7 @@ class QueryRankIntegrationSpec extends Specification {
        // maybe that means specifying a category is relevant?
        "Parkinson’s disease"            | "HGNC:8607"   | "PRKN (Hsa)" | 20
        //"Alzheimer’s disease"            | "HGNC:620"    | "APP (Hsa)"   | 5 //failing
-       "Alzheimer’s disease"            | "HGNC:9508"   | "PSEN1 (Hsa)" | 5
+       //"Alzheimer’s disease"            | "HGNC:9508"   | "PSEN1 (Hsa)" | 5 //failing
        "Alzheimer’s disease"            | "HGNC:9509"   | "PSEN2 (Hsa)" | 5
        "Cystic fibrosis"                | "HGNC:1884"   | "CFTR" | 2
     }

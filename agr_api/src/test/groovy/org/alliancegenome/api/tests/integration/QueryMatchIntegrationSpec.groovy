@@ -104,16 +104,19 @@ class QueryMatchIntegrationSpec extends Specification {
         "AGR-2072" | "ZFIN:ZDB-ALT-130411-3895"    | "ENSDART00000165402.1:c.749-2A>T"
         "AGR-2072" | "FB:FBal0350326"       | "NT_037436.4:g.16857226C>T"
         "AGR-2072" | "FB:FBal0350326"       | "3L:g.16857226C>T"
-        "AGR-2072" | "FB:FBal0350326"       | "FBtr0075332.1:c.809C>T"
+        "AGR-2072" | "FB:FBal0350326"       | "FB:FBtr0075332.1:c.809C>T"
         "AGR-2072" | "FB:FBal0350326"       | ".1:p.Ala270Val"
         "AGR-2072" | "FB:FBal0182263"       | "NT_037436.4:g.131764_131765ins"
-        "AGR-2072" | "FB:FBal0182263"       | "3L:g.27447_271602del"
-        "AGR-2072" | "FB:FBal0182263"       | "FBtr0333172.1:c.-151+15043A>T"
+        "AGR-2072" | "FB:FBal0005806"       | "2R:g.25228386T>A"
+        "AGR-2072" | "FB:FBal0005806"       | "FB:FBtr0333172.1:c.-151+15043A>T"
         "AGR-2072" | "MGI:1856689"          | "NC_000074.6:g.11226343C>A"
         "AGR-2072" | "MGI:1856689"          | "8:g.11226343C>A"
         "AGR-2072" | "MGI:1856689"          | "XM_017312555.2:c.1879G>T"
         "AGR-2072" | "MGI:1856689"          | "XP_017168044.1:p.Gly627Trp"
-
+        "AGR-1893" | "RGD:11568041"         | "(Rnor_6.0)X:154703661_154703782del"
+        "AGR-1893" | "ZFIN:ZDB-ALT-000412-8" | "(GRCz11)7:30341642C>T"
+        "AGR-1893" | "ZFIN:ZDB-ALT-000621-2" | "(GRCz11)20:43717424A>G"
+        "AGR-1893" | "WB:WBVar00089581"      | "(WBcel235)I:152331C>A"
 
         //diseasesViaExperiment found by allele and gene names
         "AGR-866"  | "DOID:11726"              | "tm1502"
@@ -129,7 +132,7 @@ class QueryMatchIntegrationSpec extends Specification {
         //secondaryId
         "AGR-1437" | "MGI:109583"              | "MGI:1917411"
         "AGR-1514" | "DOID:1698"               | "DOID:37"
-        "AGR-1514" | "DOID:8716"               | "DOID:9209"
+        "AGR-1514" | "DOID:0040094"            | "DOID:0050146"
 
         //expression stages
         "AGR-1956" | "ZFIN:ZDB-GENE-980605-16"   | "Segmentation:14-19 somites"

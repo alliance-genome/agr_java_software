@@ -167,7 +167,7 @@ public class AlleleIndexerRepository extends Neo4jRepository {
     public Map<String, Set<String>> getRelatedVariants(String species) {
         String query = " MATCH (species:Species)-[:FROM_SPECIES]-(a:Allele)-[:VARIATION]-(v:Variant) ";
         query += getSpeciesWhere(species);
-        query += " RETURN distinct a.primaryKey as id, v.hgvsNomenclature as value";
+        query += " RETURN distinct a.primaryKey as id, [v.hgvsNomenclature,v.name] as value";
         Map<String,Set<String>> hgvsNames = getMapSetForQuery(query, getSpeciesParams(species));
 
         query = " MATCH (species:Species)-[:FROM_SPECIES]-(a:Allele)-[:VARIATION]-(v:Variant)-[:ASSOCIATION]-(tlc:TranscriptLevelConsequence)  ";
@@ -175,7 +175,12 @@ public class AlleleIndexerRepository extends Neo4jRepository {
         query += "RETURN distinct a.primaryKey as id, [v.hgvsNomenclature, tlc.hgvsVEPGeneNomenclature, tlc.hgvsProteinNomenclature, tlc.hgvsCodingNomenclature] as value  ";
         Map<String,Set<String>> tlcNames = getMapSetForQuery(query, getSpeciesParams(species));
 
-        return CollectionHelper.merge(hgvsNames, tlcNames);
+        query = "MATCH (species:Species)-[:FROM_SPECIES]-(a:Allele)-[:VARIATION]-(v:Variant)-[:ALSO_KNOWN_AS]-(synonym:Synonym) ";
+        query += getSpeciesWhere(species);
+        query += " RETURN a.primaryKey as id, synonym.name as value ";
+        Map<String,Set<String>> synonyms = getMapSetForQuery(query, getSpeciesParams(species));
+
+        return CollectionHelper.merge(hgvsNames, CollectionHelper.merge(tlcNames, synonyms));
     }
 
     public Map<String, Set<String>> getVariantTypesMap(String species) {
