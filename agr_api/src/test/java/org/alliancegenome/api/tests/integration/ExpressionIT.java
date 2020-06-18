@@ -9,7 +9,9 @@ import javax.inject.Inject;
 
 import org.alliancegenome.api.entity.EntitySubgroupSlim;
 import org.alliancegenome.api.entity.RibbonSummary;
+import org.alliancegenome.api.service.ExpressionRibbonService;
 import org.alliancegenome.api.service.ExpressionService;
+import org.alliancegenome.cache.CacheService;
 import org.alliancegenome.cache.repository.ExpressionCacheRepository;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.cache.repository.helper.PaginationResult;
@@ -23,16 +25,21 @@ import org.alliancegenome.neo4j.view.BaseFilter;
 import org.alliancegenome.neo4j.view.OrthologyModule;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.config.Configurator;
+import org.infinispan.client.hotrod.RemoteCacheManager;
+import org.jboss.weld.junit4.WeldInitiator;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.runner.RunWith;
 
 import static org.hamcrest.Matchers.greaterThan;
 import static org.junit.Assert.*;
 
+@RunWith(WeldJUnit4Runner.class)
 public class ExpressionIT {
 
     private ObjectMapper mapper = new ObjectMapper();
