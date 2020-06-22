@@ -33,7 +33,10 @@ public class Variant extends Neo4jEntity implements Comparable<Variant> {
 
     @JsonView({View.Default.class, View.API.class})
     @JsonProperty(value = "displayName")
-    protected String hgvsNomenclature;
+    private String hgvsNomenclature;
+
+    @JsonView({View.Default.class, View.API.class})
+    private String name;
 
     private String dataProvider;
     @JsonView({View.API.class})
@@ -85,10 +88,6 @@ public class Variant extends Neo4jEntity implements Comparable<Variant> {
     @Override
     public int compareTo(Variant o) {
         return 0;
-    }
-
-    public String getName() {
-        return hgvsNomenclature;
     }
 
     @JsonProperty(value = "nucleotideChange")
