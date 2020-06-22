@@ -215,6 +215,17 @@ public class ExpressionService {
         MultiValuedMap<String, ExpressionDetail> stageTermMap = new ArrayListValuedHashMap<>();
 
 
+        Gene gene = geneRepository.getShallowGene(geneID);
+        RibbonEntity entity = new RibbonEntity();
+        entity.setId(geneID);
+        entity.setLabel(gene.getSymbol());
+        entity.setTaxonID(gene.getTaxonId());
+        entity.setTaxonName(gene.getSpecies().getName());
+
+        if (CollectionUtils.isEmpty(expressionList)) {
+            return entity;
+        }
+
         expressionList.forEach(detail -> {
             if (CollectionUtils.isNotEmpty(detail.getUberonTermIDs())) {
                 uberonAnnotations.add(detail);
@@ -232,14 +243,6 @@ public class ExpressionService {
                 stageTermMap.put(stageTermID, detail);
             }
         });
-
-
-        Gene gene = geneRepository.getShallowGene(geneID);
-        RibbonEntity entity = new RibbonEntity();
-        entity.setId(geneID);
-        entity.setLabel(gene.getSymbol());
-        entity.setTaxonID(gene.getTaxonId());
-        entity.setTaxonName(gene.getSpecies().getName());
 
         // add the AO root term
         EntitySubgroupSlim slimRoot = getEntitySubgroupSlim(ExpressionCacheRepository.UBERON_ANATOMY_ROOT, uberonAnnotations, gene.getSpecies());
