@@ -8,7 +8,7 @@ import org.neo4j.ogm.typeconversion.AttributeConverter;
 
 public class DateConverter implements AttributeConverter<Date, String> {
 
-    private DateFormat format1 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.sssXXX");
+    private DateFormat format1 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
     private DateFormat format2 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX");
     
     @Override
