@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import org.alliancegenome.neo4j.entity.node.Gene;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -16,6 +17,7 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 @Setter
 @Getter
 @Schema(name="OrthologView", description="POJO that represents the Ortholog view")
+@JsonPropertyOrder({"gene", "homologGene", "best", "bestReverse", "stringencyFilter", "predictionMethodsMatched", "predictionMethodsNotMatched", "predictionMethodsNotCalled", "methodCount", "totalMethodCount"})
 public class OrthologView implements Serializable {
 
     @JsonView(View.Orthology.class)
