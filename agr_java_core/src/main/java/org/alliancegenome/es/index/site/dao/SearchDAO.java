@@ -68,6 +68,7 @@ public class SearchDAO extends ESDAO {
         searchSourceBuilder.query(query);
         searchSourceBuilder.size(limit);
         searchSourceBuilder.from(offset);
+        searchSourceBuilder.trackTotalHits(true);
 
         if(sort != null && sort.equals("alphabetical")) {
             searchSourceBuilder.sort("name.keyword", SortOrder.ASC);
