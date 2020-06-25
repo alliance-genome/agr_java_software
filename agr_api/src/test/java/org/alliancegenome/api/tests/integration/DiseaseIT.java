@@ -826,6 +826,7 @@ public class DiseaseIT {
                 null,
                 null,
                 null,
+                null,
                 null
         );
 
@@ -859,6 +860,7 @@ public class DiseaseIT {
         response = diseaseController.getDiseaseAnnotationsByGene(diseaseID,
                 2000,
                 1,
+                null,
                 null,
                 null,
                 null,

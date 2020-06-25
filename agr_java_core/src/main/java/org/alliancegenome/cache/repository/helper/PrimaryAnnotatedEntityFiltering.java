@@ -4,6 +4,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.alliancegenome.es.model.query.FieldFilter;
+import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
 import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
 import org.apache.commons.collections4.CollectionUtils;
 
@@ -33,15 +34,13 @@ public class PrimaryAnnotatedEntityFiltering extends AnnotationFiltering<Primary
                 return filteringPassed.contains(true);
             };
 
-    /*
+    private FilterFunction<PrimaryAnnotatedEntity, String> sourceFilter =
+            (annotation, value) -> {
+                if (annotation.getSource() != null)
+                    return FilterFunction.contains(annotation.getSource().getName(), value);
+                return value == null;
+            };
 
-    public FilterFunction<PrimaryAnnotatedEntity, String> sourceFilter =
-            (annotation, value) -> FilterFunction.contains(annotation.getSource().getName(), value);
-
-    public FilterFunction<PrimaryAnnotatedEntity, String> geneNameFilter =
-            (annotation, value) -> FilterFunction.contains(annotation.getGene().getSymbol(), value);
-
-*/
 
     public PrimaryAnnotatedEntityFiltering() {
 /*
@@ -53,6 +52,7 @@ public class PrimaryAnnotatedEntityFiltering extends AnnotationFiltering<Primary
         filterFieldMap.put(FieldFilter.DISEASE, termNameFilter);
         filterFieldMap.put(FieldFilter.PHENOTYPE, phenotypeFilter);
         filterFieldMap.put(FieldFilter.MODEL_NAME, modelNameFilter);
+        filterFieldMap.put(FieldFilter.SOURCE, sourceFilter);
     }
 
 }

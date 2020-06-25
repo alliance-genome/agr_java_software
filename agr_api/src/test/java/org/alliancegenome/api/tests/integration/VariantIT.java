@@ -14,6 +14,7 @@ import org.junit.Test;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -32,14 +33,13 @@ public class VariantIT {
 
 
     @Test
-    @Ignore
     public void sortByTranscript() {
         Pagination pagination = new Pagination();
         JsonResultResponse<Transcript> response = variantService.getTranscriptsByVariant("NC_000074.6:g.57322231_57322238delinsGAGGACGA", pagination);
         final List<Transcript> results = response.getResults();
         assertNotNull(results);
         assertThat(results.size(), greaterThan(3));
-        String concatenatedGeneSYmbols = results.stream()
+        String concatenatedGeneSymbols = results.stream()
                 .map(transcript -> transcript.getGene().getSymbol())
                 .collect(Collectors.joining());
         String concatenatedGeneSymbolsSorted = results.stream()
@@ -47,7 +47,19 @@ public class VariantIT {
                 .sorted()
                 .collect(Collectors.joining());
 
-        assertEquals(concatenatedGeneSYmbols, concatenatedGeneSymbolsSorted);
+        assertEquals(concatenatedGeneSymbols, concatenatedGeneSymbolsSorted);
+    }
+
+    @Test
+    public void paginateOverTranscripts() {
+        Pagination pagination = new Pagination();
+        pagination.setLimit(2);
+        pagination.setPage(2);
+        JsonResultResponse<Transcript> response = variantService.getTranscriptsByVariant("NC_000083.6:g.46025369_46025370delinsTC", pagination);
+        List<Transcript> results = response.getResults();
+        assertNotNull(results);
+        assertThat(results.size(), equalTo(2));
+        assertThat(response.getTotal(), greaterThan(200));
 
     }
 

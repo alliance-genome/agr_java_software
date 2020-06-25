@@ -10,6 +10,7 @@ import javax.enterprise.context.RequestScoped;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RequestScoped
 public class VariantService {
@@ -20,16 +21,22 @@ public class VariantService {
         Variant variant = variantRepo.getVariant(variantID);
 
         JsonResultResponse<Transcript> response = new JsonResultResponse<>();
-        if (variant != null) {
-            List<Transcript> transcriptList = variant.getTranscriptList();
-            response.setTotal(transcriptList.size());
+        if (variant == null)
+            return response;
 
-            Comparator<Transcript> comparatorGene = Comparator.comparing(transcript -> transcript.getGene().getSymbol());
-            Comparator<Transcript> comparatorGeneSequence = comparatorGene.thenComparing(Transcript::getName);
+        List<Transcript> transcriptList = variant.getTranscriptList();
+        response.setTotal(transcriptList.size());
 
-            transcriptList.sort(comparatorGeneSequence);
-            response.setResults(transcriptList);
-        }
+        // sorting
+        Comparator<Transcript> comparatorGene = Comparator.comparing(transcript -> transcript.getGene().getSymbol());
+        Comparator<Transcript> comparatorGeneSequence = comparatorGene.thenComparing(Transcript::getName);
+        transcriptList.sort(comparatorGeneSequence);
+
+        // pagination
+        response.setResults(transcriptList.stream()
+                .skip(pagination.getStart())
+                .limit(pagination.getLimit())
+                .collect(Collectors.toList()));
         return response;
     }
 
