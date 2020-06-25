@@ -194,6 +194,7 @@ public class DiseaseController implements DiseaseRESTInterface {
                                                         String source,
                                                         String reference,
                                                         String evidenceCode,
+                                                        String basedOnGeneSymbol,
                                                         String associationType,
                                                         boolean fullDownload,
                                                         String downloadFileType,
@@ -208,6 +209,7 @@ public class DiseaseController implements DiseaseRESTInterface {
                 source,
                 reference,
                 evidenceCode,
+                basedOnGeneSymbol,
                 associationType,
                 asc);
         Response.ResponseBuilder responseBuilder = null;
@@ -258,6 +260,7 @@ public class DiseaseController implements DiseaseRESTInterface {
                                                                              String source,
                                                                              String reference,
                                                                              String evidenceCode,
+                                                                             String basedOnGeneSymbol,
                                                                              String associationType,
                                                                              String asc) {
         long startTime = System.currentTimeMillis();
@@ -268,6 +271,7 @@ public class DiseaseController implements DiseaseRESTInterface {
         pagination.addFieldFilter(FieldFilter.SOURCE, source);
         pagination.addFieldFilter(FieldFilter.FREFERENCE, reference);
         pagination.addFieldFilter(FieldFilter.EVIDENCE_CODE, evidenceCode);
+        pagination.addFieldFilter(FieldFilter.BASED_ON_GENE, basedOnGeneSymbol);
         pagination.addFieldFilter(FieldFilter.ASSOCIATION_TYPE, associationType);
         if (pagination.hasErrors()) {
             RestErrorMessage message = new RestErrorMessage();

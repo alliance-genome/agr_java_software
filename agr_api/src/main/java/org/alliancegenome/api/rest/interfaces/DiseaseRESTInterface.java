@@ -194,6 +194,8 @@ public interface DiseaseRESTInterface {
             @QueryParam("filter.reference") String reference,
             @Parameter(in=ParameterIn.QUERY, name ="filter.evidenceCode", description = "filter by evidence code")
             @QueryParam("filter.evidenceCode") String evidenceCode,
+            @Parameter(in=ParameterIn.QUERY, name="filter.basedOnGeneSymbol", description = "filter by based-on-gene")
+            @QueryParam("filter.basedOnGeneSymbol") String basedOnGeneSymbol,
             @Parameter(in=ParameterIn.QUERY, name ="filter.associationType",description = "filter by association type")
             @QueryParam("filter.associationType") String associationType,
             @Parameter(in=ParameterIn.QUERY, name = "asc", description = "order to sort by", schema = @Schema(type = SchemaType.STRING))
@@ -222,6 +224,8 @@ public interface DiseaseRESTInterface {
             @QueryParam("filter.reference") String reference,
             @Parameter(in=ParameterIn.QUERY, name ="filter.evidenceCode", description = "filter by evidence code", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.evidenceCode") String evidenceCode,
+            @Parameter(in=ParameterIn.QUERY, name="filter.basedOnGeneSymbol", description = "filter by based-on-gene")
+            @QueryParam("filter.basedOnGeneSymbol") String basedOnGeneSymbol,
             @Parameter(in=ParameterIn.QUERY, name ="filter.associationType",description = "filter by association type", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.associationType") String associationType,
             //@ApiParam(value = "boolean for switching between table download and Download page")
