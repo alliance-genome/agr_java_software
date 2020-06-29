@@ -41,6 +41,7 @@ public class PhenotypeAnnotationToTdfTranslator {
                         .map(entity -> entity.getPublicationEvidenceCodes().stream()
                                 .map(join -> {
                                     PhenotypeDownloadRow row = getBaseDownloadRow(annotation, join, null);
+                                    //set entities
                                     row.setMainEntityID(annotation.getAllele().getPrimaryKey());
                                     row.setMainEntitySymbol(annotation.getAllele().getSymbolText());
                                     if (!entity.getType().equals(GeneticEntity.CrossReferenceType.GENE)) {
