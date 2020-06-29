@@ -41,6 +41,7 @@ public class PhenotypeAnnotationToTdfTranslator {
                         .map(entity -> entity.getPublicationEvidenceCodes().stream()
                                 .map(join -> {
                                     PhenotypeDownloadRow row = getBaseDownloadRow(annotation, join, null);
+                                    //set entities
                                     row.setMainEntityID(annotation.getAllele().getPrimaryKey());
                                     row.setMainEntitySymbol(annotation.getAllele().getSymbolText());
                                     if (!entity.getType().equals(GeneticEntity.CrossReferenceType.GENE)) {
@@ -96,10 +97,16 @@ public class PhenotypeAnnotationToTdfTranslator {
 
     private PrimaryAnnotatedEntity createNewPrimaryAnnotatedEntity(PhenotypeAnnotation annotation, PublicationJoin join) {
         PrimaryAnnotatedEntity entity = new PrimaryAnnotatedEntity();
-        entity.setId(annotation.getGene().getPrimaryKey());
-        entity.setName(annotation.getGene().getSymbol());
-        entity.setType(GeneticEntity.CrossReferenceType.GENE);
-
+        if (annotation.getGene() != null) {
+            entity.setId(annotation.getGene().getPrimaryKey());
+            entity.setName(annotation.getGene().getSymbol());
+            entity.setType(GeneticEntity.CrossReferenceType.GENE);
+        } else {
+            entity.setId(annotation.getAllele().getPrimaryKey());
+            entity.setName(annotation.getAllele().getSymbolText());
+            entity.setType(GeneticEntity.CrossReferenceType.ALLELE);
+        }
+        
         return entity;
     }
 
