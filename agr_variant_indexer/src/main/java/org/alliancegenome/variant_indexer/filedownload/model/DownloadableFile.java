@@ -1,4 +1,4 @@
-package org.alliancegenome.variant_indexer.download.model;
+package org.alliancegenome.variant_indexer.filedownload.model;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -9,4 +9,5 @@ public class DownloadableFile {
     private String chromosome;
     private String url;
     private String localGzipFilePath;
+    private String converter;
 }

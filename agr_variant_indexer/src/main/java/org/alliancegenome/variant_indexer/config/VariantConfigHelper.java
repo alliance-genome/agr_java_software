@@ -36,13 +36,6 @@ public class VariantConfigHelper {
          * key in the defaults map there should be a corresponding get method for that value.
          */
 
-        defaults.put(ES_INDEX, "site_variant_index"); // Can be over written
-        defaults.put(ES_HOST, "localhost");
-        defaults.put(ES_PORT, "9200");
-
-        defaults.put(NEO4J_HOST, "localhost");
-        defaults.put(NEO4J_PORT, "7687");
-
         defaults.put(VARIANT_CONFIG_FILE, "downloadFileSet.yaml");
         
         defaults.put(VARIANT_FILE_DOWNLOAD_THREADS, "10");
@@ -54,11 +47,14 @@ public class VariantConfigHelper {
         defaults.put(VARIANT_DOCUMENT_CREATOR_CONTEXT_PROCESSOR_TASK_QUEUE_SIZE, "10");
         defaults.put(VARIANT_DOCUMENT_CREATOR_WORK_CHUNK_SIZE, "1000");
 
-        // Average document size is 400b
-        defaults.put(VARIANT_INDEX_REQUEST_QUEUE_SIZE, "625000"); // Queue documents waiting to go into a bulk request ~250MB
-        defaults.put(VARIANT_ES_BULK_ACTION_SIZE, "62500"); // Max amount of documents in a bulk request ~25MB
-        defaults.put(VARIANT_ES_BULK_CONCURRENT_REQUEST_AMOUNT, "10"); // Amount of concurrent bulk requests running ~250MB
-        defaults.put(VARIANT_ES_BULK_SIZE_MB, "25"); // Max size of bulk request 25MB
+        int target = 25;
+        int avgDocSize = 1000;
+
+        // Average document size is 1200b
+        defaults.put(VARIANT_INDEX_REQUEST_QUEUE_SIZE, "" + (int)((target * 10_000_000) / avgDocSize)); // Queue documents waiting to go into a (target * 10) MB
+        defaults.put(VARIANT_ES_BULK_ACTION_SIZE, "" + (int)((target * 1_000_000) / avgDocSize)); // Max amount of documents in a bulk request target MB
+        defaults.put(VARIANT_ES_BULK_CONCURRENT_REQUEST_AMOUNT, "10"); // Amount of concurrent bulk requests running (target * 10) MB
+        defaults.put(VARIANT_ES_BULK_SIZE_MB, "" + target); // Max size of bulk request target
         
         defaults.put(VARIANT_ES_INDEX_NUMBER_OF_SHARDS, "32");
 
@@ -107,39 +103,6 @@ public class VariantConfigHelper {
         return ret;
     }
 
-    public static String getEsHost() {
-        if (!init) init();
-        return config.get(ES_HOST);
-    }
-
-    public static int getEsPort() {
-        if (!init) init();
-        try {
-            return Integer.parseInt(config.get(ES_PORT));
-        } catch (NumberFormatException e) {
-            return 9300;
-        }
-    }
-
-    public static String getNeo4jHost() {
-        if (!init) init();
-        return config.get(NEO4J_HOST);
-    }
-
-    public static int getNeo4jPort() {
-        if (!init) init();
-        try {
-            return Integer.parseInt(config.get(NEO4J_PORT));
-        } catch (NumberFormatException e) {
-            return 7687;
-        }
-    }
-
-    public static String getEsIndex() {
-        if (!init) init();
-        return config.get(ES_INDEX);
-    }
-
     public static String getVariantConfigFile() {
         if (!init) init();
         return config.get(VARIANT_CONFIG_FILE);
@@ -148,25 +111,6 @@ public class VariantConfigHelper {
     public static String getVariantFileDownloadPath() {
         if (!init) init();
         return config.get(VARIANT_FILE_DOWNLOAD_PATH);
-    }
-
-    public static String getJavaLineSeparator() {
-        if (!init) init();
-        return System.getProperty("line.separator");
-    }
-
-    public static String getJavaTmpDir() {
-        if (!init) init();
-        return System.getProperty("java.io.tmpdir");
-    }
-
-    public static String getValidationSoftwarePath() {
-        if (!init) init();
-        return getJavaTmpDir();
-    }
-
-    public static void setNameValue(String key, String value) {
-        config.put(key, value);
     }
 
     public static void printProperties() {

@@ -3,6 +3,7 @@ package org.alliancegenome.variant_indexer.es;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
+import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.es.util.EsClientFactory;
 import org.alliancegenome.variant_indexer.config.VariantConfigHelper;
 import org.elasticsearch.action.DocWriteRequest;
@@ -13,9 +14,6 @@ import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
-import org.elasticsearch.client.indices.CreateIndexRequest;
-import org.elasticsearch.client.indices.CreateIndexResponse;
-import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.unit.ByteSizeUnit;
 import org.elasticsearch.common.unit.ByteSizeValue;
 import org.elasticsearch.common.unit.TimeValue;
@@ -28,8 +26,7 @@ public class ESDocumentInjector extends Thread {
 
     private BulkProcessor.Builder builder;
     private BulkProcessor bulkProcessor;
-    private String indexName = VariantConfigHelper.getEsIndex();
-    //private boolean createIndex = false;
+    public static String indexName;
     private LinkedBlockingQueue<IndexRequest> queue = new LinkedBlockingQueue<>(VariantConfigHelper.getIndexRequestQueueSize());
 
     private RestHighLevelClient client = EsClientFactory.createNewClient();
@@ -68,23 +65,7 @@ public class ESDocumentInjector extends Thread {
         bulkProcessor = builder.build();
 
         //log.info("Finished Creating Bulk Processor");
-
         start();
-    }
-
-    public void createIndex() {
-        CreateIndexRequest indexRequest = new CreateIndexRequest(indexName);
-        indexRequest.settings(Settings.builder() 
-                .put("index.number_of_shards", VariantConfigHelper.getEsNumberOfShards())
-                .put("index.refresh_interval", -1)
-                .put("index.number_of_replicas", 0)
-                );
-
-        try {
-            CreateIndexResponse createIndexResponse = client.indices().create(indexRequest, RequestOptions.DEFAULT);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     public void run() {

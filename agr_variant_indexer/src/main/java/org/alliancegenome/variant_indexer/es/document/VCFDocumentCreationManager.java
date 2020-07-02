@@ -1,12 +1,12 @@
-package org.alliancegenome.variant_indexer.vcf;
+package org.alliancegenome.variant_indexer.es.document;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.alliancegenome.variant_indexer.config.VariantConfigHelper;
-import org.alliancegenome.variant_indexer.download.model.DownloadFileSet;
-import org.alliancegenome.variant_indexer.download.model.DownloadSource;
-import org.alliancegenome.variant_indexer.download.model.DownloadableFile;
+import org.alliancegenome.variant_indexer.filedownload.model.DownloadFileSet;
+import org.alliancegenome.variant_indexer.filedownload.model.DownloadSource;
+import org.alliancegenome.variant_indexer.filedownload.model.DownloadableFile;
 
 public class VCFDocumentCreationManager extends Thread {
 
@@ -24,7 +24,7 @@ public class VCFDocumentCreationManager extends Thread {
 
             for(DownloadSource source: downloadSet.getDownloadFileSet()) {
                 for(DownloadableFile df: source.getFileList()) {
-                    VCFDocumentCreator creator = new VCFDocumentCreator(df);
+                    VCFDocumentCreator creator = new VCFDocumentCreator(df, source.getSpecies());
                     executor.execute(creator);
                 }
             }
