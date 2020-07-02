@@ -15,6 +15,7 @@
 		<module>agr_indexer</module>
 		<module>agr_cacher</module>
 		<module>agr_api</module>
+		<module>agr_api_tester</module>
 		<module>agr_schema_validation</module>
 		<module>agr_intermine_data_extractor</module>
 		<module>agr_variant_indexer</module>
@@ -55,6 +56,14 @@
 			<artifactId>junit-jupiter-engine</artifactId>
 			<version>5.6.2</version>
 			<scope>test</scope>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+			<version>3.6</version>
+		</dependency>
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<version>1.18.10</version>
 		</dependency>
 	</dependencies>
 

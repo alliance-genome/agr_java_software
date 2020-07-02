@@ -250,7 +250,7 @@ public class ConfigHelper {
             }
         }
 
-        return url;
+        return url + "/api";
     }
 
     public static String getNeo4jHost() {

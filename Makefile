@@ -4,6 +4,9 @@ all:
 api:
 	mvn -T 4 clean package -pl agr_api -am
 
+apitester:
+	mvn -T 4 clean package -pl agr_api_tester -am
+
 cacher:
 	mvn -T 4 clean package -pl agr_cacher -am
 
@@ -21,6 +24,9 @@ apiq:
 
 apirun:
 	make -C agr_api run
+
+apitesterrun:
+	make -C agr_api_tester run
 
 apidebug:
 	make -C agr_api debug

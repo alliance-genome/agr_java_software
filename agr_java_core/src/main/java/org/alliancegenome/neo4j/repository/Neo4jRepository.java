@@ -1,6 +1,13 @@
 package org.alliancegenome.neo4j.repository;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.alliancegenome.core.config.ConfigHelper;
@@ -35,7 +42,7 @@ public class Neo4jRepository<E> {
 
     protected Iterable<E> getPage(int pageNumber, int pageSize, int depth) {
         Pagination p = new Pagination(pageNumber, pageSize);
-        return neo4jSession.loadAll(entityTypeClazz, p, depth);
+        return Neo4jSessionFactory.getInstance().getNeo4jSession().loadAll(entityTypeClazz, p, depth);
     }
 
     protected Iterable<E> getPage(int pageNumber, int pageSize) {
@@ -43,11 +50,11 @@ public class Neo4jRepository<E> {
     }
 
     protected int getCount() {
-        return (int) neo4jSession.countEntitiesOfType(entityTypeClazz);
+        return (int) Neo4jSessionFactory.getInstance().getNeo4jSession().countEntitiesOfType(entityTypeClazz);
     }
 
     public void clearCache() {
-        neo4jSession.clear();
+        Neo4jSessionFactory.getInstance().getNeo4jSession().clear();
     }
     
     public void close() {
@@ -56,11 +63,11 @@ public class Neo4jRepository<E> {
     }
 
     protected Iterable<E> getEntity(String key, String value) {
-        return neo4jSession.loadAll(entityTypeClazz, new Filter(key, ComparisonOperator.EQUALS, value));
+        return Neo4jSessionFactory.getInstance().getNeo4jSession().loadAll(entityTypeClazz, new Filter(key, ComparisonOperator.EQUALS, value));
     }
 
     protected E getSingleEntity(String primaryKey) {
-        return neo4jSession.load(entityTypeClazz, primaryKey);
+        return Neo4jSessionFactory.getInstance().getNeo4jSession().load(entityTypeClazz, primaryKey);
     }
     
 
@@ -79,7 +86,7 @@ public class Neo4jRepository<E> {
     private <T> Iterable<T> loggedQueryByClass(Class<T> entityTypeClazz, String cypherQuery, Map<String, ?> params) {
         Date start = new Date();
         log.debug("Running Query: " + cypherQuery);
-        Iterable<T> ret = neo4jSession.query(entityTypeClazz, cypherQuery, params);
+        Iterable<T> ret = Neo4jSessionFactory.getInstance().getNeo4jSession().query(entityTypeClazz, cypherQuery, params);
         Date end = new Date();
         log.debug("Query took: " + ProcessDisplayHelper.getHumanReadableTimeDisplay(end.getTime() - start.getTime()) + " to run");
         return ret;
@@ -97,7 +104,7 @@ public class Neo4jRepository<E> {
     protected Result loggedQuery(String cypherQuery, Map<String, ?> params) {
         Date start = new Date();
         log.debug("Running Query: " + cypherQuery);
-        Result ret = neo4jSession.query(cypherQuery, params);
+        Result ret = Neo4jSessionFactory.getInstance().getNeo4jSession().query(cypherQuery, params);
         Date end = new Date();
         log.debug("Query took: " + ProcessDisplayHelper.getHumanReadableTimeDisplay(end.getTime() - start.getTime()) + " to run");
         return ret;
