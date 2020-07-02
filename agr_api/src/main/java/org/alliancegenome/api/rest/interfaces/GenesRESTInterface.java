@@ -38,7 +38,7 @@ public interface GenesRESTInterface {
     JsonResultResponse<Gene> getGenes(
             //@ApiParam(name = "taxonID", value = "Species identifier: Could be the full ID, e.g. 'NCBITaxon:10090', or just the ID, i.e. '10090'. Alternatively, part of a species name uniquely identifying a single species, e.g. 'danio' or 'mus'.", type = "String")
 
-            @Parameter(in=ParameterIn.PATH, name = "taxonID", description = "Species identifier: Could be the full ID, e.g. 'NCBITaxon:10090', or just the ID, i.e. '10090'. Alternatively, part of a species name uniquely identifying a single species, e.g. 'danio' or 'mus'", required=true, schema = @Schema(type = SchemaType.STRING))
+            @Parameter(in=ParameterIn.QUERY, name = "taxonID", description = "Species identifier: Could be the full ID, e.g. 'NCBITaxon:10090', or just the ID, i.e. '10090'. Alternatively, part of a species name uniquely identifying a single species, e.g. 'danio' or 'mus'", required=true, schema = @Schema(type = SchemaType.STRING))
             @QueryParam("taxonID") List<String> taxonID,
             @Parameter(in=ParameterIn.QUERY, name = "rows", description = "Number of rows returned", schema = @Schema(type = SchemaType.INTEGER))
             @DefaultValue("20") @QueryParam("rows") Integer rows,
@@ -51,7 +51,7 @@ public interface GenesRESTInterface {
     @Operation(summary = "Retrieve list of gene IDs")
     @Produces(MediaType.TEXT_PLAIN)
     String getGeneIDs(
-            @Parameter(in=ParameterIn.PATH, name = "taxonID", description = "Species identifier: Could be the full ID, e.g. 'NCBITaxon:10090', or just the ID, i.e. '10090'. Alternatively, part of a species name uniquely identifying a single species, e.g. 'danio' or 'mus'", required=true, schema = @Schema(type = SchemaType.STRING))
+            @Parameter(in=ParameterIn.QUERY, name = "taxonID", description = "Species identifier: Could be the full ID, e.g. 'NCBITaxon:10090', or just the ID, i.e. '10090'. Alternatively, part of a species name uniquely identifying a single species, e.g. 'danio' or 'mus'", required=true, schema = @Schema(type = SchemaType.STRING))
             @QueryParam("taxonID") List<String> taxonID,
             @Parameter(in=ParameterIn.QUERY, name = "rows", description = "Number of rows returned", schema = @Schema(type = SchemaType.INTEGER))
             @DefaultValue("20") @QueryParam("rows") Integer rows,

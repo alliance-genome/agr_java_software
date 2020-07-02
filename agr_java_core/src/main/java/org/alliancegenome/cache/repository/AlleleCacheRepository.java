@@ -8,6 +8,10 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 
+import org.alliancegenome.api.service.AlleleColumnFieldMapping;
+import org.alliancegenome.api.service.ColumnFieldMapping;
+import org.alliancegenome.api.service.FilterService;
+import org.alliancegenome.api.service.Table;
 import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.cache.CacheService;
 import org.alliancegenome.cache.repository.helper.AlleleFiltering;
@@ -70,6 +74,13 @@ public class AlleleCacheRepository {
         List<Allele> filteredAlleleList = filterDiseaseAnnotations(allAlleles, pagination.getFieldFilterValueMap());
         response.setResults(getSortedAndPaginatedAlleles(filteredAlleleList, pagination));
         response.setTotal(filteredAlleleList.size());
+
+        // add distinct values
+        FilterService<Allele> filterService = new FilterService<>(new AlleleFiltering());
+        ColumnFieldMapping<Allele> mapping = new AlleleColumnFieldMapping();
+        response.addDistinctFieldValueSupplementalData(filterService.getDistinctFieldValues(allAlleles,
+                mapping.getSingleValuedFieldColumns(Table.ALLELE_GENE), mapping));
+
         return response;
     }
 

@@ -1,18 +1,19 @@
 package org.alliancegenome.cache.repository.helper;
 
-import static java.util.Comparator.naturalOrder;
-
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.stream.Collectors;
-
 import org.alliancegenome.neo4j.entity.Sorting;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.Phenotype;
 import org.alliancegenome.neo4j.entity.node.SimpleTerm;
 import org.alliancegenome.neo4j.entity.node.Variant;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static java.util.Comparator.naturalOrder;
 
 public class AlleleSorting implements Sorting<Allele> {
 
@@ -127,8 +128,11 @@ public class AlleleSorting implements Sorting<Allele> {
             Comparator.comparing(allele -> {
                 if (CollectionUtils.isEmpty(allele.getVariants()))
                     return null;
-                String diseaseJoin = allele.getVariants().stream().sorted(Comparator.comparing(variant -> variant.getGeneLevelConsequence().getGeneLevelConsequence())).map(variant -> variant.getGeneLevelConsequence().getGeneLevelConsequence()).collect(Collectors.joining(""));
-                return diseaseJoin.toLowerCase();
+                String diseaseJoin = allele.getVariants().stream()
+                        .filter(variant -> variant.getGeneLevelConsequence() != null)
+                        .sorted(Comparator.comparing(variant -> variant.getGeneLevelConsequence().getGeneLevelConsequence()))
+                        .map(variant -> variant.getGeneLevelConsequence().getGeneLevelConsequence()).collect(Collectors.joining(""));
+                return StringUtils.isNotEmpty(diseaseJoin) ? diseaseJoin.toLowerCase() : null;
             }, Comparator.nullsLast(naturalOrder()));
 
     static public Comparator<Allele> phenotypeStatementOrder =

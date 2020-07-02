@@ -20,7 +20,7 @@ public class ModelAnnotationFiltering extends AnnotationFiltering<DiseaseAnnotat
                 Set<Boolean> filteringPassed = annotation.getEcoCodes().stream()
                         .map(evidenceCode -> FilterFunction.contains(evidenceCode.getName(), value))
                         .collect(Collectors.toSet());
-                return !filteringPassed.contains(false);
+                return filteringPassed.contains(true);
             };
             
     public FilterFunction<DiseaseAnnotation, String> referenceFilter =

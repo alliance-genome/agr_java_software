@@ -40,7 +40,6 @@ public class AlleleIT {
 
     private ObjectMapper mapper = new ObjectMapper();
 
-    @Inject
     private AlleleService alleleService = new AlleleService();
 
     @Inject
