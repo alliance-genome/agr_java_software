@@ -35,7 +35,7 @@ public class PublicationJoin extends Association {
 
     // annotation inferred on
     @Relationship(type = "PRIMARY_GENETIC_ENTITY")
-    private AffectedGenomicModel model;
+    private List<AffectedGenomicModel> models;
 
     // annotation inferred on
     @Relationship(type = "PRIMARY_GENETIC_ENTITY")

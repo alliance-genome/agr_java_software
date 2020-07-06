@@ -3,10 +3,10 @@ package org.alliancegenome.cacher.cachers;
 import lombok.extern.log4j.Log4j2;
 import org.alliancegenome.api.entity.CacheStatus;
 import org.alliancegenome.api.service.DiseaseRibbonService;
-import org.alliancegenome.core.util.ModelHelper;
 import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.cache.repository.helper.DiseaseAnnotationSorting;
 import org.alliancegenome.cache.repository.helper.SortingField;
+import org.alliancegenome.core.util.ModelHelper;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
 import org.alliancegenome.neo4j.entity.SpeciesType;
@@ -29,7 +29,7 @@ public class DiseaseCacher extends Cacher {
     protected void cache() {
 
         // model type of diseases
-        populateModelsWithDiseases();
+        //populateModelsWithDiseases();
 
         startProcess("diseaseRepository.getAllDiseaseEntityGeneJoins");
         Set<DiseaseEntityJoin> joinList = diseaseRepository.getAllDiseaseEntityGeneJoins();
@@ -333,7 +333,7 @@ public class DiseaseCacher extends Cacher {
             List<PrimaryAnnotatedEntity> mergedAnnotations = diseaseAnnotationPureMap.get(geneID);
             if (mergedAnnotations == null)
                 mergedAnnotations = new ArrayList<>();
-            if(CollectionUtils.isEmpty(diseaseAnnotations))
+            if (CollectionUtils.isEmpty(diseaseAnnotations))
                 return;
             PrimaryAnnotatedEntity entity = ModelHelper.getPrimaryAnnotatedEntity(diseaseAnnotations.get(0));
             diseaseAnnotations.forEach(diseaseAnnotation -> {
@@ -414,22 +414,23 @@ public class DiseaseCacher extends Cacher {
                         // create PAEs from AGMs
                         join.getPublicationJoins()
                                 .stream()
-                                .filter(pubJoin -> pubJoin.getModel() != null)
+                                .filter(pubJoin -> pubJoin.getModels() != null)
                                 .forEach(pubJoin -> {
-                                    AffectedGenomicModel model = pubJoin.getModel();
-                                    PrimaryAnnotatedEntity entity = entities.get(model.getPrimaryKey());
-                                    if (entity == null) {
-                                        entity = new PrimaryAnnotatedEntity();
-                                        entity.setId(model.getPrimaryKey());
-                                        entity.setName(model.getName());
-                                        entity.setUrl(model.getModCrossRefCompleteUrl());
-                                        entity.setDisplayName(model.getNameText());
-                                        entity.setType(GeneticEntity.getType(model.getSubtype()));
-                                        entities.put(model.getPrimaryKey(), entity);
-                                    }
-                                    document.addPrimaryAnnotatedEntity(entity);
-                                    entity.addPublicationEvidenceCode(pubJoin);
-                                    entity.addDisease(join.getDisease());
+                                    pubJoin.getModels().forEach(model -> {
+                                        PrimaryAnnotatedEntity entity = entities.get(model.getPrimaryKey());
+                                        if (entity == null) {
+                                            entity = new PrimaryAnnotatedEntity();
+                                            entity.setId(model.getPrimaryKey());
+                                            entity.setName(model.getName());
+                                            entity.setUrl(model.getModCrossRefCompleteUrl());
+                                            entity.setDisplayName(model.getNameText());
+                                            entity.setType(GeneticEntity.getType(model.getSubtype()));
+                                            entities.put(model.getPrimaryKey(), entity);
+                                        }
+                                        document.addPrimaryAnnotatedEntity(entity);
+                                        entity.addPublicationEvidenceCode(pubJoin);
+                                        entity.addDisease(join.getDisease());
+                                    });
                                 });
                         // create PAEs from Alleles
                         join.getPublicationJoins()
