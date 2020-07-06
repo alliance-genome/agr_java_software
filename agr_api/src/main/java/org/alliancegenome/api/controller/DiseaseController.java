@@ -553,6 +553,7 @@ public class DiseaseController implements DiseaseRESTInterface {
                     null,
                     null,
                     null,
+                    null,
                     null).getResults());
         });
         Response.ResponseBuilder responseBuilder = Response.ok(translator.getAllRowsForGenesAndAlleles(geneAnnotations, alleleAnnotations));
