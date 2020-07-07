@@ -4,12 +4,13 @@ import java.io.PrintWriter;
 import java.util.*;
 
 import org.alliancegenome.core.translators.EntityTSVTranslator;
+import org.alliancegenome.core.translators.ResultTSVTranslator;
 import org.alliancegenome.neo4j.entity.node.Gene;
 
 import lombok.Getter;
 
 @Getter
-public class GeneTSVTranslator extends EntityTSVTranslator<Gene> {
+public class GeneTSVTranslator extends ResultTSVTranslator {
 
     public GeneTSVTranslator(PrintWriter writer) {
         super(writer);
@@ -21,22 +22,28 @@ public class GeneTSVTranslator extends EntityTSVTranslator<Gene> {
                 "Id",
                 "Name",
                 "Species",
-                "Description",
-                "Symbol"
+                "Chromosome",
+                "Start",
+                "End",
+                "Strand",
+                "SoTerm"
             );
     }
-    
+
     @Override
-    protected List<String> entityToRow(Gene entity) {
-        
+    protected List<String> mapToRow(Map<String, Object> map) {
+
         return Arrays.asList(
-            entity.getPrimaryKey(),
-            entity.getName(),
-            entity.getSpecies().getType().getTaxonID(),
-            entity.getDescription(),
-            entity.getSymbol()  
+            String.valueOf(map.get("g.primaryKey")),
+            String.valueOf(map.get("g.name")),
+            String.valueOf(map.get("s.primaryKey")),
+            String.valueOf(map.get("gl.chromosome")),
+            String.valueOf(map.get("gl.start")),
+            String.valueOf(map.get("gl.end")),
+            String.valueOf(map.get("gl.strand")),
+            String.valueOf(map.get("so.name"))
+
         );
-        
     }
 
 }

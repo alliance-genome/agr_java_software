@@ -3,15 +3,13 @@ package org.alliancegenome.core.tests;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
-import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.core.config.Configurator;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 public class TestGetGene {
 
     public void before() {
-        Configurator.setRootLevel(Level.WARN);
+        //Configurator.setRootLevel(Level.WARN);
         ConfigHelper.init();
     }
 
