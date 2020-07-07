@@ -158,7 +158,7 @@ class DiseaseAnnotationIntegrationSpec extends Specification {
 
         where:
         geneSymbolQuery | resultSize | geneSymbolList
-        "ot"            | 19         | "DOT1L,Notch3,NOTCH3,Dot1l,Notch3,Dot1l,dot1l,notch3,dot-1.1,dot-1.2,dot-1.4,dot-1.5,DOT1"
+        "ot"            | 19         | "DOT1L,NOTCH1,Notch3,otg,NOTCH3,Dot1l,Notch1,Notch3,Dot1l,Notch1"
         "2a"            | 31         | "CDKN2A,CDKN2A,CDKN2A,CDKN2A,CDKN2A,KMT2A,Kmt2a,KMT2A,Cdkn2a,Cdkn2a"
         "r"             | 232        | "AKR1C3,AKR1C3,BCR,BRD2,CARD11,CREBBP,CXCR4,DHFR,DHFR,ERCC1"
     }
@@ -203,6 +203,22 @@ class DiseaseAnnotationIntegrationSpec extends Specification {
     }
 
     @Unroll
+    def "Disease page - based-on inference with multiple models #doID "() {
+        when:
+        def results = ApiTester.getApiResult("/api/disease/$doID/genes?filter.species=Mus%20musculus&filter.geneName=Cacna1g&filter.associationType=is_implicated_in").results
+
+        then:
+        results
+        results[0]
+        results[0].primaryAnnotatedEntities
+        results[0].primaryAnnotatedEntities.size() == paeSize
+        where:
+        doID        | resultSize | paeSize
+        // there should be at least two primary annotated entity
+        "DOID:1441" | 1          | 2
+    }
+
+    @Unroll
     def "Verify that the downloads endpoint have results"() {
         when:
         // make sure download's endpoint returns all records
@@ -229,17 +245,17 @@ class DiseaseAnnotationIntegrationSpec extends Specification {
 
         where:
         disease     | query                                             | resultSizeLowerLimit | resultSizeUpperLimit
-        "DOID:9952" | ""                                                | 60                   | 80
-        "DOID:9952" | "filter.geneName=2"                               | 25                   | 40
-        "DOID:9952" | "filter.disease=cell"                             | 10                   | 40
-        "DOID:9952" | "filter.associationType=is_implicated_in"         | 8                    | 80
-        "DOID:9952" | "filter.associationType=implicated_via_orthology" | 40                   | 80
-        "DOID:9952" | "filter.reference=PMID:1"                         | 0                    | 50
-        "DOID:9952" | "filter.reference=MGI:6194"                       | 10                   | 70
+        "DOID:9952" | ""                                                | 60                   | 1100
+        "DOID:9952" | "filter.geneName=2"                               | 25                   | 250
+        "DOID:9952" | "filter.disease=cell"                             | 10                   | 210
+        "DOID:9952" | "filter.associationType=is_implicated_in"         | 8                    | 110
+        "DOID:9952" | "filter.associationType=implicated_via_orthology" | 40                   | 720
+        "DOID:9952" | "filter.reference=PMID:1"                         | 0                    | 70
+        "DOID:9952" | "filter.reference=MGI:6194"                       | 10                   | 1000
         "DOID:9952" | "filter.evidenceCode=author"                      | 6                    | 20
-        "DOID:9952" | "filter.source=gD"                                | 0                    | 10
-        "DOID:9952" | "filter.source=aLLIANc"                           | 50                   | 70
-        "DOID:9952" | "filter.species=Danio%20Rerio"                    | 10                   | 20
+        "DOID:9952" | "filter.source=gD"                                | 0                    | 1100
+        "DOID:9952" | "filter.source=aLLIANc"                           | 50                   | 1100
+        "DOID:9952" | "filter.species=Danio%20Rerio"                    | 10                   | 200
     }
 
 /*
