@@ -1,24 +1,26 @@
-package org.alliancegenome.variant_indexer.util;
+package org.alliancegenome.variant_indexer.converters.human;
 
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.alliancegenome.variant_indexer.model.ClinicalSig;
-import org.alliancegenome.variant_indexer.model.Evidence;
-import org.alliancegenome.variant_indexer.model.Polyphen;
-import org.alliancegenome.variant_indexer.model.TranscriptFeature;
-import org.alliancegenome.variant_indexer.model.VariantEffect;
+import org.alliancegenome.variant_indexer.es.model.ClinicalSig;
+import org.alliancegenome.variant_indexer.es.model.Evidence;
+import org.alliancegenome.variant_indexer.es.model.Polyphen;
+import org.alliancegenome.variant_indexer.es.model.TranscriptFeature;
+import org.alliancegenome.variant_indexer.es.model.VariantEffect;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 import htsjdk.variant.variantcontext.CommonInfo;
 import htsjdk.variant.variantcontext.VariantContext;
 
-public class VCFUtils {
+public class HumanVariantContextConverterHelper {
 
     public List<String> mapEvidence(VariantContext ctx){
         CommonInfo info = ctx.getCommonInfo();
@@ -59,18 +61,33 @@ public class VCFUtils {
     public List<TranscriptFeature> getConsequences(VariantContext ctx, int index, String varNuc) throws JsonProcessingException {
         List<TranscriptFeature> features = new ArrayList<>();
         if(ctx.getAttribute("CSQ")!=null) {
-            List<String> objects = Arrays.asList(ctx.getAttribute("CSQ").toString().split(","));
-
+            ObjectMapper mapper=new ObjectMapper();
+            String[] array= new String[0];
+            try {
+                String jsonArray=mapper.writeValueAsString(ctx.getAttribute("CSQ"));
+                try {
+                    array = mapper.readValue(jsonArray, String[].class);
+                } catch (IOException e) {
+                    try {
+                        array=mapper.readValue(Arrays.asList(jsonArray).toString(), String[].class);
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
+                }
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
             Map<String, Polyphen> polyphen = mapPolyphen(ctx, index);
             Map<String, String> varPep = mapVarPep(ctx);
             Map<String, List<VariantEffect>> veffects = mapVE(ctx, index);
 
-            for (String obj : objects) {
+            for (String obj :array) {
                 String[] tokens = obj.toString().split("\\|");
                 String feature = new String();
                 String allele = new String();
                 try {
-                    allele = tokens[0];
+                   // allele = tokens[0];
+                    allele = tokens[0].replace("\\[","").trim();
                 } catch (Exception e) {
                 }
                 if (allele.equalsIgnoreCase(varNuc)) {
@@ -119,9 +136,23 @@ public class VCFUtils {
     public Map<String, List<VariantEffect>> mapVE(VariantContext ctx, int index){
         Map<String, List<VariantEffect>> veMap=new HashMap<>();
         if(ctx.getAttribute("VE")!=null) {
-            List<String> objects = Arrays.asList(ctx.getAttribute("VE").toString().split(","));
-            List<String> ids=new ArrayList<>();
-            for (String obj : objects) {
+            ObjectMapper mapper=new ObjectMapper();
+            String[] array= new String[0];
+            try {
+                String jsonArray=mapper.writeValueAsString(ctx.getAttribute("VE"));
+                try {
+                    array = mapper.readValue(jsonArray, String[].class);
+                } catch (IOException e) {
+                    try {
+                        array=mapper.readValue(Arrays.asList(jsonArray).toString(), String[].class);
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
+                }
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }               List<String> ids=new ArrayList<>();
+            for (String obj : array) {
              //   System.out.println(obj.toString() + "\n");
                 String[] tokens = obj.toString().split("\\|");
 
@@ -159,10 +190,25 @@ public class VCFUtils {
     public Map<String, Polyphen> mapPolyphen(VariantContext ctx, int index){
         Map<String, Polyphen> polyphenMap=new HashMap<>();
         if(ctx.getAttribute("Polyphen")!=null) {
-            List<String> objects = Arrays.asList(ctx.getAttribute("Polyphen").toString().split(","));
+            ObjectMapper mapper=new ObjectMapper();
+            String[] array= new String[0];
+            try {
+                String jsonArray=mapper.writeValueAsString(ctx.getAttribute("Polyphen"));
+                try {
+                    array = mapper.readValue(jsonArray, String[].class);
+                } catch (IOException e) {
+                    try {
+                        array=mapper.readValue(Arrays.asList(jsonArray).toString(), String[].class);
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
+                    //  e.printStackTrace();
+                }
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
 
-
-            for (String obj : objects) {
+            for (String obj : array) {
                 Polyphen p = new Polyphen();
                 //.out.println(obj.toString() + "\n");
                 String[] tokens = obj.toString().split("\\|");
@@ -179,8 +225,23 @@ public class VCFUtils {
     public Map<String, String> mapVarPep(VariantContext ctx){
         Map<String, String> varPep=new HashMap<>();
         if(ctx.getAttribute("VarPep")!=null) {
-            List<String> objects = Arrays.asList(ctx.getAttribute("VarPep").toString().split(","));
-            for (String obj : objects) {
+            ObjectMapper mapper=new ObjectMapper();
+            String[] array= new String[0];
+            try {
+                String jsonArray=mapper.writeValueAsString(ctx.getAttribute("VarPep"));
+                try {
+                    array = mapper.readValue(jsonArray, String[].class);
+                } catch (IOException e) {
+                    try {
+                        array=mapper.readValue(Arrays.asList(jsonArray).toString(), String[].class);
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
+                    //  e.printStackTrace();
+                }
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }            for (String obj : array) {
            //     System.out.println(obj.toString() + "\n");
                 String[] tokens = obj.toString().split("\\|");
                 try {

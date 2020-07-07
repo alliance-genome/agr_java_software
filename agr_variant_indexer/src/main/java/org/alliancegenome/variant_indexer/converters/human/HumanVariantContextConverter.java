@@ -1,22 +1,21 @@
-package org.alliancegenome.variant_indexer.util;
+package org.alliancegenome.variant_indexer.converters.human;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.alliancegenome.variant_indexer.model.VariantDocument;
+import org.alliancegenome.variant_indexer.converters.VariantContextConverter;
+import org.alliancegenome.variant_indexer.es.model.VariantDocument;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import htsjdk.variant.variantcontext.Allele;
 import htsjdk.variant.variantcontext.VariantContext;
 
-public class VariantContextConverter {
+public class HumanVariantContextConverter extends VariantContextConverter {
 
-    private static VCFUtils utils = new VCFUtils();
-    private static ObjectMapper mapper = new ObjectMapper();
+    private static HumanVariantContextConverterHelper utils = new HumanVariantContextConverterHelper();
 
-    public static List<String> convertVariantContext(VariantContext ctx) {
+    public List<String> convertVariantContext(VariantContext ctx) {
 
         List<String> returnDocuments = new ArrayList<String>();
         

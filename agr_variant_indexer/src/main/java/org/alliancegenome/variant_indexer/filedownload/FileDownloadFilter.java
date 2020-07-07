@@ -1,4 +1,4 @@
-package org.alliancegenome.variant_indexer.download;
+package org.alliancegenome.variant_indexer.filedownload;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -10,7 +10,7 @@ import java.util.Date;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-import org.alliancegenome.variant_indexer.download.model.DownloadableFile;
+import org.alliancegenome.variant_indexer.filedownload.model.DownloadableFile;
 
 import lombok.extern.log4j.Log4j2;
 

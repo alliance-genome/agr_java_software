@@ -22,6 +22,8 @@ import lombok.extern.log4j.Log4j2;
 @Log4j2
 public class FileHelper {
 
+    private static Map<String, Map<String, Boolean>> applicabilityMatrix = null;
+    
     public static Map<String, Map<String, Boolean>> getApplicabilityMatrix(String ribbonTermSpeciesApplicabilityPath) {
         Map<String, Map<String, Boolean>> applicabilityMatrix = new HashMap<>();
         InputStream in = null;
@@ -145,9 +147,7 @@ public class FileHelper {
     public static Map<String, Map<String, Boolean>> getRibbonTermSpeciesApplicabilityMap() {
         return getMapFromCSVFile();
     }
-
-    private static Map<String, Map<String, Boolean>> applicabilityMatrix = null;
-
+    
     private static Map<String, Map<String, Boolean>> getMapFromCSVFile() {
         // cache the applicability matrix
         if (applicabilityMatrix != null)

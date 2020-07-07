@@ -1,10 +1,10 @@
-package org.alliancegenome.variant_indexer.model;
+package org.alliancegenome.variant_indexer.es.model;
 
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter @Setter
-public class Polyphen {
+public class Sift {
     private String prediction;
     private String value;
 }

@@ -24,7 +24,7 @@ public class Main {
 
         Boolean keepIndex = ConfigHelper.getKeepIndex();
 
-        IndexManager im = new  IndexManager();
+        IndexManager im = new IndexManager();
 
         if (!keepIndex) {
             Indexer.indexName = im.startSiteIndex();

@@ -124,12 +124,10 @@ public class SiteIndexSettings extends Settings {
     }
 
     // Used for taking snapshots
-    public void buildRepositorySettings(String bucketName, String access_key, String secret_key) throws IOException {
+    public void buildRepositorySettings(String bucketName) throws IOException {
         builder.startObject()
                 .field("bucket", bucketName)
                 .field("compress", true)
-                .field("access_key", access_key)
-                .field("secret_key", secret_key)
             .endObject();
     }
 }

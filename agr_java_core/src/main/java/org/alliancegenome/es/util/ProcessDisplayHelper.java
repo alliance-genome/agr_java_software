@@ -18,7 +18,18 @@ public class ProcessDisplayHelper {
     private long lastSizeCounter = 0;
     private long totalSize;
     private long sizeCounter = 0;
+    private long displayTimeout = 30000; // How often to display to the console
+    
+    public ProcessDisplayHelper() { }
+    
+    public ProcessDisplayHelper(int displayTimeout) {
+        this.displayTimeout = displayTimeout;
+    }
 
+    public void startProcess(String message) {
+        startProcess(message, 0);
+    }
+    
     public void startProcess(String message, int totalSize) {
         this.message = message + ": ";
         this.totalSize = totalSize;
@@ -34,27 +45,30 @@ public class ProcessDisplayHelper {
     }
 
     public void progressProcess() {
-        double percent = 0;
-        if (totalSize > 0) {
-            percent = ((double) (sizeCounter) / totalSize);
-        }
         Date now = new Date();
         long diff = now.getTime() - startTime.getTime();
         long time = now.getTime() - lastTime.getTime();
         //log.info(this.message + "diff: " + diff + " time: " + time + " now: " + now + " startTime: " + startTime + " lastTime: " + lastTime);
         sizeCounter++;
-        if (time < 30000) return; // report every 30 seconds
+        if (time < displayTimeout) return; // report every 30 seconds
         checkMemory();
-
+        
+        double percent = 0;
+        if (totalSize > 0) {
+            percent = ((double) (sizeCounter) / totalSize);
+        }
         long processedAmount = (sizeCounter - lastSizeCounter);
-        String message = "" + getBigNumber(sizeCounter) + " records [" + getBigNumber(totalSize) + "] ";
-        message += (int) (percent * 100) + "% took: " + (time / 1000) + "s to process " + processedAmount + " records at " + ((processedAmount * 1000) / time) + "r/s";
+        String message = "" + getBigNumber(sizeCounter);
+        if(totalSize > 0) {
+            message += " of [" + getBigNumber(totalSize) + "] " + (int) (percent * 100) + "%";
+        }
+        message += ", " + (time / 1000) + "s to process " + getBigNumber(processedAmount) + " records at " + getBigNumber((processedAmount * 1000) / time) + "r/s";
 
         if (percent > 0) {
             int perms = (int) (diff / percent);
             Date end = new Date(startTime.getTime() + perms);
             String expectedDuration = getHumanReadableTimeDisplay(end.getTime() - (new Date()).getTime());
-            message += ", Memory: " + df.format(memoryPercent() * 100) + "%, ETA: " + expectedDuration + " [" + end + "]";
+            message += ", Mem: " + df.format(memoryPercent() * 100) + "%, ETA: " + expectedDuration + " [" + end + "]";
         }
         log.info(this.message + message);
         lastSizeCounter = sizeCounter;
