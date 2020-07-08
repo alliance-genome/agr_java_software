@@ -145,7 +145,8 @@ public interface DiseaseRESTInterface {
     Response getDiseaseAnnotationsByAlleleDownload(
             @Parameter(in=ParameterIn.PATH, name="id", description = "Search for a allele by ID", required=true, schema = @Schema(type = SchemaType.STRING))
             @PathParam("id") String id,
-            @DefaultValue("Allele") @QueryParam("sortBy") String sortBy,
+            @Parameter(in=ParameterIn.QUERY, name="sortBy", description = "Field name by which to sort", schema = @Schema(type = SchemaType.STRING))
+            @DefaultValue("diseaseAlleleDefault") @QueryParam("sortBy") String sortBy,
             @Parameter(in=ParameterIn.QUERY, name ="filter.geneName",description = "filter by gene symbol")
             @QueryParam("filter.geneName") String geneName,
             @Parameter(in=ParameterIn.QUERY, name ="filter.alleleName",description = "filter by allele symbol")
@@ -210,8 +211,8 @@ public interface DiseaseRESTInterface {
     Response getDiseaseAnnotationsByGeneDownload(
             @Parameter(in=ParameterIn.PATH, name="id", description = "Search for a disease by ID", required=true, schema = @Schema(type = SchemaType.STRING))
             @PathParam("id") String id,
-            @Parameter(in=ParameterIn.QUERY, name = "sortBy", description = "order to sort by", schema = @Schema(type = SchemaType.STRING))//, allowedValues = "Default,Gene,Disease,Species")
-            @DefaultValue("Gene") @QueryParam("sortBy") String sortBy,
+            @Parameter(in=ParameterIn.QUERY, name = "sortBy", description = "order to sort by", schema = @Schema(type = SchemaType.STRING))
+            @QueryParam("sortBy") String sortBy,
             @Parameter(in=ParameterIn.QUERY, name ="filter.geneName",description = "filter by gene symbol", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.geneName") String geneName,
             @Parameter(in=ParameterIn.QUERY, name ="filter.species",description = "filter by species", schema = @Schema(type = SchemaType.STRING))
