@@ -11,6 +11,7 @@ import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 @NodeEntity(label = "Construct")
@@ -73,6 +74,25 @@ public class Construct extends GeneticEntity implements Comparable<Construct>, P
     @JsonView({View.AlleleAPI.class})
     public List<GeneticEntity> getExpressedGenes() {
         List<GeneticEntity> entities = new ArrayList<>(expressedGenes);
+        addNonBGIConstructComponents(entities, nonBGIConstructComponents);
+        return entities;
+    }
+
+    @JsonView({View.AlleleAPI.class})
+    public List<GeneticEntity> getRegulatedByGenes() {
+        List<GeneticEntity> entities = new ArrayList<>(regulatedByGenes);
+        addNonBGIConstructComponents(entities, nonBGIConstructComponentsRegulation);
+        return entities;
+    }
+
+    @JsonView({View.AlleleAPI.class})
+    public List<GeneticEntity> getTargetGenes() {
+        List<GeneticEntity> entities = new ArrayList<>(targetGenes);
+        addNonBGIConstructComponents(entities, nonBGIConstructComponentsTarget);
+        return entities;
+    }
+
+    private void addNonBGIConstructComponents(List<GeneticEntity> entities, List<NonBGIConstructComponent> nonBGIConstructComponents) {
         if (nonBGIConstructComponents != null) {
             nonBGIConstructComponents.forEach(nonBGIConstructComponent -> {
                 GeneticEntity nonBGIConstructComponentGene = new GeneticEntity();
@@ -81,34 +101,7 @@ public class Construct extends GeneticEntity implements Comparable<Construct>, P
                 entities.add(nonBGIConstructComponentGene);
             });
         }
-        return entities;
+        entities.sort(Comparator.comparing(GeneticEntity::getSymbol));
     }
 
-    @JsonView({View.AlleleAPI.class})
-    public List<GeneticEntity> getRegulatedByGenes() {
-        List<GeneticEntity> entities = new ArrayList<>(regulatedByGenes);
-        if (nonBGIConstructComponentsRegulation != null) {
-            nonBGIConstructComponentsRegulation.forEach(nonBGIConstructComponent -> {
-                GeneticEntity nonBGIConstructComponentGene = new GeneticEntity();
-                nonBGIConstructComponentGene.setSymbol(nonBGIConstructComponent.getPrimaryKey());
-                nonBGIConstructComponentGene.setCrossReferenceType(CrossReferenceType.NON_BGI_CONSTRUCT_COMPONENTS);
-                entities.add(nonBGIConstructComponentGene);
-            });
-        }
-        return entities;
-    }
-
-    @JsonView({View.AlleleAPI.class})
-    public List<GeneticEntity> getTargetGenes() {
-        List<GeneticEntity> entities = new ArrayList<>(targetGenes);
-        if (nonBGIConstructComponentsTarget != null) {
-            nonBGIConstructComponentsTarget.forEach(nonBGIConstructComponent -> {
-                GeneticEntity nonBGIConstructComponentGene = new GeneticEntity();
-                nonBGIConstructComponentGene.setSymbol(nonBGIConstructComponent.getPrimaryKey());
-                nonBGIConstructComponentGene.setCrossReferenceType(CrossReferenceType.NON_BGI_CONSTRUCT_COMPONENTS);
-                entities.add(nonBGIConstructComponentGene);
-            });
-        }
-        return entities;
-    }
 }
