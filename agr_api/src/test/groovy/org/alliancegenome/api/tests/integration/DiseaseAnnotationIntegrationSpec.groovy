@@ -1,5 +1,3 @@
-package org.alliancegenome.api
-
 import org.alliancegenome.api.tests.integration.ApiTester
 import spock.lang.Ignore
 import spock.lang.Specification
