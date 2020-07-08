@@ -28,7 +28,6 @@ public class DiseaseExtractor extends DataExtractor {
 
     @Override
     protected String getFileName() {
-        
         return "Diseases.tsv";
     }
 

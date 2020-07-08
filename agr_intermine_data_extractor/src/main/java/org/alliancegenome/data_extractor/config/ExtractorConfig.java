@@ -6,7 +6,8 @@ public enum ExtractorConfig {
     
     AlleleExtractor(AlleleExtractor.class),
     GeneExtractor(GeneExtractor.class),
-    DiseaseExtractor(DiseaseExtractor.class)
+    DiseaseExtractor(DiseaseExtractor.class),
+    FMSExtractor(FMSExtractor.class)
     ;
     
     private String extractorName;
