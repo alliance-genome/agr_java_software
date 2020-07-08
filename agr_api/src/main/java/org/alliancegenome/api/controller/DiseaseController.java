@@ -1,20 +1,7 @@
 package org.alliancegenome.api.controller;
 
-import static org.alliancegenome.api.service.EntityType.DISEASE;
-import static org.alliancegenome.api.service.EntityType.GENE;
-
-import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
-
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
+import lombok.extern.log4j.Log4j2;
 import org.alliancegenome.api.application.RestDefaultObjectMapper;
 import org.alliancegenome.api.rest.interfaces.DiseaseRESTInterface;
 import org.alliancegenome.api.service.DiseaseService;
@@ -32,11 +19,21 @@ import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.entity.node.DOTerm;
 import org.alliancegenome.neo4j.view.BaseFilter;
 import org.alliancegenome.neo4j.view.View;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.stream.Collectors;
 
-import lombok.extern.log4j.Log4j2;
+import static org.alliancegenome.api.service.EntityType.DISEASE;
+import static org.alliancegenome.api.service.EntityType.GENE;
 
 @Log4j2
 @RequestScoped
@@ -517,6 +514,49 @@ public class DiseaseController implements DiseaseRESTInterface {
             throw new RestErrorException(error);
         }
 
+        return responseBuilder.build();
+    }
+
+    @Override
+    public Response getDiseaseAnnotationsBySpeciesDownload(List<String> speciesIDs, String diseaseID, String sortBy) {
+
+        if (CollectionUtils.isEmpty(speciesIDs)) {
+            speciesIDs = Arrays.stream(SpeciesType.values()).map(SpeciesType::getTaxonID).collect(Collectors.toList());
+        } else {
+            speciesIDs = speciesIDs.stream().map(SpeciesType::getTaxonId).collect(Collectors.toList());
+        }
+        List<DiseaseAnnotation> alleleAnnotations = new ArrayList<>();
+        List<DiseaseAnnotation> geneAnnotations = new ArrayList<>();
+        speciesIDs.forEach(species -> {
+            alleleAnnotations.addAll(getDiseaseAnnotationsByAllele(diseaseID,
+                    Integer.MAX_VALUE,
+                    null,
+                    sortBy,
+                    null,
+                    null,
+                    species,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null).getResults());
+
+            geneAnnotations.addAll(getDiseaseAnnotationsByGene(diseaseID,
+                    Integer.MAX_VALUE,
+                    null,
+                    sortBy,
+                    null,
+                    species,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null).getResults());
+        });
+        Response.ResponseBuilder responseBuilder = Response.ok(translator.getAllRowsForGenesAndAlleles(geneAnnotations, alleleAnnotations));
         return responseBuilder.build();
     }
 
