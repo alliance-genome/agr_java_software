@@ -93,15 +93,23 @@ public class Construct extends GeneticEntity implements Comparable<Construct>, P
     }
 
     private void addNonBGIConstructComponents(List<GeneticEntity> entities, List<NonBGIConstructComponent> nonBGIConstructComponents) {
+        List<GeneticEntity> nonBgis = new ArrayList<>();
         if (nonBGIConstructComponents != null) {
             nonBGIConstructComponents.forEach(nonBGIConstructComponent -> {
                 GeneticEntity nonBGIConstructComponentGene = new GeneticEntity();
                 nonBGIConstructComponentGene.setSymbol(nonBGIConstructComponent.getPrimaryKey());
                 nonBGIConstructComponentGene.setCrossReferenceType(CrossReferenceType.NON_BGI_CONSTRUCT_COMPONENTS);
-                entities.add(nonBGIConstructComponentGene);
+                nonBgis.add(nonBGIConstructComponentGene);
             });
         }
-        entities.sort(Comparator.comparing(GeneticEntity::getSymbol));
+        // sorting:
+        // 1. genes then nonBGIConstructComponents
+        // 2. genes by phylogenetic species then by case-insensitive symbol
+        // 3. nonBGIs by case-insensitive symbol
+        nonBgis.sort(Comparator.comparing(geneticEntity -> geneticEntity.getSymbol().toLowerCase()));
+        Comparator<GeneticEntity> comparingSpecies = Comparator.comparing(geneticEntity -> geneticEntity.getSpecies().getPhylogeneticOrder());
+        entities.sort(comparingSpecies.thenComparing(o -> o.getSymbol().toLowerCase()));
+        entities.addAll(nonBgis);
     }
 
 }
