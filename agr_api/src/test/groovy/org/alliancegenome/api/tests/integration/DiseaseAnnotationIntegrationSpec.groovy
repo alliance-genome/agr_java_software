@@ -6,6 +6,25 @@ import spock.lang.Unroll
 class DiseaseAnnotationIntegrationSpec extends Specification {
 
     @Unroll
+    def "Disease Download File: #species for disease #query"() {
+        when:
+        def doiID = URLEncoder.encode(query, "UTF-8")
+        def results = ApiTester.getApiResultRaw("/api/disease/annotation/download?diseaseID=$doiID&species=$species")
+
+        then:
+        results //should be some results
+        results.split("\n").length > numberOfLines
+
+        where:
+        query       | species | numberOfLines
+        "DOID:1838" | "mus"   | 69
+        "DOID:1838" | "danio" | 23
+        "DOID:1838" | "eleg"  | 10
+        "DOID:4"    | "eleg"  | 1000
+
+    }
+
+    @Unroll
     def "Disease page: allele section sort by allele for #query"() {
         when:
         def doiID = URLEncoder.encode(query, "UTF-8")

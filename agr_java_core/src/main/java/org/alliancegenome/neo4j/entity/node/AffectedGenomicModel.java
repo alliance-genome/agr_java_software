@@ -34,8 +34,6 @@ public class AffectedGenomicModel extends GeneticEntity implements Comparable<Af
     @JsonView({View.Default.class, View.API.class})
     private String nameText;
     private String nameTextWithSpecies;
-    @JsonProperty(value = "type")
-    @JsonView({View.Default.class, View.API.class})
     private String subtype;
     private String dataProvider;
 
@@ -53,4 +51,15 @@ public class AffectedGenomicModel extends GeneticEntity implements Comparable<Af
         return 0;
     }
 
+    @JsonProperty(value = "type")
+    @JsonView({View.Default.class, View.API.class})
+    public String getSubtype() {
+        return subtype;
+    }
+
+    @JsonProperty(value = "type")
+    @JsonView({View.Default.class, View.API.class})
+    public void setSubtype(String subtype) {
+        this.subtype = subtype;
+    }
 }

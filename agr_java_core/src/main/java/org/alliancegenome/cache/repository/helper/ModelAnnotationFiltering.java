@@ -6,6 +6,8 @@ import java.util.stream.Collectors;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 
+import static org.alliancegenome.neo4j.entity.SpeciesType.NCBITAXON;
+
 public class ModelAnnotationFiltering extends AnnotationFiltering<DiseaseAnnotation> {
 
 
@@ -39,7 +41,12 @@ public class ModelAnnotationFiltering extends AnnotationFiltering<DiseaseAnnotat
             (annotation, value) -> FilterFunction.contains(annotation.getGene().getSymbol(), value);
 
     public FilterFunction<DiseaseAnnotation, String> geneSpeciesFilter =
-            (annotation, value) -> FilterFunction.fullMatchMultiValueOR(annotation.getModel().getSpecies().getName(), value);
+            (annotation, value) -> {
+                if (value.startsWith(NCBITAXON))
+                    return FilterFunction.fullMatchMultiValueOR(annotation.getModel().getSpecies().getType().getTaxonID(), value);
+                else
+                    return FilterFunction.fullMatchMultiValueOR(annotation.getModel().getSpecies().getName(), value);
+            };
 
     public ModelAnnotationFiltering() {
         filterFieldMap.put(FieldFilter.EVIDENCE_CODE, evidenceCodeFilter);

@@ -418,7 +418,7 @@ public interface DiseaseRESTInterface {
             @Parameter(in = ParameterIn.PATH, name = "species", description = "Species by ID", required = true)
             @QueryParam("species") List<String> species,
             @Parameter(in = ParameterIn.PATH, name = "diseaseID", description = "Disease ID")
-            @QueryParam("diseaseID") String diseaseID,
+            @DefaultValue("DOID:4") @QueryParam("diseaseID") String diseaseID,
             @Parameter(in = ParameterIn.PATH, name = "sortBy", description = "Sort by field name")
             @QueryParam("sortBy") String sortBy
     ) throws JsonProcessingException;
