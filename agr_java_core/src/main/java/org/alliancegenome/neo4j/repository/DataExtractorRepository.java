@@ -1,12 +1,11 @@
 package org.alliancegenome.neo4j.repository;
 
-import org.alliancegenome.neo4j.entity.node.Gene;
 import org.neo4j.ogm.model.Result;
 
-public class GeneDataExtractorRepository extends Neo4jRepository<Gene> {
+public class DataExtractorRepository extends Neo4jRepository {
 
-    public GeneDataExtractorRepository() {
-        super(Gene.class);
+    public DataExtractorRepository() {
+        super(null);
     }
 
     public Result getAllGenes() {
