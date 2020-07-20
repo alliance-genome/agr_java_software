@@ -1,23 +1,24 @@
 package org.alliancegenome.neo4j.entity.node;
 
-import java.util.List;
-
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonView;
+import lombok.Getter;
+import lombok.Setter;
 import org.alliancegenome.neo4j.entity.Neo4jEntity;
+import org.alliancegenome.neo4j.entity.relationship.GenomeLocation;
 import org.alliancegenome.neo4j.view.View;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.Range;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonView;
-
-import lombok.Getter;
-import lombok.Setter;
+import java.util.List;
 
 @NodeEntity(label = "Transcript")
 @Getter
 @Setter
-@Schema(name="Transcript", description="POJO that represents the Transcript")
+@Schema(name = "Transcript", description = "POJO that represents the Transcript")
 public class Transcript extends Neo4jEntity implements Comparable<Transcript> {
 
     @JsonView({View.Default.class, View.API.class})
@@ -43,5 +44,11 @@ public class Transcript extends Neo4jEntity implements Comparable<Transcript> {
     @JsonView({View.Default.class, View.API.class})
     @Relationship(type = "TRANSCRIPT")
     private Gene gene;
+
+    @Relationship(type = "EXON", direction = Relationship.INCOMING)
+    private List<Exon> exons;
+
+    @JsonView({View.Default.class, View.API.class})
+    private String intronExonLocation;
 
 }
