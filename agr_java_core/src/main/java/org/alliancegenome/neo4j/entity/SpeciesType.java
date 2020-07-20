@@ -24,7 +24,7 @@ public enum SpeciesType {
         "SARS-CoV-2", // Must be SARS-CoV-2 due to lookup from the database
         "Severe acute respiratory syndrome coronavirus 2", // not sure where display Name is used?
         "NCBITaxon:2697049",
-        "2019-nCoV", // Up for change?
+        "SARS-CoV-2", // Up for change?
         "COVID", // Up for change?
         "Severe acute respiratory syndrome coronavirus 2", // Mod name?
         "2697049", 7);
