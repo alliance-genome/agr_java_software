@@ -51,6 +51,14 @@ public class VariantIT {
     }
 
     @Test
+    public void getLocationExonTranscript() {
+        Pagination pagination = new Pagination();
+        JsonResultResponse<Transcript> response = variantService.getTranscriptsByVariant("NC_007126.7:g.15401132A>G", pagination);
+        final List<Transcript> results = response.getResults();
+        assertNotNull(results);
+    }
+
+    @Test
     public void paginateOverTranscripts() {
         Pagination pagination = new Pagination();
         pagination.setLimit(2);
