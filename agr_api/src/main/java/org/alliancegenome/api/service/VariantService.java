@@ -12,8 +12,10 @@ import org.apache.commons.lang3.Range;
 
 import javax.enterprise.context.RequestScoped;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 
 import static java.util.stream.Collectors.toList;
 
@@ -69,16 +71,40 @@ public class VariantService {
 
         GenomeLocation variantLoc = variant.getLocation();
         Range<Long> variantRange = Range.between(variantLoc.getStart(), variantLoc.getEnd());
+
+        // Neither variants nor transcripts have strand info in the GenomicLocation node.
+        // For that reason I resort to the strand info of the associated gene.
+        String strandGene = transcript.getGene().getGenomeLocations().get(0).getStrand();
+        // strand info can be empty of null. In both cases, the missing info disallows to
+        // calculate the exon number in question.
+        if (strandGene.isEmpty())
+            strandGene = null;
+        Optional<Boolean> strand = Optional.ofNullable(strandGene)
+                .map(strandValue -> strandValue.equals("+"));
+
         List<Range<Long>> exonRanges = exons.stream()
                 .map(exon -> Range.between(exon.getLocation().getStart(), exon.getLocation().getEnd()))
                 .sorted(Comparator.comparing(Range::getMinimum))
                 .collect(toList());
+        // there is an issue with the module setup of the range class.
+        // exonRanges.sort(Collections.reverse())
+        if (strand.isPresent() && !strand.get()) {
+            exonRanges = exons.stream()
+                    .map(exon -> Range.between(exon.getLocation().getStart(), exon.getLocation().getEnd()))
+                    .sorted(Comparator.comparing(Range::getMinimum, Collections.reverseOrder()))
+                    .collect(toList());
+        }
 
+        // It's an intron if no exon overlap is found.
         String location = "Intron";
         for (int index = 0; index < exonRanges.size(); index++) {
             Range<Long> exonRange = exonRanges.get(index);
-            if (exonRange.containsRange(variantRange))
-                location = "Exon " + index;
+            if (exonRange.containsRange(variantRange)) {
+                location = "Exon";
+                if (strand.isPresent())
+                    location += " " + index;
+                break;
+            }
         }
         transcript.setIntronExonLocation(location);
     }
