@@ -1,47 +1,28 @@
 package org.alliancegenome.neo4j.repository;
 
-import static java.util.stream.Collectors.joining;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.extern.log4j.Log4j2;
+import org.alliancegenome.core.util.FileHelper;
+import org.alliancegenome.es.model.query.Pagination;
+import org.alliancegenome.neo4j.entity.SpeciesType;
+import org.alliancegenome.neo4j.entity.node.*;
+import org.alliancegenome.neo4j.view.OrthologyFilter;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.map.MultiKeyMap;
+import org.neo4j.ogm.model.Result;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.StringJoiner;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-import org.alliancegenome.core.config.ConfigHelper;
-import org.alliancegenome.core.util.FileHelper;
-import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.neo4j.entity.SpeciesType;
-import org.alliancegenome.neo4j.entity.node.AffectedGenomicModel;
-import org.alliancegenome.neo4j.entity.node.BioEntityGeneExpressionJoin;
-import org.alliancegenome.neo4j.entity.node.GOTerm;
-import org.alliancegenome.neo4j.entity.node.Gene;
-import org.alliancegenome.neo4j.entity.node.OrthoAlgorithm;
-import org.alliancegenome.neo4j.entity.node.SecondaryId;
-import org.alliancegenome.neo4j.entity.node.UBERONTerm;
-import org.alliancegenome.neo4j.view.OrthologyFilter;
-import org.apache.commons.collections4.map.MultiKeyMap;
-import org.neo4j.ogm.model.Result;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-import lombok.extern.log4j.Log4j2;
+import static java.util.stream.Collectors.joining;
 
 @Log4j2
 public class GeneRepository extends Neo4jRepository<Gene> {
@@ -620,6 +601,21 @@ public class GeneRepository extends Neo4jRepository<Gene> {
         return StreamSupport.stream(joins.spliterator(), false).
                 collect(Collectors.toList());
     }
+
+    public List<Gene> getAllGenes(List<String> taxonIDs) {
+        if (CollectionUtils.isEmpty(taxonIDs))
+            return null;
+        Map<String, Object> params = new HashMap<>();
+        params.put("ids", taxonIDs);
+        String cypher = " MATCH p1=(q:Species)-[:FROM_SPECIES]-(g:Gene)--(x:CrossReference ) "
+                + " WHERE q.primaryKey IN $ids "
+                + "RETURN p1 ";
+
+        Iterable<Gene> joins = query(Gene.class, cypher, params);
+        return StreamSupport.stream(joins.spliterator(), false).
+                collect(Collectors.toList());
+    }
+
 
     public List<BioEntityGeneExpressionJoin> getAllExpressionAnnotations() {
         //String cypher = " MATCH p1=(q:Species)<-[:FROM_SPECIES]-(gene:Gene)-->(s:BioEntityGeneExpressionJoin)--(t), " +

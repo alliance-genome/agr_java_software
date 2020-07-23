@@ -1,10 +1,5 @@
 package org.alliancegenome.api.service;
 
-import java.time.LocalDateTime;
-
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-
 import org.alliancegenome.cache.repository.InteractionCacheRepository;
 import org.alliancegenome.cache.repository.PhenotypeCacheRepository;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
@@ -12,12 +7,20 @@ import org.alliancegenome.cache.repository.helper.PaginationResult;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.EntitySummary;
 import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
+import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.alliancegenome.neo4j.repository.InteractionRepository;
 import org.alliancegenome.neo4j.repository.PhenotypeRepository;
+import org.apache.commons.collections.CollectionUtils;
+
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RequestScoped
 public class GeneService {
@@ -25,13 +28,13 @@ public class GeneService {
     private static GeneRepository geneRepo = new GeneRepository();
     private static InteractionRepository interRepo = new InteractionRepository();
     private static PhenotypeRepository phenoRepo = new PhenotypeRepository();
-    
+
     @Inject
     private InteractionCacheRepository interCacheRepo;
 
     @Inject
     private PhenotypeCacheRepository phenoCacheRepo;
-    
+
     @Inject
     private AlleleService alleleService;
 
@@ -90,4 +93,20 @@ public class GeneService {
         return summary;
     }
 
+    public List<Gene> getAllGenes(List<String> species) {
+        List<String> taxonIDs;
+        if (CollectionUtils.isEmpty(species)) {
+            taxonIDs = SpeciesType.getAllTaxonIDList();
+        } else {
+            taxonIDs = species.stream()
+                    .map(SpeciesType::getTaxonId)
+                    .collect(Collectors.toList());
+        }
+        if(CollectionUtils.isEmpty(taxonIDs))
+            return null;
+        List<String> taxIDs = taxonIDs.stream()
+                .map(SpeciesType::getTaxonId)
+                .collect(Collectors.toList());
+        return geneRepo.getAllGenes(taxIDs);
+    }
 }
