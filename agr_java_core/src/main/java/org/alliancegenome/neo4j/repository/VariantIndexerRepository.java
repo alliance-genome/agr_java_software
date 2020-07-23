@@ -44,24 +44,48 @@ public class VariantIndexerRepository extends Neo4jRepository<Variant> {
         log.info("Fetching alleles");
         cache.setAlleles(getAlleleMap(species));
 
+        log.info("Fetching DNA Change Types");
+        cache.setDnaChangeTypesMap(getDnaChangeTypes(species));
+
         log.info("Fetching genes");
         cache.setGenes(getGeneMap(species));
+
+        log.info("Fetching species");
+        cache.setSpecies(getSpecies(species));
+
 
         return cache;
     }
 
     public Map<String, Set<String>> getAlleleMap(String species) {
-        String query = "MATCH (species:Species)--(allele:Allele)--(variant:Variant) ";
+        String query = "MATCH (species:Species)-[:FROM_SPECIES]-(allele:Allele)-[:VARIATION]-(variant:Variant) ";
         query += getSpeciesWhere(species);
         query += " RETURN variant.primaryKey as id, allele.symbolTextWithSpecies as value";
 
         return getMapSetForQuery(query, getSpeciesParams(species));
     }
 
+    public Map<String, Set<String>> getDnaChangeTypes(String species) {
+        String query = "MATCH (species:Species)-[:FROM_SPECIES]-(a:Allele)-[:VARIATION]-(v:Variant)-[:VARIATION_TYPE]-(term:SOTerm) ";
+        query += getSpeciesWhere(species);
+        query += " RETURN distinct v.primaryKey as id, term.name as value";
+
+        return getMapSetForQuery(query, getSpeciesParams(species));
+    }
+
+
     public Map<String, Set<String>> getGeneMap(String species) {
-        String query = "MATCH (species:Species)--(gene:Gene)--(variant:Variant) ";
+        String query = "MATCH (species:Species)-[:FROM_SPECIES]-(gene:Gene)-[:COMPUTED_GENE]-(variant:Variant) ";
         query += getSpeciesWhere(species);
         query += " RETURN variant.primaryKey as id, gene.symbolWithSpecies as value";
+
+        return getMapSetForQuery(query, getSpeciesParams(species));
+    }
+
+    public Map<String, Set<String>> getSpecies(String species) {
+        String query = "MATCH (species:Species)-[:FROM_SPECIES]-(allele:Allele)-[:VARIATION]-(variant:Variant) ";
+        query += getSpeciesWhere(species);
+        query += "RETURN variant.primaryKey as id, species.name as value";
 
         return getMapSetForQuery(query, getSpeciesParams(species));
     }

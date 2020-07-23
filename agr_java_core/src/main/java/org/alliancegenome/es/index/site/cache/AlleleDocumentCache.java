@@ -16,10 +16,6 @@ import lombok.Setter;
 @Setter
 public class AlleleDocumentCache extends IndexerCache {
 
-    private Map<String, Allele> alleleMap = new HashMap<>();
-    private Map<String, Set<String>> variantTypesMap = new HashMap<>();
-    private Map<String, Set<String>> molecularConsequenceMap = new HashMap<>();
-
     @Override
     public void addCachedFields(Iterable<SearchableItemDocument> alleleDocuments) {
 
@@ -27,23 +23,7 @@ public class AlleleDocumentCache extends IndexerCache {
             String id = document.getPrimaryKey();
 
             super.addCachedFields(document);
-
-            if (molecularConsequenceMap.get(id) != null) {
-                document.setMolecularConsequence(new HashSet<>());
-                for (String consequence : molecularConsequenceMap.get(id)) {
-                    document.getMolecularConsequence().addAll(Arrays.asList(consequence.split(",")));
-                }
-            }
-
-            if (variantTypesMap.get(id) == null) {
-                Set<String> defaultValue = new HashSet<>();
-                defaultValue.add("unreported");
-                document.setVariantTypes(defaultValue);
-            } else {
-                document.setVariantTypes(variantTypesMap.get(id));
-            }
         }
-
     }
 
 }

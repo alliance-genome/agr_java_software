@@ -11,7 +11,8 @@ public class VariantTranslator extends EntityDocumentTranslator<Variant, Searcha
     protected SearchableItemDocument entityToDocument(Variant entity, int translationDepth) {
         SearchableItemDocument document = new SearchableItemDocument();
 
-        document.setCategory("variant");
+        document.setCategory("alteration");
+        document.setAlterationType("variant");
 
         document.setPrimaryKey(entity.getPrimaryKey());
         document.setName(entity.getName());

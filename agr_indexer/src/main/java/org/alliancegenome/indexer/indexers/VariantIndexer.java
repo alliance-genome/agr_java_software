@@ -28,12 +28,6 @@ public class VariantIndexer extends Indexer<SearchableItemDocument> {
     @Override
     protected void index() {
 
-        //for now, variants only get indexed if an additional flag is set
-        if (!ConfigHelper.getIndexVariants()) {
-            log.info("Not indexing Variants, use -DINDEX_VARAINTS=\"true\" to include variants");
-            return;
-        }
-
         try {
             repo = new VariantIndexerRepository();
             cache = repo.getCache(species);
