@@ -1,6 +1,7 @@
 package org.alliancegenome.neo4j.entity.node;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.alliancegenome.neo4j.entity.Neo4jEntity;
@@ -28,11 +29,18 @@ public class Species extends Neo4jEntity implements Comparable<Species> {
 
     @JsonView({View.Default.class})
     private String name;
+    @JsonView({View.Default.class})
+    private String shortName;
+    @JsonView({View.Default.class})
+    private String dataProviderFullName;
+    @JsonView({View.Default.class})
+    private String dataProviderShortName;
+    
     @JsonView({View.DiseaseCacher.class, View.OrthologyCacher.class})
     private int phylogeneticOrder;
 
     @JsonView({View.Default.class})
-    private String species;
+    private List<String> commonNames;
 
     @Relationship(type = "CREATED_BY")
     private Set<Gene> genes = new HashSet<>();
@@ -55,7 +63,7 @@ public class Species extends Neo4jEntity implements Comparable<Species> {
     }
 
     public SpeciesType getType() {
-        return SpeciesType.getTypeByName(this.species);
+        return SpeciesType.getTypeByName(this.name);
     }
 
     @Override
