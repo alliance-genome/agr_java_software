@@ -40,7 +40,7 @@ public class Species extends Neo4jEntity implements Comparable<Species> {
     private int phylogeneticOrder;
 
     @JsonView({View.Default.class})
-    private List<String> commonNames;
+    private String commonNames;
 
     @Relationship(type = "CREATED_BY")
     private Set<Gene> genes = new HashSet<>();
