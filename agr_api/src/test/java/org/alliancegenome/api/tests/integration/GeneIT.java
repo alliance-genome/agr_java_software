@@ -395,6 +395,14 @@ public class GeneIT {
     }
 
     @Test
+    public void getAlleleConstructInfoOnGenePage() {
+        GeneRepository repository = new GeneRepository();
+        Gene gene = repository.getOneGene("WB:WBGene00002992");
+        assertNotNull(gene);
+        assertTrue("No CrossReferences on gene object", CollectionUtils.isNotEmpty(gene.getCrossReferences()));
+    }
+
+    @Test
     public void getSpeciesGenes() {
         GeneService service = new GeneService();
         List<Gene> genes = service.getAllGenes(asList("mus", "sac"));

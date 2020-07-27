@@ -47,7 +47,7 @@ public class ConfigHelper {
         defaults.put(ES_INDEX, "site_index"); // Can be over written
         defaults.put(ES_INDEX_SUFFIX, ""); // Prod, Dev, Stage, etc
         defaults.put(ES_DATA_INDEX, "data_index");
-        defaults.put(ES_HOST, "localhost");
+        defaults.put(ES_HOST, "build.alliancegenome.org");
         defaults.put(ES_PORT, "9200");
 
         defaults.put(KEEPINDEX, "false");
@@ -62,7 +62,7 @@ public class ConfigHelper {
 
         defaults.put(EXTRACTOR_OUTPUTDIR, "data");
 
-        defaults.put(NEO4J_HOST, "localhost");
+        defaults.put(NEO4J_HOST, "https://stage.alliancegenome.org");
         defaults.put(NEO4J_PORT, "7687");
 
         defaults.put(AWS_ACCESS_KEY, null);

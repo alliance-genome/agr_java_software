@@ -36,8 +36,8 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.junit.Assert.*;
 
-public class AlleleIT {
 
+public class AlleleIT {
     private ObjectMapper mapper = new ObjectMapper();
 
     private AlleleService alleleService = new AlleleService();
