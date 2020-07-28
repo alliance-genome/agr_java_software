@@ -1,8 +1,13 @@
 package org.alliancegenome.es.index.site.schema.settings;
 
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.alliancegenome.es.index.site.schema.Settings;
+import org.alliancegenome.neo4j.repository.GeneIndexerRepository;
 
 public class SiteIndexSettings extends Settings {
 
@@ -95,15 +100,7 @@ public class SiteIndexSettings extends Settings {
                         .endObject()
                         .startObject("synonym_filter") //for any hand-crafted synonyms we need
                             .field("type", "synonym")
-                            .array("synonyms", new String[]{
-                                    "homo sapiens => human, hsa",
-                                    "rattus norvegicus => rat, rno",
-                                    "mus musculus => mouse, mmu",
-                                    "drosophila melanogaster => fly, fruit fly, dme",
-                                    "caenorhabditis elegans => worm, cel",
-                                    "saccharomyces cerevisiae => yeast, sce",
-                                    "danio rerio => fish, zebrafish, dre"
-                            })
+                            .array("synonyms", getSpeciesSynonyms())
                         .endObject()
                         .startObject("bigram_filter")
                            .field("type","shingle")
@@ -129,5 +126,25 @@ public class SiteIndexSettings extends Settings {
                 .field("bucket", bucketName)
                 .field("compress", true)
             .endObject();
+    }
+
+    public String[] getSpeciesSynonyms() {
+        GeneIndexerRepository geneIndexerRepository = new GeneIndexerRepository();
+        Map<String, Set<String>> synonymMap = geneIndexerRepository.getSpeciesCommonNames();
+        Set<String> synonymMapping = new HashSet<>();
+        for (String speciesName : synonymMap.keySet()) {
+            StringBuilder sb = new StringBuilder();
+            sb.append(speciesName.toLowerCase());
+            sb.append(" => ");
+            sb.append(
+                synonymMap.get(speciesName).stream()
+                        .map(x -> x.replace("[",""))
+                        .map(x -> x.replace("]",""))
+                        .map(x -> x.replace("'",""))
+                        .collect(Collectors.joining(","))
+            );
+            synonymMapping.add(sb.toString());
+        }
+        return synonymMapping.toArray(new String[0]);
     }
 }
