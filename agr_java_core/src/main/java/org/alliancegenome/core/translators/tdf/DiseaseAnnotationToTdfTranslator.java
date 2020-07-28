@@ -302,7 +302,7 @@ public class DiseaseAnnotationToTdfTranslator {
 
         diseaseAnnotations.forEach(diseaseAnnotation -> {
             StringJoiner joiner = new StringJoiner("\t");
-            joiner.add(diseaseAnnotation.getGene().getSpecies().getSpecies());
+            joiner.add(diseaseAnnotation.getGene().getSpecies().getName());
             joiner.add(diseaseAnnotation.getGene().getPrimaryKey());
             joiner.add(diseaseAnnotation.getGene().getSymbol());
             joiner.add(diseaseAnnotation.getDisease().getPrimaryKey());

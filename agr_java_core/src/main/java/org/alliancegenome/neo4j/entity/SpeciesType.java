@@ -18,7 +18,15 @@ public enum SpeciesType {
     ZEBRAFISH("Danio rerio", "ZFIN", "NCBITaxon:7955", "Dre", "ZFIN", "Zebrafish Information Network", "7955", 3),
     FLY("Drosophila melanogaster", "FB", "NCBITaxon:7227", "Dme", "FB", "Fly Base", "7227", 4),
     WORM("Caenorhabditis elegans", "WB", "NCBITaxon:6239", "Cel", "WB", "Worm Base", "6239", 5),
-    YEAST("Saccharomyces cerevisiae", "SGD", "NCBITaxon:559292", "Sce", "SGD", "Saccharomyces Genome Database", "559292", 6);
+    YEAST("Saccharomyces cerevisiae", "SGD", "NCBITaxon:559292", "Sce", "SGD", "Saccharomyces Genome Database", "559292", 6),
+    COVID(
+        "SARS-CoV-2", // Must be the same as the DB due to lookup from the database
+        "Severe acute respiratory syndrome coronavirus 2", // not sure where display Name is used?
+        "NCBITaxon:2697049",
+        "SARS-CoV-2", // Up for change?
+        "COVID", // Up for change?
+        "Severe acute respiratory syndrome coronavirus 2", // Mod name?
+        "2697049", 7);
 
     public static final String NCBITAXON = "NCBITaxon:";
     private String name;
