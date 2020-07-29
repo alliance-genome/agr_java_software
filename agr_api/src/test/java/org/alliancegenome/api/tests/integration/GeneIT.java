@@ -14,9 +14,11 @@ import org.alliancegenome.api.service.GeneService;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.core.ExpressionDetail;
 import org.alliancegenome.core.config.ConfigHelper;
+import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.entity.node.OrthoAlgorithm;
 import org.alliancegenome.neo4j.entity.node.Publication;
+import org.alliancegenome.neo4j.repository.AlleleRepository;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.alliancegenome.neo4j.view.OrthologView;
 import org.alliancegenome.neo4j.view.OrthologyModule;
@@ -397,8 +399,13 @@ public class GeneIT {
     @Test
     public void getAlleleConstructInfoOnGenePage() {
         GeneRepository repository = new GeneRepository();
-        Gene gene = repository.getOneGene("WB:WBGene00002992");
+        //final String geneID = "WB:WBGene00002992";
+        final String geneID = "FB:FBgn0284084";
+        Gene gene = repository.getOneGene(geneID);
         assertNotNull(gene);
+        AlleleRepository alleleRepository = new AlleleRepository();
+        List<Allele> transgenicAlleles = alleleRepository.getTransgenicAlleles(geneID);
+
         assertTrue("No CrossReferences on gene object", CollectionUtils.isNotEmpty(gene.getCrossReferences()));
     }
 

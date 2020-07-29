@@ -1,5 +1,6 @@
 package org.alliancegenome.neo4j.entity.node;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Getter;
@@ -33,6 +34,9 @@ public class Construct extends GeneticEntity implements Comparable<Construct>, P
 
     private String name;
 
+    @JsonIgnore
+    // bi-directional mapping. exclude since Construct is used from the Allele
+    // otherwise an infinite loop when JSON-ified
     @Relationship(type = "CONTAINS", direction = Relationship.INCOMING)
     private List<Allele> alleles;
 

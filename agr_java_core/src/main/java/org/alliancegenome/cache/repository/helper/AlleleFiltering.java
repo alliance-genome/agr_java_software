@@ -3,8 +3,6 @@ package org.alliancegenome.cache.repository.helper;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.neo4j.entity.node.Allele;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -57,6 +55,14 @@ public class AlleleFiltering extends AnnotationFiltering<Allele> {
                             .collect(Collectors.toSet()), value);
     ;
 
+    public static FilterFunction<Allele, String> transgenicAlleleConstructFilter =
+            (allele, value) ->
+                    FilterFunction.fullMatchMultiValueOR(allele.getConstructs().stream()
+                            .filter(Objects::nonNull)
+                            .map(construct -> construct.getNameText())
+                            .collect(Collectors.toSet()), value);
+    ;
+
     public static FilterFunction<Allele, String> phenotypeFilter =
             (allele, value) -> {
                 Set<Boolean> filteringPassed = allele.getPhenotypes().stream()
@@ -65,8 +71,6 @@ public class AlleleFiltering extends AnnotationFiltering<Allele> {
                 return !filteringPassed.isEmpty() && filteringPassed.contains(true);
             };
 
-    public static Map<FieldFilter, FilterFunction<Allele, String>> filterFieldMap = new HashMap<>();
-
     public AlleleFiltering() {
         filterFieldMap.put(FieldFilter.SYMBOL, alleleFilter);
         filterFieldMap.put(FieldFilter.SYNONYMS, synonymFilter);
@@ -74,6 +78,7 @@ public class AlleleFiltering extends AnnotationFiltering<Allele> {
         filterFieldMap.put(FieldFilter.DISEASE, diseaseFilter);
         filterFieldMap.put(FieldFilter.VARIANT_TYPE, variantTypeFilter);
         filterFieldMap.put(FieldFilter.VARIANT_CONSEQUENCE, variantConsequenceFilter);
+        filterFieldMap.put(FieldFilter.CONSTRUCT_SYMBOL, transgenicAlleleConstructFilter);
     }
 
 }

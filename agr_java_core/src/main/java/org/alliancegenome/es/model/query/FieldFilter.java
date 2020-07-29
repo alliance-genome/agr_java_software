@@ -34,6 +34,7 @@ public enum FieldFilter {
     ALLELE("allele"),
     MODEL_NAME("modelName"),
     VARIANT_CONSEQUENCE("filter.variantConsequence"),
+    CONSTRUCT_SYMBOL("filter.allele-construct-symbol"),
     STRINGENCY("stringency"),
     ORTHOLOGY_METHOD("method"),
     ORTHOLOGY_TAXON("taxon"),
