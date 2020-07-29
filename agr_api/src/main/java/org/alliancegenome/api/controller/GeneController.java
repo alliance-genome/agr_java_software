@@ -12,7 +12,10 @@ import org.alliancegenome.cache.repository.OrthologyCacheRepository;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.core.exceptions.RestErrorException;
 import org.alliancegenome.core.exceptions.RestErrorMessage;
-import org.alliancegenome.core.translators.tdf.*;
+import org.alliancegenome.core.translators.tdf.AlleleToTdfTranslator;
+import org.alliancegenome.core.translators.tdf.DiseaseAnnotationToTdfTranslator;
+import org.alliancegenome.core.translators.tdf.InteractionToTdfTranslator;
+import org.alliancegenome.core.translators.tdf.PhenotypeAnnotationToTdfTranslator;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.*;
@@ -39,6 +42,9 @@ public class GeneController implements GeneRESTInterface {
 
     @Inject
     private GeneService geneService;
+
+    @Inject
+    private AlleleService alleleService;
 
     @Inject
     private OrthologyCacheRepository orthologyService;
@@ -487,6 +493,35 @@ public class GeneController implements GeneRESTInterface {
     @Override
     public EntitySummary getPhenotypeSummary(String id) {
         return geneService.getPhenotypeSummary(id);
+    }
+
+    @Override
+    public JsonResultResponse<Allele> getTransgenicAlleles(String geneID,
+                                                           Integer limit,
+                                                           Integer page,
+                                                           String sortBy,
+                                                           String alleleSymbol,
+                                                           String constructSymbol,
+                                                           UriInfo ui) {
+
+        Pagination pagination = new Pagination(page, limit, sortBy, null);
+        pagination.addFieldFilter(FieldFilter.SYMBOL, alleleSymbol);
+        pagination.addFieldFilter(FieldFilter.CONSTRUCT_SYMBOL, constructSymbol);
+        if (pagination.hasErrors()) {
+            RestErrorMessage message = new RestErrorMessage();
+            message.setErrors(pagination.getErrors());
+            throw new RestErrorException(message);
+        }
+        try {
+            JsonResultResponse<Allele> response = alleleService.getTransgenicAlleles(geneID, pagination);
+            response.setHttpServletRequest(request);
+            return response;
+        } catch (Exception e) {
+            log.error("Error while retrieving transgenic allele info", e);
+            RestErrorMessage error = new RestErrorMessage();
+            error.addErrorMessage(e.getMessage());
+            throw new RestErrorException(error);
+        }
     }
 
 }

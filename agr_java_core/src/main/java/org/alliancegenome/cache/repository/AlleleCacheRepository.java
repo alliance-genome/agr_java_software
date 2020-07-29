@@ -1,13 +1,6 @@
 package org.alliancegenome.cache.repository;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-
+import lombok.extern.log4j.Log4j2;
 import org.alliancegenome.api.service.AlleleColumnFieldMapping;
 import org.alliancegenome.api.service.ColumnFieldMapping;
 import org.alliancegenome.api.service.FilterService;
@@ -16,17 +9,18 @@ import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.cache.CacheService;
 import org.alliancegenome.cache.repository.helper.AlleleFiltering;
 import org.alliancegenome.cache.repository.helper.AlleleSorting;
-import org.alliancegenome.cache.repository.helper.FilterFunction;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.cache.repository.helper.SortingField;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
 import org.alliancegenome.neo4j.entity.node.Allele;
-import org.alliancegenome.neo4j.view.BaseFilter;
 import org.apache.commons.collections.CollectionUtils;
 
-import lombok.extern.log4j.Log4j2;
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Log4j2
 @RequestScoped
@@ -71,43 +65,17 @@ public class AlleleCacheRepository {
         JsonResultResponse<Allele> response = new JsonResultResponse<>();
 
         //filtering
-        List<Allele> filteredAlleleList = filterDiseaseAnnotations(allAlleles, pagination.getFieldFilterValueMap());
+        FilterService<Allele> filterService = new FilterService<>(new AlleleFiltering());
+        List<Allele> filteredAlleleList = filterService.filterAnnotations(allAlleles, pagination.getFieldFilterValueMap());
         response.setResults(getSortedAndPaginatedAlleles(filteredAlleleList, pagination));
         response.setTotal(filteredAlleleList.size());
 
         // add distinct values
-        FilterService<Allele> filterService = new FilterService<>(new AlleleFiltering());
         ColumnFieldMapping<Allele> mapping = new AlleleColumnFieldMapping();
         response.addDistinctFieldValueSupplementalData(filterService.getDistinctFieldValues(allAlleles,
                 mapping.getSingleValuedFieldColumns(Table.ALLELE_GENE), mapping));
 
         return response;
-    }
-
-    private List<Allele> filterDiseaseAnnotations(List<Allele> alleleList, BaseFilter fieldFilterValueMap) {
-        if (alleleList == null)
-            return null;
-        if (fieldFilterValueMap == null)
-            return alleleList;
-        return alleleList.stream()
-                .filter(annotation -> containsFilterValue(annotation, fieldFilterValueMap))
-                .collect(Collectors.toList());
-    }
-
-    private boolean containsFilterValue(Allele allele, BaseFilter fieldFilterValueMap) {
-        // remove entries with null values.
-        fieldFilterValueMap.values().removeIf(Objects::isNull);
-
-        Set<Boolean> filterResults = fieldFilterValueMap.entrySet().stream()
-                .map((entry) -> {
-                    FilterFunction<Allele, String> filterFunction = AlleleFiltering.filterFieldMap.get(entry.getKey());
-                    if (filterFunction == null)
-                        return null;
-                    return filterFunction.containsFilterValue(allele, entry.getValue());
-                })
-                .collect(Collectors.toSet());
-
-        return !filterResults.contains(false);
     }
 
     private void printTaxonMap() {

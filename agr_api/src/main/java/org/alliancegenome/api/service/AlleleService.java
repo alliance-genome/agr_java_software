@@ -71,4 +71,21 @@ public class AlleleService {
         result.calculateRequestDuration(startDate);
         return result;
     }
+
+    public JsonResultResponse<Allele> getTransgenicAlleles(String geneID, Pagination pagination) {
+        LocalDateTime startDate = LocalDateTime.now();
+        List<Allele> alleles = alleleRepo.getTransgenicAlleles(geneID);
+        JsonResultResponse<Allele> result = new JsonResultResponse<>();
+
+        // filter
+        if (CollectionUtils.isNotEmpty(alleles)) {
+            FilterService<Allele> filterService = new FilterService<>(new AlleleFiltering());
+            List<Allele> filteredAlleles = filterService.filterAnnotations(alleles, pagination.getFieldFilterValueMap());
+            result.setTotal(filteredAlleles.size());
+            result.setResults(filterService.getPaginatedAnnotations(pagination, filteredAlleles));
+        }
+        // sort
+        result.calculateRequestDuration(startDate);
+        return result;
+    }
 }
