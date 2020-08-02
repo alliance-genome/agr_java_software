@@ -33,26 +33,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.junit.Assert.*;
 
-public class ExpressionIT {
-
-    private ObjectMapper mapper = new ObjectMapper();
+public class ExpressionIT extends AbstractIT{
 
     @Inject
     private ExpressionCacheRepository repository;
 
     @Inject
     private ExpressionService expressionService;
-
-    @Before
-    public void before() {
-        Configurator.setRootLevel(Level.WARN);
-        ConfigHelper.init();
-
-        mapper.disable(MapperFeature.DEFAULT_VIEW_INCLUSION);
-        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-        mapper.registerModule(new OrthologyModule());
-    }
-
 
     @Test
     public void checkAllExpressions() {

@@ -52,7 +52,7 @@ public class Construct extends GeneticEntity implements Comparable<Construct>, P
     @Relationship(type = "EXPRESSES", direction = Relationship.INCOMING)
     private List<NonBGIConstructComponent> nonBGIConstructComponents;
 
-    @JsonView({View.AlleleAPI.class})
+    @JsonView({View.AlleleAPI.class, View.TransgenicAlleleAPI.class})
     @Relationship(type = "TARGETS", direction = Relationship.INCOMING)
     private List<Gene> targetGenes = new ArrayList<>();
 
@@ -75,21 +75,21 @@ public class Construct extends GeneticEntity implements Comparable<Construct>, P
         return nameText;
     }
 
-    @JsonView({View.AlleleAPI.class})
+    @JsonView({View.AlleleAPI.class, View.TransgenicAlleleAPI.class})
     public List<GeneticEntity> getExpressedGenes() {
         List<GeneticEntity> entities = new ArrayList<>(expressedGenes);
         addNonBGIConstructComponents(entities, nonBGIConstructComponents);
         return entities;
     }
 
-    @JsonView({View.AlleleAPI.class})
+    @JsonView({View.AlleleAPI.class, View.TransgenicAlleleAPI.class})
     public List<GeneticEntity> getRegulatedByGenes() {
         List<GeneticEntity> entities = new ArrayList<>(regulatedByGenes);
         addNonBGIConstructComponents(entities, nonBGIConstructComponentsRegulation);
         return entities;
     }
 
-    @JsonView({View.AlleleAPI.class})
+    @JsonView({View.AlleleAPI.class, View.TransgenicAlleleAPI.class})
     public List<GeneticEntity> getTargetGenes() {
         List<GeneticEntity> entities = new ArrayList<>(targetGenes);
         addNonBGIConstructComponents(entities, nonBGIConstructComponentsTarget);

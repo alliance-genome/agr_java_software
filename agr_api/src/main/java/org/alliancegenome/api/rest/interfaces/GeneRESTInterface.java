@@ -472,6 +472,7 @@ public interface GeneRESTInterface {
     @GET
     @Path("/{id}/transgenic-alleles")
     @Operation(summary = "Retrieve Transgenic Alleles for a given gene")
+    @JsonView(value = {View.TransgenicAlleleAPI.class})
     @APIResponses(
             value = {
                     @APIResponse(
@@ -495,6 +496,20 @@ public interface GeneRESTInterface {
             @QueryParam("filter.symbol") String alleleSymbol,
             @Parameter(in = ParameterIn.QUERY, name = "filter.construct", description = "filter by construct symbol", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.construct") String constructSymbol,
+            @Parameter(in = ParameterIn.QUERY, name = "filter.constructRegulatedGene", description = "filter by construct symbol", schema = @Schema(type = SchemaType.STRING))
+            @QueryParam("filter.construct") String constructRegulatedGene,
+            @Parameter(in = ParameterIn.QUERY, name = "filter.constructTargetedGene", description = "filter by construct symbol", schema = @Schema(type = SchemaType.STRING))
+            @QueryParam("filter.construct") String constructTargetedGene,
+            @Parameter(in = ParameterIn.QUERY, name = "filter.constructExpressedGene", description = "filter by construct symbol", schema = @Schema(type = SchemaType.STRING))
+            @QueryParam("filter.construct") String constructExpressedGene,
+            @Parameter(in = ParameterIn.QUERY, name = "filter.synonym", description = "allele synonym", schema = @Schema(type = SchemaType.STRING))
+            @QueryParam("filter.synonym") String synonym,
+            @Parameter(in = ParameterIn.QUERY, name = "filter.species", description = "filter by species", schema = @Schema(type = SchemaType.STRING))
+            @QueryParam("filter.species") String species,
+            @Parameter(in = ParameterIn.QUERY, name = "filter.hasPhenotype", description = "filter by existence of phenotype", schema = @Schema(type = SchemaType.STRING))
+            @QueryParam("filter.hasPhenotype") String hasPhenotype,
+            @Parameter(in = ParameterIn.QUERY, name = "filter.hasDisease", description = "filter by existence of disease", schema = @Schema(type = SchemaType.STRING))
+            @QueryParam("filter.hasDisease") String hasDisease,
             @Context UriInfo ui
     );
 }

@@ -502,11 +502,25 @@ public class GeneController implements GeneRESTInterface {
                                                            String sortBy,
                                                            String alleleSymbol,
                                                            String constructSymbol,
+                                                           String constructRegulatedGene,
+                                                           String constructTargetedGene,
+                                                           String constructExpressedGene,
+                                                           String synonym,
+                                                           String species,
+                                                           String hasPhenotype,
+                                                           String hasDisease,
                                                            UriInfo ui) {
 
         Pagination pagination = new Pagination(page, limit, sortBy, null);
         pagination.addFieldFilter(FieldFilter.SYMBOL, alleleSymbol);
+        pagination.addFieldFilter(FieldFilter.SYNONYMS, synonym);
+        pagination.addFieldFilter(FieldFilter.SPECIES, species);
+        pagination.addFieldFilter(FieldFilter.TRANSGENE_HAS_PHENOTYPE, hasPhenotype);
+        pagination.addFieldFilter(FieldFilter.TRANSGENE_HAS_DISEASE, hasDisease);
         pagination.addFieldFilter(FieldFilter.CONSTRUCT_SYMBOL, constructSymbol);
+        pagination.addFieldFilter(FieldFilter.CONSTRUCT_TARGETED_GENE, constructTargetedGene);
+        pagination.addFieldFilter(FieldFilter.CONSTRUCT_REGULATED_GENE, constructRegulatedGene);
+        pagination.addFieldFilter(FieldFilter.CONSTRUCT_EXPRESSED_GENE, constructExpressedGene);
         if (pagination.hasErrors()) {
             RestErrorMessage message = new RestErrorMessage();
             message.setErrors(pagination.getErrors());

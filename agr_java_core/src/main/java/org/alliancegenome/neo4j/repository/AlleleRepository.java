@@ -101,17 +101,11 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
         alleleList.addAll(StreamSupport.stream(alleles.spliterator(), false)
                 .collect(Collectors.toList()));
 
-        query = getCypherQuery("IS_REGULATED_BY");
-
-        alleles = query(query, map);
-        alleleList.addAll(StreamSupport.stream(alleles.spliterator(), false)
-                .collect(Collectors.toList()));
-
         alleleList.sort(Comparator.comparing(Allele::getSymbolText));
         return alleleList;
     }
 
-    public String getCypherQuery(String relationship) {
+    private String getCypherQuery(String relationship) {
         String query = "";
         query += " MATCH p1=(:Species)<-[:FROM_SPECIES]-(allele:Allele)--(construct:Construct)-[:" + relationship + "]-(gene:Gene)--(:Species)," +
                 " p2=(allele:Allele)--(:Synonym) " +
@@ -123,7 +117,9 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
         query += " OPTIONAL MATCH targetNon=(construct:Construct)-[:TARGET]-(:NonBGIConstructComponent)";
         query += " OPTIONAL MATCH regulated=(construct:Construct)-[:IS_REGULATED_BY]-(:Gene)--(:Species)";
         query += " OPTIONAL MATCH regulatedNon=(construct:Construct)-[:IS_REGULATED_BY]-(:NonBGIConstructComponent)";
-        query += " RETURN p1, p2, express, target, regulated, expressNonBGI, regulatedNon, targetNon ";
+        query += " OPTIONAL MATCH disease=(allele:Allele)--(:DiseaseEntityJoin)";
+        query += " OPTIONAL MATCH pheno=(allele:Allele)-[:HAS_PHENOTYPE]-(:Phenotype)";
+        query += " RETURN p1, p2, express, target, regulated, expressNonBGI, regulatedNon, targetNon, disease, pheno ";
         return query;
     }
 }

@@ -32,7 +32,8 @@ import javax.inject.Inject;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.junit.Assert.*;
 
 
@@ -102,21 +103,6 @@ public class AlleleIT {
         assertTrue(allele.getCrossReferenceMap().keySet().contains("primary"));
         assertTrue(allele.getCrossReferenceMap().keySet().contains("references"));
     }
-
-    @Test
-    public void checkAlleleTransgeneInSpeciesEndpoint() {
-        Pagination pagination = new Pagination(1, 10, null, null);
-        // muIs61
-        String geneID = "WB:WBTransgene00001048";
-        JsonResultResponse<Allele> response = alleleService.getAllelesBySpecies("elegans", pagination);
-        assertResponse(response, 10, 8400);
-
-        pagination.addFieldFilter(FieldFilter.SYMBOL, "muIs61");
-        response = alleleService.getAllelesBySpecies("elegans", pagination);
-        assertResponse(response, 1, 1);
-        assertEquals(response.getResults().get(0).getPrimaryKey(), "WB:WBTransgene00001048");
-    }
-
 
     @Test
     // Test Sox9 from MGI for disease via experiment records
@@ -232,44 +218,6 @@ public class AlleleIT {
         JsonResultResponse<Allele> response = alleleService.getAllelesByGene("ZFIN:ZDB-GENE-040426-1716", pagination);
         List<Allele> term = response.getResults().stream().filter(allele -> allele.getDiseases() != null).collect(Collectors.toList());
         assertThat(term.size(), greaterThanOrEqualTo(1));
-    }
-
-    @Test
-    public void filterTransgenicAllelesBySymbol() {
-        Pagination pagination = new Pagination();
-        JsonResultResponse<Allele> response = alleleService.getTransgenicAlleles("WB:WBGene00002992", pagination);
-        int total = response.getTotal();
-        assertThat(total, greaterThan(1));
-
-        String firstAlleleSymbol = response.getResults().get(0).getSymbolText();
-        pagination.addFieldFilter(FieldFilter.SYMBOL, firstAlleleSymbol);
-        response = alleleService.getTransgenicAlleles("WB:WBGene00002992", pagination);
-        assertEquals(response.getTotal(), 1);
-    }
-
-    @Test
-    public void filterTransgenicAllelesByConstruct() {
-        Pagination pagination = new Pagination();
-        JsonResultResponse<Allele> response = alleleService.getTransgenicAlleles("WB:WBGene00002992", pagination);
-        int total = response.getTotal();
-        assertThat(total, greaterThan(1));
-
-        String firstConstructSymbol = response.getResults().get(0).getConstructs().get(0).getNameText();
-        pagination.addFieldFilter(FieldFilter.CONSTRUCT_SYMBOL, firstConstructSymbol);
-        response = alleleService.getTransgenicAlleles("WB:WBGene00002992", pagination);
-        assertEquals(response.getTotal(), 1);
-    }
-
-    @Test
-    public void filterTransgenicAllelesByConstructNonBGI() {
-        Pagination pagination = new Pagination();
-        JsonResultResponse<Allele> response = alleleService.getTransgenicAlleles("HGNC:12779", pagination);
-        int total = response.getTotal();
-        assertEquals(total, 1);
-
-        pagination.addFieldFilter(FieldFilter.CONSTRUCT_SYMBOL, "no-match");
-        response = alleleService.getTransgenicAlleles("WB:WBGene00002992", pagination);
-        assertEquals(response.getTotal(), 0);
     }
 
     @Test
