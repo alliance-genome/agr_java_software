@@ -121,6 +121,8 @@ public class SearchHelper {
             add("constructs.classicText");
             add("crossReferences");
             add("crossReferences.classicText");
+            add("definition");
+            add("definition.standardText");
             add("diseases");
             add("diseasesAgrSlim");
             add("diseasesWithParents");
