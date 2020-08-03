@@ -263,6 +263,51 @@ public class GeneController implements GeneRESTInterface {
         return responseBuilder.build();
     }
 
+
+    @Override
+    public JsonResultResponse<DiseaseAnnotation> getDiseaseAnnotations(String id, Integer limit, Integer page, String sortBy,
+                                                                       String geneticEntity,
+                                                                       String geneticEntityType,
+                                                                       String disease,
+                                                                       String reference,
+                                                                       String asc) {
+        long startTime = System.currentTimeMillis();
+        try {
+            JsonResultResponse<DiseaseAnnotation> diseases = getDiseaseAnnotationDocumentJsonResultResponse(id, limit, page, sortBy, geneticEntity, geneticEntityType, disease, reference, asc);
+            diseases.setHttpServletRequest(request);
+            diseases.calculateRequestDuration(startTime);
+            return diseases;
+        } catch (Exception e) {
+            log.error("Error while retrieving disease", e);
+            RestErrorMessage error = new RestErrorMessage();
+            error.addErrorMessage(e.getMessage());
+            throw new RestErrorException(error);
+        }
+    }
+
+    @Override
+    public Response getDiseaseAnnotationsDownloadFile(
+            String id,
+            String sortBy,
+            String geneticEntity,
+            String geneticEntityType,
+            String disease,
+            String reference,
+            String asc) {
+        // retrieve all records
+        JsonResultResponse<DiseaseAnnotation> response =
+                getDiseaseAnnotationDocumentJsonResultResponse(id, Integer.MAX_VALUE, 1, sortBy,
+                        geneticEntity,
+                        geneticEntityType,
+                        disease,
+                        reference,
+                        asc);
+        Response.ResponseBuilder responseBuilder = Response.ok(diseaseTranslator.getAllRowsForGenes(response.getResults()));
+        APIServiceHelper.setDownloadHeader(id, EntityType.GENE, EntityType.DISEASE, responseBuilder);
+        return responseBuilder.build();
+    }
+
+
     @Override
     public JsonResultResponse<PrimaryAnnotatedEntity> getPrimaryAnnotatedEntityForModel(String id,
                                                                                         Integer limit,
@@ -310,6 +355,19 @@ public class GeneController implements GeneRESTInterface {
         JsonResultResponse<PhenotypeAnnotation> phenotypeAnnotations = geneService.getPhenotypeAnnotations(id, pagination);
         phenotypeAnnotations.addAnnotationSummarySupplementalData(getPhenotypeSummary(id));
         return phenotypeAnnotations;
+    }
+
+    private JsonResultResponse<DiseaseAnnotation> getDiseaseAnnotationDocumentJsonResultResponse(String id, Integer limit, Integer page, String sortBy, String geneticEntity, String geneticEntityType, String disease, String reference, String asc) {
+        if (sortBy.isEmpty())
+            sortBy = FieldFilter.DISEASE.getName();
+        Pagination pagination = new Pagination(page, limit, sortBy, asc);
+        pagination.addFieldFilter(FieldFilter.GENETIC_ENTITY, geneticEntity);
+        pagination.addFieldFilter(FieldFilter.GENETIC_ENTITY_TYPE, geneticEntityType);
+        pagination.addFieldFilter(FieldFilter.DISEASE, disease);
+        pagination.addFieldFilter(FieldFilter.FREFERENCE, reference);
+        JsonResultResponse<DiseaseAnnotation> diseaseAnnotations = diseaseService.getDiseaseAnnotations(id, pagination);
+
+        return diseaseAnnotations;
     }
 
     private JsonResultResponse<DiseaseAnnotation> getEmpiricalDiseaseAnnotation(String id,
