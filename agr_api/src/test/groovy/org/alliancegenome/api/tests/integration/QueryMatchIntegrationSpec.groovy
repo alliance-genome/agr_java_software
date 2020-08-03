@@ -152,6 +152,19 @@ class QueryMatchIntegrationSpec extends Specification {
         "AGR-2147" | "FB:FBal0038870"            | "P{HBΔ-23}"
         "AGR-2147" | "WB:WBVar02149945"          | "WBCnstr00040825"
 
+        //SARS-CoV-2 / COVID-19 synonyms & tokenizing, AGR-2343
+        "AGR-2343" | "RefSeq:YP_009724396" | "sars cov 2"
+        "AGR-2343" | "RefSeq:YP_009724396" | "coronavirus"
+        "AGR-2343" | "RefSeq:YP_009724396" | "covid19"
+        "AGR-2343" | "RefSeq:YP_009724396" | "covid-19"
+        "AGR-2343" | "RefSeq:YP_009724396" | "sars cov"
+        "AGR-2343" | "RefSeq:YP_009724396" | "covid"
+        "AGR-2343" | "DOID:0080600" | "covid"
+        "AGR-2343" | "DOID:0080600" | "covid19"
+        "AGR-2343" | "DOID:0080600" | "covid-19"
+        "AGR-2343" | "DOID:0080600" | "sars cov 2"
+        "AGR-2343" | "DOID:0080600" | "SARS-CoV-2"
+
     }
 
     @Unroll

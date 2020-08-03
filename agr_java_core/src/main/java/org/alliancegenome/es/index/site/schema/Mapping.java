@@ -45,7 +45,8 @@ public class Mapping extends Builder {
         new FieldBuilder(builder, "chromosomes", "text").keyword().build();
         new FieldBuilder(builder, "constructs", "text").keyword().classicText().build();
         new FieldBuilder(builder, "crossReferences", "text").keyword().classicText().build();
-        new FieldBuilder(builder, "description", "text");
+        new FieldBuilder(builder, "definition", "text").standardText().build();
+        new FieldBuilder(builder, "description", "text").build();
         new FieldBuilder(builder, "diseases", "text").keyword().build();
         new FieldBuilder(builder, "diseasesAgrSlim", "text").keyword().build();
         new FieldBuilder(builder, "diseasesWithParents", "text").keyword().build();

@@ -54,7 +54,7 @@ public class SiteIndexSettings extends Settings {
                         .startObject("generic_synonym")
                             .field("type", "custom")
                             .field("tokenizer", "whitespace")
-                            .array("filter", new String[]{"lowercase","synonym_filter"})
+                            .array("filter", new String[]{"lowercase","synonym_filter","lowercase"})
                         .endObject()
                         .startObject("standard_bigrams")
                             .field("type","custom")
@@ -102,7 +102,21 @@ public class SiteIndexSettings extends Settings {
                                     "drosophila melanogaster => fly, fruit fly, dme",
                                     "caenorhabditis elegans => worm, cel",
                                     "saccharomyces cerevisiae => yeast, sce",
-                                    "danio rerio => fish, zebrafish, dre"
+                                    "danio rerio => fish, zebrafish, dre",
+                                    "sars-cov-2 => " +
+                                            "2019-nCoV, " +
+                                            "COVID-19, " +
+                                            "COVID-19 virus, " +
+                                            "SARS2, " +
+                                            "Wuhan coronavirus, " +
+                                            "Wuhan seafood market pneumonia virus, " +
+                                            "Human coronavirus 2019, " +
+                                            "COVID19, " +
+                                            "COVID, " +
+                                            "HCoV-19, " +
+                                            "SARS-2, " +
+                                            "SARS-CoV2, " +
+                                            "sars cov 2 "
                             })
                         .endObject()
                         .startObject("bigram_filter")

@@ -16,6 +16,7 @@ public class QueryManipulationService {
         query = luceneEscape(query);
         query = escapeColons(query);
         query = quoteHgvs(query);
+        query = tweakCovidQueries(query);
         return query;
     }
 
@@ -56,4 +57,11 @@ public class QueryManipulationService {
 
         return value;
     }
+
+    private String tweakCovidQueries(String value) {
+        value = StringUtils.replaceIgnoreCase(value, "SARS-CoV-2", "SARS-CoV-2*");
+        value = StringUtils.replaceIgnoreCase(value, "COVID19", "COVID-19");
+        return value;
+    }
+
 }
