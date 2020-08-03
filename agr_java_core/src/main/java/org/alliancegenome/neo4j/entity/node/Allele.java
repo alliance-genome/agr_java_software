@@ -1,23 +1,22 @@
 package org.alliancegenome.neo4j.entity.node;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import com.fasterxml.jackson.annotation.JsonView;
+import lombok.Getter;
+import lombok.Setter;
 import org.alliancegenome.api.entity.PresentationEntity;
 import org.alliancegenome.neo4j.view.View;
+import org.apache.commons.collections.CollectionUtils;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 
-import com.fasterxml.jackson.annotation.JsonView;
-
-import lombok.Getter;
-import lombok.Setter;
+import java.util.ArrayList;
+import java.util.List;
 
 @NodeEntity(label = "Feature")
 @Getter
 @Setter
-@Schema(name="Allele", description="POJO that represents the Allele")
+@Schema(name = "Allele", description = "POJO that represents the Allele")
 public class Allele extends GeneticEntity implements Comparable<Allele>, PresentationEntity {
 
     public Allele() {
@@ -34,7 +33,7 @@ public class Allele extends GeneticEntity implements Comparable<Allele>, Present
     @JsonView({View.AlleleAPI.class})
     private String description;
 
-    @JsonView({View.AlleleAPI.class})
+    @JsonView({View.AlleleAPI.class, View.TransgenicAlleleAPI.class})
     @Relationship(type = "IS_ALLELE_OF")
     private Gene gene;
 
@@ -53,7 +52,7 @@ public class Allele extends GeneticEntity implements Comparable<Allele>, Present
     @Relationship(type = "HAS_PHENOTYPE")
     private List<Phenotype> phenotypes = new ArrayList<>();
 
-    @JsonView({View.API.class})
+    @JsonView({View.AlleleAPI.class, View.TransgenicAlleleAPI.class})
     @Relationship(type = "CONTAINS")
     private List<Construct> constructs;
 
@@ -65,5 +64,15 @@ public class Allele extends GeneticEntity implements Comparable<Allele>, Present
     @Override
     public String toString() {
         return primaryKey + ":" + symbolText;
+    }
+
+    @JsonView({View.TransgenicAlleleAPI.class})
+    public Boolean hasPhenotype() {
+        return CollectionUtils.isNotEmpty(phenotypes);
+    }
+
+    @JsonView({View.TransgenicAlleleAPI.class})
+    public Boolean hasDisease() {
+        return CollectionUtils.isNotEmpty(diseaseEntityJoins);
     }
 }
