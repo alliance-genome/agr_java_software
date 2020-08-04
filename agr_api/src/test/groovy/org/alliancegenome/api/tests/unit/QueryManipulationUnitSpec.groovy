@@ -13,10 +13,10 @@ class QueryManipulationUnitSpec extends Specification {
         when:
         String manipulatedQuery = queryManipulationService.processQuery(query)
         then:
-        manipulatedQuery == output
+        expectedOutput == manipulatedQuery
 
         where:
-        query                                 | output
+        query                                 | expectedOutput
         "DOID:10314"                          | "DOID\\:10314"
         "SNOMEDCT_US_2016_03_01:91357005"     | "SNOMEDCT_US_2016_03_01\\:91357005"
         "UMLS_CUI:C0375268"                   | "UMLS_CUI\\:C0375268"
@@ -46,6 +46,10 @@ class QueryManipulationUnitSpec extends Specification {
         "NC_000083.6:g.75273979T>A NC_005118.4:g.55252024_55252027del" | "\"NC_000083.6\\:g.75273979T>A\" \"NC_005118.4\\:g.55252024_55252027del\""
         "\"NC_000083.6:g.75273979T>A\" \"NC_005118.4:g.55252024_55252027del\"" | "\"NC_000083.6\\:g.75273979T>A\" \"NC_005118.4\\:g.55252024_55252027del\""
         "P{HBΔ-23}"                           | "P\\{HBΔ-23\\}"
+        "SARS-CoV-2"                          | "SARS-CoV-2*"
+        "sars-cov-2"                          | "SARS-CoV-2*"
+        "covid19"                             | "COVID-19"
+        "COVID19"                             | "COVID-19"
     }
 
 }

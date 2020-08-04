@@ -59,7 +59,7 @@ public class SiteIndexSettings extends Settings {
                         .startObject("generic_synonym")
                             .field("type", "custom")
                             .field("tokenizer", "whitespace")
-                            .array("filter", new String[]{"lowercase","synonym_filter"})
+                            .array("filter", new String[]{"lowercase","synonym_filter","lowercase"})
                         .endObject()
                         .startObject("standard_bigrams")
                             .field("type","custom")
