@@ -1,11 +1,5 @@
 package org.alliancegenome.core.translators.tdf;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
-import java.util.StringJoiner;
-import java.util.stream.Collectors;
-
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
@@ -15,12 +9,15 @@ import org.alliancegenome.neo4j.entity.node.GeneticEntity;
 import org.alliancegenome.neo4j.entity.node.PublicationJoin;
 import org.apache.commons.collections.CollectionUtils;
 
+import java.util.*;
+import java.util.stream.Collectors;
+
 public class DiseaseAnnotationToTdfTranslator {
 
     public String getAllRowsForGenes(List<DiseaseAnnotation> diseaseAnnotations) {
 
         // convert collection of DiseaseAnnotation records to DiseaseDownloadRow records
-        List<DiseaseDownloadRow> list = getDownloadRowsFromAnnotations(diseaseAnnotations);
+        List<DiseaseDownloadRow> list = getDownloadRowsFromGenes(diseaseAnnotations);
 
         List<DownloadHeader> headers = List.of(
                 new DownloadHeader<>("Species ID", (DiseaseDownloadRow::getSpeciesID)),
@@ -45,7 +42,44 @@ public class DiseaseAnnotationToTdfTranslator {
         return DownloadHeader.getDownloadOutput(list, headers);
     }
 
-    public List<DiseaseDownloadRow> getDownloadRowsFromAnnotations(List<DiseaseAnnotation> diseaseAnnotations) {
+    public String getAllRowsForGenesAndAlleles(List<DiseaseAnnotation> diseaseAnnotationsGenes,
+                                               List<DiseaseAnnotation> diseaseAnnotationsAlleles,
+                                               List<DiseaseAnnotation> diseaseAnnotationsModels) {
+
+        // convert collection of DiseaseAnnotation records to DiseaseDownloadRow records
+        List<DiseaseDownloadRow> list = new ArrayList<>();
+        if (!diseaseAnnotationsGenes.isEmpty())
+            list = getDownloadRowsFromGenes(diseaseAnnotationsGenes);
+        if (!diseaseAnnotationsAlleles.isEmpty())
+            list.addAll(getDiseaseDownloadRowsFromAlleles(diseaseAnnotationsAlleles));
+        if (!diseaseAnnotationsModels.isEmpty())
+            list.addAll(getDiseaseModelDownloadRows(diseaseAnnotationsModels));
+
+        List<DownloadHeader> headers = List.of(
+                new DownloadHeader<>("Species ID", (DiseaseDownloadRow::getSpeciesID)),
+                new DownloadHeader<>("Species Name", (DiseaseDownloadRow::getSpeciesName)),
+                new DownloadHeader<>("Entity Type", (DiseaseDownloadRow::getEntityType)),
+                new DownloadHeader<>("Entity ID", (DiseaseDownloadRow::getMainEntityID)),
+                new DownloadHeader<>("Entity Symbol", (DiseaseDownloadRow::getMainEntitySymbol)),
+                new DownloadHeader<>("Association Type", (DiseaseDownloadRow::getAssociation)),
+                new DownloadHeader<>("Disease ID", (DiseaseDownloadRow::getDiseaseID)),
+                new DownloadHeader<>("Disease Name", (DiseaseDownloadRow::getDiseaseName)),
+                new DownloadHeader<>("Based On ID", (DiseaseDownloadRow::getBasedOnID)),
+                new DownloadHeader<>("Based On Name", (DiseaseDownloadRow::getBasedOnName)),
+                new DownloadHeader<>("Inferred from Entity ID", (DiseaseDownloadRow::getGeneticEntityID)),
+                new DownloadHeader<>("Inferred from Entity Name", (DiseaseDownloadRow::getGeneticEntityName)),
+//                new DownloadHeader<>("Genetic Entity Type", (DiseaseDownloadRow::getGeneticEntityType)),
+                new DownloadHeader<>("Evidence Code", (DiseaseDownloadRow::getEvidenceCode)),
+                new DownloadHeader<>("Evidence Code Name", (DiseaseDownloadRow::getEvidenceCodeName)),
+                new DownloadHeader<>("Source", (DiseaseDownloadRow::getSource)),
+                new DownloadHeader<>("Reference", (DiseaseDownloadRow::getReference)),
+                new DownloadHeader<>("Date", (DiseaseDownloadRow::getDateAssigned))
+        );
+
+        return DownloadHeader.getDownloadOutput(list, headers);
+    }
+
+    public List<DiseaseDownloadRow> getDownloadRowsFromGenes(List<DiseaseAnnotation> diseaseAnnotations) {
         denormalizeAnnotations(diseaseAnnotations);
         return diseaseAnnotations.stream()
                 .map(annotation -> annotation.getPrimaryAnnotatedEntities().stream()
@@ -69,6 +103,7 @@ public class DiseaseAnnotationToTdfTranslator {
     private DiseaseDownloadRow getDiseaseDownloadRow(DiseaseAnnotation annotation, PrimaryAnnotatedEntity entity, PublicationJoin join, Gene homologousGene) {
         DiseaseDownloadRow row = getBaseDownloadRow(annotation, join, homologousGene);
 
+        row.setEntityType(annotation.getGeneticEntityType());
         row.setMainEntityID(annotation.getGene().getPrimaryKey());
         row.setMainEntitySymbol(annotation.getGene().getSymbol());
         row.setGeneticEntityID(entity.getId());
@@ -145,6 +180,7 @@ public class DiseaseAnnotationToTdfTranslator {
                             row.setMainEntitySymbol(annotation.getModel().getNameText());
                             row.setSpeciesID(annotation.getModel().getSpecies().getPrimaryKey());
                             row.setSpeciesName(annotation.getModel().getSpecies().getName());
+                            row.setEntityType(annotation.getModel().getSubtype());
                             return row;
                         })
                         .collect(Collectors.toList()))
@@ -153,32 +189,7 @@ public class DiseaseAnnotationToTdfTranslator {
     }
 
     public String getAllRowsForAllele(List<DiseaseAnnotation> diseaseAnnotations) {
-        denormalizeAnnotations(diseaseAnnotations);
-
-        List<DiseaseDownloadRow> list = diseaseAnnotations.stream()
-                .map(annotation -> annotation.getPrimaryAnnotatedEntities().stream()
-                        .map(entity -> entity.getPublicationEvidenceCodes().stream()
-                                .map(join -> {
-                                    DiseaseDownloadRow row = getBaseDownloadRow(annotation, join, null);
-                                    row.setMainEntityID(annotation.getFeature().getPrimaryKey());
-                                    row.setMainEntitySymbol(annotation.getFeature().getSymbolText());
-                                    if (!entity.getType().equals(GeneticEntity.CrossReferenceType.GENE)) {
-                                        row.setGeneticEntityID(entity.getId());
-                                        row.setGeneticEntityName(entity.getDisplayName());
-                                        row.setGeneticEntityType(entity.getType().getDisplayName());
-                                        row.setSpeciesID(annotation.getFeature().getSpecies().getPrimaryKey());
-                                        row.setSpeciesName(annotation.getFeature().getSpecies().getName());
-                                    } else {
-                                        row.setSpeciesID(annotation.getGene().getSpecies().getPrimaryKey());
-                                        row.setSpeciesName(annotation.getGene().getSpecies().getName());
-                                    }
-                                    return row;
-                                })
-                                .collect(Collectors.toList()))
-                        .flatMap(Collection::stream)
-                        .collect(Collectors.toList()))
-                .flatMap(Collection::stream)
-                .collect(Collectors.toList());
+        List<DiseaseDownloadRow> list = getDiseaseDownloadRowsFromAlleles(diseaseAnnotations);
 
         List<DownloadHeader> headers = List.of(
                 new DownloadHeader<>("Allele ID", (DiseaseDownloadRow::getMainEntityID)),
@@ -198,6 +209,36 @@ public class DiseaseAnnotationToTdfTranslator {
         );
 
         return DownloadHeader.getDownloadOutput(list, headers);
+    }
+
+    public List<DiseaseDownloadRow> getDiseaseDownloadRowsFromAlleles(List<DiseaseAnnotation> diseaseAnnotations) {
+        denormalizeAnnotations(diseaseAnnotations);
+
+        return diseaseAnnotations.stream()
+                .map(annotation -> annotation.getPrimaryAnnotatedEntities().stream()
+                        .map(entity -> entity.getPublicationEvidenceCodes().stream()
+                                .map(join -> {
+                                    DiseaseDownloadRow row = getBaseDownloadRow(annotation, join, null);
+                                    row.setMainEntityID(annotation.getFeature().getPrimaryKey());
+                                    row.setMainEntitySymbol(annotation.getFeature().getSymbolText());
+                                    row.setEntityType(annotation.getGeneticEntityType());
+                                    if (!entity.getType().equals(GeneticEntity.CrossReferenceType.GENE)) {
+                                        row.setGeneticEntityID(entity.getId());
+                                        row.setGeneticEntityName(entity.getDisplayName());
+                                        row.setGeneticEntityType(entity.getType().getDisplayName());
+                                        row.setSpeciesID(annotation.getFeature().getSpecies().getPrimaryKey());
+                                        row.setSpeciesName(annotation.getFeature().getSpecies().getName());
+                                    } else {
+                                        row.setSpeciesID(annotation.getGene().getSpecies().getPrimaryKey());
+                                        row.setSpeciesName(annotation.getGene().getSpecies().getName());
+                                    }
+                                    return row;
+                                })
+                                .collect(Collectors.toList()))
+                        .flatMap(Collection::stream)
+                        .collect(Collectors.toList()))
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
     }
 
     private void denormalizeAnnotations(List<DiseaseAnnotation> diseaseAnnotations) {

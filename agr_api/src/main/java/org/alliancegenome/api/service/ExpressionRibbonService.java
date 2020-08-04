@@ -25,6 +25,7 @@ import lombok.extern.log4j.Log4j2;
 @RequestScoped
 public class ExpressionRibbonService {
 
+    public static final String UNDEFINED = "undefined";
     private DiseaseRepository diseaseRepository = new DiseaseRepository();
     private GeneRepository geneRepository = new GeneRepository();
 
@@ -120,6 +121,8 @@ public class ExpressionRibbonService {
         SectionSlim slim = new SectionSlim();
         slim.setId(primaryKey);
         slim.setLabel(name);
+        if(def == null)
+            def = UNDEFINED;
         slim.setDescription(def);
         return slim;
     }

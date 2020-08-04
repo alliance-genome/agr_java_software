@@ -1,21 +1,10 @@
 package org.alliancegenome.api.rest.interfaces;
 
-import java.util.List;
-
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
+import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.node.DOTerm;
-import org.alliancegenome.neo4j.entity.node.Transcript;
 import org.alliancegenome.neo4j.view.View;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.enums.ParameterIn;
@@ -27,8 +16,10 @@ import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
-import com.fasterxml.jackson.annotation.JsonView;
-import com.fasterxml.jackson.core.JsonProcessingException;
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import java.util.List;
 
 @Path("/disease")
 @Tag(name = "Disease ")
@@ -50,7 +41,7 @@ public interface DiseaseRESTInterface {
                             responseCode = "200",
                             description = "Disease object.",
                             content = @Content(mediaType = "application/json",
-                                    schema = @Schema(implementation = DOTerm.class))) })
+                                    schema = @Schema(implementation = DOTerm.class)))})
 
     public DOTerm getDisease(
             @Parameter(in = ParameterIn.PATH, name = "id", description = "Search for a Disease by ID", required = true, schema = @Schema(type = SchemaType.STRING))
@@ -71,37 +62,40 @@ public interface DiseaseRESTInterface {
                             responseCode = "200",
                             description = "Disease Annotations for a disease id.",
                             content = @Content(mediaType = "application/json",
-                                    schema = @Schema(implementation = View.DiseaseAnnotationSummary.class))) })
+                                    schema = @Schema(implementation = View.DiseaseAnnotationSummary.class)))})
     JsonResultResponse<DiseaseAnnotation> getDiseaseAnnotationsSorted(
-            @Parameter(in=ParameterIn.PATH, name="id", description = "Search for a disease by ID", required=true, schema = @Schema(type = SchemaType.STRING))
+            @Parameter(in = ParameterIn.PATH, name = "id", description = "Search for a disease by ID", required = true, schema = @Schema(type = SchemaType.STRING))
             @PathParam("id") String id,
-            @Parameter(in=ParameterIn.QUERY, name="limit", description = "Number of rows returned", schema = @Schema(type = SchemaType.INTEGER))
+            @Parameter(in = ParameterIn.QUERY, name = "limit", description = "Number of rows returned", schema = @Schema(type = SchemaType.INTEGER))
             @DefaultValue("20") @QueryParam("limit") Integer limit,
-            @Parameter(in=ParameterIn.QUERY, name="page", description = "Page number", schema = @Schema(type = SchemaType.INTEGER))
+            @Parameter(in = ParameterIn.QUERY, name = "page", description = "Page number", schema = @Schema(type = SchemaType.INTEGER))
             @DefaultValue("1") @QueryParam("page") Integer page,
-            @Parameter(in=ParameterIn.QUERY, name="sortBy", description = "Field name by which to sort", schema = @Schema(type = SchemaType.STRING))//, allowedValues = "Default,Gene,Disease,Species")
+            @Parameter(in = ParameterIn.QUERY, name = "sortBy", description = "Field name by which to sort", schema = @Schema(type = SchemaType.STRING))
+//, allowedValues = "Default,Gene,Disease,Species")
             @DefaultValue("geneName") @QueryParam("sortBy") String sortBy,
-            @Parameter(in=ParameterIn.QUERY, name="filter.geneName", description = "filter by gene symbol")
+            @Parameter(in = ParameterIn.QUERY, name = "filter.geneName", description = "filter by gene symbol")
             @QueryParam("filter.geneName") String geneName,
-            @Parameter(in=ParameterIn.QUERY, name="filter.species", description = "filter by species")
+            @Parameter(in = ParameterIn.QUERY, name = "filter.species", description = "filter by species")
             @QueryParam("filter.species") String species,
-            @Parameter(in=ParameterIn.QUERY, name="filter.geneticEntity", description = "filter by gene genetic Entity")
+            @Parameter(in = ParameterIn.QUERY, name = "filter.geneticEntity", description = "filter by gene genetic Entity")
             @QueryParam("filter.geneticEntity") String geneticEntity,
-            @Parameter(in=ParameterIn.QUERY, name="filter.geneticEntityType" , description = "filter by genetic Entity type")//, allowedValues = "gene,allele")
+            @Parameter(in = ParameterIn.QUERY, name = "filter.geneticEntityType", description = "filter by genetic Entity type")
+//, allowedValues = "gene,allele")
             @QueryParam("filter.geneticEntityType") String geneticEntityType,
-            @Parameter(in=ParameterIn.QUERY, name="filter.disease", description = "filter by disease")
+            @Parameter(in = ParameterIn.QUERY, name = "filter.disease", description = "filter by disease")
             @QueryParam("filter.disease") String disease,
-            @Parameter(in=ParameterIn.QUERY, name="filter.source" , description = "filter by source")
+            @Parameter(in = ParameterIn.QUERY, name = "filter.source", description = "filter by source")
             @QueryParam("filter.source") String source,
-            @Parameter(in=ParameterIn.QUERY, name="filter.reference", description = "filter by reference")
+            @Parameter(in = ParameterIn.QUERY, name = "filter.reference", description = "filter by reference")
             @QueryParam("filter.reference") String reference,
-            @Parameter(in=ParameterIn.QUERY, name="filter.evidenceCode", description = "filter by evidence code")
+            @Parameter(in = ParameterIn.QUERY, name = "filter.evidenceCode", description = "filter by evidence code")
             @QueryParam("filter.evidenceCode") String evidenceCode,
-            @Parameter(in=ParameterIn.QUERY, name="filter.basedOnGeneSymbol", description = "filter by based-on-gene")
+            @Parameter(in = ParameterIn.QUERY, name = "filter.basedOnGeneSymbol", description = "filter by based-on-gene")
             @QueryParam("filter.basedOnGeneSymbol") String basedOnGeneSymbol,
-            @Parameter(in=ParameterIn.QUERY, name="filter.associationType", description = "filter by association type")
+            @Parameter(in = ParameterIn.QUERY, name = "filter.associationType", description = "filter by association type")
             @QueryParam("filter.associationType") String associationType,
-            @Parameter(in=ParameterIn.QUERY, name = "asc", description = "order to sort by", schema = @Schema(type = SchemaType.STRING))//,allowedValues = "true,false")
+            @Parameter(in = ParameterIn.QUERY, name = "asc", description = "order to sort by", schema = @Schema(type = SchemaType.STRING))
+//,allowedValues = "true,false")
             @DefaultValue("true")
             @QueryParam("asc") String asc);
 
@@ -110,31 +104,32 @@ public interface DiseaseRESTInterface {
     @JsonView(value = {View.DiseaseAnnotationSummary.class})
     @Operation(summary = "Retrieve all DiseaseAnnotation records for a given disease id")
     JsonResultResponse<DiseaseAnnotation> getDiseaseAnnotationsByAllele(
-            @Parameter(in=ParameterIn.PATH, name="id", description = "Disease by DOID: e.g. DOID:9952", required=true, schema = @Schema(type = SchemaType.STRING))
+            @Parameter(in = ParameterIn.PATH, name = "id", description = "Disease by DOID: e.g. DOID:9952", required = true, schema = @Schema(type = SchemaType.STRING))
             @PathParam("id") String id,
-            @Parameter(in=ParameterIn.QUERY, name="limit", description = "Number of rows returned", schema = @Schema(type = SchemaType.INTEGER))
+            @Parameter(in = ParameterIn.QUERY, name = "limit", description = "Number of rows returned", schema = @Schema(type = SchemaType.INTEGER))
             @DefaultValue("20") @QueryParam("limit") Integer limit,
-            @Parameter(in=ParameterIn.QUERY, name="page", description = "Page number", schema = @Schema(type = SchemaType.INTEGER))
+            @Parameter(in = ParameterIn.QUERY, name = "page", description = "Page number", schema = @Schema(type = SchemaType.INTEGER))
             @DefaultValue("1") @QueryParam("page") Integer page,
-            @Parameter(in=ParameterIn.QUERY, name="sortBy", description = "Field name by which to sort", schema = @Schema(type = SchemaType.STRING))
+            @Parameter(in = ParameterIn.QUERY, name = "sortBy", description = "Field name by which to sort", schema = @Schema(type = SchemaType.STRING))
             @DefaultValue("diseaseAlleleDefault") @QueryParam("sortBy") String sortBy,
-            @Parameter(in=ParameterIn.QUERY, name="filter.geneName", description = "filter by gene symbol", schema = @Schema(type = SchemaType.STRING))
+            @Parameter(in = ParameterIn.QUERY, name = "filter.geneName", description = "filter by gene symbol", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.geneName") String geneName,
-            @Parameter(in=ParameterIn.QUERY, name="filter.alleleName", description = "filter by allele symbol", schema = @Schema(type = SchemaType.STRING))
+            @Parameter(in = ParameterIn.QUERY, name = "filter.alleleName", description = "filter by allele symbol", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.alleleName") String alleleName,
-            @Parameter(in=ParameterIn.QUERY, name="filter.species", description = "filter by species", schema = @Schema(type = SchemaType.STRING))
+            @Parameter(in = ParameterIn.QUERY, name = "filter.species", description = "filter by species", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.species") String species,
-            @Parameter(in=ParameterIn.QUERY, name="filter.disease", description = "filter by disease", schema = @Schema(type = SchemaType.STRING))
+            @Parameter(in = ParameterIn.QUERY, name = "filter.disease", description = "filter by disease", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.disease") String disease,
-            @Parameter(in=ParameterIn.QUERY, name="filter.source", description = "filter by source", schema = @Schema(type = SchemaType.STRING))
+            @Parameter(in = ParameterIn.QUERY, name = "filter.source", description = "filter by source", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.source") String source,
-            @Parameter(in=ParameterIn.QUERY, name="filter.reference", description = "filter by reference", schema = @Schema(type = SchemaType.STRING))
+            @Parameter(in = ParameterIn.QUERY, name = "filter.reference", description = "filter by reference", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.reference") String reference,
-            @Parameter(in=ParameterIn.QUERY, name="filter.evidenceCode", description = "filter by evidence Code", schema = @Schema(type = SchemaType.STRING))
+            @Parameter(in = ParameterIn.QUERY, name = "filter.evidenceCode", description = "filter by evidence Code", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.evidenceCode") String evidenceCode,
-            @Parameter(in=ParameterIn.QUERY, name="filter.associationType", description = "filter by association type", schema = @Schema(type = SchemaType.STRING))
+            @Parameter(in = ParameterIn.QUERY, name = "filter.associationType", description = "filter by association type", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.associationType") String associationType,
-            @Parameter(in=ParameterIn.QUERY, name = "asc", description = "order to sort by", schema = @Schema(type = SchemaType.STRING))//,allowedValues = "true,false")
+            @Parameter(in = ParameterIn.QUERY, name = "asc", description = "order to sort by", schema = @Schema(type = SchemaType.STRING))
+//,allowedValues = "true,false")
             @DefaultValue("true")
             @QueryParam("asc") String asc);
 
@@ -143,30 +138,30 @@ public interface DiseaseRESTInterface {
     @Produces(MediaType.TEXT_PLAIN)
     @Operation(summary = "downlaod all DiseaseAnnotation records for a given allele id")
     Response getDiseaseAnnotationsByAlleleDownload(
-            @Parameter(in=ParameterIn.PATH, name="id", description = "Search for a allele by ID", required=true, schema = @Schema(type = SchemaType.STRING))
+            @Parameter(in = ParameterIn.PATH, name = "id", description = "Search for a allele by ID", required = true, schema = @Schema(type = SchemaType.STRING))
             @PathParam("id") String id,
-            @DefaultValue("Allele") @QueryParam("sortBy") String sortBy,
+            @Parameter(in=ParameterIn.QUERY, name="sortBy", description = "Field name by which to sort", schema = @Schema(type = SchemaType.STRING))
+            @DefaultValue("diseaseAlleleDefault") @QueryParam("sortBy") String sortBy,
             @Parameter(in=ParameterIn.QUERY, name ="filter.geneName",description = "filter by gene symbol")
             @QueryParam("filter.geneName") String geneName,
-            @Parameter(in=ParameterIn.QUERY, name ="filter.alleleName",description = "filter by allele symbol")
+            @Parameter(in = ParameterIn.QUERY, name = "filter.alleleName", description = "filter by allele symbol")
             @QueryParam("filter.alleleName") String alleleName,
-            @Parameter(in=ParameterIn.QUERY, name ="filter.species",description = "filter by species")
+            @Parameter(in = ParameterIn.QUERY, name = "filter.species", description = "filter by species")
             @QueryParam("filter.species") String species,
-            @Parameter(in=ParameterIn.QUERY, name ="filter.disease",description = "filter by disease")
+            @Parameter(in = ParameterIn.QUERY, name = "filter.disease", description = "filter by disease")
             @QueryParam("filter.disease") String disease,
-            @Parameter(in=ParameterIn.QUERY, name ="filter.source", description = "filter by source")
+            @Parameter(in = ParameterIn.QUERY, name = "filter.source", description = "filter by source")
             @QueryParam("filter.source") String source,
-            @Parameter(in=ParameterIn.QUERY, name ="filter.reference", description = "filter by reference")
+            @Parameter(in = ParameterIn.QUERY, name = "filter.reference", description = "filter by reference")
             @QueryParam("filter.reference") String reference,
-            @Parameter(in=ParameterIn.QUERY, name ="filter.evidenceCode", description = "filter by evidence code")
+            @Parameter(in = ParameterIn.QUERY, name = "filter.evidenceCode", description = "filter by evidence code")
             @QueryParam("filter.evidenceCode") String evidenceCode,
-            @Parameter(in=ParameterIn.QUERY, name ="filter.associationType",description = "filter by association type")
+            @Parameter(in = ParameterIn.QUERY, name = "filter.associationType", description = "filter by association type")
             @QueryParam("filter.associationType") String associationType,
-            @Parameter(in=ParameterIn.QUERY, name = "asc", description = "order to sort by", schema = @Schema(type = SchemaType.STRING))//,allowedValues = "true,false")
+            @Parameter(in = ParameterIn.QUERY, name = "asc", description = "order to sort by", schema = @Schema(type = SchemaType.STRING))
+//,allowedValues = "true,false")
             @DefaultValue("true")
             @QueryParam("asc") String asc);
-
-
 
 
     @GET
@@ -174,33 +169,32 @@ public interface DiseaseRESTInterface {
     @JsonView(value = {View.DiseaseAnnotationSummary.class})
     @Operation(summary = "Retrieve all DiseaseAnnotation records for a given disease id")
     JsonResultResponse<DiseaseAnnotation> getDiseaseAnnotationsByGene(
-            @Parameter(in=ParameterIn.PATH, name="id", description = "Search for a disease by ID", required=true, schema = @Schema(type = SchemaType.STRING))
+            @Parameter(in = ParameterIn.PATH, name = "id", description = "Search for a disease by ID", required = true, schema = @Schema(type = SchemaType.STRING))
             @PathParam("id") String id,
-            @Parameter(in=ParameterIn.QUERY, name="limit", description = "Number of rows returned", schema = @Schema(type = SchemaType.INTEGER))
+            @Parameter(in = ParameterIn.QUERY, name = "limit", description = "Number of rows returned", schema = @Schema(type = SchemaType.INTEGER))
             @DefaultValue("20") @QueryParam("limit") Integer limit,
-            @Parameter(in=ParameterIn.QUERY, name="page", description = "Page number", schema = @Schema(type = SchemaType.INTEGER))
+            @Parameter(in = ParameterIn.QUERY, name = "page", description = "Page number", schema = @Schema(type = SchemaType.INTEGER))
             @DefaultValue("1") @QueryParam("page") Integer page,
-            @Parameter(in=ParameterIn.QUERY, name = "sortBy", description = "order to sort by", schema = @Schema(type = SchemaType.STRING))
+            @Parameter(in = ParameterIn.QUERY, name = "sortBy", description = "order to sort by", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("sortBy") String sortBy,
-            @Parameter(in=ParameterIn.QUERY, name ="filter.geneName",description = "filter by gene symbol")
+            @Parameter(in = ParameterIn.QUERY, name = "filter.geneName", description = "filter by gene symbol")
             @QueryParam("filter.geneName") String geneSymbol,
-            @Parameter(in=ParameterIn.QUERY, name ="filter.species",description = "filter by species")
+            @Parameter(in = ParameterIn.QUERY, name = "filter.species", description = "filter by species")
             @QueryParam("filter.species") String species,
-            @Parameter(in=ParameterIn.QUERY, name ="filter.disease",description = "filter by disease")
+            @Parameter(in = ParameterIn.QUERY, name = "filter.disease", description = "filter by disease")
             @QueryParam("filter.disease") String disease,
-            @Parameter(in=ParameterIn.QUERY, name ="filter.provider", description = "filter by provider")
+            @Parameter(in = ParameterIn.QUERY, name = "filter.provider", description = "filter by provider")
             @QueryParam("filter.provider") String provider,
-            @Parameter(in=ParameterIn.QUERY, name ="filter.reference", description = "filter by reference")
+            @Parameter(in = ParameterIn.QUERY, name = "filter.reference", description = "filter by reference")
             @QueryParam("filter.reference") String reference,
-            @Parameter(in=ParameterIn.QUERY, name ="filter.evidenceCode", description = "filter by evidence code")
+            @Parameter(in = ParameterIn.QUERY, name = "filter.evidenceCode", description = "filter by evidence code")
             @QueryParam("filter.evidenceCode") String evidenceCode,
             @Parameter(in=ParameterIn.QUERY, name="filter.basedOnGeneSymbol", description = "filter by based-on-gene", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.basedOnGeneSymbol") String basedOnGeneSymbol,
             @Parameter(in=ParameterIn.QUERY, name ="filter.associationType",description = "filter by association type")
             @QueryParam("filter.associationType") String associationType,
-            @Parameter(in=ParameterIn.QUERY, name = "asc", description = "order to sort by", schema = @Schema(type = SchemaType.STRING))
+            @Parameter(in = ParameterIn.QUERY, name = "asc", description = "order to sort by", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("asc") String asc);
-
 
 
     @GET
@@ -208,21 +202,21 @@ public interface DiseaseRESTInterface {
     @Produces(MediaType.TEXT_PLAIN)
     @Operation(summary = "Retrieve all DiseaseAnnotation records for a given disease id")
     Response getDiseaseAnnotationsByGeneDownload(
-            @Parameter(in=ParameterIn.PATH, name="id", description = "Search for a disease by ID", required=true, schema = @Schema(type = SchemaType.STRING))
+            @Parameter(in = ParameterIn.PATH, name = "id", description = "Search for a disease by ID", required = true, schema = @Schema(type = SchemaType.STRING))
             @PathParam("id") String id,
-            @Parameter(in=ParameterIn.QUERY, name = "sortBy", description = "order to sort by", schema = @Schema(type = SchemaType.STRING))//, allowedValues = "Default,Gene,Disease,Species")
-            @DefaultValue("Gene") @QueryParam("sortBy") String sortBy,
+            @Parameter(in=ParameterIn.QUERY, name = "sortBy", description = "order to sort by", schema = @Schema(type = SchemaType.STRING))
+            @QueryParam("sortBy") String sortBy,
             @Parameter(in=ParameterIn.QUERY, name ="filter.geneName",description = "filter by gene symbol", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.geneName") String geneName,
-            @Parameter(in=ParameterIn.QUERY, name ="filter.species",description = "filter by species", schema = @Schema(type = SchemaType.STRING))
+            @Parameter(in = ParameterIn.QUERY, name = "filter.species", description = "filter by species", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.species") String species,
-            @Parameter(in=ParameterIn.QUERY, name ="filter.disease",description = "filter by disease", schema = @Schema(type = SchemaType.STRING))
+            @Parameter(in = ParameterIn.QUERY, name = "filter.disease", description = "filter by disease", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.disease") String disease,
-            @Parameter(in=ParameterIn.QUERY, name ="filter.provider", description = "filter by provider", schema = @Schema(type = SchemaType.STRING))
+            @Parameter(in = ParameterIn.QUERY, name = "filter.provider", description = "filter by provider", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.provider") String provider,
-            @Parameter(in=ParameterIn.QUERY, name ="filter.reference", description = "filter by reference", schema = @Schema(type = SchemaType.STRING))
+            @Parameter(in = ParameterIn.QUERY, name = "filter.reference", description = "filter by reference", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.reference") String reference,
-            @Parameter(in=ParameterIn.QUERY, name ="filter.evidenceCode", description = "filter by evidence code", schema = @Schema(type = SchemaType.STRING))
+            @Parameter(in = ParameterIn.QUERY, name = "filter.evidenceCode", description = "filter by evidence code", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.evidenceCode") String evidenceCode,
             @Parameter(in=ParameterIn.QUERY, name="filter.basedOnGeneSymbol", description = "filter by based-on-gene", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.basedOnGeneSymbol") String basedOnGeneSymbol,
@@ -233,10 +227,10 @@ public interface DiseaseRESTInterface {
             //@ApiParam(value = "download file type")
             @QueryParam("fileType") String downloadFileType,
             //@ApiParam(value = "ascending order: true or false", allowableValues = "true,false", defaultValue = "true")
-            @Parameter(in=ParameterIn.QUERY, name = "asc", description = "order to sort by", schema = @Schema(type = SchemaType.STRING))//,allowedValues = "true,false")
+            @Parameter(in = ParameterIn.QUERY, name = "asc", description = "order to sort by", schema = @Schema(type = SchemaType.STRING))
+//,allowedValues = "true,false")
             @DefaultValue("true")
             @QueryParam("asc") String asc);
-
 
 
     @GET
@@ -244,29 +238,30 @@ public interface DiseaseRESTInterface {
     @JsonView(value = {View.DiseaseAnnotationSummary.class})
     @Operation(summary = "Retrieve all DiseaseAnnotation records for a given disease id")
     JsonResultResponse<DiseaseAnnotation> getDiseaseAnnotationsForModel(
-            @Parameter(in=ParameterIn.PATH, name="id", description = "Search for a disease by ID", required=true, schema = @Schema(type = SchemaType.STRING))
+            @Parameter(in = ParameterIn.PATH, name = "id", description = "Search for a disease by ID", required = true, schema = @Schema(type = SchemaType.STRING))
             @PathParam("id") String id,
-            @Parameter(in=ParameterIn.QUERY, name="limit", description = "Number of rows returned", schema = @Schema(type = SchemaType.INTEGER))
+            @Parameter(in = ParameterIn.QUERY, name = "limit", description = "Number of rows returned", schema = @Schema(type = SchemaType.INTEGER))
             @DefaultValue("20") @QueryParam("limit") Integer limit,
-            @Parameter(in=ParameterIn.QUERY, name="page", description = "Page number", schema = @Schema(type = SchemaType.INTEGER))
+            @Parameter(in = ParameterIn.QUERY, name = "page", description = "Page number", schema = @Schema(type = SchemaType.INTEGER))
             @DefaultValue("1") @QueryParam("page") Integer page,
-            @Parameter(in=ParameterIn.QUERY, name = "sortBy", description = "order to sort by", schema = @Schema(type = SchemaType.STRING))
+            @Parameter(in = ParameterIn.QUERY, name = "sortBy", description = "order to sort by", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("sortBy") String sortBy,
-            @Parameter(in=ParameterIn.QUERY, name ="filter.modelName",description = "filter by model symbol", schema = @Schema(type = SchemaType.STRING))
+            @Parameter(in = ParameterIn.QUERY, name = "filter.modelName", description = "filter by model symbol", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.modelName") String modelName,
-            @Parameter(in=ParameterIn.QUERY, name ="filter.geneName",description = "filter by gene symbol", schema = @Schema(type = SchemaType.STRING))
+            @Parameter(in = ParameterIn.QUERY, name = "filter.geneName", description = "filter by gene symbol", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.geneName") String geneSymbol,
-            @Parameter(in=ParameterIn.QUERY, name ="filter.species",description = "filter by species", schema = @Schema(type = SchemaType.STRING))
+            @Parameter(in = ParameterIn.QUERY, name = "filter.species", description = "filter by species", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.species") String species,
-            @Parameter(in=ParameterIn.QUERY, name ="filter.disease",description = "filter by disease", schema = @Schema(type = SchemaType.STRING))
+            @Parameter(in = ParameterIn.QUERY, name = "filter.disease", description = "filter by disease", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.disease") String disease,
-            @Parameter(in=ParameterIn.QUERY, name ="filter.source", description = "filter by source", schema = @Schema(type = SchemaType.STRING))
+            @Parameter(in = ParameterIn.QUERY, name = "filter.source", description = "filter by source", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.source") String source,
-            @Parameter(in=ParameterIn.QUERY, name ="filter.reference", description = "filter by reference", schema = @Schema(type = SchemaType.STRING))
+            @Parameter(in = ParameterIn.QUERY, name = "filter.reference", description = "filter by reference", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.reference") String reference,
-            @Parameter(in=ParameterIn.QUERY, name ="filter.evidenceCode", description = "filter by evidence code", schema = @Schema(type = SchemaType.STRING))
+            @Parameter(in = ParameterIn.QUERY, name = "filter.evidenceCode", description = "filter by evidence code", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.evidenceCode") String evidenceCode,
-            @Parameter(in=ParameterIn.QUERY, name = "asc", description = "order to sort by", schema = @Schema(type = SchemaType.STRING))//,allowedValues = "true,false")
+            @Parameter(in = ParameterIn.QUERY, name = "asc", description = "order to sort by", schema = @Schema(type = SchemaType.STRING))
+//,allowedValues = "true,false")
             @DefaultValue("true")
             @QueryParam("asc") String asc);
 
@@ -275,60 +270,64 @@ public interface DiseaseRESTInterface {
     @Produces(MediaType.TEXT_PLAIN)
     @Operation(summary = "Retrieve all DiseaseAnnotation records for a given disease id")
     Response getDiseaseAnnotationsForModelDownload(
-            @Parameter(in=ParameterIn.PATH, name="id", description = "Search for a disease by ID", required=true, schema = @Schema(type = SchemaType.STRING))
+            @Parameter(in = ParameterIn.PATH, name = "id", description = "Search for a disease by ID", required = true, schema = @Schema(type = SchemaType.STRING))
             @PathParam("id") String id,
-            @Parameter(in=ParameterIn.QUERY, name = "sortBy", description = "order to sort by", schema = @Schema(type = SchemaType.STRING))// allowedValues = "Default,Gene,Disease,Species")
+            @Parameter(in = ParameterIn.QUERY, name = "sortBy", description = "order to sort by", schema = @Schema(type = SchemaType.STRING))
+// allowedValues = "Default,Gene,Disease,Species")
             @DefaultValue("Gene") @QueryParam("sortBy") String sortBy,
-            @Parameter(in=ParameterIn.QUERY, name ="filter.modelName", description = "filter by model name", schema = @Schema(type = SchemaType.STRING))
+            @Parameter(in = ParameterIn.QUERY, name = "filter.modelName", description = "filter by model name", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.modelName") String modelName,
-            @Parameter(in=ParameterIn.QUERY, name ="filter.geneName",description = "filter by gene symbol", schema = @Schema(type = SchemaType.STRING))
+            @Parameter(in = ParameterIn.QUERY, name = "filter.geneName", description = "filter by gene symbol", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.geneName") String geneSymbol,
-            @Parameter(in=ParameterIn.QUERY, name ="filter.species",description = "filter by species", schema = @Schema(type = SchemaType.STRING))
+            @Parameter(in = ParameterIn.QUERY, name = "filter.species", description = "filter by species", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.species") String species,
-            @Parameter(in=ParameterIn.QUERY, name ="filter.disease", description = "filter by disease", schema = @Schema(type = SchemaType.STRING))
+            @Parameter(in = ParameterIn.QUERY, name = "filter.disease", description = "filter by disease", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.disease") String disease,
-            @Parameter(in=ParameterIn.QUERY, name ="filter.source", description = "filter by source", schema = @Schema(type = SchemaType.STRING))
+            @Parameter(in = ParameterIn.QUERY, name = "filter.source", description = "filter by source", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.source") String source,
-            @Parameter(in=ParameterIn.QUERY, name ="filter.reference", description = "filter by reference", schema = @Schema(type = SchemaType.STRING))
+            @Parameter(in = ParameterIn.QUERY, name = "filter.reference", description = "filter by reference", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.reference") String reference,
-            @Parameter(in=ParameterIn.QUERY, name ="filter.evidenceCode", description = "filter by evidence code", schema = @Schema(type = SchemaType.STRING))
+            @Parameter(in = ParameterIn.QUERY, name = "filter.evidenceCode", description = "filter by evidence code", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.evidenceCode") String evidenceCode,
-            @Parameter(in=ParameterIn.QUERY, name = "asc", description = "order to sort by", schema = @Schema(type = SchemaType.STRING))//,allowedValues = "true,false")
+            @Parameter(in = ParameterIn.QUERY, name = "asc", description = "order to sort by", schema = @Schema(type = SchemaType.STRING))
+//,allowedValues = "true,false")
             @DefaultValue("true")
             @QueryParam("asc") String asc);
 
 
-    
     @GET
     @Path("/{id}/associations/download")
     @Produces(MediaType.TEXT_PLAIN)
     @Operation(summary = "Download all DiseaseAnnotation records for a given disease id and sorting / filtering parameters", hidden = true)
     Response getDiseaseAnnotationsDownloadFile(
-            @Parameter(in=ParameterIn.PATH, name="id", description= "Disease by DOID: e.g. DOID:9952", required = true, schema = @Schema(type = SchemaType.STRING))
+            @Parameter(in = ParameterIn.PATH, name = "id", description = "Disease by DOID: e.g. DOID:9952", required = true, schema = @Schema(type = SchemaType.STRING))
             @PathParam("id") String id,
-            @Parameter(in=ParameterIn.QUERY, name = "sortBy", description = "order to sort by", schema = @Schema(type = SchemaType.STRING))//, allowedValues = "Default,Gene,Disease,Species")
+            @Parameter(in = ParameterIn.QUERY, name = "sortBy", description = "order to sort by", schema = @Schema(type = SchemaType.STRING))
+//, allowedValues = "Default,Gene,Disease,Species")
             @DefaultValue("Gene") @QueryParam("sortBy") String sortBy,
-            @Parameter(in=ParameterIn.QUERY, name ="filter.geneName",description = "filter by gene symbol", schema = @Schema(type = SchemaType.STRING))
+            @Parameter(in = ParameterIn.QUERY, name = "filter.geneName", description = "filter by gene symbol", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.geneName") String geneName,
-            @Parameter(in=ParameterIn.QUERY, name ="filter.species", description="filter by species", schema = @Schema(type = SchemaType.STRING))
+            @Parameter(in = ParameterIn.QUERY, name = "filter.species", description = "filter by species", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.species") String species,
-            @Parameter(in=ParameterIn.QUERY, name ="geneticEntity", description = "filter by gene genetic Entity", schema = @Schema(type = SchemaType.STRING))
+            @Parameter(in = ParameterIn.QUERY, name = "geneticEntity", description = "filter by gene genetic Entity", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.geneticEntity") String geneticEntity,
-            @Parameter(in=ParameterIn.QUERY, name ="filter.geneticEntityType" ,description = "filter by genetic Entity type",schema = @Schema(type = SchemaType.STRING))//, allowedValues = "gene,allele")
+            @Parameter(in = ParameterIn.QUERY, name = "filter.geneticEntityType", description = "filter by genetic Entity type", schema = @Schema(type = SchemaType.STRING))
+//, allowedValues = "gene,allele")
             @QueryParam("filter.geneticEntityType") String geneticEntityType,
-            @Parameter(in=ParameterIn.QUERY, name ="filter.disease", description = "filter by disease", schema = @Schema(type = SchemaType.STRING))
+            @Parameter(in = ParameterIn.QUERY, name = "filter.disease", description = "filter by disease", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.disease") String disease,
-            @Parameter(in=ParameterIn.QUERY, name ="filter.source",description = "filter by source", schema = @Schema(type = SchemaType.STRING))
+            @Parameter(in = ParameterIn.QUERY, name = "filter.source", description = "filter by source", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.source") String source,
-            @Parameter(in=ParameterIn.QUERY, name ="filter.reference",description = "filter by reference", schema = @Schema(type = SchemaType.STRING))
+            @Parameter(in = ParameterIn.QUERY, name = "filter.reference", description = "filter by reference", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.reference") String reference,
-            @Parameter(in=ParameterIn.QUERY, name ="filter.evidenceCode",description = "filter by evidence code", schema = @Schema(type = SchemaType.STRING))
+            @Parameter(in = ParameterIn.QUERY, name = "filter.evidenceCode", description = "filter by evidence code", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.evidenceCode") String evidenceCode,
-            @Parameter(in=ParameterIn.QUERY, name ="filter.basedOnGeneSymbol",description = "filter by based-on-gene", schema = @Schema(type = SchemaType.STRING))
+            @Parameter(in = ParameterIn.QUERY, name = "filter.basedOnGeneSymbol", description = "filter by based-on-gene", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.basedOnGeneSymbol") String basedOnGeneSymbol,
-            @Parameter(in=ParameterIn.QUERY, name ="filter.associationType",description = "filter by association type", schema = @Schema(type = SchemaType.STRING))
+            @Parameter(in = ParameterIn.QUERY, name = "filter.associationType", description = "filter by association type", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.associationType") String associationType,
-            @Parameter(in=ParameterIn.QUERY, name = "asc", description = "order to sort by", schema = @Schema(type = SchemaType.STRING))//,allowedValues = "true,false")
+            @Parameter(in = ParameterIn.QUERY, name = "asc", description = "order to sort by", schema = @Schema(type = SchemaType.STRING))
+//,allowedValues = "true,false")
             @DefaultValue("true")
             @QueryParam("asc") String asc);
 
@@ -410,6 +409,18 @@ public interface DiseaseRESTInterface {
             @QueryParam("sortBy") String sortBy,
             @Parameter(in=ParameterIn.QUERY,name = "asc",  description = "ascending or descending",schema = @Schema(type = SchemaType.STRING))//allowedValues = "true,false"
             @DefaultValue("true") @QueryParam("asc") String asc
+    ) throws JsonProcessingException;
+
+    @GET
+    @Path("/annotation/download")
+    @Operation(summary = "Download all disease annotations of a given set of species")
+    Response getDiseaseAnnotationsBySpeciesDownload(
+            @Parameter(in = ParameterIn.PATH, name = "species", description = "Species by ID", required = true)
+            @QueryParam("species") List<String> species,
+            @Parameter(in = ParameterIn.PATH, name = "diseaseID", description = "Disease ID")
+            @DefaultValue("DOID:4") @QueryParam("diseaseID") String diseaseID,
+            @Parameter(in = ParameterIn.PATH, name = "sortBy", description = "Sort by field name")
+            @QueryParam("sortBy") String sortBy
     ) throws JsonProcessingException;
 
 }

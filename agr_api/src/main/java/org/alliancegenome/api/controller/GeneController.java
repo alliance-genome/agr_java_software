@@ -44,6 +44,9 @@ public class GeneController implements GeneRESTInterface {
     private GeneService geneService;
 
     @Inject
+    private AlleleService alleleService;
+
+    @Inject
     private OrthologyCacheRepository orthologyService;
 
     @Inject
@@ -260,6 +263,51 @@ public class GeneController implements GeneRESTInterface {
         return responseBuilder.build();
     }
 
+
+    @Override
+    public JsonResultResponse<DiseaseAnnotation> getDiseaseAnnotations(String id, Integer limit, Integer page, String sortBy,
+                                                                       String geneticEntity,
+                                                                       String geneticEntityType,
+                                                                       String disease,
+                                                                       String reference,
+                                                                       String asc) {
+        long startTime = System.currentTimeMillis();
+        try {
+            JsonResultResponse<DiseaseAnnotation> diseases = getDiseaseAnnotationDocumentJsonResultResponse(id, limit, page, sortBy, geneticEntity, geneticEntityType, disease, reference, asc);
+            diseases.setHttpServletRequest(request);
+            diseases.calculateRequestDuration(startTime);
+            return diseases;
+        } catch (Exception e) {
+            log.error("Error while retrieving disease", e);
+            RestErrorMessage error = new RestErrorMessage();
+            error.addErrorMessage(e.getMessage());
+            throw new RestErrorException(error);
+        }
+    }
+
+    @Override
+    public Response getDiseaseAnnotationsDownloadFile(
+            String id,
+            String sortBy,
+            String geneticEntity,
+            String geneticEntityType,
+            String disease,
+            String reference,
+            String asc) {
+        // retrieve all records
+        JsonResultResponse<DiseaseAnnotation> response =
+                getDiseaseAnnotationDocumentJsonResultResponse(id, Integer.MAX_VALUE, 1, sortBy,
+                        geneticEntity,
+                        geneticEntityType,
+                        disease,
+                        reference,
+                        asc);
+        Response.ResponseBuilder responseBuilder = Response.ok(diseaseTranslator.getAllRowsForGenes(response.getResults()));
+        APIServiceHelper.setDownloadHeader(id, EntityType.GENE, EntityType.DISEASE, responseBuilder);
+        return responseBuilder.build();
+    }
+
+
     @Override
     public JsonResultResponse<PrimaryAnnotatedEntity> getPrimaryAnnotatedEntityForModel(String id,
                                                                                         Integer limit,
@@ -307,6 +355,19 @@ public class GeneController implements GeneRESTInterface {
         JsonResultResponse<PhenotypeAnnotation> phenotypeAnnotations = geneService.getPhenotypeAnnotations(id, pagination);
         phenotypeAnnotations.addAnnotationSummarySupplementalData(getPhenotypeSummary(id));
         return phenotypeAnnotations;
+    }
+
+    private JsonResultResponse<DiseaseAnnotation> getDiseaseAnnotationDocumentJsonResultResponse(String id, Integer limit, Integer page, String sortBy, String geneticEntity, String geneticEntityType, String disease, String reference, String asc) {
+        if (sortBy.isEmpty())
+            sortBy = FieldFilter.DISEASE.getName();
+        Pagination pagination = new Pagination(page, limit, sortBy, asc);
+        pagination.addFieldFilter(FieldFilter.GENETIC_ENTITY, geneticEntity);
+        pagination.addFieldFilter(FieldFilter.GENETIC_ENTITY_TYPE, geneticEntityType);
+        pagination.addFieldFilter(FieldFilter.DISEASE, disease);
+        pagination.addFieldFilter(FieldFilter.FREFERENCE, reference);
+        JsonResultResponse<DiseaseAnnotation> diseaseAnnotations = diseaseService.getDiseaseAnnotations(id, pagination);
+
+        return diseaseAnnotations;
     }
 
     private JsonResultResponse<DiseaseAnnotation> getEmpiricalDiseaseAnnotation(String id,
@@ -490,6 +551,49 @@ public class GeneController implements GeneRESTInterface {
     @Override
     public EntitySummary getPhenotypeSummary(String id) {
         return geneService.getPhenotypeSummary(id);
+    }
+
+    @Override
+    public JsonResultResponse<Allele> getTransgenicAlleles(String geneID,
+                                                           Integer limit,
+                                                           Integer page,
+                                                           String sortBy,
+                                                           String alleleSymbol,
+                                                           String constructSymbol,
+                                                           String constructRegulatedGene,
+                                                           String constructTargetedGene,
+                                                           String constructExpressedGene,
+                                                           String synonym,
+                                                           String species,
+                                                           String hasPhenotype,
+                                                           String hasDisease,
+                                                           UriInfo ui) {
+
+        Pagination pagination = new Pagination(page, limit, sortBy, null);
+        pagination.addFieldFilter(FieldFilter.SYMBOL, alleleSymbol);
+        pagination.addFieldFilter(FieldFilter.SYNONYMS, synonym);
+        pagination.addFieldFilter(FieldFilter.SPECIES, species);
+        pagination.addFieldFilter(FieldFilter.TRANSGENE_HAS_PHENOTYPE, hasPhenotype);
+        pagination.addFieldFilter(FieldFilter.TRANSGENE_HAS_DISEASE, hasDisease);
+        pagination.addFieldFilter(FieldFilter.CONSTRUCT_SYMBOL, constructSymbol);
+        pagination.addFieldFilter(FieldFilter.CONSTRUCT_TARGETED_GENE, constructTargetedGene);
+        pagination.addFieldFilter(FieldFilter.CONSTRUCT_REGULATED_GENE, constructRegulatedGene);
+        pagination.addFieldFilter(FieldFilter.CONSTRUCT_EXPRESSED_GENE, constructExpressedGene);
+        if (pagination.hasErrors()) {
+            RestErrorMessage message = new RestErrorMessage();
+            message.setErrors(pagination.getErrors());
+            throw new RestErrorException(message);
+        }
+        try {
+            JsonResultResponse<Allele> response = alleleService.getTransgenicAlleles(geneID, pagination);
+            response.setHttpServletRequest(request);
+            return response;
+        } catch (Exception e) {
+            log.error("Error while retrieving transgenic allele info", e);
+            RestErrorMessage error = new RestErrorMessage();
+            error.addErrorMessage(e.getMessage());
+            throw new RestErrorException(error);
+        }
     }
 
 }

@@ -16,8 +16,8 @@ public class AlleleTranslator extends EntityDocumentTranslator<Allele, Searchabl
 
         SearchableItemDocument document = new SearchableItemDocument();
 
-        document.setCategory("allele");
-
+        document.setCategory("alteration");
+        document.setAlterationType("allele");
         document.setGlobalId(entity.getGlobalId());
         document.setLocalId(entity.getLocalId());
         document.setPrimaryKey(entity.getPrimaryKey());

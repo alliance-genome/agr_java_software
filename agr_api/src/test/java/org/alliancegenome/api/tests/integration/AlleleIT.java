@@ -36,8 +36,8 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.junit.Assert.*;
 
-public class AlleleIT {
 
+public class AlleleIT {
     private ObjectMapper mapper = new ObjectMapper();
 
     private AlleleService alleleService = new AlleleService();
@@ -103,21 +103,6 @@ public class AlleleIT {
         assertTrue(allele.getCrossReferenceMap().keySet().contains("primary"));
         assertTrue(allele.getCrossReferenceMap().keySet().contains("references"));
     }
-
-    @Test
-    public void checkAlleleTransgeneInSpeciesEndpoint() {
-        Pagination pagination = new Pagination(1, 10, null, null);
-        // muIs61
-        String geneID = "WB:WBTransgene00001048";
-        JsonResultResponse<Allele> response = alleleService.getAllelesBySpecies("elegans", pagination);
-        assertResponse(response, 10, 8400);
-
-        pagination.addFieldFilter(FieldFilter.SYMBOL, "muIs61");
-        response = alleleService.getAllelesBySpecies("elegans", pagination);
-        assertResponse(response, 1, 1);
-        assertEquals(response.getResults().get(0).getPrimaryKey(), "WB:WBTransgene00001048");
-    }
-
 
     @Test
     // Test Sox9 from MGI for disease via experiment records

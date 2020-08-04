@@ -61,10 +61,11 @@ public class SearchHelper {
                     add("associatedSpecies");
                 }
             });
-            put("allele", new ArrayList<String>() {
+            put("alteration", new ArrayList<String>() {
                 {
+                    add("alterationType");
                     add("species");
-                    add("variantTypes");
+                    add("dnaChangeTypes");
                     add("molecularConsequence");
                     add("diseasesAgrSlim");
                     add("genes");
@@ -128,6 +129,7 @@ public class SearchHelper {
             add("diseasesWithParents");
             add("disease_genes");
             add("disease_synonyms");
+            add("dnaChangeTypes");
             add("expressionStages");
             add("expressionStages.standardText");
             add("external_ids");
@@ -185,7 +187,6 @@ public class SearchHelper {
             add("strictOrthologySymbols.keyword");
             add("whereExpressed");
             add("whereExpressed.keyword");
-            add("variantTypes");
         }
     };
 
@@ -200,6 +201,7 @@ public class SearchHelper {
             add("definition");
             add("description");
             add("diseases");
+            add("dnaChangeTypes");
             add("external_ids");
             add("gene_chromosome_ends");
             add("gene_chromosome_starts");
@@ -218,7 +220,6 @@ public class SearchHelper {
             add("species");
             add("symbol");
             add("synonyms");
-            add("variantTypes");
         }
     };
 

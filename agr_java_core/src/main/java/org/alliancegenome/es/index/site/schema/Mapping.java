@@ -24,6 +24,7 @@ public class Mapping extends Builder {
 
     protected void buildSharedSearchableDocumentMappings() throws IOException {
         new FieldBuilder(builder, "alleles", "text").keyword().autocomplete().build();
+        new FieldBuilder(builder, "alterationType", "text").keyword().build();
         new FieldBuilder(builder, "anatomicalExpression", "text").keyword().build();
         new FieldBuilder(builder, "associatedSpecies", "text").keyword().synonym().sort().build();
         new FieldBuilder(builder, "associationType", "text").symbol().autocomplete().keyword().standardText().build();
@@ -50,6 +51,7 @@ public class Mapping extends Builder {
         new FieldBuilder(builder, "diseases", "text").keyword().build();
         new FieldBuilder(builder, "diseasesAgrSlim", "text").keyword().build();
         new FieldBuilder(builder, "diseasesWithParents", "text").keyword().build();
+        new FieldBuilder(builder, "dnaChangeTypes", "text").keyword().build();
         new FieldBuilder(builder, "expressionStages", "text").keyword().standardText().build();
         new FieldBuilder(builder, "external_ids", "text").analyzer("symbols");
         new FieldBuilder(builder, "genes", "text").keyword().autocomplete().keywordAutocomplete().build();
@@ -113,7 +115,6 @@ public class Mapping extends Builder {
                 .build();
         new FieldBuilder(builder, "systematicName", "text").analyzer("symbols").build();
         new FieldBuilder(builder, "taxonId", "keyword").build();
-        new FieldBuilder(builder, "variantTypes", "text").keyword().build();
         new FieldBuilder(builder, "whereExpressed", "text").keyword().build();
 
         buildMetaDataField();

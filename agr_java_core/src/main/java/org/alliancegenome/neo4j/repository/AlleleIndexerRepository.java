@@ -1,7 +1,6 @@
 package org.alliancegenome.neo4j.repository;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -74,7 +73,7 @@ public class AlleleIndexerRepository extends Neo4jRepository {
         alleleDocumentCache.setRelatedVariants(getRelatedVariants(species));
 
         log.info("Building allele -> variant types map");
-        alleleDocumentCache.setVariantTypesMap(getVariantTypesMap(species));
+        alleleDocumentCache.setDnaChangeTypesMap(getDnaChangeTypes(species));
 
         log.info("Building allele -> molecular consequence map");
         alleleDocumentCache.setMolecularConsequenceMap(getMolecularConsequence(species));
@@ -183,8 +182,8 @@ public class AlleleIndexerRepository extends Neo4jRepository {
         return CollectionHelper.merge(hgvsNames, CollectionHelper.merge(tlcNames, synonyms));
     }
 
-    public Map<String, Set<String>> getVariantTypesMap(String species) {
-        String query = "MATCH (species:Species)--(a:Allele)--(v:Variant)--(term:SOTerm) ";
+    public Map<String, Set<String>> getDnaChangeTypes(String species) {
+        String query = "MATCH (species:Species)-[:FROM_SPECIES]-(a:Allele)-[:VARIATION]-(v:Variant)-[:VARIATION_TYPE]-(term:SOTerm) ";
         query += getSpeciesWhere(species);
         query += " RETURN distinct a.primaryKey,term.name ";
 

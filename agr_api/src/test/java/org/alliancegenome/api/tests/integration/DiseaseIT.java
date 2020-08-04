@@ -871,7 +871,7 @@ public class DiseaseIT {
                 null,
                 null
         );
-        int rowSize = translator.getDownloadRowsFromAnnotations(response.getResults()).size();
+        int rowSize = translator.getDownloadRowsFromGenes(response.getResults()).size();
         assertNotNull(response);
         assertThat(rowSize, greaterThan(response.getTotal()));
     }

@@ -2,15 +2,22 @@ package org.alliancegenome.api.service;
 
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.es.model.query.Pagination;
+import org.alliancegenome.neo4j.entity.node.Exon;
 import org.alliancegenome.neo4j.entity.node.Transcript;
 import org.alliancegenome.neo4j.entity.node.Variant;
+import org.alliancegenome.neo4j.entity.relationship.GenomeLocation;
 import org.alliancegenome.neo4j.repository.VariantRepository;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.Range;
 
 import javax.enterprise.context.RequestScoped;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Optional;
+
+import static java.util.stream.Collectors.toList;
 
 @RequestScoped
 public class VariantService {
@@ -27,6 +34,9 @@ public class VariantService {
         List<Transcript> transcriptList = variant.getTranscriptList();
         response.setTotal(transcriptList.size());
 
+        // populate location
+        transcriptList.forEach(transcript -> populateIntronExonLocation(variant, transcript));
+
         // sorting
         Comparator<Transcript> comparatorGene = Comparator.comparing(transcript -> transcript.getGene().getSymbol());
         Comparator<Transcript> comparatorGeneSequence = comparatorGene.thenComparing(Transcript::getName);
@@ -36,7 +46,7 @@ public class VariantService {
         response.setResults(transcriptList.stream()
                 .skip(pagination.getStart())
                 .limit(pagination.getLimit())
-                .collect(Collectors.toList()));
+                .collect(toList()));
         return response;
     }
 
@@ -53,4 +63,50 @@ public class VariantService {
         result.calculateRequestDuration(startDate);
         return result;
     }
+
+    public void populateIntronExonLocation(Variant variant, Transcript transcript) {
+        List<Exon> exons = transcript.getExons();
+        if (CollectionUtils.isEmpty(exons))
+            return;
+
+        GenomeLocation variantLoc = variant.getLocation();
+        Range<Long> variantRange = Range.between(variantLoc.getStart(), variantLoc.getEnd());
+
+        // Neither variants nor transcripts have strand info in the GenomicLocation node.
+        // For that reason I resort to the strand info of the associated gene.
+        String strandGene = transcript.getGene().getGenomeLocations().get(0).getStrand();
+        // strand info can be empty of null. In both cases, the missing info disallows to
+        // calculate the exon number in question.
+        if (strandGene.isEmpty())
+            strandGene = null;
+        Optional<Boolean> strand = Optional.ofNullable(strandGene)
+                .map(strandValue -> strandValue.equals("+"));
+
+        List<Range<Long>> exonRanges = exons.stream()
+                .map(exon -> Range.between(exon.getLocation().getStart(), exon.getLocation().getEnd()))
+                .sorted(Comparator.comparing(Range::getMinimum))
+                .collect(toList());
+        // there is an issue with the module setup of the range class.
+        // exonRanges.sort(Collections.reverse())
+        if (strand.isPresent() && !strand.get()) {
+            exonRanges = exons.stream()
+                    .map(exon -> Range.between(exon.getLocation().getStart(), exon.getLocation().getEnd()))
+                    .sorted(Comparator.comparing(Range::getMinimum, Collections.reverseOrder()))
+                    .collect(toList());
+        }
+
+        // It's an intron if no exon overlap is found.
+        String location = "Intron";
+        for (int index = 0; index < exonRanges.size(); index++) {
+            Range<Long> exonRange = exonRanges.get(index);
+            if (exonRange.containsRange(variantRange)) {
+                location = "Exon";
+                if (!strand.isEmpty())
+                    location += " " + index;
+                break;
+            }
+        }
+        transcript.setIntronExonLocation(location);
+    }
+
 }

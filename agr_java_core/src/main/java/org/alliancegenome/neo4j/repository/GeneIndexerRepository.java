@@ -389,4 +389,8 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
         return getMapSetForQuery(query, "gene.primaryKey", "term.name", getSpeciesParams(species));
     }
 
+    public Map<String,Set<String>> getSpeciesCommonNames() {
+        return getMapSetForQuery(" MATCH (species:Species) RETURN species.name as id, species.commonNames as value ");
+    }
+
 }

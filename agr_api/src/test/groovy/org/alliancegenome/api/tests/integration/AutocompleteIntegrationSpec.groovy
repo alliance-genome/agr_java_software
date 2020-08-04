@@ -19,7 +19,7 @@ class AutocompleteIntegrationSpec extends Specification {
         firstResult.get("name").toLowerCase().startsWith(query.toLowerCase())
 
         where:
-        query << ["fgf","pax"]
+        query << ["fgf","pax", "ben "]
 
     }
 

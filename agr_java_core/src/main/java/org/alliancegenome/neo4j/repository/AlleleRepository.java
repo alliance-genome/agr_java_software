@@ -1,16 +1,11 @@
 package org.alliancegenome.neo4j.repository;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
-
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.neo4j.ogm.model.Result;
+
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 public class AlleleRepository extends Neo4jRepository<Allele> {
 
@@ -86,4 +81,45 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
                 .collect(Collectors.toSet());
     }
 
+    /*
+     * Need to run 3 queries as a union as the where clause is against the gene of
+     * three typed associations (EXPRESSES, TARGET, IS_REGULATED_BY) against the construct node
+     * but there might be more genes with the same association
+     */
+    public List<Allele> getTransgenicAlleles(String geneID) {
+        HashMap<String, String> map = new HashMap<>();
+        map.put("geneID", geneID);
+        String query = getCypherQuery("EXPRESSES");
+
+        Iterable<Allele> alleles = query(query, map);
+        List<Allele> alleleList = StreamSupport.stream(alleles.spliterator(), false)
+                .collect(Collectors.toList());
+
+        query = getCypherQuery("TARGETS");
+
+        alleles = query(query, map);
+        alleleList.addAll(StreamSupport.stream(alleles.spliterator(), false)
+                .collect(Collectors.toList()));
+
+        alleleList.sort(Comparator.comparing(Allele::getSymbolText));
+        return alleleList;
+    }
+
+    private String getCypherQuery(String relationship) {
+        String query = "";
+        query += " MATCH p1=(:Species)<-[:FROM_SPECIES]-(allele:Allele)--(construct:Construct)-[:" + relationship + "]-(gene:Gene)--(:Species)," +
+                " p2=(allele:Allele)--(:Synonym) " +
+                "  where gene.primaryKey = {geneID}";
+        // need this optional match to retrieve all expresses genes besides the given geneID
+        query += " OPTIONAL MATCH express=(construct:Construct)-[:EXPRESSES]-(:Gene)--(:Species)";
+        query += " OPTIONAL MATCH expressNonBGI=(construct:Construct)-[:EXPRESSES]-(:NonBGIConstructComponent)";
+        query += " OPTIONAL MATCH target=(construct:Construct)-[:TARGET]-(:Gene)--(:Species)";
+        query += " OPTIONAL MATCH targetNon=(construct:Construct)-[:TARGET]-(:NonBGIConstructComponent)";
+        query += " OPTIONAL MATCH regulated=(construct:Construct)-[:IS_REGULATED_BY]-(:Gene)--(:Species)";
+        query += " OPTIONAL MATCH regulatedNon=(construct:Construct)-[:IS_REGULATED_BY]-(:NonBGIConstructComponent)";
+        query += " OPTIONAL MATCH disease=(allele:Allele)--(:DiseaseEntityJoin)";
+        query += " OPTIONAL MATCH pheno=(allele:Allele)-[:HAS_PHENOTYPE]-(:Phenotype)";
+        query += " RETURN p1, p2, express, target, regulated, expressNonBGI, regulatedNon, targetNon, disease, pheno ";
+        return query;
+    }
 }

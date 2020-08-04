@@ -9,6 +9,7 @@ public class DiseaseDownloadRow {
 
     private String mainEntityID;
     private String mainEntitySymbol;
+    private String entityType;
 
     private String geneticEntityID;
     private String geneticEntityName;
