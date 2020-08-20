@@ -17,7 +17,7 @@ public class ModelHelper {
         entity.setUrl(model.getModCrossRefCompleteUrl());
         entity.setType(GeneticEntity.CrossReferenceType.getCrossReferenceType(model.getSubtype()));
         entity.addPublicationEvidenceCode(annotation.getPublicationJoins());
-        entity.addDisease(annotation.getDisease());
+        entity.addDisease(annotation.getDisease(), annotation.getAssociationType());
         entity.setDataProvider(model.getDataProvider());
         entity.setSpecies(model.getSpecies());
         return entity;

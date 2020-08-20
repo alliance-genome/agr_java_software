@@ -1,39 +1,23 @@
 package org.alliancegenome.neo4j.entity;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Collectors;
-
+import com.fasterxml.jackson.annotation.JsonView;
+import lombok.Getter;
+import lombok.Setter;
 import org.alliancegenome.api.entity.PresentationEntity;
 import org.alliancegenome.es.util.DateConverter;
-import org.alliancegenome.neo4j.entity.node.Allele;
-import org.alliancegenome.neo4j.entity.node.CrossReference;
-import org.alliancegenome.neo4j.entity.node.DOTerm;
-import org.alliancegenome.neo4j.entity.node.GeneticEntity;
-import org.alliancegenome.neo4j.entity.node.PublicationJoin;
-import org.alliancegenome.neo4j.entity.node.SequenceTargetingReagent;
-import org.alliancegenome.neo4j.entity.node.SimpleTerm;
-import org.alliancegenome.neo4j.entity.node.Source;
-import org.alliancegenome.neo4j.entity.node.Species;
+import org.alliancegenome.neo4j.entity.node.*;
 import org.alliancegenome.neo4j.view.View;
 import org.apache.commons.collections.CollectionUtils;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.neo4j.ogm.annotation.typeconversion.Convert;
 
-import com.fasterxml.jackson.annotation.JsonView;
-
-import lombok.Getter;
-import lombok.Setter;
+import java.io.Serializable;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Getter
 @Setter
-@Schema(name="PrimaryAnnotatedEntity", description="POJO that represents a Primary Annotated Entity")
+@Schema(name = "PrimaryAnnotatedEntity", description = "POJO that represents a Primary Annotated Entity")
 public class PrimaryAnnotatedEntity implements Comparable<PrimaryAnnotatedEntity>, Serializable, PresentationEntity {
 
     @JsonView({View.PrimaryAnnotation.class, View.API.class})
@@ -53,7 +37,7 @@ public class PrimaryAnnotatedEntity implements Comparable<PrimaryAnnotatedEntity
     private Source source;
 
     @JsonView({View.PrimaryAnnotation.class, View.API.class})
-    protected List<DOTerm> diseases;
+    protected List<DiseaseModel> diseaseModels;
     @JsonView({View.PrimaryAnnotation.class, View.API.class})
     private List<String> phenotypes;
     @JsonView({View.PrimaryAnnotation.class, View.API.class})
@@ -95,12 +79,13 @@ public class PrimaryAnnotatedEntity implements Comparable<PrimaryAnnotatedEntity
         return Objects.hash(id);
     }
 
-    public void addDisease(DOTerm disease) {
-        if (diseases == null)
-            diseases = new ArrayList<>();
-        diseases.add(disease);
-        diseases = new ArrayList<>(new HashSet<>(diseases));
-        diseases.sort(Comparator.comparing(doTerm -> doTerm.getName().toLowerCase()));
+    public void addDisease(DOTerm disease, String associationType) {
+        if (diseaseModels == null)
+            diseaseModels = new ArrayList<>();
+        DiseaseModel dModel = new DiseaseModel(disease, associationType);
+        diseaseModels.add(dModel);
+        diseaseModels = new ArrayList<>(new HashSet<>(diseaseModels));
+        diseaseModels.sort(Comparator.comparing(model -> model.getDisease().getName().toLowerCase()));
     }
 
     public void addPhenotype(String phenotype) {
@@ -153,15 +138,15 @@ public class PrimaryAnnotatedEntity implements Comparable<PrimaryAnnotatedEntity
                 .collect(Collectors.toList());
     }
 
-    public void addDiseases(List<DOTerm> diseaseList) {
-        if (diseaseList == null)
+    public void addDiseaseModels(List<DiseaseModel> modelList) {
+        if (modelList == null)
             return;
-        if (diseases == null)
-            diseases = new ArrayList<>();
-        diseases.addAll(diseaseList);
-        diseases = diseases.stream()
+        if (diseaseModels == null)
+            diseaseModels = new ArrayList<>();
+        diseaseModels.addAll(modelList);
+        diseaseModels = diseaseModels.stream()
                 .distinct()
-                .sorted(Comparator.comparing(SimpleTerm::getName))
+                .sorted(Comparator.comparing(diseaseModel -> diseaseModel.getDisease().getName()))
                 .collect(Collectors.toList());
     }
 

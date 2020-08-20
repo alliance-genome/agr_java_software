@@ -212,8 +212,7 @@ public class DiseaseIT {
         String geneID = "ZFIN:ZDB-GENE-030219-1";
         JsonResultResponse<PrimaryAnnotatedEntity> response = diseaseService.getDiseaseAnnotationsWithGeneAndAGM(geneID, pagination);
         assertLimitResponse(response, 1, 1);
-        assertThat(response.getResults().get(0).getDiseases().stream().map(DOTerm::getName).collect(Collectors.joining()), equalTo("anxiety disorder"));
-        assertThat(response.getResults().get(0).getId(), equalTo("ZFIN:ZDB-FISH-160331-6"));
+        assertThat(response.getResults().get(0).getDiseaseModels().stream().map(diseaseModel -> diseaseModel.getDisease().getName()).collect(Collectors.joining()), equalTo("anxiety disorder"));        assertThat(response.getResults().get(0).getId(), equalTo("ZFIN:ZDB-FISH-160331-6"));
     }
 
     @Test
@@ -233,9 +232,7 @@ public class DiseaseIT {
 
         response.getResults().stream()
                 .filter(annotation -> annotation.getGene().getPrimaryKey().equals("HGNC:869"))
-                .forEach(diseaseAnnotation -> {
-                    assertThat(4, greaterThanOrEqualTo(diseaseAnnotation.getOrthologyGenes().size()));
-                });
+                .forEach(diseaseAnnotation -> assertThat(4, greaterThanOrEqualTo(diseaseAnnotation.getOrthologyGenes().size())));
     }
 
     @Test
@@ -723,12 +720,10 @@ public class DiseaseIT {
         JsonResultResponse<DiseaseAnnotation> response = diseaseService.getRibbonDiseaseAnnotations(List.of(geneID), null, pagination);
         assertResponse(response, 1, 1);
 
-        response.getResults().forEach(annotation -> {
-            annotation.getPrimaryAnnotatedEntities().forEach(entity -> {
-                assertNotNull("URL for AGM should not be null: " + entity.getId(), entity.getUrl());
-                assertTrue("URL for AGM should not be empty: " + entity.getId(), StringUtils.isNotEmpty(entity.getUrl()));
-            });
-        });
+        response.getResults().forEach(annotation -> annotation.getPrimaryAnnotatedEntities().forEach(entity -> {
+            assertNotNull("URL for AGM should not be null: " + entity.getId(), entity.getUrl());
+            assertTrue("URL for AGM should not be empty: " + entity.getId(), StringUtils.isNotEmpty(entity.getUrl()));
+        }));
     }
 
     @Test

@@ -1,12 +1,11 @@
 package org.alliancegenome.cache.repository.helper;
 
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import org.alliancegenome.es.model.query.FieldFilter;
-import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
 import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
 import org.apache.commons.collections4.CollectionUtils;
+
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class PrimaryAnnotatedEntityFiltering extends AnnotationFiltering<PrimaryAnnotatedEntity> {
 
@@ -16,10 +15,10 @@ public class PrimaryAnnotatedEntityFiltering extends AnnotationFiltering<Primary
 
     public FilterFunction<PrimaryAnnotatedEntity, String> termNameFilter =
             (annotation, value) -> {
-                if (CollectionUtils.isEmpty(annotation.getDiseases()))
+                if (CollectionUtils.isEmpty(annotation.getDiseaseModels()))
                     return false;
-                Set<Boolean> filteringPassed = annotation.getDiseases().stream()
-                        .map(disease -> FilterFunction.contains(disease.getName(), value))
+                Set<Boolean> filteringPassed = annotation.getDiseaseModels().stream()
+                        .map(model -> FilterFunction.contains(model.getDisease().getName(), value))
                         .collect(Collectors.toSet());
                 return filteringPassed.contains(true);
             };

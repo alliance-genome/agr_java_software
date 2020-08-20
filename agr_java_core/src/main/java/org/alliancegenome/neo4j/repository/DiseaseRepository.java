@@ -71,7 +71,7 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
                 " modelSpecies=(agm:AffectedGenomicModel)-[:FROM_SPECIES]-(:Species), " +
                 " ecoCodes=(pubJoin:PublicationJoin)-[:ASSOCIATION]-(:ECOTerm) " +
                 //"where agm.primaryKey in ['ZFIN:ZDB-FISH-161004-2'] " +
-                //"where disease.primaryKey in ['DOID:10652'] " +
+                "where disease.primaryKey in ['DOID:0060668'] " +
                 "OPTIONAL MATCH allele=(agm:AffectedGenomicModel)--(a:Allele) " +
                 "OPTIONAL MATCH alleleGene=(agm:AffectedGenomicModel)--(a:Allele)--(:Gene) " +
                 "OPTIONAL MATCH str=(agm:AffectedGenomicModel)--(:SequenceTargetingReagent)--(:Gene) " +
