@@ -276,6 +276,7 @@ public class DiseaseCacher extends Cacher {
                     document.setPrimaryKey(join.getPrimaryKey());
                     document.setDisease(join.getDisease());
                     document.setPublications(join.getPublications());
+                    document.setAssociationType(join.getJoinType());
 
                     document.addPublicationJoins(join.getPublicationJoins());
                     Source source = new Source();
@@ -337,7 +338,7 @@ public class DiseaseCacher extends Cacher {
                 return;
             PrimaryAnnotatedEntity entity = ModelHelper.getPrimaryAnnotatedEntity(diseaseAnnotations.get(0));
             diseaseAnnotations.forEach(diseaseAnnotation -> {
-                entity.addDisease(diseaseAnnotation.getDisease());
+                entity.addDisease(diseaseAnnotation.getDisease(), diseaseAnnotation.getAssociationType());
                 entity.addPublicationEvidenceCode(diseaseAnnotation.getPublicationJoins());
             });
             mergedAnnotations.add(entity);
@@ -429,7 +430,7 @@ public class DiseaseCacher extends Cacher {
                                         }
                                         document.addPrimaryAnnotatedEntity(entity);
                                         entity.addPublicationEvidenceCode(pubJoin);
-                                        entity.addDisease(join.getDisease());
+                                        entity.addDisease(join.getDisease(),join.getJoinType());
                                     });
                                 });
                         // create PAEs from Alleles
@@ -452,7 +453,7 @@ public class DiseaseCacher extends Cacher {
                                     }
                                     document.addPrimaryAnnotatedEntity(entity);
                                     entity.addPublicationEvidenceCode(pubJoin);
-                                    entity.addDisease(join.getDisease());
+                                    entity.addDisease(join.getDisease(), join.getJoinType());
                                 }));
                     }
                     List<PublicationJoin> publicationJoins = join.getPublicationJoins();

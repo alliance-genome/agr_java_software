@@ -21,7 +21,7 @@ public class PrimaryAnnotatedEntitySorting implements Sorting<PrimaryAnnotatedEn
             Comparator.comparing(PrimaryAnnotatedEntity::getId);
 
     private static Comparator<PrimaryAnnotatedEntity> diseaseExistOrder =
-            Comparator.comparing(annotation -> CollectionUtils.isEmpty(annotation.getDiseases()));
+            Comparator.comparing(annotation -> CollectionUtils.isEmpty(annotation.getDiseaseModels()));
 
     private static Comparator<PrimaryAnnotatedEntity> phenotypeExistsOrder =
             Comparator.comparing(annotation -> CollectionUtils.isEmpty(annotation.getPhenotypes()));

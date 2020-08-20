@@ -201,7 +201,7 @@ public class DiseaseService {
                 PrimaryAnnotatedEntity primaryEntity = entities.get(0);
                 mergedEntities.add(primaryEntity);
                 entities.forEach(entity -> {
-                    primaryEntity.addDiseases(entity.getDiseases());
+                    primaryEntity.addDiseaseModels(entity.getDiseaseModels());
                 });
             });
             primaryAnnotatedEntities = mergedEntities;
