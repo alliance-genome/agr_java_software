@@ -4,6 +4,7 @@ import org.alliancegenome.api.service.VariantService;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.es.model.query.Pagination;
+import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.Transcript;
 import org.alliancegenome.neo4j.repository.VariantRepository;
 import org.apache.logging.log4j.Level;
@@ -93,6 +94,15 @@ public class VariantIT {
         assertNotNull(results);
         transcript = results.get(0);
         assertEquals(transcript.getIntronExonLocation(), "Exon 6");
+    }
+
+    @Test
+    public void getAllelesByVariant() {
+        Pagination pagination = new Pagination();
+        JsonResultResponse<Allele> response = variantService.getAllelesByVariant("NC_007126.7:g.15401132A>G", pagination);
+        List<Allele> results = response.getResults();
+        assertNotNull(results);
+        VariantRepository variantRepo = new VariantRepository();
     }
 
     @Test
