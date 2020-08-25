@@ -25,7 +25,7 @@ class QueryMatchIntegrationSpec extends Specification {
         "&category=gene"   | "ZFIN:ZDB-GENE-001120-2" | "AGR-525"
         "&category=gene"   | "WBGene00000244"         | "AGR-525"
         "&category=gene"   | "WB:WBGene00000244"      | "AGR-525"
-        "&category=allele" | "MGI:5752578"            | "AGR-525"
+        "&category=alteration" | "MGI:5752578"            | "AGR-525"
 
     }
 
@@ -105,7 +105,7 @@ class QueryMatchIntegrationSpec extends Specification {
         "AGR-2072" | "FB:FBal0350326"       | "NT_037436.4:g.16857226C>T"
         "AGR-2072" | "FB:FBal0350326"       | "3L:g.16857226C>T"
         "AGR-2072" | "FB:FBal0350326"       | "FB:FBtr0075332.1:c.809C>T"
-        "AGR-2072" | "FB:FBal0350326"       | ".1:p.Ala270Val"
+        "AGR-2072" | "FB:FBal0350326"       | "FB:FBpp0310636.1:p.Ala270Val"
         "AGR-2072" | "FB:FBal0182263"       | "NT_037436.4:g.131764_131765ins"
         "AGR-2072" | "FB:FBal0005806"       | "2R:g.25228386T>A"
         "AGR-2072" | "FB:FBal0005806"       | "FB:FBtr0333172.1:c.-151+15043A>T"
@@ -164,6 +164,13 @@ class QueryMatchIntegrationSpec extends Specification {
         "AGR-2343" | "DOID:0080600" | "covid-19"
         "AGR-2343" | "DOID:0080600" | "sars cov 2"
         "AGR-2343" | "DOID:0080600" | "SARS-CoV-2"
+
+        //construct name & ID matches against allele
+        "AGR-2320" | "FB:FBal0094666" | "N<Intra1768.UAS.Tag:FLAG"
+        "AGR-2320" | "FB:FBal0094666" | "FB:FBtp0010372"
+        "AGR-2320" | "FB:FBal0094666" | "N (Dme)"
+        "AGR-2320" | "FB:FBal0094666" | "Tag:FLAG"
+        "AGR-2320" | "FB:FBal0094666" | "FB:FBgn0004647"
 
     }
 

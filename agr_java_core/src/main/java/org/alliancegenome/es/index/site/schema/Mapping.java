@@ -45,6 +45,9 @@ public class Mapping extends Builder {
         new FieldBuilder(builder, "cellularComponentExpressionAgrSlim", "text").keyword().build();
         new FieldBuilder(builder, "chromosomes", "text").keyword().build();
         new FieldBuilder(builder, "constructs", "text").keyword().classicText().build();
+        new FieldBuilder(builder, "constructExpressedComponent", "text").keyword().build();
+        new FieldBuilder(builder, "constructKnockdownComponent", "text").keyword().build();
+        new FieldBuilder(builder, "constructRegulatoryRegion", "text").keyword().build();
         new FieldBuilder(builder, "crossReferences", "text").keyword().classicText().build();
         new FieldBuilder(builder, "definition", "text").standardText().build();
         new FieldBuilder(builder, "description", "text").build();
@@ -87,6 +90,7 @@ public class Mapping extends Builder {
         new FieldBuilder(builder, "popularity", "double").build();
         new FieldBuilder(builder, "primaryKey", "keyword").build();
         new FieldBuilder(builder, "relatedVariants", "text").keyword().standardText().build();
+        new FieldBuilder(builder, "relatedVariantSynonyms", "text").keyword().standardText().build();
         new FieldBuilder(builder, "symbol", "text").analyzer("symbols")
                 .autocomplete()
                 .htmlSmoosh()
