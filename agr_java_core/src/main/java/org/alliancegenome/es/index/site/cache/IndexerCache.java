@@ -31,6 +31,7 @@ public class IndexerCache {
     protected Map<String, Set<String>> phenotypeStatements = new HashMap<>();
     protected Map<String, Double> popularity = new HashMap<>();
     protected Map<String, Set<String>> relatedVariants = new HashMap<>();
+    protected Map<String, Set<String>> relatedVariantSynonyms = new HashMap<>();
     protected Map<String, Set<String>> secondaryIds = new HashMap<>();
     protected Map<String, Set<String>> species = new HashMap<>();
     protected Map<String, Set<String>> synonyms = new HashMap<>();
@@ -79,6 +80,7 @@ public class IndexerCache {
         document.setPhenotypeStatements(phenotypeStatements.get(id));
         document.setPopularity(popularity.get(id) == null ? 0D : popularity.get(id));
         document.setRelatedVariants(relatedVariants.get(id));
+        document.setRelatedVariantSynonyms(relatedVariantSynonyms.get(id));
         if (secondaryIds.get(id) != null) {
             document.getSecondaryIds().addAll(secondaryIds.get(id));
         }

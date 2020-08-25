@@ -69,6 +69,9 @@ public class SearchHelper {
                     add("molecularConsequence");
                     add("diseasesAgrSlim");
                     add("genes");
+                    add("constructExpressedComponent");
+                    add("constructKnockdownComponent");
+                    add("constructRegulatoryRegion");
                 }
             });
             put("model", new ArrayList<String>() {
@@ -120,6 +123,9 @@ public class SearchHelper {
             add("constructs");
             add("constructs.keyword");
             add("constructs.classicText");
+            add("constructExpressedComponent");
+            add("constructKnockdownComponent");
+            add("constructRegulatoryRegion");
             add("crossReferences");
             add("crossReferences.classicText");
             add("definition");
@@ -167,6 +173,9 @@ public class SearchHelper {
             add("relatedVariants");
             add("relatedVariants.keyword");
             add("relatedVariants.standardText");
+            add("relatedVariantSynonyms");
+            add("relatedVariantSynonyms.keyword");
+            add("relatedVariantSynonyms.standardText");
             add("symbol");
             add("symbol.autocomplete");
             add("symbol.keyword");

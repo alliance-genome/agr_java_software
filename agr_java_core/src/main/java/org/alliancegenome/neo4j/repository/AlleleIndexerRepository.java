@@ -48,6 +48,15 @@ public class AlleleIndexerRepository extends Neo4jRepository {
         log.info("Fetching allele -> constructs map");
         alleleDocumentCache.setConstructs(getConstructs(species));
 
+        log.info("Fetching allele -> constructExpressedComponent map");
+        alleleDocumentCache.setConstructExpressedComponents(getConstructExpressedComponents(species));
+
+        log.info("Fetching allele -> constructKnockdownComponent map");
+        alleleDocumentCache.setConstructKnockdownComponents(getConstructKnockdownComponent(species));
+
+        log.info("Fetching allele -> constructRegulatoryRegion map");
+        alleleDocumentCache.setConstructRegulatoryRegions(getConstructRegulatoryRegions(species));
+
         log.info("Building allele -> crossReference map");
         alleleDocumentCache.setCrossReferences(getCrossReferences(species));
 
@@ -71,6 +80,9 @@ public class AlleleIndexerRepository extends Neo4jRepository {
 
         log.info("Building allele -> variant name map");
         alleleDocumentCache.setRelatedVariants(getRelatedVariants(species));
+
+        log.info("Building allele -> variant synonyms map");
+        alleleDocumentCache.setRelatedVariantSynonyms(getRelatedVariantSynonyms(species));
 
         log.info("Building allele -> variant types map");
         alleleDocumentCache.setDnaChangeTypesMap(getDnaChangeTypes(species));
@@ -101,9 +113,77 @@ public class AlleleIndexerRepository extends Neo4jRepository {
     public Map<String, Set<String>> getConstructs(String species) {
         String query = "MATCH (species:Species)-[:FROM_SPECIES]-(allele:Allele)-[:CONTAINS]-(construct:Construct) ";
         query += getSpeciesWhere(species);
-        query += " RETURN allele.primaryKey as id, construct.nameText as value";
+        query += " RETURN allele.primaryKey as id, [construct.nameText, construct.primaryKey] as value";
 
-        return getMapSetForQuery(query, getSpeciesParams(species));
+        Map<String, Set<String>> constructs = getMapSetForQuery(query, getSpeciesParams(species));
+
+        query = "MATCH (species:Species)-[:FROM_SPECIES]-(allele:Allele)-[:CONTAINS]-(construct:Construct)-[:ALSO_KNOWN_AS]-(synonym:Synonym) ";
+        query += getSpeciesWhere(species);
+        query += "RETURN allele.primaryKey as id, synonym.name as value ";
+
+        constructs = CollectionHelper.merge(constructs, getMapSetForQuery(query, getSpeciesParams(species)));
+
+        query = "MATCH (species:Species)-[:FROM_SPECIES]-(allele:Allele)-[:CONTAINS]-(construct:Construct)-[:CROSS_REFERENCE]-(crossReference:CrossReference) ";
+        query += getSpeciesWhere(species);
+        query += "RETURN allele.primaryKey as id, crossReference.name as value ";
+
+        constructs = CollectionHelper.merge(constructs, getMapSetForQuery(query, getSpeciesParams(species)));
+
+        query = "MATCH (species:Species)-[:FROM_SPECIES]-(allele:Allele)-[:CONTAINS]-(construct:Construct)-[:ALSO_KNOWN_AS]-(secondaryId:SecondaryId) ";
+        query += getSpeciesWhere(species);
+        query += " RETURN allele.primaryKey as id, secondaryId.name as value";
+
+        constructs = CollectionHelper.merge(constructs, getMapSetForQuery(query, getSpeciesParams(species)));
+
+        query = "MATCH (species:Species)-[:FROM_SPECIES]-(allele:Allele)-[:CONTAINS]-(construct:Construct)-[:EXPRESSES|TARGETS|IS_REGULATED_BY]-(gene:Gene) ";
+        query += getSpeciesWhere(species);
+        query += " RETURN allele.primaryKey as id, gene.primaryKey as value; ";
+
+        constructs = CollectionHelper.merge(constructs, getMapSetForQuery(query, getSpeciesParams(species)));
+
+        return constructs;
+    }
+
+    public Map<String, Set<String>> getConstructExpressedComponents(String species) {
+        String query = "MATCH (species:Species)-[:FROM_SPECIES]-(allele:Allele)-[:CONTAINS]-(construct:Construct)-[:EXPRESSES]-(constructComponent:NonBGIConstructComponent) ";
+        query += getSpeciesWhere(species);
+        query += " RETURN allele.primaryKey as id, constructComponent.primaryKey as value";
+
+        Map<String, Set<String>> result = getMapSetForQuery(query, getSpeciesParams(species));
+
+        query = "MATCH (species:Species)-[:FROM_SPECIES]-(allele:Allele)-[:CONTAINS]-(construct:Construct)-[:EXPRESSES]-(gene:Gene) ";
+        query += getSpeciesWhere(species);
+        query += " RETURN allele.primaryKey as id, gene.symbolWithSpecies as value; ";
+
+        return CollectionHelper.merge(result, getMapSetForQuery(query, getSpeciesParams(species)));
+    }
+
+    public Map<String, Set<String>> getConstructKnockdownComponent(String species) {
+        String query = "MATCH (species:Species)-[:FROM_SPECIES]-(allele:Allele)-[:CONTAINS]-(construct:Construct)-[:TARGETS]-(constructComponent:NonBGIConstructComponent) ";
+        query += getSpeciesWhere(species);
+        query += " RETURN allele.primaryKey as id, constructComponent.primaryKey as value";
+
+        Map<String, Set<String>> result = getMapSetForQuery(query, getSpeciesParams(species));
+
+        query = "MATCH (species:Species)-[:FROM_SPECIES]-(allele:Allele)-[:CONTAINS]-(construct:Construct)-[:TARGETS]-(gene:Gene) ";
+        query += getSpeciesWhere(species);
+        query += " RETURN allele.primaryKey as id, gene.symbolWithSpecies as value; ";
+
+        return CollectionHelper.merge(result, getMapSetForQuery(query, getSpeciesParams(species)));
+    }
+
+    public Map<String, Set<String>> getConstructRegulatoryRegions(String species) {
+        String query = "MATCH (species:Species)-[:FROM_SPECIES]-(allele:Allele)-[:CONTAINS]-(construct:Construct)-[:IS_REGULATED_BY]-(constructComponent:NonBGIConstructComponent) ";
+        query += getSpeciesWhere(species);
+        query += " RETURN allele.primaryKey as id, constructComponent.primaryKey as value";
+
+        Map<String, Set<String>> result = getMapSetForQuery(query, getSpeciesParams(species));
+
+        query = "MATCH (species:Species)-[:FROM_SPECIES]-(allele:Allele)-[:CONTAINS]-(construct:Construct)-[:IS_REGULATED_BY]-(gene:Gene) ";
+        query += getSpeciesWhere(species);
+        query += " RETURN allele.primaryKey as id, gene.symbolWithSpecies as value; ";
+
+        return CollectionHelper.merge(result, getMapSetForQuery(query, getSpeciesParams(species)));
     }
 
     public Map<String, Set<String>> getDiseaseMap(String species) {
@@ -166,10 +246,14 @@ public class AlleleIndexerRepository extends Neo4jRepository {
     public Map<String, Set<String>> getRelatedVariants(String species) {
         String query = " MATCH (species:Species)-[:FROM_SPECIES]-(a:Allele)-[:VARIATION]-(v:Variant) ";
         query += getSpeciesWhere(species);
-        query += " RETURN distinct a.primaryKey as id, [v.hgvsNomenclature,v.name] as value";
-        Map<String,Set<String>> hgvsNames = getMapSetForQuery(query, getSpeciesParams(species));
+        query += " RETURN distinct a.primaryKey as id, v.name as value";
 
-        query = " MATCH (species:Species)-[:FROM_SPECIES]-(a:Allele)-[:VARIATION]-(v:Variant)-[:ASSOCIATION]-(tlc:TranscriptLevelConsequence)  ";
+        return getMapSetForQuery(query, getSpeciesParams(species));
+    }
+
+    public Map<String, Set<String>> getRelatedVariantSynonyms(String species) {
+
+        String query = " MATCH (species:Species)-[:FROM_SPECIES]-(a:Allele)-[:VARIATION]-(v:Variant)-[:ASSOCIATION]-(tlc:TranscriptLevelConsequence)  ";
         query += getSpeciesWhere(species);
         query += "RETURN distinct a.primaryKey as id, [v.hgvsNomenclature, tlc.hgvsVEPGeneNomenclature, tlc.hgvsProteinNomenclature, tlc.hgvsCodingNomenclature] as value  ";
         Map<String,Set<String>> tlcNames = getMapSetForQuery(query, getSpeciesParams(species));
@@ -179,7 +263,7 @@ public class AlleleIndexerRepository extends Neo4jRepository {
         query += " RETURN a.primaryKey as id, synonym.name as value ";
         Map<String,Set<String>> synonyms = getMapSetForQuery(query, getSpeciesParams(species));
 
-        return CollectionHelper.merge(hgvsNames, CollectionHelper.merge(tlcNames, synonyms));
+        return CollectionHelper.merge(tlcNames, synonyms);
     }
 
     public Map<String, Set<String>> getDnaChangeTypes(String species) {

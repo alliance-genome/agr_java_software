@@ -16,7 +16,7 @@ public class VariantIndexerRepository extends Neo4jRepository<Variant> {
     public VariantIndexerRepository() {  super(Variant.class); }
 
     public Map<String, Variant> getVariantMap(String species) {
-        String query = "MATCH pVariant=(species:Species)--(a:Allele)--(v:Variant) ";
+        String query = "MATCH pVariant=(species:Species)-[:FROM_SPECIES]-(a:Allele)--(v:Variant) ";
         query += getSpeciesWhere(species);
         query += " RETURN v;";
 
@@ -53,6 +53,9 @@ public class VariantIndexerRepository extends Neo4jRepository<Variant> {
         log.info("Fetching species");
         cache.setSpecies(getSpecies(species));
 
+        log.info("Fetching molecular consequences");
+        cache.setMolecularConsequenceMap(getMolecularConsequence(species));
+
 
         return cache;
     }
@@ -86,6 +89,14 @@ public class VariantIndexerRepository extends Neo4jRepository<Variant> {
         String query = "MATCH (species:Species)-[:FROM_SPECIES]-(allele:Allele)-[:VARIATION]-(variant:Variant) ";
         query += getSpeciesWhere(species);
         query += "RETURN variant.primaryKey as id, species.name as value";
+
+        return getMapSetForQuery(query, getSpeciesParams(species));
+    }
+
+    public Map<String, Set<String>> getMolecularConsequence(String species) {
+        String query = "MATCH (species:Species)-[:FROM_SPECIES]-(a:Allele)-[:VARIATION]-(v:Variant)-[:ASSOCIATION]-(consequence:GeneLevelConsequence) ";
+        query += getSpeciesWhere(species);
+        query += " RETURN v.primaryKey as id, consequence.geneLevelConsequence as value ";
 
         return getMapSetForQuery(query, getSpeciesParams(species));
     }

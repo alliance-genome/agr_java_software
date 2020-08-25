@@ -35,4 +35,23 @@ public class AlleleTranslator extends EntityDocumentTranslator<Allele, Searchabl
         return document;
     }
 
+    public void updateDocuments(Iterable<SearchableItemDocument> alleleDocuments) {
+        for (SearchableItemDocument document : alleleDocuments) {
+            updateDocument(document);
+        }
+    }
+
+    //This method is for updating/setting fields after fields are populated by AlleleDocumentCache
+    public void updateDocument(SearchableItemDocument document) {
+
+        if (document.getRelatedVariants() != null && document.getRelatedVariants().size() == 1) {
+            document.setAlterationType("allele with one variant");
+        }
+
+        if (document.getRelatedVariants() != null && document.getRelatedVariants().size() > 1) {
+            document.setAlterationType(("allele with multiple variants"));
+        }
+
+    }
+
 }

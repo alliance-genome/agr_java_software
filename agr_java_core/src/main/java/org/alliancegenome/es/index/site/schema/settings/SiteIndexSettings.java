@@ -129,31 +129,6 @@ public class SiteIndexSettings extends Settings {
     }
 
     public String[] getSpeciesSynonyms() {
-        /* // Needs to be added from 3.1.1
-        .array("synonyms", new String[]{
-                "homo sapiens => human, hsa",
-                "rattus norvegicus => rat, rno",
-                "mus musculus => mouse, mmu",
-                "drosophila melanogaster => fly, fruit fly, dme",
-                "caenorhabditis elegans => worm, cel",
-                "saccharomyces cerevisiae => yeast, sce",
-                "danio rerio => fish, zebrafish, dre",
-                "sars-cov-2 => " +
-                        "2019-nCoV, " +
-                        "COVID-19, " +
-                        "COVID-19 virus, " +
-                        "SARS2, " +
-                        "Wuhan coronavirus, " +
-                        "Wuhan seafood market pneumonia virus, " +
-                        "Human coronavirus 2019, " +
-                        "COVID19, " +
-                        "COVID, " +
-                        "HCoV-19, " +
-                        "SARS-2, " +
-                        "SARS-CoV2, " +
-                        "sars cov 2 "
-        })
-        */
 
         GeneIndexerRepository geneIndexerRepository = new GeneIndexerRepository();
         Map<String, Set<String>> synonymMap = geneIndexerRepository.getSpeciesCommonNames();

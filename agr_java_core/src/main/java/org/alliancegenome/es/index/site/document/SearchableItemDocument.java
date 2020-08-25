@@ -61,6 +61,9 @@ public class SearchableItemDocument extends ESDocument {
     Set<String> cellularComponentWithParents = new HashSet<>();
     Set<String> chromosomes = new HashSet<>();
     Set<String> constructs = new HashSet<>();
+    Set<String> constructExpressedComponent = new HashSet<>();
+    Set<String> constructKnockdownComponent = new HashSet<>();
+    Set<String> constructRegulatoryRegion = new HashSet<>();
     Map<String, List<CrossReferenceDoclet>> crossReferencesMap;
     List<CrossReferenceDoclet> crossReferenceList;
     Set<String> crossReferences = new HashSet<>();
@@ -81,6 +84,7 @@ public class SearchableItemDocument extends ESDocument {
     Set<String> parentDiseaseNames = new HashSet<>();
     Set<String> phenotypeStatements = new HashSet<>();
     Set<String> relatedVariants = new HashSet<>();
+    Set<String> relatedVariantSynonyms = new HashSet<>();
     Set<String> secondaryIds = new HashSet<>();
     Set<String> strictOrthologySymbols = new HashSet<>();
     Set<String> soTermNameWithParents = new HashSet<>();
