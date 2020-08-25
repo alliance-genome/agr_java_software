@@ -1,7 +1,10 @@
 package org.alliancegenome.api.service;
 
+import org.alliancegenome.cache.repository.helper.AlleleFiltering;
+import org.alliancegenome.cache.repository.helper.AlleleSorting;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.es.model.query.Pagination;
+import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.Exon;
 import org.alliancegenome.neo4j.entity.node.Transcript;
 import org.alliancegenome.neo4j.entity.node.Variant;
@@ -109,4 +112,19 @@ public class VariantService {
         transcript.setIntronExonLocation(location);
     }
 
+    public JsonResultResponse<Allele> getAllelesByVariant(String variantID, Pagination pagination) {
+        Variant variant = variantRepo.getVariant(variantID);
+
+        JsonResultResponse<Allele> response = new JsonResultResponse<>();
+        if (variant == null)
+            return response;
+
+        List<Allele> alleles = variantRepo.getAllelesOfVariant(variantID);
+        response.setTotal(alleles.size());
+
+        // sorting
+        FilterService<Allele> service = new FilterService<>(new AlleleFiltering());
+        response.setResults(service.getSortedAndPaginatedAnnotations(pagination, alleles, new AlleleSorting()));
+        return response;
+    }
 }

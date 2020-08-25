@@ -1,11 +1,12 @@
 package org.alliancegenome.neo4j.repository;
 
+import org.alliancegenome.neo4j.entity.node.Allele;
+import org.alliancegenome.neo4j.entity.node.Variant;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
-
-import org.alliancegenome.neo4j.entity.node.Variant;
 
 public class VariantRepository extends Neo4jRepository<Variant> {
 
@@ -29,7 +30,6 @@ public class VariantRepository extends Neo4jRepository<Variant> {
         return StreamSupport.stream(alleles.spliterator(), false)
                 .collect(Collectors.toList());
 
-
     }
 
     public Variant getVariant(String variantID) {
@@ -50,5 +50,16 @@ public class VariantRepository extends Neo4jRepository<Variant> {
             }
         }
         return null;
+    }
+
+    public List<Allele> getAllelesOfVariant(String variantID) {
+        String query = "";
+        query += " MATCH p1=(a:Allele)<-[:VARIATION]-(variant:Variant)--(soTerm:SOTerm) ";
+        query += " WHERE variant.primaryKey = '" + variantID + "'";
+        query += " RETURN p1  ";
+
+        Iterable<Allele> alleles = query(Allele.class, query);
+        return StreamSupport.stream(alleles.spliterator(), false)
+                .collect(Collectors.toList());
     }
 }

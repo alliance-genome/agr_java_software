@@ -134,6 +134,15 @@ public class AlleleIT {
     }
 
     @Test
+    @Ignore
+    public void checkAllelesVariantCategory() {
+        Pagination pagination = new Pagination();
+        JsonResultResponse<Allele> response = alleleService.getAllelesByGene("WB:WBGene00004879", pagination);
+        assertResponse(response, 20, 25);
+        assertEquals(response.getResults().get(0).getCategory(), "allele with one associated variant");
+    }
+
+    @Test
     public void checkAllelesSortedByVariantExistAndAlleleSymbol() {
         Pagination pagination = new Pagination();
         JsonResultResponse<Allele> response = alleleService.getAllelesByGene("WB:WBGene00004879", pagination);
