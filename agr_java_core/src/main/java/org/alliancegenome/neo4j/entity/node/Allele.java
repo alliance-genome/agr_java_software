@@ -1,5 +1,6 @@
 package org.alliancegenome.neo4j.entity.node;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Getter;
 import lombok.Setter;
@@ -66,13 +67,24 @@ public class Allele extends GeneticEntity implements Comparable<Allele>, Present
         return primaryKey + ":" + symbolText;
     }
 
-    @JsonView({View.TransgenicAlleleAPI.class})
+    @JsonView({View.API.class})
     public Boolean hasPhenotype() {
         return CollectionUtils.isNotEmpty(phenotypes);
     }
 
-    @JsonView({View.TransgenicAlleleAPI.class})
+    @JsonView({View.API.class})
     public Boolean hasDisease() {
         return CollectionUtils.isNotEmpty(diseaseEntityJoins);
+    }
+
+    @JsonProperty(value = "category")
+    public String getCategory() {
+        if (crossReferenceType != CrossReferenceType.ALLELE)
+            return crossReferenceType.getDisplayName();
+        if (CollectionUtils.isEmpty(variants))
+            return crossReferenceType.getDisplayName();
+        if (variants.size() == 1)
+            return crossReferenceType.getDisplayName() + " with one associated variant";
+        return crossReferenceType.getDisplayName() + " with multiple associated variants";
     }
 }
