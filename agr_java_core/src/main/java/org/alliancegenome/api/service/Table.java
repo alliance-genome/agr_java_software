@@ -8,6 +8,7 @@ public enum Table {
     DISEASE(Page.GENE),
     EXPRESSION(Page.GENE),
     ALLELE_GENE(Page.GENE),
+    TRANSGENIC_ALLELE(Page.GENE),
 
     ASSOCIATED_GENE(Page.DISEASE),
     ALLELE(Page.DISEASE),

@@ -111,12 +111,12 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
                 " p2=(allele:Allele)--(:Synonym) " +
                 "  where gene.primaryKey = {geneID}";
         // need this optional match to retrieve all expresses genes besides the given geneID
-        query += " OPTIONAL MATCH express=(construct:Construct)-[:EXPRESSES]-(:Gene)--(:Species)";
-        query += " OPTIONAL MATCH expressNonBGI=(construct:Construct)-[:EXPRESSES]-(:NonBGIConstructComponent)";
-        query += " OPTIONAL MATCH target=(construct:Construct)-[:TARGET]-(:Gene)--(:Species)";
-        query += " OPTIONAL MATCH targetNon=(construct:Construct)-[:TARGET]-(:NonBGIConstructComponent)";
-        query += " OPTIONAL MATCH regulated=(construct:Construct)-[:IS_REGULATED_BY]-(:Gene)--(:Species)";
-        query += " OPTIONAL MATCH regulatedNon=(construct:Construct)-[:IS_REGULATED_BY]-(:NonBGIConstructComponent)";
+        query += " OPTIONAL MATCH express=(:CrossReference)--(construct:Construct)-[:EXPRESSES]-(:Gene)--(:Species)";
+        query += " OPTIONAL MATCH expressNonBGI=(:CrossReference)--(construct:Construct)-[:EXPRESSES]-(:NonBGIConstructComponent)";
+        query += " OPTIONAL MATCH target=(:CrossReference)--(construct:Construct)-[:TARGET]-(:Gene)--(:Species)";
+        query += " OPTIONAL MATCH targetNon=(:CrossReference)--(construct:Construct)-[:TARGET]-(:NonBGIConstructComponent)";
+        query += " OPTIONAL MATCH regulated=(:CrossReference)--(construct:Construct)-[:IS_REGULATED_BY]-(:Gene)--(:Species)";
+        query += " OPTIONAL MATCH regulatedNon=(:CrossReference)--(construct:Construct)-[:IS_REGULATED_BY]-(:NonBGIConstructComponent)";
         query += " OPTIONAL MATCH disease=(allele:Allele)--(:DiseaseEntityJoin)";
         query += " OPTIONAL MATCH pheno=(allele:Allele)-[:HAS_PHENOTYPE]-(:Phenotype)";
         query += " RETURN p1, p2, express, target, regulated, expressNonBGI, regulatedNon, targetNon, disease, pheno ";

@@ -83,6 +83,9 @@ public class AlleleService {
             List<Allele> filteredAlleles = filterService.filterAnnotations(alleles, pagination.getFieldFilterValueMap());
             result.setTotal(filteredAlleles.size());
             result.setResults(filterService.getPaginatedAnnotations(pagination, filteredAlleles));
+            ColumnFieldMapping<Allele> mapping = new TransgenicAlleleColumnFieldMapping();
+            result.addDistinctFieldValueSupplementalData(filterService.getDistinctFieldValues(alleles,
+                    mapping.getSingleValuedFieldColumns(Table.TRANSGENIC_ALLELE), mapping));
         }
         // sort
         result.calculateRequestDuration(startDate);
