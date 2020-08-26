@@ -1,17 +1,17 @@
 package org.alliancegenome.cache.repository.helper;
 
-import static org.alliancegenome.neo4j.entity.SpeciesType.NCBITAXON;
+import org.alliancegenome.es.model.query.FieldFilter;
+import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
+import org.alliancegenome.neo4j.entity.SpeciesType;
+import org.alliancegenome.neo4j.entity.node.CrossReference;
+import org.alliancegenome.neo4j.entity.node.Gene;
 
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.alliancegenome.es.model.query.FieldFilter;
-import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
-import org.alliancegenome.neo4j.entity.SpeciesType;
-import org.alliancegenome.neo4j.entity.node.CrossReference;
-import org.alliancegenome.neo4j.entity.node.Gene;
+import static org.alliancegenome.neo4j.entity.SpeciesType.NCBITAXON;
 
 public class DiseaseAnnotationFiltering extends AnnotationFiltering<DiseaseAnnotation> {
 
@@ -91,6 +91,15 @@ public class DiseaseAnnotationFiltering extends AnnotationFiltering<DiseaseAnnot
                 return FilterFunction.contains(fullGeneSpeciesName.toString(), value);
             };
 
+    public FilterFunction<DiseaseAnnotation, String> includeNegationFilter =
+            (annotation, value) -> {
+                if (annotation.getAssociationType() == null)
+                    return true;
+                if (value != null && value.equalsIgnoreCase("true"))
+                    return true;
+                return !annotation.getAssociationType().toLowerCase().contains("not");
+            };
+
     public FilterFunction<DiseaseAnnotation, String> referenceFilter =
             (annotation, value) -> {
                 Set<Boolean> filteringPassed = annotation.getPublications().stream()
@@ -131,6 +140,7 @@ public class DiseaseAnnotationFiltering extends AnnotationFiltering<DiseaseAnnot
         filterFieldMap.put(FieldFilter.GENE_NAME, geneNameFilter);
         filterFieldMap.put(FieldFilter.SPECIES, geneSpeciesFilter);
         filterFieldMap.put(FieldFilter.BASED_ON_GENE, basedOnGeneFilter);
+        filterFieldMap.put(FieldFilter.INCLUDE_NEGATION, includeNegationFilter);
     }
 
 }
