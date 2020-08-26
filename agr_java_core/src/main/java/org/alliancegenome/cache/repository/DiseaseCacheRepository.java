@@ -1,17 +1,6 @@
 package org.alliancegenome.cache.repository;
 
-import static java.util.stream.Collectors.toList;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-
+import lombok.extern.log4j.Log4j2;
 import org.alliancegenome.api.entity.DiseaseRibbonSummary;
 import org.alliancegenome.api.service.ColumnFieldMapping;
 import org.alliancegenome.api.service.DiseaseColumnFieldMapping;
@@ -31,7 +20,12 @@ import org.alliancegenome.neo4j.entity.node.PublicationJoin;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import lombok.extern.log4j.Log4j2;
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toList;
 
 @Log4j2
 @RequestScoped
@@ -109,13 +103,7 @@ public class DiseaseCacheRepository {
         }
 
         //filtering
-        PaginationResult<DiseaseAnnotation> result = getDiseaseAnnotationPaginationResult(pagination, slimDiseaseAnnotationList);
-        FilterService<DiseaseAnnotation> filterService = new FilterService<>(new DiseaseAnnotationFiltering());
-        ColumnFieldMapping<DiseaseAnnotation> mapping = new DiseaseColumnFieldMapping();
-        result.setDistinctFieldValueMap(filterService.getDistinctFieldValues(slimDiseaseAnnotationList,
-                mapping.getSingleValuedFieldColumns(Table.DISEASE), mapping));
-
-        return result;
+        return getDiseaseAnnotationPaginationResult(pagination, slimDiseaseAnnotationList);
     }
 
     private PaginationResult<DiseaseAnnotation> getDiseaseAnnotationPaginationResult(Pagination pagination, List<DiseaseAnnotation> slimDiseaseAnnotationList) {
@@ -125,6 +113,11 @@ public class DiseaseCacheRepository {
         PaginationResult<DiseaseAnnotation> result = new PaginationResult<>();
         result.setTotalNumber(filteredDiseaseAnnotationList.size());
         result.setResult(filterService.getSortedAndPaginatedAnnotations(pagination, filteredDiseaseAnnotationList, new DiseaseAnnotationSorting()));
+
+        ColumnFieldMapping<DiseaseAnnotation> mapping = new DiseaseColumnFieldMapping();
+        result.setDistinctFieldValueMap(filterService.getDistinctFieldValues(slimDiseaseAnnotationList,
+                mapping.getSingleValuedFieldColumns(Table.DISEASE), mapping));
+
         return result;
     }
 

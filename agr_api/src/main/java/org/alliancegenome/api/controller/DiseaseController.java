@@ -423,6 +423,7 @@ public class DiseaseController implements DiseaseRESTInterface {
                                                                                     String associationType,
                                                                                     String evidenceCode,
                                                                                     String basedOnGeneSymbol,
+                                                                                    String includeNegation,
                                                                                     Integer limit,
                                                                                     Integer page,
                                                                                     String sortBy,
@@ -441,6 +442,7 @@ public class DiseaseController implements DiseaseRESTInterface {
         filterMap.put(FieldFilter.ASSOCIATION_TYPE, associationType);
         filterMap.put(FieldFilter.EVIDENCE_CODE, evidenceCode);
         filterMap.put(FieldFilter.BASED_ON_GENE, basedOnGeneSymbol);
+        filterMap.put(FieldFilter.INCLUDE_NEGATION, includeNegation);
         filterMap.values().removeIf(Objects::isNull);
         pagination.setFieldFilterValueMap(filterMap);
 
@@ -475,6 +477,7 @@ public class DiseaseController implements DiseaseRESTInterface {
                                                                String associationType,
                                                                String evidenceCode,
                                                                String basedOnGeneSymbol,
+                                                               String includeNegation,
                                                                String sortBy,
                                                                String asc) {
 
@@ -491,6 +494,7 @@ public class DiseaseController implements DiseaseRESTInterface {
         filterMap.put(FieldFilter.ASSOCIATION_TYPE, associationType);
         filterMap.put(FieldFilter.EVIDENCE_CODE, evidenceCode);
         filterMap.put(FieldFilter.BASED_ON_GENE, basedOnGeneSymbol);
+        filterMap.put(FieldFilter.INCLUDE_NEGATION, includeNegation);
         filterMap.values().removeIf(Objects::isNull);
         pagination.setFieldFilterValueMap(filterMap);
         Response.ResponseBuilder responseBuilder = null;
