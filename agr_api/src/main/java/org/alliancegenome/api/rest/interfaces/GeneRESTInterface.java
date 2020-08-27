@@ -554,15 +554,15 @@ public interface GeneRESTInterface {
             @DefaultValue("1") @QueryParam("page") Integer page,
             @DefaultValue("allele") @QueryParam("sortBy") String sortBy,
             @Parameter(in = ParameterIn.QUERY, name = "filter.allele", description = "filter by allele symbol", schema = @Schema(type = SchemaType.STRING))
-            @QueryParam("filter.symbol") String alleleSymbol,
+            @QueryParam("filter.allele") String alleleSymbol,
             @Parameter(in = ParameterIn.QUERY, name = "filter.construct", description = "filter by construct symbol", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.construct") String constructSymbol,
             @Parameter(in = ParameterIn.QUERY, name = "filter.constructRegulatedGene", description = "filter by construct symbol", schema = @Schema(type = SchemaType.STRING))
-            @QueryParam("filter.construct") String constructRegulatedGene,
+            @QueryParam("filter.constructRegulatedGene") String constructRegulatedGene,
             @Parameter(in = ParameterIn.QUERY, name = "filter.constructTargetedGene", description = "filter by construct symbol", schema = @Schema(type = SchemaType.STRING))
-            @QueryParam("filter.construct") String constructTargetedGene,
+            @QueryParam("filter.constructTargetedGene") String constructTargetedGene,
             @Parameter(in = ParameterIn.QUERY, name = "filter.constructExpressedGene", description = "filter by construct symbol", schema = @Schema(type = SchemaType.STRING))
-            @QueryParam("filter.construct") String constructExpressedGene,
+            @QueryParam("filter.constructExpressedGene") String constructExpressedGene,
             @Parameter(in = ParameterIn.QUERY, name = "filter.synonym", description = "allele synonym", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.synonym") String synonym,
             @Parameter(in = ParameterIn.QUERY, name = "filter.species", description = "filter by species", schema = @Schema(type = SchemaType.STRING))

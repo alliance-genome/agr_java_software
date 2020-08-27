@@ -69,72 +69,72 @@ public class AlleleFiltering extends AnnotationFiltering<Allele> {
 
     private static FilterFunction<Allele, String> transgenicAlleleConstructFilter =
             (allele, value) ->
-                    FilterFunction.fullMatchMultiValueOR(allele.getConstructs().stream()
+                    FilterFunction.contains(allele.getConstructs().stream()
                             .filter(Objects::nonNull)
                             .map(Construct::getNameText)
-                            .collect(Collectors.toSet()), value);
+                            .collect(Collectors.joining()), value);
 
     private static FilterFunction<Allele, String> transgenicAlleleConstructRegulatedFilter =
             (allele, value) ->
             {
-                Set<String> genes = allele.getConstructs().stream()
+                String genes = allele.getConstructs().stream()
                         .filter(Objects::nonNull)
                         .map(Construct::getRegulatedByGenes)
                         .filter(Objects::nonNull)
                         .flatMap(Collection::stream)
                         .map(GeneticEntity::getSymbol)
-                        .collect(Collectors.toSet());
-                Set<String> nonBGICC = allele.getConstructs().stream()
+                        .collect(Collectors.joining());
+                String nonBGICC = allele.getConstructs().stream()
                         .filter(Objects::nonNull)
                         .map(Construct::getNonBGIConstructComponentsRegulation)
                         .filter(Objects::nonNull)
                         .flatMap(Collection::stream)
                         .map(NonBGIConstructComponent::getPrimaryKey)
-                        .collect(Collectors.toSet());
-                genes.addAll(nonBGICC);
-                return FilterFunction.fullMatchMultiValueOR(genes, value);
+                        .collect(Collectors.joining());
+                genes += nonBGICC;
+                return FilterFunction.contains(genes, value);
             };
 
     private static FilterFunction<Allele, String> transgenicAlleleConstructTargetedFilter =
             (allele, value) ->
             {
-                Set<String> genes = allele.getConstructs().stream()
+                String genes = allele.getConstructs().stream()
                         .filter(Objects::nonNull)
                         .map(Construct::getTargetGenes)
                         .filter(Objects::nonNull)
                         .flatMap(Collection::stream)
                         .map(GeneticEntity::getSymbol)
-                        .collect(Collectors.toSet());
-                Set<String> nonBGICC = allele.getConstructs().stream()
+                        .collect(Collectors.joining());
+                String nonBGICC = allele.getConstructs().stream()
                         .filter(Objects::nonNull)
                         .map(Construct::getNonBGIConstructComponentsTarget)
                         .filter(Objects::nonNull)
                         .flatMap(Collection::stream)
                         .map(NonBGIConstructComponent::getPrimaryKey)
-                        .collect(Collectors.toSet());
-                genes.addAll(nonBGICC);
-                return FilterFunction.fullMatchMultiValueOR(genes, value);
+                        .collect(Collectors.joining());
+                genes += nonBGICC;
+                return FilterFunction.contains(genes, value);
             };
 
     private static FilterFunction<Allele, String> transgenicAlleleConstructExpressedFilter =
             (allele, value) ->
             {
-                Set<String> genes = allele.getConstructs().stream()
+                String genes = allele.getConstructs().stream()
                         .filter(Objects::nonNull)
                         .map(Construct::getExpressedGenes)
                         .filter(Objects::nonNull)
                         .flatMap(Collection::stream)
                         .map(GeneticEntity::getSymbol)
-                        .collect(Collectors.toSet());
-                Set<String> nonBGICC = allele.getConstructs().stream()
+                        .collect(Collectors.joining());
+                String nonBGICC = allele.getConstructs().stream()
                         .filter(Objects::nonNull)
                         .map(Construct::getNonBGIConstructComponents)
                         .filter(Objects::nonNull)
                         .flatMap(Collection::stream)
                         .map(NonBGIConstructComponent::getPrimaryKey)
-                        .collect(Collectors.toSet());
-                genes.addAll(nonBGICC);
-                return FilterFunction.fullMatchMultiValueOR(genes, value);
+                        .collect(Collectors.joining());
+                genes += nonBGICC;
+                return FilterFunction.contains(genes, value);
             };
 
     private static FilterFunction<Allele, String> phenotypeFilter =

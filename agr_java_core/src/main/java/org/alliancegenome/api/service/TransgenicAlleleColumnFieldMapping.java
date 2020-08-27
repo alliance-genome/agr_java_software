@@ -23,7 +23,7 @@ public class TransgenicAlleleColumnFieldMapping extends ColumnFieldMapping<Allel
 
         mapColumnAttribute.put(TG_ALLELE_SPECIES, entity -> {
             if (entity.getSpecies() != null) {
-                return Set.of(entity.getSpecies().getType().getDisplayName());
+                return Set.of(entity.getSpecies().getType().getName());
             }
             return null;
         });
