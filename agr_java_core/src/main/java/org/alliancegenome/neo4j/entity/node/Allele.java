@@ -42,7 +42,7 @@ public class Allele extends GeneticEntity implements Comparable<Allele>, Present
     @Relationship(type = "IS_IMPLICATED_IN", direction = Relationship.INCOMING)
     private List<DOTerm> diseases = new ArrayList<>();
 
-    @JsonView({View.GeneAllelesAPI.class})
+    @JsonView({View.AlleleAPI.class})
     @Relationship(type = "VARIATION", direction = Relationship.INCOMING)
     private List<Variant> variants = new ArrayList<>();
 
@@ -72,11 +72,24 @@ public class Allele extends GeneticEntity implements Comparable<Allele>, Present
         return CollectionUtils.isNotEmpty(phenotypes);
     }
 
+    @JsonProperty(value = "hasPhenotype")
+    public void setPhenotype(boolean hasPhenotype) {
+        // this is a calculated property but the setter needs to be here
+        // for deserialization purposes.
+    }
+
     @JsonView({View.API.class})
     public Boolean hasDisease() {
         return CollectionUtils.isNotEmpty(diseaseEntityJoins);
     }
 
+    @JsonProperty(value = "hasDisease")
+    public void setDisease(boolean hasDisease) {
+        // this is a calculated property but the setter needs to be here
+        // for deserialization purposes.
+    }
+
+    @JsonView({View.API.class})
     @JsonProperty(value = "category")
     public String getCategory() {
         if (crossReferenceType != CrossReferenceType.ALLELE)
@@ -87,4 +100,11 @@ public class Allele extends GeneticEntity implements Comparable<Allele>, Present
             return crossReferenceType.getDisplayName() + " with one associated variant";
         return crossReferenceType.getDisplayName() + " with multiple associated variants";
     }
+
+    @JsonProperty(value = "category")
+    public void setCategory(String category) {
+        // this is a calculated property but the setter needs to be here
+        // for deserialization purposes.
+    }
+
 }
