@@ -72,9 +72,21 @@ public class Allele extends GeneticEntity implements Comparable<Allele>, Present
         return CollectionUtils.isNotEmpty(phenotypes);
     }
 
+    @JsonProperty(value = "hasPhenotype")
+    public void setPhenotype(boolean hasPhenotype) {
+        // this is a calculated property but the setter needs to be here
+        // for deserialization purposes.
+    }
+
     @JsonView({View.API.class})
     public Boolean hasDisease() {
         return CollectionUtils.isNotEmpty(diseaseEntityJoins);
+    }
+
+    @JsonProperty(value = "hasDisease")
+    public void setDisease(boolean hasDisease) {
+        // this is a calculated property but the setter needs to be here
+        // for deserialization purposes.
     }
 
     @JsonView({View.API.class})
@@ -88,4 +100,11 @@ public class Allele extends GeneticEntity implements Comparable<Allele>, Present
             return crossReferenceType.getDisplayName() + " with one associated variant";
         return crossReferenceType.getDisplayName() + " with multiple associated variants";
     }
+
+    @JsonProperty(value = "category")
+    public void setCategory(String category) {
+        // this is a calculated property but the setter needs to be here
+        // for deserialization purposes.
+    }
+
 }
