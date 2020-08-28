@@ -42,7 +42,7 @@ public class Allele extends GeneticEntity implements Comparable<Allele>, Present
     @Relationship(type = "IS_IMPLICATED_IN", direction = Relationship.INCOMING)
     private List<DOTerm> diseases = new ArrayList<>();
 
-    @JsonView({View.GeneAllelesAPI.class})
+    @JsonView({View.AlleleAPI.class})
     @Relationship(type = "VARIATION", direction = Relationship.INCOMING)
     private List<Variant> variants = new ArrayList<>();
 
@@ -77,6 +77,7 @@ public class Allele extends GeneticEntity implements Comparable<Allele>, Present
         return CollectionUtils.isNotEmpty(diseaseEntityJoins);
     }
 
+    @JsonView({View.API.class})
     @JsonProperty(value = "category")
     public String getCategory() {
         if (crossReferenceType != CrossReferenceType.ALLELE)
