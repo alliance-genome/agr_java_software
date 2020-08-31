@@ -30,10 +30,7 @@ import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Log4j2
@@ -445,6 +442,7 @@ public class GeneController implements GeneRESTInterface {
         JsonResultResponse<OrthologView> orthologs = orthologyCacheService.getOrthologyGenes(geneList, orthologyFilter);
         List<OrthologView> filteredList = orthologs.getResults().stream()
                 .filter(orthologView -> expressionCacheRepository.hasExpression(orthologView.getHomologGene().getPrimaryKey()))
+                .sorted(Comparator.comparing(orthologView -> orthologView.getHomologGene().getSymbol().toLowerCase()))
                 .collect(Collectors.toList());
         orthologs.setResults(filteredList);
         orthologs.setTotal(filteredList.size());

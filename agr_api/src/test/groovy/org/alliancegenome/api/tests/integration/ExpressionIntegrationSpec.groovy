@@ -92,7 +92,7 @@ class ExpressionIntegrationSpec extends Specification {
         def result = ApiTester.getApiResultRaw("/api/expression/download?geneID=$gene")
         def results = result.split('\n')
 
-        def resultFilter = getApiResultRaw("/api/expression/download?geneID=$gene&filter.term=ton")
+        def resultFilter = ApiTester.getApiResultRaw("/api/expression/download?geneID=$gene&filter.term=ton")
         def resultsFilter = resultFilter.split('\n')
 
         then:
