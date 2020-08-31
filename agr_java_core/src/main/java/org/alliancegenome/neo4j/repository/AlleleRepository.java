@@ -108,10 +108,10 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
 
     private String getCypherQuery(String relationship) {
         String query = "";
-        query += " MATCH p1=(:Species)<-[:FROM_SPECIES]-(allele:Allele)--(construct:Construct)-[:" + relationship + "]-(gene:Gene)--(:Species)," +
-                " p2=(allele:Allele)--(:Synonym) " +
+        query += " MATCH p1=(:Species)<-[:FROM_SPECIES]-(allele:Allele)--(construct:Construct)-[:" + relationship + "]-(gene:Gene)--(:Species) " +
                 "  where gene.primaryKey = {geneID}";
         // need this optional match to retrieve all expresses genes besides the given geneID
+        query += " OPTIONAL MATCH synonyms=(allele:Allele)--(:Synonym) ";
         query += " OPTIONAL MATCH express=(:CrossReference)--(construct:Construct)-[:EXPRESSES]-(:Gene)--(:Species)";
         query += " OPTIONAL MATCH expressNonBGI=(:CrossReference)--(construct:Construct)-[:EXPRESSES]-(:NonBGIConstructComponent)";
         query += " OPTIONAL MATCH target=(:CrossReference)--(construct:Construct)-[:TARGET]-(:Gene)--(:Species)";
@@ -120,7 +120,7 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
         query += " OPTIONAL MATCH regulatedNon=(:CrossReference)--(construct:Construct)-[:IS_REGULATED_BY]-(:NonBGIConstructComponent)";
         query += " OPTIONAL MATCH disease=(allele:Allele)--(:DiseaseEntityJoin)";
         query += " OPTIONAL MATCH pheno=(allele:Allele)-[:HAS_PHENOTYPE]-(:Phenotype)";
-        query += " RETURN p1, p2, express, target, regulated, expressNonBGI, regulatedNon, targetNon, disease, pheno ";
+        query += " RETURN p1, express, target, regulated, expressNonBGI, regulatedNon, targetNon, disease, pheno, synonyms ";
         return query;
     }
 }
