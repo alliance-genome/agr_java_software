@@ -410,6 +410,19 @@ public class GeneIT {
     }
 
     @Test
+    public void getAlleleConstructInfoOnZfinGenePage() {
+        GeneRepository repository = new GeneRepository();
+        final String geneID = "ZFIN:ZDB-GENE-060526-31";
+        Gene gene = repository.getOneGene(geneID);
+        assertNotNull(gene);
+        AlleleRepository alleleRepository = new AlleleRepository();
+        List<Allele> transgenicAlleles = alleleRepository.getTransgenicAlleles(geneID);
+
+        assertNotNull(transgenicAlleles);
+        assertTrue(transgenicAlleles.size() > 0);
+    }
+
+    @Test
     public void getSpeciesGenes() {
         GeneService service = new GeneService();
         List<Gene> genes = service.getAllGenes(asList("mus", "sac"));
