@@ -22,7 +22,7 @@
 
 	<properties>
 		<maven.compiler.release>11</maven.compiler.release>
-		<revision>3.2.0</revision>
+		<revision>3.1.1</revision>
 	</properties>
 
 	<repositories>
