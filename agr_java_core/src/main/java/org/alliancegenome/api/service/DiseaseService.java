@@ -1,61 +1,44 @@
 package org.alliancegenome.api.service;
 
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.toList;
-
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-
 import org.alliancegenome.api.entity.DiseaseEntitySubgroupSlim;
 import org.alliancegenome.api.entity.DiseaseRibbonEntity;
 import org.alliancegenome.api.entity.DiseaseRibbonSummary;
 import org.alliancegenome.cache.repository.DiseaseCacheRepository;
 import org.alliancegenome.cache.repository.PhenotypeCacheRepository;
-import org.alliancegenome.cache.repository.helper.DiseaseAnnotationFiltering;
-import org.alliancegenome.cache.repository.helper.DiseaseAnnotationSorting;
-import org.alliancegenome.cache.repository.helper.JsonResultResponse;
-import org.alliancegenome.cache.repository.helper.ModelAnnotationFiltering;
-import org.alliancegenome.cache.repository.helper.ModelAnnotationsSorting;
-import org.alliancegenome.cache.repository.helper.PaginationResult;
-import org.alliancegenome.cache.repository.helper.PrimaryAnnotatedEntityFiltering;
-import org.alliancegenome.cache.repository.helper.PrimaryAnnotatedEntitySorting;
-import org.alliancegenome.cache.repository.helper.SortingField;
+import org.alliancegenome.cache.repository.helper.*;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.DiseaseSummary;
-import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
 import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
 import org.alliancegenome.neo4j.entity.node.DOTerm;
 import org.alliancegenome.neo4j.entity.node.Gene;
-import org.alliancegenome.neo4j.entity.node.GeneticEntity;
 import org.alliancegenome.neo4j.entity.node.SimpleTerm;
 import org.alliancegenome.neo4j.repository.DiseaseRepository;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.apache.commons.collections.CollectionUtils;
+
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toList;
 
 @RequestScoped
 public class DiseaseService {
 
     private static DiseaseRepository diseaseRepository = new DiseaseRepository();
     private static GeneRepository geneRepository = new GeneRepository();
-    
+
     @Inject
     private DiseaseCacheRepository diseaseCacheRepository;
-    
+
     @Inject
     private PhenotypeCacheRepository phenotypeCacheRepository;
-    
+
     private DiseaseRibbonService diseaseRibbonService = new DiseaseRibbonService();
 
     public DOTerm getById(String id) {
@@ -174,70 +157,7 @@ public class DiseaseService {
 
     public JsonResultResponse<PrimaryAnnotatedEntity> getDiseaseAnnotationsWithGeneAndAGM(String geneID, Pagination pagination) {
         LocalDateTime startDate = LocalDateTime.now();
-        List<DiseaseAnnotation> fullDiseaseAnnotationList = diseaseCacheRepository.getDiseaseAnnotationList(geneID);
         JsonResultResponse<PrimaryAnnotatedEntity> result = new JsonResultResponse<>();
-
-        // select list of annotations that have primaryAnnotatedEntity
-
-        Map<String, List<PrimaryAnnotatedEntity>> diseaseEntities = null;
-        Map<String, List<PrimaryAnnotatedEntity>> phenotypeEntities = null;
-
-        List<PrimaryAnnotatedEntity> primaryAnnotatedEntities;
-        if (CollectionUtils.isNotEmpty(fullDiseaseAnnotationList)) {
-            primaryAnnotatedEntities = fullDiseaseAnnotationList.stream()
-                    // filter out annotations with primary annotated diseaseEntities
-                    .filter(diseaseAnnotation -> CollectionUtils.isNotEmpty(diseaseAnnotation.getPrimaryAnnotatedEntities()))
-                    .map(DiseaseAnnotation::getPrimaryAnnotatedEntities)
-                    .flatMap(Collection::stream)
-                    .collect(Collectors.toList());
-
-            diseaseEntities = primaryAnnotatedEntities.stream()
-                    .collect(Collectors.groupingBy(PrimaryAnnotatedEntity::getId));
-
-            // merge diseases for the same AGM
-            List<PrimaryAnnotatedEntity> mergedEntities = new ArrayList<>();
-
-            diseaseEntities.forEach((id, entities) -> {
-                PrimaryAnnotatedEntity primaryEntity = entities.get(0);
-                mergedEntities.add(primaryEntity);
-                entities.forEach(entity -> {
-                    primaryEntity.addDiseaseModels(entity.getDiseaseModels());
-                });
-            });
-            primaryAnnotatedEntities = mergedEntities;
-        }
-
-        List<PhenotypeAnnotation> allPhenotypeAnnotations = phenotypeCacheRepository.getPhenotypeAnnotationList(geneID);
-        // select annotations that have primaryAnnotated Entities
-        List<PrimaryAnnotatedEntity> primaryAnnotatedEntitiesPhenotype = new ArrayList<>();
-        if (CollectionUtils.isNotEmpty(allPhenotypeAnnotations)) {
-            primaryAnnotatedEntitiesPhenotype = allPhenotypeAnnotations.stream()
-                    // filter out annotations with primary annotated diseaseEntities
-                    .filter(annotation -> CollectionUtils.isNotEmpty(annotation.getPrimaryAnnotatedEntities()))
-                    .map(PhenotypeAnnotation::getPrimaryAnnotatedEntities)
-                    .flatMap(Collection::stream)
-                    // remove GENE type AGMs
-                    .filter(entity -> !entity.getType().equals(GeneticEntity.CrossReferenceType.GENE))
-                    // remove Allele type AGMs
-                    .filter(entity -> !entity.getType().equals(GeneticEntity.CrossReferenceType.ALLELE))
-                    .collect(Collectors.toList());
-
-
-            phenotypeEntities = primaryAnnotatedEntitiesPhenotype.stream()
-                    .collect(Collectors.groupingBy(PrimaryAnnotatedEntity::getId));
-
-            // merge phenotypes for the same AGM
-            List<PrimaryAnnotatedEntity> mergedEntities = new ArrayList<>();
-
-            phenotypeEntities.forEach((id, entities) -> {
-                PrimaryAnnotatedEntity primaryEntity = entities.get(0);
-                mergedEntities.add(primaryEntity);
-                entities.forEach(entity -> {
-                    primaryEntity.addPhenotypes(entity.getPhenotypes());
-                });
-            });
-            primaryAnnotatedEntitiesPhenotype = mergedEntities;
-        }
 
         List<PrimaryAnnotatedEntity> pureModelList = phenotypeCacheRepository.getPhenotypeAnnotationPureModeList(geneID);
 

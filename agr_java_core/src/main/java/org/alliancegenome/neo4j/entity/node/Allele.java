@@ -1,6 +1,7 @@
 package org.alliancegenome.neo4j.entity.node;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Getter;
 import lombok.Setter;
@@ -18,6 +19,7 @@ import java.util.List;
 @Getter
 @Setter
 @Schema(name = "Allele", description = "POJO that represents the Allele")
+@JsonPropertyOrder({"id", "symbol", "species", "synonyms", "secondaryIds", "crossReferences", "symbolText","diseases", "phenotypes", "hasDisease", "hasPhenotype", "url", "category", "type"})
 public class Allele extends GeneticEntity implements Comparable<Allele>, PresentationEntity {
 
     public Allele() {
