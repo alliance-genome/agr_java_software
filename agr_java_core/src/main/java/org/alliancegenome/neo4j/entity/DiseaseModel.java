@@ -9,6 +9,7 @@ import org.alliancegenome.neo4j.view.View;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 @Getter
 @Setter
@@ -46,5 +47,19 @@ public class DiseaseModel implements Comparable<DiseaseModel>, Serializable, Pre
     @Override
     public int compareTo(DiseaseModel o) {
         return 0;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        DiseaseModel that = (DiseaseModel) o;
+        return Objects.equals(disease, that.disease) &&
+                Objects.equals(associationType, that.associationType);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(disease, associationType);
     }
 }
