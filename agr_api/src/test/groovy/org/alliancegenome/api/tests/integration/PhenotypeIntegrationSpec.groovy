@@ -36,8 +36,8 @@ class PhenotypeIntegrationSpec extends Specification {
         totalSize <= lines.length
         where:
         geneId       | totalSize | lineOne                                             | headerLine
-        "MGI:105043" | 134       | "abnormal atrial thrombosis\tPMID:9396142"          | "Phenotype\tReferences"
-        "MGI:109583" | 516       | "abnormal adipose tissue morphology\tPMID:22405073" | "Phenotype\tReferences"
+        "MGI:105043" | 134       | "abnormal atrial thrombosis\tMGI:2450836\tAhr<tm1Gonz>/Ahr<tm1Gonz> [background:] involves: 129S4/SvJae * C57BL/6N\tgenotype\tMGI\tPMID:9396142"          | "Phenotype\tGenetic Entity ID\tGenetic Entity Name\tGenetic Entity Type\tSource\tReference"
+        "MGI:109583" | 516       | "abnormal adipose tissue morphology\tMGI:5796492\tTg(Pten)1Srn/? [background:] involves: C57BL/6 * CBA\tgenotype\tMGI\tPMID:22405073" | "Phenotype\tGenetic Entity ID\tGenetic Entity Name\tGenetic Entity Type\tSource\tReference"
     }
 
     @Unroll
@@ -49,7 +49,7 @@ class PhenotypeIntegrationSpec extends Specification {
         then:
         result
         phenotype == result.results[0].phenotype
-        geneticEntity == result.results[0].allele.symbol
+        geneticEntity == result.results[0].primaryAnnotatedEntities[0].name
 
         where:
         geneId              | phenotype       | geneticEntity
