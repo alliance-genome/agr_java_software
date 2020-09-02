@@ -25,13 +25,6 @@
 		<revision>3.2.0</revision>
 	</properties>
 
-	<repositories>
-		<repository>
-			<id>elasticsearch-releases</id>
-			<url>https://artifacts.elastic.co/maven</url>
-		</repository>
-	</repositories>
-
 	<build>
 		<pluginManagement>
 			<plugins>

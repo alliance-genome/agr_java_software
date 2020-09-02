@@ -19,14 +19,6 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 
-	<repositories>
-		<repository>
-			<id>elastic</id>
-			<name>elasticsearch-releases</name>
-			<url>https://artifacts.elastic.co/maven</url>
-		</repository>
-	</repositories>
-
 	<dependencies>
 		<dependency>
 			<groupId>org.alliancegenome</groupId>
