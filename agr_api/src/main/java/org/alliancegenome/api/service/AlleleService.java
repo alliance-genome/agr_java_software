@@ -67,6 +67,9 @@ public class AlleleService {
             filterService.getSortedAndPaginatedAnnotations(pagination, filteredAnnotations, new DiseaseAnnotationSorting());
             result.setTotal(filteredAnnotations.size());
             result.setResults(filterService.getPaginatedAnnotations(pagination, filteredAnnotations));
+            ColumnFieldMapping<DiseaseAnnotation> mapping = new AlleleDiseaseColumnFieldMapping();
+            result.addDistinctFieldValueSupplementalData(filterService.getDistinctFieldValues(annotations,
+                    mapping.getSingleValuedFieldColumns(Table.ALLELE_DISEASE), mapping));
         }
         result.calculateRequestDuration(startDate);
         return result;

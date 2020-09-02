@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
+import static org.alliancegenome.neo4j.entity.DiseaseAnnotation.NOT_ASSOCIATION_TYPE;
 
 @RequestScoped
 public class DiseaseService {
@@ -327,7 +328,12 @@ public class DiseaseService {
         if (paginationResult != null) {
             response.setResults(paginationResult.getResult());
             response.setTotal(paginationResult.getTotalNumber());
-            response.addDistinctFieldValueSupplementalData(paginationResult.getDistinctFieldValueMap());
+            Map<String, List<String>> distinctFieldValueMap = paginationResult.getDistinctFieldValueMap();
+            if(pagination.getFieldFilterValueMap().get(FieldFilter.INCLUDE_NEGATION) == null ||
+                    pagination.getFieldFilterValueMap().get(FieldFilter.INCLUDE_NEGATION).equals("false")){
+                distinctFieldValueMap.get("associationType").removeIf(o -> o.toLowerCase().contains(NOT_ASSOCIATION_TYPE));
+            }
+            response.addDistinctFieldValueSupplementalData(distinctFieldValueMap);
         }
         return response;
     }

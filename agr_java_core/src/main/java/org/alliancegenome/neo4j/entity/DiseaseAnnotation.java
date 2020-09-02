@@ -21,6 +21,8 @@ import java.util.stream.Collectors;
 @Schema(name = "DiseaseAnnotation", description = "POJO that represents a Disease Annotation")
 public class DiseaseAnnotation implements Comparable<DiseaseAnnotation>, Serializable, PresentationEntity {
 
+    public static final String NOT_ASSOCIATION_TYPE = "not";
+
     @JsonView({View.DiseaseAnnotation.class})
     private String primaryKey;
     @JsonView({View.DiseaseAnnotation.class})

@@ -40,6 +40,9 @@ public class ModelAnnotationFiltering extends AnnotationFiltering<DiseaseAnnotat
     public FilterFunction<DiseaseAnnotation, String> geneNameFilter =
             (annotation, value) -> FilterFunction.contains(annotation.getGene().getSymbol(), value);
 
+    public FilterFunction<DiseaseAnnotation, String> associationTypeFilter =
+            (annotation, value) -> FilterFunction.contains(annotation.getAssociationType(), value);
+
     public FilterFunction<DiseaseAnnotation, String> geneSpeciesFilter =
             (annotation, value) -> {
                 if (value.startsWith(NCBITAXON))
@@ -56,6 +59,7 @@ public class ModelAnnotationFiltering extends AnnotationFiltering<DiseaseAnnotat
         filterFieldMap.put(FieldFilter.DISEASE, termNameFilter);
         filterFieldMap.put(FieldFilter.MODEL_NAME, modelNameFilter);
         filterFieldMap.put(FieldFilter.SPECIES, geneSpeciesFilter);
+        filterFieldMap.put(FieldFilter.ASSOCIATION_TYPE, associationTypeFilter);
     }
 
 }

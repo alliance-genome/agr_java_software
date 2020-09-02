@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static org.alliancegenome.neo4j.entity.DiseaseAnnotation.NOT_ASSOCIATION_TYPE;
 import static org.alliancegenome.neo4j.entity.SpeciesType.NCBITAXON;
 
 public class DiseaseAnnotationFiltering extends AnnotationFiltering<DiseaseAnnotation> {
@@ -97,7 +98,7 @@ public class DiseaseAnnotationFiltering extends AnnotationFiltering<DiseaseAnnot
                     return true;
                 if (value != null && value.equalsIgnoreCase("true"))
                     return true;
-                return !annotation.getAssociationType().toLowerCase().contains("not");
+                return !annotation.getAssociationType().toLowerCase().contains(NOT_ASSOCIATION_TYPE);
             };
 
     public FilterFunction<DiseaseAnnotation, String> referenceFilter =

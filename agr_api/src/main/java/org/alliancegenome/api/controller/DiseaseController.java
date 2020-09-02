@@ -301,6 +301,7 @@ public class DiseaseController implements DiseaseRESTInterface {
                                                                                String source,
                                                                                String reference,
                                                                                String evidenceCode,
+                                                                               String associationType,
                                                                                String asc) {
         long startTime = System.currentTimeMillis();
         Pagination pagination = new Pagination(page, limit, sortBy, asc);
@@ -311,6 +312,7 @@ public class DiseaseController implements DiseaseRESTInterface {
         pagination.addFieldFilter(FieldFilter.FREFERENCE, reference);
         pagination.addFieldFilter(FieldFilter.EVIDENCE_CODE, evidenceCode);
         pagination.addFieldFilter(FieldFilter.MODEL_NAME, modelName);
+        pagination.addFieldFilter(FieldFilter.ASSOCIATION_TYPE, associationType);
         if (pagination.hasErrors()) {
             RestErrorMessage message = new RestErrorMessage();
             message.setErrors(pagination.getErrors());
@@ -340,6 +342,7 @@ public class DiseaseController implements DiseaseRESTInterface {
                                                           String source,
                                                           String reference,
                                                           String evidenceCode,
+                                                          String associationType,
                                                           String asc) {
         JsonResultResponse<DiseaseAnnotation> response = getDiseaseAnnotationsForModel(id,
                 Integer.MAX_VALUE,
@@ -352,6 +355,7 @@ public class DiseaseController implements DiseaseRESTInterface {
                 source,
                 reference,
                 evidenceCode,
+                associationType,
                 asc);
         Response.ResponseBuilder responseBuilder = Response.ok(translator.getAllRowsForModel(response.getResults()));
         APIServiceHelper.setDownloadHeader(id, EntityType.DISEASE, EntityType.MODEL, responseBuilder);
@@ -554,6 +558,7 @@ public class DiseaseController implements DiseaseRESTInterface {
                     null,
                     null,
                     species,
+                    null,
                     null,
                     null,
                     null,

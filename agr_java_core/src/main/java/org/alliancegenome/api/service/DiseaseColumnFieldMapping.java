@@ -24,10 +24,12 @@ public class DiseaseColumnFieldMapping extends ColumnFieldMapping<DiseaseAnnotat
         mapColumnFieldName.put(ALLELE_SPECIES, FieldFilter.SPECIES);
         mapColumnFieldName.put(ALLELE_ASSOCIATION, FieldFilter.ASSOCIATION_TYPE);
         mapColumnFieldName.put(MODEL_SPECIES, FieldFilter.SPECIES);
+        mapColumnFieldName.put(MODEL_ASSOCIATION_TYPE, FieldFilter.ASSOCIATION_TYPE);
         mapColumnFieldName.put(DISEASE_SPECIES, FieldFilter.SPECIES);
         mapColumnFieldName.put(DISEASE_ASSOCIATION, FieldFilter.ASSOCIATION_TYPE);
 
         mapColumnAttribute.put(ASSOCIATES_GENES_SPECIES, entity -> Set.of(entity.getGene().getSpecies().getName()));
+        mapColumnAttribute.put(MODEL_ASSOCIATION_TYPE, entity -> Set.of(entity.getAssociationType()));
         mapColumnAttribute.put(ASSOCIATES_GENES_ASSOCIATION, entity -> Set.of(entity.getAssociationType()));
         mapColumnAttribute.put(ALLELE_SPECIES, entity -> Set.of(entity.getFeature().getSpecies().getName()));
         mapColumnAttribute.put(ALLELE_ASSOCIATION, entity -> Set.of(entity.getAssociationType()));
@@ -40,6 +42,7 @@ public class DiseaseColumnFieldMapping extends ColumnFieldMapping<DiseaseAnnotat
         singleValueDistinctFieldColumns.add(ALLELE_SPECIES);
         singleValueDistinctFieldColumns.add(ALLELE_ASSOCIATION);
         singleValueDistinctFieldColumns.add(MODEL_SPECIES);
+        singleValueDistinctFieldColumns.add(MODEL_ASSOCIATION_TYPE);
         singleValueDistinctFieldColumns.add(DISEASE_SPECIES);
         singleValueDistinctFieldColumns.add(DISEASE_ASSOCIATION);
     }

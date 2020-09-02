@@ -743,6 +743,7 @@ public class DiseaseIT {
                 null,
                 null,
                 null,
+                null,
                 null
         );
 
@@ -773,6 +774,7 @@ public class DiseaseIT {
         response = diseaseController.getDiseaseAnnotationsForModel(diseaseID,
                 100,
                 1,
+                null,
                 null,
                 null,
                 null,

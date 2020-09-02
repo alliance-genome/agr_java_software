@@ -31,7 +31,7 @@ public enum FieldFilter {
     VARIANT_TYPE("filter.variantType"),
     MOLECULE_TYPE("filter.moleculeType"),
     BASED_ON_GENE("filter.basedOnGeneSymbol"),
-    INCLUDE_NEGATION("filter.includeNegation"),
+    INCLUDE_NEGATION("includeNegation"),
     ALLELE("allele"),
     MODEL_NAME("modelName"),
     VARIANT_CONSEQUENCE("filter.variantConsequence"),
