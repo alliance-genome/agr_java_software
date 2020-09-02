@@ -408,8 +408,8 @@ public interface DiseaseRESTInterface {
             @QueryParam("filter.evidenceCode") String evidenceCode,
             @Parameter(in = ParameterIn.QUERY, name = "filter.basedOnGeneSymbol", description = "basedOnGeneSymbol", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.basedOnGeneSymbol") String basedOnGeneSymbol,
-            @Parameter(in = ParameterIn.QUERY, name = "filter.includeNegation", description = "include negated annotations", schema = @Schema(type = SchemaType.STRING))
-            @DefaultValue("false") @QueryParam("filter.includeNegation") String includeNegation,
+            @Parameter(in = ParameterIn.QUERY, name = "includeNegation", description = "include negated annotations", schema = @Schema(type = SchemaType.STRING))
+            @DefaultValue("false") @QueryParam("includeNegation") String includeNegation,
             @Parameter(in = ParameterIn.QUERY, name = "sortBy", description = "Sort by field name")
             @QueryParam("sortBy") String sortBy,
             @Parameter(in = ParameterIn.QUERY, name = "asc", description = "ascending or descending", schema = @Schema(type = SchemaType.STRING))

@@ -327,7 +327,12 @@ public class DiseaseService {
         if (paginationResult != null) {
             response.setResults(paginationResult.getResult());
             response.setTotal(paginationResult.getTotalNumber());
-            response.addDistinctFieldValueSupplementalData(paginationResult.getDistinctFieldValueMap());
+            Map<String, List<String>> distinctFieldValueMap = paginationResult.getDistinctFieldValueMap();
+            if(pagination.getFieldFilterValueMap().get(FieldFilter.INCLUDE_NEGATION) == null ||
+                    pagination.getFieldFilterValueMap().get(FieldFilter.INCLUDE_NEGATION).equals("true")){
+                distinctFieldValueMap.get("associationType").removeIf(o -> o.toString().toLowerCase().contains("not"));
+            }
+            response.addDistinctFieldValueSupplementalData(distinctFieldValueMap);
         }
         return response;
     }
