@@ -33,7 +33,7 @@ public enum CacheAlliance {
     //ALLELE_TAXON(),
 
     //DISEASE(),
-    DISEASE_ANNOTATION_MODEL_LEVEL_MODEL(DiseaseAnnotation.class, (11767 * 100) + 448244), // min: 2364 max: 448244 mean: 11767
+    DISEASE_ANNOTATION_MODEL_LEVEL_DISEASE(DiseaseAnnotation.class, (11767 * 100) + 448244), // min: 2364 max: 448244 mean: 11767
     DISEASE_ANNOTATION_GENE_LEVEL_GENE_DISEASE(DiseaseAnnotation.class, (151780 * 100) + 356240668), // min: 3 max: 356240668 mean: 151780
     DISEASE_ANNOTATION_ALLELE_LEVEL_ALLELE(DiseaseAnnotation.class, (17611 * 100) + 2146761), // min: 3 max: 2146761 mean: 17611
 

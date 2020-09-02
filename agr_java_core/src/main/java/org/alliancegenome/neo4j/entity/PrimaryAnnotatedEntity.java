@@ -35,6 +35,8 @@ public class PrimaryAnnotatedEntity implements Comparable<PrimaryAnnotatedEntity
     protected CrossReference crossReference;
     @JsonView({View.PrimaryAnnotation.class, View.API.class})
     private Source source;
+    @JsonView({View.PrimaryAnnotation.class, View.API.class})
+    protected String diseaseAssociationType;
 
     @JsonView({View.PrimaryAnnotation.class, View.API.class})
     protected List<DiseaseModel> diseaseModels;
