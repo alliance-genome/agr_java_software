@@ -27,7 +27,9 @@ public enum Column {
     ALLELE_SPECIES(Table.ALLELE, true),
     ALLELE_ASSOCIATION(Table.ALLELE, true),
     ASSOCIATION_TYPE(Table.ALLELE_DISEASE, true),
-    MODEL_SPECIES(Table.MODEL, true);
+    MODEL_SPECIES(Table.MODEL, true),
+    MODEL_ASSOCIATION_TYPE(Table.MODEL, true),
+    ;
 
 
     private Table table;
