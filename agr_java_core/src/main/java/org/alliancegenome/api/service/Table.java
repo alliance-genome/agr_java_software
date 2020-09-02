@@ -13,6 +13,8 @@ public enum Table {
     ASSOCIATED_GENE(Page.DISEASE),
     ALLELE(Page.DISEASE),
     MODEL(Page.DISEASE),
+
+    ALLELE_DISEASE(Page.ALLELE),
     ;
 
     private Page page;

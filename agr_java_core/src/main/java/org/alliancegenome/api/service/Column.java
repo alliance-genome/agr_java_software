@@ -26,6 +26,7 @@ public enum Column {
     ASSOCIATES_GENES_ASSOCIATION(Table.ASSOCIATED_GENE, true),
     ALLELE_SPECIES(Table.ALLELE, true),
     ALLELE_ASSOCIATION(Table.ALLELE, true),
+    ASSOCIATION_TYPE(Table.ALLELE_DISEASE, true),
     MODEL_SPECIES(Table.MODEL, true);
 
 
