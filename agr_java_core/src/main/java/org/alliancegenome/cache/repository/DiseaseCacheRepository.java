@@ -39,7 +39,7 @@ public class DiseaseCacheRepository {
     }
 
     public List<DiseaseAnnotation> getDiseaseModelAnnotations(String diseaseID) {
-        return cacheService.getCacheEntries(diseaseID, CacheAlliance.DISEASE_ANNOTATION_MODEL_LEVEL_MODEL);
+        return cacheService.getCacheEntries(diseaseID, CacheAlliance.DISEASE_ANNOTATION_MODEL_LEVEL_DISEASE);
     }
 
     public List<DiseaseAnnotation> getDiseaseAlleleAnnotationList(String diseaseID) {

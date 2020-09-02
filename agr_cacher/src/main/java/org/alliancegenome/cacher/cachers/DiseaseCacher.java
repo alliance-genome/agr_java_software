@@ -294,7 +294,7 @@ public class DiseaseCacher extends Cacher {
         Map<String, List<DiseaseAnnotation>> diseaseAnnotationMap = getAnnotationMapIncludingClosure(diseaseModelsMap);
 
 
-        storeIntoCache(diseaseModelAnnotations, diseaseAnnotationMap, CacheAlliance.DISEASE_ANNOTATION_MODEL_LEVEL_MODEL);
+        storeIntoCache(diseaseModelAnnotations, diseaseAnnotationMap, CacheAlliance.DISEASE_ANNOTATION_MODEL_LEVEL_DISEASE);
         modelDiseaseJoins.clear();
 
         Map<String, DiseaseAnnotation> diseaseAnnotationMap1 = diseaseModelAnnotations.stream()
@@ -430,7 +430,7 @@ public class DiseaseCacher extends Cacher {
                                         }
                                         document.addPrimaryAnnotatedEntity(entity);
                                         entity.addPublicationEvidenceCode(pubJoin);
-                                        entity.addDisease(join.getDisease(),join.getJoinType());
+                                        entity.setDiseaseAssociationType(join.getJoinType());
                                     });
                                 });
                         // create PAEs from Alleles
@@ -453,7 +453,7 @@ public class DiseaseCacher extends Cacher {
                                     }
                                     document.addPrimaryAnnotatedEntity(entity);
                                     entity.addPublicationEvidenceCode(pubJoin);
-                                    entity.addDisease(join.getDisease(), join.getJoinType());
+                                    entity.setDiseaseAssociationType(join.getJoinType());
                                 }));
                     }
                     List<PublicationJoin> publicationJoins = join.getPublicationJoins();
