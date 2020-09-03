@@ -26,19 +26,6 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 
-	<repositories>
-		<repository>
-			<id>elastic</id>
-			<name>elasticsearch-releases</name>
-			<url>https://artifacts.elastic.co/maven</url>
-		</repository>
-		<repository>
-			<id>nexus</id>
-			<name>nexus</name>
-			<url>https://repository.jboss.org</url>
-		</repository>
-	</repositories>
-
 	<dependencies>
 		<dependency>
 			<groupId>commons-io</groupId>
@@ -114,8 +101,9 @@
 		<dependency>
 			<groupId>org.codehaus.groovy</groupId>
 			<artifactId>groovy-all</artifactId>
-			<version>2.4.6</version>
+			<version>3.0.5</version>
 			<scope>test</scope>
+			<type>pom</type>
 		</dependency>
 		<dependency>
 			<groupId>org.spockframework</groupId>
@@ -194,7 +182,7 @@
 			<plugin>
 				<groupId>org.codehaus.gmavenplus</groupId>
 				<artifactId>gmavenplus-plugin</artifactId>
-				<version>1.0</version>
+				<version>1.9.1</version>
 				<executions>
 					<execution>
 						<goals>
@@ -202,7 +190,6 @@
 							<goal>addTestSources</goal>
 							<goal>generateStubs</goal>
 							<goal>compile</goal>
-							<goal>testCompile</goal>
 							<goal>removeStubs</goal>
 							<goal>removeTestStubs</goal>
 						</goals>

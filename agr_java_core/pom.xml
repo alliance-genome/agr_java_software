@@ -17,12 +17,6 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<jackson.version>2.11.1</jackson.version>
 	</properties>
-	<repositories>
-		<repository>
-			<id>elasticsearch-releases</id>
-			<url>https://artifacts.elastic.co/maven</url>
-		</repository>
-	</repositories>
 
 	<dependencies>
 		<dependency>
@@ -158,8 +152,9 @@
 		<dependency>
 			<groupId>org.codehaus.groovy</groupId>
 			<artifactId>groovy-all</artifactId>
-			<version>2.4.6</version>
+			<version>3.0.5</version>
 			<scope>test</scope>
+         <type>pom</type>
 		</dependency>
 		<dependency>
 			<groupId>org.spockframework</groupId>
