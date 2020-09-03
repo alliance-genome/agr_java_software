@@ -60,7 +60,7 @@ class QueryTokenizationIntegrationSpec extends Specification {
         "&category=gene"   | "alzheimer's disease psen1"             | "HGNC:9508"               | []
         "&category=gene"   | "ZDB-GENE-001103-1 watermellon"         | "ZFIN:ZDB-GENE-001103-1"  | ["watermellon"]
         "&category=gene"   | "Two pore calcium channel protein 1"    | "HGNC:18182"              | []
-        "&category=alteration" | "NC_000083.6:g.75273979T>A MGI:5316784" | "MGI:5316784"             | []
+        "&category=allele" | "NC_000083.6:g.75273979T>A MGI:5316784" | "MGI:5316784"             | []
 
     }
 

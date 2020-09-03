@@ -45,7 +45,7 @@ public class VariantIndexerRepository extends Neo4jRepository<Variant> {
         cache.setAlleles(getAlleleMap(species));
 
         log.info("Fetching DNA Change Types");
-        cache.setDnaChangeTypesMap(getDnaChangeTypes(species));
+        cache.setVariantType(getVariantTypeMap(species));
 
         log.info("Fetching genes");
         cache.setGenes(getGeneMap(species));
@@ -68,7 +68,7 @@ public class VariantIndexerRepository extends Neo4jRepository<Variant> {
         return getMapSetForQuery(query, getSpeciesParams(species));
     }
 
-    public Map<String, Set<String>> getDnaChangeTypes(String species) {
+    public Map<String, Set<String>> getVariantTypeMap(String species) {
         String query = "MATCH (species:Species)-[:FROM_SPECIES]-(a:Allele)-[:VARIATION]-(v:Variant)-[:VARIATION_TYPE]-(term:SOTerm) ";
         query += getSpeciesWhere(species);
         query += " RETURN distinct v.primaryKey as id, term.name as value";

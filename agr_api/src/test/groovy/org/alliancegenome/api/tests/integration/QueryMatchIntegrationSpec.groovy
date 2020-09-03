@@ -25,7 +25,7 @@ class QueryMatchIntegrationSpec extends Specification {
         "&category=gene"   | "ZFIN:ZDB-GENE-001120-2" | "AGR-525"
         "&category=gene"   | "WBGene00000244"         | "AGR-525"
         "&category=gene"   | "WB:WBGene00000244"      | "AGR-525"
-        "&category=alteration" | "MGI:5752578"            | "AGR-525"
+        "&category=allele" | "MGI:5752578"            | "AGR-525"
 
     }
 

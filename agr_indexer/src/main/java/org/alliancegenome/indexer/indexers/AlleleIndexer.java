@@ -50,7 +50,6 @@ public class AlleleIndexer extends Indexer<SearchableItemDocument> {
                 if (list.size() >= indexerConfig.getBufferSize()) {
                     Iterable<SearchableItemDocument> alleleDocuments = alleleTranslator.translateEntities(list);
                     alleleDocumentCache.addCachedFields(alleleDocuments);
-                    alleleTranslator.updateDocuments(alleleDocuments);
                     saveDocuments(alleleDocuments);
                     list.clear();
                 }
@@ -58,7 +57,6 @@ public class AlleleIndexer extends Indexer<SearchableItemDocument> {
                     if (list.size() > 0) {
                         Iterable <SearchableItemDocument> alleleDocuments = alleleTranslator.translateEntities(list);
                         alleleDocumentCache.addCachedFields(alleleDocuments);
-                        alleleTranslator.updateDocuments(alleleDocuments);
                         saveDocuments(alleleDocuments);
                         repo.clearCache();
                         list.clear();

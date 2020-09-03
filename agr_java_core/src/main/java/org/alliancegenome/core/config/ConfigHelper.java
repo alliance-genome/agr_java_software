@@ -52,6 +52,7 @@ public class ConfigHelper {
 
         defaults.put(KEEPINDEX, "false");
         defaults.put(SPECIES, null);
+        defaults.put(INDEX_VARIANTS, "false");
 
         defaults.put(API_HOST, "localhost");
         defaults.put(API_PORT, "8080");
@@ -291,6 +292,11 @@ public class ConfigHelper {
     public static String getVariantDownloadPath() {
         if (!init) init();
         return config.get(VARIANT_DOWNLOAD_PATH);
+    }
+
+    public static boolean getIndexVariants() {
+        if (!init) init();
+        return Boolean.parseBoolean(config.get(INDEX_VARIANTS));
     }
 
     public static String getJavaLineSeparator() {
