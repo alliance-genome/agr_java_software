@@ -23,13 +23,9 @@ import lombok.Setter;
 @Getter
 @Setter
 @Schema(name="Variant", description="POJO that represents the Variant")
-public class Variant extends Neo4jEntity implements Comparable<Variant> {
+public class Variant extends GeneticEntity implements Comparable<Variant> {
 
     protected GeneticEntity.CrossReferenceType crossReferenceType;
-
-    @JsonView({View.Default.class, View.API.class})
-    @JsonProperty(value = "id")
-    protected String primaryKey;
 
     @JsonView({View.Default.class, View.API.class})
     @JsonProperty(value = "displayName")
@@ -53,7 +49,7 @@ public class Variant extends Neo4jEntity implements Comparable<Variant> {
 
     @JsonView({View.Default.class, View.API.class})
     @Relationship(type = "VARIATION_TYPE")
-    private SOTerm type;
+    private SOTerm variationType;
 
     @JsonView({View.VariantAPI.class})
     @Relationship(type = "COMPUTED_GENE", direction = Relationship.INCOMING)
@@ -103,7 +99,7 @@ public class Variant extends Neo4jEntity implements Comparable<Variant> {
     @JsonProperty(value = "nucleotideChange")
     public String getNucleotideChange() {
         String change = "";
-        if (type.isInsertion() || type.isDeletion()) {
+        if (variationType.isInsertion() || variationType.isDeletion()) {
             change += getPaddedChange(getGenomicReferenceSequence());
             change += ">";
             change += getPaddedChange(getGenomicVariantSequence());

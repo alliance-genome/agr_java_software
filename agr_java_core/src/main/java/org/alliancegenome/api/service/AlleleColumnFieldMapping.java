@@ -28,7 +28,7 @@ public class AlleleColumnFieldMapping extends ColumnFieldMapping<Allele> {
 
         mapColumnAttribute.put(GENE_ALLELE_VARIANT_TYPE, entity -> {
             if (entity.getVariants() != null) {
-                return entity.getVariants().stream().map(variant -> variant.getType().getName()).collect(toSet());
+                return entity.getVariants().stream().map(variant -> variant.getVariationType().getName()).collect(toSet());
             }
             return null;
         });
