@@ -4,7 +4,6 @@ import java.util.Date;
 import java.util.List;
 
 import org.alliancegenome.es.util.DateConverter;
-import org.alliancegenome.neo4j.entity.Neo4jEntity;
 import org.alliancegenome.neo4j.entity.relationship.GenomeLocation;
 import org.alliancegenome.neo4j.view.View;
 import org.apache.commons.lang3.StringUtils;
@@ -49,7 +48,7 @@ public class Variant extends GeneticEntity implements Comparable<Variant> {
 
     @JsonView({View.Default.class, View.API.class})
     @Relationship(type = "VARIATION_TYPE")
-    private SOTerm variationType;
+    private SOTerm variantType;
 
     @JsonView({View.VariantAPI.class})
     @Relationship(type = "COMPUTED_GENE", direction = Relationship.INCOMING)
@@ -64,7 +63,7 @@ public class Variant extends GeneticEntity implements Comparable<Variant> {
 
     @JsonView({View.Default.class, View.API.class})
     @Relationship(type = "ASSOCIATION", direction = Relationship.INCOMING)
-    private List<Transcript> transcriptList;
+    protected List<Transcript> transcriptList;
 
     @JsonView({View.Default.class, View.API.class})
     @JsonProperty(value = "consequence")
@@ -99,7 +98,7 @@ public class Variant extends GeneticEntity implements Comparable<Variant> {
     @JsonProperty(value = "nucleotideChange")
     public String getNucleotideChange() {
         String change = "";
-        if (variationType.isInsertion() || variationType.isDeletion()) {
+        if (variantType.isInsertion() || variantType.isDeletion()) {
             change += getPaddedChange(getGenomicReferenceSequence());
             change += ">";
             change += getPaddedChange(getGenomicVariantSequence());

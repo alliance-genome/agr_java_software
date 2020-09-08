@@ -67,7 +67,7 @@ public class AlleleToTdfTranslator {
             joiner.add(variant.getName());
 //            joiner.add(variant.getPrimaryKey());
             // add list of synonyms
-            joiner.add(variant.getVariationType().getName());
+            joiner.add(variant.getVariantType().getName());
             joiner.add(variant.getLocation().getChromosomeAndPosition());
             joiner.add(variant.getNucleotideChange());
             joiner.add(variant.getConsequence());

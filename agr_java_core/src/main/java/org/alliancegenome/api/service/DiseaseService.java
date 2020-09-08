@@ -242,11 +242,12 @@ public class DiseaseService {
         return diseaseRepository.getDiseaseSummary(id, type);
     }
 
-    public DiseaseRibbonSummary getDiseaseRibbonSummary(List<String> geneIDs) {
+    public DiseaseRibbonSummary getDiseaseRibbonSummary(List<String> geneIDs, String includeNegation) {
         DiseaseRibbonService diseaseRibbonService = new DiseaseRibbonService();
         DiseaseRibbonSummary summary = diseaseRibbonService.getDiseaseRibbonSectionInfo();
         Pagination pagination = new Pagination();
         pagination.setLimitToAll();
+        pagination.addFieldFilter(FieldFilter.INCLUDE_NEGATION, includeNegation);
         // loop over all genes provided
         geneIDs.forEach(geneID -> {
             PaginationResult<DiseaseAnnotation> paginationResult = diseaseCacheRepository.getDiseaseAnnotationList(geneID, pagination);
