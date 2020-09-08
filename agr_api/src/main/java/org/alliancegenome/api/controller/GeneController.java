@@ -458,7 +458,9 @@ public class GeneController implements GeneRESTInterface {
 
     @Override
     // the List passed in here is unmodifiable
-    public DiseaseRibbonSummary getDiseaseRibbonSummary(String id, List<String> geneIDs) {
+    public DiseaseRibbonSummary getDiseaseRibbonSummary(String id,
+                                                        List<String> geneIDs,
+                                                        String includeNegation) {
         List<String> ids = new ArrayList<>();
         if (geneIDs != null)
             ids.addAll(geneIDs);
@@ -466,7 +468,7 @@ public class GeneController implements GeneRESTInterface {
             ids.add(id);
 
         try {
-            return diseaseService.getDiseaseRibbonSummary(ids);
+            return diseaseService.getDiseaseRibbonSummary(ids, includeNegation);
         } catch (Exception e) {
             log.error("Error while creating disease ribbon summary", e);
             RestErrorMessage error = new RestErrorMessage();
