@@ -21,10 +21,11 @@ public class VariantRepository extends Neo4jRepository<Variant> {
         String query = "";
         query += " MATCH p1=(a:Allele)<-[:VARIATION]-(variant:Variant)--(soTerm:SOTerm) ";
         query += " WHERE a.primaryKey = {" + paramName + "}";
+        query += " OPTIONAL MATCH synonyms=(variant:Variant)-[:ALSO_KNOWN_AS]-(:Synonym) ";
         query += " OPTIONAL MATCH consequence=(:GeneLevelConsequence)<-[:ASSOCIATION]-(variant:Variant)";
         query += " OPTIONAL MATCH loc=(variant:Variant)-[:ASSOCIATION]->(:GenomicLocation)-[:ASSOCIATION]->(:Chromosome)";
         query += " OPTIONAL MATCH p2=(variant:Variant)<-[:COMPUTED_GENE]-(:Gene)-[:ASSOCIATION]->(:GenomicLocation)-[:ASSOCIATION]->(:Chromosome)";
-        query += " RETURN p1, p2, loc, consequence ";
+        query += " RETURN p1, p2, loc, consequence, synonyms ";
 
         Iterable<Variant> alleles = query(query, map);
         return StreamSupport.stream(alleles.spliterator(), false)
