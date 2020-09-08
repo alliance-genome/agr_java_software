@@ -56,7 +56,7 @@ public class AlleleFiltering extends AnnotationFiltering<Allele> {
             (allele, value) ->
                     FilterFunction.fullMatchMultiValueOR(allele.getVariants().stream()
                             .filter(Objects::nonNull)
-                            .map(variant -> variant.getVariationType().getName())
+                            .map(variant -> variant.getVariantType().getName())
                             .collect(Collectors.toSet()), value);
 
     private static FilterFunction<Allele, String> variantConsequenceFilter =

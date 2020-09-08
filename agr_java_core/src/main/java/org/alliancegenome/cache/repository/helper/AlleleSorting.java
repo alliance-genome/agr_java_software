@@ -120,7 +120,7 @@ public class AlleleSorting implements Sorting<Allele> {
             Comparator.comparing(allele -> {
                 if (CollectionUtils.isEmpty(allele.getVariants()))
                     return null;
-                String diseaseJoin = allele.getVariants().stream().sorted(Comparator.comparing(variant -> variant.getVariationType().getName())).map(variant -> variant.getVariationType().getName()).collect(Collectors.joining(""));
+                String diseaseJoin = allele.getVariants().stream().sorted(Comparator.comparing(variant -> variant.getVariantType().getName())).map(variant -> variant.getVariantType().getName()).collect(Collectors.joining(""));
                 return diseaseJoin.toLowerCase();
             }, Comparator.nullsLast(naturalOrder()));
 
