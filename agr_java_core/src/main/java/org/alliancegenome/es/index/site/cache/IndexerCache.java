@@ -22,7 +22,6 @@ public class IndexerCache {
     protected Map<String, Set<String>> diseases = new HashMap<>();
     protected Map<String, Set<String>> diseasesAgrSlim = new HashMap<>();
     protected Map<String, Set<String>> diseasesWithParents = new HashMap<>();
-    protected Map<String, Set<String>> dnaChangeTypesMap = new HashMap<>();
     protected Map<String, Set<String>> expressionStages = new HashMap<>();
     protected Map<String, Set<String>> alleles = new HashMap<>();
     protected Map<String, Set<String>> genes = new HashMap<>();
@@ -30,11 +29,13 @@ public class IndexerCache {
     protected Map<String, Set<String>> molecularConsequenceMap = new HashMap<>();
     protected Map<String, Set<String>> phenotypeStatements = new HashMap<>();
     protected Map<String, Double> popularity = new HashMap<>();
-    protected Map<String, Set<String>> relatedVariants = new HashMap<>();
-    protected Map<String, Set<String>> relatedVariantSynonyms = new HashMap<>();
     protected Map<String, Set<String>> secondaryIds = new HashMap<>();
     protected Map<String, Set<String>> species = new HashMap<>();
     protected Map<String, Set<String>> synonyms = new HashMap<>();
+    protected Map<String, Set<String>> variants = new HashMap<>();
+    protected Map<String, Set<String>> variantSynonyms = new HashMap<>();
+    protected Map<String, Set<String>> variantType = new HashMap<>();
+
 
     public void addCachedFields(Iterable<SearchableItemDocument> documents) {
         for (SearchableItemDocument document : documents) {
@@ -58,12 +59,12 @@ public class IndexerCache {
         document.setDiseasesAgrSlim(diseasesAgrSlim.get(id));
         document.setDiseasesWithParents(diseasesWithParents.get(id));
 
-        if (dnaChangeTypesMap.get(id) == null) {
+        if (variantType.get(id) == null) {
             Set<String> defaultValue = new HashSet<>();
             defaultValue.add("unreported");
-            document.setDnaChangeTypes(defaultValue);
+            document.setVariantType(defaultValue);
         } else {
-            document.setDnaChangeTypes(dnaChangeTypesMap.get(id));
+            document.setVariantType(variantType.get(id));
         }
 
         document.setExpressionStages(expressionStages.get(id));
@@ -79,8 +80,8 @@ public class IndexerCache {
 
         document.setPhenotypeStatements(phenotypeStatements.get(id));
         document.setPopularity(popularity.get(id) == null ? 0D : popularity.get(id));
-        document.setRelatedVariants(relatedVariants.get(id));
-        document.setRelatedVariantSynonyms(relatedVariantSynonyms.get(id));
+        document.setVariants(variants.get(id));
+        document.setVariantSynonyms(variantSynonyms.get(id));
         if (secondaryIds.get(id) != null) {
             document.getSecondaryIds().addAll(secondaryIds.get(id));
         }

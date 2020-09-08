@@ -30,7 +30,7 @@ public class SearchHelper {
 
     private static String[] SUFFIX_LIST = { ".htmlSmoosh", ".keywordAutocomplete", ".keyword", ".smoosh",
                                             ".synonyms", ".symbols", ".text", ".classicText", ".standardText",
-                                            ".letterText" };
+                                            ".letterText", ".bigrams", ".standardBigrams" };
 
     
     private HashMap<String, List<String>> category_filters = new HashMap<String, List<String>>() {
@@ -61,11 +61,10 @@ public class SearchHelper {
                     add("associatedSpecies");
                 }
             });
-            put("alteration", new ArrayList<String>() {
+            put("allele", new ArrayList<String>() {
                 {
-                    add("alterationType");
                     add("species");
-                    add("dnaChangeTypes");
+                    add("variantType");
                     add("molecularConsequence");
                     add("diseasesAgrSlim");
                     add("genes");
@@ -135,7 +134,7 @@ public class SearchHelper {
             add("diseasesWithParents");
             add("disease_genes");
             add("disease_synonyms");
-            add("dnaChangeTypes");
+            add("variantType");
             add("expressionStages");
             add("expressionStages.standardText");
             add("external_ids");
@@ -170,12 +169,12 @@ public class SearchHelper {
             add("molecularFunctionWithParents");
             add("phenotypeStatements");
             add("primaryKey");
-            add("relatedVariants");
-            add("relatedVariants.keyword");
-            add("relatedVariants.standardText");
-            add("relatedVariantSynonyms");
-            add("relatedVariantSynonyms.keyword");
-            add("relatedVariantSynonyms.standardText");
+            add("variants");
+            add("variants.keyword");
+            add("variants.standardText");
+            add("variantSynonyms");
+            add("variantSynonyms.keyword");
+            add("variantSynonyms.standardText");
             add("symbol");
             add("symbol.autocomplete");
             add("symbol.keyword");
@@ -210,7 +209,7 @@ public class SearchHelper {
             add("definition");
             add("description");
             add("diseases");
-            add("dnaChangeTypes");
+            add("variantType");
             add("external_ids");
             add("gene_chromosome_ends");
             add("gene_chromosome_starts");
@@ -224,11 +223,11 @@ public class SearchHelper {
             add("molecularFunction");
             add("name");
             add("name_key");
-            add("relatedVariants");
             add("soTermName");
             add("species");
             add("symbol");
             add("synonyms");
+            add("variants");
         }
     };
 

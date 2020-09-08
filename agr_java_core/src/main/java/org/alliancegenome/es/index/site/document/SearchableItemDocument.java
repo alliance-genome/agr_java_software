@@ -19,7 +19,6 @@ import lombok.Setter;
 @Setter
 public class SearchableItemDocument extends ESDocument {
 
-    String alterationType;
     String automatedGeneSynopsis;
     String branch;
     String category;
@@ -71,7 +70,6 @@ public class SearchableItemDocument extends ESDocument {
     Set<String> diseasesAgrSlim = new HashSet<>();
     Set<String> diseaseGroup = new HashSet<>();
     Set<String> diseasesWithParents = new HashSet<>();
-    Set<String> dnaChangeTypes = new HashSet<>();
     Set<String> expressionStages = new HashSet<>();
     Set<String> alleles = new HashSet<>();
     Set<String> genes = new HashSet<>();
@@ -83,14 +81,15 @@ public class SearchableItemDocument extends ESDocument {
     Set<String> molecularFunctionWithParents = new HashSet<>();
     Set<String> parentDiseaseNames = new HashSet<>();
     Set<String> phenotypeStatements = new HashSet<>();
-    Set<String> relatedVariants = new HashSet<>();
-    Set<String> relatedVariantSynonyms = new HashSet<>();
     Set<String> secondaryIds = new HashSet<>();
     Set<String> strictOrthologySymbols = new HashSet<>();
     Set<String> soTermNameWithParents = new HashSet<>();
     Set<String> subcellularExpressionWithParents = new HashSet<>();
     Set<String> subcellularExpressionAgrSlim = new HashSet<>();
     Set<String> synonyms = new HashSet<>();
+    Set<String> variants = new HashSet<>();
+    Set<String> variantSynonyms = new HashSet<>();
+    Set<String> variantType = new HashSet<>();
     Set<String> whereExpressed = new HashSet<>();
 
 

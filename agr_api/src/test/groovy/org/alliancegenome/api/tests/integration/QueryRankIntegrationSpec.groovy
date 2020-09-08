@@ -145,7 +145,7 @@ class QueryRankIntegrationSpec extends Specification {
 
        where:
        query                            | id           | nameKey        | n
-       "breast cancer"                  | "HGNC:1100"  | "BRCA1 (Hsa)"  | 3
+       "breast cancer"                  | "HGNC:1100"  | "BRCA1 (Hsa)"  | 5 // n was 3
        "breast cancer"                  | "HGNC:1101"  | "BRCA2 (Hsa)"  | 3
        //"Huntington’s"                   | "HGNC:4851"  | "HTT (Hsa)"    | 5 //failing
        "familial adenomatous polyposis" | "HGNC:583"   | "APC (Hsa)"    | 3
@@ -155,7 +155,7 @@ class QueryRankIntegrationSpec extends Specification {
        //"Alzheimer’s disease"            | "HGNC:620"    | "APP (Hsa)"   | 5 //failing
        //"Alzheimer’s disease"            | "HGNC:9508"   | "PSEN1 (Hsa)" | 5 //failing
        //"Alzheimer’s disease"            | "HGNC:9509"   | "PSEN2 (Hsa)" | 5 //failing
-       "Cystic fibrosis"                | "HGNC:1884"   | "CFTR" | 2
+       "Cystic fibrosis"                | "HGNC:1884"   | "CFTR" | 5 // n was 2
     }
 
 }

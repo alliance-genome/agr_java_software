@@ -79,13 +79,13 @@ public class AlleleIndexerRepository extends Neo4jRepository {
         alleleDocumentCache.setPhenotypeStatements(getPhenotypeStatementsMap(species));
 
         log.info("Building allele -> variant name map");
-        alleleDocumentCache.setRelatedVariants(getRelatedVariants(species));
+        alleleDocumentCache.setVariants(getVariants(species));
 
         log.info("Building allele -> variant synonyms map");
-        alleleDocumentCache.setRelatedVariantSynonyms(getRelatedVariantSynonyms(species));
+        alleleDocumentCache.setVariantSynonyms(getVariantSynonyms(species));
 
         log.info("Building allele -> variant types map");
-        alleleDocumentCache.setDnaChangeTypesMap(getDnaChangeTypes(species));
+        alleleDocumentCache.setVariantType(getVariantTypeMap(species));
 
         log.info("Building allele -> molecular consequence map");
         alleleDocumentCache.setMolecularConsequenceMap(getMolecularConsequence(species));
@@ -243,7 +243,7 @@ public class AlleleIndexerRepository extends Neo4jRepository {
         return getMapSetForQuery(query, "a.primaryKey", "phenotype.phenotypeStatement", getSpeciesParams(species));
     }
 
-    public Map<String, Set<String>> getRelatedVariants(String species) {
+    public Map<String, Set<String>> getVariants(String species) {
         String query = " MATCH (species:Species)-[:FROM_SPECIES]-(a:Allele)-[:VARIATION]-(v:Variant) ";
         query += getSpeciesWhere(species);
         query += " RETURN distinct a.primaryKey as id, v.name as value";
@@ -251,7 +251,7 @@ public class AlleleIndexerRepository extends Neo4jRepository {
         return getMapSetForQuery(query, getSpeciesParams(species));
     }
 
-    public Map<String, Set<String>> getRelatedVariantSynonyms(String species) {
+    public Map<String, Set<String>> getVariantSynonyms(String species) {
 
         String query = " MATCH (species:Species)-[:FROM_SPECIES]-(a:Allele)-[:VARIATION]-(v:Variant)-[:ASSOCIATION]-(tlc:TranscriptLevelConsequence)  ";
         query += getSpeciesWhere(species);
@@ -266,7 +266,7 @@ public class AlleleIndexerRepository extends Neo4jRepository {
         return CollectionHelper.merge(tlcNames, synonyms);
     }
 
-    public Map<String, Set<String>> getDnaChangeTypes(String species) {
+    public Map<String, Set<String>> getVariantTypeMap(String species) {
         String query = "MATCH (species:Species)-[:FROM_SPECIES]-(a:Allele)-[:VARIATION]-(v:Variant)-[:VARIATION_TYPE]-(term:SOTerm) ";
         query += getSpeciesWhere(species);
         query += " RETURN distinct a.primaryKey,term.name ";
