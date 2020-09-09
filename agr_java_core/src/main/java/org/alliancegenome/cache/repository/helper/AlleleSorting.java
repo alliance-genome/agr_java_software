@@ -1,39 +1,45 @@
 package org.alliancegenome.cache.repository.helper;
 
 import org.alliancegenome.neo4j.entity.Sorting;
-import org.alliancegenome.neo4j.entity.node.Allele;
-import org.alliancegenome.neo4j.entity.node.Phenotype;
-import org.alliancegenome.neo4j.entity.node.SimpleTerm;
-import org.alliancegenome.neo4j.entity.node.Variant;
+import org.alliancegenome.neo4j.entity.node.*;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.util.Comparator.naturalOrder;
+import static org.alliancegenome.neo4j.entity.node.Allele.ALLELE_WITH_MULTIPLE_VARIANT;
+import static org.alliancegenome.neo4j.entity.node.Allele.ALLELE_WITH_ONE_VARIANT;
 
 public class AlleleSorting implements Sorting<Allele> {
 
     private List<Comparator<Allele>> defaultList;
-    private List<Comparator<Allele>> diseaseList;
+    private List<Comparator<Allele>> alleleSymbolList;
     private List<Comparator<Allele>> speciesList;
     private List<Comparator<Allele>> variantList;
     private List<Comparator<Allele>> variantTypeList;
     private List<Comparator<Allele>> variantConsequenceList;
 
+    private static Map<String, Integer> categoryMap = new LinkedHashMap<>();
+
+    static {
+        categoryMap.put(ALLELE_WITH_ONE_VARIANT, 1);
+        categoryMap.put(ALLELE_WITH_MULTIPLE_VARIANT, 2);
+        categoryMap.put(GeneticEntity.CrossReferenceType.ALLELE.getDisplayName(), 3);
+        categoryMap.put(GeneticEntity.CrossReferenceType.VARIANT.getDisplayName(), 4);
+    }
+
+
     public AlleleSorting() {
         super();
 
         defaultList = new ArrayList<>(3);
-        defaultList.add(variantExistOrder);
+        defaultList.add(alleleCategoryOrder);
         defaultList.add(alleleSymbolOrder);
 
-        diseaseList = new ArrayList<>(3);
-        diseaseList.add(diseaseOrder);
-        diseaseList.add(alleleSymbolOrder);
+        alleleSymbolList = new ArrayList<>(2);
+        alleleSymbolList.add(alleleSymbolOrder);
 
         speciesList = new ArrayList<>(3);
         speciesList.add(diseaseOrder);
@@ -62,9 +68,7 @@ public class AlleleSorting implements Sorting<Allele> {
             case DEFAULT:
                 return getJoinedComparator(defaultList);
             case ALLELESYMBOL:
-                return getJoinedComparator(defaultList);
-            case DISEASE:
-                return getJoinedComparator(diseaseList);
+                return getJoinedComparator(alleleSymbolList);
             case VARIANT:
                 return getJoinedComparator(variantList);
             case VARIANT_TYPE:
@@ -78,13 +82,8 @@ public class AlleleSorting implements Sorting<Allele> {
         }
     }
 
-    static public Comparator<Allele> variantExistOrder =
-            Comparator.comparing(allele -> {
-                if (CollectionUtils.isEmpty(allele.getVariants()))
-                    return null;
-                else
-                    return "";
-            }, Comparator.nullsLast(naturalOrder()));
+    static public Comparator<Allele> alleleCategoryOrder =
+            Comparator.comparing(allele -> categoryMap.get(allele.getCategory()));
 
     static public Comparator<Allele> alleleSymbolOrder =
             Comparator.comparing(allele -> {

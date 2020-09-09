@@ -19,7 +19,7 @@ import java.util.List;
 @Getter
 @Setter
 @Schema(name = "Allele", description = "POJO that represents the Allele")
-@JsonPropertyOrder({"id", "symbol", "species", "synonyms", "secondaryIds", "crossReferences", "symbolText","diseases", "phenotypes", "hasDisease", "hasPhenotype", "url", "category", "type"})
+@JsonPropertyOrder({"id", "symbol", "species", "synonyms", "secondaryIds", "crossReferences", "symbolText", "diseases", "phenotypes", "hasDisease", "hasPhenotype", "url", "category", "type"})
 public class Allele extends GeneticEntity implements Comparable<Allele>, PresentationEntity {
 
     public Allele() {
@@ -36,6 +36,9 @@ public class Allele extends GeneticEntity implements Comparable<Allele>, Present
     @JsonView({View.AlleleAPI.class})
     private String description;
 
+    public final static String ALLELE_WITH_ONE_VARIANT = "allele with one associated variant";
+    public final static String ALLELE_WITH_MULTIPLE_VARIANT = "allele with multiple associated variants";
+
     @JsonView({View.AlleleAPI.class, View.TransgenicAlleleAPI.class})
     @Relationship(type = "IS_ALLELE_OF")
     private Gene gene;
@@ -44,7 +47,7 @@ public class Allele extends GeneticEntity implements Comparable<Allele>, Present
     @Relationship(type = "IS_IMPLICATED_IN", direction = Relationship.INCOMING)
     private List<DOTerm> diseases = new ArrayList<>();
 
-    @JsonView({View.AlleleAPI.class,View.GeneAllelesAPI.class})
+    @JsonView({View.AlleleAPI.class, View.GeneAllelesAPI.class})
     @Relationship(type = "VARIATION", direction = Relationship.INCOMING)
     private List<Variant> variants = new ArrayList<>();
 
@@ -98,9 +101,10 @@ public class Allele extends GeneticEntity implements Comparable<Allele>, Present
             return crossReferenceType.getDisplayName();
         if (CollectionUtils.isEmpty(variants))
             return crossReferenceType.getDisplayName();
-        if (variants.size() == 1)
-            return crossReferenceType.getDisplayName() + " with one associated variant";
-        return crossReferenceType.getDisplayName() + " with multiple associated variants";
+        if (variants.size() == 1) {
+            return ALLELE_WITH_ONE_VARIANT;
+        }
+        return ALLELE_WITH_MULTIPLE_VARIANT;
     }
 
     @JsonProperty(value = "category")
