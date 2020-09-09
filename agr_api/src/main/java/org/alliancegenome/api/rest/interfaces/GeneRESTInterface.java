@@ -96,8 +96,8 @@ public interface GeneRESTInterface {
             @QueryParam("filter.phenotype") String phenotype,
             @Parameter(in = ParameterIn.QUERY, name = "filter.source", description = "Source", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.source") String source,
-            @Parameter(in = ParameterIn.QUERY, name = "filter.disease", description = "Disease for a given allele", schema = @Schema(type = SchemaType.STRING))
-            @QueryParam("filter.disease") String disease
+            @Parameter(in = ParameterIn.QUERY, name = "filter.category", description = "Disease for a given allele", schema = @Schema(type = SchemaType.STRING))
+            @QueryParam("filter.category") String category
     );
 
     //    @GET

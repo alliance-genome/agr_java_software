@@ -89,13 +89,13 @@ public class GeneController implements GeneRESTInterface {
                                                         String consequence,
                                                         String phenotype,
                                                         String source,
-                                                        String disease) {
+                                                        String category) {
         long startTime = System.currentTimeMillis();
         Pagination pagination = new Pagination(page, limit, sortBy, asc);
         pagination.addFieldFilter(FieldFilter.SYMBOL, symbol);
         pagination.addFieldFilter(FieldFilter.SYNONYMS, synonym);
         pagination.addFieldFilter(FieldFilter.SOURCE, source);
-        pagination.addFieldFilter(FieldFilter.DISEASE, disease);
+        pagination.addFieldFilter(FieldFilter.ALLELE_CATEGORY, category);
         pagination.addFieldFilter(FieldFilter.VARIANT_TYPE, variantType);
         pagination.addFieldFilter(FieldFilter.PHENOTYPE, phenotype);
         pagination.addFieldFilter(FieldFilter.VARIANT_CONSEQUENCE, consequence);
