@@ -35,6 +35,7 @@ public enum FieldFilter {
     ALLELE("allele"),
     MODEL_NAME("modelName"),
     VARIANT_CONSEQUENCE("filter.variantConsequence"),
+    ALLELE_CATEGORY("filter.alleleCategory"),
     CONSTRUCT_SYMBOL("filter.allele-construct-symbol"),
     CONSTRUCT_REGULATED_GENE("filter.allele-construct-regulated-gene"),
     CONSTRUCT_EXPRESSED_GENE("filter.allele-construct-expressed-gene"),

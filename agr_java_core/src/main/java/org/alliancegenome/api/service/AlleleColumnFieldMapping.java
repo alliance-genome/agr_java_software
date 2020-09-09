@@ -11,6 +11,7 @@ import java.util.Set;
 import java.util.function.Function;
 
 import static java.util.stream.Collectors.toSet;
+import static org.alliancegenome.api.service.Column.GENE_ALLELE_CATEGORY;
 import static org.alliancegenome.api.service.Column.GENE_ALLELE_VARIANT_CONSEQUENCE;
 import static org.alliancegenome.api.service.Column.GENE_ALLELE_VARIANT_TYPE;
 
@@ -25,7 +26,9 @@ public class AlleleColumnFieldMapping extends ColumnFieldMapping<Allele> {
     public AlleleColumnFieldMapping() {
         mapColumnFieldName.put(GENE_ALLELE_VARIANT_TYPE, FieldFilter.VARIANT_TYPE);
         mapColumnFieldName.put(GENE_ALLELE_VARIANT_CONSEQUENCE, FieldFilter.VARIANT_CONSEQUENCE);
+        mapColumnFieldName.put(GENE_ALLELE_CATEGORY, FieldFilter.ALLELE_CATEGORY);
 
+        mapColumnAttribute.put(GENE_ALLELE_CATEGORY, entity -> Set.of(entity.getCategory()));
         mapColumnAttribute.put(GENE_ALLELE_VARIANT_TYPE, entity -> {
             if (entity.getVariants() != null) {
                 return entity.getVariants().stream().map(variant -> variant.getVariantType().getName()).collect(toSet());
@@ -44,6 +47,7 @@ public class AlleleColumnFieldMapping extends ColumnFieldMapping<Allele> {
 
         singleValueDistinctFieldColumns.add(GENE_ALLELE_VARIANT_TYPE);
         singleValueDistinctFieldColumns.add(GENE_ALLELE_VARIANT_CONSEQUENCE);
+        singleValueDistinctFieldColumns.add(GENE_ALLELE_CATEGORY);
     }
 
 }
