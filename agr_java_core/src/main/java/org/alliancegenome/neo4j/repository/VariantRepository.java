@@ -41,8 +41,9 @@ public class VariantRepository extends Neo4jRepository<Variant> {
         query += " MATCH p1=(t:Transcript)-[:ASSOCIATION]->(variant:Variant)--(soTerm:SOTerm) ";
         query += " WHERE variant.primaryKey = {" + paramName + "}";
         query += " OPTIONAL MATCH consequence=(:GenomicLocation)--(variant:Variant)-[:ASSOCIATION]->(:TranscriptLevelConsequence)<-[:ASSOCIATION]-(t:Transcript)<-[:TRANSCRIPT_TYPE]-(:SOTerm)";
-        query += " OPTIONAL MATCH gene=(:GenomicLocation)--(:Exon)-[:EXON]->(t:Transcript)-[:TRANSCRIPT]-(:Gene)--(:GenomicLocation)--(:Chromosome)";
-        query += " RETURN p1, consequence, gene ";
+        query += " OPTIONAL MATCH gene=(t:Transcript)-[:TRANSCRIPT]-(:Gene)--(:GenomicLocation)--(:Chromosome)";
+        query += " OPTIONAL MATCH exons=(:GenomicLocation)--(:Exon)-[:EXON]->(t:Transcript)";
+        query += " RETURN p1, consequence, gene, exons ";
 
         Iterable<Variant> variants = query(query, map);
         for (Variant a : variants) {
