@@ -25,6 +25,9 @@ public class AlleleFiltering extends AnnotationFiltering<Allele> {
     private static FilterFunction<Allele, String> transgenicAlleleDiseaseFilter =
             (allele, value) -> FilterFunction.contains(allele.hasDisease().toString(), value);
 
+    private static FilterFunction<Allele, String> alleleCategoryFilter =
+            (allele, value) -> FilterFunction.fullMatchMultiValueOR(allele.getCategory(), value);
+
     private static FilterFunction<Allele, String> speciesFilter =
             (allele, value) -> {
                 if (allele.getSpecies() != null) {
@@ -159,6 +162,7 @@ public class AlleleFiltering extends AnnotationFiltering<Allele> {
         filterFieldMap.put(FieldFilter.CONSTRUCT_EXPRESSED_GENE, transgenicAlleleConstructExpressedFilter);
         filterFieldMap.put(FieldFilter.TRANSGENE_HAS_PHENOTYPE, transgenicAllelePhenotypeFilter);
         filterFieldMap.put(FieldFilter.TRANSGENE_HAS_DISEASE, transgenicAlleleDiseaseFilter);
+        filterFieldMap.put(FieldFilter.ALLELE_CATEGORY, alleleCategoryFilter);
     }
 
 }

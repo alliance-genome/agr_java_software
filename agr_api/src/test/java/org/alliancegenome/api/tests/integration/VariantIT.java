@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.junit.Assert.*;
 
 public class VariantIT {
@@ -102,7 +103,15 @@ public class VariantIT {
         JsonResultResponse<Allele> response = variantService.getAllelesByVariant("NC_007126.7:g.15401132A>G", pagination);
         List<Allele> results = response.getResults();
         assertNotNull(results);
-        VariantRepository variantRepo = new VariantRepository();
+    }
+
+    @Test
+    public void getAllelesByVariantWithoutExistingExons() {
+        Pagination pagination = new Pagination();
+        JsonResultResponse<Transcript> response = variantService.getTranscriptsByVariant("NC_000069.6:g.115711892_115711893delinsGC", pagination);
+        List<Transcript> results = response.getResults();
+        assertNotNull(results);
+        assertThat(response.getTotal(), greaterThanOrEqualTo(2));
     }
 
     @Test
@@ -114,7 +123,7 @@ public class VariantIT {
         List<Transcript> results = response.getResults();
         assertNotNull(results);
         assertThat(results.size(), equalTo(2));
-        assertThat(response.getTotal(), greaterThan(200));
+        assertThat(response.getTotal(), greaterThanOrEqualTo(16));
 
     }
 
