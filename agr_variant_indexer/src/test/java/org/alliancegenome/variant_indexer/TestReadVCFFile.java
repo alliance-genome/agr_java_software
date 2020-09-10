@@ -15,31 +15,29 @@ import lombok.extern.log4j.Log4j2;
 public class TestReadVCFFile {
 
     public static void main(String[] args) {
-        VCFFileReader reader = new VCFFileReader(new File("/Users/olinblodgett/Desktop/Variants/mgp.v5.merged.snps_all.dbSNP142.vcf.gz"), false);
+        VCFFileReader reader = new VCFFileReader(new File("/Users/olinblodgett/Desktop/Variants/WB.vep.vcf.gz"), false);
         CloseableIterator<VariantContext> iter1 = reader.iterator();
 
         String chr = "";
 
         ProcessDisplayHelper ph = new ProcessDisplayHelper(2000);
-        ph.startProcess("Mouse SNPS", 78_772_544);
+        ph.startProcess("Variants", 1_694_366);
     
         VariantContextWriter vcwb = null;
         
         while(iter1.hasNext()) {
             try {
                 VariantContext vc = iter1.next();
-                if(vc.getChr().equals("Y")) {
-                    if(!vc.getChr().equals(chr)) {
-                        System.out.println("New File: " + chr);
-                        if(vcwb != null) {
-                            vcwb.close();
-                        }
-                        vcwb = new VariantContextWriterBuilder().setOutputFile("mgp.v5.merged.snps_all.dbSNP142.chr" + vc.getChr() + ".vcf.gz").build();
-                        vcwb.writeHeader(reader.getFileHeader());
-                        chr = vc.getChr();
+                if(!vc.getChr().equals(chr)) {
+                    System.out.println("New File: " + chr);
+                    if(vcwb != null) {
+                        vcwb.close();
                     }
-                    vcwb.add(vc);
+                    vcwb = new VariantContextWriterBuilder().setOutputFile("/Users/olinblodgett/Desktop/Variants/WB.vep.chr" + vc.getChr() + ".vcf.gz").build();
+                    vcwb.writeHeader(reader.getFileHeader());
+                    chr = vc.getChr();
                 }
+                vcwb.add(vc);
                 
                 ph.progressProcess();
                 
