@@ -1,26 +1,18 @@
+PROCS = -T 4
+PACKAGE = clean package
+#FLAGS = -DskipTests=true -ntp -Dorg.slf4j.simpleLogger.defaultLogLevel=WARN
+FLAGS = 
+
+OPTS = $(PROCS) $(PACKAGE) $(FLAGS)
+
 all:
-	mvn -T 4 clean package
+	mvn $(OPTS)
 
-api:
-	mvn -T 4 clean package -pl agr_api -am
-
-apitester:
-	mvn -T 4 clean package -pl agr_api_tester -am
-
-cacher:
-	mvn -T 4 clean package -pl agr_cacher -am
-
-dataextractor:
-	mvn -T 4 clean package -pl agr_intermine_data_extractor -am
-
-cacherq:
-	mvn -T 4 -q clean package -pl agr_cacher -am
+%:
+	mvn $(OPTS) -pl agr_$@ -am
 
 cacherrun:
 	java -jar agr_cacher/target/agr_cacher-jar-with-dependencies.jar
-
-apiq:
-	mvn -T 4 -q clean package -pl agr_api -am
 
 apirun:
 	make -C agr_api run
@@ -31,17 +23,6 @@ apitesterrun:
 apidebug:
 	make -C agr_api debug
 
-indexer:
-	mvn -T 4 clean package -pl agr_indexer -am
-
-variant_indexer:
-	mvn -T 4 clean package -pl agr_variant_indexer -am
-
-esutil:
-	mvn -T 4 clean package -pl agr_elasticsearch_util -am
-
-core:
-	mvn -T 4 clean package -pl agr_java_core -am
 
 searchtest:
 	mvn -T 4 -Dit.test="AutocompteIntegrationSpec,QueryMatchIntegrationSpec,QueryRankIntegrationSpec,QueryTokenizationIntegrationSpec,RelatedDataServiceIntegrationSpec" -DfailIfNoTests=false verify
