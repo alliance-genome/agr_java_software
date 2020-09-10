@@ -1,27 +1,28 @@
 package org.alliancegenome.neo4j.entity.node;
 
-import java.util.Date;
-import java.util.List;
-
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonView;
+import lombok.Getter;
+import lombok.Setter;
 import org.alliancegenome.es.util.DateConverter;
 import org.alliancegenome.neo4j.entity.relationship.GenomeLocation;
 import org.alliancegenome.neo4j.view.View;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.typeconversion.Convert;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonView;
-
-import lombok.Getter;
-import lombok.Setter;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @NodeEntity(label = "Variant")
 @Getter
 @Setter
-@Schema(name="Variant", description="POJO that represents the Variant")
+@Schema(name = "Variant", description = "POJO that represents the Variant")
 public class Variant extends GeneticEntity implements Comparable<Variant> {
 
     protected GeneticEntity.CrossReferenceType crossReferenceType;
@@ -118,5 +119,47 @@ public class Variant extends GeneticEntity implements Comparable<Variant> {
         if (getPaddingLeft().length() == 0)
             return change;
         return (getPaddingLeft().charAt(getPaddingLeft().length() - 1) + change);
+    }
+
+    @JsonView({View.VariantAPI.class})
+    public List<String> getHgvsG() {
+        if (CollectionUtils.isNotEmpty(transcriptList)) {
+            return transcriptList.stream()
+                    .map(Transcript::getConsequences)
+                    .flatMap(Collection::stream)
+                    .map(TranscriptLevelConsequence::getHgvsVEPGeneNomenclature)
+                    .distinct()
+                    .sorted()
+                    .collect(Collectors.toList());
+        }
+        return null;
+    }
+
+    @JsonView({View.VariantAPI.class})
+    public List<String> getHgvsC() {
+        if (CollectionUtils.isNotEmpty(transcriptList)) {
+            return transcriptList.stream()
+                    .map(Transcript::getConsequences)
+                    .flatMap(Collection::stream)
+                    .map(TranscriptLevelConsequence::getHgvsCodingNomenclature)
+                    .distinct()
+                    .sorted()
+                    .collect(Collectors.toList());
+        }
+        return null;
+    }
+
+    @JsonView({View.VariantAPI.class})
+    public List<String> getHgvsP() {
+        if (CollectionUtils.isNotEmpty(transcriptList)) {
+            return transcriptList.stream()
+                    .map(Transcript::getConsequences)
+                    .flatMap(Collection::stream)
+                    .map(TranscriptLevelConsequence::getHgvsProteinNomenclature)
+                    .distinct()
+                    .sorted()
+                    .collect(Collectors.toList());
+        }
+        return null;
     }
 }
