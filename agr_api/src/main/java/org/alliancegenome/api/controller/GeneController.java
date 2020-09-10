@@ -563,7 +563,6 @@ public class GeneController implements GeneRESTInterface {
                                                            String constructRegulatedGene,
                                                            String constructTargetedGene,
                                                            String constructExpressedGene,
-                                                           String synonym,
                                                            String species,
                                                            String hasPhenotype,
                                                            String hasDisease,
@@ -571,7 +570,6 @@ public class GeneController implements GeneRESTInterface {
 
         Pagination pagination = new Pagination(page, limit, sortBy, null);
         pagination.addFieldFilter(FieldFilter.SYMBOL, alleleSymbol);
-        pagination.addFieldFilter(FieldFilter.SYNONYMS, synonym);
         pagination.addFieldFilter(FieldFilter.SPECIES, species);
         pagination.addFieldFilter(FieldFilter.TRANSGENE_HAS_PHENOTYPE, hasPhenotype);
         pagination.addFieldFilter(FieldFilter.TRANSGENE_HAS_DISEASE, hasDisease);
