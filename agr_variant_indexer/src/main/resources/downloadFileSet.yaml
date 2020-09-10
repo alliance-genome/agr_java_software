@@ -1,105 +1,174 @@
 downloadPath: ""
 
 downloadFileSet:
-  - source: ensembl
-    species: human
+  - source: HUMAN
+    species: NCBITaxon:9606
     fileList:
       - chromosome: 1
-        url: https://download.alliancegenome.org/variants/build-99/homo_sapiens_incl_consequences-chr1.vcf.gz
+        url: https://download.alliancegenome.org/variants/human/HUMAN.v2.vep.chr1.vcf.gz
       - chromosome: 2
-        url: https://download.alliancegenome.org/variants/build-99/homo_sapiens_incl_consequences-chr2.vcf.gz
+        url: https://download.alliancegenome.org/variants/human/HUMAN.v2.vep.chr2.vcf.gz
       - chromosome: 3
-        url: https://download.alliancegenome.org/variants/build-99/homo_sapiens_incl_consequences-chr3.vcf.gz
+        url: https://download.alliancegenome.org/variants/human/HUMAN.v2.vep.chr3.vcf.gz
       - chromosome: 4
-        url: https://download.alliancegenome.org/variants/build-99/homo_sapiens_incl_consequences-chr4.vcf.gz
+        url: https://download.alliancegenome.org/variants/human/HUMAN.v2.vep.chr4.vcf.gz
       - chromosome: 5
-        url: https://download.alliancegenome.org/variants/build-99/homo_sapiens_incl_consequences-chr5.vcf.gz
+        url: https://download.alliancegenome.org/variants/human/HUMAN.v2.vep.chr5.vcf.gz
       - chromosome: 6
-        url: https://download.alliancegenome.org/variants/build-99/homo_sapiens_incl_consequences-chr6.vcf.gz
+        url: https://download.alliancegenome.org/variants/human/HUMAN.v2.vep.chr6.vcf.gz
       - chromosome: 7
-        url: https://download.alliancegenome.org/variants/build-99/homo_sapiens_incl_consequences-chr7.vcf.gz
+        url: https://download.alliancegenome.org/variants/human/HUMAN.v2.vep.chr7.vcf.gz
       - chromosome: 8
-        url: https://download.alliancegenome.org/variants/build-99/homo_sapiens_incl_consequences-chr8.vcf.gz
+        url: https://download.alliancegenome.org/variants/human/HUMAN.v2.vep.chr8.vcf.gz
       - chromosome: 9
-        url: https://download.alliancegenome.org/variants/build-99/homo_sapiens_incl_consequences-chr9.vcf.gz
+        url: https://download.alliancegenome.org/variants/human/HUMAN.v2.vep.chr9.vcf.gz
       - chromosome: 10
-        url: https://download.alliancegenome.org/variants/build-99/homo_sapiens_incl_consequences-chr10.vcf.gz
+        url: https://download.alliancegenome.org/variants/human/HUMAN.v2.vep.chr10.vcf.gz
       - chromosome: 11
-        url: https://download.alliancegenome.org/variants/build-99/homo_sapiens_incl_consequences-chr11.vcf.gz
+        url: https://download.alliancegenome.org/variants/human/HUMAN.v2.vep.chr11.vcf.gz
       - chromosome: 12
-        url: https://download.alliancegenome.org/variants/build-99/homo_sapiens_incl_consequences-chr12.vcf.gz
+        url: https://download.alliancegenome.org/variants/human/HUMAN.v2.vep.chr12.vcf.gz
       - chromosome: 13
-        url: https://download.alliancegenome.org/variants/build-99/homo_sapiens_incl_consequences-chr13.vcf.gz
+        url: https://download.alliancegenome.org/variants/human/HUMAN.v2.vep.chr13.vcf.gz
       - chromosome: 14
-        url: https://download.alliancegenome.org/variants/build-99/homo_sapiens_incl_consequences-chr14.vcf.gz
+        url: https://download.alliancegenome.org/variants/human/HUMAN.v2.vep.chr14.vcf.gz
       - chromosome: 15
-        url: https://download.alliancegenome.org/variants/build-99/homo_sapiens_incl_consequences-chr15.vcf.gz
+        url: https://download.alliancegenome.org/variants/human/HUMAN.v2.vep.chr15.vcf.gz
       - chromosome: 16
-        url: https://download.alliancegenome.org/variants/build-99/homo_sapiens_incl_consequences-chr16.vcf.gz
+        url: https://download.alliancegenome.org/variants/human/HUMAN.v2.vep.chr16.vcf.gz
       - chromosome: 17
-        url: https://download.alliancegenome.org/variants/build-99/homo_sapiens_incl_consequences-chr17.vcf.gz
+        url: https://download.alliancegenome.org/variants/human/HUMAN.v2.vep.chr17.vcf.gz
       - chromosome: 18
-        url: https://download.alliancegenome.org/variants/build-99/homo_sapiens_incl_consequences-chr18.vcf.gz
+        url: https://download.alliancegenome.org/variants/human/HUMAN.v2.vep.chr18.vcf.gz
       - chromosome: 19
-        url: https://download.alliancegenome.org/variants/build-99/homo_sapiens_incl_consequences-chr19.vcf.gz
+        url: https://download.alliancegenome.org/variants/human/HUMAN.v2.vep.chr19.vcf.gz
       - chromosome: 20
-        url: https://download.alliancegenome.org/variants/build-99/homo_sapiens_incl_consequences-chr20.vcf.gz
+        url: https://download.alliancegenome.org/variants/human/HUMAN.v2.vep.chr20.vcf.gz
       - chromosome: 21
-        url: https://download.alliancegenome.org/variants/build-99/homo_sapiens_incl_consequences-chr21.vcf.gz
+        url: https://download.alliancegenome.org/variants/human/HUMAN.v2.vep.chr21.vcf.gz
       - chromosome: 22
-        url: https://download.alliancegenome.org/variants/build-99/homo_sapiens_incl_consequences-chr22.vcf.gz
+        url: https://download.alliancegenome.org/variants/human/HUMAN.v2.vep.chr22.vcf.gz
       - chromosome: MT
-        url: https://download.alliancegenome.org/variants/build-99/homo_sapiens_incl_consequences-chrMT.vcf.gz
+        url: https://download.alliancegenome.org/variants/human/HUMAN.v2.vep.chrMT.vcf.gz
       - chromosome: X
-        url: https://download.alliancegenome.org/variants/build-99/homo_sapiens_incl_consequences-chrX.vcf.gz
+        url: https://download.alliancegenome.org/variants/human/HUMAN.v2.vep.chrX.vcf.gz
       - chromosome: Y
-        url: https://download.alliancegenome.org/variants/build-99/homo_sapiens_incl_consequences-chrY.vcf.gz
+        url: https://download.alliancegenome.org/variants/human/HUMAN.v2.vep.chrY.vcf.gz
         
-  - source: sanger
-    species: mouse
+  - source: RGD
+    species: NCBITaxon:10116
     fileList:
       - chromosome: 1
-        url: https://download.alliancegenome.org/variants/mouse/mgp.v5.merged.snps_all.dbSNP142.chr1.vcf.gz
+        url: https://download.alliancegenome.org/variants/rgd/RGD.chr1.vep.vcf.gz
       - chromosome: 2
-        url: https://download.alliancegenome.org/variants/mouse/mgp.v5.merged.snps_all.dbSNP142.chr2.vcf.gz
+        url: https://download.alliancegenome.org/variants/rgd/RGD.chr2.vep.vcf.gz
       - chromosome: 3
-        url: https://download.alliancegenome.org/variants/mouse/mgp.v5.merged.snps_all.dbSNP142.chr3.vcf.gz
+        url: https://download.alliancegenome.org/variants/rgd/RGD.chr3.vep.vcf.gz
       - chromosome: 4
-        url: https://download.alliancegenome.org/variants/mouse/mgp.v5.merged.snps_all.dbSNP142.chr4.vcf.gz
+        url: https://download.alliancegenome.org/variants/rgd/RGD.chr4.vep.vcf.gz
       - chromosome: 5
-        url: https://download.alliancegenome.org/variants/mouse/mgp.v5.merged.snps_all.dbSNP142.chr5.vcf.gz
+        url: https://download.alliancegenome.org/variants/rgd/RGD.chr5.vep.vcf.gz
       - chromosome: 6
-        url: https://download.alliancegenome.org/variants/mouse/mgp.v5.merged.snps_all.dbSNP142.chr6.vcf.gz
+        url: https://download.alliancegenome.org/variants/rgd/RGD.chr6.vep.vcf.gz
       - chromosome: 7
-        url: https://download.alliancegenome.org/variants/mouse/mgp.v5.merged.snps_all.dbSNP142.chr7.vcf.gz
+        url: https://download.alliancegenome.org/variants/rgd/RGD.chr7.vep.vcf.gz
       - chromosome: 8
-        url: https://download.alliancegenome.org/variants/mouse/mgp.v5.merged.snps_all.dbSNP142.chr8.vcf.gz
+        url: https://download.alliancegenome.org/variants/rgd/RGD.chr8.vep.vcf.gz
       - chromosome: 9
-        url: https://download.alliancegenome.org/variants/mouse/mgp.v5.merged.snps_all.dbSNP142.chr9.vcf.gz
+        url: https://download.alliancegenome.org/variants/rgd/RGD.chr9.vep.vcf.gz
       - chromosome: 10
-        url: https://download.alliancegenome.org/variants/mouse/mgp.v5.merged.snps_all.dbSNP142.chr10.vcf.gz
+        url: https://download.alliancegenome.org/variants/rgd/RGD.chr10.vep.vcf.gz
       - chromosome: 11
-        url: https://download.alliancegenome.org/variants/mouse/mgp.v5.merged.snps_all.dbSNP142.chr11.vcf.gz
+        url: https://download.alliancegenome.org/variants/rgd/RGD.chr11.vep.vcf.gz
       - chromosome: 12
-        url: https://download.alliancegenome.org/variants/mouse/mgp.v5.merged.snps_all.dbSNP142.chr12.vcf.gz
+        url: https://download.alliancegenome.org/variants/rgd/RGD.chr12.vep.vcf.gz
       - chromosome: 13
-        url: https://download.alliancegenome.org/variants/mouse/mgp.v5.merged.snps_all.dbSNP142.chr13.vcf.gz
+        url: https://download.alliancegenome.org/variants/rgd/RGD.chr13.vep.vcf.gz
       - chromosome: 14
-        url: https://download.alliancegenome.org/variants/mouse/mgp.v5.merged.snps_all.dbSNP142.chr14.vcf.gz
+        url: https://download.alliancegenome.org/variants/rgd/RGD.chr14.vep.vcf.gz
       - chromosome: 15
-        url: https://download.alliancegenome.org/variants/mouse/mgp.v5.merged.snps_all.dbSNP142.chr15.vcf.gz
+        url: https://download.alliancegenome.org/variants/rgd/RGD.chr15.vep.vcf.gz
       - chromosome: 16
-        url: https://download.alliancegenome.org/variants/mouse/mgp.v5.merged.snps_all.dbSNP142.chr16.vcf.gz
+        url: https://download.alliancegenome.org/variants/rgd/RGD.chr16.vep.vcf.gz
       - chromosome: 17
-        url: https://download.alliancegenome.org/variants/mouse/mgp.v5.merged.snps_all.dbSNP142.chr17.vcf.gz
+        url: https://download.alliancegenome.org/variants/rgd/RGD.chr17.vep.vcf.gz
       - chromosome: 18
-        url: https://download.alliancegenome.org/variants/mouse/mgp.v5.merged.snps_all.dbSNP142.chr18.vcf.gz
+        url: https://download.alliancegenome.org/variants/rgd/RGD.chr18.vep.vcf.gz
       - chromosome: 19
-        url: https://download.alliancegenome.org/variants/mouse/mgp.v5.merged.snps_all.dbSNP142.chr19.vcf.gz
+        url: https://download.alliancegenome.org/variants/rgd/RGD.chr19.vep.vcf.gz
+      - chromosome: 20
+        url: https://download.alliancegenome.org/variants/rgd/RGD.chr20.vep.vcf.gz
       - chromosome: X
-        url: https://download.alliancegenome.org/variants/mouse/mgp.v5.merged.snps_all.dbSNP142.chrX.vcf.gz
+        url: https://download.alliancegenome.org/variants/rgd/RGD.chrX.vep.vcf.gz
       - chromosome: Y
-        url: https://download.alliancegenome.org/variants/mouse/mgp.v5.merged.snps_all.dbSNP142.chrY.vcf.gz
+        url: https://download.alliancegenome.org/variants/rgd/RGD.chrY.vep.vcf.gz
       - chromosome: MT
-        url: https://download.alliancegenome.org/variants/mouse/mgp.v5.merged.snps_all.dbSNP142.chrMT.vcf.gz
-        
+        url: https://download.alliancegenome.org/variants/rgd/RGD.chrMT.vep.vcf.gz
+
+   - source: FB
+    species: NCBITaxon:7227
+    fileList:
+      - chromosome: 1
+        url: https://download.alliancegenome.org/variants/rgd/RGD.chr1.vep.vcf.gz
+      - chromosome: 2
+        url: https://download.alliancegenome.org/variants/rgd/RGD.chr2.vep.vcf.gz
+      - chromosome: 3
+        url: https://download.alliancegenome.org/variants/rgd/RGD.chr3.vep.vcf.gz
+      - chromosome: 4
+        url: https://download.alliancegenome.org/variants/rgd/RGD.chr4.vep.vcf.gz
+      - chromosome: 5
+        url: https://download.alliancegenome.org/variants/rgd/RGD.chr5.vep.vcf.gz
+      - chromosome: 6
+        url: https://download.alliancegenome.org/variants/rgd/RGD.chr6.vep.vcf.gz
+      - chromosome: 7
+        url: https://download.alliancegenome.org/variants/rgd/RGD.chr7.vep.vcf.gz
+      - chromosome: 8
+        url: https://download.alliancegenome.org/variants/rgd/RGD.chr8.vep.vcf.gz
+      - chromosome: 9
+        url: https://download.alliancegenome.org/variants/rgd/RGD.chr9.vep.vcf.gz
+      - chromosome: 10
+        url: https://download.alliancegenome.org/variants/rgd/RGD.chr10.vep.vcf.gz
+      - chromosome: 11
+        url: https://download.alliancegenome.org/variants/rgd/RGD.chr11.vep.vcf.gz
+      - chromosome: 12
+        url: https://download.alliancegenome.org/variants/rgd/RGD.chr12.vep.vcf.gz
+      - chromosome: 13
+        url: https://download.alliancegenome.org/variants/rgd/RGD.chr13.vep.vcf.gz
+      - chromosome: 14
+        url: https://download.alliancegenome.org/variants/rgd/RGD.chr14.vep.vcf.gz
+      - chromosome: 15
+        url: https://download.alliancegenome.org/variants/rgd/RGD.chr15.vep.vcf.gz
+      - chromosome: 16
+        url: https://download.alliancegenome.org/variants/rgd/RGD.chr16.vep.vcf.gz
+      - chromosome: 17
+        url: https://download.alliancegenome.org/variants/rgd/RGD.chr17.vep.vcf.gz
+      - chromosome: 18
+        url: https://download.alliancegenome.org/variants/rgd/RGD.chr18.vep.vcf.gz
+      - chromosome: 19
+        url: https://download.alliancegenome.org/variants/rgd/RGD.chr19.vep.vcf.gz
+      - chromosome: 20
+        url: https://download.alliancegenome.org/variants/rgd/RGD.chr20.vep.vcf.gz
+      - chromosome: X
+        url: https://download.alliancegenome.org/variants/rgd/RGD.chrX.vep.vcf.gz
+      - chromosome: Y
+        url: https://download.alliancegenome.org/variants/rgd/RGD.chrY.vep.vcf.gz
+      - chromosome: MT
+        url: https://download.alliancegenome.org/variants/rgd/RGD.chrMT.vep.vcf.gz
+
+  - source: WB
+    species: NCBITaxon:6239
+    fileList:
+      - chromosome: I
+        url: https://download.alliancegenome.org/variants/wb/WB.vep.chrI.vcf.gz
+      - chromosome: II
+        url: https://download.alliancegenome.org/variants/wb/WB.vep.chrII.vcf.gz
+      - chromosome: III
+        url: https://download.alliancegenome.org/variants/wb/WB.vep.chrIII.vcf.gz
+      - chromosome: IV
+        url: https://download.alliancegenome.org/variants/wb/WB.vep.chrIV.vcf.gz
+      - chromosome: V
+        url: https://download.alliancegenome.org/variants/wb/WB.vep.chrV.vcf.gz
+      - chromosome: X
+        url: https://download.alliancegenome.org/variants/wb/WB.vep.chrX.vcf.gz
+      - chromosome: MtDNA
+        url: https://download.alliancegenome.org/variants/wb/WB.vep.chrMtDNA.vcf.gz
