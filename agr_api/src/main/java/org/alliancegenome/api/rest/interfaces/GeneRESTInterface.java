@@ -565,8 +565,6 @@ public interface GeneRESTInterface {
             @QueryParam("filter.constructTargetedGene") String constructTargetedGene,
             @Parameter(in = ParameterIn.QUERY, name = "filter.constructExpressedGene", description = "filter by construct symbol", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.constructExpressedGene") String constructExpressedGene,
-            @Parameter(in = ParameterIn.QUERY, name = "filter.synonym", description = "allele synonym", schema = @Schema(type = SchemaType.STRING))
-            @QueryParam("filter.synonym") String synonym,
             @Parameter(in = ParameterIn.QUERY, name = "filter.species", description = "filter by species", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.species") String species,
             @Parameter(in = ParameterIn.QUERY, name = "filter.hasPhenotype", description = "filter by existence of phenotype", schema = @Schema(type = SchemaType.STRING))
