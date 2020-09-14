@@ -54,6 +54,11 @@ public class SearchHelper {
                     add("genes");
                 }
             });
+            put("dataset", new ArrayList<String>() {
+                {
+                    add("tags");
+                }
+            });
             put("disease", new ArrayList<String>() {
                 {
                     add("diseaseGroup");
@@ -193,6 +198,7 @@ public class SearchHelper {
             add("soTermName.letterText");
             add("strictOrthologySymbols.autocomplete");
             add("strictOrthologySymbols.keyword");
+            add("summary");
             add("whereExpressed");
             add("whereExpressed.keyword");
         }
@@ -225,6 +231,7 @@ public class SearchHelper {
             add("name_key");
             add("soTermName");
             add("species");
+            add("summary");
             add("symbol");
             add("synonyms");
             add("variants");

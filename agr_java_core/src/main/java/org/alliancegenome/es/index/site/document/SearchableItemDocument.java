@@ -42,6 +42,7 @@ public class SearchableItemDocument extends ESDocument {
     String soTermId;
     String soTermName;
     String species;
+    String summary;
     String symbol;
     String symbolText;
 
@@ -87,6 +88,7 @@ public class SearchableItemDocument extends ESDocument {
     Set<String> subcellularExpressionWithParents = new HashSet<>();
     Set<String> subcellularExpressionAgrSlim = new HashSet<>();
     Set<String> synonyms = new HashSet<>();
+    Set<String> tags = new HashSet<>();
     Set<String> variants = new HashSet<>();
     Set<String> variantSynonyms = new HashSet<>();
     Set<String> variantType = new HashSet<>();

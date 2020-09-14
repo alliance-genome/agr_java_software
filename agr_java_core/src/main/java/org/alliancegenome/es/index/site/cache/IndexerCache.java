@@ -32,6 +32,7 @@ public class IndexerCache {
     protected Map<String, Set<String>> secondaryIds = new HashMap<>();
     protected Map<String, Set<String>> species = new HashMap<>();
     protected Map<String, Set<String>> synonyms = new HashMap<>();
+    protected Map<String, Set<String>> tags = new HashMap<>();
     protected Map<String, Set<String>> variants = new HashMap<>();
     protected Map<String, Set<String>> variantSynonyms = new HashMap<>();
     protected Map<String, Set<String>> variantType = new HashMap<>();
@@ -100,6 +101,7 @@ public class IndexerCache {
             document.getSynonyms().addAll(synonyms.get(id));
         }
 
+        document.setTags(tags.get(id));
     }
 
 }

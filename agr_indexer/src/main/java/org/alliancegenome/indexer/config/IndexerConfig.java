@@ -1,16 +1,12 @@
 package org.alliancegenome.indexer.config;
 
-import org.alliancegenome.indexer.indexers.AlleleIndexer;
-import org.alliancegenome.indexer.indexers.DiseaseIndexer;
-import org.alliancegenome.indexer.indexers.GeneIndexer;
-import org.alliancegenome.indexer.indexers.GoIndexer;
-import org.alliancegenome.indexer.indexers.ModelIndexer;
-import org.alliancegenome.indexer.indexers.VariantIndexer;
+import org.alliancegenome.indexer.indexers.*;
 
 public enum IndexerConfig {
 
     // These numbers target a 10KB document batch size
     GeneIndexer("gene", GeneIndexer.class, 1, 240),
+    DatasetIndexer("dataset", DatasetIndexer.class, 2, 3000),
     DiseaseIndexer("disease", DiseaseIndexer.class, 2, 150),
     AlleleIndexer("allele", AlleleIndexer.class, 2, 743),
     GoIndexer("go", GoIndexer.class, 2, 2300),

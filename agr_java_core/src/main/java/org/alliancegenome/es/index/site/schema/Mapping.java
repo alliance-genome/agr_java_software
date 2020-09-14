@@ -105,6 +105,7 @@ public class Mapping extends Builder {
         new FieldBuilder(builder, "soTermId", "keyword").build();
         new FieldBuilder(builder, "species", "text").keyword().synonym().sort().build();
         new FieldBuilder(builder, "strictOrthologySymbols", "text").keyword().autocomplete().build();
+        new FieldBuilder(builder, "summary", "text").build();
         new FieldBuilder(builder, "symbolText", "text").keyword().standardText().build();
         new FieldBuilder(builder, "synonyms", "text").analyzer("symbols")
                 .autocomplete()
