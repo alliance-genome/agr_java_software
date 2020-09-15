@@ -17,7 +17,7 @@ public class HumanVariantContextConverter extends VariantContextConverter {
 
     private static HumanVariantContextConverterHelper utils = new HumanVariantContextConverterHelper();
 
-    public List<String> convertVariantContext(VariantContext ctx) {
+    public List<String> convertVariantContext(VariantContext ctx, int taxon ) {
 
         List<String> returnDocuments = new ArrayList<String>();
         
@@ -27,6 +27,7 @@ public class HumanVariantContextConverter extends VariantContextConverter {
         for (Allele a : ctx.getAlternateAlleles()) {
             VariantDocument variantDocument = new VariantDocument();
             variantDocument.setId(ctx.getID());
+            variantDocument.setTaxon(taxon);
             variantDocument.setChromosome(ctx.getContig());
             variantDocument.setStartPos(ctx.getStart());
             if (a.compareTo(refNuc) < 0) {
@@ -62,7 +63,10 @@ public class HumanVariantContextConverter extends VariantContextConverter {
             variantDocument.setEndPos(endPos);
             variantDocument.setVariantType((String) ctx.getCommonInfo().getAttribute("TSA"));
             try {
+                if(taxon!=9606)
                 variantDocument.setConsequences(utils.getConsequences(ctx, index, a.getBaseString()));
+                else
+                    variantDocument.setConsequences(utils.getHumanConsequences(ctx, index, a.getBaseString()));
             } catch (JsonProcessingException e) {
                 e.printStackTrace();
             }

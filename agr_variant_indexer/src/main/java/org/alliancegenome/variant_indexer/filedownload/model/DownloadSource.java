@@ -10,6 +10,6 @@ import lombok.ToString;
 public class DownloadSource {
     private String source;
     private String species;
-    private String taxon;
+    private int taxon;
     private List<DownloadableFile> fileList;
 }
