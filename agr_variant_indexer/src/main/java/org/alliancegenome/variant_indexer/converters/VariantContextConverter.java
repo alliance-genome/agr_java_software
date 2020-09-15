@@ -20,9 +20,7 @@ public abstract class VariantContextConverter {
     public abstract List<String> convertVariantContext(VariantContext ctx);
 
     public static VariantContextConverter getConverter(String converterName) {
-        if(converterName == null) {
-        
-        } else {
+        if(converterName != null) {
             Class<?> clazz = VariantConverter.getConverter(converterName);
             try {
                 return (VariantContextConverter) clazz.getDeclaredConstructor().newInstance();
@@ -34,10 +32,11 @@ public abstract class VariantContextConverter {
     }
 
     private enum VariantConverter {
-        HUMAN(HumanVariantContextConverter.class),
-        MOUSE(MouseVariantContextConverter.class),
-        ;
 
+     HUMAN(HumanVariantContextConverter.class),
+        MOUSE(MouseVariantContextConverter.class),
+        MOD(HumanVariantContextConverter.class),
+        ;
         private Class<?> converterClazz;
         
         VariantConverter(Class<?> converterClazz) {
@@ -50,9 +49,10 @@ public abstract class VariantContextConverter {
 
         public static Class<?> getConverter(String converterName) {
             for(VariantConverter vc: VariantConverter.values()) {
-                if(vc.name().toLowerCase().equals(converterName)) {
+                if(vc.name().toLowerCase().equals(converterName.toLowerCase())) {
                     return vc.getConverterClazz();
-                }
+                }else
+                    return MOD.converterClazz;
             }
             return null;
         }

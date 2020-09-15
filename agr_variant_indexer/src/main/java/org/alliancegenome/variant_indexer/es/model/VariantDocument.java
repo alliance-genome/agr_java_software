@@ -27,4 +27,7 @@ public class VariantDocument {
     private List<String> evidence;
     private List<String> clinicalSignificance;
     private List<TranscriptFeature> consequences;
+    private int taxon;
+    private List<Sample> samples;
+
 }

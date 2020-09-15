@@ -2,7 +2,8 @@ downloadPath: ""
 
 downloadFileSet:
   - source: HUMAN
-    species: NCBITaxon:9606
+    species: HUMAN
+    taxon: 9606
     fileList:
       - chromosome: 1
         url: https://download.alliancegenome.org/variants/human/HUMAN.v2.vep.chr1.vcf.gz
@@ -54,9 +55,10 @@ downloadFileSet:
         url: https://download.alliancegenome.org/variants/human/HUMAN.v2.vep.chrX.vcf.gz
       - chromosome: Y
         url: https://download.alliancegenome.org/variants/human/HUMAN.v2.vep.chrY.vcf.gz
-        
+
   - source: RGD
-    species: NCBITaxon:10116
+    species: RAT
+    taxon: 10116
     fileList:
       - chromosome: 1
         url: https://download.alliancegenome.org/variants/rgd/RGD.chr1.vep.vcf.gz
@@ -106,8 +108,9 @@ downloadFileSet:
         url: https://download.alliancegenome.org/variants/rgd/RGD.chrMT.vep.vcf.gz
 
    - source: FB
-    species: NCBITaxon:7227
-    fileList:
+     species: FLY
+     taxon: 7227
+     fileList:
       - chromosome: 1
         url: https://download.alliancegenome.org/variants/rgd/RGD.chr1.vep.vcf.gz
       - chromosome: 2
@@ -156,7 +159,8 @@ downloadFileSet:
         url: https://download.alliancegenome.org/variants/rgd/RGD.chrMT.vep.vcf.gz
 
   - source: WB
-    species: NCBITaxon:6239
+    species: CELEGANS
+    taxon: 6239
     fileList:
       - chromosome: I
         url: https://download.alliancegenome.org/variants/wb/WB.vep.chrI.vcf.gz
