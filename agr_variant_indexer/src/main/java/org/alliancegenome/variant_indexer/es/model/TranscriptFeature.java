@@ -40,5 +40,10 @@ public class TranscriptFeature {
     private String HGNCId;
     private String source;
     private String HGVSOffset;
-
+//REFSEQ_MATCH|SOURCE|REFSEQ_OFFSET|GIVEN_REF|USED_REF|BAM_EDIT
+    private String RefSeqMatch;
+    private String refSeqOffset;
+    private String givenRef;
+    private String usedRef;
+    private String BAMEdit;
 }

@@ -32,7 +32,7 @@ public class TestSingleLineConvert {
             try {
                 VariantContext vc = iter1.next();
                 //if(vc.getID().equals("rs55780505")) {
-                List<String> docs = converter.convertVariantContext(vc);
+                List<String> docs = converter.convertVariantContext(vc, 0);
                 for(String doc: docs) {
                     
                     ds.addValue(doc.length());

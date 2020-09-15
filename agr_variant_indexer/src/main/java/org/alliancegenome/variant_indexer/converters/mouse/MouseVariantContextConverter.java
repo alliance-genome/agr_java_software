@@ -14,11 +14,11 @@ public class MouseVariantContextConverter extends VariantContextConverter {
 
     HumanVariantContextConverter hc = new HumanVariantContextConverter();
 
-    public List<String> convertVariantContext(VariantContext ctx) {
+    public List<String> convertVariantContext(VariantContext ctx, int taxon) {
 
         //try {
             //String json = mapper.writeValueAsString(ctx);
-            return hc.convertVariantContext(ctx);
+            return hc.convertVariantContext(ctx, taxon);
             
             //System.out.println(list);
         //} catch (JsonProcessingException e) {

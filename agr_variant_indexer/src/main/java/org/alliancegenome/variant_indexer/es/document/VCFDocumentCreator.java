@@ -23,7 +23,7 @@ import lombok.extern.log4j.Log4j2;
 public class VCFDocumentCreator extends Thread {
 
     private String vcfFilePath;
-
+    private int taxon;
     private ESDocumentInjector docInjector;
     private ProcessDisplayHelper ph = new ProcessDisplayHelper(10000);
 
@@ -39,8 +39,9 @@ public class VCFDocumentCreator extends Thread {
         runningQueue
     );
     
-    public VCFDocumentCreator(DownloadableFile downloadFile, String speciesName) {
+    public VCFDocumentCreator(DownloadableFile downloadFile, String speciesName, int taxon) {
         this.vcfFilePath = downloadFile.getLocalGzipFilePath();
+        this.taxon=taxon;
         converter = VariantContextConverter.getConverter(speciesName);
     }
 
@@ -78,7 +79,7 @@ public class VCFDocumentCreator extends Thread {
                     workChunk.add(vc);
                     
                     if(workChunk.size() >= VariantConfigHelper.getDocumentCreatorWorkChunkSize()) {
-                        variantContextProcessorTaskExecuter.execute(new VariantContextProcessorTask(workChunk));
+                        variantContextProcessorTaskExecuter.execute(new VariantContextProcessorTask(workChunk, taxon));
                         workChunk = new ArrayList<>();
                     }
                     ph.progressProcess();
@@ -87,7 +88,7 @@ public class VCFDocumentCreator extends Thread {
                 }
             }
             if(workChunk.size() > 0) {
-                variantContextProcessorTaskExecuter.execute(new VariantContextProcessorTask(workChunk));
+                variantContextProcessorTaskExecuter.execute(new VariantContextProcessorTask(workChunk, taxon));
             }
             ph.finishProcess();
 
@@ -114,14 +115,15 @@ public class VCFDocumentCreator extends Thread {
     private class VariantContextProcessorTask implements Runnable {
 
         private List<VariantContext> workChunk;
-
-        public VariantContextProcessorTask(List<VariantContext> workChunk) {
+        private int taxon;
+        public VariantContextProcessorTask(List<VariantContext> workChunk, int taxon) {
             this.workChunk = workChunk;
+            this.taxon=taxon;
         }
 
         public void run() {
             for(VariantContext ctx: workChunk) {
-                List<String> docs = converter.convertVariantContext(ctx);
+                List<String> docs = converter.convertVariantContext(ctx,taxon);
                 
                 for(String doc: docs) {
                     docInjector.addDocument(doc);

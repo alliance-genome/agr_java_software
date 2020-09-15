@@ -260,6 +260,244 @@ public class HumanVariantContextConverterHelper {
         }
         return features;
     }
+    public List<TranscriptFeature> getHumanConsequences(VariantContext ctx, int index, String varNuc) throws JsonProcessingException {
+        List<TranscriptFeature> features = new ArrayList<>();
+        if(ctx.getAttribute("CSQ")!=null) {
+            ObjectMapper mapper=new ObjectMapper();
+            String[] array= null;
+            try {
+                String jsonArray=mapper.writeValueAsString(ctx.getAttribute("CSQ"));
+                try {
+                    StringTokenizer tokenizer=new StringTokenizer(jsonArray, ",");
+                    array=new String[tokenizer.countTokens()];
+                    array = mapper.readValue(jsonArray, String[].class);
+                } catch (IOException e) {
+                    try {
+                        array=mapper.readValue(Arrays.asList(jsonArray).toString(), String[].class);
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
+                }
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
+          /*  Map<String, Polyphen> polyphen = mapPolyphen(ctx, index);
+            Map<String, String> varPep = mapVarPep(ctx);
+            Map<String, List<VariantEffect>> veffects = mapVE(ctx, index);*/
+
+            for (String obj :array) {
+                String[] tokens = obj.toString().split("\\|");
+                String feature = new String();
+                String allele = new String();
+                try {
+                    // allele = tokens[0];
+                    allele = tokens[0].replace("\\[","").trim();
+                } catch (Exception e) {
+                }
+                if (allele.equalsIgnoreCase(varNuc)) {
+                    TranscriptFeature f = new TranscriptFeature();
+                    f.setAllele(allele);
+                    try {
+                        String consequence = tokens[1];
+                        f.setConsequence(consequence);
+                    } catch (Exception e) {
+                    }
+                    try {
+                        String impact = tokens[2];
+                        f.setImpact(impact);
+                    } catch (Exception e) {
+                        //   e.printStackTrace();
+                    }
+                    try {
+                        String symbol = tokens[3];
+                        f.setSymbol(symbol);
+                    } catch (Exception e) {
+                        //   e.printStackTrace();
+                    }
+                    try {
+                        String gene = tokens[4];
+                        f.setGene(gene);
+                    } catch (Exception e) {
+                        //   e.printStackTrace();
+                    }
+                    try {
+                        String featureType = tokens[5];
+                        f.setFeatureType(featureType);
+                    } catch (Exception e) {
+                        //   e.printStackTrace();
+                    }
+                    try {
+                        feature = tokens[6];
+                        f.setFeature(feature);
+                    } catch (Exception e) {
+                        //  e.printStackTrace();
+                    }
+                    try {
+                        String biotype = tokens[7];
+                        f.setBiotype(biotype);
+                    } catch (Exception e) {
+                        //  e.printStackTrace();
+                    }
+                    try {
+                        String exon = tokens[8];
+                        f.setExon(exon);
+                    } catch (Exception e) {
+                        //  e.printStackTrace();
+                    }
+                    try {
+                        String intron = tokens[9];
+                        f.setIntron(intron);
+                    } catch (Exception e) {
+                        //  e.printStackTrace();
+                    }
+                    try {
+                        String HGVSc = tokens[10];
+                        f.setHGVSc(HGVSc);
+                    } catch (Exception e) {
+                        //  e.printStackTrace();
+                    }
+                    try {
+                        String HGVSp = tokens[11];
+                        f.setHGVSp(HGVSp);
+                    } catch (Exception e) {
+                        //  e.printStackTrace();
+                    }
+                    try {
+                        String cDNAPostion = tokens[12];
+                        f.setCDNAPosition(cDNAPostion);
+                    } catch (Exception e) {
+                        //  e.printStackTrace();
+                    }
+                    try {
+                        String CDSPosition = tokens[13];
+                        f.setCDSPosition(CDSPosition);
+                    } catch (Exception e) {
+                        //  e.printStackTrace();
+                    }
+                    try {
+                        String proteinPostion = tokens[14];
+                        f.setProteinPosition(proteinPostion);
+                    } catch (Exception e) {
+                        //  e.printStackTrace();
+                    }
+
+                    try {
+                        String aminoAcids = tokens[15];
+                        f.setAminoAcids(aminoAcids);
+                    } catch (Exception e) {
+                        // e.printStackTrace();
+                    }
+                    try {
+                        String codon = tokens[16];
+                        f.setCodon(codon);
+                    } catch (Exception e) {
+                        //  e.printStackTrace();
+                    }
+                    try {
+                        String existingVariation = tokens[17];
+                        f.setExistingVariation(existingVariation);
+                    } catch (Exception e) {
+                        //  e.printStackTrace();
+                    }
+                    try {
+                        String distance = tokens[18];
+                        f.setDistance(distance);
+                    } catch (Exception e) {
+                        //  e.printStackTrace();
+                    }
+                    try {
+                        String strand = tokens[19];
+                        f.setStrand(strand);
+                    } catch (Exception e) {
+                        //  e.printStackTrace();
+                    }
+                    try {
+                        String flags = tokens[20];
+                        f.setFlags(flags);
+                    } catch (Exception e) {
+                        //  e.printStackTrace();
+                    }
+                    try {
+                        String symbolSource = tokens[21];
+                        f.setSymbolSource(symbolSource);
+                    } catch (Exception e) {
+                        //  e.printStackTrace();
+                    }
+                    try {
+                        String HGNCId = tokens[22];
+                        f.setHGNCId(HGNCId);
+                    } catch (Exception e) {
+                        //  e.printStackTrace();
+                    }
+                    //REFSEQ_MATCH|SOURCE|REFSEQ_OFFSET|GIVEN_REF|USED_REF|BAM_EDIT|SIFT|PolyPhen|HGVS_OFFSET|HGVSg">
+                    try {
+                        String refSeqMatch = tokens[23];
+                        f.setRefSeqMatch(refSeqMatch);
+                    } catch (Exception e) {
+                        //  e.printStackTrace();
+                    }
+                    try {
+                        String source = tokens[24];
+                        f.setSource(source);
+                    } catch (Exception e) {
+                        //  e.printStackTrace();
+                    }
+                    try {
+                        String refSeqOffset = tokens[25];
+                        f.setRefSeqOffset(refSeqOffset);
+                    } catch (Exception e) {
+                        //  e.printStackTrace();
+                    }
+                    try {
+                        String givenRef = tokens[26];
+                        f.setGivenRef(givenRef);
+                    } catch (Exception e) {
+                        //  e.printStackTrace();
+                    }
+                    try {
+                        String usedRef = tokens[27];
+                        f.setUsedRef(usedRef);
+                    } catch (Exception e) {
+                        //  e.printStackTrace();
+                    }
+                    try {
+                        String bamEdit = tokens[28];
+                        f.setBAMEdit(bamEdit);
+                    } catch (Exception e) {
+                        //  e.printStackTrace();
+                    }
+                    try {
+                        String polyphen = tokens[29];
+                        f.setPolyphen(polyphen);
+                    } catch (Exception e) {
+                        //  e.printStackTrace();
+                    }
+                    try {
+                        String sift = tokens[30];
+                        f.setSift(sift);
+                    } catch (Exception e) {
+                        //e.printStackTrace();
+                    }
+                    try {
+                        String HGVSOffset = tokens[31];
+                        f.setHGVSOffset(HGVSOffset);
+                    } catch (Exception e) {
+                        //  e.printStackTrace();
+                    }
+                    try {
+                        String HGVSg = tokens[32];
+                        f.setHGVSg(HGVSg);
+                    } catch (Exception e) {
+                        //  e.printStackTrace();
+                    }
+
+
+                    features.add(f);
+                }
+            }
+        }
+        return features;
+    }
     public Map<String, List<VariantEffect>> mapVE(VariantContext ctx, int index){
         Map<String, List<VariantEffect>> veMap=new HashMap<>();
         if(ctx.getAttribute("VE")!=null) {
