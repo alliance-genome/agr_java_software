@@ -17,7 +17,7 @@ public abstract class VariantContextConverter {
         mapper = new ObjectMapper();
     }
 
-    public abstract List<String> convertVariantContext(VariantContext ctx);
+    public abstract List<String> convertVariantContext(VariantContext ctx, int taxon);
 
     public static VariantContextConverter getConverter(String converterName) {
         if(converterName != null) {
