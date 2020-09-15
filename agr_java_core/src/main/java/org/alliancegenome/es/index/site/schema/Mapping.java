@@ -23,6 +23,7 @@ public class Mapping extends Builder {
     }
 
     protected void buildSharedSearchableDocumentMappings() throws IOException {
+        new FieldBuilder(builder, "age", "text").keyword().build();
         new FieldBuilder(builder, "alleles", "text").keyword().autocomplete().build();
         new FieldBuilder(builder, "anatomicalExpression", "text").keyword().build();
         new FieldBuilder(builder, "associatedSpecies", "text").keyword().synonym().sort().build();
@@ -100,6 +101,7 @@ public class Mapping extends Builder {
                 .keywordAutocomplete()
                 .sort()
                 .build();
+        new FieldBuilder(builder, "sex", "text").keyword().build();
         new FieldBuilder(builder, "secondaryIds", "keyword").build();
         new FieldBuilder(builder, "soTermName", "text").keyword().letterText().build();
         new FieldBuilder(builder, "soTermId", "keyword").build();

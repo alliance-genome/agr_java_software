@@ -56,7 +56,11 @@ public class SearchHelper {
             });
             put("dataset", new ArrayList<String>() {
                 {
+                    add("species");
                     add("tags");
+                    add("sex");
+                    add("age");
+
                 }
             });
             put("disease", new ArrayList<String>() {

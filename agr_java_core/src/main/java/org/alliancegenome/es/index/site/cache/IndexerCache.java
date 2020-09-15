@@ -16,6 +16,7 @@ public class IndexerCache {
     protected Map<String, Variant> variantMap = new HashMap<>();
     protected Map<String, Allele> alleleMap = new HashMap<>();
 
+    protected Map<String, Set<String>> age = new HashMap<>();
     protected Map<String, Set<String>> chromosomes = new HashMap<>();
     protected Map<String, Set<String>> constructs = new HashMap<>();
     protected Map<String, Set<String>> crossReferences = new HashMap<>();
@@ -29,6 +30,7 @@ public class IndexerCache {
     protected Map<String, Set<String>> molecularConsequenceMap = new HashMap<>();
     protected Map<String, Set<String>> phenotypeStatements = new HashMap<>();
     protected Map<String, Double> popularity = new HashMap<>();
+    protected Map<String, Set<String>> sex = new HashMap<>();
     protected Map<String, Set<String>> secondaryIds = new HashMap<>();
     protected Map<String, Set<String>> species = new HashMap<>();
     protected Map<String, Set<String>> synonyms = new HashMap<>();
@@ -47,6 +49,7 @@ public class IndexerCache {
     public void addCachedFields(SearchableItemDocument document) {
         String id = document.getPrimaryKey();
 
+        document.setAge(age.get(id));
         document.setAlleles(alleles.get(id));
         //addAll vs setter is because some fields may be set by a translator before this step
         if (crossReferences.get(id) != null) {
@@ -81,6 +84,7 @@ public class IndexerCache {
 
         document.setPhenotypeStatements(phenotypeStatements.get(id));
         document.setPopularity(popularity.get(id) == null ? 0D : popularity.get(id));
+        document.setSex(sex.get(id));
         document.setVariants(variants.get(id));
         document.setVariantSynonyms(variantSynonyms.get(id));
         if (secondaryIds.get(id) != null) {
