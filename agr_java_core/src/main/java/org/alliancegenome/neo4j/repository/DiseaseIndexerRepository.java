@@ -64,22 +64,22 @@ public class DiseaseIndexerRepository extends Neo4jRepository<DOTerm> {
 
 
     public Map<String, Set<String>> getGenesMap() {
-        return getMapSetForQuery("MATCH (disease:DOTerm)--(:DiseaseEntityJoin)--(gene:Gene) " +
+        return getMapSetForQuery("MATCH (disease:DOTerm)-[:IS_MARKER_FOR|:IS_IMPLICATED_IN|:IMPLICATED_VIA_ORTHOLOGY|:BIOMARKER_VIA_ORTHOLOGY]-(gene:Gene) " +
                 " RETURN disease.primaryKey as id, gene.symbolWithSpecies as value;");
     }
 
     public Map<String, Set<String>> getAllelesMap() {
-        return getMapSetForQuery("MATCH (disease:DOTerm)--(:DiseaseEntityJoin)--(allele:Allele) " +
+        return getMapSetForQuery("MATCH (disease:DOTerm)-[:IS_IMPLICATED_IN]-(allele:Allele) " +
                 "RETURN disease.primaryKey as id, allele.symbolTextWithSpecies as value;");
     }
 
     public Map<String, Set<String>> getModelsMap() {
-        return getMapSetForQuery("MATCH (species:Species)-[:FROM_SPECIES]-(model:AffectedGenomicModel)--(disease:DOTerm)"
+        return getMapSetForQuery("MATCH (species:Species)-[:FROM_SPECIES]-(model:AffectedGenomicModel)-[:IS_MODEL_OF]-(disease:DOTerm)"
                 + " RETURN disease.primaryKey as id, model.nameTextWithSpecies as value");
     }
 
     public Map<String, Set<String>> getSpeciesMap() {
-        return getMapSetForQuery("MATCH (disease:DOTerm)--(:DiseaseEntityJoin)--(gene:Gene)--(species:Species) " +
+        return getMapSetForQuery("MATCH (disease:DOTerm)-[:IS_MARKER_FOR|:IS_IMPLICATED_IN|:IMPLICATED_VIA_ORTHOLOGY|:BIOMARKER_VIA_ORTHOLOGY]-(gene:Gene)-[:FROM_SPECIES]-(species:Species) " +
                 " RETURN disease.primaryKey as id, species.name as value;");
     }
 
