@@ -2,11 +2,7 @@ package org.alliancegenome.variant_indexer.converters.human;
 
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.alliancegenome.variant_indexer.es.model.ClinicalSig;
 import org.alliancegenome.variant_indexer.es.model.Evidence;
@@ -62,10 +58,12 @@ public class HumanVariantContextConverterHelper {
         List<TranscriptFeature> features = new ArrayList<>();
         if(ctx.getAttribute("CSQ")!=null) {
             ObjectMapper mapper=new ObjectMapper();
-            String[] array= new String[0];
+            String[] array= null;
             try {
                 String jsonArray=mapper.writeValueAsString(ctx.getAttribute("CSQ"));
                 try {
+                    StringTokenizer tokenizer=new StringTokenizer(jsonArray, ",");
+                    array=new String[tokenizer.countTokens()];
                     array = mapper.readValue(jsonArray, String[].class);
                 } catch (IOException e) {
                     try {
@@ -77,9 +75,9 @@ public class HumanVariantContextConverterHelper {
             } catch (JsonProcessingException e) {
                 e.printStackTrace();
             }
-            Map<String, Polyphen> polyphen = mapPolyphen(ctx, index);
+          /*  Map<String, Polyphen> polyphen = mapPolyphen(ctx, index);
             Map<String, String> varPep = mapVarPep(ctx);
-            Map<String, List<VariantEffect>> veffects = mapVE(ctx, index);
+            Map<String, List<VariantEffect>> veffects = mapVE(ctx, index);*/
 
             for (String obj :array) {
                 String[] tokens = obj.toString().split("\\|");
@@ -99,33 +97,162 @@ public class HumanVariantContextConverterHelper {
                     } catch (Exception e) {
                     }
                     try {
-                        String featureType = tokens[2];
+                        String impact = tokens[2];
+                        f.setImpact(impact);
+                    } catch (Exception e) {
+                        //   e.printStackTrace();
+                    }
+                    try {
+                        String symbol = tokens[3];
+                        f.setSymbol(symbol);
+                    } catch (Exception e) {
+                        //   e.printStackTrace();
+                    }
+                    try {
+                        String gene = tokens[4];
+                        f.setGene(gene);
+                    } catch (Exception e) {
+                        //   e.printStackTrace();
+                    }
+                    try {
+                        String featureType = tokens[5];
                         f.setFeatureType(featureType);
                     } catch (Exception e) {
                         //   e.printStackTrace();
                     }
                     try {
-                        feature = tokens[3];
+                        feature = tokens[6];
                         f.setFeature(feature);
                     } catch (Exception e) {
                         //  e.printStackTrace();
                     }
                     try {
-                        String aminoAcids = tokens[4];
+                        String biotype = tokens[7];
+                        f.setBiotype(biotype);
+                    } catch (Exception e) {
+                        //  e.printStackTrace();
+                    }
+                    try {
+                        String exon = tokens[8];
+                        f.setExon(exon);
+                    } catch (Exception e) {
+                        //  e.printStackTrace();
+                    }
+                    try {
+                        String intron = tokens[9];
+                        f.setIntron(intron);
+                    } catch (Exception e) {
+                        //  e.printStackTrace();
+                    }
+                    try {
+                        String HGVSc = tokens[10];
+                        f.setHGVSc(HGVSc);
+                    } catch (Exception e) {
+                        //  e.printStackTrace();
+                    }
+                    try {
+                        String HGVSp = tokens[11];
+                        f.setHGVSp(HGVSp);
+                    } catch (Exception e) {
+                        //  e.printStackTrace();
+                    }
+                    try {
+                        String cDNAPostion = tokens[12];
+                        f.setCDNAPosition(cDNAPostion);
+                    } catch (Exception e) {
+                        //  e.printStackTrace();
+                    }
+                    try {
+                        String CDSPosition = tokens[13];
+                        f.setCDSPosition(CDSPosition);
+                    } catch (Exception e) {
+                        //  e.printStackTrace();
+                    }
+                    try {
+                        String proteinPostion = tokens[14];
+                        f.setProteinPosition(proteinPostion);
+                    } catch (Exception e) {
+                        //  e.printStackTrace();
+                    }
+
+                    try {
+                        String aminoAcids = tokens[15];
                         f.setAminoAcids(aminoAcids);
                     } catch (Exception e) {
                         // e.printStackTrace();
                     }
                     try {
-                        String sift = tokens[5];
+                        String codon = tokens[16];
+                        f.setCodon(codon);
+                    } catch (Exception e) {
+                        //  e.printStackTrace();
+                    }
+                    try {
+                        String existingVariation = tokens[17];
+                        f.setExistingVariation(existingVariation);
+                    } catch (Exception e) {
+                        //  e.printStackTrace();
+                    }
+                    try {
+                        String distance = tokens[18];
+                        f.setDistance(distance);
+                    } catch (Exception e) {
+                        //  e.printStackTrace();
+                    }
+                    try {
+                        String strand = tokens[19];
+                        f.setStrand(strand);
+                    } catch (Exception e) {
+                        //  e.printStackTrace();
+                    }
+                    try {
+                        String flags = tokens[20];
+                        f.setFlags(flags);
+                    } catch (Exception e) {
+                        //  e.printStackTrace();
+                    }
+                    try {
+                        String symbolSource = tokens[21];
+                        f.setSymbolSource(symbolSource);
+                    } catch (Exception e) {
+                        //  e.printStackTrace();
+                    }
+                    try {
+                        String HGNCId = tokens[22];
+                        f.setHGNCId(HGNCId);
+                    } catch (Exception e) {
+                        //  e.printStackTrace();
+                    }
+                    try {
+                        String source = tokens[23];
+                        f.setSource(source);
+                    } catch (Exception e) {
+                        //  e.printStackTrace();
+                    }
+                    try {
+                        String HGVSOffset = tokens[24];
+                        f.setHGVSOffset(HGVSOffset);
+                    } catch (Exception e) {
+                        //  e.printStackTrace();
+                    }
+                    try {
+                        String HGVSg = tokens[25];
+                        f.setHGVSg(HGVSg);
+                    } catch (Exception e) {
+                        //  e.printStackTrace();
+                    }
+                    try {
+                        String polyphen = tokens[26];
+                        f.setPolyphen(polyphen);
+                    } catch (Exception e) {
+                        //  e.printStackTrace();
+                    }
+                    try {
+                        String sift = tokens[27];
                         f.setSift(sift);
                     } catch (Exception e) {
                         //e.printStackTrace();
                     }
-
-                    f.setPolyphen(polyphen.get(feature));
-                    f.setVarPep(varPep.get(feature));
-                    f.setVariantEffects(veffects.get(feature));
 
                     features.add(f);
                 }

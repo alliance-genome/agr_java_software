@@ -3,7 +3,9 @@ package org.alliancegenome.variant_indexer.converters.human;
 import java.util.ArrayList;
 import java.util.List;
 
+import htsjdk.variant.variantcontext.Genotype;
 import org.alliancegenome.variant_indexer.converters.VariantContextConverter;
+import org.alliancegenome.variant_indexer.es.model.Sample;
 import org.alliancegenome.variant_indexer.es.model.VariantDocument;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -78,9 +80,21 @@ public class HumanVariantContextConverter extends VariantContextConverter {
                 variantDocument.setAa((String) ctx.getAttribute("AA"));
             if (ctx.getAttribute("QUAL") != null)
                 variantDocument.setQual((String) ctx.getAttribute("QUAL"));
-            
+            if (ctx.getAttribute("FILTER") != null)
+                variantDocument.setQual((String) ctx.getAttribute("FILTER"));
             index = index + 1;
-
+            List<Genotype> genotypes=ctx.getGenotypes();
+            if(genotypes!=null && genotypes.size()>0) {
+                List<Sample> samples = new ArrayList<>();
+                for (Genotype g : genotypes) {
+                    Sample s = new Sample();
+                    s.setSampleName(g.getSampleName());
+                    s.setDepth(g.getDP());
+                    s.setType(g.getType().name());
+                    samples.add(s);
+                }
+                variantDocument.setSamples(samples);
+            }
             try {
                 returnDocuments.add(mapper.writeValueAsString(variantDocument));
             } catch (JsonProcessingException e) {
