@@ -58,8 +58,10 @@ public class SearchHelper {
                 {
                     add("species");
                     add("tags");
+                    add("anatomicalExpression");
                     add("sex");
                     add("age");
+                    add("assembly");
 
                 }
             });
@@ -115,6 +117,7 @@ public class SearchHelper {
             add("anatomicalExpression.keyword");
             add("anatomicalExpressionWithParents");
             add("anatomicalExpressionWithParents.keyword");
+            add("assembly");
             add("associatedSpecies");
             add("associatedSpecies.synonyms");
             add("automatedGeneSynopsis");

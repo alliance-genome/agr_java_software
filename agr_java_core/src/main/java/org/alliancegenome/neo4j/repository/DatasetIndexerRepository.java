@@ -42,11 +42,23 @@ public class DatasetIndexerRepository extends Neo4jRepository {
         log.info("Fetching species");
         cache.setSpecies(getSpecies());
 
+        log.info("Fetching assembly");
+        cache.setAssembly(getAssembly());
+
         log.info("Fetching age");
         cache.setAge(getAge());
 
         log.info("Fetching sex");
         cache.setSex(getSex());
+
+        log.info("Fetching whereExpressed statement");
+        cache.setWhereExpressed(getSampleStructure());
+
+        log.info("Fetching anatomical expression ribbon terms");
+        cache.setAnatomicalExpression(getSampleStructureRibbonTerms());
+
+        log.info("Fetching anatomical expression parent terms");
+        cache.setAnatomicalExpressionWithParents(getSampleStructureParentTerms());
 
         return cache;
     }
@@ -60,16 +72,36 @@ public class DatasetIndexerRepository extends Neo4jRepository {
                 " RETURN distinct dataset.primaryKey as id, species.name as value;");
     }
 
+    public Map<String, Set<String>> getAssembly() {
+        return getMapSetForQuery("MATCH (dataset:HTPDataset)-[:ASSOCIATION]-(sample:HTPDatasetSample)-[:ASSEMBLY]-(assembly:Assembly) " +
+                " RETURN distinct dataset.primaryKey as id, assembly.primaryKey as value;");
+    }
+
     public Map<String, Set<String>> getAge() {
         return getMapSetForQuery("MATCH (dataset:HTPDataset)-[:ASSOCIATION]-(sample:HTPDatasetSample) " +
                 " WHERE sample.sampleAge <> \"\" " +
-                "RETURN distinct dataset.primaryKey as id, sample.sampleAge as value");
+                " RETURN distinct dataset.primaryKey as id, sample.sampleAge as value");
     }
 
     public Map<String, Set<String>> getSex() {
         return getMapSetForQuery("MATCH (dataset:HTPDataset)-[:ASSOCIATION]-(sample:HTPDatasetSample) " +
                 " WHERE sample.sex <> \"\" " +
-                "RETURN distinct dataset.primaryKey as id, sample.sex as value");
+                " RETURN distinct dataset.primaryKey as id, sample.sex as value");
+    }
+
+    public Map<String, Set<String>> getSampleStructure() {
+        return getMapSetForQuery("MATCH (dataset:HTPDataset)-[:ASSOCIATION]-(:HTPDatasetSample)-[:STRUCTURE_SAMPLED]-(ebe:ExpressionBioEntity) " +
+                " RETURN distinct dataset.primaryKey as id, ebe.whereExpressedStatement as value");
+    }
+
+    public Map<String, Set<String>> getSampleStructureRibbonTerms() {
+        return getMapSetForQuery("MATCH (dataset:HTPDataset)-[:ASSOCIATION]-(:HTPDatasetSample)-[:STRUCTURE_SAMPLED]-(ebe:ExpressionBioEntity)-[:ANATOMICAL_RIBBON_TERM]-(term:Ontology) " +
+                " RETURN dataset.primaryKey as id, term.name as value");
+    }
+
+    public Map<String, Set<String>> getSampleStructureParentTerms() {
+        return getMapSetForQuery("MATCH (dataset:HTPDataset)-[:ASSOCIATION]-(:HTPDatasetSample)-[:STRUCTURE_SAMPLED]-(ebe:ExpressionBioEntity)-[:ANATOMICAL_STRUCTURE]-(:Ontology)-[:IS_A_PART_OF_CLOSURE|IS_A_PART_OF_SELF_CLOSURE]->(term:Ontology) " +
+                " RETURN dataset.primaryKey as id, term.name as value");
     }
 
 

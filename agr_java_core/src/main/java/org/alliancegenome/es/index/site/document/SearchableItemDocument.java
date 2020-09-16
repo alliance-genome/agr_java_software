@@ -50,6 +50,7 @@ public class SearchableItemDocument extends ESDocument {
     Set<String> age = new HashSet<>();
     Set<String> anatomicalExpression = new HashSet<>();         //uberon slim
     Set<String> anatomicalExpressionWithParents = new HashSet<>();
+    Set<String> assembly = new HashSet<>();
     Set<String> associatedSpecies = new HashSet<>();
     Set<String> biologicalProcessAgrSlim = new HashSet<>();
     Set<String> biologicalProcessWithParents = new HashSet<>();

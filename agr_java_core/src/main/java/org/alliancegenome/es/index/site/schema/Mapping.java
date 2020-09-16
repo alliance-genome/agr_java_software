@@ -26,6 +26,7 @@ public class Mapping extends Builder {
         new FieldBuilder(builder, "age", "text").keyword().build();
         new FieldBuilder(builder, "alleles", "text").keyword().autocomplete().build();
         new FieldBuilder(builder, "anatomicalExpression", "text").keyword().build();
+        new FieldBuilder(builder, "assembly", "text").keyword().build();
         new FieldBuilder(builder, "associatedSpecies", "text").keyword().synonym().sort().build();
         new FieldBuilder(builder, "associationType", "text").symbol().autocomplete().keyword().standardText().build();
         new FieldBuilder(builder, "biologicalProcess", "text").keyword().build();
