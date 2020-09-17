@@ -45,6 +45,10 @@ public class ProcessDisplayHelper {
     }
 
     public void progressProcess() {
+        progressProcess(null);
+    }
+    
+    public void progressProcess(String data) {
         Date now = new Date();
         long diff = now.getTime() - startTime.getTime();
         long time = now.getTime() - lastTime.getTime();
@@ -63,7 +67,10 @@ public class ProcessDisplayHelper {
             message += " of [" + getBigNumber(totalSize) + "] " + (int) (percent * 100) + "%";
         }
         message += ", " + (time / 1000) + "s to process " + getBigNumber(processedAmount) + " records at " + getBigNumber((processedAmount * 1000) / time) + "r/s";
-
+        if(data != null) {
+            message += " " + data;
+        }
+        
         if (percent > 0) {
             int perms = (int) (diff / percent);
             Date end = new Date(startTime.getTime() + perms);

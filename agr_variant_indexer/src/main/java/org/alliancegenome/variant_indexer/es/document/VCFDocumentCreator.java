@@ -27,6 +27,8 @@ public class VCFDocumentCreator extends Thread {
     private ESDocumentInjector docInjector;
     private ProcessDisplayHelper ph = new ProcessDisplayHelper(10000);
 
+    private double json_avg;
+
     private LinkedBlockingDeque<Runnable> runningQueue = new LinkedBlockingDeque<Runnable>(VariantConfigHelper.getContextProcessorTaskQueueSize());
     
     private VariantContextConverter converter;
@@ -82,7 +84,7 @@ public class VCFDocumentCreator extends Thread {
                         variantContextProcessorTaskExecuter.execute(new VariantContextProcessorTask(workChunk, taxon));
                         workChunk = new ArrayList<>();
                     }
-                    ph.progressProcess();
+                    ph.progressProcess("Avg Doc Size: " + json_avg);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -111,6 +113,10 @@ public class VCFDocumentCreator extends Thread {
         }
 
     }
+    
+    private double runningAverage(double avg, double new_sample, int size) {
+        return (avg * (size - 1) / size) + (new_sample / size);
+    }
 
     private class VariantContextProcessorTask implements Runnable {
 
@@ -123,9 +129,10 @@ public class VCFDocumentCreator extends Thread {
 
         public void run() {
             for(VariantContext ctx: workChunk) {
-                List<String> docs = converter.convertVariantContext(ctx,taxon);
+                List<String> docs = converter.convertVariantContext(ctx, taxon);
                 
                 for(String doc: docs) {
+                    json_avg = runningAverage(json_avg, doc.length(), 1_000_000);
                     docInjector.addDocument(doc);
                 }
             }
