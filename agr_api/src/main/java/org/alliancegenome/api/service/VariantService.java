@@ -100,13 +100,31 @@ public class VariantService {
 
         // It's an intron if no exon overlap is found.
         String location = "Intron";
+        boolean foundExon = false;
         for (int index = 0; index < exonRanges.size(); index++) {
             Range<Long> exonRange = exonRanges.get(index);
+            // fully contains the variant
             if (exonRange.containsRange(variantRange)) {
                 location = "Exon";
                 if (!strand.isEmpty())
                     location += " " + index;
+                foundExon = true;
                 break;
+            }
+        }
+        // check if there is partial overlap
+        if (!foundExon) {
+            for (int index = 0; index < exonRanges.size(); index++) {
+                Range<Long> exonRange = exonRanges.get(index);
+                // partial overlap with variant
+                try {
+                    exonRange.intersectionWith(variantRange);
+                    location += "/Exon";
+                    break;
+                } catch (IllegalArgumentException e) {
+                    // ignore as it means there is no intersection
+                    // bad API: should have a boolean that checks if there is an intersection
+                }
             }
         }
         transcript.setIntronExonLocation(location);

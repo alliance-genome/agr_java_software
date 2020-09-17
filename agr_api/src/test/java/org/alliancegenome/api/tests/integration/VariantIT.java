@@ -15,9 +15,7 @@ import org.junit.Test;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
 public class VariantIT {
@@ -80,21 +78,25 @@ public class VariantIT {
         results = response.getResults();
         assertNotNull(results);
         transcript = results.get(0);
-        assertEquals(transcript.getIntronExonLocation(), "Intron");
+        assertEquals(transcript.getIntronExonLocation(), "Intron/Exon");
 
         variantID = "NC_005120.4:g.154703661_154703782del";
         response = variantService.getTranscriptsByVariant(variantID, pagination);
         results = response.getResults();
         assertNotNull(results);
         transcript = results.get(0);
-        assertEquals(transcript.getIntronExonLocation(), "Intron");
+        assertEquals(transcript.getIntronExonLocation(), "Intron/Exon");
 
-        variantID = "NC_003279.8:g.152331C>A";
-        response = variantService.getTranscriptsByVariant(variantID, pagination);
-        results = response.getResults();
+    }
+
+    @Test
+    public void getLocationIntronExonTranscript() {
+        Pagination pagination = new Pagination();
+        JsonResultResponse<Transcript> response = variantService.getTranscriptsByVariant("NC_005120.4:g.154703661_154703782del", pagination);
+        List<Transcript> results = response.getResults();
         assertNotNull(results);
-        transcript = results.get(0);
-        assertEquals(transcript.getIntronExonLocation(), "Exon 6");
+        Transcript transcript = results.get(0);
+        assertEquals(transcript.getIntronExonLocation(), "Intron/Exon");
     }
 
     @Test
