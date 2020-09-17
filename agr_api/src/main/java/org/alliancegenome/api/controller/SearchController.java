@@ -19,8 +19,8 @@ public class SearchController implements SearchRESTInterface {
 
     @Override
     public SearchApiResponse search(String q, String category, Integer limit, Integer offset, String sort_by, UriInfo uriInfo) {
-        if(limit == 0) limit = 10;
-        if(q != null) { q = q.trim(); }
+        if (limit == null || limit == 0) { limit = 10; }
+        if (q != null) { q = q.trim(); }
         log.info("This is the Search query: " + q);
         return searchService.query(q, category, limit, offset, sort_by, uriInfo);
     }

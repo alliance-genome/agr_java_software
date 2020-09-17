@@ -33,13 +33,7 @@ public class GeneDocumentCache extends IndexerCache {
     private Map<String,Set<String>> molecularFunctionWithParents = new HashMap<>();
     private Map<String,Set<String>> molecularFunctionAgrSlim = new HashMap<>();
 
-    private Map<String,Set<String>> subcellularExpressionWithParents = new HashMap<>();
-    private Map<String,Set<String>> subcellularExpressionAgrSlim = new HashMap<>();
-
-    private Map<String,Set<String>> whereExpressed = new HashMap<>();
-    private Map<String,Set<String>> anatomicalExpression = new HashMap<>();         //uberon slim
-    private Map<String,Set<String>> anatomicalExpressionWithParents = new HashMap<>();
-
+    
     private Map<String,Set<String>> soTermNames = new HashMap<>();
     private Map<String,Set<String>> soTermNameWithParents = new HashMap<>();
     private Map<String,Set<String>> soTermNameAgrSlim = new HashMap<>();
@@ -99,13 +93,7 @@ public class GeneDocumentCache extends IndexerCache {
         document.setMolecularFunctionWithParents(molecularFunctionWithParents.get(id));
         document.setMolecularFunctionAgrSlim(molecularFunctionAgrSlim.get(id));
 
-        document.setSubcellularExpressionWithParents(subcellularExpressionWithParents.get(id));
-        document.setSubcellularExpressionAgrSlim(subcellularExpressionAgrSlim.get(id));
-
-        document.setWhereExpressed(whereExpressed.get(id));
-        document.setAnatomicalExpression(anatomicalExpression.get(id));
-        document.setAnatomicalExpressionWithParents(anatomicalExpressionWithParents.get(id));
-
+        
         document.setPhenotypeStatements(phenotypeStatements.get(id));
 
         handleSoTermNames(document);

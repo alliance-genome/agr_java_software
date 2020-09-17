@@ -54,6 +54,17 @@ public class SearchHelper {
                     add("genes");
                 }
             });
+            put("dataset", new ArrayList<String>() {
+                {
+                    add("species");
+                    add("tags");
+                    add("anatomicalExpression");
+                    add("sex");
+                    add("age");
+                    add("assembly");
+
+                }
+            });
             put("disease", new ArrayList<String>() {
                 {
                     add("diseaseGroup");
@@ -106,6 +117,7 @@ public class SearchHelper {
             add("anatomicalExpression.keyword");
             add("anatomicalExpressionWithParents");
             add("anatomicalExpressionWithParents.keyword");
+            add("assembly");
             add("associatedSpecies");
             add("associatedSpecies.synonyms");
             add("automatedGeneSynopsis");
@@ -193,6 +205,7 @@ public class SearchHelper {
             add("soTermName.letterText");
             add("strictOrthologySymbols.autocomplete");
             add("strictOrthologySymbols.keyword");
+            add("summary");
             add("whereExpressed");
             add("whereExpressed.keyword");
         }
@@ -225,6 +238,7 @@ public class SearchHelper {
             add("name_key");
             add("soTermName");
             add("species");
+            add("summary");
             add("symbol");
             add("synonyms");
             add("variants");

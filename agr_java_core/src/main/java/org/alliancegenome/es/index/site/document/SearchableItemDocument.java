@@ -42,13 +42,15 @@ public class SearchableItemDocument extends ESDocument {
     String soTermId;
     String soTermName;
     String species;
+    String summary;
     String symbol;
     String symbolText;
 
 
-
+    Set<String> age = new HashSet<>();
     Set<String> anatomicalExpression = new HashSet<>();         //uberon slim
     Set<String> anatomicalExpressionWithParents = new HashSet<>();
+    Set<String> assembly = new HashSet<>();
     Set<String> associatedSpecies = new HashSet<>();
     Set<String> biologicalProcessAgrSlim = new HashSet<>();
     Set<String> biologicalProcessWithParents = new HashSet<>();
@@ -82,11 +84,13 @@ public class SearchableItemDocument extends ESDocument {
     Set<String> parentDiseaseNames = new HashSet<>();
     Set<String> phenotypeStatements = new HashSet<>();
     Set<String> secondaryIds = new HashSet<>();
+    Set<String> sex = new HashSet<>();
     Set<String> strictOrthologySymbols = new HashSet<>();
     Set<String> soTermNameWithParents = new HashSet<>();
     Set<String> subcellularExpressionWithParents = new HashSet<>();
     Set<String> subcellularExpressionAgrSlim = new HashSet<>();
     Set<String> synonyms = new HashSet<>();
+    Set<String> tags = new HashSet<>();
     Set<String> variants = new HashSet<>();
     Set<String> variantSynonyms = new HashSet<>();
     Set<String> variantType = new HashSet<>();

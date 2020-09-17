@@ -23,8 +23,10 @@ public class Mapping extends Builder {
     }
 
     protected void buildSharedSearchableDocumentMappings() throws IOException {
+        new FieldBuilder(builder, "age", "text").keyword().build();
         new FieldBuilder(builder, "alleles", "text").keyword().autocomplete().build();
         new FieldBuilder(builder, "anatomicalExpression", "text").keyword().build();
+        new FieldBuilder(builder, "assembly", "text").keyword().build();
         new FieldBuilder(builder, "associatedSpecies", "text").keyword().synonym().sort().build();
         new FieldBuilder(builder, "associationType", "text").symbol().autocomplete().keyword().standardText().build();
         new FieldBuilder(builder, "biologicalProcess", "text").keyword().build();
@@ -100,11 +102,13 @@ public class Mapping extends Builder {
                 .keywordAutocomplete()
                 .sort()
                 .build();
+        new FieldBuilder(builder, "sex", "text").keyword().build();
         new FieldBuilder(builder, "secondaryIds", "keyword").build();
         new FieldBuilder(builder, "soTermName", "text").keyword().letterText().build();
         new FieldBuilder(builder, "soTermId", "keyword").build();
         new FieldBuilder(builder, "species", "text").keyword().synonym().sort().build();
         new FieldBuilder(builder, "strictOrthologySymbols", "text").keyword().autocomplete().build();
+        new FieldBuilder(builder, "summary", "text").build();
         new FieldBuilder(builder, "symbolText", "text").keyword().standardText().build();
         new FieldBuilder(builder, "synonyms", "text").analyzer("symbols")
                 .autocomplete()

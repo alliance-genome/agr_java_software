@@ -15,14 +15,4 @@ public class ModelDocumentCache extends IndexerCache {
 
     private Map<String, AffectedGenomicModel> modelMap = new HashMap<>();;
 
-    public void addCachedFields(Iterable<SearchableItemDocument> modelDocuments) {
-        for (SearchableItemDocument document: modelDocuments) {
-            addCachedFields(document);
-        }
-    }
-
-    public void addCachedFields(SearchableItemDocument document) {
-        super.addCachedFields(document);
-    }
-
 }
