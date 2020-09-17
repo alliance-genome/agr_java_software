@@ -17,6 +17,7 @@ import org.neo4j.ogm.annotation.typeconversion.Convert;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @NodeEntity(label = "Variant")
@@ -57,6 +58,14 @@ public class Variant extends GeneticEntity implements Comparable<Variant> {
 
     @Relationship(type = "ASSOCIATION")
     protected GeneLevelConsequence geneLevelConsequence;
+
+    @JsonView({View.VariantAPI.class})
+    @Relationship(type = "ASSOCIATION")
+    protected Set<Note> notes;
+
+    @JsonView({View.VariantAPI.class})
+    @Relationship(type = "ASSOCIATION")
+    protected Set<Publication> publications;
 
     @JsonView({View.Default.class, View.API.class})
     @Relationship(type = "ASSOCIATION")
