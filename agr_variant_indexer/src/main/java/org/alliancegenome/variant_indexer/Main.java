@@ -34,9 +34,9 @@ public class Main {
             fdm.start();
             fdm.join();
             
-          /*  FileDownloadFilterManager fdfm = new FileDownloadFilterManager(downloadSet);
-            fdfm.start();
-            fdfm.join();*/
+            //FileDownloadFilterManager fdfm = new FileDownloadFilterManager(downloadSet);
+            //fdfm.start();
+            //fdfm.join();
             
             ESDocumentInjector.indexName = im.startSiteIndex();
 

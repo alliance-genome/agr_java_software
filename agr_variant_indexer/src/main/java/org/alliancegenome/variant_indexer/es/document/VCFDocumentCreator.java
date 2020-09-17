@@ -124,7 +124,7 @@ public class VCFDocumentCreator extends Thread {
         private int taxon;
         public VariantContextProcessorTask(List<VariantContext> workChunk, int taxon) {
             this.workChunk = workChunk;
-            this.taxon=taxon;
+            this.taxon = taxon;
         }
 
         public void run() {
@@ -133,7 +133,7 @@ public class VCFDocumentCreator extends Thread {
                 
                 for(String doc: docs) {
                     json_avg = runningAverage(json_avg, doc.length(), 1_000_000);
-                    docInjector.addDocument(doc);
+                    //docInjector.addDocument(doc);
                 }
             }
         }
