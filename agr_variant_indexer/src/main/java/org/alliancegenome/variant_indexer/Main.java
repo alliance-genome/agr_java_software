@@ -6,7 +6,6 @@ import org.alliancegenome.variant_indexer.config.VariantConfigHelper;
 import org.alliancegenome.variant_indexer.es.ESDocumentInjector;
 import org.alliancegenome.variant_indexer.es.document.VCFDocumentCreationManager;
 import org.alliancegenome.variant_indexer.filedownload.model.DownloadFileSet;
-import org.alliancegenome.variant_indexer.filedownload.process.FileDownloadFilterManager;
 import org.alliancegenome.variant_indexer.filedownload.process.FileDownloadManager;
 
 import com.fasterxml.jackson.databind.ObjectMapper;

@@ -3,7 +3,6 @@ package org.alliancegenome.variant_indexer.es;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.es.util.EsClientFactory;
 import org.alliancegenome.variant_indexer.config.VariantConfigHelper;
 import org.elasticsearch.action.DocWriteRequest;

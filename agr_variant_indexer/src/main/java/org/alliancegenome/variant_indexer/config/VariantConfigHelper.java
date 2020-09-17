@@ -1,6 +1,18 @@
 package org.alliancegenome.variant_indexer.config;
 
-import static org.alliancegenome.core.config.Constants.*;
+import static org.alliancegenome.core.config.Constants.VARIANT_CONFIG_FILE;
+import static org.alliancegenome.core.config.Constants.VARIANT_DOCUMENT_CREATOR_CONTEXT_PROCESSOR_TASK_QUEUE_SIZE;
+import static org.alliancegenome.core.config.Constants.VARIANT_DOCUMENT_CREATOR_CONTEXT_PROCESSOR_TASK_THREADS;
+import static org.alliancegenome.core.config.Constants.VARIANT_DOCUMENT_CREATOR_THREADS;
+import static org.alliancegenome.core.config.Constants.VARIANT_DOCUMENT_CREATOR_WORK_CHUNK_SIZE;
+import static org.alliancegenome.core.config.Constants.VARIANT_ES_BULK_ACTION_SIZE;
+import static org.alliancegenome.core.config.Constants.VARIANT_ES_BULK_CONCURRENT_REQUEST_AMOUNT;
+import static org.alliancegenome.core.config.Constants.VARIANT_ES_BULK_SIZE_MB;
+import static org.alliancegenome.core.config.Constants.VARIANT_ES_INDEX_NUMBER_OF_SHARDS;
+import static org.alliancegenome.core.config.Constants.VARIANT_FILE_DOWNLOAD_FILTER_THREADS;
+import static org.alliancegenome.core.config.Constants.VARIANT_FILE_DOWNLOAD_PATH;
+import static org.alliancegenome.core.config.Constants.VARIANT_FILE_DOWNLOAD_THREADS;
+import static org.alliancegenome.core.config.Constants.VARIANT_INDEX_REQUEST_QUEUE_SIZE;
 
 import java.util.HashMap;
 import java.util.Properties;
