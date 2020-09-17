@@ -66,7 +66,7 @@ public class ModelIndexerRepository extends Neo4jRepository {
     }
 
     public Map<String, Set<String>> getAlleleMap(String species) {
-        String query = "MATCH (species:Species)-[:FROM_SPECIES]-(model:AffectedGenomicModel)--(allele:Allele)";
+        String query = "MATCH (species:Species)-[:FROM_SPECIES]-(model:AffectedGenomicModel)-[:MODEL_COMPONENT]-(allele:Allele)";
         query += getSpeciesWhere(species);
         query += " RETURN model.primaryKey as id, allele.symbolTextWithSpecies as value";
 
@@ -74,7 +74,7 @@ public class ModelIndexerRepository extends Neo4jRepository {
     }
 
     public Map<String, Set<String>> getDiseaseMap(String species) {
-        String query = "MATCH (species:Species)-[:FROM_SPECIES]-(model:AffectedGenomicModel)--(disease:DOTerm)";
+        String query = "MATCH (species:Species)-[:FROM_SPECIES]-(model:AffectedGenomicModel)-[:IS_MODEL_OF]-(disease:DOTerm)";
         query += getSpeciesWhere(species);
         query += " RETURN model.primaryKey as id, disease.name as value";
 
@@ -82,7 +82,7 @@ public class ModelIndexerRepository extends Neo4jRepository {
     }
 
     private Map<String, Set<String>> getDiseasesAgrSlimMap(String species) {
-        String query = "MATCH (species:Species)--(model:AffectedGenomicModel)--(:DOTerm)-[:IS_A_PART_OF_CLOSURE]->(disease:DOTerm) ";
+        String query = "MATCH (species:Species)-[:FROM_SPECIES]-(model:AffectedGenomicModel)-[:IS_MODEL_OF]-(:DOTerm)-[:IS_A_PART_OF_CLOSURE]->(disease:DOTerm) ";
         query += " WHERE disease.subset =~ '.*DO_AGR_slim.*' ";
 
         Map<String,String> params = new HashMap<String,String>();
@@ -97,7 +97,7 @@ public class ModelIndexerRepository extends Neo4jRepository {
     }
 
     private Map<String, Set<String>> getDiseasesWithParents(String species) {
-        String query = "MATCH (species:Species)--(model:AffectedGenomicModel)--(:DOTerm)-[:IS_A_PART_OF_CLOSURE]->(disease:DOTerm) ";
+        String query = "MATCH (species:Species)-[:FROM_SPECIES]-(model:AffectedGenomicModel)-[:IS_MODEL_OF]-(:DOTerm)-[:IS_A_PART_OF_CLOSURE]->(disease:DOTerm) ";
         query += getSpeciesWhere(species);
         query += " RETURN distinct model.primaryKey as id, disease.nameKey as value ";
 
@@ -113,7 +113,7 @@ public class ModelIndexerRepository extends Neo4jRepository {
     }
 
     public Map<String, Set<String>> getPhenotypeStatementMap(String species) {
-        String query = "MATCH (species:Species)-[:FROM_SPECIES]-(model:AffectedGenomicModel)--(phenotype:Phenotype) ";
+        String query = "MATCH (species:Species)-[:FROM_SPECIES]-(model:AffectedGenomicModel)-[:HAS_PHENOTYPE]-(phenotype:Phenotype) ";
         query += getSpeciesWhere(species);
         query += " RETURN model.primaryKey as id, phenotype.phenotypeStatement as value ";
 

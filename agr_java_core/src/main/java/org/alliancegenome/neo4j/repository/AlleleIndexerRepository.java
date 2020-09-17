@@ -95,13 +95,13 @@ public class AlleleIndexerRepository extends Neo4jRepository {
     }
 
     private Map<String, Set<String>> getCrossReferences(String species) {
-        String query = "MATCH (species:Species)--(allele:Allele)-[:CROSS_REFERENCE]-(cr:CrossReference) ";
+        String query = "MATCH (species:Species)-[:FROM_SPECIES]-(allele:Allele)-[:CROSS_REFERENCE]-(cr:CrossReference) ";
         query += getSpeciesWhere(species);
         query += " RETURN allele.primaryKey as id, cr.name as value";
 
         Map<String, Set<String>> names = getMapSetForQuery(query, getSpeciesParams(species));
 
-        query = "MATCH (species:Species)--(allele:Allele)-[:CROSS_REFERENCE]-(cr:CrossReference) ";
+        query = "MATCH (species:Species)-[:FROM_SPECIES]-(allele:Allele)-[:CROSS_REFERENCE]-(cr:CrossReference) ";
         query += getSpeciesWhere(species);
         query += " RETURN allele.primaryKey as id, cr.localId as value";
 
@@ -187,7 +187,7 @@ public class AlleleIndexerRepository extends Neo4jRepository {
     }
 
     public Map<String, Set<String>> getDiseaseMap(String species) {
-        String query = "MATCH (species:Species)--(a:Allele)--(disease:DOTerm) ";
+        String query = "MATCH (species:Species)-[:FROM_SPECIES]-(a:Allele)-[:IS_IMPLICATED_IN]-(disease:DOTerm) ";
         query += getSpeciesWhere(species);
         query += " RETURN a.primaryKey, disease.nameKey ";
 
@@ -196,7 +196,7 @@ public class AlleleIndexerRepository extends Neo4jRepository {
 
 
     public Map<String, Set<String>> getDiseasesAgrSlimMap(String species) {
-        String query = "MATCH (species:Species)--(a:Allele)--(:DOTerm)-[:IS_A_PART_OF_CLOSURE]->(disease:DOTerm)";
+        String query = "MATCH (species:Species)-[:FROM_SPECIES]-(a:Allele)-[:IS_IMPLICATED_IN]-(:DOTerm)-[:IS_A_PART_OF_CLOSURE]->(disease:DOTerm)";
         query += " WHERE disease.subset =~ '.*DO_AGR_slim.*' ";
         if (StringUtils.isNotEmpty(species)) {
             query += " AND species.name = {species} ";
@@ -212,7 +212,7 @@ public class AlleleIndexerRepository extends Neo4jRepository {
     }
 
     public Map<String, Set<String>> getDiseasesWithParents(String species) {
-        String query = "MATCH (species:Species)--(a:Allele)--(:DOTerm)-[:IS_A_PART_OF_CLOSURE]->(disease:DOTerm)";
+        String query = "MATCH (species:Species)-[:FROM_SPECIES]-(a:Allele)-[:IS_IMPLICATED_IN]-(:DOTerm)-[:IS_A_PART_OF_CLOSURE]->(disease:DOTerm)";
         query += getSpeciesWhere(species);
         query += " RETURN a.primaryKey, disease.nameKey ";
 
@@ -220,7 +220,7 @@ public class AlleleIndexerRepository extends Neo4jRepository {
     }
 
     public Map<String, Set<String>> getGenesMap(String species) {
-        String query = "MATCH (species:Species)--(gene:Gene)-[:IS_ALLELE_OF]-(a:Allele) ";
+        String query = "MATCH (species:Species)-[:FROM_SPECIES]-(gene:Gene)-[:IS_ALLELE_OF]-(a:Allele) ";
         query += getSpeciesWhere(species);
         query += "RETURN distinct a.primaryKey, gene.symbolWithSpecies";
 
@@ -228,7 +228,7 @@ public class AlleleIndexerRepository extends Neo4jRepository {
     }
 
     public Map<String, Set<String>> getModels(String species) {
-        String query = "MATCH (species:Species)-[:FROM_SPECIES]-(model:AffectedGenomicModel)--(allele:Allele)";
+        String query = "MATCH (species:Species)-[:FROM_SPECIES]-(model:AffectedGenomicModel)-[:MODEL_COMPONENT]-(allele:Allele)";
         query += getSpeciesWhere(species);
         query += " RETURN allele.primaryKey as id, model.nameTextWithSpecies as value";
 
@@ -236,7 +236,7 @@ public class AlleleIndexerRepository extends Neo4jRepository {
     }
 
     public Map<String, Set<String>> getPhenotypeStatementsMap(String species) {
-        String query = "MATCH (species:Species)--(a:Allele)--(phenotype:Phenotype) ";
+        String query = "MATCH (species:Species)-[:FROM_SPECIES]-(a:Allele)-[:HAS_PHENOTYPE]-(phenotype:Phenotype) ";
         query += getSpeciesWhere(species);
         query += " RETURN distinct a.primaryKey, phenotype.phenotypeStatement ";
 
@@ -275,7 +275,7 @@ public class AlleleIndexerRepository extends Neo4jRepository {
     }
 
     public Map<String, Set<String>> getMolecularConsequence(String species) {
-        String query = "MATCH (species:Species)--(a:Allele)--(v:Variant)--(consequence:GeneLevelConsequence) ";
+        String query = "MATCH (species:Species)-[:FROM_SPECIES]-(a:Allele)-[:VARIATION]-(v:Variant)-[:ASSOCIATION]-(consequence:GeneLevelConsequence) ";
         query += getSpeciesWhere(species);
         query += " RETURN a.primaryKey as id, consequence.geneLevelConsequence as value ";
 

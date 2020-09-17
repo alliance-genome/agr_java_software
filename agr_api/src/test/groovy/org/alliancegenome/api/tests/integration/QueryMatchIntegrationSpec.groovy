@@ -172,6 +172,10 @@ class QueryMatchIntegrationSpec extends Specification {
         "AGR-2320" | "FB:FBal0094666" | "Tag:FLAG"
         "AGR-2320" | "FB:FBal0094666" | "FB:FBgn0004647"
 
+        //disease mixed association tests
+        "AGR-2370" | "HGNC:10907" | "Crohn's disease"
+        "AGR-2370" | "MGI:104564" | "Beckwith-Wiedemann syndrome"
+        "AGR-2370" | "MGI:95772"  | "inflammatory bowel disease 12"
     }
 
     @Unroll

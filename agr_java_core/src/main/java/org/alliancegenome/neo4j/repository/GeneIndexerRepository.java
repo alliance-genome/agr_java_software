@@ -178,7 +178,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
     }
 
     private Map<String, Set<String>> getSynonyms(String species) {
-        String query = "MATCH (species:Species)--(gene:Gene)-[:ALSO_KNOWN_AS]-(s:Synonym) ";
+        String query = "MATCH (species:Species)-[:FROM_SPECIES]-(gene:Gene)-[:ALSO_KNOWN_AS]-(s:Synonym) ";
         query += getSpeciesWhere(species);
         query += " RETURN gene.primaryKey as id, s.name as value ";
 
@@ -186,13 +186,13 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
     }
 
     private Map<String, Set<String>> getCrossReferences(String species) {
-        String query = "MATCH (species:Species)--(gene:Gene)-[:CROSS_REFERENCE]-(cr:CrossReference) ";
+        String query = "MATCH (species:Species)-[:FROM_SPECIES]-(gene:Gene)-[:CROSS_REFERENCE]-(cr:CrossReference) ";
         query += getSpeciesWhere(species);
         query += " RETURN gene.primaryKey as id, cr.name as value";
 
         Map<String, Set<String>> names = getMapSetForQuery(query, getSpeciesParams(species));
 
-        query = "MATCH (species:Species)--(gene:Gene)-[:CROSS_REFERENCE]-(cr:CrossReference) ";
+        query = "MATCH (species:Species)-[:FROM_SPECIES]-(gene:Gene)-[:CROSS_REFERENCE]-(cr:CrossReference) ";
         query += getSpeciesWhere(species);
         query += " RETURN gene.primaryKey as id, cr.localId as value";
 
@@ -215,7 +215,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
     }
 
     private Map<String, Set<String>> getChromosomes(String species) {
-        String query = "MATCH (species:Species)--(gene:Gene)-[:LOCATED_ON]-(c:Chromosome) ";
+        String query = "MATCH (species:Species)-[:FROM_SPECIES]-(gene:Gene)-[:LOCATED_ON]-(c:Chromosome) ";
         query += getSpeciesWhere(species);
         query += " RETURN gene.primaryKey as id, c.primaryKey as value ";
 
@@ -223,7 +223,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
     }
 
     private Map<String, Set<String>> getSecondaryIds(String species) {
-        String query = "MATCH (species:Species)--(gene:Gene)-[:ALSO_KNOWN_AS]-(s:SecondaryId) ";
+        String query = "MATCH (species:Species)-[:FROM_SPECIES]-(gene:Gene)-[:ALSO_KNOWN_AS]-(s:SecondaryId) ";
         query += getSpeciesWhere(species);
         query += " RETURN gene.primaryKey as id, s.name as value ";
 
@@ -231,7 +231,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
     }
 
     private Map<String, Set<String>> getAllelesMap(String species) {
-        String query = "MATCH (species:Species)--(gene:Gene)-[:IS_ALLELE_OF]-(allele:Allele) ";
+        String query = "MATCH (species:Species)-[:FROM_SPECIES]-(gene:Gene)-[:IS_ALLELE_OF]-(allele:Allele) ";
         query += getSpeciesWhere(species);
         query += " RETURN gene.primaryKey as id,allele.symbolTextWithSpecies as value ";
 
@@ -239,7 +239,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
     }
 
     private Map<String, Set<String>> getSoTermNameMap(String species) {
-        String query = "MATCH (species:Species)--(gene:Gene)-[:ANNOTATED_TO]-(term:SOTerm) ";
+        String query = "MATCH (species:Species)-[:FROM_SPECIES]-(gene:Gene)-[:ANNOTATED_TO]-(term:SOTerm) ";
         query += getSpeciesWhere(species);
         query += " RETURN gene.primaryKey as id, term.name as value";
 
@@ -247,7 +247,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
     }
 
     private Map<String, Set<String>> getSoTermNameWithParentsMap(String species) {
-        String query = "MATCH (species:Species)--(gene:Gene)-[:ANNOTATED_TO]-(:SOTerm)-[:IS_A_PART_OF_CLOSURE]->(term:SOTerm) ";
+        String query = "MATCH (species:Species)-[:FROM_SPECIES]-(gene:Gene)-[:ANNOTATED_TO]-(:SOTerm)-[:IS_A_PART_OF_CLOSURE]->(term:SOTerm) ";
         query += getSpeciesWhere(species);
         query += " RETURN gene.primaryKey as id, term.name as value";
 
@@ -255,7 +255,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
     }
 
     private Map<String, Set<String>> getSoTermNameAgrSlimMap(String species) {
-        String query = "MATCH (species:Species)--(gene:Gene)-[:ANNOTATED_TO]-(:SOTerm)-[:IS_A_PART_OF_CLOSURE]->(term:SOTerm) ";
+        String query = "MATCH (species:Species)-[:FROM_SPECIES]-(gene:Gene)-[:ANNOTATED_TO]-(:SOTerm)-[:IS_A_PART_OF_CLOSURE]->(term:SOTerm) ";
         query += " WHERE not term.name in ['region'," +
                 "'biological_region'," +
                 "'sequence_feature']";
@@ -268,7 +268,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
     }
 
     private Map<String, Set<String>> getStrictOrthologySymbolsMap(String species) {
-        String query = "MATCH (species:Species)--(gene:Gene)-[o:ORTHOLOGOUS]-(orthoGene:Gene) WHERE o.strictFilter = true  ";
+        String query = "MATCH (species:Species)-[:FROM_SPECIES]-(gene:Gene)-[o:ORTHOLOGOUS]-(orthoGene:Gene) WHERE o.strictFilter = true  ";
         query += getSpeciesWhere(species).replace("WHERE"," AND ");
         query += "RETURN distinct gene.primaryKey,orthoGene.symbol ";
 
@@ -276,7 +276,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
     }
 
     private Map<String, Set<String>> getDiseasesMap(String species) {
-        String query = "MATCH (species:Species)--(gene:Gene)--(:DiseaseEntityJoin)--(disease:DOTerm) ";
+        String query = "MATCH (species:Species)-[:FROM_SPECIES]-(gene:Gene)-[:IS_MARKER_FOR|:IS_IMPLICATED_IN|:IMPLICATED_VIA_ORTHOLOGY|:BIOMARKER_VIA_ORTHOLOGY]-(disease:DOTerm) ";
         query += getSpeciesWhere(species);
         query += " RETURN distinct gene.primaryKey, disease.nameKey ";
 
@@ -284,7 +284,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
     }
 
     private Map<String, Set<String>> getDiseasesAgrSlimMap(String species) {
-        String query = "MATCH (species:Species)--(gene:Gene)--(:DiseaseEntityJoin)--(:DOTerm)-[:IS_A_PART_OF_CLOSURE]->(disease:DOTerm) ";
+        String query = "MATCH (species:Species)-[:FROM_SPECIES]-(gene:Gene)-[:IS_MARKER_FOR|:IS_IMPLICATED_IN|:IMPLICATED_VIA_ORTHOLOGY|:BIOMARKER_VIA_ORTHOLOGY]-(:DOTerm)-[:IS_A_PART_OF_CLOSURE]->(disease:DOTerm) ";
         query += " WHERE disease.subset =~ '.*DO_AGR_slim.*' ";
         
         Map<String,String> params = new HashMap<String,String>();
@@ -299,7 +299,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
     }
 
     private Map<String, Set<String>> getDiseasesWithParents(String species) {
-        String query = "MATCH (species:Species)--(gene:Gene)--(:DiseaseEntityJoin)--(:DOTerm)-[:IS_A_PART_OF_CLOSURE]->(disease:DOTerm) ";
+        String query = "MATCH (species:Species)-[:FROM_SPECIES]-(gene:Gene)-[:IS_MARKER_FOR|:IS_IMPLICATED_IN|:IMPLICATED_VIA_ORTHOLOGY|:BIOMARKER_VIA_ORTHOLOGY]-(:DOTerm)-[:IS_A_PART_OF_CLOSURE]->(disease:DOTerm) ";
         query += getSpeciesWhere(species);
         query += " RETURN distinct gene.primaryKey, disease.nameKey ";
 
@@ -315,7 +315,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
     }
 
     private Map<String,Set<String>> getPhenotypeStatementMap(String species) {
-        String query = "MATCH (species:Species)--(gene:Gene)--(phenotype:Phenotype) ";
+        String query = "MATCH (species:Species)-[:FROM_SPECIES]-(gene:Gene)--(phenotype:Phenotype) ";
         query += getSpeciesWhere(species);
         query += " RETURN distinct gene.primaryKey, phenotype.phenotypeStatement ";
         return getMapSetForQuery(query, "gene.primaryKey", "phenotype.phenotypeStatement", getSpeciesParams(species));
