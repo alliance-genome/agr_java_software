@@ -239,6 +239,30 @@ public class AlleleIT {
     }
 
     @Test
+    public void getVariantsPerAlleleWithNotes() {
+        Pagination pagination = new Pagination();
+        JsonResultResponse<Variant> response = variantService.getVariants("FB:FBal0000017", pagination);
+        assertThat(response.getTotal(), greaterThanOrEqualTo(1));
+        assertNotNull("Computed Gene exists", response.getResults().get(0).getNotes());
+    }
+
+    @Test
+    public void getVariantsPerAlleleWitCrossReference() {
+        Pagination pagination = new Pagination();
+        JsonResultResponse<Variant> response = variantService.getVariants("WB:WBVar00252636", pagination);
+        assertThat(response.getTotal(), greaterThanOrEqualTo(1));
+        assertNotNull("Computed Gene exists", response.getResults().get(0).getCrossReferences());
+    }
+
+    @Test
+    public void getVariantsPerAlleleWitPubliation() {
+        Pagination pagination = new Pagination();
+        JsonResultResponse<Variant> response = variantService.getVariants("WB:WBVar00087798", pagination);
+        assertThat(response.getTotal(), greaterThanOrEqualTo(1));
+        assertNotNull("Computed Gene exists", response.getResults().get(0).getCrossReferences());
+    }
+
+    @Test
     public void getAllelesPerGene() {
         Pagination pagination = new Pagination();
         JsonResultResponse<Allele> response = geneService.getAlleles("ZFIN:ZDB-GENE-990415-234", pagination);

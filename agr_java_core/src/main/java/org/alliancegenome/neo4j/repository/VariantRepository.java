@@ -22,12 +22,15 @@ public class VariantRepository extends Neo4jRepository<Variant> {
         query += " MATCH p1=(a:Allele)<-[:VARIATION]-(variant:Variant)--(soTerm:SOTerm) ";
         query += " WHERE a.primaryKey = {" + paramName + "}";
         query += " OPTIONAL MATCH synonyms=(variant:Variant)-[:ALSO_KNOWN_AS]-(:Synonym) ";
+        query += " OPTIONAL MATCH notes=(variant:Variant)-[:ASSOCIATION]->(:Note) ";
+        query += " OPTIONAL MATCH pubs=(variant:Variant)-[:ASSOCIATION]->(:Publication) ";
+        query += " OPTIONAL MATCH crossRefs=(variant:Variant)-[:CROSS_REFERENCE]->(:CrossReference) ";
         query += " OPTIONAL MATCH consequence=(:GeneLevelConsequence)<-[:ASSOCIATION]-(variant:Variant)";
         query += " OPTIONAL MATCH transcripts=(:GenomicLocation)--(variant:Variant)-[:ASSOCIATION]-(t:Transcript)<-[:TRANSCRIPT_TYPE]-(:SOTerm)";
         query += " OPTIONAL MATCH transcriptConsequence=(:TranscriptLevelConsequence)<-[:ASSOCIATION]-(t:Transcript)";
         query += " OPTIONAL MATCH loc=(variant:Variant)-[:ASSOCIATION]->(:GenomicLocation)-[:ASSOCIATION]->(:Chromosome)";
         query += " OPTIONAL MATCH p2=(variant:Variant)<-[:COMPUTED_GENE]-(:Gene)-[:ASSOCIATION]->(:GenomicLocation)-[:ASSOCIATION]->(:Chromosome)";
-        query += " RETURN p1, p2, loc, consequence, synonyms, transcripts, transcriptConsequence ";
+        query += " RETURN p1, p2, loc, consequence, synonyms, transcripts, transcriptConsequence, notes, crossRefs, pubs ";
 
         Iterable<Variant> alleles = query(query, map);
         return StreamSupport.stream(alleles.spliterator(), false)
