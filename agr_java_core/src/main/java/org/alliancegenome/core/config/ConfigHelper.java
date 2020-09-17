@@ -42,7 +42,6 @@ public class ConfigHelper {
 
         defaults.put(ES_INDEX, "site_index"); // Can be over written
         defaults.put(ES_INDEX_SUFFIX, ""); // Prod, Dev, Stage, etc
-        defaults.put(ES_DATA_INDEX, "data_index");
         defaults.put(ES_HOST, "localhost");
         defaults.put(ES_PORT, "9200");
         
@@ -280,11 +279,6 @@ public class ConfigHelper {
     public static String getEsIndex() {
         if (!init) init();
         return config.get(ES_INDEX);
-    }
-
-    public static String getEsDataIndex() {
-        if (!init) init();
-        return config.get(ES_DATA_INDEX);
     }
 
     public static Date getAppStart() {

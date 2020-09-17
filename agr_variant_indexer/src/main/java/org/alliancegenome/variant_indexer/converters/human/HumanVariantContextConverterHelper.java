@@ -2,7 +2,12 @@ package org.alliancegenome.variant_indexer.converters.human;
 
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.StringTokenizer;
 
 import org.alliancegenome.variant_indexer.es.model.ClinicalSig;
 import org.alliancegenome.variant_indexer.es.model.Evidence;
@@ -10,8 +15,8 @@ import org.alliancegenome.variant_indexer.es.model.Polyphen;
 import org.alliancegenome.variant_indexer.es.model.TranscriptFeature;
 import org.alliancegenome.variant_indexer.es.model.VariantEffect;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import htsjdk.variant.variantcontext.CommonInfo;
 import htsjdk.variant.variantcontext.VariantContext;
