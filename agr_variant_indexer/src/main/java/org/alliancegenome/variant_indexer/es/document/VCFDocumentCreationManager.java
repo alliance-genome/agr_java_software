@@ -24,7 +24,7 @@ public class VCFDocumentCreationManager extends Thread {
 
             for(DownloadSource source: downloadSet.getDownloadFileSet()) {
                 for(DownloadableFile df: source.getFileList()) {
-                    VCFDocumentCreator creator = new VCFDocumentCreator(df, source.getSpecies(),source.getTaxon());
+                    VCFDocumentCreator creator = new VCFDocumentCreator(df, source.getSpecies(), source.getTaxon());
                     executor.execute(creator);
                 }
             }
