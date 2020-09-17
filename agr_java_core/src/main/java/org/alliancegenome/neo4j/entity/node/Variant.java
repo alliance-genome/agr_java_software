@@ -26,7 +26,9 @@ import java.util.stream.Collectors;
 @Schema(name = "Variant", description = "POJO that represents the Variant")
 public class Variant extends GeneticEntity implements Comparable<Variant> {
 
-    protected GeneticEntity.CrossReferenceType crossReferenceType;
+    public Variant() {
+        this.crossReferenceType = CrossReferenceType.ALLELE;
+    }
 
     @JsonView({View.Default.class, View.API.class})
     @JsonProperty(value = "displayName")
