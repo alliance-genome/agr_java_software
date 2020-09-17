@@ -95,6 +95,18 @@ public class SearchHelper {
         }
     };
 
+    public Map<String, String> highlightCollapseMap = new HashMap<>() {
+        {
+            put("anatomicalExpression","expression");
+            put("anatomicalExpressionWithParents","expression");
+            put("cellularComponentExpression","expression");
+            put("cellularComponentExpressionWithParents","expression");
+            put("cellularComponentExpressionAgrSlim","expression");
+            put("expressionStages","expression");
+            put("whereExpressed","expression");
+        }
+    };
+
     public Map<String, Float> getBoostMap() { return boostMap; }
     private Map<String, Float> boostMap = new HashMap<String, Float>() {
         {
@@ -345,27 +357,28 @@ public class SearchHelper {
         ArrayList<Map<String, Object>> ret = new ArrayList<>();
 
         for(SearchHit hit: res.getHits()) {
-            Map<String, Object> map = new HashMap<>();
+            Map<String, List<String>> map = new HashMap<>();
             for(String key: hit.getHighlightFields().keySet()) {
-                if(key.endsWith(".symbol")) {
-                    log.debug("Source as String: " + hit.getSourceAsString());
-                    log.debug("Highlights: " + hit.getHighlightFields());
-                }
 
                 ArrayList<String> list = new ArrayList<>();
                 for(Text t: hit.getHighlightFields().get(key).getFragments()) {
                     list.add(t.string());
                 }
 
-                // this may eventually need to be replaced by a more targeted
-                // method that just remove .keyword .synonym etc
                 String name = hit.getHighlightFields().get(key).getName();
                 
                 for (int i = 0 ; i < SUFFIX_LIST.length ; i++ ) {
                     name = name.replace(SUFFIX_LIST[i],"");
                 }
 
-                map.put(name, list);
+                name = highlightCollapseMap.getOrDefault(name, name);
+
+                if (map.containsKey(name)) {
+                    map.get(name).addAll(list);
+                } else {
+                    map.put(name, list);
+                }
+
             }
             hit.getSourceAsMap().put("highlights", map);
             hit.getSourceAsMap().put("id", hit.getId());
