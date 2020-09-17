@@ -104,13 +104,11 @@ downloadFileSet:
         url: https://download.alliancegenome.org/variants/rgd/RGD.chrX.vep.vcf.gz
       - chromosome: Y
         url: https://download.alliancegenome.org/variants/rgd/RGD.chrY.vep.vcf.gz
-      - chromosome: MT
-        url: https://download.alliancegenome.org/variants/rgd/RGD.chrMT.vep.vcf.gz
 
-   - source: FB
-     species: FLY
-     taxon: 7227
-     fileList:
+  - source: FB
+    species: FLY
+    taxon: 7227
+    fileList:
       - chromosome: chr2L
         url: https://download.alliancegenome.org/variants/fb/FB.vep.chr2L.vcf.gz
       - chromosome: chr2R

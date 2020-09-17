@@ -9,7 +9,6 @@ public class Constants {
     
     public static final String ES_INDEX = "ES_INDEX";
     public static final String ES_INDEX_SUFFIX = "ES_INDEX_SUFFIX";
-    public static final String ES_DATA_INDEX = "ES_DATA_INDEX";
     public static final String ES_HOST = "ES_HOST";
     public static final String ES_PORT = "ES_PORT";
     

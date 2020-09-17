@@ -3,7 +3,6 @@ package org.alliancegenome.variant_indexer.converters.human;
 import java.util.ArrayList;
 import java.util.List;
 
-import htsjdk.variant.variantcontext.Genotype;
 import org.alliancegenome.variant_indexer.converters.VariantContextConverter;
 import org.alliancegenome.variant_indexer.es.model.Sample;
 import org.alliancegenome.variant_indexer.es.model.VariantDocument;
@@ -11,6 +10,7 @@ import org.alliancegenome.variant_indexer.es.model.VariantDocument;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 import htsjdk.variant.variantcontext.Allele;
+import htsjdk.variant.variantcontext.Genotype;
 import htsjdk.variant.variantcontext.VariantContext;
 
 public class HumanVariantContextConverter extends VariantContextConverter {

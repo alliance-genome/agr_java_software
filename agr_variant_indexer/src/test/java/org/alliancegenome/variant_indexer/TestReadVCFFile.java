@@ -15,13 +15,13 @@ import lombok.extern.log4j.Log4j2;
 public class TestReadVCFFile {
 
     public static void main(String[] args) {
-        VCFFileReader reader = new VCFFileReader(new File("/Users/olinblodgett/Desktop/Variants/WB.vep.vcf.gz"), false);
+        VCFFileReader reader = new VCFFileReader(new File("/Users/olinblodgett/Desktop/Variants/HTPOSTVEPVCF_WB_3.vcf.gz"), false);
         CloseableIterator<VariantContext> iter1 = reader.iterator();
 
         String chr = "";
 
         ProcessDisplayHelper ph = new ProcessDisplayHelper(2000);
-        ph.startProcess("Variants", 1_694_366);
+        ph.startProcess("Variants", 600_000_000);
     
         VariantContextWriter vcwb = null;
         
