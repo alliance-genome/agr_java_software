@@ -54,13 +54,13 @@ public class VariantConfigHelper {
         defaults.put(VARIANT_FILE_DOWNLOAD_FILTER_THREADS, "10");
         defaults.put(VARIANT_FILE_DOWNLOAD_PATH, "data");
 
-        defaults.put(VARIANT_DOCUMENT_CREATOR_THREADS, "12");
+        defaults.put(VARIANT_DOCUMENT_CREATOR_THREADS, "10");
         defaults.put(VARIANT_DOCUMENT_CREATOR_CONTEXT_PROCESSOR_TASK_THREADS, "8");
         defaults.put(VARIANT_DOCUMENT_CREATOR_CONTEXT_PROCESSOR_TASK_QUEUE_SIZE, "10");
-        defaults.put(VARIANT_DOCUMENT_CREATOR_WORK_CHUNK_SIZE, "1000");
+        defaults.put(VARIANT_DOCUMENT_CREATOR_WORK_CHUNK_SIZE, "200");
 
         int target = 25;
-        int avgDocSize = 1000;
+        int avgDocSize = 5000;
 
         // Average document size is 1200b
         defaults.put(VARIANT_INDEX_REQUEST_QUEUE_SIZE, "" + (int)((target * 10_000_000) / avgDocSize)); // Queue documents waiting to go into a (target * 10) MB
