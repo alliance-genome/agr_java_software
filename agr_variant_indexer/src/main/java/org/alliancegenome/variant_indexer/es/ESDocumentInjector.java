@@ -25,13 +25,14 @@ public class ESDocumentInjector extends Thread {
 
     private BulkProcessor.Builder builder;
     private BulkProcessor bulkProcessor;
-    public static String indexName;
+    private String indexName;
     private LinkedBlockingQueue<IndexRequest> queue = new LinkedBlockingQueue<>(VariantConfigHelper.getIndexRequestQueueSize());
 
     private RestHighLevelClient client = EsClientFactory.createNewClient();
 
-    public ESDocumentInjector() {
-
+    public ESDocumentInjector(String indexName) {
+        this.indexName = indexName;
+        
         BulkProcessor.Listener listener = new BulkProcessor.Listener() { 
             @Override
             public void beforeBulk(long executionId, BulkRequest request) {
