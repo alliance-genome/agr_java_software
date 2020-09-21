@@ -2,15 +2,12 @@ package org.alliancegenome.variant_indexer.es.document;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
 
 import org.alliancegenome.variant_indexer.config.VariantConfigHelper;
 import org.alliancegenome.variant_indexer.es.ESDocumentInjector;
 import org.alliancegenome.variant_indexer.filedownload.model.DownloadFileSet;
 import org.alliancegenome.variant_indexer.filedownload.model.DownloadSource;
 import org.alliancegenome.variant_indexer.filedownload.model.DownloadableFile;
-
-import com.squareup.tape.QueueFile;
 
 public class VCFDocumentCreationManager extends Thread {
 
