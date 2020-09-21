@@ -3,8 +3,8 @@ package org.alliancegenome.variant_indexer;
 import org.alliancegenome.es.index.site.schema.settings.VariantIndexSettings;
 import org.alliancegenome.es.util.IndexManager;
 import org.alliancegenome.variant_indexer.config.VariantConfigHelper;
-import org.alliancegenome.variant_indexer.es.ESDocumentInjector;
 import org.alliancegenome.variant_indexer.es.document.VCFDocumentCreationManager;
+import org.alliancegenome.variant_indexer.es.document.VCFDocumentCreator;
 import org.alliancegenome.variant_indexer.filedownload.model.DownloadFileSet;
 import org.alliancegenome.variant_indexer.filedownload.process.FileDownloadManager;
 
@@ -39,12 +39,9 @@ public class Main {
             //fdfm.start();
             //fdfm.join();
             
-            //ESDocumentInjector.indexName = im.startSiteIndex();
+            VCFDocumentCreator.indexName = im.startSiteIndex();
             
-            ESDocumentInjector injector = new ESDocumentInjector(im.startSiteIndex());
-            
-            
-            VCFDocumentCreationManager vdm = new VCFDocumentCreationManager(downloadSet, injector);
+            VCFDocumentCreationManager vdm = new VCFDocumentCreationManager(downloadSet);
             vdm.start();
             vdm.join();
             
