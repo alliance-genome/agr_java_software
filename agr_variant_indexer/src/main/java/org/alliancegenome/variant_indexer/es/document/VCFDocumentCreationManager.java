@@ -2,18 +2,24 @@ package org.alliancegenome.variant_indexer.es.document;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import org.alliancegenome.variant_indexer.config.VariantConfigHelper;
+import org.alliancegenome.variant_indexer.es.ESDocumentInjector;
 import org.alliancegenome.variant_indexer.filedownload.model.DownloadFileSet;
 import org.alliancegenome.variant_indexer.filedownload.model.DownloadSource;
 import org.alliancegenome.variant_indexer.filedownload.model.DownloadableFile;
 
+import com.squareup.tape.QueueFile;
+
 public class VCFDocumentCreationManager extends Thread {
 
     private DownloadFileSet downloadSet;
+    private ESDocumentInjector injector;
 
-    public VCFDocumentCreationManager(DownloadFileSet downloadSet) {
+    public VCFDocumentCreationManager(DownloadFileSet downloadSet, ESDocumentInjector injector) {
         this.downloadSet = downloadSet;
+        this.injector = injector;
     }
 
     public void run() {
@@ -24,7 +30,7 @@ public class VCFDocumentCreationManager extends Thread {
 
             for(DownloadSource source: downloadSet.getDownloadFileSet()) {
                 for(DownloadableFile df: source.getFileList()) {
-                    VCFDocumentCreator creator = new VCFDocumentCreator(df, source.getSpecies(), source.getTaxon());
+                    VCFDocumentCreator creator = new VCFDocumentCreator(df, source.getSpecies(), source.getTaxon(), injector);
                     executor.execute(creator);
                 }
             }
