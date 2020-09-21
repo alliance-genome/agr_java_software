@@ -124,7 +124,7 @@ public class VCFDocumentCreator extends Thread {
                 List<String> docs = converter.convertVariantContext(ctx, taxon);
                 
                 for(String doc: docs) {
-                    //json_avg = runningAverage(json_avg, doc.length(), 1_000_000);
+                    json_avg = runningAverage(json_avg, doc.length(), 1_000_000);
                     injector.addDocument(doc);
                 }
             }
