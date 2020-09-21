@@ -26,12 +26,10 @@ import lombok.extern.log4j.Log4j2;
 public class ESDocumentInjector extends Thread {
 
     private BulkProcessor.Builder builder;
-    //private BulkProcessor bulkProcessor;
+    private BulkProcessor bulkProcessor;
     private String indexName;
     private LinkedBlockingQueue<IndexRequest> queue = new LinkedBlockingQueue<>(VariantConfigHelper.getIndexRequestQueueSize());
-    
-    private List<BulkProcessor> bulkProcessors = new ArrayList<>();
-    
+
     private RestHighLevelClient client = EsClientFactory.createNewClient();
 
     public ESDocumentInjector(String indexName) {
@@ -52,7 +50,7 @@ public class ESDocumentInjector extends Thread {
                 log.error("Bulk Request Failure: " + failure.getMessage());
                 for(DocWriteRequest<?> req: request.requests()) {
                     IndexRequest idxreq = (IndexRequest)req;
-                    bulkProcessors.get(0).add(idxreq);
+                    bulkProcessor.add(idxreq);
                 }
                 log.error("Finished Adding requests to Queue:");
             }
@@ -66,24 +64,21 @@ public class ESDocumentInjector extends Thread {
         builder.setFlushInterval(TimeValue.timeValueSeconds(180L));
         builder.setBackoffPolicy(BackoffPolicy.exponentialBackoff(TimeValue.timeValueSeconds(1L), 60));
 
-        for(int i = 0; i < 10; i++) {
-            bulkProcessors.add(builder.build());
-            //bulkProcessor = builder.build();
-        }
+        bulkProcessor = builder.build();
 
         //log.info("Finished Creating Bulk Processor");
         start();
     }
 
     public void run() {
-        int counter = 0;
+        //int counter = 0;
         while(true) {
             try {
                 IndexRequest ir = queue.poll(5, TimeUnit.MINUTES);
                 if(ir != null) {
-                    bulkProcessors.get(counter).add(ir);
-                    counter = (counter + 1) % 10;
-                    //bulkProcessor.add(ir);
+                    //bulkProcessors.get(counter).add(ir);
+                    //counter = (counter + 1) % 10;
+                    bulkProcessor.add(ir);
                 } else {
                     log.info("Waited for 5 minutes with no queue items");
                     return;
