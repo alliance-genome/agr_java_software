@@ -25,8 +25,9 @@ public class Main {
         VariantConfigHelper.init();
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
         IndexManager im = new IndexManager(new VariantIndexSettings(true, VariantConfigHelper.getEsNumberOfShards()));
-
+        
         try {
+
             DownloadFileSet downloadSet = mapper.readValue(getClass().getClassLoader().getResourceAsStream(VariantConfigHelper.getVariantConfigFile()), DownloadFileSet.class);
             downloadSet.setDownloadPath(VariantConfigHelper.getVariantFileDownloadPath());
             
@@ -39,8 +40,10 @@ public class Main {
             //fdfm.join();
             
             ESDocumentInjector.indexName = im.startSiteIndex();
-
-            VCFDocumentCreationManager vdm = new VCFDocumentCreationManager(downloadSet);
+            
+            ESDocumentInjector injector = new ESDocumentInjector();
+            
+            VCFDocumentCreationManager vdm = new VCFDocumentCreationManager(downloadSet, injector);
             vdm.start();
             vdm.join();
             

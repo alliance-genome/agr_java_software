@@ -60,7 +60,7 @@ public class VariantConfigHelper {
         defaults.put(VARIANT_DOCUMENT_CREATOR_WORK_CHUNK_SIZE, "8000");
 
         // Average document size is 1200b
-        defaults.put(VARIANT_INDEX_REQUEST_QUEUE_SIZE, "1000"); // Queue documents waiting to go into a (target * 10) MB
+        defaults.put(VARIANT_INDEX_REQUEST_QUEUE_SIZE, "1000"); // Queue documents waiting to go into a (target * 10) MB ES bulk request
         defaults.put(VARIANT_ES_BULK_ACTION_SIZE, "500"); // Max amount of documents in a bulk request target MB
         defaults.put(VARIANT_ES_BULK_CONCURRENT_REQUEST_AMOUNT, "2"); // Amount of concurrent bulk requests running (target * 10) MB
         defaults.put(VARIANT_ES_BULK_SIZE_MB, "7"); // Max size of bulk request target

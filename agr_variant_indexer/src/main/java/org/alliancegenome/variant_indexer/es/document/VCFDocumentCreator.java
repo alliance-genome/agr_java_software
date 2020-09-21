@@ -24,7 +24,7 @@ public class VCFDocumentCreator extends Thread {
 
     private String vcfFilePath;
     private int taxon;
-    private ESDocumentInjector docInjector;
+    
     private ProcessDisplayHelper ph = new ProcessDisplayHelper(10000);
 
     private double json_avg;
@@ -32,6 +32,7 @@ public class VCFDocumentCreator extends Thread {
     private LinkedBlockingDeque<Runnable> runningQueue = new LinkedBlockingDeque<Runnable>(VariantConfigHelper.getContextProcessorTaskQueueSize());
     
     private VariantContextConverter converter;
+    private ESDocumentInjector injector;
     
     private ThreadPoolExecutor variantContextProcessorTaskExecuter = new ThreadPoolExecutor(
         1, 
@@ -41,22 +42,15 @@ public class VCFDocumentCreator extends Thread {
         runningQueue
     );
     
-    public VCFDocumentCreator(DownloadableFile downloadFile, String speciesName, int taxon) {
+    public VCFDocumentCreator(DownloadableFile downloadFile, String speciesName, int taxon, ESDocumentInjector injector) {
         this.vcfFilePath = downloadFile.getLocalGzipFilePath();
-        this.taxon=taxon;
+        this.taxon = taxon;
+        this.injector = injector;
         converter = VariantContextConverter.getConverter(speciesName);
     }
 
     public void run() {
 
-        File indexFile = new File(vcfFilePath + ".indexed");
-        if(indexFile.exists()) {
-            log.info("File Already Processed: " + vcfFilePath);
-            return;
-        }
-        
-        docInjector = new ESDocumentInjector();
-        
         ph.startProcess("Starting File: " + vcfFilePath, 0);
 
         try {
@@ -72,7 +66,7 @@ public class VCFDocumentCreator extends Thread {
                     }
                 }
             });
-            
+
             List<VariantContext> workChunk = new ArrayList<>();
 
             while(iter1.hasNext()) {
@@ -105,8 +99,6 @@ public class VCFDocumentCreator extends Thread {
             
             log.debug("Finished all threads");
             
-            indexFile.createNewFile();
-            
             reader.close();
         } catch (Exception e) {
             e.printStackTrace();
@@ -132,8 +124,8 @@ public class VCFDocumentCreator extends Thread {
                 List<String> docs = converter.convertVariantContext(ctx, taxon);
                 
                 for(String doc: docs) {
-                    json_avg = runningAverage(json_avg, doc.length(), 1_000_000);
-                    docInjector.addDocument(doc);
+                    //json_avg = runningAverage(json_avg, doc.length(), 1_000_000);
+                    injector.addDocument(doc);
                 }
             }
         }
