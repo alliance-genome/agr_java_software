@@ -39,9 +39,10 @@ public class Main {
             //fdfm.start();
             //fdfm.join();
             
-            ESDocumentInjector.indexName = im.startSiteIndex();
+            //ESDocumentInjector.indexName = im.startSiteIndex();
             
-            ESDocumentInjector injector = new ESDocumentInjector();
+            ESDocumentInjector injector = new ESDocumentInjector(im.startSiteIndex());
+            
             
             VCFDocumentCreationManager vdm = new VCFDocumentCreationManager(downloadSet, injector);
             vdm.start();
