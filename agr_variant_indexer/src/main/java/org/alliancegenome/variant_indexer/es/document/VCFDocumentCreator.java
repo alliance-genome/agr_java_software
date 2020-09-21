@@ -40,7 +40,8 @@ public class VCFDocumentCreator extends Thread {
     private BulkProcessor.Builder builder;
     private BulkProcessor bulkProcessor;
     public static String indexName;
-    private ProcessDisplayHelper ph = new ProcessDisplayHelper(10000);
+    private ProcessDisplayHelper ph = new ProcessDisplayHelper(12000);
+    private ProcessDisplayHelper ph2 = new ProcessDisplayHelper(12000);
 
     private double json_avg;
 
@@ -97,8 +98,8 @@ public class VCFDocumentCreator extends Thread {
 
     public void run() {
 
-        ph.startProcess("Starting File: " + vcfFilePath, 0);
-
+        ph.startProcess("Reading VC/s: ", 0);
+        ph2.startProcess("Bulk Request: ", 0);
         try {
             VCFFileReader reader = new VCFFileReader(new File(vcfFilePath), false);
             CloseableIterator<VariantContext> iter1 = reader.iterator();
@@ -124,7 +125,7 @@ public class VCFDocumentCreator extends Thread {
                         variantContextProcessorTaskExecuter.execute(new VariantContextProcessorTask(workChunk, taxon));
                         workChunk = new ArrayList<>();
                     }
-                    ph.progressProcess("Avg Doc Size: " + json_avg);
+                    ph.progressProcess();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -142,7 +143,7 @@ public class VCFDocumentCreator extends Thread {
             while (!variantContextProcessorTaskExecuter.isTerminated()) {
                 Thread.sleep(1000);
             }
-            
+            ph2.finishProcess();
             log.debug("Finished all threads");
             
             reader.close();
@@ -170,8 +171,9 @@ public class VCFDocumentCreator extends Thread {
                 List<String> docs = converter.convertVariantContext(ctx, taxon);
                 
                 for(String doc: docs) {
-                    json_avg = runningAverage(json_avg, doc.length(), 1_000_000);
+                    //json_avg = runningAverage(json_avg, doc.length(), 1_000_000);
                     bulkProcessor.add(new IndexRequest(indexName).source(doc, XContentType.JSON));
+                    ph2.progressProcess();
                 }
             }
         }
