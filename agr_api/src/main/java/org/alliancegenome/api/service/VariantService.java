@@ -107,7 +107,7 @@ public class VariantService {
             if (exonRange.containsRange(variantRange)) {
                 location = "Exon";
                 if (!strand.isEmpty())
-                    location += " " + index;
+                    location += " " + (index + 1);
                 foundExon = true;
                 break;
             }
