@@ -1,55 +1,76 @@
 package org.alliancegenome.core.translators.tdf;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.StringJoiner;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import org.alliancegenome.core.config.ConfigHelper;
+import org.alliancegenome.neo4j.entity.node.*;
+import org.apache.commons.collections.CollectionUtils;
 import org.alliancegenome.neo4j.entity.node.Allele;
-import org.alliancegenome.neo4j.entity.node.SimpleTerm;
-import org.alliancegenome.neo4j.entity.node.Variant;
 
 public class AlleleToTdfTranslator {
 
     public String getAllRows(List<Allele> annotations) {
-        StringBuilder builder = new StringBuilder();
-        StringJoiner headerJoiner = new StringJoiner("\t");
-        headerJoiner.add("Symbol");
-        headerJoiner.add("ID");
-        headerJoiner.add("Synonyms");
-        headerJoiner.add("Source");
-        headerJoiner.add("Associated Human Disease");
-        builder.append(headerJoiner.toString());
-        builder.append(ConfigHelper.getJavaLineSeparator());
 
-        annotations.forEach(allele -> {
-            StringJoiner joiner = new StringJoiner("\t");
-            joiner.add(allele.getSymbolText());
-            joiner.add(allele.getPrimaryKey());
-            // add list of synonyms
-            String synonyms = "";
-            if (allele.getSynonyms() != null) {
-                StringJoiner synonymJoiner = new StringJoiner(",");
-                allele.getSynonyms().forEach(synonym -> synonymJoiner.add(synonym.getName()));
-                synonyms = synonymJoiner.toString();
-            }
-            joiner.add(synonyms);
-            joiner.add("");
-            // add list of diseases
-            String disease = "";
-            if (allele.getDiseases() != null) {
-                StringJoiner diseaseJoiner = new StringJoiner(",");
-                allele.getDiseases().stream().sorted(Comparator.comparing(SimpleTerm::getName)).forEach(diseaseTerm -> diseaseJoiner.add(diseaseTerm.getName()));
-                disease = diseaseJoiner.toString();
-            }
-            joiner.add(disease);
-            builder.append(joiner.toString());
-            builder.append(ConfigHelper.getJavaLineSeparator());
-        });
+        List<AlleleDownloadRow> list = getAlleleDownloadRowsForGenes(annotations);
+        List<DownloadHeader> headers = List.of(
+                new DownloadHeader<>("Allele ID", (AlleleDownloadRow::getAlleleID)),
+                new DownloadHeader<>("Allele Symbol", (AlleleDownloadRow::getAlleleSymbol)),
+                new DownloadHeader<>("Allele Synonyms", (AlleleDownloadRow::getAlleleSynonyms)),
+                new DownloadHeader<>("Category", (AlleleDownloadRow::getVariantCategory)),
+                new DownloadHeader<>("Variant Symbol", (AlleleDownloadRow::getVariantSymbol)),
+                new DownloadHeader<>("Variant consequence", (AlleleDownloadRow::getVariantConsequence)),
+                new DownloadHeader<>("Has Phenotype", (AlleleDownloadRow::getHasPhenotype)),
+                new DownloadHeader<>("Has Disease", (AlleleDownloadRow::getHasDisease)),
+                new DownloadHeader<>("References", (AlleleDownloadRow::getReference))
+        );
 
-        return builder.toString();
+        return DownloadHeader.getDownloadOutput(list, headers);
+    }
+
+    public List<AlleleDownloadRow> getAlleleDownloadRowsForGenes(List<Allele> annotations) {
+
+        return annotations.stream()
+
+                .map(annotation -> annotation.getVariants().stream()
+                        .map(entity -> entity.getPublications().stream()
+                                .map(pub -> {
+                                    return List.of(getBaseDownloadRow(annotation, entity, pub));
+                                })
+                                .flatMap(Collection::stream)
+                                .collect(Collectors.toList()))
+                        .flatMap(Collection::stream)
+                        .collect(Collectors.toList()))
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
 
     }
+
+    private AlleleDownloadRow getBaseDownloadRow(Allele annotation, Variant join,Publication pub) {
+        AlleleDownloadRow row = new AlleleDownloadRow();
+        row.setAlleleID(annotation.getPrimaryKey());
+        row.setAlleleSymbol(annotation.getSymbol());
+        String synonyms = "";
+        if (CollectionUtils.isNotEmpty(annotation.getSynonyms())) {
+            StringJoiner synonymJoiner = new StringJoiner(",");
+            annotation.getSynonyms().forEach(synonym -> synonymJoiner.add(synonym.getName()));
+            synonyms = synonymJoiner.toString();
+        }
+        row.setAlleleSynonyms(synonyms);
+        row.setVariantCategory(annotation.getCategory());
+        if (join!=null) {
+            row.setVariantSymbol(join.getSymbol());
+            row.setVariantConsequence(join.getConsequence());
+        }
+        row.setHasPhenotype(annotation.hasPhenotype().toString());
+        row.setHasDisease(annotation.hasDisease().toString());
+        if (pub!=null) {
+            row.setReference(pub.getPubId());
+        }
+        return row;
+    }
+
+
 
     public String getAllVariantsRows(List<Variant> variants) {
         StringBuilder builder = new StringBuilder();
@@ -78,6 +99,7 @@ public class AlleleToTdfTranslator {
         return builder.toString();
 
     }
+
 
 
 }
