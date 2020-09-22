@@ -52,7 +52,6 @@ public class VariantIT {
     public void getLocationExonTranscriptZero() {
         Pagination pagination = new Pagination();
         JsonResultResponse<Transcript> response = variantService.getTranscriptsByVariant("NC_005101.4:g.210550359_210550360insGCGCCCCGCG", pagination);
-        //JsonResultResponse<Transcript> response = variantService.getTranscriptsByVariant("ZFIN:ZDB-ALT-180515-5", pagination);
         List<Transcript> results = response.getResults();
         assertNotNull(results);
         Transcript transcript = results.get(0);
@@ -66,7 +65,6 @@ public class VariantIT {
     @Test
     public void getLocationExonTranscriptZfin() {
         Pagination pagination = new Pagination();
-        //JsonResultResponse<Transcript> response = variantService.getTranscriptsByVariant("NC_007128.7:g.4245057_4245058delinsGGGGTGTTTATGGAG", pagination);
         JsonResultResponse<Transcript> response = variantService.getTranscriptsByVariant("NC_007128.7:g.4245057_4245058delinsGGGGTGTTTATGGAG", pagination);
         List<Transcript> results = response.getResults();
         assertNotNull(results);
@@ -77,7 +75,6 @@ public class VariantIT {
     public void getLocationExonTranscript() {
         Pagination pagination = new Pagination();
         JsonResultResponse<Transcript> response = variantService.getTranscriptsByVariant("NC_007126.7:g.15401132A>G", pagination);
-        //JsonResultResponse<Transcript> response = variantService.getTranscriptsByVariant("ZFIN:ZDB-ALT-180515-5", pagination);
         List<Transcript> results = response.getResults();
         assertNotNull(results);
         VariantRepository variantRepo = new VariantRepository();
