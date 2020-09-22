@@ -41,22 +41,22 @@ public class VCFDocumentCreator extends Thread {
     private BulkProcessor bulkProcessor;
     public static String indexName;
     private ProcessDisplayHelper ph = new ProcessDisplayHelper(12000);
-    private ProcessDisplayHelper ph2 = new ProcessDisplayHelper(12000);
+    //private ProcessDisplayHelper ph2 = new ProcessDisplayHelper(12000);
 
-    private double json_avg;
+    //private double json_avg;
 
-    private LinkedBlockingDeque<Runnable> runningQueue = new LinkedBlockingDeque<Runnable>(VariantConfigHelper.getContextProcessorTaskQueueSize());
+    //private LinkedBlockingDeque<Runnable> runningQueue = new LinkedBlockingDeque<Runnable>(VariantConfigHelper.getContextProcessorTaskQueueSize());
     
     private VariantContextConverter converter;
     private RestHighLevelClient client = EsClientFactory.createNewClient();
     
-    private ThreadPoolExecutor variantContextProcessorTaskExecuter = new ThreadPoolExecutor(
-        1, 
-        VariantConfigHelper.getContextProcessorTaskThreads(), 
-        10, 
-        TimeUnit.MILLISECONDS, 
-        runningQueue
-    );
+//  private ThreadPoolExecutor variantContextProcessorTaskExecuter = new ThreadPoolExecutor(
+//      1, 
+//      VariantConfigHelper.getContextProcessorTaskThreads(), 
+//      10, 
+//      TimeUnit.MILLISECONDS, 
+//      runningQueue
+//  );
     
     public VCFDocumentCreator(DownloadableFile downloadFile, String speciesName, int taxon) {
         this.vcfFilePath = downloadFile.getLocalGzipFilePath();
@@ -99,51 +99,60 @@ public class VCFDocumentCreator extends Thread {
     public void run() {
 
         ph.startProcess("Reading VC/s: ", 0);
-        ph2.startProcess("Bulk Request: ", 0);
+        //ph2.startProcess("Bulk Request: ", 0);
         try {
             VCFFileReader reader = new VCFFileReader(new File(vcfFilePath), false);
             CloseableIterator<VariantContext> iter1 = reader.iterator();
 
-            variantContextProcessorTaskExecuter.setRejectedExecutionHandler(new RejectedExecutionHandler() {
-                public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
-                    try {
-                        executor.getQueue().offer(r, 10, TimeUnit.DAYS);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            });
+//          variantContextProcessorTaskExecuter.setRejectedExecutionHandler(new RejectedExecutionHandler() {
+//              public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
+//                  try {
+//                      executor.getQueue().offer(r, 10, TimeUnit.DAYS);
+//                  } catch (InterruptedException e) {
+//                      e.printStackTrace();
+//                  }
+//              }
+//          });
 
-            List<VariantContext> workChunk = new ArrayList<>();
+            //List<VariantContext> workChunk = new ArrayList<>();
 
             while(iter1.hasNext()) {
                 try {
                     VariantContext vc = iter1.next();
-                    workChunk.add(vc);
                     
-                    if(workChunk.size() >= VariantConfigHelper.getDocumentCreatorWorkChunkSize()) {
-                        variantContextProcessorTaskExecuter.execute(new VariantContextProcessorTask(workChunk, taxon));
-                        workChunk = new ArrayList<>();
+                    List<String> docs = converter.convertVariantContext(vc, taxon);
+                    
+                    for(String doc: docs) {
+                        //json_avg = runningAverage(json_avg, doc.length(), 1_000_000);
+                        bulkProcessor.add(new IndexRequest(indexName).source(doc, XContentType.JSON));
+                        ph.progressProcess();
                     }
+                    
+//                  workChunk.add(vc);
+//                  
+//                  if(workChunk.size() >= VariantConfigHelper.getDocumentCreatorWorkChunkSize()) {
+//                      variantContextProcessorTaskExecuter.execute(new VariantContextProcessorTask(workChunk, taxon));
+//                      workChunk = new ArrayList<>();
+//                  }
                     ph.progressProcess();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
-            if(workChunk.size() > 0) {
-                variantContextProcessorTaskExecuter.execute(new VariantContextProcessorTask(workChunk, taxon));
-            }
+//          if(workChunk.size() > 0) {
+//              variantContextProcessorTaskExecuter.execute(new VariantContextProcessorTask(workChunk, taxon));
+//          }
             ph.finishProcess();
 
-            while(runningQueue.size() > 0) {
-                Thread.sleep(1000);
-            }
+//          while(runningQueue.size() > 0) {
+//              Thread.sleep(1000);
+//          }
             
-            variantContextProcessorTaskExecuter.shutdown();
-            while (!variantContextProcessorTaskExecuter.isTerminated()) {
-                Thread.sleep(1000);
-            }
-            ph2.finishProcess();
+//          variantContextProcessorTaskExecuter.shutdown();
+//          while (!variantContextProcessorTaskExecuter.isTerminated()) {
+//              Thread.sleep(1000);
+//          }
+            //ph2.finishProcess();
             log.debug("Finished all threads");
             
             reader.close();
@@ -173,7 +182,7 @@ public class VCFDocumentCreator extends Thread {
                 for(String doc: docs) {
                     //json_avg = runningAverage(json_avg, doc.length(), 1_000_000);
                     bulkProcessor.add(new IndexRequest(indexName).source(doc, XContentType.JSON));
-                    ph2.progressProcess();
+                    //ph2.progressProcess();
                 }
             }
         }
