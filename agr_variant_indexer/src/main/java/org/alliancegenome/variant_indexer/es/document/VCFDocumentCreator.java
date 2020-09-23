@@ -98,15 +98,22 @@ public class VCFDocumentCreator extends Thread {
         VCFReader reader = new VCFReader();
         reader.start();
         
-        VCFTransformer trans = new VCFTransformer();
-        trans.start();
+        List<VCFTransformer> transformers = new ArrayList<>();
         
+        for(int i = 0; i < VariantConfigHelper.getDocumentCreatorContextTransformerThreads(); i++) {
+            VCFTransformer transformer = new VCFTransformer();
+            transformer.start();
+            transformers.add(transformer);
+        }
+
         VCFJsonIndexer indexer = new VCFJsonIndexer();
         indexer.start();
 
         try {
             reader.join();
-            trans.join();
+            for(VCFTransformer t: transformers) {
+                t.join();
+            }
             indexer.join();
         } catch (InterruptedException e) {
             // TODO Auto-generated catch block

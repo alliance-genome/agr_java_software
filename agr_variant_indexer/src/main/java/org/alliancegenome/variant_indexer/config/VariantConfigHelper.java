@@ -44,6 +44,7 @@ public class VariantConfigHelper {
 
         defaults.put(VARIANT_DOCUMENT_CREATOR_THREADS, "10");
         defaults.put(VARIANT_DOCUMENT_CREATOR_CONTEXT_QUEUE_SIZE, "2500");
+        defaults.put(VARIANT_DOCUMENT_CREATOR_CONTEXT_TRANSFORMER_THREADS, "4");
         defaults.put(VARIANT_DOCUMENT_CREATOR_JSON_QUEUE_SIZE, "25000");
 
         // Average document size is 1200b
@@ -188,6 +189,14 @@ public class VariantConfigHelper {
         if (!init) init();
         try {
             return Integer.parseInt(config.get(VARIANT_DOCUMENT_CREATOR_JSON_QUEUE_SIZE));
+        } catch (NumberFormatException e) {
+            return 4;
+        }
+    }
+    public static int getDocumentCreatorContextTransformerThreads() {
+        if (!init) init();
+        try {
+            return Integer.parseInt(config.get(VARIANT_DOCUMENT_CREATOR_CONTEXT_TRANSFORMER_THREADS));
         } catch (NumberFormatException e) {
             return 4;
         }
