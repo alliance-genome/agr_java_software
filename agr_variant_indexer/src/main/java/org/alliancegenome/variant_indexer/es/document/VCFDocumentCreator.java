@@ -40,10 +40,6 @@ public class VCFDocumentCreator extends Thread {
     private BulkProcessor bulkProcessor;
     public static String indexName;
     
-    private ProcessDisplayHelper ph1 = new ProcessDisplayHelper(VariantConfigHelper.getDocumentCreatorDisplayInterval());
-    private ProcessDisplayHelper ph2 = new ProcessDisplayHelper(VariantConfigHelper.getDocumentCreatorDisplayInterval());
-    private ProcessDisplayHelper ph3 = new ProcessDisplayHelper(VariantConfigHelper.getDocumentCreatorDisplayInterval());
-    
     private RestHighLevelClient client = EsClientFactory.createNewClient();
 
     private LinkedBlockingDeque<VariantContext> vcQueue = new LinkedBlockingDeque<VariantContext>(VariantConfigHelper.getDocumentCreatorContextQueueSize());
@@ -97,9 +93,14 @@ public class VCFDocumentCreator extends Thread {
             transformer.start();
             transformers.add(transformer);
         }
-
-        VCFJsonIndexer indexer = new VCFJsonIndexer();
-        indexer.start();
+        
+        List<VCFJsonIndexer> indexers = new ArrayList<>();
+        
+        for(int i = 0; i < VariantConfigHelper.getDocumentCreatorContextIndexerThreads(); i++) {
+            VCFJsonIndexer indexer = new VCFJsonIndexer();
+            indexer.start();
+            indexers.add(indexer);
+        }
 
         try {
             reader.join();
@@ -117,10 +118,13 @@ public class VCFDocumentCreator extends Thread {
             while(!jsonQueue.isEmpty()) {
                 Thread.sleep(1000);
             }
-            log.info("Json Queue Empty shuting down indexer");
 
-            indexer.interrupt();
-            indexer.join();
+            log.info("JSon Queue Empty shuting down indexers");
+            for(VCFJsonIndexer i: indexers) {
+                i.interrupt();
+                i.join();
+            }
+            log.info("Indexers shutdown");
 
             log.info("Waiting for Bulk Processor to finish");
             bulkProcessor.flush();
@@ -135,6 +139,9 @@ public class VCFDocumentCreator extends Thread {
     }
     
     private class VCFReader extends Thread {
+        
+        private ProcessDisplayHelper ph1 = new ProcessDisplayHelper(VariantConfigHelper.getDocumentCreatorDisplayInterval());
+        
         public void run() {
             ph1.startProcess("VCFReader: " + vcfFilePath);
             VCFFileReader reader = new VCFFileReader(new File(vcfFilePath), false);
@@ -156,6 +163,7 @@ public class VCFDocumentCreator extends Thread {
     private class VCFTransformer extends Thread {
         
         VariantContextConverter converter = VariantContextConverter.getConverter(speciesName);
+        private ProcessDisplayHelper ph2 = new ProcessDisplayHelper(VariantConfigHelper.getDocumentCreatorDisplayInterval());
         
         public void run() {
             ph2.startProcess("VCFTransformer: " + speciesName);
@@ -180,6 +188,8 @@ public class VCFDocumentCreator extends Thread {
     }
     
     private class VCFJsonIndexer extends Thread {
+        private ProcessDisplayHelper ph3 = new ProcessDisplayHelper(VariantConfigHelper.getDocumentCreatorDisplayInterval());
+        
         public void run() {
             ph3.startProcess("VCFJsonIndexer: " + indexName);
             while(!(Thread.currentThread().isInterrupted())) {
