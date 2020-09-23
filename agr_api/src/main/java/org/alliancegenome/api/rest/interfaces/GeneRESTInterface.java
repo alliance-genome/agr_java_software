@@ -103,18 +103,7 @@ public interface GeneRESTInterface {
     @GET
     @Path("/{id}/alleles/download")
     @Operation(summary = "Retrieve all alleles for a given gene")
-    @JsonView(value = {GeneAllelesAPI.class})
-    @APIResponses(
-            value = {
-                    @APIResponse(
-                            responseCode = "404",
-                            description = "Missing alleles",
-                            content = @Content(mediaType = "text/plain")),
-                    @APIResponse(
-                            responseCode = "200",
-                            description = "Download Alleles for a gene.",
-                            content = @Content(mediaType = "application/json",
-                                    schema = @Schema(implementation = Allele.class)))})
+    @Produces(MediaType.TEXT_PLAIN)
     Response getAllelesPerGeneDownload(
             @Parameter(in = ParameterIn.PATH, name = "id", description = "Search for Alleles for a given Gene by ID", required = true, schema = @Schema(type = SchemaType.STRING))
             @PathParam("id") String id,
