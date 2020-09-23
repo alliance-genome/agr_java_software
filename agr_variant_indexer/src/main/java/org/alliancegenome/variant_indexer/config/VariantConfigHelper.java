@@ -42,16 +42,16 @@ public class VariantConfigHelper {
         defaults.put(VARIANT_FILE_DOWNLOAD_FILTER_THREADS, "10");
         defaults.put(VARIANT_FILE_DOWNLOAD_PATH, "data");
 
-        defaults.put(VARIANT_DOCUMENT_CREATOR_THREADS, "10");
-        defaults.put(VARIANT_DOCUMENT_CREATOR_DISPLAY_INTERVAL, "60"); // In seconds
-        defaults.put(VARIANT_DOCUMENT_CREATOR_CONTEXT_QUEUE_SIZE, "2500");
+        defaults.put(VARIANT_DOCUMENT_CREATOR_THREADS, "6");
+        defaults.put(VARIANT_DOCUMENT_CREATOR_DISPLAY_INTERVAL, "90"); // In seconds
+        defaults.put(VARIANT_DOCUMENT_CREATOR_CONTEXT_QUEUE_SIZE, "1000");
         defaults.put(VARIANT_DOCUMENT_CREATOR_CONTEXT_TRANSFORMER_THREADS, "4");
-        defaults.put(VARIANT_DOCUMENT_CREATOR_JSON_QUEUE_SIZE, "25000");
+        defaults.put(VARIANT_DOCUMENT_CREATOR_CONTEXT_INDEXER_THREADS, "2");
+        defaults.put(VARIANT_DOCUMENT_CREATOR_JSON_QUEUE_SIZE, "10000");
 
-        // Average document size is 1200b
-        defaults.put(VARIANT_ES_BULK_ACTION_SIZE, "500"); // Max amount of documents in a bulk request target MB
-        defaults.put(VARIANT_ES_BULK_CONCURRENT_REQUESTS, "2"); // Amount of concurrent bulk requests running (target * 10) MB
-        defaults.put(VARIANT_ES_BULK_SIZE_MB, "7"); // Max size of bulk request target
+        defaults.put(VARIANT_ES_BULK_ACTION_SIZE, "1000"); // Max amount of documents in a bulk request target MB
+        defaults.put(VARIANT_ES_BULK_CONCURRENT_REQUESTS, "10"); // Amount of concurrent bulk requests running (target * 10) MB
+        defaults.put(VARIANT_ES_BULK_SIZE_MB, "95"); // Max size of bulk request target
         defaults.put(VARIANT_ES_INDEX_NUMBER_OF_SHARDS, "8");
 
         allKeys = defaults.keySet();
@@ -211,5 +211,13 @@ public class VariantConfigHelper {
         }
     }
     
+    public static int getDocumentCreatorContextIndexerThreads() {
+        if (!init) init();
+        try {
+            return Integer.parseInt(config.get(VARIANT_DOCUMENT_CREATOR_CONTEXT_INDEXER_THREADS));
+        } catch (NumberFormatException e) {
+            return 4;
+        }
+    }
 
 }

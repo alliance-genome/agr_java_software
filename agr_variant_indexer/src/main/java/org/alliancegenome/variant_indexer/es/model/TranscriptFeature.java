@@ -30,7 +30,7 @@ public class TranscriptFeature {
     private String HGVSc;
     private String cDNAPosition;
     private String CDSPosition;
-    private  String proteinPosition;
+    private String proteinPosition;
     private String codon;
     private String existingVariation;
     private String distance;
