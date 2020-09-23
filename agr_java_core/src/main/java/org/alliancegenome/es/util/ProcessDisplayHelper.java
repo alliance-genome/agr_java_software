@@ -62,34 +62,45 @@ public class ProcessDisplayHelper {
             percent = ((double) (sizeCounter) / totalSize);
         }
         long processedAmount = (sizeCounter - lastSizeCounter);
-        String message = "" + getBigNumber(sizeCounter);
+        String localMessage = "" + getBigNumber(sizeCounter);
         if(totalSize > 0) {
-            message += " of [" + getBigNumber(totalSize) + "] " + (int) (percent * 100) + "%";
+            localMessage += " of [" + getBigNumber(totalSize) + "] " + (int) (percent * 100) + "%";
         }
-        message += ", " + (time / 1000) + "s to process " + getBigNumber(processedAmount) + " records at " + getBigNumber((processedAmount * 1000) / time) + "r/s";
+        localMessage += ", " + (time / 1000) + "s to process " + getBigNumber(processedAmount) + " records at " + getBigNumber((processedAmount * 1000) / time) + "r/s";
         if(data != null) {
-            message += " " + data;
+            localMessage += " " + data;
         }
         
         if (percent > 0) {
             int perms = (int) (diff / percent);
             Date end = new Date(startTime.getTime() + perms);
             String expectedDuration = getHumanReadableTimeDisplay(end.getTime() - (new Date()).getTime());
-            message += ", Mem: " + df.format(memoryPercent() * 100) + "%, ETA: " + expectedDuration + " [" + end + "]";
+            localMessage += ", Mem: " + df.format(memoryPercent() * 100) + "%, ETA: " + expectedDuration + " [" + end + "]";
         }
-        log.info(this.message + message);
+        log.info(this.message + localMessage);
         lastSizeCounter = sizeCounter;
         lastTime = now;
     }
 
     public void finishProcess() {
+        finishProcess(null);
+    }
+    
+    public void finishProcess(String data) {
         Date now = new Date();
         long duration = now.getTime() - startTime.getTime();
         String result = getHumanReadableTimeDisplay(duration);
-        if (duration != 0)
-            log.info(message + "Finished: took: " + result + " to process " + getBigNumber(sizeCounter) + " records at a rate of: " + ((sizeCounter * 1000) / duration) + "r/s");
-        else
-            log.info(message + "Finished: took: " + result + " to process " + getBigNumber(sizeCounter) + " records  ");
+        String localMessage = message + "Finished: took: " + result + " to process " + getBigNumber(sizeCounter);
+        if (duration != 0) {
+            localMessage += " records at a rate of: " + ((sizeCounter * 1000) / duration) + "r/s";
+        } else {
+            localMessage += " records";
+        }
+        
+        if(data != null) {
+            localMessage += " " + data;
+        }
+        log.info(localMessage);
     }
 
     private static String getBigNumber(long number) {
