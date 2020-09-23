@@ -1,18 +1,10 @@
 package org.alliancegenome.variant_indexer.es.document;
 
-import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.RejectedExecutionHandler;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.zip.GZIPOutputStream;
 
 import org.alliancegenome.es.util.EsClientFactory;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
@@ -48,9 +40,9 @@ public class VCFDocumentCreator extends Thread {
     private BulkProcessor bulkProcessor;
     public static String indexName;
     
-    private ProcessDisplayHelper ph1 = new ProcessDisplayHelper(12000);
-    private ProcessDisplayHelper ph2 = new ProcessDisplayHelper(12000);
-    private ProcessDisplayHelper ph3 = new ProcessDisplayHelper(12000);
+    private ProcessDisplayHelper ph1 = new ProcessDisplayHelper(VariantConfigHelper.getDocumentCreatorDisplayInterval());
+    private ProcessDisplayHelper ph2 = new ProcessDisplayHelper(VariantConfigHelper.getDocumentCreatorDisplayInterval());
+    private ProcessDisplayHelper ph3 = new ProcessDisplayHelper(VariantConfigHelper.getDocumentCreatorDisplayInterval());
     
     private RestHighLevelClient client = EsClientFactory.createNewClient();
 
@@ -111,19 +103,31 @@ public class VCFDocumentCreator extends Thread {
 
         try {
             reader.join();
-            ph1.finishProcess();
+            log.info("Waiting for VC Queue to empty");
+            while(!vcQueue.isEmpty()) {
+                Thread.sleep(1000);
+            }
+            log.info("VC Queue Empty shuting down transformers");
             for(VCFTransformer t: transformers) {
+                t.interrupt();
                 t.join();
             }
-            ph2.finishProcess();
+            log.info("Transformers shutdown");
+            log.info("Waiting for jsonQueue to empty");
+            while(!jsonQueue.isEmpty()) {
+                Thread.sleep(1000);
+            }
+            log.info("Json Queue Empty shuting down indexer");
+
+            indexer.interrupt();
             indexer.join();
-            ph3.finishProcess();
+
+            log.info("Waiting for Bulk Processor to finish");
+            bulkProcessor.flush();
+            boolean finished = bulkProcessor.awaitClose(10, TimeUnit.DAYS);
+            log.info("Bulk Processor finished: " + finished);
             
-            log.info("Threads finished: ");
-            log.info("VC Queue: " + vcQueue.size());
-            vcQueue.clear();
-            log.info("Json Queue: " + jsonQueue.size());
-            jsonQueue.clear();
+            log.info("Threads finished: " + vcfFilePath);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -138,61 +142,56 @@ public class VCFDocumentCreator extends Thread {
             try {
                 while(iter1.hasNext()) {
                     VariantContext vc = iter1.next();
+                    vcQueue.put(vc);
                     ph1.progressProcess();
-                    vcQueue.offer(vc, 10, TimeUnit.DAYS);
                 }
-                vcQueue.add(null);
             } catch (Exception e) {
                 e.printStackTrace();
             }
             reader.close();
+            ph1.finishProcess();
         }
     }
     
     private class VCFTransformer extends Thread {
+        
+        VariantContextConverter converter = VariantContextConverter.getConverter(speciesName);
+        
         public void run() {
             ph2.startProcess("VCFTransformer: " + speciesName);
-            VariantContextConverter converter = VariantContextConverter.getConverter(speciesName);
-            try {
-                while(true) {
+            while(!(Thread.currentThread().isInterrupted())) {
+                try {
                     VariantContext ctx = vcQueue.take();
-                    if(ctx == null) {
-                        log.info("VCFTransformer: Recieved Null:");
-                        vcQueue.add(null);
-                        Thread.sleep(15000);
-                        jsonQueue.add(null);
-                        log.info("VCFTransformer: returning");
-                        return;
-                    }
                     List<String> docs = converter.convertVariantContext(ctx, taxon);
-                    
                     for(String doc: docs) {
-                        ph2.progressProcess("VCQueue: " + vcQueue.size() + " JsonQueue: " + jsonQueue.size());
-                        jsonQueue.offer(doc, 10, TimeUnit.DAYS);
+                        try {
+                            jsonQueue.put(doc);
+                            ph2.progressProcess("VCQueue: " + vcQueue.size() + " JsonQueue: " + jsonQueue.size());
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
                     }
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
             }
+            ph2.finishProcess();
         }
     }
     
     private class VCFJsonIndexer extends Thread {
         public void run() {
             ph3.startProcess("VCFJsonIndexer: " + indexName);
-            try {
-                while(true) {
+            while(!(Thread.currentThread().isInterrupted())) {
+                try {
                     String doc = jsonQueue.take();
-                    if(doc == null) {
-                        log.info("VCFJsonIndexer: Recieved Null: returning");
-                        return;
-                    }
-                    ph3.progressProcess();
                     bulkProcessor.add(new IndexRequest(indexName).source(doc, XContentType.JSON));
+                    ph3.progressProcess();
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
             }
+            ph3.finishProcess();
         }
     }
 
