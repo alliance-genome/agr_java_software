@@ -56,7 +56,7 @@ public class VCFDocumentCreator extends Thread {
 
     private LinkedBlockingDeque<VariantContext> vcQueue = new LinkedBlockingDeque<VariantContext>(VariantConfigHelper.getDocumentCreatorContextQueueSize());
     private LinkedBlockingDeque<String> jsonQueue = new LinkedBlockingDeque<String>(VariantConfigHelper.getDocumentCreatorJsonQueueSize());
-    
+
     public VCFDocumentCreator(DownloadableFile downloadFile, String speciesName, int taxon) {
         this.vcfFilePath = downloadFile.getLocalGzipFilePath();
         this.speciesName = speciesName;
@@ -111,12 +111,20 @@ public class VCFDocumentCreator extends Thread {
 
         try {
             reader.join();
+            ph1.finishProcess();
             for(VCFTransformer t: transformers) {
                 t.join();
             }
+            ph2.finishProcess();
             indexer.join();
+            ph3.finishProcess();
+            
+            log.info("Threads finished: ");
+            log.info("VC Queue: " + vcQueue.size());
+            vcQueue.clear();
+            log.info("Json Queue: " + jsonQueue.size());
+            jsonQueue.clear();
         } catch (InterruptedException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
 
@@ -127,17 +135,16 @@ public class VCFDocumentCreator extends Thread {
             ph1.startProcess("VCFReader: " + vcfFilePath);
             VCFFileReader reader = new VCFFileReader(new File(vcfFilePath), false);
             CloseableIterator<VariantContext> iter1 = reader.iterator();
-            
-            while(iter1.hasNext()) {
-                try {
+            try {
+                while(iter1.hasNext()) {
                     VariantContext vc = iter1.next();
                     ph1.progressProcess();
                     vcQueue.offer(vc, 10, TimeUnit.DAYS);
-                } catch (Exception e) {
-                    e.printStackTrace();
                 }
+                vcQueue.add(null);
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-            ph1.finishProcess();
             reader.close();
         }
     }
@@ -148,7 +155,15 @@ public class VCFDocumentCreator extends Thread {
             VariantContextConverter converter = VariantContextConverter.getConverter(speciesName);
             try {
                 while(true) {
-                    VariantContext ctx = vcQueue.takeFirst();
+                    VariantContext ctx = vcQueue.take();
+                    if(ctx == null) {
+                        log.info("VCFTransformer: Recieved Null:");
+                        vcQueue.add(null);
+                        Thread.sleep(15000);
+                        jsonQueue.add(null);
+                        log.info("VCFTransformer: returning");
+                        return;
+                    }
                     List<String> docs = converter.convertVariantContext(ctx, taxon);
                     
                     for(String doc: docs) {
@@ -159,7 +174,6 @@ public class VCFDocumentCreator extends Thread {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            ph2.finishProcess();
         }
     }
     
@@ -168,14 +182,17 @@ public class VCFDocumentCreator extends Thread {
             ph3.startProcess("VCFJsonIndexer: " + indexName);
             try {
                 while(true) {
-                    String doc = jsonQueue.takeFirst();
+                    String doc = jsonQueue.take();
+                    if(doc == null) {
+                        log.info("VCFJsonIndexer: Recieved Null: returning");
+                        return;
+                    }
                     ph3.progressProcess();
                     bulkProcessor.add(new IndexRequest(indexName).source(doc, XContentType.JSON));
                 }
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            ph3.finishProcess();
         }
     }
 
