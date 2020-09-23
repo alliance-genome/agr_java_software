@@ -43,6 +43,7 @@ public class VariantConfigHelper {
         defaults.put(VARIANT_FILE_DOWNLOAD_PATH, "data");
 
         defaults.put(VARIANT_DOCUMENT_CREATOR_THREADS, "10");
+        defaults.put(VARIANT_DOCUMENT_CREATOR_DISPLAY_INTERVAL, "60"); // In seconds
         defaults.put(VARIANT_DOCUMENT_CREATOR_CONTEXT_QUEUE_SIZE, "2500");
         defaults.put(VARIANT_DOCUMENT_CREATOR_CONTEXT_TRANSFORMER_THREADS, "4");
         defaults.put(VARIANT_DOCUMENT_CREATOR_JSON_QUEUE_SIZE, "25000");
@@ -177,6 +178,14 @@ public class VariantConfigHelper {
             return 4;
         }
     }
+    public static Integer getDocumentCreatorDisplayInterval() {
+        if (!init) init();
+        try {
+            return Integer.parseInt(config.get(VARIANT_DOCUMENT_CREATOR_DISPLAY_INTERVAL)) * 1000;
+        } catch (NumberFormatException e) {
+            return 4000;
+        }
+    }
     public static Integer getDocumentCreatorContextQueueSize() {
         if (!init) init();
         try {
@@ -201,6 +210,6 @@ public class VariantConfigHelper {
             return 4;
         }
     }
-
+    
 
 }
