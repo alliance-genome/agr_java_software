@@ -125,7 +125,7 @@ public class Mapping extends Builder {
         new FieldBuilder(builder, "whereExpressed", "text").keyword().build();
 
         buildMetaDataField();
-
+        buildCrossReferenceLinkField();
 
     }
 
@@ -135,6 +135,16 @@ public class Mapping extends Builder {
         new FieldBuilder(builder,"dateProduced","date").build();
         new FieldBuilder(builder,"dataProvider","keyword").build();
         new FieldBuilder(builder,"release","keyword").build();
+        builder.endObject();
+        builder.endObject();
+    }
+
+    private void buildCrossReferenceLinkField() throws IOException {
+        builder.startObject("crossReferenceLinks");
+        builder.startObject("properties");
+        new FieldBuilder(builder,"name","keyword").build();
+        new FieldBuilder(builder,"displayName","keyword").build();
+        new FieldBuilder(builder,"url","keyword").build();
         builder.endObject();
         builder.endObject();
     }

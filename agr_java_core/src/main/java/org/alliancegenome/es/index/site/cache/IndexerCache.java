@@ -2,6 +2,7 @@ package org.alliancegenome.es.index.site.cache;
 
 import java.util.*;
 
+import org.alliancegenome.es.index.site.document.CrossReferenceLink;
 import org.alliancegenome.es.index.site.document.SearchableItemDocument;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.Variant;
@@ -46,6 +47,8 @@ public class IndexerCache {
     private Map<String,Set<String>> subcellularExpressionWithParents = new HashMap<>();
     private Map<String,Set<String>> subcellularExpressionAgrSlim = new HashMap<>();
 
+    //nested documents
+    private Map<String, Set<CrossReferenceLink>> crossReferenceLinks = new HashMap<>();
 
     public void addCachedFields(Iterable<SearchableItemDocument> documents) {
         for (SearchableItemDocument document : documents) {
@@ -122,6 +125,8 @@ public class IndexerCache {
         document.setSubcellularExpressionWithParents(subcellularExpressionWithParents.get(id));
         document.setSubcellularExpressionAgrSlim(subcellularExpressionAgrSlim.get(id));
 
+        //nested documents
+        document.setCrossReferenceLinks(crossReferenceLinks.get(id));
 
     }
 

@@ -96,6 +96,8 @@ public class SearchableItemDocument extends ESDocument {
     Set<String> variantType = new HashSet<>();
     Set<String> whereExpressed = new HashSet<>();
 
+    //nested documents
+    Set<CrossReferenceLink> crossReferenceLinks = new HashSet<>();
 
 
     boolean searchable = true;

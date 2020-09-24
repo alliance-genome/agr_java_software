@@ -162,6 +162,36 @@ public class Neo4jRepository<E> {
         return returnMap;
     }
 
+    protected Map<String, Set<Map<String,String>>> getMapOfMapsForQuery(String query) {
+        Map<String, Set<Map<String, String>>> returnMap = new HashMap<>();
+
+        Result r;
+
+        r = queryForResult(query);
+
+        Iterator<Map<String, Object>> i = r.iterator();
+
+        while (i.hasNext()) {
+            Map<String, String> rowMap = new HashMap<>();
+            Map<String, Object> resultMap = i.next();
+            String key = (String) resultMap.get("id");
+
+            //make a map of selected columns
+            for (String rowName : resultMap.keySet()) {
+                if (!rowName.equals("id")) {
+                    rowMap.put(rowName, (String) resultMap.get(rowName));
+                }
+            }
+
+            returnMap.computeIfAbsent(key, x -> new HashSet<>());
+            returnMap.get(key).add(rowMap);
+        }
+
+        log.info(returnMap.size() + " map entries");
+
+        return returnMap;
+    }
+
     protected String addAndWhereClauseString(String fieldName, FieldFilter fieldFilter, BaseFilter baseFilter) {
         return addWhereClauseString(fieldName, fieldFilter, baseFilter, " AND ");
     }

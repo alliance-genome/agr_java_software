@@ -1,6 +1,7 @@
 package org.alliancegenome.neo4j.repository;
 
 import org.alliancegenome.es.index.site.cache.DatasetDocumentCache;
+import org.alliancegenome.es.index.site.document.CrossReferenceLink;
 import org.alliancegenome.neo4j.entity.node.HTPDataset;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -8,6 +9,7 @@ import org.apache.logging.log4j.Logger;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class DatasetIndexerRepository extends Neo4jRepository {
 
@@ -60,6 +62,9 @@ public class DatasetIndexerRepository extends Neo4jRepository {
         log.info("Fetching anatomical expression parent terms");
         cache.setAnatomicalExpressionWithParents(getSampleStructureParentTerms());
 
+        log.info("Fetching cross reference links");
+        cache.setCrossReferenceLinks(getCrossReferenceLinks());
+
         return cache;
     }
 
@@ -104,5 +109,22 @@ public class DatasetIndexerRepository extends Neo4jRepository {
                 " RETURN dataset.primaryKey as id, term.name as value");
     }
 
+    public Map<String, Set<CrossReferenceLink>> getCrossReferenceLinks() {
+        String query = "MATCH (dataset:HTPDataset)-[:CROSS_REFERENCE]-(cr:CrossReference) " +
+                " RETURN distinct dataset.primaryKey as id, cr.crossRefCompleteUrl as url, cr.name as name ";
 
+
+        Map<String, Set<CrossReferenceLink>> returnMap = new HashMap<>();
+        Map<String, Set<Map<String,String>>> result = getMapOfMapsForQuery(query);
+        for (String id : result.keySet()) {
+            returnMap.put(
+                    id,
+                    result.get(id)
+                            .stream()
+                            .map(x -> new CrossReferenceLink(x.get("url"),
+                                                             x.get("name"),
+                                                             x.get("name"))).collect(Collectors.toSet()));
+        }
+        return returnMap;
+    }
 }
