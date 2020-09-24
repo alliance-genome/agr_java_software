@@ -1,7 +1,6 @@
 package org.alliancegenome.data_extractor.config;
 
-import org.alliancegenome.data_extractor.extractors.AlleleExtractor;
-import org.alliancegenome.data_extractor.extractors.GeneExtractor;
+import org.alliancegenome.data_extractor.extractors.*;
 
 public enum ExtractorConfig {
     

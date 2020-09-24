@@ -2,8 +2,7 @@ package org.alliancegenome.agr_elasticsearch_util.commands.config;
 
 import java.util.ArrayList;
 
-import org.alliancegenome.agr_elasticsearch_util.commands.Command;
-import org.alliancegenome.agr_elasticsearch_util.commands.CommandInterface;
+import org.alliancegenome.agr_elasticsearch_util.commands.*;
 import org.alliancegenome.core.config.ConfigHelper;
 
 public class ConfigCommand extends Command implements CommandInterface {

@@ -1,15 +1,12 @@
 package org.alliancegenome.api.service;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 
 import org.alliancegenome.api.entity.CacheStatus;
-import org.alliancegenome.cache.CacheAlliance;
-import org.alliancegenome.cache.CacheService;
+import org.alliancegenome.cache.*;
 
 import lombok.extern.log4j.Log4j2;
 

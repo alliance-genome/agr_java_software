@@ -1,17 +1,13 @@
 package org.alliancegenome.api.controller;
 
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.ws.rs.core.UriInfo;
 
-import org.alliancegenome.api.model.xml.SiteMap;
-import org.alliancegenome.api.model.xml.SiteMapIndex;
-import org.alliancegenome.api.model.xml.XMLURL;
-import org.alliancegenome.api.model.xml.XMLURLSet;
+import org.alliancegenome.api.model.xml.*;
 import org.alliancegenome.api.rest.interfaces.SiteMapRESTInterface;
 import org.alliancegenome.cache.repository.SiteMapCacheManager;
 import org.alliancegenome.core.config.ConfigHelper;

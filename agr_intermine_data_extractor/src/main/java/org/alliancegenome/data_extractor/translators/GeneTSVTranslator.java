@@ -1,8 +1,7 @@
 package org.alliancegenome.data_extractor.translators;
 
 import java.io.PrintWriter;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 import org.alliancegenome.core.translators.EntityTSVTranslator;
 import org.alliancegenome.neo4j.entity.node.Gene;

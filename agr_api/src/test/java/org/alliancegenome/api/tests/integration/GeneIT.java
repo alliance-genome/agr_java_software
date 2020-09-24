@@ -1,40 +1,5 @@
 package org.alliancegenome.api.tests.integration;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.alliancegenome.api.controller.ExpressionController;
-import org.alliancegenome.api.controller.GeneController;
-import org.alliancegenome.api.controller.GenesController;
-import org.alliancegenome.api.controller.OrthologyController;
-import org.alliancegenome.api.entity.ExpressionSummary;
-import org.alliancegenome.api.entity.ExpressionSummaryGroup;
-import org.alliancegenome.api.entity.ExpressionSummaryGroupTerm;
-import org.alliancegenome.api.service.GeneService;
-import org.alliancegenome.cache.repository.helper.JsonResultResponse;
-import org.alliancegenome.core.ExpressionDetail;
-import org.alliancegenome.core.config.ConfigHelper;
-import org.alliancegenome.neo4j.entity.node.Allele;
-import org.alliancegenome.neo4j.entity.node.Gene;
-import org.alliancegenome.neo4j.entity.node.OrthoAlgorithm;
-import org.alliancegenome.neo4j.entity.node.Publication;
-import org.alliancegenome.neo4j.repository.AlleleRepository;
-import org.alliancegenome.neo4j.repository.GeneRepository;
-import org.alliancegenome.neo4j.view.OrthologView;
-import org.alliancegenome.neo4j.view.OrthologyModule;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.core.config.Configurator;
-import org.junit.Before;
-import org.junit.Test;
-
-import javax.inject.Inject;
-import java.io.IOException;
-import java.lang.reflect.Method;
-import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
-
 import static java.util.Arrays.asList;
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
@@ -42,6 +7,30 @@ import static org.alliancegenome.api.service.ExpressionService.CELLULAR_COMPONEN
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
+
+import java.io.IOException;
+import java.lang.reflect.Method;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import javax.inject.Inject;
+
+import org.alliancegenome.api.controller.*;
+import org.alliancegenome.api.entity.*;
+import org.alliancegenome.api.service.GeneService;
+import org.alliancegenome.cache.repository.helper.JsonResultResponse;
+import org.alliancegenome.core.ExpressionDetail;
+import org.alliancegenome.core.config.ConfigHelper;
+import org.alliancegenome.neo4j.entity.node.*;
+import org.alliancegenome.neo4j.repository.*;
+import org.alliancegenome.neo4j.view.*;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.core.config.Configurator;
+import org.junit.*;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.*;
 
 public class GeneIT {
 

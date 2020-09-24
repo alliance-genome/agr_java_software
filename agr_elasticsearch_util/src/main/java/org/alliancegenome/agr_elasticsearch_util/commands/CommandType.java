@@ -2,9 +2,7 @@ package org.alliancegenome.agr_elasticsearch_util.commands;
 
 import org.alliancegenome.agr_elasticsearch_util.commands.config.ConfigCommand;
 import org.alliancegenome.agr_elasticsearch_util.commands.es.RepoCommand;
-import org.alliancegenome.agr_elasticsearch_util.commands.index.AliasCommand;
-import org.alliancegenome.agr_elasticsearch_util.commands.index.IndexCommand;
-import org.alliancegenome.agr_elasticsearch_util.commands.index.SnapShotCommand;
+import org.alliancegenome.agr_elasticsearch_util.commands.index.*;
 
 public enum CommandType {
     

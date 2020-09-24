@@ -1,25 +1,23 @@
 package org.alliancegenome.cacher.cachers;
 
-import lombok.extern.log4j.Log4j2;
+import static java.util.Map.Entry.comparingByValue;
+import static java.util.stream.Collectors.*;
+
+import java.util.*;
+import java.util.stream.Collectors;
+
 import org.alliancegenome.api.entity.CacheStatus;
 import org.alliancegenome.api.service.DiseaseRibbonService;
 import org.alliancegenome.cache.CacheAlliance;
-import org.alliancegenome.cache.repository.helper.DiseaseAnnotationSorting;
-import org.alliancegenome.cache.repository.helper.SortingField;
+import org.alliancegenome.cache.repository.helper.*;
 import org.alliancegenome.core.util.ModelHelper;
-import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
-import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
-import org.alliancegenome.neo4j.entity.SpeciesType;
+import org.alliancegenome.neo4j.entity.*;
 import org.alliancegenome.neo4j.entity.node.*;
 import org.alliancegenome.neo4j.repository.DiseaseRepository;
 import org.alliancegenome.neo4j.view.View;
 import org.apache.commons.collections4.CollectionUtils;
 
-import java.util.*;
-import java.util.stream.Collectors;
-
-import static java.util.Map.Entry.comparingByValue;
-import static java.util.stream.Collectors.*;
+import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 public class DiseaseCacher extends Cacher {

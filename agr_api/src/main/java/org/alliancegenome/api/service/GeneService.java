@@ -1,26 +1,19 @@
 package org.alliancegenome.api.service;
 
-import org.alliancegenome.cache.repository.InteractionCacheRepository;
-import org.alliancegenome.cache.repository.PhenotypeCacheRepository;
-import org.alliancegenome.cache.repository.helper.JsonResultResponse;
-import org.alliancegenome.cache.repository.helper.PaginationResult;
-import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.neo4j.entity.EntitySummary;
-import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
-import org.alliancegenome.neo4j.entity.SpeciesType;
-import org.alliancegenome.neo4j.entity.node.Allele;
-import org.alliancegenome.neo4j.entity.node.Gene;
-import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
-import org.alliancegenome.neo4j.repository.GeneRepository;
-import org.alliancegenome.neo4j.repository.InteractionRepository;
-import org.alliancegenome.neo4j.repository.PhenotypeRepository;
-import org.apache.commons.collections.CollectionUtils;
-
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+
+import org.alliancegenome.cache.repository.*;
+import org.alliancegenome.cache.repository.helper.*;
+import org.alliancegenome.es.model.query.Pagination;
+import org.alliancegenome.neo4j.entity.*;
+import org.alliancegenome.neo4j.entity.node.*;
+import org.alliancegenome.neo4j.repository.*;
+import org.apache.commons.collections.CollectionUtils;
 
 @RequestScoped
 public class GeneService {

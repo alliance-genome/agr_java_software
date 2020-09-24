@@ -1,20 +1,14 @@
 package org.alliancegenome.api.service;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import javax.enterprise.context.RequestScoped;
 
-import org.alliancegenome.api.entity.RibbonSection;
-import org.alliancegenome.api.entity.RibbonSummary;
-import org.alliancegenome.api.entity.SectionSlim;
+import org.alliancegenome.api.entity.*;
 import org.alliancegenome.cache.repository.ExpressionCacheRepository;
 import org.alliancegenome.neo4j.entity.node.GOTerm;
-import org.alliancegenome.neo4j.repository.DiseaseRepository;
-import org.alliancegenome.neo4j.repository.GeneRepository;
+import org.alliancegenome.neo4j.repository.*;
 import org.apache.commons.lang3.StringUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;

@@ -6,22 +6,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
 
 import org.alliancegenome.api.rest.interfaces.AlleleRESTInterface;
-import org.alliancegenome.api.service.AlleleService;
-import org.alliancegenome.api.service.EntityType;
-import org.alliancegenome.api.service.VariantService;
+import org.alliancegenome.api.service.*;
 import org.alliancegenome.api.service.helper.APIServiceHelper;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
-import org.alliancegenome.core.exceptions.RestErrorException;
-import org.alliancegenome.core.exceptions.RestErrorMessage;
-import org.alliancegenome.core.translators.tdf.AlleleToTdfTranslator;
-import org.alliancegenome.core.translators.tdf.DiseaseAnnotationToTdfTranslator;
-import org.alliancegenome.core.translators.tdf.PhenotypeAnnotationToTdfTranslator;
-import org.alliancegenome.es.model.query.FieldFilter;
-import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
-import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
-import org.alliancegenome.neo4j.entity.node.Allele;
-import org.alliancegenome.neo4j.entity.node.Variant;
+import org.alliancegenome.core.exceptions.*;
+import org.alliancegenome.core.translators.tdf.*;
+import org.alliancegenome.es.model.query.*;
+import org.alliancegenome.neo4j.entity.*;
+import org.alliancegenome.neo4j.entity.node.*;
 
 import lombok.extern.log4j.Log4j2;
 
