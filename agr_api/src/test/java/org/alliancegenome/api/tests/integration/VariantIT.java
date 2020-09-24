@@ -49,6 +49,29 @@ public class VariantIT {
     }
 
     @Test
+    public void getLocationExonTranscriptZero() {
+        Pagination pagination = new Pagination();
+        JsonResultResponse<Transcript> response = variantService.getTranscriptsByVariant("NC_005101.4:g.210550359_210550360insGCGCCCCGCG", pagination);
+        List<Transcript> results = response.getResults();
+        assertNotNull(results);
+        Transcript transcript = results.get(0);
+        assertEquals(transcript.getIntronExonLocation(), "Exon 1");
+        transcript = results.get(1);
+        assertEquals(transcript.getIntronExonLocation(), "Exon 1");
+        transcript = results.get(2);
+        assertEquals(transcript.getIntronExonLocation(), "Exon 2");
+    }
+
+    @Test
+    public void getLocationExonTranscriptZfin() {
+        Pagination pagination = new Pagination();
+        JsonResultResponse<Transcript> response = variantService.getTranscriptsByVariant("NC_007128.7:g.4245057_4245058delinsGGGGTGTTTATGGAG", pagination);
+        List<Transcript> results = response.getResults();
+        assertNotNull(results);
+        assertEquals(results.get(0).getIntronExonLocation(), "Exon");
+    }
+
+    @Test
     public void getLocationExonTranscript() {
         Pagination pagination = new Pagination();
         JsonResultResponse<Transcript> response = variantService.getTranscriptsByVariant("NC_007126.7:g.15401132A>G", pagination);
@@ -70,7 +93,7 @@ public class VariantIT {
         results = response.getResults();
         assertNotNull(results);
         transcript = results.get(0);
-        assertEquals(transcript.getIntronExonLocation(), "Exon 3");
+        assertEquals(transcript.getIntronExonLocation(), "Exon 4");
 
         // negative strand
         variantID = "NC_005120.4:g.154703661_154703782del";

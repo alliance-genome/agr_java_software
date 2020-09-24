@@ -232,7 +232,7 @@ public class AlleleIT {
     @Test
     public void getVariantsPerAllele() {
         Pagination pagination = new Pagination();
-        JsonResultResponse<Variant> response = variantService.getVariants("ZFIN:ZDB-ALT-161003-18461", pagination);
+        JsonResultResponse<Variant> response = variantService.getVariants("ZFIN:ZDB-ALT-180515-5", pagination);
         assertThat(response.getTotal(), greaterThanOrEqualTo(1));
         assertNotNull("Computed Gene exists", response.getResults().get(0).getGene());
         assertNotNull("Genomic Location exists on computed Gene", response.getResults().get(0).getGene().getGenomeLocations());
