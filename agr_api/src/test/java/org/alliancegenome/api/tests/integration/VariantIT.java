@@ -6,6 +6,7 @@ import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.Transcript;
+import org.alliancegenome.neo4j.entity.node.Variant;
 import org.alliancegenome.neo4j.repository.VariantRepository;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.config.Configurator;
@@ -22,6 +23,7 @@ public class VariantIT {
 
     //    @Inject
     private VariantService variantService = new VariantService();
+    private VariantRepository variantRepository = new VariantRepository();
 
     @Before
     public void before() {
@@ -131,6 +133,14 @@ public class VariantIT {
     }
 
     @Test
+    public void getAllelesByVariantDuplicatedHgvsNames() {
+        Pagination pagination = new Pagination();
+        JsonResultResponse<Transcript> response = variantService.getTranscriptsByVariant("NC_000069.6:g.115711833T>C", pagination);
+        List<Transcript> results = response.getResults();
+        assertNotNull(results);
+    }
+
+    @Test
     public void getAllelesByVariantWithoutExistingExons() {
         Pagination pagination = new Pagination();
         JsonResultResponse<Transcript> response = variantService.getTranscriptsByVariant("NC_000069.6:g.115711892_115711893delinsGC", pagination);
@@ -149,6 +159,20 @@ public class VariantIT {
         assertNotNull(results);
         assertThat(results.size(), equalTo(2));
         assertThat(response.getTotal(), greaterThanOrEqualTo(16));
+    }
+
+    @Test
+    public void checkVariantHgvsDuplication() {
+        List<Variant> variants = variantRepository.getVariantsOfAllele("MGI:5295051");
+        assertNotNull(variants);
+        assertEquals(variants.size(), 2);
+        Variant variant = variants.get(0);
+        assertEquals(variants.size(), 2);
+        String variantNames = String.join(",", variant.getHgvsG());
+        List<String> expectedNames = List.of("(GRCm38)3:115711821_115711824delinsCCGC", "3:g.115711821_115711824delinsCCGC");
+        expectedNames.forEach(name -> assertTrue(name + " does not exist", variantNames.contains(name)));
+        String unexpectedName = "3:g.115711833T>C";
+        assertFalse(unexpectedName + " exists but should not on this transcript", variantNames.contains(unexpectedName));
 
     }
 

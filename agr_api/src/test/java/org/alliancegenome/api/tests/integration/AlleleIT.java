@@ -247,6 +247,16 @@ public class AlleleIT {
     }
 
     @Test
+    public void getVariantsCompleteHgvsNames() {
+        Pagination pagination = new Pagination();
+        JsonResultResponse<Variant> response = variantService.getVariants("ZFIN:ZDB-ALT-131217-14827", pagination);
+        final Variant variant = response.getResults().get(0);
+        assertNotNull("Variant exists", variant);
+        List<String> expectedValues = List.of("(GRCz11)2:2095171C>T", "2:g.2095171C>T", "NC_007113.7:g.2095171C>T");
+        expectedValues.forEach(value -> assertTrue(value + " does not exist as HGVS,g value", variant.getHgvsG().contains(value)));
+    }
+
+    @Test
     public void getVariantsPerAlleleWitCrossReference() {
         Pagination pagination = new Pagination();
         JsonResultResponse<Variant> response = variantService.getVariants("WB:WBVar00252636", pagination);

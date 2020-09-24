@@ -14,10 +14,7 @@ import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.typeconversion.Convert;
 
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @NodeEntity(label = "Variant")
@@ -77,6 +74,9 @@ public class Variant extends GeneticEntity implements Comparable<Variant> {
     @Relationship(type = "ASSOCIATION", direction = Relationship.INCOMING)
     protected List<Transcript> transcriptList;
 
+    @Relationship(type = "ASSOCIATION")
+    protected List<TranscriptLevelConsequence> transcriptLevelConsequence;
+
     @JsonView({View.Default.class, View.API.class})
     @JsonProperty(value = "consequence")
     public String getConsequence() {
@@ -134,24 +134,23 @@ public class Variant extends GeneticEntity implements Comparable<Variant> {
 
     @JsonView({View.VariantAPI.class})
     public List<String> getHgvsG() {
-        if (CollectionUtils.isNotEmpty(transcriptList)) {
-            return transcriptList.stream()
-                    .map(Transcript::getConsequences)
-                    .flatMap(Collection::stream)
+        List<String> names = new ArrayList<>();
+        names.add(name);
+        names.add(hgvsNomenclature);
+        if (CollectionUtils.isNotEmpty(transcriptLevelConsequence)) {
+            names.addAll(transcriptLevelConsequence.stream()
                     .map(TranscriptLevelConsequence::getHgvsVEPGeneNomenclature)
                     .distinct()
-                    .sorted()
-                    .collect(Collectors.toList());
+                    .collect(Collectors.toList()));
         }
-        return null;
+        names.sort(Comparator.naturalOrder());
+        return names;
     }
 
     @JsonView({View.VariantAPI.class})
     public List<String> getHgvsC() {
-        if (CollectionUtils.isNotEmpty(transcriptList)) {
-            return transcriptList.stream()
-                    .map(Transcript::getConsequences)
-                    .flatMap(Collection::stream)
+        if (CollectionUtils.isNotEmpty(transcriptLevelConsequence)) {
+            return transcriptLevelConsequence.stream()
                     .map(TranscriptLevelConsequence::getHgvsCodingNomenclature)
                     .distinct()
                     .sorted()
@@ -162,10 +161,8 @@ public class Variant extends GeneticEntity implements Comparable<Variant> {
 
     @JsonView({View.VariantAPI.class})
     public List<String> getHgvsP() {
-        if (CollectionUtils.isNotEmpty(transcriptList)) {
-            return transcriptList.stream()
-                    .map(Transcript::getConsequences)
-                    .flatMap(Collection::stream)
+        if (CollectionUtils.isNotEmpty(transcriptLevelConsequence)) {
+            return transcriptLevelConsequence.stream()
                     .map(TranscriptLevelConsequence::getHgvsProteinNomenclature)
                     .distinct()
                     .sorted()
