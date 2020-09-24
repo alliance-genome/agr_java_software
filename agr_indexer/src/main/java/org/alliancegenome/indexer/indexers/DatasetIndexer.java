@@ -54,9 +54,9 @@ public class DatasetIndexer extends Indexer<SearchableItemDocument> {
                 }
                 if (queue.isEmpty()) {
                     if (list.size() > 0) {
-                        Iterable <SearchableItemDocument> alleleDocuments = translator.translateEntities(list);
-                        cache.addCachedFields(alleleDocuments);
-                        saveDocuments(alleleDocuments);
+                        Iterable <SearchableItemDocument> documents = translator.translateEntities(list);
+                        cache.addCachedFields(documents);
+                        saveDocuments(documents);
                         repo.clearCache();
                         list.clear();
                     }

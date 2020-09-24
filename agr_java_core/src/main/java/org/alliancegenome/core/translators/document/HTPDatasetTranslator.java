@@ -16,10 +16,7 @@ public class HTPDatasetTranslator extends EntityDocumentTranslator<HTPDataset, S
         document.setPrimaryKey(entity.getPrimaryKey());
         document.setName(entity.getTitle());
         document.setSummary(entity.getSummary());
-
-        if (CollectionUtils.isNotEmpty(entity.getCrossReferences())) {
-            document.setHref(entity.getCrossReferences().get(0).getCrossRefCompleteUrl());
-        }
+        document.setHref(entity.getCrossRefCompleteUrl());
 
         return document;
 

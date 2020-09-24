@@ -219,6 +219,7 @@ public class SearchHelper {
             add("category");
             add("cellularComponent");
             add("crossReferences");
+            add("crossReferenceLinks");
             add("definition");
             add("description");
             add("diseases");
