@@ -2,15 +2,11 @@ package org.alliancegenome.core.config;
 
 import static org.alliancegenome.core.config.Constants.*;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 
 import org.alliancegenome.core.util.FileHelper;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
+import com.google.common.collect.*;
 
 import lombok.extern.log4j.Log4j2;
 
@@ -49,6 +45,11 @@ public class ConfigHelper {
         defaults.put(ES_DATA_INDEX, "data_index");
         defaults.put(ES_HOST, "localhost");
         defaults.put(ES_PORT, "9200");
+        
+        // ES Bulk Processing defaults
+        defaults.put(ES_BULK_ACTION_SIZE, "1000");
+        defaults.put(ES_BULK_REQUEST_SIZE, "10");
+        defaults.put(ES_BULK_CONCURRENT_REQUESTS, "10");
 
         defaults.put(KEEPINDEX, "false");
         defaults.put(SPECIES, null);
@@ -138,6 +139,33 @@ public class ConfigHelper {
             return Integer.parseInt(config.get(CACHE_PORT));
         } catch (NumberFormatException e) {
             return 11222;
+        }
+    }
+    
+    public static int getEsBulkActionSize() {
+        if (!init) init();
+        try {
+            return Integer.parseInt(config.get(ES_BULK_ACTION_SIZE));
+        } catch (NumberFormatException e) {
+            return 0;
+        }
+    }
+
+    public static long getEsBulkSizeMB() {
+        if (!init) init();
+        try {
+            return Long.parseLong(config.get(ES_BULK_REQUEST_SIZE));
+        } catch (NumberFormatException e) {
+            return 0;
+        }
+    }
+    
+    public static int getEsBulkConcurrentRequests() {
+        if (!init) init();
+        try {
+            return Integer.parseInt(config.get(ES_BULK_CONCURRENT_REQUESTS));
+        } catch (NumberFormatException e) {
+            return 0;
         }
     }
 

@@ -2,8 +2,7 @@ package org.alliancegenome.es.index.site.schema;
 
 import java.io.IOException;
 
-import org.elasticsearch.common.xcontent.XContentBuilder;
-import org.elasticsearch.common.xcontent.XContentFactory;
+import org.elasticsearch.common.xcontent.*;
 
 public abstract class Builder {
 

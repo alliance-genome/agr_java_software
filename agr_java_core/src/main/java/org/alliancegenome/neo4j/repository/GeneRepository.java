@@ -1,7 +1,13 @@
 package org.alliancegenome.neo4j.repository;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.extern.log4j.Log4j2;
+import static java.util.stream.Collectors.joining;
+
+import java.io.*;
+import java.net.URL;
+import java.util.*;
+import java.util.regex.*;
+import java.util.stream.*;
+
 import org.alliancegenome.core.util.FileHelper;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.SpeciesType;
@@ -11,18 +17,9 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections4.map.MultiKeyMap;
 import org.neo4j.ogm.model.Result;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Serializable;
-import java.net.URL;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-import static java.util.stream.Collectors.joining;
+import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 public class GeneRepository extends Neo4jRepository<Gene> {

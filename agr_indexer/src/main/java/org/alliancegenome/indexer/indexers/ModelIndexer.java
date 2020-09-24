@@ -10,7 +10,7 @@ import org.alliancegenome.es.index.site.cache.ModelDocumentCache;
 import org.alliancegenome.es.index.site.document.SearchableItemDocument;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.neo4j.entity.node.AffectedGenomicModel;
-import org.alliancegenome.neo4j.repository.ModelIndexerRepository;
+import org.alliancegenome.neo4j.repository.indexer.ModelIndexerRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -52,14 +52,14 @@ public class ModelIndexer extends Indexer<SearchableItemDocument> {
                 if (list.size() >= indexerConfig.getBufferSize()) {
                     Iterable <SearchableItemDocument> documents = translator.translateEntities(list);
                     cache.addCachedFields(documents);
-                    saveDocuments(documents);
+                    indexDocuments(documents);
                     list.clear();
                 }
                 if (queue.isEmpty()) {
                     if (list.size() > 0) {
                         Iterable <SearchableItemDocument> documents = translator.translateEntities(list);
                         cache.addCachedFields(documents);
-                        saveDocuments(documents);
+                        indexDocuments(documents);
                         repo.clearCache();
                         list.clear();
                     }

@@ -1,15 +1,11 @@
 package org.alliancegenome.neo4j.entity.node;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
-import org.neo4j.ogm.annotation.NodeEntity;
-import org.neo4j.ogm.annotation.Relationship;
+import org.neo4j.ogm.annotation.*;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @NodeEntity
 @Getter @Setter

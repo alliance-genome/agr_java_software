@@ -1,15 +1,14 @@
 package org.alliancegenome.neo4j.entity.node;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.extern.log4j.Log4j2;
-import org.alliancegenome.cache.repository.helper.SourceServiceHelper;
-import org.apache.commons.collections.CollectionUtils;
-import org.neo4j.ogm.annotation.NodeEntity;
-import org.neo4j.ogm.annotation.Relationship;
-
 import java.util.*;
 import java.util.stream.Collectors;
+
+import org.alliancegenome.cache.repository.helper.SourceServiceHelper;
+import org.apache.commons.collections.CollectionUtils;
+import org.neo4j.ogm.annotation.*;
+
+import lombok.*;
+import lombok.extern.log4j.Log4j2;
 
 @NodeEntity
 @Getter

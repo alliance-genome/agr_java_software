@@ -13,11 +13,13 @@ import java.util.Map;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 
+import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.es.index.ESDocument;
 import org.alliancegenome.es.util.EsClientFactory;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.elasticsearch.action.DocWriteRequest;
 import org.elasticsearch.action.bulk.BackoffPolicy;
 import org.elasticsearch.action.bulk.BulkProcessor;
 import org.elasticsearch.action.bulk.BulkRequest;
@@ -58,6 +60,8 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
 
     protected Map<String,Double> popularityScore;
 
+    protected BulkProcessor bulkProcessor;
+
     public Indexer(IndexerConfig indexerConfig) {
         this.indexerConfig = indexerConfig;
 
@@ -66,6 +70,37 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
         loadPopularityScore();
 
         client = EsClientFactory.getDefaultEsClient();
+
+
+        BulkProcessor.Listener listener = new BulkProcessor.Listener() {
+            @Override
+            public void beforeBulk(long executionId, BulkRequest request) {
+            }
+
+            @Override
+            public void afterBulk(long executionId, BulkRequest request, BulkResponse response) {
+                //log.info("Size: " + request.requests().size() + " MB: " + request.estimatedSizeInBytes() + " Time: " + response.getTook() + " Bulk Requet Finished");
+            }
+
+            @Override
+            public void afterBulk(long executionId, BulkRequest request, Throwable failure) {
+                log.error("Bulk Request Failure: " + failure.getMessage());
+                for(DocWriteRequest<?> req: request.requests()) {
+                    IndexRequest idxreq = (IndexRequest)req;
+                    bulkProcessor.add(idxreq);
+                }
+                log.error("Finished Adding failed requests to bulkProcessor: ");
+            }
+        };
+
+        BulkProcessor.Builder builder = BulkProcessor.builder((request, bulkListener) -> client.bulkAsync(request, RequestOptions.DEFAULT, bulkListener), listener);
+        builder.setBulkActions(ConfigHelper.getEsBulkActionSize());
+        builder.setBulkSize(new ByteSizeValue(ConfigHelper.getEsBulkSizeMB(), ByteSizeUnit.MB));
+        builder.setConcurrentRequests(ConfigHelper.getEsBulkConcurrentRequests());
+        builder.setFlushInterval(TimeValue.timeValueSeconds(180L));
+        builder.setBackoffPolicy(BackoffPolicy.exponentialBackoff(TimeValue.timeValueSeconds(1L), 60));
+
+        bulkProcessor = BulkProcessor.builder((request, bulkListener) -> client.bulkAsync(request, RequestOptions.DEFAULT, bulkListener), listener).build();
 
     }
 
@@ -76,9 +111,9 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
 
         try (BufferedReader br = new BufferedReader(new InputStreamReader(classloader.getResourceAsStream("popularity.tsv")))) {
             br.lines().forEach(line -> {
-                        String[] row = line.split("\t");
-                        popularityScore.put(row[0], Double.valueOf(row[1]));
-                    });
+                String[] row = line.split("\t");
+                popularityScore.put(row[0], Double.valueOf(row[1]));
+            });
         } catch (Exception e) {
             e.printStackTrace();
             System.exit(-1);
@@ -90,6 +125,8 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
     public void runIndex() {
         try {
             index();
+            bulkProcessor.flush();
+            bulkProcessor.awaitClose(30L, TimeUnit.DAYS);
         } catch (Exception e) {
             e.printStackTrace();
             System.exit(-1);
@@ -101,6 +138,8 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
         super.run();
         try {
             index();
+            bulkProcessor.flush();
+            bulkProcessor.awaitClose(30L, TimeUnit.DAYS);
         } catch (Exception e) {
             e.printStackTrace();
             System.exit(-1);
@@ -108,101 +147,18 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
     }
 
 
-    public void saveDocumentsWithBulkListener(Iterable<D> docs) {
-
-
-        BulkProcessor.Listener listener = new BulkProcessor.Listener() {
-            @Override
-            public void beforeBulk(long executionId, BulkRequest request) {
-                int numberOfActions = request.numberOfActions();
-                log.debug("Executing bulk [{}] with {} requests",
-                        executionId, numberOfActions);
-            }
-
-            @Override
-            public void afterBulk(long executionId, BulkRequest request,
-                                  BulkResponse response) {
-                if (response.hasFailures()) {
-                    log.warn("Bulk [{}] executed with failures", executionId);
-                } else {
-                    log.debug("Bulk [{}] completed in {} milliseconds",
-                            executionId, response.getTook().getMillis());
-                }
-            }
-
-            @Override
-            public void afterBulk(long executionId, BulkRequest request,
-                                  Throwable failure) {
-                log.error("Failed to execute bulk", failure);
-            }
-        };
-
-        BulkProcessor.Builder builder = BulkProcessor.builder(
-                (request, bulkListener) ->
-                        client.bulkAsync(request, RequestOptions.DEFAULT, bulkListener),
-                listener);
-        builder.setBulkActions(500);
-        builder.setBulkSize(new ByteSizeValue(1L, ByteSizeUnit.MB));
-        builder.setFlushInterval(TimeValue.timeValueSeconds(10L));
-        builder.setBackoffPolicy(BackoffPolicy
-                .constantBackoff(TimeValue.timeValueSeconds(5L), 3));
-
-        BulkProcessor bulkProcessor = BulkProcessor.builder(
-                (request, bulkListener) ->
-                        client.bulkAsync(request, RequestOptions.DEFAULT, bulkListener),
-                listener).build();
+    public void indexDocuments(Iterable<D> docs) {
+        checkMemory();
 
         for (D doc : docs) {
             String json = null;
             try {
                 json = om.writeValueAsString(doc);
+                bulkProcessor.add(new IndexRequest(indexName).id(doc.getDocumentId()).source(json, XContentType.JSON));
             } catch (JsonProcessingException e) {
                 e.printStackTrace();
             }
-            bulkProcessor.add(new IndexRequest(indexName).id(doc.getDocumentId()).source(json, XContentType.JSON));
         }
-
-        try {
-            bulkProcessor.awaitClose(30L, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void saveDocuments(Iterable<D> docs) {
-        checkMemory();
-
-        if (((Collection<D>) docs).size() > 0) {
-            BulkRequest request = new BulkRequest();
-
-            for (D doc : docs) {
-                try {
-                    String json = om.writeValueAsString(doc);
-                    //log.debug("JSON: " + json);
-                    request.add(new IndexRequest(indexName).id(doc.getDocumentId()).source(json, XContentType.JSON));
-                    batchTotalSize += json.length();
-                    batchCount += 1;
-                } catch (JsonProcessingException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            try {
-                BulkResponse bulkResponse = client.bulk(request, RequestOptions.DEFAULT);
-                if (bulkResponse.hasFailures()) {
-                    log.error("Has Failures in indexer: " + bulkResponse.buildFailureMessage());
-                    // TODO process failures by iterating through each bulk response item
-                    // Retry request until we get a success after that period FAIL
-                    System.out.println("TODO process failures by iterating through each bulk response item");
-                    System.out.println("Retry request until we get a success after that period FAIL");
-                    System.exit(-1);
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-                System.exit(-1);
-            }
-        }
-
     }
 
     // Used to show progress when using a queue
@@ -248,20 +204,20 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
     }
 
     // Used to show progress when using batches
-//  protected void progress(int currentBatch, int totalBatches, int processedAmount) {
-//      double percent = ((double) currentBatch / (double) totalBatches);
-//      Date now = new Date();
-//      long diff = now.getTime() - startTime.getTime();
-//      long time = (now.getTime() - lastTime.getTime());
-//      if (percent > 0) {
-//          int perms = (int) (diff / percent);
-//          Date end = new Date(startTime.getTime() + perms);
-//          log.info("Batch: " + currentBatch + " of " + totalBatches + " took: " + time + "ms to process " + processedAmount + " records at a rate of: " + ((processedAmount * 1000) / time) + "r/s, Memory: " + df.format(memoryPercent() * 100) + "%, Percentage complete: " + (int) (percent * 100) + "%, Estimated Finish: " + end);
-//      } else {
-//          log.info("Batch: " + currentBatch + " of " + totalBatches + " took: " + time + "ms to process " + processedAmount + " records at a rate of: " + ((processedAmount * 1000) / time) + "r/s");
-//      }
-//      lastTime = now;
-//  }
+    //  protected void progress(int currentBatch, int totalBatches, int processedAmount) {
+    //      double percent = ((double) currentBatch / (double) totalBatches);
+    //      Date now = new Date();
+    //      long diff = now.getTime() - startTime.getTime();
+    //      long time = (now.getTime() - lastTime.getTime());
+    //      if (percent > 0) {
+    //          int perms = (int) (diff / percent);
+    //          Date end = new Date(startTime.getTime() + perms);
+    //          log.info("Batch: " + currentBatch + " of " + totalBatches + " took: " + time + "ms to process " + processedAmount + " records at a rate of: " + ((processedAmount * 1000) / time) + "r/s, Memory: " + df.format(memoryPercent() * 100) + "%, Percentage complete: " + (int) (percent * 100) + "%, Estimated Finish: " + end);
+    //      } else {
+    //          log.info("Batch: " + currentBatch + " of " + totalBatches + " took: " + time + "ms to process " + processedAmount + " records at a rate of: " + ((processedAmount * 1000) / time) + "r/s");
+    //      }
+    //      lastTime = now;
+    //  }
 
     private void finishProcess(int totalDocAmount) {
         Date now = new Date();

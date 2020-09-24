@@ -1,6 +1,5 @@
 package org.alliancegenome.indexer.indexers;
 
-import java.util.List;
 import java.util.concurrent.LinkedBlockingDeque;
 
 import org.alliancegenome.core.translators.document.GoTranslator;
@@ -25,22 +24,9 @@ public class GoIndexer extends Indexer<SearchableItemDocument> {
     @Override
     public void index() {
 
-        LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>();
-        List<String> fulllist = goRepo.getAllGoKeys();
-
-        queue.addAll(fulllist);
-        goRepo.clearCache();
-        startSingleThread(queue);
-
-    }
-
-    protected void startSingleThread(LinkedBlockingDeque<String> queue) {
-
-        GoRepository repo = new GoRepository();
-
         log.info("Pulling All Terms");
 
-        Iterable<GOTerm> terms = repo.getAllTerms();
+        Iterable<GOTerm> terms = goRepo.getAllTerms();
 
         log.info("Pulling All Terms Finished");
 
@@ -49,9 +35,13 @@ public class GoIndexer extends Indexer<SearchableItemDocument> {
 
         log.info("Translation Done");
 
-        saveDocumentsWithBulkListener(docs);
+        indexDocuments(docs);
         log.info("saveDocuments Done");
 
+    }
+
+    protected void startSingleThread(LinkedBlockingDeque<String> queue) {
+        // No need to multithread this
     }
 
 }

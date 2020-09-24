@@ -1,11 +1,10 @@
 package org.alliancegenome.es.index.site.cache;
 
-import lombok.Getter;
-import lombok.Setter;
+import java.util.*;
+
 import org.alliancegenome.neo4j.entity.node.HTPDataset;
 
-import java.util.HashMap;
-import java.util.Map;
+import lombok.*;
 
 @Getter
 @Setter

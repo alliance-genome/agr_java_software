@@ -1,10 +1,10 @@
 package org.alliancegenome.api.service;
 
-import org.alliancegenome.es.model.query.FieldFilter;
-
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import org.alliancegenome.es.model.query.FieldFilter;
 
 public abstract class ColumnFieldMapping<T> {
 

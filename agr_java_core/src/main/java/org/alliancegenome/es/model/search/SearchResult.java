@@ -1,10 +1,8 @@
 package org.alliancegenome.es.model.search;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Getter @Setter
 public class SearchResult {

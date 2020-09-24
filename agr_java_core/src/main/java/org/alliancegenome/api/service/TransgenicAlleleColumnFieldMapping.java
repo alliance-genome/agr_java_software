@@ -1,14 +1,12 @@
 package org.alliancegenome.api.service;
 
-import org.alliancegenome.es.model.query.FieldFilter;
-import org.alliancegenome.neo4j.entity.node.Allele;
+import static org.alliancegenome.api.service.Column.TG_ALLELE_SPECIES;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 
-import static org.alliancegenome.api.service.Column.TG_ALLELE_SPECIES;
+import org.alliancegenome.es.model.query.FieldFilter;
+import org.alliancegenome.neo4j.entity.node.Allele;
 
 public class TransgenicAlleleColumnFieldMapping extends ColumnFieldMapping<Allele> {
 

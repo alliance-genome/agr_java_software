@@ -1,12 +1,10 @@
 package org.alliancegenome.core.translators.document;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 import org.alliancegenome.core.translators.EntityDocumentTranslator;
 import org.alliancegenome.es.index.site.document.SearchableItemDocument;
-import org.alliancegenome.neo4j.entity.node.GOTerm;
-import org.alliancegenome.neo4j.entity.node.Synonym;
+import org.alliancegenome.neo4j.entity.node.*;
 
 public class GoTranslator extends EntityDocumentTranslator<GOTerm, SearchableItemDocument> {
 

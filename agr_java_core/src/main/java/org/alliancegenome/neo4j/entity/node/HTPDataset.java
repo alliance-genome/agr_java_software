@@ -1,14 +1,12 @@
 package org.alliancegenome.neo4j.entity.node;
 
-import lombok.Getter;
-import lombok.Setter;
+import java.util.*;
+
 import org.alliancegenome.neo4j.entity.Neo4jEntity;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
-import org.neo4j.ogm.annotation.NodeEntity;
-import org.neo4j.ogm.annotation.Relationship;
+import org.neo4j.ogm.annotation.*;
 
-import java.util.ArrayList;
-import java.util.List;
+import lombok.*;
 
 @NodeEntity
 @Getter

@@ -1,11 +1,8 @@
 package org.alliancegenome.cache.repository.helper;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
-import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
-import org.alliancegenome.neo4j.entity.Sorting;
+import org.alliancegenome.neo4j.entity.*;
 import org.apache.commons.collections.CollectionUtils;
 
 public class PrimaryAnnotatedEntitySorting implements Sorting<PrimaryAnnotatedEntity> {

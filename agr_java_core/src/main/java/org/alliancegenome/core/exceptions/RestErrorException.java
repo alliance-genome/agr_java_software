@@ -1,9 +1,6 @@
 package org.alliancegenome.core.exceptions;
 
-import lombok.Getter;
-import lombok.Setter;
-
-import java.util.stream.Collectors;
+import lombok.*;
 
 @Setter
 @Getter
