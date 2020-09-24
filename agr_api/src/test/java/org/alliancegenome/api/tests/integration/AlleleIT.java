@@ -190,6 +190,23 @@ public class AlleleIT {
     }
 
     @Test
+    public void checkVariantHgvsDuplication() {
+        Pagination pagination = new Pagination();
+        JsonResultResponse<Allele> response = alleleService.getAllelesByGene("MGI:5295051", pagination);
+        assertResponse(response, 2, 2);
+
+        response.getResults().stream()
+                .map(Allele::getVariants)
+                .flatMap(Collection::stream)
+                .filter(Objects::nonNull)
+                .filter(variant -> variant.getPrimaryKey().equals("NT_033778.4:g.16856124_16856125ins"))
+                .forEach(variant -> {
+                            assertNotNull("Variant location is missing", variant.getLocation());
+                        }
+                );
+    }
+
+    @Test
     public void checkVariantLocation() {
         Pagination pagination = new Pagination();
         JsonResultResponse<Allele> response = alleleService.getAllelesByGene("FB:FBgn0025832", pagination);
@@ -244,6 +261,16 @@ public class AlleleIT {
         JsonResultResponse<Variant> response = variantService.getVariants("FB:FBal0000017", pagination);
         assertThat(response.getTotal(), greaterThanOrEqualTo(1));
         assertNotNull("Computed Gene exists", response.getResults().get(0).getNotes());
+    }
+
+    @Test
+    public void getVariantsCompleteHgvsNames() {
+        Pagination pagination = new Pagination();
+        JsonResultResponse<Variant> response = variantService.getVariants("ZFIN:ZDB-ALT-131217-14827", pagination);
+        final Variant variant = response.getResults().get(0);
+        assertNotNull("Variant exists", variant);
+        List<String> expectedValues = List.of("(GRCz11)2:2095171C>T", "2:g.2095171C>T", "NC_007113.7:g.2095171C>T");
+        expectedValues.forEach(value -> assertTrue(value + " does not exist as HGVS,g value", variant.getHgvsG().contains(value)));
     }
 
     @Test

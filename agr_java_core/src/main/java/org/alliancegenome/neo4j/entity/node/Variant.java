@@ -14,10 +14,7 @@ import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.typeconversion.Convert;
 
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @NodeEntity(label = "Variant")
@@ -134,16 +131,19 @@ public class Variant extends GeneticEntity implements Comparable<Variant> {
 
     @JsonView({View.VariantAPI.class})
     public List<String> getHgvsG() {
+        List<String> names = new ArrayList<>();
+        names.add(name);
+        names.add(hgvsNomenclature);
         if (CollectionUtils.isNotEmpty(transcriptList)) {
-            return transcriptList.stream()
+            names.addAll(transcriptList.stream()
                     .map(Transcript::getConsequences)
                     .flatMap(Collection::stream)
                     .map(TranscriptLevelConsequence::getHgvsVEPGeneNomenclature)
                     .distinct()
-                    .sorted()
-                    .collect(Collectors.toList());
+                    .collect(Collectors.toList()));
         }
-        return null;
+        names.sort(Comparator.naturalOrder());
+        return names;
     }
 
     @JsonView({View.VariantAPI.class})

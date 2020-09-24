@@ -131,6 +131,14 @@ public class VariantIT {
     }
 
     @Test
+    public void getAllelesByVariantDuplicatedHgvsNames() {
+        Pagination pagination = new Pagination();
+        JsonResultResponse<Transcript> response = variantService.getTranscriptsByVariant("NC_000069.6:g.115711833T>C", pagination);
+        List<Transcript> results = response.getResults();
+        assertNotNull(results);
+    }
+
+    @Test
     public void getAllelesByVariantWithoutExistingExons() {
         Pagination pagination = new Pagination();
         JsonResultResponse<Transcript> response = variantService.getTranscriptsByVariant("NC_000069.6:g.115711892_115711893delinsGC", pagination);
