@@ -30,24 +30,50 @@ public class AlleleToTdfTranslator {
 
     public List<AlleleDownloadRow> getAlleleDownloadRowsForGenes(List<Allele> annotations) {
 
+denormalizeAnnotations(annotations);
         return annotations.stream()
 
+                .filter(annotation -> annotation.getVariants()!=null)
+                .filter(annotation -> !CollectionUtils.isEmpty(annotation.getVariants()))
                 .map(annotation -> annotation.getVariants().stream()
-                        .map(entity -> entity.getPublications().stream()
-                                .map(pub -> {
-                                    return List.of(getBaseDownloadRow(annotation, entity, pub));
-                                })
-                                .flatMap(Collection::stream)
-                                .collect(Collectors.toList()))
-                        .flatMap(Collection::stream)
+                        .map(join -> {
+                            AlleleDownloadRow row = getBaseDownloadRow(annotation, join, null);
+                            return row;
+                        })
                         .collect(Collectors.toList()))
                 .flatMap(Collection::stream)
                 .collect(Collectors.toList());
-
     }
+
+
+        private void denormalizeAnnotations(List<Allele> alleles) {
+            // add genetic entity info for annotations with pure genes
+
+
+
+            alleles.stream()
+                    .filter(annotation -> CollectionUtils.isEmpty(annotation.getVariants()))
+                    .forEach(annotation -> {
+                        Variant entity = createNewVariant();
+                        annotation.addVariant(entity);
+                    });
+
+
+        }
+
+        private Variant createNewVariant() {
+            Variant entity = new Variant();
+            entity.setConsequence("");
+            entity.setSymbol("");
+            entity.setName("");
+            //entity.setPublications(Collections.<Publication>emptySet());
+
+            return entity;
+        }
 
     private AlleleDownloadRow getBaseDownloadRow(Allele annotation, Variant join,Publication pub) {
         AlleleDownloadRow row = new AlleleDownloadRow();
+
         row.setAlleleID(annotation.getPrimaryKey());
         row.setAlleleSymbol(annotation.getSymbol());
         String synonyms = "";
@@ -59,7 +85,7 @@ public class AlleleToTdfTranslator {
         row.setAlleleSynonyms(synonyms);
         row.setVariantCategory(annotation.getCategory());
         if (join!=null) {
-            row.setVariantSymbol(join.getSymbol());
+            row.setVariantSymbol(join.getName());
             row.setVariantConsequence(join.getConsequence());
         }
         row.setHasPhenotype(annotation.hasPhenotype().toString());
