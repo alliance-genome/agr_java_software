@@ -29,24 +29,27 @@ public class AlleleToTdfTranslator {
 
     public List<AlleleDownloadRow> getAlleleDownloadRowsForGenes(List<Allele> annotations) {
 
-        return annotations.stream()
+ return annotations.stream()
 
-                .map(annotation -> annotation.getVariants().stream()
-                        .map(entity -> entity.getPublications().stream()
-                                .map(pub -> {
-                                    return List.of(getBaseDownloadRow(annotation, entity, pub));
-                                })
-                                .flatMap(Collection::stream)
-                                .collect(Collectors.toList()))
-                        .flatMap(Collection::stream)
-                        .collect(Collectors.toList()))
+                .map(annotation -> {
+                        if (CollectionUtils.isNotEmpty(annotation.getVariants()))
+                            return annotation.getVariants().stream()
+                            .map(join -> getBaseDownloadRow(annotation, join, null))
+                            .collect(Collectors.toList());
+                         else
+                             return List.of(getBaseDownloadRow(annotation, null, null));
+                        })
+
                 .flatMap(Collection::stream)
                 .collect(Collectors.toList());
-
     }
+
+
+
 
     private AlleleDownloadRow getBaseDownloadRow(Allele annotation, Variant join,Publication pub) {
         AlleleDownloadRow row = new AlleleDownloadRow();
+
         row.setAlleleID(annotation.getPrimaryKey());
         row.setAlleleSymbol(annotation.getSymbol());
         String synonyms = "";
@@ -58,7 +61,7 @@ public class AlleleToTdfTranslator {
         row.setAlleleSynonyms(synonyms);
         row.setVariantCategory(annotation.getCategory());
         if (join!=null) {
-            row.setVariantSymbol(join.getSymbol());
+            row.setVariantSymbol(join.getName());
             row.setVariantConsequence(join.getConsequence());
         }
         row.setHasPhenotype(annotation.hasPhenotype().toString());

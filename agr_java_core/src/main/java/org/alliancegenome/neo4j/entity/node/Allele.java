@@ -109,5 +109,6 @@ public class Allele extends GeneticEntity implements Comparable<Allele>, Present
         // this is a calculated property but the setter needs to be here
         // for deserialization purposes.
     }
+    
 
 }
