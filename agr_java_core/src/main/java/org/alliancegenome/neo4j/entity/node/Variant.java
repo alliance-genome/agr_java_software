@@ -74,6 +74,9 @@ public class Variant extends GeneticEntity implements Comparable<Variant> {
     @Relationship(type = "ASSOCIATION", direction = Relationship.INCOMING)
     protected List<Transcript> transcriptList;
 
+    @Relationship(type = "ASSOCIATION")
+    protected List<TranscriptLevelConsequence> transcriptLevelConsequence;
+
     @JsonView({View.Default.class, View.API.class})
     @JsonProperty(value = "consequence")
     public String getConsequence() {
@@ -134,10 +137,8 @@ public class Variant extends GeneticEntity implements Comparable<Variant> {
         List<String> names = new ArrayList<>();
         names.add(name);
         names.add(hgvsNomenclature);
-        if (CollectionUtils.isNotEmpty(transcriptList)) {
-            names.addAll(transcriptList.stream()
-                    .map(Transcript::getConsequences)
-                    .flatMap(Collection::stream)
+        if (CollectionUtils.isNotEmpty(transcriptLevelConsequence)) {
+            names.addAll(transcriptLevelConsequence.stream()
                     .map(TranscriptLevelConsequence::getHgvsVEPGeneNomenclature)
                     .distinct()
                     .collect(Collectors.toList()));
@@ -148,10 +149,8 @@ public class Variant extends GeneticEntity implements Comparable<Variant> {
 
     @JsonView({View.VariantAPI.class})
     public List<String> getHgvsC() {
-        if (CollectionUtils.isNotEmpty(transcriptList)) {
-            return transcriptList.stream()
-                    .map(Transcript::getConsequences)
-                    .flatMap(Collection::stream)
+        if (CollectionUtils.isNotEmpty(transcriptLevelConsequence)) {
+            return transcriptLevelConsequence.stream()
                     .map(TranscriptLevelConsequence::getHgvsCodingNomenclature)
                     .distinct()
                     .sorted()
@@ -162,10 +161,8 @@ public class Variant extends GeneticEntity implements Comparable<Variant> {
 
     @JsonView({View.VariantAPI.class})
     public List<String> getHgvsP() {
-        if (CollectionUtils.isNotEmpty(transcriptList)) {
-            return transcriptList.stream()
-                    .map(Transcript::getConsequences)
-                    .flatMap(Collection::stream)
+        if (CollectionUtils.isNotEmpty(transcriptLevelConsequence)) {
+            return transcriptLevelConsequence.stream()
                     .map(TranscriptLevelConsequence::getHgvsProteinNomenclature)
                     .distinct()
                     .sorted()

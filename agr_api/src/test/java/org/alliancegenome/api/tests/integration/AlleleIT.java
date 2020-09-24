@@ -190,23 +190,6 @@ public class AlleleIT {
     }
 
     @Test
-    public void checkVariantHgvsDuplication() {
-        Pagination pagination = new Pagination();
-        JsonResultResponse<Allele> response = alleleService.getAllelesByGene("MGI:5295051", pagination);
-        assertResponse(response, 2, 2);
-
-        response.getResults().stream()
-                .map(Allele::getVariants)
-                .flatMap(Collection::stream)
-                .filter(Objects::nonNull)
-                .filter(variant -> variant.getPrimaryKey().equals("NT_033778.4:g.16856124_16856125ins"))
-                .forEach(variant -> {
-                            assertNotNull("Variant location is missing", variant.getLocation());
-                        }
-                );
-    }
-
-    @Test
     public void checkVariantLocation() {
         Pagination pagination = new Pagination();
         JsonResultResponse<Allele> response = alleleService.getAllelesByGene("FB:FBgn0025832", pagination);
