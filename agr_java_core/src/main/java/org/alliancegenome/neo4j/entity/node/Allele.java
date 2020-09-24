@@ -112,11 +112,6 @@ public class Allele extends GeneticEntity implements Comparable<Allele>, Present
         // this is a calculated property but the setter needs to be here
         // for deserialization purposes.
     }
-    public void addVariant(Variant entity) {
-        if (variants == null)
-            variants = new ArrayList<>();
-        if (!variants.contains(entity))
-            variants.add(entity);
-    }
+    
 
 }
