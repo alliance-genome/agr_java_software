@@ -1,7 +1,5 @@
 package org.alliancegenome.core.config;
 
-import static org.alliancegenome.core.config.Constants.VARIANT_INDEX_REQUEST_QUEUE_SIZE;
-
 public class Constants {
 
     
@@ -14,6 +12,10 @@ public class Constants {
     public static final String ES_DATA_INDEX = "ES_DATA_INDEX";
     public static final String ES_HOST = "ES_HOST";
     public static final String ES_PORT = "ES_PORT";
+    
+    public static final String ES_BULK_ACTION_SIZE = "ES_BULK_ACTION_SIZE";
+    public static final String ES_BULK_REQUEST_SIZE = "ES_BULK_REQUEST_SIZE";
+    public static final String ES_BULK_CONCURRENT_REQUESTS = "ES_BULK_CONCURRENT_REQUESTS";
 
     public static final String KEEPINDEX = "KEEPINDEX";
     public static final String SPECIES = "SPECIES";

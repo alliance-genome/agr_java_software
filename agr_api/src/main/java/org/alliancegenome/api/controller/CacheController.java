@@ -1,15 +1,11 @@
 package org.alliancegenome.api.controller;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 
 import org.alliancegenome.api.entity.CacheStatus;
@@ -17,8 +13,7 @@ import org.alliancegenome.api.rest.interfaces.CacheRESTInterface;
 import org.alliancegenome.api.service.CacheStatusService;
 import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
-import org.alliancegenome.es.model.query.FieldFilter;
-import org.alliancegenome.es.model.query.Pagination;
+import org.alliancegenome.es.model.query.*;
 
 @RequestScoped
 @Path("/cache")

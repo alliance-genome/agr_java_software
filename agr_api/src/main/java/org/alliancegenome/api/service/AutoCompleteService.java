@@ -2,8 +2,7 @@ package org.alliancegenome.api.service;
 
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 
-import java.util.ArrayList;
-import java.util.Map;
+import java.util.*;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -13,10 +12,7 @@ import org.alliancegenome.es.index.site.dao.AutoCompleteDAO;
 import org.alliancegenome.es.model.search.AutoCompleteResult;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.MultiMatchQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.query.*;
 import org.elasticsearch.index.query.functionscore.FunctionScoreQueryBuilder;
 import org.elasticsearch.search.SearchHit;
 

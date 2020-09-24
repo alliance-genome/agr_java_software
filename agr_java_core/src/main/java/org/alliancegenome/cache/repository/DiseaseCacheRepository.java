@@ -1,31 +1,24 @@
 package org.alliancegenome.cache.repository;
 
-import lombok.extern.log4j.Log4j2;
-import org.alliancegenome.api.entity.DiseaseRibbonSummary;
-import org.alliancegenome.api.service.ColumnFieldMapping;
-import org.alliancegenome.api.service.DiseaseColumnFieldMapping;
-import org.alliancegenome.api.service.FilterService;
-import org.alliancegenome.api.service.Table;
-import org.alliancegenome.cache.CacheAlliance;
-import org.alliancegenome.cache.CacheService;
-import org.alliancegenome.cache.repository.helper.DiseaseAnnotationFiltering;
-import org.alliancegenome.cache.repository.helper.DiseaseAnnotationSorting;
-import org.alliancegenome.cache.repository.helper.PaginationResult;
-import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
-import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
-import org.alliancegenome.neo4j.entity.node.DOTerm;
-import org.alliancegenome.neo4j.entity.node.ECOTerm;
-import org.alliancegenome.neo4j.entity.node.PublicationJoin;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
+import static java.util.stream.Collectors.toList;
 
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static java.util.stream.Collectors.toList;
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+
+import org.alliancegenome.api.entity.DiseaseRibbonSummary;
+import org.alliancegenome.api.service.*;
+import org.alliancegenome.cache.*;
+import org.alliancegenome.cache.repository.helper.*;
+import org.alliancegenome.es.model.query.Pagination;
+import org.alliancegenome.neo4j.entity.*;
+import org.alliancegenome.neo4j.entity.node.*;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+
+import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 @RequestScoped

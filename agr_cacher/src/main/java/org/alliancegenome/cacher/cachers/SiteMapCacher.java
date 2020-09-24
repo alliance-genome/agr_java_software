@@ -1,14 +1,10 @@
 package org.alliancegenome.cacher.cachers;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
-import org.alliancegenome.neo4j.repository.AlleleRepository;
-import org.alliancegenome.neo4j.repository.DiseaseRepository;
-import org.alliancegenome.neo4j.repository.GeneRepository;
+import org.alliancegenome.neo4j.repository.*;
 import org.alliancegenome.neo4j.view.View;
 
 import lombok.extern.log4j.Log4j2;

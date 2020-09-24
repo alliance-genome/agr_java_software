@@ -1,7 +1,14 @@
 package org.alliancegenome.api.tests.integration;
 
-import lombok.Getter;
-import lombok.Setter;
+import static java.util.Comparator.*;
+import static java.util.stream.Collectors.toMap;
+
+import java.io.IOException;
+import java.nio.file.*;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
 import org.alliancegenome.api.service.AlleleService;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.es.model.query.Pagination;
@@ -10,17 +17,7 @@ import org.alliancegenome.neo4j.entity.node.*;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.apache.commons.collections.CollectionUtils;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
-import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import static java.util.Comparator.comparing;
-import static java.util.Comparator.comparingInt;
-import static java.util.stream.Collectors.toMap;
+import lombok.*;
 
 
 public class TransgenicAlleleStats {

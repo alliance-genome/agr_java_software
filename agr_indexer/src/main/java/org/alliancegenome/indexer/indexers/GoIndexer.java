@@ -1,6 +1,5 @@
 package org.alliancegenome.indexer.indexers;
 
-import java.util.List;
 import java.util.concurrent.LinkedBlockingDeque;
 
 import org.alliancegenome.core.translators.document.GoTranslator;
@@ -8,8 +7,7 @@ import org.alliancegenome.es.index.site.document.SearchableItemDocument;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.neo4j.entity.node.GOTerm;
 import org.alliancegenome.neo4j.repository.GoRepository;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.*;
 
 public class GoIndexer extends Indexer<SearchableItemDocument> {
 
@@ -25,22 +23,9 @@ public class GoIndexer extends Indexer<SearchableItemDocument> {
     @Override
     public void index() {
 
-        LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>();
-        List<String> fulllist = goRepo.getAllGoKeys();
-
-        queue.addAll(fulllist);
-        goRepo.clearCache();
-        startSingleThread(queue);
-
-    }
-
-    protected void startSingleThread(LinkedBlockingDeque<String> queue) {
-
-        GoRepository repo = new GoRepository();
-
         log.info("Pulling All Terms");
 
-        Iterable<GOTerm> terms = repo.getAllTerms();
+        Iterable<GOTerm> terms = goRepo.getAllTerms();
 
         log.info("Pulling All Terms Finished");
 
@@ -49,9 +34,13 @@ public class GoIndexer extends Indexer<SearchableItemDocument> {
 
         log.info("Translation Done");
 
-        saveDocumentsWithBulkListener(docs);
+        indexDocuments(docs);
         log.info("saveDocuments Done");
 
+    }
+
+    protected void startSingleThread(LinkedBlockingDeque<String> queue) {
+        // No need to multithread this
     }
 
 }

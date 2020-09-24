@@ -1,11 +1,10 @@
 package org.alliancegenome.neo4j.repository;
 
+import java.util.*;
+import java.util.stream.*;
+
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.neo4j.ogm.model.Result;
-
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 public class AlleleRepository extends Neo4jRepository<Allele> {
 

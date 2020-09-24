@@ -1,39 +1,35 @@
 package org.alliancegenome.api.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import lombok.extern.log4j.Log4j2;
-import org.alliancegenome.api.application.RestDefaultObjectMapper;
-import org.alliancegenome.api.rest.interfaces.DiseaseRESTInterface;
-import org.alliancegenome.api.service.DiseaseService;
-import org.alliancegenome.api.service.EntityType;
-import org.alliancegenome.api.service.helper.APIServiceHelper;
-import org.alliancegenome.cache.repository.helper.JsonResultResponse;
-import org.alliancegenome.core.exceptions.RestErrorException;
-import org.alliancegenome.core.exceptions.RestErrorMessage;
-import org.alliancegenome.core.translators.tdf.DiseaseAnnotationToTdfTranslator;
-import org.alliancegenome.core.util.FileHelper;
-import org.alliancegenome.es.model.query.FieldFilter;
-import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
-import org.alliancegenome.neo4j.entity.SpeciesType;
-import org.alliancegenome.neo4j.entity.node.DOTerm;
-import org.alliancegenome.neo4j.view.BaseFilter;
-import org.alliancegenome.neo4j.view.View;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
+import static org.alliancegenome.api.service.EntityType.*;
 
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.alliancegenome.api.service.EntityType.DISEASE;
-import static org.alliancegenome.api.service.EntityType.GENE;
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.*;
+
+import org.alliancegenome.api.application.RestDefaultObjectMapper;
+import org.alliancegenome.api.rest.interfaces.DiseaseRESTInterface;
+import org.alliancegenome.api.service.*;
+import org.alliancegenome.api.service.helper.APIServiceHelper;
+import org.alliancegenome.cache.repository.helper.JsonResultResponse;
+import org.alliancegenome.core.exceptions.*;
+import org.alliancegenome.core.translators.tdf.DiseaseAnnotationToTdfTranslator;
+import org.alliancegenome.core.util.FileHelper;
+import org.alliancegenome.es.model.query.*;
+import org.alliancegenome.neo4j.entity.*;
+import org.alliancegenome.neo4j.entity.node.DOTerm;
+import org.alliancegenome.neo4j.view.*;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+
+import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 @RequestScoped

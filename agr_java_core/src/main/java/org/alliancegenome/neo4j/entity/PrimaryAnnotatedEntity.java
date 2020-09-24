@@ -1,8 +1,9 @@
 package org.alliancegenome.neo4j.entity;
 
-import com.fasterxml.jackson.annotation.JsonView;
-import lombok.Getter;
-import lombok.Setter;
+import java.io.Serializable;
+import java.util.*;
+import java.util.stream.Collectors;
+
 import org.alliancegenome.api.entity.PresentationEntity;
 import org.alliancegenome.es.util.DateConverter;
 import org.alliancegenome.neo4j.entity.node.*;
@@ -11,9 +12,9 @@ import org.apache.commons.collections.CollectionUtils;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.neo4j.ogm.annotation.typeconversion.Convert;
 
-import java.io.Serializable;
-import java.util.*;
-import java.util.stream.Collectors;
+import com.fasterxml.jackson.annotation.JsonView;
+
+import lombok.*;
 
 @Getter
 @Setter

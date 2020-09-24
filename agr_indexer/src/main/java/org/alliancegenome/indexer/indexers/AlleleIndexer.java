@@ -1,7 +1,6 @@
 package org.alliancegenome.indexer.indexers;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.LinkedBlockingDeque;
 
 import org.alliancegenome.core.config.ConfigHelper;
@@ -10,9 +9,8 @@ import org.alliancegenome.es.index.site.cache.AlleleDocumentCache;
 import org.alliancegenome.es.index.site.document.SearchableItemDocument;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.neo4j.entity.node.Allele;
-import org.alliancegenome.neo4j.repository.AlleleIndexerRepository;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.alliancegenome.neo4j.repository.indexer.AlleleIndexerRepository;
+import org.apache.logging.log4j.*;
 
 public class AlleleIndexer extends Indexer<SearchableItemDocument> {
 
@@ -50,14 +48,14 @@ public class AlleleIndexer extends Indexer<SearchableItemDocument> {
                 if (list.size() >= indexerConfig.getBufferSize()) {
                     Iterable<SearchableItemDocument> alleleDocuments = alleleTranslator.translateEntities(list);
                     alleleDocumentCache.addCachedFields(alleleDocuments);
-                    saveDocuments(alleleDocuments);
+                    indexDocuments(alleleDocuments);
                     list.clear();
                 }
                 if (queue.isEmpty()) {
                     if (list.size() > 0) {
                         Iterable <SearchableItemDocument> alleleDocuments = alleleTranslator.translateEntities(list);
                         alleleDocumentCache.addCachedFields(alleleDocuments);
-                        saveDocuments(alleleDocuments);
+                        indexDocuments(alleleDocuments);
                         repo.clearCache();
                         list.clear();
                     }

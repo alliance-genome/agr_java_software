@@ -1,16 +1,10 @@
 package org.alliancegenome.api.tests.unit;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
-import org.alliancegenome.cache.repository.helper.DiseaseAnnotationFiltering;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import org.alliancegenome.cache.repository.helper.DiseaseAnnotationFiltering;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
-import org.alliancegenome.neo4j.entity.node.Allele;
-import org.alliancegenome.neo4j.entity.node.Gene;
+import org.alliancegenome.neo4j.entity.node.*;
 import org.junit.Test;
 
 public class FilteringTest {

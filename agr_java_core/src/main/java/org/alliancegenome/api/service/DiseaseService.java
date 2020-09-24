@@ -1,32 +1,23 @@
 package org.alliancegenome.api.service;
 
-import org.alliancegenome.api.entity.DiseaseEntitySubgroupSlim;
-import org.alliancegenome.api.entity.DiseaseRibbonEntity;
-import org.alliancegenome.api.entity.DiseaseRibbonSummary;
-import org.alliancegenome.cache.repository.DiseaseCacheRepository;
-import org.alliancegenome.cache.repository.PhenotypeCacheRepository;
-import org.alliancegenome.cache.repository.helper.*;
-import org.alliancegenome.es.model.query.FieldFilter;
-import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
-import org.alliancegenome.neo4j.entity.DiseaseSummary;
-import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
-import org.alliancegenome.neo4j.entity.node.DOTerm;
-import org.alliancegenome.neo4j.entity.node.Gene;
-import org.alliancegenome.neo4j.entity.node.SimpleTerm;
-import org.alliancegenome.neo4j.repository.DiseaseRepository;
-import org.alliancegenome.neo4j.repository.GeneRepository;
-import org.apache.commons.collections.CollectionUtils;
+import static java.util.stream.Collectors.*;
+import static org.alliancegenome.neo4j.entity.DiseaseAnnotation.NOT_ASSOCIATION_TYPE;
 
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.toList;
-import static org.alliancegenome.neo4j.entity.DiseaseAnnotation.NOT_ASSOCIATION_TYPE;
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+
+import org.alliancegenome.api.entity.*;
+import org.alliancegenome.cache.repository.*;
+import org.alliancegenome.cache.repository.helper.*;
+import org.alliancegenome.es.model.query.*;
+import org.alliancegenome.neo4j.entity.*;
+import org.alliancegenome.neo4j.entity.node.*;
+import org.alliancegenome.neo4j.repository.*;
+import org.apache.commons.collections.CollectionUtils;
 
 @RequestScoped
 public class DiseaseService {

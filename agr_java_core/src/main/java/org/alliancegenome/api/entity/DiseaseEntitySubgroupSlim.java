@@ -2,11 +2,9 @@ package org.alliancegenome.api.entity;
 
 import org.alliancegenome.neo4j.view.View;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.annotation.*;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Setter
 @Getter

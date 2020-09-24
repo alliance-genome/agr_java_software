@@ -1,15 +1,12 @@
 package org.alliancegenome.core.translators.tdf;
 
-import org.alliancegenome.core.config.ConfigHelper;
-import org.alliancegenome.neo4j.entity.node.CrossReference;
-import org.alliancegenome.neo4j.entity.node.Gene;
-import org.alliancegenome.neo4j.entity.node.GeneticEntity;
+import static java.util.stream.Collectors.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.joining;
+import org.alliancegenome.core.config.ConfigHelper;
+import org.alliancegenome.neo4j.entity.node.*;
 
 public class GeneToTdfTranslator {
 

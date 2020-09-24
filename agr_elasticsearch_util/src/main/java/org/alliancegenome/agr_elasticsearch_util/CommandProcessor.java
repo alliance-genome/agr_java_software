@@ -1,13 +1,8 @@
 package org.alliancegenome.agr_elasticsearch_util;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
-import org.alliancegenome.agr_elasticsearch_util.commands.Command;
-import org.alliancegenome.agr_elasticsearch_util.commands.CommandInterface;
-import org.alliancegenome.agr_elasticsearch_util.commands.CommandType;
+import org.alliancegenome.agr_elasticsearch_util.commands.*;
 
 public class CommandProcessor {
 

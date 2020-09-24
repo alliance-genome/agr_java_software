@@ -6,7 +6,6 @@ import java.util.stream.Collectors;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.neo4j.entity.node.*;
 import org.apache.commons.collections.CollectionUtils;
-import org.alliancegenome.neo4j.entity.node.Allele;
 
 public class AlleleToTdfTranslator {
 

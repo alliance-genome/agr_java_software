@@ -1,25 +1,24 @@
 package org.alliancegenome.api.service;
 
+import static java.util.stream.Collectors.*;
+
+import java.util.*;
+import java.util.stream.Collectors;
+
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+
 import org.alliancegenome.api.entity.*;
 import org.alliancegenome.cache.repository.ExpressionCacheRepository;
-import org.alliancegenome.cache.repository.helper.JsonResultResponse;
-import org.alliancegenome.cache.repository.helper.PaginationResult;
+import org.alliancegenome.cache.repository.helper.*;
 import org.alliancegenome.core.ExpressionDetail;
 import org.alliancegenome.core.util.FileHelper;
-import org.alliancegenome.es.model.query.FieldFilter;
-import org.alliancegenome.es.model.query.Pagination;
+import org.alliancegenome.es.model.query.*;
 import org.alliancegenome.neo4j.entity.node.*;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
-
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-import java.util.*;
-import java.util.stream.Collectors;
-
-import static java.util.stream.Collectors.*;
 
 @RequestScoped
 public class ExpressionService {

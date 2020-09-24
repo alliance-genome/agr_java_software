@@ -1,10 +1,10 @@
 package org.alliancegenome.cache.repository.helper;
 
-import org.alliancegenome.es.model.query.FieldFilter;
-import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
-
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import org.alliancegenome.es.model.query.FieldFilter;
+import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
 
 public class PhenotypeAnnotationFiltering extends AnnotationFiltering<PhenotypeAnnotation> {
 

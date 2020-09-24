@@ -1,11 +1,7 @@
 package org.alliancegenome.api.tests.integration;
 
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.lessThan;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -14,8 +10,7 @@ import javax.inject.Inject;
 
 import org.alliancegenome.cache.repository.OrthologyCacheRepository;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
-import org.alliancegenome.es.model.query.FieldFilter;
-import org.alliancegenome.es.model.query.Pagination;
+import org.alliancegenome.es.model.query.*;
 import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.alliancegenome.neo4j.view.OrthologView;
 import org.apache.commons.collections4.map.MultiKeyMap;

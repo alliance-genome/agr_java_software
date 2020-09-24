@@ -1,7 +1,6 @@
 package org.alliancegenome.indexer.indexers;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.stream.Collectors;
 
@@ -10,10 +9,9 @@ import org.alliancegenome.es.index.site.cache.DiseaseDocumentCache;
 import org.alliancegenome.es.index.site.document.SearchableItemDocument;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.neo4j.entity.node.DOTerm;
-import org.alliancegenome.neo4j.repository.DiseaseIndexerRepository;
 import org.alliancegenome.neo4j.repository.DiseaseRepository;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.alliancegenome.neo4j.repository.indexer.DiseaseIndexerRepository;
+import org.apache.logging.log4j.*;
 
 public class DiseaseIndexer extends Indexer<SearchableItemDocument> {
 
@@ -50,7 +48,7 @@ public class DiseaseIndexer extends Indexer<SearchableItemDocument> {
                 if (list.size() >= indexerConfig.getBufferSize()) {
                     Iterable<SearchableItemDocument> diseaseDocuments = diseaseTrans.translateEntities(list);
                     diseaseDocumentCache.addCachedFields(diseaseDocuments);
-                    saveDocuments(diseaseDocuments);
+                    indexDocuments(diseaseDocuments);
                     repo.clearCache();
                     list.clear();
                 }
@@ -58,7 +56,7 @@ public class DiseaseIndexer extends Indexer<SearchableItemDocument> {
                     if (list.size() > 0) {
                         Iterable<SearchableItemDocument> diseaseDocuments = diseaseTrans.translateEntities(list);
                         diseaseDocumentCache.addCachedFields(diseaseDocuments);
-                        saveDocuments(diseaseDocuments);
+                        indexDocuments(diseaseDocuments);
                         repo.clearCache();
                         list.clear();
                     }

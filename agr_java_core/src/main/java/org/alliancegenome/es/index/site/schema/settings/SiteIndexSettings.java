@@ -1,13 +1,11 @@
 package org.alliancegenome.es.index.site.schema.settings;
 
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.alliancegenome.es.index.site.schema.Settings;
-import org.alliancegenome.neo4j.repository.GeneIndexerRepository;
+import org.alliancegenome.neo4j.repository.indexer.GeneIndexerRepository;
 
 public class SiteIndexSettings extends Settings {
 

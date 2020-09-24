@@ -1,23 +1,16 @@
 package org.alliancegenome.api.service.helper;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import javax.ws.rs.core.UriInfo;
 
 import org.alliancegenome.es.model.search.AggResult;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.text.Text;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.TermQueryBuilder;
+import org.elasticsearch.index.query.*;
 import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.aggregations.AggregationBuilder;
-import org.elasticsearch.search.aggregations.AggregationBuilders;
-import org.elasticsearch.search.aggregations.bucket.terms.Terms;
-import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
+import org.elasticsearch.search.aggregations.*;
+import org.elasticsearch.search.aggregations.bucket.terms.*;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.jboss.logging.Logger;
 

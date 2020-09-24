@@ -1,19 +1,17 @@
 package org.alliancegenome.api.controller;
 
-import lombok.extern.log4j.Log4j2;
-import org.alliancegenome.api.rest.interfaces.VariantRESTInterface;
-import org.alliancegenome.api.service.VariantService;
-import org.alliancegenome.cache.repository.helper.JsonResultResponse;
-import org.alliancegenome.core.exceptions.RestErrorException;
-import org.alliancegenome.core.exceptions.RestErrorMessage;
-import org.alliancegenome.es.model.query.FieldFilter;
-import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.neo4j.entity.node.Allele;
-import org.alliancegenome.neo4j.entity.node.Transcript;
-
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
+
+import org.alliancegenome.api.rest.interfaces.VariantRESTInterface;
+import org.alliancegenome.api.service.VariantService;
+import org.alliancegenome.cache.repository.helper.JsonResultResponse;
+import org.alliancegenome.core.exceptions.*;
+import org.alliancegenome.es.model.query.*;
+import org.alliancegenome.neo4j.entity.node.*;
+
+import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 @RequestScoped

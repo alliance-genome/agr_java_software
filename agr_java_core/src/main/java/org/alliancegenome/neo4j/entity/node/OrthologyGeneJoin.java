@@ -2,11 +2,9 @@ package org.alliancegenome.neo4j.entity.node;
 
 import java.util.List;
 
-import org.neo4j.ogm.annotation.NodeEntity;
-import org.neo4j.ogm.annotation.Relationship;
+import org.neo4j.ogm.annotation.*;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Getter @Setter
 @NodeEntity

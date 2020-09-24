@@ -1,7 +1,6 @@
 package org.alliancegenome.indexer.indexers;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.LinkedBlockingDeque;
 
 import org.alliancegenome.core.config.ConfigHelper;
@@ -10,9 +9,8 @@ import org.alliancegenome.es.index.site.cache.IndexerCache;
 import org.alliancegenome.es.index.site.document.SearchableItemDocument;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.neo4j.entity.node.Variant;
-import org.alliancegenome.neo4j.repository.VariantIndexerRepository;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.alliancegenome.neo4j.repository.indexer.VariantIndexerRepository;
+import org.apache.logging.log4j.*;
 
 public class VariantIndexer extends Indexer<SearchableItemDocument> {
 
@@ -36,7 +34,7 @@ public class VariantIndexer extends Indexer<SearchableItemDocument> {
 
         try {
             repo = new VariantIndexerRepository();
-            cache = repo.getCache(species);
+            cache = repo.getVariantCache(species);
 
             List<String> fulllist = new ArrayList<>(cache.getVariantMap().keySet());
             LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>(fulllist);
@@ -58,14 +56,14 @@ public class VariantIndexer extends Indexer<SearchableItemDocument> {
                 if (list.size() >= indexerConfig.getBufferSize()) {
                     Iterable<SearchableItemDocument> documents = translator.translateEntities(list);
                     cache.addCachedFields(documents);
-                    saveDocuments(documents);
+                    indexDocuments(documents);
                     list.clear();
                 }
                 if (queue.isEmpty()) {
                     if (list.size() > 0) {
                         Iterable <SearchableItemDocument> documents = translator.translateEntities(list);
                         cache.addCachedFields(documents);
-                        saveDocuments(documents);
+                        indexDocuments(documents);
                         repo.clearCache();
                         list.clear();
                     }

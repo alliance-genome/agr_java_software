@@ -1,16 +1,15 @@
 package org.alliancegenome.cache.repository.helper;
 
-import org.alliancegenome.neo4j.entity.Sorting;
-import org.alliancegenome.neo4j.entity.node.*;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
+import static java.util.Comparator.naturalOrder;
+import static org.alliancegenome.neo4j.entity.node.Allele.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static java.util.Comparator.naturalOrder;
-import static org.alliancegenome.neo4j.entity.node.Allele.ALLELE_WITH_MULTIPLE_VARIANT;
-import static org.alliancegenome.neo4j.entity.node.Allele.ALLELE_WITH_ONE_VARIANT;
+import org.alliancegenome.neo4j.entity.Sorting;
+import org.alliancegenome.neo4j.entity.node.*;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 
 public class AlleleSorting implements Sorting<Allele> {
 

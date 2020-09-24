@@ -1,9 +1,6 @@
 package org.alliancegenome.data_extractor;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.data_extractor.config.ExtractorConfig;

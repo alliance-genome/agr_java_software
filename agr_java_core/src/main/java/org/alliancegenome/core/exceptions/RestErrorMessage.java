@@ -1,12 +1,10 @@
 package org.alliancegenome.core.exceptions;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Setter
 @Getter

@@ -1,8 +1,7 @@
 package org.alliancegenome.agr_schema_validation;
 
 import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.*;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.fge.jackson.JsonLoader;

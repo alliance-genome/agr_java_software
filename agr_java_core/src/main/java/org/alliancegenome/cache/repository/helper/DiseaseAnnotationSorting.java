@@ -2,12 +2,9 @@ package org.alliancegenome.cache.repository.helper;
 
 import static java.util.Comparator.naturalOrder;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
-import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
-import org.alliancegenome.neo4j.entity.Sorting;
+import org.alliancegenome.neo4j.entity.*;
 
 public class DiseaseAnnotationSorting implements Sorting<DiseaseAnnotation> {
 

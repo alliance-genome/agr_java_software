@@ -1,19 +1,18 @@
 package org.alliancegenome.api.service;
 
-import org.alliancegenome.cache.repository.AlleleCacheRepository;
-import org.alliancegenome.cache.repository.helper.*;
-import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
-import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
-import org.alliancegenome.neo4j.entity.SpeciesType;
-import org.alliancegenome.neo4j.entity.node.Allele;
-import org.alliancegenome.neo4j.repository.AlleleRepository;
-import org.apache.commons.collections.CollectionUtils;
+import java.time.LocalDateTime;
+import java.util.List;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
-import java.time.LocalDateTime;
-import java.util.List;
+
+import org.alliancegenome.cache.repository.AlleleCacheRepository;
+import org.alliancegenome.cache.repository.helper.*;
+import org.alliancegenome.es.model.query.Pagination;
+import org.alliancegenome.neo4j.entity.*;
+import org.alliancegenome.neo4j.entity.node.Allele;
+import org.alliancegenome.neo4j.repository.AlleleRepository;
+import org.apache.commons.collections.CollectionUtils;
 
 @RequestScoped
 public class AlleleService {

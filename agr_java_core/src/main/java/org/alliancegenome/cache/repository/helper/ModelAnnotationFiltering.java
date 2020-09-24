@@ -1,12 +1,12 @@
 package org.alliancegenome.cache.repository.helper;
 
+import static org.alliancegenome.neo4j.entity.SpeciesType.NCBITAXON;
+
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
-
-import static org.alliancegenome.neo4j.entity.SpeciesType.NCBITAXON;
 
 public class ModelAnnotationFiltering extends AnnotationFiltering<DiseaseAnnotation> {
 

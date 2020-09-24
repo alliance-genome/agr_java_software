@@ -1,12 +1,10 @@
 package org.alliancegenome.cacher;
 
+import static org.junit.Assert.assertEquals;
+
 import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.cacher.cachers.*;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
+import org.junit.*;
 
 public class CacheAllianceTest {
     @Before

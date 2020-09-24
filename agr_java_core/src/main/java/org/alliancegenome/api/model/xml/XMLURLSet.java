@@ -1,14 +1,12 @@
 package org.alliancegenome.api.model.xml;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 @Getter @Setter
 @Schema(name="XMLURLSet", description="POJO that represents the XMLURLSet")
 @XmlRootElement(name = "urlset")

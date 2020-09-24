@@ -1,13 +1,11 @@
 package org.alliancegenome.core.translators.tdf;
 
-import java.util.List;
-import java.util.StringJoiner;
+import java.util.*;
 import java.util.function.Function;
 
 import org.alliancegenome.core.config.ConfigHelper;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Setter
 @Getter

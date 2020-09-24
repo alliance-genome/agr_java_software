@@ -1,10 +1,8 @@
 package org.alliancegenome.agr_elasticsearch_util.commands.es;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
-import org.alliancegenome.agr_elasticsearch_util.commands.Command;
-import org.alliancegenome.agr_elasticsearch_util.commands.CommandInterface;
+import org.alliancegenome.agr_elasticsearch_util.commands.*;
 import org.elasticsearch.cluster.metadata.RepositoryMetaData;
 
 public class RepoCommand extends Command implements CommandInterface {

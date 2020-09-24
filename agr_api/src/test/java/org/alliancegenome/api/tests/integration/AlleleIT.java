@@ -1,40 +1,30 @@
 package org.alliancegenome.api.tests.integration;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.alliancegenome.api.entity.CacheStatus;
-import org.alliancegenome.api.service.AlleleService;
-import org.alliancegenome.api.service.CacheStatusService;
-import org.alliancegenome.api.service.GeneService;
-import org.alliancegenome.api.service.VariantService;
-import org.alliancegenome.cache.CacheAlliance;
-import org.alliancegenome.cache.repository.helper.JsonResultResponse;
-import org.alliancegenome.core.config.ConfigHelper;
-import org.alliancegenome.es.model.query.FieldFilter;
-import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
-import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
-import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
-import org.alliancegenome.neo4j.entity.SpeciesType;
-import org.alliancegenome.neo4j.entity.node.*;
-import org.alliancegenome.neo4j.entity.relationship.GenomeLocation;
-import org.alliancegenome.neo4j.view.BaseFilter;
-import org.alliancegenome.neo4j.view.OrthologyModule;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.core.config.Configurator;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.*;
 
-import javax.inject.Inject;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.greaterThanOrEqualTo;
-import static org.junit.Assert.*;
+import javax.inject.Inject;
+
+import org.alliancegenome.api.entity.CacheStatus;
+import org.alliancegenome.api.service.*;
+import org.alliancegenome.cache.CacheAlliance;
+import org.alliancegenome.cache.repository.helper.JsonResultResponse;
+import org.alliancegenome.core.config.ConfigHelper;
+import org.alliancegenome.es.model.query.*;
+import org.alliancegenome.neo4j.entity.*;
+import org.alliancegenome.neo4j.entity.node.*;
+import org.alliancegenome.neo4j.entity.relationship.GenomeLocation;
+import org.alliancegenome.neo4j.view.*;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.core.config.Configurator;
+import org.junit.*;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.*;
 
 
 public class AlleleIT {

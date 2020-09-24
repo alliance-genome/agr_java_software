@@ -1,19 +1,15 @@
 package org.alliancegenome.indexer.indexers;
 
-import org.alliancegenome.core.config.ConfigHelper;
+import java.util.*;
+import java.util.concurrent.LinkedBlockingDeque;
+
 import org.alliancegenome.core.translators.document.HTPDatasetTranslator;
 import org.alliancegenome.es.index.site.cache.DatasetDocumentCache;
 import org.alliancegenome.es.index.site.document.SearchableItemDocument;
 import org.alliancegenome.indexer.config.IndexerConfig;
-
 import org.alliancegenome.neo4j.entity.node.HTPDataset;
-import org.alliancegenome.neo4j.repository.DatasetIndexerRepository;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.LinkedBlockingDeque;
+import org.alliancegenome.neo4j.repository.indexer.DatasetIndexerRepository;
+import org.apache.logging.log4j.*;
 
 public class DatasetIndexer extends Indexer<SearchableItemDocument> {
 
@@ -49,14 +45,14 @@ public class DatasetIndexer extends Indexer<SearchableItemDocument> {
                 if (list.size() >= indexerConfig.getBufferSize()) {
                     Iterable<SearchableItemDocument> documents = translator.translateEntities(list);
                     cache.addCachedFields(documents);
-                    saveDocuments(documents);
+                    indexDocuments(documents);
                     list.clear();
                 }
                 if (queue.isEmpty()) {
                     if (list.size() > 0) {
                         Iterable <SearchableItemDocument> documents = translator.translateEntities(list);
                         cache.addCachedFields(documents);
-                        saveDocuments(documents);
+                        indexDocuments(documents);
                         repo.clearCache();
                         list.clear();
                     }
