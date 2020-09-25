@@ -70,12 +70,13 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
         query += " OPTIONAL MATCH vari=(a:Allele)<-[:VARIATION]-(variant:Variant)--(soTerm:SOTerm)";
         query += " OPTIONAL MATCH consequence=(:GeneLevelConsequence)<-[:ASSOCIATION]-(variant:Variant)";
         query += " OPTIONAL MATCH loc=(variant:Variant)-[:ASSOCIATION]->(:GenomicLocation)-[:ASSOCIATION]->(:Chromosome)";
+        query += " OPTIONAL MATCH variantPub=(variant:Variant)-[:ASSOCIATION]->(:Publication)";
         query += " OPTIONAL MATCH p2=(a:Allele)-[:ALSO_KNOWN_AS]->(synonym:Synonym)";
         query += " OPTIONAL MATCH crossRef=(a:Allele)-[:CROSS_REFERENCE]->(c:CrossReference)";
         query += " OPTIONAL MATCH disease=(a:Allele)<-[:IS_IMPLICATED_IN]-(doTerm:DOTerm)";
         query += " OPTIONAL MATCH pheno=(a:Allele)-[:HAS_PHENOTYPE]->(ph:Phenotype)";
         query += " OPTIONAL MATCH construct=(a:Allele)-[:CONTAINS]->(:Construct)";
-        query += " RETURN p1, p2, vari, crossRef, disease, pheno, loc, consequence, gene, construct ";
+        query += " RETURN p1, p2, vari, crossRef, disease, pheno, loc, consequence, gene, construct, variantPub ";
 
         Iterable<Allele> alleles = query(query, map);
         return StreamSupport.stream(alleles.spliterator(), false)

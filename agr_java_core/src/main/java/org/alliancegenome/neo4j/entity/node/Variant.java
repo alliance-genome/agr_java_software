@@ -62,7 +62,7 @@ public class Variant extends GeneticEntity implements Comparable<Variant> {
     @Relationship(type = "ASSOCIATION")
     protected Set<Note> notes;
 
-    @JsonView({View.VariantAPI.class})
+    @JsonView({View.API.class})
     @Relationship(type = "ASSOCIATION")
     protected Set<Publication> publications;
 
