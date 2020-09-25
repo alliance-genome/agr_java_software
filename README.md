@@ -21,8 +21,15 @@ First build the cacher via `make cacher` then run the individual cachers, e.g. v
     InteractionCacher
     GeneOrthologCacher
     ExpressionCacher
+    ModelCacher
+    EcoCodeCacher
+    ClosureCacher
+    SiteMapCacher
 3. Change directory into the agr_java_software directory
 4. Build the API `make api`
 5. Change directory into agr_java_software/agr_api
-6. Start app server (thorntail): `make run` If you want to be able to debug into the app server use `make debug` and remote connect to port 5045.
-7. Now you can call API endpoints, e.g. `http://localhost:8080/api/gene/MGI:109583/alleles`
+6. Copy app.properties.defaults to app.properties and ccustomize the configuration as needed. Note: if you are developing on your local desktop and are running Neo and infinispan locally remove the following two property variables:
+    `NEO4J_HOST=build.alliancegenome.org`
+    `CACHE_HOST=build.alliancegenome.org`
+7. Start app server (thorntail): `make run` If you want to be able to debug into the app server use `make debug` and remote connect to port 5045.
+8. Now you can call API endpoints, e.g. `http://localhost:8080/api/gene/MGI:109583/alleles`
