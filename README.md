@@ -15,22 +15,22 @@ This image contains the latest cache values done on a BUILD pipeline. You can us
 4. Run the cache (unless you want to use the cache values as you can find them in the current infinispan docker image):
 First build the cacher via `make cacher` then run the individual cachers, e.g. via
 `java -Xmx16g -jar agr_cacher/target/agr_cacher-jar-with-dependencies.jar ExpressionCacher` when creating the expression annotations. The other entities are run with the following values (last command line option)
-    DiseaseCacher
-    AlleleCacher
-    GenePhenotypeCacher
-    InteractionCacher
-    GeneOrthologCacher
-    ExpressionCacher
-    ModelCacher
-    EcoCodeCacher
-    ClosureCacher
-    SiteMapCacher
+    * DiseaseCacher
+    * AlleleCacher
+    * GenePhenotypeCacher
+    * InteractionCacher
+    * GeneOrthologCacher
+    * ExpressionCacher
+    * ModelCacher
+    * EcoCodeCacher
+    * ClosureCacher
+    * SiteMapCacher
 3. Change directory into the agr_java_software directory
 4. Build the API `make api`
 5. Change directory into agr_java_software/agr_api
 6. Copy app.properties.defaults to app.properties and customize the configuration as needed. Note: if you are developing on your local desktop and are running Neo and infinispan locally remove the following two property variables:
-    `NEO4J_HOST=build.alliancegenome.org`
-    `CACHE_HOST=build.alliancegenome.org`
+    * `NEO4J_HOST=build.alliancegenome.org`
+    * `CACHE_HOST=build.alliancegenome.org`
     so the local instances are used for the API server.
 7. Start app server (thorntail): `make run` If you want to be able to debug into the app server use `make debug` and remote connect to port 5045.
 8. Now you can call API endpoints, e.g. `http://localhost:8080/api/gene/MGI:109583/alleles`
