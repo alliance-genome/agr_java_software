@@ -18,10 +18,11 @@ public class AlleleToTdfTranslator {
                 new DownloadHeader<>("Allele Synonyms", (AlleleDownloadRow::getAlleleSynonyms)),
                 new DownloadHeader<>("Category", (AlleleDownloadRow::getVariantCategory)),
                 new DownloadHeader<>("Variant Symbol", (AlleleDownloadRow::getVariantSymbol)),
-                new DownloadHeader<>("Variant consequence", (AlleleDownloadRow::getVariantConsequence)),
+                new DownloadHeader<>("Variant Type", (AlleleDownloadRow::getVariantType)),
+                new DownloadHeader<>("Variant Consequence", (AlleleDownloadRow::getVariantConsequence)),
                 new DownloadHeader<>("Has Phenotype", (AlleleDownloadRow::getHasPhenotype)),
                 new DownloadHeader<>("Has Disease", (AlleleDownloadRow::getHasDisease)),
-                new DownloadHeader<>("References", (AlleleDownloadRow::getReference))
+                new DownloadHeader<>("Variant Information Reference", (AlleleDownloadRow::getReference))
         );
 
         return DownloadHeader.getDownloadOutput(list, headers);
@@ -29,19 +30,33 @@ public class AlleleToTdfTranslator {
 
     public List<AlleleDownloadRow> getAlleleDownloadRowsForGenes(List<Allele> annotations) {
 
- return annotations.stream()
-
+        return annotations.stream()
                 .map(annotation -> {
-                        if (CollectionUtils.isNotEmpty(annotation.getVariants()))
-                            return annotation.getVariants().stream()
-                            .map(join -> getBaseDownloadRow(annotation, join, null))
-                            .collect(Collectors.toList());
-                         else
-                             return List.of(getBaseDownloadRow(annotation, null, null));
-                        })
+                    if (CollectionUtils.isNotEmpty(annotation.getVariants()))
+                        return annotation.getVariants().stream()
+                                .map(join -> {
+                                    if (CollectionUtils.isNotEmpty(join.getPublications()))
+                                        return join.getPublications().stream()
+                                                .map(pub -> getBaseDownloadRow(annotation, join, pub))
+                                                .collect(Collectors.toList());
 
+                                    else
+                                        return annotation.getVariants().stream()
+                                                .map(var -> getBaseDownloadRow(annotation, var, null))
+                                                .collect(Collectors.toList());
+
+                                }).flatMap(Collection::stream)
+                                .collect(Collectors.toList());
+
+
+                    else
+                        return List.of(getBaseDownloadRow(annotation, null, null));
+                })
                 .flatMap(Collection::stream)
                 .collect(Collectors.toList());
+
+
+
     }
 
 
@@ -61,7 +76,8 @@ public class AlleleToTdfTranslator {
         row.setAlleleSynonyms(synonyms);
         row.setVariantCategory(annotation.getCategory());
         if (join!=null) {
-            row.setVariantSymbol(join.getName());
+            row.setVariantSymbol(join.getHgvsNomenclature());
+            row.setVariantType(join.getVariantType().getName());
             row.setVariantConsequence(join.getConsequence());
         }
         row.setHasPhenotype(annotation.hasPhenotype().toString());
