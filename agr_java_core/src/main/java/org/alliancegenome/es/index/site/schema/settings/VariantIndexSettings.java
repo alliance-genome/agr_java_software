@@ -22,8 +22,9 @@ public class VariantIndexSettings extends Settings {
                 .field("refresh_interval", "-1")
                 .field("number_of_shards", "" + shardCount)
                 .field("merge.scheduler.auto_throttle", "false")
-                .field("merge.scheduler.max_merge_count", "1")
-                .field("merge.scheduler.max_thread_count", "1")
+                .field("merge.scheduler.max_merge_count", "10")
+                .field("merge.scheduler.max_thread_count", "10")
+                .field("index.translog.flush_threshold_size", "2048mb")
             .endObject();
         builder.endObject();
     }
