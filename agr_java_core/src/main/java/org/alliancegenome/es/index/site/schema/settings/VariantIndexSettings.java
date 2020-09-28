@@ -24,7 +24,9 @@ public class VariantIndexSettings extends Settings {
                 .field("merge.scheduler.auto_throttle", "false")
                 .field("merge.scheduler.max_merge_count", "10")
                 .field("merge.scheduler.max_thread_count", "10")
-                .field("index.translog.flush_threshold_size", "2048mb")
+                .field("merge.policy.floor_segment", "200mb")
+                .field("merge.policy.max_merged_segment", "500gb")
+                .field("translog.flush_threshold_size", "4096mb")
             .endObject();
         builder.endObject();
     }
