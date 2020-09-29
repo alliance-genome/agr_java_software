@@ -67,7 +67,7 @@ public class VariantIT {
         JsonResultResponse<Transcript> response = variantService.getTranscriptsByVariant("NC_007128.7:g.4245057_4245058delinsGGGGTGTTTATGGAG", pagination);
         List<Transcript> results = response.getResults();
         assertNotNull(results);
-        assertEquals(results.get(0).getIntronExonLocation(), "Exon");
+        assertEquals(results.get(0).getIntronExonLocation(), "Exon 1");
     }
 
     @Test
@@ -84,7 +84,7 @@ public class VariantIT {
         results = response.getResults();
         assertNotNull(results);
         Transcript transcript = results.get(0);
-        assertEquals(transcript.getIntronExonLocation(), "Exon");
+        assertEquals(transcript.getIntronExonLocation(), "Exon 2");
 
         // positive strand
         variantID = "NC_005110.4:g.31653152_31653232del";

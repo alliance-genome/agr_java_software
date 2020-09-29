@@ -68,9 +68,13 @@ public class VariantService {
         GenomeLocation variantLoc = variant.getLocation();
         Range<Long> variantRange = Range.between(variantLoc.getStart(), variantLoc.getEnd());
 
+        // Check strand info off transcript
+        String strandGene = transcript.getGenomeLocation().getStrand();
+
         // Neither variants nor transcripts have strand info in the GenomicLocation node.
         // For that reason I resort to the strand info of the associated gene.
-        String strandGene = transcript.getGene().getGenomeLocations().get(0).getStrand();
+        if (strandGene.isEmpty())
+            strandGene = transcript.getGene().getGenomeLocations().get(0).getStrand();
         // strand info can be empty of null. In both cases, the missing info disallows to
         // calculate the exon number in question.
         if (strandGene.isEmpty())

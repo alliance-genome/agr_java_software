@@ -52,7 +52,7 @@ public class Variant extends GeneticEntity implements Comparable<Variant> {
     @Relationship(type = "VARIATION_TYPE")
     private SOTerm variantType;
 
-    @JsonView({View.VariantAPI.class})
+    @JsonView({View.API.class})
     @Relationship(type = "COMPUTED_GENE", direction = Relationship.INCOMING)
     private Gene gene;
 
