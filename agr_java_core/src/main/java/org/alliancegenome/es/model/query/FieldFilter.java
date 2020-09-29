@@ -39,6 +39,8 @@ public enum FieldFilter {
     CONSTRUCT_REGULATED_GENE("filter.allele-construct-regulated-gene"),
     CONSTRUCT_EXPRESSED_GENE("filter.allele-construct-expressed-gene"),
     CONSTRUCT_TARGETED_GENE("filter.allele-construct-targeted-gene"),
+    HAS_PHENOTYPE("filter.has-phenotype"),
+    HAS_DISEASE("filter.has-disease"),
     TRANSGENE_HAS_PHENOTYPE("filter.transgene-has-phenotype"),
     TRANSGENE_HAS_DISEASE("filter.transgene-has-disease"),
     STRINGENCY("stringency"),
