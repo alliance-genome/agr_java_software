@@ -1,20 +1,24 @@
 package org.alliancegenome.api.tests.integration;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
-
-import java.util.List;
-import java.util.stream.Collectors;
-
 import org.alliancegenome.api.service.VariantService;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.neo4j.entity.node.*;
+import org.alliancegenome.neo4j.entity.node.Allele;
+import org.alliancegenome.neo4j.entity.node.Transcript;
+import org.alliancegenome.neo4j.entity.node.Variant;
 import org.alliancegenome.neo4j.repository.VariantRepository;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.config.Configurator;
-import org.junit.*;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.*;
 
 public class VariantIT {
 
@@ -163,6 +167,7 @@ public class VariantIT {
         List<Variant> variants = variantRepository.getVariantsOfAllele("MGI:5295051");
         assertNotNull(variants);
         assertEquals(variants.size(), 2);
+        variants.sort(Comparator.comparing(Variant::getName));
         Variant variant = variants.get(0);
         assertEquals(variants.size(), 2);
         String variantNames = String.join(",", variant.getHgvsG());

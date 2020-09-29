@@ -3,6 +3,7 @@ package org.alliancegenome.neo4j.entity.node;
 import java.util.List;
 
 import org.alliancegenome.neo4j.entity.Neo4jEntity;
+import org.alliancegenome.neo4j.entity.relationship.GenomeLocation;
 import org.alliancegenome.neo4j.view.View;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.neo4j.ogm.annotation.*;
