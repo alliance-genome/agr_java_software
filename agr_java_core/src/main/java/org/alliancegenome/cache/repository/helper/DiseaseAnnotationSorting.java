@@ -78,10 +78,10 @@ public class DiseaseAnnotationSorting implements Sorting<DiseaseAnnotation> {
         defaultList.add(alleleSymbolOrder);
 
         alleleList = new ArrayList<>(4);
+        alleleList.add(phylogeneticOrder);
         alleleList.add(alleleSymbolOrder);
         alleleList.add(diseaseOrder);
         alleleList.add(experimentOrthologyOrder);
-        alleleList.add(phylogeneticOrder);
         alleleList.add(geneSymbolOrder);
 
         alleleDefaultList = new ArrayList<>(4);
