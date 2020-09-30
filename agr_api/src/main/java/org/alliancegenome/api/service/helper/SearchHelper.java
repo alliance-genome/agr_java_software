@@ -53,9 +53,6 @@ public class SearchHelper {
                     add("tags");
                     add("anatomicalExpression");
                     add("sex");
-                    add("age");
-                    add("assembly");
-
                 }
             });
             put("disease", new ArrayList<String>() {
@@ -122,7 +119,6 @@ public class SearchHelper {
             add("anatomicalExpression.keyword");
             add("anatomicalExpressionWithParents");
             add("anatomicalExpressionWithParents.keyword");
-            add("assembly");
             add("associatedSpecies");
             add("associatedSpecies.synonyms");
             add("automatedGeneSynopsis");
@@ -186,6 +182,7 @@ public class SearchHelper {
             add("molecularFunctionWithParents");
             add("phenotypeStatements");
             add("primaryKey");
+            add("sampleIds");
             add("variants");
             add("variants.keyword");
             add("variants.standardText");
