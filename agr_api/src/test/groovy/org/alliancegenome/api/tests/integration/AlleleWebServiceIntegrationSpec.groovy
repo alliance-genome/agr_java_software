@@ -49,4 +49,20 @@ class AlleleWebServiceIntegrationSpec extends Specification {
         "MGI:109583" | 15         | "Pten<sup>tm1.1Mro</sup>"
     }
 
+    @Unroll
+    def "Alleles for gene filtering #geneID and filtering #pheno"() {
+        when:
+        def result = ApiTester.getApiResult("/api/gene/$geneID/alleles?filter.hasPhenotype=$pheno")
+        def total = result.total
+
+        then:
+        total > lowerCount
+        alleles.contains(alleleName)
+
+        where:
+        geneID              | pheno   | lowerCount
+        "WB:WBGene00000904" | "true"  | 15
+        "WB:WBGene00000904" | "false" | 15
+    }
+
 }
