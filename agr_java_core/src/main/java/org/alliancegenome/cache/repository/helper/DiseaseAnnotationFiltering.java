@@ -1,14 +1,19 @@
 package org.alliancegenome.cache.repository.helper;
 
-import static org.alliancegenome.neo4j.entity.DiseaseAnnotation.NOT_ASSOCIATION_TYPE;
-import static org.alliancegenome.neo4j.entity.SpeciesType.NCBITAXON;
+import org.alliancegenome.es.model.query.FieldFilter;
+import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
+import org.alliancegenome.neo4j.entity.SpeciesType;
+import org.alliancegenome.neo4j.entity.node.CrossReference;
+import org.alliancegenome.neo4j.entity.node.Gene;
+import org.apache.commons.lang3.StringUtils;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.alliancegenome.es.model.query.FieldFilter;
-import org.alliancegenome.neo4j.entity.*;
-import org.alliancegenome.neo4j.entity.node.*;
+import static org.alliancegenome.neo4j.entity.DiseaseAnnotation.NOT_ASSOCIATION_TYPE;
+import static org.alliancegenome.neo4j.entity.SpeciesType.NCBITAXON;
 
 public class DiseaseAnnotationFiltering extends AnnotationFiltering<DiseaseAnnotation> {
 
@@ -65,7 +70,15 @@ public class DiseaseAnnotationFiltering extends AnnotationFiltering<DiseaseAnnot
     public FilterFunction<DiseaseAnnotation, String> evidenceCodeFilter =
             (annotation, value) -> {
                 Set<Boolean> filteringPassed = annotation.getEcoCodes().stream()
-                        .map(evidenceCode -> FilterFunction.contains(evidenceCode.getName(), value))
+                        // this encodes the logic:
+                        // if there is a displaySynonym (three / four-letter abbrev then check that attribute
+                        // otherwise check the term name
+                        .map(evidenceCode -> {
+                            if (StringUtils.isNotEmpty(evidenceCode.getDisplaySynonym()))
+                                return FilterFunction.contains(evidenceCode.getDisplaySynonym(), value);
+                            else
+                                return FilterFunction.contains(evidenceCode.getName(), value);
+                        })
                         .collect(Collectors.toSet());
                 return !filteringPassed.contains(false);
             };
