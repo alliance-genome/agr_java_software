@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
+import org.apache.commons.lang3.StringUtils;
 
 public class ModelAnnotationFiltering extends AnnotationFiltering<DiseaseAnnotation> {
 
@@ -20,9 +21,17 @@ public class ModelAnnotationFiltering extends AnnotationFiltering<DiseaseAnnotat
     public FilterFunction<DiseaseAnnotation, String> evidenceCodeFilter =
             (annotation, value) -> {
                 Set<Boolean> filteringPassed = annotation.getEcoCodes().stream()
-                        .map(evidenceCode -> FilterFunction.contains(evidenceCode.getName(), value))
+                        // this encodes the logic:
+                        // if there is a displaySynonym (three / four-letter abbrev then check that attribute
+                        // otherwise check the term name
+                        .map(evidenceCode -> {
+                            if (StringUtils.isNotEmpty(evidenceCode.getDisplaySynonym()))
+                                return FilterFunction.contains(evidenceCode.getDisplaySynonym(), value);
+                            else
+                                return FilterFunction.contains(evidenceCode.getName(), value);
+                        })
                         .collect(Collectors.toSet());
-                return filteringPassed.contains(true);
+                return !filteringPassed.contains(false);
             };
             
     public FilterFunction<DiseaseAnnotation, String> referenceFilter =
