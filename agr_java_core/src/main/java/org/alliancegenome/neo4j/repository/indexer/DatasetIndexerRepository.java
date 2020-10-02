@@ -23,6 +23,7 @@ public class DatasetIndexerRepository extends Neo4jRepository<HTPDataset> {
         ExecutorService executor = Executors.newFixedThreadPool(20); // Run all at once
         
         executor.execute(new GetDatasetMapThread());
+        executor.execute(new GetAssaysThread());
         executor.execute(new GetCrossReferencesThread());
         executor.execute(new GetTagsThread());
         executor.execute(new GetSpeciesThread());
@@ -62,6 +63,16 @@ public class DatasetIndexerRepository extends Neo4jRepository<HTPDataset> {
     
             cache.setDatasetMap(datasetMap);
             log.info("Finished Fetching datasets");
+        }
+    }
+
+    private class GetAssaysThread implements Runnable {
+        @Override
+        public void run() {
+            log.info("Fetching assays");
+            cache.setAssays(getMapSetForQuery("MATCH (dataset:HTPDataset)-[:ASSOCIATION]-(sample:HTPDatasetSample)-[:ASSAY_TYPE]-(assay:MMOTerm) \n" +
+                    "RETURN distinct dataset.primaryKey as id, assay.displaySynonym as value"));
+            log.info("Finished fetching assays");
         }
     }
 

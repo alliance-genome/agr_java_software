@@ -14,6 +14,7 @@ public class IndexerCache {
 
     protected Map<String, Variant> variantMap = new HashMap<>();
     protected Map<String, Allele> alleleMap = new HashMap<>();
+    protected Map<String, Set<String>> assays = new HashMap<>();
     protected Map<String, Set<String>> chromosomes = new HashMap<>();
     protected Map<String, Set<String>> constructs = new HashMap<>();
     protected Map<String, Set<String>> crossReferences = new HashMap<>();
@@ -54,6 +55,7 @@ public class IndexerCache {
         String id = document.getPrimaryKey();
 
         document.setAlleles(alleles.get(id));
+        document.setAssays(assays.get(id));
         //addAll vs setter is because some fields may be set by a translator before this step
         if (crossReferences.get(id) != null) {
             document.getCrossReferences().addAll(crossReferences.get(id));

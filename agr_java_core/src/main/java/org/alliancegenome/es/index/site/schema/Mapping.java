@@ -25,6 +25,7 @@ public class Mapping extends Builder {
     protected void buildSharedSearchableDocumentMappings() throws IOException {
         new FieldBuilder(builder, "alleles", "text").keyword().autocomplete().build();
         new FieldBuilder(builder, "anatomicalExpression", "text").keyword().build();
+        new FieldBuilder(builder, "assays", "text").keyword().build();
         new FieldBuilder(builder, "associatedSpecies", "text").keyword().synonym().sort().build();
         new FieldBuilder(builder, "associationType", "text").symbol().autocomplete().keyword().standardText().build();
         new FieldBuilder(builder, "biologicalProcess", "text").keyword().build();
@@ -48,6 +49,7 @@ public class Mapping extends Builder {
         new FieldBuilder(builder, "constructKnockdownComponent", "text").keyword().build();
         new FieldBuilder(builder, "constructRegulatoryRegion", "text").keyword().build();
         new FieldBuilder(builder, "crossReferences", "text").keyword().classicText().build();
+        new FieldBuilder(builder, "dataProvider", "text").keyword().build();
         new FieldBuilder(builder, "definition", "text").standardText().build();
         new FieldBuilder(builder, "description", "text").build();
         new FieldBuilder(builder, "diseases", "text").keyword().build();

@@ -17,6 +17,7 @@ public class SearchableItemDocument extends ESDocument {
     String automatedGeneSynopsis;
     String branch;
     String category;
+    String dataProvider;
     String description;
     String definition;
     String geneLiteratureUrl;
@@ -42,10 +43,9 @@ public class SearchableItemDocument extends ESDocument {
     String symbolText;
 
 
-    Set<String> age = new HashSet<>();
     Set<String> anatomicalExpression = new HashSet<>();         //uberon slim
     Set<String> anatomicalExpressionWithParents = new HashSet<>();
-    Set<String> assembly = new HashSet<>();
+    Set<String> assays = new HashSet<>();
     Set<String> associatedSpecies = new HashSet<>();
     Set<String> biologicalProcessAgrSlim = new HashSet<>();
     Set<String> biologicalProcessWithParents = new HashSet<>();

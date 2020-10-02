@@ -51,6 +51,7 @@ public class SearchHelper {
                 {
                     add("species");
                     add("tags");
+                    add("assays");
                     add("anatomicalExpression");
                     add("sex");
                 }
@@ -222,6 +223,7 @@ public class SearchHelper {
             add("cellularComponent");
             add("crossReferences");
             add("crossReferenceLinks");
+            add("dataProvider");
             add("definition");
             add("description");
             add("diseases");
@@ -231,8 +233,6 @@ public class SearchHelper {
             add("gene_chromosome_starts");
             add("gene_chromosomes");
             add("genes");
-            add("go_genes");
-            add("homologs");
             add("href");
             add("modCrossRefCompleteUrl");
             add("molecularConsequence");
@@ -244,6 +244,7 @@ public class SearchHelper {
             add("summary");
             add("symbol");
             add("synonyms");
+            add("tags");
             add("variants");
         }
     };
