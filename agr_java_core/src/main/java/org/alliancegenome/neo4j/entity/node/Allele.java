@@ -82,7 +82,7 @@ public class Allele extends GeneticEntity implements Comparable<Allele>, Present
 
     @JsonView({View.API.class})
     public Boolean hasDisease() {
-        return CollectionUtils.isNotEmpty(diseaseEntityJoins);
+        return CollectionUtils.isNotEmpty(diseaseEntityJoins) || CollectionUtils.isNotEmpty(diseases);
     }
 
     @JsonProperty(value = "hasDisease")

@@ -17,6 +17,7 @@ import org.alliancegenome.api.rest.interfaces.DiseaseRESTInterface;
 import org.alliancegenome.api.service.*;
 import org.alliancegenome.api.service.helper.APIServiceHelper;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
+import org.alliancegenome.cache.repository.helper.SortingField;
 import org.alliancegenome.core.exceptions.*;
 import org.alliancegenome.core.translators.tdf.DiseaseAnnotationToTdfTranslator;
 import org.alliancegenome.core.util.FileHelper;
@@ -119,6 +120,10 @@ public class DiseaseController implements DiseaseRESTInterface {
                                                                                String associationType,
                                                                                String asc) {
         long startTime = System.currentTimeMillis();
+        // The @DefaultValue only kicks in if the value is null.
+        // need to handle an empty value manually here.
+        if (sortBy.trim().isEmpty())
+            sortBy = SortingField.DISEASE_ALLELE_DEFAULT.toString();
         Pagination pagination = new Pagination(page, limit, sortBy, asc);
         pagination.addFieldFilter(FieldFilter.GENE_NAME, geneName);
         pagination.addFieldFilter(FieldFilter.ALLELE, alleleName);
