@@ -38,21 +38,26 @@ public class VariantConfigHelper {
 
         defaults.put(VARIANT_CONFIG_FILE, "downloadFileSet.yaml");
         
+        defaults.put(VARIANT_CONFIG_DOWNLOAD, "true");
+        defaults.put(VARIANT_CONFIG_CREATING, "true");
+        defaults.put(VARIANT_CONFIG_INDEXING, "true");
+        
         defaults.put(VARIANT_FILE_DOWNLOAD_THREADS, "10");
         defaults.put(VARIANT_FILE_DOWNLOAD_FILTER_THREADS, "10");
         defaults.put(VARIANT_FILE_DOWNLOAD_PATH, "data");
 
         defaults.put(VARIANT_DOCUMENT_CREATOR_THREADS, "6");
-        defaults.put(VARIANT_DOCUMENT_CREATOR_DISPLAY_INTERVAL, "90"); // In seconds
         defaults.put(VARIANT_DOCUMENT_CREATOR_CONTEXT_QUEUE_SIZE, "1000");
-        defaults.put(VARIANT_DOCUMENT_CREATOR_CONTEXT_TRANSFORMER_THREADS, "4");
-        defaults.put(VARIANT_DOCUMENT_CREATOR_CONTEXT_INDEXER_THREADS, "2");
         defaults.put(VARIANT_DOCUMENT_CREATOR_JSON_QUEUE_SIZE, "10000");
-
-        defaults.put(VARIANT_ES_BULK_ACTION_SIZE, "1000"); // Max amount of documents in a bulk request target MB
-        defaults.put(VARIANT_ES_BULK_CONCURRENT_REQUESTS, "10"); // Amount of concurrent bulk requests running (target * 10) MB
-        defaults.put(VARIANT_ES_BULK_SIZE_MB, "95"); // Max size of bulk request target
-        defaults.put(VARIANT_ES_INDEX_NUMBER_OF_SHARDS, "8");
+        defaults.put(VARIANT_DOCUMENT_CREATOR_CONTEXT_TRANSFORMER_THREADS, "4");
+        defaults.put(VARIANT_DOCUMENT_CREATOR_DISPLAY_INTERVAL, "30");
+        
+        defaults.put(VARIANT_JSON_INDEXER_THREADS, "6");
+        defaults.put(VARIANT_JSON_INDEXER_ES_BULK_ACTION_SIZE, "1000"); // Max amount of documents in a bulk request target MB
+        defaults.put(VARIANT_JSON_INDEXER_ES_BULK_CONCURRENT_REQUESTS, "10"); // Amount of concurrent bulk requests running (target * 10) MB
+        defaults.put(VARIANT_JSON_INDEXER_ES_BULK_SIZE_MB, "95"); // Max size of bulk request target
+        
+        defaults.put(VARIANT_JSON_INDEXER_ES_INDEX_NUMBER_OF_SHARDS, "8");
 
         allKeys = defaults.keySet();
 
@@ -115,40 +120,63 @@ public class VariantConfigHelper {
             log.info("\t" + key + ": " + config.get(key));
         }
     }
+    
 
-    public static Integer getEsBulkActionSize() {
+    public static Boolean isDownloading() {
+        if (!init) init();
+        return Boolean.parseBoolean(config.get(VARIANT_CONFIG_DOWNLOAD));
+    }
+    public static Boolean isCreating() {
+        if (!init) init();
+        return Boolean.parseBoolean(config.get(VARIANT_CONFIG_CREATING));
+    }
+    public static Boolean isIndexing() {
+        if (!init) init();
+        return Boolean.parseBoolean(config.get(VARIANT_CONFIG_INDEXING));
+    }
+    
+    public static Integer getJsonIndexerThreads() {
         if (!init) init();
         try {
-            return Integer.parseInt(config.get(VARIANT_ES_BULK_ACTION_SIZE));
+            return Integer.parseInt(config.get(VARIANT_JSON_INDEXER_THREADS));
         } catch (NumberFormatException e) {
-            return 250000;
+            return 2;
+        }
+    }
+    
+    public static Integer getJsonIndexerEsBulkActionSize() {
+        if (!init) init();
+        try {
+            return Integer.parseInt(config.get(VARIANT_JSON_INDEXER_ES_BULK_ACTION_SIZE));
+        } catch (NumberFormatException e) {
+            return 2500;
         }
     }
 
-    public static Integer getEsBulkConcurrentRequests() {
+    public static Integer getJsonIndexerEsBulkConcurrentRequests() {
         if (!init) init();
         try {
-            return Integer.parseInt(config.get(VARIANT_ES_BULK_CONCURRENT_REQUESTS));
+            return Integer.parseInt(config.get(VARIANT_JSON_INDEXER_ES_BULK_CONCURRENT_REQUESTS));
         } catch (NumberFormatException e) {
             return 3;
         }
     }
 
-    public static Integer getEsBulkSizeMB() {
+    public static Integer getJsonIndexerEsBulkSizeMB() {
         if (!init) init();
         try {
-            return Integer.parseInt(config.get(VARIANT_ES_BULK_SIZE_MB));
+            return Integer.parseInt(config.get(VARIANT_JSON_INDEXER_ES_BULK_SIZE_MB));
         } catch (NumberFormatException e) {
-            return 100;
+            return 50;
         }
     }
 
-    public static Integer getEsNumberOfShards() {
+    public static Integer getJsonIndexerEsNumberOfShards() {
         if (!init) init();
         try {
-            return Integer.parseInt(config.get(VARIANT_ES_INDEX_NUMBER_OF_SHARDS));
+            return Integer.parseInt(config.get(VARIANT_JSON_INDEXER_ES_INDEX_NUMBER_OF_SHARDS));
         } catch (NumberFormatException e) {
-            return 8;
+            return 4;
         }
     }
 
@@ -191,7 +219,7 @@ public class VariantConfigHelper {
         try {
             return Integer.parseInt(config.get(VARIANT_DOCUMENT_CREATOR_CONTEXT_QUEUE_SIZE));
         } catch (NumberFormatException e) {
-            return 4;
+            return 10000;
         }
     }
     public static Integer getDocumentCreatorJsonQueueSize() {
@@ -199,22 +227,13 @@ public class VariantConfigHelper {
         try {
             return Integer.parseInt(config.get(VARIANT_DOCUMENT_CREATOR_JSON_QUEUE_SIZE));
         } catch (NumberFormatException e) {
-            return 4;
+            return 10000;
         }
     }
     public static int getDocumentCreatorContextTransformerThreads() {
         if (!init) init();
         try {
             return Integer.parseInt(config.get(VARIANT_DOCUMENT_CREATOR_CONTEXT_TRANSFORMER_THREADS));
-        } catch (NumberFormatException e) {
-            return 4;
-        }
-    }
-    
-    public static int getDocumentCreatorContextIndexerThreads() {
-        if (!init) init();
-        try {
-            return Integer.parseInt(config.get(VARIANT_DOCUMENT_CREATOR_CONTEXT_INDEXER_THREADS));
         } catch (NumberFormatException e) {
             return 4;
         }

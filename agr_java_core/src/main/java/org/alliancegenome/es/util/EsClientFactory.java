@@ -41,7 +41,7 @@ public class EsClientFactory {
             Collection<Integer> ports = map.get(host);
             for(Integer port: ports) {
                 esHosts.add(new HttpHost(host, port));
-                log.info("Adding Host: " + host + ":" + port);
+                log.debug("Adding Host: " + host + ":" + port);
             }
         }
 

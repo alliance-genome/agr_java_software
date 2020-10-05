@@ -1,23 +1,20 @@
 package org.alliancegenome.variant_indexer.converters.human;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
+import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.variant_indexer.converters.VariantContextConverter;
-import org.alliancegenome.variant_indexer.es.model.Sample;
-import org.alliancegenome.variant_indexer.es.model.VariantDocument;
+import org.alliancegenome.variant_indexer.es.model.*;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
-import htsjdk.variant.variantcontext.Allele;
-import htsjdk.variant.variantcontext.Genotype;
-import htsjdk.variant.variantcontext.VariantContext;
+import htsjdk.variant.variantcontext.*;
 
 public class HumanVariantContextConverter extends VariantContextConverter {
 
     private static HumanVariantContextConverterHelper utils = new HumanVariantContextConverterHelper();
 
-    public List<String> convertVariantContext(VariantContext ctx, int taxon ) {
+    public List<String> convertVariantContext(VariantContext ctx, SpeciesType speciesType) {
 
         List<String> returnDocuments = new ArrayList<String>();
         
@@ -27,7 +24,7 @@ public class HumanVariantContextConverter extends VariantContextConverter {
         for (Allele a : ctx.getAlternateAlleles()) {
             VariantDocument variantDocument = new VariantDocument();
             variantDocument.setId(ctx.getID());
-            variantDocument.setTaxon(taxon);
+            variantDocument.setSpecies(speciesType.getName());
             variantDocument.setChromosome(ctx.getContig());
             variantDocument.setStartPos(ctx.getStart());
             if (a.compareTo(refNuc) < 0) {
@@ -61,12 +58,13 @@ public class HumanVariantContextConverter extends VariantContextConverter {
             variantDocument.setRefNuc(refNuc.getBaseString());
             variantDocument.setVarNuc(a.getBaseString());
             variantDocument.setEndPos(endPos);
-            variantDocument.setVariantType((String) ctx.getCommonInfo().getAttribute("TSA"));
+            variantDocument.setDocumentVariantType((String) ctx.getCommonInfo().getAttribute("TSA"));
             try {
-                if(taxon!=9606)
-                variantDocument.setConsequences(utils.getConsequences(ctx, index, a.getBaseString()));
-                else
+                if(speciesType == SpeciesType.HUMAN)
                     variantDocument.setConsequences(utils.getHumanConsequences(ctx, index, a.getBaseString()));
+                else
+                    variantDocument.setConsequences(utils.getConsequences(ctx, index, a.getBaseString()));
+                    
             } catch (JsonProcessingException e) {
                 e.printStackTrace();
             }

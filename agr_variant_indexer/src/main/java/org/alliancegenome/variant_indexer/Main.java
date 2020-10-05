@@ -1,10 +1,10 @@
 package org.alliancegenome.variant_indexer;
 
+import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.es.index.site.schema.settings.VariantIndexSettings;
 import org.alliancegenome.es.util.IndexManager;
 import org.alliancegenome.variant_indexer.config.VariantConfigHelper;
-import org.alliancegenome.variant_indexer.es.document.VCFDocumentCreationManager;
-import org.alliancegenome.variant_indexer.es.document.VCFDocumentCreator;
+import org.alliancegenome.variant_indexer.es.managers.*;
 import org.alliancegenome.variant_indexer.filedownload.model.DownloadFileSet;
 import org.alliancegenome.variant_indexer.filedownload.process.FileDownloadManager;
 
@@ -21,31 +21,42 @@ public class Main {
     }
 
     public Main() {
-        
+        ConfigHelper.init();
         VariantConfigHelper.init();
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-        IndexManager im = new IndexManager(new VariantIndexSettings(true, VariantConfigHelper.getEsNumberOfShards()));
+        
+        boolean downloading = VariantConfigHelper.isDownloading();
+        boolean creating = VariantConfigHelper.isCreating();
+        boolean indexing = VariantConfigHelper.isIndexing();
         
         try {
 
             DownloadFileSet downloadSet = mapper.readValue(getClass().getClassLoader().getResourceAsStream(VariantConfigHelper.getVariantConfigFile()), DownloadFileSet.class);
             downloadSet.setDownloadPath(VariantConfigHelper.getVariantFileDownloadPath());
             
-            FileDownloadManager fdm = new FileDownloadManager(downloadSet);
-            fdm.start();
-            fdm.join();
+            if(downloading) {
+                FileDownloadManager fdm = new FileDownloadManager(downloadSet);
+                fdm.start();
+                fdm.join();
+            }
+
+            if(creating) {
+                VCFDocumentCreationManager vdm = new VCFDocumentCreationManager(downloadSet);
+                vdm.start();
+                vdm.join();
+            }
             
-            //FileDownloadFilterManager fdfm = new FileDownloadFilterManager(downloadSet);
-            //fdfm.start();
-            //fdfm.join();
-            
-            VCFDocumentCreator.indexName = im.startSiteIndex();
-            
-            VCFDocumentCreationManager vdm = new VCFDocumentCreationManager(downloadSet);
-            vdm.start();
-            vdm.join();
-            
-            im.finishIndex();
+            if(indexing) {
+                IndexManager im = new IndexManager(new VariantIndexSettings(true, VariantConfigHelper.getJsonIndexerEsNumberOfShards()));
+                
+                JSONDocumentIndexer.indexName = im.startSiteIndex();
+                
+                JSONDocumentIndexManager jdim = new JSONDocumentIndexManager(downloadSet);
+                jdim.start();
+                jdim.join();
+                
+                im.finishIndex();
+            }
 
         } catch (Exception e) {
             e.printStackTrace();
