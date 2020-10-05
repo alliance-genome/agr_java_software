@@ -2,6 +2,7 @@ package org.alliancegenome.variant_indexer.converters;
 
 import java.util.List;
 
+import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.variant_indexer.converters.human.HumanVariantContextConverter;
 import org.alliancegenome.variant_indexer.converters.mouse.MouseVariantContextConverter;
 
@@ -17,11 +18,11 @@ public abstract class VariantContextConverter {
         mapper = new ObjectMapper();
     }
 
-    public abstract List<String> convertVariantContext(VariantContext ctx, int taxon);
+    public abstract List<String> convertVariantContext(VariantContext ctx, SpeciesType speciesType);
 
-    public static VariantContextConverter getConverter(String converterName) {
-        if(converterName != null) {
-            Class<?> clazz = VariantConverter.getConverter(converterName);
+    public static VariantContextConverter getConverter(SpeciesType speciesType) {
+        if(speciesType != null) {
+            Class<?> clazz = VariantConverter.getConverter(speciesType);
             try {
                 return (VariantContextConverter) clazz.getDeclaredConstructor().newInstance();
             } catch (Exception e) {
@@ -34,7 +35,7 @@ public abstract class VariantContextConverter {
     private enum VariantConverter {
 
         HUMAN(HumanVariantContextConverter.class),
-        MOUSE(MouseVariantContextConverter.class),
+        MGD(MouseVariantContextConverter.class),
         MOD(HumanVariantContextConverter.class),
         ;
         private Class<?> converterClazz;
@@ -47,9 +48,9 @@ public abstract class VariantContextConverter {
             return converterClazz;
         }
 
-        public static Class<?> getConverter(String converterName) {
+        public static Class<?> getConverter(SpeciesType speciesType) {
             for(VariantConverter vc: VariantConverter.values()) {
-                if(vc.name().toLowerCase().equals(converterName.toLowerCase())) {
+                if(vc.name().toLowerCase().equals(speciesType.getModName())) {
                     return vc.getConverterClazz();
                 }else
                     return MOD.converterClazz;

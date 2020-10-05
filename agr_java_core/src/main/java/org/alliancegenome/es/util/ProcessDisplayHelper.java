@@ -92,7 +92,7 @@ public class ProcessDisplayHelper {
         String result = getHumanReadableTimeDisplay(duration);
         String localMessage = message + "Finished: took: " + result + " to process " + getBigNumber(sizeCounter);
         if (duration != 0) {
-            localMessage += " records at a rate of: " + ((sizeCounter * 1000) / duration) + "r/s";
+            localMessage += " records at a rate of: " + ((sizeCounter * 1000) / duration) + "r/s " + ((sizeCounter * 60000) / duration) + "r/m";
         } else {
             localMessage += " records";
         }

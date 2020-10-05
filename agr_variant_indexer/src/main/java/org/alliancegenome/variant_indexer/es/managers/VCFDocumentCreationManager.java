@@ -1,43 +1,42 @@
-package org.alliancegenome.variant_indexer.filedownload.process;
+package org.alliancegenome.variant_indexer.es.managers;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.variant_indexer.config.VariantConfigHelper;
-import org.alliancegenome.variant_indexer.filedownload.FileDownloadFilter;
 import org.alliancegenome.variant_indexer.filedownload.model.DownloadFileSet;
 import org.alliancegenome.variant_indexer.filedownload.model.DownloadSource;
 import org.alliancegenome.variant_indexer.filedownload.model.DownloadableFile;
 
-public class FileDownloadFilterManager extends Thread {
+public class VCFDocumentCreationManager extends Thread {
 
     private DownloadFileSet downloadSet;
 
-    public FileDownloadFilterManager(DownloadFileSet downloadSet) {
+    public VCFDocumentCreationManager(DownloadFileSet downloadSet) {
         this.downloadSet = downloadSet;
     }
-    
+
     public void run() {
-        
+
         try {
 
-            ExecutorService executor = Executors.newFixedThreadPool(VariantConfigHelper.getFileDownloadFilterThreads());
-            
+            ExecutorService executor = Executors.newFixedThreadPool(VariantConfigHelper.getDocumentCreatorThreads());
+
             for(DownloadSource source: downloadSet.getDownloadFileSet()) {
                 for(DownloadableFile df: source.getFileList()) {
-                    FileDownloadFilter filter = new FileDownloadFilter(df);
-                    executor.execute(filter);
+                    VCFDocumentCreator creator = new VCFDocumentCreator(df, SpeciesType.getTypeByID(source.getTaxonId()));
+                    executor.execute(creator);
                 }
             }
-            
+
             executor.shutdown();  
             while (!executor.isTerminated()) {
                 Thread.sleep(100);
-            } 
-            
+            }
+
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-
 }

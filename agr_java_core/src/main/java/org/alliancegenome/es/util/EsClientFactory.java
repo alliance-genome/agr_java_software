@@ -40,7 +40,7 @@ public class EsClientFactory {
             Collection<Integer> ports = map.get(host);
             for(Integer port: ports) {
                 esHosts.add(new HttpHost(host, port));
-                log.info("Adding Host: " + host + ":" + port);
+                log.debug("Adding Host: " + host + ":" + port);
             }
         }
 
@@ -62,7 +62,7 @@ public class EsClientFactory {
                         }
                         )
                 );
-        log.info("Finished Connecting to ES");
+        log.debug("Finished Connecting to ES");
         return client;
     }
 
