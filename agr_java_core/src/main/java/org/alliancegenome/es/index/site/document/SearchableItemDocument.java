@@ -17,6 +17,7 @@ public class SearchableItemDocument extends ESDocument {
     String automatedGeneSynopsis;
     String branch;
     String category;
+    String dataProvider;
     String description;
     String definition;
     String geneLiteratureUrl;
@@ -42,10 +43,9 @@ public class SearchableItemDocument extends ESDocument {
     String symbolText;
 
 
-    Set<String> age = new HashSet<>();
     Set<String> anatomicalExpression = new HashSet<>();         //uberon slim
     Set<String> anatomicalExpressionWithParents = new HashSet<>();
-    Set<String> assembly = new HashSet<>();
+    Set<String> assays = new HashSet<>();
     Set<String> associatedSpecies = new HashSet<>();
     Set<String> biologicalProcessAgrSlim = new HashSet<>();
     Set<String> biologicalProcessWithParents = new HashSet<>();
@@ -78,6 +78,7 @@ public class SearchableItemDocument extends ESDocument {
     Set<String> molecularFunctionWithParents = new HashSet<>();
     Set<String> parentDiseaseNames = new HashSet<>();
     Set<String> phenotypeStatements = new HashSet<>();
+    Set<String> sampleIds = new HashSet<>();
     Set<String> secondaryIds = new HashSet<>();
     Set<String> sex = new HashSet<>();
     Set<String> strictOrthologySymbols = new HashSet<>();
@@ -90,10 +91,6 @@ public class SearchableItemDocument extends ESDocument {
     Set<String> variantSynonyms = new HashSet<>();
     Set<String> variantType = new HashSet<>();
     Set<String> whereExpressed = new HashSet<>();
-
-    //nested documents
-    Set<CrossReferenceLink> crossReferenceLinks = new HashSet<>();
-
 
     boolean searchable = true;
 

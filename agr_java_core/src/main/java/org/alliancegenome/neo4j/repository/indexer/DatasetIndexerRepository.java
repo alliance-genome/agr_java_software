@@ -23,10 +23,11 @@ public class DatasetIndexerRepository extends Neo4jRepository<HTPDataset> {
         ExecutorService executor = Executors.newFixedThreadPool(20); // Run all at once
         
         executor.execute(new GetDatasetMapThread());
+        executor.execute(new GetAssaysThread());
+        executor.execute(new GetCrossReferencesThread());
         executor.execute(new GetTagsThread());
         executor.execute(new GetSpeciesThread());
-        executor.execute(new GetAssemblyThread());
-        executor.execute(new GetAgeThread());
+        executor.execute(new GetSampleIdsThread());
         executor.execute(new GetSexThread());
         executor.execute(new GetSampleStructureThread());
         executor.execute(new GetSampleStructureRibbonTermsThread());
@@ -51,8 +52,7 @@ public class DatasetIndexerRepository extends Neo4jRepository<HTPDataset> {
         public void run() {
             log.info("Fetching datasets");
             String query = " MATCH p1=(dataset:HTPDataset) " +
-                    " OPTIONAL MATCH pCrossRef=(dataset)-[:CROSS_REFERENCE]-(crossReference:CrossReference) " +
-                    " RETURN p1, pCrossRef; ";
+                    " RETURN p1; ";
     
             Iterable<HTPDataset> datasets = query(query);
     
@@ -63,6 +63,26 @@ public class DatasetIndexerRepository extends Neo4jRepository<HTPDataset> {
     
             cache.setDatasetMap(datasetMap);
             log.info("Finished Fetching datasets");
+        }
+    }
+
+    private class GetAssaysThread implements Runnable {
+        @Override
+        public void run() {
+            log.info("Fetching assays");
+            cache.setAssays(getMapSetForQuery("MATCH (dataset:HTPDataset)-[:ASSOCIATION]-(sample:HTPDatasetSample)-[:ASSAY_TYPE]-(assay:MMOTerm) \n" +
+                    "RETURN distinct dataset.primaryKey as id, assay.displaySynonym as value"));
+            log.info("Finished fetching assays");
+        }
+    }
+
+    private class GetCrossReferencesThread implements Runnable {
+        @Override
+        public void run() {
+            log.info("Fetching cross references");
+            cache.setCrossReferences(getMapSetForQuery("MATCH (dataset:HTPDataset)-[:CROSS_REFERENCE]-(cr:CrossReference) " +
+                    "RETURN dataset.primaryKey as id, cr.name as value"));
+            log.info("Finished fetching cross references");
         }
     }
 
@@ -85,27 +105,16 @@ public class DatasetIndexerRepository extends Neo4jRepository<HTPDataset> {
         }
     }
 
-    private class GetAssemblyThread implements Runnable {
+    private class GetSampleIdsThread implements Runnable {
         @Override
         public void run() {
-            log.info("Fetching assembly");
-            cache.setAssembly(getMapSetForQuery("MATCH (dataset:HTPDataset)-[:ASSOCIATION]-(sample:HTPDatasetSample)-[:ASSEMBLY]-(assembly:Assembly) " +
-                    " RETURN distinct dataset.primaryKey as id, assembly.primaryKey as value;"));
-            log.info("Finished Fetching assembly");
+            log.info("Fetching sample ids");
+            cache.setSampleIds(getMapSetForQuery("MATCH (dataset:HTPDataset)-[:ASSOCIATION]-(sample:HTPDatasetSample) " +
+                    " RETURN distinct dataset.primaryKey as id, sample.primaryKey as value;"));
+            log.info("Finished Fetching sample ids");
         }
     }
 
-    private class GetAgeThread implements Runnable {
-        @Override
-        public void run() {
-            log.info("Fetching age");
-            cache.setAge(getMapSetForQuery("MATCH (dataset:HTPDataset)-[:ASSOCIATION]-(sample:HTPDatasetSample) " +
-                    " WHERE sample.sampleAge <> \"\" " +
-                    " RETURN distinct dataset.primaryKey as id, sample.sampleAge as value"));
-            log.info("Finished Fetching age");
-        }
-    }
-    
     private class GetSexThread implements Runnable {
         @Override
         public void run() {

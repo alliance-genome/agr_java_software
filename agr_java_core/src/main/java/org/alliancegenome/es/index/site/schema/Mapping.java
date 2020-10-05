@@ -23,10 +23,9 @@ public class Mapping extends Builder {
     }
 
     protected void buildSharedSearchableDocumentMappings() throws IOException {
-        new FieldBuilder(builder, "age", "text").keyword().build();
         new FieldBuilder(builder, "alleles", "text").keyword().autocomplete().build();
         new FieldBuilder(builder, "anatomicalExpression", "text").keyword().build();
-        new FieldBuilder(builder, "assembly", "text").keyword().build();
+        new FieldBuilder(builder, "assays", "text").keyword().build();
         new FieldBuilder(builder, "associatedSpecies", "text").keyword().synonym().sort().build();
         new FieldBuilder(builder, "associationType", "text").symbol().autocomplete().keyword().standardText().build();
         new FieldBuilder(builder, "biologicalProcess", "text").keyword().build();
@@ -50,6 +49,7 @@ public class Mapping extends Builder {
         new FieldBuilder(builder, "constructKnockdownComponent", "text").keyword().build();
         new FieldBuilder(builder, "constructRegulatoryRegion", "text").keyword().build();
         new FieldBuilder(builder, "crossReferences", "text").keyword().classicText().build();
+        new FieldBuilder(builder, "dataProvider", "text").keyword().build();
         new FieldBuilder(builder, "definition", "text").standardText().build();
         new FieldBuilder(builder, "description", "text").build();
         new FieldBuilder(builder, "diseases", "text").keyword().build();
@@ -89,6 +89,7 @@ public class Mapping extends Builder {
                 .build();
         new FieldBuilder(builder, "popularity", "double").build();
         new FieldBuilder(builder, "primaryKey", "keyword").build();
+        new FieldBuilder(builder, "sampleIds", "keyword").build();
         new FieldBuilder(builder, "symbol", "text").analyzer("symbols")
                 .autocomplete()
                 .htmlSmoosh()
@@ -125,7 +126,6 @@ public class Mapping extends Builder {
         new FieldBuilder(builder, "whereExpressed", "text").keyword().build();
 
         buildMetaDataField();
-        buildCrossReferenceLinkField();
 
     }
 
@@ -135,16 +135,6 @@ public class Mapping extends Builder {
         new FieldBuilder(builder,"dateProduced","date").build();
         new FieldBuilder(builder,"dataProvider","keyword").build();
         new FieldBuilder(builder,"release","keyword").build();
-        builder.endObject();
-        builder.endObject();
-    }
-
-    private void buildCrossReferenceLinkField() throws IOException {
-        builder.startObject("crossReferenceLinks");
-        builder.startObject("properties");
-        new FieldBuilder(builder,"name","keyword").build();
-        new FieldBuilder(builder,"displayName","keyword").build();
-        new FieldBuilder(builder,"url","keyword").build();
         builder.endObject();
         builder.endObject();
     }
