@@ -104,6 +104,14 @@ public class SearchService {
         functionList.add(new FunctionScoreQueryBuilder.FilterFunctionBuilder(matchQuery("name_key.keywordAutocomplete",q),
                 ScoreFunctionBuilders.weightFactorFunction(500F)));
 
+        functionList.add(new FunctionScoreQueryBuilder.FilterFunctionBuilder(matchQuery("name_key.standardBigrams",q),
+                ScoreFunctionBuilders.weightFactorFunction(500F)));
+
+        functionList.add(new FunctionScoreQueryBuilder.FilterFunctionBuilder(matchQuery("species",q),
+                ScoreFunctionBuilders.weightFactorFunction(2F)));
+
+        functionList.add(new FunctionScoreQueryBuilder.FilterFunctionBuilder(matchQuery("species.synonyms",q),
+                ScoreFunctionBuilders.weightFactorFunction(2F)));
 
         functionList.add(new FunctionScoreQueryBuilder.FilterFunctionBuilder(matchQuery("automatedGeneSynopsis",q),
                 ScoreFunctionBuilders.weightFactorFunction(1.5F)));

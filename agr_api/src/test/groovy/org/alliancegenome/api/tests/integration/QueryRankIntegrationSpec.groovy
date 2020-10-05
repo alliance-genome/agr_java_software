@@ -128,6 +128,10 @@ class QueryRankIntegrationSpec extends Specification {
         "kinase activity"                  | "kinase activity"
         "kinase activi"                    | "kinase activity"
         "amyotrophic lateral sclerosis"    | "amyotrophic lateral sclerosis"
+        "human SLC11A1"                    | "SLC11A1 (Hsa)"
+        "human wnt2b"                      | "WNT2B (Hsa)"
+        "human wnt10b"                     | "WNT10B (Hsa)"
+        "TP73 (Hsa)"                       | "TP73 (Hsa)"
 
     }
 
