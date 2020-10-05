@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.List;
 
 import org.alliancegenome.es.util.ProcessDisplayHelper;
+import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.variant_indexer.converters.VariantContextConverter;
 import org.alliancegenome.variant_indexer.converters.human.HumanVariantContextConverter;
 import org.alliancegenome.variant_indexer.converters.mouse.MouseVariantContextConverter;
@@ -32,7 +33,7 @@ public class TestSingleLineConvert {
             try {
                 VariantContext vc = iter1.next();
                 //if(vc.getID().equals("rs55780505")) {
-                List<String> docs = converter.convertVariantContext(vc, 0);
+                List<String> docs = converter.convertVariantContext(vc, SpeciesType.HUMAN);
                 for(String doc: docs) {
                     
                     ds.addValue(doc.length());
