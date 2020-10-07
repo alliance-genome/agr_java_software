@@ -22,7 +22,7 @@ import lombok.extern.log4j.Log4j2;
 @Log4j2
 public class JSONDocumentIndexer extends Thread {
 
-    private RestHighLevelClient client = EsClientFactory.createNewClient();
+    private RestHighLevelClient client = EsClientFactory.getDefaultEsClient();
     
     private LinkedBlockingDeque<String> jsonQueue = new LinkedBlockingDeque<String>(1000);
     
@@ -131,7 +131,6 @@ public class JSONDocumentIndexer extends Thread {
             
         
             log.info("Threads finished: " + downloadFile.getLocalGzipFilePath());
-            client.close();
             
         } catch (Exception e) {
             e.printStackTrace();
