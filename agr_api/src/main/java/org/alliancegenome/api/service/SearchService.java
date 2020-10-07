@@ -42,8 +42,6 @@ public class SearchService {
             q = q.replaceFirst("debug","").trim();
         }
 
-        q = queryManipulationService.processQuery(q);
-
         MultivaluedMap filterMap = getFilters(category, uriInfo);
 
         QueryBuilder query = buildFunctionQuery(q, category, filterMap);
@@ -101,9 +99,20 @@ public class SearchService {
         functionList.add(new FunctionScoreQueryBuilder.FilterFunctionBuilder(matchQuery("name_key.keyword",q),
                 ScoreFunctionBuilders.weightFactorFunction(1000F)));
 
+        functionList.add(new FunctionScoreQueryBuilder.FilterFunctionBuilder(matchQuery("primaryKey",q),
+                ScoreFunctionBuilders.weightFactorFunction(1000F)));
+
         functionList.add(new FunctionScoreQueryBuilder.FilterFunctionBuilder(matchQuery("name_key.keywordAutocomplete",q),
                 ScoreFunctionBuilders.weightFactorFunction(500F)));
 
+        functionList.add(new FunctionScoreQueryBuilder.FilterFunctionBuilder(matchQuery("name_key.standardBigrams",q),
+                ScoreFunctionBuilders.weightFactorFunction(500F)));
+
+        functionList.add(new FunctionScoreQueryBuilder.FilterFunctionBuilder(matchQuery("species",q),
+                ScoreFunctionBuilders.weightFactorFunction(2F)));
+
+        functionList.add(new FunctionScoreQueryBuilder.FilterFunctionBuilder(matchQuery("species.synonyms",q),
+                ScoreFunctionBuilders.weightFactorFunction(2F)));
 
         functionList.add(new FunctionScoreQueryBuilder.FilterFunctionBuilder(matchQuery("automatedGeneSynopsis",q),
                 ScoreFunctionBuilders.weightFactorFunction(1.5F)));
@@ -161,6 +170,8 @@ public class SearchService {
 
         //handle the query input, if necessary
         if (StringUtils.isNotEmpty(q)) {
+
+            q = queryManipulationService.processQuery(q);
 
             QueryStringQueryBuilder builder = queryStringQuery(q)
                 .defaultOperator(Operator.OR)
