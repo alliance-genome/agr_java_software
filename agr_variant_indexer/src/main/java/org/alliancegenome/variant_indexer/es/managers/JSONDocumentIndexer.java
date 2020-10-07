@@ -79,7 +79,7 @@ public class JSONDocumentIndexer extends Thread {
         
         
         try {
-            ProcessDisplayHelper ph = new ProcessDisplayHelper(10000);
+            ProcessDisplayHelper ph = new ProcessDisplayHelper(VariantConfigHelper.getDocumentCreatorDisplayInterval());
             
             String fileName = FilenameUtils.removeExtension(downloadFile.getLocalGzipFilePath());
             String filePrefix = FilenameUtils.getName(fileName);
