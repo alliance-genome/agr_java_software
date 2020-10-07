@@ -111,6 +111,11 @@ public class JSONDocumentIndexer extends Thread {
             
             ph.finishProcess();
 
+            
+            log.info("Waiting for jsonQueue to empty");
+            while(!jsonQueue.isEmpty()) {
+                Thread.sleep(1000);
+            }
         
             log.info("JSon Queue Empty shuting down indexers");
             for(VCFJsonIndexer i: indexers) {
