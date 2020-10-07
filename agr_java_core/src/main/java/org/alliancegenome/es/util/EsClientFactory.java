@@ -25,8 +25,7 @@ public class EsClientFactory {
     }
     
     public static RestHighLevelClient createNewClient() {
-        client = createClient();
-        return client;
+        return createClient();
     }
 
     // Used if APP needs to have multiple clients
@@ -47,7 +46,7 @@ public class EsClientFactory {
         HttpHost[] hosts = new HttpHost[esHosts.size()];
         hosts = esHosts.toArray(hosts);
 
-        client = new RestHighLevelClient(
+        RestHighLevelClient newClient = new RestHighLevelClient(
                 RestClient.builder(hosts)
                 .setRequestConfigCallback(
                         new RequestConfigCallback() {
@@ -63,7 +62,7 @@ public class EsClientFactory {
                         )
                 );
         log.debug("Finished Connecting to ES");
-        return client;
+        return newClient;
     }
 
 }
