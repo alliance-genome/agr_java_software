@@ -139,7 +139,7 @@ public class JSONDocumentIndexer extends Thread {
                 try {
                     String doc = jsonQueue.take();
                     bulkProcessor.add(new IndexRequest(indexName).source(doc, XContentType.JSON));
-                    ph3.progressProcess();
+                    ph3.progressProcess("JSon Queue: " + jsonQueue.size());
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
