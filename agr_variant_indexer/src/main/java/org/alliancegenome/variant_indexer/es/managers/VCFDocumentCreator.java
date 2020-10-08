@@ -79,7 +79,7 @@ public class VCFDocumentCreator extends Thread {
     
     private class VCFReader extends Thread {
         
-        private ProcessDisplayHelper ph1 = new ProcessDisplayHelper(VariantConfigHelper.getDocumentCreatorDisplayInterval());
+        private ProcessDisplayHelper ph1 = new ProcessDisplayHelper(log, VariantConfigHelper.getDocumentCreatorDisplayInterval());
         
         public void run() {
             ph1.startProcess("VCFReader: " + localGzipFilePath);
@@ -102,7 +102,7 @@ public class VCFDocumentCreator extends Thread {
     private class VCFTransformer extends Thread {
         
         VariantContextConverter converter = VariantContextConverter.getConverter(speciesType);
-        private ProcessDisplayHelper ph2 = new ProcessDisplayHelper(VariantConfigHelper.getDocumentCreatorDisplayInterval());
+        private ProcessDisplayHelper ph2 = new ProcessDisplayHelper(log, VariantConfigHelper.getDocumentCreatorDisplayInterval());
         
         public void run() {
             ph2.startProcess("VCFTransformer: " + speciesType.getName());
@@ -127,7 +127,7 @@ public class VCFDocumentCreator extends Thread {
     }
     
     private class VCFJSONWriter extends Thread {
-        private ProcessDisplayHelper ph3 = new ProcessDisplayHelper(VariantConfigHelper.getDocumentCreatorDisplayInterval());
+        private ProcessDisplayHelper ph3 = new ProcessDisplayHelper(log, VariantConfigHelper.getDocumentCreatorDisplayInterval());
         private BufferedOutputStream out = null;
         
         private int fileCounter = 0;
@@ -165,6 +165,7 @@ public class VCFDocumentCreator extends Thread {
             if(out == null && fileLineCount == 0) {
                 try {
                     File file = new File(localFilePath + "." + fileCounter + ".json.gz");
+                    fileCounter++;
                     if(file.exists()) {
                         skip = true;
                         log.info("Skipping File: " + file.getAbsolutePath());
@@ -172,6 +173,7 @@ public class VCFDocumentCreator extends Thread {
                         out = new BufferedOutputStream(new ParallelGZIPOutputStream(new FileOutputStream(file)));
                         skip = false;
                     }
+                    
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -184,6 +186,7 @@ public class VCFDocumentCreator extends Thread {
                         }
                         
                         File file = new File(localFilePath + "." + fileCounter + ".json.gz");
+                        fileCounter++;
                         if(file.exists()) {
                             skip = true;
                             log.info("Skipping File: " + file.getAbsolutePath());
@@ -191,11 +194,9 @@ public class VCFDocumentCreator extends Thread {
                             out = new BufferedOutputStream(new ParallelGZIPOutputStream(new FileOutputStream(file)));
                             skip = false;
                         }
-                        
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-                    fileCounter++;
                     fileLineCount = 0;
                     return;
                 }
