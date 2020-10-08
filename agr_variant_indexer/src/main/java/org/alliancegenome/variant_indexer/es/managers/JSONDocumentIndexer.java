@@ -63,8 +63,8 @@ public class JSONDocumentIndexer extends Thread {
         builder = BulkProcessor.builder((request, bulkListener) -> client.bulkAsync(request, RequestOptions.DEFAULT, bulkListener), listener);
         builder.setBulkActions(VariantConfigHelper.getJsonIndexerEsBulkActionSize());
         builder.setConcurrentRequests(VariantConfigHelper.getJsonIndexerEsBulkConcurrentRequests());
-        builder.setBulkSize(new ByteSizeValue(VariantConfigHelper.getJsonIndexerEsBulkSizeMB(), ByteSizeUnit.MB));
-        builder.setFlushInterval(TimeValue.timeValueSeconds(180L));
+        //builder.setBulkSize(new ByteSizeValue(VariantConfigHelper.getJsonIndexerEsBulkSizeMB(), ByteSizeUnit.MB));
+        //builder.setFlushInterval(TimeValue.timeValueSeconds(180L));
         builder.setBackoffPolicy(BackoffPolicy.exponentialBackoff(TimeValue.timeValueSeconds(1L), 60));
 
         bulkProcessor = builder.build();
