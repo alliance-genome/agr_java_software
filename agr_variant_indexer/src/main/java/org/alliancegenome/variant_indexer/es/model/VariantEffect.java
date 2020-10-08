@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Getter @Setter
-@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class VariantEffect {
     private String consequence;
     private String featureType;
