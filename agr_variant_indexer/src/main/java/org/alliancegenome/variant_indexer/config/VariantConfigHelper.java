@@ -2,9 +2,7 @@ package org.alliancegenome.variant_indexer.config;
 
 import static org.alliancegenome.core.config.Constants.*;
 
-import java.util.HashMap;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 
 import org.alliancegenome.core.util.FileHelper;
 
@@ -55,6 +53,7 @@ public class VariantConfigHelper {
         defaults.put(VARIANT_JSON_INDEXER_THREADS, "6");
         defaults.put(VARIANT_JSON_INDEXER_ES_BULK_ACTION_SIZE, "1000"); // Max amount of documents in a bulk request target MB
         defaults.put(VARIANT_JSON_INDEXER_ES_BULK_CONCURRENT_REQUESTS, "10"); // Amount of concurrent bulk requests running (target * 10) MB
+        defaults.put(VARIANT_JSON_INDEXER_JSON_QUEUE_SIZE, "10000");
         defaults.put(VARIANT_JSON_INDEXER_ES_BULK_SIZE_MB, "95"); // Max size of bulk request target
         
         defaults.put(VARIANT_JSON_INDEXER_ES_INDEX_NUMBER_OF_SHARDS, "8");
@@ -234,6 +233,15 @@ public class VariantConfigHelper {
         if (!init) init();
         try {
             return Integer.parseInt(config.get(VARIANT_DOCUMENT_CREATOR_CONTEXT_TRANSFORMER_THREADS));
+        } catch (NumberFormatException e) {
+            return 4;
+        }
+    }
+
+    public static int getJsonIndexerJsonQueueSize() {
+        if (!init) init();
+        try {
+            return Integer.parseInt(config.get(VARIANT_JSON_INDEXER_JSON_QUEUE_SIZE));
         } catch (NumberFormatException e) {
             return 4;
         }

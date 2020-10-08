@@ -24,7 +24,7 @@ public class JSONDocumentIndexer extends Thread {
 
     private RestHighLevelClient client = EsClientFactory.getDefaultEsClient();
     
-    private LinkedBlockingDeque<String> jsonQueue = new LinkedBlockingDeque<String>(1000);
+    private LinkedBlockingDeque<String> jsonQueue = new LinkedBlockingDeque<String>(VariantConfigHelper.getJsonIndexerJsonQueueSize());
     
     private BulkProcessor.Builder builder;
     private BulkProcessor bulkProcessor;
@@ -69,7 +69,6 @@ public class JSONDocumentIndexer extends Thread {
 
         bulkProcessor = builder.build();
         
-
         VCFJsonIndexer indexer = new VCFJsonIndexer();
         indexer.start();
         
