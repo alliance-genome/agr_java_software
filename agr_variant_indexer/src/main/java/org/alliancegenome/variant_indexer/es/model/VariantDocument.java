@@ -10,7 +10,7 @@ import lombok.*;
 
 @Getter
 @Setter
-@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class VariantDocument extends SearchableItemDocument {
     
     private String chromosome;

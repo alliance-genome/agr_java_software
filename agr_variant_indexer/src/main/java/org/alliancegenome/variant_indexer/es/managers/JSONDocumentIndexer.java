@@ -69,17 +69,12 @@ public class JSONDocumentIndexer extends Thread {
 
         bulkProcessor = builder.build();
         
-        List<VCFJsonIndexer> indexers = new ArrayList<>();
-        
-        for(int i = 0; i < VariantConfigHelper.getJsonIndexerThreads(); i++) {
-            VCFJsonIndexer indexer = new VCFJsonIndexer();
-            indexer.start();
-            indexers.add(indexer);
-        }
-        
+
+        VCFJsonIndexer indexer = new VCFJsonIndexer();
+        indexer.start();
         
         try {
-            ProcessDisplayHelper ph = new ProcessDisplayHelper(VariantConfigHelper.getDocumentCreatorDisplayInterval());
+            ProcessDisplayHelper ph = new ProcessDisplayHelper(log, VariantConfigHelper.getDocumentCreatorDisplayInterval());
             
             String fileName = FilenameUtils.removeExtension(downloadFile.getLocalGzipFilePath());
             String filePrefix = FilenameUtils.getName(fileName);
@@ -117,12 +112,10 @@ public class JSONDocumentIndexer extends Thread {
                 Thread.sleep(1000);
             }
         
-            log.info("JSon Queue Empty shuting down indexers");
-            for(VCFJsonIndexer i: indexers) {
-                i.interrupt();
-                i.join();
-            }
-            log.info("Indexers shutdown");
+            log.info("JSon Queue Empty shuting down indexer");
+            indexer.interrupt();
+            indexer.join();
+            log.info("Indexer shutdown");
             
             log.info("Waiting for Bulk Processor to finish");
             bulkProcessor.flush();
@@ -139,7 +132,7 @@ public class JSONDocumentIndexer extends Thread {
     }
 
     private class VCFJsonIndexer extends Thread {
-        private ProcessDisplayHelper ph3 = new ProcessDisplayHelper(VariantConfigHelper.getDocumentCreatorDisplayInterval());
+        private ProcessDisplayHelper ph3 = new ProcessDisplayHelper(log, VariantConfigHelper.getDocumentCreatorDisplayInterval());
         
         public void run() {
             ph3.startProcess("VCFJsonIndexer: " + indexName);
