@@ -12,6 +12,7 @@ import lombok.*;
 
 @Getter
 @Setter
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class SearchableItemDocument extends ESDocument {
 
     String automatedGeneSynopsis;
@@ -40,7 +41,6 @@ public class SearchableItemDocument extends ESDocument {
     String summary;
     String symbol;
     String symbolText;
-
 
     Set<String> age = new HashSet<>();
     Set<String> anatomicalExpression = new HashSet<>();         //uberon slim
