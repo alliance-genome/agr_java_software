@@ -6,7 +6,7 @@ import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.variant_indexer.converters.human.HumanVariantContextConverter;
 import org.alliancegenome.variant_indexer.converters.mouse.MouseVariantContextConverter;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.*;
 
 import htsjdk.variant.variantcontext.VariantContext;
 
