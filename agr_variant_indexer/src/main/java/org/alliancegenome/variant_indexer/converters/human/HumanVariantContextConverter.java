@@ -1,6 +1,7 @@
 package org.alliancegenome.variant_indexer.converters.human;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.variant_indexer.converters.VariantContextConverter;
@@ -23,6 +24,16 @@ public class HumanVariantContextConverter extends VariantContextConverter {
         int index = 0;
         for (Allele a : ctx.getAlternateAlleles()) {
             VariantDocument variantDocument = new VariantDocument();
+            variantDocument.setCategory("allele");
+            variantDocument.setAlterationType("variant");
+
+            //todo: need to generate actual hgvs
+            String hgvsNomenclature = ctx.getContig() + ':' + ctx.getStart() + "-not-real-hgvs";
+            variantDocument.setName(hgvsNomenclature);
+            variantDocument.setNameKey(hgvsNomenclature);
+
+            //todo: need to translate these types to match what we use for alleles
+            variantDocument.setVariantType(new HashSet<>() {{ add(ctx.getType().name()); }});
             variantDocument.setId(ctx.getID());
             variantDocument.setSpecies(speciesType.getName());
             variantDocument.setChromosome(ctx.getContig());
@@ -68,6 +79,15 @@ public class HumanVariantContextConverter extends VariantContextConverter {
             } catch (JsonProcessingException e) {
                 e.printStackTrace();
             }
+
+            //todo: this will need an id->name map for genes
+            variantDocument.setGenes(
+                variantDocument.getConsequences()
+                        .stream()
+                        .map(x -> x.getGene() + " (" + speciesType.getAbbreviation() + ")")
+                        .collect(Collectors.toSet())
+            );
+
             variantDocument.setEvidence(utils.mapEvidence(ctx));
             variantDocument.setClinicalSignificance(utils.mapClinicalSignificance(ctx));
             if (ctx.getAttribute("MA") != null)
@@ -107,5 +127,4 @@ public class HumanVariantContextConverter extends VariantContextConverter {
         return returnDocuments;
 
     }
-
 }

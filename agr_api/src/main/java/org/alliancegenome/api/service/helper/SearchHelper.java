@@ -68,6 +68,7 @@ public class SearchHelper {
             put("allele", new ArrayList<String>() {
                 {
                     add("species");
+                    add("alterationType");
                     add("variantType");
                     add("molecularConsequence");
                     add("diseasesAgrSlim");

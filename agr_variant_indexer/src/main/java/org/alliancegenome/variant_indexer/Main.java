@@ -1,6 +1,7 @@
 package org.alliancegenome.variant_indexer;
 
 import org.alliancegenome.core.config.ConfigHelper;
+import org.alliancegenome.es.index.site.schema.Mapping;
 import org.alliancegenome.es.index.site.schema.settings.VariantIndexSettings;
 import org.alliancegenome.es.util.IndexManager;
 import org.alliancegenome.variant_indexer.config.VariantConfigHelper;
@@ -40,8 +41,7 @@ public class Main {
             }
 
             if(creating) {
-                
-                IndexManager im = new IndexManager(new VariantIndexSettings(true, VariantConfigHelper.getIndexerShards()));
+                IndexManager im = new IndexManager(new VariantIndexSettings(true, VariantConfigHelper.getIndexerShards()), new Mapping(true));
                 
                 SourceDocumentCreation.indexName = im.startSiteIndex();
                 
