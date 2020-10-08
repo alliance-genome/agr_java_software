@@ -69,8 +69,13 @@ public class JSONDocumentIndexer extends Thread {
 
         bulkProcessor = builder.build();
         
-        VCFJsonIndexer indexer = new VCFJsonIndexer();
-        indexer.start();
+        ArrayList<VCFJsonBulkIndexer> indexers = new ArrayList<>();
+        
+        for(int i = 0; i < VariantConfigHelper.getJsonIndexexBulkThreads(); i++) {
+            VCFJsonBulkIndexer indexer = new VCFJsonBulkIndexer();
+            indexer.start();
+            indexers.add(indexer);
+        }
         
         try {
             ProcessDisplayHelper ph = new ProcessDisplayHelper(log, VariantConfigHelper.getDocumentCreatorDisplayInterval());
@@ -111,10 +116,12 @@ public class JSONDocumentIndexer extends Thread {
                 Thread.sleep(1000);
             }
         
-            log.info("JSon Queue Empty shuting down indexer");
-            indexer.interrupt();
-            indexer.join();
-            log.info("Indexer shutdown");
+            log.info("JSon Queue Empty shuting down bulk indexers");
+            for(VCFJsonBulkIndexer indexer: indexers) {
+                indexer.interrupt();
+                indexer.join();
+            }
+            log.info("Bulk Indexers shutdown");
             
             log.info("Waiting for Bulk Processor to finish");
             bulkProcessor.flush();
@@ -130,7 +137,7 @@ public class JSONDocumentIndexer extends Thread {
         
     }
 
-    private class VCFJsonIndexer extends Thread {
+    private class VCFJsonBulkIndexer extends Thread {
         private ProcessDisplayHelper ph3 = new ProcessDisplayHelper(log, VariantConfigHelper.getDocumentCreatorDisplayInterval());
         
         public void run() {
