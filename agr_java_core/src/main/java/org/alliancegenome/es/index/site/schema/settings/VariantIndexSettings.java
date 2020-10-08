@@ -20,7 +20,7 @@ public class VariantIndexSettings extends Settings {
             .startObject("index")
                 .field("number_of_replicas", "0")
                 .field("refresh_interval", "-1")
-                .field("number_of_shards", "" + shardCount)
+                .field("number_of_shards", "" + shardCount);
                 //.field("merge.scheduler.auto_throttle", "false")
                 //.field("merge.scheduler.max_merge_count", "10")
                 //.field("merge.scheduler.max_thread_count", "10")
@@ -28,8 +28,9 @@ public class VariantIndexSettings extends Settings {
                 //.field("merge.policy.max_merged_segment", "500mb")
                 .field("translog.sync_interval", "15s")
                 .field("translog.flush_threshold_size", "4096mb")
-                .field("translog.durability", "async")
-            .endObject();
+                .field("translog.durability", "async");
+            buildAnalysis(true);
+            builder.endObject();
         builder.endObject();
     }
 

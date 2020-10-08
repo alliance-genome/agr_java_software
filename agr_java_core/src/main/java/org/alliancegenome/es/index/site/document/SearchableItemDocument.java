@@ -15,6 +15,7 @@ import lombok.*;
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class SearchableItemDocument extends ESDocument {
 
+    String alterationType;
     String automatedGeneSynopsis;
     String branch;
     String category;
