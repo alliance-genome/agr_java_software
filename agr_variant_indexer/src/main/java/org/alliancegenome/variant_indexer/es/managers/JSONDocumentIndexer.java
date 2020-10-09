@@ -50,7 +50,7 @@ public class JSONDocumentIndexer extends Thread {
 
             @Override
             public void afterBulk(long executionId, BulkRequest request, Throwable failure) {
-                log.error("Bulk Request Failure: " + failure.getMessage());
+                log.error("Bulk Request Failure: " + failure.getMessage() + " " + downloadFile.getLocalGzipFilePath());
                 for(DocWriteRequest<?> req: request.requests()) {
                     IndexRequest idxreq = (IndexRequest)req;
                     bulkProcessor.add(idxreq);
@@ -63,7 +63,7 @@ public class JSONDocumentIndexer extends Thread {
         builder = BulkProcessor.builder((request, bulkListener) -> client.bulkAsync(request, RequestOptions.DEFAULT, bulkListener), listener);
         builder.setBulkActions(VariantConfigHelper.getJsonIndexerEsBulkActionSize());
         builder.setConcurrentRequests(VariantConfigHelper.getJsonIndexerEsBulkConcurrentRequests());
-        //builder.setBulkSize(new ByteSizeValue(VariantConfigHelper.getJsonIndexerEsBulkSizeMB(), ByteSizeUnit.MB));
+        builder.setBulkSize(new ByteSizeValue(VariantConfigHelper.getJsonIndexerEsBulkSizeMB(), ByteSizeUnit.MB));
         //builder.setFlushInterval(TimeValue.timeValueSeconds(180L));
         builder.setBackoffPolicy(BackoffPolicy.exponentialBackoff(TimeValue.timeValueSeconds(1L), 60));
 
