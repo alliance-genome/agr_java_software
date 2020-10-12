@@ -56,7 +56,6 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
 
         client = EsClientFactory.getDefaultEsClient();
 
-
         BulkProcessor.Listener listener = new BulkProcessor.Listener() {
             @Override
             public void beforeBulk(long executionId, BulkRequest request) {
@@ -110,8 +109,10 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
     public void runIndex() {
         try {
             index();
+            log.info("Waiting for bulkProcessor to finish");
             bulkProcessor.flush();
             bulkProcessor.awaitClose(30L, TimeUnit.DAYS);
+            log.info("bulkProcessor finished");
         } catch (Exception e) {
             e.printStackTrace();
             System.exit(-1);
@@ -123,8 +124,10 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
         super.run();
         try {
             index();
+            log.info("Waiting for bulkProcessor to finish");
             bulkProcessor.flush();
             bulkProcessor.awaitClose(30L, TimeUnit.DAYS);
+            log.info("bulkProcessor finished");
         } catch (Exception e) {
             e.printStackTrace();
             System.exit(-1);
