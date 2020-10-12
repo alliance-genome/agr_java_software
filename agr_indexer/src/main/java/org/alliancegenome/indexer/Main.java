@@ -6,6 +6,7 @@ import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.es.util.IndexManager;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.indexer.indexers.Indexer;
+import org.alliancegenome.neo4j.repository.Neo4jSessionFactory;
 import org.apache.logging.log4j.*;
 
 public class Main {
@@ -91,6 +92,8 @@ public class Main {
         log.info("End Time: " + end);
         long duration = end.getTime() - start.getTime();
         log.info("Total Indexing time: " + Indexer.getHumanReadableTimeDisplay(duration));
+        
+        Neo4jSessionFactory.close();
 
     }
 
