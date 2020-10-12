@@ -41,22 +41,19 @@ public class Main {
             }
 
             if(creating) {
+                
+                IndexManager im = new IndexManager(new VariantIndexSettings(true, VariantConfigHelper.getJsonIndexerEsNumberOfShards()));
+                
+                VCFDocumentCreator.indexName = im.startSiteIndex();
+                
                 VCFDocumentCreationManager vdm = new VCFDocumentCreationManager(downloadSet);
                 vdm.start();
                 vdm.join();
-            }
-            
-            if(indexing) {
-                IndexManager im = new IndexManager(new VariantIndexSettings(true, VariantConfigHelper.getJsonIndexerEsNumberOfShards()));
-                
-                JSONDocumentIndexer.indexName = im.startSiteIndex();
-                
-                JSONDocumentIndexManager jdim = new JSONDocumentIndexManager(downloadSet);
-                jdim.start();
-                jdim.join();
                 
                 im.finishIndex();
             }
+            
+            //mapper.writeValue(new FileWriter(new File("downloadFileSet2.yaml")), downloadSet);
 
         } catch (Exception e) {
             e.printStackTrace();
