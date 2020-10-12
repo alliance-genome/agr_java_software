@@ -223,11 +223,7 @@ public class IndexManager {
 
         takeSnapShot();
 
-        try {
-            getClient().close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        EsClientFactory.closeClient();
         log.debug(baseIndexName + " Finished: ");
     }
 
@@ -416,11 +412,7 @@ public class IndexManager {
     }
     
     public void closeClient() {
-        try {
-            getClient().close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        EsClientFactory.closeClient();
     }
 
 }
