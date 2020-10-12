@@ -31,7 +31,7 @@ public class JSONDocumentIndexManager extends Thread {
             log.info("JSONDocumentIndexManager shuting down executor: ");
             executor.shutdown();  
             while (!executor.isTerminated()) {
-                Thread.sleep(100);
+                Thread.sleep(1000);
             }
             log.info("JSONDocumentIndexManager executor shut down: ");
         } catch (Exception e) {
