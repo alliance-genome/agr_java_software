@@ -28,7 +28,7 @@ public class JSONDocumentIndexer extends Thread {
     
     private BulkProcessor.Builder builder;
     private BulkProcessor bulkProcessor;
-    public static String indexName;
+    //public static String indexName;
     private DownloadableFile downloadFile;
     
     public JSONDocumentIndexer(DownloadableFile downloadFile) {
@@ -61,7 +61,7 @@ public class JSONDocumentIndexer extends Thread {
         
         log.info("Creating Bulk Processor");
         builder = BulkProcessor.builder((request, bulkListener) -> client.bulkAsync(request, RequestOptions.DEFAULT, bulkListener), listener);
-        builder.setBulkActions(VariantConfigHelper.getJsonIndexerEsBulkActionSize());
+        builder.setBulkActions(-1);
         builder.setConcurrentRequests(VariantConfigHelper.getJsonIndexerEsBulkConcurrentRequests());
         builder.setBulkSize(new ByteSizeValue(VariantConfigHelper.getJsonIndexerEsBulkSizeMB(), ByteSizeUnit.MB));
         //builder.setFlushInterval(TimeValue.timeValueSeconds(180L));
@@ -98,7 +98,7 @@ public class JSONDocumentIndexer extends Thread {
             ph.startProcess("Json Reader: ");
 
             for(String filePartPath: documentFiles) {
-                BufferedReader reader = new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(new File(filePartPath)))));
+                BufferedReader reader = new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(new File(filePartPath)))), 8192 * 10);
                 String line = null;
                 while((line = reader.readLine()) != null) {
                     //log.info(line);
@@ -141,11 +141,11 @@ public class JSONDocumentIndexer extends Thread {
         private ProcessDisplayHelper ph3 = new ProcessDisplayHelper(log, VariantConfigHelper.getDocumentCreatorDisplayInterval());
         
         public void run() {
-            ph3.startProcess("VCFJsonIndexer: " + indexName);
+            //ph3.startProcess("VCFJsonIndexer: " + indexName);
             while(!(Thread.currentThread().isInterrupted())) {
                 try {
                     String doc = jsonQueue.take();
-                    bulkProcessor.add(new IndexRequest(indexName).source(doc, XContentType.JSON));
+                    //bulkProcessor.add(new IndexRequest(indexName).source(doc, XContentType.JSON));
                     ph3.progressProcess("JSon Queue: " + jsonQueue.size());
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();

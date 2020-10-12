@@ -1,0 +1,16 @@
+---
+downloadFileSet:
+- source: "WB"
+  species: "CELEGANS"
+  taxonId: "NCBITaxon:6239"
+  fileList:
+  - chromosome: "I"
+    url: "https://download.alliancegenome.org/variants/wb/WB.vep.chrI.vcf.gz"
+    localGzipFilePath: "/Volumes/Cardano_Backup/Variants/WB.vep.chrI.vcf.gz"
+    jsonFileParts: null
+downloadPath: "/Volumes/Cardano_Backup/Variants"
+filesToDownload:
+- chromosome: "I"
+  url: "https://download.alliancegenome.org/variants/wb/WB.vep.chrI.vcf.gz"
+  localGzipFilePath: "/Volumes/Cardano_Backup/Variants/WB.vep.chrI.vcf.gz"
+  jsonFileParts: null

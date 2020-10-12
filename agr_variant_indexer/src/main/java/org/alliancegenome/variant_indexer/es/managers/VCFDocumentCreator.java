@@ -1,16 +1,20 @@
 package org.alliancegenome.variant_indexer.es.managers;
 
-import java.io.*;
+import java.io.File;
 import java.util.*;
 import java.util.concurrent.LinkedBlockingDeque;
 
-import org.alliancegenome.core.util.parallel.ParallelGZIPOutputStream;
-import org.alliancegenome.es.util.ProcessDisplayHelper;
+import org.alliancegenome.es.util.*;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.variant_indexer.config.VariantConfigHelper;
 import org.alliancegenome.variant_indexer.converters.VariantContextConverter;
 import org.alliancegenome.variant_indexer.filedownload.model.DownloadableFile;
-import org.apache.commons.io.FilenameUtils;
+import org.elasticsearch.action.DocWriteRequest;
+import org.elasticsearch.action.bulk.*;
+import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.client.*;
+import org.elasticsearch.common.unit.*;
+import org.elasticsearch.common.xcontent.XContentType;
 
 import htsjdk.samtools.util.CloseableIterator;
 import htsjdk.variant.variantcontext.VariantContext;
@@ -21,19 +25,58 @@ import lombok.extern.log4j.Log4j2;
 public class VCFDocumentCreator extends Thread {
 
     private String localGzipFilePath;
-    private String localFilePath;
     private SpeciesType speciesType;
+    public static String indexName;
+    private BulkProcessor.Builder builder;
+    private BulkProcessor bulkProcessor;
 
+    private RestHighLevelClient client = EsClientFactory.getDefaultEsClient();
+    
     private LinkedBlockingDeque<VariantContext> vcQueue = new LinkedBlockingDeque<VariantContext>(VariantConfigHelper.getDocumentCreatorContextQueueSize());
-    private LinkedBlockingDeque<String> jsonQueue = new LinkedBlockingDeque<String>(VariantConfigHelper.getDocumentCreatorJsonQueueSize());
+    LinkedBlockingDeque<String> jsonQueue = new LinkedBlockingDeque<String>(VariantConfigHelper.getDocumentCreatorJsonQueueSize());
 
     public VCFDocumentCreator(DownloadableFile downloadFile, SpeciesType speciesType) {
         this.localGzipFilePath = downloadFile.getLocalGzipFilePath();
         this.speciesType = speciesType;
-        this.localFilePath = FilenameUtils.removeExtension(localGzipFilePath);
     }
     
     public void run() {
+
+        BulkProcessor.Listener listener = new BulkProcessor.Listener() { 
+            @Override
+            public void beforeBulk(long executionId, BulkRequest request) {
+            }
+
+            @Override
+            public void afterBulk(long executionId, BulkRequest request, BulkResponse response) {
+                //log.info("Size: " + request.requests().size() + " MB: " + request.estimatedSizeInBytes() + " Time: " + response.getTook() + " Bulk Requet Finished");
+            }
+
+            @Override
+            public void afterBulk(long executionId, BulkRequest request, Throwable failure) {
+                log.error("Bulk Request Failure: " + failure.getMessage() + " " + localGzipFilePath);
+                for(DocWriteRequest<?> req: request.requests()) {
+                    IndexRequest idxreq = (IndexRequest)req;
+                    bulkProcessor.add(idxreq);
+                }
+                log.error("Finished Adding requests to Queue:");
+            }
+        };
+        
+        log.info("Creating Bulk Processor");
+        builder = BulkProcessor.builder((request, bulkListener) -> client.bulkAsync(request, RequestOptions.DEFAULT, bulkListener), listener);
+        //builder.setBulkActions(-1);
+        builder.setBulkActions(100000);
+        builder.setConcurrentRequests(VariantConfigHelper.getJsonIndexerEsBulkConcurrentRequests());
+        builder.setBulkSize(new ByteSizeValue(VariantConfigHelper.getJsonIndexerEsBulkSizeMB(), ByteSizeUnit.MB));
+        //builder.setFlushInterval(TimeValue.timeValueSeconds(180L));
+        builder.setBackoffPolicy(BackoffPolicy.exponentialBackoff(TimeValue.timeValueSeconds(1L), 60));
+
+        bulkProcessor = builder.build();
+        
+        
+        
+        
         
         VCFReader reader = new VCFReader();
         reader.start();
@@ -41,13 +84,18 @@ public class VCFDocumentCreator extends Thread {
         List<VCFTransformer> transformers = new ArrayList<>();
         
         for(int i = 0; i < VariantConfigHelper.getDocumentCreatorContextTransformerThreads(); i++) {
-            VCFTransformer transformer = new VCFTransformer();
+            VCFTransformer transformer = new VCFTransformer(jsonQueue);
             transformer.start();
             transformers.add(transformer);
         }
         
-        VCFJSONWriter writer = new VCFJSONWriter();
-        writer.start();
+        ArrayList<VCFJsonBulkIndexer> indexers = new ArrayList<>();
+        
+        for(int i = 0; i < VariantConfigHelper.getJsonIndexexBulkThreads(); i++) {
+            VCFJsonBulkIndexer indexer = new VCFJsonBulkIndexer();
+            indexer.start();
+            indexers.add(indexer);
+        }
 
         try {
             reader.join();
@@ -61,14 +109,18 @@ public class VCFDocumentCreator extends Thread {
                 t.join();
             }
             log.info("Transformers shutdown");
+            
             log.info("Waiting for jsonQueue to empty");
             while(!jsonQueue.isEmpty()) {
                 Thread.sleep(1000);
             }
-            log.info("JSON Queue Empty shuting down writer");
-            writer.interrupt();
-            writer.join();
-            log.info("JSON Writer shutdown");
+            
+            log.info("JSon Queue Empty shuting down bulk indexers");
+            for(VCFJsonBulkIndexer indexer: indexers) {
+                indexer.interrupt();
+                indexer.join();
+            }
+            log.info("Bulk Indexers shutdown");
             
             log.info("Threads finished: " + localGzipFilePath);
         } catch (InterruptedException e) {
@@ -103,6 +155,11 @@ public class VCFDocumentCreator extends Thread {
         
         VariantContextConverter converter = VariantContextConverter.getConverter(speciesType);
         private ProcessDisplayHelper ph2 = new ProcessDisplayHelper(log, VariantConfigHelper.getDocumentCreatorDisplayInterval());
+        private LinkedBlockingDeque<String> jsonQueue;
+        
+        public VCFTransformer(LinkedBlockingDeque<String> jsonQueue) {
+            this.jsonQueue = jsonQueue;
+        }
         
         public void run() {
             ph2.startProcess("VCFTransformer: " + speciesType.getName());
@@ -113,7 +170,7 @@ public class VCFDocumentCreator extends Thread {
                     for(String doc: docs) {
                         try {
                             jsonQueue.put(doc);
-                            ph2.progressProcess("VCQueue: " + vcQueue.size() + " JsonQueue: " + jsonQueue.size());
+                            ph2.progressProcess("VCQueue: " + vcQueue.size());
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
@@ -126,84 +183,22 @@ public class VCFDocumentCreator extends Thread {
         }
     }
     
-    private class VCFJSONWriter extends Thread {
+    private class VCFJsonBulkIndexer extends Thread {
         private ProcessDisplayHelper ph3 = new ProcessDisplayHelper(log, VariantConfigHelper.getDocumentCreatorDisplayInterval());
-        private BufferedOutputStream out = null;
-        
-        private int fileCounter = 0;
-        private int fileLineCount = 0;
-        private boolean skip = false;
         
         public void run() {
-            ph3.startProcess("VCFJSONWriter: " + speciesType.getName());
-
+            ph3.startProcess("VCFJsonIndexer: " + indexName);
             while(!(Thread.currentThread().isInterrupted())) {
                 try {
-                    updateFileCounter();
                     String doc = jsonQueue.take();
-                    try {
-                        if(!skip) out.write((doc + "\n").getBytes());
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    ph3.progressProcess("VCQueue: " + vcQueue.size() + " JsonQueue: " + jsonQueue.size());
+                    bulkProcessor.add(new IndexRequest(indexName).source(doc, XContentType.JSON));
+                    ph3.progressProcess("JSon Queue: " + jsonQueue.size());
                 } catch (InterruptedException e) {
-                    if(out != null) {
-                        try {
-                            out.close();
-                        } catch (IOException e1) {
-                            e1.printStackTrace();
-                        }
-                    }
                     Thread.currentThread().interrupt();
                 }
             }
             ph3.finishProcess();
         }
-        
-        private void updateFileCounter() {
-            if(out == null && fileLineCount == 0) {
-                try {
-                    File file = new File(localFilePath + "." + fileCounter + ".json.gz");
-                    fileCounter++;
-                    if(file.exists()) {
-                        skip = true;
-                        log.info("Skipping File: " + file.getAbsolutePath());
-                    } else {
-                        out = new BufferedOutputStream(new ParallelGZIPOutputStream(new FileOutputStream(file)));
-                        skip = false;
-                    }
-                    
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            } else {
-                if(fileLineCount == 3_500_000) {
-                    try {
-                        if(out != null) {
-                            out.close();
-                            out = null;
-                        }
-                        
-                        File file = new File(localFilePath + "." + fileCounter + ".json.gz");
-                        fileCounter++;
-                        if(file.exists()) {
-                            skip = true;
-                            log.info("Skipping File: " + file.getAbsolutePath());
-                        } else {
-                            out = new BufferedOutputStream(new ParallelGZIPOutputStream(new FileOutputStream(file)));
-                            skip = false;
-                        }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    fileLineCount = 0;
-                    return;
-                }
-            }
-            fileLineCount++;
-        }
-        
     }
 
 }
