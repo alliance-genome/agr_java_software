@@ -27,13 +27,23 @@ public class VCFDocumentCreator extends Thread {
     private String localGzipFilePath;
     private SpeciesType speciesType;
     public static String indexName;
-    private BulkProcessor.Builder builder;
-    private BulkProcessor bulkProcessor;
-
+    private BulkProcessor.Builder builder1;
+    private BulkProcessor.Builder builder2;
+    private BulkProcessor.Builder builder3;
+    private BulkProcessor.Builder builder4;
+    
+    private BulkProcessor bulkProcessor1;
+    private BulkProcessor bulkProcessor2;
+    private BulkProcessor bulkProcessor3;
+    private BulkProcessor bulkProcessor4;
+    
     private RestHighLevelClient client = EsClientFactory.getDefaultEsClient();
     
     private LinkedBlockingDeque<VariantContext> vcQueue = new LinkedBlockingDeque<VariantContext>(VariantConfigHelper.getDocumentCreatorContextQueueSize());
-    LinkedBlockingDeque<String> jsonQueue = new LinkedBlockingDeque<String>(VariantConfigHelper.getDocumentCreatorJsonQueueSize());
+    private LinkedBlockingDeque<String> jsonQueue1 = new LinkedBlockingDeque<String>(10000); // Max 10K * 10K = 100M
+    private LinkedBlockingDeque<String> jsonQueue2 = new LinkedBlockingDeque<String>(1333); // Max 75K * 1333 = 100M
+    private LinkedBlockingDeque<String> jsonQueue3 = new LinkedBlockingDeque<String>(1000); // Max 100K * 1000 = 100M
+    private LinkedBlockingDeque<String> jsonQueue4 = new LinkedBlockingDeque<String>(500); // Max 200K * 500 = 100M if documents are larger then we might need to split this down more
 
     public VCFDocumentCreator(DownloadableFile downloadFile, SpeciesType speciesType) {
         this.localGzipFilePath = downloadFile.getLocalGzipFilePath();
@@ -41,41 +51,102 @@ public class VCFDocumentCreator extends Thread {
     }
     
     public void run() {
-
-        BulkProcessor.Listener listener = new BulkProcessor.Listener() { 
+        
+        log.info("Creating Bulk Processor 0 - 10K");
+        builder1 = BulkProcessor.builder((request, bulkListener) -> client.bulkAsync(request, RequestOptions.DEFAULT, bulkListener), new BulkProcessor.Listener() { 
             @Override
-            public void beforeBulk(long executionId, BulkRequest request) {
-            }
-
+            public void beforeBulk(long executionId, BulkRequest request) { }
             @Override
-            public void afterBulk(long executionId, BulkRequest request, BulkResponse response) {
-                //log.info("Size: " + request.requests().size() + " MB: " + request.estimatedSizeInBytes() + " Time: " + response.getTook() + " Bulk Requet Finished");
-            }
+            public void afterBulk(long executionId, BulkRequest request, BulkResponse response) { }
 
             @Override
             public void afterBulk(long executionId, BulkRequest request, Throwable failure) {
                 log.error("Bulk Request Failure: " + failure.getMessage() + " " + localGzipFilePath);
                 for(DocWriteRequest<?> req: request.requests()) {
                     IndexRequest idxreq = (IndexRequest)req;
-                    bulkProcessor.add(idxreq);
+                    bulkProcessor1.add(idxreq);
                 }
                 log.error("Finished Adding requests to Queue:");
             }
-        };
+        });
         
-        log.info("Creating Bulk Processor");
-        builder = BulkProcessor.builder((request, bulkListener) -> client.bulkAsync(request, RequestOptions.DEFAULT, bulkListener), listener);
-        //builder.setBulkActions(-1);
-        builder.setBulkActions(100000);
-        builder.setConcurrentRequests(VariantConfigHelper.getJsonIndexerEsBulkConcurrentRequests());
-        builder.setBulkSize(new ByteSizeValue(VariantConfigHelper.getJsonIndexerEsBulkSizeMB(), ByteSizeUnit.MB));
-        //builder.setFlushInterval(TimeValue.timeValueSeconds(180L));
-        builder.setBackoffPolicy(BackoffPolicy.exponentialBackoff(TimeValue.timeValueSeconds(1L), 60));
+        log.info("Creating Bulk Processor 10K - 75K");
+        builder2 = BulkProcessor.builder((request, bulkListener) -> client.bulkAsync(request, RequestOptions.DEFAULT, bulkListener), new BulkProcessor.Listener() { 
+            @Override
+            public void beforeBulk(long executionId, BulkRequest request) { }
+            @Override
+            public void afterBulk(long executionId, BulkRequest request, BulkResponse response) { }
 
-        bulkProcessor = builder.build();
+            @Override
+            public void afterBulk(long executionId, BulkRequest request, Throwable failure) {
+                log.error("Bulk Request Failure: " + failure.getMessage() + " " + localGzipFilePath);
+                for(DocWriteRequest<?> req: request.requests()) {
+                    IndexRequest idxreq = (IndexRequest)req;
+                    bulkProcessor2.add(idxreq);
+                }
+                log.error("Finished Adding requests to Queue:");
+            }
+        });
         
+        log.info("Creating Bulk Processor 75K - 100K");
+        builder3 = BulkProcessor.builder((request, bulkListener) -> client.bulkAsync(request, RequestOptions.DEFAULT, bulkListener), new BulkProcessor.Listener() { 
+            @Override
+            public void beforeBulk(long executionId, BulkRequest request) { }
+            @Override
+            public void afterBulk(long executionId, BulkRequest request, BulkResponse response) { }
+
+            @Override
+            public void afterBulk(long executionId, BulkRequest request, Throwable failure) {
+                log.error("Bulk Request Failure: " + failure.getMessage() + " " + localGzipFilePath);
+                for(DocWriteRequest<?> req: request.requests()) {
+                    IndexRequest idxreq = (IndexRequest)req;
+                    bulkProcessor3.add(idxreq);
+                }
+                log.error("Finished Adding requests to Queue:");
+            }
+        });
         
+        log.info("Creating Bulk Processor 100K - 200K");
+        builder4 = BulkProcessor.builder((request, bulkListener) -> client.bulkAsync(request, RequestOptions.DEFAULT, bulkListener), new BulkProcessor.Listener() { 
+            @Override
+            public void beforeBulk(long executionId, BulkRequest request) { }
+            @Override
+            public void afterBulk(long executionId, BulkRequest request, BulkResponse response) { }
+
+            @Override
+            public void afterBulk(long executionId, BulkRequest request, Throwable failure) {
+                log.error("Bulk Request Failure: " + failure.getMessage() + " " + localGzipFilePath);
+                for(DocWriteRequest<?> req: request.requests()) {
+                    IndexRequest idxreq = (IndexRequest)req;
+                    bulkProcessor4.add(idxreq);
+                }
+                log.error("Finished Adding requests to Queue:");
+            }
+        });
+
+        builder1.setBulkActions(1000);
+        builder1.setConcurrentRequests(10);
+        builder1.setBulkSize(new ByteSizeValue(10, ByteSizeUnit.MB));
+        builder1.setBackoffPolicy(BackoffPolicy.exponentialBackoff(TimeValue.timeValueSeconds(1L), 60));
+        bulkProcessor1 = builder1.build();
         
+        builder2.setBulkActions(133);
+        builder2.setConcurrentRequests(10);
+        builder2.setBulkSize(new ByteSizeValue(10, ByteSizeUnit.MB));
+        builder2.setBackoffPolicy(BackoffPolicy.exponentialBackoff(TimeValue.timeValueSeconds(1L), 60));
+        bulkProcessor2 = builder2.build();
+        
+        builder3.setBulkActions(100);
+        builder3.setConcurrentRequests(10);
+        builder3.setBulkSize(new ByteSizeValue(10, ByteSizeUnit.MB));
+        builder3.setBackoffPolicy(BackoffPolicy.exponentialBackoff(TimeValue.timeValueSeconds(1L), 60));
+        bulkProcessor3 = builder3.build();
+        
+        builder4.setBulkActions(50);
+        builder4.setConcurrentRequests(10);
+        builder4.setBulkSize(new ByteSizeValue(10, ByteSizeUnit.MB));
+        builder4.setBackoffPolicy(BackoffPolicy.exponentialBackoff(TimeValue.timeValueSeconds(1L), 60));
+        bulkProcessor4 = builder4.build();
         
         
         VCFReader reader = new VCFReader();
@@ -84,7 +155,7 @@ public class VCFDocumentCreator extends Thread {
         List<VCFTransformer> transformers = new ArrayList<>();
         
         for(int i = 0; i < VariantConfigHelper.getDocumentCreatorContextTransformerThreads(); i++) {
-            VCFTransformer transformer = new VCFTransformer(jsonQueue);
+            VCFTransformer transformer = new VCFTransformer();
             transformer.start();
             transformers.add(transformer);
         }
@@ -92,9 +163,10 @@ public class VCFDocumentCreator extends Thread {
         ArrayList<VCFJsonBulkIndexer> indexers = new ArrayList<>();
         
         for(int i = 0; i < VariantConfigHelper.getJsonIndexexBulkThreads(); i++) {
-            VCFJsonBulkIndexer indexer = new VCFJsonBulkIndexer();
-            indexer.start();
-            indexers.add(indexer);
+            VCFJsonBulkIndexer indexer1 = new VCFJsonBulkIndexer(jsonQueue1, bulkProcessor1); indexer1.start(); indexers.add(indexer1);
+            VCFJsonBulkIndexer indexer2 = new VCFJsonBulkIndexer(jsonQueue2, bulkProcessor2); indexer2.start(); indexers.add(indexer2);
+            VCFJsonBulkIndexer indexer3 = new VCFJsonBulkIndexer(jsonQueue3, bulkProcessor3); indexer3.start(); indexers.add(indexer3);
+            VCFJsonBulkIndexer indexer4 = new VCFJsonBulkIndexer(jsonQueue4, bulkProcessor4); indexer4.start(); indexers.add(indexer4);
         }
 
         try {
@@ -111,7 +183,7 @@ public class VCFDocumentCreator extends Thread {
             log.info("Transformers shutdown");
             
             log.info("Waiting for jsonQueue to empty");
-            while(!jsonQueue.isEmpty()) {
+            while(!(jsonQueue1.isEmpty() && jsonQueue2.isEmpty() && jsonQueue3.isEmpty() && jsonQueue4.isEmpty())) {
                 Thread.sleep(1000);
             }
             
@@ -155,11 +227,6 @@ public class VCFDocumentCreator extends Thread {
         
         VariantContextConverter converter = VariantContextConverter.getConverter(speciesType);
         private ProcessDisplayHelper ph2 = new ProcessDisplayHelper(log, VariantConfigHelper.getDocumentCreatorDisplayInterval());
-        private LinkedBlockingDeque<String> jsonQueue;
-        
-        public VCFTransformer(LinkedBlockingDeque<String> jsonQueue) {
-            this.jsonQueue = jsonQueue;
-        }
         
         public void run() {
             ph2.startProcess("VCFTransformer: " + speciesType.getName());
@@ -169,7 +236,15 @@ public class VCFDocumentCreator extends Thread {
                     List<String> docs = converter.convertVariantContext(ctx, speciesType);
                     for(String doc: docs) {
                         try {
-                            jsonQueue.put(doc);
+                            if(doc.length() < 10000) {
+                                jsonQueue1.put(doc);
+                            } else if(doc.length() < 75000) {
+                                jsonQueue2.put(doc);
+                            } else if(doc.length() < 100000) {
+                                jsonQueue3.put(doc);
+                            } else {
+                                jsonQueue4.put(doc);
+                            }
                             ph2.progressProcess("VCQueue: " + vcQueue.size());
                         } catch (InterruptedException e) {
                             e.printStackTrace();
@@ -185,6 +260,13 @@ public class VCFDocumentCreator extends Thread {
     
     private class VCFJsonBulkIndexer extends Thread {
         private ProcessDisplayHelper ph3 = new ProcessDisplayHelper(log, VariantConfigHelper.getDocumentCreatorDisplayInterval());
+        private LinkedBlockingDeque<String> jsonQueue;
+        private BulkProcessor bulkProcessor;
+        
+        public VCFJsonBulkIndexer(LinkedBlockingDeque<String> jsonQueue, BulkProcessor bulkProcessor) {
+            this.jsonQueue = jsonQueue;
+            this.bulkProcessor = bulkProcessor;
+        }
         
         public void run() {
             ph3.startProcess("VCFJsonIndexer: " + indexName);
