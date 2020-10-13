@@ -197,7 +197,12 @@ public class SourceDocumentCreation extends Thread {
         }
 
         try {
-
+            
+            log.info("Waiting for jsonQueue to empty");
+            while(!(jsonQueue1.isEmpty() && jsonQueue2.isEmpty() && jsonQueue3.isEmpty() && jsonQueue4.isEmpty())) {
+                Thread.sleep(1000);
+            }
+            
             log.info("Waiting for VCFReader's to finish");
             for(VCFReader r: readers) {
                 r.join();
@@ -206,14 +211,18 @@ public class SourceDocumentCreation extends Thread {
 
             log.info("Waiting for VC Queue to empty");
             while(!vcQueue.isEmpty()) {
-                Thread.sleep(1000);
+                Thread.sleep(15000);
             }
+            TimeUnit.SECONDS.sleep(15000);
             log.info("VC Queue Empty shuting down transformers");
+            
+            log.info("Shutting down transformers");
             for(VCFTransformer t: transformers) {
                 t.interrupt();
                 t.join();
             }
             log.info("Transformers shutdown");
+            
             ph2.finishProcess();
             
             log.info("Waiting for jsonQueue to empty");
@@ -284,7 +293,8 @@ public class SourceDocumentCreation extends Thread {
 
     private class VCFTransformer extends Thread {
 
-        VariantContextConverter converter = VariantContextConverter.getConverter(speciesType);
+        private VariantContextConverter converter = VariantContextConverter.getConverter(speciesType);
+
 
         public void run() {
             
