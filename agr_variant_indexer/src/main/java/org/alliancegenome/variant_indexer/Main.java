@@ -27,7 +27,6 @@ public class Main {
         
         boolean downloading = VariantConfigHelper.isDownloading();
         boolean creating = VariantConfigHelper.isCreating();
-        boolean indexing = VariantConfigHelper.isIndexing();
         
         try {
 
@@ -42,7 +41,7 @@ public class Main {
 
             if(creating) {
                 
-                IndexManager im = new IndexManager(new VariantIndexSettings(true, VariantConfigHelper.getJsonIndexerEsNumberOfShards()));
+                IndexManager im = new IndexManager(new VariantIndexSettings(true, VariantConfigHelper.getIndexerShards()));
                 
                 VCFDocumentCreator.indexName = im.startSiteIndex();
                 

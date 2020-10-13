@@ -38,7 +38,6 @@ public class VariantConfigHelper {
         
         defaults.put(VARIANT_CONFIG_DOWNLOAD, "true");
         defaults.put(VARIANT_CONFIG_CREATING, "true");
-        defaults.put(VARIANT_CONFIG_INDEXING, "true");
         
         defaults.put(VARIANT_FILE_DOWNLOAD_THREADS, "10");
         defaults.put(VARIANT_FILE_DOWNLOAD_FILTER_THREADS, "10");
@@ -46,18 +45,12 @@ public class VariantConfigHelper {
 
         defaults.put(VARIANT_DOCUMENT_CREATOR_THREADS, "6");
         defaults.put(VARIANT_DOCUMENT_CREATOR_CONTEXT_QUEUE_SIZE, "1000");
-        defaults.put(VARIANT_DOCUMENT_CREATOR_JSON_QUEUE_SIZE, "10000");
         defaults.put(VARIANT_DOCUMENT_CREATOR_CONTEXT_TRANSFORMER_THREADS, "4");
         defaults.put(VARIANT_DOCUMENT_CREATOR_DISPLAY_INTERVAL, "30");
+        defaults.put(VARIANT_DOCUMENT_CREATOR_SETTINGS, "1000;10;10;10000,133;10;10;1333,100;10;10;1000,50;10;10;500");
         
-        defaults.put(VARIANT_JSON_INDEXER_THREADS, "6");
-        defaults.put(VARIANT_JSON_INDEXER_ES_BULK_ACTION_SIZE, "1000"); // Max amount of documents in a bulk request target MB
-        defaults.put(VARIANT_JSON_INDEXER_ES_BULK_CONCURRENT_REQUESTS, "10"); // Amount of concurrent bulk requests running (target * 10) MB
-        defaults.put(VARIANT_JSON_INDEXER_JSON_QUEUE_SIZE, "10000");
-        defaults.put(VARIANT_JSON_INDEXER_BULK_THREADS, "4");
-        defaults.put(VARIANT_JSON_INDEXER_ES_BULK_SIZE_MB, "5"); // Max size of bulk request target
-        
-        defaults.put(VARIANT_JSON_INDEXER_ES_INDEX_NUMBER_OF_SHARDS, "8");
+        defaults.put(VARIANT_INDEXER_BULK_THREADS, "4");
+        defaults.put(VARIANT_INDEXER_SHARDS, "8");
 
         allKeys = defaults.keySet();
 
@@ -108,6 +101,28 @@ public class VariantConfigHelper {
         if (!init) init();
         return config.get(VARIANT_CONFIG_FILE);
     }
+    
+    public static int[][] getVariantDocumentCreatorSettingsArray() {
+        String settings = getVariantDocumentCreatorSettings();
+        String[] array = settings.split(",");
+        int[][] ret = new int[array.length][];
+        
+        for(int i = 0; i < array.length; i++) {
+            String[] array2 = array[i].split(";");
+            ret[i] = new int[array2.length];
+            for(int k = 0; k < array2.length; k++) {
+                ret[i][k] = Integer.parseInt(array2[k]);
+                System.out.println(" Value: " + ret[i][k]);
+            }
+        }
+        
+        return ret;
+    }
+    
+    public static String getVariantDocumentCreatorSettings() {
+        if (!init) init();
+        return config.get(VARIANT_DOCUMENT_CREATOR_SETTINGS);
+    }
 
     public static String getVariantFileDownloadPath() {
         if (!init) init();
@@ -120,7 +135,6 @@ public class VariantConfigHelper {
             log.info("\t" + key + ": " + config.get(key));
         }
     }
-    
 
     public static Boolean isDownloading() {
         if (!init) init();
@@ -130,51 +144,11 @@ public class VariantConfigHelper {
         if (!init) init();
         return Boolean.parseBoolean(config.get(VARIANT_CONFIG_CREATING));
     }
-    public static Boolean isIndexing() {
-        if (!init) init();
-        return Boolean.parseBoolean(config.get(VARIANT_CONFIG_INDEXING));
-    }
-    
-    public static Integer getJsonIndexerThreads() {
-        if (!init) init();
-        try {
-            return Integer.parseInt(config.get(VARIANT_JSON_INDEXER_THREADS));
-        } catch (NumberFormatException e) {
-            return 2;
-        }
-    }
-    
-    public static Integer getJsonIndexerEsBulkActionSize() {
-        if (!init) init();
-        try {
-            return Integer.parseInt(config.get(VARIANT_JSON_INDEXER_ES_BULK_ACTION_SIZE));
-        } catch (NumberFormatException e) {
-            return 2500;
-        }
-    }
 
-    public static Integer getJsonIndexerEsBulkConcurrentRequests() {
+    public static Integer getIndexerShards() {
         if (!init) init();
         try {
-            return Integer.parseInt(config.get(VARIANT_JSON_INDEXER_ES_BULK_CONCURRENT_REQUESTS));
-        } catch (NumberFormatException e) {
-            return 3;
-        }
-    }
-
-    public static Integer getJsonIndexerEsBulkSizeMB() {
-        if (!init) init();
-        try {
-            return Integer.parseInt(config.get(VARIANT_JSON_INDEXER_ES_BULK_SIZE_MB));
-        } catch (NumberFormatException e) {
-            return 50;
-        }
-    }
-
-    public static Integer getJsonIndexerEsNumberOfShards() {
-        if (!init) init();
-        try {
-            return Integer.parseInt(config.get(VARIANT_JSON_INDEXER_ES_INDEX_NUMBER_OF_SHARDS));
+            return Integer.parseInt(config.get(VARIANT_INDEXER_SHARDS));
         } catch (NumberFormatException e) {
             return 4;
         }
@@ -222,14 +196,7 @@ public class VariantConfigHelper {
             return 10000;
         }
     }
-    public static Integer getDocumentCreatorJsonQueueSize() {
-        if (!init) init();
-        try {
-            return Integer.parseInt(config.get(VARIANT_DOCUMENT_CREATOR_JSON_QUEUE_SIZE));
-        } catch (NumberFormatException e) {
-            return 10000;
-        }
-    }
+    
     public static int getDocumentCreatorContextTransformerThreads() {
         if (!init) init();
         try {
@@ -239,19 +206,10 @@ public class VariantConfigHelper {
         }
     }
 
-    public static int getJsonIndexerJsonQueueSize() {
+    public static int getIndexexBulkThreads() {
         if (!init) init();
         try {
-            return Integer.parseInt(config.get(VARIANT_JSON_INDEXER_JSON_QUEUE_SIZE));
-        } catch (NumberFormatException e) {
-            return 10000;
-        }
-    }
-
-    public static int getJsonIndexexBulkThreads() {
-        if (!init) init();
-        try {
-            return Integer.parseInt(config.get(VARIANT_JSON_INDEXER_BULK_THREADS));
+            return Integer.parseInt(config.get(VARIANT_INDEXER_BULK_THREADS));
         } catch (NumberFormatException e) {
             return 4;
         }
