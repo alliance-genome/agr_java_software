@@ -43,9 +43,9 @@ public class Main {
                 
                 IndexManager im = new IndexManager(new VariantIndexSettings(true, VariantConfigHelper.getIndexerShards()));
                 
-                VCFDocumentCreator.indexName = im.startSiteIndex();
+                SourceDocumentCreation.indexName = im.startSiteIndex();
                 
-                VCFDocumentCreationManager vdm = new VCFDocumentCreationManager(downloadSet);
+                SourceDocumentCreationManager vdm = new SourceDocumentCreationManager(downloadSet);
                 vdm.start();
                 vdm.join();
                 

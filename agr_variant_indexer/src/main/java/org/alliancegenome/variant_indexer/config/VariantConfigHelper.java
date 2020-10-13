@@ -42,15 +42,19 @@ public class VariantConfigHelper {
         defaults.put(VARIANT_FILE_DOWNLOAD_THREADS, "10");
         defaults.put(VARIANT_FILE_DOWNLOAD_FILTER_THREADS, "10");
         defaults.put(VARIANT_FILE_DOWNLOAD_PATH, "data");
-
-        defaults.put(VARIANT_DOCUMENT_CREATOR_THREADS, "6");
-        defaults.put(VARIANT_DOCUMENT_CREATOR_CONTEXT_QUEUE_SIZE, "1000");
-        defaults.put(VARIANT_DOCUMENT_CREATOR_CONTEXT_TRANSFORMER_THREADS, "4");
-        defaults.put(VARIANT_DOCUMENT_CREATOR_DISPLAY_INTERVAL, "30");
-        defaults.put(VARIANT_DOCUMENT_CREATOR_SETTINGS, "1000;10;10;10000,133;10;10;1333,100;10;10;1000,50;10;10;500");
         
-        defaults.put(VARIANT_INDEXER_BULK_THREADS, "4");
-        defaults.put(VARIANT_INDEXER_SHARDS, "8");
+        defaults.put(VARIANT_DISPLAY_INTERVAL, "30");
+        
+        defaults.put(VARIANT_SOURCE_DOCUMENT_CREATOR_THREADS, "1");
+        defaults.put(VARIANT_SOURCE_DOCUMENT_CREATOR_VCQUEUE_SIZE, "100");
+        defaults.put(VARIANT_SOURCE_DOCUMENT_CREATOR_VCQUEUE_BUCKET_SIZE, "100");
+        
+        defaults.put(VARIANT_TRANSFORMER_THREADS, "8");
+        
+        defaults.put(VARIANT_INDEXER_SHARDS, "16");
+        defaults.put(VARIANT_INDEXER_BULK_PROCESSOR_THREADS, "8");
+        
+        defaults.put(VARIANT_DOCUMENT_CREATOR_SETTINGS, "1000;10;10;10000,133;10;10;1333,100;10;10;1000,50;10;10;500");
 
         allKeys = defaults.keySet();
 
@@ -172,44 +176,53 @@ public class VariantConfigHelper {
         }
     }
 
-    public static Integer getDocumentCreatorThreads() {
+    public static Integer getSourceDocumentCreatorThreads() {
         if (!init) init();
         try {
-            return Integer.parseInt(config.get(VARIANT_DOCUMENT_CREATOR_THREADS));
+            return Integer.parseInt(config.get(VARIANT_SOURCE_DOCUMENT_CREATOR_THREADS));
         } catch (NumberFormatException e) {
             return 4;
         }
     }
-    public static Integer getDocumentCreatorDisplayInterval() {
+    public static Integer getDisplayInterval() {
         if (!init) init();
         try {
-            return Integer.parseInt(config.get(VARIANT_DOCUMENT_CREATOR_DISPLAY_INTERVAL)) * 1000;
+            return Integer.parseInt(config.get(VARIANT_DISPLAY_INTERVAL)) * 1000;
         } catch (NumberFormatException e) {
             return 4000;
         }
     }
-    public static Integer getDocumentCreatorContextQueueSize() {
+    public static Integer getSourceDocumentCreatorVCQueueSize() {
         if (!init) init();
         try {
-            return Integer.parseInt(config.get(VARIANT_DOCUMENT_CREATOR_CONTEXT_QUEUE_SIZE));
+            return Integer.parseInt(config.get(VARIANT_SOURCE_DOCUMENT_CREATOR_VCQUEUE_SIZE));
         } catch (NumberFormatException e) {
-            return 10000;
+            return 100;
         }
     }
     
-    public static int getDocumentCreatorContextTransformerThreads() {
+    public static int getSourceDocumentCreatorVCQueueBucketSize() {
         if (!init) init();
         try {
-            return Integer.parseInt(config.get(VARIANT_DOCUMENT_CREATOR_CONTEXT_TRANSFORMER_THREADS));
+            return Integer.parseInt(config.get(VARIANT_SOURCE_DOCUMENT_CREATOR_VCQUEUE_BUCKET_SIZE));
         } catch (NumberFormatException e) {
-            return 4;
+            return 100;
         }
     }
-
-    public static int getIndexexBulkThreads() {
+    
+    public static int getIndexerBulkProcessorThreads() {
         if (!init) init();
         try {
-            return Integer.parseInt(config.get(VARIANT_INDEXER_BULK_THREADS));
+            return Integer.parseInt(config.get(VARIANT_INDEXER_BULK_PROCESSOR_THREADS));
+        } catch (NumberFormatException e) {
+            return 16;
+        }
+    }
+    
+    public static int getTransformerThreads() {
+        if (!init) init();
+        try {
+            return Integer.parseInt(config.get(VARIANT_TRANSFORMER_THREADS));
         } catch (NumberFormatException e) {
             return 4;
         }
