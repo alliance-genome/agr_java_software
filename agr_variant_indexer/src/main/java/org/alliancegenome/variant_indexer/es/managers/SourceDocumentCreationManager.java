@@ -9,11 +9,11 @@ import org.alliancegenome.variant_indexer.filedownload.model.*;
 import lombok.extern.log4j.Log4j2;
 
 @Log4j2
-public class VCFDocumentCreationManager extends Thread {
+public class SourceDocumentCreationManager extends Thread {
 
     private DownloadFileSet downloadSet;
 
-    public VCFDocumentCreationManager(DownloadFileSet downloadSet) {
+    public SourceDocumentCreationManager(DownloadFileSet downloadSet) {
         this.downloadSet = downloadSet;
     }
 
@@ -21,21 +21,19 @@ public class VCFDocumentCreationManager extends Thread {
 
         try {
             
-            ExecutorService executor = Executors.newFixedThreadPool(VariantConfigHelper.getDocumentCreatorThreads());
+            ExecutorService executor = Executors.newFixedThreadPool(VariantConfigHelper.getSourceDocumentCreatorThreads());
 
             for(DownloadSource source: downloadSet.getDownloadFileSet()) {
-                for(DownloadableFile df: source.getFileList()) {
-                    VCFDocumentCreator creator = new VCFDocumentCreator(df, SpeciesType.getTypeByID(source.getTaxonId()));
-                    executor.execute(creator);
-                }
+                SourceDocumentCreation creator = new SourceDocumentCreation(source);
+                executor.execute(creator);
             }
             
-            log.info("VCFDocumentCreationManager shuting down executor: ");
+            log.info("SourceDocumentCreationManager shuting down executor: ");
             executor.shutdown();  
             while (!executor.isTerminated()) {
                 Thread.sleep(1000);
             }
-            log.info("VCFDocumentCreationManager executor shut down: ");
+            log.info("SourceDocumentCreationManager executor shut down: ");
             
         } catch (Exception e) {
             e.printStackTrace();
