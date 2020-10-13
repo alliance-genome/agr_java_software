@@ -112,7 +112,7 @@ public class VariantConfigHelper {
             ret[i] = new int[array2.length];
             for(int k = 0; k < array2.length; k++) {
                 ret[i][k] = Integer.parseInt(array2[k]);
-                System.out.println(" Value: " + ret[i][k]);
+                log.debug("ret[" + i + "][" + k + "]=" + ret[i][k]);
             }
         }
         
