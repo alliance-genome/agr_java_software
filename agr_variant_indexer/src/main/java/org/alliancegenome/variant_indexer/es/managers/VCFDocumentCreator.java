@@ -40,17 +40,25 @@ public class VCFDocumentCreator extends Thread {
     private RestHighLevelClient client = EsClientFactory.getDefaultEsClient();
     
     private LinkedBlockingDeque<VariantContext> vcQueue = new LinkedBlockingDeque<VariantContext>(VariantConfigHelper.getDocumentCreatorContextQueueSize());
-    private LinkedBlockingDeque<String> jsonQueue1 = new LinkedBlockingDeque<String>(10000); // Max 10K * 10K = 100M
-    private LinkedBlockingDeque<String> jsonQueue2 = new LinkedBlockingDeque<String>(1333); // Max 75K * 1333 = 100M
-    private LinkedBlockingDeque<String> jsonQueue3 = new LinkedBlockingDeque<String>(1000); // Max 100K * 1000 = 100M
-    private LinkedBlockingDeque<String> jsonQueue4 = new LinkedBlockingDeque<String>(500); // Max 200K * 500 = 100M if documents are larger then we might need to split this down more
-
+    private LinkedBlockingDeque<String> jsonQueue1;
+    private LinkedBlockingDeque<String> jsonQueue2;
+    private LinkedBlockingDeque<String> jsonQueue3;
+    private LinkedBlockingDeque<String> jsonQueue4;
+    
     public VCFDocumentCreator(DownloadableFile downloadFile, SpeciesType speciesType) {
         this.localGzipFilePath = downloadFile.getLocalGzipFilePath();
         this.speciesType = speciesType;
     }
     
     public void run() {
+        
+        int[][] settings = VariantConfigHelper.getVariantDocumentCreatorSettingsArray();
+        
+        jsonQueue1 = new LinkedBlockingDeque<String>(settings[0][3]); // Max 10K * 10K = 100M
+        jsonQueue2 = new LinkedBlockingDeque<String>(settings[1][3]); // Max 75K * 1333 = 100M
+        jsonQueue3 = new LinkedBlockingDeque<String>(settings[2][3]); // Max 100K * 1000 = 100M
+        jsonQueue4 = new LinkedBlockingDeque<String>(settings[3][3]); // Max 200K * 500 = 100M if documents are larger then we might need to split this down more
+        
         
         log.info("Creating Bulk Processor 0 - 10K");
         builder1 = BulkProcessor.builder((request, bulkListener) -> client.bulkAsync(request, RequestOptions.DEFAULT, bulkListener), new BulkProcessor.Listener() { 
@@ -124,27 +132,27 @@ public class VCFDocumentCreator extends Thread {
             }
         });
 
-        builder1.setBulkActions(1000);
-        builder1.setConcurrentRequests(10);
-        builder1.setBulkSize(new ByteSizeValue(10, ByteSizeUnit.MB));
+        builder1.setBulkActions(settings[0][0]);
+        builder1.setConcurrentRequests(settings[0][1]);
+        builder1.setBulkSize(new ByteSizeValue(settings[0][2], ByteSizeUnit.MB));
         builder1.setBackoffPolicy(BackoffPolicy.exponentialBackoff(TimeValue.timeValueSeconds(1L), 60));
         bulkProcessor1 = builder1.build();
         
-        builder2.setBulkActions(133);
-        builder2.setConcurrentRequests(10);
-        builder2.setBulkSize(new ByteSizeValue(10, ByteSizeUnit.MB));
+        builder2.setBulkActions(settings[1][0]);
+        builder2.setConcurrentRequests(settings[1][1]);
+        builder2.setBulkSize(new ByteSizeValue(settings[1][2], ByteSizeUnit.MB));
         builder2.setBackoffPolicy(BackoffPolicy.exponentialBackoff(TimeValue.timeValueSeconds(1L), 60));
         bulkProcessor2 = builder2.build();
         
-        builder3.setBulkActions(100);
-        builder3.setConcurrentRequests(10);
-        builder3.setBulkSize(new ByteSizeValue(10, ByteSizeUnit.MB));
+        builder3.setBulkActions(settings[2][0]);
+        builder3.setConcurrentRequests(settings[2][1]);
+        builder3.setBulkSize(new ByteSizeValue(settings[2][2], ByteSizeUnit.MB));
         builder3.setBackoffPolicy(BackoffPolicy.exponentialBackoff(TimeValue.timeValueSeconds(1L), 60));
         bulkProcessor3 = builder3.build();
         
-        builder4.setBulkActions(50);
-        builder4.setConcurrentRequests(10);
-        builder4.setBulkSize(new ByteSizeValue(10, ByteSizeUnit.MB));
+        builder4.setBulkActions(settings[3][0]);
+        builder4.setConcurrentRequests(settings[3][1]);
+        builder4.setBulkSize(new ByteSizeValue(settings[3][2], ByteSizeUnit.MB));
         builder4.setBackoffPolicy(BackoffPolicy.exponentialBackoff(TimeValue.timeValueSeconds(1L), 60));
         bulkProcessor4 = builder4.build();
         
@@ -162,7 +170,7 @@ public class VCFDocumentCreator extends Thread {
         
         ArrayList<VCFJsonBulkIndexer> indexers = new ArrayList<>();
         
-        for(int i = 0; i < VariantConfigHelper.getJsonIndexexBulkThreads(); i++) {
+        for(int i = 0; i < VariantConfigHelper.getIndexexBulkThreads(); i++) {
             VCFJsonBulkIndexer indexer1 = new VCFJsonBulkIndexer(jsonQueue1, bulkProcessor1); indexer1.start(); indexers.add(indexer1);
             VCFJsonBulkIndexer indexer2 = new VCFJsonBulkIndexer(jsonQueue2, bulkProcessor2); indexer2.start(); indexers.add(indexer2);
             VCFJsonBulkIndexer indexer3 = new VCFJsonBulkIndexer(jsonQueue3, bulkProcessor3); indexer3.start(); indexers.add(indexer3);
