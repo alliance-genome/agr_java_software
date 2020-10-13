@@ -53,7 +53,7 @@ public class SourceDocumentCreation extends Thread {
 
     public void run() {
 
-        int[][] settings = VariantConfigHelper.getVariantDocumentCreatorSettingsArray();
+        int[][] settings = VariantConfigHelper.getBulkProcessorSettingsArray();
 
         jsonQueue1 = new LinkedBlockingDeque<List<String>>(settings[0][3]); // Max 10K * 10K = 100M
         jsonQueue2 = new LinkedBlockingDeque<List<String>>(settings[1][3]); // Max 75K * 1333 = 100M
