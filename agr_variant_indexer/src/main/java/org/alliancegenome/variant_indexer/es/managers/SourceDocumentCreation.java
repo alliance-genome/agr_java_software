@@ -46,6 +46,11 @@ public class SourceDocumentCreation extends Thread {
     private LinkedBlockingDeque<List<String>> jsonQueue3;
     private LinkedBlockingDeque<List<String>> jsonQueue4;
 
+    private ProcessDisplayHelper ph1 = new ProcessDisplayHelper(log, VariantConfigHelper.getDisplayInterval());
+    private ProcessDisplayHelper ph2 = new ProcessDisplayHelper(log, VariantConfigHelper.getDisplayInterval());
+    private ProcessDisplayHelper ph3 = new ProcessDisplayHelper(log, VariantConfigHelper.getDisplayInterval());
+    private ProcessDisplayHelper ph4 = new ProcessDisplayHelper(log, VariantConfigHelper.getDisplayInterval());
+    
     public SourceDocumentCreation(DownloadSource source) {
         this.source = source;
         speciesType = SpeciesType.getTypeByID(source.getTaxonId());
@@ -162,6 +167,7 @@ public class SourceDocumentCreation extends Thread {
         builder4.setBackoffPolicy(BackoffPolicy.exponentialBackoff(TimeValue.timeValueSeconds(1L), 60));
         bulkProcessor4 = builder4.build();
 
+        ph1.startProcess("VCFReader Readers: ");
         List<VCFReader> readers = new ArrayList<VCFReader>();
         for(DownloadableFile df: source.getFileList()) {
             VCFReader reader = new VCFReader(df);
@@ -170,15 +176,19 @@ public class SourceDocumentCreation extends Thread {
         }
 
         List<VCFTransformer> transformers = new ArrayList<>();
-
+        ph2.startProcess("VCFTransformers: " + speciesType.getName());
         for(int i = 0; i < VariantConfigHelper.getTransformerThreads(); i++) {
             VCFTransformer transformer = new VCFTransformer();
             transformer.start();
             transformers.add(transformer);
         }
+        
+
 
         ArrayList<VCFJsonBulkIndexer> indexers = new ArrayList<>();
-
+        
+        ph3.startProcess("VCFJsonIndexer BulkProcessor: " + indexName);
+        ph4.startProcess("VCFJsonIndexer Buckets: " + indexName);
         for(int i = 0; i < VariantConfigHelper.getIndexerBulkProcessorThreads(); i++) {
             VCFJsonBulkIndexer indexer1 = new VCFJsonBulkIndexer(jsonQueue1, bulkProcessor1); indexer1.start(); indexers.add(indexer1);
             VCFJsonBulkIndexer indexer2 = new VCFJsonBulkIndexer(jsonQueue2, bulkProcessor2); indexer2.start(); indexers.add(indexer2);
@@ -192,6 +202,7 @@ public class SourceDocumentCreation extends Thread {
             for(VCFReader r: readers) {
                 r.join();
             }
+            ph1.finishProcess();
 
             log.info("Waiting for VC Queue to empty");
             while(!vcQueue.isEmpty()) {
@@ -203,7 +214,8 @@ public class SourceDocumentCreation extends Thread {
                 t.join();
             }
             log.info("Transformers shutdown");
-
+            ph2.finishProcess();
+            
             log.info("Waiting for jsonQueue to empty");
             while(!(jsonQueue1.isEmpty() && jsonQueue2.isEmpty() && jsonQueue3.isEmpty() && jsonQueue4.isEmpty())) {
                 Thread.sleep(1000);
@@ -215,6 +227,8 @@ public class SourceDocumentCreation extends Thread {
                 indexer.join();
             }
             log.info("Bulk Indexers shutdown");
+            ph3.finishProcess();
+            ph4.finishProcess();
 
             log.info("Threads finished: ");
         } catch (InterruptedException e) {
@@ -225,7 +239,6 @@ public class SourceDocumentCreation extends Thread {
 
     private class VCFReader extends Thread {
 
-        private ProcessDisplayHelper ph1 = new ProcessDisplayHelper(log, VariantConfigHelper.getDisplayInterval());
         private DownloadableFile df;
 
         public VCFReader(DownloadableFile df) {
@@ -233,7 +246,7 @@ public class SourceDocumentCreation extends Thread {
         }
 
         public void run() {
-            ph1.startProcess("VCFReader: " + df.getLocalGzipFilePath());
+            
             VCFFileReader reader = new VCFFileReader(new File(df.getLocalGzipFilePath()), false);
             CloseableIterator<VariantContext> iter1 = reader.iterator();
             try {
@@ -255,17 +268,15 @@ public class SourceDocumentCreation extends Thread {
                 e.printStackTrace();
             }
             reader.close();
-            ph1.finishProcess();
         }
     }
 
     private class VCFTransformer extends Thread {
 
         VariantContextConverter converter = VariantContextConverter.getConverter(speciesType);
-        private ProcessDisplayHelper ph2 = new ProcessDisplayHelper(log, VariantConfigHelper.getDisplayInterval());
 
         public void run() {
-            ph2.startProcess("VCFTransformer: " + speciesType.getName());
+            
             while(!(Thread.currentThread().isInterrupted())) {
                 try {
                     List<VariantContext> ctxList = vcQueue.take();
@@ -305,12 +316,10 @@ public class SourceDocumentCreation extends Thread {
                     Thread.currentThread().interrupt();
                 }
             }
-            ph2.finishProcess();
         }
     }
 
     private class VCFJsonBulkIndexer extends Thread {
-        private ProcessDisplayHelper ph3 = new ProcessDisplayHelper(log, VariantConfigHelper.getDisplayInterval());
         private LinkedBlockingDeque<List<String>> jsonQueue;
         private BulkProcessor bulkProcessor;
 
@@ -320,19 +329,18 @@ public class SourceDocumentCreation extends Thread {
         }
 
         public void run() {
-            ph3.startProcess("VCFJsonIndexer: " + indexName);
             while(!(Thread.currentThread().isInterrupted())) {
                 try {
                     List<String> docs = jsonQueue.take();
                     for(String doc: docs) {
                         bulkProcessor.add(new IndexRequest(indexName).source(doc, XContentType.JSON));
+                        ph3.progressProcess();
                     }
-                    ph3.progressProcess("JSon Queue: " + jsonQueue.size());
+                    ph4.progressProcess("JSon Queue: " + jsonQueue.size());
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
             }
-            ph3.finishProcess();
         }
     }
 
