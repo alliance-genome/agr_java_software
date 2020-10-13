@@ -3,7 +3,7 @@ package org.alliancegenome.agr_elasticsearch_util.commands.index;
 import java.util.*;
 
 import org.alliancegenome.agr_elasticsearch_util.commands.*;
-import org.elasticsearch.cluster.metadata.RepositoryMetaData;
+import org.elasticsearch.cluster.metadata.*;
 import org.elasticsearch.snapshots.SnapshotInfo;
 
 public class SnapShotCommand extends Command implements CommandInterface {
@@ -113,7 +113,7 @@ public class SnapShotCommand extends Command implements CommandInterface {
                 }
             } else if(command.equals("logstash")) {
                 boolean logsFound = false;
-                for(RepositoryMetaData repo: im.listRepos()) {
+                for(RepositoryMetadata repo: im.listRepos()) {
                     if(repo.name().equals("logs")) {
                         logsFound = true;
                         break;
