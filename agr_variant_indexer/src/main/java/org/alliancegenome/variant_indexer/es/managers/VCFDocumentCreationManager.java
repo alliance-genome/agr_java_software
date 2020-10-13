@@ -4,10 +4,7 @@ import java.util.concurrent.*;
 
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.variant_indexer.config.VariantConfigHelper;
-import org.alliancegenome.variant_indexer.filedownload.model.DownloadFileSet;
-import org.alliancegenome.variant_indexer.filedownload.model.DownloadSource;
-import org.alliancegenome.variant_indexer.filedownload.model.DownloadableFile;
-import org.elasticsearch.action.bulk.BulkRequest;
+import org.alliancegenome.variant_indexer.filedownload.model.*;
 
 import lombok.extern.log4j.Log4j2;
 
