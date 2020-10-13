@@ -2,7 +2,7 @@ package org.alliancegenome.variant_indexer.es.managers;
 
 import java.io.File;
 import java.util.*;
-import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.*;
 
 import org.alliancegenome.es.util.*;
 import org.alliancegenome.neo4j.entity.SpeciesType;
@@ -221,6 +221,17 @@ public class SourceDocumentCreation extends Thread {
                 Thread.sleep(1000);
             }
 
+            log.info("Waiting for bulk processors to finish");
+            bulkProcessor1.flush();
+            bulkProcessor1.awaitClose(10, TimeUnit.DAYS);
+            bulkProcessor2.flush();
+            bulkProcessor2.awaitClose(10, TimeUnit.DAYS);
+            bulkProcessor3.flush();
+            bulkProcessor3.awaitClose(10, TimeUnit.DAYS);
+            bulkProcessor4.flush();
+            bulkProcessor4.awaitClose(10, TimeUnit.DAYS);
+            log.info("Bulk Processors finished");
+            
             log.info("JSon Queue Empty shuting down bulk indexers");
             for(VCFJsonBulkIndexer indexer: indexers) {
                 indexer.interrupt();
