@@ -63,6 +63,6 @@ public class Constants {
     // Variant Indexer 
     public static final String VARIANT_INDEXER_SHARDS = "VARIANT_INDEXER_SHARDS";
     public static final String VARIANT_INDEXER_BULK_PROCESSOR_THREADS = "VARIANT_INDEXER_BULK_PROCESSOR_THREADS";
-    public static final String VARIANT_DOCUMENT_CREATOR_SETTINGS = "VARIANT_DOCUMENT_CREATOR_SETTINGS";
+    public static final String VARIANT_BULK_PROCESSOR_SETTINGS = "VARIANT_BULK_PROCESSOR_SETTINGS";
 
 }

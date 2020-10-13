@@ -54,7 +54,7 @@ public class VariantConfigHelper {
         defaults.put(VARIANT_INDEXER_SHARDS, "16");
         defaults.put(VARIANT_INDEXER_BULK_PROCESSOR_THREADS, "8");
         
-        defaults.put(VARIANT_DOCUMENT_CREATOR_SETTINGS, "1000;10;10;10000,133;10;10;1333,100;10;10;1000,50;10;10;500");
+        defaults.put(VARIANT_BULK_PROCESSOR_SETTINGS, "1000;10;10;10000,133;10;10;1333,100;10;10;1000,50;10;10;500");
 
         allKeys = defaults.keySet();
 
@@ -106,8 +106,8 @@ public class VariantConfigHelper {
         return config.get(VARIANT_CONFIG_FILE);
     }
     
-    public static int[][] getVariantDocumentCreatorSettingsArray() {
-        String settings = getVariantDocumentCreatorSettings();
+    public static int[][] getBulkProcessorSettingsArray() {
+        String settings = getBulkProcessorSettings();
         String[] array = settings.split(",");
         int[][] ret = new int[array.length][];
         
@@ -123,9 +123,9 @@ public class VariantConfigHelper {
         return ret;
     }
     
-    public static String getVariantDocumentCreatorSettings() {
+    public static String getBulkProcessorSettings() {
         if (!init) init();
-        return config.get(VARIANT_DOCUMENT_CREATOR_SETTINGS);
+        return config.get(VARIANT_BULK_PROCESSOR_SETTINGS);
     }
 
     public static String getVariantFileDownloadPath() {
