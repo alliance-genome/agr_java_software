@@ -213,7 +213,7 @@ public class SourceDocumentCreation extends Thread {
             while(!vcQueue.isEmpty()) {
                 Thread.sleep(15000);
             }
-            TimeUnit.SECONDS.sleep(15000);
+            TimeUnit.MILLISECONDS.sleep(15000);
             log.info("VC Queue Empty shuting down transformers");
             
             log.info("Shutting down transformers");
