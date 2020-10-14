@@ -1,25 +1,6 @@
 downloadPath: ""
 
 downloadFileSet:
-  - source: WB
-    species: CELEGANS
-    taxonId: "NCBITaxon:6239"
-    fileList:
-      - chromosome: I
-        url: https://download.alliancegenome.org/variants/wb/WB.vep.chrI.vcf.gz
-      - chromosome: II
-        url: https://download.alliancegenome.org/variants/wb/WB.vep.chrII.vcf.gz
-      - chromosome: III
-        url: https://download.alliancegenome.org/variants/wb/WB.vep.chrIII.vcf.gz
-      - chromosome: IV
-        url: https://download.alliancegenome.org/variants/wb/WB.vep.chrIV.vcf.gz
-      - chromosome: V
-        url: https://download.alliancegenome.org/variants/wb/WB.vep.chrV.vcf.gz
-      - chromosome: X
-        url: https://download.alliancegenome.org/variants/wb/WB.vep.chrX.vcf.gz
-      - chromosome: MtDNA
-        url: https://download.alliancegenome.org/variants/wb/WB.vep.chrMtDNA.vcf.gz
-
   - source: RGD
     species: RAT
     taxonId: "NCBITaxon:10116"
@@ -140,3 +121,22 @@ downloadFileSet:
         url: https://download.alliancegenome.org/variants/human/HUMAN.v2.vep.chrX.vcf.gz
       - chromosome: Y
         url: https://download.alliancegenome.org/variants/human/HUMAN.v2.vep.chrY.vcf.gz
+          
+  - source: WB
+    species: CELEGANS
+    taxonId: "NCBITaxon:6239"
+    fileList:
+      - chromosome: I
+        url: https://download.alliancegenome.org/variants/wb/WB.vep.chrI.vcf.gz
+      - chromosome: II
+        url: https://download.alliancegenome.org/variants/wb/WB.vep.chrII.vcf.gz
+      - chromosome: III
+        url: https://download.alliancegenome.org/variants/wb/WB.vep.chrIII.vcf.gz
+      - chromosome: IV
+        url: https://download.alliancegenome.org/variants/wb/WB.vep.chrIV.vcf.gz
+      - chromosome: V
+        url: https://download.alliancegenome.org/variants/wb/WB.vep.chrV.vcf.gz
+      - chromosome: X
+        url: https://download.alliancegenome.org/variants/wb/WB.vep.chrX.vcf.gz
+      - chromosome: MtDNA
+        url: https://download.alliancegenome.org/variants/wb/WB.vep.chrMtDNA.vcf.gz
