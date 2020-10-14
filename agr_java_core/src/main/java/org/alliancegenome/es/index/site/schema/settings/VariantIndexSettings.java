@@ -20,7 +20,7 @@ public class VariantIndexSettings extends Settings {
             .startObject("index")
                 .field("number_of_replicas", "0")
                 .field("refresh_interval", "-1")
-                .field("number_of_shards", "" + shardCount);
+                .field("number_of_shards", "" + shardCount)
                 //.field("merge.scheduler.auto_throttle", "false")
                 //.field("merge.scheduler.max_merge_count", "10")
                 //.field("merge.scheduler.max_thread_count", "10")
