@@ -421,7 +421,7 @@ public interface DiseaseRESTInterface {
 
     @GET
     @Path("/annotation/download")
-    @Operation(summary = "Download all disease annotations of a given set of species")
+    @Operation(summary = "Download all disease annotations of a given set of species", hidden = true)
     Response getDiseaseAnnotationsBySpeciesDownload(
             @Parameter(in = ParameterIn.PATH, name = "species", description = "Species by ID", required = true)
             @QueryParam("species") List<String> species,
