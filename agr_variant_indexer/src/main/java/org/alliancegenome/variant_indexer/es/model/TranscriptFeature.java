@@ -1,49 +1,45 @@
 package org.alliancegenome.variant_indexer.es.model;
 
-import java.util.List;
+import java.lang.reflect.*;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Getter @Setter
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class TranscriptFeature {
-    private String feature;
-    private String consequence;
-    private String featureType;
     private String allele;
-    private String aminoAcids;
-    private String sift;
-    private String polyphen;
-    private String varPep;
-    private List<VariantEffect> variantEffects;
-    private String impact;
+    private String consequence;
     private String symbol;
     private String gene;
+    private String featureType;
+    private String feature;
     private String biotype;
     private String exon;
     private String intron;
-    private String HGVSg;
-    private String HGVSp;
-    private String HGVSc;
-    private String cDNAPosition;
-    private String CDSPosition;
+    private String hgvsc;
+    private String hgvsp;
+    private String hgvsg;
+    private String impact;
+    private String cdnaPosition;
+    private String cdsPosition;
     private String proteinPosition;
-    private String codon;
+    private String aminoAcids;
+    private String codons;
     private String existingVariation;
     private String distance;
     private String strand;
     private String flags;
     private String symbolSource;
-    private String HGNCId;
+    private String hgncId;
     private String source;
-    private String HGVSOffset;
-//REFSEQ_MATCH|SOURCE|REFSEQ_OFFSET|GIVEN_REF|USED_REF|BAM_EDIT
-    private String RefSeqMatch;
-    private String refSeqOffset;
+    private String refseqMatch;
+    private String refseqOffset;
     private String givenRef;
     private String usedRef;
-    private String BAMEdit;
+    private String bamEdit;
+    private String sift;
+    private String polyphen;
+    private String hgvsOffset;
 }

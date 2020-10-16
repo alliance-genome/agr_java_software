@@ -8,6 +8,7 @@ import org.alliancegenome.es.util.*;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.variant_indexer.config.VariantConfigHelper;
 import org.alliancegenome.variant_indexer.converters.VariantContextConverter;
+import org.alliancegenome.variant_indexer.es.model.VariantDocument;
 import org.alliancegenome.variant_indexer.filedownload.model.*;
 import org.elasticsearch.action.DocWriteRequest;
 import org.elasticsearch.action.bulk.*;
@@ -16,9 +17,12 @@ import org.elasticsearch.client.*;
 import org.elasticsearch.common.unit.*;
 import org.elasticsearch.common.xcontent.XContentType;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import htsjdk.samtools.util.CloseableIterator;
 import htsjdk.variant.variantcontext.VariantContext;
-import htsjdk.variant.vcf.VCFFileReader;
+import htsjdk.variant.vcf.*;
 import lombok.extern.log4j.Log4j2;
 
 @Log4j2
@@ -26,6 +30,7 @@ public class SourceDocumentCreation extends Thread {
 
     private DownloadSource source;
     private SpeciesType speciesType;
+    private String[] header = null;
     public static String indexName;
     private BulkProcessor.Builder builder1;
     private BulkProcessor.Builder builder2;
@@ -40,7 +45,8 @@ public class SourceDocumentCreation extends Thread {
     private RestHighLevelClient client = EsClientFactory.getDefaultEsClient();
 
     private LinkedBlockingDeque<List<VariantContext>> vcQueue = new LinkedBlockingDeque<List<VariantContext>>(VariantConfigHelper.getSourceDocumentCreatorVCQueueSize());
-
+    private LinkedBlockingDeque<List<VariantDocument>> objectQueue = new LinkedBlockingDeque<List<VariantDocument>>(VariantConfigHelper.getSourceDocumentCreatorVCQueueSize());
+    
     private LinkedBlockingDeque<List<String>> jsonQueue1;
     private LinkedBlockingDeque<List<String>> jsonQueue2;
     private LinkedBlockingDeque<List<String>> jsonQueue3;
@@ -50,6 +56,7 @@ public class SourceDocumentCreation extends Thread {
     private ProcessDisplayHelper ph2 = new ProcessDisplayHelper(log, VariantConfigHelper.getDisplayInterval());
     private ProcessDisplayHelper ph3 = new ProcessDisplayHelper(log, VariantConfigHelper.getDisplayInterval());
     private ProcessDisplayHelper ph4 = new ProcessDisplayHelper(log, VariantConfigHelper.getDisplayInterval());
+    private ProcessDisplayHelper ph5 = new ProcessDisplayHelper(log, VariantConfigHelper.getDisplayInterval());
     
     public SourceDocumentCreation(DownloadSource source) {
         this.source = source;
@@ -175,15 +182,21 @@ public class SourceDocumentCreation extends Thread {
             readers.add(reader);
         }
 
-        List<VCFTransformer> transformers = new ArrayList<>();
+        List<DocumentTransformer> transformers = new ArrayList<>();
         ph2.startProcess("VCFTransformers: " + speciesType.getName());
         for(int i = 0; i < VariantConfigHelper.getTransformerThreads(); i++) {
-            VCFTransformer transformer = new VCFTransformer();
+            DocumentTransformer transformer = new DocumentTransformer();
             transformer.start();
             transformers.add(transformer);
         }
         
-
+        List<JSONProducre> producers = new ArrayList<>();
+        ph5.startProcess("JSONProducres: " + speciesType.getName());
+        for(int i = 0; i < VariantConfigHelper.getProducerThreads(); i++) {
+            JSONProducre producer = new JSONProducre();
+            producer.start();
+            producers.add(producer);
+        }
 
         ArrayList<VCFJsonBulkIndexer> indexers = new ArrayList<>();
         
@@ -217,7 +230,7 @@ public class SourceDocumentCreation extends Thread {
             log.info("VC Queue Empty shuting down transformers");
             
             log.info("Shutting down transformers");
-            for(VCFTransformer t: transformers) {
+            for(DocumentTransformer t: transformers) {
                 t.interrupt();
                 t.join();
             }
@@ -269,6 +282,17 @@ public class SourceDocumentCreation extends Thread {
             
             VCFFileReader reader = new VCFFileReader(new File(df.getLocalGzipFilePath()), false);
             CloseableIterator<VariantContext> iter1 = reader.iterator();
+            if(header == null) {
+                log.info("Setting VCF File Header");
+                VCFInfoHeaderLine fileHeader = reader.getFileHeader().getInfoHeaderLine("CSQ");
+                header = fileHeader.getDescription().split("Format: ")[1].split("\\|");
+                try {
+                    TimeUnit.SECONDS.sleep(10);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            
             try {
                 List<VariantContext> workBucket = new ArrayList<>();
                 while(iter1.hasNext()) {
@@ -279,7 +303,7 @@ public class SourceDocumentCreation extends Thread {
                         vcQueue.put(workBucket);
                         workBucket = new ArrayList<>();
                     }
-                    ph1.progressProcess();
+                    ph1.progressProcess("vcQueue: " + vcQueue.size());
                 }
                 if(workBucket.size() > 0) {
                     vcQueue.put(workBucket);
@@ -290,37 +314,74 @@ public class SourceDocumentCreation extends Thread {
             reader.close();
         }
     }
-
-    private class VCFTransformer extends Thread {
-
+    
+    
+    private class DocumentTransformer extends Thread {
+        
         private VariantContextConverter converter = VariantContextConverter.getConverter(speciesType);
+        
+        public void run() {
+            List<VariantDocument> workBucket = new ArrayList<>();
+            while(!(Thread.currentThread().isInterrupted())) {
+                try {
+                    List<VariantContext> ctxList = vcQueue.take();
+                    for(VariantContext ctx: ctxList) {
+                        List<VariantDocument> docs = converter.convertVariantContext(ctx, speciesType, header);
+                        for(VariantDocument doc: docs) {
+                            workBucket.add(doc);
+                            ph5.progressProcess("objectQueue: " + objectQueue.size());
+                        }
+                    }
+                    if(workBucket.size() >= VariantConfigHelper.getSourceDocumentCreatorVCQueueBucketSize()) {
+                        objectQueue.put(workBucket);
+                        workBucket = new ArrayList<>();
+                    }
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+            
+            try {
+                if(workBucket.size() > 0) {
+                    objectQueue.put(workBucket);
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private class JSONProducre extends Thread {
+
+        private ObjectMapper mapper = new ObjectMapper();
 
 
         public void run() {
             
             while(!(Thread.currentThread().isInterrupted())) {
                 try {
-                    List<VariantContext> ctxList = vcQueue.take();
+                    List<VariantDocument> docList = objectQueue.take();
                     
                     List<String> docs1 = new ArrayList<String>();
                     List<String> docs2 = new ArrayList<String>();
                     List<String> docs3 = new ArrayList<String>();
                     List<String> docs4 = new ArrayList<String>();
                     
-                    for(VariantContext ctx: ctxList) {
-                        List<String> docs = converter.convertVariantContext(ctx, speciesType);
-                        
-                        for(String doc: docs) {
-                            if(doc.length() < 10000) {
-                                docs1.add(doc);
-                            } else if(doc.length() < 75000) {
-                                docs2.add(doc);
-                            } else if(doc.length() < 100000) {
-                                docs3.add(doc);
+                    for(VariantDocument doc: docList) {
+                        try {
+                            String jsonDoc = mapper.writeValueAsString(doc);
+                            if(jsonDoc.length() < 10000) {
+                                docs1.add(jsonDoc);
+                            } else if(jsonDoc.length() < 75000) {
+                                docs2.add(jsonDoc);
+                            } else if(jsonDoc.length() < 100000) {
+                                docs3.add(jsonDoc);
                             } else {
-                                docs4.add(doc);
+                                docs4.add(jsonDoc);
                             }
-                            ph2.progressProcess("VCQueue: " + vcQueue.size());
+                            ph2.progressProcess("jsonQueue1: " + jsonQueue1.size() + " jsonQueue2: " + jsonQueue2.size() + " jsonQueue3: " + jsonQueue3.size() +  " jsonQueue4: " + jsonQueue4.size());
+                        } catch (JsonProcessingException e) {
+                            e.printStackTrace();
                         }
                     }
 

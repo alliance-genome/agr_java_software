@@ -282,7 +282,7 @@ public class IndexManager {
             DeleteSnapshotRequest request = new DeleteSnapshotRequest(repo, snapShotName);
             getClient().snapshot().delete(request, RequestOptions.DEFAULT);
         } catch (Exception ex) {
-            log.error("Exception in restoreSnapShot method: " + ex.toString());
+            log.error("Exception in deleteSnapShot method: " + ex.toString());
         }
     }
 

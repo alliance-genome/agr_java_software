@@ -4,21 +4,13 @@ import java.util.List;
 
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.variant_indexer.converters.human.HumanVariantContextConverter;
-import org.alliancegenome.variant_indexer.converters.mouse.MouseVariantContextConverter;
-
-import com.fasterxml.jackson.databind.*;
+import org.alliancegenome.variant_indexer.es.model.VariantDocument;
 
 import htsjdk.variant.variantcontext.VariantContext;
 
 public abstract class VariantContextConverter {
 
-    protected ObjectMapper mapper;
-
-    public VariantContextConverter() {
-        mapper = new ObjectMapper();
-    }
-
-    public abstract List<String> convertVariantContext(VariantContext ctx, SpeciesType speciesType);
+    public abstract List<VariantDocument> convertVariantContext(VariantContext ctx, SpeciesType speciesType, String[] header);
 
     public static VariantContextConverter getConverter(SpeciesType speciesType) {
         if(speciesType != null) {
@@ -35,7 +27,6 @@ public abstract class VariantContextConverter {
     private enum VariantConverter {
 
         HUMAN(HumanVariantContextConverter.class),
-        MGD(MouseVariantContextConverter.class),
         MOD(HumanVariantContextConverter.class),
         ;
         private Class<?> converterClazz;
