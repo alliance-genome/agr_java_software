@@ -1,6 +1,6 @@
 package org.alliancegenome.variant_indexer.es.model;
 
-import java.util.List;
+import java.util.*;
 
 import org.alliancegenome.es.index.site.document.SearchableItemDocument;
 
@@ -28,7 +28,7 @@ public class VariantDocument extends SearchableItemDocument {
     private int MAC;    // minor allele count
     private List<String> evidence;
     private List<String> clinicalSignificance;
-    private List<TranscriptFeature> consequences;
-    private List<Sample> samples;
+    private List<Map<String, String>> consequences;
+    private List<String> samples;
 
 }

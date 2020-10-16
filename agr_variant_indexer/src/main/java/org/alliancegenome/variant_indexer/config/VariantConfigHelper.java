@@ -49,6 +49,7 @@ public class VariantConfigHelper {
         defaults.put(VARIANT_SOURCE_DOCUMENT_CREATOR_VCQUEUE_SIZE, "100");
         defaults.put(VARIANT_SOURCE_DOCUMENT_CREATOR_VCQUEUE_BUCKET_SIZE, "100");
         
+        defaults.put(VARIANT_PRODUCER_THREADS, "8");
         defaults.put(VARIANT_TRANSFORMER_THREADS, "8");
         
         defaults.put(VARIANT_INDEXER_SHARDS, "16");
@@ -223,6 +224,15 @@ public class VariantConfigHelper {
         if (!init) init();
         try {
             return Integer.parseInt(config.get(VARIANT_TRANSFORMER_THREADS));
+        } catch (NumberFormatException e) {
+            return 4;
+        }
+    }
+    
+    public static int getProducerThreads() {
+        if (!init) init();
+        try {
+            return Integer.parseInt(config.get(VARIANT_PRODUCER_THREADS));
         } catch (NumberFormatException e) {
             return 4;
         }

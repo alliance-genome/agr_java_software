@@ -10,7 +10,7 @@ import org.alliancegenome.variant_indexer.converters.VariantContextConverter;
 
 import htsjdk.samtools.util.CloseableIterator;
 import htsjdk.variant.variantcontext.VariantContext;
-import htsjdk.variant.vcf.VCFFileReader;
+import htsjdk.variant.vcf.*;
 import lombok.extern.log4j.Log4j2;
 
 @Log4j2
@@ -19,6 +19,7 @@ public class TestReadVCFFile {
     LinkedBlockingDeque<ArrayList<String>> jsonQueue = new LinkedBlockingDeque<ArrayList<String>>(1000);
     
     private String chr = "3";
+    private String[] formats;
     
     public static void main(String[] args) throws Exception {
         new TestReadVCFFile();
@@ -27,6 +28,11 @@ public class TestReadVCFFile {
     public TestReadVCFFile() throws Exception {
 
         VCFFileReader reader = new VCFFileReader(new File("/Users/olinblodgett/Desktop/Variants/VCF/HUMAN.v2.vep.chr" + chr + ".vcf.gz"), false);
+        VCFInfoHeaderLine header = reader.getFileHeader().getInfoHeaderLine("CSQ");
+        formats = header.getDescription().split("Format: ")[1].split("\\|");
+        
+        //System.out.println(format);
+
         
         CloseableIterator<VariantContext> iter1 = reader.iterator();
 
@@ -99,10 +105,10 @@ public class TestReadVCFFile {
                     ArrayList<VariantContext> list = vcQueue.take();
                     ArrayList<String> docList = new ArrayList<String>();
                     for(VariantContext ctx: list) {
-                        List<String> docs = converter.convertVariantContext(ctx, SpeciesType.HUMAN);
-                        for(String doc: docs) {
-                            docList.add(doc);
-                        }
+                        //List<String> docs = converter.convertVariantContext(ctx, SpeciesType.HUMAN, formats);
+                        //for(String doc: docs) {
+                        //  docList.add(doc);
+                        //}
                         ph2.progressProcess();
                     }
                     jsonQueue.put(docList);
