@@ -81,7 +81,8 @@ public class DatasetIndexerRepository extends Neo4jRepository<HTPDataset> {
         public void run() {
             log.info("Fetching cross references");
             cache.setCrossReferences(getMapSetForQuery("MATCH (dataset:HTPDataset)-[:CROSS_REFERENCE]-(cr:CrossReference) " +
-                    "RETURN dataset.primaryKey as id, cr.name as value"));
+                    " WHERE cr.preferred = 'false' " +
+                    " RETURN dataset.primaryKey as id, cr.name as value"));
             log.info("Finished fetching cross references");
         }
     }
@@ -110,7 +111,7 @@ public class DatasetIndexerRepository extends Neo4jRepository<HTPDataset> {
         public void run() {
             log.info("Fetching sample ids");
             cache.setSampleIds(getMapSetForQuery("MATCH (dataset:HTPDataset)-[:ASSOCIATION]-(sample:HTPDatasetSample) " +
-                    " RETURN distinct dataset.primaryKey as id, sample.primaryKey as value;"));
+                    " RETURN distinct dataset.primaryKey as id, sample.sampleId as value;"));
             log.info("Finished Fetching sample ids");
         }
     }
