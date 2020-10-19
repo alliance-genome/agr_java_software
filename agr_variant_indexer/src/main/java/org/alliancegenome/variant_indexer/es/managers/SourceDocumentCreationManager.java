@@ -2,7 +2,6 @@ package org.alliancegenome.variant_indexer.es.managers;
 
 import java.util.concurrent.*;
 
-import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.variant_indexer.config.VariantConfigHelper;
 import org.alliancegenome.variant_indexer.filedownload.model.*;
 

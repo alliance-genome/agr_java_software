@@ -28,7 +28,7 @@ public class VariantDocument extends SearchableItemDocument {
     private int MAC;    // minor allele count
     private List<String> evidence;
     private List<String> clinicalSignificance;
-    private List<Map<String, String>> consequences;
+    private List<TranscriptFeature> consequences;
     private List<String> samples;
 
 }
