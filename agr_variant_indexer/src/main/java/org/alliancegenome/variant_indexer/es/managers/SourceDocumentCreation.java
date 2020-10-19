@@ -239,18 +239,19 @@ public class SourceDocumentCreation extends Thread {
             ph2.finishProcess();
             
             log.info("Waiting for jsonQueue to empty");
-            while(!(jsonQueue1.isEmpty() && jsonQueue2.isEmpty() && jsonQueue3.isEmpty() && jsonQueue4.isEmpty())) {
+            while(!jsonQueue1.isEmpty() || !jsonQueue2.isEmpty() || !jsonQueue3.isEmpty() || !jsonQueue4.isEmpty()) {
                 Thread.sleep(1000);
             }
 
             log.info("Waiting for bulk processors to finish");
             bulkProcessor1.flush();
-            bulkProcessor1.awaitClose(10, TimeUnit.DAYS);
             bulkProcessor2.flush();
-            bulkProcessor2.awaitClose(10, TimeUnit.DAYS);
             bulkProcessor3.flush();
-            bulkProcessor3.awaitClose(10, TimeUnit.DAYS);
             bulkProcessor4.flush();
+            
+            bulkProcessor1.awaitClose(10, TimeUnit.DAYS);
+            bulkProcessor2.awaitClose(10, TimeUnit.DAYS);
+            bulkProcessor3.awaitClose(10, TimeUnit.DAYS);
             bulkProcessor4.awaitClose(10, TimeUnit.DAYS);
             log.info("Bulk Processors finished");
             
