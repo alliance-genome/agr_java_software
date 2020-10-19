@@ -76,10 +76,11 @@ public class HumanVariantContextConverter extends VariantContextConverter {
             }
 
             //todo: this will need an id->name map for genes
+            // convert to Neo Genes
             variantDocument.setGenes(
                     variantDocument.getConsequences()
                     .stream()
-                    .map(x -> x.get("Gene") + " (" + speciesType.getAbbreviation() + ")")
+                    .map(x -> x.getGene())
                     .collect(Collectors.toSet())
                     );
 
@@ -122,15 +123,9 @@ public class HumanVariantContextConverter extends VariantContextConverter {
     public List<String> mapEvidence(VariantContext ctx){
         CommonInfo info = ctx.getCommonInfo();
         List<String> evidences = new ArrayList<>();
-        String key;
-        String value;
-        for (Map.Entry e: Evidence.emap.entrySet()) {
-            key = (String) e.getKey();
-            value = (String) e.getValue();
-            if(info.getAttributes().containsKey(key)) {
-                if (info.getAttributeAsBoolean(key, false)) {
-                    evidences.add(value);
-                }
+        for(String key: info.getAttributes().keySet()) {
+            if(Evidence.emap.containsKey(key)) {
+                evidences.add(Evidence.emap.get(key));
             }
         }
         return evidences;
@@ -138,34 +133,26 @@ public class HumanVariantContextConverter extends VariantContextConverter {
     public List<String> mapClinicalSignificance(VariantContext ctx){
         CommonInfo info = ctx.getCommonInfo();
         List<String> significance = new ArrayList<>();
-        String key;
-        String value;
-        for (Map.Entry e: ClinicalSig.csmap.entrySet() ) {
-            key = (String) e.getKey();
-            value = (String) e.getValue();
-            if(info.getAttributes().containsKey(key)) {
-                if (info.getAttributeAsBoolean(key, false)) {
-                    significance.add(value);
-                }
+        for(String key: info.getAttributes().keySet()) {
+            
+            if(ClinicalSig.csmap.containsKey(key)) {
+                significance.add(ClinicalSig.csmap.get(key));
             }
         }
         return significance;
     }
 
 
-    public List<Map<String, String>> getConsequences(VariantContext ctx, String varNuc, String[] header) throws Exception {
-        List<Map<String, String>> features = new ArrayList<>();
+    public List<TranscriptFeature> getConsequences(VariantContext ctx, String varNuc, String[] header) throws Exception {
+        List<TranscriptFeature> features = new ArrayList<>();
 
         for(String s: ctx.getAttributeAsStringList("CSQ", "")) {
             if(s.length() > 0) {
                 String[] infos = s.split("\\|", -1);
 
                 if(header.length == infos.length) {
-                    HashMap<String, String> feature = new HashMap<String, String>();
-                    for(int i = 0; i < header.length; i++) {
-                        feature.put(header[i], infos[i]);
-                    }
-                    if(feature.get("Allele").equalsIgnoreCase(varNuc)) {
+                    if(infos[0].equalsIgnoreCase(varNuc)) {
+                        TranscriptFeature feature = new TranscriptFeature(header, infos);
                         features.add(feature);
                     }
                 } else {

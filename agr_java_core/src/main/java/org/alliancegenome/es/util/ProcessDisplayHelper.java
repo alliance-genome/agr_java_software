@@ -59,10 +59,12 @@ public class ProcessDisplayHelper {
     
     public void progressProcess(String data) {
         Date now = new Date();
-        long diff = now.getTime() - startTime.getTime();
+
         long time = now.getTime() - lastTime.getTime();
         sizeCounter++;
         if (time < displayTimeout) return;
+        
+        long diff = now.getTime() - startTime.getTime();        
         checkMemory();
         
         double percent = 0;
@@ -70,22 +72,24 @@ public class ProcessDisplayHelper {
             percent = ((double) (sizeCounter) / totalSize);
         }
         long processedAmount = (sizeCounter - lastSizeCounter);
-        String localMessage = "" + getBigNumber(sizeCounter);
+        StringBuffer sb = new StringBuffer(this.message);
+        sb.append(getBigNumber(sizeCounter));
         if(totalSize > 0) {
-            localMessage += " of [" + getBigNumber(totalSize) + "] " + (int) (percent * 100) + "%";
+            sb.append(" of [" + getBigNumber(totalSize) + "] " + (int) (percent * 100) + "%");
         }
-        localMessage += ", " + (time / 1000) + "s to process " + getBigNumber(processedAmount) + " records at " + getBigNumber((processedAmount * 1000) / time) + "r/s";
+        sb.append(", " + (time / 1000) + "s to process " + getBigNumber(processedAmount) + " records at " + getBigNumber((processedAmount * 1000) / time) + "r/s");
         if(data != null) {
-            localMessage += " " + data;
+            sb.append(" " + data);
         }
+        
         
         if (percent > 0) {
             int perms = (int) (diff / percent);
             Date end = new Date(startTime.getTime() + perms);
             String expectedDuration = getHumanReadableTimeDisplay(end.getTime() - (new Date()).getTime());
-            localMessage += ", Mem: " + df.format(memoryPercent() * 100) + "%, ETA: " + expectedDuration + " [" + end + "]";
+            sb.append(", Mem: " + df.format(memoryPercent() * 100) + "%, ETA: " + expectedDuration + " [" + end + "]");
         }
-        logInfoMessage(this.message + localMessage);
+        logInfoMessage(sb.toString());
         lastSizeCounter = sizeCounter;
         lastTime = now;
     }

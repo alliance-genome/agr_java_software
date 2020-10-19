@@ -46,14 +46,18 @@ public class VariantConfigHelper {
         defaults.put(VARIANT_DISPLAY_INTERVAL, "30");
         
         defaults.put(VARIANT_SOURCE_DOCUMENT_CREATOR_THREADS, "1");
-        defaults.put(VARIANT_SOURCE_DOCUMENT_CREATOR_VCQUEUE_SIZE, "100");
-        defaults.put(VARIANT_SOURCE_DOCUMENT_CREATOR_VCQUEUE_BUCKET_SIZE, "100");
         
-        defaults.put(VARIANT_PRODUCER_THREADS, "8");
-        defaults.put(VARIANT_TRANSFORMER_THREADS, "8");
+        defaults.put(VARIANT_SOURCE_DOCUMENT_CREATOR_VCQUEUE_SIZE, "400");
+        defaults.put(VARIANT_SOURCE_DOCUMENT_CREATOR_VCQUEUE_BUCKET_SIZE, "25");
+        defaults.put(VARIANT_SOURCE_DOCUMENT_CREATOR_OBJECT_QUEUE_SIZE, "450");
+        defaults.put(VARIANT_SOURCE_DOCUMENT_CREATOR_OBJECT_QUEUE_BUCKET_SIZE, "32");
+        
+        
+        defaults.put(VARIANT_PRODUCER_THREADS, "12");
+        defaults.put(VARIANT_TRANSFORMER_THREADS, "12");
         
         defaults.put(VARIANT_INDEXER_SHARDS, "16");
-        defaults.put(VARIANT_INDEXER_BULK_PROCESSOR_THREADS, "8");
+        defaults.put(VARIANT_INDEXER_BULK_PROCESSOR_THREADS, "12");
         
         defaults.put(VARIANT_BULK_PROCESSOR_SETTINGS, "1000;10;10;10000,133;10;10;1333,100;10;10;1000,50;10;10;500");
 
@@ -206,6 +210,24 @@ public class VariantConfigHelper {
         if (!init) init();
         try {
             return Integer.parseInt(config.get(VARIANT_SOURCE_DOCUMENT_CREATOR_VCQUEUE_BUCKET_SIZE));
+        } catch (NumberFormatException e) {
+            return 100;
+        }
+    }
+    
+    public static Integer getSourceDocumentCreatorObjectQueueSize() {
+        if (!init) init();
+        try {
+            return Integer.parseInt(config.get(VARIANT_SOURCE_DOCUMENT_CREATOR_OBJECT_QUEUE_SIZE));
+        } catch (NumberFormatException e) {
+            return 100;
+        }
+    }
+    
+    public static int getSourceDocumentCreatorObjectQueueBucketSize() {
+        if (!init) init();
+        try {
+            return Integer.parseInt(config.get(VARIANT_SOURCE_DOCUMENT_CREATOR_OBJECT_QUEUE_BUCKET_SIZE));
         } catch (NumberFormatException e) {
             return 100;
         }

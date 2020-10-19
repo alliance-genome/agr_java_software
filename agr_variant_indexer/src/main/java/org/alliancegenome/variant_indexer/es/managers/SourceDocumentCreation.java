@@ -45,7 +45,7 @@ public class SourceDocumentCreation extends Thread {
     private RestHighLevelClient client = EsClientFactory.getDefaultEsClient();
 
     private LinkedBlockingDeque<List<VariantContext>> vcQueue = new LinkedBlockingDeque<List<VariantContext>>(VariantConfigHelper.getSourceDocumentCreatorVCQueueSize());
-    private LinkedBlockingDeque<List<VariantDocument>> objectQueue = new LinkedBlockingDeque<List<VariantDocument>>(VariantConfigHelper.getSourceDocumentCreatorVCQueueSize());
+    private LinkedBlockingDeque<List<VariantDocument>> objectQueue = new LinkedBlockingDeque<List<VariantDocument>>(VariantConfigHelper.getSourceDocumentCreatorObjectQueueSize());
     
     private LinkedBlockingDeque<List<String>> jsonQueue1;
     private LinkedBlockingDeque<List<String>> jsonQueue2;
@@ -191,7 +191,7 @@ public class SourceDocumentCreation extends Thread {
         }
         
         List<JSONProducre> producers = new ArrayList<>();
-        ph5.startProcess("JSONProducres: " + speciesType.getName());
+        ph5.startProcess("JSONProducrers: " + speciesType.getName());
         for(int i = 0; i < VariantConfigHelper.getProducerThreads(); i++) {
             JSONProducre producer = new JSONProducre();
             producer.start();
@@ -274,7 +274,8 @@ public class SourceDocumentCreation extends Thread {
     private class VCFReader extends Thread {
 
         private DownloadableFile df;
-
+        private int workBucketSize = VariantConfigHelper.getSourceDocumentCreatorVCQueueBucketSize();
+        
         public VCFReader(DownloadableFile df) {
             this.df = df;
         }
@@ -284,7 +285,7 @@ public class SourceDocumentCreation extends Thread {
             VCFFileReader reader = new VCFFileReader(new File(df.getLocalGzipFilePath()), false);
             CloseableIterator<VariantContext> iter1 = reader.iterator();
             if(header == null) {
-                log.info("Setting VCF File Header");
+                log.info("Setting VCF File Header: " + df.getLocalGzipFilePath());
                 VCFInfoHeaderLine fileHeader = reader.getFileHeader().getInfoHeaderLine("CSQ");
                 header = fileHeader.getDescription().split("Format: ")[1].split("\\|");
                 try {
@@ -300,7 +301,7 @@ public class SourceDocumentCreation extends Thread {
                     VariantContext vc = iter1.next();
                     workBucket.add(vc);
 
-                    if(workBucket.size() >= VariantConfigHelper.getSourceDocumentCreatorVCQueueBucketSize()) {
+                    if(workBucket.size() >= workBucketSize) {
                         vcQueue.put(workBucket);
                         workBucket = new ArrayList<>();
                     }
@@ -320,6 +321,7 @@ public class SourceDocumentCreation extends Thread {
     private class DocumentTransformer extends Thread {
         
         private VariantContextConverter converter = VariantContextConverter.getConverter(speciesType);
+        private int workBucketSize = VariantConfigHelper.getSourceDocumentCreatorObjectQueueBucketSize();
         
         public void run() {
             List<VariantDocument> workBucket = new ArrayList<>();
@@ -327,13 +329,12 @@ public class SourceDocumentCreation extends Thread {
                 try {
                     List<VariantContext> ctxList = vcQueue.take();
                     for(VariantContext ctx: ctxList) {
-                        List<VariantDocument> docs = converter.convertVariantContext(ctx, speciesType, header);
-                        for(VariantDocument doc: docs) {
+                        for(VariantDocument doc: converter.convertVariantContext(ctx, speciesType, header)) {
                             workBucket.add(doc);
-                            ph5.progressProcess("objectQueue: " + objectQueue.size());
+                            ph2.progressProcess("objectQueue: " + objectQueue.size());
                         }
                     }
-                    if(workBucket.size() >= VariantConfigHelper.getSourceDocumentCreatorVCQueueBucketSize()) {
+                    if(workBucket.size() >= workBucketSize) {
                         objectQueue.put(workBucket);
                         workBucket = new ArrayList<>();
                     }
@@ -346,7 +347,7 @@ public class SourceDocumentCreation extends Thread {
                 if(workBucket.size() > 0) {
                     objectQueue.put(workBucket);
                 }
-            } catch (InterruptedException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
@@ -380,8 +381,8 @@ public class SourceDocumentCreation extends Thread {
                             } else {
                                 docs4.add(jsonDoc);
                             }
-                            ph2.progressProcess("jsonQueue1: " + jsonQueue1.size() + " jsonQueue2: " + jsonQueue2.size() + " jsonQueue3: " + jsonQueue3.size() +  " jsonQueue4: " + jsonQueue4.size());
-                        } catch (JsonProcessingException e) {
+                            ph5.progressProcess("jsonQueue1: " + jsonQueue1.size() + " jsonQueue2: " + jsonQueue2.size() + " jsonQueue3: " + jsonQueue3.size() +  " jsonQueue4: " + jsonQueue4.size());
+                        } catch (Exception e) {
                             e.printStackTrace();
                         }
                     }
