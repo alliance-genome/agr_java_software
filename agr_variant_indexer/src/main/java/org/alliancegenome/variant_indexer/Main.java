@@ -41,8 +41,8 @@ public class Main {
             }
 
             if(creating) {
-                //IndexManager im = new IndexManager(new VariantIndexSettings(true, VariantConfigHelper.getIndexerShards()), new Mapping(true));
-                IndexManager im = new IndexManager(new VariantIndexSettings(true, VariantConfigHelper.getIndexerShards()));
+                IndexManager im = new IndexManager(new VariantIndexSettings(true, VariantConfigHelper.getIndexerShards()), new Mapping(true));
+                //IndexManager im = new IndexManager(new VariantIndexSettings(true, VariantConfigHelper.getIndexerShards()));
                 
                 SourceDocumentCreation.indexName = im.startSiteIndex();
                 
