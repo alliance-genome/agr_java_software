@@ -24,9 +24,14 @@ public abstract class DataExtractor extends Thread {
         try {
             Date start = new Date();
             log.info(this.getClass().getSimpleName() + " started: " + start);
-            PrintWriter output_writer = new PrintWriter(new File(ConfigHelper.getDataExtractorDirectory() + "/" + getFileName()));
-            extract(output_writer);
-            output_writer.close();
+            if(getFileName() != null) {
+                PrintWriter output_writer = new PrintWriter(new File(ConfigHelper.getDataExtractorDirectory() + "/" + getFileName()));
+                extract(output_writer);
+                output_writer.close();
+            } else {
+                extract(null);
+            }
+            
             Date end = new Date();
             log.info(this.getClass().getSimpleName() + " finished: " + ProcessDisplayHelper.getHumanReadableTimeDisplay(end.getTime() - start.getTime()));
         } catch (Exception e) {

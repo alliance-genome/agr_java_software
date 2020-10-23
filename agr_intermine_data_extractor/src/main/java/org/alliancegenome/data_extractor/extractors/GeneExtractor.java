@@ -2,29 +2,27 @@ package org.alliancegenome.data_extractor.extractors;
 
 import java.io.PrintWriter;
 import java.util.List;
+import java.util.Map;
 
 import org.alliancegenome.data_extractor.translators.GeneTSVTranslator;
 import org.alliancegenome.neo4j.entity.node.Gene;
+import org.alliancegenome.neo4j.repository.DataExtractorRepository;
 import org.alliancegenome.neo4j.repository.GeneRepository;
+import org.neo4j.ogm.model.Result;
 
 public class GeneExtractor extends DataExtractor {
 
-    private GeneRepository geneRepo = new GeneRepository();
+    private DataExtractorRepository repo = new DataExtractorRepository();
 
     @Override
     protected void extract(PrintWriter writer) {
         
         GeneTSVTranslator translator = new GeneTSVTranslator(writer);
         
-        List<String> geneIds = geneRepo.getAllGeneKeys();
+        Result gene_res = repo.getAllGenes();
         
-        startProcess("Starting Genes: ", geneIds.size());
-        for(String id: geneIds) {
-            Gene g = geneRepo.getOneGene(id);
-            translator.translateEntity(g);
-            progressProcess();
-        }
-        finishProcess();
+        translator.translateResult(gene_res);
+
     }
 
     @Override
