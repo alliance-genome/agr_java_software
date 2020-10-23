@@ -128,6 +128,17 @@ class QueryRankIntegrationSpec extends Specification {
         "kinase activity"                  | "kinase activity"
         "kinase activi"                    | "kinase activity"
         "amyotrophic lateral sclerosis"    | "amyotrophic lateral sclerosis"
+        "human SLC11A1"                    | "SLC11A1 (Hsa)"
+        "human wnt2b"                      | "WNT2B (Hsa)"
+        "human wnt10b"                     | "WNT10B (Hsa)"
+        "TP73 (Hsa)"                       | "TP73 (Hsa)"
+        "MGI:97769"                        | "Prnp (Mmu)"
+        "MGI:1891396"                      | "Kirrel (Mmu)"
+        "MGI:98364"                        | "Sox2 (Mmu)"
+        "MGI:109430"                       | "Icam5 (Mmu)"
+        "SGD:S000006169"                   | "GAL4 (Sce)"
+        "HGNC:11998"                       | "TP53 (Hse)"
+        "FB:FBgn0003996"                   | "w (Dme)"
 
     }
 

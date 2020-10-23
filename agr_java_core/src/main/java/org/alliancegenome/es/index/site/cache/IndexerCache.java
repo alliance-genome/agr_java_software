@@ -14,8 +14,7 @@ public class IndexerCache {
 
     protected Map<String, Variant> variantMap = new HashMap<>();
     protected Map<String, Allele> alleleMap = new HashMap<>();
-    protected Map<String, Set<String>> assembly = new HashMap();
-    protected Map<String, Set<String>> age = new HashMap<>();
+    protected Map<String, Set<String>> assays = new HashMap<>();
     protected Map<String, Set<String>> chromosomes = new HashMap<>();
     protected Map<String, Set<String>> constructs = new HashMap<>();
     protected Map<String, Set<String>> crossReferences = new HashMap<>();
@@ -30,6 +29,7 @@ public class IndexerCache {
     protected Map<String, Set<String>> phenotypeStatements = new HashMap<>();
     protected Map<String, Double> popularity = new HashMap<>();
     protected Map<String, Set<String>> sex = new HashMap<>();
+    protected Map<String, Set<String>> sampleIds = new HashMap<>();
     protected Map<String, Set<String>> secondaryIds = new HashMap<>();
     protected Map<String, Set<String>> species = new HashMap<>();
     protected Map<String, Set<String>> synonyms = new HashMap<>();
@@ -45,9 +45,6 @@ public class IndexerCache {
     private Map<String,Set<String>> subcellularExpressionWithParents = new HashMap<>();
     private Map<String,Set<String>> subcellularExpressionAgrSlim = new HashMap<>();
 
-    //nested documents
-    private Map<String, Set<CrossReferenceLink>> crossReferenceLinks = new HashMap<>();
-
     public void addCachedFields(Iterable<SearchableItemDocument> documents) {
         for (SearchableItemDocument document : documents) {
             addCachedFields(document);
@@ -57,9 +54,8 @@ public class IndexerCache {
     public void addCachedFields(SearchableItemDocument document) {
         String id = document.getPrimaryKey();
 
-        document.setAge(age.get(id));
-        document.setAssembly(assembly.get(id));
         document.setAlleles(alleles.get(id));
+        document.setAssays(assays.get(id));
         //addAll vs setter is because some fields may be set by a translator before this step
         if (crossReferences.get(id) != null) {
             document.getCrossReferences().addAll(crossReferences.get(id));
@@ -93,6 +89,7 @@ public class IndexerCache {
 
         document.setPhenotypeStatements(phenotypeStatements.get(id));
         document.setPopularity(popularity.get(id) == null ? 0D : popularity.get(id));
+        document.setSampleIds(sampleIds.get(id));
         document.setSex(sex.get(id));
         document.setVariants(variants.get(id));
         document.setVariantSynonyms(variantSynonyms.get(id));
@@ -123,8 +120,6 @@ public class IndexerCache {
         document.setSubcellularExpressionWithParents(subcellularExpressionWithParents.get(id));
         document.setSubcellularExpressionAgrSlim(subcellularExpressionAgrSlim.get(id));
 
-        //nested documents
-        document.setCrossReferenceLinks(crossReferenceLinks.get(id));
 
     }
 

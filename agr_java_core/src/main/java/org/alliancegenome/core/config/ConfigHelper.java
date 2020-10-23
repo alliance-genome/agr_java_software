@@ -47,9 +47,9 @@ public class ConfigHelper {
         defaults.put(ES_PORT, "9200");
         
         // ES Bulk Processing defaults
-        defaults.put(ES_BULK_ACTION_SIZE, "1000");
-        defaults.put(ES_BULK_REQUEST_SIZE, "10");
-        defaults.put(ES_BULK_CONCURRENT_REQUESTS, "10");
+        defaults.put(ES_BULK_ACTION_SIZE, "400");
+        defaults.put(ES_BULK_REQUEST_SIZE, "4");
+        defaults.put(ES_BULK_CONCURRENT_REQUESTS, "4");
 
         defaults.put(KEEPINDEX, "false");
         defaults.put(SPECIES, null);

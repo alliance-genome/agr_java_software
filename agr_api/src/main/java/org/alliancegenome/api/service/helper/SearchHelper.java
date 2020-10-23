@@ -51,11 +51,9 @@ public class SearchHelper {
                 {
                     add("species");
                     add("tags");
+                    add("assays");
                     add("anatomicalExpression");
                     add("sex");
-                    add("age");
-                    add("assembly");
-
                 }
             });
             put("disease", new ArrayList<String>() {
@@ -122,7 +120,6 @@ public class SearchHelper {
             add("anatomicalExpression.keyword");
             add("anatomicalExpressionWithParents");
             add("anatomicalExpressionWithParents.keyword");
-            add("assembly");
             add("associatedSpecies");
             add("associatedSpecies.synonyms");
             add("automatedGeneSynopsis");
@@ -186,6 +183,7 @@ public class SearchHelper {
             add("molecularFunctionWithParents");
             add("phenotypeStatements");
             add("primaryKey");
+            add("sampleIds");
             add("variants");
             add("variants.keyword");
             add("variants.standardText");
@@ -225,6 +223,7 @@ public class SearchHelper {
             add("cellularComponent");
             add("crossReferences");
             add("crossReferenceLinks");
+            add("dataProvider");
             add("definition");
             add("description");
             add("diseases");
@@ -234,8 +233,6 @@ public class SearchHelper {
             add("gene_chromosome_starts");
             add("gene_chromosomes");
             add("genes");
-            add("go_genes");
-            add("homologs");
             add("href");
             add("modCrossRefCompleteUrl");
             add("molecularConsequence");
@@ -247,6 +244,7 @@ public class SearchHelper {
             add("summary");
             add("symbol");
             add("synonyms");
+            add("tags");
             add("variants");
         }
     };

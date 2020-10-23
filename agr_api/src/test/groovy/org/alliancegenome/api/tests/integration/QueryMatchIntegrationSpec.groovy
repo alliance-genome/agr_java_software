@@ -176,6 +176,9 @@ class QueryMatchIntegrationSpec extends Specification {
         "AGR-2370" | "HGNC:10907" | "Crohn's disease"
         "AGR-2370" | "MGI:104564" | "Beckwith-Wiedemann syndrome"
         "AGR-2370" | "MGI:95772"  | "inflammatory bowel disease 12"
+
+        //dataset alternate IDs
+        "AGR-1846" | "GEO:GSE24324" | "FB:FBlc0000060"
     }
 
     @Unroll

@@ -1,5 +1,6 @@
 package org.alliancegenome.es.util;
 
+import java.io.IOException;
 import java.util.*;
 
 import org.alliancegenome.core.config.ConfigHelper;
@@ -47,23 +48,31 @@ public class EsClientFactory {
         HttpHost[] hosts = new HttpHost[esHosts.size()];
         hosts = esHosts.toArray(hosts);
 
+        log.info("Creating new ES Client: " + map);
         client = new RestHighLevelClient(
-                RestClient.builder(hosts)
-                .setRequestConfigCallback(
-                        new RequestConfigCallback() {
-                            @Override
-                            public Builder customizeRequestConfig(Builder requestConfigBuilder) {
-                                return requestConfigBuilder
-                                        .setConnectTimeout(5000)
-                                        .setSocketTimeout(1800000)
-                                        .setConnectionRequestTimeout(1800000)
-                                        ;
-                            }
-                        }
-                        )
-                );
+            RestClient.builder(hosts)
+            .setRequestConfigCallback(
+                new RequestConfigCallback() {
+                    @Override
+                    public Builder customizeRequestConfig(Builder requestConfigBuilder) {
+                        return requestConfigBuilder.setConnectTimeout(5000).setSocketTimeout(1800000).setConnectionRequestTimeout(1800000);
+                    }
+                }
+            )
+        );
+        
         log.info("Finished Connecting to ES");
         return client;
+    }
+
+    public static void closeClient() {
+        log.info("Closing ES Client: ");
+        try {
+            client.close();
+            client = null;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 }
