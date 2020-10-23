@@ -1,7 +1,6 @@
 package org.alliancegenome.es.index.site.schema;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
 
 import org.elasticsearch.common.xcontent.XContentBuilder;
 
@@ -13,11 +12,9 @@ public class Mapping extends Builder {
 
     public void buildMapping() {
         try {
-            builder.startObject();
-                builder.startObject("properties");
-                    buildSharedSearchableDocumentMappings();
-                builder.endObject();
-            builder.endObject();
+            builder.startObject().startObject("properties");
+            buildSharedSearchableDocumentMappings();
+            builder.endObject().endObject();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -128,7 +125,6 @@ public class Mapping extends Builder {
         new FieldBuilder(builder, "variantSynonyms", "text").keyword().standardText().build();
         new FieldBuilder(builder, "whereExpressed", "text").keyword().build();
 
-        buildVariantFields();
         buildMetaDataField();
 
     }
@@ -153,86 +149,7 @@ public class Mapping extends Builder {
         builder.endObject();
     }
 
-    protected void buildVariantFields() throws IOException {
-        new FieldBuilder(builder, "chromosome", "keyword").notIndexed().build();
-        new FieldBuilder(builder, "startPos", "integer").notIndexed().build();
-        new FieldBuilder(builder, "endPos", "integer").notIndexed().build();
-        new FieldBuilder(builder, "refNuc", "keyword").notIndexed().build();
-        new FieldBuilder(builder, "varNuc", "keyword").notIndexed().build();
-        new FieldBuilder(builder, "qual", "keyword").notIndexed().build();
-        new FieldBuilder(builder, "documentVariantType", "keyword").notIndexed().build();
-        new FieldBuilder(builder, "filter", "keyword").notIndexed().build();
-        new FieldBuilder(builder, "refPep", "keyword").notIndexed().build();
-        new FieldBuilder(builder, "aa", "keyword").notIndexed().build(); //ancestral allele
-        new FieldBuilder(builder, "MA", "keyword").notIndexed().build(); //minor allele
-        new FieldBuilder(builder, "MAF", "double").notIndexed().build(); //minor allele frequency
-        new FieldBuilder(builder, "MAC", "integer").notIndexed().build();
-        new FieldBuilder(builder, "evidence", "keyword").notIndexed().build();
-        new FieldBuilder(builder, "clinicalSignificance", "keyword").notIndexed().build();
-        buildVariantConsequences();
-    }
 
-    protected void buildVariantConsequences() throws IOException {
-        builder.startObject("consequences");
-        builder.startObject("properties");
-        new FieldBuilder(builder, "feature", "keyword").notIndexed().build();
-        new FieldBuilder(builder, "consequence", "keyword").notIndexed().build();
-        new FieldBuilder(builder, "featureType", "keyword").notIndexed().build();
-        new FieldBuilder(builder, "allele", "keyword").notIndexed().build();
-        new FieldBuilder(builder, "aminoAcids", "keyword").notIndexed().build();
-        new FieldBuilder(builder, "sift", "keyword").notIndexed().build();
-        new FieldBuilder(builder, "polyphen", "keyword").notIndexed().build();
-        new FieldBuilder(builder, "varPep", "keyword").notIndexed().build();
-        new FieldBuilder(builder, "impact", "keyword").notIndexed().build();
-        new FieldBuilder(builder, "symbol", "keyword").notIndexed().build();
-        new FieldBuilder(builder, "gene", "keyword").notIndexed().build();
-        new FieldBuilder(builder, "biotype", "keyword").notIndexed().build();
-        new FieldBuilder(builder, "exon", "keyword").notIndexed().build();
-        new FieldBuilder(builder, "intron", "keyword").notIndexed().build();
-        new FieldBuilder(builder, "HGVSg", "keyword").notIndexed().build();
-        new FieldBuilder(builder, "HGVSp", "keyword").notIndexed().build();
-        new FieldBuilder(builder, "HGVSc", "keyword").notIndexed().build();
-        new FieldBuilder(builder, "cDNAPosition", "keyword").notIndexed().build();
-        new FieldBuilder(builder, "CDSPosition", "keyword").notIndexed().build();
-        new FieldBuilder(builder, "proteinPosition", "keyword").notIndexed().build();
-        new FieldBuilder(builder, "codon", "keyword").notIndexed().build();
-        new FieldBuilder(builder, "existingVariation", "keyword").notIndexed().build();
-        new FieldBuilder(builder, "distance", "keyword").notIndexed().build();
-        new FieldBuilder(builder, "strand", "keyword").notIndexed().build();
-        new FieldBuilder(builder, "flags", "keyword").notIndexed().build();
-        new FieldBuilder(builder, "symbolSource", "keyword").notIndexed().build();
-        new FieldBuilder(builder, "HGNCId", "keyword").notIndexed().build();
-        new FieldBuilder(builder, "source", "keyword").notIndexed().build();
-        new FieldBuilder(builder, "HGVSOffset", "keyword").notIndexed().build();
-        new FieldBuilder(builder, "RefSeqMatch", "keyword").notIndexed().build();
-        new FieldBuilder(builder, "refSeqOffset", "keyword").notIndexed().build();
-        new FieldBuilder(builder, "givenRef", "keyword").notIndexed().build();
-        new FieldBuilder(builder, "usedRef", "keyword").notIndexed().build();
-        new FieldBuilder(builder, "BAMEdit", "keyword").notIndexed().build();
-        buildVariantEffects();
-        buildVariantSamples();
-        builder.endObject();
-        builder.endObject();
-    }
-
-    protected void buildVariantEffects() throws IOException {
-        builder.startObject("variantEffects");
-        builder.startObject("properties");
-        new FieldBuilder(builder,"consequence", "keyword").notIndexed().build();
-        new FieldBuilder(builder,"featureType", "keyword").notIndexed().build();
-        builder.endObject();
-        builder.endObject();
-    }
-
-    protected void buildVariantSamples() throws IOException {
-        builder.startObject("samples");
-        builder.startObject("properties");
-        new FieldBuilder(builder, "sampleName", "keyword").notIndexed().build();
-        new FieldBuilder(builder, "depth", "integer").notIndexed().build();
-        new FieldBuilder(builder, "type", "keyword").notIndexed().build();
-        builder.endObject();
-        builder.endObject();
-    }
 
     protected void buildNestedDocument(String name) throws IOException {
         builder.startObject(name);
@@ -354,7 +271,7 @@ public class Mapping extends Builder {
         public void build() throws IOException {
             builder.startObject(name);
             if(type != null) builder.field("type", type);
-            if(!index) builder.field("index", "false");
+            if(!index) builder.field("index", false);
             if(analyzer != null) builder.field("analyzer", analyzer);
             if(symbol || autocomplete || keyword || keywordAutocomplete || synonym || sort || standardText) {
                 builder.startObject("fields");

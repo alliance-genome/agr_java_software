@@ -29,6 +29,7 @@ public class VariantIndexSettings extends Settings {
                 .field("translog.sync_interval", "15s")
                 .field("translog.flush_threshold_size", "4096mb")
                 .field("translog.durability", "async");
+                //.field("codec", "best_compression");
             buildAnalysis(true);
             builder.endObject();
         builder.endObject();
