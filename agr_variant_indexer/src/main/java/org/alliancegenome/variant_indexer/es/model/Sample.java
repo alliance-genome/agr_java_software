@@ -5,9 +5,11 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
 import lombok.Setter;
 
-@Getter @Setter
+@Getter
+@Setter
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
-public class VariantEffect {
-    private String consequence;
-    private String featureType;
+public class Sample {
+    private String sampleName;
+    private int depth;
+    private String type;
 }

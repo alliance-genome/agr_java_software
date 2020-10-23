@@ -12,17 +12,17 @@ public class Mapping extends Builder {
 
     public void buildMapping() {
         try {
-            builder.startObject();
-                builder.startObject("properties");
-                    buildSharedSearchableDocumentMappings();
-                builder.endObject();
-            builder.endObject();
+            builder.startObject().startObject("properties");
+            buildSharedSearchableDocumentMappings();
+            builder.endObject().endObject();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     protected void buildSharedSearchableDocumentMappings() throws IOException {
+        new FieldBuilder(builder, "alterationType", "text").keyword().build();
+        new FieldBuilder(builder, "age", "text").keyword().build();
         new FieldBuilder(builder, "alleles", "text").keyword().autocomplete().build();
         new FieldBuilder(builder, "anatomicalExpression", "text").keyword().build();
         new FieldBuilder(builder, "assays", "text").keyword().build();
@@ -139,6 +139,18 @@ public class Mapping extends Builder {
         builder.endObject();
     }
 
+    private void buildCrossReferenceLinkField() throws IOException {
+        builder.startObject("crossReferenceLinks");
+        builder.startObject("properties");
+        new FieldBuilder(builder,"name","keyword").build();
+        new FieldBuilder(builder,"displayName","keyword").build();
+        new FieldBuilder(builder,"url","keyword").build();
+        builder.endObject();
+        builder.endObject();
+    }
+
+
+
     protected void buildNestedDocument(String name) throws IOException {
         builder.startObject(name);
         builder.startObject("properties");
@@ -153,6 +165,7 @@ public class Mapping extends Builder {
         String name;
         String type;
         String analyzer;
+        boolean index;
         boolean autocomplete;
         boolean classicText;
         boolean htmlSmoosh;
@@ -169,6 +182,7 @@ public class Mapping extends Builder {
             this.builder = builder;
             this.name = name;
             this.type = type;
+            this.index = true;
         }
 
         public FieldBuilder analyzer(String analyzer) {
@@ -230,6 +244,11 @@ public class Mapping extends Builder {
             this.synonym = true;
             return this;
         }
+        
+        public FieldBuilder notIndexed() {
+            this.index = false;
+            return this;
+        }
 
         protected void buildProperty(String name, String type) throws IOException {
             buildProperty(name, type, null, null, null);
@@ -252,6 +271,7 @@ public class Mapping extends Builder {
         public void build() throws IOException {
             builder.startObject(name);
             if(type != null) builder.field("type", type);
+            if(!index) builder.field("index", false);
             if(analyzer != null) builder.field("analyzer", analyzer);
             if(symbol || autocomplete || keyword || keywordAutocomplete || synonym || sort || standardText) {
                 builder.startObject("fields");

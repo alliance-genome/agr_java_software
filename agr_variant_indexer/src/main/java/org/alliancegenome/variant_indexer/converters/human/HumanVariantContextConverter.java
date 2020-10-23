@@ -1,35 +1,54 @@
 package org.alliancegenome.variant_indexer.converters.human;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
+import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.variant_indexer.converters.VariantContextConverter;
-import org.alliancegenome.variant_indexer.es.model.VariantDocument;
+import org.alliancegenome.variant_indexer.es.model.*;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
-import htsjdk.variant.variantcontext.Allele;
-import htsjdk.variant.variantcontext.VariantContext;
+import htsjdk.variant.variantcontext.*;
+import io.github.lukehutch.fastclasspathscanner.utils.Join;
 
 public class HumanVariantContextConverter extends VariantContextConverter {
 
-    private static HumanVariantContextConverterHelper utils = new HumanVariantContextConverterHelper();
+    public List<VariantDocument> convertVariantContext(VariantContext ctx, SpeciesType speciesType, String[] header) {
 
-    public List<String> convertVariantContext(VariantContext ctx) {
+        List<VariantDocument> returnDocuments = new ArrayList<VariantDocument>();
 
-        List<String> returnDocuments = new ArrayList<String>();
-        
         Allele refNuc = ctx.getReference();
 
-        int index = 0;
         for (Allele a : ctx.getAlternateAlleles()) {
-            VariantDocument variantDocument = new VariantDocument();
-            variantDocument.setId(ctx.getID());
-            variantDocument.setChromosome(ctx.getContig());
-            variantDocument.setStartPos(ctx.getStart());
             if (a.compareTo(refNuc) < 0) {
                 continue;
             }
+            if (!alleleIsValid(ctx.getReference().getBaseString())) {
+                //   System.out.println(" *** Ref Nucleotides must be A,C,G,T,N");
+                continue;
+            }
+            if (!alleleIsValid(a.getBaseString())) {
+                //     System.out.println(" *** Var Nucleotides must be A,C,G,T,N");
+                continue;
+            }
+            
+            VariantDocument variantDocument = new VariantDocument();
+            variantDocument.setCategory("allele");
+            variantDocument.setAlterationType("variant");
+
+            //todo: need to generate actual hgvs
+            String hgvsNomenclature = ctx.getContig() + ':' + ctx.getStart() + "-not-real-hgvs";
+            variantDocument.setName(hgvsNomenclature);
+            variantDocument.setNameKey(hgvsNomenclature);
+
+            //todo: need to translate these types to match what we use for alleles
+            variantDocument.setVariantType(new HashSet<>() {{ add(ctx.getType().name()); }});
+            variantDocument.setId(ctx.getID());
+            variantDocument.setSpecies(speciesType.getName());
+            variantDocument.setChromosome(ctx.getContig());
+            variantDocument.setStartPos(ctx.getStart());
+
             int endPos = 0;
 
             if (ctx.isSNP()) {
@@ -38,58 +57,126 @@ public class HumanVariantContextConverter extends VariantContextConverter {
             if (ctx.isSimpleInsertion()) {
                 endPos = ctx.getStart();
                 //  System.out.println("INSERTION");
-            }
-            // deletions
-            else if (ctx.isSimpleDeletion()) {
+            } else if (ctx.isSimpleDeletion()) {
                 endPos = ctx.getStart() + refNuc.getDisplayString().length();
                 //  System.out.println("Deletion");
             } else {
                 //   System.out.println("Unexpected var type");
             }
-            if (!utils.alleleIsValid(ctx.getReference().getBaseString())) {
-                //   System.out.println(" *** Ref Nucleotides must be A,C,G,T,N");
-                continue;
-            }
-            if (!utils.alleleIsValid(a.getBaseString())) {
-                //     System.out.println(" *** Var Nucleotides must be A,C,G,T,N");
-                continue;
-            }
+
 
             variantDocument.setRefNuc(refNuc.getBaseString());
             variantDocument.setVarNuc(a.getBaseString());
             variantDocument.setEndPos(endPos);
-            variantDocument.setVariantType((String) ctx.getCommonInfo().getAttribute("TSA"));
+            variantDocument.setDocumentVariantType(ctx.getCommonInfo().getAttributeAsString("TSA", ""));
             try {
-                variantDocument.setConsequences(utils.getConsequences(ctx, index, a.getBaseString()));
-            } catch (JsonProcessingException e) {
+                variantDocument.setConsequences(getConsequences(ctx, a.getBaseString(), header));   
+            } catch (Exception e) {
                 e.printStackTrace();
             }
-            variantDocument.setEvidence(utils.mapEvidence(ctx));
-            variantDocument.setClinicalSignificance(utils.mapClinicalSignificance(ctx));
-            if (ctx.getAttribute("MA") != null)
-                variantDocument.setMA(ctx.getAttribute("MA").toString());
-            if (ctx.getAttribute("MAF") != null)
-                variantDocument.setMAF(Double.parseDouble(ctx.getAttribute("MAF").toString()));
-            if (ctx.getAttribute("MAC") != null)
-                variantDocument.setMAC(Integer.parseInt(ctx.getAttribute("MAC").toString()));
-            if (ctx.getAttribute("RefPep") != null)
-                variantDocument.setRefPep((String) ctx.getAttribute("RefPep"));
-            if (ctx.getAttribute("AA") != null)
-                variantDocument.setAa((String) ctx.getAttribute("AA"));
-            if (ctx.getAttribute("QUAL") != null)
-                variantDocument.setQual((String) ctx.getAttribute("QUAL"));
-            
-            index = index + 1;
 
-            try {
-                returnDocuments.add(mapper.writeValueAsString(variantDocument));
-            } catch (JsonProcessingException e) {
-                e.printStackTrace();
+            //todo: this will need an id->name map for genes
+            // convert to Neo Genes
+            variantDocument.setGenes(
+                    variantDocument.getConsequences()
+                    .stream()
+                    .map(x -> x.getGene())
+                    .collect(Collectors.toSet())
+                    );
+
+            variantDocument.setEvidence(mapEvidence(ctx));
+            variantDocument.setClinicalSignificance(mapClinicalSignificance(ctx));
+            if (ctx.getAttributes().containsKey("MA"))
+                variantDocument.setMA(ctx.getAttributeAsString("MA", ""));
+            if (ctx.getAttributes().containsKey("MAF"))
+                variantDocument.setMAF(ctx.getAttributeAsDouble("MAF", 0.0));
+            if (ctx.getAttributes().containsKey("MAC"))
+                variantDocument.setMAC(ctx.getAttributeAsInt("MAC", 0));
+            if (ctx.getAttributes().containsKey("RefPep"))
+                variantDocument.setRefPep(ctx.getAttributeAsString("RefPep", ""));
+            if (ctx.getAttributes().containsKey("AA"))
+                variantDocument.setAa(ctx.getAttributeAsString("AA", ""));
+            if (ctx.getAttributes().containsKey("QUAL"))
+                variantDocument.setQual(ctx.getAttributeAsString("QUAL", ""));
+            if (ctx.getAttributes().containsKey("FILTER"))
+                variantDocument.setQual(ctx.getAttributeAsString("FILTER", ""));
+
+            List<Genotype> genotypes=ctx.getGenotypes();
+            
+            if(genotypes != null && genotypes.size() > 0) {
+                List<String> samples = new ArrayList<>();
+                for (Genotype g : genotypes) {
+                    if(!g.getType().name().equals("NO_CALL")) {
+                        samples.add(g.getSampleName());
+                    }
+                }
+                variantDocument.setSamples(samples);
             }
+
+            returnDocuments.add(variantDocument);
         }
-        
+
         return returnDocuments;
 
+    }
+
+    public List<String> mapEvidence(VariantContext ctx){
+        CommonInfo info = ctx.getCommonInfo();
+        List<String> evidences = new ArrayList<>();
+        for(String key: info.getAttributes().keySet()) {
+            if(Evidence.emap.containsKey(key)) {
+                evidences.add(Evidence.emap.get(key));
+            }
+        }
+        return evidences;
+    }
+    public List<String> mapClinicalSignificance(VariantContext ctx){
+        CommonInfo info = ctx.getCommonInfo();
+        List<String> significance = new ArrayList<>();
+        for(String key: info.getAttributes().keySet()) {
+            
+            if(ClinicalSig.csmap.containsKey(key)) {
+                significance.add(ClinicalSig.csmap.get(key));
+            }
+        }
+        return significance;
+    }
+
+
+    public List<TranscriptFeature> getConsequences(VariantContext ctx, String varNuc, String[] header) throws Exception {
+        List<TranscriptFeature> features = new ArrayList<>();
+
+        for(String s: ctx.getAttributeAsStringList("CSQ", "")) {
+            if(s.length() > 0) {
+                String[] infos = s.split("\\|", -1);
+
+                if(header.length == infos.length) {
+                    if(infos[0].equalsIgnoreCase(varNuc)) {
+                        TranscriptFeature feature = new TranscriptFeature(header, infos);
+                        features.add(feature);
+                    }
+                } else {
+                    System.out.println("Diff: " + header.length + " " + infos.length);
+                    System.out.println(Join.join("|", header));
+                    System.out.println(s);
+                    for(int i = 0; i < infos.length; i++) {
+                        System.out.println("Value: " + infos[i]);
+                    }
+                }
+            }
+        }
+        return features;
+    }
+
+
+    public  boolean alleleIsValid(String allele) {
+        for( int i=0; i<allele.length(); i++ ) {
+            char c = allele.charAt(i);
+            if( c=='A' || c=='C' || c=='G' || c=='T' || c=='N' || c=='-' )
+                continue;
+            return false;
+        }
+        return true;
     }
 
 }

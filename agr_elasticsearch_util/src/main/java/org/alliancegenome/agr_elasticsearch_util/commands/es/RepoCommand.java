@@ -3,7 +3,7 @@ package org.alliancegenome.agr_elasticsearch_util.commands.es;
 import java.util.*;
 
 import org.alliancegenome.agr_elasticsearch_util.commands.*;
-import org.elasticsearch.cluster.metadata.RepositoryMetaData;
+import org.elasticsearch.cluster.metadata.*;
 
 public class RepoCommand extends Command implements CommandInterface {
 
@@ -29,9 +29,9 @@ public class RepoCommand extends Command implements CommandInterface {
                     printHelp();
                 }
             } else if(command.equals("list")) {
-                List<RepositoryMetaData> meta = im.listRepos();
+                List<RepositoryMetadata> meta = im.listRepos();
                 if(meta != null) {
-                    for(RepositoryMetaData data: meta) {
+                    for(RepositoryMetadata data: meta) {
                         System.out.println("Name: " + data.name() + " Type: " + data.type());
                     }
                 } else {

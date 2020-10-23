@@ -4,6 +4,8 @@ import java.text.DecimalFormat;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.logging.log4j.Logger;
+
 import lombok.extern.log4j.Log4j2;
 
 @Log4j2
@@ -19,10 +21,17 @@ public class ProcessDisplayHelper {
     private long totalSize;
     private long sizeCounter = 0;
     private long displayTimeout = 30000; // How often to display to the console
+    private Logger logger = null;
     
     public ProcessDisplayHelper() { }
+
+
+    public ProcessDisplayHelper(Logger logger, Integer displayTimeout) {
+        this.displayTimeout = displayTimeout;
+        this.logger  = logger;
+    }
     
-    public ProcessDisplayHelper(int displayTimeout) {
+    public ProcessDisplayHelper(Integer displayTimeout) {
         this.displayTimeout = displayTimeout;
     }
 
@@ -37,20 +46,25 @@ public class ProcessDisplayHelper {
         startTime = new Date();
         sizeCounter = 0;
         if (totalSize > 0)
-            log.info(this.message + "Starting Process [total =  " + getBigNumber(totalSize) + "] ");
+            logInfoMessage(this.message + "Starting Process [total =    " + getBigNumber(totalSize) + "] ");
         else
-            log.info(this.message + "Starting Process at: ");
+            logInfoMessage(this.message + "Starting Process at: " + new Date());
 
         lastTime = new Date();
     }
 
     public void progressProcess() {
+        progressProcess(null);
+    }
+    
+    public void progressProcess(String data) {
         Date now = new Date();
-        long diff = now.getTime() - startTime.getTime();
+
         long time = now.getTime() - lastTime.getTime();
-        //log.info(this.message + "diff: " + diff + " time: " + time + " now: " + now + " startTime: " + startTime + " lastTime: " + lastTime);
         sizeCounter++;
-        if (time < displayTimeout) return; // report every 30 seconds
+        if (time < displayTimeout) return;
+        
+        long diff = now.getTime() - startTime.getTime();        
         checkMemory();
         
         double percent = 0;
@@ -58,31 +72,47 @@ public class ProcessDisplayHelper {
             percent = ((double) (sizeCounter) / totalSize);
         }
         long processedAmount = (sizeCounter - lastSizeCounter);
-        String message = "" + getBigNumber(sizeCounter);
+        StringBuffer sb = new StringBuffer(this.message);
+        sb.append(getBigNumber(sizeCounter));
         if(totalSize > 0) {
-            message += " of [" + getBigNumber(totalSize) + "] " + (int) (percent * 100) + "%";
+            sb.append(" of [" + getBigNumber(totalSize) + "] " + (int) (percent * 100) + "%");
         }
-        message += ", " + (time / 1000) + "s to process " + getBigNumber(processedAmount) + " records at " + getBigNumber((processedAmount * 1000) / time) + "r/s";
-
+        sb.append(", " + (time / 1000) + "s to process " + getBigNumber(processedAmount) + " records at " + getBigNumber((processedAmount * 1000) / time) + "r/s");
+        if(data != null) {
+            sb.append(" " + data);
+        }
+        
+        
         if (percent > 0) {
             int perms = (int) (diff / percent);
             Date end = new Date(startTime.getTime() + perms);
             String expectedDuration = getHumanReadableTimeDisplay(end.getTime() - (new Date()).getTime());
-            message += ", Mem: " + df.format(memoryPercent() * 100) + "%, ETA: " + expectedDuration + " [" + end + "]";
+            sb.append(", Mem: " + df.format(memoryPercent() * 100) + "%, ETA: " + expectedDuration + " [" + end + "]");
         }
-        log.info(this.message + message);
+        logInfoMessage(sb.toString());
         lastSizeCounter = sizeCounter;
         lastTime = now;
     }
 
     public void finishProcess() {
+        finishProcess(null);
+    }
+    
+    public void finishProcess(String data) {
         Date now = new Date();
         long duration = now.getTime() - startTime.getTime();
         String result = getHumanReadableTimeDisplay(duration);
-        if (duration != 0)
-            log.info(message + "Finished: took: " + result + " to process " + getBigNumber(sizeCounter) + " records at a rate of: " + ((sizeCounter * 1000) / duration) + "r/s");
-        else
-            log.info(message + "Finished: took: " + result + " to process " + getBigNumber(sizeCounter) + " records  ");
+        String localMessage = message + "Finished: took: " + result + " to process " + getBigNumber(sizeCounter);
+        if (duration != 0) {
+            localMessage += " records at a rate of: " + ((sizeCounter * 1000) / duration) + "r/s " + ((sizeCounter * 60000) / duration) + "r/m";
+        } else {
+            localMessage += " records";
+        }
+        
+        if(data != null) {
+            localMessage += " " + data;
+        }
+        logInfoMessage(localMessage);
     }
 
     private static String getBigNumber(long number) {
@@ -99,15 +129,31 @@ public class ProcessDisplayHelper {
 
     private void checkMemory() {
         if (memoryPercent() > 0.95) {
-            log.warn(message + "Memory Warning: " + df.format(memoryPercent() * 100) + "%");
-            log.warn(message + "Used Mem: " + (runtime.totalMemory() - runtime.freeMemory()));
-            log.warn(message + "Free Mem: " + runtime.freeMemory());
-            log.warn(message + "Total Mem: " + runtime.totalMemory());
-            log.warn(message + "Max Memory: " + runtime.maxMemory());
+            logWarnMessage(message + "Memory Warning: " + df.format(memoryPercent() * 100) + "%");
+            logWarnMessage(message + "Used Mem: " + (runtime.totalMemory() - runtime.freeMemory()));
+            logWarnMessage(message + "Free Mem: " + runtime.freeMemory());
+            logWarnMessage(message + "Total Mem: " + runtime.totalMemory());
+            logWarnMessage(message + "Max Memory: " + runtime.maxMemory());
         }
     }
 
     private double memoryPercent() {
         return ((double) runtime.totalMemory() - (double) runtime.freeMemory()) / (double) runtime.maxMemory();
+    }
+    
+    private void logWarnMessage(String message) {
+        if(logger != null) {
+            logger.warn(message);
+        } else {
+            log.warn(message);
+        }
+    }
+    
+    private void logInfoMessage(String message) {
+        if(logger != null) {
+            logger.info(message);
+        } else {
+            log.info(message);
+        }
     }
 }

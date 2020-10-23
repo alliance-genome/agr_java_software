@@ -3,7 +3,7 @@ package org.alliancegenome.agr_elasticsearch_util.commands.index;
 import java.util.*;
 
 import org.alliancegenome.agr_elasticsearch_util.commands.*;
-import org.elasticsearch.cluster.metadata.RepositoryMetaData;
+import org.elasticsearch.cluster.metadata.*;
 import org.elasticsearch.snapshots.SnapshotInfo;
 
 public class SnapShotCommand extends Command implements CommandInterface {
@@ -107,13 +107,24 @@ public class SnapShotCommand extends Command implements CommandInterface {
                 if(args.size() > 1) {
                     String repo = args.remove(0);
                     String snapShotName = args.remove(0);
-                    im.deleteSnapShot(repo, snapShotName);
+                    String[] array;
+                    if(snapShotName.contains(",")) {
+                        array = snapShotName.split(",");
+                    } else {
+                        array = new String[1];
+                        array[0] = snapShotName;
+                    }
+                    for(int i = 0; i < array.length; i++) {
+                        System.out.println("Deleting: " + array[i]);
+                        im.deleteSnapShot(repo, array[i]);
+                    }
+                    
                 } else {
                     printHelp();
                 }
             } else if(command.equals("logstash")) {
                 boolean logsFound = false;
-                for(RepositoryMetaData repo: im.listRepos()) {
+                for(RepositoryMetadata repo: im.listRepos()) {
                     if(repo.name().equals("logs")) {
                         logsFound = true;
                         break;

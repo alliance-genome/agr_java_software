@@ -144,10 +144,10 @@ public class IndexManager {
             e.printStackTrace();
         }
 
-        Set<AliasMetaData> aliasMetaDataSet = response.getAliases().get(index);
+        Set<AliasMetadata> aliasMetaDataSet = response.getAliases().get(index);
 
         if (CollectionUtils.isNotEmpty(aliasMetaDataSet)) {
-            aliases.addAll(aliasMetaDataSet.stream().map(AliasMetaData::alias).collect(Collectors.toList()));
+            aliases.addAll(aliasMetaDataSet.stream().map(AliasMetadata::alias).collect(Collectors.toList()));
         }
 
         return aliases;
@@ -169,7 +169,7 @@ public class IndexManager {
         }
 
         for (String index : response.getAliases().keySet()) {
-            for (AliasMetaData aliasMetaData : response.getAliases().get(index)) {
+            for (AliasMetadata aliasMetaData : response.getAliases().get(index)) {
                 if (StringUtils.equals(alias, aliasMetaData.getAlias())) {
                     return index;
                 }
@@ -232,13 +232,13 @@ public class IndexManager {
 
             GetRepositoriesRequest request = new GetRepositoriesRequest();
             GetRepositoriesResponse response = getClient().snapshot().getRepository(request, RequestOptions.DEFAULT);
-            List<RepositoryMetaData> repositories = response.repositories();
+            List<RepositoryMetadata> repositories = response.repositories();
 
             if(repositories.size() == 0) {
                 log.debug("No Repo's found - Creating Repo");
                 return createRepo(repoName);
             } else {
-                for(RepositoryMetaData repo: repositories) {
+                for(RepositoryMetadata repo: repositories) {
                     if(repo.name().equals(repoName)) {
                         return repo.name();
                     }
@@ -252,11 +252,11 @@ public class IndexManager {
         return null;
     }
 
-    public List<RepositoryMetaData> listRepos() {
+    public List<RepositoryMetadata> listRepos() {
         try {
             GetRepositoriesRequest request = new GetRepositoriesRequest();
             GetRepositoriesResponse response = getClient().snapshot().getRepository(request, RequestOptions.DEFAULT);
-            List<RepositoryMetaData> repositories = response.repositories();
+            List<RepositoryMetadata> repositories = response.repositories();
 
             return repositories;
         } catch (Exception ex) {
@@ -279,11 +279,10 @@ public class IndexManager {
     public void deleteSnapShot(String repo, String snapShotName) {
         try {
             log.info("Deleting Snapshot: " + snapShotName + " in: " + repo);
-            DeleteSnapshotRequest request = new DeleteSnapshotRequest(repo);
-            request.snapshot(snapShotName);
+            DeleteSnapshotRequest request = new DeleteSnapshotRequest(repo, snapShotName);
             getClient().snapshot().delete(request, RequestOptions.DEFAULT);
         } catch (Exception ex) {
-            log.error("Exception in restoreSnapShot method: " + ex.toString());
+            log.error("Exception in deleteSnapShot method: " + ex.toString());
         }
     }
 
@@ -392,8 +391,8 @@ public class IndexManager {
 
     private void checkRepo(String repo) {
         boolean found = false;
-        List<RepositoryMetaData> meta = listRepos();
-        for(RepositoryMetaData data: meta) {
+        List<RepositoryMetadata> meta = listRepos();
+        for(RepositoryMetadata data: meta) {
             if(data.name().equals(repo)) {
                 found = true;
                 System.out.println("Repo Found Name: " + data.name() + " Type: " + data.type());

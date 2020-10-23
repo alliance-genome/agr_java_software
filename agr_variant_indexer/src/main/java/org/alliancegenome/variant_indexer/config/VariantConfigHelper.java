@@ -2,9 +2,7 @@ package org.alliancegenome.variant_indexer.config;
 
 import static org.alliancegenome.core.config.Constants.*;
 
-import java.util.HashMap;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 
 import org.alliancegenome.core.util.FileHelper;
 
@@ -38,25 +36,30 @@ public class VariantConfigHelper {
 
         defaults.put(VARIANT_CONFIG_FILE, "downloadFileSet.yaml");
         
+        defaults.put(VARIANT_CONFIG_DOWNLOAD, "true");
+        defaults.put(VARIANT_CONFIG_CREATING, "true");
+        
         defaults.put(VARIANT_FILE_DOWNLOAD_THREADS, "10");
         defaults.put(VARIANT_FILE_DOWNLOAD_FILTER_THREADS, "10");
         defaults.put(VARIANT_FILE_DOWNLOAD_PATH, "data");
-
-        defaults.put(VARIANT_DOCUMENT_CREATOR_THREADS, "12");
-        defaults.put(VARIANT_DOCUMENT_CREATOR_CONTEXT_PROCESSOR_TASK_THREADS, "8");
-        defaults.put(VARIANT_DOCUMENT_CREATOR_CONTEXT_PROCESSOR_TASK_QUEUE_SIZE, "10");
-        defaults.put(VARIANT_DOCUMENT_CREATOR_WORK_CHUNK_SIZE, "1000");
-
-        int target = 25;
-        int avgDocSize = 1000;
-
-        // Average document size is 1200b
-        defaults.put(VARIANT_INDEX_REQUEST_QUEUE_SIZE, "" + (int)((target * 10_000_000) / avgDocSize)); // Queue documents waiting to go into a (target * 10) MB
-        defaults.put(VARIANT_ES_BULK_ACTION_SIZE, "" + (int)((target * 1_000_000) / avgDocSize)); // Max amount of documents in a bulk request target MB
-        defaults.put(VARIANT_ES_BULK_CONCURRENT_REQUEST_AMOUNT, "10"); // Amount of concurrent bulk requests running (target * 10) MB
-        defaults.put(VARIANT_ES_BULK_SIZE_MB, "" + target); // Max size of bulk request target
         
-        defaults.put(VARIANT_ES_INDEX_NUMBER_OF_SHARDS, "32");
+        defaults.put(VARIANT_DISPLAY_INTERVAL, "30");
+        
+        defaults.put(VARIANT_SOURCE_DOCUMENT_CREATOR_THREADS, "1");
+        
+        defaults.put(VARIANT_SOURCE_DOCUMENT_CREATOR_VCQUEUE_SIZE, "400");
+        defaults.put(VARIANT_SOURCE_DOCUMENT_CREATOR_VCQUEUE_BUCKET_SIZE, "25");
+        defaults.put(VARIANT_SOURCE_DOCUMENT_CREATOR_OBJECT_QUEUE_SIZE, "450");
+        defaults.put(VARIANT_SOURCE_DOCUMENT_CREATOR_OBJECT_QUEUE_BUCKET_SIZE, "32");
+        
+        
+        defaults.put(VARIANT_PRODUCER_THREADS, "12");
+        defaults.put(VARIANT_TRANSFORMER_THREADS, "12");
+        
+        defaults.put(VARIANT_INDEXER_SHARDS, "16");
+        defaults.put(VARIANT_INDEXER_BULK_PROCESSOR_THREADS, "12");
+        
+        defaults.put(VARIANT_BULK_PROCESSOR_SETTINGS, "1000;10;10;10000,133;10;10;1333,100;10;10;1000,50;10;10;500");
 
         allKeys = defaults.keySet();
 
@@ -107,6 +110,28 @@ public class VariantConfigHelper {
         if (!init) init();
         return config.get(VARIANT_CONFIG_FILE);
     }
+    
+    public static int[][] getBulkProcessorSettingsArray() {
+        String settings = getBulkProcessorSettings();
+        String[] array = settings.split(",");
+        int[][] ret = new int[array.length][];
+        
+        for(int i = 0; i < array.length; i++) {
+            String[] array2 = array[i].split(";");
+            ret[i] = new int[array2.length];
+            for(int k = 0; k < array2.length; k++) {
+                ret[i][k] = Integer.parseInt(array2[k]);
+                log.debug("ret[" + i + "][" + k + "]=" + ret[i][k]);
+            }
+        }
+        
+        return ret;
+    }
+    
+    public static String getBulkProcessorSettings() {
+        if (!init) init();
+        return config.get(VARIANT_BULK_PROCESSOR_SETTINGS);
+    }
 
     public static String getVariantFileDownloadPath() {
         if (!init) init();
@@ -120,48 +145,21 @@ public class VariantConfigHelper {
         }
     }
 
-    public static Integer getIndexRequestQueueSize() {
+    public static Boolean isDownloading() {
         if (!init) init();
-        try {
-            return Integer.parseInt(config.get(VARIANT_INDEX_REQUEST_QUEUE_SIZE));
-        } catch (NumberFormatException e) {
-            return 10000;
-        }
+        return Boolean.parseBoolean(config.get(VARIANT_CONFIG_DOWNLOAD));
+    }
+    public static Boolean isCreating() {
+        if (!init) init();
+        return Boolean.parseBoolean(config.get(VARIANT_CONFIG_CREATING));
     }
 
-    public static Integer getEsBulkActionSize() {
+    public static Integer getIndexerShards() {
         if (!init) init();
         try {
-            return Integer.parseInt(config.get(VARIANT_ES_BULK_ACTION_SIZE));
+            return Integer.parseInt(config.get(VARIANT_INDEXER_SHARDS));
         } catch (NumberFormatException e) {
-            return 250000;
-        }
-    }
-
-    public static Integer getEsBulkConcurrentRequestsAmount() {
-        if (!init) init();
-        try {
-            return Integer.parseInt(config.get(VARIANT_ES_BULK_CONCURRENT_REQUEST_AMOUNT));
-        } catch (NumberFormatException e) {
-            return 3;
-        }
-    }
-
-    public static Integer getEsBulkSizeMB() {
-        if (!init) init();
-        try {
-            return Integer.parseInt(config.get(VARIANT_ES_BULK_SIZE_MB));
-        } catch (NumberFormatException e) {
-            return 100;
-        }
-    }
-
-    public static Integer getEsNumberOfShards() {
-        if (!init) init();
-        try {
-            return Integer.parseInt(config.get(VARIANT_ES_INDEX_NUMBER_OF_SHARDS));
-        } catch (NumberFormatException e) {
-            return 8;
+            return 4;
         }
     }
 
@@ -173,43 +171,7 @@ public class VariantConfigHelper {
             return 10;
         }
     }
-
-    public static Integer getDocumentCreatorThreads() {
-        if (!init) init();
-        try {
-            return Integer.parseInt(config.get(VARIANT_DOCUMENT_CREATOR_THREADS));
-        } catch (NumberFormatException e) {
-            return 4;
-        }
-    }
-
-    public static Integer getContextProcessorTaskThreads() {
-        if (!init) init();
-        try {
-            return Integer.parseInt(config.get(VARIANT_DOCUMENT_CREATOR_CONTEXT_PROCESSOR_TASK_THREADS));
-        } catch (NumberFormatException e) {
-            return 6;
-        }
-    }
-
-    public static Integer getContextProcessorTaskQueueSize() {
-        if (!init) init();
-        try {
-            return Integer.parseInt(config.get(VARIANT_DOCUMENT_CREATOR_CONTEXT_PROCESSOR_TASK_QUEUE_SIZE));
-        } catch (NumberFormatException e) {
-            return 100;
-        }
-    }
-
-    public static Integer getDocumentCreatorWorkChunkSize() {
-        if (!init) init();
-        try {
-            return Integer.parseInt(config.get(VARIANT_DOCUMENT_CREATOR_WORK_CHUNK_SIZE));
-        } catch (NumberFormatException e) {
-            return 100;
-        }
-    }
-
+    
     public static int getFileDownloadFilterThreads() {
         if (!init) init();
         try {
@@ -219,6 +181,83 @@ public class VariantConfigHelper {
         }
     }
 
-
+    public static Integer getSourceDocumentCreatorThreads() {
+        if (!init) init();
+        try {
+            return Integer.parseInt(config.get(VARIANT_SOURCE_DOCUMENT_CREATOR_THREADS));
+        } catch (NumberFormatException e) {
+            return 4;
+        }
+    }
+    public static Integer getDisplayInterval() {
+        if (!init) init();
+        try {
+            return Integer.parseInt(config.get(VARIANT_DISPLAY_INTERVAL)) * 1000;
+        } catch (NumberFormatException e) {
+            return 4000;
+        }
+    }
+    public static Integer getSourceDocumentCreatorVCQueueSize() {
+        if (!init) init();
+        try {
+            return Integer.parseInt(config.get(VARIANT_SOURCE_DOCUMENT_CREATOR_VCQUEUE_SIZE));
+        } catch (NumberFormatException e) {
+            return 100;
+        }
+    }
+    
+    public static int getSourceDocumentCreatorVCQueueBucketSize() {
+        if (!init) init();
+        try {
+            return Integer.parseInt(config.get(VARIANT_SOURCE_DOCUMENT_CREATOR_VCQUEUE_BUCKET_SIZE));
+        } catch (NumberFormatException e) {
+            return 100;
+        }
+    }
+    
+    public static Integer getSourceDocumentCreatorObjectQueueSize() {
+        if (!init) init();
+        try {
+            return Integer.parseInt(config.get(VARIANT_SOURCE_DOCUMENT_CREATOR_OBJECT_QUEUE_SIZE));
+        } catch (NumberFormatException e) {
+            return 100;
+        }
+    }
+    
+    public static int getSourceDocumentCreatorObjectQueueBucketSize() {
+        if (!init) init();
+        try {
+            return Integer.parseInt(config.get(VARIANT_SOURCE_DOCUMENT_CREATOR_OBJECT_QUEUE_BUCKET_SIZE));
+        } catch (NumberFormatException e) {
+            return 100;
+        }
+    }
+    
+    public static int getIndexerBulkProcessorThreads() {
+        if (!init) init();
+        try {
+            return Integer.parseInt(config.get(VARIANT_INDEXER_BULK_PROCESSOR_THREADS));
+        } catch (NumberFormatException e) {
+            return 16;
+        }
+    }
+    
+    public static int getTransformerThreads() {
+        if (!init) init();
+        try {
+            return Integer.parseInt(config.get(VARIANT_TRANSFORMER_THREADS));
+        } catch (NumberFormatException e) {
+            return 4;
+        }
+    }
+    
+    public static int getProducerThreads() {
+        if (!init) init();
+        try {
+            return Integer.parseInt(config.get(VARIANT_PRODUCER_THREADS));
+        } catch (NumberFormatException e) {
+            return 4;
+        }
+    }
 
 }

@@ -26,8 +26,7 @@ public class EsClientFactory {
     }
     
     public static RestHighLevelClient createNewClient() {
-        client = createClient();
-        return client;
+        return createClient();
     }
 
     // Used if APP needs to have multiple clients
@@ -41,7 +40,7 @@ public class EsClientFactory {
             Collection<Integer> ports = map.get(host);
             for(Integer port: ports) {
                 esHosts.add(new HttpHost(host, port));
-                log.info("Adding Host: " + host + ":" + port);
+                log.debug("Adding Host: " + host + ":" + port);
             }
         }
 
