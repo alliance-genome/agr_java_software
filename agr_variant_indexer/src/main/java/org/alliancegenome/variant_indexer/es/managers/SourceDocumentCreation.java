@@ -43,6 +43,7 @@ public class SourceDocumentCreation extends Thread {
     private BulkProcessor bulkProcessor4;
 
     private RestHighLevelClient client = EsClientFactory.getDefaultEsClient();
+    private boolean indexing = VariantConfigHelper.isIndexing();
 
     private LinkedBlockingDeque<List<VariantContext>> vcQueue = new LinkedBlockingDeque<List<VariantContext>>(VariantConfigHelper.getSourceDocumentCreatorVCQueueSize());
     private LinkedBlockingDeque<List<VariantDocument>> objectQueue = new LinkedBlockingDeque<List<VariantDocument>>(VariantConfigHelper.getSourceDocumentCreatorObjectQueueSize());
@@ -417,7 +418,7 @@ public class SourceDocumentCreation extends Thread {
                 try {
                     List<String> docs = jsonQueue.take();
                     for(String doc: docs) {
-                        bulkProcessor.add(new IndexRequest(indexName).source(doc, XContentType.JSON));
+                        if(indexing) bulkProcessor.add(new IndexRequest(indexName).source(doc, XContentType.JSON));
                         ph3.progressProcess();
                     }
                     ph4.progressProcess("JSon Queue: " + jsonQueue.size());
