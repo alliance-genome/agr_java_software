@@ -38,6 +38,7 @@ public class VariantConfigHelper {
         
         defaults.put(VARIANT_CONFIG_DOWNLOAD, "true");
         defaults.put(VARIANT_CONFIG_CREATING, "true");
+        defaults.put(VARIANT_CONFIG_INDEXING, "true");
         
         defaults.put(VARIANT_FILE_DOWNLOAD_THREADS, "10");
         defaults.put(VARIANT_FILE_DOWNLOAD_FILTER_THREADS, "10");
@@ -152,6 +153,10 @@ public class VariantConfigHelper {
     public static Boolean isCreating() {
         if (!init) init();
         return Boolean.parseBoolean(config.get(VARIANT_CONFIG_CREATING));
+    }
+    public static Boolean isIndexing() {
+        if (!init) init();
+        return Boolean.parseBoolean(config.get(VARIANT_CONFIG_INDEXING));
     }
 
     public static Integer getIndexerShards() {

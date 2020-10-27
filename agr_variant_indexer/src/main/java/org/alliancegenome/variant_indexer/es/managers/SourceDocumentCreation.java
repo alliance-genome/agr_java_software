@@ -17,7 +17,6 @@ import org.elasticsearch.client.*;
 import org.elasticsearch.common.unit.*;
 import org.elasticsearch.common.xcontent.XContentType;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import htsjdk.samtools.util.CloseableIterator;
@@ -43,6 +42,7 @@ public class SourceDocumentCreation extends Thread {
     private BulkProcessor bulkProcessor4;
 
     private RestHighLevelClient client = EsClientFactory.getDefaultEsClient();
+    private boolean indexing = VariantConfigHelper.isIndexing();
 
     private LinkedBlockingDeque<List<VariantContext>> vcQueue = new LinkedBlockingDeque<List<VariantContext>>(VariantConfigHelper.getSourceDocumentCreatorVCQueueSize());
     private LinkedBlockingDeque<List<VariantDocument>> objectQueue = new LinkedBlockingDeque<List<VariantDocument>>(VariantConfigHelper.getSourceDocumentCreatorObjectQueueSize());
@@ -190,10 +190,10 @@ public class SourceDocumentCreation extends Thread {
             transformers.add(transformer);
         }
         
-        List<JSONProducre> producers = new ArrayList<>();
-        ph5.startProcess("JSONProducrers: " + speciesType.getName());
+        List<JSONProducer> producers = new ArrayList<>();
+        ph5.startProcess("JSONProducers: " + speciesType.getName());
         for(int i = 0; i < VariantConfigHelper.getProducerThreads(); i++) {
-            JSONProducre producer = new JSONProducre();
+            JSONProducer producer = new JSONProducer();
             producer.start();
             producers.add(producer);
         }
@@ -235,8 +235,24 @@ public class SourceDocumentCreation extends Thread {
                 t.join();
             }
             log.info("Transformers shutdown");
-            
             ph2.finishProcess();
+            
+            
+            log.info("Waiting for Object Queue to empty");
+            while(!objectQueue.isEmpty()) {
+                Thread.sleep(15000);
+            }
+            TimeUnit.MILLISECONDS.sleep(15000);
+            log.info("Object Empty shuting down producers");
+
+            log.info("Shutting down producers");
+            for(JSONProducer p: producers) {
+                p.interrupt();
+                p.join();
+            }
+            log.info("JSONProducers shutdown");
+            ph5.finishProcess();
+            
             
             log.info("Waiting for jsonQueue to empty");
             while(!jsonQueue1.isEmpty() || !jsonQueue2.isEmpty() || !jsonQueue3.isEmpty() || !jsonQueue4.isEmpty()) {
@@ -353,7 +369,7 @@ public class SourceDocumentCreation extends Thread {
         }
     }
 
-    private class JSONProducre extends Thread {
+    private class JSONProducer extends Thread {
 
         private ObjectMapper mapper = new ObjectMapper();
 
@@ -417,7 +433,7 @@ public class SourceDocumentCreation extends Thread {
                 try {
                     List<String> docs = jsonQueue.take();
                     for(String doc: docs) {
-                        bulkProcessor.add(new IndexRequest(indexName).source(doc, XContentType.JSON));
+                        if(indexing) bulkProcessor.add(new IndexRequest(indexName).source(doc, XContentType.JSON));
                         ph3.progressProcess();
                     }
                     ph4.progressProcess("JSon Queue: " + jsonQueue.size());
