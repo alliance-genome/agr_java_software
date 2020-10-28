@@ -11,6 +11,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 
 import htsjdk.variant.variantcontext.*;
 import io.github.lukehutch.fastclasspathscanner.utils.Join;
+import org.apache.commons.lang3.StringUtils;
 
 public class HumanVariantContextConverter extends VariantContextConverter {
 
@@ -37,10 +38,6 @@ public class HumanVariantContextConverter extends VariantContextConverter {
             variantDocument.setCategory("allele");
             variantDocument.setAlterationType("variant");
 
-            //todo: need to generate actual hgvs
-            String hgvsNomenclature = ctx.getContig() + ':' + ctx.getStart() + "-not-real-hgvs";
-            variantDocument.setName(hgvsNomenclature);
-            variantDocument.setNameKey(hgvsNomenclature);
 
             //todo: need to translate these types to match what we use for alleles
             variantDocument.setVariantType(new HashSet<>() {{ add(ctx.getType().name()); }});
@@ -75,12 +72,10 @@ public class HumanVariantContextConverter extends VariantContextConverter {
                 e.printStackTrace();
             }
 
-            //todo: this will need an id->name map for genes
-            // convert to Neo Genes
             variantDocument.setGenes(
                     variantDocument.getConsequences()
                     .stream()
-                    .map(x -> x.getGene())
+                    .map(x -> x.getSymbol() + " (" + speciesType.getAbbreviation() + ")")
                     .collect(Collectors.toSet())
                     );
 
@@ -112,6 +107,21 @@ public class HumanVariantContextConverter extends VariantContextConverter {
                 }
                 variantDocument.setSamples(samples);
             }
+
+            variantDocument.setMolecularConsequence(
+                    variantDocument.getConsequences().stream()
+                    .map(TranscriptFeature::getConsequence)
+                            .collect(Collectors.toSet())
+            );
+
+            String hgvsNomenclature = variantDocument.getConsequences().stream()
+                    .findFirst()
+                    .map(TranscriptFeature::getHgvsg)
+                    .orElse(ctx.getContig() + ':' + ctx.getStart() + "-needs-real-hgvs");
+
+            variantDocument.setName(hgvsNomenclature);
+            variantDocument.setNameKey(hgvsNomenclature);
+
 
             returnDocuments.add(variantDocument);
         }
