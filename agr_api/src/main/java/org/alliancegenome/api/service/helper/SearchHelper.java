@@ -134,6 +134,10 @@ public class SearchHelper {
             add("cellularComponentExpressionAgrSlim");
             add("cellularComponentExpressionAgrSlim.keyword");
             add("chromosomes");
+            add("consequences.hgvsc");
+            add("consequences.hgvsg");
+            add("consequences.hgvsp");
+            add("consequences.gene");
             add("constructs");
             add("constructs.keyword");
             add("constructs.classicText");
@@ -218,6 +222,7 @@ public class SearchHelper {
     @Getter
     private final List<String> responseFields = new ArrayList<String>() {
         {
+            add("alterationType");
             add("biologicalProcess");
             add("branch");
             add("category");
