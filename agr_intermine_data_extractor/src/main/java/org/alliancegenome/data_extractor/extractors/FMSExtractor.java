@@ -62,6 +62,11 @@ public class FMSExtractor extends DataExtractor {
     protected String getFileName() {
         return null;
     }
+    
+    @Override
+    protected String getDirName() {
+        return "fms";
+    }
 
     public class FMSDownload implements Runnable {
 
@@ -87,5 +92,7 @@ public class FMSExtractor extends DataExtractor {
             }
         }
     }
+    
+    
 
 }
