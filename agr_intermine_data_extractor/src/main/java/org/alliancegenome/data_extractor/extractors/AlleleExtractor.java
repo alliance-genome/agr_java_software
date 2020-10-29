@@ -32,4 +32,8 @@ public class AlleleExtractor extends DataExtractor {
         return "Allele.tsv";
     }
 
+    @Override
+    protected String getDirName() {
+        return "alleles";
+    }
 }

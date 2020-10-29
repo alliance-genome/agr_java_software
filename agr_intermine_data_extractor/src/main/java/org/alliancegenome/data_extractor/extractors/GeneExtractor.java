@@ -29,5 +29,10 @@ public class GeneExtractor extends DataExtractor {
     protected String getFileName() {
         return "Gene.tsv";
     }
+    
+    @Override
+    protected String getDirName() {
+        return "genes";
+    }
 
 }

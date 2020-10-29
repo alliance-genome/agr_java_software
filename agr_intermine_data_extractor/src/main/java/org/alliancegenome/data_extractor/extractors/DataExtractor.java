@@ -16,6 +16,7 @@ public abstract class DataExtractor extends Thread {
 
     protected abstract void extract(PrintWriter writer);
     protected abstract String getFileName();
+	protected abstract String getDirName();
 
     private ProcessDisplayHelper display = new ProcessDisplayHelper();
     
@@ -25,7 +26,11 @@ public abstract class DataExtractor extends Thread {
             Date start = new Date();
             log.info(this.getClass().getSimpleName() + " started: " + start);
             if(getFileName() != null) {
-                PrintWriter output_writer = new PrintWriter(new File(ConfigHelper.getDataExtractorDirectory() + "/" + getFileName()));
+            	File directory = new File(ConfigHelper.getDataExtractorDirectory() + "/" + getDirName());
+                if (! directory.exists()){
+                    directory.mkdir();
+                }
+                PrintWriter output_writer = new PrintWriter(new File(ConfigHelper.getDataExtractorDirectory() + "/" + getDirName() + "/" + getFileName()));
                 extract(output_writer);
                 output_writer.close();
             } else {
@@ -56,4 +61,5 @@ public abstract class DataExtractor extends Thread {
     protected void finishProcess() {
         display.finishProcess();
     }
+
 }

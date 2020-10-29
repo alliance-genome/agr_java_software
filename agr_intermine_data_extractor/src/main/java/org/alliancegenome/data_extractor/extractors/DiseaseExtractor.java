@@ -30,6 +30,11 @@ public class DiseaseExtractor extends DataExtractor {
     protected String getFileName() {
         return "Diseases.tsv";
     }
+    
+    @Override
+    protected String getDirName() {
+        return "diseases";
+    }
 
 }
 

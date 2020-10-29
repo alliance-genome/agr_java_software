@@ -21,6 +21,7 @@ public class GeneTSVTranslator extends ResultTSVTranslator {
         return Arrays.asList(
                 "Id",
                 "Name",
+                "Description",
                 "Species",
                 "Chromosome",
                 "Start",
@@ -36,6 +37,7 @@ public class GeneTSVTranslator extends ResultTSVTranslator {
         return Arrays.asList(
             String.valueOf(map.get("g.primaryKey")),
             String.valueOf(map.get("g.name")),
+            String.valueOf(map.get("g.description")),
             String.valueOf(map.get("s.primaryKey")),
             String.valueOf(map.get("gl.chromosome")),
             String.valueOf(map.get("gl.start")),
