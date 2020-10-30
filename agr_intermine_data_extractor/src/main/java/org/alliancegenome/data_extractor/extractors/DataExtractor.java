@@ -16,7 +16,7 @@ public abstract class DataExtractor extends Thread {
 
     protected abstract void extract(PrintWriter writer);
     protected abstract String getFileName();
-	protected abstract String getDirName();
+    protected abstract String getDirName();
 
     private ProcessDisplayHelper display = new ProcessDisplayHelper();
     
@@ -26,7 +26,7 @@ public abstract class DataExtractor extends Thread {
             Date start = new Date();
             log.info(this.getClass().getSimpleName() + " started: " + start);
             if(getFileName() != null) {
-            	File directory = new File(ConfigHelper.getDataExtractorDirectory() + "/" + getDirName());
+                File directory = new File(ConfigHelper.getDataExtractorDirectory() + "/" + getDirName());
                 if (! directory.exists()){
                     directory.mkdir();
                 }

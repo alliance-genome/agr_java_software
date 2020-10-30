@@ -1,5 +1,6 @@
 ARG ALLIANCE_RELEASE=latest
-FROM agrdocker/agr_base_linux_env:${ALLIANCE_RELEASE}
+ARG REGISTRY=agrdocker
+FROM ${REGISTRY}/agr_base_linux_env:${ALLIANCE_RELEASE}
 
 WORKDIR /workdir/agr_java_software
 
