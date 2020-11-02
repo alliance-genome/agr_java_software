@@ -1,3 +1,4 @@
+package org.alliancegenome.api.tests.unit
 
 import org.alliancegenome.api.service.QueryManipulationService
 
@@ -9,7 +10,7 @@ class QueryManipulationUnitSpec extends Specification {
     private QueryManipulationService queryManipulationService = new QueryManipulationService()
 
     @Unroll
-    def "#query should be replaced with #output"() {
+    def "#query should be replaced with #expectedOutput"() {
         when:
         String manipulatedQuery = queryManipulationService.processQuery(query)
         then:
