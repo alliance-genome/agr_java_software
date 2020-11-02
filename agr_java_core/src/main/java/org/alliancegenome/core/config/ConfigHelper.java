@@ -76,6 +76,9 @@ public class ConfigHelper {
         
         defaults.put(VARIANT_DOWNLOAD_PATH, "data");
         defaults.put(VARIANT_CONFIG_FILE, "downloadFileSet.yaml");
+        
+        defaults.put(ALLIANCE_RELEASE, "0.0.0");
+        defaults.put(FMS_URL, "https://fms.alliancegenome.org/api");
 
         // This next item needs to be set in order to prevent the 
         // Caused by: java.lang.IllegalStateException: availableProcessors is already set to [16], rejecting [16]
@@ -355,7 +358,17 @@ public class ConfigHelper {
         if (!init) init();
         return config.get(RIBBON_TERM_SPECIES_APPLICABILITY);
     }
-
+    
+    public static String getFMSUrl() {
+        if (!init) init();
+        return config.get(FMS_URL);
+    }
+    
+    public static String getAllianceRelease() {
+        if (!init) init();
+        return config.get(ALLIANCE_RELEASE);
+    }
+    
     public static void setNameValue(String key, String value) {
         config.put(key, value);
     }

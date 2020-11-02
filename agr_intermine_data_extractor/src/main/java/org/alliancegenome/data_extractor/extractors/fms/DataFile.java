@@ -7,7 +7,7 @@ import lombok.Setter;
 
 @Getter @Setter
 public class DataFile {
-    private String s3Path;
+    private String s3Url;
     private DataType dataType;
     private DataSubType dataSubType;
     

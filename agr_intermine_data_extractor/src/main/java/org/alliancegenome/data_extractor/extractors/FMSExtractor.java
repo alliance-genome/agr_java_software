@@ -42,8 +42,8 @@ public class FMSExtractor extends DataExtractor {
 
     @Override
     protected void extract(PrintWriter writer) {
-        api2 = RestProxyFactory.createProxy(SnapShotRESTInterface.class, "https://fms.alliancegenome.org/api");
-        SnapShotResponce res = api2.getSnapShot("3.1.0");
+        api2 = RestProxyFactory.createProxy(SnapShotRESTInterface.class, ConfigHelper.getFMSUrl());
+        SnapShotResponce res = api2.getSnapShot(ConfigHelper.getAllianceRelease());
 
         for(DataFile df: res.getSnapShot().getDataFiles()) {
             FMSDownload fd = new FMSDownload(df);
@@ -79,9 +79,9 @@ public class FMSExtractor extends DataExtractor {
         public void run() {
             
             try {
-                URL url = new URL("https://download.alliancegenome.org/" + df.getS3Path());
+                URL url = new URL(df.getS3Url());
                 log.info("Downloading: " + url);
-                File out = new File(ConfigHelper.getDataExtractorDirectory() + "/" + df.getFileName());
+                File out = new File(ConfigHelper.getDataExtractorDirectory() + "/" + getDirName() + "/" + df.getFileName());
                 if(!out.exists()) {
                     FileUtils.copyURLToFile(url, out);
                 } else {

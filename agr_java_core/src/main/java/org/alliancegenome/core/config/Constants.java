@@ -48,6 +48,8 @@ public class Constants {
     public static final String VARIANT_CONFIG_DOWNLOAD = "VARIANT_CONFIG_DOWNLOAD";
     public static final String VARIANT_CONFIG_CREATING = "VARIANT_CONFIG_CREATING";
     public static final String VARIANT_CONFIG_INDEXING = "VARIANT_CONFIG_INDEXING";
+    public static final String FMS_URL = "FMS_URL";
+    public static final String ALLIANCE_RELEASE = "ALLIANCE_RELEASE";
     
     // Variant File Downloader
     public static final String VARIANT_FILE_DOWNLOAD_THREADS = "VARIANT_FILE_DOWNLOAD_THREADS";
