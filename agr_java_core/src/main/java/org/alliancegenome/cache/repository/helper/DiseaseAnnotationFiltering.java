@@ -80,7 +80,7 @@ public class DiseaseAnnotationFiltering extends AnnotationFiltering<DiseaseAnnot
                                 return FilterFunction.contains(evidenceCode.getName(), value);
                         })
                         .collect(Collectors.toSet());
-                return !filteringPassed.contains(false);
+                return filteringPassed.contains(true);
             };
 
     public FilterFunction<DiseaseAnnotation, String> basedOnGeneFilter =

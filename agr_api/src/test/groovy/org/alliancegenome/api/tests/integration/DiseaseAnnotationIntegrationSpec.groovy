@@ -25,6 +25,21 @@ class DiseaseAnnotationIntegrationSpec extends Specification {
     }
 
     @Unroll
+    def "Disease Page: Gene table: #speciesName for disease #doiID and IGI evidence Code"() {
+        when:
+        def species = URLEncoder.encode(speciesName, "UTF-8")
+        def results = ApiTester.getApiResult("/api/disease/$doiID/genes?filter.species=$species&filter.evidenceCode=igi")
+
+        then:
+        results //should be some results
+        results.total > numberOfLines
+
+        where:
+        doiID      | speciesName                | numberOfLines
+        "DOID:162" | "Saccharomyces cerevisiae" | 70
+    }
+
+    @Unroll
     def "Disease page: allele section sort by allele for #query"() {
         when:
         def doiID = URLEncoder.encode(query, "UTF-8")
@@ -88,7 +103,7 @@ class DiseaseAnnotationIntegrationSpec extends Specification {
         sources == disease.sources.size()
         where:
         query       | id          | name                           | parents | children | doUrl              | sources | crossRefs | crossRefsOther | definition                                                                   | defLink
-        "DOID:9952" | "DOID:9952" | "acute lymphoblastic leukemia" | 1       | 6        | "disease-ontology" | 6       | "other"   | 10             | "A acute leukemia that is characterized by over production of lymphoblasts." | "http://www.cancer.gov/dictionary?CdrID=46332"
+        "DOID:9952" | "DOID:9952" | "acute lymphoblastic leukemia" | 1       | 5        | "disease-ontology" | 6       | "other"   | 10             | "A acute leukemia that is characterized by over production of lymphoblasts." | "http://www.cancer.gov/dictionary?CdrID=46332"
 
     }
 
