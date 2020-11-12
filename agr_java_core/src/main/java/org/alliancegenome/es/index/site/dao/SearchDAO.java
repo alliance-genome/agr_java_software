@@ -12,6 +12,7 @@ import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
+import org.elasticsearch.search.rescore.QueryRescorerBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 
 @SuppressWarnings("serial")
@@ -47,6 +48,7 @@ public class SearchDAO extends ESDAO {
 
     public SearchResponse performQuery(QueryBuilder query,
             List<AggregationBuilder> aggBuilders,
+            QueryRescorerBuilder rescorerBuilder,
             List<String> responseFields,
             int limit, int offset,
             HighlightBuilder highlighter,
@@ -60,6 +62,10 @@ public class SearchDAO extends ESDAO {
 
         if (debug) {
             searchSourceBuilder.explain(true);
+        }
+
+        if (rescorerBuilder != null) {
+            searchSourceBuilder.addRescorer(rescorerBuilder);
         }
 
         searchSourceBuilder.query(query);

@@ -19,6 +19,7 @@ import org.elasticsearch.index.query.*;
 import org.elasticsearch.index.query.functionscore.*;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
+import org.elasticsearch.search.rescore.QueryRescorerBuilder;
 import org.jboss.logging.Logger;
 
 @RequestScoped
@@ -46,11 +47,13 @@ public class SearchService {
 
         QueryBuilder query = buildFunctionQuery(q, category, filterMap);
 
+        QueryRescorerBuilder rescorerBuilder = buildRescorer(q);
+
         List<AggregationBuilder> aggBuilders = searchHelper.createAggBuilder(category, biotypeSelected(filterMap));
 
         HighlightBuilder hlb = searchHelper.buildHighlights();
 
-        SearchResponse searchResponse = searchDAO.performQuery(query, aggBuilders, searchHelper.getResponseFields(), limit, offset, hlb, sort_by, debug);
+        SearchResponse searchResponse = searchDAO.performQuery(query, aggBuilders, rescorerBuilder, searchHelper.getResponseFields(), limit, offset, hlb, sort_by, debug);
 
         log.debug("Search Query: " + q);
 
@@ -61,6 +64,14 @@ public class SearchService {
         result.setAggregations(searchHelper.formatAggResults(category, searchResponse));
 
         return result;
+    }
+
+    public QueryRescorerBuilder buildRescorer(String q) {
+        if (StringUtils.isEmpty(q)) {
+            return new QueryRescorerBuilder(new FunctionScoreQueryBuilder(buildRescoreMatchAllBoostFunctions()));
+        }
+
+        return new QueryRescorerBuilder(new FunctionScoreQueryBuilder(buildBoostFunctions(q)));
     }
 
     public QueryBuilder buildFunctionQuery(String q, String category, MultivaluedMap<String,String> filters) {
@@ -79,9 +90,16 @@ public class SearchService {
     public FunctionScoreQueryBuilder.FilterFunctionBuilder[] buildMatchAllBoostFunctions() {
         List<FunctionScoreQueryBuilder.FilterFunctionBuilder> functionList = new ArrayList<>();
 
+        functionList.add(documentPopularityBoost());
+
+        return functionList.toArray(new FunctionScoreQueryBuilder.FilterFunctionBuilder[functionList.size()]);
+    }
+
+    public FunctionScoreQueryBuilder.FilterFunctionBuilder[] buildRescoreMatchAllBoostFunctions() {
+        List<FunctionScoreQueryBuilder.FilterFunctionBuilder> functionList = new ArrayList<>();
+
         functionList.add(geneCategoryBoost());
         functionList.add(humanSpeciesBoost());
-        functionList.add(documentPopularityBoost());
         functionList.add(documentHasDiseaseBoost());
 
         return functionList.toArray(new FunctionScoreQueryBuilder.FilterFunctionBuilder[functionList.size()]);
