@@ -38,9 +38,11 @@ public class HumanVariantContextConverter extends VariantContextConverter {
             variantDocument.setCategory("allele");
             variantDocument.setAlterationType("variant");
 
-
-            //todo: need to translate these types to match what we use for alleles
-            variantDocument.setVariantType(new HashSet<>() {{ add(ctx.getType().name()); }});
+            String variantType = ctx.getType().name();
+            if ("INDEL".equals(variantType)) { variantType = "delins"; }
+            Set<String> variantTypes = new HashSet<>();
+            variantTypes.add(variantType);
+            variantDocument.setVariantType(variantTypes);
             variantDocument.setId(ctx.getID());
             variantDocument.setSpecies(speciesType.getName());
             variantDocument.setChromosome(ctx.getContig());
