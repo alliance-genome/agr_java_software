@@ -13,6 +13,7 @@ public class DataFile {
     
     @JsonIgnore
     public String getFileName() {
+    	System.out.println("s3Url : " + s3Url);
         return dataType.getName() + "_" + dataSubType.getName() + "." + dataType.getFileExtension();
     }
 }
