@@ -16,6 +16,7 @@ import org.alliancegenome.data_extractor.extractors.fms.interfaces.DataFileRESTI
 import org.alliancegenome.data_extractor.extractors.fms.interfaces.SnapShotRESTInterface;
 import org.apache.commons.io.FileUtils;
 
+
 import lombok.extern.log4j.Log4j2;
 import si.mazi.rescu.RestProxyFactory;
 
@@ -81,18 +82,31 @@ public class FMSExtractor extends DataExtractor {
             try {
                 URL url = new URL(df.getS3Url());
                 log.info("Downloading: " + url);
-                File out = new File(ConfigHelper.getDataExtractorDirectory() + "/" + getDirName() + "/" + df.getFileName());
-                if(!out.exists()) {
-                    FileUtils.copyURLToFile(url, out);
-                } else {
-                    log.info("File Exists Skipping: " + out.getAbsolutePath());
+                if(df.getS3Url().endsWith(".gz") && !df.getFileName().endsWith(".gz")) {
+                	File out = new File(ConfigHelper.getDataExtractorDirectory() + "/" + getDirName() + "/" + df.getFileName() + ".gz");
+                	if(!out.exists()) {
+                        FileUtils.copyURLToFile(url, out);
+                        File outFile = new File(ConfigHelper.getDataExtractorDirectory() + "/" + getDirName() + "/" + df.getFileName());
+                        decompressGzip(out, outFile);
+                        out.delete();
+                    }    	
+                	
+                }else {
+                	
+                    File out = new File(ConfigHelper.getDataExtractorDirectory() + "/" + getDirName() + "/" + df.getFileName());
+                     log.debug("saving file to " + out.getAbsolutePath());
+                    if(!out.exists()) {
+                        FileUtils.copyURLToFile(url, out);
+                    } else {
+                        log.info("File Exists Skipping: " + out.getAbsolutePath());
+                    }
                 }
+                
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
+    
+    
     }
-    
-    
-
 }

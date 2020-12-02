@@ -20,10 +20,10 @@ public class GeneTSVTranslator extends ResultTSVTranslator {
     protected List<String> getHeaders() {
         return Arrays.asList(
                 "Id",
-                "Secondary Id",
+                "SecondaryId",
                 "Name",
                 "MOD Description",
-                "Automated Description",
+                "Auto Description",
                 "Species",
                 "Chromosome",
                 "Start",
@@ -38,10 +38,10 @@ public class GeneTSVTranslator extends ResultTSVTranslator {
 
         return Arrays.asList(
             String.valueOf(map.get("g.primaryKey")),
-            String.valueOf(map.get("g.secondaryId")),
+            String.valueOf(map.get("s.SecondaryId")),
             String.valueOf(map.get("g.name")),
-            String.valueOf(map.get("g.geneSynopsis")),
-            String.valueOf(map.get("g.automatedGeneSynopsis")),
+            String.valueOf(map.get("g.geneSynopsis")).stripTrailing(),
+            String.valueOf(map.get("g.automatedGeneSynopsis")).stripTrailing(),
             String.valueOf(map.get("s.primaryKey")),
             String.valueOf(map.get("gl.chromosome")),
             String.valueOf(map.get("gl.start")),

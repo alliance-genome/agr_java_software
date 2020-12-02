@@ -1,12 +1,19 @@
 package org.alliancegenome.data_extractor.extractors;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.nio.file.Path;
 import java.util.Date;
+import java.util.zip.GZIPInputStream;
 
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.log4j.Log4j2;
 
 @Log4j2
@@ -60,6 +67,18 @@ public abstract class DataExtractor extends Thread {
 
     protected void finishProcess() {
         display.finishProcess();
+    }
+    
+    protected void decompressGzip(File source, File target) throws IOException {
+    	log.debug("decompressing file  " + source.getAbsolutePath() + "  to " + target.getAbsolutePath());
+        try (GZIPInputStream gis = new GZIPInputStream(new FileInputStream(source));
+             FileOutputStream fos = new FileOutputStream(target)) {
+            byte[] buffer = new byte[1024];
+            int len;
+            while ((len = gis.read(buffer)) > 0) {
+                fos.write(buffer, 0, len);
+            }
+        }
     }
 
 }
