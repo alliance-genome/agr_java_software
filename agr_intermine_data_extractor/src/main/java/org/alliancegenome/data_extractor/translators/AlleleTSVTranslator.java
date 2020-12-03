@@ -4,9 +4,13 @@ import java.io.PrintWriter;
 import java.util.*;
 
 import org.alliancegenome.core.translators.EntityTSVTranslator;
+import org.alliancegenome.core.translators.ResultTSVTranslator;
 import org.alliancegenome.neo4j.entity.node.Allele;
 
-public class AlleleTSVTranslator extends EntityTSVTranslator<Allele> {
+import lombok.Getter;
+
+@Getter
+public class AlleleTSVTranslator extends ResultTSVTranslator{
 
     public AlleleTSVTranslator(PrintWriter writer) {
         super(writer);
@@ -23,12 +27,12 @@ public class AlleleTSVTranslator extends EntityTSVTranslator<Allele> {
     }
 
     @Override
-    protected List<String> entityToRow(Allele entity) {
+    protected List<String> mapToRow(Map<String, Object> map) {
         return Arrays.asList(
-                entity.getPrimaryKey(),
-                entity.getGene().getSymbol(),
-                entity.getSpecies().getType().getTaxonID(),
-                entity.getSymbolText()
+                String.valueOf(map.get("g.primaryKey")),
+                String.valueOf(map.get("g.secondaryId")),
+                String.valueOf(map.get("g.name")),
+                String.valueOf(map.get("g.geneSynopsis"))
             );
     }
 
