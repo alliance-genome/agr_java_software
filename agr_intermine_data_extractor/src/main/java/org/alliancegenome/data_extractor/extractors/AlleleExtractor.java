@@ -14,14 +14,14 @@ import org.neo4j.ogm.model.Result;
 
 public class AlleleExtractor extends DataExtractor {
 
-    private DataExtractorRepository alleleRepo = new DataExtractorRepository();
+    private DataExtractorRepository dataRepo = new DataExtractorRepository();
     
     @Override
     protected void extract(PrintWriter writer) {
 
         AlleleTSVTranslator translator = new AlleleTSVTranslator(writer);
         
-        Result allele_res = alleleRepo.getAllalleles();
+        Result allele_res = dataRepo.getAllalleles();
         
         //translator.translateResult(allele_res);
        

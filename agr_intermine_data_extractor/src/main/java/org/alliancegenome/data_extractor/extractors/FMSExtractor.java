@@ -83,16 +83,16 @@ public class FMSExtractor extends DataExtractor {
                 URL url = new URL(df.getS3Url());
                 log.info("Downloading: " + url);
                 if(df.getS3Url().endsWith(".gz") && !df.getFileName().endsWith(".gz")) {
-                	File out = new File(ConfigHelper.getDataExtractorDirectory() + "/" + getDirName() + "/" + df.getFileName() + ".gz");
-                	if(!out.exists()) {
+                    File out = new File(ConfigHelper.getDataExtractorDirectory() + "/" + getDirName() + "/" + df.getFileName() + ".gz");
+                    if(!out.exists()) {
                         FileUtils.copyURLToFile(url, out);
                         File outFile = new File(ConfigHelper.getDataExtractorDirectory() + "/" + getDirName() + "/" + df.getFileName());
                         decompressGzip(out, outFile);
                         out.delete();
-                    }    	
-                	
+                    }       
+                    
                 }else {
-                	
+                    
                     File out = new File(ConfigHelper.getDataExtractorDirectory() + "/" + getDirName() + "/" + df.getFileName());
                      log.debug("saving file to " + out.getAbsolutePath());
                     if(!out.exists()) {

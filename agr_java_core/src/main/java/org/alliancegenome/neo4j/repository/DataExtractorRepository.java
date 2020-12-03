@@ -10,12 +10,12 @@ public class DataExtractorRepository extends Neo4jRepository {
 
     public Result getAllGenes() {
 
-    	
+        
         String query = " MATCH p1=(s:Species)-[:FROM_SPECIES]-(g:Gene)-[:ASSOCIATION]-(gl:GenomicLocation)";
         query += " OPTIONAL MATCH p2=(g:Gene)-[:ANNOTATED_TO]-(so:SOTerm)";
         query += " OPTIONAL MATCH p3=(g:Gene)-[:ALSO_KNOWN_AS]-(s:SecondaryId)";
         query += " RETURN g.primaryKey, s.SecondaryId, g.name, g.geneSynopsis, g.automatedGeneSynopsis, s.primaryKey, gl.chromosome, gl.start, gl.end, gl.strand, so.name";
-        	
+            
         return queryForResult(query);
 
     }

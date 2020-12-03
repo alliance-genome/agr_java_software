@@ -70,7 +70,7 @@ public abstract class DataExtractor extends Thread {
     }
     
     protected void decompressGzip(File source, File target) throws IOException {
-    	log.debug("decompressing file  " + source.getAbsolutePath() + "  to " + target.getAbsolutePath());
+        log.debug("decompressing file  " + source.getAbsolutePath() + "  to " + target.getAbsolutePath());
         try (GZIPInputStream gis = new GZIPInputStream(new FileInputStream(source));
              FileOutputStream fos = new FileOutputStream(target)) {
             byte[] buffer = new byte[1024];
