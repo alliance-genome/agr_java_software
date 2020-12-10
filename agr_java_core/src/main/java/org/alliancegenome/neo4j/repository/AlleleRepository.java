@@ -122,4 +122,27 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
         query += " RETURN p1, express, target, regulated, expressNonBGI, regulatedNon, targetNon, disease, pheno ";
         return query;
     }
+
+    public Set<Allele> getAllAlleleVariantInfoOnGene() {
+        HashMap<String, String> map = new HashMap<>();
+
+        String query = "";
+        query += " MATCH p1=(:Species)<-[:FROM_SPECIES]-(a:Allele)-[:IS_ALLELE_OF]->(g:Gene) ";
+        query += " where g.primaryKey = 'ZFIN:ZDB-GENE-001212-1' ";
+        //query += " where a.primaryKey in ['MGI:3795217','MGI:3712283','MGI:3843784','MGI:2158359'] ";
+        query += " OPTIONAL MATCH vari=(a:Allele)<-[:VARIATION]-(variant:Variant)--(soTerm:SOTerm)";
+        query += " OPTIONAL MATCH consequence=(:GeneLevelConsequence)<-[:ASSOCIATION]-(variant:Variant)";
+        query += " OPTIONAL MATCH loc=(variant:Variant)-[:ASSOCIATION]->(:GenomicLocation)-[:ASSOCIATION]->(:Chromosome)";
+        query += " OPTIONAL MATCH transcript=(variant:Variant)<-[:ASSOCIATION]-(:Transcript)--(:TranscriptLevelConsequence)--(variant:Variant)";
+        query += " OPTIONAL MATCH variantPub=(variant:Variant)-[:ASSOCIATION]->(:Publication)";
+        query += " OPTIONAL MATCH p2=(a:Allele)-[:ALSO_KNOWN_AS]->(synonym:Synonym)";
+        query += " OPTIONAL MATCH crossRef=(a:Allele)-[:CROSS_REFERENCE]->(c:CrossReference)";
+        query += " OPTIONAL MATCH disease=(a:Allele)<-[:IS_IMPLICATED_IN]-(doTerm:DOTerm)";
+        query += " OPTIONAL MATCH pheno=(a:Allele)-[:HAS_PHENOTYPE]->(ph:Phenotype)";
+        query += " RETURN p1, p2, vari, crossRef, disease, pheno, loc, consequence, transcript, variantPub ";
+
+        Iterable<Allele> alleles = query(query, map);
+        return StreamSupport.stream(alleles.spliterator(), false)
+                .collect(Collectors.toSet());
+    }
 }

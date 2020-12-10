@@ -8,6 +8,9 @@ import org.neo4j.ogm.annotation.NodeEntity;
 import com.fasterxml.jackson.annotation.JsonView;
 
 import lombok.*;
+import org.neo4j.ogm.annotation.Relationship;
+
+import java.util.List;
 
 @NodeEntity(label = "TranscriptLevelConsequence")
 @Getter
@@ -62,6 +65,25 @@ public class TranscriptLevelConsequence extends Neo4jEntity implements Comparabl
 
     @JsonView({View.API.class})
     private String hgvsVEPGeneNomenclature;
+
+    @JsonView({View.API.class})
+    private String impact;
+
+    @JsonView({View.API.class})
+    private String siftPrediction;
+
+    @JsonView({View.API.class})
+    private String polyphenPrediction;
+
+    @JsonView({View.API.class})
+    private String siftScore;
+
+    @JsonView({View.API.class})
+    private String polyphenScore;
+
+    @Relationship(type = "ASSOCIATION")
+    private List<Variant> variants;
+
 
     @Override
     public int compareTo(TranscriptLevelConsequence o) {
