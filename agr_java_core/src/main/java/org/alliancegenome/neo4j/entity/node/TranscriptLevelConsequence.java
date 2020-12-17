@@ -1,21 +1,21 @@
 package org.alliancegenome.neo4j.entity.node;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonView;
+import lombok.Getter;
+import lombok.Setter;
+import org.alliancegenome.api.service.VariantService;
 import org.alliancegenome.neo4j.entity.Neo4jEntity;
 import org.alliancegenome.neo4j.view.View;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.neo4j.ogm.annotation.NodeEntity;
-
-import com.fasterxml.jackson.annotation.JsonView;
-
-import lombok.*;
 import org.neo4j.ogm.annotation.Relationship;
-
-import java.util.List;
 
 @NodeEntity(label = "TranscriptLevelConsequence")
 @Getter
 @Setter
-@Schema(name="TranscriptLevelConsequence", description="POJO that represents Transcript Level Consequences")
+@Schema(name = "TranscriptLevelConsequence", description = "POJO that represents Transcript Level Consequences")
 public class TranscriptLevelConsequence extends Neo4jEntity implements Comparable<TranscriptLevelConsequence> {
 
     @JsonView({View.API.class})
@@ -36,7 +36,7 @@ public class TranscriptLevelConsequence extends Neo4jEntity implements Comparabl
     @JsonView({View.API.class})
     private String codonVariation;
 
-    @JsonView({View.API.class})
+    @JsonView({View.API.class, View.GeneAlleleVariantSequenceAPI.class})
     private String transcriptLevelConsequence;
 
     @JsonView({View.API.class})
@@ -66,24 +66,100 @@ public class TranscriptLevelConsequence extends Neo4jEntity implements Comparabl
     @JsonView({View.API.class})
     private String hgvsVEPGeneNomenclature;
 
-    @JsonView({View.API.class})
+    @JsonView({View.Default.class})
     private String impact;
 
-    @JsonView({View.API.class})
+    @JsonView({View.Default.class})
     private String siftPrediction;
 
-    @JsonView({View.API.class})
+    @JsonView({View.Default.class})
     private String polyphenPrediction;
 
-    @JsonView({View.API.class})
+    @JsonView({View.Default.class})
     private String siftScore;
 
-    @JsonView({View.API.class})
+    @JsonView({View.Default.class})
     private String polyphenScore;
 
-    @Relationship(type = "ASSOCIATION")
-    private List<Variant> variants;
+    @Relationship(type = "ASSOCIATION", direction = Relationship.INCOMING)
+    private Variant variant;
 
+    @Relationship(type = "ASSOCIATION", direction = Relationship.INCOMING)
+    private Transcript transcript;
+
+    private String transcriptName;
+
+    @JsonProperty("transcriptName")
+    public void setTranscriptName(String name) {
+        transcriptName = name;
+    }
+
+    @JsonView({View.Default.class})
+    @JsonProperty("transcriptName")
+    public String getTranscriptName() {
+        if (StringUtils.isNotEmpty(transcriptName))
+            return transcriptName;
+        if (transcript == null)
+            return "";
+        transcriptName = transcript.getName();
+        return transcriptName;
+    }
+
+    private String transcriptID;
+
+    @JsonProperty("transcriptID")
+    public void setTranscriptID(String name) {
+        transcriptID = name;
+    }
+
+    @JsonView({View.Default.class})
+    @JsonProperty("transcriptID")
+    public String getTranscriptID() {
+        if (StringUtils.isNotEmpty(transcriptID))
+            return transcriptID;
+        if (transcript == null)
+            return "";
+        transcriptID = transcript.getName();
+        return transcriptID;
+    }
+
+    private String transcriptLocation;
+
+    @JsonProperty("location")
+    public void setTranscriptLocation(String name) {
+        transcriptLocation = name;
+    }
+
+    @JsonView({View.GeneAlleleVariantSequenceAPI.class})
+    @JsonProperty("location")
+    public String getTranscriptLocation() {
+        if (StringUtils.isNotEmpty(transcriptLocation))
+            return transcriptLocation;
+        if (transcript == null)
+            return "";
+        VariantService service = new VariantService();
+        service.populateIntronExonLocation(variant, transcript);
+        transcriptLocation = transcript.getIntronExonLocation();
+        return transcriptLocation;
+    }
+
+    private String transcriptType;
+
+    @JsonProperty("type")
+    public void setTranscriptType(String name) {
+        transcriptType = name;
+    }
+
+    @JsonView({View.GeneAlleleVariantSequenceAPI.class})
+    @JsonProperty("type")
+    public String getTranscriptType() {
+        if (StringUtils.isNotEmpty(transcriptType))
+            return transcriptType;
+        if (transcript == null)
+            return "";
+        transcriptType = transcript.getType().getName();
+        return transcriptType;
+    }
 
     @Override
     public int compareTo(TranscriptLevelConsequence o) {

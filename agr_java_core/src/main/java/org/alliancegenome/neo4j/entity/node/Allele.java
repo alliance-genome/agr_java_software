@@ -36,7 +36,7 @@ public class Allele extends GeneticEntity implements Comparable<Allele>, Present
     public final static String ALLELE_WITH_ONE_VARIANT = "allele with one associated variant";
     public final static String ALLELE_WITH_MULTIPLE_VARIANT = "allele with multiple associated variants";
 
-    @JsonView({View.AlleleAPI.class, View.TransgenicAlleleAPI.class})
+    @JsonView({View.AlleleAPI.class, View.TransgenicAlleleAPI.class, View.GeneAlleleVariantSequenceAPI.class})
     @Relationship(type = "IS_ALLELE_OF")
     private Gene gene;
 
@@ -69,7 +69,7 @@ public class Allele extends GeneticEntity implements Comparable<Allele>, Present
         return primaryKey + ":" + symbolText;
     }
 
-    @JsonView({View.API.class})
+    @JsonView({View.API.class, View.GeneAlleleVariantSequenceAPI.class})
     public Boolean hasPhenotype() {
         return CollectionUtils.isNotEmpty(phenotypes);
     }
@@ -80,7 +80,7 @@ public class Allele extends GeneticEntity implements Comparable<Allele>, Present
         // for deserialization purposes.
     }
 
-    @JsonView({View.API.class})
+    @JsonView({View.API.class, View.GeneAlleleVariantSequenceAPI.class})
     public Boolean hasDisease() {
         return CollectionUtils.isNotEmpty(diseaseEntityJoins) || CollectionUtils.isNotEmpty(diseases);
     }
@@ -91,7 +91,7 @@ public class Allele extends GeneticEntity implements Comparable<Allele>, Present
         // for deserialization purposes.
     }
 
-    @JsonView({View.API.class})
+    @JsonView({View.API.class, View.GeneAlleleVariantSequenceAPI.class})
     @JsonProperty(value = "category")
     public String getCategory() {
         if (crossReferenceType != CrossReferenceType.ALLELE)

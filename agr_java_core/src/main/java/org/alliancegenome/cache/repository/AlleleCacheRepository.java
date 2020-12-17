@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 
+import org.alliancegenome.api.entity.AlleleVariantSequence;
 import org.alliancegenome.api.service.*;
 import org.alliancegenome.cache.*;
 import org.alliancegenome.cache.repository.helper.*;
@@ -36,6 +37,13 @@ public class AlleleCacheRepository {
         if (allAlleles == null)
             return null;
         return getAlleleJsonResultResponse(pagination, allAlleles);
+    }
+
+    public JsonResultResponse<AlleleVariantSequence> getAllelesAndVariantsByGene(String geneID, Pagination pagination) {
+        List<AlleleVariantSequence> allAlleles = cacheService.getCacheEntries(geneID, CacheAlliance.ALLELE_VARIANT_SEQUENCE_GENE);
+        if (allAlleles == null)
+            return null;
+        return getAlleleAndVariantJsonResultResponse(pagination, allAlleles);
     }
 
     private List<Allele> getSortedAndPaginatedAlleles(List<Allele> alleleList, Pagination pagination) {
@@ -71,6 +79,30 @@ public class AlleleCacheRepository {
 
         return response;
     }
+
+    private JsonResultResponse<AlleleVariantSequence> getAlleleAndVariantJsonResultResponse(Pagination pagination, List<AlleleVariantSequence> allAlleles) {
+        JsonResultResponse<AlleleVariantSequence> response = new JsonResultResponse<>();
+
+        //filtering
+/*
+        FilterService<Allele> filterService = new FilterService<>(new AlleleFiltering());
+        List<Allele> filteredAlleleList = filterService.filterAnnotations(allAlleles, pagination.getFieldFilterValueMap());
+        response.setResults(getSortedAndPaginatedAlleles(filteredAlleleList, pagination));
+        response.setTotal(filteredAlleleList.size());
+*/
+        response.setResults(allAlleles);
+        response.setTotal(allAlleles.size());
+
+        // add distinct values
+/*
+        ColumnFieldMapping<Allele> mapping = new AlleleColumnFieldMapping();
+        response.addDistinctFieldValueSupplementalData(filterService.getDistinctFieldValues(allAlleles,
+                mapping.getSingleValuedFieldColumns(Table.ALLELE_GENE), mapping));
+*/
+
+        return response;
+    }
+
 
     private void printTaxonMap() {
         log.info("Taxon / Allele map: ");

@@ -31,7 +31,7 @@ public class GeneticEntity extends Neo4jEntity {
     @Convert(value = DateConverter.class)
     private Date dateProduced;
 
-    @JsonView({View.Default.class, View.API.class, View.PhenotypeAPI.class, View.DiseaseAnnotation.class})
+    @JsonView({View.API.class, View.PhenotypeAPI.class, View.DiseaseAnnotation.class})
     @Relationship(type = "FROM_SPECIES")
     protected Species species;
 
@@ -39,7 +39,7 @@ public class GeneticEntity extends Neo4jEntity {
     private List<Synonym> synonyms = new ArrayList<>();
 
     // Converts the list of synonym objects to a list of strings
-    @JsonView(value = {View.API.class})
+    @JsonView(value = {View.API.class, View.GeneAllelesAPI.class})
     @JsonProperty(value = "synonyms")
     public List<String> getSynonymList() {
         if (synonyms == null)

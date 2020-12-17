@@ -6,6 +6,7 @@ import java.util.List;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 
+import org.alliancegenome.api.entity.AlleleVariantSequence;
 import org.alliancegenome.cache.repository.AlleleCacheRepository;
 import org.alliancegenome.cache.repository.helper.*;
 import org.alliancegenome.es.model.query.Pagination;
@@ -33,6 +34,10 @@ public class AlleleService {
 
     public JsonResultResponse<Allele> getAllelesByGene(String geneID, Pagination pagination) {
         return alleleCacheRepo.getAllelesByGene(geneID, pagination);
+    }
+
+    public JsonResultResponse<AlleleVariantSequence> getAllelesAndVariantsByGene(String geneID, Pagination pagination) {
+        return alleleCacheRepo.getAllelesAndVariantsByGene(geneID, pagination);
     }
 
     public JsonResultResponse<PhenotypeAnnotation> getPhenotype(String id, Pagination pagination) {

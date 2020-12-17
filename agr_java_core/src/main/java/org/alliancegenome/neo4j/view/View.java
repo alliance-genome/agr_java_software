@@ -28,6 +28,7 @@ public class View {
     public static class GeneAPI extends API { }
     public static class DiseaseAPI extends API { }
     public static class GeneAllelesAPI extends API { }
+    public static class GeneAlleleVariantSequenceAPI extends Default { }
     public static class AlleleAPI extends API { }
     public static class TransgenicAlleleAPI extends API { }
     public static class VariantAPI extends API {    }

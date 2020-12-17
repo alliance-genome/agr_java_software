@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 
+import org.alliancegenome.api.entity.AlleleVariantSequence;
 import org.alliancegenome.cache.repository.*;
 import org.alliancegenome.cache.repository.helper.*;
 import org.alliancegenome.es.model.query.Pagination;
@@ -43,6 +44,16 @@ public class GeneService {
     public JsonResultResponse<Allele> getAlleles(String geneId, Pagination pagination) {
         long startTime = System.currentTimeMillis();
         JsonResultResponse<Allele> response = alleleService.getAllelesByGene(geneId, pagination);
+        if (response == null)
+            response = new JsonResultResponse<>();
+        long duration = (System.currentTimeMillis() - startTime) / 1000;
+        response.setRequestDuration(Long.toString(duration));
+        return response;
+    }
+
+    public JsonResultResponse<AlleleVariantSequence> getAllelesAndVariantInfo(String geneId, Pagination pagination) {
+        long startTime = System.currentTimeMillis();
+        JsonResultResponse<AlleleVariantSequence> response = alleleService.getAllelesAndVariantsByGene(geneId, pagination);
         if (response == null)
             response = new JsonResultResponse<>();
         long duration = (System.currentTimeMillis() - startTime) / 1000;
