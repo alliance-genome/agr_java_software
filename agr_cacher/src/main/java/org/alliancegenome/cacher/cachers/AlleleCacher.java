@@ -25,7 +25,7 @@ public class AlleleCacher extends Cacher {
     protected void cache() {
 
         startProcess("get All Alleles");
-        Set<Allele> allAlleles = alleleRepository.getAllAlleleVariantInfoOnGene();
+        Set<Allele> allAlleles = alleleRepository.getAllAlleles();
         if (allAlleles == null)
             return;
         log.info("Number of Alleles: " + String.format("%,d", allAlleles.size()));
@@ -39,7 +39,6 @@ public class AlleleCacher extends Cacher {
                 .collect(Collectors.toList())));
         finishProcess();
 
-/*
         populateCacheFromMap(map, View.GeneAllelesAPI.class, CacheAlliance.ALLELE_GENE);
 
         CacheStatus status = new CacheStatus(CacheAlliance.ALLELE_GENE);
@@ -56,7 +55,6 @@ public class AlleleCacher extends Cacher {
         status.setCollectionEntity(Allele.class.getSimpleName());
         status.setJsonViewClass(View.GeneAllelesAPI.class.getSimpleName());
         setCacheStatus(status);
-*/
 
         // generate Allele detail records
 
@@ -82,7 +80,7 @@ public class AlleleCacher extends Cacher {
                 .flatMap(Collection::stream)
                 .collect(Collectors.toList());
 
-        alleleVariantSequences = alleleVariantSequences.stream().filter(sequence -> sequence.getAllele().getPrimaryKey().equals("ZFIN:ZDB-ALT-130411-1942")).collect(Collectors.toList());
+//        alleleVariantSequences = alleleVariantSequences.stream().filter(sequence -> sequence.getAllele().getPrimaryKey().equals("ZFIN:ZDB-ALT-130411-1942")).collect(Collectors.toList());
 
         Map<String, List<AlleleVariantSequence>> allRecordsMap = alleleVariantSequences.stream()
                 .filter(sequence -> sequence.getAllele().getGene() != null)
