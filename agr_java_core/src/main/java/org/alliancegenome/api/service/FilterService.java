@@ -1,13 +1,15 @@
 package org.alliancegenome.api.service;
 
-import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import org.alliancegenome.cache.repository.helper.*;
+import org.alliancegenome.cache.repository.helper.AnnotationFiltering;
+import org.alliancegenome.cache.repository.helper.FilterFunction;
+import org.alliancegenome.cache.repository.helper.SortingField;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.Sorting;
 import org.alliancegenome.neo4j.view.BaseFilter;
+
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class FilterService<T> {
 
@@ -46,12 +48,14 @@ public class FilterService<T> {
 
     public List<T> getSortedAndPaginatedAnnotations(Pagination pagination, List<T> fullDiseaseAnnotationList, Sorting<T> sorting) {
         // sorting
-        SortingField sortingField = null;
-        String sortBy = pagination.getSortBy();
-        if (sortBy != null && !sortBy.isEmpty())
-            sortingField = SortingField.getSortingField(sortBy.toUpperCase());
+        if (sorting != null) {
+            SortingField sortingField = null;
+            String sortBy = pagination.getSortBy();
+            if (sortBy != null && !sortBy.isEmpty())
+                sortingField = SortingField.getSortingField(sortBy.toUpperCase());
 
-        fullDiseaseAnnotationList.sort(sorting.getComparator(sortingField, pagination.getAsc()));
+            fullDiseaseAnnotationList.sort(sorting.getComparator(sortingField, pagination.getAsc()));
+        }
 
         // paginating
         return fullDiseaseAnnotationList.stream()

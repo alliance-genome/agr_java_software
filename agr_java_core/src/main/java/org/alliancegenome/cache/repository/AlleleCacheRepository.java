@@ -1,21 +1,24 @@
 package org.alliancegenome.cache.repository;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-
+import lombok.extern.log4j.Log4j2;
 import org.alliancegenome.api.entity.AlleleVariantSequence;
-import org.alliancegenome.api.service.*;
-import org.alliancegenome.cache.*;
+import org.alliancegenome.api.service.AlleleColumnFieldMapping;
+import org.alliancegenome.api.service.ColumnFieldMapping;
+import org.alliancegenome.api.service.FilterService;
+import org.alliancegenome.api.service.Table;
+import org.alliancegenome.cache.CacheAlliance;
+import org.alliancegenome.cache.CacheService;
 import org.alliancegenome.cache.repository.helper.*;
 import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.neo4j.entity.*;
+import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
+import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.apache.commons.collections.CollectionUtils;
 
-import lombok.extern.log4j.Log4j2;
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Log4j2
 @RequestScoped
@@ -84,14 +87,10 @@ public class AlleleCacheRepository {
         JsonResultResponse<AlleleVariantSequence> response = new JsonResultResponse<>();
 
         //filtering
-/*
-        FilterService<Allele> filterService = new FilterService<>(new AlleleFiltering());
-        List<Allele> filteredAlleleList = filterService.filterAnnotations(allAlleles, pagination.getFieldFilterValueMap());
-        response.setResults(getSortedAndPaginatedAlleles(filteredAlleleList, pagination));
+        FilterService<AlleleVariantSequence> filterService = new FilterService<>(new AlleleVariantSequenceFiltering());
+        List<AlleleVariantSequence> filteredAlleleList = filterService.filterAnnotations(allAlleles, pagination.getFieldFilterValueMap());
+        response.setResults(filterService.getSortedAndPaginatedAnnotations(pagination, filteredAlleleList, null));
         response.setTotal(filteredAlleleList.size());
-*/
-        response.setResults(allAlleles);
-        response.setTotal(allAlleles.size());
 
         // add distinct values
 /*
