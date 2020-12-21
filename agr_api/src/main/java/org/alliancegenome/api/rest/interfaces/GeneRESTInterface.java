@@ -93,6 +93,49 @@ public interface GeneRESTInterface {
     );
 
     @GET
+    @Path("/{id}/allele-variant-detail")
+    @Operation(summary = "Retrieve all alleles of a given gene")
+    @JsonView(value = {GeneAlleleVariantSequenceAPI.class})
+    @APIResponses(
+            value = {
+                    @APIResponse(
+                            responseCode = "404",
+                            description = "Missing alleles",
+                            content = @Content(mediaType = "text/plain")),
+                    @APIResponse(
+                            responseCode = "200",
+                            description = "Alleles for a gene.",
+                            content = @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = Allele.class)))})
+    JsonResultResponse<AlleleVariantSequence> getAllelesVariantPerGene(
+            //@ApiParam(name = "id", description = "Search for Alleles for a given Gene by ID")
+            @Parameter(in = ParameterIn.PATH, name = "id", description = "Search for Alleles for a given Gene by ID", required = true, schema = @Schema(type = SchemaType.STRING))
+            @PathParam("id") String id,
+            @Parameter(in = ParameterIn.QUERY, name = "limit", description = "Number of rows returned", schema = @Schema(type = SchemaType.INTEGER))
+            @DefaultValue("20") @QueryParam("limit") Integer limit,
+            @Parameter(in = ParameterIn.QUERY, name = "page", description = "Page number", schema = @Schema(type = SchemaType.INTEGER))
+            @DefaultValue("1") @QueryParam("page") Integer page,
+            @Parameter(in = ParameterIn.QUERY, name = "sortBy", description = "Field name by which to sort", schema = @Schema(type = SchemaType.STRING))
+            @DefaultValue("symbol") @QueryParam("sortBy") String sortBy,
+            @Parameter(in = ParameterIn.QUERY, name = "asc", description = "order to sort by", schema = @Schema(type = SchemaType.STRING))
+            @QueryParam("asc") String asc,
+            @Parameter(in = ParameterIn.QUERY, name = "filter.symbol", description = "allele symbol", schema = @Schema(type = SchemaType.STRING))
+            @QueryParam("filter.symbol") String symbol,
+            @Parameter(in = ParameterIn.QUERY, name = "filter.synonym", description = "allele synonym", schema = @Schema(type = SchemaType.STRING))
+            @QueryParam("filter.synonym") String synonym,
+            @Parameter(in = ParameterIn.QUERY, name = "filter.variantType", description = "Variant types", schema = @Schema(type = SchemaType.STRING))
+            @QueryParam("filter.variantType") String variantType,
+            @Parameter(in = ParameterIn.QUERY, name = "filter.variantConsequence", description = "Consequence", schema = @Schema(type = SchemaType.STRING))
+            @QueryParam("filter.variantConsequence") String consequence,
+            @Parameter(in = ParameterIn.QUERY, name = "filter.hasDisease", description = "Phenotypes", schema = @Schema(type = SchemaType.STRING))
+            @QueryParam("filter.hasDisease") String hasDisease,
+            @Parameter(in = ParameterIn.QUERY, name = "filter.hasPhenotype", description = "has Disease", schema = @Schema(type = SchemaType.STRING))
+            @QueryParam("filter.hasPhenotype") String hasPhenotype,
+            @Parameter(in = ParameterIn.QUERY, name = "filter.category", description = "Disease for a given allele", schema = @Schema(type = SchemaType.STRING))
+            @QueryParam("filter.category") String category
+    );
+
+    @GET
     @Path("/{id}/alleles/download")
     @Operation(summary = "Retrieve all alleles for a given gene")
     @Produces(MediaType.TEXT_PLAIN)

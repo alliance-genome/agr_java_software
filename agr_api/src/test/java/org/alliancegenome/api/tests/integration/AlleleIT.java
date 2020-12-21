@@ -17,6 +17,7 @@ import org.alliancegenome.es.model.query.*;
 import org.alliancegenome.neo4j.entity.*;
 import org.alliancegenome.neo4j.entity.node.*;
 import org.alliancegenome.neo4j.entity.relationship.GenomeLocation;
+import org.alliancegenome.neo4j.repository.AlleleRepository;
 import org.alliancegenome.neo4j.view.*;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.logging.log4j.Level;
@@ -31,6 +32,7 @@ public class AlleleIT {
     private ObjectMapper mapper = new ObjectMapper();
 
     private AlleleService alleleService = new AlleleService();
+    private AlleleRepository alleleRepository = new AlleleRepository();
 
     @Inject
     private VariantService variantService = new VariantService();
@@ -391,6 +393,12 @@ public class AlleleIT {
         JsonResultResponse<DiseaseAnnotation> response = alleleService.getDisease(alleleID, new Pagination());
         assertNotNull(response);
         assertThat(response.getTotal(), greaterThanOrEqualTo(3));
+    }
+
+    @Test
+    public void getAlleleVariantDetail(){
+        Set<Allele> allAlleles = alleleRepository.getAllAlleleVariantInfoOnGene();
+        assertNotNull(allAlleles);
     }
 
     @Test

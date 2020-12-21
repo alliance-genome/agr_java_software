@@ -1,20 +1,24 @@
 package org.alliancegenome.cache.repository;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-
-import org.alliancegenome.api.service.*;
-import org.alliancegenome.cache.*;
+import lombok.extern.log4j.Log4j2;
+import org.alliancegenome.api.entity.AlleleVariantSequence;
+import org.alliancegenome.api.service.AlleleColumnFieldMapping;
+import org.alliancegenome.api.service.ColumnFieldMapping;
+import org.alliancegenome.api.service.FilterService;
+import org.alliancegenome.api.service.Table;
+import org.alliancegenome.cache.CacheAlliance;
+import org.alliancegenome.cache.CacheService;
 import org.alliancegenome.cache.repository.helper.*;
 import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.neo4j.entity.*;
+import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
+import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.apache.commons.collections.CollectionUtils;
 
-import lombok.extern.log4j.Log4j2;
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Log4j2
 @RequestScoped
@@ -36,6 +40,13 @@ public class AlleleCacheRepository {
         if (allAlleles == null)
             return null;
         return getAlleleJsonResultResponse(pagination, allAlleles);
+    }
+
+    public JsonResultResponse<AlleleVariantSequence> getAllelesAndVariantsByGene(String geneID, Pagination pagination) {
+        List<AlleleVariantSequence> allAlleles = cacheService.getCacheEntries(geneID, CacheAlliance.ALLELE_VARIANT_SEQUENCE_GENE);
+        if (allAlleles == null)
+            return null;
+        return getAlleleAndVariantJsonResultResponse(pagination, allAlleles);
     }
 
     private List<Allele> getSortedAndPaginatedAlleles(List<Allele> alleleList, Pagination pagination) {
@@ -71,6 +82,26 @@ public class AlleleCacheRepository {
 
         return response;
     }
+
+    private JsonResultResponse<AlleleVariantSequence> getAlleleAndVariantJsonResultResponse(Pagination pagination, List<AlleleVariantSequence> allAlleles) {
+        JsonResultResponse<AlleleVariantSequence> response = new JsonResultResponse<>();
+
+        //filtering
+        FilterService<AlleleVariantSequence> filterService = new FilterService<>(new AlleleVariantSequenceFiltering());
+        List<AlleleVariantSequence> filteredAlleleList = filterService.filterAnnotations(allAlleles, pagination.getFieldFilterValueMap());
+        response.setResults(filterService.getSortedAndPaginatedAnnotations(pagination, filteredAlleleList, null));
+        response.setTotal(filteredAlleleList.size());
+
+        // add distinct values
+/*
+        ColumnFieldMapping<Allele> mapping = new AlleleColumnFieldMapping();
+        response.addDistinctFieldValueSupplementalData(filterService.getDistinctFieldValues(allAlleles,
+                mapping.getSingleValuedFieldColumns(Table.ALLELE_GENE), mapping));
+*/
+
+        return response;
+    }
+
 
     private void printTaxonMap() {
         log.info("Taxon / Allele map: ");

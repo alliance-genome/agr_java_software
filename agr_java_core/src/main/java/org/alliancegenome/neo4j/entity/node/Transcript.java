@@ -52,4 +52,8 @@ public class Transcript extends Neo4jEntity implements Comparable<Transcript> {
     @JsonView({View.Default.class, View.API.class})
     private String intronExonLocation;
 
+    @Override
+    public String toString() {
+        return name;
+    }
 }

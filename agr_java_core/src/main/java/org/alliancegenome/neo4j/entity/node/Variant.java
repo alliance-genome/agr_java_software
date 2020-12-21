@@ -1,22 +1,21 @@
 package org.alliancegenome.neo4j.entity.node;
 
-import java.util.*;
-import java.util.stream.Collectors;
-
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonView;
+import lombok.Getter;
+import lombok.Setter;
 import org.alliancegenome.es.util.DateConverter;
 import org.alliancegenome.neo4j.entity.relationship.GenomeLocation;
 import org.alliancegenome.neo4j.view.View;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
-import org.neo4j.ogm.annotation.*;
+import org.neo4j.ogm.annotation.NodeEntity;
+import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.typeconversion.Convert;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import com.fasterxml.jackson.annotation.*;
-
-import lombok.*;
 
 @NodeEntity(label = "Variant")
 @Getter
@@ -67,18 +66,18 @@ public class Variant extends GeneticEntity implements Comparable<Variant> {
     @Relationship(type = "ASSOCIATION")
     protected Set<Publication> publications;
 
-    @JsonView({View.Default.class, View.API.class})
+    @JsonView({View.API.class})
     @Relationship(type = "ASSOCIATION")
     private GenomeLocation location;
 
-    @JsonView({View.Default.class, View.API.class})
+    @JsonView({View.API.class})
     @Relationship(type = "ASSOCIATION", direction = Relationship.INCOMING)
     protected List<Transcript> transcriptList;
 
     @Relationship(type = "ASSOCIATION")
     protected List<TranscriptLevelConsequence> transcriptLevelConsequence;
 
-    @JsonView({View.Default.class, View.API.class})
+    @JsonView({View.API.class})
     @JsonProperty(value = "consequence")
     public String getConsequence() {
         return geneLevelConsequence != null ? geneLevelConsequence.getGeneLevelConsequence() : null;
@@ -98,18 +97,23 @@ public class Variant extends GeneticEntity implements Comparable<Variant> {
         return 0;
     }
 
-    @JsonProperty(value = "nucleotideChange")
-    public void setNucleotideChange(String consequence) {
-        // ignore as this is always calculated
-    }
-
     public String getPaddingLeft() {
         return paddingLeft.toLowerCase();
     }
 
+    private String nucleotideChange;
+
+    @JsonProperty(value = "nucleotideChange")
+    public void setNucleotideChange(String change) {
+        nucleotideChange = change;
+    }
+
+
     @JsonView({View.Default.class, View.API.class})
     @JsonProperty(value = "nucleotideChange")
     public String getNucleotideChange() {
+        if (StringUtils.isNotEmpty(nucleotideChange))
+            return nucleotideChange;
         String change = "";
         if (variantType.isInsertion() || variantType.isDeletion()) {
             change += getPaddedChange(getGenomicReferenceSequence());
@@ -124,7 +128,8 @@ public class Variant extends GeneticEntity implements Comparable<Variant> {
             change += ">";
             change += getGenomicVariantSequence();
         }
-        return change;
+        nucleotideChange = change;
+        return nucleotideChange;
     }
 
     private String getPaddedChange(String change) {

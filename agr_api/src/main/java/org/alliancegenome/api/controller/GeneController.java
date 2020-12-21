@@ -115,6 +115,51 @@ public class GeneController implements GeneRESTInterface {
     }
 
     @Override
+    public JsonResultResponse<AlleleVariantSequence> getAllelesVariantPerGene(String id,
+                                                        Integer limit,
+                                                        Integer page,
+                                                        String sortBy,
+                                                        String asc,
+                                                        String symbol,
+                                                        String synonym,
+                                                        String variantType,
+                                                        String consequence,
+                                                        String hasDisease,
+                                                        String hasPhenotype,
+                                                        String category) {
+        long startTime = System.currentTimeMillis();
+        Pagination pagination = new Pagination(page, limit, sortBy, asc);
+        pagination.addFieldFilter(FieldFilter.SYMBOL, symbol);
+        pagination.addFieldFilter(FieldFilter.SYNONYMS, synonym);
+        pagination.addFieldFilter(FieldFilter.ALLELE_CATEGORY, category);
+        pagination.addFieldFilter(FieldFilter.VARIANT_TYPE, variantType);
+        pagination.addFieldFilter(FieldFilter.HAS_DISEASE, hasDisease);
+        pagination.addFieldFilter(FieldFilter.HAS_PHENOTYPE, hasPhenotype);
+        pagination.addFieldFilter(FieldFilter.VARIANT_CONSEQUENCE, consequence);
+        if (pagination.hasErrors()) {
+            RestErrorMessage message = new RestErrorMessage();
+            message.setErrors(pagination.getErrors());
+            throw new RestErrorException(message);
+        }
+
+        try {
+            JsonResultResponse<AlleleVariantSequence> alleles = geneService.getAllelesAndVariantInfo(id, pagination);
+            alleles.setHttpServletRequest(request);
+            alleles.calculateRequestDuration(startTime);
+            return alleles;
+        } catch (Exception e) {
+            String errorMessage = "Error while retrieving allele info";
+            log.error(errorMessage, e);
+            RestErrorMessage error = new RestErrorMessage();
+            if (e.getMessage() != null) {
+                errorMessage += "\n" + e.getMessage();
+            }
+            error.addErrorMessage(errorMessage);
+            throw new RestErrorException(error);
+        }
+    }
+
+    @Override
     public Response getAllelesPerGeneDownload(String id,
                                               String sortBy,
                                               String asc,
