@@ -60,7 +60,7 @@ public class CacheAllianceTest {
         cacher.run();
     }
 
-//    @Ignore
+    @Ignore
     @Test
     public void cacheAlleles() {
         AlleleCacher cacher = new AlleleCacher();
