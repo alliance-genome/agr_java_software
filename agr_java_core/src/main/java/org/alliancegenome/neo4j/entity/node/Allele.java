@@ -94,7 +94,7 @@ public class Allele extends GeneticEntity implements Comparable<Allele>, Present
         // for deserialization purposes.
     }
 
-    @JsonView({View.API.class, View.GeneAlleleVariantSequenceAPI.class, View.GeneAlleleVariantSequenceAPI.class})
+    @JsonView({View.API.class, View.GeneAlleleVariantSequenceAPI.class})
     @JsonProperty(value = "category")
     public String getCategory() {
         if (crossReferenceType != CrossReferenceType.ALLELE)
