@@ -87,11 +87,12 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
         // allele-only (no variants)
         query += " MATCH p1=(:Species)<-[:FROM_SPECIES]-(a:Allele)-[:IS_ALLELE_OF]->(g:Gene)-[:FROM_SPECIES]-(q:Species) ";
         query += "where not exists ((a)<-[:VARIATION]-(:Variant)) ";
-//        query += " AND g.primaryKey = 'ZFIN:ZDB-GENE-001212-1' ";
+        query += " AND g.primaryKey = 'ZFIN:ZDB-GENE-001212-1' ";
         query += " OPTIONAL MATCH disease=(a:Allele)<-[:IS_IMPLICATED_IN]-(doTerm:DOTerm)";
         query += " OPTIONAL MATCH pheno=(a:Allele)-[:HAS_PHENOTYPE]->(ph:Phenotype)";
         query += " OPTIONAL MATCH p2=(a:Allele)-[:ALSO_KNOWN_AS]->(synonym:Synonym)";
-        query += " RETURN p1, p2, disease, pheno ";
+        query += " OPTIONAL MATCH crossRef=(a:Allele)-[:CROSS_REFERENCE]->(c:CrossReference)";
+        query += " RETURN p1, p2, disease, pheno, crossRef ";
 
         Iterable<Allele> alleles = query(query, new HashMap<>());
         Set<Allele> allAlleles = StreamSupport.stream(alleles.spliterator(), false)
@@ -102,13 +103,16 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
         query = "";
         query += " MATCH p1=(g:Gene)<-[:IS_ALLELE_OF]-(a:Allele)<-[:VARIATION]-(variant:Variant)--(:SOTerm) ";
         query += ", p0=(:Species)<-[:FROM_SPECIES]-(a:Allele)";
-//        query += " where g.primaryKey = 'ZFIN:ZDB-GENE-001212-1' ";
+        query += " where g.primaryKey = 'ZFIN:ZDB-GENE-001212-1' ";
 //        query += " AND  a.primaryKey = 'ZFIN:ZDB-ALT-130411-1942' ";
 
         query += " OPTIONAL MATCH consequence = (t:Transcript)--(:TranscriptLevelConsequence)--(variant:Variant)<-[:ASSOCIATION]-(t:Transcript)--(:SOTerm) ";
         query += " OPTIONAL MATCH loc=(variant:Variant)-[:ASSOCIATION]->(:GenomicLocation)-[:ASSOCIATION]->(:Chromosome)";
         query += " OPTIONAL MATCH p2=(a:Allele)-[:ALSO_KNOWN_AS]->(synonym:Synonym)";
-        query += " RETURN p0, p1, consequence, loc, p2";
+        query += " OPTIONAL MATCH disease=(a:Allele)<-[:IS_IMPLICATED_IN]-(doTerm:DOTerm)";
+        query += " OPTIONAL MATCH pheno=(a:Allele)-[:HAS_PHENOTYPE]->(ph:Phenotype)";
+        query += " OPTIONAL MATCH crossRef=(a:Allele)-[:CROSS_REFERENCE]->(c:CrossReference)";
+        query += " RETURN p0, p1, consequence, loc, p2, pheno, disease, crossRef ";
         Iterable<Allele> allelesWithVariantsIter = query(query, new HashMap<>());
         Set<Allele> allelesWithVariants = StreamSupport.stream(allelesWithVariantsIter.spliterator(), false)
                 .collect(Collectors.toSet());
@@ -129,7 +133,6 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
                                     }
                                 })));
 
-        //log.info("Number of Transcript/Exon relationships: " + getTranscriptWithExonInfo().size());
         allAlleles.addAll(allelesWithVariants);
         return allAlleles;
     }
