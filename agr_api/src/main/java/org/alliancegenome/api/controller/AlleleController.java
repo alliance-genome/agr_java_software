@@ -25,7 +25,7 @@ public class AlleleController implements AlleleRESTInterface {
     private AlleleService alleleService;
     
     @Inject
-    private VariantService varinatSerivce;
+    private VariantService variantService;
 
     @Inject
     private HttpServletRequest request;
@@ -57,7 +57,7 @@ public class AlleleController implements AlleleRESTInterface {
         }
 
         try {
-            JsonResultResponse<Variant> alleles = varinatSerivce.getVariants(id, pagination);
+            JsonResultResponse<Variant> alleles = variantService.getVariants(id, pagination);
             alleles.setHttpServletRequest(request);
             alleles.calculateRequestDuration(startTime);
             return alleles;

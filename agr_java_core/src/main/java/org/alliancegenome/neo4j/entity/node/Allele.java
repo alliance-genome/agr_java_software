@@ -1,16 +1,19 @@
 package org.alliancegenome.neo4j.entity.node;
 
-import java.util.*;
-
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.JsonView;
+import lombok.Getter;
+import lombok.Setter;
 import org.alliancegenome.api.entity.PresentationEntity;
 import org.alliancegenome.neo4j.view.View;
 import org.apache.commons.collections.CollectionUtils;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
-import org.neo4j.ogm.annotation.*;
+import org.neo4j.ogm.annotation.NodeEntity;
+import org.neo4j.ogm.annotation.Relationship;
 
-import com.fasterxml.jackson.annotation.*;
-
-import lombok.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @NodeEntity(label = "Feature")
 @Getter
@@ -109,6 +112,6 @@ public class Allele extends GeneticEntity implements Comparable<Allele>, Present
         // this is a calculated property but the setter needs to be here
         // for deserialization purposes.
     }
-    
+
 
 }
