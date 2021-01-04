@@ -3,6 +3,7 @@ package org.alliancegenome.api.service;
 public enum Column {
 
     MOLECULE_TYPE(Table.INTERACTION, true),
+    JOIN_TYPE(Table.INTERACTION, true),
     INTERACTOR_GENE(Table.INTERACTION, true),
     INTERACTOR_SPECIES(Table.INTERACTION, true),
     INTERACTOR_MOLECULE_TYPE(Table.INTERACTION, true),

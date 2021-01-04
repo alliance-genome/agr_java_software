@@ -386,6 +386,8 @@ public interface GeneRESTInterface {
             @QueryParam("asc") String asc,
             @Parameter(in = ParameterIn.QUERY, name = "filter.moleculeType")
             @QueryParam("filter.moleculeType") String moleculeType,
+            @Parameter(in = ParameterIn.QUERY, name = "filter.joinType")
+            @QueryParam("filter.joinType") String joinType,
             @Parameter(in = ParameterIn.QUERY, name = "filter.interactorGeneSymbol", description = "Gene symbol")
             @QueryParam("filter.interactorGeneSymbol") String interactorGeneSymbol,
             @Parameter(in = ParameterIn.QUERY, name = "filter.interactorSpecies", description = "Species")

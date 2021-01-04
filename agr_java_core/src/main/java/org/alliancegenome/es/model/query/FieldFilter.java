@@ -23,12 +23,16 @@ public enum FieldFilter {
     SYMBOL("filter.symbol"),
     DISEASE("filter.disease"),
     SYNONYMS("filter.synonyms"),
+    //those for molecular interaction
     INTERACTOR_MOLECULE_TYPE("filter.interactorMoleculeType"),
     INTERACTOR_GENE_SYMBOL("filter.interactorGeneSymbol"),
     DETECTION_METHOD("filter.detectionMethod"),
     INTERACTOR_SPECIES("filter.interactorSpecies"),
     VARIANT_TYPE("filter.variantType"),
     MOLECULE_TYPE("filter.moleculeType"),
+    JOIN_TYPE("filter.joinType"),
+    //those for genetic interaction
+    
     BASED_ON_GENE("filter.basedOnGeneSymbol"),
     INCLUDE_NEGATION("includeNegation"),
     ALLELE("allele"),
