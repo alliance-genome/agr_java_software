@@ -15,6 +15,10 @@ public class InteractionAnnotationFiltering extends AnnotationFiltering {
     private static FilterFunction<InteractionGeneJoin, String> moleculeTypeFilter =
             (annotation, value) -> FilterFunction.fullMatchMultiValueOR(annotation.getInteractorAType().getDisplayName(), value);
 
+    //add this to for API to filter out genetic/molecular interaction type
+    private static FilterFunction<InteractionGeneJoin, String> joinTypeFilter =
+                    (annotation, value) -> FilterFunction.fullMatchMultiValueOR(annotation.getJoinType(), value);
+
     private static FilterFunction<InteractionGeneJoin, String> interactorGeneSymbolFilter =
             (annotation, value) -> FilterFunction.contains(annotation.getGeneB().getSymbol(), value);
 
@@ -61,6 +65,7 @@ public class InteractionAnnotationFiltering extends AnnotationFiltering {
         filterFieldMap.put(FieldFilter.INTERACTOR_GENE_SYMBOL, interactorGeneSymbolFilter);
         filterFieldMap.put(FieldFilter.INTERACTOR_SPECIES, speciesFilter);
         filterFieldMap.put(FieldFilter.MOLECULE_TYPE, moleculeTypeFilter);
+        filterFieldMap.put(FieldFilter.JOIN_TYPE, joinTypeFilter);//add for interaction/molecular interaction type
         filterFieldMap.put(FieldFilter.INTERACTOR_MOLECULE_TYPE, interactorMoleculeTypeFilter);
         filterFieldMap.put(FieldFilter.DETECTION_METHOD, detectionMethodFilter);
         filterFieldMap.put(FieldFilter.FREFERENCE, referenceFilter);

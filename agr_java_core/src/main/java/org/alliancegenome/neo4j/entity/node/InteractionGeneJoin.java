@@ -73,14 +73,12 @@ public class InteractionGeneJoin extends Neo4jEntity implements Comparable, Pres
     private MITerm interactorBRole;
   
     @JsonView({View.Interaction.class})
-    @Relationship(type = "INTERACTOR_A_GENETIC_PERTURBATION", direction = Relationship.INCOMING)
+    @Relationship(type = "INTERACTOR_A_GENETIC_PERTURBATION")
     private Allele alleleA;
 
     @JsonView({View.Interaction.class})
     @Relationship(type = "INTERACTOR_B_GENETIC_PERTURBATION")
     private Allele alleleB;
-    
- 
     
     @JsonView({View.Interaction.class})
     @Relationship(type = "PHENOTYPE_TRAIT")
