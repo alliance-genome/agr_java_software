@@ -87,7 +87,8 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
         // allele-only (no variants)
         query += " MATCH p1=(:Species)<-[:FROM_SPECIES]-(a:Allele)-[:IS_ALLELE_OF]->(g:Gene)-[:FROM_SPECIES]-(q:Species) ";
         query += "where not exists ((a)<-[:VARIATION]-(:Variant)) ";
-//        query += " AND g.primaryKey = 'ZFIN:ZDB-GENE-001212-1' ";
+//        query += " AND g.taxonId = 'NCBITaxon:10116' ";
+//        query += " AND g.primaryKey = 'RGD:9294106' ";
         query += " OPTIONAL MATCH disease=(a:Allele)<-[:IS_IMPLICATED_IN]-(doTerm:DOTerm)";
         query += " OPTIONAL MATCH pheno=(a:Allele)-[:HAS_PHENOTYPE]->(ph:Phenotype)";
         query += " OPTIONAL MATCH p2=(a:Allele)-[:ALSO_KNOWN_AS]->(synonym:Synonym)";
@@ -102,8 +103,9 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
         // alleles with variant records
         query = "";
         query += " MATCH p1=(g:Gene)<-[:IS_ALLELE_OF]-(a:Allele)<-[:VARIATION]-(variant:Variant)--(:SOTerm) ";
-        query += ", p0=(:Species)<-[:FROM_SPECIES]-(a:Allele)";
-//        query += " where g.primaryKey = 'ZFIN:ZDB-GENE-001212-1' ";
+        query += ", p0=(:Species)<-[:FROM_SPECIES]-(a:Allele) ";
+//        query += " where g.taxonId = 'NCBITaxon:10116' ";
+//        query += " where g.primaryKey = 'RGD:9294106' ";
 //        query += " AND  a.primaryKey = 'ZFIN:ZDB-ALT-130411-1942' ";
 
         query += " OPTIONAL MATCH consequence = (t:Transcript)--(:TranscriptLevelConsequence)--(variant:Variant)<-[:ASSOCIATION]-(t:Transcript)--(:SOTerm) ";

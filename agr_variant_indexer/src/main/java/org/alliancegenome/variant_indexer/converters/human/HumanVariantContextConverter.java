@@ -165,6 +165,7 @@ public class HumanVariantContextConverter extends VariantContextConverter {
                 if(header.length == infos.length) {
                     if(infos[0].equalsIgnoreCase(varNuc)) {
                         TranscriptFeature feature = new TranscriptFeature(header, infos);
+                        feature.setReferenceSequence(ctx.getReference().toString());
                         features.add(feature);
                     }
                 } else {

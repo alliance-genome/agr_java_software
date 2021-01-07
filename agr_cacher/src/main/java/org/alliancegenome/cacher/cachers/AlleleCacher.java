@@ -1,17 +1,26 @@
 package org.alliancegenome.cacher.cachers;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import lombok.extern.log4j.Log4j2;
 import org.alliancegenome.api.entity.AlleleVariantSequence;
 import org.alliancegenome.api.entity.CacheStatus;
 import org.alliancegenome.cache.CacheAlliance;
+import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.GeneticEntity;
 import org.alliancegenome.neo4j.entity.node.Species;
 import org.alliancegenome.neo4j.repository.AlleleRepository;
 import org.alliancegenome.neo4j.view.View;
+import org.alliancegenome.variant_indexer.config.VariantConfigHelper;
+import org.alliancegenome.variant_indexer.filedownload.model.DownloadFileSet;
+import org.alliancegenome.variant_indexer.filedownload.model.DownloadSource;
+import org.alliancegenome.variant_indexer.filedownload.process.FileDownloadManager;
 import org.apache.commons.collections.CollectionUtils;
 
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.groupingBy;
@@ -23,7 +32,7 @@ public class AlleleCacher extends Cacher {
 
     @Override
     protected void cache() {
-
+        readHtpFiles();
         startProcess("get All Alleles");
         Set<Allele> allAlleles = alleleRepository.getAllAlleles();
         if (allAlleles == null)
@@ -80,6 +89,7 @@ public class AlleleCacher extends Cacher {
                 .flatMap(Collection::stream)
                 .collect(Collectors.toList());
 
+        alleleVariantSequences.addAll(htpAlleleSequenceMap.values().stream().flatMap(Collection::parallelStream).collect(Collectors.toList()));
 //        alleleVariantSequences = alleleVariantSequences.stream().filter(sequence -> sequence.getAllele().getPrimaryKey().equals("ZFIN:ZDB-ALT-130411-1942")).collect(Collectors.toList());
 
         Map<String, List<AlleleVariantSequence>> allRecordsMap = alleleVariantSequences.stream()
@@ -117,5 +127,54 @@ public class AlleleCacher extends Cacher {
 
     }
 
+    private Map<String, List<AlleleVariantSequence>> htpAlleleSequenceMap = new HashMap<>();
+
+    public void readHtpFiles() {
+        ConfigHelper.init();
+        VariantConfigHelper.init();
+        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+
+        boolean downloading = VariantConfigHelper.isDownloading();
+        boolean creating = VariantConfigHelper.isCreating();
+
+        try {
+
+            DownloadFileSet downloadSet = mapper.readValue(getClass().getClassLoader().getResourceAsStream(VariantConfigHelper.getVariantConfigFile()), DownloadFileSet.class);
+            downloadSet.setDownloadPath(VariantConfigHelper.getVariantFileDownloadPath());
+
+            if (downloading) {
+                FileDownloadManager fdm = new FileDownloadManager(downloadSet);
+                fdm.start();
+                fdm.join();
+            }
+
+            if (creating) {
+                try {
+                    ExecutorService executor = Executors.newFixedThreadPool(VariantConfigHelper.getSourceDocumentCreatorThreads());
+                    for (DownloadSource source : downloadSet.getDownloadFileSet()) {
+                        HtpVariantCreation creator = new HtpVariantCreation(source, htpAlleleSequenceMap);
+                        executor.submit(creator);
+                    }
+                    Thread.sleep(10000);
+
+                    executor.shutdown();
+                    while (!executor.isTerminated()) {
+                        Thread.sleep(1000);
+                    }
+                    log.info("SourceDocumentCreationManager executor shut down: ");
+                    log.info("Size of HTP Gene AlleleVariantSequence map " + String.format("%,d", htpAlleleSequenceMap.size()));
+                    log.info("Size of HTP AlleleVariantSequence records " +
+                            String.format("%,d", (int) htpAlleleSequenceMap.values().stream().flatMap(Collection::parallelStream).count()));
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
 
 }

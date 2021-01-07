@@ -40,7 +40,11 @@ public class TranscriptFeature {
     private String sift;
     private String polyphen;
     private String hgvsOffset;
-    
+
+    private String referenceSequence;
+    private String variantSequence;
+
+
     public TranscriptFeature(String[] header, String[] infos) {
     
         

@@ -55,6 +55,12 @@
 			<artifactId>jackson-core</artifactId>
 			<version>${jackson.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>org.alliancegenome</groupId>
+			<artifactId>agr_variant_indexer</artifactId>
+			<version>3.2.0</version>
+			<scope>compile</scope>
+		</dependency>
 	</dependencies>
 
 	<build>
