@@ -14,7 +14,7 @@ docker-run: docker-build
 	docker-compose up agr_intermine_data_extractor
 
 pull:
-	docker pull agrdocker/agr_java_env:develop
+	docker pull agrdocker/agr_base_linux_env:develop
 
 bash:
 	docker-compose up agr_intermine_data_extractor bash

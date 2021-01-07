@@ -14,7 +14,7 @@ docker-run: docker-build
 	docker-compose up agr_cache
 
 pull:
-	docker pull agrdocker/agr_java_env:develop
+	docker pull agrdocker/agr_base_linux_env:develop
 
 bash:
 	docker-compose up agr_cacher bash
