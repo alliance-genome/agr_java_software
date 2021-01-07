@@ -41,12 +41,6 @@ docker-pull-es:
 docker-run-es: docker-pull-es
 	docker run -p 9200:9200 -p 9300:9300 agrdocker/agr_infinispan_env
 
-docker-pull-es-data:
-	docker pull agrdocker/agr_es_data_image
-
-docker-run-es-data: docker-pull-es-data
-	docker run -p 9200:9200 -p 9300:9300 agrdocker/agr_es_data_image
-
 docker-pull-neo:
 	docker pull agrdocker/agr_neo4j_data_image:build
 
