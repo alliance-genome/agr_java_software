@@ -15,7 +15,7 @@ services:
 
   agr_indexer:
     container_name: agr_indexer
-    image: agrdocker/agr_indexer_run:develop
+    image: agrlocal/agr_indexer_run:develop
     networks:
       - esnet
 

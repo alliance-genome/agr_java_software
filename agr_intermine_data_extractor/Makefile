@@ -20,7 +20,7 @@ test:
 	mvn test
 
 docker-build: pull
-	docker build -t agrdocker/agr_intermine_data_extractor_run:develop --build-arg REG=${REG} .
+	docker build -t agrlocal/agr_intermine_data_extractor_run:develop --build-arg REG=${REG} .
 
 docker-run: docker-build
 	docker-compose up agr_intermine_data_extractor

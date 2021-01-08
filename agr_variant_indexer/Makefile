@@ -20,7 +20,7 @@ test:
 	mvn test
 
 docker-build: pull
-	docker build -t agrdocker/agr_variant_indexer_run:develop --build-arg REG=${REG} .
+	docker build -t agrlocal/agr_variant_indexer_run:develop --build-arg REG=${REG} .
 
 docker-run: docker-build
 	docker-compose up agr_cache

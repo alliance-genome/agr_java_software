@@ -26,4 +26,4 @@ pull: registry-docker-login
 	docker pull ${REG}/agr_base_linux_env
 
 docker-build: pull
-	docker build -t agrdocker/agr_java_core_env --build-arg REG=${REG} .
+	docker build -t agrlocal/agr_java_core_env --build-arg REG=${REG} .
