@@ -22,14 +22,8 @@ test:
 docker-build: pull
 	docker build -t agrlocal/agr_variant_indexer_run:develop --build-arg REG=${REG} .
 
-docker-run: docker-build
-	docker-compose up agr_cache
-
 pull: registry-docker-login
 	docker pull ${REG}/agr_base_linux_env:develop
-
-bash:
-	docker-compose up agr_cacher bash
 
 startes:
 	docker-compose up -d agr_infinispan
