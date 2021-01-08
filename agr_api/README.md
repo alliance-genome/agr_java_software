@@ -56,11 +56,11 @@ After the API is up and running, API documentation can be found through swagger 
 
 ### Creating a docker container
 
-	#> docker build -t agr_api_server .
+	#> docker build -t <container-name> .
 	
 ### Runing the docker container
 
-	#> docker run -p 8080:8080 -t -i agr_api_server
+	#> docker run -p 8080:8080 -t -i <container-name>
 
 ## Endpoints
 | URL | description |
