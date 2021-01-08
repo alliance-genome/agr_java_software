@@ -57,5 +57,4 @@ docker-pull-neo: registry-docker-login
 	docker pull ${REG}/agr_neo4j_data_image:build
 
 docker-run-neo:
-	docker run -p 127.0.0.1:7474:7474 -p 127.0.0.1:7687:7687 --env NEO4J_dbms_memory_heap_maxSize=8g ${REG}/agr_neo4j_data_image:build
-
+	docker run -p 127.0.0.1:7474:7474 -p 127.0.0.1:7687:7687 -e NEO4J_dbms_memory_heap_max_size=12g -e NEO4J_dbms_memory_pagecache_size=12g ${REG}/agr_neo4j_data_image:build
