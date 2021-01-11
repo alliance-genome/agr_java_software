@@ -6,6 +6,7 @@ public enum CacherConfig {
 
     AlleleDBCacher(AlleleCacher.class),
     //GeneDBCacher(GeneCacher.class),
+/*
     GenePhenotypeCacher(GenePhenotypeCacher.class),
     GeneInteractionCacher(InteractionCacher.class),
     DiseaseCacher(DiseaseCacher.class),
@@ -15,6 +16,7 @@ public enum CacherConfig {
     ClosureCacher(ClosureCacher.class),
     EcoCodeCacher(EcoCodeCacher.class),
     SiteMapCacher(SiteMapCacher.class),
+*/
     ;
 
     private String cacherName;
