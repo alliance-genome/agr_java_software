@@ -56,6 +56,7 @@ public class HtpVariantCreation extends Thread {
 
         ph1.startProcess("VCFReader Readers: ");
         List<VCFReader> readers = new ArrayList<>();
+        log.info("Number of Download files for " + source.getSpecies() + ": " + source.getFileList().size());
         for (DownloadableFile df : source.getFileList()) {
             VCFReader reader = new VCFReader(df);
             reader.start();
@@ -91,7 +92,7 @@ public class HtpVariantCreation extends Thread {
                 Thread.sleep(15000);
             }
             TimeUnit.MILLISECONDS.sleep(15000);
-            log.info("VC Queue Empty shuting down transformers");
+            log.info("VC Queue Empty shutting down transformers");
 
             log.info("Shutting down transformers");
             for (DocumentTransformer t : transformers) {
@@ -116,7 +117,7 @@ public class HtpVariantCreation extends Thread {
             }
             log.info("JSONProducers shutdown");
             ph5.finishProcess();
-            log.info("Number of TranscriptFeature objects: " + transcriptFeatures.size());
+            log.info("Number of TranscriptFeature objects: " + String.format("%,d", transcriptFeatures.size()));
 
             Map<String, List<TranscriptFeature>> transcriptFeatureMap = transcriptFeatures.stream()
                     .collect(Collectors.groupingBy(TranscriptFeature::getGene));
