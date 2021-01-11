@@ -1,13 +1,15 @@
 package org.alliancegenome.cacher;
 
-import java.util.*;
-
+import lombok.extern.log4j.Log4j2;
 import org.alliancegenome.cacher.cachers.Cacher;
 import org.alliancegenome.cacher.config.CacherConfig;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
 
-import lombok.extern.log4j.Log4j2;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 @Log4j2
 public class Main {
@@ -43,19 +45,21 @@ public class Main {
         }
 
         // Run all the DB Cachers
-        for (String type : cachers.keySet()) {
-            if (argumentSet.size() == 0 || argumentSet.contains(type)) {
-                if (ConfigHelper.isThreaded()) {
-                    log.info("Starting in threaded mode for: " + type);
-                    cachers.get(type).start();
-                } else {
-                    log.info("Starting cacher sequentially: " + type);
-                    cachers.get(type).run();
-                }
-            } else {
-                log.info("Not Starting: " + type);
-            }
-        }
+        cachers.entrySet().stream().filter(entry -> !entry.getKey().equals(CacherConfig.AlleleDBCacher.getCacherClass().getSimpleName()))
+                .forEach(entry -> {
+                    String type = entry.getKey();
+                    if (argumentSet.size() == 0 || argumentSet.contains(type)) {
+                        if (ConfigHelper.isThreaded()) {
+                            log.info("Starting in threaded mode for: " + type);
+                            cachers.get(type).start();
+                        } else {
+                            log.info("Starting cacher sequentially: " + type);
+                            cachers.get(type).run();
+                        }
+                    } else {
+                        log.info("Not Starting: " + type);
+                    }
+                });
 
         // Wait for all the DB Cachers to finish
         log.debug("Waiting for Cachers to finish");
@@ -70,6 +74,21 @@ public class Main {
                 System.exit(-1);
             }
         }
+
+        // run the AlleleCacher after all others are finished as it needs a lot of memory.
+        cachers.get(CacherConfig.AlleleDBCacher.getCacherClass().getSimpleName()).start();
+        cachers.values().stream().filter(cacher -> cacher.getClass().equals(CacherConfig.AlleleDBCacher.getCacherClass()))
+                .forEach(cacher -> {
+                    try {
+                        if (cacher.isAlive()) {
+                            cacher.join();
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        log.error(e.getMessage());
+                        System.exit(-1);
+                    }
+                });
 
         Date end = new Date();
         log.info("End Time: " + end);
