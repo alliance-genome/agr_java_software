@@ -8,3 +8,6 @@ downloadFileSet:
     fileList:
       - chromosome: 1
         url: https://download.alliancegenome.org/variants/rgd/RGD.chr1.vep.vcf.gz
+      - chromosome: 2
+        url: https://download.alliancegenome.org/variants/rgd/RGD.chr2.vep.vcf.gz
+
