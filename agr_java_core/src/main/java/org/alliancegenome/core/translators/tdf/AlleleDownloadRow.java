@@ -1,7 +1,6 @@
 package org.alliancegenome.core.translators.tdf;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Setter
 @Getter

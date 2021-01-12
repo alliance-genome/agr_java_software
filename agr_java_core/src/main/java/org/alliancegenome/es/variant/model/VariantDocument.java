@@ -6,8 +6,7 @@ import org.alliancegenome.es.index.site.document.SearchableItemDocument;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter

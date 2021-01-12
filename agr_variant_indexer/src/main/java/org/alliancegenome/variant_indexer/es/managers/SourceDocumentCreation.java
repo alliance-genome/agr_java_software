@@ -1,38 +1,27 @@
 package org.alliancegenome.variant_indexer.es.managers;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.TimeUnit;
+import java.util.*;
+import java.util.concurrent.*;
 
-import org.alliancegenome.core.filedownload.model.DownloadSource;
-import org.alliancegenome.core.filedownload.model.DownloadableFile;
+import org.alliancegenome.core.filedownload.model.*;
 import org.alliancegenome.core.variant.config.VariantConfigHelper;
 import org.alliancegenome.core.variant.converters.VariantContextConverter;
-import org.alliancegenome.es.util.EsClientFactory;
-import org.alliancegenome.es.util.ProcessDisplayHelper;
+import org.alliancegenome.es.util.*;
 import org.alliancegenome.es.variant.model.VariantDocument;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.elasticsearch.action.DocWriteRequest;
-import org.elasticsearch.action.bulk.BackoffPolicy;
-import org.elasticsearch.action.bulk.BulkProcessor;
-import org.elasticsearch.action.bulk.BulkRequest;
-import org.elasticsearch.action.bulk.BulkResponse;
+import org.elasticsearch.action.bulk.*;
 import org.elasticsearch.action.index.IndexRequest;
-import org.elasticsearch.client.RequestOptions;
-import org.elasticsearch.client.RestHighLevelClient;
-import org.elasticsearch.common.unit.ByteSizeUnit;
-import org.elasticsearch.common.unit.ByteSizeValue;
-import org.elasticsearch.common.unit.TimeValue;
+import org.elasticsearch.client.*;
+import org.elasticsearch.common.unit.*;
 import org.elasticsearch.common.xcontent.XContentType;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import htsjdk.samtools.util.CloseableIterator;
 import htsjdk.variant.variantcontext.VariantContext;
-import htsjdk.variant.vcf.VCFFileReader;
-import htsjdk.variant.vcf.VCFInfoHeaderLine;
+import htsjdk.variant.vcf.*;
 import lombok.extern.log4j.Log4j2;
 
 @Log4j2

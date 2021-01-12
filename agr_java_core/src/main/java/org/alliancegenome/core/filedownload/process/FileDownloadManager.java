@@ -1,11 +1,8 @@
 package org.alliancegenome.core.filedownload.process;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 
 import org.alliancegenome.core.filedownload.FileDownload;
-import org.alliancegenome.core.filedownload.model.DownloadFileSet;
-import org.alliancegenome.core.filedownload.model.DownloadSource;
-import org.alliancegenome.core.filedownload.model.DownloadableFile;
+import org.alliancegenome.core.filedownload.model.*;
 import org.alliancegenome.core.variant.config.VariantConfigHelper;
 
 import lombok.extern.log4j.Log4j2;

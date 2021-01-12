@@ -1,17 +1,8 @@
 package org.alliancegenome.api.service;
 
-import static org.alliancegenome.api.service.Column.ALLELE_ASSOCIATION;
-import static org.alliancegenome.api.service.Column.ALLELE_SPECIES;
-import static org.alliancegenome.api.service.Column.ASSOCIATES_GENES_ASSOCIATION;
-import static org.alliancegenome.api.service.Column.ASSOCIATES_GENES_SPECIES;
-import static org.alliancegenome.api.service.Column.DISEASE_ASSOCIATION;
-import static org.alliancegenome.api.service.Column.DISEASE_SPECIES;
-import static org.alliancegenome.api.service.Column.MODEL_ASSOCIATION_TYPE;
-import static org.alliancegenome.api.service.Column.MODEL_SPECIES;
+import static org.alliancegenome.api.service.Column.*;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 
 import org.alliancegenome.es.model.query.FieldFilter;

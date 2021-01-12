@@ -4,8 +4,7 @@ import java.util.HashMap;
 
 import org.alliancegenome.es.model.query.FieldFilter;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Setter
 @Getter

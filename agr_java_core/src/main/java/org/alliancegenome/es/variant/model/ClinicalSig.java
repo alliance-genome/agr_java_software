@@ -1,7 +1,6 @@
 package org.alliancegenome.es.variant.model;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class ClinicalSig {
     public static Map<String, String> csmap;

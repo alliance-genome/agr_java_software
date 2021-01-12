@@ -1,14 +1,9 @@
 package org.alliancegenome.api.service;
 
 import static java.util.stream.Collectors.toSet;
-import static org.alliancegenome.api.service.Column.GENE_ALLELE_CATEGORY;
-import static org.alliancegenome.api.service.Column.GENE_ALLELE_VARIANT_CONSEQUENCE;
-import static org.alliancegenome.api.service.Column.GENE_ALLELE_VARIANT_TYPE;
+import static org.alliancegenome.api.service.Column.*;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 
 import org.alliancegenome.es.model.query.FieldFilter;

@@ -1,12 +1,9 @@
 package org.alliancegenome.neo4j.repository;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
+import java.util.*;
+import java.util.stream.*;
 
-import org.alliancegenome.neo4j.entity.node.Allele;
-import org.alliancegenome.neo4j.entity.node.Variant;
+import org.alliancegenome.neo4j.entity.node.*;
 
 public class VariantRepository extends Neo4jRepository<Variant> {
 

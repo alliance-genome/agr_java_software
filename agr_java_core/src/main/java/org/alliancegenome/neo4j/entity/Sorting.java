@@ -1,7 +1,6 @@
 package org.alliancegenome.neo4j.entity;
 
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 import org.alliancegenome.cache.repository.helper.SortingField;
 

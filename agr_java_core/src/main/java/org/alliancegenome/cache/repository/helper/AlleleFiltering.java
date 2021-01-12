@@ -2,16 +2,11 @@ package org.alliancegenome.cache.repository.helper;
 
 import static org.alliancegenome.neo4j.entity.SpeciesType.NCBITAXON;
 
-import java.util.Collection;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.alliancegenome.es.model.query.FieldFilter;
-import org.alliancegenome.neo4j.entity.node.Allele;
-import org.alliancegenome.neo4j.entity.node.Construct;
-import org.alliancegenome.neo4j.entity.node.GeneticEntity;
-import org.alliancegenome.neo4j.entity.node.NonBGIConstructComponent;
+import org.alliancegenome.neo4j.entity.node.*;
 
 public class AlleleFiltering extends AnnotationFiltering<Allele> {
 

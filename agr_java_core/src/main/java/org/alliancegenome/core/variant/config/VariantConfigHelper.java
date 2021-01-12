@@ -1,27 +1,8 @@
 package org.alliancegenome.core.variant.config;
 
-import static org.alliancegenome.core.config.Constants.VARIANT_BULK_PROCESSOR_SETTINGS;
-import static org.alliancegenome.core.config.Constants.VARIANT_CONFIG_CREATING;
-import static org.alliancegenome.core.config.Constants.VARIANT_CONFIG_DOWNLOAD;
-import static org.alliancegenome.core.config.Constants.VARIANT_CONFIG_FILE;
-import static org.alliancegenome.core.config.Constants.VARIANT_CONFIG_INDEXING;
-import static org.alliancegenome.core.config.Constants.VARIANT_DISPLAY_INTERVAL;
-import static org.alliancegenome.core.config.Constants.VARIANT_FILE_DOWNLOAD_FILTER_THREADS;
-import static org.alliancegenome.core.config.Constants.VARIANT_FILE_DOWNLOAD_PATH;
-import static org.alliancegenome.core.config.Constants.VARIANT_FILE_DOWNLOAD_THREADS;
-import static org.alliancegenome.core.config.Constants.VARIANT_INDEXER_BULK_PROCESSOR_THREADS;
-import static org.alliancegenome.core.config.Constants.VARIANT_INDEXER_SHARDS;
-import static org.alliancegenome.core.config.Constants.VARIANT_PRODUCER_THREADS;
-import static org.alliancegenome.core.config.Constants.VARIANT_SOURCE_DOCUMENT_CREATOR_OBJECT_QUEUE_BUCKET_SIZE;
-import static org.alliancegenome.core.config.Constants.VARIANT_SOURCE_DOCUMENT_CREATOR_OBJECT_QUEUE_SIZE;
-import static org.alliancegenome.core.config.Constants.VARIANT_SOURCE_DOCUMENT_CREATOR_THREADS;
-import static org.alliancegenome.core.config.Constants.VARIANT_SOURCE_DOCUMENT_CREATOR_VCQUEUE_BUCKET_SIZE;
-import static org.alliancegenome.core.config.Constants.VARIANT_SOURCE_DOCUMENT_CREATOR_VCQUEUE_SIZE;
-import static org.alliancegenome.core.config.Constants.VARIANT_TRANSFORMER_THREADS;
+import static org.alliancegenome.core.config.Constants.*;
 
-import java.util.HashMap;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 
 import org.alliancegenome.core.util.FileHelper;
 

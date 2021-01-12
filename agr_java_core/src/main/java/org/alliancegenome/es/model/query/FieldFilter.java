@@ -1,7 +1,6 @@
 package org.alliancegenome.es.model.query;
 
-import java.util.Arrays;
-import java.util.StringJoiner;
+import java.util.*;
 
 public enum FieldFilter {
     GENE_NAME("geneName"),

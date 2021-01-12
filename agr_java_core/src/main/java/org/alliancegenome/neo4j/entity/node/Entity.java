@@ -4,8 +4,7 @@ import org.alliancegenome.neo4j.entity.Neo4jEntity;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.neo4j.ogm.annotation.NodeEntity;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @NodeEntity
 @Getter @Setter

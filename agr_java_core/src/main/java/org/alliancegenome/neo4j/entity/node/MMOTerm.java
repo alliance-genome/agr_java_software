@@ -8,8 +8,7 @@ import org.neo4j.ogm.annotation.NodeEntity;
 
 import com.fasterxml.jackson.annotation.JsonView;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @NodeEntity
 @Getter

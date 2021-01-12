@@ -1,31 +1,21 @@
 package org.alliancegenome.cacher.cachers;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.TimeUnit;
+import java.util.*;
+import java.util.concurrent.*;
 
 import org.alliancegenome.api.entity.AlleleVariantSequence;
-import org.alliancegenome.core.filedownload.model.DownloadSource;
-import org.alliancegenome.core.filedownload.model.DownloadableFile;
+import org.alliancegenome.core.filedownload.model.*;
 import org.alliancegenome.core.variant.config.VariantConfigHelper;
 import org.alliancegenome.core.variant.converters.VariantContextConverter;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
-import org.alliancegenome.es.variant.model.TranscriptFeature;
-import org.alliancegenome.es.variant.model.VariantDocument;
+import org.alliancegenome.es.variant.model.*;
 import org.alliancegenome.neo4j.entity.SpeciesType;
-import org.alliancegenome.neo4j.entity.node.Allele;
-import org.alliancegenome.neo4j.entity.node.Gene;
-import org.alliancegenome.neo4j.entity.node.SOTerm;
-import org.alliancegenome.neo4j.entity.node.TranscriptLevelConsequence;
-import org.alliancegenome.neo4j.entity.node.Variant;
+import org.alliancegenome.neo4j.entity.node.*;
 
 import htsjdk.samtools.util.CloseableIterator;
 import htsjdk.variant.variantcontext.VariantContext;
-import htsjdk.variant.vcf.VCFFileReader;
-import htsjdk.variant.vcf.VCFInfoHeaderLine;
+import htsjdk.variant.vcf.*;
 import lombok.extern.log4j.Log4j2;
 
 @Log4j2

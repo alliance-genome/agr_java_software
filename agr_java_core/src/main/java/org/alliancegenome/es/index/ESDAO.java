@@ -3,8 +3,7 @@ package org.alliancegenome.es.index;
 import java.io.IOException;
 
 import org.alliancegenome.es.util.EsClientFactory;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.commons.logging.*;
 import org.elasticsearch.client.RestHighLevelClient;
 
 public class ESDAO {

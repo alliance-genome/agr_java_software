@@ -2,23 +2,16 @@ package org.alliancegenome.cache.repository;
 
 import static java.util.stream.Collectors.toList;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 
 import org.alliancegenome.api.service.FilterService;
-import org.alliancegenome.cache.CacheAlliance;
-import org.alliancegenome.cache.CacheService;
-import org.alliancegenome.cache.repository.helper.PaginationResult;
-import org.alliancegenome.cache.repository.helper.PhenotypeAnnotationFiltering;
-import org.alliancegenome.cache.repository.helper.PhenotypeAnnotationSorting;
-import org.alliancegenome.cache.repository.helper.SortingField;
+import org.alliancegenome.cache.*;
+import org.alliancegenome.cache.repository.helper.*;
 import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
-import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
+import org.alliancegenome.neo4j.entity.*;
 import org.alliancegenome.neo4j.entity.node.GeneticEntity;
 import org.apache.commons.collections.CollectionUtils;
 

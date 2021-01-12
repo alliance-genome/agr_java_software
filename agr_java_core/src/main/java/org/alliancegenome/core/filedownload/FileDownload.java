@@ -1,11 +1,7 @@
 package org.alliancegenome.core.filedownload;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
+import java.nio.file.*;
 
 import org.alliancegenome.core.filedownload.model.DownloadableFile;
 

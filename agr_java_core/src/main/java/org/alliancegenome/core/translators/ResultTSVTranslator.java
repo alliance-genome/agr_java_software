@@ -1,9 +1,7 @@
 package org.alliancegenome.core.translators;
 
 import java.io.PrintWriter;
-import java.util.List;
-import java.util.Map;
-import java.util.StringJoiner;
+import java.util.*;
 
 import org.alliancegenome.core.config.ConfigHelper;
 import org.neo4j.ogm.model.Result;
