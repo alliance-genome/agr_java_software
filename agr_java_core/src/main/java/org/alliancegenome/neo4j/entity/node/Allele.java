@@ -1,10 +1,8 @@
 package org.alliancegenome.neo4j.entity.node;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fasterxml.jackson.annotation.JsonView;
-import lombok.Getter;
-import lombok.Setter;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.alliancegenome.api.entity.PresentationEntity;
 import org.alliancegenome.neo4j.view.View;
 import org.apache.commons.collections.CollectionUtils;
@@ -12,8 +10,12 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.JsonView;
+
+import lombok.Getter;
+import lombok.Setter;
 
 @NodeEntity(label = "Feature")
 @Getter

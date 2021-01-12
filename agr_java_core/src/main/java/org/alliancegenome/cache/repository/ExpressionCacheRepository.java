@@ -1,14 +1,28 @@
 package org.alliancegenome.cache.repository;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 
-import org.alliancegenome.api.service.*;
-import org.alliancegenome.cache.*;
-import org.alliancegenome.cache.repository.helper.*;
+import org.alliancegenome.api.service.ColumnFieldMapping;
+import org.alliancegenome.api.service.ExpressionColumnFieldMapping;
+import org.alliancegenome.api.service.FilterService;
+import org.alliancegenome.api.service.Table;
+import org.alliancegenome.cache.CacheAlliance;
+import org.alliancegenome.cache.CacheService;
+import org.alliancegenome.cache.repository.helper.ExpressionAnnotationFiltering;
+import org.alliancegenome.cache.repository.helper.ExpressionAnnotationSorting;
+import org.alliancegenome.cache.repository.helper.FilterFunction;
+import org.alliancegenome.cache.repository.helper.PaginationResult;
+import org.alliancegenome.cache.repository.helper.SortingField;
 import org.alliancegenome.core.ExpressionDetail;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.repository.DiseaseRepository;

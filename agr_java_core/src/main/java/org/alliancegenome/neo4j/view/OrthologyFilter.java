@@ -5,7 +5,8 @@ import java.util.stream.Collectors;
 
 import org.alliancegenome.neo4j.entity.SpeciesType;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 
 @Setter
 @Getter

@@ -1,7 +1,9 @@
 package org.alliancegenome.core.util;
 
-import org.alliancegenome.neo4j.entity.*;
-import org.alliancegenome.neo4j.entity.node.*;
+import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
+import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
+import org.alliancegenome.neo4j.entity.node.AffectedGenomicModel;
+import org.alliancegenome.neo4j.entity.node.GeneticEntity;
 
 public class ModelHelper {
 

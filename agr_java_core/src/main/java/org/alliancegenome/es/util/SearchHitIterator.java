@@ -2,7 +2,8 @@ package org.alliancegenome.es.util;
 
 import java.util.Iterator;
 
-import org.elasticsearch.action.search.*;
+import org.elasticsearch.action.search.SearchRequestBuilder;
+import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.SearchHit;
 
 public class SearchHitIterator implements Iterator<SearchHit> {

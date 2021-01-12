@@ -1,17 +1,22 @@
 package org.alliancegenome.neo4j.entity.node;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
 
 import org.alliancegenome.neo4j.entity.Neo4jEntity;
 import org.alliancegenome.neo4j.view.View;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
-import org.neo4j.ogm.annotation.*;
+import org.neo4j.ogm.annotation.NodeEntity;
+import org.neo4j.ogm.annotation.Relationship;
 
-import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.annotation.JsonView;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 
 @NodeEntity
 @Getter

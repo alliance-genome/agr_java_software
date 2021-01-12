@@ -1,11 +1,11 @@
 package org.alliancegenome.cache.repository.helper;
 
-import org.alliancegenome.api.entity.AlleleVariantSequence;
-import org.alliancegenome.es.model.query.FieldFilter;
-
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import org.alliancegenome.api.entity.AlleleVariantSequence;
+import org.alliancegenome.es.model.query.FieldFilter;
 
 public class AlleleVariantSequenceFiltering extends AnnotationFiltering<AlleleVariantSequence> {
 

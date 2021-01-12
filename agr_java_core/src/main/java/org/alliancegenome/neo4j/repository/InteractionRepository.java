@@ -1,9 +1,14 @@
 package org.alliancegenome.neo4j.repository;
 
-import java.util.*;
-import java.util.stream.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
-import org.alliancegenome.neo4j.entity.node.*;
+import org.alliancegenome.neo4j.entity.node.Gene;
+import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
+import org.alliancegenome.neo4j.entity.node.Species;
 
 public class InteractionRepository extends Neo4jRepository<InteractionGeneJoin> {
 

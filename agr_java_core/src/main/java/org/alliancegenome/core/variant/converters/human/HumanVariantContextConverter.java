@@ -1,17 +1,23 @@
-package org.alliancegenome.variant_indexer.converters.human;
+package org.alliancegenome.core.variant.converters.human;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.alliancegenome.core.variant.converters.VariantContextConverter;
+import org.alliancegenome.es.variant.model.ClinicalSig;
+import org.alliancegenome.es.variant.model.Evidence;
+import org.alliancegenome.es.variant.model.TranscriptFeature;
+import org.alliancegenome.es.variant.model.VariantDocument;
 import org.alliancegenome.neo4j.entity.SpeciesType;
-import org.alliancegenome.variant_indexer.converters.VariantContextConverter;
-import org.alliancegenome.variant_indexer.es.model.*;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-
-import htsjdk.variant.variantcontext.*;
+import htsjdk.variant.variantcontext.Allele;
+import htsjdk.variant.variantcontext.CommonInfo;
+import htsjdk.variant.variantcontext.Genotype;
+import htsjdk.variant.variantcontext.VariantContext;
 import io.github.lukehutch.fastclasspathscanner.utils.Join;
-import org.apache.commons.lang3.StringUtils;
 
 public class HumanVariantContextConverter extends VariantContextConverter {
 

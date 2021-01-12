@@ -1,31 +1,32 @@
 package org.alliancegenome.cacher.cachers;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.TimeUnit;
+
+import org.alliancegenome.api.entity.AlleleVariantSequence;
+import org.alliancegenome.core.filedownload.model.DownloadSource;
+import org.alliancegenome.core.filedownload.model.DownloadableFile;
+import org.alliancegenome.core.variant.config.VariantConfigHelper;
+import org.alliancegenome.core.variant.converters.VariantContextConverter;
+import org.alliancegenome.es.util.ProcessDisplayHelper;
+import org.alliancegenome.es.variant.model.TranscriptFeature;
+import org.alliancegenome.es.variant.model.VariantDocument;
+import org.alliancegenome.neo4j.entity.SpeciesType;
+import org.alliancegenome.neo4j.entity.node.Allele;
+import org.alliancegenome.neo4j.entity.node.Gene;
+import org.alliancegenome.neo4j.entity.node.SOTerm;
+import org.alliancegenome.neo4j.entity.node.TranscriptLevelConsequence;
+import org.alliancegenome.neo4j.entity.node.Variant;
+
 import htsjdk.samtools.util.CloseableIterator;
 import htsjdk.variant.variantcontext.VariantContext;
 import htsjdk.variant.vcf.VCFFileReader;
 import htsjdk.variant.vcf.VCFInfoHeaderLine;
 import lombok.extern.log4j.Log4j2;
-import org.alliancegenome.api.entity.AlleleVariantSequence;
-import org.alliancegenome.es.util.ProcessDisplayHelper;
-import org.alliancegenome.neo4j.entity.SpeciesType;
-import org.alliancegenome.neo4j.entity.node.*;
-import org.alliancegenome.variant_indexer.config.VariantConfigHelper;
-import org.alliancegenome.variant_indexer.converters.VariantContextConverter;
-import org.alliancegenome.variant_indexer.es.model.TranscriptFeature;
-import org.alliancegenome.variant_indexer.es.model.VariantDocument;
-import org.alliancegenome.variant_indexer.filedownload.model.DownloadSource;
-import org.alliancegenome.variant_indexer.filedownload.model.DownloadableFile;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-
-import static java.util.stream.Collectors.toList;
 
 @Log4j2
 public class HtpVariantCreation extends Thread {
@@ -35,6 +36,8 @@ public class HtpVariantCreation extends Thread {
     private String[] header = null;
     public static String indexName;
 
+    private Map<String, List<AlleleVariantSequence>> sequenceMap;
+    
     private LinkedBlockingDeque<List<VariantContext>> vcQueue = new LinkedBlockingDeque<>(VariantConfigHelper.getSourceDocumentCreatorVCQueueSize());
     private LinkedBlockingDeque<List<VariantDocument>> objectQueue = new LinkedBlockingDeque<>(VariantConfigHelper.getSourceDocumentCreatorObjectQueueSize());
 
@@ -49,8 +52,6 @@ public class HtpVariantCreation extends Thread {
         speciesType = SpeciesType.getTypeByID(source.getTaxonId());
         this.sequenceMap = sequenceMap;
     }
-
-    private Map<String, List<AlleleVariantSequence>> sequenceMap;
 
     public void run() {
 
@@ -117,41 +118,6 @@ public class HtpVariantCreation extends Thread {
             }
             log.info("JSONProducers shutdown");
             ph5.finishProcess();
-            log.info("Number of TranscriptFeature objects: " + String.format("%,d", transcriptFeatures.size()));
-
-            Map<String, List<TranscriptFeature>> transcriptFeatureMap = transcriptFeatures.stream()
-                    .collect(Collectors.groupingBy(TranscriptFeature::getGene));
-
-            log.info("Number of Genes: " + transcriptFeatureMap.size());
-
-            transcriptFeatureMap.forEach((geneID, transcriptFeaturesList) -> {
-                List<AlleleVariantSequence> sequenceList = transcriptFeaturesList.stream()
-                        .map(transcriptFeature -> {
-                            Allele allele = new Allele();
-                            Gene gene = new Gene();
-                            gene.setPrimaryKey(transcriptFeature.getGene());
-                            gene.setSymbol(transcriptFeature.getSymbol());
-                            allele.setGene(gene);
-                            Variant variant = new Variant();
-                            TranscriptLevelConsequence consequence = new TranscriptLevelConsequence();
-                            variant.setHgvsNomenclature(transcriptFeature.getHgvsc());
-                            SOTerm variantType = new SOTerm();
-                            variantType.setName(transcriptFeature.getBiotype());
-                            // TODO: Needs to be set somewhere does not come through the vcf file.
-                            variantType.setPrimaryKey("");
-                            variant.setVariantType(variantType);
-                            variant.setGenomicReferenceSequence(transcriptFeature.getReferenceSequence());
-                            variant.setGenomicVariantSequence(transcriptFeature.getAllele());
-                            consequence.setImpact(transcriptFeature.getImpact());
-                            consequence.setTranscriptLevelConsequence(transcriptFeature.getConsequence());
-                            consequence.setPolyphenScore(transcriptFeature.getPolyphen());
-                            consequence.setSiftScore(transcriptFeature.getSift());
-                            AlleleVariantSequence sequence = new AlleleVariantSequence(allele, variant, consequence);
-                            return sequence;
-                        })
-                        .collect(toList());
-                sequenceMap.put(geneID, sequenceList);
-            });
 
             log.info("Bulk Indexers shutdown");
             ph3.finishProcess();
@@ -245,10 +211,6 @@ public class HtpVariantCreation extends Thread {
         }
     }
 
-    // geneID, List
-    private Map<String, List<TranscriptFeature>> featureGeneMap = new HashMap<>();
-    private List<TranscriptFeature> transcriptFeatures = new ArrayList<>(2000000);
-
     private class JSONProducer extends Thread {
         public void run() {
 
@@ -256,7 +218,37 @@ public class HtpVariantCreation extends Thread {
                 try {
                     List<VariantDocument> docList = objectQueue.take();
                     for (VariantDocument doc : docList) {
-                        transcriptFeatures.addAll(doc.getConsequences());
+                        for(TranscriptFeature transcriptFeature: doc.getConsequences()) {
+                            
+                            String geneID = transcriptFeature.getGene();
+                            
+                            List<AlleleVariantSequence> list = sequenceMap.get(geneID);
+                            if(list == null) {
+                                list = new ArrayList<>();
+                                sequenceMap.put(geneID, list);
+                            }
+
+                            Allele allele = new Allele();
+                            Gene gene = new Gene();
+                            gene.setPrimaryKey(transcriptFeature.getGene());
+                            gene.setSymbol(transcriptFeature.getSymbol());
+                            allele.setGene(gene);
+                            Variant variant = new Variant();
+                            TranscriptLevelConsequence consequence = new TranscriptLevelConsequence();
+                            variant.setHgvsNomenclature(transcriptFeature.getHgvsc());
+                            SOTerm variantType = new SOTerm();
+                            variantType.setName(transcriptFeature.getBiotype());
+                            // TODO: Needs to be set somewhere does not come through the vcf file.
+                            variantType.setPrimaryKey("");
+                            variant.setVariantType(variantType);
+                            variant.setGenomicReferenceSequence(transcriptFeature.getReferenceSequence());
+                            variant.setGenomicVariantSequence(transcriptFeature.getAllele());
+                            consequence.setImpact(transcriptFeature.getImpact());
+                            consequence.setTranscriptLevelConsequence(transcriptFeature.getConsequence());
+                            consequence.setPolyphenScore(transcriptFeature.getPolyphen());
+                            consequence.setSiftScore(transcriptFeature.getSift());
+                            list.add(new AlleleVariantSequence(allele, variant, consequence));
+                        }
                     }
 
                 } catch (InterruptedException e) {

@@ -1,8 +1,11 @@
 package org.alliancegenome.cache.repository.helper;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
-import org.alliancegenome.neo4j.entity.*;
+import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
+import org.alliancegenome.neo4j.entity.Sorting;
 
 public class  ModelAnnotationsSorting implements Sorting<DiseaseAnnotation> {
 

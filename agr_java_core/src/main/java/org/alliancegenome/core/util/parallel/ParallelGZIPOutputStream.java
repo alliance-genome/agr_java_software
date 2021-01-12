@@ -17,7 +17,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.zip.CRC32;
 import java.util.zip.Deflater;
 import java.util.zip.DeflaterOutputStream;
-import java.util.zip.GZIPOutputStream;
+
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;

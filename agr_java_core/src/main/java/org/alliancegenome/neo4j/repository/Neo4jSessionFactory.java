@@ -2,7 +2,8 @@ package org.alliancegenome.neo4j.repository;
 
 import org.alliancegenome.core.config.ConfigHelper;
 import org.neo4j.ogm.config.Configuration;
-import org.neo4j.ogm.session.*;
+import org.neo4j.ogm.session.Session;
+import org.neo4j.ogm.session.SessionFactory;
 
 
 public class Neo4jSessionFactory {

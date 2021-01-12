@@ -1,13 +1,17 @@
 package org.alliancegenome.neo4j.entity.node;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import org.alliancegenome.neo4j.view.View;
-import org.neo4j.ogm.annotation.*;
+import org.neo4j.ogm.annotation.NodeEntity;
+import org.neo4j.ogm.annotation.Relationship;
 
 import com.fasterxml.jackson.annotation.JsonView;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 
 @NodeEntity
 @Getter @Setter

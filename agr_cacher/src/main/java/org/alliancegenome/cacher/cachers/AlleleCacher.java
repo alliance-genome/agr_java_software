@@ -1,29 +1,37 @@
 package org.alliancegenome.cacher.cachers;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import lombok.extern.log4j.Log4j2;
+import static java.util.stream.Collectors.groupingBy;
+
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
+
 import org.alliancegenome.api.entity.AlleleVariantSequence;
 import org.alliancegenome.api.entity.CacheStatus;
 import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.core.config.ConfigHelper;
+import org.alliancegenome.core.filedownload.model.DownloadFileSet;
+import org.alliancegenome.core.filedownload.process.FileDownloadManager;
+import org.alliancegenome.core.variant.config.VariantConfigHelper;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.GeneticEntity;
 import org.alliancegenome.neo4j.entity.node.Species;
 import org.alliancegenome.neo4j.repository.AlleleRepository;
 import org.alliancegenome.neo4j.view.View;
-import org.alliancegenome.variant_indexer.config.VariantConfigHelper;
-import org.alliancegenome.variant_indexer.filedownload.model.DownloadFileSet;
-import org.alliancegenome.variant_indexer.filedownload.process.FileDownloadManager;
 import org.apache.commons.collections.CollectionUtils;
 
-import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.stream.Collectors;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
-import static java.util.stream.Collectors.groupingBy;
+import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 public class AlleleCacher extends Cacher {

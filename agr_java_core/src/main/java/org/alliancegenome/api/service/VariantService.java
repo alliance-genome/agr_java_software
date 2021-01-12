@@ -1,5 +1,15 @@
 package org.alliancegenome.api.service;
 
+import static java.util.stream.Collectors.toList;
+
+import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
+
+import javax.enterprise.context.RequestScoped;
+
 import org.alliancegenome.cache.repository.helper.AlleleFiltering;
 import org.alliancegenome.cache.repository.helper.AlleleSorting;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
@@ -12,15 +22,6 @@ import org.alliancegenome.neo4j.entity.relationship.GenomeLocation;
 import org.alliancegenome.neo4j.repository.VariantRepository;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.Range;
-
-import javax.enterprise.context.RequestScoped;
-import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-
-import static java.util.stream.Collectors.toList;
 
 @RequestScoped
 public class VariantService {

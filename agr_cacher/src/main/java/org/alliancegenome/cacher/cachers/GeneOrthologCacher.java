@@ -1,14 +1,22 @@
 package org.alliancegenome.cacher.cachers;
 
-import static java.util.stream.Collectors.*;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 
 import org.alliancegenome.api.entity.CacheStatus;
 import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.repository.GeneRepository;
-import org.alliancegenome.neo4j.view.*;
+import org.alliancegenome.neo4j.view.OrthologView;
+import org.alliancegenome.neo4j.view.View;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections4.map.MultiKeyMap;
 

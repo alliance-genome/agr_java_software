@@ -1,15 +1,20 @@
 package org.alliancegenome.neo4j.entity.node;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
 
-import org.alliancegenome.neo4j.entity.*;
+import org.alliancegenome.neo4j.entity.Neo4jEntity;
+import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.view.View;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
-import org.neo4j.ogm.annotation.*;
+import org.neo4j.ogm.annotation.NodeEntity;
+import org.neo4j.ogm.annotation.Relationship;
 
-import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonView;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 
 @NodeEntity
 @Getter

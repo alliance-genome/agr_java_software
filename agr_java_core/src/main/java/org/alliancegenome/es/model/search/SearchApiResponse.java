@@ -1,8 +1,11 @@
 package org.alliancegenome.es.model.search;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 
 @Getter @Setter
 public class SearchApiResponse {

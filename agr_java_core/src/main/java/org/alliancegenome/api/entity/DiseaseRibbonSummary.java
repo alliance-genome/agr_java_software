@@ -1,13 +1,18 @@
 package org.alliancegenome.api.entity;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 import org.alliancegenome.neo4j.view.View;
 
-import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonView;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 
 @Setter
 @Getter

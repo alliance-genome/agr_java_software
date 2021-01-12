@@ -1,4 +1,4 @@
-package org.alliancegenome.variant_indexer.es.model;
+package org.alliancegenome.es.variant.model;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -1,6 +1,7 @@
 package org.alliancegenome.es.util;
 
-import java.text.*;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.neo4j.ogm.typeconversion.AttributeConverter;

@@ -1,8 +1,9 @@
-package org.alliancegenome.variant_indexer.es.model;
+package org.alliancegenome.es.variant.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 
 @Getter @Setter
 @JsonInclude(JsonInclude.Include.NON_EMPTY)

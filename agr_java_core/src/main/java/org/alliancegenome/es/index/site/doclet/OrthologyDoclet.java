@@ -7,7 +7,9 @@ import org.alliancegenome.neo4j.view.View;
 
 import com.fasterxml.jackson.annotation.JsonView;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 
 @Getter @Setter @AllArgsConstructor
 public class OrthologyDoclet extends ESDoclet {

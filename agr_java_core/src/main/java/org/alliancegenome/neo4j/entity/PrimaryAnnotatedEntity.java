@@ -1,12 +1,26 @@
 package org.alliancegenome.neo4j.entity;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.alliancegenome.api.entity.PresentationEntity;
 import org.alliancegenome.es.util.DateConverter;
-import org.alliancegenome.neo4j.entity.node.*;
+import org.alliancegenome.neo4j.entity.node.Allele;
+import org.alliancegenome.neo4j.entity.node.CrossReference;
+import org.alliancegenome.neo4j.entity.node.DOTerm;
+import org.alliancegenome.neo4j.entity.node.GeneticEntity;
+import org.alliancegenome.neo4j.entity.node.PublicationJoin;
+import org.alliancegenome.neo4j.entity.node.SequenceTargetingReagent;
+import org.alliancegenome.neo4j.entity.node.SimpleTerm;
+import org.alliancegenome.neo4j.entity.node.Source;
+import org.alliancegenome.neo4j.entity.node.Species;
 import org.alliancegenome.neo4j.view.View;
 import org.apache.commons.collections.CollectionUtils;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
@@ -14,7 +28,8 @@ import org.neo4j.ogm.annotation.typeconversion.Convert;
 
 import com.fasterxml.jackson.annotation.JsonView;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 @Setter
