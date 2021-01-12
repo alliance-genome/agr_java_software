@@ -157,6 +157,7 @@ public class AlleleCacher extends Cacher {
                 fdm.join();
             }
 
+            htpAlleleSequenceMap = new HashMap<>();
             if (creating) {
                 try {
                     ExecutorService executor = Executors.newFixedThreadPool(VariantConfigHelper.getSourceDocumentCreatorThreads());
