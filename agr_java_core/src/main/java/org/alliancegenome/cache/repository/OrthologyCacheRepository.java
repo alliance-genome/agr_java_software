@@ -1,37 +1,24 @@
 package org.alliancegenome.cache.repository;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 
 import org.alliancegenome.api.service.FilterService;
-import org.alliancegenome.cache.repository.helper.JsonResultResponse;
-import org.alliancegenome.cache.repository.helper.OrthologyFiltering;
-import org.alliancegenome.cache.repository.helper.OrthologySorting;
+import org.alliancegenome.cache.repository.helper.*;
 import org.alliancegenome.es.index.site.doclet.OrthologyDoclet;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.SpeciesType;
-import org.alliancegenome.neo4j.entity.node.Gene;
-import org.alliancegenome.neo4j.entity.node.OrthoAlgorithm;
-import org.alliancegenome.neo4j.entity.node.OrthologyGeneJoin;
+import org.alliancegenome.neo4j.entity.node.*;
 import org.alliancegenome.neo4j.entity.relationship.Orthologous;
-import org.alliancegenome.neo4j.view.OrthologView;
-import org.alliancegenome.neo4j.view.OrthologyFilter;
-import org.alliancegenome.neo4j.view.OrthologyModule;
-import org.alliancegenome.neo4j.view.View;
+import org.alliancegenome.neo4j.view.*;
 
 import com.fasterxml.jackson.annotation.JsonView;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.*;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @RequestScoped
 public class OrthologyCacheRepository {

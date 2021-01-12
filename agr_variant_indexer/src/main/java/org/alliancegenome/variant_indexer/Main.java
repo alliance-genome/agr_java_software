@@ -7,8 +7,7 @@ import org.alliancegenome.core.variant.config.VariantConfigHelper;
 import org.alliancegenome.es.index.site.schema.VariantMapping;
 import org.alliancegenome.es.index.site.schema.settings.VariantIndexSettings;
 import org.alliancegenome.es.util.IndexManager;
-import org.alliancegenome.variant_indexer.es.managers.SourceDocumentCreation;
-import org.alliancegenome.variant_indexer.es.managers.SourceDocumentCreationManager;
+import org.alliancegenome.variant_indexer.es.managers.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;

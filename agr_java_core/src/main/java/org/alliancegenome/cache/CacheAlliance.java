@@ -1,14 +1,9 @@
 package org.alliancegenome.cache;
 
-import org.alliancegenome.api.entity.AlleleVariantSequence;
-import org.alliancegenome.api.entity.CacheStatus;
+import org.alliancegenome.api.entity.*;
 import org.alliancegenome.core.ExpressionDetail;
-import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
-import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
-import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
-import org.alliancegenome.neo4j.entity.node.Allele;
-import org.alliancegenome.neo4j.entity.node.ECOTerm;
-import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
+import org.alliancegenome.neo4j.entity.*;
+import org.alliancegenome.neo4j.entity.node.*;
 import org.alliancegenome.neo4j.view.OrthologView;
 
 public enum CacheAlliance {

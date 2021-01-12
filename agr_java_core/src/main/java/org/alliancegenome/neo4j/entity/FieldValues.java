@@ -1,7 +1,6 @@
 package org.alliancegenome.neo4j.entity;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 
 import org.alliancegenome.es.model.query.FieldFilter;

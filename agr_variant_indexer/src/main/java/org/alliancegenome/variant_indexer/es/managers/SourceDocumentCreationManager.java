@@ -1,10 +1,8 @@
 package org.alliancegenome.variant_indexer.es.managers;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 
-import org.alliancegenome.core.filedownload.model.DownloadFileSet;
-import org.alliancegenome.core.filedownload.model.DownloadSource;
+import org.alliancegenome.core.filedownload.model.*;
 import org.alliancegenome.core.variant.config.VariantConfigHelper;
 
 import lombok.extern.log4j.Log4j2;

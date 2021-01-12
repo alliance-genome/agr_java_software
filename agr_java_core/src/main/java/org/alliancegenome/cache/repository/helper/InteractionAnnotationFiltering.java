@@ -1,8 +1,6 @@
 package org.alliancegenome.cache.repository.helper;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.alliancegenome.es.model.query.FieldFilter;

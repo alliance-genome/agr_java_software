@@ -7,20 +7,11 @@ import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 
 import org.alliancegenome.api.entity.AlleleVariantSequence;
-import org.alliancegenome.api.service.AlleleColumnFieldMapping;
-import org.alliancegenome.api.service.ColumnFieldMapping;
-import org.alliancegenome.api.service.FilterService;
-import org.alliancegenome.api.service.Table;
-import org.alliancegenome.cache.CacheAlliance;
-import org.alliancegenome.cache.CacheService;
-import org.alliancegenome.cache.repository.helper.AlleleFiltering;
-import org.alliancegenome.cache.repository.helper.AlleleSorting;
-import org.alliancegenome.cache.repository.helper.AlleleVariantSequenceFiltering;
-import org.alliancegenome.cache.repository.helper.JsonResultResponse;
-import org.alliancegenome.cache.repository.helper.SortingField;
+import org.alliancegenome.api.service.*;
+import org.alliancegenome.cache.*;
+import org.alliancegenome.cache.repository.helper.*;
 import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
-import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
+import org.alliancegenome.neo4j.entity.*;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.apache.commons.collections.CollectionUtils;
 

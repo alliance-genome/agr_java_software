@@ -2,9 +2,7 @@ package org.alliancegenome.api.service;
 
 import static org.alliancegenome.api.service.Column.TG_ALLELE_SPECIES;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 
 import org.alliancegenome.es.model.query.FieldFilter;
