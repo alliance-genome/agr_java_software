@@ -4,6 +4,7 @@ import lombok.extern.log4j.Log4j2;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.Transcript;
 import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.neo4j.ogm.model.Result;
 
 import java.util.*;
@@ -82,11 +83,14 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
         return transcriptMap;
     }
 
-    public Set<Allele> getAllAlleles() {
+    public Set<Allele> getAllAlleles(String taxonID) {
         String query = "";
         // allele-only (no variants)
         query += " MATCH p1=(:Species)<-[:FROM_SPECIES]-(a:Allele)-[:IS_ALLELE_OF]->(g:Gene)-[:FROM_SPECIES]-(q:Species) ";
         query += "where not exists ((a)<-[:VARIATION]-(:Variant)) ";
+        if(StringUtils.isNotEmpty(taxonID)){
+            query += "and q.primaryKey = '"+taxonID+"' ";
+        }
 //        query += " AND g.taxonId = 'NCBITaxon:10116' ";
 //        query += " AND g.primaryKey = 'RGD:9294106' ";
         query += " OPTIONAL MATCH disease=(a:Allele)<-[:IS_IMPLICATED_IN]-(doTerm:DOTerm)";
@@ -104,6 +108,9 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
         query = "";
         query += " MATCH p1=(g:Gene)<-[:IS_ALLELE_OF]-(a:Allele)<-[:VARIATION]-(variant:Variant)--(:SOTerm) ";
         query += ", p0=(:Species)<-[:FROM_SPECIES]-(a:Allele) ";
+        if(StringUtils.isNotEmpty(taxonID)){
+            query += "and q.taxonId = '"+taxonID+"' ";
+        }
 //        query += " where g.taxonId = 'NCBITaxon:10116' ";
 //        query += " where g.primaryKey = 'RGD:9294106' ";
 //        query += " AND  a.primaryKey = 'ZFIN:ZDB-ALT-130411-1942' ";

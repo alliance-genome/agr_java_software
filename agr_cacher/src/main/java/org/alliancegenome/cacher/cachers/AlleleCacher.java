@@ -7,6 +7,7 @@ import org.alliancegenome.api.entity.AlleleVariantSequence;
 import org.alliancegenome.api.entity.CacheStatus;
 import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.core.config.ConfigHelper;
+import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.GeneticEntity;
 import org.alliancegenome.neo4j.entity.node.Species;
@@ -14,7 +15,6 @@ import org.alliancegenome.neo4j.repository.AlleleRepository;
 import org.alliancegenome.neo4j.view.View;
 import org.alliancegenome.variant_indexer.config.VariantConfigHelper;
 import org.alliancegenome.variant_indexer.filedownload.model.DownloadFileSet;
-import org.alliancegenome.variant_indexer.filedownload.model.DownloadSource;
 import org.alliancegenome.variant_indexer.filedownload.process.FileDownloadManager;
 import org.apache.commons.collections.CollectionUtils;
 
@@ -32,9 +32,18 @@ public class AlleleCacher extends Cacher {
 
     @Override
     protected void cache() {
-        readHtpFiles();
-        startProcess("get All Alleles");
-        Set<Allele> allAlleles = alleleRepository.getAllAlleles();
+        cacheSpecies(SpeciesType.WORM.getTaxonID());
+/*
+        cacheSpecies(SpeciesType.RAT.getTaxonID());
+        cacheSpecies(SpeciesType.FLY.getTaxonID());
+*/
+        //cacheSpecies(SpeciesType.HUMAN.getTaxonID());
+    }
+
+    private void cacheSpecies(String taxonID) {
+        readHtpFiles(taxonID);
+        startProcess("get All Alleles for " + taxonID);
+        Set<Allele> allAlleles = alleleRepository.getAllAlleles(taxonID);
         if (allAlleles == null)
             return;
         log.info("Number of Alleles: " + String.format("%,d", allAlleles.size()));
@@ -129,7 +138,7 @@ public class AlleleCacher extends Cacher {
 
     private Map<String, List<AlleleVariantSequence>> htpAlleleSequenceMap = new HashMap<>();
 
-    public void readHtpFiles() {
+    public void readHtpFiles(String taxonID) {
         ConfigHelper.init();
         VariantConfigHelper.init();
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
@@ -151,17 +160,18 @@ public class AlleleCacher extends Cacher {
             if (creating) {
                 try {
                     ExecutorService executor = Executors.newFixedThreadPool(VariantConfigHelper.getSourceDocumentCreatorThreads());
-                    for (DownloadSource source : downloadSet.getDownloadFileSet()) {
-                        HtpVariantCreation creator = new HtpVariantCreation(source, htpAlleleSequenceMap);
-                        executor.submit(creator);
-                    }
+                    downloadSet.getDownloadFileSet().stream()
+                            .filter(source -> source.getTaxonId().equals(taxonID))
+                            .forEach(source -> {
+                                HtpVariantCreation creator = new HtpVariantCreation(source, htpAlleleSequenceMap);
+                                executor.submit(creator);
+                            });
                     Thread.sleep(10000);
 
                     executor.shutdown();
                     while (!executor.isTerminated()) {
                         Thread.sleep(1000);
                     }
-                    log.info("SourceDocumentCreationManager executor shut down: ");
                     log.info("Size of HTP Gene AlleleVariantSequence map " + String.format("%,d", htpAlleleSequenceMap.size()));
                     log.info("Size of HTP AlleleVariantSequence records " +
                             String.format("%,d", (int) htpAlleleSequenceMap.values().stream().flatMap(Collection::parallelStream).count()));
