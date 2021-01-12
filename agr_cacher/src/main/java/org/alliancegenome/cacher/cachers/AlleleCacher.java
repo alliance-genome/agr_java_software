@@ -33,10 +33,8 @@ public class AlleleCacher extends Cacher {
     @Override
     protected void cache() {
         cacheSpecies(SpeciesType.WORM.getTaxonID());
-/*
         cacheSpecies(SpeciesType.RAT.getTaxonID());
         cacheSpecies(SpeciesType.FLY.getTaxonID());
-*/
         //cacheSpecies(SpeciesType.HUMAN.getTaxonID());
     }
 
