@@ -1,6 +1,7 @@
 package org.alliancegenome.core.exceptions;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 
 @Setter
 @Getter

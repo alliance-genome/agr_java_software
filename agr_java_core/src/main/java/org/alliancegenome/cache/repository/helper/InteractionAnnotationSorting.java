@@ -1,9 +1,12 @@
 package org.alliancegenome.cache.repository.helper;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
 import org.alliancegenome.neo4j.entity.Sorting;
-import org.alliancegenome.neo4j.entity.node.*;
+import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
+import org.alliancegenome.neo4j.entity.node.MITerm;
 
 public class InteractionAnnotationSorting implements Sorting<InteractionGeneJoin> {
 

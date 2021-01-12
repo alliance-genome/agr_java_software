@@ -1,8 +1,16 @@
 package org.alliancegenome.api.service;
 
-import static org.alliancegenome.api.service.Column.*;
+import static org.alliancegenome.api.service.Column.INTERACTOR_DETECTION_METHOD;
+import static org.alliancegenome.api.service.Column.INTERACTOR_GENE_SYMBOL;
+import static org.alliancegenome.api.service.Column.INTERACTOR_MOLECULE_TYPE;
+import static org.alliancegenome.api.service.Column.INTERACTOR_REFERENCE;
+import static org.alliancegenome.api.service.Column.INTERACTOR_SOURCE;
+import static org.alliancegenome.api.service.Column.INTERACTOR_SPECIES;
+import static org.alliancegenome.api.service.Column.MOLECULE_TYPE;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 
 import org.alliancegenome.es.model.query.FieldFilter;

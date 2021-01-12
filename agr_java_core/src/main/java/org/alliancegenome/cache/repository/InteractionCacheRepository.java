@@ -2,15 +2,25 @@ package org.alliancegenome.cache.repository;
 
 import static java.util.stream.Collectors.toList;
 
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 
-import org.alliancegenome.api.service.*;
-import org.alliancegenome.cache.*;
-import org.alliancegenome.cache.repository.helper.*;
+import org.alliancegenome.api.service.ColumnFieldMapping;
+import org.alliancegenome.api.service.FilterService;
+import org.alliancegenome.api.service.InteractionColumnFieldMapping;
+import org.alliancegenome.api.service.Table;
+import org.alliancegenome.cache.CacheAlliance;
+import org.alliancegenome.cache.CacheService;
+import org.alliancegenome.cache.repository.helper.FilterFunction;
+import org.alliancegenome.cache.repository.helper.InteractionAnnotationFiltering;
+import org.alliancegenome.cache.repository.helper.InteractionAnnotationSorting;
+import org.alliancegenome.cache.repository.helper.PaginationResult;
+import org.alliancegenome.cache.repository.helper.SortingField;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
 import org.alliancegenome.neo4j.view.BaseFilter;

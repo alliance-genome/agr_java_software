@@ -1,10 +1,13 @@
 package org.alliancegenome.es.index.site.cache;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 import org.alliancegenome.es.index.site.document.SearchableItemDocument;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 @Setter

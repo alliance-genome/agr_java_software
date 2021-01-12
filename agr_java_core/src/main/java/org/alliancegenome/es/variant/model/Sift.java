@@ -1,4 +1,4 @@
-package org.alliancegenome.variant_indexer.es.model;
+package org.alliancegenome.es.variant.model;
 
 import lombok.Getter;
 import lombok.Setter;

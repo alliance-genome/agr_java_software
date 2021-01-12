@@ -1,15 +1,16 @@
 package org.alliancegenome.cacher;
 
-import lombok.extern.log4j.Log4j2;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
+
 import org.alliancegenome.cacher.cachers.Cacher;
 import org.alliancegenome.cacher.config.CacherConfig;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
+import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 public class Main {

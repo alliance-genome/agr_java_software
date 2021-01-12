@@ -1,14 +1,19 @@
 package org.alliancegenome.neo4j.repository.indexer;
 
 import java.text.DecimalFormat;
-import java.util.*;
-import java.util.concurrent.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.alliancegenome.es.index.site.cache.GeneDocumentCache;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.repository.Neo4jRepository;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
 

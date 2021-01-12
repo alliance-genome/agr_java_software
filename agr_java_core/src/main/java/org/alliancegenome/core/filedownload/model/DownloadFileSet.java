@@ -1,4 +1,4 @@
-package org.alliancegenome.variant_indexer.filedownload.model;
+package org.alliancegenome.core.filedownload.model;
 
 import java.util.ArrayList;
 import java.util.List;

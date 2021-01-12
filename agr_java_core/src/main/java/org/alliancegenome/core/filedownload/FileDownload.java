@@ -1,4 +1,4 @@
-package org.alliancegenome.variant_indexer.filedownload;
+package org.alliancegenome.core.filedownload;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -7,7 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 
-import org.alliancegenome.variant_indexer.filedownload.model.DownloadableFile;
+import org.alliancegenome.core.filedownload.model.DownloadableFile;
 
 import lombok.extern.log4j.Log4j2;
 

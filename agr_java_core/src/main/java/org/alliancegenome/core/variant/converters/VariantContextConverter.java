@@ -1,10 +1,10 @@
-package org.alliancegenome.variant_indexer.converters;
+package org.alliancegenome.core.variant.converters;
 
 import java.util.List;
 
+import org.alliancegenome.core.variant.converters.human.HumanVariantContextConverter;
+import org.alliancegenome.es.variant.model.VariantDocument;
 import org.alliancegenome.neo4j.entity.SpeciesType;
-import org.alliancegenome.variant_indexer.converters.human.HumanVariantContextConverter;
-import org.alliancegenome.variant_indexer.es.model.VariantDocument;
 
 import htsjdk.variant.variantcontext.VariantContext;
 

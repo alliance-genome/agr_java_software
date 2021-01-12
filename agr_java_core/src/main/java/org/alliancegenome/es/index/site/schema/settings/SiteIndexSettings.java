@@ -1,12 +1,8 @@
 package org.alliancegenome.es.index.site.schema.settings;
 
 import java.io.IOException;
-import java.util.*;
-import java.util.stream.Collectors;
 
 import org.alliancegenome.es.index.site.schema.Settings;
-import org.alliancegenome.neo4j.repository.indexer.GeneIndexerRepository;
-import org.elasticsearch.common.xcontent.XContentBuilder;
 
 public class SiteIndexSettings extends Settings {
 

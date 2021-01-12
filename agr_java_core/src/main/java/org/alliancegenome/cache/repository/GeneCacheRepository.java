@@ -1,11 +1,13 @@
 package org.alliancegenome.cache.repository;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 
-import org.alliancegenome.cache.*;
+import org.alliancegenome.cache.CacheAlliance;
+import org.alliancegenome.cache.CacheService;
 import org.alliancegenome.neo4j.view.OrthologView;
 
 import lombok.extern.log4j.Log4j2;

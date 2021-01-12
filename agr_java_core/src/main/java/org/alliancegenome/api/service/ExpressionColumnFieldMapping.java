@@ -2,7 +2,9 @@ package org.alliancegenome.api.service;
 
 import static org.alliancegenome.api.service.Column.EXPRESSION_SPECIES;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 
 import org.alliancegenome.core.ExpressionDetail;

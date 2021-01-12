@@ -1,7 +1,8 @@
 package org.alliancegenome.cache;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -9,11 +10,15 @@ import javax.inject.Inject;
 import org.alliancegenome.api.entity.CacheStatus;
 import org.alliancegenome.core.config.CacheConfig;
 import org.alliancegenome.neo4j.view.View;
-import org.infinispan.client.hotrod.*;
+import org.infinispan.client.hotrod.RemoteCache;
+import org.infinispan.client.hotrod.RemoteCacheManager;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.type.CollectionType;
 
 import lombok.extern.log4j.Log4j2;

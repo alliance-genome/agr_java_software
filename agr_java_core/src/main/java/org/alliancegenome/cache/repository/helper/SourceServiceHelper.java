@@ -2,10 +2,12 @@ package org.alliancegenome.cache.repository.helper;
 
 import static java.util.stream.Collectors.toList;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
 
 import org.alliancegenome.neo4j.entity.SpeciesType;
-import org.alliancegenome.neo4j.entity.node.*;
+import org.alliancegenome.neo4j.entity.node.DOTerm;
+import org.alliancegenome.neo4j.entity.node.Source;
 
 public class SourceServiceHelper {
 

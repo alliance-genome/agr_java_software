@@ -1,6 +1,7 @@
 package org.alliancegenome.neo4j.view;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 
 @Setter
 @Getter

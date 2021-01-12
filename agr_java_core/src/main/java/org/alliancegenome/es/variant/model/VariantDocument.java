@@ -1,12 +1,13 @@
-package org.alliancegenome.variant_indexer.es.model;
+package org.alliancegenome.es.variant.model;
 
-import java.util.*;
+import java.util.List;
 
 import org.alliancegenome.es.index.site.document.SearchableItemDocument;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 @Setter
