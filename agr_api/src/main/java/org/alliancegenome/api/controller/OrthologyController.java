@@ -29,6 +29,9 @@ public class OrthologyController implements OrthologyRESTInterface {
     @Inject
     private OrthologyCacheRepository service;
 
+    @Inject
+    private GeneController controller;
+
     @Override
     public JsonResultResponse<OrthologView> getDoubleSpeciesOrthology(String taxonIDOne,
                                                                       String taxonIDTwo,
@@ -92,7 +95,6 @@ public class OrthologyController implements OrthologyRESTInterface {
                                                                   String method,
                                                                   Integer rows,
                                                                   Integer page) {
-        GeneController controller = new GeneController();
         //controller.setRequest(request);
         return controller.getGeneOrthology(null, geneIDs, geneList, stringencyFilter, null, method, rows, page);
     }
