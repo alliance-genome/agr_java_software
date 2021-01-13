@@ -26,7 +26,7 @@ public class HtpVariantCreation extends Thread {
     private String[] header = null;
     public static String indexName;
 
-    private Map<String, List<AlleleVariantSequence>> sequenceMap;
+    private ConcurrentHashMap<String, ConcurrentLinkedDeque<AlleleVariantSequence>> sequenceMap;
     
     private LinkedBlockingDeque<List<VariantContext>> vcQueue = new LinkedBlockingDeque<>(VariantConfigHelper.getSourceDocumentCreatorVCQueueSize());
     private LinkedBlockingDeque<List<VariantDocument>> objectQueue = new LinkedBlockingDeque<>(VariantConfigHelper.getSourceDocumentCreatorObjectQueueSize());
@@ -37,7 +37,7 @@ public class HtpVariantCreation extends Thread {
     private ProcessDisplayHelper ph4 = new ProcessDisplayHelper(log, VariantConfigHelper.getDisplayInterval());
     private ProcessDisplayHelper ph5 = new ProcessDisplayHelper(log, VariantConfigHelper.getDisplayInterval());
 
-    public HtpVariantCreation(DownloadSource source, Map<String, List<AlleleVariantSequence>> sequenceMap) {
+    public HtpVariantCreation(DownloadSource source, ConcurrentHashMap<String, ConcurrentLinkedDeque<AlleleVariantSequence>> sequenceMap) {
         this.source = source;
         speciesType = SpeciesType.getTypeByID(source.getTaxonId());
         this.sequenceMap = sequenceMap;
@@ -168,7 +168,8 @@ public class HtpVariantCreation extends Thread {
 
     private class DocumentTransformer extends Thread {
 
-        private VariantContextConverter converter = VariantContextConverter.getConverter(speciesType);
+        private VariantContextConverter converter = new VariantContextConverter();
+        
         private int workBucketSize = VariantConfigHelper.getSourceDocumentCreatorObjectQueueBucketSize();
 
         public void run() {
@@ -212,9 +213,9 @@ public class HtpVariantCreation extends Thread {
                             
                             String geneID = transcriptFeature.getGene();
                             
-                            List<AlleleVariantSequence> list = sequenceMap.get(geneID);
+                            ConcurrentLinkedDeque<AlleleVariantSequence> list = sequenceMap.get(geneID);
                             if(list == null) {
-                                list = new ArrayList<>();
+                                list = new ConcurrentLinkedDeque<AlleleVariantSequence>();
                                 sequenceMap.put(geneID, list);
                             }
 

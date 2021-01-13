@@ -336,7 +336,7 @@ public class SourceDocumentCreation extends Thread {
     
     private class DocumentTransformer extends Thread {
         
-        private VariantContextConverter converter = VariantContextConverter.getConverter(speciesType);
+        private VariantContextConverter converter = new VariantContextConverter();
         private int workBucketSize = VariantConfigHelper.getSourceDocumentCreatorObjectQueueBucketSize();
         
         public void run() {
