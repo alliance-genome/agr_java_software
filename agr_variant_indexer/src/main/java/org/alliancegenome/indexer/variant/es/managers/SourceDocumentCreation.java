@@ -1,4 +1,4 @@
-package org.alliancegenome.variant_indexer.es.managers;
+package org.alliancegenome.indexer.variant.es.managers;
 
 import java.io.File;
 import java.util.*;
