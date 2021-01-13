@@ -95,7 +95,7 @@ public class TestReadVCFFile {
     
     private class VCFTransform extends Thread {
         
-        VariantContextConverter converter = VariantContextConverter.getConverter(SpeciesType.HUMAN);
+        VariantContextConverter converter = new VariantContextConverter();
         private ProcessDisplayHelper ph2 = new ProcessDisplayHelper(60000);
         
         public void run() {

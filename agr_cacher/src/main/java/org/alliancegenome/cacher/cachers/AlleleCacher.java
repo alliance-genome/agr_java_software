@@ -132,7 +132,7 @@ public class AlleleCacher extends Cacher {
 
     }
 
-    private Map<String, List<AlleleVariantSequence>> htpAlleleSequenceMap = new HashMap<>();
+    private ConcurrentHashMap<String, ConcurrentLinkedDeque<AlleleVariantSequence>> htpAlleleSequenceMap = new ConcurrentHashMap<>();
 
     public void readHtpFiles(String taxonID) {
         ConfigHelper.init();
@@ -153,7 +153,7 @@ public class AlleleCacher extends Cacher {
                 fdm.join();
             }
 
-            htpAlleleSequenceMap = new HashMap<>();
+            htpAlleleSequenceMap = new ConcurrentHashMap<>();
             if (creating) {
                 try {
                     ExecutorService executor = Executors.newFixedThreadPool(VariantConfigHelper.getSourceDocumentCreatorThreads());
