@@ -1,16 +1,15 @@
 package org.alliancegenome.neo4j.entity.node;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonView;
-import lombok.Getter;
-import lombok.Setter;
 import org.alliancegenome.api.service.VariantService;
 import org.alliancegenome.neo4j.entity.Neo4jEntity;
 import org.alliancegenome.neo4j.view.View;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
-import org.neo4j.ogm.annotation.NodeEntity;
-import org.neo4j.ogm.annotation.Relationship;
+import org.neo4j.ogm.annotation.*;
+
+import com.fasterxml.jackson.annotation.*;
+
+import lombok.*;
 
 @NodeEntity(label = "TranscriptLevelConsequence")
 @Getter

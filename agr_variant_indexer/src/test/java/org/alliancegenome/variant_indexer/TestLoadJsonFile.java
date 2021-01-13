@@ -5,9 +5,9 @@ import java.util.*;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.zip.GZIPInputStream;
 
+import org.alliancegenome.core.variant.config.VariantConfigHelper;
 import org.alliancegenome.es.index.site.schema.settings.VariantIndexSettings;
 import org.alliancegenome.es.util.*;
-import org.alliancegenome.variant_indexer.config.VariantConfigHelper;
 import org.apache.http.HttpHost;
 import org.apache.http.client.config.RequestConfig.Builder;
 import org.elasticsearch.action.DocWriteRequest;

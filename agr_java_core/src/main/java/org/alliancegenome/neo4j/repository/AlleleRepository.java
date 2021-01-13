@@ -1,15 +1,14 @@
 package org.alliancegenome.neo4j.repository;
 
-import lombok.extern.log4j.Log4j2;
-import org.alliancegenome.neo4j.entity.node.Allele;
-import org.alliancegenome.neo4j.entity.node.Transcript;
+import java.util.*;
+import java.util.stream.*;
+
+import org.alliancegenome.neo4j.entity.node.*;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.neo4j.ogm.model.Result;
 
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
+import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 public class AlleleRepository extends Neo4jRepository<Allele> {

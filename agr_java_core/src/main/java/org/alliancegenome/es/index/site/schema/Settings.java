@@ -1,12 +1,10 @@
 package org.alliancegenome.es.index.site.schema;
 
-import org.alliancegenome.neo4j.repository.indexer.GeneIndexerRepository;
-
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
+
+import org.alliancegenome.neo4j.repository.indexer.GeneIndexerRepository;
 
 public abstract class Settings extends Builder {
 

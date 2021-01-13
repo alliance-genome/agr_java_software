@@ -1,12 +1,11 @@
 package org.alliancegenome.api.entity;
 
-import com.fasterxml.jackson.annotation.JsonView;
-import lombok.Getter;
-import lombok.Setter;
-import org.alliancegenome.neo4j.entity.node.Allele;
-import org.alliancegenome.neo4j.entity.node.TranscriptLevelConsequence;
-import org.alliancegenome.neo4j.entity.node.Variant;
+import org.alliancegenome.neo4j.entity.node.*;
 import org.alliancegenome.neo4j.view.View;
+
+import com.fasterxml.jackson.annotation.JsonView;
+
+import lombok.*;
 
 /**
  * A flattened version of an Allele entity for presentational purposes.
