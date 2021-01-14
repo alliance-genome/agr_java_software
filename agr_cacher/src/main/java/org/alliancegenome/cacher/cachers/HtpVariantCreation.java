@@ -1,22 +1,28 @@
 package org.alliancegenome.cacher.cachers;
 
-import java.io.File;
-import java.util.*;
-import java.util.concurrent.*;
-
+import htsjdk.samtools.util.CloseableIterator;
+import htsjdk.variant.variantcontext.VariantContext;
+import htsjdk.variant.vcf.VCFFileReader;
+import htsjdk.variant.vcf.VCFInfoHeaderLine;
+import lombok.extern.log4j.Log4j2;
 import org.alliancegenome.api.entity.AlleleVariantSequence;
-import org.alliancegenome.core.filedownload.model.*;
+import org.alliancegenome.core.filedownload.model.DownloadSource;
+import org.alliancegenome.core.filedownload.model.DownloadableFile;
 import org.alliancegenome.core.variant.config.VariantConfigHelper;
 import org.alliancegenome.core.variant.converters.VariantContextConverter;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
-import org.alliancegenome.es.variant.model.*;
+import org.alliancegenome.es.variant.model.TranscriptFeature;
+import org.alliancegenome.es.variant.model.VariantDocument;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.entity.node.*;
 
-import htsjdk.samtools.util.CloseableIterator;
-import htsjdk.variant.variantcontext.VariantContext;
-import htsjdk.variant.vcf.*;
-import lombok.extern.log4j.Log4j2;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.TimeUnit;
 
 @Log4j2
 public class HtpVariantCreation extends Thread {
@@ -25,9 +31,10 @@ public class HtpVariantCreation extends Thread {
     private SpeciesType speciesType;
     private String[] header = null;
     public static String indexName;
+    private String chromosome;
 
     private ConcurrentHashMap<String, ConcurrentLinkedDeque<AlleleVariantSequence>> sequenceMap;
-    
+
     private LinkedBlockingDeque<List<VariantContext>> vcQueue = new LinkedBlockingDeque<>(VariantConfigHelper.getSourceDocumentCreatorVCQueueSize());
     private LinkedBlockingDeque<List<VariantDocument>> objectQueue = new LinkedBlockingDeque<>(VariantConfigHelper.getSourceDocumentCreatorObjectQueueSize());
 
@@ -37,8 +44,9 @@ public class HtpVariantCreation extends Thread {
     private ProcessDisplayHelper ph4 = new ProcessDisplayHelper(log, VariantConfigHelper.getDisplayInterval());
     private ProcessDisplayHelper ph5 = new ProcessDisplayHelper(log, VariantConfigHelper.getDisplayInterval());
 
-    public HtpVariantCreation(DownloadSource source, ConcurrentHashMap<String, ConcurrentLinkedDeque<AlleleVariantSequence>> sequenceMap) {
+    public HtpVariantCreation(DownloadSource source, String chromosome, ConcurrentHashMap<String, ConcurrentLinkedDeque<AlleleVariantSequence>> sequenceMap) {
         this.source = source;
+        this.chromosome = chromosome;
         speciesType = SpeciesType.getTypeByID(source.getTaxonId());
         this.sequenceMap = sequenceMap;
     }
@@ -48,11 +56,14 @@ public class HtpVariantCreation extends Thread {
         ph1.startProcess("VCFReader Readers: ");
         List<VCFReader> readers = new ArrayList<>();
         log.info("Number of Download files for " + source.getSpecies() + ": " + source.getFileList().size());
-        for (DownloadableFile df : source.getFileList()) {
-            VCFReader reader = new VCFReader(df);
+        source.getFileList().stream()
+                // only process the file with the right chromosome
+                .filter(file -> file.getChromosome().equals(chromosome))
+                .forEach(file -> {
+            VCFReader reader = new VCFReader(file);
             reader.start();
             readers.add(reader);
-        }
+        });
 
         List<DocumentTransformer> transformers = new ArrayList<>();
         ph2.startProcess("VCFTransformers: " + speciesType.getName());
@@ -169,7 +180,7 @@ public class HtpVariantCreation extends Thread {
     private class DocumentTransformer extends Thread {
 
         private VariantContextConverter converter = new VariantContextConverter();
-        
+
         private int workBucketSize = VariantConfigHelper.getSourceDocumentCreatorObjectQueueBucketSize();
 
         public void run() {
@@ -209,12 +220,12 @@ public class HtpVariantCreation extends Thread {
                 try {
                     List<VariantDocument> docList = objectQueue.take();
                     for (VariantDocument doc : docList) {
-                        for(TranscriptFeature transcriptFeature: doc.getConsequences()) {
-                            
+                        for (TranscriptFeature transcriptFeature : doc.getConsequences()) {
+
                             String geneID = transcriptFeature.getGene();
-                            
+
                             ConcurrentLinkedDeque<AlleleVariantSequence> list = sequenceMap.get(geneID);
-                            if(list == null) {
+                            if (list == null) {
                                 list = new ConcurrentLinkedDeque<AlleleVariantSequence>();
                                 sequenceMap.put(geneID, list);
                             }
