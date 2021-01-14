@@ -82,13 +82,19 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
         return transcriptMap;
     }
 
-    public Set<Allele> getAllAlleles(String taxonID) {
+    public Set<Allele> getAllAlleles(String taxonID, String chromosome) {
         String query = "";
         // allele-only (no variants)
         query += " MATCH p1=(:Species)<-[:FROM_SPECIES]-(a:Allele)-[:IS_ALLELE_OF]->(g:Gene)-[:FROM_SPECIES]-(q:Species) ";
+        if (StringUtils.isNotEmpty(chromosome)) {
+            query += ", (g:Gene)--(chr:Chromosome) ";
+        }
         query += "where not exists ((a)<-[:VARIATION]-(:Variant)) ";
         if (StringUtils.isNotEmpty(taxonID)) {
             query += "and q.primaryKey = '" + taxonID + "' ";
+        }
+        if (StringUtils.isNotEmpty(chromosome)) {
+            query += "and chr.primaryKey = '" + chromosome + "' ";
         }
 //        query += " AND g.taxonId = 'NCBITaxon:10116' ";
 //        query += " AND g.primaryKey = 'RGD:9294106' ";
@@ -107,8 +113,14 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
         query = "";
         query += " MATCH p1=(g:Gene)<-[:IS_ALLELE_OF]-(a:Allele)<-[:VARIATION]-(variant:Variant)--(:SOTerm) ";
         query += ", p0=(:Species)<-[:FROM_SPECIES]-(a:Allele) ";
+        if (StringUtils.isNotEmpty(chromosome)) {
+            query += ", (g:Gene)--(chr:Chromosome) ";
+        }
         if (StringUtils.isNotEmpty(taxonID)) {
             query += " where g.taxonId = '" + taxonID + "' ";
+        }
+        if (StringUtils.isNotEmpty(chromosome)) {
+            query += "and chr.primaryKey = '" + chromosome + "' ";
         }
 //        query += " where g.taxonId = 'NCBITaxon:10116' ";
 //        query += " where g.primaryKey = 'RGD:9294106' ";

@@ -1,27 +1,31 @@
 package org.alliancegenome.cacher.cachers;
 
-import static java.util.stream.Collectors.groupingBy;
-
-import java.util.*;
-import java.util.concurrent.*;
-import java.util.stream.Collectors;
-
-import org.alliancegenome.api.entity.*;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import lombok.extern.log4j.Log4j2;
+import org.alliancegenome.api.entity.AlleleVariantSequence;
+import org.alliancegenome.api.entity.CacheStatus;
 import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.filedownload.model.DownloadFileSet;
 import org.alliancegenome.core.filedownload.process.FileDownloadManager;
 import org.alliancegenome.core.variant.config.VariantConfigHelper;
 import org.alliancegenome.neo4j.entity.SpeciesType;
-import org.alliancegenome.neo4j.entity.node.*;
+import org.alliancegenome.neo4j.entity.node.Allele;
+import org.alliancegenome.neo4j.entity.node.GeneticEntity;
+import org.alliancegenome.neo4j.entity.node.Species;
 import org.alliancegenome.neo4j.repository.AlleleRepository;
 import org.alliancegenome.neo4j.view.View;
 import org.apache.commons.collections.CollectionUtils;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
-import lombok.extern.log4j.Log4j2;
+import static java.util.stream.Collectors.groupingBy;
 
 @Log4j2
 public class AlleleCacher extends Cacher {
@@ -30,16 +34,24 @@ public class AlleleCacher extends Cacher {
 
     @Override
     protected void cache() {
-        cacheSpecies(SpeciesType.WORM.getTaxonID());
+        readAllFileMetaData();
         cacheSpecies(SpeciesType.RAT.getTaxonID());
+        cacheSpecies(SpeciesType.WORM.getTaxonID());
         cacheSpecies(SpeciesType.FLY.getTaxonID());
         //cacheSpecies(SpeciesType.HUMAN.getTaxonID());
     }
 
     private void cacheSpecies(String taxonID) {
-        readHtpFiles(taxonID);
-        startProcess("get All Alleles for " + taxonID);
-        Set<Allele> allAlleles = alleleRepository.getAllAlleles(taxonID);
+        speciesChromosomeMap.get(taxonID).forEach(s -> {
+            cacheSpeciesChromosome(taxonID, s);
+        });
+    }
+
+
+    private void cacheSpeciesChromosome(String taxonID, String chromosome) {
+        readHtpFiles(taxonID, chromosome);
+        startProcess("get All Alleles for: [Taxon, chromosome]" + taxonID + ", " + chromosome + "]");
+        Set<Allele> allAlleles = alleleRepository.getAllAlleles(taxonID, chromosome);
         if (allAlleles == null)
             return;
         log.info("Number of Alleles: " + String.format("%,d", allAlleles.size()));
@@ -134,20 +146,45 @@ public class AlleleCacher extends Cacher {
 
     private ConcurrentHashMap<String, ConcurrentLinkedDeque<AlleleVariantSequence>> htpAlleleSequenceMap = new ConcurrentHashMap<>();
 
-    public void readHtpFiles(String taxonID) {
+    private Map<String, List<String>> speciesChromosomeMap = new HashMap<>();
+
+    private void readAllFileMetaData() {
+        DownloadFileSet downloadSet = null;
+        try {
+            ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+            downloadSet = mapper.readValue(getClass().getClassLoader().getResourceAsStream(VariantConfigHelper.getVariantConfigFile()), DownloadFileSet.class);
+            downloadSet.setDownloadPath(VariantConfigHelper.getVariantFileDownloadPath());
+
+            if (VariantConfigHelper.isDownloading()) {
+                FileDownloadManager fdm = new FileDownloadManager(downloadSet);
+                fdm.start();
+                fdm.join();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        downloadSet.getDownloadFileSet()
+                .forEach(source -> source.getFileList()
+                        .forEach(file -> {
+                            List<String> chromosomes = speciesChromosomeMap.computeIfAbsent(source.getTaxonId(), k -> new ArrayList<>());
+                            chromosomes.add(file.getChromosome());
+                        }));
+    }
+
+    public void readHtpFiles(String taxonID, String chromosome) {
         ConfigHelper.init();
         VariantConfigHelper.init();
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
 
-        boolean downloading = VariantConfigHelper.isDownloading();
         boolean creating = VariantConfigHelper.isCreating();
+
 
         try {
 
             DownloadFileSet downloadSet = mapper.readValue(getClass().getClassLoader().getResourceAsStream(VariantConfigHelper.getVariantConfigFile()), DownloadFileSet.class);
             downloadSet.setDownloadPath(VariantConfigHelper.getVariantFileDownloadPath());
 
-            if (downloading) {
+            if (VariantConfigHelper.isDownloading()) {
                 FileDownloadManager fdm = new FileDownloadManager(downloadSet);
                 fdm.start();
                 fdm.join();
@@ -160,7 +197,7 @@ public class AlleleCacher extends Cacher {
                     downloadSet.getDownloadFileSet().stream()
                             .filter(source -> source.getTaxonId().equals(taxonID))
                             .forEach(source -> {
-                                HtpVariantCreation creator = new HtpVariantCreation(source, htpAlleleSequenceMap);
+                                HtpVariantCreation creator = new HtpVariantCreation(source, chromosome, htpAlleleSequenceMap);
                                 executor.submit(creator);
                             });
                     Thread.sleep(10000);
