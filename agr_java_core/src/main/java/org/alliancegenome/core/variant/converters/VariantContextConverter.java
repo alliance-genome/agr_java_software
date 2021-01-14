@@ -101,6 +101,7 @@ public class VariantContextConverter {
 
 
             List<Genotype> genotypes = ctx.getGenotypes();
+/*
             if(genotypes != null && genotypes.size() > 0) {
                 List<String> samples = new ArrayList<>();
                 for (Genotype g : genotypes) {
@@ -110,6 +111,7 @@ public class VariantContextConverter {
                 }
                 variantDocument.setSamples(samples);
             }
+*/
 
             variantDocument.setMolecularConsequence(
                     variantDocument.getConsequences().stream()
