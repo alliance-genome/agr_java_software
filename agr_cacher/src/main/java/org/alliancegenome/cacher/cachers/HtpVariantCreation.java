@@ -6,7 +6,6 @@ import htsjdk.variant.vcf.VCFFileReader;
 import htsjdk.variant.vcf.VCFInfoHeaderLine;
 import lombok.extern.log4j.Log4j2;
 import org.alliancegenome.api.entity.AlleleVariantSequence;
-import org.alliancegenome.core.filedownload.model.DownloadSource;
 import org.alliancegenome.core.filedownload.model.DownloadableFile;
 import org.alliancegenome.core.variant.config.VariantConfigHelper;
 import org.alliancegenome.core.variant.converters.VariantContextConverter;
@@ -27,7 +26,7 @@ import java.util.concurrent.TimeUnit;
 @Log4j2
 public class HtpVariantCreation extends Thread {
 
-    private DownloadSource source;
+    private DownloadableFile file;
     private SpeciesType speciesType;
     private String[] header = null;
     public static String indexName;
@@ -44,10 +43,10 @@ public class HtpVariantCreation extends Thread {
     private ProcessDisplayHelper ph4 = new ProcessDisplayHelper(log, VariantConfigHelper.getDisplayInterval());
     private ProcessDisplayHelper ph5 = new ProcessDisplayHelper(log, VariantConfigHelper.getDisplayInterval());
 
-    public HtpVariantCreation(DownloadSource source, String chromosome, ConcurrentHashMap<String, ConcurrentLinkedDeque<AlleleVariantSequence>> sequenceMap) {
-        this.source = source;
+    public HtpVariantCreation(String taxonID, String chromosome, DownloadableFile file, ConcurrentHashMap<String, ConcurrentLinkedDeque<AlleleVariantSequence>> sequenceMap) {
+        this.file = file;
         this.chromosome = chromosome;
-        speciesType = SpeciesType.getTypeByID(source.getTaxonId());
+        speciesType = SpeciesType.getTypeByID(taxonID);
         this.sequenceMap = sequenceMap;
     }
 
@@ -55,15 +54,9 @@ public class HtpVariantCreation extends Thread {
 
         ph1.startProcess("VCFReader Readers: ");
         List<VCFReader> readers = new ArrayList<>();
-        log.info("Number of Download files for " + source.getSpecies() + ": " + source.getFileList().size());
-        source.getFileList().stream()
-                // only process the file with the right chromosome
-                .filter(file -> file.getChromosome().equals(chromosome))
-                .forEach(file -> {
-            VCFReader reader = new VCFReader(file);
-            reader.start();
-            readers.add(reader);
-        });
+        VCFReader reader = new VCFReader(file);
+        reader.start();
+        readers.add(reader);
 
         List<DocumentTransformer> transformers = new ArrayList<>();
         ph2.startProcess("VCFTransformers: " + speciesType.getName());
@@ -226,7 +219,7 @@ public class HtpVariantCreation extends Thread {
 
                             ConcurrentLinkedDeque<AlleleVariantSequence> list = sequenceMap.get(geneID);
                             if (list == null) {
-                                list = new ConcurrentLinkedDeque<AlleleVariantSequence>();
+                                list = new ConcurrentLinkedDeque<>();
                                 sequenceMap.put(geneID, list);
                             }
 
