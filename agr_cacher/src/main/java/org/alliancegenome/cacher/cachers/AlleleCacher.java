@@ -8,6 +8,7 @@ import org.alliancegenome.api.entity.CacheStatus;
 import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.filedownload.model.DownloadFileSet;
+import org.alliancegenome.core.filedownload.model.DownloadableFile;
 import org.alliancegenome.core.filedownload.process.FileDownloadManager;
 import org.alliancegenome.core.variant.config.VariantConfigHelper;
 import org.alliancegenome.neo4j.entity.SpeciesType;
@@ -50,7 +51,7 @@ public class AlleleCacher extends Cacher {
 
     private void cacheSpeciesChromosome(String taxonID, String chromosome) {
         readHtpFiles(taxonID, chromosome);
-        startProcess("get All Alleles for: [Taxon, chromosome]" + taxonID + ", " + chromosome + "]");
+        startProcess("get All Alleles for: [" + taxonID + ", " + chromosome + "]");
         Set<Allele> allAlleles = alleleRepository.getAllAlleles(taxonID, chromosome);
         if (allAlleles == null)
             return;
@@ -147,9 +148,11 @@ public class AlleleCacher extends Cacher {
     private ConcurrentHashMap<String, ConcurrentLinkedDeque<AlleleVariantSequence>> htpAlleleSequenceMap = new ConcurrentHashMap<>();
 
     private Map<String, List<String>> speciesChromosomeMap = new HashMap<>();
+    private DownloadFileSet downloadSet;
 
     private void readAllFileMetaData() {
-        DownloadFileSet downloadSet = null;
+        ConfigHelper.init();
+        VariantConfigHelper.init();
         try {
             ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
             downloadSet = mapper.readValue(getClass().getClassLoader().getResourceAsStream(VariantConfigHelper.getVariantConfigFile()), DownloadFileSet.class);
@@ -172,55 +175,32 @@ public class AlleleCacher extends Cacher {
     }
 
     public void readHtpFiles(String taxonID, String chromosome) {
-        ConfigHelper.init();
-        VariantConfigHelper.init();
-        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
 
-        boolean creating = VariantConfigHelper.isCreating();
-
-
+        htpAlleleSequenceMap = new ConcurrentHashMap<>();
         try {
+            ExecutorService executor = Executors.newFixedThreadPool(VariantConfigHelper.getSourceDocumentCreatorThreads());
+            DownloadableFile file = downloadSet.getDownloadFileSet().stream()
+                    .filter(source -> source.getTaxonId().equals(taxonID))
+                    .findAny().get()
+                    .getFileList().stream()
+                    .filter(downloadableFile -> downloadableFile.getChromosome().equals(chromosome))
+                    .findAny().get();
 
-            DownloadFileSet downloadSet = mapper.readValue(getClass().getClassLoader().getResourceAsStream(VariantConfigHelper.getVariantConfigFile()), DownloadFileSet.class);
-            downloadSet.setDownloadPath(VariantConfigHelper.getVariantFileDownloadPath());
+            HtpVariantCreation creator = new HtpVariantCreation(taxonID, chromosome, file, htpAlleleSequenceMap);
+            executor.submit(creator);
+            Thread.sleep(10000);
 
-            if (VariantConfigHelper.isDownloading()) {
-                FileDownloadManager fdm = new FileDownloadManager(downloadSet);
-                fdm.start();
-                fdm.join();
+            executor.shutdown();
+            while (!executor.isTerminated()) {
+                Thread.sleep(1000);
             }
-
-            htpAlleleSequenceMap = new ConcurrentHashMap<>();
-            if (creating) {
-                try {
-                    ExecutorService executor = Executors.newFixedThreadPool(VariantConfigHelper.getSourceDocumentCreatorThreads());
-                    downloadSet.getDownloadFileSet().stream()
-                            .filter(source -> source.getTaxonId().equals(taxonID))
-                            .forEach(source -> source.getFileList().stream()
-                                    .filter(downloadableFile -> downloadableFile.getChromosome().equals(chromosome))
-                                    .forEach(downloadableFile -> {
-                                        HtpVariantCreation creator = new HtpVariantCreation(source, chromosome, htpAlleleSequenceMap);
-                                        executor.submit(creator);
-                                    }));
-                    Thread.sleep(10000);
-
-                    executor.shutdown();
-                    while (!executor.isTerminated()) {
-                        Thread.sleep(1000);
-                    }
-                    log.info("Size of HTP Gene AlleleVariantSequence map " + String.format("%,d", htpAlleleSequenceMap.size()));
-                    log.info("Size of HTP AlleleVariantSequence records " +
-                            String.format("%,d", (int) htpAlleleSequenceMap.values().stream().flatMap(Collection::parallelStream).count()));
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
+            log.info("Size of HTP Gene AlleleVariantSequence map " + String.format("%,d", htpAlleleSequenceMap.size()));
+            log.info("Size of HTP AlleleVariantSequence records " +
+                    String.format("%,d", (int) htpAlleleSequenceMap.values().stream().flatMap(Collection::parallelStream).count()));
 
         } catch (Exception e) {
             e.printStackTrace();
         }
-
     }
 
 }
