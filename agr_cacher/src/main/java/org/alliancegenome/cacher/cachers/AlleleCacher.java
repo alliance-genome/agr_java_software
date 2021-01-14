@@ -196,10 +196,12 @@ public class AlleleCacher extends Cacher {
                     ExecutorService executor = Executors.newFixedThreadPool(VariantConfigHelper.getSourceDocumentCreatorThreads());
                     downloadSet.getDownloadFileSet().stream()
                             .filter(source -> source.getTaxonId().equals(taxonID))
-                            .forEach(source -> {
-                                HtpVariantCreation creator = new HtpVariantCreation(source, chromosome, htpAlleleSequenceMap);
-                                executor.submit(creator);
-                            });
+                            .forEach(source -> source.getFileList().stream()
+                                    .filter(downloadableFile -> downloadableFile.getChromosome().equals(chromosome))
+                                    .forEach(downloadableFile -> {
+                                        HtpVariantCreation creator = new HtpVariantCreation(source, chromosome, htpAlleleSequenceMap);
+                                        executor.submit(creator);
+                                    }));
                     Thread.sleep(10000);
 
                     executor.shutdown();
