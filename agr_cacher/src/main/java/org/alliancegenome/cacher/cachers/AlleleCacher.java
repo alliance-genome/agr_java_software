@@ -18,6 +18,7 @@ import org.alliancegenome.neo4j.entity.node.Species;
 import org.alliancegenome.neo4j.repository.AlleleRepository;
 import org.alliancegenome.neo4j.view.View;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -31,15 +32,19 @@ import static java.util.stream.Collectors.groupingBy;
 @Log4j2
 public class AlleleCacher extends Cacher {
 
-    private static AlleleRepository alleleRepository = new AlleleRepository();
+    private static final AlleleRepository alleleRepository = new AlleleRepository();
 
     @Override
     protected void cache() {
         readAllFileMetaData();
+        cacheSpeciesChromosome(SpeciesType.ZEBRAFISH.getTaxonID(), null);
+        cacheSpeciesChromosome(SpeciesType.MOUSE.getTaxonID(), null);
+        cacheSpeciesChromosome(SpeciesType.YEAST.getTaxonID(), null);
         cacheSpecies(SpeciesType.RAT.getTaxonID());
         cacheSpecies(SpeciesType.WORM.getTaxonID());
         cacheSpecies(SpeciesType.FLY.getTaxonID());
         //cacheSpecies(SpeciesType.HUMAN.getTaxonID());
+        log.info(htpVariantMap);
     }
 
     private void cacheSpecies(String taxonID) {
@@ -51,7 +56,10 @@ public class AlleleCacher extends Cacher {
 
     private void cacheSpeciesChromosome(String taxonID, String chromosome) {
         readHtpFiles(taxonID, chromosome);
-        startProcess("get All Alleles for: [" + taxonID + ", " + chromosome + "]");
+        if (StringUtils.isNotEmpty(chromosome))
+            startProcess("get Alleles for: [" + taxonID + ", " + chromosome + "]");
+        else
+            startProcess("get Alleles for: [" + taxonID + "]");
         Set<Allele> allAlleles = alleleRepository.getAllAlleles(taxonID, chromosome);
         if (allAlleles == null)
             return;
@@ -146,6 +154,7 @@ public class AlleleCacher extends Cacher {
     }
 
     private ConcurrentHashMap<String, ConcurrentLinkedDeque<AlleleVariantSequence>> htpAlleleSequenceMap = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, ConcurrentHashMap<String, Long>> htpVariantMap = new ConcurrentHashMap<>();
 
     private Map<String, List<String>> speciesChromosomeMap = new HashMap<>();
     private DownloadFileSet downloadSet;
@@ -175,8 +184,9 @@ public class AlleleCacher extends Cacher {
     }
 
     public void readHtpFiles(String taxonID, String chromosome) {
-
         htpAlleleSequenceMap = new ConcurrentHashMap<>();
+        if (StringUtils.isEmpty(chromosome))
+            return;
         try {
             ExecutorService executor = Executors.newFixedThreadPool(VariantConfigHelper.getSourceDocumentCreatorThreads());
             DownloadableFile file = downloadSet.getDownloadFileSet().stream()
@@ -194,10 +204,17 @@ public class AlleleCacher extends Cacher {
             while (!executor.isTerminated()) {
                 Thread.sleep(1000);
             }
-            log.info("Size of HTP Gene AlleleVariantSequence map " + String.format("%,d", htpAlleleSequenceMap.size()));
-            log.info("Size of HTP AlleleVariantSequence records " +
-                    String.format("%,d", (int) htpAlleleSequenceMap.values().stream().flatMap(Collection::parallelStream).count()));
+            log.info("Size of HTP Gene with AlleleVariantSequence: " + String.format("%,d", htpAlleleSequenceMap.size()));
+            long countAlleleVariants = htpAlleleSequenceMap.values().stream().flatMap(Collection::parallelStream).count();
+            log.info("Size of HTP AlleleVariantSequence records: " +
+                    String.format("%,d", (int) countAlleleVariants));
 
+            ConcurrentHashMap<String, Long> taxonMap = htpVariantMap.get(taxonID);
+            if (taxonMap == null) {
+                taxonMap = new ConcurrentHashMap<>();
+                htpVariantMap.put(taxonID, taxonMap);
+            }
+            taxonMap.put(chromosome, countAlleleVariants);
         } catch (Exception e) {
             e.printStackTrace();
         }
