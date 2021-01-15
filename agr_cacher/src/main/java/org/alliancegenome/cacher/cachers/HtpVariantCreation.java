@@ -76,48 +76,48 @@ public class HtpVariantCreation extends Thread {
 
         try {
 
-            log.info("Waiting for VCFReader's to finish");
+            log.debug("Waiting for VCFReader's to finish");
             for (VCFReader r : readers) {
                 r.join();
             }
             ph1.finishProcess();
 
-            log.info("Waiting for VC Queue to empty");
+            log.debug("Waiting for VC Queue to empty");
             while (!vcQueue.isEmpty()) {
                 Thread.sleep(15000);
             }
             TimeUnit.MILLISECONDS.sleep(15000);
-            log.info("VC Queue Empty shutting down transformers");
+            log.debug("VC Queue Empty shutting down transformers");
 
-            log.info("Shutting down transformers");
+            log.debug("Shutting down transformers");
             for (DocumentTransformer t : transformers) {
                 t.interrupt();
                 t.join();
             }
-            log.info("Transformers shutdown");
+            log.debug("Transformers shutdown");
             ph2.finishProcess();
 
 
-            log.info("Waiting for Object Queue to empty");
+            log.debug("Waiting for Object Queue to empty");
             while (!objectQueue.isEmpty()) {
                 Thread.sleep(15000);
             }
             TimeUnit.MILLISECONDS.sleep(15000);
-            log.info("Object Empty shutting down producers");
+            log.debug("Object Empty shutting down producers");
 
-            log.info("Shutting down producers");
+            log.debug("Shutting down producers");
             for (JSONProducer p : producers) {
                 p.interrupt();
                 p.join();
             }
-            log.info("JSONProducers shutdown");
+            log.debug("JSONProducers shutdown");
             ph5.finishProcess();
 
-            log.info("Bulk Indexers shutdown");
+            log.debug("Bulk Indexers shutdown");
             ph3.finishProcess();
             ph4.finishProcess();
 
-            log.info("Threads finished: ");
+            log.debug("Threads finished: ");
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
