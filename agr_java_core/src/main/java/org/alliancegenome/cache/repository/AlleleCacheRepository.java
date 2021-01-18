@@ -90,11 +90,9 @@ public class AlleleCacheRepository {
         response.setTotal(filteredAlleleList.size());
 
         // add distinct values
-/*
-        ColumnFieldMapping<Allele> mapping = new AlleleColumnFieldMapping();
+        ColumnFieldMapping<AlleleVariantSequence> mapping = new AlleleVariantSequenceColumnFieldMapping();
         response.addDistinctFieldValueSupplementalData(filterService.getDistinctFieldValues(allAlleles,
-                mapping.getSingleValuedFieldColumns(Table.ALLELE_GENE), mapping));
-*/
+                mapping.getSingleValuedFieldColumns(Table.ALLELE_VARIANT_GENE), mapping));
 
         return response;
     }
