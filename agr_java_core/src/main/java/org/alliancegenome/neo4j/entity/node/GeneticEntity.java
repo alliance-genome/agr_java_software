@@ -39,7 +39,7 @@ public class GeneticEntity extends Neo4jEntity {
     private List<Synonym> synonyms = new ArrayList<>();
 
     // Converts the list of synonym objects to a list of strings
-    @JsonView(value = {View.API.class, View.GeneAllelesAPI.class})
+    @JsonView(value = {View.API.class, View.GeneAllelesAPI.class, View.GeneAlleleVariantSequenceAPI.class})
     @JsonProperty(value = "synonyms")
     public List<String> getSynonymList() {
         if (synonyms == null)

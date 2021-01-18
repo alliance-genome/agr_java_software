@@ -18,8 +18,11 @@ public class FileDownloadManager extends Thread {
 
     public void run() {
         
+        if(downloadSet == null || downloadSet.getDownloadFileSet() == null)
+            return;
+
         ExecutorService executor = Executors.newFixedThreadPool(VariantConfigHelper.getFileDownloadThreads());
-        
+
         for(DownloadSource source: downloadSet.getDownloadFileSet()) {
             for(DownloadableFile df: source.getFileList()) {
                 FileDownload fd = new FileDownload(df, downloadSet.getDownloadPath());
