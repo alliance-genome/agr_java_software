@@ -33,7 +33,7 @@ public class FileDownloadManager extends Thread {
         executor.shutdown();  
         while (!executor.isTerminated()) {   }  
 
-        log.info("Downloading Files have finished downloading");
+        log.info("Finished downloading Files");
     }
 
 

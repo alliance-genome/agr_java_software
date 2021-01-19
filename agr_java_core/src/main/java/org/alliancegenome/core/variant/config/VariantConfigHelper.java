@@ -35,7 +35,8 @@ public class VariantConfigHelper {
          */
 
         defaults.put(VARIANT_CONFIG_FILE, "downloadFileSet.yaml");
-        
+        defaults.put(VARIANT_CACHER_CONFIG_FILE, "variantDownloadFiles.yaml");
+
         defaults.put(VARIANT_CONFIG_DOWNLOAD, "true");
         defaults.put(VARIANT_CONFIG_CREATING, "true");
         defaults.put(VARIANT_CONFIG_INDEXING, "true");
@@ -112,6 +113,11 @@ public class VariantConfigHelper {
         return config.get(VARIANT_CONFIG_FILE);
     }
     
+    public static String getVariantCacherConfigFile() {
+        if (!init) init();
+        return config.get(VARIANT_CACHER_CONFIG_FILE);
+    }
+
     public static int[][] getBulkProcessorSettingsArray() {
         String settings = getBulkProcessorSettings();
         String[] array = settings.split(",");

@@ -43,7 +43,7 @@ public class AlleleCacher extends Cacher {
         cacheSpecies(SpeciesType.RAT.getTaxonID());
         cacheSpecies(SpeciesType.WORM.getTaxonID());
         cacheSpecies(SpeciesType.FLY.getTaxonID());
-        //cacheSpecies(SpeciesType.HUMAN.getTaxonID());
+        cacheSpecies(SpeciesType.HUMAN.getTaxonID());
         log.info(htpVariantMap);
     }
 
@@ -164,7 +164,7 @@ public class AlleleCacher extends Cacher {
         VariantConfigHelper.init();
         try {
             ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-            downloadSet = mapper.readValue(getClass().getClassLoader().getResourceAsStream(VariantConfigHelper.getVariantConfigFile()), DownloadFileSet.class);
+            downloadSet = mapper.readValue(getClass().getClassLoader().getResourceAsStream(VariantConfigHelper.getVariantCacherConfigFile()), DownloadFileSet.class);
             downloadSet.setDownloadPath(VariantConfigHelper.getVariantFileDownloadPath());
 
             if (VariantConfigHelper.isDownloading()) {
