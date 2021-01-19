@@ -131,13 +131,14 @@ public class InteractionToTdfTranslator {
             else {
             	joiner.add("");
             }
-            //phenotype
-            if (interactionGeneJoin.getPhenotype()!=null) {
-            	joiner.add(interactionGeneJoin.getPhenotype().getPrimaryKey());
+            //phenotypes
+            String phenotypeIds = "";
+            if (interactionGeneJoin.getDetectionsMethods() != null) {
+                StringJoiner phenotypeJoiner = new StringJoiner(",");
+                interactionGeneJoin.getPhenotypes().forEach(phenotype -> phenotypeJoiner.add(phenotype.getPrimaryKey()));
+                phenotypeIds = phenotypeJoiner.toString();
             }
-            else {
-            	joiner.add("");
-            }
+            joiner.add(phenotypeIds);
 
             builder.append(joiner.toString());
             builder.append(ConfigHelper.getJavaLineSeparator());

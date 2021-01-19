@@ -47,7 +47,7 @@ public enum FieldFilter {
     HAS_DISEASE("filter.has-disease"),
     TRANSGENE_HAS_PHENOTYPE("filter.transgene-has-phenotype"),
     TRANSGENE_HAS_DISEASE("filter.transgene-has-disease"),
-    STRINGENCY("stringency"),
+    STRINGENCY("filter.stringency"),
     ORTHOLOGY_METHOD("method"),
     ORTHOLOGY_TAXON("taxon"),
     INDEX_NAME("indexName");

@@ -1,5 +1,6 @@
 package org.alliancegenome.neo4j.entity.node;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.alliancegenome.api.entity.PresentationEntity;
@@ -82,7 +83,7 @@ public class InteractionGeneJoin extends Neo4jEntity implements Comparable, Pres
     
     @JsonView({View.Interaction.class})
     @Relationship(type = "PHENOTYPE_TRAIT")
-    private Phenotype phenotype;
+    private List<Phenotype> phenotypes = new ArrayList<>();
 
     @Override
     public String toString() {
