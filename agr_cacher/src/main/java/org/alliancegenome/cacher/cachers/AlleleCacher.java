@@ -43,7 +43,7 @@ public class AlleleCacher extends Cacher {
         cacheSpecies(SpeciesType.RAT.getTaxonID());
         cacheSpecies(SpeciesType.WORM.getTaxonID());
         cacheSpecies(SpeciesType.FLY.getTaxonID());
-        cacheSpecies(SpeciesType.HUMAN.getTaxonID());
+//        cacheSpecies(SpeciesType.HUMAN.getTaxonID());
         log.info(htpVariantMap);
     }
 
@@ -60,7 +60,7 @@ public class AlleleCacher extends Cacher {
             startProcess("get Alleles for: [" + taxonID + ", " + chromosome + "]");
         else
             startProcess("get Alleles for: [" + taxonID + "]");
-        Set<Allele> allAlleles = alleleRepository.getAllAlleles(taxonID, chromosome);
+        Set<Allele> allAlleles = alleleRepository.getAlleles(taxonID, chromosome);
         if (allAlleles == null)
             return;
         log.info("Number of Alleles: " + String.format("%,d", allAlleles.size()));
