@@ -48,6 +48,8 @@ public class AlleleCacher extends Cacher {
     }
 
     private void cacheSpecies(String taxonID) {
+        if (speciesChromosomeMap.get(taxonID) == null)
+            return;
         speciesChromosomeMap.get(taxonID).forEach(s -> {
             cacheSpeciesChromosome(taxonID, s);
         });

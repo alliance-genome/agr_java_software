@@ -87,9 +87,15 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
 
     public Set<Allele> getAlleles(String taxonID, String chromosome) {
         // return alleles for all chromosomes
-        if (chromosome == null)
-            return getAllAlleles().get(taxonID).values().stream().flatMap(List::stream).collect(Collectors.toSet());
-        return new HashSet<>(getAllAlleles().get(taxonID).get(chromosome));
+        final Map<String, List<Allele>> map = getAllAlleles().get(taxonID);
+        if (chromosome == null) {
+            if (map == null)
+                return new HashSet<>();
+            else
+                return map.values().stream().flatMap(List::stream).collect(Collectors.toSet());
+        }
+        List<Allele> alleles = map.get(chromosome);
+        return alleles != null ? new HashSet<>(alleles) : new HashSet<>();
     }
 
 

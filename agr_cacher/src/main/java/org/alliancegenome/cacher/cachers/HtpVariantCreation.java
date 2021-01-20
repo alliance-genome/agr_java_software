@@ -52,14 +52,12 @@ public class HtpVariantCreation extends Thread {
 
     public void run() {
 
-        ph1.startProcess("VCFReader Readers: ");
         List<VCFReader> readers = new ArrayList<>();
         VCFReader reader = new VCFReader(file);
         reader.start();
         readers.add(reader);
 
         List<DocumentTransformer> transformers = new ArrayList<>();
-        ph2.startProcess("VCFTransformers: " + speciesType.getName());
         for (int i = 0; i < VariantConfigHelper.getTransformerThreads(); i++) {
             DocumentTransformer transformer = new DocumentTransformer();
             transformer.start();
@@ -67,7 +65,6 @@ public class HtpVariantCreation extends Thread {
         }
 
         List<JSONProducer> producers = new ArrayList<>();
-        ph5.startProcess("JSONProducers: " + speciesType.getName());
         for (int i = 0; i < VariantConfigHelper.getProducerThreads(); i++) {
             JSONProducer producer = new JSONProducer();
             producer.start();
@@ -80,7 +77,6 @@ public class HtpVariantCreation extends Thread {
             for (VCFReader r : readers) {
                 r.join();
             }
-            ph1.finishProcess();
 
             log.debug("Waiting for VC Queue to empty");
             while (!vcQueue.isEmpty()) {
@@ -95,9 +91,6 @@ public class HtpVariantCreation extends Thread {
                 t.join();
             }
             log.debug("Transformers shutdown");
-            ph2.finishProcess();
-
-
             log.debug("Waiting for Object Queue to empty");
             while (!objectQueue.isEmpty()) {
                 Thread.sleep(15000);
@@ -111,12 +104,7 @@ public class HtpVariantCreation extends Thread {
                 p.join();
             }
             log.debug("JSONProducers shutdown");
-            ph5.finishProcess();
-
             log.debug("Bulk Indexers shutdown");
-            ph3.finishProcess();
-            ph4.finishProcess();
-
             log.debug("Threads finished: ");
         } catch (InterruptedException e) {
             e.printStackTrace();
