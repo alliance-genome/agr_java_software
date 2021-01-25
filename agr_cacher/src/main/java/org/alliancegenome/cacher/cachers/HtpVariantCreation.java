@@ -26,22 +26,15 @@ import java.util.concurrent.TimeUnit;
 @Log4j2
 public class HtpVariantCreation extends Thread {
 
-    private DownloadableFile file;
-    private SpeciesType speciesType;
+    private final DownloadableFile file;
+    private final SpeciesType speciesType;
     private String[] header = null;
-    public static String indexName;
     private String chromosome;
 
-    private ConcurrentHashMap<String, ConcurrentLinkedDeque<AlleleVariantSequence>> sequenceMap;
+    private final ConcurrentHashMap<String, ConcurrentLinkedDeque<AlleleVariantSequence>> sequenceMap;
 
-    private LinkedBlockingDeque<List<VariantContext>> vcQueue = new LinkedBlockingDeque<>(VariantConfigHelper.getSourceDocumentCreatorVCQueueSize());
-    private LinkedBlockingDeque<List<VariantDocument>> objectQueue = new LinkedBlockingDeque<>(VariantConfigHelper.getSourceDocumentCreatorObjectQueueSize());
-
-    private ProcessDisplayHelper ph1 = new ProcessDisplayHelper(log, VariantConfigHelper.getDisplayInterval());
-    private ProcessDisplayHelper ph2 = new ProcessDisplayHelper(log, VariantConfigHelper.getDisplayInterval());
-    private ProcessDisplayHelper ph3 = new ProcessDisplayHelper(log, VariantConfigHelper.getDisplayInterval());
-    private ProcessDisplayHelper ph4 = new ProcessDisplayHelper(log, VariantConfigHelper.getDisplayInterval());
-    private ProcessDisplayHelper ph5 = new ProcessDisplayHelper(log, VariantConfigHelper.getDisplayInterval());
+    private final LinkedBlockingDeque<List<VariantContext>> vcQueue = new LinkedBlockingDeque<>(VariantConfigHelper.getSourceDocumentCreatorVCQueueSize());
+    private final LinkedBlockingDeque<List<VariantDocument>> objectQueue = new LinkedBlockingDeque<>(VariantConfigHelper.getSourceDocumentCreatorObjectQueueSize());
 
     public HtpVariantCreation(String taxonID, String chromosome, DownloadableFile file, ConcurrentHashMap<String, ConcurrentLinkedDeque<AlleleVariantSequence>> sequenceMap) {
         this.file = file;
@@ -113,8 +106,8 @@ public class HtpVariantCreation extends Thread {
 
     private class VCFReader extends Thread {
 
-        private DownloadableFile df;
-        private int workBucketSize = VariantConfigHelper.getSourceDocumentCreatorVCQueueBucketSize();
+        private final DownloadableFile df;
+        private final int workBucketSize = VariantConfigHelper.getSourceDocumentCreatorVCQueueBucketSize();
 
         public VCFReader(DownloadableFile df) {
             this.df = df;
@@ -145,7 +138,6 @@ public class HtpVariantCreation extends Thread {
                         vcQueue.put(workBucket);
                         workBucket = new ArrayList<>();
                     }
-                    ph1.progressProcess("vcQueue: " + vcQueue.size());
                 }
                 if (workBucket.size() > 0) {
                     vcQueue.put(workBucket);
@@ -160,9 +152,9 @@ public class HtpVariantCreation extends Thread {
 
     private class DocumentTransformer extends Thread {
 
-        private VariantContextConverter converter = new VariantContextConverter();
+        private final VariantContextConverter converter = new VariantContextConverter();
 
-        private int workBucketSize = VariantConfigHelper.getSourceDocumentCreatorObjectQueueBucketSize();
+        private final int workBucketSize = VariantConfigHelper.getSourceDocumentCreatorObjectQueueBucketSize();
 
         public void run() {
             List<VariantDocument> workBucket = new ArrayList<>();
@@ -170,10 +162,7 @@ public class HtpVariantCreation extends Thread {
                 try {
                     List<VariantContext> ctxList = vcQueue.take();
                     for (VariantContext ctx : ctxList) {
-                        for (VariantDocument doc : converter.convertVariantContext(ctx, speciesType, header)) {
-                            workBucket.add(doc);
-                            ph2.progressProcess("objectQueue: " + objectQueue.size());
-                        }
+                        workBucket.addAll(converter.convertVariantContext(ctx, speciesType, header));
                     }
                     if (workBucket.size() >= workBucketSize) {
                         objectQueue.put(workBucket);
@@ -228,12 +217,14 @@ public class HtpVariantCreation extends Thread {
                             variant.setGenomicVariantSequence(transcriptFeature.getAllele());
                             consequence.setImpact(transcriptFeature.getImpact());
                             consequence.setTranscriptLevelConsequence(transcriptFeature.getConsequence());
-                            consequence.setPolyphenScore(transcriptFeature.getPolyphen());
-                            consequence.setSiftScore(transcriptFeature.getSift());
+                            consequence.setPolyphenPrediction(transcriptFeature.getPolyphen());
+                            consequence.setPolyphenScore(transcriptFeature.getPolyphenScore());
+                            consequence.setSiftPrediction(transcriptFeature.getSift());
+                            consequence.setSiftScore(transcriptFeature.getSiftScore());
+                            consequence.setTranscriptLocation(transcriptFeature.getExon());
                             list.add(new AlleleVariantSequence(allele, variant, consequence));
                         }
                     }
-
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }

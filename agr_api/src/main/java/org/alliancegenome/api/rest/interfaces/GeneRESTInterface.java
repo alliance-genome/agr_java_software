@@ -127,6 +127,14 @@ public interface GeneRESTInterface {
             @QueryParam("filter.variantType") String variantType,
             @Parameter(in = ParameterIn.QUERY, name = "filter.variantConsequence", description = "Consequence", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.variantConsequence") String consequence,
+            @Parameter(in = ParameterIn.QUERY, name = "filter.variantImpact", description = "VEP Impact", schema = @Schema(type = SchemaType.STRING))
+            @QueryParam("filter.variantImpact") String impact,
+            @Parameter(in = ParameterIn.QUERY, name = "filter.consequenceType", description = "Consequence Type", schema = @Schema(type = SchemaType.STRING))
+            @QueryParam("filter.consequenceType") String consequenceType,
+            @Parameter(in = ParameterIn.QUERY, name = "filter.variantPolyphen", description = "Consequence Type", schema = @Schema(type = SchemaType.STRING))
+            @QueryParam("filter.variantPolyphen") String variantPolyphen,
+            @Parameter(in = ParameterIn.QUERY, name = "filter.variantSift", description = "Consequence Type", schema = @Schema(type = SchemaType.STRING))
+            @QueryParam("filter.variantSift") String variantSift,
             @Parameter(in = ParameterIn.QUERY, name = "filter.hasDisease", description = "Phenotypes", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.hasDisease") String hasDisease,
             @Parameter(in = ParameterIn.QUERY, name = "filter.hasPhenotype", description = "has Disease", schema = @Schema(type = SchemaType.STRING))

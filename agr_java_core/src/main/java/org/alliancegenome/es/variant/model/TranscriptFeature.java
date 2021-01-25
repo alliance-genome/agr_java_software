@@ -1,10 +1,14 @@
 package org.alliancegenome.es.variant.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.Getter;
+import lombok.Setter;
 
-import lombok.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-@Getter @Setter
+@Getter
+@Setter
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class TranscriptFeature {
     private String allele;
@@ -38,7 +42,9 @@ public class TranscriptFeature {
     private String usedRef;
     private String bamEdit;
     private String sift;
+    private String siftScore;
     private String polyphen;
+    private String polyphenScore;
     private String hgvsOffset;
 
     private String referenceSequence;
@@ -46,10 +52,10 @@ public class TranscriptFeature {
 
 
     public TranscriptFeature(String[] header, String[] infos) {
-    
-        
-        if(header.length == 33) {
-            
+
+
+        if (header.length == 33) {
+
             // Human VEP Results
             // Allele|Consequence|IMPACT|SYMBOL|Gene|Feature_type|Feature|BIOTYPE|EXON|INTRON|
             // HGVSc|HGVSp|cDNA_position|CDS_position|Protein_position|Amino_acids|Codons|Existing_variation|DISTANCE|STRAND|
@@ -66,7 +72,7 @@ public class TranscriptFeature {
             biotype = infos[7];
             exon = infos[8];
             intron = infos[9];
-            
+
             hgvsc = infos[10];
             hgvsp = infos[11];
             cdnaPosition = infos[12];
@@ -77,7 +83,7 @@ public class TranscriptFeature {
             existingVariation = infos[17];
             distance = infos[18];
             strand = infos[19];
-            
+
             flags = infos[20];
             symbolSource = infos[21];
             hgncId = infos[22];
@@ -88,12 +94,12 @@ public class TranscriptFeature {
             usedRef = infos[27];
             bamEdit = infos[28];
             sift = infos[29];
-            
+
             polyphen = infos[30];
             hgvsOffset = infos[31];
             hgvsg = infos[32];
-            
-        } else if(header.length == 29) {
+
+        } else if (header.length == 29) {
             // Mod VEP
             // Allele|Consequence|IMPACT|SYMBOL|Gene|Feature_type|Feature|BIOTYPE|EXON|INTRON|
             // HGVSc|HGVSp|cDNA_position|CDS_position|Protein_position|Amino_acids|Codons|Existing_variation|DISTANCE|STRAND|
@@ -109,7 +115,7 @@ public class TranscriptFeature {
             biotype = infos[7];
             exon = infos[8];
             intron = infos[9];
-            
+
             hgvsc = infos[10];
             hgvsp = infos[11];
             cdnaPosition = infos[12];
@@ -120,7 +126,7 @@ public class TranscriptFeature {
             existingVariation = infos[17];
             distance = infos[18];
             strand = infos[19];
-            
+
             flags = infos[20];
             symbolSource = infos[21];
             hgncId = infos[22];
@@ -130,8 +136,24 @@ public class TranscriptFeature {
             polyphen = infos[26];
             sift = infos[27];
         }
-        
-        
+        // fixup sift and polyphen
+        String pattern = "(.*)(\\()(.*)(\\))";
+        // Create a Pattern object
+        Pattern r = Pattern.compile(pattern);
 
+        // Match polyphen
+        // polyphen = polyphenPrediction(polyphenScore)
+        Matcher m = r.matcher(polyphen);
+        if (m.find()) {
+            polyphen = m.group(1);
+            polyphenScore = m.group(3);
+        }
+        // Match sift
+        // sift = siftPrediction(siftScore)
+        m = r.matcher(sift);
+        if (m.find()) {
+            sift = m.group(1);
+            siftScore = m.group(3);
+        }
     }
 }

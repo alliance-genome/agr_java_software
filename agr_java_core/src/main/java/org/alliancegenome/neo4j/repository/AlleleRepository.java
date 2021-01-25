@@ -87,12 +87,15 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
 
     public Set<Allele> getAlleles(String taxonID, String chromosome) {
         // return alleles for all chromosomes
-        final Map<String, List<Allele>> map = getAllAlleles().get(taxonID);
+        Map<String, List<Allele>> map = getAllAlleles().get(taxonID);
+        if (chromosome == null && map == null) {
+            return new HashSet<>();
+        }
         if (chromosome == null) {
-            if (map == null)
-                return new HashSet<>();
-            else
-                return map.values().stream().flatMap(List::stream).collect(Collectors.toSet());
+            return map.values().stream().flatMap(List::stream).collect(Collectors.toSet());
+        }
+        if ( map == null) {
+            map = new HashMap<>();
         }
         List<Allele> alleles = map.get(chromosome);
         return alleles != null ? new HashSet<>(alleles) : new HashSet<>();
@@ -112,7 +115,7 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
         query += "where not exists ((a)<-[:VARIATION]-(:Variant)) ";
         //query += " AND  g.primaryKey = 'WB:WBGene00000913' ";
 
-//        query += " AND g.taxonId = 'NCBITaxon:10116' ";
+//        query += " AND g.taxonId = 'NCBITaxon:7955' ";
 //        query += " AND g.primaryKey = 'RGD:9294106' ";
 //        query += " AND g.primaryKey in ['RGD:9294106', 'ZFIN:ZDB-GENE-001212-1', 'WB:WBGene00000913'] ";
         query += " OPTIONAL MATCH disease=(a:Allele)<-[:IS_IMPLICATED_IN]-(doTerm:DOTerm)";
@@ -131,7 +134,7 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
         query += " MATCH p1=(g:Gene)<-[:IS_ALLELE_OF]-(a:Allele)<-[:VARIATION]-(variant:Variant)--(:SOTerm) ";
         query += ", p0=(:Species)<-[:FROM_SPECIES]-(a:Allele) ";
         query += ", p3=(g:Gene)--(:Chromosome) ";
-//        query += " where g.taxonId = 'NCBITaxon:10116' ";
+//        query += " where g.taxonId = 'NCBITaxon:7955' ";
 //        query += " where g.primaryKey = 'RGD:9294106' ";
 //        query += " where g.primaryKey = 'WB:WBGene00000913' ";
 //        query += " AND  a.primaryKey = 'ZFIN:ZDB-ALT-130411-1942' ";
@@ -187,7 +190,7 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
                 // all alleles with chromosome info
                 alleleList.stream()
                         .filter(allele -> allele.getGene().getChromsomes() != null)
-                        .filter(allele -> allele.getGene().getChromsomes()
+                         .filter(allele -> allele.getGene().getChromsomes()
                                 .stream()
                                 .map(Chromosome::getPrimaryKey)
                                 .anyMatch(chr -> chr.equals(chromosome)))
