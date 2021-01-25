@@ -1,3 +1,15 @@
+REG := 100225593120.dkr.ecr.us-east-1.amazonaws.com
+
+registry-docker-login:
+ifneq ($(shell echo ${REG} | egrep "ecr\..+\.amazonaws\.com"),)
+	@$(eval DOCKER_LOGIN_CMD=aws)
+ifneq (${AWS_PROFILE},)
+	@$(eval DOCKER_LOGIN_CMD=${DOCKER_LOGIN_CMD} --profile ${AWS_PROFILE})
+endif
+	@$(eval DOCKER_LOGIN_CMD=${DOCKER_LOGIN_CMD} ecr get-login-password | docker login -u AWS --password-stdin https://${REG})
+	${DOCKER_LOGIN_CMD}
+endif
+
 all: 
 	mvn -q clean package
 
@@ -8,13 +20,13 @@ test:
 	mvn test
 
 docker-build: pull
-	docker build -t agrdocker/agr_intermine_data_extractor_run:develop .
+	docker build -t agrlocal/agr_intermine_data_extractor_run:develop --build-arg REG=${REG} .
 
 docker-run: docker-build
 	docker-compose up agr_intermine_data_extractor
 
-pull:
-	docker pull agrdocker/agr_java_env:develop
+pull: registry-docker-login
+	docker pull ${REG}/agr_base_linux_env:develop
 
 bash:
 	docker-compose up agr_intermine_data_extractor bash
@@ -27,9 +39,9 @@ reload: stopes removees
 	sleep 10
 	docker-compose up agr_intermine_data_extractor
 
-docker-pull-neo:
-	docker pull agrdocker/agr_neo4j_data_image:build
+docker-pull-neo: registry-docker-login
+	docker pull ${REG}/agr_neo4j_data_image:build
 
 docker-run-neo:
-	docker run -p 127.0.0.1:7474:7474 -p 127.0.0.1:7687:7687 --env NEO4J_dbms_memory_heap_maxSize=8g agrdocker/agr_neo4j_data_image:build
+	docker run -p 127.0.0.1:7474:7474 -p 127.0.0.1:7687:7687 --env NEO4J_dbms_memory_heap_maxSize=8g ${REG}/agr_neo4j_data_image:build
 

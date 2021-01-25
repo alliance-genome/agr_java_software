@@ -56,17 +56,11 @@ After the API is up and running, API documentation can be found through swagger 
 
 ### Creating a docker container
 
-	#> docker build -t agr_api_server .
+	#> docker build -t <container-name> .
 	
 ### Runing the docker container
 
-	#> docker run -p 8080:8080 -t -i agr_api_server
-	
-### Running the data container
-
-In order to run with the latest created Elastic Search data image run the following command before running the API
-
-	#> docker run -p 9200:9200 -p 9300:9300 -e "http.host=0.0.0.0" -e "transport.host=0.0.0.0" agrdocker/agr_es_data_image
+	#> docker run -p 8080:8080 -t -i <container-name>
 
 ## Endpoints
 | URL | description |
