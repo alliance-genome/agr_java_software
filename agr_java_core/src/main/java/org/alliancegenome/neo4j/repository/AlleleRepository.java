@@ -94,7 +94,7 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
         if (chromosome == null) {
             return map.values().stream().flatMap(List::stream).collect(Collectors.toSet());
         }
-        if ( map == null) {
+        if (map == null) {
             map = new HashMap<>();
         }
         List<Allele> alleles = map.get(chromosome);
@@ -117,7 +117,7 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
 
 //        query += " AND g.taxonId = 'NCBITaxon:7955' ";
 //        query += " AND g.primaryKey = 'RGD:9294106' ";
-//        query += " AND g.primaryKey in ['RGD:9294106', 'ZFIN:ZDB-GENE-001212-1', 'WB:WBGene00000913'] ";
+//        query += " AND g.primaryKey in ['RGD:9294106', 'ZFIN:ZDB-GENE-001212-1', 'WB:WBGene00000913', 'ZFIN:ZDB-GENE-011101-3'] ";
         query += " OPTIONAL MATCH disease=(a:Allele)<-[:IS_IMPLICATED_IN]-(doTerm:DOTerm)";
         query += " OPTIONAL MATCH pheno=(a:Allele)-[:HAS_PHENOTYPE]->(ph:Phenotype)";
         query += " OPTIONAL MATCH p2=(a:Allele)-[:ALSO_KNOWN_AS]->(synonym:Synonym)";
@@ -135,7 +135,7 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
         query += ", p0=(:Species)<-[:FROM_SPECIES]-(a:Allele) ";
         query += ", p3=(g:Gene)--(:Chromosome) ";
 //        query += " where g.taxonId = 'NCBITaxon:7955' ";
-//        query += " where g.primaryKey = 'RGD:9294106' ";
+//        query += " AND g.primaryKey in [ 'ZFIN:ZDB-GENE-001212-1', 'ZFIN:ZDB-GENE-011101-3'] ";
 //        query += " where g.primaryKey = 'WB:WBGene00000913' ";
 //        query += " AND  a.primaryKey = 'ZFIN:ZDB-ALT-130411-1942' ";
 
@@ -151,22 +151,7 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
                 .collect(Collectors.toSet());
         log.info("Number of alleles with variants: " + String.format("%,d", allelesWithVariants.size()));
         // fixup transcripts with genomic location and exon information
-        allelesWithVariants.forEach(allele ->
-                allele.getVariants().stream()
-                        .filter(Objects::nonNull)
-                        .filter(variant -> variant.getTranscriptList() != null)
-                        .forEach(variant ->
-                                variant.getTranscriptList().forEach(transcript -> {
-                                    final Transcript transcript1 = getTranscriptWithExonInfo().get(transcript.getPrimaryKey());
-                                    if (transcript1 != null) {
-                                        if (transcript1.getGenomeLocation() != null)
-                                            transcript.setGenomeLocation(transcript1.getGenomeLocation());
-                                        if (transcript1.getExons() != null)
-                                            transcript.setExons(transcript1.getExons());
-                                    }
-                                })));
-
-        allAlleles.addAll(allelesWithVariants);
+        fixupAllelesWithVariants(allAlleles, allelesWithVariants);
 
         Set<Allele> allAlleleSet = new HashSet<>(allAlleles);
 
@@ -190,7 +175,7 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
                 // all alleles with chromosome info
                 alleleList.stream()
                         .filter(allele -> allele.getGene().getChromsomes() != null)
-                         .filter(allele -> allele.getGene().getChromsomes()
+                        .filter(allele -> allele.getGene().getChromsomes()
                                 .stream()
                                 .map(Chromosome::getPrimaryKey)
                                 .anyMatch(chr -> chr.equals(chromosome)))
@@ -207,6 +192,25 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
             log.info(taxonID + ": " + stats);
         });
         return allAlleleMap;
+    }
+
+    public void fixupAllelesWithVariants(Set<Allele> allAlleles, Set<Allele> allelesWithVariants) {
+        allelesWithVariants.forEach(allele ->
+                allele.getVariants().stream()
+                        .filter(Objects::nonNull)
+                        .filter(variant -> variant.getTranscriptList() != null)
+                        .forEach(variant ->
+                                variant.getTranscriptList().forEach(transcript -> {
+                                    final Transcript transcript1 = getTranscriptWithExonInfo().get(transcript.getPrimaryKey());
+                                    if (transcript1 != null) {
+                                        if (transcript1.getGenomeLocation() != null)
+                                            transcript.setGenomeLocation(transcript1.getGenomeLocation());
+                                        if (transcript1.getExons() != null)
+                                            transcript.setExons(transcript1.getExons());
+                                    }
+                                })));
+        allAlleles.addAll(allelesWithVariants);
+        allAlleles.forEach(Allele::populateCategory);
     }
 
     /*
