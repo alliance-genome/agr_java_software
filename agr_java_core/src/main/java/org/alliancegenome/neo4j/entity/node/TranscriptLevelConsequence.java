@@ -36,6 +36,7 @@ public class TranscriptLevelConsequence extends Neo4jEntity implements Comparabl
     private String codonVariation;
 
     @JsonView({View.API.class, View.GeneAlleleVariantSequenceAPI.class})
+    @JsonProperty("molecularConsequence")
     private String transcriptLevelConsequence;
 
     @JsonView({View.API.class})
@@ -144,13 +145,13 @@ public class TranscriptLevelConsequence extends Neo4jEntity implements Comparabl
 
     private String transcriptType;
 
-    @JsonProperty("type")
+    @JsonProperty("sequenceFeatureType")
     public void setTranscriptType(String name) {
         transcriptType = name;
     }
 
     @JsonView({View.GeneAlleleVariantSequenceAPI.class})
-    @JsonProperty("type")
+    @JsonProperty("sequenceFeatureType")
     public String getTranscriptType() {
         if (StringUtils.isNotEmpty(transcriptType))
             return transcriptType;

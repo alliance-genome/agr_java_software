@@ -1,16 +1,19 @@
 package org.alliancegenome.neo4j.entity.node;
 
-import java.util.*;
-
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.JsonView;
+import lombok.Getter;
+import lombok.Setter;
 import org.alliancegenome.api.entity.PresentationEntity;
 import org.alliancegenome.neo4j.view.View;
 import org.apache.commons.collections.CollectionUtils;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
-import org.neo4j.ogm.annotation.*;
+import org.neo4j.ogm.annotation.NodeEntity;
+import org.neo4j.ogm.annotation.Relationship;
 
-import com.fasterxml.jackson.annotation.*;
-
-import lombok.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @NodeEntity(label = "Feature")
 @Getter
@@ -40,7 +43,7 @@ public class Allele extends GeneticEntity implements Comparable<Allele>, Present
     @Relationship(type = "IS_ALLELE_OF")
     private Gene gene;
 
-    @JsonView({View.GeneAllelesAPI.class})
+    @JsonView({View.GeneAllelesAPI.class, View.GeneAlleleVariantSequenceAPI.class})
     @Relationship(type = "IS_IMPLICATED_IN", direction = Relationship.INCOMING)
     private List<DOTerm> diseases = new ArrayList<>();
 
@@ -69,15 +72,22 @@ public class Allele extends GeneticEntity implements Comparable<Allele>, Present
         return primaryKey + ":" + symbolText;
     }
 
-    @JsonView({View.API.class, View.GeneAlleleVariantSequenceAPI.class})
+    public void setPhenotypes(List<Phenotype> phenotypes) {
+        this.phenotypes = phenotypes;
+        phenotype = CollectionUtils.isNotEmpty(phenotypes);
+    }
+
+    private boolean phenotype;
+
+    @JsonView({View.API.class, View.GeneAllelesAPI.class, View.GeneAlleleVariantSequenceAPI.class})
+    @JsonProperty(value = "hasPhenotype")
     public Boolean hasPhenotype() {
-        return CollectionUtils.isNotEmpty(phenotypes);
+        return phenotype;
     }
 
     @JsonProperty(value = "hasPhenotype")
     public void setPhenotype(boolean hasPhenotype) {
-        // this is a calculated property but the setter needs to be here
-        // for deserialization purposes.
+        this.phenotype = hasPhenotype;
     }
 
     @JsonView({View.API.class, View.GeneAlleleVariantSequenceAPI.class})
@@ -91,24 +101,41 @@ public class Allele extends GeneticEntity implements Comparable<Allele>, Present
         // for deserialization purposes.
     }
 
-    @JsonView({View.API.class, View.GeneAlleleVariantSequenceAPI.class})
-    @JsonProperty(value = "category")
-    public String getCategory() {
-        if (crossReferenceType != CrossReferenceType.ALLELE)
-            return crossReferenceType.getDisplayName();
-        if (CollectionUtils.isEmpty(variants))
-            return crossReferenceType.getDisplayName();
-        if (variants.size() == 1) {
-            return ALLELE_WITH_ONE_VARIANT;
+    @JsonView({View.API.class, View.GeneAllelesAPI.class})
+    public void setVariants(List<Variant> variants) {
+        this.variants = variants;
+        populateCategory();
+    }
+
+    public void populateCategory() {
+        if (crossReferenceType != CrossReferenceType.ALLELE) {
+            category = crossReferenceType.getDisplayName();
+            return;
         }
-        return ALLELE_WITH_MULTIPLE_VARIANT;
+        if (CollectionUtils.isEmpty(variants)) {
+            category = crossReferenceType.getDisplayName();
+            return;
+        }
+        if (variants.size() == 1) {
+            category = ALLELE_WITH_ONE_VARIANT;
+            return;
+        }
+        category = ALLELE_WITH_MULTIPLE_VARIANT;
     }
 
-    @JsonProperty(value = "category")
+    @JsonView({View.API.class, View.GeneAllelesAPI.class})
+    public List<Variant> getVariants() {
+        return variants;
+    }
+
+    @JsonView({View.API.class, View.GeneAlleleVariantSequenceAPI.class})
+    private String category;
+
+    public String getCategory() {
+        return category;
+    }
+
     public void setCategory(String category) {
-        // this is a calculated property but the setter needs to be here
-        // for deserialization purposes.
+        this.category = category;
     }
-
-
 }
