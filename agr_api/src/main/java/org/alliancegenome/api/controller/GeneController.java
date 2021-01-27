@@ -191,6 +191,7 @@ public class GeneController implements GeneRESTInterface {
         return responseBuilder.build();
     }
 
+
     @Override
     public JsonResultResponse<InteractionGeneJoin> getInteractions(String id, Integer limit, Integer page, String sortBy, String asc,
                                                                    String moleculeType,
@@ -630,5 +631,42 @@ public class GeneController implements GeneRESTInterface {
             throw new RestErrorException(error);
         }
     }
+
+
+    @Override
+    public Response getTransgenicAllelesPerGeneDownload(String geneId,
+                                                        String sortBy,
+                                                        String asc,
+                                                        String alleleSymbol,
+                                                        String constructSymbol,
+                                                        String constructRegulatedGene,
+                                                        String constructTargetedGene,
+                                                        String constructExpressedGene,
+                                                        String species,
+                                                        String hasPhenotype,
+                                                        String hasDisease,
+                                                        UriInfo ui) {
+        Pagination pagination = new Pagination(1, Integer.MAX_VALUE, sortBy, asc);
+        pagination.addFieldFilter(FieldFilter.SYMBOL, alleleSymbol);
+        pagination.addFieldFilter(FieldFilter.SPECIES, species);
+        pagination.addFieldFilter(FieldFilter.TRANSGENE_HAS_PHENOTYPE, hasPhenotype);
+        pagination.addFieldFilter(FieldFilter.TRANSGENE_HAS_DISEASE, hasDisease);
+        pagination.addFieldFilter(FieldFilter.CONSTRUCT_SYMBOL, constructSymbol);
+        pagination.addFieldFilter(FieldFilter.CONSTRUCT_TARGETED_GENE, constructTargetedGene);
+        pagination.addFieldFilter(FieldFilter.CONSTRUCT_REGULATED_GENE, constructRegulatedGene);
+        pagination.addFieldFilter(FieldFilter.CONSTRUCT_EXPRESSED_GENE, constructExpressedGene);
+        if (pagination.hasErrors()) {
+            RestErrorMessage message = new RestErrorMessage();
+            message.setErrors(pagination.getErrors());
+            throw new RestErrorException(message);
+        }
+
+        JsonResultResponse<Allele> alleles = alleleService.getTransgenicAlleles(geneId, pagination);
+
+        Response.ResponseBuilder responseBuilder = Response.ok(alleleTanslator.getAllTransgenicAlleleRows(alleles.getResults()));
+        APIServiceHelper.setDownloadHeader(geneId, EntityType.GENE, EntityType.ALLELE, responseBuilder);
+        return responseBuilder.build();
+    }
+
 
 }

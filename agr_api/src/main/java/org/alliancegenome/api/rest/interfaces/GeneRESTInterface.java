@@ -608,4 +608,35 @@ public interface GeneRESTInterface {
             @QueryParam("filter.hasDisease") String hasDisease,
             @Context UriInfo ui
     );
+
+
+    @GET
+    @Path("/{id}/transgenic-alleles/download")
+    @Operation(summary = "Download Transgenic Alleles for a given gene")
+    @Produces(MediaType.TEXT_PLAIN)
+    Response getTransgenicAllelesPerGeneDownload(
+            @Parameter(in = ParameterIn.PATH, name = "id", description = "Gene by ID, e.g. 'RGD:2129' or 'ZFIN:ZDB-GENE-990415-72 fgf8a'", required = true, schema = @Schema(type = SchemaType.STRING))
+            @PathParam("id") String geneID,
+            @DefaultValue("allele") @QueryParam("sortBy") String sortBy,
+            @Parameter(in = ParameterIn.QUERY, name = "asc", description = "order to sort by", schema = @Schema(type = SchemaType.STRING))
+            @DefaultValue("true") @QueryParam("asc") String asc,
+            @Parameter(in = ParameterIn.QUERY, name = "filter.allele", description = "filter by allele symbol", schema = @Schema(type = SchemaType.STRING))
+            @QueryParam("filter.allele") String alleleSymbol,
+            @Parameter(in = ParameterIn.QUERY, name = "filter.construct", description = "filter by construct symbol", schema = @Schema(type = SchemaType.STRING))
+            @QueryParam("filter.construct") String constructSymbol,
+            @Parameter(in = ParameterIn.QUERY, name = "filter.constructRegulatedGene", description = "filter by construct symbol", schema = @Schema(type = SchemaType.STRING))
+            @QueryParam("filter.constructRegulatedGene") String constructRegulatedGene,
+            @Parameter(in = ParameterIn.QUERY, name = "filter.constructTargetedGene", description = "filter by construct symbol", schema = @Schema(type = SchemaType.STRING))
+            @QueryParam("filter.constructTargetedGene") String constructTargetedGene,
+            @Parameter(in = ParameterIn.QUERY, name = "filter.constructExpressedGene", description = "filter by construct symbol", schema = @Schema(type = SchemaType.STRING))
+            @QueryParam("filter.constructExpressedGene") String constructExpressedGene,
+            @Parameter(in = ParameterIn.QUERY, name = "filter.species", description = "filter by species", schema = @Schema(type = SchemaType.STRING))
+            @QueryParam("filter.species") String species,
+            @Parameter(in = ParameterIn.QUERY, name = "filter.hasPhenotype", description = "filter by existence of phenotype", schema = @Schema(type = SchemaType.STRING))
+            @QueryParam("filter.hasPhenotype") String hasPhenotype,
+            @Parameter(in = ParameterIn.QUERY, name = "filter.hasDisease", description = "filter by existence of disease", schema = @Schema(type = SchemaType.STRING))
+            @QueryParam("filter.hasDisease") String hasDisease,
+            @Context UriInfo ui
+    );
+
 }
