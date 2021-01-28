@@ -24,6 +24,12 @@ public class Allele extends GeneticEntity implements Comparable<Allele>, Present
 
     public Allele() {
         this.crossReferenceType = CrossReferenceType.ALLELE;
+        populateCategory();
+    }
+
+    public Allele(String primaryKey, CrossReferenceType crossReferenceType) {
+        super(primaryKey, crossReferenceType);
+        populateCategory();
     }
 
     private String release;
@@ -135,6 +141,7 @@ public class Allele extends GeneticEntity implements Comparable<Allele>, Present
         return category;
     }
 
+    // Do not use this setter. It's only used for deserialization purposes
     public void setCategory(String category) {
         this.category = category;
     }

@@ -71,6 +71,14 @@ public class AlleleCacher extends Cacher {
                 .filter(allele -> allele.getGene() != null)
                 .collect(groupingBy(allele -> allele.getGene().getPrimaryKey()));
 
+        // add HTP variants to existing genes in map
+        map.forEach((geneID, alleles) -> {
+            if (variantMap.get(geneID) != null)
+                alleles.addAll(variantMap.get(geneID));
+        });
+        // add HTP variants to non-existing genes in map
+        variantMap.forEach(map::putIfAbsent);
+
         allAlleles.forEach(allele -> allele.setPhenotypes(allele.getPhenotypes().stream()
                 .sorted(Comparator.comparing(phenotype -> phenotype.getPhenotypeStatement().toLowerCase()))
                 .collect(Collectors.toList())));
@@ -160,6 +168,8 @@ public class AlleleCacher extends Cacher {
 
     private Map<String, List<String>> speciesChromosomeMap = new HashMap<>();
     private DownloadFileSet downloadSet;
+    // <geneID, List<Allele>>
+    private Map<String, List<Allele>> variantMap = new HashMap<>();
 
     private void readAllFileMetaData() {
         ConfigHelper.init();
@@ -211,12 +221,31 @@ public class AlleleCacher extends Cacher {
             log.info("Size of HTP AlleleVariantSequence records: " +
                     String.format("%,d", (int) countAlleleVariants));
 
-            ConcurrentHashMap<String, Long> taxonMap = htpVariantMap.get(taxonID);
-            if (taxonMap == null) {
-                taxonMap = new ConcurrentHashMap<>();
-                htpVariantMap.put(taxonID, taxonMap);
-            }
+            ConcurrentHashMap<String, Long> taxonMap = htpVariantMap.computeIfAbsent(taxonID, s -> new ConcurrentHashMap<>());
             taxonMap.put(chromosome, countAlleleVariants);
+
+            //group by geneID
+            Map<String, List<AlleleVariantSequence>> alleleVariantMap = htpAlleleSequenceMap.values().stream()
+                    .flatMap(Collection::stream)
+                    .collect(groupingBy(sequence -> sequence.getAllele().getGene().getPrimaryKey()));
+
+            // TODO variant ID needs to be agreed on
+            alleleVariantMap.forEach((geneID, alleleVariantSequences) -> {
+                Map<String, List<AlleleVariantSequence>> varMap = alleleVariantSequences.stream()
+                        .collect(groupingBy(sequence -> sequence.getVariant().getHgvsNomenclature()));
+                varMap.forEach((variantName, sequences) -> {
+                    Allele variantAllele = new Allele("", GeneticEntity.CrossReferenceType.VARIANT);
+                    variantAllele.setUrl("");
+                    variantAllele.setSymbol(sequences.get(0).getVariant().getHgvsNomenclature());
+                    variantAllele.setSymbolText(sequences.get(0).getVariant().getHgvsNomenclature());
+                    // adding all of them is not necessary, thus using the first entry
+                    //variantAllele.setVariants(sequences.stream().map(AlleleVariantSequence::getVariant).collect(Collectors.toList()));
+                    variantAllele.setVariants(List.of(sequences.get(0).getVariant()));
+                    List<Allele> list = variantMap.computeIfAbsent(geneID, s -> new ArrayList<>());
+                    list.add(variantAllele);
+                });
+            });
+            log.info("Number of Genes: " + variantMap.size());
         } catch (Exception e) {
             e.printStackTrace();
         }
