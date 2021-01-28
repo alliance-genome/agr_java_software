@@ -9,7 +9,6 @@ import org.alliancegenome.api.entity.AlleleVariantSequence;
 import org.alliancegenome.core.filedownload.model.DownloadableFile;
 import org.alliancegenome.core.variant.config.VariantConfigHelper;
 import org.alliancegenome.core.variant.converters.VariantContextConverter;
-import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.es.variant.model.TranscriptFeature;
 import org.alliancegenome.es.variant.model.VariantDocument;
 import org.alliancegenome.neo4j.entity.SpeciesType;
@@ -200,7 +199,7 @@ public class HtpVariantCreation extends Thread {
                                 sequenceMap.put(geneID, list);
                             }
 
-                            Allele allele = new Allele();
+                            Allele allele = new Allele(transcriptFeature.getGene(), GeneticEntity.CrossReferenceType.VARIANT);
                             Gene gene = new Gene();
                             gene.setPrimaryKey(transcriptFeature.getGene());
                             gene.setSymbol(transcriptFeature.getSymbol());
@@ -215,6 +214,8 @@ public class HtpVariantCreation extends Thread {
                             variant.setVariantType(variantType);
                             variant.setGenomicReferenceSequence(transcriptFeature.getReferenceSequence());
                             variant.setGenomicVariantSequence(transcriptFeature.getAllele());
+                            variant.setAssociatedGene(gene);
+                            variant.setConsequence((transcriptFeature.getConsequence()));
                             consequence.setImpact(transcriptFeature.getImpact());
                             consequence.setTranscriptLevelConsequence(transcriptFeature.getConsequence());
                             consequence.setPolyphenPrediction(transcriptFeature.getPolyphen());
