@@ -58,10 +58,11 @@ public class AlleleCacher extends Cacher {
 
     private void cacheSpeciesChromosome(String taxonID, String chromosome) {
         readHtpFiles(taxonID, chromosome);
+        String speciesName = SpeciesType.getNameByID(taxonID);
         if (StringUtils.isNotEmpty(chromosome))
-            startProcess("get Alleles for [" + taxonID + ", " + chromosome + "]");
+            startProcess("Retrieve Alleles for [" + speciesName + ", " + chromosome + "]");
         else
-            startProcess("get Alleles for [" + taxonID + "]");
+            startProcess("Retrieve Alleles for [" + speciesName + "]");
         Set<Allele> allAlleles = alleleRepository.getAlleles(taxonID, chromosome);
         if (allAlleles == null)
             return;

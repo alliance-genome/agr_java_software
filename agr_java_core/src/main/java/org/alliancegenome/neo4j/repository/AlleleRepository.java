@@ -67,6 +67,7 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
     }
 
     private Map<String, Transcript> transcriptMap;
+    private Map<String, String> geneChromosomeMap = new HashMap<>();
 
     public Map<String, Transcript> getTranscriptWithExonInfo() {
         if (MapUtils.isNotEmpty(transcriptMap))
@@ -85,6 +86,27 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
         return transcriptMap;
     }
 
+    public Map<String, String> getGeneChromosomeInfo() {
+        if (MapUtils.isNotEmpty(geneChromosomeMap))
+            return geneChromosomeMap;
+
+        String query = "";
+        query += " MATCH p=(g:Gene)--(c:Chromosome)";
+        query += " RETURN g.primaryKey, c.primaryKey ";
+        Result map = queryForResult(query);
+
+        StreamSupport.stream(map.spliterator(), false)
+                .forEach(entrySet -> {
+                    final Iterator<Map.Entry<String, Object>> iterator = entrySet.entrySet().iterator();
+                    final Map.Entry<String, Object> entryKey = iterator.next();
+                    final Map.Entry<String, Object> entryValue = iterator.next();
+                    geneChromosomeMap.put((String) entryKey.getValue(), (String) entryValue.getValue());
+                });
+
+        log.info("Number of Gene/Chrmosome relationships: " + String.format("%,d", geneChromosomeMap.size()));
+        return geneChromosomeMap;
+    }
+
     public Set<Allele> getAlleles(String taxonID, String chromosome) {
         // return alleles for all chromosomes
         Map<String, List<Allele>> map = getAllAlleles().get(taxonID);
@@ -97,8 +119,7 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
         if (map == null) {
             map = new HashMap<>();
         }
-        List<Allele> alleles = map.get(chromosome);
-        return alleles != null ? new HashSet<>(alleles) : new HashSet<>();
+        return new HashSet<>(map.computeIfAbsent(chromosome, s -> new ArrayList<>()));
     }
 
 
@@ -111,18 +132,17 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
         String query = "";
         // allele-only (no variants)
         query += " MATCH p1=(:Species)<-[:FROM_SPECIES]-(a:Allele)-[:IS_ALLELE_OF]->(g:Gene)-[:FROM_SPECIES]-(q:Species) ";
-        query += ", p3=(g:Gene)--(:Chromosome) ";
         query += "where not exists ((a)<-[:VARIATION]-(:Variant)) ";
         //query += " AND  g.primaryKey = 'WB:WBGene00000913' ";
 
 //        query += " AND g.taxonId = 'NCBITaxon:7955' ";
 //        query += " AND g.primaryKey = 'RGD:9294106' ";
-//        query += " AND g.primaryKey in ['RGD:9294106', 'ZFIN:ZDB-GENE-001212-1', 'WB:WBGene00000913', 'ZFIN:ZDB-GENE-011101-3'] ";
+//        query += " AND g.primaryKey in ['RGD:9294106', 'ZFIN:ZDB-GENE-001212-1', 'RGD:1624201', 'ZFIN:ZDB-GENE-011101-3'] ";
         query += " OPTIONAL MATCH disease=(a:Allele)<-[:IS_IMPLICATED_IN]-(doTerm:DOTerm)";
         query += " OPTIONAL MATCH pheno=(a:Allele)-[:HAS_PHENOTYPE]->(ph:Phenotype)";
         query += " OPTIONAL MATCH p2=(a:Allele)-[:ALSO_KNOWN_AS]->(synonym:Synonym)";
         query += " OPTIONAL MATCH crossRef=(a:Allele)-[:CROSS_REFERENCE]->(c:CrossReference)";
-        query += " RETURN p1, p2, p3, disease, pheno, crossRef ";
+        query += " RETURN p1, p2, disease, pheno, crossRef ";
 
         Iterable<Allele> alleles = query(query, new HashMap<>());
         Set<Allele> allAlleles = StreamSupport.stream(alleles.spliterator(), false)
@@ -133,10 +153,9 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
         query = "";
         query += " MATCH p1=(g:Gene)<-[:IS_ALLELE_OF]-(a:Allele)<-[:VARIATION]-(variant:Variant)--(:SOTerm) ";
         query += ", p0=(:Species)<-[:FROM_SPECIES]-(a:Allele) ";
-        query += ", p3=(g:Gene)--(:Chromosome) ";
-//        query += " where g.taxonId = 'NCBITaxon:7955' ";
-//        query += " AND g.primaryKey in [ 'ZFIN:ZDB-GENE-001212-1', 'ZFIN:ZDB-GENE-011101-3'] ";
-//        query += " where g.primaryKey = 'WB:WBGene00000913' ";
+//        query += " where g.taxon955' ";
+//        query += " AND g.primaryKey inId = 'NCBITaxon:7 [ 'ZFIN:ZDB-GENE-001212-1', 'ZFIN:ZDB-GENE-011101-3'] ";
+//        query += " where g.primaryKey = 'RGD:1624201' ";
 //        query += " AND  a.primaryKey = 'ZFIN:ZDB-ALT-130411-1942' ";
 
         query += " OPTIONAL MATCH consequence = (t:Transcript)--(:TranscriptLevelConsequence)--(variant:Variant)<-[:ASSOCIATION]-(t:Transcript)--(:SOTerm) ";
@@ -145,7 +164,7 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
         query += " OPTIONAL MATCH disease=(a:Allele)<-[:IS_IMPLICATED_IN]-(doTerm:DOTerm)";
         query += " OPTIONAL MATCH pheno=(a:Allele)-[:HAS_PHENOTYPE]->(ph:Phenotype)";
         query += " OPTIONAL MATCH crossRef=(a:Allele)-[:CROSS_REFERENCE]->(c:CrossReference)";
-        query += " RETURN p0, p1, p2, p3, consequence, loc, pheno, disease, crossRef ";
+        query += " RETURN p0, p1, p2, consequence, loc, pheno, disease, crossRef ";
         Iterable<Allele> allelesWithVariantsIter = query(query, new HashMap<>());
         Set<Allele> allelesWithVariants = StreamSupport.stream(allelesWithVariantsIter.spliterator(), false)
                 .collect(Collectors.toSet());
@@ -187,6 +206,17 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
             });
         });
 
+        // fixup the chromosome info on the gene object
+        // including the chromosome in the cypher query make the query take very long.
+        allAlleleMap.forEach((taxonID, map) -> {
+            map.values().forEach(alleleList -> {
+                alleleList.forEach(allele -> {
+                    Chromosome chromosome = new Chromosome();
+                    chromosome.setPrimaryKey(allele.getGene().getPrimaryKey());
+                    allele.getGene().setChromsomes(List.of(chromosome));
+                });
+            });
+        });
         allAlleleMap.forEach((taxonID, map) -> {
             Map<String, Integer> stats = map.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().size()));
             log.info(taxonID + ": " + stats);
