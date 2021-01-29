@@ -197,6 +197,7 @@ public class AlleleCacher extends Cacher {
 
     public void readHtpFiles(String taxonID, String chromosome) {
         htpAlleleSequenceMap = new ConcurrentHashMap<>();
+        variantMap = new HashMap<>();
         if (StringUtils.isEmpty(chromosome))
             return;
         try {
