@@ -133,7 +133,7 @@ public class InteractionToTdfTranslator {
             }
             //phenotypes
             String phenotypeIds = "";
-            if (interactionGeneJoin.getDetectionsMethods() != null) {
+            if (interactionGeneJoin.getPhenotypes() != null) {
                 StringJoiner phenotypeJoiner = new StringJoiner(",");
                 interactionGeneJoin.getPhenotypes().forEach(phenotype -> phenotypeJoiner.add(phenotype.getPrimaryKey()));
                 phenotypeIds = phenotypeJoiner.toString();
