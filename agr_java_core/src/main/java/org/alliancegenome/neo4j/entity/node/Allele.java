@@ -60,7 +60,6 @@ public class Allele extends GeneticEntity implements Comparable<Allele>, Present
     @Relationship(type = "ASSOCIATION", direction = Relationship.UNDIRECTED)
     private List<DiseaseEntityJoin> diseaseEntityJoins = new ArrayList<>();
 
-    @JsonView({View.GeneAllelesAPI.class})
     @Relationship(type = "HAS_PHENOTYPE")
     private List<Phenotype> phenotypes = new ArrayList<>();
 
