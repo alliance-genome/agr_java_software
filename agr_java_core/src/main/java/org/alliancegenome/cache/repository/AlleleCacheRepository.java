@@ -86,7 +86,7 @@ public class AlleleCacheRepository {
         //filtering
         FilterService<AlleleVariantSequence> filterService = new FilterService<>(new AlleleVariantSequenceFiltering());
         List<AlleleVariantSequence> filteredAlleleList = filterService.filterAnnotations(allAlleles, pagination.getFieldFilterValueMap());
-        response.setResults(filterService.getSortedAndPaginatedAnnotations(pagination, filteredAlleleList, null));
+        response.setResults(filterService.getSortedAndPaginatedAnnotations(pagination, filteredAlleleList, new AlleleVariantSequenceSorting()));
         response.setTotal(filteredAlleleList.size());
 
         // add distinct values

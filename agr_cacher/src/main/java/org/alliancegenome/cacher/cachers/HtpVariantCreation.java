@@ -214,7 +214,8 @@ public class HtpVariantCreation extends Thread {
                             variant.setVariantType(variantType);
                             variant.setGenomicReferenceSequence(transcriptFeature.getReferenceSequence());
                             variant.setGenomicVariantSequence(transcriptFeature.getAllele());
-                            variant.setAssociatedGene(gene);
+                            variant.setStart(doc.getStartPos());
+                            variant.setEnd(doc.getEndPos());
                             variant.setConsequence((transcriptFeature.getConsequence()));
                             consequence.setImpact(transcriptFeature.getImpact());
                             consequence.setTranscriptLevelConsequence(transcriptFeature.getConsequence());
@@ -223,6 +224,7 @@ public class HtpVariantCreation extends Thread {
                             consequence.setSiftPrediction(transcriptFeature.getSift());
                             consequence.setSiftScore(transcriptFeature.getSiftScore());
                             consequence.setTranscriptLocation(transcriptFeature.getExon());
+                            consequence.setAssociatedGene(gene);
                             list.add(new AlleleVariantSequence(allele, variant, consequence));
                         }
                     }

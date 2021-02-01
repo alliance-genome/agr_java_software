@@ -27,6 +27,8 @@ public class AlleleVariantSequenceColumnFieldMapping extends ColumnFieldMapping<
         mapColumnFieldName.put(GENE_ALLELE_VARIANT_SEQUENCE_CONSEQUENCE_TYPE, FieldFilter.CONSEQUENCE_TYPE);
         mapColumnFieldName.put(GENE_ALLELE_VARIANT_SEQUENCE_VARIANT_POLYPHEN, FieldFilter.VARIANT_POLYPHEN);
         mapColumnFieldName.put(GENE_ALLELE_VARIANT_SEQUENCE_VARIANT_SIFT, FieldFilter.VARIANT_SIFT);
+        mapColumnFieldName.put(GENE_ALLELE_VARIANT_SEQUENCE_HAS_PHENOTYPE, FieldFilter.HAS_PHENOTYPE);
+        mapColumnFieldName.put(GENE_ALLELE_VARIANT_SEQUENCE_HAS_DISEASE, FieldFilter.HAS_DISEASE);
 
         mapColumnAttribute.put(GENE_ALLELE_VARIANT_SEQUENCE_CATEGORY, entity -> Set.of(entity.getAllele().getCategory()));
         mapColumnAttribute.put(GENE_ALLELE_VARIANT_SEQUENCE_TYPE, entity -> {
@@ -74,6 +76,10 @@ public class AlleleVariantSequenceColumnFieldMapping extends ColumnFieldMapping<
             return new HashSet<>();
         });
 
+        mapColumnAttribute.put(GENE_ALLELE_VARIANT_SEQUENCE_HAS_DISEASE, entity -> entity.getAllele().hasDisease() ? Set.of("YES") : Set.of("NO"));
+        mapColumnAttribute.put(GENE_ALLELE_VARIANT_SEQUENCE_HAS_PHENOTYPE, entity -> entity.getAllele().hasPhenotype() ? Set.of("YES") : Set.of("NO"));
+
+
         singleValueDistinctFieldColumns.add(GENE_ALLELE_VARIANT_SEQUENCE_TYPE);
         singleValueDistinctFieldColumns.add(GENE_ALLELE_VARIANT_SEQUENCE_CONSEQUENCE);
         singleValueDistinctFieldColumns.add(GENE_ALLELE_VARIANT_SEQUENCE_CATEGORY);
@@ -81,6 +87,8 @@ public class AlleleVariantSequenceColumnFieldMapping extends ColumnFieldMapping<
         singleValueDistinctFieldColumns.add(GENE_ALLELE_VARIANT_SEQUENCE_CONSEQUENCE_TYPE);
         singleValueDistinctFieldColumns.add(GENE_ALLELE_VARIANT_SEQUENCE_VARIANT_POLYPHEN);
         singleValueDistinctFieldColumns.add(GENE_ALLELE_VARIANT_SEQUENCE_VARIANT_SIFT);
+        singleValueDistinctFieldColumns.add(GENE_ALLELE_VARIANT_SEQUENCE_HAS_DISEASE);
+        singleValueDistinctFieldColumns.add(GENE_ALLELE_VARIANT_SEQUENCE_HAS_PHENOTYPE);
     }
 
 }
