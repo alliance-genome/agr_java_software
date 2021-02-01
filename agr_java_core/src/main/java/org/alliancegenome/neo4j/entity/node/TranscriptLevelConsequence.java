@@ -161,6 +161,9 @@ public class TranscriptLevelConsequence extends Neo4jEntity implements Comparabl
         return transcriptType;
     }
 
+    @JsonView({View.GeneAlleleVariantSequenceAPI.class})
+    private Gene associatedGene;
+
     @Override
     public int compareTo(TranscriptLevelConsequence o) {
         return 0;
