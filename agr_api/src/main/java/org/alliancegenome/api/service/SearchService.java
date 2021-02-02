@@ -213,8 +213,14 @@ public class SearchService {
 
             //expand the map of lists and add each key,value pair as filters
             filters.entrySet().stream().forEach(entry ->
-                entry.getValue().stream().forEach( value ->
-                        bool.filter(new TermQueryBuilder(entry.getKey() + ".keyword", value))
+                entry.getValue().stream().forEach( value ->{
+                            if(value.charAt(0) == '-'){
+                                value = value.substring(1);
+                                bool.mustNot(new TermQueryBuilder(entry.getKey() + ".keyword", value));
+                            }else {
+                                bool.filter(new TermQueryBuilder(entry.getKey() + ".keyword", value));
+                            }
+                    }
                 )
             );
 
@@ -342,8 +348,15 @@ public class SearchService {
         return relatedDataLink;
     }
 
-    private Boolean biotypeSelected(MultivaluedMap filterMap) {
-        return filterMap.containsKey("biotypes");
+    private Boolean biotypeSelected(MultivaluedMap<String, String> filterMap) {
+        if(filterMap.containsKey("biotypes")){
+            List<String> biotypes = filterMap.get("biotypes");
+            for(String value : biotypes){
+                if(!searchHelper.isExcluded(value)){
+                    return true;
+                };
+            }
+        };
+        return false;
     }
-
 }
