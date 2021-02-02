@@ -11,7 +11,6 @@ import org.alliancegenome.neo4j.repository.InteractionRepository;
 import org.alliancegenome.neo4j.view.View;
 
 import lombok.extern.log4j.Log4j2;
-
 @Log4j2
 public class InteractionCacher extends Cacher {
 
@@ -95,6 +94,9 @@ public class InteractionCacher extends Cacher {
         newJoin.setPublication(join.getPublication());
         newJoin.setSourceDatabase(join.getSourceDatabase());
         newJoin.setId(join.getId());
+        newJoin.setAlleleA(join.getAlleleA());
+        newJoin.setAlleleB(join.getAlleleB());
+        newJoin.setPhenotypes(join.getPhenotypes());
         return newJoin;
     }
 

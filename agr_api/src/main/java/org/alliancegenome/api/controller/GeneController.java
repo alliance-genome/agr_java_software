@@ -195,6 +195,7 @@ public class GeneController implements GeneRESTInterface {
     @Override
     public JsonResultResponse<InteractionGeneJoin> getInteractions(String id, Integer limit, Integer page, String sortBy, String asc,
                                                                    String moleculeType,
+                                                                   String joinType,
                                                                    String interactorGeneSymbol,
                                                                    String interactorSpecies,
                                                                    String interactorMoleculeType,
@@ -205,6 +206,7 @@ public class GeneController implements GeneRESTInterface {
         long startTime = System.currentTimeMillis();
         Pagination pagination = new Pagination(page, limit, sortBy, asc, new InteractionColumnFieldMapping());
         pagination.addFieldFilter(FieldFilter.MOLECULE_TYPE, moleculeType);
+        pagination.addFieldFilter(FieldFilter.JOIN_TYPE, joinType);
         pagination.addFieldFilter(FieldFilter.INTERACTOR_GENE_SYMBOL, interactorGeneSymbol);
         pagination.addFieldFilter(FieldFilter.INTERACTOR_SPECIES, interactorSpecies);
         pagination.addFieldFilter(FieldFilter.INTERACTOR_MOLECULE_TYPE, interactorMoleculeType);
@@ -234,6 +236,7 @@ public class GeneController implements GeneRESTInterface {
     @Override
     public Response getInteractionsDownload(String id, String sortBy, String asc,
                                             String moleculeType,
+                                            String joinType,
                                             String interactorGeneSymbol,
                                             String interactorSpecies,
                                             String interactorMoleculeType,
@@ -242,6 +245,7 @@ public class GeneController implements GeneRESTInterface {
                                             String reference) {
         Pagination pagination = new Pagination(1, Integer.MAX_VALUE, sortBy, asc);
         pagination.addFieldFilter(FieldFilter.MOLECULE_TYPE, moleculeType);
+        pagination.addFieldFilter(FieldFilter.JOIN_TYPE, joinType);
         pagination.addFieldFilter(FieldFilter.INTERACTOR_GENE_SYMBOL, interactorGeneSymbol);
         pagination.addFieldFilter(FieldFilter.INTERACTOR_SPECIES, interactorSpecies);
         pagination.addFieldFilter(FieldFilter.INTERACTOR_MOLECULE_TYPE, interactorMoleculeType);
@@ -457,6 +461,7 @@ public class GeneController implements GeneRESTInterface {
             geneList.addAll(geneIDs);
         }
         Pagination pagination = new Pagination(page, limit, null, null);
+        System.out.println("FildFildter.STRINGENCY:" + FieldFilter.STRINGENCY.getName() + " stringencyFilter:" + stringencyFilter);
         pagination.addFieldFilter(FieldFilter.STRINGENCY, stringencyFilter);
         pagination.addFieldFilter(FieldFilter.ORTHOLOGY_METHOD, method);
         pagination.addFieldFilter(FieldFilter.ORTHOLOGY_TAXON, taxonID);

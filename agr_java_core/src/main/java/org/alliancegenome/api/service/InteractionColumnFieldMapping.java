@@ -19,6 +19,7 @@ public class InteractionColumnFieldMapping extends ColumnFieldMapping<Interactio
     public InteractionColumnFieldMapping() {
         mapColumnFieldName.put(INTERACTOR_MOLECULE_TYPE, FieldFilter.INTERACTOR_MOLECULE_TYPE);
         mapColumnFieldName.put(MOLECULE_TYPE, FieldFilter.MOLECULE_TYPE);
+        mapColumnFieldName.put(JOIN_TYPE, FieldFilter.JOIN_TYPE);
         mapColumnFieldName.put(INTERACTOR_SPECIES, FieldFilter.INTERACTOR_SPECIES);
         mapColumnFieldName.put(INTERACTOR_GENE_SYMBOL, FieldFilter.INTERACTOR_GENE_SYMBOL);
         mapColumnFieldName.put(INTERACTOR_SOURCE, FieldFilter.SOURCE);
@@ -31,6 +32,7 @@ public class InteractionColumnFieldMapping extends ColumnFieldMapping<Interactio
 
         singleValueDistinctFieldColumns.add(INTERACTOR_MOLECULE_TYPE);
         singleValueDistinctFieldColumns.add(MOLECULE_TYPE);
+        singleValueDistinctFieldColumns.add(JOIN_TYPE);
         singleValueDistinctFieldColumns.add(INTERACTOR_SPECIES);
     }
 
