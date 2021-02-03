@@ -13,6 +13,7 @@ import org.alliancegenome.es.variant.model.TranscriptFeature;
 import org.alliancegenome.es.variant.model.VariantDocument;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.entity.node.*;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -192,6 +193,9 @@ public class HtpVariantCreation extends Thread {
                         for (TranscriptFeature transcriptFeature : doc.getConsequences()) {
 
                             String geneID = transcriptFeature.getGene();
+                            // do not handle variants without gene relationship
+                            if (StringUtils.isEmpty(geneID))
+                                continue;
 
                             ConcurrentLinkedDeque<AlleleVariantSequence> list = sequenceMap.get(geneID);
                             if (list == null) {
@@ -200,24 +204,28 @@ public class HtpVariantCreation extends Thread {
                             }
 
                             Allele allele = new Allele(transcriptFeature.getGene(), GeneticEntity.CrossReferenceType.VARIANT);
+                            allele.setSymbol(doc.getId());
+                            allele.setSymbolText(doc.getId());
                             Gene gene = new Gene();
-                            gene.setPrimaryKey(transcriptFeature.getGene());
+                            String assocatedGeneID = transcriptFeature.getGene();
+                            if (assocatedGeneID.startsWith("ZDB-GENE"))
+                                assocatedGeneID = "ZFIN:" + assocatedGeneID;
+                            gene.setPrimaryKey(assocatedGeneID);
                             gene.setSymbol(transcriptFeature.getSymbol());
                             allele.setGene(gene);
                             Variant variant = new Variant();
                             TranscriptLevelConsequence consequence = new TranscriptLevelConsequence();
                             variant.setHgvsNomenclature(transcriptFeature.getHgvsc());
-                            SOTerm variantType = new SOTerm();
-                            variantType.setName(transcriptFeature.getBiotype());
                             // TODO: Needs to be set somewhere does not come through the vcf file.
-                            variantType.setPrimaryKey("");
-                            variant.setVariantType(variantType);
                             variant.setGenomicReferenceSequence(transcriptFeature.getReferenceSequence());
                             variant.setGenomicVariantSequence(transcriptFeature.getAllele());
-                            variant.setStart(doc.getStartPos());
-                            variant.setEnd(doc.getEndPos());
+                            variant.setStart(transcriptFeature.getGenomicStart());
+                            variant.setEnd(transcriptFeature.getGenomicEnd());
                             variant.setConsequence((transcriptFeature.getConsequence()));
+                            variant.setHgvsNomenclature(transcriptFeature.getHgvsg());
                             consequence.setImpact(transcriptFeature.getImpact());
+                            consequence.setSequenceFeatureType(transcriptFeature.getBiotype());
+                            consequence.setTranscriptName(transcriptFeature.getFeature());
                             consequence.setTranscriptLevelConsequence(transcriptFeature.getConsequence());
                             consequence.setPolyphenPrediction(transcriptFeature.getPolyphen());
                             consequence.setPolyphenScore(transcriptFeature.getPolyphenScore());
@@ -225,6 +233,12 @@ public class HtpVariantCreation extends Thread {
                             consequence.setSiftScore(transcriptFeature.getSiftScore());
                             consequence.setTranscriptLocation(transcriptFeature.getExon());
                             consequence.setAssociatedGene(gene);
+                            String location = "";
+                            if (StringUtils.isNotEmpty(transcriptFeature.getExon()))
+                                location += "Exon " + transcriptFeature.getExon();
+                            if (StringUtils.isNotEmpty(transcriptFeature.getIntron()))
+                                location += "Intron " + transcriptFeature.getIntron();
+                            consequence.setTranscriptLocation(location);
                             list.add(new AlleleVariantSequence(allele, variant, consequence));
                         }
                     }

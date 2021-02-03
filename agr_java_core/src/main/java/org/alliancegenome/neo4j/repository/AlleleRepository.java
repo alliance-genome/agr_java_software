@@ -137,7 +137,7 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
 
 //        query += " AND g.taxonId = 'NCBITaxon:7955' ";
 //        query += " AND g.primaryKey = 'RGD:9294106' ";
-//        query += " AND g.primaryKey in ['RGD:9294106', 'ZFIN:ZDB-GENE-001212-1', 'RGD:1624201', 'ZFIN:ZDB-GENE-011101-3'] ";
+//        query += " AND g.primaryKey in ['RGD:9294106', 'ZFIN:ZDB-GENE-001212-1', 'RGD:1624201', 'ZFIN:ZDB-GENE-011101-3', 'ZFIN:ZDB-GENE-020419-25'] ";
         query += " OPTIONAL MATCH disease=(a:Allele)<-[:IS_IMPLICATED_IN]-(doTerm:DOTerm)";
         query += " OPTIONAL MATCH pheno=(a:Allele)-[:HAS_PHENOTYPE]->(ph:Phenotype)";
         query += " OPTIONAL MATCH p2=(a:Allele)-[:ALSO_KNOWN_AS]->(synonym:Synonym)";
@@ -154,7 +154,7 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
         query += " MATCH p1=(g:Gene)<-[:IS_ALLELE_OF]-(a:Allele)<-[:VARIATION]-(variant:Variant)--(:SOTerm) ";
         query += ", p0=(:Species)<-[:FROM_SPECIES]-(a:Allele) ";
 //        query += " where g.taxon955' ";
-//        query += " AND g.primaryKey inId = 'NCBITaxon:7 [ 'ZFIN:ZDB-GENE-001212-1', 'ZFIN:ZDB-GENE-011101-3'] ";
+//        query += " where g.primaryKey in [ 'ZFIN:ZDB-GENE-001212-1', 'ZFIN:ZDB-GENE-011101-3', 'ZFIN:ZDB-GENE-020419-25'] ";
 //        query += " where g.primaryKey = 'RGD:1624201' ";
 //        query += " AND  a.primaryKey = 'ZFIN:ZDB-ALT-130411-1942' ";
 
@@ -178,10 +178,8 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
         Map<String, List<Allele>> taxonMap = allAlleleSet.stream().collect(groupingBy(allele -> allele.getGene().getTaxonId()));
         taxonMap.forEach((taxonID, alleleList) -> {
             Set<String> chromosomes = alleleList.stream()
-                    .filter(allele -> allele.getGene().getChromsomes() != null)
-                    .map(allele -> allele.getGene().getChromsomes())
-                    .flatMap(Collection::stream)
-                    .map(Chromosome::getPrimaryKey)
+                    .filter(allele -> getGeneChromosomeInfo().get(allele.getGene().getPrimaryKey()) != null)
+                    .map(allele -> getGeneChromosomeInfo().get(allele.getGene().getPrimaryKey()))
                     .collect(Collectors.toSet());
             // unknown chromosome
             chromosomes.add("");
@@ -193,11 +191,8 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
 
                 // all alleles with chromosome info
                 alleleList.stream()
-                        .filter(allele -> allele.getGene().getChromsomes() != null)
-                        .filter(allele -> allele.getGene().getChromsomes()
-                                .stream()
-                                .map(Chromosome::getPrimaryKey)
-                                .anyMatch(chr -> chr.equals(chromosome)))
+                        .filter(allele -> getGeneChromosomeInfo().get(allele.getGene().getPrimaryKey()) != null)
+                        .filter(allele -> getGeneChromosomeInfo().get(allele.getGene().getPrimaryKey()).equals(chromosome))
                         .forEach(chromosomeAlleles::add);
                 // all alleles without chromosome info
                 alleleList.stream()

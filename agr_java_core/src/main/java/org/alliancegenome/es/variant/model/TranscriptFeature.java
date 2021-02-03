@@ -46,6 +46,8 @@ public class TranscriptFeature {
     private String polyphen;
     private String polyphenScore;
     private String hgvsOffset;
+    private String genomicStart;
+    private String genomicEnd;
 
     private String referenceSequence;
     private String variantSequence;
@@ -99,7 +101,7 @@ public class TranscriptFeature {
             hgvsOffset = infos[31];
             hgvsg = infos[32];
 
-        } else if (header.length == 29) {
+        } else if (header.length == 34) {
             // Mod VEP
             // Allele|Consequence|IMPACT|SYMBOL|Gene|Feature_type|Feature|BIOTYPE|EXON|INTRON|
             // HGVSc|HGVSp|cDNA_position|CDS_position|Protein_position|Amino_acids|Codons|Existing_variation|DISTANCE|STRAND|
@@ -130,11 +132,17 @@ public class TranscriptFeature {
             flags = infos[20];
             symbolSource = infos[21];
             hgncId = infos[22];
-            source = infos[23];
-            hgvsOffset = infos[24];
-            hgvsg = infos[25];
-            polyphen = infos[26];
-            sift = infos[27];
+            givenRef = infos[23];
+            usedRef = infos[24];
+            bamEdit = infos[25];
+
+            source = infos[26];
+            hgvsOffset = infos[27];
+            hgvsg = infos[28];
+            polyphen = infos[29];
+            sift = infos[30];
+            genomicStart = infos[31];
+            genomicEnd = infos[32];
         }
         // fixup sift and polyphen
         String pattern = "(.*)(\\()(.*)(\\))";
@@ -143,17 +151,21 @@ public class TranscriptFeature {
 
         // Match polyphen
         // polyphen = polyphenPrediction(polyphenScore)
-        Matcher m = r.matcher(polyphen);
-        if (m.find()) {
-            polyphen = m.group(1);
-            polyphenScore = m.group(3);
+        if(polyphen != null) {
+            Matcher m = r.matcher(polyphen);
+            if (m.find()) {
+                polyphen = m.group(1);
+                polyphenScore = m.group(3);
+            }
         }
         // Match sift
         // sift = siftPrediction(siftScore)
-        m = r.matcher(sift);
-        if (m.find()) {
-            sift = m.group(1);
-            siftScore = m.group(3);
+        if(sift != null) {
+            Matcher m = r.matcher(sift);
+            if (m.find()) {
+                sift = m.group(1);
+                siftScore = m.group(3);
+            }
         }
     }
 }

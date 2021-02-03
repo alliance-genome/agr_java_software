@@ -1,20 +1,21 @@
 package org.alliancegenome.neo4j.entity.node;
 
-import java.util.*;
-import java.util.stream.Collectors;
-
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonView;
+import lombok.Getter;
+import lombok.Setter;
 import org.alliancegenome.es.util.DateConverter;
 import org.alliancegenome.neo4j.entity.relationship.GenomeLocation;
 import org.alliancegenome.neo4j.view.View;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
-import org.neo4j.ogm.annotation.*;
+import org.neo4j.ogm.annotation.NodeEntity;
+import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.typeconversion.Convert;
 
-import com.fasterxml.jackson.annotation.*;
-
-import lombok.*;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @NodeEntity(label = "Variant")
 @Getter
@@ -55,9 +56,9 @@ public class Variant extends GeneticEntity implements Comparable<Variant> {
     private Gene gene;
 
     @JsonView({View.GeneAlleleVariantSequenceAPI.class})
-    private int start;
+    private String start;
     @JsonView({View.GeneAlleleVariantSequenceAPI.class})
-    private int end;
+    private String end;
 
     @Relationship(type = "ASSOCIATION")
     protected GeneLevelConsequence geneLevelConsequence;
@@ -119,7 +120,7 @@ public class Variant extends GeneticEntity implements Comparable<Variant> {
         if (StringUtils.isNotEmpty(nucleotideChange))
             return nucleotideChange;
         String change = "";
-        if (variantType.isInsertion() || variantType.isDeletion()) {
+        if (variantType != null && (variantType.isInsertion() || variantType.isDeletion())) {
             change += getPaddedChange(getGenomicReferenceSequence());
             change += ">";
             change += getPaddedChange(getGenomicVariantSequence());

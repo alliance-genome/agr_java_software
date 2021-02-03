@@ -81,6 +81,9 @@ public class TranscriptLevelConsequence extends Neo4jEntity implements Comparabl
     @JsonView({View.Default.class})
     private String polyphenScore;
 
+    @JsonView({View.Default.class})
+    private String sequenceFeatureType;
+
     @Relationship(type = "ASSOCIATION", direction = Relationship.INCOMING)
     private Variant variant;
 
@@ -145,13 +148,11 @@ public class TranscriptLevelConsequence extends Neo4jEntity implements Comparabl
 
     private String transcriptType;
 
-    @JsonProperty("sequenceFeatureType")
     public void setTranscriptType(String name) {
         transcriptType = name;
     }
 
     @JsonView({View.GeneAlleleVariantSequenceAPI.class})
-    @JsonProperty("sequenceFeatureType")
     public String getTranscriptType() {
         if (StringUtils.isNotEmpty(transcriptType))
             return transcriptType;

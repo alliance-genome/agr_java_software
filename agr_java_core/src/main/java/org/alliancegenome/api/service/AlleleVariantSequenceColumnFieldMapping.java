@@ -33,7 +33,7 @@ public class AlleleVariantSequenceColumnFieldMapping extends ColumnFieldMapping<
         mapColumnAttribute.put(GENE_ALLELE_VARIANT_SEQUENCE_CATEGORY, entity -> Set.of(entity.getAllele().getCategory()));
         mapColumnAttribute.put(GENE_ALLELE_VARIANT_SEQUENCE_TYPE, entity -> {
             if (entity.getVariant() != null) {
-                return Set.of(entity.getVariant().getVariantType().getName());
+                return Set.of(entity.getConsequence().getSequenceFeatureType());
             }
             return new HashSet<>();
         });
