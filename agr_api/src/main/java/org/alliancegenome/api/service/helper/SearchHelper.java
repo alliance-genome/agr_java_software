@@ -327,13 +327,17 @@ public class SearchHelper {
 
 
     public boolean filterIsValid(String category, String fieldName) {
-        if (searchFields.contains(fieldName)) { return true; }
+        String newFieldName = fieldName;
+        if(this.isExcluded(fieldName)){
+            newFieldName = fieldName.substring(1);
+        }
+        if (searchFields.contains(newFieldName)) { return true; }
 
         if (!category_filters.containsKey(category)) { return false; }
 
         List<String> fields = category_filters.get(category);
 
-        return fields.contains(fieldName);
+        return fields.contains(newFieldName);
     }
 
 
@@ -421,5 +425,10 @@ public class SearchHelper {
 
         return hlb;
     }
+
+
+    public Boolean isExcluded(String value){
+        return value.charAt(0) == '-';
+    };
 
 }
