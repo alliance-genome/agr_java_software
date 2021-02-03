@@ -62,11 +62,11 @@ public class OrthologousRepository extends Neo4jRepository<Orthologous> {
             Gene homologGene = (Gene) objectMap.get("gh");
             view.setHomologGene(homologGene);
             if (filter.getStringency().equals(OrthologyFilter.Stringency.STRINGENT))
-            	view.setStringencyFilter("stringent");
+                view.setStringencyFilter("stringent");
             else if (filter.getStringency().equals(OrthologyFilter.Stringency.MODERATE))  
-            	view.setStringencyFilter("moderate");
+                view.setStringencyFilter("moderate");
             else
-            	view.setStringencyFilter("all");
+                view.setStringencyFilter("all");
             view.setBest(((List<Orthologous>) objectMap.get("collect(distinct ortho)")).get(0).getIsBestScore());
             view.setBestReverse(((List<Orthologous>) objectMap.get("collect(distinct ortho)")).get(0).getIsBestRevScore());
 

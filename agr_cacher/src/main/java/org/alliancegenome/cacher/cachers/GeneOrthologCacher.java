@@ -59,7 +59,7 @@ public class GeneOrthologCacher extends Cacher {
                             view.setStringencyFilter("moderate");
                         }
                         else
-                        	view.setStringencyFilter("all");
+                            view.setStringencyFilter("all");
                         progressProcess();
                         view.setPredictionMethodsMatched(getPredictionMatches(gene.getPrimaryKey(), orthologous.getGene2().getPrimaryKey()));
                         view.setPredictionMethodsNotMatched(getPredictionNotMatches(gene.getPrimaryKey(), orthologous.getGene2().getPrimaryKey()));

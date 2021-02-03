@@ -146,7 +146,7 @@ public class OrthologyCacheRepository {
                             view.setStringencyFilter("moderate");
                         }
                         else
-                        	view.setStringencyFilter("all");
+                            view.setStringencyFilter("all");
                         view.setPredictionMethodsMatched(getMatchedMethods(join));
                         view.setPredictionMethodsNotMatched(getNotMatchedMethods(join));
                         view.setPredictionMethodsNotCalled(getNotCalledMethods(join));

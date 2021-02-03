@@ -103,8 +103,8 @@ public class InteractionToTdfTranslator {
               joiner.add(interactionGeneJoin.getSourceDatabase().getLabel());
             }
             else {
-            	joiner.add(sourceDatabaseID);
-            	joiner.add(sourceDatabase);
+                joiner.add(sourceDatabaseID);
+                joiner.add(sourceDatabase);
             }
             
             
@@ -116,20 +116,20 @@ public class InteractionToTdfTranslator {
             if (interactionGeneJoin.getPublication()!=null)
              joiner.add(interactionGeneJoin.getPublication().getPubId());
             else 
-            	joiner.add(""); 
+                joiner.add(""); 
             //genetic perturbation alleleA
             if (interactionGeneJoin.getAlleleA()!=null) {
-            	joiner.add(interactionGeneJoin.getAlleleA().getPrimaryKey());
+                joiner.add(interactionGeneJoin.getAlleleA().getPrimaryKey());
             }
             else {
-            	joiner.add("");
+                joiner.add("");
             }
             //genetic perturbation, alleleB
             if (interactionGeneJoin.getAlleleB()!=null) {
-            	joiner.add(interactionGeneJoin.getAlleleB().getPrimaryKey());
+                joiner.add(interactionGeneJoin.getAlleleB().getPrimaryKey());
             }
             else {
-            	joiner.add("");
+                joiner.add("");
             }
             //phenotypes
             String phenotypeIds = "";
