@@ -43,7 +43,7 @@ public class Main {
         }
 
         // Run all the DB Cachers
-        cachers.entrySet().stream().filter(entry -> !entry.getKey().equals(CacherConfig.AlleleDBCacher.getCacherClass().getSimpleName()))
+        cachers.entrySet().stream().filter(entry -> !entry.getKey().equals(CacherConfig.AlleleCacher.getCacherClass().getSimpleName()))
                 .forEach(entry -> {
                     String type = entry.getKey();
                     if (argumentSet.size() == 0 || argumentSet.contains(type)) {
@@ -74,8 +74,8 @@ public class Main {
         }
 
         // run the AlleleCacher after all others are finished as it needs a lot of memory.
-        cachers.get(CacherConfig.AlleleDBCacher.getCacherClass().getSimpleName()).start();
-        cachers.values().stream().filter(cacher -> cacher.getClass().equals(CacherConfig.AlleleDBCacher.getCacherClass()))
+        cachers.get(CacherConfig.AlleleCacher.getCacherClass().getSimpleName()).start();
+        cachers.values().stream().filter(cacher -> cacher.getClass().equals(CacherConfig.AlleleCacher.getCacherClass()))
                 .forEach(cacher -> {
                     try {
                         if (cacher.isAlive()) {
