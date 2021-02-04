@@ -55,6 +55,11 @@ public class Variant extends GeneticEntity implements Comparable<Variant> {
     @Relationship(type = "COMPUTED_GENE", direction = Relationship.INCOMING)
     private Gene gene;
 
+    @JsonView({View.GeneAlleleVariantSequenceAPI.class})
+    private String start;
+    @JsonView({View.GeneAlleleVariantSequenceAPI.class})
+    private String end;
+
     @Relationship(type = "ASSOCIATION")
     protected GeneLevelConsequence geneLevelConsequence;
 
@@ -115,7 +120,7 @@ public class Variant extends GeneticEntity implements Comparable<Variant> {
         if (StringUtils.isNotEmpty(nucleotideChange))
             return nucleotideChange;
         String change = "";
-        if (variantType.isInsertion() || variantType.isDeletion()) {
+        if (variantType != null && (variantType.isInsertion() || variantType.isDeletion())) {
             change += getPaddedChange(getGenomicReferenceSequence());
             change += ">";
             change += getPaddedChange(getGenomicVariantSequence());

@@ -4,9 +4,9 @@ import java.io.*;
 import java.util.*;
 import java.util.concurrent.LinkedBlockingDeque;
 
+import org.alliancegenome.core.variant.converters.VariantContextConverter;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.neo4j.entity.SpeciesType;
-import org.alliancegenome.variant_indexer.converters.VariantContextConverter;
 
 import htsjdk.samtools.util.CloseableIterator;
 import htsjdk.variant.variantcontext.VariantContext;
@@ -95,7 +95,7 @@ public class TestReadVCFFile {
     
     private class VCFTransform extends Thread {
         
-        VariantContextConverter converter = VariantContextConverter.getConverter(SpeciesType.HUMAN);
+        VariantContextConverter converter = new VariantContextConverter();
         private ProcessDisplayHelper ph2 = new ProcessDisplayHelper(60000);
         
         public void run() {

@@ -3,9 +3,9 @@ package org.alliancegenome.variant_indexer;
 import java.io.File;
 import java.util.*;
 
+import org.alliancegenome.core.variant.converters.VariantContextConverter;
+import org.alliancegenome.es.variant.model.VariantDocument;
 import org.alliancegenome.neo4j.entity.SpeciesType;
-import org.alliancegenome.variant_indexer.converters.human.HumanVariantContextConverter;
-import org.alliancegenome.variant_indexer.es.model.VariantDocument;
 import org.apache.commons.math3.stat.descriptive.SummaryStatistics;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -33,7 +33,7 @@ public class TestSingleLineConvert {
         int count = 0;
         SummaryStatistics ss = new SummaryStatistics();
         
-        HumanVariantContextConverter converter = new HumanVariantContextConverter();
+        VariantContextConverter converter = new VariantContextConverter();
         Date start = new Date();
         Date end = new Date();
         double avg = 0;

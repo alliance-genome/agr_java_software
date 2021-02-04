@@ -76,7 +76,8 @@ public class ConfigHelper {
         
         defaults.put(VARIANT_DOWNLOAD_PATH, "data");
         defaults.put(VARIANT_CONFIG_FILE, "downloadFileSet.yaml");
-        
+        defaults.put(VARIANT_CACHER_CONFIG_FILE, "variantDownloadFiles.yaml");
+
         defaults.put(ALLIANCE_RELEASE, "0.0.0");
         defaults.put(FMS_URL, "https://fms.alliancegenome.org/api");
 

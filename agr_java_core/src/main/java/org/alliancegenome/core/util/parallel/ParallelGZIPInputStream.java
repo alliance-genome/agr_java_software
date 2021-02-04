@@ -1,7 +1,6 @@
 package org.alliancegenome.core.util.parallel;
 
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.zip.GZIPInputStream;
 
 public class ParallelGZIPInputStream extends GZIPInputStream {
