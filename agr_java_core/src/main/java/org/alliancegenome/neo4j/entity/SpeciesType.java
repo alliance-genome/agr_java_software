@@ -1,12 +1,13 @@
 package org.alliancegenome.neo4j.entity;
 
-import java.util.*;
-import java.util.stream.Collectors;
-
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import org.alliancegenome.es.index.site.doclet.SpeciesDoclet;
 import org.apache.commons.lang3.StringUtils;
 
-import lombok.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Getter
 @AllArgsConstructor
@@ -19,13 +20,13 @@ public enum SpeciesType {
     WORM("Caenorhabditis elegans", "WB", "NCBITaxon:6239", "Cel", "WB", "Worm Base", "6239", 5),
     YEAST("Saccharomyces cerevisiae", "SGD", "NCBITaxon:559292", "Sce", "SGD", "Saccharomyces Genome Database", "559292", 6),
     COVID(
-        "SARS-CoV-2", // Must be the same as the DB due to lookup from the database
-        "Severe acute respiratory syndrome coronavirus 2", // not sure where display Name is used?
-        "NCBITaxon:2697049",
-        "SARS-CoV-2", // Up for change?
-        "COVID", // Up for change?
-        "Severe acute respiratory syndrome coronavirus 2", // Mod name?
-        "2697049", 7);
+            "SARS-CoV-2", // Must be the same as the DB due to lookup from the database
+            "Severe acute respiratory syndrome coronavirus 2", // not sure where display Name is used?
+            "NCBITaxon:2697049",
+            "SARS-CoV-2", // Up for change?
+            "COVID", // Up for change?
+            "Severe acute respiratory syndrome coronavirus 2", // Mod name?
+            "2697049", 7);
 
     public static final String NCBITAXON = "NCBITaxon:";
     private String name;
@@ -106,6 +107,14 @@ public enum SpeciesType {
         return List.of(values()).stream()
                 .map(SpeciesType::getTaxonID)
                 .collect(Collectors.toList());
+    }
+
+    public static String getNameByID(String taxonID) {
+        return List.of(values()).stream()
+                .filter(species -> species.taxonID.equals(taxonID))
+                .findFirst()
+                .get()
+                .getDisplayName();
     }
 
     public SpeciesDoclet getDoclet() {

@@ -84,12 +84,12 @@ public interface GeneRESTInterface {
             @QueryParam("filter.variantType") String variantType,
             @Parameter(in = ParameterIn.QUERY, name = "filter.variantConsequence", description = "Consequence", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.variantConsequence") String consequence,
-            @Parameter(in = ParameterIn.QUERY, name = "filter.hasDisease", description = "Phenotypes", schema = @Schema(type = SchemaType.STRING))
+            @Parameter(in = ParameterIn.QUERY, name = "filter.hasDisease", description = "has Disease", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.hasDisease") String hasDisease,
-            @Parameter(in = ParameterIn.QUERY, name = "filter.hasPhenotype", description = "has Disease", schema = @Schema(type = SchemaType.STRING))
+            @Parameter(in = ParameterIn.QUERY, name = "filter.hasPhenotype", description = "has Phenotype", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.hasPhenotype") String hasPhenotype,
-            @Parameter(in = ParameterIn.QUERY, name = "filter.category", description = "Disease for a given allele", schema = @Schema(type = SchemaType.STRING))
-            @QueryParam("filter.category") String category
+            @Parameter(in = ParameterIn.QUERY, name = "filter.alleleCategory", description = "Category of an allele", schema = @Schema(type = SchemaType.STRING))
+            @QueryParam("filter.alleleCategory") String alleleCategory
     );
 
     @GET
@@ -127,12 +127,20 @@ public interface GeneRESTInterface {
             @QueryParam("filter.variantType") String variantType,
             @Parameter(in = ParameterIn.QUERY, name = "filter.variantConsequence", description = "Consequence", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.variantConsequence") String consequence,
+            @Parameter(in = ParameterIn.QUERY, name = "filter.variantImpact", description = "VEP Impact", schema = @Schema(type = SchemaType.STRING))
+            @QueryParam("filter.variantImpact") String impact,
+            @Parameter(in = ParameterIn.QUERY, name = "filter.consequenceType", description = "Consequence Type", schema = @Schema(type = SchemaType.STRING))
+            @QueryParam("filter.consequenceType") String consequenceType,
+            @Parameter(in = ParameterIn.QUERY, name = "filter.variantPolyphen", description = "Consequence Type", schema = @Schema(type = SchemaType.STRING))
+            @QueryParam("filter.variantPolyphen") String variantPolyphen,
+            @Parameter(in = ParameterIn.QUERY, name = "filter.variantSift", description = "Consequence Type", schema = @Schema(type = SchemaType.STRING))
+            @QueryParam("filter.variantSift") String variantSift,
             @Parameter(in = ParameterIn.QUERY, name = "filter.hasDisease", description = "Phenotypes", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.hasDisease") String hasDisease,
             @Parameter(in = ParameterIn.QUERY, name = "filter.hasPhenotype", description = "has Disease", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.hasPhenotype") String hasPhenotype,
-            @Parameter(in = ParameterIn.QUERY, name = "filter.category", description = "Disease for a given allele", schema = @Schema(type = SchemaType.STRING))
-            @QueryParam("filter.category") String category
+            @Parameter(in = ParameterIn.QUERY, name = "filter.alleleCategory", description = "Disease for a given allele", schema = @Schema(type = SchemaType.STRING))
+            @QueryParam("filter.alleleCategory") String alleleCategory
     );
 
     @GET

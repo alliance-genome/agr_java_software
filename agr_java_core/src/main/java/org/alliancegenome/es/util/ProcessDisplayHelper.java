@@ -48,7 +48,7 @@ public class ProcessDisplayHelper {
         if (totalSize > 0)
             logInfoMessage(this.message + "Starting Process [total =    " + getBigNumber(totalSize) + "] ");
         else
-            logInfoMessage(this.message + "Starting Process at: " + new Date());
+            logInfoMessage(this.message + "Starting Process...");
 
         lastTime = new Date();
     }

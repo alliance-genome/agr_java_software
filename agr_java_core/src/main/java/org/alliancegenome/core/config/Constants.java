@@ -45,6 +45,7 @@ public class Constants {
     
     // Variant Indexer Related ENV param constants
     public static final String VARIANT_CONFIG_FILE = "VARIANT_CONFIG_FILE";
+    public static final String VARIANT_CACHER_CONFIG_FILE = "VARIANT_CACHER_CONFIG_FILE";
     public static final String VARIANT_CONFIG_DOWNLOAD = "VARIANT_CONFIG_DOWNLOAD";
     public static final String VARIANT_CONFIG_CREATING = "VARIANT_CONFIG_CREATING";
     public static final String VARIANT_CONFIG_INDEXING = "VARIANT_CONFIG_INDEXING";

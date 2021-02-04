@@ -1,14 +1,17 @@
 package org.alliancegenome.api.service;
 
-import static java.util.stream.Collectors.toSet;
-import static org.alliancegenome.api.service.Column.*;
-
-import java.util.*;
-import java.util.function.Function;
-
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.apache.commons.collections4.CollectionUtils;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
+
+import static java.util.stream.Collectors.toSet;
+import static org.alliancegenome.api.service.Column.*;
 
 public class AlleleColumnFieldMapping extends ColumnFieldMapping<Allele> {
 
@@ -22,6 +25,8 @@ public class AlleleColumnFieldMapping extends ColumnFieldMapping<Allele> {
         mapColumnFieldName.put(GENE_ALLELE_VARIANT_TYPE, FieldFilter.VARIANT_TYPE);
         mapColumnFieldName.put(GENE_ALLELE_VARIANT_CONSEQUENCE, FieldFilter.VARIANT_CONSEQUENCE);
         mapColumnFieldName.put(GENE_ALLELE_CATEGORY, FieldFilter.ALLELE_CATEGORY);
+        mapColumnFieldName.put(GENE_ALLELE_HAS_DISEASE, FieldFilter.HAS_DISEASE);
+        mapColumnFieldName.put(GENE_ALLELE_HAS_PHENOTYPE, FieldFilter.HAS_PHENOTYPE);
 
         mapColumnAttribute.put(GENE_ALLELE_CATEGORY, entity -> Set.of(entity.getCategory()));
         mapColumnAttribute.put(GENE_ALLELE_VARIANT_TYPE, entity -> {
@@ -40,9 +45,14 @@ public class AlleleColumnFieldMapping extends ColumnFieldMapping<Allele> {
             return new HashSet<>();
         });
 
+        mapColumnAttribute.put(GENE_ALLELE_HAS_DISEASE, entity -> entity.hasDisease() ? Set.of("YES") : Set.of("NO"));
+        mapColumnAttribute.put(GENE_ALLELE_HAS_PHENOTYPE, entity -> entity.hasPhenotype() ? Set.of("YES") : Set.of("NO"));
+
         singleValueDistinctFieldColumns.add(GENE_ALLELE_VARIANT_TYPE);
         singleValueDistinctFieldColumns.add(GENE_ALLELE_VARIANT_CONSEQUENCE);
         singleValueDistinctFieldColumns.add(GENE_ALLELE_CATEGORY);
+        singleValueDistinctFieldColumns.add(GENE_ALLELE_HAS_DISEASE);
+        singleValueDistinctFieldColumns.add(GENE_ALLELE_HAS_PHENOTYPE);
     }
 
 }

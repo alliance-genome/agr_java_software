@@ -18,7 +18,7 @@ import lombok.*;
 public class Phenotype extends Neo4jEntity {
     @JsonView({View.PhenotypeAPI.class})
     private String primaryKey;
-    @JsonView({View.GeneAllelesAPI.class, View.AlleleAPI.class})
+    @JsonView({View.AlleleAPI.class})
     private String phenotypeStatement;
 
     @Relationship(type = "IS_IMPLICATED_IN", direction = Relationship.INCOMING)
