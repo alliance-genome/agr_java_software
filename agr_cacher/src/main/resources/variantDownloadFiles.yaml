@@ -221,9 +221,9 @@ downloadFileSet:
 #        url: https://download.alliancegenome.org/variants/mouse/MGI.vep.chr18.vcf.gz
 #      - chromosome: 19
 #        url: https://download.alliancegenome.org/variants/mouse/MGI.vep.chr19.vcf.gz
-#      - chromosome: MT
-#        url: https://download.alliancegenome.org/variants/mouse/MGI.vep.chrMT.vcf.gz
 #      - chromosome: X
 #        url: https://download.alliancegenome.org/variants/mouse/MGI.vep.chrX.vcf.gz
 #      - chromosome: Y
 #        url: https://download.alliancegenome.org/variants/mouse/MGI.vep.chrY.vcf.gz
+#      - chromosome: MT
+#        url: https://download.alliancegenome.org/variants/mouse/MGI.vep.chrMT.vcf.gz
