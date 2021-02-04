@@ -52,6 +52,7 @@ public class TranscriptFeature {
     private String referenceSequence;
     private String variantSequence;
 
+    private static final Pattern regex = Pattern.compile("(.*)(\\()(.*)(\\))");
 
     public TranscriptFeature(String[] header, String[] infos) {
 
@@ -144,15 +145,11 @@ public class TranscriptFeature {
             genomicStart = infos[31];
             genomicEnd = infos[32];
         }
-        // fixup sift and polyphen
-        String pattern = "(.*)(\\()(.*)(\\))";
-        // Create a Pattern object
-        Pattern r = Pattern.compile(pattern);
 
         // Match polyphen
         // polyphen = polyphenPrediction(polyphenScore)
         if(polyphen != null) {
-            Matcher m = r.matcher(polyphen);
+            Matcher m = regex.matcher(polyphen);
             if (m.find()) {
                 polyphen = m.group(1);
                 polyphenScore = m.group(3);
@@ -161,7 +158,7 @@ public class TranscriptFeature {
         // Match sift
         // sift = siftPrediction(siftScore)
         if(sift != null) {
-            Matcher m = r.matcher(sift);
+            Matcher m = regex.matcher(sift);
             if (m.find()) {
                 sift = m.group(1);
                 siftScore = m.group(3);

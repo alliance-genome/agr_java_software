@@ -11,7 +11,7 @@ import htsjdk.variant.vcf.VCFFileReader;
 
 public class TestSplitFileByChromosome {
     public static void main(String[] args) {
-        VCFFileReader reader = new VCFFileReader(new File("/Users/olinblodgett/HTPOSTVEPVCF_ZFIN_2.vcf.gz"), false);
+        VCFFileReader reader = new VCFFileReader(new File("/Volumes/Cardano_Backup/Variants/HTPOSTVEPVCF_RGD_22.vcf.gz"), false);
 
         String chr = "";
 
@@ -21,7 +21,7 @@ public class TestSplitFileByChromosome {
         
         CloseableIterator<VariantContext> iter1 = reader.iterator();
         
-        ph.startProcess("VCFReader Reader: ", 34823734);
+        ph.startProcess("VCFReader Reader: ");
         
         while(iter1.hasNext()) {
             try {
@@ -30,7 +30,7 @@ public class TestSplitFileByChromosome {
                     if(writer != null) writer.close();
                     chr = vc.getChr();
                     VariantContextWriterBuilder builder = new VariantContextWriterBuilder();
-                    builder.setOutputFile("/Volumes/Cardano_Backup/Variants/ZFIN.vep.chr" + chr + ".vcf.gz");
+                    builder.setOutputFile("/Volumes/Cardano_Backup/Variants/RGD.vep.chr" + chr + ".vcf.gz");
                     writer = builder.build();
                     writer.writeHeader(reader.getFileHeader());
                 }

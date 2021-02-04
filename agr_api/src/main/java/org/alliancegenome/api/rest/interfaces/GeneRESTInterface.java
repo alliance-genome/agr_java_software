@@ -89,7 +89,7 @@ public interface GeneRESTInterface {
             @Parameter(in = ParameterIn.QUERY, name = "filter.hasPhenotype", description = "has Phenotype", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.hasPhenotype") String hasPhenotype,
             @Parameter(in = ParameterIn.QUERY, name = "filter.alleleCategory", description = "Category of an allele", schema = @Schema(type = SchemaType.STRING))
-            @QueryParam("filter.alleleCategory") String category
+            @QueryParam("filter.alleleCategory") String alleleCategory
     );
 
     @GET
@@ -140,7 +140,7 @@ public interface GeneRESTInterface {
             @Parameter(in = ParameterIn.QUERY, name = "filter.hasPhenotype", description = "has Disease", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.hasPhenotype") String hasPhenotype,
             @Parameter(in = ParameterIn.QUERY, name = "filter.alleleCategory", description = "Disease for a given allele", schema = @Schema(type = SchemaType.STRING))
-            @QueryParam("filter.alleleCategory") String category
+            @QueryParam("filter.alleleCategory") String alleleCategory
     );
 
     @GET

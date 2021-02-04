@@ -7,6 +7,7 @@ import org.alliancegenome.es.variant.model.*;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 
 import htsjdk.variant.variantcontext.*;
+import io.github.lukehutch.fastclasspathscanner.utils.Join;
 import lombok.extern.log4j.Log4j2;
 
 @Log4j2
@@ -172,12 +173,13 @@ public class VariantContextConverter {
                         features.add(feature);
                     }
                 } else {
-//                  System.out.println("Diff: " + header.length + " " + infos.length);
-//                  System.out.println(Join.join("|", header));
-//                  System.out.println(s);
-//                  for(int i = 0; i < infos.length; i++) {
-//                      System.out.println("Value: " + infos[i]);
-//                  }
+                    // This should NEVER happen so if this is printing then columns counts are wrong.
+                    System.out.println("Diff: " + header.length + " " + infos.length);
+                    System.out.println(Join.join("|", header));
+                    System.out.println(s);
+                    for(int i = 0; i < infos.length; i++) {
+                        System.out.println("Value: " + infos[i]);
+                    }
                 }
             }
         }
