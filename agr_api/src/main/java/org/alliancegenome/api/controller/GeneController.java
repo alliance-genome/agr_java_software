@@ -176,7 +176,7 @@ public class GeneController implements GeneRESTInterface {
                                               String symbol,
                                               String synonym,
                                               String variantType,
-                                              String consequence,
+                                              String molecularConsequence,
                                               String phenotype,
                                               String source,
                                               String disease) {
@@ -187,7 +187,7 @@ public class GeneController implements GeneRESTInterface {
         pagination.addFieldFilter(FieldFilter.DISEASE, disease);
         pagination.addFieldFilter(FieldFilter.VARIANT_TYPE, variantType);
         pagination.addFieldFilter(FieldFilter.PHENOTYPE, phenotype);
-        pagination.addFieldFilter(FieldFilter.MOLECULAR_CONSEQUENCE, consequence);
+        pagination.addFieldFilter(FieldFilter.MOLECULAR_CONSEQUENCE, molecularConsequence);
         if (pagination.hasErrors()) {
             RestErrorMessage message = new RestErrorMessage();
             message.setErrors(pagination.getErrors());

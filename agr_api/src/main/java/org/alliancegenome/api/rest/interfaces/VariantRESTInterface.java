@@ -47,8 +47,8 @@ public interface VariantRESTInterface {
             @DefaultValue("symbol") @QueryParam("sortBy") String sortBy,
             @Parameter(in=ParameterIn.QUERY, name = "filter.transcriptType", description = "Transcript types", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.transcriptType") String transcriptType,
-            @Parameter(in=ParameterIn.QUERY, name = "filter.transcriptConsequence", description = "Consequence", schema = @Schema(type = SchemaType.STRING))
-            @QueryParam("filter.transcriptConsequence") String consequence
+            @Parameter(in=ParameterIn.QUERY, name = "filter.molecularConsequence", description = "Consequence", schema = @Schema(type = SchemaType.STRING))
+            @QueryParam("filter.molecularConsequence") String consequence
     );
 
     @GET
