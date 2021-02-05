@@ -88,7 +88,6 @@ public class AlleleVariantSequenceFiltering extends AnnotationFiltering<AlleleVa
         filterFieldMap.put(FieldFilter.VARIANT_POLYPHEN, variantPolyphenFilter);
         filterFieldMap.put(FieldFilter.VARIANT_SIFT, variantSiftFilter);
         filterFieldMap.put(FieldFilter.SEQUENCE_FEATURE_TYPE, sequenceFeatureTypeFilter);
-        filterFieldMap.put(FieldFilter.VARIANT_TYPE, variantTypeFilter);
     }
 
 }
