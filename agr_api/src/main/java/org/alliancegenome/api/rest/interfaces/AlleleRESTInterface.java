@@ -69,8 +69,8 @@ public interface AlleleRESTInterface {
             @QueryParam("sortBy") String sortBy,
             @Parameter(in=ParameterIn.QUERY, name="filter.variantType", description = "Variant types", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.variantType") String variantType,
-            @Parameter(in=ParameterIn.QUERY, name="filter.variantConsequence", description = "Consequence", schema = @Schema(type = SchemaType.STRING))
-            @QueryParam("filter.variantConsequence") String consequence
+            @Parameter(in=ParameterIn.QUERY, name="filter.molecularConsequence", description = "Consequence", schema = @Schema(type = SchemaType.STRING))
+            @QueryParam("filter.molecularConsequence") String molecularConsequence
             );
 
     @GET

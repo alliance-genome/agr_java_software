@@ -65,7 +65,7 @@ public class AlleleFiltering extends AnnotationFiltering<Allele> {
             (allele, value) ->
                     FilterFunction.fullMatchMultiValueOR(allele.hasDisease().toString(), value);
 
-    private static FilterFunction<Allele, String> variantConsequenceFilter =
+    private static FilterFunction<Allele, String> molecularConsequenceFilter =
             (allele, value) ->
                     FilterFunction.fullMatchMultiValueOR(allele.getVariants().stream()
                             .filter(Objects::nonNull)
@@ -158,7 +158,7 @@ public class AlleleFiltering extends AnnotationFiltering<Allele> {
         filterFieldMap.put(FieldFilter.PHENOTYPE, phenotypeFilter);
         filterFieldMap.put(FieldFilter.DISEASE, diseaseFilter);
         filterFieldMap.put(FieldFilter.VARIANT_TYPE, variantTypeFilter);
-        filterFieldMap.put(FieldFilter.MOLECULAR_CONSEQUENCE, variantConsequenceFilter);
+        filterFieldMap.put(FieldFilter.MOLECULAR_CONSEQUENCE, molecularConsequenceFilter);
         filterFieldMap.put(FieldFilter.CONSTRUCT_SYMBOL, transgenicAlleleConstructFilter);
         filterFieldMap.put(FieldFilter.CONSTRUCT_REGULATED_GENE, transgenicAlleleConstructRegulatedFilter);
         filterFieldMap.put(FieldFilter.CONSTRUCT_TARGETED_GENE, transgenicAlleleConstructTargetedFilter);
