@@ -32,7 +32,7 @@ import static java.util.stream.Collectors.groupingBy;
 @Log4j2
 public class AlleleCacher extends Cacher {
 
-    AlleleRepository alleleRepository;
+    AlleleRepository alleleRepository = new AlleleRepository();
 
     public AlleleCacher() {
     }
