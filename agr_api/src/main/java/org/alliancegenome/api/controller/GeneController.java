@@ -90,7 +90,7 @@ public class GeneController implements GeneRESTInterface {
         pagination.addFieldFilter(FieldFilter.VARIANT_TYPE, variantType);
         pagination.addFieldFilter(FieldFilter.HAS_DISEASE, hasDisease);
         pagination.addFieldFilter(FieldFilter.HAS_PHENOTYPE, hasPhenotype);
-        pagination.addFieldFilter(FieldFilter.VARIANT_CONSEQUENCE, consequence);
+        pagination.addFieldFilter(FieldFilter.MOLECULAR_CONSEQUENCE, consequence);
         if (pagination.hasErrors()) {
             RestErrorMessage message = new RestErrorMessage();
             message.setErrors(pagination.getErrors());
@@ -121,11 +121,12 @@ public class GeneController implements GeneRESTInterface {
                                                         String sortBy,
                                                         String asc,
                                                         String symbol,
+                                                        String associatedGeneSymbol,
                                                         String synonym,
                                                         String variantType,
                                                         String consequence,
                                                         String impact,
-                                                        String consequenceType,
+                                                        String sequenceFeatureType,
                                                         String variantPolyphen,
                                                         String variantSift,
                                                         String hasDisease,
@@ -140,10 +141,11 @@ public class GeneController implements GeneRESTInterface {
         pagination.addFieldFilter(FieldFilter.HAS_DISEASE, hasDisease);
         pagination.addFieldFilter(FieldFilter.HAS_PHENOTYPE, hasPhenotype);
         pagination.addFieldFilter(FieldFilter.VARIANT_IMPACT, impact);
-        pagination.addFieldFilter(FieldFilter.VARIANT_CONSEQUENCE, consequence);
+        pagination.addFieldFilter(FieldFilter.MOLECULAR_CONSEQUENCE, consequence);
         pagination.addFieldFilter(FieldFilter.VARIANT_POLYPHEN, variantPolyphen);
         pagination.addFieldFilter(FieldFilter.VARIANT_SIFT, variantSift);
-        pagination.addFieldFilter(FieldFilter.CONSEQUENCE_TYPE, consequenceType);
+        pagination.addFieldFilter(FieldFilter.SEQUENCE_FEATURE_TYPE, sequenceFeatureType);
+        pagination.addFieldFilter(FieldFilter.ASSOCIATED_GENE, associatedGeneSymbol);
         if (pagination.hasErrors()) {
             RestErrorMessage message = new RestErrorMessage();
             message.setErrors(pagination.getErrors());
@@ -185,7 +187,7 @@ public class GeneController implements GeneRESTInterface {
         pagination.addFieldFilter(FieldFilter.DISEASE, disease);
         pagination.addFieldFilter(FieldFilter.VARIANT_TYPE, variantType);
         pagination.addFieldFilter(FieldFilter.PHENOTYPE, phenotype);
-        pagination.addFieldFilter(FieldFilter.VARIANT_CONSEQUENCE, consequence);
+        pagination.addFieldFilter(FieldFilter.MOLECULAR_CONSEQUENCE, consequence);
         if (pagination.hasErrors()) {
             RestErrorMessage message = new RestErrorMessage();
             message.setErrors(pagination.getErrors());

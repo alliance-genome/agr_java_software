@@ -175,7 +175,7 @@ public class AlleleIT {
     public void checkAllelesByGeneFiltering() {
         Pagination pagination = new Pagination();
         BaseFilter filter = new BaseFilter();
-        filter.addFieldFilter(FieldFilter.VARIANT_CONSEQUENCE, "deletion");
+        filter.addFieldFilter(FieldFilter.MOLECULAR_CONSEQUENCE, "deletion");
         pagination.setFieldFilterValueMap(filter);
         JsonResultResponse<Allele> response = alleleService.getAllelesByGene("WB:WBGene00000898", pagination);
         assertResponse(response, 1, 1);

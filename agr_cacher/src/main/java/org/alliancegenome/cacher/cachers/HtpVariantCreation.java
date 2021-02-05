@@ -223,6 +223,10 @@ public class HtpVariantCreation extends Thread {
                             variant.setEnd(transcriptFeature.getGenomicEnd());
                             variant.setConsequence((transcriptFeature.getConsequence()));
                             variant.setHgvsNomenclature(transcriptFeature.getHgvsg());
+                            SOTerm soTerm = new SOTerm();
+                            soTerm.setName(doc.getVariantType().stream().findFirst().get());
+                            soTerm.setPrimaryKey(doc.getVariantType().stream().findFirst().get());
+                            variant.setVariantType(soTerm);
                             consequence.setImpact(transcriptFeature.getImpact());
                             consequence.setSequenceFeatureType(transcriptFeature.getBiotype());
                             consequence.setTranscriptName(transcriptFeature.getFeature());

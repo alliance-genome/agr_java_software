@@ -23,7 +23,7 @@ public class AlleleColumnFieldMapping extends ColumnFieldMapping<Allele> {
 
     public AlleleColumnFieldMapping() {
         mapColumnFieldName.put(GENE_ALLELE_VARIANT_TYPE, FieldFilter.VARIANT_TYPE);
-        mapColumnFieldName.put(GENE_ALLELE_VARIANT_CONSEQUENCE, FieldFilter.VARIANT_CONSEQUENCE);
+        mapColumnFieldName.put(GENE_ALLELE_VARIANT_CONSEQUENCE, FieldFilter.MOLECULAR_CONSEQUENCE);
         mapColumnFieldName.put(GENE_ALLELE_CATEGORY, FieldFilter.ALLELE_CATEGORY);
         mapColumnFieldName.put(GENE_ALLELE_HAS_DISEASE, FieldFilter.HAS_DISEASE);
         mapColumnFieldName.put(GENE_ALLELE_HAS_PHENOTYPE, FieldFilter.HAS_PHENOTYPE);

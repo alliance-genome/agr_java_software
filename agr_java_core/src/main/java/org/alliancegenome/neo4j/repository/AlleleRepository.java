@@ -16,6 +16,16 @@ import static java.util.stream.Collectors.groupingBy;
 @Log4j2
 public class AlleleRepository extends Neo4jRepository<Allele> {
 
+    // for debugging
+    public boolean debug;
+    public List<String> testGeneIDs;
+
+    public AlleleRepository( boolean debug, List<String> testGeneIDs) {
+        super(Allele.class);
+        this.debug = debug;
+        this.testGeneIDs = testGeneIDs;
+    }
+
     public AlleleRepository() {
         super(Allele.class);
     }
@@ -137,7 +147,12 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
 
 //        query += " AND g.taxonId = 'NCBITaxon:7955' ";
 //        query += " AND g.primaryKey = 'RGD:9294106' ";
-//        query += " AND g.primaryKey in ['RGD:9294106', 'ZFIN:ZDB-GENE-001212-1', 'RGD:1624201', 'ZFIN:ZDB-GENE-011101-3', 'ZFIN:ZDB-GENE-020419-25'] ";
+        if (testGeneIDs != null) {
+            StringJoiner joiner = new StringJoiner("','", "'", "'");
+            testGeneIDs.forEach(joiner::add);
+            String inClause = joiner.toString();
+                    query += " AND g.primaryKey in ["+inClause+"]";
+        }
         query += " OPTIONAL MATCH disease=(a:Allele)<-[:IS_IMPLICATED_IN]-(doTerm:DOTerm)";
         query += " OPTIONAL MATCH pheno=(a:Allele)-[:HAS_PHENOTYPE]->(ph:Phenotype)";
         query += " OPTIONAL MATCH p2=(a:Allele)-[:ALSO_KNOWN_AS]->(synonym:Synonym)";
@@ -154,9 +169,13 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
         query += " MATCH p1=(g:Gene)<-[:IS_ALLELE_OF]-(a:Allele)<-[:VARIATION]-(variant:Variant)--(:SOTerm) ";
         query += ", p0=(:Species)<-[:FROM_SPECIES]-(a:Allele) ";
 //        query += " where g.taxon955' ";
-//        query += " where g.primaryKey in [ 'ZFIN:ZDB-GENE-001212-1', 'ZFIN:ZDB-GENE-011101-3', 'ZFIN:ZDB-GENE-020419-25'] ";
-//        query += " where g.primaryKey = 'RGD:1624201' ";
 //        query += " AND  a.primaryKey = 'ZFIN:ZDB-ALT-130411-1942' ";
+        if (testGeneIDs != null) {
+            StringJoiner joiner = new StringJoiner("','", "'", "'");
+            testGeneIDs.forEach(joiner::add);
+            String inClause = joiner.toString();
+            query += " WHERE g.primaryKey in ["+inClause+"]";
+        }
 
         query += " OPTIONAL MATCH consequence = (t:Transcript)--(:TranscriptLevelConsequence)--(variant:Variant)<-[:ASSOCIATION]-(t:Transcript)--(:SOTerm) ";
         query += " OPTIONAL MATCH loc=(variant:Variant)-[:ASSOCIATION]->(:GenomicLocation)-[:ASSOCIATION]->(:Chromosome)";
@@ -220,20 +239,21 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
     }
 
     public void fixupAllelesWithVariants(Set<Allele> allAlleles, Set<Allele> allelesWithVariants) {
-        allelesWithVariants.forEach(allele ->
-                allele.getVariants().stream()
-                        .filter(Objects::nonNull)
-                        .filter(variant -> variant.getTranscriptList() != null)
-                        .forEach(variant ->
-                                variant.getTranscriptList().forEach(transcript -> {
-                                    final Transcript transcript1 = getTranscriptWithExonInfo().get(transcript.getPrimaryKey());
-                                    if (transcript1 != null) {
-                                        if (transcript1.getGenomeLocation() != null)
-                                            transcript.setGenomeLocation(transcript1.getGenomeLocation());
-                                        if (transcript1.getExons() != null)
-                                            transcript.setExons(transcript1.getExons());
-                                    }
-                                })));
+        if (!debug)
+            allelesWithVariants.forEach(allele ->
+                    allele.getVariants().stream()
+                            .filter(Objects::nonNull)
+                            .filter(variant -> variant.getTranscriptList() != null)
+                            .forEach(variant ->
+                                    variant.getTranscriptList().forEach(transcript -> {
+                                        final Transcript transcript1 = getTranscriptWithExonInfo().get(transcript.getPrimaryKey());
+                                        if (transcript1 != null) {
+                                            if (transcript1.getGenomeLocation() != null)
+                                                transcript.setGenomeLocation(transcript1.getGenomeLocation());
+                                            if (transcript1.getExons() != null)
+                                                transcript.setExons(transcript1.getExons());
+                                        }
+                                    })));
         allAlleles.addAll(allelesWithVariants);
         allAlleles.forEach(Allele::populateCategory);
     }

@@ -35,7 +35,7 @@ public class VariantController implements VariantRESTInterface {
         long startTime = System.currentTimeMillis();
         Pagination pagination = new Pagination(page, limit, sortBy, null);
         pagination.addFieldFilter(FieldFilter.VARIANT_TYPE, transcriptType);
-        pagination.addFieldFilter(FieldFilter.VARIANT_CONSEQUENCE, consequence);
+        pagination.addFieldFilter(FieldFilter.MOLECULAR_CONSEQUENCE, consequence);
         if (pagination.hasErrors()) {
             RestErrorMessage message = new RestErrorMessage();
             message.setErrors(pagination.getErrors());
