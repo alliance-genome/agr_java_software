@@ -1,5 +1,6 @@
 package org.alliancegenome.api.service;
 
+import lombok.extern.log4j.Log4j2;
 import org.alliancegenome.api.entity.AlleleVariantSequence;
 import org.alliancegenome.es.model.query.FieldFilter;
 
@@ -11,6 +12,7 @@ import java.util.function.Function;
 
 import static org.alliancegenome.api.service.Column.*;
 
+@Log4j2
 public class AlleleVariantSequenceColumnFieldMapping extends ColumnFieldMapping<AlleleVariantSequence> {
 
     private Map<Column, Function<AlleleVariantSequence, Set<String>>> mapColumnAttribute = new HashMap<>();
@@ -36,6 +38,10 @@ public class AlleleVariantSequenceColumnFieldMapping extends ColumnFieldMapping<
 
         mapColumnAttribute.put(GENE_ALLELE_VARIANT_SEQUENCE_TYPE, entity -> {
             if (entity.getConsequence() != null) {
+                if (entity.getConsequence().getSequenceFeatureType() == null) {
+                    log.error("Could not find sequence feature type for ");
+                    log.error(entity.getVariant().getHgvsNomenclature());
+                }
                 return Set.of(entity.getConsequence().getSequenceFeatureType());
             }
             return new HashSet<>();
