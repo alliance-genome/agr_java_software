@@ -124,7 +124,7 @@ public class GeneController implements GeneRESTInterface {
                                                         String associatedGeneSymbol,
                                                         String synonym,
                                                         String variantType,
-                                                        String consequence,
+                                                        String molecularConsequence,
                                                         String impact,
                                                         String sequenceFeatureType,
                                                         String variantPolyphen,
@@ -141,7 +141,7 @@ public class GeneController implements GeneRESTInterface {
         pagination.addFieldFilter(FieldFilter.HAS_DISEASE, hasDisease);
         pagination.addFieldFilter(FieldFilter.HAS_PHENOTYPE, hasPhenotype);
         pagination.addFieldFilter(FieldFilter.VARIANT_IMPACT, impact);
-        pagination.addFieldFilter(FieldFilter.MOLECULAR_CONSEQUENCE, consequence);
+        pagination.addFieldFilter(FieldFilter.MOLECULAR_CONSEQUENCE, molecularConsequence);
         pagination.addFieldFilter(FieldFilter.VARIANT_POLYPHEN, variantPolyphen);
         pagination.addFieldFilter(FieldFilter.VARIANT_SIFT, variantSift);
         pagination.addFieldFilter(FieldFilter.SEQUENCE_FEATURE_TYPE, sequenceFeatureType);
