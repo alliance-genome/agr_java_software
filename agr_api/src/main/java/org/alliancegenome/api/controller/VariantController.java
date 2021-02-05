@@ -30,12 +30,12 @@ public class VariantController implements VariantRESTInterface {
             Integer page,
             String sortBy,
             String transcriptType,
-            String consequence) {
+            String molecularConsequence) {
 
         long startTime = System.currentTimeMillis();
         Pagination pagination = new Pagination(page, limit, sortBy, null);
         pagination.addFieldFilter(FieldFilter.VARIANT_TYPE, transcriptType);
-        pagination.addFieldFilter(FieldFilter.VARIANT_CONSEQUENCE, consequence);
+        pagination.addFieldFilter(FieldFilter.MOLECULAR_CONSEQUENCE, molecularConsequence);
         if (pagination.hasErrors()) {
             RestErrorMessage message = new RestErrorMessage();
             message.setErrors(pagination.getErrors());

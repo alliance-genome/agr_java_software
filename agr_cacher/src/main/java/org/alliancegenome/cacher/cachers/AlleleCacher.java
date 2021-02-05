@@ -32,15 +32,22 @@ import static java.util.stream.Collectors.groupingBy;
 @Log4j2
 public class AlleleCacher extends Cacher {
 
-    private static final AlleleRepository alleleRepository = new AlleleRepository();
+    AlleleRepository alleleRepository;
+
+    public AlleleCacher() {
+    }
+
+    public AlleleCacher(boolean debug, List<String> testGeneIDs) {
+        super(debug, testGeneIDs);
+        alleleRepository = new AlleleRepository(debug, testGeneIDs);
+    }
 
     @Override
     protected void cache() {
         readAllFileMetaData();
-        cacheSpeciesChromosome(SpeciesType.ZEBRAFISH.getTaxonID(), null);
-        cacheSpeciesChromosome(SpeciesType.MOUSE.getTaxonID(), null);
-        cacheSpeciesChromosome(SpeciesType.YEAST.getTaxonID(), null);
         cacheSpecies(SpeciesType.RAT.getTaxonID());
+        cacheSpecies(SpeciesType.ZEBRAFISH.getTaxonID());
+        cacheSpeciesChromosome(SpeciesType.MOUSE.getTaxonID(), null);
         cacheSpecies(SpeciesType.WORM.getTaxonID());
         cacheSpecies(SpeciesType.FLY.getTaxonID());
 //        cacheSpecies(SpeciesType.HUMAN.getTaxonID());
@@ -227,6 +234,7 @@ public class AlleleCacher extends Cacher {
             taxonMap.put(chromosome, countAlleleVariants);
 
             //group by geneID
+/*
             Map<String, List<AlleleVariantSequence>> alleleVariantMap = htpAlleleSequenceMap.values().stream()
                     .flatMap(Collection::stream)
                     .collect(groupingBy(sequence -> sequence.getAllele().getGene().getPrimaryKey()));
@@ -247,6 +255,7 @@ public class AlleleCacher extends Cacher {
                     list.add(variantAllele);
                 });
             });
+*/
             log.info("Number of Genes: " + variantMap.size());
         } catch (Exception e) {
             e.printStackTrace();

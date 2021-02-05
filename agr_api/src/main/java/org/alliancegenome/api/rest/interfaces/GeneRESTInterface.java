@@ -121,16 +121,18 @@ public interface GeneRESTInterface {
             @QueryParam("asc") String asc,
             @Parameter(in = ParameterIn.QUERY, name = "filter.symbol", description = "allele symbol", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.symbol") String symbol,
+            @Parameter(in = ParameterIn.QUERY, name = "filter.associatedGeneSymbol", description = "allele symbol", schema = @Schema(type = SchemaType.STRING))
+            @QueryParam("filter.associatedGeneSymbol") String associatedGeneSymbol,
             @Parameter(in = ParameterIn.QUERY, name = "filter.synonym", description = "allele synonym", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.synonym") String synonym,
             @Parameter(in = ParameterIn.QUERY, name = "filter.variantType", description = "Variant types", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.variantType") String variantType,
-            @Parameter(in = ParameterIn.QUERY, name = "filter.variantConsequence", description = "Consequence", schema = @Schema(type = SchemaType.STRING))
-            @QueryParam("filter.variantConsequence") String consequence,
+            @Parameter(in = ParameterIn.QUERY, name = "filter.molecularConsequence", description = "molecularConsequence", schema = @Schema(type = SchemaType.STRING))
+            @QueryParam("filter.molecularConsequence") String molecularConsequence,
             @Parameter(in = ParameterIn.QUERY, name = "filter.variantImpact", description = "VEP Impact", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.variantImpact") String impact,
-            @Parameter(in = ParameterIn.QUERY, name = "filter.consequenceType", description = "Consequence Type", schema = @Schema(type = SchemaType.STRING))
-            @QueryParam("filter.consequenceType") String consequenceType,
+            @Parameter(in = ParameterIn.QUERY, name = "filter.sequenceFeatureType", description = "Consequence Type", schema = @Schema(type = SchemaType.STRING))
+            @QueryParam("filter.sequenceFeatureType") String sequenceFeatureType,
             @Parameter(in = ParameterIn.QUERY, name = "filter.variantPolyphen", description = "Consequence Type", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.variantPolyphen") String variantPolyphen,
             @Parameter(in = ParameterIn.QUERY, name = "filter.variantSift", description = "Consequence Type", schema = @Schema(type = SchemaType.STRING))
@@ -160,8 +162,8 @@ public interface GeneRESTInterface {
             @QueryParam("filter.synonym") String synonym,
             @Parameter(in = ParameterIn.QUERY, name = "filter.variantType", description = "Variant types", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.variantType") String variantType,
-            @Parameter(in = ParameterIn.QUERY, name = "filter.variantConsequence", description = "Consequence", schema = @Schema(type = SchemaType.STRING))
-            @QueryParam("filter.variantConsequence") String consequence,
+            @Parameter(in = ParameterIn.QUERY, name = "filter.molecularConsequence", description = "Consequence", schema = @Schema(type = SchemaType.STRING))
+            @QueryParam("filter.molecularConsequence") String consequence,
             @Parameter(in = ParameterIn.QUERY, name = "filter.phenotype", description = "Phenotypes", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.phenotype") String phenotype,
             @Parameter(in = ParameterIn.QUERY, name = "filter.source", description = "Source", schema = @Schema(type = SchemaType.STRING))

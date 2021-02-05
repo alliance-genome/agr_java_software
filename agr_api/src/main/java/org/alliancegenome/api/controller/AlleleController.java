@@ -45,11 +45,11 @@ public class AlleleController implements AlleleRESTInterface {
                                                             Integer page,
                                                             String sortBy,
                                                             String variantType,
-                                                            String consequence) {
+                                                            String molecularConsequence) {
         long startTime = System.currentTimeMillis();
         Pagination pagination = new Pagination(page, limit, sortBy, null);
         pagination.addFieldFilter(FieldFilter.VARIANT_TYPE, variantType);
-        pagination.addFieldFilter(FieldFilter.VARIANT_CONSEQUENCE, consequence);
+        pagination.addFieldFilter(FieldFilter.MOLECULAR_CONSEQUENCE, molecularConsequence);
         if (pagination.hasErrors()) {
             RestErrorMessage message = new RestErrorMessage();
             message.setErrors(pagination.getErrors());

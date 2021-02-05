@@ -39,7 +39,7 @@ public class AlleleVariantSequenceFiltering extends AnnotationFiltering<AlleleVa
             (allele, value) ->
                     FilterFunction.fullMatchMultiValueOR(allele.getAllele().hasDisease().toString(), value);
 
-    private static final FilterFunction<AlleleVariantSequence, String> variantConsequenceFilter =
+    private static final FilterFunction<AlleleVariantSequence, String> molecularConsequenceFilter =
             (allele, value) ->
                     FilterFunction.fullMatchMultiValueOR(allele.getAllele().getVariants().stream()
                             .filter(Objects::nonNull)
@@ -54,10 +54,10 @@ public class AlleleVariantSequenceFiltering extends AnnotationFiltering<AlleleVa
                 return false;
             };
 
-    private static final FilterFunction<AlleleVariantSequence, String> consequenceTypeFilter =
+    private static final FilterFunction<AlleleVariantSequence, String> sequenceFeatureTypeFilter =
             (allele, value) -> {
                 if (allele.getConsequence() != null)
-                    return FilterFunction.fullMatchMultiValueOR(allele.getConsequence().getTranscriptType(), value);
+                    return FilterFunction.fullMatchMultiValueOR(allele.getConsequence().getSequenceFeatureType(), value);
                 return false;
             };
 
@@ -83,11 +83,11 @@ public class AlleleVariantSequenceFiltering extends AnnotationFiltering<AlleleVa
         filterFieldMap.put(FieldFilter.HAS_PHENOTYPE, alleleHasPhenotypeFilter);
         filterFieldMap.put(FieldFilter.HAS_DISEASE, alleleHasDiseaseFilter);
         filterFieldMap.put(FieldFilter.VARIANT_TYPE, variantTypeFilter);
-        filterFieldMap.put(FieldFilter.VARIANT_CONSEQUENCE, variantConsequenceFilter);
+        filterFieldMap.put(FieldFilter.MOLECULAR_CONSEQUENCE, molecularConsequenceFilter);
         filterFieldMap.put(FieldFilter.VARIANT_IMPACT, variantImpactFilter);
         filterFieldMap.put(FieldFilter.VARIANT_POLYPHEN, variantPolyphenFilter);
         filterFieldMap.put(FieldFilter.VARIANT_SIFT, variantSiftFilter);
-        filterFieldMap.put(FieldFilter.CONSEQUENCE_TYPE, consequenceTypeFilter);
+        filterFieldMap.put(FieldFilter.SEQUENCE_FEATURE_TYPE, sequenceFeatureTypeFilter);
     }
 
 }
