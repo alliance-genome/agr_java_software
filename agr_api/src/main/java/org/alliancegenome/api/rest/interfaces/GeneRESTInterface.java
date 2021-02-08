@@ -108,7 +108,6 @@ public interface GeneRESTInterface {
                             content = @Content(mediaType = "application/json",
                                     schema = @Schema(implementation = Allele.class)))})
     JsonResultResponse<AlleleVariantSequence> getAllelesVariantPerGene(
-            //@ApiParam(name = "id", description = "Search for Alleles for a given Gene by ID")
             @Parameter(in = ParameterIn.PATH, name = "id", description = "Search for Alleles for a given Gene by ID", required = true, schema = @Schema(type = SchemaType.STRING))
             @PathParam("id") String id,
             @Parameter(in = ParameterIn.QUERY, name = "limit", description = "Number of rows returned", schema = @Schema(type = SchemaType.INTEGER))
@@ -119,6 +118,41 @@ public interface GeneRESTInterface {
             @DefaultValue("symbol") @QueryParam("sortBy") String sortBy,
             @Parameter(in = ParameterIn.QUERY, name = "asc", description = "order to sort by", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("asc") String asc,
+            @Parameter(in = ParameterIn.QUERY, name = "filter.symbol", description = "allele symbol", schema = @Schema(type = SchemaType.STRING))
+            @QueryParam("filter.symbol") String symbol,
+            @Parameter(in = ParameterIn.QUERY, name = "filter.associatedGeneSymbol", description = "allele symbol", schema = @Schema(type = SchemaType.STRING))
+            @QueryParam("filter.associatedGeneSymbol") String associatedGeneSymbol,
+            @Parameter(in = ParameterIn.QUERY, name = "filter.synonym", description = "allele synonym", schema = @Schema(type = SchemaType.STRING))
+            @QueryParam("filter.synonym") String synonym,
+            @Parameter(in = ParameterIn.QUERY, name = "filter.hgvsgName", description = "Variant types", schema = @Schema(type = SchemaType.STRING))
+            @QueryParam("filter.hgvsgName") String hgvsgName,
+            @Parameter(in = ParameterIn.QUERY, name = "filter.variantType", description = "Variant types", schema = @Schema(type = SchemaType.STRING))
+            @QueryParam("filter.variantType") String variantType,
+            @Parameter(in = ParameterIn.QUERY, name = "filter.molecularConsequence", description = "molecularConsequence", schema = @Schema(type = SchemaType.STRING))
+            @QueryParam("filter.molecularConsequence") String molecularConsequence,
+            @Parameter(in = ParameterIn.QUERY, name = "filter.variantImpact", description = "VEP Impact", schema = @Schema(type = SchemaType.STRING))
+            @QueryParam("filter.variantImpact") String impact,
+            @Parameter(in = ParameterIn.QUERY, name = "filter.sequenceFeatureType", description = "Consequence Type", schema = @Schema(type = SchemaType.STRING))
+            @QueryParam("filter.sequenceFeatureType") String sequenceFeatureType,
+            @Parameter(in = ParameterIn.QUERY, name = "filter.variantPolyphen", description = "Consequence Type", schema = @Schema(type = SchemaType.STRING))
+            @QueryParam("filter.variantPolyphen") String variantPolyphen,
+            @Parameter(in = ParameterIn.QUERY, name = "filter.variantSift", description = "Consequence Type", schema = @Schema(type = SchemaType.STRING))
+            @QueryParam("filter.variantSift") String variantSift,
+            @Parameter(in = ParameterIn.QUERY, name = "filter.hasDisease", description = "Phenotypes", schema = @Schema(type = SchemaType.STRING))
+            @QueryParam("filter.hasDisease") String hasDisease,
+            @Parameter(in = ParameterIn.QUERY, name = "filter.hasPhenotype", description = "has Disease", schema = @Schema(type = SchemaType.STRING))
+            @QueryParam("filter.hasPhenotype") String hasPhenotype,
+            @Parameter(in = ParameterIn.QUERY, name = "filter.alleleCategory", description = "Disease for a given allele", schema = @Schema(type = SchemaType.STRING))
+            @QueryParam("filter.alleleCategory") String alleleCategory
+    );
+
+    @GET
+    @Path("/{id}/allele-variant-detail/download")
+    @Operation(summary = "Retrieve all allele-variant-sequence info records for a given gene")
+    @Produces(MediaType.TEXT_PLAIN)
+    Response getAllelesVariantPerGeneDownload(
+            @Parameter(in = ParameterIn.PATH, name = "id", description = "Search for Alleles for a given Gene by ID", required = true, schema = @Schema(type = SchemaType.STRING))
+            @PathParam("id") String id,
             @Parameter(in = ParameterIn.QUERY, name = "filter.symbol", description = "allele symbol", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.symbol") String symbol,
             @Parameter(in = ParameterIn.QUERY, name = "filter.associatedGeneSymbol", description = "allele symbol", schema = @Schema(type = SchemaType.STRING))

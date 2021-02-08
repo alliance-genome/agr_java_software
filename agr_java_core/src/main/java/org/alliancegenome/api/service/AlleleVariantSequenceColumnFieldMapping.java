@@ -42,8 +42,7 @@ public class AlleleVariantSequenceColumnFieldMapping extends ColumnFieldMapping<
                 if (StringUtils.isNotEmpty(entity.getConsequence().getSequenceFeatureType())) {
                     return Set.of(entity.getConsequence().getSequenceFeatureType());
                 }
-                log.error("Could not find sequence feature type for ");
-                log.error(entity.getVariant().getHgvsNomenclature());
+                log.error("Could not find sequence feature type for "+entity.getVariant().getHgvsNomenclature());
             }
             return Set.of("");
         });

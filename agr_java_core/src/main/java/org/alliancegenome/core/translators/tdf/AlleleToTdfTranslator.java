@@ -1,11 +1,16 @@
 package org.alliancegenome.core.translators.tdf;
 
-import java.util.*;
-import java.util.stream.Collectors;
-
-import org.alliancegenome.core.config.ConfigHelper;
-import org.alliancegenome.neo4j.entity.node.*;
+import org.alliancegenome.api.entity.AlleleVariantSequence;
+import org.alliancegenome.neo4j.entity.node.Allele;
+import org.alliancegenome.neo4j.entity.node.Construct;
+import org.alliancegenome.neo4j.entity.node.Publication;
+import org.alliancegenome.neo4j.entity.node.Variant;
 import org.apache.commons.collections.CollectionUtils;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.StringJoiner;
+import java.util.stream.Collectors;
 
 public class AlleleToTdfTranslator {
 
@@ -54,15 +59,16 @@ public class AlleleToTdfTranslator {
                 })
                 .flatMap(Collection::stream)
                 .collect(Collectors.toList());
+    }
 
-
-
+    public List<AlleleVariantSequenceDownloadRow> AlleleVariantSequenceDownloadRow(List<AlleleVariantSequence> annotations) {
+        return annotations.stream()
+                .map(this::getBaseAlleleVariantDownloadRow)
+                .collect(Collectors.toList());
     }
 
 
-
-
-    private AlleleDownloadRow getBaseDownloadRow(Allele annotation, Variant join,Publication pub) {
+    private AlleleDownloadRow getBaseDownloadRow(Allele annotation, Variant join, Publication pub) {
         AlleleDownloadRow row = new AlleleDownloadRow();
 
         row.setAlleleID(annotation.getPrimaryKey());
@@ -75,15 +81,53 @@ public class AlleleToTdfTranslator {
         }
         row.setAlleleSynonyms(synonyms);
         row.setVariantCategory(annotation.getCategory());
-        if (join!=null) {
+        if (join != null) {
             row.setVariantSymbol(join.getHgvsNomenclature());
             row.setVariantType(join.getVariantType().getName());
             row.setVariantConsequence(join.getConsequence());
         }
         row.setHasPhenotype(annotation.hasPhenotype().toString());
         row.setHasDisease(annotation.hasDisease().toString());
-        if (pub!=null) {
+        if (pub != null) {
             row.setReference(pub.getPubId());
+        }
+        return row;
+    }
+
+    private AlleleVariantSequenceDownloadRow getBaseAlleleVariantDownloadRow(AlleleVariantSequence annotation) {
+        AlleleVariantSequenceDownloadRow row = new AlleleVariantSequenceDownloadRow();
+
+        row.setAlleleID(annotation.getAllele().getPrimaryKey());
+        row.setAlleleSymbol(annotation.getAllele().getSymbol());
+        String synonyms = "";
+        if (CollectionUtils.isNotEmpty(annotation.getAllele().getSynonyms())) {
+            StringJoiner synonymJoiner = new StringJoiner(",");
+            annotation.getAllele().getSynonyms().forEach(synonym -> synonymJoiner.add(synonym.getName()));
+            synonyms = synonymJoiner.toString();
+        }
+        row.setAlleleSynonyms(synonyms);
+        row.setVariantCategory(annotation.getAllele().getCategory());
+        row.setHasDisease(annotation.getAllele().hasDisease().toString());
+        row.setHasPhenotype(annotation.getAllele().hasPhenotype().toString());
+        if (annotation.getVariant() != null) {
+            row.setHgvsgName(annotation.getVariant().getHgvsNomenclature());
+            row.setVariantType(annotation.getVariant().getVariantType().getName());
+        }
+        if (annotation.getConsequence() != null) {
+            row.setMolecularConsequence(annotation.getConsequence().getTranscriptLevelConsequence());
+            row.setSequenceFeature(annotation.getConsequence().getTranscriptName());
+            row.setSequenceFeatureType(annotation.getConsequence().getSequenceFeatureType());
+            row.setLocation(annotation.getConsequence().getTranscriptLocation());
+            row.setMolecularConsequence(annotation.getConsequence().getTranscriptLevelConsequence());
+            row.setVepImpact(annotation.getConsequence().getImpact());
+            row.setSiftPrediction(annotation.getConsequence().getSiftPrediction());
+            row.setSiftScore(annotation.getConsequence().getSiftScore());
+            row.setPolyphenPrediction(annotation.getConsequence().getPolyphenPrediction());
+            row.setPolyphenScore(annotation.getConsequence().getPolyphenScore());
+            if (annotation.getConsequence().getAssociatedGene() != null) {
+                row.setSequenceFeatureAssociatedGene(annotation.getConsequence().getAssociatedGene().getSymbol());
+                row.setSequenceFeatureAssociatedGene(annotation.getConsequence().getAssociatedGene().getPrimaryKey());
+            }
         }
         return row;
     }
@@ -116,9 +160,9 @@ public class AlleleToTdfTranslator {
                     if (CollectionUtils.isNotEmpty(annotation.getConstructs()))
                         return annotation.getConstructs().stream()
                                 .map(join -> {
-                                        return annotation.getConstructs().stream()
-                                                .map(var -> getBaseDownloadAlleleTransgenicRow(annotation, var, null))
-                                                .collect(Collectors.toList());
+                                    return annotation.getConstructs().stream()
+                                            .map(var -> getBaseDownloadAlleleTransgenicRow(annotation, var, null))
+                                            .collect(Collectors.toList());
 
                                 }).flatMap(Collection::stream)
                                 .collect(Collectors.toList());
@@ -131,29 +175,28 @@ public class AlleleToTdfTranslator {
                 .collect(Collectors.toList());
 
 
-
     }
 
-    private TransgenicAlleleDownloadRow getBaseDownloadAlleleTransgenicRow(Allele annotation, Construct join,Publication pub) {
+    private TransgenicAlleleDownloadRow getBaseDownloadAlleleTransgenicRow(Allele annotation, Construct join, Publication pub) {
         TransgenicAlleleDownloadRow row = new TransgenicAlleleDownloadRow();
         row.setAlleleID(annotation.getPrimaryKey());
         row.setAlleleSymbol(annotation.getSymbol());
         row.setTgConstructID(join.getPrimaryKey());
         row.setTransgenicConstruct(join.getName());
         String expressedGene = "";
-        String expGeneID="";
-        String targetGene="";
-        String tgtGeneID="";
-        String regGene="";
-        String regGeneID="";
-        if (join!=null) {
+        String expGeneID = "";
+        String targetGene = "";
+        String tgtGeneID = "";
+        String regGene = "";
+        String regGeneID = "";
+        if (join != null) {
             if (CollectionUtils.isNotEmpty(join.getExpressedGenes())) {
                 StringJoiner expGeneJoiner = new StringJoiner(",");
                 StringJoiner expGeneIDJoiner = new StringJoiner(",");
                 join.getExpressedGenes().forEach(expressedGeneSymbol -> expGeneJoiner.add(expressedGeneSymbol.getSymbol()));
                 join.getExpressedGenes().forEach(expressedGeneID -> expGeneIDJoiner.add(expressedGeneID.getPrimaryKey()));
                 expressedGene = expGeneJoiner.toString();
-                expGeneID=expGeneIDJoiner.toString();
+                expGeneID = expGeneIDJoiner.toString();
             }
             if (CollectionUtils.isNotEmpty(join.getTargetGenes())) {
                 StringJoiner tgtGeneJoiner = new StringJoiner(",");
@@ -161,7 +204,7 @@ public class AlleleToTdfTranslator {
                 join.getTargetGenes().forEach(targetGeneSymbol -> tgtGeneJoiner.add(targetGeneSymbol.getSymbol()));
                 join.getTargetGenes().forEach(targetGeneID -> tgtGeneIDJoiner.add(targetGeneID.getPrimaryKey()));
                 targetGene = tgtGeneJoiner.toString();
-                tgtGeneID=tgtGeneIDJoiner.toString();
+                tgtGeneID = tgtGeneIDJoiner.toString();
             }
             if (CollectionUtils.isNotEmpty(join.getRegulatedByGenes())) {
                 StringJoiner regGeneJoiner = new StringJoiner(",");
@@ -169,7 +212,7 @@ public class AlleleToTdfTranslator {
                 join.getRegulatedByGenes().forEach(regGeneSymbol -> regGeneJoiner.add(regGeneSymbol.getSymbol()));
                 join.getRegulatedByGenes().forEach(regulatoryGeneID -> regGeneIDJoiner.add(regulatoryGeneID.getPrimaryKey()));
                 regGene = regGeneJoiner.toString();
-                regGeneID=regGeneIDJoiner.toString();
+                regGeneID = regGeneIDJoiner.toString();
             }
             row.setExpGeneID(expGeneID);
             row.setExpressedGene(expressedGene);
@@ -231,7 +274,6 @@ public class AlleleToTdfTranslator {
                 .collect(Collectors.toList());
 
 
-
     }
 
     private VariantDownloadRow getBaseDownloadVariantRow(final Variant annotation, Publication pub) {
@@ -242,15 +284,15 @@ public class AlleleToTdfTranslator {
         row.setChange(annotation.getNucleotideChange());
         row.setConsequence(annotation.getConsequence());
         row.setOverlaps(annotation.getGene().getSymbol());
-        if (pub!=null) {
+        if (pub != null) {
             row.setReference(pub.getPubId());
         }
         String hgvsGs = "";
-        String hgvsPs="";
-        String hgvsCs="";
-        String synonyms="";
-        String crossRefs="";
-        String notesDescs="";
+        String hgvsPs = "";
+        String hgvsCs = "";
+        String synonyms = "";
+        String crossRefs = "";
+        String notesDescs = "";
 
         if (CollectionUtils.isNotEmpty(annotation.getSynonyms())) {
             StringJoiner synonymJoiner = new StringJoiner(",");
@@ -284,7 +326,7 @@ public class AlleleToTdfTranslator {
             notesDescs = noteJoiner.toString();
         }
 
-       row.setVariantSynonyms(synonyms);
+        row.setVariantSynonyms(synonyms);
         row.setHgvsG(hgvsGs);
         row.setHgvsC(hgvsCs);
         row.setHgvsP(hgvsPs);
@@ -294,10 +336,33 @@ public class AlleleToTdfTranslator {
         return row;
     }
 
+    public String getAllAlleleVariantDetailRows(List<AlleleVariantSequence> annotations) {
 
+        List<AlleleVariantSequenceDownloadRow> list = AlleleVariantSequenceDownloadRow(annotations);
+        List<DownloadHeader> headers = List.of(
+                new DownloadHeader<>("Allele ID", (AlleleVariantSequenceDownloadRow::getAlleleID)),
+                new DownloadHeader<>("Allele Symbol", (AlleleVariantSequenceDownloadRow::getAlleleSymbol)),
+                new DownloadHeader<>("Allele Synonyms", (AlleleVariantSequenceDownloadRow::getAlleleSynonyms)),
+                new DownloadHeader<>("Category", (AlleleVariantSequenceDownloadRow::getVariantCategory)),
+                new DownloadHeader<>("Has Phenotype", (AlleleVariantSequenceDownloadRow::getHasPhenotype)),
+                new DownloadHeader<>("Has Disease", (AlleleVariantSequenceDownloadRow::getHasDisease)),
+                new DownloadHeader<>("Variant HGVS.g Name", (AlleleVariantSequenceDownloadRow::getHgvsgName)),
+                new DownloadHeader<>("Variant Type", (AlleleVariantSequenceDownloadRow::getVariantType)),
+                new DownloadHeader<>("Sequence Feature ", (AlleleVariantSequenceDownloadRow::getSequenceFeature)),
+                new DownloadHeader<>("Sequence Feature Type", (AlleleVariantSequenceDownloadRow::getSequenceFeatureType)),
+                new DownloadHeader<>("Sequence Feature associated Gene", (AlleleVariantSequenceDownloadRow::getSequenceFeatureAssociatedGene)),
+                new DownloadHeader<>("Sequence Feature associated Gene ID", (AlleleVariantSequenceDownloadRow::getSequenceFeatureAssociatedGeneID)),
+                new DownloadHeader<>("Molecular Consequence", (AlleleVariantSequenceDownloadRow::getMolecularConsequence)),
+                new DownloadHeader<>("Variant Location", (AlleleVariantSequenceDownloadRow::getLocation)),
+                new DownloadHeader<>("VEP Impact", (AlleleVariantSequenceDownloadRow::getVepImpact)),
+                new DownloadHeader<>("Sift Prediction", (AlleleVariantSequenceDownloadRow::getSiftPrediction)),
+                new DownloadHeader<>("Sift Score", (AlleleVariantSequenceDownloadRow::getSiftScore)),
+                new DownloadHeader<>("PolyPhen Prediction", (AlleleVariantSequenceDownloadRow::getPolyphenPrediction)),
+                new DownloadHeader<>("PolyPhen Score", (AlleleVariantSequenceDownloadRow::getPolyphenScore))
+        );
 
-
-
+        return DownloadHeader.getDownloadOutput(list, headers);
+    }
 
 
 }

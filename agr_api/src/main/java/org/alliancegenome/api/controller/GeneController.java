@@ -181,6 +181,65 @@ public class GeneController implements GeneRESTInterface {
     }
 
     @Override
+    public Response getAllelesVariantPerGeneDownload(String id,
+                                                     String symbol,
+                                                     String associatedGeneSymbol,
+                                                     String synonym,
+                                                     String hgvsgName,
+                                                     String variantType,
+                                                     String molecularConsequence,
+                                                     String impact,
+                                                     String sequenceFeatureType,
+                                                     String variantPolyphen,
+                                                     String variantSift,
+                                                     String hasDisease,
+                                                     String hasPhenotype,
+                                                     String category) {
+        Pagination pagination = new Pagination(1, Integer.MAX_VALUE, null, null);
+        pagination.addFieldFilter(FieldFilter.SYMBOL, symbol);
+        pagination.addFieldFilter(FieldFilter.SYNONYMS, synonym);
+        pagination.addFieldFilter(FieldFilter.ALLELE_CATEGORY, category);
+        pagination.addFieldFilter(FieldFilter.VARIANT_TYPE, variantType);
+        pagination.addFieldFilter(FieldFilter.HAS_DISEASE, hasDisease);
+        pagination.addFieldFilter(FieldFilter.HAS_PHENOTYPE, hasPhenotype);
+        pagination.addFieldFilter(FieldFilter.VARIANT_IMPACT, impact);
+        pagination.addFieldFilter(FieldFilter.MOLECULAR_CONSEQUENCE, molecularConsequence);
+        pagination.addFieldFilter(FieldFilter.VARIANT_POLYPHEN, variantPolyphen);
+        pagination.addFieldFilter(FieldFilter.VARIANT_SIFT, variantSift);
+        pagination.addFieldFilter(FieldFilter.SEQUENCE_FEATURE_TYPE, sequenceFeatureType);
+        pagination.addFieldFilter(FieldFilter.ASSOCIATED_GENE, associatedGeneSymbol);
+        pagination.addFieldFilter(FieldFilter.VARIANT_HGVS_G, hgvsgName);
+        if (pagination.hasErrors()) {
+            RestErrorMessage message = new RestErrorMessage();
+            message.setErrors(pagination.getErrors());
+            throw new RestErrorException(message);
+        }
+
+        JsonResultResponse<AlleleVariantSequence> alleles = getAllelesVariantPerGene(id,
+                Integer.MAX_VALUE,
+                1,
+                null,
+                null,
+                symbol,
+                associatedGeneSymbol,
+                synonym,
+                hgvsgName,
+                variantType,
+                molecularConsequence,
+                impact,
+                sequenceFeatureType,
+                variantPolyphen,
+                variantSift,
+                hasDisease,
+                hasPhenotype,
+                category);
+
+        Response.ResponseBuilder responseBuilder = Response.ok(alleleTanslator.getAllAlleleVariantDetailRows(alleles.getResults()));
+        APIServiceHelper.setDownloadHeader(id, EntityType.GENE, EntityType.ALLELE, responseBuilder);
+        return responseBuilder.build();
+    }
+
+    @Override
     public Response getAllelesPerGeneDownload(String id,
                                               String sortBy,
                                               String asc,
