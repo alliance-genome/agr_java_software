@@ -31,6 +31,9 @@ public class AlleleVariantSequenceFiltering extends AnnotationFiltering<AlleleVa
                             .map(variant -> variant.getVariantType().getName())
                             .collect(Collectors.toSet()), value);
 
+    private static final FilterFunction<AlleleVariantSequence, String> hgvsgNameFilter =
+            (allele, value) -> allele.getVariant().getHgvsNomenclature().contains(value);
+
     private static final FilterFunction<AlleleVariantSequence, String> alleleHasPhenotypeFilter =
             (allele, value) ->
                     FilterFunction.fullMatchMultiValueOR(allele.getAllele().hasPhenotype().toString(), value);
@@ -83,6 +86,7 @@ public class AlleleVariantSequenceFiltering extends AnnotationFiltering<AlleleVa
         filterFieldMap.put(FieldFilter.HAS_PHENOTYPE, alleleHasPhenotypeFilter);
         filterFieldMap.put(FieldFilter.HAS_DISEASE, alleleHasDiseaseFilter);
         filterFieldMap.put(FieldFilter.VARIANT_TYPE, variantTypeFilter);
+        filterFieldMap.put(FieldFilter.VARIANT_HGVS_G, hgvsgNameFilter);
         filterFieldMap.put(FieldFilter.MOLECULAR_CONSEQUENCE, molecularConsequenceFilter);
         filterFieldMap.put(FieldFilter.VARIANT_IMPACT, variantImpactFilter);
         filterFieldMap.put(FieldFilter.VARIANT_POLYPHEN, variantPolyphenFilter);
