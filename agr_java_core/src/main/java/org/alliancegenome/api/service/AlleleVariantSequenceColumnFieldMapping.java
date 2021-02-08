@@ -3,6 +3,7 @@ package org.alliancegenome.api.service;
 import lombok.extern.log4j.Log4j2;
 import org.alliancegenome.api.entity.AlleleVariantSequence;
 import org.alliancegenome.es.model.query.FieldFilter;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -38,13 +39,13 @@ public class AlleleVariantSequenceColumnFieldMapping extends ColumnFieldMapping<
 
         mapColumnAttribute.put(GENE_ALLELE_VARIANT_SEQUENCE_TYPE, entity -> {
             if (entity.getConsequence() != null) {
-                if (entity.getConsequence().getSequenceFeatureType() == null) {
-                    log.error("Could not find sequence feature type for ");
-                    log.error(entity.getVariant().getHgvsNomenclature());
+                if (StringUtils.isNotEmpty(entity.getConsequence().getSequenceFeatureType())) {
+                    return Set.of(entity.getConsequence().getSequenceFeatureType());
                 }
-                return Set.of(entity.getConsequence().getSequenceFeatureType());
+                log.error("Could not find sequence feature type for ");
+                log.error(entity.getVariant().getHgvsNomenclature());
             }
-            return new HashSet<>();
+            return Set.of("");
         });
         mapColumnAttribute.put(GENE_ALLELE_VARIANT_SEQUENCE_ASSOCIATED_GENE, entity -> {
             if (entity.getAllele().getGene() != null) {

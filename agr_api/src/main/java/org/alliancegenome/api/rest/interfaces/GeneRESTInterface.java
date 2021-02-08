@@ -125,6 +125,8 @@ public interface GeneRESTInterface {
             @QueryParam("filter.associatedGeneSymbol") String associatedGeneSymbol,
             @Parameter(in = ParameterIn.QUERY, name = "filter.synonym", description = "allele synonym", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.synonym") String synonym,
+            @Parameter(in = ParameterIn.QUERY, name = "filter.hgvsgName", description = "Variant types", schema = @Schema(type = SchemaType.STRING))
+            @QueryParam("filter.hgvsgName") String hgvsgName,
             @Parameter(in = ParameterIn.QUERY, name = "filter.variantType", description = "Variant types", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.variantType") String variantType,
             @Parameter(in = ParameterIn.QUERY, name = "filter.molecularConsequence", description = "molecularConsequence", schema = @Schema(type = SchemaType.STRING))

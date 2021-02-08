@@ -1,29 +1,38 @@
 package org.alliancegenome.api.controller;
 
 
-import java.util.*;
-import java.util.stream.Collectors;
+import lombok.extern.log4j.Log4j2;
+import org.alliancegenome.api.entity.AlleleVariantSequence;
+import org.alliancegenome.api.entity.DiseaseRibbonSummary;
+import org.alliancegenome.api.entity.ExpressionSummary;
+import org.alliancegenome.api.rest.interfaces.GeneRESTInterface;
+import org.alliancegenome.api.service.*;
+import org.alliancegenome.api.service.helper.APIServiceHelper;
+import org.alliancegenome.cache.repository.ExpressionCacheRepository;
+import org.alliancegenome.cache.repository.OrthologyCacheRepository;
+import org.alliancegenome.cache.repository.helper.JsonResultResponse;
+import org.alliancegenome.core.exceptions.RestErrorException;
+import org.alliancegenome.core.exceptions.RestErrorMessage;
+import org.alliancegenome.core.translators.tdf.AlleleToTdfTranslator;
+import org.alliancegenome.core.translators.tdf.DiseaseAnnotationToTdfTranslator;
+import org.alliancegenome.core.translators.tdf.InteractionToTdfTranslator;
+import org.alliancegenome.core.translators.tdf.PhenotypeAnnotationToTdfTranslator;
+import org.alliancegenome.es.model.query.FieldFilter;
+import org.alliancegenome.es.model.query.Pagination;
+import org.alliancegenome.neo4j.entity.*;
+import org.alliancegenome.neo4j.entity.node.Allele;
+import org.alliancegenome.neo4j.entity.node.Gene;
+import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
+import org.alliancegenome.neo4j.view.OrthologView;
+import org.alliancegenome.neo4j.view.OrthologyFilter;
+import org.apache.commons.collections.CollectionUtils;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.*;
-
-import org.alliancegenome.api.entity.*;
-import org.alliancegenome.api.rest.interfaces.GeneRESTInterface;
-import org.alliancegenome.api.service.*;
-import org.alliancegenome.api.service.helper.APIServiceHelper;
-import org.alliancegenome.cache.repository.*;
-import org.alliancegenome.cache.repository.helper.JsonResultResponse;
-import org.alliancegenome.core.exceptions.*;
-import org.alliancegenome.core.translators.tdf.*;
-import org.alliancegenome.es.model.query.*;
-import org.alliancegenome.neo4j.entity.*;
-import org.alliancegenome.neo4j.entity.node.*;
-import org.alliancegenome.neo4j.view.*;
-import org.apache.commons.collections.CollectionUtils;
-
-import lombok.extern.log4j.Log4j2;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Log4j2
 @RequestScoped
@@ -116,22 +125,23 @@ public class GeneController implements GeneRESTInterface {
 
     @Override
     public JsonResultResponse<AlleleVariantSequence> getAllelesVariantPerGene(String id,
-                                                        Integer limit,
-                                                        Integer page,
-                                                        String sortBy,
-                                                        String asc,
-                                                        String symbol,
-                                                        String associatedGeneSymbol,
-                                                        String synonym,
-                                                        String variantType,
-                                                        String molecularConsequence,
-                                                        String impact,
-                                                        String sequenceFeatureType,
-                                                        String variantPolyphen,
-                                                        String variantSift,
-                                                        String hasDisease,
-                                                        String hasPhenotype,
-                                                        String category) {
+                                                                              Integer limit,
+                                                                              Integer page,
+                                                                              String sortBy,
+                                                                              String asc,
+                                                                              String symbol,
+                                                                              String associatedGeneSymbol,
+                                                                              String synonym,
+                                                                              String hgvsgName,
+                                                                              String variantType,
+                                                                              String molecularConsequence,
+                                                                              String impact,
+                                                                              String sequenceFeatureType,
+                                                                              String variantPolyphen,
+                                                                              String variantSift,
+                                                                              String hasDisease,
+                                                                              String hasPhenotype,
+                                                                              String category) {
         long startTime = System.currentTimeMillis();
         Pagination pagination = new Pagination(page, limit, sortBy, asc);
         pagination.addFieldFilter(FieldFilter.SYMBOL, symbol);
@@ -146,6 +156,7 @@ public class GeneController implements GeneRESTInterface {
         pagination.addFieldFilter(FieldFilter.VARIANT_SIFT, variantSift);
         pagination.addFieldFilter(FieldFilter.SEQUENCE_FEATURE_TYPE, sequenceFeatureType);
         pagination.addFieldFilter(FieldFilter.ASSOCIATED_GENE, associatedGeneSymbol);
+        pagination.addFieldFilter(FieldFilter.VARIANT_HGVS_G, hgvsgName);
         if (pagination.hasErrors()) {
             RestErrorMessage message = new RestErrorMessage();
             message.setErrors(pagination.getErrors());
