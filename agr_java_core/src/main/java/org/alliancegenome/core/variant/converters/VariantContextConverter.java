@@ -172,14 +172,6 @@ public class VariantContextConverter {
                         feature.setReferenceSequence(ctx.getReference().toString());
                         features.add(feature);
                     }
-                } else {
-                    // This should NEVER happen so if this is printing then columns counts are wrong.
-                    System.out.println("Diff: " + header.length + " " + infos.length);
-                    System.out.println(Join.join("|", header));
-                    System.out.println(s);
-                    for(int i = 0; i < infos.length; i++) {
-                        System.out.println("Value: " + infos[i]);
-                    }
                 }
             }
         }
