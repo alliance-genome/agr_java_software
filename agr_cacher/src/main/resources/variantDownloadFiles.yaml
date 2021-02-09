@@ -179,51 +179,51 @@ downloadFileSet:
       - chromosome: 25
         url: https://download.alliancegenome.org/variants/zebrafish/ZFIN.vep.chr25.vcf.gz
 
-#  - source: MGI
-#    species: MOUSE
-#    taxonId: "NCBITaxon:10090"
-#    fileList:
-#      - chromosome: 1
-#        url: https://download.alliancegenome.org/variants/mouse/MGI.vep.chr1.vcf.gz
-#      - chromosome: 2
-#        url: https://download.alliancegenome.org/variants/mouse/MGI.vep.chr2.vcf.gz
-#      - chromosome: 3
-#        url: https://download.alliancegenome.org/variants/mouse/MGI.vep.chr3.vcf.gz
-#      - chromosome: 4
-#        url: https://download.alliancegenome.org/variants/mouse/MGI.vep.chr4.vcf.gz
-#      - chromosome: 5
-#        url: https://download.alliancegenome.org/variants/mouse/MGI.vep.chr5.vcf.gz
-#      - chromosome: 6
-#        url: https://download.alliancegenome.org/variants/mouse/MGI.vep.chr6.vcf.gz
-#      - chromosome: 7
-#        url: https://download.alliancegenome.org/variants/mouse/MGI.vep.chr7.vcf.gz
-#      - chromosome: 8
-#        url: https://download.alliancegenome.org/variants/mouse/MGI.vep.chr8.vcf.gz
-#      - chromosome: 9
-#        url: https://download.alliancegenome.org/variants/mouse/MGI.vep.chr9.vcf.gz
-#      - chromosome: 10
-#        url: https://download.alliancegenome.org/variants/mouse/MGI.vep.chr10.vcf.gz
-#      - chromosome: 11
-#        url: https://download.alliancegenome.org/variants/mouse/MGI.vep.chr11.vcf.gz
-#      - chromosome: 12
-#        url: https://download.alliancegenome.org/variants/mouse/MGI.vep.chr12.vcf.gz
-#      - chromosome: 13
-#        url: https://download.alliancegenome.org/variants/mouse/MGI.vep.chr13.vcf.gz
-#      - chromosome: 14
-#        url: https://download.alliancegenome.org/variants/mouse/MGI.vep.chr14.vcf.gz
-#      - chromosome: 15
-#        url: https://download.alliancegenome.org/variants/mouse/MGI.vep.chr15.vcf.gz
-#      - chromosome: 16
-#        url: https://download.alliancegenome.org/variants/mouse/MGI.vep.chr16.vcf.gz
-#      - chromosome: 17
-#        url: https://download.alliancegenome.org/variants/mouse/MGI.vep.chr17.vcf.gz
-#      - chromosome: 18
-#        url: https://download.alliancegenome.org/variants/mouse/MGI.vep.chr18.vcf.gz
-#      - chromosome: 19
-#        url: https://download.alliancegenome.org/variants/mouse/MGI.vep.chr19.vcf.gz
-#      - chromosome: X
-#        url: https://download.alliancegenome.org/variants/mouse/MGI.vep.chrX.vcf.gz
-#      - chromosome: Y
-#        url: https://download.alliancegenome.org/variants/mouse/MGI.vep.chrY.vcf.gz
-#      - chromosome: MT
-#        url: https://download.alliancegenome.org/variants/mouse/MGI.vep.chrMT.vcf.gz
+  - source: MGI
+    species: MOUSE
+    taxonId: "NCBITaxon:10090"
+    fileList:
+      - chromosome: 1
+        url: https://download.alliancegenome.org/variants/mouse/MGI.vep.chr1.vcf.gz
+      - chromosome: 2
+        url: https://download.alliancegenome.org/variants/mouse/MGI.vep.chr2.vcf.gz
+      - chromosome: 3
+        url: https://download.alliancegenome.org/variants/mouse/MGI.vep.chr3.vcf.gz
+      - chromosome: 4
+        url: https://download.alliancegenome.org/variants/mouse/MGI.vep.chr4.vcf.gz
+      - chromosome: 5
+        url: https://download.alliancegenome.org/variants/mouse/MGI.vep.chr5.vcf.gz
+      - chromosome: 6
+        url: https://download.alliancegenome.org/variants/mouse/MGI.vep.chr6.vcf.gz
+      - chromosome: 7
+        url: https://download.alliancegenome.org/variants/mouse/MGI.vep.chr7.vcf.gz
+      - chromosome: 8
+        url: https://download.alliancegenome.org/variants/mouse/MGI.vep.chr8.vcf.gz
+      - chromosome: 9
+        url: https://download.alliancegenome.org/variants/mouse/MGI.vep.chr9.vcf.gz
+      - chromosome: 10
+        url: https://download.alliancegenome.org/variants/mouse/MGI.vep.chr10.vcf.gz
+      - chromosome: 11
+        url: https://download.alliancegenome.org/variants/mouse/MGI.vep.chr11.vcf.gz
+      - chromosome: 12
+        url: https://download.alliancegenome.org/variants/mouse/MGI.vep.chr12.vcf.gz
+      - chromosome: 13
+        url: https://download.alliancegenome.org/variants/mouse/MGI.vep.chr13.vcf.gz
+      - chromosome: 14
+        url: https://download.alliancegenome.org/variants/mouse/MGI.vep.chr14.vcf.gz
+      - chromosome: 15
+        url: https://download.alliancegenome.org/variants/mouse/MGI.vep.chr15.vcf.gz
+      - chromosome: 16
+        url: https://download.alliancegenome.org/variants/mouse/MGI.vep.chr16.vcf.gz
+      - chromosome: 17
+        url: https://download.alliancegenome.org/variants/mouse/MGI.vep.chr17.vcf.gz
+      - chromosome: 18
+        url: https://download.alliancegenome.org/variants/mouse/MGI.vep.chr18.vcf.gz
+      - chromosome: 19
+        url: https://download.alliancegenome.org/variants/mouse/MGI.vep.chr19.vcf.gz
+      - chromosome: X
+        url: https://download.alliancegenome.org/variants/mouse/MGI.vep.chrX.vcf.gz
+      - chromosome: Y
+        url: https://download.alliancegenome.org/variants/mouse/MGI.vep.chrY.vcf.gz
+      - chromosome: MT
+        url: https://download.alliancegenome.org/variants/mouse/MGI.vep.chrMT.vcf.gz
