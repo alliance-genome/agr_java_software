@@ -45,11 +45,11 @@ public class AlleleCacher extends Cacher {
     @Override
     protected void cache() {
         readAllFileMetaData();
-//        cacheSpecies(SpeciesType.MOUSE.getTaxonID());
+        cacheSpecies(SpeciesType.MOUSE.getTaxonID());
         cacheSpecies(SpeciesType.YEAST.getTaxonID());
         cacheSpecies(SpeciesType.RAT.getTaxonID());
         cacheSpecies(SpeciesType.ZEBRAFISH.getTaxonID());
-        cacheSpeciesChromosome(SpeciesType.MOUSE.getTaxonID(), null);
+//        cacheSpeciesChromosome(SpeciesType.MOUSE.getTaxonID(), null);
         cacheSpecies(SpeciesType.WORM.getTaxonID());
         cacheSpecies(SpeciesType.FLY.getTaxonID());
 //        cacheSpecies(SpeciesType.HUMAN.getTaxonID());
