@@ -380,6 +380,11 @@ public class ConfigHelper {
             log.info("\t" + key + ": " + config.get(key));
         }
     }
+    
+    public static String getStringParam(String configParam) {
+        if (!init) init();
+        return config.get(configParam);
+    }
 
     public static boolean isProduction() {
         return getNeo4jHost().contains("production");

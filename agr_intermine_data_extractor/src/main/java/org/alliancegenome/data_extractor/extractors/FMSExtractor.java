@@ -1,21 +1,13 @@
 package org.alliancegenome.data_extractor.extractors;
 
-import java.io.File;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.URL;
-import java.util.List;
-import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.RejectedExecutionHandler;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 import org.alliancegenome.core.config.ConfigHelper;
-import org.alliancegenome.data_extractor.extractors.fms.DataFile;
-import org.alliancegenome.data_extractor.extractors.fms.SnapShotResponce;
-import org.alliancegenome.data_extractor.extractors.fms.interfaces.DataFileRESTInterface;
+import org.alliancegenome.data_extractor.extractors.fms.*;
 import org.alliancegenome.data_extractor.extractors.fms.interfaces.SnapShotRESTInterface;
 import org.apache.commons.io.FileUtils;
-
 
 import lombok.extern.log4j.Log4j2;
 import si.mazi.rescu.RestProxyFactory;

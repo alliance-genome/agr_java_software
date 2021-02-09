@@ -1,13 +1,9 @@
 package org.alliancegenome.data_extractor.extractors;
 
 import java.io.PrintWriter;
-import java.util.List;
-import java.util.Map;
 
 import org.alliancegenome.data_extractor.translators.GeneTSVTranslator;
-import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.repository.DataExtractorRepository;
-import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.neo4j.ogm.model.Result;
 
 public class GeneExtractor extends DataExtractor {

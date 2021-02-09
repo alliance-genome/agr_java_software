@@ -1,19 +1,13 @@
 package org.alliancegenome.data_extractor.extractors;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.nio.file.Path;
+import java.io.*;
 import java.util.Date;
 import java.util.zip.GZIPInputStream;
 
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import lombok.extern.log4j.Log4j2;
 
 @Log4j2

@@ -30,7 +30,7 @@ public class TestSplitFileByChromosome {
                     if(writer != null) writer.close();
                     chr = vc.getChr();
                     VariantContextWriterBuilder builder = new VariantContextWriterBuilder();
-                    builder.setOutputFile("/Volumes/Cardano_Backup/Variants/RGD.vep.chr" + chr + ".vcf.gz");
+                    builder.setOutputFile("data/RGD.vep.chr" + chr + ".vcf.gz");
                     writer = builder.build();
                     writer.writeHeader(reader.getFileHeader());
                 }
