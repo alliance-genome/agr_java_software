@@ -31,6 +31,8 @@ public class AlleleVariantSequence {
         this.allele = allele;
         this.variant = variant;
         this.consequence = consequence;
+        if (consequence != null && allele.getGene() != null)
+            consequence.setAssociatedGene(allele.getGene());
     }
 
     @Override

@@ -137,6 +137,7 @@ public class GeneController implements GeneRESTInterface {
                                                                               String molecularConsequence,
                                                                               String impact,
                                                                               String sequenceFeatureType,
+                                                                              String sequenceFeature,
                                                                               String variantPolyphen,
                                                                               String variantSift,
                                                                               String hasDisease,
@@ -155,6 +156,7 @@ public class GeneController implements GeneRESTInterface {
         pagination.addFieldFilter(FieldFilter.VARIANT_POLYPHEN, variantPolyphen);
         pagination.addFieldFilter(FieldFilter.VARIANT_SIFT, variantSift);
         pagination.addFieldFilter(FieldFilter.SEQUENCE_FEATURE_TYPE, sequenceFeatureType);
+        pagination.addFieldFilter(FieldFilter.SEQUENCE_FEATURE, sequenceFeature);
         pagination.addFieldFilter(FieldFilter.ASSOCIATED_GENE, associatedGeneSymbol);
         pagination.addFieldFilter(FieldFilter.VARIANT_HGVS_G, hgvsgName);
         if (pagination.hasErrors()) {
@@ -190,31 +192,12 @@ public class GeneController implements GeneRESTInterface {
                                                      String molecularConsequence,
                                                      String impact,
                                                      String sequenceFeatureType,
+                                                     String sequenceFeature,
                                                      String variantPolyphen,
                                                      String variantSift,
                                                      String hasDisease,
                                                      String hasPhenotype,
                                                      String category) {
-        Pagination pagination = new Pagination(1, Integer.MAX_VALUE, null, null);
-        pagination.addFieldFilter(FieldFilter.SYMBOL, symbol);
-        pagination.addFieldFilter(FieldFilter.SYNONYMS, synonym);
-        pagination.addFieldFilter(FieldFilter.ALLELE_CATEGORY, category);
-        pagination.addFieldFilter(FieldFilter.VARIANT_TYPE, variantType);
-        pagination.addFieldFilter(FieldFilter.HAS_DISEASE, hasDisease);
-        pagination.addFieldFilter(FieldFilter.HAS_PHENOTYPE, hasPhenotype);
-        pagination.addFieldFilter(FieldFilter.VARIANT_IMPACT, impact);
-        pagination.addFieldFilter(FieldFilter.MOLECULAR_CONSEQUENCE, molecularConsequence);
-        pagination.addFieldFilter(FieldFilter.VARIANT_POLYPHEN, variantPolyphen);
-        pagination.addFieldFilter(FieldFilter.VARIANT_SIFT, variantSift);
-        pagination.addFieldFilter(FieldFilter.SEQUENCE_FEATURE_TYPE, sequenceFeatureType);
-        pagination.addFieldFilter(FieldFilter.ASSOCIATED_GENE, associatedGeneSymbol);
-        pagination.addFieldFilter(FieldFilter.VARIANT_HGVS_G, hgvsgName);
-        if (pagination.hasErrors()) {
-            RestErrorMessage message = new RestErrorMessage();
-            message.setErrors(pagination.getErrors());
-            throw new RestErrorException(message);
-        }
-
         JsonResultResponse<AlleleVariantSequence> alleles = getAllelesVariantPerGene(id,
                 Integer.MAX_VALUE,
                 1,
@@ -228,6 +211,7 @@ public class GeneController implements GeneRESTInterface {
                 molecularConsequence,
                 impact,
                 sequenceFeatureType,
+                sequenceFeature,
                 variantPolyphen,
                 variantSift,
                 hasDisease,

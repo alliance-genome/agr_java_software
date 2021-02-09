@@ -146,20 +146,18 @@ public class TranscriptLevelConsequence extends Neo4jEntity implements Comparabl
         return transcriptLocation;
     }
 
-    private String transcriptType;
-
-    public void setTranscriptType(String name) {
-        transcriptType = name;
+    public void setSequenceFeatureType(String name) {
+        sequenceFeatureType = name;
     }
 
     @JsonView({View.GeneAlleleVariantSequenceAPI.class})
-    public String getTranscriptType() {
-        if (StringUtils.isNotEmpty(transcriptType))
-            return transcriptType;
+    public String getSequenceFeatureType() {
+        if (StringUtils.isNotEmpty(sequenceFeatureType))
+            return sequenceFeatureType;
         if (transcript == null)
             return "";
-        transcriptType = transcript.getType().getName();
-        return transcriptType;
+        sequenceFeatureType = transcript.getType().getName();
+        return sequenceFeatureType;
     }
 
     @JsonView({View.GeneAlleleVariantSequenceAPI.class})

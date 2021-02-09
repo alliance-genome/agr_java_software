@@ -11,7 +11,7 @@ public class AlleleVariantSequenceFiltering extends AnnotationFiltering<AlleleVa
 
 
     private static final FilterFunction<AlleleVariantSequence, String> alleleFilter =
-            (allele, value) -> FilterFunction.contains(allele.getAllele().getSymbolText(), value);
+            (allele, value) -> FilterFunction.contains(allele.getAllele().getSymbol(), value);
 
     private static final FilterFunction<AlleleVariantSequence, String> alleleCategoryFilter =
             (allele, value) -> FilterFunction.fullMatchMultiValueOR(allele.getAllele().getCategory(), value);
@@ -64,6 +64,13 @@ public class AlleleVariantSequenceFiltering extends AnnotationFiltering<AlleleVa
                 return false;
             };
 
+    private static final FilterFunction<AlleleVariantSequence, String> sequenceFeatureFilter =
+            (allele, value) -> {
+                if (allele.getConsequence() != null)
+                    return FilterFunction.contains(allele.getConsequence().getTranscriptName(), value);
+                return false;
+            };
+
     private static final FilterFunction<AlleleVariantSequence, String> variantPolyphenFilter =
             (allele, value) -> {
                 if (allele.getConsequence() != null)
@@ -92,6 +99,7 @@ public class AlleleVariantSequenceFiltering extends AnnotationFiltering<AlleleVa
         filterFieldMap.put(FieldFilter.VARIANT_POLYPHEN, variantPolyphenFilter);
         filterFieldMap.put(FieldFilter.VARIANT_SIFT, variantSiftFilter);
         filterFieldMap.put(FieldFilter.SEQUENCE_FEATURE_TYPE, sequenceFeatureTypeFilter);
+        filterFieldMap.put(FieldFilter.SEQUENCE_FEATURE, sequenceFeatureFilter);
     }
 
 }

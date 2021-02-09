@@ -45,7 +45,7 @@ public class AlleleCacher extends Cacher {
     @Override
     protected void cache() {
         readAllFileMetaData();
-        cacheSpecies(SpeciesType.MOUSE.getTaxonID());
+        //cacheSpecies(SpeciesType.MOUSE.getTaxonID());
         cacheSpecies(SpeciesType.YEAST.getTaxonID());
         cacheSpecies(SpeciesType.RAT.getTaxonID());
         cacheSpecies(SpeciesType.ZEBRAFISH.getTaxonID());
@@ -88,10 +88,6 @@ public class AlleleCacher extends Cacher {
         });
         // add HTP variants to non-existing genes in map
         variantMap.forEach(map::putIfAbsent);
-
-        allAlleles.forEach(allele -> allele.setPhenotypes(allele.getPhenotypes().stream()
-                .sorted(Comparator.comparing(phenotype -> phenotype.getPhenotypeStatement().toLowerCase()))
-                .collect(Collectors.toList())));
         finishProcess();
 
         populateCacheFromMap(map, View.GeneAllelesAPI.class, CacheAlliance.ALLELE_GENE);

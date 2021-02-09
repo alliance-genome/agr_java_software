@@ -1,14 +1,19 @@
 package org.alliancegenome.core.variant.converters;
 
-import java.util.*;
-import java.util.stream.Collectors;
-
-import org.alliancegenome.es.variant.model.*;
-import org.alliancegenome.neo4j.entity.SpeciesType;
-
-import htsjdk.variant.variantcontext.*;
+import htsjdk.variant.variantcontext.Allele;
+import htsjdk.variant.variantcontext.CommonInfo;
+import htsjdk.variant.variantcontext.Genotype;
+import htsjdk.variant.variantcontext.VariantContext;
 import io.github.lukehutch.fastclasspathscanner.utils.Join;
 import lombok.extern.log4j.Log4j2;
+import org.alliancegenome.es.variant.model.ClinicalSig;
+import org.alliancegenome.es.variant.model.Evidence;
+import org.alliancegenome.es.variant.model.TranscriptFeature;
+import org.alliancegenome.es.variant.model.VariantDocument;
+import org.alliancegenome.neo4j.entity.SpeciesType;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Log4j2
 public class VariantContextConverter {
@@ -31,17 +36,17 @@ public class VariantContextConverter {
                 //     System.out.println(" *** Var Nucleotides must be A,C,G,T,N");
                 continue;
             }
-            
+
             VariantDocument variantDocument = new VariantDocument();
             variantDocument.setCategory("allele");
             variantDocument.setAlterationType("variant");
 
             String variantType = ctx.getType().name();
-            
+
             if ("INDEL".equals(variantType)) {
                 variantType = "delins";
             }
-            
+
             Set<String> variantTypes = new HashSet<>();
             variantTypes.add(variantType);
             variantDocument.setVariantType(variantTypes);
@@ -71,17 +76,17 @@ public class VariantContextConverter {
             variantDocument.setEndPos(endPos);
             variantDocument.setDocumentVariantType(ctx.getCommonInfo().getAttributeAsString("TSA", ""));
             try {
-                variantDocument.setConsequences(getConsequences(ctx, a.getBaseString(), header));   
+                variantDocument.setConsequences(getConsequences(ctx, a.getBaseString(), header));
             } catch (Exception e) {
                 e.printStackTrace();
             }
 
             variantDocument.setGenes(
                     variantDocument.getConsequences()
-                    .stream()
-                    .map(x -> x.getSymbol() + " (" + speciesType.getAbbreviation() + ")")
-                    .collect(Collectors.toSet())
-                    );
+                            .stream()
+                            .map(x -> x.getSymbol() + " (" + speciesType.getAbbreviation() + ")")
+                            .collect(Collectors.toSet())
+            );
 
             variantDocument.setEvidence(mapEvidence(ctx));
             variantDocument.setClinicalSignificance(mapClinicalSignificance(ctx));
@@ -116,7 +121,7 @@ public class VariantContextConverter {
 
             variantDocument.setMolecularConsequence(
                     variantDocument.getConsequences().stream()
-                    .map(TranscriptFeature::getConsequence)
+                            .map(TranscriptFeature::getConsequence)
                             .collect(Collectors.toSet())
             );
 
@@ -136,22 +141,23 @@ public class VariantContextConverter {
 
     }
 
-    public List<String> mapEvidence(VariantContext ctx){
+    public List<String> mapEvidence(VariantContext ctx) {
         CommonInfo info = ctx.getCommonInfo();
         List<String> evidences = new ArrayList<>();
-        for(String key: info.getAttributes().keySet()) {
-            if(Evidence.emap.containsKey(key)) {
+        for (String key : info.getAttributes().keySet()) {
+            if (Evidence.emap.containsKey(key)) {
                 evidences.add(Evidence.emap.get(key));
             }
         }
         return evidences;
     }
-    public List<String> mapClinicalSignificance(VariantContext ctx){
+
+    public List<String> mapClinicalSignificance(VariantContext ctx) {
         CommonInfo info = ctx.getCommonInfo();
         List<String> significance = new ArrayList<>();
-        for(String key: info.getAttributes().keySet()) {
-            
-            if(ClinicalSig.csmap.containsKey(key)) {
+        for (String key : info.getAttributes().keySet()) {
+
+            if (ClinicalSig.csmap.containsKey(key)) {
                 significance.add(ClinicalSig.csmap.get(key));
             }
         }
@@ -162,16 +168,21 @@ public class VariantContextConverter {
     public List<TranscriptFeature> getConsequences(VariantContext ctx, String varNuc, String[] header) throws Exception {
         List<TranscriptFeature> features = new ArrayList<>();
 
-        for(String s: ctx.getAttributeAsStringList("CSQ", "")) {
-            if(s.length() > 0) {
+        for (String s : ctx.getAttributeAsStringList("CSQ", "")) {
+            if (s.length() > 0) {
                 String[] infos = s.split("\\|", -1);
 
-                if(header.length == infos.length) {
-                    if(infos[0].equalsIgnoreCase(varNuc)) {
+                if (header.length == infos.length) {
+                    if (infos[0].equalsIgnoreCase(varNuc)) {
                         TranscriptFeature feature = new TranscriptFeature(header, infos);
                         feature.setReferenceSequence(ctx.getReference().toString());
                         features.add(feature);
                     }
+                } else {
+                    String message = "Diff: " + header.length + " " + infos.length;
+                    message += "\r" + Join.join("|", header);
+                    message += "\r" +String.join("|", Arrays.asList(infos));
+                    throw new RuntimeException("CSQ header is not matching the line " + message);
                 }
             }
         }
@@ -179,10 +190,10 @@ public class VariantContextConverter {
     }
 
 
-    public  boolean alleleIsValid(String allele) {
-        for( int i=0; i<allele.length(); i++ ) {
+    public boolean alleleIsValid(String allele) {
+        for (int i = 0; i < allele.length(); i++) {
             char c = allele.charAt(i);
-            if( c=='A' || c=='C' || c=='G' || c=='T' || c=='N' || c=='-' )
+            if (c == 'A' || c == 'C' || c == 'G' || c == 'T' || c == 'N' || c == '-')
                 continue;
             return false;
         }

@@ -28,7 +28,6 @@ public class AlleleVariantSequenceColumnFieldMapping extends ColumnFieldMapping<
         mapColumnFieldName.put(GENE_ALLELE_VARIANT_SEQUENCE_CONSEQUENCE, FieldFilter.MOLECULAR_CONSEQUENCE);
         mapColumnFieldName.put(GENE_ALLELE_VARIANT_SEQUENCE_CATEGORY, FieldFilter.ALLELE_CATEGORY);
         mapColumnFieldName.put(GENE_ALLELE_VARIANT_SEQUENCE_IMPACT, FieldFilter.VARIANT_IMPACT);
-        mapColumnFieldName.put(GENE_ALLELE_VARIANT_SEQUENCE_CONSEQUENCE_TYPE, FieldFilter.CONSEQUENCE_TYPE);
         mapColumnFieldName.put(GENE_ALLELE_VARIANT_SEQUENCE_VARIANT_POLYPHEN, FieldFilter.VARIANT_POLYPHEN);
         mapColumnFieldName.put(GENE_ALLELE_VARIANT_SEQUENCE_VARIANT_SIFT, FieldFilter.VARIANT_SIFT);
         mapColumnFieldName.put(GENE_ALLELE_VARIANT_SEQUENCE_HAS_PHENOTYPE, FieldFilter.HAS_PHENOTYPE);
@@ -73,14 +72,6 @@ public class AlleleVariantSequenceColumnFieldMapping extends ColumnFieldMapping<
             return new HashSet<>();
         });
 
-        mapColumnAttribute.put(GENE_ALLELE_VARIANT_SEQUENCE_CONSEQUENCE_TYPE, entity -> {
-            if (entity.getVariant() != null) {
-                if (entity.getConsequence() != null)
-                    return Set.of(entity.getConsequence().getTranscriptType());
-            }
-            return new HashSet<>();
-        });
-
         mapColumnAttribute.put(GENE_ALLELE_VARIANT_SEQUENCE_VARIANT_POLYPHEN, entity -> {
             if (entity.getVariant() != null) {
                 if (entity.getConsequence() != null && entity.getConsequence().getPolyphenPrediction() != null)
@@ -106,7 +97,6 @@ public class AlleleVariantSequenceColumnFieldMapping extends ColumnFieldMapping<
         singleValueDistinctFieldColumns.add(GENE_ALLELE_VARIANT_SEQUENCE_CONSEQUENCE);
         singleValueDistinctFieldColumns.add(GENE_ALLELE_VARIANT_SEQUENCE_CATEGORY);
         singleValueDistinctFieldColumns.add(GENE_ALLELE_VARIANT_SEQUENCE_IMPACT);
-        singleValueDistinctFieldColumns.add(GENE_ALLELE_VARIANT_SEQUENCE_CONSEQUENCE_TYPE);
         singleValueDistinctFieldColumns.add(GENE_ALLELE_VARIANT_SEQUENCE_VARIANT_POLYPHEN);
         singleValueDistinctFieldColumns.add(GENE_ALLELE_VARIANT_SEQUENCE_VARIANT_SIFT);
         singleValueDistinctFieldColumns.add(GENE_ALLELE_VARIANT_SEQUENCE_HAS_DISEASE);
