@@ -8,7 +8,7 @@ public enum IndexerConfig {
     GeneIndexer("gene", GeneIndexer.class, 1, 240),
     DatasetIndexer("dataset", DatasetIndexer.class, 2, 3000),
     DiseaseIndexer("disease", DiseaseIndexer.class, 2, 150),
-    AlleleIndexer("allele", AlleleIndexer.class, 2, 743),
+    AlleleIndexer("allele", AlleleIndexer.class, 2, 500),
     GoIndexer("go", GoIndexer.class, 2, 2300),
     ModelIndexer("model", ModelIndexer.class, 2, 750), //just guessing at batching number
     VariantIndexer("variant", VariantIndexer.class, 2, 3000);
