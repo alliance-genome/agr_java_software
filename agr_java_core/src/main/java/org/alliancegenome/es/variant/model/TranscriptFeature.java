@@ -41,9 +41,9 @@ public class TranscriptFeature {
     private String givenRef;
     private String usedRef;
     private String bamEdit;
-    private String sift;
+    private String siftPrediction;
     private String siftScore;
-    private String polyphen;
+    private String polyphenPrediction;
     private String polyphenScore;
     private String hgvsOffset;
     private String genomicStart;
@@ -96,17 +96,18 @@ public class TranscriptFeature {
             givenRef = infos[26];
             usedRef = infos[27];
             bamEdit = infos[28];
-            sift = infos[29];
+            siftPrediction = infos[29];
 
-            polyphen = infos[30];
+            polyphenPrediction = infos[30];
             hgvsOffset = infos[31];
             hgvsg = infos[32];
 
-        } else if (header.length == 34) {
+        } else if (header.length == 36) {
             // Mod VEP
-            // Allele|Consequence|IMPACT|SYMBOL|Gene|Feature_type|Feature|BIOTYPE|EXON|INTRON|
-            // HGVSc|HGVSp|cDNA_position|CDS_position|Protein_position|Amino_acids|Codons|Existing_variation|DISTANCE|STRAND|
-            // FLAGS|SYMBOL_SOURCE|HGNC_ID|SOURCE|HGVS_OFFSET|HGVSg|PolyPhen|SIFT|FB.gff.gz
+            //  Allele|Consequence|IMPACT|SYMBOL|Gene|Feature_type|Feature|BIOTYPE|EXON|INTRON
+            // |HGVSc|HGVSp|cDNA_position|CDS_position|Protein_position|Amino_acids|Codons|Existing_variation|DISTANCE|STRAND|
+            //  FLAGS|SYMBOL_SOURCE|HGNC_ID|GIVEN_REF|USED_REF|BAM_EDIT|SOURCE|HGVS_OFFSET|HGVSg|
+            //  PolyPhen_prediction|PolyPhen_score|SIFT_prediction|SIFT_score|Genomic_end_position|Genomic_start_position            // Allele|Consequence|IMPACT|SYMBOL|Gene|Feature_type|Feature|BIOTYPE|EXON|INTRON|
 
             allele = infos[0];
             consequence = infos[1];
@@ -140,29 +141,12 @@ public class TranscriptFeature {
             source = infos[26];
             hgvsOffset = infos[27];
             hgvsg = infos[28];
-            polyphen = infos[29];
-            sift = infos[30];
-            genomicStart = infos[31];
-            genomicEnd = infos[32];
-        }
-
-        // Match polyphen
-        // polyphen = polyphenPrediction(polyphenScore)
-        if(polyphen != null) {
-            Matcher m = regex.matcher(polyphen);
-            if (m.find()) {
-                polyphen = m.group(1);
-                polyphenScore = m.group(3);
-            }
-        }
-        // Match sift
-        // sift = siftPrediction(siftScore)
-        if(sift != null) {
-            Matcher m = regex.matcher(sift);
-            if (m.find()) {
-                sift = m.group(1);
-                siftScore = m.group(3);
-            }
+            polyphenPrediction = infos[29];
+            polyphenScore = infos[30];
+            siftPrediction = infos[31];
+            siftScore = infos[32];
+            genomicEnd = infos[33];
+            genomicStart = infos[34];
         }
     }
 }

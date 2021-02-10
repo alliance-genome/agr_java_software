@@ -231,9 +231,9 @@ public class HtpVariantCreation extends Thread {
                             consequence.setSequenceFeatureType(transcriptFeature.getBiotype());
                             consequence.setTranscriptName(transcriptFeature.getFeature());
                             consequence.setTranscriptLevelConsequence(transcriptFeature.getConsequence());
-                            consequence.setPolyphenPrediction(transcriptFeature.getPolyphen());
+                            consequence.setPolyphenPrediction(transcriptFeature.getPolyphenPrediction());
                             consequence.setPolyphenScore(transcriptFeature.getPolyphenScore());
-                            consequence.setSiftPrediction(transcriptFeature.getSift());
+                            consequence.setSiftPrediction(transcriptFeature.getSiftPrediction());
                             consequence.setSiftScore(transcriptFeature.getSiftScore());
                             consequence.setTranscriptLocation(transcriptFeature.getExon());
                             consequence.setAssociatedGene(gene);
