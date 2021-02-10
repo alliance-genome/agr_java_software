@@ -42,6 +42,7 @@ public enum FieldFilter {
     MODEL_NAME("modelName"),
     MOLECULAR_CONSEQUENCE("filter.molecularConsequence"),
     SEQUENCE_FEATURE_TYPE("filter.sequenceFeatureType"),
+    SEQUENCE_FEATURE("filter.sequenceFeature"),
     ASSOCIATED_GENE("filter.associatedGeneSymbol"),
     VARIANT_HGVS_G("filter.hgvsgName"),
     ALLELE_CATEGORY("filter.alleleCategory"),

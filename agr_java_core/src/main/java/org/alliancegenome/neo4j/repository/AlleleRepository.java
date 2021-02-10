@@ -128,13 +128,13 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
 
         String query = "";
         query += " MATCH (a:Allele)<-[:IS_IMPLICATED_IN]-(doTerm:DOTerm) ";
-        query += " RETURN a ";
-        Iterable<Allele> alleles = query(query, new HashMap<>());
-
-        StreamSupport.stream(alleles.spliterator(), false)
-                .forEach(allele -> {
-                    alleleDiseaseSet.add(allele.getPrimaryKey());
+        query += " RETURN distinct(a.primaryKey) as ID ";
+        Result result = queryForResult(query);
+        StreamSupport.stream(result.spliterator(), false)
+                .forEach(idMap -> {
+                    alleleDiseaseSet.add((String) idMap.get("ID"));
                 });
+        log.info("Number of alleles with disease annotations: " + String.format("%,d", alleleDiseaseSet.size()));
         return alleleDiseaseSet.contains(alleleID);
     }
 
@@ -144,13 +144,13 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
 
         String query = "";
         query += " MATCH (a:Allele)-[:HAS_PHENOTYPE]->(ph:Phenotype) ";
-        query += " RETURN a ";
-        Iterable<Allele> alleles = query(query, new HashMap<>());
-
-        StreamSupport.stream(alleles.spliterator(), false)
-                .forEach(allele -> {
-                    allelePhenoSet.add(allele.getPrimaryKey());
+        query += " RETURN distinct(a.primaryKey) as ID";
+        Result result = queryForResult(query);
+        StreamSupport.stream(result.spliterator(), false)
+                .forEach(idMap -> {
+                    allelePhenoSet.add((String) idMap.get("ID"));
                 });
+        log.info("Number of alleles with phenotype annotations: " + String.format("%,d", allelePhenoSet.size()));
         return allelePhenoSet.contains(alleleID);
     }
 
@@ -272,13 +272,13 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
     }
 
     public void fixupAllelesWithVariants(Set<Allele> allAlleles, Set<Allele> allelesWithVariants) {
-        if (!debug)
-            allelesWithVariants.forEach(allele -> {
-                allele.getVariants().stream()
-                        .filter(Objects::nonNull)
-                        .filter(variant -> variant.getTranscriptList() != null)
-                        .forEach(variant ->
-                                variant.getTranscriptList().forEach(transcript -> {
+        allelesWithVariants.forEach(allele -> {
+            allele.getVariants().stream()
+                    .filter(Objects::nonNull)
+                    .filter(variant -> variant.getTranscriptList() != null)
+                    .forEach(variant ->
+                            variant.getTranscriptList().forEach(transcript -> {
+                                if (!debug) {
                                     final Transcript transcript1 = getTranscriptWithExonInfo().get(transcript.getPrimaryKey());
                                     if (transcript1 != null) {
                                         if (transcript1.getGenomeLocation() != null)
@@ -286,10 +286,11 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
                                         if (transcript1.getExons() != null)
                                             transcript.setExons(transcript1.getExons());
                                     }
-                                }));
-                allele.setDisease(hasAlleleDiseaseInfo(allele.getPrimaryKey()));
-                allele.setPhenotype(hasAllelePhenoInfo(allele.getPrimaryKey()));
-            });
+                                }
+                            }));
+            allele.setDisease(hasAlleleDiseaseInfo(allele.getPrimaryKey()));
+            allele.setPhenotype(hasAllelePhenoInfo(allele.getPrimaryKey()));
+        });
         allAlleles.addAll(allelesWithVariants);
         allAlleles.forEach(Allele::populateCategory);
     }

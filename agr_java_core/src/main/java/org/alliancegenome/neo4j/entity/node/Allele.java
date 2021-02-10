@@ -95,7 +95,7 @@ public class Allele extends GeneticEntity implements Comparable<Allele>, Present
         this.phenotype = hasPhenotype;
     }
 
-    @JsonView({View.API.class, View.GeneAlleleVariantSequenceAPI.class})
+    @JsonView({View.API.class, View.GeneAllelesAPI.class, View.GeneAlleleVariantSequenceAPI.class})
     public Boolean hasDisease() {
         return CollectionUtils.isNotEmpty(diseaseEntityJoins) || CollectionUtils.isNotEmpty(diseases);
     }

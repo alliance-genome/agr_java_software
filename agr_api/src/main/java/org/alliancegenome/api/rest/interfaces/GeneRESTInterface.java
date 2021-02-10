@@ -134,6 +134,8 @@ public interface GeneRESTInterface {
             @QueryParam("filter.variantImpact") String impact,
             @Parameter(in = ParameterIn.QUERY, name = "filter.sequenceFeatureType", description = "Consequence Type", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.sequenceFeatureType") String sequenceFeatureType,
+            @Parameter(in = ParameterIn.QUERY, name = "filter.sequenceFeature", description = "Consequence Type", schema = @Schema(type = SchemaType.STRING))
+            @QueryParam("filter.sequenceFeature") String sequenceFeature,
             @Parameter(in = ParameterIn.QUERY, name = "filter.variantPolyphen", description = "Consequence Type", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.variantPolyphen") String variantPolyphen,
             @Parameter(in = ParameterIn.QUERY, name = "filter.variantSift", description = "Consequence Type", schema = @Schema(type = SchemaType.STRING))
@@ -169,6 +171,8 @@ public interface GeneRESTInterface {
             @QueryParam("filter.variantImpact") String impact,
             @Parameter(in = ParameterIn.QUERY, name = "filter.sequenceFeatureType", description = "Consequence Type", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.sequenceFeatureType") String sequenceFeatureType,
+            @Parameter(in = ParameterIn.QUERY, name = "filter.sequenceFeature", description = "Consequence Type", schema = @Schema(type = SchemaType.STRING))
+            @QueryParam("filter.sequenceFeature") String sequenceFeature,
             @Parameter(in = ParameterIn.QUERY, name = "filter.variantPolyphen", description = "Consequence Type", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.variantPolyphen") String variantPolyphen,
             @Parameter(in = ParameterIn.QUERY, name = "filter.variantSift", description = "Consequence Type", schema = @Schema(type = SchemaType.STRING))

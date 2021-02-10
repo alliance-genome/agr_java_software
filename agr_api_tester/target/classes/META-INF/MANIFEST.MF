@@ -1,0 +1,125 @@
+Manifest-Version: 1.0
+Built-By: olinblodgett
+Build-Jdk: 14.0.1
+Class-Path: agr_java_core-3.2.0.jar infinispan-core-10.1.3.Final.jar p
+ rotostream-4.3.2.Final.jar jgroups-4.1.9.Final.jar caffeine-2.8.0.jar
+  jboss-transaction-api_1.2_spec-1.1.1.Final.jar jboss-logging-3.4.1.F
+ inal.jar rxjava-2.2.12.jar reactive-streams-1.0.2.jar infinispan-clie
+ nt-hotrod-10.1.3.Final.jar wildfly-elytron-sasl-plain-1.10.3.Final.ja
+ r wildfly-elytron-auth-server-1.10.3.Final.jar wildfly-elytron-auth-1
+ .10.3.Final.jar wildfly-elytron-base-1.10.3.Final.jar wildfly-elytron
+ -permission-1.10.3.Final.jar wildfly-elytron-x500-1.10.3.Final.jar wi
+ ldfly-elytron-credential-1.10.3.Final.jar wildfly-elytron-asn1-1.10.3
+ .Final.jar wildfly-elytron-keystore-1.10.3.Final.jar wildfly-elytron-
+ provider-util-1.10.3.Final.jar wildfly-elytron-sasl-1.10.3.Final.jar 
+ wildfly-elytron-ssl-1.10.3.Final.jar wildfly-elytron-mechanism-1.10.3
+ .Final.jar wildfly-elytron-http-1.10.3.Final.jar wildfly-common-1.5.1
+ .Final.jar wildfly-elytron-sasl-digest-1.10.3.Final.jar wildfly-elytr
+ on-mechanism-digest-1.10.3.Final.jar wildfly-elytron-util-1.10.3.Fina
+ l.jar wildfly-elytron-sasl-external-1.10.3.Final.jar wildfly-elytron-
+ sasl-oauth2-1.10.3.Final.jar wildfly-elytron-mechanism-oauth2-1.10.3.
+ Final.jar wildfly-elytron-sasl-scram-1.10.3.Final.jar wildfly-elytron
+ -mechanism-scram-1.10.3.Final.jar netty-handler-4.1.45.Final.jar nett
+ y-common-4.1.45.Final.jar netty-buffer-4.1.45.Final.jar netty-transpo
+ rt-4.1.45.Final.jar netty-resolver-4.1.45.Final.jar netty-codec-4.1.4
+ 5.Final.jar netty-transport-native-epoll-4.1.45.Final-linux-x86_64.ja
+ r netty-transport-native-unix-common-4.1.45.Final.jar gson-2.8.5.jar 
+ org.eclipse.jgit-4.10.0.201712302008-r.jar jsch-0.1.54.jar JavaEWAH-1
+ .1.6.jar aws-java-sdk-s3-1.11.475.jar aws-java-sdk-kms-1.11.475.jar a
+ ws-java-sdk-core-1.11.475.jar ion-java-1.0.2.jar jackson-dataformat-c
+ bor-2.6.7.jar jmespath-java-1.11.475.jar aws-java-sdk-ec2-1.11.475.ja
+ r httpclient-4.5.4.jar httpcore-4.4.7.jar commons-logging-1.2.jar com
+ mons-codec-1.10.jar javaee-api-7.0.jar javax.mail-1.5.0.jar activatio
+ n-1.1.jar microprofile-openapi-2.6.0.Final.jar smallrye-open-api-1.1.
+ 20.jar microprofile-openapi-api-1.1.2.jar org.osgi.annotation.version
+ ing-1.0.0.jar jackson-dataformat-yaml-2.10.1.jar neo4j-ogm-bolt-drive
+ r-3.1.19.jar neo4j-ogm-api-3.1.19.jar neo4j-java-driver-1.6.3.jar neo
+ 4j-ogm-core-3.1.19.jar fast-classpath-scanner-2.21.jar commons-io-2.6
+ .jar commons-beanutils-1.9.4.jar json-schema-validator-2.2.10.jar jso
+ n-schema-core-1.2.10.jar jackson-coreutils-1.9.jar guava-16.0.1.jar m
+ sg-simple-1.1.jar btf-1.2.jar uri-template-0.9.jar rhino-1.7.7.1.jar 
+ mailapi-1.4.3.jar joda-time-2.9.7.jar libphonenumber-8.0.0.jar jsr305
+ -3.0.1.jar jopt-simple-5.0.3.jar elasticsearch-7.7.0.jar elasticsearc
+ h-core-7.7.0.jar elasticsearch-secure-sm-7.7.0.jar elasticsearch-x-co
+ ntent-7.7.0.jar snakeyaml-1.26.jar jackson-dataformat-smile-2.10.4.ja
+ r elasticsearch-geo-7.7.0.jar lucene-core-8.5.1.jar lucene-analyzers-
+ common-8.5.1.jar lucene-backward-codecs-8.5.1.jar lucene-grouping-8.5
+ .1.jar lucene-highlighter-8.5.1.jar lucene-join-8.5.1.jar lucene-memo
+ ry-8.5.1.jar lucene-misc-8.5.1.jar lucene-queries-8.5.1.jar lucene-qu
+ eryparser-8.5.1.jar lucene-sandbox-8.5.1.jar lucene-spatial-extras-8.
+ 5.1.jar lucene-spatial3d-8.5.1.jar lucene-suggest-8.5.1.jar elasticse
+ arch-cli-7.7.0.jar hppc-0.8.1.jar t-digest-3.2.jar HdrHistogram-2.1.9
+ .jar jna-4.5.1.jar elasticsearch-rest-high-level-client-7.7.0.jar ela
+ sticsearch-rest-client-7.7.0.jar httpasyncclient-4.1.4.jar httpcore-n
+ io-4.4.12.jar mapper-extras-client-7.7.0.jar parent-join-client-7.7.0
+ .jar aggs-matrix-stats-client-7.7.0.jar rank-eval-client-7.7.0.jar la
+ ng-mustache-client-7.7.0.jar compiler-0.9.6.jar commons-collections4-
+ 4.1.jar jackson-databind-2.11.3.jar jackson-annotations-2.11.3.jar ja
+ ckson-datatype-jsr310-2.11.3.jar jackson-core-2.11.3.jar opencsv-5.1.
+ jar commons-text-1.8.jar agr_api-3.2.0.jar commons-collections-3.2.2.
+ jar jaxrs-2.6.0.Final.jar container-2.6.0.Final.jar spi-2.6.0.Final.j
+ ar shrinkwrap-api-1.2.6.jar shrinkwrap-impl-base-1.2.6.jar shrinkwrap
+ -spi-1.2.6.jar jandex-2.1.2.Final.jar bootstrap-2.6.0.Final.jar confi
+ g-api-1.9.0.jar thorntail-jdk-specific-2.jar logging-2.6.0.Final.jar 
+ undertow-2.6.0.Final.jar io-2.6.0.Final.jar request-controller-2.6.0.
+ Final.jar shrinkwrap-descriptors-api-jboss-2.0.0.jar shrinkwrap-descr
+ iptors-impl-jboss-2.0.0.jar shrinkwrap-descriptors-api-javaee-2.0.0.j
+ ar shrinkwrap-descriptors-api-base-2.0.0.jar shrinkwrap-descriptors-i
+ mpl-javaee-2.0.0.jar shrinkwrap-descriptors-impl-base-2.0.0.jar shrin
+ kwrap-descriptors-spi-2.0.0.jar asm-commons-7.1.jar asm-tree-7.1.jar 
+ asm-analysis-7.1.jar jboss-servlet-api_4.0_spec-2.0.0.Final.jar jboss
+ -websocket-api_1.1_spec-2.0.0.Final.jar undertow-servlet-2.0.27.Final
+ .jar undertow-core-2.0.27.Final.jar xnio-api-3.3.8.Final.jar xnio-nio
+ -3.3.8.Final.jar jboss-annotations-api_1.3_spec-2.0.1.Final.jar secur
+ ity-2.6.0.Final.jar elytron-2.6.0.Final.jar jaxrs-cdi-2.6.0.Final.jar
+  asm-7.1.jar jboss-jaxrs-api_2.1_spec-2.0.0.Final.jar jackson-jaxrs-j
+ son-provider-2.9.10.jar jackson-jaxrs-base-2.9.10.jar jackson-module-
+ jaxb-annotations-2.9.10.jar meta-spi-2.6.0.Final.jar cdi-2.6.0.Final.
+ jar cdi-config-2.6.0.Final.jar bean-validation-2.6.0.Final.jar jakart
+ a.validation-api-2.0.2.jar ee-2.6.0.Final.jar naming-2.6.0.Final.jar 
+ jboss-concurrency-api_1.0_spec-2.0.0.Final.jar jboss-interceptors-api
+ _1.2_spec-2.0.0.Final.jar jboss-el-api_3.0_spec-2.0.0.Final.jar jakar
+ ta.el-3.0.2.jar transactions-2.6.0.Final.jar jboss-transaction-api_1.
+ 3_spec-2.0.0.Final.jar narayana-jts-idlj-5.9.8.Final.jar openjdk-orb-
+ 8.0.8.Final.jar jakarta.enterprise.cdi-api-2.0.2.jar jakarta.inject-a
+ pi-1.0.jar jaxrs-multipart-2.6.0.Final.jar jakarta.mail-1.6.4.jar jak
+ arta.activation-1.2.1.jar resteasy-multipart-provider-3.9.1.Final.jar
+  resteasy-jaxrs-3.9.1.Final.jar validation-api-2.0.1.Final.jar jcip-a
+ nnotations-1.0-1.jar resteasy-client-3.9.1.Final.jar resteasy-jaxb-pr
+ ovider-3.9.1.Final.jar jaxb-runtime-2.3.1.jar txw2-2.3.1.jar istack-c
+ ommons-runtime-3.0.7.jar stax-ex-1.8.jar FastInfoset-1.2.15.jar javax
+ .activation-api-1.2.0.jar apache-mime4j-0.6.jar microprofile-2.6.0.Fi
+ nal.jar jaxrs-jsonp-2.6.0.Final.jar jakarta.json-1.1.6.jar jaxrs-jaxb
+ -2.6.0.Final.jar jboss-jaxb-api_2.3_spec-2.0.0.Final.jar microprofile
+ -health-2.6.0.Final.jar msc-2.6.0.Final.jar jboss-msc-1.4.11.Final.ja
+ r jboss-threads-2.3.2.Final.jar smallrye-health-2.1.0.jar microprofil
+ e-health-api-2.1.jar management-2.6.0.Final.jar microprofile-fault-to
+ lerance-2.6.0.Final.jar hystrix-2.6.0.Final.jar archaius-2.6.0.Final.
+ jar archaius-core-0.6.6.jar annotations-2.0.3.jar netflix-rxjava-2.6.
+ 0.Final.jar rxjava-1.3.0.jar hystrix-core-1.5.12.jar hystrix-metrics-
+ event-stream-1.5.12.jar hystrix-serialization-1.5.12.jar jackson-modu
+ le-afterburner-2.7.5.jar smallrye-fault-tolerance-2.1.3.jar microprof
+ ile-fault-tolerance-api-2.0.2.jar javax.enterprise.concurrent-api-1.0
+ .jar weld-spi-3.1.SP1.jar weld-api-3.1.SP1.jar weld-core-impl-3.1.2.F
+ inal.jar microprofile-jwt-2.6.0.Final.jar microprofile-jwt-auth-api-1
+ .1.1.jar smallrye-jwt-2.0.10.jar jose4j-0.6.5.jar microprofile-metric
+ s-2.6.0.Final.jar microprofile-metrics-api-2.2.1.jar smallrye-metrics
+ -2.3.2.jar microprofile-opentracing-2.6.0.Final.jar opentracing-trace
+ rresolver-2.6.0.Final.jar opentracing-api-0.31.0.jar opentracing-util
+ -0.31.0.jar opentracing-noop-0.31.0.jar opentracing-tracerresolver-0.
+ 1.5.jar microprofile-opentracing-api-1.3.1.jar smallrye-opentracing-1
+ .3.2.jar microprofile-rest-client-api-1.3.3.jar opentracing-web-servl
+ et-filter-0.2.3.jar opentracing-jaxrs2-0.4.1.jar opentracing-concurre
+ nt-0.2.0.jar opentracing-interceptors-0.0.4.jar microprofile-restclie
+ nt-2.6.0.Final.jar resteasy-client-microprofile-3.9.1.Final.jar reste
+ asy-cdi-3.9.1.Final.jar microprofile-config-2.6.0.Final.jar microprof
+ ile-config-wildfly-config-api-1.9.0.jar config-api-runtime-1.9.0.jar 
+ smallrye-config-1.3.6.jar cdi-api-2.0.SP1.jar javax.el-api-3.0.0.jar 
+ javax.interceptor-api-1.2.jar javax.inject-1.jar javax.annotation-api
+ -1.3.2.jar microprofile-config-api-1.3.jar infinispan-commons-10.1.3.
+ Final.jar commons-lang3-3.6.jar lombok-1.18.16.jar log4j-api-2.14.0.j
+ ar log4j-core-2.14.0.jar log4j-slf4j18-impl-2.13.3.jar slf4j-api-1.8.
+ 0-beta4.jar
+Main-Class: org.alliancegenome.apitester.Main
+Created-By: Maven Integration for Eclipse
+
