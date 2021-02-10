@@ -2,6 +2,7 @@ package org.alliancegenome.cache.repository.helper;
 
 import org.alliancegenome.api.entity.AlleleVariantSequence;
 import org.alliancegenome.es.model.query.FieldFilter;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Objects;
 import java.util.Set;
@@ -25,11 +26,12 @@ public class AlleleVariantSequenceFiltering extends AnnotationFiltering<AlleleVa
             };
 
     private static final FilterFunction<AlleleVariantSequence, String> variantTypeFilter =
-            (allele, value) ->
-                    FilterFunction.fullMatchMultiValueOR(allele.getAllele().getVariants().stream()
-                            .filter(Objects::nonNull)
-                            .map(variant -> variant.getVariantType().getName())
-                            .collect(Collectors.toSet()), value);
+            (allele, value) -> {
+                if (allele.getVariant() == null)
+                    return StringUtils.isEmpty(value);
+                return FilterFunction.fullMatchMultiValueOR(allele.getVariant().getVariantType().getName()
+                        , value);
+            };
 
     private static final FilterFunction<AlleleVariantSequence, String> hgvsgNameFilter =
             (allele, value) -> allele.getVariant().getHgvsNomenclature().contains(value);

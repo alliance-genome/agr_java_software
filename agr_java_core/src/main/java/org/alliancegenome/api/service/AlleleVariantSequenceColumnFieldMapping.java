@@ -55,7 +55,7 @@ public class AlleleVariantSequenceColumnFieldMapping extends ColumnFieldMapping<
             if (entity.getVariant() != null && entity.getVariant().getVariantType() != null) {
                 return Set.of(entity.getVariant().getVariantType().getName());
             }
-            return new HashSet<>();
+            return Set.of("");
         });
         mapColumnAttribute.put(GENE_ALLELE_VARIANT_SEQUENCE_CONSEQUENCE, entity -> {
             if (entity.getVariant() != null) {
@@ -69,7 +69,7 @@ public class AlleleVariantSequenceColumnFieldMapping extends ColumnFieldMapping<
                 if (entity.getConsequence() != null)
                     return Set.of(entity.getConsequence().getImpact());
             }
-            return new HashSet<>();
+            return Set.of("");
         });
 
         mapColumnAttribute.put(GENE_ALLELE_VARIANT_SEQUENCE_VARIANT_POLYPHEN, entity -> {
@@ -77,7 +77,7 @@ public class AlleleVariantSequenceColumnFieldMapping extends ColumnFieldMapping<
                 if (entity.getConsequence() != null && entity.getConsequence().getPolyphenPrediction() != null)
                     return Set.of(entity.getConsequence().getPolyphenPrediction());
             }
-            return new HashSet<>();
+            return Set.of("");
         });
 
         mapColumnAttribute.put(GENE_ALLELE_VARIANT_SEQUENCE_VARIANT_SIFT, entity -> {
@@ -85,7 +85,7 @@ public class AlleleVariantSequenceColumnFieldMapping extends ColumnFieldMapping<
                 if (entity.getConsequence() != null && entity.getConsequence().getSiftPrediction() != null)
                     return Set.of(entity.getConsequence().getSiftPrediction());
             }
-            return new HashSet<>();
+            return Set.of("");
         });
 
         mapColumnAttribute.put(GENE_ALLELE_VARIANT_SEQUENCE_HAS_DISEASE, entity -> entity.getAllele().hasDisease() ? Set.of("YES") : Set.of("NO"));
