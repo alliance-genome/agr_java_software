@@ -131,7 +131,17 @@ public class AlleleCacher extends Cacher {
                 .flatMap(Collection::stream)
                 .collect(Collectors.toList());
 
-        alleleVariantSequences.addAll(htpAlleleSequenceMap.values().stream().flatMap(Collection::parallelStream).collect(Collectors.toList()));
+        log.info("Number of AlleleVariantSequence records before adding HTP data: "+alleleVariantSequences.size());
+        final List<AlleleVariantSequence> collect = htpAlleleSequenceMap.values().stream().flatMap(Collection::parallelStream).collect(Collectors.toList());
+        log.info("Number of AlleleVariantSequence records from HTP data: "+collect.size());
+        List<AlleleVariantSequence> testList = collect.stream()
+                .filter(sequence -> sequence.getAllele().getGene() != null)
+                .filter(sequence -> sequence.getAllele().getGene().getPrimaryKey().equals("SGD:S000000059"))
+                .collect(Collectors.toList());
+        log.info("Number of AlleleVariantSequence records from HTP data of SGD:S000000059: "+testList.size());
+
+        alleleVariantSequences.addAll(collect);
+        log.info("Number of AlleleVariantSequence records after adding HTP data: "+alleleVariantSequences.size());
 //        alleleVariantSequences = alleleVariantSequences.stream().filter(sequence -> sequence.getAllele().getPrimaryKey().equals("ZFIN:ZDB-ALT-130411-1942")).collect(Collectors.toList());
 
         Map<String, List<AlleleVariantSequence>> allRecordsMap = alleleVariantSequences.stream()
