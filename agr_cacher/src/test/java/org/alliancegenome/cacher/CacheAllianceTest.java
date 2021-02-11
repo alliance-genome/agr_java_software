@@ -1,10 +1,14 @@
 package org.alliancegenome.cacher;
 
-import static org.junit.Assert.assertEquals;
-
 import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.cacher.cachers.*;
-import org.junit.*;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
+
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
 
 public class CacheAllianceTest {
     @Before
@@ -63,7 +67,14 @@ public class CacheAllianceTest {
     @Ignore
     @Test
     public void cacheAlleles() {
-        AlleleCacher cacher = new AlleleCacher();
+        List<String> testGeneIDs = List.of("RGD:9294106",
+                "ZFIN:ZDB-GENE-001212-1",
+                "RGD:1624201",
+                "ZFIN:ZDB-GENE-011101-3",
+                "ZFIN:ZDB-GENE-020419-25",
+                "RGD:11369140",
+                "WB:WBGene00000913");
+        AlleleCacher cacher = new AlleleCacher(true, testGeneIDs);
         cacher.run();
     }
 

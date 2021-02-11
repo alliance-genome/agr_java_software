@@ -42,16 +42,15 @@ public class OrthologousRepository extends Neo4jRepository<Orthologous> {
             query += " and   gh.taxonId = '" + taxonTwo + "' ";
         if (filter.getStringency() != null) {
             if (filter.getStringency().equals(OrthologyFilter.Stringency.STRINGENT))
-                query += "and ortho.strictFilter = true ";
+                query += " and ortho.strictFilter = true and ortho.moderateFilter = false ";
             if (filter.getStringency().equals(OrthologyFilter.Stringency.MODERATE))
-                query += "and ortho.moderateFilter = true ";
+                query += " and ortho.strictFilter = false and ortho.moderateFilter = true ";
         }
         query += "OPTIONAL MATCH p6=(s:OrthologyGeneJoin)-[:NOT_MATCHED]->(notMatched:OrthoAlgorithm) ";
         query += "OPTIONAL MATCH p7=(s:OrthologyGeneJoin)-[:NOT_CALLED]->(notCalled:OrthoAlgorithm) ";
         String recordQuery = query + "return distinct g, gh, collect(distinct ortho), ";
         recordQuery += COLLECT_DISTINCT_NOT_MATCHED + ", " + COLLECT_DISTINCT_NOT_CALLED + " order by g.symbol, gh.symbol ";
         recordQuery += " SKIP " + (filter.getStart() - 1) + " limit " + filter.getRows();
-
         Result result = queryForResult(recordQuery);
         Set<OrthologView> orthologViews = new LinkedHashSet<>();
         result.forEach(objectMap -> {
@@ -62,7 +61,12 @@ public class OrthologousRepository extends Neo4jRepository<Orthologous> {
 
             Gene homologGene = (Gene) objectMap.get("gh");
             view.setHomologGene(homologGene);
-
+            if (filter.getStringency().equals(OrthologyFilter.Stringency.STRINGENT))
+                view.setStringencyFilter("stringent");
+            else if (filter.getStringency().equals(OrthologyFilter.Stringency.MODERATE))  
+                view.setStringencyFilter("moderate");
+            else
+                view.setStringencyFilter("all");
             view.setBest(((List<Orthologous>) objectMap.get("collect(distinct ortho)")).get(0).getIsBestScore());
             view.setBestReverse(((List<Orthologous>) objectMap.get("collect(distinct ortho)")).get(0).getIsBestRevScore());
 

@@ -1,7 +1,6 @@
 package org.alliancegenome.cache;
 
-import org.alliancegenome.api.entity.AlleleVariantSequence;
-import org.alliancegenome.api.entity.CacheStatus;
+import org.alliancegenome.api.entity.*;
 import org.alliancegenome.core.ExpressionDetail;
 import org.alliancegenome.neo4j.entity.*;
 import org.alliancegenome.neo4j.entity.node.*;

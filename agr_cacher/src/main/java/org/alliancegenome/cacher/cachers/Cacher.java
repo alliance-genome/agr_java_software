@@ -20,6 +20,16 @@ import lombok.extern.log4j.Log4j2;
 @Getter
 public abstract class Cacher extends Thread {
 
+    // for debugging
+    public boolean debug;
+    public List<String> testGeneIDs;
+
+    public Cacher(){};
+    public Cacher(boolean debug, List<String> testGeneIDs){
+        this.debug = debug;
+        this.testGeneIDs = testGeneIDs;
+    };
+
     protected abstract void cache();
 
     protected boolean useCache;
@@ -70,12 +80,10 @@ public abstract class Cacher extends Thread {
     }
 
     void populateCacheFromMap(Map<String, ?> map, Class view, CacheAlliance cacheAlliance) {
-        startProcess(cacheAlliance.name() + " into cache", map.size());
+        log.info(cacheAlliance.name() + " into cache", map.size());
         for (Map.Entry<String, ? extends Object> entry : map.entrySet()) {
             cacheService.putCacheEntry(entry.getKey(), entry.getValue(), view, cacheAlliance);
-            progressProcess();
         }
-        finishProcess();
     }
 
     public void populateStatisticsOnStatus(CacheStatus status, Map<String, Integer> entityStats, Map<String, List<Species>> speciesStatistics) {

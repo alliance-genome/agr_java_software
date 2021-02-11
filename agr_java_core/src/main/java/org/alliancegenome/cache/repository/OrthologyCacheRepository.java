@@ -14,6 +14,8 @@ import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.entity.node.*;
 import org.alliancegenome.neo4j.entity.relationship.Orthologous;
 import org.alliancegenome.neo4j.view.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.*;
@@ -137,11 +139,14 @@ public class OrthologyCacheRepository {
                         view.setHomologGene(ortho.getGene2());
                         view.setBest(ortho.getIsBestScore());
                         view.setBestReverse(ortho.getIsBestRevScore());
-                        if (ortho.isStrictFilter()) {
+                         
+                        if (ortho.isStrictFilter() && !ortho.isModerateFilter()) {
                             view.setStringencyFilter("stringent");
-                        } else if (ortho.isModerateFilter()) {
+                        } else if (ortho.isModerateFilter() && !ortho.isStrictFilter()) {
                             view.setStringencyFilter("moderate");
                         }
+                        else
+                            view.setStringencyFilter("all");
                         view.setPredictionMethodsMatched(getMatchedMethods(join));
                         view.setPredictionMethodsNotMatched(getNotMatchedMethods(join));
                         view.setPredictionMethodsNotCalled(getNotCalledMethods(join));

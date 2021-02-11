@@ -1,12 +1,9 @@
 package org.alliancegenome.core.translators;
 
 import java.io.PrintWriter;
-import java.util.List;
-import java.util.Map;
-import java.util.StringJoiner;
+import java.util.*;
 
 import org.alliancegenome.core.config.ConfigHelper;
-import org.alliancegenome.neo4j.entity.Neo4jEntity;
 import org.neo4j.ogm.model.Result;
 
 public abstract class ResultTSVTranslator {

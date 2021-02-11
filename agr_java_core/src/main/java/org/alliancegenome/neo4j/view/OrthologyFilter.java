@@ -51,7 +51,7 @@ public class OrthologyFilter {
     }
 
     public enum Stringency {
-        ALL(""),
+        ALL("all"),
         STRINGENT("stringent"),
         MODERATE("moderate");
 

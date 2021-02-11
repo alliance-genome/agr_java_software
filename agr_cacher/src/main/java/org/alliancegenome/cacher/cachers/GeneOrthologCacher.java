@@ -11,6 +11,8 @@ import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.alliancegenome.neo4j.view.*;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections4.map.MultiKeyMap;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import lombok.extern.log4j.Log4j2;
 
@@ -51,11 +53,13 @@ public class GeneOrthologCacher extends Cacher {
                         view.setHomologGene(orthologous.getGene2());
                         view.setBest(orthologous.getIsBestScore());
                         view.setBestReverse(orthologous.getIsBestRevScore());
-                        if (orthologous.isStrictFilter()) {
+                        if (orthologous.isStrictFilter() && !orthologous.isModerateFilter()) {
                             view.setStringencyFilter("stringent");
-                        } else if (orthologous.isModerateFilter()) {
+                        } else if (orthologous.isModerateFilter() && !orthologous.isStrictFilter()) {
                             view.setStringencyFilter("moderate");
                         }
+                        else
+                            view.setStringencyFilter("all");
                         progressProcess();
                         view.setPredictionMethodsMatched(getPredictionMatches(gene.getPrimaryKey(), orthologous.getGene2().getPrimaryKey()));
                         view.setPredictionMethodsNotMatched(getPredictionNotMatches(gene.getPrimaryKey(), orthologous.getGene2().getPrimaryKey()));

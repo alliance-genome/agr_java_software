@@ -13,6 +13,7 @@ public class InteractionToTdfTranslator {
 
         headerJoiner.add("Focus gene molecule type ID");
         headerJoiner.add("Focus gene molecule type");
+        headerJoiner.add("Interaction type");
         headerJoiner.add("Focus gene experimental role ID");
         headerJoiner.add("Focus gene experimental role");
         
@@ -38,6 +39,10 @@ public class InteractionToTdfTranslator {
         headerJoiner.add("Aggregation DB ID");
         headerJoiner.add("Aggregation DB");
         headerJoiner.add("Reference");
+        //new column from genetic interaction
+        headerJoiner.add("genetic perturbation A");
+        headerJoiner.add("genetic perturbation B");
+        headerJoiner.add("Phenotype or trait");
 
         builder.append(headerJoiner.toString());
         builder.append(ConfigHelper.getJavaLineSeparator());
@@ -47,6 +52,7 @@ public class InteractionToTdfTranslator {
 
             joiner.add(interactionGeneJoin.getInteractorAType().getPrimaryKey());
             joiner.add(interactionGeneJoin.getInteractorAType().getLabel());
+            joiner.add(interactionGeneJoin.getJoinType());
             joiner.add(interactionGeneJoin.getInteractorARole().getPrimaryKey());
             joiner.add(interactionGeneJoin.getInteractorARole().getLabel());
             
@@ -90,13 +96,49 @@ public class InteractionToTdfTranslator {
             }
             joiner.add(sourceIds);
             
-            joiner.add(interactionGeneJoin.getSourceDatabase().getPrimaryKey());
-            joiner.add(interactionGeneJoin.getSourceDatabase().getLabel());
+            String sourceDatabaseID="";
+            String sourceDatabase="";
+            if(interactionGeneJoin.getSourceDatabase()!=null ) {//maybe null here
+              joiner.add(interactionGeneJoin.getSourceDatabase().getPrimaryKey());
+              joiner.add(interactionGeneJoin.getSourceDatabase().getLabel());
+            }
+            else {
+                joiner.add(sourceDatabaseID);
+                joiner.add(sourceDatabase);
+            }
             
-            joiner.add(interactionGeneJoin.getAggregationDatabase().getPrimaryKey());
-            joiner.add(interactionGeneJoin.getAggregationDatabase().getLabel());
             
-            joiner.add(interactionGeneJoin.getPublication().getPubId());
+            if (interactionGeneJoin.getAggregationDatabase() !=null) {//maybe null here
+              joiner.add(interactionGeneJoin.getAggregationDatabase().getPrimaryKey());
+              joiner.add(interactionGeneJoin.getAggregationDatabase().getLabel());
+            }
+            
+            if (interactionGeneJoin.getPublication()!=null)
+             joiner.add(interactionGeneJoin.getPublication().getPubId());
+            else 
+                joiner.add(""); 
+            //genetic perturbation alleleA
+            if (interactionGeneJoin.getAlleleA()!=null) {
+                joiner.add(interactionGeneJoin.getAlleleA().getPrimaryKey());
+            }
+            else {
+                joiner.add("");
+            }
+            //genetic perturbation, alleleB
+            if (interactionGeneJoin.getAlleleB()!=null) {
+                joiner.add(interactionGeneJoin.getAlleleB().getPrimaryKey());
+            }
+            else {
+                joiner.add("");
+            }
+            //phenotypes
+            String phenotypeIds = "";
+            if (interactionGeneJoin.getPhenotypes() != null) {
+                StringJoiner phenotypeJoiner = new StringJoiner(",");
+                interactionGeneJoin.getPhenotypes().forEach(phenotype -> phenotypeJoiner.add(phenotype.getPrimaryKey()));
+                phenotypeIds = phenotypeJoiner.toString();
+            }
+            joiner.add(phenotypeIds);
 
             builder.append(joiner.toString());
             builder.append(ConfigHelper.getJavaLineSeparator());

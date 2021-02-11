@@ -24,6 +24,12 @@ public class Allele extends GeneticEntity implements Comparable<Allele>, Present
 
     public Allele() {
         this.crossReferenceType = CrossReferenceType.ALLELE;
+        populateCategory();
+    }
+
+    public Allele(String primaryKey, CrossReferenceType crossReferenceType) {
+        super(primaryKey, crossReferenceType);
+        populateCategory();
     }
 
     private String release;
@@ -43,7 +49,7 @@ public class Allele extends GeneticEntity implements Comparable<Allele>, Present
     @Relationship(type = "IS_ALLELE_OF")
     private Gene gene;
 
-    @JsonView({View.GeneAllelesAPI.class})
+    @JsonView({View.GeneAllelesAPI.class, View.GeneAlleleVariantSequenceAPI.class})
     @Relationship(type = "IS_IMPLICATED_IN", direction = Relationship.INCOMING)
     private List<DOTerm> diseases = new ArrayList<>();
 
@@ -54,7 +60,6 @@ public class Allele extends GeneticEntity implements Comparable<Allele>, Present
     @Relationship(type = "ASSOCIATION", direction = Relationship.UNDIRECTED)
     private List<DiseaseEntityJoin> diseaseEntityJoins = new ArrayList<>();
 
-    @JsonView({View.GeneAllelesAPI.class})
     @Relationship(type = "HAS_PHENOTYPE")
     private List<Phenotype> phenotypes = new ArrayList<>();
 
@@ -72,15 +77,22 @@ public class Allele extends GeneticEntity implements Comparable<Allele>, Present
         return primaryKey + ":" + symbolText;
     }
 
-    @JsonView({View.API.class, View.GeneAlleleVariantSequenceAPI.class})
+    public void setPhenotypes(List<Phenotype> phenotypes) {
+        this.phenotypes = phenotypes;
+        phenotype = CollectionUtils.isNotEmpty(phenotypes);
+    }
+
+    private boolean phenotype;
+
+    @JsonView({View.API.class, View.GeneAllelesAPI.class, View.GeneAlleleVariantSequenceAPI.class})
+    @JsonProperty(value = "hasPhenotype")
     public Boolean hasPhenotype() {
-        return CollectionUtils.isNotEmpty(phenotypes);
+        return phenotype;
     }
 
     @JsonProperty(value = "hasPhenotype")
     public void setPhenotype(boolean hasPhenotype) {
-        // this is a calculated property but the setter needs to be here
-        // for deserialization purposes.
+        this.phenotype = hasPhenotype;
     }
 
     @JsonView({View.API.class, View.GeneAlleleVariantSequenceAPI.class})
@@ -94,24 +106,42 @@ public class Allele extends GeneticEntity implements Comparable<Allele>, Present
         // for deserialization purposes.
     }
 
-    @JsonView({View.API.class, View.GeneAlleleVariantSequenceAPI.class})
-    @JsonProperty(value = "category")
-    public String getCategory() {
-        if (crossReferenceType != CrossReferenceType.ALLELE)
-            return crossReferenceType.getDisplayName();
-        if (CollectionUtils.isEmpty(variants))
-            return crossReferenceType.getDisplayName();
-        if (variants.size() == 1) {
-            return ALLELE_WITH_ONE_VARIANT;
+    @JsonView({View.API.class, View.GeneAllelesAPI.class})
+    public void setVariants(List<Variant> variants) {
+        this.variants = variants;
+        populateCategory();
+    }
+
+    public void populateCategory() {
+        if (crossReferenceType != CrossReferenceType.ALLELE) {
+            category = crossReferenceType.getDisplayName();
+            return;
         }
-        return ALLELE_WITH_MULTIPLE_VARIANT;
+        if (CollectionUtils.isEmpty(variants)) {
+            category = crossReferenceType.getDisplayName();
+            return;
+        }
+        if (variants.size() == 1) {
+            category = ALLELE_WITH_ONE_VARIANT;
+            return;
+        }
+        category = ALLELE_WITH_MULTIPLE_VARIANT;
     }
 
-    @JsonProperty(value = "category")
+    @JsonView({View.API.class, View.GeneAllelesAPI.class})
+    public List<Variant> getVariants() {
+        return variants;
+    }
+
+    @JsonView({View.API.class, View.GeneAlleleVariantSequenceAPI.class})
+    private String category;
+
+    public String getCategory() {
+        return category;
+    }
+
+    // Do not use this setter. It's only used for deserialization purposes
     public void setCategory(String category) {
-        // this is a calculated property but the setter needs to be here
-        // for deserialization purposes.
+        this.category = category;
     }
-
-
 }

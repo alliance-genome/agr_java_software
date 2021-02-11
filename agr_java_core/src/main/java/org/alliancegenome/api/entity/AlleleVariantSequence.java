@@ -10,7 +10,7 @@ import org.alliancegenome.neo4j.view.View;
 
 /**
  * A flattened version of an Allele entity for presentational purposes.
- *   Allele -> multiple Variants -> multiple TranscriptLevelConsequence
+ * Allele -> multiple Variants -> multiple TranscriptLevelConsequence
  */
 @Setter
 @Getter
@@ -31,5 +31,17 @@ public class AlleleVariantSequence {
         this.allele = allele;
         this.variant = variant;
         this.consequence = consequence;
+    }
+
+    @Override
+    public String toString() {
+        String message = allele.getSymbolText();
+        if (variant != null) {
+            message += " : " + variant.getHgvsNomenclature();
+        }
+        if (consequence != null) {
+            message += " : " + consequence.getTranscriptName();
+        }
+        return message;
     }
 }
