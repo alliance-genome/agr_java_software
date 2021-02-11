@@ -1,27 +1,29 @@
 package org.alliancegenome.cache;
 
-import java.io.IOException;
-import java.util.*;
-
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.type.CollectionType;
+import lombok.extern.log4j.Log4j2;
 import org.alliancegenome.api.entity.CacheStatus;
 import org.alliancegenome.core.config.CacheConfig;
 import org.alliancegenome.neo4j.view.View;
-import org.infinispan.client.hotrod.*;
+import org.infinispan.client.hotrod.RemoteCache;
+import org.infinispan.client.hotrod.RemoteCacheManager;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.type.CollectionType;
-
-import lombok.extern.log4j.Log4j2;
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 @Log4j2
 @RequestScoped
 public class CacheService {
-    
+
     @Inject
     private RemoteCacheManager manager;
 
@@ -50,11 +52,11 @@ public class CacheService {
     private RemoteCache<String, String> getCacheSpace(CacheAlliance cache) {
         //log.info("Getting Cache Space: " + cache.getCacheName());
         RemoteCache<String, String> remoteCache = manager.getCache(cache.getCacheName());
-        
-        if(remoteCache == null) {
+
+        if (remoteCache == null) {
             return CacheConfig.createCache(cache);
         }
-        
+
         return remoteCache;
     }
 
@@ -125,13 +127,19 @@ public class CacheService {
         String value;
         try {
             value = mapper.writerWithView(classView).writeValueAsString(object);
+            if (primaryKey.equals("SGD:S000000059")) {
+                if (value.length() > 1200)
+                    log.info(value.substring(0, 1200));
+                else
+                    log.info(value);
+            }
             cache.put(primaryKey, value);
         } catch (JsonProcessingException e) {
             log.error("error while saving entry into cache", e);
             throw new RuntimeException(e);
         }
     }
-    
+
 }
 
 
