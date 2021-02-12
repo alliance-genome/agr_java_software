@@ -73,7 +73,9 @@ public class ConfigHelper {
         defaults.put(AO_TERM_LIST, "anatomy-term-order.csv");
         defaults.put(GO_TERM_LIST, "go-term-order.csv");
         defaults.put(RIBBON_TERM_SPECIES_APPLICABILITY, "ribbon-term-species-applicability.csv");
-        
+        defaults.put(POPULARITY_DOWNLOAD_URL, "https://github.com/alliance_genome/agr_pageview_popularity_calculator/blob/master/alliance_popularity.tsv?raw=true");
+        defaults.put(POPULARITY_FILE_NAME, "alliance_popularity.tsv");
+
         defaults.put(VARIANT_DOWNLOAD_PATH, "data");
         defaults.put(VARIANT_CONFIG_FILE, "downloadFileSet.yaml");
         defaults.put(VARIANT_CACHER_CONFIG_FILE, "variantDownloadFiles.yaml");
@@ -359,7 +361,17 @@ public class ConfigHelper {
         if (!init) init();
         return config.get(RIBBON_TERM_SPECIES_APPLICABILITY);
     }
-    
+
+    public static String getPopularityDownloadUrl() {
+        if (!init) init();
+        return config.get(POPULARITY_DOWNLOAD_URL);
+    }
+
+    public static String getPopularityFileName() {
+        if (!init) init();
+        return config.get(POPULARITY_FILE_NAME);
+    }
+
     public static String getFMSUrl() {
         if (!init) init();
         return config.get(FMS_URL);

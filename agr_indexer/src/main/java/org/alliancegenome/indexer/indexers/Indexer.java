@@ -1,14 +1,22 @@
 package org.alliancegenome.indexer.indexers;
 
 import java.io.*;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.DecimalFormat;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.stream.Collectors;
 
+import com.google.common.io.Resources;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.es.index.ESDocument;
 import org.alliancegenome.es.util.EsClientFactory;
 import org.alliancegenome.indexer.config.IndexerConfig;
+import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.*;
 import org.elasticsearch.action.DocWriteRequest;
 import org.elasticsearch.action.bulk.*;
@@ -89,19 +97,27 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
     }
 
     private void loadPopularityScore() {
-        ClassLoader classloader = Thread.currentThread().getContextClassLoader();
 
         popularityScore = new HashMap<>();
 
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(classloader.getResourceAsStream("popularity.tsv")))) {
-            br.lines().forEach(line -> {
-                String[] row = line.split("\t");
-                popularityScore.put(row[0], Double.valueOf(row[1]));
-            });
-        } catch (Exception e) {
+        Path popularityFile = Paths.get(ConfigHelper.getPopularityFileName());
+        if (!Files.exists(popularityFile)) {
+            try {
+                FileUtils.copyURLToFile(new URL(ConfigHelper.getPopularityDownloadUrl()), popularityFile.toFile());
+            } catch (IOException e) {
+                e.printStackTrace();
+                System.exit(-1);
+            }
+        }
+
+        try {
+            popularityScore = Files.lines(popularityFile)
+                    .collect(Collectors.toMap(key -> String.valueOf(key.split("\t")[0]), val -> Double.valueOf(val.split("\t")[1])));
+        } catch (IOException e) {
             e.printStackTrace();
             System.exit(-1);
         }
+
     }
 
     protected abstract void index();
