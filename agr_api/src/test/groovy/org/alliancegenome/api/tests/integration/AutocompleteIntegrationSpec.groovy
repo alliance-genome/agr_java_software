@@ -1,4 +1,4 @@
-package org.alliancegenome.api
+package org.alliancegenome.api.tests.integration
 
 import org.alliancegenome.api.tests.integration.ApiTester
 import spock.lang.Specification
@@ -19,7 +19,7 @@ class AutocompleteIntegrationSpec extends Specification {
         firstResult.get("name").toLowerCase().startsWith(query.toLowerCase())
 
         where:
-        query << ["fgf","pax", "ben "]
+        query << ["fgf","pax","ben"]
 
     }
 

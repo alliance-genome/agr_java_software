@@ -179,6 +179,13 @@ class QueryMatchIntegrationSpec extends Specification {
 
         //dataset alternate IDs
         "AGR-1846" | "GEO:GSE24324" | "FB:FBlc0000060"
+
+        //disease/gene pairs that are also tested for rank
+        "AGR-1869" | "Alzheimer’s" | "HGNC:620"
+        "AGR-1869" | "Alzheimer’s" | "HGNC:9508"
+        "AGR-1869" | "Alzheimer’s" | "HGNC:9509"
+
+
     }
 
     @Unroll
