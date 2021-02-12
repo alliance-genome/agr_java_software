@@ -1,4 +1,4 @@
-package org.alliancegenome.api
+package org.alliancegenome.api.tests.integration
 
 import org.alliancegenome.es.model.search.RelatedDataLink
 import org.alliancegenome.api.service.SearchService
