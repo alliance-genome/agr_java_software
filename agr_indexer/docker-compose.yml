@@ -3,7 +3,7 @@ version: "2"
 services:
   agr_elasticsearch:
     container_name: agr_elasticsearch
-    image: ${REG}/agr_elasticsearch_env:develop
+    image: ${REG}/agr_elasticsearch_env:${DOCKER_PULL_TAG}
     ports:
       - "9200:9200"
       - "9300:9300"
@@ -15,7 +15,7 @@ services:
 
   agr_indexer:
     container_name: agr_indexer
-    image: agrlocal/agr_indexer_run:develop
+    image: agrlocal/agr_indexer_run:${DOCKER_BUILD_TAG}
     networks:
       - esnet
 

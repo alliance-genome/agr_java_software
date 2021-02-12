@@ -1,7 +1,7 @@
-ARG ALLIANCE_RELEASE=latest
 ARG REG=100225593120.dkr.ecr.us-east-1.amazonaws.com
+ARG DOCKER_PULL_TAG=latest
 
-FROM ${REG}/agr_base_linux_env:${ALLIANCE_RELEASE}
+FROM ${REG}/agr_base_linux_env:${DOCKER_PULL_TAG}
 
 WORKDIR /workdir/agr_java_software
 
