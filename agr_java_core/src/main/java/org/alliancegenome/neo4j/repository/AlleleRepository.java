@@ -78,6 +78,7 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
     }
 
     private Map<String, Transcript> transcriptMap;
+    // geneID, chromosome
     private Map<String, String> geneChromosomeMap = new HashMap<>();
     // allele ID for which disease info exists
     private Set<String> alleleDiseaseSet = new HashSet<>();
@@ -118,7 +119,20 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
                     geneChromosomeMap.put((String) entryKey.getValue(), (String) entryValue.getValue());
                 });
 
-        log.info("Number of Gene/Chrmosome relationships: " + String.format("%,d", geneChromosomeMap.size()));
+        query = " MATCH p=(g:Gene)";
+        query += " where not exists ((g)-[:LOCATED_ON]->(:Chromosome)) ";
+        query += " RETURN g.primaryKey ";
+        map = queryForResult(query);
+
+        StreamSupport.stream(map.spliterator(), false)
+                .forEach(entrySet -> {
+                    final Iterator<Map.Entry<String, Object>> iterator = entrySet.entrySet().iterator();
+                    final Map.Entry<String, Object> entryValue = iterator.next();
+                    log.info(entryValue.getValue());
+                    geneChromosomeMap.put("", (String) entryValue.getValue());
+                });
+
+        log.info("Number of Gene/Chromosome relationships: " + String.format("%,d", geneChromosomeMap.size()));
         return geneChromosomeMap;
     }
 
@@ -155,24 +169,27 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
     }
 
     public Set<Allele> getAlleles(String taxonID, String chromosome) {
-        // return alleles for all chromosomes
-        Map<String, List<Allele>> map = getAllAlleles().get(taxonID);
+        Map<String, Set<Allele>> map = getAllAlleles().get(taxonID);
         if (chromosome == null && map == null) {
             return new HashSet<>();
         }
+        // return alleles for all chromosomes if no chromosome number is given
         if (chromosome == null) {
-            return map.values().stream().flatMap(List::stream).collect(Collectors.toSet());
+            return map.values().stream().flatMap(Set::stream).collect(Collectors.toSet());
         }
         if (map == null) {
             map = new HashMap<>();
         }
-        return new HashSet<>(map.computeIfAbsent(chromosome, s -> new ArrayList<>()));
+        log.info("taxon,chromo" + ": " + taxonID + "," + chromosome);
+        final Set<Allele> alleles = new HashSet<>(map.computeIfAbsent(chromosome, s -> new HashSet<>()));
+        log.info("Size" + ": " + alleles.size());
+        return alleles;
     }
 
 
-    private final Map<String, Map<String, List<Allele>>> allAlleleMap = new HashMap<>();
+    private final Map<String, Map<String, Set<Allele>>> allAlleleMap = new HashMap<>();
 
-    public Map<String, Map<String, List<Allele>>> getAllAlleles() {
+    public Map<String, Map<String, Set<Allele>>> getAllAlleles() {
         if (MapUtils.isNotEmpty(allAlleleMap))
             return allAlleleMap;
 
@@ -204,13 +221,18 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
         query += " MATCH p1=(g:Gene)<-[:IS_ALLELE_OF]-(a:Allele)<-[:VARIATION]-(variant:Variant)--(:SOTerm) ";
         query += ", p0=(:Species)<-[:FROM_SPECIES]-(a:Allele) ";
 //        query += " where g.taxon955' ";
-//        query += " AND  a.primaryKey = 'ZFIN:ZDB-ALT-130411-1942' ";
         if (testGeneIDs != null) {
             StringJoiner joiner = new StringJoiner("','", "'", "'");
             testGeneIDs.forEach(joiner::add);
             String inClause = joiner.toString();
             query += " WHERE g.primaryKey in [" + inClause + "]";
         }
+/*
+        if (testGeneIDs == null)
+            query += " where  a.primaryKey = 'SGD:S000281388' ";
+        else
+            query += " AND  a.primaryKey = 'SGD:S000281388' ";
+*/
 
         query += " OPTIONAL MATCH consequence = (t:Transcript)--(:TranscriptLevelConsequence)--(variant:Variant)<-[:ASSOCIATION]-(t:Transcript)--(:SOTerm) ";
         query += " OPTIONAL MATCH loc=(variant:Variant)-[:ASSOCIATION]->(:GenomicLocation)-[:ASSOCIATION]->(:Chromosome)";
@@ -236,21 +258,19 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
             // unknown chromosome
             chromosomes.add("");
 
+            Map<String, Set<Allele>> chromosomeMap = new HashMap<>();
             // group by chromosome number
             chromosomes.forEach(chromosome -> {
-                Map<String, List<Allele>> chromosomeMap = allAlleleMap.computeIfAbsent(taxonID, k -> new HashMap<>());
-                List<Allele> chromosomeAlleles = chromosomeMap.computeIfAbsent(chromosome, k -> new ArrayList<>());
+                Set<Allele> chromosomeAlleles = new HashSet<>();
 
                 // all alleles with chromosome info
                 alleleList.stream()
                         .filter(allele -> getGeneChromosomeInfo().get(allele.getGene().getPrimaryKey()) != null)
                         .filter(allele -> getGeneChromosomeInfo().get(allele.getGene().getPrimaryKey()).equals(chromosome))
                         .forEach(chromosomeAlleles::add);
-                // all alleles without chromosome info
-                alleleList.stream()
-                        .filter(allele -> allele.getGene().getGenomeLocations() == null)
-                        .forEach(chromosomeAlleles::add);
+                chromosomeMap.put(chromosome, chromosomeAlleles);
             });
+            allAlleleMap.put(taxonID, chromosomeMap);
         });
 
         // fixup the chromosome info on the gene object
