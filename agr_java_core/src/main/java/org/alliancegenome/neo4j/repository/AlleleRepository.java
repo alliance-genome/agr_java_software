@@ -128,7 +128,6 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
                 .forEach(entrySet -> {
                     final Iterator<Map.Entry<String, Object>> iterator = entrySet.entrySet().iterator();
                     final Map.Entry<String, Object> entryValue = iterator.next();
-                    log.info(entryValue.getValue());
                     geneChromosomeMap.put("", (String) entryValue.getValue());
                 });
 

@@ -204,8 +204,14 @@ public class HtpVariantCreation extends Thread {
                             }
 
                             Allele allele = new Allele(transcriptFeature.getGene(), GeneticEntity.CrossReferenceType.VARIANT);
-                            allele.setSymbol(doc.getId());
-                            allele.setSymbolText(doc.getId());
+                            // hack until the ID column is set to the right thing by the MODs
+                            if (StringUtils.isEmpty(doc.getId()) || doc.getId().equals(".")) {
+                                allele.setSymbol(transcriptFeature.getHgvsg());
+                                allele.setSymbolText(transcriptFeature.getHgvsg());
+                            } else {
+                                allele.setSymbol(doc.getId());
+                                allele.setSymbolText(doc.getId());
+                            }
                             Gene gene = new Gene();
                             String assocatedGeneID = transcriptFeature.getGene();
                             if (assocatedGeneID.startsWith("ZDB-GENE"))
