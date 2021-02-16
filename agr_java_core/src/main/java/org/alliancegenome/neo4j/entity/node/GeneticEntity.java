@@ -31,7 +31,7 @@ public class GeneticEntity extends Neo4jEntity {
     @Convert(value = DateConverter.class)
     private Date dateProduced;
 
-    @JsonView({View.API.class, View.PhenotypeAPI.class, View.DiseaseAnnotation.class})
+    @JsonView({View.API.class, View.PhenotypeAPI.class, View.DiseaseAnnotation.class, View.Orthology.class})
     @Relationship(type = "FROM_SPECIES")
     protected Species species;
 
