@@ -11,6 +11,9 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toList;
+
 public class FilterService<T> {
 
     private AnnotationFiltering<T> filtering;
@@ -27,7 +30,7 @@ public class FilterService<T> {
             return annotationList;
         return annotationList.stream()
                 .filter(annotation -> containsFilterValue(annotation, fieldFilterValueMap))
-                .collect(Collectors.toList());
+                .collect(toList());
     }
 
     public boolean containsFilterValue(T annotation, BaseFilter fieldFilterValueMap) {
@@ -61,7 +64,7 @@ public class FilterService<T> {
         return fullDiseaseAnnotationList.stream()
                 .skip(pagination.getStart())
                 .limit(pagination.getLimit())
-                .collect(Collectors.toList());
+                .collect(toList());
     }
 
     public List<T> getPaginatedAnnotations(Pagination pagination, List<T> list) {
@@ -69,7 +72,7 @@ public class FilterService<T> {
         return list.stream()
                 .skip(pagination.getStart())
                 .limit(pagination.getLimit())
-                .collect(Collectors.toList());
+                .collect(toList());
     }
 
     public Map<String, List<String>> getDistinctFieldValues(List<T> list, Map<Column, Function<T, Set<String>>> fieldValueMap, ColumnFieldMapping mapping) {
@@ -79,6 +82,25 @@ public class FilterService<T> {
             list.forEach(entity -> distinctValues.addAll(function.apply(entity)));
             ArrayList<String> valueList = new ArrayList<>(distinctValues);
             valueList.sort(Comparator.naturalOrder());
+            map.put(mapping.getFieldFilterName(column), valueList);
+        });
+        return map;
+    }
+
+    public Map<String, List<String>> getDistinctFieldValuesWithStats(List<T> list, Map<Column, Function<T, Set<String>>> fieldValueMap, ColumnFieldMapping mapping) {
+        Map<String, List<String>> map = new HashMap<>();
+        fieldValueMap.forEach((column, function) -> {
+            Set<String> distinctValues = new HashSet<>();
+            List<String> allValues = new ArrayList<>();
+            list.forEach(entity -> {
+                distinctValues.addAll(function.apply(entity));
+                allValues.addAll(function.apply(entity));
+            });
+            Map<String, List<String>> stats = allValues.stream().collect(groupingBy(value -> value));
+            List<String> valueList = distinctValues.stream()
+                    .map(val -> val + " (" + stats.get(val).size() + ")")
+                    .sorted(Comparator.naturalOrder())
+                    .collect(toList());
             map.put(mapping.getFieldFilterName(column), valueList);
         });
         return map;
