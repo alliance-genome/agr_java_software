@@ -127,12 +127,6 @@ public class CacheService {
         String value;
         try {
             value = mapper.writerWithView(classView).writeValueAsString(object);
-            if (primaryKey.equals("SGD:S000000059")) {
-                if (value.length() > 1200)
-                    log.info(value.substring(0, 1200));
-                else
-                    log.info(value);
-            }
             cache.put(primaryKey, value);
         } catch (JsonProcessingException e) {
             log.error("error while saving entry into cache", e);
