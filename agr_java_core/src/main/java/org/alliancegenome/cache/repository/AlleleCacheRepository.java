@@ -91,7 +91,7 @@ public class AlleleCacheRepository {
 
         // add distinct values
         ColumnFieldMapping<AlleleVariantSequence> mapping = new AlleleVariantSequenceColumnFieldMapping();
-        response.addDistinctFieldValueSupplementalData(filterService.getDistinctFieldValuesWithStats(allAlleles,
+        response.addDistinctFieldValueSupplementalData(filterService.getDistinctFieldValues(allAlleles,
                 mapping.getSingleValuedFieldColumns(Table.ALLELE_VARIANT_GENE), mapping));
 
         return response;
