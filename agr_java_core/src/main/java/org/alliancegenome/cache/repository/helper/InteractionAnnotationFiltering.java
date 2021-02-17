@@ -58,7 +58,39 @@ public class InteractionAnnotationFiltering extends AnnotationFiltering {
                 return filteringPassed.contains(true);
             };
 
-
+            //additional filter for genetic interaction
+            private static FilterFunction<InteractionGeneJoin, String> roleFilter =
+               (annotation, value) -> FilterFunction.fullMatchMultiValueOR(annotation.getInteractorARole().getDisplayName(), value); 
+               
+           private static FilterFunction<InteractionGeneJoin, String> interactorRoleFilter =
+            	       (annotation, value) -> FilterFunction.fullMatchMultiValueOR(annotation.getInteractorBRole().getDisplayName(), value); 
+            	       
+           
+           private static FilterFunction<InteractionGeneJoin, String> geneticPerturbationFilter =
+            	               (annotation, value) -> { 
+            	            	     if (annotation.getAlleleA()  != null)
+            	            	       return FilterFunction.contains(annotation.getAlleleA().getSymbolText(), value); 
+            	            	     else 
+            	            	    	 return false;
+            	            	   } ;  	       
+           private static FilterFunction<InteractionGeneJoin, String> interactorGeneticPerturbationFilter =
+            	                       (annotation, value) -> {
+            	                    	  if (annotation.getAlleleB() !=null)
+            	                    	   return FilterFunction.contains(annotation.getAlleleB().getSymbolText(), value); 
+            	                    	  else 
+            	                    		  return false;
+            	                       };
+            	                       
+            public static FilterFunction<InteractionGeneJoin, String> phenotypesFilter =
+            	                               (annotation, value) -> {
+            	                                   Set<Boolean> filteringPassed = annotation.getPhenotypes().stream()
+            	                                           .map(phenotype -> FilterFunction.contains(phenotype.getPhenotypeStatement(), value))
+            	                                           .collect(Collectors.toSet());
+            	                                   // return true if at least one source is found
+            	                                   return filteringPassed.contains(true);
+            	                               };	                       
+            private static FilterFunction<InteractionGeneJoin, String> interactionTypeFilter =
+            	   (annotation, value) -> FilterFunction.fullMatchMultiValueOR(annotation.getInteractionType().getDisplayName(), value);  
     public static Map<FieldFilter, FilterFunction<InteractionGeneJoin, String>> filterFieldMap = new HashMap<>();
 
     static {
@@ -70,6 +102,13 @@ public class InteractionAnnotationFiltering extends AnnotationFiltering {
         filterFieldMap.put(FieldFilter.DETECTION_METHOD, detectionMethodFilter);
         filterFieldMap.put(FieldFilter.FREFERENCE, referenceFilter);
         filterFieldMap.put(FieldFilter.SOURCE, sourceFilter);
+        //add filter for genetic interaction
+        filterFieldMap.put(FieldFilter.ROLE, roleFilter);
+        filterFieldMap.put(FieldFilter.INTERACTOR_ROLE, interactorRoleFilter);
+        filterFieldMap.put(FieldFilter.GENETIC_PERTURBATION, geneticPerturbationFilter);
+        filterFieldMap.put(FieldFilter.INTERACTOR_GENETIC_PERTURBATION, interactorGeneticPerturbationFilter);
+        filterFieldMap.put(FieldFilter.PHENOTYPES, phenotypesFilter);
+        filterFieldMap.put(FieldFilter.INTERACTION_TYPE, interactionTypeFilter);        
     }
 
 }

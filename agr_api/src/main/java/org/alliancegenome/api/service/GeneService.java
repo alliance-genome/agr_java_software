@@ -8,6 +8,7 @@ import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 
 import org.alliancegenome.api.entity.AlleleVariantSequence;
+import org.alliancegenome.cache.*;
 import org.alliancegenome.cache.repository.*;
 import org.alliancegenome.cache.repository.helper.*;
 import org.alliancegenome.es.model.query.Pagination;
@@ -31,6 +32,8 @@ public class GeneService {
 
     @Inject
     private AlleleService alleleService;
+    @Inject
+    private CacheService cacheService;
 
     public Gene getById(String id) {
         Gene gene = geneRepo.getOneGene(id);
@@ -67,7 +70,12 @@ public class GeneService {
         response.addAnnotationSummarySupplementalData(getInteractionSummary(id));
         if (interactions == null)
             return response;
-        response.addDistinctFieldValueSupplementalData(interactions.getDistinctFieldValueMap());
+        FilterService<InteractionGeneJoin> filterService = new FilterService<>(new InteractionAnnotationFiltering());
+        ColumnFieldMapping<InteractionGeneJoin> mapping = new InteractionColumnFieldMapping();
+        List<InteractionGeneJoin> interactionAnnotationList = cacheService.getCacheEntries(id, CacheAlliance.GENE_INTERACTION);
+        response.addDistinctFieldValueSupplementalData(filterService.getDistinctFieldValues(interactionAnnotationList,
+                mapping.getSingleValuedFieldColumns(Table.INTERACTION), mapping));        
+        //response.addDistinctFieldValueSupplementalData(interactions.getDistinctFieldValueMap());
         response.setResults(interactions.getResult());
         response.setTotal(interactions.getTotalNumber());
         return response;

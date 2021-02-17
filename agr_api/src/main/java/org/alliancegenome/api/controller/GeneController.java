@@ -212,6 +212,12 @@ public class GeneController implements GeneRESTInterface {
                                                                    String detectionMethod,
                                                                    String source,
                                                                    String reference,
+                                                                   String role,
+                                                                   String geneticPerturbation,
+                                                                   String interacotorRole,
+                                                                   String interactorGeneticPerturbation,
+                                                                   String phenotypes,
+                                                                   String interactionType,
                                                                    @Context UriInfo info) {
         long startTime = System.currentTimeMillis();
         Pagination pagination = new Pagination(page, limit, sortBy, asc, new InteractionColumnFieldMapping());
@@ -223,6 +229,13 @@ public class GeneController implements GeneRESTInterface {
         pagination.addFieldFilter(FieldFilter.DETECTION_METHOD, detectionMethod);
         pagination.addFieldFilter(FieldFilter.SOURCE, source);
         pagination.addFieldFilter(FieldFilter.FREFERENCE, reference);
+        //for genetic interaction
+        pagination.addFieldFilter(FieldFilter.ROLE, role);
+        pagination.addFieldFilter(FieldFilter.GENETIC_PERTURBATION, geneticPerturbation);
+        pagination.addFieldFilter(FieldFilter.INTERACTOR_ROLE, interacotorRole);
+        pagination.addFieldFilter(FieldFilter.INTERACTOR_GENETIC_PERTURBATION, interactorGeneticPerturbation);
+        pagination.addFieldFilter(FieldFilter.PHENOTYPES, phenotypes);
+        pagination.addFieldFilter(FieldFilter.INTERACTION_TYPE, interactionType);
         // Todo: needs to be made generic
         //pagination.validateFilterValues(info.getQueryParameters());
         if (pagination.hasErrors()) {
@@ -252,7 +265,14 @@ public class GeneController implements GeneRESTInterface {
                                             String interactorMoleculeType,
                                             String detectionMethod,
                                             String source,
-                                            String reference) {
+                                            String reference,
+                                            String role,
+                                            String geneticPerturbation,
+                                            String interacotorRole,
+                                            String interactorGeneticPerturbation,
+                                            String phenotypes,
+                                            String interactionType
+                                            ) {
         Pagination pagination = new Pagination(1, Integer.MAX_VALUE, sortBy, asc);
         pagination.addFieldFilter(FieldFilter.MOLECULE_TYPE, moleculeType);
         pagination.addFieldFilter(FieldFilter.JOIN_TYPE, joinType);
@@ -262,6 +282,13 @@ public class GeneController implements GeneRESTInterface {
         pagination.addFieldFilter(FieldFilter.DETECTION_METHOD, detectionMethod);
         pagination.addFieldFilter(FieldFilter.SOURCE, source);
         pagination.addFieldFilter(FieldFilter.FREFERENCE, reference);
+      //for genetic interaction
+        pagination.addFieldFilter(FieldFilter.ROLE, role);
+        pagination.addFieldFilter(FieldFilter.GENETIC_PERTURBATION, geneticPerturbation);
+        pagination.addFieldFilter(FieldFilter.INTERACTOR_ROLE, interacotorRole);
+        pagination.addFieldFilter(FieldFilter.INTERACTOR_GENETIC_PERTURBATION, interactorGeneticPerturbation);
+        pagination.addFieldFilter(FieldFilter.PHENOTYPES, phenotypes);
+        pagination.addFieldFilter(FieldFilter.INTERACTION_TYPE, interactionType);
         JsonResultResponse<InteractionGeneJoin> interactions = geneService.getInteractions(id, pagination);
 
         Response.ResponseBuilder responseBuilder = Response.ok(interactionTanslator.getAllRows(interactions.getResults()));

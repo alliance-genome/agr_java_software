@@ -35,6 +35,12 @@ public enum FieldFilter {
     MOLECULE_TYPE("filter.moleculeType"),
     JOIN_TYPE("filter.joinType"),
     //those for genetic interaction
+    ROLE("filter.role"),
+    GENETIC_PERTURBATION("filter.geneticPerturbation"),
+    INTERACTOR_ROLE("filter.interacotorRole"),
+    INTERACTOR_GENETIC_PERTURBATION("filter.interactorGeneticPerturbation"),
+    PHENOTYPES("filter.phenotypes"),   
+    INTERACTION_TYPE("filter.interactionType"),
     
     BASED_ON_GENE("filter.basedOnGeneSymbol"),
     INCLUDE_NEGATION("includeNegation"),
