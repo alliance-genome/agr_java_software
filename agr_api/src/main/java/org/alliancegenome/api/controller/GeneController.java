@@ -131,7 +131,7 @@ public class GeneController implements GeneRESTInterface {
                                                                               String asc,
                                                                               String symbol,
                                                                               String associatedGeneSymbol,
-                                                                              String synonym,
+                                                                              String synonyms,
                                                                               String hgvsgName,
                                                                               String variantType,
                                                                               String molecularConsequence,
@@ -146,7 +146,7 @@ public class GeneController implements GeneRESTInterface {
         long startTime = System.currentTimeMillis();
         Pagination pagination = new Pagination(page, limit, sortBy, asc);
         pagination.addFieldFilter(FieldFilter.SYMBOL, symbol);
-        pagination.addFieldFilter(FieldFilter.SYNONYMS, synonym);
+        pagination.addFieldFilter(FieldFilter.SYNONYMS, synonyms);
         pagination.addFieldFilter(FieldFilter.ALLELE_CATEGORY, category);
         pagination.addFieldFilter(FieldFilter.VARIANT_TYPE, variantType);
         pagination.addFieldFilter(FieldFilter.HAS_DISEASE, hasDisease);
@@ -186,7 +186,7 @@ public class GeneController implements GeneRESTInterface {
     public Response getAllelesVariantPerGeneDownload(String id,
                                                      String symbol,
                                                      String associatedGeneSymbol,
-                                                     String synonym,
+                                                     String synonyms,
                                                      String hgvsgName,
                                                      String variantType,
                                                      String molecularConsequence,
@@ -205,7 +205,7 @@ public class GeneController implements GeneRESTInterface {
                 null,
                 symbol,
                 associatedGeneSymbol,
-                synonym,
+                synonyms,
                 hgvsgName,
                 variantType,
                 molecularConsequence,
