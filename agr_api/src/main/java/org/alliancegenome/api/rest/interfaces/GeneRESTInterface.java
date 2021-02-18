@@ -122,8 +122,8 @@ public interface GeneRESTInterface {
             @QueryParam("filter.symbol") String symbol,
             @Parameter(in = ParameterIn.QUERY, name = "filter.associatedGeneSymbol", description = "allele symbol", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.associatedGeneSymbol") String associatedGeneSymbol,
-            @Parameter(in = ParameterIn.QUERY, name = "filter.synonym", description = "allele synonym", schema = @Schema(type = SchemaType.STRING))
-            @QueryParam("filter.synonym") String synonym,
+            @Parameter(in = ParameterIn.QUERY, name = "filter.synonyms", description = "allele synonym", schema = @Schema(type = SchemaType.STRING))
+            @QueryParam("filter.synonyms") String synonyms,
             @Parameter(in = ParameterIn.QUERY, name = "filter.hgvsgName", description = "Variant types", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.hgvsgName") String hgvsgName,
             @Parameter(in = ParameterIn.QUERY, name = "filter.variantType", description = "Variant types", schema = @Schema(type = SchemaType.STRING))
@@ -159,8 +159,8 @@ public interface GeneRESTInterface {
             @QueryParam("filter.symbol") String symbol,
             @Parameter(in = ParameterIn.QUERY, name = "filter.associatedGeneSymbol", description = "allele symbol", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.associatedGeneSymbol") String associatedGeneSymbol,
-            @Parameter(in = ParameterIn.QUERY, name = "filter.synonym", description = "allele synonym", schema = @Schema(type = SchemaType.STRING))
-            @QueryParam("filter.synonym") String synonym,
+            @Parameter(in = ParameterIn.QUERY, name = "filter.synonyms", description = "allele synonym", schema = @Schema(type = SchemaType.STRING))
+            @QueryParam("filter.synonyms") String synonyms,
             @Parameter(in = ParameterIn.QUERY, name = "filter.hgvsgName", description = "Variant types", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.hgvsgName") String hgvsgName,
             @Parameter(in = ParameterIn.QUERY, name = "filter.variantType", description = "Variant types", schema = @Schema(type = SchemaType.STRING))
