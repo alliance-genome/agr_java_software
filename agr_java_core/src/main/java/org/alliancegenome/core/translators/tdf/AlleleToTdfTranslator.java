@@ -278,7 +278,7 @@ public class AlleleToTdfTranslator {
 
     private VariantDownloadRow getBaseDownloadVariantRow(final Variant annotation, Publication pub) {
         VariantDownloadRow row = new VariantDownloadRow();
-        row.setSymbol(annotation.getName());
+        row.setSymbol(annotation.getHgvsNomenclature());
         row.setVariantType(annotation.getVariantType().getName());
         row.setChrPosition(annotation.getLocation().getChromosomeAndPosition());
         row.setChange(annotation.getNucleotideChange());
