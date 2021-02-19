@@ -46,13 +46,13 @@ public class Main {
                         new VariantMapping(true)
                 );
 
-                SourceDocumentCreation.indexName = im.startSiteIndex();
+                if(VariantConfigHelper.isIndexing()) SourceDocumentCreationNew.indexName = im.startSiteIndex();
                 
                 SourceDocumentCreationManager vdm = new SourceDocumentCreationManager(downloadSet);
                 vdm.start();
                 vdm.join();
                 
-                im.finishIndex();
+                if(VariantConfigHelper.isIndexing()) im.finishIndex();
             }
             
             //mapper.writeValue(new FileWriter(new File("downloadFileSet2.yaml")), downloadSet);
