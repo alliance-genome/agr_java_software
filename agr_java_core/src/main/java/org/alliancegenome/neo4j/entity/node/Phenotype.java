@@ -16,9 +16,9 @@ import lombok.*;
 @Setter
 @Schema(name="Phenotype", description="POJO that represents the Phenotype")
 public class Phenotype extends Neo4jEntity {
-    @JsonView({View.PhenotypeAPI.class})
+    @JsonView({View.PhenotypeAPI.class, View.Interaction.class})
     private String primaryKey;
-    @JsonView({View.AlleleAPI.class})
+    @JsonView({View.AlleleAPI.class, View.Interaction.class})
     private String phenotypeStatement;
 
     @Relationship(type = "IS_IMPLICATED_IN", direction = Relationship.INCOMING)

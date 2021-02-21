@@ -83,11 +83,15 @@ public class InteractionAnnotationFiltering extends AnnotationFiltering {
             	                       
             public static FilterFunction<InteractionGeneJoin, String> phenotypesFilter =
             	                               (annotation, value) -> {
-            	                                   Set<Boolean> filteringPassed = annotation.getPhenotypes().stream()
+            	                            	   if (annotation.getPhenotypes() ==null)
+            	                            		   return false;
+            	                            	   else {
+            	                                     Set<Boolean> filteringPassed = annotation.getPhenotypes().stream()
             	                                           .map(phenotype -> FilterFunction.contains(phenotype.getPhenotypeStatement(), value))
             	                                           .collect(Collectors.toSet());
-            	                                   // return true if at least one source is found
-            	                                   return filteringPassed.contains(true);
+            	                                     // return true if at least one source is found
+            	                                     return filteringPassed.contains(true);
+            	                            	   }
             	                               };	                       
             private static FilterFunction<InteractionGeneJoin, String> interactionTypeFilter =
             	   (annotation, value) -> FilterFunction.fullMatchMultiValueOR(annotation.getInteractionType().getDisplayName(), value);  
