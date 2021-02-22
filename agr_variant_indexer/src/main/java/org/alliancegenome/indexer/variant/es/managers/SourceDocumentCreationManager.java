@@ -23,7 +23,8 @@ public class SourceDocumentCreationManager extends Thread {
             ExecutorService executor = Executors.newFixedThreadPool(VariantConfigHelper.getSourceDocumentCreatorThreads());
 
             for(DownloadSource source: downloadSet.getDownloadFileSet()) {
-                SourceDocumentCreation creator = new SourceDocumentCreation(source);
+                SourceDocumentCreationNew creator = new SourceDocumentCreationNew(source);
+                //SourceDocumentCreation creator = new SourceDocumentCreation(source);
                 executor.execute(creator);
             }
             
