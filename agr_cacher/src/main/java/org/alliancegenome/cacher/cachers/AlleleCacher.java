@@ -49,7 +49,7 @@ public class AlleleCacher extends Cacher {
         cacheSpecies(SpeciesType.YEAST.getTaxonID());
         cacheSpecies(SpeciesType.RAT.getTaxonID());
         cacheSpecies(SpeciesType.ZEBRAFISH.getTaxonID());
-//        cacheSpeciesChromosome(SpeciesType.MOUSE.getTaxonID(), null);
+        cacheSpeciesChromosome(SpeciesType.MOUSE.getTaxonID(), null);
         cacheSpecies(SpeciesType.WORM.getTaxonID());
         cacheSpecies(SpeciesType.FLY.getTaxonID());
 //        cacheSpecies(SpeciesType.HUMAN.getTaxonID());
