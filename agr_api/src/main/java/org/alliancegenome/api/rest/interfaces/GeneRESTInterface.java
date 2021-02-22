@@ -450,6 +450,19 @@ public interface GeneRESTInterface {
             @QueryParam("filter.source") String source,
             @Parameter(in = ParameterIn.QUERY, name = "filter.reference", description = "References")
             @QueryParam("filter.reference") String reference,
+            //for genetic interaction
+            @Parameter(in = ParameterIn.QUERY, name = "filter.role", description = "Role")
+            @QueryParam("filter.role") String role,
+            @Parameter(in = ParameterIn.QUERY, name = "filter.geneticPerturbation", description = "Genetic Perturbation")
+            @QueryParam("filter.geneticPerturbation") String geneticPerturbation,
+            @Parameter(in = ParameterIn.QUERY, name = "filter.interacotorRole", description = "Interacotor Role")
+            @QueryParam("filter.interacotorRole") String interacotorRole,
+            @Parameter(in = ParameterIn.QUERY, name = "filter.interactorGeneticPerturbation", description = "Interactor Genetic Perturbation")
+            @QueryParam("filter.interactorGeneticPerturbation") String interactorGeneticPerturbation,
+            @Parameter(in = ParameterIn.QUERY, name = "filter.phenotypes", description = "Phenotypes")
+            @QueryParam("filter.phenotypes") String phenotypes,
+            @Parameter(in = ParameterIn.QUERY, name = "filter.interactionType", description = "Interaction Type")
+            @QueryParam("filter.interactionType") String interactionType,
             @Context UriInfo info);
 
     @GET
@@ -481,7 +494,20 @@ public interface GeneRESTInterface {
             @Parameter(in = ParameterIn.QUERY, name = "filter.source", description = "database")
             @QueryParam("filter.source") String source,
             @Parameter(in = ParameterIn.QUERY, name = "filter.reference", description = "References")
-            @QueryParam("filter.reference") String reference
+            @QueryParam("filter.reference") String reference,
+            //for genetic interaction
+            @Parameter(in = ParameterIn.QUERY, name = "filter.role", description = "Role")
+            @QueryParam("filter.role") String role,
+            @Parameter(in = ParameterIn.QUERY, name = "filter.geneticPerturbation", description = "Genetic Perturbation")
+            @QueryParam("filter.geneticPerturbation") String geneticPerturbation,
+            @Parameter(in = ParameterIn.QUERY, name = "filter.interacotorRole", description = "Interacotor Role")
+            @QueryParam("filter.interacotorRole") String interacotorRole,
+            @Parameter(in = ParameterIn.QUERY, name = "filter.interactorGeneticPerturbation", description = "Interactor Genetic Perturbation")
+            @QueryParam("filter.interactorGeneticPerturbation") String interactorGeneticPerturbation,
+            @Parameter(in = ParameterIn.QUERY, name = "filter.phenotypes", description = "Phenotypes")
+            @QueryParam("filter.phenotypes") String phenotypes,
+            @Parameter(in = ParameterIn.QUERY, name = "filter.interactionType", description = "Interaction Type")
+            @QueryParam("filter.interactionType") String interactionType
     );
 
     @GET
