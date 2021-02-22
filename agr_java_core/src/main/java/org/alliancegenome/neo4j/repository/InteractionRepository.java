@@ -68,16 +68,6 @@ public class InteractionRepository extends Neo4jRepository<InteractionGeneJoin> 
     }
 
     public List<InteractionGeneJoin> getAllInteractions() {
-        //String allInteractionsQuery = "MATCH p=(igj:InteractionGeneJoin)--(t) ";
-        String allInteractionsQuery = "MATCH p1=(g1:Gene)--(igj:InteractionGeneJoin)--(g2:Gene), p2=(igj:InteractionGeneJoin)--(s) "
-                + " OPTIONAL MATCH p3=(g1:Gene)-->(s1:Species) "
-                + " OPTIONAL MATCH p4=(g2:Gene)-->(s2:Species) ";
-        //allInteractionsQuery += " where g1.primaryKey = 'MGI:109583' ";
-        //allInteractionsQuery += " where g1.primaryKey = 'MGI:103170' ";
-        //allInteractionsQuery += " where g1.primaryKey = 'FB:FBgn0029891' ";
-        //String query = allInteractionsQuery + " RETURN p ";
-        //String query = allInteractionsQuery + " RETURN p1, p2, p3, p4";
-        //String query = "MATCH p1=(g1:Gene)--(igj:InteractionGeneJoin)--(g2:Gene), p2=(igj:InteractionGeneJoin)--(s) where g1.primaryKey = 'WB:WBGene00000390'"
         String query = "MATCH p1=(g1:Gene)--(igj:InteractionGeneJoin)--(g2:Gene), p2=(igj:InteractionGeneJoin)--(s) "
                 + " OPTIONAL MATCH p3=(g1:Gene)-->(s1:Species) "
                 + " OPTIONAL MATCH p4=(g2:Gene)-->(s2:Species) ";
