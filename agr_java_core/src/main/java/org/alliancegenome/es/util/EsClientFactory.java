@@ -1,33 +1,40 @@
 package org.alliancegenome.es.util;
 
-import java.io.IOException;
-import java.util.*;
-
+import com.google.common.collect.Multimap;
+import lombok.extern.log4j.Log4j2;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.apache.http.HttpHost;
 import org.apache.http.client.config.RequestConfig.Builder;
-import org.elasticsearch.client.*;
+import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestClientBuilder.RequestConfigCallback;
+import org.elasticsearch.client.RestHighLevelClient;
 
-import com.google.common.collect.Multimap;
-
-import lombok.extern.log4j.Log4j2;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 @Log4j2
 public class EsClientFactory {
 
-    private static RestHighLevelClient client = null;
+    private static EsClientFactory esClientFactory=null;
+    private  RestHighLevelClient client;
 
-    public static RestHighLevelClient getDefaultEsClient() {
+    private  EsClientFactory(){}
+    public static EsClientFactory getInstance(){
+        if(esClientFactory==null){
+            esClientFactory=new EsClientFactory();
+            esClientFactory.client = createClient();
+        }
+        return esClientFactory;
+    }
+
+  /*  public static RestHighLevelClient getDefaultEsClient() {
         if(client == null) {
             client = createClient();
         }
         return client;
-    }
-    
-    public static RestHighLevelClient createNewClient() {
-        return createClient();
-    }
+    }*/
 
     // Used if APP needs to have multiple clients
     private static RestHighLevelClient createClient() {
@@ -48,27 +55,37 @@ public class EsClientFactory {
         hosts = esHosts.toArray(hosts);
 
         log.info("Creating new ES Client: " + map);
-        client = new RestHighLevelClient(
-            RestClient.builder(hosts)
-            .setRequestConfigCallback(
-                new RequestConfigCallback() {
-                    @Override
-                    public Builder customizeRequestConfig(Builder requestConfigBuilder) {
-                        return requestConfigBuilder.setConnectTimeout(5000).setSocketTimeout(1800000).setConnectionRequestTimeout(1800000);
-                    }
-                }
-            )
-        );
-        
         log.info("Finished Connecting to ES");
+        return new RestHighLevelClient(
+                RestClient.builder(hosts)
+                        .setRequestConfigCallback(
+                                new RequestConfigCallback() {
+                                    @Override
+                                    public Builder customizeRequestConfig(Builder requestConfigBuilder) {
+                                        return requestConfigBuilder.setConnectTimeout(5000).setSocketTimeout(1800000).setConnectionRequestTimeout(1800000);
+                                    }
+                                }
+                        )
+        );
+
+
+
+    }
+
+    public RestHighLevelClient getClient() {
         return client;
+    }
+
+    public void setClient(RestHighLevelClient client) {
+        this.client = client;
     }
 
     public static void closeClient() {
         log.info("Closing ES Client: ");
         try {
-            client.close();
-            client = null;
+            esClientFactory.client.close();
+            esClientFactory.client= null;
+            esClientFactory=null;
         } catch (IOException e) {
             e.printStackTrace();
         }
