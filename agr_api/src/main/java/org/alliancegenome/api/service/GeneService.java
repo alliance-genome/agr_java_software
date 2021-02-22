@@ -33,7 +33,7 @@ public class GeneService {
     @Inject
     private AlleleService alleleService;
     @Inject
-    private CacheService cacheService;
+    private GeneCacheRepository geneCacheRepo;
 
     public Gene getById(String id) {
         Gene gene = geneRepo.getOneGene(id);
@@ -72,7 +72,7 @@ public class GeneService {
             return response;
         FilterService<InteractionGeneJoin> filterService = new FilterService<>(new InteractionAnnotationFiltering());
         ColumnFieldMapping<InteractionGeneJoin> mapping = new InteractionColumnFieldMapping();
-        List<InteractionGeneJoin> interactionAnnotationList = cacheService.getCacheEntries(id, CacheAlliance.GENE_INTERACTION);
+        List<InteractionGeneJoin> interactionAnnotationList = geneCacheRepo.getInteractions(id);
         response.addDistinctFieldValueSupplementalData(filterService.getDistinctFieldValues(interactionAnnotationList,
                 mapping.getSingleValuedFieldColumns(Table.INTERACTION), mapping));        
         //response.addDistinctFieldValueSupplementalData(interactions.getDistinctFieldValueMap());
