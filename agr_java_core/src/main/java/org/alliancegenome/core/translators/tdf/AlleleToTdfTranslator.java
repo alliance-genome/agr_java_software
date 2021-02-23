@@ -239,13 +239,12 @@ public class AlleleToTdfTranslator {
                 new DownloadHeader<>("Nucleotide Change", (VariantDownloadRow::getChange)),
                 new DownloadHeader<>("Most Severe Consequence", (VariantDownloadRow::getConsequence)),
                 new DownloadHeader<>("HGVS.gName", (VariantDownloadRow::getHgvsG)),
-                new DownloadHeader<>("HGVS.cName", (VariantDownloadRow::getHgvsP)),
-                new DownloadHeader<>("HGVS.pName", (VariantDownloadRow::getHgvsC)),
+                new DownloadHeader<>("HGVS.cName", (VariantDownloadRow::getHgvsC)),
+                new DownloadHeader<>("HGVS.pName", (VariantDownloadRow::getHgvsP)),
                 new DownloadHeader<>("Synonyms", (VariantDownloadRow::getVariantSynonyms)),
                 new DownloadHeader<>("Notes", (VariantDownloadRow::getNotes)),
-                new DownloadHeader<>("References", (VariantDownloadRow::getReference)),
-                new DownloadHeader<>("Cross References", (VariantDownloadRow::getCrossReference))
-
+                new DownloadHeader<>("Cross References", (VariantDownloadRow::getCrossReference)),
+                new DownloadHeader<>("References", (VariantDownloadRow::getReference))
         );
 
         return DownloadHeader.getDownloadOutput(list, headers);
