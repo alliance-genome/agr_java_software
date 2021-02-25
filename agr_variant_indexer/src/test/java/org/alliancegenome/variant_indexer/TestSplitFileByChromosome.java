@@ -11,7 +11,11 @@ import htsjdk.variant.vcf.VCFFileReader;
 
 public class TestSplitFileByChromosome {
     public static void main(String[] args) {
-        VCFFileReader reader = new VCFFileReader(new File("/Volumes/Cardano_Backup/Variants/MGI_POSTVEPVCF.split_patho.vcf.gz"), false);
+        
+        String inputDir =  "/Users/olinblodgett/git/agr_java_software/agr_variant_indexer/data";
+        String outputDir = "/Users/olinblodgett/git/agr_java_software/agr_variant_indexer/data";
+        
+        VCFFileReader reader = new VCFFileReader(new File(inputDir + "/MGI_HTPOSTVEPVCF_20210224.vcf.gz"), false);
 
         String chr = "";
 
@@ -30,7 +34,7 @@ public class TestSplitFileByChromosome {
                     if(writer != null) writer.close();
                     chr = vc.getChr();
                     VariantContextWriterBuilder builder = new VariantContextWriterBuilder();
-                    builder.setOutputFile("/Volumes/Cardano_Backup/Variants/MGI.vep." + chr + ".vcf.gz");
+                    builder.setOutputFile(outputDir + "/MGI.vep." + chr + ".vcf.gz");
                     writer = builder.build();
                     writer.writeHeader(reader.getFileHeader());
                 }

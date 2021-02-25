@@ -6,8 +6,9 @@ import org.alliancegenome.core.filedownload.process.FileDownloadManager;
 import org.alliancegenome.core.variant.config.VariantConfigHelper;
 import org.alliancegenome.es.index.site.schema.VariantMapping;
 import org.alliancegenome.es.index.site.schema.settings.VariantIndexSettings;
-import org.alliancegenome.es.util.IndexManager;
+import org.alliancegenome.es.util.*;
 import org.alliancegenome.indexer.variant.es.managers.*;
+import org.elasticsearch.client.RestHighLevelClient;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
@@ -23,9 +24,14 @@ public class Main {
         VariantConfigHelper.init();
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
 
+        RestHighLevelClient client = null;
+        
         boolean downloading = VariantConfigHelper.isDownloading();
         boolean creating = VariantConfigHelper.isCreating();
-
+        boolean indexing = VariantConfigHelper.isIndexing();
+        
+        if(indexing) client = EsClientFactory.getDefaultEsClient();
+        
         try {
 
             DownloadFileSet downloadSet = mapper.readValue(getClass().getClassLoader().getResourceAsStream(VariantConfigHelper.getVariantConfigFile()), DownloadFileSet.class);
@@ -40,15 +46,17 @@ public class Main {
             if(creating) {
                 IndexManager im = new IndexManager(new VariantIndexSettings(true, VariantConfigHelper.getIndexerShards()), new VariantMapping(true));
 
-                if(VariantConfigHelper.isIndexing()) SourceDocumentCreation.indexName = im.startSiteIndex();
+                if(indexing) SourceDocumentCreation.indexName = im.startSiteIndex();
 
-                SourceDocumentCreationManager vdm = new SourceDocumentCreationManager(downloadSet);
+                SourceDocumentCreationManager vdm = new SourceDocumentCreationManager(client, downloadSet);
                 vdm.start();
                 vdm.join();
 
-                if(VariantConfigHelper.isIndexing()) im.finishIndex();
+                if(indexing) im.finishIndex();
             }
 
+            //mapper.writeValue(new FileWriter(new File("downloadFileSet2.yaml")), downloadSet);
+            if(indexing) client.close();
         } catch (Exception e) {
             e.printStackTrace();
         }

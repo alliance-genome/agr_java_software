@@ -9,6 +9,7 @@ import org.alliancegenome.core.filedownload.model.*;
 import org.alliancegenome.core.variant.config.VariantConfigHelper;
 import org.alliancegenome.core.variant.converters.*;
 import org.alliancegenome.es.util.*;
+import org.alliancegenome.indexer.variant.es.stats.StatsCollector;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.repository.AlleleRepository;
@@ -35,6 +36,8 @@ public class SourceDocumentCreation extends Thread {
     private SpeciesType speciesType;
     private String[] header = null;
     public static String indexName;
+    private RestHighLevelClient client;
+    
     private BulkProcessor.Builder builder1;
     private BulkProcessor.Builder builder2;
     private BulkProcessor.Builder builder3;
@@ -49,6 +52,7 @@ public class SourceDocumentCreation extends Thread {
     private RestHighLevelClient client;
 
     private boolean indexing = VariantConfigHelper.isIndexing();
+    private boolean gatherStats = VariantConfigHelper.isGatherStats();
 
     private LinkedBlockingDeque<List<VariantContext>> vcQueue = new LinkedBlockingDeque<List<VariantContext>>(VariantConfigHelper.getSourceDocumentCreatorVCQueueSize());
     private LinkedBlockingDeque<List<AlleleVariantSequence>> objectQueue = new LinkedBlockingDeque<List<AlleleVariantSequence>>(VariantConfigHelper.getSourceDocumentCreatorObjectQueueSize());
@@ -71,7 +75,10 @@ public class SourceDocumentCreation extends Thread {
 
     AlleleVariantSequenceConverter converter = new AlleleVariantSequenceConverter();
 
-    public SourceDocumentCreation(DownloadSource source) {
+    private StatsCollector statsCollector = new StatsCollector();
+    
+    public SourceDocumentCreation(RestHighLevelClient client, DownloadSource source) {
+        this.client = client;
         this.source = source;
         speciesType = SpeciesType.getTypeByID(source.getTaxonId());
         //aVSConverter = new AlleleVariantSequenceConverter(repo);
@@ -316,6 +323,8 @@ public class SourceDocumentCreation extends Thread {
             //log.info("Shutdown Neo Repo: ");
             //repo.clearCache();
             
+            if(gatherStats) statsCollector.printOutput();
+
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

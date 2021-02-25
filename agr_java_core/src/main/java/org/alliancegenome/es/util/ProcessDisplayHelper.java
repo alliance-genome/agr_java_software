@@ -3,6 +3,7 @@ package org.alliancegenome.es.util;
 import java.text.DecimalFormat;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.logging.log4j.Logger;
 
@@ -19,7 +20,9 @@ public class ProcessDisplayHelper {
     private String message;
     private long lastSizeCounter = 0;
     private long totalSize;
-    private long sizeCounter = 0;
+    
+    private AtomicInteger sizeCounter = new AtomicInteger(0);
+    
     private long displayTimeout = 30000; // How often to display to the console
     private Logger logger = null;
     
@@ -44,7 +47,7 @@ public class ProcessDisplayHelper {
         this.totalSize = totalSize;
         lastSizeCounter = 0;
         startTime = new Date();
-        sizeCounter = 0;
+        sizeCounter = new AtomicInteger(0);
         if (totalSize > 0)
             logInfoMessage(this.message + "Starting Process [total =    " + getBigNumber(totalSize) + "] ");
         else
@@ -61,7 +64,7 @@ public class ProcessDisplayHelper {
         Date now = new Date();
 
         long time = now.getTime() - lastTime.getTime();
-        sizeCounter++;
+        sizeCounter.getAndIncrement();
         if (time < displayTimeout) return;
         
         long diff = now.getTime() - startTime.getTime();        
@@ -69,11 +72,11 @@ public class ProcessDisplayHelper {
         
         double percent = 0;
         if (totalSize > 0) {
-            percent = ((double) (sizeCounter) / totalSize);
+            percent = ((double) (sizeCounter.get()) / totalSize);
         }
-        long processedAmount = (sizeCounter - lastSizeCounter);
+        long processedAmount = (sizeCounter.get() - lastSizeCounter);
         StringBuffer sb = new StringBuffer(this.message);
-        sb.append(getBigNumber(sizeCounter));
+        sb.append(getBigNumber(sizeCounter.get()));
         if(totalSize > 0) {
             sb.append(" of [" + getBigNumber(totalSize) + "] " + (int) (percent * 100) + "%");
         }
@@ -90,7 +93,7 @@ public class ProcessDisplayHelper {
             sb.append(", Mem: " + df.format(memoryPercent() * 100) + "%, ETA: " + expectedDuration + " [" + end + "]");
         }
         logInfoMessage(sb.toString());
-        lastSizeCounter = sizeCounter;
+        lastSizeCounter = sizeCounter.get();
         lastTime = now;
     }
 
@@ -102,9 +105,9 @@ public class ProcessDisplayHelper {
         Date now = new Date();
         long duration = now.getTime() - startTime.getTime();
         String result = getHumanReadableTimeDisplay(duration);
-        String localMessage = message + "Finished: took: " + result + " to process " + getBigNumber(sizeCounter);
+        String localMessage = message + "Finished: took: " + result + " to process " + getBigNumber(sizeCounter.get());
         if (duration != 0) {
-            localMessage += " records at a rate of: " + ((sizeCounter * 1000) / duration) + "r/s " + ((sizeCounter * 60000) / duration) + "r/m";
+            localMessage += " records at a rate of: " + ((sizeCounter.get() * 1000) / duration) + "r/s " + ((sizeCounter.get() * 60000) / duration) + "r/m";
         } else {
             localMessage += " records";
         }
