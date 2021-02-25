@@ -34,21 +34,21 @@ import org.alliancegenome.neo4j.repository.Neo4jSessionFactory;
 import org.apache.logging.log4j.*;
 
 public class Main {
-	 private final Logger log = LogManager.getLogger(getClass());
-	
+     private final Logger log = LogManager.getLogger(getClass());
+    
   @SuppressWarnings("unchecked")
 public static void main (String[] args) {
-	  GeneRepository geneRepo = new GeneRepository();
-	  Gene g=geneRepo.getOneGene("MGI:97490");
-	  System.out.println(g.getSynonyms());
-	  
-	  
-	 // AlleleCacheRepository alleleCache = new AlleleCacheRepository();
-	 // Allele a=alleleCache.getAllelesByGene("MGI:97490", pagination)
-	 
-	  //here to test filer
-	// Calling values() 
-	  FieldFilter arr[] = FieldFilter.values(); 
+      GeneRepository geneRepo = new GeneRepository();
+      Gene g=geneRepo.getOneGene("MGI:97490");
+      System.out.println(g.getSynonyms());
+      
+      
+     // AlleleCacheRepository alleleCache = new AlleleCacheRepository();
+     // Allele a=alleleCache.getAllelesByGene("MGI:97490", pagination)
+     
+      //here to test filer
+    // Calling values() 
+      FieldFilter arr[] = FieldFilter.values(); 
 
       // enum with loop 
       for (FieldFilter col : arr) 
@@ -64,12 +64,12 @@ public static void main (String[] args) {
       System.out.println(" ff:" + ff + " ff name:" +ff.getFullName());
       
       java.util.List<String> names = 
-    		  java.util.Arrays.asList("Geek","GeeksQuiz","g1","QA","Geek2"); 
+              java.util.Arrays.asList("Geek","GeeksQuiz","g1","QA","Geek2"); 
       java.util.function.Predicate<String> p =(s)->s.startsWith("G");
       for (String s1:names){
-    	  if (p.test(s1)){
-    		  System.out.println(s1);
-    	  }
+          if (p.test(s1)){
+              System.out.println(s1);
+          }
       }
      // java.util.stream.Stream
       String[] names1= {"Abs","cdd","Sare" };
@@ -110,14 +110,14 @@ public static void main (String[] args) {
           Gene homologGene = (Gene) objectMap.get("gh");
           Orthologous o =(Orthologous)objectMap.get("orth"); 
           if (o !=null) {
-        	   System.out.println("ORTHOLOGOUS bst" + o.getIsBestScore()) ;  
+               System.out.println("ORTHOLOGOUS bst" + o.getIsBestScore()) ;  
          }
           //view.setHomologGene(homologGene);
           //view.setBest(((List<Orthologous>) objectMap.get("collect(distinct ortho)")).get(0).getIsBestScore());
           //view.setBestReverse(((List<Orthologous>) objectMap.get("collect(distinct ortho)")).get(0).getIsBestRevScore());
           if (gene !=null) {
-        	  log.info("in log:" + gene.getName());
-        	  System.out.println("in println:" + gene.getName());
+              log.info("in log:" + gene.getName());
+              System.out.println("in println:" + gene.getName());
           }
           orthologViews.add(view);
       });
@@ -125,7 +125,7 @@ public static void main (String[] args) {
   }
   
  static Result loggedQuery(String cypherQuery, Map<String, ?> params) {
-	 Session neo4jSession = Neo4jSessionFactory.getInstance().getNeo4jSession();
+     Session neo4jSession = Neo4jSessionFactory.getInstance().getNeo4jSession();
       Date start = new Date();
       //log.debug("Running Query: " + cypherQuery);
       Result ret = neo4jSession.query(cypherQuery, params);

@@ -33,7 +33,7 @@ public class InteractionCacher extends Cacher {
         startProcess("interactionAnnotationMapGene", allInteractionAnnotations.size());
         //parallelStream is unsafe here, we found out that it lost InteractionGeneJoin.getPhenotypes().getPhenotypeStatement() information, it return null
         //Map<String, List<InteractionGeneJoin>> interactionAnnotationMapGene = allInteractionAnnotations.parallelStream()
-        Map<String, List<InteractionGeneJoin>> interactionAnnotationMapGene = allInteractionAnnotations.stream()		
+        Map<String, List<InteractionGeneJoin>> interactionAnnotationMapGene = allInteractionAnnotations.stream()        
                 // exclude self-interaction
                 .filter(interactionGeneJoin -> !interactionGeneJoin.getGeneA().getPrimaryKey().equals(interactionGeneJoin.getGeneB().getPrimaryKey()))
                 .collect(groupingBy(phenotypeAnnotation -> phenotypeAnnotation.getGeneA().getPrimaryKey()));

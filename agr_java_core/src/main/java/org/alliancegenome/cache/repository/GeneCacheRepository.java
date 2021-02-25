@@ -59,7 +59,7 @@ public class GeneCacheRepository {
      * @return list of InteractionGeneJoin
      */
     public List<InteractionGeneJoin> getInteractions(String geneID){
-    	List<InteractionGeneJoin> interactionAnnotationList = cacheService.getCacheEntries(geneID, CacheAlliance.GENE_INTERACTION);
-    	return interactionAnnotationList ;
+        List<InteractionGeneJoin> interactionAnnotationList = cacheService.getCacheEntries(geneID, CacheAlliance.GENE_INTERACTION);
+        return interactionAnnotationList ;
     }
 }

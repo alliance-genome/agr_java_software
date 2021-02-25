@@ -48,18 +48,18 @@ public class InteractionAnnotationSorting implements Sorting<InteractionGeneJoin
     //here for genetic interaction
     private static Comparator<InteractionGeneJoin> interactorAGeneticPerturbationOrder =
             Comparator.comparing(annotation -> {
-             if (annotation.getAlleleA() ==null)	
-            	 return null;
+             if (annotation.getAlleleA() ==null)    
+                 return null;
              else 
                  return annotation.getAlleleA().getSymbol();
             });
     private static Comparator<InteractionGeneJoin> interactorBGeneticPerturbationOrder =
             Comparator.comparing(annotation -> {
-            	if (annotation.getAlleleB()==null)
-            		return null;
-            	else 
-            	   return annotation.getAlleleB().getSymbol();
-            	});
+                if (annotation.getAlleleB()==null)
+                    return null;
+                else 
+                   return annotation.getAlleleB().getSymbol();
+                });
     private static Comparator<InteractionGeneJoin> roleOrder =
             Comparator.comparing(annotation -> annotation.getInteractorARole().getDisplayName());
     private static Comparator<InteractionGeneJoin> interactorRoleOrder =

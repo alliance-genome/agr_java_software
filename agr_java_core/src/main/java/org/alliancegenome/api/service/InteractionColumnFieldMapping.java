@@ -28,7 +28,7 @@ public class InteractionColumnFieldMapping extends ColumnFieldMapping<Interactio
         //genetic interaction
         mapColumnFieldName.put(ROLE, FieldFilter.ROLE);
         mapColumnFieldName.put(GENETIC_PERTURBATION, FieldFilter.GENETIC_PERTURBATION);
-        mapColumnFieldName.put(INTERACTOR_ROLE, FieldFilter.INTERACTOR_ROLE);	
+        mapColumnFieldName.put(INTERACTOR_ROLE, FieldFilter.INTERACTOR_ROLE);   
         mapColumnFieldName.put(INTERACTOR_GENETIC_PERTURBATION, FieldFilter.INTERACTOR_GENETIC_PERTURBATION);
         mapColumnFieldName.put(PHENOTYPES, FieldFilter.PHENOTYPES);
         mapColumnFieldName.put(INTERACTION_TYPE, FieldFilter.INTERACTION_TYPE);

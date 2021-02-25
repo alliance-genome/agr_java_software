@@ -63,38 +63,38 @@ public class InteractionAnnotationFiltering extends AnnotationFiltering {
                (annotation, value) -> FilterFunction.fullMatchMultiValueOR(annotation.getInteractorARole().getDisplayName(), value); 
                
            private static FilterFunction<InteractionGeneJoin, String> interactorRoleFilter =
-            	       (annotation, value) -> FilterFunction.fullMatchMultiValueOR(annotation.getInteractorBRole().getDisplayName(), value); 
-            	       
+                       (annotation, value) -> FilterFunction.fullMatchMultiValueOR(annotation.getInteractorBRole().getDisplayName(), value); 
+                       
            
            private static FilterFunction<InteractionGeneJoin, String> geneticPerturbationFilter =
-            	               (annotation, value) -> { 
-            	            	     if (annotation.getAlleleA()  != null)
-            	            	       return FilterFunction.contains(annotation.getAlleleA().getSymbolText(), value); 
-            	            	     else 
-            	            	    	 return false;
-            	            	   } ;  	       
+                               (annotation, value) -> { 
+                                     if (annotation.getAlleleA()  != null)
+                                       return FilterFunction.contains(annotation.getAlleleA().getSymbolText(), value); 
+                                     else 
+                                         return false;
+                                   } ;             
            private static FilterFunction<InteractionGeneJoin, String> interactorGeneticPerturbationFilter =
-            	                       (annotation, value) -> {
-            	                    	  if (annotation.getAlleleB() !=null)
-            	                    	   return FilterFunction.contains(annotation.getAlleleB().getSymbolText(), value); 
-            	                    	  else 
-            	                    		  return false;
-            	                       };
-            	                       
+                                       (annotation, value) -> {
+                                          if (annotation.getAlleleB() !=null)
+                                           return FilterFunction.contains(annotation.getAlleleB().getSymbolText(), value); 
+                                          else 
+                                              return false;
+                                       };
+                                       
             public static FilterFunction<InteractionGeneJoin, String> phenotypesFilter =
-            	                               (annotation, value) -> {
-            	                            	   if (annotation.getPhenotypes() ==null)
-            	                            		   return false;
-            	                            	   else {
-            	                                     Set<Boolean> filteringPassed = annotation.getPhenotypes().stream()
-            	                                           .map(phenotype -> FilterFunction.contains(phenotype.getPhenotypeStatement(), value))
-            	                                           .collect(Collectors.toSet());
-            	                                     // return true if at least one source is found
-            	                                     return filteringPassed.contains(true);
-            	                            	   }
-            	                               };	                       
+                                               (annotation, value) -> {
+                                                   if (annotation.getPhenotypes() ==null)
+                                                       return false;
+                                                   else {
+                                                     Set<Boolean> filteringPassed = annotation.getPhenotypes().stream()
+                                                           .map(phenotype -> FilterFunction.contains(phenotype.getPhenotypeStatement(), value))
+                                                           .collect(Collectors.toSet());
+                                                     // return true if at least one source is found
+                                                     return filteringPassed.contains(true);
+                                                   }
+                                               };                          
             private static FilterFunction<InteractionGeneJoin, String> interactionTypeFilter =
-            	   (annotation, value) -> FilterFunction.fullMatchMultiValueOR(annotation.getInteractionType().getDisplayName(), value);  
+                   (annotation, value) -> FilterFunction.fullMatchMultiValueOR(annotation.getInteractionType().getDisplayName(), value);  
     public static Map<FieldFilter, FilterFunction<InteractionGeneJoin, String>> filterFieldMap = new HashMap<>();
 
     static {
