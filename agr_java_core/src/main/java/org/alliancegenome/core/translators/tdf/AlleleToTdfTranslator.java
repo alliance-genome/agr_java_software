@@ -136,6 +136,7 @@ public class AlleleToTdfTranslator {
 
         List<TransgenicAlleleDownloadRow> list = getTransgenicAlleleDownloadRowsForGenes(annotations);
         List<DownloadHeader> headers = List.of(
+                new DownloadHeader<>("Species", (TransgenicAlleleDownloadRow::getSpecies)),
                 new DownloadHeader<>("Allele ID", (TransgenicAlleleDownloadRow::getAlleleID)),
                 new DownloadHeader<>("Allele Symbol", (TransgenicAlleleDownloadRow::getAlleleSymbol)),
                 new DownloadHeader<>("Transgenic Construct ID", (TransgenicAlleleDownloadRow::getTgConstructID)),
@@ -179,6 +180,7 @@ public class AlleleToTdfTranslator {
 
     private TransgenicAlleleDownloadRow getBaseDownloadAlleleTransgenicRow(Allele annotation, Construct join, Publication pub) {
         TransgenicAlleleDownloadRow row = new TransgenicAlleleDownloadRow();
+        row.setSpecies(annotation.getSpecies());
         row.setAlleleID(annotation.getPrimaryKey());
         row.setAlleleSymbol(annotation.getSymbol());
         row.setTgConstructID(join.getPrimaryKey());
