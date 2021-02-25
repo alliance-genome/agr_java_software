@@ -29,9 +29,11 @@ import org.elasticsearch.common.Strings;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.snapshots.SnapshotInfo;
 
+import lombok.extern.log4j.Log4j2;
+
+@Log4j2
 public class IndexManager {
 
-    private final Logger log = LogManager.getLogger(getClass());
     private String newIndexName;
     private String baseIndexName = ConfigHelper.getEsIndex();
     private String tempIndexName = baseIndexName + "_temp";
@@ -88,18 +90,23 @@ public class IndexManager {
         String index_name = getIndexNameForAlias(alias);
 
         log.debug("Removing Alias: " + alias + " for index: " + index_name);
+        
+        if(index_name != null) {
 
-        IndicesAliasesRequest request = new IndicesAliasesRequest();
-        IndicesAliasesRequest.AliasActions removeAction =
-                new IndicesAliasesRequest.AliasActions(IndicesAliasesRequest.AliasActions.Type.REMOVE)
-                .index(index_name)
-                .alias(alias);
-        request.addAliasAction(removeAction);
-
-        try {
-            getClient().indices().updateAliases(request, RequestOptions.DEFAULT);
-        } catch (IOException e) {
-            e.printStackTrace();
+            IndicesAliasesRequest request = new IndicesAliasesRequest();
+            IndicesAliasesRequest.AliasActions removeAction =
+                    new IndicesAliasesRequest.AliasActions(IndicesAliasesRequest.AliasActions.Type.REMOVE)
+                    .index(index_name)
+                    .alias(alias);
+            request.addAliasAction(removeAction);
+    
+            try {
+                getClient().indices().updateAliases(request, RequestOptions.DEFAULT);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            log.error("Unable to remove Index Alias: " + alias + " not found");
         }
     }
 
@@ -382,11 +389,11 @@ public class IndexManager {
             String[] indices = response.getIndices();
             return new ArrayList<String>(Arrays.asList(indices));
 
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            log.error("No Indexes found: " + e.getLocalizedMessage());
         }
 
-        return null;
+        return new ArrayList<String>();
     }
 
     private void checkRepo(String repo) {
