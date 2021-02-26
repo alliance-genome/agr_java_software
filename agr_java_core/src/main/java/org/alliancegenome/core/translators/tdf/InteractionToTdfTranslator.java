@@ -46,7 +46,7 @@ public class InteractionToTdfTranslator {
         headerJoiner.add("Phenotype or trait");
         }
         else {
-        	headerJoiner.add("Focus gene molecule type ID");
+            headerJoiner.add("Focus gene molecule type ID");
             headerJoiner.add("Focus gene molecule type");
             headerJoiner.add("Interaction type");
             headerJoiner.add("Focus gene experimental role ID");
