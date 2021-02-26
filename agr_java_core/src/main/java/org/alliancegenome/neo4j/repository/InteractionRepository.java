@@ -3,17 +3,12 @@ package org.alliancegenome.neo4j.repository;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-import org.alliancegenome.cache.repository.helper.FilterFunction;
-import org.alliancegenome.cache.repository.helper.InteractionAnnotationFiltering;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
 import org.alliancegenome.neo4j.entity.node.Species;
-import org.alliancegenome.neo4j.view.BaseFilter;
 
 public class InteractionRepository extends Neo4jRepository<InteractionGeneJoin> {
 
