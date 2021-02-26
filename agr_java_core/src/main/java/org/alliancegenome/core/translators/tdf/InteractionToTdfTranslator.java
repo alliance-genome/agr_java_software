@@ -4,15 +4,16 @@ import java.util.*;
 
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
+import org.alliancegenome.api.entity.JoinTypeValue;
 
 public class InteractionToTdfTranslator {
 
     public String getAllRows(List<InteractionGeneJoin> annotations) {
         StringBuilder builder = new StringBuilder();
         StringJoiner headerJoiner = new StringJoiner("\t");
-
-        headerJoiner.add("Focus gene molecule type ID");
-        headerJoiner.add("Focus gene molecule type");
+        if (annotations.get(0).getJoinType().equalsIgnoreCase(JoinTypeValue.genetic_interaction.getName())) {
+        //headerJoiner.add("Focus gene molecule type ID");
+        //headerJoiner.add("Focus gene molecule type");
         headerJoiner.add("Interaction type");
         headerJoiner.add("Focus gene experimental role ID");
         headerJoiner.add("Focus gene experimental role");
@@ -22,8 +23,8 @@ public class InteractionToTdfTranslator {
         headerJoiner.add("Interactor species ID");
         headerJoiner.add("Interactor species");
         
-        headerJoiner.add("Interactor molecule type ID");
-        headerJoiner.add("Interactor molecule type");
+        //headerJoiner.add("Interactor molecule type ID");
+        //headerJoiner.add("Interactor molecule type");
         headerJoiner.add("Interactor experimental role ID");
         headerJoiner.add("Interactor experimental role");
         
@@ -43,14 +44,50 @@ public class InteractionToTdfTranslator {
         headerJoiner.add("genetic perturbation A");
         headerJoiner.add("genetic perturbation B");
         headerJoiner.add("Phenotype or trait");
+        }
+        else {
+        	headerJoiner.add("Focus gene molecule type ID");
+            headerJoiner.add("Focus gene molecule type");
+            headerJoiner.add("Interaction type");
+            headerJoiner.add("Focus gene experimental role ID");
+            headerJoiner.add("Focus gene experimental role");
+            
+            headerJoiner.add("Interactor gene ID");
+            headerJoiner.add("Interactor gene");
+            headerJoiner.add("Interactor species ID");
+            headerJoiner.add("Interactor species");
+            
+            headerJoiner.add("Interactor molecule type ID");
+            headerJoiner.add("Interactor molecule type");
+            headerJoiner.add("Interactor experimental role ID");
+            headerJoiner.add("Interactor experimental role");
+            
+            headerJoiner.add("Interaction type ID");
+            headerJoiner.add("Interaction type");
+            
+            headerJoiner.add("Detection method IDs");
+            headerJoiner.add("Detection methods");
+            
+            headerJoiner.add("Source ID");
+            headerJoiner.add("Source DB ID");
+            headerJoiner.add("Source DB");
+            headerJoiner.add("Aggregation DB ID");
+            headerJoiner.add("Aggregation DB");
+            headerJoiner.add("Reference");
+            //new column from genetic interaction
+            //headerJoiner.add("genetic perturbation A");
+            //headerJoiner.add("genetic perturbation B");
+            //headerJoiner.add("Phenotype or trait");
+        }
 
         builder.append(headerJoiner.toString());
         builder.append(ConfigHelper.getJavaLineSeparator());
 
         annotations.forEach(interactionGeneJoin -> {
             StringJoiner joiner = new StringJoiner("\t");
-
+            if (interactionGeneJoin.getJoinType().equalsIgnoreCase(JoinTypeValue.molecular_interaction.getName()))
             joiner.add(interactionGeneJoin.getInteractorAType().getPrimaryKey());
+            if (interactionGeneJoin.getJoinType().equalsIgnoreCase(JoinTypeValue.molecular_interaction.getName()))
             joiner.add(interactionGeneJoin.getInteractorAType().getLabel());
             joiner.add(interactionGeneJoin.getJoinType());
             joiner.add(interactionGeneJoin.getInteractorARole().getPrimaryKey());
@@ -60,8 +97,9 @@ public class InteractionToTdfTranslator {
             joiner.add(interactionGeneJoin.getGeneB().getSymbol());
             joiner.add(interactionGeneJoin.getGeneB().getSpecies().getPrimaryKey());
             joiner.add(interactionGeneJoin.getGeneB().getSpecies().getName());
-            
+            if (interactionGeneJoin.getJoinType().equalsIgnoreCase(JoinTypeValue.molecular_interaction.getName()))
             joiner.add(interactionGeneJoin.getInteractorBType().getPrimaryKey());
+            if (interactionGeneJoin.getJoinType().equalsIgnoreCase(JoinTypeValue.molecular_interaction.getName()))
             joiner.add(interactionGeneJoin.getInteractorBType().getLabel());
             joiner.add(interactionGeneJoin.getInteractorBRole().getPrimaryKey());
             joiner.add(interactionGeneJoin.getInteractorBRole().getLabel());
@@ -118,6 +156,7 @@ public class InteractionToTdfTranslator {
             else 
                 joiner.add(""); 
             //genetic perturbation alleleA
+            if (interactionGeneJoin.getJoinType().equalsIgnoreCase(JoinTypeValue.genetic_interaction.getName()))
             if (interactionGeneJoin.getAlleleA()!=null) {
                 joiner.add(interactionGeneJoin.getAlleleA().getPrimaryKey());
             }
@@ -125,6 +164,7 @@ public class InteractionToTdfTranslator {
                 joiner.add("");
             }
             //genetic perturbation, alleleB
+            if (interactionGeneJoin.getJoinType().equalsIgnoreCase(JoinTypeValue.genetic_interaction.getName()))
             if (interactionGeneJoin.getAlleleB()!=null) {
                 joiner.add(interactionGeneJoin.getAlleleB().getPrimaryKey());
             }
@@ -133,13 +173,14 @@ public class InteractionToTdfTranslator {
             }
             //phenotypes
             String phenotypeIds = "";
-            if (interactionGeneJoin.getPhenotypes() != null) {
+            if (interactionGeneJoin.getJoinType().equalsIgnoreCase(JoinTypeValue.genetic_interaction.getName())) {
+             if (interactionGeneJoin.getPhenotypes() != null) {
                 StringJoiner phenotypeJoiner = new StringJoiner(",");
                 interactionGeneJoin.getPhenotypes().forEach(phenotype -> phenotypeJoiner.add(phenotype.getPrimaryKey()));
                 phenotypeIds = phenotypeJoiner.toString();
+             }
+             joiner.add(phenotypeIds);
             }
-            joiner.add(phenotypeIds);
-
             builder.append(joiner.toString());
             builder.append(ConfigHelper.getJavaLineSeparator());
         });

@@ -5,6 +5,7 @@ import lombok.extern.log4j.Log4j2;
 import org.alliancegenome.api.entity.AlleleVariantSequence;
 import org.alliancegenome.api.entity.DiseaseRibbonSummary;
 import org.alliancegenome.api.entity.ExpressionSummary;
+import org.alliancegenome.api.entity.JoinTypeValue;
 import org.alliancegenome.api.rest.interfaces.GeneRESTInterface;
 import org.alliancegenome.api.service.*;
 import org.alliancegenome.api.service.helper.APIServiceHelper;
@@ -259,7 +260,7 @@ public class GeneController implements GeneRESTInterface {
     @Override
     public JsonResultResponse<InteractionGeneJoin> getInteractions(String id, Integer limit, Integer page, String sortBy, String asc,
                                                                    String moleculeType,
-                                                                   String joinType,
+                                                                   JoinTypeValue joinType,
                                                                    String interactorGeneSymbol,
                                                                    String interactorSpecies,
                                                                    String interactorMoleculeType,
@@ -276,7 +277,7 @@ public class GeneController implements GeneRESTInterface {
         long startTime = System.currentTimeMillis();
         Pagination pagination = new Pagination(page, limit, sortBy, asc, new InteractionColumnFieldMapping());
         pagination.addFieldFilter(FieldFilter.MOLECULE_TYPE, moleculeType);
-        pagination.addFieldFilter(FieldFilter.JOIN_TYPE, joinType);
+        pagination.addFieldFilter(FieldFilter.JOIN_TYPE, joinType.getName());
         pagination.addFieldFilter(FieldFilter.INTERACTOR_GENE_SYMBOL, interactorGeneSymbol);
         pagination.addFieldFilter(FieldFilter.INTERACTOR_SPECIES, interactorSpecies);
         pagination.addFieldFilter(FieldFilter.INTERACTOR_MOLECULE_TYPE, interactorMoleculeType);
@@ -313,7 +314,7 @@ public class GeneController implements GeneRESTInterface {
     @Override
     public Response getInteractionsDownload(String id, String sortBy, String asc,
                                             String moleculeType,
-                                            String joinType,
+                                            JoinTypeValue joinType,
                                             String interactorGeneSymbol,
                                             String interactorSpecies,
                                             String interactorMoleculeType,
@@ -329,7 +330,7 @@ public class GeneController implements GeneRESTInterface {
                                             ) {
         Pagination pagination = new Pagination(1, Integer.MAX_VALUE, sortBy, asc);
         pagination.addFieldFilter(FieldFilter.MOLECULE_TYPE, moleculeType);
-        pagination.addFieldFilter(FieldFilter.JOIN_TYPE, joinType);
+        pagination.addFieldFilter(FieldFilter.JOIN_TYPE, joinType.getName());
         pagination.addFieldFilter(FieldFilter.INTERACTOR_GENE_SYMBOL, interactorGeneSymbol);
         pagination.addFieldFilter(FieldFilter.INTERACTOR_SPECIES, interactorSpecies);
         pagination.addFieldFilter(FieldFilter.INTERACTOR_MOLECULE_TYPE, interactorMoleculeType);
@@ -763,6 +764,5 @@ public class GeneController implements GeneRESTInterface {
         APIServiceHelper.setDownloadHeader(geneId, EntityType.GENE, EntityType.ALLELE, responseBuilder);
         return responseBuilder.build();
     }
-
 
 }
