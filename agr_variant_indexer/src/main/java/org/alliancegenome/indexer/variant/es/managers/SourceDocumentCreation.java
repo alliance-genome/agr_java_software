@@ -1,28 +1,40 @@
 package org.alliancegenome.indexer.variant.es.managers;
 
-import java.io.File;
-import java.util.*;
-import java.util.concurrent.*;
-
-import org.alliancegenome.core.filedownload.model.*;
-import org.alliancegenome.core.variant.config.VariantConfigHelper;
-import org.alliancegenome.core.variant.converters.VariantContextConverter;
-import org.alliancegenome.es.util.*;
-import org.alliancegenome.es.variant.model.VariantDocument;
-import org.alliancegenome.neo4j.entity.SpeciesType;
-import org.elasticsearch.action.DocWriteRequest;
-import org.elasticsearch.action.bulk.*;
-import org.elasticsearch.action.index.IndexRequest;
-import org.elasticsearch.client.*;
-import org.elasticsearch.common.unit.*;
-import org.elasticsearch.common.xcontent.XContentType;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import htsjdk.samtools.util.CloseableIterator;
 import htsjdk.variant.variantcontext.VariantContext;
-import htsjdk.variant.vcf.*;
+import htsjdk.variant.vcf.VCFFileReader;
+import htsjdk.variant.vcf.VCFInfoHeaderLine;
 import lombok.extern.log4j.Log4j2;
+import org.alliancegenome.core.filedownload.model.DownloadSource;
+import org.alliancegenome.core.filedownload.model.DownloadableFile;
+import org.alliancegenome.core.variant.config.VariantConfigHelper;
+import org.alliancegenome.core.variant.converters.VariantContextConverter;
+import org.alliancegenome.es.util.EsClientFactory;
+import org.alliancegenome.es.util.ProcessDisplayHelper;
+import org.alliancegenome.es.variant.model.VariantDocument;
+import org.alliancegenome.neo4j.entity.SpeciesType;
+import org.alliancegenome.neo4j.entity.node.Allele;
+import org.alliancegenome.neo4j.repository.AlleleRepository;
+import org.elasticsearch.action.DocWriteRequest;
+import org.elasticsearch.action.bulk.BackoffPolicy;
+import org.elasticsearch.action.bulk.BulkProcessor;
+import org.elasticsearch.action.bulk.BulkRequest;
+import org.elasticsearch.action.bulk.BulkResponse;
+import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.common.unit.ByteSizeUnit;
+import org.elasticsearch.common.unit.ByteSizeValue;
+import org.elasticsearch.common.unit.TimeValue;
+import org.elasticsearch.common.xcontent.XContentType;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.TimeUnit;
 
 @Log4j2
 public class SourceDocumentCreation extends Thread {
@@ -51,16 +63,21 @@ public class SourceDocumentCreation extends Thread {
     private LinkedBlockingDeque<List<String>> jsonQueue2;
     private LinkedBlockingDeque<List<String>> jsonQueue3;
     private LinkedBlockingDeque<List<String>> jsonQueue4;
-
+    // Map<chromosome, Map<hgvsg, allelesList>>
+    private Map<String,Map<String, List<Allele>>> chromosomeAllelesMap;
+    private List<String> matched=new ArrayList<>();
+    private List<String> unMatched=new ArrayList<>();
+     AlleleRepository alleleRepository=new AlleleRepository();
     private ProcessDisplayHelper ph1 = new ProcessDisplayHelper(log, VariantConfigHelper.getDisplayInterval());
     private ProcessDisplayHelper ph2 = new ProcessDisplayHelper(log, VariantConfigHelper.getDisplayInterval());
     private ProcessDisplayHelper ph3 = new ProcessDisplayHelper(log, VariantConfigHelper.getDisplayInterval());
     private ProcessDisplayHelper ph4 = new ProcessDisplayHelper(log, VariantConfigHelper.getDisplayInterval());
     private ProcessDisplayHelper ph5 = new ProcessDisplayHelper(log, VariantConfigHelper.getDisplayInterval());
     
-    public SourceDocumentCreation(DownloadSource source) {
+    public SourceDocumentCreation(DownloadSource source, Map<String,Map<String, List<Allele>>> chromosomeAllelesMap){
         this.source = source;
         speciesType = SpeciesType.getTypeByID(source.getTaxonId());
+        this.chromosomeAllelesMap=chromosomeAllelesMap;
     }
 
     public void run() {
@@ -281,6 +298,13 @@ public class SourceDocumentCreation extends Thread {
             ph4.finishProcess();
 
             log.info("Threads finished: ");
+            try {
+                if(chromosomeAllelesMap!=null){}
+               // ltpIndexer.index(chromosomeAllelesMap,matched, speciesType.getTaxonID());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -290,15 +314,19 @@ public class SourceDocumentCreation extends Thread {
     private class VCFReader extends Thread {
 
         private DownloadableFile df;
+        private String chr;
         private int workBucketSize = VariantConfigHelper.getSourceDocumentCreatorVCQueueBucketSize();
         
         public VCFReader(DownloadableFile df) {
             this.df = df;
+            this.chr=df.getChromosome();
         }
 
         public void run() {
             
             VCFFileReader reader = new VCFFileReader(new File(df.getLocalGzipFilePath()), false);
+           /* Map<String, List<Allele>> alleleMap=alleleRepository.getAllAllelesByTaxonNChromosome(speciesType.getTaxonID(), chr);
+            chromosomeAllelesMap.put(chr, alleleMap);*/
             CloseableIterator<VariantContext> iter1 = reader.iterator();
             if(header == null) {
                 log.info("Setting VCF File Header: " + df.getLocalGzipFilePath());
@@ -344,8 +372,10 @@ public class SourceDocumentCreation extends Thread {
             while(!(Thread.currentThread().isInterrupted())) {
                 try {
                     List<VariantContext> ctxList = vcQueue.take();
+                   Map<String, List<Allele>> alleleMap=chromosomeAllelesMap.get(ctxList.get(0).getContig());
+
                     for(VariantContext ctx: ctxList) {
-                        for(VariantDocument doc: converter.convertVariantContext(ctx, speciesType, header)) {
+                        for(VariantDocument doc: converter.convertVariantContext(ctx, speciesType, header,alleleMap, matched, unMatched)) {
                             workBucket.add(doc);
                             ph2.progressProcess("objectQueue: " + objectQueue.size());
                         }

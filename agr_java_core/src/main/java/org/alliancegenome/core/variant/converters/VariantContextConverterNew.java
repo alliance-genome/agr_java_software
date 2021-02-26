@@ -2,30 +2,33 @@ package org.alliancegenome.core.variant.converters;
 
 import htsjdk.variant.variantcontext.Allele;
 import htsjdk.variant.variantcontext.CommonInfo;
-import htsjdk.variant.variantcontext.Genotype;
 import htsjdk.variant.variantcontext.VariantContext;
 import io.github.lukehutch.fastclasspathscanner.utils.Join;
 import org.alliancegenome.api.entity.AlleleVariantSequence;
 import org.alliancegenome.es.variant.model.ClinicalSig;
 import org.alliancegenome.es.variant.model.Evidence;
+import org.alliancegenome.es.variant.model.TranscriptFeature;
+import org.alliancegenome.es.variant.model.VariantDocument;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.entity.node.*;
+import org.apache.commons.lang3.StringUtils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 public class VariantContextConverterNew {
-    public List<AlleleVariantSequence> convertVariantContext(VariantContext ctx, SpeciesType speciesType, String[] header) throws Exception {
+
+    public List<AlleleVariantSequence> convertVariantContext(VariantContext ctx, SpeciesType speciesType, String[] header, Map<String, List<org.alliancegenome.neo4j.entity.node.Allele>> alleleMap,
+                                                             List<String> matched) throws Exception {
 
         List<AlleleVariantSequence> returnDocuments = new ArrayList<AlleleVariantSequence>();
 
         Allele refNuc = ctx.getReference();
-
+        Species species=new Species();
+        species.setName(speciesType.getName());
+        species.setCommonNames(speciesType.getDisplayName());
+        species.setId(Long.valueOf(speciesType.getTaxonIDPart()));
+        species.setPrimaryKey(speciesType.getTaxonID());
         for (Allele a : ctx.getAlternateAlleles()) {
-
-
-
             if (a.compareTo(refNuc) < 0) {
                 continue;
             }
@@ -37,11 +40,7 @@ public class VariantContextConverterNew {
                 //     System.out.println(" *** Var Nucleotides must be A,C,G,T,N");
                 continue;
             }
-            Species species=new Species();
-            species.setName(speciesType.getName());
-            species.setCommonNames(speciesType.getDisplayName());
-            species.setId(Long.valueOf(speciesType.getTaxonIDPart()));
-            species.setPrimaryKey(speciesType.getTaxonID());
+
             SOTerm variantType=new SOTerm();
             variantType.setName(ctx.getType().name().toUpperCase());
             variantType.setPrimaryKey(ctx.getType().name());
@@ -63,64 +62,114 @@ public class VariantContextConverterNew {
             } else {
                 //   System.out.println("Unexpected var type");
             }
-           for(TranscriptLevelConsequence c: getConsequences(ctx, a.getBaseString(), header)){
-               AlleleVariantSequence s=new AlleleVariantSequence();
-               org.alliancegenome.neo4j.entity.node.Allele allele =new org.alliancegenome.neo4j.entity.node.Allele();
-               Variant variant=new Variant();
-               variant.setVariantType(variantType);
+           List<AlleleVariantSequence> variantSequences= getVariantsIfMatchedWithLTP(ctx, alleleMap, a.getBaseString(), header, matched,species.getName(),ctx.getContig());
+            returnDocuments.addAll (variantSequences);
 
-               variant.setSpecies(species);
-               variant.setStart(String.valueOf(ctx.getStart()));
-               variant.setEnd(String.valueOf(endPos));
-               variant.setNucleotideChange(a.getBaseString()); // variantDocument.setVarNuc(a.getBaseString());
-               variant.setName(c.getHgvsVEPGeneNomenclature());
-                s.setVariant(variant);
-                s.setConsequence(c);
-               returnDocuments.add(s);
-           }
+            if(variantSequences.size()==0){
+                for (TranscriptLevelConsequence c : getConsequences(ctx, a.getBaseString(), header)) {
+                    AlleleVariantSequence s = new AlleleVariantSequence();
+                    Variant variant = new Variant();
+                    variant.setVariantType(variantType);
+                    variant.setSpecies(species);
+                    variant.setStart(String.valueOf(ctx.getStart()));
+                    variant.setEnd(String.valueOf(endPos));
+                    variant.setNucleotideChange(a.getBaseString()); // variantDocument.setVarNuc(a.getBaseString());
+                    variant.setName(c.getHgvsVEPGeneNomenclature());
+                    variant.setHgvsNomenclature(c.getHgvsVEPGeneNomenclature());
+                    variant.setGene(c.getAssociatedGene());
+                    s.setVariant(variant);
+                    s.setConsequence(c);
+                   /* s.setNameKey(c.getHgvsVEPGeneNomenclature());
+                    s.setName(c.getHgvsVEPGeneNomenclature());
+                    s.setAlterationType("variant");*/
 
-
-
-
-
-
-       /*     THIS BELOW FIELDS ARE NOT AVAILABLE FOR MOD HTP VARIANTS, but available for HUMAN
-       variantDocument.setEvidence(mapEvidence(ctx));
-            variantDocument.setClinicalSignificance(mapClinicalSignificance(ctx));
-            if (ctx.getAttributes().containsKey("MA"))
-                variantDocument.setMA(ctx.getAttributeAsString("MA", ""));
-            if (ctx.getAttributes().containsKey("MAF"))
-                variantDocument.setMAF(ctx.getAttributeAsDouble("MAF", 0.0));
-            if (ctx.getAttributes().containsKey("MAC"))
-                variantDocument.setMAC(ctx.getAttributeAsInt("MAC", 0));
-            if (ctx.getAttributes().containsKey("RefPep"))
-                variantDocument.setRefPep(ctx.getAttributeAsString("RefPep", ""));
-            if (ctx.getAttributes().containsKey("AA"))
-                variantDocument.setAa(ctx.getAttributeAsString("AA", ""));
-            if (ctx.getAttributes().containsKey("QUAL"))
-                variantDocument.setQual(ctx.getAttributeAsString("QUAL", ""));
-            if (ctx.getAttributes().containsKey("FILTER"))
-                variantDocument.setQual(ctx.getAttributeAsString("FILTER", ""));
-    */
-
-            List<Genotype> genotypes = ctx.getGenotypes();
-/*
-            if(genotypes != null && genotypes.size() > 0) {
-                List<String> samples = new ArrayList<>();
-                for (Genotype g : genotypes) {
-                    if(!g.getType().name().equals("NO_CALL")) {
-                        samples.add(g.getSampleName());
-                    }
+                    returnDocuments.add(s);
                 }
-                variantDocument.setSamples(samples);
             }
-*/
-
 
         }
-
+     //   System.out.println("RETURN DOC SIZE:"+returnDocuments.size());
         return returnDocuments;
 
+    }
+    public List<AlleleVariantSequence> getVariantsIfMatchedWithLTP(VariantContext ctx, Map<String, List<org.alliancegenome.neo4j.entity.node.Allele>> alleleMap,
+                                                                   String base, String[] header, List<String> matched,
+                                                                   String species, String chromosome) throws Exception {
+
+        String hgvsNomenclature = getHgvsG(ctx, base, header);
+        List<AlleleVariantSequence> returnDocuments=new ArrayList<>();
+        List<VariantDocument> varDocs=new ArrayList<>();
+        if(alleleMap!=null && !alleleMap.isEmpty() && alleleMap.containsKey(hgvsNomenclature)) {
+            System.out.print("\tMATCHED: "+hgvsNomenclature);
+            if (!matched.contains(hgvsNomenclature))
+                matched.add(hgvsNomenclature);
+
+            List<org.alliancegenome.neo4j.entity.node.Allele> alleles = alleleMap.get(hgvsNomenclature);
+            if (alleles.size() > 0){
+               varDocs.addAll(getVarDocs(alleles,hgvsNomenclature,species, chromosome));
+
+            }
+
+        }
+        if(varDocs.size()>0){
+           // System.out.println("VAR DOCS SIZE MATCHED:"+varDocs.size());
+
+            returnDocuments.addAll( convertToAlleleVariantSequence(varDocs));
+        }
+            return returnDocuments;
+    }
+    public List<VariantDocument> getVarDocs(List<org.alliancegenome.neo4j.entity.node.Allele> alleles, String key, String species, String chromosome){
+        List<VariantDocument> varDocs=new ArrayList<>();
+        for (org.alliancegenome.neo4j.entity.node.Allele a : alleles) {
+            List<Variant> variants = a.getVariants();
+            for (Variant v : variants) {
+                VariantDocument doc = new VariantDocument();
+                //  doc.setAllelesNew(alleles);
+                Set<String> alleleset = new HashSet<>();
+                alleleset.add(a.getGlobalId());
+                doc.setAlleles(alleleset);
+                doc.setName(key);
+                doc.setNameKey(key);
+                doc.setCategory("allele");
+                doc.setAlterationType("variant");
+                doc.setSpecies(species);
+                doc.setChromosome(chromosome);
+                if (v.getStart() != null)
+                    doc.setStartPos(Integer.parseInt(v.getStart()));
+                if (v.getEnd() != null)
+                    doc.setEndPos(Integer.parseInt(v.getEnd()));
+                Set<String> variantTypes = new HashSet<>();
+                variantTypes.add(v.getVariantType().getName());
+                doc.setVariantType(variantTypes);
+                doc.setVarNuc(v.getNucleotideChange());
+                Set<String> alleleIds = new HashSet<>();
+                alleleIds.add(a.getGlobalId());
+                alleleIds.add(a.getLocalId());
+                if (a.getId() != null)
+                    alleleIds.add(String.valueOf(a.getId()));
+                doc.setAlleles(alleleIds);
+                if (v.getTranscriptLevelConsequence() != null) {
+                    List<TranscriptFeature> features = new ArrayList<>();
+
+                    List<TranscriptLevelConsequence> con = v.getTranscriptLevelConsequence();
+                    for (TranscriptLevelConsequence c : con) {
+                        TranscriptFeature f = new TranscriptFeature();
+                        f.setCdnaPosition(c.getCdnaStartPosition());
+                        f.setCdsPosition(c.getCdsStartPosition());
+                        f.setConsequence(c.getTranscriptLevelConsequence());
+                        f.setFeatureType(c.getSequenceFeatureType());
+                        if (c.getAssociatedGene() != null)
+                            f.setGene(c.getAssociatedGene().getPrimaryKey());
+                        f.setGivenRef(c.getAminoAcidReference());
+                        features.add(f);
+                    }
+                    doc.setConsequences(features);
+                }
+                varDocs.add(doc);
+
+            }
+        }
+        return varDocs;
     }
 
     public List<String> mapEvidence(VariantContext ctx) {
@@ -133,7 +182,95 @@ public class VariantContextConverterNew {
         }
         return evidences;
     }
+    public List<AlleleVariantSequence> convertToAlleleVariantSequence(List<VariantDocument> varDocs){
+        List<AlleleVariantSequence> list = new ArrayList<>();
 
+        for (VariantDocument doc : varDocs) {
+           List<AlleleVariantSequence> list1 = new ArrayList<>();
+            if(doc.getConsequences()!=null && doc.getConsequences().size()>0){
+                for (TranscriptFeature transcriptFeature : doc.getConsequences()) {
+                    AlleleVariantSequence s=new AlleleVariantSequence();
+                    s.setName(doc.getName());
+                    s.setCategory("allele");
+                    s.setAlleles(doc.getAlleles());
+                    String geneID = transcriptFeature.getGene();
+                    // do not handle variants without gene relationship
+                    if (StringUtils.isEmpty(geneID))
+                        continue;
+                    org.alliancegenome.neo4j.entity.node.Allele allele = new org.alliancegenome.neo4j.entity.node.Allele(transcriptFeature.getGene(), GeneticEntity.CrossReferenceType.VARIANT);
+                    // hack until the ID column is set to the right thing by the MODs
+                    if (StringUtils.isEmpty(doc.getId()) || doc.getId().equals(".")) {
+                        allele.setSymbol(transcriptFeature.getHgvsg());
+                        allele.setSymbolText(transcriptFeature.getHgvsg());
+                    } else {
+                        allele.setSymbol(doc.getId());
+                        allele.setSymbolText(doc.getId());
+                    }
+                    Gene gene = new Gene();
+                    String assocatedGeneID = transcriptFeature.getGene();
+                    /*if (assocatedGeneID.startsWith("ZDB-GENE"))
+                        assocatedGeneID = "ZFIN:" + assocatedGeneID;*/
+                  gene.setPrimaryKey(assocatedGeneID);
+                    gene.setSymbol(transcriptFeature.getSymbol());
+                    allele.setGene(gene);
+                    Variant variant = new Variant();
+                    TranscriptLevelConsequence consequence = new TranscriptLevelConsequence();
+                    variant.setHgvsNomenclature(transcriptFeature.getHgvsc());
+                    // TODO: Needs to be set somewhere does not come through the vcf file.
+                    variant.setGenomicReferenceSequence(transcriptFeature.getReferenceSequence());
+                    variant.setGenomicVariantSequence(transcriptFeature.getAllele());
+                    variant.setStart(transcriptFeature.getGenomicStart());
+                    variant.setEnd(transcriptFeature.getGenomicEnd());
+                    variant.setConsequence((transcriptFeature.getConsequence()));
+                    variant.setHgvsNomenclature(transcriptFeature.getHgvsg());
+                    SOTerm soTerm = new SOTerm();
+                    soTerm.setName(doc.getVariantType().stream().findFirst().get());
+                    soTerm.setPrimaryKey(doc.getVariantType().stream().findFirst().get());
+                    variant.setVariantType(soTerm);
+                    consequence.setImpact(transcriptFeature.getImpact());
+                    consequence.setSequenceFeatureType(transcriptFeature.getBiotype());
+                    consequence.setTranscriptName(transcriptFeature.getFeature());
+                    consequence.setTranscriptLevelConsequence(transcriptFeature.getConsequence());
+                    consequence.setPolyphenPrediction(transcriptFeature.getPolyphenPrediction());
+                    consequence.setPolyphenScore(transcriptFeature.getPolyphenScore());
+                    consequence.setSiftPrediction(transcriptFeature.getSiftPrediction());
+                    consequence.setSiftScore(transcriptFeature.getSiftScore());
+                    consequence.setTranscriptLocation(transcriptFeature.getExon());
+                    consequence.setAssociatedGene(gene);
+                    String location = "";
+                    if (StringUtils.isNotEmpty(transcriptFeature.getExon()))
+                        location += "Exon " + transcriptFeature.getExon();
+                    if (StringUtils.isNotEmpty(transcriptFeature.getIntron()))
+                        location += "Intron " + transcriptFeature.getIntron();
+                    consequence.setTranscriptLocation(location);
+                    // list.add(new AlleleVariantSequence(allele, variant, consequence));
+                    s.setVariant(variant);
+                    s.setConsequence(consequence);
+                    s.setAllele(allele);
+                    s.setMatchedWithHtp("true");
+                    list1.add(s);
+                }
+            }
+            if(list1.size()==0) {
+                AlleleVariantSequence s = new AlleleVariantSequence();
+                s.setName(doc.getName());
+                s.setCategory("allele");
+                s.setAlleles(doc.getAlleles());
+                s.setMatchedWithHtp("true");
+                list.add(s);
+            }else {
+                list.addAll(list1);
+            }
+            AlleleVariantSequence s = new AlleleVariantSequence();
+            s.setName(doc.getName());
+            s.setCategory("allele");
+            s.setAlleles(doc.getAlleles());
+            s.setMatchedWithHtp("true");
+            list.add(s);
+        }
+        System.out.println("LSIT SIZE IN METHOD: "+ list.size());
+        return list;
+    }
     public List<String> mapClinicalSignificance(VariantContext ctx) {
         CommonInfo info = ctx.getCommonInfo();
         List<String> significance = new ArrayList<>();
@@ -172,7 +309,40 @@ public class VariantContextConverterNew {
         }
         return features;
     }
+    public String getHgvsG(VariantContext ctx, String varNuc, String[] header) throws Exception {
+        List<TranscriptFeature> features = new ArrayList<>();
+
+        for (String s : ctx.getAttributeAsStringList("CSQ", "")) {
+            if (s.length() > 0) {
+                String[] infos = s.split("\\|", -1);
+
+                if (header.length == infos.length) {
+                    if (infos[0].equalsIgnoreCase(varNuc)) {
+                        TranscriptFeature feature = new TranscriptFeature(header, infos);
+                        feature.setReferenceSequence(ctx.getReference().toString());
+                        features.add(feature);
+                    }
+                } else {
+                    String message = "Diff: " + header.length + " " + infos.length;
+                    message += "\r" + Join.join("|", header);
+                    message += "\r" +String.join("|", Arrays.asList(infos));
+                    throw new RuntimeException("CSQ header is not matching the line " + message);
+                }
+            }
+        }
+        return features != null ? features.stream()
+                .findFirst()
+                .map(TranscriptFeature::getHgvsg)
+                .orElse(ctx.getContig() + ':' + ctx.getStart() + "-needs-real-hgvs") : null;
+    }
+
+
     public TranscriptLevelConsequence  getTranscriptLevelConsq(String[] infos ){
+        // Mod VEP
+        //  Allele|Consequence|IMPACT|SYMBOL|Gene|Feature_type|Feature|BIOTYPE|EXON|INTRON
+        // |HGVSc|HGVSp|cDNA_position|CDS_position|Protein_position|Amino_acids|Codons|Existing_variation|DISTANCE|STRAND|
+        //  FLAGS|SYMBOL_SOURCE|HGNC_ID|GIVEN_REF|USED_REF|BAM_EDIT|SOURCE|HGVS_OFFSET|HGVSg|
+        //  PolyPhen_prediction|PolyPhen_score|SIFT_prediction|SIFT_score|Genomic_end_position|Genomic_start_position
         TranscriptLevelConsequence c=new TranscriptLevelConsequence();
         c.setTranscriptLevelConsequence( infos[1]);
         c.setImpact( infos[2]);
@@ -180,16 +350,16 @@ public class VariantContextConverterNew {
         g.setSymbol(infos[3]);
         g.setPrimaryKey(infos[4]);
         c.setAssociatedGene(g);
-        c.setSequenceFeatureType( infos[7]); ///need to verify
+        c.setSequenceFeatureType(infos[7]);
         c.setTranscriptID(infos[6]);
-        if(!infos[8].equals("")) // need to look in the VCF file
-        c.setTranscriptLocation( infos[8]);
-        if(!infos[9].equals("")) // need to look in the VCF file
-            c.setTranscriptLocation( infos[9]);
-
+        String location = "";
+        if (StringUtils.isNotEmpty(infos[8]))
+            location += "Exon " + infos[8];
+        if (StringUtils.isNotEmpty(infos[9]))
+            location += "Intron " + infos[9];
+        c.setTranscriptLocation(location);
       /*  biotype = infos[7];
-        exon = infos[8];
-        intron = infos[9];*/
+      */
         c.setCdnaStartPosition(infos[12]);
         c.setCdsStartPosition( infos[13]);
         c.setHgvsCodingNomenclature( infos[10]);
@@ -198,10 +368,16 @@ public class VariantContextConverterNew {
         c.setAminoAcidChange(infos[15]);
         c.setCodonChange(infos[16]);
         c.setPolyphenPrediction(infos[30]);
+        c.setPolyphenPrediction(infos[30]);
         c.setSiftPrediction(infos[29]);
-        c.setHgvsVEPGeneNomenclature(infos[32]);
-        c.setCodonReference(infos[26]); // need to verify
+        c.setSiftScore(infos[32]);
+        c.setHgvsVEPGeneNomenclature(infos[28]);
 
+      //  c.setCodonReference(infos[26]); // need to verify
+
+      //  variant.setGenomicVariantSequence(transcriptFeature.getAllele());
+      //  genomicEnd = infos[33];
+     //   genomicStart = infos[34];
 
       /*  existingVariation = infos[17];
         distance = infos[18];

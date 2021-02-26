@@ -1,12 +1,11 @@
 package org.alliancegenome.es.variant.model;
 
-import java.util.List;
-
+import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.Getter;
+import lombok.Setter;
 import org.alliancegenome.es.index.site.document.SearchableItemDocument;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-
-import lombok.*;
+import java.util.List;
 
 @Getter
 @Setter
@@ -30,5 +29,6 @@ public class VariantDocument extends SearchableItemDocument {
     private List<String> clinicalSignificance;
     private List<TranscriptFeature> consequences;
     private List<String> samples;
+    private String matchedWithHTP;
 
 }

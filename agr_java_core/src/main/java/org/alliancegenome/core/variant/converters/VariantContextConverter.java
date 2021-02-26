@@ -2,7 +2,6 @@ package org.alliancegenome.core.variant.converters;
 
 import htsjdk.variant.variantcontext.Allele;
 import htsjdk.variant.variantcontext.CommonInfo;
-import htsjdk.variant.variantcontext.Genotype;
 import htsjdk.variant.variantcontext.VariantContext;
 import io.github.lukehutch.fastclasspathscanner.utils.Join;
 import lombok.extern.log4j.Log4j2;
@@ -11,6 +10,8 @@ import org.alliancegenome.es.variant.model.Evidence;
 import org.alliancegenome.es.variant.model.TranscriptFeature;
 import org.alliancegenome.es.variant.model.VariantDocument;
 import org.alliancegenome.neo4j.entity.SpeciesType;
+import org.alliancegenome.neo4j.entity.node.TranscriptLevelConsequence;
+import org.alliancegenome.neo4j.entity.node.Variant;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -18,7 +19,9 @@ import java.util.stream.Collectors;
 @Log4j2
 public class VariantContextConverter {
 
-    public List<VariantDocument> convertVariantContext(VariantContext ctx, SpeciesType speciesType, String[] header) {
+    public List<VariantDocument> convertVariantContext(VariantContext ctx, SpeciesType speciesType, String[] header,
+                                                       Map<String, java.util.List<org.alliancegenome.neo4j.entity.node.Allele>> alleleMap,
+                                                       List<String> matched, List<String> unMatched)  {
 
         List<VariantDocument> returnDocuments = new ArrayList<VariantDocument>();
 
@@ -38,76 +41,133 @@ public class VariantContextConverter {
             }
 
             VariantDocument variantDocument = new VariantDocument();
-            variantDocument.setCategory("allele");
-            variantDocument.setAlterationType("variant");
-
-            String variantType = ctx.getType().name();
-
-            if ("INDEL".equals(variantType)) {
-                variantType = "delins";
-            }
-
-            Set<String> variantTypes = new HashSet<>();
-            variantTypes.add(variantType);
-            variantDocument.setVariantType(variantTypes);
-            variantDocument.setId(ctx.getID());
-            variantDocument.setSpecies(speciesType.getName());
-            variantDocument.setChromosome(ctx.getContig());
-            variantDocument.setStartPos(ctx.getStart());
-
-            int endPos = 0;
-
-            if (ctx.isSNP()) {
-                endPos = ctx.getStart() + 1;
-            } // insertions
-            if (ctx.isSimpleInsertion()) {
-                endPos = ctx.getStart();
-                //  System.out.println("INSERTION");
-            } else if (ctx.isSimpleDeletion()) {
-                endPos = ctx.getStart() + refNuc.getDisplayString().length();
-                //  System.out.println("Deletion");
-            } else {
-                //   System.out.println("Unexpected var type");
-            }
-
-
-            variantDocument.setRefNuc(refNuc.getBaseString());
-            variantDocument.setVarNuc(a.getBaseString());
-            variantDocument.setEndPos(endPos);
-            variantDocument.setDocumentVariantType(ctx.getCommonInfo().getAttributeAsString("TSA", ""));
+            List<TranscriptFeature> htpConsequences= null;
             try {
-                variantDocument.setConsequences(getConsequences(ctx, a.getBaseString(), header));
+                htpConsequences = getConsequences(ctx, a.getBaseString(), header);
             } catch (Exception e) {
                 e.printStackTrace();
             }
+            String hgvsNomenclature = htpConsequences != null ? htpConsequences.stream()
+                    .findFirst()
+                    .map(TranscriptFeature::getHgvsg)
+                    .orElse(ctx.getContig() + ':' + ctx.getStart() + "-needs-real-hgvs") : null;
+            variantDocument.setAlterationType("variant");
+            variantDocument.setName(hgvsNomenclature);
+            variantDocument.setNameKey(hgvsNomenclature);
+            Set<String> variantTypes = new HashSet<>();
+            if(alleleMap!=null && alleleMap.size()>0 && alleleMap.get(hgvsNomenclature)!=null){
+                if(!matched.contains(hgvsNomenclature)){
+                    matched.add(hgvsNomenclature);
+                    variantDocument.setMatchedWithHTP("true");
+                variantDocument.setCategory("allele");
+                List<org.alliancegenome.neo4j.entity.node.Allele> alleles=alleleMap.get(hgvsNomenclature.trim());
+                for(org.alliancegenome.neo4j.entity.node.Allele al:alleles) {
+                    List<Variant> variants = al.getVariants();
+                    for (Variant variant : variants) {
+                        variantDocument.setSpecies(speciesType.getName());
+                        variantDocument.setChromosome(ctx.getContig());
+                        if (variant.getStart() != null)
+                            variantDocument.setStartPos(Integer.parseInt(variant.getStart()));
+                        if (variant.getEnd() != null)
+                            variantDocument.setEndPos(Integer.parseInt(variant.getEnd()));
+                        variantTypes.add(variant.getVariantType().getName());
+                        variantDocument.setVariantType(variantTypes);
+                        variantDocument.setVarNuc(variant.getNucleotideChange());
+                        Set<String> alleleIds = new HashSet<>();
+                        alleleIds.add(al.getGlobalId());
+                        alleleIds.add(al.getLocalId());
+                        alleleIds.add(String.valueOf(al.getId()));
+                        variantDocument.setAlleles(alleleIds);
+                        List<TranscriptFeature> features = new ArrayList<>();
+                        if (variant.getTranscriptLevelConsequence() != null) {
+                            List<TranscriptLevelConsequence> con = variant.getTranscriptLevelConsequence();
+                            for (TranscriptLevelConsequence c : con) {
+                                TranscriptFeature f = new TranscriptFeature();
+                                f.setCdnaPosition(c.getCdnaStartPosition());
+                                f.setCdsPosition(c.getCdsStartPosition());
+                                f.setConsequence(c.getTranscriptLevelConsequence());
+                                f.setFeatureType(c.getSequenceFeatureType());
+                                if (c.getAssociatedGene() != null)
+                                    f.setGene(c.getAssociatedGene().getPrimaryKey());
+                                f.setGivenRef(c.getAminoAcidReference());
+                                features.add(f);
+                            }
+                            variantDocument.setConsequences(features);
+                        }
+                    }
+                }
+                }
 
-            variantDocument.setGenes(
-                    variantDocument.getConsequences()
-                            .stream()
-                            .map(x -> x.getSymbol() + " (" + speciesType.getAbbreviation() + ")")
-                            .collect(Collectors.toSet())
-            );
+            }else {
+                try {
+                         variantDocument.setConsequences(htpConsequences);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
 
-            variantDocument.setEvidence(mapEvidence(ctx));
-            variantDocument.setClinicalSignificance(mapClinicalSignificance(ctx));
-            if (ctx.getAttributes().containsKey("MA"))
-                variantDocument.setMA(ctx.getAttributeAsString("MA", ""));
-            if (ctx.getAttributes().containsKey("MAF"))
-                variantDocument.setMAF(ctx.getAttributeAsDouble("MAF", 0.0));
-            if (ctx.getAttributes().containsKey("MAC"))
-                variantDocument.setMAC(ctx.getAttributeAsInt("MAC", 0));
-            if (ctx.getAttributes().containsKey("RefPep"))
-                variantDocument.setRefPep(ctx.getAttributeAsString("RefPep", ""));
-            if (ctx.getAttributes().containsKey("AA"))
-                variantDocument.setAa(ctx.getAttributeAsString("AA", ""));
-            if (ctx.getAttributes().containsKey("QUAL"))
-                variantDocument.setQual(ctx.getAttributeAsString("QUAL", ""));
-            if (ctx.getAttributes().containsKey("FILTER"))
-                variantDocument.setQual(ctx.getAttributeAsString("FILTER", ""));
+                String variantType = ctx.getType().name();
+
+                if ("INDEL".equals(variantType)) {
+                    variantType = "delins";
+                }
 
 
-            List<Genotype> genotypes = ctx.getGenotypes();
-/*
+                variantTypes.add(variantType);
+                variantDocument.setVariantType(variantTypes);
+                variantDocument.setId(ctx.getID());
+                variantDocument.setSpecies(speciesType.getName());
+                variantDocument.setChromosome(ctx.getContig());
+                variantDocument.setStartPos(ctx.getStart());
+
+                int endPos = 0;
+
+                if (ctx.isSNP()) {
+                    endPos = ctx.getStart() + 1;
+                } // insertions
+                if (ctx.isSimpleInsertion()) {
+                    endPos = ctx.getStart();
+                    //  System.out.println("INSERTION");
+                } else if (ctx.isSimpleDeletion()) {
+                    endPos = ctx.getStart() + refNuc.getDisplayString().length();
+                    //  System.out.println("Deletion");
+                } else {
+                    //   System.out.println("Unexpected var type");
+                }
+
+
+                variantDocument.setRefNuc(refNuc.getBaseString());
+                variantDocument.setVarNuc(a.getBaseString());
+                variantDocument.setEndPos(endPos);
+                variantDocument.setDocumentVariantType(ctx.getCommonInfo().getAttributeAsString("TSA", ""));
+
+
+                variantDocument.setGenes(
+                        variantDocument.getConsequences()
+                                .stream()
+                                .map(x -> x.getSymbol() + " (" + speciesType.getAbbreviation() + ")")
+                                .collect(Collectors.toSet())
+                );
+
+                variantDocument.setEvidence(mapEvidence(ctx));
+                variantDocument.setClinicalSignificance(mapClinicalSignificance(ctx));
+                if (ctx.getAttributes().containsKey("MA"))
+                    variantDocument.setMA(ctx.getAttributeAsString("MA", ""));
+                if (ctx.getAttributes().containsKey("MAF"))
+                    variantDocument.setMAF(ctx.getAttributeAsDouble("MAF", 0.0));
+                if (ctx.getAttributes().containsKey("MAC"))
+                    variantDocument.setMAC(ctx.getAttributeAsInt("MAC", 0));
+                if (ctx.getAttributes().containsKey("RefPep"))
+                    variantDocument.setRefPep(ctx.getAttributeAsString("RefPep", ""));
+                if (ctx.getAttributes().containsKey("AA"))
+                    variantDocument.setAa(ctx.getAttributeAsString("AA", ""));
+                if (ctx.getAttributes().containsKey("QUAL"))
+                    variantDocument.setQual(ctx.getAttributeAsString("QUAL", ""));
+                if (ctx.getAttributes().containsKey("FILTER"))
+                    variantDocument.setQual(ctx.getAttributeAsString("FILTER", ""));
+
+
+/*            List<Genotype> genotypes = ctx.getGenotypes();
+
             if(genotypes != null && genotypes.size() > 0) {
                 List<String> samples = new ArrayList<>();
                 for (Genotype g : genotypes) {
@@ -119,20 +179,13 @@ public class VariantContextConverter {
             }
 */
 
-            variantDocument.setMolecularConsequence(
-                    variantDocument.getConsequences().stream()
-                            .map(TranscriptFeature::getConsequence)
-                            .collect(Collectors.toSet())
-            );
+                variantDocument.setMolecularConsequence(
+                        variantDocument.getConsequences().stream()
+                                .map(TranscriptFeature::getConsequence)
+                                .collect(Collectors.toSet())
+                );
 
-            String hgvsNomenclature = variantDocument.getConsequences().stream()
-                    .findFirst()
-                    .map(TranscriptFeature::getHgvsg)
-                    .orElse(ctx.getContig() + ':' + ctx.getStart() + "-needs-real-hgvs");
-
-            variantDocument.setName(hgvsNomenclature);
-            variantDocument.setNameKey(hgvsNomenclature);
-
+            }
 
             returnDocuments.add(variantDocument);
         }
