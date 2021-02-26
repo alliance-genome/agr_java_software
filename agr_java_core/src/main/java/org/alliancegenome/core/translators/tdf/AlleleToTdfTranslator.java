@@ -180,7 +180,7 @@ public class AlleleToTdfTranslator {
 
     private TransgenicAlleleDownloadRow getBaseDownloadAlleleTransgenicRow(Allele annotation, Construct join, Publication pub) {
         TransgenicAlleleDownloadRow row = new TransgenicAlleleDownloadRow();
-        row.setSpecies(annotation.getSpecies());
+        row.setSpecies(annotation.getSpecies().getName());
         row.setAlleleID(annotation.getPrimaryKey());
         row.setAlleleSymbol(annotation.getSymbol());
         row.setTgConstructID(join.getPrimaryKey());
