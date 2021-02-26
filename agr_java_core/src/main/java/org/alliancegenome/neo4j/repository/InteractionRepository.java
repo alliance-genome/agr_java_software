@@ -71,29 +71,5 @@ public class InteractionRepository extends Neo4jRepository<InteractionGeneJoin> 
         Gene geneB = join.getGeneB();
         geneB.setSpecies(Species.getSpeciesFromTaxonId(geneB.getTaxonId()));
     }
-    private List<InteractionGeneJoin> filterInteractionAnnotations(List<InteractionGeneJoin> interactionAnnotationList, BaseFilter fieldFilterValueMap, boolean useGeneAasSource) {
-        if (interactionAnnotationList == null)
-            return null;
-        if (fieldFilterValueMap == null)
-            return interactionAnnotationList;
-        return interactionAnnotationList.stream()
-                .filter(annotation -> containsFilterValue(annotation, fieldFilterValueMap, useGeneAasSource))
-                .collect(Collectors.toList());
-    }
-
-    private boolean containsFilterValue(InteractionGeneJoin annotation, BaseFilter fieldFilterValueMap, boolean useGeneAasSource) {
-        // remove entries with null values.
-        fieldFilterValueMap.values().removeIf(Objects::isNull);
-        Set<Boolean> filterResults = fieldFilterValueMap.entrySet().stream()
-                .map((entry) -> {
-                    FilterFunction<InteractionGeneJoin, String> filterFunction = InteractionAnnotationFiltering.filterFieldMap.get(entry.getKey());
-                    if (filterFunction == null)
-                        return null;
-                    return filterFunction.containsFilterValue(annotation, entry.getValue());
-                })
-                .collect(Collectors.toSet());
-
-        return !filterResults.contains(false);
-    }
 
 }
