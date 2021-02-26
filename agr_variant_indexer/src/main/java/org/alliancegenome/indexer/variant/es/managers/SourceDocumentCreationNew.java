@@ -340,7 +340,7 @@ public class SourceDocumentCreationNew extends Thread {
 
             try {
                 List<VariantContext> workBucket = new ArrayList<>();
-                if(iter1.hasNext()) {
+                while(iter1.hasNext()) {
                     VariantContext vc = iter1.next();
                     workBucket.add(vc);
 
