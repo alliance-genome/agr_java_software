@@ -18,7 +18,7 @@ public class ESDAO {
     }
 
     public void init() {
-        searchClient = EsClientFactory.getInstance().getClient();
+        searchClient = EsClientFactory.getDefaultEsClient();
     }
 
     public void close() {

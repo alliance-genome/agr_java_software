@@ -17,24 +17,18 @@ import java.util.List;
 @Log4j2
 public class EsClientFactory {
 
-    private static EsClientFactory esClientFactory=null;
-    private  RestHighLevelClient client;
+    private static RestHighLevelClient client = null;
 
-    private  EsClientFactory(){}
-    public static EsClientFactory getInstance(){
-        if(esClientFactory==null){
-            esClientFactory=new EsClientFactory();
-            esClientFactory.client = createClient();
-        }
-        return esClientFactory;
-    }
-
-  /*  public static RestHighLevelClient getDefaultEsClient() {
+    public static RestHighLevelClient getDefaultEsClient() {
         if(client == null) {
             client = createClient();
         }
         return client;
-    }*/
+    }
+
+    public static RestHighLevelClient createNewClient() {
+        return createClient();
+    }
 
     // Used if APP needs to have multiple clients
     private static RestHighLevelClient createClient() {
@@ -55,8 +49,7 @@ public class EsClientFactory {
         hosts = esHosts.toArray(hosts);
 
         log.info("Creating new ES Client: " + map);
-        log.info("Finished Connecting to ES");
-        return new RestHighLevelClient(
+        client = new RestHighLevelClient(
                 RestClient.builder(hosts)
                         .setRequestConfigCallback(
                                 new RequestConfigCallback() {
@@ -68,24 +61,15 @@ public class EsClientFactory {
                         )
         );
 
-
-
-    }
-
-    public RestHighLevelClient getClient() {
+        log.info("Finished Connecting to ES");
         return client;
-    }
-
-    public void setClient(RestHighLevelClient client) {
-        this.client = client;
     }
 
     public static void closeClient() {
         log.info("Closing ES Client: ");
         try {
-            esClientFactory.client.close();
-            esClientFactory.client= null;
-            esClientFactory=null;
+            client.close();
+            client = null;
         } catch (IOException e) {
             e.printStackTrace();
         }

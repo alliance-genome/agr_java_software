@@ -1,19 +1,19 @@
 package org.alliancegenome.variant_indexer;
 
-import java.io.File;
-import java.util.*;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.CaseFormat;
+import htsjdk.samtools.util.CloseableIterator;
+import htsjdk.variant.variantcontext.VariantContext;
+import htsjdk.variant.vcf.VCFFileReader;
+import htsjdk.variant.vcf.VCFInfoHeaderLine;
 import org.alliancegenome.core.variant.converters.VariantContextConverter;
 import org.alliancegenome.es.variant.model.VariantDocument;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.apache.commons.math3.stat.descriptive.SummaryStatistics;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.base.CaseFormat;
-
-import htsjdk.samtools.util.CloseableIterator;
-import htsjdk.variant.variantcontext.VariantContext;
-import htsjdk.variant.vcf.*;
+import java.io.File;
+import java.util.Date;
+import java.util.List;
 
 public class TestSingleLineConvert {
     public static void main(String[] args) {
@@ -44,7 +44,7 @@ public class TestSingleLineConvert {
             try {
                 VariantContext vc = iter1.next();
                 //if(vc.getID().equals("rs55780505")) {
-                List<VariantDocument> docs = converter.convertVariantContext(vc, SpeciesType.HUMAN, formats);
+                List<VariantDocument> docs = converter.convertVariantContext(vc, SpeciesType.HUMAN, formats, null, null,null);
                 
                 for(VariantDocument doc: docs) {
                     String jsonDoc = mapper.writeValueAsString(doc);

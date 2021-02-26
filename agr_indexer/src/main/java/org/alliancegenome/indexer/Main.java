@@ -1,13 +1,17 @@
 package org.alliancegenome.indexer;
 
-import java.util.*;
-
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.es.util.IndexManager;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.indexer.indexers.Indexer;
 import org.alliancegenome.neo4j.repository.Neo4jSessionFactory;
-import org.apache.logging.log4j.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 public class Main {
 
