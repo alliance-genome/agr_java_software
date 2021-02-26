@@ -6,6 +6,9 @@ import org.alliancegenome.agr_elasticsearch_util.commands.*;
 import org.elasticsearch.cluster.metadata.*;
 import org.elasticsearch.snapshots.SnapshotInfo;
 
+import lombok.extern.log4j.Log4j2;
+
+@Log4j2
 public class SnapShotCommand extends Command implements CommandInterface {
 
     public SnapShotCommand(ArrayList<String> args) {
@@ -76,7 +79,9 @@ public class SnapShotCommand extends Command implements CommandInterface {
                         }
                         System.out.println("Restore: " + snapshot_name + " is complete");
                         System.out.println("Switching Aliases: ");
-                        im.removeAlias("site_index");
+                        if(indexes.size() > 0) {
+                            im.removeAlias("site_index");
+                        }
                         im.createAlias("site_index", snapshot_name);
                         System.out.println("Index restore complete");
                     }

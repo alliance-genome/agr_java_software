@@ -1,9 +1,14 @@
 package org.alliancegenome.neo4j.repository;
 
-import java.util.*;
-import java.util.stream.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
-import org.alliancegenome.neo4j.entity.node.*;
+import org.alliancegenome.neo4j.entity.node.Gene;
+import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
+import org.alliancegenome.neo4j.entity.node.Species;
 
 public class InteractionRepository extends Neo4jRepository<InteractionGeneJoin> {
 
@@ -47,15 +52,12 @@ public class InteractionRepository extends Neo4jRepository<InteractionGeneJoin> 
     }
 
     public List<InteractionGeneJoin> getAllInteractions() {
-        String allInteractionsQuery = "MATCH p=(igj:InteractionGeneJoin)--(t) ";
-        //allInteractionsQuery += " where g1.primaryKey = 'MGI:109583' ";
-        //allInteractionsQuery += " where g1.primaryKey = 'MGI:103170' ";
-        //allInteractionsQuery += " where g1.primaryKey = 'FB:FBgn0029891' ";
-        String query = allInteractionsQuery + " RETURN p ";
+        String query = "MATCH p1=(igj:InteractionGeneJoin)--(s) ";
+        query +=  " RETURN p1, p2";
         Iterable<InteractionGeneJoin> joins = query(query, new HashMap<>());
         return StreamSupport.stream(joins.spliterator(), false)
-                .peek(this::populateSpeciesInfo)
-                .collect(Collectors.toList());
+            .peek(this::populateSpeciesInfo)
+            .collect(Collectors.toList());
     }
 
     private void populateSpeciesInfo(InteractionGeneJoin join) {
@@ -64,6 +66,5 @@ public class InteractionRepository extends Neo4jRepository<InteractionGeneJoin> 
         Gene geneB = join.getGeneB();
         geneB.setSpecies(Species.getSpeciesFromTaxonId(geneB.getTaxonId()));
     }
-
 
 }

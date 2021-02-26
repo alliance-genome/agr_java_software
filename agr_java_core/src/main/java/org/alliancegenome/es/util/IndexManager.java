@@ -1,46 +1,39 @@
 package org.alliancegenome.es.util;
 
+import java.io.IOException;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+
 import org.alliancegenome.core.config.ConfigHelper;
-import org.alliancegenome.es.index.site.schema.Mapping;
-import org.alliancegenome.es.index.site.schema.Settings;
+import org.alliancegenome.es.index.site.schema.*;
 import org.alliancegenome.es.index.site.schema.settings.SiteIndexSettings;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.elasticsearch.action.admin.cluster.repositories.get.GetRepositoriesRequest;
-import org.elasticsearch.action.admin.cluster.repositories.get.GetRepositoriesResponse;
+import org.apache.logging.log4j.*;
+import org.elasticsearch.action.admin.cluster.repositories.get.*;
 import org.elasticsearch.action.admin.cluster.repositories.put.PutRepositoryRequest;
 import org.elasticsearch.action.admin.cluster.snapshots.create.CreateSnapshotRequest;
 import org.elasticsearch.action.admin.cluster.snapshots.delete.DeleteSnapshotRequest;
-import org.elasticsearch.action.admin.cluster.snapshots.get.GetSnapshotsRequest;
-import org.elasticsearch.action.admin.cluster.snapshots.get.GetSnapshotsResponse;
+import org.elasticsearch.action.admin.cluster.snapshots.get.*;
 import org.elasticsearch.action.admin.cluster.snapshots.restore.RestoreSnapshotRequest;
 import org.elasticsearch.action.admin.indices.alias.IndicesAliasesRequest;
 import org.elasticsearch.action.admin.indices.alias.get.GetAliasesRequest;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
 import org.elasticsearch.action.support.master.AcknowledgedResponse;
-import org.elasticsearch.client.GetAliasesResponse;
-import org.elasticsearch.client.RequestOptions;
-import org.elasticsearch.client.RestHighLevelClient;
-import org.elasticsearch.client.indices.CreateIndexRequest;
-import org.elasticsearch.client.indices.GetIndexRequest;
-import org.elasticsearch.client.indices.GetIndexResponse;
-import org.elasticsearch.cluster.metadata.AliasMetadata;
-import org.elasticsearch.cluster.metadata.RepositoryMetadata;
+import org.elasticsearch.client.*;
+import org.elasticsearch.client.indices.*;
+import org.elasticsearch.cluster.metadata.*;
 import org.elasticsearch.common.Strings;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.snapshots.SnapshotInfo;
 
-import java.io.IOException;
-import java.util.*;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
+import lombok.extern.log4j.Log4j2;
 
+@Log4j2
 public class IndexManager {
 
-    private final Logger log = LogManager.getLogger(getClass());
     private String newIndexName;
     private String baseIndexName = ConfigHelper.getEsIndex();
     private String tempIndexName = baseIndexName + "_temp";
@@ -64,11 +57,11 @@ public class IndexManager {
     }
     
     public void resetClient() {
-        EsClientFactory.getInstance();
+        EsClientFactory.createNewClient();
     }
     
     private RestHighLevelClient getClient() {
-        return EsClientFactory.getInstance().getClient();
+        return EsClientFactory.getDefaultEsClient();
     }
 
     public void createAlias(String alias, String index) {
@@ -97,18 +90,23 @@ public class IndexManager {
         String index_name = getIndexNameForAlias(alias);
 
         log.debug("Removing Alias: " + alias + " for index: " + index_name);
+        
+        if(index_name != null) {
 
-        IndicesAliasesRequest request = new IndicesAliasesRequest();
-        IndicesAliasesRequest.AliasActions removeAction =
-                new IndicesAliasesRequest.AliasActions(IndicesAliasesRequest.AliasActions.Type.REMOVE)
-                .index(index_name)
-                .alias(alias);
-        request.addAliasAction(removeAction);
-
-        try {
-            getClient().indices().updateAliases(request, RequestOptions.DEFAULT);
-        } catch (IOException e) {
-            e.printStackTrace();
+            IndicesAliasesRequest request = new IndicesAliasesRequest();
+            IndicesAliasesRequest.AliasActions removeAction =
+                    new IndicesAliasesRequest.AliasActions(IndicesAliasesRequest.AliasActions.Type.REMOVE)
+                    .index(index_name)
+                    .alias(alias);
+            request.addAliasAction(removeAction);
+    
+            try {
+                getClient().indices().updateAliases(request, RequestOptions.DEFAULT);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            log.error("Unable to remove Index Alias: " + alias + " not found");
         }
     }
 
@@ -391,11 +389,11 @@ public class IndexManager {
             String[] indices = response.getIndices();
             return new ArrayList<String>(Arrays.asList(indices));
 
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            log.error("No Indexes found: " + e.getLocalizedMessage());
         }
 
-        return null;
+        return new ArrayList<String>();
     }
 
     private void checkRepo(String repo) {
