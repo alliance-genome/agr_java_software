@@ -70,12 +70,12 @@ public class GeneService {
         response.addAnnotationSummarySupplementalData(getInteractionSummary(id));
         if (interactions == null)
             return response;
-        FilterService<InteractionGeneJoin> filterService = new FilterService<>(new InteractionAnnotationFiltering());
-        ColumnFieldMapping<InteractionGeneJoin> mapping = new InteractionColumnFieldMapping();
-        List<InteractionGeneJoin> interactionAnnotationList = geneCacheRepo.getInteractions(id);
-        response.addDistinctFieldValueSupplementalData(filterService.getDistinctFieldValues(interactionAnnotationList,
-                mapping.getSingleValuedFieldColumns(Table.INTERACTION), mapping));        
-        //response.addDistinctFieldValueSupplementalData(interactions.getDistinctFieldValueMap());
+        //FilterService<InteractionGeneJoin> filterService = new FilterService<>(new InteractionAnnotationFiltering());
+        //ColumnFieldMapping<InteractionGeneJoin> mapping = new InteractionColumnFieldMapping();
+        //List<InteractionGeneJoin> interactionAnnotationList = geneCacheRepo.getInteractions(id);
+        //response.addDistinctFieldValueSupplementalData(filterService.getDistinctFieldValues(interactionAnnotationList,
+        //        mapping.getSingleValuedFieldColumns(Table.INTERACTION), mapping));        
+        response.addDistinctFieldValueSupplementalData(interactions.getDistinctFieldValueMap());
         response.setResults(interactions.getResult());
         response.setTotal(interactions.getTotalNumber());
         return response;

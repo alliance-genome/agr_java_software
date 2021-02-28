@@ -347,7 +347,7 @@ public class GeneController implements GeneRESTInterface {
         JsonResultResponse<InteractionGeneJoin> interactions = geneService.getInteractions(id, pagination);
 
         Response.ResponseBuilder responseBuilder = Response.ok(interactionTanslator.getAllRows(interactions.getResults()));
-        APIServiceHelper.setDownloadHeader(id, EntityType.GENE, EntityType.INTERACTION, responseBuilder);
+        APIServiceHelper.setDownloadHeader(id, EntityType.GENE, EntityType.INTERACTION, joinType.getName(), responseBuilder);
         return responseBuilder.build();
     }
 

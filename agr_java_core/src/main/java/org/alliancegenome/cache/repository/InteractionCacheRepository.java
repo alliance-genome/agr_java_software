@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 
+import org.alliancegenome.api.entity.JoinTypeValue;
 import org.alliancegenome.api.service.*;
 import org.alliancegenome.cache.*;
 import org.alliancegenome.cache.repository.helper.*;
@@ -31,13 +32,12 @@ public class InteractionCacheRepository {
             return null;
 
         PaginationResult<InteractionGeneJoin> result = new PaginationResult<>();
-
-        FilterService<InteractionGeneJoin> filterService = new FilterService<>(new InteractionAnnotationFiltering());
-        ColumnFieldMapping<InteractionGeneJoin> mapping = new InteractionColumnFieldMapping();
-        result.setDistinctFieldValueMap(filterService.getDistinctFieldValues(interactionAnnotationList, mapping.getSingleValuedFieldColumns(Table.INTERACTION), mapping));
-
         //filtering
         List<InteractionGeneJoin> filteredInteractionAnnotationList = filterInteractionAnnotations(interactionAnnotationList, pagination.getFieldFilterValueMap(), true);
+        //set Distinct Field Value based on filtered list
+        FilterService<InteractionGeneJoin> filterService = new FilterService<>(new InteractionAnnotationFiltering());
+        ColumnFieldMapping<InteractionGeneJoin> mapping = new InteractionColumnFieldMapping();
+        result.setDistinctFieldValueMap(filterService.getDistinctFieldValues(filteredInteractionAnnotationList, mapping.getSingleValuedFieldColumns(Table.INTERACTION), mapping));
 
         if (!filteredInteractionAnnotationList.isEmpty()) {
             result.setTotalNumber(filteredInteractionAnnotationList.size());
@@ -45,6 +45,7 @@ public class InteractionCacheRepository {
         }
         return result;
     }
+    
 
     private List<InteractionGeneJoin> getSortedAndPaginatedInteractionAnnotations(Pagination pagination,
                                                                                   List<InteractionGeneJoin> filteredInteractionAnnotationList) {
