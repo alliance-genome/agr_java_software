@@ -59,6 +59,7 @@ public enum FieldFilter {
     CONSTRUCT_TARGETED_GENE("filter.allele-construct-targeted-gene"),
     HAS_PHENOTYPE("filter.hasPhenotype"),
     HAS_DISEASE("filter.hasDisease"),
+    VARIANT_LOCATION("filter.variantLocation"),
     TRANSGENE_HAS_PHENOTYPE("filter.transgene-has-phenotype"),
     TRANSGENE_HAS_DISEASE("filter.transgene-has-disease"),
     STRINGENCY("filter.stringency"),

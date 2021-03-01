@@ -52,6 +52,13 @@ public class AlleleVariantSequenceFiltering extends AnnotationFiltering<AlleleVa
                             .map(variant -> variant.getGeneLevelConsequence().getGeneLevelConsequence())
                             .collect(Collectors.toSet()), value);
 
+    private static final FilterFunction<AlleleVariantSequence, String> locationFilter =
+            (allele, value) -> {
+                if (allele.getConsequence() == null)
+                    return false;
+                return allele.getConsequence().getTranscriptLocation().toLowerCase().contains(value.toLowerCase());
+            };
+
     private static final FilterFunction<AlleleVariantSequence, String> variantImpactFilter =
             (allele, value) -> {
                 if (allele.getConsequence() != null)
@@ -102,6 +109,7 @@ public class AlleleVariantSequenceFiltering extends AnnotationFiltering<AlleleVa
         filterFieldMap.put(FieldFilter.VARIANT_SIFT, variantSiftFilter);
         filterFieldMap.put(FieldFilter.SEQUENCE_FEATURE_TYPE, sequenceFeatureTypeFilter);
         filterFieldMap.put(FieldFilter.SEQUENCE_FEATURE, sequenceFeatureFilter);
+        filterFieldMap.put(FieldFilter.VARIANT_LOCATION, locationFilter);
     }
 
 }
