@@ -142,7 +142,8 @@ public class GeneController implements GeneRESTInterface {
                                                                               String variantSift,
                                                                               String hasDisease,
                                                                               String hasPhenotype,
-                                                                              String category) {
+                                                                              String category,
+                                                                              String location) {
         long startTime = System.currentTimeMillis();
         Pagination pagination = new Pagination(page, limit, sortBy, asc);
         pagination.addFieldFilter(FieldFilter.SYMBOL, symbol);
@@ -158,7 +159,7 @@ public class GeneController implements GeneRESTInterface {
         pagination.addFieldFilter(FieldFilter.SEQUENCE_FEATURE_TYPE, sequenceFeatureType);
         pagination.addFieldFilter(FieldFilter.SEQUENCE_FEATURE, sequenceFeature);
         pagination.addFieldFilter(FieldFilter.ASSOCIATED_GENE, associatedGeneSymbol);
-        pagination.addFieldFilter(FieldFilter.VARIANT_HGVS_G, hgvsgName);
+        pagination.addFieldFilter(FieldFilter.VARIANT_LOCATION, location);
         if (pagination.hasErrors()) {
             RestErrorMessage message = new RestErrorMessage();
             message.setErrors(pagination.getErrors());
@@ -197,7 +198,8 @@ public class GeneController implements GeneRESTInterface {
                                                      String variantSift,
                                                      String hasDisease,
                                                      String hasPhenotype,
-                                                     String category) {
+                                                     String category,
+                                                     String location) {
         JsonResultResponse<AlleleVariantSequence> alleles = getAllelesVariantPerGene(id,
                 Integer.MAX_VALUE,
                 1,
@@ -216,7 +218,8 @@ public class GeneController implements GeneRESTInterface {
                 variantSift,
                 hasDisease,
                 hasPhenotype,
-                category);
+                category,
+                location);
 
         Response.ResponseBuilder responseBuilder = Response.ok(alleleTanslator.getAllAlleleVariantDetailRows(alleles.getResults()));
         APIServiceHelper.setDownloadHeader(id, EntityType.GENE, EntityType.ALLELE, responseBuilder);
@@ -326,7 +329,7 @@ public class GeneController implements GeneRESTInterface {
                                             String interactorGeneticPerturbation,
                                             String phenotypes,
                                             String interactionType
-                                            ) {
+    ) {
         Pagination pagination = new Pagination(1, Integer.MAX_VALUE, sortBy, asc);
         pagination.addFieldFilter(FieldFilter.MOLECULE_TYPE, moleculeType);
         pagination.addFieldFilter(FieldFilter.JOIN_TYPE, joinType);
@@ -336,7 +339,7 @@ public class GeneController implements GeneRESTInterface {
         pagination.addFieldFilter(FieldFilter.DETECTION_METHOD, detectionMethod);
         pagination.addFieldFilter(FieldFilter.SOURCE, source);
         pagination.addFieldFilter(FieldFilter.FREFERENCE, reference);
-      //for genetic interaction
+        //for genetic interaction
         pagination.addFieldFilter(FieldFilter.ROLE, role);
         pagination.addFieldFilter(FieldFilter.GENETIC_PERTURBATION, geneticPerturbation);
         pagination.addFieldFilter(FieldFilter.INTERACTOR_ROLE, interacotorRole);
