@@ -1,13 +1,14 @@
 package org.alliancegenome.neo4j.repository;
 
-import java.util.*;
-import java.util.stream.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
-import org.alliancegenome.cache.repository.helper.FilterFunction;
-import org.alliancegenome.cache.repository.helper.InteractionAnnotationFiltering;
-import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.neo4j.entity.node.*;
-import org.alliancegenome.neo4j.view.BaseFilter;
+import org.alliancegenome.neo4j.entity.node.Gene;
+import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
+import org.alliancegenome.neo4j.entity.node.Species;
 
 public class InteractionRepository extends Neo4jRepository<InteractionGeneJoin> {
 
@@ -33,24 +34,7 @@ public class InteractionRepository extends Neo4jRepository<InteractionGeneJoin> 
         }
         return results;
     }
-    //get Interactions by gene as primaryKey, and filter out result by Pagination, add this function for test filter here.
-    public List<InteractionGeneJoin> getInteractions(String primaryKey, Pagination pagination) {
-        HashMap<String, String> map = new HashMap<>();
-        List<InteractionGeneJoin> results = new ArrayList<>();
 
-        map.put("primaryKey", primaryKey);
-        String query = interactionsQuery + " RETURN p1, p2, p3, p4";
-        //String query = "MATCH p1=(g:Gene)-[iw:INTERACTS_WITH]->(g2:Gene), p2=(g:Gene)-->(igj:InteractionGeneJoin)--(s) where g.primaryKey = {primaryKey} and iw.uuid = igj.primaryKey RETURN p1, p2";
-
-        Iterable<InteractionGeneJoin> joins = query(query, map);
-        for (InteractionGeneJoin join : joins) {
-            results.add(join);
-        }
-        //filtering
-        List<InteractionGeneJoin> filteredInteractionAnnotationList = filterInteractionAnnotations(results, pagination.getFieldFilterValueMap(), true);
-
-        return filteredInteractionAnnotationList;
-    }
     public long getInteractionCount(String geneID) {
         HashMap<String, String> bindingValueMap = new HashMap<>();
         bindingValueMap.put("primaryKey", geneID);
@@ -68,14 +52,12 @@ public class InteractionRepository extends Neo4jRepository<InteractionGeneJoin> 
     }
 
     public List<InteractionGeneJoin> getAllInteractions() {
-        String query = "MATCH p1=(g1:Gene)--(igj:InteractionGeneJoin)--(g2:Gene), p2=(igj:InteractionGeneJoin)--(s) "
-                + " OPTIONAL MATCH p3=(g1:Gene)-->(s1:Species) "
-                + " OPTIONAL MATCH p4=(g2:Gene)-->(s2:Species) ";
-        query +=  " RETURN p1, p2, p3, p4";
+        String query = "MATCH p1=(igj:InteractionGeneJoin)--(s) ";
+        query +=  " RETURN p1";
         Iterable<InteractionGeneJoin> joins = query(query, new HashMap<>());
         return StreamSupport.stream(joins.spliterator(), false)
-                .peek(this::populateSpeciesInfo)
-                .collect(Collectors.toList());
+            .peek(this::populateSpeciesInfo)
+            .collect(Collectors.toList());
     }
 
     private void populateSpeciesInfo(InteractionGeneJoin join) {
@@ -83,30 +65,6 @@ public class InteractionRepository extends Neo4jRepository<InteractionGeneJoin> 
         geneA.setSpecies(Species.getSpeciesFromTaxonId(geneA.getTaxonId()));
         Gene geneB = join.getGeneB();
         geneB.setSpecies(Species.getSpeciesFromTaxonId(geneB.getTaxonId()));
-    }
-    private List<InteractionGeneJoin> filterInteractionAnnotations(List<InteractionGeneJoin> interactionAnnotationList, BaseFilter fieldFilterValueMap, boolean useGeneAasSource) {
-        if (interactionAnnotationList == null)
-            return null;
-        if (fieldFilterValueMap == null)
-            return interactionAnnotationList;
-        return interactionAnnotationList.stream()
-                .filter(annotation -> containsFilterValue(annotation, fieldFilterValueMap, useGeneAasSource))
-                .collect(Collectors.toList());
-    }
-
-    private boolean containsFilterValue(InteractionGeneJoin annotation, BaseFilter fieldFilterValueMap, boolean useGeneAasSource) {
-        // remove entries with null values.
-        fieldFilterValueMap.values().removeIf(Objects::isNull);
-        Set<Boolean> filterResults = fieldFilterValueMap.entrySet().stream()
-                .map((entry) -> {
-                    FilterFunction<InteractionGeneJoin, String> filterFunction = InteractionAnnotationFiltering.filterFieldMap.get(entry.getKey());
-                    if (filterFunction == null)
-                        return null;
-                    return filterFunction.containsFilterValue(annotation, entry.getValue());
-                })
-                .collect(Collectors.toSet());
-
-        return !filterResults.contains(false);
     }
 
 }

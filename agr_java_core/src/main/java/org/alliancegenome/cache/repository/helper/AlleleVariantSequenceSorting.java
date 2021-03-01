@@ -13,21 +13,20 @@ import static org.alliancegenome.neo4j.entity.node.Allele.*;
 
 public class AlleleVariantSequenceSorting implements Sorting<AlleleVariantSequence> {
 
-    private List<Comparator<AlleleVariantSequence>> defaultList;
+    private final List<Comparator<AlleleVariantSequence>> defaultList;
     private List<Comparator<AlleleVariantSequence>> alleleSymbolList;
-    private List<Comparator<AlleleVariantSequence>> sequenceFeatureList;
-    private List<Comparator<AlleleVariantSequence>> variantHgvsList;
-    private List<Comparator<AlleleVariantSequence>> variantList;
-    private List<Comparator<AlleleVariantSequence>> variantTypeList;
-    private List<Comparator<AlleleVariantSequence>> variantConsequenceList;
+    private final List<Comparator<AlleleVariantSequence>> sequenceFeatureList;
+    private final List<Comparator<AlleleVariantSequence>> variantHgvsList;
+    private final List<Comparator<AlleleVariantSequence>> variantTypeList;
+    private final List<Comparator<AlleleVariantSequence>> variantConsequenceList;
 
-    private static Map<String, Integer> categoryMap = new LinkedHashMap<>();
+    private static final Map<String, Integer> categoryMap = new LinkedHashMap<>();
 
     static {
         categoryMap.put(ALLELE_WITH_ONE_VARIANT, 1);
         categoryMap.put(ALLELE_WITH_MULTIPLE_VARIANT, 2);
-        categoryMap.put(CrossReferenceType.ALLELE.getDisplayName(), 3);
-        categoryMap.put(CrossReferenceType.VARIANT.getDisplayName(), 4);
+        categoryMap.put(CrossReferenceType.VARIANT.getDisplayName(), 3);
+        categoryMap.put(CrossReferenceType.ALLELE.getDisplayName(), 4);
     }
 
 
@@ -74,7 +73,7 @@ public class AlleleVariantSequenceSorting implements Sorting<AlleleVariantSequen
             case VARIANT_HGVS_NAME:
                 return getJoinedComparator(variantHgvsList);
             case VARIANT:
-                return getJoinedComparator(variantList);
+                return getJoinedComparator(alleleSymbolList);
             case VARIANT_TYPE:
                 return getJoinedComparator(variantTypeList);
             case VARIANT_CONSEQUENCE:
@@ -98,9 +97,9 @@ public class AlleleVariantSequenceSorting implements Sorting<AlleleVariantSequen
 
     static public Comparator<AlleleVariantSequence> variantHgvsNameOrder =
             Comparator.comparing(allele -> {
-                if (allele.getAllele().getSymbolText() == null)
+                if (allele.getVariant() == null || allele.getVariant().getHgvsNomenclature() == null)
                     return null;
-                return allele.getAllele().getSymbolText().toLowerCase();
+                return allele.getVariant().getHgvsNomenclature().toLowerCase();
             }, Comparator.nullsLast(naturalOrder()));
 
     static public Comparator<AlleleVariantSequence> sequenceFeatureOrder =
@@ -136,7 +135,7 @@ public class AlleleVariantSequenceSorting implements Sorting<AlleleVariantSequen
             Comparator.comparing(allele -> {
                 if (allele.getVariant() == null)
                     return null;
-                return allele.getVariant().getVariantType().getPrimaryKey();
+                return allele.getVariant().getVariantType().getName().toLowerCase();
             }, Comparator.nullsLast(naturalOrder()));
 
     static public Comparator<AlleleVariantSequence> variantConsequenceOrder =

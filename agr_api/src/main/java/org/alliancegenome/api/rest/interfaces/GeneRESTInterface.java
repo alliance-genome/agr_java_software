@@ -145,7 +145,9 @@ public interface GeneRESTInterface {
             @Parameter(in = ParameterIn.QUERY, name = "filter.hasPhenotype", description = "has Disease", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.hasPhenotype") String hasPhenotype,
             @Parameter(in = ParameterIn.QUERY, name = "filter.alleleCategory", description = "Disease for a given allele", schema = @Schema(type = SchemaType.STRING))
-            @QueryParam("filter.alleleCategory") String alleleCategory
+            @QueryParam("filter.alleleCategory") String alleleCategory,
+            @Parameter(in = ParameterIn.QUERY, name = "filter.location", description = "filter by location of variant", schema = @Schema(type = SchemaType.STRING))
+            @QueryParam("filter.location") String location
     );
 
     @GET
@@ -182,7 +184,9 @@ public interface GeneRESTInterface {
             @Parameter(in = ParameterIn.QUERY, name = "filter.hasPhenotype", description = "has Disease", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.hasPhenotype") String hasPhenotype,
             @Parameter(in = ParameterIn.QUERY, name = "filter.alleleCategory", description = "Disease for a given allele", schema = @Schema(type = SchemaType.STRING))
-            @QueryParam("filter.alleleCategory") String alleleCategory
+            @QueryParam("filter.alleleCategory") String alleleCategory,
+            @Parameter(in = ParameterIn.QUERY, name = "filter.location", description = "filter by location of variant", schema = @Schema(type = SchemaType.STRING))
+            @QueryParam("filter.location") String location
     );
 
     @GET
@@ -436,8 +440,8 @@ public interface GeneRESTInterface {
             @QueryParam("asc") String asc,
             @Parameter(in = ParameterIn.QUERY, name = "filter.moleculeType")
             @QueryParam("filter.moleculeType") String moleculeType,
-            @Parameter(in = ParameterIn.QUERY, name = "filter.joinType")
-            @QueryParam("filter.joinType") String joinType,
+            @Parameter(in = ParameterIn.QUERY, name = "filter.joinType", description=" molecylar_interaction or genetic_interaction", required = true  )
+            @QueryParam("filter.joinType") JoinTypeValue joinType,
             @Parameter(in = ParameterIn.QUERY, name = "filter.interactorGeneSymbol", description = "Gene symbol")
             @QueryParam("filter.interactorGeneSymbol") String interactorGeneSymbol,
             @Parameter(in = ParameterIn.QUERY, name = "filter.interactorSpecies", description = "Species")
@@ -481,8 +485,8 @@ public interface GeneRESTInterface {
             @QueryParam("asc") String asc,
             @Parameter(in = ParameterIn.QUERY, name = "filter.moleculeType", description = "molecule type")
             @QueryParam("filter.moleculeType") String moleculeType,
-            @Parameter(in = ParameterIn.QUERY, name = "filter.joinType")
-            @QueryParam("filter.joinType") String joinType,
+            @Parameter(in = ParameterIn.QUERY, name = "filter.joinType",  description=" molecylar_interaction or genetic_interaction", required = true)
+            @QueryParam("filter.joinType")  JoinTypeValue joinType,
             @Parameter(in = ParameterIn.QUERY, name = "filter.interactorGeneSymbol", description = "gene symbol")
             @QueryParam("filter.interactorGeneSymbol") String interactorGeneSymbol,
             @Parameter(in = ParameterIn.QUERY, name = "filter.interactorSpecies", description = "species")

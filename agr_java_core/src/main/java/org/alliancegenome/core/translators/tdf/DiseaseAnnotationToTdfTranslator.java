@@ -117,6 +117,13 @@ public class DiseaseAnnotationToTdfTranslator {
         row.setDiseaseID(annotation.getDisease().getPrimaryKey());
         row.setDiseaseName(annotation.getDisease().getName());
         row.setSource(annotation.getSource().getName());
+        if (CollectionUtils.isNotEmpty(annotation.getProviders())){
+          annotation.getProviders().stream().forEach(providerData->{
+            providerData.entrySet().forEach(proData->{
+               row.setSource(proData.getKey()+ " via"+proData.getValue().getDisplayName());
+            });
+         });
+        }
         if (homologousGene != null) {
             row.setBasedOnID(homologousGene.getPrimaryKey());
             row.setBasedOnName(homologousGene.getSymbol());
