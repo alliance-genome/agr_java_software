@@ -16,18 +16,29 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.*;
 
 public class VariantContextConverterNew {
-
+    Converter converter=new Converter();
     public List<AlleleVariantSequence> convertVariantContext(VariantContext ctx, SpeciesType speciesType, String[] header, Map<String, List<org.alliancegenome.neo4j.entity.node.Allele>> alleleMap,
                                                              List<String> matched) throws Exception {
 
-        List<AlleleVariantSequence> returnDocuments = new ArrayList<AlleleVariantSequence>();
+        List<AlleleVariantSequence> variantSequences= getVariantsIfMatchedWithLTP(ctx, alleleMap,  header, matched);
+        List<AlleleVariantSequence> returnDocuments = new ArrayList<AlleleVariantSequence>(variantSequences);
+        if(variantSequences.size()==0){
+            returnDocuments.addAll(converter.convertContextToAlleleVariantSequence(ctx, header, speciesType));
+            }
+        return returnDocuments;
 
+    }
+    public List<AlleleVariantSequence> getVariantsIfMatchedWithLTP(VariantContext ctx, Map<String, List<org.alliancegenome.neo4j.entity.node.Allele>> alleleMap,
+                                                                    String[] header, List<String> matched) throws Exception {
         Allele refNuc = ctx.getReference();
-        Species species=new Species();
-        species.setName(speciesType.getName());
-        species.setCommonNames(speciesType.getDisplayName());
-        species.setId(Long.valueOf(speciesType.getTaxonIDPart()));
-        species.setPrimaryKey(speciesType.getTaxonID());
+        List<AlleleVariantSequence> returnDocuments = new ArrayList<>();
+        SOTerm variantType = new SOTerm();
+        variantType.setName(ctx.getType().name().toUpperCase());
+        variantType.setPrimaryKey(ctx.getType().name());
+        if ("INDEL".equals(ctx.getType().name())) {
+            variantType.setName("delins");
+            variantType.setPrimaryKey("delins");
+        }
         for (Allele a : ctx.getAlternateAlleles()) {
             if (a.compareTo(refNuc) < 0) {
                 continue;
@@ -41,13 +52,7 @@ public class VariantContextConverterNew {
                 continue;
             }
 
-            SOTerm variantType=new SOTerm();
-            variantType.setName(ctx.getType().name().toUpperCase());
-            variantType.setPrimaryKey(ctx.getType().name());
-            if ("INDEL".equals(ctx.getType().name())) {
-                variantType.setName( "delins");
-                variantType.setPrimaryKey("delins");
-            }
+
             int endPos = 0;
 
             if (ctx.isSNP()) {
@@ -62,59 +67,16 @@ public class VariantContextConverterNew {
             } else {
                 //   System.out.println("Unexpected var type");
             }
-           List<AlleleVariantSequence> variantSequences= getVariantsIfMatchedWithLTP(ctx, alleleMap, a.getBaseString(), header, matched,species.getName(),ctx.getContig());
-            returnDocuments.addAll (variantSequences);
-
-            if(variantSequences.size()==0){
-                for (TranscriptLevelConsequence c : getConsequences(ctx, a.getBaseString(), header)) {
-                    AlleleVariantSequence s = new AlleleVariantSequence();
-                    Variant variant = new Variant();
-                    variant.setVariantType(variantType);
-                    variant.setSpecies(species);
-                    variant.setStart(String.valueOf(ctx.getStart()));
-                    variant.setEnd(String.valueOf(endPos));
-                    variant.setNucleotideChange(a.getBaseString()); // variantDocument.setVarNuc(a.getBaseString());
-                    variant.setName(c.getHgvsVEPGeneNomenclature());
-                    variant.setHgvsNomenclature(c.getHgvsVEPGeneNomenclature());
-                    variant.setGene(c.getAssociatedGene());
-                    s.setVariant(variant);
-                    s.setConsequence(c);
-                   /* s.setNameKey(c.getHgvsVEPGeneNomenclature());
-                    s.setName(c.getHgvsVEPGeneNomenclature());
-                    s.setAlterationType("variant");*/
-
-                    returnDocuments.add(s);
+            String hgvsNomenclature = getHgvsG(ctx, a.getBaseString(), header);
+            if (alleleMap != null && !alleleMap.isEmpty() && alleleMap.containsKey(hgvsNomenclature.trim())) {
+                System.out.print("\tMATCHED: " + hgvsNomenclature);
+                if (!matched.contains(hgvsNomenclature))
+                    matched.add(hgvsNomenclature);
+                List<org.alliancegenome.neo4j.entity.node.Allele> alleles = alleleMap.get(hgvsNomenclature);
+                for (org.alliancegenome.neo4j.entity.node.Allele al : alleles) {
+                    returnDocuments.addAll(converter.translateToNewAlleleVariantSequence(al, hgvsNomenclature, "true"));
                 }
             }
-
-        }
-     //   System.out.println("RETURN DOC SIZE:"+returnDocuments.size());
-        return returnDocuments;
-
-    }
-    public List<AlleleVariantSequence> getVariantsIfMatchedWithLTP(VariantContext ctx, Map<String, List<org.alliancegenome.neo4j.entity.node.Allele>> alleleMap,
-                                                                   String base, String[] header, List<String> matched,
-                                                                   String species, String chromosome) throws Exception {
-
-        String hgvsNomenclature = getHgvsG(ctx, base, header);
-        List<AlleleVariantSequence> returnDocuments=new ArrayList<>();
-        List<VariantDocument> varDocs=new ArrayList<>();
-        if(alleleMap!=null && !alleleMap.isEmpty() && alleleMap.containsKey(hgvsNomenclature)) {
-            System.out.print("\tMATCHED: "+hgvsNomenclature);
-            if (!matched.contains(hgvsNomenclature))
-                matched.add(hgvsNomenclature);
-
-            List<org.alliancegenome.neo4j.entity.node.Allele> alleles = alleleMap.get(hgvsNomenclature);
-            if (alleles.size() > 0){
-               varDocs.addAll(getVarDocs(alleles,hgvsNomenclature,species, chromosome));
-
-            }
-
-        }
-        if(varDocs.size()>0){
-           // System.out.println("VAR DOCS SIZE MATCHED:"+varDocs.size());
-
-            returnDocuments.addAll( convertToAlleleVariantSequence(varDocs));
         }
             return returnDocuments;
     }
@@ -330,10 +292,10 @@ public class VariantContextConverterNew {
                 }
             }
         }
-        return features != null ? features.stream()
-                .findFirst()
-                .map(TranscriptFeature::getHgvsg)
-                .orElse(ctx.getContig() + ':' + ctx.getStart() + "-needs-real-hgvs") : null;
+        return features.stream()
+                        .findFirst()
+                        .map(TranscriptFeature::getHgvsg)
+                        .orElse(ctx.getContig() + ':' + ctx.getStart() + "-needs-real-hgvs");
     }
 
 

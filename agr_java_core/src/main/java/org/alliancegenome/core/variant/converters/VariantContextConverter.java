@@ -21,7 +21,7 @@ public class VariantContextConverter {
 
     public List<VariantDocument> convertVariantContext(VariantContext ctx, SpeciesType speciesType, String[] header,
                                                        Map<String, java.util.List<org.alliancegenome.neo4j.entity.node.Allele>> alleleMap,
-                                                       List<String> matched, List<String> unMatched)  {
+                                                       List<String> matched)  {
 
         List<VariantDocument> returnDocuments = new ArrayList<VariantDocument>();
 

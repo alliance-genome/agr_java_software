@@ -44,7 +44,7 @@ public class TestSingleLineConvert {
             try {
                 VariantContext vc = iter1.next();
                 //if(vc.getID().equals("rs55780505")) {
-                List<VariantDocument> docs = converter.convertVariantContext(vc, SpeciesType.HUMAN, formats, null, null,null);
+                List<VariantDocument> docs = converter.convertVariantContext(vc, SpeciesType.HUMAN, formats, null, null);
                 
                 for(VariantDocument doc: docs) {
                     String jsonDoc = mapper.writeValueAsString(doc);

@@ -375,7 +375,7 @@ public class SourceDocumentCreation extends Thread {
                    Map<String, List<Allele>> alleleMap=chromosomeAllelesMap.get(ctxList.get(0).getContig());
 
                     for(VariantContext ctx: ctxList) {
-                        for(VariantDocument doc: converter.convertVariantContext(ctx, speciesType, header,alleleMap, matched, unMatched)) {
+                        for(VariantDocument doc: converter.convertVariantContext(ctx, speciesType, header,alleleMap, null)) {
                             workBucket.add(doc);
                             ph2.progressProcess("objectQueue: " + objectQueue.size());
                         }
