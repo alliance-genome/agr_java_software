@@ -72,7 +72,7 @@ public class AlleleSorting implements Sorting<Allele> {
                 return getJoinedComparator(variantList);
             case VARIANT_TYPE:
                 return getJoinedComparator(variantTypeList);
-            case VARIANT_CONSEQUENCE:
+            case MOLECULAR_CONSEQUENCE:
                 return getJoinedComparator(variantConsequenceList);
             case SPECIES:
                 return getJoinedComparator(speciesList);
