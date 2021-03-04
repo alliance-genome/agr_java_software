@@ -307,11 +307,14 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
                                     }
                                 }
                             }));
-            allele.setDisease(hasAlleleDiseaseInfo(allele.getPrimaryKey()));
-            allele.setPhenotype(hasAllelePhenoInfo(allele.getPrimaryKey()));
         });
         allAlleles.addAll(allelesWithVariants);
         allAlleles.forEach(Allele::populateCategory);
+        // populate phenotype and disease info
+        allAlleles.forEach(allele -> {
+            allele.setDisease(hasAlleleDiseaseInfo(allele.getPrimaryKey()));
+            allele.setPhenotype(hasAllelePhenoInfo(allele.getPrimaryKey()));
+        });
     }
 
     /*
