@@ -83,6 +83,7 @@ public class Allele extends GeneticEntity implements Comparable<Allele>, Present
     }
 
     private boolean phenotype;
+    private boolean disease;
 
     @JsonView({View.API.class, View.GeneAllelesAPI.class, View.GeneAlleleVariantSequenceAPI.class})
     @JsonProperty(value = "hasPhenotype")
@@ -97,13 +98,14 @@ public class Allele extends GeneticEntity implements Comparable<Allele>, Present
 
     @JsonView({View.API.class, View.GeneAllelesAPI.class, View.GeneAlleleVariantSequenceAPI.class})
     public Boolean hasDisease() {
-        return CollectionUtils.isNotEmpty(diseaseEntityJoins) || CollectionUtils.isNotEmpty(diseases);
+        return disease;
     }
 
     @JsonProperty(value = "hasDisease")
     public void setDisease(boolean hasDisease) {
         // this is a calculated property but the setter needs to be here
         // for deserialization purposes.
+        this.disease = hasDisease;
     }
 
     @JsonView({View.API.class, View.GeneAllelesAPI.class})
