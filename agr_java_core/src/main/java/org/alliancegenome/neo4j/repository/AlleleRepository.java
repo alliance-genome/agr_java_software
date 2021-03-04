@@ -234,10 +234,11 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
 */
 
         query += " OPTIONAL MATCH consequence = (t:Transcript)--(:TranscriptLevelConsequence)--(variant:Variant)<-[:ASSOCIATION]-(t:Transcript)--(:SOTerm) ";
+        query += " OPTIONAL MATCH geneLevelConsequence=(variant:Variant)-[:ASSOCIATION]->(:GeneLevelConsequence)";
         query += " OPTIONAL MATCH loc=(variant:Variant)-[:ASSOCIATION]->(:GenomicLocation)-[:ASSOCIATION]->(:Chromosome)";
         query += " OPTIONAL MATCH p2=(a:Allele)-[:ALSO_KNOWN_AS]->(synonym:Synonym)";
         query += " OPTIONAL MATCH crossRef=(a:Allele)-[:CROSS_REFERENCE]->(c:CrossReference)";
-        query += " RETURN p0, p1, p2, consequence, loc, crossRef ";
+        query += " RETURN p0, p1, p2, consequence, loc, crossRef, geneLevelConsequence ";
         Iterable<Allele> allelesWithVariantsIter = query(query, new HashMap<>());
         Set<Allele> allelesWithVariants = StreamSupport.stream(allelesWithVariantsIter.spliterator(), false)
                 .collect(Collectors.toSet());
