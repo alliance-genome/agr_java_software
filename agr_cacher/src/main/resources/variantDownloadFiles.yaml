@@ -74,17 +74,17 @@ downloadFileSet:
     species: FLY
     taxonId: "NCBITaxon:7227"
     fileList:
-      - chromosome: chr2L
+      - chromosome: 2L
         url: https://download.alliancegenome.org/variants/FB/FB.vep.2L.vcf.gz
-      - chromosome: chr2R
+      - chromosome: 2R
         url: https://download.alliancegenome.org/variants/FB/FB.vep.2R.vcf.gz
-      - chromosome: chr3L
+      - chromosome: 3L
         url: https://download.alliancegenome.org/variants/FB/FB.vep.3L.vcf.gz
-      - chromosome: chr3R
+      - chromosome: 3R
         url: https://download.alliancegenome.org/variants/FB/FB.vep.3R.vcf.gz
-      - chromosome: chr4
+      - chromosome: 4
         url: https://download.alliancegenome.org/variants/FB/FB.vep.4.vcf.gz
-      - chromosome: chrX
+      - chromosome: X
         url: https://download.alliancegenome.org/variants/FB/FB.vep.X.vcf.gz
 
   - source: SGD
