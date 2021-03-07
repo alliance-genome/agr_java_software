@@ -286,7 +286,7 @@ public class GeneController implements GeneRESTInterface {
         pagination.addFieldFilter(FieldFilter.INTERACTOR_MOLECULE_TYPE, interactorMoleculeType);
         pagination.addFieldFilter(FieldFilter.DETECTION_METHOD, detectionMethod);
         pagination.addFieldFilter(FieldFilter.SOURCE, source);
-        pagination.addFieldFilter(FieldFilter.FREFERENCE, reference);
+        pagination.addFieldFilter(FieldFilter.INTERACTOR_REFERENCE, reference);
         //for genetic interaction
         pagination.addFieldFilter(FieldFilter.ROLE, role);
         pagination.addFieldFilter(FieldFilter.GENETIC_PERTURBATION, geneticPerturbation);

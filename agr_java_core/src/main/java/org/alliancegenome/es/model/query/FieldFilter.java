@@ -34,6 +34,7 @@ public enum FieldFilter {
     VARIANT_SIFT("filter.variantSift"),
     MOLECULE_TYPE("filter.moleculeType"),
     JOIN_TYPE("filter.joinType"),
+    INTERACTOR_REFERENCE("reference"),
     //those for genetic interaction
     ROLE("filter.role"),
     GENETIC_PERTURBATION("filter.geneticPerturbation"),
