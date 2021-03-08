@@ -232,7 +232,7 @@ public class AlleleToTdfTranslator {
 
     public String getAllVariantsRows(List<Variant> variants) {
 
-        List<VariantDownloadRow> list = VariantDownloadRowsForAlleles(variants);
+        List<VariantDownloadRow> list = translateVariantDownloadRowsForAlleles(variants);
         List<DownloadHeader> headers = List.of(
                 new DownloadHeader<>("Symbol", (VariantDownloadRow::getSymbol)),
                 new DownloadHeader<>("Variant Type", (VariantDownloadRow::getVariantType)),
@@ -253,7 +253,7 @@ public class AlleleToTdfTranslator {
     }
 
 
-    public List<VariantDownloadRow> VariantDownloadRowsForAlleles(List<Variant> annotations) {
+    public List<VariantDownloadRow> translateVariantDownloadRowsForAlleles(List<Variant> annotations) {
         return annotations.stream()
                 .map(this::getBaseDownloadVariantRow)
                 .collect(Collectors.toList());
