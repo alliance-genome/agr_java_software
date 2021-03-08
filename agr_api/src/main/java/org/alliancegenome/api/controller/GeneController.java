@@ -302,7 +302,7 @@ public class GeneController implements GeneRESTInterface {
             throw new RestErrorException(message);
         }
         try {
-            JsonResultResponse<InteractionGeneJoin> interactions = geneService.getInteractions(id, pagination);
+            JsonResultResponse<InteractionGeneJoin> interactions = geneService.getInteractions(id, pagination, joinType.getName());
             interactions.setHttpServletRequest(request);
             interactions.calculateRequestDuration(startTime);
             return interactions;
