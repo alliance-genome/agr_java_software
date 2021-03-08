@@ -232,7 +232,7 @@ public class AlleleToTdfTranslator {
 
     public String getAllVariantsRows(List<Variant> variants) {
 
-        List<VariantDownloadRow> list = getVariantDownloadRowsForAlleles(variants);
+        List<VariantDownloadRow> list = VariantDownloadRowsForAlleles(variants);
         List<DownloadHeader> headers = List.of(
                 new DownloadHeader<>("Symbol", (VariantDownloadRow::getSymbol)),
                 new DownloadHeader<>("Variant Type", (VariantDownloadRow::getVariantType)),
@@ -253,9 +253,13 @@ public class AlleleToTdfTranslator {
     }
 
 
-    public List<VariantDownloadRow> getVariantDownloadRowsForAlleles(List<Variant> annotations) {
-
+    public List<VariantDownloadRow> VariantDownloadRowsForAlleles(List<Variant> annotations) {
         return annotations.stream()
+                .map(this::getBaseDownloadVariantRow)
+                .collect(Collectors.toList());
+    }
+
+       /* return annotations.stream()
                 .map(annotation -> {
                     if (CollectionUtils.isNotEmpty(annotation.getPublications()))
                         return annotation.getPublications().stream()
@@ -275,9 +279,9 @@ public class AlleleToTdfTranslator {
                 .collect(Collectors.toList());
 
 
-    }
+    }*/
 
-    private VariantDownloadRow getBaseDownloadVariantRow(final Variant annotation, Publication pub) {
+    private VariantDownloadRow getBaseDownloadVariantRow(final Variant annotation) {
         VariantDownloadRow row = new VariantDownloadRow();
         row.setSymbol(annotation.getHgvsNomenclature());
         row.setVariantType(annotation.getVariantType().getName());
@@ -285,15 +289,13 @@ public class AlleleToTdfTranslator {
         row.setChange(annotation.getNucleotideChange());
         row.setConsequence(annotation.getConsequence());
         row.setOverlaps(annotation.getGene().getSymbol());
-        if (pub != null) {
-            row.setReference(pub.getPubId());
-        }
         String hgvsGs = "";
         String hgvsPs = "";
         String hgvsCs = "";
         String synonyms = "";
         String crossRefs = "";
         String notesDescs = "";
+        String pubs="";
 
         if (CollectionUtils.isNotEmpty(annotation.getSynonyms())) {
             StringJoiner synonymJoiner = new StringJoiner(",");
@@ -326,6 +328,11 @@ public class AlleleToTdfTranslator {
             annotation.getNotes().forEach(noteDesc -> noteJoiner.add(noteDesc.getNote()));
             notesDescs = noteJoiner.toString();
         }
+        if (CollectionUtils.isNotEmpty(annotation.getPublications())) {
+            StringJoiner pubJoiner = new StringJoiner(",");
+            annotation.getPublications().forEach(pub -> pubJoiner.add(pub.getPubId()));
+            pubs = pubJoiner.toString();
+        }
 
         row.setVariantSynonyms(synonyms);
         row.setHgvsG(hgvsGs);
@@ -333,6 +340,7 @@ public class AlleleToTdfTranslator {
         row.setHgvsP(hgvsPs);
         row.setCrossReference(crossRefs);
         row.setNotes(notesDescs);
+        row.setReference(pubs);
 
         return row;
     }
