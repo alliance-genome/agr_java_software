@@ -25,7 +25,7 @@ public class InteractionCacheRepository {
     @Inject
     private CacheService cacheService;
 
-    public PaginationResult<InteractionGeneJoin> getInteractionAnnotationList(String geneID, Pagination pagination) {
+    public PaginationResult<InteractionGeneJoin> getInteractionAnnotationList(String geneID, Pagination pagination, String joinType) {
 
         List<InteractionGeneJoin> interactionAnnotationList = cacheService.getCacheEntries(geneID, CacheAlliance.GENE_INTERACTION);
         if (interactionAnnotationList == null)
@@ -37,7 +37,11 @@ public class InteractionCacheRepository {
         //set Distinct Field Value based on filtered list
         FilterService<InteractionGeneJoin> filterService = new FilterService<>(new InteractionAnnotationFiltering());
         ColumnFieldMapping<InteractionGeneJoin> mapping = new InteractionColumnFieldMapping();
-        result.setDistinctFieldValueMap(filterService.getDistinctFieldValues(filteredInteractionAnnotationList, mapping.getSingleValuedFieldColumns(Table.INTERACTION), mapping));
+        //here for supplementData, it will ONLY filter data based on joinType, NO other filters so it will show ALL options for multiple selections
+        List<InteractionGeneJoin> interactionAnnotationListDistinct=  interactionAnnotationList;
+        if (joinType !=null && (joinType.equalsIgnoreCase(JoinTypeValue.genetic_interaction.getName()) || joinType.equalsIgnoreCase(JoinTypeValue.molecular_interaction.getName()) ))
+        	interactionAnnotationListDistinct = interactionAnnotationListDistinct.stream().filter(join->join.getJoinType().equalsIgnoreCase(joinType)).collect(Collectors.toList());
+        result.setDistinctFieldValueMap(filterService.getDistinctFieldValues(interactionAnnotationListDistinct, mapping.getSingleValuedFieldColumns(Table.INTERACTION), mapping));
 
         if (!filteredInteractionAnnotationList.isEmpty()) {
             result.setTotalNumber(filteredInteractionAnnotationList.size());
@@ -46,6 +50,9 @@ public class InteractionCacheRepository {
         return result;
     }
     
+    public PaginationResult<InteractionGeneJoin> getInteractionAnnotationList(String geneID, Pagination pagination) {
+    	return getInteractionAnnotationList(geneID, pagination, "");
+    }
 
     private List<InteractionGeneJoin> getSortedAndPaginatedInteractionAnnotations(Pagination pagination,
                                                                                   List<InteractionGeneJoin> filteredInteractionAnnotationList) {
