@@ -152,12 +152,14 @@ public class AlleleController implements AlleleRESTInterface {
                                                                      String disease,
                                                                      String source,
                                                                      String reference,
+                                                                     String associationType,
                                                                      String sortBy) {
         long startTime = System.currentTimeMillis();
         Pagination pagination = new Pagination(page, limit, sortBy, null);
         pagination.addFieldFilter(FieldFilter.DISEASE, disease);
         pagination.addFieldFilter(FieldFilter.SOURCE, source);
         pagination.addFieldFilter(FieldFilter.FREFERENCE, reference);
+        pagination.addFieldFilter(FieldFilter.ASSOCIATION_TYPE, associationType);
         if (pagination.hasErrors()) {
             RestErrorMessage message = new RestErrorMessage();
             message.setErrors(pagination.getErrors());
@@ -183,6 +185,7 @@ public class AlleleController implements AlleleRESTInterface {
                                                    String disease,
                                                    String source,
                                                    String reference,
+                                                   String associationType,
                                                    String sortBy) {
         JsonResultResponse<DiseaseAnnotation> response = getDiseasePerAllele( id,
                 Integer.MAX_VALUE,
@@ -190,6 +193,7 @@ public class AlleleController implements AlleleRESTInterface {
                 disease,
                 source,
                 reference,
+                associationType,
                 sortBy);
         Response.ResponseBuilder responseBuilder = Response.ok(diseaseToTdfTranslator.getAllRowsForAllele(response.getResults()));
         APIServiceHelper.setDownloadHeader(id, EntityType.ALLELE, EntityType.DISEASE, responseBuilder);

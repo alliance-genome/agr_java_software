@@ -190,6 +190,8 @@ public interface AlleleRESTInterface {
             @QueryParam("filter.source") String source,
             @Parameter(in=ParameterIn.QUERY, name = "filter.reference", description = "Reference number: PUBMED or a Pub ID from the MOD")
             @QueryParam("filter.reference") String reference,
+            @Parameter(in=ParameterIn.QUERY, name = "filter.associationType", description = "Filter on association Type")
+            @QueryParam("filter.associationType") String associationType,
             @Parameter(in=ParameterIn.QUERY, name="sortBy", description = "Field name by which to sort", schema = @Schema(type = SchemaType.STRING))
             @DefaultValue("symbol") @QueryParam("sortBy") String sortBy
 
@@ -210,6 +212,8 @@ public interface AlleleRESTInterface {
             @QueryParam("filter.source") String source,
             @Parameter(in=ParameterIn.QUERY, name = "filter.reference", description = "Reference number: PUBMED or a Pub ID from the MOD")
             @QueryParam("filter.reference") String reference,
+            @Parameter(in=ParameterIn.QUERY, name = "filter.associationType", description = "Filter on association Type")
+            @QueryParam("filter.associationType") String associationType,
             @Parameter(in=ParameterIn.QUERY, name="sortBy", description = "Field name by which to sort", schema = @Schema(type = SchemaType.STRING))
             @DefaultValue("symbol") @QueryParam("sortBy") String sortBy
             );
