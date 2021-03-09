@@ -76,7 +76,7 @@ public class TestReadVCFFile {
         while(!vcQueue.isEmpty()) {
             Thread.sleep(1000);
         }
-        log.info("VC Queue Empty shuting down transformers");
+        log.info("VC Queue Empty shutting down transformers");
         for(VCFTransform t: transformers) {
             t.interrupt();
             t.join();

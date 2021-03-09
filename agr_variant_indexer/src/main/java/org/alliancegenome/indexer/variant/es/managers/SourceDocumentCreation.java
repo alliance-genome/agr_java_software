@@ -244,7 +244,7 @@ public class SourceDocumentCreation extends Thread {
                 Thread.sleep(15000);
             }
             TimeUnit.MILLISECONDS.sleep(15000);
-            log.info("VC Queue Empty shuting down transformers");
+            log.info("VC Queue Empty shutting down transformers");
             
             log.info("Shutting down transformers");
             for(DocumentTransformer t: transformers) {
@@ -260,7 +260,7 @@ public class SourceDocumentCreation extends Thread {
                 Thread.sleep(15000);
             }
             TimeUnit.MILLISECONDS.sleep(15000);
-            log.info("Object Empty shuting down producers");
+            log.info("Object Empty shutting down producers");
 
             log.info("Shutting down producers");
             for(JSONProducer p: producers) {
@@ -375,7 +375,7 @@ public class SourceDocumentCreation extends Thread {
                    Map<String, List<Allele>> alleleMap=chromosomeAllelesMap.get(ctxList.get(0).getContig());
 
                     for(VariantContext ctx: ctxList) {
-                        for(VariantDocument doc: converter.convertVariantContext(ctx, speciesType, header,alleleMap, null)) {
+                        for(VariantDocument doc: converter.convertVariantContext(ctx, speciesType, header)) {
                             workBucket.add(doc);
                             ph2.progressProcess("objectQueue: " + objectQueue.size());
                         }

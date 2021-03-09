@@ -239,9 +239,12 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
         query += " OPTIONAL MATCH p2=(a:Allele)-[:ALSO_KNOWN_AS]->(synonym:Synonym)";
         query += " OPTIONAL MATCH crossRef=(a:Allele)-[:CROSS_REFERENCE]->(c:CrossReference)";
         query += " RETURN p0, p1, p2, consequence, loc, crossRef ";
-        Iterable<Allele> allelesWithVariantsIter = query(query, new HashMap<>());
+//        Iterable<Allele> allelesWithVariantsIter = query(query, new HashMap<>());
+        Set<Allele> allelesWithVariants = new HashSet<>();
+/*
         Set<Allele> allelesWithVariants = StreamSupport.stream(allelesWithVariantsIter.spliterator(), false)
                 .collect(Collectors.toSet());
+*/
         log.info("Number of alleles with variants: " + String.format("%,d", allelesWithVariants.size()));
         // fixup transcripts with genomic location and exon information
         fixupAllelesWithVariants(allAlleles, allelesWithVariants);
@@ -289,40 +292,6 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
             log.info(taxonID + ": " + stats);
         });
         return allAlleleMap;
-    }
-    public Map<String, List<Allele>> getAllAllelesByTaxonNChromosome(String taxonId, String chr) {
-       /* taxonId="NCBITaxon:10116";
-        chr="12";*/
-        String query="MATCH p1=(:SOTerm)--(v:Variant)-[:VARIATION]->" +
-                "(a:Allele{taxonId: \""+taxonId+"\"})-[:IS_ALLELE_OF]->(g:Gene{taxonId: \""+taxonId+"\"})" +
-                "-[r:LOCATED_ON]->(c:Chromosome{primaryKey:\""+chr+"\"}) ";
-
-
-        query += " OPTIONAL MATCH consequence = (t:Transcript)--(:TranscriptLevelConsequence)--(v:Variant)<-[:ASSOCIATION]-(t:Transcript)--(:SOTerm) ";
-        query += " OPTIONAL MATCH loc=(v:Variant)-[:ASSOCIATION]->(:GenomicLocation)-[:ASSOCIATION]->(:Chromosome)";
-        query += " OPTIONAL MATCH p2=(a:Allele)-[:ALSO_KNOWN_AS]->(synonym:Synonym)";
-        query += " OPTIONAL MATCH crossRef=(a:Allele)-[:CROSS_REFERENCE]->(c:CrossReference)";
-        query += " RETURN p1, p2, consequence, loc, crossRef ";
-      //  query += " RETURN p1, consequence, loc  ";
-        System.out.println(query);
-        Iterable<Allele> allelesWithVariantsIter = query(query, new HashMap<>());
-        Set<Allele> allelesWithVariants = StreamSupport.stream(allelesWithVariantsIter.spliterator(), false)
-                .collect(Collectors.toSet());
-        Map<String, List<Allele>> allelesMap=new HashMap<>();
-        for(Allele a: allelesWithVariants){
-         List<Variant> variants=   a.getVariants();
-         for(Variant v:variants){
-             List<Allele> alleles=new ArrayList<>();
-             if(allelesMap.get(v.getHgvsG().get(1))!=null && allelesMap.get(v.getHgvsG().get(1)).size()>0){
-                 alleles.addAll(allelesMap.get(v.getHgvsG().get(1)));
-             }
-             alleles.add(a);
-             allelesMap.put(v.getHgvsG().get(1), alleles);
-         }
-        }
-        log.info("Number of alleles with variants: " + String.format("%,d", allelesWithVariants.size()));
-
-        return allelesMap;
     }
 
     public void fixupAllelesWithVariants(Set<Allele> allAlleles, Set<Allele> allelesWithVariants) {
@@ -418,5 +387,23 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
         Iterable<Allele> alleles = query(query, map);
         return StreamSupport.stream(alleles.spliterator(), false)
                 .collect(Collectors.toSet());
+    }
+
+    // cache
+    private Set<String> allAllelicHgvsgNames;
+
+    public Set<String> getAllAllelicHgvsGNames() {
+        if (allAllelicHgvsgNames != null)
+            return allAllelicHgvsgNames;
+
+        String query = "";
+        query += " MATCH p1=(variant:Variant)-[:VARIATION]->(a:Allele)-[:IS_ALLELE_OF]->(g:Gene)  ";
+        query += " RETURN variant.hgvsNomenclature as ID ";
+
+        Result result = queryForResult(query);
+        allAllelicHgvsgNames = StreamSupport.stream(result.spliterator(), false)
+                .map(idMap -> (String) idMap.get("ID"))
+                .collect(Collectors.toSet());
+        return allAllelicHgvsgNames;
     }
 }
