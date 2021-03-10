@@ -11,6 +11,7 @@ import org.alliancegenome.neo4j.repository.AlleleRepository;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -29,17 +30,14 @@ public class SourceDocumentCreationManager extends Thread {
             
             ExecutorService executor = Executors.newFixedThreadPool(VariantConfigHelper.getSourceDocumentCreatorThreads());
             for(DownloadSource source: downloadSet.getDownloadFileSet()) {
-                Map<String, Map<String, List<Allele>>> chromosomeAllelesMap = new HashMap<>();
                // SourceDocumentCreationNew creator = new SourceDocumentCreationNew(source);
-                if(!source.getSpecies().equalsIgnoreCase("human")) {
-                    for (DownloadableFile df : source.getFileList()) {
-                        Map<String, List<Allele>> alleleMap = alleleRepository.getAllAllelesByTaxonNChromosome(source.getTaxonId(), df.getChromosome());
-                        chromosomeAllelesMap.put(df.getChromosome(), alleleMap);
-                    }
+                Map<String, Map<String, Set<Allele>>> chromosomeAllelesMap=new HashMap<>();
+                for(DownloadableFile df: source.getFileList()) {
+                    //Map<String, Set<Allele>> alleleMap = alleleRepository.getAllAlleles().get(source.getTaxonId());
+                    //chromosomeAllelesMap.put(df.getChromosome(), alleleMap);
                 }
             //    SourceDocumentCreation creator = new SourceDocumentCreation(source, chromosomeAllelesMap);
                   SourceDocumentCreationNew creator = new SourceDocumentCreationNew(source, chromosomeAllelesMap);
-
                //     creator.getLTPIndexObjects();
                 executor.execute(creator);
             }

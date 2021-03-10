@@ -8,18 +8,17 @@ import htsjdk.variant.vcf.VCFFileReader;
 import htsjdk.variant.vcf.VCFInfoHeaderLine;
 import lombok.extern.log4j.Log4j2;
 import org.alliancegenome.api.entity.AlleleVariantSequence;
+import org.alliancegenome.api.service.AlleleVariantService;
 import org.alliancegenome.core.filedownload.model.DownloadSource;
 import org.alliancegenome.core.filedownload.model.DownloadableFile;
 import org.alliancegenome.core.variant.config.VariantConfigHelper;
+import org.alliancegenome.core.variant.converters.AlleleVariantSequenceConverter;
 import org.alliancegenome.core.variant.converters.Converter;
-import org.alliancegenome.core.variant.converters.VariantContextConverterNew;
 import org.alliancegenome.es.util.EsClientFactory;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.entity.node.Allele;
-import org.alliancegenome.neo4j.entity.node.Gene;
-import org.alliancegenome.neo4j.entity.node.TranscriptLevelConsequence;
-import org.alliancegenome.neo4j.entity.node.Variant;
+import org.alliancegenome.neo4j.view.View;
 import org.elasticsearch.action.DocWriteRequest;
 import org.elasticsearch.action.bulk.BackoffPolicy;
 import org.elasticsearch.action.bulk.BulkProcessor;
@@ -37,6 +36,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 
@@ -59,11 +59,12 @@ public class SourceDocumentCreationNew extends Thread {
 
     private RestHighLevelClient client = EsClientFactory.getDefaultEsClient();
     private boolean indexing = VariantConfigHelper.isIndexing();
-    private Map<String, Map<String, List<Allele>>> chromosomeAllelesMap;
-    private List<String> matched=new ArrayList<>();
-    private List<String> unMatched=new ArrayList<>();
+    private Map<String, Map<String, Set<Allele>>> chromosomeAllelesMap;
+    private List<String> matched = new ArrayList<>();
     private LinkedBlockingDeque<List<VariantContext>> vcQueue = new LinkedBlockingDeque<List<VariantContext>>(VariantConfigHelper.getSourceDocumentCreatorVCQueueSize());
     private LinkedBlockingDeque<List<AlleleVariantSequence>> objectQueue = new LinkedBlockingDeque<List<AlleleVariantSequence>>(VariantConfigHelper.getSourceDocumentCreatorObjectQueueSize());
+
+    private AlleleVariantSequenceConverter aVSConverter = new AlleleVariantSequenceConverter();
 
     private LinkedBlockingDeque<List<String>> jsonQueue1;
     private LinkedBlockingDeque<List<String>> jsonQueue2;
@@ -76,35 +77,39 @@ public class SourceDocumentCreationNew extends Thread {
     private ProcessDisplayHelper ph4 = new ProcessDisplayHelper(log, VariantConfigHelper.getDisplayInterval());
     private ProcessDisplayHelper ph5 = new ProcessDisplayHelper(log, VariantConfigHelper.getDisplayInterval());
 
-    Converter converter=new Converter();
-    public SourceDocumentCreationNew(DownloadSource source, Map<String,Map<String, List<Allele>>> chromosomeAllelesMap) {
+    Converter converter = new Converter();
+
+    public SourceDocumentCreationNew(DownloadSource source, Map<String, Map<String, Set<Allele>>> chromosomeAllelesMap) {
         this.source = source;
         speciesType = SpeciesType.getTypeByID(source.getTaxonId());
-        this.chromosomeAllelesMap=chromosomeAllelesMap;
+        this.chromosomeAllelesMap = chromosomeAllelesMap;
     }
 
     public void run() {
 
         int[][] settings = VariantConfigHelper.getBulkProcessorSettingsArray();
 
-        jsonQueue1 = new LinkedBlockingDeque<List<String>>(settings[0][3]); // Max 10K * 10K = 100M
-        jsonQueue2 = new LinkedBlockingDeque<List<String>>(settings[1][3]); // Max 75K * 1333 = 100M
-        jsonQueue3 = new LinkedBlockingDeque<List<String>>(settings[2][3]); // Max 100K * 1000 = 100M
-        jsonQueue4 = new LinkedBlockingDeque<List<String>>(settings[3][3]); // Max 200K * 500 = 100M if documents are larger then we might need to split this down more
+        jsonQueue1 = new LinkedBlockingDeque<>(settings[0][3]); // Max 10K * 10K = 100M
+        jsonQueue2 = new LinkedBlockingDeque<>(settings[1][3]); // Max 75K * 1333 = 100M
+        jsonQueue3 = new LinkedBlockingDeque<>(settings[2][3]); // Max 100K * 1000 = 100M
+        jsonQueue4 = new LinkedBlockingDeque<>(settings[3][3]); // Max 200K * 500 = 100M if documents are larger then we might need to split this down more
 
         log.info("Creating Bulk Processor 0 - 10K");
-        builder1 = BulkProcessor.builder((request, bulkListener) -> client.bulkAsync(request, RequestOptions.DEFAULT, bulkListener), new BulkProcessor.Listener() { 
+        builder1 = BulkProcessor.builder((request, bulkListener) -> client.bulkAsync(request, RequestOptions.DEFAULT, bulkListener), new BulkProcessor.Listener() {
             @Override
-            public void beforeBulk(long executionId, BulkRequest request) { }
+            public void beforeBulk(long executionId, BulkRequest request) {
+            }
+
             @Override
-            public void afterBulk(long executionId, BulkRequest request, BulkResponse response) { }
+            public void afterBulk(long executionId, BulkRequest request, BulkResponse response) {
+            }
 
             @Override
             public void afterBulk(long executionId, BulkRequest request, Throwable failure) {
                 log.error("Bulk Request Failure: " + failure.getMessage());
-                List<String> list = new ArrayList<String>();
-                for(DocWriteRequest<?> req: request.requests()) {
-                    IndexRequest idxreq = (IndexRequest)req;
+                List<String> list = new ArrayList<>();
+                for (DocWriteRequest<?> req : request.requests()) {
+                    IndexRequest idxreq = (IndexRequest) req;
                     list.add(idxreq.source().toString());
                 }
                 try {
@@ -117,17 +122,20 @@ public class SourceDocumentCreationNew extends Thread {
         });
 
         log.info("Creating Bulk Processor 10K - 75K");
-        builder2 = BulkProcessor.builder((request, bulkListener) -> client.bulkAsync(request, RequestOptions.DEFAULT, bulkListener), new BulkProcessor.Listener() { 
+        builder2 = BulkProcessor.builder((request, bulkListener) -> client.bulkAsync(request, RequestOptions.DEFAULT, bulkListener), new BulkProcessor.Listener() {
             @Override
-            public void beforeBulk(long executionId, BulkRequest request) { }
+            public void beforeBulk(long executionId, BulkRequest request) {
+            }
+
             @Override
-            public void afterBulk(long executionId, BulkRequest request, BulkResponse response) { }
+            public void afterBulk(long executionId, BulkRequest request, BulkResponse response) {
+            }
 
             @Override
             public void afterBulk(long executionId, BulkRequest request, Throwable failure) {
                 log.error("Bulk Request Failure: " + failure.getMessage());
-                for(DocWriteRequest<?> req: request.requests()) {
-                    IndexRequest idxreq = (IndexRequest)req;
+                for (DocWriteRequest<?> req : request.requests()) {
+                    IndexRequest idxreq = (IndexRequest) req;
                     bulkProcessor2.add(idxreq);
                 }
                 log.error("Finished Adding requests to Queue:");
@@ -135,17 +143,20 @@ public class SourceDocumentCreationNew extends Thread {
         });
 
         log.info("Creating Bulk Processor 75K - 100K");
-        builder3 = BulkProcessor.builder((request, bulkListener) -> client.bulkAsync(request, RequestOptions.DEFAULT, bulkListener), new BulkProcessor.Listener() { 
+        builder3 = BulkProcessor.builder((request, bulkListener) -> client.bulkAsync(request, RequestOptions.DEFAULT, bulkListener), new BulkProcessor.Listener() {
             @Override
-            public void beforeBulk(long executionId, BulkRequest request) { }
+            public void beforeBulk(long executionId, BulkRequest request) {
+            }
+
             @Override
-            public void afterBulk(long executionId, BulkRequest request, BulkResponse response) { }
+            public void afterBulk(long executionId, BulkRequest request, BulkResponse response) {
+            }
 
             @Override
             public void afterBulk(long executionId, BulkRequest request, Throwable failure) {
                 log.error("Bulk Request Failure: " + failure.getMessage());
-                for(DocWriteRequest<?> req: request.requests()) {
-                    IndexRequest idxreq = (IndexRequest)req;
+                for (DocWriteRequest<?> req : request.requests()) {
+                    IndexRequest idxreq = (IndexRequest) req;
                     bulkProcessor3.add(idxreq);
                 }
                 log.error("Finished Adding requests to Queue:");
@@ -153,17 +164,20 @@ public class SourceDocumentCreationNew extends Thread {
         });
 
         log.info("Creating Bulk Processor 100K - 200K");
-        builder4 = BulkProcessor.builder((request, bulkListener) -> client.bulkAsync(request, RequestOptions.DEFAULT, bulkListener), new BulkProcessor.Listener() { 
+        builder4 = BulkProcessor.builder((request, bulkListener) -> client.bulkAsync(request, RequestOptions.DEFAULT, bulkListener), new BulkProcessor.Listener() {
             @Override
-            public void beforeBulk(long executionId, BulkRequest request) { }
+            public void beforeBulk(long executionId, BulkRequest request) {
+            }
+
             @Override
-            public void afterBulk(long executionId, BulkRequest request, BulkResponse response) { }
+            public void afterBulk(long executionId, BulkRequest request, BulkResponse response) {
+            }
 
             @Override
             public void afterBulk(long executionId, BulkRequest request, Throwable failure) {
                 log.error("Bulk Request Failure: " + failure.getMessage());
-                for(DocWriteRequest<?> req: request.requests()) {
-                    IndexRequest idxreq = (IndexRequest)req;
+                for (DocWriteRequest<?> req : request.requests()) {
+                    IndexRequest idxreq = (IndexRequest) req;
                     bulkProcessor4.add(idxreq);
                 }
                 log.error("Finished Adding requests to Queue:");
@@ -196,7 +210,7 @@ public class SourceDocumentCreationNew extends Thread {
 
         ph1.startProcess("VCFReader Readers: ");
         List<VCFReader> readers = new ArrayList<VCFReader>();
-        for(DownloadableFile df: source.getFileList()) {
+        for (DownloadableFile df : source.getFileList()) {
             VCFReader reader = new VCFReader(df);
             reader.start();
             readers.add(reader);
@@ -204,7 +218,7 @@ public class SourceDocumentCreationNew extends Thread {
 
         List<DocumentTransformer> transformers = new ArrayList<>();
         ph2.startProcess("VCFTransformers: " + speciesType.getName());
-        for(int i = 0; i < VariantConfigHelper.getTransformerThreads(); i++) {
+        for (int i = 0; i < VariantConfigHelper.getTransformerThreads(); i++) {
             DocumentTransformer transformer = new DocumentTransformer();
             transformer.start();
             transformers.add(transformer);
@@ -212,7 +226,7 @@ public class SourceDocumentCreationNew extends Thread {
 
         List<JSONProducer> producers = new ArrayList<>();
         ph5.startProcess("JSONProducers: " + speciesType.getName());
-        for(int i = 0; i < VariantConfigHelper.getProducerThreads(); i++) {
+        for (int i = 0; i < VariantConfigHelper.getProducerThreads(); i++) {
             JSONProducer producer = new JSONProducer();
             producer.start();
             producers.add(producer);
@@ -222,56 +236,64 @@ public class SourceDocumentCreationNew extends Thread {
 
         ph3.startProcess("VCFJsonIndexer BulkProcessor: " + indexName);
         ph4.startProcess("VCFJsonIndexer Buckets: " + indexName);
-        for(int i = 0; i < VariantConfigHelper.getIndexerBulkProcessorThreads(); i++) {
-            VCFJsonBulkIndexer indexer1 = new VCFJsonBulkIndexer(jsonQueue1, bulkProcessor1); indexer1.start(); indexers.add(indexer1);
-            VCFJsonBulkIndexer indexer2 = new VCFJsonBulkIndexer(jsonQueue2, bulkProcessor2); indexer2.start(); indexers.add(indexer2);
-            VCFJsonBulkIndexer indexer3 = new VCFJsonBulkIndexer(jsonQueue3, bulkProcessor3); indexer3.start(); indexers.add(indexer3);
-            VCFJsonBulkIndexer indexer4 = new VCFJsonBulkIndexer(jsonQueue4, bulkProcessor4); indexer4.start(); indexers.add(indexer4);
+        for (int i = 0; i < VariantConfigHelper.getIndexerBulkProcessorThreads(); i++) {
+            VCFJsonBulkIndexer indexer1 = new VCFJsonBulkIndexer(jsonQueue1, bulkProcessor1);
+            indexer1.start();
+            indexers.add(indexer1);
+            VCFJsonBulkIndexer indexer2 = new VCFJsonBulkIndexer(jsonQueue2, bulkProcessor2);
+            indexer2.start();
+            indexers.add(indexer2);
+            VCFJsonBulkIndexer indexer3 = new VCFJsonBulkIndexer(jsonQueue3, bulkProcessor3);
+            indexer3.start();
+            indexers.add(indexer3);
+            VCFJsonBulkIndexer indexer4 = new VCFJsonBulkIndexer(jsonQueue4, bulkProcessor4);
+            indexer4.start();
+            indexers.add(indexer4);
         }
 
         try {
 
             log.info("Waiting for jsonQueue to empty");
-            while(!(jsonQueue1.isEmpty() && jsonQueue2.isEmpty() && jsonQueue3.isEmpty() && jsonQueue4.isEmpty())) {
+            while (!(jsonQueue1.isEmpty() && jsonQueue2.isEmpty() && jsonQueue3.isEmpty() && jsonQueue4.isEmpty())) {
                 Thread.sleep(1000);
             }
 
             log.info("Waiting for VCFReader's to finish");
-            for(VCFReader r: readers) {
+            for (VCFReader r : readers) {
                 r.join();
             }
             ph1.finishProcess();
 
             log.info("Waiting for VC Queue to empty");
-            while(!vcQueue.isEmpty()) {
+            while (!vcQueue.isEmpty()) {
                 Thread.sleep(15000);
             }
             TimeUnit.MILLISECONDS.sleep(15000);
-            log.info("VC Queue Empty shuting down transformers");
+            log.info("VC Queue Empty shutting down transformers");
 
             log.info("Shutting down transformers");
-            for(DocumentTransformer t: transformers) {
+            for (DocumentTransformer t : transformers) {
                 t.interrupt();
                 t.join();
             }
             log.info("Transformers shutdown");
             ph2.finishProcess();
             try {
-              objectQueue.add(getLTPIndexObjects());
+                objectQueue.add(aVSConverter.getAllAllelicVariants());
             } catch (Exception e) {
                 e.printStackTrace();
             }
 
 
             log.info("Waiting for Object Queue to empty");
-            while(!objectQueue.isEmpty()) {
+            while (!objectQueue.isEmpty()) {
                 Thread.sleep(15000);
             }
             TimeUnit.MILLISECONDS.sleep(15000);
             log.info("Object Empty shuting down producers");
 
             log.info("Shutting down producers");
-            for(JSONProducer p: producers) {
+            for (JSONProducer p : producers) {
                 p.interrupt();
                 p.join();
             }
@@ -280,7 +302,7 @@ public class SourceDocumentCreationNew extends Thread {
 
 
             log.info("Waiting for jsonQueue to empty");
-            while(!jsonQueue1.isEmpty() || !jsonQueue2.isEmpty() || !jsonQueue3.isEmpty() || !jsonQueue4.isEmpty()) {
+            while (!jsonQueue1.isEmpty() || !jsonQueue2.isEmpty() || !jsonQueue3.isEmpty() || !jsonQueue4.isEmpty()) {
                 Thread.sleep(1000);
             }
 
@@ -288,7 +310,7 @@ public class SourceDocumentCreationNew extends Thread {
 
 
             log.info("JSon Queue Empty shuting down bulk indexers");
-            for(VCFJsonBulkIndexer indexer: indexers) {
+            for (VCFJsonBulkIndexer indexer : indexers) {
                 indexer.interrupt();
                 indexer.join();
             }
@@ -330,7 +352,7 @@ public class SourceDocumentCreationNew extends Thread {
 
             VCFFileReader reader = new VCFFileReader(new File(df.getLocalGzipFilePath()), false);
             CloseableIterator<VariantContext> iter1 = reader.iterator();
-            if(header == null) {
+            if (header == null) {
                 log.info("Setting VCF File Header: " + df.getLocalGzipFilePath());
                 VCFInfoHeaderLine fileHeader = reader.getFileHeader().getInfoHeaderLine("CSQ");
                 header = fileHeader.getDescription().split("Format: ")[1].split("\\|");
@@ -347,14 +369,13 @@ public class SourceDocumentCreationNew extends Thread {
                     VariantContext vc = iter1.next();
                     workBucket.add(vc);
 
-                    if(workBucket.size() >= workBucketSize) {
+                    if (workBucket.size() >= workBucketSize) {
                         vcQueue.put(workBucket);
                         workBucket = new ArrayList<>();
-
                     }
                     ph1.progressProcess("vcQueue: " + vcQueue.size());
                 }
-                if(workBucket.size() > 0) {
+                if (workBucket.size() > 0) {
                     vcQueue.put(workBucket);
                 }
             } catch (Exception e) {
@@ -367,27 +388,29 @@ public class SourceDocumentCreationNew extends Thread {
 
     private class DocumentTransformer extends Thread {
 
-        private VariantContextConverterNew converter = new VariantContextConverterNew();
-        private int workBucketSize = VariantConfigHelper.getSourceDocumentCreatorObjectQueueBucketSize();
+        private final int workBucketSize = VariantConfigHelper.getSourceDocumentCreatorObjectQueueBucketSize();
 
         public void run() {
             List<AlleleVariantSequence> workBucket = new ArrayList<>();
-            while(!(Thread.currentThread().isInterrupted())) {
+            while (!(Thread.currentThread().isInterrupted())) {
                 try {
                     List<VariantContext> ctxList = vcQueue.take();
-                    Map<String, List<Allele>> alleleMap=chromosomeAllelesMap.get(ctxList.get(0).getContig());
-
-                   for(VariantContext ctx: ctxList) {
+                    List<AlleleVariantSequence> finalWorkBucket = workBucket;
+                    for (VariantContext ctx : ctxList) {
                         try {
-                            for(AlleleVariantSequence doc: converter.convertVariantContext(ctx, speciesType, header, alleleMap, matched)) {
-                                workBucket.add(doc);
+                            List<AlleleVariantSequence> avsList = aVSConverter.convertVariantContext(ctx, speciesType, header);
+
+                            avsList.forEach(sequence -> {
+                                if (!AlleleVariantService.allelicVariantExists(sequence))
+                                    finalWorkBucket.add(sequence);
                                 ph2.progressProcess("objectQueue: " + objectQueue.size());
-                            }
+                            });
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
                     }
-                    if(workBucket.size() >= workBucketSize) {
+                    workBucket.addAll(finalWorkBucket);
+                    if (workBucket.size() >= workBucketSize) {
                         objectQueue.put(workBucket);
                         workBucket = new ArrayList<>();
                     }
@@ -397,7 +420,7 @@ public class SourceDocumentCreationNew extends Thread {
             }
 
             try {
-                if(workBucket.size() > 0) {
+                if (workBucket.size() > 0) {
                     objectQueue.put(workBucket);
                 }
             } catch (Exception e) {
@@ -408,25 +431,24 @@ public class SourceDocumentCreationNew extends Thread {
 
     private class JSONProducer extends Thread {
 
-        private ObjectMapper mapper = new ObjectMapper();
+        private final ObjectMapper mapper = new ObjectMapper();
 
         public void run() {
             mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
             mapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
-            while(!(Thread.currentThread().isInterrupted())) {
+            while (!(Thread.currentThread().isInterrupted())) {
                 try {
                     List<AlleleVariantSequence> docList = objectQueue.take();
 
-                    List<String> docs1 = new ArrayList<String>();
-                    List<String> docs2 = new ArrayList<String>();
-                    List<String> docs3 = new ArrayList<String>();
-                    List<String> docs4 = new ArrayList<String>();
+                    List<String> docs1 = new ArrayList<>();
+                    List<String> docs2 = new ArrayList<>();
+                    List<String> docs3 = new ArrayList<>();
+                    List<String> docs4 = new ArrayList<>();
 
                     if (docList.size() > 0) {
                         for (AlleleVariantSequence doc : docList) {
                             try {
-                            //    String jsonDoc =mapper.writerWithView(View.GeneAlleleVariantSequenceAPI.class).writeValueAsString(doc);
-                                   String jsonDoc = mapper.writeValueAsString(doc);
+                                String jsonDoc = mapper.writerWithView(View.GeneAlleleVariantSequenceAPI.class).writeValueAsString(doc);
                                 if (jsonDoc.length() < 10000) {
                                     docs1.add(jsonDoc);
                                 } else if (jsonDoc.length() < 75000) {
@@ -451,9 +473,9 @@ public class SourceDocumentCreationNew extends Thread {
                             e.printStackTrace();
                         }
                     }
-                    } catch(InterruptedException e){
-                        Thread.currentThread().interrupt();
-                    }
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
 
             }
         }
@@ -469,11 +491,11 @@ public class SourceDocumentCreationNew extends Thread {
         }
 
         public void run() {
-            while(!(Thread.currentThread().isInterrupted())) {
+            while (!(Thread.currentThread().isInterrupted())) {
                 try {
                     List<String> docs = jsonQueue.take();
-                    for(String doc: docs) {
-                        if(indexing) bulkProcessor.add(new IndexRequest(indexName).source(doc, XContentType.JSON));
+                    for (String doc : docs) {
+                        if (indexing) bulkProcessor.add(new IndexRequest(indexName).source(doc, XContentType.JSON));
                         ph3.progressProcess();
                     }
                     ph4.progressProcess("JSon Queue: " + jsonQueue.size());
@@ -483,117 +505,5 @@ public class SourceDocumentCreationNew extends Thread {
             }
         }
     }
-    public List<AlleleVariantSequence> getLTPIndexObjects(){
-        List<AlleleVariantSequence> sequences=new ArrayList<>();
-        if(chromosomeAllelesMap!=null){
-        ObjectMapper mapper=new ObjectMapper();
-            mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-            mapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
-
-            for(Map.Entry entry:chromosomeAllelesMap.entrySet()) {
-                Map<String, List<Allele>> alleleMap = (Map<String, List<Allele>>) entry.getValue();
-                if (alleleMap.size() > 0) {
-                    for (Map.Entry e : alleleMap.entrySet()) {
-                        String key = (String) e.getKey();
-                        if (!matched.contains(key)) {
-                            List<Allele> alleles = (List<Allele>) e.getValue();
-                           for(Allele a:alleles){
-                               sequences.addAll(converter.translateToNewAlleleVariantSequence(a,key,"false"));
-                        /*       Gene g=new Gene();
-                               g.setPrimaryKey(a.getGene().getPrimaryKey());
-                               g.setSymbol(a.getGene().getSymbol());
-                               g.setSpecies(a.getGene().getSpecies());
-                             Allele al=  mapAllele(a);
-                             for(Variant v:a.getVariants()){
-                                   AlleleVariantSequence seq=new AlleleVariantSequence();
-                                   Variant vt=getMappedVariant(v);
-                                    vt.setGene(g);
-                                    vt.setHgvsNomenclature(key);
-                                    if(v.getTranscriptLevelConsequence().size()>0) {
-                                        for (TranscriptLevelConsequence c : v.getTranscriptLevelConsequence()) {
-                                            TranscriptLevelConsequence con = getConsequenceMapped(c);
-                                            if(c.getAssociatedGene()!=null) {
-                                                Gene ag = new Gene();
-                                                ag.setSymbol(c.getAssociatedGene().getSymbol());
-                                                ag.setModGlobalId(c.getAssociatedGene().getModGlobalId());
-                                                con.setAssociatedGene(ag);
-                                            }
-                                            seq.setConsequence(con);
-                                            seq.setAllele(al);
-                                            seq.setVariant(vt);
-                                            sequences.add(seq);
-                                        }
-                                    }else{
-                                        seq.setAllele(al);
-                                        seq.setVariant(vt);
-                                        sequences.add(seq);
-                                    }
-                             }*/
-                           }
-                        }
-                    }
-                }
-            }
-        /*    for (AlleleVariantSequence doc : sequences) {
-                try {
-                    //    String jsonDoc =mapper.writerWithView(View.GeneAlleleVariantSequenceAPI.class).writeValueAsString(doc);
-                    String jsonDoc = mapper.writeValueAsString(doc);
-                   System.out.println(jsonDoc);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }*/
-
-        }
-        return sequences;
-    }
-    public TranscriptLevelConsequence getConsequenceMapped(TranscriptLevelConsequence c){
-       TranscriptLevelConsequence con= new TranscriptLevelConsequence();
-        con.setPolyphenPrediction(c.getPolyphenPrediction());
-        con.setPolyphenScore(c.getPolyphenScore());
-        con.setSiftPrediction(c.getSiftPrediction());
-        con.setSiftScore(c.getSiftScore());
-        con.setCodonChange(c.getCodonChange());
-        con.setCodonReference(c.getCodonReference());
-        con.setAminoAcidChange(c.getAminoAcidChange());
-        con.setProteinStartPosition(c.getProteinStartPosition());
-        con.setHgvsProteinNomenclature(c.getHgvsProteinNomenclature());
-        con.setHgvsCodingNomenclature(c.getHgvsCodingNomenclature());
-        con.setCdsStartPosition(c.getCdsStartPosition());
-        con.setCdnaStartPosition(c.getCdnaStartPosition());
-        con.setTranscriptLocation(c.getTranscriptLocation());
-        con.setTranscriptID(c.getTranscriptID());
-        con.setSequenceFeatureType(c.getSequenceFeatureType());
-        con.setImpact(c.getImpact());
-        con.setTranscriptLevelConsequence(c.getTranscriptLevelConsequence());
-        con.setTranscriptName(c.getTranscriptName());
-        return con;
-    }
-    public Variant getMappedVariant(Variant v){
-
-        Variant vt=new Variant();
-        vt.setStart(String.valueOf(v.getLocation().getStart()));
-        vt.setEnd(String.valueOf(v.getLocation().getEnd()));
-        vt.setGenomicVariantSequence(v.getGenomicVariantSequence());
-        vt.setGenomicReferenceSequence(v.getGenomicReferenceSequence());
-        vt.setVariantType(v.getVariantType());
-        vt.setName(v.getHgvsG().get(1));
-        return vt;
-    }
-   public Allele mapAllele(Allele a){
-       Gene g=new Gene();
-       g.setPrimaryKey(a.getGene().getPrimaryKey());
-       g.setSymbol(a.getGene().getSymbol());
-       g.setSpecies(a.getGene().getSpecies());
-
-       Allele al=new Allele();
-       al.setGene(g);
-       al.setGlobalId(a.getGlobalId());
-       al.setSymbolText(a.getSymbolText());
-       al.setSymbol(a.getSymbol());
-       return al;
-
-   }
-
 
 }
