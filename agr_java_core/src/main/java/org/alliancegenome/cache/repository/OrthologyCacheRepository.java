@@ -140,13 +140,12 @@ public class OrthologyCacheRepository {
                         view.setBest(ortho.getIsBestScore());
                         view.setBestReverse(ortho.getIsBestRevScore());
                          
-                        if (ortho.isStrictFilter() && !ortho.isModerateFilter()) {
+                        if (ortho.isStrictFilter()) {
                             view.setStringencyFilter("stringent");
-                        } else if (ortho.isModerateFilter() && !ortho.isStrictFilter()) {
+                        } else if (ortho.isModerateFilter()) {
                             view.setStringencyFilter("moderate");
                         }
-                        else
-                            view.setStringencyFilter("all");
+
                         view.setPredictionMethodsMatched(getMatchedMethods(join));
                         view.setPredictionMethodsNotMatched(getNotMatchedMethods(join));
                         view.setPredictionMethodsNotCalled(getNotCalledMethods(join));
