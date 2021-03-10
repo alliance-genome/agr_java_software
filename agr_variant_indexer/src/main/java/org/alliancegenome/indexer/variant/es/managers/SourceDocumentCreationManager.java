@@ -29,14 +29,17 @@ public class SourceDocumentCreationManager extends Thread {
             
             ExecutorService executor = Executors.newFixedThreadPool(VariantConfigHelper.getSourceDocumentCreatorThreads());
             for(DownloadSource source: downloadSet.getDownloadFileSet()) {
+                Map<String, Map<String, List<Allele>>> chromosomeAllelesMap = new HashMap<>();
                // SourceDocumentCreationNew creator = new SourceDocumentCreationNew(source);
-                Map<String, Map<String, List<Allele>>> chromosomeAllelesMap=new HashMap<>();
-                for(DownloadableFile df: source.getFileList()) {
-                    Map<String, List<Allele>> alleleMap = alleleRepository.getAllAllelesByTaxonNChromosome(source.getTaxonId(), df.getChromosome());
-                    chromosomeAllelesMap.put(df.getChromosome(), alleleMap);
+                if(!source.getSpecies().equalsIgnoreCase("human")) {
+                    for (DownloadableFile df : source.getFileList()) {
+                        Map<String, List<Allele>> alleleMap = alleleRepository.getAllAllelesByTaxonNChromosome(source.getTaxonId(), df.getChromosome());
+                        chromosomeAllelesMap.put(df.getChromosome(), alleleMap);
+                    }
                 }
             //    SourceDocumentCreation creator = new SourceDocumentCreation(source, chromosomeAllelesMap);
                   SourceDocumentCreationNew creator = new SourceDocumentCreationNew(source, chromosomeAllelesMap);
+
                //     creator.getLTPIndexObjects();
                 executor.execute(creator);
             }
