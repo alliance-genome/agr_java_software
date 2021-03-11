@@ -223,7 +223,7 @@ public class GeneController implements GeneRESTInterface {
                 location);
 
         Response.ResponseBuilder responseBuilder = Response.ok(alleleTanslator.getAllAlleleVariantDetailRows(alleles.getResults()));
-        APIServiceHelper.setDownloadHeader(id, EntityType.GENE, EntityType.ALLELE, responseBuilder);
+        APIServiceHelper.setDownloadHeader(id, EntityType.GENE, EntityType.ALLELESANDVARIANT, responseBuilder);
         return responseBuilder.build();
     }
 
@@ -764,7 +764,7 @@ public class GeneController implements GeneRESTInterface {
         JsonResultResponse<Allele> alleles = alleleService.getTransgenicAlleles(geneId, pagination);
 
         Response.ResponseBuilder responseBuilder = Response.ok(alleleTanslator.getAllTransgenicAlleleRows(alleles.getResults()));
-        APIServiceHelper.setDownloadHeader(geneId, EntityType.GENE, EntityType.ALLELE, responseBuilder);
+        APIServiceHelper.setDownloadHeader(geneId, EntityType.GENE, EntityType.TRANSGENICALLELE, responseBuilder);
         return responseBuilder.build();
     }
 
