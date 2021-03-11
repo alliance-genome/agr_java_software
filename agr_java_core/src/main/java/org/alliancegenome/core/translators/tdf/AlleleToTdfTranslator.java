@@ -256,26 +256,10 @@ public class AlleleToTdfTranslator {
     public List<VariantDownloadRow> getVariantDownloadRowsForAlleles(List<Variant> annotations) {
 
         return annotations.stream()
-                .map(annotation -> {
-                    if (CollectionUtils.isNotEmpty(annotation.getPublications()))
-                        return annotation.getPublications().stream()
-                                .map(join -> {
-                                    return annotation.getPublications().stream()
-                                            .map(var -> getBaseDownloadVariantRow(annotation, var))
-                                            .collect(Collectors.toList());
-
-                                }).flatMap(Collection::stream)
-                                .collect(Collectors.toList());
-
-
-                    else
-                        return List.of(getBaseDownloadVariantRow(annotation, null));
-                })
-                .flatMap(Collection::stream)
+                .map(this::getBaseDownloadVariantRow)
                 .collect(Collectors.toList());
-
-
     }
+    
 
     private VariantDownloadRow getBaseDownloadVariantRow(final Variant annotation, Publication pub) {
         VariantDownloadRow row = new VariantDownloadRow();
@@ -285,15 +269,13 @@ public class AlleleToTdfTranslator {
         row.setChange(annotation.getNucleotideChange());
         row.setConsequence(annotation.getConsequence());
         row.setOverlaps(annotation.getGene().getSymbol());
-        if (pub != null) {
-            row.setReference(pub.getPubId());
-        }
         String hgvsGs = "";
         String hgvsPs = "";
         String hgvsCs = "";
         String synonyms = "";
         String crossRefs = "";
         String notesDescs = "";
+        String pubs="";
 
         if (CollectionUtils.isNotEmpty(annotation.getSynonyms())) {
             StringJoiner synonymJoiner = new StringJoiner(",");
@@ -326,6 +308,11 @@ public class AlleleToTdfTranslator {
             annotation.getNotes().forEach(noteDesc -> noteJoiner.add(noteDesc.getNote()));
             notesDescs = noteJoiner.toString();
         }
+        if (CollectionUtils.isNotEmpty(annotation.getPublications())) {
+            StringJoiner pubJoiner = new StringJoiner(",");
+            annotation.getPublications().forEach(pub -> pubJoiner.add(pub.getPubId()));
+            pubs = pubJoiner.toString();
+        }
 
         row.setVariantSynonyms(synonyms);
         row.setHgvsG(hgvsGs);
@@ -333,6 +320,7 @@ public class AlleleToTdfTranslator {
         row.setHgvsP(hgvsPs);
         row.setCrossReference(crossRefs);
         row.setNotes(notesDescs);
+        row.setReference(pubs);
 
         return row;
     }
