@@ -261,7 +261,7 @@ public class AlleleToTdfTranslator {
     }
     
 
-    private VariantDownloadRow getBaseDownloadVariantRow(final Variant annotation, Publication pub) {
+    private VariantDownloadRow getBaseDownloadVariantRow(final Variant annotation) {
         VariantDownloadRow row = new VariantDownloadRow();
         row.setSymbol(annotation.getHgvsNomenclature());
         row.setVariantType(annotation.getVariantType().getName());
