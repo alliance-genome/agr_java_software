@@ -239,12 +239,9 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
         query += " OPTIONAL MATCH p2=(a:Allele)-[:ALSO_KNOWN_AS]->(synonym:Synonym)";
         query += " OPTIONAL MATCH crossRef=(a:Allele)-[:CROSS_REFERENCE]->(c:CrossReference)";
         query += " RETURN p0, p1, p2, consequence, loc, crossRef ";
-//        Iterable<Allele> allelesWithVariantsIter = query(query, new HashMap<>());
-        Set<Allele> allelesWithVariants = new HashSet<>();
-/*
+        Iterable<Allele> allelesWithVariantsIter = query(query, new HashMap<>());
         Set<Allele> allelesWithVariants = StreamSupport.stream(allelesWithVariantsIter.spliterator(), false)
                 .collect(Collectors.toSet());
-*/
         log.info("Number of alleles with variants: " + String.format("%,d", allelesWithVariants.size()));
         // fixup transcripts with genomic location and exon information
         fixupAllelesWithVariants(allAlleles, allelesWithVariants);
