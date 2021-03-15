@@ -339,6 +339,10 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
                 .collect(Collectors.toList()));
 
         alleleList.sort(Comparator.comparing(Allele::getSymbolText));
+        alleleList.forEach(allele -> {
+            allele.setPhenotype(CollectionUtils.isNotEmpty(allele.getPhenotypes()));
+            allele.setDisease(CollectionUtils.isNotEmpty(allele.getDiseaseEntityJoins()));
+        });
         return alleleList;
     }
 
