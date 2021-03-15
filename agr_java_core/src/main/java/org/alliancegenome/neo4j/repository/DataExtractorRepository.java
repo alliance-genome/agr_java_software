@@ -12,7 +12,7 @@ public class DataExtractorRepository extends Neo4jRepository {
         
         String query = " MATCH p1=(s:Species)-[:FROM_SPECIES]-(g:Gene)-[:ASSOCIATION]-(gl:GenomicLocation)";
         query += " OPTIONAL MATCH p2=(g:Gene)-[:ANNOTATED_TO]-(so:SOTerm)";
-        query += " OPTIONAL MATCH p3=(g:Gene)-[:ALSO_KNOWN_AS]-(syn)";
+        query += " OPTIONAL MATCH p3=(g:Gene)-[:ALSO_KNOWN_AS]-(syn:Synonym)";
         query += " OPTIONAL MATCH p4=(g:Gene)-[:CROSS_REFERENCE]-(cr:CrossReference)";
         query += " RETURN g.primaryKey, collect(distinct syn.name) as synonyms, collect(distinct cr.name) as crossrefs, g.name, g.symbol,  g.geneSynopsis, g.automatedGeneSynopsis, s.primaryKey, gl.chromosome, gl.start, gl.end, gl.strand, so.name";
             
