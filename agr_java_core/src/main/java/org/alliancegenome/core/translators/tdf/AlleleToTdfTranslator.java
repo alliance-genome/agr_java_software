@@ -126,7 +126,7 @@ public class AlleleToTdfTranslator {
             row.setPolyphenScore(annotation.getConsequence().getPolyphenScore());
             if (annotation.getConsequence().getAssociatedGene() != null) {
                 row.setSequenceFeatureAssociatedGene(annotation.getConsequence().getAssociatedGene().getSymbol());
-                row.setSequenceFeatureAssociatedGene(annotation.getConsequence().getAssociatedGene().getPrimaryKey());
+                row.setSequenceFeatureAssociatedGeneID(annotation.getConsequence().getAssociatedGene().getPrimaryKey());
             }
         }
         return row;
