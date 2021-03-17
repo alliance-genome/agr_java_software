@@ -1,24 +1,33 @@
 package org.alliancegenome.cache.repository;
 
-import static java.util.stream.Collectors.toList;
-
-import java.util.*;
-import java.util.stream.Collectors;
-
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-
+import lombok.extern.log4j.Log4j2;
 import org.alliancegenome.api.entity.DiseaseRibbonSummary;
-import org.alliancegenome.api.service.*;
-import org.alliancegenome.cache.*;
-import org.alliancegenome.cache.repository.helper.*;
+import org.alliancegenome.api.service.ColumnFieldMapping;
+import org.alliancegenome.api.service.DiseaseColumnFieldMapping;
+import org.alliancegenome.api.service.FilterService;
+import org.alliancegenome.api.service.Table;
+import org.alliancegenome.cache.CacheAlliance;
+import org.alliancegenome.cache.CacheService;
+import org.alliancegenome.cache.repository.helper.DiseaseAnnotationFiltering;
+import org.alliancegenome.cache.repository.helper.DiseaseAnnotationSorting;
+import org.alliancegenome.cache.repository.helper.PaginationResult;
+import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.neo4j.entity.*;
-import org.alliancegenome.neo4j.entity.node.*;
+import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
+import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
+import org.alliancegenome.neo4j.entity.node.DOTerm;
+import org.alliancegenome.neo4j.entity.node.ECOTerm;
+import org.alliancegenome.neo4j.entity.node.PublicationJoin;
+import org.alliancegenome.neo4j.view.BaseFilter;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import lombok.extern.log4j.Log4j2;
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toList;
 
 @Log4j2
 @RequestScoped
@@ -101,6 +110,10 @@ public class DiseaseCacheRepository {
 
     private PaginationResult<DiseaseAnnotation> getDiseaseAnnotationPaginationResult(Pagination pagination, List<DiseaseAnnotation> slimDiseaseAnnotationList) {
         FilterService<DiseaseAnnotation> filterService = new FilterService<>(new DiseaseAnnotationFiltering());
+        BaseFilter negationFilter = new BaseFilter();
+        negationFilter.addFieldFilter(FieldFilter.INCLUDE_NEGATION, pagination.getFieldFilterValueMap().getFilterValue(FieldFilter.INCLUDE_NEGATION));
+        List<DiseaseAnnotation> filteredListNegated = filterService.filterAnnotations(slimDiseaseAnnotationList, negationFilter);
+
         List<DiseaseAnnotation> filteredDiseaseAnnotationList = filterService.filterAnnotations(slimDiseaseAnnotationList, pagination.getFieldFilterValueMap());
 
         PaginationResult<DiseaseAnnotation> result = new PaginationResult<>();
@@ -108,7 +121,7 @@ public class DiseaseCacheRepository {
         result.setResult(filterService.getSortedAndPaginatedAnnotations(pagination, filteredDiseaseAnnotationList, new DiseaseAnnotationSorting()));
 
         ColumnFieldMapping<DiseaseAnnotation> mapping = new DiseaseColumnFieldMapping();
-        result.setDistinctFieldValueMap(filterService.getDistinctFieldValues(slimDiseaseAnnotationList,
+        result.setDistinctFieldValueMap(filterService.getDistinctFieldValues(filteredListNegated,
                 mapping.getSingleValuedFieldColumns(Table.DISEASE), mapping));
 
         return result;
