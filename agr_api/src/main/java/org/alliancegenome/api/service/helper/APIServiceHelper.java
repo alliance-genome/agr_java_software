@@ -13,7 +13,7 @@ public class APIServiceHelper {
 
     private APIServiceHelper() {} // All Static Methods
     
-    public static String getFileName(String title, String id, EntityType collectionType) {
+    public static String getFileName(String title, String id, EntityType collectionType, String extra) {
         String fileName = title;
         fileName += "-";
         fileName += id;
@@ -21,6 +21,10 @@ public class APIServiceHelper {
         // make the entity name plural
         fileName += collectionType.toString().toLowerCase() + "s";
         fileName += "-";
+        if(extra != null && extra.length() > 0) {
+            fileName += extra;
+            fileName += "-";
+        }
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         fileName += dateFormat.format(new Date());
         fileName += ".tsv";
@@ -28,8 +32,12 @@ public class APIServiceHelper {
     }
 
     public static void setDownloadHeader(String id, EntityType type, EntityType collectionType, Response.ResponseBuilder responseBuilder) {
+        setDownloadHeader(id, type, collectionType, "", responseBuilder);
+    }
+    
+    public static void setDownloadHeader(String id, EntityType type, EntityType collectionType, String extraFileName, Response.ResponseBuilder responseBuilder) {
         String title = getEntityName(id, type);
-        String fileName = APIServiceHelper.getFileName(title, id, collectionType);
+        String fileName = APIServiceHelper.getFileName(title, id, collectionType, extraFileName);
         responseBuilder.header("Content-Disposition", "attachment; filename=\"" + fileName + "\"");
         responseBuilder.type(MediaType.TEXT_PLAIN_TYPE);
     }

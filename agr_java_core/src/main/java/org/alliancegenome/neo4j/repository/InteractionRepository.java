@@ -53,7 +53,7 @@ public class InteractionRepository extends Neo4jRepository<InteractionGeneJoin> 
 
     public List<InteractionGeneJoin> getAllInteractions() {
         String query = "MATCH p1=(igj:InteractionGeneJoin)--(s) ";
-        query +=  " RETURN p1, p2";
+        query +=  " RETURN p1";
         Iterable<InteractionGeneJoin> joins = query(query, new HashMap<>());
         return StreamSupport.stream(joins.spliterator(), false)
             .peek(this::populateSpeciesInfo)

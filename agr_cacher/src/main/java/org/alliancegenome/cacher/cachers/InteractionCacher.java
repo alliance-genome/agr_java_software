@@ -95,8 +95,8 @@ public class InteractionCacher extends Cacher {
         newJoin.setPublication(join.getPublication());
         newJoin.setSourceDatabase(join.getSourceDatabase());
         newJoin.setId(join.getId());
-        newJoin.setAlleleA(join.getAlleleA());
-        newJoin.setAlleleB(join.getAlleleB());
+        newJoin.setAlleleA(join.getAlleleB());
+        newJoin.setAlleleB(join.getAlleleA());
         newJoin.setPhenotypes(join.getPhenotypes());
         return newJoin;
     }

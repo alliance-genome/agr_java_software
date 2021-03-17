@@ -4,7 +4,6 @@ import org.alliancegenome.api.entity.AlleleVariantSequence;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -45,12 +44,18 @@ public class AlleleVariantSequenceFiltering extends AnnotationFiltering<AlleleVa
                     FilterFunction.fullMatchMultiValueOR(allele.getAllele().hasDisease().toString(), value);
 
     private static final FilterFunction<AlleleVariantSequence, String> molecularConsequenceFilter =
-            (allele, value) ->
-                    FilterFunction.fullMatchMultiValueOR(allele.getAllele().getVariants().stream()
-                            .filter(Objects::nonNull)
-                            .filter(variant -> variant.getGeneLevelConsequence() != null)
-                            .map(variant -> variant.getGeneLevelConsequence().getGeneLevelConsequence())
-                            .collect(Collectors.toSet()), value);
+            (allele, value) -> {
+                if (allele.getConsequence() == null || allele.getConsequence().getTranscriptLevelConsequence() == null)
+                    return false;
+                return FilterFunction.fullMatchMultiValueOR(allele.getConsequence().getTranscriptLevelConsequence(), value);
+            };
+
+    private static final FilterFunction<AlleleVariantSequence, String> locationFilter =
+            (allele, value) -> {
+                if (allele.getConsequence() == null)
+                    return false;
+                return allele.getConsequence().getTranscriptLocation().toLowerCase().contains(value.toLowerCase());
+            };
 
     private static final FilterFunction<AlleleVariantSequence, String> variantImpactFilter =
             (allele, value) -> {
@@ -102,6 +107,7 @@ public class AlleleVariantSequenceFiltering extends AnnotationFiltering<AlleleVa
         filterFieldMap.put(FieldFilter.VARIANT_SIFT, variantSiftFilter);
         filterFieldMap.put(FieldFilter.SEQUENCE_FEATURE_TYPE, sequenceFeatureTypeFilter);
         filterFieldMap.put(FieldFilter.SEQUENCE_FEATURE, sequenceFeatureFilter);
+        filterFieldMap.put(FieldFilter.VARIANT_LOCATION, locationFilter);
     }
 
 }
