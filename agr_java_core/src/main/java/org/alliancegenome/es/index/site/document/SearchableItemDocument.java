@@ -8,11 +8,9 @@ import lombok.Setter;
 import org.alliancegenome.core.config.Constants;
 import org.alliancegenome.es.index.ESDocument;
 import org.alliancegenome.es.index.site.doclet.CrossReferenceDoclet;
+import org.alliancegenome.neo4j.entity.node.TranscriptLevelConsequence;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Getter
 @Setter
@@ -97,6 +95,7 @@ public class SearchableItemDocument extends ESDocument {
     Set<String> variantSynonyms = new HashSet<>();
     Set<String> variantType = new HashSet<>();
     Set<String> whereExpressed = new HashSet<>();
+    List<TranscriptLevelConsequence> transcriptLevelConsequences=new ArrayList<>();
 
     boolean searchable = true;
     String matchedWithHtp;

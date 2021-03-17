@@ -1,30 +1,43 @@
 package org.alliancegenome.api.service;
 
-import java.time.LocalDateTime;
-import java.util.List;
-
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-
 import org.alliancegenome.api.entity.AlleleVariantSequence;
 import org.alliancegenome.cache.repository.AlleleCacheRepository;
 import org.alliancegenome.cache.repository.helper.*;
+import org.alliancegenome.es.index.site.dao.SearchDAO;
 import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.neo4j.entity.*;
+import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
+import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
+import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.repository.AlleleRepository;
 import org.apache.commons.collections.CollectionUtils;
 
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+import java.time.LocalDateTime;
+import java.util.List;
+
 @RequestScoped
 public class AlleleService {
-
     private AlleleRepository alleleRepo = new AlleleRepository();
-
+    SearchDAO searchDAO=new SearchDAO();
     @Inject
     private AlleleCacheRepository alleleCacheRepo;
 
     public Allele getById(String id) {
-        return alleleRepo.getAllele(id);
+    //    return alleleRepo.getAllele(id);
+        return alleleRepo.getAlleleByVariantId(id);
+
+    }
+
+    public Allele getByIdVariantId(String id) {
+        return alleleRepo.getAlleleByVariantId(id);
+    }
+
+
+    public static void main(String[] args){
+        AlleleService service=new AlleleService();
+        service.getById("NC_005111.4:g.34933C>T");
     }
 
     public JsonResultResponse<Allele> getAllelesBySpecies(String species, Pagination pagination) {

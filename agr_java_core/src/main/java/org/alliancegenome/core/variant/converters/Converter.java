@@ -7,11 +7,97 @@ import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.entity.node.*;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 public class Converter {
+    public List<AlleleVariantSequence> convertContextToSearchDocument(VariantContext ctx, String[] header, SpeciesType speciesType) throws Exception {
+        List<AlleleVariantSequence> returnDocuments = new ArrayList<AlleleVariantSequence>();
+
+        htsjdk.variant.variantcontext.Allele refNuc = ctx.getReference();
+        Species species=new Species();
+        species.setName(speciesType.getName());
+        species.setCommonNames(speciesType.getDisplayName());
+        species.setId(Long.valueOf(speciesType.getTaxonIDPart()));
+        species.setPrimaryKey(speciesType.getTaxonID());
+        for (htsjdk.variant.variantcontext.Allele a : ctx.getAlternateAlleles()) {
+            if (a.compareTo(refNuc) < 0) {
+                continue;
+            }
+            if (!alleleIsValid(ctx.getReference().getBaseString())) {
+                //   System.out.println(" *** Ref Nucleotides must be A,C,G,T,N");
+                continue;
+            }
+            if (!alleleIsValid(a.getBaseString())) {
+                //     System.out.println(" *** Var Nucleotides must be A,C,G,T,N");
+                continue;
+            }
+
+            SOTerm variantType = new SOTerm();
+            variantType.setName(ctx.getType().name().toUpperCase());
+            variantType.setPrimaryKey(ctx.getType().name());
+            if ("INDEL".equals(ctx.getType().name())) {
+                variantType.setName("delins");
+                variantType.setPrimaryKey("delins");
+            }
+            int endPos = 0;
+
+            if (ctx.isSNP()) {
+                endPos = ctx.getStart() + 1;
+            } // insertions
+            if (ctx.isSimpleInsertion()) {
+                endPos = ctx.getStart();
+                //  System.out.println("INSERTION");
+            } else if (ctx.isSimpleDeletion()) {
+                endPos = ctx.getStart() + refNuc.getDisplayString().length();
+                //  System.out.println("Deletion");
+            } else {
+                //   System.out.println("Unexpected var type");
+            }
+            List<String> transcriptsProcessed=new ArrayList<>();
+
+                    AlleleVariantSequence s = new AlleleVariantSequence();
+                    Variant variant = new Variant();
+                    variant.setVariantType(variantType);
+                    variant.setSpecies(species);
+                    variant.setStart(String.valueOf(ctx.getStart()));
+                    variant.setEnd(String.valueOf(endPos));
+                    variant.setNucleotideChange(a.getBaseString()); // variantDocument.setVarNuc(a.getBaseString());
+                    boolean first=true;
+            Set<String> molecularConsequences = new HashSet<>();
+            Set<String> genes = new HashSet<>();
+            List<TranscriptLevelConsequence> consequences=getConsequences(ctx, a.getBaseString(), header);
+            for (TranscriptLevelConsequence c : consequences) {
+                if(!transcriptsProcessed.contains(c.getTranscriptID())) {
+                    transcriptsProcessed.add(c.getTranscriptID());
+                    if(first) {
+                        first=false;
+                        variant.setName(c.getHgvsVEPGeneNomenclature());
+                        variant.setHgvsNomenclature(c.getHgvsVEPGeneNomenclature());
+                        variant.setGene(c.getAssociatedGene());
+                        s.setPrimaryKey(c.getHgvsVEPGeneNomenclature());
+                        s.setNameKey(c.getHgvsVEPGeneNomenclature());
+                        s.setName(c.getHgvsVEPGeneNomenclature());
+                        s.setVariant(variant);
+                    }
+                    molecularConsequences.add(c.getTranscriptLevelConsequence());
+               //     s.setConsequence(c);
+                    /****************SearchbleDocument Fields***************/
+
+                    genes.add(c.getAssociatedGene().getSymbol());
+
+                }
+            }
+            s.setAlterationType("variant");
+            s.setCategory("allele");
+            s.setMolecularConsequence(molecularConsequences);
+            s.setGenes(genes);
+            s.setSpecies(species.getName());
+            s.setTranscriptLevelConsequences(consequences);
+            s.setVariantType(Collections.singleton(variantType.getName()));
+            returnDocuments.add(s);
+        }
+        return returnDocuments;
+    }
     public List<AlleleVariantSequence> convertContextToAlleleVariantSequence(VariantContext ctx, String[] header, SpeciesType speciesType) throws Exception {
         List<AlleleVariantSequence> returnDocuments = new ArrayList<AlleleVariantSequence>();
 
@@ -55,25 +141,40 @@ public class Converter {
             } else {
                 //   System.out.println("Unexpected var type");
             }
+            List<String> transcriptsProcessed=new ArrayList<>();
             for (TranscriptLevelConsequence c : getConsequences(ctx, a.getBaseString(), header)) {
-                AlleleVariantSequence s = new AlleleVariantSequence();
-                Variant variant = new Variant();
-                variant.setVariantType(variantType);
-                variant.setSpecies(species);
-                variant.setStart(String.valueOf(ctx.getStart()));
-                variant.setEnd(String.valueOf(endPos));
-                variant.setNucleotideChange(a.getBaseString()); // variantDocument.setVarNuc(a.getBaseString());
-                variant.setName(c.getHgvsVEPGeneNomenclature());
-                variant.setHgvsNomenclature(c.getHgvsVEPGeneNomenclature());
-                variant.setGene(c.getAssociatedGene());
-                s.setVariant(variant);
-                s.setConsequence(c);
-                s.setAlterationType("variant");
-                   /* s.setNameKey(c.getHgvsVEPGeneNomenclature());
+                System.out.println("TRANSCRIPT ID: "+ c.getTranscriptID()+"\tHGVS: "+ c.getHgvsVEPGeneNomenclature());
+                if(!transcriptsProcessed.contains(c.getTranscriptID())) {
+                    transcriptsProcessed.add(c.getTranscriptID());
+                    AlleleVariantSequence s = new AlleleVariantSequence();
+                    Variant variant = new Variant();
+                    variant.setVariantType(variantType);
+                    variant.setSpecies(species);
+                    variant.setStart(String.valueOf(ctx.getStart()));
+                    variant.setEnd(String.valueOf(endPos));
+                    variant.setNucleotideChange(a.getBaseString()); // variantDocument.setVarNuc(a.getBaseString());
+                    variant.setName(c.getHgvsVEPGeneNomenclature());
+                    variant.setHgvsNomenclature(c.getHgvsVEPGeneNomenclature());
+                    variant.setGene(c.getAssociatedGene());
+                    s.setVariant(variant);
+                    Set<String> molecularConsequences = new HashSet<>();
+                    molecularConsequences.add(c.getTranscriptLevelConsequence());
+                    s.setConsequence(c);
+                    /****************SearchbleDocument Fields***************/
+                    s.setAlterationType("variant");
+                    s.setCategory("allele");
+                    s.setPrimaryKey(c.getHgvsVEPGeneNomenclature());
+                    s.setNameKey(c.getHgvsVEPGeneNomenclature());
                     s.setName(c.getHgvsVEPGeneNomenclature());
-                    s.setAlterationType("variant");*/
+                    s.setMolecularConsequence(molecularConsequences);
+                    Set<String> genes = new HashSet<>();
+                    genes.add(c.getAssociatedGene().getSymbol());
+                    s.setGenes(genes);
+                    s.setSpecies(species.getName());
 
-                returnDocuments.add(s);
+
+                    returnDocuments.add(s);
+                }
             }
         }
         return returnDocuments;

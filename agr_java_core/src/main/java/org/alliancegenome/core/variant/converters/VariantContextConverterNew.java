@@ -19,12 +19,17 @@ public class VariantContextConverterNew {
     Converter converter=new Converter();
     public List<AlleleVariantSequence> convertVariantContext(VariantContext ctx, SpeciesType speciesType, String[] header, Map<String, List<org.alliancegenome.neo4j.entity.node.Allele>> alleleMap,
                                                              List<String> matched) throws Exception {
-
-        List<AlleleVariantSequence> variantSequences= getVariantsIfMatchedWithLTP(ctx, alleleMap,  header, matched);
-        List<AlleleVariantSequence> returnDocuments = new ArrayList<AlleleVariantSequence>(variantSequences);
+        List<AlleleVariantSequence> returnDocuments=new ArrayList<>();
+        List<AlleleVariantSequence> variantSequences=new ArrayList<>();
+        if(!speciesType.getTaxonID().equalsIgnoreCase("NCBITaxon:9606")) {
+            variantSequences = getVariantsIfMatchedWithLTP(ctx, alleleMap, header, matched);
+            // List<AlleleVariantSequence> returnDocuments = new ArrayList<AlleleVariantSequence>(variantSequences);
+        }
         if(variantSequences.size()==0){
-            returnDocuments.addAll(converter.convertContextToAlleleVariantSequence(ctx, header, speciesType));
-            }
+         //   returnDocuments.addAll(converter.convertContextToAlleleVariantSequence(ctx, header, speciesType));
+            returnDocuments.addAll(converter.convertContextToSearchDocument(ctx, header, speciesType));
+
+        }
         return returnDocuments;
 
     }
@@ -69,7 +74,7 @@ public class VariantContextConverterNew {
             }
             String hgvsNomenclature = getHgvsG(ctx, a.getBaseString(), header);
             if (alleleMap != null && !alleleMap.isEmpty() && alleleMap.containsKey(hgvsNomenclature.trim())) {
-                System.out.print("\tMATCHED: " + hgvsNomenclature);
+              //  System.out.print("\tMATCHED: " + hgvsNomenclature);
                 if (!matched.contains(hgvsNomenclature))
                     matched.add(hgvsNomenclature);
                 List<org.alliancegenome.neo4j.entity.node.Allele> alleles = alleleMap.get(hgvsNomenclature);

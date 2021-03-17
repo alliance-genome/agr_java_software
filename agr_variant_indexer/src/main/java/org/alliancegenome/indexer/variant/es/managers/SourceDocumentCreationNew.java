@@ -1,6 +1,8 @@
 package org.alliancegenome.indexer.variant.es.managers;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import htsjdk.samtools.util.CloseableIterator;
 import htsjdk.variant.variantcontext.VariantContext;
@@ -34,9 +36,7 @@ import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.common.xcontent.XContentType;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 
@@ -257,7 +257,7 @@ public class SourceDocumentCreationNew extends Thread {
             log.info("Transformers shutdown");
             ph2.finishProcess();
             try {
-              objectQueue.add(getLTPIndexObjects());
+ //             objectQueue.add(getLTPIndexObjects());
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -329,11 +329,16 @@ public class SourceDocumentCreationNew extends Thread {
         public void run() {
 
             VCFFileReader reader = new VCFFileReader(new File(df.getLocalGzipFilePath()), false);
+
             CloseableIterator<VariantContext> iter1 = reader.iterator();
+         //   System.out.println("Context Line:\n"+ iter1.next());
+
             if(header == null) {
                 log.info("Setting VCF File Header: " + df.getLocalGzipFilePath());
                 VCFInfoHeaderLine fileHeader = reader.getFileHeader().getInfoHeaderLine("CSQ");
                 header = fileHeader.getDescription().split("Format: ")[1].split("\\|");
+             //   System.out.println("HEADER:\n"+ Arrays.toString(header));
+
                 try {
                     TimeUnit.SECONDS.sleep(10);
                 } catch (InterruptedException e) {
@@ -375,8 +380,10 @@ public class SourceDocumentCreationNew extends Thread {
             while(!(Thread.currentThread().isInterrupted())) {
                 try {
                     List<VariantContext> ctxList = vcQueue.take();
-                    Map<String, List<Allele>> alleleMap=chromosomeAllelesMap.get(ctxList.get(0).getContig());
-
+                    Map<String, List<Allele>> alleleMap= new HashMap<>();
+                    if(!speciesType.getTaxonID().equalsIgnoreCase("NCBITaxon:9606")) {
+                        alleleMap = chromosomeAllelesMap.get(ctxList.get(0).getContig());
+                    }
                    for(VariantContext ctx: ctxList) {
                         try {
                             for(AlleleVariantSequence doc: converter.convertVariantContext(ctx, speciesType, header, alleleMap, matched)) {
@@ -467,13 +474,25 @@ public class SourceDocumentCreationNew extends Thread {
             this.jsonQueue = jsonQueue;
             this.bulkProcessor = bulkProcessor;
         }
-
         public void run() {
+            ObjectMapper mapper=new ObjectMapper();
+            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+            mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+            mapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
             while(!(Thread.currentThread().isInterrupted())) {
                 try {
                     List<String> docs = jsonQueue.take();
                     for(String doc: docs) {
-                        if(indexing) bulkProcessor.add(new IndexRequest(indexName).source(doc, XContentType.JSON));
+                        String docId=new String();
+                        try {
+                            docId=  mapper.readValue(doc, AlleleVariantSequence.class).getNameKey();
+
+                        } catch (JsonProcessingException e) {
+                            e.printStackTrace();
+                        }
+                        if(indexing) //bulkProcessor.add(new IndexRequest(indexName).source(doc, XContentType.JSON));
+                        bulkProcessor.add(new IndexRequest(indexName).id(docId).source(doc, XContentType.JSON));
+
                         ph3.progressProcess();
                     }
                     ph4.progressProcess("JSon Queue: " + jsonQueue.size());
