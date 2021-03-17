@@ -351,8 +351,8 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
         query += " MATCH p1=(:Species)<-[:FROM_SPECIES]-(allele:Allele)--(construct:Construct)-[:" + relationship + "]-(gene:Gene)--(:Species) " +
                 "  where gene.primaryKey = {geneID}";
         // need this optional match to retrieve all expresses genes besides the given geneID
-        query += " OPTIONAL MATCH express=(:CrossReference)--(construct:Construct)-[:EXPRESSES]-(:Gene)--(:Species)";
-        query += " OPTIONAL MATCH expressNonBGI=(:CrossReference)--(construct:Construct)-[:EXPRESSES]-(:NonBGIConstructComponent)";
+        query += " OPTIONAL MATCH express=(construct:Construct)-[:EXPRESSES]-(:Gene)--(:Species)";
+        query += " OPTIONAL MATCH expressNonBGI=(construct:Construct)-[:EXPRESSES]-(:NonBGIConstructComponent)";
         query += " OPTIONAL MATCH target=(:CrossReference)--(construct:Construct)-[:TARGET]-(:Gene)--(:Species)";
         query += " OPTIONAL MATCH targetNon=(:CrossReference)--(construct:Construct)-[:TARGET]-(:NonBGIConstructComponent)";
         query += " OPTIONAL MATCH regulated=(:CrossReference)--(construct:Construct)-[:IS_REGULATED_BY]-(:Gene)--(:Species)";

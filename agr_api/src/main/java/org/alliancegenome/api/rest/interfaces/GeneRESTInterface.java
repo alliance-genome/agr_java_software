@@ -702,8 +702,6 @@ public interface GeneRESTInterface {
             @Parameter(in = ParameterIn.PATH, name = "id", description = "Gene by ID, e.g. 'RGD:2129' or 'ZFIN:ZDB-GENE-990415-72 fgf8a'", required = true, schema = @Schema(type = SchemaType.STRING))
             @PathParam("id") String geneID,
             @DefaultValue("transgenicAllele") @QueryParam("sortBy") String sortBy,
-            @Parameter(in = ParameterIn.QUERY, name = "asc", description = "order to sort by", schema = @Schema(type = SchemaType.STRING))
-            @DefaultValue("true") @QueryParam("asc") String asc,
             @Parameter(in = ParameterIn.QUERY, name = "filter.allele", description = "filter by allele symbol", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.allele") String alleleSymbol,
             @Parameter(in = ParameterIn.QUERY, name = "filter.construct", description = "filter by construct symbol", schema = @Schema(type = SchemaType.STRING))
