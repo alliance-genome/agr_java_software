@@ -56,6 +56,7 @@ public class Converter {
             List<String> transcriptsProcessed=new ArrayList<>();
 
                     AlleleVariantSequence s = new AlleleVariantSequence();
+
                     Variant variant = new Variant();
                     variant.setVariantType(variantType);
                     variant.setSpecies(species);
@@ -65,26 +66,36 @@ public class Converter {
                     boolean first=true;
             Set<String> molecularConsequences = new HashSet<>();
             Set<String> genes = new HashSet<>();
-            List<TranscriptLevelConsequence> consequences=getConsequences(ctx, a.getBaseString(), header);
-            for (TranscriptLevelConsequence c : consequences) {
-                if(!transcriptsProcessed.contains(c.getTranscriptID())) {
-                    transcriptsProcessed.add(c.getTranscriptID());
-                    if(first) {
-                        first=false;
-                        variant.setName(c.getHgvsVEPGeneNomenclature());
-                        variant.setHgvsNomenclature(c.getHgvsVEPGeneNomenclature());
-                        variant.setGene(c.getAssociatedGene());
-                        s.setPrimaryKey(c.getHgvsVEPGeneNomenclature());
-                        s.setNameKey(c.getHgvsVEPGeneNomenclature());
-                        s.setName(c.getHgvsVEPGeneNomenclature());
-                        s.setVariant(variant);
+            List<TranscriptLevelConsequence> htpConsequences=getConsequences(ctx, a.getBaseString(), header);
+            String hgvsNomenclature = htpConsequences != null ? htpConsequences.stream()
+                    .findFirst()
+                    .map(TranscriptLevelConsequence::getHgvsVEPGeneNomenclature)
+                    .orElse(ctx.getContig() + ':' + ctx.getStart() + "-needs-real-hgvs") : null;
+
+            variant.setHgvsNomenclature(hgvsNomenclature);
+            variant.setName(hgvsNomenclature);
+
+            s.setPrimaryKey(hgvsNomenclature);
+            s.setNameKey(hgvsNomenclature);
+            s.setName(hgvsNomenclature);
+            s.setVariant(variant);
+            if (htpConsequences != null) {
+                for (TranscriptLevelConsequence c : htpConsequences) {
+                    if(!transcriptsProcessed.contains(c.getTranscriptID())) {
+                        transcriptsProcessed.add(c.getTranscriptID());
+                        if(first) {
+                            first=false;
+                         //   variant.setHgvsNomenclature(c.getHgvsVEPGeneNomenclature());
+                            variant.setGene(c.getAssociatedGene());
+
+                        }
+                        molecularConsequences.add(c.getTranscriptLevelConsequence());
+                   //     s.setConsequence(c);
+                        /****************SearchbleDocument Fields***************/
+                        if(c.getAssociatedGene().getSymbol()!=null && !c.getAssociatedGene().getSymbol().equals(""))
+                        genes.add(c.getAssociatedGene().getSymbol());
+
                     }
-                    molecularConsequences.add(c.getTranscriptLevelConsequence());
-               //     s.setConsequence(c);
-                    /****************SearchbleDocument Fields***************/
-
-                    genes.add(c.getAssociatedGene().getSymbol());
-
                 }
             }
             s.setAlterationType("variant");
@@ -92,7 +103,8 @@ public class Converter {
             s.setMolecularConsequence(molecularConsequences);
             s.setGenes(genes);
             s.setSpecies(species.getName());
-            s.setTranscriptLevelConsequences(consequences);
+            s.setChromosomes(Collections.singleton(ctx.getContig()));
+            s.setTranscriptLevelConsequences(htpConsequences);
             s.setVariantType(Collections.singleton(variantType.getName()));
             returnDocuments.add(s);
         }
