@@ -1,10 +1,10 @@
 package org.alliancegenome.neo4j.repository;
 
+import lombok.Getter;
 import lombok.extern.log4j.Log4j2;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.Chromosome;
 import org.alliancegenome.neo4j.entity.node.Transcript;
-import org.alliancegenome.neo4j.entity.node.Variant;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.neo4j.ogm.model.Result;
@@ -187,12 +187,11 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
     }
 
 
-    private final Map<String, Map<String, Set<Allele>>> allAlleleMap = new HashMap<>();
+    @Getter(lazy = true)
+    private final Map<String, Map<String, Set<Allele>>> allAlleles = getAllAllelesCache();
 
-    public Map<String, Map<String, Set<Allele>>> getAllAlleles() {
-        if (MapUtils.isNotEmpty(allAlleleMap))
-            return allAlleleMap;
-
+    public Map<String, Map<String, Set<Allele>>> getAllAllelesCache() {
+        Map<String, Map<String, Set<Allele>>> allAlleleMap = new HashMap<>();
         String query = "";
         // allele-only (no variants)
         query += " MATCH p1=(:Species)<-[:FROM_SPECIES]-(a:Allele)-[:IS_ALLELE_OF]->(g:Gene)-[:FROM_SPECIES]-(q:Species) ";
@@ -387,18 +386,16 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
     }
 
     // cache
-    private Set<String> allAllelicHgvsgNames;
+    @Getter(lazy = true)
+    private final Set<String> allAllelicHgvsGNames = getAllAllelicHgvsGNameCache();
 
-    public Set<String> getAllAllelicHgvsGNames() {
-        if (allAllelicHgvsgNames != null)
-            return allAllelicHgvsgNames;
-
+    private Set<String> getAllAllelicHgvsGNameCache() {
         String query = "";
         query += " MATCH p1=(variant:Variant)-[:VARIATION]->(a:Allele)-[:IS_ALLELE_OF]->(g:Gene)  ";
         query += " RETURN variant.hgvsNomenclature as ID ";
 
         Result result = queryForResult(query);
-        allAllelicHgvsgNames = StreamSupport.stream(result.spliterator(), false)
+        Set<String> allAllelicHgvsgNames = StreamSupport.stream(result.spliterator(), false)
                 .map(idMap -> (String) idMap.get("ID"))
                 .collect(Collectors.toSet());
         return allAllelicHgvsgNames;
