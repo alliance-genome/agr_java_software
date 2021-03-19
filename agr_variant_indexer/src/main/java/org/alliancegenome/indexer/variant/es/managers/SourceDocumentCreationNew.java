@@ -278,11 +278,11 @@ public class SourceDocumentCreationNew extends Thread {
             }
             log.info("Transformers shutdown");
             ph2.finishProcess();
-            try {
+        /*    try {
                 objectQueue.add(aVSConverter.getAllAllelicVariants());
             } catch (Exception e) {
                 e.printStackTrace();
-            }
+            }*/
 
 
             log.info("Waiting for Object Queue to empty");

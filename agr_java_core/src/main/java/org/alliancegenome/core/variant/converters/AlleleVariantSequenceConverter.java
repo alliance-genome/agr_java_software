@@ -86,7 +86,7 @@ public class AlleleVariantSequenceConverter {
     }
 
     public List<AlleleVariantSequence> getAllAllelicVariants() {
-        final Set<Allele> collect = (new AlleleRepository()).getAllAlleles().values().stream()
+        final Set<Allele> collect = (new AlleleRepository()).getAllAllelesCache().values().stream()
                 .map(Map::values)
                 .flatMap(Collection::stream)
                 .flatMap(Collection::stream)

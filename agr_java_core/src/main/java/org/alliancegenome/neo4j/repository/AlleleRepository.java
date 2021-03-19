@@ -1,6 +1,5 @@
 package org.alliancegenome.neo4j.repository;
 
-import lombok.Getter;
 import lombok.extern.log4j.Log4j2;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.Chromosome;
@@ -169,7 +168,7 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
     }
 
     public Set<Allele> getAlleles(String taxonID, String chromosome) {
-        Map<String, Set<Allele>> map = getAllAlleles().get(taxonID);
+        Map<String, Set<Allele>> map = getAllAllelesCache().get(taxonID);
         if (chromosome == null && map == null) {
             return new HashSet<>();
         }
@@ -187,45 +186,46 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
     }
 
 
-    @Getter(lazy = true)
-    private final Map<String, Map<String, Set<Allele>>> allAlleles = getAllAllelesCache();
+    private static  Map<String, Map<String, Set<Allele>>> allAllelesMap= null;
 
     public Map<String, Map<String, Set<Allele>>> getAllAllelesCache() {
-        Map<String, Map<String, Set<Allele>>> allAlleleMap = new HashMap<>();
-        String query = "";
-        // allele-only (no variants)
-        query += " MATCH p1=(:Species)<-[:FROM_SPECIES]-(a:Allele)-[:IS_ALLELE_OF]->(g:Gene)-[:FROM_SPECIES]-(q:Species) ";
-        query += "where not exists ((a)<-[:VARIATION]-(:Variant)) ";
-        //query += " AND  g.primaryKey = 'WB:WBGene00000913' ";
+        if(allAllelesMap==null) {
+            Map<String, Map<String, Set<Allele>>> allAlleleMap = new HashMap<>();
+
+            String query = "";
+            // allele-only (no variants)
+            query += " MATCH p1=(:Species)<-[:FROM_SPECIES]-(a:Allele)-[:IS_ALLELE_OF]->(g:Gene)-[:FROM_SPECIES]-(q:Species) ";
+            query += "where not exists ((a)<-[:VARIATION]-(:Variant)) ";
+            //query += " AND  g.primaryKey = 'WB:WBGene00000913' ";
 
 //        query += " AND g.taxonId = 'NCBITaxon:7955' ";
 //        query += " AND g.primaryKey = 'RGD:9294106' ";
-        if (testGeneIDs != null) {
-            StringJoiner joiner = new StringJoiner("','", "'", "'");
-            testGeneIDs.forEach(joiner::add);
-            String inClause = joiner.toString();
-            query += " AND g.primaryKey in [" + inClause + "]";
-        }
-        query += " OPTIONAL MATCH p2=(a:Allele)-[:ALSO_KNOWN_AS]->(synonym:Synonym)";
-        query += " OPTIONAL MATCH crossRef=(a:Allele)-[:CROSS_REFERENCE]->(c:CrossReference)";
-        query += " RETURN p1, p2, crossRef ";
+            if (testGeneIDs != null) {
+                StringJoiner joiner = new StringJoiner("','", "'", "'");
+                testGeneIDs.forEach(joiner::add);
+                String inClause = joiner.toString();
+                query += " AND g.primaryKey in [" + inClause + "]";
+            }
+            query += " OPTIONAL MATCH p2=(a:Allele)-[:ALSO_KNOWN_AS]->(synonym:Synonym)";
+            query += " OPTIONAL MATCH crossRef=(a:Allele)-[:CROSS_REFERENCE]->(c:CrossReference)";
+            query += " RETURN p1, p2, crossRef ";
 
-        Iterable<Allele> alleles = query(query, new HashMap<>());
-        Set<Allele> allAlleles = StreamSupport.stream(alleles.spliterator(), false)
-                .collect(Collectors.toSet());
-        log.info("Number of alleles without variants: " + String.format("%,d", allAlleles.size()));
+            Iterable<Allele> alleles = query(query, new HashMap<>());
+            Set<Allele> allAlleles = StreamSupport.stream(alleles.spliterator(), false)
+                    .collect(Collectors.toSet());
+            log.info("Number of alleles without variants: " + String.format("%,d", allAlleles.size()));
 
-        // alleles with variant records
-        query = "";
-        query += " MATCH p1=(g:Gene)<-[:IS_ALLELE_OF]-(a:Allele)<-[:VARIATION]-(variant:Variant)--(:SOTerm) ";
-        query += ", p0=(:Species)<-[:FROM_SPECIES]-(a:Allele) ";
+            // alleles with variant records
+            query = "";
+            query += " MATCH p1=(g:Gene)<-[:IS_ALLELE_OF]-(a:Allele)<-[:VARIATION]-(variant:Variant)--(:SOTerm) ";
+            query += ", p0=(:Species)<-[:FROM_SPECIES]-(a:Allele) ";
 //        query += " where g.taxon955' ";
-        if (testGeneIDs != null) {
-            StringJoiner joiner = new StringJoiner("','", "'", "'");
-            testGeneIDs.forEach(joiner::add);
-            String inClause = joiner.toString();
-            query += " WHERE g.primaryKey in [" + inClause + "]";
-        }
+            if (testGeneIDs != null) {
+                StringJoiner joiner = new StringJoiner("','", "'", "'");
+                testGeneIDs.forEach(joiner::add);
+                String inClause = joiner.toString();
+                query += " WHERE g.primaryKey in [" + inClause + "]";
+            }
 /*
         if (testGeneIDs == null)
             query += " where  a.primaryKey = 'SGD:S000281388' ";
@@ -233,61 +233,64 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
             query += " AND  a.primaryKey = 'SGD:S000281388' ";
 */
 
-        query += " OPTIONAL MATCH consequence = (t:Transcript)--(:TranscriptLevelConsequence)--(variant:Variant)<-[:ASSOCIATION]-(t:Transcript)--(:SOTerm) ";
-        query += " OPTIONAL MATCH loc=(variant:Variant)-[:ASSOCIATION]->(:GenomicLocation)-[:ASSOCIATION]->(:Chromosome)";
-        query += " OPTIONAL MATCH p2=(a:Allele)-[:ALSO_KNOWN_AS]->(synonym:Synonym)";
-        query += " OPTIONAL MATCH crossRef=(a:Allele)-[:CROSS_REFERENCE]->(c:CrossReference)";
-        query += " RETURN p0, p1, p2, consequence, loc, crossRef ";
-        Iterable<Allele> allelesWithVariantsIter = query(query, new HashMap<>());
-        Set<Allele> allelesWithVariants = StreamSupport.stream(allelesWithVariantsIter.spliterator(), false)
-                .collect(Collectors.toSet());
-        log.info("Number of alleles with variants: " + String.format("%,d", allelesWithVariants.size()));
-        // fixup transcripts with genomic location and exon information
-        fixupAllelesWithVariants(allAlleles, allelesWithVariants);
-
-        Set<Allele> allAlleleSet = new HashSet<>(allAlleles);
-
-        // group by taxon ID
-        Map<String, List<Allele>> taxonMap = allAlleleSet.stream().collect(groupingBy(allele -> allele.getGene().getTaxonId()));
-        taxonMap.forEach((taxonID, alleleList) -> {
-            Set<String> chromosomes = alleleList.stream()
-                    .filter(allele -> getGeneChromosomeInfo().get(allele.getGene().getPrimaryKey()) != null)
-                    .map(allele -> getGeneChromosomeInfo().get(allele.getGene().getPrimaryKey()))
+            query += " OPTIONAL MATCH consequence = (t:Transcript)--(:TranscriptLevelConsequence)--(variant:Variant)<-[:ASSOCIATION]-(t:Transcript)--(:SOTerm) ";
+            query += " OPTIONAL MATCH loc=(variant:Variant)-[:ASSOCIATION]->(:GenomicLocation)-[:ASSOCIATION]->(:Chromosome)";
+            query += " OPTIONAL MATCH p2=(a:Allele)-[:ALSO_KNOWN_AS]->(synonym:Synonym)";
+            query += " OPTIONAL MATCH crossRef=(a:Allele)-[:CROSS_REFERENCE]->(c:CrossReference)";
+            query += " RETURN p0, p1, p2, consequence, loc, crossRef ";
+            Iterable<Allele> allelesWithVariantsIter = query(query, new HashMap<>());
+            Set<Allele> allelesWithVariants = StreamSupport.stream(allelesWithVariantsIter.spliterator(), false)
                     .collect(Collectors.toSet());
-            // unknown chromosome
-            chromosomes.add("");
+            log.info("Number of alleles with variants: " + String.format("%,d", allelesWithVariants.size()));
+            // fixup transcripts with genomic location and exon information
+            fixupAllelesWithVariants(allAlleles, allelesWithVariants);
 
-            Map<String, Set<Allele>> chromosomeMap = new HashMap<>();
-            // group by chromosome number
-            chromosomes.forEach(chromosome -> {
-                Set<Allele> chromosomeAlleles = new HashSet<>();
+            Set<Allele> allAlleleSet = new HashSet<>(allAlleles);
 
-                // all alleles with chromosome info
-                alleleList.stream()
+            // group by taxon ID
+            Map<String, List<Allele>> taxonMap = allAlleleSet.stream().collect(groupingBy(allele -> allele.getGene().getTaxonId()));
+            taxonMap.forEach((taxonID, alleleList) -> {
+                Set<String> chromosomes = alleleList.stream()
                         .filter(allele -> getGeneChromosomeInfo().get(allele.getGene().getPrimaryKey()) != null)
-                        .filter(allele -> getGeneChromosomeInfo().get(allele.getGene().getPrimaryKey()).equals(chromosome))
-                        .forEach(chromosomeAlleles::add);
-                chromosomeMap.put(chromosome, chromosomeAlleles);
-            });
-            allAlleleMap.put(taxonID, chromosomeMap);
-        });
+                        .map(allele -> getGeneChromosomeInfo().get(allele.getGene().getPrimaryKey()))
+                        .collect(Collectors.toSet());
+                // unknown chromosome
+                chromosomes.add("");
 
-        // fixup the chromosome info on the gene object
-        // including the chromosome in the cypher query make the query take very long.
-        allAlleleMap.forEach((taxonID, map) -> {
-            map.values().forEach(alleleList -> {
-                alleleList.forEach(allele -> {
-                    Chromosome chromosome = new Chromosome();
-                    chromosome.setPrimaryKey(allele.getGene().getPrimaryKey());
-                    allele.getGene().setChromsomes(List.of(chromosome));
+                Map<String, Set<Allele>> chromosomeMap = new HashMap<>();
+                // group by chromosome number
+                chromosomes.forEach(chromosome -> {
+                    Set<Allele> chromosomeAlleles = new HashSet<>();
+
+                    // all alleles with chromosome info
+                    alleleList.stream()
+                            .filter(allele -> getGeneChromosomeInfo().get(allele.getGene().getPrimaryKey()) != null)
+                            .filter(allele -> getGeneChromosomeInfo().get(allele.getGene().getPrimaryKey()).equals(chromosome))
+                            .forEach(chromosomeAlleles::add);
+                    chromosomeMap.put(chromosome, chromosomeAlleles);
+                });
+                allAlleleMap.put(taxonID, chromosomeMap);
+            });
+
+            // fixup the chromosome info on the gene object
+            // including the chromosome in the cypher query make the query take very long.
+            allAlleleMap.forEach((taxonID, map) -> {
+                map.values().forEach(alleleList -> {
+                    alleleList.forEach(allele -> {
+                        Chromosome chromosome = new Chromosome();
+                        chromosome.setPrimaryKey(allele.getGene().getPrimaryKey());
+                        allele.getGene().setChromsomes(List.of(chromosome));
+                    });
                 });
             });
-        });
-        allAlleleMap.forEach((taxonID, map) -> {
-            Map<String, Integer> stats = map.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().size()));
-            log.info(taxonID + ": " + stats);
-        });
-        return allAlleleMap;
+            allAlleleMap.forEach((taxonID, map) -> {
+                Map<String, Integer> stats = map.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().size()));
+                log.info(taxonID + ": " + stats);
+            });
+            allAllelesMap=allAlleleMap;
+
+        }
+        return allAllelesMap;
     }
 
     public void fixupAllelesWithVariants(Set<Allele> allAlleles, Set<Allele> allelesWithVariants) {
@@ -386,18 +389,19 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
     }
 
     // cache
-    @Getter(lazy = true)
-    private final Set<String> allAllelicHgvsGNames = getAllAllelicHgvsGNameCache();
+    private static  Set<String> allAllelicHgvsGNames = null;
 
-    private Set<String> getAllAllelicHgvsGNameCache() {
-        String query = "";
-        query += " MATCH p1=(variant:Variant)-[:VARIATION]->(a:Allele)-[:IS_ALLELE_OF]->(g:Gene)  ";
-        query += " RETURN variant.hgvsNomenclature as ID ";
+    public  Set<String> getAllAllelicHgvsGNameCache() {
+        if(allAllelicHgvsGNames==null) {
+            String query = "";
+            query += " MATCH p1=(variant:Variant)-[:VARIATION]->(a:Allele)-[:IS_ALLELE_OF]->(g:Gene)  ";
+            query += " RETURN variant.hgvsNomenclature as ID ";
 
-        Result result = queryForResult(query);
-        Set<String> allAllelicHgvsgNames = StreamSupport.stream(result.spliterator(), false)
-                .map(idMap -> (String) idMap.get("ID"))
-                .collect(Collectors.toSet());
-        return allAllelicHgvsgNames;
+            Result result = queryForResult(query);
+            allAllelicHgvsGNames = StreamSupport.stream(result.spliterator(), false)
+                    .map(idMap -> (String) idMap.get("ID"))
+                    .collect(Collectors.toSet());
+        }
+        return allAllelicHgvsGNames;
     }
 }

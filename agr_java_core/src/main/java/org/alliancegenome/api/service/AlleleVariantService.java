@@ -6,7 +6,7 @@ import org.alliancegenome.neo4j.repository.AlleleRepository;
 public class AlleleVariantService {
 
     public static boolean allelicVariantExists(AlleleVariantSequence sequence) {
-        return new AlleleRepository().getAllAllelicHgvsGNames().contains(sequence.getVariant().getHgvsNomenclature());
+        return new AlleleRepository().getAllAllelicHgvsGNameCache().contains(sequence.getVariant().getHgvsNomenclature());
     }
 
 }
