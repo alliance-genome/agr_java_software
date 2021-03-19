@@ -12,6 +12,7 @@ import org.alliancegenome.es.index.site.schema.settings.VariantIndexSettings;
 import org.alliancegenome.es.util.IndexManager;
 import org.alliancegenome.indexer.variant.es.managers.SourceDocumentCreationManager;
 import org.alliancegenome.indexer.variant.es.managers.SourceDocumentCreationNew;
+import org.alliancegenome.neo4j.repository.Neo4jSessionFactory;
 
 @Log4j2
 public class Main {
@@ -60,7 +61,7 @@ public class Main {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
+        Neo4jSessionFactory.close();
     }
 
 }

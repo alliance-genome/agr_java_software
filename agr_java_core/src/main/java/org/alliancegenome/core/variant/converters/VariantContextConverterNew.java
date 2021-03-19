@@ -20,18 +20,17 @@ public class VariantContextConverterNew {
     public List<AlleleVariantSequence> convertVariantContext(VariantContext ctx, SpeciesType speciesType, String[] header, Map<String, List<org.alliancegenome.neo4j.entity.node.Allele>> alleleMap,
                                                              List<String> matched) throws Exception {
         List<AlleleVariantSequence> returnDocuments=new ArrayList<>();
-        List<AlleleVariantSequence> variantSequences=new ArrayList<>();
         if(!speciesType.getTaxonID().equalsIgnoreCase("NCBITaxon:9606")) {
-            variantSequences = getVariantsIfMatchedWithLTP(ctx, alleleMap, header, matched);
+            returnDocuments = getVariantsIfMatchedWithLTP(ctx, alleleMap, header, matched);
             // List<AlleleVariantSequence> returnDocuments = new ArrayList<AlleleVariantSequence>(variantSequences);
         }
-        if(variantSequences.size()==0){
+        if(returnDocuments.size()==0){
          //   returnDocuments.addAll(converter.convertContextToAlleleVariantSequence(ctx, header, speciesType));
-            returnDocuments.addAll(converter.convertContextToSearchDocument(ctx, header, speciesType));
+            returnDocuments=converter.convertContextToSearchDocument(ctx, header, speciesType);
+           return returnDocuments;
 
         }
-        return returnDocuments;
-
+       return null;
     }
     public List<AlleleVariantSequence> getVariantsIfMatchedWithLTP(VariantContext ctx, Map<String, List<org.alliancegenome.neo4j.entity.node.Allele>> alleleMap,
                                                                     String[] header, List<String> matched) throws Exception {

@@ -19,10 +19,8 @@ import org.alliancegenome.es.util.EsClientFactory;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.entity.node.Allele;
-import org.alliancegenome.neo4j.entity.node.Gene;
-import org.alliancegenome.neo4j.entity.node.TranscriptLevelConsequence;
-import org.alliancegenome.neo4j.entity.node.Variant;
 import org.elasticsearch.action.DocWriteRequest;
+import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
 import org.elasticsearch.action.bulk.BackoffPolicy;
 import org.elasticsearch.action.bulk.BulkProcessor;
 import org.elasticsearch.action.bulk.BulkRequest;
@@ -36,7 +34,11 @@ import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.common.xcontent.XContentType;
 
 import java.io.File;
-import java.util.*;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 
@@ -61,7 +63,7 @@ public class SourceDocumentCreationNew extends Thread {
     private boolean indexing = VariantConfigHelper.isIndexing();
     private Map<String, Map<String, List<Allele>>> chromosomeAllelesMap;
     private List<String> matched=new ArrayList<>();
-    private List<String> unMatched=new ArrayList<>();
+    private int contextSize=0;
     private LinkedBlockingDeque<List<VariantContext>> vcQueue = new LinkedBlockingDeque<List<VariantContext>>(VariantConfigHelper.getSourceDocumentCreatorVCQueueSize());
     private LinkedBlockingDeque<List<AlleleVariantSequence>> objectQueue = new LinkedBlockingDeque<List<AlleleVariantSequence>>(VariantConfigHelper.getSourceDocumentCreatorObjectQueueSize());
 
@@ -101,17 +103,18 @@ public class SourceDocumentCreationNew extends Thread {
 
             @Override
             public void afterBulk(long executionId, BulkRequest request, Throwable failure) {
-                log.error("Bulk Request Failure: " + failure.getMessage());
+             log.error("Bulk Request Failure: " + failure.getMessage());
                 List<String> list = new ArrayList<String>();
                 for(DocWriteRequest<?> req: request.requests()) {
                     IndexRequest idxreq = (IndexRequest)req;
                     list.add(idxreq.source().toString());
+         //           System.out.println(idxreq.source().toString());
                 }
-                try {
+           /*     try {
                     jsonQueue1.put(list);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
-                }
+                }*/
                 log.error("Finished Adding requests to Queue:");
             }
         });
@@ -306,14 +309,19 @@ public class SourceDocumentCreationNew extends Thread {
         bulkProcessor4.flush();
 
         try {
-            bulkProcessor1.awaitClose(10, TimeUnit.DAYS);
-            bulkProcessor2.awaitClose(10, TimeUnit.DAYS);
-            bulkProcessor3.awaitClose(10, TimeUnit.DAYS);
-            bulkProcessor4.awaitClose(10, TimeUnit.DAYS);
+            bulkProcessor1.awaitClose(10, TimeUnit.MINUTES);
+            bulkProcessor2.awaitClose(10, TimeUnit.MINUTES);
+            bulkProcessor3.awaitClose(10, TimeUnit.MINUTES);
+            bulkProcessor4.awaitClose(10, TimeUnit.MINUTES);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-
+        RefreshRequest request = new RefreshRequest(indexName);
+        try {
+            client.indices().refresh(request, RequestOptions.DEFAULT);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         log.info("Bulk Processors finished");
     }
 
@@ -321,7 +329,7 @@ public class SourceDocumentCreationNew extends Thread {
 
         private DownloadableFile df;
         private int workBucketSize = VariantConfigHelper.getSourceDocumentCreatorVCQueueBucketSize();
-
+        private int contextSize=0;
         public VCFReader(DownloadableFile df) {
             this.df = df;
         }
@@ -349,6 +357,7 @@ public class SourceDocumentCreationNew extends Thread {
             try {
                 List<VariantContext> workBucket = new ArrayList<>();
                 while (iter1.hasNext()) {
+                    contextSize++;
                     VariantContext vc = iter1.next();
                     workBucket.add(vc);
 
@@ -365,6 +374,7 @@ public class SourceDocumentCreationNew extends Thread {
             } catch (Exception e) {
                 e.printStackTrace();
             }
+            System.out.println(speciesType.getName()+"\tCHR:"+df.getChromosome()+" context size:"+contextSize);
             reader.close();
         }
     }
@@ -386,9 +396,12 @@ public class SourceDocumentCreationNew extends Thread {
                     }
                    for(VariantContext ctx: ctxList) {
                         try {
-                            for(AlleleVariantSequence doc: converter.convertVariantContext(ctx, speciesType, header, alleleMap, matched)) {
-                                workBucket.add(doc);
-                                ph2.progressProcess("objectQueue: " + objectQueue.size());
+                            List<AlleleVariantSequence> docs=converter.convertVariantContext(ctx, speciesType, header, alleleMap, matched);
+                            if(docs!=null && docs.size()>0) {
+                                for (AlleleVariantSequence doc : docs) {
+                                    workBucket.add(doc);
+                                    ph2.progressProcess("objectQueue: " + objectQueue.size());
+                                }
                             }
                         } catch (Exception e) {
                             e.printStackTrace();
@@ -483,17 +496,24 @@ public class SourceDocumentCreationNew extends Thread {
                 try {
                     List<String> docs = jsonQueue.take();
                     for(String doc: docs) {
-                        String docId=new String();
-                        try {
-                            docId=  mapper.readValue(doc, AlleleVariantSequence.class).getNameKey();
+                            if(!doc.startsWith("org")) {
+                                String docId = new String();
+                                String id="";
+                                try {
+                                    docId = mapper.readValue(doc, AlleleVariantSequence.class).getNameKey();
 
-                        } catch (JsonProcessingException e) {
-                            e.printStackTrace();
-                        }
-                        if(indexing) //bulkProcessor.add(new IndexRequest(indexName).source(doc, XContentType.JSON));
-                        bulkProcessor.add(new IndexRequest(indexName).id(docId).source(doc, XContentType.JSON));
+                                    if(docId.length()>50){
+                                      id=  docId.substring(0,50)+"...";
+                                    }else id=docId;
 
-                        ph3.progressProcess();
+                                } catch (JsonProcessingException e) {
+                                    e.printStackTrace();
+                                }
+                                if (indexing) //bulkProcessor.add(new IndexRequest(indexName).source(doc, XContentType.JSON));
+                                    bulkProcessor.add(new IndexRequest(indexName).id(id).source(doc, XContentType.JSON));
+                            }
+                            ph3.progressProcess();
+
                     }
                     ph4.progressProcess("JSon Queue: " + jsonQueue.size());
                 } catch (InterruptedException e) {
@@ -502,117 +522,6 @@ public class SourceDocumentCreationNew extends Thread {
             }
         }
     }
-    public List<AlleleVariantSequence> getLTPIndexObjects(){
-        List<AlleleVariantSequence> sequences=new ArrayList<>();
-        if(chromosomeAllelesMap!=null){
-        ObjectMapper mapper=new ObjectMapper();
-            mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-            mapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
-
-            for(Map.Entry entry:chromosomeAllelesMap.entrySet()) {
-                Map<String, List<Allele>> alleleMap = (Map<String, List<Allele>>) entry.getValue();
-                if (alleleMap.size() > 0) {
-                    for (Map.Entry e : alleleMap.entrySet()) {
-                        String key = (String) e.getKey();
-                        if (!matched.contains(key)) {
-                            List<Allele> alleles = (List<Allele>) e.getValue();
-                           for(Allele a:alleles){
-                               sequences.addAll(converter.translateToNewAlleleVariantSequence(a,key,"false"));
-                        /*       Gene g=new Gene();
-                               g.setPrimaryKey(a.getGene().getPrimaryKey());
-                               g.setSymbol(a.getGene().getSymbol());
-                               g.setSpecies(a.getGene().getSpecies());
-                             Allele al=  mapAllele(a);
-                             for(Variant v:a.getVariants()){
-                                   AlleleVariantSequence seq=new AlleleVariantSequence();
-                                   Variant vt=getMappedVariant(v);
-                                    vt.setGene(g);
-                                    vt.setHgvsNomenclature(key);
-                                    if(v.getTranscriptLevelConsequence().size()>0) {
-                                        for (TranscriptLevelConsequence c : v.getTranscriptLevelConsequence()) {
-                                            TranscriptLevelConsequence con = getConsequenceMapped(c);
-                                            if(c.getAssociatedGene()!=null) {
-                                                Gene ag = new Gene();
-                                                ag.setSymbol(c.getAssociatedGene().getSymbol());
-                                                ag.setModGlobalId(c.getAssociatedGene().getModGlobalId());
-                                                con.setAssociatedGene(ag);
-                                            }
-                                            seq.setConsequence(con);
-                                            seq.setAllele(al);
-                                            seq.setVariant(vt);
-                                            sequences.add(seq);
-                                        }
-                                    }else{
-                                        seq.setAllele(al);
-                                        seq.setVariant(vt);
-                                        sequences.add(seq);
-                                    }
-                             }*/
-                           }
-                        }
-                    }
-                }
-            }
-        /*    for (AlleleVariantSequence doc : sequences) {
-                try {
-                    //    String jsonDoc =mapper.writerWithView(View.GeneAlleleVariantSequenceAPI.class).writeValueAsString(doc);
-                    String jsonDoc = mapper.writeValueAsString(doc);
-                   System.out.println(jsonDoc);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }*/
-
-        }
-        return sequences;
-    }
-    public TranscriptLevelConsequence getConsequenceMapped(TranscriptLevelConsequence c){
-       TranscriptLevelConsequence con= new TranscriptLevelConsequence();
-        con.setPolyphenPrediction(c.getPolyphenPrediction());
-        con.setPolyphenScore(c.getPolyphenScore());
-        con.setSiftPrediction(c.getSiftPrediction());
-        con.setSiftScore(c.getSiftScore());
-        con.setCodonChange(c.getCodonChange());
-        con.setCodonReference(c.getCodonReference());
-        con.setAminoAcidChange(c.getAminoAcidChange());
-        con.setProteinStartPosition(c.getProteinStartPosition());
-        con.setHgvsProteinNomenclature(c.getHgvsProteinNomenclature());
-        con.setHgvsCodingNomenclature(c.getHgvsCodingNomenclature());
-        con.setCdsStartPosition(c.getCdsStartPosition());
-        con.setCdnaStartPosition(c.getCdnaStartPosition());
-        con.setTranscriptLocation(c.getTranscriptLocation());
-        con.setTranscriptID(c.getTranscriptID());
-        con.setSequenceFeatureType(c.getSequenceFeatureType());
-        con.setImpact(c.getImpact());
-        con.setTranscriptLevelConsequence(c.getTranscriptLevelConsequence());
-        con.setTranscriptName(c.getTranscriptName());
-        return con;
-    }
-    public Variant getMappedVariant(Variant v){
-
-        Variant vt=new Variant();
-        vt.setStart(String.valueOf(v.getLocation().getStart()));
-        vt.setEnd(String.valueOf(v.getLocation().getEnd()));
-        vt.setGenomicVariantSequence(v.getGenomicVariantSequence());
-        vt.setGenomicReferenceSequence(v.getGenomicReferenceSequence());
-        vt.setVariantType(v.getVariantType());
-        vt.setName(v.getHgvsG().get(1));
-        return vt;
-    }
-   public Allele mapAllele(Allele a){
-       Gene g=new Gene();
-       g.setPrimaryKey(a.getGene().getPrimaryKey());
-       g.setSymbol(a.getGene().getSymbol());
-       g.setSpecies(a.getGene().getSpecies());
-
-       Allele al=new Allele();
-       al.setGene(g);
-       al.setGlobalId(a.getGlobalId());
-       al.setSymbolText(a.getSymbolText());
-       al.setSymbol(a.getSymbol());
-       return al;
-
-   }
 
 
 }

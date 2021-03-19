@@ -90,7 +90,8 @@ public class SearchDAO extends ESDAO {
 
         log.debug(searchSourceBuilder);
 
-        SearchRequest searchRequest = new SearchRequest(ConfigHelper.getEsIndex(), "variant_index_1615903310632");
+        SearchRequest searchRequest = new SearchRequest(ConfigHelper.getEsIndex(),  "variant_index_1616163333835");
+        //variant_index_1615903310632
         searchRequest.source(searchSourceBuilder);
 //        searchRequest.preference("p_" + query);
 
@@ -112,7 +113,7 @@ public class SearchDAO extends ESDAO {
         searchSourceBuilder.query(query);
 
         //   SearchRequest searchRequest = new SearchRequest(ConfigHelper.getEsIndex(), "variant_index_1615694790559");
-        SearchRequest searchRequest = new SearchRequest( "variant_index_1615903310632");
+        SearchRequest searchRequest = new SearchRequest( "variant_index_1616163333835");
 
 
         searchRequest.source(searchSourceBuilder);

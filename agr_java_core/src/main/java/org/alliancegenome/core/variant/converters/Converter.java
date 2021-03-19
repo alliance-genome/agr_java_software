@@ -74,10 +74,12 @@ public class Converter {
 
             variant.setHgvsNomenclature(hgvsNomenclature);
             variant.setName(hgvsNomenclature);
+            if (hgvsNomenclature != null) {
+                s.setPrimaryKey(hgvsNomenclature.substring(0, Math.min(hgvsNomenclature.length(),512)));
+                s.setNameKey(hgvsNomenclature);
+                s.setName(hgvsNomenclature);
+            }
 
-            s.setPrimaryKey(hgvsNomenclature);
-            s.setNameKey(hgvsNomenclature);
-            s.setName(hgvsNomenclature);
             s.setVariant(variant);
             if (htpConsequences != null) {
                 for (TranscriptLevelConsequence c : htpConsequences) {
