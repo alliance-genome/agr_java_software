@@ -108,13 +108,12 @@ public class SourceDocumentCreationNew extends Thread {
                 for(DocWriteRequest<?> req: request.requests()) {
                     IndexRequest idxreq = (IndexRequest)req;
                     list.add(idxreq.source().toString());
-         //           System.out.println(idxreq.source().toString());
                 }
-           /*     try {
+             try {
                     jsonQueue1.put(list);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
-                }*/
+                }
                 log.error("Finished Adding requests to Queue:");
             }
         });
@@ -497,20 +496,18 @@ public class SourceDocumentCreationNew extends Thread {
                     List<String> docs = jsonQueue.take();
                     for(String doc: docs) {
                             if(!doc.startsWith("org")) {
-                                String docId = new String();
-                                String id="";
+                                String docId = null;
                                 try {
-                                    docId = mapper.readValue(doc, AlleleVariantSequence.class).getNameKey();
+                                    docId = mapper.readValue(doc, AlleleVariantSequence.class).getId();
 
-                                    if(docId.length()>50){
-                                      id=  docId.substring(0,50)+"...";
-                                    }else id=docId;
 
                                 } catch (JsonProcessingException e) {
                                     e.printStackTrace();
                                 }
                                 if (indexing) //bulkProcessor.add(new IndexRequest(indexName).source(doc, XContentType.JSON));
-                                    bulkProcessor.add(new IndexRequest(indexName).id(id).source(doc, XContentType.JSON));
+                                    if(docId!=null)
+                                    bulkProcessor.add(new IndexRequest(indexName).id(docId).source(doc, XContentType.JSON));
+                                    else bulkProcessor.add(new IndexRequest(indexName).source(doc, XContentType.JSON));
                             }
                             ph3.progressProcess();
 

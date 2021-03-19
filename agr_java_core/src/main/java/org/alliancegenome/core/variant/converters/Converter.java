@@ -70,16 +70,22 @@ public class Converter {
             String hgvsNomenclature = htpConsequences != null ? htpConsequences.stream()
                     .findFirst()
                     .map(TranscriptLevelConsequence::getHgvsVEPGeneNomenclature)
-                    .orElse(ctx.getContig() + ':' + ctx.getStart() + "-needs-real-hgvs") : null;
+                    .orElse(null) : null;
 
             variant.setHgvsNomenclature(hgvsNomenclature);
             variant.setName(hgvsNomenclature);
-            if (hgvsNomenclature != null) {
-                s.setPrimaryKey(hgvsNomenclature.substring(0, Math.min(hgvsNomenclature.length(),512)));
+            s.setPrimaryKey(ctx.getID());
+
+            if (hgvsNomenclature != null && hgvsNomenclature.length()<512) {
+            //    s.setPrimaryKey(hgvsNomenclature.substring(0, Math.min(hgvsNomenclature.length(),512)));
                 s.setNameKey(hgvsNomenclature);
                 s.setName(hgvsNomenclature);
+            }else{
+                s.setNameKey(ctx.getID());
+                s.setName(ctx.getID());
             }
-
+            s.setId(ctx.getID());
+            System.out.println("CONTEXT ID: "+ ctx.getID());
             s.setVariant(variant);
             if (htpConsequences != null) {
                 for (TranscriptLevelConsequence c : htpConsequences) {
@@ -185,7 +191,6 @@ public class Converter {
                     genes.add(c.getAssociatedGene().getSymbol());
                     s.setGenes(genes);
                     s.setSpecies(species.getName());
-
 
                     returnDocuments.add(s);
                 }
@@ -318,6 +323,8 @@ public class Converter {
         // |HGVSc|HGVSp|cDNA_position|CDS_position|Protein_position|Amino_acids|Codons|Existing_variation|DISTANCE|STRAND|
         //  FLAGS|SYMBOL_SOURCE|HGNC_ID|GIVEN_REF|USED_REF|BAM_EDIT|SOURCE|HGVS_OFFSET|HGVSg|
         //  PolyPhen_prediction|PolyPhen_score|SIFT_prediction|SIFT_score|Genomic_end_position|Genomic_start_position
+
+      System.out.println("SOURCE:"+ infos[24]);
         TranscriptLevelConsequence c=new TranscriptLevelConsequence();
         c.setTranscriptLevelConsequence( infos[1]);
         c.setImpact( infos[2]);
