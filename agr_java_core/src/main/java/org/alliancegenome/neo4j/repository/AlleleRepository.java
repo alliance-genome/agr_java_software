@@ -4,6 +4,7 @@ import lombok.extern.log4j.Log4j2;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.Chromosome;
 import org.alliancegenome.neo4j.entity.node.Transcript;
+import org.alliancegenome.neo4j.entity.node.Variant;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.neo4j.ogm.model.Result;
@@ -340,7 +341,40 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
         alleleList.sort(Comparator.comparing(Allele::getSymbolText));
         return alleleList;
     }
+    public Map<String, List<Allele>> getAllAllelesByTaxonNChromosome(String taxonId, String chr) {
+       /* taxonId="NCBITaxon:10116";
+        chr="12";*/
+        String query="MATCH p1=(:SOTerm)--(v:Variant)-[:VARIATION]->" +
+                "(a:Allele{taxonId: \""+taxonId+"\"})-[:IS_ALLELE_OF]->(g:Gene{taxonId: \""+taxonId+"\"})" +
+                "-[r:LOCATED_ON]->(c:Chromosome{primaryKey:\""+chr+"\"}) ";
 
+
+        query += " OPTIONAL MATCH consequence = (t:Transcript)--(:TranscriptLevelConsequence)--(v:Variant)<-[:ASSOCIATION]-(t:Transcript)--(:SOTerm) ";
+        query += " OPTIONAL MATCH loc=(v:Variant)-[:ASSOCIATION]->(:GenomicLocation)-[:ASSOCIATION]->(:Chromosome)";
+        query += " OPTIONAL MATCH p2=(a:Allele)-[:ALSO_KNOWN_AS]->(synonym:Synonym)";
+        query += " OPTIONAL MATCH crossRef=(a:Allele)-[:CROSS_REFERENCE]->(c:CrossReference)";
+        query += " RETURN p1, p2, consequence, loc, crossRef ";
+        //  query += " RETURN p1, consequence, loc  ";
+        //       System.out.println(query);
+        Iterable<Allele> allelesWithVariantsIter = query(query, new HashMap<>());
+        Set<Allele> allelesWithVariants = StreamSupport.stream(allelesWithVariantsIter.spliterator(), false)
+                .collect(Collectors.toSet());
+        Map<String, List<Allele>> allelesMap=new HashMap<>();
+        for(Allele a: allelesWithVariants){
+            List<Variant> variants=   a.getVariants();
+            for(Variant v:variants){
+                List<Allele> alleles=new ArrayList<>();
+                if(allelesMap.get(v.getHgvsG().get(1))!=null && allelesMap.get(v.getHgvsG().get(1)).size()>0){
+                    alleles.addAll(allelesMap.get(v.getHgvsG().get(1)));
+                }
+                alleles.add(a);
+                allelesMap.put(v.getHgvsG().get(1), alleles);
+            }
+        }
+        log.info("Number of alleles with variants: " + String.format("%,d", allelesWithVariants.size()));
+
+        return allelesMap;
+    }
     private String getCypherQuery(String relationship) {
         String query = "";
         query += " MATCH p1=(:Species)<-[:FROM_SPECIES]-(allele:Allele)--(construct:Construct)-[:" + relationship + "]-(gene:Gene)--(:Species) " +
