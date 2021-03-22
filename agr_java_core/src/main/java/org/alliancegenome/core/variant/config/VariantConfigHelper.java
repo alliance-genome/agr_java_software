@@ -1,12 +1,13 @@
 package org.alliancegenome.core.variant.config;
 
-import static org.alliancegenome.core.config.Constants.*;
-
-import java.util.*;
-
+import lombok.extern.log4j.Log4j2;
 import org.alliancegenome.core.util.FileHelper;
 
-import lombok.extern.log4j.Log4j2;
+import java.util.HashMap;
+import java.util.Properties;
+import java.util.Set;
+
+import static org.alliancegenome.core.config.Constants.*;
 
 @Log4j2
 public class VariantConfigHelper {
@@ -49,16 +50,16 @@ public class VariantConfigHelper {
         
         defaults.put(VARIANT_SOURCE_DOCUMENT_CREATOR_THREADS, "1");
         
-        defaults.put(VARIANT_SOURCE_DOCUMENT_CREATOR_VCQUEUE_SIZE, "400");
-        defaults.put(VARIANT_SOURCE_DOCUMENT_CREATOR_VCQUEUE_BUCKET_SIZE, "25");
-        defaults.put(VARIANT_SOURCE_DOCUMENT_CREATOR_OBJECT_QUEUE_SIZE, "450");
-        defaults.put(VARIANT_SOURCE_DOCUMENT_CREATOR_OBJECT_QUEUE_BUCKET_SIZE, "32");
+        defaults.put(VARIANT_SOURCE_DOCUMENT_CREATOR_VCQUEUE_SIZE, "1000");
+        defaults.put(VARIANT_SOURCE_DOCUMENT_CREATOR_VCQUEUE_BUCKET_SIZE, "30");
+        defaults.put(VARIANT_SOURCE_DOCUMENT_CREATOR_OBJECT_QUEUE_SIZE, "1000");
+        defaults.put(VARIANT_SOURCE_DOCUMENT_CREATOR_OBJECT_QUEUE_BUCKET_SIZE, "30");
         
         
         defaults.put(VARIANT_PRODUCER_THREADS, "12");
         defaults.put(VARIANT_TRANSFORMER_THREADS, "12");
         
-        defaults.put(VARIANT_INDEXER_SHARDS, "16");
+        defaults.put(VARIANT_INDEXER_SHARDS, "5");
         defaults.put(VARIANT_INDEXER_BULK_PROCESSOR_THREADS, "12");
         
         defaults.put(VARIANT_BULK_PROCESSOR_SETTINGS, "1000;10;10;10000,133;10;10;1333,100;10;10;1000,50;10;10;500");

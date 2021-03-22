@@ -19,7 +19,6 @@ import org.alliancegenome.es.util.EsClientFactory;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.entity.node.Allele;
-import org.elasticsearch.action.DocWriteRequest;
 import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
 import org.elasticsearch.action.bulk.BackoffPolicy;
 import org.elasticsearch.action.bulk.BulkProcessor;
@@ -30,7 +29,6 @@ import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.unit.ByteSizeUnit;
 import org.elasticsearch.common.unit.ByteSizeValue;
-import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.common.xcontent.XContentType;
 
 import java.io.File;
@@ -78,6 +76,7 @@ public class SourceDocumentCreationNew extends Thread {
     private ProcessDisplayHelper ph4 = new ProcessDisplayHelper(log, VariantConfigHelper.getDisplayInterval());
     private ProcessDisplayHelper ph5 = new ProcessDisplayHelper(log, VariantConfigHelper.getDisplayInterval());
 
+    int docsCount=0;
     Converter converter=new Converter();
     public SourceDocumentCreationNew(DownloadSource source, Map<String,Map<String, List<Allele>>> chromosomeAllelesMap) {
         this.source = source;
@@ -103,22 +102,10 @@ public class SourceDocumentCreationNew extends Thread {
 
             @Override
             public void afterBulk(long executionId, BulkRequest request, Throwable failure) {
-             log.error("Bulk Request Failure: " + failure.getMessage());
-                List<String> list = new ArrayList<String>();
-                for(DocWriteRequest<?> req: request.requests()) {
-                    IndexRequest idxreq = (IndexRequest)req;
-                    list.add(idxreq.source().toString());
-                }
-             try {
-                    jsonQueue1.put(list);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                log.error("Finished Adding requests to Queue:");
             }
         });
 
-        log.info("Creating Bulk Processor 10K - 75K");
+     /*   log.info("Creating Bulk Processor 10K - 75K");
         builder2 = BulkProcessor.builder((request, bulkListener) -> client.bulkAsync(request, RequestOptions.DEFAULT, bulkListener), new BulkProcessor.Listener() { 
             @Override
             public void beforeBulk(long executionId, BulkRequest request) { }
@@ -171,32 +158,32 @@ public class SourceDocumentCreationNew extends Thread {
                 log.error("Finished Adding requests to Queue:");
             }
         });
-
-        builder1.setBulkActions(settings[0][0]);
-        builder1.setConcurrentRequests(settings[0][1]);
-        builder1.setBulkSize(new ByteSizeValue(settings[0][2], ByteSizeUnit.MB));
-        builder1.setBackoffPolicy(BackoffPolicy.exponentialBackoff(TimeValue.timeValueSeconds(1L), 60));
+*/
+        builder1.setBulkActions(10000);
+        builder1.setConcurrentRequests(VariantConfigHelper.getIndexerBulkProcessorThreads()*4);
+        builder1.setBulkSize(new ByteSizeValue(5, ByteSizeUnit.MB));
+        builder1.setBackoffPolicy(BackoffPolicy.noBackoff());
         bulkProcessor1 = builder1.build();
 
-        builder2.setBulkActions(settings[1][0]);
-        builder2.setConcurrentRequests(settings[1][1]);
-        builder2.setBulkSize(new ByteSizeValue(settings[1][2], ByteSizeUnit.MB));
-        builder2.setBackoffPolicy(BackoffPolicy.exponentialBackoff(TimeValue.timeValueSeconds(1L), 60));
+     /*   builder2.setBulkActions(10000);
+        builder2.setConcurrentRequests(1);
+        builder2.setBulkSize(new ByteSizeValue(5, ByteSizeUnit.MB));
+        builder2.setBackoffPolicy(BackoffPolicy.noBackoff());
         bulkProcessor2 = builder2.build();
 
-        builder3.setBulkActions(settings[2][0]);
-        builder3.setConcurrentRequests(settings[2][1]);
-        builder3.setBulkSize(new ByteSizeValue(settings[2][2], ByteSizeUnit.MB));
-        builder3.setBackoffPolicy(BackoffPolicy.exponentialBackoff(TimeValue.timeValueSeconds(1L), 60));
+        builder3.setBulkActions(10000);
+        builder3.setConcurrentRequests(1);
+        builder3.setBulkSize(new ByteSizeValue(5, ByteSizeUnit.MB));
+        builder3.setBackoffPolicy(BackoffPolicy.noBackoff());
         bulkProcessor3 = builder3.build();
 
-        builder4.setBulkActions(settings[3][0]);
-        builder4.setConcurrentRequests(settings[3][1]);
-        builder4.setBulkSize(new ByteSizeValue(settings[3][2], ByteSizeUnit.MB));
-        builder4.setBackoffPolicy(BackoffPolicy.exponentialBackoff(TimeValue.timeValueSeconds(1L), 60));
+        builder4.setBulkActions(10000);
+        builder4.setConcurrentRequests(1);
+        builder4.setBulkSize(new ByteSizeValue(5, ByteSizeUnit.MB));
+        builder4.setBackoffPolicy(BackoffPolicy.noBackoff());
         bulkProcessor4 = builder4.build();
-
-        ph1.startProcess("VCFReader Readers: ");
+*/
+//        ph1.startProcess("VCFReader Readers: ");
         List<VCFReader> readers = new ArrayList<VCFReader>();
         for(DownloadableFile df: source.getFileList()) {
             VCFReader reader = new VCFReader(df);
@@ -205,7 +192,7 @@ public class SourceDocumentCreationNew extends Thread {
         }
 
         List<DocumentTransformer> transformers = new ArrayList<>();
-        ph2.startProcess("VCFTransformers: " + speciesType.getName());
+  //      ph2.startProcess("VCFTransformers: " + speciesType.getName());
         for(int i = 0; i < VariantConfigHelper.getTransformerThreads(); i++) {
             DocumentTransformer transformer = new DocumentTransformer();
             transformer.start();
@@ -213,7 +200,7 @@ public class SourceDocumentCreationNew extends Thread {
         }
 
         List<JSONProducer> producers = new ArrayList<>();
-        ph5.startProcess("JSONProducers: " + speciesType.getName());
+ //       ph5.startProcess("JSONProducers: " + speciesType.getName());
         for(int i = 0; i < VariantConfigHelper.getProducerThreads(); i++) {
             JSONProducer producer = new JSONProducer();
             producer.start();
@@ -222,31 +209,33 @@ public class SourceDocumentCreationNew extends Thread {
 
         ArrayList<VCFJsonBulkIndexer> indexers = new ArrayList<>();
 
-        ph3.startProcess("VCFJsonIndexer BulkProcessor: " + indexName);
-        ph4.startProcess("VCFJsonIndexer Buckets: " + indexName);
-        for(int i = 0; i < VariantConfigHelper.getIndexerBulkProcessorThreads(); i++) {
-            VCFJsonBulkIndexer indexer1 = new VCFJsonBulkIndexer(jsonQueue1, bulkProcessor1); indexer1.start(); indexers.add(indexer1);
-            VCFJsonBulkIndexer indexer2 = new VCFJsonBulkIndexer(jsonQueue2, bulkProcessor2); indexer2.start(); indexers.add(indexer2);
-            VCFJsonBulkIndexer indexer3 = new VCFJsonBulkIndexer(jsonQueue3, bulkProcessor3); indexer3.start(); indexers.add(indexer3);
-            VCFJsonBulkIndexer indexer4 = new VCFJsonBulkIndexer(jsonQueue4, bulkProcessor4); indexer4.start(); indexers.add(indexer4);
-        }
+ //       ph3.startProcess("VCFJsonIndexer BulkProcessor: " + indexName);
+ //       ph4.startProcess("VCFJsonIndexer Buckets: " + indexName);
+       for(int i = 0; i < VariantConfigHelper.getIndexerBulkProcessorThreads(); i++) {
+            VCFJsonBulkIndexer indexer1 = new VCFJsonBulkIndexer(jsonQueue1); indexer1.start(); indexers.add(indexer1);
+            VCFJsonBulkIndexer indexer2 = new VCFJsonBulkIndexer(jsonQueue2); indexer2.start(); indexers.add(indexer2);
+            VCFJsonBulkIndexer indexer3 = new VCFJsonBulkIndexer(jsonQueue3); indexer3.start(); indexers.add(indexer3);
+            VCFJsonBulkIndexer indexer4 = new VCFJsonBulkIndexer(jsonQueue4); indexer4.start(); indexers.add(indexer4);
+       }
 
         try {
 
             log.info("Waiting for jsonQueue to empty");
             while(!(jsonQueue1.isEmpty() && jsonQueue2.isEmpty() && jsonQueue3.isEmpty() && jsonQueue4.isEmpty())) {
-                Thread.sleep(1000);
+               // Thread.sleep(1000);
             }
 
             log.info("Waiting for VCFReader's to finish");
             for(VCFReader r: readers) {
+
                 r.join();
+                r.interrupt();
             }
-            ph1.finishProcess();
+ //           ph1.finishProcess();
 
             log.info("Waiting for VC Queue to empty");
             while(!vcQueue.isEmpty()) {
-                Thread.sleep(15000);
+              //  Thread.sleep(15000);
             }
             TimeUnit.MILLISECONDS.sleep(15000);
             log.info("VC Queue Empty shuting down transformers");
@@ -257,7 +246,7 @@ public class SourceDocumentCreationNew extends Thread {
                 t.join();
             }
             log.info("Transformers shutdown");
-            ph2.finishProcess();
+  //          ph2.finishProcess();
             try {
  //             objectQueue.add(getLTPIndexObjects());
             } catch (Exception e) {
@@ -278,7 +267,7 @@ public class SourceDocumentCreationNew extends Thread {
                 p.join();
             }
             log.info("JSONProducers shutdown");
-            ph5.finishProcess();
+   //         ph5.finishProcess();
 
 
             log.info("Waiting for jsonQueue to empty");
@@ -295,23 +284,23 @@ public class SourceDocumentCreationNew extends Thread {
                 indexer.join();
             }
             log.info("Bulk Indexers shutdown");
-            ph3.finishProcess();
-            ph4.finishProcess();
+   //         ph3.finishProcess();
+ //           ph4.finishProcess();
 
             log.info("Threads finished: ");
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
         bulkProcessor1.flush();
-        bulkProcessor2.flush();
+/*        bulkProcessor2.flush();
         bulkProcessor3.flush();
         bulkProcessor4.flush();
-
+*/
         try {
             bulkProcessor1.awaitClose(10, TimeUnit.MINUTES);
-            bulkProcessor2.awaitClose(10, TimeUnit.MINUTES);
+  /*          bulkProcessor2.awaitClose(10, TimeUnit.MINUTES);
             bulkProcessor3.awaitClose(10, TimeUnit.MINUTES);
-            bulkProcessor4.awaitClose(10, TimeUnit.MINUTES);
+            bulkProcessor4.awaitClose(10, TimeUnit.MINUTES);*/
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -321,6 +310,8 @@ public class SourceDocumentCreationNew extends Thread {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        System.out.println("MATCHED SIZE:"+ matched.size());
+
         log.info("Bulk Processors finished");
     }
 
@@ -365,7 +356,7 @@ public class SourceDocumentCreationNew extends Thread {
                         workBucket = new ArrayList<>();
 
                     }
-                    ph1.progressProcess("vcQueue: " + vcQueue.size());
+      //              ph1.progressProcess("vcQueue: " + vcQueue.size());
                 }
                 if(workBucket.size() > 0) {
                     vcQueue.put(workBucket);
@@ -399,7 +390,7 @@ public class SourceDocumentCreationNew extends Thread {
                             if(docs!=null && docs.size()>0) {
                                 for (AlleleVariantSequence doc : docs) {
                                     workBucket.add(doc);
-                                    ph2.progressProcess("objectQueue: " + objectQueue.size());
+                                //    ph2.progressProcess("objectQueue: " + objectQueue.size());
                                 }
                             }
                         } catch (Exception e) {
@@ -455,7 +446,7 @@ public class SourceDocumentCreationNew extends Thread {
                                 } else {
                                     docs4.add(jsonDoc);
                                 }
-                                ph5.progressProcess("jsonQueue1: " + jsonQueue1.size() + " jsonQueue2: " + jsonQueue2.size() + " jsonQueue3: " + jsonQueue3.size() + " jsonQueue4: " + jsonQueue4.size());
+              //                  ph5.progressProcess("jsonQueue1: " + jsonQueue1.size() + " jsonQueue2: " + jsonQueue2.size() + " jsonQueue3: " + jsonQueue3.size() + " jsonQueue4: " + jsonQueue4.size());
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
@@ -480,11 +471,9 @@ public class SourceDocumentCreationNew extends Thread {
 
     private class VCFJsonBulkIndexer extends Thread {
         private LinkedBlockingDeque<List<String>> jsonQueue;
-        private BulkProcessor bulkProcessor;
 
-        public VCFJsonBulkIndexer(LinkedBlockingDeque<List<String>> jsonQueue, BulkProcessor bulkProcessor) {
+        public VCFJsonBulkIndexer(LinkedBlockingDeque<List<String>> jsonQueue) {
             this.jsonQueue = jsonQueue;
-            this.bulkProcessor = bulkProcessor;
         }
         public void run() {
             ObjectMapper mapper=new ObjectMapper();
@@ -506,13 +495,13 @@ public class SourceDocumentCreationNew extends Thread {
                                 }
                                 if (indexing) //bulkProcessor.add(new IndexRequest(indexName).source(doc, XContentType.JSON));
                                     if(docId!=null)
-                                    bulkProcessor.add(new IndexRequest(indexName).id(docId).source(doc, XContentType.JSON));
-                                    else bulkProcessor.add(new IndexRequest(indexName).source(doc, XContentType.JSON));
+                                    bulkProcessor1.add(new IndexRequest(indexName).id(docId).source(doc, XContentType.JSON));
+                                    else bulkProcessor1.add(new IndexRequest(indexName).source(doc, XContentType.JSON));
                             }
-                            ph3.progressProcess();
+        //                    ph3.progressProcess();
 
                     }
-                    ph4.progressProcess("JSon Queue: " + jsonQueue.size());
+        //            ph4.progressProcess("JSon Queue: " + jsonQueue.size());
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
