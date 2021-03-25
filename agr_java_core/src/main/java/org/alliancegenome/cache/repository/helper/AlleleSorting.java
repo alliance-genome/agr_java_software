@@ -21,6 +21,7 @@ public class AlleleSorting implements Sorting<Allele> {
     private List<Comparator<Allele>> variantTypeList;
     private List<Comparator<Allele>> variantConsequenceList;
     private List<Comparator<Allele>> transgenicGeneList;
+    private List<Comparator<Allele>> diseaseList;
 
     private static Map<String, Integer> categoryMap = new LinkedHashMap<>();
 
@@ -62,6 +63,11 @@ public class AlleleSorting implements Sorting<Allele> {
         variantConsequenceList.add(variantTypeOrder);
         variantConsequenceList.add(alleleSymbolOrder);
 
+        diseaseList = new ArrayList<>(3);
+        diseaseList.add(hasDiseaseOrder);
+        diseaseList.add(alleleCategoryOrder);
+        diseaseList.add(alleleSymbolOrder);
+
     }
 
     public Comparator<Allele> getComparator(SortingField field, Boolean ascending) {
@@ -83,6 +89,8 @@ public class AlleleSorting implements Sorting<Allele> {
                 return getJoinedComparator(speciesList);
             case TRANSGENIC_ALLELE:
                 return getJoinedComparator(transgenicGeneList);
+            case DISEASE:
+                return getJoinedComparator(diseaseList);
             default:
                 return getJoinedComparator(defaultList);
         }
@@ -120,6 +128,9 @@ public class AlleleSorting implements Sorting<Allele> {
                 String diseaseJoin = allele.getDiseases().stream().sorted(Comparator.comparing(SimpleTerm::getName)).map(SimpleTerm::getName).collect(Collectors.joining(""));
                 return diseaseJoin.toLowerCase();
             }, Comparator.nullsLast(naturalOrder()));
+
+    static public Comparator<Allele> hasDiseaseOrder =
+            Comparator.comparing(Allele::hasDisease).reversed();
 
     static public Comparator<Allele> variantOrder =
             Comparator.comparing(allele -> {
