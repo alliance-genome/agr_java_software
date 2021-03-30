@@ -1,12 +1,14 @@
 package org.alliancegenome.variant_indexer;
 
-import java.io.*;
-import java.util.ArrayList;
-import java.util.zip.GZIPInputStream;
-
 import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.apache.commons.math3.random.EmpiricalDistribution;
 import org.apache.commons.math3.stat.descriptive.SummaryStatistics;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
+import java.util.zip.GZIPInputStream;
 
 public class TestDocumentStats {
 
@@ -39,7 +41,7 @@ public class TestDocumentStats {
             //histogram[counter++] = stats.getN();
             System.out.println(s.getMin() + "->" + s.getMax() + ": " + s.getN());
         }
-
+    reader.close();
         ph.finishProcess();
         
         System.out.println(stats);

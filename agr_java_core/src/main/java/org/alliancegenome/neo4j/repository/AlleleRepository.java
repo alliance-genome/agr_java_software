@@ -1,13 +1,22 @@
 package org.alliancegenome.neo4j.repository;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
 import lombok.extern.log4j.Log4j2;
+import org.alliancegenome.es.index.site.dao.SearchDAO;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.Chromosome;
 import org.alliancegenome.neo4j.entity.node.Transcript;
+import org.alliancegenome.neo4j.entity.node.Variant;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.search.SearchHit;
 import org.neo4j.ogm.model.Result;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -20,7 +29,7 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
     // for debugging
     public boolean debug;
     public List<String> testGeneIDs;
-
+    SearchDAO searchDAO=new SearchDAO();
     public AlleleRepository(boolean debug, List<String> testGeneIDs) {
         super(Allele.class);
         this.debug = debug;
@@ -61,6 +70,44 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
 
         return null;
     }
+    public Allele getAlleleByVariantId(String primaryKey) {
+        return getAlleleFromES(primaryKey);
+    }
+    public Allele getAlleleFromES(String id){
+        System.out.println("ID: "+ id);
+        SearchResponse sr = searchDAO.query(id, "allele");
+        Allele allele=new Allele();
+        allele.setGlobalId(id);
+        List<Variant> variants=new ArrayList<>();
+        System.out.println("HITS:"+ sr.getHits().getTotalHits());
+        Gson gson=new Gson();
+        for(SearchHit h: sr.getHits().getHits()){
+            Map map= h.getSourceAsMap();
+
+            System.out.println(map.toString());
+            /*   List<TranscriptLevelConsequence> csqs=new ArrayList<>();*/
+            final ObjectMapper mapper = new ObjectMapper(); // jackson's objectmapper
+            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+            mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+            mapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+            final Variant v;
+            try {
+                v = mapper.readValue(gson.toJson(map.get("variant")), Variant.class);
+                variants.add(v); } catch (IOException e) {
+                e.printStackTrace();
+            }
+             /*   csqs= (List<TranscriptLevelConsequence>) map.get("transcriptLevelConsequences");
+                consequences.addAll(csqs);*/
+
+        }
+        allele.setVariants(variants);
+        allele.setSymbol(id);
+        allele.setSymbolText(id);
+        allele.setCategory("variant");
+        allele.setPrimaryKey(id);
+        return allele;
+    }
+
 
     public List<String> getAllAlleleKeys() {
         String query = "MATCH (a:Allele)--(g:Gene)-[:FROM_SPECIES]-(q:Species) RETURN a.primaryKey";
@@ -234,10 +281,11 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
 */
 
         query += " OPTIONAL MATCH consequence = (t:Transcript)--(:TranscriptLevelConsequence)--(variant:Variant)<-[:ASSOCIATION]-(t:Transcript)--(:SOTerm) ";
+        query += " OPTIONAL MATCH geneLevelConsequence=(variant:Variant)-[:ASSOCIATION]->(:GeneLevelConsequence)";
         query += " OPTIONAL MATCH loc=(variant:Variant)-[:ASSOCIATION]->(:GenomicLocation)-[:ASSOCIATION]->(:Chromosome)";
         query += " OPTIONAL MATCH p2=(a:Allele)-[:ALSO_KNOWN_AS]->(synonym:Synonym)";
         query += " OPTIONAL MATCH crossRef=(a:Allele)-[:CROSS_REFERENCE]->(c:CrossReference)";
-        query += " RETURN p0, p1, p2, consequence, loc, crossRef ";
+        query += " RETURN p0, p1, p2, consequence, loc, crossRef, geneLevelConsequence ";
         Iterable<Allele> allelesWithVariantsIter = query(query, new HashMap<>());
         Set<Allele> allelesWithVariants = StreamSupport.stream(allelesWithVariantsIter.spliterator(), false)
                 .collect(Collectors.toSet());
@@ -289,6 +337,40 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
         });
         return allAlleleMap;
     }
+    public Map<String, List<Allele>> getAllAllelesByTaxonNChromosome(String taxonId, String chr) {
+       /* taxonId="NCBITaxon:10116";
+        chr="12";*/
+        String query="MATCH p1=(:SOTerm)--(v:Variant)-[:VARIATION]->" +
+                "(a:Allele{taxonId: \""+taxonId+"\"})-[:IS_ALLELE_OF]->(g:Gene{taxonId: \""+taxonId+"\"})" +
+                "-[r:LOCATED_ON]->(c:Chromosome{primaryKey:\""+chr+"\"}) ";
+
+
+        query += " OPTIONAL MATCH consequence = (t:Transcript)--(:TranscriptLevelConsequence)--(v:Variant)<-[:ASSOCIATION]-(t:Transcript)--(:SOTerm) ";
+        query += " OPTIONAL MATCH loc=(v:Variant)-[:ASSOCIATION]->(:GenomicLocation)-[:ASSOCIATION]->(:Chromosome)";
+        query += " OPTIONAL MATCH p2=(a:Allele)-[:ALSO_KNOWN_AS]->(synonym:Synonym)";
+        query += " OPTIONAL MATCH crossRef=(a:Allele)-[:CROSS_REFERENCE]->(c:CrossReference)";
+        query += " RETURN p1, p2, consequence, loc, crossRef ";
+      //  query += " RETURN p1, consequence, loc  ";
+ //       System.out.println(query);
+        Iterable<Allele> allelesWithVariantsIter = query(query, new HashMap<>());
+        Set<Allele> allelesWithVariants = StreamSupport.stream(allelesWithVariantsIter.spliterator(), false)
+                .collect(Collectors.toSet());
+        Map<String, List<Allele>> allelesMap=new HashMap<>();
+        for(Allele a: allelesWithVariants){
+         List<Variant> variants=   a.getVariants();
+         for(Variant v:variants){
+             List<Allele> alleles=new ArrayList<>();
+             if(allelesMap.get(v.getHgvsG().get(1))!=null && allelesMap.get(v.getHgvsG().get(1)).size()>0){
+                 alleles.addAll(allelesMap.get(v.getHgvsG().get(1)));
+             }
+             alleles.add(a);
+             allelesMap.put(v.getHgvsG().get(1), alleles);
+         }
+        }
+        log.info("Number of alleles with variants: " + String.format("%,d", allelesWithVariants.size()));
+
+        return allelesMap;
+    }
 
     public void fixupAllelesWithVariants(Set<Allele> allAlleles, Set<Allele> allelesWithVariants) {
         allelesWithVariants.forEach(allele -> {
@@ -307,11 +389,14 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
                                     }
                                 }
                             }));
-            allele.setDisease(hasAlleleDiseaseInfo(allele.getPrimaryKey()));
-            allele.setPhenotype(hasAllelePhenoInfo(allele.getPrimaryKey()));
         });
         allAlleles.addAll(allelesWithVariants);
         allAlleles.forEach(Allele::populateCategory);
+        // populate phenotype and disease info
+        allAlleles.forEach(allele -> {
+            allele.setDisease(hasAlleleDiseaseInfo(allele.getPrimaryKey()));
+            allele.setPhenotype(hasAllelePhenoInfo(allele.getPrimaryKey()));
+        });
     }
 
     /*

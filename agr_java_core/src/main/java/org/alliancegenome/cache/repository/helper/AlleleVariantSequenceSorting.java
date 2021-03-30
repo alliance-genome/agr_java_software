@@ -76,7 +76,7 @@ public class AlleleVariantSequenceSorting implements Sorting<AlleleVariantSequen
                 return getJoinedComparator(alleleSymbolList);
             case VARIANT_TYPE:
                 return getJoinedComparator(variantTypeList);
-            case VARIANT_CONSEQUENCE:
+            case MOLECULAR_CONSEQUENCE:
                 return getJoinedComparator(variantConsequenceList);
             case TRANSCRIPT:
                 return getJoinedComparator(sequenceFeatureList);

@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Getter
@@ -54,7 +53,7 @@ public class TranscriptFeature {
     private String transcriptName;
 
     private static final Pattern regex = Pattern.compile("(.*)(\\()(.*)(\\))");
-
+    public TranscriptFeature(){}
     public TranscriptFeature(String[] header, String[] infos) {
 
 

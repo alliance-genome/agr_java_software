@@ -17,9 +17,6 @@ public class GeneCacheRepository {
 
     @Inject
     private CacheService cacheService;
-    
-    @Inject
-    private OrthologyCacheRepository service;
 
     public List<OrthologView> getAllOrthologyGenes(List<String> geneIDs) {
         List<OrthologView> fullOrthologyList = new ArrayList<>();

@@ -1,14 +1,16 @@
 package org.alliancegenome.es.index.site.document;
 
-import java.util.*;
-
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Getter;
+import lombok.Setter;
 import org.alliancegenome.core.config.Constants;
 import org.alliancegenome.es.index.ESDocument;
 import org.alliancegenome.es.index.site.doclet.CrossReferenceDoclet;
+import org.alliancegenome.neo4j.entity.node.TranscriptLevelConsequence;
 
-import com.fasterxml.jackson.annotation.*;
-
-import lombok.*;
+import java.util.*;
 
 @Getter
 @Setter
@@ -93,8 +95,10 @@ public class SearchableItemDocument extends ESDocument {
     Set<String> variantSynonyms = new HashSet<>();
     Set<String> variantType = new HashSet<>();
     Set<String> whereExpressed = new HashSet<>();
-
+    List<TranscriptLevelConsequence> transcriptLevelConsequences=new ArrayList<>();
+    String chromosome;
     boolean searchable = true;
+    String matchedWithHtp;
 
     @Override
     @JsonIgnore
