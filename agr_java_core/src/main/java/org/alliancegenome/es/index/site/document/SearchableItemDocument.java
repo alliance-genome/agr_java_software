@@ -96,7 +96,7 @@ public class SearchableItemDocument extends ESDocument {
     Set<String> variantType = new HashSet<>();
     Set<String> whereExpressed = new HashSet<>();
     List<TranscriptLevelConsequence> transcriptLevelConsequences=new ArrayList<>();
-
+    String chromosome;
     boolean searchable = true;
     String matchedWithHtp;
 

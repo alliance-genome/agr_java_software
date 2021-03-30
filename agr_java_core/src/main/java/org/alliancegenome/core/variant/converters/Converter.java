@@ -74,17 +74,25 @@ public class Converter {
 
             variant.setHgvsNomenclature(hgvsNomenclature);
             variant.setName(hgvsNomenclature);
-            s.setPrimaryKey(ctx.getID());
-
-            if (hgvsNomenclature != null && hgvsNomenclature.length()<512) {
-            //    s.setPrimaryKey(hgvsNomenclature.substring(0, Math.min(hgvsNomenclature.length(),512)));
-                s.setNameKey(hgvsNomenclature);
-                s.setName(hgvsNomenclature);
-            }else{
+            if(ctx.getID()!=null && !ctx.getID().equals("") && !ctx.getID().equals(".")){
+                s.setPrimaryKey(ctx.getID());
+                s.setId(ctx.getID());
                 s.setNameKey(ctx.getID());
                 s.setName(ctx.getID());
+
+            }else{
+            //    if (hgvsNomenclature != null && hgvsNomenclature.length()<512) {
+                    if (hgvsNomenclature != null && hgvsNomenclature.length()<100) {
+
+                        s.setPrimaryKey(hgvsNomenclature);
+                    s.setId(hgvsNomenclature);
+                    s.setNameKey(hgvsNomenclature);
+                    s.setName(hgvsNomenclature);
+                }
+
             }
-            s.setId(ctx.getID());
+
+
        //     System.out.println("CONTEXT ID: "+ ctx.getID());
             s.setVariant(variant);
             if (htpConsequences != null) {
@@ -112,6 +120,7 @@ public class Converter {
             s.setGenes(genes);
             s.setSpecies(species.getName());
             s.setChromosomes(Collections.singleton(ctx.getContig()));
+            s.setChromosome(ctx.getContig());
             s.setTranscriptLevelConsequences(htpConsequences);
             s.setVariantType(Collections.singleton(variantType.getName()));
             returnDocuments.add(s);

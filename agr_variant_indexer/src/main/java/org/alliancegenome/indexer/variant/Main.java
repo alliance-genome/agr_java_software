@@ -7,7 +7,6 @@ import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.filedownload.model.DownloadFileSet;
 import org.alliancegenome.core.filedownload.process.FileDownloadManager;
 import org.alliancegenome.core.variant.config.VariantConfigHelper;
-import org.alliancegenome.es.index.site.schema.VariantMapping;
 import org.alliancegenome.es.index.site.schema.settings.VariantIndexSettings;
 import org.alliancegenome.es.util.IndexManager;
 import org.alliancegenome.indexer.variant.es.managers.SourceDocumentCreationManager;
@@ -42,8 +41,8 @@ public class Main {
 
           if(creating) {
                 IndexManager im = new IndexManager(
-                        new VariantIndexSettings(true, VariantConfigHelper.getIndexerShards()),
-                        new VariantMapping(true)
+                        new VariantIndexSettings(true, VariantConfigHelper.getIndexerShards())
+                      //  new VariantMapping(true)
                 );
 
                if(VariantConfigHelper.isIndexing()) SourceDocumentCreationNew.indexName = im.startSiteIndex();
