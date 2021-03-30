@@ -73,7 +73,7 @@ public class ConfigHelper {
         defaults.put(AO_TERM_LIST, "anatomy-term-order.csv");
         defaults.put(GO_TERM_LIST, "go-term-order.csv");
         defaults.put(RIBBON_TERM_SPECIES_APPLICABILITY, "ribbon-term-species-applicability.csv");
-        defaults.put(POPULARITY_DOWNLOAD_URL, "https://github.com/alliance-genome/agr_pageview_popularity_calculator/blob/master/alliance_popularity.tsv?raw=true");
+        defaults.put(POPULARITY_DOWNLOAD_URL, "https://raw.githubusercontent.com/alliance-genome/agr_pageview_popularity_calculator/master/alliance_popularity.tsv");
         defaults.put(POPULARITY_FILE_NAME, "alliance_popularity.tsv");
 
         defaults.put(VARIANT_DOWNLOAD_PATH, "data");

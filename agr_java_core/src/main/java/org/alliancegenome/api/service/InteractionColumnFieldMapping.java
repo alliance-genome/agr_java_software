@@ -25,15 +25,33 @@ public class InteractionColumnFieldMapping extends ColumnFieldMapping<Interactio
         mapColumnFieldName.put(INTERACTOR_SOURCE, FieldFilter.SOURCE);
         mapColumnFieldName.put(INTERACTOR_REFERENCE, FieldFilter.FREFERENCE);
         mapColumnFieldName.put(INTERACTOR_DETECTION_METHOD, FieldFilter.DETECTION_METHOD);
-
+        //genetic interaction
+        mapColumnFieldName.put(ROLE, FieldFilter.ROLE);
+        mapColumnFieldName.put(GENETIC_PERTURBATION, FieldFilter.GENETIC_PERTURBATION);
+        mapColumnFieldName.put(INTERACTOR_ROLE, FieldFilter.INTERACTOR_ROLE);   
+        mapColumnFieldName.put(INTERACTOR_GENETIC_PERTURBATION, FieldFilter.INTERACTOR_GENETIC_PERTURBATION);
+        mapColumnFieldName.put(PHENOTYPES, FieldFilter.PHENOTYPES);
+        mapColumnFieldName.put(INTERACTION_TYPE, FieldFilter.INTERACTION_TYPE);
+        
         mapColumnAttribute.put(INTERACTOR_MOLECULE_TYPE, (join) -> Set.of(join.getInteractorBType().getDisplayName()));
         mapColumnAttribute.put(MOLECULE_TYPE, (join) -> Set.of(join.getInteractorAType().getDisplayName()));
         mapColumnAttribute.put(INTERACTOR_SPECIES, (join) -> Set.of(join.getGeneB().getSpecies().getName()));
-
+        //for genetic interaction
+        mapColumnAttribute.put(ROLE, (join) -> Set.of(join.getInteractorARole().getDisplayName()));
+        mapColumnAttribute.put(INTERACTOR_ROLE, (join) -> Set.of(join.getInteractorBRole().getDisplayName()));
+        mapColumnAttribute.put(INTERACTION_TYPE, (join) -> Set.of(join.getInteractionType().getDisplayName()));
+        
         singleValueDistinctFieldColumns.add(INTERACTOR_MOLECULE_TYPE);
         singleValueDistinctFieldColumns.add(MOLECULE_TYPE);
         singleValueDistinctFieldColumns.add(JOIN_TYPE);
         singleValueDistinctFieldColumns.add(INTERACTOR_SPECIES);
+        //genetic interaction
+        singleValueDistinctFieldColumns.add(ROLE);
+        singleValueDistinctFieldColumns.add(GENETIC_PERTURBATION);
+        singleValueDistinctFieldColumns.add(INTERACTOR_ROLE);
+        singleValueDistinctFieldColumns.add(INTERACTOR_GENETIC_PERTURBATION);
+        singleValueDistinctFieldColumns.add(PHENOTYPES);
+        singleValueDistinctFieldColumns.add(INTERACTION_TYPE);        
     }
 
 }

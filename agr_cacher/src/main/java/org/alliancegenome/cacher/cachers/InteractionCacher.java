@@ -31,8 +31,9 @@ public class InteractionCacher extends Cacher {
 
 
         startProcess("interactionAnnotationMapGene", allInteractionAnnotations.size());
-
-        Map<String, List<InteractionGeneJoin>> interactionAnnotationMapGene = allInteractionAnnotations.parallelStream()
+        //parallelStream is unsafe here, we found out that it lost InteractionGeneJoin.getPhenotypes().getPhenotypeStatement() information, it return null
+        //Map<String, List<InteractionGeneJoin>> interactionAnnotationMapGene = allInteractionAnnotations.parallelStream()
+        Map<String, List<InteractionGeneJoin>> interactionAnnotationMapGene = allInteractionAnnotations.stream()        
                 // exclude self-interaction
                 .filter(interactionGeneJoin -> !interactionGeneJoin.getGeneA().getPrimaryKey().equals(interactionGeneJoin.getGeneB().getPrimaryKey()))
                 .collect(groupingBy(phenotypeAnnotation -> phenotypeAnnotation.getGeneA().getPrimaryKey()));
@@ -94,8 +95,8 @@ public class InteractionCacher extends Cacher {
         newJoin.setPublication(join.getPublication());
         newJoin.setSourceDatabase(join.getSourceDatabase());
         newJoin.setId(join.getId());
-        newJoin.setAlleleA(join.getAlleleA());
-        newJoin.setAlleleB(join.getAlleleB());
+        newJoin.setAlleleA(join.getAlleleB());
+        newJoin.setAlleleB(join.getAlleleA());
         newJoin.setPhenotypes(join.getPhenotypes());
         return newJoin;
     }

@@ -6,6 +6,7 @@ import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 
 import org.alliancegenome.cache.*;
+import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
 import org.alliancegenome.neo4j.view.OrthologView;
 
 import lombok.extern.log4j.Log4j2;
@@ -50,5 +51,15 @@ public class GeneCacheRepository {
         });
 
         return fullOrthologyList;
+    }
+    
+    /**
+     * retrieve InteractionGeneJoin list from cache directly by gene primary key, could be use to get DistinctFieldValueSupplementalData
+     * @param geneID
+     * @return list of InteractionGeneJoin
+     */
+    public List<InteractionGeneJoin> getInteractions(String geneID){
+        List<InteractionGeneJoin> interactionAnnotationList = cacheService.getCacheEntries(geneID, CacheAlliance.GENE_INTERACTION);
+        return interactionAnnotationList ;
     }
 }

@@ -51,6 +51,7 @@ public class TranscriptFeature {
 
     private String referenceSequence;
     private String variantSequence;
+    private String transcriptName;
 
     private static final Pattern regex = Pattern.compile("(.*)(\\()(.*)(\\))");
 
@@ -102,12 +103,13 @@ public class TranscriptFeature {
             hgvsOffset = infos[31];
             hgvsg = infos[32];
 
-        } else if (header.length == 36) {
+        } else if (header.length == 37) {
             // Mod VEP
             //  Allele|Consequence|IMPACT|SYMBOL|Gene|Feature_type|Feature|BIOTYPE|EXON|INTRON
             // |HGVSc|HGVSp|cDNA_position|CDS_position|Protein_position|Amino_acids|Codons|Existing_variation|DISTANCE|STRAND|
             //  FLAGS|SYMBOL_SOURCE|HGNC_ID|GIVEN_REF|USED_REF|BAM_EDIT|SOURCE|HGVS_OFFSET|HGVSg|
-            //  PolyPhen_prediction|PolyPhen_score|SIFT_prediction|SIFT_score|Genomic_end_position|Genomic_start_position            // Allele|Consequence|IMPACT|SYMBOL|Gene|Feature_type|Feature|BIOTYPE|EXON|INTRON|
+            //  PolyPhen_prediction|PolyPhen_score|SIFT_prediction|SIFT_score|Genomic_end_position|Genomic_start_position|
+            // transcript_name|
 
             allele = infos[0];
             consequence = infos[1];
@@ -147,6 +149,7 @@ public class TranscriptFeature {
             siftScore = infos[32];
             genomicEnd = infos[33];
             genomicStart = infos[34];
+            transcriptName = infos[35];
         }
     }
 }

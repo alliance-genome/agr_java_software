@@ -136,6 +136,7 @@ public class AlleleToTdfTranslator {
 
         List<TransgenicAlleleDownloadRow> list = getTransgenicAlleleDownloadRowsForGenes(annotations);
         List<DownloadHeader> headers = List.of(
+                new DownloadHeader<>("Species", (TransgenicAlleleDownloadRow::getSpecies)),
                 new DownloadHeader<>("Allele ID", (TransgenicAlleleDownloadRow::getAlleleID)),
                 new DownloadHeader<>("Allele Symbol", (TransgenicAlleleDownloadRow::getAlleleSymbol)),
                 new DownloadHeader<>("Transgenic Construct ID", (TransgenicAlleleDownloadRow::getTgConstructID)),
@@ -179,6 +180,7 @@ public class AlleleToTdfTranslator {
 
     private TransgenicAlleleDownloadRow getBaseDownloadAlleleTransgenicRow(Allele annotation, Construct join, Publication pub) {
         TransgenicAlleleDownloadRow row = new TransgenicAlleleDownloadRow();
+        row.setSpecies(annotation.getSpecies().getName());
         row.setAlleleID(annotation.getPrimaryKey());
         row.setAlleleSymbol(annotation.getSymbol());
         row.setTgConstructID(join.getPrimaryKey());
@@ -239,13 +241,12 @@ public class AlleleToTdfTranslator {
                 new DownloadHeader<>("Nucleotide Change", (VariantDownloadRow::getChange)),
                 new DownloadHeader<>("Most Severe Consequence", (VariantDownloadRow::getConsequence)),
                 new DownloadHeader<>("HGVS.gName", (VariantDownloadRow::getHgvsG)),
-                new DownloadHeader<>("HGVS.cName", (VariantDownloadRow::getHgvsP)),
-                new DownloadHeader<>("HGVS.pName", (VariantDownloadRow::getHgvsC)),
+                new DownloadHeader<>("HGVS.cName", (VariantDownloadRow::getHgvsC)),
+                new DownloadHeader<>("HGVS.pName", (VariantDownloadRow::getHgvsP)),
                 new DownloadHeader<>("Synonyms", (VariantDownloadRow::getVariantSynonyms)),
                 new DownloadHeader<>("Notes", (VariantDownloadRow::getNotes)),
-                new DownloadHeader<>("References", (VariantDownloadRow::getReference)),
-                new DownloadHeader<>("Cross References", (VariantDownloadRow::getCrossReference))
-
+                new DownloadHeader<>("Cross References", (VariantDownloadRow::getCrossReference)),
+                new DownloadHeader<>("References", (VariantDownloadRow::getReference))
         );
 
         return DownloadHeader.getDownloadOutput(list, headers);
@@ -278,7 +279,7 @@ public class AlleleToTdfTranslator {
 
     private VariantDownloadRow getBaseDownloadVariantRow(final Variant annotation, Publication pub) {
         VariantDownloadRow row = new VariantDownloadRow();
-        row.setSymbol(annotation.getName());
+        row.setSymbol(annotation.getHgvsNomenclature());
         row.setVariantType(annotation.getVariantType().getName());
         row.setChrPosition(annotation.getLocation().getChromosomeAndPosition());
         row.setChange(annotation.getNucleotideChange());

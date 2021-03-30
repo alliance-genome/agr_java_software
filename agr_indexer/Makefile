@@ -1,8 +1,10 @@
 REG := 100225593120.dkr.ecr.us-east-1.amazonaws.com
+DOCKER_PULL_TAG  := latest
+DOCKER_BUILD_TAG := latest
 
 registry-docker-login:
 ifneq ($(shell echo ${REG} | egrep "ecr\..+\.amazonaws\.com"),)
-	@$(eval DOCKER_LOGIN_CMD=aws)
+	@$(eval DOCKER_LOGIN_CMD=docker run --rm -it -v ~/.aws:/root/.aws amazon/aws-cli)
 ifneq (${AWS_PROFILE},)
 	@$(eval DOCKER_LOGIN_CMD=${DOCKER_LOGIN_CMD} --profile ${AWS_PROFILE})
 endif
@@ -20,19 +22,19 @@ test:
 	mvn test
 
 docker-build: pull
-	docker build -t agrlocal/agr_indexer_run:develop --build-arg REG=${REG} .
+	docker build -t agrlocal/agr_indexer_run:${DOCKER_BUILD_TAG} --build-arg REG=${REG} DOCKER_PULL_TAG=${DOCKER_PULL_TAG} .
 
 docker-run: docker-build
-	docker-compose up agr_indexer
+	DOCKER_BUILD_TAG=${DOCKER_BUILD_TAG} docker-compose up agr_indexer
 
 pull: registry-docker-login
-	docker pull ${REG}/agr_base_linux_env:develop
+	docker pull ${REG}/agr_base_linux_env:${DOCKER_PULL_TAG}
 
 bash:
-	docker-compose up agr_indexer bash
+	DOCKER_BUILD_TAG=${DOCKER_BUILD_TAG} docker-compose up agr_indexer bash
 
 startes:
-	docker-compose up -d agr_elasticsearch
+	DOCKER_PULL_TAG=${DOCKER_PULL_TAG} docker-compose up -d agr_elasticsearch
 
 stopes:
 	docker-compose stop agr_elasticsearch
@@ -43,18 +45,18 @@ removees:
 
 
 reload: stopes removees
-	docker-compose up agr_elasticsearch
+	DOCKER_PULL_TAG=${DOCKER_PULL_TAG} docker-compose up agr_elasticsearch
 	sleep 10
-	docker-compose up agr_indexer
+	DOCKER_BUILD_TAG=${DOCKER_BUILD_TAG} docker-compose up agr_indexer
 
 docker-pull-es: registry-docker-login
-	docker pull ${REG}/agr_elasticsearch_env
+	docker pull ${REG}/agr_elasticsearch_env:${DOCKER_PULL_TAG}
 
 docker-run-es: docker-pull-es
-	docker run -p 9200:9200 -p 9300:9300 -e http.host=0.0.0.0 -e transport.host=0.0.0.0 -e xpack.security.enabled=false -e JAVA_OPTS="-Djava.net.preferIPv4Stack=true" ${REG}/agr_elasticsearch_env
+	docker run -p 9200:9200 -p 9300:9300 -e http.host=0.0.0.0 -e transport.host=0.0.0.0 -e xpack.security.enabled=false -e JAVA_OPTS="-Djava.net.preferIPv4Stack=true" ${REG}/agr_elasticsearch_env:${DOCKER_PULL_TAG}
 
 docker-pull-neo: registry-docker-login
-	docker pull ${REG}/agr_neo4j_data_image:build
+	docker pull ${REG}/agr_neo4j_data_image:${DOCKER_PULL_TAG}
 
 docker-run-neo:
-	docker run -p 127.0.0.1:7474:7474 -p 127.0.0.1:7687:7687 -e NEO4J_dbms_memory_heap_max_size=12g -e NEO4J_dbms_memory_pagecache_size=12g ${REG}/agr_neo4j_data_image:build
+	docker run -p 127.0.0.1:7474:7474 -p 127.0.0.1:7687:7687 -e NEO4J_dbms_memory_heap_max_size=12g -e NEO4J_dbms_memory_pagecache_size=12g ${REG}/agr_neo4j_data_image:${DOCKER_PULL_TAG}
