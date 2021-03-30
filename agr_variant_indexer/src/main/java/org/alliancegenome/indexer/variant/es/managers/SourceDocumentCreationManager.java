@@ -4,7 +4,6 @@ import java.util.concurrent.*;
 
 import org.alliancegenome.core.filedownload.model.*;
 import org.alliancegenome.core.variant.config.VariantConfigHelper;
-import org.alliancegenome.neo4j.repository.AlleleRepository;
 
 import lombok.extern.log4j.Log4j2;
 

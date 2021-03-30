@@ -1,6 +1,5 @@
 package org.alliancegenome.core.variant.converters;
 
-import htsjdk.variant.variantcontext.Allele;
 import htsjdk.variant.variantcontext.CommonInfo;
 import htsjdk.variant.variantcontext.VariantContext;
 import io.github.lukehutch.fastclasspathscanner.utils.Join;
@@ -16,21 +15,25 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.*;
 
 public class VariantContextConverterNew {
-    Converter converter=new Converter();
-    public List<AlleleVariantSequence> convertVariantContext(VariantContext ctx, SpeciesType speciesType, String[] header, Map<String, List<org.alliancegenome.neo4j.entity.node.Allele>> alleleMap,
-                                                             List<String> matched) throws Exception {
 
-        List<AlleleVariantSequence> variantSequences= getVariantsIfMatchedWithLTP(ctx, alleleMap,  header, matched);
-        List<AlleleVariantSequence> returnDocuments = new ArrayList<AlleleVariantSequence>(variantSequences);
-        if(variantSequences.size()==0){
-            returnDocuments.addAll(converter.convertContextToAlleleVariantSequence(ctx, header, speciesType));
-            }
-        return returnDocuments;
+    AlleleVariantSequenceConverter converter = new AlleleVariantSequenceConverter();
 
+    public List<AlleleVariantSequence> convertVariantContext(VariantContext ctx, SpeciesType speciesType, String[] header, Map<String, List<Allele>> alleleMap, List<String> matched) throws Exception {
+        List<AlleleVariantSequence> returnDocuments = new ArrayList<>();
+        if(!speciesType.getTaxonID().equalsIgnoreCase("NCBITaxon:9606")) {
+            returnDocuments = getVariantsIfMatchedWithLTP(ctx, alleleMap, header, matched);
+            // List<AlleleVariantSequence> returnDocuments = new ArrayList<AlleleVariantSequence>(variantSequences);
+        }
+        if(returnDocuments.size()==0){
+            //    returnDocuments.addAll(converter.convertContextToAlleleVariantSequence(ctx, header, speciesType));
+            returnDocuments = converter.convertContextToSearchDocument(ctx, header, speciesType);
+            return returnDocuments;
+
+        }
+        return null;
     }
-    public List<AlleleVariantSequence> getVariantsIfMatchedWithLTP(VariantContext ctx, Map<String, List<org.alliancegenome.neo4j.entity.node.Allele>> alleleMap,
-                                                                    String[] header, List<String> matched) throws Exception {
-        Allele refNuc = ctx.getReference();
+    public List<AlleleVariantSequence> getVariantsIfMatchedWithLTP(VariantContext ctx, Map<String, List<Allele>> alleleMap, String[] header, List<String> matched) throws Exception {
+        htsjdk.variant.variantcontext.Allele refNuc = ctx.getReference();
         List<AlleleVariantSequence> returnDocuments = new ArrayList<>();
         SOTerm variantType = new SOTerm();
         variantType.setName(ctx.getType().name().toUpperCase());
@@ -39,7 +42,7 @@ public class VariantContextConverterNew {
             variantType.setName("delins");
             variantType.setPrimaryKey("delins");
         }
-        for (Allele a : ctx.getAlternateAlleles()) {
+        for (htsjdk.variant.variantcontext.Allele a : ctx.getAlternateAlleles()) {
             if (a.compareTo(refNuc) < 0) {
                 continue;
             }
@@ -51,7 +54,6 @@ public class VariantContextConverterNew {
                 //     System.out.println(" *** Var Nucleotides must be A,C,G,T,N");
                 continue;
             }
-
 
             int endPos = 0;
 
@@ -69,20 +71,20 @@ public class VariantContextConverterNew {
             }
             String hgvsNomenclature = getHgvsG(ctx, a.getBaseString(), header);
             if (alleleMap != null && !alleleMap.isEmpty() && alleleMap.containsKey(hgvsNomenclature.trim())) {
-                System.out.print("\tMATCHED: " + hgvsNomenclature);
+                //  System.out.print("\tMATCHED: " + hgvsNomenclature);
                 if (!matched.contains(hgvsNomenclature))
                     matched.add(hgvsNomenclature);
-                List<org.alliancegenome.neo4j.entity.node.Allele> alleles = alleleMap.get(hgvsNomenclature);
-                for (org.alliancegenome.neo4j.entity.node.Allele al : alleles) {
+                List<Allele> alleles = alleleMap.get(hgvsNomenclature);
+                for (Allele al : alleles) {
                     returnDocuments.addAll(converter.translateToNewAlleleVariantSequence(al, hgvsNomenclature, "true"));
                 }
             }
         }
-            return returnDocuments;
+        return returnDocuments;
     }
-    public List<VariantDocument> getVarDocs(List<org.alliancegenome.neo4j.entity.node.Allele> alleles, String key, String species, String chromosome){
+    public List<VariantDocument> getVarDocs(List<Allele> alleles, String key, String species, String chromosome){
         List<VariantDocument> varDocs=new ArrayList<>();
-        for (org.alliancegenome.neo4j.entity.node.Allele a : alleles) {
+        for (Allele a : alleles) {
             List<Variant> variants = a.getVariants();
             for (Variant v : variants) {
                 VariantDocument doc = new VariantDocument();
@@ -148,7 +150,7 @@ public class VariantContextConverterNew {
         List<AlleleVariantSequence> list = new ArrayList<>();
 
         for (VariantDocument doc : varDocs) {
-           List<AlleleVariantSequence> list1 = new ArrayList<>();
+            List<AlleleVariantSequence> list1 = new ArrayList<>();
             if(doc.getConsequences()!=null && doc.getConsequences().size()>0){
                 for (TranscriptFeature transcriptFeature : doc.getConsequences()) {
                     AlleleVariantSequence s=new AlleleVariantSequence();
@@ -159,7 +161,7 @@ public class VariantContextConverterNew {
                     // do not handle variants without gene relationship
                     if (StringUtils.isEmpty(geneID))
                         continue;
-                    org.alliancegenome.neo4j.entity.node.Allele allele = new org.alliancegenome.neo4j.entity.node.Allele(transcriptFeature.getGene(), GeneticEntity.CrossReferenceType.VARIANT);
+                    Allele allele = new Allele(transcriptFeature.getGene(), GeneticEntity.CrossReferenceType.VARIANT);
                     // hack until the ID column is set to the right thing by the MODs
                     if (StringUtils.isEmpty(doc.getId()) || doc.getId().equals(".")) {
                         allele.setSymbol(transcriptFeature.getHgvsg());
@@ -172,7 +174,7 @@ public class VariantContextConverterNew {
                     String assocatedGeneID = transcriptFeature.getGene();
                     /*if (assocatedGeneID.startsWith("ZDB-GENE"))
                         assocatedGeneID = "ZFIN:" + assocatedGeneID;*/
-                  gene.setPrimaryKey(assocatedGeneID);
+                    gene.setPrimaryKey(assocatedGeneID);
                     gene.setSymbol(transcriptFeature.getSymbol());
                     allele.setGene(gene);
                     Variant variant = new Variant();
@@ -293,9 +295,9 @@ public class VariantContextConverterNew {
             }
         }
         return features.stream()
-                        .findFirst()
-                        .map(TranscriptFeature::getHgvsg)
-                        .orElse(ctx.getContig() + ':' + ctx.getStart() + "-needs-real-hgvs");
+                .findFirst()
+                .map(TranscriptFeature::getHgvsg)
+                .orElse(ctx.getContig() + ':' + ctx.getStart() + "-needs-real-hgvs");
     }
 
 
@@ -320,8 +322,8 @@ public class VariantContextConverterNew {
         if (StringUtils.isNotEmpty(infos[9]))
             location += "Intron " + infos[9];
         c.setTranscriptLocation(location);
-      /*  biotype = infos[7];
-      */
+        /*  biotype = infos[7];
+         */
         c.setCdnaStartPosition(infos[12]);
         c.setCdsStartPosition( infos[13]);
         c.setHgvsCodingNomenclature( infos[10]);
@@ -335,13 +337,13 @@ public class VariantContextConverterNew {
         c.setSiftScore(infos[32]);
         c.setHgvsVEPGeneNomenclature(infos[28]);
 
-      //  c.setCodonReference(infos[26]); // need to verify
+        //  c.setCodonReference(infos[26]); // need to verify
 
-      //  variant.setGenomicVariantSequence(transcriptFeature.getAllele());
-      //  genomicEnd = infos[33];
-     //   genomicStart = infos[34];
+        //  variant.setGenomicVariantSequence(transcriptFeature.getAllele());
+        //  genomicEnd = infos[33];
+        //    genomicStart = infos[34];
 
-      /*  existingVariation = infos[17];
+        /*  existingVariation = infos[17];
         distance = infos[18];
         strand = infos[19];
 

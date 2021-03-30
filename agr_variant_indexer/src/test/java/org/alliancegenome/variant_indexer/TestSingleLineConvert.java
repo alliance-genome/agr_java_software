@@ -6,7 +6,9 @@ import htsjdk.samtools.util.CloseableIterator;
 import htsjdk.variant.variantcontext.VariantContext;
 import htsjdk.variant.vcf.VCFFileReader;
 import htsjdk.variant.vcf.VCFInfoHeaderLine;
-import org.alliancegenome.core.variant.converters.VariantContextConverter;
+
+import org.alliancegenome.api.entity.AlleleVariantSequence;
+import org.alliancegenome.core.variant.converters.*;
 import org.alliancegenome.es.variant.model.VariantDocument;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.apache.commons.math3.stat.descriptive.SummaryStatistics;
@@ -33,7 +35,7 @@ public class TestSingleLineConvert {
         int count = 0;
         SummaryStatistics ss = new SummaryStatistics();
         
-        VariantContextConverter converter = new VariantContextConverter();
+        AlleleVariantSequenceConverter converter = new AlleleVariantSequenceConverter();
         Date start = new Date();
         Date end = new Date();
         double avg = 0;
@@ -44,9 +46,9 @@ public class TestSingleLineConvert {
             try {
                 VariantContext vc = iter1.next();
                 //if(vc.getID().equals("rs55780505")) {
-                List<VariantDocument> docs = converter.convertVariantContext(vc, SpeciesType.HUMAN, formats);
+                List<AlleleVariantSequence> docs = converter.convertContextToSearchDocument(vc, formats, SpeciesType.HUMAN);
                 
-                for(VariantDocument doc: docs) {
+                for(AlleleVariantSequence doc: docs) {
                     String jsonDoc = mapper.writeValueAsString(doc);
                     if(count == 10000) {
                         end = new Date();

@@ -10,6 +10,7 @@ import org.alliancegenome.core.variant.config.VariantConfigHelper;
 import org.alliancegenome.core.variant.converters.*;
 import org.alliancegenome.es.util.*;
 import org.alliancegenome.neo4j.entity.SpeciesType;
+import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.repository.AlleleRepository;
 import org.alliancegenome.neo4j.view.View;
 import org.elasticsearch.action.DocWriteRequest;
@@ -52,8 +53,11 @@ public class SourceDocumentCreation extends Thread {
     private LinkedBlockingDeque<List<VariantContext>> vcQueue = new LinkedBlockingDeque<List<VariantContext>>(VariantConfigHelper.getSourceDocumentCreatorVCQueueSize());
     private LinkedBlockingDeque<List<AlleleVariantSequence>> objectQueue = new LinkedBlockingDeque<List<AlleleVariantSequence>>(VariantConfigHelper.getSourceDocumentCreatorObjectQueueSize());
 
-    private AlleleVariantSequenceConverter aVSConverter;
-
+    private VariantContextConverterNew aVSConverter;
+    
+    private List<String> matched = new ArrayList<>();
+    private Map<String, List<Allele>> alleleMap = new HashMap<>();
+    
     private LinkedBlockingDeque<List<String>> jsonQueue1;
     private LinkedBlockingDeque<List<String>> jsonQueue2;
     private LinkedBlockingDeque<List<String>> jsonQueue3;
@@ -65,12 +69,13 @@ public class SourceDocumentCreation extends Thread {
     private ProcessDisplayHelper ph4 = new ProcessDisplayHelper(log, VariantConfigHelper.getDisplayInterval());
     private ProcessDisplayHelper ph5 = new ProcessDisplayHelper(log, VariantConfigHelper.getDisplayInterval());
 
-    Converter converter = new Converter();
+    AlleleVariantSequenceConverter converter = new AlleleVariantSequenceConverter();
 
     public SourceDocumentCreation(DownloadSource source) {
         this.source = source;
         speciesType = SpeciesType.getTypeByID(source.getTaxonId());
-        aVSConverter = new AlleleVariantSequenceConverter(repo);
+        //aVSConverter = new AlleleVariantSequenceConverter(repo);
+        aVSConverter = new VariantContextConverterNew();
         if(indexing) client = EsClientFactory.getDefaultEsClient();
     }
 
@@ -393,7 +398,8 @@ public class SourceDocumentCreation extends Thread {
 
                     for (VariantContext ctx : ctxList) {
                         try {
-                            List<AlleleVariantSequence> avsList = aVSConverter.convertVariantContext(ctx, speciesType, header);
+                            List<AlleleVariantSequence> avsList = aVSConverter.convertVariantContext(ctx, speciesType, header, alleleMap, matched);
+
                             //System.out.println("Are we here? " + avsList.size());
                             for(AlleleVariantSequence sequence: avsList) {
 

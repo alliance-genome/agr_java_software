@@ -5,14 +5,13 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.*;
+
 import org.alliancegenome.core.config.Constants;
 import org.alliancegenome.es.index.ESDocument;
 import org.alliancegenome.es.index.site.doclet.CrossReferenceDoclet;
-
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import org.alliancegenome.neo4j.entity.node.TranscriptLevelConsequence;
 
 @Getter
 @Setter
@@ -97,7 +96,9 @@ public class SearchableItemDocument extends ESDocument {
     Set<String> variantSynonyms;
     Set<String> variantType;
     Set<String> whereExpressed;
-
+    
+    List<TranscriptLevelConsequence> transcriptLevelConsequences = new ArrayList<>();
+    String chromosome;
     boolean searchable = true;
     String matchedWithHtp;
 
