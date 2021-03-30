@@ -38,13 +38,16 @@ public class AlleleVariantSequence extends SearchableItemDocument {
 
     @Override
     public String toString() {
-        String message = allele.getSymbolText();
+        StringBuilder builder = new StringBuilder();
+        builder.append(allele.getSymbolText());
         if (variant != null) {
-            message += " : " + variant.getHgvsNomenclature();
+            builder.append(" : ");
+            builder.append(variant.getHgvsNomenclature());
         }
         if (consequence != null) {
-            message += " : " + consequence.getTranscriptName();
+            builder.append(" : ");
+            builder.append(consequence.getTranscriptName());
         }
-        return message;
+        return builder.toString();
     }
 }

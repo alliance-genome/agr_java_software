@@ -17,16 +17,31 @@ import java.util.stream.Collectors;
 @Log4j2
 public class AlleleVariantSequenceConverter {
 
+    private AlleleRepository repo;
+    
+    public AlleleVariantSequenceConverter(AlleleRepository repo) {
+        this.repo = repo;
+    }
+
     public List<AlleleVariantSequence> convertVariantContext(VariantContext ctx, SpeciesType speciesType, String[] header) {
         VariantContextConverter converter = new VariantContextConverter();
         List<VariantDocument> docs = converter.convertVariantContext(ctx, speciesType, header);
         List<AlleleVariantSequence> avls = new ArrayList<>();
-        docs.forEach(variantDocument -> avls.addAll(getAVSFromVariantDocument(variantDocument)));
+        
+        for(VariantDocument variantDocument: docs) {
+            avls.addAll(getAVSFromVariantDocument(variantDocument));
+        }
+        
         return avls;
     }
 
     public List<AlleleVariantSequence> getAVSFromVariantDocument(VariantDocument doc) {
         List<AlleleVariantSequence> list = new ArrayList<>();
+        
+        SOTerm soTerm = new SOTerm();
+        soTerm.setName(doc.getVariantType().stream().findFirst().get());
+        soTerm.setPrimaryKey(doc.getVariantType().stream().findFirst().get());
+        
         for (TranscriptFeature transcriptFeature : doc.getConsequences()) {
 
             String geneID = transcriptFeature.getGene();
@@ -34,7 +49,7 @@ public class AlleleVariantSequenceConverter {
             if (StringUtils.isEmpty(geneID))
                 continue;
 
-            org.alliancegenome.neo4j.entity.node.Allele allele = new org.alliancegenome.neo4j.entity.node.Allele(transcriptFeature.getGene(), GeneticEntity.CrossReferenceType.VARIANT);
+            Allele allele = new Allele(transcriptFeature.getGene(), GeneticEntity.CrossReferenceType.VARIANT);
             // hack until the ID column is set to the right thing by the MODs
             if (StringUtils.isEmpty(doc.getId()) || doc.getId().equals(".")) {
                 allele.setSymbol(transcriptFeature.getHgvsg());
@@ -60,10 +75,8 @@ public class AlleleVariantSequenceConverter {
             variant.setEnd(transcriptFeature.getGenomicEnd());
             variant.setConsequence((transcriptFeature.getConsequence()));
             variant.setHgvsNomenclature(transcriptFeature.getHgvsg());
-            SOTerm soTerm = new SOTerm();
-            soTerm.setName(doc.getVariantType().stream().findFirst().get());
-            soTerm.setPrimaryKey(doc.getVariantType().stream().findFirst().get());
             variant.setVariantType(soTerm);
+            
             consequence.setImpact(transcriptFeature.getImpact());
             consequence.setSequenceFeatureType(transcriptFeature.getBiotype());
             consequence.setTranscriptName(transcriptFeature.getFeature());
@@ -79,6 +92,7 @@ public class AlleleVariantSequenceConverter {
                 location += "Exon " + transcriptFeature.getExon();
             if (StringUtils.isNotEmpty(transcriptFeature.getIntron()))
                 location += "Intron " + transcriptFeature.getIntron();
+            
             consequence.setTranscriptLocation(location);
             list.add(new AlleleVariantSequence(allele, variant, consequence));
         }
@@ -86,7 +100,7 @@ public class AlleleVariantSequenceConverter {
     }
 
     public List<AlleleVariantSequence> getAllAllelicVariants() {
-        final Set<Allele> collect = (new AlleleRepository()).getAllAllelesCache().values().stream()
+        final Set<Allele> collect = repo.getAllAllelesCache().values().stream()
                 .map(Map::values)
                 .flatMap(Collection::stream)
                 .flatMap(Collection::stream)

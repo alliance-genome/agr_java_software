@@ -42,10 +42,21 @@ public class VariantContextConverter {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            String hgvsNomenclature = htpConsequences != null ? htpConsequences.stream()
-                    .findFirst()
-                    .map(TranscriptFeature::getHgvsg)
-                    .orElse(ctx.getContig() + ':' + ctx.getStart() + "-needs-real-hgvs") : null;
+            
+            String hgvsNomenclature = null;
+            
+            if(htpConsequences != null && htpConsequences.size() > 0) {
+                hgvsNomenclature = htpConsequences.get(0).getHgvsg();
+                if(hgvsNomenclature == null) {
+                    StringBuilder builder = new StringBuilder();
+                    builder.append(ctx.getContig());
+                    builder.append(":");
+                    builder.append(ctx.getStart());
+                    builder.append("-needs-real-hgvs");
+                    hgvsNomenclature = builder.toString();
+                }
+            }
+            
             variantDocument.setAlterationType("variant");
             variantDocument.setName(hgvsNomenclature);
             variantDocument.setNameKey(hgvsNomenclature);
@@ -63,20 +74,22 @@ public class VariantContextConverter {
             variantTypes.add(variantType);
             variantDocument.setVariantType(variantTypes);
             variantDocument.setId(ctx.getID());
+            variantDocument.setPrimaryKey(ctx.getID());
             variantDocument.setSpecies(speciesType.getName());
             variantDocument.setChromosome(ctx.getContig());
             variantDocument.setStartPos(ctx.getStart());
 
             int endPos = 0;
 
+            int start = ctx.getStart();
             if (ctx.isSNP()) {
-                endPos = ctx.getStart() + 1;
+                endPos = start + 1;
             } // insertions
             if (ctx.isSimpleInsertion()) {
-                endPos = ctx.getStart();
+                endPos = start;
                 //  System.out.println("INSERTION");
             } else if (ctx.isSimpleDeletion()) {
-                endPos = ctx.getStart() + refNuc.getDisplayString().length();
+                endPos = start + refNuc.getDisplayString().length();
                 //  System.out.println("Deletion");
             }
 
@@ -85,15 +98,33 @@ public class VariantContextConverter {
             variantDocument.setEndPos(endPos);
             variantDocument.setDocumentVariantType(ctx.getCommonInfo().getAttributeAsString("TSA", ""));
 
-            variantDocument.setGenes(
-                    variantDocument.getConsequences()
-                            .stream()
-                            .map(x -> x.getSymbol() + " (" + speciesType.getAbbreviation() + ")")
-                            .collect(Collectors.toSet())
-            );
-
-            variantDocument.setEvidence(mapEvidence(ctx));
-            variantDocument.setClinicalSignificance(mapClinicalSignificance(ctx));
+            HashSet<String> list = new HashSet<String>();
+            for(TranscriptFeature x: variantDocument.getConsequences()) {
+                StringBuilder builder = new StringBuilder();
+                builder.append(x.getSymbol());
+                builder.append(" (");
+                builder.append(speciesType.getAbbreviation());
+                builder.append(")");
+                list.add(builder.toString());
+            }
+            
+            variantDocument.setGenes(list);
+//                  variantDocument.getConsequences()
+//                          .parallelStream()
+//                          .map(x -> {
+//                              StringBuilder builder = new StringBuilder();
+//                              builder.append(x.getSymbol());
+//                              builder.append(" (");
+//                              builder.append(speciesType.getAbbreviation());
+//                              builder.append(")");
+//                              return builder.toString();
+//                              //return x.getSymbol() + " (" + speciesType.getAbbreviation() + ")";
+//                          })
+//                          .collect(Collectors.toSet())
+//          );
+            
+            mapAttributes(ctx, variantDocument);
+            
             if (ctx.getAttributes().containsKey("MA"))
                 variantDocument.setMA(ctx.getAttributeAsString("MA", ""));
             if (ctx.getAttributes().containsKey("MAF"))
@@ -118,33 +149,40 @@ public class VariantContextConverter {
         return returnDocuments;
     }
 
-    public List<String> mapEvidence(VariantContext ctx) {
+    public void mapAttributes(VariantContext ctx, VariantDocument variantDocument) {
         CommonInfo info = ctx.getCommonInfo();
+        List<String> significance = new ArrayList<>();
         List<String> evidences = new ArrayList<>();
+        
+        // 20% CPU
+//      for(String key: ClinicalSig.csmap.keySet()) {
+//          if(info.hasAttribute(key)) {
+//              significance.add(ClinicalSig.csmap.get(key));
+//          }
+//      }
+//      for(String key: Evidence.emap.keySet()) {
+//          if(info.hasAttribute(key)) {
+//              evidences.add(Evidence.emap.get(key));
+//          }
+//      }
+        
+        // 7% CPU
         for (String key : info.getAttributes().keySet()) {
             if (Evidence.emap.containsKey(key)) {
                 evidences.add(Evidence.emap.get(key));
-            }
-        }
-        return evidences;
-    }
-
-    public List<String> mapClinicalSignificance(VariantContext ctx) {
-        CommonInfo info = ctx.getCommonInfo();
-        List<String> significance = new ArrayList<>();
-        for (String key : info.getAttributes().keySet()) {
-
-            if (ClinicalSig.csmap.containsKey(key)) {
+            } else if (ClinicalSig.csmap.containsKey(key)) {
                 significance.add(ClinicalSig.csmap.get(key));
             }
         }
-        return significance;
+        variantDocument.setEvidence(evidences);
+        variantDocument.setClinicalSignificance(significance);
     }
-
 
     public List<TranscriptFeature> getConsequences(VariantContext ctx, String varNuc, String[] header) throws Exception {
         List<TranscriptFeature> features = new ArrayList<>();
 
+        String reference = ctx.getReference().toString();
+        
         for (String s : ctx.getAttributeAsStringList("CSQ", "")) {
             if (s.length() > 0) {
                 String[] infos = s.split("\\|", -1);
@@ -152,7 +190,7 @@ public class VariantContextConverter {
                 if (header.length == infos.length) {
                     if (infos[0].equalsIgnoreCase(varNuc)) {
                         TranscriptFeature feature = new TranscriptFeature(header, infos);
-                        feature.setReferenceSequence(ctx.getReference().toString());
+                        feature.setReferenceSequence(reference);
                         features.add(feature);
                     }
                 } else {
@@ -168,7 +206,8 @@ public class VariantContextConverter {
 
 
     public boolean alleleIsValid(String allele) {
-        for (int i = 0; i < allele.length(); i++) {
+        int len = allele.length();
+        for (int i = 0; i < len; i++) {
             char c = allele.charAt(i);
             if (c == 'A' || c == 'C' || c == 'G' || c == 'T' || c == 'N' || c == '-')
                 continue;

@@ -86,6 +86,8 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
     // allele ID, disease info exists
     private Set<String> allelePhenoSet = new HashSet<>();
 
+    private static Set<String> allAllelicHgvsGNames = null;
+
     public Map<String, Transcript> getTranscriptWithExonInfo() {
         if (MapUtils.isNotEmpty(transcriptMap))
             return transcriptMap;
@@ -190,7 +192,7 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
     private static  Map<String, Map<String, Set<Allele>>> allAllelesMap= null;
 
     public Map<String, Map<String, Set<Allele>>> getAllAllelesCache() {
-        if(allAllelesMap==null) {
+        if(allAllelesMap == null) {
             Map<String, Map<String, Set<Allele>>> allAlleleMap = new HashMap<>();
 
             String query = "";
@@ -422,11 +424,8 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
                 .collect(Collectors.toSet());
     }
 
-    // cache
-    private static  Set<String> allAllelicHgvsGNames = null;
-
-    public  Set<String> getAllAllelicHgvsGNameCache() {
-        if(allAllelicHgvsGNames==null) {
+    public Set<String> getAllAllelicHgvsGNameCache() {
+        if(allAllelicHgvsGNames == null) {
             String query = "";
             query += " MATCH p1=(variant:Variant)-[:VARIATION]->(a:Allele)-[:IS_ALLELE_OF]->(g:Gene)  ";
             query += " RETURN variant.hgvsNomenclature as ID ";

@@ -5,8 +5,10 @@ import org.alliancegenome.neo4j.repository.AlleleRepository;
 
 public class AlleleVariantService {
 
+    public static AlleleRepository repo = new AlleleRepository();
+    
     public static boolean allelicVariantExists(AlleleVariantSequence sequence) {
-        return new AlleleRepository().getAllAllelicHgvsGNameCache().contains(sequence.getVariant().getHgvsNomenclature());
+        return repo.getAllAllelicHgvsGNameCache().contains(sequence.getVariant().getHgvsNomenclature());
     }
 
 }

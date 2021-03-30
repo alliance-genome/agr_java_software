@@ -42,9 +42,11 @@ public class GeneticEntity extends Neo4jEntity {
     @JsonView(value = {View.API.class, View.GeneAllelesAPI.class, View.GeneAlleleVariantSequenceAPI.class})
     @JsonProperty(value = "synonyms")
     public List<String> getSynonymList() {
-        if (synonyms == null)
-            return List.of();
-        return synonyms.stream().map(Synonym::getName).collect(Collectors.toList());
+        List<String> list = new ArrayList<String>();
+        for(Synonym s: synonyms) {
+            list.add(s.getName());
+        }
+        return list;
     }
 
     @JsonProperty(value = "synonyms")

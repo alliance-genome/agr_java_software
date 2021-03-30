@@ -119,21 +119,21 @@ public class Variant extends GeneticEntity implements Comparable<Variant> {
     public String getNucleotideChange() {
         if (StringUtils.isNotEmpty(nucleotideChange))
             return nucleotideChange;
-        String change = "";
+        StringBuilder builder = new StringBuilder();
         if (variantType != null && (variantType.isInsertion() || variantType.isDeletion())) {
-            change += getPaddedChange(getGenomicReferenceSequence());
-            change += ">";
-            change += getPaddedChange(getGenomicVariantSequence());
+            builder.append(getGenomicReferenceSequence());
+            builder.append(">");
+            builder.append(getPaddedChange(getGenomicVariantSequence()));
             // if no genomic sequence is available add 'N+'
             if (StringUtils.isEmpty(getGenomicReferenceSequence()) &&
                     StringUtils.isEmpty(getGenomicVariantSequence()))
-                change += "N+";
+                builder.append("N+");
         } else {
-            change += getGenomicReferenceSequence();
-            change += ">";
-            change += getGenomicVariantSequence();
+            builder.append(getGenomicReferenceSequence());
+            builder.append(">");
+            builder.append(getGenomicVariantSequence());
         }
-        nucleotideChange = change;
+        nucleotideChange = builder.toString();
         return nucleotideChange;
     }
 

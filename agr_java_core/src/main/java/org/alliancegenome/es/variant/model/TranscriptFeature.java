@@ -1,14 +1,16 @@
 package org.alliancegenome.es.variant.model;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.Getter;
-import lombok.Setter;
+import java.util.Arrays;
 
-import java.util.regex.Pattern;
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+import lombok.*;
+import lombok.extern.log4j.Log4j2;
 
 @Getter
 @Setter
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
+@Log4j2
 public class TranscriptFeature {
     private String allele;
     private String consequence;
@@ -51,10 +53,9 @@ public class TranscriptFeature {
     private String referenceSequence;
     private String variantSequence;
 
-    private static final Pattern regex = Pattern.compile("(.*)(\\()(.*)(\\))");
-    public TranscriptFeature(){}
+    public TranscriptFeature() { }
+    
     public TranscriptFeature(String[] header, String[] infos) {
-
 
         if (header.length == 33) {
 
@@ -101,7 +102,7 @@ public class TranscriptFeature {
             hgvsOffset = infos[31];
             hgvsg = infos[32];
 
-        } else if (header.length == 36) {
+        } else if (header.length == 37) {
             // Mod VEP
             //  Allele|Consequence|IMPACT|SYMBOL|Gene|Feature_type|Feature|BIOTYPE|EXON|INTRON
             // |HGVSc|HGVSp|cDNA_position|CDS_position|Protein_position|Amino_acids|Codons|Existing_variation|DISTANCE|STRAND|
@@ -146,6 +147,9 @@ public class TranscriptFeature {
             siftScore = infos[32];
             genomicEnd = infos[33];
             genomicStart = infos[34];
+        } else {
+            log.error("Unknown Header Len: " + header.length);
+            log.error(Arrays.asList(infos));
         }
     }
 }

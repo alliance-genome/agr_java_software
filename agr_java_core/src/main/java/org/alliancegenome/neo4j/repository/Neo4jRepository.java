@@ -20,7 +20,7 @@ public class Neo4jRepository<E> {
 
     protected Class<E> entityTypeClazz;
     private Session neo4jSession = Neo4jSessionFactory.getInstance().getNeo4jSession();
-
+    
     public Neo4jRepository(Class<E> entityTypeClazz) {
         this.entityTypeClazz = entityTypeClazz;
     }
