@@ -146,7 +146,6 @@ public class DatasetIndexerRepository extends Neo4jRepository<HTPDataset> {
                     " RETURN dataset.primaryKey as id, term.name as value"));
             log.info("Finished Fetching anatomical expression ribbon terms");
         }
-        
     }
 
     private class GetSampleStructureParentTerms implements Runnable {
@@ -163,8 +162,8 @@ public class DatasetIndexerRepository extends Neo4jRepository<HTPDataset> {
         @Override
         public void run() {
             log.info("Fetching stage");
-            cache.setAnatomicalExpression(getMapSetForQuery("MATCH (dataset:HTPDataset)-[:ASSOCIATION]-(sample:HTPDatasetSample)-[:STRUCTURE_SAMPLED]-(:ExpressionBioEntity)-[:ASSOCIATION]-(:BioEntityGeneExpressionJoin)-[:STAGE_RIBBON_TERM]-(term:UBERONTerm) " +
-                    " RETURN dataset.primaryKey as id, term.name as value"));
+            cache.setStage(getMapSetForQuery("MATCH (dataset:HTPDataset)-[:ASSOCIATION]-(sample:HTPDatasetSample)-[:STRUCTURE_SAMPLED]-(:ExpressionBioEntity)-[:ASSOCIATION]-(:BioEntityGeneExpressionJoin)-[:STAGE_RIBBON_TERM]-(term:UBERONTerm) " +
+                    " RETURN distinct dataset.primaryKey as id, term.name as value"));
             log.info("Finished Fetching stage");
         }
 
