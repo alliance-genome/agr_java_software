@@ -101,6 +101,8 @@ public class SearchService {
         functionList.add(geneCategoryBoost());
         functionList.add(humanSpeciesBoost());
         functionList.add(documentHasDiseaseBoost());
+        functionList.add(proteinCodingBoost());
+        functionList.add(rnaBoost());
 
         return functionList.toArray(new FunctionScoreQueryBuilder.FilterFunctionBuilder[functionList.size()]);
     }
@@ -113,6 +115,10 @@ public class SearchService {
 
         //human data boost
         functionList.add(humanSpeciesBoost());
+
+        functionList.add(proteinCodingBoost());
+
+        functionList.add(rnaBoost());
 
         functionList.add(new FunctionScoreQueryBuilder.FilterFunctionBuilder(matchQuery("name_key.keyword",q),
                 ScoreFunctionBuilders.weightFactorFunction(1000F)));
@@ -162,6 +168,17 @@ public class SearchService {
         return new FunctionScoreQueryBuilder.FilterFunctionBuilder(matchQuery("category","gene"),
                 ScoreFunctionBuilders.weightFactorFunction(1.1F));
     }
+
+    private FunctionScoreQueryBuilder.FilterFunctionBuilder proteinCodingBoost() {
+        return new FunctionScoreQueryBuilder.FilterFunctionBuilder(matchQuery("soTermName","protein_coding_gene"),
+                ScoreFunctionBuilders.weightFactorFunction(1.3F));
+    }
+
+    private FunctionScoreQueryBuilder.FilterFunctionBuilder rnaBoost() {
+        return new FunctionScoreQueryBuilder.FilterFunctionBuilder(matchQuery("soTermName","RNA"),
+                ScoreFunctionBuilders.weightFactorFunction(1.2F));
+    }
+
 
     private FunctionScoreQueryBuilder.FilterFunctionBuilder humanSpeciesBoost() {
         return new FunctionScoreQueryBuilder.FilterFunctionBuilder(matchQuery("species","Homo sapiens"),
