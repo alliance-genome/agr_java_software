@@ -85,6 +85,7 @@ public class SearchableItemDocument extends ESDocument {
     Set<String> sex = new HashSet<>();
     Set<String> strictOrthologySymbols = new HashSet<>();
     Set<String> soTermNameWithParents = new HashSet<>();
+    Set<String> stage = new HashSet<>();         //uberon slim
     Set<String> subcellularExpressionWithParents = new HashSet<>();
     Set<String> subcellularExpressionAgrSlim = new HashSet<>();
     Set<String> synonyms = new HashSet<>();

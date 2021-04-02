@@ -54,6 +54,7 @@ public class SearchHelper {
                     add("assays");
                     add("anatomicalExpression");
                     add("sex");
+                    add("stage");
                 }
             });
             put("disease", new ArrayList<String>() {
@@ -195,6 +196,8 @@ public class SearchHelper {
             add("variantSynonyms");
             add("variantSynonyms.keyword");
             add("variantSynonyms.standardText");
+            add("stage");
+            add("stage.keyword");
             add("symbol");
             add("symbol.autocomplete");
             add("symbol.keyword");
