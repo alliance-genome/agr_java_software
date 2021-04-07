@@ -26,11 +26,6 @@ public class TestSingleLineConvert {
         
         VCFInfoHeaderLine header = reader.getFileHeader().getInfoHeaderLine("CSQ");
         System.out.println(header.getDescription());
-        String[] formats = header.getDescription().split("Format: ")[1].split("\\|");
-        
-        for(int i = 0; i < formats.length; i++) {
-            formats[i] = CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, formats[i]);
-        }
         
         int count = 0;
         SummaryStatistics ss = new SummaryStatistics();
@@ -46,7 +41,7 @@ public class TestSingleLineConvert {
             try {
                 VariantContext vc = iter1.next();
                 //if(vc.getID().equals("rs55780505")) {
-                List<AlleleVariantSequence> docs = converter.convertContextToSearchDocument(vc, formats, SpeciesType.HUMAN);
+                List<AlleleVariantSequence> docs = converter.convertVariantContext(vc, SpeciesType.HUMAN, null, null, null);
                 
                 for(AlleleVariantSequence doc: docs) {
                     String jsonDoc = mapper.writeValueAsString(doc);

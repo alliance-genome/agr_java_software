@@ -32,4 +32,7 @@ public class View {
     public static class AlleleAPI extends API { }
     public static class TransgenicAlleleAPI extends API { }
     public static class VariantAPI extends API {    }
+    
+    
+    public static class AlleleVariantSequenceConverterForES { } // This needs to NOT extend Default as this controls specifically what gets serialized and what doesn't.
 }

@@ -55,9 +55,9 @@ public class Variant extends GeneticEntity implements Comparable<Variant> {
     @Relationship(type = "COMPUTED_GENE", direction = Relationship.INCOMING)
     private Gene gene;
 
-    @JsonView({View.GeneAlleleVariantSequenceAPI.class})
+    @JsonView({View.GeneAlleleVariantSequenceAPI.class, View.AlleleVariantSequenceConverterForES.class})
     private String start;
-    @JsonView({View.GeneAlleleVariantSequenceAPI.class})
+    @JsonView({View.GeneAlleleVariantSequenceAPI.class, View.AlleleVariantSequenceConverterForES.class})
     private String end;
 
     @Relationship(type = "ASSOCIATION")

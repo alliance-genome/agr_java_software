@@ -21,7 +21,7 @@ import org.elasticsearch.common.unit.*;
 import org.elasticsearch.common.xcontent.XContentType;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.*;
 
 import htsjdk.samtools.util.CloseableIterator;
 import htsjdk.variant.variantcontext.VariantContext;
@@ -45,15 +45,15 @@ public class SourceDocumentCreation extends Thread {
     private BulkProcessor bulkProcessor3;
     private BulkProcessor bulkProcessor4;
 
-    public AlleleRepository repo = new AlleleRepository();
-    
+    //public AlleleRepository repo = new AlleleRepository();
     private RestHighLevelClient client;
+
     private boolean indexing = VariantConfigHelper.isIndexing();
 
     private LinkedBlockingDeque<List<VariantContext>> vcQueue = new LinkedBlockingDeque<List<VariantContext>>(VariantConfigHelper.getSourceDocumentCreatorVCQueueSize());
     private LinkedBlockingDeque<List<AlleleVariantSequence>> objectQueue = new LinkedBlockingDeque<List<AlleleVariantSequence>>(VariantConfigHelper.getSourceDocumentCreatorObjectQueueSize());
 
-    private VariantContextConverterNew aVSConverter;
+    private AlleleVariantSequenceConverter aVSConverter;
     
     private List<String> matched = new ArrayList<>();
     private Map<String, List<Allele>> alleleMap = new HashMap<>();
@@ -75,7 +75,7 @@ public class SourceDocumentCreation extends Thread {
         this.source = source;
         speciesType = SpeciesType.getTypeByID(source.getTaxonId());
         //aVSConverter = new AlleleVariantSequenceConverter(repo);
-        aVSConverter = new VariantContextConverterNew();
+        aVSConverter = new AlleleVariantSequenceConverter();
         if(indexing) client = EsClientFactory.getDefaultEsClient();
     }
 
@@ -312,9 +312,9 @@ public class SourceDocumentCreation extends Thread {
             ph4.finishProcess();
 
             log.info("Threads finished: ");
-            
-            log.info("Shutdown Neo Repo: ");
-            repo.clearCache();
+
+            //log.info("Shutdown Neo Repo: ");
+            //repo.clearCache();
             
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -403,9 +403,9 @@ public class SourceDocumentCreation extends Thread {
                             //System.out.println("Are we here? " + avsList.size());
                             for(AlleleVariantSequence sequence: avsList) {
 
-                                if(!repo.getAllAllelicHgvsGNameCache().contains(sequence.getVariant().getHgvsNomenclature())) {
+                                //if(!repo.getAllAllelicHgvsGNameCache().contains(sequence.getVariant().getHgvsNomenclature())) {
                                     workBucket.add(sequence);
-                                }
+                                //}
                                 ph2.progressProcess("objectQueue: " + objectQueue.size());
                             }
                         } catch (Exception e) {
@@ -439,6 +439,7 @@ public class SourceDocumentCreation extends Thread {
         public void run() {
             mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
             mapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+            mapper.configure(MapperFeature.DEFAULT_VIEW_INCLUSION, false);
             while (!(Thread.currentThread().isInterrupted())) {
                 try {
                     List<AlleleVariantSequence> docList = objectQueue.take();
@@ -451,7 +452,7 @@ public class SourceDocumentCreation extends Thread {
                     if (docList.size() > 0) {
                         for (AlleleVariantSequence doc : docList) {
                             try {
-                                String jsonDoc = mapper.writerWithView(View.GeneAlleleVariantSequenceAPI.class).writeValueAsString(doc);
+                                String jsonDoc = mapper.writerWithView(View.AlleleVariantSequenceConverterForES.class).writeValueAsString(doc);
                                 if (jsonDoc.length() < 10000) {
                                     docs1.add(jsonDoc);
                                 } else if (jsonDoc.length() < 75000) {
@@ -497,8 +498,10 @@ public class SourceDocumentCreation extends Thread {
             while (!(Thread.currentThread().isInterrupted())) {
                 try {
                     List<String> docs = jsonQueue.take();
+                    
                     for (String doc : docs) {
-                        if (indexing) bulkProcessor.add(new IndexRequest(indexName).source(doc, XContentType.JSON));
+                        if(gatherStats) statsCollector.addDocument(doc);
+                        if(indexing) bulkProcessor.add(new IndexRequest(indexName).source(doc, XContentType.JSON));
                         ph3.progressProcess();
                     }
                     ph4.progressProcess("JSon Queue: " + jsonQueue.size());
