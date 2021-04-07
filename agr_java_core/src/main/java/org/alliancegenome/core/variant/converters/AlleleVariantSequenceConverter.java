@@ -59,7 +59,7 @@ public class AlleleVariantSequenceConverter {
             }
             List<String> transcriptsProcessed=new ArrayList<>();
 
-            AlleleVariantSequence s = new AlleleVariantSequence();
+            AlleleVariantSequence avsDoc = new AlleleVariantSequence();
 
             Variant variant = new Variant();
             variant.setVariantType(variantType);
@@ -79,26 +79,26 @@ public class AlleleVariantSequenceConverter {
             variant.setHgvsNomenclature(hgvsNomenclature);
             variant.setName(hgvsNomenclature);
             if(ctx.getID()!=null && !ctx.getID().equals("") && !ctx.getID().equals(".")){
-                s.setPrimaryKey(ctx.getID());
-                s.setId(ctx.getID());
-                s.setNameKey(ctx.getID());
-                s.setName(ctx.getID());
+                avsDoc.setPrimaryKey(ctx.getID());
+                avsDoc.setId(ctx.getID());
+                avsDoc.setNameKey(ctx.getID());
+                avsDoc.setName(ctx.getID());
 
             }else{
                 //    if (hgvsNomenclature != null && hgvsNomenclature.length()<512) {
                 if (hgvsNomenclature != null && hgvsNomenclature.length()<100) {
 
-                    s.setPrimaryKey(hgvsNomenclature);
-                    s.setId(hgvsNomenclature);
-                    s.setNameKey(hgvsNomenclature);
-                    s.setName(hgvsNomenclature);
+                    avsDoc.setPrimaryKey(hgvsNomenclature);
+                    avsDoc.setId(hgvsNomenclature);
+                    avsDoc.setNameKey(hgvsNomenclature);
+                    avsDoc.setName(hgvsNomenclature);
                 }
 
             }
 
 
             //    System.out.println("CONTEXT ID: "+ ctx.getID());
-            s.setVariant(variant);
+            avsDoc.setVariant(variant);
             if (htpConsequences != null) {
                 for (TranscriptLevelConsequence c : htpConsequences) {
                     if(!transcriptsProcessed.contains(c.getTranscriptID())) {
@@ -118,16 +118,16 @@ public class AlleleVariantSequenceConverter {
                     }
                 }
             }
-            s.setAlterationType("variant");
-            s.setCategory("allele");
-            s.setMolecularConsequence(molecularConsequences);
-            s.setGenes(genes);
-            s.setSpecies(species.getName());
-            s.setChromosomes(Collections.singleton(ctx.getContig()));
-            s.setChromosome(ctx.getContig());
-            s.setTranscriptLevelConsequences(htpConsequences);
-            s.setVariantType(Collections.singleton(variantType.getName()));
-            returnDocuments.add(s);
+            avsDoc.setAlterationType("variant");
+            avsDoc.setCategory("allele");
+            avsDoc.setMolecularConsequence(molecularConsequences);
+            avsDoc.setGenes(genes);
+            avsDoc.setSpecies(species.getName());
+            avsDoc.setChromosomes(Collections.singleton(ctx.getContig()));
+            avsDoc.setChromosome(ctx.getContig());
+            avsDoc.setTranscriptLevelConsequences(htpConsequences);
+            avsDoc.setVariantType(Collections.singleton(variantType.getName()));
+            returnDocuments.add(avsDoc);
         }
         return returnDocuments;
     }

@@ -27,7 +27,7 @@ public class TranscriptLevelConsequence extends Neo4jEntity {
     private String impact;
     
     
-    @JsonView({View.API.class})
+    @JsonView({View.API.class, View.AlleleVariantSequenceConverterForES.class})
     private String aminoAcidChange;
 
     @JsonView({View.API.class})
@@ -42,53 +42,51 @@ public class TranscriptLevelConsequence extends Neo4jEntity {
     @JsonView({View.API.class})
     private String codonReference;
 
-    @JsonView({View.API.class, View.AlleleVariantSequenceConverterForES.class})
+    @JsonView({View.API.class})
     private String codonVariation;
 
-
-
-    @JsonView({View.API.class})
+    @JsonView({View.API.class, View.AlleleVariantSequenceConverterForES.class})
     private String cdsStartPosition;
 
     @JsonView({View.API.class})
     private String cdsEndPosition;
 
-    @JsonView({View.API.class})
+    @JsonView({View.API.class, View.AlleleVariantSequenceConverterForES.class})
     private String cdnaStartPosition;
 
     @JsonView({View.API.class})
     private String cdnaEndPosition;
 
-    @JsonView({View.API.class})
+    @JsonView({View.API.class, View.AlleleVariantSequenceConverterForES.class})
     private String proteinStartPosition;
 
     @JsonView({View.API.class})
     private String proteinEndPosition;
 
-    @JsonView({View.API.class})
+    @JsonView({View.API.class, View.AlleleVariantSequenceConverterForES.class})
     private String hgvsProteinNomenclature;
 
-    @JsonView({View.API.class})
+    @JsonView({View.API.class, View.AlleleVariantSequenceConverterForES.class})
     private String hgvsCodingNomenclature;
 
-    @JsonView({View.API.class})
+    @JsonView({View.API.class, View.AlleleVariantSequenceConverterForES.class})
     private String hgvsVEPGeneNomenclature;
 
 
 
-    @JsonView({View.Default.class})
+    @JsonView({View.Default.class, View.AlleleVariantSequenceConverterForES.class})
     private String siftPrediction;
 
-    @JsonView({View.Default.class})
+    @JsonView({View.Default.class, View.AlleleVariantSequenceConverterForES.class})
     private String polyphenPrediction;
 
-    @JsonView({View.Default.class})
+    @JsonView({View.Default.class, View.AlleleVariantSequenceConverterForES.class})
     private String siftScore;
 
     @JsonView({View.Default.class})
     private String polyphenScore;
 
-    @JsonView({View.Default.class})
+    @JsonView({View.Default.class, View.AlleleVariantSequenceConverterForES.class})
     private String sequenceFeatureType;
 
     @Relationship(type = "ASSOCIATION", direction = Relationship.INCOMING)
@@ -99,9 +97,9 @@ public class TranscriptLevelConsequence extends Neo4jEntity {
 
     @JsonView({View.Default.class})
     private String transcriptName;
-    @JsonView({View.Default.class})
+    @JsonView({View.Default.class, View.AlleleVariantSequenceConverterForES.class})
     private String transcriptID;
-    @JsonView({View.Default.class})
+    @JsonView({View.Default.class, View.AlleleVariantSequenceConverterForES.class})
     private String transcriptLocation;
 
     @JsonView({View.GeneAlleleVariantSequenceAPI.class, View.AlleleVariantSequenceConverterForES.class})
@@ -134,7 +132,7 @@ public class TranscriptLevelConsequence extends Neo4jEntity {
         transcriptLocation = name;
     }
 
-    @JsonView({View.GeneAlleleVariantSequenceAPI.class, View.AlleleVariantSequenceConverterForES.class})
+    @JsonView({View.GeneAlleleVariantSequenceAPI.class})
     @JsonProperty("location")
     public String getTranscriptLocation() {
         if (transcriptLocation != null && transcriptLocation.length() > 0)
@@ -147,7 +145,7 @@ public class TranscriptLevelConsequence extends Neo4jEntity {
         return transcriptLocation;
     }
 
-    @JsonView({View.GeneAlleleVariantSequenceAPI.class, View.AlleleVariantSequenceConverterForES.class})
+    @JsonView({View.GeneAlleleVariantSequenceAPI.class})
     public String getSequenceFeatureType() {
         if (StringUtils.isNotEmpty(sequenceFeatureType))
             return sequenceFeatureType;

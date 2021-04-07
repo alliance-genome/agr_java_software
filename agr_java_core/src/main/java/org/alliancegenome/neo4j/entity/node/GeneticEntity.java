@@ -21,10 +21,10 @@ public class GeneticEntity extends Neo4jEntity {
 
     protected CrossReferenceType crossReferenceType;
 
-    @JsonView({View.Default.class, View.API.class})
+    @JsonView({View.Default.class, View.API.class, View.AlleleVariantSequenceConverterForES.class})
     @JsonProperty(value = "id")
     protected String primaryKey;
-    @JsonView({View.Default.class, View.API.class})
+    @JsonView({View.Default.class, View.API.class, View.AlleleVariantSequenceConverterForES.class})
     protected String symbol;
 
     protected String symbolWithSpecies;
@@ -51,7 +51,7 @@ public class GeneticEntity extends Neo4jEntity {
     
     
     // Converts the list of synonym objects to a list of strings
-    @JsonView(value = {View.API.class, View.GeneAllelesAPI.class, View.GeneAlleleVariantSequenceAPI.class, View.AlleleVariantSequenceConverterForES.class})
+    @JsonView(value = {View.API.class, View.GeneAllelesAPI.class, View.GeneAlleleVariantSequenceAPI.class})
     @JsonProperty(value = "synonyms")
     public List<String> getSynonymList() {
         if(synonyms != null) {

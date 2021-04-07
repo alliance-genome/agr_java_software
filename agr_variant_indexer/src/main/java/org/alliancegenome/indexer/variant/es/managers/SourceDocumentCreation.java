@@ -1,7 +1,5 @@
 package org.alliancegenome.indexer.variant.es.managers;
 
-import static org.alliancegenome.core.config.Constants.VARIANT_BULK_PROCESSOR_SETTINGS;
-
 import java.io.File;
 import java.util.*;
 import java.util.concurrent.*;
@@ -9,12 +7,11 @@ import java.util.concurrent.*;
 import org.alliancegenome.api.entity.AlleleVariantSequence;
 import org.alliancegenome.core.filedownload.model.*;
 import org.alliancegenome.core.variant.config.VariantConfigHelper;
-import org.alliancegenome.core.variant.converters.*;
+import org.alliancegenome.core.variant.converters.AlleleVariantSequenceConverter;
 import org.alliancegenome.es.util.*;
 import org.alliancegenome.indexer.variant.es.stats.StatsCollector;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.entity.node.Allele;
-import org.alliancegenome.neo4j.repository.AlleleRepository;
 import org.alliancegenome.neo4j.view.View;
 import org.elasticsearch.action.DocWriteRequest;
 import org.elasticsearch.action.bulk.*;

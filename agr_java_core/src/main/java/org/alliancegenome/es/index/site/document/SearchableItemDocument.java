@@ -22,7 +22,10 @@ public class SearchableItemDocument extends ESDocument {
     String alterationType;
     String automatedGeneSynopsis;
     String branch;
+    @JsonView({View.AlleleVariantSequenceConverterForES.class})
     String category;
+    @JsonView({View.AlleleVariantSequenceConverterForES.class})
+    String chromosome;
     String dataProvider;
     String description;
     String definition;
@@ -31,18 +34,27 @@ public class SearchableItemDocument extends ESDocument {
     String geneSynopsisUrl;
     String globalId;
     String href; //GO terms use this rather than modCrossRefCompleteUrl
+    @JsonView({View.AlleleVariantSequenceConverterForES.class})
     String id; //GO terms use this rather than primaryKey
     String localId;
+    @JsonView({View.AlleleVariantSequenceConverterForES.class})
     String name;
+    @JsonView({View.AlleleVariantSequenceConverterForES.class})
     @JsonProperty("name_key")
     String nameKey;
     String nameText;
+    //@JsonView({View.AlleleVariantSequenceConverterForES.class})
+    String matchedWithHtp;
     String modCrossRefCompleteUrl;
     String modLocalId;
     Double popularity;
+    @JsonView({View.AlleleVariantSequenceConverterForES.class})
     String primaryKey;
+    //@JsonView({View.AlleleVariantSequenceConverterForES.class})
+    boolean searchable = true;
     String soTermId;
     String soTermName;
+    @JsonView({View.AlleleVariantSequenceConverterForES.class})
     String species;
     String summary;
     String symbol;
@@ -61,6 +73,7 @@ public class SearchableItemDocument extends ESDocument {
     Set<String> biotypes;
     Set<String> cellularComponentAgrSlim;
     Set<String> cellularComponentWithParents;
+    @JsonView({View.AlleleVariantSequenceConverterForES.class})
     Set<String> chromosomes;
     Set<String> constructs;
     Set<String> constructExpressedComponent;
@@ -75,10 +88,12 @@ public class SearchableItemDocument extends ESDocument {
     Set<String> diseasesWithParents;
     Set<String> expressionStages;
     Set<String> alleles;
+    @JsonView({View.AlleleVariantSequenceConverterForES.class})
     Set<String> genes;
     Set<String> go_genes;
     Set<String> go_species;
     Set<String> models;
+    @JsonView({View.AlleleVariantSequenceConverterForES.class})
     Set<String> molecularConsequence;
     Set<String> molecularFunctionAgrSlim;
     Set<String> molecularFunctionWithParents;
@@ -95,17 +110,15 @@ public class SearchableItemDocument extends ESDocument {
     Set<String> tags;
     Set<String> variants;
     Set<String> variantSynonyms;
+    @JsonView({View.AlleleVariantSequenceConverterForES.class})
     Set<String> variantType;
     Set<String> whereExpressed;
     
     @JsonView({View.AlleleVariantSequenceConverterForES.class})
-    List<TranscriptLevelConsequence> transcriptLevelConsequences = new ArrayList<>();
-    @JsonView({View.AlleleVariantSequenceConverterForES.class})
-    String chromosome;
-    @JsonView({View.AlleleVariantSequenceConverterForES.class})
-    boolean searchable = true;
-    @JsonView({View.AlleleVariantSequenceConverterForES.class})
-    String matchedWithHtp;
+    List<TranscriptLevelConsequence> transcriptLevelConsequences;
+
+
+
 
 //  @Override
 //  @JsonIgnore
