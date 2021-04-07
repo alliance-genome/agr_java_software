@@ -3,7 +3,7 @@ package org.alliancegenome.es.util;
 import java.text.DecimalFormat;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.*;
 
 import org.apache.logging.log4j.Logger;
 
@@ -21,7 +21,7 @@ public class ProcessDisplayHelper {
     private long lastSizeCounter = 0;
     private long totalSize;
     
-    private AtomicInteger sizeCounter = new AtomicInteger(0);
+    private AtomicLong sizeCounter = new AtomicLong(0);
     
     private long displayTimeout = 30000; // How often to display to the console
     private Logger logger = null;
@@ -47,7 +47,7 @@ public class ProcessDisplayHelper {
         this.totalSize = totalSize;
         lastSizeCounter = 0;
         startTime = new Date();
-        sizeCounter = new AtomicInteger(0);
+        sizeCounter = new AtomicLong(0);
         if (totalSize > 0)
             logInfoMessage(this.message + "Starting Process [total =    " + getBigNumber(totalSize) + "] ");
         else
@@ -78,9 +78,9 @@ public class ProcessDisplayHelper {
         StringBuffer sb = new StringBuffer(this.message);
         sb.append(getBigNumber(sizeCounter.get()));
         if(totalSize > 0) {
-            sb.append(" of [" + getBigNumber(totalSize) + "] " + (int) (percent * 100) + "%");
+            sb.append(" of [" + getBigNumber(totalSize) + "] " + (int) (percent * 100L) + "%");
         }
-        sb.append(", " + (time / 1000) + "s to process " + getBigNumber(processedAmount) + " records at " + getBigNumber((processedAmount * 1000) / time) + "r/s");
+        sb.append(", " + (time / 1000) + "s to process " + getBigNumber(processedAmount) + " records at " + getBigNumber((processedAmount * 1000L) / time) + "r/s");
         if(data != null) {
             sb.append(" " + data);
         }

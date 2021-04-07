@@ -183,9 +183,7 @@ public class SourceDocumentCreation extends Thread {
             builder1.setBulkSize(new ByteSizeValue(settings[0][2], ByteSizeUnit.MB)); // 10
             builder1.setBackoffPolicy(BackoffPolicy.exponentialBackoff(TimeValue.timeValueSeconds(1L), 60));
             bulkProcessor1 = builder1.build();
-            
-            //1000;10;10;10000,133;10;10;1333,100;10;10;1000,50;10;10;500");
-    
+
             builder2.setBulkActions(settings[1][0]); // 133
             builder2.setConcurrentRequests(settings[1][1]); // 10
             builder2.setBulkSize(new ByteSizeValue(settings[1][2], ByteSizeUnit.MB)); // 10
