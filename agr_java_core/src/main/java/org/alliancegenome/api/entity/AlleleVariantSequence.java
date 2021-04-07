@@ -20,7 +20,7 @@ public class AlleleVariantSequence extends SearchableItemDocument {
 
     @JsonView({View.Default.class})
     private Allele allele;
-    @JsonView({View.Default.class})
+    @JsonView({View.Default.class, View.AlleleVariantSequenceConverterForES.class})
     private Variant variant;
     @JsonView({View.Default.class})
     private TranscriptLevelConsequence consequence;

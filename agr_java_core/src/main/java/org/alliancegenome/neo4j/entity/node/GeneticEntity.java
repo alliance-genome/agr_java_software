@@ -85,10 +85,13 @@ public class GeneticEntity extends Neo4jEntity {
     @JsonProperty(value = "secondaryIds")
     public List<String> getSecondaryIdsList() {
         List<String> list = new ArrayList<>();
-        for (SecondaryId s : secondaryIds) {
-            list.add(s.getName());
+        if(secondaryIds != null) {
+            for (SecondaryId s : secondaryIds) {
+                list.add(s.getName());
+            }
         }
         return list;
+
     }
 
     @JsonProperty(value = "secondaryIds")

@@ -162,7 +162,7 @@ public class HtpVariantCreation extends Thread {
                 try {
                     List<VariantContext> ctxList = vcQueue.take();
                     for (VariantContext ctx : ctxList) {
-                        workBucket.addAll(converter.convertVariantContext(ctx, speciesType, header, null, null));
+                        workBucket.addAll(converter.convertContextToAlleleVariantSequence(ctx, header, speciesType));
                     }
                     if (workBucket.size() >= workBucketSize) {
                         objectQueue.put(workBucket);

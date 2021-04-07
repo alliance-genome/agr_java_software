@@ -1,5 +1,7 @@
 package org.alliancegenome.indexer.variant.es.managers;
 
+import static org.alliancegenome.core.config.Constants.VARIANT_BULK_PROCESSOR_SETTINGS;
+
 import java.io.File;
 import java.util.*;
 import java.util.concurrent.*;
@@ -111,12 +113,7 @@ public class SourceDocumentCreation extends Thread {
                     List<String> list = new ArrayList<>();
                     for (DocWriteRequest<?> req : request.requests()) {
                         IndexRequest idxreq = (IndexRequest) req;
-                        list.add(idxreq.source().toString());
-                    }
-                    try {
-                        jsonQueue1.put(list);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
+                        bulkProcessor1.add(idxreq);
                     }
                     log.error("Finished Adding requests to Queue:");
                 }
@@ -185,27 +182,29 @@ public class SourceDocumentCreation extends Thread {
                 }
             });
     
-            builder1.setBulkActions(settings[0][0]);
-            builder1.setConcurrentRequests(settings[0][1]);
-            builder1.setBulkSize(new ByteSizeValue(settings[0][2], ByteSizeUnit.MB));
+            builder1.setBulkActions(settings[0][0]); // 1000
+            builder1.setConcurrentRequests(settings[0][1]); // 10
+            builder1.setBulkSize(new ByteSizeValue(settings[0][2], ByteSizeUnit.MB)); // 10
             builder1.setBackoffPolicy(BackoffPolicy.exponentialBackoff(TimeValue.timeValueSeconds(1L), 60));
             bulkProcessor1 = builder1.build();
+            
+            //1000;10;10;10000,133;10;10;1333,100;10;10;1000,50;10;10;500");
     
-            builder2.setBulkActions(settings[1][0]);
-            builder2.setConcurrentRequests(settings[1][1]);
-            builder2.setBulkSize(new ByteSizeValue(settings[1][2], ByteSizeUnit.MB));
+            builder2.setBulkActions(settings[1][0]); // 133
+            builder2.setConcurrentRequests(settings[1][1]); // 10
+            builder2.setBulkSize(new ByteSizeValue(settings[1][2], ByteSizeUnit.MB)); // 10
             builder2.setBackoffPolicy(BackoffPolicy.exponentialBackoff(TimeValue.timeValueSeconds(1L), 60));
             bulkProcessor2 = builder2.build();
     
-            builder3.setBulkActions(settings[2][0]);
-            builder3.setConcurrentRequests(settings[2][1]);
-            builder3.setBulkSize(new ByteSizeValue(settings[2][2], ByteSizeUnit.MB));
+            builder3.setBulkActions(settings[2][0]); // 100 
+            builder3.setConcurrentRequests(settings[2][1]); // 10
+            builder3.setBulkSize(new ByteSizeValue(settings[2][2], ByteSizeUnit.MB)); // 10
             builder3.setBackoffPolicy(BackoffPolicy.exponentialBackoff(TimeValue.timeValueSeconds(1L), 60));
             bulkProcessor3 = builder3.build();
     
-            builder4.setBulkActions(settings[3][0]);
-            builder4.setConcurrentRequests(settings[3][1]);
-            builder4.setBulkSize(new ByteSizeValue(settings[3][2], ByteSizeUnit.MB));
+            builder4.setBulkActions(settings[3][0]); // 50
+            builder4.setConcurrentRequests(settings[3][1]); // 10
+            builder4.setBulkSize(new ByteSizeValue(settings[3][2], ByteSizeUnit.MB)); // 10
             builder4.setBackoffPolicy(BackoffPolicy.exponentialBackoff(TimeValue.timeValueSeconds(1L), 60));
             bulkProcessor4 = builder4.build();
 
@@ -406,14 +405,10 @@ public class SourceDocumentCreation extends Thread {
 
                     for (VariantContext ctx : ctxList) {
                         try {
-                            List<AlleleVariantSequence> avsList = aVSConverter.convertVariantContext(ctx, speciesType, header, alleleMap, matched);
+                            List<AlleleVariantSequence> avsList = aVSConverter.convertContextToAlleleVariantSequence(ctx, header, speciesType);
 
-                            //System.out.println("Are we here? " + avsList.size());
                             for(AlleleVariantSequence sequence: avsList) {
-
-                                //if(!repo.getAllAllelicHgvsGNameCache().contains(sequence.getVariant().getHgvsNomenclature())) {
-                                    workBucket.add(sequence);
-                                //}
+                                workBucket.add(sequence);
                                 ph2.progressProcess("objectQueue: " + objectQueue.size());
                             }
                         } catch (Exception e) {
@@ -459,21 +454,25 @@ public class SourceDocumentCreation extends Thread {
 
                     if (docList.size() > 0) {
                         for (AlleleVariantSequence doc : docList) {
-                            try {
-                                String jsonDoc = mapper.writerWithView(View.AlleleVariantSequenceConverterForES.class).writeValueAsString(doc);
-                                if (jsonDoc.length() < 10000) {
-                                    docs1.add(jsonDoc);
-                                } else if (jsonDoc.length() < 75000) {
-                                    docs2.add(jsonDoc);
-                                } else if (jsonDoc.length() < 100000) {
-                                    docs3.add(jsonDoc);
-                                } else {
-                                    docs4.add(jsonDoc);
+                            
+                            //if(!repo.getAllAllelicHgvsGNameCache().contains(doc.getVariant().getHgvsNomenclature())) {
+                                try {
+                                    String jsonDoc = mapper.writerWithView(View.AlleleVariantSequenceConverterForES.class).writeValueAsString(doc);
+                                    //String jsonDoc = mapper.writeValueAsString(doc);
+                                    if (jsonDoc.length() < 10000) {
+                                        docs1.add(jsonDoc);
+                                    } else if (jsonDoc.length() < 75000) {
+                                        docs2.add(jsonDoc);
+                                    } else if (jsonDoc.length() < 100000) {
+                                        docs3.add(jsonDoc);
+                                    } else {
+                                        docs4.add(jsonDoc);
+                                    }
+                                    ph5.progressProcess("jsonQueue1: " + jsonQueue1.size() + " jsonQueue2: " + jsonQueue2.size() + " jsonQueue3: " + jsonQueue3.size() + " jsonQueue4: " + jsonQueue4.size());
+                                } catch (Exception e) {
+                                    e.printStackTrace();
                                 }
-                                ph5.progressProcess("jsonQueue1: " + jsonQueue1.size() + " jsonQueue2: " + jsonQueue2.size() + " jsonQueue3: " + jsonQueue3.size() + " jsonQueue4: " + jsonQueue4.size());
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
+                            //}
                         }
 
                         try {

@@ -41,7 +41,7 @@ public class TestSingleLineConvert {
             try {
                 VariantContext vc = iter1.next();
                 //if(vc.getID().equals("rs55780505")) {
-                List<AlleleVariantSequence> docs = converter.convertVariantContext(vc, SpeciesType.HUMAN, null, null, null);
+                List<AlleleVariantSequence> docs = converter.convertContextToAlleleVariantSequence(vc, null, SpeciesType.HUMAN);
                 
                 for(AlleleVariantSequence doc: docs) {
                     String jsonDoc = mapper.writeValueAsString(doc);

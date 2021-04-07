@@ -23,7 +23,7 @@ public class TranscriptLevelConsequence extends Neo4jEntity {
     @JsonProperty("molecularConsequence")
     private String transcriptLevelConsequence;
     
-    @JsonView({View.Default.class})
+    @JsonView({View.Default.class, View.AlleleVariantSequenceConverterForES.class})
     private String impact;
     
     
@@ -36,13 +36,13 @@ public class TranscriptLevelConsequence extends Neo4jEntity {
     @JsonView({View.API.class})
     private String aminoAcidReference;
 
-    @JsonView({View.API.class})
+    @JsonView({View.API.class, View.AlleleVariantSequenceConverterForES.class})
     private String codonChange;
 
     @JsonView({View.API.class})
     private String codonReference;
 
-    @JsonView({View.API.class})
+    @JsonView({View.API.class, View.AlleleVariantSequenceConverterForES.class})
     private String codonVariation;
 
 
@@ -202,13 +202,7 @@ public class TranscriptLevelConsequence extends Neo4jEntity {
 //  private String referenceSequence;
 //  private String variantSequence;
 //  
-    
-    
-    
-    
-    
-    
-    
+
     
     public TranscriptLevelConsequence(String[] header, String[] infos) {
 

@@ -1,8 +1,5 @@
 package org.alliancegenome.es.index.site.document;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -12,12 +9,16 @@ import org.alliancegenome.core.config.Constants;
 import org.alliancegenome.es.index.ESDocument;
 import org.alliancegenome.es.index.site.doclet.CrossReferenceDoclet;
 import org.alliancegenome.neo4j.entity.node.TranscriptLevelConsequence;
+import org.alliancegenome.neo4j.view.View;
+
+import com.fasterxml.jackson.annotation.*;
 
 @Getter
 @Setter
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class SearchableItemDocument extends ESDocument {
 
+    @JsonView({View.AlleleVariantSequenceConverterForES.class})
     String alterationType;
     String automatedGeneSynopsis;
     String branch;
@@ -97,9 +98,13 @@ public class SearchableItemDocument extends ESDocument {
     Set<String> variantType;
     Set<String> whereExpressed;
     
+    @JsonView({View.AlleleVariantSequenceConverterForES.class})
     List<TranscriptLevelConsequence> transcriptLevelConsequences = new ArrayList<>();
+    @JsonView({View.AlleleVariantSequenceConverterForES.class})
     String chromosome;
+    @JsonView({View.AlleleVariantSequenceConverterForES.class})
     boolean searchable = true;
+    @JsonView({View.AlleleVariantSequenceConverterForES.class})
     String matchedWithHtp;
 
 //  @Override

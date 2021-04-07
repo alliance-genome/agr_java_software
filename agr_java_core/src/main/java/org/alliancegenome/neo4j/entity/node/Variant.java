@@ -148,13 +148,15 @@ public class Variant extends GeneticEntity implements Comparable<Variant> {
         List<String> names = new ArrayList<>();
         names.add(name);
         names.add(hgvsNomenclature);
-        if (CollectionUtils.isNotEmpty(transcriptLevelConsequence)) {
-            names.addAll(transcriptLevelConsequence.stream()
-                    .map(TranscriptLevelConsequence::getHgvsVEPGeneNomenclature)
-                    .distinct()
-                    .collect(Collectors.toList()));
+        if(transcriptLevelConsequence != null) {
+            if (CollectionUtils.isNotEmpty(transcriptLevelConsequence)) {
+                names.addAll(transcriptLevelConsequence.stream()
+                        .map(TranscriptLevelConsequence::getHgvsVEPGeneNomenclature)
+                        .distinct()
+                        .collect(Collectors.toList()));
+            }
+            names.sort(Comparator.naturalOrder());
         }
-        names.sort(Comparator.naturalOrder());
         return names;
     }
 
