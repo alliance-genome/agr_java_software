@@ -79,7 +79,6 @@ public class SourceDocumentCreation extends Thread {
         this.client = client;
         this.source = source;
         speciesType = SpeciesType.getTypeByID(source.getTaxonId());
-        //aVSConverter = new AlleleVariantSequenceConverter(repo);
         aVSConverter = new AlleleVariantSequenceConverter();
         if(indexing) client = EsClientFactory.getDefaultEsClient();
     }

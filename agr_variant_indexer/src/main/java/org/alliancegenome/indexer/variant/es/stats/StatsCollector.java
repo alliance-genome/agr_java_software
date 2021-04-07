@@ -29,7 +29,7 @@ public class StatsCollector {
     }
 
     public void printOutput() {
-        log.info("Stats: " + stats);
+        log.info("Document Stats: " + stats);
         saveHistogram();
     }
 
