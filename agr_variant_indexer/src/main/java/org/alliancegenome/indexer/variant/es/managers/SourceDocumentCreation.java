@@ -49,7 +49,6 @@ public class SourceDocumentCreation extends Thread {
     private BulkProcessor bulkProcessor4;
 
     //public AlleleRepository repo = new AlleleRepository();
-    private RestHighLevelClient client;
 
     private boolean indexing = VariantConfigHelper.isIndexing();
     private boolean gatherStats = VariantConfigHelper.isGatherStats();
