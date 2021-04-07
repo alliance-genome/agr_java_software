@@ -317,7 +317,7 @@ public class SourceDocumentCreation extends Thread {
             //log.info("Shutdown Neo Repo: ");
             //repo.clearCache();
             
-            if(gatherStats) statsCollector.printOutput();
+            if(gatherStats) statsCollector.printOutput(speciesType.getModName());
 
         } catch (InterruptedException e) {
             e.printStackTrace();
