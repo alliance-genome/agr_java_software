@@ -248,6 +248,7 @@ public class SearchHelper {
             add("molecularFunction");
             add("name");
             add("name_key");
+            add("primaryKey");
             add("soTermName");
             add("species");
             add("summary");
