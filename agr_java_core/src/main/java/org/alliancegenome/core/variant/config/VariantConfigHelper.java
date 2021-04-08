@@ -137,6 +137,7 @@ public class VariantConfigHelper {
         if(getVariantToIndex().equals("MOD")) {
             return getVariantModDownloadSetFile();
         }
+        log.warn("need to set VARIANTS_TO_INDEX = \"HUMAN\" or \"MOD\" to choose between which variants to index");
         return null;
     }
     
