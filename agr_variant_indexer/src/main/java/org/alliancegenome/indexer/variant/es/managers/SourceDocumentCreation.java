@@ -11,7 +11,6 @@ import org.alliancegenome.core.variant.converters.AlleleVariantSequenceConverter
 import org.alliancegenome.es.util.*;
 import org.alliancegenome.indexer.variant.es.stats.StatsCollector;
 import org.alliancegenome.neo4j.entity.SpeciesType;
-import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.view.View;
 import org.elasticsearch.action.DocWriteRequest;
 import org.elasticsearch.action.bulk.*;
@@ -56,9 +55,6 @@ public class SourceDocumentCreation extends Thread {
     private LinkedBlockingDeque<List<AlleleVariantSequence>> objectQueue = new LinkedBlockingDeque<List<AlleleVariantSequence>>(VariantConfigHelper.getSourceDocumentCreatorObjectQueueSize());
 
     private AlleleVariantSequenceConverter aVSConverter;
-    
-    private List<String> matched = new ArrayList<>();
-    private Map<String, List<Allele>> alleleMap = new HashMap<>();
     
     private LinkedBlockingDeque<List<String>> jsonQueue1;
     private LinkedBlockingDeque<List<String>> jsonQueue2;

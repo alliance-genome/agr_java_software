@@ -41,7 +41,9 @@ public class ConfigHelper {
         defaults.put(DEBUG, "false");
 
         defaults.put(ES_INDEX, "site_index"); // Can be over written
-        defaults.put(ES_INDEX_SUFFIX, ""); // Prod, Dev, Stage, etc
+        defaults.put(ES_INDEX_PREFIX, ""); // This can be used to prefix "{ES_INDEX_PREFIX}_{ES_INDEX}" Example mod and human variant indexer
+        defaults.put(ES_INDEX_SUFFIX, ""); // This can be used to suffix "{ES_INDEX}_{ES_INDEX_SUFFIX}" Example Prod, Dev, Stage, etc
+        // If both are used then the resulting index name is: {ES_INDEX_PREFIX}_{ES_INDEX}_{ES_INDEX_SUFFIX}_{TIMESTAMP}"
         defaults.put(ES_HOST, "localhost");
         defaults.put(ES_PORT, "9200");
         
@@ -77,7 +79,6 @@ public class ConfigHelper {
         defaults.put(POPULARITY_FILE_NAME, "alliance_popularity.tsv");
 
         defaults.put(VARIANT_DOWNLOAD_PATH, "data");
-        defaults.put(VARIANT_CONFIG_FILE, "downloadFileSet.yaml");
         defaults.put(VARIANT_CACHER_CONFIG_FILE, "variantDownloadFiles.yaml");
 
         defaults.put(ALLIANCE_RELEASE, "0.0.0");
@@ -272,6 +273,11 @@ public class ConfigHelper {
         return Boolean.parseBoolean(config.get(THREADED));
     }
 
+    public static String getEsIndexPrefix() {
+        if (!init) init();
+        return config.get(ES_INDEX_PREFIX);
+    }
+    
     public static String getEsIndexSuffix() {
         if (!init) init();
         return config.get(ES_INDEX_SUFFIX);
@@ -311,11 +317,6 @@ public class ConfigHelper {
         if (!init) init();
         return config.get(SPECIES);
     }
-    
-    public static String getVariantConfigFile() {
-        if (!init) init();
-        return config.get(VARIANT_CONFIG_FILE);
-    }
 
     public static String getVariantDownloadPath() {
         if (!init) init();
@@ -341,7 +342,12 @@ public class ConfigHelper {
         if (!init) init();
         return getJavaTmpDir();
     }
-
+    
+    public static boolean hasEsIndexPrefix() {
+        if (!init) init();
+        return (ConfigHelper.getEsIndexPrefix() != null && !ConfigHelper.getEsIndexPrefix().equals("") && ConfigHelper.getEsIndexPrefix().length() > 0);
+    }
+    
     public static boolean hasEsIndexSuffix() {
         if (!init) init();
         return (ConfigHelper.getEsIndexSuffix() != null && !ConfigHelper.getEsIndexSuffix().equals("") && ConfigHelper.getEsIndexSuffix().length() > 0);

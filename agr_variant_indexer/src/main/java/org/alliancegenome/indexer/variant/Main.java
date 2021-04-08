@@ -33,8 +33,8 @@ public class Main {
         if(indexing) client = EsClientFactory.getDefaultEsClient();
         
         try {
-
-            DownloadFileSet downloadSet = mapper.readValue(getClass().getClassLoader().getResourceAsStream(VariantConfigHelper.getVariantConfigFile()), DownloadFileSet.class);
+            // need to set VARIANTS_TO_INDEX = "HUMAN" or "MOD" to choose between which variants to index
+            DownloadFileSet downloadSet = mapper.readValue(getClass().getClassLoader().getResourceAsStream(VariantConfigHelper.getDownloadSetFile()), DownloadFileSet.class);
             downloadSet.setDownloadPath(VariantConfigHelper.getVariantFileDownloadPath());
 
             if(downloading) {
@@ -55,7 +55,6 @@ public class Main {
                 if(indexing) im.finishIndex();
             }
 
-            //mapper.writeValue(new FileWriter(new File("downloadFileSet2.yaml")), downloadSet);
             if(indexing) client.close();
         } catch (Exception e) {
             e.printStackTrace();
