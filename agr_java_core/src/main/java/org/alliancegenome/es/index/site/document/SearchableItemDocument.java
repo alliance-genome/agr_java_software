@@ -96,7 +96,7 @@ public class SearchableItemDocument extends ESDocument {
     Set<String> whereExpressed = new HashSet<>();
 
     boolean searchable = true;
-
+//
 //    @Override
 //    @JsonIgnore
 //    public String getDocumentId() {
