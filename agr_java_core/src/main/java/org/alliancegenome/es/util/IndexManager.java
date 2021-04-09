@@ -218,7 +218,7 @@ public class IndexManager {
             newIndexName = "_" + ConfigHelper.getEsIndexSuffix();
         }
         
-        newIndexName = "_" + (new Date()).getTime();
+        newIndexName += "_" + (new Date()).getTime();
 
         createIndex(newIndexName);
         createAlias(tempIndexName, newIndexName);
