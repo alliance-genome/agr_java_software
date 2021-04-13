@@ -53,7 +53,7 @@ public class VariantConfigHelper {
         
         defaults.put(VARIANT_DISPLAY_INTERVAL, "30");
         
-        defaults.put(VARIANT_SOURCE_DOCUMENT_CREATOR_THREADS, "1");
+        defaults.put(VARIANT_SOURCE_DOCUMENT_CREATOR_THREADS, "6");
         
         defaults.put(VARIANT_SOURCE_DOCUMENT_CREATOR_VCQUEUE_SIZE, "400");
         defaults.put(VARIANT_SOURCE_DOCUMENT_CREATOR_VCQUEUE_BUCKET_SIZE, "25");

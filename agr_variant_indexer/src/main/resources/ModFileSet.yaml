@@ -21,210 +21,209 @@ downloadFileSet:
       - chromosome: MtDNA
         url: https://download.alliancegenome.org/variants/WB/WB.vep.MtDNA.vcf.gz
 
-#  - source: RGD
-#    species: RAT
-#    taxonId: "NCBITaxon:10116"
-#    fileList:
-#      - chromosome: 1
-#        url: https://download.alliancegenome.org/variants/RGD/RGD.vep.1.vcf.gz
-#      - chromosome: 2
-#        url: https://download.alliancegenome.org/variants/RGD/RGD.vep.2.vcf.gz
-#      - chromosome: 3
-#        url: https://download.alliancegenome.org/variants/RGD/RGD.vep.3.vcf.gz
-#      - chromosome: 4
-#        url: https://download.alliancegenome.org/variants/RGD/RGD.vep.4.vcf.gz
-#      - chromosome: 5
-#        url: https://download.alliancegenome.org/variants/RGD/RGD.vep.5.vcf.gz
-#      - chromosome: 6
-#        url: https://download.alliancegenome.org/variants/RGD/RGD.vep.6.vcf.gz
-#      - chromosome: 7
-#        url: https://download.alliancegenome.org/variants/RGD/RGD.vep.7.vcf.gz
-#      - chromosome: 8
-#        url: https://download.alliancegenome.org/variants/RGD/RGD.vep.8.vcf.gz
-#      - chromosome: 9
-#        url: https://download.alliancegenome.org/variants/RGD/RGD.vep.9.vcf.gz
-#      - chromosome: 10
-#        url: https://download.alliancegenome.org/variants/RGD/RGD.vep.10.vcf.gz
-#      - chromosome: 11
-#        url: https://download.alliancegenome.org/variants/RGD/RGD.vep.11.vcf.gz
-#      - chromosome: 12
-#        url: https://download.alliancegenome.org/variants/RGD/RGD.vep.12.vcf.gz
-#      - chromosome: 13
-#        url: https://download.alliancegenome.org/variants/RGD/RGD.vep.13.vcf.gz
-#      - chromosome: 14
-#        url: https://download.alliancegenome.org/variants/RGD/RGD.vep.14.vcf.gz
-#      - chromosome: 15
-#        url: https://download.alliancegenome.org/variants/RGD/RGD.vep.15.vcf.gz
-#      - chromosome: 16
-#        url: https://download.alliancegenome.org/variants/RGD/RGD.vep.16.vcf.gz
-#      - chromosome: 17
-#        url: https://download.alliancegenome.org/variants/RGD/RGD.vep.17.vcf.gz
-#      - chromosome: 18
-#        url: https://download.alliancegenome.org/variants/RGD/RGD.vep.18.vcf.gz
-#      - chromosome: 19
-#        url: https://download.alliancegenome.org/variants/RGD/RGD.vep.19.vcf.gz
-#      - chromosome: 20
-#        url: https://download.alliancegenome.org/variants/RGD/RGD.vep.20.vcf.gz
-#      - chromosome: X
-#        url: https://download.alliancegenome.org/variants/RGD/RGD.vep.X.vcf.gz
-#      - chromosome: Y
-#        url: https://download.alliancegenome.org/variants/RGD/RGD.vep.Y.vcf.gz
-#
-#  - source: FB
-#    species: FLY
-#    taxonId: "NCBITaxon:7227"
-#    fileList:
-#      - chromosome: 2L
-#        url: https://download.alliancegenome.org/variants/FB/FB.vep.2L.vcf.gz
-#      - chromosome: 2R
-#        url: https://download.alliancegenome.org/variants/FB/FB.vep.2R.vcf.gz
-#      - chromosome: 3L
-#        url: https://download.alliancegenome.org/variants/FB/FB.vep.3L.vcf.gz
-#      - chromosome: 3R
-#        url: https://download.alliancegenome.org/variants/FB/FB.vep.3R.vcf.gz
-#      - chromosome: 4
-#        url: https://download.alliancegenome.org/variants/FB/FB.vep.4.vcf.gz
-#      - chromosome: X
-#        url: https://download.alliancegenome.org/variants/FB/FB.vep.X.vcf.gz
-#
-#  - source: MGI
-#    species: MOUSE
-#    taxonId: "NCBITaxon:10090"
-#    fileList:
-#      - chromosome: 1
-#        url: https://download.alliancegenome.org/variants/MGI/MGI.vep.1.vcf.gz
-#      - chromosome: 2
-#        url: https://download.alliancegenome.org/variants/MGI/MGI.vep.2.vcf.gz
-#      - chromosome: 3
-#        url: https://download.alliancegenome.org/variants/MGI/MGI.vep.3.vcf.gz
-#      - chromosome: 4
-#        url: https://download.alliancegenome.org/variants/MGI/MGI.vep.4.vcf.gz
-#      - chromosome: 5
-#        url: https://download.alliancegenome.org/variants/MGI/MGI.vep.5.vcf.gz
-#      - chromosome: 6
-#        url: https://download.alliancegenome.org/variants/MGI/MGI.vep.6.vcf.gz
-#      - chromosome: 7
-#        url: https://download.alliancegenome.org/variants/MGI/MGI.vep.7.vcf.gz
-#      - chromosome: 8
-#        url: https://download.alliancegenome.org/variants/MGI/MGI.vep.8.vcf.gz
-#      - chromosome: 9
-#        url: https://download.alliancegenome.org/variants/MGI/MGI.vep.9.vcf.gz
-#      - chromosome: 10
-#        url: https://download.alliancegenome.org/variants/MGI/MGI.vep.10.vcf.gz
-#      - chromosome: 11
-#        url: https://download.alliancegenome.org/variants/MGI/MGI.vep.11.vcf.gz
-#      - chromosome: 12
-#        url: https://download.alliancegenome.org/variants/MGI/MGI.vep.12.vcf.gz
-#      - chromosome: 13
-#        url: https://download.alliancegenome.org/variants/MGI/MGI.vep.13.vcf.gz
-#      - chromosome: 14
-#        url: https://download.alliancegenome.org/variants/MGI/MGI.vep.14.vcf.gz
-#      - chromosome: 15
-#        url: https://download.alliancegenome.org/variants/MGI/MGI.vep.15.vcf.gz
-#      - chromosome: 16
-#        url: https://download.alliancegenome.org/variants/MGI/MGI.vep.16.vcf.gz
-#      - chromosome: 17
-#        url: https://download.alliancegenome.org/variants/MGI/MGI.vep.17.vcf.gz
-#      - chromosome: 18
-#        url: https://download.alliancegenome.org/variants/MGI/MGI.vep.18.vcf.gz
-#      - chromosome: 19
-#        url: https://download.alliancegenome.org/variants/MGI/MGI.vep.19.vcf.gz
-#      - chromosome: X
-#        url: https://download.alliancegenome.org/variants/MGI/MGI.vep.X.vcf.gz
-#      - chromosome: Y
-#        url: https://download.alliancegenome.org/variants/MGI/MGI.vep.Y.vcf.gz
-#      - chromosome: MT
-#        url: https://download.alliancegenome.org/variants/MGI/MGI.vep.MT.vcf.gz
-#
-#  - source: SGD
-#    species: YEAST
-#    taxonId: "NCBITaxon:559292"
-#    fileList:
-#      - chromosome: I
-#        url: https://download.alliancegenome.org/variants/SGD/SGD.vep.chrI.vcf.gz
-#      - chromosome: II
-#        url: https://download.alliancegenome.org/variants/SGD/SGD.vep.chrII.vcf.gz
-#      - chromosome: III
-#        url: https://download.alliancegenome.org/variants/SGD/SGD.vep.chrIII.vcf.gz
-#      - chromosome: IV
-#        url: https://download.alliancegenome.org/variants/SGD/SGD.vep.chrIV.vcf.gz
-#      - chromosome: IX
-#        url: https://download.alliancegenome.org/variants/SGD/SGD.vep.chrIX.vcf.gz
-#      - chromosome: V
-#        url: https://download.alliancegenome.org/variants/SGD/SGD.vep.chrV.vcf.gz
-#      - chromosome: VI
-#        url: https://download.alliancegenome.org/variants/SGD/SGD.vep.chrVI.vcf.gz
-#      - chromosome: VII
-#        url: https://download.alliancegenome.org/variants/SGD/SGD.vep.chrVII.vcf.gz
-#      - chromosome: VIII
-#        url: https://download.alliancegenome.org/variants/SGD/SGD.vep.chrVIII.vcf.gz
-#      - chromosome: X
-#        url: https://download.alliancegenome.org/variants/SGD/SGD.vep.chrX.vcf.gz
-#      - chromosome: XI
-#        url: https://download.alliancegenome.org/variants/SGD/SGD.vep.chrXI.vcf.gz
-#      - chromosome: XII
-#        url: https://download.alliancegenome.org/variants/SGD/SGD.vep.chrXII.vcf.gz
-#      - chromosome: XIII
-#        url: https://download.alliancegenome.org/variants/SGD/SGD.vep.chrXIII.vcf.gz
-#      - chromosome: XIV
-#        url: https://download.alliancegenome.org/variants/SGD/SGD.vep.chrXIV.vcf.gz
-#      - chromosome: XV
-#        url: https://download.alliancegenome.org/variants/SGD/SGD.vep.chrXV.vcf.gz
-#      - chromosome: XVI
-#        url: https://download.alliancegenome.org/variants/SGD/SGD.vep.chrXVI.vcf.gz
-#
-#  - source: ZFIN
-#    species: ZEBRAFISH
-#    taxonId: "NCBITaxon:7955"
-#    fileList:
-#      - chromosome: 1
-#        url: https://download.alliancegenome.org/variants/ZFIN/ZFIN.vep.1.vcf.gz
-#      - chromosome: 2
-#        url: https://download.alliancegenome.org/variants/ZFIN/ZFIN.vep.2.vcf.gz
-#      - chromosome: 3
-#        url: https://download.alliancegenome.org/variants/ZFIN/ZFIN.vep.3.vcf.gz
-#      - chromosome: 4
-#        url: https://download.alliancegenome.org/variants/ZFIN/ZFIN.vep.4.vcf.gz
-#      - chromosome: 5
-#        url: https://download.alliancegenome.org/variants/ZFIN/ZFIN.vep.5.vcf.gz
-#      - chromosome: 6
-#        url: https://download.alliancegenome.org/variants/ZFIN/ZFIN.vep.6.vcf.gz
-#      - chromosome: 7
-#        url: https://download.alliancegenome.org/variants/ZFIN/ZFIN.vep.7.vcf.gz
-#      - chromosome: 8
-#        url: https://download.alliancegenome.org/variants/ZFIN/ZFIN.vep.8.vcf.gz
-#      - chromosome: 9
-#        url: https://download.alliancegenome.org/variants/ZFIN/ZFIN.vep.9.vcf.gz
-#      - chromosome: 10
-#        url: https://download.alliancegenome.org/variants/ZFIN/ZFIN.vep.10.vcf.gz
-#      - chromosome: 11
-#        url: https://download.alliancegenome.org/variants/ZFIN/ZFIN.vep.11.vcf.gz
-#      - chromosome: 12
-#        url: https://download.alliancegenome.org/variants/ZFIN/ZFIN.vep.12.vcf.gz
-#      - chromosome: 13
-#        url: https://download.alliancegenome.org/variants/ZFIN/ZFIN.vep.13.vcf.gz
-#      - chromosome: 14
-#        url: https://download.alliancegenome.org/variants/ZFIN/ZFIN.vep.14.vcf.gz
-#      - chromosome: 15
-#        url: https://download.alliancegenome.org/variants/ZFIN/ZFIN.vep.15.vcf.gz
-#      - chromosome: 16
-#        url: https://download.alliancegenome.org/variants/ZFIN/ZFIN.vep.16.vcf.gz
-#      - chromosome: 17
-#        url: https://download.alliancegenome.org/variants/ZFIN/ZFIN.vep.17.vcf.gz
-#      - chromosome: 18
-#        url: https://download.alliancegenome.org/variants/ZFIN/ZFIN.vep.18.vcf.gz
-#      - chromosome: 19
-#        url: https://download.alliancegenome.org/variants/ZFIN/ZFIN.vep.19.vcf.gz
-#      - chromosome: 20
-#        url: https://download.alliancegenome.org/variants/ZFIN/ZFIN.vep.20.vcf.gz
-#      - chromosome: 21
-#        url: https://download.alliancegenome.org/variants/ZFIN/ZFIN.vep.21.vcf.gz
-#      - chromosome: 22
-#        url: https://download.alliancegenome.org/variants/ZFIN/ZFIN.vep.22.vcf.gz
-#      - chromosome: 23
-#        url: https://download.alliancegenome.org/variants/ZFIN/ZFIN.vep.23.vcf.gz
-#      - chromosome: 24
-#        url: https://download.alliancegenome.org/variants/ZFIN/ZFIN.vep.24.vcf.gz
-#      - chromosome: 25
-#        url: https://download.alliancegenome.org/variants/ZFIN/ZFIN.vep.25.vcf.gz
+  - source: RGD
+    species: RAT
+    taxonId: "NCBITaxon:10116"
+    fileList:
+      - chromosome: 1
+        url: https://download.alliancegenome.org/variants/RGD/RGD.vep.1.vcf.gz
+      - chromosome: 2
+        url: https://download.alliancegenome.org/variants/RGD/RGD.vep.2.vcf.gz
+      - chromosome: 3
+        url: https://download.alliancegenome.org/variants/RGD/RGD.vep.3.vcf.gz
+      - chromosome: 4
+        url: https://download.alliancegenome.org/variants/RGD/RGD.vep.4.vcf.gz
+      - chromosome: 5
+        url: https://download.alliancegenome.org/variants/RGD/RGD.vep.5.vcf.gz
+      - chromosome: 6
+        url: https://download.alliancegenome.org/variants/RGD/RGD.vep.6.vcf.gz
+      - chromosome: 7
+        url: https://download.alliancegenome.org/variants/RGD/RGD.vep.7.vcf.gz
+      - chromosome: 8
+        url: https://download.alliancegenome.org/variants/RGD/RGD.vep.8.vcf.gz
+      - chromosome: 9
+        url: https://download.alliancegenome.org/variants/RGD/RGD.vep.9.vcf.gz
+      - chromosome: 10
+        url: https://download.alliancegenome.org/variants/RGD/RGD.vep.10.vcf.gz
+      - chromosome: 11
+        url: https://download.alliancegenome.org/variants/RGD/RGD.vep.11.vcf.gz
+      - chromosome: 12
+        url: https://download.alliancegenome.org/variants/RGD/RGD.vep.12.vcf.gz
+      - chromosome: 13
+        url: https://download.alliancegenome.org/variants/RGD/RGD.vep.13.vcf.gz
+      - chromosome: 14
+        url: https://download.alliancegenome.org/variants/RGD/RGD.vep.14.vcf.gz
+      - chromosome: 15
+        url: https://download.alliancegenome.org/variants/RGD/RGD.vep.15.vcf.gz
+      - chromosome: 16
+        url: https://download.alliancegenome.org/variants/RGD/RGD.vep.16.vcf.gz
+      - chromosome: 17
+        url: https://download.alliancegenome.org/variants/RGD/RGD.vep.17.vcf.gz
+      - chromosome: 18
+        url: https://download.alliancegenome.org/variants/RGD/RGD.vep.18.vcf.gz
+      - chromosome: 19
+        url: https://download.alliancegenome.org/variants/RGD/RGD.vep.19.vcf.gz
+      - chromosome: 20
+        url: https://download.alliancegenome.org/variants/RGD/RGD.vep.20.vcf.gz
+      - chromosome: X
+        url: https://download.alliancegenome.org/variants/RGD/RGD.vep.X.vcf.gz
+      - chromosome: Y
+        url: https://download.alliancegenome.org/variants/RGD/RGD.vep.Y.vcf.gz
 
+  - source: FB
+    species: FLY
+    taxonId: "NCBITaxon:7227"
+    fileList:
+      - chromosome: 2L
+        url: https://download.alliancegenome.org/variants/FB/FB.vep.2L.vcf.gz
+      - chromosome: 2R
+        url: https://download.alliancegenome.org/variants/FB/FB.vep.2R.vcf.gz
+      - chromosome: 3L
+        url: https://download.alliancegenome.org/variants/FB/FB.vep.3L.vcf.gz
+      - chromosome: 3R
+        url: https://download.alliancegenome.org/variants/FB/FB.vep.3R.vcf.gz
+      - chromosome: 4
+        url: https://download.alliancegenome.org/variants/FB/FB.vep.4.vcf.gz
+      - chromosome: X
+        url: https://download.alliancegenome.org/variants/FB/FB.vep.X.vcf.gz
+
+  - source: MGI
+    species: MOUSE
+    taxonId: "NCBITaxon:10090"
+    fileList:
+      - chromosome: 1
+        url: https://download.alliancegenome.org/variants/MGI/MGI.vep.1.vcf.gz
+      - chromosome: 2
+        url: https://download.alliancegenome.org/variants/MGI/MGI.vep.2.vcf.gz
+      - chromosome: 3
+        url: https://download.alliancegenome.org/variants/MGI/MGI.vep.3.vcf.gz
+      - chromosome: 4
+        url: https://download.alliancegenome.org/variants/MGI/MGI.vep.4.vcf.gz
+      - chromosome: 5
+        url: https://download.alliancegenome.org/variants/MGI/MGI.vep.5.vcf.gz
+      - chromosome: 6
+        url: https://download.alliancegenome.org/variants/MGI/MGI.vep.6.vcf.gz
+      - chromosome: 7
+        url: https://download.alliancegenome.org/variants/MGI/MGI.vep.7.vcf.gz
+      - chromosome: 8
+        url: https://download.alliancegenome.org/variants/MGI/MGI.vep.8.vcf.gz
+      - chromosome: 9
+        url: https://download.alliancegenome.org/variants/MGI/MGI.vep.9.vcf.gz
+      - chromosome: 10
+        url: https://download.alliancegenome.org/variants/MGI/MGI.vep.10.vcf.gz
+      - chromosome: 11
+        url: https://download.alliancegenome.org/variants/MGI/MGI.vep.11.vcf.gz
+      - chromosome: 12
+        url: https://download.alliancegenome.org/variants/MGI/MGI.vep.12.vcf.gz
+      - chromosome: 13
+        url: https://download.alliancegenome.org/variants/MGI/MGI.vep.13.vcf.gz
+      - chromosome: 14
+        url: https://download.alliancegenome.org/variants/MGI/MGI.vep.14.vcf.gz
+      - chromosome: 15
+        url: https://download.alliancegenome.org/variants/MGI/MGI.vep.15.vcf.gz
+      - chromosome: 16
+        url: https://download.alliancegenome.org/variants/MGI/MGI.vep.16.vcf.gz
+      - chromosome: 17
+        url: https://download.alliancegenome.org/variants/MGI/MGI.vep.17.vcf.gz
+      - chromosome: 18
+        url: https://download.alliancegenome.org/variants/MGI/MGI.vep.18.vcf.gz
+      - chromosome: 19
+        url: https://download.alliancegenome.org/variants/MGI/MGI.vep.19.vcf.gz
+      - chromosome: X
+        url: https://download.alliancegenome.org/variants/MGI/MGI.vep.X.vcf.gz
+      - chromosome: Y
+        url: https://download.alliancegenome.org/variants/MGI/MGI.vep.Y.vcf.gz
+      - chromosome: MT
+        url: https://download.alliancegenome.org/variants/MGI/MGI.vep.MT.vcf.gz
+
+  - source: SGD
+    species: YEAST
+    taxonId: "NCBITaxon:559292"
+    fileList:
+      - chromosome: I
+        url: https://download.alliancegenome.org/variants/SGD/SGD.vep.chrI.vcf.gz
+      - chromosome: II
+        url: https://download.alliancegenome.org/variants/SGD/SGD.vep.chrII.vcf.gz
+      - chromosome: III
+        url: https://download.alliancegenome.org/variants/SGD/SGD.vep.chrIII.vcf.gz
+      - chromosome: IV
+        url: https://download.alliancegenome.org/variants/SGD/SGD.vep.chrIV.vcf.gz
+      - chromosome: IX
+        url: https://download.alliancegenome.org/variants/SGD/SGD.vep.chrIX.vcf.gz
+      - chromosome: V
+        url: https://download.alliancegenome.org/variants/SGD/SGD.vep.chrV.vcf.gz
+      - chromosome: VI
+        url: https://download.alliancegenome.org/variants/SGD/SGD.vep.chrVI.vcf.gz
+      - chromosome: VII
+        url: https://download.alliancegenome.org/variants/SGD/SGD.vep.chrVII.vcf.gz
+      - chromosome: VIII
+        url: https://download.alliancegenome.org/variants/SGD/SGD.vep.chrVIII.vcf.gz
+      - chromosome: X
+        url: https://download.alliancegenome.org/variants/SGD/SGD.vep.chrX.vcf.gz
+      - chromosome: XI
+        url: https://download.alliancegenome.org/variants/SGD/SGD.vep.chrXI.vcf.gz
+      - chromosome: XII
+        url: https://download.alliancegenome.org/variants/SGD/SGD.vep.chrXII.vcf.gz
+      - chromosome: XIII
+        url: https://download.alliancegenome.org/variants/SGD/SGD.vep.chrXIII.vcf.gz
+      - chromosome: XIV
+        url: https://download.alliancegenome.org/variants/SGD/SGD.vep.chrXIV.vcf.gz
+      - chromosome: XV
+        url: https://download.alliancegenome.org/variants/SGD/SGD.vep.chrXV.vcf.gz
+      - chromosome: XVI
+        url: https://download.alliancegenome.org/variants/SGD/SGD.vep.chrXVI.vcf.gz
+
+  - source: ZFIN
+    species: ZEBRAFISH
+    taxonId: "NCBITaxon:7955"
+    fileList:
+      - chromosome: 1
+        url: https://download.alliancegenome.org/variants/ZFIN/ZFIN.vep.1.vcf.gz
+      - chromosome: 2
+        url: https://download.alliancegenome.org/variants/ZFIN/ZFIN.vep.2.vcf.gz
+      - chromosome: 3
+        url: https://download.alliancegenome.org/variants/ZFIN/ZFIN.vep.3.vcf.gz
+      - chromosome: 4
+        url: https://download.alliancegenome.org/variants/ZFIN/ZFIN.vep.4.vcf.gz
+      - chromosome: 5
+        url: https://download.alliancegenome.org/variants/ZFIN/ZFIN.vep.5.vcf.gz
+      - chromosome: 6
+        url: https://download.alliancegenome.org/variants/ZFIN/ZFIN.vep.6.vcf.gz
+      - chromosome: 7
+        url: https://download.alliancegenome.org/variants/ZFIN/ZFIN.vep.7.vcf.gz
+      - chromosome: 8
+        url: https://download.alliancegenome.org/variants/ZFIN/ZFIN.vep.8.vcf.gz
+      - chromosome: 9
+        url: https://download.alliancegenome.org/variants/ZFIN/ZFIN.vep.9.vcf.gz
+      - chromosome: 10
+        url: https://download.alliancegenome.org/variants/ZFIN/ZFIN.vep.10.vcf.gz
+      - chromosome: 11
+        url: https://download.alliancegenome.org/variants/ZFIN/ZFIN.vep.11.vcf.gz
+      - chromosome: 12
+        url: https://download.alliancegenome.org/variants/ZFIN/ZFIN.vep.12.vcf.gz
+      - chromosome: 13
+        url: https://download.alliancegenome.org/variants/ZFIN/ZFIN.vep.13.vcf.gz
+      - chromosome: 14
+        url: https://download.alliancegenome.org/variants/ZFIN/ZFIN.vep.14.vcf.gz
+      - chromosome: 15
+        url: https://download.alliancegenome.org/variants/ZFIN/ZFIN.vep.15.vcf.gz
+      - chromosome: 16
+        url: https://download.alliancegenome.org/variants/ZFIN/ZFIN.vep.16.vcf.gz
+      - chromosome: 17
+        url: https://download.alliancegenome.org/variants/ZFIN/ZFIN.vep.17.vcf.gz
+      - chromosome: 18
+        url: https://download.alliancegenome.org/variants/ZFIN/ZFIN.vep.18.vcf.gz
+      - chromosome: 19
+        url: https://download.alliancegenome.org/variants/ZFIN/ZFIN.vep.19.vcf.gz
+      - chromosome: 20
+        url: https://download.alliancegenome.org/variants/ZFIN/ZFIN.vep.20.vcf.gz
+      - chromosome: 21
+        url: https://download.alliancegenome.org/variants/ZFIN/ZFIN.vep.21.vcf.gz
+      - chromosome: 22
+        url: https://download.alliancegenome.org/variants/ZFIN/ZFIN.vep.22.vcf.gz
+      - chromosome: 23
+        url: https://download.alliancegenome.org/variants/ZFIN/ZFIN.vep.23.vcf.gz
+      - chromosome: 24
+        url: https://download.alliancegenome.org/variants/ZFIN/ZFIN.vep.24.vcf.gz
+      - chromosome: 25
+        url: https://download.alliancegenome.org/variants/ZFIN/ZFIN.vep.25.vcf.gz
