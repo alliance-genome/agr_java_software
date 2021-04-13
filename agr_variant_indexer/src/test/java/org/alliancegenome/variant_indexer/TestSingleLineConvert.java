@@ -1,21 +1,18 @@
 package org.alliancegenome.variant_indexer;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.base.CaseFormat;
-import htsjdk.samtools.util.CloseableIterator;
-import htsjdk.variant.variantcontext.VariantContext;
-import htsjdk.variant.vcf.VCFFileReader;
-import htsjdk.variant.vcf.VCFInfoHeaderLine;
+import java.io.File;
+import java.util.*;
 
 import org.alliancegenome.api.entity.AlleleVariantSequence;
-import org.alliancegenome.core.variant.converters.*;
-import org.alliancegenome.es.variant.model.VariantDocument;
+import org.alliancegenome.core.variant.converters.AlleleVariantSequenceConverter;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.apache.commons.math3.stat.descriptive.SummaryStatistics;
 
-import java.io.File;
-import java.util.Date;
-import java.util.List;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import htsjdk.samtools.util.CloseableIterator;
+import htsjdk.variant.variantcontext.VariantContext;
+import htsjdk.variant.vcf.*;
 
 public class TestSingleLineConvert {
     public static void main(String[] args) {
