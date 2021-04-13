@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 
+import org.alliancegenome.api.entity.JoinTypeValue;
 import org.alliancegenome.api.service.*;
 import org.alliancegenome.cache.*;
 import org.alliancegenome.cache.repository.helper.*;
@@ -24,26 +25,33 @@ public class InteractionCacheRepository {
     @Inject
     private CacheService cacheService;
 
-    public PaginationResult<InteractionGeneJoin> getInteractionAnnotationList(String geneID, Pagination pagination) {
+    public PaginationResult<InteractionGeneJoin> getInteractionAnnotationList(String geneID, Pagination pagination, String joinType) {
 
         List<InteractionGeneJoin> interactionAnnotationList = cacheService.getCacheEntries(geneID, CacheAlliance.GENE_INTERACTION);
         if (interactionAnnotationList == null)
             return null;
 
         PaginationResult<InteractionGeneJoin> result = new PaginationResult<>();
-
-        FilterService<InteractionGeneJoin> filterService = new FilterService<>(new InteractionAnnotationFiltering());
-        ColumnFieldMapping<InteractionGeneJoin> mapping = new InteractionColumnFieldMapping();
-        result.setDistinctFieldValueMap(filterService.getDistinctFieldValues(interactionAnnotationList, mapping.getSingleValuedFieldColumns(Table.INTERACTION), mapping));
-
         //filtering
         List<InteractionGeneJoin> filteredInteractionAnnotationList = filterInteractionAnnotations(interactionAnnotationList, pagination.getFieldFilterValueMap(), true);
+        //set Distinct Field Value based on filtered list
+        FilterService<InteractionGeneJoin> filterService = new FilterService<>(new InteractionAnnotationFiltering());
+        ColumnFieldMapping<InteractionGeneJoin> mapping = new InteractionColumnFieldMapping();
+        //here for supplementData, it will ONLY filter data based on joinType, NO other filters so it will show ALL options for multiple selections
+        List<InteractionGeneJoin> interactionAnnotationListDistinct=  interactionAnnotationList;
+        if (joinType !=null && (joinType.equalsIgnoreCase(JoinTypeValue.genetic_interaction.getName()) || joinType.equalsIgnoreCase(JoinTypeValue.molecular_interaction.getName()) ))
+            interactionAnnotationListDistinct = interactionAnnotationListDistinct.stream().filter(join->join.getJoinType().equalsIgnoreCase(joinType)).collect(Collectors.toList());
+        result.setDistinctFieldValueMap(filterService.getDistinctFieldValues(interactionAnnotationListDistinct, mapping.getSingleValuedFieldColumns(Table.INTERACTION), mapping));
 
         if (!filteredInteractionAnnotationList.isEmpty()) {
             result.setTotalNumber(filteredInteractionAnnotationList.size());
             result.setResult(getSortedAndPaginatedInteractionAnnotations(pagination, filteredInteractionAnnotationList));
         }
         return result;
+    }
+    
+    public PaginationResult<InteractionGeneJoin> getInteractionAnnotationList(String geneID, Pagination pagination) {
+        return getInteractionAnnotationList(geneID, pagination, "");
     }
 
     private List<InteractionGeneJoin> getSortedAndPaginatedInteractionAnnotations(Pagination pagination,

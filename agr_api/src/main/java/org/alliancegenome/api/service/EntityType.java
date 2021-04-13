@@ -9,5 +9,8 @@ public enum EntityType {
     INTERACTION,
     DISEASE,
     ORTHOLOGY,
-    VARIANT, MODEL
+    VARIANT,
+    MODEL,
+    ALLELESANDVARIANT,
+    TRANSGENICALLELE
 }

@@ -49,7 +49,7 @@ public class FilterService<T> {
         return !filterResults.contains(false);
     }
 
-    public List<T> getSortedAndPaginatedAnnotations(Pagination pagination, List<T> fullDiseaseAnnotationList, Sorting<T> sorting) {
+    public List<T> getSortedAndPaginatedAnnotations(Pagination pagination, List<T> entityList, Sorting<T> sorting) {
         // sorting
         if (sorting != null) {
             SortingField sortingField = null;
@@ -57,11 +57,11 @@ public class FilterService<T> {
             if (sortBy != null && !sortBy.isEmpty())
                 sortingField = SortingField.getSortingField(sortBy.toUpperCase());
 
-            fullDiseaseAnnotationList.sort(sorting.getComparator(sortingField, pagination.getAsc()));
+            entityList.sort(sorting.getComparator(sortingField, pagination.getAsc()));
         }
 
         // paginating
-        return fullDiseaseAnnotationList.stream()
+        return entityList.stream()
                 .skip(pagination.getStart())
                 .limit(pagination.getLimit())
                 .collect(toList());

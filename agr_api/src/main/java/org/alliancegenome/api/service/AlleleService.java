@@ -89,7 +89,7 @@ public class AlleleService {
             FilterService<Allele> filterService = new FilterService<>(new AlleleFiltering());
             List<Allele> filteredAlleles = filterService.filterAnnotations(alleles, pagination.getFieldFilterValueMap());
             result.setTotal(filteredAlleles.size());
-            result.setResults(filterService.getPaginatedAnnotations(pagination, filteredAlleles));
+            result.setResults(filterService.getSortedAndPaginatedAnnotations(pagination, filteredAlleles, new AlleleSorting()));
             ColumnFieldMapping<Allele> mapping = new TransgenicAlleleColumnFieldMapping();
             result.addDistinctFieldValueSupplementalData(filterService.getDistinctFieldValues(alleles,
                     mapping.getSingleValuedFieldColumns(Table.TRANSGENIC_ALLELE), mapping));

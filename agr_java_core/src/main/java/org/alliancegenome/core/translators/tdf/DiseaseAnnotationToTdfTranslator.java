@@ -1,12 +1,13 @@
 package org.alliancegenome.core.translators.tdf;
 
-import java.util.*;
-import java.util.stream.Collectors;
-
 import org.alliancegenome.core.config.ConfigHelper;
-import org.alliancegenome.neo4j.entity.*;
+import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
+import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
 import org.alliancegenome.neo4j.entity.node.*;
 import org.apache.commons.collections.CollectionUtils;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class DiseaseAnnotationToTdfTranslator {
 
@@ -117,6 +118,16 @@ public class DiseaseAnnotationToTdfTranslator {
         row.setDiseaseID(annotation.getDisease().getPrimaryKey());
         row.setDiseaseName(annotation.getDisease().getName());
         row.setSource(annotation.getSource().getName());
+        if (CollectionUtils.isNotEmpty(annotation.getProviders()) &&
+                annotation.getProviders().size() == 1) {
+            final Map<String, CrossReference> crossReferenceMap = annotation.getProviders().get(0);
+            String sourceProvider = crossReferenceMap.get("sourceProvider").getName();
+            if (crossReferenceMap.size() == 2) {
+                sourceProvider += " via ";
+                sourceProvider += crossReferenceMap.get("loadProvider").getName();
+            }
+            row.setSource(sourceProvider);
+        }
         if (homologousGene != null) {
             row.setBasedOnID(homologousGene.getPrimaryKey());
             row.setBasedOnName(homologousGene.getSymbol());

@@ -34,6 +34,7 @@ public enum FieldFilter {
     VARIANT_SIFT("filter.variantSift"),
     MOLECULE_TYPE("filter.moleculeType"),
     JOIN_TYPE("filter.joinType"),
+    INTERACTOR_REFERENCE("reference"),
     //those for genetic interaction
     ROLE("filter.role"),
     GENETIC_PERTURBATION("filter.geneticPerturbation"),
@@ -59,6 +60,7 @@ public enum FieldFilter {
     CONSTRUCT_TARGETED_GENE("filter.allele-construct-targeted-gene"),
     HAS_PHENOTYPE("filter.hasPhenotype"),
     HAS_DISEASE("filter.hasDisease"),
+    VARIANT_LOCATION("filter.variantLocation"),
     TRANSGENE_HAS_PHENOTYPE("filter.transgene-has-phenotype"),
     TRANSGENE_HAS_DISEASE("filter.transgene-has-disease"),
     STRINGENCY("filter.stringency"),

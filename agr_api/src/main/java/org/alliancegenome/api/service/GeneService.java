@@ -64,21 +64,24 @@ public class GeneService {
         return response;
     }
 
-    public JsonResultResponse<InteractionGeneJoin> getInteractions(String id, Pagination pagination) {
+    public JsonResultResponse<InteractionGeneJoin> getInteractions(String id, Pagination pagination, String joinType) {
         JsonResultResponse<InteractionGeneJoin> response = new JsonResultResponse<>();
-        PaginationResult<InteractionGeneJoin> interactions = interCacheRepo.getInteractionAnnotationList(id, pagination);
+        PaginationResult<InteractionGeneJoin> interactions = interCacheRepo.getInteractionAnnotationList(id, pagination, joinType);
         response.addAnnotationSummarySupplementalData(getInteractionSummary(id));
         if (interactions == null)
             return response;
-        FilterService<InteractionGeneJoin> filterService = new FilterService<>(new InteractionAnnotationFiltering());
-        ColumnFieldMapping<InteractionGeneJoin> mapping = new InteractionColumnFieldMapping();
-        List<InteractionGeneJoin> interactionAnnotationList = geneCacheRepo.getInteractions(id);
-        response.addDistinctFieldValueSupplementalData(filterService.getDistinctFieldValues(interactionAnnotationList,
-                mapping.getSingleValuedFieldColumns(Table.INTERACTION), mapping));        
-        //response.addDistinctFieldValueSupplementalData(interactions.getDistinctFieldValueMap());
+        //FilterService<InteractionGeneJoin> filterService = new FilterService<>(new InteractionAnnotationFiltering());
+        //ColumnFieldMapping<InteractionGeneJoin> mapping = new InteractionColumnFieldMapping();
+        //List<InteractionGeneJoin> interactionAnnotationList = geneCacheRepo.getInteractions(id);
+        //response.addDistinctFieldValueSupplementalData(filterService.getDistinctFieldValues(interactionAnnotationList,
+        //        mapping.getSingleValuedFieldColumns(Table.INTERACTION), mapping));        
+        response.addDistinctFieldValueSupplementalData(interactions.getDistinctFieldValueMap());
         response.setResults(interactions.getResult());
         response.setTotal(interactions.getTotalNumber());
         return response;
+    }
+    public JsonResultResponse<InteractionGeneJoin> getInteractions(String id, Pagination pagination) {
+        return getInteractions(id, pagination, "");
     }
 
     public JsonResultResponse<PhenotypeAnnotation> getPhenotypeAnnotations(String geneID, Pagination pagination) {

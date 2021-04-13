@@ -78,8 +78,8 @@ public interface GeneRESTInterface {
             @QueryParam("asc") String asc,
             @Parameter(in = ParameterIn.QUERY, name = "filter.symbol", description = "allele symbol", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.symbol") String symbol,
-            @Parameter(in = ParameterIn.QUERY, name = "filter.synonym", description = "allele synonym", schema = @Schema(type = SchemaType.STRING))
-            @QueryParam("filter.synonym") String synonym,
+            @Parameter(in = ParameterIn.QUERY, name = "filter.synonyms", description = "allele synonym", schema = @Schema(type = SchemaType.STRING))
+            @QueryParam("filter.synonyms") String synonym,
             @Parameter(in = ParameterIn.QUERY, name = "filter.variantType", description = "Variant types", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.variantType") String variantType,
             @Parameter(in = ParameterIn.QUERY, name = "filter.variantConsequence", description = "Consequence", schema = @Schema(type = SchemaType.STRING))
@@ -145,7 +145,9 @@ public interface GeneRESTInterface {
             @Parameter(in = ParameterIn.QUERY, name = "filter.hasPhenotype", description = "has Disease", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.hasPhenotype") String hasPhenotype,
             @Parameter(in = ParameterIn.QUERY, name = "filter.alleleCategory", description = "Disease for a given allele", schema = @Schema(type = SchemaType.STRING))
-            @QueryParam("filter.alleleCategory") String alleleCategory
+            @QueryParam("filter.alleleCategory") String alleleCategory,
+            @Parameter(in = ParameterIn.QUERY, name = "filter.location", description = "filter by location of variant", schema = @Schema(type = SchemaType.STRING))
+            @QueryParam("filter.location") String location
     );
 
     @GET
@@ -182,7 +184,9 @@ public interface GeneRESTInterface {
             @Parameter(in = ParameterIn.QUERY, name = "filter.hasPhenotype", description = "has Disease", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.hasPhenotype") String hasPhenotype,
             @Parameter(in = ParameterIn.QUERY, name = "filter.alleleCategory", description = "Disease for a given allele", schema = @Schema(type = SchemaType.STRING))
-            @QueryParam("filter.alleleCategory") String alleleCategory
+            @QueryParam("filter.alleleCategory") String alleleCategory,
+            @Parameter(in = ParameterIn.QUERY, name = "filter.location", description = "filter by location of variant", schema = @Schema(type = SchemaType.STRING))
+            @QueryParam("filter.location") String location
     );
 
     @GET
@@ -199,7 +203,7 @@ public interface GeneRESTInterface {
             @Parameter(in = ParameterIn.QUERY, name = "filter.symbol", description = "allele symbol", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.symbol") String symbol,
             @Parameter(in = ParameterIn.QUERY, name = "filter.synonym", description = "allele synonym", schema = @Schema(type = SchemaType.STRING))
-            @QueryParam("filter.synonym") String synonym,
+            @QueryParam("filter.synonyms") String synonym,
             @Parameter(in = ParameterIn.QUERY, name = "filter.variantType", description = "Variant types", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.variantType") String variantType,
             @Parameter(in = ParameterIn.QUERY, name = "filter.molecularConsequence", description = "Consequence", schema = @Schema(type = SchemaType.STRING))
@@ -436,8 +440,8 @@ public interface GeneRESTInterface {
             @QueryParam("asc") String asc,
             @Parameter(in = ParameterIn.QUERY, name = "filter.moleculeType")
             @QueryParam("filter.moleculeType") String moleculeType,
-            @Parameter(in = ParameterIn.QUERY, name = "filter.joinType")
-            @QueryParam("filter.joinType") String joinType,
+            @Parameter(in = ParameterIn.QUERY, name = "filter.joinType", description=" molecylar_interaction or genetic_interaction", required = true  )
+            @QueryParam("filter.joinType") JoinTypeValue joinType,
             @Parameter(in = ParameterIn.QUERY, name = "filter.interactorGeneSymbol", description = "Gene symbol")
             @QueryParam("filter.interactorGeneSymbol") String interactorGeneSymbol,
             @Parameter(in = ParameterIn.QUERY, name = "filter.interactorSpecies", description = "Species")
@@ -481,8 +485,8 @@ public interface GeneRESTInterface {
             @QueryParam("asc") String asc,
             @Parameter(in = ParameterIn.QUERY, name = "filter.moleculeType", description = "molecule type")
             @QueryParam("filter.moleculeType") String moleculeType,
-            @Parameter(in = ParameterIn.QUERY, name = "filter.joinType")
-            @QueryParam("filter.joinType") String joinType,
+            @Parameter(in = ParameterIn.QUERY, name = "filter.joinType",  description=" molecylar_interaction or genetic_interaction", required = true)
+            @QueryParam("filter.joinType")  JoinTypeValue joinType,
             @Parameter(in = ParameterIn.QUERY, name = "filter.interactorGeneSymbol", description = "gene symbol")
             @QueryParam("filter.interactorGeneSymbol") String interactorGeneSymbol,
             @Parameter(in = ParameterIn.QUERY, name = "filter.interactorSpecies", description = "species")
@@ -669,7 +673,7 @@ public interface GeneRESTInterface {
             @DefaultValue("20") @QueryParam("limit") Integer limit,
             @Parameter(in = ParameterIn.QUERY, name = "page", description = "Page number", schema = @Schema(type = SchemaType.INTEGER))
             @DefaultValue("1") @QueryParam("page") Integer page,
-            @DefaultValue("allele") @QueryParam("sortBy") String sortBy,
+            @DefaultValue("transgenicAllele") @QueryParam("sortBy") String sortBy,
             @Parameter(in = ParameterIn.QUERY, name = "filter.allele", description = "filter by allele symbol", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.allele") String alleleSymbol,
             @Parameter(in = ParameterIn.QUERY, name = "filter.construct", description = "filter by construct symbol", schema = @Schema(type = SchemaType.STRING))
@@ -697,9 +701,7 @@ public interface GeneRESTInterface {
     Response getTransgenicAllelesPerGeneDownload(
             @Parameter(in = ParameterIn.PATH, name = "id", description = "Gene by ID, e.g. 'RGD:2129' or 'ZFIN:ZDB-GENE-990415-72 fgf8a'", required = true, schema = @Schema(type = SchemaType.STRING))
             @PathParam("id") String geneID,
-            @DefaultValue("allele") @QueryParam("sortBy") String sortBy,
-            @Parameter(in = ParameterIn.QUERY, name = "asc", description = "order to sort by", schema = @Schema(type = SchemaType.STRING))
-            @DefaultValue("true") @QueryParam("asc") String asc,
+            @DefaultValue("transgenicAllele") @QueryParam("sortBy") String sortBy,
             @Parameter(in = ParameterIn.QUERY, name = "filter.allele", description = "filter by allele symbol", schema = @Schema(type = SchemaType.STRING))
             @QueryParam("filter.allele") String alleleSymbol,
             @Parameter(in = ParameterIn.QUERY, name = "filter.construct", description = "filter by construct symbol", schema = @Schema(type = SchemaType.STRING))
