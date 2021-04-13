@@ -1,15 +1,16 @@
 package org.alliancegenome.cache.repository.helper;
 
-import static java.util.Comparator.naturalOrder;
-import static org.alliancegenome.neo4j.entity.node.Allele.*;
-
-import java.util.*;
-import java.util.stream.Collectors;
-
 import org.alliancegenome.neo4j.entity.Sorting;
 import org.alliancegenome.neo4j.entity.node.*;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static java.util.Comparator.naturalOrder;
+import static org.alliancegenome.neo4j.entity.node.Allele.ALLELE_WITH_MULTIPLE_VARIANT;
+import static org.alliancegenome.neo4j.entity.node.Allele.ALLELE_WITH_ONE_VARIANT;
 
 public class AlleleSorting implements Sorting<Allele> {
 
@@ -19,6 +20,8 @@ public class AlleleSorting implements Sorting<Allele> {
     private List<Comparator<Allele>> variantList;
     private List<Comparator<Allele>> variantTypeList;
     private List<Comparator<Allele>> variantConsequenceList;
+    private List<Comparator<Allele>> transgenicGeneList;
+    private List<Comparator<Allele>> diseaseList;
 
     private static Map<String, Integer> categoryMap = new LinkedHashMap<>();
 
@@ -40,6 +43,9 @@ public class AlleleSorting implements Sorting<Allele> {
         alleleSymbolList = new ArrayList<>(2);
         alleleSymbolList.add(alleleSymbolOrder);
 
+        transgenicGeneList = new ArrayList<>(2);
+        transgenicGeneList.add(phylogeneticOrder);
+
         speciesList = new ArrayList<>(3);
         speciesList.add(diseaseOrder);
         speciesList.add(alleleSymbolOrder);
@@ -57,6 +63,11 @@ public class AlleleSorting implements Sorting<Allele> {
         variantConsequenceList.add(variantTypeOrder);
         variantConsequenceList.add(alleleSymbolOrder);
 
+        diseaseList = new ArrayList<>(3);
+        diseaseList.add(hasDiseaseOrder);
+        diseaseList.add(alleleCategoryOrder);
+        diseaseList.add(alleleSymbolOrder);
+
     }
 
     public Comparator<Allele> getComparator(SortingField field, Boolean ascending) {
@@ -72,14 +83,26 @@ public class AlleleSorting implements Sorting<Allele> {
                 return getJoinedComparator(variantList);
             case VARIANT_TYPE:
                 return getJoinedComparator(variantTypeList);
-            case VARIANT_CONSEQUENCE:
+            case MOLECULAR_CONSEQUENCE:
                 return getJoinedComparator(variantConsequenceList);
             case SPECIES:
                 return getJoinedComparator(speciesList);
+            case TRANSGENIC_ALLELE:
+                return getJoinedComparator(transgenicGeneList);
+            case DISEASE:
+                return getJoinedComparator(diseaseList);
             default:
                 return getJoinedComparator(defaultList);
         }
     }
+
+    private static Comparator<Allele> phylogeneticOrder =
+            Comparator.comparing(allele -> {
+                if (allele.getSpecies() == null)
+                    return 1;
+                return allele.getSpecies().getPhylogeneticOrder();
+            });
+
 
     static public Comparator<Allele> alleleCategoryOrder =
             Comparator.comparing(allele -> categoryMap.get(allele.getCategory()));
@@ -105,6 +128,9 @@ public class AlleleSorting implements Sorting<Allele> {
                 String diseaseJoin = allele.getDiseases().stream().sorted(Comparator.comparing(SimpleTerm::getName)).map(SimpleTerm::getName).collect(Collectors.joining(""));
                 return diseaseJoin.toLowerCase();
             }, Comparator.nullsLast(naturalOrder()));
+
+    static public Comparator<Allele> hasDiseaseOrder =
+            Comparator.comparing(Allele::hasDisease).reversed();
 
     static public Comparator<Allele> variantOrder =
             Comparator.comparing(allele -> {

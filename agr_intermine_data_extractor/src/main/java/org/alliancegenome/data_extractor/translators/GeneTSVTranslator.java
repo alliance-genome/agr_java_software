@@ -21,7 +21,9 @@ public class GeneTSVTranslator extends ResultTSVTranslator {
         return Arrays.asList(
                 "Id",
                 "SecondaryId",
+                "CrossRefs",
                 "Name",
+                "Symbol",
                 "MOD Description",
                 "Auto Description",
                 "Species",
@@ -38,8 +40,10 @@ public class GeneTSVTranslator extends ResultTSVTranslator {
 
         return Arrays.asList(
             String.valueOf(map.get("g.primaryKey")),
-            String.valueOf(map.get("s.SecondaryId")),
+            String.valueOf(Arrays.deepToString((Object[]) map.get("synonyms"))),   
+            String.valueOf(Arrays.deepToString((Object[]) map.get("crossrefs"))),
             String.valueOf(map.get("g.name")),
+            String.valueOf(map.get("g.symbol")),
             String.valueOf(map.get("g.geneSynopsis")).stripTrailing(),
             String.valueOf(map.get("g.automatedGeneSynopsis")).stripTrailing(),
             String.valueOf(map.get("s.primaryKey")),

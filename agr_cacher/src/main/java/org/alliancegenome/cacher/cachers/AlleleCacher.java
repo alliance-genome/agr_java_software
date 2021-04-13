@@ -197,12 +197,15 @@ public class AlleleCacher extends Cacher {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        downloadSet.getDownloadFileSet()
-                .forEach(source -> source.getFileList()
-                        .forEach(file -> {
-                            List<String> chromosomes = speciesChromosomeMap.computeIfAbsent(source.getTaxonId(), k -> new ArrayList<>());
-                            chromosomes.add(file.getChromosome());
-                        }));
+        if (downloadSet.getDownloadFileSet() != null) {
+            downloadSet.getDownloadFileSet()
+                    .stream().filter(Objects::nonNull)
+                    .forEach(source -> source.getFileList()
+                            .forEach(file -> {
+                                List<String> chromosomes = speciesChromosomeMap.computeIfAbsent(source.getTaxonId(), k -> new ArrayList<>());
+                                chromosomes.add(file.getChromosome());
+                            }));
+        }
     }
 
     public void readHtpFiles(String taxonID, String chromosome) {

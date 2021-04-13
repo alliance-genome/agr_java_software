@@ -42,9 +42,9 @@ public class OrthologousRepository extends Neo4jRepository<Orthologous> {
             query += " and   gh.taxonId = '" + taxonTwo + "' ";
         if (filter.getStringency() != null) {
             if (filter.getStringency().equals(OrthologyFilter.Stringency.STRINGENT))
-                query += " and ortho.strictFilter = true and ortho.moderateFilter = false ";
+                query += " and ortho.strictFilter = true ";
             if (filter.getStringency().equals(OrthologyFilter.Stringency.MODERATE))
-                query += " and ortho.strictFilter = false and ortho.moderateFilter = true ";
+                query += " and ortho.moderateFilter = true ";
         }
         query += "OPTIONAL MATCH p6=(s:OrthologyGeneJoin)-[:NOT_MATCHED]->(notMatched:OrthoAlgorithm) ";
         query += "OPTIONAL MATCH p7=(s:OrthologyGeneJoin)-[:NOT_CALLED]->(notCalled:OrthoAlgorithm) ";
@@ -61,12 +61,7 @@ public class OrthologousRepository extends Neo4jRepository<Orthologous> {
 
             Gene homologGene = (Gene) objectMap.get("gh");
             view.setHomologGene(homologGene);
-            if (filter.getStringency().equals(OrthologyFilter.Stringency.STRINGENT))
-                view.setStringencyFilter("stringent");
-            else if (filter.getStringency().equals(OrthologyFilter.Stringency.MODERATE))  
-                view.setStringencyFilter("moderate");
-            else
-                view.setStringencyFilter("all");
+
             view.setBest(((List<Orthologous>) objectMap.get("collect(distinct ortho)")).get(0).getIsBestScore());
             view.setBestReverse(((List<Orthologous>) objectMap.get("collect(distinct ortho)")).get(0).getIsBestRevScore());
 

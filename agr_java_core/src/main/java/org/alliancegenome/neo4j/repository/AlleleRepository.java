@@ -234,10 +234,11 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
 */
 
         query += " OPTIONAL MATCH consequence = (t:Transcript)--(:TranscriptLevelConsequence)--(variant:Variant)<-[:ASSOCIATION]-(t:Transcript)--(:SOTerm) ";
+        query += " OPTIONAL MATCH geneLevelConsequence=(variant:Variant)-[:ASSOCIATION]->(:GeneLevelConsequence)";
         query += " OPTIONAL MATCH loc=(variant:Variant)-[:ASSOCIATION]->(:GenomicLocation)-[:ASSOCIATION]->(:Chromosome)";
         query += " OPTIONAL MATCH p2=(a:Allele)-[:ALSO_KNOWN_AS]->(synonym:Synonym)";
         query += " OPTIONAL MATCH crossRef=(a:Allele)-[:CROSS_REFERENCE]->(c:CrossReference)";
-        query += " RETURN p0, p1, p2, consequence, loc, crossRef ";
+        query += " RETURN p0, p1, p2, consequence, loc, crossRef, geneLevelConsequence ";
         Iterable<Allele> allelesWithVariantsIter = query(query, new HashMap<>());
         Set<Allele> allelesWithVariants = StreamSupport.stream(allelesWithVariantsIter.spliterator(), false)
                 .collect(Collectors.toSet());
@@ -307,11 +308,14 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
                                     }
                                 }
                             }));
-            allele.setDisease(hasAlleleDiseaseInfo(allele.getPrimaryKey()));
-            allele.setPhenotype(hasAllelePhenoInfo(allele.getPrimaryKey()));
         });
         allAlleles.addAll(allelesWithVariants);
         allAlleles.forEach(Allele::populateCategory);
+        // populate phenotype and disease info
+        allAlleles.forEach(allele -> {
+            allele.setDisease(hasAlleleDiseaseInfo(allele.getPrimaryKey()));
+            allele.setPhenotype(hasAllelePhenoInfo(allele.getPrimaryKey()));
+        });
     }
 
     /*
@@ -335,6 +339,10 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
                 .collect(Collectors.toList()));
 
         alleleList.sort(Comparator.comparing(Allele::getSymbolText));
+        alleleList.forEach(allele -> {
+            allele.setPhenotype(CollectionUtils.isNotEmpty(allele.getPhenotypes()));
+            allele.setDisease(CollectionUtils.isNotEmpty(allele.getDiseaseEntityJoins()));
+        });
         return alleleList;
     }
 
@@ -343,8 +351,8 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
         query += " MATCH p1=(:Species)<-[:FROM_SPECIES]-(allele:Allele)--(construct:Construct)-[:" + relationship + "]-(gene:Gene)--(:Species) " +
                 "  where gene.primaryKey = {geneID}";
         // need this optional match to retrieve all expresses genes besides the given geneID
-        query += " OPTIONAL MATCH express=(:CrossReference)--(construct:Construct)-[:EXPRESSES]-(:Gene)--(:Species)";
-        query += " OPTIONAL MATCH expressNonBGI=(:CrossReference)--(construct:Construct)-[:EXPRESSES]-(:NonBGIConstructComponent)";
+        query += " OPTIONAL MATCH express=(construct:Construct)-[:EXPRESSES]-(:Gene)--(:Species)";
+        query += " OPTIONAL MATCH expressNonBGI=(construct:Construct)-[:EXPRESSES]-(:NonBGIConstructComponent)";
         query += " OPTIONAL MATCH target=(:CrossReference)--(construct:Construct)-[:TARGET]-(:Gene)--(:Species)";
         query += " OPTIONAL MATCH targetNon=(:CrossReference)--(construct:Construct)-[:TARGET]-(:NonBGIConstructComponent)";
         query += " OPTIONAL MATCH regulated=(:CrossReference)--(construct:Construct)-[:IS_REGULATED_BY]-(:Gene)--(:Species)";

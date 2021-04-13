@@ -53,13 +53,12 @@ public class GeneOrthologCacher extends Cacher {
                         view.setHomologGene(orthologous.getGene2());
                         view.setBest(orthologous.getIsBestScore());
                         view.setBestReverse(orthologous.getIsBestRevScore());
-                        if (orthologous.isStrictFilter() && !orthologous.isModerateFilter()) {
+                        if (orthologous.isStrictFilter()) {
                             view.setStringencyFilter("stringent");
-                        } else if (orthologous.isModerateFilter() && !orthologous.isStrictFilter()) {
+                        } else if (orthologous.isModerateFilter()) {
                             view.setStringencyFilter("moderate");
                         }
-                        else
-                            view.setStringencyFilter("all");
+
                         progressProcess();
                         view.setPredictionMethodsMatched(getPredictionMatches(gene.getPrimaryKey(), orthologous.getGene2().getPrimaryKey()));
                         view.setPredictionMethodsNotMatched(getPredictionNotMatches(gene.getPrimaryKey(), orthologous.getGene2().getPrimaryKey()));
