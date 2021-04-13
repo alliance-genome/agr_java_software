@@ -215,7 +215,7 @@ public class IndexManager {
         newIndexName += baseIndexName;
         
         if(ConfigHelper.hasEsIndexSuffix()) {
-            newIndexName = "_" + ConfigHelper.getEsIndexSuffix();
+            newIndexName += "_" + ConfigHelper.getEsIndexSuffix();
         }
         
         newIndexName += "_" + (new Date()).getTime();
