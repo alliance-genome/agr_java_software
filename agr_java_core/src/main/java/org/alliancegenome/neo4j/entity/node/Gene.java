@@ -59,10 +59,10 @@ public class Gene extends GeneticEntity implements Comparable<Gene> {
     private SOTerm soTerm;
 
     @Relationship(type = "ANNOTATED_TO")
-    private Set<GOTerm> goTerms = new HashSet<>();
+    private Set<GOTerm> goTerms;
 
     @Relationship(type = "ORTHOLOGOUS")
-    private List<Orthologous> orthoGenes = new ArrayList<>();
+    private List<Orthologous> orthoGenes;
 
     @Relationship(type = "ASSOCIATION")
     @JsonView({View.GeneAPI.class, View.VariantAPI.class, View.AlleleAPI.class})
@@ -72,29 +72,29 @@ public class Gene extends GeneticEntity implements Comparable<Gene> {
     private List<Chromosome> chromsomes;
 
     @Relationship(type = "IS_ALLELE_OF", direction = Relationship.INCOMING)
-    //@JsonView(value = {View.GeneAllelesAPI.class})
+    @JsonView(value = {View.GeneAPI.class})
     private List<Allele> alleles;
 
     @Relationship(type = "ASSOCIATION", direction = Relationship.UNDIRECTED)
-    private List<DiseaseEntityJoin> diseaseEntityJoins = new ArrayList<>();
+    private List<DiseaseEntityJoin> diseaseEntityJoins;
 
     @Relationship(type = "ASSOCIATION", direction = Relationship.UNDIRECTED)
-    private List<BioEntityGeneExpressionJoin> entityGeneExpressionJoins = new ArrayList<>();
+    private List<BioEntityGeneExpressionJoin> entityGeneExpressionJoins;
 
     @Relationship(type = "ASSOCIATION")
-    private List<PhenotypeEntityJoin> phenotypeEntityJoins = new ArrayList<>();
+    private List<PhenotypeEntityJoin> phenotypeEntityJoins;
 
     @Relationship(type = "ASSOCIATION", direction = Relationship.UNDIRECTED)
-    private List<OrthologyGeneJoin> orthologyGeneJoins = new ArrayList<>();
+    private List<OrthologyGeneJoin> orthologyGeneJoins;
 
     @Relationship(type = "HAS_PHENOTYPE")
-    private List<Phenotype> phenotypes = new ArrayList<>();
+    private List<Phenotype> phenotypes;
 
     @Relationship(type = "ASSOCIATION")
-    private List<InteractionGeneJoin> interactions = new ArrayList<>();
+    private List<InteractionGeneJoin> interactions;
 
     @Relationship(type = "EXPRESSED_IN")
-    private List<ExpressionBioEntity> expressionBioEntities = new ArrayList<>();
+    private List<ExpressionBioEntity> expressionBioEntities;
 
     public String getNameKey() {
         String nameKey = symbol;

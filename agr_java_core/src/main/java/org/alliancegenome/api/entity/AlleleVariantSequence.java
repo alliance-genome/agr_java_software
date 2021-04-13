@@ -3,6 +3,8 @@ package org.alliancegenome.api.entity;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Getter;
 import lombok.Setter;
+
+import org.alliancegenome.es.index.site.document.SearchableItemDocument;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.TranscriptLevelConsequence;
 import org.alliancegenome.neo4j.entity.node.Variant;
@@ -14,11 +16,11 @@ import org.alliancegenome.neo4j.view.View;
  */
 @Setter
 @Getter
-public class AlleleVariantSequence {
+public class AlleleVariantSequence extends SearchableItemDocument {
 
     @JsonView({View.Default.class})
     private Allele allele;
-    @JsonView({View.Default.class})
+    @JsonView({View.Default.class, View.AlleleVariantSequenceConverterForES.class})
     private Variant variant;
     @JsonView({View.Default.class})
     private TranscriptLevelConsequence consequence;
@@ -37,13 +39,16 @@ public class AlleleVariantSequence {
 
     @Override
     public String toString() {
-        String message = allele.getSymbolText();
+        StringBuilder builder = new StringBuilder();
+        builder.append(allele.getSymbolText());
         if (variant != null) {
-            message += " : " + variant.getHgvsNomenclature();
+            builder.append(" : ");
+            builder.append(variant.getHgvsNomenclature());
         }
         if (consequence != null) {
-            message += " : " + consequence.getTranscriptName();
+            builder.append(" : ");
+            builder.append(consequence.getTranscriptName());
         }
-        return message;
+        return builder.toString();
     }
 }

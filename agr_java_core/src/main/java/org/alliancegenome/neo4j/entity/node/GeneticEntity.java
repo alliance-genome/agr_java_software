@@ -21,30 +21,48 @@ public class GeneticEntity extends Neo4jEntity {
 
     protected CrossReferenceType crossReferenceType;
 
-    @JsonView({View.Default.class, View.API.class})
+    @JsonView({View.Default.class, View.API.class, View.AlleleVariantSequenceConverterForES.class})
     @JsonProperty(value = "id")
     protected String primaryKey;
-    @JsonView({View.Default.class, View.API.class})
+    @JsonView({View.Default.class, View.API.class, View.AlleleVariantSequenceConverterForES.class})
     protected String symbol;
 
     protected String symbolWithSpecies;
     @Convert(value = DateConverter.class)
     private Date dateProduced;
+    
+    private String url;
+    
+    // only used for JsonView
+    /// set when deserialized
+    protected Map<String, Object> map = null;
+    
 
     @JsonView({View.API.class, View.PhenotypeAPI.class, View.DiseaseAnnotation.class, View.Orthology.class})
     @Relationship(type = "FROM_SPECIES")
     protected Species species;
 
     @Relationship(type = "ALSO_KNOWN_AS")
-    private List<Synonym> synonyms = new ArrayList<>();
+    private List<Synonym> synonyms;
 
+
+    @Relationship(type = "CROSS_REFERENCE")
+    protected List<CrossReference> crossReferences;
+    
+    
     // Converts the list of synonym objects to a list of strings
     @JsonView(value = {View.API.class, View.GeneAllelesAPI.class, View.GeneAlleleVariantSequenceAPI.class})
     @JsonProperty(value = "synonyms")
     public List<String> getSynonymList() {
-        if (synonyms == null)
-            return List.of();
-        return synonyms.stream().map(Synonym::getName).collect(Collectors.toList());
+        if(synonyms != null) {
+        List<String> list = new ArrayList<String>();
+        for(Synonym s: synonyms) {
+            list.add(s.getName());
+        }
+        return list;
+        } else {
+            return new ArrayList<>();
+        }
     }
 
     @JsonProperty(value = "synonyms")
@@ -60,17 +78,20 @@ public class GeneticEntity extends Neo4jEntity {
     }
 
     @Relationship(type = "ALSO_KNOWN_AS")
-    private List<SecondaryId> secondaryIds = new ArrayList<>();
+    private List<SecondaryId> secondaryIds;
 
     // Converts the list of secondary ids objects to a list of strings
     @JsonView(value = {View.API.class})
     @JsonProperty(value = "secondaryIds")
     public List<String> getSecondaryIdsList() {
         List<String> list = new ArrayList<>();
-        for (SecondaryId s : secondaryIds) {
-            list.add(s.getName());
+        if(secondaryIds != null) {
+            for (SecondaryId s : secondaryIds) {
+                list.add(s.getName());
+            }
         }
         return list;
+
     }
 
     @JsonProperty(value = "secondaryIds")
@@ -85,8 +106,6 @@ public class GeneticEntity extends Neo4jEntity {
         }
     }
 
-    @Relationship(type = "CROSS_REFERENCE")
-    protected List<CrossReference> crossReferences = new ArrayList<>();
 
     // Only for manual construction (Neo needs to use the no-args constructor)
     public GeneticEntity(String primaryKey, CrossReferenceType crossReferenceType) {
@@ -97,9 +116,7 @@ public class GeneticEntity extends Neo4jEntity {
     public GeneticEntity() {
     }
 
-    // only used for JsonView
-    /// set when deserialized
-    protected Map<String, Object> map = null;
+
 
     @JsonView({View.API.class})
     @JsonProperty(value = "crossReferences")
@@ -107,22 +124,25 @@ public class GeneticEntity extends Neo4jEntity {
         if (map != null)
             return map;
         map = new HashMap<>();
-        List<CrossReference> othersList = new ArrayList<>();
-        for (CrossReference cr : crossReferences) {
-            String typeName = crossReferenceType.getDisplayName();
-            // hard-coding WB speciality submission
-            // Todo: Needs better modeling: use label=transgene in neo, or subclass, or something else
-            if (cr.getCrossRefType().startsWith("transgene")) {
-                typeName = "transgene";
-            }
-            if (cr.getCrossRefType().startsWith(typeName + "/")) {
-                typeName = cr.getCrossRefType().replace(typeName + "/", "");
-                map.put(typeName, cr);
-            } else if (cr.getCrossRefType().equals(typeName)) {
-                map.put("primary", cr);
-            } else if (cr.getCrossRefType().equals("generic_cross_reference")) {
-                othersList.add(cr);
-                map.put("other", othersList);
+        
+        if(crossReferences != null) {
+            List<CrossReference> othersList = new ArrayList<>();
+            for (CrossReference cr : crossReferences) {
+                String typeName = crossReferenceType.getDisplayName();
+                // hard-coding WB speciality submission
+                // Todo: Needs better modeling: use label=transgene in neo, or subclass, or something else
+                if (cr.getCrossRefType().startsWith("transgene")) {
+                    typeName = "transgene";
+                }
+                if (cr.getCrossRefType().startsWith(typeName + "/")) {
+                    typeName = cr.getCrossRefType().replace(typeName + "/", "");
+                    map.put(typeName, cr);
+                } else if (cr.getCrossRefType().equals(typeName)) {
+                    map.put("primary", cr);
+                } else if (cr.getCrossRefType().equals("generic_cross_reference")) {
+                    othersList.add(cr);
+                    map.put("other", othersList);
+                }
             }
         }
         return map;
@@ -135,8 +155,6 @@ public class GeneticEntity extends Neo4jEntity {
         this.map = map;
     }
 
-    private String url;
-
     // ToDo: the primary URL should be an attribute on the entity node
     @JsonView({View.GeneAllelesAPI.class, View.AlleleAPI.class, View.Default.class})
     @JsonProperty(value = "url")
@@ -144,9 +162,10 @@ public class GeneticEntity extends Neo4jEntity {
     public String getUrl() {
         if (url != null)
             return url;
-        if (getCrossReferenceMap() == null)
+        Map<String, Object> map = getCrossReferenceMap();
+        if (map == null)
             return null;
-        CrossReference primary = (CrossReference) getCrossReferenceMap().get("primary");
+        CrossReference primary = (CrossReference) map.get("primary");
         if (primary == null)
             return null;
         url = primary.getCrossRefCompleteUrl();

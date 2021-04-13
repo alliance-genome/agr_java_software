@@ -3,13 +3,12 @@ package org.alliancegenome.variant_indexer;
 import java.io.File;
 import java.util.*;
 
-import org.alliancegenome.core.variant.converters.VariantContextConverter;
-import org.alliancegenome.es.variant.model.VariantDocument;
+import org.alliancegenome.api.entity.AlleleVariantSequence;
+import org.alliancegenome.core.variant.converters.AlleleVariantSequenceConverter;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.apache.commons.math3.stat.descriptive.SummaryStatistics;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.base.CaseFormat;
 
 import htsjdk.samtools.util.CloseableIterator;
 import htsjdk.variant.variantcontext.VariantContext;
@@ -24,16 +23,11 @@ public class TestSingleLineConvert {
         
         VCFInfoHeaderLine header = reader.getFileHeader().getInfoHeaderLine("CSQ");
         System.out.println(header.getDescription());
-        String[] formats = header.getDescription().split("Format: ")[1].split("\\|");
-        
-        for(int i = 0; i < formats.length; i++) {
-            formats[i] = CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, formats[i]);
-        }
         
         int count = 0;
         SummaryStatistics ss = new SummaryStatistics();
         
-        VariantContextConverter converter = new VariantContextConverter();
+        AlleleVariantSequenceConverter converter = new AlleleVariantSequenceConverter();
         Date start = new Date();
         Date end = new Date();
         double avg = 0;
@@ -44,9 +38,9 @@ public class TestSingleLineConvert {
             try {
                 VariantContext vc = iter1.next();
                 //if(vc.getID().equals("rs55780505")) {
-                List<VariantDocument> docs = converter.convertVariantContext(vc, SpeciesType.HUMAN, formats);
+                List<AlleleVariantSequence> docs = converter.convertContextToAlleleVariantSequence(vc, null, SpeciesType.HUMAN);
                 
-                for(VariantDocument doc: docs) {
+                for(AlleleVariantSequence doc: docs) {
                     String jsonDoc = mapper.writeValueAsString(doc);
                     if(count == 10000) {
                         end = new Date();

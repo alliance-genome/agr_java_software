@@ -205,11 +205,20 @@ public class IndexManager {
     
 
     public String startSiteIndex() {
-        if(ConfigHelper.hasEsIndexSuffix()) {
-            newIndexName = baseIndexName + "_" + ConfigHelper.getEsIndexSuffix() + "_" + (new Date()).getTime();
-        } else {
-            newIndexName = baseIndexName + "_" + (new Date()).getTime();
+        
+        newIndexName = "";
+        
+        if(ConfigHelper.hasEsIndexPrefix()) {
+            newIndexName += ConfigHelper.getEsIndexPrefix() + "_";
         }
+        
+        newIndexName += baseIndexName;
+        
+        if(ConfigHelper.hasEsIndexSuffix()) {
+            newIndexName = "_" + ConfigHelper.getEsIndexSuffix();
+        }
+        
+        newIndexName += "_" + (new Date()).getTime();
 
         createIndex(newIndexName);
         createAlias(tempIndexName, newIndexName);

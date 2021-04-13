@@ -8,6 +8,7 @@ public class Constants {
     public static final String DEBUG = "DEBUG";
     
     public static final String ES_INDEX = "ES_INDEX";
+    public static final String ES_INDEX_PREFIX = "ES_INDEX_PREFIX";
     public static final String ES_INDEX_SUFFIX = "ES_INDEX_SUFFIX";
     public static final String ES_HOST = "ES_HOST";
     public static final String ES_PORT = "ES_PORT";
@@ -46,11 +47,16 @@ public class Constants {
     public static final String SEARCHABLE_ITEM = "searchable_item";
     
     // Variant Indexer Related ENV param constants
-    public static final String VARIANT_CONFIG_FILE = "VARIANT_CONFIG_FILE";
+    public static final String VARIANT_MOD_DOWNLOAD_SET_FILE = "VARIANT_MOD_DOWNLOAD_SET_FILE";
+    public static final String VARIANT_HUMAN_DOWNLOAD_SET_FILE = "VARIANT_HUMAN_DOWNLOAD_SET_FILE";
+    
+    public static final String VARIANTS_TO_INDEX = "VARIANTS_TO_INDEX";
+    
     public static final String VARIANT_CACHER_CONFIG_FILE = "VARIANT_CACHER_CONFIG_FILE";
     public static final String VARIANT_CONFIG_DOWNLOAD = "VARIANT_CONFIG_DOWNLOAD";
     public static final String VARIANT_CONFIG_CREATING = "VARIANT_CONFIG_CREATING";
     public static final String VARIANT_CONFIG_INDEXING = "VARIANT_CONFIG_INDEXING";
+    public static final String VARIANT_CONFIG_GATHERSTATS = "VARIANT_CONFIG_GATHERSTATS";
     public static final String FMS_URL = "FMS_URL";
     public static final String ALLIANCE_RELEASE = "ALLIANCE_RELEASE";
     

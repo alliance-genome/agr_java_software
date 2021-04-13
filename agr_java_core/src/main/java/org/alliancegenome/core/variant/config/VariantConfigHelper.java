@@ -34,12 +34,18 @@ public class VariantConfigHelper {
          * key in the defaults map there should be a corresponding get method for that value.
          */
 
-        defaults.put(VARIANT_CONFIG_FILE, "downloadFileSet.yaml");
+
+        defaults.put(VARIANT_HUMAN_DOWNLOAD_SET_FILE, "HumanFileSet.yaml");
+        defaults.put(VARIANT_MOD_DOWNLOAD_SET_FILE, "ModFileSet.yaml");
+        
         defaults.put(VARIANT_CACHER_CONFIG_FILE, "variantDownloadFiles.yaml");
 
+        defaults.put(VARIANTS_TO_INDEX, "");
+        
         defaults.put(VARIANT_CONFIG_DOWNLOAD, "true");
         defaults.put(VARIANT_CONFIG_CREATING, "true");
         defaults.put(VARIANT_CONFIG_INDEXING, "true");
+        defaults.put(VARIANT_CONFIG_GATHERSTATS, "false");
         
         defaults.put(VARIANT_FILE_DOWNLOAD_THREADS, "10");
         defaults.put(VARIANT_FILE_DOWNLOAD_FILTER_THREADS, "10");
@@ -47,7 +53,7 @@ public class VariantConfigHelper {
         
         defaults.put(VARIANT_DISPLAY_INTERVAL, "30");
         
-        defaults.put(VARIANT_SOURCE_DOCUMENT_CREATOR_THREADS, "1");
+        defaults.put(VARIANT_SOURCE_DOCUMENT_CREATOR_THREADS, "6");
         
         defaults.put(VARIANT_SOURCE_DOCUMENT_CREATOR_VCQUEUE_SIZE, "400");
         defaults.put(VARIANT_SOURCE_DOCUMENT_CREATOR_VCQUEUE_BUCKET_SIZE, "25");
@@ -108,9 +114,31 @@ public class VariantConfigHelper {
         return ret;
     }
 
-    public static String getVariantConfigFile() {
+    public static String getVariantHumanDownloadSetFile() {
         if (!init) init();
-        return config.get(VARIANT_CONFIG_FILE);
+        return config.get(VARIANT_HUMAN_DOWNLOAD_SET_FILE);
+    }
+    
+    public static String getVariantModDownloadSetFile() {
+        if (!init) init();
+        return config.get(VARIANT_MOD_DOWNLOAD_SET_FILE);
+    }
+    
+    public static String getVariantToIndex() {
+        if (!init) init();
+        return config.get(VARIANTS_TO_INDEX);
+    }
+
+    public static String getDownloadSetFile() {
+        if (!init) init();
+        if(getVariantToIndex().equals("HUMAN")) {
+            return getVariantHumanDownloadSetFile();
+        }
+        if(getVariantToIndex().equals("MOD")) {
+            return getVariantModDownloadSetFile();
+        }
+        log.warn("need to set VARIANTS_TO_INDEX = \"HUMAN\" or \"MOD\" to choose between which variants to index");
+        return null;
     }
     
     public static String getVariantCacherConfigFile() {
@@ -163,6 +191,10 @@ public class VariantConfigHelper {
     public static Boolean isIndexing() {
         if (!init) init();
         return Boolean.parseBoolean(config.get(VARIANT_CONFIG_INDEXING));
+    }
+    public static Boolean isGatherStats() {
+        if (!init) init();
+        return Boolean.parseBoolean(config.get(VARIANT_CONFIG_GATHERSTATS));
     }
 
     public static Integer getIndexerShards() {

@@ -21,6 +21,8 @@ public class FileDownloadManager extends Thread {
         if(downloadSet == null || downloadSet.getDownloadFileSet() == null)
             return;
 
+        log.info("Starting downloading variant Files");
+        
         ExecutorService executor = Executors.newFixedThreadPool(VariantConfigHelper.getFileDownloadThreads());
 
         for(DownloadSource source: downloadSet.getDownloadFileSet()) {

@@ -1,35 +1,39 @@
 package org.alliancegenome.indexer.indexers;
 
-import java.io.*;
-import java.net.URISyntaxException;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.log4j.Log4j2;
+import org.alliancegenome.core.config.ConfigHelper;
+import org.alliancegenome.es.index.ESDocument;
+import org.alliancegenome.es.util.EsClientFactory;
+import org.alliancegenome.indexer.config.IndexerConfig;
+import org.apache.commons.io.FileUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.elasticsearch.action.DocWriteRequest;
+import org.elasticsearch.action.bulk.BackoffPolicy;
+import org.elasticsearch.action.bulk.BulkProcessor;
+import org.elasticsearch.action.bulk.BulkRequest;
+import org.elasticsearch.action.bulk.BulkResponse;
+import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.common.unit.ByteSizeUnit;
+import org.elasticsearch.common.unit.ByteSizeValue;
+import org.elasticsearch.common.unit.TimeValue;
+import org.elasticsearch.common.xcontent.XContentType;
+
+import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.DecimalFormat;
 import java.util.*;
-import java.util.concurrent.*;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-
-import com.google.common.io.Resources;
-import org.alliancegenome.core.config.ConfigHelper;
-import org.alliancegenome.es.index.ESDocument;
-import org.alliancegenome.es.util.EsClientFactory;
-import org.alliancegenome.indexer.config.IndexerConfig;
-import org.apache.commons.io.FileUtils;
-import org.apache.logging.log4j.*;
-import org.elasticsearch.action.DocWriteRequest;
-import org.elasticsearch.action.bulk.*;
-import org.elasticsearch.action.index.IndexRequest;
-import org.elasticsearch.client.*;
-import org.elasticsearch.common.unit.*;
-import org.elasticsearch.common.xcontent.XContentType;
-
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 public abstract class Indexer<D extends ESDocument> extends Thread {

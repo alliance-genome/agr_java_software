@@ -52,7 +52,7 @@ public class FileDownload extends Thread {
                 System.out.println("Unable to verify file: " + file.getUrl());
                 return;
             }
-            log.debug("Downloading: " + downloadUrl + " -> " + downloadPath);
+            log.info("Downloading: " + downloadUrl + " -> " + downloadPath);
             File dir = new File(downloadPath);
             if(!dir.exists()) {
                 Files.createDirectories(Paths.get(downloadPath));
@@ -68,7 +68,7 @@ public class FileDownload extends Thread {
             
             InputStream in = downloadUrl.openStream();
             Files.copy(in, Paths.get(localFile.getAbsolutePath()), StandardCopyOption.REPLACE_EXISTING);
-            log.debug("Finished Downloading: " + downloadUrl + " -> " + localFile.getAbsolutePath());
+            log.info("Finished Downloading: " + downloadUrl + " -> " + localFile.getAbsolutePath());
         
         } catch (IOException e) {
             e.printStackTrace();

@@ -1,24 +1,31 @@
 package org.alliancegenome.es.index.site.document;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.*;
 
 import org.alliancegenome.core.config.Constants;
 import org.alliancegenome.es.index.ESDocument;
 import org.alliancegenome.es.index.site.doclet.CrossReferenceDoclet;
+import org.alliancegenome.neo4j.entity.node.TranscriptLevelConsequence;
+import org.alliancegenome.neo4j.view.View;
 
 import com.fasterxml.jackson.annotation.*;
-
-import lombok.*;
 
 @Getter
 @Setter
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class SearchableItemDocument extends ESDocument {
 
+    @JsonView({View.AlleleVariantSequenceConverterForES.class})
     String alterationType;
     String automatedGeneSynopsis;
     String branch;
+    @JsonView({View.AlleleVariantSequenceConverterForES.class})
     String category;
+    @JsonView({View.AlleleVariantSequenceConverterForES.class})
+    String chromosome;
     String dataProvider;
     String description;
     String definition;
@@ -27,75 +34,90 @@ public class SearchableItemDocument extends ESDocument {
     String geneSynopsisUrl;
     String globalId;
     String href; //GO terms use this rather than modCrossRefCompleteUrl
+    @JsonView({View.AlleleVariantSequenceConverterForES.class})
     String id; //GO terms use this rather than primaryKey
     String localId;
+    @JsonView({View.AlleleVariantSequenceConverterForES.class})
     String name;
+    @JsonView({View.AlleleVariantSequenceConverterForES.class})
     @JsonProperty("name_key")
     String nameKey;
     String nameText;
+    //@JsonView({View.AlleleVariantSequenceConverterForES.class})
+    String matchedWithHtp;
     String modCrossRefCompleteUrl;
     String modLocalId;
     Double popularity;
+    @JsonView({View.AlleleVariantSequenceConverterForES.class})
     String primaryKey;
+    //@JsonView({View.AlleleVariantSequenceConverterForES.class})
+    boolean searchable = true;
     String soTermId;
     String soTermName;
+    @JsonView({View.AlleleVariantSequenceConverterForES.class})
     String species;
     String summary;
     String symbol;
     String symbolText;
 
-    Set<String> age = new HashSet<>();
-    Set<String> anatomicalExpression = new HashSet<>();         //uberon slim
-    Set<String> anatomicalExpressionWithParents = new HashSet<>();
-    Set<String> assays = new HashSet<>();
-    Set<String> associatedSpecies = new HashSet<>();
-    Set<String> biologicalProcessAgrSlim = new HashSet<>();
-    Set<String> biologicalProcessWithParents = new HashSet<>();
-    Set<String> biotype0 = new HashSet<>();
-    Set<String> biotype1 = new HashSet<>();
-    Set<String> biotype2 = new HashSet<>();
-    Set<String> biotypes = new HashSet<>();
-    Set<String> cellularComponentAgrSlim = new HashSet<>();
-    Set<String> cellularComponentWithParents = new HashSet<>();
-    Set<String> chromosomes = new HashSet<>();
-    Set<String> constructs = new HashSet<>();
-    Set<String> constructExpressedComponent = new HashSet<>();
-    Set<String> constructKnockdownComponent = new HashSet<>();
-    Set<String> constructRegulatoryRegion = new HashSet<>();
+    Set<String> age;
+    Set<String> anatomicalExpression;
+    Set<String> anatomicalExpressionWithParents;
+    Set<String> assays;
+    Set<String> associatedSpecies;
+    Set<String> biologicalProcessAgrSlim;
+    Set<String> biologicalProcessWithParents;
+    Set<String> biotype0;
+    Set<String> biotype1;
+    Set<String> biotype2;
+    Set<String> biotypes;
+    Set<String> cellularComponentAgrSlim;
+    Set<String> cellularComponentWithParents;
+    @JsonView({View.AlleleVariantSequenceConverterForES.class})
+    Set<String> chromosomes;
+    Set<String> constructs;
+    Set<String> constructExpressedComponent;
+    Set<String> constructKnockdownComponent;
+    Set<String> constructRegulatoryRegion;
     Map<String, List<CrossReferenceDoclet>> crossReferencesMap;
     List<CrossReferenceDoclet> crossReferenceList;
-    Set<String> crossReferences = new HashSet<>();
-    Set<String> diseases = new HashSet<>();
-    Set<String> diseasesAgrSlim = new HashSet<>();
-    Set<String> diseaseGroup = new HashSet<>();
-    Set<String> diseasesWithParents = new HashSet<>();
-    Set<String> expressionStages = new HashSet<>();
-    Set<String> alleles = new HashSet<>();
-    Set<String> genes = new HashSet<>();
+    Set<String> crossReferences;
+    Set<String> diseases;
+    Set<String> diseasesAgrSlim;
+    Set<String> diseaseGroup;
+    Set<String> diseasesWithParents;
+    Set<String> expressionStages;
+    Set<String> alleles;
+    @JsonView({View.AlleleVariantSequenceConverterForES.class})
+    Set<String> genes;
     Set<String> go_genes;
     Set<String> go_species;
-    Set<String> models = new HashSet<>();
-    Set<String> molecularConsequence = new HashSet<>();
-    Set<String> molecularFunctionAgrSlim = new HashSet<>();
-    Set<String> molecularFunctionWithParents = new HashSet<>();
-    Set<String> parentDiseaseNames = new HashSet<>();
-    Set<String> phenotypeStatements = new HashSet<>();
-    Set<String> sampleIds = new HashSet<>();
-    Set<String> secondaryIds = new HashSet<>();
-    Set<String> sex = new HashSet<>();
-    Set<String> strictOrthologySymbols = new HashSet<>();
-    Set<String> soTermNameWithParents = new HashSet<>();
-    Set<String> stage = new HashSet<>();         //uberon slim
-    Set<String> subcellularExpressionWithParents = new HashSet<>();
-    Set<String> subcellularExpressionAgrSlim = new HashSet<>();
-    Set<String> synonyms = new HashSet<>();
-    Set<String> tags = new HashSet<>();
-    Set<String> variants = new HashSet<>();
-    Set<String> variantSynonyms = new HashSet<>();
-    Set<String> variantType = new HashSet<>();
-    Set<String> whereExpressed = new HashSet<>();
 
-    boolean searchable = true;
+    Set<String> models;
+    @JsonView({View.AlleleVariantSequenceConverterForES.class})
+    Set<String> molecularConsequence;
+    Set<String> molecularFunctionAgrSlim;
+    Set<String> molecularFunctionWithParents;
+    Set<String> parentDiseaseNames;
+    Set<String> phenotypeStatements;
+    Set<String> sampleIds;
+    Set<String> secondaryIds;
+    Set<String> sex;
+    Set<String> strictOrthologySymbols;
+    Set<String> soTermNameWithParents;
+    Set<String> stage;
+    Set<String> subcellularExpressionWithParents;
+    Set<String> subcellularExpressionAgrSlim;
+    Set<String> synonyms;
+    Set<String> tags;
+    Set<String> variants;
+    Set<String> variantSynonyms;
+    @JsonView({View.AlleleVariantSequenceConverterForES.class})
+    Set<String> variantType;
+    Set<String> whereExpressed;
+    
+    @JsonView({View.AlleleVariantSequenceConverterForES.class})
+    List<TranscriptLevelConsequence> transcriptLevelConsequences;
 
     @Override
     @JsonIgnore

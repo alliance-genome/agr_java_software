@@ -4,7 +4,7 @@ import java.io.*;
 import java.util.*;
 import java.util.concurrent.LinkedBlockingDeque;
 
-import org.alliancegenome.core.variant.converters.VariantContextConverter;
+import org.alliancegenome.core.variant.converters.*;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 
@@ -76,7 +76,7 @@ public class TestReadVCFFile {
         while(!vcQueue.isEmpty()) {
             Thread.sleep(1000);
         }
-        log.info("VC Queue Empty shuting down transformers");
+        log.info("VC Queue Empty shutting down transformers");
         for(VCFTransform t: transformers) {
             t.interrupt();
             t.join();
@@ -95,7 +95,7 @@ public class TestReadVCFFile {
     
     private class VCFTransform extends Thread {
         
-        VariantContextConverter converter = new VariantContextConverter();
+        AlleleVariantSequenceConverter converter = new AlleleVariantSequenceConverter();
         private ProcessDisplayHelper ph2 = new ProcessDisplayHelper(60000);
         
         public void run() {

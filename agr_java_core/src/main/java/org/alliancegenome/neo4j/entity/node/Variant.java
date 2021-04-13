@@ -55,9 +55,9 @@ public class Variant extends GeneticEntity implements Comparable<Variant> {
     @Relationship(type = "COMPUTED_GENE", direction = Relationship.INCOMING)
     private Gene gene;
 
-    @JsonView({View.GeneAlleleVariantSequenceAPI.class})
+    @JsonView({View.GeneAlleleVariantSequenceAPI.class, View.AlleleVariantSequenceConverterForES.class})
     private String start;
-    @JsonView({View.GeneAlleleVariantSequenceAPI.class})
+    @JsonView({View.GeneAlleleVariantSequenceAPI.class, View.AlleleVariantSequenceConverterForES.class})
     private String end;
 
     @Relationship(type = "ASSOCIATION")
@@ -119,21 +119,21 @@ public class Variant extends GeneticEntity implements Comparable<Variant> {
     public String getNucleotideChange() {
         if (StringUtils.isNotEmpty(nucleotideChange))
             return nucleotideChange;
-        String change = "";
+        StringBuilder builder = new StringBuilder();
         if (variantType != null && (variantType.isInsertion() || variantType.isDeletion())) {
-            change += getPaddedChange(getGenomicReferenceSequence());
-            change += ">";
-            change += getPaddedChange(getGenomicVariantSequence());
+            builder.append(getGenomicReferenceSequence());
+            builder.append(">");
+            builder.append(getPaddedChange(getGenomicVariantSequence()));
             // if no genomic sequence is available add 'N+'
             if (StringUtils.isEmpty(getGenomicReferenceSequence()) &&
                     StringUtils.isEmpty(getGenomicVariantSequence()))
-                change += "N+";
+                builder.append("N+");
         } else {
-            change += getGenomicReferenceSequence();
-            change += ">";
-            change += getGenomicVariantSequence();
+            builder.append(getGenomicReferenceSequence());
+            builder.append(">");
+            builder.append(getGenomicVariantSequence());
         }
-        nucleotideChange = change;
+        nucleotideChange = builder.toString();
         return nucleotideChange;
     }
 
@@ -148,13 +148,15 @@ public class Variant extends GeneticEntity implements Comparable<Variant> {
         List<String> names = new ArrayList<>();
         names.add(name);
         names.add(hgvsNomenclature);
-        if (CollectionUtils.isNotEmpty(transcriptLevelConsequence)) {
-            names.addAll(transcriptLevelConsequence.stream()
-                    .map(TranscriptLevelConsequence::getHgvsVEPGeneNomenclature)
-                    .distinct()
-                    .collect(Collectors.toList()));
+        if(transcriptLevelConsequence != null) {
+            if (CollectionUtils.isNotEmpty(transcriptLevelConsequence)) {
+                names.addAll(transcriptLevelConsequence.stream()
+                        .map(TranscriptLevelConsequence::getHgvsVEPGeneNomenclature)
+                        .distinct()
+                        .collect(Collectors.toList()));
+            }
+            names.sort(Comparator.naturalOrder());
         }
-        names.sort(Comparator.naturalOrder());
         return names;
     }
 
