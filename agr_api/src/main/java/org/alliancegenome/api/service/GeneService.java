@@ -81,7 +81,7 @@ public class GeneService {
         return response;
     }
     public JsonResultResponse<InteractionGeneJoin> getInteractions(String id, Pagination pagination) {
-    	return getInteractions(id, pagination, "");
+        return getInteractions(id, pagination, "");
     }
 
     public JsonResultResponse<PhenotypeAnnotation> getPhenotypeAnnotations(String geneID, Pagination pagination) {

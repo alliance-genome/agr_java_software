@@ -150,8 +150,8 @@ public class InteractionToTdfTranslator {
               joiner.add(interactionGeneJoin.getAggregationDatabase().getLabel());
              }
              else {
-            	joiner.add(aggregationDatabaseID);
-            	joiner.add(aggregationDatabase);
+                joiner.add(aggregationDatabaseID);
+                joiner.add(aggregationDatabase);
              }
             }
             if (interactionGeneJoin.getPublication()!=null)

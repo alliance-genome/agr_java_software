@@ -40,9 +40,9 @@ public class InteractionColumnFieldMapping extends ColumnFieldMapping<Interactio
         mapColumnAttribute.put(MOLECULE_TYPE, (join) -> Set.of(join.getInteractorAType().getDisplayName()));
         mapColumnAttribute.put(INTERACTOR_SPECIES, (join) -> Set.of(join.getGeneB().getSpecies().getName()));
         mapColumnAttribute.put(INTERACTOR_DETECTION_METHOD, (join) -> {
-        	if (join.getDetectionsMethods()==null)
-        		return Set.of("");
-        	else {
+            if (join.getDetectionsMethods()==null)
+                return Set.of("");
+            else {
               return join.getDetectionsMethods().stream().map(method-> method.getLabel()).collect(Collectors.toSet()   );
              }
          });
@@ -52,15 +52,15 @@ public class InteractionColumnFieldMapping extends ColumnFieldMapping<Interactio
         mapColumnAttribute.put(INTERACTOR_ROLE, (join) -> Set.of(join.getInteractorBRole().getDisplayName()));
         mapColumnAttribute.put(INTERACTION_TYPE, (join) -> Set.of(join.getInteractionType().getDisplayName()));
         mapColumnAttribute.put(INERACTION_SOURCE, (join)->{
-        	Set<String> hashSet = new HashSet<String>();
-        	if (join.getCrossReferences()!=null) {
-        		hashSet=join.getCrossReferences().stream().map(cross->cross.getPrefix() + ":" + cross.getDisplayName()).collect(Collectors.toSet());
-        	}
-        	if (join.getSourceDatabase()!=null)
-        		hashSet.add(join.getSourceDatabase().getLabel() + " " + join.getSourceDatabase().getDisplayName());
-        	if (join.getAggregationDatabase() !=null)
-        		hashSet.add(join.getAggregationDatabase().getLabel() + " " + join.getAggregationDatabase().getDisplayName());
-        	return hashSet;
+            Set<String> hashSet = new HashSet<String>();
+            if (join.getCrossReferences()!=null) {
+                hashSet=join.getCrossReferences().stream().map(cross->cross.getPrefix() + ":" + cross.getDisplayName()).collect(Collectors.toSet());
+            }
+            if (join.getSourceDatabase()!=null)
+                hashSet.add(join.getSourceDatabase().getLabel() + " " + join.getSourceDatabase().getDisplayName());
+            if (join.getAggregationDatabase() !=null)
+                hashSet.add(join.getAggregationDatabase().getLabel() + " " + join.getAggregationDatabase().getDisplayName());
+            return hashSet;
         }
         );
         
