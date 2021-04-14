@@ -66,6 +66,8 @@ public class SourceDocumentCreation extends Thread {
     private ProcessDisplayHelper ph3 = new ProcessDisplayHelper(log, VariantConfigHelper.getDisplayInterval());
     private ProcessDisplayHelper ph4 = new ProcessDisplayHelper(log, VariantConfigHelper.getDisplayInterval());
     private ProcessDisplayHelper ph5 = new ProcessDisplayHelper(log, VariantConfigHelper.getDisplayInterval());
+    
+    private int[][] config_settings = VariantConfigHelper.getBulkProcessorSettingsArray();
 
     AlleleVariantSequenceConverter converter = new AlleleVariantSequenceConverter();
 
@@ -81,12 +83,10 @@ public class SourceDocumentCreation extends Thread {
 
     public void run() {
 
-        int[][] settings = VariantConfigHelper.getBulkProcessorSettingsArray();
-
-        jsonQueue1 = new LinkedBlockingDeque<>(settings[0][3]); // Max 10K * 10K = 100M
-        jsonQueue2 = new LinkedBlockingDeque<>(settings[1][3]); // Max 75K * 1333 = 100M
-        jsonQueue3 = new LinkedBlockingDeque<>(settings[2][3]); // Max 100K * 1000 = 100M
-        jsonQueue4 = new LinkedBlockingDeque<>(settings[3][3]); // Max 200K * 500 = 100M if documents are larger then we might need to split this down more
+        jsonQueue1 = new LinkedBlockingDeque<>(config_settings[0][3]); // Max 10K * 10K = 100M
+        jsonQueue2 = new LinkedBlockingDeque<>(config_settings[1][3]); // Max 75K * 1333 = 100M
+        jsonQueue3 = new LinkedBlockingDeque<>(config_settings[2][3]); // Max 100K * 1000 = 100M
+        jsonQueue4 = new LinkedBlockingDeque<>(config_settings[3][3]); // Max 200K * 500 = 100M if documents are larger then we might need to split this down more
 
         if(indexing) {
             log.info("Creating Bulk Processor 0 - 10K");
@@ -102,7 +102,6 @@ public class SourceDocumentCreation extends Thread {
                 @Override
                 public void afterBulk(long executionId, BulkRequest request, Throwable failure) {
                     log.error("Bulk Request Failure: " + failure.getMessage());
-                    List<String> list = new ArrayList<>();
                     for (DocWriteRequest<?> req : request.requests()) {
                         IndexRequest idxreq = (IndexRequest) req;
                         bulkProcessor1.add(idxreq);
@@ -174,33 +173,33 @@ public class SourceDocumentCreation extends Thread {
                 }
             });
     
-            builder1.setBulkActions(settings[0][0]); // 1000
-            builder1.setConcurrentRequests(settings[0][1]); // 10
-            builder1.setBulkSize(new ByteSizeValue(settings[0][2], ByteSizeUnit.MB)); // 10
+            builder1.setBulkActions(config_settings[0][0]); // 1000
+            builder1.setConcurrentRequests(config_settings[0][1]); // 10
+            builder1.setBulkSize(new ByteSizeValue(config_settings[0][2], ByteSizeUnit.MB)); // 10
             builder1.setBackoffPolicy(BackoffPolicy.exponentialBackoff(TimeValue.timeValueSeconds(1L), 60));
             bulkProcessor1 = builder1.build();
 
-            builder2.setBulkActions(settings[1][0]); // 133
-            builder2.setConcurrentRequests(settings[1][1]); // 10
-            builder2.setBulkSize(new ByteSizeValue(settings[1][2], ByteSizeUnit.MB)); // 10
+            builder2.setBulkActions(config_settings[1][0]); // 133
+            builder2.setConcurrentRequests(config_settings[1][1]); // 10
+            builder2.setBulkSize(new ByteSizeValue(config_settings[1][2], ByteSizeUnit.MB)); // 10
             builder2.setBackoffPolicy(BackoffPolicy.exponentialBackoff(TimeValue.timeValueSeconds(1L), 60));
             bulkProcessor2 = builder2.build();
     
-            builder3.setBulkActions(settings[2][0]); // 100 
-            builder3.setConcurrentRequests(settings[2][1]); // 10
-            builder3.setBulkSize(new ByteSizeValue(settings[2][2], ByteSizeUnit.MB)); // 10
+            builder3.setBulkActions(config_settings[2][0]); // 100 
+            builder3.setConcurrentRequests(config_settings[2][1]); // 10
+            builder3.setBulkSize(new ByteSizeValue(config_settings[2][2], ByteSizeUnit.MB)); // 10
             builder3.setBackoffPolicy(BackoffPolicy.exponentialBackoff(TimeValue.timeValueSeconds(1L), 60));
             bulkProcessor3 = builder3.build();
     
-            builder4.setBulkActions(settings[3][0]); // 50
-            builder4.setConcurrentRequests(settings[3][1]); // 10
-            builder4.setBulkSize(new ByteSizeValue(settings[3][2], ByteSizeUnit.MB)); // 10
+            builder4.setBulkActions(config_settings[3][0]); // 50
+            builder4.setConcurrentRequests(config_settings[3][1]); // 10
+            builder4.setBulkSize(new ByteSizeValue(config_settings[3][2], ByteSizeUnit.MB)); // 10
             builder4.setBackoffPolicy(BackoffPolicy.exponentialBackoff(TimeValue.timeValueSeconds(1L), 60));
             bulkProcessor4 = builder4.build();
 
         }
         
-        ph1.startProcess("VCFReader Readers: ");
+        ph1.startProcess("VCFReader: " + speciesType.getName());
         List<VCFReader> readers = new ArrayList<VCFReader>();
         for (DownloadableFile df : source.getFileList()) {
             VCFReader reader = new VCFReader(df);
@@ -228,8 +227,8 @@ public class SourceDocumentCreation extends Thread {
         
         if(!indexing) indexName = "no_index";
         
-        ph3.startProcess("VCFJsonIndexer BulkProcessor: " + indexName);
-        ph4.startProcess("VCFJsonIndexer Buckets: " + indexName);
+        ph3.startProcess("VCFJsonIndexer BulkProcessor: " + indexName + ": " + speciesType.getName());
+        ph4.startProcess("VCFJsonIndexer Buckets: " + indexName + ": " + speciesType.getName());
         for (int i = 0; i < VariantConfigHelper.getIndexerBulkProcessorThreads(); i++) {
             VCFJsonBulkIndexer indexer1 = new VCFJsonBulkIndexer(jsonQueue1, bulkProcessor1);
             indexer1.start();
@@ -449,11 +448,11 @@ public class SourceDocumentCreation extends Thread {
                                 try {
                                     String jsonDoc = mapper.writerWithView(View.AlleleVariantSequenceConverterForES.class).writeValueAsString(doc);
                                     //String jsonDoc = mapper.writeValueAsString(doc);
-                                    if (jsonDoc.length() < 10000) {
+                                    if (jsonDoc.length() < config_settings[0][4]) {
                                         docs1.add(jsonDoc);
-                                    } else if (jsonDoc.length() < 75000) {
+                                    } else if (jsonDoc.length() < config_settings[1][4]) {
                                         docs2.add(jsonDoc);
-                                    } else if (jsonDoc.length() < 100000) {
+                                    } else if (jsonDoc.length() < config_settings[2][4]) {
                                         docs3.add(jsonDoc);
                                     } else {
                                         docs4.add(jsonDoc);
