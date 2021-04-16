@@ -77,10 +77,9 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
         };
 
         BulkProcessor.Builder builder = BulkProcessor.builder((request, bulkListener) -> client.bulkAsync(request, RequestOptions.DEFAULT, bulkListener), listener);
-        builder.setBulkActions(ConfigHelper.getEsBulkActionSize()); // 400
-        builder.setBulkSize(new ByteSizeValue(ConfigHelper.getEsBulkSizeMB(), ByteSizeUnit.MB)); // 4
-        builder.setConcurrentRequests(ConfigHelper.getEsBulkConcurrentRequests()); // 4
-        builder.setFlushInterval(TimeValue.timeValueSeconds(180L));
+        builder.setBulkActions(indexerConfig.getBulkActions());
+        builder.setBulkSize(new ByteSizeValue(indexerConfig.getBulkSize(), ByteSizeUnit.MB));
+        builder.setConcurrentRequests(indexerConfig.getConcurrentRequests());
         builder.setBackoffPolicy(BackoffPolicy.exponentialBackoff(TimeValue.timeValueSeconds(1L), 60));
 
         bulkProcessor = BulkProcessor.builder((request, bulkListener) -> client.bulkAsync(request, RequestOptions.DEFAULT, bulkListener), listener).build();
