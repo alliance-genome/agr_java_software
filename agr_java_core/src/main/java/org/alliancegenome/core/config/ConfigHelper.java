@@ -53,7 +53,6 @@ public class ConfigHelper {
         defaults.put(ES_BULK_CONCURRENT_REQUESTS, "4");
 
         defaults.put(KEEPINDEX, "false");
-        defaults.put(SPECIES, null);
         defaults.put(INDEX_VARIANTS, "false");
 
         defaults.put(API_HOST, "localhost");
@@ -311,11 +310,6 @@ public class ConfigHelper {
     public static String getAWSBucketName() {
         if (!init) init();
         return config.get(AWS_BUCKET_NAME);
-    }
-
-    public static String getSpecies() {
-        if (!init) init();
-        return config.get(SPECIES);
     }
 
     public static String getVariantDownloadPath() {

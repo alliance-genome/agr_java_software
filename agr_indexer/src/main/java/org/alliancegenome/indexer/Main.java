@@ -1,17 +1,13 @@
 package org.alliancegenome.indexer;
 
+import java.util.*;
+
 import org.alliancegenome.core.config.ConfigHelper;
-import org.alliancegenome.es.util.IndexManager;
+import org.alliancegenome.es.util.*;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.indexer.indexers.Indexer;
 import org.alliancegenome.neo4j.repository.Neo4jSessionFactory;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
+import org.apache.logging.log4j.*;
 
 public class Main {
 
@@ -20,8 +16,9 @@ public class Main {
     public static void main(String[] args) {
         ConfigHelper.init();
 
-        Date start = new Date();
-        log.info("Start Time: " + start);
+        ProcessDisplayHelper ph = new ProcessDisplayHelper();
+        
+        ph.startProcess("Indexer Main: ");
 
         Boolean keepIndex = ConfigHelper.getKeepIndex();
 
@@ -92,10 +89,7 @@ public class Main {
             im.closeClient();
         }
 
-        Date end = new Date();
-        log.info("End Time: " + end);
-        long duration = end.getTime() - start.getTime();
-        log.info("Total Indexing time: " + Indexer.getHumanReadableTimeDisplay(duration));
+        ph.finishProcess();
         
         Neo4jSessionFactory.close();
 

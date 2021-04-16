@@ -89,28 +89,7 @@ public class Neo4jRepository<E> {
         log.debug("Query took: " + ProcessDisplayHelper.getHumanReadableTimeDisplay(end.getTime() - start.getTime()) + " to run");
         return ret;
     }
-    
-    
-    
 
-    //used by Gene & Allele indexer repositories
-    protected String getSpeciesWhere(String species) {
-        if (StringUtils.isNotEmpty(species)) {
-            return " WHERE species.name = {species} ";
-        }
-        return "";
-    }
-
-    //used by Gene & Allele indexer repositories
-    protected Map<String, String> getSpeciesParams(String species) {
-        Map<String, String> params = null;
-        if (StringUtils.isNotEmpty(species)) {
-            params = new HashMap<String, String>() {{
-                put("species", species);
-            }};
-        }
-        return params;
-    }
 
     //used by indexer repositories, assumes no params and aliased id and value fields
     protected Map<String,Set<String>> getMapSetForQuery(String query) {
@@ -121,7 +100,10 @@ public class Neo4jRepository<E> {
     protected Map<String, Set<String>> getMapSetForQuery(String query, Map<String, String> params) {
         return getMapSetForQuery(query, "id", "value", params);
     }
-
+    
+    protected Map<String, Set<String>> getMapSetForQuery(String query, String keyField, String returnField) {
+        return getMapSetForQuery(query, keyField, returnField, null);
+    }
     //used by indexer repositories
     protected Map<String, Set<String>> getMapSetForQuery(String query, String keyField, String returnField, Map<String, String> params) {
 

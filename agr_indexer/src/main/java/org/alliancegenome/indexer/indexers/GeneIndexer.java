@@ -4,7 +4,6 @@ import java.util.*;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.stream.Collectors;
 
-import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.translators.document.GeneTranslator;
 import org.alliancegenome.es.index.site.cache.GeneDocumentCache;
 import org.alliancegenome.es.index.site.document.SearchableItemDocument;
@@ -20,7 +19,6 @@ public class GeneIndexer extends Indexer<SearchableItemDocument> {
 
     public GeneIndexer(IndexerConfig config) {
         super(config);
-        species = ConfigHelper.getSpecies();
     }
 
     @Override
@@ -31,14 +29,8 @@ public class GeneIndexer extends Indexer<SearchableItemDocument> {
 
             GeneIndexerRepository geneIndexerRepository = new GeneIndexerRepository();
 
-            List<String> fulllist;
-            if (species != null) {
-                geneDocumentCache = geneIndexerRepository.getGeneDocumentCache(species);
-                fulllist = geneDocumentCache.getGeneMap().keySet().stream().collect(Collectors.toList());
-            } else {
-                geneDocumentCache = geneIndexerRepository.getGeneDocumentCache();
-                fulllist = geneDocumentCache.getGeneMap().keySet().stream().collect(Collectors.toList());
-            }
+            geneDocumentCache = geneIndexerRepository.getGeneDocumentCache();
+            List<String> fulllist = geneDocumentCache.getGeneMap().keySet().stream().collect(Collectors.toList());
 
             geneDocumentCache.setPopularity(popularityScore);
 
