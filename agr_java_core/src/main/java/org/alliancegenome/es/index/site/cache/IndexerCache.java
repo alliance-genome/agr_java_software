@@ -58,9 +58,15 @@ public class IndexerCache {
         document.setAssays(assays.get(id));
         //addAll vs setter is because some fields may be set by a translator before this step
         if (crossReferences.get(id) != null) {
+            if(document.getCrossReferences() != null) {
+                document.setCrossReferences(new HashSet<String>());
+            }
             document.getCrossReferences().addAll(crossReferences.get(id));
         }
         if (chromosomes.get(id) != null) {
+            if(document.getChromosomes() != null) {
+                document.setChromosomes(new HashSet<String>());
+            }
             document.getChromosomes().addAll(chromosomes.get(id));
         }
         document.setConstructs(constructs.get(id));
@@ -83,6 +89,9 @@ public class IndexerCache {
         if (molecularConsequenceMap.get(id) != null) {
             document.setMolecularConsequence(new HashSet<>());
             for (String consequence : molecularConsequenceMap.get(id)) {
+                if(document.getMolecularConsequence() != null) {
+                    document.setMolecularConsequence(new HashSet<String>());
+                }
                 document.getMolecularConsequence().addAll(Arrays.asList(consequence.split(",")));
             }
         }
@@ -95,6 +104,9 @@ public class IndexerCache {
         document.setVariants(variants.get(id));
         document.setVariantSynonyms(variantSynonyms.get(id));
         if (secondaryIds.get(id) != null) {
+            if(document.getSecondaryIds() != null) {
+                document.setSecondaryIds(new HashSet<String>());
+            }
             document.getSecondaryIds().addAll(secondaryIds.get(id));
         }
 
@@ -109,6 +121,9 @@ public class IndexerCache {
         }
 
         if (synonyms.get(id) != null) {
+            if(document.getSynonyms() != null) {
+                document.setSynonyms(new HashSet<String>());
+            }
             document.getSynonyms().addAll(synonyms.get(id));
         }
 
