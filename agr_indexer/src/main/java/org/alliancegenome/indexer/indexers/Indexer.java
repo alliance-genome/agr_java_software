@@ -144,7 +144,7 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
                 String json = om.writeValueAsString(doc);
                 display.progressProcess();
                 stats.addDocument(json);
-                //bulkProcessor.add(new IndexRequest(indexName).source(json, XContentType.JSON));
+                bulkProcessor.add(new IndexRequest(indexName).source(json, XContentType.JSON));
             } catch (JsonProcessingException e) {
                 e.printStackTrace();
             }
