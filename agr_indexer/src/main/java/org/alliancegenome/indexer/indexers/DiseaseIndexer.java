@@ -61,6 +61,7 @@ public class DiseaseIndexer extends Indexer<SearchableItemDocument> {
                         repo.clearCache();
                         list.clear();
                     }
+                    repo.close();
                     return;
                 }
 
