@@ -1,5 +1,6 @@
 package org.alliancegenome.core.translators.document;
 
+import java.util.ArrayList;
 import java.util.stream.Collectors;
 
 import org.alliancegenome.core.translators.EntityDocumentTranslator;
@@ -42,6 +43,10 @@ public class GeneTranslator extends EntityDocumentTranslator<Gene, SearchableIte
         }
         document.setSymbol(entity.getSymbol());
 
+        if(entity.getOrthoGenes() == null) {
+            entity.setOrthoGenes(new ArrayList<Orthologous>());
+        }
+        
         document.setStrictOrthologySymbols(
                 entity.getOrthoGenes().stream()
                         .filter(Orthologous::isStrictFilter)
