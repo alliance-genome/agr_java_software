@@ -119,6 +119,7 @@ public abstract class Settings extends Builder {
 
         GeneIndexerRepository geneIndexerRepository = new GeneIndexerRepository();
         Map<String, Set<String>> synonymMap = geneIndexerRepository.getSpeciesCommonNames();
+
         Set<String> synonymMapping = new HashSet<>();
         for (String speciesName : synonymMap.keySet()) {
             StringBuilder sb = new StringBuilder();
@@ -133,6 +134,7 @@ public abstract class Settings extends Builder {
             );
             synonymMapping.add(sb.toString());
         }
+        geneIndexerRepository.close();
         return synonymMapping.toArray(new String[0]);
     }
 
