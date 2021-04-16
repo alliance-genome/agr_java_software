@@ -3,15 +3,17 @@ package org.alliancegenome.neo4j.repository;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.neo4j.view.BaseFilter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.*;
+import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.cypher.*;
 import org.neo4j.ogm.cypher.query.Pagination;
 import org.neo4j.ogm.model.Result;
-import org.neo4j.ogm.session.Session;
+import org.neo4j.ogm.session.*;
 
 @SuppressWarnings("unchecked")
 public class Neo4jRepository<E> {
@@ -19,7 +21,10 @@ public class Neo4jRepository<E> {
     private final Logger log = LogManager.getLogger(getClass());
 
     protected Class<E> entityTypeClazz;
-    private Session neo4jSession = Neo4jSessionFactory.getInstance().getNeo4jSession();
+
+    private Configuration configuration = new Configuration.Builder().uri("bolt://" + ConfigHelper.getNeo4jHost() + ":" + ConfigHelper.getNeo4jPort()).build();
+    private SessionFactory sessionFactory = new SessionFactory(configuration, "org.alliancegenome.neo4j.entity");
+    private Session neo4jSession = sessionFactory.openSession();
     
     public Neo4jRepository(Class<E> entityTypeClazz) {
         this.entityTypeClazz = entityTypeClazz;
@@ -40,6 +45,10 @@ public class Neo4jRepository<E> {
 
     public void clearCache() {
         neo4jSession.clear();
+    }
+    
+    public void close() {
+        sessionFactory.close();
     }
 
     protected Iterable<E> getEntity(String key, String value) {

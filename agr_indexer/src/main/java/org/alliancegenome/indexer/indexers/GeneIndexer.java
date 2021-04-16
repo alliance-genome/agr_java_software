@@ -37,6 +37,7 @@ public class GeneIndexer extends Indexer<SearchableItemDocument> {
             queue.addAll(fulllist);
 
             initiateThreading(queue);
+            geneIndexerRepository.close();
         } catch (Exception e) {
             log.error("Error while indexing...", e);
             System.exit(-1);

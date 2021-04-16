@@ -10,12 +10,12 @@ public enum IndexerConfig {
     // Bulk Size = 1MB
     // ConCurrent Reqests = Threads * 2
     // Document Stats as of 4/16/2021 ---- (doc count, min size, max size, average size) 
-    GeneIndexer("gene", GeneIndexer.class, 2, 359, 359, 4, 1),          // (281090, 616, 156692, 2785)
+    GeneIndexer("gene", GeneIndexer.class, 2, 359, 359, 4, 1),          // (280954, 616, 156692, 2785)
     DatasetIndexer("dataset", DatasetIndexer.class, 2, 566, 566, 4, 1), // (8094,   358,  90542, 1765)
     DiseaseIndexer("disease", DiseaseIndexer.class, 2, 680, 680, 4, 1), // (10751,  191, 330099, 1472)
-    AlleleIndexer("allele", AlleleIndexer.class, 2, 1517, 1517, 4, 1),  // (407492, 334,  69968,  659) 
+    AlleleIndexer("allele", AlleleIndexer.class, 2, 1517, 1517, 4, 1),  // (407830, 334,  69968,  659) 
     GoIndexer("go", GoIndexer.class, 2, 914, 914, 4, 1),                // (44087,  262, 460247, 1093)
-    ModelIndexer("model", ModelIndexer.class, 2, 1426, 1426, 4, 1),     // (132454, 314,  18593,  701)
+    ModelIndexer("model", ModelIndexer.class, 2, 1426, 1426, 4, 1),     // (132447, 314,  18593,  701)
     // still not implemented  VariantIndexer("variant", VariantIndexer.class, 2, 3000, 400, 4, 4) 
     ;
     

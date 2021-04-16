@@ -30,6 +30,7 @@ public class ModelIndexer extends Indexer<SearchableItemDocument> {
             LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>(cache.getModelMap().keySet());
 
             initiateThreading(queue);
+            repo.close();
         } catch (Exception e) {
             log.error("Error while indexing...", e);
             System.exit(-1);
