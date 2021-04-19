@@ -8,6 +8,7 @@ import java.util.concurrent.*;
 import org.alliancegenome.api.entity.CacheStatus;
 import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.core.variant.config.VariantConfigHelper;
+import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
 import org.alliancegenome.neo4j.repository.InteractionRepository;
 import org.alliancegenome.neo4j.view.View;
@@ -134,6 +135,7 @@ public class InteractionCacher extends Cacher {
         private InteractionRepository interactionRepository = new InteractionRepository();
         private LinkedBlockingDeque<String> queue;
         private ConcurrentLinkedQueue<InteractionGeneJoin> allInteractionAnnotations;
+        private ProcessDisplayHelper ph = new ProcessDisplayHelper();
         
         public InteractionGatherer(LinkedBlockingDeque<String> queue, ConcurrentLinkedQueue<InteractionGeneJoin> allInteractionAnnotations) {
             this.queue = queue;
@@ -141,16 +143,19 @@ public class InteractionCacher extends Cacher {
         }
 
         public void run() {
+            ph.startProcess("Starting InteractionGatherer: ");
             while(!queue.isEmpty()) {
                 try {
                     String key = queue.takeFirst();
                     List<InteractionGeneJoin> list = interactionRepository.getInteraction(key);
                     allInteractionAnnotations.addAll(list);
+                    ph.progressProcess("InteractionGatherer: ");
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }
             interactionRepository.close();
+            ph.finishProcess();
         }
     }
 
