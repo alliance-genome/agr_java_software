@@ -34,7 +34,7 @@ public class InteractionCacher extends Cacher {
         
         try {
 
-            ExecutorService executor = Executors.newFixedThreadPool(VariantConfigHelper.getSourceDocumentCreatorThreads());
+            ExecutorService executor = Executors.newFixedThreadPool(20);
             for(int i = 0; i < 20; i++) {
                 InteractionGatherer gatherer = new InteractionGatherer(queue, allInteractionAnnotations);
                 executor.execute(gatherer);
