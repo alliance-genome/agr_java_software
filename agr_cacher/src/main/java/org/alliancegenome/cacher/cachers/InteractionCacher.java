@@ -135,7 +135,7 @@ public class InteractionCacher extends Cacher {
         private InteractionRepository interactionRepository = new InteractionRepository();
         private LinkedBlockingDeque<String> queue;
         private ConcurrentLinkedQueue<InteractionGeneJoin> allInteractionAnnotations;
-        private ProcessDisplayHelper ph = new ProcessDisplayHelper();
+        //private ProcessDisplayHelper ph = new ProcessDisplayHelper();
         
         public InteractionGatherer(LinkedBlockingDeque<String> queue, ConcurrentLinkedQueue<InteractionGeneJoin> allInteractionAnnotations) {
             this.queue = queue;
@@ -143,19 +143,19 @@ public class InteractionCacher extends Cacher {
         }
 
         public void run() {
-            ph.startProcess("Starting InteractionGatherer: ");
+            //ph.startProcess("Starting InteractionGatherer: ");
             while(!queue.isEmpty()) {
                 try {
                     String key = queue.takeFirst();
                     List<InteractionGeneJoin> list = interactionRepository.getInteraction(key);
                     allInteractionAnnotations.addAll(list);
-                    ph.progressProcess("InteractionGatherer: ");
+                    //ph.progressProcess("InteractionGatherer: ");
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }
             interactionRepository.close();
-            ph.finishProcess();
+            //ph.finishProcess();
         }
     }
 
