@@ -554,5 +554,10 @@ public class DiseaseCacher extends Cacher {
         allDiseaseAnnotations.removeIf(DiseaseAnnotation::isRemove);
     }
 
+    @Override
+    public void close() {
+        diseaseRepository.close();
+    }
+    
 }
 

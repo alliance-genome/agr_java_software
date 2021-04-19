@@ -32,7 +32,7 @@ import static java.util.stream.Collectors.groupingBy;
 @Log4j2
 public class AlleleCacher extends Cacher {
 
-    private AlleleRepository alleleRepository = new AlleleRepository();
+    private AlleleRepository alleleRepository;
 
     private ConcurrentHashMap<String, ConcurrentLinkedDeque<AlleleVariantSequence>> htpAlleleSequenceMap = new ConcurrentHashMap<>();
     private ConcurrentHashMap<String, ConcurrentHashMap<String, Long>> htpVariantMap = new ConcurrentHashMap<>();
@@ -265,6 +265,11 @@ public class AlleleCacher extends Cacher {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void close() {
+        alleleRepository.close();
     }
 
 }

@@ -32,5 +32,9 @@ public class EcoCodeCacher extends Cacher {
 
     }
 
+    @Override
+    public void close() {
+        diseaseRepository.close();
+    }
 }
 // 2524b083-7459-4e90-907d-230305b247fd

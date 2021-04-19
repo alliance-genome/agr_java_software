@@ -101,4 +101,9 @@ public class InteractionCacher extends Cacher {
         return newJoin;
     }
 
+    @Override
+    public void close() {
+        interactionRepository.close();
+    }
+
 }

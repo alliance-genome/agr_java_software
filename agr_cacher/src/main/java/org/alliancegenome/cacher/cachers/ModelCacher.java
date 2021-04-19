@@ -110,4 +110,9 @@ public class ModelCacher extends Cacher {
         geneRepository.clearCache();
 
     }
+
+    @Override
+    public void close() {
+        geneRepository.close();
+    }
 }

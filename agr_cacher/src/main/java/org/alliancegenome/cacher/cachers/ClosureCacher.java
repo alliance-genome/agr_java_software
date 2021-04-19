@@ -28,4 +28,9 @@ public class ClosureCacher extends Cacher {
         setCacheStatus(statusClosure);
 
     }
+
+    @Override
+    public void close() {
+        diseaseRepository.close();
+    }
 }

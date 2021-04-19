@@ -15,8 +15,8 @@ import lombok.extern.log4j.Log4j2;
 public class Main {
 
     public static void main(String[] args) {
-        ConfigHelper.init();
         VariantConfigHelper.init();
+        ConfigHelper.init();
 
         Date start = new Date();
         log.info("Start Time: " + start);
@@ -68,6 +68,7 @@ public class Main {
                 if (i.isAlive()) {
                     i.join();
                 }
+                i.close();
             } catch (Exception e) {
                 e.printStackTrace();
                 log.error(e.getMessage());
@@ -79,7 +80,7 @@ public class Main {
         log.info("End Time: " + end);
         long duration = end.getTime() - start.getTime();
         log.info("Total Caching time: " + ProcessDisplayHelper.getHumanReadableTimeDisplay(duration));
-        System.exit(0);
+        //System.exit(0);
 
     }
 }

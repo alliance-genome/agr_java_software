@@ -343,5 +343,10 @@ public class GenePhenotypeCacher extends Cacher {
                 .collect(toList());
     }
 
+    @Override
+    public void close() {
+        phenotypeRepository.close();
+    }
+
 
 }

@@ -31,6 +31,7 @@ public abstract class Cacher extends Thread {
     };
 
     protected abstract void cache();
+    public abstract void close();
 
     protected boolean useCache;
 

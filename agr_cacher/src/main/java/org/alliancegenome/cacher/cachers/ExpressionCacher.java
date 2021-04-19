@@ -18,7 +18,8 @@ import lombok.extern.log4j.Log4j2;
 public class ExpressionCacher extends Cacher {
 
     private static List<String> parentTermIDs = new ArrayList<>();
-
+    private GeneRepository geneRepository = new GeneRepository();
+    
     static {
         // anatomical entity
         parentTermIDs.add("UBERON:0001062");
@@ -30,8 +31,6 @@ public class ExpressionCacher extends Cacher {
 
     @Override
     protected void cache() {
-
-        GeneRepository geneRepository = new GeneRepository();
 
         startProcess("geneRepository.getAllExpressionAnnotations");
 
@@ -115,6 +114,7 @@ public class ExpressionCacher extends Cacher {
         setCacheStatus(status);
 
         geneRepository.clearCache();
+        geneRepository.close();
     }
 
     private Set<String> getParentTermIDs(List<String> idList) {
@@ -151,5 +151,11 @@ public class ExpressionCacher extends Cacher {
                 parentSet.add(parentTermIDs.get(2));
         });
         return parentSet;
+    }
+    
+
+    @Override
+    public void close() {
+        geneRepository.close();
     }
 }

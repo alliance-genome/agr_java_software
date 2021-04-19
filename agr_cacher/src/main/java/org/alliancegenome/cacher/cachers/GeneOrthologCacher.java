@@ -173,4 +173,11 @@ public class GeneOrthologCacher extends Cacher {
         }
         return strings;
     }
+
+    @Override
+    public void close() {
+        geneRepository.close();
+    }
+    
+    
 }

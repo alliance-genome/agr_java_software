@@ -36,7 +36,7 @@ public class SiteMapCacher extends Cacher {
         log.debug("Disease List Size: " + diseaseKeyList.size());
         cacheSiteMap(diseaseKeyList, CacheAlliance.SITEMAP_DISEASE);
         finishProcess();
-        
+
     }
     
     private void cacheSiteMap(Iterable<String> list, CacheAlliance cache) {
@@ -58,6 +58,13 @@ public class SiteMapCacher extends Cacher {
             idList.clear();
         }
         
+    }
+
+    @Override
+    public void close() {
+        geneRepository.close();
+        alleleRepository.close();
+        diseaseRepository.close();
     }
 
 }
