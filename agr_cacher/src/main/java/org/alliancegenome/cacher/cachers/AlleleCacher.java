@@ -38,6 +38,11 @@ public class AlleleCacher extends Cacher {
     
     
     public AlleleCacher() {
+        
+    }
+
+    @Override
+    protected void init() {
         alleleRepository = new AlleleRepository();
     }
 
@@ -261,5 +266,6 @@ public class AlleleCacher extends Cacher {
     public void close() {
         alleleRepository.close();
     }
+
 
 }

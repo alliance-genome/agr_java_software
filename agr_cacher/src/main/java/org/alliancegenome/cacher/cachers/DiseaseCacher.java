@@ -22,8 +22,14 @@ import lombok.extern.log4j.Log4j2;
 @Log4j2
 public class DiseaseCacher extends Cacher {
 
-    private static DiseaseRepository diseaseRepository = new DiseaseRepository();
+    private static DiseaseRepository diseaseRepository;
 
+
+    @Override
+    protected void init() {
+        diseaseRepository = new DiseaseRepository();
+    }
+    
     protected void cache() {
 
         // model type of diseases

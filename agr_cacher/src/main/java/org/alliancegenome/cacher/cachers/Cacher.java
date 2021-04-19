@@ -21,8 +21,10 @@ import lombok.extern.log4j.Log4j2;
 public abstract class Cacher extends Thread {
 
     public Cacher() {};
+    
+    protected abstract void init(); // Called before cache()
     protected abstract void cache();
-    public abstract void close();
+    protected abstract void close(); // Called after cache()
 
     protected boolean useCache;
 
@@ -33,11 +35,13 @@ public abstract class Cacher extends Thread {
     @Override
     public void run() {
         try {
+            init();
             Date start = new Date();
             log.info(this.getClass().getSimpleName() + " started: " + start);
             cache();
             Date end = new Date();
             log.info(this.getClass().getSimpleName() + " finished: " + ProcessDisplayHelper.getHumanReadableTimeDisplay(end.getTime() - start.getTime()));
+            close();
         } catch (Exception e) {
             e.printStackTrace();
             System.exit(-1);

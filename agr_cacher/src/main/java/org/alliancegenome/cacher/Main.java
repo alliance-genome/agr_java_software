@@ -68,7 +68,6 @@ public class Main {
                 if (i.isAlive()) {
                     i.join();
                 }
-                i.close();
             } catch (Exception e) {
                 e.printStackTrace();
                 log.error(e.getMessage());
