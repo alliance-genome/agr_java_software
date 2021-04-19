@@ -1,14 +1,13 @@
 package org.alliancegenome.neo4j.repository;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
 import org.alliancegenome.neo4j.entity.node.Species;
+import org.neo4j.ogm.model.Result;
 
 public class InteractionRepository extends Neo4jRepository<InteractionGeneJoin> {
 
@@ -54,10 +53,38 @@ public class InteractionRepository extends Neo4jRepository<InteractionGeneJoin> 
     public List<InteractionGeneJoin> getAllInteractions() {
         String query = "MATCH p1=(igj:InteractionGeneJoin)--(s) ";
         query +=  " RETURN p1";
-        Iterable<InteractionGeneJoin> joins = query(query, new HashMap<>());
+        Iterable<InteractionGeneJoin> joins = query(query);
         return StreamSupport.stream(joins.spliterator(), false)
             .peek(this::populateSpeciesInfo)
             .collect(Collectors.toList());
+    }
+    
+    public List<InteractionGeneJoin> getInteraction(String primaryKey) {
+        String query = "MATCH p1=(igj:InteractionGeneJoin)--(s) WHERE igj.primaryKey = {primaryKey} ";
+        query +=  " RETURN p1";
+        
+        HashMap<String, String> map = new HashMap<>();
+        map.put("primaryKey", primaryKey);
+        
+        Iterable<InteractionGeneJoin> joins = query(query, map);
+        return StreamSupport.stream(joins.spliterator(), false)
+            .peek(this::populateSpeciesInfo)
+            .collect(Collectors.toList());
+    }
+    
+    public List<String> getAllInteractionJoinKeys() {
+        String query = "MATCH (i:InteractionGeneJoin) RETURN i.primaryKey";
+
+        Result r = queryForResult(query);
+        Iterator<Map<String, Object>> i = r.iterator();
+
+        ArrayList<String> list = new ArrayList<>();
+
+        while (i.hasNext()) {
+            Map<String, Object> map2 = i.next();
+            list.add((String) map2.get("i.primaryKey"));
+        }
+        return list;
     }
 
     private void populateSpeciesInfo(InteractionGeneJoin join) {
