@@ -17,8 +17,6 @@ import lombok.*;
 @Schema(name = "TranscriptLevelConsequence", description = "POJO that represents Transcript Level Consequences")
 public class TranscriptLevelConsequence extends Neo4jEntity {
 
-    
-    
     @JsonView({View.API.class, View.GeneAlleleVariantSequenceAPI.class, View.AlleleVariantSequenceConverterForES.class})
     @JsonProperty("molecularConsequence")
     private String transcriptLevelConsequence;
@@ -139,8 +137,7 @@ public class TranscriptLevelConsequence extends Neo4jEntity {
             return transcriptLocation;
         if (transcript == null)
             return "";
-        VariantService service = new VariantService();
-        service.populateIntronExonLocation(variant, transcript);
+        VariantService.populateIntronExonLocation(variant, transcript);
         transcriptLocation = transcript.getIntronExonLocation();
         return transcriptLocation;
     }

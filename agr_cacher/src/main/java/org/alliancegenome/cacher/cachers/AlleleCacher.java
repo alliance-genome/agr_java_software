@@ -72,13 +72,16 @@ public class AlleleCacher extends Cacher {
     private void cacheSpeciesChromosome(String taxonID, String chromosome) {
         readHtpFiles(taxonID, chromosome);
         String speciesName = SpeciesType.getNameByID(taxonID);
+        
         if (StringUtils.isNotEmpty(chromosome))
             startProcess("Retrieve Alleles for [" + speciesName + ", " + chromosome + "]");
         else
             startProcess("Retrieve Alleles for [" + speciesName + "]");
+        
         Set<Allele> allAlleles = alleleRepository.getAlleles(taxonID, chromosome);
         if (allAlleles == null)
             return;
+        
         log.info("Number of Alleles: " + String.format("%,d", allAlleles.size()));
         // group by genes. This ignores alleles without gene associations
         Map<String, List<Allele>> map = allAlleles.stream()
