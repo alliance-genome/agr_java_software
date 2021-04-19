@@ -19,6 +19,7 @@ public class ExpressionCacher extends Cacher {
 
     private static List<String> parentTermIDs = new ArrayList<>();
     private GeneRepository geneRepository;
+    private DiseaseRepository diseaseRepository;
 
     @Override
     protected void init() {
@@ -28,6 +29,7 @@ public class ExpressionCacher extends Cacher {
         // cellular Component
         parentTermIDs.add("GO:0005575");
         geneRepository = new GeneRepository();
+        diseaseRepository = new DiseaseRepository();
     }
 
     @Override
@@ -121,9 +123,8 @@ public class ExpressionCacher extends Cacher {
     private Set<String> getParentTermIDs(List<String> idList) {
         if (idList == null || idList.isEmpty())
             return null;
-        DiseaseRepository repository = new DiseaseRepository();
         Set<String> parentSet = new HashSet<>(4);
-        Map<String, Set<String>> map = repository.getClosureMappingUberon();
+        Map<String, Set<String>> map = diseaseRepository.getClosureMappingUberon();
         idList.forEach(id -> {
             parentTermIDs.forEach(parentTermID -> {
                 if (map.get(parentTermID) != null && map.get(parentTermID).contains(id))
@@ -140,9 +141,8 @@ public class ExpressionCacher extends Cacher {
     private Set<String> getGOParentTermIDs(List<String> goList) {
         if (goList == null || goList.isEmpty())
             return null;
-        DiseaseRepository repository = new DiseaseRepository();
         Set<String> parentSet = new HashSet<>(4);
-        Map<String, Set<String>> map = repository.getClosureMappingGO();
+        Map<String, Set<String>> map = diseaseRepository.getClosureMappingGO();
         goList.forEach(id -> {
             parentTermIDs.forEach(parentTermID -> {
                 if (map.get(parentTermID) != null && map.get(parentTermID).contains(id))
@@ -158,6 +158,7 @@ public class ExpressionCacher extends Cacher {
     @Override
     protected void close() {
         geneRepository.close();
+        diseaseRepository.close();
     }
 
 }
