@@ -39,6 +39,12 @@ public class SiteMapController implements SiteMapRESTInterface {
             list.add(new SiteMap(buildUrl(uriInfo, "api/sitemap/disease-sitemap-" + s + ".xml"), ConfigHelper.getAppStart()));
         }
         
+        List<String> alleleKeys = manager.getAlleleKeys();
+        log.info("Disease Keys: "  + alleleKeys.size());
+        for(String s: alleleKeys) {
+            list.add(new SiteMap(buildUrl(uriInfo, "api/sitemap/allele-sitemap-" + s + ".xml"), ConfigHelper.getAppStart()));
+        }
+        
         SiteMapIndex index = new SiteMapIndex();
         index.setSitemap(list);
         return index;
@@ -63,6 +69,16 @@ public class SiteMapController implements SiteMapRESTInterface {
         }
         
         if(category.equals("disease")) {
+            List<XMLURL> list = manager.getDiseases(page.toString());
+            XMLURLSet set = new XMLURLSet();
+            set.setUrl(list);
+            for(XMLURL url: list) {
+                url.setLoc(buildUrl(uriInfo, url.getLoc()));
+            }
+            return set;
+        }
+        
+        if(category.equals("allele")) {
             List<XMLURL> list = manager.getDiseases(page.toString());
             XMLURLSet set = new XMLURLSet();
             set.setUrl(list);

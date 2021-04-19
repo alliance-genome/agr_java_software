@@ -20,16 +20,7 @@ import lombok.extern.log4j.Log4j2;
 @Getter
 public abstract class Cacher extends Thread {
 
-    // for debugging
-    public boolean debug;
-    public List<String> testGeneIDs;
-
-    public Cacher(){};
-    public Cacher(boolean debug, List<String> testGeneIDs){
-        this.debug = debug;
-        this.testGeneIDs = testGeneIDs;
-    };
-
+    public Cacher() {};
     protected abstract void cache();
     public abstract void close();
 
