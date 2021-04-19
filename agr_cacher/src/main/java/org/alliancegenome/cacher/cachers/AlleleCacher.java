@@ -32,8 +32,17 @@ import static java.util.stream.Collectors.groupingBy;
 @Log4j2
 public class AlleleCacher extends Cacher {
 
-    AlleleRepository alleleRepository = new AlleleRepository();
+    private AlleleRepository alleleRepository = new AlleleRepository();
 
+    private ConcurrentHashMap<String, ConcurrentLinkedDeque<AlleleVariantSequence>> htpAlleleSequenceMap = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, ConcurrentHashMap<String, Long>> htpVariantMap = new ConcurrentHashMap<>();
+
+    private Map<String, List<String>> speciesChromosomeMap = new HashMap<>();
+    private DownloadFileSet downloadSet;
+    // <geneID, List<Allele>>
+    private Map<String, List<Allele>> variantMap = new HashMap<>();
+    
+    
     public AlleleCacher() {
     }
 
@@ -172,14 +181,6 @@ public class AlleleCacher extends Cacher {
         alleleRepository.clearCache();
 
     }
-
-    private ConcurrentHashMap<String, ConcurrentLinkedDeque<AlleleVariantSequence>> htpAlleleSequenceMap = new ConcurrentHashMap<>();
-    private ConcurrentHashMap<String, ConcurrentHashMap<String, Long>> htpVariantMap = new ConcurrentHashMap<>();
-
-    private Map<String, List<String>> speciesChromosomeMap = new HashMap<>();
-    private DownloadFileSet downloadSet;
-    // <geneID, List<Allele>>
-    private Map<String, List<Allele>> variantMap = new HashMap<>();
 
     private void readAllFileMetaData() {
         ConfigHelper.init();
