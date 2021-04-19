@@ -183,8 +183,7 @@ public class AlleleCacher extends Cacher {
     }
 
     private void readAllFileMetaData() {
-        ConfigHelper.init();
-        VariantConfigHelper.init();
+
         try {
             ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
             downloadSet = mapper.readValue(getClass().getClassLoader().getResourceAsStream(VariantConfigHelper.getVariantCacherConfigFile()), DownloadFileSet.class);
