@@ -23,11 +23,12 @@ import lombok.extern.log4j.Log4j2;
 public class DiseaseCacher extends Cacher {
 
     private static DiseaseRepository diseaseRepository;
-
+    private DiseaseRibbonService diseaseRibbonService;
 
     @Override
     protected void init() {
         diseaseRepository = new DiseaseRepository();
+        diseaseRibbonService = new DiseaseRibbonService(diseaseRepository);
     }
     
     protected void cache() {
@@ -385,7 +386,6 @@ public class DiseaseCacher extends Cacher {
     }
 
     private List<DiseaseAnnotation> getDiseaseAnnotationsFromDEJs(Collection<DiseaseEntityJoin> joinList) {
-        DiseaseRibbonService diseaseRibbonService = new DiseaseRibbonService();
 
         return joinList.stream()
                 .map(join -> {
