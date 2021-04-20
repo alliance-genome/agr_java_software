@@ -1,29 +1,29 @@
 package org.alliancegenome.api.tests.integration;
 
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.*;
+
+import java.util.*;
+import java.util.stream.Collectors;
+
+import javax.inject.Inject;
+
 import org.alliancegenome.api.service.VariantService;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.neo4j.entity.node.Allele;
-import org.alliancegenome.neo4j.entity.node.Transcript;
-import org.alliancegenome.neo4j.entity.node.Variant;
+import org.alliancegenome.neo4j.entity.node.*;
 import org.alliancegenome.neo4j.repository.VariantRepository;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.config.Configurator;
-import org.junit.Before;
-import org.junit.Test;
-
-import java.util.Comparator;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import org.junit.*;
 
 public class VariantIT {
 
     private VariantRepository variantRepository = new VariantRepository();
-    private VariantService variantService = new VariantService(variantRepository);
+    
+    @Inject
+    private VariantService variantService;
 
     @Before
     public void before() {
