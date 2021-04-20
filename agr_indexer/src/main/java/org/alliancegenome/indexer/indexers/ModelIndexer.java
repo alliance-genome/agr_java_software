@@ -1,9 +1,8 @@
 package org.alliancegenome.indexer.indexers;
 
-import java.util.*;
+import java.util.ArrayList;
 import java.util.concurrent.LinkedBlockingDeque;
 
-import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.translators.document.ModelTranslator;
 import org.alliancegenome.es.index.site.cache.ModelDocumentCache;
 import org.alliancegenome.es.index.site.document.SearchableItemDocument;
@@ -20,19 +19,18 @@ public class ModelIndexer extends Indexer<SearchableItemDocument> {
 
     public ModelIndexer(IndexerConfig config) {
         super(config);
-        species = ConfigHelper.getSpecies();
     }
 
     @Override
     protected void index() {
         try {
             repo = new ModelIndexerRepository();
-            cache = repo.getModelDocumentCache(species);
+            cache = repo.getModelDocumentCache();
 
-            List<String> fulllist = new ArrayList<>(cache.getModelMap().keySet());
-            LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>(fulllist);
+            LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>(cache.getModelMap().keySet());
 
             initiateThreading(queue);
+            repo.close();
         } catch (Exception e) {
             log.error("Error while indexing...", e);
             System.exit(-1);

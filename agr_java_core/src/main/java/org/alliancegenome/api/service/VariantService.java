@@ -18,7 +18,11 @@ import org.apache.commons.lang3.Range;
 @RequestScoped
 public class VariantService {
 
-    private VariantRepository variantRepo = new VariantRepository();
+    private VariantRepository variantRepo;
+    
+    public VariantService(VariantRepository variantRepo) {
+        this.variantRepo = variantRepo;
+    }
 
     public JsonResultResponse<Transcript> getTranscriptsByVariant(String variantID, Pagination pagination) {
         Variant variant = variantRepo.getVariant(variantID);
@@ -60,7 +64,7 @@ public class VariantService {
         return result;
     }
 
-    public void populateIntronExonLocation(Variant variant, Transcript transcript) {
+    public static void populateIntronExonLocation(Variant variant, Transcript transcript) {
         List<Exon> exons = transcript.getExons();
         if (CollectionUtils.isEmpty(exons))
             return;

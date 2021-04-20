@@ -1,45 +1,49 @@
 package org.alliancegenome.cacher.cachers;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import lombok.extern.log4j.Log4j2;
-import org.alliancegenome.api.entity.AlleleVariantSequence;
-import org.alliancegenome.api.entity.CacheStatus;
+import static java.util.stream.Collectors.groupingBy;
+
+import java.util.*;
+import java.util.concurrent.*;
+import java.util.stream.Collectors;
+
+import org.alliancegenome.api.entity.*;
 import org.alliancegenome.cache.CacheAlliance;
-import org.alliancegenome.core.config.ConfigHelper;
-import org.alliancegenome.core.filedownload.model.DownloadFileSet;
-import org.alliancegenome.core.filedownload.model.DownloadableFile;
+import org.alliancegenome.core.filedownload.model.*;
 import org.alliancegenome.core.filedownload.process.FileDownloadManager;
 import org.alliancegenome.core.variant.config.VariantConfigHelper;
 import org.alliancegenome.neo4j.entity.SpeciesType;
-import org.alliancegenome.neo4j.entity.node.Allele;
-import org.alliancegenome.neo4j.entity.node.GeneticEntity;
-import org.alliancegenome.neo4j.entity.node.Species;
+import org.alliancegenome.neo4j.entity.node.*;
 import org.alliancegenome.neo4j.repository.AlleleRepository;
 import org.alliancegenome.neo4j.view.View;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedDeque;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.stream.Collectors;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
-import static java.util.stream.Collectors.groupingBy;
+import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 public class AlleleCacher extends Cacher {
 
-    AlleleRepository alleleRepository = new AlleleRepository();
+    private AlleleRepository alleleRepository;
 
+    private ConcurrentHashMap<String, ConcurrentLinkedDeque<AlleleVariantSequence>> htpAlleleSequenceMap = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, ConcurrentHashMap<String, Long>> htpVariantMap = new ConcurrentHashMap<>();
+
+    private Map<String, List<String>> speciesChromosomeMap = new HashMap<>();
+    private DownloadFileSet downloadSet;
+    // <geneID, List<Allele>>
+    private Map<String, List<Allele>> variantMap = new HashMap<>();
+    
+    
     public AlleleCacher() {
+        
     }
 
-    public AlleleCacher(boolean debug, List<String> testGeneIDs) {
-        super(debug, testGeneIDs);
-        alleleRepository = new AlleleRepository(debug, testGeneIDs);
+    @Override
+    protected void init() {
+        alleleRepository = new AlleleRepository();
     }
 
     @Override
@@ -68,13 +72,16 @@ public class AlleleCacher extends Cacher {
     private void cacheSpeciesChromosome(String taxonID, String chromosome) {
         readHtpFiles(taxonID, chromosome);
         String speciesName = SpeciesType.getNameByID(taxonID);
+        
         if (StringUtils.isNotEmpty(chromosome))
             startProcess("Retrieve Alleles for [" + speciesName + ", " + chromosome + "]");
         else
             startProcess("Retrieve Alleles for [" + speciesName + "]");
+        
         Set<Allele> allAlleles = alleleRepository.getAlleles(taxonID, chromosome);
         if (allAlleles == null)
             return;
+        
         log.info("Number of Alleles: " + String.format("%,d", allAlleles.size()));
         // group by genes. This ignores alleles without gene associations
         Map<String, List<Allele>> map = allAlleles.stream()
@@ -173,17 +180,8 @@ public class AlleleCacher extends Cacher {
 
     }
 
-    private ConcurrentHashMap<String, ConcurrentLinkedDeque<AlleleVariantSequence>> htpAlleleSequenceMap = new ConcurrentHashMap<>();
-    private ConcurrentHashMap<String, ConcurrentHashMap<String, Long>> htpVariantMap = new ConcurrentHashMap<>();
-
-    private Map<String, List<String>> speciesChromosomeMap = new HashMap<>();
-    private DownloadFileSet downloadSet;
-    // <geneID, List<Allele>>
-    private Map<String, List<Allele>> variantMap = new HashMap<>();
-
     private void readAllFileMetaData() {
-        ConfigHelper.init();
-        VariantConfigHelper.init();
+
         try {
             ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
             downloadSet = mapper.readValue(getClass().getClassLoader().getResourceAsStream(VariantConfigHelper.getVariantCacherConfigFile()), DownloadFileSet.class);
@@ -224,7 +222,7 @@ public class AlleleCacher extends Cacher {
 
             HtpVariantCreation creator = new HtpVariantCreation(taxonID, chromosome, file, htpAlleleSequenceMap);
             executor.submit(creator);
-            Thread.sleep(10000);
+            //Thread.sleep(1000);
 
             executor.shutdown();
             while (!executor.isTerminated()) {
@@ -266,5 +264,11 @@ public class AlleleCacher extends Cacher {
             e.printStackTrace();
         }
     }
+
+    @Override
+    public void close() {
+        alleleRepository.close();
+    }
+
 
 }

@@ -1,14 +1,12 @@
-package org.alliancegenome.indexer.variant.es.stats;
+package org.alliancegenome.core.util;
 
-import java.io.*;
-import java.util.*;
+import java.io.File;
+import java.util.ArrayList;
 
 import org.apache.commons.math3.stat.descriptive.SummaryStatistics;
 import org.jfree.chart.*;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.statistics.HistogramDataset;
-import org.knowm.xchart.*;
-import org.knowm.xchart.BitmapEncoder.BitmapFormat;
 
 import lombok.extern.log4j.Log4j2;
 
@@ -29,6 +27,10 @@ public class StatsCollector {
             }
             histogramData[len]++;
         }
+    }
+    
+    public void printOutput() {
+        log.info("Document Stats: " + stats);
     }
 
     public void printOutput(String prefix) {

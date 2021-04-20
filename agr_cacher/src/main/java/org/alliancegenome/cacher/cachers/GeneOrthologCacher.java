@@ -11,18 +11,21 @@ import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.alliancegenome.neo4j.view.*;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections4.map.MultiKeyMap;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 public class GeneOrthologCacher extends Cacher {
 
-    private static GeneRepository geneRepository = new GeneRepository();
+    private static GeneRepository geneRepository;
     private MultiKeyMap<String, Map<String, Set<String>>> geneGeneAlgorithm;
     private List<String> allMethods = new ArrayList<>();
 
+    @Override
+    protected void init() {
+        geneRepository = new GeneRepository();
+    }
+    
     @Override
     protected void cache() {
 
@@ -173,4 +176,10 @@ public class GeneOrthologCacher extends Cacher {
         }
         return strings;
     }
+
+    @Override
+    public void close() {
+        geneRepository.close();
+    }
+
 }

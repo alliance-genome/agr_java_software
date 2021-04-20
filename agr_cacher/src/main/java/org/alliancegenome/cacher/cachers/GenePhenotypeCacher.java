@@ -18,12 +18,15 @@ import lombok.extern.log4j.Log4j2;
 @Log4j2
 public class GenePhenotypeCacher extends Cacher {
 
-    private static PhenotypeRepository phenotypeRepository = new PhenotypeRepository();
+    private static PhenotypeRepository phenotypeRepository;
 
-    public GenePhenotypeCacher() {
-        super();
+    public GenePhenotypeCacher() { }
+
+    @Override
+    protected void init() {
+        phenotypeRepository = new PhenotypeRepository();
     }
-
+    
     @Override
     protected void cache() {
 
@@ -343,5 +346,9 @@ public class GenePhenotypeCacher extends Cacher {
                 .collect(toList());
     }
 
+    @Override
+    public void close() {
+        phenotypeRepository.close();
+    }
 
 }

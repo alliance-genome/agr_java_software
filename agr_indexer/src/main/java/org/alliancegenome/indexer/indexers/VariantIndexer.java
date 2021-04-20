@@ -20,7 +20,6 @@ public class VariantIndexer extends Indexer<SearchableItemDocument> {
 
     public VariantIndexer(IndexerConfig config) {
         super(config);
-        species = ConfigHelper.getSpecies();
     }
 
     @Override
@@ -34,12 +33,12 @@ public class VariantIndexer extends Indexer<SearchableItemDocument> {
 
         try {
             repo = new VariantIndexerRepository();
-            cache = repo.getVariantCache(species);
+            cache = repo.getVariantCache();
 
-            List<String> fulllist = new ArrayList<>(cache.getVariantMap().keySet());
-            LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>(fulllist);
+            LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>(cache.getVariantMap().keySet());
 
             initiateThreading(queue);
+            repo.close();
         } catch (Exception e) {
             log.error("Error while indexing...", e);
             System.exit(-1);

@@ -20,9 +20,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class DiseaseRibbonService {
 
     private Log log = LogFactory.getLog(getClass());
-    private DiseaseRepository diseaseRepository = new DiseaseRepository();
+    private DiseaseRepository diseaseRepository;
 
     private static DiseaseRibbonSummary diseaseRibbonSummary;
+
+    public DiseaseRibbonService(DiseaseRepository diseaseRepository) {
+        this.diseaseRepository = diseaseRepository;
+    }
 
     public DiseaseRibbonSummary getDiseaseRibbonSectionInfo() {
         // get a deep clone of a template object

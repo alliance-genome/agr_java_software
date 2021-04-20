@@ -12,8 +12,13 @@ import lombok.extern.log4j.Log4j2;
 @Log4j2
 public class ClosureCacher extends Cacher {
 
-    private static DiseaseRepository diseaseRepository = new DiseaseRepository();
+    private static DiseaseRepository diseaseRepository;
 
+    @Override
+    protected void init() {
+        diseaseRepository = new DiseaseRepository();
+    }
+    
     @Override
     protected void cache() {
     
@@ -28,4 +33,10 @@ public class ClosureCacher extends Cacher {
         setCacheStatus(statusClosure);
 
     }
+
+    @Override
+    public void close() {
+        diseaseRepository.close();
+    }
+
 }

@@ -26,10 +26,11 @@ public class DatasetIndexer extends Indexer<SearchableItemDocument> {
         try {
             repo = new DatasetIndexerRepository();
             cache = repo.getCache();
-            List<String> fulllist = new ArrayList<>(cache.getDatasetMap().keySet());
-            LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>(fulllist);
+
+            LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>(cache.getDatasetMap().keySet());
 
             initiateThreading(queue);
+            repo.close();
         } catch (Exception e) {
             log.error("Error while indexing...", e);
             System.exit(-1);

@@ -3,15 +3,17 @@ package org.alliancegenome.neo4j.repository;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.alliancegenome.neo4j.view.BaseFilter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.*;
+import org.neo4j.ogm.config.Configuration;
 import org.neo4j.ogm.cypher.*;
 import org.neo4j.ogm.cypher.query.Pagination;
 import org.neo4j.ogm.model.Result;
-import org.neo4j.ogm.session.Session;
+import org.neo4j.ogm.session.*;
 
 @SuppressWarnings("unchecked")
 public class Neo4jRepository<E> {
@@ -19,10 +21,16 @@ public class Neo4jRepository<E> {
     private final Logger log = LogManager.getLogger(getClass());
 
     protected Class<E> entityTypeClazz;
-    private Session neo4jSession = Neo4jSessionFactory.getInstance().getNeo4jSession();
+
+    private SessionFactory sessionFactory;
+    private Session neo4jSession;
     
     public Neo4jRepository(Class<E> entityTypeClazz) {
         this.entityTypeClazz = entityTypeClazz;
+        Configuration configuration = new Configuration.Builder().uri("bolt://" + ConfigHelper.getNeo4jHost() + ":" + ConfigHelper.getNeo4jPort()).build();
+        sessionFactory = new SessionFactory(configuration, "org.alliancegenome.neo4j.entity");
+        neo4jSession = sessionFactory.openSession();
+        log.info("------------------------------------- Starting sessionFactory: ----------------------------- ");
     }
 
     protected Iterable<E> getPage(int pageNumber, int pageSize, int depth) {
@@ -40,6 +48,11 @@ public class Neo4jRepository<E> {
 
     public void clearCache() {
         neo4jSession.clear();
+    }
+    
+    public void close() {
+        log.info("------------------------------------- Closing sessionFactory: ----------------------------- ");
+        sessionFactory.close();
     }
 
     protected Iterable<E> getEntity(String key, String value) {
@@ -89,28 +102,7 @@ public class Neo4jRepository<E> {
         log.debug("Query took: " + ProcessDisplayHelper.getHumanReadableTimeDisplay(end.getTime() - start.getTime()) + " to run");
         return ret;
     }
-    
-    
-    
 
-    //used by Gene & Allele indexer repositories
-    protected String getSpeciesWhere(String species) {
-        if (StringUtils.isNotEmpty(species)) {
-            return " WHERE species.name = {species} ";
-        }
-        return "";
-    }
-
-    //used by Gene & Allele indexer repositories
-    protected Map<String, String> getSpeciesParams(String species) {
-        Map<String, String> params = null;
-        if (StringUtils.isNotEmpty(species)) {
-            params = new HashMap<String, String>() {{
-                put("species", species);
-            }};
-        }
-        return params;
-    }
 
     //used by indexer repositories, assumes no params and aliased id and value fields
     protected Map<String,Set<String>> getMapSetForQuery(String query) {
@@ -121,7 +113,10 @@ public class Neo4jRepository<E> {
     protected Map<String, Set<String>> getMapSetForQuery(String query, Map<String, String> params) {
         return getMapSetForQuery(query, "id", "value", params);
     }
-
+    
+    protected Map<String, Set<String>> getMapSetForQuery(String query, String keyField, String returnField) {
+        return getMapSetForQuery(query, keyField, returnField, null);
+    }
     //used by indexer repositories
     protected Map<String, Set<String>> getMapSetForQuery(String query, String keyField, String returnField, Map<String, String> params) {
 

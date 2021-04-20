@@ -18,8 +18,13 @@ import lombok.extern.log4j.Log4j2;
 @Log4j2
 public class ModelCacher extends Cacher {
 
-    private static GeneRepository geneRepository = new GeneRepository();
+    private static GeneRepository geneRepository;
 
+    @Override
+    protected void init() {
+        geneRepository = new GeneRepository();
+    }
+    
     @Override
     protected void cache() {
 
@@ -110,4 +115,10 @@ public class ModelCacher extends Cacher {
         geneRepository.clearCache();
 
     }
+
+    @Override
+    public void close() {
+        geneRepository.close();
+    }
+
 }

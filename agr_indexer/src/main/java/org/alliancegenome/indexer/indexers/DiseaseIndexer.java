@@ -33,6 +33,7 @@ public class DiseaseIndexer extends Indexer<SearchableItemDocument> {
             queue.addAll(allDiseaseIDs);
             diseaseIndexerRepository.clearCache();
             initiateThreading(queue);
+            diseaseIndexerRepository.close();
         } catch (Exception e) {
             log.error("Error while indexing...", e);
             System.exit(-1);
@@ -60,6 +61,7 @@ public class DiseaseIndexer extends Indexer<SearchableItemDocument> {
                         repo.clearCache();
                         list.clear();
                     }
+                    repo.close();
                     return;
                 }
 

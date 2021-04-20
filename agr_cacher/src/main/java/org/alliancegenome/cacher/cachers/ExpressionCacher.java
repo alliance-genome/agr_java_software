@@ -18,20 +18,22 @@ import lombok.extern.log4j.Log4j2;
 public class ExpressionCacher extends Cacher {
 
     private static List<String> parentTermIDs = new ArrayList<>();
+    private GeneRepository geneRepository;
+    private DiseaseRepository diseaseRepository;
 
-    static {
-        // anatomical entity
+    @Override
+    protected void init() {
         parentTermIDs.add("UBERON:0001062");
         // processual entity stage
         parentTermIDs.add("UBERON:0000000");
         // cellular Component
         parentTermIDs.add("GO:0005575");
+        geneRepository = new GeneRepository();
+        diseaseRepository = new DiseaseRepository();
     }
 
     @Override
     protected void cache() {
-
-        GeneRepository geneRepository = new GeneRepository();
 
         startProcess("geneRepository.getAllExpressionAnnotations");
 
@@ -115,14 +117,14 @@ public class ExpressionCacher extends Cacher {
         setCacheStatus(status);
 
         geneRepository.clearCache();
+        geneRepository.close();
     }
 
     private Set<String> getParentTermIDs(List<String> idList) {
         if (idList == null || idList.isEmpty())
             return null;
-        DiseaseRepository repository = new DiseaseRepository();
         Set<String> parentSet = new HashSet<>(4);
-        Map<String, Set<String>> map = repository.getClosureMappingUberon();
+        Map<String, Set<String>> map = diseaseRepository.getClosureMappingUberon();
         idList.forEach(id -> {
             parentTermIDs.forEach(parentTermID -> {
                 if (map.get(parentTermID) != null && map.get(parentTermID).contains(id))
@@ -139,9 +141,8 @@ public class ExpressionCacher extends Cacher {
     private Set<String> getGOParentTermIDs(List<String> goList) {
         if (goList == null || goList.isEmpty())
             return null;
-        DiseaseRepository repository = new DiseaseRepository();
         Set<String> parentSet = new HashSet<>(4);
-        Map<String, Set<String>> map = repository.getClosureMappingGO();
+        Map<String, Set<String>> map = diseaseRepository.getClosureMappingGO();
         goList.forEach(id -> {
             parentTermIDs.forEach(parentTermID -> {
                 if (map.get(parentTermID) != null && map.get(parentTermID).contains(id))
@@ -152,4 +153,12 @@ public class ExpressionCacher extends Cacher {
         });
         return parentSet;
     }
+    
+
+    @Override
+    protected void close() {
+        geneRepository.close();
+        diseaseRepository.close();
+    }
+
 }

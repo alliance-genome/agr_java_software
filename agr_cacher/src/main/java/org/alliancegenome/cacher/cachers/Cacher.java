@@ -20,17 +20,11 @@ import lombok.extern.log4j.Log4j2;
 @Getter
 public abstract class Cacher extends Thread {
 
-    // for debugging
-    public boolean debug;
-    public List<String> testGeneIDs;
-
-    public Cacher(){};
-    public Cacher(boolean debug, List<String> testGeneIDs){
-        this.debug = debug;
-        this.testGeneIDs = testGeneIDs;
-    };
-
+    public Cacher() {};
+    
+    protected abstract void init(); // Called before cache()
     protected abstract void cache();
+    protected abstract void close(); // Called after cache()
 
     protected boolean useCache;
 
@@ -41,11 +35,13 @@ public abstract class Cacher extends Thread {
     @Override
     public void run() {
         try {
+            init();
             Date start = new Date();
             log.info(this.getClass().getSimpleName() + " started: " + start);
             cache();
             Date end = new Date();
             log.info(this.getClass().getSimpleName() + " finished: " + ProcessDisplayHelper.getHumanReadableTimeDisplay(end.getTime() - start.getTime()));
+            close();
         } catch (Exception e) {
             e.printStackTrace();
             System.exit(-1);

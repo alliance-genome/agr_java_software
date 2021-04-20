@@ -31,7 +31,7 @@ public class DiseaseService {
     @Inject
     private PhenotypeCacheRepository phenotypeCacheRepository;
 
-    private DiseaseRibbonService diseaseRibbonService = new DiseaseRibbonService();
+    private DiseaseRibbonService diseaseRibbonService = new DiseaseRibbonService(diseaseRepository);
 
     public DOTerm getById(String id) {
         return diseaseRepository.getDiseaseTerm(id);
@@ -234,7 +234,6 @@ public class DiseaseService {
     }
 
     public DiseaseRibbonSummary getDiseaseRibbonSummary(List<String> geneIDs, String includeNegation) {
-        DiseaseRibbonService diseaseRibbonService = new DiseaseRibbonService();
         DiseaseRibbonSummary summary = diseaseRibbonService.getDiseaseRibbonSectionInfo();
         Pagination pagination = new Pagination();
         pagination.setLimitToAll();

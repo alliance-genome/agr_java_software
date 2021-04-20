@@ -20,19 +20,19 @@ public class AlleleIndexer extends Indexer<SearchableItemDocument> {
 
     public AlleleIndexer(IndexerConfig config) {
         super(config);
-        species = ConfigHelper.getSpecies();
     }
 
     @Override
     public void index() {
         try {
             repo = new AlleleIndexerRepository();
-            alleleDocumentCache = repo.getAlleleDocumentCache(species);
+            alleleDocumentCache = repo.getAlleleDocumentCache();
             alleleDocumentCache.setPopularity(popularityScore);
-            List<String> fulllist = new ArrayList<>(alleleDocumentCache.getAlleleMap().keySet());
-            LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>(fulllist);
+            
+            LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>(alleleDocumentCache.getAlleleMap().keySet());
 
             initiateThreading(queue);
+            repo.close();
         } catch (Exception e) {
             log.error("Error while indexing...", e);
             System.exit(-1);

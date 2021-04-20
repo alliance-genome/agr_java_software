@@ -13,10 +13,18 @@ import lombok.extern.log4j.Log4j2;
 public class SiteMapCacher extends Cacher {
     
     private Integer batchSize = 15000;
-    private GeneRepository geneRepository = new GeneRepository();
-    private AlleleRepository alleleRepository = new AlleleRepository();
-    private DiseaseRepository diseaseRepository = new DiseaseRepository();
+    private GeneRepository geneRepository;
+    private AlleleRepository alleleRepository;
+    private DiseaseRepository diseaseRepository;
 
+
+    @Override
+    protected void init() {
+        geneRepository = new GeneRepository();
+        alleleRepository = new AlleleRepository();
+        diseaseRepository = new DiseaseRepository();
+    }
+    
     @Override
     protected void cache() {
         
@@ -36,7 +44,7 @@ public class SiteMapCacher extends Cacher {
         log.debug("Disease List Size: " + diseaseKeyList.size());
         cacheSiteMap(diseaseKeyList, CacheAlliance.SITEMAP_DISEASE);
         finishProcess();
-        
+
     }
     
     private void cacheSiteMap(Iterable<String> list, CacheAlliance cache) {
@@ -58,6 +66,13 @@ public class SiteMapCacher extends Cacher {
             idList.clear();
         }
         
+    }
+
+    @Override
+    public void close() {
+        geneRepository.close();
+        alleleRepository.close();
+        diseaseRepository.close();
     }
 
 }

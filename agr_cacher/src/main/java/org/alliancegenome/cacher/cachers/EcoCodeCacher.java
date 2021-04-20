@@ -13,8 +13,13 @@ import lombok.extern.log4j.Log4j2;
 @Log4j2
 public class EcoCodeCacher extends Cacher {
 
-    private static DiseaseRepository diseaseRepository = new DiseaseRepository();
+    private static DiseaseRepository diseaseRepository;
 
+    @Override
+    protected void init() {
+        diseaseRepository = new DiseaseRepository();
+    }
+    
     @Override
     protected void cache() {
 
@@ -32,5 +37,9 @@ public class EcoCodeCacher extends Cacher {
 
     }
 
+    @Override
+    public void close() {
+        diseaseRepository.close();
+    }
+
 }
-// 2524b083-7459-4e90-907d-230305b247fd

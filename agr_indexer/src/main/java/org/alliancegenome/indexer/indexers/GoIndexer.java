@@ -35,6 +35,7 @@ public class GoIndexer extends Indexer<SearchableItemDocument> {
         log.info("Translation Done");
 
         indexDocuments(docs);
+        goRepo.close();
         log.info("saveDocuments Done");
 
     }

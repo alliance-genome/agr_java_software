@@ -22,8 +22,15 @@ import lombok.extern.log4j.Log4j2;
 @Log4j2
 public class DiseaseCacher extends Cacher {
 
-    private static DiseaseRepository diseaseRepository = new DiseaseRepository();
+    private static DiseaseRepository diseaseRepository;
+    private DiseaseRibbonService diseaseRibbonService;
 
+    @Override
+    protected void init() {
+        diseaseRepository = new DiseaseRepository();
+        diseaseRibbonService = new DiseaseRibbonService(diseaseRepository);
+    }
+    
     protected void cache() {
 
         // model type of diseases
@@ -379,7 +386,6 @@ public class DiseaseCacher extends Cacher {
     }
 
     private List<DiseaseAnnotation> getDiseaseAnnotationsFromDEJs(Collection<DiseaseEntityJoin> joinList) {
-        DiseaseRibbonService diseaseRibbonService = new DiseaseRibbonService();
 
         return joinList.stream()
                 .map(join -> {
@@ -554,5 +560,10 @@ public class DiseaseCacher extends Cacher {
         allDiseaseAnnotations.removeIf(DiseaseAnnotation::isRemove);
     }
 
+    @Override
+    public void close() {
+        diseaseRepository.close();
+    }
+    
 }
 

@@ -22,9 +22,8 @@ import static org.junit.Assert.*;
 
 public class VariantIT {
 
-    //    @Inject
-    private VariantService variantService = new VariantService();
     private VariantRepository variantRepository = new VariantRepository();
+    private VariantService variantService = new VariantService(variantRepository);
 
     @Before
     public void before() {

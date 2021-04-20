@@ -3,6 +3,7 @@ package org.alliancegenome.cacher.cachers;
 import static java.util.stream.Collectors.groupingBy;
 
 import java.util.*;
+import java.util.concurrent.*;
 
 import org.alliancegenome.api.entity.CacheStatus;
 import org.alliancegenome.cache.CacheAlliance;
@@ -17,7 +18,11 @@ public class InteractionCacher extends Cacher {
     private static InteractionRepository interactionRepository = new InteractionRepository();
 
     public InteractionCacher() {
-        super();
+    }
+
+    @Override
+    protected void init() {
+        interactionRepository = new InteractionRepository();
     }
 
     @Override
@@ -25,8 +30,30 @@ public class InteractionCacher extends Cacher {
 
         startProcess("interactionRepository.getAllInteractions");
 
-        List<InteractionGeneJoin> allInteractionAnnotations = interactionRepository.getAllInteractions();
+        LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>(interactionRepository.getAllInteractionJoinKeys());
+        
+        ConcurrentLinkedQueue<InteractionGeneJoin> allInteractionAnnotations = new ConcurrentLinkedQueue<InteractionGeneJoin>();
+        
+        try {
 
+            ExecutorService executor = Executors.newFixedThreadPool(20);
+            for(int i = 0; i < 20; i++) {
+                InteractionGatherer gatherer = new InteractionGatherer(queue, allInteractionAnnotations);
+                executor.execute(gatherer);
+            }
+
+            log.info("InteractionGatherer shuting down executor: ");
+            executor.shutdown();  
+            while (!executor.isTerminated()) {
+                Thread.sleep(1000);
+            }
+            log.info("InteractionGatherer executor shut down: ");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        
+        
         finishProcess();
 
 
@@ -40,7 +67,7 @@ public class InteractionCacher extends Cacher {
 
         finishProcess();
 
-        startProcess("create joins", allInteractionAnnotations.size());
+        startProcess("create reverse joins", allInteractionAnnotations.size());
 
         allInteractionAnnotations.forEach(join -> {
             String primaryKey = join.getGeneB().getPrimaryKey();
@@ -99,6 +126,39 @@ public class InteractionCacher extends Cacher {
         newJoin.setAlleleB(join.getAlleleA());
         newJoin.setPhenotypes(join.getPhenotypes());
         return newJoin;
+    }
+
+    @Override
+    public void close() {
+        interactionRepository.close();
+    }
+    
+    public class InteractionGatherer extends Thread {
+        private InteractionRepository interactionRepository = new InteractionRepository();
+        private LinkedBlockingDeque<String> queue;
+        private ConcurrentLinkedQueue<InteractionGeneJoin> allInteractionAnnotations;
+        //private ProcessDisplayHelper ph = new ProcessDisplayHelper();
+        
+        public InteractionGatherer(LinkedBlockingDeque<String> queue, ConcurrentLinkedQueue<InteractionGeneJoin> allInteractionAnnotations) {
+            this.queue = queue;
+            this.allInteractionAnnotations = allInteractionAnnotations;
+        }
+
+        public void run() {
+            //ph.startProcess("Starting InteractionGatherer: ");
+            while(!queue.isEmpty()) {
+                try {
+                    String key = queue.takeFirst();
+                    List<InteractionGeneJoin> list = interactionRepository.getInteraction(key);
+                    allInteractionAnnotations.addAll(list);
+                    //ph.progressProcess("InteractionGatherer: ");
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            interactionRepository.close();
+            //ph.finishProcess();
+        }
     }
 
 }

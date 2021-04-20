@@ -74,8 +74,8 @@ public class CacheAllianceTest {
                 "ZFIN:ZDB-GENE-020419-25",
                 "RGD:11369140",
                 "WB:WBGene00000913");
-        AlleleCacher cacher = new AlleleCacher(true, testGeneIDs);
-        cacher.run();
+        //AlleleCacher cacher = new AlleleCacher(true, testGeneIDs);
+        //cacher.run();
     }
 
     @Ignore
