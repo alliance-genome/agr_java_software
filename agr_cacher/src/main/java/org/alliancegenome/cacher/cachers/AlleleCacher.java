@@ -222,7 +222,7 @@ public class AlleleCacher extends Cacher {
 
             HtpVariantCreation creator = new HtpVariantCreation(taxonID, chromosome, file, htpAlleleSequenceMap);
             executor.submit(creator);
-            Thread.sleep(10000);
+            //Thread.sleep(1000);
 
             executor.shutdown();
             while (!executor.isTerminated()) {
