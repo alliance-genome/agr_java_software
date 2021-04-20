@@ -25,19 +25,19 @@ public class AutoCompleteService {
     @Inject
     private SearchService searchService;
 
-    public AutoCompleteResult query(String q, String category) {
-        QueryBuilder query = buildQuery(q, category);
+    public AutoCompleteResult query(String queryTerm, String category) {
+        QueryBuilder query = buildQuery(queryTerm, category);
         SearchResponse res = autoCompleteDAO.performQuery(query);
         AutoCompleteResult result = new AutoCompleteResult();
         result.results = formatResults(res);
         return result;
     }
 
-    public BoolQueryBuilder buildBasicQuery(String q, String category) {
+    public BoolQueryBuilder buildBasicQuery(String queryTerm, String category) {
 
         BoolQueryBuilder bool = new BoolQueryBuilder();
 
-        MultiMatchQueryBuilder multi = QueryBuilders.multiMatchQuery(q);
+        MultiMatchQueryBuilder multi = QueryBuilders.multiMatchQuery(queryTerm);
         multi.field("symbol",5.0F);
         multi.field("symbol.keyword",8.0F);
         multi.field("name_key.autocomplete",3.0F);
@@ -56,9 +56,9 @@ public class AutoCompleteService {
     }
 
 
-    public QueryBuilder buildQuery(String q, String category) {
-        BoolQueryBuilder basicQuery = buildBasicQuery(q, category);
-        FunctionScoreQueryBuilder.FilterFunctionBuilder[] boostFunctions = searchService.buildBoostFunctions(q);
+    public QueryBuilder buildQuery(String queryTerm, String category) {
+        BoolQueryBuilder basicQuery = buildBasicQuery(queryTerm, category);
+        FunctionScoreQueryBuilder.FilterFunctionBuilder[] boostFunctions = searchService.buildBoostFunctions(queryTerm);
 
         FunctionScoreQueryBuilder builder = new FunctionScoreQueryBuilder(basicQuery,boostFunctions);
 

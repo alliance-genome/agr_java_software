@@ -7,8 +7,8 @@ import org.neo4j.ogm.typeconversion.AttributeConverter;
 
 public class DateConverter implements AttributeConverter<Date, String> {
 
-    private DateFormat format1 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
-    private DateFormat format2 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX");
+    private DateFormat format1;
+    private DateFormat format2;
     
     @Override
     public String toGraphProperty(Date value) {
@@ -17,6 +17,8 @@ public class DateConverter implements AttributeConverter<Date, String> {
 
     @Override
     public Date toEntityAttribute(String value) {
+        format1 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
+        format2 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX");
         try {
             return format1.parse(value);
         } catch (Exception e) {

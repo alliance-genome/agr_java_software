@@ -1,6 +1,6 @@
 package org.alliancegenome.neo4j.entity.node;
 
-import org.alliancegenome.api.service.VariantService;
+import org.alliancegenome.core.helpers.VariantServiceHelper;
 import org.alliancegenome.neo4j.entity.Neo4jEntity;
 import org.alliancegenome.neo4j.view.View;
 import org.apache.commons.lang3.StringUtils;
@@ -137,7 +137,7 @@ public class TranscriptLevelConsequence extends Neo4jEntity {
             return transcriptLocation;
         if (transcript == null)
             return "";
-        VariantService.populateIntronExonLocation(variant, transcript);
+        VariantServiceHelper.populateIntronExonLocation(variant, transcript);
         transcriptLocation = transcript.getIntronExonLocation();
         return transcriptLocation;
     }

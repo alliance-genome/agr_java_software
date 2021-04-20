@@ -6,4 +6,5 @@ audit.log
 # intellij things
 .idea/
 *.iml
-/.metadata/
+.metadata/
+bin

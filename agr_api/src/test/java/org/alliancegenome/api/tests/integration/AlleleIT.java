@@ -33,8 +33,9 @@ public class AlleleIT {
 
     private AlleleService alleleService = new AlleleService();
     private AlleleRepository alleleRepository = new AlleleRepository();
-    private VariantRepository variantRepository = new VariantRepository();
-    private VariantService variantService = new VariantService(variantRepository);
+
+    @Inject
+    private VariantService variantService;
 
     @Inject
     private GeneService geneService;
