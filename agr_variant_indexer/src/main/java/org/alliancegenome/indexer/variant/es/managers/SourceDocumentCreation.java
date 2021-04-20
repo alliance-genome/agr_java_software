@@ -200,7 +200,7 @@ public class SourceDocumentCreation extends Thread {
 
         }
         
-        ph1.startProcess("VCFReader Readers: ");
+        ph1.startProcess("VCFReader Readers: " + speciesType.getName());
         List<VCFReader> readers = new ArrayList<VCFReader>();
         for (DownloadableFile df : source.getFileList()) {
             VCFReader reader = new VCFReader(df);
