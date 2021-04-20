@@ -114,11 +114,6 @@ public class HtpVariantCreation extends Thread {
                 log.info("Setting VCF File Header: " + df.getLocalGzipFilePath());
                 VCFInfoHeaderLine fileHeader = reader.getFileHeader().getInfoHeaderLine("CSQ");
                 header = fileHeader.getDescription().split("Format: ")[1].split("\\|");
-                try {
-                    TimeUnit.SECONDS.sleep(10);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
             }
 
             try {
