@@ -113,7 +113,7 @@ public class AlleleVariantSequenceConverter {
                         //    s.setConsequence(c);
                         /****************SearchbleDocument Fields***************/
                         if(c.getAssociatedGene().getSymbol()!=null && !c.getAssociatedGene().getSymbol().equals(""))
-                            genes.add(c.getAssociatedGene().getSymbol());
+                            genes.add(c.getAssociatedGene().getNameKey());
 
                     }
                 }
