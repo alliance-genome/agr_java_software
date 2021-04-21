@@ -67,7 +67,8 @@ public class VariantConfigHelper {
         defaults.put(VARIANT_INDEXER_SHARDS, "16");
         defaults.put(VARIANT_INDEXER_BULK_PROCESSOR_THREADS, "12");
         
-        defaults.put(VARIANT_BULK_PROCESSOR_SETTINGS, "1000;10;10;10000,133;10;10;1333,100;10;10;1000,50;10;10;500");
+        // BulkActions;ConcurrentRequests;BulkSize;JsonQueueSize;QueueCutOffSize
+        defaults.put(VARIANT_BULK_PROCESSOR_SETTINGS, "1000;10;10;10000;1000,133;10;10;1333;7500,100;10;10;1000;10000,50;10;10;500;10000000");
 
         allKeys = defaults.keySet();
 

@@ -39,7 +39,7 @@ public class Gene extends GeneticEntity implements Comparable<Gene> {
     @JsonView({View.GeneAPI.class, View.Expression.class})
     private String dataProvider;
 
-    @JsonView(value = {View.GeneAPI.class})
+    @JsonView(value = {View.GeneAPI.class, View.AlleleVariantSequenceConverterForES.class})
     private String name;
 
     @Convert(value = DateConverter.class)

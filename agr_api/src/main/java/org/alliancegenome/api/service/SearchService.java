@@ -199,16 +199,16 @@ public class SearchService {
         return new FunctionScoreQueryBuilder.FilterFunctionBuilder(matchAllQuery(), popularity);
     }
 
-    public BoolQueryBuilder buildQuery(String q, String category, MultivaluedMap<String,String> filters) {
+    public BoolQueryBuilder buildQuery(String queryTerm, String category, MultivaluedMap<String,String> filters) {
 
         BoolQueryBuilder bool = boolQuery();
 
         //handle the query input, if necessary
-        if (StringUtils.isNotEmpty(q)) {
+        if (StringUtils.isNotEmpty(queryTerm)) {
 
-            q = queryManipulationService.processQuery(q);
+            queryTerm = queryManipulationService.processQuery(queryTerm);
 
-            QueryStringQueryBuilder builder = queryStringQuery(q)
+            QueryStringQueryBuilder builder = queryStringQuery(queryTerm)
                 .defaultOperator(Operator.OR)
                 .allowLeadingWildcard(true);
 

@@ -15,7 +15,7 @@ public class TestSplitFileByChromosome {
         String inputDir =  "/Users/olinblodgett/git/agr_java_software/agr_variant_indexer/data";
         String outputDir = "/Users/olinblodgett/git/agr_java_software/agr_variant_indexer/data";
         
-        VCFFileReader reader = new VCFFileReader(new File(inputDir + "/MGI_HTPOSTVEPVCF_20210224.vcf.gz"), false);
+        VCFFileReader reader = new VCFFileReader(new File(inputDir + "/MGI_HTPOSTVEPVCF_20210420.vcf.gz"), false);
 
         String chr = "";
 
@@ -25,7 +25,7 @@ public class TestSplitFileByChromosome {
         
         CloseableIterator<VariantContext> iter1 = reader.iterator();
         
-        ph.startProcess("VCFReader Reader: ");
+        ph.startProcess("VCFReader");
         
         while(iter1.hasNext()) {
             try {

@@ -28,8 +28,9 @@
 			<groupId>org.alliancegenome</groupId>
 			<artifactId>agr_api</artifactId>
 			<version>${project.version}</version>
+			
+			<classifier>classes</classifier>
 		</dependency>
-
 
 	</dependencies>
 
