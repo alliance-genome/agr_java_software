@@ -71,7 +71,10 @@ public class ProcessDisplayHelper {
             Date now = new Date();
             long time = now.getTime() - lastTime.getTime();
     
-            if (time < displayTimeout) return;
+            if (time < displayTimeout) {
+                sem.release();
+                return;
+            }
             
             long diff = now.getTime() - startTime.getTime();        
             checkMemory();
