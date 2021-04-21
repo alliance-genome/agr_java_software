@@ -28,6 +28,12 @@ public class RepoCommand extends Command implements CommandInterface {
                 } else {
                     printHelp();
                 }
+            } else if(command.equals("delete")) {
+                if(args.size() > 0) {
+                    im.deleteRepo(args.remove(0));
+                } else {
+                    printHelp();
+                }
             } else if(command.equals("list")) {
                 List<RepositoryMetadata> meta = im.listRepos();
                 if(meta != null) {

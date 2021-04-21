@@ -11,6 +11,7 @@ import org.alliancegenome.es.index.site.schema.settings.SiteIndexSettings;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.*;
+import org.elasticsearch.action.admin.cluster.repositories.delete.DeleteRepositoryRequest;
 import org.elasticsearch.action.admin.cluster.repositories.get.*;
 import org.elasticsearch.action.admin.cluster.repositories.put.PutRepositoryRequest;
 import org.elasticsearch.action.admin.cluster.snapshots.create.CreateSnapshotRequest;
@@ -241,6 +242,22 @@ public class IndexManager {
 
         EsClientFactory.closeClient();
         log.debug(baseIndexName + " Finished: ");
+    }
+    
+    public void deleteRepo(String repoName) {
+        
+        try {
+            DeleteRepositoryRequest request = new DeleteRepositoryRequest();
+            request.name(repoName);
+            AcknowledgedResponse res = getClient().snapshot().deleteRepository(request, RequestOptions.DEFAULT);
+            if(res.isAcknowledged()) {
+                log.info("Deleted Repo: " + repoName);
+            } else {
+                log.info("Deleted Repo: " + repoName + " failed");
+            }
+        } catch (IOException e) {
+            log.error("Exception deleting getRepository: " + e.toString());
+        }
     }
 
     public String getCreateRepo(String repoName) {
