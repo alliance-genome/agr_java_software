@@ -178,24 +178,28 @@ public class SourceDocumentCreation extends Thread {
             builder1.setBulkSize(new ByteSizeValue(config_settings[0][2], ByteSizeUnit.MB)); // 10
             builder1.setBackoffPolicy(BackoffPolicy.exponentialBackoff(TimeValue.timeValueSeconds(1L), 60));
             bulkProcessor1 = builder1.build();
+            log.info("BP1: BA: " + config_settings[0][0] + " CR: " + config_settings[0][1] + " BS: " + config_settings[0][2]);
 
             builder2.setBulkActions(config_settings[1][0]); // 133
             builder2.setConcurrentRequests(config_settings[1][1]); // 10
             builder2.setBulkSize(new ByteSizeValue(config_settings[1][2], ByteSizeUnit.MB)); // 10
             builder2.setBackoffPolicy(BackoffPolicy.exponentialBackoff(TimeValue.timeValueSeconds(1L), 60));
             bulkProcessor2 = builder2.build();
+            log.info("BP2: BA: " + config_settings[1][0] + " CR: " + config_settings[1][1] + " BS: " + config_settings[1][2]);
     
             builder3.setBulkActions(config_settings[2][0]); // 100 
             builder3.setConcurrentRequests(config_settings[2][1]); // 10
             builder3.setBulkSize(new ByteSizeValue(config_settings[2][2], ByteSizeUnit.MB)); // 10
             builder3.setBackoffPolicy(BackoffPolicy.exponentialBackoff(TimeValue.timeValueSeconds(1L), 60));
             bulkProcessor3 = builder3.build();
+            log.info("BP3: BA: " + config_settings[2][0] + " CR: " + config_settings[2][1] + " BS: " + config_settings[2][2]);
     
             builder4.setBulkActions(config_settings[3][0]); // 50
             builder4.setConcurrentRequests(config_settings[3][1]); // 10
             builder4.setBulkSize(new ByteSizeValue(config_settings[3][2], ByteSizeUnit.MB)); // 10
             builder4.setBackoffPolicy(BackoffPolicy.exponentialBackoff(TimeValue.timeValueSeconds(1L), 60));
             bulkProcessor4 = builder4.build();
+            log.info("BP4: BA: " + config_settings[3][0] + " CR: " + config_settings[3][1] + " BS: " + config_settings[3][2]);
 
         }
         
@@ -245,11 +249,6 @@ public class SourceDocumentCreation extends Thread {
         }
 
         try {
-
-            log.info("Waiting for jsonQueue to empty");
-            while (!(jsonQueue1.isEmpty() && jsonQueue2.isEmpty() && jsonQueue3.isEmpty() && jsonQueue4.isEmpty())) {
-                Thread.sleep(1000);
-            }
 
             log.info("Waiting for VCFReader's to finish");
             for (VCFReader r : readers) {
