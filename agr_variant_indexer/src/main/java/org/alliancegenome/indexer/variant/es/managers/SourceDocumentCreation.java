@@ -83,7 +83,7 @@ public class SourceDocumentCreation extends Thread {
         aVSConverter = new AlleleVariantSequenceConverter();
         if(indexing) client = EsClientFactory.getDefaultEsClient();
         
-        message_header = indexName + " " + speciesType.getModName() + " ";
+        message_header = speciesType.getModName() + " ";
     }
 
     public void run() {
