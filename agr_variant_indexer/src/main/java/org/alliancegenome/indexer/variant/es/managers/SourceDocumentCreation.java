@@ -101,7 +101,7 @@ public class SourceDocumentCreation extends Thread {
     
                 @Override
                 public void afterBulk(long executionId, BulkRequest request, Throwable failure) {
-                    log.error("Bulk Request Failure: " + failure.getMessage());
+                    log.error("BulkProcessor1 Request Failure: " + failure.getMessage());
                     for (DocWriteRequest<?> req : request.requests()) {
                         IndexRequest idxreq = (IndexRequest) req;
                         bulkProcessor1.add(idxreq);
@@ -122,7 +122,7 @@ public class SourceDocumentCreation extends Thread {
     
                 @Override
                 public void afterBulk(long executionId, BulkRequest request, Throwable failure) {
-                    log.error("Bulk Request Failure: " + failure.getMessage());
+                    log.error("BulkProcessor2 Request Failure: " + failure.getMessage());
                     for (DocWriteRequest<?> req : request.requests()) {
                         IndexRequest idxreq = (IndexRequest) req;
                         bulkProcessor2.add(idxreq);
@@ -143,7 +143,7 @@ public class SourceDocumentCreation extends Thread {
     
                 @Override
                 public void afterBulk(long executionId, BulkRequest request, Throwable failure) {
-                    log.error("Bulk Request Failure: " + failure.getMessage());
+                    log.error("BulkProcessor3 Request Failure: " + failure.getMessage());
                     for (DocWriteRequest<?> req : request.requests()) {
                         IndexRequest idxreq = (IndexRequest) req;
                         bulkProcessor3.add(idxreq);
@@ -164,7 +164,7 @@ public class SourceDocumentCreation extends Thread {
     
                 @Override
                 public void afterBulk(long executionId, BulkRequest request, Throwable failure) {
-                    log.error("Bulk Request Failure: " + failure.getMessage());
+                    log.error("BulkProcessor4 Request Failure: " + failure.getMessage());
                     for (DocWriteRequest<?> req : request.requests()) {
                         IndexRequest idxreq = (IndexRequest) req;
                         bulkProcessor4.add(idxreq);
@@ -199,7 +199,7 @@ public class SourceDocumentCreation extends Thread {
 
         }
         
-        ph1.startProcess("VCFReader: " + speciesType.getName());
+        ph1.startProcess(indexName + " " + speciesType.getName() + " VCFReader");
         List<VCFReader> readers = new ArrayList<VCFReader>();
         for (DownloadableFile df : source.getFileList()) {
             VCFReader reader = new VCFReader(df);
@@ -208,7 +208,7 @@ public class SourceDocumentCreation extends Thread {
         }
 
         List<DocumentTransformer> transformers = new ArrayList<>();
-        ph2.startProcess("VCFTransformers: " + speciesType.getName());
+        ph2.startProcess(indexName + " " + speciesType.getName() + " VCFTransformers");
         for (int i = 0; i < VariantConfigHelper.getTransformerThreads(); i++) {
             DocumentTransformer transformer = new DocumentTransformer();
             transformer.start();
@@ -216,7 +216,7 @@ public class SourceDocumentCreation extends Thread {
         }
 
         List<JSONProducer> producers = new ArrayList<>();
-        ph5.startProcess("JSONProducers: " + speciesType.getName());
+        ph5.startProcess(indexName + " " + speciesType.getName() + " JSONProducers");
         for (int i = 0; i < VariantConfigHelper.getProducerThreads(); i++) {
             JSONProducer producer = new JSONProducer();
             producer.start();
@@ -227,8 +227,8 @@ public class SourceDocumentCreation extends Thread {
         
         if(!indexing) indexName = "no_index";
         
-        ph3.startProcess("VCFJsonIndexer BulkProcessor: " + indexName + ": " + speciesType.getName());
-        ph4.startProcess("VCFJsonIndexer Buckets: " + indexName + ": " + speciesType.getName());
+        ph3.startProcess(indexName + " " + speciesType.getName() + " VCFJsonIndexer BulkProcessor");
+        ph4.startProcess(indexName + " " + speciesType.getName() + " VCFJsonIndexer Buckets");
         for (int i = 0; i < VariantConfigHelper.getIndexerBulkProcessorThreads(); i++) {
             VCFJsonBulkIndexer indexer1 = new VCFJsonBulkIndexer(jsonQueue1, bulkProcessor1);
             indexer1.start();
@@ -312,26 +312,22 @@ public class SourceDocumentCreation extends Thread {
             
             if(gatherStats) statsCollector.printOutput(speciesType.getModName());
 
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        if(indexing) {
-            bulkProcessor1.flush();
-            bulkProcessor2.flush();
-            bulkProcessor3.flush();
-            bulkProcessor4.flush();
-    
-            try {
+            if(indexing) {
+                bulkProcessor1.flush();
+                bulkProcessor2.flush();
+                bulkProcessor3.flush();
+                bulkProcessor4.flush();
+
                 bulkProcessor1.awaitClose(10, TimeUnit.DAYS);
                 bulkProcessor2.awaitClose(10, TimeUnit.DAYS);
                 bulkProcessor3.awaitClose(10, TimeUnit.DAYS);
                 bulkProcessor4.awaitClose(10, TimeUnit.DAYS);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
             }
+            
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
-        
-        
+
         log.info("Bulk Processors finished");
     }
 
