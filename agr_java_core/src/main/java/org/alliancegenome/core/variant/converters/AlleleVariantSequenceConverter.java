@@ -154,7 +154,9 @@ public class AlleleVariantSequenceConverter {
                     String message = "Diff: " + header.length + " " + infos.length;
                     message += "\r" + Join.join("|", header);
                     message += "\r" +String.join("|", Arrays.asList(infos));
-                    throw new RuntimeException("CSQ header is not matching the line " + message);
+                    // throw new RuntimeException("CSQ header is not matching the line " + message);
+                    // This has got to fail ... there is something not right with the files.
+                    System.exit(-1);
                 }
             }
         }

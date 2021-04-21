@@ -10,7 +10,6 @@ import org.alliancegenome.data_extractor.extractors.fms.interfaces.DataFileRESTI
 import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.apache.commons.io.FileUtils;
 
-import com.amazonaws.*;
 import com.amazonaws.auth.*;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.*;
@@ -58,6 +57,8 @@ public class DownloadSplitUploadVCFFiles {
             if(!saveLocation.exists()) {
                 log.info("Downloading: " + saveLocation);
                 FileUtils.copyURLToFile(url, saveLocation);
+            } else {
+                log.info("File already exists: " + saveLocation);
             }
             log.info("Finished Downloading: " + saveLocation);
             return saveLocation;
