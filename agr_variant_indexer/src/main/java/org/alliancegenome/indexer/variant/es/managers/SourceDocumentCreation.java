@@ -60,6 +60,8 @@ public class SourceDocumentCreation extends Thread {
     private LinkedBlockingDeque<List<String>> jsonQueue2;
     private LinkedBlockingDeque<List<String>> jsonQueue3;
     private LinkedBlockingDeque<List<String>> jsonQueue4;
+    
+    private int[][] jqs = new int[4][2]; // Json Queue Stats
 
     private ProcessDisplayHelper ph1 = new ProcessDisplayHelper(log, VariantConfigHelper.getDisplayInterval());
     private ProcessDisplayHelper ph2 = new ProcessDisplayHelper(log, VariantConfigHelper.getDisplayInterval());
@@ -452,7 +454,11 @@ public class SourceDocumentCreation extends Thread {
                                     } else {
                                         docs4.add(jsonDoc);
                                     }
-                                    ph5.progressProcess("jsonQueue1: " + jsonQueue1.size() + " jsonQueue2: " + jsonQueue2.size() + " jsonQueue3: " + jsonQueue3.size() + " jsonQueue4: " + jsonQueue4.size());
+                                    ph5.progressProcess(
+                                            "jsonQueue1(" + jqs[0][0] + "," + jqs[0][1] + "): " + jsonQueue1.size() + 
+                                            " jsonQueue2(" + jqs[1][0] + "," + jqs[1][1] + "): " + jsonQueue2.size() + 
+                                            " jsonQueue3(" + jqs[2][0] + "," + jqs[2][1] + "): " + jsonQueue3.size() + 
+                                            " jsonQueue4(" + jqs[3][0] + "," + jqs[3][1] + "): " + jsonQueue4.size());
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                 }
@@ -460,10 +466,26 @@ public class SourceDocumentCreation extends Thread {
                         }
 
                         try {
-                            if (docs1.size() > 0) jsonQueue1.put(docs1);
-                            if (docs2.size() > 0) jsonQueue2.put(docs2);
-                            if (docs3.size() > 0) jsonQueue3.put(docs3);
-                            if (docs4.size() > 0) jsonQueue4.put(docs4);
+                            if (docs1.size() > 0) {
+                                jsonQueue1.put(docs1);
+                                jqs[0][0]++;
+                                jqs[0][1] += docs1.size();
+                            }
+                            if (docs2.size() > 0) {
+                                jsonQueue2.put(docs2);
+                                jqs[1][0]++;
+                                jqs[1][1] += docs1.size();
+                            }
+                            if (docs3.size() > 0) {
+                                jsonQueue3.put(docs3);
+                                jqs[2][0]++;
+                                jqs[2][1] += docs1.size();
+                            }
+                            if (docs4.size() > 0) {
+                                jsonQueue4.put(docs4);
+                                jqs[3][0]++;
+                                jqs[3][1] += docs1.size();
+                            }
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
