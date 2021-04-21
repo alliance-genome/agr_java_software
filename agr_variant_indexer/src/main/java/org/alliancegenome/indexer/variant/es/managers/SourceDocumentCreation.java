@@ -199,7 +199,7 @@ public class SourceDocumentCreation extends Thread {
 
         }
         
-        ph1.startProcess(indexName + " " + speciesType.getName() + " VCFReader");
+        ph1.startProcess(indexName + " " + speciesType.getModName() + " VCFReader");
         List<VCFReader> readers = new ArrayList<VCFReader>();
         for (DownloadableFile df : source.getFileList()) {
             VCFReader reader = new VCFReader(df);
@@ -208,7 +208,7 @@ public class SourceDocumentCreation extends Thread {
         }
 
         List<DocumentTransformer> transformers = new ArrayList<>();
-        ph2.startProcess(indexName + " " + speciesType.getName() + " VCFTransformers");
+        ph2.startProcess(indexName + " " + speciesType.getModName() + " VCFTransformers");
         for (int i = 0; i < VariantConfigHelper.getTransformerThreads(); i++) {
             DocumentTransformer transformer = new DocumentTransformer();
             transformer.start();
@@ -216,7 +216,7 @@ public class SourceDocumentCreation extends Thread {
         }
 
         List<JSONProducer> producers = new ArrayList<>();
-        ph5.startProcess(indexName + " " + speciesType.getName() + " JSONProducers");
+        ph5.startProcess(indexName + " " + speciesType.getModName() + " JSONProducers");
         for (int i = 0; i < VariantConfigHelper.getProducerThreads(); i++) {
             JSONProducer producer = new JSONProducer();
             producer.start();
@@ -227,8 +227,8 @@ public class SourceDocumentCreation extends Thread {
         
         if(!indexing) indexName = "no_index";
         
-        ph3.startProcess(indexName + " " + speciesType.getName() + " VCFJsonIndexer BulkProcessor");
-        ph4.startProcess(indexName + " " + speciesType.getName() + " VCFJsonIndexer Buckets");
+        ph3.startProcess(indexName + " " + speciesType.getModName() + " VCFJsonIndexer BulkProcessor");
+        ph4.startProcess(indexName + " " + speciesType.getModName() + " VCFJsonIndexer Buckets");
         for (int i = 0; i < VariantConfigHelper.getIndexerBulkProcessorThreads(); i++) {
             VCFJsonBulkIndexer indexer1 = new VCFJsonBulkIndexer(jsonQueue1, bulkProcessor1);
             indexer1.start();
