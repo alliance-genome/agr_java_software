@@ -101,7 +101,7 @@ public class SourceDocumentCreation extends Thread {
     
                 @Override
                 public void afterBulk(long executionId, BulkRequest request, Throwable failure) {
-                    log.error("BulkProcessor1 Request Failure: " + failure.getMessage());
+                    log.error(indexName + " " + speciesType.getModName() + "BulkProcessor1 Request Failure: " + failure.getMessage());
                     for (DocWriteRequest<?> req : request.requests()) {
                         IndexRequest idxreq = (IndexRequest) req;
                         bulkProcessor1.add(idxreq);
@@ -122,7 +122,7 @@ public class SourceDocumentCreation extends Thread {
     
                 @Override
                 public void afterBulk(long executionId, BulkRequest request, Throwable failure) {
-                    log.error("BulkProcessor2 Request Failure: " + failure.getMessage());
+                    log.error(indexName + " " + speciesType.getModName() + "BulkProcessor2 Request Failure: " + failure.getMessage());
                     for (DocWriteRequest<?> req : request.requests()) {
                         IndexRequest idxreq = (IndexRequest) req;
                         bulkProcessor2.add(idxreq);
@@ -143,7 +143,7 @@ public class SourceDocumentCreation extends Thread {
     
                 @Override
                 public void afterBulk(long executionId, BulkRequest request, Throwable failure) {
-                    log.error("BulkProcessor3 Request Failure: " + failure.getMessage());
+                    log.error(indexName + " " + speciesType.getModName() + "BulkProcessor3 Request Failure: " + failure.getMessage());
                     for (DocWriteRequest<?> req : request.requests()) {
                         IndexRequest idxreq = (IndexRequest) req;
                         bulkProcessor3.add(idxreq);
@@ -164,7 +164,7 @@ public class SourceDocumentCreation extends Thread {
     
                 @Override
                 public void afterBulk(long executionId, BulkRequest request, Throwable failure) {
-                    log.error("BulkProcessor4 Request Failure: " + failure.getMessage());
+                    log.error(indexName + " " + speciesType.getModName() + "BulkProcessor4 Request Failure: " + failure.getMessage());
                     for (DocWriteRequest<?> req : request.requests()) {
                         IndexRequest idxreq = (IndexRequest) req;
                         bulkProcessor4.add(idxreq);
