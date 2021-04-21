@@ -474,17 +474,17 @@ public class SourceDocumentCreation extends Thread {
                             if (docs2.size() > 0) {
                                 jsonQueue2.put(docs2);
                                 jqs[1][0]++;
-                                jqs[1][1] += docs1.size();
+                                jqs[1][1] += docs2.size();
                             }
                             if (docs3.size() > 0) {
                                 jsonQueue3.put(docs3);
                                 jqs[2][0]++;
-                                jqs[2][1] += docs1.size();
+                                jqs[2][1] += docs3.size();
                             }
                             if (docs4.size() > 0) {
                                 jsonQueue4.put(docs4);
                                 jqs[3][0]++;
-                                jqs[3][1] += docs1.size();
+                                jqs[3][1] += docs4.size();
                             }
                         } catch (InterruptedException e) {
                             e.printStackTrace();

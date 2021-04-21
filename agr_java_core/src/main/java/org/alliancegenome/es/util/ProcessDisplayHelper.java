@@ -2,8 +2,8 @@ package org.alliancegenome.es.util;
 
 import java.text.DecimalFormat;
 import java.util.Date;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.*;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.logging.log4j.Logger;
 
@@ -20,6 +20,8 @@ public class ProcessDisplayHelper {
     private String message;
     private long lastSizeCounter = 0;
     private long totalSize;
+    
+    private final Semaphore sem = new Semaphore(1, true);
     
     private AtomicLong sizeCounter = new AtomicLong(0);
     
@@ -61,40 +63,50 @@ public class ProcessDisplayHelper {
     }
     
     public void progressProcess(String data) {
-        Date now = new Date();
-
-        long time = now.getTime() - lastTime.getTime();
         sizeCounter.getAndIncrement();
-        if (time < displayTimeout) return;
         
-        long diff = now.getTime() - startTime.getTime();        
-        checkMemory();
+        try {
+            sem.acquire();
         
-        double percent = 0;
-        if (totalSize > 0) {
-            percent = ((double) (sizeCounter.get()) / totalSize);
-        }
-        long processedAmount = (sizeCounter.get() - lastSizeCounter);
-        StringBuffer sb = new StringBuffer(this.message);
-        sb.append(getBigNumber(sizeCounter.get()));
-        if(totalSize > 0) {
-            sb.append(" of [" + getBigNumber(totalSize) + "] " + (int) (percent * 100L) + "%");
-        }
-        sb.append(", " + (time / 1000) + "s to process " + getBigNumber(processedAmount) + " records at " + getBigNumber((processedAmount * 1000L) / time) + "r/s");
-        if(data != null) {
-            sb.append(" " + data);
+            Date now = new Date();
+            long time = now.getTime() - lastTime.getTime();
+    
+            if (time < displayTimeout) return;
+            
+            long diff = now.getTime() - startTime.getTime();        
+            checkMemory();
+            
+            double percent = 0;
+            if (totalSize > 0) {
+                percent = ((double) (sizeCounter.get()) / totalSize);
+            }
+            long processedAmount = (sizeCounter.get() - lastSizeCounter);
+            StringBuffer sb = new StringBuffer(this.message);
+            sb.append(getBigNumber(sizeCounter.get()));
+            if(totalSize > 0) {
+                sb.append(" of [" + getBigNumber(totalSize) + "] " + (int) (percent * 100L) + "%");
+            }
+            sb.append(", " + (time / 1000) + "s to process " + getBigNumber(processedAmount) + " records at " + getBigNumber((processedAmount * 1000L) / time) + "r/s");
+            if(data != null) {
+                sb.append(" " + data);
+            }
+            
+            
+            if (percent > 0) {
+                int perms = (int) (diff / percent);
+                Date end = new Date(startTime.getTime() + perms);
+                String expectedDuration = getHumanReadableTimeDisplay(end.getTime() - (new Date()).getTime());
+                sb.append(", Mem: " + df.format(memoryPercent() * 100) + "%, ETA: " + expectedDuration + " [" + end + "]");
+            }
+            logInfoMessage(sb.toString());
+            lastSizeCounter = sizeCounter.get();
+            lastTime = now;
+            sem.release();
+        } catch (InterruptedException e) {
+            sem.release();
+            e.printStackTrace();
         }
         
-        
-        if (percent > 0) {
-            int perms = (int) (diff / percent);
-            Date end = new Date(startTime.getTime() + perms);
-            String expectedDuration = getHumanReadableTimeDisplay(end.getTime() - (new Date()).getTime());
-            sb.append(", Mem: " + df.format(memoryPercent() * 100) + "%, ETA: " + expectedDuration + " [" + end + "]");
-        }
-        logInfoMessage(sb.toString());
-        lastSizeCounter = sizeCounter.get();
-        lastTime = now;
     }
 
     public void finishProcess() {
