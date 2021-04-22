@@ -156,57 +156,49 @@ public class TranscriptLevelConsequence extends Neo4jEntity {
 
     
     
-    
-    
-    
-//  private String allele;
-//  private String consequence; -> transcriptLevelConsequence;
-//  private String symbol;
-//  private String gene;
-//  private String featureType;
-//  private String feature;
-//  private String biotype;
-//  private String exon;
-//  private String intron;
-//  private String hgvsc;
-//  private String hgvsp;
-//  private String hgvsg;
-//  
-//  private String cdnaPosition;
-//  private String cdsPosition;
-//  private String proteinPosition;
-//  private String aminoAcids;
-//  private String codons;
-//  private String existingVariation;
-//  private String distance;
-//  private String strand;
-//  private String flags;
-//  private String symbolSource;
-//  private String hgncId;
-//  private String source;
-//  private String refseqMatch;
-//  private String refseqOffset;
-//  private String givenRef;
-//  private String usedRef;
-//  private String bamEdit;
-//
-//  private String hgvsOffset;
-//  private String genomicStart;
-//  private String genomicEnd;
-//
-//  private String referenceSequence;
-//  private String variantSequence;
-//  
-
-    
     public TranscriptLevelConsequence(String[] header, String[] infos) {
 
-        // Mod VEP
-        //  Allele|Consequence|IMPACT|SYMBOL|Gene|Feature_type|Feature|BIOTYPE|EXON|INTRON
-        // |HGVSc|HGVSp|cDNA_position|CDS_position|Protein_position|Amino_acids|Codons|Existing_variation|DISTANCE|STRAND|
-        //  FLAGS|SYMBOL_SOURCE|HGNC_ID|GIVEN_REF|USED_REF|BAM_EDIT|SOURCE|HGVS_OFFSET|HGVSg|
-        //  PolyPhen_prediction|PolyPhen_score|SIFT_prediction|SIFT_score|Genomic_end_position|Genomic_start_position
-
+        /* From MOD VCF File
+        0  Allele: GGGG
+        1  Consequence: intron_variant
+        2  IMPACT: MODIFIER
+        3  SYMBOL: cpx
+        4  Gene: FB:FBgn0041605
+        5  Feature_type: Transcript
+        6  Feature: FB:FBtr0078897
+        7  BIOTYPE: protein_coding
+        8  EXON:
+        9  INTRON: 3/6
+        10 HGVSc: FB:FBtr0078897.1:c.56-4279_56-4275delinsGGGG
+        11 HGVSp:
+        12 cDNA_position:
+        13 CDS_position:
+        14 Protein_position:
+        15 Amino_acids:
+        16 Codons:
+        17 Existing_variation:
+        18 DISTANCE:
+        19 STRAND: 1
+        20 FLAGS: 
+        21 Gene_level_consequence:
+        22 SYMBOL_SOURCE: intron_variant
+        23 HGNC_ID:
+        24 GIVEN_REF: CCATT
+        25 USED_REF: CCATT
+        26 BAM_EDIT:
+        27 SOURCE: FB_GFF.refseq.gff.gz
+        28 HGVS_OFFSET:
+        29 HGVSg: NT_033777.3:g.4290841_4290845delinsGGGG
+        30 PolyPhen_prediction:
+        31 PolyPhen_score:
+        32 SIFT_prediction:
+        33 SIFT_score:
+        34 Genomic_end_position: 4290845
+        35 Genomic_start_position: 4290841
+        36 transcript_name:cpx-RG
+        37 FB_GFF.refseq.gff.gz:
+        */
+        
         transcriptLevelConsequence = infos[1];
         impact = infos[2];
 
@@ -215,8 +207,9 @@ public class TranscriptLevelConsequence extends Neo4jEntity {
         associatedGene.setSymbol(infos[3]);
         associatedGene.setPrimaryKey(infos[4]);
         
-        sequenceFeatureType = infos[7];
         transcriptID = infos[6];
+        sequenceFeatureType = infos[7];
+        
 
         String location = "";
         if (StringUtils.isNotEmpty(infos[8]))
@@ -226,50 +219,34 @@ public class TranscriptLevelConsequence extends Neo4jEntity {
         
         transcriptLocation = location;
         
-        /*  biotype = infos[7];
-         */
-        
-        cdnaStartPosition = infos[12];
-        cdsStartPosition = infos[13];
         hgvsCodingNomenclature = infos[10];
         hgvsProteinNomenclature = infos[11];
+        cdnaStartPosition = infos[12];
+        cdsStartPosition = infos[13];
         proteinStartPosition = infos[14];
         aminoAcidChange = infos[15];
         codonChange = infos[16];
-        polyphenPrediction = infos[30];
-        hgvsVEPGeneNomenclature = infos[28];
-        siftPrediction = infos[29];
-        siftScore = infos[32];
-
-
-        //  c.setCodonReference(infos[26]); // need to verify
-
-        //  variant.setGenomicVariantSequence(transcriptFeature.getAllele());
-        //  genomicEnd = infos[33];
-        //    genomicStart = infos[34];
-
-        /*  existingVariation = infos[17];
-        distance = infos[18];
-        strand = infos[19];
-
+        
+        /*
         flags = infos[20];
-        symbolSource = infos[21];
-        hgncId = infos[22];
-        refseqMatch = infos[23];
-        source = infos[24];
-        refseqOffset = infos[25];
-        givenRef = infos[26];
-        usedRef = infos[27];
-        bamEdit = infos[28];
+        symbolSource = infos[22];
+        hgncId = infos[23];
+        givenRef = infos[24];
+        usedRef = infos[25];
+        bamEdit = infos[26];
+        source = infos[27];
+        hgvsOffset = infos[28]; 
+        
+         */
+        
+        hgvsVEPGeneNomenclature = infos[29];
+        polyphenPrediction = infos[30];
+        polyphenScore = infos[31];
+        
+        siftPrediction = infos[32];
+        siftScore = infos[33];
 
-        hgvsOffset = infos[31];*/
         
-        
-        
-        
-        
-//      if (header.length == 33) {
-//
 //          // Human VEP Results
 //          // Allele|Consequence|IMPACT|SYMBOL|Gene|Feature_type|Feature|BIOTYPE|EXON|INTRON|
 //          // HGVSc|HGVSp|cDNA_position|CDS_position|Protein_position|Amino_acids|Codons|Existing_variation|DISTANCE|STRAND|
@@ -312,56 +289,7 @@ public class TranscriptLevelConsequence extends Neo4jEntity {
 //          polyphenPrediction = infos[30];
 //          hgvsOffset = infos[31];
 //          hgvsg = infos[32];
-//
-//      } else if (header.length == 37) {
-//          // Mod VEP
-//          //  Allele|Consequence|IMPACT|SYMBOL|Gene|Feature_type|Feature|BIOTYPE|EXON|INTRON
-//          // |HGVSc|HGVSp|cDNA_position|CDS_position|Protein_position|Amino_acids|Codons|Existing_variation|DISTANCE|STRAND|
-//          //  FLAGS|SYMBOL_SOURCE|HGNC_ID|GIVEN_REF|USED_REF|BAM_EDIT|SOURCE|HGVS_OFFSET|HGVSg|
-//          //  PolyPhen_prediction|PolyPhen_score|SIFT_prediction|SIFT_score|Genomic_end_position|Genomic_start_position            // Allele|Consequence|IMPACT|SYMBOL|Gene|Feature_type|Feature|BIOTYPE|EXON|INTRON|
-//
-//          allele = infos[0];
-//          consequence = infos[1];
-//          impact = infos[2];
-//          symbol = infos[3];
-//          gene = infos[4];
-//          featureType = infos[5];
-//          feature = infos[6];
-//          biotype = infos[7];
-//          exon = infos[8];
-//          intron = infos[9];
-//
-//          hgvsc = infos[10];
-//          hgvsp = infos[11];
-//          cdnaPosition = infos[12];
-//          cdsPosition = infos[13];
-//          proteinPosition = infos[14];
-//          aminoAcids = infos[15];
-//          codons = infos[16];
-//          existingVariation = infos[17];
-//          distance = infos[18];
-//          strand = infos[19];
-//
-//          flags = infos[20];
-//          symbolSource = infos[21];
-//          hgncId = infos[22];
-//          givenRef = infos[23];
-//          usedRef = infos[24];
-//          bamEdit = infos[25];
-//
-//          source = infos[26];
-//          hgvsOffset = infos[27];
-//          hgvsg = infos[28];
-//          polyphenPrediction = infos[29];
-//          polyphenScore = infos[30];
-//          siftPrediction = infos[31];
-//          siftScore = infos[32];
-//          genomicEnd = infos[33];
-//          genomicStart = infos[34];
-//      } else {
-//          log.error("Unknown Header Len: " + header.length);
-//          log.error(Arrays.asList(infos));
-//      }
+
         
     }
 
