@@ -387,7 +387,7 @@ public class SearchHelper {
 
             }
             hit.getSourceAsMap().put("highlights", map);
-            hit.getSourceAsMap().put("id", hit.getId());
+            hit.getSourceAsMap().put("id", hit.getSourceAsMap().get("primaryKey"));
             hit.getSourceAsMap().put("score", hit.getScore());
             if (hit.getExplanation() != null) {
                 hit.getSourceAsMap().put("explanation", hit.getExplanation());
