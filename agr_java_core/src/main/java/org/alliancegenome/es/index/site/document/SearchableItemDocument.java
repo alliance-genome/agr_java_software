@@ -34,8 +34,6 @@ public class SearchableItemDocument extends ESDocument {
     String geneSynopsisUrl;
     String globalId;
     String href; //GO terms use this rather than modCrossRefCompleteUrl
-    @JsonView({View.AlleleVariantSequenceConverterForES.class})
-    String id; //GO terms use this rather than primaryKey
     String localId;
     @JsonView({View.AlleleVariantSequenceConverterForES.class})
     String name;
