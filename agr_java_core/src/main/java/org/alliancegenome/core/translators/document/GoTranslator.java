@@ -17,7 +17,6 @@ public class GoTranslator extends EntityDocumentTranslator<GOTerm, SearchableIte
         doc.setCategory("go");
 
         doc.setName(entity.getName());
-        doc.setId(entity.getPrimaryKey());
         doc.setPrimaryKey(entity.getPrimaryKey());
         doc.setNameKey(entity.getNameKey());
         doc.setBranch(entity.getType());

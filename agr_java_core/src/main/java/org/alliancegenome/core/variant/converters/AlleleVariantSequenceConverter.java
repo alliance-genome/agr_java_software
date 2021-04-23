@@ -80,7 +80,6 @@ public class AlleleVariantSequenceConverter {
             variant.setName(hgvsNomenclature);
             if(ctx.getID()!=null && !ctx.getID().equals("") && !ctx.getID().equals(".")){
                 avsDoc.setPrimaryKey(ctx.getID());
-                avsDoc.setId(ctx.getID());
                 avsDoc.setNameKey(ctx.getID());
                 avsDoc.setName(ctx.getID());
 
@@ -89,7 +88,6 @@ public class AlleleVariantSequenceConverter {
                 if (hgvsNomenclature != null && hgvsNomenclature.length()<100) {
 
                     avsDoc.setPrimaryKey(hgvsNomenclature);
-                    avsDoc.setId(hgvsNomenclature);
                     avsDoc.setNameKey(hgvsNomenclature);
                     avsDoc.setName(hgvsNomenclature);
                 }
