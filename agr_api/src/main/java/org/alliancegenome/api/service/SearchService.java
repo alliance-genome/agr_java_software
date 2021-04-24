@@ -105,7 +105,6 @@ public class SearchService {
         functionList.add(rnaBoost());
         functionList.add(pseudogeneBoost());
 
-
         return functionList.toArray(new FunctionScoreQueryBuilder.FilterFunctionBuilder[functionList.size()]);
     }
 
