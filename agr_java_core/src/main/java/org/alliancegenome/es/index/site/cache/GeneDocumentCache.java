@@ -108,10 +108,10 @@ public class GeneDocumentCache extends IndexerCache {
         document.setBiotype2(new HashSet<String>(CollectionUtils.intersection(allBiotypes, biotypeLevel2)));
 
 
-        //if the type is ncRNA gene and not a child, also add "unclassified ncRNA" at level 1
+        //if the type is ncRNA gene and not a child, also add "unclassified ncRNA gene" at level 1
         if (document.getBiotypes().contains("ncRNA_gene") && CollectionUtils.isEmpty(document.getBiotype1())) {
-            document.getBiotypes().add("unclassified_ncRNA");
-            document.getBiotype1().add("unclassified_ncRNA");
+            document.getBiotypes().add("unclassified ncRNA gene");
+            document.getBiotype1().add("unclassified ncRNA gene");
         }
 
         //same for lncRNA genes, but one level deeper
