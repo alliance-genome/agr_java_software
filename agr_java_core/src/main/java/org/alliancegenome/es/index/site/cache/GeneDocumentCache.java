@@ -67,7 +67,7 @@ public class GeneDocumentCache extends IndexerCache {
         add("unclassified_lncRNA_gene");
         add("lincRNA_gene");
         add("antisense_lncRNA_gene");
-        add("sense intronic_ncRNA_gene");
+        add("sense_intronic_ncRNA_gene");
         add("bidirectional_promoter_lncRNA");
         add("sense_overlap_ncRNA_gene");
     }};
