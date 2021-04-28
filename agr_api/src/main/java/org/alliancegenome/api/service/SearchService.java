@@ -103,6 +103,8 @@ public class SearchService {
         functionList.add(documentHasDiseaseBoost());
         functionList.add(proteinCodingBoost());
         functionList.add(rnaBoost());
+        functionList.add(bobBoost());
+        functionList.add(daveBoost());
         functionList.add(pseudogeneBoost());
 
         return functionList.toArray(new FunctionScoreQueryBuilder.FilterFunctionBuilder[functionList.size()]);
@@ -120,6 +122,10 @@ public class SearchService {
         functionList.add(proteinCodingBoost());
 
         functionList.add(rnaBoost());
+
+        functionList.add(bobBoost());
+
+        functionList.add(daveBoost());
 
         functionList.add(pseudogeneBoost());
 
@@ -180,6 +186,16 @@ public class SearchService {
     private FunctionScoreQueryBuilder.FilterFunctionBuilder rnaBoost() {
         return new FunctionScoreQueryBuilder.FilterFunctionBuilder(matchQuery("soTermName",".*RNA.*_gene"),
                 ScoreFunctionBuilders.weightFactorFunction(1.2F));
+    }
+
+    private FunctionScoreQueryBuilder.FilterFunctionBuilder bobBoost() {
+        return new FunctionScoreQueryBuilder.FilterFunctionBuilder(matchQuery("soTermName","lncRNA_gene"),
+                ScoreFunctionBuilders.weightFactorFunction(1.8F));
+    }
+
+    private FunctionScoreQueryBuilder.FilterFunctionBuilder daveBoost() {
+        return new FunctionScoreQueryBuilder.FilterFunctionBuilder(regexpQuery("soTermName","lncRNA_gene"),
+                ScoreFunctionBuilders.weightFactorFunction(1.9F));
     }
 
     private FunctionScoreQueryBuilder.FilterFunctionBuilder pseudogeneBoost() {
