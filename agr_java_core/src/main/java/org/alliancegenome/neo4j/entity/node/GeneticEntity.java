@@ -44,14 +44,13 @@ public class GeneticEntity extends Neo4jEntity {
 
     @Relationship(type = "ALSO_KNOWN_AS")
     private List<Synonym> synonyms;
-
-
+    
     @Relationship(type = "CROSS_REFERENCE")
     protected List<CrossReference> crossReferences;
     
     
     // Converts the list of synonym objects to a list of strings
-    @JsonView(value = {View.API.class, View.GeneAllelesAPI.class, View.GeneAlleleVariantSequenceAPI.class})
+    @JsonView(value = {View.API.class, View.GeneAllelesAPI.class, View.GeneAlleleVariantSequenceAPI.class, View.AlleleVariantSequenceConverterForES.class})
     @JsonProperty(value = "synonyms")
     public List<String> getSynonymList() {
         if(synonyms != null) {
@@ -81,7 +80,7 @@ public class GeneticEntity extends Neo4jEntity {
     private List<SecondaryId> secondaryIds;
 
     // Converts the list of secondary ids objects to a list of strings
-    @JsonView(value = {View.API.class})
+    @JsonView(value = {View.API.class, View.AlleleVariantSequenceConverterForES.class})
     @JsonProperty(value = "secondaryIds")
     public List<String> getSecondaryIdsList() {
         List<String> list = new ArrayList<>();
@@ -118,7 +117,7 @@ public class GeneticEntity extends Neo4jEntity {
 
 
 
-    @JsonView({View.API.class})
+    @JsonView({View.API.class, View.AlleleVariantSequenceConverterForES.class})
     @JsonProperty(value = "crossReferences")
     public Map<String, Object> getCrossReferenceMap() {
         if (map != null)
