@@ -178,7 +178,7 @@ public class SearchService {
     }
 
     private FunctionScoreQueryBuilder.FilterFunctionBuilder rnaBoost() {
-        return new FunctionScoreQueryBuilder.FilterFunctionBuilder(regexpQuery("soTermName",".*RNA.*_gene"),
+        return new FunctionScoreQueryBuilder.FilterFunctionBuilder(matchQuery("soTermName",".*RNA.*_gene"),
                 ScoreFunctionBuilders.weightFactorFunction(1.2F));
     }
 
