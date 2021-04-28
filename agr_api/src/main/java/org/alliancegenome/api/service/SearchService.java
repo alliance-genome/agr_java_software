@@ -117,10 +117,9 @@ public class SearchService {
         //human data boost
         functionList.add(humanSpeciesBoost());
 
+        //gene biotype boost
         functionList.add(proteinCodingBoost());
-
         functionList.add(rnaBoost());
-
         functionList.add(pseudogeneBoost());
 
         functionList.add(new FunctionScoreQueryBuilder.FilterFunctionBuilder(matchQuery("name_key.keyword",q),
