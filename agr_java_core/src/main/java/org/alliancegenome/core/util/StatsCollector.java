@@ -70,7 +70,6 @@ public class StatsCollector {
 //      try {
 //          BitmapEncoder.saveBitmap(chart, "histograms/" + savePrefix + "_histogram.png", BitmapFormat.PNG);
 //      } catch (IOException e) {
-//          // TODO Auto-generated catch block
 //          e.printStackTrace();
 //      }
 //
@@ -117,7 +116,6 @@ public class StatsCollector {
             ChartUtilities.saveChartAsPNG(new File("histograms/" + savePrefix + "_histogram.png"), histogram, 1024, 400);
             //TimeUnit.SECONDS.sleep(600);
         } catch (Exception e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
 

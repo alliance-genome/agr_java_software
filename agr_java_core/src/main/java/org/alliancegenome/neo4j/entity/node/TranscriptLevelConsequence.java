@@ -1,5 +1,7 @@
 package org.alliancegenome.neo4j.entity.node;
 
+import java.util.*;
+
 import org.alliancegenome.core.helpers.VariantServiceHelper;
 import org.alliancegenome.neo4j.entity.Neo4jEntity;
 import org.alliancegenome.neo4j.view.View;
@@ -19,7 +21,7 @@ public class TranscriptLevelConsequence extends Neo4jEntity {
 
     @JsonView({View.API.class, View.GeneAlleleVariantSequenceAPI.class, View.AlleleVariantSequenceConverterForES.class})
     @JsonProperty("molecularConsequence")
-    private String transcriptLevelConsequence;
+    private List<String> transcriptLevelConsequences = new ArrayList<>();
     
     @JsonView({View.Default.class, View.AlleleVariantSequenceConverterForES.class})
     private String impact;
@@ -199,7 +201,9 @@ public class TranscriptLevelConsequence extends Neo4jEntity {
         37 FB_GFF.refseq.gff.gz:
         */
         
-        transcriptLevelConsequence = infos[1];
+
+        
+        transcriptLevelConsequences = Arrays.asList(infos[1].split("&"));
         impact = infos[2];
 
 

@@ -28,8 +28,7 @@ public class AlleleVariantSequenceFiltering extends AnnotationFiltering<AlleleVa
             (allele, value) -> {
                 if (allele.getVariant() == null)
                     return StringUtils.isEmpty(value);
-                return FilterFunction.fullMatchMultiValueOR(allele.getVariant().getVariantType().getName()
-                        , value);
+                return FilterFunction.fullMatchMultiValueOR(allele.getVariant().getVariantType().getName(), value);
             };
 
     private static final FilterFunction<AlleleVariantSequence, String> hgvsgNameFilter =
@@ -45,9 +44,9 @@ public class AlleleVariantSequenceFiltering extends AnnotationFiltering<AlleleVa
 
     private static final FilterFunction<AlleleVariantSequence, String> molecularConsequenceFilter =
             (allele, value) -> {
-                if (allele.getConsequence() == null || allele.getConsequence().getTranscriptLevelConsequence() == null)
+                if (allele.getConsequence() == null || allele.getConsequence().getTranscriptLevelConsequences() == null)
                     return false;
-                return FilterFunction.fullMatchMultiValueOR(allele.getConsequence().getTranscriptLevelConsequence(), value);
+                return FilterFunction.fullMatchMultiValueOR(Set.copyOf(allele.getConsequence().getTranscriptLevelConsequences()), value);
             };
 
     private static final FilterFunction<AlleleVariantSequence, String> locationFilter =

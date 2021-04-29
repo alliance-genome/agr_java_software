@@ -142,7 +142,7 @@ public class AlleleVariantSequenceSorting implements Sorting<AlleleVariantSequen
             Comparator.comparing(allele -> {
                 if (allele.getConsequence() == null)
                     return null;
-                return allele.getConsequence().getTranscriptLevelConsequence();
+                return allele.getConsequence().getTranscriptLevelConsequences().toString();
             }, Comparator.nullsLast(naturalOrder()));
 
 }

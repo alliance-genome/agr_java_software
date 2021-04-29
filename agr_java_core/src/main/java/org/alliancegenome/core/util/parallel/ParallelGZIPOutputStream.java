@@ -98,7 +98,6 @@ public class ParallelGZIPOutputStream extends FilterOutputStream {
         return Runtime.getRuntime().availableProcessors();
     }
 
-    // TODO: Share, daemonize.
     private final ExecutorService executor;
     private final CRC32 crc = new CRC32();
     private final int emitQueueSize;

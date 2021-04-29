@@ -1,7 +1,8 @@
 package org.alliancegenome.core.translators.tdf;
 
-import lombok.Getter;
-import lombok.Setter;
+import java.util.*;
+
+import lombok.*;
 
 @Setter
 @Getter
@@ -20,10 +21,18 @@ public class AlleleVariantSequenceDownloadRow {
     private String sequenceFeatureAssociatedGene;
     private String sequenceFeatureAssociatedGeneID;
     private String location;
-    private String molecularConsequence;
+    private List<String> molecularConsequences;
     private String vepImpact;
     private String siftPrediction;
     private String siftScore;
     private String polyphenPrediction;
     private String polyphenScore;
+    
+    public String getMolecularConsequences() {
+        StringJoiner dataJoiner = new StringJoiner(",");
+        for(String s: molecularConsequences) {
+            dataJoiner.add(s);
+        }
+        return dataJoiner.toString();
+    }
 }

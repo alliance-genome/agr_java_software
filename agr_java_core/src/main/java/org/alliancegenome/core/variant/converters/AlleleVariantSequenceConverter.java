@@ -107,7 +107,7 @@ public class AlleleVariantSequenceConverter {
                             variant.setGene(c.getAssociatedGene());
 
                         }
-                        molecularConsequences.add(c.getTranscriptLevelConsequence());
+                        molecularConsequences.addAll(c.getTranscriptLevelConsequences());
                         //    s.setConsequence(c);
                         /****************SearchbleDocument Fields***************/
                         if(c.getAssociatedGene().getSymbol()!=null && !c.getAssociatedGene().getSymbol().equals(""))
