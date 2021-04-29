@@ -102,6 +102,7 @@ public class SearchService {
         functionList.add(humanSpeciesBoost());
         functionList.add(documentHasDiseaseBoost());
         functionList.add(proteinCodingBoost());
+        functionList.add(rnaBoost());
         functionList.add(pseudogeneBoost());
 
         return functionList.toArray(new FunctionScoreQueryBuilder.FilterFunctionBuilder[functionList.size()]);
@@ -116,8 +117,9 @@ public class SearchService {
         //human data boost
         functionList.add(humanSpeciesBoost());
 
+        //gene biotype boost
         functionList.add(proteinCodingBoost());
-
+        functionList.add(rnaBoost());
         functionList.add(pseudogeneBoost());
 
         functionList.add(new FunctionScoreQueryBuilder.FilterFunctionBuilder(matchQuery("name_key.keyword",q),
@@ -172,6 +174,11 @@ public class SearchService {
     private FunctionScoreQueryBuilder.FilterFunctionBuilder proteinCodingBoost() {
         return new FunctionScoreQueryBuilder.FilterFunctionBuilder(matchQuery("soTermName","protein_coding_gene"),
                 ScoreFunctionBuilders.weightFactorFunction(1.3F));
+    }
+
+    private FunctionScoreQueryBuilder.FilterFunctionBuilder rnaBoost() {
+        return new FunctionScoreQueryBuilder.FilterFunctionBuilder(matchQuery("soTermNameWithParents","ncRNA_gene"),
+                ScoreFunctionBuilders.weightFactorFunction(1.2F));
     }
 
     private FunctionScoreQueryBuilder.FilterFunctionBuilder pseudogeneBoost() {
