@@ -1,17 +1,21 @@
 package org.alliancegenome.api.controller;
 
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-
+import lombok.extern.log4j.Log4j2;
 import org.alliancegenome.api.rest.interfaces.VariantRESTInterface;
 import org.alliancegenome.api.service.VariantService;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
-import org.alliancegenome.core.exceptions.*;
-import org.alliancegenome.es.model.query.*;
-import org.alliancegenome.neo4j.entity.node.*;
+import org.alliancegenome.core.exceptions.RestErrorException;
+import org.alliancegenome.core.exceptions.RestErrorMessage;
+import org.alliancegenome.es.model.query.FieldFilter;
+import org.alliancegenome.es.model.query.Pagination;
+import org.alliancegenome.neo4j.entity.node.Allele;
+import org.alliancegenome.neo4j.entity.node.Transcript;
+import org.alliancegenome.neo4j.entity.node.Variant;
 
-import lombok.extern.log4j.Log4j2;
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 @Log4j2
 @RequestScoped
@@ -22,6 +26,17 @@ public class VariantController implements VariantRESTInterface {
 
     @Inject
     private HttpServletRequest request;
+
+    @Override
+    public Variant getVariant(String id) {
+        Variant variant = variantService.getById(id);
+        if (variant == null) {
+            RestErrorMessage message = new RestErrorMessage();
+            message.setErrors(List.of("Cannot find variant with ID: " + id));
+            throw new RestErrorException(message);
+        }
+        return variant;
+    }
 
     @Override
     public JsonResultResponse<Transcript> getTranscriptsPerVariant(

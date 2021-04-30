@@ -22,6 +22,26 @@ import com.fasterxml.jackson.annotation.JsonView;
 public interface VariantRESTInterface {
 
     @GET
+    @Path("/{id}")
+    @JsonView({View.VariantAPI.class})
+    @Operation(description = "Searches for an Allele", summary = "Allele Notes")
+    @APIResponses(
+            value = {
+                    @APIResponse(
+                            responseCode = "404",
+                            description = "Missing variant",
+                            content = @Content(mediaType = "text/plain")),
+                    @APIResponse(
+                            responseCode = "200",
+                            description = "Search for Variant.",
+                            content = @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = Variant.class))) })
+    public Variant getVariant(
+            @Parameter(in = ParameterIn.PATH, name = "id", description = "Search for a Variant by ID", required = true, schema = @Schema(type = SchemaType.STRING))
+            @PathParam("id") String id
+    );
+
+    @GET
     @Path("/{id}/transcripts")
     @Operation(summary = "Retrieve all transcripts of a given variant")
     @APIResponses(
