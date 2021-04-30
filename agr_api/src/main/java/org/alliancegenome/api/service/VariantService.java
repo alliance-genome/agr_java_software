@@ -76,4 +76,8 @@ public class VariantService {
         response.setResults(service.getSortedAndPaginatedAnnotations(pagination, alleles, new AlleleSorting()));
         return response;
     }
+
+    public Variant getById(String id) {
+        return variantRepo.getVariant(id);
+    }
 }

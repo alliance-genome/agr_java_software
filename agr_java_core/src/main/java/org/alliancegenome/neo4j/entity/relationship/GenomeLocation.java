@@ -20,6 +20,8 @@ public class GenomeLocation extends Neo4jEntity {
     @JsonView({View.Default.class})
     @JsonProperty(value = "chromosome")
     public String getChromosomeName() {
+        if(chromosome == null)
+            return null;
         return chromosome.getPrimaryKey();
     }
 
