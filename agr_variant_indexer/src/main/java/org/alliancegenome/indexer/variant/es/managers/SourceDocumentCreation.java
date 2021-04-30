@@ -443,11 +443,9 @@ public class SourceDocumentCreation extends Thread {
 
                     if (docList.size() > 0) {
                         for (AlleleVariantSequence doc : docList) {
-                            
                             //if(!repo.getAllAllelicHgvsGNameCache().contains(doc.getVariant().getHgvsNomenclature())) {
                                 try {
                                     String jsonDoc = mapper.writerWithView(View.AlleleVariantSequenceConverterForES.class).writeValueAsString(doc);
-                                    //String jsonDoc = mapper.writeValueAsString(doc);
                                     if (jsonDoc.length() < config_settings[0][4]) {
                                         docs1.add(jsonDoc);
                                     } else if (jsonDoc.length() < config_settings[1][4]) {

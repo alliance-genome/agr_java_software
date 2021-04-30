@@ -154,6 +154,8 @@ public class TranscriptLevelConsequence extends Neo4jEntity {
 
     public TranscriptLevelConsequence() { }
 
+    @JsonView({View.API.class, View.AlleleVariantSequenceConverterForES.class})
+    private String geneLevelConsequence;
     
     
     public TranscriptLevelConsequence(String[] header, String[] infos) {
@@ -226,6 +228,7 @@ public class TranscriptLevelConsequence extends Neo4jEntity {
         proteinStartPosition = infos[14];
         aminoAcidChange = infos[15];
         codonChange = infos[16];
+        geneLevelConsequence= infos[21];
         
         /*
         flags = infos[20];

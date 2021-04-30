@@ -38,7 +38,7 @@ public class GeneticEntity extends Neo4jEntity {
     protected Map<String, Object> map = null;
     
 
-    @JsonView({View.API.class, View.PhenotypeAPI.class, View.DiseaseAnnotation.class, View.Orthology.class})
+    @JsonView({View.API.class, View.PhenotypeAPI.class, View.DiseaseAnnotation.class, View.Orthology.class, View.GeneAlleleVariantSequenceAPI.class, View.AlleleVariantSequenceConverterForES.class})
     @Relationship(type = "FROM_SPECIES")
     protected Species species;
 
