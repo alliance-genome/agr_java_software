@@ -156,7 +156,7 @@ public class TranscriptLevelConsequence extends Neo4jEntity {
 
     
     
-    public TranscriptLevelConsequence(String[] header, String[] infos, Species species) {
+    public TranscriptLevelConsequence(String[] header, String[] infos) {
 
         /* From MOD VCF File
         0  Allele: GGGG
@@ -206,7 +206,6 @@ public class TranscriptLevelConsequence extends Neo4jEntity {
         associatedGene = new Gene();
         associatedGene.setSymbol(infos[3]);
         associatedGene.setPrimaryKey(infos[4]);
-        associatedGene.setSpecies(species);
         
         transcriptID = infos[6];
         sequenceFeatureType = infos[7];

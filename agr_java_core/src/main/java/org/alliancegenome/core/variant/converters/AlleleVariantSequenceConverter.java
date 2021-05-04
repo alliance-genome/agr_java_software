@@ -70,7 +70,7 @@ public class AlleleVariantSequenceConverter {
             boolean first=true;
             Set<String> molecularConsequences = new HashSet<>();
             Set<String> genes = new HashSet<>();
-            List<TranscriptLevelConsequence> htpConsequences = getConsequences(ctx, a.getBaseString(), header, species);
+            List<TranscriptLevelConsequence> htpConsequences = getConsequences(ctx, a.getBaseString(), header);
             String hgvsNomenclature = htpConsequences != null ? htpConsequences.stream()
                     .findFirst()
                     .map(TranscriptLevelConsequence::getHgvsVEPGeneNomenclature)
@@ -110,8 +110,11 @@ public class AlleleVariantSequenceConverter {
                         molecularConsequences.add(c.getTranscriptLevelConsequence());
                         //    s.setConsequence(c);
                         /****************SearchbleDocument Fields***************/
-                        if(c.getAssociatedGene().getSymbol()!=null && !c.getAssociatedGene().getSymbol().equals(""))
+                        if(c.getAssociatedGene().getSymbol()!=null && !c.getAssociatedGene().getSymbol().equals("")){
+                            c.getAssociatedGene().setSpecies(species);
                             genes.add(c.getAssociatedGene().getNameKey());
+                        }
+
 
                     }
                 }
@@ -132,7 +135,7 @@ public class AlleleVariantSequenceConverter {
 
     
     
-    private List<TranscriptLevelConsequence> getConsequences(VariantContext ctx, String varNuc, String[] header, Species species) throws Exception {
+    private List<TranscriptLevelConsequence> getConsequences(VariantContext ctx, String varNuc, String[] header) throws Exception {
         List<TranscriptLevelConsequence> features = new ArrayList<>();
         List<String> alreadyAdded = new ArrayList<>();
         
@@ -142,7 +145,7 @@ public class AlleleVariantSequenceConverter {
 
                 if (header.length == infos.length) {
                     if (infos[0].equalsIgnoreCase(varNuc)) {
-                        TranscriptLevelConsequence feature = new TranscriptLevelConsequence(header, infos, species);
+                        TranscriptLevelConsequence feature = new TranscriptLevelConsequence(header, infos);
                         if(!alreadyAdded.contains(feature.getTranscriptID())) {
                             features.add(feature);
                             alreadyAdded.add(feature.getTranscriptID());
