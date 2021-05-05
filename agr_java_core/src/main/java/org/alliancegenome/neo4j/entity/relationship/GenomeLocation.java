@@ -17,7 +17,7 @@ public class GenomeLocation extends Neo4jEntity {
     @Relationship(type = "ASSOCIATION")
     private Chromosome chromosome;
 
-    @JsonView({View.Default.class})
+    @JsonView({View.Default.class, View.AlleleVariantSequenceConverterForES.class})
     @JsonProperty(value = "chromosome")
     public String getChromosomeName() {
         if(chromosome == null)
@@ -31,10 +31,10 @@ public class GenomeLocation extends Neo4jEntity {
         chromosome.setPrimaryKey(name);
     }
 
-    @JsonView({View.Default.class})
+    @JsonView({View.Default.class, View.AlleleVariantSequenceConverterForES.class})
     private Long start;
 
-    @JsonView({View.Default.class})
+    @JsonView({View.Default.class, View.AlleleVariantSequenceConverterForES.class})
     private Long end;
 
     @JsonView({View.Default.class})

@@ -33,7 +33,7 @@ public class EsClientFactory {
     // Used if APP needs to have multiple clients
     private static RestHighLevelClient createClient() {
 
-        List<HttpHost> esHosts = new ArrayList<HttpHost>();
+        List<HttpHost> esHosts = new ArrayList<>();
 
         Multimap<String, Integer> map = ConfigHelper.getEsHostMap();
 
@@ -52,12 +52,7 @@ public class EsClientFactory {
         client = new RestHighLevelClient(
                 RestClient.builder(hosts)
                         .setRequestConfigCallback(
-                                new RequestConfigCallback() {
-                                    @Override
-                                    public Builder customizeRequestConfig(Builder requestConfigBuilder) {
-                                        return requestConfigBuilder.setConnectTimeout(5000).setSocketTimeout(1800000).setConnectionRequestTimeout(1800000);
-                                    }
-                                }
+                                requestConfigBuilder -> requestConfigBuilder.setConnectTimeout(5000).setSocketTimeout(1800000).setConnectionRequestTimeout(1800000)
                         )
         );
 

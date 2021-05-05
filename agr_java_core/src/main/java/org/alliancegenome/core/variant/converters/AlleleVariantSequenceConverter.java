@@ -8,6 +8,7 @@ import org.alliancegenome.neo4j.entity.node.*;
 
 import htsjdk.variant.variantcontext.VariantContext;
 import io.github.lukehutch.fastclasspathscanner.utils.Join;
+import org.alliancegenome.neo4j.entity.relationship.GenomeLocation;
 
 public class AlleleVariantSequenceConverter {
     
@@ -64,8 +65,13 @@ public class AlleleVariantSequenceConverter {
             Variant variant = new Variant();
             variant.setVariantType(variantType);
             variant.setSpecies(species);
-            variant.setStart(String.valueOf(ctx.getStart()));
-            variant.setEnd(String.valueOf(endPos));
+            GenomeLocation location = new GenomeLocation();
+            location.setStart((long) ctx.getStart());
+            location.setEnd((long) ctx.getEnd());
+            Chromosome chromosome = new Chromosome();
+            chromosome.setPrimaryKey(ctx.getChr());
+            location.setChromosome(chromosome);
+            variant.setLocation(location);
             variant.setNucleotideChange(a.getBaseString()); // variantDocument.setVarNuc(a.getBaseString());
             boolean first=true;
             Set<String> molecularConsequences = new HashSet<>();
@@ -105,12 +111,13 @@ public class AlleleVariantSequenceConverter {
                         if(first) {
                             first=false;
                             //    variant.setHgvsNomenclature(c.getHgvsVEPGeneNomenclature());
+                            c.getAssociatedGene().setSpecies(species);
                             variant.setGene(c.getAssociatedGene());
 
                         }
                         molecularConsequences.add(c.getTranscriptLevelConsequence());
                         //    s.setConsequence(c);
-                        /****************SearchbleDocument Fields***************/
+                        /****************SearchableDocument Fields***************/
                         if(c.getAssociatedGene().getSymbol()!=null && !c.getAssociatedGene().getSymbol().equals("")){
                             genes.add(c.getAssociatedGene().getNameKey());
                         }
