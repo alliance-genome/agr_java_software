@@ -60,7 +60,7 @@ public class AlleleVariantSequenceColumnFieldMapping extends ColumnFieldMapping<
         mapColumnAttribute.put(GENE_ALLELE_VARIANT_SEQUENCE_CONSEQUENCE, entity -> {
             if (entity.getVariant() != null) {
                 if (entity.getConsequence() != null)
-                    return Set.of(entity.getConsequence().getTranscriptLevelConsequence());
+                    return Set.copyOf(entity.getConsequence().getTranscriptLevelConsequences());
             }
             return new HashSet<>();
         });

@@ -114,11 +114,11 @@ public class AlleleToTdfTranslator {
             row.setVariantType(annotation.getVariant().getVariantType().getName());
         }
         if (annotation.getConsequence() != null) {
-            row.setMolecularConsequence(annotation.getConsequence().getTranscriptLevelConsequence());
+            row.setMolecularConsequences(annotation.getConsequence().getTranscriptLevelConsequences());
             row.setSequenceFeature(annotation.getConsequence().getTranscriptName());
             row.setSequenceFeatureType(annotation.getConsequence().getSequenceFeatureType());
             row.setLocation(annotation.getConsequence().getTranscriptLocation());
-            row.setMolecularConsequence(annotation.getConsequence().getTranscriptLevelConsequence());
+            row.setMolecularConsequences(annotation.getConsequence().getTranscriptLevelConsequences());
             row.setVepImpact(annotation.getConsequence().getImpact());
             row.setSiftPrediction(annotation.getConsequence().getSiftPrediction());
             row.setSiftScore(annotation.getConsequence().getSiftScore());
@@ -341,7 +341,7 @@ public class AlleleToTdfTranslator {
                 new DownloadHeader<>("Sequence Feature Type", (AlleleVariantSequenceDownloadRow::getSequenceFeatureType)),
                 new DownloadHeader<>("Sequence Feature associated Gene", (AlleleVariantSequenceDownloadRow::getSequenceFeatureAssociatedGene)),
                 new DownloadHeader<>("Sequence Feature associated Gene ID", (AlleleVariantSequenceDownloadRow::getSequenceFeatureAssociatedGeneID)),
-                new DownloadHeader<>("Molecular Consequence", (AlleleVariantSequenceDownloadRow::getMolecularConsequence)),
+                new DownloadHeader<>("Molecular Consequences", (AlleleVariantSequenceDownloadRow::getMolecularConsequences)),
                 new DownloadHeader<>("Variant Location", (AlleleVariantSequenceDownloadRow::getLocation)),
                 new DownloadHeader<>("VEP Impact", (AlleleVariantSequenceDownloadRow::getVepImpact)),
                 new DownloadHeader<>("Sift Prediction", (AlleleVariantSequenceDownloadRow::getSiftPrediction)),
