@@ -47,18 +47,13 @@ public class Variant extends GeneticEntity implements Comparable<Variant> {
     private Date dateProduced;
     private String release;
 
-    @JsonView({View.Default.class, View.API.class})
+    @JsonView({View.Default.class, View.API.class, View.AlleleVariantSequenceConverterForES.class})
     @Relationship(type = "VARIATION_TYPE")
     private SOTerm variantType;
 
     @JsonView({View.API.class, View.AlleleVariantSequenceConverterForES.class})
     @Relationship(type = "COMPUTED_GENE", direction = Relationship.INCOMING)
     private Gene gene;
-
-    @JsonView({View.GeneAlleleVariantSequenceAPI.class, View.AlleleVariantSequenceConverterForES.class})
-    private String start;
-    @JsonView({View.GeneAlleleVariantSequenceAPI.class, View.AlleleVariantSequenceConverterForES.class})
-    private String end;
 
     @Relationship(type = "ASSOCIATION")
     protected GeneLevelConsequence geneLevelConsequence;
@@ -71,7 +66,7 @@ public class Variant extends GeneticEntity implements Comparable<Variant> {
     @Relationship(type = "ASSOCIATION")
     protected Set<Publication> publications;
 
-    @JsonView({View.API.class})
+    @JsonView({View.API.class, View.AlleleVariantSequenceConverterForES.class})
     @Relationship(type = "ASSOCIATION")
     private GenomeLocation location;
 
@@ -120,7 +115,7 @@ public class Variant extends GeneticEntity implements Comparable<Variant> {
         if (StringUtils.isNotEmpty(nucleotideChange))
             return nucleotideChange;
         StringBuilder builder = new StringBuilder();
-        if (variantType != null && (variantType.isInsertion() || variantType.isDeletion())) {
+        if (variantType != null && variantType.getPrimaryKey() != null && (variantType.isInsertion() || variantType.isDeletion())) {
             builder.append(getGenomicReferenceSequence());
             builder.append(">");
             builder.append(getPaddedChange(getGenomicVariantSequence()));
@@ -148,7 +143,7 @@ public class Variant extends GeneticEntity implements Comparable<Variant> {
         List<String> names = new ArrayList<>();
         names.add(name);
         names.add(hgvsNomenclature);
-        if(transcriptLevelConsequence != null) {
+        if (transcriptLevelConsequence != null) {
             if (CollectionUtils.isNotEmpty(transcriptLevelConsequence)) {
                 names.addAll(transcriptLevelConsequence.stream()
                         .map(TranscriptLevelConsequence::getHgvsVEPGeneNomenclature)

@@ -20,7 +20,7 @@ public class SOTerm extends Ontology {
     @JsonView({View.Default.class})
     @JsonProperty(value = "id")
     private String primaryKey;
-    @JsonView({View.Default.class})
+    @JsonView({View.Default.class, View.AlleleVariantSequenceConverterForES.class})
     private String name;
 
     public boolean isInsertion() {
