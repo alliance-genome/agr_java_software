@@ -99,6 +99,7 @@ public class AlleleVariantSequenceConverter {
             avsDoc.setVariant(variant);
             if (htpConsequences != null) {
                 for (TranscriptLevelConsequence c : htpConsequences) {
+                    c.getAssociatedGene().setSpecies(species);
                     if(!transcriptsProcessed.contains(c.getTranscriptID())) {
                         transcriptsProcessed.add(c.getTranscriptID());
                         if(first) {
@@ -111,11 +112,8 @@ public class AlleleVariantSequenceConverter {
                         //    s.setConsequence(c);
                         /****************SearchbleDocument Fields***************/
                         if(c.getAssociatedGene().getSymbol()!=null && !c.getAssociatedGene().getSymbol().equals("")){
-                            c.getAssociatedGene().setSpecies(species);
                             genes.add(c.getAssociatedGene().getNameKey());
                         }
-
-
                     }
                 }
             }
