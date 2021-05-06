@@ -30,13 +30,13 @@ public class GeneticEntity extends Neo4jEntity {
     protected String symbolWithSpecies;
     @Convert(value = DateConverter.class)
     private Date dateProduced;
-    
+
     private String url;
-    
+
     // only used for JsonView
     /// set when deserialized
     protected Map<String, Object> map = null;
-    
+
 
     @JsonView({View.API.class, View.PhenotypeAPI.class, View.DiseaseAnnotation.class, View.Orthology.class, View.GeneAlleleVariantSequenceAPI.class, View.AlleleVariantSequenceConverterForES.class})
     @Relationship(type = "FROM_SPECIES")
@@ -44,21 +44,21 @@ public class GeneticEntity extends Neo4jEntity {
 
     @Relationship(type = "ALSO_KNOWN_AS")
     private List<Synonym> synonyms;
-    
+
     @Relationship(type = "CROSS_REFERENCE")
     protected List<CrossReference> crossReferences;
-    
-    
+
+
     // Converts the list of synonym objects to a list of strings
     @JsonView(value = {View.API.class, View.GeneAllelesAPI.class, View.GeneAlleleVariantSequenceAPI.class, View.AlleleVariantSequenceConverterForES.class})
     @JsonProperty(value = "synonyms")
     public List<String> getSynonymList() {
         if(synonyms != null) {
-        List<String> list = new ArrayList<String>();
-        for(Synonym s: synonyms) {
-            list.add(s.getName());
-        }
-        return list;
+            List<String> list = new ArrayList<String>();
+            for(Synonym s: synonyms) {
+                list.add(s.getName());
+            }
+            return list;
         } else {
             return new ArrayList<>();
         }
@@ -66,7 +66,8 @@ public class GeneticEntity extends Neo4jEntity {
 
     @JsonProperty(value = "synonyms")
     public void setSynonymList(List<String> list) {
-        if (list != null) {
+        synonyms = new ArrayList<Synonym>();
+        if (list != null && list.size() > 0) {
             list.forEach(syn -> {
                 Synonym synonym = new Synonym();
                 synonym.setName(syn);
@@ -95,7 +96,8 @@ public class GeneticEntity extends Neo4jEntity {
 
     @JsonProperty(value = "secondaryIds")
     public void setSecondaryIdsList(List<String> list) {
-        if (list != null) {
+        secondaryIds = new ArrayList<SecondaryId>();
+        if (list != null && list.size() > 0) {
             list.forEach(idName -> {
                 SecondaryId secondaryId = new SecondaryId();
                 secondaryId.setName(idName);
@@ -123,7 +125,7 @@ public class GeneticEntity extends Neo4jEntity {
         if (map != null)
             return map;
         map = new HashMap<>();
-        
+
         if(crossReferences != null) {
             List<CrossReference> othersList = new ArrayList<>();
             for (CrossReference cr : crossReferences) {
