@@ -139,7 +139,7 @@ public class VariantESDAO {
         SearchResponse response = null;
 
         Map<FieldFilter, String> distinctFields = new HashMap<>();
-        distinctFields.put(FieldFilter.MOLECULAR_CONSEQUENCE, "transcriptLevelConsequences.geneLevelConsequence.keyword");
+        //distinctFields.put(FieldFilter.MOLECULAR_CONSEQUENCE, "transcriptLevelConsequences.geneLevelConsequence.keyword");
         distinctFields.put(FieldFilter.VARIANT_TYPE, "variant.variantType.name.keyword");
         distinctFields.put(FieldFilter.ALLELE_CATEGORY, "alterationType.keyword");
         distinctFields.forEach((fieldFilter, esFieldName) -> {
