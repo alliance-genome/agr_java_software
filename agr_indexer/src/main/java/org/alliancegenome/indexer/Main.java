@@ -19,8 +19,6 @@ public class Main {
         
         ph.startProcess("Indexer Main: ");
 
-        //Boolean keepIndex = ConfigHelper.getKeepIndex();
-
         IndexManager im = new IndexManager();
 
         Indexer.indexName = im.startSiteIndex();
