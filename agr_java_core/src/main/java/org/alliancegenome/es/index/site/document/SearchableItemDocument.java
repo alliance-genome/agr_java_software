@@ -88,6 +88,7 @@ public class SearchableItemDocument extends ESDocument {
     Set<String> alleles;
     @JsonView({View.AlleleVariantSequenceConverterForES.class})
     Set<String> genes;
+    Set<String> geneSynonyms;
     Set<String> go_genes;
     Set<String> go_species;
 

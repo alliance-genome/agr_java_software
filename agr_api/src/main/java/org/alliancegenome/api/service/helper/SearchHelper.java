@@ -72,6 +72,7 @@ public class SearchHelper {
                     add("molecularConsequence");
                     add("diseasesAgrSlim");
                     add("genes");
+                    add("geneSynonyns");
                     add("constructExpressedComponent");
                     add("constructKnockdownComponent");
                     add("constructRegulatoryRegion");
@@ -163,6 +164,7 @@ public class SearchHelper {
             add("genes.autocomplete");
             add("genes.keywordAutocomplete");
             add("geneSynopsis");
+            add("geneSynonyms");
             add("globalId");
             add("subtype");
             add("go_genes");

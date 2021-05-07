@@ -33,6 +33,7 @@ public class AlleleIndexerRepository extends Neo4jRepository<Allele> {
         executor.execute(new GetDiseasesAgrSlimMapThread());
         executor.execute(new GetDiseaseWithParentsThread());
         executor.execute(new GetGenesMapThread());
+        executor.execute(new GetGeneSynonymsThreadThread());
         executor.execute(new GetModelsThread());
         executor.execute(new GetPhenotypeStatementsMapThread());
         executor.execute(new GetVariantsThread());
@@ -240,7 +241,20 @@ public class AlleleIndexerRepository extends Neo4jRepository<Allele> {
             log.info("Finished Building allele -> genes map");
         }
     }
-    
+
+    private class GetGeneSynonymsThreadThread implements Runnable {
+
+        @Override
+        public void run() {
+            log.info("Building allele -> genes synonyms map");
+            String query = "MATCH (species:Species)-[:FROM_SPECIES]-(a:Allele)-[:IS_ALLELE_OF]-(gene:Gene)-[:ALSO_KNOWN_AS]-(synonym:Synonym) ";
+            query += "RETURN a.primaryKey, synonym.name";
+
+            cache.setGeneSynonyms(getMapSetForQuery(query, "a.primaryKey", "synonym.name"));
+            log.info("Finished Building allele -> genes synonyms map");
+        }
+    }
+
     private class GetModelsThread implements Runnable {
 
         @Override

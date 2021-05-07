@@ -23,6 +23,7 @@ public class IndexerCache {
     protected Map<String, Set<String>> expressionStages = new HashMap<>();
     protected Map<String, Set<String>> alleles = new HashMap<>();
     protected Map<String, Set<String>> genes = new HashMap<>();
+    protected Map<String, Set<String>> geneSynonyms = new HashMap<>();
     protected Map<String, Set<String>> models = new HashMap<>();
     protected Map<String, Set<String>> molecularConsequenceMap = new HashMap<>();
     protected Map<String, Set<String>> phenotypeStatements = new HashMap<>();
@@ -84,6 +85,7 @@ public class IndexerCache {
 
         document.setExpressionStages(expressionStages.get(id));
         document.setGenes(genes.get(id));
+        document.setGeneSynonyms(geneSynonyms.get(id));
         document.setModels(models.get(id));
 
         if (molecularConsequenceMap.get(id) != null) {
