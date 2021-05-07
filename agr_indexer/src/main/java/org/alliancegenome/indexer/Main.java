@@ -19,15 +19,11 @@ public class Main {
         
         ph.startProcess("Indexer Main: ");
 
-        Boolean keepIndex = ConfigHelper.getKeepIndex();
+        //Boolean keepIndex = ConfigHelper.getKeepIndex();
 
         IndexManager im = new IndexManager();
 
-        if (!keepIndex) {
-            Indexer.indexName = im.startSiteIndex();
-        } else {
-            Indexer.indexName = im.getBaseIndexName();
-        }
+        Indexer.indexName = im.startSiteIndex();
 
         Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
             @Override public void uncaughtException(Thread t, Throwable e) {
@@ -82,11 +78,7 @@ public class Main {
             }
         }
 
-        if (!keepIndex) {
-            im.finishIndex();
-        } else {
-            im.closeClient();
-        }
+        im.finishIndex();
 
         ph.finishProcess();
 
