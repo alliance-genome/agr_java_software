@@ -67,6 +67,7 @@ public class GeneticEntity extends Neo4jEntity {
 
     @JsonProperty(value = "synonyms")
     public void setSynonymList(List<String> list) {
+        synonyms = new ArrayList<Synonym>();
         if (CollectionUtils.isNotEmpty(list)) {
             list.forEach(syn -> {
                 Synonym synonym = new Synonym();
@@ -96,6 +97,7 @@ public class GeneticEntity extends Neo4jEntity {
 
     @JsonProperty(value = "secondaryIds")
     public void setSecondaryIdsList(List<String> list) {
+        secondaryIds = new ArrayList<SecondaryId>();
         if (CollectionUtils.isNotEmpty(list)) {
             list.forEach(idName -> {
                 SecondaryId secondaryId = new SecondaryId();
