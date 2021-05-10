@@ -61,6 +61,8 @@ public class Mapping extends Builder {
         new FieldBuilder(builder, "geneLiteratureUrl", "keyword").build();
         new FieldBuilder(builder, "geneSynopsis", "text").build();
         new FieldBuilder(builder, "geneSynopsisUrl", "keyword").build();
+        new FieldBuilder(builder, "geneSynonyms", "text").keyword().build();
+        new FieldBuilder(builder, "geneCrossReferences", "text").keyword().build();
         new FieldBuilder(builder, "href", "keyword");
         new FieldBuilder(builder, "id", "keyword");
         new FieldBuilder(builder, "models", "text").keyword().autocomplete().build();
