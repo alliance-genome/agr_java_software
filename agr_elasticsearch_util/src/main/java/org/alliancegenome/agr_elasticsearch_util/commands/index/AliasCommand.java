@@ -25,7 +25,7 @@ public class AliasCommand extends Command implements CommandInterface {
                 im.createAlias(alias, index);
             } else if(command.equals("remove")) {
                 String alias = args.remove(0);
-                im.removeAlias(alias);
+                //im.removeAlias(alias);
             } else {
                 printHelp();
             }

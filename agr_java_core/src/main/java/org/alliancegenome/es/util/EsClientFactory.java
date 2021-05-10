@@ -1,18 +1,15 @@
 package org.alliancegenome.es.util;
 
-import com.google.common.collect.Multimap;
-import lombok.extern.log4j.Log4j2;
+import java.io.IOException;
+import java.util.*;
+
 import org.alliancegenome.core.config.ConfigHelper;
 import org.apache.http.HttpHost;
-import org.apache.http.client.config.RequestConfig.Builder;
-import org.elasticsearch.client.RestClient;
-import org.elasticsearch.client.RestClientBuilder.RequestConfigCallback;
-import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.client.*;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import com.google.common.collect.Multimap;
+
+import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 public class EsClientFactory {
