@@ -34,6 +34,7 @@ public class AlleleIndexerRepository extends Neo4jRepository<Allele> {
         executor.execute(new GetDiseaseWithParentsThread());
         executor.execute(new GetGenesMapThread());
         executor.execute(new GetGeneSynonymsThreadThread());
+        executor.execute(new GetGeneCrossReferencesThread());
         executor.execute(new GetModelsThread());
         executor.execute(new GetPhenotypeStatementsMapThread());
         executor.execute(new GetVariantsThread());
@@ -252,6 +253,19 @@ public class AlleleIndexerRepository extends Neo4jRepository<Allele> {
 
             cache.setGeneSynonyms(getMapSetForQuery(query, "a.primaryKey", "synonym.name"));
             log.info("Finished Building allele -> genes synonyms map");
+        }
+    }
+
+    private class GetGeneCrossReferencesThread implements Runnable {
+
+        @Override
+        public void run() {
+            log.info("Building allele -> gene crossreferences map");
+            String query = "MATCH (species:Species)-[:FROM_SPECIES]-(a:Allele)-[:IS_ALLELE_OF]-(gene:Gene)-[:CROSS_REFERENCE]-(cr:CrossReference) ";
+            query += "RETURN a.primaryKey, cr.name";
+
+            cache.setGeneCrossReferences(getMapSetForQuery(query, "a.primaryKey", "cr.name"));
+            log.info("Finished Building allele -> gene crossreferences map");
         }
     }
 

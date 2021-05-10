@@ -239,6 +239,7 @@ public class SearchService {
                 entry.getValue().stream().forEach( value ->{
                             if(value.charAt(0) == '-'){
                                 value = value.substring(1);
+                                //apply if a filter must be excluded
                                 bool.mustNot(new TermQueryBuilder(entry.getKey() + ".keyword", value));
                             }else {
                                 bool.filter(new TermQueryBuilder(entry.getKey() + ".keyword", value));
