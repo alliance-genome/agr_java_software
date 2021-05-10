@@ -52,7 +52,6 @@ public class ConfigHelper {
         defaults.put(ES_BULK_REQUEST_SIZE, "4");
         defaults.put(ES_BULK_CONCURRENT_REQUESTS, "4");
 
-        defaults.put(KEEPINDEX, "false");
         defaults.put(INDEX_VARIANTS, "false");
 
         defaults.put(API_HOST, "localhost");
@@ -300,11 +299,6 @@ public class ConfigHelper {
     public static boolean getDebug() {
         if (!init) init();
         return Boolean.parseBoolean(config.get(DEBUG));
-    }
-
-    public static boolean getKeepIndex() {
-        if (!init) init();
-        return Boolean.parseBoolean(config.get(KEEPINDEX));
     }
 
     public static String getAWSBucketName() {

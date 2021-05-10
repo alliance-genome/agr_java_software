@@ -17,8 +17,6 @@ public class Constants {
     public static final String ES_BULK_REQUEST_SIZE = "ES_BULK_REQUEST_SIZE";
     public static final String ES_BULK_CONCURRENT_REQUESTS = "ES_BULK_CONCURRENT_REQUESTS";
 
-    public static final String KEEPINDEX = "KEEPINDEX";
-    public static final String SPECIES = "SPECIES";
     public static final String INDEX_VARIANTS = "INDEX_VARIANTS";
 
     public static final String API_HOST = "API_HOST";
