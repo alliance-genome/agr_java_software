@@ -251,7 +251,7 @@ public class TranscriptLevelConsequence extends Neo4jEntity {
             hgvsVEPGeneNomenclature = infos[32];
             
             
-        } else if(infos.length == 37) { // Mod
+        } else if(infos.length == 38) { // Mod
         
             /* From MOD VCF File
             0  Allele: GGGG
