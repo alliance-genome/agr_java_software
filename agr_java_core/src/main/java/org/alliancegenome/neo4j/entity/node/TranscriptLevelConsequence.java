@@ -251,7 +251,7 @@ public class TranscriptLevelConsequence extends Neo4jEntity {
             hgvsVEPGeneNomenclature = infos[32];
             
             
-        } else { // Mod
+        } else if(infos.length == 37) { // Mod
         
             /* From MOD VCF File
             0  Allele: GGGG
@@ -341,6 +341,19 @@ public class TranscriptLevelConsequence extends Neo4jEntity {
             siftPrediction = infos[32];
             siftScore = infos[33];
         
+        } else {
+            // FAIL
+            log.error("File Headers and Data DO NOT MATCH this code please check the input VCF files");
+            log.error("This code WILL NOT work correctly until this issue is fixed");
+            log.error("Header Len: " + header.length + ", Info Len: " + infos.length);
+            try {
+                for(int i = 0; i < header.length; i++) {
+                    log.error("Header: " + header[i] + ": \"" + infos[i] + "\"");
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            System.exit(-1);
         }
         
     }
