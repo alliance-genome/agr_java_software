@@ -89,7 +89,7 @@ public class AlleleVariantSequenceConverter {
                 avsDoc.setNameKey(ctx.getID());
                 avsDoc.setName(ctx.getID());
 
-            }else{
+            } else{
                 //    if (hgvsNomenclature != null && hgvsNomenclature.length()<512) {
                 if (hgvsNomenclature != null && hgvsNomenclature.length()<100) {
 
