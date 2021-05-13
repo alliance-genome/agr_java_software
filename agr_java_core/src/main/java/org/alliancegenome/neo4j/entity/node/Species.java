@@ -17,11 +17,11 @@ import lombok.*;
 @Schema(name="Species", description="POJO that represents the Species")
 public class Species extends Neo4jEntity implements Comparable<Species> {
 
-    @JsonView({View.Default.class})
+    @JsonView({View.Default.class,  View.AlleleVariantSequenceConverterForES.class})
     @JsonProperty(value = "taxonId")
     private String primaryKey;
 
-    @JsonView({View.Default.class})
+    @JsonView({View.Default.class,  View.AlleleVariantSequenceConverterForES.class})
     private String name;
     @JsonView({View.Default.class})
     private String shortName;

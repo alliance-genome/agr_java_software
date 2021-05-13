@@ -9,6 +9,7 @@ import javax.enterprise.context.RequestScoped;
 
 import org.alliancegenome.cache.repository.helper.*;
 import org.alliancegenome.core.helpers.VariantServiceHelper;
+import org.alliancegenome.es.index.VariantESDAO;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.node.*;
 import org.alliancegenome.neo4j.entity.relationship.GenomeLocation;
@@ -20,6 +21,7 @@ import org.apache.commons.lang3.Range;
 public class VariantService {
 
     private VariantRepository variantRepo = new VariantRepository();
+    private VariantESDAO variantDAO = new VariantESDAO();
 
     public JsonResultResponse<Transcript> getTranscriptsByVariant(String variantID, Pagination pagination) {
         Variant variant = variantRepo.getVariant(variantID);
@@ -78,6 +80,6 @@ public class VariantService {
     }
 
     public Variant getById(String id) {
-        return variantRepo.getVariant(id);
+        return variantDAO.getVariant(id);
     }
 }

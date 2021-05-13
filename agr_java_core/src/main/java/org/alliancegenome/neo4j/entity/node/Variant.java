@@ -35,9 +35,9 @@ public class Variant extends GeneticEntity implements Comparable<Variant> {
     private String name;
 
     private String dataProvider;
-    @JsonView({View.API.class})
+    @JsonView({View.API.class, View.AlleleVariantSequenceConverterForES.class})
     private String genomicReferenceSequence;
-    @JsonView({View.API.class})
+    @JsonView({View.API.class, View.AlleleVariantSequenceConverterForES.class})
     private String genomicVariantSequence;
 
     private String paddingLeft = "";
@@ -150,8 +150,10 @@ public class Variant extends GeneticEntity implements Comparable<Variant> {
                         .distinct()
                         .collect(Collectors.toList()));
             }
-            names.sort(Comparator.naturalOrder());
         }
+        // remove nulls from VCF files
+        names = names.stream().filter(Objects::nonNull).collect(Collectors.toList());
+        names.sort(Comparator.naturalOrder());
         return names;
     }
 
@@ -159,6 +161,7 @@ public class Variant extends GeneticEntity implements Comparable<Variant> {
     public List<String> getHgvsC() {
         if (CollectionUtils.isNotEmpty(transcriptLevelConsequence)) {
             return transcriptLevelConsequence.stream()
+                    .filter(Objects::nonNull)
                     .map(TranscriptLevelConsequence::getHgvsCodingNomenclature)
                     .distinct()
                     .sorted()
@@ -171,6 +174,7 @@ public class Variant extends GeneticEntity implements Comparable<Variant> {
     public List<String> getHgvsP() {
         if (CollectionUtils.isNotEmpty(transcriptLevelConsequence)) {
             return transcriptLevelConsequence.stream()
+                    .filter(Objects::nonNull)
                     .map(TranscriptLevelConsequence::getHgvsProteinNomenclature)
                     .distinct()
                     .sorted()

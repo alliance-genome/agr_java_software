@@ -7,6 +7,7 @@ import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.es.util.EsClientFactory;
 import org.alliancegenome.neo4j.entity.node.*;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.elasticsearch.action.search.SearchRequest;
@@ -15,7 +16,9 @@ import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.client.core.CountRequest;
 import org.elasticsearch.client.core.CountResponse;
+import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.TermQueryBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.ParsedStringTerms;
@@ -25,6 +28,7 @@ import java.io.IOException;
 import java.util.*;
 
 import static java.util.stream.Collectors.toList;
+import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 
 public class VariantESDAO {
 
@@ -166,5 +170,74 @@ public class VariantESDAO {
             distinctValueMap.put(filter.getName(), list);
         }
         return distinctValueMap;
+    }
+
+    public Variant getVariant(String id) {
+
+
+        BoolQueryBuilder bool = boolQuery();
+        bool.filter(new TermQueryBuilder("category", "allele"));
+        bool.must(new TermQueryBuilder("name", id));
+
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+        searchSourceBuilder.query(bool);
+
+        SearchRequest searchRequest = new SearchRequest("variant_index");
+        searchRequest.source(searchSourceBuilder);
+        SearchResponse response = null;
+
+        try {
+            response = searchClient.search(searchRequest, RequestOptions.DEFAULT);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if (response == null || response.getHits() == null)
+            return null;
+
+        SearchHit[] searchHits = response.getHits().getHits();
+        List<AlleleVariantSequence> results =
+                Arrays.stream(searchHits)
+                        .map(hit -> {
+                            try {
+                                return mapper.readValue(hit.getSourceAsString(), AlleleVariantSequence.class);
+                            } catch (IOException e) {
+                                log.error("Error during deserialization ", e);
+                                throw new RuntimeException(e);
+                            }
+                        })
+                        .collect(toList());
+        List<Allele> alleles = results.stream()
+                .map(alleleVariantSequence -> {
+                    Allele allele;
+                    if (alleleVariantSequence.getAllele() == null) {
+                        allele = new Allele(alleleVariantSequence.getPrimaryKey(), GeneticEntity.CrossReferenceType.VARIANT);
+                        if (CollectionUtils.isNotEmpty(alleleVariantSequence.getTranscriptLevelConsequences())) {
+                            alleleVariantSequence.getTranscriptLevelConsequences().forEach(transcriptLevelConsequence -> {
+                                // populate the first GLC
+                                // todo: needs to be adjusted to curator input
+                                if (alleleVariantSequence.getVariant().getGeneLevelConsequence() == null) {
+                                    GeneLevelConsequence consequence = new GeneLevelConsequence();
+                                    consequence.setGeneLevelConsequence(transcriptLevelConsequence.getGeneLevelConsequence());
+                                    alleleVariantSequence.getVariant().setGeneLevelConsequence(consequence);
+                                }
+                            });
+                        }
+                        Variant variant = alleleVariantSequence.getVariant();
+                        variant.setTranscriptLevelConsequence(alleleVariantSequence.getTranscriptLevelConsequences());
+                        allele.setVariants(List.of(variant));
+                        allele.setSymbol(alleleVariantSequence.getPrimaryKey());
+                        Map<String, CrossReference> crossRefs = new HashMap<>();
+                        CrossReference ref = new CrossReference();
+                        ref.setName("");
+                        crossRefs.put("primary", ref);
+                        allele.setCrossReferenceMap(Map.copyOf(crossRefs));
+                    } else {
+                        allele = alleleVariantSequence.getAllele();
+                    }
+                    return allele;
+                })
+                .collect(toList());
+
+        return alleles.get(0).getVariants().get(0);
     }
 }

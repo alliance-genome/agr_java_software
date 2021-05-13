@@ -13,7 +13,7 @@ import org.alliancegenome.neo4j.entity.relationship.GenomeLocation;
 public class AlleleVariantSequenceConverter {
     
     public List<AlleleVariantSequence> convertContextToAlleleVariantSequence(VariantContext ctx, String[] header, SpeciesType speciesType) throws Exception {
-        List<AlleleVariantSequence> returnDocuments = new ArrayList<AlleleVariantSequence>();
+        List<AlleleVariantSequence> returnDocuments = new ArrayList<>();
 
         htsjdk.variant.variantcontext.Allele refNuc = ctx.getReference();
         Species species = new Species();
@@ -30,6 +30,8 @@ public class AlleleVariantSequenceConverter {
             variantType.setPrimaryKey("delins");
         }
 
+        Variant variant = new Variant();
+
         for (htsjdk.variant.variantcontext.Allele a : ctx.getAlternateAlleles()) {
             if (a.compareTo(refNuc) < 0) {
                 continue;
@@ -43,6 +45,8 @@ public class AlleleVariantSequenceConverter {
                 continue;
             }
 
+            variant.setGenomicReferenceSequence(ctx.getReference().getBaseString());
+            variant.setGenomicVariantSequence(a.getBaseString());
 
             int endPos = 0;
 
@@ -62,7 +66,6 @@ public class AlleleVariantSequenceConverter {
 
             AlleleVariantSequence avsDoc = new AlleleVariantSequence();
 
-            Variant variant = new Variant();
             variant.setVariantType(variantType);
             variant.setSpecies(species);
             GenomeLocation location = new GenomeLocation();
@@ -88,11 +91,12 @@ public class AlleleVariantSequenceConverter {
                 avsDoc.setPrimaryKey(ctx.getID());
                 avsDoc.setNameKey(ctx.getID());
                 avsDoc.setName(ctx.getID());
+                variant.setPrimaryKey(ctx.getID());
 
             } else{
                 //    if (hgvsNomenclature != null && hgvsNomenclature.length()<512) {
                 if (hgvsNomenclature != null && hgvsNomenclature.length()<100) {
-
+                    variant.setPrimaryKey(hgvsNomenclature);
                     avsDoc.setPrimaryKey(hgvsNomenclature);
                     avsDoc.setNameKey(hgvsNomenclature);
                     avsDoc.setName(hgvsNomenclature);
