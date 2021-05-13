@@ -23,12 +23,16 @@ public class AlleleVariantSequenceConverter {
         species.setPrimaryKey(speciesType.getTaxonID());
 
         SOTerm variantType = new SOTerm();
-        variantType.setName(ctx.getType().name().toUpperCase());
-        variantType.setPrimaryKey(ctx.getType().name());
-        if ("INDEL".equals(ctx.getType().name())) {
-            variantType.setName("delins");
-            variantType.setPrimaryKey("delins");
+
+        if(!"SYMBOLIC".equalsIgnoreCase(ctx.getType().name()) && !"MIXED".equalsIgnoreCase(ctx.getType().name())){
+            variantType.setName(ctx.getType().name().toUpperCase());
+            variantType.setPrimaryKey(ctx.getType().name());
+            if ("INDEL".equals(ctx.getType().name())) {
+                variantType.setName("delins");
+                variantType.setPrimaryKey("delins");
+            }
         }
+
 
         for (htsjdk.variant.variantcontext.Allele a : ctx.getAlternateAlleles()) {
             if (a.compareTo(refNuc) < 0) {
