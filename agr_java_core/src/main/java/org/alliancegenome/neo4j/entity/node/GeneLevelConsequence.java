@@ -1,18 +1,21 @@
 package org.alliancegenome.neo4j.entity.node;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonView;
+import com.google.common.collect.Lists;
+import lombok.Getter;
+import lombok.Setter;
 import org.alliancegenome.neo4j.entity.Neo4jEntity;
 import org.alliancegenome.neo4j.view.View;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.neo4j.ogm.annotation.NodeEntity;
 
-import com.fasterxml.jackson.annotation.*;
-
-import lombok.*;
+import java.util.List;
 
 @NodeEntity(label = "GeneLevelConsequence")
 @Getter
 @Setter
-@Schema(name="GeneLevelConsequence", description="POJO that represents Gene Level Consequences")
+@Schema(name = "GeneLevelConsequence", description = "POJO that represents Gene Level Consequences")
 public class GeneLevelConsequence extends Neo4jEntity implements Comparable<GeneLevelConsequence> {
 
     @JsonView({View.Default.class, View.API.class})
@@ -26,6 +29,12 @@ public class GeneLevelConsequence extends Neo4jEntity implements Comparable<Gene
     @Override
     public int compareTo(GeneLevelConsequence o) {
         return 0;
+    }
+
+    public List<String> getIndividualConsequences() {
+        if (geneLevelConsequence == null)
+            return null;
+        return Lists.newArrayList(geneLevelConsequence.split("&"));
     }
 
 }
