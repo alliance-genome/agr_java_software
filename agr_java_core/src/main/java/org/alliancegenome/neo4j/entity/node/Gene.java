@@ -2,6 +2,7 @@ package org.alliancegenome.neo4j.entity.node;
 
 import java.util.*;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.alliancegenome.es.util.DateConverter;
 import org.alliancegenome.neo4j.entity.relationship.*;
 import org.alliancegenome.neo4j.view.View;
@@ -145,5 +146,20 @@ public class Gene extends GeneticEntity implements Comparable<Gene> {
     @Override
     public int hashCode() {
         return Objects.hash(primaryKey);
+    }
+
+
+    @JsonView(value = {View.AlleleVariantSequenceConverterForES.class})
+    @JsonProperty(value = "crossReferences")
+    public List<String> getCrossReferencesList() {
+        if (crossReferences != null) {
+            List<String> list = new ArrayList<>();
+            for (CrossReference crossReference : crossReferences) {
+                list.add(crossReference.getName());
+            }
+            return list;
+        } else {
+            return new ArrayList<>();
+        }
     }
 }

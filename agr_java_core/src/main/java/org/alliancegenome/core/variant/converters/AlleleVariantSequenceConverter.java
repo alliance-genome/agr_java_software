@@ -3,6 +3,7 @@ package org.alliancegenome.core.variant.converters;
 import java.util.*;
 
 import org.alliancegenome.api.entity.AlleleVariantSequence;
+import org.alliancegenome.es.index.site.cache.GeneDocumentCache;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.entity.node.*;
 
@@ -12,7 +13,7 @@ import org.alliancegenome.neo4j.entity.relationship.GenomeLocation;
 
 public class AlleleVariantSequenceConverter {
     
-    public List<AlleleVariantSequence> convertContextToAlleleVariantSequence(VariantContext ctx, String[] header, SpeciesType speciesType) throws Exception {
+    public List<AlleleVariantSequence> convertContextToAlleleVariantSequence(VariantContext ctx, String[] header, SpeciesType speciesType, GeneDocumentCache geneCache) throws Exception {
         List<AlleleVariantSequence> returnDocuments = new ArrayList<>();
 
         htsjdk.variant.variantcontext.Allele refNuc = ctx.getReference();
@@ -109,7 +110,21 @@ public class AlleleVariantSequenceConverter {
             avsDoc.setVariant(variant);
             if (htpConsequences != null) {
                 for (TranscriptLevelConsequence c : htpConsequences) {
+
+                    Set<String> synonymSet = geneCache.getSynonyms().get(c.getAssociatedGene().getPrimaryKey());
+                    Set<String> crossReferencesSet = geneCache.getCrossReferences().get(c.getAssociatedGene().getPrimaryKey());
+                    if(synonymSet != null){
+                        List<String> synonymList = new ArrayList<>(synonymSet);
+                        c.getAssociatedGene().setSynonymList(synonymList);
+                    }
+
+                    if(crossReferencesSet != null){
+                        List<String> crossReferencesList = new ArrayList<>(crossReferencesSet);
+                        c.getAssociatedGene().setCrossReferencesList(crossReferencesList);
+                    }
+
                     c.getAssociatedGene().setSpecies(species);
+
                     if(!transcriptsProcessed.contains(c.getTranscriptID())) {
                         transcriptsProcessed.add(c.getTranscriptID());
                         if(first) {

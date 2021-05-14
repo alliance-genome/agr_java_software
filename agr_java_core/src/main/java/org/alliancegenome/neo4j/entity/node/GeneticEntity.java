@@ -78,6 +78,21 @@ public class GeneticEntity extends Neo4jEntity {
         }
     }
 
+
+
+    @JsonProperty(value = "crossReferencesList")
+    public void setCrossReferencesList(List<String> list) {
+        crossReferences = new ArrayList<CrossReference>();
+        if (CollectionUtils.isNotEmpty(list)) {
+            list.forEach(crRef -> {
+                CrossReference crossReference = new CrossReference();
+                crossReference.setName(crRef);
+                crossReferences.add(crossReference);
+            });
+            crossReferences.sort(Comparator.comparing(crossReference -> crossReference.getName().toLowerCase()));
+        }
+    }
+
     @Relationship(type = "ALSO_KNOWN_AS")
     private List<SecondaryId> secondaryIds;
 
