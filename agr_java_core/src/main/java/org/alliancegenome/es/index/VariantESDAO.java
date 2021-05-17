@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.log4j.Log4j2;
 import org.alliancegenome.api.entity.AlleleVariantSequence;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
+import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.es.util.EsClientFactory;
@@ -35,7 +36,7 @@ import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 @Log4j2
 public class VariantESDAO {
 
-    public static final String SITE_INDEX = "site_index";
+    public static final String SITE_INDEX = ConfigHelper.getEsIndex();
 
     protected static RestHighLevelClient searchClient = null; // Make sure to only have 1 of these clients to save on resources
 
