@@ -1,6 +1,7 @@
 package org.alliancegenome.es.index;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.log4j.Log4j2;
 import org.alliancegenome.api.entity.AlleleVariantSequence;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.es.model.query.FieldFilter;
@@ -8,8 +9,6 @@ import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.es.util.EsClientFactory;
 import org.alliancegenome.neo4j.entity.node.*;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RequestOptions;
@@ -25,14 +24,18 @@ import org.elasticsearch.search.aggregations.bucket.terms.ParsedStringTerms;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static java.util.stream.Collectors.toList;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 
+@Log4j2
 public class VariantESDAO {
 
-    private Log log = LogFactory.getLog(getClass());
+    public static final String SITE_INDEX = "site_index";
 
     protected static RestHighLevelClient searchClient = null; // Make sure to only have 1 of these clients to save on resources
 
@@ -59,7 +62,7 @@ public class VariantESDAO {
     public Integer performQueryCount(QueryBuilder query, Pagination pagination) {
 
         // index name needs to come from configuration
-        CountRequest countRequest = new CountRequest("variant_index");
+        CountRequest countRequest = new CountRequest(SITE_INDEX);
         countRequest.query(query);
 
         CountResponse response = null;
@@ -69,12 +72,12 @@ public class VariantESDAO {
             e.printStackTrace();
         }
 
-        return (int) response.getCount();
+        return response == null? 0 : (int) response.getCount();
     }
 
     public JsonResultResponse<Allele> performQuery(SearchSourceBuilder searchSourceBuilder, Pagination pagination) {
 
-        SearchRequest searchRequest = new SearchRequest("variant_index");
+        SearchRequest searchRequest = new SearchRequest(SITE_INDEX);
         searchRequest.source(searchSourceBuilder);
         searchSourceBuilder.size(pagination.getLimit());
         searchSourceBuilder.sort("primaryKey.keyword");
@@ -128,7 +131,7 @@ public class VariantESDAO {
                     return allele;
                 })
                 .collect(toList());
-        JsonResultResponse resultResponse = new JsonResultResponse();
+        JsonResultResponse<Allele> resultResponse = new JsonResultResponse<>();
         resultResponse.setResults(alleles);
         resultResponse.setTotal(performQueryCount(searchSourceBuilder.query(), pagination));
 
@@ -138,7 +141,7 @@ public class VariantESDAO {
 
     public Map<String, List<String>> getDistinctValues(SearchSourceBuilder searchSourceBuilder) {
 
-        SearchRequest searchRequest = new SearchRequest("variant_index");
+        SearchRequest searchRequest = new SearchRequest(SITE_INDEX);
         searchRequest.source(searchSourceBuilder);
         SearchResponse response = null;
 
@@ -146,9 +149,7 @@ public class VariantESDAO {
         //distinctFields.put(FieldFilter.MOLECULAR_CONSEQUENCE, "transcriptLevelConsequences.geneLevelConsequence.keyword");
         distinctFields.put(FieldFilter.VARIANT_TYPE, "variant.variantType.name.keyword");
         distinctFields.put(FieldFilter.ALLELE_CATEGORY, "alterationType.keyword");
-        distinctFields.forEach((fieldFilter, esFieldName) -> {
-            searchSourceBuilder.aggregation(AggregationBuilders.terms(fieldFilter.getName()).field(esFieldName));
-        });
+        distinctFields.forEach((fieldFilter, esFieldName) -> searchSourceBuilder.aggregation(AggregationBuilders.terms(fieldFilter.getName()).field(esFieldName)));
 
         try {
             response = searchClient.search(searchRequest, RequestOptions.DEFAULT);
@@ -160,9 +161,7 @@ public class VariantESDAO {
         // for now on the filtered result set. This needs to be done on the full, unfiltered result set.
 
         Map<String, List<String>> distinctValueMap = new HashMap<>();
-        Iterator<FieldFilter> iter = distinctFields.keySet().iterator();
-        while (iter.hasNext()) {
-            final FieldFilter filter = iter.next();
+        for (FieldFilter filter : distinctFields.keySet()) {
             List<String> list = ((ParsedStringTerms) response.getAggregations().get(filter.getName())).getBuckets()
                     .stream()
                     .map(bucket -> (String) bucket.getKey())
@@ -182,7 +181,7 @@ public class VariantESDAO {
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
         searchSourceBuilder.query(bool);
 
-        SearchRequest searchRequest = new SearchRequest("variant_index");
+        SearchRequest searchRequest = new SearchRequest(SITE_INDEX);
         searchRequest.source(searchSourceBuilder);
         SearchResponse response = null;
 

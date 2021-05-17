@@ -175,6 +175,7 @@ public class Variant extends GeneticEntity implements Comparable<Variant> {
         if (CollectionUtils.isNotEmpty(transcriptLevelConsequence)) {
             return transcriptLevelConsequence.stream()
                     .filter(Objects::nonNull)
+                    .filter(consequence -> consequence.getHgvsProteinNomenclature() != null)
                     .map(TranscriptLevelConsequence::getHgvsProteinNomenclature)
                     .distinct()
                     .sorted()

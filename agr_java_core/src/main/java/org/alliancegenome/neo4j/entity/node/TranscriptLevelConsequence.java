@@ -1,18 +1,22 @@
 package org.alliancegenome.neo4j.entity.node;
 
-import java.util.*;
-
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonView;
+import lombok.Getter;
+import lombok.Setter;
 import org.alliancegenome.core.helpers.VariantServiceHelper;
 import org.alliancegenome.neo4j.entity.Neo4jEntity;
 import org.alliancegenome.neo4j.view.View;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
-import org.neo4j.ogm.annotation.*;
-
-import com.fasterxml.jackson.annotation.*;
+import org.neo4j.ogm.annotation.NodeEntity;
+import org.neo4j.ogm.annotation.Relationship;
 
 import lombok.*;
 import lombok.extern.log4j.Log4j2;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 @Log4j2
 @NodeEntity(label = "TranscriptLevelConsequence")
@@ -24,27 +28,27 @@ public class TranscriptLevelConsequence extends Neo4jEntity {
     @JsonView({View.API.class, View.GeneAlleleVariantSequenceAPI.class, View.AlleleVariantSequenceConverterForES.class})
     @JsonProperty("molecularConsequence")
     private List<String> transcriptLevelConsequences = new ArrayList<>();
-    
+
     @JsonView({View.Default.class, View.AlleleVariantSequenceConverterForES.class})
     private String impact;
-    
-    
+
+
     @JsonView({View.API.class, View.AlleleVariantSequenceConverterForES.class})
     private String aminoAcidChange;
 
-    @JsonView({View.API.class})
+    @JsonView({View.API.class, View.AlleleVariantSequenceConverterForES.class})
     private String aminoAcidVariation;
 
-    @JsonView({View.API.class})
+    @JsonView({View.API.class, View.AlleleVariantSequenceConverterForES.class})
     private String aminoAcidReference;
 
     @JsonView({View.API.class, View.AlleleVariantSequenceConverterForES.class})
     private String codonChange;
 
-    @JsonView({View.API.class})
+    @JsonView({View.API.class, View.AlleleVariantSequenceConverterForES.class})
     private String codonReference;
 
-    @JsonView({View.API.class})
+    @JsonView({View.API.class, View.AlleleVariantSequenceConverterForES.class})
     private String codonVariation;
 
     @JsonView({View.API.class, View.AlleleVariantSequenceConverterForES.class})
@@ -75,7 +79,6 @@ public class TranscriptLevelConsequence extends Neo4jEntity {
     private String hgvsVEPGeneNomenclature;
 
 
-
     @JsonView({View.Default.class, View.AlleleVariantSequenceConverterForES.class})
     private String siftPrediction;
 
@@ -88,7 +91,7 @@ public class TranscriptLevelConsequence extends Neo4jEntity {
     @JsonView({View.Default.class})
     private String polyphenScore;
 
-    @JsonView({View.Default.class, View.AlleleVariantSequenceConverterForES.class})
+    @JsonView({View.Default.class})
     private String sequenceFeatureType;
 
     @Relationship(type = "ASSOCIATION", direction = Relationship.INCOMING)
@@ -97,7 +100,7 @@ public class TranscriptLevelConsequence extends Neo4jEntity {
     @Relationship(type = "ASSOCIATION", direction = Relationship.INCOMING)
     private Transcript transcript;
 
-    @JsonView({View.Default.class})
+    @JsonView({View.Default.class, View.AlleleVariantSequenceConverterForES.class})
     private String transcriptName;
     @JsonView({View.Default.class, View.AlleleVariantSequenceConverterForES.class})
     private String transcriptID;
@@ -118,7 +121,7 @@ public class TranscriptLevelConsequence extends Neo4jEntity {
         return transcriptName;
     }
 
-    @JsonView({View.Default.class})
+    @JsonView({View.Default.class, View.AlleleVariantSequenceConverterForES.class})
     @JsonProperty("transcriptID")
     public String getTranscriptID() {
         if (transcriptID != null && transcriptID.length() > 0)
@@ -128,13 +131,18 @@ public class TranscriptLevelConsequence extends Neo4jEntity {
         transcriptID = transcript.getName();
         return transcriptID;
     }
-    
+
+    @JsonProperty("transcriptID")
+    public void setTranscriptID(String transcriptID) {
+        this.transcriptID = transcriptID;
+    }
+
     @JsonProperty("location")
     public void setTranscriptLocation(String name) {
         transcriptLocation = name;
     }
 
-    @JsonView({View.GeneAlleleVariantSequenceAPI.class})
+    @JsonView({View.GeneAlleleVariantSequenceAPI.class, View.AlleleVariantSequenceConverterForES.class})
     @JsonProperty("location")
     public String getTranscriptLocation() {
         if (transcriptLocation != null && transcriptLocation.length() > 0)
@@ -146,7 +154,7 @@ public class TranscriptLevelConsequence extends Neo4jEntity {
         return transcriptLocation;
     }
 
-    @JsonView({View.GeneAlleleVariantSequenceAPI.class})
+    @JsonView({View.GeneAlleleVariantSequenceAPI.class, View.AlleleVariantSequenceConverterForES.class})
     public String getSequenceFeatureType() {
         if (StringUtils.isNotEmpty(sequenceFeatureType))
             return sequenceFeatureType;
@@ -156,12 +164,17 @@ public class TranscriptLevelConsequence extends Neo4jEntity {
         return sequenceFeatureType;
     }
 
-    public TranscriptLevelConsequence() { }
+    public void setSequenceFeatureType(String sequenceFeatureType) {
+        this.sequenceFeatureType = sequenceFeatureType;
+    }
+
+    public TranscriptLevelConsequence() {
+    }
 
     @JsonView({View.API.class, View.AlleleVariantSequenceConverterForES.class})
     private String geneLevelConsequence;
-    
-    
+
+
     public TranscriptLevelConsequence(String[] header, String[] infos) {
 
 
@@ -227,8 +240,19 @@ public class TranscriptLevelConsequence extends Neo4jEntity {
             cdsStartPosition = infos[13];
             proteinStartPosition = infos[14];
             aminoAcidChange = infos[15];
+            if (StringUtils.isNotEmpty(aminoAcidChange)) {
+                aminoAcidReference = aminoAcidChange;
+                aminoAcidVariation = aminoAcidChange;
+            }
             codonChange = infos[16];
-            
+            if (StringUtils.isNotEmpty(codonChange)) {
+                String[] codonToken = codonChange.split("/");
+                if (codonToken.length == 2) {
+                    codonReference = codonToken[0];
+                    codonVariation = codonToken[1];
+                }
+            }
+
             geneLevelConsequence = infos[21];
             
             /*
@@ -320,7 +344,18 @@ public class TranscriptLevelConsequence extends Neo4jEntity {
             cdsStartPosition = infos[13];
             proteinStartPosition = infos[14];
             aminoAcidChange = infos[15];
+            if (StringUtils.isNotEmpty(aminoAcidChange)) {
+                aminoAcidReference = aminoAcidChange;
+                aminoAcidVariation = aminoAcidChange;
+            }
             codonChange = infos[16];
+            if (StringUtils.isNotEmpty(codonChange)) {
+                String[] codonToken = codonChange.split("/");
+                if (codonToken.length == 2) {
+                    codonReference = codonToken[0];
+                    codonVariation = codonToken[1];
+                }
+            }
             geneLevelConsequence= infos[21];
             
             /*
