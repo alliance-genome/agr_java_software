@@ -149,17 +149,4 @@ public class Gene extends GeneticEntity implements Comparable<Gene> {
     }
 
 
-    @JsonView(value = {View.AlleleVariantSequenceConverterForES.class})
-    @JsonProperty(value = "crossReferences")
-    public List<String> getCrossReferencesList() {
-        if (crossReferences != null) {
-            List<String> list = new ArrayList<>();
-            for (CrossReference crossReference : crossReferences) {
-                list.add(crossReference.getName());
-            }
-            return list;
-        } else {
-            return new ArrayList<>();
-        }
-    }
 }

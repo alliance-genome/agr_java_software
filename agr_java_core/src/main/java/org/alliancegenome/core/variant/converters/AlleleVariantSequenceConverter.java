@@ -110,18 +110,20 @@ public class AlleleVariantSequenceConverter {
             avsDoc.setVariant(variant);
             if (htpConsequences != null) {
                 for (TranscriptLevelConsequence c : htpConsequences) {
+                    if(geneCache != null){
+                        Set<String> synonymSet = geneCache.getSynonyms().get(c.getAssociatedGene().getPrimaryKey());
+                        Set<String> crossReferencesSet = geneCache.getCrossReferences().get(c.getAssociatedGene().getPrimaryKey());
+                        if(synonymSet != null){
+                            List<String> synonymList = new ArrayList<>(synonymSet);
+                            c.getAssociatedGene().setSynonymList(synonymList);
+                        }
 
-                    Set<String> synonymSet = geneCache.getSynonyms().get(c.getAssociatedGene().getPrimaryKey());
-                    Set<String> crossReferencesSet = geneCache.getCrossReferences().get(c.getAssociatedGene().getPrimaryKey());
-                    if(synonymSet != null){
-                        List<String> synonymList = new ArrayList<>(synonymSet);
-                        c.getAssociatedGene().setSynonymList(synonymList);
+                        if(crossReferencesSet != null){
+                            List<String> crossReferencesList = new ArrayList<>(crossReferencesSet);
+                            c.getAssociatedGene().setCrossReferencesList(crossReferencesList);
+                        }
                     }
 
-                    if(crossReferencesSet != null){
-                        List<String> crossReferencesList = new ArrayList<>(crossReferencesSet);
-                        c.getAssociatedGene().setCrossReferencesList(crossReferencesList);
-                    }
 
                     c.getAssociatedGene().setSpecies(species);
 

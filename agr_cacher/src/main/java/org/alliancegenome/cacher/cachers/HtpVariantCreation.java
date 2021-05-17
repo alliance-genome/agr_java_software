@@ -8,7 +8,6 @@ import org.alliancegenome.api.entity.AlleleVariantSequence;
 import org.alliancegenome.core.filedownload.model.DownloadableFile;
 import org.alliancegenome.core.variant.config.VariantConfigHelper;
 import org.alliancegenome.core.variant.converters.AlleleVariantSequenceConverter;
-import org.alliancegenome.es.index.site.cache.GeneDocumentCache;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.entity.node.TranscriptLevelConsequence;
 
@@ -55,7 +54,6 @@ public class HtpVariantCreation extends Thread {
 
         private final DownloadableFile df;
         private final AlleleVariantSequenceConverter converter = new AlleleVariantSequenceConverter();
-        GeneDocumentCache geneCache = new GeneDocumentCache();
         
         public VCFReader(DownloadableFile df) {
             this.df = df;
@@ -76,7 +74,7 @@ public class HtpVariantCreation extends Thread {
                     VariantContext vc = iter1.next();
 
 
-                    List<AlleleVariantSequence> docList = converter.convertContextToAlleleVariantSequence(vc, header, speciesType, geneCache);
+                    List<AlleleVariantSequence> docList = converter.convertContextToAlleleVariantSequence(vc, header, speciesType, null);
                         //for (AlleleVariantSequence doc : docList) {
                             //for (TranscriptLevelConsequence transcriptFeature : doc.getTranscriptLevelConsequences()) {
 
