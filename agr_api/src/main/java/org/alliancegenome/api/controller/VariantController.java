@@ -29,7 +29,7 @@ public class VariantController implements VariantRESTInterface {
 
     @Override
     public Variant getVariant(String id) {
-        Variant variant = variantService.getById(id);
+        Variant variant = variantService.getVariantById(id);
         if (variant == null) {
             RestErrorMessage message = new RestErrorMessage();
             message.setErrors(List.of("Cannot find variant with ID: " + id));
