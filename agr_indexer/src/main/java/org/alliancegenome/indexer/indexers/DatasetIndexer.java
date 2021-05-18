@@ -11,6 +11,8 @@ import org.alliancegenome.neo4j.entity.node.HTPDataset;
 import org.alliancegenome.neo4j.repository.indexer.DatasetIndexerRepository;
 import org.apache.logging.log4j.*;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 public class DatasetIndexer extends Indexer<SearchableItemDocument> {
 
     private final Logger log = LogManager.getLogger(getClass());
@@ -72,6 +74,12 @@ public class DatasetIndexer extends Indexer<SearchableItemDocument> {
                 return;
             }
         }
+    }
+
+    @Override
+    protected void configureMapper(ObjectMapper mapper) {
+        
+        
     }
 
 }

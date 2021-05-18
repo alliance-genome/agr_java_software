@@ -72,10 +72,12 @@ public class GeneDocumentCache extends IndexerCache {
         add("sense_overlap_ncRNA_gene");
     }};
     
-    public void addCachedFields(SearchableItemDocument document) {
-        String id = document.getPrimaryKey();
+    
 
-        super.addCachedFields(document);
+    @Override
+    protected <D extends SearchableItemDocument> void addExtraCachedFields(D document) {
+
+        String id = document.getPrimaryKey();
 
         document.setStrictOrthologySymbols(strictOrthologySymbols.get(id));
         document.setDiseasesAgrSlim(diseasesAgrSlim.get(id));
@@ -90,13 +92,6 @@ public class GeneDocumentCache extends IndexerCache {
 
         
         document.setPhenotypeStatements(phenotypeStatements.get(id));
-
-        handleSoTermNames(document);
-
-    }
-
-    public void handleSoTermNames(SearchableItemDocument document) {
-        String id = document.getPrimaryKey();
 
         Set<String> allBiotypes = soTermNameWithParents.get(id);
 
@@ -131,5 +126,6 @@ public class GeneDocumentCache extends IndexerCache {
             document.getBiotypes().addAll(document.getBiotype1());
         }
     }
+
 
 }

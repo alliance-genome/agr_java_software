@@ -1,45 +1,51 @@
 package org.alliancegenome.core.translators.document;
 
-import java.util.HashSet;
+import java.util.*;
 
-import org.alliancegenome.core.translators.EntityDocumentTranslator;
-import org.alliancegenome.es.index.site.document.SearchableItemDocument;
-import org.alliancegenome.neo4j.entity.node.Allele;
+import org.alliancegenome.api.entity.AlleleVariantSequence;
+import org.alliancegenome.core.translators.EntityDocumentListTranslator;
+import org.alliancegenome.neo4j.entity.node.*;
 
-public class AlleleTranslator extends EntityDocumentTranslator<Allele, SearchableItemDocument> {
+public class AlleleTranslator extends EntityDocumentListTranslator<Allele, AlleleVariantSequence> {
 
     @Override
-    protected SearchableItemDocument entityToDocument(Allele entity, int translationDepth) {
+    protected List<AlleleVariantSequence> entityToDocument(Allele entity, int depth) {
 
-        SearchableItemDocument document = new SearchableItemDocument();
+        List<AlleleVariantSequence> docs = new ArrayList<>();
+        
+        for(Variant v: entity.getVariants()) {  
+            AlleleVariantSequence document = new AlleleVariantSequence(entity, v, null);
+            
+            document.setCategory("allele");
+            document.setAlterationType("allele");
+            document.setGlobalId(entity.getGlobalId());
+            document.setLocalId(entity.getLocalId());
+            document.setPrimaryKey(entity.getPrimaryKey());
+            document.setSymbol(entity.getSymbol());
+            document.setSymbolText(entity.getSymbolText());
+            document.setName(entity.getSymbol());
+            document.setNameKey(entity.getSymbolTextWithSpecies());
+            if (entity.getSpecies() != null) {
+                document.setSpecies(entity.getSpecies().getName());
+            }
 
-        document.setCategory("allele");
-        document.setAlterationType("allele");
-        document.setGlobalId(entity.getGlobalId());
-        document.setLocalId(entity.getLocalId());
-        document.setPrimaryKey(entity.getPrimaryKey());
-        document.setSymbol(entity.getSymbol());
-        document.setSymbolText(entity.getSymbolText());
-        document.setName(entity.getSymbol());
-        document.setNameKey(entity.getSymbolTextWithSpecies());
-        if (entity.getSpecies() != null) {
-            document.setSpecies(entity.getSpecies().getName());
+            document.setSecondaryIds(new HashSet<>(entity.getSecondaryIdsList()));
+            document.setSynonyms(new HashSet<>(entity.getSynonymList()));
+            
+            docs.add(document);
         }
 
-        document.setSecondaryIds(new HashSet<>(entity.getSecondaryIdsList()));
-        document.setSynonyms(new HashSet<>(entity.getSynonymList()));
-
-        return document;
+        return docs;
     }
 
-    public void updateDocuments(Iterable<SearchableItemDocument> alleleDocuments) {
-        for (SearchableItemDocument document : alleleDocuments) {
+    public void updateDocuments(Iterable<AlleleVariantSequence> alleleDocuments) {
+        for (AlleleVariantSequence document : alleleDocuments) {
             updateDocument(document);
         }
     }
 
     //This method is for updating/setting fields after fields are populated by AlleleDocumentCache
-    public void updateDocument(SearchableItemDocument document) {
+    public void updateDocument(AlleleVariantSequence document) {
 
         if (document.getVariants() != null && document.getVariants().size() == 1) {
             document.setAlterationType("allele with one variant");
@@ -50,5 +56,6 @@ public class AlleleTranslator extends EntityDocumentTranslator<Allele, Searchabl
         }
 
     }
+
 
 }
