@@ -99,36 +99,14 @@ public class TranscriptLevelConsequence extends Neo4jEntity {
 
     @JsonView({View.Default.class})
     private String transcriptName;
-    @JsonView({View.Default.class, View.AlleleVariantSequenceConverterForES.class})
-    private String transcriptID;
+    //@JsonView({View.Default.class, View.AlleleVariantSequenceConverterForES.class})
+    //private String transcriptID;
     @JsonView({View.Default.class, View.AlleleVariantSequenceConverterForES.class})
     private String transcriptLocation;
 
     @JsonView({View.GeneAlleleVariantSequenceAPI.class, View.AlleleVariantSequenceConverterForES.class})
     private Gene associatedGene;
 
-    @JsonView({View.Default.class})
-    @JsonProperty("transcriptName")
-    public String getTranscriptName() {
-        if (StringUtils.isNotEmpty(transcriptName))
-            return transcriptName;
-        if (transcript == null)
-            return "";
-        transcriptName = transcript.getName();
-        return transcriptName;
-    }
-
-    @JsonView({View.Default.class})
-    @JsonProperty("transcriptID")
-    public String getTranscriptID() {
-        if (transcriptID != null && transcriptID.length() > 0)
-            return transcriptID;
-        if (transcript == null)
-            return "";
-        transcriptID = transcript.getName();
-        return transcriptID;
-    }
-    
     @JsonProperty("location")
     public void setTranscriptLocation(String name) {
         transcriptLocation = name;
@@ -209,7 +187,9 @@ public class TranscriptLevelConsequence extends Neo4jEntity {
             associatedGene.setSymbol(infos[3]);
             associatedGene.setPrimaryKey(infos[4]);
             
-            transcriptID = infos[6];
+            transcript = new Transcript();
+            transcript.setPrimaryKey(infos[6]);
+            
             sequenceFeatureType = infos[7];
             
     
@@ -302,7 +282,9 @@ public class TranscriptLevelConsequence extends Neo4jEntity {
             associatedGene.setSymbol(infos[3]);
             associatedGene.setPrimaryKey(infos[4]);
             
-            transcriptID = infos[6];
+            transcript = new Transcript();
+            transcript.setPrimaryKey(infos[6]);
+            
             sequenceFeatureType = infos[7];
             
     

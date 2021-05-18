@@ -5,10 +5,10 @@ import java.util.*;
 import org.alliancegenome.api.entity.AlleleVariantSequence;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.entity.node.*;
+import org.alliancegenome.neo4j.entity.relationship.GenomeLocation;
 
 import htsjdk.variant.variantcontext.VariantContext;
 import io.github.lukehutch.fastclasspathscanner.utils.Join;
-import org.alliancegenome.neo4j.entity.relationship.GenomeLocation;
 
 public class AlleleVariantSequenceConverter {
     
@@ -106,20 +106,18 @@ public class AlleleVariantSequenceConverter {
             if (htpConsequences != null) {
                 for (TranscriptLevelConsequence c : htpConsequences) {
                     c.getAssociatedGene().setSpecies(species);
-                    if(!transcriptsProcessed.contains(c.getTranscriptID())) {
-                        transcriptsProcessed.add(c.getTranscriptID());
+                    if(!transcriptsProcessed.contains(c.getTranscript().getPrimaryKey())) {
+                        transcriptsProcessed.add(c.getTranscript().getPrimaryKey());
                         if(first) {
                             first=false;
                             //    variant.setHgvsNomenclature(c.getHgvsVEPGeneNomenclature());
-                            c.getAssociatedGene().setSpecies(species);
                             variant.setGene(c.getAssociatedGene());
 
                         }
                         molecularConsequences.addAll(c.getTranscriptLevelConsequences());
-                        //    s.setConsequence(c);
-                        /****************SearchableDocument Fields***************/
-                        if(c.getAssociatedGene().getSymbol()!=null && !c.getAssociatedGene().getSymbol().equals("")){
-                            genes.add(c.getAssociatedGene().getNameKey());
+
+                        if(c.getAssociatedGene().getSymbol() != null && !c.getAssociatedGene().getSymbol().equals("")){
+                            genes.add(c.getAssociatedGene().getNameKey(speciesType));
                         }
                     }
                 }
@@ -142,7 +140,7 @@ public class AlleleVariantSequenceConverter {
     
     private List<TranscriptLevelConsequence> getConsequences(VariantContext ctx, String varNuc, String[] header) throws Exception {
         List<TranscriptLevelConsequence> features = new ArrayList<>();
-        List<String> alreadyAdded = new ArrayList<>();
+        HashSet<String> alreadyAdded = new HashSet<>();
         
         for (String s : ctx.getAttributeAsStringList("CSQ", "")) {
             if (s.length() > 0) {
@@ -151,9 +149,9 @@ public class AlleleVariantSequenceConverter {
                 if (header.length == infos.length) {
                     if (infos[0].equalsIgnoreCase(varNuc)) {
                         TranscriptLevelConsequence feature = new TranscriptLevelConsequence(header, infos);
-                        if(!alreadyAdded.contains(feature.getTranscriptID())) {
+                        if(!alreadyAdded.contains(feature.getTranscript().getPrimaryKey())) {
                             features.add(feature);
-                            alreadyAdded.add(feature.getTranscriptID());
+                            alreadyAdded.add(feature.getTranscript().getPrimaryKey());
                         }
                     }
                 } else {
