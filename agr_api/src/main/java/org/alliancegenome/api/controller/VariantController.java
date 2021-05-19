@@ -11,7 +11,6 @@ import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.Transcript;
 import org.alliancegenome.neo4j.entity.node.Variant;
-import org.alliancegenome.neo4j.repository.VariantRepository;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
