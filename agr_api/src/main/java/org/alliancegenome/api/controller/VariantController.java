@@ -25,17 +25,12 @@ public class VariantController implements VariantRESTInterface {
     @Inject
     private VariantService variantService;
 
-    private VariantRepository variantRepository = new VariantRepository();
-
     @Inject
     private HttpServletRequest request;
 
     @Override
     public Variant getVariant(String id) {
-        Variant variant = variantRepository.getVariant(id);
-        // if not found in Neo then try in ES
-        if (variant == null)
-            variant = variantService.getVariantById(id);
+        Variant variant = variantService.getVariantById(id);
         if (variant == null) {
             RestErrorMessage message = new RestErrorMessage();
             message.setErrors(List.of("Cannot find variant with ID: " + id));
