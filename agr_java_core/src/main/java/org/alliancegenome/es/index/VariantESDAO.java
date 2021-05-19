@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 
 @Log4j2
@@ -73,7 +74,15 @@ public class VariantESDAO {
             e.printStackTrace();
         }
 
-        return response == null? 0 : (int) response.getCount();
+        return response == null ? 0 : (int) response.getCount();
+    }
+
+    private static Map<String, List<String>> sortAlleles = new HashMap<>();
+
+    static {
+        sortAlleles.put("default", List.of("primaryKey.keyword"));
+        sortAlleles.put("molecularConsequence", List.of("transcriptLevelConsequences.molecularConsequence.keyword", "primaryKey.keyword"));
+        sortAlleles.put("variant", List.of("transcriptLevelConsequences.molecularConsequence.keyword", "primaryKey.keyword"));
     }
 
     public JsonResultResponse<Allele> performQuery(SearchSourceBuilder searchSourceBuilder, Pagination pagination) {
@@ -81,7 +90,10 @@ public class VariantESDAO {
         SearchRequest searchRequest = new SearchRequest(SITE_INDEX);
         searchRequest.source(searchSourceBuilder);
         searchSourceBuilder.size(pagination.getLimit());
-        searchSourceBuilder.sort("primaryKey.keyword");
+        // sorting
+        if (sortAlleles.get(pagination.getSortBy()) != null) {
+            sortAlleles.get(pagination.getSortBy()).forEach(searchSourceBuilder::sort);
+        }
         SearchResponse response = null;
 
         try {
@@ -147,9 +159,12 @@ public class VariantESDAO {
         SearchResponse response = null;
 
         Map<FieldFilter, String> distinctFields = new HashMap<>();
-        //distinctFields.put(FieldFilter.MOLECULAR_CONSEQUENCE, "transcriptLevelConsequences.geneLevelConsequence.keyword");
         distinctFields.put(FieldFilter.VARIANT_TYPE, "variant.variantType.name.keyword");
         distinctFields.put(FieldFilter.ALLELE_CATEGORY, "alterationType.keyword");
+        distinctFields.put(FieldFilter.VARIANT_IMPACT, "transcriptLevelConsequences.impact.keyword");
+        distinctFields.put(FieldFilter.MOLECULAR_CONSEQUENCE, "transcriptLevelConsequences.molecularConsequence.keyword");
+        distinctFields.put(FieldFilter.VARIANT_SIFT, "transcriptLevelConsequences.siftPrediction.keyword");
+        distinctFields.put(FieldFilter.VARIANT_POLYPHEN, "transcriptLevelConsequences.polyphenPrediction.keyword");
         distinctFields.forEach((fieldFilter, esFieldName) -> searchSourceBuilder.aggregation(AggregationBuilders.terms(fieldFilter.getName()).field(esFieldName)));
 
         try {
@@ -168,6 +183,48 @@ public class VariantESDAO {
                     .map(bucket -> (String) bucket.getKey())
                     .collect(toList());
             distinctValueMap.put(filter.getName(), list);
+        }
+        return distinctValueMap;
+    }
+
+    public Map<String, Map<String, Integer>> getHistogram(SearchSourceBuilder searchSourceBuilder) {
+
+        SearchRequest searchRequest = new SearchRequest(SITE_INDEX);
+        searchRequest.source(searchSourceBuilder);
+        SearchResponse response = null;
+
+        Map<FieldFilter, String> distinctFields = new HashMap<>();
+        distinctFields.put(FieldFilter.MODEL_NAME, "transcriptLevelConsequences.geneLevelConsequence.keyword");
+        distinctFields.put(FieldFilter.DETECTION_METHOD, "transcriptLevelConsequences.molecularConsequence.keyword");
+        distinctFields.put(FieldFilter.VARIANT_TYPE, "variant.variantType.name.keyword");
+        distinctFields.put(FieldFilter.ALLELE_CATEGORY, "alterationType.keyword");
+        distinctFields.put(FieldFilter.MOLECULAR_CONSEQUENCE, "transcriptLevelConsequences.impact.keyword");
+        distinctFields.put(FieldFilter.ASSAY, "transcriptLevelConsequences.siftPrediction.keyword");
+        distinctFields.put(FieldFilter.VARIANT_POLYPHEN, "transcriptLevelConsequences.polyphenPrediction.keyword");
+        distinctFields.forEach((fieldFilter, esFieldName) -> searchSourceBuilder.aggregation(AggregationBuilders.terms(fieldFilter.getName()).field(esFieldName)));
+
+        try {
+            response = searchClient.search(searchRequest, RequestOptions.DEFAULT);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // get Distinct values
+        // for now on the filtered result set. This needs to be done on the full, unfiltered result set.
+
+        Map<String, Map<String, Integer>> distinctValueMap = new HashMap<>();
+        for (FieldFilter filter : distinctFields.keySet()) {
+            Map<String, Integer> map = ((ParsedStringTerms) response.getAggregations().get(filter.getName())).getBuckets()
+                    .stream()
+/*
+                    .map(bucket -> {
+                        Map<String, Integer> map = new HashMap<>();
+                        map.put(bucket.getKey(), (Integer) bucket.getDocCount());
+                        return map;
+                    }
+*/
+                    .collect(toMap(t -> (String) t.getKey(), bucket -> (int) bucket.getDocCount()));
+            distinctValueMap.put(filter.getName(), map);
         }
         return distinctValueMap;
     }
