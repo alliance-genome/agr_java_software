@@ -110,6 +110,8 @@ public class VariantService {
             if (location != null)
                 variant.getGene().setGenomeLocations(List.of(location));
         }
+        if (variant.getSymbol() == null)
+            variant.setSymbol(variant.getPrimaryKey());
         return variant;
     }
 }
