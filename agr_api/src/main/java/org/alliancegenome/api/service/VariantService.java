@@ -9,6 +9,7 @@ import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.SOTerm;
 import org.alliancegenome.neo4j.entity.node.Transcript;
 import org.alliancegenome.neo4j.entity.node.Variant;
+import org.alliancegenome.neo4j.entity.relationship.GenomeLocation;
 import org.alliancegenome.neo4j.repository.VariantRepository;
 import org.apache.commons.lang3.StringUtils;
 
@@ -100,6 +101,17 @@ public class VariantService {
     }
 
     public Variant getVariantById(String id) {
-        return variantDAO.getVariant(id);
+        Variant variant = variantRepo.getVariant(id);
+        // if not found in Neo then try in ES
+        if (variant == null) {
+            variant = variantDAO.getVariant(id);
+            // need to add gene.genomeLocation
+            GenomeLocation location = variantRepo.getGenomeLocation(variant.getGene().getPrimaryKey());
+            if (location != null)
+                variant.getGene().setGenomeLocations(List.of(location));
+        }
+        if (variant.getSymbol() == null)
+            variant.setSymbol(variant.getPrimaryKey());
+        return variant;
     }
 }

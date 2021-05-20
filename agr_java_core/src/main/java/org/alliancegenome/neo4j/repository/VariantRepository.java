@@ -1,9 +1,13 @@
 package org.alliancegenome.neo4j.repository;
 
-import java.util.*;
-import java.util.stream.*;
+import org.alliancegenome.neo4j.entity.node.Allele;
+import org.alliancegenome.neo4j.entity.node.Variant;
+import org.alliancegenome.neo4j.entity.relationship.GenomeLocation;
 
-import org.alliancegenome.neo4j.entity.node.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 public class VariantRepository extends Neo4jRepository<Variant> {
 
@@ -67,5 +71,18 @@ public class VariantRepository extends Neo4jRepository<Variant> {
         Iterable<Allele> alleles = query(Allele.class, query);
         return StreamSupport.stream(alleles.spliterator(), false)
                 .collect(Collectors.toList());
+    }
+
+    public GenomeLocation getGenomeLocation(String geneID) {
+        String query = "";
+        query += " MATCH p1=(gene:Gene)--(location:GenomicLocation)--(:Chromosome) ";
+        query += " WHERE gene.primaryKey = '" + geneID + "'";
+        query += " RETURN p1  ";
+
+        Iterable<GenomeLocation> locations = query(GenomeLocation.class, query);
+        if (locations == null)
+            return null;
+        // return first location
+        return locations.iterator().next();
     }
 }

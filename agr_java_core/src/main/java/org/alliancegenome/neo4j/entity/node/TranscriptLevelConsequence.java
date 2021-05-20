@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.log4j.Log4j2;
 import org.alliancegenome.core.helpers.VariantServiceHelper;
 import org.alliancegenome.neo4j.entity.Neo4jEntity;
 import org.alliancegenome.neo4j.view.View;
@@ -12,8 +13,6 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 
-import lombok.*;
-import lombok.extern.log4j.Log4j2;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -174,11 +173,13 @@ public class TranscriptLevelConsequence extends Neo4jEntity {
     @JsonView({View.API.class, View.AlleleVariantSequenceConverterForES.class})
     private String geneLevelConsequence;
 
+    private String hgncId;
+
 
     public TranscriptLevelConsequence(String[] header, String[] infos) {
 
 
-        if(infos.length == 33) { // Human
+        if (infos.length == 33) { // Human
             /* From Human VCF File
              0 Allele
              1 Consequence
@@ -214,26 +215,26 @@ public class TranscriptLevelConsequence extends Neo4jEntity {
              31 HGVS_OFFSET
              32 HGVSg
              */
-            
+
             transcriptLevelConsequences = Arrays.asList(infos[1].split("&"));
             impact = infos[2];
 
             associatedGene = new Gene();
             associatedGene.setSymbol(infos[3]);
             associatedGene.setPrimaryKey(infos[4]);
-            
+
             transcriptID = infos[6];
             sequenceFeatureType = infos[7];
-            
-    
+
+
             String location = "";
             if (StringUtils.isNotEmpty(infos[8]))
                 location += "Exon " + infos[8];
             if (StringUtils.isNotEmpty(infos[9]))
                 location += "Intron " + infos[9];
-            
+
             transcriptLocation = location;
-            
+
             hgvsCodingNomenclature = infos[10];
             hgvsProteinNomenclature = infos[11];
             cdnaStartPosition = infos[12];
@@ -254,11 +255,13 @@ public class TranscriptLevelConsequence extends Neo4jEntity {
             }
 
             geneLevelConsequence = infos[21];
-            
+            hgncId = infos[22];
+            if (StringUtils.isNotBlank(hgncId))
+                associatedGene.setPrimaryKey(hgncId);
+
             /*
             flags = infos[20];
             symbolSource = infos[22];
-            hgncId = infos[23];
             givenRef = infos[24];
             usedRef = infos[25];
             bamEdit = infos[26];
@@ -266,16 +269,16 @@ public class TranscriptLevelConsequence extends Neo4jEntity {
             hgvsOffset = infos[28]; 
             
              */
-            
+
             siftScore = infos[29];
             polyphenPrediction = infos[30];
 
             //polyphenScore = infos[31];
             //siftPrediction = infos[32];
             hgvsVEPGeneNomenclature = infos[32];
-            
-            
-        } else if(infos.length == 38) { // Mod
+
+
+        } else if (infos.length == 38) { // Mod
         
             /* From MOD VCF File
             0  Allele: GGGG
@@ -317,27 +320,27 @@ public class TranscriptLevelConsequence extends Neo4jEntity {
             36 transcript_name:cpx-RG
             37 FB_GFF.refseq.gff.gz:
             */
-            
+
             transcriptLevelConsequences = Arrays.asList(infos[1].split("&"));
             impact = infos[2];
-    
-    
+
+
             associatedGene = new Gene();
             associatedGene.setSymbol(infos[3]);
             associatedGene.setPrimaryKey(infos[4]);
-            
+
             transcriptID = infos[6];
             sequenceFeatureType = infos[7];
-            
-    
+
+
             String location = "";
             if (StringUtils.isNotEmpty(infos[8]))
                 location += "Exon " + infos[8];
             if (StringUtils.isNotEmpty(infos[9]))
                 location += "Intron " + infos[9];
-            
+
             transcriptLocation = location;
-            
+
             hgvsCodingNomenclature = infos[10];
             hgvsProteinNomenclature = infos[11];
             cdnaStartPosition = infos[12];
@@ -356,7 +359,7 @@ public class TranscriptLevelConsequence extends Neo4jEntity {
                     codonVariation = codonToken[1];
                 }
             }
-            geneLevelConsequence= infos[21];
+            geneLevelConsequence = infos[21];
             
             /*
             flags = infos[20];
@@ -368,21 +371,21 @@ public class TranscriptLevelConsequence extends Neo4jEntity {
             source = infos[27];
             hgvsOffset = infos[28];
             */
-            
+
             hgvsVEPGeneNomenclature = infos[29];
             polyphenPrediction = infos[30];
             polyphenScore = infos[31];
-            
+
             siftPrediction = infos[32];
             siftScore = infos[33];
-        
+
         } else {
             // FAIL
             log.error("File Headers and Data DO NOT MATCH this code please check the input VCF files");
             log.error("This code WILL NOT work correctly until this issue is fixed");
             log.error("Header Len: " + header.length + ", Info Len: " + infos.length);
             try {
-                for(int i = 0; i < header.length; i++) {
+                for (int i = 0; i < header.length; i++) {
                     log.error("Header: " + header[i] + ": \"" + infos[i] + "\"");
                 }
             } catch (Exception e) {
@@ -390,7 +393,7 @@ public class TranscriptLevelConsequence extends Neo4jEntity {
             }
             System.exit(-1);
         }
-        
+
     }
 
 }
