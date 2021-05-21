@@ -28,6 +28,9 @@ public class DiseaseEntityJoin extends EntityJoin {
     @Relationship(type = "ANNOTATION_SOURCE_CROSS_REFERENCE")
     private List<CrossReference> providerList;
 
+    @Relationship(type = "ASSOCIATION")
+    private List<ExperimentalCondition> experimentalConditionList;
+
     // Singular at the moment.
     // Make sure this is singular here
     // might turn into a collection i
@@ -95,4 +98,11 @@ public class DiseaseEntityJoin extends EntityJoin {
         return dataProviderList;
     }
 
+    public List<ExperimentalCondition> getExperimentalConditions() {
+        return experimentalConditionList;
+    }
+
+    public List<ExperimentalCondition> getModifiers() {
+        return experimentalConditionList;
+    }
 }
