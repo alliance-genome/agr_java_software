@@ -27,11 +27,11 @@ public class Variant extends GeneticEntity implements Comparable<Variant> {
         this.crossReferenceType = CrossReferenceType.ALLELE;
     }
 
-    @JsonView({View.Default.class, View.API.class})
+    @JsonView({View.Default.class, View.API.class,View.AlleleVariantSequenceConverterForES.class})
     @JsonProperty(value = "displayName")
     private String hgvsNomenclature;
 
-    @JsonView({View.Default.class, View.API.class})
+    @JsonView({View.Default.class, View.API.class,View.AlleleVariantSequenceConverterForES.class})
     private String name;
 
     private String dataProvider;
@@ -55,6 +55,7 @@ public class Variant extends GeneticEntity implements Comparable<Variant> {
     @Relationship(type = "COMPUTED_GENE", direction = Relationship.INCOMING)
     private Gene gene;
 
+    @JsonView({View.AlleleVariantSequenceConverterForES.class})
     @Relationship(type = "ASSOCIATION")
     protected GeneLevelConsequence geneLevelConsequence;
 
@@ -77,7 +78,7 @@ public class Variant extends GeneticEntity implements Comparable<Variant> {
     @Relationship(type = "ASSOCIATION")
     protected List<TranscriptLevelConsequence> transcriptLevelConsequence;
 
-    @JsonView({View.API.class})
+    @JsonView({View.API.class,View.AlleleVariantSequenceConverterForES.class})
     @JsonProperty(value = "consequence")
     public String getConsequence() {
         return geneLevelConsequence != null ? geneLevelConsequence.getGeneLevelConsequence() : null;
@@ -138,7 +139,7 @@ public class Variant extends GeneticEntity implements Comparable<Variant> {
         return (getPaddingLeft().charAt(getPaddingLeft().length() - 1) + change);
     }
 
-    @JsonView({View.VariantAPI.class})
+    @JsonView({View.VariantAPI.class,View.AlleleVariantSequenceConverterForES.class})
     public List<String> getHgvsG() {
         List<String> names = new ArrayList<>();
         names.add(name);

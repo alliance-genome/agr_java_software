@@ -130,7 +130,7 @@ public class Allele extends GeneticEntity implements Comparable<Allele>, Present
         category = ALLELE_WITH_MULTIPLE_VARIANT;
     }
 
-    @JsonView({View.API.class, View.GeneAllelesAPI.class})
+    @JsonView({View.API.class, View.GeneAllelesAPI.class,View.AlleleVariantSequenceConverterForES.class})
     public List<Variant> getVariants() {
         return variants;
     }

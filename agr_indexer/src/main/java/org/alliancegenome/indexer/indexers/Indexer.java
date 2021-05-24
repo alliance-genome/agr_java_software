@@ -13,7 +13,6 @@ import org.alliancegenome.core.util.StatsCollector;
 import org.alliancegenome.es.index.ESDocument;
 import org.alliancegenome.es.util.*;
 import org.alliancegenome.indexer.config.IndexerConfig;
-import org.alliancegenome.neo4j.view.View.AlleleVariantSequenceConverterForES;
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.*;
 import org.elasticsearch.action.DocWriteRequest;
@@ -162,7 +161,7 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
             }
         }
     }
-
+    
     void initiateThreading(LinkedBlockingDeque<String> queue) throws InterruptedException {
         Integer numberOfThreads = indexerConfig.getThreadCount();
 

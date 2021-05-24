@@ -6,6 +6,7 @@ import java.util.concurrent.*;
 import org.alliancegenome.es.index.site.cache.AlleleDocumentCache;
 import org.alliancegenome.es.util.CollectionHelper;
 import org.alliancegenome.neo4j.entity.node.Allele;
+import org.alliancegenome.neo4j.repository.AlleleRepository;
 import org.alliancegenome.neo4j.repository.Neo4jRepository;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.*;
@@ -15,7 +16,8 @@ public class AlleleIndexerRepository extends Neo4jRepository<Allele> {
     private final Logger log = LogManager.getLogger(getClass());
 
     private AlleleDocumentCache cache = new AlleleDocumentCache();
-    
+
+    AlleleRepository alleleRepository=new AlleleRepository();
     public AlleleIndexerRepository() { super(Allele.class); }
 
     public AlleleDocumentCache getAlleleDocumentCache() {
@@ -23,7 +25,8 @@ public class AlleleIndexerRepository extends Neo4jRepository<Allele> {
 
         ExecutorService executor = Executors.newFixedThreadPool(20); // Run all at once
         
-        executor.execute(new GetAlleleMapThread());
+   //     executor.execute(new GetAlleleMapThread());
+        executor.execute(new GetAlleleVariantsMapThread());
         executor.execute(new GetCrossReferencesThread());
         executor.execute(new GetConstructsThread());
         executor.execute(new GetConstructExpressedComponentsThread());
@@ -55,7 +58,15 @@ public class AlleleIndexerRepository extends Neo4jRepository<Allele> {
         return cache;
 
     }
-    
+    private class GetAlleleVariantsMapThread implements Runnable {
+
+        @Override
+        public void run() {
+            log.info("Fetching alleles objects");
+            cache.setAlleleMap(alleleRepository.getAllAlleleVariants());
+            log.info("Finished Fetching alleles objects");
+        }
+    }
     private class GetAlleleMapThread implements Runnable {
 
         @Override
@@ -234,12 +245,14 @@ public class AlleleIndexerRepository extends Neo4jRepository<Allele> {
 
         @Override
         public void run() {
-            log.info("Building allele -> genes map");
+            log.info("Building allele -> genes & gene Ids map");
             String query = "MATCH (species:Species)-[:FROM_SPECIES]-(gene:Gene)-[:IS_ALLELE_OF]-(a:Allele) ";
-            query += "RETURN distinct a.primaryKey, gene.symbolWithSpecies";
+            query += "RETURN distinct a.primaryKey, gene.symbolWithSpecies, gene.primaryKey";
 
             cache.setGenes(getMapSetForQuery(query, "a.primaryKey", "gene.symbolWithSpecies"));
-            log.info("Finished Building allele -> genes map");
+            cache.setGeneIds(getMapSetForQuery(query, "a.primaryKey", "gene.primaryKey"));
+
+            log.info("Finished Building allele -> genes & gene Ids map");
         }
     }
 

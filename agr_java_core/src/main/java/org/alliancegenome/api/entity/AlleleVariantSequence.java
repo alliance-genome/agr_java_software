@@ -18,7 +18,7 @@ import org.alliancegenome.neo4j.view.View;
 @Getter
 public class AlleleVariantSequence extends SearchableItemDocument {
 
-    @JsonView({View.Default.class})
+    @JsonView({View.Default.class,View.AlleleVariantSequenceConverterForES.class})
     private Allele allele;
     @JsonView({View.Default.class, View.AlleleVariantSequenceConverterForES.class})
     private Variant variant;
