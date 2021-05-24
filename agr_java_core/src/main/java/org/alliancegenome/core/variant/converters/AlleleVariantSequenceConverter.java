@@ -99,7 +99,7 @@ public class AlleleVariantSequenceConverter {
             if (htpConsequences != null) {
                 for (TranscriptLevelConsequence c : htpConsequences) {
                     c.getAssociatedGene().setSpecies(species);
-                    String transcriptID = c.getTranscriptID();
+                    String transcriptID = c.getTranscript().getPrimaryKey();
                     if(!transcriptsProcessed.contains(transcriptID)) {
                         transcriptsProcessed.add(transcriptID);
                         if(first) {
@@ -152,7 +152,7 @@ public class AlleleVariantSequenceConverter {
                     if (infos[0].equalsIgnoreCase(varNuc)) {
                         
                         TranscriptLevelConsequence feature = new TranscriptLevelConsequence(header, infos);
-                        String transcriptID = feature.getTranscriptID();
+                        String transcriptID = feature.getTranscript().getPrimaryKey();
                         if(!alreadyAdded.contains(transcriptID)) {
                             features.add(feature);
                             alreadyAdded.add(transcriptID);

@@ -73,7 +73,7 @@ public class AlleleVariantSequenceFiltering extends AnnotationFiltering<AlleleVa
     private static final FilterFunction<AlleleVariantSequence, String> sequenceFeatureFilter =
             (allele, value) -> {
                 if (allele.getConsequence() != null)
-                    return FilterFunction.contains(allele.getConsequence().getTranscriptName(), value);
+                    return FilterFunction.contains(allele.getConsequence().getTranscript().getName(), value);
                 return false;
             };
 

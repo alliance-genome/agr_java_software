@@ -47,7 +47,7 @@ public class AlleleVariantSequence extends SearchableItemDocument {
         }
         if (consequence != null) {
             builder.append(" : ");
-            builder.append(consequence.getTranscriptName());
+            builder.append(consequence.getTranscript().getName());
         }
         return builder.toString();
     }

@@ -36,12 +36,12 @@ public class VariantService {
         List<Transcript> transcriptList = variant.getTranscriptLevelConsequence().stream()
                 .map(consequence -> {
                     Transcript transcript = new Transcript();
-                    transcript.setPrimaryKey(consequence.getTranscriptID());
+                    transcript.setPrimaryKey(consequence.getTranscript().getPrimaryKey());
                     // don't get an independent name from the VCF
-                    if (StringUtils.isNotEmpty(consequence.getTranscriptName())) {
-                        transcript.setName(consequence.getTranscriptName());
+                    if (StringUtils.isNotEmpty(consequence.getTranscript().getName())) {
+                        transcript.setName(consequence.getTranscript().getName());
                     } else {
-                        transcript.setName(consequence.getTranscriptID());
+                        transcript.setName(consequence.getTranscript().getPrimaryKey());
                     }
                     transcript.setConsequences(List.of(consequence));
                     SOTerm tType = new SOTerm();
