@@ -26,6 +26,9 @@ public class TranscriptLevelConsequence extends Neo4jEntity {
 
     @JsonView({View.API.class, View.GeneAlleleVariantSequenceAPI.class, View.AlleleVariantSequenceConverterForES.class})
     @JsonProperty("molecularConsequence")
+    private String transcriptLevelConsequence;
+  //
+  //  @JsonProperty("molecularConsequence")
     private List<String> transcriptLevelConsequences = new ArrayList<>();
 
     @JsonView({View.Default.class, View.AlleleVariantSequenceConverterForES.class})
@@ -87,10 +90,10 @@ public class TranscriptLevelConsequence extends Neo4jEntity {
     @JsonView({View.Default.class, View.AlleleVariantSequenceConverterForES.class})
     private String siftScore;
 
-    @JsonView({View.Default.class})
+    @JsonView({View.Default.class,View.AlleleVariantSequenceConverterForES.class})
     private String polyphenScore;
 
-    @JsonView({View.Default.class})
+    @JsonView({View.Default.class,View.AlleleVariantSequenceConverterForES.class})
     private String sequenceFeatureType;
 
     @Relationship(type = "ASSOCIATION", direction = Relationship.INCOMING)
@@ -109,7 +112,7 @@ public class TranscriptLevelConsequence extends Neo4jEntity {
     @JsonView({View.GeneAlleleVariantSequenceAPI.class, View.AlleleVariantSequenceConverterForES.class})
     private Gene associatedGene;
 
-    @JsonView({View.Default.class})
+    @JsonView({View.Default.class,View.AlleleVariantSequenceConverterForES.class})
     @JsonProperty("transcriptName")
     public String getTranscriptName() {
         if (StringUtils.isNotEmpty(transcriptName))

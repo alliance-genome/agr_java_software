@@ -2,16 +2,17 @@ package org.alliancegenome.core.translators.document;
 
 import java.util.HashSet;
 
+import org.alliancegenome.api.entity.AlleleVariantSequence;
 import org.alliancegenome.core.translators.EntityDocumentTranslator;
 import org.alliancegenome.es.index.site.document.SearchableItemDocument;
 import org.alliancegenome.neo4j.entity.node.Allele;
 
-public class AlleleTranslator extends EntityDocumentTranslator<Allele, SearchableItemDocument> {
+public class AlleleTranslator extends EntityDocumentTranslator<Allele, AlleleVariantSequence> {
 
     @Override
-    protected SearchableItemDocument entityToDocument(Allele entity, int translationDepth) {
+    protected AlleleVariantSequence entityToDocument(Allele entity, int translationDepth) {
 
-        SearchableItemDocument document = new SearchableItemDocument();
+        AlleleVariantSequence document = new AlleleVariantSequence();
 
         document.setCategory("allele");
         document.setAlterationType("allele");
@@ -32,14 +33,14 @@ public class AlleleTranslator extends EntityDocumentTranslator<Allele, Searchabl
         return document;
     }
 
-    public void updateDocuments(Iterable<SearchableItemDocument> alleleDocuments) {
-        for (SearchableItemDocument document : alleleDocuments) {
+    public void updateDocuments(Iterable<AlleleVariantSequence> alleleDocuments) {
+        for (AlleleVariantSequence document : alleleDocuments) {
             updateDocument(document);
         }
     }
 
     //This method is for updating/setting fields after fields are populated by AlleleDocumentCache
-    public void updateDocument(SearchableItemDocument document) {
+    public void updateDocument(AlleleVariantSequence document) {
 
         if (document.getVariants() != null && document.getVariants().size() == 1) {
             document.setAlterationType("allele with one variant");

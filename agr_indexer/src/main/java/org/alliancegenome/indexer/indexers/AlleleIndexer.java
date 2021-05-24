@@ -3,6 +3,7 @@ package org.alliancegenome.indexer.indexers;
 import java.util.*;
 import java.util.concurrent.LinkedBlockingDeque;
 
+import org.alliancegenome.api.entity.AlleleVariantSequence;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.translators.document.AlleleTranslator;
 import org.alliancegenome.es.index.site.cache.AlleleDocumentCache;
@@ -46,18 +47,18 @@ public class AlleleIndexer extends Indexer<SearchableItemDocument> {
         while (true) {
             try {
                 if (list.size() >= indexerConfig.getBufferSize()) {
-                    Iterable<SearchableItemDocument> alleleDocuments = alleleTranslator.translateEntities(list);
-                    alleleDocumentCache.addCachedFields(alleleDocuments);
+                    Iterable<AlleleVariantSequence> alleleDocuments = alleleTranslator.translateEntities(list);
+                    alleleDocumentCache.addCachedAlleleFields(alleleDocuments);
                     alleleTranslator.updateDocuments(alleleDocuments);
-                    indexDocuments(alleleDocuments);
+                    indexAlleleDocuments(alleleDocuments);
                     list.clear();
                 }
                 if (queue.isEmpty()) {
                     if (list.size() > 0) {
-                        Iterable <SearchableItemDocument> alleleDocuments = alleleTranslator.translateEntities(list);
-                        alleleDocumentCache.addCachedFields(alleleDocuments);
+                        Iterable <AlleleVariantSequence> alleleDocuments = alleleTranslator.translateEntities(list);
+                        alleleDocumentCache.addCachedAlleleFields(alleleDocuments);
                         alleleTranslator.updateDocuments(alleleDocuments);
-                        indexDocuments(alleleDocuments);
+                        indexAlleleDocuments(alleleDocuments);
                         repo.clearCache();
                         list.clear();
                     }
