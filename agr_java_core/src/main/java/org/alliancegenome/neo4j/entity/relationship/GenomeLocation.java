@@ -25,7 +25,6 @@ public class GenomeLocation extends Neo4jEntity {
         return chromosome.getPrimaryKey();
     }
 
-    @JsonView({View.AlleleVariantSequenceConverterForES.class})
     @JsonProperty(value = "chromosome")
     public void setChromosomeName(String name) {
         chromosome = new Chromosome();
