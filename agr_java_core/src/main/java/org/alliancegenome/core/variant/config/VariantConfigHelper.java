@@ -51,7 +51,7 @@ public class VariantConfigHelper {
         defaults.put(VARIANT_FILE_DOWNLOAD_FILTER_THREADS, "10");
         defaults.put(VARIANT_FILE_DOWNLOAD_PATH, "data");
         
-        defaults.put(VARIANT_DISPLAY_INTERVAL, "10");
+        defaults.put(VARIANT_DISPLAY_INTERVAL, "30");
         
         defaults.put(VARIANT_SOURCE_DOCUMENT_CREATOR_THREADS, "6");
         
