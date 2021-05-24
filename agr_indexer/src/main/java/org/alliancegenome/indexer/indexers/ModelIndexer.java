@@ -11,8 +11,6 @@ import org.alliancegenome.neo4j.entity.node.AffectedGenomicModel;
 import org.alliancegenome.neo4j.repository.indexer.ModelIndexerRepository;
 import org.apache.logging.log4j.*;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 public class ModelIndexer extends Indexer<SearchableItemDocument> {
 
     private final Logger log = LogManager.getLogger(getClass());
@@ -78,9 +76,4 @@ public class ModelIndexer extends Indexer<SearchableItemDocument> {
         }
     }
 
-    @Override
-    protected void configureMapper(ObjectMapper mapper) {
-        // TODO Auto-generated method stub
-        
-    }
 }

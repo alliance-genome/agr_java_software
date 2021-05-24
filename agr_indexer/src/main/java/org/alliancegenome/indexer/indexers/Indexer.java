@@ -26,9 +26,6 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import lombok.extern.log4j.Log4j2;
-
-@Log4j2
 public abstract class Indexer<D extends ESDocument> extends Thread {
 
     public static String indexName;
@@ -46,14 +43,11 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
 
     protected BulkProcessor bulkProcessor;
 
-    protected abstract void configureMapper(ObjectMapper mapper);
-    
     public Indexer(IndexerConfig indexerConfig) {
         this.indexerConfig = indexerConfig;
 
         om.setSerializationInclusion(Include.NON_NULL);
-        
-        configureMapper(om);
+
         loadPopularityScore();
 
         client = EsClientFactory.getDefaultEsClient();

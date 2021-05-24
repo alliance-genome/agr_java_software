@@ -1,6 +1,6 @@
 package org.alliancegenome.indexer.indexers;
 
-import java.util.*;
+import java.util.ArrayList;
 import java.util.concurrent.LinkedBlockingDeque;
 
 import org.alliancegenome.core.translators.document.HTPDatasetTranslator;
@@ -10,8 +10,6 @@ import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.neo4j.entity.node.HTPDataset;
 import org.alliancegenome.neo4j.repository.indexer.DatasetIndexerRepository;
 import org.apache.logging.log4j.*;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class DatasetIndexer extends Indexer<SearchableItemDocument> {
 
@@ -74,12 +72,6 @@ public class DatasetIndexer extends Indexer<SearchableItemDocument> {
                 return;
             }
         }
-    }
-
-    @Override
-    protected void configureMapper(ObjectMapper mapper) {
-        
-        
     }
 
 }

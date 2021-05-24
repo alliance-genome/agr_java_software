@@ -9,8 +9,6 @@ import org.alliancegenome.neo4j.entity.node.GOTerm;
 import org.alliancegenome.neo4j.repository.GoRepository;
 import org.apache.logging.log4j.*;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 public class GoIndexer extends Indexer<SearchableItemDocument> {
 
     private final Logger log = LogManager.getLogger(getClass());
@@ -44,12 +42,6 @@ public class GoIndexer extends Indexer<SearchableItemDocument> {
 
     protected void startSingleThread(LinkedBlockingDeque<String> queue) {
         // No need to multithread this
-    }
-
-    @Override
-    protected void configureMapper(ObjectMapper mapper) {
-        // TODO Auto-generated method stub
-        
     }
 
 }

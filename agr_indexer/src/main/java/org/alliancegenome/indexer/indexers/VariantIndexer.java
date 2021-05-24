@@ -1,6 +1,6 @@
 package org.alliancegenome.indexer.indexers;
 
-import java.util.*;
+import java.util.ArrayList;
 import java.util.concurrent.LinkedBlockingDeque;
 
 import org.alliancegenome.core.config.ConfigHelper;
@@ -11,8 +11,6 @@ import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.neo4j.entity.node.Variant;
 import org.alliancegenome.neo4j.repository.indexer.VariantIndexerRepository;
 import org.apache.logging.log4j.*;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class VariantIndexer extends Indexer<SearchableItemDocument> {
 
@@ -86,9 +84,4 @@ public class VariantIndexer extends Indexer<SearchableItemDocument> {
 
     }
 
-    @Override
-    protected void configureMapper(ObjectMapper mapper) {
-        // TODO Auto-generated method stub
-        
-    }
 }
