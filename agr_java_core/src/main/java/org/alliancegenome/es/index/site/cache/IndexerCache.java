@@ -9,7 +9,7 @@ import lombok.*;
 
 @Getter
 @Setter
-public class IndexerCache {
+public abstract class IndexerCache {
 
     protected Map<String, Variant> variantMap = new HashMap<>();
     protected Map<String, Allele> alleleMap = new HashMap<>();
@@ -47,13 +47,16 @@ public class IndexerCache {
     private Map<String,Set<String>> subcellularExpressionWithParents = new HashMap<>();
     private Map<String,Set<String>> subcellularExpressionAgrSlim = new HashMap<>();
 
-    public void addCachedFields(Iterable<SearchableItemDocument> documents) {
+    protected abstract <D extends SearchableItemDocument> void addExtraCachedFields(D document);
+    
+    public <D extends SearchableItemDocument> void addCachedFields(Iterable<D> documents) {
         for (SearchableItemDocument document : documents) {
             addCachedFields(document);
+            addExtraCachedFields(document);
         }
     }
 
-    public void addCachedFields(SearchableItemDocument document) {
+    protected <D extends SearchableItemDocument> void addCachedFields(D document) {
         String id = document.getPrimaryKey();
 
         document.setAlleles(alleles.get(id));
@@ -142,5 +145,6 @@ public class IndexerCache {
 
 
     }
+
 
 }

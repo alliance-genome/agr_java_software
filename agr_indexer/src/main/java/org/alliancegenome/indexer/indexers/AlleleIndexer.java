@@ -3,6 +3,7 @@ package org.alliancegenome.indexer.indexers;
 import java.util.*;
 import java.util.concurrent.LinkedBlockingDeque;
 
+import org.alliancegenome.api.entity.AlleleVariantSequence;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.core.translators.document.AlleleTranslator;
 import org.alliancegenome.es.index.site.cache.AlleleDocumentCache;
@@ -10,7 +11,10 @@ import org.alliancegenome.es.index.site.document.SearchableItemDocument;
 import org.alliancegenome.indexer.config.IndexerConfig;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.repository.indexer.AlleleIndexerRepository;
+import org.alliancegenome.neo4j.view.View;
 import org.apache.logging.log4j.*;
+
+import com.fasterxml.jackson.databind.*;
 
 public class AlleleIndexer extends Indexer<SearchableItemDocument> {
 
@@ -46,18 +50,18 @@ public class AlleleIndexer extends Indexer<SearchableItemDocument> {
         while (true) {
             try {
                 if (list.size() >= indexerConfig.getBufferSize()) {
-                    Iterable<SearchableItemDocument> alleleDocuments = alleleTranslator.translateEntities(list);
-                    alleleDocumentCache.addCachedFields(alleleDocuments);
-                    alleleTranslator.updateDocuments(alleleDocuments);
-                    indexDocuments(alleleDocuments);
+                    Iterable<AlleleVariantSequence> avsDocs = alleleTranslator.translateEntities(list);
+                    alleleDocumentCache.addCachedFields(avsDocs);
+                    alleleTranslator.updateDocuments(avsDocs);
+                    indexDocuments(avsDocs, View.AlleleVariantSequenceConverterForES.class);
                     list.clear();
                 }
                 if (queue.isEmpty()) {
                     if (list.size() > 0) {
-                        Iterable <SearchableItemDocument> alleleDocuments = alleleTranslator.translateEntities(list);
-                        alleleDocumentCache.addCachedFields(alleleDocuments);
-                        alleleTranslator.updateDocuments(alleleDocuments);
-                        indexDocuments(alleleDocuments);
+                        Iterable <AlleleVariantSequence> avsDocs = alleleTranslator.translateEntities(list);
+                        alleleDocumentCache.addCachedFields(avsDocs);
+                        alleleTranslator.updateDocuments(avsDocs);
+                        indexDocuments(avsDocs, View.AlleleVariantSequenceConverterForES.class);
                         repo.clearCache();
                         list.clear();
                     }
@@ -76,6 +80,11 @@ public class AlleleIndexer extends Indexer<SearchableItemDocument> {
                 return;
             }
         }
+    }
+
+    @Override
+    protected void configureMapper(ObjectMapper mapper) {
+        mapper.configure(MapperFeature.DEFAULT_VIEW_INCLUSION, false);
     }
 
 }

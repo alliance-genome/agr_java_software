@@ -3,7 +3,7 @@ package org.alliancegenome.neo4j.repository.indexer;
 import java.util.*;
 import java.util.concurrent.*;
 
-import org.alliancegenome.es.index.site.cache.IndexerCache;
+import org.alliancegenome.es.index.site.cache.*;
 import org.alliancegenome.neo4j.entity.node.Variant;
 import org.alliancegenome.neo4j.repository.Neo4jRepository;
 import org.apache.logging.log4j.*;
@@ -12,11 +12,11 @@ public class VariantIndexerRepository extends Neo4jRepository<Variant> {
 
     private final Logger log = LogManager.getLogger(getClass());
 
-    private IndexerCache cache = new IndexerCache();
+    private VariantDocumentCache cache = new VariantDocumentCache();
     
     public VariantIndexerRepository() {  super(Variant.class); }
     
-    public IndexerCache getVariantCache() {
+    public VariantDocumentCache getVariantCache() {
         log.info("Building VariantDocumentCache");
 
         ExecutorService executor = Executors.newFixedThreadPool(20); // Run all at once

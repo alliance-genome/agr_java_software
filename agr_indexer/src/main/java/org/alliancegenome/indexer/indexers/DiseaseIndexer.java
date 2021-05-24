@@ -13,6 +13,8 @@ import org.alliancegenome.neo4j.repository.DiseaseRepository;
 import org.alliancegenome.neo4j.repository.indexer.DiseaseIndexerRepository;
 import org.apache.logging.log4j.*;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 public class DiseaseIndexer extends Indexer<SearchableItemDocument> {
 
     private final Logger log = LogManager.getLogger(getClass());
@@ -78,6 +80,12 @@ public class DiseaseIndexer extends Indexer<SearchableItemDocument> {
                 return;
             }
         }
+    }
+
+    @Override
+    protected void configureMapper(ObjectMapper mapper) {
+        
+        
     }
 
 

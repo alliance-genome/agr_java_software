@@ -16,18 +16,14 @@ public class DiseaseDocumentCache extends IndexerCache {
     private Map<String, Set<String>> diseaseGroupMap = new HashMap<>();
     private Map<String, Set<String>> parentNameMap = new HashMap<>();
 
-    public void addCachedFields(Iterable<SearchableItemDocument> diseaseDocuments) {
-        for (SearchableItemDocument diseaseDocument : diseaseDocuments) {
-           String id =  diseaseDocument.getPrimaryKey();
-
-           super.addCachedFields(diseaseDocument);
-
-           diseaseDocument.setAssociatedSpecies(speciesMap.get(id));
-           diseaseDocument.setDiseaseGroup(diseaseGroupMap.get(id));
-           diseaseDocument.setParentDiseaseNames(parentNameMap.get(id));
-           diseaseDocument.setAssociatedSpecies(speciesMap.get(id));
-            
-        }
+    @Override
+    protected <D extends SearchableItemDocument> void addExtraCachedFields(D document) {
+        String id = document.getPrimaryKey();
+        document.setAssociatedSpecies(speciesMap.get(id));
+        document.setDiseaseGroup(diseaseGroupMap.get(id));
+        document.setParentDiseaseNames(parentNameMap.get(id));
+        document.setAssociatedSpecies(speciesMap.get(id));
     }
+
 
 }

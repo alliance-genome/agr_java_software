@@ -13,6 +13,7 @@ import org.alliancegenome.core.util.StatsCollector;
 import org.alliancegenome.es.index.ESDocument;
 import org.alliancegenome.es.util.*;
 import org.alliancegenome.indexer.config.IndexerConfig;
+import org.alliancegenome.neo4j.view.View.AlleleVariantSequenceConverterForES;
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.*;
 import org.elasticsearch.action.DocWriteRequest;
@@ -46,11 +47,14 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
 
     protected BulkProcessor bulkProcessor;
 
+    protected abstract void configureMapper(ObjectMapper mapper);
+    
     public Indexer(IndexerConfig indexerConfig) {
         this.indexerConfig = indexerConfig;
 
         om.setSerializationInclusion(Include.NON_NULL);
-
+        
+        configureMapper(om);
         loadPopularityScore();
 
         client = EsClientFactory.getDefaultEsClient();
@@ -137,11 +141,19 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
         }
     }
 
-
     public void indexDocuments(Iterable<D> docs) {
+        indexDocuments(docs, null);
+    }
+
+    public void indexDocuments(Iterable<D> docs, Class<?> view) {
         for (D doc : docs) {
             try {
-                String json = om.writeValueAsString(doc);
+                String json = "";
+                if(view != null) {
+                    json = om.writerWithView(view).writeValueAsString(doc);
+                } else {
+                    json = om.writeValueAsString(doc);
+                }
                 display.progressProcess();
                 stats.addDocument(json);
                 bulkProcessor.add(new IndexRequest(indexName).source(json, XContentType.JSON));

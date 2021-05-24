@@ -16,17 +16,12 @@ public class AlleleDocumentCache extends IndexerCache {
 
 
     @Override
-    public void addCachedFields(Iterable<SearchableItemDocument> alleleDocuments) {
-
-        for (SearchableItemDocument document : alleleDocuments) {
-            String id = document.getPrimaryKey();
-
-            document.setConstructExpressedComponent(constructExpressedComponents.get(id));
-            document.setConstructKnockdownComponent(constructKnockdownComponents.get(id));
-            document.setConstructRegulatoryRegion(constructRegulatoryRegions.get(id));
-
-            super.addCachedFields(document);
-        }
+    protected <D extends SearchableItemDocument> void addExtraCachedFields(D document) {
+        String id = document.getPrimaryKey();
+        document.setConstructExpressedComponent(constructExpressedComponents.get(id));
+        document.setConstructKnockdownComponent(constructKnockdownComponents.get(id));
+        document.setConstructRegulatoryRegion(constructRegulatoryRegions.get(id));
     }
+
 
 }
