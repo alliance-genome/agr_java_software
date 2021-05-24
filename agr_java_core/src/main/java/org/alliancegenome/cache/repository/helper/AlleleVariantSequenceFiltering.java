@@ -53,7 +53,7 @@ public class AlleleVariantSequenceFiltering extends AnnotationFiltering<AlleleVa
             (allele, value) -> {
                 if (allele.getConsequence() == null)
                     return false;
-                return allele.getConsequence().getTranscriptLocation().toLowerCase().contains(value.toLowerCase());
+                return allele.getConsequence().getLocation().toLowerCase().contains(value.toLowerCase());
             };
 
     private static final FilterFunction<AlleleVariantSequence, String> variantImpactFilter =

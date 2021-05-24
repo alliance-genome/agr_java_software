@@ -54,15 +54,14 @@ public class GeneticEntity extends Neo4jEntity {
     @JsonView(value = {View.API.class, View.GeneAllelesAPI.class, View.GeneAlleleVariantSequenceAPI.class, View.AlleleVariantSequenceConverterForES.class})
     @JsonProperty(value = "synonyms")
     public List<String> getSynonymList() {
+        List<String> list = null;
         if (synonyms != null) {
-            List<String> list = new ArrayList<String>();
+            list = new ArrayList<String>();
             for (Synonym s : synonyms) {
                 list.add(s.getName());
             }
-            return list;
-        } else {
-            return new ArrayList<>();
-        }
+        } 
+        return list;
     }
 
     @JsonProperty(value = "synonyms")
@@ -85,8 +84,9 @@ public class GeneticEntity extends Neo4jEntity {
     @JsonView(value = {View.API.class, View.AlleleVariantSequenceConverterForES.class})
     @JsonProperty(value = "secondaryIds")
     public List<String> getSecondaryIdsList() {
-        List<String> list = new ArrayList<>();
+        List<String> list = null;
         if (secondaryIds != null) {
+            list = new ArrayList<>();
             for (SecondaryId s : secondaryIds) {
                 list.add(s.getName());
             }
@@ -124,9 +124,9 @@ public class GeneticEntity extends Neo4jEntity {
     public Map<String, Object> getCrossReferenceMap() {
         if (map != null)
             return map;
-        map = new HashMap<>();
 
         if (crossReferences != null) {
+            map = new HashMap<>();
             List<CrossReference> othersList = new ArrayList<>();
             for (CrossReference cr : crossReferences) {
                 String typeName = crossReferenceType.getDisplayName();

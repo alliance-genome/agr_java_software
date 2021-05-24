@@ -117,7 +117,7 @@ public class AlleleToTdfTranslator {
             row.setMolecularConsequences(annotation.getConsequence().getTranscriptLevelConsequences());
             row.setSequenceFeature(annotation.getConsequence().getTranscriptName());
             row.setSequenceFeatureType(annotation.getConsequence().getSequenceFeatureType());
-            row.setLocation(annotation.getConsequence().getTranscriptLocation());
+            row.setLocation(annotation.getConsequence().getLocation());
             row.setMolecularConsequences(annotation.getConsequence().getTranscriptLevelConsequences());
             row.setVepImpact(annotation.getConsequence().getImpact());
             row.setSiftPrediction(annotation.getConsequence().getSiftPrediction());

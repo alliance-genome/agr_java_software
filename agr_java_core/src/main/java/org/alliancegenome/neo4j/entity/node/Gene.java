@@ -97,11 +97,14 @@ public class Gene extends GeneticEntity implements Comparable<Gene> {
     private List<ExpressionBioEntity> expressionBioEntities;
 
     public String getNameKey() {
-        String nameKey = symbol;
+        StringBuffer buffer = new StringBuffer();
+        buffer.append(symbol);
         if (species != null) {
-            nameKey += " (" + species.getType().getAbbreviation() + ")";
+            buffer.append(" (");
+            buffer.append(species.getType().getAbbreviation());
+            buffer.append(")");
         }
-        return nameKey;
+        return buffer.toString();
     }
 
     public Set<GOTerm> getGoParentTerms() {

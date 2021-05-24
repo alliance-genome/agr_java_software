@@ -48,7 +48,7 @@ public class VariantService {
                     tType.setName(consequence.getSequenceFeatureType());
                     transcript.setType(tType);
                     transcript.setGene(consequence.getAssociatedGene());
-                    transcript.setIntronExonLocation(consequence.getTranscriptLocation());
+                    transcript.setIntronExonLocation(consequence.getLocation());
                     return transcript;
                 })
                 .collect(Collectors.toList());
