@@ -23,17 +23,17 @@ public class Species extends Neo4jEntity implements Comparable<Species> {
 
     @JsonView({View.Default.class,  View.AlleleVariantSequenceConverterForES.class})
     private String name;
-    @JsonView({View.Default.class})
+    @JsonView({View.Default.class,View.AlleleVariantSequenceConverterForES.class})
     private String shortName;
-    @JsonView({View.Default.class})
+    @JsonView({View.Default.class,View.AlleleVariantSequenceConverterForES.class})
     private String dataProviderFullName;
-    @JsonView({View.Default.class})
+    @JsonView({View.Default.class,View.AlleleVariantSequenceConverterForES.class})
     private String dataProviderShortName;
     
     @JsonView({View.DiseaseCacher.class, View.OrthologyCacher.class})
     private int phylogeneticOrder;
 
-    @JsonView({View.Default.class})
+    @JsonView({View.Default.class,View.AlleleVariantSequenceConverterForES.class})
     private String commonNames;
 
     @Relationship(type = "CREATED_BY")

@@ -75,6 +75,7 @@ public class Variant extends GeneticEntity implements Comparable<Variant> {
     @Relationship(type = "ASSOCIATION", direction = Relationship.INCOMING)
     protected List<Transcript> transcriptList;
 
+    @JsonView({View.API.class, View.AlleleVariantSequenceConverterForES.class})
     @Relationship(type = "ASSOCIATION")
     protected List<TranscriptLevelConsequence> transcriptLevelConsequence;
 

@@ -162,6 +162,7 @@ public class TranscriptLevelConsequence extends Neo4jEntity {
             return sequenceFeatureType;
         if (transcript == null)
             return "";
+        if(transcript.getType()!=null)
         sequenceFeatureType = transcript.getType().getName();
         return sequenceFeatureType;
     }
