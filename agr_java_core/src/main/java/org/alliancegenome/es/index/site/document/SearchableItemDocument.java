@@ -32,6 +32,7 @@ public class SearchableItemDocument extends ESDocument {
     String geneLiteratureUrl;
     String geneSynopsis;
     String geneSynopsisUrl;
+    @JsonView({View.AlleleVariantSequenceConverterForES.class})
     String globalId;
     String href; //GO terms use this rather than modCrossRefCompleteUrl
     String localId;
@@ -44,6 +45,7 @@ public class SearchableItemDocument extends ESDocument {
     //@JsonView({View.AlleleVariantSequenceConverterForES.class})
     String matchedWithHtp;
     String modCrossRefCompleteUrl;
+    @JsonView({View.AlleleVariantSequenceConverterForES.class})
     String modLocalId;
     Double popularity;
     @JsonView({View.AlleleVariantSequenceConverterForES.class})
@@ -51,10 +53,12 @@ public class SearchableItemDocument extends ESDocument {
     //@JsonView({View.AlleleVariantSequenceConverterForES.class})
     boolean searchable = true;
     String soTermId;
+    @JsonView({View.AlleleVariantSequenceConverterForES.class})
     String soTermName;
     @JsonView({View.AlleleVariantSequenceConverterForES.class})
     String species;
     String summary;
+    @JsonView({View.AlleleVariantSequenceConverterForES.class})
     String symbol;
     String symbolText;
 
@@ -79,18 +83,21 @@ public class SearchableItemDocument extends ESDocument {
     Set<String> constructRegulatoryRegion;
     Map<String, List<CrossReferenceDoclet>> crossReferencesMap;
     List<CrossReferenceDoclet> crossReferenceList;
+    @JsonView({View.AlleleVariantSequenceConverterForES.class})
     Set<String> crossReferences;
     Set<String> diseases;
     Set<String> diseasesAgrSlim;
     Set<String> diseaseGroup;
     Set<String> diseasesWithParents;
     Set<String> expressionStages;
+    @JsonView({View.AlleleVariantSequenceConverterForES.class})
     Set<String> alleles;
     @JsonView({View.AlleleVariantSequenceConverterForES.class})
     Set<String> genes;
     @JsonView({View.AlleleVariantSequenceConverterForES.class})
     Set<String> geneIds;
     Set<String> geneSynonyms;
+    @JsonView({View.AlleleVariantSequenceConverterForES.class})
     Set<String> geneCrossReferences;
     Set<String> go_genes;
     Set<String> go_species;
@@ -100,7 +107,9 @@ public class SearchableItemDocument extends ESDocument {
     Set<String> molecularConsequence;
     Set<String> molecularFunctionAgrSlim;
     Set<String> molecularFunctionWithParents;
+    @JsonView({View.AlleleVariantSequenceConverterForES.class})
     Set<String> parentDiseaseNames;
+    @JsonView({View.AlleleVariantSequenceConverterForES.class})
     Set<String> phenotypeStatements;
     Set<String> sampleIds;
     Set<String> secondaryIds;
@@ -112,7 +121,9 @@ public class SearchableItemDocument extends ESDocument {
     Set<String> subcellularExpressionAgrSlim;
     Set<String> synonyms;
     Set<String> tags;
+    @JsonView({View.AlleleVariantSequenceConverterForES.class})
     Set<String> variants;
+    @JsonView({View.AlleleVariantSequenceConverterForES.class})
     Set<String> variantSynonyms;
     @JsonView({View.AlleleVariantSequenceConverterForES.class})
     Set<String> variantType;
