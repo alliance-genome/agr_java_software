@@ -6,10 +6,12 @@ import org.alliancegenome.api.entity.AlleleVariantSequence;
 import org.alliancegenome.es.index.site.cache.GeneDocumentCache;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.entity.node.*;
+import org.alliancegenome.neo4j.entity.relationship.GenomeLocation;
 
 import htsjdk.variant.variantcontext.VariantContext;
 import io.github.lukehutch.fastclasspathscanner.utils.Join;
 import org.alliancegenome.neo4j.entity.relationship.GenomeLocation;
+import org.apache.commons.lang3.StringUtils;
 
 public class AlleleVariantSequenceConverter {
     
@@ -49,20 +51,6 @@ public class AlleleVariantSequenceConverter {
             variant.setGenomicReferenceSequence(ctx.getReference().getBaseString());
             variant.setGenomicVariantSequence(a.getBaseString());
 
-            int endPos = 0;
-
-            if (ctx.isSNP()) {
-                endPos = ctx.getStart() + 1;
-            } // insertions
-            if (ctx.isSimpleInsertion()) {
-                endPos = ctx.getStart();
-                //  System.out.println("INSERTION");
-            } else if (ctx.isSimpleDeletion()) {
-                endPos = ctx.getStart() + refNuc.getDisplayString().length();
-                //  System.out.println("Deletion");
-            } else {
-                //   System.out.println("Unexpected var type");
-            }
             List<String> transcriptsProcessed=new ArrayList<>();
 
             AlleleVariantSequence avsDoc = new AlleleVariantSequence();
@@ -73,11 +61,11 @@ public class AlleleVariantSequenceConverter {
             location.setStart((long) ctx.getStart());
             location.setEnd((long) ctx.getEnd());
             Chromosome chromosome = new Chromosome();
-            chromosome.setPrimaryKey(ctx.getChr());
+            chromosome.setPrimaryKey(ctx.getContig());
             location.setChromosome(chromosome);
             variant.setLocation(location);
             variant.setNucleotideChange(a.getBaseString()); // variantDocument.setVarNuc(a.getBaseString());
-            boolean first=true;
+            boolean first = true;
             Set<String> molecularConsequences = new HashSet<>();
             Set<String> genes = new HashSet<>();
             List<TranscriptLevelConsequence> htpConsequences = getConsequences(ctx, a.getBaseString(), header);
@@ -88,15 +76,16 @@ public class AlleleVariantSequenceConverter {
 
             variant.setHgvsNomenclature(hgvsNomenclature);
             variant.setName(hgvsNomenclature);
-            if(ctx.getID()!=null && !ctx.getID().equals("") && !ctx.getID().equals(".")){
-                avsDoc.setPrimaryKey(ctx.getID());
-                avsDoc.setNameKey(ctx.getID());
-                avsDoc.setName(ctx.getID());
-                variant.setPrimaryKey(ctx.getID());
+            String ctxId = ctx.getID();
+            if(StringUtils.isNotEmpty(ctxId) && !ctxId.equals(".")) {
+                avsDoc.setPrimaryKey(ctxId);
+                avsDoc.setNameKey(ctxId);
+                avsDoc.setName(ctxId);
+                variant.setPrimaryKey(ctxId);
 
             } else{
                 //    if (hgvsNomenclature != null && hgvsNomenclature.length()<512) {
-                if (hgvsNomenclature != null && hgvsNomenclature.length()<100) {
+                if (hgvsNomenclature != null && hgvsNomenclature.length() < 100) {
                     variant.setPrimaryKey(hgvsNomenclature);
                     avsDoc.setPrimaryKey(hgvsNomenclature);
                     avsDoc.setNameKey(hgvsNomenclature);
@@ -126,21 +115,27 @@ public class AlleleVariantSequenceConverter {
 
 
                     c.getAssociatedGene().setSpecies(species);
-
-                    if(!transcriptsProcessed.contains(c.getTranscriptID())) {
-                        transcriptsProcessed.add(c.getTranscriptID());
+                    String transcriptID = c.getTranscript().getPrimaryKey();
+                    if(!transcriptsProcessed.contains(transcriptID)) {
+                        transcriptsProcessed.add(transcriptID);
                         if(first) {
                             first=false;
                             //    variant.setHgvsNomenclature(c.getHgvsVEPGeneNomenclature());
-                            c.getAssociatedGene().setSpecies(species);
+                            //c.getAssociatedGene().setSpecies(species);
                             variant.setGene(c.getAssociatedGene());
 
                         }
                         molecularConsequences.addAll(c.getTranscriptLevelConsequences());
                         //    s.setConsequence(c);
                         /****************SearchableDocument Fields***************/
-                        if(c.getAssociatedGene().getSymbol()!=null && !c.getAssociatedGene().getSymbol().equals("")){
-                            genes.add(c.getAssociatedGene().getNameKey());
+                        if(StringUtils.isNotEmpty(c.getAssociatedGene().getSymbol())) {
+                            // This is faster than calling getNakeKey on the gene
+                            StringBuffer buffer = new StringBuffer();
+                            buffer.append(c.getAssociatedGene().getSymbol());
+                            buffer.append(" (");
+                            buffer.append(speciesType.getAbbreviation());
+                            buffer.append(")");
+                            genes.add(buffer.toString());
                         }
                     }
                 }
@@ -163,7 +158,7 @@ public class AlleleVariantSequenceConverter {
     
     private List<TranscriptLevelConsequence> getConsequences(VariantContext ctx, String varNuc, String[] header) throws Exception {
         List<TranscriptLevelConsequence> features = new ArrayList<>();
-        List<String> alreadyAdded = new ArrayList<>();
+        HashSet<String> alreadyAdded = new HashSet<>();
         
         for (String s : ctx.getAttributeAsStringList("CSQ", "")) {
             if (s.length() > 0) {
@@ -171,10 +166,12 @@ public class AlleleVariantSequenceConverter {
 
                 if (header.length == infos.length) {
                     if (infos[0].equalsIgnoreCase(varNuc)) {
+
                         TranscriptLevelConsequence feature = new TranscriptLevelConsequence(header, infos);
-                        if(!alreadyAdded.contains(feature.getTranscriptID())) {
+                        String transcriptID = feature.getTranscript().getPrimaryKey();
+                        if(!alreadyAdded.contains(transcriptID)) {
                             features.add(feature);
-                            alreadyAdded.add(feature.getTranscriptID());
+                            alreadyAdded.add(transcriptID);
                         }
                     }
                 } else {

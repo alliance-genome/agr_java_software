@@ -54,15 +54,14 @@ public class GeneticEntity extends Neo4jEntity {
     @JsonView(value = {View.API.class, View.GeneAllelesAPI.class, View.GeneAlleleVariantSequenceAPI.class, View.AlleleVariantSequenceConverterForES.class})
     @JsonProperty(value = "synonyms")
     public List<String> getSynonymList() {
+        List<String> list = null;
         if (synonyms != null) {
-            List<String> list = new ArrayList<String>();
+            list = new ArrayList<String>();
             for (Synonym s : synonyms) {
                 list.add(s.getName());
             }
-            return list;
-        } else {
-            return new ArrayList<>();
         }
+        return list;
     }
 
     @JsonProperty(value = "synonyms")
@@ -78,8 +77,6 @@ public class GeneticEntity extends Neo4jEntity {
         }
     }
 
-
-
     @Relationship(type = "ALSO_KNOWN_AS")
     private List<SecondaryId> secondaryIds;
 
@@ -87,8 +84,9 @@ public class GeneticEntity extends Neo4jEntity {
     @JsonView(value = {View.API.class, View.AlleleVariantSequenceConverterForES.class})
     @JsonProperty(value = "secondaryIds")
     public List<String> getSecondaryIdsList() {
-        List<String> list = new ArrayList<>();
+        List<String> list = null;
         if (secondaryIds != null) {
+            list = new ArrayList<>();
             for (SecondaryId s : secondaryIds) {
                 list.add(s.getName());
             }
@@ -122,19 +120,14 @@ public class GeneticEntity extends Neo4jEntity {
 
 
 
-    public void setCrossReferenceMap(Map<String, Object> map) {
-        if (map == null)
-            return;
-        this.crossReferencesMap = map;
-    }
 
     @JsonView({View.API.class, View.AlleleVariantSequenceConverterForES.class})
     public Map<String, Object> getCrossReferenceMap() {
         if (crossReferencesMap != null)
             return crossReferencesMap;
-        crossReferencesMap = new HashMap<>();
 
         if (crossReferences != null) {
+            crossReferencesMap = new HashMap<>();
             List<CrossReference> othersList = new ArrayList<>();
             for (CrossReference cr : crossReferences) {
                 String typeName = crossReferenceType.getDisplayName();
@@ -154,12 +147,16 @@ public class GeneticEntity extends Neo4jEntity {
                         crossReferencesMap.put("other", othersList);
                     }
                 }
-
             }
         }
         return crossReferencesMap;
     }
 
+    public void setCrossReferenceMap(Map<String, Object> crossReferencesMap) {
+        if (crossReferencesMap == null)
+            return;
+        this.crossReferencesMap = crossReferencesMap;
+    }
 
     @JsonView(value = {View.AlleleVariantSequenceConverterForES.class})
     public List<String> getCrossReferencesList() {
@@ -173,7 +170,6 @@ public class GeneticEntity extends Neo4jEntity {
             return new ArrayList<>();
         }
     }
-
 
     public void setCrossReferencesList(List<String> list) {
         crossReferences = new ArrayList<>();
@@ -189,7 +185,7 @@ public class GeneticEntity extends Neo4jEntity {
 
 
     // ToDo: the primary URL should be an attribute on the entity node
-    @JsonView({View.GeneAllelesAPI.class, View.AlleleAPI.class, View.Default.class})
+    @JsonView({View.GeneAllelesAPI.class, View.AlleleAPI.class, View.Default.class,View.AlleleVariantSequenceConverterForES.class})
     @JsonProperty(value = "url")
     @JsonInclude(JsonInclude.Include.USE_DEFAULTS)
     public String getUrl() {
