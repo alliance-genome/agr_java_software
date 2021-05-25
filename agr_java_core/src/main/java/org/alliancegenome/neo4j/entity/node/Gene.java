@@ -2,6 +2,7 @@ package org.alliancegenome.neo4j.entity.node;
 
 import java.util.*;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.alliancegenome.es.util.DateConverter;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.entity.relationship.*;
@@ -155,4 +156,6 @@ public class Gene extends GeneticEntity implements Comparable<Gene> {
     public int hashCode() {
         return Objects.hash(primaryKey);
     }
+
+
 }

@@ -73,7 +73,8 @@ public class HtpVariantCreation extends Thread {
                 while (iter1.hasNext()) {
                     VariantContext vc = iter1.next();
 
-                        List<AlleleVariantSequence> docList = converter.convertContextToAlleleVariantSequence(vc, header, speciesType);
+
+                    List<AlleleVariantSequence> docList = converter.convertContextToAlleleVariantSequence(vc, header, speciesType, null);
                         //for (AlleleVariantSequence doc : docList) {
                             //for (TranscriptLevelConsequence transcriptFeature : doc.getTranscriptLevelConsequences()) {
 
