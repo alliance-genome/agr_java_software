@@ -2,6 +2,7 @@ package org.alliancegenome.es.index.site.cache;
 
 import java.util.*;
 
+import org.alliancegenome.api.entity.AlleleVariantSequence;
 import org.alliancegenome.es.index.site.document.SearchableItemDocument;
 import org.alliancegenome.neo4j.entity.node.*;
 
@@ -9,7 +10,7 @@ import lombok.*;
 
 @Getter
 @Setter
-public class IndexerCache {
+public abstract class IndexerCache {
 
     protected Map<String, Variant> variantMap = new HashMap<>();
     protected Map<String, Allele> alleleMap = new HashMap<>();
@@ -23,6 +24,7 @@ public class IndexerCache {
     protected Map<String, Set<String>> expressionStages = new HashMap<>();
     protected Map<String, Set<String>> alleles = new HashMap<>();
     protected Map<String, Set<String>> genes = new HashMap<>();
+    protected Map<String, Set<String>> geneIds = new HashMap<>();
     protected Map<String, Set<String>> geneSynonyms = new HashMap<>();
     protected Map<String, Set<String>> geneCrossReferences = new HashMap<>();
     protected Map<String, Set<String>> models = new HashMap<>();
@@ -47,13 +49,16 @@ public class IndexerCache {
     private Map<String,Set<String>> subcellularExpressionWithParents = new HashMap<>();
     private Map<String,Set<String>> subcellularExpressionAgrSlim = new HashMap<>();
 
-    public void addCachedFields(Iterable<SearchableItemDocument> documents) {
+    protected abstract <D extends SearchableItemDocument> void addExtraCachedFields(D document);
+    
+    public <D extends SearchableItemDocument> void addCachedFields(Iterable<D> documents) {
         for (SearchableItemDocument document : documents) {
             addCachedFields(document);
+            addExtraCachedFields(document);
         }
     }
 
-    public void addCachedFields(SearchableItemDocument document) {
+    protected <D extends SearchableItemDocument> void addCachedFields(D document) {
         String id = document.getPrimaryKey();
 
         document.setAlleles(alleles.get(id));
@@ -86,6 +91,7 @@ public class IndexerCache {
 
         document.setExpressionStages(expressionStages.get(id));
         document.setGenes(genes.get(id));
+        document.setGeneIds(geneIds.get(id));
         document.setGeneSynonyms(geneSynonyms.get(id));
         document.setGeneCrossReferences(geneCrossReferences.get(id));
         document.setModels(models.get(id));
@@ -140,7 +146,7 @@ public class IndexerCache {
         document.setSubcellularExpressionWithParents(subcellularExpressionWithParents.get(id));
         document.setSubcellularExpressionAgrSlim(subcellularExpressionAgrSlim.get(id));
 
-
     }
+
 
 }

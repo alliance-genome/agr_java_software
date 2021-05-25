@@ -120,7 +120,6 @@ public class GeneticEntity extends Neo4jEntity {
 
 
 
-
     @JsonView({View.API.class, View.AlleleVariantSequenceConverterForES.class})
     public Map<String, Object> getCrossReferenceMap() {
         if (crossReferencesMap != null)
@@ -172,7 +171,7 @@ public class GeneticEntity extends Neo4jEntity {
     }
 
     public void setCrossReferencesList(List<String> list) {
-        crossReferences = new ArrayList<>();
+        crossReferences = new ArrayList<CrossReference>();
         if (CollectionUtils.isNotEmpty(list)) {
             list.forEach(crRef -> {
                 CrossReference crossReference = new CrossReference();

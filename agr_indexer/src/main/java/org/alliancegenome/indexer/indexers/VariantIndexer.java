@@ -1,6 +1,6 @@
 package org.alliancegenome.indexer.indexers;
 
-import java.util.*;
+import java.util.ArrayList;
 import java.util.concurrent.LinkedBlockingDeque;
 
 import org.alliancegenome.core.config.ConfigHelper;
@@ -83,4 +83,5 @@ public class VariantIndexer extends Indexer<SearchableItemDocument> {
         }
 
     }
+
 }

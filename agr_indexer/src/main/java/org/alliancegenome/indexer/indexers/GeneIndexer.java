@@ -79,5 +79,4 @@ public class GeneIndexer extends Indexer<SearchableItemDocument> {
             }
         }
     }
-
 }

@@ -1,13 +1,12 @@
 package org.alliancegenome.neo4j.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import java.util.*;
+import java.util.stream.Collectors;
+
 import org.alliancegenome.es.index.site.doclet.SpeciesDoclet;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
+import lombok.*;
 
 @Getter
 @AllArgsConstructor
@@ -28,7 +27,6 @@ public enum SpeciesType {
             "Severe acute respiratory syndrome coronavirus 2", // Mod name?
             "2697049", 7);
 
-    public static final String NCBITAXON = "NCBITaxon:";
     private String name;
     private String displayName;
     private String taxonID;
@@ -37,12 +35,17 @@ public enum SpeciesType {
     private String databaseName;
     private String taxonIDPart;
     private int orderID;
+    
+    public static final String NCBITAXON = "NCBITaxon:";
+    public static final HashMap<String, SpeciesType> nameMap = new HashMap<String, SpeciesType>();
 
     public static SpeciesType getTypeByName(String name) {
-        for (SpeciesType type : values())
-            if (type.name.equals(name))
-                return type;
-        return null;
+        if(nameMap.isEmpty()) {
+            for (SpeciesType type : values()) {
+                nameMap.put(type.name, type);
+            }
+        }
+        return nameMap.get(name);
     }
 
     public static SpeciesType getTypeByID(String ID) {

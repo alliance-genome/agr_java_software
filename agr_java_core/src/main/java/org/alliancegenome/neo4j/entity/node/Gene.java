@@ -4,6 +4,7 @@ import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.alliancegenome.es.util.DateConverter;
+import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.entity.relationship.*;
 import org.alliancegenome.neo4j.view.View;
 import org.apache.commons.collections4.CollectionUtils;
@@ -11,7 +12,7 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.neo4j.ogm.annotation.*;
 import org.neo4j.ogm.annotation.typeconversion.Convert;
 
-import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.annotation.*;
 
 import lombok.*;
 
@@ -98,11 +99,19 @@ public class Gene extends GeneticEntity implements Comparable<Gene> {
     private List<ExpressionBioEntity> expressionBioEntities;
 
     public String getNameKey() {
-        String nameKey = symbol;
+        return getNameKey(species.getType());
+    }
+    
+    @JsonIgnore
+    public String getNameKey(SpeciesType speciesType) {
+        StringBuffer buffer = new StringBuffer();
         if (species != null) {
-            nameKey += " (" + species.getType().getAbbreviation() + ")";
+            buffer.append(symbol);
+            buffer.append(" (");
+            buffer.append(speciesType.getAbbreviation());
+            buffer.append(")");
         }
-        return nameKey;
+        return buffer.toString();
     }
 
     public Set<GOTerm> getGoParentTerms() {

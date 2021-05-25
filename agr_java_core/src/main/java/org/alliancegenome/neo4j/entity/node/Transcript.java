@@ -18,11 +18,11 @@ import lombok.*;
 @Schema(name = "Transcript", description = "POJO that represents the Transcript")
 public class Transcript extends Neo4jEntity implements Comparable<Transcript> {
 
-    @JsonView({View.Default.class, View.API.class})
+    @JsonView({View.Default.class, View.API.class,View.AlleleVariantSequenceConverterForES.class})
     @JsonProperty(value = "id")
     protected String primaryKey;
 
-    @JsonView({View.Default.class, View.API.class})
+    @JsonView({View.Default.class, View.API.class,View.AlleleVariantSequenceConverterForES.class})
     protected String name;
 
     @Override
@@ -30,7 +30,7 @@ public class Transcript extends Neo4jEntity implements Comparable<Transcript> {
         return name.compareTo(o.getName());
     }
 
-    @JsonView({View.Default.class, View.API.class})
+    @JsonView({View.Default.class, View.API.class,View.AlleleVariantSequenceConverterForES.class})
     @Relationship(type = "ASSOCIATION")
     private List<TranscriptLevelConsequence> consequences;
 
@@ -38,7 +38,7 @@ public class Transcript extends Neo4jEntity implements Comparable<Transcript> {
     @Relationship(type = "ASSOCIATION")
     private GenomeLocation genomeLocation;
 
-    @JsonView({View.Default.class, View.API.class})
+    @JsonView({View.Default.class, View.API.class,View.AlleleVariantSequenceConverterForES.class})
     @Relationship(type = "TRANSCRIPT_TYPE", direction = Relationship.INCOMING)
     private SOTerm type;
 

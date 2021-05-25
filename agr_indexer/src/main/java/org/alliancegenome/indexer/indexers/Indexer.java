@@ -26,9 +26,6 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import lombok.extern.log4j.Log4j2;
-
-@Log4j2
 public abstract class Indexer<D extends ESDocument> extends Thread {
 
     public static String indexName;
@@ -137,11 +134,19 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
         }
     }
 
-
     public void indexDocuments(Iterable<D> docs) {
+        indexDocuments(docs, null);
+    }
+
+    public void indexDocuments(Iterable<D> docs, Class<?> view) {
         for (D doc : docs) {
             try {
-                String json = om.writeValueAsString(doc);
+                String json = "";
+                if(view != null) {
+                    json = om.writerWithView(view).writeValueAsString(doc);
+                } else {
+                    json = om.writeValueAsString(doc);
+                }
                 display.progressProcess();
                 stats.addDocument(json);
                 bulkProcessor.add(new IndexRequest(indexName).source(json, XContentType.JSON));
@@ -150,7 +155,7 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
             }
         }
     }
-
+    
     void initiateThreading(LinkedBlockingDeque<String> queue) throws InterruptedException {
         Integer numberOfThreads = indexerConfig.getThreadCount();
 

@@ -62,7 +62,7 @@ public class VariantConfigHelper {
         
         
         defaults.put(VARIANT_PRODUCER_THREADS, "12");
-        defaults.put(VARIANT_TRANSFORMER_THREADS, "12");
+        defaults.put(VARIANT_TRANSFORMER_THREADS, "18");
         
         defaults.put(VARIANT_INDEXER_SHARDS, "16");
         defaults.put(VARIANT_INDEXER_BULK_PROCESSOR_THREADS, "12");

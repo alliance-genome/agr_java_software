@@ -9,6 +9,7 @@ import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.entity.node.SOTerm;
 import org.alliancegenome.neo4j.entity.node.Transcript;
 import org.alliancegenome.neo4j.entity.node.Variant;
+import org.alliancegenome.neo4j.entity.relationship.GenomeLocation;
 import org.alliancegenome.neo4j.repository.VariantRepository;
 import org.apache.commons.lang3.StringUtils;
 
@@ -35,19 +36,19 @@ public class VariantService {
         List<Transcript> transcriptList = variant.getTranscriptLevelConsequence().stream()
                 .map(consequence -> {
                     Transcript transcript = new Transcript();
-                    transcript.setPrimaryKey(consequence.getTranscriptID());
+                    transcript.setPrimaryKey(consequence.getTranscript().getPrimaryKey());
                     // don't get an independent name from the VCF
-                    if (StringUtils.isNotEmpty(consequence.getTranscriptName())) {
-                        transcript.setName(consequence.getTranscriptName());
+                    if (StringUtils.isNotEmpty(consequence.getTranscript().getName())) {
+                        transcript.setName(consequence.getTranscript().getName());
                     } else {
-                        transcript.setName(consequence.getTranscriptID());
+                        transcript.setName(consequence.getTranscript().getPrimaryKey());
                     }
                     transcript.setConsequences(List.of(consequence));
                     SOTerm tType = new SOTerm();
                     tType.setName(consequence.getSequenceFeatureType());
                     transcript.setType(tType);
                     transcript.setGene(consequence.getAssociatedGene());
-                    transcript.setIntronExonLocation(consequence.getTranscriptLocation());
+                    transcript.setIntronExonLocation(consequence.getLocation());
                     return transcript;
                 })
                 .collect(Collectors.toList());
@@ -100,6 +101,17 @@ public class VariantService {
     }
 
     public Variant getVariantById(String id) {
-        return variantDAO.getVariant(id);
+        Variant variant = variantRepo.getVariant(id);
+        // if not found in Neo then try in ES
+        if (variant == null) {
+            variant = variantDAO.getVariant(id);
+            // need to add gene.genomeLocation
+            GenomeLocation location = variantRepo.getGenomeLocation(variant.getGene().getPrimaryKey());
+            if (location != null)
+                variant.getGene().setGenomeLocations(List.of(location));
+        }
+        if (variant.getSymbol() == null)
+            variant.setSymbol(variant.getPrimaryKey());
+        return variant;
     }
 }

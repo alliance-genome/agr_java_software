@@ -15,7 +15,7 @@ import lombok.*;
 @Schema(name="CrossReference", description="POJO that represents CrossReferences")
 public class CrossReference extends Neo4jEntity {
 
-    @JsonView({View.API.class, View.Interaction.class, View.Expression.class})
+    @JsonView({View.API.class, View.Interaction.class, View.Expression.class,View.AlleleVariantSequenceConverterForES.class})
     @JsonProperty(value = "url")
     private String crossRefCompleteUrl;
 
@@ -28,10 +28,10 @@ public class CrossReference extends Neo4jEntity {
     @JsonView({View.Interaction.class})
     private String prefix;
 
-    @JsonView({View.Interaction.class})
+    @JsonView({View.Interaction.class,View.AlleleVariantSequenceConverterForES.class})
     private String name;
 
-    @JsonView({View.API.class, View.Interaction.class})
+    @JsonView({View.API.class, View.Interaction.class,View.AlleleVariantSequenceConverterForES.class})
     private String displayName;
 
     @JsonView({View.Interaction.class})
@@ -43,7 +43,7 @@ public class CrossReference extends Neo4jEntity {
     private Boolean loadedDB;
     private Boolean curatedDB;
 
-    @JsonView({View.API.class})
+    @JsonView({View.API.class,View.AlleleVariantSequenceConverterForES.class})
     @JsonProperty(value = "name")
     public String getDisplayNameAPI() {
         if (displayName != null && displayName.length() > 0) {
