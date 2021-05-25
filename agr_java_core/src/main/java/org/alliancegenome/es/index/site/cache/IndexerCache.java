@@ -62,17 +62,6 @@ public abstract class IndexerCache {
         String id = document.getPrimaryKey();
 
         document.setAlleles(alleles.get(id));
-
-        Allele a= alleleMap.get(id);
-        if(a!=null) {
-            if(diseases != null && diseases.get(id)!=null )
-                a.setDisease(diseases.get(id).size() > 0);
-            if(phenotypeStatements != null && phenotypeStatements.get(id)!=null)
-                a.setPhenotype(phenotypeStatements.get(id).size() > 0);
-
-        }
-        if(document instanceof AlleleVariantSequence)
-        ((AlleleVariantSequence) document).setAllele(a);
         document.setAssays(assays.get(id));
         //addAll vs setter is because some fields may be set by a translator before this step
         if (crossReferences.get(id) != null) {
