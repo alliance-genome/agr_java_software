@@ -122,6 +122,7 @@ public class GeneticEntity extends Neo4jEntity {
 
 
     @JsonView({View.API.class, View.AlleleVariantSequenceConverterForES.class})
+    @JsonProperty(value = "crossReferences")
     public Map<String, Object> getCrossReferenceMap() {
         if (crossReferencesMap != null)
             return crossReferencesMap;

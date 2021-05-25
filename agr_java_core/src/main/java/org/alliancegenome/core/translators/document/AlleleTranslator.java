@@ -29,7 +29,9 @@ public class AlleleTranslator extends EntityDocumentListTranslator<Allele, Allel
                 document.setSpecies(entity.getSpecies().getName());
             }
 
+            if(entity.getSecondaryIdsList()!=null)
             document.setSecondaryIds(new HashSet<>(entity.getSecondaryIdsList()));
+            if(entity.getSynonymList()!=null)
             document.setSynonyms(new HashSet<>(entity.getSynonymList()));
             
             docs.add(document);
