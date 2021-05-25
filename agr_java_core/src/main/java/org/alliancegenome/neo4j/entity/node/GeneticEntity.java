@@ -183,7 +183,7 @@ public class GeneticEntity extends Neo4jEntity {
     
 
     // ToDo: the primary URL should be an attribute on the entity node
-    @JsonView({View.GeneAllelesAPI.class, View.AlleleAPI.class, View.Default.class})
+    @JsonView({View.GeneAllelesAPI.class, View.AlleleAPI.class, View.Default.class,View.AlleleVariantSequenceConverterForES.class})
     @JsonProperty(value = "url")
     @JsonInclude(JsonInclude.Include.USE_DEFAULTS)
     public String getUrl() {
