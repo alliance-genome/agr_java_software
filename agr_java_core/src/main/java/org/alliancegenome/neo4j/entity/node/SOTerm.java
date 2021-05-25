@@ -17,7 +17,7 @@ public class SOTerm extends Ontology {
     public static final String INSERTION = "SO:0000667";
     public static final String DELETION = "SO:0000159";
 
-    @JsonView({View.Default.class})
+    @JsonView({View.Default.class,View.AlleleVariantSequenceConverterForES.class})
     @JsonProperty(value = "id")
     private String primaryKey;
     @JsonView({View.Default.class, View.AlleleVariantSequenceConverterForES.class})

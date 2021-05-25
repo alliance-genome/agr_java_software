@@ -353,7 +353,7 @@ public class SourceDocumentCreation extends Thread {
                 VCFInfoHeaderLine fileHeader = reader.getFileHeader().getInfoHeaderLine("CSQ");
                 header = fileHeader.getDescription().split("Format: ")[1].split("\\|");
                 try {
-                    TimeUnit.SECONDS.sleep(2);
+                    TimeUnit.MILLISECONDS.sleep(20);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }

@@ -75,4 +75,5 @@ public class ModelIndexer extends Indexer<SearchableItemDocument> {
             }
         }
     }
+
 }
