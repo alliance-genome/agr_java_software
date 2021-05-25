@@ -1,36 +1,41 @@
 package org.alliancegenome.core.translators.document;
 
-import java.util.HashSet;
+import java.util.*;
 
 import org.alliancegenome.api.entity.AlleleVariantSequence;
-import org.alliancegenome.core.translators.EntityDocumentTranslator;
-import org.alliancegenome.es.index.site.document.SearchableItemDocument;
-import org.alliancegenome.neo4j.entity.node.Allele;
+import org.alliancegenome.core.translators.EntityDocumentListTranslator;
+import org.alliancegenome.neo4j.entity.node.*;
 
-public class AlleleTranslator extends EntityDocumentTranslator<Allele, AlleleVariantSequence> {
+public class AlleleTranslator extends EntityDocumentListTranslator<Allele, AlleleVariantSequence> {
 
     @Override
-    protected AlleleVariantSequence entityToDocument(Allele entity, int translationDepth) {
+    protected List<AlleleVariantSequence> entityToDocument(Allele entity, int depth) {
 
-        AlleleVariantSequence document = new AlleleVariantSequence();
+        List<AlleleVariantSequence> docs = new ArrayList<>();
+        
+        for(Variant v: entity.getVariants()) {  
+            AlleleVariantSequence document = new AlleleVariantSequence(entity, v, null);
+            
+            document.setCategory("allele");
+            document.setAlterationType("allele");
+            document.setGlobalId(entity.getGlobalId());
+            document.setLocalId(entity.getLocalId());
+            document.setPrimaryKey(entity.getPrimaryKey());
+            document.setSymbol(entity.getSymbol());
+            document.setSymbolText(entity.getSymbolText());
+            document.setName(entity.getSymbol());
+            document.setNameKey(entity.getSymbolTextWithSpecies());
+            if (entity.getSpecies() != null) {
+                document.setSpecies(entity.getSpecies().getName());
+            }
 
-        document.setCategory("allele");
-        document.setAlterationType("allele");
-        document.setGlobalId(entity.getGlobalId());
-        document.setLocalId(entity.getLocalId());
-        document.setPrimaryKey(entity.getPrimaryKey());
-        document.setSymbol(entity.getSymbol());
-        document.setSymbolText(entity.getSymbolText());
-        document.setName(entity.getSymbol());
-        document.setNameKey(entity.getSymbolTextWithSpecies());
-        if (entity.getSpecies() != null) {
-            document.setSpecies(entity.getSpecies().getName());
+            document.setSecondaryIds(new HashSet<>(entity.getSecondaryIdsList()));
+            document.setSynonyms(new HashSet<>(entity.getSynonymList()));
+            
+            docs.add(document);
         }
 
-        document.setSecondaryIds(new HashSet<>(entity.getSecondaryIdsList()));
-        document.setSynonyms(new HashSet<>(entity.getSynonymList()));
-
-        return document;
+        return docs;
     }
 
     public void updateDocuments(Iterable<AlleleVariantSequence> alleleDocuments) {
@@ -51,5 +56,6 @@ public class AlleleTranslator extends EntityDocumentTranslator<Allele, AlleleVar
         }
 
     }
+
 
 }

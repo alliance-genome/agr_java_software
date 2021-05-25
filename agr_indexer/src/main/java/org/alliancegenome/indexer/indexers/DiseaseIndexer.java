@@ -80,5 +80,4 @@ public class DiseaseIndexer extends Indexer<SearchableItemDocument> {
         }
     }
 
-
 }
