@@ -60,7 +60,7 @@ public class GeneticEntity extends Neo4jEntity {
             for (Synonym s : synonyms) {
                 list.add(s.getName());
             }
-        } 
+        }
         return list;
     }
 
@@ -118,7 +118,6 @@ public class GeneticEntity extends Neo4jEntity {
     public GeneticEntity() {
     }
 
-    
 
 
     @JsonView({View.API.class, View.AlleleVariantSequenceConverterForES.class})
@@ -133,17 +132,19 @@ public class GeneticEntity extends Neo4jEntity {
                 String typeName = crossReferenceType.getDisplayName();
                 // hard-coding WB speciality submission
                 // Todo: Needs better modeling: use label=transgene in neo, or subclass, or something else
-                if (cr.getCrossRefType().startsWith("transgene")) {
-                    typeName = "transgene";
-                }
-                if (cr.getCrossRefType().startsWith(typeName + "/")) {
-                    typeName = cr.getCrossRefType().replace(typeName + "/", "");
-                    crossReferencesMap.put(typeName, cr);
-                } else if (cr.getCrossRefType().equals(typeName)) {
-                    crossReferencesMap.put("primary", cr);
-                } else if (cr.getCrossRefType().equals("generic_cross_reference")) {
-                    othersList.add(cr);
-                    crossReferencesMap.put("other", othersList);
+                if(cr.getCrossRefType() != null){
+                    if (cr.getCrossRefType().startsWith("transgene")) {
+                        typeName = "transgene";
+                    }
+                    if (cr.getCrossRefType().startsWith(typeName + "/")) {
+                        typeName = cr.getCrossRefType().replace(typeName + "/", "");
+                        crossReferencesMap.put(typeName, cr);
+                    } else if (cr.getCrossRefType().equals(typeName)) {
+                        crossReferencesMap.put("primary", cr);
+                    } else if (cr.getCrossRefType().equals("generic_cross_reference")) {
+                        othersList.add(cr);
+                        crossReferencesMap.put("other", othersList);
+                    }
                 }
             }
         }
@@ -155,7 +156,7 @@ public class GeneticEntity extends Neo4jEntity {
             return;
         this.crossReferencesMap = crossReferencesMap;
     }
-    
+
     @JsonView(value = {View.AlleleVariantSequenceConverterForES.class})
     public List<String> getCrossReferencesList() {
         if (crossReferences != null) {
@@ -168,7 +169,7 @@ public class GeneticEntity extends Neo4jEntity {
             return new ArrayList<>();
         }
     }
-    
+
     public void setCrossReferencesList(List<String> list) {
         crossReferences = new ArrayList<CrossReference>();
         if (CollectionUtils.isNotEmpty(list)) {
@@ -180,7 +181,7 @@ public class GeneticEntity extends Neo4jEntity {
             crossReferences.sort(Comparator.comparing(crossReference -> crossReference.getName().toLowerCase()));
         }
     }
-    
+
 
     // ToDo: the primary URL should be an attribute on the entity node
     @JsonView({View.GeneAllelesAPI.class, View.AlleleAPI.class, View.Default.class,View.AlleleVariantSequenceConverterForES.class})

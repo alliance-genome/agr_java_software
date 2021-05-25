@@ -3,6 +3,7 @@ package org.alliancegenome.core.variant.converters;
 import java.util.*;
 
 import org.alliancegenome.api.entity.AlleleVariantSequence;
+import org.alliancegenome.es.index.site.cache.GeneDocumentCache;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.entity.node.*;
 import org.alliancegenome.neo4j.entity.relationship.GenomeLocation;
@@ -14,7 +15,7 @@ import org.apache.commons.lang3.StringUtils;
 
 public class AlleleVariantSequenceConverter {
     
-    public List<AlleleVariantSequence> convertContextToAlleleVariantSequence(VariantContext ctx, String[] header, SpeciesType speciesType) throws Exception {
+    public List<AlleleVariantSequence> convertContextToAlleleVariantSequence(VariantContext ctx, String[] header, SpeciesType speciesType, GeneDocumentCache geneCache) throws Exception {
         List<AlleleVariantSequence> returnDocuments = new ArrayList<>();
 
         htsjdk.variant.variantcontext.Allele refNuc = ctx.getReference();
@@ -98,6 +99,21 @@ public class AlleleVariantSequenceConverter {
             avsDoc.setVariant(variant);
             if (htpConsequences != null) {
                 for (TranscriptLevelConsequence c : htpConsequences) {
+                    if(geneCache != null){
+                        Set<String> synonymSet = geneCache.getSynonyms().get(c.getAssociatedGene().getPrimaryKey());
+                        Set<String> crossReferencesSet = geneCache.getCrossReferences().get(c.getAssociatedGene().getPrimaryKey());
+                        if(synonymSet != null){
+                            List<String> synonymList = new ArrayList<>(synonymSet);
+                            c.getAssociatedGene().setSynonymList(synonymList);
+                        }
+
+                        if(crossReferencesSet != null){
+                            List<String> crossReferencesList = new ArrayList<>(crossReferencesSet);
+                            c.getAssociatedGene().setCrossReferencesList(crossReferencesList);
+                        }
+                    }
+
+
                     c.getAssociatedGene().setSpecies(species);
                     String transcriptID = c.getTranscript().getPrimaryKey();
                     if(!transcriptsProcessed.contains(transcriptID)) {
@@ -150,7 +166,7 @@ public class AlleleVariantSequenceConverter {
 
                 if (header.length == infos.length) {
                     if (infos[0].equalsIgnoreCase(varNuc)) {
-                        
+
                         TranscriptLevelConsequence feature = new TranscriptLevelConsequence(header, infos);
                         String transcriptID = feature.getTranscript().getPrimaryKey();
                         if(!alreadyAdded.contains(transcriptID)) {

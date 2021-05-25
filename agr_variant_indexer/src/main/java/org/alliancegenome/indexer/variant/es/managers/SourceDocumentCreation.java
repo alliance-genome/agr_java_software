@@ -9,6 +9,7 @@ import org.alliancegenome.core.filedownload.model.*;
 import org.alliancegenome.core.util.StatsCollector;
 import org.alliancegenome.core.variant.config.VariantConfigHelper;
 import org.alliancegenome.core.variant.converters.AlleleVariantSequenceConverter;
+import org.alliancegenome.es.index.site.cache.GeneDocumentCache;
 import org.alliancegenome.es.util.*;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.view.View;
@@ -30,6 +31,7 @@ import lombok.extern.log4j.Log4j2;
 @Log4j2
 public class SourceDocumentCreation extends Thread {
 
+    private final GeneDocumentCache geneCache;
     private DownloadSource source;
     private SpeciesType speciesType;
     private String[] header = null;
@@ -76,9 +78,10 @@ public class SourceDocumentCreation extends Thread {
     private StatsCollector statsCollector = new StatsCollector();
     private String message_header = "";
     
-    public SourceDocumentCreation(RestHighLevelClient client, DownloadSource source) {
+    public SourceDocumentCreation(RestHighLevelClient client, DownloadSource source, GeneDocumentCache geneCache) {
         this.client = client;
         this.source = source;
+        this.geneCache = geneCache;
         speciesType = SpeciesType.getTypeByID(source.getTaxonId());
         aVSConverter = new AlleleVariantSequenceConverter();
         if(indexing) client = EsClientFactory.getDefaultEsClient();
@@ -394,7 +397,7 @@ public class SourceDocumentCreation extends Thread {
 
                     for (VariantContext ctx : ctxList) {
                         try {
-                            List<AlleleVariantSequence> avsList = aVSConverter.convertContextToAlleleVariantSequence(ctx, header, speciesType);
+                            List<AlleleVariantSequence> avsList = aVSConverter.convertContextToAlleleVariantSequence(ctx, header, speciesType, geneCache);
 
                             for(AlleleVariantSequence sequence: avsList) {
                                 workBucket.add(sequence);
