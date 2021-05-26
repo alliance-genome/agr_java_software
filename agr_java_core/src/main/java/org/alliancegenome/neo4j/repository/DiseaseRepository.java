@@ -429,7 +429,8 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
         cypher += "      OPTIONAL MATCH p3=(diseaseEntityJoin:DiseaseEntityJoin)-[:ASSOCIATION]-(:Gene)-[:FROM_SPECIES]->(:Species) ";
         cypher += "      OPTIONAL MATCH p4=(diseaseEntityJoin:DiseaseEntityJoin)-[:FROM_ORTHOLOGOUS_GENE]-(orthoGene:Gene)-[:FROM_SPECIES]->(orthoSpecies:Species) ";
         cypher += "      OPTIONAL MATCH p5=(pubEvCode:PublicationJoin)-[:PRIMARY_GENETIC_ENTITY]->(agm:AffectedGenomicModel) ";
-        cypher += " RETURN p, p1, p2, p3, p4, p5";
+        cypher += "      OPTIONAL MATCH condition=(diseaseEntityJoin:DiseaseEntityJoin)--(:ExperimentalCondition)--(:ZECOTerm) ";
+        cypher += " RETURN p, p1, p2, p3, p4, p5, condition ";
 
         long start = System.currentTimeMillis();
         Iterable<DiseaseEntityJoin> joins = query(DiseaseEntityJoin.class, cypher);
