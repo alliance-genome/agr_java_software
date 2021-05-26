@@ -42,8 +42,6 @@ public class SearchableItemDocument extends ESDocument {
     @JsonProperty("name_key")
     String nameKey;
     String nameText;
-    //@JsonView({View.AlleleVariantSequenceConverterForES.class})
-    String matchedWithHtp;
     String modCrossRefCompleteUrl;
     @JsonView({View.AlleleVariantSequenceConverterForES.class})
     String modLocalId;
@@ -60,6 +58,7 @@ public class SearchableItemDocument extends ESDocument {
     String summary;
     @JsonView({View.AlleleVariantSequenceConverterForES.class})
     String symbol;
+    @JsonView({View.AlleleVariantSequenceConverterForES.class})
     String symbolText;
 
     Set<String> age;
@@ -85,6 +84,7 @@ public class SearchableItemDocument extends ESDocument {
     List<CrossReferenceDoclet> crossReferenceList;
     @JsonView({View.AlleleVariantSequenceConverterForES.class})
     Set<String> crossReferences;
+    @JsonView({View.AlleleVariantSequenceConverterForES.class})
     Set<String> diseases;
     Set<String> diseasesAgrSlim;
     Set<String> diseaseGroup;
@@ -96,6 +96,7 @@ public class SearchableItemDocument extends ESDocument {
     Set<String> genes;
     @JsonView({View.AlleleVariantSequenceConverterForES.class})
     Set<String> geneIds;
+    @JsonView({View.AlleleVariantSequenceConverterForES.class})
     Set<String> geneSynonyms;
     @JsonView({View.AlleleVariantSequenceConverterForES.class})
     Set<String> geneCrossReferences;

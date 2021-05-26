@@ -47,6 +47,7 @@ public class GeneticEntity extends Neo4jEntity {
     private List<Synonym> synonyms;
 
     @Relationship(type = "CROSS_REFERENCE")
+    @JsonView({View.AlleleVariantSequenceConverterForES.class})
     protected List<CrossReference> crossReferences;
 
 

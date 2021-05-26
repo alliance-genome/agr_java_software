@@ -52,7 +52,7 @@ public abstract class IndexerCache {
     protected abstract <D extends SearchableItemDocument> void addExtraCachedFields(D document);
     
     public <D extends SearchableItemDocument> void addCachedFields(Iterable<D> documents) {
-        for (SearchableItemDocument document : documents) {
+        for (D document : documents) {
             addCachedFields(document);
             addExtraCachedFields(document);
         }

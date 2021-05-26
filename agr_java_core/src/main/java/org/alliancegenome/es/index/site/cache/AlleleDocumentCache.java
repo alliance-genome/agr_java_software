@@ -2,6 +2,7 @@ package org.alliancegenome.es.index.site.cache;
 
 import java.util.*;
 
+import org.alliancegenome.api.entity.AlleleVariantSequence;
 import org.alliancegenome.es.index.site.document.SearchableItemDocument;
 import org.alliancegenome.neo4j.entity.node.Allele;
 
@@ -31,9 +32,9 @@ public class AlleleDocumentCache extends IndexerCache {
                 a.setDisease(diseases.get(id).size() > 0);
             if(phenotypeStatements != null && phenotypeStatements.get(id)!=null)
                 a.setPhenotype(phenotypeStatements.get(id).size() > 0);
-            if(synonyms.get(id)!=null){
 
-            }
+            if(document instanceof AlleleVariantSequence)
+                ((AlleleVariantSequence) document).setAllele(a);
         }
     }
 

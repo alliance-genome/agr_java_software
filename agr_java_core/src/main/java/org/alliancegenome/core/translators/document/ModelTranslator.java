@@ -25,9 +25,10 @@ public class ModelTranslator extends EntityDocumentTranslator<AffectedGenomicMod
         if (entity.getSpecies() != null) {
             document.setSpecies(entity.getSpecies().getName());
         }
-
-        document.setSecondaryIds(new HashSet<>(entity.getSecondaryIdsList()));
-        document.setSynonyms(new HashSet<>(entity.getSynonymList()));
+        if(entity.getSecondaryIdsList()!=null)
+            document.setSecondaryIds(new HashSet<>(entity.getSecondaryIdsList()));
+        if(entity.getSynonymList()!=null)
+            document.setSynonyms(new HashSet<>(entity.getSynonymList()));
 
         return document;
     }
