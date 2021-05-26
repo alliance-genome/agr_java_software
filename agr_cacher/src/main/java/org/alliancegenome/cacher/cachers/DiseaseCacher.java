@@ -1,23 +1,25 @@
 package org.alliancegenome.cacher.cachers;
 
-import static java.util.Map.Entry.comparingByValue;
-import static java.util.stream.Collectors.*;
-
-import java.util.*;
-import java.util.stream.Collectors;
-
+import lombok.extern.log4j.Log4j2;
 import org.alliancegenome.api.entity.CacheStatus;
 import org.alliancegenome.api.service.DiseaseRibbonService;
 import org.alliancegenome.cache.CacheAlliance;
-import org.alliancegenome.cache.repository.helper.*;
+import org.alliancegenome.cache.repository.helper.DiseaseAnnotationSorting;
+import org.alliancegenome.cache.repository.helper.SortingField;
 import org.alliancegenome.core.util.ModelHelper;
-import org.alliancegenome.neo4j.entity.*;
+import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
+import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
+import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.entity.node.*;
 import org.alliancegenome.neo4j.repository.DiseaseRepository;
 import org.alliancegenome.neo4j.view.View;
 import org.apache.commons.collections4.CollectionUtils;
 
-import lombok.extern.log4j.Log4j2;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static java.util.Map.Entry.comparingByValue;
+import static java.util.stream.Collectors.*;
 
 @Log4j2
 public class DiseaseCacher extends Cacher {
@@ -30,7 +32,7 @@ public class DiseaseCacher extends Cacher {
         diseaseRepository = new DiseaseRepository();
         diseaseRibbonService = new DiseaseRibbonService(diseaseRepository);
     }
-    
+
     protected void cache() {
 
         // model type of diseases
@@ -282,7 +284,10 @@ public class DiseaseCacher extends Cacher {
                     document.setDisease(join.getDisease());
                     document.setPublications(join.getPublications());
                     document.setAssociationType(join.getJoinType());
-
+                    document.addModifier(DiseaseAnnotation.ConditionType.AMELIORATES, join.getAmeliorateConditionList());
+                    document.addModifier(DiseaseAnnotation.ConditionType.AMELIORATES, join.getExacerbateConditionList());
+                    document.addConditions(DiseaseAnnotation.ConditionType.HAS_CONDITION, join.getHasConditionList());
+                    document.addConditions(DiseaseAnnotation.ConditionType.INDUCES, join.getInducerConditionList());
                     document.addPublicationJoins(join.getPublicationJoins());
                     Source source = new Source();
                     source.setName(model.getDataProvider());
@@ -398,6 +403,10 @@ public class DiseaseCacher extends Cacher {
                     document.setSource(join.getSource());
                     document.setAssociationType(join.getJoinType().toLowerCase());
                     document.setSortOrder(join.getSortOrder());
+                    document.addConditions(DiseaseAnnotation.ConditionType.HAS_CONDITION, join.getHasConditionList());
+                    document.addConditions(DiseaseAnnotation.ConditionType.INDUCES, join.getInducerConditionList());
+                    document.addModifier(DiseaseAnnotation.ConditionType.AMELIORATES, join.getAmeliorateConditionList());
+                    document.addModifier(DiseaseAnnotation.ConditionType.EXACERBATES, join.getExacerbateConditionList());
                     if (join.getDataProviderList() != null) {
                         document.setProviders(join.getDataProviderList());
                     }
@@ -564,6 +573,6 @@ public class DiseaseCacher extends Cacher {
     public void close() {
         diseaseRepository.close();
     }
-    
+
 }
 
