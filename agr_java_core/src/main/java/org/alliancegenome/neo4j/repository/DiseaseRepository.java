@@ -408,7 +408,9 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
         //cypher += " RETURN p, p0, p1, p2, p4, p5, aModel";
 
         long start = System.currentTimeMillis();
-        Iterable<DiseaseEntityJoin> joins = query(DiseaseEntityJoin.class, cypher);Set<DiseaseEntityJoin> allDiseaseEntityJoins = StreamSupport.stream(joins.spliterator(), false).
+        Iterable<DiseaseEntityJoin> joins = query(DiseaseEntityJoin.class, cypher);
+
+        Set<DiseaseEntityJoin> allDiseaseEntityJoins = StreamSupport.stream(joins.spliterator(), false).
                 collect(Collectors.toSet());
         log.info("Total DiseaseEntityJoinRecords: " + String.format("%,d", allDiseaseEntityJoins.size()));
         log.info("Loaded in:    " + ((System.currentTimeMillis() - start) / 1000) + " s");
