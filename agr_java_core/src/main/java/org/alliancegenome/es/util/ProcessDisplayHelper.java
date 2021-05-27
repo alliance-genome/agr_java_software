@@ -16,8 +16,8 @@ public class ProcessDisplayHelper {
     private Runtime runtime = Runtime.getRuntime();
     private DecimalFormat df = new DecimalFormat("#");
 
-    private Date startTime = new Date();
-    private Date lastTime = new Date();
+    private long startTime = 0;
+    private long lastTime = 0;
     private String message;
     private long lastSizeCounter = 0;
     private long totalSize;
@@ -49,14 +49,14 @@ public class ProcessDisplayHelper {
         this.message = message + ": ";
         this.totalSize = totalSize;
         lastSizeCounter = 0;
-        startTime = new Date();
+        startTime = new Date().getTime();
         sizeCounter = new AtomicLong(0);
         if (totalSize > 0)
             logInfoMessage(this.message + "Starting Process [total =    " + getBigNumber(totalSize) + "] ");
         else
             logInfoMessage(this.message + "Starting Process...");
 
-        lastTime = new Date();
+        lastTime = new Date().getTime();
     }
 
     public void progressProcess() {
@@ -65,54 +65,48 @@ public class ProcessDisplayHelper {
     
     public void progressProcess(String data) {
         sizeCounter.getAndIncrement();
-        
-        try {
-            
-            boolean permit = sem.tryAcquire(1, TimeUnit.NANOSECONDS);
 
-            if(permit) {
-                Date now = new Date();
-                long time = now.getTime() - lastTime.getTime();
-        
-                if (time < displayTimeout) {
-                    sem.release();
-                    return;
-                }
-                
-                long diff = now.getTime() - startTime.getTime();
-                checkMemory();
-                
-                double percent = 0;
-                if (totalSize > 0) {
-                    percent = ((double) (sizeCounter.get()) / totalSize);
-                }
-                long processedAmount = (sizeCounter.get() - lastSizeCounter);
-                StringBuffer sb = new StringBuffer(this.message);
-                sb.append(getBigNumber(sizeCounter.get()));
-                if(totalSize > 0) {
-                    sb.append(" of [" + getBigNumber(totalSize) + "] " + (int) (percent * 100L) + "%");
-                }
-                sb.append(", " + (time / 1000) + "s to process " + getBigNumber(processedAmount) + " records at " + getBigNumber((processedAmount * 1000L) / time) + "r/s");
-                if(data != null) {
-                    sb.append(" " + data);
-                }
-                
-                
-                if (percent > 0) {
-                    int perms = (int) (diff / percent);
-                    Date end = new Date(startTime.getTime() + perms);
-                    String expectedDuration = getHumanReadableTimeDisplay(end.getTime() - (new Date()).getTime());
-                    sb.append(", Mem: " + df.format(memoryPercent() * 100) + "%, ETA: " + expectedDuration + " [" + end + "]");
-                }
-                logInfoMessage(sb.toString());
-                lastSizeCounter = sizeCounter.get();
-                lastTime = now;
+        boolean permit = sem.tryAcquire();
+
+        if(permit) {
+            Date now = new Date();
+            long nowLong = now.getTime();
+            
+            long time = nowLong - lastTime;
+    
+            if (time < displayTimeout) {
                 sem.release();
+                return;
+            }
+            
+            long diff = nowLong - startTime;
+            checkMemory();
+            
+            double percent = 0;
+            if (totalSize > 0) {
+                percent = ((double) (sizeCounter.get()) / totalSize);
+            }
+            long processedAmount = (sizeCounter.get() - lastSizeCounter);
+            StringBuffer sb = new StringBuffer(this.message);
+            sb.append(getBigNumber(sizeCounter.get()));
+            if(totalSize > 0) {
+                sb.append(" of [" + getBigNumber(totalSize) + "] " + (int) (percent * 100L) + "%");
+            }
+            sb.append(", " + (time / 1000) + "s to process " + getBigNumber(processedAmount) + " records at " + getBigNumber((processedAmount * 1000L) / time) + "r/s");
+            if(data != null) {
+                sb.append(" " + data);
             }
 
-        } catch (InterruptedException e) {
+            if (percent > 0) {
+                int perms = (int) (diff / percent);
+                Date end = new Date(startTime + perms);
+                String expectedDuration = getHumanReadableTimeDisplay(end.getTime() - nowLong);
+                sb.append(", Mem: " + df.format(memoryPercent() * 100) + "%, ETA: " + expectedDuration + " [" + end + "]");
+            }
+            logInfoMessage(sb.toString());
+            lastSizeCounter = sizeCounter.get();
+            lastTime = nowLong;
             sem.release();
-            e.printStackTrace();
         }
 
     }
@@ -123,7 +117,7 @@ public class ProcessDisplayHelper {
     
     public void finishProcess(String data) {
         Date now = new Date();
-        long duration = now.getTime() - startTime.getTime();
+        long duration = now.getTime() - startTime;
         String result = getHumanReadableTimeDisplay(duration);
         String localMessage = message + "Finished: took: " + result + " to process " + getBigNumber(sizeCounter.get());
         if (duration != 0) {
