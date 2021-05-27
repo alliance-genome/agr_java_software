@@ -19,7 +19,7 @@ import lombok.*;
 @Getter
 @Setter
 @Schema(name = "PrimaryAnnotatedEntity", description = "POJO that represents a Primary Annotated Entity")
-public class PrimaryAnnotatedEntity implements Comparable<PrimaryAnnotatedEntity>, Serializable, PresentationEntity {
+public class PrimaryAnnotatedEntity extends ConditionAnnotation implements Comparable<PrimaryAnnotatedEntity>, Serializable, PresentationEntity {
 
     @JsonView({View.PrimaryAnnotation.class, View.API.class})
     protected String id;
