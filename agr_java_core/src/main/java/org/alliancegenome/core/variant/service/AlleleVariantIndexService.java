@@ -1,78 +1,78 @@
 package org.alliancegenome.core.variant.service;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
-import org.alliancegenome.api.entity.AlleleVariantSequence;
-import org.alliancegenome.es.util.EsClientFactory;
-import org.alliancegenome.neo4j.entity.node.*;
-import org.elasticsearch.action.search.SearchRequest;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.client.RequestOptions;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.builder.SearchSourceBuilder;
+import static org.alliancegenome.core.config.Constants.ES_INDEX;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.stream.Collectors;
 
-import static org.alliancegenome.core.config.Constants.ES_INDEX;
+import org.alliancegenome.api.entity.AlleleVariantSequence;
+import org.alliancegenome.es.util.EsClientFactory;
+import org.alliancegenome.neo4j.entity.node.*;
+import org.elasticsearch.action.search.*;
+import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.index.query.*;
+import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.*;
+
+import lombok.extern.jbosslog.JBossLog;
+
+@JBossLog
 public class AlleleVariantIndexService {
-    ObjectMapper mapper=new ObjectMapper();
 
-    public List<AlleleVariantSequence> getAllelesNVariants(String geneId)  {
-        SearchResponse sr= null;
-        try {
-            //    sr = getSearchResponse("RGD:2219");
-            sr = getSearchResponse(geneId, true);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        List<AlleleVariantSequence> avs=new ArrayList<>();
+    private ObjectMapper mapper = new ObjectMapper();
 
+    public AlleleVariantIndexService() {
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         mapper.configure(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT, true);
         mapper.configure(DeserializationFeature.FAIL_ON_NULL_CREATOR_PROPERTIES, false);
         mapper.configure(MapperFeature.DEFAULT_VIEW_INCLUSION,false);
-        if (sr != null) {
-            for(SearchHit searchHit:sr.getHits()) {
-                AlleleVariantSequence av= null;
-                Allele a=null;
+    }
+
+    public List<AlleleVariantSequence> getAllelesNVariants(String geneId)  {
+        SearchResponse searchResponce = null;
+        try {
+            searchResponce = getSearchResponse(geneId, true);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        List<AlleleVariantSequence> avsList = new ArrayList<>();
+
+        if (searchResponce != null) {
+            for(SearchHit searchHit: searchResponce.getHits()) {
+                AlleleVariantSequence avsDocument = null;
+                Allele allele = null;
                 try {
-                    av = mapper.readValue(searchHit.getSourceAsString(), AlleleVariantSequence.class);
-                    a=av.getAllele();
+                    avsDocument = mapper.readValue(searchHit.getSourceAsString(), AlleleVariantSequence.class);
+                    allele = avsDocument.getAllele();
                 } catch (JsonProcessingException e) {
                     e.printStackTrace();
                 }
-                if (av != null && av.getAlterationType().equalsIgnoreCase("variant")) {
-                    a.setCategory("variant");
+                if (avsDocument != null && avsDocument.getAlterationType().equalsIgnoreCase("variant")) {
+                    allele.setCategory("variant");
 
                 }
 
-                if (a != null) {
+                if (allele != null) {
 
-                    if (a.getUrl() == null) {
-                        a.setUrl(" ");
+                    if (allele.getUrl() == null) {
+                        allele.setUrl(" ");
                     }
-                    if (a.getId() == null || (a.getId() != null && a.getId().equals("null"))) {
-                        a.setId(0L);
+                    if (allele.getId() == null || (allele.getId() != null && allele.getId().equals("null"))) {
+                        allele.setId(0L);
                     }
 
-                    for (Variant v : a.getVariants()) {
-                        if (v.getTranscriptLevelConsequence() != null && v.getTranscriptLevelConsequence().size() > 0) {
-                            for (TranscriptLevelConsequence c : v.getTranscriptLevelConsequence()) {
-                                AlleleVariantSequence seq = new AlleleVariantSequence(a, v, c);
-                                avs.add(seq);
+                    for (Variant variant : allele.getVariants()) {
+                        if (variant.getTranscriptLevelConsequence() != null && variant.getTranscriptLevelConsequence().size() > 0) {
+                            for (TranscriptLevelConsequence consequence: variant.getTranscriptLevelConsequence()) {
+                                AlleleVariantSequence seq = new AlleleVariantSequence(allele, variant, consequence);
+                                avsList.add(seq);
                             }
                         } else {
-                            AlleleVariantSequence seq = new AlleleVariantSequence(a, v, null);
-                            avs.add(seq);
+                            AlleleVariantSequence seq = new AlleleVariantSequence(allele, variant, null);
+                            avsList.add(seq);
                         }
                     }
                 }
@@ -81,69 +81,64 @@ public class AlleleVariantIndexService {
 
             }
         }
-        System.out.println("TOTAL HITS:"+sr.getHits().getTotalHits());
-        System.out.println("Allele Variant Sequences:" +avs.size());
+        
+        log.debug("TOTAL HITS:" + searchResponce.getHits().getTotalHits());
+        log.debug("Allele Variant Sequences:" + avsList.size());
 
-
-        return avs;
+        return avsList;
     }
+    
     public List<Allele> getAlleles(String geneId)  {
-        SearchResponse sr= null;
+        SearchResponse searchResponce = null;
         try {
-            //    sr = getSearchResponse("RGD:2219");
-            sr = getSearchResponse(geneId, false);
+            searchResponce = getSearchResponse(geneId, false);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        List<Allele> alleles=new ArrayList<>();
+        List<Allele> alleles = new ArrayList<>();
 
-        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        mapper.configure(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT, true);
-        mapper.configure(DeserializationFeature.FAIL_ON_NULL_CREATOR_PROPERTIES, false);
-        mapper.configure(MapperFeature.DEFAULT_VIEW_INCLUSION,false);
-        if (sr != null) {
-            for(SearchHit searchHit:sr.getHits()) {
-                AlleleVariantSequence av= null;
-                Allele a=null;
+        if (searchResponce != null) {
+            for(SearchHit searchHit: searchResponce.getHits()) {
+                AlleleVariantSequence avsDocument = null;
+                Allele allele = null;
                 try {
-                    av = mapper.readValue(searchHit.getSourceAsString(), AlleleVariantSequence.class);
-                    a=av.getAllele();
+                    avsDocument = mapper.readValue(searchHit.getSourceAsString(), AlleleVariantSequence.class);
+                    allele = avsDocument.getAllele();
                 } catch (JsonProcessingException e) {
                     e.printStackTrace();
                 }
-                if (a != null) {
-                    if(a.getUrl()==null){
-                        a.setUrl(" ");
+                if (allele != null) {
+                    if(allele.getUrl()==null){
+                        allele.setUrl(" ");
                     }
-                    alleles.add(a);
+                    alleles.add(allele);
                 }
 
             }
         }
 
-
         return alleles;
     }
+    
     public SearchResponse getSearchResponse(String id, boolean includeHtp) throws IOException {
-        SearchSourceBuilder srb=new SearchSourceBuilder();
+        SearchSourceBuilder srb = new SearchSourceBuilder();
         srb.query(buildBoolQuery(id, includeHtp));
         srb.size(10000);
 
-        SearchRequest searchRequest=new SearchRequest(ES_INDEX);
+        SearchRequest searchRequest = new SearchRequest(ES_INDEX);
 
         searchRequest.source(srb);
 
-
         return EsClientFactory.getDefaultEsClient().search(searchRequest, RequestOptions.DEFAULT);
     }
+    
     public BoolQueryBuilder buildBoolQuery(String id, boolean includeHtp){
-        BoolQueryBuilder qb=new BoolQueryBuilder();
-        qb.must(QueryBuilders.termQuery("geneIds.keyword", id))
-                .filter(QueryBuilders.termQuery("category.keyword", "allele"));
+        BoolQueryBuilder queryBuilder = new BoolQueryBuilder();
+        queryBuilder.must(QueryBuilders.termQuery("geneIds.keyword", id)).filter(QueryBuilders.termQuery("category.keyword", "allele"));
         if(!includeHtp){
-            qb.mustNot(QueryBuilders.termQuery("alterationType.keyword", "variant"));
+            queryBuilder.mustNot(QueryBuilders.termQuery("alterationType.keyword", "variant"));
         }
-        return qb;
-
+        return queryBuilder;
     }
+    
 }
