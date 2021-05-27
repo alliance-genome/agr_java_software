@@ -326,12 +326,12 @@ public class DiseaseCacher extends Cacher {
                     diseaseModelGeneMap.put(gene.getPrimaryKey(), annotations);
                 }
 
-                List<DiseaseAnnotation> dease = annotations.get(diseaseAnnot.getModel().getPrimaryKey());
-                if (dease == null) {
-                    dease = new ArrayList<>();
-                    annotations.put(diseaseAnnot.getModel().getPrimaryKey(), dease);
+                List<DiseaseAnnotation> diseaseAnnotations = annotations.get(diseaseAnnot.getModel().getPrimaryKey());
+                if (diseaseAnnotations == null) {
+                    diseaseAnnotations = new ArrayList<>();
+                    annotations.put(diseaseAnnot.getModel().getPrimaryKey(), diseaseAnnotations);
                 }
-                dease.add(diseaseAnnot);
+                diseaseAnnotations.add(diseaseAnnot);
             });
         });
         diseaseAnnotationMap.clear();
@@ -349,6 +349,8 @@ public class DiseaseCacher extends Cacher {
             PrimaryAnnotatedEntity entity = ModelHelper.getPrimaryAnnotatedEntity(diseaseAnnotations.get(0));
             diseaseAnnotations.forEach(diseaseAnnotation -> {
                 entity.addDisease(diseaseAnnotation.getDisease(), diseaseAnnotation.getAssociationType());
+                entity.setConditionModifiers(diseaseAnnotation.getConditionModifiers());
+                entity.setConditions(diseaseAnnotation.getConditions());
                 entity.addPublicationEvidenceCode(diseaseAnnotation.getPublicationJoins());
             });
             mergedAnnotations.add(entity);

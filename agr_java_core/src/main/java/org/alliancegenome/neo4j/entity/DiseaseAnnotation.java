@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 @Setter
 @JsonPropertyOrder({"disease", "gene", "allele", "geneticEntityType", "associationType", "ecoCode", "source", "publications"})
 @Schema(name = "DiseaseAnnotation", description = "POJO that represents a Disease Annotation")
-public class DiseaseAnnotation implements Comparable<DiseaseAnnotation>, Serializable, PresentationEntity {
+public class DiseaseAnnotation extends ConditionAnnotation implements Comparable<DiseaseAnnotation>, Serializable, PresentationEntity {
 
     public static final String NOT_ASSOCIATION_TYPE = "not";
 
@@ -57,10 +57,6 @@ public class DiseaseAnnotation implements Comparable<DiseaseAnnotation>, Seriali
     private List<PublicationJoin> publicationJoins;
     @JsonView({View.DiseaseAnnotation.class})
     private List<Map<String, CrossReference>> providers;
-
-    private Map<String, ExperimentalCondition> conditions;
-
-    private Map<String, ExperimentalCondition> conditionModifiers;
 
     public void addOrthologousGene(Gene gene) {
         if (orthologyGenes == null)
@@ -213,60 +209,5 @@ public class DiseaseAnnotation implements Comparable<DiseaseAnnotation>, Seriali
     public void setEcoCodes(List<ECOTerm> ecoCodes) {
         this.ecoCodes = ecoCodes;
     }
-
-    @JsonView({View.DiseaseAnnotation.class})
-    public Map<String, ExperimentalCondition> getConditionModifiers() {
-        return conditionModifiers;
-    }
-
-    public void addModifier(ConditionType conditionType, List<ExperimentalCondition> conditionModifier) {
-        if (conditionModifier == null || conditionType == null)
-            return;
-        if (!conditionType.isModifier())
-            throw new RuntimeException("No Modifier condition provided:" + conditionType);
-        if (this.conditionModifiers == null)
-            this.conditionModifiers = new HashMap<>();
-        conditionModifier.forEach(condition -> conditionModifiers.put(conditionType.name(), condition));
-    }
-
-    public void setConditions(Map<String, ExperimentalCondition> conditions) {
-        this.conditions = conditions;
-    }
-
-    public void setConditionModifiers(Map<String, ExperimentalCondition> conditionModifiers) {
-        this.conditionModifiers = conditionModifiers;
-    }
-
-    @JsonView({View.DiseaseAnnotation.class})
-    public Map<String, ExperimentalCondition> getConditions() {
-        return conditions;
-    }
-
-    public void addConditions(ConditionType conditionType, List<ExperimentalCondition> conditions) {
-        if (conditions == null || conditionType == null)
-            return;
-        if (!conditionType.isCondition())
-            throw new RuntimeException("No condition type provided:" + conditionType);
-        if (this.conditions == null)
-            this.conditions = new HashMap<>();
-        conditions.forEach(condition -> this.conditions.put(conditionType.name(), condition));
-    }
-
-    public enum ConditionType {
-        HAS_CONDITION, INDUCES, AMELIORATES, EXACERBATES;
-
-        public static boolean valueOfIgnoreCase(String conditionType) {
-            return Arrays.stream(values()).anyMatch(conditionType1 -> conditionType1.name().equalsIgnoreCase(conditionType));
-        }
-
-        public boolean isModifier() {
-            return this.equals(AMELIORATES) || this.equals(EXACERBATES);
-        }
-
-        public boolean isCondition() {
-            return this.equals(HAS_CONDITION) || this.equals(INDUCES);
-        }
-    }
-
 
 }
