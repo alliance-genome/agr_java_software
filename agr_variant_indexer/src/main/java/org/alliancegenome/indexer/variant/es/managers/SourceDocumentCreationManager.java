@@ -29,6 +29,7 @@ public class SourceDocumentCreationManager extends Thread {
 
             GeneIndexerRepository geneRepo = new GeneIndexerRepository();
             GeneDocumentCache geneCache = geneRepo.getGeneDocumentCache();
+            geneRepo.close();
 
             for(DownloadSource source: downloadSet.getDownloadFileSet()) {
                 SourceDocumentCreation creator = new SourceDocumentCreation(client, source, geneCache);

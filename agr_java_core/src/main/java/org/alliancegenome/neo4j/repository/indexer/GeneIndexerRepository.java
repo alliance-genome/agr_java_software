@@ -7,11 +7,12 @@ import java.util.concurrent.*;
 import org.alliancegenome.es.index.site.cache.GeneDocumentCache;
 import org.alliancegenome.neo4j.entity.node.Gene;
 import org.alliancegenome.neo4j.repository.Neo4jRepository;
-import org.apache.logging.log4j.*;
 
+import lombok.extern.jbosslog.JBossLog;
+
+@JBossLog
 public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
 
-    private final Logger log = LogManager.getLogger(getClass());
     protected Runtime runtime = Runtime.getRuntime();
     protected DecimalFormat df = new DecimalFormat("#");
     private GeneDocumentCache cache = new GeneDocumentCache();
