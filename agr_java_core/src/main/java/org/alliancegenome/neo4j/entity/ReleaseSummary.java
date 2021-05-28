@@ -16,5 +16,7 @@ public class ReleaseSummary {
     private AllianceReleaseInfo releaseInfo;
     @JsonView({View.API.class})
     private List<ModFileMetadata> metaData;
+    @JsonView({View.API.class})
+    private List<OntologyFileMetadata> ontologyMetaData;
 
 }
