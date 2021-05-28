@@ -66,8 +66,6 @@ public class ConfigHelper {
         defaults.put(NEO4J_HOST, "localhost");
         defaults.put(NEO4J_PORT, "7687");
 
-        defaults.put(AWS_ACCESS_KEY, null);
-        defaults.put(AWS_SECRET_KEY, null);
         defaults.put(AWS_BUCKET_NAME, "mod-datadumps-dev"); // This needs to always be a dev bucket unless running in production
 
         defaults.put(AO_TERM_LIST, "anatomy-term-order.csv");
@@ -120,7 +118,7 @@ public class ConfigHelper {
         return ret;
     }
 
-    private static String loadSystemENVProperty(String key) {
+    public static String loadSystemENVProperty(String key) {
         String ret = System.getenv(key);
         if (ret != null) log.debug("Found Enviroment ENV[" + key + "]=" + ret);
         return ret;
