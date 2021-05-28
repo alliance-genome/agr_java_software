@@ -70,6 +70,9 @@ public class Neo4jRepository<E> {
         return neo4jSession.load(entityTypeClazz, primaryKey);
     }
     
+    public Iterable<E> getAll() {
+        return neo4jSession.loadAll(entityTypeClazz);
+    }
 
     protected Iterable<E> query(String cypherQuery) {
         return loggedQueryByClass(entityTypeClazz, cypherQuery, Collections.EMPTY_MAP);

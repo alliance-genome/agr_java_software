@@ -5,7 +5,10 @@ import static org.alliancegenome.core.config.Constants.ES_INDEX;
 import java.io.IOException;
 import java.util.*;
 
+import javax.enterprise.context.RequestScoped;
+
 import org.alliancegenome.api.entity.AlleleVariantSequence;
+import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.es.util.EsClientFactory;
 import org.alliancegenome.neo4j.entity.node.*;
 import org.elasticsearch.action.search.*;
@@ -20,6 +23,7 @@ import com.fasterxml.jackson.databind.*;
 import lombok.extern.jbosslog.JBossLog;
 
 @JBossLog
+@RequestScoped
 public class AlleleVariantIndexService {
 
     private ObjectMapper mapper = new ObjectMapper();
@@ -125,7 +129,7 @@ public class AlleleVariantIndexService {
         srb.query(buildBoolQuery(id, includeHtp));
         srb.size(10000);
 
-        SearchRequest searchRequest = new SearchRequest(ES_INDEX);
+        SearchRequest searchRequest = new SearchRequest(ConfigHelper.getEsIndex());
 
         searchRequest.source(srb);
 

@@ -11,12 +11,14 @@ import org.alliancegenome.neo4j.view.*;
 import org.apache.logging.log4j.*;
 import org.neo4j.ogm.model.Result;
 
+import lombok.extern.jbosslog.JBossLog;
+
+@JBossLog
 public class OrthologousRepository extends Neo4jRepository<Orthologous> {
 
     public static final String COLLECT_DISTINCT_MATCHED = "collect(distinct matched)";
     public static final String COLLECT_DISTINCT_NOT_MATCHED = "collect(distinct notMatched)";
     public static final String COLLECT_DISTINCT_NOT_CALLED = "collect(distinct notCalled)";
-    private final Logger log = LogManager.getLogger(getClass());
 
     public OrthologousRepository() {
         super(Orthologous.class);

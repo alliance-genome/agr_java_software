@@ -35,7 +35,7 @@ public class GeneService {
     private AlleleService alleleService;
 
     @Inject
-    private AlleleVariantIndexService esService;
+    private AlleleVariantIndexService alleleVariantIndexService;
 
     @Inject
     private GeneCacheRepository geneCacheRepo;
@@ -54,7 +54,7 @@ public class GeneService {
 
     public JsonResultResponse<Allele> getAlleles(String geneId, Pagination pagination) {
         long startTime = System.currentTimeMillis();
-        List<Allele> alleles=   esService.getAlleles(geneId);
+        List<Allele> alleles=   alleleVariantIndexService.getAlleles(geneId);
         JsonResultResponse<Allele> response=alleleCacheRepository .getAlleleJsonResultResponse(pagination, alleles);
         if (response == null)
             response = new JsonResultResponse<>();
@@ -64,7 +64,7 @@ public class GeneService {
     }
 
     public JsonResultResponse<AlleleVariantSequence> getAllelesAndVariantInfo(String geneId, Pagination pagination) {
-        List<AlleleVariantSequence> allelesNVariants = esService.getAllelesNVariants(geneId);
+        List<AlleleVariantSequence> allelesNVariants = alleleVariantIndexService.getAllelesNVariants(geneId);
         if (allelesNVariants == null)
             return null;
         return alleleCacheRepository.getAlleleAndVariantJsonResultResponse(pagination, allelesNVariants);

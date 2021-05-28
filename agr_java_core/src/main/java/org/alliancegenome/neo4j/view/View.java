@@ -2,8 +2,6 @@ package org.alliancegenome.neo4j.view;
 
 public class View {
 
-
-
     // Generic Views
     public static class Default { }
     public static class DetailView { }
@@ -31,7 +29,8 @@ public class View {
     public static class GeneAlleleVariantSequenceAPI extends Default { }
     public static class AlleleAPI extends API { }
     public static class TransgenicAlleleAPI extends API { }
-    public static class VariantAPI extends API {    }
+    public static class VariantAPI extends API { }
+    public static class ReleaseInfo extends API {}
     
     
     public static class AlleleVariantSequenceConverterForES { } // This needs to NOT extend Default as this controls specifically what gets serialized and what doesn't.
