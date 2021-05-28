@@ -35,8 +35,11 @@ class CoolThing {
     private HashMap<String, String> map;
     private ArrayList<String> list2;
     private HashMap<String, String> map2;
+    private HashSet<String> set;
+    private HashSet<String> set2;
 
     public CoolThing() {
+        set = new HashSet<String>();
         list = new ArrayList<String>();
         map = new HashMap<String, String>();
     }

@@ -19,7 +19,6 @@ public class RestDefaultObjectMapper implements ContextResolver<ObjectMapper> {
         if (!ConfigHelper.isProduction())
             mapper.enable(SerializationFeature.INDENT_OUTPUT);
         mapper.setSerializerFactory(mapper.getSerializerFactory().withSerializerModifier(new APIBeanSerializerModifier()));
-        
     }
 
     @Override
@@ -30,21 +29,4 @@ public class RestDefaultObjectMapper implements ContextResolver<ObjectMapper> {
     public ObjectMapper getMapper() {
         return mapper;
     }
-
 }
-
-//mapper.getSerializerProvider().setNullValueSerializer(new NullSerializer());
-//class NullSerializer extends JsonSerializer<Object> {
-//
-//  @Override
-//  public void serialize(Object o, com.fasterxml.jackson.core.JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException, com.fasterxml.jackson.core.JsonProcessingException {
-//      if(o instanceof Collection) {
-//          jsonGenerator.writeString("[]");
-//      } else if(o instanceof Map) {
-//          jsonGenerator.writeString("{}");
-//      } else {
-//          jsonGenerator.writeString("");
-//      }
-//  }
-//
-//}

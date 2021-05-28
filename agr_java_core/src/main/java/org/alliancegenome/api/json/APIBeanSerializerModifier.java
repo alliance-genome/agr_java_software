@@ -13,7 +13,6 @@ public class APIBeanSerializerModifier extends BeanSerializerModifier {
 
     @Override
     public List<BeanPropertyWriter> changeProperties(SerializationConfig config, BeanDescription beanDesc, List beanProperties) {
-        System.out.println("Does this run 1?");
         for (int i = 0; i < beanProperties.size(); i++) {
             BeanPropertyWriter writer = (BeanPropertyWriter) beanProperties.get(i);
             if (isArrayType(writer)) {
