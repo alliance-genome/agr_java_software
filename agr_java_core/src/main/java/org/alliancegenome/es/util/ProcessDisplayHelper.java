@@ -52,9 +52,9 @@ public class ProcessDisplayHelper {
         startTime = new Date().getTime();
         sizeCounter = new AtomicLong(0);
         if (totalSize > 0)
-            logInfoMessage(this.message + "Starting Process [total =    " + getBigNumber(totalSize) + "] ");
+            logInfoMessage(this.message + "Starting Process [total =    " + getBigNumber(totalSize) + "] " + new Date());
         else
-            logInfoMessage(this.message + "Starting Process...");
+            logInfoMessage(this.message + "Starting Process... (" + new Date() + ")");
 
         lastTime = new Date().getTime();
     }
@@ -121,7 +121,7 @@ public class ProcessDisplayHelper {
         String result = getHumanReadableTimeDisplay(duration);
         String localMessage = message + "Finished: took: " + result + " to process " + getBigNumber(sizeCounter.get());
         if (duration != 0) {
-            localMessage += " records at a rate of: " + ((sizeCounter.get() * 1000) / duration) + "r/s " + ((sizeCounter.get() * 60000) / duration) + "r/m";
+            localMessage += " records at a rate of: " + getBigNumber((sizeCounter.get() * 1000) / duration) + "r/s " + getBigNumber((sizeCounter.get() * 60000) / duration) + "r/m";
         } else {
             localMessage += " records";
         }

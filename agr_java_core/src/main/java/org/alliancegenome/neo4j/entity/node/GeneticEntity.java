@@ -172,22 +172,20 @@ public class GeneticEntity extends Neo4jEntity {
     }
 
     public void setCrossReferencesList(List<String> list) {
-        crossReferences = new ArrayList<CrossReference>();
         if (CollectionUtils.isNotEmpty(list)) {
-            list.forEach(crRef -> {
+            crossReferences = new ArrayList<CrossReference>();
+            for(String crRef: list) {
                 CrossReference crossReference = new CrossReference();
                 crossReference.setName(crRef);
                 crossReferences.add(crossReference);
-            });
-            crossReferences.sort(Comparator.comparing(crossReference -> crossReference.getName().toLowerCase()));
+            }
+            //crossReferences.sort(Comparator.comparing(crossReference -> crossReference.getName().toLowerCase()));
         }
     }
 
 
     // ToDo: the primary URL should be an attribute on the entity node
     @JsonView({View.GeneAllelesAPI.class, View.AlleleAPI.class, View.Default.class,View.AlleleVariantSequenceConverterForES.class})
-    @JsonProperty(value = "url")
-    @JsonInclude(JsonInclude.Include.USE_DEFAULTS)
     public String getUrl() {
         if (url != null)
             return url;

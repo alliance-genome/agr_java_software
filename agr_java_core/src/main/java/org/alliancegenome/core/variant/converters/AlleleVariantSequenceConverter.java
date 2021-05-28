@@ -1,19 +1,21 @@
 package org.alliancegenome.core.variant.converters;
 
 import java.util.*;
+import java.util.regex.*;
 
 import org.alliancegenome.api.entity.AlleleVariantSequence;
 import org.alliancegenome.es.index.site.cache.GeneDocumentCache;
 import org.alliancegenome.neo4j.entity.SpeciesType;
 import org.alliancegenome.neo4j.entity.node.*;
 import org.alliancegenome.neo4j.entity.relationship.GenomeLocation;
+import org.apache.commons.lang3.StringUtils;
 
 import htsjdk.variant.variantcontext.VariantContext;
 import io.github.lukehutch.fastclasspathscanner.utils.Join;
-import org.alliancegenome.neo4j.entity.relationship.GenomeLocation;
-import org.apache.commons.lang3.StringUtils;
 
 public class AlleleVariantSequenceConverter {
+    
+    private static Pattern validAlleles = Pattern.compile("[ACGTN\\-]+");
     
     public List<AlleleVariantSequence> convertContextToAlleleVariantSequence(VariantContext ctx, String[] header, SpeciesType speciesType, GeneDocumentCache geneCache) throws Exception {
         List<AlleleVariantSequence> returnDocuments = new ArrayList<>();
@@ -189,13 +191,7 @@ public class AlleleVariantSequenceConverter {
     }
 
     private boolean alleleIsValid(String allele) {
-        for (int i = 0; i < allele.length(); i++) {
-            char c = allele.charAt(i);
-            if (c == 'A' || c == 'C' || c == 'G' || c == 'T' || c == 'N' || c == '-')
-                continue;
-            return false;
-        }
-        return true;
+        return validAlleles.matcher(allele).matches();
     }
 
 }

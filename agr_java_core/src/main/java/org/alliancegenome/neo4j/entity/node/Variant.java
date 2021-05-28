@@ -142,21 +142,15 @@ public class Variant extends GeneticEntity implements Comparable<Variant> {
 
     @JsonView({View.VariantAPI.class,View.AlleleVariantSequenceConverterForES.class})
     public List<String> getHgvsG() {
-        List<String> names = new ArrayList<>();
-        names.add(name);
-        names.add(hgvsNomenclature);
+        HashSet<String> ret = new HashSet<String>();
+        ret.add(name);
+        ret.add(hgvsNomenclature);
         if (transcriptLevelConsequence != null) {
-            if (CollectionUtils.isNotEmpty(transcriptLevelConsequence)) {
-                names.addAll(transcriptLevelConsequence.stream()
-                        .map(TranscriptLevelConsequence::getHgvsVEPGeneNomenclature)
-                        .distinct()
-                        .collect(Collectors.toList()));
+            for(TranscriptLevelConsequence tlc: transcriptLevelConsequence) {
+                ret.add(tlc.getHgvsVEPGeneNomenclature());
             }
         }
-        // remove nulls from VCF files
-        names = names.stream().filter(Objects::nonNull).collect(Collectors.toList());
-        names.sort(Comparator.naturalOrder());
-        return names;
+        return new ArrayList<String>(ret);
     }
 
     @JsonView({View.VariantAPI.class})
