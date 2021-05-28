@@ -63,7 +63,7 @@ public class AlleleCacheRepository {
                 .collect(Collectors.toList());
     }
 
-    private JsonResultResponse<Allele> getAlleleJsonResultResponse(Pagination pagination, List<Allele> allAlleles) {
+    public JsonResultResponse<Allele> getAlleleJsonResultResponse(Pagination pagination, List<Allele> allAlleles) {
         JsonResultResponse<Allele> response = new JsonResultResponse<>();
 
         //filtering
@@ -80,7 +80,7 @@ public class AlleleCacheRepository {
         return response;
     }
 
-    private JsonResultResponse<AlleleVariantSequence> getAlleleAndVariantJsonResultResponse(Pagination pagination, List<AlleleVariantSequence> allAlleles) {
+    public JsonResultResponse<AlleleVariantSequence> getAlleleAndVariantJsonResultResponse(Pagination pagination, List<AlleleVariantSequence> allAlleles) {
         JsonResultResponse<AlleleVariantSequence> response = new JsonResultResponse<>();
 
         //filtering

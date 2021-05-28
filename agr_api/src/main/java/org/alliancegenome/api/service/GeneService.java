@@ -11,6 +11,7 @@ import org.alliancegenome.api.entity.AlleleVariantSequence;
 import org.alliancegenome.cache.*;
 import org.alliancegenome.cache.repository.*;
 import org.alliancegenome.cache.repository.helper.*;
+import org.alliancegenome.core.variant.service.AlleleVariantIndexService;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.*;
 import org.alliancegenome.neo4j.entity.node.*;
@@ -32,8 +33,15 @@ public class GeneService {
 
     @Inject
     private AlleleService alleleService;
+
+    @Inject
+    private AlleleVariantIndexService esService;
+
     @Inject
     private GeneCacheRepository geneCacheRepo;
+
+    @Inject
+    private AlleleCacheRepository alleleCacheRepository;
 
     public Gene getById(String id) {
         Gene gene = geneRepo.getOneGene(id);
@@ -46,7 +54,8 @@ public class GeneService {
 
     public JsonResultResponse<Allele> getAlleles(String geneId, Pagination pagination) {
         long startTime = System.currentTimeMillis();
-        JsonResultResponse<Allele> response = alleleService.getAllelesByGene(geneId, pagination);
+        List<Allele> alleles=   esService.getAlleles(geneId);
+        JsonResultResponse<Allele> response=alleleCacheRepository .getAlleleJsonResultResponse(pagination, alleles);
         if (response == null)
             response = new JsonResultResponse<>();
         long duration = (System.currentTimeMillis() - startTime) / 1000;
@@ -55,13 +64,10 @@ public class GeneService {
     }
 
     public JsonResultResponse<AlleleVariantSequence> getAllelesAndVariantInfo(String geneId, Pagination pagination) {
-        long startTime = System.currentTimeMillis();
-        JsonResultResponse<AlleleVariantSequence> response = alleleService.getAllelesAndVariantsByGene(geneId, pagination);
-        if (response == null)
-            response = new JsonResultResponse<>();
-        long duration = (System.currentTimeMillis() - startTime) / 1000;
-        response.setRequestDuration(Long.toString(duration));
-        return response;
+        List<AlleleVariantSequence> allelesNVariants = esService.getAllelesNVariants(geneId);
+        if (allelesNVariants == null)
+            return null;
+        return alleleCacheRepository.getAlleleAndVariantJsonResultResponse(pagination, allelesNVariants);
     }
 
     public JsonResultResponse<InteractionGeneJoin> getInteractions(String id, Pagination pagination, String joinType) {
