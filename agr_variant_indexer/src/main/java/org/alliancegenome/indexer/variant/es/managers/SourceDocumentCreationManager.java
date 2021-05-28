@@ -37,7 +37,7 @@ public class SourceDocumentCreationManager extends Thread {
             }
 
             log.info("SourceDocumentCreationManager shuting down executor: ");
-            executor.shutdown();  
+            executor.shutdown();
             while (!executor.isTerminated()) {
                 Thread.sleep(1000);
             }
