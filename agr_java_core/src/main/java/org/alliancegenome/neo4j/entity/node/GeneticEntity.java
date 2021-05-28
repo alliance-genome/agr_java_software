@@ -1,10 +1,7 @@
 package org.alliancegenome.neo4j.entity.node;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonView;
-import lombok.Getter;
-import lombok.Setter;
+import java.util.*;
+
 import org.alliancegenome.es.util.DateConverter;
 import org.alliancegenome.neo4j.entity.Neo4jEntity;
 import org.alliancegenome.neo4j.view.View;
@@ -13,7 +10,9 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.typeconversion.Convert;
 
-import java.util.*;
+import com.fasterxml.jackson.annotation.*;
+
+import lombok.*;
 
 @Getter
 @Setter
@@ -51,8 +50,10 @@ public class GeneticEntity extends Neo4jEntity {
     @Relationship(type = "CROSS_REFERENCE")
     @JsonView({View.AlleleVariantSequenceConverterForES.class})
     protected List<CrossReference> crossReferences;
-
     
+    protected List<String> secondaryIdsList;
+    protected List<String> crossReferencesList;
+    protected List<String> synonymsList;    
     
     
     // Only for manual construction (Neo needs to use the no-args constructor)
@@ -70,57 +71,41 @@ public class GeneticEntity extends Neo4jEntity {
     @JsonView(value = {View.API.class, View.GeneAllelesAPI.class, View.GeneAlleleVariantSequenceAPI.class, View.AlleleVariantSequenceConverterForES.class})
     @JsonProperty(value = "synonyms")
     public List<String> getSynonymList() {
-        List<String> list = null;
-        if (synonyms != null) {
-            list = new ArrayList<String>();
+        if (synonyms != null && CollectionUtils.isEmpty(synonymsList)) {
+            synonymsList = new ArrayList<String>();
             for (Synonym s : synonyms) {
-                list.add(s.getName());
+                synonymsList.add(s.getName());
             }
         }
-        return list;
+        return synonymsList;
     }
 
     @JsonProperty(value = "synonyms")
-    public void setSynonymList(List<String> list) {
-        if (CollectionUtils.isNotEmpty(list)) {
-            synonyms = new ArrayList<Synonym>();
-            list.forEach(syn -> {
-                Synonym synonym = new Synonym();
-                synonym.setName(syn);
-                synonyms.add(synonym);
-            });
-        }
+    public void setSynonymList(List<String> synonymsList) {
+        if (synonymsList == null)
+            return;
+        this.synonymsList = synonymsList;
     }
 
     // Converts the list of secondary ids objects to a list of strings
     @JsonView(value = {View.API.class, View.AlleleVariantSequenceConverterForES.class})
     @JsonProperty(value = "secondaryIds")
     public List<String> getSecondaryIdsList() {
-        List<String> list = null;
-        if (secondaryIds != null) {
-            list = new ArrayList<>();
+        if (secondaryIds != null && CollectionUtils.isEmpty(secondaryIdsList)) {
+            secondaryIdsList = new ArrayList<>();
             for (SecondaryId s : secondaryIds) {
-                list.add(s.getName());
+                secondaryIdsList.add(s.getName());
             }
         }
-        return list;
-
+        return secondaryIdsList;
     }
 
     @JsonProperty(value = "secondaryIds")
-    public void setSecondaryIdsList(List<String> list) {
-        if (CollectionUtils.isNotEmpty(list)) {
-            secondaryIds = new ArrayList<SecondaryId>();
-            list.forEach(idName -> {
-                SecondaryId secondaryId = new SecondaryId();
-                secondaryId.setName(idName);
-                secondaryIds.add(secondaryId);
-            });
-        }
+    public void setSecondaryIdsList(List<String> secondaryIdsList) {
+        if (secondaryIdsList == null)
+            return;
+        this.secondaryIdsList = secondaryIdsList;
     }
-
-
-
 
     @JsonView({View.API.class, View.AlleleVariantSequenceConverterForES.class})
     public Map<String, Object> getCrossReferenceMap() {
@@ -161,26 +146,17 @@ public class GeneticEntity extends Neo4jEntity {
 
     @JsonView(value = {View.AlleleVariantSequenceConverterForES.class})
     public List<String> getCrossReferencesList() {
-        if (crossReferences != null) {
-            List<String> list = new ArrayList<>();
+        if (crossReferences != null && CollectionUtils.isEmpty(crossReferencesList)) {
+            crossReferencesList = new ArrayList<>();
             for (CrossReference crossReference : crossReferences) {
-                list.add(crossReference.getName());
+                crossReferencesList.add(crossReference.getName());
             }
-            return list;
-        } else {
-            return new ArrayList<>();
         }
+        return crossReferencesList;
     }
 
-    public void setCrossReferencesList(List<String> list) {
-        if (CollectionUtils.isNotEmpty(list)) {
-            crossReferences = new ArrayList<CrossReference>();
-            for(String crRef: list) {
-                CrossReference crossReference = new CrossReference();
-                crossReference.setName(crRef);
-                crossReferences.add(crossReference);
-            }
-        }
+    public void setCrossReferencesList(List<String> crossReferencesList) {
+        this.crossReferencesList = crossReferencesList;
     }
 
 
