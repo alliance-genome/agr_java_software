@@ -11,14 +11,11 @@ import org.alliancegenome.neo4j.repository.Neo4jRepository;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.*;
 
-public class AlleleIndexerRepository extends Neo4jRepository<Allele> {
+public class AlleleIndexerRepository extends AlleleRepository {
 
     private final Logger log = LogManager.getLogger(getClass());
 
     private AlleleDocumentCache cache = new AlleleDocumentCache();
-
-    AlleleRepository alleleRepository=new AlleleRepository();
-    public AlleleIndexerRepository() { super(Allele.class); }
 
     public AlleleDocumentCache getAlleleDocumentCache() {
         log.info("Building AlleleDocumentCache");
@@ -63,7 +60,7 @@ public class AlleleIndexerRepository extends Neo4jRepository<Allele> {
         @Override
         public void run() {
             log.info("Fetching alleles objects");
-            cache.setAlleleMap(alleleRepository.getAllAlleleVariants());
+            cache.setAlleleMap(getAllAlleleVariants());
             log.info("Finished Fetching alleles objects");
         }
     }
