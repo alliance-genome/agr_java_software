@@ -1,31 +1,25 @@
 package org.alliancegenome.neo4j.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Getter;
 import lombok.Setter;
-import org.alliancegenome.api.entity.PresentationEntity;
-import org.alliancegenome.neo4j.entity.node.*;
+import org.alliancegenome.neo4j.entity.node.ExperimentalCondition;
 import org.alliancegenome.neo4j.view.View;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
-import java.io.Serializable;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Getter
 @Setter
 @Schema(name = "ConditionAnnotation", description = "POJO that represents a Condition Annotation")
-public abstract class ConditionAnnotation  {
+public abstract class ConditionAnnotation {
 
-    private Map<String, ExperimentalCondition> conditions;
+    private Map<String, List<ExperimentalCondition>> conditions;
 
-    private Map<String, ExperimentalCondition> conditionModifiers;
+    private Map<String, List<ExperimentalCondition>> conditionModifiers;
 
-    @JsonView({View.DiseaseAnnotation.class,View.PrimaryAnnotation.class})
-    public Map<String, ExperimentalCondition> getConditionModifiers() {
+    @JsonView({View.DiseaseAnnotation.class, View.PrimaryAnnotation.class})
+    public Map<String, List<ExperimentalCondition>> getConditionModifiers() {
         return conditionModifiers;
     }
 
@@ -36,19 +30,20 @@ public abstract class ConditionAnnotation  {
             throw new RuntimeException("No Modifier condition provided:" + conditionType);
         if (this.conditionModifiers == null)
             this.conditionModifiers = new HashMap<>();
-        conditionModifier.forEach(condition -> conditionModifiers.put(conditionType.name(), condition));
+        this.conditionModifiers.computeIfAbsent(conditionType.getDisplayName(), k -> new ArrayList<>());
+        this.conditionModifiers.get(conditionType.getDisplayName()).addAll(conditionModifier);
     }
 
-    public void setConditions(Map<String, ExperimentalCondition> conditions) {
+    public void setConditions(Map<String, List<ExperimentalCondition>> conditions) {
         this.conditions = conditions;
     }
 
-    public void setConditionModifiers(Map<String, ExperimentalCondition> conditionModifiers) {
+    public void setConditionModifiers(Map<String, List<ExperimentalCondition>> conditionModifiers) {
         this.conditionModifiers = conditionModifiers;
     }
 
-    @JsonView({View.DiseaseAnnotation.class,View.PrimaryAnnotation.class})
-    public Map<String, ExperimentalCondition> getConditions() {
+    @JsonView({View.DiseaseAnnotation.class, View.PrimaryAnnotation.class})
+    public Map<String, List<ExperimentalCondition>> getConditions() {
         return conditions;
     }
 
@@ -59,14 +54,24 @@ public abstract class ConditionAnnotation  {
             throw new RuntimeException("No condition type provided:" + conditionType);
         if (this.conditions == null)
             this.conditions = new HashMap<>();
-        conditions.forEach(condition -> this.conditions.put(conditionType.name(), condition));
+        this.conditions.computeIfAbsent(conditionType.getDisplayName(), k -> new ArrayList<>());
+        this.conditions.get(conditionType.getDisplayName()).addAll(conditions);
     }
 
     public enum ConditionType {
-        HAS_CONDITION, INDUCES, AMELIORATES, EXACERBATES;
+        HAS_CONDITION("has_condition"),
+        INDUCES("induced_by"),
+        AMELIORATES("ameliorated_by"),
+        EXACERBATES("exacerbated_by");
+
+        String displayName;
+
+        ConditionType(String displayName) {
+            this.displayName = displayName;
+        }
 
         public static boolean valueOfIgnoreCase(String conditionType) {
-            return Arrays.stream(values()).anyMatch(conditionType1 -> conditionType1.name().equalsIgnoreCase(conditionType));
+            return Arrays.stream(values()).anyMatch(conditionType1 -> conditionType1.getDisplayName().equalsIgnoreCase(conditionType));
         }
 
         public boolean isModifier() {
@@ -75,6 +80,10 @@ public abstract class ConditionAnnotation  {
 
         public boolean isCondition() {
             return this.equals(HAS_CONDITION) || this.equals(INDUCES);
+        }
+
+        public String getDisplayName() {
+            return displayName;
         }
     }
 

@@ -1,22 +1,30 @@
 package org.alliancegenome.api.service;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.stream.Collectors;
+import org.alliancegenome.api.entity.AlleleVariantSequence;
+import org.alliancegenome.cache.repository.AlleleCacheRepository;
+import org.alliancegenome.cache.repository.GeneCacheRepository;
+import org.alliancegenome.cache.repository.InteractionCacheRepository;
+import org.alliancegenome.cache.repository.PhenotypeCacheRepository;
+import org.alliancegenome.cache.repository.helper.JsonResultResponse;
+import org.alliancegenome.cache.repository.helper.PaginationResult;
+import org.alliancegenome.core.variant.service.AlleleVariantIndexService;
+import org.alliancegenome.es.model.query.Pagination;
+import org.alliancegenome.neo4j.entity.EntitySummary;
+import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
+import org.alliancegenome.neo4j.entity.SpeciesType;
+import org.alliancegenome.neo4j.entity.node.Allele;
+import org.alliancegenome.neo4j.entity.node.Gene;
+import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
+import org.alliancegenome.neo4j.repository.GeneRepository;
+import org.alliancegenome.neo4j.repository.InteractionRepository;
+import org.alliancegenome.neo4j.repository.PhenotypeRepository;
+import org.apache.commons.collections.CollectionUtils;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
-
-import org.alliancegenome.api.entity.AlleleVariantSequence;
-import org.alliancegenome.cache.*;
-import org.alliancegenome.cache.repository.*;
-import org.alliancegenome.cache.repository.helper.*;
-import org.alliancegenome.core.variant.service.AlleleVariantIndexService;
-import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.neo4j.entity.*;
-import org.alliancegenome.neo4j.entity.node.*;
-import org.alliancegenome.neo4j.repository.*;
-import org.apache.commons.collections.CollectionUtils;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RequestScoped
 public class GeneService {
@@ -54,8 +62,8 @@ public class GeneService {
 
     public JsonResultResponse<Allele> getAlleles(String geneId, Pagination pagination) {
         long startTime = System.currentTimeMillis();
-        List<Allele> alleles=   alleleVariantIndexService.getAlleles(geneId);
-        JsonResultResponse<Allele> response=alleleCacheRepository .getAlleleJsonResultResponse(pagination, alleles);
+        List<Allele> alleles = alleleVariantIndexService.getAlleles(geneId);
+        JsonResultResponse<Allele> response = alleleCacheRepository.getAlleleJsonResultResponse(pagination, alleles);
         if (response == null)
             response = new JsonResultResponse<>();
         long duration = (System.currentTimeMillis() - startTime) / 1000;
@@ -86,6 +94,7 @@ public class GeneService {
         response.setTotal(interactions.getTotalNumber());
         return response;
     }
+
     public JsonResultResponse<InteractionGeneJoin> getInteractions(String id, Pagination pagination) {
         return getInteractions(id, pagination, "");
     }
@@ -123,7 +132,7 @@ public class GeneService {
                     .map(SpeciesType::getTaxonId)
                     .collect(Collectors.toList());
         }
-        if(CollectionUtils.isEmpty(taxonIDs))
+        if (CollectionUtils.isEmpty(taxonIDs))
             return null;
         List<String> taxIDs = taxonIDs.stream()
                 .map(SpeciesType::getTaxonId)

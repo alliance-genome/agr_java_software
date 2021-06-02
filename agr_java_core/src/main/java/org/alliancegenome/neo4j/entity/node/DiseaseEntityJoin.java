@@ -40,17 +40,6 @@ public class DiseaseEntityJoin extends EntityJoin {
     @Relationship(type = "EXACERBATES")
     private List<ExperimentalCondition> exacerbateConditionList;
 
-/*
-    @Relationship(type = "ASSOCIATION")
-    private List<ExperimentalCondition> experimentalConditionList;
-
-    @Relationship(type = "ASSOCIATION")
-    private List<ExperimentalCondition> experimentalConditionList;
-
-    @Relationship(type = "ASSOCIATION")
-    private List<ExperimentalCondition> experimentalConditionList;
-*/
-
     // Singular at the moment.
     // Make sure this is singular here
     // might turn into a collection i
