@@ -19,7 +19,10 @@ import com.fasterxml.jackson.databind.*;
 
 import lombok.extern.jbosslog.JBossLog;
 
+import javax.enterprise.context.RequestScoped;
+
 @JBossLog
+@RequestScoped
 public class AlleleVariantIndexService {
 
     private ObjectMapper mapper = new ObjectMapper();
