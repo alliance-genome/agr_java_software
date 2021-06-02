@@ -16,7 +16,7 @@ import io.github.lukehutch.fastclasspathscanner.utils.Join;
 public class AlleleVariantSequenceConverter {
     
     private static Pattern validAlleles = Pattern.compile("[ACGTN\\-]+");
-    
+
     public List<AlleleVariantSequence> convertContextToAlleleVariantSequence(VariantContext ctx, String[] header, SpeciesType speciesType, GeneDocumentCache geneCache) throws Exception {
         List<AlleleVariantSequence> returnDocuments = new ArrayList<>();
 
@@ -76,8 +76,18 @@ public class AlleleVariantSequenceConverter {
                     .map(TranscriptLevelConsequence::getHgvsVEPGeneNomenclature)
                     .orElse(null) : null;
 
+            StringBuilder hgvsSynonym = new StringBuilder();
+            if(hgvsNomenclature != null){
+                hgvsSynonym.append('(')
+                        .append(speciesType.getAssembly())
+                        .append(')')
+                        .append(chromosome.getPrimaryKey())
+                        .append(':')
+                        .append(hgvsNomenclature.split(":")[1].substring(2));
+            }
+
             variant.setHgvsNomenclature(hgvsNomenclature);
-            variant.setName(hgvsNomenclature);
+            variant.setName(hgvsSynonym.toString());
             String ctxId = ctx.getID();
             if(StringUtils.isNotEmpty(ctxId) && !ctxId.equals(".")) {
                 avsDoc.setPrimaryKey(ctxId);

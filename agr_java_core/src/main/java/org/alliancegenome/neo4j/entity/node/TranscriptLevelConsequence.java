@@ -261,7 +261,7 @@ public class TranscriptLevelConsequence extends Neo4jEntity {
             siftPrediction = infos[32];
             siftScore = infos[33];
             
-            hgvsVEPGeneNomenclature = infos[34];
+//            hgvsVEPGeneNomenclature = infos[34];
             
             // 35 and 36
 
