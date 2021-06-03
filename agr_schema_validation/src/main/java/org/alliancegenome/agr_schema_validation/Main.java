@@ -2,10 +2,11 @@ package org.alliancegenome.agr_schema_validation;
 
 import java.io.File;
 import java.nio.file.*;
+import java.util.*;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.fge.jackson.JsonLoader;
-import com.github.fge.jsonschema.core.report.ListProcessingReport;
+import com.github.fge.jsonschema.core.report.*;
 import com.github.fge.jsonschema.main.JsonSchemaFactory;
 
 import lombok.extern.log4j.Log4j2;
@@ -19,6 +20,8 @@ public class Main {
             String schema_path = args[0];
             try {
 
+                
+                
                 Files.walk(Paths.get(schema_path)).filter(Files::isRegularFile).forEach(path -> {
                     if(path.toString().endsWith(".json")) {
 
@@ -34,8 +37,14 @@ public class Main {
                             if(schema != null) {
 
                                 ListProcessingReport schemaReport = (ListProcessingReport) JsonSchemaFactory.byDefault().getSyntaxValidator().validateSchema(node);
-
-                                if(schemaReport.isSuccess()) {
+                                
+                                List<ProcessingMessage> messages = new ArrayList<>();
+                                for(ProcessingMessage message: schemaReport) {
+                                    messages.add(message);
+                                    //log.info("Message: " + message);
+                                }
+                                
+                                if(schemaReport.isSuccess() && messages.size() == 0) {
                                     log.info(file + ": " + schemaReport.isSuccess());
                                 } else {
                                     //log.error("Validation Failed for: " + file + " report: " + schemaReport);
