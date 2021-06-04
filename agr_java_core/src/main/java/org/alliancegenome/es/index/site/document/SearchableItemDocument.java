@@ -119,7 +119,7 @@ public class SearchableItemDocument extends ESDocument {
     Set<String> sex;
     Set<String> strictOrthologySymbols;
     Set<String> soTermNameWithParents;
-    Set<String> stage;
+//    Set<String> stage;
     Set<String> subcellularExpressionWithParents;
     Set<String> subcellularExpressionAgrSlim;
     Set<String> synonyms;
