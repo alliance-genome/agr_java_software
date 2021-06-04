@@ -13,6 +13,8 @@ import org.neo4j.ogm.annotation.typeconversion.Convert;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 
+import com.fasterxml.jackson.annotation.JsonView;
+
 import lombok.*;
 
 @Getter
@@ -20,6 +22,7 @@ import lombok.*;
 @NodeEntity
 @Schema(name="OntologyFileMetadata", description="POJO that represents the Ontology File Metadata")
 public class OntologyFileMetadata extends Neo4jEntity {
+
     //@JsonView({View.Default.class, View.API.class})
     //@JsonProperty(value = "ontology")
     //protected String primaryKey;
@@ -44,4 +47,5 @@ public class OntologyFileMetadata extends Neo4jEntity {
     @JsonView({View.API.class})
     @Convert(value = DateConverter.class)
     private Date snapShotDate;
+
 }
