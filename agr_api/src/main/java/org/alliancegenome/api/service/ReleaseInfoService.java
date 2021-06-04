@@ -14,6 +14,7 @@ public class ReleaseInfoService {
 
     @Inject ReleaseInfoRepository releaseRepo;
     @Inject ModFileRepository modFileRepo;
+    @Inject OntologyFileRepository ontologyFileRepo;
 
     public AllianceReleaseInfo getReleaseInfo() {
         return StreamSupport.stream(releaseRepo.getAll().spliterator(), false).collect(Collectors.toList()).get(0);
@@ -21,8 +22,9 @@ public class ReleaseInfoService {
 
     public ReleaseSummary getSummary() {
         ReleaseSummary sum = new ReleaseSummary();
-        sum.setReleaseInfo(StreamSupport.stream(releaseRepo.getAll().spliterator(), false).collect(Collectors.toList()).get(0));
-        sum.setMetaData(StreamSupport.stream(modFileRepo.getAll().spliterator(), false).collect(Collectors.toList()));
+        //sum.setReleaseInfo(StreamSupport.stream(releaseRepo.getAll().spliterator(), false).collect(Collectors.toList()).get(0));
+        //sum.setMetaData(StreamSupport.stream(modFileRepo.getAll().spliterator(), false).collect(Collectors.toList()));
+        sum.setOntologyMetaData(StreamSupport.stream(ontologyFileRepo.getAll().spliterator(), false).collect(Collectors.toList()));
         return sum;
     }
 

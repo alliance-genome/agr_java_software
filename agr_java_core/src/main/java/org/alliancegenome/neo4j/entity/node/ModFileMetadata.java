@@ -9,6 +9,7 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.typeconversion.Convert;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 
 import lombok.*;
@@ -22,12 +23,16 @@ public class ModFileMetadata extends Neo4jEntity {
 
     @JsonView({View.API.class})
     @Convert(value = DateConverter.class)
+    @JsonProperty(value = "releaseDate")
     private Date date_produced;
     @JsonView({View.API.class})
-    private String mod;
+    @JsonProperty(value = "mod")
+    private String dataSubType;
     @JsonView({View.API.class})
+    @JsonProperty(value = "releaseVersion")
     private String release;
     @JsonView({View.API.class})
-    private String type;
+    @JsonProperty(value = "type")
+    private String data;
 
 }
