@@ -33,6 +33,6 @@ public class ModFileMetadata extends Neo4jEntity {
     private String release;
     @JsonView({View.API.class})
     @JsonProperty(value = "type")
-    private String data;
+    private String dataType;
 
 }
