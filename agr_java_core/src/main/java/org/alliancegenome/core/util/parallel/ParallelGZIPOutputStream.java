@@ -77,7 +77,6 @@ public class ParallelGZIPOutputStream extends FilterOutputStream {
             int out_length = state.buf.size();
             if (out_length > buf.length)
                 this.buf = new byte[out_length];
-            // System.out.println("Compressed " + in_length + " to " + out_length + " bytes.");
             this.buf_length = out_length;
             state.buf.writeTo(buf);
 
@@ -228,7 +227,6 @@ public class ParallelGZIPOutputStream extends FilterOutputStream {
                 return;
             // It's an ordered queue. This MUST be the same element as above.
             Block b = emitQueue.remove().get();
-            // System.out.println("Chance-emitting block " + b);
             out.write(b.buf, 0, b.buf_length);
             b.buf_length = 0;
             freeBlock = b;
@@ -242,7 +240,6 @@ public class ParallelGZIPOutputStream extends FilterOutputStream {
             while (emitQueue.size() > taskCountAllowed) {
                 // LOG.info("Waiting for taskCount=" + emitQueue.size() + " -> " + taskCountAllowed);
                 Block b = emitQueue.remove().get();  // Valid because emitQueue.size() > 0
-                // System.out.println("Force-emitting block " + b);
                 out.write(b.buf, 0, b.buf_length);  // Blocks until this task is done.
                 b.buf_length = 0;
                 freeBlock = b;

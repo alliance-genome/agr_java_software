@@ -60,7 +60,6 @@ public class GeneTester extends Tester {
                 progressProcess();
             } catch (Exception e) {
                 e.printStackTrace();
-                System.out.println("Failed: " + id);
                 System.exit(-1);
             }
         }

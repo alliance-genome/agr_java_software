@@ -42,11 +42,9 @@ public class AlleleVariantSequenceConverter {
                 continue;
             }
             if (!alleleIsValid(ctx.getReference().getBaseString())) {
-                //   System.out.println(" *** Ref Nucleotides must be A,C,G,T,N");
                 continue;
             }
             if (!alleleIsValid(a.getBaseString())) {
-                //     System.out.println(" *** Var Nucleotides must be A,C,G,T,N");
                 continue;
             }
 
@@ -106,8 +104,6 @@ public class AlleleVariantSequenceConverter {
 
             }
 
-
-            //    System.out.println("CONTEXT ID: "+ ctx.getID());
             avsDoc.setVariant(variant);
             if (htpConsequences != null) {
                 for (TranscriptLevelConsequence c : htpConsequences) {

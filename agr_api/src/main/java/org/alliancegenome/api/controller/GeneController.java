@@ -556,7 +556,6 @@ public class GeneController implements GeneRESTInterface {
             geneList.addAll(geneIDs);
         }
         Pagination pagination = new Pagination(page, limit, null, null);
-        System.out.println("FildFildter.STRINGENCY:" + FieldFilter.STRINGENCY.getName() + " stringencyFilter:" + stringencyFilter);
         pagination.addFieldFilter(FieldFilter.STRINGENCY, stringencyFilter);
         pagination.addFieldFilter(FieldFilter.ORTHOLOGY_METHOD, method);
         pagination.addFieldFilter(FieldFilter.ORTHOLOGY_TAXON, taxonID);
