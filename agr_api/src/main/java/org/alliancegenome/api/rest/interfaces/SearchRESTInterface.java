@@ -30,6 +30,7 @@ public interface SearchRESTInterface {
         @QueryParam("offset") Integer offset,
         @Parameter(in=ParameterIn.QUERY, name = "sort_by", description = "We will sort the results by this field" , schema = @Schema(type = SchemaType.STRING))
         @QueryParam("sort_by") String sort_by,
+        @QueryParam("debug") Boolean debug,
         @Context UriInfo uriInfo
     );
 }

@@ -33,15 +33,9 @@ public class SearchService {
 
     private static Logger log = Logger.getLogger(SearchService.class);
 
-    public SearchApiResponse query(String q, String category, int limit, int offset, String sort_by, UriInfo uriInfo) {
+    public SearchApiResponse query(String q, String category, int limit, int offset, String sort_by, Boolean debug, UriInfo uriInfo) {
 
         SearchApiResponse result = new SearchApiResponse();
-
-        Boolean debug = false;
-        if (StringUtils.isNotEmpty(q) && q.startsWith("debug")) {
-            debug = true;
-            q = q.replaceFirst("debug","").trim();
-        }
 
         MultivaluedMap filterMap = getFilters(category, uriInfo);
 
@@ -55,7 +49,11 @@ public class SearchService {
 
         SearchResponse searchResponse = searchDAO.performQuery(query, aggBuilders, rescorerBuilder, searchHelper.getResponseFields(), limit, offset, hlb, sort_by, debug);
 
-        log.debug("Search Query: " + q);
+        if(debug != null && debug) {
+            log.info("Search Query: " + q);
+        } else {
+            log.debug("Search Query: " + q);
+        }
 
         result.setTotal(searchResponse.getHits().getTotalHits().value);
         result.setResults(searchHelper.formatResults(searchResponse, tokenizeQuery(q)));
