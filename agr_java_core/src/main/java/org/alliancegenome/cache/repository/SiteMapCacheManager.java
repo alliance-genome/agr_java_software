@@ -27,8 +27,6 @@ public class SiteMapCacheManager {
         for (String id : allIds) {
             Date date = null;
 
-            //System.out.println(hit.getFields());
-
             //if(hit.getSource().get("dateProduced") != null) {
             //  date = new Date((long)hit.getSource().get("dateProduced"));
             //}
@@ -47,8 +45,6 @@ public class SiteMapCacheManager {
 
         for (String id : allIds) {
             Date date = null;
-
-            //System.out.println(hit.getFields());
 
             //if(hit.getSource().get("dateProduced") != null) {
             //  date = new Date((long)hit.getSource().get("dateProduced"));

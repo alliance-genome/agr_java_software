@@ -23,7 +23,7 @@ public class Validate {
 
         if(!report.isSuccess()) {
             for(ProcessingMessage message: report) {
-                System.out.println(message.getMessage());
+                log.info(message.getMessage());
             }
         }
         log.info("Validation Complete: " + report.isSuccess());

@@ -376,13 +376,13 @@ public class IndexManager {
         for(RepositoryMetadata data: meta) {
             if(data.name().equals(repo)) {
                 found = true;
-                System.out.println("Repo Found Name: " + data.name() + " Type: " + data.type());
+                log.info("Repo Found Name: " + data.name() + " Type: " + data.type());
                 break;
             }
         }
 
         if(!found) {
-            System.out.println("Repo Not Found: " + repo);
+            log.info("Repo Not Found: " + repo);
             getCreateRepo(repo);
         }
     }

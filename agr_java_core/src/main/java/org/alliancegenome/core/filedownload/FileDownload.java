@@ -49,7 +49,7 @@ public class FileDownload extends Thread {
         try {
             downloadUrl = verifyUrl(file.getUrl());
             if(downloadUrl == null) {
-                System.out.println("Unable to verify file: " + file.getUrl());
+                log.warn("Unable to verify file: " + file.getUrl());
                 return;
             }
             log.info("Downloading: " + downloadUrl + " -> " + downloadPath);

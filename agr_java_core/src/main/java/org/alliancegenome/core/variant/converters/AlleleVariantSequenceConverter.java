@@ -112,8 +112,6 @@ public class AlleleVariantSequenceConverter {
 
             agrAllele.setSymbol(hgvsNomenclature);
             agrAllele.setSymbolText(hgvsNomenclature);
-            //    System.out.println("CONTEXT ID: "+ ctx.getID());
-     //       avsDoc.setVariant(variant);
             if (htpConsequences != null) {
                 for (TranscriptLevelConsequence c : htpConsequences) {
                     if(geneCache != null){
@@ -172,7 +170,7 @@ public class AlleleVariantSequenceConverter {
             avsDoc.setSpecies(species.getName());
             avsDoc.setChromosomes(Collections.singleton(ctx.getContig()));
             avsDoc.setChromosome(ctx.getContig());
-        //    avsDoc.setTranscriptLevelConsequences(htpConsequences);
+            avsDoc.setTranscriptLevelConsequences(htpConsequences);
             avsDoc.setVariantType(Collections.singleton(variantType.getName()));
             avsDoc.setAllele(agrAllele);
             returnDocuments.add(avsDoc);
