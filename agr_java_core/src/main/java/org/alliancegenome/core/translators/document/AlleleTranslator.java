@@ -13,8 +13,7 @@ public class AlleleTranslator extends EntityDocumentListTranslator<Allele, Allel
 
         List<AlleleVariantSequence> docs = new ArrayList<>();
         
-        for(Variant v: entity.getVariants()) {  
-            AlleleVariantSequence document = new AlleleVariantSequence(entity, v, null);
+            AlleleVariantSequence document = new AlleleVariantSequence();
             
             document.setCategory("allele");
             document.setAlterationType("allele");
@@ -35,7 +34,7 @@ public class AlleleTranslator extends EntityDocumentListTranslator<Allele, Allel
             document.setSynonyms(new HashSet<>(entity.getSynonymList()));
             
             docs.add(document);
-        }
+
 
         return docs;
     }
