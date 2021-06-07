@@ -7,6 +7,7 @@ import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.cache.repository.helper.DiseaseAnnotationSorting;
 import org.alliancegenome.cache.repository.helper.SortingField;
 import org.alliancegenome.core.util.ModelHelper;
+import org.alliancegenome.neo4j.entity.ConditionAnnotation;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
 import org.alliancegenome.neo4j.entity.SpeciesType;
@@ -46,7 +47,7 @@ public class DiseaseCacher extends Cacher {
         if (useCache) {
             joinList = joinList.stream()
                     .filter(diseaseEntityJoin -> diseaseEntityJoin.getGene() != null)
-                    .filter(diseaseEntityJoin -> diseaseEntityJoin.getGene().getPrimaryKey().equals("HGNC:4982") ||
+                    .filter(diseaseEntityJoin -> diseaseEntityJoin.getGene().getPrimaryKey().equals("WB:WBGene00018878") ||
                             diseaseEntityJoin.getGene().getPrimaryKey().equals("MGI:109583"))
                     //.filter(diseaseEntityJoin -> diseaseEntityJoin.getGene().getPrimaryKey().equals("FB:FBgn0030343"))
                     .collect(toSet());
@@ -441,6 +442,12 @@ public class DiseaseCacher extends Cacher {
                                             entity.setUrl(model.getModCrossRefCompleteUrl());
                                             entity.setDisplayName(model.getNameText());
                                             entity.setType(GeneticEntity.getType(model.getSubtype()));
+                                            for (DiseaseEntityJoin diseaseJoin : model.getDiseaseEntityJoins()) {
+                                                entity.addConditions(ConditionAnnotation.ConditionType.HAS_CONDITION, diseaseJoin.getHasConditionList());
+                                                entity.addConditions(ConditionAnnotation.ConditionType.INDUCES, diseaseJoin.getInducerConditionList());
+                                                entity.addModifier(ConditionAnnotation.ConditionType.AMELIORATES, diseaseJoin.getAmeliorateConditionList());
+                                                entity.addModifier(ConditionAnnotation.ConditionType.EXACERBATES, diseaseJoin.getExacerbateConditionList());
+                                            }
                                             entities.put(model.getPrimaryKey(), entity);
                                         }
                                         document.addPrimaryAnnotatedEntity(entity);
@@ -458,6 +465,12 @@ public class DiseaseCacher extends Cacher {
                                         entity = new PrimaryAnnotatedEntity();
                                         entity.setId(allele.getPrimaryKey());
                                         entity.setName(allele.getSymbol());
+                                        for (DiseaseEntityJoin diseaseJoin : allele.getDiseaseEntityJoins()) {
+                                            entity.addConditions(ConditionAnnotation.ConditionType.HAS_CONDITION, diseaseJoin.getHasConditionList());
+                                            entity.addConditions(ConditionAnnotation.ConditionType.INDUCES, diseaseJoin.getInducerConditionList());
+                                            entity.addModifier(ConditionAnnotation.ConditionType.AMELIORATES, diseaseJoin.getAmeliorateConditionList());
+                                            entity.addModifier(ConditionAnnotation.ConditionType.EXACERBATES, diseaseJoin.getExacerbateConditionList());
+                                        }
                                         List<CrossReference> refs = allele.getCrossReferences();
                                         if (org.apache.commons.collections.CollectionUtils.isNotEmpty(refs))
                                             entity.setUrl(refs.get(0).getCrossRefCompleteUrl());

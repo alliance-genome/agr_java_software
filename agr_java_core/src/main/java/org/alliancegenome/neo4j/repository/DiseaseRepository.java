@@ -402,9 +402,13 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
         cypher += "      OPTIONAL MATCH p7    =(dej:DiseaseEntityJoin)-[:ANNOTATION_SOURCE_CROSS_REFERENCE]-(:CrossReference)";
         cypher += "      OPTIONAL MATCH p4=(dej:DiseaseEntityJoin)-[:FROM_ORTHOLOGOUS_GENE]-(orthoGene:Gene)-[:FROM_SPECIES]->(orthoSpecies:Species) ";
         cypher += "      OPTIONAL MATCH p5=(pubEvCode:PublicationJoin)-[:PRIMARY_GENETIC_ENTITY]->(agm:AffectedGenomicModel) ";
-        cypher += "      OPTIONAL MATCH p6=(pubEvCode:PublicationJoin)-[:PRIMARY_GENETIC_ENTITY]->(allele:Allele)--(:CrossReference) ";
+        cypher += "      OPTIONAL MATCH p6=(pubEvCode:PublicationJoin)-[:PRIMARY_GENETIC_ENTITY]->(allele:Allele)--(:CrossReference)";
+        cypher += "      OPTIONAL MATCH p6a=(allele:Allele)--(alleleDej:DiseaseEntityJoin)--(:ExperimentalCondition)--(:ZECOTerm) ";
+        cypher += "      OPTIONAL MATCH p6b=(disease:DOTerm)--(alleleDej:DiseaseEntityJoin) ";
+        cypher += "      OPTIONAL MATCH p6c=(agm)--(agmDej:DiseaseEntityJoin)--(:ExperimentalCondition)--(:ZECOTerm) ";
+        cypher += "      OPTIONAL MATCH p6d=(disease:DOTerm)--(agmDej:DiseaseEntityJoin) ";
         cypher += "      OPTIONAL MATCH condition=(dej:DiseaseEntityJoin)--(:ExperimentalCondition)--(:ZECOTerm) ";
-        cypher += " RETURN p, p0, p4, p5, p6, p7, condition";
+        cypher += " RETURN p, p0, p4, p5, p6, p6a, p6b, p6c, p6d, p7, condition";
         //cypher += " RETURN p, p0, p1, p2, p4, p5, aModel";
 
         long start = System.currentTimeMillis();
