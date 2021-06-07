@@ -37,6 +37,11 @@ public class SearchService {
 
         SearchApiResponse result = new SearchApiResponse();
 
+        if (StringUtils.isNotEmpty(q) && q.startsWith("debug")) {
+            debug = true;
+            q = q.replaceFirst("debug","").trim();
+        }
+
         MultivaluedMap filterMap = getFilters(category, uriInfo);
 
         QueryBuilder query = buildFunctionQuery(q, category, filterMap);
@@ -213,8 +218,8 @@ public class SearchService {
             queryTerm = queryManipulationService.processQuery(queryTerm);
 
             QueryStringQueryBuilder builder = queryStringQuery(queryTerm)
-                .defaultOperator(Operator.OR)
-                .allowLeadingWildcard(true);
+                    .defaultOperator(Operator.OR)
+                    .allowLeadingWildcard(true);
 
             //add the fields one at a time
             searchHelper.getSearchFields().stream().forEach(builder::field);
@@ -234,17 +239,17 @@ public class SearchService {
 
             //expand the map of lists and add each key,value pair as filters
             filters.entrySet().stream().forEach(entry ->
-                entry.getValue().stream().forEach( value ->{
-                            if(value.charAt(0) == '-'){
-                                value = value.substring(1);
-                                //apply if a filter must be excluded
-                                bool.mustNot(new TermQueryBuilder(entry.getKey() + ".keyword", value));
-                            }else {
-                                bool.filter(new TermQueryBuilder(entry.getKey() + ".keyword", value));
-                            }
-                    }
-                )
-            );
+            entry.getValue().stream().forEach( value ->{
+                if(value.charAt(0) == '-'){
+                    value = value.substring(1);
+                    //apply if a filter must be excluded
+                    bool.mustNot(new TermQueryBuilder(entry.getKey() + ".keyword", value));
+                }else {
+                    bool.filter(new TermQueryBuilder(entry.getKey() + ".keyword", value));
+                }
+            }
+                    )
+                    );
 
         }
 
@@ -254,9 +259,9 @@ public class SearchService {
     public MultivaluedMap<String,String> getFilters(String category, UriInfo uriInfo) {
         MultivaluedMap<String,String> map = new MultivaluedHashMap<>();
         uriInfo.getQueryParameters().entrySet()
-                .stream()
-                .filter(entry -> searchHelper.filterIsValid(category, entry.getKey()))
-                .forEach(entry -> map.addAll(entry.getKey(), entry.getValue()));
+        .stream()
+        .filter(entry -> searchHelper.filterIsValid(category, entry.getKey()))
+        .forEach(entry -> map.addAll(entry.getKey(), entry.getValue()));
         return map;
     }
 
