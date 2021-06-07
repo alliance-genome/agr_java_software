@@ -15,10 +15,12 @@ import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.elasticsearch.search.rescore.QueryRescorerBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 
+import lombok.extern.jbosslog.JBossLog;
+
 @SuppressWarnings("serial")
+@JBossLog
 public class SearchDAO extends ESDAO {
 
-    private final Logger log = LogManager.getLogger(getClass());
 
     public Long performCountQuery(QueryBuilder query) {
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
@@ -60,7 +62,7 @@ public class SearchDAO extends ESDAO {
 
         searchSourceBuilder.fetchSource(responseFields.toArray(new String[responseFields.size()]), null);
 
-        if (debug) {
+        if (debug != null && debug) {
             searchSourceBuilder.explain(true);
         }
 
@@ -83,11 +85,22 @@ public class SearchDAO extends ESDAO {
             searchSourceBuilder.aggregation(aggBuilder);
         }
 
-        log.debug(searchSourceBuilder);
+        if(debug != null && debug) {
+            log.info(searchSourceBuilder);
+        } else {
+            log.debug(searchSourceBuilder);
+        }
 
         SearchRequest searchRequest = new SearchRequest(ConfigHelper.getEsIndex());
         searchRequest.source(searchSourceBuilder);
-//        searchRequest.preference("p_" + query);
+        searchRequest.requestCache(true);
+        //searchRequest.preference("p_" + query);
+        
+        if(debug != null && debug) {
+            log.info(searchRequest);
+        } else {
+            log.debug(searchRequest);
+        }
 
         SearchResponse response = null;
 
