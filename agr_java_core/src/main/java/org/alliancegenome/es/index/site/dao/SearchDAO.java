@@ -93,9 +93,9 @@ public class SearchDAO extends ESDAO {
 
         SearchRequest searchRequest = new SearchRequest(ConfigHelper.getEsIndex());
         searchRequest.source(searchSourceBuilder);
-        searchRequest.requestCache(true);
-        //searchRequest.preference("p_" + query);
-        
+        // This request cache doesn't work 07/07/2021
+        //searchRequest.requestCache(true);
+
         if(debug != null && debug) {
             log.info(searchRequest);
         } else {
