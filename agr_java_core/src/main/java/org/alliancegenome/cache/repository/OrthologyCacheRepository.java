@@ -189,9 +189,7 @@ public class OrthologyCacheRepository {
                 .limit(pagination.getLimit()).sorted(Comparator.comparing(o -> o.getHomologGene().getSymbol().toLowerCase()))
                 .collect(Collectors.toList());
 
-        //System.out.println("Number of genes for orthology: " + geneIDs.size());
 
-        //System.out.println("Number of genes for orthology: " + orthologViewFiltered.size());
 
         // <geneID, Map<variableName,variableValue>>
         Map<String, Object> map = new HashMap<>();

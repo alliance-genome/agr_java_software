@@ -45,7 +45,6 @@ public class CacheService {
 
     public List<String> getAllKeys(CacheAlliance cacheSpace) {
         RemoteCache<String, String> cache = getCacheSpace(cacheSpace);
-        //System.out.println(cache);
         return new ArrayList<>(cache.keySet());
     }
 
