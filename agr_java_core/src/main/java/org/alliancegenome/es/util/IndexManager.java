@@ -10,10 +10,11 @@ import org.alliancegenome.es.index.site.schema.*;
 import org.alliancegenome.es.index.site.schema.settings.SiteIndexSettings;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.admin.cluster.repositories.delete.DeleteRepositoryRequest;
 import org.elasticsearch.action.admin.cluster.repositories.get.*;
 import org.elasticsearch.action.admin.cluster.repositories.put.PutRepositoryRequest;
-import org.elasticsearch.action.admin.cluster.snapshots.create.CreateSnapshotRequest;
+import org.elasticsearch.action.admin.cluster.snapshots.create.*;
 import org.elasticsearch.action.admin.cluster.snapshots.delete.DeleteSnapshotRequest;
 import org.elasticsearch.action.admin.cluster.snapshots.get.*;
 import org.elasticsearch.action.admin.cluster.snapshots.restore.RestoreSnapshotRequest;
@@ -37,15 +38,30 @@ public class IndexManager {
     private String newIndexName;
     private String tempIndexName;
     private String baseIndexName = ConfigHelper.getEsIndex();
-    
+
     private Settings settings;
     private Mapping mapping;
+    private boolean requestFinished = false;
+
+    private ActionListener<CreateSnapshotResponse> requestListener = new ActionListener<CreateSnapshotResponse>() {
+        @Override
+        public void onResponse(CreateSnapshotResponse createSnapshotResponse) {
+            log.info("Request finished: " + createSnapshotResponse);
+            requestFinished = true;
+        }
+
+        @Override
+        public void onFailure(Exception exception) {
+            log.error("Request failed: " + exception);
+            requestFinished = true;
+        }
+    };
     
     public IndexManager(Settings settings, Mapping mapping) {
         this.settings = settings;
         this.mapping = mapping;
     }
-    
+
     public IndexManager(Settings settings) {
         this.settings = settings;
         this.mapping = null;
@@ -55,7 +71,7 @@ public class IndexManager {
         settings = new SiteIndexSettings(true);
         mapping = new Mapping(true);
     }
-    
+
     public void createAlias(String alias, String index) { // ES Util
         log.debug("Creating Alias: " + alias + " for index: " + index);
 
@@ -69,11 +85,11 @@ public class IndexManager {
             e.printStackTrace();
         }
     }
-    
+
     public void removeAlias(String alias, String index) { // ES Util
 
         log.debug("Removing Alias: " + alias + " for index: " + index);
-        
+
         IndicesAliasesRequest request = new IndicesAliasesRequest();
         IndicesAliasesRequest.AliasActions removeAction = new IndicesAliasesRequest.AliasActions(IndicesAliasesRequest.AliasActions.Type.REMOVE).index(index).alias(alias);
         request.addAliasAction(removeAction);
@@ -242,9 +258,9 @@ public class IndexManager {
         }
     }
 
-    
 
-    
+
+
     public void deleteSnapShot(String repo, String snapShotName) { // ES Util
         String[] array;
         if(snapShotName.contains(",")) {
@@ -282,7 +298,7 @@ public class IndexManager {
             log.error("Exception in restoreSnapShot method: " + ex.toString());
         }
     }
-    
+
     public void createSnapShot(String repo, String snapShotName, String index) { // ES Util
         List<String> indices = new ArrayList<String>();
         indices.add(index);
@@ -293,16 +309,22 @@ public class IndexManager {
         try {
             log.info("Creating Snapshot: " + snapShotName + " in: " + repo + " with: " + indices);
 
+            requestFinished = false;
+
             CreateSnapshotRequest request = new CreateSnapshotRequest();
             request.repository(repo);
             request.snapshot(snapShotName);
             request.indices(indices);
             request.waitForCompletion(true);
 
-            getClient().snapshot().create(request, RequestOptions.DEFAULT);
+            getClient().snapshot().createAsync(request, RequestOptions.DEFAULT, requestListener);
+            
+            while(!requestFinished) {
+                TimeUnit.SECONDS.sleep(5);
+            }
 
             log.info("Snapshot " + snapShotName + " was created for indices: " + indices);
-        } catch (Exception ex){
+        } catch (Exception ex) {
             log.error("Exception in createSnapshot method: " + ex.toString());
         }
     }
@@ -388,28 +410,28 @@ public class IndexManager {
     }
 
 
-    
-    
-    
-    
-    
-    
-    
+
+
+
+
+
+
+
 
     public String startSiteIndex() {
-        
+
         newIndexName = "";
-        
+
         if(ConfigHelper.hasEsIndexPrefix()) {
             newIndexName += ConfigHelper.getEsIndexPrefix() + "_";
         }
-        
+
         newIndexName += baseIndexName;
-        
+
         if(ConfigHelper.hasEsIndexSuffix()) {
             newIndexName += "_" + ConfigHelper.getEsIndexSuffix();
         }
-        
+
         tempIndexName = newIndexName + "_temp";
         newIndexName += "_" + (new Date()).getTime();
 
@@ -432,19 +454,19 @@ public class IndexManager {
 
         takeSnapShot();
         EsClientFactory.closeClient();
-        
+
         log.debug(baseIndexName + " Finished: ");
     }
-    
-    
+
+
     private RestHighLevelClient getClient() {
         return EsClientFactory.getDefaultEsClient();
     }
-    
+
     public void closeClient() { // ES Util
         EsClientFactory.closeClient();
     }
-    
+
     public void resetClient() { // ES Util
         EsClientFactory.createNewClient();
     }
@@ -462,7 +484,7 @@ public class IndexManager {
             log.info(info.snapshotId() + "[" + print + "] " + end);
         }
     }
-    
+
     public void restoreSnapShot(String repo, String index) {
         List<String> indexes = getIndexList();
         List<SnapshotInfo> list = getSnapshots(repo);
@@ -478,13 +500,13 @@ public class IndexManager {
         log.info("First Snapshot: " + map.firstKey());
         log.info("Lastest Snapshot: " + map.lastKey());
         SnapshotInfo info = map.get(map.lastKey());
-    
+
         if(indexes.contains(info.snapshotId().getName())) {
             log.info("Index already exists: " + info.snapshotId().getName() + " not restoring");
         } else {
             log.info("Need to restore index: " + info.snapshotId().getName());
             String snapshot_name = info.snapshotId().getName();
-            
+
             List<String> index_list = new ArrayList<String>();
             index_list.add(snapshot_name);
             restoreSnapShot(repo, snapshot_name, new ArrayList<String>(index_list));
@@ -504,7 +526,7 @@ public class IndexManager {
             createAlias("site_index", snapshot_name);
             log.info("Index restore complete");
         }
-        
+
     }
 
 }
