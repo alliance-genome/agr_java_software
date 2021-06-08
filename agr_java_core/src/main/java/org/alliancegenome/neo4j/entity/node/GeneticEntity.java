@@ -48,7 +48,6 @@ public class GeneticEntity extends Neo4jEntity {
     private List<SecondaryId> secondaryIds;
     
     @Relationship(type = "CROSS_REFERENCE")
-    @JsonView({View.AlleleVariantSequenceConverterForES.class})
     protected List<CrossReference> crossReferences;
     
     protected List<String> secondaryIdsList;
@@ -108,6 +107,7 @@ public class GeneticEntity extends Neo4jEntity {
     }
 
     @JsonView({View.API.class, View.AlleleVariantSequenceConverterForES.class})
+    @JsonProperty(value = "crossReferences")
     public Map<String, Object> getCrossReferenceMap() {
         if (crossReferencesMap != null)
             return crossReferencesMap;
@@ -137,14 +137,14 @@ public class GeneticEntity extends Neo4jEntity {
         }
         return crossReferencesMap;
     }
-
+    @JsonProperty(value = "crossReferences")
     public void setCrossReferenceMap(Map<String, Object> crossReferencesMap) {
         if (crossReferencesMap == null)
             return;
         this.crossReferencesMap = crossReferencesMap;
     }
 
-    @JsonView(value = {View.AlleleVariantSequenceConverterForES.class})
+  //  @JsonView(value = {View.AlleleVariantSequenceConverterForES.class})
     public List<String> getCrossReferencesList() {
         if (crossReferences != null && CollectionUtils.isEmpty(crossReferencesList)) {
             crossReferencesList = new ArrayList<>();
