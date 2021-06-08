@@ -142,7 +142,7 @@ public class Variant extends GeneticEntity implements Comparable<Variant> {
 
     @JsonView({View.VariantAPI.class,View.AlleleVariantSequenceConverterForES.class})
     public List<String> getHgvsG() {
-        HashSet<String> ret = new HashSet<String>();
+        HashSet<String> ret = new HashSet<>();
         ret.add(name);
         ret.add(hgvsNomenclature);
         if (transcriptLevelConsequence != null) {
@@ -150,7 +150,7 @@ public class Variant extends GeneticEntity implements Comparable<Variant> {
                 ret.add(tlc.getHgvsVEPGeneNomenclature());
             }
         }
-        return new ArrayList<String>(ret);
+        return new ArrayList<>(ret);
     }
 
     @JsonView({View.VariantAPI.class})

@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import org.alliancegenome.api.entity.PresentationEntity;
 import org.alliancegenome.es.util.DateConverter;
 import org.alliancegenome.neo4j.entity.node.*;
@@ -19,6 +20,7 @@ import lombok.*;
 @Getter
 @Setter
 @Schema(name = "PrimaryAnnotatedEntity", description = "POJO that represents a Primary Annotated Entity")
+@JsonPropertyOrder({"id", "name", "displayName", "phenotype","url", "type", "crossReference", "source", "diseaseAssociationType", "diseaseModels", "publicationEvdienceCodes", "conditions", "conditionModifiers"})
 public class PrimaryAnnotatedEntity extends ConditionAnnotation implements Comparable<PrimaryAnnotatedEntity>, Serializable, PresentationEntity {
 
     @JsonView({View.PrimaryAnnotation.class, View.API.class})
