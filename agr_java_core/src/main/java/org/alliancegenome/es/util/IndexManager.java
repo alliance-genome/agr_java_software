@@ -315,7 +315,6 @@ public class IndexManager {
             request.repository(repo);
             request.snapshot(snapShotName);
             request.indices(indices);
-            request.waitForCompletion(true);
 
             getClient().snapshot().createAsync(request, RequestOptions.DEFAULT, requestListener);
             
