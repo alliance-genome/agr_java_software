@@ -81,7 +81,7 @@ public class AlleleVariantSequenceConverter {
                     .orElse(null) : null;
 
             StringBuilder hgvsSynonym = new StringBuilder();
-            if(StringUtils.isNoneEmpty(hgvsNomenclature)){
+            if(StringUtils.isNotEmpty(hgvsNomenclature)){
                 hgvsSynonym.append('(')
                         .append(speciesType.getAssembly())
                         .append(')')
