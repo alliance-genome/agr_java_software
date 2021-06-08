@@ -1,19 +1,23 @@
 package org.alliancegenome.neo4j.repository;
 
-import static java.util.stream.Collectors.*;
-
-import java.util.*;
-import java.util.stream.*;
-
-import org.alliancegenome.es.model.query.*;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.extern.log4j.Log4j2;
+import org.alliancegenome.es.model.query.FieldFilter;
+import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.DiseaseSummary;
 import org.alliancegenome.neo4j.entity.node.*;
 import org.alliancegenome.neo4j.view.BaseFilter;
-import org.apache.commons.collections4.*;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.neo4j.ogm.model.Result;
 
-import lombok.*;
-import lombok.extern.log4j.Log4j2;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
+
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.mapping;
 
 @Log4j2
 public class DiseaseRepository extends Neo4jRepository<DOTerm> {
@@ -57,7 +61,7 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
                 "OPTIONAL MATCH alleleGene=(agm:AffectedGenomicModel)--(a:Allele)--(:Gene) " +
                 "OPTIONAL MATCH str=(agm:AffectedGenomicModel)--(:SequenceTargetingReagent)--(:Gene) " +
                 "OPTIONAL MATCH crossRef=(dej:DiseaseEntityJoin)--(:AffectedGenomicModel)-[:CROSS_REFERENCE]->(:CrossReference) " +
-                "OPTIONAL MATCH condition=(dej:DiseaseEntityJoin)--(:ExperimentalCondition)--(:ZECOTerm) "+
+                "OPTIONAL MATCH condition=(dej:DiseaseEntityJoin)--(:ExperimentalCondition)--(:ZECOTerm) " +
                 "return diseaseJoin, model, crossRef, alleleGene, modelSpecies, allele, str, ecoCodes, condition ";
 
         Iterable<DiseaseEntityJoin> joins = query(DiseaseEntityJoin.class, cypher);
@@ -401,14 +405,12 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
         //cypher += "      OPTIONAL MATCH eco   =(pubEvCode:PublicationJoin)-[:ASSOCIATION]->(ecoTerm:ECOTerm)";
         cypher += "      OPTIONAL MATCH p7    =(dej:DiseaseEntityJoin)-[:ANNOTATION_SOURCE_CROSS_REFERENCE]-(:CrossReference)";
         cypher += "      OPTIONAL MATCH p4=(dej:DiseaseEntityJoin)-[:FROM_ORTHOLOGOUS_GENE]-(orthoGene:Gene)-[:FROM_SPECIES]->(orthoSpecies:Species) ";
-        cypher += "      OPTIONAL MATCH p5=(pubEvCode:PublicationJoin)-[:PRIMARY_GENETIC_ENTITY]->(agm:AffectedGenomicModel) ";
-        cypher += "      OPTIONAL MATCH p6=(pubEvCode:PublicationJoin)-[:PRIMARY_GENETIC_ENTITY]->(allele:Allele)--(:CrossReference)";
-        cypher += "      OPTIONAL MATCH p6a=(allele:Allele)--(alleleDej:DiseaseEntityJoin)--(:ExperimentalCondition)--(:ZECOTerm) ";
-        cypher += "      OPTIONAL MATCH p6b=(disease:DOTerm)--(alleleDej:DiseaseEntityJoin) ";
-        cypher += "      OPTIONAL MATCH p6c=(agm)--(agmDej:DiseaseEntityJoin)--(:ExperimentalCondition)--(:ZECOTerm) ";
-        cypher += "      OPTIONAL MATCH p6d=(disease:DOTerm)--(agmDej:DiseaseEntityJoin) ";
+        cypher += "      OPTIONAL MATCH p5=(pubEvCode:PublicationJoin)-[:PRIMARY_GENETIC_ENTITY]->(agm:AffectedGenomicModel)--(agmDej:DiseaseEntityJoin)--(disease:DOTerm) ";
+        cypher += "      OPTIONAL MATCH p6c=(agmDej:DiseaseEntityJoin)--(:ExperimentalCondition)--(:ZECOTerm) ";
+        cypher += "      OPTIONAL MATCH p6=(pubEvCode:PublicationJoin)-[:PRIMARY_GENETIC_ENTITY]->(allele:Allele)--(:CrossReference), p6b=(disease:DOTerm)--(alleleDej:DiseaseEntityJoin)--(allele:Allele) ";
+        cypher += "      OPTIONAL MATCH p6a=(alleleDej:DiseaseEntityJoin)--(:ExperimentalCondition)--(:ZECOTerm) ";
         cypher += "      OPTIONAL MATCH condition=(dej:DiseaseEntityJoin)--(:ExperimentalCondition)--(:ZECOTerm) ";
-        cypher += " RETURN p, p0, p4, p5, p6, p6a, p6b, p6c, p6d, p7, condition";
+        cypher += " RETURN p, p0, p4, p5, p6, p6a, p6b, p6c, p7, condition";
         //cypher += " RETURN p, p0, p1, p2, p4, p5, aModel";
 
         long start = System.currentTimeMillis();
@@ -418,7 +420,24 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
                 collect(Collectors.toSet());
         log.info("Total DiseaseEntityJoinRecords: " + String.format("%,d", allDiseaseEntityJoins.size()));
         log.info("Loaded in:    " + ((System.currentTimeMillis() - start) / 1000) + " s");
-        return allDiseaseEntityJoins;
+        // remove alleleDej nodes that are not hanging off the disease in question
+        // the above OPTIONAL MATCH clause
+        Set<DiseaseEntityJoin> allDiseaseEntityJoinsStripped = allDiseaseEntityJoins.stream()
+                .filter(join -> join.getPublicationJoins() != null)
+                .collect(Collectors.toSet());
+
+        allDiseaseEntityJoinsStripped.forEach(diseaseEntityJoin -> {
+            diseaseEntityJoin.getPublicationJoins().forEach(publicationJoin -> {
+                if (publicationJoin.getAlleles() != null)
+                    publicationJoin.getAlleles().forEach(allele -> {
+                        allele.setDiseaseEntityJoins(allele.getDiseaseEntityJoins().stream()
+                                .filter(phenotypeEntityJoin1 -> phenotypeEntityJoin1.getDisease().getPrimaryKey().equals(diseaseEntityJoin.getDisease().getPrimaryKey()))
+                                .collect(Collectors.toList()));
+                    });
+            });
+        });
+
+        return allDiseaseEntityJoinsStripped;
     }
 
     public Set<DiseaseEntityJoin> getAllDiseaseAlleleEntityJoins() {

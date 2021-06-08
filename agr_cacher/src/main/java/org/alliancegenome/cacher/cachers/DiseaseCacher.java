@@ -37,7 +37,7 @@ public class DiseaseCacher extends Cacher {
     protected void cache() {
 
         // model type of diseases
-        //populateModelsWithDiseases();
+        populateModelsWithDiseases();
 
         startProcess("diseaseRepository.getAllDiseaseEntityGeneJoins");
         Set<DiseaseEntityJoin> joinList = diseaseRepository.getAllDiseaseEntityGeneJoins();
@@ -426,6 +426,8 @@ public class DiseaseCacher extends Cacher {
                     // sort to ensure subsequent caching processes will generate the same PAEs with the
                     // same PK. Note the merging that is happening
                     List<PublicationJoin> publicationJoins1 = join.getPublicationJoins();
+                    if(publicationJoins1 == null)
+                        System.out.println(join.getPrimaryKey());
                     publicationJoins1.sort(Comparator.comparing(PublicationJoin::getPrimaryKey));
                     if (CollectionUtils.isNotEmpty(publicationJoins1)) {
                         // create PAEs from AGMs
