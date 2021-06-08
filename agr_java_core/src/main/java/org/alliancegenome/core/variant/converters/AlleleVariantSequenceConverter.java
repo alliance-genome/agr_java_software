@@ -21,8 +21,7 @@ public class AlleleVariantSequenceConverter {
         List<AlleleVariantSequence> returnDocuments = new ArrayList<>();
 
         htsjdk.variant.variantcontext.Allele refNuc = ctx.getReference();
-        Allele agrAllele= new Allele();
-        agrAllele.setCrossReferenceType(GeneticEntity.CrossReferenceType.VARIANT);
+        Allele agrAllele = new Allele(null, GeneticEntity.CrossReferenceType.VARIANT);
         Species species = new Species();
         species.setName(speciesType.getName());
         species.setCommonNames(speciesType.getDisplayName());
@@ -160,8 +159,6 @@ public class AlleleVariantSequenceConverter {
             }
             variant.setTranscriptLevelConsequence(htpConsequences);
             agrAllele.setVariants(Arrays.asList( variant));
-            agrAllele.setUrl("");
-            agrAllele.setModCrossRefCompleteUrl("");
             avsDoc.setAlterationType("variant");
             avsDoc.setCategory("allele");
             avsDoc.setMolecularConsequence(molecularConsequences);
@@ -192,10 +189,13 @@ public class AlleleVariantSequenceConverter {
                     if (infos[0].equalsIgnoreCase(varNuc)) {
 
                         TranscriptLevelConsequence feature = new TranscriptLevelConsequence(header, infos);
-                        String transcriptID = feature.getTranscript().getPrimaryKey();
-                        if(!alreadyAdded.contains(transcriptID)) {
-                            features.add(feature);
-                            alreadyAdded.add(transcriptID);
+                        
+                        if(feature.getTranscript() != null) {
+                            String transcriptID = feature.getTranscript().getPrimaryKey();
+                            if(!alreadyAdded.contains(transcriptID)) {
+                                features.add(feature);
+                                alreadyAdded.add(transcriptID);
+                            }
                         }
                     }
                 } else {

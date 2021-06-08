@@ -31,7 +31,7 @@ public class GeneticEntity extends Neo4jEntity {
     @Convert(value = DateConverter.class)
     private Date dateProduced;
 
-    private String url;
+    private String url = "";
 
     // only used for JsonView
     /// set when deserialized
