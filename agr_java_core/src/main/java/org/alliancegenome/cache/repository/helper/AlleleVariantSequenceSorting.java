@@ -104,7 +104,8 @@ public class AlleleVariantSequenceSorting implements Sorting<AlleleVariantSequen
 
     static public Comparator<AlleleVariantSequence> sequenceFeatureOrder =
             Comparator.comparing(allele -> {
-                if (allele.getConsequence().getTranscript().getName() != null)
+                if (allele.getConsequence()!=null && allele.getConsequence().getTranscript()!=null
+                        && allele.getConsequence().getTranscript().getName() != null)
                     return allele.getConsequence().getTranscript().getName();
                 return null;
             }, Comparator.nullsLast(naturalOrder()));
