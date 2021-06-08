@@ -18,6 +18,27 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
     private GeneDocumentCache cache = new GeneDocumentCache();
 
     public GeneIndexerRepository() { super(Gene.class); }
+    
+    public GeneDocumentCache getGeneCacheCrossReferencesSynonyms() {
+        log.info("Building GeneDocumentCache CrossReferences and Synonyms only");
+        
+        ExecutorService executor = Executors.newFixedThreadPool(20); // Run all at once
+        
+        executor.execute(new GetSynonymsThread());
+        executor.execute(new GetCrossReferencesThread());
+        
+        executor.shutdown();
+        while (!executor.isTerminated()) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        log.info("Finished Building GeneDocumentCache");
+
+        return cache;
+    }
 
     public GeneDocumentCache getGeneDocumentCache() {
 

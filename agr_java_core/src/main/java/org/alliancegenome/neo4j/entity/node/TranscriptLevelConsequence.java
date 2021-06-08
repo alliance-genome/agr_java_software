@@ -117,7 +117,7 @@ public class TranscriptLevelConsequence extends Neo4jEntity {
     public String getLocation() {
         if (StringUtils.isNotEmpty(location))
             return location;
-        if (transcript == null)
+        if (transcript == null || variant == null)
             return "";
         VariantServiceHelper.populateIntronExonLocation(variant, transcript);
         location = transcript.getIntronExonLocation();
@@ -198,25 +198,27 @@ public class TranscriptLevelConsequence extends Neo4jEntity {
             transcriptLevelConsequences = Arrays.asList(infos[1].split("&"));
             impact = infos[2];
 
-            associatedGene = new Gene();
-            associatedGene.setSymbol(infos[3]);
-            associatedGene.setPrimaryKey(infos[4]);
+            if(infos[3].length() > 0 && infos[4].length() > 0) {
+                associatedGene = new Gene();
+                associatedGene.setSymbol(infos[3]);
+                associatedGene.setPrimaryKey(infos[4]);
+            }
 
             // Not sure about field 5?
             
-            transcript = new Transcript();
-            transcript.setName(infos[6]);
-            transcript.setPrimaryKey(infos[6]);
+            if(infos[6].length() > 0) {
+                transcript = new Transcript();
+                transcript.setName(infos[6]);
+                transcript.setPrimaryKey(infos[6]);
+            }
             
             sequenceFeatureType = infos[7];
 
-            String location = "";
-            if (StringUtils.isNotEmpty(infos[8]))
+            location = "";
+            if (infos[8].length() > 0)
                 location += "Exon " + infos[8];
-            if (StringUtils.isNotEmpty(infos[9]))
+            if (infos[9].length() > 0)
                 location += "Intron " + infos[9];
-
-            this.location = location;
 
             hgvsCodingNomenclature = infos[10];
             hgvsProteinNomenclature = infos[11];
@@ -225,12 +227,12 @@ public class TranscriptLevelConsequence extends Neo4jEntity {
             proteinStartPosition = infos[14];
             aminoAcidChange = infos[15];
             
-            if (StringUtils.isNotEmpty(aminoAcidChange)) {
+            if (aminoAcidChange.length() > 0) {
                 aminoAcidReference = aminoAcidChange;
                 aminoAcidVariation = aminoAcidChange;
             }
             codonChange = infos[16];
-            if (StringUtils.isNotEmpty(codonChange)) {
+            if (codonChange.length() > 0) {
                 String[] codonToken = codonChange.split("/");
                 if (codonToken.length == 2) {
                     codonReference = codonToken[0];
@@ -245,7 +247,7 @@ public class TranscriptLevelConsequence extends Neo4jEntity {
             // symbolSource = infos[22];
             
             hgncId = infos[23];
-            if (StringUtils.isNotBlank(hgncId))
+            if (hgncId.length() > 0)
                 associatedGene.setPrimaryKey(hgncId);
             
             //givenRef = infos[24];

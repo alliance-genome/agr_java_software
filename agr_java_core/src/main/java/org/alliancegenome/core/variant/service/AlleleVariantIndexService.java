@@ -63,9 +63,6 @@ public class AlleleVariantIndexService {
 
                 if (allele != null) {
 
-                    if (allele.getUrl() == null) {
-                        allele.setUrl(" ");
-                    }
                     if (allele.getId() == null || (allele.getId() != null && allele.getId().equals("null"))) {
                         allele.setId(0L);
                     }
@@ -114,9 +111,6 @@ public class AlleleVariantIndexService {
                     e.printStackTrace();
                 }
                 if (allele != null) {
-                    if(allele.getUrl()==null){
-                        allele.setUrl(" ");
-                    }
                     alleles.add(allele);
                 }
 

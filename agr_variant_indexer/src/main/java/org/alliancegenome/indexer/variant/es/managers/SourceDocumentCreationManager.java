@@ -28,7 +28,7 @@ public class SourceDocumentCreationManager extends Thread {
             ExecutorService executor = Executors.newFixedThreadPool(VariantConfigHelper.getSourceDocumentCreatorThreads());
 
             GeneIndexerRepository geneRepo = new GeneIndexerRepository();
-            GeneDocumentCache geneCache = geneRepo.getGeneDocumentCache();
+            GeneDocumentCache geneCache = geneRepo.getGeneCacheCrossReferencesSynonyms();
             geneRepo.close();
 
             for(DownloadSource source: downloadSet.getDownloadFileSet()) {

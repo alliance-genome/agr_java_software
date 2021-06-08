@@ -35,7 +35,7 @@ public class Allele extends GeneticEntity implements Comparable<Allele>, Present
     private String release;
     private String localId;
     private String globalId;
-    private String modCrossRefCompleteUrl;
+    private String modCrossRefCompleteUrl = "";
     @JsonView({View.Default.class, View.AlleleVariantSequenceConverterForES.class})
     private String symbolText;
     private String symbolTextWithSpecies;
@@ -51,20 +51,20 @@ public class Allele extends GeneticEntity implements Comparable<Allele>, Present
 
     @JsonView({View.GeneAllelesAPI.class, View.GeneAlleleVariantSequenceAPI.class, View.AlleleVariantSequenceConverterForES.class})
     @Relationship(type = "IS_IMPLICATED_IN", direction = Relationship.INCOMING)
-    private List<DOTerm> diseases = new ArrayList<>();
+    private List<DOTerm> diseases;
 
     @JsonView({View.AlleleAPI.class, View.GeneAllelesAPI.class})
     @Relationship(type = "VARIATION", direction = Relationship.INCOMING)
-    private List<Variant> variants = new ArrayList<>();
+    private List<Variant> variants;
 
     @Relationship(type = "ASSOCIATION", direction = Relationship.UNDIRECTED)
-    private List<DiseaseEntityJoin> diseaseEntityJoins = new ArrayList<>();
+    private List<DiseaseEntityJoin> diseaseEntityJoins;
 
     @Relationship(type = "ASSOCIATION")
-    private List<PhenotypeEntityJoin> phenotypeEntityJoins = new ArrayList<>();
+    private List<PhenotypeEntityJoin> phenotypeEntityJoins;
 
     @Relationship(type = "HAS_PHENOTYPE")
-    private List<Phenotype> phenotypes = new ArrayList<>();
+    private List<Phenotype> phenotypes;
 
     @JsonView({View.AlleleAPI.class, View.TransgenicAlleleAPI.class})
     @Relationship(type = "CONTAINS")
