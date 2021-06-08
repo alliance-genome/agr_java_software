@@ -1,13 +1,18 @@
 package org.alliancegenome.neo4j.repository;
 
-import java.util.*;
-import java.util.stream.*;
-
-import org.alliancegenome.es.model.query.*;
-import org.alliancegenome.neo4j.entity.node.*;
+import org.alliancegenome.es.model.query.FieldFilter;
+import org.alliancegenome.es.model.query.Pagination;
+import org.alliancegenome.neo4j.entity.node.GeneticEntity;
+import org.alliancegenome.neo4j.entity.node.Phenotype;
+import org.alliancegenome.neo4j.entity.node.PhenotypeEntityJoin;
 import org.alliancegenome.neo4j.view.BaseFilter;
-import org.apache.logging.log4j.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.neo4j.ogm.model.Result;
+
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 public class PhenotypeRepository extends Neo4jRepository<Phenotype> {
 
@@ -208,18 +213,35 @@ public class PhenotypeRepository extends Neo4jRepository<Phenotype> {
     }
 
     public List<PhenotypeEntityJoin> getAllPhenotypeAnnotations() {
-        String cypher = "MATCH p0=(phenotype:Phenotype)--(pej:PhenotypeEntityJoin)-[:EVIDENCE]->(ppj:PublicationJoin)<-[:ASSOCIATION]-(publication:Publication), " +
+        String cypher = "MATCH p0=(phenotype:Phenotype)<-[:ASSOCIATION]-(pej:PhenotypeEntityJoin)-[:EVIDENCE]->(ppj:PublicationJoin)<-[:ASSOCIATION]-(publication:Publication), " +
                 " p2=(pej:PhenotypeEntityJoin)<-[:ASSOCIATION]-(gene:Gene)-[:FROM_SPECIES]->(species:Species) " +
                 //"where gene.primaryKey = 'ZFIN:ZDB-GENE-990415-8' " +
-                //"where gene.primaryKey = 'FB:FBgn0267821' " +
+                //"where gene.primaryKey = 'WB:WBGene00000898' AND phenotype.primaryKey = 'fat content increased' " +
                 "OPTIONAL MATCH     p4=(pej:PhenotypeEntityJoin)--(feature:Feature)-[:CROSS_REFERENCE]->(crossRef:CrossReference) " +
-                "OPTIONAL MATCH models=(ppj:PublicationJoin)-[:PRIMARY_GENETIC_ENTITY]->(:AffectedGenomicModel) " +
-                "OPTIONAL MATCH alleles=(ppj:PublicationJoin)-[:PRIMARY_GENETIC_ENTITY]->(:Allele)-[:FROM_SPECIES]->(species:Species) " +
-                "return p0, p4, p2, models, alleles ";
+                "OPTIONAL MATCH models=(ppj:PublicationJoin)-[:PRIMARY_GENETIC_ENTITY]->(agm:AffectedGenomicModel)--(agmPej:PhenotypeEntityJoin)--(phenotype:Phenotype) " +
+                "OPTIONAL MATCH p6c=(agmPej:PhenotypeEntityJoin)--(:ExperimentalCondition)-[:ASSOCIATION]->(:ZECOTerm) " +
+                "OPTIONAL MATCH alleles=(ppj:PublicationJoin)-[:PRIMARY_GENETIC_ENTITY]->(featureCond:Allele)-[:FROM_SPECIES]->(species:Species), " +
+                " p6a=(featureCond:Allele)--(allelePej:PhenotypeEntityJoin)--(phenotype:Phenotype)  " +
+                "OPTIONAL MATCH p6b=(allelePej:PhenotypeEntityJoin)--(:ExperimentalCondition)-[:ASSOCIATION]->(:ZECOTerm) " +
+                "return p0, p4, p2, models, alleles, p6a, p6b, p6c ";
 
         Iterable<PhenotypeEntityJoin> joins = query(PhenotypeEntityJoin.class, cypher);
-        return StreamSupport.stream(joins.spliterator(), false).
-                collect(Collectors.toList());
+        List<PhenotypeEntityJoin> joinList = StreamSupport.stream(joins.spliterator(), false)
+                .filter(phenotypeEntityJoin -> phenotypeEntityJoin.getGene() != null)
+                .collect(Collectors.toList());
+        // remove allelePej nodes that are not hanging off phenotype
+        // the above OPTIONAL MATCH clause, p6b is not working
+        joinList.forEach(phenotypeEntityJoin -> {
+            phenotypeEntityJoin.getPhenotypePublicationJoins().forEach(publicationJoin -> {
+                if (publicationJoin.getAlleles() != null)
+                    publicationJoin.getAlleles().forEach(allele -> {
+                        allele.setPhenotypeEntityJoins(allele.getPhenotypeEntityJoins().stream()
+                                .filter(phenotypeEntityJoin1 -> phenotypeEntityJoin1.getPhenotype().getPrimaryKey().equals(phenotypeEntityJoin.getPhenotype().getPrimaryKey()))
+                                .collect(Collectors.toList()));
+                    });
+            });
+        });
+        return joinList;
     }
 
     public List<PhenotypeEntityJoin> getAllPhenotypeAnnotationsPureAGM() {

@@ -18,7 +18,7 @@ public abstract class ConditionAnnotation {
 
     private Map<String, List<ExperimentalCondition>> conditionModifiers;
 
-    @JsonView({View.DiseaseAnnotation.class, View.PrimaryAnnotation.class})
+    @JsonView({View.DiseaseAnnotation.class, View.PrimaryAnnotation.class, View.PhenotypeAPI.class})
     public Map<String, List<ExperimentalCondition>> getConditionModifiers() {
         return conditionModifiers;
     }
@@ -34,18 +34,23 @@ public abstract class ConditionAnnotation {
         this.conditionModifiers.get(conditionType.getDisplayName()).addAll(conditionModifier);
     }
 
+    @JsonView({View.PrimaryAnnotation.class, View.PhenotypeAPI.class})
     public void setConditions(Map<String, List<ExperimentalCondition>> conditions) {
         this.conditions = conditions;
     }
 
+    @JsonView({View.PrimaryAnnotation.class, View.PhenotypeAPI.class})
     public void setConditionModifiers(Map<String, List<ExperimentalCondition>> conditionModifiers) {
         this.conditionModifiers = conditionModifiers;
     }
 
-    @JsonView({View.DiseaseAnnotation.class, View.PrimaryAnnotation.class})
+    @JsonView({View.DiseaseAnnotation.class, View.PrimaryAnnotation.class, View.PhenotypeAPI.class})
     public Map<String, List<ExperimentalCondition>> getConditions() {
         return conditions;
     }
+
+
+
 
     public void addConditions(ConditionType conditionType, List<ExperimentalCondition> conditions) {
         if (conditions == null || conditionType == null)

@@ -37,7 +37,7 @@ public class DiseaseCacher extends Cacher {
     protected void cache() {
 
         // model type of diseases
-        populateModelsWithDiseases();
+        //populateModelsWithDiseases();
 
         startProcess("diseaseRepository.getAllDiseaseEntityGeneJoins");
         Set<DiseaseEntityJoin> joinList = diseaseRepository.getAllDiseaseEntityGeneJoins();
