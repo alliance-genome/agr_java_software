@@ -57,15 +57,15 @@ public class VariantConfigHelper {
         
         defaults.put(VARIANT_SOURCE_DOCUMENT_CREATOR_VCQUEUE_SIZE, "400");
         defaults.put(VARIANT_SOURCE_DOCUMENT_CREATOR_VCQUEUE_BUCKET_SIZE, "25");
-        defaults.put(VARIANT_SOURCE_DOCUMENT_CREATOR_OBJECT_QUEUE_SIZE, "450");
-        defaults.put(VARIANT_SOURCE_DOCUMENT_CREATOR_OBJECT_QUEUE_BUCKET_SIZE, "32");
+        defaults.put(VARIANT_SOURCE_DOCUMENT_CREATOR_OBJECT_QUEUE_SIZE, "125");
+        defaults.put(VARIANT_SOURCE_DOCUMENT_CREATOR_OBJECT_QUEUE_BUCKET_SIZE, "120");
         
         
-        defaults.put(VARIANT_PRODUCER_THREADS, "12");
-        defaults.put(VARIANT_TRANSFORMER_THREADS, "18");
+        defaults.put(VARIANT_PRODUCER_THREADS, "18");
+        defaults.put(VARIANT_TRANSFORMER_THREADS, "12");
         
         defaults.put(VARIANT_INDEXER_SHARDS, "16");
-        defaults.put(VARIANT_INDEXER_BULK_PROCESSOR_THREADS, "12");
+        defaults.put(VARIANT_INDEXER_BULK_PROCESSOR_THREADS, "8");
         
         // BulkActions;ConcurrentRequests;BulkSize;JsonQueueSize;QueueCutOffSize
         defaults.put(VARIANT_BULK_PROCESSOR_SETTINGS, "1000;10;10;10000;1000,133;10;10;1333;7500,100;10;10;1000;10000,50;10;10;500;10000000");
