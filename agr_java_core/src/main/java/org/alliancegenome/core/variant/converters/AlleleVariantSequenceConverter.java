@@ -215,7 +215,7 @@ public class AlleleVariantSequenceConverter {
                 if (header.length == infos.length) {
                     if (infos[0].equalsIgnoreCase(varNuc)) {
 
-                        TranscriptLevelConsequence feature = new TranscriptLevelConsequence(header, infos);
+                        TranscriptLevelConsequence feature = new TranscriptLevelConsequence(header, infos, species);
                         
                         if(feature.getTranscript() != null) {
                             String transcriptID = feature.getTranscript().getPrimaryKey();
