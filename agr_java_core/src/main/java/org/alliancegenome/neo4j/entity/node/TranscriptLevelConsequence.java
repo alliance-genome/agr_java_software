@@ -1,23 +1,18 @@
 package org.alliancegenome.neo4j.entity.node;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonView;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.extern.log4j.Log4j2;
+import java.util.*;
+
 import org.alliancegenome.core.helpers.VariantServiceHelper;
 import org.alliancegenome.neo4j.entity.Neo4jEntity;
 import org.alliancegenome.neo4j.view.View;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
-import org.neo4j.ogm.annotation.NodeEntity;
-import org.neo4j.ogm.annotation.Relationship;
+import org.neo4j.ogm.annotation.*;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import com.fasterxml.jackson.annotation.JsonView;
+
+import lombok.*;
+import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 @NodeEntity(label = "TranscriptLevelConsequence")
@@ -26,12 +21,11 @@ import java.util.List;
 @Schema(name = "TranscriptLevelConsequence", description = "POJO that represents Transcript Level Consequences")
 public class TranscriptLevelConsequence extends Neo4jEntity {
 
-    @JsonView({View.API.class, View.GeneAlleleVariantSequenceAPI.class, View.AlleleVariantSequenceConverterForES.class})
-    @JsonIgnore
-    private String transcriptLevelConsequence;
+    private static HashMap<String, Gene> geneCache = new HashMap<String, Gene>();
+    private static HashMap<String, Transcript> transcriptCache = new HashMap<String, Transcript>();
 
-    @JsonView({View.Default.class, View.AlleleVariantSequenceConverterForES.class})
-    private List<String> transcriptLevelConsequences = new ArrayList<>();
+    @JsonView({View.API.class, View.GeneAlleleVariantSequenceAPI.class, View.AlleleVariantSequenceConverterForES.class})
+    private List<String> molecularConsequences = new ArrayList<>();
 
     @JsonView({View.Default.class, View.AlleleVariantSequenceConverterForES.class})
     private String impact;
@@ -103,10 +97,6 @@ public class TranscriptLevelConsequence extends Neo4jEntity {
     @Relationship(type = "ASSOCIATION", direction = Relationship.INCOMING)
     private Transcript transcript;
 
-    //@JsonView({View.Default.class, View.AlleleVariantSequenceConverterForES.class})
-    //private String transcriptName;
-    //@JsonView({View.Default.class, View.AlleleVariantSequenceConverterForES.class})
-    //private String transcriptID;
     @JsonView({View.Default.class, View.AlleleVariantSequenceConverterForES.class})
     private String location;
 
@@ -149,36 +139,6 @@ public class TranscriptLevelConsequence extends Neo4jEntity {
     @JsonView({View.API.class, View.AlleleVariantSequenceConverterForES.class})
     private String geneLevelConsequence;
 
-    private String hgncId;
-
-    // only used for Neo
-    public String getTranscriptLevelConsequence() {
-        return transcriptLevelConsequence;
-    }
-
-    // only used for Neo
-    public void setTranscriptLevelConsequence(String transcriptLevelConsequence) {
-        this.transcriptLevelConsequence = transcriptLevelConsequence;
-        if (transcriptLevelConsequence != null) {
-            /// TODO make loader do this work
-            transcriptLevelConsequences.addAll(Arrays.asList(transcriptLevelConsequence.split(",")));
-        }
-    }
-
-    @JsonProperty("molecularConsequence")
-    public List<String> getTranscriptLevelConsequences() {
-        if (CollectionUtils.isNotEmpty(transcriptLevelConsequences))
-            return transcriptLevelConsequences;
-        if (transcriptLevelConsequence != null)
-            /// TODO make loader do this work
-            return Arrays.asList(transcriptLevelConsequence.split(","));
-        return null;
-    }
-
-    @JsonProperty("molecularConsequence")
-    public void setTranscriptLevelConsequences(List<String> transcriptLevelConsequences) {
-        this.transcriptLevelConsequences = transcriptLevelConsequences;
-    }
 
     public TranscriptLevelConsequence(String[] header, String[] infos) {
 
@@ -227,23 +187,41 @@ public class TranscriptLevelConsequence extends Neo4jEntity {
 
         if (infos.length == 38) {
 
-            transcriptLevelConsequences = Arrays.asList(infos[1].split("&"));
+            molecularConsequences = Arrays.asList(infos[1].split("&"));
             impact = infos[2];
 
-            if(infos[3].length() > 0 && infos[4].length() > 0) {
+            associatedGene = geneCache.get(infos[4]);
+
+            if(associatedGene == null && infos[3].length() > 0 && infos[4].length() > 0) {
                 associatedGene = new Gene();
                 associatedGene.setSymbol(infos[3]);
                 associatedGene.setPrimaryKey(infos[4]);
+                geneCache.put(infos[4], associatedGene);
+            }
+
+            if (infos[23].length() > 0) {
+                associatedGene = geneCache.get(infos[23]);
+
+                if(associatedGene == null && infos[3].length() > 0) {
+                    associatedGene = new Gene();
+                    associatedGene.setSymbol(infos[3]);
+                    associatedGene.setPrimaryKey(infos[23]);
+                    geneCache.put(infos[23], associatedGene);
+                }
             }
 
             // Not sure about field 5?
 
-            if(infos[6].length() > 0) {
+            transcript = transcriptCache.get(infos[6]);
+
+            if(transcript == null && infos[6].length() > 0) {
                 transcript = new Transcript();
                 transcript.setName(infos[6]);
                 transcript.setPrimaryKey(infos[6]);
+                transcriptCache.put(infos[6], transcript);
+                //System.out.println(infos[6]);
             }
-            
+
             sequenceFeatureType = infos[7];
 
             location = "";
@@ -278,10 +256,6 @@ public class TranscriptLevelConsequence extends Neo4jEntity {
 
             // symbolSource = infos[22];
 
-            hgncId = infos[23];
-            if (hgncId.length() > 0)
-                associatedGene.setPrimaryKey(hgncId);
-
             //givenRef = infos[24];
             //usedRef = infos[25];
             //bamEdit = infos[26];
@@ -294,8 +268,6 @@ public class TranscriptLevelConsequence extends Neo4jEntity {
 
             siftPrediction = infos[32];
             siftScore = infos[33];
-
-//            hgvsVEPGeneNomenclature = infos[34];
 
             // 35 and 36
 

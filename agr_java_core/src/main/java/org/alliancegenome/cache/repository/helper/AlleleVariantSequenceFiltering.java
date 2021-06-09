@@ -44,9 +44,9 @@ public class AlleleVariantSequenceFiltering extends AnnotationFiltering<AlleleVa
 
     private static final FilterFunction<AlleleVariantSequence, String> molecularConsequenceFilter =
             (allele, value) -> {
-                if (allele.getConsequence() == null || allele.getConsequence().getTranscriptLevelConsequences() == null)
+                if (allele.getConsequence() == null || allele.getConsequence().getMolecularConsequences() == null)
                     return false;
-                return FilterFunction.fullMatchMultiValueOR(Set.copyOf(allele.getConsequence().getTranscriptLevelConsequences()), value);
+                return FilterFunction.fullMatchMultiValueOR(Set.copyOf(allele.getConsequence().getMolecularConsequences()), value);
             };
 
     private static final FilterFunction<AlleleVariantSequence, String> locationFilter =

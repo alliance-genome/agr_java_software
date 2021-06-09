@@ -30,6 +30,8 @@ public class Variant extends GeneticEntity implements Comparable<Variant> {
     @JsonView({View.Default.class, View.API.class,View.AlleleVariantSequenceConverterForES.class})
     @JsonProperty(value = "displayName")
     private String hgvsNomenclature;
+    
+    private List<String> hgvsNames;
 
     @JsonView({View.Default.class, View.API.class,View.AlleleVariantSequenceConverterForES.class})
     private String name;
@@ -140,17 +142,20 @@ public class Variant extends GeneticEntity implements Comparable<Variant> {
         return (getPaddingLeft().charAt(getPaddingLeft().length() - 1) + change);
     }
 
-    @JsonView({View.VariantAPI.class,View.AlleleVariantSequenceConverterForES.class})
+    @JsonView({View.VariantAPI.class, View.AlleleVariantSequenceConverterForES.class})
     public List<String> getHgvsG() {
-        HashSet<String> ret = new HashSet<>();
-        ret.add(name);
-        ret.add(hgvsNomenclature);
-        if (transcriptLevelConsequence != null) {
-            for(TranscriptLevelConsequence tlc: transcriptLevelConsequence) {
-                ret.add(tlc.getHgvsVEPGeneNomenclature());
+        if(hgvsNames == null) {
+            HashSet<String> names = new HashSet<>();
+            names.add(name);
+            names.add(hgvsNomenclature);
+            if (transcriptLevelConsequence != null) {
+                for(TranscriptLevelConsequence tlc: transcriptLevelConsequence) {
+                    names.add(tlc.getHgvsVEPGeneNomenclature());
+                }
             }
+            hgvsNames = new ArrayList<>(names);
         }
-        return new ArrayList<>(ret);
+        return hgvsNames;
     }
 
     @JsonView({View.VariantAPI.class})
