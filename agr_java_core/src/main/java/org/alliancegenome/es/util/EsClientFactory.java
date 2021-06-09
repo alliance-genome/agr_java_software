@@ -46,10 +46,13 @@ public class EsClientFactory {
         hosts = esHosts.toArray(hosts);
 
         log.info("Creating new ES Client: " + map);
+        int hours = 2 * (60 * 60 * 1000);
         client = new RestHighLevelClient(
                 RestClient.builder(hosts)
                         .setRequestConfigCallback(
-                                requestConfigBuilder -> requestConfigBuilder.setConnectTimeout(5000).setSocketTimeout(1800000).setConnectionRequestTimeout(1800000)
+                                // Timeout after 60 * 60 * 1000 milliseconds = 1 hour
+                                // Needed for long running snapshots
+                                requestConfigBuilder -> requestConfigBuilder.setConnectTimeout(5000).setSocketTimeout(hours).setConnectionRequestTimeout(hours)
                         )
         );
 

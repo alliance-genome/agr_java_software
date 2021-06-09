@@ -1,18 +1,23 @@
 package org.alliancegenome.neo4j.entity.node;
 
-import java.util.*;
-
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonView;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.extern.log4j.Log4j2;
 import org.alliancegenome.core.helpers.VariantServiceHelper;
 import org.alliancegenome.neo4j.entity.Neo4jEntity;
 import org.alliancegenome.neo4j.view.View;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
-import org.neo4j.ogm.annotation.*;
+import org.neo4j.ogm.annotation.NodeEntity;
+import org.neo4j.ogm.annotation.Relationship;
 
-import com.fasterxml.jackson.annotation.*;
-
-import lombok.*;
-import lombok.extern.log4j.Log4j2;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 @Log4j2
 @NodeEntity(label = "TranscriptLevelConsequence")
@@ -22,7 +27,7 @@ import lombok.extern.log4j.Log4j2;
 public class TranscriptLevelConsequence extends Neo4jEntity {
 
     @JsonView({View.API.class, View.GeneAlleleVariantSequenceAPI.class, View.AlleleVariantSequenceConverterForES.class})
-    @JsonProperty("molecularConsequence")
+    @JsonIgnore
     private String transcriptLevelConsequence;
 
     @JsonView({View.Default.class, View.AlleleVariantSequenceConverterForES.class})
@@ -30,7 +35,6 @@ public class TranscriptLevelConsequence extends Neo4jEntity {
 
     @JsonView({View.Default.class, View.AlleleVariantSequenceConverterForES.class})
     private String impact;
-
 
     @JsonView({View.API.class, View.AlleleVariantSequenceConverterForES.class})
     private String aminoAcidChange;
@@ -87,10 +91,10 @@ public class TranscriptLevelConsequence extends Neo4jEntity {
     @JsonView({View.Default.class, View.AlleleVariantSequenceConverterForES.class})
     private String siftScore;
 
-    @JsonView({View.Default.class,View.AlleleVariantSequenceConverterForES.class})
+    @JsonView({View.Default.class, View.AlleleVariantSequenceConverterForES.class})
     private String polyphenScore;
 
-    @JsonView({View.Default.class,View.AlleleVariantSequenceConverterForES.class})
+    @JsonView({View.Default.class, View.AlleleVariantSequenceConverterForES.class})
     private String sequenceFeatureType;
 
     @Relationship(type = "ASSOCIATION", direction = Relationship.INCOMING)
@@ -130,8 +134,8 @@ public class TranscriptLevelConsequence extends Neo4jEntity {
             return sequenceFeatureType;
         if (transcript == null)
             return "";
-        if(transcript.getType()!=null)
-        sequenceFeatureType = transcript.getType().getName();
+        if (transcript.getType() != null)
+            sequenceFeatureType = transcript.getType().getName();
         return sequenceFeatureType;
     }
 
@@ -147,11 +151,39 @@ public class TranscriptLevelConsequence extends Neo4jEntity {
 
     private String hgncId;
 
+    // only used for Neo
+    public String getTranscriptLevelConsequence() {
+        return transcriptLevelConsequence;
+    }
+
+    // only used for Neo
+    public void setTranscriptLevelConsequence(String transcriptLevelConsequence) {
+        this.transcriptLevelConsequence = transcriptLevelConsequence;
+        if (transcriptLevelConsequence != null) {
+            /// TODO make loader do this work
+            transcriptLevelConsequences.addAll(Arrays.asList(transcriptLevelConsequence.split(",")));
+        }
+    }
+
+    @JsonProperty("molecularConsequence")
+    public List<String> getTranscriptLevelConsequences() {
+        if (CollectionUtils.isNotEmpty(transcriptLevelConsequences))
+            return transcriptLevelConsequences;
+        if (transcriptLevelConsequence != null)
+            /// TODO make loader do this work
+            return Arrays.asList(transcriptLevelConsequence.split(","));
+        return null;
+    }
+
+    @JsonProperty("molecularConsequence")
+    public void setTranscriptLevelConsequences(List<String> transcriptLevelConsequences) {
+        this.transcriptLevelConsequences = transcriptLevelConsequences;
+    }
 
     public TranscriptLevelConsequence(String[] header, String[] infos) {
 
         // VCF Header from the file
-        /* 
+        /*
          * 0 Allele
          * 1 Consequence
          * 2 IMPACT
@@ -189,7 +221,7 @@ public class TranscriptLevelConsequence extends Neo4jEntity {
          * 34 transcript_name
          * 35 Genomic_end_position
          * 36 Genomic_start_position
-         * 37 HUMAN_GFF.refseq.gff.gz 
+         * 37 HUMAN_GFF.refseq.gff.gz
          * */
 
 
@@ -205,7 +237,7 @@ public class TranscriptLevelConsequence extends Neo4jEntity {
             }
 
             // Not sure about field 5?
-            
+
             if(infos[6].length() > 0) {
                 transcript = new Transcript();
                 transcript.setName(infos[6]);
@@ -226,7 +258,7 @@ public class TranscriptLevelConsequence extends Neo4jEntity {
             cdsStartPosition = infos[13];
             proteinStartPosition = infos[14];
             aminoAcidChange = infos[15];
-            
+
             if (aminoAcidChange.length() > 0) {
                 aminoAcidReference = aminoAcidChange;
                 aminoAcidVariation = aminoAcidChange;
@@ -241,15 +273,15 @@ public class TranscriptLevelConsequence extends Neo4jEntity {
             }
 
             /* 17 - 20? */
-            
+
             geneLevelConsequence = infos[21];
-            
+
             // symbolSource = infos[22];
-            
+
             hgncId = infos[23];
             if (hgncId.length() > 0)
                 associatedGene.setPrimaryKey(hgncId);
-            
+
             //givenRef = infos[24];
             //usedRef = infos[25];
             //bamEdit = infos[26];
@@ -262,9 +294,9 @@ public class TranscriptLevelConsequence extends Neo4jEntity {
 
             siftPrediction = infos[32];
             siftScore = infos[33];
-            
+
 //            hgvsVEPGeneNomenclature = infos[34];
-            
+
             // 35 and 36
 
         } else {

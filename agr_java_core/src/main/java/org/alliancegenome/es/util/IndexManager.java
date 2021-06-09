@@ -41,21 +41,6 @@ public class IndexManager {
 
     private Settings settings;
     private Mapping mapping;
-    private boolean requestFinished = false;
-
-    private ActionListener<CreateSnapshotResponse> requestListener = new ActionListener<CreateSnapshotResponse>() {
-        @Override
-        public void onResponse(CreateSnapshotResponse createSnapshotResponse) {
-            log.info("Request finished: " + createSnapshotResponse);
-            requestFinished = true;
-        }
-
-        @Override
-        public void onFailure(Exception exception) {
-            log.error("Request failed: " + exception);
-            requestFinished = true;
-        }
-    };
     
     public IndexManager(Settings settings, Mapping mapping) {
         this.settings = settings;
@@ -309,18 +294,13 @@ public class IndexManager {
         try {
             log.info("Creating Snapshot: " + snapShotName + " in: " + repo + " with: " + indices);
 
-            requestFinished = false;
-
             CreateSnapshotRequest request = new CreateSnapshotRequest();
             request.repository(repo);
             request.snapshot(snapShotName);
             request.indices(indices);
-
-            getClient().snapshot().createAsync(request, RequestOptions.DEFAULT, requestListener);
+            request.waitForCompletion(true);
             
-            while(!requestFinished) {
-                TimeUnit.SECONDS.sleep(5);
-            }
+            getClient().snapshot().create(request, RequestOptions.DEFAULT);
 
             log.info("Snapshot " + snapShotName + " was created for indices: " + indices);
         } catch (Exception ex) {
@@ -407,15 +387,6 @@ public class IndexManager {
             getCreateRepo(repo);
         }
     }
-
-
-
-
-
-
-
-
-
 
     public String startSiteIndex() {
 

@@ -113,46 +113,49 @@ public class AlleleVariantSequenceConverter {
             agrAllele.setSymbol(hgvsNomenclature);
             agrAllele.setSymbolText(hgvsNomenclature);
             if (htpConsequences != null) {
-                for (TranscriptLevelConsequence c : htpConsequences) {
-                    if(geneCache != null){
-                        Set<String> synonymSet = geneCache.getSynonyms().get(c.getAssociatedGene().getPrimaryKey());
-                        Set<String> crossReferencesSet = geneCache.getCrossReferences().get(c.getAssociatedGene().getPrimaryKey());
+                for (TranscriptLevelConsequence consequence : htpConsequences) {
+                    Gene consequenceGene = consequence.getAssociatedGene();
+                    if(geneCache != null && consequenceGene != null) {
+                        Set<String> synonymSet = geneCache.getSynonyms().get(consequenceGene.getPrimaryKey());
+                        Set<String> crossReferencesSet = geneCache.getCrossReferences().get(consequenceGene.getPrimaryKey());
                         if(synonymSet != null) {
                             List<String> synonymList = new ArrayList<>(synonymSet);
-                            c.getAssociatedGene().setSynonymList(synonymList);
+                            consequenceGene.setSynonymList(synonymList);
                         }
 
                         if(crossReferencesSet != null) {
                             List<String> crossReferencesList = new ArrayList<>(crossReferencesSet);
-                            c.getAssociatedGene().setCrossReferencesList(crossReferencesList);
+                            consequenceGene.setCrossReferencesList(crossReferencesList);
                         }
+                        
                     }
 
-
-                    c.getAssociatedGene().setSpecies(species);
-                    String transcriptID = c.getTranscript().getPrimaryKey();
+                    if(consequenceGene != null) {
+                        consequenceGene.setSpecies(species);
+                    }
+                    String transcriptID = consequence.getTranscript().getPrimaryKey();
                     if(!transcriptsProcessed.contains(transcriptID)) {
                         transcriptsProcessed.add(transcriptID);
                         if(first) {
                             first=false;
                             //    variant.setHgvsNomenclature(c.getHgvsVEPGeneNomenclature());
                             //c.getAssociatedGene().setSpecies(species);
-                            variant.setGene(c.getAssociatedGene());
-                            agrAllele.setGene(c.getAssociatedGene());
+                            variant.setGene(consequenceGene);
+                            agrAllele.setGene(consequenceGene);
 
                         }
-                        molecularConsequences.addAll(c.getTranscriptLevelConsequences());
+                        molecularConsequences.addAll(consequence.getTranscriptLevelConsequences());
                         //    s.setConsequence(c);
                         /****************SearchableDocument Fields***************/
-                        if(StringUtils.isNotEmpty(c.getAssociatedGene().getSymbol())) {
+                        if(consequenceGene != null && StringUtils.isNotEmpty(consequenceGene.getSymbol())) {
                             // This is faster than calling getNakeKey on the gene
                             StringBuffer buffer = new StringBuffer();
-                            buffer.append(c.getAssociatedGene().getSymbol());
+                            buffer.append(consequenceGene.getSymbol());
                             buffer.append(" (");
                             buffer.append(speciesType.getAbbreviation());
                             buffer.append(")");
                             genes.add(buffer.toString());
-                            geneIds.add(c.getAssociatedGene().getPrimaryKey());
+                            geneIds.add(consequenceGene.getPrimaryKey());
 
                         }
                     }
