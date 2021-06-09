@@ -77,8 +77,6 @@ public class AlleleVariantSequenceConverter {
             AlleleVariantSequence avsDoc = new AlleleVariantSequence();
 
             variant.setNucleotideChange(vcfAllele.getBaseString()); // variantDocument.setVarNuc(a.getBaseString());
-            boolean first = true;
-            boolean firstConsequence = true;
             Set<String> molecularConsequences = new HashSet<>();
             Set<String> genes = new HashSet<>();
             Set<String> geneIds = new HashSet<>();
@@ -121,51 +119,34 @@ public class AlleleVariantSequenceConverter {
 
             agrAllele.setSymbol(hgvsNomenclature);
             agrAllele.setSymbolText(hgvsNomenclature);
-            Set<String> synonymSet = new HashSet<>();
-            Set<String> crossReferencesSet = new HashSet<>();
+            Set<String> geneSynonymSet = new HashSet<>();
+            Set<String> geneCrossReferencesSet = new HashSet<>();
+
+            boolean firstTranscript = true;
+            
             if (htpConsequences != null) {
                 for (TranscriptLevelConsequence consequence : htpConsequences) {
                     Gene consequenceGene = consequence.getAssociatedGene();
 
-                    if(consequenceGene != null) {
-                        if(geneCache != null) {
-                            Set<String> synonymSet = geneCache.getSynonyms().get(consequenceGene.getPrimaryKey());
-                            if(synonymSet != null) {
-                                consequenceGene.setSynonymList(new ArrayList<>(synonymSet));
-                            }
-    
-                            Set<String> crossReferencesSet = geneCache.getCrossReferences().get(consequenceGene.getPrimaryKey());
-                            if(crossReferencesSet != null) {
-                                consequenceGene.setCrossReferencesList(new ArrayList<>(crossReferencesSet));
-                            }
-                        }
-                        consequenceGene.setSpecies(species);
-                    }
-
-
-                    if(firstConsequence){
-                        firstConsequence = false;
-                        if(geneCache != null && consequenceGene != null) {
-                            synonymSet = geneCache.getSynonyms().get(consequenceGene.getPrimaryKey());
-                            crossReferencesSet = geneCache.getCrossReferences().get(consequenceGene.getPrimaryKey());
-                        }
-                    }
-
-
                     String transcriptID = consequence.getTranscript().getPrimaryKey();
+                    
                     if(!transcriptsProcessed.contains(transcriptID)) {
                         transcriptsProcessed.add(transcriptID);
-                        if(first) {
-                            first=false;
-                            //    variant.setHgvsNomenclature(c.getHgvsVEPGeneNomenclature());
-                            //c.getAssociatedGene().setSpecies(species);
-                            variant.setGene(consequenceGene);
-                            agrAllele.setGene(consequenceGene);
-
+                        
+                        if(firstTranscript) {
+                            if(consequenceGene != null) {
+                                variant.setGene(consequenceGene);
+                                agrAllele.setGene(consequenceGene);
+                                if(geneCache != null) {
+                                    geneSynonymSet = geneCache.getSynonyms().get(consequenceGene.getPrimaryKey());
+                                    geneCrossReferencesSet = geneCache.getCrossReferences().get(consequenceGene.getPrimaryKey());
+                                }
+                                firstTranscript = false;
+                            }
                         }
+                        
                         molecularConsequences.addAll(consequence.getMolecularConsequences());
-                        //    s.setConsequence(c);
-                        /****************SearchableDocument Fields***************/
+
                         if(consequenceGene != null && StringUtils.isNotEmpty(consequenceGene.getSymbol())) {
                             // This is faster than calling getNakeKey on the gene
                             StringBuffer buffer = new StringBuffer();
@@ -180,8 +161,8 @@ public class AlleleVariantSequenceConverter {
                     }
                 }
             }
-            avsDoc.setGeneSynonyms(synonymSet);
-            avsDoc.setGeneCrossReferences(crossReferencesSet);
+            avsDoc.setGeneSynonyms(geneSynonymSet);
+            avsDoc.setGeneCrossReferences(geneCrossReferencesSet);
             variant.setTranscriptLevelConsequence(htpConsequences);
             agrAllele.setVariants(Arrays.asList(variant));
             avsDoc.setAlterationType("variant");
