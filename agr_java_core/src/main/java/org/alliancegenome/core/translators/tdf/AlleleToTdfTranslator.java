@@ -114,11 +114,10 @@ public class AlleleToTdfTranslator {
             row.setVariantType(annotation.getVariant().getVariantType().getName());
         }
         if (annotation.getConsequence() != null) {
-            row.setMolecularConsequences(annotation.getConsequence().getTranscriptLevelConsequences());
+            row.setMolecularConsequences(annotation.getConsequence().getMolecularConsequences());
             row.setSequenceFeature(annotation.getConsequence().getTranscript().getName());
             row.setSequenceFeatureType(annotation.getConsequence().getSequenceFeatureType());
             row.setLocation(annotation.getConsequence().getLocation());
-            row.setMolecularConsequences(annotation.getConsequence().getTranscriptLevelConsequences());
             row.setVepImpact(annotation.getConsequence().getImpact());
             row.setSiftPrediction(annotation.getConsequence().getSiftPrediction());
             row.setSiftScore(annotation.getConsequence().getSiftScore());
