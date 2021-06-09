@@ -48,11 +48,11 @@ downloadFileSet:
 #        url: https://download.alliancegenome.org/variants/HUMAN/HUMAN.vep.20.vcf.gz
 #      - chromosome: 21
 #        url: https://download.alliancegenome.org/variants/HUMAN/HUMAN.vep.21.vcf.gz
-      - chromosome: 22
-        url: https://download.alliancegenome.org/variants/HUMAN/HUMAN.vep.22.vcf.gz
+#      - chromosome: 22
+#        url: https://download.alliancegenome.org/variants/HUMAN/HUMAN.vep.22.vcf.gz
 #      - chromosome: MT
 #        url: https://download.alliancegenome.org/variants/HUMAN/HUMAN.vep.MT.vcf.gz
 #      - chromosome: X
 #        url: https://download.alliancegenome.org/variants/HUMAN/HUMAN.vep.X.vcf.gz
-#      - chromosome: Y
-#        url: https://download.alliancegenome.org/variants/HUMAN/HUMAN.vep.Y.vcf.gz
+      - chromosome: Y
+        url: https://download.alliancegenome.org/variants/HUMAN/HUMAN.vep.Y.vcf.gz
