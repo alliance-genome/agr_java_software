@@ -198,7 +198,6 @@ public class SearchHelper {
             add("variantSynonyms");
             add("variantSynonyms.keyword");
             add("variantSynonyms.standardText");
-            add("variant.gene.*");
             add("stage");
             add("stage.keyword");
             add("symbol");
