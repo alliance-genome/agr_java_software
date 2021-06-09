@@ -60,6 +60,8 @@ public class SearchableItemDocument extends ESDocument {
     String symbol;
     @JsonView({View.AlleleVariantSequenceConverterForES.class})
     String symbolText;
+    @JsonView({View.AlleleVariantSequenceConverterForES.class})
+    String variantName;
 
     Set<String> age;
     Set<String> anatomicalExpression;

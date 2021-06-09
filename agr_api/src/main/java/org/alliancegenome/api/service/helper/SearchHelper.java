@@ -259,7 +259,7 @@ public class SearchHelper {
             add("synonyms");
             add("tags");
             add("variants");
-            add("variant.name");
+            add("variantName");
         }
     };
 

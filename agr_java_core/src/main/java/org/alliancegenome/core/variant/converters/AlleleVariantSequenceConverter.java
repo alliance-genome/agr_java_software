@@ -98,7 +98,8 @@ public class AlleleVariantSequenceConverter {
             }
             variant.setName(variantName.toString());
             variant.setHgvsNomenclature(hgvsNomenclature);
-            
+            avsDoc.setVariantName(variant.getName());
+          
             String ctxId = ctx.getID();
             if(StringUtils.isNotEmpty(ctxId) && !ctxId.equals(".")) {
                 avsDoc.setPrimaryKey(ctxId);
