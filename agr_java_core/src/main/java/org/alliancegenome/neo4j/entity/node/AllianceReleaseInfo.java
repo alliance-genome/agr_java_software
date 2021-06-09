@@ -20,9 +20,9 @@ import lombok.*;
 public class AllianceReleaseInfo extends Neo4jEntity {
 
     /**
-	 * 
-	 */
-	@JsonView({View.API.class})
+     * 
+     */
+    @JsonView({View.API.class})
     @Convert(value = DateConverter.class)
     private Date releaseDate;
     @JsonView({View.API.class})
