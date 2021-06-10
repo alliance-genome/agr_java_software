@@ -1,4 +1,4 @@
-package org.alliancegenome.es.index;
+package org.alliancegenome.es.index.site.dao;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.log4j.Log4j2;

@@ -3,7 +3,7 @@ package org.alliancegenome.api.tests.integration;
 import htsjdk.variant.variantcontext.VariantContext;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.core.config.ConfigHelper;
-import org.alliancegenome.es.index.VariantESDAO;
+import org.alliancegenome.es.index.site.dao.VariantESDAO;
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.node.Allele;
