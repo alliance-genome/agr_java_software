@@ -18,11 +18,11 @@ public class VariantMapping extends Mapping {
             builder.startObject("properties");
             builder.startObject("transcriptLevelConsequence");
             builder.startObject("properties");
-            new FieldBuilder(builder, "cdsStartPosition", "long").build();
-            new FieldBuilder(builder, "cdnaStartPosition", "long").build();
-            new FieldBuilder(builder, "proteinStartPosition", "long").build();
-            new FieldBuilder(builder, "siftScore", "double").build();
-            new FieldBuilder(builder, "polyphenScore", "double").build();
+            new FieldBuilder(builder, "cdsStartPosition", "long").notIndexed().build();
+            new FieldBuilder(builder, "cdnaStartPosition", "long").notIndexed().build();
+            new FieldBuilder(builder, "proteinStartPosition", "long").notIndexed().build();
+            new FieldBuilder(builder, "siftScore", "double").notIndexed().build();
+            new FieldBuilder(builder, "polyphenScore", "double").notIndexed().build();
             builder.endObject();
             builder.endObject();
             builder.endObject();
