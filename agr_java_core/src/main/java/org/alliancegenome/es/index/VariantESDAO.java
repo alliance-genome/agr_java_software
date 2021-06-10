@@ -121,17 +121,8 @@ public class VariantESDAO {
                     Allele allele;
                     if (alleleVariantSequence.getAllele() == null) {
                         allele = new Allele(alleleVariantSequence.getPrimaryKey(), GeneticEntity.CrossReferenceType.VARIANT);
-                        alleleVariantSequence.getTranscriptLevelConsequences().forEach(transcriptLevelConsequence -> {
-                            // populate the first GLC
-                            // todo: needs to be adjusted to curator input
-                            if (alleleVariantSequence.getVariant().getGeneLevelConsequence() == null) {
-                                GeneLevelConsequence consequence = new GeneLevelConsequence();
-                                consequence.setGeneLevelConsequence(transcriptLevelConsequence.getGeneLevelConsequence());
-                                alleleVariantSequence.getVariant().setGeneLevelConsequence(consequence);
-                            }
-                        });
                         Variant variant = alleleVariantSequence.getVariant();
-                        allele.setVariants(List.of(variant));
+
                         allele.setSymbol(alleleVariantSequence.getPrimaryKey());
                         Map<String, CrossReference> crossRefs = new HashMap<>();
                         CrossReference ref = new CrossReference();
@@ -268,19 +259,7 @@ public class VariantESDAO {
                     Allele allele;
                     if (alleleVariantSequence.getAllele() == null) {
                         allele = new Allele(alleleVariantSequence.getPrimaryKey(), GeneticEntity.CrossReferenceType.VARIANT);
-                        if (CollectionUtils.isNotEmpty(alleleVariantSequence.getTranscriptLevelConsequences())) {
-                            alleleVariantSequence.getTranscriptLevelConsequences().forEach(transcriptLevelConsequence -> {
-                                // populate the first GLC
-                                // todo: needs to be adjusted to curator input
-                                if (alleleVariantSequence.getVariant().getGeneLevelConsequence() == null) {
-                                    GeneLevelConsequence consequence = new GeneLevelConsequence();
-                                    consequence.setGeneLevelConsequence(transcriptLevelConsequence.getGeneLevelConsequence());
-                                    alleleVariantSequence.getVariant().setGeneLevelConsequence(consequence);
-                                }
-                            });
-                        }
                         Variant variant = alleleVariantSequence.getVariant();
-                        variant.setTranscriptLevelConsequence(alleleVariantSequence.getTranscriptLevelConsequences());
                         allele.setVariants(List.of(variant));
                         allele.setSymbol(alleleVariantSequence.getPrimaryKey());
                         Map<String, CrossReference> crossRefs = new HashMap<>();

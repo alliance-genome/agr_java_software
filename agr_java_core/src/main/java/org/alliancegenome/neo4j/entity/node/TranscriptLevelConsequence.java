@@ -140,7 +140,7 @@ public class TranscriptLevelConsequence extends Neo4jEntity {
     private String geneLevelConsequence;
 
 
-    public TranscriptLevelConsequence(String[] header, String[] infos, Species species) {
+    public TranscriptLevelConsequence(String[] header, String[] infos) {
 
         // VCF Header from the file
         /*
@@ -195,7 +195,6 @@ public class TranscriptLevelConsequence extends Neo4jEntity {
             if(associatedGene == null && infos[3].length() > 0 && infos[4].length() > 0) {
                 associatedGene = new Gene();
                 associatedGene.setSymbol(infos[3]);
-                associatedGene.setSpecies(species);
                 associatedGene.setPrimaryKey(infos[4]);
                 geneCache.put(infos[4], associatedGene);
             }
