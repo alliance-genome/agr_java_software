@@ -422,6 +422,10 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
         log.info("Loaded in:    " + ((System.currentTimeMillis() - start) / 1000) + " s");
         // remove alleleDej nodes that are not hanging off the disease in question
         // the above OPTIONAL MATCH clause
+        return cleanupDiseaseEntityJoins(allDiseaseEntityJoins);
+    }
+
+    public Set<DiseaseEntityJoin> cleanupDiseaseEntityJoins(Set<DiseaseEntityJoin> allDiseaseEntityJoins) {
         Set<DiseaseEntityJoin> allDiseaseEntityJoinsStripped = allDiseaseEntityJoins.stream()
                 .filter(join -> join.getPublicationJoins() != null)
                 .collect(Collectors.toSet());
@@ -446,14 +450,15 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
                 "             p2=(feature:Feature)-[:FROM_SPECIES]->(:Species) ";
         cypher += " where disease.isObsolete = 'false' ";
         //cypher += " AND disease.primaryKey in ['DOID:0050144','DOID:0110599','DOID:0050545'] ";
-        //cypher += " AND disease.primaryKey in ['DOID:1838'] ";
+        //cypher += " AND disease.primaryKey in ['DOID:12930'] and feature.primaryKey = 'ZFIN:ZDB-ALT-181016-1'";
         //cypher += " AND gene.primaryKey = 'ZFIN:ZDB-GENE-040426-1716' ";
         //cypher += "      OPTIONAL MATCH eco   =(pubEvCode:PublicationJoin)-[:ASSOCIATION]->(ecoTerm:ECOTerm)";
         cypher += "      OPTIONAL MATCH p3=(diseaseEntityJoin:DiseaseEntityJoin)-[:ASSOCIATION]-(:Gene)-[:FROM_SPECIES]->(:Species) ";
         cypher += "      OPTIONAL MATCH p4=(diseaseEntityJoin:DiseaseEntityJoin)-[:FROM_ORTHOLOGOUS_GENE]-(orthoGene:Gene)-[:FROM_SPECIES]->(orthoSpecies:Species) ";
-        cypher += "      OPTIONAL MATCH p5=(pubEvCode:PublicationJoin)-[:PRIMARY_GENETIC_ENTITY]->(agm:AffectedGenomicModel) ";
+        cypher += "      OPTIONAL MATCH p5=(pubEvCode:PublicationJoin)-[:PRIMARY_GENETIC_ENTITY]->(agm:AffectedGenomicModel)--(agmDej:DiseaseEntityJoin)--(disease:DOTerm) ";
+        cypher += "      OPTIONAL MATCH p5a=(agmDej:DiseaseEntityJoin)--(:ExperimentalCondition)--(:ZECOTerm) ";
         cypher += "      OPTIONAL MATCH condition=(diseaseEntityJoin:DiseaseEntityJoin)--(:ExperimentalCondition)--(:ZECOTerm) ";
-        cypher += " RETURN p, p1, p2, p3, p4, p5, condition ";
+        cypher += " RETURN p, p1, p2, p3, p4, p5, condition, p5a ";
 
         long start = System.currentTimeMillis();
         Iterable<DiseaseEntityJoin> joins = query(DiseaseEntityJoin.class, cypher);
@@ -462,7 +467,23 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
                 collect(Collectors.toSet());
         log.info("Total DiseaseEntityJoinRecords: " + String.format("%,d", allDiseaseEntityJoins.size()));
         log.info("Loaded in:    " + ((System.currentTimeMillis() - start) / 1000) + " s");
-        return allDiseaseEntityJoins;
+
+        Set<DiseaseEntityJoin> allDiseaseEntityJoinsStripped = allDiseaseEntityJoins.stream()
+                .filter(join -> join.getPublicationJoins() != null)
+                .collect(Collectors.toSet());
+
+        allDiseaseEntityJoinsStripped.forEach(diseaseEntityJoin -> {
+            diseaseEntityJoin.getPublicationJoins().forEach(publicationJoin -> {
+                if (publicationJoin.getModels() != null)
+                    publicationJoin.getModels().forEach(model -> {
+                        model.setDiseaseEntityJoins(model.getDiseaseEntityJoins().stream()
+                                .filter(diseaseEntityJoin1 -> diseaseEntityJoin1.getDisease().getPrimaryKey().equals(diseaseEntityJoin.getDisease().getPrimaryKey()))
+                                .collect(Collectors.toList()));
+                    });
+            });
+        });
+
+        return allDiseaseEntityJoinsStripped;
     }
 
     public Result getDiseaseAssociation(String geneID, String diseaseID, Pagination pagination, Boolean

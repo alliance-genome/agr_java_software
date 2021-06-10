@@ -364,12 +364,12 @@ public class DiseaseCacher extends Cacher {
         diseaseAnnotationPureMap.clear();
     }
 
-    private boolean populateAllelesCache() {
+    private void populateAllelesCache() {
 
         Set<DiseaseEntityJoin> alleleEntityJoins = diseaseRepository.getAllDiseaseAlleleEntityJoins();
         List<DiseaseAnnotation> alleleList = getDiseaseAnnotationsFromDEJs(alleleEntityJoins);
         if (alleleList == null)
-            return true;
+            return;
 
         alleleEntityJoins.clear();
 
@@ -385,12 +385,12 @@ public class DiseaseCacher extends Cacher {
 
         // <AlleleID, List of DAs>
         Map<String, List<DiseaseAnnotation>> diseaseAlleleMap = alleleList.stream()
+                .filter(diseaseAnnotation -> diseaseAnnotation.getFeature() != null)
                 .collect(groupingBy(annotation -> annotation.getFeature().getPrimaryKey()));
         storeIntoCache(alleleList, diseaseAlleleMap, CacheAlliance.ALLELE_DISEASE);
 
         alleleList.clear();
         diseaseAlleleMap.clear();
-        return false;
     }
 
     private List<DiseaseAnnotation> getDiseaseAnnotationsFromDEJs(Collection<DiseaseEntityJoin> joinList) {
@@ -426,7 +426,7 @@ public class DiseaseCacher extends Cacher {
                     // sort to ensure subsequent caching processes will generate the same PAEs with the
                     // same PK. Note the merging that is happening
                     List<PublicationJoin> publicationJoins1 = join.getPublicationJoins();
-                    if(publicationJoins1 == null)
+                    if (publicationJoins1 == null)
                         System.out.println(join.getPrimaryKey());
                     publicationJoins1.sort(Comparator.comparing(PublicationJoin::getPrimaryKey));
                     if (CollectionUtils.isNotEmpty(publicationJoins1)) {

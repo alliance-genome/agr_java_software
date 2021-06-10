@@ -4,7 +4,7 @@ import org.alliancegenome.cacher.cachers.*;
 
 public enum CacherConfig {
 
-    AlleleCacher(AlleleCacher.class),
+    //AlleleCacher(AlleleCacher.class),
     //GeneCacher(GeneCacher.class),
     GenePhenotypeCacher(GenePhenotypeCacher.class),
     InteractionCacher(InteractionCacher.class),

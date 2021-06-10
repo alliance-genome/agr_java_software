@@ -260,16 +260,33 @@ public class PhenotypeRepository extends Neo4jRepository<Phenotype> {
 
     public List<PhenotypeEntityJoin> getAllelePhenotypeAnnotations() {
         String cypher = "MATCH p0=(phenotype:Phenotype)--(pej:PhenotypeEntityJoin)-[:EVIDENCE]->(ppj:PublicationJoin)<-[:ASSOCIATION]-(publication:Publication), " +
-                " p2=(pej:PhenotypeEntityJoin)--(feature:Feature) " +
+                " p2=(pej:PhenotypeEntityJoin)--(allele:Feature) " +
                 //"where agm.primaryKey in ['MGI:6272038','MGI:5702925'] " +
-                //"where agm.primaryKey in ['ZFIN:ZDB-FISH-180831-2'] " +
-                "OPTIONAL MATCH gene=(feature:Feature)--(:Gene)" +
-                "OPTIONAL MATCH p4=(pej:PhenotypeEntityJoin)--(feature:Feature)-[:CROSS_REFERENCE]->(crossRef:CrossReference) " +
-                "OPTIONAL MATCH modelAllele=(ppj:PublicationJoin)--(agm:AffectedGenomicModel) " +
-                "return p0, p2, p4, modelAllele ";
+                "OPTIONAL MATCH gene=(allele:Feature)--(:Gene)" +
+                "OPTIONAL MATCH p4=(pej:PhenotypeEntityJoin)--(allele:Feature)-[:CROSS_REFERENCE]->(crossRef:CrossReference) " +
+//                "OPTIONAL MATCH modelAllele=(ppj:PublicationJoin)--(agm:AffectedGenomicModel)-[:ASSOCIATION]->(agmPej:PhenotypeEntityJoin) " +
+                "OPTIONAL MATCH modelAllele=(ppj:PublicationJoin)--(agm:AffectedGenomicModel)--(agmPej:PhenotypeEntityJoin)--(phenotype:Phenotype),(agm:AffectedGenomicModel)-[:HAS_PHENOTYPE]-(:Phenotype)" +
+                "OPTIONAL MATCH p6=(agmPej:PhenotypeEntityJoin)--(expCond:ExperimentalCondition)-[:ASSOCIATION]->(zeco:ZECOTerm)" +
+                //"return p0, p2, p4, agm, expCond, zeco";
+                "return p0, p2, p4, modelAllele, p6";
 
         Iterable<PhenotypeEntityJoin> joins = query(PhenotypeEntityJoin.class, cypher);
-        return StreamSupport.stream(joins.spliterator(), false).
-                collect(Collectors.toList());
+        List<PhenotypeEntityJoin> joinList = StreamSupport.stream(joins.spliterator(), false)
+                .filter(phenotypeEntityJoin -> phenotypeEntityJoin.getAllele() != null)
+                .collect(Collectors.toList());
+        // remove allelePej nodes that are not hanging off phenotype
+        // the above OPTIONAL MATCH clause, p6b is not working
+        joinList.forEach(phenotypeEntityJoin -> {
+            if (phenotypeEntityJoin.getPhenotypePublicationJoins() != null)
+                phenotypeEntityJoin.getPhenotypePublicationJoins().forEach(publicationJoin -> {
+                    if (publicationJoin.getModels() != null)
+                        publicationJoin.getModels().forEach(model -> {
+                            model.setPhenotypeEntityJoins(model.getPhenotypeEntityJoins().stream()
+                                    .filter(phenotypeEntityJoin1 -> phenotypeEntityJoin1.getPhenotype().getPrimaryKey().equals(phenotypeEntityJoin.getPhenotype().getPrimaryKey()))
+                                    .collect(Collectors.toList()));
+                        });
+                });
+        });
+        return joinList;
     }
 }
