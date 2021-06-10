@@ -36,7 +36,7 @@ public class AffectedGenomicModel extends GeneticEntity implements Comparable<Af
     @Relationship(type = "ASSOCIATION")
     private List<DiseaseEntityJoin> diseaseEntityJoins = new ArrayList<>();
 
-    @Relationship(type = "PRIMARY_GENETIC_ENTITY", direction = Relationship.INCOMING)
+    @Relationship(type = "ASSOCIATION", direction = Relationship.UNDIRECTED)
     private List<PhenotypeEntityJoin> phenotypeEntityJoins = new ArrayList<>();
 
     @Relationship(type = "SEQUENCE_TARGETING_REAGENT")
