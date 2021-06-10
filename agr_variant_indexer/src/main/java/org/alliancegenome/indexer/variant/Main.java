@@ -44,8 +44,9 @@ public class Main {
             }
 
             if(creating) {
-                IndexManager im = new IndexManager(new VariantIndexSettings(true, VariantConfigHelper.getIndexerShards()), new VariantMapping(true));
-
+                //IndexManager im = new IndexManager(new VariantIndexSettings(true, VariantConfigHelper.getIndexerShards()), new VariantMapping(true));
+                IndexManager im = new IndexManager(new VariantIndexSettings(true, VariantConfigHelper.getIndexerShards()));
+                
                 if(indexing) SourceDocumentCreation.indexName = im.startSiteIndex();
 
                 SourceDocumentCreationManager vdm = new SourceDocumentCreationManager(client, downloadSet);
