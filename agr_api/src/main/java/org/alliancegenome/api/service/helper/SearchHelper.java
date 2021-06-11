@@ -213,12 +213,13 @@ public class SearchHelper {
             add("synonyms.standardBigrams");
             add("species");
             add("species.synonyms");
-            add("secondaryIds");
+            add("secondaryIds");    
             add("soTermName");
             add("soTermName.letterText");
             add("strictOrthologySymbols.autocomplete");
             add("strictOrthologySymbols.keyword");
             add("summary");
+            add("variantName");
             add("whereExpressed");
             add("whereExpressed.keyword");
         }
