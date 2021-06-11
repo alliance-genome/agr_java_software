@@ -433,7 +433,6 @@ public class SourceDocumentCreation extends Thread {
         private final ObjectMapper mapper = new ObjectMapper();
 
         public void run() {
-            mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
             mapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
             mapper.configure(MapperFeature.DEFAULT_VIEW_INCLUSION, false);
             while (!(Thread.currentThread().isInterrupted())) {

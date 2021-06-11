@@ -47,11 +47,9 @@ public class AlleleVariantSequenceConverter {
         
         for (htsjdk.variant.variantcontext.Allele vcfAllele : ctx.getAlternateAlleles()) {
             Allele agrAllele = new Allele(null, GeneticEntity.CrossReferenceType.VARIANT);
-            agrAllele.setSpecies(species);
 
             Variant variant = new Variant();
             variant.setVariantType(variantType);
-            variant.setSpecies(species);
             variant.setLocation(location);
             
 //          These cases do not exist in the human file or the mod files
@@ -135,8 +133,6 @@ public class AlleleVariantSequenceConverter {
                         
                         if(firstTranscript) {
                             if(consequenceGene != null) {
-                                variant.setGene(consequenceGene);
-                                agrAllele.setGene(consequenceGene);
                                 if(geneCache != null) {
                                     geneSynonymSet = geneCache.getSynonyms().get(consequenceGene.getPrimaryKey());
                                     geneCrossReferencesSet = geneCache.getCrossReferences().get(consequenceGene.getPrimaryKey());
@@ -171,9 +167,7 @@ public class AlleleVariantSequenceConverter {
             avsDoc.setGenes(genes);
             avsDoc.setGeneIds(geneIds);
             avsDoc.setSpecies(species.getName());
-            avsDoc.setChromosomes(Collections.singleton(ctx.getContig()));
             avsDoc.setChromosome(ctx.getContig());
-            avsDoc.setTranscriptLevelConsequences(htpConsequences);
             avsDoc.setVariantType(Collections.singleton(variantType.getName()));
             avsDoc.setAllele(agrAllele);
             returnDocuments.add(avsDoc);
@@ -196,7 +190,7 @@ public class AlleleVariantSequenceConverter {
                 if (header.length == infos.length) {
                     if (infos[0].equalsIgnoreCase(varNuc)) {
 
-                        TranscriptLevelConsequence feature = new TranscriptLevelConsequence(header, infos, species);
+                        TranscriptLevelConsequence feature = new TranscriptLevelConsequence(header, infos);
                         
                         if(feature.getTranscript() != null) {
                             String transcriptID = feature.getTranscript().getPrimaryKey();

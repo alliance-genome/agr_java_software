@@ -132,9 +132,6 @@ public class SearchableItemDocument extends ESDocument {
     Set<String> variantType;
     Set<String> whereExpressed;
     
-    @JsonView({View.AlleleVariantSequenceConverterForES.class})
-    List<TranscriptLevelConsequence> transcriptLevelConsequences;
-
     @Override
     @JsonIgnore
     public String getType() {

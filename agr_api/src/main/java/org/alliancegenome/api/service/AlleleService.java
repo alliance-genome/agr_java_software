@@ -3,7 +3,7 @@ package org.alliancegenome.api.service;
 import org.alliancegenome.api.entity.AlleleVariantSequence;
 import org.alliancegenome.cache.repository.AlleleCacheRepository;
 import org.alliancegenome.cache.repository.helper.*;
-import org.alliancegenome.es.index.VariantESDAO;
+import org.alliancegenome.es.index.site.dao.VariantESDAO;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
