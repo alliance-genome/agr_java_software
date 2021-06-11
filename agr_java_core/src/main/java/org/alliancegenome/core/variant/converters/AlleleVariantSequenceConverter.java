@@ -22,7 +22,7 @@ public class AlleleVariantSequenceConverter {
         List<AlleleVariantSequence> returnDocuments = new ArrayList<>();
 
         //htsjdk.variant.variantcontext.Allele refNuc = ctx.getReference();
-        
+
         if(species == null) {
             species = new Species();
             species.setName(speciesType.getName());
@@ -31,12 +31,16 @@ public class AlleleVariantSequenceConverter {
         }
 
         SOTerm variantType = new SOTerm();
-        variantType.setName(ctx.getType().name().toUpperCase());
-        variantType.setPrimaryKey(ctx.getType().name());
-        if ("INDEL".equals(ctx.getType().name())) {
-            variantType.setName("delins");
-            variantType.setPrimaryKey("delins");
+
+        if(!"SYMBOLIC".equals(ctx.getType().name()) && !"MIXED".equals(ctx.getType().name())){
+            variantType.setName(ctx.getType().name().toUpperCase());
+            variantType.setPrimaryKey(ctx.getType().name());
+            if ("INDEL".equals(ctx.getType().name())) {
+                variantType.setName("delins");
+                variantType.setPrimaryKey("delins");
+            }
         }
+
 
         GenomeLocation location = new GenomeLocation();
         location.setStart((long) ctx.getStart());
@@ -44,14 +48,14 @@ public class AlleleVariantSequenceConverter {
         Chromosome chromosome = new Chromosome();
         chromosome.setPrimaryKey(ctx.getContig());
         location.setChromosome(chromosome);
-        
+
         for (htsjdk.variant.variantcontext.Allele vcfAllele : ctx.getAlternateAlleles()) {
             Allele agrAllele = new Allele(null, GeneticEntity.CrossReferenceType.VARIANT);
 
             Variant variant = new Variant();
             variant.setVariantType(variantType);
             variant.setLocation(location);
-            
+
 //          These cases do not exist in the human file or the mod files
 //          if (vcfAllele.compareTo(refNuc) < 0) {
 //              System.out.println("does this ever happen: " + vcfAllele);
@@ -61,7 +65,7 @@ public class AlleleVariantSequenceConverter {
 //              System.out.println(" *** 1. Ref Nucleotides must be A,C,G,T,N: " + ctx.getReference().getBaseString());
 //              continue;
 //          }
-            
+
             if (!alleleIsValid(vcfAllele.getBaseString())) {
                 //System.out.println(" *** 2. Var Nucleotides must be A,C,G,T,N: " + vcfAllele.getBaseString());
                 continue;
@@ -96,7 +100,7 @@ public class AlleleVariantSequenceConverter {
             variant.setName(variantName.toString());
             variant.setHgvsNomenclature(hgvsNomenclature);
             avsDoc.setVariantName(variant.getName());
-          
+
             String ctxId = ctx.getID();
             if(StringUtils.isNotEmpty(ctxId) && !ctxId.equals(".")) {
                 avsDoc.setPrimaryKey(ctxId);
@@ -121,16 +125,16 @@ public class AlleleVariantSequenceConverter {
             Set<String> geneCrossReferencesSet = new HashSet<>();
 
             boolean firstTranscript = true;
-            
+
             if (htpConsequences != null) {
                 for (TranscriptLevelConsequence consequence : htpConsequences) {
                     Gene consequenceGene = consequence.getAssociatedGene();
 
                     String transcriptID = consequence.getTranscript().getPrimaryKey();
-                    
+
                     if(!transcriptsProcessed.contains(transcriptID)) {
                         transcriptsProcessed.add(transcriptID);
-                        
+
                         if(firstTranscript) {
                             if(consequenceGene != null) {
                                 if(variant.getGene() == null) {
@@ -143,7 +147,7 @@ public class AlleleVariantSequenceConverter {
                                 firstTranscript = false;
                             }
                         }
-                        
+
                         molecularConsequences.addAll(consequence.getMolecularConsequences());
 
                         if(consequenceGene != null && StringUtils.isNotEmpty(consequenceGene.getSymbol())) {
@@ -175,8 +179,8 @@ public class AlleleVariantSequenceConverter {
             avsDoc.setAllele(agrAllele);
             returnDocuments.add(avsDoc);
         }
-        
-        
+
+
         return returnDocuments;
     }
 
@@ -194,7 +198,7 @@ public class AlleleVariantSequenceConverter {
                     if (infos[0].equalsIgnoreCase(varNuc)) {
 
                         TranscriptLevelConsequence feature = new TranscriptLevelConsequence(header, infos);
-                        
+
                         if(feature.getTranscript() != null) {
                             String transcriptID = feature.getTranscript().getPrimaryKey();
                             if(!alreadyAdded.contains(transcriptID)) {
