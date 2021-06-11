@@ -96,7 +96,7 @@ public class AlleleVariantIndexService {
     public List<Allele> getAlleles(String geneId)  {
         SearchResponse searchResponce = null;
         try {
-            searchResponce = getSearchResponse(geneId, false);
+            searchResponce = getSearchResponse(geneId, true);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -117,7 +117,13 @@ public class AlleleVariantIndexService {
                     if(allele.getUrl()==null){
                         allele.setUrl(" ");
                     }
-
+                    if(allele.getCrossReferenceMap()==null){
+                        Map<String, Object> crossReferenceMap=new HashMap<>();
+                        CrossReference cr=new CrossReference();
+                        cr.setCrossRefCompleteUrl("");
+                        crossReferenceMap.put("primary", cr);
+                        allele.setCrossReferenceMap(crossReferenceMap);
+                    }
                     alleles.add(allele);
                 }
 
@@ -133,7 +139,6 @@ public class AlleleVariantIndexService {
         srb.size(10000);
 
         SearchRequest searchRequest = new SearchRequest(ConfigHelper.getEsIndex());
-
         searchRequest.source(srb);
 
         return EsClientFactory.getDefaultEsClient().search(searchRequest, RequestOptions.DEFAULT);
