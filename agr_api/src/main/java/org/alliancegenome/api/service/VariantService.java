@@ -105,13 +105,10 @@ public class VariantService {
         // if not found in Neo then try in ES
         if (variant == null) {
             variant = variantDAO.getVariant(id);
-            // need to add gene.genomeLocation
-            GenomeLocation location = variantRepo.getGenomeLocation(variant.getGene().getPrimaryKey());
-            if (location != null)
-                variant.getGene().setGenomeLocations(List.of(location));
+            if (variant.getSymbol() == null) {
+                variant.setSymbol(variant.getPrimaryKey());
+            }
         }
-        if (variant.getSymbol() == null)
-            variant.setSymbol(variant.getPrimaryKey());
         return variant;
     }
 }
