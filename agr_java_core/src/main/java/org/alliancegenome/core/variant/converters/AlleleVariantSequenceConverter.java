@@ -133,6 +133,9 @@ public class AlleleVariantSequenceConverter {
                         
                         if(firstTranscript) {
                             if(consequenceGene != null) {
+                                if(variant.getGene() == null) {
+                                    variant.setGene(consequenceGene);
+                                }
                                 if(geneCache != null) {
                                     geneSynonymSet = geneCache.getSynonyms().get(consequenceGene.getPrimaryKey());
                                     geneCrossReferencesSet = geneCache.getCrossReferences().get(consequenceGene.getPrimaryKey());
