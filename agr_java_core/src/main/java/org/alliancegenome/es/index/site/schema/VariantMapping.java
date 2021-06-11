@@ -12,6 +12,12 @@ public class VariantMapping extends Mapping {
     public void buildMapping() {
         try {
             builder.startObject().startObject("properties");
+            new FieldBuilder(builder, "category", "keyword").symbol().autocomplete().keyword().build();
+            new FieldBuilder(builder, "name", "keyword").build();
+            new FieldBuilder(builder, "name_key", "keyword").build();
+            new FieldBuilder(builder, "alterationType", "text").keyword().build();
+            new FieldBuilder(builder, "genes", "text").keyword().build();
+            
             builder.startObject("allele");
             builder.startObject("properties");
             builder.startObject("variants");
