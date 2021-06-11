@@ -1,10 +1,6 @@
 package org.alliancegenome.cacher.cachers;
 
-import static java.util.stream.Collectors.*;
-
-import java.util.*;
-import java.util.stream.Collectors;
-
+import lombok.extern.log4j.Log4j2;
 import org.alliancegenome.api.entity.CacheStatus;
 import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.neo4j.entity.*;
@@ -13,27 +9,31 @@ import org.alliancegenome.neo4j.repository.PhenotypeRepository;
 import org.alliancegenome.neo4j.view.View;
 import org.apache.commons.collections.CollectionUtils;
 
-import lombok.extern.log4j.Log4j2;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.*;
 
 @Log4j2
 public class GenePhenotypeCacher extends Cacher {
 
     private static PhenotypeRepository phenotypeRepository;
 
-    public GenePhenotypeCacher() { }
+    public GenePhenotypeCacher() {
+    }
 
     @Override
     protected void init() {
         phenotypeRepository = new PhenotypeRepository();
     }
-    
+
     @Override
     protected void cache() {
 
 
         startProcess("GenePhenotypeCacher.getAllPhenotypeAnnotations");
         List<PhenotypeEntityJoin> joinList = phenotypeRepository.getAllPhenotypeAnnotations();
-        log.info("Number of Gene-related phenotypes: " + joinList.size());
+        log.info("Number of Gene-related phenotypes: " + String.format("%,d", joinList.size()));
         log.info("Debug mode: " + useCache);
         finishProcess();
 
@@ -134,6 +134,10 @@ public class GenePhenotypeCacher extends Cacher {
                     document.setPrimaryKey(join.getPrimaryKey());
                     document.setPhenotype(join.getPhenotype().getPhenotypeStatement());
                     document.setPublications(join.getPublications());
+                    document.addConditions(DiseaseAnnotation.ConditionType.HAS_CONDITION, join.getHasConditionList());
+                    document.addConditions(DiseaseAnnotation.ConditionType.INDUCES, join.getInducerConditionList());
+                    document.addModifier(DiseaseAnnotation.ConditionType.AMELIORATES, join.getAmeliorateConditionList());
+                    document.addModifier(DiseaseAnnotation.ConditionType.EXACERBATES, join.getExacerbateConditionList());
 
                     PrimaryAnnotatedEntity entity = new PrimaryAnnotatedEntity();
                     entity.setId(model.getPrimaryKey());
@@ -145,6 +149,11 @@ public class GenePhenotypeCacher extends Cacher {
                     entity.addPublicationEvidenceCode(join.getPhenotypePublicationJoins());
                     entity.addPhenotype(join.getPhenotype().getPhenotypeStatement());
                     entity.setDataProvider(model.getDataProvider());
+                    entity.addConditions(ConditionAnnotation.ConditionType.HAS_CONDITION, join.getHasConditionList());
+                    entity.addConditions(ConditionAnnotation.ConditionType.INDUCES, join.getInducerConditionList());
+                    entity.addModifier(ConditionAnnotation.ConditionType.AMELIORATES, join.getAmeliorateConditionList());
+                    entity.addModifier(ConditionAnnotation.ConditionType.EXACERBATES, join.getExacerbateConditionList());
+
                     document.addPrimaryAnnotatedEntity(entity);
                     return document;
                 })
@@ -209,9 +218,6 @@ public class GenePhenotypeCacher extends Cacher {
 
         startProcess("phenotypeAnnotationPureMap", phenotypeAnnotationPureMap.size());
         phenotypeAnnotationPureMap.forEach((geneID, value) -> {
-            if (geneID.equals("MGI:104798")) {
-                log.info("found gene: " + geneID + " with annotations: " + value.size());
-            }
             cacheService.putCacheEntry(geneID, value, View.PrimaryAnnotation.class, CacheAlliance.GENE_PURE_AGM_PHENOTYPE);
             progressProcess();
         });
