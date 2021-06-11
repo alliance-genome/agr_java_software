@@ -32,7 +32,7 @@ public class AlleleVariantSequenceConverter {
 
         SOTerm variantType = new SOTerm();
 
-        if(!"SYMBOLIC".equalsIgnoreCase(ctx.getType().name()) && !"MIXED".equalsIgnoreCase(ctx.getType().name())){
+        if(!"SYMBOLIC".equals(ctx.getType().name()) && !"MIXED".equals(ctx.getType().name())){
             variantType.setName(ctx.getType().name().toUpperCase());
             variantType.setPrimaryKey(ctx.getType().name());
             if ("INDEL".equals(ctx.getType().name())) {
