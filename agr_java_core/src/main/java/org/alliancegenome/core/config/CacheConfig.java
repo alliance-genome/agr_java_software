@@ -18,6 +18,7 @@ public class CacheConfig {
         
         log.info("Setting up cache manager");
         ConfigurationBuilder builder = new ConfigurationBuilder()
+                .connectionPool()
                 .addServer()
                 .host(ConfigHelper.getCacheHost())
                 .port(ConfigHelper.getCachePort())
