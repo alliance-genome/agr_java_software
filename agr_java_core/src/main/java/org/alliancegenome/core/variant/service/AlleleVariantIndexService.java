@@ -62,7 +62,9 @@ public class AlleleVariantIndexService {
                 }
 
                 if (allele != null) {
-
+                    if (allele.getUrl() == null) {
+                        allele.setUrl(" ");
+                    }
                     if (allele.getId() == null || (allele.getId() != null && allele.getId().equals("null"))) {
                         allele.setId(0L);
                     }
@@ -84,13 +86,13 @@ public class AlleleVariantIndexService {
 
             }
         }
-        
+
         log.debug("TOTAL HITS:" + searchResponce.getHits().getTotalHits());
         log.debug("Allele Variant Sequences:" + avsList.size());
 
         return avsList;
     }
-    
+
     public List<Allele> getAlleles(String geneId)  {
         SearchResponse searchResponce = null;
         try {
@@ -111,6 +113,11 @@ public class AlleleVariantIndexService {
                     e.printStackTrace();
                 }
                 if (allele != null) {
+
+                    if(allele.getUrl()==null){
+                        allele.setUrl(" ");
+                    }
+
                     alleles.add(allele);
                 }
 
@@ -119,7 +126,7 @@ public class AlleleVariantIndexService {
 
         return alleles;
     }
-    
+
     public SearchResponse getSearchResponse(String id, boolean includeHtp) throws IOException {
         SearchSourceBuilder srb = new SearchSourceBuilder();
         srb.query(buildBoolQuery(id, includeHtp));
@@ -131,7 +138,7 @@ public class AlleleVariantIndexService {
 
         return EsClientFactory.getDefaultEsClient().search(searchRequest, RequestOptions.DEFAULT);
     }
-    
+
     public BoolQueryBuilder buildBoolQuery(String id, boolean includeHtp){
         BoolQueryBuilder queryBuilder = new BoolQueryBuilder();
         queryBuilder.must(QueryBuilders.termQuery("geneIds.keyword", id)).filter(QueryBuilders.termQuery("category.keyword", "allele"));
@@ -140,5 +147,5 @@ public class AlleleVariantIndexService {
         }
         return queryBuilder;
     }
-    
+
 }
