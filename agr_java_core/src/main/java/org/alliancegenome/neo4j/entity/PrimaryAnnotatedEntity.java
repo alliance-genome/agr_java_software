@@ -1,10 +1,9 @@
 package org.alliancegenome.neo4j.entity;
 
-import java.io.Serializable;
-import java.util.*;
-import java.util.stream.Collectors;
-
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.JsonView;
+import lombok.Getter;
+import lombok.Setter;
 import org.alliancegenome.api.entity.PresentationEntity;
 import org.alliancegenome.es.util.DateConverter;
 import org.alliancegenome.neo4j.entity.node.*;
@@ -13,14 +12,14 @@ import org.apache.commons.collections.CollectionUtils;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.neo4j.ogm.annotation.typeconversion.Convert;
 
-import com.fasterxml.jackson.annotation.JsonView;
-
-import lombok.*;
+import java.io.Serializable;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Getter
 @Setter
 @Schema(name = "PrimaryAnnotatedEntity", description = "POJO that represents a Primary Annotated Entity")
-@JsonPropertyOrder({"id", "name", "displayName", "phenotypes","url", "type", "crossReference", "source", "diseaseAssociationType", "diseaseModels", "publicationEvidenceCodes", "conditions", "conditionModifiers"})
+@JsonPropertyOrder({"id", "name", "displayName", "phenotypes", "url", "type", "crossReference", "source", "diseaseAssociationType", "diseaseModels", "publicationEvidenceCodes", "conditions", "conditionModifiers"})
 public class PrimaryAnnotatedEntity extends ConditionAnnotation implements Comparable<PrimaryAnnotatedEntity>, Serializable, PresentationEntity {
 
     @JsonView({View.PrimaryAnnotation.class, View.API.class})
@@ -76,12 +75,15 @@ public class PrimaryAnnotatedEntity extends ConditionAnnotation implements Compa
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         PrimaryAnnotatedEntity that = (PrimaryAnnotatedEntity) o;
-        return Objects.equals(id, that.id);
+        return Objects.equals(id, that.id) &&
+                Objects.equals(getConditionModifiers(), that.getConditionModifiers()) &&
+                Objects.equals(getConditions(), that.getConditions());
+
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id);
+        return Objects.hash(id) + Objects.hashCode(getConditionModifiers()) + Objects.hashCode(getConditions());
     }
 
     public void addDisease(DOTerm disease, String associationType) {

@@ -421,7 +421,7 @@ public class DiseaseCacher extends Cacher {
 
                     // used to populate the DOTerm object on the PrimaryAnnotationEntity object
                     // Needed as the same AGM can be reused on multiple pubJoin nodes.
-                    Map<String, PrimaryAnnotatedEntity> entities = new HashMap<>();
+                    Map<String, List<PrimaryAnnotatedEntity>> entities = new HashMap<>();
 
                     // sort to ensure subsequent caching processes will generate the same PAEs with the
                     // same PK. Note the merging that is happening
@@ -436,25 +436,35 @@ public class DiseaseCacher extends Cacher {
                                 .filter(pubJoin -> pubJoin.getModels() != null)
                                 .forEach(pubJoin -> {
                                     pubJoin.getModels().forEach(model -> {
-                                        PrimaryAnnotatedEntity entity = entities.get(model.getPrimaryKey());
-                                        if (entity == null) {
-                                            entity = new PrimaryAnnotatedEntity();
-                                            entity.setId(model.getPrimaryKey());
-                                            entity.setName(model.getName());
-                                            entity.setUrl(model.getModCrossRefCompleteUrl());
-                                            entity.setDisplayName(model.getNameText());
-                                            entity.setType(GeneticEntity.getType(model.getSubtype()));
-                                            for (DiseaseEntityJoin diseaseJoin : model.getDiseaseEntityJoins()) {
-                                                entity.addConditions(ConditionAnnotation.ConditionType.HAS_CONDITION, diseaseJoin.getHasConditionList());
-                                                entity.addConditions(ConditionAnnotation.ConditionType.INDUCES, diseaseJoin.getInducerConditionList());
-                                                entity.addModifier(ConditionAnnotation.ConditionType.AMELIORATES, diseaseJoin.getAmeliorateConditionList());
-                                                entity.addModifier(ConditionAnnotation.ConditionType.EXACERBATES, diseaseJoin.getExacerbateConditionList());
-                                            }
-                                            entities.put(model.getPrimaryKey(), entity);
+                                        // split out DiseaseEntityJoin nodes off the (ExpCond)--(:DiseaseEntityJoin)--(:Allele)/(:AffectiveGenomicModel)
+                                        List<PrimaryAnnotatedEntity> entityList = entities.get(model.getPrimaryKey());
+                                        if (entityList == null) {
+                                            entityList = model.getDiseaseEntityJoins().stream()
+                                                    .map(diseaseJoin -> {
+                                                        PrimaryAnnotatedEntity entity = new PrimaryAnnotatedEntity();
+                                                        entity.setId(model.getPrimaryKey());
+                                                        entity.setName(model.getName());
+                                                        entity.setUrl(model.getModCrossRefCompleteUrl());
+                                                        entity.setDisplayName(model.getNameText());
+                                                        entity.setType(GeneticEntity.getType(model.getSubtype()));
+                                                        entity.addConditions(ConditionAnnotation.ConditionType.HAS_CONDITION, diseaseJoin.getHasConditionList());
+                                                        entity.addConditions(ConditionAnnotation.ConditionType.INDUCES, diseaseJoin.getInducerConditionList());
+                                                        entity.addModifier(ConditionAnnotation.ConditionType.AMELIORATES, diseaseJoin.getAmeliorateConditionList());
+                                                        entity.addModifier(ConditionAnnotation.ConditionType.EXACERBATES, diseaseJoin.getExacerbateConditionList());
+                                                        document.addPrimaryAnnotatedEntity(entity);
+                                                        entity.addPublicationEvidenceCode(pubJoin);
+                                                        entity.setDiseaseAssociationType(join.getJoinType());
+                                                        return entity;
+                                                    })
+                                                    .collect(toList());
+                                            document.addAllPrimaryAnnotatedEntities(entityList);
+                                            entities.put(model.getPrimaryKey(), entityList);
+                                        } else {
+                                            entityList.forEach(entity -> {
+                                                entity.addPublicationEvidenceCode(pubJoin);
+                                                entity.setDiseaseAssociationType(join.getJoinType());
+                                            });
                                         }
-                                        document.addPrimaryAnnotatedEntity(entity);
-                                        entity.addPublicationEvidenceCode(pubJoin);
-                                        entity.setDiseaseAssociationType(join.getJoinType());
                                     });
                                 });
                         // create PAEs from Alleles
@@ -462,28 +472,37 @@ public class DiseaseCacher extends Cacher {
                                 .stream()
                                 .filter(pubJoin -> CollectionUtils.isNotEmpty(pubJoin.getAlleles()))
                                 .forEach(pubJoin -> pubJoin.getAlleles().forEach(allele -> {
-                                    PrimaryAnnotatedEntity entity = entities.get(allele.getPrimaryKey());
-                                    if (entity == null) {
-                                        entity = new PrimaryAnnotatedEntity();
-                                        entity.setId(allele.getPrimaryKey());
-                                        entity.setName(allele.getSymbol());
-                                        for (DiseaseEntityJoin diseaseJoin : allele.getDiseaseEntityJoins()) {
-                                            entity.addConditions(ConditionAnnotation.ConditionType.HAS_CONDITION, diseaseJoin.getHasConditionList());
-                                            entity.addConditions(ConditionAnnotation.ConditionType.INDUCES, diseaseJoin.getInducerConditionList());
-                                            entity.addModifier(ConditionAnnotation.ConditionType.AMELIORATES, diseaseJoin.getAmeliorateConditionList());
-                                            entity.addModifier(ConditionAnnotation.ConditionType.EXACERBATES, diseaseJoin.getExacerbateConditionList());
-                                        }
-                                        List<CrossReference> refs = allele.getCrossReferences();
-                                        if (org.apache.commons.collections.CollectionUtils.isNotEmpty(refs))
-                                            entity.setUrl(refs.get(0).getCrossRefCompleteUrl());
+                                    // split out DiseaseEntityJoin nodes off the (ExpCond)--(:DiseaseEntityJoin)--(:Allele)/(:AffectiveGenomicModel)
+                                    List<PrimaryAnnotatedEntity> entityList = entities.get(allele.getPrimaryKey());
+                                    if (entityList == null) {
+                                        entityList = allele.getDiseaseEntityJoins().stream()
+                                                .map(diseaseJoin -> {
+                                                    PrimaryAnnotatedEntity entity = new PrimaryAnnotatedEntity();
+                                                    entity.setId(allele.getPrimaryKey());
+                                                    entity.setName(allele.getSymbol());
+                                                    entity.addConditions(ConditionAnnotation.ConditionType.HAS_CONDITION, diseaseJoin.getHasConditionList());
+                                                    entity.addConditions(ConditionAnnotation.ConditionType.INDUCES, diseaseJoin.getInducerConditionList());
+                                                    entity.addModifier(ConditionAnnotation.ConditionType.AMELIORATES, diseaseJoin.getAmeliorateConditionList());
+                                                    entity.addModifier(ConditionAnnotation.ConditionType.EXACERBATES, diseaseJoin.getExacerbateConditionList());
+                                                    List<CrossReference> refs = allele.getCrossReferences();
+                                                    if (org.apache.commons.collections.CollectionUtils.isNotEmpty(refs))
+                                                        entity.setUrl(refs.get(0).getCrossRefCompleteUrl());
 
-                                        entity.setDisplayName(allele.getSymbolText());
-                                        entity.setType(GeneticEntity.CrossReferenceType.ALLELE);
-                                        entities.put(allele.getPrimaryKey(), entity);
+                                                    entity.setDisplayName(allele.getSymbolText());
+                                                    entity.setType(GeneticEntity.CrossReferenceType.ALLELE);
+                                                    entity.addPublicationEvidenceCode(pubJoin);
+                                                    entity.setDiseaseAssociationType(join.getJoinType());
+                                                    return entity;
+                                                })
+                                                .collect(Collectors.toList());
+                                        document.addAllPrimaryAnnotatedEntities(entityList);
+                                        entities.put(allele.getPrimaryKey(), entityList);
+                                    } else {
+                                        entityList.forEach(entity -> {
+                                            entity.addPublicationEvidenceCode(pubJoin);
+                                            entity.setDiseaseAssociationType(join.getJoinType());
+                                        });
                                     }
-                                    document.addPrimaryAnnotatedEntity(entity);
-                                    entity.addPublicationEvidenceCode(pubJoin);
-                                    entity.setDiseaseAssociationType(join.getJoinType());
                                 }));
                     }
                     List<PublicationJoin> publicationJoins = join.getPublicationJoins();

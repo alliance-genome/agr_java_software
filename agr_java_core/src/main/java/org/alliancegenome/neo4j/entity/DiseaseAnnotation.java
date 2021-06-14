@@ -154,7 +154,19 @@ public class DiseaseAnnotation extends ConditionAnnotation implements Comparable
         String primaryKey = disease.getPrimaryKey() + " : ";
         if (gene != null)
             primaryKey += gene.getPrimaryKey();
-        return primaryKey + " : " + associationType;
+        if (associationType != null)
+            primaryKey += associationType;
+        return primaryKey + " : " + getConditionSummary();
+    }
+
+    private String getConditionSummary() {
+        StringBuilder builder = new StringBuilder();
+        if (getConditions() != null) {
+            getConditions().forEach((s, experimentalConditions) -> {
+                builder.append(s + ":" + experimentalConditions.stream().map(ExperimentalCondition::getConditionStatement).reduce((c1, c2) -> c1 + "," + c2));
+            });
+        }
+        return builder.toString();
     }
 
     transient boolean remove = false;
