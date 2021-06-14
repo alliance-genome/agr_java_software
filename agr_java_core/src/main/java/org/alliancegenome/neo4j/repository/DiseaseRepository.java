@@ -53,10 +53,10 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
 
         String cypher = "MATCH diseaseJoin=(disease:DOTerm)--(dej:DiseaseEntityJoin)-[:EVIDENCE]->(pubJoin:PublicationJoin)<-[:ASSOCIATION]-(publication:Publication), " +
                 " model=(dej:DiseaseEntityJoin)--(agm:AffectedGenomicModel) ," +
-                " modelSpecies=(agm:AffectedGenomicModel)-[:FROM_SPECIES]-(:Species), " +
-                " ecoCodes=(pubJoin:PublicationJoin)-[:ASSOCIATION]-(:ECOTerm) " +
+                " modelSpecies=(agm:AffectedGenomicModel)-[:FROM_SPECIES]-(:Species) " +
                 //"where agm.primaryKey in ['ZFIN:ZDB-FISH-161004-2'] " +
-                //"where disease.primaryKey in ['DOID:0060668'] " +
+                //"where disease.primaryKey in ['DOID:14330'] " +
+                "OPTIONAL MATCH ecoCodes=(pubJoin:PublicationJoin)-[:ASSOCIATION]-(:ECOTerm) " +
                 "OPTIONAL MATCH allele=(agm:AffectedGenomicModel)--(a:Allele) " +
                 "OPTIONAL MATCH alleleGene=(agm:AffectedGenomicModel)--(a:Allele)--(:Gene) " +
                 "OPTIONAL MATCH str=(agm:AffectedGenomicModel)--(:SequenceTargetingReagent)--(:Gene) " +

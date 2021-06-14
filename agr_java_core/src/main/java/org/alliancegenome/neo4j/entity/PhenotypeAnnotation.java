@@ -1,21 +1,23 @@
 package org.alliancegenome.neo4j.entity;
 
-import java.io.Serializable;
-import java.util.*;
-import java.util.stream.Collectors;
-
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonView;
+import lombok.Getter;
+import lombok.Setter;
 import org.alliancegenome.neo4j.entity.node.*;
 import org.alliancegenome.neo4j.view.View;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
-import com.fasterxml.jackson.annotation.*;
-
-import lombok.*;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Getter
 @Setter
-@Schema(name="PhenotypeAnnotation", description="POJO that represents a  Phenotype Annotation")
-public class PhenotypeAnnotation implements Comparable<PhenotypeAnnotation>, Serializable {
+@Schema(name = "PhenotypeAnnotation", description = "POJO that represents a  Phenotype Annotation")
+public class PhenotypeAnnotation extends ConditionAnnotation implements Comparable<PhenotypeAnnotation>, Serializable {
 
     private String primaryKey;
     @JsonView({View.PhenotypeAPI.class})
