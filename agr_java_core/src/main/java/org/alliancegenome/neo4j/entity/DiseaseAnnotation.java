@@ -9,6 +9,7 @@ import lombok.Setter;
 import org.alliancegenome.api.entity.PresentationEntity;
 import org.alliancegenome.neo4j.entity.node.*;
 import org.alliancegenome.neo4j.view.View;
+import org.apache.commons.collections.CollectionUtils;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 import java.io.Serializable;
@@ -211,6 +212,7 @@ public class DiseaseAnnotation extends ConditionAnnotation implements Comparable
         if (publicationJoins == null)
             return null;
         return publicationJoins.stream()
+                .filter(publicationJoin -> CollectionUtils.isNotEmpty(publicationJoin.getEcoCode()))
                 .map(PublicationJoin::getEcoCode)
                 .flatMap(Collection::stream)
                 .distinct()
