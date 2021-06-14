@@ -113,7 +113,10 @@ public class AlleleVariantIndexService {
                     e.printStackTrace();
                 }
                 if (allele != null) {
+                    if (avsDocument.getAlterationType().equalsIgnoreCase("variant")) {
+                        allele.setCategory("variant");
 
+                    }
                     if(allele.getUrl()==null){
                         allele.setUrl(" ");
                     }
