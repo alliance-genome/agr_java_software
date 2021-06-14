@@ -10,12 +10,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.*;
 
 import lombok.*;
+import lombok.extern.jbosslog.JBossLog;
 
 @Getter
 @Setter
+@JBossLog
 public class GeneDocumentCache extends IndexerCache {
-
-    private final Logger log = LogManager.getLogger(getClass());
 
     private Map<String, Gene> geneMap = new HashMap<>();
 

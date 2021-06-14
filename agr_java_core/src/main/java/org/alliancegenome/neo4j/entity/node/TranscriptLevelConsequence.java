@@ -3,6 +3,7 @@ package org.alliancegenome.neo4j.entity.node;
 import java.util.*;
 
 import org.alliancegenome.core.helpers.VariantServiceHelper;
+import org.alliancegenome.es.index.site.cache.GeneDocumentCache;
 import org.alliancegenome.neo4j.entity.Neo4jEntity;
 import org.alliancegenome.neo4j.view.View;
 import org.apache.commons.lang3.StringUtils;
@@ -21,10 +22,9 @@ import lombok.extern.log4j.Log4j2;
 @Schema(name = "TranscriptLevelConsequence", description = "POJO that represents Transcript Level Consequences")
 public class TranscriptLevelConsequence extends Neo4jEntity {
 
-    private static HashMap<String, Gene> geneCache = new HashMap<String, Gene>();
     private static HashMap<String, Transcript> transcriptCache = new HashMap<String, Transcript>();
 
-    @JsonView({View.API.class, View.GeneAlleleVariantSequenceAPI.class, View.AlleleVariantSequenceConverterForES.class})
+    //@JsonView({View.API.class, View.GeneAlleleVariantSequenceAPI.class, View.AlleleVariantSequenceConverterForES.class})
     private List<String> molecularConsequences = new ArrayList<>();
 
     @JsonView({View.Default.class, View.AlleleVariantSequenceConverterForES.class})
@@ -140,7 +140,7 @@ public class TranscriptLevelConsequence extends Neo4jEntity {
     private String geneLevelConsequence;
 
 
-    public TranscriptLevelConsequence(String[] header, String[] infos) {
+    public TranscriptLevelConsequence(String[] header, String[] infos, GeneDocumentCache geneCache) {
 
         // VCF Header from the file
         /*
@@ -189,24 +189,24 @@ public class TranscriptLevelConsequence extends Neo4jEntity {
 
             molecularConsequences = Arrays.asList(infos[1].split("&"));
             impact = infos[2];
-
-            associatedGene = geneCache.get(infos[4]);
+            
+            associatedGene = geneCache.getGeneMap().get(infos[4]);
 
             if(associatedGene == null && infos[3].length() > 0 && infos[4].length() > 0) {
                 associatedGene = new Gene();
                 associatedGene.setSymbol(infos[3]);
                 associatedGene.setPrimaryKey(infos[4]);
-                geneCache.put(infos[4], associatedGene);
+                geneCache.getGeneMap().put(infos[4], associatedGene);
             }
 
             if (infos[23].length() > 0) {
-                associatedGene = geneCache.get(infos[23]);
+                associatedGene = geneCache.getGeneMap().get(infos[23]);
 
                 if(associatedGene == null && infos[3].length() > 0) {
                     associatedGene = new Gene();
                     associatedGene.setSymbol(infos[3]);
                     associatedGene.setPrimaryKey(infos[23]);
-                    geneCache.put(infos[23], associatedGene);
+                    geneCache.getGeneMap().put(infos[23], associatedGene);
                 }
             }
 
