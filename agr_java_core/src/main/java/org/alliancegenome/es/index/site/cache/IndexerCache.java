@@ -36,7 +36,7 @@ public abstract class IndexerCache {
     protected Map<String, Set<String>> secondaryIds = new HashMap<>();
     protected Map<String, Set<String>> species = new HashMap<>();
     protected Map<String, Set<String>> synonyms = new HashMap<>();
-    protected Map<String, Set<String>> stage = new HashMap<>();
+//    protected Map<String, Set<String>> stage = new HashMap<>();
     protected Map<String, Set<String>> tags = new HashMap<>();
     protected Map<String, Set<String>> variants = new HashMap<>();
     protected Map<String, Set<String>> variantSynonyms = new HashMap<>();
@@ -110,7 +110,7 @@ public abstract class IndexerCache {
         document.setPopularity(popularity.get(id) == null ? 0D : popularity.get(id));
         document.setSampleIds(sampleIds.get(id));
         document.setSex(sex.get(id));
-        document.setStage(stage.get(id));
+//        document.setStage(stage.get(id));
         document.setVariants(variants.get(id));
         document.setVariantSynonyms(variantSynonyms.get(id));
         if (secondaryIds.get(id) != null) {

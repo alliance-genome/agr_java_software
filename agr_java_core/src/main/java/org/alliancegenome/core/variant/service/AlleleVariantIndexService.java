@@ -22,7 +22,6 @@ import com.fasterxml.jackson.databind.*;
 
 import lombok.extern.jbosslog.JBossLog;
 
-import javax.enterprise.context.RequestScoped;
 
 @JBossLog
 @RequestScoped
@@ -40,7 +39,7 @@ public class AlleleVariantIndexService {
     public List<AlleleVariantSequence> getAllelesNVariants(String geneId)  {
         SearchResponse searchResponce = null;
         try {
-            searchResponce = getSearchResponse(geneId, true);
+            searchResponce = getSearchResponse(geneId);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -67,8 +66,9 @@ public class AlleleVariantIndexService {
                     }
                     if (allele.getId() == null || (allele.getId() != null && allele.getId().equals("null"))) {
                         allele.setId(0L);
-                    }
 
+                    }
+                    if(allele.getVariants()!=null)
                     for (Variant variant : allele.getVariants()) {
                         if (variant.getTranscriptLevelConsequence() != null && variant.getTranscriptLevelConsequence().size() > 0) {
                             for (TranscriptLevelConsequence consequence: variant.getTranscriptLevelConsequence()) {
@@ -79,6 +79,10 @@ public class AlleleVariantIndexService {
                             AlleleVariantSequence seq = new AlleleVariantSequence(allele, variant, null);
                             avsList.add(seq);
                         }
+                    }
+                    else{
+                        AlleleVariantSequence seq = new AlleleVariantSequence(allele, null, null);
+                        avsList.add(seq);
                     }
                 }
 
@@ -96,7 +100,7 @@ public class AlleleVariantIndexService {
     public List<Allele> getAlleles(String geneId)  {
         SearchResponse searchResponce = null;
         try {
-            searchResponce = getSearchResponse(geneId, true);
+            searchResponce = getSearchResponse(geneId);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -136,23 +140,22 @@ public class AlleleVariantIndexService {
         return alleles;
     }
 
-    public SearchResponse getSearchResponse(String id, boolean includeHtp) throws IOException {
+    public SearchResponse getSearchResponse(String id) throws IOException {
         SearchSourceBuilder srb = new SearchSourceBuilder();
-        srb.query(buildBoolQuery(id, includeHtp));
+        srb.query(buildBoolQuery(id));
         srb.size(10000);
 
         SearchRequest searchRequest = new SearchRequest(ConfigHelper.getEsIndex());
+
         searchRequest.source(srb);
 
         return EsClientFactory.getDefaultEsClient().search(searchRequest, RequestOptions.DEFAULT);
     }
 
-    public BoolQueryBuilder buildBoolQuery(String id, boolean includeHtp){
+    public BoolQueryBuilder buildBoolQuery(String id){
         BoolQueryBuilder queryBuilder = new BoolQueryBuilder();
         queryBuilder.must(QueryBuilders.termQuery("geneIds.keyword", id)).filter(QueryBuilders.termQuery("category.keyword", "allele"));
-        if(!includeHtp){
-            queryBuilder.mustNot(QueryBuilders.termQuery("alterationType.keyword", "variant"));
-        }
+
         return queryBuilder;
     }
 

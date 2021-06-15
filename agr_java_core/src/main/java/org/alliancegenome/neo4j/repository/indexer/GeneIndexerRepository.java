@@ -26,6 +26,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
         
         executor.execute(new GetSynonymsThread());
         executor.execute(new GetCrossReferencesThread());
+        executor.execute(new GetGeneMapThread());
         
         executor.shutdown();
         while (!executor.isTerminated()) {

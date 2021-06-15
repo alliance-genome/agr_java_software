@@ -34,9 +34,8 @@ public class AlleleColumnFieldMapping extends ColumnFieldMapping<Allele> {
                 return entity.getVariants().stream()
                 .filter(variant -> variant.getVariantType() != null)
                 .map(variant -> variant.getVariantType().getName()).collect(toSet());
-                
             }
-            return null;
+            return new HashSet<>();
         });
         mapColumnAttribute.put(GENE_ALLELE_VARIANT_CONSEQUENCE, entity -> {
             if (CollectionUtils.isNotEmpty(entity.getVariants())) {

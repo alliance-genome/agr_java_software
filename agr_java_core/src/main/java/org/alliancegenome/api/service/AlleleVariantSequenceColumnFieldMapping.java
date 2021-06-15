@@ -37,7 +37,7 @@ public class AlleleVariantSequenceColumnFieldMapping extends ColumnFieldMapping<
         mapColumnAttribute.put(GENE_ALLELE_VARIANT_SEQUENCE_CATEGORY, entity -> Set.of(entity.getAllele().getCategory()));
 
         mapColumnAttribute.put(GENE_ALLELE_VARIANT_SEQUENCE_TYPE, entity -> {
-            if (entity.getConsequence() != null) {
+            if (entity.getConsequence() != null && entity.getConsequence().getSequenceFeatureType()!=null) {
                 if (StringUtils.isNotEmpty(entity.getConsequence().getSequenceFeatureType())) {
                     return Set.of(entity.getConsequence().getSequenceFeatureType());
                 }
@@ -46,7 +46,7 @@ public class AlleleVariantSequenceColumnFieldMapping extends ColumnFieldMapping<
             return Set.of("");
         });
         mapColumnAttribute.put(GENE_ALLELE_VARIANT_SEQUENCE_ASSOCIATED_GENE, entity -> {
-            if (entity.getAllele().getGene() != null) {
+            if (entity.getAllele().getGene() != null && entity.getAllele().getGene().getSymbol()!=null) {
                 return Set.of(entity.getAllele().getGene().getSymbol());
             }
             return new HashSet<>();
@@ -59,14 +59,14 @@ public class AlleleVariantSequenceColumnFieldMapping extends ColumnFieldMapping<
         });
         mapColumnAttribute.put(GENE_ALLELE_VARIANT_SEQUENCE_CONSEQUENCE, entity -> {
             if (entity.getVariant() != null) {
-                if (entity.getConsequence() != null)
+                if (entity.getConsequence() != null && entity.getConsequence().getMolecularConsequences()!=null)
                     return Set.copyOf(entity.getConsequence().getMolecularConsequences());
             }
             return new HashSet<>();
         });
         mapColumnAttribute.put(GENE_ALLELE_VARIANT_SEQUENCE_IMPACT, entity -> {
             if (entity.getVariant() != null) {
-                if (entity.getConsequence() != null)
+                if (entity.getConsequence() != null && entity.getConsequence().getImpact()!=null)
                     return Set.of(entity.getConsequence().getImpact());
             }
             return Set.of("");

@@ -31,7 +31,7 @@ public class FilterService<T> {
     public List<T> filterAnnotations(List<T> annotationList, BaseFilter fieldFilterValueMap) {
         if (annotationList == null)
             return null;
-        if (fieldFilterValueMap == null)
+        if (fieldFilterValueMap == null || fieldFilterValueMap.size()==0)
             return annotationList;
         return annotationList.stream()
                 .filter(annotation -> containsFilterValue(annotation, fieldFilterValueMap))

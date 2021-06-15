@@ -314,12 +314,7 @@ public class GenePhenotypeCacher extends Cacher {
                                                 entity.setDisplayName(model.getNameText());
                                                 entity.setType(GeneticEntity.getType(model.getSubtype()));
                                             }
-                                            for (PhenotypeEntityJoin entityJoin : model.getPhenotypeEntityJoins()) {
-                                                entity.addConditions(ConditionAnnotation.ConditionType.HAS_CONDITION, entityJoin.getHasConditionList());
-                                                entity.addConditions(ConditionAnnotation.ConditionType.INDUCES, entityJoin.getInducerConditionList());
-                                                entity.addModifier(ConditionAnnotation.ConditionType.AMELIORATES, entityJoin.getAmeliorateConditionList());
-                                                entity.addModifier(ConditionAnnotation.ConditionType.EXACERBATES, entityJoin.getExacerbateConditionList());
-                                            }
+                                            addExperimentalConditions(entity, model.getPhenotypeEntityJoins());
                                             entity.setDataProvider(phenotypeEntityJoin.getDataProvider());
                                             entity.addPublicationEvidenceCode(pubJoin);
                                             document.addPrimaryAnnotatedEntity(entity);
@@ -338,12 +333,7 @@ public class GenePhenotypeCacher extends Cacher {
                                         entity = new PrimaryAnnotatedEntity();
                                         entity.setId(allele.getPrimaryKey());
                                         entity.setName(allele.getSymbol());
-                                        for (PhenotypeEntityJoin entityJoin : allele.getPhenotypeEntityJoins()) {
-                                            entity.addConditions(ConditionAnnotation.ConditionType.HAS_CONDITION, entityJoin.getHasConditionList());
-                                            entity.addConditions(ConditionAnnotation.ConditionType.INDUCES, entityJoin.getInducerConditionList());
-                                            entity.addModifier(ConditionAnnotation.ConditionType.AMELIORATES, entityJoin.getAmeliorateConditionList());
-                                            entity.addModifier(ConditionAnnotation.ConditionType.EXACERBATES, entityJoin.getExacerbateConditionList());
-                                        }
+                                        addExperimentalConditions(entity, allele.getPhenotypeEntityJoins());
 
                                         List<CrossReference> refs = allele.getCrossReferences();
                                         if (org.apache.commons.collections.CollectionUtils.isNotEmpty(refs))
@@ -363,6 +353,17 @@ public class GenePhenotypeCacher extends Cacher {
                     return document;
                 })
                 .collect(toList());
+    }
+
+    private void addExperimentalConditions(PrimaryAnnotatedEntity entity, List<PhenotypeEntityJoin> phenotypeEntityJoins) {
+        for (PhenotypeEntityJoin entityJoin : phenotypeEntityJoins) {
+            if (entity.getPhenotypes() != null && entityJoin.getPhenotype() != null && entity.getPhenotypes().contains(entityJoin.getPhenotype().getPhenotypeStatement())) {
+                entity.addConditions(ConditionAnnotation.ConditionType.HAS_CONDITION, entityJoin.getHasConditionList());
+                entity.addConditions(ConditionAnnotation.ConditionType.INDUCES, entityJoin.getInducerConditionList());
+                entity.addModifier(ConditionAnnotation.ConditionType.AMELIORATES, entityJoin.getAmeliorateConditionList());
+                entity.addModifier(ConditionAnnotation.ConditionType.EXACERBATES, entityJoin.getExacerbateConditionList());
+            }
+        }
     }
 
     @Override
