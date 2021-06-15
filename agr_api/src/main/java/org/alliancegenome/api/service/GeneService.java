@@ -32,6 +32,8 @@ public class GeneService {
     private static GeneRepository geneRepo = new GeneRepository();
     private static InteractionRepository interRepo = new InteractionRepository();
     private static PhenotypeRepository phenoRepo = new PhenotypeRepository();
+    private AlleleVariantIndexService alleleVariantIndexService=new AlleleVariantIndexService();
+    private AlleleCacheRepository alleleCacheRepository=new AlleleCacheRepository();
 
     @Inject
     private InteractionCacheRepository interCacheRepo;
@@ -43,13 +45,8 @@ public class GeneService {
     private AlleleService alleleService;
 
     @Inject
-    private AlleleVariantIndexService alleleVariantIndexService;
-
-    @Inject
     private GeneCacheRepository geneCacheRepo;
 
-    @Inject
-    private AlleleCacheRepository alleleCacheRepository;
 
     public Gene getById(String id) {
         Gene gene = geneRepo.getOneGene(id);
@@ -139,4 +136,5 @@ public class GeneService {
                 .collect(Collectors.toList());
         return geneRepo.getAllGenes(taxIDs);
     }
+   
 }
