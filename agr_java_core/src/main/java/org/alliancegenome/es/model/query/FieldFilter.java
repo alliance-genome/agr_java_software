@@ -47,7 +47,7 @@ public enum FieldFilter {
     INCLUDE_NEGATION("includeNegation"),
     ALLELE("allele"),
     MODEL_NAME("modelName"),
-    MOLECULAR_CONSEQUENCE("filter.molecularConsequence"),
+    MOLECULAR_CONSEQUENCE("filter.molecularConsequences"),
     SEQUENCE_FEATURE_TYPE("filter.sequenceFeatureType"),
     SEQUENCE_FEATURE("filter.sequenceFeature"),
     ASSOCIATED_GENE("filter.associatedGeneSymbol"),

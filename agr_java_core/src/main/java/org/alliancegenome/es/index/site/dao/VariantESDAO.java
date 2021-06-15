@@ -153,7 +153,7 @@ public class VariantESDAO {
         distinctFields.put(FieldFilter.VARIANT_TYPE, "variant.variantType.name.keyword");
         distinctFields.put(FieldFilter.ALLELE_CATEGORY, "alterationType.keyword");
         distinctFields.put(FieldFilter.VARIANT_IMPACT, "transcriptLevelConsequences.impact.keyword");
-        distinctFields.put(FieldFilter.MOLECULAR_CONSEQUENCE, "transcriptLevelConsequences.molecularConsequence.keyword");
+        distinctFields.put(FieldFilter.MOLECULAR_CONSEQUENCE, "transcriptLevelConsequences.molecularConsequences.keyword");
         distinctFields.put(FieldFilter.VARIANT_SIFT, "transcriptLevelConsequences.siftPrediction.keyword");
         distinctFields.put(FieldFilter.VARIANT_POLYPHEN, "transcriptLevelConsequences.polyphenPrediction.keyword");
         distinctFields.forEach((fieldFilter, esFieldName) -> searchSourceBuilder.aggregation(AggregationBuilders.terms(fieldFilter.getName()).field(esFieldName)));
