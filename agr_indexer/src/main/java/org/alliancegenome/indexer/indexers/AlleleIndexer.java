@@ -12,7 +12,6 @@ import org.alliancegenome.neo4j.repository.indexer.AlleleIndexerRepository;
 import org.alliancegenome.neo4j.view.View;
 import org.apache.logging.log4j.*;
 
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.MapperFeature;
 
 public class AlleleIndexer extends Indexer<AlleleVariantSequence> {

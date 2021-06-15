@@ -24,8 +24,8 @@ public class TranscriptLevelConsequence extends Neo4jEntity {
 
     private static HashMap<String, Transcript> transcriptCache = new HashMap<String, Transcript>();
 
-    //@JsonView({View.API.class, View.GeneAlleleVariantSequenceAPI.class, View.AlleleVariantSequenceConverterForES.class})
-    private List<String> molecularConsequences = new ArrayList<>();
+    @JsonView({View.API.class, View.GeneAlleleVariantSequenceAPI.class, View.AlleleVariantSequenceConverterForES.class})
+    private List<String> molecularConsequences;
 
     @JsonView({View.Default.class, View.AlleleVariantSequenceConverterForES.class})
     private String impact;
