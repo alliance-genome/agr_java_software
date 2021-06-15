@@ -22,7 +22,6 @@ import com.fasterxml.jackson.databind.*;
 
 import lombok.extern.jbosslog.JBossLog;
 
-import javax.enterprise.context.RequestScoped;
 
 @JBossLog
 @RequestScoped
@@ -67,6 +66,7 @@ public class AlleleVariantIndexService {
                     }
                     if (allele.getId() == null || (allele.getId() != null && allele.getId().equals("null"))) {
                         allele.setId(0L);
+
                     }
                     if(allele.getVariants()!=null)
                     for (Variant variant : allele.getVariants()) {
