@@ -95,6 +95,7 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
             popularityScore = Files.lines(popularityFile).collect(Collectors.toMap(key -> String.valueOf(key.split("\t")[0]), val -> Double.valueOf(val.split("\t")[1])));
         } catch (IOException e) {
             e.printStackTrace();
+            log.error(e.getMessage());
             System.exit(-1);
         }
 
@@ -113,6 +114,7 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
             stats.printOutput();
         } catch (Exception e) {
             e.printStackTrace();
+            log.error(e.getMessage());
             System.exit(-1);
         }
     }
@@ -130,6 +132,7 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
             stats.printOutput();
         } catch (Exception e) {
             e.printStackTrace();
+            log.error(e.getMessage());
             System.exit(-1);
         }
     }
@@ -152,6 +155,8 @@ public abstract class Indexer<D extends ESDocument> extends Thread {
                 bulkProcessor.add(new IndexRequest(indexName).source(json, XContentType.JSON));
             } catch (JsonProcessingException e) {
                 e.printStackTrace();
+                log.error(e.getMessage());
+                System.exit(-1);
             }
         }
     }
