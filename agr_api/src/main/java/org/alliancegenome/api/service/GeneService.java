@@ -60,7 +60,7 @@ public class GeneService {
     public JsonResultResponse<Allele> getAlleles(String geneId, Pagination pagination) {
         long startTime = System.currentTimeMillis();
         List<Allele> alleles = alleleVariantIndexService.getAlleles(geneId);
-        JsonResultResponse<Allele> response = alleleCacheRepository.getAlleleJsonResultResponse(pagination, alleles);
+        JsonResultResponse<Allele> response = alleleCacheRepository.getAlleleJsonResultResponse(pagination, alleles); // This needs to be a Helper function
         if (response == null)
             response = new JsonResultResponse<>();
         long duration = (System.currentTimeMillis() - startTime) / 1000;
