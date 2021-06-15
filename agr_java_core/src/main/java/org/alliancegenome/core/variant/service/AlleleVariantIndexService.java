@@ -67,15 +67,18 @@ public class AlleleVariantIndexService {
                     }
                     if (allele.getId() == null || (allele.getId() != null && allele.getId().equals("null"))) {
                         allele.setId(0L);
+
                     }
                     if(allele.getVariants()!=null)
                     for (Variant variant : allele.getVariants()) {
                         if (variant.getTranscriptLevelConsequence() != null && variant.getTranscriptLevelConsequence().size() > 0) {
                             for (TranscriptLevelConsequence consequence: variant.getTranscriptLevelConsequence()) {
+                                allele.setPrimaryKey(variant.getPrimaryKey());
                                 AlleleVariantSequence seq = new AlleleVariantSequence(allele, variant, consequence);
                                 avsList.add(seq);
                             }
                         } else {
+                            allele.setPrimaryKey(variant.getPrimaryKey());
                             AlleleVariantSequence seq = new AlleleVariantSequence(allele, variant, null);
                             avsList.add(seq);
                         }
@@ -130,6 +133,15 @@ public class AlleleVariantIndexService {
                         cr.setCrossRefCompleteUrl("");
                         crossReferenceMap.put("primary", cr);
                         allele.setCrossReferenceMap(crossReferenceMap);
+                    }
+                    if(allele.getPrimaryKey()==null){
+                       if( allele.getVariants()!=null){
+                           allele.setPrimaryKey(
+                                   allele.getVariants().stream().findFirst()
+                                           .map(Variant::getPrimaryKey)
+                                           .orElse("")
+                           );
+                       }
                     }
                     alleles.add(allele);
                 }
