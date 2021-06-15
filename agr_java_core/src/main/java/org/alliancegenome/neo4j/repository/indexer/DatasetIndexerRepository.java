@@ -32,7 +32,7 @@ public class DatasetIndexerRepository extends Neo4jRepository<HTPDataset> {
         executor.execute(new GetSampleStructureThread());
         executor.execute(new GetSampleStructureRibbonTermsThread());
         executor.execute(new GetSampleStructureParentTerms());
-        executor.execute(new GetStageThread());
+//        executor.execute(new GetStageThread());
 
         executor.shutdown();
         while (!executor.isTerminated()) {
@@ -158,15 +158,15 @@ public class DatasetIndexerRepository extends Neo4jRepository<HTPDataset> {
         }
     }
 
-    private class GetStageThread implements Runnable {
-        @Override
-        public void run() {
-            log.info("Fetching stage");
-            cache.setStage(getMapSetForQuery("MATCH (dataset:HTPDataset)-[:ASSOCIATION]-(sample:HTPDatasetSample)-[:STRUCTURE_SAMPLED]-(:ExpressionBioEntity)-[:ASSOCIATION]-(:BioEntityGeneExpressionJoin)-[:STAGE_RIBBON_TERM]-(term:UBERONTerm) " +
-                    " RETURN distinct dataset.primaryKey as id, term.name as value"));
-            log.info("Finished Fetching stage");
-        }
-
-    }
+//    private class GetStageThread implements Runnable {
+//        @Override
+//        public void run() {
+//            log.info("Fetching stage");
+//            cache.setStage(getMapSetForQuery("MATCH (dataset:HTPDataset)-[:ASSOCIATION]-(sample:HTPDatasetSample)-[:STRUCTURE_SAMPLED]-(:ExpressionBioEntity)-[:ASSOCIATION]-(:BioEntityGeneExpressionJoin)-[:STAGE_RIBBON_TERM]-(term:UBERONTerm) " +
+//                    " RETURN distinct dataset.primaryKey as id, term.name as value"));
+//            log.info("Finished Fetching stage");
+//        }
+//
+//    }
 
 }
