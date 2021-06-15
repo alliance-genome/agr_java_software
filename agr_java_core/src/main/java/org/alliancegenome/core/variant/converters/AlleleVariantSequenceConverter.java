@@ -118,7 +118,7 @@ public class AlleleVariantSequenceConverter {
                 }
 
             }
-            agrAllele.setPrimaryKey(variant.getPrimaryKey());
+
             agrAllele.setSymbol(hgvsNomenclature);
             agrAllele.setSymbolText(hgvsNomenclature);
             Set<String> geneSynonymSet = new HashSet<>();
