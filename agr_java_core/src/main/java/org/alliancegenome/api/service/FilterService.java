@@ -6,14 +6,19 @@ import org.alliancegenome.cache.repository.helper.SortingField;
 import org.alliancegenome.es.model.query.Pagination;
 import org.alliancegenome.neo4j.entity.Sorting;
 import org.alliancegenome.neo4j.view.BaseFilter;
+import org.jfree.util.Log;
+
+import lombok.extern.jbosslog.JBossLog;
 
 import java.util.*;
+import java.util.Map.Entry;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
 
+@JBossLog
 public class FilterService<T> {
 
     private AnnotationFiltering<T> filtering;
@@ -77,13 +82,21 @@ public class FilterService<T> {
 
     public Map<String, List<String>> getDistinctFieldValues(List<T> list, Map<Column, Function<T, Set<String>>> fieldValueMap, ColumnFieldMapping mapping) {
         Map<String, List<String>> map = new HashMap<>();
-        fieldValueMap.forEach((column, function) -> {
+        
+        for(Entry<Column, Function<T, Set<String>>> entry: fieldValueMap.entrySet()) {
             Set<String> distinctValues = new HashSet<>();
-            list.forEach(entity -> distinctValues.addAll(function.apply(entity)));
+            for(T thing: list) {
+                Set<String> set = entry.getValue().apply(thing);
+                if(set != null) {
+                    //log.info("FilterService: " + set);
+                    distinctValues.addAll(set);
+                }
+            }
             ArrayList<String> valueList = new ArrayList<>(distinctValues);
             valueList.sort(Comparator.naturalOrder());
-            map.put(mapping.getFieldFilterName(column), valueList);
-        });
+            map.put(mapping.getFieldFilterName(entry.getKey()), valueList);
+
+        }
         return map;
     }
 
