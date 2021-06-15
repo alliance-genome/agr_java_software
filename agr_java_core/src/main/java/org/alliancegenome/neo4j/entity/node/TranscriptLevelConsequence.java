@@ -189,8 +189,13 @@ public class TranscriptLevelConsequence extends Neo4jEntity {
 
             molecularConsequences = Arrays.asList(infos[1].split("&"));
             impact = infos[2];
-            
-            associatedGene = geneCache.getGeneMap().get(infos[4]);
+
+            if(header[37].substring(0, 4).equals("ZFIN")){
+                associatedGene = geneCache.getGeneMap().get("ZFIN:" + infos[4]);
+            }else{
+                associatedGene = geneCache.getGeneMap().get(infos[4]);
+            }
+
 
             if(associatedGene == null && infos[3].length() > 0 && infos[4].length() > 0) {
                 associatedGene = new Gene();
