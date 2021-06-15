@@ -262,11 +262,12 @@ public class PhenotypeRepository extends Neo4jRepository<Phenotype> {
     public List<PhenotypeEntityJoin> getAllelePhenotypeAnnotations() {
         String cypher = "MATCH p0=(phenotype:Phenotype)--(pej:PhenotypeEntityJoin)-[:EVIDENCE]->(ppj:PublicationJoin)<-[:ASSOCIATION]-(publication:Publication), " +
                 " p2=(pej:PhenotypeEntityJoin)--(allele:Feature) " +
-                //"where agm.primaryKey in ['MGI:6272038','MGI:5702925'] " +
+                "where allele.primaryKey in ['ZFIN:ZDB-ALT-980203-1829'] " +
+                "and  phenotype.primaryKey = 'melanophore stripe broken, abnormal' " +
                 "OPTIONAL MATCH gene=(allele:Feature)--(:Gene)" +
                 "OPTIONAL MATCH p4=(pej:PhenotypeEntityJoin)--(allele:Feature)-[:CROSS_REFERENCE]->(crossRef:CrossReference) " +
 //                "OPTIONAL MATCH modelAllele=(ppj:PublicationJoin)--(agm:AffectedGenomicModel)-[:ASSOCIATION]->(agmPej:PhenotypeEntityJoin) " +
-                "OPTIONAL MATCH modelAllele=(ppj:PublicationJoin)--(agm:AffectedGenomicModel)--(agmPej:PhenotypeEntityJoin)--(phenotype:Phenotype),(agm:AffectedGenomicModel)-[:HAS_PHENOTYPE]-(:Phenotype)" +
+                "OPTIONAL MATCH modelAllele=(ppj:PublicationJoin)-[:PRIMARY_GENETIC_ENTITY]->(agm:AffectedGenomicModel)-[:ASSOCIATION]->(agmPej:PhenotypeEntityJoin)--(phenotype:Phenotype) " +
                 "OPTIONAL MATCH p6=(agmPej:PhenotypeEntityJoin)--(expCond:ExperimentalCondition)-[:ASSOCIATION]->(zeco:ZECOTerm)" +
                 //"return p0, p2, p4, agm, expCond, zeco";
                 "return p0, p2, p4, modelAllele, p6";
@@ -275,8 +276,10 @@ public class PhenotypeRepository extends Neo4jRepository<Phenotype> {
         List<PhenotypeEntityJoin> joinList = StreamSupport.stream(joins.spliterator(), false)
                 .filter(phenotypeEntityJoin -> phenotypeEntityJoin.getAllele() != null)
                 .collect(Collectors.toList());
-        // remove allelePej nodes that are not hanging off phenotype
-        // the above OPTIONAL MATCH clause, p6b is not working
+        // remove allelePej nodes that are not hanging off the given phenotype of the allele
+        // this does not work as the Model objects are shared among different annotations and
+        // removing PEJs from one will automatically remove them from others
+/*
         joinList.forEach(phenotypeEntityJoin -> {
             if (phenotypeEntityJoin.getPhenotypePublicationJoins() != null)
                 phenotypeEntityJoin.getPhenotypePublicationJoins().forEach(publicationJoin -> {
@@ -288,6 +291,7 @@ public class PhenotypeRepository extends Neo4jRepository<Phenotype> {
                         });
                 });
         });
+*/
         return joinList;
     }
 }
