@@ -167,6 +167,7 @@ public class AlleleVariantSequenceConverter {
             avsDoc.setGeneSynonyms(geneSynonymSet);
             avsDoc.setGeneCrossReferences(geneCrossReferencesSet);
             variant.setTranscriptLevelConsequence(htpConsequences);
+            variant.setSpecies(species);
             agrAllele.setVariants(Arrays.asList(variant));
             avsDoc.setAlterationType("variant");
             avsDoc.setCategory("allele");
