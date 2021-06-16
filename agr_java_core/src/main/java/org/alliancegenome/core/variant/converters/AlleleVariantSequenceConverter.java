@@ -1,8 +1,7 @@
 package org.alliancegenome.core.variant.converters;
 
-import java.util.*;
-import java.util.regex.*;
-
+import htsjdk.variant.variantcontext.VariantContext;
+import io.github.lukehutch.fastclasspathscanner.utils.Join;
 import org.alliancegenome.api.entity.AlleleVariantSequence;
 import org.alliancegenome.es.index.site.cache.GeneDocumentCache;
 import org.alliancegenome.neo4j.entity.SpeciesType;
@@ -10,11 +9,12 @@ import org.alliancegenome.neo4j.entity.node.*;
 import org.alliancegenome.neo4j.entity.relationship.GenomeLocation;
 import org.apache.commons.lang3.StringUtils;
 
-import htsjdk.variant.variantcontext.VariantContext;
-import io.github.lukehutch.fastclasspathscanner.utils.Join;
+import java.util.*;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class AlleleVariantSequenceConverter {
-    
+
     private static Pattern validAlleles = Pattern.compile("[ACGTN\\-]+");
     private Species species = null;
 
@@ -23,7 +23,7 @@ public class AlleleVariantSequenceConverter {
 
         //htsjdk.variant.variantcontext.Allele refNuc = ctx.getReference();
 
-        if(species == null) {
+        if (species == null) {
             species = new Species();
             species.setName(speciesType.getName());
             species.setCommonNames(speciesType.getDisplayName());
@@ -32,7 +32,7 @@ public class AlleleVariantSequenceConverter {
 
         SOTerm variantType = new SOTerm();
 
-        if(!"SYMBOLIC".equals(ctx.getType().name()) && !"MIXED".equals(ctx.getType().name())){
+        if (!"SYMBOLIC".equals(ctx.getType().name()) && !"MIXED".equals(ctx.getType().name())) {
             variantType.setName(ctx.getType().name().toUpperCase());
             variantType.setPrimaryKey(ctx.getType().name());
             if ("INDEL".equals(ctx.getType().name())) {
@@ -80,6 +80,7 @@ public class AlleleVariantSequenceConverter {
 
             variant.setNucleotideChange(vcfAllele.getBaseString()); // variantDocument.setVarNuc(a.getBaseString());
             Set<String> molecularConsequences = new HashSet<>();
+            Set<String> geneLevelConsequences = new HashSet<>();
             Set<String> genes = new HashSet<>();
             Set<String> geneIds = new HashSet<>();
             List<TranscriptLevelConsequence> htpConsequences = getConsequences(ctx, vcfAllele.getBaseString(), header, geneCache);
@@ -89,7 +90,7 @@ public class AlleleVariantSequenceConverter {
                     .orElse(null) : null;
 
             StringBuilder variantName = new StringBuilder();
-            if(StringUtils.isNotEmpty(hgvsNomenclature)){
+            if (StringUtils.isNotEmpty(hgvsNomenclature)) {
                 variantName.append('(')
                         .append(speciesType.getAssembly())
                         .append(')')
@@ -102,13 +103,13 @@ public class AlleleVariantSequenceConverter {
             avsDoc.setVariantName(variant.getName());
 
             String ctxId = ctx.getID();
-            if(StringUtils.isNotEmpty(ctxId) && !ctxId.equals(".")) {
+            if (StringUtils.isNotEmpty(ctxId) && !ctxId.equals(".")) {
                 avsDoc.setPrimaryKey(ctxId);
                 avsDoc.setNameKey(ctxId);
                 avsDoc.setName(ctxId);
                 variant.setPrimaryKey(ctxId);
 
-            } else{
+            } else {
                 //    if (hgvsNomenclature != null && hgvsNomenclature.length()<512) {
                 if (hgvsNomenclature != null && hgvsNomenclature.length() < 100) {
                     variant.setPrimaryKey(hgvsNomenclature);
@@ -132,15 +133,15 @@ public class AlleleVariantSequenceConverter {
 
                     String transcriptID = consequence.getTranscript().getPrimaryKey();
 
-                    if(!transcriptsProcessed.contains(transcriptID)) {
+                    if (!transcriptsProcessed.contains(transcriptID)) {
                         transcriptsProcessed.add(transcriptID);
 
-                        if(firstTranscript) {
-                            if(consequenceGene != null) {
-                                if(variant.getGene() == null) {
+                        if (firstTranscript) {
+                            if (consequenceGene != null) {
+                                if (variant.getGene() == null) {
                                     variant.setGene(consequenceGene);
                                 }
-                                if(geneCache != null) {
+                                if (geneCache != null) {
                                     geneSynonymSet = geneCache.getSynonyms().get(consequenceGene.getPrimaryKey());
                                     geneCrossReferencesSet = geneCache.getCrossReferences().get(consequenceGene.getPrimaryKey());
                                 }
@@ -149,8 +150,8 @@ public class AlleleVariantSequenceConverter {
                         }
 
                         molecularConsequences.addAll(consequence.getMolecularConsequences());
-
-                        if(consequenceGene != null && StringUtils.isNotEmpty(consequenceGene.getSymbol())) {
+                        geneLevelConsequences.add(consequence.getGeneLevelConsequence());
+                        if (consequenceGene != null && StringUtils.isNotEmpty(consequenceGene.getSymbol())) {
                             // This is faster than calling getNakeKey on the gene
                             StringBuffer buffer = new StringBuffer();
                             buffer.append(consequenceGene.getSymbol());
@@ -167,6 +168,10 @@ public class AlleleVariantSequenceConverter {
             avsDoc.setGeneSynonyms(geneSynonymSet);
             avsDoc.setGeneCrossReferences(geneCrossReferencesSet);
             variant.setTranscriptLevelConsequence(htpConsequences);
+            variant.setSpecies(species);
+            GeneLevelConsequence geneLevelConsequence = new GeneLevelConsequence();
+            geneLevelConsequence.setGeneLevelConsequence(String.join(",", geneLevelConsequences));
+            variant.setGeneLevelConsequence(geneLevelConsequence);
             agrAllele.setVariants(Arrays.asList(variant));
             avsDoc.setAlterationType("variant");
             avsDoc.setCategory("allele");
@@ -184,12 +189,11 @@ public class AlleleVariantSequenceConverter {
         return returnDocuments;
     }
 
-    
-    
+
     private List<TranscriptLevelConsequence> getConsequences(VariantContext ctx, String varNuc, String[] header, GeneDocumentCache geneCache) throws Exception {
         List<TranscriptLevelConsequence> features = new ArrayList<>();
         HashSet<String> alreadyAdded = new HashSet<>();
-        
+
         for (String s : ctx.getAttributeAsStringList("CSQ", "")) {
             if (s.length() > 0) {
                 String[] infos = s.split("\\|", -1);
@@ -199,9 +203,9 @@ public class AlleleVariantSequenceConverter {
 
                         TranscriptLevelConsequence feature = new TranscriptLevelConsequence(header, infos, geneCache);
 
-                        if(feature.getTranscript() != null) {
+                        if (feature.getTranscript() != null) {
                             String transcriptID = feature.getTranscript().getPrimaryKey();
-                            if(!alreadyAdded.contains(transcriptID)) {
+                            if (!alreadyAdded.contains(transcriptID)) {
                                 features.add(feature);
                                 alreadyAdded.add(transcriptID);
                             }
@@ -210,7 +214,7 @@ public class AlleleVariantSequenceConverter {
                 } else {
                     String message = "Diff: " + header.length + " " + infos.length;
                     message += "\r" + Join.join("|", header);
-                    message += "\r" +String.join("|", Arrays.asList(infos));
+                    message += "\r" + String.join("|", Arrays.asList(infos));
                     // throw new RuntimeException("CSQ header is not matching the line " + message);
                     // This has got to fail ... there is something not right with the files.
                     // The code is mis matched with the files. Or the files are old files and need to be deleted / updated
