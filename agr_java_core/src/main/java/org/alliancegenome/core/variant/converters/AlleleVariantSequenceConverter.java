@@ -82,7 +82,7 @@ public class AlleleVariantSequenceConverter {
             Set<String> molecularConsequences = new HashSet<>();
             Set<String> genes = new HashSet<>();
             Set<String> geneIds = new HashSet<>();
-            List<TranscriptLevelConsequence> htpConsequences = getConsequences(ctx, vcfAllele.getBaseString(), header, geneCache);
+            List<TranscriptLevelConsequence> htpConsequences = getConsequences(ctx, vcfAllele.getBaseString(), header, geneCache, species);
             String hgvsNomenclature = htpConsequences != null ? htpConsequences.stream()
                     .findFirst()
                     .map(TranscriptLevelConsequence::getHgvsVEPGeneNomenclature)
@@ -186,7 +186,7 @@ public class AlleleVariantSequenceConverter {
 
     
     
-    private List<TranscriptLevelConsequence> getConsequences(VariantContext ctx, String varNuc, String[] header, GeneDocumentCache geneCache) throws Exception {
+    private List<TranscriptLevelConsequence> getConsequences(VariantContext ctx, String varNuc, String[] header, GeneDocumentCache geneCache, Species species) throws Exception {
         List<TranscriptLevelConsequence> features = new ArrayList<>();
         HashSet<String> alreadyAdded = new HashSet<>();
         
@@ -197,7 +197,7 @@ public class AlleleVariantSequenceConverter {
                 if (header.length == infos.length) {
                     if (infos[0].equalsIgnoreCase(varNuc)) {
 
-                        TranscriptLevelConsequence feature = new TranscriptLevelConsequence(header, infos, geneCache);
+                        TranscriptLevelConsequence feature = new TranscriptLevelConsequence(header, infos, geneCache, species);
 
                         if(feature.getTranscript() != null) {
                             String transcriptID = feature.getTranscript().getPrimaryKey();
