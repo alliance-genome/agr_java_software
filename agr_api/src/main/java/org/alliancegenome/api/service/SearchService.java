@@ -100,7 +100,7 @@ public class SearchService {
 
     public FunctionScoreQueryBuilder.FilterFunctionBuilder[] buildRescoreMatchAllBoostFunctions() {
         List<FunctionScoreQueryBuilder.FilterFunctionBuilder> functionList = new ArrayList<>();
-
+        functionList.add(variantDemotion());
         functionList.add(geneCategoryBoost());
         functionList.add(humanSpeciesBoost());
         functionList.add(documentHasDiseaseBoost());
@@ -113,6 +113,8 @@ public class SearchService {
 
     public FunctionScoreQueryBuilder.FilterFunctionBuilder[] buildBoostFunctions(String q) {
         List<FunctionScoreQueryBuilder.FilterFunctionBuilder> functionList = new ArrayList<>();
+        //variant demotion
+        functionList.add(variantDemotion());
 
         //gene category boost
         functionList.add(geneCategoryBoost());
@@ -167,6 +169,11 @@ public class SearchService {
 
         return functionList.toArray(new FunctionScoreQueryBuilder.FilterFunctionBuilder[functionList.size()]);
 
+    }
+
+    private FunctionScoreQueryBuilder.FilterFunctionBuilder variantDemotion() {
+        return new FunctionScoreQueryBuilder.FilterFunctionBuilder(matchQuery("alterationType","variant"),
+                ScoreFunctionBuilders.weightFactorFunction(0.09f));
     }
 
     private FunctionScoreQueryBuilder.FilterFunctionBuilder geneCategoryBoost() {
