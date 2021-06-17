@@ -67,7 +67,7 @@ public class Gene extends GeneticEntity implements Comparable<Gene> {
     private List<Orthologous> orthoGenes;
 
     @Relationship(type = "ASSOCIATION")
-    @JsonView({View.GeneAPI.class, View.VariantAPI.class, View.AlleleAPI.class})
+    @JsonView({View.GeneAPI.class, View.VariantAPI.class, View.AlleleAPI.class,View.AlleleVariantSequenceConverterForES.class})
     private List<GenomeLocation> genomeLocations;
 
     @Relationship(type = "LOCATED_ON")
