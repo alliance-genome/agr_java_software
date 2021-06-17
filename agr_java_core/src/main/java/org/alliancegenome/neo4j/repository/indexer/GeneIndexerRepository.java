@@ -126,7 +126,7 @@ public class GeneIndexerRepository extends Neo4jRepository<Gene>  {
             String query = " MATCH p1=(species:Species)-[:FROM_SPECIES]-(g:Gene) ";
 
             query += " OPTIONAL MATCH pSoTerm=(g:Gene)-[:ANNOTATED_TO]-(soTerm:SOTerm)";
-            query += " OPTIONAL MATCH p5=(g:Gene)--(:GenomicLocation) ";
+            query += " OPTIONAL MATCH p5=(g:Gene)--(:GenomicLocation)--(:Chromosome) ";
             query += " RETURN p1, pSoTerm, p5";
 
             Iterable<Gene> genes = null;
