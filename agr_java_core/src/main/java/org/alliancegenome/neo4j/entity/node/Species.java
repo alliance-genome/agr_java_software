@@ -52,8 +52,8 @@ public class Species extends Neo4jEntity implements Comparable<Species> {
     }
 
     @Override
-    public int compareTo(Species species1) {
-        return getType().compareTo(species1.getType());
+    public int compareTo(Species species) {
+        return getType().compareTo(species.getType());
     }
 
     public SpeciesType getType() {

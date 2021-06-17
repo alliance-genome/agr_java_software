@@ -32,6 +32,8 @@ public class GeneService {
     private static GeneRepository geneRepo = new GeneRepository();
     private static InteractionRepository interRepo = new InteractionRepository();
     private static PhenotypeRepository phenoRepo = new PhenotypeRepository();
+    private AlleleVariantIndexService alleleVariantIndexService=new AlleleVariantIndexService();
+    private AlleleCacheRepository alleleCacheRepository=new AlleleCacheRepository();
 
     @Inject
     private InteractionCacheRepository interCacheRepo;
@@ -43,13 +45,8 @@ public class GeneService {
     private AlleleService alleleService;
 
     @Inject
-    private AlleleVariantIndexService alleleVariantIndexService;
-
-    @Inject
     private GeneCacheRepository geneCacheRepo;
 
-    @Inject
-    private AlleleCacheRepository alleleCacheRepository;
 
     public Gene getById(String id) {
         Gene gene = geneRepo.getOneGene(id);
@@ -63,7 +60,7 @@ public class GeneService {
     public JsonResultResponse<Allele> getAlleles(String geneId, Pagination pagination) {
         long startTime = System.currentTimeMillis();
         List<Allele> alleles = alleleVariantIndexService.getAlleles(geneId);
-        JsonResultResponse<Allele> response = alleleCacheRepository.getAlleleJsonResultResponse(pagination, alleles);
+        JsonResultResponse<Allele> response = alleleCacheRepository.getAlleleJsonResultResponse(pagination, alleles); // This needs to be a Helper function
         if (response == null)
             response = new JsonResultResponse<>();
         long duration = (System.currentTimeMillis() - startTime) / 1000;
@@ -139,4 +136,5 @@ public class GeneService {
                 .collect(Collectors.toList());
         return geneRepo.getAllGenes(taxIDs);
     }
+   
 }

@@ -74,8 +74,7 @@ public class AlleleCacheRepository {
 
         // add distinct values
         ColumnFieldMapping<Allele> mapping = new AlleleColumnFieldMapping();
-        response.addDistinctFieldValueSupplementalData(filterService.getDistinctFieldValues(allAlleles,
-                mapping.getSingleValuedFieldColumns(Table.ALLELE_GENE), mapping));
+        response.addDistinctFieldValueSupplementalData(filterService.getDistinctFieldValues(allAlleles, mapping.getSingleValuedFieldColumns(Table.ALLELE_GENE), mapping));
 
         return response;
     }

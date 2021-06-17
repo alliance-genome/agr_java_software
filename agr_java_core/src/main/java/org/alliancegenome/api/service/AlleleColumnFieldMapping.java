@@ -1,18 +1,18 @@
 package org.alliancegenome.api.service;
 
+import static java.util.stream.Collectors.toSet;
+import static org.alliancegenome.api.service.Column.*;
+
+import java.util.*;
+import java.util.function.Function;
+
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.apache.commons.collections4.CollectionUtils;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Function;
+import lombok.extern.jbosslog.JBossLog;
 
-import static java.util.stream.Collectors.toSet;
-import static org.alliancegenome.api.service.Column.*;
-
+@JBossLog
 public class AlleleColumnFieldMapping extends ColumnFieldMapping<Allele> {
 
     private Map<Column, Function<Allele, Set<String>>> mapColumnAttribute = new HashMap<>();
@@ -31,7 +31,9 @@ public class AlleleColumnFieldMapping extends ColumnFieldMapping<Allele> {
         mapColumnAttribute.put(GENE_ALLELE_CATEGORY, entity -> Set.of(entity.getCategory()));
         mapColumnAttribute.put(GENE_ALLELE_VARIANT_TYPE, entity -> {
             if (entity.getVariants() != null) {
-                return entity.getVariants().stream().map(variant -> variant.getVariantType()!=null?variant.getVariantType().getName():"").collect(toSet());
+                return entity.getVariants().stream()
+                .filter(variant -> variant.getVariantType() != null)
+                .map(variant -> variant.getVariantType().getName()).collect(toSet());
             }
             return new HashSet<>();
         });

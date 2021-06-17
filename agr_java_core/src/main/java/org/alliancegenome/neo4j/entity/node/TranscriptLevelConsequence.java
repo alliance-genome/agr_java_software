@@ -4,7 +4,7 @@ import java.util.*;
 
 import org.alliancegenome.core.helpers.VariantServiceHelper;
 import org.alliancegenome.es.index.site.cache.GeneDocumentCache;
-import org.alliancegenome.neo4j.entity.Neo4jEntity;
+import org.alliancegenome.neo4j.entity.*;
 import org.alliancegenome.neo4j.view.View;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
@@ -95,6 +95,7 @@ public class TranscriptLevelConsequence extends Neo4jEntity {
     private Variant variant;
 
     @Relationship(type = "ASSOCIATION", direction = Relationship.INCOMING)
+    @JsonView({View.Default.class, View.AlleleVariantSequenceConverterForES.class})
     private Transcript transcript;
 
     @JsonView({View.Default.class, View.AlleleVariantSequenceConverterForES.class})
@@ -140,7 +141,7 @@ public class TranscriptLevelConsequence extends Neo4jEntity {
     private String geneLevelConsequence;
 
 
-    public TranscriptLevelConsequence(String[] header, String[] infos, GeneDocumentCache geneCache) {
+    public TranscriptLevelConsequence(String[] header, String[] infos, GeneDocumentCache geneCache, Species species) {
 
         // VCF Header from the file
         /*
@@ -196,6 +197,7 @@ public class TranscriptLevelConsequence extends Neo4jEntity {
                 associatedGene = new Gene();
                 associatedGene.setSymbol(infos[3]);
                 associatedGene.setPrimaryKey(infos[4]);
+                associatedGene.setSpecies(species);
                 geneCache.getGeneMap().put(infos[4], associatedGene);
             }
 
@@ -206,6 +208,7 @@ public class TranscriptLevelConsequence extends Neo4jEntity {
                     associatedGene = new Gene();
                     associatedGene.setSymbol(infos[3]);
                     associatedGene.setPrimaryKey(infos[23]);
+                    associatedGene.setSpecies(species);
                     geneCache.getGeneMap().put(infos[23], associatedGene);
                 }
             }
