@@ -105,7 +105,6 @@ public class VariantService {
         // if not found in Neo then try in ES
         if (variant == null) {
             variant = variantDAO.getVariant(id);
-            
         }
         if (variant != null && variant.getSymbol() == null) {
             variant.setSymbol(variant.getPrimaryKey());
