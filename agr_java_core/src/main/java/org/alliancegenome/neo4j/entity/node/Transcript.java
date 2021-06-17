@@ -30,7 +30,7 @@ public class Transcript extends Neo4jEntity implements Comparable<Transcript> {
         return name.compareTo(o.getName());
     }
 
-    @JsonView({View.Default.class, View.API.class,View.AlleleVariantSequenceConverterForES.class})
+    @JsonView({View.Default.class, View.API.class})
     @Relationship(type = "ASSOCIATION")
     private List<TranscriptLevelConsequence> consequences;
 
