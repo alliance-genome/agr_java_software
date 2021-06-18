@@ -36,10 +36,16 @@ public class AlleleFiltering extends AnnotationFiltering<Allele> {
 
     private static FilterFunction<Allele, String> synonymFilter =
             (allele, value) -> {
-                Set<Boolean> filteringPassed = allele.getSynonyms().stream()
-                        .map(synonym -> FilterFunction.contains(synonym.getName(), value))
-                        .collect(Collectors.toSet());
-                return !filteringPassed.isEmpty() && filteringPassed.contains(true);
+                    Set<Boolean> filteringPassed=null;
+                    if( allele.getSynonyms()!=null ) {
+                        filteringPassed = allele.getSynonyms().stream()
+                                .map(synonym -> FilterFunction.contains(synonym.getName(), value))
+                                .collect(Collectors.toSet());
+
+                    }
+
+                return filteringPassed!=null && !filteringPassed.isEmpty() && filteringPassed.contains(true);
+
             };
 
     private static FilterFunction<Allele, String> diseaseFilter =
@@ -54,6 +60,7 @@ public class AlleleFiltering extends AnnotationFiltering<Allele> {
             (allele, value) ->
                     FilterFunction.fullMatchMultiValueOR(allele.getVariants().stream()
                             .filter(Objects::nonNull)
+                            .filter(variant -> variant.getVariantType() != null)
                             .map(variant -> variant.getVariantType().getName())
                             .collect(Collectors.toSet()), value);
 
@@ -69,9 +76,24 @@ public class AlleleFiltering extends AnnotationFiltering<Allele> {
             (allele, value) ->
                     FilterFunction.fullMatchMultiValueOR(allele.getVariants().stream()
                             .filter(Objects::nonNull)
+                            .filter(variant -> variant.getTranscriptLevelConsequence() != null)
+                            .map(variant -> variant.getTranscriptLevelConsequence().stream()
+                                    .filter(tlc -> tlc.getMolecularConsequences() != null)
+                                    .map(tlc -> tlc.getMolecularConsequences())
+                                    .flatMap(List::stream)
+                                    .collect(Collectors.toList()))
+                            .flatMap(List::stream)
+                            .collect(Collectors.toSet()), value);
+
+
+    private static FilterFunction<Allele, String> geneConsequenceFilter =
+            (allele, value) ->
+                    FilterFunction.fullMatchMultiValueOR(allele.getVariants().stream()
+                            .filter(Objects::nonNull)
                             .filter(variant -> variant.getGeneLevelConsequence() != null)
                             .map(variant -> variant.getGeneLevelConsequence().getGeneLevelConsequence())
                             .collect(Collectors.toSet()), value);
+
 
     private static FilterFunction<Allele, String> transgenicAlleleConstructFilter =
             (allele, value) ->
