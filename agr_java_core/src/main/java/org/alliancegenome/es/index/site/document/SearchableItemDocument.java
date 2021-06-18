@@ -79,8 +79,11 @@ public class SearchableItemDocument extends ESDocument {
     @JsonView({View.AlleleVariantSequenceConverterForES.class})
     Set<String> chromosomes;
     Set<String> constructs;
+    @JsonView({View.AlleleVariantSequenceConverterForES.class})
     Set<String> constructExpressedComponent;
+    @JsonView({View.AlleleVariantSequenceConverterForES.class})
     Set<String> constructKnockdownComponent;
+    @JsonView({View.AlleleVariantSequenceConverterForES.class})
     Set<String> constructRegulatoryRegion;
     Map<String, List<CrossReferenceDoclet>> crossReferencesMap;
     List<CrossReferenceDoclet> crossReferenceList;
@@ -88,6 +91,7 @@ public class SearchableItemDocument extends ESDocument {
     Set<String> crossReferences;
     @JsonView({View.AlleleVariantSequenceConverterForES.class})
     Set<String> diseases;
+    @JsonView({View.AlleleVariantSequenceConverterForES.class})
     Set<String> diseasesAgrSlim;
     Set<String> diseaseGroup;
     Set<String> diseasesWithParents;
