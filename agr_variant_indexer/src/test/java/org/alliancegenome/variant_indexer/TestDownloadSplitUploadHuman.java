@@ -19,16 +19,16 @@ import htsjdk.variant.vcf.VCFFileReader;
 import lombok.extern.jbosslog.JBossLog;
 
 @JBossLog
-public class TestSplitFileByChromosome {
+public class TestDownloadSplitUploadHuman {
 
     
     private AmazonS3 s3Client;
 
     public static void main(String[] args) throws Exception {
-        new TestSplitFileByChromosome();
+        new TestDownloadSplitUploadHuman();
     }
 
-    public TestSplitFileByChromosome() {
+    public TestDownloadSplitUploadHuman() {
         ConfigHelper.init();
         BasicAWSCredentials awsCreds = new BasicAWSCredentials(ConfigHelper.loadSystemENVProperty("AWS_ACCESS_KEY"), ConfigHelper.loadSystemENVProperty("AWS_SECRET_KEY"));
         s3Client = AmazonS3ClientBuilder.standard().withCredentials(new AWSStaticCredentialsProvider(awsCreds)).build();

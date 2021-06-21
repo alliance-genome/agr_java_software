@@ -23,27 +23,31 @@ import lombok.extern.jbosslog.JBossLog;
 import si.mazi.rescu.RestProxyFactory;
 
 @JBossLog
-public class DownloadSplitUploadVCFFiles {
+public class TestDownloadSplitUploadMOD {
 
     private String fileSaveLocation = ConfigHelper.getVariantDownloadPath();
 
     public static void main(String[] args) throws Exception {
-        new DownloadSplitUploadVCFFiles();
+        new TestDownloadSplitUploadMOD();
     }
 
-    public DownloadSplitUploadVCFFiles() throws Exception {
+    public TestDownloadSplitUploadMOD() throws Exception {
         DataFileRESTInterface api = RestProxyFactory.createProxy(DataFileRESTInterface.class, ConfigHelper.getFMSUrl());
 
         List<DataFile> list = api.getDataTypeFiles("HTPOSTVEPVCF", true);
 
+        
+        
         for(DataFile df: list) {
-            File localFile = downloadFile(df);
-
-            List<File> uploadList = splitFile(localFile, df);
-
-            uploadFiles(uploadList, df);
-
-            log.info("Finished: " + df.getS3Url());
+            //if(df.getDataSubType().getName().equals("ZFIN")) {
+                File localFile = downloadFile(df);
+    
+                List<File> uploadList = splitFile(localFile, df);
+    
+                uploadFiles(uploadList, df);
+    
+                log.info("Finished: " + df.getS3Url());
+            //}
         }
 
     }
@@ -95,8 +99,10 @@ public class DownloadSplitUploadVCFFiles {
                     chr = vc.getChr();
                     VariantContextWriterBuilder builder = new VariantContextWriterBuilder();
                     String chrFile = fileSaveLocation + "/" + df.getDataSubType().getName() + ".vep." + chr + ".vcf.gz";
+                    String tbiFile = fileSaveLocation + "/" + df.getDataSubType().getName() + ".vep." + chr + ".vcf.gz.tbi";
                     log.info("Opening new File: " + chrFile);
                     ret.add(new File(chrFile));
+                    ret.add(new File(tbiFile));
                     builder.setOutputFile(chrFile);
                     writer = builder.build();
                     writer.writeHeader(reader.getFileHeader());
@@ -114,7 +120,7 @@ public class DownloadSplitUploadVCFFiles {
     }
 
     public void uploadFiles(List<File> uploadFiles, DataFile df) {
-        AmazonS3 s3 = AmazonS3ClientBuilder.standard().withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(ConfigHelper.getStringParam("AWS_ACCESS_KEY"), ConfigHelper.getStringParam("AWS_SECRET_KEY")))).withRegion(Regions.US_EAST_1).build();
+        AmazonS3 s3 = AmazonS3ClientBuilder.standard().withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(ConfigHelper.loadSystemENVProperty("AWS_ACCESS_KEY"), ConfigHelper.loadSystemENVProperty("AWS_SECRET_KEY")))).withRegion(Regions.US_EAST_1).build();
 
         TransferManager tm = TransferManagerBuilder.standard().withS3Client(s3).build();
         
