@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 @FunctionalInterface
 public interface FilterFunction<Entity, FilterValue> {
 
+
     boolean containsFilterValue(Entity entity, FilterValue val);
 
     static boolean contains(String entityName, String value) {

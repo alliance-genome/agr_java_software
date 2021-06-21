@@ -202,8 +202,10 @@ public class AlleleVariantSequenceConverter {
 
                         TranscriptLevelConsequence feature = new TranscriptLevelConsequence(header, infos, geneCache, species);
 
-                        if (feature.getTranscript() != null) {
-                            String transcriptID = feature.getTranscript().getPrimaryKey();
+                        Transcript transcript = feature.getTranscript();
+                        
+                        if (transcript != null) {
+                            String transcriptID = transcript.getPrimaryKey();
                             if (!alreadyAdded.contains(transcriptID)) {
                                 features.add(feature);
                                 alreadyAdded.add(transcriptID);
