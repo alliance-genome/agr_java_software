@@ -95,7 +95,7 @@ public class TranscriptLevelConsequence extends Neo4jEntity {
     private Variant variant;
 
     @Relationship(type = "ASSOCIATION", direction = Relationship.INCOMING)
-    @JsonView({View.Default.class, View.AlleleVariantSequenceConverterForES.class})
+    @JsonView({View.AlleleVariantSequenceConverterForES.class})
     private Transcript transcript;
 
     @JsonView({View.Default.class, View.AlleleVariantSequenceConverterForES.class})
@@ -191,46 +191,50 @@ public class TranscriptLevelConsequence extends Neo4jEntity {
             molecularConsequences = Arrays.asList(infos[1].split("&"));
             impact = infos[2];
             
-            associatedGene = geneCache.getGeneMap().get(infos[4]);
-
-            if(associatedGene == null && infos[3].length() > 0 && infos[4].length() > 0) {
-                associatedGene = new Gene();
-                associatedGene.setSymbol(infos[3]);
-                associatedGene.setPrimaryKey(infos[4]);
-                associatedGene.setSpecies(species);
-                geneCache.getGeneMap().put(infos[4], associatedGene);
+            if(!infos[4].isEmpty()) {
+                if(geneCache != null) associatedGene = geneCache.getGeneMap().get(infos[4]);
+    
+                if(associatedGene == null && !infos[3].isEmpty()) {
+                    associatedGene = new Gene();
+                    associatedGene.setSymbol(infos[3]);
+                    associatedGene.setPrimaryKey(infos[4]);
+                    associatedGene.setSpecies(species);
+                    if(geneCache != null) geneCache.getGeneMap().put(infos[4], associatedGene);
+                }
             }
 
-            if (infos[23].length() > 0) {
-                associatedGene = geneCache.getGeneMap().get(infos[23]);
+            if (!infos[23].isEmpty()) {
+                if(geneCache != null) associatedGene = geneCache.getGeneMap().get(infos[23]);
 
-                if(associatedGene == null && infos[3].length() > 0) {
+                if(associatedGene == null && !infos[3].isEmpty()) {
                     associatedGene = new Gene();
                     associatedGene.setSymbol(infos[3]);
                     associatedGene.setPrimaryKey(infos[23]);
                     associatedGene.setSpecies(species);
-                    geneCache.getGeneMap().put(infos[23], associatedGene);
+                    if(geneCache != null) geneCache.getGeneMap().put(infos[23], associatedGene);
                 }
             }
 
             // Not sure about field 5?
 
-            transcript = transcriptCache.get(infos[6]);
-
-            if(transcript == null && infos[6].length() > 0) {
-                transcript = new Transcript();
-                transcript.setName(infos[6]);
-                transcript.setPrimaryKey(infos[6]);
-                transcriptCache.put(infos[6], transcript);
-                //System.out.println(infos[6]);
+            if(!infos[6].isEmpty()) {
+                transcript = transcriptCache.get(infos[6]);
+    
+                if(transcript == null) {
+                    transcript = new Transcript();
+                    transcript.setName(infos[6]);
+                    transcript.setPrimaryKey(infos[6]);
+                    transcriptCache.put(infos[6], transcript);
+                    //System.out.println(infos[6]);
+                }
             }
 
             sequenceFeatureType = infos[7];
 
             location = "";
-            if (infos[8].length() > 0)
+            if (!infos[8].isEmpty())
                 location += "Exon " + infos[8];
-            if (infos[9].length() > 0)
+            if (!infos[9].isEmpty())
                 location += "Intron " + infos[9];
 
             hgvsCodingNomenclature = infos[10];
@@ -240,12 +244,11 @@ public class TranscriptLevelConsequence extends Neo4jEntity {
             proteinStartPosition = infos[14];
             aminoAcidChange = infos[15];
 
-            if (aminoAcidChange.length() > 0) {
-                aminoAcidReference = aminoAcidChange;
-                aminoAcidVariation = aminoAcidChange;
-            }
+            aminoAcidReference = aminoAcidChange;
+            aminoAcidVariation = aminoAcidChange;
+
             codonChange = infos[16];
-            if (codonChange.length() > 0) {
+            if (!codonChange.isEmpty()) {
                 String[] codonToken = codonChange.split("/");
                 if (codonToken.length == 2) {
                     codonReference = codonToken[0];
