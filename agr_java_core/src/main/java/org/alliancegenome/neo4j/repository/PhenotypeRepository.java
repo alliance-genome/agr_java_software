@@ -248,7 +248,7 @@ public class PhenotypeRepository extends Neo4jRepository<Phenotype> {
         String cypher = "MATCH p0=(phenotype:Phenotype)--(pej:PhenotypeEntityJoin)-[:EVIDENCE]->(ppj:PublicationJoin)<-[:ASSOCIATION]-(publication:Publication), " +
                 " p2=(pej:PhenotypeEntityJoin)--(agm:AffectedGenomicModel)--(:Allele)--(:Gene) " +
                 //"where agm.primaryKey in ['MGI:6272038','MGI:5702925'] " +
-                "where agm.primaryKey in ['ZFIN:ZDB-FISH-180831-2'] " +
+                //"where agm.primaryKey in ['ZFIN:ZDB-FISH-180831-2'] " +
                 "OPTIONAL MATCH     p5=(pej:PhenotypeEntityJoin)--(:AffectedGenomicModel)-[:CROSS_REFERENCE]->(crossRef:CrossReference) " +
                 "OPTIONAL MATCH modelAllele=(agm:AffectedGenomicModel)--(n)--(:Gene) where n:Allele OR n:SequenceTargetingReagent " +
                 "OPTIONAL MATCH condition=(pej:PhenotypeEntityJoin)--(:ExperimentalCondition)-[:ASSOCIATION]->(zeco:ZECOTerm)" +
