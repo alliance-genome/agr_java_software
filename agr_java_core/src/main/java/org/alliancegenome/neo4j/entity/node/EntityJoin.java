@@ -2,6 +2,7 @@ package org.alliancegenome.neo4j.entity.node;
 
 import java.util.List;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.neo4j.ogm.annotation.*;
 
 import lombok.*;
@@ -30,4 +31,22 @@ public class EntityJoin extends Association {
     @Relationship(type = "ASSOCIATION", direction = Relationship.INCOMING)
     private AffectedGenomicModel model;
 
+    @Relationship(type = "INDUCES")
+    private List<ExperimentalCondition> inducerConditionList;
+
+    @Relationship(type = "HAS_CONDITION")
+    private List<ExperimentalCondition> hasConditionList;
+
+    @Relationship(type = "AMELIORATES")
+    private List<ExperimentalCondition> ameliorateConditionList;
+
+    @Relationship(type = "EXACERBATES")
+    private List<ExperimentalCondition> exacerbateConditionList;
+
+    public boolean hasExperimentalConditions() {
+        return CollectionUtils.isNotEmpty(inducerConditionList) ||
+                CollectionUtils.isNotEmpty(hasConditionList) ||
+                CollectionUtils.isNotEmpty(ameliorateConditionList) ||
+                CollectionUtils.isNotEmpty(exacerbateConditionList);
+    }
 }

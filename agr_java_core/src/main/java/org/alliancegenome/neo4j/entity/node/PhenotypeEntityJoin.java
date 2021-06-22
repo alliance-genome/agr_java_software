@@ -33,18 +33,6 @@ public class PhenotypeEntityJoin extends EntityJoin {
     @Relationship(type = "EVIDENCE")
     private List<PublicationJoin> phenotypePublicationJoins;
 
-    @Relationship(type = "INDUCES")
-    private List<ExperimentalCondition> inducerConditionList;
-
-    @Relationship(type = "HAS_CONDITION")
-    private List<ExperimentalCondition> hasConditionList;
-
-    @Relationship(type = "AMELIORATES")
-    private List<ExperimentalCondition> ameliorateConditionList;
-
-    @Relationship(type = "EXACERBATES")
-    private List<ExperimentalCondition> exacerbateConditionList;
-
     public List<Publication> getPublications() {
         if (phenotypePublicationJoins == null)
             return null;

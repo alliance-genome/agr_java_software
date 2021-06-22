@@ -502,7 +502,8 @@ public class DiseaseCacher extends Cacher {
                         // i.e. no model / AGM or Allele off PublicationJoin node
                         // needed for showing experimental conditions
                         if (join.getPublicationJoins().stream().anyMatch(pubJoin -> CollectionUtils.isEmpty(pubJoin.getAlleles())
-                                && CollectionUtils.isEmpty(pubJoin.getModels()) && join.getModel() == null)) {
+                                && CollectionUtils.isEmpty(pubJoin.getModels()) && join.getModel() == null)
+                        && join.hasExperimentalConditions()) {
                             GeneticEntity geneticEntity = join.getAllele();
                             if (geneticEntity == null) {
                                 geneticEntity = join.getGene();
@@ -516,7 +517,7 @@ public class DiseaseCacher extends Cacher {
                                 entity.setUrl(refs.get(0).getCrossRefCompleteUrl());
 
                             //entity.setDisplayName(geneticEntity.getSymbolText());
-                            entity.setType(GeneticEntity.CrossReferenceType.ALLELE);
+                            entity.setType(geneticEntity.getCrossReferenceType());
                             entity.addPublicationEvidenceCode(join.getPublicationJoins());
                             entity.setDiseaseAssociationType(join.getJoinType());
                             document.addPrimaryAnnotatedEntity(entity);

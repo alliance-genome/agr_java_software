@@ -314,11 +314,11 @@ public class GenePhenotypeCacher extends Cacher {
                                                 entity.setDisplayName(model.getNameText());
                                                 entity.setType(GeneticEntity.getType(model.getSubtype()));
                                             }
+                                            entity.addPhenotype(phenotypeEntityJoin.getPhenotype().getPhenotypeStatement());
                                             addExperimentalConditions(entity, model.getPhenotypeEntityJoins());
                                             entity.setDataProvider(phenotypeEntityJoin.getDataProvider());
                                             entity.addPublicationEvidenceCode(pubJoin);
                                             document.addPrimaryAnnotatedEntity(entity);
-                                            entity.addPhenotype(phenotypeEntityJoin.getPhenotype().getPhenotypeStatement());
                                             entities.put(model.getPrimaryKey(), entity);
                                         });
                                     });
@@ -355,6 +355,10 @@ public class GenePhenotypeCacher extends Cacher {
                 .collect(toList());
     }
 
+    /**
+     * Make sure entity has phenotypes already set!
+     * Here we check if the PhenotypeEntityJoin objects are pointing to the phenotype statement given by the one on the entity.
+     */
     private void addExperimentalConditions(PrimaryAnnotatedEntity entity, List<PhenotypeEntityJoin> phenotypeEntityJoins) {
         for (PhenotypeEntityJoin entityJoin : phenotypeEntityJoins) {
             if (entity.getPhenotypes() != null && entityJoin.getPhenotype() != null && entity.getPhenotypes().contains(entityJoin.getPhenotype().getPhenotypeStatement())) {

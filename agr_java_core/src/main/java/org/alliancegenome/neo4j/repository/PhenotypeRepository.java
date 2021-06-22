@@ -215,8 +215,8 @@ public class PhenotypeRepository extends Neo4jRepository<Phenotype> {
     public List<PhenotypeEntityJoin> getAllPhenotypeAnnotations() {
         String cypher = "MATCH p0=(phenotype:Phenotype)<-[:ASSOCIATION]-(pej:PhenotypeEntityJoin)-[:EVIDENCE]->(ppj:PublicationJoin)<-[:ASSOCIATION]-(publication:Publication), " +
                 " p2=(pej:PhenotypeEntityJoin)<-[:ASSOCIATION]-(gene:Gene)-[:FROM_SPECIES]->(species:Species) " +
-                //"where gene.primaryKey = 'ZFIN:ZDB-GENE-990415-8' " +
-                //"where gene.primaryKey = 'WB:WBGene00000898' AND phenotype.primaryKey = 'fat content increased' " +
+                //"where gene.primaryKey = 'ZFIN:ZDB-GENE-040426-1716' AND phenotype.primaryKey = 'ball increased size, abnormal' " +
+                //"where gene.primaryKey = 'WB:WBGene00000898' AND phenotype.primaryKey = 'ball increased size, abnormal' " +
                 "OPTIONAL MATCH     p4=(pej:PhenotypeEntityJoin)--(feature:Feature)-[:CROSS_REFERENCE]->(crossRef:CrossReference) " +
                 "OPTIONAL MATCH models=(ppj:PublicationJoin)-[:PRIMARY_GENETIC_ENTITY]->(agm:AffectedGenomicModel)--(agmPej:PhenotypeEntityJoin)--(phenotype:Phenotype) " +
                 "OPTIONAL MATCH p6c=(agmPej:PhenotypeEntityJoin)--(:ExperimentalCondition)-[:ASSOCIATION]->(:ZECOTerm) " +
@@ -263,7 +263,7 @@ public class PhenotypeRepository extends Neo4jRepository<Phenotype> {
         String cypher = "MATCH p0=(phenotype:Phenotype)--(pej:PhenotypeEntityJoin)-[:EVIDENCE]->(ppj:PublicationJoin)<-[:ASSOCIATION]-(publication:Publication), " +
                 " p2=(pej:PhenotypeEntityJoin)--(allele:Feature) " +
                 "where allele.primaryKey in ['ZFIN:ZDB-ALT-980203-1829'] " +
-                "and  phenotype.primaryKey = 'melanophore stripe broken, abnormal' " +
+                //"and  phenotype.primaryKey = 'melanophore stripe broken, abnormal' " +
                 "OPTIONAL MATCH gene=(allele:Feature)--(:Gene)" +
                 "OPTIONAL MATCH p4=(pej:PhenotypeEntityJoin)--(allele:Feature)-[:CROSS_REFERENCE]->(crossRef:CrossReference) " +
 //                "OPTIONAL MATCH modelAllele=(ppj:PublicationJoin)--(agm:AffectedGenomicModel)-[:ASSOCIATION]->(agmPej:PhenotypeEntityJoin) " +
