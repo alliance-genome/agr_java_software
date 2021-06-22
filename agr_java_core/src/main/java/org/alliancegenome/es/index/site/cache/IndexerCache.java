@@ -13,8 +13,6 @@ import lombok.*;
 public abstract class IndexerCache {
 
     protected Map<String, Variant> variantMap = new HashMap<>();
-    protected Map<String, Allele> alleleVariantMap = new HashMap<>();
-
     protected Map<String, Allele> alleleMap = new HashMap<>();
     protected Map<String, Set<String>> assays = new HashMap<>();
     protected Map<String, Set<String>> chromosomes = new HashMap<>();
