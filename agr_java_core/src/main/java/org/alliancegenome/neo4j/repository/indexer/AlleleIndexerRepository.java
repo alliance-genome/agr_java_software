@@ -21,8 +21,7 @@ public class AlleleIndexerRepository extends AlleleRepository {
         log.info("Building AlleleDocumentCache");
 
         ExecutorService executor = Executors.newFixedThreadPool(20); // Run all at once
-        
-        executor.execute(new GetAlleleMapThread());
+
         executor.execute(new GetAlleleVariantsMapThread());
         executor.execute(new GetCrossReferencesThread());
         executor.execute(new GetConstructsThread());
@@ -60,32 +59,11 @@ public class AlleleIndexerRepository extends AlleleRepository {
         @Override
         public void run() {
             log.info("Fetching alleles objects");
-            cache.setAlleleVariantMap(getAllAlleleVariants());
+            cache.setAlleleMap(getAllAlleleVariants());
             log.info("Finished Fetching alleles objects");
         }
     }
-    private class GetAlleleMapThread implements Runnable {
 
-        @Override
-        public void run() {
-            log.info("Fetching alleles");
-            String query = "MATCH p1=(species:Species)-[:FROM_SPECIES]-(feature:Allele) ";
-            query += " OPTIONAL MATCH pSyn=(feature:Feature)-[:ALSO_KNOWN_AS]-(synonym:Synonym) ";
-            query += " RETURN p1, pSyn ";
-
-            Iterable<Allele> alleles = null;
-
-            alleles = query(query);
-
-            Map<String, Allele> alleleMap = new HashMap<>();
-            for (Allele allele : alleles) {
-                alleleMap.put(allele.getPrimaryKey(),allele);
-            }
-            cache.setAlleleMap(alleleMap);
-            log.info("Finished Fetching alleles");
-        }
-    }
-    
     private class GetCrossReferencesThread implements Runnable {
 
         @Override

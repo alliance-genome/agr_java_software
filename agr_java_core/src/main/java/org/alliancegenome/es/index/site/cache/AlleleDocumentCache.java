@@ -26,7 +26,7 @@ public class AlleleDocumentCache extends IndexerCache {
         document.setConstructRegulatoryRegion(constructRegulatoryRegions.get(id));
 
         document.setAlleles(alleles.get(id));
-        Allele a = alleleVariantMap.get(id);
+        Allele a = alleleMap.get(id);
         if(a!=null) {
             if(diseases != null && diseases.get(id)!=null )
                 a.setDisease(diseases.get(id).size() > 0);
