@@ -22,7 +22,7 @@ public class AlleleIndexerRepository extends AlleleRepository {
 
         ExecutorService executor = Executors.newFixedThreadPool(20); // Run all at once
         
-   //     executor.execute(new GetAlleleMapThread());
+        executor.execute(new GetAlleleMapThread());
         executor.execute(new GetAlleleVariantsMapThread());
         executor.execute(new GetCrossReferencesThread());
         executor.execute(new GetConstructsThread());
@@ -60,7 +60,7 @@ public class AlleleIndexerRepository extends AlleleRepository {
         @Override
         public void run() {
             log.info("Fetching alleles objects");
-            cache.setAlleleMap(getAllAlleleVariants());
+            cache.setAlleleVariantMap(getAllAlleleVariants());
             log.info("Finished Fetching alleles objects");
         }
     }
