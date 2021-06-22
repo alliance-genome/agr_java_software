@@ -446,7 +446,7 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
         query += " OPTIONAL MATCH crossRef=(a:Allele)-[:CROSS_REFERENCE]->(c:CrossReference)";
         query += " OPTIONAL MATCH vari=(a:Allele)<-[:VARIATION]-(variant:Variant)-[:VARIATION_TYPE]->(soTerm:SOTerm)";
         query += " OPTIONAL MATCH p2=(a:Allele)-[:ALSO_KNOWN_AS]->(synonym:Synonym)";
-        query += " RETURN  p,crossRef,vari,p2,p1";
+        query += " RETURN  p,crossRef,vari,p2,p1, gene";
 
         Iterable<Allele> allelesWithVariantsIter = query(query, new HashMap<>());
         Set<Allele> allelesWithVariants = StreamSupport.stream(allelesWithVariantsIter.spliterator(), false)
