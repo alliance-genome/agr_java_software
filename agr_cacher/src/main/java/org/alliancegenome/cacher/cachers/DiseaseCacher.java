@@ -447,10 +447,7 @@ public class DiseaseCacher extends Cacher {
                                                         entity.setUrl(model.getModCrossRefCompleteUrl());
                                                         entity.setDisplayName(model.getNameText());
                                                         entity.setType(GeneticEntity.getType(model.getSubtype()));
-                                                        entity.addConditions(ConditionAnnotation.ConditionType.HAS_CONDITION, diseaseJoin.getHasConditionList());
-                                                        entity.addConditions(ConditionAnnotation.ConditionType.INDUCES, diseaseJoin.getInducerConditionList());
-                                                        entity.addModifier(ConditionAnnotation.ConditionType.AMELIORATES, diseaseJoin.getAmeliorateConditionList());
-                                                        entity.addModifier(ConditionAnnotation.ConditionType.EXACERBATES, diseaseJoin.getExacerbateConditionList());
+                                                        populateExperimentalConditions(diseaseJoin, entity);
                                                         document.addPrimaryAnnotatedEntity(entity);
                                                         entity.addPublicationEvidenceCode(pubJoin);
                                                         entity.setDiseaseAssociationType(join.getJoinType());
@@ -480,10 +477,7 @@ public class DiseaseCacher extends Cacher {
                                                     PrimaryAnnotatedEntity entity = new PrimaryAnnotatedEntity();
                                                     entity.setId(allele.getPrimaryKey());
                                                     entity.setName(allele.getSymbol());
-                                                    entity.addConditions(ConditionAnnotation.ConditionType.HAS_CONDITION, diseaseJoin.getHasConditionList());
-                                                    entity.addConditions(ConditionAnnotation.ConditionType.INDUCES, diseaseJoin.getInducerConditionList());
-                                                    entity.addModifier(ConditionAnnotation.ConditionType.AMELIORATES, diseaseJoin.getAmeliorateConditionList());
-                                                    entity.addModifier(ConditionAnnotation.ConditionType.EXACERBATES, diseaseJoin.getExacerbateConditionList());
+                                                    populateExperimentalConditions(diseaseJoin, entity);
                                                     List<CrossReference> refs = allele.getCrossReferences();
                                                     if (org.apache.commons.collections.CollectionUtils.isNotEmpty(refs))
                                                         entity.setUrl(refs.get(0).getCrossRefCompleteUrl());
@@ -504,6 +498,29 @@ public class DiseaseCacher extends Cacher {
                                         });
                                     }
                                 }));
+                        // create PAE from Allele when allele-level annotation or Gene when gene-level annotation,
+                        // i.e. no model / AGM or Allele off PublicationJoin node
+                        // needed for showing experimental conditions
+                        if (join.getPublicationJoins().stream().anyMatch(pubJoin -> CollectionUtils.isEmpty(pubJoin.getAlleles())
+                                && CollectionUtils.isEmpty(pubJoin.getModels()) && join.getModel() == null)) {
+                            GeneticEntity geneticEntity = join.getAllele();
+                            if (geneticEntity == null) {
+                                geneticEntity = join.getGene();
+                            }
+                            PrimaryAnnotatedEntity entity = new PrimaryAnnotatedEntity();
+                            entity.setId(geneticEntity.getPrimaryKey());
+                            entity.setName(geneticEntity.getSymbol());
+                            populateExperimentalConditions(join, entity);
+                            List<CrossReference> refs = geneticEntity.getCrossReferences();
+                            if (org.apache.commons.collections.CollectionUtils.isNotEmpty(refs))
+                                entity.setUrl(refs.get(0).getCrossRefCompleteUrl());
+
+                            //entity.setDisplayName(geneticEntity.getSymbolText());
+                            entity.setType(GeneticEntity.CrossReferenceType.ALLELE);
+                            entity.addPublicationEvidenceCode(join.getPublicationJoins());
+                            entity.setDiseaseAssociationType(join.getJoinType());
+                            document.addPrimaryAnnotatedEntity(entity);
+                        }
                     }
                     List<PublicationJoin> publicationJoins = join.getPublicationJoins();
                     if (useCache) {
@@ -533,6 +550,13 @@ public class DiseaseCacher extends Cacher {
                     return document;
                 })
                 .collect(toList());
+    }
+
+    private void populateExperimentalConditions(DiseaseEntityJoin join, PrimaryAnnotatedEntity entity) {
+        entity.addConditions(ConditionAnnotation.ConditionType.HAS_CONDITION, join.getHasConditionList());
+        entity.addConditions(ConditionAnnotation.ConditionType.INDUCES, join.getInducerConditionList());
+        entity.addModifier(ConditionAnnotation.ConditionType.AMELIORATES, join.getAmeliorateConditionList());
+        entity.addModifier(ConditionAnnotation.ConditionType.EXACERBATES, join.getExacerbateConditionList());
     }
 
     public List<ECOTerm> getEcoTerm(PublicationJoin join) {
