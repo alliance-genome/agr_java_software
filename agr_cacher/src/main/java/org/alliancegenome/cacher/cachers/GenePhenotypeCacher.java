@@ -334,6 +334,7 @@ public class GenePhenotypeCacher extends Cacher {
                                         entity = new PrimaryAnnotatedEntity();
                                         entity.setId(allele.getPrimaryKey());
                                         entity.setName(allele.getSymbol());
+                                        entity.addPhenotype(phenotypeEntityJoin.getPhenotype().getPhenotypeStatement());
                                         addExperimentalConditions(entity, allele.getPhenotypeEntityJoins());
 
                                         List<CrossReference> refs = allele.getCrossReferences();
@@ -346,7 +347,6 @@ public class GenePhenotypeCacher extends Cacher {
                                     }
                                     document.addPrimaryAnnotatedEntity(entity);
                                     entity.addPublicationEvidenceCode(pubJoin);
-                                    entity.addPhenotype(phenotypeEntityJoin.getPhenotype().getPhenotypeStatement());
                                 }));
                         // create base-level PAE
                         PrimaryAnnotatedEntity baseLevelPAEs = ConditionService.createBaseLevelPAEs(phenotypeEntityJoin);
@@ -364,6 +364,8 @@ public class GenePhenotypeCacher extends Cacher {
      * Here we check if the PhenotypeEntityJoin objects are pointing to the phenotype statement given by the one on the entity.
      */
     private void addExperimentalConditions(PrimaryAnnotatedEntity entity, List<PhenotypeEntityJoin> phenotypeEntityJoins) {
+        if(entity.getPhenotypes() == null)
+            log.error("Probably forgot to set the phenotypes on the entity object");
         for (PhenotypeEntityJoin entityJoin : phenotypeEntityJoins) {
             if (entity.getPhenotypes() != null && entityJoin.getPhenotype() != null && entity.getPhenotypes().contains(entityJoin.getPhenotype().getPhenotypeStatement())) {
                 entity.addConditions(ConditionAnnotation.ConditionType.HAS_CONDITION, entityJoin.getHasConditionList());

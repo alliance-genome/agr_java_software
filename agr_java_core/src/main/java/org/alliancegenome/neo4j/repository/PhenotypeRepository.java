@@ -216,14 +216,15 @@ public class PhenotypeRepository extends Neo4jRepository<Phenotype> {
         String cypher = "MATCH p0=(phenotype:Phenotype)<-[:ASSOCIATION]-(pej:PhenotypeEntityJoin)-[:EVIDENCE]->(ppj:PublicationJoin)<-[:ASSOCIATION]-(publication:Publication), " +
                 " p2=(pej:PhenotypeEntityJoin)<-[:ASSOCIATION]-(gene:Gene)-[:FROM_SPECIES]->(species:Species) " +
                 //"where gene.primaryKey = 'ZFIN:ZDB-GENE-040426-1716' AND phenotype.primaryKey = 'ball increased size, abnormal' " +
-                //"where gene.primaryKey = 'WB:WBGene00000898' AND phenotype.primaryKey = 'ball increased size, abnormal' " +
+                //"where gene.primaryKey = 'SGD:S000004966' AND phenotype.primaryKey = 'increased chemical compound accumulation' " +
+                //"where gene.primaryKey = 'ZFIN:ZDB-GENE-040426-1716' AND phenotype.primaryKey = 'fat content increased' " +
+                "OPTIONAL MATCH     baseLevel=(pej:PhenotypeEntityJoin)--(:ExperimentalCondition)-[:ASSOCIATION]->(:ZECOTerm) " +
                 "OPTIONAL MATCH     p4=(pej:PhenotypeEntityJoin)--(feature:Feature)-[:CROSS_REFERENCE]->(crossRef:CrossReference) " +
-                "OPTIONAL MATCH models=(ppj:PublicationJoin)-[:PRIMARY_GENETIC_ENTITY]->(agm:AffectedGenomicModel)--(agmPej:PhenotypeEntityJoin)--(phenotype:Phenotype) " +
-                "OPTIONAL MATCH p6c=(agmPej:PhenotypeEntityJoin)--(:ExperimentalCondition)-[:ASSOCIATION]->(:ZECOTerm) " +
-                "OPTIONAL MATCH alleles=(ppj:PublicationJoin)-[:PRIMARY_GENETIC_ENTITY]->(featureCond:Allele)-[:FROM_SPECIES]->(species:Species), " +
-                " p6a=(featureCond:Allele)--(allelePej:PhenotypeEntityJoin)--(phenotype:Phenotype)  " +
-                "OPTIONAL MATCH p6b=(allelePej:PhenotypeEntityJoin)--(:ExperimentalCondition)-[:ASSOCIATION]->(:ZECOTerm) " +
-                "return p0, p4, p2, models, alleles, p6a, p6b, p6c ";
+                "OPTIONAL MATCH models=(ppj:PublicationJoin)-[:PRIMARY_GENETIC_ENTITY]->(agm:AffectedGenomicModel)--(agmPej:PhenotypeEntityJoin)--(phenotype:Phenotype), " +
+                " p6c=(agmPej:PhenotypeEntityJoin)--(:ExperimentalCondition)-[:ASSOCIATION]->(:ZECOTerm) " +
+                "OPTIONAL MATCH alleles=(ppj:PublicationJoin)-[:PRIMARY_GENETIC_ENTITY]->(featureCond:Allele)--(allelePej:PhenotypeEntityJoin)--(phenotype:Phenotype), " +
+                " p6b=(allelePej:PhenotypeEntityJoin)--(:ExperimentalCondition)-[:ASSOCIATION]->(:ZECOTerm) " +
+                "return p0, p4, p2, models, alleles, p6b, p6c, baseLevel ";
 
         Iterable<PhenotypeEntityJoin> joins = query(PhenotypeEntityJoin.class, cypher);
         List<PhenotypeEntityJoin> joinList = StreamSupport.stream(joins.spliterator(), false)
