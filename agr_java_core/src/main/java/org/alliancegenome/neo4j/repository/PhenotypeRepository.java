@@ -232,7 +232,7 @@ public class PhenotypeRepository extends Neo4jRepository<Phenotype> {
         // remove allelePej nodes that are not hanging off phenotype
         // the above OPTIONAL MATCH clause, p6b is not working
         joinList.forEach(phenotypeEntityJoin -> {
-            phenotypeEntityJoin.getPhenotypePublicationJoins().forEach(publicationJoin -> {
+            phenotypeEntityJoin.getPublicationJoins().forEach(publicationJoin -> {
                 if (publicationJoin.getAlleles() != null)
                     publicationJoin.getAlleles().forEach(allele -> {
                         allele.setPhenotypeEntityJoins(allele.getPhenotypeEntityJoins().stream()
@@ -262,15 +262,15 @@ public class PhenotypeRepository extends Neo4jRepository<Phenotype> {
     public List<PhenotypeEntityJoin> getAllelePhenotypeAnnotations() {
         String cypher = "MATCH p0=(phenotype:Phenotype)--(pej:PhenotypeEntityJoin)-[:EVIDENCE]->(ppj:PublicationJoin)<-[:ASSOCIATION]-(publication:Publication), " +
                 " p2=(pej:PhenotypeEntityJoin)--(allele:Feature) " +
-                "where allele.primaryKey in ['ZFIN:ZDB-ALT-980203-1829'] " +
+                //"where allele.primaryKey in ['WB:WBVar00000089'] " +
                 //"and  phenotype.primaryKey = 'melanophore stripe broken, abnormal' " +
                 "OPTIONAL MATCH gene=(allele:Feature)--(:Gene)" +
+                "OPTIONAL MATCH baseAnnotation=(pej:PhenotypeEntityJoin)--(:ExperimentalCondition)-[:ASSOCIATION]->(zeco:ZECOTerm) " +
                 "OPTIONAL MATCH p4=(pej:PhenotypeEntityJoin)--(allele:Feature)-[:CROSS_REFERENCE]->(crossRef:CrossReference) " +
-//                "OPTIONAL MATCH modelAllele=(ppj:PublicationJoin)--(agm:AffectedGenomicModel)-[:ASSOCIATION]->(agmPej:PhenotypeEntityJoin) " +
                 "OPTIONAL MATCH modelAllele=(ppj:PublicationJoin)-[:PRIMARY_GENETIC_ENTITY]->(agm:AffectedGenomicModel)-[:ASSOCIATION]->(agmPej:PhenotypeEntityJoin)--(phenotype:Phenotype) " +
                 "OPTIONAL MATCH p6=(agmPej:PhenotypeEntityJoin)--(expCond:ExperimentalCondition)-[:ASSOCIATION]->(zeco:ZECOTerm)" +
                 //"return p0, p2, p4, agm, expCond, zeco";
-                "return p0, p2, p4, modelAllele, p6";
+                "return p0, p2, p4, modelAllele, p6, baseAnnotation ";
 
         Iterable<PhenotypeEntityJoin> joins = query(PhenotypeEntityJoin.class, cypher);
         List<PhenotypeEntityJoin> joinList = StreamSupport.stream(joins.spliterator(), false)
