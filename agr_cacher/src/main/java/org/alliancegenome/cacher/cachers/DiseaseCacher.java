@@ -286,7 +286,7 @@ public class DiseaseCacher extends Cacher {
                     document.setPublications(join.getPublications());
                     document.setAssociationType(join.getJoinType());
                     document.addModifier(DiseaseAnnotation.ConditionType.AMELIORATES, join.getAmeliorateConditionList());
-                    document.addModifier(DiseaseAnnotation.ConditionType.AMELIORATES, join.getExacerbateConditionList());
+                    document.addModifier(DiseaseAnnotation.ConditionType.EXACERBATES, join.getExacerbateConditionList());
                     document.addConditions(DiseaseAnnotation.ConditionType.HAS_CONDITION, join.getHasConditionList());
                     document.addConditions(DiseaseAnnotation.ConditionType.INDUCES, join.getInducerConditionList());
                     document.addPublicationJoins(join.getPublicationJoins());
