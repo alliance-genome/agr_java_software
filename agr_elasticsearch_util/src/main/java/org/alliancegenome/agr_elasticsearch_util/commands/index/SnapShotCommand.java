@@ -20,6 +20,7 @@ public class SnapShotCommand extends Command implements CommandInterface {
         log.info("snapshot list <reponame> -- Where <reponame> is the name of a loaded repository");
         log.info("snapshot restorelatest <reponame> <index>");
         log.info("snapshot delete <reponame> <snapshot>");
+        log.info("snapshot clean <reponame> <snapshot>");
     }
 
     @Override
@@ -40,6 +41,14 @@ public class SnapShotCommand extends Command implements CommandInterface {
                     String repo = args.remove(0);
                     String index = args.remove(0);
                     im.restoreSnapShot(repo, index);
+                } else {
+                    printHelp();
+                }
+            } else if(command.equals("clean")) {
+                if(args.size() > 1) {
+                    String repo = args.remove(0);
+                    String snapShotName = args.remove(0);
+                    im.cleanSnapShots(repo, snapShotName);
                 } else {
                     printHelp();
                 }

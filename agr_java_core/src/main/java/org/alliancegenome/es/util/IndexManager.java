@@ -454,6 +454,25 @@ public class IndexManager {
             log.info(info.snapshotId() + "[" + print + "] " + end);
         }
     }
+    
+
+    public void cleanSnapShots(String repo, String snapShotName) {
+        List<SnapshotInfo> list = getSnapshots(repo);
+        TreeMap<Date, SnapshotInfo> map = new TreeMap<>();
+        for(SnapshotInfo info: list) {
+            String[] array = info.snapshotId().getName().split("_");
+            Date d = new Date(Long.parseLong(array[array.length - 1]));
+            if(info.snapshotId().getName().contains(snapShotName)) {
+                map.put(d, info);
+            }
+        }
+        if(map.size() > 0) {
+            map.remove(map.lastKey());
+            for(Date key: map.keySet()) {
+                deleteSnapShot(repo, map.get(key).snapshotId().getName());
+            }
+        }
+    }
 
     public void restoreSnapShot(String repo, String index) {
         List<String> indexes = getIndexList();
