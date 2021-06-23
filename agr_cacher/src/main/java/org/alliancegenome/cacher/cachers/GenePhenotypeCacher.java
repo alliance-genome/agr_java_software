@@ -3,6 +3,7 @@ package org.alliancegenome.cacher.cachers;
 import lombok.extern.log4j.Log4j2;
 import org.alliancegenome.api.entity.CacheStatus;
 import org.alliancegenome.cache.CacheAlliance;
+import org.alliancegenome.cache.ConditionService;
 import org.alliancegenome.neo4j.entity.*;
 import org.alliancegenome.neo4j.entity.node.*;
 import org.alliancegenome.neo4j.repository.PhenotypeRepository;
@@ -39,8 +40,8 @@ public class GenePhenotypeCacher extends Cacher {
 
         if (useCache) {
             List<PhenotypeEntityJoin> list = joinList.stream()
-                    .filter(join -> join.getPhenotypePublicationJoins().stream().anyMatch(join1 -> join1.getModels() != null))
-                    .filter(join -> join.getPhenotypePublicationJoins().stream().anyMatch(join1 -> join1.getModels().stream().anyMatch(model -> model.getPrimaryKey().equals("ZFIN:ZDB-GENE-990415-8"))))
+                    .filter(join -> join.getPublicationJoins().stream().anyMatch(join1 -> join1.getModels() != null))
+                    .filter(join -> join.getPublicationJoins().stream().anyMatch(join1 -> join1.getModels().stream().anyMatch(model -> model.getPrimaryKey().equals("ZFIN:ZDB-GENE-990415-8"))))
                     .collect(Collectors.toList());
         }
 
@@ -146,7 +147,7 @@ public class GenePhenotypeCacher extends Cacher {
                     entity.setDisplayName(model.getNameText());
                     entity.setUrl(model.getModCrossRefCompleteUrl());
                     entity.setType(GeneticEntity.CrossReferenceType.getCrossReferenceType(model.getSubtype()));
-                    entity.addPublicationEvidenceCode(join.getPhenotypePublicationJoins());
+                    entity.addPublicationEvidenceCode(join.getPublicationJoins());
                     entity.addPhenotype(join.getPhenotype().getPhenotypeStatement());
                     entity.setDataProvider(model.getDataProvider());
                     entity.addConditions(ConditionAnnotation.ConditionType.HAS_CONDITION, join.getHasConditionList());
@@ -295,12 +296,12 @@ public class GenePhenotypeCacher extends Cacher {
                     Map<String, PrimaryAnnotatedEntity> entities = new HashMap<>();
 
                     // if AGMs are present
-                    if (CollectionUtils.isNotEmpty(phenotypeEntityJoin.getPhenotypePublicationJoins())) {
-                        boolean hasAGMs = phenotypeEntityJoin.getPhenotypePublicationJoins().stream()
+                    if (CollectionUtils.isNotEmpty(phenotypeEntityJoin.getPublicationJoins())) {
+                        boolean hasAGMs = phenotypeEntityJoin.getPublicationJoins().stream()
                                 .anyMatch(join -> join.getModels() != null);
 
                         if (hasAGMs) {
-                            phenotypeEntityJoin.getPhenotypePublicationJoins()
+                            phenotypeEntityJoin.getPublicationJoins()
                                     .stream()
                                     .filter(pubJoin -> pubJoin.getModels() != null)
                                     .forEach(pubJoin -> {
@@ -324,7 +325,7 @@ public class GenePhenotypeCacher extends Cacher {
                                     });
                         }
                         // create PAEs from Alleles
-                        phenotypeEntityJoin.getPhenotypePublicationJoins()
+                        phenotypeEntityJoin.getPublicationJoins()
                                 .stream()
                                 .filter(pubJoin -> org.apache.commons.collections4.CollectionUtils.isNotEmpty(pubJoin.getAlleles()))
                                 .forEach(pubJoin -> pubJoin.getAlleles().forEach(allele -> {
@@ -347,7 +348,10 @@ public class GenePhenotypeCacher extends Cacher {
                                     entity.addPublicationEvidenceCode(pubJoin);
                                     entity.addPhenotype(phenotypeEntityJoin.getPhenotype().getPhenotypeStatement());
                                 }));
-
+                        // create base-level PAE
+                        PrimaryAnnotatedEntity baseLevelPAEs = ConditionService.createBaseLevelPAEs(phenotypeEntityJoin);
+                        if (baseLevelPAEs != null)
+                            document.addPrimaryAnnotatedEntity(baseLevelPAEs);
                     }
                     progressProcess();
                     return document;

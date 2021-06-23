@@ -1,6 +1,7 @@
 package org.alliancegenome.neo4j.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,6 +18,7 @@ import java.util.stream.Collectors;
 @Getter
 @Setter
 @Schema(name = "PhenotypeAnnotation", description = "POJO that represents a  Phenotype Annotation")
+@JsonPropertyOrder({"phenotype", "gene", "allele", "model", "primaryAnnotatedEntities", "publications", "source","primaryKey"})
 public class PhenotypeAnnotation extends ConditionAnnotation implements Comparable<PhenotypeAnnotation>, Serializable {
 
     private String primaryKey;

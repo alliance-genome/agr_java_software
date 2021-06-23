@@ -4,10 +4,10 @@ import lombok.extern.log4j.Log4j2;
 import org.alliancegenome.api.entity.CacheStatus;
 import org.alliancegenome.api.service.DiseaseRibbonService;
 import org.alliancegenome.cache.CacheAlliance;
+import org.alliancegenome.cache.ConditionService;
 import org.alliancegenome.cache.repository.helper.DiseaseAnnotationSorting;
 import org.alliancegenome.cache.repository.helper.SortingField;
 import org.alliancegenome.core.util.ModelHelper;
-import org.alliancegenome.neo4j.entity.ConditionAnnotation;
 import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
 import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
 import org.alliancegenome.neo4j.entity.SpeciesType;
@@ -447,7 +447,7 @@ public class DiseaseCacher extends Cacher {
                                                         entity.setUrl(model.getModCrossRefCompleteUrl());
                                                         entity.setDisplayName(model.getNameText());
                                                         entity.setType(GeneticEntity.getType(model.getSubtype()));
-                                                        populateExperimentalConditions(diseaseJoin, entity);
+                                                        ConditionService.populateExperimentalConditions(diseaseJoin, entity);
                                                         document.addPrimaryAnnotatedEntity(entity);
                                                         entity.addPublicationEvidenceCode(pubJoin);
                                                         entity.setDiseaseAssociationType(join.getJoinType());
@@ -477,7 +477,7 @@ public class DiseaseCacher extends Cacher {
                                                     PrimaryAnnotatedEntity entity = new PrimaryAnnotatedEntity();
                                                     entity.setId(allele.getPrimaryKey());
                                                     entity.setName(allele.getSymbol());
-                                                    populateExperimentalConditions(diseaseJoin, entity);
+                                                    ConditionService.populateExperimentalConditions(diseaseJoin, entity);
                                                     List<CrossReference> refs = allele.getCrossReferences();
                                                     if (org.apache.commons.collections.CollectionUtils.isNotEmpty(refs))
                                                         entity.setUrl(refs.get(0).getCrossRefCompleteUrl());
@@ -511,7 +511,7 @@ public class DiseaseCacher extends Cacher {
                             PrimaryAnnotatedEntity entity = new PrimaryAnnotatedEntity();
                             entity.setId(geneticEntity.getPrimaryKey());
                             entity.setName(geneticEntity.getSymbol());
-                            populateExperimentalConditions(join, entity);
+                            ConditionService.populateExperimentalConditions(join, entity);
                             List<CrossReference> refs = geneticEntity.getCrossReferences();
                             if (org.apache.commons.collections.CollectionUtils.isNotEmpty(refs))
                                 entity.setUrl(refs.get(0).getCrossRefCompleteUrl());
@@ -551,13 +551,6 @@ public class DiseaseCacher extends Cacher {
                     return document;
                 })
                 .collect(toList());
-    }
-
-    private void populateExperimentalConditions(DiseaseEntityJoin join, PrimaryAnnotatedEntity entity) {
-        entity.addConditions(ConditionAnnotation.ConditionType.HAS_CONDITION, join.getHasConditionList());
-        entity.addConditions(ConditionAnnotation.ConditionType.INDUCES, join.getInducerConditionList());
-        entity.addModifier(ConditionAnnotation.ConditionType.AMELIORATES, join.getAmeliorateConditionList());
-        entity.addModifier(ConditionAnnotation.ConditionType.EXACERBATES, join.getExacerbateConditionList());
     }
 
     public List<ECOTerm> getEcoTerm(PublicationJoin join) {

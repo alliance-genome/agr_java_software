@@ -15,7 +15,6 @@ import lombok.*;
 public class PhenotypeEntityJoin extends EntityJoin {
 
     private String primaryKey;
-    private String joinType;
     private String dataProvider;
 
     @Relationship(type = "ASSOCIATION", direction = Relationship.INCOMING)
@@ -30,13 +29,10 @@ public class PhenotypeEntityJoin extends EntityJoin {
     @Relationship(type = "ASSOCIATION")
     private Phenotype phenotype;
 
-    @Relationship(type = "EVIDENCE")
-    private List<PublicationJoin> phenotypePublicationJoins;
-
     public List<Publication> getPublications() {
-        if (phenotypePublicationJoins == null)
+        if (publicationJoins == null)
             return null;
-        return phenotypePublicationJoins.stream()
+        return publicationJoins.stream()
                 .map(PublicationJoin::getPublication)
                 .collect(Collectors.toList());
     }

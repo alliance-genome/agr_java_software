@@ -31,6 +31,9 @@ public class EntityJoin extends Association {
     @Relationship(type = "ASSOCIATION", direction = Relationship.INCOMING)
     private AffectedGenomicModel model;
 
+    @Relationship(type = "EVIDENCE")
+    protected List<PublicationJoin> publicationJoins;
+
     @Relationship(type = "INDUCES")
     private List<ExperimentalCondition> inducerConditionList;
 
