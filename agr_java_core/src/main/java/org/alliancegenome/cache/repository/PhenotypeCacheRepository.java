@@ -29,12 +29,6 @@ public class PhenotypeCacheRepository {
         List<PhenotypeAnnotation> fullPhenotypeAnnotationList = getPhenotypeAnnotationList(geneID);
 
         // remove GENE annotations from PAE list
-        fullPhenotypeAnnotationList.stream()
-                .filter(phenotypeAnnotation -> phenotypeAnnotation.getPrimaryAnnotatedEntities() != null)
-                .forEach(phenotypeAnnotation -> {
-                    phenotypeAnnotation.getPrimaryAnnotatedEntities().removeIf(entity -> entity.getType().equals(GeneticEntity.CrossReferenceType.GENE));
-                });
-
         //filtering
         PaginationResult<PhenotypeAnnotation> result = new PaginationResult<>();
         FilterService<PhenotypeAnnotation> filterService = new FilterService<>(new PhenotypeAnnotationFiltering());
