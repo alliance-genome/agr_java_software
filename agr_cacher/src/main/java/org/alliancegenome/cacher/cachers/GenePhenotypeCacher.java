@@ -316,7 +316,7 @@ public class GenePhenotypeCacher extends Cacher {
                                                 entity.setType(GeneticEntity.getType(model.getSubtype()));
                                             }
                                             entity.addPhenotype(phenotypeEntityJoin.getPhenotype().getPhenotypeStatement());
-                                            addExperimentalConditions(entity, model.getPhenotypeEntityJoins());
+                                            addExperimentalConditions(entity, model.getPhenotypeEntityJoins(), phenotypeEntityJoin.getPhenotype().getPhenotypeStatement());
                                             entity.setDataProvider(phenotypeEntityJoin.getDataProvider());
                                             entity.addPublicationEvidenceCode(pubJoin);
                                             document.addPrimaryAnnotatedEntity(entity);
@@ -335,7 +335,7 @@ public class GenePhenotypeCacher extends Cacher {
                                         entity.setId(allele.getPrimaryKey());
                                         entity.setName(allele.getSymbol());
                                         entity.addPhenotype(phenotypeEntityJoin.getPhenotype().getPhenotypeStatement());
-                                        addExperimentalConditions(entity, allele.getPhenotypeEntityJoins());
+                                        addExperimentalConditions(entity, allele.getPhenotypeEntityJoins(), phenotypeEntityJoin.getPhenotype().getPhenotypeStatement());
 
                                         List<CrossReference> refs = allele.getCrossReferences();
                                         if (org.apache.commons.collections.CollectionUtils.isNotEmpty(refs))
@@ -360,14 +360,13 @@ public class GenePhenotypeCacher extends Cacher {
     }
 
     /**
-     * Make sure entity has phenotypes already set!
      * Here we check if the PhenotypeEntityJoin objects are pointing to the phenotype statement given by the one on the entity.
      */
-    private void addExperimentalConditions(PrimaryAnnotatedEntity entity, List<PhenotypeEntityJoin> phenotypeEntityJoins) {
-        if(entity.getPhenotypes() == null)
-            log.error("Probably forgot to set the phenotypes on the entity object");
+    private void addExperimentalConditions(PrimaryAnnotatedEntity entity, List<PhenotypeEntityJoin> phenotypeEntityJoins, String phenotype) {
+        if (phenotypeEntityJoins == null)
+            return;
         for (PhenotypeEntityJoin entityJoin : phenotypeEntityJoins) {
-            if (entity.getPhenotypes() != null && entityJoin.getPhenotype() != null && entity.getPhenotypes().contains(entityJoin.getPhenotype().getPhenotypeStatement())) {
+            if (entity.getPhenotypes() != null && entityJoin.getPhenotype() != null && phenotype.equals(entityJoin.getPhenotype().getPhenotypeStatement())) {
                 entity.addConditions(ConditionAnnotation.ConditionType.HAS_CONDITION, entityJoin.getHasConditionList());
                 entity.addConditions(ConditionAnnotation.ConditionType.INDUCES, entityJoin.getInducerConditionList());
                 entity.addModifier(ConditionAnnotation.ConditionType.AMELIORATES, entityJoin.getAmeliorateConditionList());

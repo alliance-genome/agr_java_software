@@ -14,6 +14,7 @@ import org.neo4j.ogm.annotation.Relationship;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @NodeEntity(label = "Feature")
 @Getter
@@ -117,6 +118,15 @@ public class Allele extends GeneticEntity implements Comparable<Allele>, Present
         populateCategory();
     }
 
+    public void addPhenotypeEntityJoins(List<PhenotypeEntityJoin> joins) {
+        if (joins == null)
+            return;
+        if (phenotypeEntityJoins == null)
+            phenotypeEntityJoins = new ArrayList<>();
+        phenotypeEntityJoins.addAll(joins);
+        phenotypeEntityJoins = phenotypeEntityJoins.stream().distinct().collect(Collectors.toList());
+    }
+
     public void populateCategory() {
         if (crossReferenceType != CrossReferenceType.ALLELE) {
             category = crossReferenceType.getDisplayName();
@@ -133,7 +143,7 @@ public class Allele extends GeneticEntity implements Comparable<Allele>, Present
         category = ALLELE_WITH_MULTIPLE_VARIANT;
     }
 
-    @JsonView({View.API.class, View.GeneAllelesAPI.class,View.AlleleVariantSequenceConverterForES.class})
+    @JsonView({View.API.class, View.GeneAllelesAPI.class, View.AlleleVariantSequenceConverterForES.class})
     public List<Variant> getVariants() {
         return variants;
     }
