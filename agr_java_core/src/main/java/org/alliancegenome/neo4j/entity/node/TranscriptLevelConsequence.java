@@ -2,6 +2,7 @@ package org.alliancegenome.neo4j.entity.node;
 
 import java.util.*;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.alliancegenome.core.helpers.VariantServiceHelper;
 import org.alliancegenome.es.index.site.cache.GeneDocumentCache;
 import org.alliancegenome.neo4j.entity.*;
@@ -95,7 +96,7 @@ public class TranscriptLevelConsequence extends Neo4jEntity {
     private Variant variant;
 
     @Relationship(type = "ASSOCIATION", direction = Relationship.INCOMING)
-    @JsonView({View.AlleleVariantSequenceConverterForES.class})
+    @JsonView({View.AlleleVariantSequenceConverterForES.class,View.GeneAlleleVariantSequenceAPI.class})
     private Transcript transcript;
 
     @JsonView({View.Default.class, View.AlleleVariantSequenceConverterForES.class})
@@ -107,6 +108,8 @@ public class TranscriptLevelConsequence extends Neo4jEntity {
     public void setLocation(String name) {
         location = name;
     }
+
+
 
     @JsonView({View.GeneAlleleVariantSequenceAPI.class, View.AlleleVariantSequenceConverterForES.class})
     public String getLocation() {
