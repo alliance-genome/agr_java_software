@@ -96,7 +96,7 @@ public class TranscriptLevelConsequence extends Neo4jEntity {
     private Variant variant;
 
     @Relationship(type = "ASSOCIATION", direction = Relationship.INCOMING)
-    @JsonView({View.AlleleVariantSequenceConverterForES.class})
+    @JsonView({View.AlleleVariantSequenceConverterForES.class,View.GeneAlleleVariantSequenceAPI.class})
     private Transcript transcript;
 
     @JsonView({View.Default.class, View.AlleleVariantSequenceConverterForES.class})
@@ -108,23 +108,7 @@ public class TranscriptLevelConsequence extends Neo4jEntity {
     public void setLocation(String name) {
         location = name;
     }
-    private String transcriptName;
 
-
-    public void setTranscriptName(String name) {
-        transcriptName = name;
-    }
-
-    @JsonView({View.Default.class,View.GeneAlleleVariantSequenceAPI.class, View.AlleleVariantSequenceConverterForES.class})
-    @JsonProperty("transcriptName")
-    public String getTranscriptName() {
-        if (StringUtils.isNotEmpty(transcriptName))
-            return transcriptName;
-        if (transcript == null)
-            return "";
-        transcriptName = transcript.getName();
-        return transcriptName;
-    }
 
 
     @JsonView({View.GeneAlleleVariantSequenceAPI.class, View.AlleleVariantSequenceConverterForES.class})
