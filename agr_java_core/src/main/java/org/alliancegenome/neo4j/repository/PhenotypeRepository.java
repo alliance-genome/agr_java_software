@@ -14,6 +14,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+import static java.util.stream.Collectors.groupingBy;
+
 public class PhenotypeRepository extends Neo4jRepository<Phenotype> {
 
     public static final String TOTAL_COUNT = "totalCount";
@@ -217,14 +219,12 @@ public class PhenotypeRepository extends Neo4jRepository<Phenotype> {
                 " p2=(pej:PhenotypeEntityJoin)<-[:ASSOCIATION]-(gene:Gene)-[:FROM_SPECIES]->(species:Species) " +
                 //"where gene.primaryKey = 'ZFIN:ZDB-GENE-040426-1716' AND phenotype.primaryKey = 'ball increased size, abnormal' " +
                 //"where gene.primaryKey = 'SGD:S000004966' AND phenotype.primaryKey = 'increased chemical compound accumulation' " +
-                //"where gene.primaryKey = 'ZFIN:ZDB-GENE-040426-1716' AND phenotype.primaryKey = 'fat content increased' " +
+                //"where gene.primaryKey = 'WB:WBGene00000898' " +
                 "OPTIONAL MATCH     baseLevel=(pej:PhenotypeEntityJoin)--(:ExperimentalCondition)-[:ASSOCIATION]->(:ZECOTerm) " +
                 "OPTIONAL MATCH     p4=(pej:PhenotypeEntityJoin)--(feature:Feature)-[:CROSS_REFERENCE]->(crossRef:CrossReference) " +
-                "OPTIONAL MATCH models=(ppj:PublicationJoin)-[:PRIMARY_GENETIC_ENTITY]->(agm:AffectedGenomicModel)--(agmPej:PhenotypeEntityJoin)--(phenotype:Phenotype), " +
-                " p6c=(agmPej:PhenotypeEntityJoin)--(:ExperimentalCondition)-[:ASSOCIATION]->(:ZECOTerm) " +
-                "OPTIONAL MATCH alleles=(ppj:PublicationJoin)-[:PRIMARY_GENETIC_ENTITY]->(featureCond:Allele)--(allelePej:PhenotypeEntityJoin)--(phenotype:Phenotype), " +
-                " p6b=(allelePej:PhenotypeEntityJoin)--(:ExperimentalCondition)-[:ASSOCIATION]->(:ZECOTerm) " +
-                "return p0, p4, p2, models, alleles, p6b, p6c, baseLevel ";
+                "OPTIONAL MATCH models=(ppj:PublicationJoin)-[:PRIMARY_GENETIC_ENTITY]->(agm:AffectedGenomicModel) " +
+                "OPTIONAL MATCH alleles=(ppj:PublicationJoin)-[:PRIMARY_GENETIC_ENTITY]->(featureCond:Allele)" +
+                "return p0, p4, p2, models, alleles, baseLevel ";
 
         Iterable<PhenotypeEntityJoin> joins = query(PhenotypeEntityJoin.class, cypher);
         List<PhenotypeEntityJoin> joinList = StreamSupport.stream(joins.spliterator(), false)
@@ -236,13 +236,49 @@ public class PhenotypeRepository extends Neo4jRepository<Phenotype> {
             phenotypeEntityJoin.getPublicationJoins().forEach(publicationJoin -> {
                 if (publicationJoin.getAlleles() != null)
                     publicationJoin.getAlleles().forEach(allele -> {
-                        allele.setPhenotypeEntityJoins(allele.getPhenotypeEntityJoins().stream()
-                                .filter(phenotypeEntityJoin1 -> phenotypeEntityJoin1.getPhenotype().getPrimaryKey().equals(phenotypeEntityJoin.getPhenotype().getPrimaryKey()))
-                                .collect(Collectors.toList()));
+                        // need to populate the base-level entities independently as OGM is proabably
+                        // using the setter allele.setPhenotypeEntityJoin and as the allele object has many of them they
+                        // are overiden
+                        allele.addPhenotypeEntityJoins(getAllPejRecords(allele.getPrimaryKey(), phenotypeEntityJoin.getPhenotype().getPhenotypeStatement()));
                     });
             });
         });
+
         return joinList;
+    }
+
+    // entityID, list of PEJs
+    Map<String, List<PhenotypeEntityJoin>> pejAgmMap;
+
+    public List<PhenotypeEntityJoin> getAllPejRecords(String id, String phenotype) {
+        List<PhenotypeEntityJoin> joins = getAllPejRecords().get(id);
+        if (joins == null)
+            return null;
+        return joins.stream()
+                .filter(join -> join.getPhenotype().getPhenotypeStatement().equals(phenotype))
+                .collect(Collectors.toList());
+    }
+
+
+    public Map<String, List<PhenotypeEntityJoin>> getAllPejRecords() {
+        if (pejAgmMap != null)
+            return pejAgmMap;
+        String cypherBaseLevelDEJ = "MATCH p0=(node)--(pej:PhenotypeEntityJoin)--(phenotype:Phenotype ) " +
+                //"where gene.primaryKey = 'ZFIN:ZDB-GENE-040426-1716' AND phenotype.primaryKey = 'ball increased size, abnormal' " +
+                //"where gene.primaryKey = 'SGD:S000004966' AND phenotype.primaryKey = 'increased chemical compound accumulation' " +
+                "where node:Allele OR node:AffectedGenomicModel " +
+                //"AND phenotype.phenotypeStatement in ['fat content increased','fat associated bodies increased'] " +
+                "OPTIONAL MATCH     baseLevel=(pej:PhenotypeEntityJoin)--(:ExperimentalCondition)-[:ASSOCIATION]->(:ZECOTerm) " +
+                "return p0, baseLevel ";
+        Iterable<PhenotypeEntityJoin> pejJoins = query(PhenotypeEntityJoin.class, cypherBaseLevelDEJ);
+        pejAgmMap = StreamSupport.stream(pejJoins.spliterator(), false)
+                .filter(phenotypeEntityJoin -> phenotypeEntityJoin.getAllele() != null)
+                .collect(groupingBy(join -> join.getAllele().getPrimaryKey()));
+        Map<String, List<PhenotypeEntityJoin>> pejModelMap = StreamSupport.stream(pejJoins.spliterator(), false)
+                .filter(phenotypeEntityJoin -> phenotypeEntityJoin.getModel() != null)
+                .collect(groupingBy(join -> join.getModel().getPrimaryKey()));
+        pejAgmMap.putAll(pejModelMap);
+        return pejAgmMap;
     }
 
     public List<PhenotypeEntityJoin> getAllPhenotypeAnnotationsPureAGM() {
