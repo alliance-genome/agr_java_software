@@ -5,7 +5,7 @@ import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
 import org.alliancegenome.neo4j.entity.node.CrossReference;
 import org.alliancegenome.neo4j.entity.node.EntityJoin;
 import org.alliancegenome.neo4j.entity.node.GeneticEntity;
-import org.alliancegenome.neo4j.entity.node.PhenotypeEntityJoin;
+import org.apache.commons.collections.CollectionUtils;
 
 import java.util.List;
 
@@ -18,11 +18,11 @@ public class ConditionService {
         entity.addModifier(ConditionAnnotation.ConditionType.EXACERBATES, join.getExacerbateConditionList());
     }
 
-    public static PrimaryAnnotatedEntity createBaseLevelPAEs(EntityJoin entityJoin){
+    public static PrimaryAnnotatedEntity createBaseLevelPAEs(EntityJoin entityJoin) {
         // create PAE from Allele when allele-level annotation or Gene when gene-level annotation,
         // i.e. no model / AGM or Allele off PublicationJoin node
         // needed for showing experimental conditions
-        if (entityJoin.getPublicationJoins().stream().anyMatch(pubJoin -> org.apache.commons.collections4.CollectionUtils.isEmpty(pubJoin.getAlleles())
+        if (entityJoin.getPublicationJoins().stream().anyMatch(pubJoin -> CollectionUtils.isEmpty(pubJoin.getAlleles())
                 && org.apache.commons.collections4.CollectionUtils.isEmpty(pubJoin.getModels()) && entityJoin.getModel() == null)
                 && entityJoin.hasExperimentalConditions()) {
             GeneticEntity geneticEntity = entityJoin.getAllele();
@@ -34,7 +34,7 @@ public class ConditionService {
             entity.setName(geneticEntity.getSymbol());
             populateExperimentalConditions(entityJoin, entity);
             List<CrossReference> refs = geneticEntity.getCrossReferences();
-            if (org.apache.commons.collections.CollectionUtils.isNotEmpty(refs))
+            if (CollectionUtils.isNotEmpty(refs))
                 entity.setUrl(refs.get(0).getCrossRefCompleteUrl());
 
             entity.setType(geneticEntity.getCrossReferenceType());

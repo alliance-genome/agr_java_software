@@ -265,6 +265,8 @@ public class GenePhenotypeCacher extends Cacher {
         annotationMergeMap.forEach((geneID, value) -> {
             List<PhenotypeAnnotation> mergedAnnotations = new ArrayList<>();
             value.forEach((phenotype, phenotypeAnnotations) -> {
+                // group all PEJs that do not have an experimental condition
+                // all others stay indepeden
                 // get first element and put all info from other collection elements.
                 PhenotypeAnnotation entity = phenotypeAnnotations.get(0);
                 phenotypeAnnotations.stream()
@@ -316,7 +318,7 @@ public class GenePhenotypeCacher extends Cacher {
                                                 entity.setType(GeneticEntity.getType(model.getSubtype()));
                                             }
                                             entity.addPhenotype(phenotypeEntityJoin.getPhenotype().getPhenotypeStatement());
-                                            addExperimentalConditions(entity, model.getPhenotypeEntityJoins(), phenotypeEntityJoin.getPhenotype().getPhenotypeStatement());
+                                            //TODO addExperimentalConditions(entity, model.getPhenotypeEntityJoins(), phenotypeEntityJoin.getPhenotype().getPhenotypeStatement());
                                             entity.setDataProvider(phenotypeEntityJoin.getDataProvider());
                                             entity.addPublicationEvidenceCode(pubJoin);
                                             document.addPrimaryAnnotatedEntity(entity);
@@ -327,26 +329,29 @@ public class GenePhenotypeCacher extends Cacher {
                         // create PAEs from Alleles
                         phenotypeEntityJoin.getPublicationJoins()
                                 .stream()
-                                .filter(pubJoin -> org.apache.commons.collections4.CollectionUtils.isNotEmpty(pubJoin.getAlleles()))
+                                .filter(pubJoin -> CollectionUtils.isNotEmpty(pubJoin.getAlleles()))
                                 .forEach(pubJoin -> pubJoin.getAlleles().forEach(allele -> {
-                                    PrimaryAnnotatedEntity entity = entities.get(allele.getPrimaryKey());
-                                    if (entity == null) {
-                                        entity = new PrimaryAnnotatedEntity();
-                                        entity.setId(allele.getPrimaryKey());
-                                        entity.setName(allele.getSymbol());
-                                        entity.addPhenotype(phenotypeEntityJoin.getPhenotype().getPhenotypeStatement());
-                                        addExperimentalConditions(entity, allele.getPhenotypeEntityJoins(), phenotypeEntityJoin.getPhenotype().getPhenotypeStatement());
+                                    // keep each new PEJ with exp conditions independent PAE
+                                    if (allele.getPhenotypeEntityJoins() != null) {
+                                        allele.getPhenotypeEntityJoins()
+                                                .forEach(phenotypeEntityJoin1 -> {
+                                                    PrimaryAnnotatedEntity entity = new PrimaryAnnotatedEntity();
+                                                    entity.setId(allele.getPrimaryKey());
+                                                    entity.setName(allele.getSymbol());
+                                                    entity.addPhenotype(phenotypeEntityJoin.getPhenotype().getPhenotypeStatement());
+                                                    addExperimentalConditions(entity, phenotypeEntityJoin1, phenotypeEntityJoin.getPhenotype().getPhenotypeStatement());
 
-                                        List<CrossReference> refs = allele.getCrossReferences();
-                                        if (org.apache.commons.collections.CollectionUtils.isNotEmpty(refs))
-                                            entity.setUrl(refs.get(0).getCrossRefCompleteUrl());
+                                                    List<CrossReference> refs = allele.getCrossReferences();
+                                                    if (org.apache.commons.collections.CollectionUtils.isNotEmpty(refs))
+                                                        entity.setUrl(refs.get(0).getCrossRefCompleteUrl());
 
-                                        entity.setDisplayName(allele.getSymbolText());
-                                        entity.setType(GeneticEntity.CrossReferenceType.ALLELE);
-                                        entities.put(allele.getPrimaryKey(), entity);
+                                                    entity.setDisplayName(allele.getSymbolText());
+                                                    entity.setType(GeneticEntity.CrossReferenceType.ALLELE);
+                                                    entities.put(allele.getPrimaryKey(), entity);
+                                                    document.addPrimaryAnnotatedEntity(entity);
+                                                    entity.addPublicationEvidenceCode(pubJoin);
+                                                });
                                     }
-                                    document.addPrimaryAnnotatedEntity(entity);
-                                    entity.addPublicationEvidenceCode(pubJoin);
                                 }));
                         // create base-level PAE
                         PrimaryAnnotatedEntity baseLevelPAEs = ConditionService.createBaseLevelPAEs(phenotypeEntityJoin);
@@ -362,16 +367,14 @@ public class GenePhenotypeCacher extends Cacher {
     /**
      * Here we check if the PhenotypeEntityJoin objects are pointing to the phenotype statement given by the one on the entity.
      */
-    private void addExperimentalConditions(PrimaryAnnotatedEntity entity, List<PhenotypeEntityJoin> phenotypeEntityJoins, String phenotype) {
-        if (phenotypeEntityJoins == null)
+    private void addExperimentalConditions(PrimaryAnnotatedEntity entity, PhenotypeEntityJoin entityJoin, String phenotype) {
+        if (entityJoin == null)
             return;
-        for (PhenotypeEntityJoin entityJoin : phenotypeEntityJoins) {
-            if (entity.getPhenotypes() != null && entityJoin.getPhenotype() != null && phenotype.equals(entityJoin.getPhenotype().getPhenotypeStatement())) {
-                entity.addConditions(ConditionAnnotation.ConditionType.HAS_CONDITION, entityJoin.getHasConditionList());
-                entity.addConditions(ConditionAnnotation.ConditionType.INDUCES, entityJoin.getInducerConditionList());
-                entity.addModifier(ConditionAnnotation.ConditionType.AMELIORATES, entityJoin.getAmeliorateConditionList());
-                entity.addModifier(ConditionAnnotation.ConditionType.EXACERBATES, entityJoin.getExacerbateConditionList());
-            }
+        if (entity.getPhenotypes() != null && entityJoin.getPhenotype() != null && phenotype.equals(entityJoin.getPhenotype().getPhenotypeStatement())) {
+            entity.addConditions(ConditionAnnotation.ConditionType.HAS_CONDITION, entityJoin.getHasConditionList());
+            entity.addConditions(ConditionAnnotation.ConditionType.INDUCES, entityJoin.getInducerConditionList());
+            entity.addModifier(ConditionAnnotation.ConditionType.AMELIORATES, entityJoin.getAmeliorateConditionList());
+            entity.addModifier(ConditionAnnotation.ConditionType.EXACERBATES, entityJoin.getExacerbateConditionList());
         }
     }
 
