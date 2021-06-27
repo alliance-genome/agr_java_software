@@ -168,6 +168,38 @@ public class DiseaseCacher extends Cacher {
         return returnMap;
     }
 
+    private Map<String, List<DiseaseAnnotation>> mergeDiseaseAnnotationsForAlleles(Map<String, List<DiseaseAnnotation>> map) {
+        if (map == null)
+            return null;
+
+        Map<String, List<DiseaseAnnotation>> returnMap = new HashMap<>();
+        map.forEach((geneID, annotations) -> {
+            // group by association type, Disease, alleleID
+            Map<String, Map<String, Map<String, List<DiseaseAnnotation>>>> groupedDA = annotations.stream()
+                    .filter(annotation -> annotation.getFeature() != null)
+                    .collect(groupingBy(DiseaseAnnotation::getAssociationType, groupingBy(annotation -> annotation.getDisease().getPrimaryKey(), groupingBy(annotation -> annotation.getFeature().getPrimaryKey()))));
+            // merge all DAs in a single group
+            List<DiseaseAnnotation> distinctAnnotations = new ArrayList<>();
+            groupedDA.forEach((assocType, annotationMap) -> {
+                annotationMap.forEach((diseaseID, diseaseAnnotations) -> {
+                    diseaseAnnotations.forEach((alleleID, diseaseAnnot) -> {
+                        // use first element as the merging element
+                        // merge: primaryAnnotatedEntity, PublicationJoin
+                        DiseaseAnnotation annotation = diseaseAnnot.get(0);
+                        diseaseAnnot.remove(0);
+                        diseaseAnnot.forEach(singleAnnotation -> {
+                            annotation.addAllPrimaryAnnotatedEntities(singleAnnotation.getPrimaryAnnotatedEntities());
+                            annotation.addPublicationJoins(singleAnnotation.getPublicationJoins());
+                        });
+                        distinctAnnotations.add(annotation);
+                    });
+                });
+            });
+            returnMap.put(geneID, distinctAnnotations);
+        });
+        return returnMap;
+    }
+
     private void storeIntoCache(List<DiseaseAnnotation> diseaseAnnotations, Map<String, List<DiseaseAnnotation>> diseaseAnnotationMap, CacheAlliance cacheSpace) {
         populateCacheFromMap(diseaseAnnotationMap, View.DiseaseCacher.class, cacheSpace);
 
@@ -376,9 +408,10 @@ public class DiseaseCacher extends Cacher {
         log.info("Number of DiseaseAnnotation objects with Alleles: " + String.format("%,d", alleleList.size()));
         Map<String, List<DiseaseAnnotation>> diseaseAlleleAnnotationTermMap = alleleList.stream()
                 .collect(groupingBy(annotation -> annotation.getDisease().getPrimaryKey()));
+        Map<String, List<DiseaseAnnotation>> mergedAlleleList = mergeDiseaseAnnotationsForAlleles(diseaseAlleleAnnotationTermMap);
 
         // add annotations to parent terms
-        Map<String, List<DiseaseAnnotation>> diseaseAlleleAnnotationMap = getAnnotationMapIncludingClosure(diseaseAlleleAnnotationTermMap);
+        Map<String, List<DiseaseAnnotation>> diseaseAlleleAnnotationMap = getAnnotationMapIncludingClosure(mergedAlleleList);
         storeIntoCache(alleleList, diseaseAlleleAnnotationMap, CacheAlliance.DISEASE_ANNOTATION_ALLELE_LEVEL_ALLELE);
 
         diseaseAlleleAnnotationMap.clear();
@@ -387,7 +420,8 @@ public class DiseaseCacher extends Cacher {
         Map<String, List<DiseaseAnnotation>> diseaseAlleleMap = alleleList.stream()
                 .filter(diseaseAnnotation -> diseaseAnnotation.getFeature() != null)
                 .collect(groupingBy(annotation -> annotation.getFeature().getPrimaryKey()));
-        storeIntoCache(alleleList, diseaseAlleleMap, CacheAlliance.ALLELE_DISEASE);
+        mergedAlleleList = mergeDiseaseAnnotationsForAlleles(diseaseAlleleMap);
+        storeIntoCache(alleleList, mergedAlleleList, CacheAlliance.ALLELE_DISEASE);
 
         alleleList.clear();
         diseaseAlleleMap.clear();
@@ -503,7 +537,7 @@ public class DiseaseCacher extends Cacher {
                         // needed for showing experimental conditions
                         if (join.getPublicationJoins().stream().anyMatch(pubJoin -> CollectionUtils.isEmpty(pubJoin.getAlleles())
                                 && CollectionUtils.isEmpty(pubJoin.getModels()) && join.getModel() == null)
-                        && join.hasExperimentalConditions()) {
+                                && join.hasExperimentalConditions()) {
                             GeneticEntity geneticEntity = join.getAllele();
                             if (geneticEntity == null) {
                                 geneticEntity = join.getGene();
