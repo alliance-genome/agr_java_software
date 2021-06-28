@@ -379,14 +379,14 @@ public class DiseaseCacher extends Cacher {
                 mergedAnnotations = new ArrayList<>();
             if (CollectionUtils.isEmpty(diseaseAnnotations))
                 return;
-            PrimaryAnnotatedEntity entity = ModelHelper.getPrimaryAnnotatedEntity(diseaseAnnotations.get(0));
-            diseaseAnnotations.forEach(diseaseAnnotation -> {
+            for (DiseaseAnnotation diseaseAnnotation : diseaseAnnotations) {
+                PrimaryAnnotatedEntity entity = ModelHelper.getPrimaryAnnotatedEntity(diseaseAnnotation);
                 entity.addDisease(diseaseAnnotation.getDisease(), diseaseAnnotation.getAssociationType());
                 entity.setConditionModifiers(diseaseAnnotation.getConditionModifiers());
                 entity.setConditions(diseaseAnnotation.getConditions());
                 entity.addPublicationEvidenceCode(diseaseAnnotation.getPublicationJoins());
-            });
-            mergedAnnotations.add(entity);
+                mergedAnnotations.add(entity);
+            }
             diseaseAnnotationPureMap.put(geneID, mergedAnnotations);
         }));
 
