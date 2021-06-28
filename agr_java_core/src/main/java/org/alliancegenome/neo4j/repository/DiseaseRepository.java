@@ -450,15 +450,14 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
                 "             p2=(feature:Feature)-[:FROM_SPECIES]->(:Species) ";
         cypher += " where disease.isObsolete = 'false' ";
         //cypher += " AND disease.primaryKey in ['DOID:0050144','DOID:0110599','DOID:0050545'] ";
-        //cypher += " AND disease.primaryKey in ['DOID:12930'] and feature.primaryKey = 'ZFIN:ZDB-ALT-181016-1'";
-        //cypher += " AND gene.primaryKey = 'ZFIN:ZDB-GENE-040426-1716' ";
+        //cypher += " AND disease.primaryKey in ['DOID:14503'] and feature.primaryKey = 'WB:WBVar00251972'";
+        //cypher += " AND feature.primaryKey = 'ZFIN:ZDB-ALT-040720-42' AND disease.primaryKey = 'DOID:0080422' ";
         //cypher += "      OPTIONAL MATCH eco   =(pubEvCode:PublicationJoin)-[:ASSOCIATION]->(ecoTerm:ECOTerm)";
         cypher += "      OPTIONAL MATCH p3=(diseaseEntityJoin:DiseaseEntityJoin)-[:ASSOCIATION]-(:Gene)-[:FROM_SPECIES]->(:Species) ";
         cypher += "      OPTIONAL MATCH p4=(diseaseEntityJoin:DiseaseEntityJoin)-[:FROM_ORTHOLOGOUS_GENE]-(orthoGene:Gene)-[:FROM_SPECIES]->(orthoSpecies:Species) ";
-        cypher += "      OPTIONAL MATCH p5=(pubEvCode:PublicationJoin)-[:PRIMARY_GENETIC_ENTITY]->(agm:AffectedGenomicModel)--(agmDej:DiseaseEntityJoin)--(disease:DOTerm) ";
-        cypher += "      OPTIONAL MATCH p5a=(agmDej:DiseaseEntityJoin)--(:ExperimentalCondition)--(:ZECOTerm) ";
+        cypher += "      OPTIONAL MATCH p5=(pubEvCode:PublicationJoin)-[:PRIMARY_GENETIC_ENTITY]->(agm:AffectedGenomicModel)";
         cypher += "      OPTIONAL MATCH condition=(diseaseEntityJoin:DiseaseEntityJoin)--(:ExperimentalCondition)--(:ZECOTerm) ";
-        cypher += " RETURN p, p1, p2, p3, p4, p5, condition, p5a ";
+        cypher += " RETURN p, p1, p2, p3, p4, p5, condition";
 
         long start = System.currentTimeMillis();
         Iterable<DiseaseEntityJoin> joins = query(DiseaseEntityJoin.class, cypher);
@@ -476,14 +475,48 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
             diseaseEntityJoin.getPublicationJoins().forEach(publicationJoin -> {
                 if (publicationJoin.getModels() != null)
                     publicationJoin.getModels().forEach(model -> {
-                        model.setDiseaseEntityJoins(model.getDiseaseEntityJoins().stream()
-                                .filter(diseaseEntityJoin1 -> diseaseEntityJoin1.getDisease().getPrimaryKey().equals(diseaseEntityJoin.getDisease().getPrimaryKey()))
-                                .collect(Collectors.toList()));
+                        // need to populate the base-level entities independently as OGM is proabably
+                        // using the setter allele.setDiseaseEntityJoin and as the model object has many of them they
+                        // are overidden
+                        model.addDiseaseEntityJoins(getAllDejRecords(model.getPrimaryKey(), diseaseEntityJoin.getDisease().getPrimaryKey()));
                     });
             });
         });
 
         return allDiseaseEntityJoinsStripped;
+    }
+
+    public List<DiseaseEntityJoin> getAllDejRecords(String id, String doID) {
+        List<DiseaseEntityJoin> joins = getAllDejRecords().get(id);
+        if (joins == null)
+            return null;
+        return joins.stream()
+                .filter(join -> join.getDisease().getPrimaryKey().equals(doID))
+                .collect(Collectors.toList());
+    }
+
+    // entityID, list of DEJs
+    Map<String, List<DiseaseEntityJoin>> dejAgmMap;
+
+    public Map<String, List<DiseaseEntityJoin>> getAllDejRecords() {
+        if (dejAgmMap != null)
+            return dejAgmMap;
+        String cypherBaseLevelDEJ = "MATCH p0=(node)--(dej:DiseaseEntityJoin)--(disease:DOTerm ) " +
+                //"where gene.primaryKey = 'ZFIN:ZDB-GENE-040426-1716' AND phenotype.primaryKey = 'ball increased size, abnormal' " +
+                //"where gene.primaryKey = 'SGD:S000004966' AND phenotype.primaryKey = 'increased chemical compound accumulation' " +
+                "where node:Allele OR node:AffectedGenomicModel " +
+                "AND disease.primaryKey = 'DOID:0080422'  " +
+                "OPTIONAL MATCH     baseLevel=(dej:DiseaseEntityJoin)--(:ExperimentalCondition)-[:ASSOCIATION]->(:ZECOTerm) " +
+                "return p0, baseLevel ";
+        Iterable<DiseaseEntityJoin> dejJoins = query(DiseaseEntityJoin.class, cypherBaseLevelDEJ);
+        dejAgmMap = StreamSupport.stream(dejJoins.spliterator(), false)
+                .filter(diseaseEntityJoin -> diseaseEntityJoin.getAllele() != null)
+                .collect(groupingBy(join -> join.getAllele().getPrimaryKey()));
+        Map<String, List<DiseaseEntityJoin>> dejModelMap = StreamSupport.stream(dejJoins.spliterator(), false)
+                .filter(diseaseEntityJoin -> diseaseEntityJoin.getModel() != null)
+                .collect(groupingBy(join -> join.getModel().getPrimaryKey()));
+        dejAgmMap.putAll(dejModelMap);
+        return dejAgmMap;
     }
 
     public Result getDiseaseAssociation(String geneID, String diseaseID, Pagination pagination, Boolean

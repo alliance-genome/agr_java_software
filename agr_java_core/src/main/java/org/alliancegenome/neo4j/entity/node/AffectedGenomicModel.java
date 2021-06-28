@@ -1,6 +1,7 @@
 package org.alliancegenome.neo4j.entity.node;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import org.alliancegenome.neo4j.view.View;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
@@ -61,4 +62,14 @@ public class AffectedGenomicModel extends GeneticEntity implements Comparable<Af
     public void setSubtype(String subtype) {
         this.subtype = subtype;
     }
+
+    public void addDiseaseEntityJoins(List<DiseaseEntityJoin> joins) {
+        if (joins == null)
+            return;
+        if (diseaseEntityJoins == null)
+            diseaseEntityJoins = new ArrayList<>();
+        diseaseEntityJoins.addAll(joins);
+        diseaseEntityJoins = diseaseEntityJoins.stream().distinct().collect(Collectors.toList());
+    }
+
 }
