@@ -32,7 +32,6 @@ public interface FilterFunction<Entity, FilterValue> {
     // List of values should match exactly the entity
     // but in an OR connector
     static boolean fullMatchMultiValueOR(String entity, String value, String delimiter) {
-        System.out.println(entity+"\t-"+ value);
         String[] tokenList = value.split(delimiter);
         List<String> cleanedValues = Arrays.stream(tokenList)
                 .map(s -> s.toLowerCase().trim())
