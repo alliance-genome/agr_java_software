@@ -75,7 +75,9 @@ public class Pagination {
     public void addFieldFilter(FieldFilter fieldFilter, String value) {
         // if mapping exists
         checkIfMappingExists(fieldFilter);
-        fieldFilterValueMap.put(fieldFilter, value);
+        if(value!=null && !value.equals("")) {
+            fieldFilterValueMap.put(fieldFilter, value);
+        }
     }
 
     private boolean checkIfMappingExists(FieldFilter fieldFilter) {

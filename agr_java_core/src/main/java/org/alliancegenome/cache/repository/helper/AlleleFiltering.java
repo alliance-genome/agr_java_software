@@ -37,9 +37,10 @@ public class AlleleFiltering extends AnnotationFiltering<Allele> {
     private static FilterFunction<Allele, String> synonymFilter =
             (allele, value) -> {
                     Set<Boolean> filteringPassed=null;
-                    if( allele.getSynonyms()!=null ) {
-                        filteringPassed = allele.getSynonyms().stream()
-                                .map(synonym -> FilterFunction.contains(synonym.getName(), value))
+                    if( allele.getSynonymsList()!=null ) {
+                        filteringPassed = allele.getSynonymsList().stream()
+                                .filter(Objects::nonNull)
+                                .map(synonym -> FilterFunction.contains(synonym.toLowerCase().trim(), value))
                                 .collect(Collectors.toSet());
 
                     }

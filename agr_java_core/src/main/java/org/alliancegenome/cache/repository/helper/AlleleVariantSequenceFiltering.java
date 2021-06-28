@@ -11,83 +11,119 @@ public class AlleleVariantSequenceFiltering extends AnnotationFiltering<AlleleVa
 
 
     private static final FilterFunction<AlleleVariantSequence, String> alleleFilter =
-            (allele, value) -> FilterFunction.contains(allele.getAllele().getSymbol(), value);
+            (alleleVariantSequence, value) ->{
+        if(alleleVariantSequence.getAllele()!=null && alleleVariantSequence.getAllele().getSymbol()!=null)
+                return FilterFunction.contains(alleleVariantSequence.getAllele().getSymbol(), value);
+        return false;
+            } ;
 
     private static final FilterFunction<AlleleVariantSequence, String> alleleCategoryFilter =
-            (allele, value) -> FilterFunction.fullMatchMultiValueOR(allele.getAllele().getCategory(), value);
+            (alleleVariantSequence, value) -> {
+                if(alleleVariantSequence.getAllele()!=null && alleleVariantSequence.getAllele().getCategory()!=null){
+                return FilterFunction.fullMatchMultiValueOR(alleleVariantSequence.getAllele().getCategory().trim(), value);}
+                return false;
+    };
 
     private static final FilterFunction<AlleleVariantSequence, String> synonymFilter =
-            (allele, value) -> {
-                Set<Boolean> filteringPassed = allele.getAllele().getSynonyms().stream()
-                        .map(synonym -> FilterFunction.contains(synonym.getName(), value))
-                        .collect(Collectors.toSet());
-                return !filteringPassed.isEmpty() && filteringPassed.contains(true);
+            (alleleVariantSequence, value) -> {
+                if(alleleVariantSequence.getAllele()!=null && alleleVariantSequence.getAllele().getSynonymsList()!=null &&
+                        alleleVariantSequence.getAllele().getSynonymsList().size()>0) {
+                    Set<Boolean> filteringPassed = alleleVariantSequence.getAllele().getSynonymsList().stream()
+                            .map(synonym -> FilterFunction.contains(synonym.toLowerCase().trim(), value))
+                            .collect(Collectors.toSet());
+                    return !filteringPassed.isEmpty() && filteringPassed.contains(true);
+                }
+
+                return false;
             };
 
     private static final FilterFunction<AlleleVariantSequence, String> variantTypeFilter =
-            (allele, value) -> {
-                if (allele.getVariant() == null)
-                    return StringUtils.isEmpty(value);
-                return FilterFunction.fullMatchMultiValueOR(allele.getVariant().getVariantType().getName(), value);
+            (alleleVariantSequence, value) -> {
+                if (alleleVariantSequence.getVariant() != null &&
+                        alleleVariantSequence.getVariant().getVariantType()!=null &&
+                        alleleVariantSequence.getVariant().getVariantType().getName()!=null) {
+
+                    return FilterFunction.fullMatchMultiValueOR(alleleVariantSequence.getVariant().getVariantType().getName().trim(), value.trim());
+                }
+                return false;
             };
 
     private static final FilterFunction<AlleleVariantSequence, String> hgvsgNameFilter =
-            (allele, value) -> allele.getVariant().getHgvsNomenclature().contains(value);
-
+            (alleleVariantSequence, value) -> {
+                if(alleleVariantSequence.getVariant()!=null && alleleVariantSequence.getVariant().getHgvsNomenclature()!=null
+                        && !alleleVariantSequence.getVariant().getHgvsNomenclature().equals("")){
+                    return   alleleVariantSequence.getVariant().getHgvsNomenclature().toLowerCase().trim().contains(value.toLowerCase());}
+                return false;
+            };
     private static final FilterFunction<AlleleVariantSequence, String> alleleHasPhenotypeFilter =
-            (allele, value) ->
-                    FilterFunction.fullMatchMultiValueOR(allele.getAllele().hasPhenotype().toString(), value);
-
+            (alleleVariantSequence, value) -> {
+                if(alleleVariantSequence.getAllele()!=null && alleleVariantSequence.getAllele().hasPhenotype()!=null)
+                    return   FilterFunction.fullMatchMultiValueOR(alleleVariantSequence.getAllele().hasPhenotype().toString(), value);
+                return false;
+            };
     private static final FilterFunction<AlleleVariantSequence, String> alleleHasDiseaseFilter =
-            (allele, value) ->
-                    FilterFunction.fullMatchMultiValueOR(allele.getAllele().hasDisease().toString(), value);
-
+            (alleleVariantSequence, value) -> {
+                if(alleleVariantSequence.getAllele()!=null && alleleVariantSequence.getAllele().hasDisease()!=null)
+                    return   FilterFunction.fullMatchMultiValueOR(alleleVariantSequence.getAllele().hasDisease().toString(), value);
+                return false;
+            };
     private static final FilterFunction<AlleleVariantSequence, String> molecularConsequenceFilter =
-            (allele, value) -> {
-                if (allele.getConsequence() == null || allele.getConsequence().getMolecularConsequences() == null)
-                    return false;
-                return FilterFunction.fullMatchMultiValueOR(Set.copyOf(allele.getConsequence().getMolecularConsequences()), value);
+            (alleleVariantSequence, value) -> {
+                if (alleleVariantSequence.getConsequence() != null &&
+                        alleleVariantSequence.getConsequence().getMolecularConsequences() != null &&
+                        alleleVariantSequence.getConsequence().getMolecularConsequences().size()>0)
+                    return FilterFunction.fullMatchMultiValueOR(Set.copyOf(alleleVariantSequence.getConsequence().getMolecularConsequences()), value);
+                return false;
             };
 
     private static final FilterFunction<AlleleVariantSequence, String> locationFilter =
-            (allele, value) -> {
-                if (allele.getConsequence() == null)
-                    return false;
-                return allele.getConsequence().getLocation().toLowerCase().contains(value.toLowerCase());
+            (alleleVariantSequence, value) -> {
+                if (alleleVariantSequence.getConsequence() != null &&
+                        alleleVariantSequence.getConsequence().getLocation()!=null &&
+                        !alleleVariantSequence.getConsequence().getLocation().equals("")) {
+                    return alleleVariantSequence.getConsequence().getLocation().toLowerCase().contains(value.toLowerCase().trim());
+                } return false;
             };
 
     private static final FilterFunction<AlleleVariantSequence, String> variantImpactFilter =
-            (allele, value) -> {
-                if (allele.getConsequence() != null)
-                    return FilterFunction.fullMatchMultiValueOR(allele.getConsequence().getImpact(), value);
+            (alleleVariantSequence, value) -> {
+                if (alleleVariantSequence.getConsequence() != null && alleleVariantSequence.getConsequence().getImpact()!=null
+                        && !alleleVariantSequence.getConsequence().getImpact().equals(""))
+                    return FilterFunction.fullMatchMultiValueOR(alleleVariantSequence.getConsequence().getImpact(), value);
                 return false;
             };
 
     private static final FilterFunction<AlleleVariantSequence, String> sequenceFeatureTypeFilter =
-            (allele, value) -> {
-                if (allele.getConsequence() != null)
-                    return FilterFunction.fullMatchMultiValueOR(allele.getConsequence().getSequenceFeatureType(), value);
+            (alleleVariantSequence, value) -> {
+                if (alleleVariantSequence.getConsequence() != null &&
+                        alleleVariantSequence.getConsequence().getSequenceFeatureType()!=null &&
+                        !alleleVariantSequence.getConsequence().getSequenceFeatureType().equals(""))
+                    return FilterFunction.fullMatchMultiValueOR(alleleVariantSequence.getConsequence().getSequenceFeatureType(), value);
                 return false;
             };
 
     private static final FilterFunction<AlleleVariantSequence, String> sequenceFeatureFilter =
-            (allele, value) -> {
-                if (allele.getConsequence() != null)
-                    return FilterFunction.contains(allele.getConsequence().getTranscript().getName(), value);
+            (alleleVariantSequence, value) -> {
+                if (alleleVariantSequence.getConsequence() != null && alleleVariantSequence.getConsequence().getTranscript()!=null
+                        && alleleVariantSequence.getConsequence().getTranscript().getName()!=null &&
+                        !alleleVariantSequence.getConsequence().getTranscript().getName().equals(""))
+                    return FilterFunction.contains(alleleVariantSequence.getConsequence().getTranscript().getName(), value);
                 return false;
             };
 
     private static final FilterFunction<AlleleVariantSequence, String> variantPolyphenFilter =
-            (allele, value) -> {
-                if (allele.getConsequence() != null)
-                    return FilterFunction.fullMatchMultiValueOR(allele.getConsequence().getPolyphenPrediction(), value);
+            (alleleVariantSequence, value) -> {
+                if (alleleVariantSequence.getConsequence() != null &&
+                        alleleVariantSequence.getConsequence().getPolyphenPrediction()!=null && !alleleVariantSequence.getConsequence().getPolyphenPrediction().equals(""))
+                    return FilterFunction.fullMatchMultiValueOR(alleleVariantSequence.getConsequence().getPolyphenPrediction(), value);
                 return false;
             };
 
     private static final FilterFunction<AlleleVariantSequence, String> variantSiftFilter =
-            (allele, value) -> {
-                if (allele.getConsequence() != null)
-                    return FilterFunction.fullMatchMultiValueOR(allele.getConsequence().getSiftPrediction(), value);
+            (alleleVariantSequence, value) -> {
+                if (alleleVariantSequence.getConsequence() != null && alleleVariantSequence.getConsequence().getSiftPrediction()!=null
+                        && !alleleVariantSequence.getConsequence().getSiftPrediction().equals(""))
+                    return FilterFunction.fullMatchMultiValueOR(alleleVariantSequence.getConsequence().getSiftPrediction(), value);
                 return false;
             };
 
