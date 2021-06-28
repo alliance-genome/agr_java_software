@@ -95,4 +95,8 @@ public class DiseaseEntityJoin extends EntityJoin {
         return dataProviderList;
     }
 
+    @Override
+    public String toString() {
+        return primaryKey;
+    }
 }
