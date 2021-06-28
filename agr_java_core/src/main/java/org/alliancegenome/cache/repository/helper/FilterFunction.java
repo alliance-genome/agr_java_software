@@ -16,7 +16,7 @@ public interface FilterFunction<Entity, FilterValue> {
         value = value.trim();
         String[] token = value.split(" ");
         Set<Boolean> resultSet = Arrays.stream(token)
-                .map(val -> entityName.toLowerCase().contains(val.toLowerCase()))
+                .map(val -> entityName.trim().toLowerCase().contains(val.toLowerCase()))
                 .collect(Collectors.toSet());
         return !resultSet.contains(false);
     }
@@ -39,7 +39,7 @@ public interface FilterFunction<Entity, FilterValue> {
         cleanedValues.removeIf(String::isEmpty);
         if (cleanedValues.isEmpty())
             return true;
-        return cleanedValues.contains(entity.toLowerCase());
+        return cleanedValues.contains(entity.trim().toLowerCase());
     }
 
     static boolean fullMatchMultiValueOR(Set<String> entities, String value, String delimiter) {
