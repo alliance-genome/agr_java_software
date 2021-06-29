@@ -474,11 +474,6 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
 
         return alleleVariantsMap;
     }
-    public static void main(String[] args){
-        AlleleRepository repo=new AlleleRepository();
-        repo.getAllAlleleVariants();
-        repo.close();
-        System.out.println("DONE!!");
-    }
+   
 }
 
