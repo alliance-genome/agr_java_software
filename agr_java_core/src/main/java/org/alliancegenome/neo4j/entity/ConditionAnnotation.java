@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.alliancegenome.neo4j.entity.node.ExperimentalCondition;
 import org.alliancegenome.neo4j.view.View;
+import org.apache.commons.collections.MapUtils;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 import java.util.*;
@@ -50,8 +51,6 @@ public abstract class ConditionAnnotation {
     }
 
 
-
-
     public void addConditions(ConditionType conditionType, List<ExperimentalCondition> conditions) {
         if (conditions == null || conditionType == null)
             return;
@@ -61,6 +60,10 @@ public abstract class ConditionAnnotation {
             this.conditions = new HashMap<>();
         this.conditions.computeIfAbsent(conditionType.getDisplayName(), k -> new ArrayList<>());
         this.conditions.get(conditionType.getDisplayName()).addAll(conditions);
+    }
+
+    public boolean hasExperimentalCondition() {
+        return MapUtils.isNotEmpty(conditions) || MapUtils.isNotEmpty(conditionModifiers);
     }
 
     public enum ConditionType {
