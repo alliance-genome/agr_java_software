@@ -458,7 +458,6 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
                     if(v.getTranscriptLevelConsequence()!=null && v.getTranscriptLevelConsequence().size()>0){
                         for(TranscriptLevelConsequence c:v.getTranscriptLevelConsequence()){
                             Transcript t=c.getTranscript();
-                            System.out.println(t.getPrimaryKey());
                             Transcript transcript=getTranscriptWithExonInfo().get(t.getPrimaryKey());
                             if(transcript.getExons()!=null){
                                 t.setExons(transcript.getExons());
