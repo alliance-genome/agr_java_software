@@ -72,4 +72,12 @@ public class AffectedGenomicModel extends GeneticEntity implements Comparable<Af
         diseaseEntityJoins = diseaseEntityJoins.stream().distinct().collect(Collectors.toList());
     }
 
+    public void addPhenotypeEntityJoins(List<PhenotypeEntityJoin> joins) {
+        if (joins == null)
+            return;
+        if (phenotypeEntityJoins == null)
+            phenotypeEntityJoins = new ArrayList<>();
+        phenotypeEntityJoins.addAll(joins);
+        phenotypeEntityJoins = phenotypeEntityJoins.stream().distinct().collect(Collectors.toList());
+    }
 }
