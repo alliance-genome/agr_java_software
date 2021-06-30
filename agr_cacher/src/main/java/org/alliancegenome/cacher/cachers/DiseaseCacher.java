@@ -372,23 +372,41 @@ public class DiseaseCacher extends Cacher {
         modelGenesMap.clear();
 
         Map<String, List<PrimaryAnnotatedEntity>> diseaseAnnotationPureMap = new HashMap<>();
+        Map<String, List<PrimaryAnnotatedEntity>> diseaseAnnotationPerModeIDMap = new HashMap<>();
 
-        diseaseModelGeneMap.forEach((geneID, modelIdMap) -> modelIdMap.forEach((modelID, diseaseAnnotations) -> {
-            List<PrimaryAnnotatedEntity> mergedAnnotations = diseaseAnnotationPureMap.get(geneID);
-            if (mergedAnnotations == null)
-                mergedAnnotations = new ArrayList<>();
-            if (CollectionUtils.isEmpty(diseaseAnnotations))
-                return;
-            for (DiseaseAnnotation diseaseAnnotation : diseaseAnnotations) {
-                PrimaryAnnotatedEntity entity = ModelHelper.getPrimaryAnnotatedEntity(diseaseAnnotation);
-                entity.addDisease(diseaseAnnotation.getDisease(), diseaseAnnotation.getAssociationType());
-                entity.setConditionModifiers(diseaseAnnotation.getConditionModifiers());
-                entity.setConditions(diseaseAnnotation.getConditions());
-                entity.addPublicationEvidenceCode(diseaseAnnotation.getPublicationJoins());
-                mergedAnnotations.add(entity);
-            }
-            diseaseAnnotationPureMap.put(geneID, mergedAnnotations);
-        }));
+        diseaseModelGeneMap.forEach((geneID, modelIdMap) -> {
+            List<PrimaryAnnotatedEntity> geneMergedAnnotations = diseaseAnnotationPureMap.computeIfAbsent(geneID, id -> new ArrayList<>());
+            modelIdMap.forEach((modelID, diseaseAnnotations) -> {
+                if (CollectionUtils.isEmpty(diseaseAnnotations))
+                    return;
+                List<PrimaryAnnotatedEntity> modelMergedAnnotations = diseaseAnnotationPerModeIDMap.computeIfAbsent(modelID, id -> new ArrayList<>());
+                diseaseAnnotations.forEach(diseaseAnnotation -> {
+
+                    // merge all annotations for a given modelID that do not have an exp Cond
+                    PrimaryAnnotatedEntity primaryEntityWithoutExpCondition =
+                            modelMergedAnnotations.stream().filter(primaryAnnotatedEntity -> !primaryAnnotatedEntity.hasExperimentalCondition())
+                                    .findFirst()
+                                    .orElse(null);
+                    // create new PAE if experimental condition exists or
+                    // if expCond does not exist and no nonExpCondition is already accounted for in this list
+                    if (diseaseAnnotation.hasExperimentalCondition() ||
+                            (!diseaseAnnotation.hasExperimentalCondition() && primaryEntityWithoutExpCondition == null)) {
+                        PrimaryAnnotatedEntity entity = ModelHelper.getPrimaryAnnotatedEntity(diseaseAnnotation);
+                        entity.addDisease(diseaseAnnotation.getDisease(), diseaseAnnotation.getAssociationType());
+                        entity.setConditionModifiers(diseaseAnnotation.getConditionModifiers());
+                        entity.setConditions(diseaseAnnotation.getConditions());
+                        entity.addPublicationEvidenceCode(diseaseAnnotation.getPublicationJoins());
+                        modelMergedAnnotations.add(entity);
+                    } else {
+                        // otherwise just add the disease and the publication evidence codes.
+                        primaryEntityWithoutExpCondition.addDisease(diseaseAnnotation.getDisease(), diseaseAnnotation.getAssociationType());
+                        primaryEntityWithoutExpCondition.addPublicationEvidenceCode(diseaseAnnotation.getPublicationJoins());
+                    }
+                });
+                geneMergedAnnotations.addAll(modelMergedAnnotations);
+            });
+            diseaseAnnotationPureMap.put(geneID, geneMergedAnnotations);
+        });
 
         diseaseModelGeneMap.clear();
 
