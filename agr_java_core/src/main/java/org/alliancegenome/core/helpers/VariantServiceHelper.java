@@ -1,13 +1,18 @@
 package org.alliancegenome.core.helpers;
 
-import static java.util.stream.Collectors.toList;
-
-import java.util.*;
-
-import org.alliancegenome.neo4j.entity.node.*;
+import org.alliancegenome.neo4j.entity.node.Exon;
+import org.alliancegenome.neo4j.entity.node.Transcript;
+import org.alliancegenome.neo4j.entity.node.Variant;
 import org.alliancegenome.neo4j.entity.relationship.GenomeLocation;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.Range;
+
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
+
+import static java.util.stream.Collectors.toList;
 
 public class VariantServiceHelper {
 
@@ -56,7 +61,7 @@ public class VariantServiceHelper {
             if (exonRange.containsRange(variantRange)) {
                 location = "Exon";
                 if (!strand.isEmpty())
-                    location += " " + (index + 1);
+                    location += " " + (index + 1) + " / " + exonRanges.size();
                 foundExon = true;
                 break;
             }
