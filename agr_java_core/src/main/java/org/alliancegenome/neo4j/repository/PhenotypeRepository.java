@@ -282,6 +282,7 @@ public class PhenotypeRepository extends Neo4jRepository<Phenotype> {
         pejAgmMap = StreamSupport.stream(pejJoins.spliterator(), false)
                 .filter(phenotypeEntityJoin -> phenotypeEntityJoin.getAllele() != null)
                 .collect(groupingBy(join -> join.getAllele().getPrimaryKey()));
+        System.out.println("All base-level PEJ: "+pejAgmMap.size());
         Map<String, List<PhenotypeEntityJoin>> pejModelMap = StreamSupport.stream(pejJoins.spliterator(), false)
                 .filter(phenotypeEntityJoin -> phenotypeEntityJoin.getModel() != null)
                 .collect(groupingBy(join -> join.getModel().getPrimaryKey()));
