@@ -295,7 +295,6 @@ public class GenePhenotypeCacher extends Cacher {
                     document.setPhenotype(phenotypeEntityJoin.getPhenotype().getPhenotypeStatement());
                     document.setPublications(phenotypeEntityJoin.getPublications());
                     document.setSource(phenotypeEntityJoin.getSource());
-                    Map<String, PrimaryAnnotatedEntity> entities = new HashMap<>();
 
                     // if AGMs are present
                     if (CollectionUtils.isNotEmpty(phenotypeEntityJoin.getPublicationJoins())) {
@@ -306,25 +305,26 @@ public class GenePhenotypeCacher extends Cacher {
                             phenotypeEntityJoin.getPublicationJoins()
                                     .stream()
                                     .filter(pubJoin -> pubJoin.getModels() != null)
-                                    .forEach(pubJoin -> {
-                                        pubJoin.getModels().forEach(model -> {
-                                            PrimaryAnnotatedEntity entity = entities.get(model.getPrimaryKey());
-                                            if (entity == null) {
-                                                entity = new PrimaryAnnotatedEntity();
-                                                entity.setId(model.getPrimaryKey());
-                                                entity.setName(model.getName());
-                                                entity.setUrl(model.getModCrossRefCompleteUrl());
-                                                entity.setDisplayName(model.getNameText());
-                                                entity.setType(GeneticEntity.getType(model.getSubtype()));
-                                            }
-                                            entity.addPhenotype(phenotypeEntityJoin.getPhenotype().getPhenotypeStatement());
-                                            //TODO addExperimentalConditions(entity, model.getPhenotypeEntityJoins(), phenotypeEntityJoin.getPhenotype().getPhenotypeStatement());
-                                            entity.setDataProvider(phenotypeEntityJoin.getDataProvider());
-                                            entity.addPublicationEvidenceCode(pubJoin);
-                                            document.addPrimaryAnnotatedEntity(entity);
-                                            entities.put(model.getPrimaryKey(), entity);
-                                        });
-                                    });
+                                    .forEach(pubJoin -> pubJoin.getModels().forEach(model -> {
+                                        // keep each new PEJ with exp conditions independent PAE
+                                        if (model.getPhenotypeEntityJoins() != null) {
+                                            model.getPhenotypeEntityJoins()
+                                                    .forEach(phenotypeEntityJoin1 -> {
+                                                        PrimaryAnnotatedEntity entity = new PrimaryAnnotatedEntity();
+                                                        entity.setId(model.getPrimaryKey());
+                                                        entity.setName(model.getName());
+                                                        entity.setUrl(model.getModCrossRefCompleteUrl());
+                                                        entity.setDisplayName(model.getNameText());
+                                                        entity.setType(GeneticEntity.getType(model.getSubtype()));
+                                                        entity.addPhenotype(phenotypeEntityJoin.getPhenotype().getPhenotypeStatement());
+                                                        addExperimentalConditions(entity, phenotypeEntityJoin1, phenotypeEntityJoin.getPhenotype().getPhenotypeStatement());
+
+                                                        entity.setDataProvider(phenotypeEntityJoin.getDataProvider());
+                                                        entity.addPublicationEvidenceCode(pubJoin);
+                                                        document.addPrimaryAnnotatedEntity(entity);
+                                                    });
+                                        }
+                                    }));
                         }
                         // create PAEs from Alleles
                         phenotypeEntityJoin.getPublicationJoins()
@@ -347,7 +347,6 @@ public class GenePhenotypeCacher extends Cacher {
 
                                                     entity.setDisplayName(allele.getSymbolText());
                                                     entity.setType(GeneticEntity.CrossReferenceType.ALLELE);
-                                                    entities.put(allele.getPrimaryKey(), entity);
                                                     document.addPrimaryAnnotatedEntity(entity);
                                                     entity.addPublicationEvidenceCode(pubJoin);
                                                 });
