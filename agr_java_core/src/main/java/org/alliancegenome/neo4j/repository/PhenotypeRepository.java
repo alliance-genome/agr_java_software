@@ -269,11 +269,11 @@ public class PhenotypeRepository extends Neo4jRepository<Phenotype> {
     public Map<String, List<PhenotypeEntityJoin>> getAllPejRecords() {
         if (pejAgmMap != null)
             return pejAgmMap;
-        String cypherBaseLevelPEJ = "MATCH p0=(node:AffectedGenomicModel)--(pej:PhenotypeEntityJoin)--(phenotype:Phenotype ) " +
+        String cypherBaseLevelPEJ = "MATCH p0=(node)--(pej:PhenotypeEntityJoin)--(phenotype:Phenotype ) " +
                 //"where gene.primaryKey = 'ZFIN:ZDB-GENE-040426-1716' AND phenotype.primaryKey = 'ball increased size, abnormal' " +
                 //"where gene.primaryKey = 'SGD:S000004966' AND phenotype.primaryKey = 'increased chemical compound accumulation' " +
                 " where node:Allele OR node:AffectedGenomicModel " +
-                //" where node.primaryKey = 'ZFIN:ZDB-FISH-150901-5108' AND phenotype.primaryKey = 'bone growth decreased process quality, abnormal' " +
+                //" where node.primaryKey = 'ZFIN:ZDB-FISH-150901-5108'  " +
                 //"AND phenotype.phenotypeStatement in ['fat content increased','fat associated bodies increased'] " +
                 "OPTIONAL MATCH     baseLevel=(pej:PhenotypeEntityJoin)--(:ExperimentalCondition)-[:ASSOCIATION]->(:ZECOTerm) " +
                 "return p0, baseLevel ";

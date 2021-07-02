@@ -308,7 +308,8 @@ public class GenePhenotypeCacher extends Cacher {
                                     .forEach(pubJoin -> pubJoin.getModels().forEach(model -> {
                                         // keep each new PEJ with exp conditions independent PAE
                                         if (model.getPhenotypeEntityJoins() != null) {
-                                            model.getPhenotypeEntityJoins()
+                                            model.getPhenotypeEntityJoins().stream()
+                                                    .filter(phenotypeEntityJoin1 -> phenotypeEntityJoin1.getPhenotype().equalsPhenotype(phenotypeEntityJoin.getPhenotype()))
                                                     .forEach(phenotypeEntityJoin1 -> {
                                                         PrimaryAnnotatedEntity entity = new PrimaryAnnotatedEntity();
                                                         entity.setId(model.getPrimaryKey());
