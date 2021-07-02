@@ -217,9 +217,8 @@ public class PhenotypeRepository extends Neo4jRepository<Phenotype> {
     public List<PhenotypeEntityJoin> getAllPhenotypeAnnotations() {
         String cypher = "MATCH p0=(phenotype:Phenotype)<-[:ASSOCIATION]-(pej:PhenotypeEntityJoin)-[:EVIDENCE]->(ppj:PublicationJoin)<-[:ASSOCIATION]-(publication:Publication), " +
                 " p2=(pej:PhenotypeEntityJoin)<-[:ASSOCIATION]-(gene:Gene)-[:FROM_SPECIES]->(species:Species) " +
-                //"where gene.primaryKey = 'ZFIN:ZDB-GENE-040426-1716' AND phenotype.primaryKey = 'ball increased size, abnormal' " +
                 //"where gene.primaryKey = 'SGD:S000003344' AND phenotype.primaryKey = 'decreased chemical compound accumulation' " +
-                "where gene.primaryKey = 'ZFIN:ZDB-GENE-991105-4' AND phenotype.primaryKey = 'bone growth decreased process quality, abnormal' " +
+                //"where gene.primaryKey = 'ZFIN:ZDB-GENE-991105-4' AND phenotype.primaryKey = 'bone growth decreased process quality, abnormal' " +
                 "OPTIONAL MATCH     baseLevel=(pej:PhenotypeEntityJoin)--(:ExperimentalCondition)-[:ASSOCIATION]->(:ZECOTerm) " +
                 "OPTIONAL MATCH     p4=(pej:PhenotypeEntityJoin)--(feature:Feature)-[:CROSS_REFERENCE]->(crossRef:CrossReference) " +
                 "OPTIONAL MATCH models=(ppj:PublicationJoin)-[:PRIMARY_GENETIC_ENTITY]->(agm:AffectedGenomicModel) " +
