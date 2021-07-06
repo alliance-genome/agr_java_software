@@ -1,13 +1,13 @@
 package org.alliancegenome.cache.repository.helper;
 
-import static org.alliancegenome.neo4j.entity.SpeciesType.NCBITAXON;
+import org.alliancegenome.es.model.query.FieldFilter;
+import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.alliancegenome.es.model.query.FieldFilter;
-import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
-import org.apache.commons.lang3.StringUtils;
+import static org.alliancegenome.neo4j.entity.SpeciesType.NCBITAXON;
 
 public class ModelAnnotationFiltering extends AnnotationFiltering<DiseaseAnnotation> {
 
@@ -31,9 +31,9 @@ public class ModelAnnotationFiltering extends AnnotationFiltering<DiseaseAnnotat
                                 return FilterFunction.contains(evidenceCode.getName(), value);
                         })
                         .collect(Collectors.toSet());
-                return !filteringPassed.contains(false);
+                return filteringPassed.contains(true);
             };
-            
+
     public FilterFunction<DiseaseAnnotation, String> referenceFilter =
             (annotation, value) -> {
                 Set<Boolean> filteringPassed = annotation.getPublications().stream()
@@ -42,7 +42,7 @@ public class ModelAnnotationFiltering extends AnnotationFiltering<DiseaseAnnotat
                 // return true if at least one pub is found
                 return filteringPassed.contains(true);
             };
-                    
+
     public FilterFunction<DiseaseAnnotation, String> sourceFilter =
             (annotation, value) -> FilterFunction.contains(annotation.getSource().getName(), value);
 
