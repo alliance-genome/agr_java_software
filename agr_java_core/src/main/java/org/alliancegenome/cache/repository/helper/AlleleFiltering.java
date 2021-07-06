@@ -76,13 +76,27 @@ public class AlleleFiltering extends AnnotationFiltering<Allele> {
 
 
     private static FilterFunction<Allele, String> molecularConsequenceFilter =
-            (allele, value) ->
-                    FilterFunction.fullMatchMultiValueOR(allele.getVariants()!=null && allele.getVariants().size()>0?allele.getVariants().stream()
-                            .filter(Objects::nonNull)
-                            .filter(variant -> variant.getGeneLevelConsequence() != null)
-                            .map(variant -> variant.getGeneLevelConsequence().getGeneLevelConsequence())
-                            .collect(Collectors.toSet()):new HashSet<>(), value);
+            (allele, value) -> {
 
+              if(  allele.getVariants()==null || allele.getVariants().size()==0)
+                  return false;
+              else {
+               Set<String> molecualarConsequences=  allele.getVariants().stream()
+                          .map(v->v.getTranscriptLevelConsequence())
+                          .flatMap(Collection::stream)
+                          .map(t->t.getMolecularConsequences())
+                          .flatMap(List::stream)
+                          .collect(Collectors.toSet());
+                  return FilterFunction.fullMatchMultiValueOR(molecualarConsequences.size()>0?molecualarConsequences:new HashSet<>(), value);
+
+              }
+            /* return    FilterFunction.fullMatchMultiValueOR(allele.getVariants() != null && allele.getVariants().size() > 0 ? allele.getVariants().stream()
+                        .filter(Objects::nonNull)
+                        .filter(variant -> variant.getGeneLevelConsequence() != null)
+                        .map(variant -> variant.getGeneLevelConsequence().getGeneLevelConsequence())
+                        .collect(Collectors.toSet()) : new HashSet<>(), value);*/
+
+            };
 
     private static FilterFunction<Allele, String> transgenicAlleleConstructFilter =
             (allele, value) ->
