@@ -90,11 +90,6 @@ public class AlleleFiltering extends AnnotationFiltering<Allele> {
                   return FilterFunction.fullMatchMultiValueOR(molecualarConsequences.size()>0?molecualarConsequences:new HashSet<>(), value);
 
               }
-            /* return    FilterFunction.fullMatchMultiValueOR(allele.getVariants() != null && allele.getVariants().size() > 0 ? allele.getVariants().stream()
-                        .filter(Objects::nonNull)
-                        .filter(variant -> variant.getGeneLevelConsequence() != null)
-                        .map(variant -> variant.getGeneLevelConsequence().getGeneLevelConsequence())
-                        .collect(Collectors.toSet()) : new HashSet<>(), value);*/
 
             };
 
