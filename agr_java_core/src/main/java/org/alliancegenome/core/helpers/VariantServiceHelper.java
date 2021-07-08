@@ -80,7 +80,7 @@ public class VariantServiceHelper {
             }
         }
         // check intron number
-        if (!foundExon) {
+        if (!foundExon && exonRanges.size() > 1) {
             List<Range<Long>> intronRanges = new ArrayList<>();
             Range<Long> exonRangeLower = exonRanges.get(0);
             for (int index = 1; index < exonRanges.size(); index++) {
