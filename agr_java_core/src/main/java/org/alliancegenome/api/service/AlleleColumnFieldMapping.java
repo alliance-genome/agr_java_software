@@ -5,6 +5,7 @@ import static org.alliancegenome.api.service.Column.*;
 
 import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.alliancegenome.es.model.query.FieldFilter;
 import org.alliancegenome.neo4j.entity.node.Allele;
@@ -39,10 +40,13 @@ public class AlleleColumnFieldMapping extends ColumnFieldMapping<Allele> {
         });
         mapColumnAttribute.put(GENE_ALLELE_VARIANT_CONSEQUENCE, entity -> {
             if (CollectionUtils.isNotEmpty(entity.getVariants())) {
-                return entity.getVariants().stream()
-                        .filter(variant -> variant.getGeneLevelConsequence() != null)
-                        .map(variant -> variant.getGeneLevelConsequence().getGeneLevelConsequence())
-                        .collect(toSet());
+              return  entity.getVariants().stream()
+                        .map(v->v.getTranscriptLevelConsequence())
+                        .flatMap(Collection::stream)
+                        .map(t->t.getMolecularConsequences())
+                        .flatMap(List::stream)
+                        .collect(Collectors.toSet());
+
             }
             return new HashSet<>();
         });

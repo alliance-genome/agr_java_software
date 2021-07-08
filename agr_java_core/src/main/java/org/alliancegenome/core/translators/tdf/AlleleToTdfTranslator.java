@@ -9,6 +9,7 @@ import org.apache.commons.collections.CollectionUtils;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
@@ -70,7 +71,6 @@ public class AlleleToTdfTranslator {
 
     private AlleleDownloadRow getBaseDownloadRow(Allele annotation, Variant join, Publication pub) {
         AlleleDownloadRow row = new AlleleDownloadRow();
-
         row.setAlleleID(annotation.getPrimaryKey());
         row.setAlleleSymbol(annotation.getSymbol());
         String synonyms = "";
@@ -84,7 +84,13 @@ public class AlleleToTdfTranslator {
         if (join != null) {
             row.setVariantSymbol(join.getHgvsNomenclature());
             row.setVariantType(join.getVariantType().getName());
-            row.setVariantConsequence(join.getConsequence());
+            String consequence=join.getTranscriptLevelConsequence().stream()
+                    .filter(Objects::nonNull)
+                    .map(t->t.getMolecularConsequences())
+                    .filter(Objects::nonNull)
+                    .flatMap(List::stream).distinct()
+                    .collect(Collectors.joining("|"));
+            row.setVariantConsequence (consequence);
         }
         row.setHasPhenotype(annotation.hasPhenotype().toString());
         row.setHasDisease(annotation.hasDisease().toString());
