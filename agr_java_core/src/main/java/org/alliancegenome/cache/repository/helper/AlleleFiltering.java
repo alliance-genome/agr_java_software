@@ -81,13 +81,13 @@ public class AlleleFiltering extends AnnotationFiltering<Allele> {
               if(  allele.getVariants()==null || allele.getVariants().size()==0)
                   return false;
               else {
-               Set<String> molecualarConsequences=  allele.getVariants().stream()
+               Set<String> molecularConsequences=  allele.getVariants().stream()
                           .map(v->v.getTranscriptLevelConsequence())
                           .flatMap(Collection::stream)
                           .map(t->t.getMolecularConsequences())
                           .flatMap(List::stream)
                           .collect(Collectors.toSet());
-                  return FilterFunction.fullMatchMultiValueOR(molecualarConsequences.size()>0?molecualarConsequences:new HashSet<>(), value);
+                  return FilterFunction.fullMatchMultiValueOR(molecularConsequences.size()>0?molecularConsequences:new HashSet<>(), value);
 
               }
 
