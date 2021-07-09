@@ -15,7 +15,7 @@ public class DataExtractorRepository extends Neo4jRepository {
         query += " OPTIONAL MATCH p2=(g:Gene)-[:ANNOTATED_TO]-(so:SOTerm)";
         query += " OPTIONAL MATCH p3=(g:Gene)-[:ALSO_KNOWN_AS]-(syn:Synonym)";
         query += " OPTIONAL MATCH p4=(g:Gene)-[:CROSS_REFERENCE]-(cr:CrossReference)";
-        query += " RETURN g.primaryKey, collect(distinct syn.name) as synonyms, collect(distinct cr.name) as crossrefs, g.name, g.symbol,  g.geneSynopsis, g.automatedGeneSynopsis, s.primaryKey, gl.chromosome, gl.start, gl.end, gl.strand, so.name";
+        query += " RETURN g.primaryKey, g.modLocalId, collect(distinct syn.name) as synonyms, collect(distinct cr.name) as crossrefs, g.name, g.symbol,  g.geneSynopsis, g.automatedGeneSynopsis, s.primaryKey, gl.chromosome, gl.start, gl.end, gl.strand, so.name";
             
         return queryForResult(query);
 
@@ -23,8 +23,7 @@ public class DataExtractorRepository extends Neo4jRepository {
     
     public Result getAllalleles() {
 
-        String query = "";
-        query += " MATCH p1=(:Species)<-[:FROM_SPECIES]-(a:Allele) ";
+        String query = " MATCH p1=(:Species)<-[:FROM_SPECIES]-(a:Allele) ";
         //query += " where g.primaryKey = 'FB:FBgn0002121' AND a.primaryKey = 'FB:FBal0051412' ";
         //query += " where a.primaryKey in ['MGI:3795217','MGI:3712283','MGI:3843784','MGI:2158359'] ";
         query += " OPTIONAL MATCH gene=(a:Allele)-[:IS_ALLELE_OF]->(g:Gene)-[:FROM_SPECIES]-(q:Species)";
