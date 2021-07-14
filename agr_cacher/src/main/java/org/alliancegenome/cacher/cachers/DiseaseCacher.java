@@ -492,6 +492,7 @@ public class DiseaseCacher extends Cacher {
                                         List<PrimaryAnnotatedEntity> entityList = entities.get(model.getPrimaryKey());
                                         if (entityList == null) {
                                             entityList = model.getDiseaseEntityJoins().stream()
+                                                    .filter(diseaseJoin -> diseaseJoin.getDisease().getPrimaryKey().equals(join.getDisease().getPrimaryKey()))
                                                     .map(diseaseJoin -> {
                                                         PrimaryAnnotatedEntity entity = new PrimaryAnnotatedEntity();
                                                         entity.setId(model.getPrimaryKey());
