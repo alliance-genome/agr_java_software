@@ -526,6 +526,7 @@ public class DiseaseCacher extends Cacher {
                                     List<PrimaryAnnotatedEntity> entityList = entities.get(allele.getPrimaryKey());
                                     if (entityList == null) {
                                         entityList = allele.getDiseaseEntityJoins().stream()
+                                                .filter(diseaseJoin -> diseaseJoin.getDisease().getPrimaryKey().equals(join.getDisease().getPrimaryKey()))
                                                 .map(diseaseJoin -> {
                                                     PrimaryAnnotatedEntity entity = new PrimaryAnnotatedEntity();
                                                     entity.setId(allele.getPrimaryKey());
