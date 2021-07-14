@@ -451,7 +451,7 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
         cypher += " where disease.isObsolete = 'false' ";
         //cypher += " AND disease.primaryKey in ['DOID:0050144','DOID:0110599','DOID:0050545'] ";
         //cypher += " AND disease.primaryKey in ['DOID:14503'] and feature.primaryKey = 'WB:WBVar00251972'";
-        cypher += " AND feature.primaryKey = 'ZFIN:ZDB-ALT-040720-42' AND disease.primaryKey = 'DOID:0080422' ";
+        //cypher += " AND feature.primaryKey = 'ZFIN:ZDB-ALT-040720-42' AND disease.primaryKey = 'DOID:0080422' ";
         //cypher += "      OPTIONAL MATCH eco   =(pubEvCode:PublicationJoin)-[:ASSOCIATION]->(ecoTerm:ECOTerm)";
         cypher += "      OPTIONAL MATCH p3=(diseaseEntityJoin:DiseaseEntityJoin)-[:ASSOCIATION]-(:Gene)-[:FROM_SPECIES]->(:Species) ";
         cypher += "      OPTIONAL MATCH p4=(diseaseEntityJoin:DiseaseEntityJoin)-[:FROM_ORTHOLOGOUS_GENE]-(orthoGene:Gene)-[:FROM_SPECIES]->(orthoSpecies:Species) ";
