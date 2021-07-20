@@ -199,31 +199,13 @@ public class GenePhenotypeCacher extends Cacher {
         paMap.clear();
 
 
-        Map<String, List<PrimaryAnnotatedEntity>> phenotypeAnnotationPureMap = new HashMap<>();
-
-        annotationPureMergeMap.forEach((geneID, modelIdMap) -> modelIdMap.forEach((modelID, phenotypeAnnotations) -> {
-            List<PrimaryAnnotatedEntity> mergedAnnotations = phenotypeAnnotationPureMap.get(geneID);
-            if (mergedAnnotations == null)
-                mergedAnnotations = new ArrayList<>();
-            PrimaryAnnotatedEntity entity = phenotypeAnnotations.get(0).getPrimaryAnnotatedEntities().get(0);
-            phenotypeAnnotations.forEach(phenotypeAnnotation -> {
-                entity.addPhenotype(phenotypeAnnotation.getPhenotype());
-                entity.addPublicationEvidenceCode(phenotypeAnnotation.getPrimaryAnnotatedEntities().get(0).getPublicationEvidenceCodes());
-            });
-            mergedAnnotations.add(entity);
-            phenotypeAnnotationPureMap.put(geneID, mergedAnnotations);
-        }));
-
-        annotationPureMergeMap.clear();
-
-
-        startProcess("phenotypeAnnotationPureMap", phenotypeAnnotationPureMap.size());
-        phenotypeAnnotationPureMap.forEach((geneID, value) -> {
+        startProcess("phenotypeAnnotationPureMap", annotationPureMergeMap.size());
+        annotationPureMergeMap.forEach((geneID, value) -> {
             cacheService.putCacheEntry(geneID, value, View.PrimaryAnnotation.class, CacheAlliance.GENE_PURE_AGM_PHENOTYPE);
             progressProcess();
         });
 
-        phenotypeAnnotationPureMap.clear();
+        annotationPureMergeMap.clear();
 
         finishProcess();
         phenotypeRepository.clearCache();
