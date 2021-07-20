@@ -199,13 +199,26 @@ public class GenePhenotypeCacher extends Cacher {
         paMap.clear();
 
 
-        startProcess("phenotypeAnnotationPureMap", annotationPureMergeMap.size());
-        annotationPureMergeMap.forEach((geneID, value) -> {
+        Map<String, List<PrimaryAnnotatedEntity>> phenotypeAnnotationPureMap = new HashMap<>();
+
+        annotationPureMergeMap.forEach((geneID, modelIdMap) -> modelIdMap.forEach((modelID, phenotypeAnnotations) -> {
+            List<PrimaryAnnotatedEntity> mergedAnnotations = phenotypeAnnotationPureMap.computeIfAbsent(geneID, s -> new ArrayList<>());
+            phenotypeAnnotations.forEach(phenotypeAnnotation -> {
+                mergedAnnotations.add(phenotypeAnnotation.getPrimaryAnnotatedEntities().get(0));
+            });
+            phenotypeAnnotationPureMap.put(geneID, mergedAnnotations);
+        }));
+
+        annotationPureMergeMap.clear();
+
+
+        startProcess("phenotypeAnnotationPureMap", phenotypeAnnotationPureMap.size());
+        phenotypeAnnotationPureMap.forEach((geneID, value) -> {
             cacheService.putCacheEntry(geneID, value, View.PrimaryAnnotation.class, CacheAlliance.GENE_PURE_AGM_PHENOTYPE);
             progressProcess();
         });
 
-        annotationPureMergeMap.clear();
+        phenotypeAnnotationPureMap.clear();
 
         finishProcess();
         phenotypeRepository.clearCache();
