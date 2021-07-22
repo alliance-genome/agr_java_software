@@ -1,23 +1,34 @@
 package org.alliancegenome.api.service;
 
-import static java.util.stream.Collectors.*;
-import static org.alliancegenome.neo4j.entity.DiseaseAnnotation.NOT_ASSOCIATION_TYPE;
+import org.alliancegenome.api.entity.DiseaseEntitySubgroupSlim;
+import org.alliancegenome.api.entity.DiseaseRibbonEntity;
+import org.alliancegenome.api.entity.DiseaseRibbonSummary;
+import org.alliancegenome.cache.repository.DiseaseCacheRepository;
+import org.alliancegenome.cache.repository.PhenotypeCacheRepository;
+import org.alliancegenome.cache.repository.helper.*;
+import org.alliancegenome.es.model.query.FieldFilter;
+import org.alliancegenome.es.model.query.Pagination;
+import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
+import org.alliancegenome.neo4j.entity.DiseaseSummary;
+import org.alliancegenome.neo4j.entity.PrimaryAnnotatedEntity;
+import org.alliancegenome.neo4j.entity.node.DOTerm;
+import org.alliancegenome.neo4j.entity.node.ExperimentalCondition;
+import org.alliancegenome.neo4j.entity.node.Gene;
+import org.alliancegenome.neo4j.entity.node.SimpleTerm;
+import org.alliancegenome.neo4j.repository.DiseaseRepository;
+import org.alliancegenome.neo4j.repository.GeneRepository;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-
-import org.alliancegenome.api.entity.*;
-import org.alliancegenome.cache.repository.*;
-import org.alliancegenome.cache.repository.helper.*;
-import org.alliancegenome.es.model.query.*;
-import org.alliancegenome.neo4j.entity.*;
-import org.alliancegenome.neo4j.entity.node.*;
-import org.alliancegenome.neo4j.repository.*;
-import org.apache.commons.collections.CollectionUtils;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toList;
+import static org.alliancegenome.neo4j.entity.DiseaseAnnotation.NOT_ASSOCIATION_TYPE;
 
 @RequestScoped
 public class DiseaseService {
@@ -151,62 +162,112 @@ public class DiseaseService {
         LocalDateTime startDate = LocalDateTime.now();
         JsonResultResponse<PrimaryAnnotatedEntity> result = new JsonResultResponse<>();
 
-        List<PrimaryAnnotatedEntity> pureModelList = phenotypeCacheRepository.getPhenotypeAnnotationPureModeList(geneID);
+        List<PrimaryAnnotatedEntity> purePhenotypeModelList = phenotypeCacheRepository.getPhenotypeAnnotationPureModeList(geneID);
 
         List<PrimaryAnnotatedEntity> pureDiseaseModelList = diseaseCacheRepository.getDiseaseAnnotationPureModeList(geneID);
 
         List<PrimaryAnnotatedEntity> fullModelList = diseaseCacheRepository.getPrimaryAnnotatedEntitList(geneID);
 
 
-        if (CollectionUtils.isEmpty(pureModelList) && CollectionUtils.isEmpty(pureDiseaseModelList) && CollectionUtils.isEmpty(fullModelList)) {
+        if (CollectionUtils.isEmpty(purePhenotypeModelList) && CollectionUtils.isEmpty(pureDiseaseModelList) && CollectionUtils.isEmpty(fullModelList)) {
             return result;
         }
-
-        List<String> mergedEntities = new ArrayList<>();
+        Map<String, Map<String, PrimaryAnnotatedEntity>> groupedEntityMap = new HashMap<>();
         // add AGMs to the ones created in the disease cycle
-        if (CollectionUtils.isNotEmpty(pureDiseaseModelList) && CollectionUtils.isNotEmpty(pureModelList)) {
-            for (PrimaryAnnotatedEntity entity : pureDiseaseModelList) {
-                pureModelList.stream()
-                        .filter(entity1 -> entity1.getId().equals(entity.getId()))
-                        .forEach(entity1 -> {
-                            entity.addPhenotypes(entity1.getPhenotypes());
-                            mergedEntities.add(entity.getId());
-                        });
-            }
-            // remove the merged ones
-            pureModelList = pureModelList.stream()
-                    .filter(entity -> !mergedEntities.contains(entity.getId()))
-                    .collect(toList());
-            pureDiseaseModelList.addAll(pureModelList);
-        }
 
-        if (CollectionUtils.isEmpty(pureDiseaseModelList) && CollectionUtils.isNotEmpty(pureModelList)) {
-            pureDiseaseModelList = pureModelList;
-        }
-        if (CollectionUtils.isEmpty(pureDiseaseModelList) && CollectionUtils.isEmpty(pureModelList)) {
-            pureDiseaseModelList = new ArrayList<>();
-        }
+        if (CollectionUtils.isNotEmpty(pureDiseaseModelList)) {
+            // merge disease records
+            // by fish and condition
+            // assumes only one condition per PAE!
+            Map<String, Map<String, List<PrimaryAnnotatedEntity>>> groupedEntityListDisease =getGroupedByMap(pureDiseaseModelList);
 
-        List<String> geneIDs = pureDiseaseModelList.stream()
-                .map(PrimaryAnnotatedEntity::getId)
-                .collect(toList());
-
-        // remove the AGMs (from the general model list) that are already accounted for by disease or phenotype relationship
-        // leaving only those AGMs that have no one of that kind
-        if (CollectionUtils.isNotEmpty(fullModelList)) {
-            geneIDs.forEach(geneId -> {
-                fullModelList.removeIf(entity -> entity.getId().equals(geneId));
+            groupedEntityListDisease.forEach((modelID, conditionMap) -> {
+                conditionMap.forEach((condition, entities) -> {
+                    Map<String, PrimaryAnnotatedEntity> entityMap = groupedEntityMap.computeIfAbsent(modelID,
+                            s -> {
+                                HashMap<String, PrimaryAnnotatedEntity> map = new HashMap<>();
+                                map.put(modelID, null);
+                                return map;
+                            });
+                    PrimaryAnnotatedEntity entity = entityMap.computeIfAbsent(condition, s -> entities.get(0));
+                    entities.remove(0);
+                    entities.forEach(mergeEntity -> {
+                        entity.addPublicationEvidenceCode(mergeEntity.getPublicationEvidenceCodes());
+                        entity.addDiseaseModels(mergeEntity.getDiseaseModels());
+                    });
+                });
             });
-            pureDiseaseModelList.addAll(fullModelList);
         }
+
+        if (CollectionUtils.isNotEmpty(purePhenotypeModelList)) {
+            // merge phenotype records
+            // by fish and condition
+            // assumes only one condition per PAE!
+            Map<String, Map<String, List<PrimaryAnnotatedEntity>>> groupedEntityListPhenotype =getGroupedByMap(purePhenotypeModelList);
+            groupedEntityListPhenotype.forEach((modelID, conditionMap) -> {
+                conditionMap.forEach((condition, entities) -> {
+                    Map<String, PrimaryAnnotatedEntity> entityMap = groupedEntityMap.computeIfAbsent(modelID,
+                            s -> {
+                                HashMap<String, PrimaryAnnotatedEntity> map = new HashMap<>();
+                                map.put(modelID, null);
+                                return map;
+                            });
+                    PrimaryAnnotatedEntity entity = entityMap.computeIfAbsent(condition, s -> entities.get(0));
+                    entities.remove(0);
+                    entities.forEach(mergeEntity -> {
+                        entity.addPublicationEvidenceCode(mergeEntity.getPublicationEvidenceCodes());
+                        entity.addPhenotype(mergeEntity.getPhenotypes().get(0));
+                    });
+                });
+            });
+        }
+        if (CollectionUtils.isEmpty(fullModelList)) {
+            // merge non-disease and non-phenotype
+            // by fish and condition
+            // assumes only one condition per PAE!
+            Map<String, Map<String, List<PrimaryAnnotatedEntity>>> groupedEntityListNone =getGroupedByMap(fullModelList);
+            groupedEntityListNone.forEach((modelID, conditionMap) -> {
+                conditionMap.forEach((condition, entities) -> {
+                    Map<String, PrimaryAnnotatedEntity> entityMap = groupedEntityMap.computeIfAbsent(modelID,
+                            s -> {
+                                HashMap<String, PrimaryAnnotatedEntity> map = new HashMap<>();
+                                map.put(modelID, null);
+                                return map;
+                            });
+                    PrimaryAnnotatedEntity entity = entityMap.computeIfAbsent(condition, s -> entities.get(0));
+                    entities.remove(0);
+                    entities.forEach(mergeEntity -> {
+                        entity.addPublicationEvidenceCode(mergeEntity.getPublicationEvidenceCodes());
+                    });
+                });
+            });
+        }
+        List<PrimaryAnnotatedEntity> resultList = groupedEntityMap.values().stream()
+                .map(Map::values)
+                .flatMap(Collection::stream)
+                .collect(toList());
+        resultList = resultList.stream().filter(Objects::nonNull).collect(toList());
 
         //filtering
         FilterService<PrimaryAnnotatedEntity> filterService = new FilterService<>(new PrimaryAnnotatedEntityFiltering());
-        List<PrimaryAnnotatedEntity> filteredDiseaseAnnotationList = filterService.filterAnnotations(pureDiseaseModelList, pagination.getFieldFilterValueMap());
+        List<PrimaryAnnotatedEntity> filteredDiseaseAnnotationList = filterService.filterAnnotations(resultList, pagination.getFieldFilterValueMap());
         result.setTotal(filteredDiseaseAnnotationList.size());
         result.setResults(filterService.getSortedAndPaginatedAnnotations(pagination, filteredDiseaseAnnotationList, new PrimaryAnnotatedEntitySorting()));
         result.calculateRequestDuration(startDate);
         return result;
+    }
+
+    public Map<String, Map<String, List<PrimaryAnnotatedEntity>>> getGroupedByMap(List<PrimaryAnnotatedEntity> entityList){
+        return                entityList.stream()
+                        .collect(groupingBy(PrimaryAnnotatedEntity::getId,
+                                groupingBy(t -> {
+                                            if (MapUtils.isNotEmpty(t.getConditions())) {
+                                                Map.Entry<String, List<ExperimentalCondition>> conditionType = t.getConditions().entrySet().iterator().next();
+                                                return conditionType.getKey() + ":" + conditionType.getValue().get(0).getConditionStatement();
+                                            } else
+                                                return "No-ExperimentalConditions";
+                                        }
+                                )));
     }
 
     public JsonResultResponse<DiseaseAnnotation> getDiseaseAnnotations(String geneID, Pagination pagination) {
@@ -320,8 +381,8 @@ public class DiseaseService {
             response.setResults(paginationResult.getResult());
             response.setTotal(paginationResult.getTotalNumber());
             Map<String, List<String>> distinctFieldValueMap = paginationResult.getDistinctFieldValueMap();
-            if(pagination.getFieldFilterValueMap().get(FieldFilter.INCLUDE_NEGATION) == null ||
-                    pagination.getFieldFilterValueMap().get(FieldFilter.INCLUDE_NEGATION).equals("false")){
+            if (pagination.getFieldFilterValueMap().get(FieldFilter.INCLUDE_NEGATION) == null ||
+                    pagination.getFieldFilterValueMap().get(FieldFilter.INCLUDE_NEGATION).equals("false")) {
                 distinctFieldValueMap.get("associationType").removeIf(o -> o.toLowerCase().contains(NOT_ASSOCIATION_TYPE));
             }
             response.addDistinctFieldValueSupplementalData(distinctFieldValueMap);
