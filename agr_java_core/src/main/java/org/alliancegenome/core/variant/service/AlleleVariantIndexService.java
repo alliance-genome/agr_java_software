@@ -149,7 +149,7 @@ public class AlleleVariantIndexService {
 
         searchRequest.source(srb);
 
-        return EsClientFactory.getDefaultEsClient().search(searchRequest, RequestOptions.DEFAULT);
+        return EsClientFactory.getDefaultEsClient().search(searchRequest, EsClientFactory.LARGE_RESPONSE_REQUEST_OPTIONS);
     }
     public  List<SearchHit>  getSearchResults(String id) throws IOException {
 
