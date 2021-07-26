@@ -29,7 +29,7 @@ public class Pagination {
     private List<String> errorList = new ArrayList<>();
     private List<String> invalidFilterList = new ArrayList<>();
     private ColumnFieldMapping mapping;
-
+    private long totalHits;
     private boolean isCount = false;
 
     public Pagination(Integer page, Integer limit, String sortBy, String asc, ColumnFieldMapping mapping) {
