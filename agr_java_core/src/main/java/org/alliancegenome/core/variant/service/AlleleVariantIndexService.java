@@ -42,17 +42,22 @@ public class AlleleVariantIndexService {
         mapper.configure(DeserializationFeature.FAIL_ON_NULL_CREATOR_PROPERTIES, false);
         mapper.configure(MapperFeature.DEFAULT_VIEW_INCLUSION,false);
     }
-
+/** DETAIL PAGE */
     public List<AlleleVariantSequence> getAllelesNVariants(String geneId, Pagination pagination)  {
-        List<SearchHit> searchHits=new ArrayList<>();
+       SearchResponse searchResponse=null;
         try {
-          //  searchHits = getSearchResponse(geneId);
-            searchHits = getSearchResponse(geneId,pagination);
+            log.info("BEFORE QUERY:"+new Date());
+
+            searchResponse = getSearchResponse(geneId);
+         log.info(searchResponse.getHits().getHits().length);
+            log.info("AFTER QUERY:"+new Date()+ "\tTOOK:"+searchResponse.getTook());
+
+            //  searchHits = getSearchResponse(geneId,pagination);
         } catch (IOException e) {
             e.printStackTrace();
         }
         List<AlleleVariantSequence> avsList = new ArrayList<>();
-        for(SearchHit searchHit: searchHits) {
+        for(SearchHit searchHit: searchResponse.getHits()) {
                 AlleleVariantSequence avsDocument = null;
                 Allele allele = null;
                 try {
@@ -93,15 +98,19 @@ public class AlleleVariantIndexService {
                 }
             }
 
-            log.info("TOTAL HITS:" + searchHits.size());
+            log.info("TOTAL HITS:" + searchResponse.getHits().getTotalHits().value);
             log.info("Allele Variant Sequences:" + avsList.size());
         return avsList;
     }
-
+/**
+ * GENE PAGE*/
     public List<Allele> getAlleles(String geneId, Pagination pagination)  {
         List<SearchHit> searchHits=new ArrayList<>();
+        SearchResponse searchResponse=null;
         try {
-            searchHits = getSearchResponse(geneId, pagination);
+           searchHits = getSearchResponse(geneId, pagination);
+          //  searchResponse = getSearchResponse(geneId);
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -143,41 +152,16 @@ public class AlleleVariantIndexService {
    public SearchResponse getSearchResponse(String id) throws IOException {
         SearchSourceBuilder srb = new SearchSourceBuilder();
         srb.query(buildBoolQuery(id));
-        srb.size(10000);
-
-        SearchRequest searchRequest = new SearchRequest(ConfigHelper.getEsIndex());
-
-        searchRequest.source(srb);
-
-        return EsClientFactory.getDefaultEsClient().search(searchRequest, EsClientFactory.LARGE_RESPONSE_REQUEST_OPTIONS);
-    }
-    public  List<SearchHit>  getSearchResults(String id) throws IOException {
-
-        List<SearchHit> searchHits= new ArrayList<>();
-        SearchSourceBuilder srb = new SearchSourceBuilder();
-        srb.query(buildBoolQuery(id));
-        srb.size(1000);
+        srb.size(150000);
         srb.trackTotalHits(true);
 
         SearchRequest searchRequest = new SearchRequest(ConfigHelper.getEsIndex());
-        searchRequest.scroll(TimeValue.timeValueSeconds(60));
-        searchRequest.source(srb);
-        SearchResponse searchResponse= EsClientFactory.getDefaultEsClient().search(searchRequest, RequestOptions.DEFAULT);
-        String scrollId = searchResponse.getScrollId();
 
-        searchHits.addAll(Arrays.asList(searchResponse.getHits().getHits()));
-        while (searchResponse.getHits().getHits().length >0){
-            SearchScrollRequest scrollRequest=new SearchScrollRequest(scrollId);
-            scrollRequest.scroll(TimeValue.timeValueSeconds(60));
-            searchResponse=EsClientFactory.getDefaultEsClient().scroll(scrollRequest, RequestOptions.DEFAULT);
-            scrollId = searchResponse.getScrollId();
-            searchHits.addAll(Arrays.asList(searchResponse.getHits().getHits()));
-        };
-        ClearScrollRequest clearScrollRequest = new ClearScrollRequest();
-        clearScrollRequest.addScrollId(scrollId);
-        ClearScrollResponse clearScrollResponse = EsClientFactory.getDefaultEsClient().clearScroll(clearScrollRequest, RequestOptions.DEFAULT);
-        return searchHits;
+        searchRequest.source(srb);
+        log.info(searchRequest);
+        return EsClientFactory.getDefaultEsClient().search(searchRequest, EsClientFactory.LARGE_RESPONSE_REQUEST_OPTIONS);
     }
+
     public List<SearchHit> getSearchResponse(String id, Pagination pagination) throws IOException {
         SearchRequest searchRequest = new SearchRequest(ConfigHelper.getEsIndex());
         SearchResponse searchResponse=null;
@@ -193,18 +177,19 @@ public class AlleleVariantIndexService {
         srb.sort(new FieldSortBuilder(getSortFields(pagination)[0].getField()).order(SortOrder.ASC));
         srb.size(pagination.getLimit());
         srb.trackTotalHits(true);
-        if(from+pagination.getLimit()<=10000) {
+
+        if(from+pagination.getLimit()<=150000) {
             srb.from(from);
             searchRequest.source(srb);
-            searchResponse=  EsClientFactory.getDefaultEsClient().search(searchRequest, RequestOptions.DEFAULT);
+            searchResponse=  EsClientFactory.getDefaultEsClient().search(searchRequest, EsClientFactory.LARGE_RESPONSE_REQUEST_OPTIONS);
             searchHits.addAll(Arrays.asList(searchResponse.getHits().getHits()));
             pagination.setTotalHits(searchResponse.getHits().getTotalHits().value);
             System.out.println("TOTAL HITS IN pagination object:"+ pagination.getTotalHits());
         }else{
-            srb.size(1000);
+            srb.size(10000);
             searchRequest.source(srb);
             searchRequest.scroll(TimeValue.timeValueSeconds(60));
-            searchResponse=EsClientFactory.getDefaultEsClient().search(searchRequest, RequestOptions.DEFAULT);
+            searchResponse=EsClientFactory.getDefaultEsClient().search(searchRequest, EsClientFactory.LARGE_RESPONSE_REQUEST_OPTIONS);
             String scrollId = searchResponse.getScrollId();
             searchHits.addAll(Arrays.asList(searchResponse.getHits().getHits()));
             pagination.setTotalHits(searchResponse.getHits().getTotalHits().value);
@@ -212,7 +197,7 @@ public class AlleleVariantIndexService {
             while (searchResponse.getHits().getHits().length >0){
                 SearchScrollRequest scrollRequest=new SearchScrollRequest(scrollId);
                 scrollRequest.scroll(TimeValue.timeValueSeconds(60));
-                searchResponse=EsClientFactory.getDefaultEsClient().scroll(scrollRequest, RequestOptions.DEFAULT);
+                searchResponse=EsClientFactory.getDefaultEsClient().scroll(scrollRequest, EsClientFactory.LARGE_RESPONSE_REQUEST_OPTIONS);
                 scrollId = searchResponse.getScrollId();
                 searchHits.addAll(Arrays.asList(searchResponse.getHits().getHits()));
             };

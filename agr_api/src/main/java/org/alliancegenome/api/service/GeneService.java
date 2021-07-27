@@ -59,7 +59,7 @@ public class GeneService {
 
     public JsonResultResponse<Allele> getAlleles(String geneId, Pagination pagination) {
         long startTime = System.currentTimeMillis();
-        List<Allele> alleles = alleleVariantIndexService.getAlleles(geneId);
+        List<Allele> alleles = alleleVariantIndexService.getAlleles(geneId, pagination);
         JsonResultResponse<Allele> response = alleleCacheRepository.getAlleleJsonResultResponse(pagination, alleles); // This needs to be a Helper function
         if (response == null)
             response = new JsonResultResponse<>();
@@ -69,7 +69,7 @@ public class GeneService {
     }
 
     public JsonResultResponse<AlleleVariantSequence> getAllelesAndVariantInfo(String geneId, Pagination pagination) {
-        List<AlleleVariantSequence> allelesNVariants = alleleVariantIndexService.getAllelesNVariants(geneId);
+        List<AlleleVariantSequence> allelesNVariants = alleleVariantIndexService.getAllelesNVariants(geneId, pagination);
         if (allelesNVariants == null)
             return null;
         return alleleCacheRepository.getAlleleAndVariantJsonResultResponse(pagination, allelesNVariants);

@@ -19,6 +19,7 @@ public class VariantIndexSettings extends Settings {
         builder
             .startObject("index")
                 .field("number_of_replicas", "0")
+                .field("max_result_window", "150000")
                 .field("refresh_interval", "-1")
                 .field("number_of_shards", "" + shardCount)
                 //.field("merge.scheduler.auto_throttle", "false")
