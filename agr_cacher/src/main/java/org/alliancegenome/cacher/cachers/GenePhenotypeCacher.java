@@ -202,15 +202,10 @@ public class GenePhenotypeCacher extends Cacher {
         Map<String, List<PrimaryAnnotatedEntity>> phenotypeAnnotationPureMap = new HashMap<>();
 
         annotationPureMergeMap.forEach((geneID, modelIdMap) -> modelIdMap.forEach((modelID, phenotypeAnnotations) -> {
-            List<PrimaryAnnotatedEntity> mergedAnnotations = phenotypeAnnotationPureMap.get(geneID);
-            if (mergedAnnotations == null)
-                mergedAnnotations = new ArrayList<>();
-            PrimaryAnnotatedEntity entity = phenotypeAnnotations.get(0).getPrimaryAnnotatedEntities().get(0);
+            List<PrimaryAnnotatedEntity> mergedAnnotations = phenotypeAnnotationPureMap.computeIfAbsent(geneID, s -> new ArrayList<>());
             phenotypeAnnotations.forEach(phenotypeAnnotation -> {
-                entity.addPhenotype(phenotypeAnnotation.getPhenotype());
-                entity.addPublicationEvidenceCode(phenotypeAnnotation.getPrimaryAnnotatedEntities().get(0).getPublicationEvidenceCodes());
+                mergedAnnotations.add(phenotypeAnnotation.getPrimaryAnnotatedEntities().get(0));
             });
-            mergedAnnotations.add(entity);
             phenotypeAnnotationPureMap.put(geneID, mergedAnnotations);
         }));
 

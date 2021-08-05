@@ -38,7 +38,7 @@ public class TestDownloadSplitUploadHuman {
         String inputDir =  "/Users/olinblodgett/git/agr_java_software/agr_variant_indexer/data";
         String outputDir = "/Users/olinblodgett/git/agr_java_software/agr_variant_indexer/data";
 
-        String variantFile = type + "_HTPOSTVEPVCF_20210527.vcf.gz";
+        String variantFile = type + "_HTPOSTVEPVCF_20210728.vcf.gz";
 
         File inputFile = new File(inputDir + "/" + variantFile);
 
