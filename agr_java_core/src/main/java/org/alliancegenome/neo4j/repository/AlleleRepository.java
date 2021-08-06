@@ -437,16 +437,17 @@ public class AlleleRepository extends Neo4jRepository<Allele> {
     }
     public Map<String, Allele> getAllAlleleVariants() {
 //{primaryKey:'RGD:728326'}
-        String query = "MATCH p1=(:Species)<-[:FROM_SPECIES]-(a:Allele)";
-        query += " OPTIONAL MATCH gene=(a:Allele)-[:IS_ALLELE_OF]-(g:Gene) ";
-        query += " OPTIONAL MATCH p=(a:Allele)<-[:VARIATION]-(variant:Variant)-[:ASSOCIATION]->(:TranscriptLevelConsequence)--(:Transcript)--(:SOTerm)";
-        query += " OPTIONAL MATCH crossRef=(a:Allele)-[:CROSS_REFERENCE]->(c:CrossReference)";
-        query += " OPTIONAL MATCH vari=(a:Allele)<-[:VARIATION]-(variant:Variant)-[:VARIATION_TYPE]->(soTerm:SOTerm)";
-        query += " OPTIONAL MATCH p2=(a:Allele)-[:ALSO_KNOWN_AS]->(synonym:Synonym)";
-        query += " OPTIONAL MATCH consequence=(variant:Variant)-[:ASSOCIATION]->(:GeneLevelConsequence)";
-        query += " OPTIONAL MATCH loc=(variant:Variant)-[:ASSOCIATION]->(:GenomicLocation)-[:ASSOCIATION]->(:Chromosome)";
+        String query = "MATCH path1=(:Species)<-[:FROM_SPECIES]-(a:Allele)";
+        query += " OPTIONAL MATCH path2=(a:Allele)-[:IS_ALLELE_OF]-(g:Gene)";
+        query += " OPTIONAL MATCH path3=(a:Allele)<-[:VARIATION]-(variant:Variant)"; // Some Variants don't have TranscriptLevelConsequence but we still need them
+        query += " OPTIONAL MATCH path4=(a:Allele)<-[:VARIATION]-(variant:Variant)-[:ASSOCIATION]->(:TranscriptLevelConsequence)--(:Transcript)--(:SOTerm)";
+        query += " OPTIONAL MATCH path5=(a:Allele)-[:CROSS_REFERENCE]->(c:CrossReference)";
+        query += " OPTIONAL MATCH path6=(a:Allele)<-[:VARIATION]-(variant:Variant)-[:VARIATION_TYPE]->(soTerm:SOTerm)";
+        query += " OPTIONAL MATCH path7=(a:Allele)-[:ALSO_KNOWN_AS]->(synonym:Synonym)";
+        query += " OPTIONAL MATCH path8=(variant:Variant)-[:ASSOCIATION]->(:GeneLevelConsequence)";
+        query += " OPTIONAL MATCH path9=(variant:Variant)-[:ASSOCIATION]->(:GenomicLocation)-[:ASSOCIATION]->(:Chromosome)";
 
-        query += " RETURN  p,crossRef,vari,p2,p1, gene, consequence,loc";
+        query += " RETURN  path1,path2,path3,path4,path5,path6,path7,path8,path9";
 
         Iterable<Allele> allelesWithVariantsIter = query(query, new HashMap<>());
         Set<Allele> allelesWithVariants = StreamSupport.stream(allelesWithVariantsIter.spliterator(), false)
