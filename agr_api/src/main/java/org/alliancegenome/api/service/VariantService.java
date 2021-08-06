@@ -30,7 +30,7 @@ public class VariantService {
         Variant variant = getVariantById(variantID);
 
         JsonResultResponse<Transcript> response = new JsonResultResponse<>();
-        if (variant == null)
+        if (variant == null || variant.getTranscriptLevelConsequence()==null)
             return response;
 
         List<Transcript> transcriptList = variant.getTranscriptLevelConsequence().stream()
