@@ -240,55 +240,55 @@ public class AlleleVariantIndexService {
         queryBuilder.must(QueryBuilders.termQuery("geneIds.keyword", id)).filter(QueryBuilders.termQuery("category.keyword", "allele"));
         HashMap<FieldFilter, String> filterValueMap= pagination.getFieldFilterValueMap();
 
-      if(filterValueMap!=null){
-            for(Map.Entry e: filterValueMap.entrySet()){
-              System.out.println (e.getKey()+"\t"+ e.getValue());
-
-              if(e.getKey().toString().equalsIgnoreCase("allele_category")){
-                  queryBuilder.filter(QueryBuilders.termsQuery("alterationType.keyword", e.getValue().toString().split("\\|")));
-              }
-                if(e.getKey().toString().equalsIgnoreCase("symbol")){
-                    queryBuilder.filter(QueryBuilders.termsQuery("symbol.keyword", e.getValue().toString().split("\\|")));
-                }
-                if(e.getKey().toString().equalsIgnoreCase("synonym")){
-                    queryBuilder.filter(QueryBuilders.termsQuery("synonym.keyword", e.getValue().toString().split("\\|")));
-                }
-                if(e.getKey().toString().equalsIgnoreCase("variant_type")){
-                    queryBuilder.filter(QueryBuilders.termsQuery("variantType.keyword", e.getValue().toString().split("\\|")));
-                }
-                if(e.getKey().toString().equalsIgnoreCase("has_disease")){
-                    queryBuilder.filter(QueryBuilders.termsQuery("hasDisease.keyword", e.getValue().toString().split("\\|")));
-                }
-                if(e.getKey().toString().equalsIgnoreCase("molecular_consequence")){
-                    queryBuilder.filter(QueryBuilders.termsQuery("allele.variants.transcriptLevelConsequence.molecularConsequences.keyword", e.getValue().toString().split("\\|")));
-                }
-                if(e.getKey().toString().equalsIgnoreCase("HAS_PHENOTYPE")){
-                    queryBuilder.filter(QueryBuilders.termsQuery("allele.hasPhenotype.keyword", e.getValue().toString().split("\\|")));
-                }
-                if(e.getKey().toString().equalsIgnoreCase("VARIANT_IMPACT")){
-                    queryBuilder.filter(QueryBuilders.termsQuery("allele.variants.transcriptLevelConsequence.impact.keyword", e.getValue().toString().split("\\|")));
-                }
-                if(e.getKey().toString().equalsIgnoreCase("VARIANT_POLYPHEN")){
-                    queryBuilder.filter(QueryBuilders.termsQuery("allele.variants.transcriptLevelConsequence.polyphenPrediction.keyword", e.getValue().toString().split("\\|")));
-                }
-                if(e.getKey().toString().equalsIgnoreCase("VARIANT_SIFT")){
-                    queryBuilder.filter(QueryBuilders.termsQuery("allele.variants.transcriptLevelConsequence.siftPrediction.keyword", e.getValue().toString().split("\\|")));
-                }
-                if(e.getKey().toString().equalsIgnoreCase("SEQUENCE_FEATURE_TYPE")){
-                    queryBuilder.filter(QueryBuilders.termsQuery("allele.variants.transcriptLevelConsequence.sequenceFeatureType.keyword", e.getValue().toString().split("\\|")));
-                }
-                if(e.getKey().toString().equalsIgnoreCase("SEQUENCE_FEATURE")){
-                    queryBuilder.filter(QueryBuilders.termsQuery("allele.variants.transcriptLevelConsequence.transcript.name.keyword", e.getValue().toString().split("\\|")));
-                }
-                if(e.getKey().toString().equalsIgnoreCase("ASSOCIATED_GENE")){
-                    queryBuilder.filter(QueryBuilders.termsQuery("allele.gene.symbol.keyword", e.getValue().toString().split("\\|")));
-                }
-                if(e.getKey().toString().equalsIgnoreCase("VARIANT_LOCATION")){
-                    queryBuilder.filter(QueryBuilders.termsQuery("allele.variants.transcriptLevelConsequence.location.keyword", e.getValue().toString().split("\\|")));
-                }
-
-            }
-        }
+//    if(filterValueMap!=null){
+//          for(Map.Entry e: filterValueMap.entrySet()){
+//            System.out.println (e.getKey()+"\t"+ e.getValue());
+//
+//            if(e.getKey().toString().equalsIgnoreCase("allele_category")){
+//                queryBuilder.filter(QueryBuilders.termsQuery("alterationType.keyword", e.getValue().toString().split("\\|")));
+//            }
+//              if(e.getKey().toString().equalsIgnoreCase("symbol")){
+//                  queryBuilder.filter(QueryBuilders.termsQuery("symbol.keyword", e.getValue().toString().split("\\|")));
+//              }
+//              if(e.getKey().toString().equalsIgnoreCase("synonym")){
+//                  queryBuilder.filter(QueryBuilders.termsQuery("synonym.keyword", e.getValue().toString().split("\\|")));
+//              }
+//              if(e.getKey().toString().equalsIgnoreCase("variant_type")){
+//                  queryBuilder.filter(QueryBuilders.termsQuery("variantType.keyword", e.getValue().toString().split("\\|")));
+//              }
+//              if(e.getKey().toString().equalsIgnoreCase("has_disease")){
+//                  queryBuilder.filter(QueryBuilders.termsQuery("hasDisease.keyword", e.getValue().toString().split("\\|")));
+//              }
+//              if(e.getKey().toString().equalsIgnoreCase("molecular_consequence")){
+//                  queryBuilder.filter(QueryBuilders.termsQuery("allele.variants.transcriptLevelConsequence.molecularConsequences.keyword", e.getValue().toString().split("\\|")));
+//              }
+//              if(e.getKey().toString().equalsIgnoreCase("HAS_PHENOTYPE")){
+//                  queryBuilder.filter(QueryBuilders.termsQuery("allele.hasPhenotype.keyword", e.getValue().toString().split("\\|")));
+//              }
+//              if(e.getKey().toString().equalsIgnoreCase("VARIANT_IMPACT")){
+//                  queryBuilder.filter(QueryBuilders.termsQuery("allele.variants.transcriptLevelConsequence.impact.keyword", e.getValue().toString().split("\\|")));
+//              }
+//              if(e.getKey().toString().equalsIgnoreCase("VARIANT_POLYPHEN")){
+//                  queryBuilder.filter(QueryBuilders.termsQuery("allele.variants.transcriptLevelConsequence.polyphenPrediction.keyword", e.getValue().toString().split("\\|")));
+//              }
+//              if(e.getKey().toString().equalsIgnoreCase("VARIANT_SIFT")){
+//                  queryBuilder.filter(QueryBuilders.termsQuery("allele.variants.transcriptLevelConsequence.siftPrediction.keyword", e.getValue().toString().split("\\|")));
+//              }
+//              if(e.getKey().toString().equalsIgnoreCase("SEQUENCE_FEATURE_TYPE")){
+//                  queryBuilder.filter(QueryBuilders.termsQuery("allele.variants.transcriptLevelConsequence.sequenceFeatureType.keyword", e.getValue().toString().split("\\|")));
+//              }
+//              if(e.getKey().toString().equalsIgnoreCase("SEQUENCE_FEATURE")){
+//                  queryBuilder.filter(QueryBuilders.termsQuery("allele.variants.transcriptLevelConsequence.transcript.name.keyword", e.getValue().toString().split("\\|")));
+//              }
+//              if(e.getKey().toString().equalsIgnoreCase("ASSOCIATED_GENE")){
+//                  queryBuilder.filter(QueryBuilders.termsQuery("allele.gene.symbol.keyword", e.getValue().toString().split("\\|")));
+//              }
+//              if(e.getKey().toString().equalsIgnoreCase("VARIANT_LOCATION")){
+//                  queryBuilder.filter(QueryBuilders.termsQuery("allele.variants.transcriptLevelConsequence.location.keyword", e.getValue().toString().split("\\|")));
+//              }
+//
+//          }
+//      }
         return queryBuilder;
     }
 }
