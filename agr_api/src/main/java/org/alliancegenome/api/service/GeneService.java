@@ -9,6 +9,7 @@ import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.cache.repository.helper.PaginationResult;
 import org.alliancegenome.core.variant.service.AlleleVariantIndexService;
 import org.alliancegenome.es.model.query.Pagination;
+import org.alliancegenome.es.util.EsClientFactory;
 import org.alliancegenome.neo4j.entity.EntitySummary;
 import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
 import org.alliancegenome.neo4j.entity.SpeciesType;
@@ -19,6 +20,7 @@ import org.alliancegenome.neo4j.repository.GeneRepository;
 import org.alliancegenome.neo4j.repository.InteractionRepository;
 import org.alliancegenome.neo4j.repository.PhenotypeRepository;
 import org.apache.commons.collections.CollectionUtils;
+import org.neo4j.ogm.session.Neo4jSession;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -59,8 +61,8 @@ public class GeneService {
 
     public JsonResultResponse<Allele> getAlleles(String geneId, Pagination pagination) {
         long startTime = System.currentTimeMillis();
-        List<Allele> alleles = alleleVariantIndexService.getAlleles(geneId, pagination);
-        JsonResultResponse<Allele> response = alleleCacheRepository.getAlleleJsonResultResponse(pagination, alleles); // This needs to be a Helper function
+
+        JsonResultResponse<Allele> response = alleleVariantIndexService.getAlleles(geneId, pagination); // This needs to be a Helper function
         if (response == null)
             response = new JsonResultResponse<>();
         long duration = (System.currentTimeMillis() - startTime) / 1000;
@@ -136,5 +138,5 @@ public class GeneService {
                 .collect(Collectors.toList());
         return geneRepo.getAllGenes(taxIDs);
     }
-   
+  
 }
