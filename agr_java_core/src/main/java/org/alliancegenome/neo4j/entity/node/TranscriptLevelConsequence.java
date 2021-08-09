@@ -241,7 +241,7 @@ public class TranscriptLevelConsequence extends Neo4jEntity {
                 location += "Intron " + infos[9];
 
             hgvsCodingNomenclature = infos[10];
-            hgvsProteinNomenclature = infos[11];
+            hgvsProteinNomenclature = infos[11].replace("%3D", "=");
             cdnaStartPosition = infos[12];
             cdsStartPosition = infos[13];
             proteinStartPosition = infos[14];
