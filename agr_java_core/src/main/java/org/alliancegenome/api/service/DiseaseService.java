@@ -179,7 +179,7 @@ public class DiseaseService {
             // merge disease records
             // by fish and condition
             // assumes only one condition per PAE!
-            Map<String, Map<String, List<PrimaryAnnotatedEntity>>> groupedEntityListDisease =getGroupedByMap(pureDiseaseModelList);
+            Map<String, Map<String, List<PrimaryAnnotatedEntity>>> groupedEntityListDisease = getGroupedByMap(pureDiseaseModelList);
 
             groupedEntityListDisease.forEach((modelID, conditionMap) -> {
                 conditionMap.forEach((condition, entities) -> {
@@ -203,7 +203,7 @@ public class DiseaseService {
             // merge phenotype records
             // by fish and condition
             // assumes only one condition per PAE!
-            Map<String, Map<String, List<PrimaryAnnotatedEntity>>> groupedEntityListPhenotype =getGroupedByMap(purePhenotypeModelList);
+            Map<String, Map<String, List<PrimaryAnnotatedEntity>>> groupedEntityListPhenotype = getGroupedByMap(purePhenotypeModelList);
             groupedEntityListPhenotype.forEach((modelID, conditionMap) -> {
                 conditionMap.forEach((condition, entities) -> {
                     Map<String, PrimaryAnnotatedEntity> entityMap = groupedEntityMap.computeIfAbsent(modelID,
@@ -212,12 +212,18 @@ public class DiseaseService {
                                 map.put(modelID, null);
                                 return map;
                             });
-                    PrimaryAnnotatedEntity entity = entityMap.computeIfAbsent(condition, s -> entities.get(0));
-                    entities.remove(0);
-                    entities.forEach(mergeEntity -> {
-                        entity.addPublicationEvidenceCode(mergeEntity.getPublicationEvidenceCodes());
-                        entity.addPhenotype(mergeEntity.getPhenotypes().get(0));
-                    });
+                    PrimaryAnnotatedEntity entity = entityMap.get(condition);
+                    if (entity == null) {
+                        entity = entities.get(0);
+                        entityMap.put(condition, entity);
+                        entities.remove(0);
+                    }
+                    if (entities.size() > 0) {
+                        for (PrimaryAnnotatedEntity mergeEntity : entities) {
+                            entity.addPublicationEvidenceCode(mergeEntity.getPublicationEvidenceCodes());
+                            entity.addPhenotype(mergeEntity.getPhenotypes().get(0));
+                        }
+                    }
                 });
             });
         }
@@ -225,7 +231,7 @@ public class DiseaseService {
             // merge non-disease and non-phenotype
             // by fish and condition
             // assumes only one condition per PAE!
-            Map<String, Map<String, List<PrimaryAnnotatedEntity>>> groupedEntityListNone =getGroupedByMap(fullModelList);
+            Map<String, Map<String, List<PrimaryAnnotatedEntity>>> groupedEntityListNone = getGroupedByMap(fullModelList);
             groupedEntityListNone.forEach((modelID, conditionMap) -> {
                 conditionMap.forEach((condition, entities) -> {
                     Map<String, PrimaryAnnotatedEntity> entityMap = groupedEntityMap.computeIfAbsent(modelID,
@@ -234,11 +240,17 @@ public class DiseaseService {
                                 map.put(modelID, null);
                                 return map;
                             });
-                    PrimaryAnnotatedEntity entity = entityMap.computeIfAbsent(condition, s -> entities.get(0));
-                    entities.remove(0);
-                    entities.forEach(mergeEntity -> {
-                        entity.addPublicationEvidenceCode(mergeEntity.getPublicationEvidenceCodes());
-                    });
+                    PrimaryAnnotatedEntity entity = entityMap.get(condition);
+                    if (entity == null) {
+                        entity = entities.get(0);
+                        entityMap.put(condition, entity);
+                        entities.remove(0);
+                    }
+                    if (entities.size() > 0) {
+                        for (PrimaryAnnotatedEntity mergeEntity : entities) {
+                            entity.addPublicationEvidenceCode(mergeEntity.getPublicationEvidenceCodes());
+                        }
+                    }
                 });
             });
         }
@@ -257,17 +269,21 @@ public class DiseaseService {
         return result;
     }
 
-    public Map<String, Map<String, List<PrimaryAnnotatedEntity>>> getGroupedByMap(List<PrimaryAnnotatedEntity> entityList){
-        return                entityList.stream()
-                        .collect(groupingBy(PrimaryAnnotatedEntity::getId,
-                                groupingBy(t -> {
-                                            if (MapUtils.isNotEmpty(t.getConditions())) {
-                                                Map.Entry<String, List<ExperimentalCondition>> conditionType = t.getConditions().entrySet().iterator().next();
-                                                return conditionType.getKey() + ":" + conditionType.getValue().get(0).getConditionStatement();
-                                            } else
-                                                return "No-ExperimentalConditions";
-                                        }
-                                )));
+    public Map<String, Map<String, List<PrimaryAnnotatedEntity>>> getGroupedByMap(List<PrimaryAnnotatedEntity> entityList) {
+        return entityList.stream()
+                .collect(groupingBy(PrimaryAnnotatedEntity::getId,
+                        groupingBy(t -> {
+                                    if (MapUtils.isNotEmpty(t.getConditions())) {
+                                        Map.Entry<String, List<ExperimentalCondition>> conditionType = t.getConditions().entrySet().iterator().next();
+                                        StringBuilder key = new StringBuilder(conditionType.getKey() + ":");
+                                        conditionType.getValue().stream().sorted(Comparator.comparing(ExperimentalCondition::getConditionStatement)).forEach(experimentalCondition -> {
+                                            key.append(experimentalCondition.getConditionStatement()).append(":");
+                                        });
+                                        return key.toString();
+                                    } else
+                                        return "No-ExperimentalConditions";
+                                }
+                        )));
     }
 
     public JsonResultResponse<DiseaseAnnotation> getDiseaseAnnotations(String geneID, Pagination pagination) {
