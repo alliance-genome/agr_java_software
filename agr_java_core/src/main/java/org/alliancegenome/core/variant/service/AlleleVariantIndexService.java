@@ -114,8 +114,7 @@ public class AlleleVariantIndexService {
         log.info("Allele Variant Sequences:" + avsList.size());
         return avsList;
     }
-    /**
-     * GENE PAGE*/
+    /* GENE PAGE*/
     public JsonResultResponse<Allele> getAlleles(String geneId, Pagination pagination)  {
 
         try {
@@ -131,8 +130,6 @@ public class AlleleVariantIndexService {
 
         List<Allele> alleles = new ArrayList<>();
         for(SearchHit searchHit: searchHits) {
-            System.out.println("HIT:"+searchHit.getSourceAsString());
-
             AlleleVariantSequence avsDocument = null;
             Allele allele = null;
             try {
@@ -209,11 +206,9 @@ public class AlleleVariantIndexService {
             from=  pagination.getLimit() * (pagination.getPage()-1);
         }
         srb.query(buildBoolQuery(id, pagination));
-       //   buildAggregations(srb);
-          srb.sort(new FieldSortBuilder(getSortFields(pagination)[0].getField()).order(SortOrder.ASC));
+        srb.sort(new FieldSortBuilder(getSortFields(pagination)[0].getField()).order(SortOrder.ASC));
         srb.size(pagination.getLimit());
         srb.trackTotalHits(true);
-        //   System.out.println("QUERY:"+srb.query());
 
         if(from+pagination.getLimit()<=150000) {
             srb.from(from);
@@ -221,8 +216,6 @@ public class AlleleVariantIndexService {
             searchResponse=  EsClientFactory.getDefaultEsClient().search(searchRequest, EsClientFactory.LARGE_RESPONSE_REQUEST_OPTIONS);
             searchHits.addAll(Arrays.asList(searchResponse.getHits().getHits()));
             pagination.setTotalHits(searchResponse.getHits().getTotalHits().value);
-            System.out.println("TOTAL HITS IN pagination object:"+ pagination.getTotalHits());
-
 
         }else{
             srb.size(10000);
@@ -245,7 +238,6 @@ public class AlleleVariantIndexService {
             ClearScrollResponse clearScrollResponse = EsClientFactory.getDefaultEsClient().clearScroll(clearScrollRequest, RequestOptions.DEFAULT);
         }
         return getJsonResult(searchHits, pagination, id);
-        //return searchHits;
     }
     public SortField[] getSortFields(Pagination pagination){
         SortField[] sortField = new SortField[2];
@@ -276,24 +268,26 @@ public class AlleleVariantIndexService {
     }
     public BoolQueryBuilder buildBoolQuery(String id, Pagination pagination){
         BoolQueryBuilder queryBuilder = new BoolQueryBuilder();
-        queryBuilder.must(QueryBuilders.termQuery("geneIds.keyword", id));
-       queryBuilder.filter(QueryBuilders.termsQuery("category", "allele"));
+        queryBuilder.filter(QueryBuilders.termQuery("geneIds.keyword", id));
+        queryBuilder.filter(QueryBuilders.termsQuery("category", "allele"));
        if(pagination!=null) {
            HashMap<FieldFilter, String> filterValueMap = pagination.getFieldFilterValueMap();
 
-           if (filterValueMap != null) {
+          if (filterValueMap != null) {
                for (Map.Entry e : filterValueMap.entrySet()) {
-                   System.out.println(e.getKey() + "\t" + e.getValue());
+                   if (e.getKey().toString().equalsIgnoreCase("symbol")) {
+                      queryBuilder.must(QueryBuilders.wildcardQuery("symbol", "*"+e.getValue().toString()+"*"));
+
+                   }
+                   if (e.getKey().toString().equalsIgnoreCase("synonyms")) {
+                       queryBuilder.must(QueryBuilders.wildcardQuery("allele.synonyms", "*"+e.getValue().toString()+"*"));
+                   }
+
                    if (e.getKey().toString().equalsIgnoreCase("allele_category")) {
                        if (e.getValue().toString().split("\\|").length < 3 && !e.getValue().toString().equalsIgnoreCase("allele"))
                            queryBuilder.filter(QueryBuilders.termsQuery("alterationType.keyword", e.getValue().toString().split("\\|")));
                    }
-                   if (e.getKey().toString().equalsIgnoreCase("symbol")) {
-                       queryBuilder.filter(QueryBuilders.matchPhraseQuery("allele.symbol", e.getValue().toString().toLowerCase().trim()).analyzer(""));
-                   }
-                   if (e.getKey().toString().equalsIgnoreCase("synonym")) {
-                       queryBuilder.filter(QueryBuilders.matchPhraseQuery("allele.synonyms", e.getValue().toString().toLowerCase().trim()));
-                   }
+
                    if (e.getKey().toString().equalsIgnoreCase("variant_type")) {
                        queryBuilder.must(QueryBuilders.termsQuery("variantType.keyword", e.getValue().toString().split("\\|")));
                    }
@@ -306,7 +300,8 @@ public class AlleleVariantIndexService {
                    if (e.getKey().toString().equalsIgnoreCase("HAS_PHENOTYPE")) {
                        queryBuilder.filter(QueryBuilders.termsQuery("allele.hasPhenotype", e.getValue().toString().split("\\|")));
                    }
-              /*  if(e.getKey().toString().equalsIgnoreCase("VARIANT_IMPACT")){
+              /*  FOR FUTURE PURPOSE
+              if(e.getKey().toString().equalsIgnoreCase("VARIANT_IMPACT")){
                     queryBuilder.filter(QueryBuilders.termsQuery("allele.variants.transcriptLevelConsequence.impact.keyword", e.getValue().toString().split("\\|")));
                 }
                 if(e.getKey().toString().equalsIgnoreCase("VARIANT_POLYPHEN")){
@@ -328,8 +323,8 @@ public class AlleleVariantIndexService {
                     queryBuilder.filter(QueryBuilders.termsQuery("allele.variants.transcriptLevelConsequence.location.keyword", e.getValue().toString().split("\\|")));
                 }
 */
-               }
-           }
+             }
+         }
        }
         return queryBuilder;
     }
@@ -416,7 +411,14 @@ public class AlleleVariantIndexService {
                 if (!b.getKey().toString().equals(""))
                     aggregations.get("filter.hasPhenotype").add((String) b.getKey());
             }
-            Terms impact = searchResponse.getAggregations().get("impact");
+            Terms molecularConsequences = searchResponse.getAggregations().get("molecularConsequences");
+            aggregations.put("filter.molecularConsequence", new ArrayList<>());
+            for (Terms.Bucket b : molecularConsequences.getBuckets()) {
+                if (!b.getKey().toString().equals(""))
+                    aggregations.get("filter.molecularConsequence").add((String) b.getKey());
+            }
+         /*  For future purpose
+          Terms impact = searchResponse.getAggregations().get("impact");
             aggregations.put("filter.impact", new ArrayList<>());
             for (Terms.Bucket b : impact.getBuckets()) {
                 if (!b.getKey().toString().equals(""))
@@ -451,13 +453,8 @@ public class AlleleVariantIndexService {
             for (Terms.Bucket b : location.getBuckets()) {
                 if (!b.getKey().toString().equals(""))
                     aggregations.get("filter.variantLocation").add((String) b.getKey());
-            }
-            Terms molecularConsequences = searchResponse.getAggregations().get("molecularConsequences");
-            aggregations.put("filter.molecularConsequence", new ArrayList<>());
-            for (Terms.Bucket b : molecularConsequences.getBuckets()) {
-                if (!b.getKey().toString().equals(""))
-                    aggregations.get("filter.molecularConsequence").add((String) b.getKey());
-            }
+            }*/
+
 
             Terms alterationType = searchResponse.getAggregations().get("alterationType");
             aggregations.put("filter.alleleCategory", new ArrayList<>());

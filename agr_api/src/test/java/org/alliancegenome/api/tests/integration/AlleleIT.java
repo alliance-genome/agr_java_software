@@ -8,12 +8,14 @@ import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
+import org.alliancegenome.api.controller.GeneController;
 import org.alliancegenome.api.entity.CacheStatus;
 import org.alliancegenome.api.service.*;
 import org.alliancegenome.cache.CacheAlliance;
 import org.alliancegenome.cache.repository.helper.JsonResultResponse;
 import org.alliancegenome.core.config.ConfigHelper;
 import org.alliancegenome.es.model.query.*;
+import org.alliancegenome.es.util.EsClientFactory;
 import org.alliancegenome.neo4j.entity.*;
 import org.alliancegenome.neo4j.entity.node.*;
 import org.alliancegenome.neo4j.entity.relationship.GenomeLocation;
@@ -416,5 +418,12 @@ public class AlleleIT {
         assertThat("Number of total records", response.getTotal(), greaterThanOrEqualTo(totalSize));
     }
 
+    @Test
+    @Ignore
+    public void checkAllelesGeneTableSynonymFilter() {
+        GeneController ctrl=new GeneController();
+        JsonResultResponse<Allele> response= ctrl.getAllelesPerGene("RGD:2219",10,1,"","true","","brc","","","","","allele");
+        assertNotNull(response);
 
+    }
 }
