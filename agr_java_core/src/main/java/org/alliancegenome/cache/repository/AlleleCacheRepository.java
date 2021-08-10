@@ -47,7 +47,7 @@ public class AlleleCacheRepository {
         return getAlleleAndVariantJsonResultResponse(pagination, allAlleles);
     }
 
-    private List<Allele> getSortedAndPaginatedAlleles(List<Allele> alleleList, Pagination pagination) {
+    public List<Allele> getSortedAndPaginatedAlleles(List<Allele> alleleList, Pagination pagination) {
         // sorting
         SortingField sortingField = null;
         String sortBy = pagination.getSortBy();
