@@ -112,7 +112,7 @@ public class GenePhenotypeCacher extends Cacher {
                     modelGenesMap.put(primaryKey, genes);
                 });
         pureAgmPhenotypes.stream()
-                .filter(join -> CollectionUtils.isNotEmpty(join.getModel().getAlleles()))
+                .filter(join -> CollectionUtils.isNotEmpty(join.getModel().getSequenceTargetingReagents()))
                 .forEach(join -> {
                     Set<Gene> geneList = join.getModel().getSequenceTargetingReagents().stream()
                             .map(SequenceTargetingReagent::getGene)
