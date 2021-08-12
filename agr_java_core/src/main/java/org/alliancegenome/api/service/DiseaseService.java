@@ -227,7 +227,7 @@ public class DiseaseService {
                 });
             });
         }
-        if (CollectionUtils.isEmpty(fullModelList)) {
+        if (CollectionUtils.isNotEmpty(fullModelList)) {
             // merge non-disease and non-phenotype
             // by fish and condition
             // assumes only one condition per PAE!
