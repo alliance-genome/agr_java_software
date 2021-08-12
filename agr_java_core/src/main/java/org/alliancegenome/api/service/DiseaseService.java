@@ -202,7 +202,6 @@ public class DiseaseService {
         if (CollectionUtils.isNotEmpty(purePhenotypeModelList)) {
             // merge phenotype records
             // by fish and condition
-            // assumes only one condition per PAE!
             Map<String, Map<String, List<PrimaryAnnotatedEntity>>> groupedEntityListPhenotype = getGroupedByMap(purePhenotypeModelList);
             groupedEntityListPhenotype.forEach((modelID, conditionMap) -> {
                 conditionMap.forEach((condition, entities) -> {
@@ -230,7 +229,6 @@ public class DiseaseService {
         if (CollectionUtils.isNotEmpty(fullModelList)) {
             // merge non-disease and non-phenotype
             // by fish and condition
-            // assumes only one condition per PAE!
             Map<String, Map<String, List<PrimaryAnnotatedEntity>>> groupedEntityListNone = getGroupedByMap(fullModelList);
             groupedEntityListNone.forEach((modelID, conditionMap) -> {
                 conditionMap.forEach((condition, entities) -> {
@@ -240,6 +238,9 @@ public class DiseaseService {
                                 map.put(modelID, null);
                                 return map;
                             });
+                    // do not add pure model if there is already one with phenotypes or disease or both
+                    if (entityMap.size() > 1)
+                        return;
                     PrimaryAnnotatedEntity entity = entityMap.get(condition);
                     if (entity == null) {
                         entity = entities.get(0);
