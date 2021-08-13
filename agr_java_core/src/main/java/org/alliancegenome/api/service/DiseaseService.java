@@ -202,7 +202,6 @@ public class DiseaseService {
         if (CollectionUtils.isNotEmpty(purePhenotypeModelList)) {
             // merge phenotype records
             // by fish and condition
-            // assumes only one condition per PAE!
             Map<String, Map<String, List<PrimaryAnnotatedEntity>>> groupedEntityListPhenotype = getGroupedByMap(purePhenotypeModelList);
             groupedEntityListPhenotype.forEach((modelID, conditionMap) -> {
                 conditionMap.forEach((condition, entities) -> {
@@ -230,28 +229,16 @@ public class DiseaseService {
         if (CollectionUtils.isNotEmpty(fullModelList)) {
             // merge non-disease and non-phenotype
             // by fish and condition
-            // assumes only one condition per PAE!
             Map<String, Map<String, List<PrimaryAnnotatedEntity>>> groupedEntityListNone = getGroupedByMap(fullModelList);
             groupedEntityListNone.forEach((modelID, conditionMap) -> {
-                conditionMap.forEach((condition, entities) -> {
-                    Map<String, PrimaryAnnotatedEntity> entityMap = groupedEntityMap.computeIfAbsent(modelID,
-                            s -> {
-                                HashMap<String, PrimaryAnnotatedEntity> map = new HashMap<>();
-                                map.put(modelID, null);
-                                return map;
-                            });
-                    PrimaryAnnotatedEntity entity = entityMap.get(condition);
-                    if (entity == null) {
-                        entity = entities.get(0);
-                        entityMap.put(condition, entity);
-                        entities.remove(0);
-                    }
-                    if (entities.size() > 0) {
-                        for (PrimaryAnnotatedEntity mergeEntity : entities) {
-                            entity.addPublicationEvidenceCode(mergeEntity.getPublicationEvidenceCodes());
-                        }
-                    }
-                });
+                conditionMap.forEach((condition, entities) -> groupedEntityMap.computeIfAbsent(modelID,
+                        // only add pure model if not already in the map with disease or phenotype
+                        s -> {
+                            HashMap<String, PrimaryAnnotatedEntity> map = new HashMap<>();
+                            // for pure models there is only one
+                            map.put(modelID, entities.get(0));
+                            return map;
+                        }));
             });
         }
         List<PrimaryAnnotatedEntity> resultList = groupedEntityMap.values().stream()
