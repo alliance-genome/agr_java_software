@@ -284,7 +284,7 @@ public class AlleleVariantIndexService {
                    }
 
                    if (e.getKey().toString().equalsIgnoreCase("allele_category")) {
-                       if (e.getValue().toString().split("\\|").length < 3 && !e.getValue().toString().equalsIgnoreCase("allele"))
+                       if (e.getValue().toString().split("\\|").length < 3)
                            queryBuilder.filter(QueryBuilders.termsQuery("alterationType.keyword", e.getValue().toString().split("\\|")));
                    }
 
