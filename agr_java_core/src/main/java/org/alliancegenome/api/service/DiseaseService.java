@@ -231,28 +231,14 @@ public class DiseaseService {
             // by fish and condition
             Map<String, Map<String, List<PrimaryAnnotatedEntity>>> groupedEntityListNone = getGroupedByMap(fullModelList);
             groupedEntityListNone.forEach((modelID, conditionMap) -> {
-                conditionMap.forEach((condition, entities) -> {
-                    Map<String, PrimaryAnnotatedEntity> entityMap = groupedEntityMap.computeIfAbsent(modelID,
-                            s -> {
-                                HashMap<String, PrimaryAnnotatedEntity> map = new HashMap<>();
-                                map.put(modelID, null);
-                                return map;
-                            });
-                    // do not add pure model if there is already one with phenotypes or disease or both
-                    if (entityMap.size() > 1)
-                        return;
-                    PrimaryAnnotatedEntity entity = entityMap.get(condition);
-                    if (entity == null) {
-                        entity = entities.get(0);
-                        entityMap.put(condition, entity);
-                        entities.remove(0);
-                    }
-                    if (entities.size() > 0) {
-                        for (PrimaryAnnotatedEntity mergeEntity : entities) {
-                            entity.addPublicationEvidenceCode(mergeEntity.getPublicationEvidenceCodes());
-                        }
-                    }
-                });
+                conditionMap.forEach((condition, entities) -> groupedEntityMap.computeIfAbsent(modelID,
+                        // only add pure model if not already in the map with disease or phenotype
+                        s -> {
+                            HashMap<String, PrimaryAnnotatedEntity> map = new HashMap<>();
+                            // for pure models there is only one
+                            map.put(modelID, entities.get(0));
+                            return map;
+                        }));
             });
         }
         List<PrimaryAnnotatedEntity> resultList = groupedEntityMap.values().stream()
