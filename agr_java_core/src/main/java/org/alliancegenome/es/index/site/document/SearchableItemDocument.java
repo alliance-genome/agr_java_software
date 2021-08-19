@@ -78,6 +78,7 @@ public class SearchableItemDocument extends ESDocument {
     Set<String> cellularComponentWithParents;
     @JsonView({View.AlleleVariantSequenceConverterForES.class})
     Set<String> chromosomes;
+    @JsonView({View.AlleleVariantSequenceConverterForES.class})
     Set<String> constructs;
     @JsonView({View.AlleleVariantSequenceConverterForES.class})
     Set<String> constructExpressedComponent;
