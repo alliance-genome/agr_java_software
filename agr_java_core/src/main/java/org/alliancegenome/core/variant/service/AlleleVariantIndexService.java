@@ -57,11 +57,11 @@ public class AlleleVariantIndexService {
     public List<AlleleVariantSequence> getAllelesNVariants(String geneId, Pagination pagination)  {
         SearchResponse searchResponse=null;
         try {
-            log.info("BEFORE QUERY:"+new Date());
+            log.debug("BEFORE QUERY:"+new Date());
 
             searchResponse = getSearchResponse(geneId);
-            log.info(searchResponse.getHits().getHits().length);
-            log.info("AFTER QUERY:"+new Date()+ "\tTOOK:"+searchResponse.getTook());
+            log.debug(searchResponse.getHits().getHits().length);
+            log.debug("AFTER QUERY:"+new Date()+ "\tTOOK:"+searchResponse.getTook());
 
             //  searchHits = getSearchResponse(geneId,pagination);
         } catch (IOException e) {
@@ -110,8 +110,8 @@ public class AlleleVariantIndexService {
             }
         }
 
-        log.info("TOTAL HITS:" + searchResponse.getHits().getTotalHits().value);
-        log.info("Allele Variant Sequences:" + avsList.size());
+        log.debug("TOTAL HITS:" + searchResponse.getHits().getTotalHits().value);
+        log.debug("Allele Variant Sequences:" + avsList.size());
         return avsList;
     }
     /* GENE PAGE*/
@@ -158,8 +158,8 @@ public class AlleleVariantIndexService {
 
         }
 
-        log.info("TOTAL HITS:" + searchHits.size());
-        log.info("Alleles :" + alleles.size());
+        log.debug("TOTAL HITS:" + searchHits.size());
+        log.debug("Alleles :" + alleles.size());
 
         JsonResultResponse<Allele> response = new JsonResultResponse<>();
 
