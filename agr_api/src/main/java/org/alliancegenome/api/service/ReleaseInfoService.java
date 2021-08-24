@@ -12,7 +12,8 @@ import org.alliancegenome.neo4j.repository.*;
 @RequestScoped
 public class ReleaseInfoService {
 
-    @Inject ReleaseInfoRepository releaseRepo;
+    private static ReleaseInfoRepository releaseRepo = new ReleaseInfoRepository();
+    
     @Inject ModFileRepository modFileRepo;
     @Inject OntologyFileRepository ontologyFileRepo;
 
