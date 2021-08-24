@@ -1,38 +1,34 @@
 package org.alliancegenome.api.service;
 
+import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+
 import org.alliancegenome.api.entity.AlleleVariantSequence;
 import org.alliancegenome.cache.repository.AlleleCacheRepository;
 import org.alliancegenome.cache.repository.helper.*;
 import org.alliancegenome.es.index.site.dao.VariantESDAO;
 import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.neo4j.entity.DiseaseAnnotation;
-import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
-import org.alliancegenome.neo4j.entity.SpeciesType;
+import org.alliancegenome.neo4j.entity.*;
 import org.alliancegenome.neo4j.entity.node.Allele;
 import org.alliancegenome.neo4j.repository.AlleleRepository;
 import org.alliancegenome.neo4j.view.BaseFilter;
 import org.apache.commons.collections.CollectionUtils;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.index.query.TermQueryBuilder;
+import org.elasticsearch.index.query.*;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
-
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-import java.time.LocalDateTime;
-import java.util.List;
-
-import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 
 @RequestScoped
 public class AlleleService {
 
-    private AlleleRepository alleleRepo = new AlleleRepository();
-
+    private static AlleleRepository alleleRepo = new AlleleRepository();
+    private static VariantESDAO variantESDAO = new VariantESDAO();
+    
     @Inject
     private AlleleCacheRepository alleleCacheRepo;
-
-    private static VariantESDAO variantESDAO = new VariantESDAO();
 
     public Allele getById(String id) {
         return alleleRepo.getAllele(id);

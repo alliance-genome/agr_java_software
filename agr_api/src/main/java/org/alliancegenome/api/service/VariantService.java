@@ -1,30 +1,25 @@
 package org.alliancegenome.api.service;
 
-import org.alliancegenome.cache.repository.helper.AlleleFiltering;
-import org.alliancegenome.cache.repository.helper.AlleleSorting;
-import org.alliancegenome.cache.repository.helper.JsonResultResponse;
-import org.alliancegenome.es.index.site.dao.VariantESDAO;
-import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.neo4j.entity.node.Allele;
-import org.alliancegenome.neo4j.entity.node.SOTerm;
-import org.alliancegenome.neo4j.entity.node.Transcript;
-import org.alliancegenome.neo4j.entity.node.Variant;
-import org.alliancegenome.neo4j.entity.relationship.GenomeLocation;
-import org.alliancegenome.neo4j.repository.VariantRepository;
-import org.apache.commons.lang3.StringUtils;
+import static java.util.stream.Collectors.toList;
 
-import javax.enterprise.context.RequestScoped;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static java.util.stream.Collectors.toList;
+import javax.enterprise.context.RequestScoped;
+
+import org.alliancegenome.cache.repository.helper.*;
+import org.alliancegenome.es.index.site.dao.VariantESDAO;
+import org.alliancegenome.es.model.query.Pagination;
+import org.alliancegenome.neo4j.entity.node.*;
+import org.alliancegenome.neo4j.repository.VariantRepository;
+import org.apache.commons.lang3.StringUtils;
 
 @RequestScoped
 public class VariantService {
 
-    private VariantRepository variantRepo = new VariantRepository();
-    private VariantESDAO variantDAO = new VariantESDAO();
+    private static VariantRepository variantRepo = new VariantRepository();
+    private static VariantESDAO variantDAO = new VariantESDAO();
 
     public JsonResultResponse<Transcript> getTranscriptsByVariant(String variantID, Pagination pagination) {
         Variant variant = getVariantById(variantID);

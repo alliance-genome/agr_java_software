@@ -23,11 +23,13 @@ public class GenesController implements GenesRESTInterface {
     private GeneService geneService;
 
     private final GeneToTdfTranslator geneTranslator = new GeneToTdfTranslator();
+    
+    private static GeneRepository repo = new GeneRepository();
 
     @Override
     public JsonResultResponse<Gene> getGenes(List<String> taxonID, Integer rows, Integer start) {
         LocalDateTime startDate = LocalDateTime.now();
-        GeneRepository repo = new GeneRepository();
+        
         List<String> taxonList = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(taxonID)) {
             taxonList.addAll(taxonID);
@@ -46,7 +48,6 @@ public class GenesController implements GenesRESTInterface {
 
     @Override
     public String getGeneIDs(List<String> taxonID, Integer rows, Integer start) {
-        GeneRepository repo = new GeneRepository();
         List<String> taxonList = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(taxonID)) {
             taxonList.addAll(taxonID);

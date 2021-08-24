@@ -20,8 +20,8 @@ import lombok.extern.log4j.Log4j2;
 public class ExpressionRibbonService {
 
     public static final String UNDEFINED = "undefined";
-    private DiseaseRepository diseaseRepository = new DiseaseRepository();
-    private GeneRepository geneRepository = new GeneRepository();
+    private static DiseaseRepository diseaseRepository = new DiseaseRepository();
+    private static GeneRepository geneRepository = new GeneRepository();
 
     private static RibbonSummary ribbonSummary;
 
