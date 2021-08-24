@@ -36,9 +36,11 @@ public class ExpressionController implements ExpressionRESTInterface {
 
     @Inject
     private ExpressionService expressionService;
+
+    @Inject
+    private GeneService geneService;
     
-    private GeneRepository geneRepository = new GeneRepository();
-    private final ExpressionToTdfTranslator expressionTranslator = new ExpressionToTdfTranslator();
+    private static final ExpressionToTdfTranslator expressionTranslator = new ExpressionToTdfTranslator();
 
     @Override
     public JsonResultResponse<ExpressionDetail> getExpressionAnnotations(List<String> geneIDs,
@@ -123,7 +125,7 @@ public class ExpressionController implements ExpressionRESTInterface {
         // check if valid taxon identifier
         String taxon = SpeciesType.getTaxonId(species);
 
-        List<BioEntityGeneExpressionJoin> joins = geneRepository.getExpressionAnnotationsByTaxon(taxon, termID, pagination);
+        List<BioEntityGeneExpressionJoin> joins = geneService.getExpressionAnnotationsByTaxon(taxon, termID, pagination);
 
         JsonResultResponse<ExpressionDetail> result = expressionService.getExpressionDetails(joins, pagination);
         response.setResults(result.getResults());

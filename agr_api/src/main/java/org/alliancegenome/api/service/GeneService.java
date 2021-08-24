@@ -1,32 +1,21 @@
 package org.alliancegenome.api.service;
 
-import org.alliancegenome.api.entity.AlleleVariantSequence;
-import org.alliancegenome.cache.repository.AlleleCacheRepository;
-import org.alliancegenome.cache.repository.GeneCacheRepository;
-import org.alliancegenome.cache.repository.InteractionCacheRepository;
-import org.alliancegenome.cache.repository.PhenotypeCacheRepository;
-import org.alliancegenome.cache.repository.helper.JsonResultResponse;
-import org.alliancegenome.cache.repository.helper.PaginationResult;
-import org.alliancegenome.core.variant.service.AlleleVariantIndexService;
-import org.alliancegenome.es.model.query.Pagination;
-import org.alliancegenome.es.util.EsClientFactory;
-import org.alliancegenome.neo4j.entity.EntitySummary;
-import org.alliancegenome.neo4j.entity.PhenotypeAnnotation;
-import org.alliancegenome.neo4j.entity.SpeciesType;
-import org.alliancegenome.neo4j.entity.node.Allele;
-import org.alliancegenome.neo4j.entity.node.Gene;
-import org.alliancegenome.neo4j.entity.node.InteractionGeneJoin;
-import org.alliancegenome.neo4j.repository.GeneRepository;
-import org.alliancegenome.neo4j.repository.InteractionRepository;
-import org.alliancegenome.neo4j.repository.PhenotypeRepository;
-import org.apache.commons.collections.CollectionUtils;
-import org.neo4j.ogm.session.Neo4jSession;
-
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+
+import org.alliancegenome.api.entity.AlleleVariantSequence;
+import org.alliancegenome.cache.repository.*;
+import org.alliancegenome.cache.repository.helper.*;
+import org.alliancegenome.core.variant.service.AlleleVariantIndexService;
+import org.alliancegenome.es.model.query.Pagination;
+import org.alliancegenome.neo4j.entity.*;
+import org.alliancegenome.neo4j.entity.node.*;
+import org.alliancegenome.neo4j.repository.*;
+import org.apache.commons.collections.CollectionUtils;
 
 @RequestScoped
 public class GeneService {
@@ -34,21 +23,18 @@ public class GeneService {
     private static GeneRepository geneRepo = new GeneRepository();
     private static InteractionRepository interRepo = new InteractionRepository();
     private static PhenotypeRepository phenoRepo = new PhenotypeRepository();
-    private AlleleVariantIndexService alleleVariantIndexService=new AlleleVariantIndexService();
-    private AlleleCacheRepository alleleCacheRepository=new AlleleCacheRepository();
+    
+    @Inject
+    private AlleleVariantIndexService alleleVariantIndexService;
+    
+    @Inject
+    private AlleleCacheRepository alleleCacheRepository;
 
     @Inject
     private InteractionCacheRepository interCacheRepo;
 
     @Inject
     private PhenotypeCacheRepository phenoCacheRepo;
-
-    @Inject
-    private AlleleService alleleService;
-
-    @Inject
-    private GeneCacheRepository geneCacheRepo;
-
 
     public Gene getById(String id) {
         Gene gene = geneRepo.getOneGene(id);
@@ -57,6 +43,10 @@ public class GeneService {
             return geneRepo.getOneGeneBySecondaryId(id);
         }
         return gene;
+    }
+    
+    public List<BioEntityGeneExpressionJoin> getExpressionAnnotationsByTaxon(String taxon, String termID, Pagination pagination) {
+        return geneRepo.getExpressionAnnotationsByTaxon(taxon, termID, pagination);
     }
 
     public JsonResultResponse<Allele> getAlleles(String geneId, Pagination pagination) {

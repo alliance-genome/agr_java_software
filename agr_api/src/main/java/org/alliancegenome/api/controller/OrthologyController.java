@@ -31,6 +31,8 @@ public class OrthologyController implements OrthologyRESTInterface {
 
     @Inject
     private GeneController controller;
+    
+    private static OrthologousRepository orthoRepo = new OrthologousRepository();
 
     @Override
     public JsonResultResponse<OrthologView> getDoubleSpeciesOrthology(String taxonIDOne,
@@ -102,7 +104,6 @@ public class OrthologyController implements OrthologyRESTInterface {
     @Override
     public JsonResultResponse<OrthoAlgorithm> getAllMethodsCalculations() {
         LocalDateTime startDate = LocalDateTime.now();
-        OrthologousRepository orthoRepo = new OrthologousRepository();
         JsonResultResponse<OrthoAlgorithm> response = new JsonResultResponse<>();
         List<OrthoAlgorithm> methodList = orthoRepo.getAllMethods();
         response.setResults(methodList);

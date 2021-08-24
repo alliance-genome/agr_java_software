@@ -63,10 +63,10 @@ public class GeneController implements GeneRESTInterface {
     @Inject
     private ExpressionService service;
 
-    private final PhenotypeAnnotationToTdfTranslator translator = new PhenotypeAnnotationToTdfTranslator();
-    private final AlleleToTdfTranslator alleleTanslator = new AlleleToTdfTranslator();
-    private final InteractionToTdfTranslator interactionTanslator = new InteractionToTdfTranslator();
-    private final DiseaseAnnotationToTdfTranslator diseaseTranslator = new DiseaseAnnotationToTdfTranslator();
+    private static final PhenotypeAnnotationToTdfTranslator translator = new PhenotypeAnnotationToTdfTranslator();
+    private static final AlleleToTdfTranslator alleleTanslator = new AlleleToTdfTranslator();
+    private static final InteractionToTdfTranslator interactionTanslator = new InteractionToTdfTranslator();
+    private static final DiseaseAnnotationToTdfTranslator diseaseTranslator = new DiseaseAnnotationToTdfTranslator();
 
     @Override
     public Gene getGene(String id) {
