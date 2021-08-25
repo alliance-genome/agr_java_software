@@ -1,13 +1,15 @@
 package org.alliancegenome.core.helpers;
 
-import static java.util.stream.Collectors.toList;
-
-import java.util.*;
-
-import org.alliancegenome.neo4j.entity.node.*;
+import org.alliancegenome.neo4j.entity.node.Exon;
+import org.alliancegenome.neo4j.entity.node.Transcript;
+import org.alliancegenome.neo4j.entity.node.Variant;
 import org.alliancegenome.neo4j.entity.relationship.GenomeLocation;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.Range;
+
+import java.util.*;
+
+import static java.util.stream.Collectors.toList;
 
 public class VariantServiceHelper {
 
@@ -52,11 +54,11 @@ public class VariantServiceHelper {
         boolean foundExon = false;
         for (int index = 0; index < exonRanges.size(); index++) {
             Range<Long> exonRange = exonRanges.get(index);
-            // fully contains the variant
+            // exon fully contains the variant
             if (exonRange.containsRange(variantRange)) {
                 location = "Exon";
-                if (!strand.isEmpty())
-                    location += " " + (index + 1);
+                if (strand.isPresent())
+                    location += " " + (index + 1) + " / " + exonRanges.size();
                 foundExon = true;
                 break;
             }
@@ -69,6 +71,7 @@ public class VariantServiceHelper {
                 try {
                     exonRange.intersectionWith(variantRange);
                     location += "/Exon";
+                    foundExon = true;
                     break;
                 } catch (IllegalArgumentException e) {
                     // ignore as it means there is no intersection
@@ -76,6 +79,26 @@ public class VariantServiceHelper {
                 }
             }
         }
+        // check intron number
+        if (!foundExon && exonRanges.size() > 1) {
+            List<Range<Long>> intronRanges = new ArrayList<>();
+            Range<Long> exonRangeLower = exonRanges.get(0);
+            for (int index = 1; index < exonRanges.size(); index++) {
+                Range<Long> exonRangeUpper = exonRanges.get(index);
+                intronRanges.add(Range.between(exonRangeLower.getMaximum() + 1, exonRangeUpper.getMinimum() - 1));
+                exonRangeLower = exonRangeUpper;
+            }
+            for (int index = 0; index < intronRanges.size(); index++) {
+                Range<Long> intronRange = intronRanges.get(index);
+                // intron fully contains the variant
+                if (intronRange.containsRange(variantRange)) {
+                    if (strand.isPresent())
+                        location += " " + (index + 1) + " / " + intronRanges.size();
+                    break;
+                }
+            }
+        }
+
         transcript.setIntronExonLocation(location);
     }
 }

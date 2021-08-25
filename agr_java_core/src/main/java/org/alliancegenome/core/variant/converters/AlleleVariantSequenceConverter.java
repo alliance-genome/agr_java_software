@@ -71,6 +71,16 @@ public class AlleleVariantSequenceConverter {
                 continue;
             }
 
+            List<TranscriptLevelConsequence> htpConsequences = getConsequences(ctx, vcfAllele.getBaseString(), header, geneCache, species);
+            if (htpConsequences.size() == 0) {
+                continue;
+            }
+
+            String hgvsNomenclature = htpConsequences.stream()
+                    .findFirst()
+                    .map(TranscriptLevelConsequence::getHgvsVEPGeneNomenclature)
+                    .orElse(null);
+
             variant.setGenomicReferenceSequence(ctx.getReference().getBaseString());
             variant.setGenomicVariantSequence(vcfAllele.getBaseString());
 
@@ -83,11 +93,7 @@ public class AlleleVariantSequenceConverter {
             Set<String> geneLevelConsequences = new HashSet<>();
             Set<String> genes = new HashSet<>();
             Set<String> geneIds = new HashSet<>();
-            List<TranscriptLevelConsequence> htpConsequences = getConsequences(ctx, vcfAllele.getBaseString(), header, geneCache, species);
-            String hgvsNomenclature = htpConsequences != null ? htpConsequences.stream()
-                    .findFirst()
-                    .map(TranscriptLevelConsequence::getHgvsVEPGeneNomenclature)
-                    .orElse(null) : null;
+
 
             StringBuilder variantName = new StringBuilder();
             if (StringUtils.isNotEmpty(hgvsNomenclature)) {

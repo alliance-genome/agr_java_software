@@ -20,18 +20,18 @@ import org.elasticsearch.index.query.functionscore.*;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.elasticsearch.search.rescore.QueryRescorerBuilder;
-import org.jboss.logging.Logger;
 
+import lombok.extern.jbosslog.JBossLog;
+
+@JBossLog
 @RequestScoped
 public class SearchService {
 
-    private SearchDAO searchDAO = new SearchDAO();
+    private static SearchDAO searchDAO = new SearchDAO();
 
     private SearchHelper searchHelper = new SearchHelper();
 
-    private QueryManipulationService queryManipulationService = new QueryManipulationService();
-
-    private static Logger log = Logger.getLogger(SearchService.class);
+    private static QueryManipulationService queryManipulationService = new QueryManipulationService();
 
     public SearchApiResponse query(String q, String category, int limit, int offset, String sort_by, Boolean debug, UriInfo uriInfo) {
 

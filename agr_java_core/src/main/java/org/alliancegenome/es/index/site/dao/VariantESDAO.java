@@ -225,7 +225,7 @@ public class VariantESDAO {
 
         BoolQueryBuilder bool = boolQuery();
         bool.filter(new TermQueryBuilder("category", "allele"));
-        bool.must(new TermQueryBuilder("name", id));
+        bool.must(new TermQueryBuilder("allele.variants.id.keyword", id));
 
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
         searchSourceBuilder.query(bool);

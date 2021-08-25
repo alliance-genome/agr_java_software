@@ -23,6 +23,8 @@ import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
 @RequestScoped
 public class ExpressionService {
 
+    private static GeneRepository geneRepository = new GeneRepository();
+    
     @Inject
     private ExpressionCacheRepository expressionCacheRepository;
 
@@ -125,16 +127,14 @@ public class ExpressionService {
 //  }
 
     public ExpressionSummary getExpressionSummary(String id) {
-        GeneRepository geneRepository = new GeneRepository();
+        
+        ExpressionSummary summary = new ExpressionSummary();
         List<BioEntityGeneExpressionJoin> joins = geneRepository.getExpressionAnnotationSummary(id);
 
         if (joins == null)
             joins = new ArrayList<>();
         // group together records where only publications is different and treat them as a single record
         Map<Gene, Map<ExpressionBioEntity, Map<Optional<Stage>, Map<MMOTerm, Set<BioEntityGeneExpressionJoin>>>>> groupedRecords = getGeneTermStageAssayMap(joins);
-
-        ExpressionSummary summary = new ExpressionSummary();
-        GeneRepository repository = new GeneRepository();
 
         // create GO & AO histograms
         // list of all terms over grouped list
@@ -162,7 +162,7 @@ public class ExpressionService {
         Map<String, Long> aoHistogram = aoGroupedList.stream()
                 .collect(Collectors.groupingBy(UBERONTerm::getPrimaryKey, Collectors.counting()));
 
-        ExpressionSummaryGroup aoGroup = populateGroupInfo("Anatomy", aoHistogram, null, repository.getOrderAoTermList());
+        ExpressionSummaryGroup aoGroup = populateGroupInfo("Anatomy", aoHistogram, null, geneRepository.getOrderAoTermList());
         summary.addGroup(aoGroup);
 
         int sumAO = aoGroup.getTerms().stream().mapToInt(ExpressionSummaryGroupTerm::getNumberOfAnnotations).sum();
@@ -170,7 +170,7 @@ public class ExpressionService {
 
         Map<String, Long> goHistogram = goGroupedList.stream()
                 .collect(Collectors.groupingBy(GOTerm::getPrimaryKey, Collectors.counting()));
-        ExpressionSummaryGroup goGroup = populateGroupInfo(CELLULAR_COMPONENT, goHistogram, null, repository.getOrderGoTermList());
+        ExpressionSummaryGroup goGroup = populateGroupInfo(CELLULAR_COMPONENT, goHistogram, null, geneRepository.getOrderGoTermList());
         int sumGo = goGroup.getTerms().stream().mapToInt(ExpressionSummaryGroupTerm::getNumberOfAnnotations).sum();
         goGroup.setTotalAnnotations(sumGo);
         summary.addGroup(goGroup);
@@ -178,7 +178,7 @@ public class ExpressionService {
         Map<String, Long> stageHistogram = stageGroupedList.stream()
                 .collect(Collectors.groupingBy(UBERONTerm::getPrimaryKey, Collectors.counting()));
 
-        ExpressionSummaryGroup stageGroup = populateGroupInfo("Stage", stageHistogram, null, repository.getStageList());
+        ExpressionSummaryGroup stageGroup = populateGroupInfo("Stage", stageHistogram, null, geneRepository.getStageList());
         summary.addGroup(stageGroup);
 
         int sumStage = stageGroup.getTerms().stream().mapToInt(ExpressionSummaryGroupTerm::getNumberOfAnnotations).sum();
@@ -199,7 +199,6 @@ public class ExpressionService {
 
 
     private RibbonEntity getExpressionRibbonSummary(String geneID) {
-        GeneRepository geneRepository = new GeneRepository();
 
         List<ExpressionDetail> expressionList = expressionCacheRepository.getExpressionDetails(geneID);
 

@@ -11,6 +11,10 @@ import org.alliancegenome.neo4j.repository.*;
 
 public class APIServiceHelper {
 
+    private static GeneRepository repository = new GeneRepository();
+    private static DiseaseRepository diseaseRepository = new DiseaseRepository();
+    private static AlleleRepository alleleRepository = new AlleleRepository();
+    
     private APIServiceHelper() {} // All Static Methods
     
     public static String getFileName(String title, String id, EntityType collectionType, String extra) {
@@ -52,19 +56,16 @@ public class APIServiceHelper {
         String entityName = "NotFound";
         switch (type) {
             case GENE:
-                GeneRepository repository = new GeneRepository();
                 Gene gene = repository.getShallowGene(id);
                 if (gene != null)
                     entityName = gene.getSymbol();
                 break;
             case DISEASE:
-                DiseaseRepository diseaseRepository = new DiseaseRepository();
                 DOTerm disease = diseaseRepository.getDiseaseTerm(id);
                 if (disease != null)
                     entityName = disease.getName();
                 break;
             case ALLELE:
-                AlleleRepository alleleRepository = new AlleleRepository();
                 Allele allele = alleleRepository.getAllele(id);
                 if (allele != null)
                     entityName = allele.getSymbol();

@@ -31,4 +31,8 @@ public class Phenotype extends Neo4jEntity {
     public String toString() {
         return phenotypeStatement;
     }
+
+    public boolean equalsPhenotype(Phenotype phenotype) {
+        return phenotypeStatement.equals(phenotype.getPhenotypeStatement());
+    }
 }

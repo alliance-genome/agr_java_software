@@ -475,9 +475,9 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
             diseaseEntityJoin.getPublicationJoins().forEach(publicationJoin -> {
                 if (publicationJoin.getModels() != null)
                     publicationJoin.getModels().forEach(model -> {
-                        // need to populate the base-level entities independently as OGM is proabably
+                        // need to populate the base-level entities independently as OGM is probably
                         // using the setter allele.setDiseaseEntityJoin and as the model object has many of them they
-                        // are overidden
+                        // are overridden
                         model.addDiseaseEntityJoins(getAllDejRecords(model.getPrimaryKey(), diseaseEntityJoin.getDisease().getPrimaryKey()));
                     });
             });
@@ -505,7 +505,7 @@ public class DiseaseRepository extends Neo4jRepository<DOTerm> {
                 //"where gene.primaryKey = 'ZFIN:ZDB-GENE-040426-1716' AND phenotype.primaryKey = 'ball increased size, abnormal' " +
                 //"where gene.primaryKey = 'SGD:S000004966' AND phenotype.primaryKey = 'increased chemical compound accumulation' " +
                 "where node:Allele OR node:AffectedGenomicModel " +
-                "AND disease.primaryKey = 'DOID:0080422'  " +
+                //"AND disease.primaryKey = 'DOID:0080422'  " +
                 "OPTIONAL MATCH     baseLevel=(dej:DiseaseEntityJoin)--(:ExperimentalCondition)-[:ASSOCIATION]->(:ZECOTerm) " +
                 "return p0, baseLevel ";
         Iterable<DiseaseEntityJoin> dejJoins = query(DiseaseEntityJoin.class, cypherBaseLevelDEJ);

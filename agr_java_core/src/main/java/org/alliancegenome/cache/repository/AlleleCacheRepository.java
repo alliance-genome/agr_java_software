@@ -1,5 +1,6 @@
 package org.alliancegenome.cache.repository;
 
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -46,7 +47,7 @@ public class AlleleCacheRepository {
         return getAlleleAndVariantJsonResultResponse(pagination, allAlleles);
     }
 
-    private List<Allele> getSortedAndPaginatedAlleles(List<Allele> alleleList, Pagination pagination) {
+    public List<Allele> getSortedAndPaginatedAlleles(List<Allele> alleleList, Pagination pagination) {
         // sorting
         SortingField sortingField = null;
         String sortBy = pagination.getSortBy();
@@ -63,35 +64,56 @@ public class AlleleCacheRepository {
                 .collect(Collectors.toList());
     }
 
-    public JsonResultResponse<Allele> getAlleleJsonResultResponse(Pagination pagination, List<Allele> allAlleles) {
+  public JsonResultResponse<Allele> getAlleleJsonResultResponse(Pagination pagination, List<Allele> allAlleles) {
         JsonResultResponse<Allele> response = new JsonResultResponse<>();
-
-        //filtering
         FilterService<Allele> filterService = new FilterService<>(new AlleleFiltering());
-        List<Allele> filteredAlleleList = filterService.filterAnnotations(allAlleles, pagination.getFieldFilterValueMap());
-        response.setResults(getSortedAndPaginatedAlleles(filteredAlleleList, pagination));
-        response.setTotal(filteredAlleleList.size());
-
-        // add distinct values
         ColumnFieldMapping<Allele> mapping = new AlleleColumnFieldMapping();
-        response.addDistinctFieldValueSupplementalData(filterService.getDistinctFieldValues(allAlleles, mapping.getSingleValuedFieldColumns(Table.ALLELE_GENE), mapping));
 
+        if(pagination.getLimit()+pagination.getPage()>150000){
+            List<Allele> filteredAlleleList = filterService.filterAnnotations(allAlleles, pagination.getFieldFilterValueMap());
+            response.setResults(getSortedAndPaginatedAlleles(filteredAlleleList, pagination));
+            response.setTotal(filteredAlleleList.size());
+            // add distinct values
+            response.addDistinctFieldValueSupplementalData(filterService.getDistinctFieldValues(allAlleles, mapping.getSingleValuedFieldColumns(Table.ALLELE_GENE), mapping));
+
+        }else {
+            response.setResults(allAlleles);
+            response.setTotal((int) pagination.getTotalHits());
+            response.addDistinctFieldValueSupplementalData(filterService.getDistinctFieldValues(allAlleles, mapping.getSingleValuedFieldColumns(Table.ALLELE_GENE), mapping));
+        }
         return response;
     }
+ /*public JsonResultResponse<Allele> getAlleleJsonResultResponse(Pagination pagination, List<Allele> allAlleles) {
+     JsonResultResponse<Allele> response = new JsonResultResponse<>();
+     FilterService<Allele> filterService = new FilterService<>(new AlleleFiltering());
+     ColumnFieldMapping<Allele> mapping = new AlleleColumnFieldMapping();
+
+
+         List<Allele> filteredAlleleList = filterService.filterAnnotations(allAlleles, pagination.getFieldFilterValueMap());
+         response.setResults(getSortedAndPaginatedAlleles(filteredAlleleList, pagination));
+         response.setTotal(filteredAlleleList.size());
+         // add distinct values
+         response.addDistinctFieldValueSupplementalData(filterService.getDistinctFieldValues(allAlleles, mapping.getSingleValuedFieldColumns(Table.ALLELE_GENE), mapping));
+
+
+     return response;
+ }*/
 
     public JsonResultResponse<AlleleVariantSequence> getAlleleAndVariantJsonResultResponse(Pagination pagination, List<AlleleVariantSequence> allAlleles) {
         JsonResultResponse<AlleleVariantSequence> response = new JsonResultResponse<>();
+        log.info("BEFORE Filter:"+new Date());
 
-        //filtering
         FilterService<AlleleVariantSequence> filterService = new FilterService<>(new AlleleVariantSequenceFiltering());
-        List<AlleleVariantSequence> filteredAlleleList = filterService.filterAnnotations(allAlleles, pagination.getFieldFilterValueMap());
-        response.setResults(filterService.getSortedAndPaginatedAnnotations(pagination, filteredAlleleList, new AlleleVariantSequenceSorting()));
-        response.setTotal(filteredAlleleList.size());
-
-        // add distinct values
         ColumnFieldMapping<AlleleVariantSequence> mapping = new AlleleVariantSequenceColumnFieldMapping();
-        response.addDistinctFieldValueSupplementalData(filterService.getDistinctFieldValues(allAlleles,
-                mapping.getSingleValuedFieldColumns(Table.ALLELE_VARIANT_GENE), mapping));
+
+            List<AlleleVariantSequence> filteredAlleleList = filterService.filterAnnotations(allAlleles, pagination.getFieldFilterValueMap());
+            response.setResults(filterService.getSortedAndPaginatedAnnotations(pagination, filteredAlleleList, new AlleleVariantSequenceSorting()));
+            response.setTotal(filteredAlleleList.size());
+
+            // add distinct values
+            response.addDistinctFieldValueSupplementalData(filterService.getDistinctFieldValues(allAlleles,
+                    mapping.getSingleValuedFieldColumns(Table.ALLELE_VARIANT_GENE), mapping));
+        log.info("After Filter:"+new Date());
 
         return response;
     }
