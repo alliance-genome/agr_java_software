@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 @Getter
 @Setter
 @Schema(name = "PhenotypeAnnotation", description = "POJO that represents a  Phenotype Annotation")
-@JsonPropertyOrder({"phenotype", "gene", "allele", "model", "primaryAnnotatedEntities", "publications", "source","primaryKey"})
+@JsonPropertyOrder({"phenotype", "gene", "allele", "model", "primaryAnnotatedEntities", "publications", "source", "primaryKey"})
 public class PhenotypeAnnotation extends ConditionAnnotation implements Comparable<PhenotypeAnnotation>, Serializable {
 
     private String primaryKey;
@@ -53,8 +53,14 @@ public class PhenotypeAnnotation extends ConditionAnnotation implements Comparab
     public void addPrimaryAnnotatedEntity(PrimaryAnnotatedEntity entity) {
         if (primaryAnnotatedEntities == null)
             primaryAnnotatedEntities = new ArrayList<>();
-        if (!primaryAnnotatedEntities.contains(entity))
+        if (!primaryAnnotatedEntities.contains(entity)) {
             primaryAnnotatedEntities.add(entity);
+        } else {
+            final int index = primaryAnnotatedEntities.indexOf(entity);
+            PrimaryAnnotatedEntity existingEntity = primaryAnnotatedEntities.get(index);
+            // merge pub evidence codes
+            existingEntity.addPublicationEvidenceCode(entity.getPublicationEvidenceCodes());
+        }
     }
 
     public void addPrimaryAnnotatedEntities(List<PrimaryAnnotatedEntity> entity) {
