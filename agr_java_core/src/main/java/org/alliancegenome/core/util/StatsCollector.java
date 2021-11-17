@@ -23,7 +23,7 @@ public class StatsCollector {
             int len = jsonDoc.length();
             stats.addValue(len);
             if(len >= 1_000_000) {
-                len = 1_000_000;
+                len = 1_000_000 - 1;
             }
             histogramData[len]++;
         }

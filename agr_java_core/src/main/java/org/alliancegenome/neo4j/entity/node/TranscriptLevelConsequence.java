@@ -285,6 +285,7 @@ public class TranscriptLevelConsequence extends Neo4jEntity {
             log.error("File Headers and Data DO NOT MATCH this code please check the input VCF files");
             log.error("This code WILL NOT work correctly until this issue is fixed");
             log.error("Header Len: " + header.length + ", Info Len: " + infos.length);
+            log.error("Species: " + species);
             try {
                 for (int i = 0; i < header.length; i++) {
                     log.error("Header: " + header[i] + ": \"" + infos[i] + "\"");
