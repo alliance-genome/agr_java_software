@@ -36,10 +36,12 @@ public class TestDownloadSplitUploadMOD {
 
         List<DataFile> list = api.getDataTypeFiles("HTPOSTVEPVCF", true);
 
-        
+        HashSet<String> skipSet = new HashSet<String>();
+        skipSet.add("FB");
+        skipSet.add("RGD");
         
         for(DataFile df: list) {
-            //if(df.getDataSubType().getName().equals("ZFIN")) {
+            if(!skipSet.contains(df.getDataSubType().getName())) {
                 File localFile = downloadFile(df);
     
                 List<File> uploadList = splitFile(localFile, df);
@@ -47,7 +49,7 @@ public class TestDownloadSplitUploadMOD {
                 uploadFiles(uploadList, df);
     
                 log.info("Finished: " + df.getS3Url());
-            //}
+            }
         }
 
     }
