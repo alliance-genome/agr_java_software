@@ -287,7 +287,8 @@ public class GenePhenotypeCacher extends Cacher {
                     final Allele feature = phenotypeEntityJoin.getAllele();
                     if (feature != null)
                         document.setAllele(feature);
-                    document.setPhenotype(phenotypeEntityJoin.getPhenotype().getPhenotypeStatement());
+                    String phenotypeStatement = phenotypeEntityJoin.getPhenotype().getPhenotypeStatement();
+                    document.setPhenotype(phenotypeStatement);
                     document.setPublications(phenotypeEntityJoin.getPublications());
                     document.setSource(phenotypeEntityJoin.getSource());
 
@@ -312,8 +313,8 @@ public class GenePhenotypeCacher extends Cacher {
                                                         entity.setUrl(model.getModCrossRefCompleteUrl());
                                                         entity.setDisplayName(model.getNameText());
                                                         entity.setType(GeneticEntity.getType(model.getSubtype()));
-                                                        entity.addPhenotype(phenotypeEntityJoin.getPhenotype().getPhenotypeStatement());
-                                                        addExperimentalConditions(entity, phenotypeEntityJoin1, phenotypeEntityJoin.getPhenotype().getPhenotypeStatement());
+                                                        entity.addPhenotype(phenotypeStatement);
+                                                        addExperimentalConditions(entity, phenotypeEntityJoin1, phenotypeStatement);
 
                                                         entity.setDataProvider(phenotypeEntityJoin.getDataProvider());
                                                         entity.addPublicationEvidenceCode(pubJoin);
@@ -329,13 +330,14 @@ public class GenePhenotypeCacher extends Cacher {
                                 .forEach(pubJoin -> pubJoin.getAlleles().forEach(allele -> {
                                     // keep each new PEJ with exp conditions independent PAE
                                     if (allele.getPhenotypeEntityJoins() != null) {
-                                        allele.getPhenotypeEntityJoins()
+                                        allele.getPhenotypeEntityJoins().stream()
+                                                .filter(phenotypeEntityJoin1 -> phenotypeEntityJoin1.getPhenotype().getPhenotypeStatement().equals(phenotypeStatement))
                                                 .forEach(phenotypeEntityJoin1 -> {
                                                     PrimaryAnnotatedEntity entity = new PrimaryAnnotatedEntity();
                                                     entity.setId(allele.getPrimaryKey());
                                                     entity.setName(allele.getSymbol());
-                                                    entity.addPhenotype(phenotypeEntityJoin.getPhenotype().getPhenotypeStatement());
-                                                    addExperimentalConditions(entity, phenotypeEntityJoin1, phenotypeEntityJoin.getPhenotype().getPhenotypeStatement());
+                                                    entity.addPhenotype(phenotypeStatement);
+                                                    addExperimentalConditions(entity, phenotypeEntityJoin1, phenotypeStatement);
 
                                                     List<CrossReference> refs = allele.getCrossReferences();
                                                     if (org.apache.commons.collections.CollectionUtils.isNotEmpty(refs))
