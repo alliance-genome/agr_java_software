@@ -343,7 +343,7 @@ public class GenePhenotypeCacher extends Cacher {
 
                                                     entity.setDisplayName(allele.getSymbolText());
                                                     entity.setType(GeneticEntity.CrossReferenceType.ALLELE);
-                                                    entity.addPublicationEvidenceCode(pubJoin);
+                                                    entity.addPublicationEvidenceCode(phenotypeEntityJoin1.getPublicationJoins());
                                                     document.addPrimaryAnnotatedEntity(entity);
                                                 });
                                     }
