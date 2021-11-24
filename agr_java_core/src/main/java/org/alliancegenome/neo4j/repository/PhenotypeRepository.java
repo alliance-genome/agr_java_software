@@ -279,6 +279,7 @@ public class PhenotypeRepository extends Neo4jRepository<Phenotype> {
                 "OPTIONAL MATCH     baseLevel=(pej:PhenotypeEntityJoin)--(:ExperimentalCondition)-[:ASSOCIATION]->(:ZECOTerm) " +
                 "return p0, p1, baseLevel ";
         Iterable<PhenotypeEntityJoin> pejJoins = query(PhenotypeEntityJoin.class, cypherBaseLevelPEJ);
+        log.info("Number of PEJs for primary annotated entities: " + StreamSupport.stream(pejJoins.spliterator(), false).count());
         pejAgmMap = StreamSupport.stream(pejJoins.spliterator(), false)
                 .filter(phenotypeEntityJoin -> phenotypeEntityJoin.getAllele() != null)
                 .collect(groupingBy(join -> join.getAllele().getPrimaryKey()));
