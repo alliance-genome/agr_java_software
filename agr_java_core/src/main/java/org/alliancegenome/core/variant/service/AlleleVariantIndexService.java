@@ -1,44 +1,33 @@
 package org.alliancegenome.core.variant.service;
 
-import static org.alliancegenome.core.config.Constants.ES_INDEX;
-
 import java.io.IOException;
 import java.util.*;
 
 import javax.enterprise.context.RequestScoped;
 
 import org.alliancegenome.api.entity.AlleleVariantSequence;
-import org.alliancegenome.api.service.AlleleColumnFieldMapping;
-import org.alliancegenome.api.service.ColumnFieldMapping;
-import org.alliancegenome.api.service.FilterService;
-import org.alliancegenome.api.service.Table;
+import org.alliancegenome.api.service.*;
 import org.alliancegenome.cache.repository.AlleleCacheRepository;
-import org.alliancegenome.cache.repository.helper.AlleleFiltering;
-import org.alliancegenome.cache.repository.helper.JsonResultResponse;
+import org.alliancegenome.cache.repository.helper.*;
 import org.alliancegenome.core.config.ConfigHelper;
-import org.alliancegenome.es.model.query.FieldFilter;
-import org.alliancegenome.es.model.query.Pagination;
+import org.alliancegenome.es.model.query.*;
 import org.alliancegenome.es.util.EsClientFactory;
 import org.alliancegenome.neo4j.entity.node.*;
-import org.apache.lucene.search.Query;
 import org.apache.lucene.search.SortField;
 import org.elasticsearch.action.search.*;
 import org.elasticsearch.client.RequestOptions;
-import org.elasticsearch.common.unit.TimeValue;
+import org.elasticsearch.core.TimeValue;
 import org.elasticsearch.index.query.*;
 import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.SearchHits;
-import org.elasticsearch.search.aggregations.AggregationBuilder;
-import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.*;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.elasticsearch.search.sort.*;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.*;
 
 import lombok.extern.jbosslog.JBossLog;
-import org.elasticsearch.search.sort.FieldSortBuilder;
-import org.elasticsearch.search.sort.SortOrder;
 
 
 @JBossLog

@@ -1,34 +1,24 @@
 package org.alliancegenome.variant_indexer;
 
-import lombok.extern.log4j.Log4j2;
+import java.io.*;
+import java.util.*;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.zip.GZIPInputStream;
+
 import org.alliancegenome.es.index.site.schema.settings.VariantIndexSettings;
-import org.alliancegenome.es.util.IndexManager;
-import org.alliancegenome.es.util.ProcessDisplayHelper;
+import org.alliancegenome.es.util.*;
 import org.apache.http.HttpHost;
 import org.apache.http.client.config.RequestConfig.Builder;
 import org.elasticsearch.action.DocWriteRequest;
-import org.elasticsearch.action.bulk.BackoffPolicy;
-import org.elasticsearch.action.bulk.BulkProcessor;
-import org.elasticsearch.action.bulk.BulkRequest;
-import org.elasticsearch.action.bulk.BulkResponse;
+import org.elasticsearch.action.bulk.*;
 import org.elasticsearch.action.index.IndexRequest;
-import org.elasticsearch.client.RequestOptions;
-import org.elasticsearch.client.RestClient;
+import org.elasticsearch.client.*;
 import org.elasticsearch.client.RestClientBuilder.RequestConfigCallback;
-import org.elasticsearch.client.RestHighLevelClient;
-import org.elasticsearch.common.unit.ByteSizeUnit;
-import org.elasticsearch.common.unit.ByteSizeValue;
-import org.elasticsearch.common.unit.TimeValue;
+import org.elasticsearch.common.unit.*;
 import org.elasticsearch.common.xcontent.XContentType;
+import org.elasticsearch.core.TimeValue;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.LinkedBlockingDeque;
-import java.util.zip.GZIPInputStream;
+import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 public class TestLoadJsonFile {

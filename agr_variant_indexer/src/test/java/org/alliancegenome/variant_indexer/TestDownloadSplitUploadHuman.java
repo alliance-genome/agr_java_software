@@ -20,7 +20,7 @@ import lombok.extern.jbosslog.JBossLog;
 
 @JBossLog
 public class TestDownloadSplitUploadHuman {
-    
+
     private AmazonS3 s3Client;
 
     public static void main(String[] args) throws Exception {
@@ -31,7 +31,7 @@ public class TestDownloadSplitUploadHuman {
         ConfigHelper.init();
         BasicAWSCredentials awsCreds = new BasicAWSCredentials(ConfigHelper.loadSystemENVProperty("AWS_ACCESS_KEY"), ConfigHelper.loadSystemENVProperty("AWS_SECRET_KEY"));
         s3Client = AmazonS3ClientBuilder.standard().withCredentials(new AWSStaticCredentialsProvider(awsCreds)).build();
-        
+
         String type = "HUMAN";
         String bucket = "mod-datadumps";
         String inputDir =  "/Users/olinblodgett/git/agr_java_software/agr_variant_indexer/data";
@@ -68,9 +68,9 @@ public class TestDownloadSplitUploadHuman {
 
         VCFFileReader reader = new VCFFileReader(inputFile, false);
 
-        
 
-        
+
+
 
         ProcessDisplayHelper ph = new ProcessDisplayHelper(10000);
 
@@ -78,8 +78,8 @@ public class TestDownloadSplitUploadHuman {
 
         ph.startProcess("VCFReader");
 
-        
-        
+
+
         //TransferManager tx = TransferManagerBuilder.standard().withS3Client(s3Client).build();
         //List<Upload> uploads = new ArrayList<>();
         List<Thread> threads = new ArrayList<>();
@@ -102,44 +102,43 @@ public class TestDownloadSplitUploadHuman {
                 e.printStackTrace();
             }
         }
-        if(current != null) current.finished();
-        log.info("Waiting for threads to finish: ");
-        for (Thread t : threads) {
-            try {
+        try {
+            current.finished();
+            log.info("Waiting for threads to finish: ");
+            for (Thread t : threads) {
                 t.join();
-            } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
             }
+            log.info("Threads finished shuting down");
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
-        log.info("Threads finished shuting down");
-        
+
         //log.info("Waiting for uploads to finish: ");
-//      
-        
-//      for(Upload u: uploads) {
-//          try {
-//              u.waitForCompletion();
-//          } catch (AmazonClientException | InterruptedException e) {
-//              e.printStackTrace();
-//          }
-//      }
+        //      
+
+        //      for(Upload u: uploads) {
+        //          try {
+        //              u.waitForCompletion();
+        //          } catch (AmazonClientException | InterruptedException e) {
+        //              e.printStackTrace();
+        //          }
+        //      }
         //log.info("Uploads finished shuting down");
         //tx.shutdownNow();
         ph.finishProcess();
     }
-    
+
     public class WriterThread extends Thread {
 
         VariantContextWriter writer = null;
         //ConcurrentLinkedBlockingQueue<VariantContext> queue = new ConcurrentLinkedBlockingQueue<VariantContext>();
         LinkedBlockingQueue<List<VariantContext>> queue = new LinkedBlockingQueue<List<VariantContext>>(200);
-        
+
         private int workBucketSize = 250;
         private volatile boolean finished = false;
         private String filePath = "";
         List<VariantContext> workBucket = new ArrayList<>();
-        
+
         public WriterThread(VCFHeader vcfHeader, String outputDir, String type, String chr) {
             VariantContextWriterBuilder builder = new VariantContextWriterBuilder();
             filePath = outputDir + "/" + type + ".vep." + chr + ".vcf.gz";
@@ -148,7 +147,7 @@ public class TestDownloadSplitUploadHuman {
             writer = builder.build();
             writer.writeHeader(vcfHeader);
         }
-        
+
         public void run() {
             while(true) {
                 try {
@@ -158,8 +157,6 @@ public class TestDownloadSplitUploadHuman {
                             writer.add(vc);
                         }
                         vcList.clear();
-                        
-                        if(finished) System.out.println("Remaining Items: " + queue.size());
                     } else if(finished) {
                         close();
                         break;
@@ -169,7 +166,7 @@ public class TestDownloadSplitUploadHuman {
                 }
             }
         }
-        
+
         public void add(VariantContext vc) throws InterruptedException {
             workBucket.add(vc);
             if (workBucket.size() >= workBucketSize) {
@@ -195,6 +192,6 @@ public class TestDownloadSplitUploadHuman {
                 //uploads.add(upload);
             }
         }
-        
+
     }
 }
