@@ -217,7 +217,7 @@ public class PhenotypeRepository extends Neo4jRepository<Phenotype> {
     public List<PhenotypeEntityJoin> getAllPhenotypeAnnotations() {
         String cypher = "MATCH p0=(phenotype:Phenotype)<-[:ASSOCIATION]-(pej:PhenotypeEntityJoin)-[:EVIDENCE]->(ppj:PublicationJoin)<-[:ASSOCIATION]-(publication:Publication), " +
                 " p2=(pej:PhenotypeEntityJoin)<-[:ASSOCIATION]-(gene:Gene)-[:FROM_SPECIES]->(species:Species) " +
-                //"where gene.primaryKey = 'SGD:S000003344' AND phenotype.primaryKey = 'decreased chemical compound accumulation' " +
+                //"where gene.primaryKey = 'WB:WBGene00000898' AND phenotype.primaryKey = 'fat content increased' " +
                 //"where gene.primaryKey = 'ZFIN:ZDB-GENE-991105-4' AND phenotype.primaryKey = 'bone growth decreased process quality, abnormal' " +
                 "OPTIONAL MATCH     baseLevel=(pej:PhenotypeEntityJoin)--(:ExperimentalCondition)-[:ASSOCIATION]->(:ZECOTerm) " +
                 "OPTIONAL MATCH     p4=(pej:PhenotypeEntityJoin)--(feature:Feature)-[:CROSS_REFERENCE]->(crossRef:CrossReference) " +
@@ -269,15 +269,17 @@ public class PhenotypeRepository extends Neo4jRepository<Phenotype> {
     public Map<String, List<PhenotypeEntityJoin>> getAllPejRecords() {
         if (pejAgmMap != null)
             return pejAgmMap;
-        String cypherBaseLevelPEJ = "MATCH p0=(node)--(pej:PhenotypeEntityJoin)--(phenotype:Phenotype ) " +
+        String cypherBaseLevelPEJ = "MATCH p0=(node)--(pej:PhenotypeEntityJoin)--(phenotype:Phenotype )," +
+                "  p1=(pej:PhenotypeEntityJoin)--(:PublicationJoin)--(:Publication) " +
                 //"where gene.primaryKey = 'ZFIN:ZDB-GENE-040426-1716' AND phenotype.primaryKey = 'ball increased size, abnormal' " +
                 //"where gene.primaryKey = 'SGD:S000004966' AND phenotype.primaryKey = 'increased chemical compound accumulation' " +
                 " where node:Allele OR node:AffectedGenomicModel " +
-                //" where node.primaryKey = 'ZFIN:ZDB-FISH-150901-5108'  " +
-                //"AND phenotype.phenotypeStatement in ['fat content increased','fat associated bodies increased'] " +
+                //" where node.primaryKey = 'WB:WBVar00143949'  " +
+                //"AND phenotype.phenotypeStatement in ['fat content increased'] " +
                 "OPTIONAL MATCH     baseLevel=(pej:PhenotypeEntityJoin)--(:ExperimentalCondition)-[:ASSOCIATION]->(:ZECOTerm) " +
-                "return p0, baseLevel ";
+                "return p0, p1, baseLevel ";
         Iterable<PhenotypeEntityJoin> pejJoins = query(PhenotypeEntityJoin.class, cypherBaseLevelPEJ);
+        log.info("Number of PEJs for primary annotated entities: " + StreamSupport.stream(pejJoins.spliterator(), false).count());
         pejAgmMap = StreamSupport.stream(pejJoins.spliterator(), false)
                 .filter(phenotypeEntityJoin -> phenotypeEntityJoin.getAllele() != null)
                 .collect(groupingBy(join -> join.getAllele().getPrimaryKey()));
