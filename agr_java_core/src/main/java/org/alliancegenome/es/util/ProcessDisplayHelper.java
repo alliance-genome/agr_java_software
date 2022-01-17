@@ -45,7 +45,7 @@ public class ProcessDisplayHelper {
         startProcess(message, 0);
     }
     
-    public void startProcess(String message, int totalSize) {
+    public void startProcess(String message, long totalSize) {
         this.message = message + ": ";
         this.totalSize = totalSize;
         lastSizeCounter = 0;
@@ -60,11 +60,19 @@ public class ProcessDisplayHelper {
     }
 
     public void progressProcess() {
-        progressProcess(null);
+        progressProcess(null, 1);
     }
     
     public void progressProcess(String data) {
-        sizeCounter.getAndIncrement();
+        progressProcess(data, 1);
+    }
+    
+    public void progressProcess(Long amount) {
+        progressProcess(null, amount);
+    }
+    
+    public void progressProcess(String data, long amount) {
+        sizeCounter.getAndAdd(amount);
 
         boolean permit = sem.tryAcquire();
 

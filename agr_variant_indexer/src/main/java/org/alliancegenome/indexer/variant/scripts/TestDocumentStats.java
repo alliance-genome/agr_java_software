@@ -1,4 +1,4 @@
-package org.alliancegenome.variant_indexer;
+package org.alliancegenome.indexer.variant.scripts;
 
 import org.alliancegenome.es.util.ProcessDisplayHelper;
 import org.apache.commons.math3.random.EmpiricalDistribution;

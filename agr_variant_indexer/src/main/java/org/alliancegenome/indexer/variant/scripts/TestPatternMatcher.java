@@ -1,4 +1,4 @@
-package org.alliancegenome.variant_indexer;
+package org.alliancegenome.indexer.variant.scripts;
 
 import java.util.regex.Pattern;
 
