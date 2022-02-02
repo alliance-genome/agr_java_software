@@ -94,7 +94,7 @@
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
-			<version>1.18.10</version>
+			<version>1.18.22</version>
 		</dependency>
 
 		<dependency>
@@ -118,9 +118,14 @@
 			<version>7.14.0</version>
 		</dependency>
 		<dependency>
+			<groupId>org.elasticsearch</groupId>
+			<artifactId>elasticsearch-core</artifactId>
+			<version>7.14.0</version>
+		</dependency>
+		<dependency>
 			<groupId>org.elasticsearch.client</groupId>
 			<artifactId>elasticsearch-rest-high-level-client</artifactId>
-			<version>7.13.3</version>
+			<version>7.14.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
