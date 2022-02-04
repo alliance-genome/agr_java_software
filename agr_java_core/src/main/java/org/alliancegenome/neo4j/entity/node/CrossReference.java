@@ -16,8 +16,7 @@ import lombok.*;
 public class CrossReference extends Neo4jEntity {
 
     @JsonView({View.API.class, View.Interaction.class, View.Expression.class,View.AlleleVariantSequenceConverterForES.class})
-    @JsonProperty(value = "url")
-    private String crossRefCompleteUrl;
+    private String url;
 
     @JsonView({View.Interaction.class})
     private String localId;

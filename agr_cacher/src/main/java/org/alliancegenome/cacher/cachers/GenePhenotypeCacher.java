@@ -341,7 +341,7 @@ public class GenePhenotypeCacher extends Cacher {
 
                                                     List<CrossReference> refs = allele.getCrossReferences();
                                                     if (org.apache.commons.collections.CollectionUtils.isNotEmpty(refs))
-                                                        entity.setUrl(refs.get(0).getCrossRefCompleteUrl());
+                                                        entity.setUrl(refs.get(0).getUrl());
 
                                                     entity.setDisplayName(allele.getSymbolText());
                                                     entity.setType(GeneticEntity.CrossReferenceType.ALLELE);

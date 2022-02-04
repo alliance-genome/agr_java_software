@@ -9,7 +9,7 @@ public class CrossReferenceDocletTranslator extends EntityDocletTranslator<Cross
     @Override
     protected CrossReferenceDoclet entityToDocument(CrossReference entity, int translationDepth) {
         CrossReferenceDoclet crd = new CrossReferenceDoclet();
-        crd.setCrossRefCompleteUrl(entity.getCrossRefCompleteUrl());
+        crd.setCrossRefCompleteUrl(entity.getUrl());
         crd.setName(entity.getName());
         crd.setDisplayName(entity.getDisplayName());
         crd.setGlobalCrossRefId(entity.getGlobalCrossRefId());
