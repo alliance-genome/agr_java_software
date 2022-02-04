@@ -43,22 +43,6 @@ public class CrossReference extends Neo4jEntity {
     private Boolean loadedDB;
     private Boolean curatedDB;
 
-    @JsonView({View.API.class,View.AlleleVariantSequenceConverterForES.class})
-    @JsonProperty(value = "name")
-    public String getDisplayNameAPI() {
-        if (displayName != null && displayName.length() > 0) {
-            return displayName;
-        } else {
-            return name;
-        }
-    }
-
-    @JsonProperty(value = "name")
-    public void setDisplayNameAPI(String value) {
-        displayName = value;
-        name = value;
-    }
-
     @Override
     public String toString() {
         return localId + ":" + displayName;
