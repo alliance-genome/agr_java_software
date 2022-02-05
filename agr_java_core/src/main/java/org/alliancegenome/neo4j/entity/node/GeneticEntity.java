@@ -169,7 +169,7 @@ public class GeneticEntity extends Neo4jEntity {
         CrossReference primary = (CrossReference) map.get("primary");
         if (primary == null)
             return null;
-        url = primary.getCrossRefCompleteUrl();
+        url = primary.getUrl();
         return url;
     }
 

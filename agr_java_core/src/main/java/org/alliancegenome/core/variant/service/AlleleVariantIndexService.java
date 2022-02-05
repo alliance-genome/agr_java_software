@@ -138,7 +138,7 @@ public class AlleleVariantIndexService {
                 if(allele.getCrossReferenceMap()==null){
                     Map<String, Object> crossReferenceMap=new HashMap<>();
                     CrossReference cr=new CrossReference();
-                    cr.setCrossRefCompleteUrl("");
+                    cr.setUrl("");
                     crossReferenceMap.put("primary", cr);
                     allele.setCrossReferenceMap(crossReferenceMap);
                 }
