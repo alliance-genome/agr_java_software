@@ -95,6 +95,7 @@ public class SearchableItemDocument extends ESDocument {
     @JsonView({View.AlleleVariantSequenceConverterForES.class})
     Set<String> diseasesAgrSlim;
     Set<String> diseaseGroup;
+    @JsonView({View.AlleleVariantSequenceConverterForES.class})
     Set<String> diseasesWithParents;
     Set<String> expressionStages;
     @JsonView({View.AlleleVariantSequenceConverterForES.class})
