@@ -35,7 +35,7 @@ public class ConditionService {
             populateExperimentalConditions(entityJoin, entity);
             List<CrossReference> refs = geneticEntity.getCrossReferences();
             if (CollectionUtils.isNotEmpty(refs))
-                entity.setUrl(refs.get(0).getUrl());
+                entity.setUrl(refs.get(0).getCrossRefCompleteUrl());
 
             entity.addPublicationEvidenceCode(entityJoin.getPublicationJoins());
             entity.setType(geneticEntity.getCrossReferenceType());

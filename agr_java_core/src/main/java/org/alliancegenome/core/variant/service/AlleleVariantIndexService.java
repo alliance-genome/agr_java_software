@@ -74,7 +74,7 @@ public class AlleleVariantIndexService {
 
             if (allele != null) {
                 if (allele.getUrl() == null) {
-                    allele.setUrl(" ");
+                    allele.setModCrossRefCompleteUrl(" ");
                 }
                 if (allele.getId() == null || (allele.getId() != null && allele.getId().equals("null"))) {
                     allele.setId(0L);
@@ -133,12 +133,12 @@ public class AlleleVariantIndexService {
 
                 }
                 if(allele.getUrl()==null){
-                    allele.setUrl(" ");
+                    allele.setModCrossRefCompleteUrl(" ");
                 }
                 if(allele.getCrossReferenceMap()==null){
                     Map<String, Object> crossReferenceMap=new HashMap<>();
-                    CrossReference cr=new CrossReference();
-                    cr.setUrl("");
+                    CrossReference cr = new CrossReference();
+                    cr.setCrossRefCompleteUrl("");
                     crossReferenceMap.put("primary", cr);
                     allele.setCrossReferenceMap(crossReferenceMap);
                 }

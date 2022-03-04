@@ -25,8 +25,6 @@ public class AffectedGenomicModel extends GeneticEntity implements Comparable<Af
     private String localId;
     private String globalId;
     @JsonView({View.Default.class, View.API.class})
-    private String modCrossRefCompleteUrl;
-    @JsonView({View.Default.class, View.API.class})
     private String name;
     @JsonView({View.Default.class, View.API.class})
     private String nameText;

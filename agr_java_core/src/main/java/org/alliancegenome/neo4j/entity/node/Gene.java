@@ -51,7 +51,6 @@ public class Gene extends GeneticEntity implements Comparable<Gene> {
     private String description;
 
     private String geneticEntityExternalUrl;
-    private String modCrossRefCompleteUrl;
     private String modLocalId;
     private String modGlobalCrossRefId;
     private String modGlobalId;
