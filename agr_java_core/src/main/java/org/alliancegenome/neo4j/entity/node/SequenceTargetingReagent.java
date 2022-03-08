@@ -21,7 +21,6 @@ public class SequenceTargetingReagent extends GeneticEntity implements Comparabl
     private String release;
     private String localId;
     private String globalId;
-    private String modCrossRefCompleteUrl;
     @JsonView({View.Default.class})
     private String name;
 

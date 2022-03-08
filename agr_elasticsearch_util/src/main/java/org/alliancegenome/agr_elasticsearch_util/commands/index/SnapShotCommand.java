@@ -5,9 +5,6 @@ import java.util.*;
 import org.alliancegenome.agr_elasticsearch_util.commands.*;
 import org.elasticsearch.cluster.metadata.RepositoryMetadata;
 
-import lombok.extern.log4j.Log4j2;
-
-@Log4j2
 public class SnapShotCommand extends Command implements CommandInterface {
 
     public SnapShotCommand(ArrayList<String> args) {
@@ -17,10 +14,10 @@ public class SnapShotCommand extends Command implements CommandInterface {
     @Override
     public void printHelp() {
 
-        log.info("snapshot list <reponame> -- Where <reponame> is the name of a loaded repository");
-        log.info("snapshot restorelatest <reponame> <index>");
-        log.info("snapshot delete <reponame> <snapshot>");
-        log.info("snapshot clean <reponame> <snapshot>");
+        System.out.println("snapshot list <reponame> -- Where <reponame> is the name of a loaded repository");
+        System.out.println("snapshot restorelatest <reponame> <index>");
+        System.out.println("snapshot delete <reponame> <snapshot>");
+        System.out.println("snapshot clean <reponame> <snapshot>");
     }
 
     @Override
