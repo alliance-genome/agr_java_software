@@ -27,7 +27,7 @@ public class CrossReference extends Neo4jEntity {
     @JsonView({View.Interaction.class})
     private String prefix;
 
-    @JsonView({View.Interaction.class,View.AlleleVariantSequenceConverterForES.class})
+    @JsonView({View.API.class, View.Interaction.class,View.AlleleVariantSequenceConverterForES.class})
     private String name;
 
     @JsonView({View.API.class, View.Interaction.class,View.AlleleVariantSequenceConverterForES.class})
