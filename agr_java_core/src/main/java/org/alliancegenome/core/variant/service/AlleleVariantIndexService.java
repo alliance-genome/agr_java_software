@@ -73,7 +73,7 @@ public class AlleleVariantIndexService {
             }
 
             if (allele != null) {
-                if (allele.getUrl() == null) {
+                if (allele.getModCrossRefCompleteUrl() == null) {
                     allele.setModCrossRefCompleteUrl(" ");
                 }
                 if (allele.getId() == null || (allele.getId() != null && allele.getId().equals("null"))) {
@@ -132,7 +132,7 @@ public class AlleleVariantIndexService {
                     allele.setCategory("variant");
 
                 }
-                if(allele.getUrl()==null){
+                if(allele.getModCrossRefCompleteUrl() == null){
                     allele.setModCrossRefCompleteUrl(" ");
                 }
                 if(allele.getCrossReferenceMap()==null){

@@ -158,22 +158,6 @@ public class GeneticEntity extends Neo4jEntity {
         this.crossReferencesList = crossReferencesList;
     }
 
-
-    // ToDo: the primary URL should be an attribute on the entity node
-    @JsonView({View.GeneAllelesAPI.class, View.AlleleAPI.class, View.Default.class,View.AlleleVariantSequenceConverterForES.class})
-    public String getUrl() {
-        if (modCrossRefCompleteUrl != null)
-            return modCrossRefCompleteUrl;
-        Map<String, Object> map = getCrossReferenceMap();
-        if (map == null)
-            return null;
-        CrossReference primary = (CrossReference) map.get("primary");
-        if (primary == null)
-            return null;
-        modCrossRefCompleteUrl = primary.getCrossRefCompleteUrl();
-        return modCrossRefCompleteUrl;
-    }
-
     public static CrossReferenceType getType(String dbName) {
         return Arrays.stream(CrossReferenceType.values())
                 .filter(type -> type.dbName.equals(dbName))
