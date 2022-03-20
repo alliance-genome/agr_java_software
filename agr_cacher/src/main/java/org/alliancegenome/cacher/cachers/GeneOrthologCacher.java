@@ -43,12 +43,12 @@ public class GeneOrthologCacher extends Cacher {
         allMethods = geneRepository.getAllMethods();
         log.info(geneGeneAlgorithm.size());
 
-        int orthologousRecords = geneList.stream().map(gene -> gene.getOrthoGenes().size()).mapToInt(Integer::intValue).sum();
+        int orthologousRecords = geneList.stream().filter(gene -> gene.getOrthoGenes() != null).map(gene -> gene.getOrthoGenes().size()).mapToInt(Integer::intValue).sum();
         log.info("Total Number of Ortho Records: ", orthologousRecords);
         startProcess("create geneList into cache", orthologousRecords);
 
         List<OrthologView> allOrthology = new ArrayList<>();
-        geneList.forEach(gene -> {
+        geneList.stream().filter(gene -> gene.getOrthoGenes() != null).forEach(gene -> {
             Set<OrthologView> orthologySet = gene.getOrthoGenes().stream()
                     .map(orthologous -> {
                         OrthologView view = new OrthologView();
@@ -84,15 +84,17 @@ public class GeneOrthologCacher extends Cacher {
         finishProcess();
         
         
+/*
         startProcess("allOrthology orthologViews into cache", map.size());
-        
+
         map.forEach((speciesID, orthologViews) -> {
             cacheService.putCacheEntry(speciesID, orthologViews, View.OrthologyCacher.class, CacheAlliance.SPECIES_ORTHOLOGY);
             progressProcess();
         });
         
         finishProcess();
-        
+*/
+
         CacheStatus status = new CacheStatus(CacheAlliance.SPECIES_ORTHOLOGY);
         //status.setNumberOfEntities(allExpression.size());
 
