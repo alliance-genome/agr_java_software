@@ -36,7 +36,6 @@ public class Allele extends GeneticEntity implements Comparable<Allele>, Present
     private String release;
     private String localId;
     private String globalId;
-    private String modCrossRefCompleteUrl = "";
     @JsonView({View.Default.class, View.AlleleVariantSequenceConverterForES.class})
     private String symbolText;
     private String symbolTextWithSpecies;

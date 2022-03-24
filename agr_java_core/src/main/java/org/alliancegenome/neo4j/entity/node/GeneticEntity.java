@@ -31,7 +31,8 @@ public class GeneticEntity extends Neo4jEntity {
     @Convert(value = DateConverter.class)
     private Date dateProduced;
 
-    private String url = "";
+    @JsonView({View.Default.class, View.API.class, View.AlleleVariantSequenceConverterForES.class})
+    private String modCrossRefCompleteUrl = "";
 
     // only used for JsonView
     /// set when deserialized
@@ -160,17 +161,17 @@ public class GeneticEntity extends Neo4jEntity {
 
     // ToDo: the primary URL should be an attribute on the entity node
     @JsonView({View.GeneAllelesAPI.class, View.AlleleAPI.class, View.Default.class,View.AlleleVariantSequenceConverterForES.class})
-    public String getUrl() {
-        if (url != null)
-            return url;
+    public String getModCrossRefCompleteUrl() {
+        if (modCrossRefCompleteUrl != null)
+            return modCrossRefCompleteUrl;
         Map<String, Object> map = getCrossReferenceMap();
         if (map == null)
             return null;
         CrossReference primary = (CrossReference) map.get("primary");
         if (primary == null)
             return null;
-        url = primary.getUrl();
-        return url;
+        modCrossRefCompleteUrl = primary.getCrossRefCompleteUrl();
+        return modCrossRefCompleteUrl;
     }
 
     public static CrossReferenceType getType(String dbName) {
