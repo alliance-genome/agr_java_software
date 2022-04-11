@@ -23,8 +23,7 @@ public class ConditionService {
         // i.e. no model / AGM or Allele off PublicationJoin node
         // needed for showing experimental conditions
         if (entityJoin.getPublicationJoins().stream().anyMatch(pubJoin -> CollectionUtils.isEmpty(pubJoin.getAlleles())
-                && CollectionUtils.isEmpty(pubJoin.getModels()) && entityJoin.getModel() == null)
-                && entityJoin.hasExperimentalConditions()) {
+                && CollectionUtils.isEmpty(pubJoin.getModels()) && entityJoin.getModel() == null)) {
             GeneticEntity geneticEntity = entityJoin.getAllele();
             if (geneticEntity == null) {
                 geneticEntity = entityJoin.getGene();
@@ -32,7 +31,9 @@ public class ConditionService {
             PrimaryAnnotatedEntity entity = new PrimaryAnnotatedEntity();
             entity.setId(geneticEntity.getPrimaryKey());
             entity.setName(geneticEntity.getSymbol());
-            populateExperimentalConditions(entityJoin, entity);
+            if (entityJoin.hasExperimentalConditions()) {
+                populateExperimentalConditions(entityJoin, entity);
+            }
             List<CrossReference> refs = geneticEntity.getCrossReferences();
             if (CollectionUtils.isNotEmpty(refs))
                 entity.setUrl(refs.get(0).getCrossRefCompleteUrl());
