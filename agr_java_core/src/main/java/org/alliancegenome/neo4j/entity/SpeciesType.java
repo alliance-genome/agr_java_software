@@ -16,10 +16,10 @@ public enum SpeciesType {
     MOUSE("Mus musculus", "MGI", "NCBITaxon:10090", "Mmu", "MGD", "Mouse Genome Database", "10090", 2, "GRCm38"),
     AFRCLAWFROG("Xenopus laevis", "XBXL", "NCBITaxon:8355", "Xla", "XB", "Xenbase", "8355", 3, "XL9.2"),
     WESTCLAWFROG("Xenopus tropicalis", "XBXT", "NCBITaxon:8364", "Xtr", "XB", "Xenbase", "8364", 4, "XT9.1"),
-    ZEBRAFISH("Danio rerio", "ZFIN", "NCBITaxon:7955", "Dre", "ZFIN", "Zebrafish Information Network", "7955", 3, "GRCz11"),
-    FLY("Drosophila melanogaster", "FB", "NCBITaxon:7227", "Dme", "FB", "Fly Base", "7227", 4, "R6"),
-    WORM("Caenorhabditis elegans", "WB", "NCBITaxon:6239", "Cel", "WB", "Worm Base", "6239", 5, "WBcel235"),
-    YEAST("Saccharomyces cerevisiae", "SGD", "NCBITaxon:559292", "Sce", "SGD", "Saccharomyces Genome Database", "559292", 6, "R64-2-1"),
+    ZEBRAFISH("Danio rerio", "ZFIN", "NCBITaxon:7955", "Dre", "ZFIN", "Zebrafish Information Network", "7955", 5, "GRCz11"),
+    FLY("Drosophila melanogaster", "FB", "NCBITaxon:7227", "Dme", "FB", "Fly Base", "7227", 6, "R6"),
+    WORM("Caenorhabditis elegans", "WB", "NCBITaxon:6239", "Cel", "WB", "Worm Base", "6239", 7, "WBcel235"),
+    YEAST("Saccharomyces cerevisiae", "SGD", "NCBITaxon:559292", "Sce", "SGD", "Saccharomyces Genome Database", "559292", 8, "R64-2-1"),
     COVID(
             "SARS-CoV-2", // Must be the same as the DB due to lookup from the database
             "Severe acute respiratory syndrome coronavirus 2", // not sure where display Name is used?
@@ -27,7 +27,7 @@ public enum SpeciesType {
             "SARS-CoV-2", // Up for change?
             "COVID", // Up for change?
             "Severe acute respiratory syndrome coronavirus 2", // Mod name?
-            "2697049", 7, null);
+            "2697049", 9, null);
 
     private String name;
     private String displayName;
