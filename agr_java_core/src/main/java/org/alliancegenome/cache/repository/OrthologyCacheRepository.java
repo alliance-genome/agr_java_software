@@ -186,7 +186,7 @@ public class OrthologyCacheRepository {
 
         List<OrthologView> paginatedViewFiltered = orthologViewFiltered.stream()
                 .skip(pagination.getStart())
-                .limit(pagination.getLimit()).sorted(Comparator.comparing(o -> o.getHomologGene().getSymbol().toLowerCase()))
+                .limit(pagination.getLimit()).sorted(Comparator.comparing(o -> o.getHomologGene().getSpecies().getPhylogeneticOrder()))
                 .collect(Collectors.toList());
 
 
