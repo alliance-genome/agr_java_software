@@ -22,12 +22,12 @@
 		<dependency>
 			<groupId>org.infinispan</groupId>
 			<artifactId>infinispan-core</artifactId>
-			<version>10.1.3.Final</version>
+			<version>13.0.10.Final</version>
 		</dependency>
 		<dependency>
 			<groupId>org.infinispan</groupId>
 			<artifactId>infinispan-client-hotrod</artifactId>
-			<version>10.1.3.Final</version>
+			<version>13.0.10.Final</version>
 		</dependency>
 		<dependency>
 			<groupId>com.github.mmazi</groupId>

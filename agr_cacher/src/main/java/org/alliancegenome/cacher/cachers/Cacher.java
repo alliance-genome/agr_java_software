@@ -28,7 +28,7 @@ public abstract class Cacher extends Thread {
 
 	protected boolean useCache;
 
-	private ProcessDisplayHelper display = new ProcessDisplayHelper();
+	private ProcessDisplayHelper display = new ProcessDisplayHelper(10000);
 
 	protected CacheService cacheService = new CacheService();
 
@@ -53,7 +53,7 @@ public abstract class Cacher extends Thread {
 	}
 
 	protected void startProcess(String message, int totalSize) {
-		display = new ProcessDisplayHelper();
+		display = new ProcessDisplayHelper(10000);
 		display.startProcess(message, totalSize);
 	}
 
