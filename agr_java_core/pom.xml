@@ -15,19 +15,20 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<jackson.version>2.12.6.1</jackson.version>
+		<jackson.version>2.13.4</jackson.version>
+		<infinispan.version>13.0.10.Final</infinispan.version>
 	</properties>
 
 	<dependencies>
 		<dependency>
 			<groupId>org.infinispan</groupId>
 			<artifactId>infinispan-core</artifactId>
-			<version>13.0.10.Final</version>
+			<version>${infinispan.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.infinispan</groupId>
 			<artifactId>infinispan-client-hotrod</artifactId>
-			<version>13.0.10.Final</version>
+			<version>${infinispan.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.github.mmazi</groupId>
