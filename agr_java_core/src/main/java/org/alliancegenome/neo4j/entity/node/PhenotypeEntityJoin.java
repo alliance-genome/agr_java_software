@@ -14,38 +14,38 @@ import lombok.*;
 @Schema(name="PhenotypeEntityJoin", description="POJO that represents the Phenotype Entity join")
 public class PhenotypeEntityJoin extends EntityJoin {
 
-    private String primaryKey;
-    private String dataProvider;
+	private String primaryKey;
+	private String dataProvider;
 
-    @Relationship(type = "ASSOCIATION", direction = Relationship.INCOMING)
-    private Gene gene;
+	@Relationship(type = "ASSOCIATION", direction = Relationship.INCOMING)
+	private Gene gene;
 
-    @Relationship(type = "ASSOCIATION", direction = Relationship.INCOMING)
-    private Allele allele;
+	@Relationship(type = "ASSOCIATION", direction = Relationship.INCOMING)
+	private Allele allele;
 
-    @Relationship(type = "ASSOCIATION", direction = Relationship.INCOMING)
-    private AffectedGenomicModel model;
+	@Relationship(type = "ASSOCIATION", direction = Relationship.INCOMING)
+	private AffectedGenomicModel model;
 
-    @Relationship(type = "ASSOCIATION")
-    private Phenotype phenotype;
+	@Relationship(type = "ASSOCIATION")
+	private Phenotype phenotype;
 
-    public List<Publication> getPublications() {
-        if (publicationJoins == null)
-            return null;
-        return publicationJoins.stream()
-                .map(PublicationJoin::getPublication)
-                .collect(Collectors.toList());
-    }
+	public List<Publication> getPublications() {
+		if (publicationJoins == null)
+			return null;
+		return publicationJoins.stream()
+				.map(PublicationJoin::getPublication)
+				.collect(Collectors.toList());
+	}
 
-    @Override
-    public String toString() {
-        return primaryKey;
-    }
+	@Override
+	public String toString() {
+		return primaryKey;
+	}
 
-    public Source getSource() {
-        Source source = new Source();
-        source.setName(dataProvider);
-        return source;
-    }
+	public Source getSource() {
+		Source source = new Source();
+		source.setName(dataProvider);
+		return source;
+	}
 
 }

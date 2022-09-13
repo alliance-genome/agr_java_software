@@ -11,12 +11,12 @@ import lombok.*;
 
 @Getter @Setter
 public class ReleaseSummary {
-    
-    @JsonView({View.API.class})
-    private AllianceReleaseInfo releaseInfo;
-    @JsonView({View.API.class})
-    private List<ModFileMetadata> metaData;
-    @JsonView({View.API.class})
-    private List<OntologyFileMetadata> ontologyMetaData;
+	
+	@JsonView({View.API.class})
+	private AllianceReleaseInfo releaseInfo;
+	@JsonView({View.API.class})
+	private List<ModFileMetadata> metaData;
+	@JsonView({View.API.class})
+	private List<OntologyFileMetadata> ontologyMetaData;
 
 }

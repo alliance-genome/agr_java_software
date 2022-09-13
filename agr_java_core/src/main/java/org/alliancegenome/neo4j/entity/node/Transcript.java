@@ -18,42 +18,42 @@ import lombok.*;
 @Schema(name = "Transcript", description = "POJO that represents the Transcript")
 public class Transcript extends Neo4jEntity implements Comparable<Transcript> {
 
-    @JsonView({View.Default.class, View.API.class,View.AlleleVariantSequenceConverterForES.class})
-    @JsonProperty(value = "id")
-    protected String primaryKey;
+	@JsonView({View.Default.class, View.API.class,View.AlleleVariantSequenceConverterForES.class})
+	@JsonProperty(value = "id")
+	protected String primaryKey;
 
-    @JsonView({View.Default.class, View.API.class,View.AlleleVariantSequenceConverterForES.class})
-    protected String name;
+	@JsonView({View.Default.class, View.API.class,View.AlleleVariantSequenceConverterForES.class})
+	protected String name;
 
-    @Override
-    public int compareTo(Transcript o) {
-        return name.compareTo(o.getName());
-    }
+	@Override
+	public int compareTo(Transcript o) {
+		return name.compareTo(o.getName());
+	}
 
-    @JsonView({View.Default.class, View.API.class})
-    @Relationship(type = "ASSOCIATION")
-    private List<TranscriptLevelConsequence> consequences;
+	@JsonView({View.Default.class, View.API.class})
+	@Relationship(type = "ASSOCIATION")
+	private List<TranscriptLevelConsequence> consequences;
 
-    @JsonView({View.Default.class, View.API.class})
-    @Relationship(type = "ASSOCIATION")
-    private GenomeLocation genomeLocation;
+	@JsonView({View.Default.class, View.API.class})
+	@Relationship(type = "ASSOCIATION")
+	private GenomeLocation genomeLocation;
 
-    @JsonView({View.Default.class, View.API.class,View.AlleleVariantSequenceConverterForES.class})
-    @Relationship(type = "TRANSCRIPT_TYPE", direction = Relationship.INCOMING)
-    private SOTerm type;
+	@JsonView({View.Default.class, View.API.class,View.AlleleVariantSequenceConverterForES.class})
+	@Relationship(type = "TRANSCRIPT_TYPE", direction = Relationship.INCOMING)
+	private SOTerm type;
 
-    @JsonView({View.Default.class, View.API.class})
-    @Relationship(type = "TRANSCRIPT")
-    private Gene gene;
+	@JsonView({View.Default.class, View.API.class})
+	@Relationship(type = "TRANSCRIPT")
+	private Gene gene;
 
-    @Relationship(type = "EXON", direction = Relationship.INCOMING)
-    private List<Exon> exons;
+	@Relationship(type = "EXON", direction = Relationship.INCOMING)
+	private List<Exon> exons;
 
-    @JsonView({View.Default.class, View.API.class})
-    private String intronExonLocation;
+	@JsonView({View.Default.class, View.API.class})
+	private String intronExonLocation;
 
-    @Override
-    public String toString() {
-        return name;
-    }
+	@Override
+	public String toString() {
+		return name;
+	}
 }

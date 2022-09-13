@@ -11,26 +11,26 @@ import lombok.*;
 @Setter
 public class BioEntityGeneExpressionJoin extends Association {
 
-    @Relationship(type = "ASSOCIATION", direction = Relationship.INCOMING)
-    private ExpressionBioEntity entity;
+	@Relationship(type = "ASSOCIATION", direction = Relationship.INCOMING)
+	private ExpressionBioEntity entity;
 
-    @Relationship(type = "EVIDENCE")
-    private List<Publication> publications;
+	@Relationship(type = "EVIDENCE")
+	private List<Publication> publications;
 
-    @Relationship(type = "DURING")
-    private Stage stage;
+	@Relationship(type = "DURING")
+	private Stage stage;
 
-    @Relationship(type = "STAGE_RIBBON_TERM")
-    private UBERONTerm stageTerm;
+	@Relationship(type = "STAGE_RIBBON_TERM")
+	private UBERONTerm stageTerm;
 
-    @Relationship(type = "ASSAY")
-    private MMOTerm assay;
+	@Relationship(type = "ASSAY")
+	private MMOTerm assay;
 
-    @Relationship(type = "CROSS_REFERENCE")
-    private List<CrossReference> crossReferences;
+	@Relationship(type = "CROSS_REFERENCE")
+	private List<CrossReference> crossReferences;
 
-    @Relationship(type = "ASSOCIATION", direction = Relationship.INCOMING)
-    private Gene gene;
+	@Relationship(type = "ASSOCIATION", direction = Relationship.INCOMING)
+	private Gene gene;
 
 
 }

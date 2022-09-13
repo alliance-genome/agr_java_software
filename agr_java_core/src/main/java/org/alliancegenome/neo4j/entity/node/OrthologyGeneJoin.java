@@ -10,22 +10,22 @@ import lombok.*;
 @NodeEntity
 public class OrthologyGeneJoin extends Association {
 
-    private String primaryKey;
-    private String joinType;
-    
-    @Relationship(type = "NOT_MATCHED")
-    private List<OrthoAlgorithm> notMatched;
-    
-    @Relationship(type = "MATCHED")
-    private List<OrthoAlgorithm> matched;
-    
-    @Relationship(type = "NOT_CALLED")
-    private List<OrthoAlgorithm> notCalled;
+	private String primaryKey;
+	private String joinType;
+	
+	@Relationship(type = "NOT_MATCHED")
+	private List<OrthoAlgorithm> notMatched;
+	
+	@Relationship(type = "MATCHED")
+	private List<OrthoAlgorithm> matched;
+	
+	@Relationship(type = "NOT_CALLED")
+	private List<OrthoAlgorithm> notCalled;
 
-    @Relationship(type = "ASSOCIATION", direction =  Relationship.INCOMING)
-    private Gene gene1;
+	@Relationship(type = "ASSOCIATION", direction =	 Relationship.INCOMING)
+	private Gene gene1;
 
-    @Relationship(type = "ASSOCIATION")
-    private Gene gene2;
+	@Relationship(type = "ASSOCIATION")
+	private Gene gene2;
 
 }

@@ -14,12 +14,12 @@ import lombok.*;
 @Schema(name="Synonym", description="POJO that represents Synonyms")
 public class Synonym extends Identifier {
 
-    private String primaryKey;
-    @JsonView({View.Default.class})
-    private String name;
+	private String primaryKey;
+	@JsonView({View.Default.class})
+	private String name;
 
-    @Override
-    public String toString() {
-        return name;
-    }
+	@Override
+	public String toString() {
+		return name;
+	}
 }

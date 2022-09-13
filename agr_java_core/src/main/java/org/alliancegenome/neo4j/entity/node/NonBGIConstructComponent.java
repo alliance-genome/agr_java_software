@@ -11,5 +11,5 @@ import lombok.*;
 //@Schema(name = "Gene", description = "POJO that represents a non- BGI Construct Component")
 public class NonBGIConstructComponent extends Neo4jEntity {
 
-    public String primaryKey;
+	public String primaryKey;
 }

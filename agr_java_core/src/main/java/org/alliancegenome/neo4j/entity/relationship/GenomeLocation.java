@@ -14,45 +14,45 @@ import lombok.*;
 @Setter
 public class GenomeLocation extends Neo4jEntity {
 
-    @Relationship(type = "ASSOCIATION")
-    private Chromosome chromosome;
+	@Relationship(type = "ASSOCIATION")
+	private Chromosome chromosome;
 
-    @JsonView({View.Default.class, View.AlleleVariantSequenceConverterForES.class})
-    @JsonProperty(value = "chromosome")
-    public String getChromosomeName() {
-        if(chromosome == null)
-            return null;
-        return chromosome.getPrimaryKey();
-    }
+	@JsonView({View.Default.class, View.AlleleVariantSequenceConverterForES.class})
+	@JsonProperty(value = "chromosome")
+	public String getChromosomeName() {
+		if(chromosome == null)
+			return null;
+		return chromosome.getPrimaryKey();
+	}
 
-    @JsonProperty(value = "chromosome")
-    public void setChromosomeName(String name) {
-        chromosome = new Chromosome();
-        chromosome.setPrimaryKey(name);
-    }
+	@JsonProperty(value = "chromosome")
+	public void setChromosomeName(String name) {
+		chromosome = new Chromosome();
+		chromosome.setPrimaryKey(name);
+	}
 
-    @JsonView({View.Default.class, View.AlleleVariantSequenceConverterForES.class})
-    private Long start;
+	@JsonView({View.Default.class, View.AlleleVariantSequenceConverterForES.class})
+	private Long start;
 
-    @JsonView({View.Default.class, View.AlleleVariantSequenceConverterForES.class})
-    private Long end;
+	@JsonView({View.Default.class, View.AlleleVariantSequenceConverterForES.class})
+	private Long end;
 
-    @JsonView({View.Default.class})
-    private String assembly;
+	@JsonView({View.Default.class})
+	private String assembly;
 
-    @JsonView({View.Default.class})
-    private String strand;
+	@JsonView({View.Default.class})
+	private String strand;
 
-    public String getChromosomeAndPosition() {
-        String response = chromosome.getPrimaryKey();
-        response += ":";
-        if (start != null) {
-            response += start;
-        }
-        if (end != null) {
-            response += "-";
-            response += end;
-        }
-        return response;
-    }
+	public String getChromosomeAndPosition() {
+		String response = chromosome.getPrimaryKey();
+		response += ":";
+		if (start != null) {
+			response += start;
+		}
+		if (end != null) {
+			response += "-";
+			response += end;
+		}
+		return response;
+	}
 }

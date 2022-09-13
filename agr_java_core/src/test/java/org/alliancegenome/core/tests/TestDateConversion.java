@@ -12,27 +12,27 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 
 public class TestDateConversion {
 
-    @Test
-    public void testDataConversion() throws Exception {
-        System.setProperty("NEO4J_HOST", "build.alliancegenome.org");
-        
-        GeneRepository repo = new GeneRepository();
+	@Test
+	public void testDataConversion() throws Exception {
+		System.setProperty("NEO4J_HOST", "build.alliancegenome.org");
+		
+		GeneRepository repo = new GeneRepository();
 
-        Gene g = repo.getOneGene("RGD:7559696");
-        
-        System.out.println(g.getDateProduced());
-        
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configure(MapperFeature.DEFAULT_VIEW_INCLUSION, false);
-        mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
-        if (!ConfigHelper.isProduction())
-            mapper.enable(SerializationFeature.INDENT_OUTPUT);
-        
-        
-        
-        System.out.println(mapper.writerWithView(View.GeneAPI.class).writeValueAsString(g));
-        
-        // "2020-05-27T19:23:23.882-05:00"
-        //repo.getOneGene("2020-05-27T19:23:23.882-05:00");
-    }
+		Gene g = repo.getOneGene("RGD:7559696");
+		
+		System.out.println(g.getDateProduced());
+		
+		ObjectMapper mapper = new ObjectMapper();
+		mapper.configure(MapperFeature.DEFAULT_VIEW_INCLUSION, false);
+		mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+		if (!ConfigHelper.isProduction())
+			mapper.enable(SerializationFeature.INDENT_OUTPUT);
+		
+		
+		
+		System.out.println(mapper.writerWithView(View.GeneAPI.class).writeValueAsString(g));
+		
+		// "2020-05-27T19:23:23.882-05:00"
+		//repo.getOneGene("2020-05-27T19:23:23.882-05:00");
+	}
 }

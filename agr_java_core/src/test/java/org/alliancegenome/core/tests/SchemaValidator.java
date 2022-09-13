@@ -13,94 +13,94 @@ import com.github.fge.jsonschema.main.JsonSchemaFactory;
 
 public class SchemaValidator {
 
-    public static void main(String[] args) throws Exception {
+	public static void main(String[] args) throws Exception {
 
-        String path = "/Users/balrog/git/agr_loader/schemas";
+		String path = "/Users/balrog/git/agr_loader/schemas";
 
-        List<File> schemaFiles = new ArrayList<File>();
+		List<File> schemaFiles = new ArrayList<File>();
 
-        schemaFiles.add(new File(path + "/crossReference.json"));
-        schemaFiles.add(new File(path + "/dataProvider.json"));
-        schemaFiles.add(new File(path + "/globalId.json"));
-        schemaFiles.add(new File(path + "/metaData.json"));
-        schemaFiles.add(new File(path + "/publicationRef.json"));
-        schemaFiles.add(new File(path + "/synonym.json"));
+		schemaFiles.add(new File(path + "/crossReference.json"));
+		schemaFiles.add(new File(path + "/dataProvider.json"));
+		schemaFiles.add(new File(path + "/globalId.json"));
+		schemaFiles.add(new File(path + "/metaData.json"));
+		schemaFiles.add(new File(path + "/publicationRef.json"));
+		schemaFiles.add(new File(path + "/synonym.json"));
 
-        schemaFiles.add(new File(path + "/allele/alleleMetaData.json"));
+		schemaFiles.add(new File(path + "/allele/alleleMetaData.json"));
 
-        schemaFiles.add(new File(path + "/disease/additionalGeneticComponent.json"));
-        schemaFiles.add(new File(path + "/disease/diseaseMetaDataDefinition.json"));
-        schemaFiles.add(new File(path + "/disease/diseaseModelAnnotation.json"));
-        schemaFiles.add(new File(path + "/disease/diseaseObjectRelation.json"));
-        schemaFiles.add(new File(path + "/disease/evidence.json"));
-        schemaFiles.add(new File(path + "/disease/experimentalConditions.json"));
-        schemaFiles.add(new File(path + "/disease/modifier.json"));
+		schemaFiles.add(new File(path + "/disease/additionalGeneticComponent.json"));
+		schemaFiles.add(new File(path + "/disease/diseaseMetaDataDefinition.json"));
+		schemaFiles.add(new File(path + "/disease/diseaseModelAnnotation.json"));
+		schemaFiles.add(new File(path + "/disease/diseaseObjectRelation.json"));
+		schemaFiles.add(new File(path + "/disease/evidence.json"));
+		schemaFiles.add(new File(path + "/disease/experimentalConditions.json"));
+		schemaFiles.add(new File(path + "/disease/modifier.json"));
 
-        schemaFiles.add(new File(path + "/expression/uberonStageSlimTerm.json"));
-        schemaFiles.add(new File(path + "/expression/uberonStructureSlimTerm.json"));
-        schemaFiles.add(new File(path + "/expression/whenExpressed.json"));
-        schemaFiles.add(new File(path + "/expression/whereExpressed.json"));
-        schemaFiles.add(new File(path + "/expression/wildtypeExpressionMetaDataDefinition.json"));
-        schemaFiles.add(new File(path + "/expression/wildtypeExpressionModelAnnotation.json"));
+		schemaFiles.add(new File(path + "/expression/uberonStageSlimTerm.json"));
+		schemaFiles.add(new File(path + "/expression/uberonStructureSlimTerm.json"));
+		schemaFiles.add(new File(path + "/expression/whenExpressed.json"));
+		schemaFiles.add(new File(path + "/expression/whereExpressed.json"));
+		schemaFiles.add(new File(path + "/expression/wildtypeExpressionMetaDataDefinition.json"));
+		schemaFiles.add(new File(path + "/expression/wildtypeExpressionModelAnnotation.json"));
 
-        schemaFiles.add(new File(path + "/gene/gene.json"));
-        schemaFiles.add(new File(path + "/gene/geneMetaData.json"));
-        schemaFiles.add(new File(path + "/gene/genomeLocation.json"));
+		schemaFiles.add(new File(path + "/gene/gene.json"));
+		schemaFiles.add(new File(path + "/gene/geneMetaData.json"));
+		schemaFiles.add(new File(path + "/gene/genomeLocation.json"));
 
-        schemaFiles.add(new File(path + "/genotype/genotype.json"));
-        schemaFiles.add(new File(path + "/genotype/genotypeMetaData.json"));
-        schemaFiles.add(new File(path + "/genotype/genotypeComponent.json"));
-        schemaFiles.add(new File(path + "/genotype/sequenceTargetingReagent.json"));
+		schemaFiles.add(new File(path + "/genotype/genotype.json"));
+		schemaFiles.add(new File(path + "/genotype/genotypeMetaData.json"));
+		schemaFiles.add(new File(path + "/genotype/genotypeComponent.json"));
+		schemaFiles.add(new File(path + "/genotype/sequenceTargetingReagent.json"));
 
-        schemaFiles.add(new File(path + "/orthology/orthology.json"));
-        schemaFiles.add(new File(path + "/orthology/orthologyMetaData.json"));
+		schemaFiles.add(new File(path + "/orthology/orthology.json"));
+		schemaFiles.add(new File(path + "/orthology/orthologyMetaData.json"));
 
-        schemaFiles.add(new File(path + "/phenotype/phenotypeMetaDataDefinition.json"));
-        schemaFiles.add(new File(path + "/phenotype/phenotypeModelAnnotation.json"));
-        schemaFiles.add(new File(path + "/phenotype/phenotypeTermIdentifier.json"));
+		schemaFiles.add(new File(path + "/phenotype/phenotypeMetaDataDefinition.json"));
+		schemaFiles.add(new File(path + "/phenotype/phenotypeModelAnnotation.json"));
+		schemaFiles.add(new File(path + "/phenotype/phenotypeTermIdentifier.json"));
 
-        schemaFiles.add(new File(path + "/genedescription/description.json"));
-        schemaFiles.add(new File(path + "/genedescription/single_stats.json"));
-        schemaFiles.add(new File(path + "/genedescription/overall_properties.json"));
-        schemaFiles.add(new File(path + "/genedescription/gd_report.json"));
-        schemaFiles.add(new File(path + "/genedescription/aggregate_stats.json"));
+		schemaFiles.add(new File(path + "/genedescription/description.json"));
+		schemaFiles.add(new File(path + "/genedescription/single_stats.json"));
+		schemaFiles.add(new File(path + "/genedescription/overall_properties.json"));
+		schemaFiles.add(new File(path + "/genedescription/gd_report.json"));
+		schemaFiles.add(new File(path + "/genedescription/aggregate_stats.json"));
 
-        
-        // Test Schema Syntax
-        for(File schemaFile: schemaFiles) {
-            System.out.print("Testing: " + schemaFile.getAbsolutePath());
-            ListProcessingReport schemaReport = (ListProcessingReport) JsonSchemaFactory.byDefault().getSyntaxValidator().validateSchema(JsonLoader.fromFile(schemaFile));
-            System.out.println(" -- " + (schemaReport.isSuccess() ? "success" : "failure"));
-            if(!schemaReport.isSuccess()) {
-                System.out.println(schemaReport);
-            }
-        }
-        System.out.println("We are here");
+		
+		// Test Schema Syntax
+		for(File schemaFile: schemaFiles) {
+			System.out.print("Testing: " + schemaFile.getAbsolutePath());
+			ListProcessingReport schemaReport = (ListProcessingReport) JsonSchemaFactory.byDefault().getSyntaxValidator().validateSchema(JsonLoader.fromFile(schemaFile));
+			System.out.println(" -- " + (schemaReport.isSuccess() ? "success" : "failure"));
+			if(!schemaReport.isSuccess()) {
+				System.out.println(schemaReport);
+			}
+		}
+		System.out.println("We are here");
 
-        JsonSchema schemaNode = JsonSchemaFactory.byDefault().getJsonSchema(new File("/Users/oblod/git/agr_architecture/agr_loader/schemas/disease/diseaseMetaDataDefinition.json").toURI().toString());
+		JsonSchema schemaNode = JsonSchemaFactory.byDefault().getJsonSchema(new File("/Users/oblod/git/agr_architecture/agr_loader/schemas/disease/diseaseMetaDataDefinition.json").toURI().toString());
 
-        File dataFilePath = new File("/Users/oblod/Desktop/AGR/data/FB_1.0.0.4_disease.json");
-        JsonNode jsonNode = JsonLoader.fromFile(dataFilePath);
-        ProcessingReport report = schemaNode.validate(jsonNode);
-
-
-        System.out.println("Validation Complete: " + report.isSuccess());
-
-        if(!report.isSuccess()) {
-            System.out.println(report);
-        }
-
-        //schemaFilePath = new File("/Users/oblod/git/agr_architecture/agr_loader/schemas/gene/geneMetaData.json");
-        //schemaNode = JsonSchemaFactory.byDefault().getJsonSchema(schemaFilePath.toURI().toString());
+		File dataFilePath = new File("/Users/oblod/Desktop/AGR/data/FB_1.0.0.4_disease.json");
+		JsonNode jsonNode = JsonLoader.fromFile(dataFilePath);
+		ProcessingReport report = schemaNode.validate(jsonNode);
 
 
-        //schemaFilePath = new File("/Users/oblod/git/agr_architecture/agr_loader/schemas/dataProvider.json");
-        //schemaNode = JsonSchemaFactory.byDefault().getJsonSchema(schemaFilePath.toURI().toString());
+		System.out.println("Validation Complete: " + report.isSuccess());
+
+		if(!report.isSuccess()) {
+			System.out.println(report);
+		}
+
+		//schemaFilePath = new File("/Users/oblod/git/agr_architecture/agr_loader/schemas/gene/geneMetaData.json");
+		//schemaNode = JsonSchemaFactory.byDefault().getJsonSchema(schemaFilePath.toURI().toString());
 
 
+		//schemaFilePath = new File("/Users/oblod/git/agr_architecture/agr_loader/schemas/dataProvider.json");
+		//schemaNode = JsonSchemaFactory.byDefault().getJsonSchema(schemaFilePath.toURI().toString());
 
 
 
-    }
+
+
+	}
 
 }

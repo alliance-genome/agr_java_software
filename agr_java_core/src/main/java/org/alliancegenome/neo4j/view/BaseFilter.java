@@ -10,12 +10,12 @@ import lombok.*;
 @Getter
 public class BaseFilter extends HashMap<FieldFilter, String> {
 
-    public void addFieldFilter(FieldFilter fieldFilter, String value) {
-        put(fieldFilter, value);
-    }
+	public void addFieldFilter(FieldFilter fieldFilter, String value) {
+		put(fieldFilter, value);
+	}
 
-    public String getFilterValue(FieldFilter fieldFilter) {
-        return get(fieldFilter);
-    }
+	public String getFilterValue(FieldFilter fieldFilter) {
+		return get(fieldFilter);
+	}
 
 }
