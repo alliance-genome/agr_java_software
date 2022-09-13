@@ -15,150 +15,150 @@ import lombok.extern.log4j.Log4j2;
 @Log4j2
 public class InteractionCacher extends Cacher {
 
-    private static InteractionRepository interactionRepository = new InteractionRepository();
+	private static InteractionRepository interactionRepository = new InteractionRepository();
 
-    public InteractionCacher() {
-    }
+	public InteractionCacher() {
+	}
 
-    @Override
-    protected void init() {
-        interactionRepository = new InteractionRepository();
-    }
+	@Override
+	protected void init() {
+		interactionRepository = new InteractionRepository();
+	}
 
-    @Override
-    protected void cache() {
+	@Override
+	protected void cache() {
 
-        startProcess("interactionRepository.getAllInteractions");
+		startProcess("interactionRepository.getAllInteractions");
 
-        LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>(interactionRepository.getAllInteractionJoinKeys());
-        
-        ConcurrentLinkedQueue<InteractionGeneJoin> allInteractionAnnotations = new ConcurrentLinkedQueue<InteractionGeneJoin>();
-        
-        try {
+		LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>(interactionRepository.getAllInteractionJoinKeys());
+		
+		ConcurrentLinkedQueue<InteractionGeneJoin> allInteractionAnnotations = new ConcurrentLinkedQueue<InteractionGeneJoin>();
+		
+		try {
 
-            ExecutorService executor = Executors.newFixedThreadPool(20);
-            for(int i = 0; i < 20; i++) {
-                InteractionGatherer gatherer = new InteractionGatherer(queue, allInteractionAnnotations);
-                executor.execute(gatherer);
-            }
+			ExecutorService executor = Executors.newFixedThreadPool(20);
+			for(int i = 0; i < 20; i++) {
+				InteractionGatherer gatherer = new InteractionGatherer(queue, allInteractionAnnotations);
+				executor.execute(gatherer);
+			}
 
-            log.info("InteractionGatherer shuting down executor: ");
-            executor.shutdown();  
-            while (!executor.isTerminated()) {
-                Thread.sleep(1000);
-            }
-            log.info("InteractionGatherer executor shut down: ");
+			log.info("InteractionGatherer shuting down executor: ");
+			executor.shutdown();  
+			while (!executor.isTerminated()) {
+				Thread.sleep(1000);
+			}
+			log.info("InteractionGatherer executor shut down: ");
 
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        
-        
-        finishProcess();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		
+		finishProcess();
 
 
-        startProcess("interactionAnnotationMapGene", allInteractionAnnotations.size());
-        //parallelStream is unsafe here, we found out that it lost InteractionGeneJoin.getPhenotypes().getPhenotypeStatement() information, it return null
-        //Map<String, List<InteractionGeneJoin>> interactionAnnotationMapGene = allInteractionAnnotations.parallelStream()
-        Map<String, List<InteractionGeneJoin>> interactionAnnotationMapGene = allInteractionAnnotations.stream()        
-                // exclude self-interaction
-                .filter(interactionGeneJoin -> !interactionGeneJoin.getGeneA().getPrimaryKey().equals(interactionGeneJoin.getGeneB().getPrimaryKey()))
-                .collect(groupingBy(phenotypeAnnotation -> phenotypeAnnotation.getGeneA().getPrimaryKey()));
+		startProcess("interactionAnnotationMapGene", allInteractionAnnotations.size());
+		//parallelStream is unsafe here, we found out that it lost InteractionGeneJoin.getPhenotypes().getPhenotypeStatement() information, it return null
+		//Map<String, List<InteractionGeneJoin>> interactionAnnotationMapGene = allInteractionAnnotations.parallelStream()
+		Map<String, List<InteractionGeneJoin>> interactionAnnotationMapGene = allInteractionAnnotations.stream()		
+				// exclude self-interaction
+				.filter(interactionGeneJoin -> !interactionGeneJoin.getGeneA().getPrimaryKey().equals(interactionGeneJoin.getGeneB().getPrimaryKey()))
+				.collect(groupingBy(phenotypeAnnotation -> phenotypeAnnotation.getGeneA().getPrimaryKey()));
 
-        finishProcess();
+		finishProcess();
 
-        startProcess("create reverse joins", allInteractionAnnotations.size());
+		startProcess("create reverse joins", allInteractionAnnotations.size());
 
-        allInteractionAnnotations.forEach(join -> {
-            String primaryKey = join.getGeneB().getPrimaryKey();
-            List<InteractionGeneJoin> joins = interactionAnnotationMapGene.computeIfAbsent(primaryKey, k -> new ArrayList<>());
-            joins.add(createNewInteractionGeneJoin(join));
-        });
+		allInteractionAnnotations.forEach(join -> {
+			String primaryKey = join.getGeneB().getPrimaryKey();
+			List<InteractionGeneJoin> joins = interactionAnnotationMapGene.computeIfAbsent(primaryKey, k -> new ArrayList<>());
+			joins.add(createNewInteractionGeneJoin(join));
+		});
 
-        finishProcess();
+		finishProcess();
 
-        startProcess("add interactions to cache", allInteractionAnnotations.size());
+		startProcess("add interactions to cache", allInteractionAnnotations.size());
 
-        interactionAnnotationMapGene.forEach((key, value) -> {
-            cacheService.putCacheEntry(key, value, View.Interaction.class, CacheAlliance.GENE_INTERACTION);
-            progressProcess();
-        });
+		interactionAnnotationMapGene.forEach((key, value) -> {
+			cacheService.putCacheEntry(key, value, View.Interaction.class, CacheAlliance.GENE_INTERACTION);
+			progressProcess();
+		});
 
-        finishProcess();
+		finishProcess();
 
-        log.info("All interactions: " + allInteractionAnnotations.size());
-        log.info("Genes with interactions: " + interactionAnnotationMapGene.size());
-        Map<String, Integer> stats = new HashMap<>(interactionAnnotationMapGene.size());
-        interactionAnnotationMapGene.forEach((geneID, joins) -> stats.put(geneID, joins.size()));
+		log.info("All interactions: " + allInteractionAnnotations.size());
+		log.info("Genes with interactions: " + interactionAnnotationMapGene.size());
+		Map<String, Integer> stats = new HashMap<>(interactionAnnotationMapGene.size());
+		interactionAnnotationMapGene.forEach((geneID, joins) -> stats.put(geneID, joins.size()));
 
-        Map<String, List<InteractionGeneJoin>> speciesStats = allInteractionAnnotations.stream().collect(groupingBy(join -> join.getGeneA().getSpecies().getName()));
+		Map<String, List<InteractionGeneJoin>> speciesStats = allInteractionAnnotations.stream().collect(groupingBy(join -> join.getGeneA().getSpecies().getName()));
 
-        Map<String, Integer> speciesStatsInt = new HashMap<>();
-        speciesStats.forEach((species, joins) -> stats.put(species, joins.size()));
+		Map<String, Integer> speciesStatsInt = new HashMap<>();
+		speciesStats.forEach((species, joins) -> stats.put(species, joins.size()));
 
-        CacheStatus status = new CacheStatus(CacheAlliance.GENE_INTERACTION);
-        status.setNumberOfEntities(allInteractionAnnotations.size());
-        status.setEntityStats(stats);
-        status.setSpeciesStats(speciesStatsInt);
-        setCacheStatus(status);
+		CacheStatus status = new CacheStatus(CacheAlliance.GENE_INTERACTION);
+		status.setNumberOfEntities(allInteractionAnnotations.size());
+		status.setEntityStats(stats);
+		status.setSpeciesStats(speciesStatsInt);
+		setCacheStatus(status);
 
-        interactionRepository.clearCache();
-    }
+		interactionRepository.clearCache();
+	}
 
-    private InteractionGeneJoin createNewInteractionGeneJoin(InteractionGeneJoin join) {
-        InteractionGeneJoin newJoin = new InteractionGeneJoin();
-        newJoin.setPrimaryKey(join.getPrimaryKey());
-        newJoin.setJoinType(join.getJoinType());
-        newJoin.setAggregationDatabase(join.getAggregationDatabase());
-        newJoin.setCrossReferences(join.getCrossReferences());
-        newJoin.setDetectionsMethods(join.getDetectionsMethods());
-        newJoin.setGeneA(join.getGeneB());
-        newJoin.setGeneB(join.getGeneA());
-        newJoin.setInteractionType(join.getInteractionType());
-        newJoin.setInteractorARole(join.getInteractorBRole());
-        newJoin.setInteractorAType(join.getInteractorBType());
-        newJoin.setInteractorBRole(join.getInteractorARole());
-        newJoin.setInteractorBType(join.getInteractorAType());
-        newJoin.setPublication(join.getPublication());
-        newJoin.setSourceDatabase(join.getSourceDatabase());
-        newJoin.setId(join.getId());
-        newJoin.setAlleleA(join.getAlleleB());
-        newJoin.setAlleleB(join.getAlleleA());
-        newJoin.setPhenotypes(join.getPhenotypes());
-        return newJoin;
-    }
+	private InteractionGeneJoin createNewInteractionGeneJoin(InteractionGeneJoin join) {
+		InteractionGeneJoin newJoin = new InteractionGeneJoin();
+		newJoin.setPrimaryKey(join.getPrimaryKey());
+		newJoin.setJoinType(join.getJoinType());
+		newJoin.setAggregationDatabase(join.getAggregationDatabase());
+		newJoin.setCrossReferences(join.getCrossReferences());
+		newJoin.setDetectionsMethods(join.getDetectionsMethods());
+		newJoin.setGeneA(join.getGeneB());
+		newJoin.setGeneB(join.getGeneA());
+		newJoin.setInteractionType(join.getInteractionType());
+		newJoin.setInteractorARole(join.getInteractorBRole());
+		newJoin.setInteractorAType(join.getInteractorBType());
+		newJoin.setInteractorBRole(join.getInteractorARole());
+		newJoin.setInteractorBType(join.getInteractorAType());
+		newJoin.setPublication(join.getPublication());
+		newJoin.setSourceDatabase(join.getSourceDatabase());
+		newJoin.setId(join.getId());
+		newJoin.setAlleleA(join.getAlleleB());
+		newJoin.setAlleleB(join.getAlleleA());
+		newJoin.setPhenotypes(join.getPhenotypes());
+		return newJoin;
+	}
 
-    @Override
-    public void close() {
-        interactionRepository.close();
-    }
-    
-    public class InteractionGatherer extends Thread {
-        private InteractionRepository interactionRepository = new InteractionRepository();
-        private LinkedBlockingDeque<String> queue;
-        private ConcurrentLinkedQueue<InteractionGeneJoin> allInteractionAnnotations;
-        //private ProcessDisplayHelper ph = new ProcessDisplayHelper();
-        
-        public InteractionGatherer(LinkedBlockingDeque<String> queue, ConcurrentLinkedQueue<InteractionGeneJoin> allInteractionAnnotations) {
-            this.queue = queue;
-            this.allInteractionAnnotations = allInteractionAnnotations;
-        }
+	@Override
+	public void close() {
+		interactionRepository.close();
+	}
+	
+	public class InteractionGatherer extends Thread {
+		private InteractionRepository interactionRepository = new InteractionRepository();
+		private LinkedBlockingDeque<String> queue;
+		private ConcurrentLinkedQueue<InteractionGeneJoin> allInteractionAnnotations;
+		//private ProcessDisplayHelper ph = new ProcessDisplayHelper();
+		
+		public InteractionGatherer(LinkedBlockingDeque<String> queue, ConcurrentLinkedQueue<InteractionGeneJoin> allInteractionAnnotations) {
+			this.queue = queue;
+			this.allInteractionAnnotations = allInteractionAnnotations;
+		}
 
-        public void run() {
-            //ph.startProcess("Starting InteractionGatherer: ");
-            while(!queue.isEmpty()) {
-                try {
-                    String key = queue.takeFirst();
-                    List<InteractionGeneJoin> list = interactionRepository.getInteraction(key);
-                    allInteractionAnnotations.addAll(list);
-                    //ph.progressProcess("InteractionGatherer: ");
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-            interactionRepository.close();
-            //ph.finishProcess();
-        }
-    }
+		public void run() {
+			//ph.startProcess("Starting InteractionGatherer: ");
+			while(!queue.isEmpty()) {
+				try {
+					String key = queue.takeFirst();
+					List<InteractionGeneJoin> list = interactionRepository.getInteraction(key);
+					allInteractionAnnotations.addAll(list);
+					//ph.progressProcess("InteractionGatherer: ");
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+			interactionRepository.close();
+			//ph.finishProcess();
+		}
+	}
 
 }

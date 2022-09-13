@@ -20,88 +20,88 @@ import lombok.extern.log4j.Log4j2;
 @Getter
 public abstract class Cacher extends Thread {
 
-    public Cacher() {};
-    
-    protected abstract void init(); // Called before cache()
-    protected abstract void cache();
-    protected abstract void close(); // Called after cache()
+	public Cacher() {};
+	
+	protected abstract void init(); // Called before cache()
+	protected abstract void cache();
+	protected abstract void close(); // Called after cache()
 
-    protected boolean useCache;
+	protected boolean useCache;
 
-    private ProcessDisplayHelper display = new ProcessDisplayHelper();
+	private ProcessDisplayHelper display = new ProcessDisplayHelper();
 
-    protected CacheService cacheService = new CacheService();
+	protected CacheService cacheService = new CacheService();
 
-    @Override
-    public void run() {
-        try {
-            init();
-            Date start = new Date();
-            log.info(this.getClass().getSimpleName() + " started: " + start);
-            cache();
-            Date end = new Date();
-            log.info(this.getClass().getSimpleName() + " finished: " + ProcessDisplayHelper.getHumanReadableTimeDisplay(end.getTime() - start.getTime()));
-            close();
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.exit(-1);
-        }
-    }
+	@Override
+	public void run() {
+		try {
+			init();
+			Date start = new Date();
+			log.info(this.getClass().getSimpleName() + " started: " + start);
+			cache();
+			Date end = new Date();
+			log.info(this.getClass().getSimpleName() + " finished: " + ProcessDisplayHelper.getHumanReadableTimeDisplay(end.getTime() - start.getTime()));
+			close();
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.exit(-1);
+		}
+	}
 
-    protected void startProcess(String message) {
-        startProcess(message, 0);
-    }
+	protected void startProcess(String message) {
+		startProcess(message, 0);
+	}
 
-    protected void startProcess(String message, int totalSize) {
-        display = new ProcessDisplayHelper();
-        display.startProcess(message, totalSize);
-    }
+	protected void startProcess(String message, int totalSize) {
+		display = new ProcessDisplayHelper();
+		display.startProcess(message, totalSize);
+	}
 
-    protected void progressProcess() {
-        display.progressProcess();
-    }
+	protected void progressProcess() {
+		display.progressProcess();
+	}
 
-    protected void finishProcess() {
-        display.finishProcess();
-    }
+	protected void finishProcess() {
+		display.finishProcess();
+	}
 
-    public void setCacheStatus(CacheStatus status) {
-        cacheService.putCacheEntry(status.getName(), status, View.CacherDetail.class, CacheAlliance.CACHING_STATS);
-    }
+	public void setCacheStatus(CacheStatus status) {
+		cacheService.putCacheEntry(status.getName(), status, View.CacherDetail.class, CacheAlliance.CACHING_STATS);
+	}
 
-    public void setCacheStatus(int size, CacheAlliance cache) {
-        CacheStatus status = new CacheStatus(cache);
-        status.setNumberOfEntities(size);
-        setCacheStatus(status);
-    }
+	public void setCacheStatus(int size, CacheAlliance cache) {
+		CacheStatus status = new CacheStatus(cache);
+		status.setNumberOfEntities(size);
+		setCacheStatus(status);
+	}
 
-    void populateCacheFromMap(Map<String, ?> map, Class view, CacheAlliance cacheAlliance) {
-        log.info(cacheAlliance.name() + " into cache", map.size());
-        for (Map.Entry<String, ? extends Object> entry : map.entrySet()) {
-            cacheService.putCacheEntry(entry.getKey(), entry.getValue(), view, cacheAlliance);
-        }
-    }
+	void populateCacheFromMap(Map<String, ?> map, Class view, CacheAlliance cacheAlliance) {
+		log.info(cacheAlliance.name() + " into cache", map.size());
+		for (Map.Entry<String, ? extends Object> entry : map.entrySet()) {
+			cacheService.putCacheEntry(entry.getKey(), entry.getValue(), view, cacheAlliance);
+		}
+	}
 
-    public void populateStatisticsOnStatus(CacheStatus status, Map<String, Integer> entityStats, Map<String, List<Species>> speciesStatistics) {
-        Map<String, Integer> speciesStats = new HashMap<>();
-        speciesStatistics.forEach((species, speciesList) -> {
-            speciesStats.put(species, speciesList.size());
-        });
+	public void populateStatisticsOnStatus(CacheStatus status, Map<String, Integer> entityStats, Map<String, List<Species>> speciesStatistics) {
+		Map<String, Integer> speciesStats = new HashMap<>();
+		speciesStatistics.forEach((species, speciesList) -> {
+			speciesStats.put(species, speciesList.size());
+		});
 
-        Arrays.stream(SpeciesType.values())
-                .filter(speciesType -> !speciesStats.keySet().contains(speciesType.getName()))
-                .forEach(speciesType -> speciesStats.put(speciesType.getName(), 0));
+		Arrays.stream(SpeciesType.values())
+				.filter(speciesType -> !speciesStats.keySet().contains(speciesType.getName()))
+				.forEach(speciesType -> speciesStats.put(speciesType.getName(), 0));
 
 
-        Map<String, Integer> sortedMap = speciesStats
-                .entrySet()
-                .stream()
-                .sorted(Collections.reverseOrder(comparingByValue()))
-                .collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e2, LinkedHashMap::new));
+		Map<String, Integer> sortedMap = speciesStats
+				.entrySet()
+				.stream()
+				.sorted(Collections.reverseOrder(comparingByValue()))
+				.collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e2, LinkedHashMap::new));
 
-        status.setEntityStats(entityStats);
-        status.setSpeciesStats(sortedMap);
-    }
+		status.setEntityStats(entityStats);
+		status.setSpeciesStats(sortedMap);
+	}
 
 
 }
