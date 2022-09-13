@@ -15,7 +15,7 @@ import lombok.extern.log4j.Log4j2;
 @Log4j2
 public class InteractionCacher extends Cacher {
 
-	private static InteractionRepository interactionRepository = new InteractionRepository();
+	private static InteractionRepository interactionRepository;
 
 	public InteractionCacher() {
 	}
@@ -28,16 +28,16 @@ public class InteractionCacher extends Cacher {
 	@Override
 	protected void cache() {
 
-		startProcess("interactionRepository.getAllInteractions");
-
 		LinkedBlockingDeque<String> queue = new LinkedBlockingDeque<>(interactionRepository.getAllInteractionJoinKeys());
+		
+		startProcess("interactionRepository.getAllInteractions", queue.size());
 		
 		ConcurrentLinkedQueue<InteractionGeneJoin> allInteractionAnnotations = new ConcurrentLinkedQueue<InteractionGeneJoin>();
 		
 		try {
 
-			ExecutorService executor = Executors.newFixedThreadPool(20);
-			for(int i = 0; i < 20; i++) {
+			ExecutorService executor = Executors.newFixedThreadPool(10);
+			for(int i = 0; i < 10; i++) {
 				InteractionGatherer gatherer = new InteractionGatherer(queue, allInteractionAnnotations);
 				executor.execute(gatherer);
 			}
@@ -134,30 +134,27 @@ public class InteractionCacher extends Cacher {
 	}
 	
 	public class InteractionGatherer extends Thread {
-		private InteractionRepository interactionRepository = new InteractionRepository();
 		private LinkedBlockingDeque<String> queue;
 		private ConcurrentLinkedQueue<InteractionGeneJoin> allInteractionAnnotations;
-		//private ProcessDisplayHelper ph = new ProcessDisplayHelper();
-		
+
 		public InteractionGatherer(LinkedBlockingDeque<String> queue, ConcurrentLinkedQueue<InteractionGeneJoin> allInteractionAnnotations) {
 			this.queue = queue;
 			this.allInteractionAnnotations = allInteractionAnnotations;
 		}
 
 		public void run() {
-			//ph.startProcess("Starting InteractionGatherer: ");
+			InteractionRepository interactionRepository = new InteractionRepository();
 			while(!queue.isEmpty()) {
 				try {
 					String key = queue.takeFirst();
 					List<InteractionGeneJoin> list = interactionRepository.getInteraction(key);
 					allInteractionAnnotations.addAll(list);
-					//ph.progressProcess("InteractionGatherer: ");
+					progressProcess();
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
 			}
 			interactionRepository.close();
-			//ph.finishProcess();
 		}
 	}
 

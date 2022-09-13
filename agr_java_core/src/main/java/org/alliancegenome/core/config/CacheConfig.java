@@ -21,7 +21,7 @@ public class CacheConfig {
 				.addServer()
 				.host(ConfigHelper.getCacheHost())
 				.port(ConfigHelper.getCachePort())
-				//.security().authentication().saslMechanism("PLAIN").username("user").password("pass")
+				.security().authentication().saslMechanism("DIGEST-MD5").username("admin").password("admin")
 				.socketTimeout(500000)
 				.connectionTimeout(500000)
 				.statistics()
@@ -43,23 +43,25 @@ public class CacheConfig {
 
 		cb2
 				.memory()
-				.storageType(StorageType.BINARY)
-				.evictionType(EvictionType.MEMORY)
-				.size(cache.getCacheSize()).expiration().lifespan(-1)
+				.storage(StorageType.OFF_HEAP)
+				.maxSize(cache.getCacheSize() + "").expiration().lifespan(-1)
 				.persistence()
 				.passivation(false)
-				.addSingleFileStore().purgeOnStartup(false)
-				.preload(false)
-				.shared(false)
-				.fetchPersistentState(true)
-				.location("/tmp/data/" + cache.getCacheName()).async().enable().threadPoolSize(5);
+				.addSingleFileStore()
+					.purgeOnStartup(false)
+					.preload(false)
+					.shared(false)
+					.fetchPersistentState(true)
+					.location("/opt/infinispan/server/data/" + cache.getCacheName())
+				.async()
+				.enable();
 
 		RemoteCache<String, String> remoteCache = manager.administration().getOrCreateCache(cache.getCacheName(), cb2.build());
 
 		// log.info("Clearing cache if exists"); // This might need to run if the cacher is running
 		// rmc.getCache(cache.getCacheName()).clear(); // But should not be run via the API
 
-		log.debug("Cache: " + cache.getCacheName() + " finished creating");
+		log.info("Cache: " + cache.getCacheName() + " finished creating");
 		return remoteCache;
 		
 	}
